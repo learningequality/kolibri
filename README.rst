@@ -20,3 +20,15 @@ Join the mailing list: dev (at) learningequality (dot) org
 
 The project is just starting, but we want the entire development process, from conception to realization, to be carried
 out in the open. More will be added to this section in the very near future!
+
+Documentation
+-------------
+
+Development documentation is in our `Google Drive <https://drive.google.com/open?id=0B-uSasYw3d7la01HeTlBWl9xdEk>`_,
+which you can view and comment on.
+
+You may wish to start with the following documents:
+
+* `Introduction to Learning Equality Software <https://docs.google.com/a/learningequality.org/document/d/1LJmDRsjUBIDjEZDBhHwBjggtTJLrwQy-2gnKLVrMQy8/edit?usp=drive_web>`_
+* `Our governance model <https://drive.google.com/open?id=1Hebvda2YIMed__MDDVrg1iJav2YHK4zYEXJ59ITmCcE>`_
+* `The Kolibri dev bible <https://drive.google.com/open?id=1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8>`_, which aims to be the authoritative guide to Kolibri.
