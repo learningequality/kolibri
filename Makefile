@@ -29,8 +29,7 @@ clean-docs:
 	$(MAKE) -C docs clean
 
 lint:
-	python3 -m pyflakes kolibri
-	pep8 kolibri test
+	flake8 kolibri
 
 test:
 	python setup.py test

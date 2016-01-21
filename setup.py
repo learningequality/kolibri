@@ -37,7 +37,7 @@ setup(
         'colorlog',
     ],
     setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'tox', 'pep8', 'pyflakes', 'docopt', 'colorlog'],
+    tests_require=['pytest', 'tox', 'flake8'],
     license='MIT',
     zip_safe=False,
     keywords='kolibri',

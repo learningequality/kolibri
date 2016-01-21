@@ -3,5 +3,3 @@
 pytest
 pytest-django
 pytest-cov
-pep8
-pyflakes
