@@ -8,9 +8,6 @@ Skeleton TODO
  - Hooks?
  - Logging in general
  - Logging in tests
- - Test framework and --capture
- - Add codecov-io
- - pytest.ini
  - sketch out kolibri command
  - implement settings pattern
  - python setup.py sdist bdist_wininst upload
