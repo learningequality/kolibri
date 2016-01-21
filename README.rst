@@ -1,10 +1,10 @@
 Kolibri
 =============================
 
-.. image:: https://travis-ci.org/benjaoming/kolibri_skeleton.svg
-    :target: https://travis-ci.org/benjaoming/kolibri_skeleton
-.. image:: http://codecov.io/github/benjaoming/kolibri_skeleton/coverage.svg?branch=master
-   :target: http://codecov.io/github/benjaoming/kolibri_skeleton?branch=master
+.. image:: https://travis-ci.org/learningequality/kolibri.svg
+    :target: https://travis-ci.org/learningequality/kolibri
+.. image:: http://codecov.io/github/learningequality/kolibri/coverage.svg?branch=master
+   :target: http://codecov.io/github/learningequality/kolibri?branch=master
 .. image:: https://readthedocs.org/projects/kolibri/badge/?version=latest
    :target: http://kolibri.readthedocs.org/en/latest/
 
