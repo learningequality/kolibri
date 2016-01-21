@@ -2,8 +2,15 @@
 from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
+
+
 import importlib
-from kolibri.plugins.base import KolibriPluginBase
+import os
+import signal
+import sys
+import kolibri
+
+from docopt import docopt
 
 USAGE = """
 Kolibri
@@ -72,13 +79,6 @@ Auto-generated usage instructions from ``kolibri -h``::
 
 """.format(usage="\n".join(map(lambda x: "    " + x, USAGE.split("\n"))))
 
-import os
-import signal
-import sys
-import kolibri
-
-from docopt import docopt
-
 
 # Set default env
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base")
@@ -86,7 +86,8 @@ os.environ.setdefault("KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".ka
 os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
 
 
-from kolibri.logger import logger
+from kolibri.logger import logger  # NOQA
+from kolibri.plugins.base import KolibriPluginBase  # NOQA
 
 
 def manage(cmd, args=[]):

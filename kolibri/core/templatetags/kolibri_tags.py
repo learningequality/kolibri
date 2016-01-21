@@ -22,10 +22,10 @@ from __future__ import unicode_literals
 
 from django import template
 
-register = template.Library()
-
-
 from kolibri.plugins import hooks
+
+
+register = template.Library()
 
 
 @register.assignment_tag()
