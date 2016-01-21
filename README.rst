@@ -1,10 +1,11 @@
 What is Kolibri?
 ----------------
 
-Kolibri is an adaptable measured learning environment. A user can install Kolibri and serve the app on a local network,
-without an internet connection. Kolibri installations can be linked to one another, so that user data and content can
-be shared. Users can create content for Kolibri and share it when there is network access to another Kolibri
-installation or the internet.
+Kolibri is a Learning Management System / Learning App designed to run on low-power devices, targeting the needs of
+learners and teachers in contexts with limited infrastructure. A user can install Kolibri and serve the app on a local
+network, without an internet connection. Kolibri installations can be linked to one another, so that user data and
+content can be shared. Users can create content for Kolibri and share it when there is network access to another
+Kolibri installation or the internet.
 
 At its core, Kolibri is about serving educational content. A typical user (called a Learner) will log in to Kolibri
 to consume educational content (videos, documents, other multimedia) and test their understanding of the content by
@@ -16,7 +17,7 @@ devices at a school.
 How can I contribute?
 ---------------------
 
-Join the mailing list: dev (at) learningequality (dot) org
+`Join the mailing list! <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_
 
 The project is just starting, but we want the entire development process, from conception to realization, to be carried
 out in the open. More will be added to this section in the very near future!
@@ -29,6 +30,5 @@ which you can view and comment on.
 
 You may wish to start with the following documents:
 
-* `Introduction to Learning Equality Software <https://docs.google.com/a/learningequality.org/document/d/1LJmDRsjUBIDjEZDBhHwBjggtTJLrwQy-2gnKLVrMQy8/edit?usp=drive_web>`_
-* `Our governance model <https://drive.google.com/open?id=1Hebvda2YIMed__MDDVrg1iJav2YHK4zYEXJ59ITmCcE>`_
 * `The Kolibri dev bible <https://drive.google.com/open?id=1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8>`_, which aims to be the authoritative guide to Kolibri.
+* `Our governance model <https://drive.google.com/open?id=1Hebvda2YIMed__MDDVrg1iJav2YHK4zYEXJ59ITmCcE>`_
