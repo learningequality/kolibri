@@ -1,0 +1,5 @@
+-r base.txt
+
+# These are for building the docs
+sphinx
+sphinx_rtd_theme

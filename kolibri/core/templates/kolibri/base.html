@@ -1,0 +1,25 @@
+{% load i18n kolibri_tags %}<html>
+<head>
+  <title>{% block title %}{% endblock %} - {% trans "Kolibri" %}</title>
+</head>
+<body>
+
+{% block main_menu %}
+<ul role="nav">
+  {% kolibri_main_navigation as nav %}
+  
+  {% for item in nav %}
+  <li><a href="{{ item.menu_url }}">{{ item.menu_name }}</a></li>
+  {% endfor %}
+  
+</ul>
+{% endblock %}
+
+<hr>
+
+{% block content %}
+
+{% endblock %}
+
+</body>
+</html>
