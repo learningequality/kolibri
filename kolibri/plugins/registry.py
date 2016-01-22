@@ -19,9 +19,7 @@ A few notes:
 * Callbacks *should* be called in the same order every time, but this is not a promise!
 
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function, unicode_literals
 
 import importlib
 

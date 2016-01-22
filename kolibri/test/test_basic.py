@@ -2,6 +2,7 @@
 Tests for `kolibri` module.
 """
 import logging
+
 # import pytest
 # import kolibri
 

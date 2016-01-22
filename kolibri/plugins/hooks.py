@@ -21,9 +21,7 @@ with hooks you wish to use. The keys are pre-defined constants in this module or
                 NAVIGATION_POPULATE: self.my_navigation
             }
 """
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 __hook_index = -1
 
