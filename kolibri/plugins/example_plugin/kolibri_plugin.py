@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Kolibri example plugin
-======================
-
 Copy and modify this code for your own plugin.
-
 """
 from __future__ import absolute_import
 from __future__ import print_function
@@ -54,6 +50,8 @@ class NavMenuPlugin(KolibriPluginBase):
         """
         A callback registered in the ``hooks`` property of this class. It's defined as a method instead of a
         module-level function in order to allow other plugins to inherit this class and change the behavior.
+
+        :return: A list of nav menu items used in the NAVIGATION_POPULATE hook.
         """
         return [{
             'menu_name': _("Google"),
@@ -84,6 +82,11 @@ class ExtendedPlugin(NavMenuPlugin):
         pass
 
     def main_navigation(self):
+        """
+        This method is overrided to return additional menu items using the core NAVIGATION_POPULATE hook.
+
+        :return: A list of nav menu items used in the NAVIGATION_POPULATE hook.
+        """
         return [
             {
                 'menu_name': _('Disney'),
