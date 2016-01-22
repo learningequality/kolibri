@@ -9,6 +9,7 @@ Contents:
    :maxdepth: 1
 
    installation
+   dev/plugins
    usage
    contributing
    authors
