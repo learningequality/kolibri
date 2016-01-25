@@ -43,6 +43,10 @@ import kolibri
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
 
+linkcheck_ignore = [
+    'https://groups.google.com/a/learningequality.org/forum/#!forum/dev',
+]
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
