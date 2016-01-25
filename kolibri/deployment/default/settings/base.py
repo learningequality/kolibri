@@ -15,7 +15,6 @@ import os
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf
 
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 

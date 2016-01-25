@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 
 import importlib
+import logging
 import os
 import signal
 import sys
@@ -83,10 +84,6 @@ os.environ.setdefault("KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".ka
 os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
 
 
-from kolibri.plugins.base import KolibriPluginBase  # NOQA
-
-import logging
-
 logger = logging.getLogger(__name__)
 
 
@@ -112,6 +109,8 @@ def plugin(plugin_name, args):
     """
     from kolibri.utils import conf
     plugin_classes = []
+
+    from kolibri.plugins.base import KolibriPluginBase  # NOQA
 
     # Try to load kolibri_plugin from given plugin module identifier
     try:
