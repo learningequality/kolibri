@@ -4,18 +4,13 @@ language: python
 
 sudo: false
 
-python:
-  - "3.4"
-  - "3.5"
-  - "2.7"
-# pypy testing currently breaks because of the tempfile dir used for KALITE_HOME
-#  - "pypy"
-
 matrix:
   include:
     - python: "2.7"
       env: TOX_ENV=py2.7
+    - python: "2.7"
       env: TOX_ENV=docs
+    - python: "2.7"
       env: TOX_ENV=bdd
     - python: "3.4"
       env: TOX_ENV=py3.4
