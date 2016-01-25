@@ -8,9 +8,10 @@ import shutil
 import tempfile
 import unittest
 
-from kolibri.logger import test_logger
 
-logger = test_logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 from kolibri.utils.cli import main

@@ -21,13 +21,14 @@ A few notes:
 from __future__ import absolute_import, print_function, unicode_literals
 
 import importlib
+import logging
 
 from django.conf import settings
 
-from kolibri.logger import logger
-
 from . import hooks
 from .base import KolibriPluginBase
+
+logger = logging.getLogger(__name__)
 
 registry = {}
 

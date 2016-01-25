@@ -5,9 +5,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from test.test_cli import KolibriTestBase
 
-from kolibri.logger import test_logger
+import logging
 
-logger = test_logger
+logger = logging.getLogger(__name__)
 
 
 class BDDTestCase(KolibriTestBase):

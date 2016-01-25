@@ -1,12 +1,13 @@
 """
 Tests for `kolibri` module.
 """
-import logging
 
 # import pytest
 # import kolibri
 
-logger = logging.getLogger('kolibri_tests')
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class TestKolibri_prototype(object):

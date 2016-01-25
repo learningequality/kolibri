@@ -83,8 +83,11 @@ os.environ.setdefault("KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".ka
 os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
 
 
-from kolibri.logger import logger  # NOQA
 from kolibri.plugins.base import KolibriPluginBase  # NOQA
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def manage(cmd, args=[]):
