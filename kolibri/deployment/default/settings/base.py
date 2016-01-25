@@ -17,6 +17,7 @@ from kolibri.utils import conf
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -118,6 +119,9 @@ LOGGING = {
         'simple': {
             'format': '%(levelname)s %(message)s'
         },
+        'simple_date': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
+        },
         'color': {
             '()': 'colorlog.ColoredFormatter',
             'format': '%(log_color)s%(levelname)-8s %(message)s',
@@ -149,20 +153,34 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
             'filters': ['require_debug_false'],
-        }
+        },
+        'file_debug': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(KOLIBRI_HOME, 'debug.log'),
+            'formatter': 'simple_date',
+        },
+        'file': {
+            'level': 'INFO',
+            'filters': [],
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(KOLIBRI_HOME, 'kolibri.log'),
+            'formatter': 'simple_date',
+        },
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['mail_admins', 'file'],
             'level': 'ERROR',
             'propagate': False,
         },
         'kolibri': {
-            'handlers': ['console', 'mail_admins'],
+            'handlers': ['console', 'mail_admins', 'file', 'file_debug'],
             'level': 'INFO',
         }
     }
