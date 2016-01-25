@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Reading and writing of kolibri configuration.
 
 TODO: We need to figure out our conf API. Do we store in ini/json/yaml?
@@ -8,8 +7,6 @@ TODO: We need to figure out our conf API. Do we store in ini/json/yaml?
 
 This module should be easier to document, for instance by having VARIABLES
 instead of a dict.
-
-.. moduleauthor:: Learning Equality <info@learningequality.org>
 
 """
 from __future__ import absolute_import, print_function, unicode_literals

@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
 """The base of a Kolibri plugin is the inheritence from
 :class:`.KolibriPluginBase`.
-
-.. moduleauthor:: Learning Equality <info@learningequality.org>
-
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
