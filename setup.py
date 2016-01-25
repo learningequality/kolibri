@@ -32,6 +32,7 @@ setup(
     package_dir={'kolibri': 'kolibri'},
     include_package_data=True,
     install_requires=[
+        'django==1.9.1',
         'docopt',
         'colorlog',
     ],
