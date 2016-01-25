@@ -3,3 +3,5 @@
 pytest
 pytest-django
 pytest-cov
+coverage
+django_coverage_plugin
