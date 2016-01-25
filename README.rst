@@ -90,7 +90,7 @@ Software architecture
 * Using tox to build py 2.7, 3.4, 3.5 and pypy
 * Automatic linting test (pep8)
 * Static code analysis check (pyflakes)
-* Circle CI
+* Travis CI (intention to replace with Circle)
 * Integration tests are separate from application code in ``test/``
 * Unit tests live in ``kolibri/test`` and ``kolibri/plugins/core/plugin_name/tests``
 * An example plugin is provided in ``kolibri/plugins/core/example``
