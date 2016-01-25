@@ -7,6 +7,8 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = 'kolibri'
+
 urlpatterns = [
     url('^', views.IndexView.as_view(), name='index'),
     # url('.* ', views.TODOView.as_view())
