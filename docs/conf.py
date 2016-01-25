@@ -13,7 +13,6 @@
 
 import sys
 import os
-import tempfile
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -24,11 +23,16 @@ cwd = os.getcwd()
 parent = os.path.dirname(cwd)
 sys.path.insert(0, parent)
 
-import kolibri
+builddir = os.path.join(cwd, '_build')
 
 # When we start loading stuff from kolibri, we're gonna need this
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base")
-os.environ["KOLIBRI_HOME"] = tempfile.mkdtemp()
+os.environ["KOLIBRI_HOME"] = os.path.join(builddir, 'kolibri_home')
+
+if not os.path.exists(os.environ["KOLIBRI_HOME"]):
+    os.mkdir(os.environ["KOLIBRI_HOME"])
+
+import kolibri
 
 # -- General configuration -----------------------------------------------------
 
