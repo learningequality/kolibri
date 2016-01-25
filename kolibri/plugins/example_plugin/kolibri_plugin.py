@@ -4,10 +4,15 @@ Copy and modify this code for your own plugin.
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
+import logging
+
 from django.utils.translation import ugettext as _
 
 from kolibri.plugins.base import KolibriPluginBase
 from kolibri.plugins.hooks import NAVIGATION_POPULATE
+
+
+logger = logging.getLogger(__name__)
 
 
 class NavMenuPlugin(KolibriPluginBase):
@@ -17,7 +22,7 @@ class NavMenuPlugin(KolibriPluginBase):
     """
 
     @classmethod
-    def enable(cls, config):
+    def enable(cls):
         """
         A plugin must implement this abstract method. It's called by the command ``kolibri plugin <NAME> enable`` to
         modify the kolibri settings file.
@@ -25,12 +30,11 @@ class NavMenuPlugin(KolibriPluginBase):
         :param config: A dictionary of settings, like the one at ``django.conf.settings``.
         :return: Nothing, though it may modify the mutable config parameter
         """
-        print("Activating example plugin")
-        # Make this automatic and use __name__ ?
-        config["INSTALLED_APPS"].append("kolibri.plugins.example_plugin")
+        super(NavMenuPlugin, cls).enable()
+        logger.info("Enabled example plugin")
 
     @classmethod
-    def disable(cls, config):
+    def disable(cls):
         """
         A plugin must implement this abstract method. It's called by the command ``kolibri plugin <NAME> disable`` to
         modify the kolibri settings file.
@@ -38,9 +42,8 @@ class NavMenuPlugin(KolibriPluginBase):
         :param config: A dictionary of settings, like the one at ``django.conf.settings``.
         :return: Nothing, though it may modify the mutable config parameter
         """
-        print("Deactivating example plugin")
-        # Make this automatic and use __name__ ?
-        config["INSTALLED_APPS"].remove("kolibri.plugins.example_plugin")
+        super(NavMenuPlugin, cls).disable()
+        logger.info("Disable example plugin")
 
     @staticmethod
     def main_navigation():
@@ -71,11 +74,13 @@ class ExtendedPlugin(NavMenuPlugin):
     Demonstrates plugin inheritance. Notice that the ``hooks`` attribute need not be changed -- only the callback.
     """
     @classmethod
-    def enable(cls, config):
+    def enable(cls):
+        # Do nothing because the parent will initialize the plugin as we want
         pass
 
     @classmethod
-    def disable(cls, config):
+    def disable(cls):
+        # Do nothing because the parent will initialize the plugin as we want
         pass
 
     def main_navigation(self):

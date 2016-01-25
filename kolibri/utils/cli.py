@@ -9,6 +9,7 @@ import sys
 import kolibri
 
 from docopt import docopt
+from logging import config as logging_config
 
 USAGE = """
 Kolibri
@@ -80,11 +81,18 @@ Auto-generated usage instructions from ``kolibri -h``::
 
 # Set default env
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base")
-os.environ.setdefault("KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kalite"))
+os.environ.setdefault("KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri"))
 os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
 
 
 logger = logging.getLogger(__name__)
+
+
+def setup_logging():
+    """Configures logging in cases where a Django environment is not supposed
+    to be configured"""
+    from kolibri.deployment.default.settings.base import LOGGING
+    logging_config.dictConfig(LOGGING)
 
 
 def manage(cmd, args=[]):
@@ -107,6 +115,7 @@ def plugin(plugin_name, args):
     Receives a plugin identifier and tries to load its main class. Calls class
     functions.
     """
+    setup_logging()
     from kolibri.utils import conf
     plugin_classes = []
 
@@ -123,11 +132,11 @@ def plugin(plugin_name, args):
 
     if args['enable']:
         for klass in plugin_classes:
-            klass.enable(conf.config)
+            klass.enable()
 
     if args['disable']:
         for klass in plugin_classes:
-            klass.disable(conf.config)
+            klass.disable()
 
     conf.save()
 
