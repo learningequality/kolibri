@@ -10,10 +10,10 @@ from kolibri.utils.conf import config
 logger = logging.getLogger(__name__)
 
 
-class MandatoryPluginMethodNotImplemented(Exception):
+class MandatoryPluginMethodNotImplemented(NotImplementedError):
 
     def __init__(self):
-        NotImplemented.__init__(self, "Plugin needs to define this method")
+        super(MandatoryPluginMethodNotImplemented, self).__init__("Plugin needs to define this method")
 
 
 class KolibriPluginBase(object):
