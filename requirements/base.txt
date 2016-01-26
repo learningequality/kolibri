@@ -1,0 +1,5 @@
+# Kolibri runtime requirements
+wheel>=0.22
+docopt
+colorlog==2.6.0
+django==1.9.1

@@ -1,0 +1,6 @@
+-r base.txt
+# These are for testing
+pytest
+pytest-django
+pytest-cov
+coverage
