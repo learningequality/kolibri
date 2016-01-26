@@ -26,6 +26,7 @@ class KolibriCore(KolibriPluginBase):
     The most minimal plugin possible. Because it's in the core, it doesn't define ``enable`` or ``disable``. Those
     methods should never be called for this plugin.
     """
-    hooks = {
-        NAVIGATION_POPULATE: main_navigation
-    }
+    def hooks(self):
+        return {
+            NAVIGATION_POPULATE: main_navigation
+        }

@@ -27,7 +27,6 @@ class NavMenuPlugin(KolibriPluginBase):
         A plugin must implement this abstract method. It's called by the command ``kolibri plugin <NAME> enable`` to
         modify the kolibri settings file.
 
-        :param config: A dictionary of settings, like the one at ``django.conf.settings``.
         :return: Nothing, though it may modify the mutable config parameter
         """
         super(NavMenuPlugin, cls).enable()
@@ -39,7 +38,6 @@ class NavMenuPlugin(KolibriPluginBase):
         A plugin must implement this abstract method. It's called by the command ``kolibri plugin <NAME> disable`` to
         modify the kolibri settings file.
 
-        :param config: A dictionary of settings, like the one at ``django.conf.settings``.
         :return: Nothing, though it may modify the mutable config parameter
         """
         super(NavMenuPlugin, cls).disable()
@@ -58,11 +56,12 @@ class NavMenuPlugin(KolibriPluginBase):
             'menu_url': 'http://google.com',
         }]
 
-    @property
     def hooks(self):
         """
-        Normally ``hooks`` should be an attribute -- here we use the ``property`` decorator to simulate that.
-        This allows the callback to be changed by subclasses without changing the ``hooks`` attribute.
+        This method must return a dictionary, where the keys are pre-defined hooks and the values are callback
+        functions.
+
+        :return: A dictionary of hook-callback pairs.
         """
         return {
             NAVIGATION_POPULATE: self.main_navigation

@@ -47,7 +47,7 @@ class KolibriPluginBase(object):
         extendible, consider only having hooks that call methods of your plugin
         class
         """
-        return {}
+        raise MandatoryPluginMethodNotImplemented()
 
     @classmethod
     def _installed_apps_add(cls):
