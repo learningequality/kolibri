@@ -34,6 +34,7 @@ registry = {}
 
 __initialized = False
 
+
 def initialize():
     """
     Called once to register hook callbacks.
@@ -53,7 +54,7 @@ def initialize():
                         plugin_classes.append(obj)
                 for plugin_klass in plugin_classes:
                     plugin_obj = plugin_klass()
-                    for hook, callback in plugin_obj.hooks.items():
+                    for hook, callback in plugin_obj.hooks().items():
                         hooks.register_hook(hook, callback)
             except ImportError:
                 pass
