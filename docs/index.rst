@@ -21,7 +21,7 @@ For Developers
 
    installation
    dev/plugins
-   usage
+   cli
    contributing
    authors
    changelog
