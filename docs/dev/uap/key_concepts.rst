@@ -1,7 +1,7 @@
 Key Concepts
 ============
 
-This document is based on `preliminary discussions in our Google docs <https://docs.google.com/document/d/14H3Rc922-IYy6DIEV76_3hXCQPwl6OmKecJkAheTkI4/edit#heading=h.tthq28g2awwq>`_.
+This document is based on `preliminary discussions in our Google docs <https://docs.google.com/document/d/14H3Rc922-IYy6DIEV76_3hXCQPwl6OmKecJkAheTkI4/edit>`_.
 It describes the key concepts found in the core auth module, and how they touch on other key concepts from other
 modules.
 
