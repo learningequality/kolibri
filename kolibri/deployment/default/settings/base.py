@@ -188,4 +188,3 @@ LOGGING = {
 }
 
 AUTH_USER_MODEL = 'kolibriauth.BaseUser'
-
