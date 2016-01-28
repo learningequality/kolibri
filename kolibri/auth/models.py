@@ -58,6 +58,7 @@ class BaseUser(AbstractBaseUser):
     REQUIRED_FIELDS = []
 
     def is_device_owner(self):
+        """ Abstract method. Used in authentication backends. """
         raise NotImplementedError()
 
     def get_full_name(self):
@@ -76,6 +77,7 @@ class FacilityUser(BaseUser):
         proxy = True
 
     def is_device_owner(self):
+        """ For FacilityUsers, always False. Used in determining permissions. """
         return False
 
 
@@ -93,4 +95,5 @@ class DeviceOwner(BaseUser):
         proxy = True
 
     def is_device_owner(self):
+        """ For DeviceOwners, always True. Used in determining permissions. """
         return True
