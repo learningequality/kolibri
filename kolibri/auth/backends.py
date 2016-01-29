@@ -4,7 +4,7 @@ default Django backend, but authorization (i.e. permissions checking) must be ha
 do not use the regular Django permissions. See handling authorization docs. Should then be listed in the
 AUTHENTICATION_BACKENDS. Note that authentication backends are checked in the order they're listed.
 """
-from models import BaseUser, DeviceOwner, FacilityUser
+from kolibri.auth.models import BaseUser, DeviceOwner, FacilityUser
 
 
 class BaseBackend(object):
