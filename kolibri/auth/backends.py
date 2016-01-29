@@ -57,6 +57,41 @@ class FacilityBackend(BaseBackend):
         except FacilityUser.DoesNotExist:
             return None
 
+    def has_perm(self, user_obj, perm, obj=None):
+        """
+        Returns True if the user has the specified permission. This function will defer to any number of other
+        functions based on the value of perm. Always False if user_obj is a DeviceOwner.
+
+        :param user_obj: One of the user proxy model instances
+        :param perm: a string, the name of the permission
+        :param obj: For row-level permissions, the object in question
+        :return: True or False.
+        """
+        raise NotImplementedError()
+
+    def has_module_perms(self, user_obj, package_name):
+        """
+        Returns True if the user has any permissions in the given package (the Django app label).
+        Always False if user_obj is a DeviceOwner.
+
+        :param user_obj: One of the user proxy model instances
+        :param package_name: A string, a django app label
+        :return: True or False
+        """
+        raise NotImplementedError()
+
+    def get_all_permissions(self, user_obj, obj=None):
+        """
+        Returns a list of all permissions strings the user has. If obj is specified, then returns all row-level
+        permissions the user has related to that object.
+        Always empty if user_obj is a DeviceOwner.
+
+        :param user_obj: One of the user proxy model instances
+        :param obj: For row-level permissions, the object in question
+        :return: A list of permission strings. Could be empty if no permissions are found.
+        """
+        raise NotImplementedError()
+
 
 class DeviceBackend(BaseBackend):
     """
@@ -88,3 +123,24 @@ class DeviceBackend(BaseBackend):
             return user if user._is_device_owner else None
         except DeviceOwner.DoesNotExist:
             return None
+
+    def _has_perm(self, user_obj):
+        return user_obj.is_device_owner()
+
+    def has_perm(self, user_obj, perm, obj=None):
+        return self._has_perm(user_obj)
+
+    def has_module_perms(self, user_obj, package_name):
+        return self._has_perm(user_obj)
+
+    def get_all_permissions(self, user_obj, obj=None):
+        """
+        Returns a list of all permissions strings the user has. If obj is specified, then returns all row-level
+        permissions the user has related to that object.
+        Always empty if user_obj is a FacilityUser.
+
+        :param user_obj: One of the user proxy model instances.
+        :param obj: For row-level permissions, the object in question.
+        :return: A list of permission strings. Empty if the user is a FacilityUser.
+        """
+        raise NotImplementedError()
