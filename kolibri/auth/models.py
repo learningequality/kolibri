@@ -9,7 +9,7 @@ Roles belong to collections, and represent permissions. Users have one or more R
 of Collection) have an associated Coach Role -- that Coach has permission to view related User data for Users in the
 Class.
 """
-from __future__ import unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 from django.contrib.auth.models import AbstractBaseUser
 from django.core import validators
