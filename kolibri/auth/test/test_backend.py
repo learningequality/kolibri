@@ -21,3 +21,9 @@ class DeviceBackendTestCase(TestCase):
 
     def test_device_owner_authenticated(self):
         self.assertEqual(self.do, DeviceBackend().authenticate(username="Chuck", password="foobar"))
+
+    def test_get_facility_user(self):
+        self.assertIsNone(DeviceBackend().get_user(self.user.id))
+
+    def test_get_device_owner(self):
+        self.assertEqual(self.do, DeviceBackend().get_user(self.do.id))
