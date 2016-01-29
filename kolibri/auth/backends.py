@@ -4,7 +4,7 @@ default Django backend, but authorization (i.e. permissions checking) must be ha
 do not use the regular Django permissions. See handling authorization docs. Should then be listed in the
 AUTHENTICATION_BACKENDS. Note that authentication backends are checked in the order they're listed.
 """
-from models import BaseUser, DeviceOwner
+from models import BaseUser, DeviceOwner, FacilityUser
 
 
 class BaseBackend(object):
@@ -23,6 +23,38 @@ class BaseBackend(object):
             if user.check_password(password):
                 return user
         except BaseUser.DoesNotExist:
+            return None
+
+
+class FacilityBackend(BaseBackend):
+    """
+    A class that implements permissions checking for Facility Users. Always returns False if the user is a DeviceAdmin,
+    in order to avoid unnecessary database queries.
+    """
+
+    def authenticate(self, username=None, password=None):
+        """
+        Authenticates the user if the credentials correspond to a Facility User
+
+        :param username: a string
+        :param password: a string
+        :return: A FacilityUser instance if successful, or None if authentication failed *or* the authentication was
+          successful but the user is a DeviceOwner.
+        """
+        user = self._authenticate(username, password)
+        return FacilityUser.objects.get(pk=user.pk) if not user._is_device_owner else None
+
+    def get_user(self, user_id):
+        """
+        Gets a user. Auth backends are required to implement this.
+
+        :param user_id: A BaseUser pk
+        :return: A FacilityUser instance if a BaseUser with that pk is found, else None.
+        """
+        try:
+            user = FacilityUser.objects.get(pk=user_id)
+            return user if not user._is_device_owner else None
+        except FacilityUser.DoesNotExist:
             return None
 
 
