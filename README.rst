@@ -58,6 +58,9 @@ Adjust according to your operating system or personal preferences.
 
     $ kolibri manage runserver
 
+# Install pre-commit hooks to ensure you commit good code::
+    $ pre-commit install
+
 
 Testing
 -------
