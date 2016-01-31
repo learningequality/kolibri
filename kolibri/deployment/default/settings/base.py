@@ -15,7 +15,7 @@ import os
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 
 KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
 
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'webpack_loader',
 ] + conf.config['INSTALLED_APPS']
 
 MIDDLEWARE_CLASSES = (
@@ -105,9 +106,19 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = (
-    os.path.join(conf.KOLIBRI_HOME, 'public'),
-)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'public'),
+]
+
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'bundles/',  # must end with slash
+        'STATS_FILE': 'webpack-stats.json',
+        'POLL_INTERVAL': 0.1,
+        'IGNORE': ['.+\.hot-update.js', '.+\.map']
+    }
+}
 
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING

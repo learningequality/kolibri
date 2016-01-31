@@ -1,17 +1,20 @@
-{% load i18n kolibri_tags %}<html>
+{% load i18n kolibri_tags %}
+{% load render_bundle from webpack_loader %}
+<html>
 <head>
   <title>{% block title %}{% endblock %} - {% trans "Kolibri" %}</title>
+  {% render_bundle 'kolibri_core' %}
 </head>
 <body>
 
 {% block main_menu %}
 <ul role="nav">
   {% kolibri_main_navigation as nav %}
-  
+
   {% for item in nav %}
   <li><a href="{{ item.menu_url }}">{{ item.menu_name }}</a></li>
   {% endfor %}
-  
+
 </ul>
 {% endblock %}
 
