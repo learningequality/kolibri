@@ -47,3 +47,10 @@ docs/_build
 # api-docs
 docs/kolibri*rst
 docs/modules.rst
+
+# node modules
+node_modules
+
+# webpack built files
+webpack-stats.json
+public
