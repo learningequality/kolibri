@@ -7,6 +7,7 @@ from uuid import UUID
 import os
 from bulk_update.helper import bulk_update
 from django.core.files import File as DjFile
+from functools import wraps
 
 """helper funcitons"""
 
@@ -45,6 +46,7 @@ def can_get_content_with_id(func):
     decorator function for returning ContentMetadata object when giving content id
     it can take keyword argument/s "content" or "content1" and "content2"
     """
+    @wraps(func)
     def wrapper(channel_id=None, **kwargs):
         content = kwargs.get('content')
         content1 = kwargs.get('content1')
