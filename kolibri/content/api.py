@@ -205,18 +205,13 @@ def get_available_channels():
 def get_channel(channel_identifier):
     return process_channel_identifier(channel_identifier)
 
-def get_channel_name(channel_identifier):
-    return process_channel_identifier(channel_identifier).name
-
-def get_channel_id(channel_identifier):
-    the_channel_id = process_channel_identifier(channel_identifier).channel_id
-    return str(the_channel_id)
-
-def get_channel_author(channel_identifier):
-    return process_channel_identifier(channel_identifier).author
-
-def get_channel_description(channel_identifier):
-    return process_channel_identifier(channel_identifier).description
-
-def get_channel_theme(channel_identifier):
-    return process_channel_identifier(channel_identifier).theme
+def get_channel_property(channel_identifier, property_name):
+    if isinstance(property_name, str):
+        try:
+            if property_name == 'channel_id':
+                return str(getattr(process_channel_identifier(channel_identifier), property_name))
+            return getattr(process_channel_identifier(channel_identifier), property_name)
+        except AttributeError:
+            raise KeyError(property_name + " is not a valid property!")
+    else:
+        raise ValueError('please provide a property name in string')

@@ -153,35 +153,34 @@ class ContentMetadataTestCase(TestCase):
         self.assertEqual(expected_output, get_by_name)
         self.assertEqual(expected_output, get_by_id)
 
-    def test_get_channel_name(self):
+    def test_get_channel_property(self):
+        """test for channel name"""
         expected_output = 'khan'
         ch_id = str(content.ChannelMetadata.objects.get(name='khan').channel_id)
-        actual_output = api.get_channel_name(ch_id)
+        actual_output = api.get_channel_property(ch_id, 'name')
         self.assertEqual(expected_output, actual_output)
-
-    def test_get_channel_id(self):
+        """test for channel id"""
         expected_output = str(content.ChannelMetadata.objects.get(name='ucsd').channel_id)
-        actual_output = api.get_channel_id('ucsd')
+        actual_output = api.get_channel_property('ucsd', 'channel_id')
         self.assertEqual(expected_output, actual_output)
-
-    def test_get_channel_author(self):
+        """test for channel author"""
         expected_output = 'eli'
-        actual_output_by_name = api.get_channel_author('ucsd')
+        actual_output_by_name = api.get_channel_property('ucsd', 'author')
         self.assertEqual(expected_output, actual_output_by_name)
-        actual_output_by_id = api.get_channel_author(api.get_channel_id('ucsd'))
+        actual_output_by_id = api.get_channel_property(api.get_channel_property('ucsd', 'channel_id'), 'author')
         self.assertEqual(expected_output, actual_output_by_id)
-
-    def test_get_channel_description(self):
+        """test for channel description"""
         expected_output = 'dummy khan'
-        actual_output_by_name = api.get_channel_description('khan')
+        actual_output_by_name = api.get_channel_property('khan', 'description')
         self.assertEqual(expected_output, actual_output_by_name)
-        actual_output_by_id = api.get_channel_description(api.get_channel_id('khan'))
+        actual_output_by_id = api.get_channel_property(api.get_channel_property('khan', 'channel_id'), 'description')
         self.assertEqual(expected_output, actual_output_by_id)
-
-    def test_get_channel_theme(self):
+        """test for channel theme"""
         expected_output = "i'm a json blob"
-        actual_output = api.get_channel_theme('khan')
+        actual_output = api.get_channel_property('khan', 'theme')
         self.assertEqual(expected_output, actual_output)
+        """test for channel subscription"""
+        self.assertTrue(api.get_channel_property('khan', 'subscribed'))
 
     """clean up"""
     @classmethod
