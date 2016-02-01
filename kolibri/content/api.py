@@ -2,7 +2,7 @@
 This module acts as the only interface point between other apps and the database backend for the content.
 It exposes several convenience functions for accessing content
 """
-from kolibri.content import models as content
+from kolibri.content import models as KolibriContent
 from uuid import UUID
 import os
 from bulk_update.helper import bulk_update
@@ -50,13 +50,13 @@ def can_get_content_with_id(func):
         content1 = kwargs.get('content1')
         content2 = kwargs.get('content2')
 
-        if isinstance(content, ContentMetadata) or (isinstance(content1, ContentMetadata) and isinstance(content2, ContentMetadata)):
+        if isinstance(content, KolibriContent.ContentMetadata) or (isinstance(content1, KolibriContent.ContentMetadata) and isinstance(content2, KolibriContent.ContentMetadata)):
             pass
         elif is_valid_uuid(content):
-            kwargs['content'] = content.ContentMetadata.objects.using(channel).get(content_id=content)
+            kwargs['content'] = KolibriContent.ContentMetadata.objects.using(channel).get(content_id=content)
         elif is_valid_uuid(content1) and is_valid_uuid(content2):
-            kwargs['content1'] = content.ContentMetadata.objects.using(channel).get(content_id=content1)
-            kwargs['content2'] = content.ContentMetadata.objects.using(channel).get(content_id=content2)
+            kwargs['content1'] = KolibriContent.ContentMetadata.objects.using(channel).get(content_id=content1)
+            kwargs['content2'] = KolibriContent.ContentMetadata.objects.using(channel).get(content_id=content2)
         else:
             raise TypeError( "must provide a ContentMetadata object or a UUID content_id")
         return func(channel_id=channel_id, **kwargs)
@@ -65,9 +65,9 @@ def can_get_content_with_id(func):
 def get_content_with_id(content_id, channel_id=None):
     """Return arbitrary sets of Content Metadata objects based on content id(s)"""
     if isinstance(content_id, list):
-        return content.ContentMetadata.objects.using(channel_id).filter(content_id__in=content_id)
+        return KolibriContent.ContentMetadata.objects.using(channel_id).filter(content_id__in=content_id)
     else:
-        return content.ContentMetadata.objects.using(channel_id).filter(content_id=content_id)
+        return KolibriContent.ContentMetadata.objects.using(channel_id).filter(content_id=content_id)
 
 @can_get_content_with_id
 def get_ancestor_topics(channel_id=None, content=None, **kwargs):
@@ -90,21 +90,21 @@ def get_all_formats(channel_id=None, content=None, **kwargs):
     """The content can be a ContentMetadatas object or a content_id string."""
     """return all possible formats for a particular content including its descendants' formats"""
     all_end_nodes = leaves(channel_id=channel_id, content=content)
-    return content.Format.objects.using(channel_id).filter(contentmetadata__in=all_end_nodes)
+    return KolibriContent.Format.objects.using(channel_id).filter(contentmetadata__in=all_end_nodes)
 
 @can_get_content_with_id
 def get_available_formats(channel_id=None, content=None, **kwargs):
     """The content can be a ContentMetadatas object or a content_id string."""
     """return all available formats for a particular content excluding its descendants' formats
     if the pass-in content is a topic, this function will return null"""
-    return content.Format.objects.using(channel_id).filter(contentmetadata=content, available=True)
+    return KolibriContent.Format.objects.using(channel_id).filter(contentmetadata=content, available=True)
 
 @can_get_content_with_id
 def get_possible_formats(channel_id=None, content=None, **kwargs):
     """The content can be a ContentMetadatas object or a content_id string."""
     """return all possible formats for a particular content excluding its descendants' formats
     if the pass-in content is a topic, this function will return null"""
-    return content.Format.objects.using(channel_id).filter(contentmetadata=content)
+    return KolibriContent.Format.objects.using(channel_id).filter(contentmetadata=content)
 
 @can_get_content_with_id
 def get_files_for_quality(channel_id=None, content=None, format_quality=None, **kwargs):
@@ -114,36 +114,36 @@ def get_files_for_quality(channel_id=None, content=None, format_quality=None, **
     For the second argument, You can pass in either a ContentMetadata object with keyword 'content' or a uuid4 with keyword "content_id"
     topic content will return null."""
     the_formats = get_possible_formats(channel_id=channel_id, content=content).filter(quality=format_quality)
-    return content.File.objects.using(channel_id).filter(format__in=the_formats)
+    return KolibriContent.File.objects.using(channel_id).filter(format__in=the_formats)
 
 @can_get_content_with_id
 def get_missing_files(channel_id=None, content=None, **kwargs):
     """The content can be a ContentMetadatas object or a content_id string."""
     """return all missing files under the content"""
     all_end_nodes = leaves(channel_id=channel_id, content=content)
-    return content.File.objects.using(channel_id).filter(available = False, format__contentmetadata__in=all_end_nodes)
+    return KolibriContent.File.objects.using(channel_id).filter(available = False, format__contentmetadata__in=all_end_nodes)
 
 @can_get_content_with_id
 def get_all_prerequisites(channel_id=None, content=None, **kwargs):
     """The content can be a ContentMetadatas object or a content_id string."""
     """return cotents that are the prerequisites of this content"""
-    return content.ContentMetadata.objects.using(channel_id).filter(prerequisite=content)
+    return KolibriContent.ContentMetadata.objects.using(channel_id).filter(prerequisite=content)
 
 @can_get_content_with_id
 def get_all_related(channel_id=None, content=None, **kwargs):
     """The content can be a ContentMetadatas object or a content_id string."""
     """return cotents that are the related to this content"""
-    return content.ContentMetadata.objects.using(channel_id).filter(relate_to=content)
+    return KolibriContent.ContentMetadata.objects.using(channel_id).filter(relate_to=content)
 
 @can_get_content_with_id
 def set_prerequisite(channel_id=None, content1=None, content2=None, **kwargs):
     """set prerequisite relationship between content1 and content2"""
-    content.PrerequisiteContentRelationship.objects.using(channel_id).create(relationship_type='prerequisite', contentmetadata_1=content1, contentmetadata_2=content2)
+    KolibriContent.PrerequisiteContentRelationship.objects.using(channel_id).create(relationship_type='prerequisite', contentmetadata_1=content1, contentmetadata_2=content2)
 
 @can_get_content_with_id
 def set_is_related(channel_id=None, content1=None, content2=None, **kwargs):
     """set related relationship between content1 and content2"""
-    content.RelatedContentRelationship.objects.using(channel_id).create(relationship_type='related', contentmetadata_1=content1, contentmetadata_2=content2)
+    KolibriContent.RelatedContentRelationship.objects.using(channel_id).create(relationship_type='related', contentmetadata_1=content1, contentmetadata_2=content2)
 
 @can_get_content_with_id
 def children_of_kind(channel_id=None, content=None, kind=None, **kwargs):
@@ -153,7 +153,7 @@ def children_of_kind(channel_id=None, content=None, kind=None, **kwargs):
 
 # def scan_and_update_file_availability(channel_id=None):
 #     """this is a safty check to ensure that the File model truthfully reflects what's actually in and not in the content_files folder"""
-#     all_files = content.File.objects.using(channel_id).all().only("available", 'checksum', 'extension')
+#     all_files = KolibriContent.File.objects.using(channel_id).all().only("available", 'checksum', 'extension')
 #     for f in all_files:
 #         the_file_path = settings.CONTENT_COPY_DIR + '/' + f.checksum + '.' + f.extension
 #         real_available = os.path.exists(the_file_path)
@@ -178,21 +178,21 @@ def update_content_copy(file_object=None, content_copy=None):
 """channel API methods"""
 
 def process_channel_identifier(channel_identifier):
-    """this func will take a channel id or channel name and return a content.ChannelMetadata object"""
+    """this func will take a channel id or channel name and return a ChannelMetadata object"""
     if is_valid_uuid(channel_identifier):
         try:
-            the_channel = content.ChannelMetadata.objects.get(channel_id=channel_identifier)
-        except content.ChannelMetadata.DoesNotExist:
+            the_channel = KolibriContent.ChannelMetadata.objects.get(channel_id=channel_identifier)
+        except KolibriContent.ChannelMetadata.DoesNotExist:
             # no employee found
             raise Exception("cannot find any channel with this channel id")
         return the_channel
     elif isinstance(channel_identifier, str):
         try:
-            the_channel = content.ChannelMetadata.objects.get(name=channel_identifier)
-        except content.ChannelMetadata.DoesNotExist:
+            the_channel = KolibriContent.ChannelMetadata.objects.get(name=channel_identifier)
+        except KolibriContent.ChannelMetadata.DoesNotExist:
             # no employee found
             raise Exception("cannot find any channel with this channel name")
-        except content.ChannelMetadata.MultipleObjectsReturned:
+        except KolibriContent.ChannelMetadata.MultipleObjectsReturned:
             # what to do if multiple employees have been returned?
             raise Exception("more than one channel named " + "'" + channel_identifier + "'")
         return the_channel
@@ -200,7 +200,7 @@ def process_channel_identifier(channel_identifier):
         raise ValueError('the channel_identifier must be either a UUID String or a normal String')
 
 def get_available_channels():
-    return content.ChannelMetadata.objects.all()
+    return KolibriContent.ChannelMetadata.objects.all()
 
 def get_channel(channel_identifier):
     return process_channel_identifier(channel_identifier)
