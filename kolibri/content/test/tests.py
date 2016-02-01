@@ -8,6 +8,7 @@ from django.db import connections
 from django.test.utils import override_settings
 from kolibri.content import models as content
 from kolibri.content import api
+from django.conf import settings
 
 
 @override_settings(DATABASES = {
@@ -187,7 +188,10 @@ class ContentMetadataTestCase(TestCase):
         actual_output = api.get_channel_theme('khan')
         self.assertEqual(expected_output, actual_output)
 
-    # """clean up"""
-    # @classmethod
-    # def tearDownClass(self):
-    #     shutil.rmtree(test_settings.CONTENT_COPY_DIR)
+    """clean up"""
+    @classmethod
+    def tearDownClass(self):
+        try:
+            shutil.rmtree(settings.CONTENT_COPY_DIR)
+        except:
+            pass
