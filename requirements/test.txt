@@ -4,4 +4,3 @@ pytest
 pytest-django
 pytest-cov
 coverage
-tox
