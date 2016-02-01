@@ -1,4 +1,5 @@
 """
+to run this test $ kolibri manage test -- kolibri.content
 """
 import os
 import shutil
@@ -10,28 +11,22 @@ from kolibri.content import models as content
 from kolibri.content import api
 from django.conf import settings
 
-
-@override_settings(DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    },
-
-    'content_test': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    },
-})
+@override_settings(
+    CONTENT_COPY_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/test_content_copy"
+)
 class ContentMetadataTestCase(TestCase):
     """testcase for ContentMetadata models"""
-    # fixtures = ['k_dumb.json', "content_test.json"]
+    fixtures = ['channel_test.json', 'content_test.json']
     multi_db = True
-    # the_channel_id = api.get_channel_id('khan')
     the_channel_id = 'content_test'
+    connections.databases[the_channel_id] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    }
 
     """Tests for ContentMetadata API methods"""
     def test_update_content_copy(self):
-        fpath_1 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/kolibri_content/files_for_testing/Magnum_ChargerInverter.pdf"
+        fpath_1 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/files_for_testing/Magnum_ChargerInverter.pdf"
         fm_1 = content.Format.objects.using(self.the_channel_id).get(format_size=102)
         fm_3 = content.Format.objects.using(self.the_channel_id).get(format_size=46)
         the_file = content.File.objects.using(self.the_channel_id).get(format=fm_1)
@@ -39,15 +34,15 @@ class ContentMetadataTestCase(TestCase):
         the_file = content.File.objects.using(self.the_channel_id).filter(format=fm_3)[1]
         api.update_content_copy(the_file, fpath_1)
 
-        fpath_2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/kolibri_content/files_for_testing/y2-uaPiyoxc.mp4"
+        fpath_2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/files_for_testing/y2-uaPiyoxc.mp4"
         fm_2 = content.Format.objects.using(self.the_channel_id).get(format_size=51)
         the_file = content.File.objects.using(self.the_channel_id).get(format=fm_2)
-        self.assertFalse(the_content.file.content_copy)
+        self.assertFalse(the_file.content_copy)
         api.update_content_copy(the_file, fpath_2)
-        self.assertTrue(the_content.file.content_copy)
+        self.assertTrue(the_file.content_copy)
         api.update_content_copy(the_file, None)
-        self.assertFalse(the_content.file.content_copy)
-        self.assertFalse(the_content.file.checksum)
+        self.assertFalse(the_file.content_copy)
+        self.assertFalse(the_file.checksum)
 
     def test_get_content_with_id(self):
         """test for single content_id"""
