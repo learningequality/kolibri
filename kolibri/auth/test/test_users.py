@@ -92,3 +92,25 @@ class UserSanityTestCase(TestCase):
         from kolibri.auth.models import DeviceOwner, KolibriValidationError
         with self.assertRaises(KolibriValidationError):
             DeviceOwner.objects.create(username="baz", _is_device_owner=False)
+
+    def test_cant_change_is_device_owner_for_do(self):
+        from kolibri.auth.models import KolibriValidationError
+        with self.assertRaises(KolibriValidationError):
+            self.do._is_device_owner = False
+            self.do.save()
+
+    def test_cant_change_is_device_owner_for_fu(self):
+        from kolibri.auth.models import KolibriValidationError
+        with self.assertRaises(KolibriValidationError):
+            self.user._is_device_owner = True
+            self.user.save()
+
+    def test_not_changing_is_device_owner_ok(self):
+        """
+        We don't prevent someone from accessing the "private" _is_device_owner field, just saving it.
+        This shouldn't raise any errors.
+        """
+        self.user._is_device_owner = False
+        self.user.save()
+        self.do._is_device_owner = True
+        self.do.save()
