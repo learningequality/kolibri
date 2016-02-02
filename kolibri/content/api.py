@@ -2,9 +2,9 @@
 This module acts as the only interface point between other apps and the database backend for the content.
 It exposes several convenience functions for accessing content
 """
+import os
 from kolibri.content import models as KolibriContent
 from uuid import UUID
-import os
 from bulk_update.helper import bulk_update
 from django.core.files import File as DjFile
 from functools import wraps
@@ -252,9 +252,9 @@ def update_content_copy(file_object=None, content_copy=None):
 
 """channel API methods"""
 
-def process_channel_identifier(channel_identifier):
+def get_channel(channel_identifier):
     """
-    This func will take a channel id or channel name and return a ChannelMetadata object.
+    Get a ChannelMetadata object by channel id or channel name.
 
     :param channel_identifier: str
     :return: ChannelMetadata
@@ -287,15 +287,6 @@ def get_available_channels():
     """
     return KolibriContent.ChannelMetadata.objects.all()
 
-def get_channel(channel_identifier):
-    """
-    Get a ChannelMetadata object by channel id or channel name.
-
-    :param channel_identifier: str
-    :return: ChannelMetadata
-    """
-    return process_channel_identifier(channel_identifier)
-
 def get_channel_property(channel_identifier, property_name):
     """
     Get the ChannelMetadata property according to property_name argument
@@ -307,8 +298,8 @@ def get_channel_property(channel_identifier, property_name):
     if isinstance(property_name, str):
         try:
             if property_name == 'channel_id':
-                return str(getattr(process_channel_identifier(channel_identifier), property_name))
-            return getattr(process_channel_identifier(channel_identifier), property_name)
+                return str(getattr(get_channel(channel_identifier), property_name))
+            return getattr(get_channel(channel_identifier), property_name)
         except AttributeError:
             raise KeyError(property_name + " is not a valid property!")
     else:
