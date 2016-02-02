@@ -22,6 +22,8 @@ class BaseBackend(object):
             user = BaseUser.objects.get(username=username)
             if user.check_password(password):
                 return user
+            else:
+                return None
         except BaseUser.DoesNotExist:
             return None
 
@@ -42,7 +44,7 @@ class FacilityBackend(BaseBackend):
           successful but the user is a DeviceOwner.
         """
         user = self._authenticate(username, password)
-        return FacilityUser.objects.get(pk=user.pk) if not user._is_device_owner else None
+        return FacilityUser.objects.get(pk=user.pk) if user and not user._is_device_owner else None
 
     def get_user(self, user_id):
         """
@@ -109,7 +111,7 @@ class DeviceBackend(BaseBackend):
           successful but the user is a FacilityUser.
         """
         user = self._authenticate(username, password)
-        return DeviceOwner.objects.get(pk=user.pk) if user._is_device_owner else None
+        return DeviceOwner.objects.get(pk=user.pk) if user and user._is_device_owner else None
 
     def get_user(self, user_id):
         """
