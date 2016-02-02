@@ -17,6 +17,12 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
+from kolibri.core.errors import KolibriError
+
+
+class KolibriValidationError(KolibriError):
+    pass
+
 
 class BaseUser(AbstractBaseUser):
     """
@@ -54,8 +60,12 @@ class BaseUser(AbstractBaseUser):
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
+    # A "private" field -- used to check whether the given user is a device owner when we can't deal with the proxy
+    # models directly
+    _is_device_owner = models.BooleanField(default=None, blank=False, editable=False)
+
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['_is_device_owner']
 
     def is_device_owner(self):
         """ Abstract method. Used in authentication backends. """
@@ -68,17 +78,36 @@ class BaseUser(AbstractBaseUser):
         return self.first_name
 
 
+class FacilityUserManager(models.Manager):
+    def get_queryset(self):
+        return super(FacilityUserManager, self).get_queryset().filter(_is_device_owner=False)
+
+
 class FacilityUser(BaseUser):
     """
     FacilityUsers are the fundamental object of the auth app. They represent the main users, and belong to a
     hierarchy of Collections and Roles, which determine permissions.
     """
+    objects = FacilityUserManager()
+
     class Meta:
         proxy = True
 
     def is_device_owner(self):
         """ For FacilityUsers, always False. Used in determining permissions. """
         return False
+
+    def save(self, *args, **kwargs):
+        if self._is_device_owner is None:
+            self._is_device_owner = False
+        elif self._is_device_owner:
+            raise KolibriValidationError("FacilityUser objects *must* have _is_device_owner set to False!")
+        return super(FacilityUser, self).save(*args, **kwargs)
+
+
+class DeviceOwnerManager(models.Manager):
+    def get_queryset(self):
+        return super(DeviceOwnerManager, self).get_queryset().filter(_is_device_owner=True)
 
 
 class DeviceOwner(BaseUser):
@@ -91,9 +120,18 @@ class DeviceOwner(BaseUser):
     device is a Classroom Server or Classroom Client, or determining manually which data should be synced must be
     performed by a DeviceOwner.
     """
+    objects = DeviceOwnerManager()
+
     class Meta:
         proxy = True
 
     def is_device_owner(self):
         """ For DeviceOwners, always True. Used in determining permissions. """
         return True
+
+    def save(self, *args, **kwargs):
+        if self._is_device_owner is None:
+            self._is_device_owner = True
+        elif not self._is_device_owner:
+            raise KolibriValidationError("DeviceOwner objects *must* have _is_device_owner set to True!")
+        return super(DeviceOwner, self).save(*args, **kwargs)
