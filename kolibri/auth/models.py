@@ -78,11 +78,18 @@ class BaseUser(AbstractBaseUser):
         return self.first_name
 
 
+class FacilityUserManager(models.Manager):
+    def get_queryset(self):
+        return super(FacilityUserManager, self).get_queryset().filter(_is_device_owner=False)
+
+
 class FacilityUser(BaseUser):
     """
     FacilityUsers are the fundamental object of the auth app. They represent the main users, and belong to a
     hierarchy of Collections and Roles, which determine permissions.
     """
+    objects = FacilityUserManager()
+
     class Meta:
         proxy = True
 
@@ -98,6 +105,11 @@ class FacilityUser(BaseUser):
         return super(FacilityUser, self).save(*args, **kwargs)
 
 
+class DeviceOwnerManager(models.Manager):
+    def get_queryset(self):
+        return super(DeviceOwnerManager, self).get_queryset().filter(_is_device_owner=True)
+
+
 class DeviceOwner(BaseUser):
     """
     When a user first installs Kolibri on a device, they will be prompted to create a *DeviceOwner*, a special kind of
@@ -108,6 +120,8 @@ class DeviceOwner(BaseUser):
     device is a Classroom Server or Classroom Client, or determining manually which data should be synced must be
     performed by a DeviceOwner.
     """
+    objects = DeviceOwnerManager()
+
     class Meta:
         proxy = True
 
