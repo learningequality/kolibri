@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'kolibri.content',
+    'kolibri.auth.apps.KolibriAuthConfig',
 ] + conf.config['INSTALLED_APPS']
 
 MIDDLEWARE_CLASSES = (
@@ -190,3 +191,5 @@ LOGGING = {
         }
     }
 }
+
+AUTH_USER_MODEL = 'kolibriauth.BaseUser'

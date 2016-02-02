@@ -32,7 +32,10 @@ os.environ["KOLIBRI_HOME"] = os.path.join(builddir, 'kolibri_home')
 if not os.path.exists(os.environ["KOLIBRI_HOME"]):
     os.mkdir(os.environ["KOLIBRI_HOME"])
 
+import django
 import kolibri
+
+django.setup()
 
 # -- General configuration -----------------------------------------------------
 

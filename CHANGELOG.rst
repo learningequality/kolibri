@@ -11,4 +11,4 @@ http://keepachangelog.com/
 Kolibri 0.0.1
 +++++++++++++
 
-* This is a test skeleton!
+* Begin development of core auth app.
