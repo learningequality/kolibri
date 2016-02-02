@@ -16,6 +16,7 @@ from django.core import validators
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
+from mptt.models import TreeForeignKey, MPTTModel
 
 from kolibri.core.errors import KolibriError
 
@@ -135,3 +136,80 @@ class DeviceOwner(BaseUser):
         elif not self._is_device_owner:
             raise KolibriValidationError("DeviceOwner objects *must* have _is_device_owner set to True!")
         return super(DeviceOwner, self).save(*args, **kwargs)
+
+
+class HierarchyNode(MPTTModel):
+    """
+    Model representing a node in the hierarchy of Collections and Roles. This is different from the "natural"
+    ordering for efficiency reasons.
+    See `discussion in this repo <https://github.com/MCGallaspy/class_tree_proof>`_.
+    The hierarchy of these nodes actually is as in
+    `this diagram <https://docs.google.com/drawings/d/1mnUVKryNqHRo8X6Rp86KVtRdQrtYyPA44P488wA5JXw/edit>`_.
+
+    Should not be used directly, as this is an implementation detail.
+
+    The `kind` field is used to differentiate between nodes belonging to Collections and Roles, since it can't
+    necessarily be discerned from the order as with the "natural" tree.
+
+    The `kind_id` field is an intentionally denormalized reference to user ids, for efficient querying without table
+    joins. For nodes with `kind` Role, it holds the value `Role.user.id`. Otherwise it's NULL.
+    """
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    kind = models.CharField(max_length=50, blank=False, null=False, db_index=False)
+    kind_id = models.IntegerField(blank=True, null=True, db_index=False)
+
+    class Meta:
+        """
+        We know from prototyping that kind and kind_id will only be filtered on together, so we can achieve a constant
+        improvement by indexing them together.
+        """
+        index_together = [
+            ['kind', 'kind_id'],
+        ]
+
+    def insert_collection_node(self, node):
+        """
+        Inserts a "Collection" type node below itself. This implies a certain ordering.
+
+        :param node: A HierarchyNode instance.
+        :return: The calling node.
+        """
+        pass
+
+    def insert_role_node(self, node):
+        """
+        Inserts a "Role" type node below itself. This implies a certain ordering.
+
+        :param node: A HierarchyNode instance.
+        :return: The calling node.
+        """
+        pass
+
+
+class Collection(models.Model):
+    """
+    Collections are hierarchical groups of users, used for making decisions about user's permissions.
+    Users belong to one or more Collections, by way of obtaining Roles associated with those Collections.
+    Collections can belong to other Collections, and user membership in a collection is conferred by parenthood.
+    Collections are subdivided into several pre-defined levels.
+
+    The hierarchy of Roles and Collections forms a tree structure, and a description can be found
+    `here <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit#heading=h.w32wmo6k8ckb>`_.
+    """
+    kind = models.CharField(max_length=50)
+    _node = TreeForeignKey('HierarchyNode')
+
+
+class Role(models.Model):
+    """
+    Roles are abstractions for making decisions about user's permissions.
+    Users have one or more Roles, potentially with many different `kind`s.
+    Roles are associated with Collections by convention, for instance a Role with `kind` "Coach" is associated with
+    a Classroom collection -- this association is not strictly enforced, and so must be honored by the developer when
+    directly adding Roles to the hierarchy.
+    The hierarchy of Roles and Collections forms a tree structure, and a description can be found
+    `here <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit#heading=h.w32wmo6k8ckb>`_.
+    """
+    kind = models.CharField(max_length=50)
+    user = models.ForeignKey('FacilityUser')
+    _node = TreeForeignKey('HierarchyNode')
