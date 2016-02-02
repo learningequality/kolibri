@@ -57,14 +57,14 @@ class Command(BaseCommand):
         format_3 = models.Format.objects.using(db_name).create(contentmetadata=c2c1, mimetype=ex_L, available=False, format_size=46, quality="high")
 
         # populate File
-        file_0 = models.File.objects.using(db_name).create(format=format_1)
-        file_1 = models.File.objects.using(db_name).create(format=format_2)
-        file_2 = models.File.objects.using(db_name).create(format=format_3)
-        file_3 = models.File.objects.using(db_name).create(format=format_3)
+        models.File.objects.using(db_name).create(format=format_1)
+        models.File.objects.using(db_name).create(format=format_2)
+        models.File.objects.using(db_name).create(format=format_3)
+        models.File.objects.using(db_name).create(format=format_3)
 
         # populate Content Relationship
-        cr1 = models.PrerequisiteContentRelationship.objects.using(db_name).create(relationship_type='prerequisite', contentmetadata_1=root, contentmetadata_2=c1)
-        cr2 = models.RelatedContentRelationship.objects.using(db_name).create(relationship_type='related', contentmetadata_1=c1, contentmetadata_2=c2)
+        models.PrerequisiteContentRelationship.objects.using(db_name).create(relationship_type='prerequisite', contentmetadata_1=root, contentmetadata_2=c1)
+        models.RelatedContentRelationship.objects.using(db_name).create(relationship_type='related', contentmetadata_1=c1, contentmetadata_2=c2)
 
     def handle(self, *args, **options):
         self.populate_content_db()
