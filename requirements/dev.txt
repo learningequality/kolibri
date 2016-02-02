@@ -2,3 +2,4 @@
 flake8
 pre-commit
 tox
+pre-commit
