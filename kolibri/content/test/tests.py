@@ -1,5 +1,5 @@
 """
-to run this test $ kolibri manage test -- kolibri.content
+To run this test, type this in command line <kolibri manage test -- kolibri.content>
 """
 import os
 import shutil
@@ -15,7 +15,7 @@ from django.conf import settings
     CONTENT_COPY_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/test_content_copy"
 )
 class ContentMetadataTestCase(TestCase):
-    """testcase for ContentMetadata models"""
+    """Testcase for content and channel API methods"""
     fixtures = ['channel_test.json', 'content_test.json']
     multi_db = True
     the_channel_id = 'content_test'
@@ -24,7 +24,7 @@ class ContentMetadataTestCase(TestCase):
         'NAME': ':memory:',
     }
 
-    """Tests for ContentMetadata API methods"""
+    """Tests for content API methods"""
     def test_update_content_copy(self):
         fpath_1 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/files_for_testing/Magnum_ChargerInverter.pdf"
         fm_1 = content.Format.objects.using(self.the_channel_id).get(format_size=102)
@@ -45,12 +45,12 @@ class ContentMetadataTestCase(TestCase):
         self.assertFalse(the_file.checksum)
 
     def test_get_content_with_id(self):
-        """test for single content_id"""
+        #test for single content_id
         the_content_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
         expected_output = content.ContentMetadata.objects.using(self.the_channel_id).filter(title="root")
         actual_output = api.get_content_with_id(the_content_id, channel_id=self.the_channel_id)
         self.assertEqual(set(expected_output), set(actual_output))
-        """test for a list of content_ids"""
+        #test for a list of content_ids
         the_content_ids = [cm.content_id for cm in content.ContentMetadata.objects.using(self.the_channel_id).all() if cm.title in ["root", "c1", "c2c2"]]
         expected_output2 = content.ContentMetadata.objects.using(self.the_channel_id).filter(title__in=["root", "c1", "c2c2"])
         actual_output2 = api.get_content_with_id(the_content_ids, channel_id=self.the_channel_id)
@@ -154,32 +154,32 @@ class ContentMetadataTestCase(TestCase):
         self.assertEqual(expected_output, get_by_id)
 
     def test_get_channel_property(self):
-        """test for channel name"""
+        #test for channel name
         expected_output = 'khan'
         ch_id = str(content.ChannelMetadata.objects.get(name='khan').channel_id)
         actual_output = api.get_channel_property(ch_id, 'name')
         self.assertEqual(expected_output, actual_output)
-        """test for channel id"""
+        #test for channel id
         expected_output = str(content.ChannelMetadata.objects.get(name='ucsd').channel_id)
         actual_output = api.get_channel_property('ucsd', 'channel_id')
         self.assertEqual(expected_output, actual_output)
-        """test for channel author"""
+        #test for channel author
         expected_output = 'eli'
         actual_output_by_name = api.get_channel_property('ucsd', 'author')
         self.assertEqual(expected_output, actual_output_by_name)
         actual_output_by_id = api.get_channel_property(api.get_channel_property('ucsd', 'channel_id'), 'author')
         self.assertEqual(expected_output, actual_output_by_id)
-        """test for channel description"""
+        #test for channel description
         expected_output = 'dummy khan'
         actual_output_by_name = api.get_channel_property('khan', 'description')
         self.assertEqual(expected_output, actual_output_by_name)
         actual_output_by_id = api.get_channel_property(api.get_channel_property('khan', 'channel_id'), 'description')
         self.assertEqual(expected_output, actual_output_by_id)
-        """test for channel theme"""
+        #test for channel theme
         expected_output = "i'm a json blob"
         actual_output = api.get_channel_property('khan', 'theme')
         self.assertEqual(expected_output, actual_output)
-        """test for channel subscription"""
+        #test for channel subscription
         self.assertTrue(api.get_channel_property('khan', 'subscribed'))
 
     """clean up"""

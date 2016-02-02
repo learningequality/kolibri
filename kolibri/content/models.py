@@ -15,11 +15,22 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 
 def content_copy_name(instance, filename):
+    """
+    Create a name spaced file path from the File obejct's checksum property.
+    This path will be used to store the content copy
+
+    :param instance: File (content File model)
+    :param filename: str
+    :return: str
+    """
     h = instance.checksum
     basename, ext = os.path.splitext(filename)
     return os.path.join(settings.CONTENT_COPY_DIR, h[0:1], h[1:2], h + ext.lower())
 
 class ContentCopyStorage(FileSystemStorage):
+    """
+    Overrider FileSystemStorage's default save method to ignore duplicated file.
+    """
     def get_available_name(self, name):
         return name
 
@@ -34,7 +45,9 @@ class ContentManager(models.Manager):
     pass
 
 class ContentQuerySet(models.QuerySet):
-
+    """
+    Overrider QuerySet's using method to establish database conncetions at the first time that database is hitten.
+    """
     def using(self, alias):
         try:
             init_connection = connections[alias]
@@ -53,6 +66,10 @@ class AbstractContent(models.Model):
         abstract = True
 
 class ContentMetadata(MPTTModel, AbstractContent):
+    """
+    The top layer of the contentDB schema, defines the most common properties that are shared across all different contents.
+    Things it can represent are, for example, video, exercise, audio or document...
+    """
     content_id = models.UUIDField(primary_key=False, default=uuid4, editable=False)
     title = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True, null=True)
@@ -75,6 +92,9 @@ class ContentMetadata(MPTTModel, AbstractContent):
         return self.title
 
 class MimeType(AbstractContent):
+    """
+    Normalize the "kind"(mimetype) of Format model
+    """
     readable_name = models.CharField(max_length=50)
     machine_name = models.CharField(max_length=100)
 
@@ -85,6 +105,11 @@ class MimeType(AbstractContent):
         return self.readable_name
 
 class Format(AbstractContent):
+    """
+    The intermediate layer of the contentDB schema, defines a complete set of resources that is ready to be rendered on the front-end,
+    including the quality of the content.
+    Things it can represent are, for example, high_resolution_video, low_resolution_video, vectorized_video, khan_excercise...
+    """
     available = models.BooleanField(default=False)
     format_size = models.IntegerField(blank=True, null=True)
     quality = models.CharField(max_length=50, blank=True, null=True)
@@ -95,6 +120,10 @@ class Format(AbstractContent):
         pass
 
 class File(AbstractContent):
+    """
+    The bottom layer of the contentDB schema, defines the basic building brick for content.
+    Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3...
+    """
     checksum = models.CharField(max_length=400, blank=True, null=True)
     extension = models.CharField(max_length=100, blank=True, null=True)
     available = models.BooleanField(default=False)
@@ -109,6 +138,14 @@ class File(AbstractContent):
         return '{checksum}.{extension}'.format(checksum=self.checksum, extension=self.extension)
 
     def save(self, *args, **kwargs):
+        """
+        Overrider the default save method.
+        If the content_copy FileField gets passed a content copy:
+            1. generate the MD5 from the content copy
+            2. fill the other fields accordingly
+        If None is passed to the content_copy FileField:
+            1. delete the content copy.
+        """
         if self.content_copy: # if content_copy is supplied, hash out the file
             md5 = hashlib.md5()
             for chunk in self.content_copy.chunks():
@@ -126,6 +163,9 @@ class File(AbstractContent):
         super(File, self).save(*args, **kwargs)
 
 class License(AbstractContent):
+    """
+    Normalize the license of ContentMetadata model
+    """
     license_name = models.CharField(max_length=50)
 
     class Admin:
@@ -135,6 +175,9 @@ class License(AbstractContent):
         return self.license_name
 
 class ContentRelationship(AbstractContent):
+    """
+    Provide a abstract model for defining any relationships between two ContentMetadata objects.
+    """
     contentmetadata_1 = models.ForeignKey(ContentMetadata, related_name='%(app_label)s_%(class)s_1')
     contentmetadata_2 = models.ForeignKey(ContentMetadata, related_name='%(app_label)s_%(class)s_2')
 
@@ -145,6 +188,9 @@ class ContentRelationship(AbstractContent):
         pass
 
 class PrerequisiteContentRelationship(ContentRelationship):
+    """
+    Predefine the prerequisite relationship between two ContentMetadata objects.
+    """
     relationship_type = models.CharField(max_length=50)
 
     class Meta:
@@ -153,6 +199,9 @@ class PrerequisiteContentRelationship(ContentRelationship):
         pass
 
 class RelatedContentRelationship(ContentRelationship):
+    """
+    Predefine the related relationship between two ContentMetadata objects.
+    """
     relationship_type = models.CharField(max_length=50)
 
     class Meta:
@@ -189,6 +238,10 @@ class ContentMetadataAdmin(admin.ModelAdmin):
 
 
 class ChannelMetadata(models.Model):
+    """
+    Provide references to the corresponding contentDB when navigate between channels. 
+    Every content API method needs a channel_id argument, which is stored in this model. 
+    """
     channel_id = models.UUIDField(primary_key=False, default=uuid4, editable=True)
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True, null=True)
