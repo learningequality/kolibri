@@ -39,7 +39,7 @@ class ContentCopyStorage(FileSystemStorage):
     def _save(self, name, content):
         if self.exists(name):
             # if the file exists, do not call the superclasses _save method
-            print 'find duplicated file: ', name
+            print 'file "', name, '" already exists!'
             return name
         return super(ContentCopyStorage, self)._save(name, content)
 
@@ -160,9 +160,11 @@ class File(AbstractContent):
             self.file_size = self.content_copy.size
             self.extension = os.path.splitext(self.content_copy.name)[1]
             # update ContentCopyTracking
+            # pdb.set_trace()
             try:
                 content_copy_track = ContentCopyTracking.objects.get(content_copy_id=self.checksum)
                 content_copy_track.referenced_count += 1
+                content_copy_track.save()
             except ContentCopyTracking.DoesNotExist:
                 ContentCopyTracking.objects.create(referenced_count=1, content_copy_id=self.checksum)
         else:
@@ -170,6 +172,7 @@ class File(AbstractContent):
             try:
                 content_copy_track = ContentCopyTracking.objects.get(content_copy_id=self.checksum)
                 content_copy_track.referenced_count -= 1
+                content_copy_track.save()
                 if content_copy_track.referenced_count == 0:
                     content_copy_path = os.path.join(settings.CONTENT_COPY_DIR, self.checksum[0:1], self.checksum[1:2], self.checksum + self.extension)
                     if os.path.isfile(content_copy_path):
