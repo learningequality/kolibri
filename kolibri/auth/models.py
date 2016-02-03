@@ -208,5 +208,9 @@ class Role(models.Model):
     `in the dev bible <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit>`_.
     """
     kind = models.CharField(max_length=50)
-    user = models.ForeignKey('FacilityUser')
-    _node = TreeForeignKey('HierarchyNode')
+    user = models.ForeignKey('FacilityUser', blank=False, null=False)
+    _node = TreeForeignKey('HierarchyNode', blank=False, null=False)
+
+    @classmethod
+    def permitted_objects(cls, perm, request_user):
+        raise NotImplementedError()
