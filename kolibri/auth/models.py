@@ -174,7 +174,18 @@ class HierarchyNode(MPTTModel):
         :param node: A HierarchyNode instance.
         :return: The calling node.
         """
-        pass
+        # Get a new reference to avoid cached related objects
+        descendants = HierarchyNode.objects.get(id=self.id).get_descendants().all()
+        if descendants:
+            first_collection = descendants.filter(kind='Collection').first()
+            if first_collection:
+                first_collection.insert_child(node)
+            else:
+                descendants.last().insert_child(node)
+        else:
+            node.parent = self
+            node.save()
+        return self
 
     def insert_role_node(self, node):
         """
@@ -183,7 +194,21 @@ class HierarchyNode(MPTTModel):
         :param node: A HierarchyNode instance.
         :return: The calling node.
         """
-        pass
+        self.insert_child(node)
+        return self
+
+    def insert_child(self, child):
+        """
+        Inerts the given node between self and self's children.
+
+        :param child: The HierarchyNode instance to be inserted.
+        """
+        old_child = self.get_children().first()
+        child.parent = self
+        child.save()
+        if old_child:
+            old_child.parent = child
+            old_child.save()
 
 
 class NodeReferencingModel(models.Model):
