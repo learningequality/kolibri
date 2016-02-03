@@ -220,19 +220,6 @@ def children_of_kind(channel_id=None, content=None, kind=None, **kwargs):
     """
     return content.get_descendants(include_self=False).filter(kind=kind).using(channel_id)
 
-# def scan_and_update_file_availability(channel_id=None):
-#     """
-#     this is a safty check to ensure that the File model truthfully reflects what's actually in and not in the content_files folder.
-#     """
-#     all_files = KolibriContent.File.objects.using(channel_id).all().only("available", 'checksum', 'extension')
-#     for f in all_files:
-#         the_file_path = settings.CONTENT_COPY_DIR + '/' + f.checksum + '.' + f.extension
-#         real_available = os.path.exists(the_file_path)
-#         if f.available !=  real_available:
-#             f.available = real_available
-
-#     bulk_update(all_files, update_fields=['available'], using=channel_id)
-
 def update_content_copy(file_object=None, content_copy=None):
     """
     Update the File object you pass in with the content copy
