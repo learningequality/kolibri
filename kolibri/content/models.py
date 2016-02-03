@@ -2,17 +2,19 @@
 This is one of the Kolibri core components, the abstract layer of all contents.
 To access it, please use the public APIs in api.py
 
-The ONLY public object is ContentMetadata 
+The ONLY public object is ContentMetadata
 """
-import os
 import hashlib
-from django.contrib import admin
-from django.db import models, connections
+import os
 from uuid import uuid4
-from mptt.models import MPTTModel, TreeForeignKey
-from django.db.utils import ConnectionDoesNotExist
+
 from django.conf import settings
+from django.contrib import admin
 from django.core.files.storage import FileSystemStorage
+from django.db import connections, models
+from django.db.utils import ConnectionDoesNotExist
+from mptt.models import MPTTModel, TreeForeignKey
+
 
 def content_copy_name(instance, filename):
     """
@@ -50,7 +52,7 @@ class ContentQuerySet(models.QuerySet):
     """
     def using(self, alias):
         try:
-            init_connection = connections[alias]
+            connections[alias]
         except ConnectionDoesNotExist:
             connections.databases[alias] = {
                 'ENGINE': 'django.db.backends.sqlite3',
@@ -143,10 +145,12 @@ class File(AbstractContent):
         If the content_copy FileField gets passed a content copy:
             1. generate the MD5 from the content copy
             2. fill the other fields accordingly
+            3. update tracking for this content copy
         If None is passed to the content_copy FileField:
             1. delete the content copy.
+            2. update tracking for this content copy
         """
-        if self.content_copy: # if content_copy is supplied, hash out the file
+        if self.content_copy:  # if content_copy is supplied, hash out the file
             md5 = hashlib.md5()
             for chunk in self.content_copy.chunks():
                 md5.update(chunk)
@@ -155,7 +159,23 @@ class File(AbstractContent):
             self.available = True
             self.file_size = self.content_copy.size
             self.extension = os.path.splitext(self.content_copy.name)[1]
+            # update ContentCopyTracking
+            try:
+                content_copy_track = ContentCopyTracking.objects.get(content_copy_id=self.checksum)
+                content_copy_track.referenced_count += 1
+            except ContentCopyTracking.DoesNotExist:
+                ContentCopyTracking.objects.create(referenced_count=1, content_copy_id=self.checksum)
         else:
+            # update ContentCopyTracking, if referenced_count reach 0, delete the content copy on disk
+            try:
+                content_copy_track = ContentCopyTracking.objects.get(content_copy_id=self.checksum)
+                content_copy_track.referenced_count -= 1
+                if content_copy_track.referenced_count == 0:
+                    content_copy_path = os.path.join(settings.CONTENT_COPY_DIR, self.checksum[0:1], self.checksum[1:2], self.checksum + self.extension)
+                    if os.path.isfile(content_copy_path):
+                        os.remove(content_copy_path)
+            except ContentCopyTracking.DoesNotExist:
+                pass
             self.checksum = None
             self.available = False
             self.file_size = None
@@ -182,7 +202,7 @@ class ContentRelationship(AbstractContent):
     contentmetadata_2 = models.ForeignKey(ContentMetadata, related_name='%(app_label)s_%(class)s_2')
 
     class Meta:
-        abstract = True        
+        abstract = True
 
     class Admin:
         pass
@@ -195,6 +215,7 @@ class PrerequisiteContentRelationship(ContentRelationship):
 
     class Meta:
         unique_together = ['contentmetadata_1', 'contentmetadata_2', 'relationship_type']
+
     class Admin:
         pass
 
@@ -206,6 +227,7 @@ class RelatedContentRelationship(ContentRelationship):
 
     class Meta:
         unique_together = ['contentmetadata_1', 'contentmetadata_2', 'relationship_type']
+
     class Admin:
         pass
 
@@ -239,8 +261,8 @@ class ContentMetadataAdmin(admin.ModelAdmin):
 
 class ChannelMetadata(models.Model):
     """
-    Provide references to the corresponding contentDB when navigate between channels. 
-    Every content API method needs a channel_id argument, which is stored in this model. 
+    Provide references to the corresponding contentDB when navigate between channels.
+    Every content API method needs a channel_id argument, which is stored in this model.
     """
     channel_id = models.UUIDField(primary_key=False, default=uuid4, editable=True)
     name = models.CharField(max_length=200)
@@ -248,7 +270,7 @@ class ChannelMetadata(models.Model):
     author = models.CharField(max_length=400, blank=True, null=True)
     theme = models.CharField(max_length=400, blank=True, null=True)
     subscribed = models.BooleanField(default=False)
-    
+
     class Meta:
         app_label = "content"
 
@@ -257,3 +279,17 @@ class ChannelMetadata(models.Model):
 
     def __str__(self):
         return self.name
+
+class ContentCopyTracking(models.Model):
+    """
+    Record how many times a content copy are referenced by File objects.
+    If it reaches 0, it's supposed to be deleted.
+    """
+    referenced_count = models.IntegerField(blank=True, null=True)
+    content_copy_id = models.CharField(max_length=400, unique=True)
+
+    class Admin:
+        pass
+
+    def __str__(self):
+        return self.content_copy_id
