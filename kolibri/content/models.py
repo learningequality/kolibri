@@ -160,7 +160,6 @@ class File(AbstractContent):
             self.file_size = self.content_copy.size
             self.extension = os.path.splitext(self.content_copy.name)[1]
             # update ContentCopyTracking
-            # pdb.set_trace()
             try:
                 content_copy_track = ContentCopyTracking.objects.get(content_copy_id=self.checksum)
                 content_copy_track.referenced_count += 1
