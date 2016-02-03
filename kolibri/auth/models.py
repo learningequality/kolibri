@@ -183,7 +183,18 @@ class HierarchyNode(MPTTModel):
         pass
 
 
-class Collection(models.Model):
+class NodeReferencingModel(models.Model):
+    class Meta:
+        abstract = True
+
+    _node = TreeForeignKey('HierarchyNode', blank=False, null=False, on_delete=models.CASCADE)
+
+    def delete(self, *args, **kwargs):
+        self._node.delete()
+        return super(NodeReferencingModel, self).delete(*args, **kwargs)
+
+
+class Collection(NodeReferencingModel):
     """
     Collections are hierarchical groups of users, used for making decisions about user's permissions.
     Users belong to one or more Collections, by way of obtaining Roles associated with those Collections.
@@ -194,10 +205,13 @@ class Collection(models.Model):
     `in the dev bible <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit>`_.
     """
     kind = models.CharField(max_length=50)
-    _node = TreeForeignKey('HierarchyNode')
+
+    def save(self, *args, **kwargs):
+        self._node = HierarchyNode.objects.create(kind='Collection')
+        return super(Collection, self).save(*args, **kwargs)
 
 
-class Role(models.Model):
+class Role(NodeReferencingModel):
     """
     Roles are abstractions for making decisions about user's permissions.
     Users have one or more Roles, potentially with many different `kind`s.
@@ -209,8 +223,11 @@ class Role(models.Model):
     """
     kind = models.CharField(max_length=50)
     user = models.ForeignKey('FacilityUser', blank=False, null=False)
-    _node = TreeForeignKey('HierarchyNode', blank=False, null=False)
 
     @classmethod
     def permitted_objects(cls, perm, request_user):
         raise NotImplementedError()
+
+    def save(self, *args, **kwargs):
+        self._node = HierarchyNode.objects.create(kind='Role', kind_id=self.user.id)
+        return super(Role, self).save(*args, **kwargs)
