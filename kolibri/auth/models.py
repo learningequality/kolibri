@@ -230,7 +230,7 @@ class Collection(NodeReferencingModel):
     Collections are subdivided into several pre-defined levels.
 
     The hierarchy of Roles and Collections forms a tree structure, and a description can be found
-    `here <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit#heading=h.w32wmo6k8ckb>`_.
+    `here <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit>`_.
     """
     kind = models.CharField(max_length=50)
 
@@ -247,7 +247,7 @@ class Role(NodeReferencingModel):
     a Classroom collection -- this association is not strictly enforced, and so must be honored by the developer when
     directly adding Roles to the hierarchy.
     The hierarchy of Roles and Collections forms a tree structure, and a description can be found
-    `here <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit#heading=h.w32wmo6k8ckb>`_.
+    `here <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit>`_.
     """
     kind = models.CharField(max_length=50)
     user = models.ForeignKey('FacilityUser', blank=False, null=False)
