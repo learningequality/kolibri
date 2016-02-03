@@ -32,6 +32,7 @@ How can I contribute?
 The project is just starting, but we want the entire development process, from conception to realization, to be carried
 out in the open. More will be added to this section in the very near future!
 
+We also have a `hipchat room for development <https://www.hipchat.com/gzQfGFgv1>`_. Since the Learning Equality team *mostly* lives in California, it's most active during PST business hours.
 
 Running Kolibri
 ---------------
