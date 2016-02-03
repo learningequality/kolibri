@@ -4,7 +4,6 @@ To run this test, type this in command line <kolibri manage test -- kolibri.cont
 import os
 import shutil
 from django.test import TestCase
-from django.core.management import call_command
 from django.db import connections
 from django.test.utils import override_settings
 from kolibri.content import models as content
@@ -12,7 +11,7 @@ from kolibri.content import api
 from django.conf import settings
 
 @override_settings(
-    CONTENT_COPY_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/test_content_copy"
+    CONTENT_COPY_DIR=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/test_content_copy"
 )
 class ContentMetadataTestCase(TestCase):
     """Testcase for content and channel API methods"""
@@ -26,31 +25,51 @@ class ContentMetadataTestCase(TestCase):
 
     """Tests for content API methods"""
     def test_update_content_copy(self):
+        """
+        test adding same content copies, and deleting content copy
+        """
+        # add same content copy twise, there should be no duplication
         fpath_1 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/files_for_testing/Magnum_ChargerInverter.pdf"
         fm_1 = content.Format.objects.using(self.the_channel_id).get(format_size=102)
         fm_3 = content.Format.objects.using(self.the_channel_id).get(format_size=46)
-        the_file = content.File.objects.using(self.the_channel_id).get(format=fm_1)
-        api.update_content_copy(the_file, fpath_1)
-        the_file = content.File.objects.using(self.the_channel_id).filter(format=fm_3)[1]
-        api.update_content_copy(the_file, fpath_1)
+        file_1 = content.File.objects.using(self.the_channel_id).get(format=fm_1)
+        api.update_content_copy(file_1, fpath_1)
+        file_3 = content.File.objects.using(self.the_channel_id).filter(format=fm_3)[1]
+        api.update_content_copy(file_3, fpath_1)
+        self.assertEqual(1, len(os.listdir(settings.CONTENT_COPY_DIR+'/e/8/')))
 
+        # swap the content copy in file_3
         fpath_2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/files_for_testing/y2-uaPiyoxc.mp4"
+        self.assertEqual(file_3.extension, '.pdf')
+        api.update_content_copy(file_3, fpath_2)
+        self.assertEqual(file_3.extension, '.mp4')
+
+        # because file_3 and file_2 all have reference pointing to this content copy,
+        # erase the reference from file_2 won't delete the content copy
         fm_2 = content.Format.objects.using(self.the_channel_id).get(format_size=51)
-        the_file = content.File.objects.using(self.the_channel_id).get(format=fm_2)
-        self.assertFalse(the_file.content_copy)
-        api.update_content_copy(the_file, fpath_2)
-        self.assertTrue(the_file.content_copy)
-        api.update_content_copy(the_file, None)
-        self.assertFalse(the_file.content_copy)
-        self.assertFalse(the_file.checksum)
+        file_2 = content.File.objects.using(self.the_channel_id).get(format=fm_2)
+        api.update_content_copy(file_2, fpath_2)
+        self.assertTrue(file_2.content_copy)
+        api.update_content_copy(file_2, None)
+        self.assertFalse(file_2.content_copy)
+        content_copy_path = settings.CONTENT_COPY_DIR+'/f/7/f7dc33985e92a8b9e486a62bdd48719c.mp4'
+        self.assertTrue(os.path.isfile(content_copy_path))
+
+        # all reference pointing to this content copy is gone,
+        # the content copy should be deleted
+        api.update_content_copy(file_3, None)
+        self.assertFalse(os.path.isfile(content_copy_path))
+        self.assertFalse(file_2.content_copy)
+        self.assertFalse(file_2.checksum)
 
     def test_get_content_with_id(self):
-        #test for single content_id
+        # test for single content_id
         the_content_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
         expected_output = content.ContentMetadata.objects.using(self.the_channel_id).filter(title="root")
         actual_output = api.get_content_with_id(the_content_id, channel_id=self.the_channel_id)
         self.assertEqual(set(expected_output), set(actual_output))
-        #test for a list of content_ids
+
+        # test for a list of content_ids
         the_content_ids = [cm.content_id for cm in content.ContentMetadata.objects.using(self.the_channel_id).all() if cm.title in ["root", "c1", "c2c2"]]
         expected_output2 = content.ContentMetadata.objects.using(self.the_channel_id).filter(title__in=["root", "c1", "c2c2"])
         actual_output2 = api.get_content_with_id(the_content_ids, channel_id=self.the_channel_id)
@@ -137,7 +156,6 @@ class ContentMetadataTestCase(TestCase):
         actual_output = api.children_of_kind(channel_id=self.the_channel_id, content=p, kind="topic")
         self.assertEqual(set(expected_output), set(actual_output))
 
-
     """Tests for channel API methods"""
     def test_get_available_channels(self):
         c1 = api.get_channel('ucsd')
@@ -154,33 +172,45 @@ class ContentMetadataTestCase(TestCase):
         self.assertEqual(expected_output, get_by_id)
 
     def test_get_channel_property(self):
-        #test for channel name
+        """
+        test with different property names
+        """
+        # test for channel name
         expected_output = 'khan'
         ch_id = str(content.ChannelMetadata.objects.get(name='khan').channel_id)
         actual_output = api.get_channel_property(ch_id, 'name')
         self.assertEqual(expected_output, actual_output)
-        #test for channel id
+
+        # test for channel id
         expected_output = str(content.ChannelMetadata.objects.get(name='ucsd').channel_id)
         actual_output = api.get_channel_property('ucsd', 'channel_id')
         self.assertEqual(expected_output, actual_output)
-        #test for channel author
+
+        # test for channel author
         expected_output = 'eli'
         actual_output_by_name = api.get_channel_property('ucsd', 'author')
         self.assertEqual(expected_output, actual_output_by_name)
         actual_output_by_id = api.get_channel_property(api.get_channel_property('ucsd', 'channel_id'), 'author')
         self.assertEqual(expected_output, actual_output_by_id)
-        #test for channel description
+
+        # test for channel description
         expected_output = 'dummy khan'
         actual_output_by_name = api.get_channel_property('khan', 'description')
         self.assertEqual(expected_output, actual_output_by_name)
         actual_output_by_id = api.get_channel_property(api.get_channel_property('khan', 'channel_id'), 'description')
         self.assertEqual(expected_output, actual_output_by_id)
-        #test for channel theme
+
+        # test for channel theme
         expected_output = "i'm a json blob"
         actual_output = api.get_channel_property('khan', 'theme')
         self.assertEqual(expected_output, actual_output)
-        #test for channel subscription
+
+        # test for channel subscription
         self.assertTrue(api.get_channel_property('khan', 'subscribed'))
+
+        # test for wrong property names
+        with self.assertRaises(KeyError):
+            api.get_channel_property('ucsd', 'triton')
 
     """clean up"""
     @classmethod
