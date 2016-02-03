@@ -39,6 +39,39 @@ class HierarchyNodeSanityTestCase(TestCase):
         coll.delete()
         self.assertEqual(HierarchyNode.objects.count(), 0)
 
+    def test_insert_child(self):
+        from kolibri.auth.models import HierarchyNode
+        node1, node2 = HierarchyNode.objects.create(), HierarchyNode.objects.create()
+        node1.insert_child(node2)
+        self.assertEqual(
+            HierarchyNode.objects.get(id=node1.id).get_children().first(),
+            HierarchyNode.objects.get(id=node2.id)
+        )
+
+    def test_insert_collection_node_part_1(self):
+        """
+        Inserting a collection node when the parent has *no* children.
+        """
+        from kolibri.auth.models import HierarchyNode
+        node1, node2 = HierarchyNode.objects.create(), HierarchyNode.objects.create()
+        node1.insert_collection_node(node2)
+        self.assertEqual(
+            HierarchyNode.objects.get(id=node1.id).get_children().first(),
+            HierarchyNode.objects.get(id=node2.id)
+        )
+
+    def test_insert_collection_node_part_2(self):
+        """
+        Inserting a collection node when the parent has a Role child only.
+        """
+        from kolibri.auth.models import HierarchyNode
+        coll1, coll2, role = (HierarchyNode.objects.create(), HierarchyNode.objects.create(),
+                              HierarchyNode.objects.create())
+        coll1.insert_role_node(role)
+        coll1.insert_collection_node(coll2)
+        self.assertEqual(coll1, role.parent)
+        self.assertEqual(role, coll2.parent)
+
 
 class HierarchyNodeStructureTestCase(TestCase):
     """
