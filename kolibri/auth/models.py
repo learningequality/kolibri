@@ -220,6 +220,42 @@ class Collection(NodeReferencingModel):
         self._node = HierarchyNode.objects.create(kind='Collection')
         return super(Collection, self).save(*args, **kwargs)
 
+    def add_subcollection(self, collection):
+        raise NotImplementedError()
+
+    def add_role(self, role):
+        raise NotImplementedError()
+
+
+class Facility(Collection):
+    class Meta:
+        proxy = True
+
+    def add_admin(self, user):
+        raise NotImplementedError()
+
+    def add_classroom(self, classroom):
+        raise NotImplementedError()
+
+
+class Classroom(Collection):
+    class Meta:
+        proxy = True
+
+    def add_coach(self, user):
+        raise NotImplementedError()
+
+    def add_learner_group(self, learner_group):
+        raise NotImplementedError()
+
+
+class LearnerGroup(Collection):
+    class Meta:
+        proxy = True
+
+    def add_learner(self, user):
+        raise NotImplementedError()
+
 
 class Role(NodeReferencingModel):
     """
