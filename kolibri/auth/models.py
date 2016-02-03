@@ -166,21 +166,31 @@ class HierarchyNode(MPTTModel):
 
     def insert_collection_node(self, node):
         """
-        Inserts a "Collection" type node below itself. This implies a certain ordering.
+        Inserts a "Collection" type node below itself.
+        Really it just inserts a child node, but when a different tree structure was under consideration, it was less
+        trivial. Reserved to make future changes.
 
         :param node: A HierarchyNode instance.
         :return: The calling node.
         """
-        pass
+        self._insert_child(node)
+        return self
 
     def insert_role_node(self, node):
         """
-        Inserts a "Role" type node below itself. This implies a certain ordering.
+        Inserts a "Role" type node below itself.
+        Really it just inserts a child node, but when a different tree structure was under consideration, it was less
+        trivial. Reserved to make future changes.
 
         :param node: A HierarchyNode instance.
         :return: The calling node.
         """
-        pass
+        self._insert_child(node)
+        return self
+
+    def _insert_child(self, child):
+        child.parent = self
+        child.save()
 
 
 class NodeReferencingModel(models.Model):
