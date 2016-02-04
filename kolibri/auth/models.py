@@ -11,7 +11,8 @@ Class.
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, _user_get_all_permissions, _user_has_module_perms, \
+    _user_has_perm
 from django.core import validators
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -29,9 +30,10 @@ class BaseUser(AbstractBaseUser):
     """
     Our custom user type, derived from AbstractBaseUser as described in the Django docs.
     Draws liberally from django.contrib.auth.AbstractUser, except we remove some fields we don't care about, like
-    email. Encapsulates both FacilityUsers and DeviceOwners, which are proxy models.
+    email, and we don't use the PermissionsMixin.
+    Encapsulates both FacilityUsers and DeviceOwners, which are proxy models.
 
-    Do not use this class directly.
+    You should prefer to use the proxy models for this class where possible.
     """
     username = models.CharField(
         _('username'),
@@ -77,6 +79,15 @@ class BaseUser(AbstractBaseUser):
 
     def get_short_name(self):
         return self.first_name
+
+    def has_perm(self, perm, obj=None):
+        return _user_has_perm(self, perm, obj)
+
+    def has_module_perms(self, package_name):
+        return _user_has_module_perms(self, package_name)
+
+    def get_all_permissions(self, obj=None):
+        return _user_get_all_permissions(self, obj)
 
 
 class FacilityUserManager(models.Manager):

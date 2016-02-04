@@ -189,3 +189,5 @@ LOGGING = {
 }
 
 AUTH_USER_MODEL = 'kolibriauth.BaseUser'
+
+AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceBackend', 'kolibri.auth.backends.FacilityBackend']
