@@ -28,6 +28,7 @@ class FacilityUserPermissionsTestCase(TestCase):
         classrooms[1].learner_groups().first().add_learner(learner2)
 
         self.coach1, self.coach2, self.admin, self.learner1, self.learner2 = coach1, coach2, admin, learner1, learner2
+        self.classrooms = classrooms
 
     def test_add_facility_pt1(self):
         """ FacilityUsers can't create new Facilities, regardless of their roles """
@@ -75,3 +76,63 @@ class FacilityUserPermissionsTestCase(TestCase):
     def test_nonexistent_permissions_raises_error(self):
         with self.assertRaises(InvalidPermission):
             self.learner1.has_perm('foobar.perm')
+
+    def test_add_classroom_for_admin(self):
+        self.assertTrue(self.admin.has_perm('auth.add_classroom'))
+
+    def test_add_classroom_for_coach(self):
+        self.assertFalse(self.coach1.has_perm('auth.add_classroom'))
+
+    def test_add_classroom_for_learner(self):
+        self.assertFalse(self.learner1.has_perm('auth.add_classroom'))
+
+    def test_add_classroom_rejects_optional_objects(self):
+        with self.assertRaises(InvalidPermission):
+            self.admin.has_perm('auth.add_classroom', obj={})
+
+    def test_remove_classroom_universal_for_admin(self):
+        self.assertTrue(self.admin.has_perm('auth.remove_classroom'))
+
+    def test_remove_classroom_universal_for_coach(self):
+        self.assertFalse(self.coach1.has_perm('auth.remove_classroom'))
+
+    def test_remove_classroom_universal_for_learner(self):
+        self.assertFalse(self.learner1.has_perm('auth.remove_classroom'))
+
+    def test_remove_classroom_specific_for_admin(self):
+        self.assertTrue(self.admin.has_perm('auth.remove_classroom', self.classrooms[0]))
+
+    def test_remove_classroom_specific_for_coach_pt1(self):
+        """ A Coach can remove his/her own Classroom """
+        self.assertTrue(self.coach1.has_perm('auth.remove_classroom', self.classrooms[0]))
+
+    def test_remove_classroom_specific_for_coach_pt2(self):
+        """ A Coach can *not* remove another's Classroom! """
+        self.assertFalse(self.coach1.has_perm('auth.remove_classroom', self.classrooms[1]))
+
+    def test_remove_classroom_specific_for_learner(self):
+        """ A Coach can *not* remove another's Classroom! """
+        self.assertFalse(self.learner1.has_perm('auth.remove_classroom', self.classrooms[1]))
+
+    def test_change_classroom_universal_for_admin(self):
+        self.assertTrue(self.admin.has_perm('auth.change_classroom'))
+
+    def test_change_classroom_universal_for_coach(self):
+        self.assertFalse(self.coach2.has_perm('auth.change_classroom'))
+
+    def test_change_classroom_universal_for_learner(self):
+        self.assertFalse(self.learner2.has_perm('auth.change_classroom'))
+
+    def test_change_classroom_specific_for_admin(self):
+        self.assertTrue(self.admin.has_perm('auth.change_classroom', self.classrooms[0]))
+
+    def test_change_classroom_specific_for_learner(self):
+        self.assertFalse(self.learner1.has_perm('auth.change_classroom', self.classrooms[0]))
+
+    def test_change_classroom_specific_for_coach_pt1(self):
+        """ Coaches can change their own Classrooms """
+        self.assertTrue(self.coach2.has_perm('auth.change_classroom', self.classrooms[1]))
+
+    def test_change_classroom_specific_for_coach_pt2(self):
+        """ Coaches can *not* change another's Classroom """
+        self.assertFalse(self.coach2.has_perm('auth.change_classroom', self.classrooms[0]))
