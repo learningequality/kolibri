@@ -1,6 +1,41 @@
 from django.test import TestCase
 
-from kolibri.auth import get_user_models, get_hierarchy_models
+from kolibri.auth import get_user_models, get_hierarchy_models, get_collection_proxies
+
+
+class CollectionsTestCase(TestCase):
+    def setUp(self):
+        self.Facility, self.Classroom, self.LearnerGroup = get_collection_proxies()
+        self.Role, self.Collection = get_hierarchy_models()
+        _, self.FacilityUser, _ = get_user_models()
+
+    def test_add_admin(self):
+        user = self.FacilityUser.objects.create(username='foo')
+        facility = self.Facility.objects.create()
+        facility.add_admin(user)
+        self.assertEqual(self.Role.objects.filter(kind='FacilityAdmin', kind_id=user.id).count(), 1)
+
+    def test_add_classroom(self):
+        facility = self.Facility.objects.create()
+        facility.add_classroom(self.Classroom.objects.create())
+        self.assertEqual(self.Classroom.objects.filter().count(), 1)
+
+    def test_add_coach(self):
+        user = self.FacilityUser.objects.create(username='foo')
+        classroom = self.Classroom.objects.create()
+        classroom.add_coach(user)
+        self.assertEqual(self.Role.objects.filter(kind='Coach', kind_id=user.id).count(), 1)
+
+    def test_add_learner_group(self):
+        classroom = self.Classroom.objects.create()
+        classroom.add_learner_group(self.LearnerGroup.objects.create())
+        self.assertEqual(self.LearnerGroup.objects.filter().count(), 1)
+
+    def test_learner(self):
+        user = self.FacilityUser.objects.create(username='foo')
+        learner_group = self.LearnerGroup.objects.create()
+        learner_group.add_learner(user)
+        self.assertEqual(self.Role.objects.filter(kind='Learner', kind_id=user.id).count(), 1)
 
 
 class HierarchyNodeSanityTestCase(TestCase):
