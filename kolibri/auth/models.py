@@ -227,34 +227,70 @@ class Collection(NodeReferencingModel):
         self._node.insert_role_node(role._node)
 
 
+class FacilityManager(models.Manager):
+    def get_queryset(self):
+        return super(FacilityManager, self).get_queryset().filter(kind='Facility')
+
+
+class ClassroomManager(models.Manager):
+    def get_queryset(self):
+        return super(ClassroomManager, self).get_queryset().filter(kind='Classroom')
+
+
+class LearnerGroupManager(models.Manager):
+    def get_queryset(self):
+        return super(LearnerGroupManager, self).get_queryset().filter(kind='LearnerGroup')
+
+
 class Facility(Collection):
+    objects = FacilityManager()
+
     class Meta:
         proxy = True
 
     def add_admin(self, user):
-        raise NotImplementedError()
+        admin = FacilityAdmin.objects.create(user=user)
+        self.add_role(admin)
 
     def add_classroom(self, classroom):
-        raise NotImplementedError()
+        self.add_subcollection(classroom)
+
+    def save(self, *args, **kwargs):
+        self.kind = "Facility"
+        return super(Facility, self).save(*args, **kwargs)
 
 
 class Classroom(Collection):
+    objects = ClassroomManager()
+
     class Meta:
         proxy = True
 
     def add_coach(self, user):
-        raise NotImplementedError()
+        coach = Coach.objects.create(user=user)
+        self.add_role(coach)
 
     def add_learner_group(self, learner_group):
-        raise NotImplementedError()
+        self.add_subcollection(learner_group)
+
+    def save(self, *args, **kwargs):
+        self.kind = "Classroom"
+        return super(Classroom, self).save(*args, **kwargs)
 
 
 class LearnerGroup(Collection):
+    objects = LearnerGroupManager()
+
     class Meta:
         proxy = True
 
     def add_learner(self, user):
-        raise NotImplementedError()
+        learner = Learner.objects.create(user=user)
+        self.add_role(learner)
+
+    def save(self, *args, **kwargs):
+        self.kind = "LearnerGroup"
+        return super(LearnerGroup, self).save(*args, **kwargs)
 
 
 class Role(NodeReferencingModel):
