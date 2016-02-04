@@ -232,7 +232,7 @@ def update_content_copy(file_object=None, content_copy=None):
     if not file_object:
         raise TypeError("must provide a File object to update content copy")
     if content_copy:
-        file_object.content_copy = DjFile(open(content_copy, 'r'))
+        file_object.content_copy = DjFile(open(content_copy, 'rb'))
     else:
         file_object.content_copy = None
 
