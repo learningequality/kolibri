@@ -10,11 +10,14 @@ from kolibri.content import models as content
 from kolibri.content import api
 from django.conf import settings
 
+
 @override_settings(
     CONTENT_COPY_DIR=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/test_content_copy"
 )
 class ContentMetadataTestCase(TestCase):
-    """Testcase for content and channel API methods"""
+    """
+    Testcase for content and channel API methods
+    """
     fixtures = ['channel_test.json', 'content_test.json']
     multi_db = True
     the_channel_id = 'content_test'
@@ -125,23 +128,55 @@ class ContentMetadataTestCase(TestCase):
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_all_prerequisites(self):
-        p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
+        """
+        test the directional characteristic of prerequisite relationship
+        """
+        c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
+        root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
+        # if root is the prerequisite of c1
         expected_output = content.ContentMetadata.objects.using(self.the_channel_id).filter(title__in=["root"])
-        actual_output = api.get_all_prerequisites(channel_id=self.the_channel_id, content=p)
+        actual_output = api.get_all_prerequisites(channel_id=self.the_channel_id, content=c1)
         self.assertEqual(set(expected_output), set(actual_output))
+        # then c1 should not be the prerequisite of root
+        expected_output = content.ContentMetadata.objects.using(self.the_channel_id).filter(title__in=["c1"])
+        actual_output = api.get_all_prerequisites(channel_id=self.the_channel_id, content=root)
+        self.assertNotEqual(set(actual_output), set(expected_output))
 
     def test_get_all_related(self):
-        p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
+        """
+        test the nondirectional characteristic of related relationship
+        """
+        c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
+        c2 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2")
+        # if c1 is related to c2
         expected_output = content.ContentMetadata.objects.using(self.the_channel_id).filter(title__in=["c2"])
-        actual_output = api.get_all_related(channel_id=self.the_channel_id, content=p)
+        actual_output = api.get_all_related(channel_id=self.the_channel_id, content=c1)
+        self.assertEqual(set(expected_output), set(actual_output))
+        # then c2 should be related to c1
+        expected_output = content.ContentMetadata.objects.using(self.the_channel_id).filter(title__in=["c1"])
+        actual_output = api.get_all_related(channel_id=self.the_channel_id, content=c2)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_set_prerequisite(self):
         root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
         c2 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2")
-        self.assertFalse(api.get_all_prerequisites(channel_id=self.the_channel_id, content=c2))
-        api.set_prerequisite(channel_id=self.the_channel_id, content1=root, content2=c2)
-        self.assertTrue(api.get_all_prerequisites(channel_id=self.the_channel_id, content=c2))
+        self.assertFalse(api.get_all_prerequisites(channel_id=self.the_channel_id, content=root))
+        api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
+        self.assertTrue(api.get_all_prerequisites(channel_id=self.the_channel_id, content=root))
+
+        # test for self reference exception
+        with self.assertRaises(Exception):
+            api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=c2)
+        # test for uniqueness exception
+        with self.assertRaises(Exception):
+            api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
+        # test for immediate cyclic exception
+        with self.assertRaises(Exception):
+            api.set_prerequisite(channel_id=self.the_channel_id, content1=root, content2=c2)
+        # test for distant cyclic exception <the exception hasn't been implemented yet, may add in the future>
+        # c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
+        # with self.assertRaises(Exception):
+        #     api.set_prerequisite(channel_id=self.the_channel_id, content1=c1, content2=c2)
 
     def test_set_is_related(self):
         root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
@@ -149,6 +184,16 @@ class ContentMetadataTestCase(TestCase):
         self.assertFalse(root in api.get_all_related(channel_id=self.the_channel_id, content=c1))
         api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
         self.assertTrue(root in api.get_all_related(channel_id=self.the_channel_id, content=c1))
+
+        # test for self reference exception
+        with self.assertRaises(Exception):
+            api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=c1)
+        # test for uniqueness exception
+        with self.assertRaises(Exception):
+            api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
+        # test for immediate cyclic exception
+        with self.assertRaises(Exception):
+            api.set_is_related(channel_id=self.the_channel_id, content1=root, content2=c1)
 
     def test_children_of_kind(self):
         p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
@@ -212,9 +257,11 @@ class ContentMetadataTestCase(TestCase):
         with self.assertRaises(KeyError):
             api.get_channel_property('ucsd', 'triton')
 
-    """clean up"""
     @classmethod
     def tearDownClass(self):
+        """
+        clean up files/folders created during the test
+        """
         try:
             shutil.rmtree(settings.CONTENT_COPY_DIR)
         except:

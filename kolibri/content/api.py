@@ -6,6 +6,7 @@ from functools import wraps
 from uuid import UUID
 
 from django.core.files import File as DjFile
+from django.db.models import Q
 from kolibri.content import models as KolibriContent
 
 """helper funcitons"""
@@ -181,7 +182,7 @@ def get_all_related(channel_id=None, content=None, **kwargs):
     :param content: ContentMetadata or str
     :return: QuerySet of ContentMetadata
     """
-    return KolibriContent.ContentMetadata.objects.using(channel_id).filter(relate_to=content)
+    return KolibriContent.ContentMetadata.objects.using(channel_id).filter(Q(relate_to=content) | Q(is_related=content))
 
 @can_get_content_with_id
 def set_prerequisite(channel_id=None, content1=None, content2=None, **kwargs):
