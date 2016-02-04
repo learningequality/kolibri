@@ -333,6 +333,17 @@ class Facility(Collection):
         role = FacilityAdmin.objects.get(user=user, _node__parent=self._node)
         role.delete()
 
+    def add_admins(self, users):
+        """
+        Given an iterable of users, add each one as a FacilityAdmin.
+
+        :param users: An iterable of FacilityUsers
+        :return: self, for chaining
+        """
+        for user in users:
+            self.add_admin(user)
+        return self
+
 
 class Classroom(Collection):
     objects = ClassroomManager()
@@ -355,6 +366,40 @@ class Classroom(Collection):
         role = Coach.objects.get(user=user, _node__parent=self._node)
         role.delete()
 
+    def delete(self, *args, **kwargs):
+        for coach in self.coaches():
+            coach.delete()
+        for lg in self.learner_groups():
+            lg.delete()
+        return super(Classroom, self).delete(*args, **kwargs)
+
+    def coaches(self):
+        """
+        Returns a QuerySet of Coaches associated with the classroom.
+
+        :return: A Coach QuerySet
+        """
+        pass
+
+    def learner_groups(self):
+        """
+        Returns a QuerySet of LearnerGroups associated with the classroom.
+
+        :return: A LearnerGroup QuerySet
+        """
+        pass
+
+    def add_coaches(self, users):
+        """
+        Given an iterable of users, add each one as a Coach.
+
+        :param users: An iterable of FacilityUsers
+        :return: self, for chaining
+        """
+        for user in users:
+            self.add_coach(user)
+        return self
+
 
 class LearnerGroup(Collection):
     objects = LearnerGroupManager()
@@ -373,3 +418,14 @@ class LearnerGroup(Collection):
     def remove_learner(self, user):
         role = Learner.objects.get(user=user, _node__parent=self._node)
         role.delete()
+
+    def add_learners(self, users):
+        """
+        Given an iterable of users, add each one as a Learner.
+
+        :param users: An iterable of FacilityUsers
+        :return: self, for chaining
+        """
+        for user in users:
+            self.add_learner(user)
+        return self

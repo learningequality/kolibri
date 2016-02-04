@@ -19,9 +19,11 @@ class CollectionRemovalTestCase(TestCase):
 
         self.cr = Classroom.objects.create()
         self.cr.add_coach(user2)
+        self.cr.add_learner_group(self.lg)
 
         self.f = Facility.objects.create()
         self.f.add_admin(user3)
+        self.f.add_classroom(self.cr)
 
     def test_remove_learner(self):
         self.assertEqual(Learner.objects.count(), 1)
@@ -57,6 +59,28 @@ class CollectionRemovalTestCase(TestCase):
         """ Deleting a Classroom should delete its associated Coaches """
         self.cr.delete()
         self.assertEqual(Coach.objects.count(), 0)
+
+
+class CollectionRelatedObjectTestCase(TestCase):
+    def setUp(self):
+        users = self.users = [FacilityUser.objects.create(username="foo%s" % i) for i in range(0, 10)]
+        self.lg = LearnerGroup.objects.create()
+        self.lg.add_learners(users[0:5])
+
+        self.cr = Classroom.objects.create()
+        self.cr.add_coaches(users[5:8])
+        self.cr.add_learner_group(self.lg)
+
+        self.f = Facility.objects.create()
+        self.f.add_admins(users[8:9])
+        self.f.add_classroom(self.cr)
+
+    def test_get_coaches(self):
+        self.assertSetEqual(set(c.pk for c in Coach.objects.filter(user__in=self.users[5:8])),
+                            set(c.pk for c in self.cr.coaches()))
+
+    def test_get_learner_groups(self):
+        self.assertSetEqual({self.lg.pk}, set(lg.pk for lg in self.cr.learner_groups()))
 
 
 class CollectionsTestCase(TestCase):
