@@ -4,6 +4,8 @@ default Django backend, but authorization (i.e. permissions checking) must be ha
 do not use the regular Django permissions. See handling authorization docs. Should then be listed in the
 AUTHENTICATION_BACKENDS. Note that authentication backends are checked in the order they're listed.
 """
+import functools
+
 from kolibri.auth.models import BaseUser, DeviceOwner, FacilityUser
 from kolibri.core.errors import KolibriError
 
@@ -162,10 +164,11 @@ def _reject_obj(perm, obj):
             perm=perm, obj=repr(obj)))
 
 
-def _auth_add_facility(user, obj=None):
-    _reject_obj('auth.add_facility', obj)
+def _deny(perm, user, obj=None):
+    _reject_obj(perm, obj)
     return False
 
 _permissions_checkers = {
-    'auth.add_facility': _auth_add_facility
+    'auth.add_facility': functools.partial(_deny, 'auth.add_facility'),
+    'auth.remove_facility': functools.partial(_deny, 'auth.remove_facility'),
 }
