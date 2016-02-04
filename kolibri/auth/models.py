@@ -355,6 +355,17 @@ class Facility(Collection):
             self.add_admin(user)
         return self
 
+    def add_classrooms(self, classrooms):
+        """
+        Adds each Classroom in the iterable to the Facility.
+
+        :param classrooms: An iterable of Classrooms
+        :return: self, for chaining
+        """
+        for c in classrooms:
+            self.add_classroom(c)
+        return self
+
 
 class Classroom(Collection):
     objects = ClassroomManager()
@@ -409,6 +420,17 @@ class Classroom(Collection):
         """
         for user in users:
             self.add_coach(user)
+        return self
+
+    def add_learner_groups(self, learner_groups):
+        """
+        Adds each Classroom in the iterable to the Facility.
+
+        :param learner_groups: An iterable of LearnerGroups
+        :return: self, for chaining
+        """
+        for lg in learner_groups:
+            self.add_learner_group(lg)
         return self
 
 
