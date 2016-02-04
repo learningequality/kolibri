@@ -3,6 +3,26 @@ from django.test import TestCase
 from kolibri.auth import get_user_models, get_hierarchy_models, get_collection_proxies, get_role_proxies
 
 
+class CollectionRemovalTestCase(TestCase):
+    """
+    Tests that removing Roles and sub-Collections from a Collection does not create orhpans.
+    """
+    def setUp(self):
+        FacilityAdmin, Coach, Learner = get_role_proxies()
+        Facility, Classroom, LearnerGroup = get_collection_proxies()
+        _, FacilityUser, _ = get_user_models()
+
+        user = self.user = FacilityUser.objects.create(username='foo')
+        self.lg = LearnerGroup.objects.create()
+        self.lg.add_learner(user)
+
+    def test_remove_learner(self):
+        _, _, Learner = get_role_proxies()
+        self.assertEqual(Learner.objects.count(), 1)
+        self.lg.remove_learner(self.user)
+        self.assertEqual(Learner.objects.count(), 0)
+
+
 class CollectionsTestCase(TestCase):
     def setUp(self):
         self.Facility, self.Classroom, self.LearnerGroup = get_collection_proxies()
