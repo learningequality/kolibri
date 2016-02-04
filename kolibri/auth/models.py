@@ -379,7 +379,7 @@ class Classroom(Collection):
 
         :return: A Coach QuerySet
         """
-        pass
+        return Coach.objects.filter(_node__parent=self._node)
 
     def learner_groups(self):
         """
@@ -387,7 +387,7 @@ class Classroom(Collection):
 
         :return: A LearnerGroup QuerySet
         """
-        pass
+        return LearnerGroup.objects.filter(_node__parent=self._node)
 
     def add_coaches(self, users):
         """
