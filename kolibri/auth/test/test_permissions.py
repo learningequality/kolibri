@@ -63,6 +63,15 @@ class FacilityUserPermissionsTestCase(TestCase):
         with self.assertRaises(InvalidPermission):
             self.assertFalse(self.learner1.has_perm('auth.remove_facility', obj=[]))
 
+    def test_change_facility(self):
+        self.assertTrue(self.admin.has_perm('auth.change_facility'))
+
+    def test_change_facility_denied_pt1(self):
+        self.assertFalse(self.coach1.has_perm('auth.change_facility'))
+
+    def test_change_facility_denied_pt2(self):
+        self.assertFalse(self.learner1.has_perm('auth.change_facility'))
+
     def test_nonexistent_permissions_raises_error(self):
         with self.assertRaises(InvalidPermission):
             self.learner1.has_perm('foobar.perm')

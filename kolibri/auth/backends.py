@@ -6,7 +6,7 @@ AUTHENTICATION_BACKENDS. Note that authentication backends are checked in the or
 """
 import functools
 
-from kolibri.auth.models import BaseUser, DeviceOwner, FacilityUser
+from kolibri.auth.models import BaseUser, DeviceOwner, FacilityUser, FacilityAdmin
 from kolibri.core.errors import KolibriError
 
 
@@ -73,7 +73,7 @@ class FacilityBackend(BaseBackend):
         :return: True or False.
         """
         try:
-            _permissions_checkers[perm](user_obj, obj)
+            return _permissions_checkers[perm](user_obj, obj)
         except KeyError:
             raise InvalidPermission("Permission '{}' does not have a permission checking function".format(perm))
 
@@ -168,7 +168,13 @@ def _deny(perm, user, obj=None):
     _reject_obj(perm, obj)
     return False
 
+
+def _admin_only(user, obj):
+    _reject_obj('auth.change_facility', obj)
+    return FacilityAdmin.objects.filter(user=user).exists()
+
 _permissions_checkers = {
     'auth.add_facility': functools.partial(_deny, 'auth.add_facility'),
     'auth.remove_facility': functools.partial(_deny, 'auth.remove_facility'),
+    'auth.change_facility': _admin_only
 }
