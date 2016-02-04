@@ -39,7 +39,7 @@ class ContentMetadataTestCase(TestCase):
         api.update_content_copy(file_1, fpath_1)
         file_3 = content.File.objects.using(self.the_channel_id).filter(format=fm_3)[1]
         api.update_content_copy(file_3, fpath_1)
-        self.assertEqual(1, len(os.listdir(settings.CONTENT_COPY_DIR+'/e/8/')))
+        self.assertEqual(1, len(os.listdir(settings.CONTENT_COPY_DIR+'/d/4/')))
 
         # swap the content copy in file_3
         fpath_2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/files_for_testing/y2-uaPiyoxc.mp4"
