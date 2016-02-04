@@ -227,6 +227,43 @@ class Collection(NodeReferencingModel):
         self._node.insert_role_node(role._node)
 
 
+class Role(NodeReferencingModel):
+    """
+    Roles are abstractions for making decisions about user's permissions.
+    Users have one or more Roles, potentially with many different `kind`s.
+    Roles are associated with Collections by convention, for instance a Role with `kind` "Coach" is associated with
+    a Classroom collection -- this association is not strictly enforced, and so must be honored by the developer when
+    directly adding Roles to the hierarchy.
+    The hierarchy of Roles and Collections forms a tree structure, and a description can be found
+    `in the dev bible <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit>`_.
+    """
+    kind = models.CharField(max_length=50)
+    user = models.ForeignKey('FacilityUser', blank=False, null=False)
+
+    @classmethod
+    def permitted_objects(cls, perm, request_user):
+        raise NotImplementedError()
+
+    def save(self, *args, **kwargs):
+        self._node = HierarchyNode.objects.create(kind='Role', kind_id=self.user.id)
+        return super(Role, self).save(*args, **kwargs)
+
+
+class FacilityAdmin(Role):
+    class Meta:
+        proxy = True
+
+
+class Coach(Role):
+    class Meta:
+        proxy = True
+
+
+class Learner(Role):
+    class Meta:
+        proxy = True
+
+
 class FacilityManager(models.Manager):
     def get_queryset(self):
         return super(FacilityManager, self).get_queryset().filter(kind='Facility')
@@ -292,39 +329,6 @@ class LearnerGroup(Collection):
         self.kind = "LearnerGroup"
         return super(LearnerGroup, self).save(*args, **kwargs)
 
-
-class Role(NodeReferencingModel):
-    """
-    Roles are abstractions for making decisions about user's permissions.
-    Users have one or more Roles, potentially with many different `kind`s.
-    Roles are associated with Collections by convention, for instance a Role with `kind` "Coach" is associated with
-    a Classroom collection -- this association is not strictly enforced, and so must be honored by the developer when
-    directly adding Roles to the hierarchy.
-    The hierarchy of Roles and Collections forms a tree structure, and a description can be found
-    `in the dev bible <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit>`_.
-    """
-    kind = models.CharField(max_length=50)
-    user = models.ForeignKey('FacilityUser', blank=False, null=False)
-
-    @classmethod
-    def permitted_objects(cls, perm, request_user):
-        raise NotImplementedError()
-
-    def save(self, *args, **kwargs):
-        self._node = HierarchyNode.objects.create(kind='Role', kind_id=self.user.id)
-        return super(Role, self).save(*args, **kwargs)
-
-
-class FacilityAdmin(Role):
-    class Meta:
-        proxy = True
-
-
-class Coach(Role):
-    class Meta:
-        proxy = True
-
-
-class Learner(Role):
-    class Meta:
-        proxy = True
+    def remove_learner(self, user):
+        role = Learner.objects.get(user=user, _node__parent=self._node)
+        role.delete()
