@@ -1,5 +1,6 @@
 -r base.txt
 flake8
+tox
 pre-commit
 tox
 pre-commit
