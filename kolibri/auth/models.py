@@ -330,7 +330,8 @@ class Facility(Collection):
         return super(Facility, self).save(*args, **kwargs)
 
     def remove_admin(self, user):
-        pass
+        role = FacilityAdmin.objects.get(user=user, _node__parent=self._node)
+        role.delete()
 
 
 class Classroom(Collection):
@@ -351,7 +352,9 @@ class Classroom(Collection):
         return super(Classroom, self).save(*args, **kwargs)
 
     def remove_coach(self, user):
-        pass
+        role = Coach.objects.get(user=user, _node__parent=self._node)
+        role.delete()
+
 
 class LearnerGroup(Collection):
     objects = LearnerGroupManager()
