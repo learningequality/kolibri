@@ -249,19 +249,52 @@ class Role(NodeReferencingModel):
         return super(Role, self).save(*args, **kwargs)
 
 
+class FacilityAdminManager(models.Manager):
+    def get_queryset(self):
+        return super(FacilityAdminManager, self).get_queryset().filter(kind='FacilityAdmin')
+
+
+class CoachManager(models.Manager):
+    def get_queryset(self):
+        return super(CoachManager, self).get_queryset().filter(kind='Coach')
+
+
+class LearnerManager(models.Manager):
+    def get_queryset(self):
+        return super(LearnerManager, self).get_queryset().filter(kind='Learner')
+
+
 class FacilityAdmin(Role):
+    objects = FacilityAdminManager()
+
     class Meta:
         proxy = True
+
+    def save(self, *args, **kwargs):
+        self.kind = "FacilityAdmin"
+        return super(FacilityAdmin, self).save(*args, **kwargs)
 
 
 class Coach(Role):
+    objects = CoachManager()
+
     class Meta:
         proxy = True
+
+    def save(self, *args, **kwargs):
+        self.kind = "Coach"
+        return super(Coach, self).save(*args, **kwargs)
 
 
 class Learner(Role):
+    objects = LearnerManager()
+
     class Meta:
         proxy = True
+
+    def save(self, *args, **kwargs):
+        self.kind = "Learner"
+        return super(Learner, self).save(*args, **kwargs)
 
 
 class FacilityManager(models.Manager):
@@ -296,6 +329,9 @@ class Facility(Collection):
         self.kind = "Facility"
         return super(Facility, self).save(*args, **kwargs)
 
+    def remove_admin(self, user):
+        pass
+
 
 class Classroom(Collection):
     objects = ClassroomManager()
@@ -314,6 +350,8 @@ class Classroom(Collection):
         self.kind = "Classroom"
         return super(Classroom, self).save(*args, **kwargs)
 
+    def remove_coach(self, user):
+        pass
 
 class LearnerGroup(Collection):
     objects = LearnerGroupManager()

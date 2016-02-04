@@ -16,11 +16,29 @@ class CollectionRemovalTestCase(TestCase):
         self.lg = LearnerGroup.objects.create()
         self.lg.add_learner(user)
 
+        self.cr = Classroom.objects.create()
+        self.cr.add_coach(user)
+
+        self.f = Facility.objects.create()
+        self.f.add_admin(user)
+
     def test_remove_learner(self):
         _, _, Learner = get_role_proxies()
         self.assertEqual(Learner.objects.count(), 1)
         self.lg.remove_learner(self.user)
         self.assertEqual(Learner.objects.count(), 0)
+
+    def test_remove_coach(self):
+        _, Coach, _ = get_role_proxies()
+        self.assertEqual(Coach.objects.count(), 1)
+        self.cr.remove_coach(self.user)
+        self.assertEqual(Coach.objects.count(), 0)
+
+    def test_remove_admin(self):
+        FacilityAdmin, _, _ = get_role_proxies()
+        self.assertEqual(FacilityAdmin.objects.count(), 1)
+        self.f.remove_admin(self.user)
+        self.assertEqual(FacilityAdmin.objects.count(), 0)
 
 
 class CollectionsTestCase(TestCase):
