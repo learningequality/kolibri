@@ -60,6 +60,22 @@ class CollectionRemovalTestCase(TestCase):
         self.cr.delete()
         self.assertEqual(Coach.objects.count(), 0)
 
+    def test_delete_facility_pt1(self):
+        """ Deleting a Facility should delete FacilityAdmins """
+        self.f.delete()
+        self.assertEqual(FacilityAdmin.objects.count(), 0)
+
+    def test_delete_facility_pt2(self):
+        """ Deleting a Facility should delete Classrooms """
+        self.f.delete()
+        self.assertEqual(Classroom.objects.count(), 0)
+
+    def test_delete_facility_pt3(self):
+        """ Deleting a Facility should delete *every* Collection and Role underneath it """
+        self.f.delete()
+        self.assertEqual(Collection.objects.count(), 0)
+        self.assertEqual(Role.objects.count(), 0)
+
 
 class CollectionRelatedObjectTestCase(TestCase):
     def setUp(self):
