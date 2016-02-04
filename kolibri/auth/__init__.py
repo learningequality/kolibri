@@ -36,3 +36,23 @@ def get_collection_proxies():
     :return: A tuple of Collection proxies, (Facility, Classroom, LearnerGroup)
     """
     return get_facility_model(), get_classroom_model(), get_learner_group_model()
+
+
+def get_facility_admin_model():
+    return djapps.get_model('kolibriauth', 'FacilityAdmin')
+
+
+def get_coach_model():
+    return djapps.get_model('kolibriauth', 'Coach')
+
+
+def get_learner_model():
+    return djapps.get_model('kolibriauth', 'Learner')
+
+
+def get_role_proxies():
+    """
+    Taking a cue from Django to avoid circular imports
+    :return: A tuple of Role proxies, (FacilityAdmin, Coach, Learner)
+    """
+    return get_facility_admin_model(), get_coach_model(), get_learner_model()

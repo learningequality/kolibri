@@ -221,10 +221,10 @@ class Collection(NodeReferencingModel):
         return super(Collection, self).save(*args, **kwargs)
 
     def add_subcollection(self, collection):
-        raise NotImplementedError()
+        self._node.insert_collection_node(collection._node)
 
     def add_role(self, role):
-        raise NotImplementedError()
+        self._node.insert_role_node(role._node)
 
 
 class Facility(Collection):
@@ -277,3 +277,18 @@ class Role(NodeReferencingModel):
     def save(self, *args, **kwargs):
         self._node = HierarchyNode.objects.create(kind='Role', kind_id=self.user.id)
         return super(Role, self).save(*args, **kwargs)
+
+
+class FacilityAdmin(Role):
+    class Meta:
+        proxy = True
+
+
+class Coach(Role):
+    class Meta:
+        proxy = True
+
+
+class Learner(Role):
+    class Meta:
+        proxy = True
