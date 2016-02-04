@@ -4,6 +4,8 @@ To access it, please use the public APIs in api.py
 
 The ONLY public object is ContentMetadata
 """
+from __future__ import print_function
+
 import hashlib
 import os
 from uuid import uuid4
@@ -39,7 +41,7 @@ class ContentCopyStorage(FileSystemStorage):
     def _save(self, name, content):
         if self.exists(name):
             # if the file exists, do not call the superclasses _save method
-            print 'file "', name, '" already exists!'
+            print('file "', name, '" already exists!')
             return name
         return super(ContentCopyStorage, self)._save(name, content)
 
@@ -130,7 +132,7 @@ class File(AbstractContent):
     extension = models.CharField(max_length=100, blank=True, null=True)
     available = models.BooleanField(default=False)
     file_size = models.IntegerField(blank=True, null=True)
-    content_copy = models.FileField(upload_to=content_copy_name, storage=ContentCopyStorage(), blank=True)
+    content_copy = models.FileField(upload_to=content_copy_name, storage=ContentCopyStorage(), max_length=200, blank=True)
     format = models.ForeignKey(Format, related_name='files', blank=True, null=True)
 
     class Admin:
@@ -221,6 +223,26 @@ class PrerequisiteContentRelationship(ContentRelationship):
     class Admin:
         pass
 
+    def clean(self, *args, **kwargs):
+        # self reference exception
+        if self.contentmetadata_1 == self.contentmetadata_2:
+            raise Exception('Cannot self reference as prerequisite.')
+        # immediate cyclic exception
+        elif PrerequisiteContentRelationship.objects.using(self._state.db)\
+                .filter(contentmetadata_1=self.contentmetadata_2, contentmetadata_2=self.contentmetadata_1):
+            raise Exception(
+                'Note: Prerequisite relationship is directional!\
+                %s and %s cannot be prerequisite of each other!' % (self.contentmetadata_1, self.contentmetadata_2))
+        # distant cyclic exception
+        # elif <this is a nice to have exception, may implement in the future when the priority raises.>
+        #     raise Exception('Note: Prerequisite relationship is acyclic! %s and %s forms a closed loop!' % (self.contentmetadata_1, self.contentmetadata_2))
+        super(PrerequisiteContentRelationship, self).clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(PrerequisiteContentRelationship, self).save(*args, **kwargs)
+
+
 class RelatedContentRelationship(ContentRelationship):
     """
     Predefine the related relationship between two ContentMetadata objects.
@@ -232,6 +254,20 @@ class RelatedContentRelationship(ContentRelationship):
 
     class Admin:
         pass
+
+    def clean(self, *args, **kwargs):
+        # self reference exception
+        if self.contentmetadata_1 == self.contentmetadata_2:
+            raise Exception('Cannot self reference as related.')
+        # immediate cyclic exception
+        elif RelatedContentRelationship.objects.using(self._state.db)\
+                .filter(contentmetadata_1=self.contentmetadata_2, contentmetadata_2=self.contentmetadata_1):
+            raise Exception('Note: Related relationship is undirectional! %s and %s are already related!' % (self.contentmetadata_1, self.contentmetadata_2))
+        super(RelatedContentRelationship, self).clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(RelatedContentRelationship, self).save(*args, **kwargs)
 
 class PrerequisiteRelationshipInline1(admin.TabularInline):
     model = PrerequisiteContentRelationship

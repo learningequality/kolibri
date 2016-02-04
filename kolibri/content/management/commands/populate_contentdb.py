@@ -15,8 +15,8 @@ from kolibri.content import models
 
 
 class Command(BaseCommand):
-    help = ' To collect data for fixture, run the commandline <kolibri manage dumpdata content>.'
-    +' You may want to run <kolibri manage flush> to clean the database after you have created the fixture.'
+    help = """To collect data for fixture, run the commandline <kolibri manage dumpdata content>.
+              You may want to run <kolibri manage flush> to clean the database after you have created the fixture."""
 
     def populate_content_db(self):
         """
