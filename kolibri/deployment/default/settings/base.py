@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'kolibri.auth.apps.KolibriAuthConfig',
-    'kolibri.content',
 ] + conf.config['INSTALLED_APPS']
 
 MIDDLEWARE_CLASSES = (
