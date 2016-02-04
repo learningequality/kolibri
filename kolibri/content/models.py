@@ -231,8 +231,8 @@ class PrerequisiteContentRelationship(ContentRelationship):
         elif PrerequisiteContentRelationship.objects.using(self._state.db)\
                 .filter(contentmetadata_1=self.contentmetadata_2, contentmetadata_2=self.contentmetadata_1):
             raise Exception(
-                'Note: Prerequisite relationship is directional!\
-                %s and %s cannot be prerequisite of each other!' % (self.contentmetadata_1, self.contentmetadata_2))
+                'Note: Prerequisite relationship is directional! %s and %s cannot be prerequisite of each other!'
+                % (self.contentmetadata_1, self.contentmetadata_2))
         # distant cyclic exception
         # elif <this is a nice to have exception, may implement in the future when the priority raises.>
         #     raise Exception('Note: Prerequisite relationship is acyclic! %s and %s forms a closed loop!' % (self.contentmetadata_1, self.contentmetadata_2))
@@ -262,7 +262,9 @@ class RelatedContentRelationship(ContentRelationship):
         # immediate cyclic exception
         elif RelatedContentRelationship.objects.using(self._state.db)\
                 .filter(contentmetadata_1=self.contentmetadata_2, contentmetadata_2=self.contentmetadata_1):
-            raise Exception('Note: Related relationship is undirectional! %s and %s are already related!' % (self.contentmetadata_1, self.contentmetadata_2))
+            raise Exception(
+                'Note: Related relationship is undirectional! %s and %s are already related!'
+                % (self.contentmetadata_1, self.contentmetadata_2))
         super(RelatedContentRelationship, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
