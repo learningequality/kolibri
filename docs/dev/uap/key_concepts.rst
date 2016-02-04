@@ -76,7 +76,7 @@ Private Device (or the Central Server).
 A **Classroom** (this name is chosen to distinguish from Python classes) is a collection of **Learners** and
 **Coaches**. The Learners in a Classroom may be subdivided into **Learner Groups**. Learners and Coaches are both
 **Roles** associated to a Class, which can be assigned to **Users**. A User may not be both a Learner and a Coach for
-a single Class, but may be a Learner for one Class and a Coach for another Class. Classes and Learner Groups are
+a single Class, but may be a Learner for one Classroom and a Coach for another Class. Classes and Learner Groups are
 collectively referred to as **Collections**.
 
 Users are further distinguished by their **data access permissions** (DAPs). Discrete pieces of data (like video and
@@ -84,12 +84,12 @@ exercise logs, or user attributes like passwords) may be associated to a User. W
 permission to access another data User's data depends on their membership in Collections, and the Users' Roles in
 the following ways (for example, but not limited to):
 #. If the requesting User is also the data User, permission is granted.
-#. If the requesting User is a Coach for a Class in which the data User is a Learner, then permission is granted.
-(This is a simplification - but if data is also associated with a Class somehow, we may be able to use more
+#. If the requesting User is a Coach for a Classroom in which the data User is a Learner, then permission is granted.
+(This is a simplification - but if data is also associated with a Classroom somehow, we may be able to use more
 granular rules.)
 
-Additionally, Users have **role permissions**. Users can assign or revoke Roles within a Class if they have that
-Role. For instance a Coach for a Class may make another user a Coach, and a Facility Admin may make another user a
+Additionally, Users have **role permissions**. Users can assign or revoke Roles within a Classroom if they have that
+Role. For instance a Coach for a Classroom may make another user a Coach, and a Facility Admin may make another user a
 Facility Admin. This does not apply to the Learner Role - Coaches may make users Learners for a Class, but Learners
 may not make other Users Learners.
 
@@ -104,3 +104,11 @@ be performed by a Device Owner.
 
 While the person who created the Device Owner account may in general have root-level access to a device, and therefore
 arbitrary access to user data in practice, the Device Owner does not have any data access permissions.
+
+The hierarchy of Collections and Roles
+--------------------------------------
+
+Collections and Roles define a tree. The following diagram illustrates the relationship between Classrooms, Coaches,
+Learner Groups, and Learners. The relationship between Facilities, Facility Admins, and Classrooms is analogous.
+
+.. image:: /dev/img/ClassTree.png
