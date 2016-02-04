@@ -5,6 +5,7 @@ do not use the regular Django permissions. See handling authorization docs. Shou
 AUTHENTICATION_BACKENDS. Note that authentication backends are checked in the order they're listed.
 """
 from kolibri.auth.models import BaseUser, DeviceOwner, FacilityUser
+from kolibri.core.errors import KolibriError
 
 
 class BaseBackend(object):
@@ -69,7 +70,10 @@ class FacilityBackend(BaseBackend):
         :param obj: For row-level permissions, the object in question
         :return: True or False.
         """
-        raise NotImplementedError()
+        try:
+            _permissions_checkers[perm](user_obj, obj)
+        except KeyError:
+            raise InvalidPermission("Permission '{}' does not have a permission checking function".format(perm))
 
     def has_module_perms(self, user_obj, package_name):
         """
@@ -146,3 +150,22 @@ class DeviceBackend(BaseBackend):
         :return: A list of permission strings. Empty if the user is a FacilityUser.
         """
         raise NotImplementedError()
+
+
+class InvalidPermission(KolibriError):
+    pass
+
+
+def _reject_obj(perm, obj):
+    if obj is not None:
+        raise InvalidPermission("'{perm}' does not take an optional object. Got: {obj}".format(
+            perm=perm, obj=repr(obj)))
+
+
+def _auth_add_facility(user, obj=None):
+    _reject_obj('auth.add_facility', obj)
+    return False
+
+_permissions_checkers = {
+    'auth.add_facility': _auth_add_facility
+}

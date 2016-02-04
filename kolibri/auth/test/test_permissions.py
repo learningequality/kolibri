@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-
+from kolibri.auth.backends import InvalidPermission
 from kolibri.auth.models import FacilityUser, Facility, Classroom, LearnerGroup
 
 
@@ -40,3 +40,12 @@ class FacilityUserPermissionsTestCase(TestCase):
     def test_add_facility_pt3(self):
         """ FacilityUsers can't create new Facilities, regardless of their roles """
         self.assertFalse(self.learner1.has_perm('auth.add_facility'))
+
+    def test_add_facility_pt4(self):
+        """ Raises exception if optional obj supplied """
+        with self.assertRaises(InvalidPermission):
+            self.assertFalse(self.learner1.has_perm('auth.add_facility', obj=[]))
+
+    def test_nonexistent_permissions_raises_error(self):
+        with self.assertRaises(InvalidPermission):
+            self.learner1.has_perm('foobar.perm')
