@@ -225,4 +225,6 @@ _permissions_checkers = {
     'auth.remove_coach': _coach_for_the_class,
     'auth.add_learner': _coach_for_the_learner_group,
     'auth.remove_learner': _coach_for_the_learner_group,
+    'auth.add_facility_admin': functools.partial(_admin_only, 'auth.add_facility_admin'),
+    'auth.remove_facility_admin': functools.partial(_admin_only, 'auth.remove_facility_admin'),
 }
