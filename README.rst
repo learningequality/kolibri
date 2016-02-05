@@ -46,6 +46,10 @@ Adjust according to your operating system or personal preferences.
 #. Install a virtual environment for development (Python 2 or Python 3, you choose!)::
 
     $ sudo pip install virtualenvwrapper
+
+#. Follow the instructions from http://virtualenvwrapper.readthedocs.org/en/latest/install.html#basic-installation
+#. You will need to source the virtualenvwrapper.sh file for the following commands to work
+
     $ mkvirtualenv --python=python3 kolibri
     $ workon kolibri
 
@@ -60,9 +64,15 @@ Adjust according to your operating system or personal preferences.
 
     $ pip install -e .
 
+#. Run the migration script to create and initialize the database
+   $ kolibri manage migrate
+
 #. Run the development server::
 
     $ kolibri manage runserver
+
+#. Install the pre-commit package: http://pre-commit.com/
+    $ sudo pip install pre-commit
 
 # Install pre-commit hooks to ensure you commit good code::
 
