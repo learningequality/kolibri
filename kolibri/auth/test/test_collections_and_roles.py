@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function, unicode_literals
+
 from django.test import TestCase
 
 from kolibri.auth.models import FacilityUser, Facility, Classroom, LearnerGroup, FacilityAdmin, Coach, Learner, \
