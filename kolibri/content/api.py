@@ -3,29 +3,11 @@ This module acts as the only interface point between other apps and the database
 It exposes several convenience functions for accessing content
 """
 from functools import wraps
-from uuid import UUID
 
 from django.core.files import File as DjFile
 from django.db.models import Q
 from kolibri.content import models as KolibriContent
-
-"""helper funcitons"""
-
-def is_valid_uuid(uuid_to_test, version=4):
-    """
-    Check if uuid_to_test is a valid UUID.
-
-    :param uuid_to_test: str
-    :param version: int {1, 2, 3, 4}
-    :return: True if uuid_to_test is from a valid UUID
-    """
-    try:
-        uuid_obj = UUID(uuid_to_test, version=version)
-    except ValueError:
-        return False
-
-    return str(uuid_obj) == uuid_to_test
-
+from kolibri.content.utils import validate
 
 """ContentDB API methods"""
 
@@ -43,9 +25,9 @@ def can_get_content_with_id(func):
         if isinstance(content, KolibriContent.ContentMetadata) or \
                 (isinstance(content1, KolibriContent.ContentMetadata) and isinstance(content2, KolibriContent.ContentMetadata)):
             pass
-        elif is_valid_uuid(content):
+        elif validate.is_valid_uuid(content):
             kwargs['content'] = KolibriContent.ContentMetadata.objects.using(channel_id).get(content_id=content)
-        elif is_valid_uuid(content1) and is_valid_uuid(content2):
+        elif validate.is_valid_uuid(content1) and validate.is_valid_uuid(content2):
             kwargs['content1'] = KolibriContent.ContentMetadata.objects.using(channel_id).get(content_id=content1)
             kwargs['content2'] = KolibriContent.ContentMetadata.objects.using(channel_id).get(content_id=content2)
         else:
@@ -248,7 +230,7 @@ def get_channel(channel_identifier):
     :param channel_identifier: str
     :return: ChannelMetadata
     """
-    if is_valid_uuid(channel_identifier):
+    if validate.is_valid_uuid(channel_identifier):
         try:
             the_channel = KolibriContent.ChannelMetadata.objects.get(channel_id=channel_identifier)
         except KolibriContent.ChannelMetadata.DoesNotExist:
