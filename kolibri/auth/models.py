@@ -471,3 +471,11 @@ class LearnerGroup(Collection):
         for user in users:
             self.add_learner(user)
         return self
+
+    def classroom(self):
+        """
+        Gets the LearnerGroup's associated Classroom
+
+        :return: A Classroom instance, if it exists.
+        """
+        return Classroom.objects.get(_node=self._node.parent)
