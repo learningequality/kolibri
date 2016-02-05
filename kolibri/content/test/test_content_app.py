@@ -27,6 +27,20 @@ class ContentMetadataTestCase(TestCase):
     }
 
     """Tests for content API methods"""
+    def test_can_get_content_with_id(self):
+        # pass content_id
+        root_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
+        expected_output = content.ContentMetadata.objects.using(self.the_channel_id).filter(title__in=["c1", "c2"])
+        actual_output = api.immediate_children(channel_id=self.the_channel_id, content=str(root_id))
+        self.assertEqual(set(expected_output), set(actual_output))
+
+        # pass content_ids
+        api.set_is_related(channel_id=self.the_channel_id, content1=str(expected_output[0].content_id), content2=str(root_id))
+
+        # pass invalid type
+        with self.assertRaises(TypeError):
+            api.immediate_children(channel_id=self.the_channel_id, content=432)
+
     def test_update_content_copy(self):
         """
         test adding same content copies, and deleting content copy
@@ -73,6 +87,10 @@ class ContentMetadataTestCase(TestCase):
 
         # test MimeType __str__ method
         self.assertEqual(fm_1.mimetype.__str__(), 'video_high')
+
+        # test for non File object exception
+        with self.assertRaises(Exception):
+            api.update_content_copy(None, None)
 
     def test_get_content_with_id(self):
         # test for single content_id
@@ -264,6 +282,25 @@ class ContentMetadataTestCase(TestCase):
         # test ChannelMetadata __str__ method
         self.assertEqual(get_by_name.__str__(), 'ucsd')
 
+        # test for wrong channel id exception
+        with self.assertRaises(ValueError):
+            api.get_channel('9788ab1e-eb91-4487-a2fb-89f9953e66ad')
+
+        # test for wrong channel name exception
+        with self.assertRaises(ValueError):
+            api.get_channel('ucsdd')
+
+        # test for wrong channel name type exception
+        with self.assertRaises(TypeError):
+            api.get_channel(432)
+
+        # test for channels with same name exception
+        with self.assertRaises(ValueError):
+            content.ChannelMetadata.objects.create(
+                name='ucsd', channel_id='9788ab1e-eb91-4487-a2fb-89f9953e66aa',
+                author='Jim', description='second ucsd', theme="i'm a json blob", subscribed=True)
+            api.get_channel('ucsd')
+
     def test_get_channel_property(self):
         """
         test with different property names
@@ -304,6 +341,10 @@ class ContentMetadataTestCase(TestCase):
         # test for wrong property names
         with self.assertRaises(KeyError):
             api.get_channel_property('ucsd', 'triton')
+
+        # test for wrong property type
+        with self.assertRaises(ValueError):
+            api.get_channel_property('ucsd', 13)
 
     @classmethod
     def tearDownClass(self):
