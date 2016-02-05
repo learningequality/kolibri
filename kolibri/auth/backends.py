@@ -169,13 +169,8 @@ def _deny(perm, user, obj=None):
     return False
 
 
-def _admin_only(user, obj):
-    _reject_obj('auth.change_facility', obj)
-    return user.is_facility_admin()
-
-
-def _auth_add_classroom(user, obj):
-    _reject_obj('auth.add_classroom', obj)
+def _admin_only(perm, user, obj):
+    _reject_obj(perm, obj)
     return user.is_facility_admin()
 
 
@@ -184,6 +179,10 @@ def _assert_type(obj, _type):
         return True
     else:
         raise InvalidPermission('Expected object of type {}, but got {}'.format(repr(_type), repr(type(obj))))
+
+
+def _auth_add_learner_group(user, obj):
+    pass
 
 
 def _coach_for_the_class(user, obj):
@@ -203,8 +202,9 @@ def _coach_for_the_class(user, obj):
 _permissions_checkers = {
     'auth.add_facility': functools.partial(_deny, 'auth.add_facility'),
     'auth.remove_facility': functools.partial(_deny, 'auth.remove_facility'),
-    'auth.change_facility': _admin_only,
-    'auth.add_classroom': _auth_add_classroom,
+    'auth.change_facility': functools.partial(_admin_only, 'auth.change_facility'),
+    'auth.add_classroom': functools.partial(_admin_only, 'auth.add_classroom'),
     'auth.change_classroom': _coach_for_the_class,
     'auth.remove_classroom': _coach_for_the_class,
+    'auth.add_learner_group': _coach_for_the_class,
 }
