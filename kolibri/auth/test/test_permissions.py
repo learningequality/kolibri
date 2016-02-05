@@ -350,3 +350,71 @@ class FacilityUserPermissionsTestCase(TestCase):
     def test_remove_coach_rejects_non_classroom_objects(self):
         with self.assertRaises(InvalidPermission):
             self.admin.has_perm(self.AUTH_REMOVE_COACH, obj={})
+
+    # noqa ##################################
+    # noqa #                               ##
+    # noqa #       auth.add_learner        ##
+    # noqa #                               ##
+    # noqa ##################################
+    AUTH_ADD_LEARNER = 'auth.add_learner'
+
+    def test_add_learner_universal_for_admin(self):
+        self.assertTrue(self.admin.has_perm(self.AUTH_ADD_LEARNER))
+
+    def test_add_learner_universal_for_coach(self):
+        self.assertFalse(self.coach2.has_perm(self.AUTH_ADD_LEARNER))
+
+    def test_add_learner_universal_for_learner(self):
+        self.assertFalse(self.learner1.has_perm(self.AUTH_ADD_LEARNER))
+
+    def test_add_learner_specific_for_admin(self):
+        self.assertTrue(self.admin.has_perm(self.AUTH_ADD_LEARNER, self.learner_groups[0]))
+
+    def test_add_learner_specific_for_coach_pt1(self):
+        """ Coaches can add Learners for their own LearnerGroups """
+        self.assertTrue(self.coach2.has_perm(self.AUTH_ADD_LEARNER, self.learner_groups[1]))
+
+    def test_add_learner_specific_for_coach_pt2(self):
+        """ Coaches can *not* add Learners for another's LearnerGroups """
+        self.assertFalse(self.coach1.has_perm(self.AUTH_ADD_LEARNER, self.learner_groups[1]))
+
+    def test_add_learner_specific_for_learner(self):
+        self.assertFalse(self.learner1.has_perm(self.AUTH_ADD_LEARNER, self.learner_groups[0]))
+
+    def test_add_learner_rejects_non_learner_group_objects(self):
+        with self.assertRaises(InvalidPermission):
+            self.admin.has_perm(self.AUTH_ADD_LEARNER, obj={})
+
+    # noqa ##################################
+    # noqa #                               ##
+    # noqa #       auth.remove_learner     ##
+    # noqa #                               ##
+    # noqa ##################################
+    AUTH_REMOVE_LEARNER = 'auth.remove_learner'
+
+    def test_remove_learner_universal_for_admin(self):
+        self.assertTrue(self.admin.has_perm(self.AUTH_REMOVE_LEARNER))
+
+    def test_remove_learner_universal_for_coach(self):
+        self.assertFalse(self.coach2.has_perm(self.AUTH_REMOVE_LEARNER))
+
+    def test_remove_learner_universal_for_learner(self):
+        self.assertFalse(self.learner1.has_perm(self.AUTH_REMOVE_LEARNER))
+
+    def test_remove_learner_specific_for_admin(self):
+        self.assertTrue(self.admin.has_perm(self.AUTH_REMOVE_LEARNER, self.learner_groups[0]))
+
+    def test_remove_learner_specific_for_coach_pt1(self):
+        """ Coaches can remove Learners for their own LearnerGroups """
+        self.assertTrue(self.coach2.has_perm(self.AUTH_REMOVE_LEARNER, self.learner_groups[1]))
+
+    def test_remove_learner_specific_for_coach_pt2(self):
+        """ Coaches can *not* remove Learners for another's LearnerGroups """
+        self.assertFalse(self.coach1.has_perm(self.AUTH_REMOVE_LEARNER, self.learner_groups[1]))
+
+    def test_remove_learner_specific_for_learner(self):
+        self.assertFalse(self.learner1.has_perm(self.AUTH_REMOVE_LEARNER, self.learner_groups[0]))
+
+    def test_remove_learner_rejects_non_classroom_objects(self):
+        with self.assertRaises(InvalidPermission):
+            self.admin.has_perm(self.AUTH_REMOVE_LEARNER, obj={})
