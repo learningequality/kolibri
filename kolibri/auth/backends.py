@@ -6,7 +6,7 @@ AUTHENTICATION_BACKENDS. Note that authentication backends are checked in the or
 """
 import functools
 
-from kolibri.auth.models import BaseUser, DeviceOwner, FacilityUser, FacilityAdmin
+from kolibri.auth.models import BaseUser, DeviceOwner, FacilityUser, Classroom
 from kolibri.core.errors import KolibriError
 
 
@@ -171,10 +171,40 @@ def _deny(perm, user, obj=None):
 
 def _admin_only(user, obj):
     _reject_obj('auth.change_facility', obj)
-    return FacilityAdmin.objects.filter(user=user).exists()
+    return user.is_facility_admin()
+
+
+def _auth_add_classroom(user, obj):
+    _reject_obj('auth.add_classroom', obj)
+    return user.is_facility_admin()
+
+
+def _assert_type(obj, _type):
+    if isinstance(obj, _type):
+        return True
+    else:
+        raise InvalidPermission('Expected object of type {}, but got {}'.format(repr(_type), repr(type(obj))))
+
+
+def _coach_for_the_class(user, obj):
+    """
+    Permission formula for auth.change_classroom and auth.remove_classroom
+
+    :param user: A FacilityUser object
+    :param obj: The optional permissions object. Raises an InvalidPermission error if obj is not a Classroom.
+    :return: True if the user is a Coach for the Classroom obj & True if the user is a FacilityAdmin, otherwise False
+    """
+    if obj is not None and _assert_type(obj, Classroom):
+        return user.is_facility_admin() or (user in [role.user for role in obj.coaches()])
+    else:
+        return user.is_facility_admin()
+
 
 _permissions_checkers = {
     'auth.add_facility': functools.partial(_deny, 'auth.add_facility'),
     'auth.remove_facility': functools.partial(_deny, 'auth.remove_facility'),
-    'auth.change_facility': _admin_only
+    'auth.change_facility': _admin_only,
+    'auth.add_classroom': _auth_add_classroom,
+    'auth.change_classroom': _coach_for_the_class,
+    'auth.remove_classroom': _coach_for_the_class,
 }

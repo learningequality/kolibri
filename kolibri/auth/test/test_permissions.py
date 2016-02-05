@@ -136,3 +136,13 @@ class FacilityUserPermissionsTestCase(TestCase):
     def test_change_classroom_specific_for_coach_pt2(self):
         """ Coaches can *not* change another's Classroom """
         self.assertFalse(self.coach2.has_perm('auth.change_classroom', self.classrooms[0]))
+
+    def test_change_classroom_optional_object_error(self):
+        """ If you pass in an optional object to change_classroom that's *not* a Classroom, raise an error """
+        with self.assertRaises(InvalidPermission):
+            self.admin.has_perm('auth.change_classroom', {})
+
+    def test_remove_classroom_optional_object_error(self):
+        """ If you pass in an optional object to remove_classroom that's *not* a Classroom, raise an error """
+        with self.assertRaises(InvalidPermission):
+            self.admin.has_perm('auth.remove_classroom', {})

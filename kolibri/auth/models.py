@@ -89,6 +89,9 @@ class BaseUser(AbstractBaseUser):
     def get_all_permissions(self, obj=None):
         return _user_get_all_permissions(self, obj)
 
+    def is_facility_admin(self):
+        raise NotImplementedError()
+
 
 class FacilityUserManager(models.Manager):
     def get_queryset(self):
@@ -115,6 +118,9 @@ class FacilityUser(BaseUser):
         elif self._is_device_owner:
             raise KolibriValidationError("FacilityUser objects *must* have _is_device_owner set to False!")
         return super(FacilityUser, self).save(*args, **kwargs)
+
+    def is_facility_admin(self):
+        return FacilityAdmin.objects.filter(user=self).exists()
 
 
 class DeviceOwnerManager(models.Manager):
@@ -147,6 +153,9 @@ class DeviceOwner(BaseUser):
         elif not self._is_device_owner:
             raise KolibriValidationError("DeviceOwner objects *must* have _is_device_owner set to True!")
         return super(DeviceOwner, self).save(*args, **kwargs)
+
+    def is_facility_admin(self):
+        return False
 
 
 class HierarchyNode(MPTTModel):
