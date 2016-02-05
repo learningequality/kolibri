@@ -221,4 +221,6 @@ _permissions_checkers = {
     'auth.add_learner_group': _coach_for_the_class,
     'auth.remove_learner_group': _coach_for_the_learner_group,
     'auth.change_learner_group': _coach_for_the_learner_group,
+    'auth.add_coach': _coach_for_the_class,
+    'auth.remove_coach': _coach_for_the_class,
 }
