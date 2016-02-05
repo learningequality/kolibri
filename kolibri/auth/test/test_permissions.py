@@ -418,3 +418,35 @@ class FacilityUserPermissionsTestCase(TestCase):
     def test_remove_learner_rejects_non_classroom_objects(self):
         with self.assertRaises(InvalidPermission):
             self.admin.has_perm(self.AUTH_REMOVE_LEARNER, obj={})
+
+    # noqa ##################################
+    # noqa #                               ##
+    # noqa #   auth.add_facility_admin     ##
+    # noqa #                               ##
+    # noqa ##################################
+    AUTH_ADD_FACILITY_ADMIN = 'auth.add_facility_admin'
+
+    def test_add_facility_admin_for_admin(self):
+        self.assertTrue(self.admin.has_perm(self.AUTH_ADD_FACILITY_ADMIN))
+
+    def test_add_facility_admin_for_coach(self):
+        self.assertFalse(self.coach2.has_perm(self.AUTH_ADD_FACILITY_ADMIN))
+
+    def test_add_facility_admin_for_learner(self):
+        self.assertFalse(self.learner1.has_perm(self.AUTH_ADD_FACILITY_ADMIN))
+
+    # noqa ##################################
+    # noqa #                               ##
+    # noqa #   auth.remove_facility_admin  ##
+    # noqa #                               ##
+    # noqa ##################################
+    AUTH_REMOVE_FACILITY_ADMIN = 'auth.remove_facility_admin'
+
+    def test_remove_facility_admin_for_admin(self):
+        self.assertTrue(self.admin.has_perm(self.AUTH_REMOVE_FACILITY_ADMIN))
+
+    def test_remove_facility_admin_for_coach(self):
+        self.assertFalse(self.coach2.has_perm(self.AUTH_REMOVE_FACILITY_ADMIN))
+
+    def test_remove_facility_admin_for_learner(self):
+        self.assertFalse(self.learner1.has_perm(self.AUTH_REMOVE_FACILITY_ADMIN))
