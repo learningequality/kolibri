@@ -30,6 +30,16 @@ class FacilityUserPermissionsTestCase(TestCase):
         self.coach1, self.coach2, self.admin, self.learner1, self.learner2 = coach1, coach2, admin, learner1, learner2
         self.classrooms = classrooms
 
+    def test_nonexistent_permissions_raises_error(self):
+        with self.assertRaises(InvalidPermission):
+            self.learner1.has_perm('foobar.perm')
+
+    # noqa ##################################
+    # noqa #                               ##
+    # noqa #       auth.add_facility       ##
+    # noqa #                               ##
+    # noqa ##################################
+
     def test_add_facility_pt1(self):
         """ FacilityUsers can't create new Facilities, regardless of their roles """
         self.assertFalse(self.admin.has_perm('auth.add_facility'))
@@ -46,6 +56,12 @@ class FacilityUserPermissionsTestCase(TestCase):
         """ Raises exception if optional obj supplied """
         with self.assertRaises(InvalidPermission):
             self.assertFalse(self.learner1.has_perm('auth.add_facility', obj=[]))
+
+    # noqa ##################################
+    # noqa #                               ##
+    # noqa #       auth.remove_facility    ##
+    # noqa #                               ##
+    # noqa ##################################
 
     def test_remove_facility_pt1(self):
         """ FacilityUsers can't remove Facilities, regardless of their roles """
@@ -64,6 +80,12 @@ class FacilityUserPermissionsTestCase(TestCase):
         with self.assertRaises(InvalidPermission):
             self.assertFalse(self.learner1.has_perm('auth.remove_facility', obj=[]))
 
+    # noqa ##################################
+    # noqa #                               ##
+    # noqa #       auth.change_facility    ##
+    # noqa #                               ##
+    # noqa ##################################
+
     def test_change_facility(self):
         self.assertTrue(self.admin.has_perm('auth.change_facility'))
 
@@ -73,9 +95,11 @@ class FacilityUserPermissionsTestCase(TestCase):
     def test_change_facility_denied_pt2(self):
         self.assertFalse(self.learner1.has_perm('auth.change_facility'))
 
-    def test_nonexistent_permissions_raises_error(self):
-        with self.assertRaises(InvalidPermission):
-            self.learner1.has_perm('foobar.perm')
+    # noqa ##################################
+    # noqa #                               ##
+    # noqa #       auth.add_classroom      ##
+    # noqa #                               ##
+    # noqa ##################################
 
     def test_add_classroom_for_admin(self):
         self.assertTrue(self.admin.has_perm('auth.add_classroom'))
@@ -89,6 +113,12 @@ class FacilityUserPermissionsTestCase(TestCase):
     def test_add_classroom_rejects_optional_objects(self):
         with self.assertRaises(InvalidPermission):
             self.admin.has_perm('auth.add_classroom', obj={})
+
+    # noqa ##################################
+    # noqa #                               ##
+    # noqa #       auth.remove_classroom   ##
+    # noqa #                               ##
+    # noqa ##################################
 
     def test_remove_classroom_universal_for_admin(self):
         self.assertTrue(self.admin.has_perm('auth.remove_classroom'))
@@ -113,6 +143,17 @@ class FacilityUserPermissionsTestCase(TestCase):
     def test_remove_classroom_specific_for_learner(self):
         """ A Coach can *not* remove another's Classroom! """
         self.assertFalse(self.learner1.has_perm('auth.remove_classroom', self.classrooms[1]))
+
+    def test_remove_classroom_optional_object_error(self):
+        """ If you pass in an optional object to remove_classroom that's *not* a Classroom, raise an error """
+        with self.assertRaises(InvalidPermission):
+            self.admin.has_perm('auth.remove_classroom', {})
+
+    # noqa ##################################
+    # noqa #                               ##
+    # noqa #       auth.change_classroom   ##
+    # noqa #                               ##
+    # noqa ##################################
 
     def test_change_classroom_universal_for_admin(self):
         self.assertTrue(self.admin.has_perm('auth.change_classroom'))
@@ -141,8 +182,3 @@ class FacilityUserPermissionsTestCase(TestCase):
         """ If you pass in an optional object to change_classroom that's *not* a Classroom, raise an error """
         with self.assertRaises(InvalidPermission):
             self.admin.has_perm('auth.change_classroom', {})
-
-    def test_remove_classroom_optional_object_error(self):
-        """ If you pass in an optional object to remove_classroom that's *not* a Classroom, raise an error """
-        with self.assertRaises(InvalidPermission):
-            self.admin.has_perm('auth.remove_classroom', {})
