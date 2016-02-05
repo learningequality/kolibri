@@ -1,3 +1,5 @@
+import itertools
+
 from django.test import TestCase
 
 from kolibri.auth.backends import InvalidPermission
@@ -12,8 +14,9 @@ class FacilityUserPermissionsTestCase(TestCase):
         facility = Facility.objects.create()
         classrooms = [Classroom.objects.create() for _ in range(0, 2)]
         facility.add_classrooms(classrooms)
-        for c in classrooms:
-            c.add_learner_group(LearnerGroup.objects.create())
+        learner_groups = [LearnerGroup.objects.create() for _ in classrooms]
+        for c, lg in itertools.izip(classrooms, learner_groups):
+            c.add_learner_group(lg)
 
         coach1, coach2 = FacilityUser.objects.create(username='coach1'), FacilityUser.objects.create(username='coach2')
         classrooms[0].add_coach(coach1)
@@ -28,7 +31,7 @@ class FacilityUserPermissionsTestCase(TestCase):
         classrooms[1].learner_groups().first().add_learner(learner2)
 
         self.coach1, self.coach2, self.admin, self.learner1, self.learner2 = coach1, coach2, admin, learner1, learner2
-        self.classrooms = classrooms
+        self.classrooms, self.learner_groups = classrooms, learner_groups
 
     def test_nonexistent_permissions_raises_error(self):
         with self.assertRaises(InvalidPermission):
@@ -182,3 +185,30 @@ class FacilityUserPermissionsTestCase(TestCase):
         """ If you pass in an optional object to change_classroom that's *not* a Classroom, raise an error """
         with self.assertRaises(InvalidPermission):
             self.admin.has_perm('auth.change_classroom', {})
+
+    # noqa ##################################
+    # noqa #                               ##
+    # noqa #     auth.add_learner_group    ##
+    # noqa #                               ##
+    # noqa ##################################
+
+    def test_add_learner_group_univeral_for_admin(self):
+        self.assertTrue(self.admin.has_perm('auth.add_learner_group'))
+
+    def test_add_learner_group_universal_for_coach(self):
+        self.assertFalse(self.coach1.has_perm('auth.add_learner_group'))
+
+    def test_add_learner_group_universal_for_learner(self):
+        self.assertFalse(self.learner1.has_perm('auth.add_learner_group'))
+
+    def test_add_learner_group_rejects_non_classroom_objects(self):
+        with self.assertRaises(InvalidPermission):
+            self.admin.has_perm('auth.add_learner_group', obj={})
+
+    def test_add_learner_group_specific_for_coach_pt1(self):
+        """ Coach has permission for his/her own classroom """
+        self.assertTrue(self.coach1.has_perm('auth.add_learner_group', self.classrooms[0]))
+
+    def test_add_learner_group_specific_for_coach_pt2(self):
+        """ But not another's classroom """
+        self.assertFalse(self.coach1.has_perm('auth.add_learner_group', self.classrooms[1]))
