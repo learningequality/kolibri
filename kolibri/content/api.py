@@ -234,21 +234,18 @@ def get_channel(channel_identifier):
         try:
             the_channel = KolibriContent.ChannelMetadata.objects.get(channel_id=channel_identifier)
         except KolibriContent.ChannelMetadata.DoesNotExist:
-            # no employee found
-            raise Exception("cannot find any channel with this channel id")
+            raise ValueError("cannot find any channel with this channel id")
         return the_channel
     elif isinstance(channel_identifier, str):
         try:
             the_channel = KolibriContent.ChannelMetadata.objects.get(name=channel_identifier)
         except KolibriContent.ChannelMetadata.DoesNotExist:
-            # no employee found
-            raise Exception("cannot find any channel with this channel name")
+            raise ValueError("cannot find any channel with this channel name")
         except KolibriContent.ChannelMetadata.MultipleObjectsReturned:
-            # what to do if multiple employees have been returned?
-            raise Exception("more than one channel named " + "'" + channel_identifier + "'")
+            raise ValueError("more than one channel named " + "'" + channel_identifier + "'")
         return the_channel
     else:
-        raise ValueError('the channel_identifier must be either a UUID String or a normal String')
+        raise TypeError('the channel_identifier must be either a UUID String or a normal String')
 
 def get_available_channels():
     """

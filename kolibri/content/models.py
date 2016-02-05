@@ -13,7 +13,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.contrib import admin
 from django.core.files.storage import FileSystemStorage
-from django.db import connections, models
+from django.db import IntegrityError, connections, models
 from django.db.utils import ConnectionDoesNotExist
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -61,7 +61,7 @@ class ContentQuerySet(models.QuerySet):
                 'NAME': os.path.join(settings.CONTENT_DB_DIR, alias+'.sqlite3'),
             }
             if not connections[alias].introspection.table_names():
-                raise Exception("ContentDB '%s' is empty or doesn't exist!!" % str(alias))
+                raise KeyError("ContentDB '%s' is empty or doesn't exist!!" % str(alias))
         return super(ContentQuerySet, self).using(alias)
 
 class AbstractContent(models.Model):
@@ -227,11 +227,11 @@ class PrerequisiteContentRelationship(ContentRelationship):
     def clean(self, *args, **kwargs):
         # self reference exception
         if self.contentmetadata_1 == self.contentmetadata_2:
-            raise Exception('Cannot self reference as prerequisite.')
+            raise IntegrityError('Cannot self reference as prerequisite.')
         # immediate cyclic exception
         elif PrerequisiteContentRelationship.objects.using(self._state.db)\
                 .filter(contentmetadata_1=self.contentmetadata_2, contentmetadata_2=self.contentmetadata_1):
-            raise Exception(
+            raise IntegrityError(
                 'Note: Prerequisite relationship is directional! %s and %s cannot be prerequisite of each other!'
                 % (self.contentmetadata_1, self.contentmetadata_2))
         # distant cyclic exception
@@ -259,11 +259,11 @@ class RelatedContentRelationship(ContentRelationship):
     def clean(self, *args, **kwargs):
         # self reference exception
         if self.contentmetadata_1 == self.contentmetadata_2:
-            raise Exception('Cannot self reference as related.')
+            raise IntegrityError('Cannot self reference as related.')
         # immediate cyclic exception
         elif RelatedContentRelationship.objects.using(self._state.db)\
                 .filter(contentmetadata_1=self.contentmetadata_2, contentmetadata_2=self.contentmetadata_1):
-            raise Exception(
+            raise IntegrityError(
                 'Note: Related relationship is undirectional! %s and %s are already related!'
                 % (self.contentmetadata_1, self.contentmetadata_2))
         super(RelatedContentRelationship, self).clean(*args, **kwargs)

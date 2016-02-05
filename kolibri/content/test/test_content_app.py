@@ -4,7 +4,7 @@ To run this test, type this in command line <kolibri manage test -- kolibri.cont
 import os
 import shutil
 from django.test import TestCase
-from django.db import connections
+from django.db import connections, IntegrityError
 from django.test.utils import override_settings
 from kolibri.content import models as content
 from kolibri.content import api
@@ -89,7 +89,7 @@ class ContentMetadataTestCase(TestCase):
         self.assertEqual(fm_1.mimetype.__str__(), 'video_high')
 
         # test for non File object exception
-        with self.assertRaises(Exception):
+        with self.assertRaises(TypeError):
             api.update_content_copy(None, None)
 
     def test_get_content_with_id(self):
@@ -200,7 +200,7 @@ class ContentMetadataTestCase(TestCase):
     def test_set_prerequisite_self_reference(self):
         c2 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2")
         # test for self reference exception
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=c2)
 
     def test_set_prerequisite_uniqueness(self):
@@ -208,7 +208,7 @@ class ContentMetadataTestCase(TestCase):
         c2 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2")
         api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
         # test for uniqueness exception
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
 
     def test_set_prerequisite_immediate_cyclic(self):
@@ -216,7 +216,7 @@ class ContentMetadataTestCase(TestCase):
         c2 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2")
         api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
         # test for immediate cyclic exception
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             api.set_prerequisite(channel_id=self.the_channel_id, content1=root, content2=c2)
 
     # <the exception hasn't been implemented yet, may add in the future>
@@ -239,7 +239,7 @@ class ContentMetadataTestCase(TestCase):
     def test_set_is_related_self_reference(self):
         c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         # test for self reference exception
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=c1)
 
     def test_set_is_related_uniqueness(self):
@@ -247,7 +247,7 @@ class ContentMetadataTestCase(TestCase):
         c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
         # test for uniqueness exception
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
 
     def test_set_is_related_immediate_cyclic(self):
@@ -255,7 +255,7 @@ class ContentMetadataTestCase(TestCase):
         c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
         # test for immediate cyclic exception
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             api.set_is_related(channel_id=self.the_channel_id, content1=root, content2=c1)
 
     def test_children_of_kind(self):
