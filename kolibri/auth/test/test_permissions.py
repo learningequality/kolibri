@@ -1,9 +1,13 @@
-import itertools
-
 from django.test import TestCase
 
 from kolibri.auth.backends import InvalidPermission
 from kolibri.auth.models import FacilityUser, Facility, Classroom, LearnerGroup
+
+# Python3 compatibility
+try:
+    from itertools import izip as zip
+except ImportError:
+    pass
 
 
 class FacilityUserPermissionsTestCase(TestCase):
@@ -15,7 +19,7 @@ class FacilityUserPermissionsTestCase(TestCase):
         classrooms = [Classroom.objects.create() for _ in range(0, 2)]
         facility.add_classrooms(classrooms)
         learner_groups = [LearnerGroup.objects.create() for _ in classrooms]
-        for c, lg in itertools.izip(classrooms, learner_groups):
+        for c, lg in zip(classrooms, learner_groups):
             c.add_learner_group(lg)
 
         coach1, coach2 = FacilityUser.objects.create(username='coach1'), FacilityUser.objects.create(username='coach2')
