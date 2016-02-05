@@ -230,7 +230,7 @@ class FacilityUserPermissionsTestCase(TestCase):
 
     def test_remove_learner_group_rejects_non_learner_group_objects(self):
         with self.assertRaises(InvalidPermission):
-            self.admin.has_perm('remove.remove_learner_group', obj={})
+            self.admin.has_perm('auth.remove_learner_group', obj={})
 
     def test_remove_learner_group_specific_for_admin(self):
         self.assertTrue(self.admin.has_perm('auth.remove_learner_group', self.learner_groups[0]))
