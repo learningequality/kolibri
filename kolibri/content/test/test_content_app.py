@@ -65,6 +65,15 @@ class ContentMetadataTestCase(TestCase):
         self.assertFalse(file_2.content_copy)
         self.assertFalse(file_2.checksum)
 
+        # update None content copy on empty File object should be silent and have no effect
+        api.update_content_copy(file_2, None)
+
+        # test File __str__ method
+        self.assertEqual(file_1.__str__(), 'd41d8cd98f00b204e9800998ecf8427e.pdf')
+
+        # test MimeType __str__ method
+        self.assertEqual(fm_1.mimetype.__str__(), 'video_high')
+
     def test_get_content_with_id(self):
         # test for single content_id
         the_content_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
@@ -77,6 +86,12 @@ class ContentMetadataTestCase(TestCase):
         expected_output2 = content.ContentMetadata.objects.using(self.the_channel_id).filter(title__in=["root", "c1", "c2c2"])
         actual_output2 = api.get_content_with_id(the_content_ids, channel_id=self.the_channel_id)
         self.assertEqual(set(expected_output2), set(actual_output2))
+
+        # test ContentMetadata __str__ method
+        self.assertEqual(actual_output[0].__str__(), 'root')
+
+        # test License __str__ method
+        self.assertEqual(actual_output[0].license.__str__(), 'WTFPL')
 
     def test_get_ancestor_topics(self):
         p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2c3")
@@ -164,19 +179,37 @@ class ContentMetadataTestCase(TestCase):
         api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
         self.assertTrue(api.get_all_prerequisites(channel_id=self.the_channel_id, content=root))
 
+    def test_set_prerequisite_self_reference(self):
+        c2 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2")
         # test for self reference exception
         with self.assertRaises(Exception):
             api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=c2)
+
+    def test_set_prerequisite_uniqueness(self):
+        root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
+        c2 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2")
+        api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
         # test for uniqueness exception
         with self.assertRaises(Exception):
             api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
+
+    def test_set_prerequisite_immediate_cyclic(self):
+        root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
+        c2 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2")
+        api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
         # test for immediate cyclic exception
         with self.assertRaises(Exception):
             api.set_prerequisite(channel_id=self.the_channel_id, content1=root, content2=c2)
-        # test for distant cyclic exception <the exception hasn't been implemented yet, may add in the future>
-        # c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
-        # with self.assertRaises(Exception):
-        #     api.set_prerequisite(channel_id=self.the_channel_id, content1=c1, content2=c2)
+
+    # <the exception hasn't been implemented yet, may add in the future>
+    # def test_set_prerequisite_distant_cyclic(self):
+    #     root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
+    #     c2 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2")
+    #     api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
+    #     # test for distant cyclic exception
+    #     c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
+    #     with self.assertRaises(Exception):
+    #         api.set_prerequisite(channel_id=self.the_channel_id, content1=c1, content2=c2)
 
     def test_set_is_related(self):
         root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
@@ -185,12 +218,24 @@ class ContentMetadataTestCase(TestCase):
         api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
         self.assertTrue(root in api.get_all_related(channel_id=self.the_channel_id, content=c1))
 
+    def test_set_is_related_self_reference(self):
+        c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         # test for self reference exception
         with self.assertRaises(Exception):
             api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=c1)
+
+    def test_set_is_related_uniqueness(self):
+        root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
+        c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
+        api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
         # test for uniqueness exception
         with self.assertRaises(Exception):
             api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
+
+    def test_set_is_related_immediate_cyclic(self):
+        root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
+        c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
+        api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
         # test for immediate cyclic exception
         with self.assertRaises(Exception):
             api.set_is_related(channel_id=self.the_channel_id, content1=root, content2=c1)
@@ -215,6 +260,9 @@ class ContentMetadataTestCase(TestCase):
         get_by_id = api.get_channel(str(expected_output.channel_id))
         self.assertEqual(expected_output, get_by_name)
         self.assertEqual(expected_output, get_by_id)
+
+        # test ChannelMetadata __str__ method
+        self.assertEqual(get_by_name.__str__(), 'ucsd')
 
     def test_get_channel_property(self):
         """

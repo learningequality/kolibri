@@ -60,7 +60,8 @@ class ContentQuerySet(models.QuerySet):
                 'ENGINE': 'django.db.backends.sqlite3',
                 'NAME': os.path.join(settings.CONTENT_DB_DIR, alias+'.sqlite3'),
             }
-
+            if not connections[alias].introspection.table_names():
+                raise Exception("ContentDB '%s' is empty or doesn't exist!!" % str(alias))
         return super(ContentQuerySet, self).using(alias)
 
 class AbstractContent(models.Model):
@@ -139,7 +140,7 @@ class File(AbstractContent):
         pass
 
     def __str__(self):
-        return '{checksum}.{extension}'.format(checksum=self.checksum, extension=self.extension)
+        return '{checksum}{extension}'.format(checksum=self.checksum, extension=self.extension)
 
     def save(self, *args, **kwargs):
         """
@@ -330,6 +331,3 @@ class ContentCopyTracking(models.Model):
 
     class Admin:
         pass
-
-    def __str__(self):
-        return self.content_copy_id
