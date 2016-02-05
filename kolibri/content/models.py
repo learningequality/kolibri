@@ -305,7 +305,7 @@ class ChannelMetadata(models.Model):
     Provide references to the corresponding contentDB when navigate between channels.
     Every content API method needs a channel_id argument, which is stored in this model.
     """
-    channel_id = models.UUIDField(primary_key=False, default=uuid4, editable=True)
+    channel_id = models.UUIDField(primary_key=False, unique=True, default=uuid4, editable=True)
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True, null=True)
     author = models.CharField(max_length=400, blank=True, null=True)
