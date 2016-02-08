@@ -220,6 +220,12 @@ class Collection(NodeReferencingModel):
         self._node = HierarchyNode.objects.create(kind='Collection')
         return super(Collection, self).save(*args, **kwargs)
 
+    def add_subcollection(self, collection):
+        self._node.insert_collection_node(collection._node)
+
+    def add_role(self, role):
+        self._node.insert_role_node(role._node)
+
 
 class Role(NodeReferencingModel):
     """
@@ -241,3 +247,185 @@ class Role(NodeReferencingModel):
     def save(self, *args, **kwargs):
         self._node = HierarchyNode.objects.create(kind='Role', kind_id=self.user.id)
         return super(Role, self).save(*args, **kwargs)
+
+
+class FacilityAdminManager(models.Manager):
+    def get_queryset(self):
+        return super(FacilityAdminManager, self).get_queryset().filter(kind='FacilityAdmin')
+
+
+class CoachManager(models.Manager):
+    def get_queryset(self):
+        return super(CoachManager, self).get_queryset().filter(kind='Coach')
+
+
+class LearnerManager(models.Manager):
+    def get_queryset(self):
+        return super(LearnerManager, self).get_queryset().filter(kind='Learner')
+
+
+class FacilityAdmin(Role):
+    objects = FacilityAdminManager()
+
+    class Meta:
+        proxy = True
+
+    def save(self, *args, **kwargs):
+        self.kind = "FacilityAdmin"
+        return super(FacilityAdmin, self).save(*args, **kwargs)
+
+
+class Coach(Role):
+    objects = CoachManager()
+
+    class Meta:
+        proxy = True
+
+    def save(self, *args, **kwargs):
+        self.kind = "Coach"
+        return super(Coach, self).save(*args, **kwargs)
+
+
+class Learner(Role):
+    objects = LearnerManager()
+
+    class Meta:
+        proxy = True
+
+    def save(self, *args, **kwargs):
+        self.kind = "Learner"
+        return super(Learner, self).save(*args, **kwargs)
+
+
+class FacilityManager(models.Manager):
+    def get_queryset(self):
+        return super(FacilityManager, self).get_queryset().filter(kind='Facility')
+
+
+class ClassroomManager(models.Manager):
+    def get_queryset(self):
+        return super(ClassroomManager, self).get_queryset().filter(kind='Classroom')
+
+
+class LearnerGroupManager(models.Manager):
+    def get_queryset(self):
+        return super(LearnerGroupManager, self).get_queryset().filter(kind='LearnerGroup')
+
+
+class Facility(Collection):
+    objects = FacilityManager()
+
+    class Meta:
+        proxy = True
+
+    def add_admin(self, user):
+        admin = FacilityAdmin.objects.create(user=user)
+        self.add_role(admin)
+
+    def add_classroom(self, classroom):
+        self.add_subcollection(classroom)
+
+    def save(self, *args, **kwargs):
+        self.kind = "Facility"
+        return super(Facility, self).save(*args, **kwargs)
+
+    def remove_admin(self, user):
+        role = FacilityAdmin.objects.get(user=user, _node__parent=self._node)
+        role.delete()
+
+    def add_admins(self, users):
+        """
+        Given an iterable of users, add each one as a FacilityAdmin.
+
+        :param users: An iterable of FacilityUsers
+        :return: self, for chaining
+        """
+        for user in users:
+            self.add_admin(user)
+        return self
+
+
+class Classroom(Collection):
+    objects = ClassroomManager()
+
+    class Meta:
+        proxy = True
+
+    def add_coach(self, user):
+        coach = Coach.objects.create(user=user)
+        self.add_role(coach)
+
+    def add_learner_group(self, learner_group):
+        self.add_subcollection(learner_group)
+
+    def save(self, *args, **kwargs):
+        self.kind = "Classroom"
+        return super(Classroom, self).save(*args, **kwargs)
+
+    def remove_coach(self, user):
+        role = Coach.objects.get(user=user, _node__parent=self._node)
+        role.delete()
+
+    def delete(self, *args, **kwargs):
+        for coach in self.coaches():
+            coach.delete()
+        for lg in self.learner_groups():
+            lg.delete()
+        return super(Classroom, self).delete(*args, **kwargs)
+
+    def coaches(self):
+        """
+        Returns a QuerySet of Coaches associated with the classroom.
+
+        :return: A Coach QuerySet
+        """
+        return Coach.objects.filter(_node__parent=self._node)
+
+    def learner_groups(self):
+        """
+        Returns a QuerySet of LearnerGroups associated with the classroom.
+
+        :return: A LearnerGroup QuerySet
+        """
+        return LearnerGroup.objects.filter(_node__parent=self._node)
+
+    def add_coaches(self, users):
+        """
+        Given an iterable of users, add each one as a Coach.
+
+        :param users: An iterable of FacilityUsers
+        :return: self, for chaining
+        """
+        for user in users:
+            self.add_coach(user)
+        return self
+
+
+class LearnerGroup(Collection):
+    objects = LearnerGroupManager()
+
+    class Meta:
+        proxy = True
+
+    def add_learner(self, user):
+        learner = Learner.objects.create(user=user)
+        self.add_role(learner)
+
+    def save(self, *args, **kwargs):
+        self.kind = "LearnerGroup"
+        return super(LearnerGroup, self).save(*args, **kwargs)
+
+    def remove_learner(self, user):
+        role = Learner.objects.get(user=user, _node__parent=self._node)
+        role.delete()
+
+    def add_learners(self, users):
+        """
+        Given an iterable of users, add each one as a Learner.
+
+        :param users: An iterable of FacilityUsers
+        :return: self, for chaining
+        """
+        for user in users:
+            self.add_learner(user)
+        return self
