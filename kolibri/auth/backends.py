@@ -4,7 +4,10 @@ default Django backend, but authorization (i.e. permissions checking) must be ha
 do not use the regular Django permissions. See handling authorization docs. Should then be listed in the
 AUTHENTICATION_BACKENDS. Note that authentication backends are checked in the order they're listed.
 """
-from kolibri.auth.models import BaseUser, DeviceOwner, FacilityUser
+import functools
+
+from kolibri.auth.models import BaseUser, DeviceOwner, FacilityUser, Classroom, LearnerGroup
+from kolibri.core.errors import KolibriError
 
 
 class BaseBackend(object):
@@ -69,7 +72,10 @@ class FacilityBackend(BaseBackend):
         :param obj: For row-level permissions, the object in question
         :return: True or False.
         """
-        raise NotImplementedError()
+        try:
+            return _permissions_checkers[perm](user_obj, obj)
+        except KeyError:
+            raise InvalidPermission("Permission '{}' does not have a permission checking function".format(perm))
 
     def has_module_perms(self, user_obj, package_name):
         """
@@ -146,3 +152,79 @@ class DeviceBackend(BaseBackend):
         :return: A list of permission strings. Empty if the user is a FacilityUser.
         """
         raise NotImplementedError()
+
+
+class InvalidPermission(KolibriError):
+    pass
+
+
+def _reject_obj(perm, obj):
+    if obj is not None:
+        raise InvalidPermission("'{perm}' does not take an optional object. Got: {obj}".format(
+            perm=perm, obj=repr(obj)))
+
+
+def _deny(perm, user, obj=None):
+    _reject_obj(perm, obj)
+    return False
+
+
+def _admin_only(perm, user, obj):
+    _reject_obj(perm, obj)
+    return user.is_facility_admin()
+
+
+def _assert_type(obj, _type):
+    if isinstance(obj, _type):
+        return True
+    else:
+        raise InvalidPermission('Expected object of type {}, but got {}'.format(repr(_type), repr(type(obj))))
+
+
+def _coach_for_the_class(user, obj):
+    """
+    Permission formula for auth.change_classroom and auth.remove_classroom
+
+    :param user: A FacilityUser object
+    :param obj: The optional permissions object. Raises an InvalidPermission error if obj is not a Classroom.
+    :return: True if the user is a Coach for the Classroom obj & True if the user is a FacilityAdmin, otherwise False
+    """
+    if obj is not None and _assert_type(obj, Classroom):
+        return user.is_facility_admin() or (user in [role.user for role in obj.coaches()])
+    else:
+        return user.is_facility_admin()
+
+
+def _coach_for_the_learner_group(user, obj):
+    """
+    Permission formula for auth.remove_learner_group and auth.change_learner_group
+
+    :param user: A FacilityUser object
+    :param obj: The optional permissions object. Raises an InvalidPermission error if obj is not a LearnerGroup.
+    :return: True if the user is a Coach for the LearnerGroup's Classroom obj
+             & True if the user is a FacilityAdmin, otherwise False
+    """
+    if obj is not None and _assert_type(obj, LearnerGroup):
+        classroom = obj.classroom()
+        return user.is_facility_admin() or (user in [role.user for role in classroom.coaches()])
+    else:
+        return user.is_facility_admin()
+
+
+_permissions_checkers = {
+    'auth.add_facility': functools.partial(_deny, 'auth.add_facility'),
+    'auth.remove_facility': functools.partial(_deny, 'auth.remove_facility'),
+    'auth.change_facility': functools.partial(_admin_only, 'auth.change_facility'),
+    'auth.add_classroom': functools.partial(_admin_only, 'auth.add_classroom'),
+    'auth.change_classroom': _coach_for_the_class,
+    'auth.remove_classroom': _coach_for_the_class,
+    'auth.add_learner_group': _coach_for_the_class,
+    'auth.remove_learner_group': _coach_for_the_learner_group,
+    'auth.change_learner_group': _coach_for_the_learner_group,
+    'auth.add_coach': _coach_for_the_class,
+    'auth.remove_coach': _coach_for_the_class,
+    'auth.add_learner': _coach_for_the_learner_group,
+    'auth.remove_learner': _coach_for_the_learner_group,
+    'auth.add_facility_admin': functools.partial(_admin_only, 'auth.add_facility_admin'),
+    'auth.remove_facility_admin': functools.partial(_admin_only, 'auth.remove_facility_admin'),
+}

@@ -2,7 +2,23 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.test import TestCase
 
-from kolibri.auth.models import FacilityUser, DeviceOwner, BaseUser, KolibriValidationError
+from kolibri.auth.models import FacilityUser, DeviceOwner, BaseUser, KolibriValidationError, Facility
+
+
+class IsFacilityAdminTestCase(TestCase):
+    def test_facility_admin_is_facility_admin(self):
+        user = FacilityUser.objects.create(username="foo")
+        facility = Facility.objects.create()
+        facility.add_admin(user)
+        self.assertTrue(user.is_facility_admin())
+
+    def test_other_is_not_facility_admin(self):
+        user = FacilityUser.objects.create(username="foo")
+        self.assertFalse(user.is_facility_admin())
+
+    def test_device_owner_is_not_facility_admin(self):
+        user = DeviceOwner.objects.create(username='do')
+        self.assertFalse(user.is_facility_admin())
 
 
 class UserProxyManagerTestCase(TestCase):

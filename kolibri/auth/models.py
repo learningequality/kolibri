@@ -11,7 +11,8 @@ Class.
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, _user_get_all_permissions, _user_has_module_perms, \
+    _user_has_perm
 from django.core import validators
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -29,9 +30,10 @@ class BaseUser(AbstractBaseUser):
     """
     Our custom user type, derived from AbstractBaseUser as described in the Django docs.
     Draws liberally from django.contrib.auth.AbstractUser, except we remove some fields we don't care about, like
-    email. Encapsulates both FacilityUsers and DeviceOwners, which are proxy models.
+    email, and we don't use the PermissionsMixin.
+    Encapsulates both FacilityUsers and DeviceOwners, which are proxy models.
 
-    Do not use this class directly.
+    You should prefer to use the proxy models for this class where possible.
     """
     username = models.CharField(
         _('username'),
@@ -78,6 +80,34 @@ class BaseUser(AbstractBaseUser):
     def get_short_name(self):
         return self.first_name
 
+    def has_perm(self, perm, obj=None):
+        """
+        Checks whether a user has the given permission.
+
+        :param perm: A string identifying the permission. See the backends module in this app for a complete list.
+        :param obj: An optional object, the interpretation of which depends on the permission string.
+        :return: True or False
+        :raises: ``InvalidPermission`` if the given permission string is unknown, or if the optional ``obj`` is an
+            unexpected type.
+        """
+        return _user_has_perm(self, perm, obj)
+
+    def has_module_perms(self, package_name):
+        return _user_has_module_perms(self, package_name)
+
+    def get_all_permissions(self, obj=None):
+        return _user_get_all_permissions(self, obj)
+
+    def is_facility_admin(self):
+        """
+        Identifies whether the given user instance is a FacilityAdmin or not, which can short-circuit some permissions
+        checks.
+
+        :return: True or False for FacilityUsers. Always False for DeviceOwners.
+        :raise: NotImplementedError for BaseUsers -- use the proxy models instead.
+        """
+        raise NotImplementedError()
+
 
 class FacilityUserManager(models.Manager):
     def get_queryset(self):
@@ -104,6 +134,9 @@ class FacilityUser(BaseUser):
         elif self._is_device_owner:
             raise KolibriValidationError("FacilityUser objects *must* have _is_device_owner set to False!")
         return super(FacilityUser, self).save(*args, **kwargs)
+
+    def is_facility_admin(self):
+        return FacilityAdmin.objects.filter(user=self).exists()
 
 
 class DeviceOwnerManager(models.Manager):
@@ -136,6 +169,9 @@ class DeviceOwner(BaseUser):
         elif not self._is_device_owner:
             raise KolibriValidationError("DeviceOwner objects *must* have _is_device_owner set to True!")
         return super(DeviceOwner, self).save(*args, **kwargs)
+
+    def is_facility_admin(self):
+        return False
 
 
 class HierarchyNode(MPTTModel):
@@ -344,6 +380,17 @@ class Facility(Collection):
             self.add_admin(user)
         return self
 
+    def add_classrooms(self, classrooms):
+        """
+        Adds each Classroom in the iterable to the Facility.
+
+        :param classrooms: An iterable of Classrooms
+        :return: self, for chaining
+        """
+        for c in classrooms:
+            self.add_classroom(c)
+        return self
+
 
 class Classroom(Collection):
     objects = ClassroomManager()
@@ -400,6 +447,17 @@ class Classroom(Collection):
             self.add_coach(user)
         return self
 
+    def add_learner_groups(self, learner_groups):
+        """
+        Adds each Classroom in the iterable to the Facility.
+
+        :param learner_groups: An iterable of LearnerGroups
+        :return: self, for chaining
+        """
+        for lg in learner_groups:
+            self.add_learner_group(lg)
+        return self
+
 
 class LearnerGroup(Collection):
     objects = LearnerGroupManager()
@@ -429,3 +487,11 @@ class LearnerGroup(Collection):
         for user in users:
             self.add_learner(user)
         return self
+
+    def classroom(self):
+        """
+        Gets the LearnerGroup's associated Classroom
+
+        :return: A Classroom instance, if it exists.
+        """
+        return Classroom.objects.get(_node=self._node.parent)

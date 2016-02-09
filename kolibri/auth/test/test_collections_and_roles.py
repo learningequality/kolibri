@@ -100,6 +100,9 @@ class CollectionRelatedObjectTestCase(TestCase):
     def test_get_learner_groups(self):
         self.assertSetEqual({self.lg.pk}, set(lg.pk for lg in self.cr.learner_groups()))
 
+    def test_get_classroom(self):
+        self.assertEqual(self.cr.pk, self.lg.classroom().pk)
+
 
 class CollectionsTestCase(TestCase):
     def test_add_admin(self):
