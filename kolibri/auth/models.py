@@ -99,6 +99,13 @@ class BaseUser(AbstractBaseUser):
         return _user_get_all_permissions(self, obj)
 
     def is_facility_admin(self):
+        """
+        Identifies whether the given user instance is a FacilityAdmin or not, which can short-circuit some permissions
+        checks.
+
+        :return: True or False for FacilityUsers. Always False for DeviceOwners.
+        :raise: NotImplementedError for BaseUsers -- use the proxy models instead.
+        """
         raise NotImplementedError()
 
 
