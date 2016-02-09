@@ -5,7 +5,7 @@ var iniParser = require('ini-parser');
 var fs = require('fs');
 var logging = require('./assets/js/logging');
 
-var bundles = {};
+var bundles = [];
 
 var js_source_dirs = [
     "kolibri/core",
@@ -14,17 +14,29 @@ var js_source_dirs = [
 
 var parseBundleIni = function(iniFile) {
     var data = iniParser.parse(fs.readFileSync(iniFile, 'utf-8'));
+    var bundle_data = {};
     for (key in data) {
-        if (typeof bundles[key] === "undefined") {
-            if (typeof data[key]["entry_file"] !== "undefined") {
-                bundles[key] = path.join(path.dirname(iniFile), data[key]["entry_file"]);
-            } else {
-                logging.error(iniFile + " file is misconfigured, missing 'entry_file' parameter for bundle " + key);
-            }
+        logging.info(path.join(path.dirname(iniFile), "webpack-stats.json"));
+        if (typeof data[key]["entry_file"] !== "undefined") {
+            bundle_data[key] = path.join(path.dirname(iniFile), data[key]["entry_file"]);
+
         } else {
-            logging.warn("Duplicate bundle name " + key + " in " + iniFile + ", already point to this file "
-                + bundles[key]);
+            logging.error(iniFile + " file is misconfigured, missing 'entry_file' parameter for bundle " + key);
         }
+    }
+
+    if (Object.keys(bundle_data).length > 0) {
+        bundles.push({
+            context: __dirname,
+            entry: bundle_data,
+            output: {
+                path: path.join(path.dirname(iniFile), "static"),
+                filename: "[name]-[hash].js"
+            },
+            plugins: [
+                new BundleTracker({path: path.dirname(iniFile), filename: "webpack-stats.json"})
+            ]
+        });
     }
 };
 
@@ -44,14 +56,4 @@ for (var i = 0; i < js_source_dirs.length; i++) {
     recurseBundleIni(path.join(__dirname, js_source_dirs[i]));
 }
 
-module.exports = {
-  context: __dirname,
-  entry: bundles,
-  output: {
-      path: path.resolve('./public/bundles/'),
-      filename: "[name]-[hash].js"
-  },
-  plugins: [
-    new BundleTracker({filename: './webpack-stats.json'})
-  ]
-};
+module.exports = bundles;

@@ -26,9 +26,9 @@
   },
   "homepage": "https://github.com/learningequality/kolibri#readme",
   "dependencies": {
-    "webpack": "^1.12.12",
-    "webpack-bundle-tracker": "0.0.93",
     "colors": "^1.1.2",
-    "ini-parser": "0.0.2"
+    "ini-parser": "0.0.2",
+    "webpack": "^1.12.12",
+    "webpack-bundle-tracker": "0.0.93"
   }
 }
