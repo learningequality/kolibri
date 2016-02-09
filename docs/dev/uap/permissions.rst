@@ -3,11 +3,17 @@ Permissions
 
 Permissions are divided into data access permissions (DAPs) and device permissions. Permissions are checked on a user
 object using the default django.contrib.auth has_perm user-model methods, which take a permission string and an
-optional object for row-level permissions.
+optional object for row-level permissions. For example Kolibri ``BaseUser``\ s have the following method:
+
+.. automethod:: kolibri.auth.models.BaseUser.has_perm
+    :noindex:
+
+The intended use is (for example) ``user.has_perm('auth.change_learner_group')`` or
+``user.has_perm('auth.change_learner_group', obj=my_learner_group)``.
 
 Objects which foreign key onto users (a.k.a User-related objects) can, in a limited way, define row-level permissions.
 In reality, these permissions aren't decided row-by-row for efficiency, but instead define the following class method
-to return an iterable of objects for which a requesting user has permissions given the related user:
+to return a ``QuerySet`` of objects for which a requesting user has permissions given the related user:
 
 .. py:classmethod:: permitted_objects(cls, perm, req_user)
 

@@ -81,6 +81,15 @@ class BaseUser(AbstractBaseUser):
         return self.first_name
 
     def has_perm(self, perm, obj=None):
+        """
+        Checks whether a user has the given permission.
+
+        :param perm: A string identifying the permission. See the backends module in this app for a complete list.
+        :param obj: An optional object, the interpretation of which depends on the permission string.
+        :return: True or False
+        :raises: ``InvalidPermission`` if the given permission string is unknown, or if the optional ``obj`` is an
+            unexpected type.
+        """
         return _user_has_perm(self, perm, obj)
 
     def has_module_perms(self, package_name):
