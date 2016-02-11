@@ -3,7 +3,7 @@ var iniParser = require('ini-parser');
 var fs = require("fs");
 var path = require("path");
 
-var parseBundleIni = function(iniFile, bundles) {
+var parseBundleIni = function(iniFile, bundles, base_dir) {
     var data = iniParser.parse(fs.readFileSync(iniFile, 'utf-8'));
     var bundle_data = {};
     for (var key in data) {
@@ -14,11 +14,11 @@ var parseBundleIni = function(iniFile, bundles) {
         }
     }
 
-    var module_name = path.relative(__dirname, path.dirname(iniFile)).replace(/\//g, ".");
+    var module_name = path.relative(base_dir, path.dirname(iniFile)).replace(/\//g, ".");
 
     if (Object.keys(bundle_data).length > 0) {
         bundles.push({
-            context: __dirname,
+            context: base_dir,
             entry: bundle_data,
             output: {
                 path: path.join(path.dirname(iniFile), "static", module_name),
@@ -33,14 +33,14 @@ var parseBundleIni = function(iniFile, bundles) {
     return bundles;
 };
 
-var recurseBundleIni = function(directory, bundles) {
+var recurseBundleIni = function(directory, bundles, base_dir) {
     var files = fs.readdirSync(directory);
     files.forEach(function(file){
         var stats = fs.statSync(path.join(directory, file));
         if (stats.isDirectory()) {
-            recurseBundleIni(path.join(directory, file), bundles);
+            recurseBundleIni(path.join(directory, file), bundles, base_dir);
         } else if (file.indexOf("bundles.ini") > -1) {
-            parseBundleIni(path.join(directory, file), bundles);
+            parseBundleIni(path.join(directory, file), bundles, base_dir);
         }
     });
 };

@@ -12,7 +12,7 @@ var js_source_dirs = [
 ];
 
 for (var i = 0; i < js_source_dirs.length; i++) {
-    iniFiles.recurseBundleIni(path.join(__dirname, js_source_dirs[i]), bundles);
+    iniFiles.recurseBundleIni(path.join(__dirname, js_source_dirs[i]), bundles, __dirname);
 }
 
 module.exports = bundles;
