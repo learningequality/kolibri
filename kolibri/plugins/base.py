@@ -4,6 +4,8 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 import logging
+import os
+import re
 
 from kolibri.utils.conf import config
 
@@ -78,3 +80,38 @@ class KolibriPluginBase(object):
     def disable(cls):
         """Modify the kolibri config dict to your plugin's needs"""
         cls._installed_apps_remove()
+
+
+class KolibriFrontEndPluginBase(KolibriPluginBase):
+    """
+    This is the class that all plugins that wish to load any assets into the front end
+    must implement, in order for them to be part of the webpack asset loading pipeline.
+    """
+
+    @classmethod
+    def _module_file_path(cls):
+        """
+        Returns the path of the class inheriting this classmethod.
+        There is no such thing as Class properties, that's why it's implemented
+        as such.
+
+        Used in KolibriFrontEndPluginBase._register_front_end_plugins
+        """
+        return os.path.join(*cls.__module__.split(".")[:-1])
+
+    @classmethod
+    def _register_front_end_plugins(cls):
+        """
+        Call this to register front end plugins in a Kolibri plugin to allow for
+        import into templates.
+        """
+        module_path = cls._module_path()
+        return {
+            module_path: {
+                'POLL_INTERVAL': 0.1,
+                'ignores': (re.compile(I) for I in ['.+\.hot-update.js', '.+\.map']),
+                "BUNDLE_DIR_NAME": module_path + "/",
+                "STATS_FILE": os.path.join(os.path.abspath(os.path.dirname(__name__)),
+                                           cls._module_file_path(), "bundle_catalog.json")
+            }
+        }
