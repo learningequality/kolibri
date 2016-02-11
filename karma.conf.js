@@ -16,7 +16,8 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'kolibri/**/assets/test/*.js',
-      'kolibri/**/assets/test/**/*.js'
+      {pattern: '*.js', included: false},
+      {pattern: 'kolibri/**/assets/js/*.js', included: false}
     ],
 
 
@@ -28,8 +29,9 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'kolibri/**/assets/test/*.js': ['webpack'],
-      'kolibri/**/assets/test/**/*.js': ['webpack']
+      'kolibri/**/assets/test/*.js': ['jshint', 'webpack'],
+      '*.js': ['jshint'],
+      'kolibri/**/assets/js/*.js': ['jshint']
     },
 
 
@@ -68,5 +70,5 @@ module.exports = function(config) {
     // Concurrency level
     // how many browser should be started simultaneous
     concurrency: Infinity
-  })
-}
+  });
+};

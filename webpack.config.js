@@ -15,9 +15,9 @@ var js_source_dirs = [
 var parseBundleIni = function(iniFile) {
     var data = iniParser.parse(fs.readFileSync(iniFile, 'utf-8'));
     var bundle_data = {};
-    for (key in data) {
-        if (typeof data[key]["entry_file"] !== "undefined") {
-            bundle_data[key] = path.join(path.dirname(iniFile), data[key]["entry_file"]);
+    for (var key in data) {
+        if (typeof data[key].entry_file !== "undefined") {
+            bundle_data[key] = path.join(path.dirname(iniFile), data[key].entry_file);
         } else {
             logging.error(iniFile + " file is misconfigured, missing 'entry_file' parameter for bundle " + key);
         }
