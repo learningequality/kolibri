@@ -1,9 +1,8 @@
 {% load i18n kolibri_tags %}
-{% load render_bundle from webpack_loader %}
 <html>
 <head>
   <title>{% block title %}{% endblock %} - {% trans "Kolibri" %}</title>
-  {% render_bundle 'kolibri_core' %}
+  {% frontend_assets 'kolibri_core' plugin='kolibri.core' %}
 </head>
 <body>
 
