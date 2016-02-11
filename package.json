@@ -33,6 +33,7 @@
     "karma-jshint-preprocessor": "0.0.6",
     "karma-webpack": "^1.7.0",
     "mocha": "^2.4.5",
+    "temp": "^0.8.3",
     "webpack": "^1.12.12",
     "webpack-bundle-tracker": "0.0.93"
   }
