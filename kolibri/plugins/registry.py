@@ -49,8 +49,8 @@ def initialize():
                 plugin_module = importlib.import_module(app + ".kolibri_plugin")
                 logger.debug("Loaded kolibri plugin: {}".format(app))
                 plugin_classes = []
-                for obj in plugin_module.__dict__.values():
-                    if type(obj) == type and obj is not KolibriPluginBase and issubclass(obj, KolibriPluginBase):
+                for obj in plugin_module.PLUGINS:
+                    if type(obj) == type and issubclass(obj, KolibriPluginBase):
                         plugin_classes.append(obj)
                 for plugin_klass in plugin_classes:
                     plugin_obj = plugin_klass()

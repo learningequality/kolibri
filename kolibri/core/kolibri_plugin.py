@@ -30,3 +30,6 @@ class KolibriCore(KolibriPluginBase):
         return {
             NAVIGATION_POPULATE: main_navigation
         }
+PLUGINS = [
+    KolibriCore,
+]

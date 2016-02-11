@@ -98,3 +98,8 @@ class ExtendedPlugin(NavMenuPlugin):
                 'menu_url': 'http://yahoo.com',
             }
         ]
+
+PLUGINS = [
+    NavMenuPlugin,
+    ExtendedPlugin,
+]
