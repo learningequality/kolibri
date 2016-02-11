@@ -28,6 +28,9 @@
   "dependencies": {
     "colors": "^1.1.2",
     "ini-parser": "0.0.2",
+    "karma": "^0.13.19",
+    "karma-webpack": "^1.7.0",
+    "mocha": "^2.4.5",
     "webpack": "^1.12.12",
     "webpack-bundle-tracker": "0.0.93"
   }
