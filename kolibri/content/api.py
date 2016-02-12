@@ -141,8 +141,11 @@ def get_missing_files(channel_id=None, content=None, **kwargs):
     :param content: ContentMetadata or str
     :return: QuerySet of File
     """
-    all_end_nodes = leaves(channel_id=channel_id, content=content)
-    return KolibriContent.File.objects.using(channel_id).filter(available=False, format__contentmetadata__in=all_end_nodes)
+    if content.kind == 'topic':
+        all_end_nodes = leaves(channel_id=channel_id, content=content)
+        return KolibriContent.File.objects.using(channel_id).filter(available=False, format__contentmetadata__in=all_end_nodes)
+    else:
+        return KolibriContent.File.objects.using(channel_id).filter(available=False, format__contentmetadata=content)
 
 @can_get_content_with_id
 def get_all_prerequisites(channel_id=None, content=None, **kwargs):
