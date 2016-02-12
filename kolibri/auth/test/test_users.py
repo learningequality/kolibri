@@ -2,8 +2,23 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.test import TestCase
 
-# Importing user models here results in a circular import... you should use get_user_model, but then there's no
-# way to get the proxy models as well. So just import at runtime.
+from kolibri.auth.models import FacilityUser, DeviceOwner, BaseUser, KolibriValidationError, Facility
+
+
+class IsFacilityAdminTestCase(TestCase):
+    def test_facility_admin_is_facility_admin(self):
+        user = FacilityUser.objects.create(username="foo")
+        facility = Facility.objects.create()
+        facility.add_admin(user)
+        self.assertTrue(user.is_facility_admin())
+
+    def test_other_is_not_facility_admin(self):
+        user = FacilityUser.objects.create(username="foo")
+        self.assertFalse(user.is_facility_admin())
+
+    def test_device_owner_is_not_facility_admin(self):
+        user = DeviceOwner.objects.create(username='do')
+        self.assertFalse(user.is_facility_admin())
 
 
 class UserProxyManagerTestCase(TestCase):
@@ -11,7 +26,6 @@ class UserProxyManagerTestCase(TestCase):
     Checks that the BaseUser proxy models' default manager returns appropriate instances.
     """
     def setUp(self):
-        from kolibri.auth.models import FacilityUser, DeviceOwner
         self.user = FacilityUser.objects.create(username="mike", first_name="Mike", last_name="Gallaspy")
         self.user = FacilityUser.objects.create(username="brian", first_name="Brian", last_name="Gallaspy")
         self.fu_usernames = ["mike", "brian"]
@@ -19,27 +33,23 @@ class UserProxyManagerTestCase(TestCase):
         self.do_usernames = ["bar"]
 
     def test_facility_user_manager_returns_facility_users(self):
-        from kolibri.auth.models import FacilityUser, BaseUser
         base_users = BaseUser.objects.filter(username__in=self.fu_usernames)
         facility_users = FacilityUser.objects.all()
         self.assertEqual(len(base_users), len(facility_users))
 
     def test_fu_set_correct(self):
         """ continuation of test_facility_user_manager_returns_facility_users """
-        from kolibri.auth.models import FacilityUser, BaseUser
         base_users = BaseUser.objects.filter(username__in=self.fu_usernames)
         facility_users = FacilityUser.objects.all()
         self.assertListEqual(sorted([u.id for u in base_users]), sorted([u.id for u in facility_users]))
 
     def test_device_owner_manager_returns_device_owners(self):
-        from kolibri.auth.models import DeviceOwner, BaseUser
         base_users = BaseUser.objects.filter(username__in=self.do_usernames)
         device_owners = DeviceOwner.objects.all()
         self.assertEqual(len(base_users), len(device_owners))
 
     def test_do_set_correct(self):
         """ continuation of test_device_owner_manager_returns_device_owners """
-        from kolibri.auth.models import DeviceOwner, BaseUser
         base_users = BaseUser.objects.filter(username__in=self.do_usernames)
         device_owners = DeviceOwner.objects.all()
         self.assertListEqual(sorted([u.id for u in base_users]), sorted([u.id for u in device_owners]))
@@ -50,12 +60,10 @@ class UserSanityTestCase(TestCase):
     Sanity checks basic functionality of user models.
     """
     def setUp(self):
-        from kolibri.auth.models import FacilityUser, DeviceOwner
         self.user = FacilityUser.objects.create(username="mike", first_name="Mike", last_name="Gallaspy")
         self.do = DeviceOwner.objects.create(username="bar")
 
     def test_base_user(self):
-        from kolibri.auth.models import BaseUser
         with self.assertRaises(NotImplementedError):
             BaseUser().is_device_owner()
 
@@ -72,35 +80,29 @@ class UserSanityTestCase(TestCase):
         self.assertEqual(self.user.get_full_name(), "Mike Gallaspy")
 
     def test_cant_set_is_device_owner_for_facility_user(self):
-        from kolibri.auth.models import KolibriValidationError
         with self.assertRaises(KolibriValidationError):
             self.user._is_device_owner = True
             self.user.save()
 
     def test_cant_set_is_device_owner_for_device_owner(self):
-        from kolibri.auth.models import KolibriValidationError
         with self.assertRaises(KolibriValidationError):
             self.do._is_device_owner = False
             self.do.save()
 
     def test_cant_create_facility_user_with_is_device_owner_true(self):
-        from kolibri.auth.models import FacilityUser, KolibriValidationError
         with self.assertRaises(KolibriValidationError):
             FacilityUser.objects.create(username="baz", _is_device_owner=True)
 
     def test_cant_create_device_owner_with_is_device_owner_false(self):
-        from kolibri.auth.models import DeviceOwner, KolibriValidationError
         with self.assertRaises(KolibriValidationError):
             DeviceOwner.objects.create(username="baz", _is_device_owner=False)
 
     def test_cant_change_is_device_owner_for_do(self):
-        from kolibri.auth.models import KolibriValidationError
         with self.assertRaises(KolibriValidationError):
             self.do._is_device_owner = False
             self.do.save()
 
     def test_cant_change_is_device_owner_for_fu(self):
-        from kolibri.auth.models import KolibriValidationError
         with self.assertRaises(KolibriValidationError):
             self.user._is_device_owner = True
             self.user.save()

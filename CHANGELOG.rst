@@ -12,3 +12,7 @@ Kolibri 0.0.1
 +++++++++++++
 
 * Begin development of core auth app.
+  * Add core user types (BaseUser, FacilityUser, DeviceOwner)
+  * Add Collections and Roles, implemented using a special tree structure for efficient querying
+  * Add authentication & authorization backends
+  * Implement permissions for FacilityUsers by checking hierarchy relationships
