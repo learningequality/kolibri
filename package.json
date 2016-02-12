@@ -8,7 +8,12 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run test-mocha && npm run test-karma",
+    "test-karma": "./node_modules/karma/bin/karma start --single-run",
+    "test-mocha": "./node_modules/mocha/bin/mocha assets/test/*.js",
+    "ci": "npm run test-mocha-ci && npm run test-karma-ci",
+    "test-mocha-ci": "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha assets/test/*.js --report lcovonly -- -R spec",
+    "test-karma-ci": "./node_modules/karma/bin/karma start karma.conf.ci.js"
   },
   "repository": {
     "type": "git",
@@ -28,8 +33,11 @@
   "dependencies": {
     "colors": "^1.1.2",
     "ini-parser": "0.0.2",
+    "istanbul": "^0.4.2",
+    "istanbul-instrumenter-loader": "^0.1.3",
     "jshint": "^2.9.1",
     "karma": "^0.13.19",
+    "karma-coverage": "^0.5.3",
     "karma-jshint-preprocessor": "0.0.6",
     "karma-webpack": "^1.7.0",
     "mocha": "^2.4.5",

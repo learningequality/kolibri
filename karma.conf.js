@@ -17,7 +17,7 @@ module.exports = function(config) {
     files: [
       'kolibri/**/assets/test/*.js',
       {pattern: '*.js', included: false},
-      {pattern: 'kolibri/**/assets/js/*.js', included: false}
+      {pattern: 'kolibri/**/assets/js/**/*.js', included: false}
     ],
 
 
@@ -31,7 +31,7 @@ module.exports = function(config) {
     preprocessors: {
       'kolibri/**/assets/test/*.js': ['jshint', 'webpack'],
       '*.js': ['jshint'],
-      'kolibri/**/assets/js/*.js': ['jshint']
+      'kolibri/**/assets/js/**/*.js': ['jshint']
     },
 
 
@@ -51,7 +51,7 @@ module.exports = function(config) {
 
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    logLevel: config.LOG_INFO,
+    logLevel: config.LOG_DEBUG,
 
 
     // enable / disable watching file and executing tests whenever any file changes
@@ -61,6 +61,15 @@ module.exports = function(config) {
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: ['PhantomJS'],
+
+    webpack: {
+      // webpack configuration
+      module: {
+          // Loaders for different asset files will go here.
+        loaders: [
+        ]
+      }
+    },
 
 
     // Continuous Integration mode
