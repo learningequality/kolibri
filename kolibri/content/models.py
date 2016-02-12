@@ -7,6 +7,7 @@ The ONLY public object is ContentMetadata
 from __future__ import print_function
 
 import hashlib
+import logging
 import os
 from uuid import uuid4
 
@@ -41,7 +42,7 @@ class ContentCopyStorage(FileSystemStorage):
     def _save(self, name, content):
         if self.exists(name):
             # if the file exists, do not call the superclasses _save method
-            print('file "', name, '" already exists!')
+            logging.warn('Content copy "%s" already exists!' % name)
             return name
         return super(ContentCopyStorage, self)._save(name, content)
 
