@@ -20,7 +20,7 @@ Kolibri installation or the internet.
 At its core, Kolibri is about serving educational content. A typical user (called a Learner) will log in to Kolibri
 to consume educational content (videos, documents, other multimedia) and test their understanding of the content by
 completing exercises and quizzes, with immediate feedback. A user’s activity will be tracked to offer individualized
-insight (like “next lesson” recommendations), and to allow user data to be synced across different installations --
+insight (like "next lesson" recommendations), and to allow user data to be synced across different installations --
 thus a Kolibri learner can use his or her credentials on any linked Kolibri installation, for instance on different
 devices at a school.
 
@@ -32,6 +32,7 @@ How can I contribute?
 The project is just starting, but we want the entire development process, from conception to realization, to be carried
 out in the open. More will be added to this section in the very near future!
 
+We also have a `hipchat room for development <https://www.hipchat.com/gzQfGFgv1>`_. Since the Learning Equality team *mostly* lives in California, it's most active during PST business hours.
 
 Running Kolibri
 ---------------

@@ -49,4 +49,7 @@ class TestKolibriCLI(KolibriTestBase):
 
     @classmethod
     def teardown_class(cls):
-        shutil.rmtree(os.environ["KOLIBRI_HOME"])
+        try:
+            shutil.rmtree(os.environ["KOLIBRI_HOME"])
+        except WindowsError as e:
+            logger.debug("Couldn't delete temporary file because\n\t" + str(e))
