@@ -3,6 +3,7 @@ To run this test, type this in command line <kolibri manage test -- kolibri.cont
 """
 import os
 import shutil
+import tempfile
 from django.test import TestCase
 from django.db import connections, IntegrityError
 from django.test.utils import override_settings
@@ -16,7 +17,7 @@ from django.conf import settings
 )
 class ContentMetadataTestCase(TestCase):
     """
-    Testcase for content and channel API methods
+    Testcase for content API methods
     """
     fixtures = ['channel_test.json', 'content_test.json']
     multi_db = True
@@ -25,6 +26,22 @@ class ContentMetadataTestCase(TestCase):
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ':memory:',
     }
+
+    def setUp(self):
+        # Create a temporary directory
+        self.test_dir = tempfile.mkdtemp()
+        # Create files in the temporary directory
+        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'), 'w')
+        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'), 'w')
+        # Write something to it
+        self.temp_f_1.write('The owls are not what they seem')
+        self.temp_f_2.write('The owl are not what they seem')
+
+        # Reopen the file and check if what we read back is the same
+        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'))
+        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'))
+        self.assertEqual(self.temp_f_1.read(), 'The owls are not what they seem')
+        self.assertEqual(self.temp_f_2.read(), 'The owl are not what they seem')
 
     """Tests for content API methods"""
     def test_can_get_content_with_id(self):
@@ -46,17 +63,17 @@ class ContentMetadataTestCase(TestCase):
         test adding same content copies, and deleting content copy
         """
         # add same content copy twise, there should be no duplication
-        fpath_1 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/files_for_testing/Magnum_ChargerInverter.pdf"
+        fpath_1 = self.temp_f_1.name
         fm_1 = content.Format.objects.using(self.the_channel_id).get(format_size=102)
         fm_3 = content.Format.objects.using(self.the_channel_id).get(format_size=46)
         file_1 = content.File.objects.using(self.the_channel_id).get(format=fm_1)
         api.update_content_copy(file_1, fpath_1)
         file_3 = content.File.objects.using(self.the_channel_id).filter(format=fm_3)[1]
         api.update_content_copy(file_3, fpath_1)
-        self.assertEqual(1, len(os.listdir(settings.CONTENT_COPY_DIR+'/d/4/')))
+        self.assertEqual(1, len(os.listdir(settings.CONTENT_COPY_DIR+'/0/9/')))
 
         # swap the content copy in file_3
-        fpath_2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/files_for_testing/y2-uaPiyoxc.mp4"
+        fpath_2 = self.temp_f_2.name
         self.assertEqual(file_3.extension, '.pdf')
         api.update_content_copy(file_3, fpath_2)
         self.assertEqual(file_3.extension, '.mp4')
@@ -69,7 +86,7 @@ class ContentMetadataTestCase(TestCase):
         self.assertTrue(file_2.content_copy)
         api.update_content_copy(file_2, None)
         self.assertFalse(file_2.content_copy)
-        content_copy_path = settings.CONTENT_COPY_DIR+'/f/7/f7dc33985e92a8b9e486a62bdd48719c.mp4'
+        content_copy_path = settings.CONTENT_COPY_DIR+'/3/3/335782204c8215e0061516c6b3b80271.mp4'
         self.assertTrue(os.path.isfile(content_copy_path))
 
         # all reference pointing to this content copy is gone,
@@ -83,7 +100,7 @@ class ContentMetadataTestCase(TestCase):
         api.update_content_copy(file_2, None)
 
         # test File __str__ method
-        self.assertEqual(file_1.__str__(), 'd41d8cd98f00b204e9800998ecf8427e.pdf')
+        self.assertEqual(file_1.__str__(), '09293abba61d4fcfa4e3bd804bcaba43.pdf')
 
         # test MimeType __str__ method
         self.assertEqual(fm_1.mimetype.__str__(), 'video_high')
@@ -155,8 +172,8 @@ class ContentMetadataTestCase(TestCase):
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_missing_files(self):
-        p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
-        expected_output = content.File.objects.using(self.the_channel_id).exclude(checksum__in=["e8656a89a138d05feca0f1f9bb422759"])
+        p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
+        expected_output = content.File.objects.using(self.the_channel_id).filter(id__in=[1, 2])
         actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=p)
         self.assertEqual(set(expected_output), set(actual_output))
 
@@ -271,5 +288,6 @@ class ContentMetadataTestCase(TestCase):
         """
         try:
             shutil.rmtree(settings.CONTENT_COPY_DIR)
+            shutil.rmtree(self.test_dir)
         except:
             pass
