@@ -66,7 +66,7 @@ Adjust according to your operating system or personal preferences.
 Testing
 -------
 
-Kolibri comes with a test suite based on ``py.test``. To run tests in your
+Kolibri comes with a Python test suite based on ``py.test``. To run tests in your
 current environment::
 
     $ python setup.py test  # alternatively, "make test" does the same
@@ -75,11 +75,28 @@ You can also use ``tox`` to setup a clean and disposable environment::
 
     $ tox -e py3.4  # Runs tests with Python 3.4
 
-To run tests for all environments, lint and documentation tests,
+To run Python tests for all environments, lint and documentation tests,
 use simply ``tox``. This simulates what our CI also does.
 
 To run linting tests (pep8 and static code analysis), use ``tox -e lint`` or
 ``make lint``.
+
+Kolibri comes with a Javascript test suite based on ``mocha``. To run all tests::
+
+    $ npm test
+
+This includes tests of the bundling functions that are used in creating front end assets.
+To do continuous unit testing for code, and jshint running::
+
+    $ npm run ci
+
+To build frontend assets for production use the following::
+
+    $ npm run build
+
+To build frontend assets in development mode with sourcemaps and watching::
+
+    $ npm run watch
 
 
 Current Features

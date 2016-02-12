@@ -1,4 +1,4 @@
-var path = require("path");
+var path = require('path');
 var webpack = require('webpack');
 
 var logging = require('./assets/js/logging');
