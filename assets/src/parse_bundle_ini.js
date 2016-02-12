@@ -2,6 +2,7 @@ var BundleTracker = require('webpack-bundle-tracker');
 var iniParser = require('ini-parser');
 var fs = require("fs");
 var path = require("path");
+var logging = require('./logging');
 
 var parseBundleIni = function(iniFile, bundles, base_dir) {
     var data = iniParser.parse(fs.readFileSync(iniFile, 'utf-8'));

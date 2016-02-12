@@ -11,8 +11,8 @@ var js_source_dirs = [
     "kolibri/plugins"
 ];
 
-for (var i = 0; i < js_source_dirs.length; i++) {
-    recurseBundleIni(path.join(__dirname, js_source_dirs[i]), bundles, __dirname);
-}
+
+bundles = recurseBundleIni(js_source_dirs, bundles, __dirname);
+
 
 module.exports = bundles;
