@@ -217,10 +217,8 @@ class PrerequisiteContentRelationship(ContentRelationship):
     """
     Predefine the prerequisite relationship between two ContentMetadata objects.
     """
-    relationship_type = models.CharField(max_length=50)
-
     class Meta:
-        unique_together = ['contentmetadata_1', 'contentmetadata_2', 'relationship_type']
+        unique_together = ['contentmetadata_1', 'contentmetadata_2']
 
     class Admin:
         pass
@@ -249,10 +247,8 @@ class RelatedContentRelationship(ContentRelationship):
     """
     Predefine the related relationship between two ContentMetadata objects.
     """
-    relationship_type = models.CharField(max_length=50)
-
     class Meta:
-        unique_together = ['contentmetadata_1', 'contentmetadata_2', 'relationship_type']
+        unique_together = ['contentmetadata_1', 'contentmetadata_2']
 
     class Admin:
         pass

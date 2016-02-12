@@ -76,8 +76,8 @@ class Command(BaseCommand):
         models.File.objects.using(db_name).create(format=format_3)
 
         # populate Content Relationship
-        models.PrerequisiteContentRelationship.objects.using(db_name).create(relationship_type='prerequisite', contentmetadata_1=root, contentmetadata_2=c1)
-        models.RelatedContentRelationship.objects.using(db_name).create(relationship_type='related', contentmetadata_1=c1, contentmetadata_2=c2)
+        models.PrerequisiteContentRelationship.objects.using(db_name).create(contentmetadata_1=root, contentmetadata_2=c1)
+        models.RelatedContentRelationship.objects.using(db_name).create(contentmetadata_1=c1, contentmetadata_2=c2)
 
     def handle(self, *args, **options):
         self.populate_content_db()

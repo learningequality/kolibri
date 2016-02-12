@@ -176,7 +176,7 @@ def set_prerequisite(channel_id=None, content1=None, content2=None, **kwargs):
     :param content2: ContentMetadata or str
     """
     KolibriContent.PrerequisiteContentRelationship.objects.using(channel_id).create(
-        relationship_type='prerequisite', contentmetadata_1=content1, contentmetadata_2=content2)
+        contentmetadata_1=content1, contentmetadata_2=content2)
 
 @can_get_content_with_id
 def set_is_related(channel_id=None, content1=None, content2=None, **kwargs):
@@ -188,7 +188,7 @@ def set_is_related(channel_id=None, content1=None, content2=None, **kwargs):
     :param content2: ContentMetadata or str
     """
     KolibriContent.RelatedContentRelationship.objects.using(channel_id).create(
-        relationship_type='related', contentmetadata_1=content1, contentmetadata_2=content2)
+        contentmetadata_1=content1, contentmetadata_2=content2)
 
 @can_get_content_with_id
 def children_of_kind(channel_id=None, content=None, kind=None, **kwargs):
