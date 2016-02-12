@@ -1,6 +1,6 @@
 var assert = require('assert');
 
-var mediator = require('../js/mediator/mediator.js');
+var mediator = require('../src/mediator/mediator.js');
 
 describe('Mediator', function() {
     describe('object', function() {

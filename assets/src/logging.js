@@ -2,7 +2,7 @@ var colors = require('colors');
 
 var log = function(msg, color) {
     console.log(color("Kolibri: " + msg));
-}
+};
 
 logging = {
     warn: function(msg) {

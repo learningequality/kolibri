@@ -13,11 +13,11 @@ module.exports = function(config) {
     frameworks: ['mocha'],
 
 
-    // list of files / patterns to load in the browser
+    // list of files / patterns to load
     files: [
       'kolibri/**/assets/test/*.js',
-      {pattern: '*.js', included: false},
-      {pattern: 'kolibri/**/assets/js/**/*.js', included: false}
+      {pattern: '*.js', included: false}, // load these, but not in the browser, just for linting
+      {pattern: 'kolibri/**/assets/src/**/*.js', included: false} // load these, but not in the browser, just for linting
     ],
 
 
@@ -31,7 +31,7 @@ module.exports = function(config) {
     preprocessors: {
       'kolibri/**/assets/test/*.js': ['jshint', 'webpack'],
       '*.js': ['jshint'],
-      'kolibri/**/assets/js/**/*.js': ['jshint']
+      'kolibri/**/assets/src/**/*.js': ['jshint']
     },
 
 

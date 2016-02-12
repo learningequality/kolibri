@@ -33,19 +33,4 @@ var parseBundleIni = function(iniFile, bundles, base_dir) {
     return bundles;
 };
 
-var recurseBundleIni = function(directory, bundles, base_dir) {
-    var files = fs.readdirSync(directory);
-    files.forEach(function(file){
-        var stats = fs.statSync(path.join(directory, file));
-        if (stats.isDirectory()) {
-            recurseBundleIni(path.join(directory, file), bundles, base_dir);
-        } else if (file.indexOf("bundles.ini") > -1) {
-            parseBundleIni(path.join(directory, file), bundles, base_dir);
-        }
-    });
-};
-
-module.exports = {
-    parseBundleIni: parseBundleIni,
-    recurseBundleIni: recurseBundleIni
-};
+module.exports = parseBundleIni;

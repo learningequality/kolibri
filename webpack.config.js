@@ -1,8 +1,8 @@
 var path = require('path');
 var webpack = require('webpack');
 
-var logging = require('./assets/js/logging');
-var iniFiles = require('./assets/js/ini_files');
+var logging = require('./assets/src/logging');
+var recurseBundleIni = require('./assets/src/recurse_bundle_ini');
 
 var bundles = [];
 
@@ -12,7 +12,7 @@ var js_source_dirs = [
 ];
 
 for (var i = 0; i < js_source_dirs.length; i++) {
-    iniFiles.recurseBundleIni(path.join(__dirname, js_source_dirs[i]), bundles, __dirname);
+    recurseBundleIni(path.join(__dirname, js_source_dirs[i]), bundles, __dirname);
 }
 
 module.exports = bundles;

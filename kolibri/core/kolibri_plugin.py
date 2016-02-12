@@ -42,7 +42,7 @@ class KolibriCoreFrontEnd(KolibriFrontEndPluginBase):
             FRONTEND_PLUGINS: self._register_front_end_plugins
         }
 
-PLUGINS = [
+PLUGINS = (
     KolibriCore,
     KolibriCoreFrontEnd,
-]
+)

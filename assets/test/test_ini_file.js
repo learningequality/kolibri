@@ -1,4 +1,4 @@
-var iniFiles = require('../js/ini_files');
+var parseBundleIni = require('../src/parse_bundle_ini');
 
 var assert = require('assert');
 var fs = require('fs');
@@ -23,7 +23,7 @@ describe('parseBundleIni', function() {
     });
     describe('output', function() {
         it('should have one entry', function () {
-            assert(iniFiles.parseBundleIni(tempfile, [], "/").length === 1);
+            assert(parseBundleIni(tempfile, [], "/").length === 1);
         });
     });
 });
