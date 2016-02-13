@@ -46,7 +46,6 @@ describe('recurseBundleIni', function() {
     describe('two valid input files, output', function() {
         it('should have two entries', function (done) {
             temp.mkdir("dir1", function(err, dirPath1){
-                var base_path = path.dirname(dirPath1);
                 fs.writeFile(path.join(dirPath1, "bundles.ini"), "[test_plugin]\nentry_file = this.js\n", function (err) {
                     if (!err) {
                         temp.mkdir("dir2", function(err, dirPath2){
@@ -65,7 +64,6 @@ describe('recurseBundleIni', function() {
     describe('one valid input file, output', function() {
         it('should have one entry', function (done) {
             temp.mkdir("dir1", function(err, dirPath1){
-                var base_path = path.dirname(dirPath1);
                 fs.writeFile(path.join(dirPath1, "bundles.ini"), "[test_plugin]", function (err) {
                     if (!err) {
                         temp.mkdir("dir2", function(err, dirPath2){
@@ -84,7 +82,6 @@ describe('recurseBundleIni', function() {
     describe('no valid input files, output', function() {
         it('should no entries', function (done) {
             temp.mkdir("dir1", function(err, dirPath1){
-                var base_path = path.dirname(dirPath1);
                 fs.writeFile(path.join(dirPath1, "bundles.ini"), "[test_plugin]", function (err) {
                     if (!err) {
                         temp.mkdir("dir2", function(err, dirPath2){
@@ -94,6 +91,22 @@ describe('recurseBundleIni', function() {
                                     done();
                                 }
                             });
+                        });
+                    }
+                });
+            });
+        });
+    });
+    describe('nested folders with one ini file, output', function() {
+        it('should have one entry', function (done) {
+            temp.mkdir("dir1", function(err, dirPath1){
+                fs.mkdir(path.join(dirPath1, "sub"), function (err) {
+                    if (!err) {
+                        fs.writeFile(path.join(dirPath1, "sub", "bundles.ini"), "[test_plugin]\nentry_file = this.js\n", function (err) {
+                            if (!err) {
+                                assert(recurseBundleIni([dirPath1], [], "/").length === 1);
+                                done();
+                            }
                         });
                     }
                 });
