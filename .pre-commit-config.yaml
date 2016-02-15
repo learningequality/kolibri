@@ -8,3 +8,8 @@
     -   id: check-added-large-files
     -   id: debug-statements
     -   id: end-of-file-fixer
+- repo: git://github.com/FalconSocial/pre-commit-python-sorter
+  sha: 1.0.1
+  hooks:
+  - id: python-import-sorter
+    args: ['--silent-overwrite']
