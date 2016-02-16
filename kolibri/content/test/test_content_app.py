@@ -250,8 +250,10 @@ class ContentMetadataTestCase(TestCase):
         root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
         c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         self.assertFalse(root in api.get_all_related(channel_id=self.the_channel_id, content=c1))
+        self.assertFalse(c1 in api.get_all_related(channel_id=self.the_channel_id, content=root))
         api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
         self.assertTrue(root in api.get_all_related(channel_id=self.the_channel_id, content=c1))
+        self.assertTrue(c1 in api.get_all_related(channel_id=self.the_channel_id, content=root))
 
     def test_set_is_related_self_reference(self):
         c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
@@ -271,9 +273,11 @@ class ContentMetadataTestCase(TestCase):
         root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
         c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
-        # test for immediate cyclic exception
-        with self.assertRaises(IntegrityError):
-            api.set_is_related(channel_id=self.the_channel_id, content1=root, content2=c1)
+        # test for immediate cyclic handling
+        all_related_before = content.RelatedContentRelationship.objects.using(self.the_channel_id).all()
+        api.set_is_related(channel_id=self.the_channel_id, content1=root, content2=c1)
+        all_related_after = content.RelatedContentRelationship.objects.using(self.the_channel_id).all()
+        self.assertEqual(set(all_related_before), set(all_related_after))
 
     def test_children_of_kind(self):
         p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
