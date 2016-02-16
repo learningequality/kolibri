@@ -6,6 +6,7 @@ var path = require("path");
 var parseBundleIni = require('./parse_bundle_ini');
 
 var recurseBundleIni = function(directories, bundles, base_dir) {
+    var externals = {};
     directories.forEach(function(directory) {
         var files = fs.readdirSync(directory);
         files.forEach(function(file){
@@ -13,10 +14,14 @@ var recurseBundleIni = function(directories, bundles, base_dir) {
             if (stats.isDirectory()) {
                 recurseBundleIni([path.join(directory, file)], bundles, base_dir);
             } else if (file.indexOf("bundles.ini") > -1) {
-                parseBundleIni(path.join(directory, file), bundles, base_dir);
+                parseBundleIni(path.join(directory, file), bundles, base_dir, externals);
             }
         });
     });
+    bundles.forEach(function(bundle) {
+        bundle.externals = externals;
+    });
+
     return bundles;
 };
 
