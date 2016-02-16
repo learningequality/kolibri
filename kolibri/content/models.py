@@ -12,7 +12,6 @@ import os
 from uuid import uuid4
 
 from django.conf import settings
-from django.contrib import admin
 from django.core.files.storage import FileSystemStorage
 from django.db import IntegrityError, connections, models
 from django.db.utils import ConnectionDoesNotExist
@@ -268,34 +267,6 @@ class RelatedContentRelationship(ContentRelationship):
     def save(self, *args, **kwargs):
         self.full_clean()
         super(RelatedContentRelationship, self).save(*args, **kwargs)
-
-class PrerequisiteRelationshipInline1(admin.TabularInline):
-    model = PrerequisiteContentRelationship
-    fk_name = 'contentmetadata_1'
-    max = 20
-    extra = 0
-
-class PrerequisiteRelationshipInline2(admin.TabularInline):
-    model = PrerequisiteContentRelationship
-    fk_name = 'contentmetadata_2'
-    max = 20
-    extra = 0
-
-class RelatedRelationshipInline1(admin.TabularInline):
-    model = RelatedContentRelationship
-    fk_name = 'contentmetadata_1'
-    max = 20
-    extra = 0
-
-class RelatedRelationshipInline2(admin.TabularInline):
-    model = RelatedContentRelationship
-    fk_name = 'contentmetadata_2'
-    max = 20
-    extra = 0
-
-class ContentMetadataAdmin(admin.ModelAdmin):
-    inlines = (PrerequisiteRelationshipInline1, PrerequisiteRelationshipInline2, RelatedRelationshipInline1, RelatedRelationshipInline2)
-
 
 class ChannelMetadata(models.Model):
     """
