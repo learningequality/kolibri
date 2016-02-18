@@ -172,9 +172,15 @@ class ContentMetadataTestCase(TestCase):
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_missing_files(self):
-        p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
+        # get missing files on content
+        c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         expected_output = content.File.objects.using(self.the_channel_id).filter(id__in=[1, 2])
-        actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=p)
+        actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=c1)
+        self.assertEqual(set(expected_output), set(actual_output))
+        # get missing files on topic
+        c2 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2")
+        expected_output = content.File.objects.using(self.the_channel_id).filter(id__in=[3, 4])
+        actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=c2)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_all_prerequisites(self):
@@ -284,6 +290,10 @@ class ContentMetadataTestCase(TestCase):
         expected_output = content.ContentMetadata.objects.using(self.the_channel_id).filter(title__in=["c2", "c2c2", "c2c3"])
         actual_output = api.children_of_kind(channel_id=self.the_channel_id, content=p, kind="topic")
         self.assertEqual(set(expected_output), set(actual_output))
+
+    def test_channelMetadata_str(self):
+        cm = content.ChannelMetadata.objects.get(name='ucsd')
+        self.assertEqual(cm.name, str(cm))
 
     @classmethod
     def tearDownClass(self):
