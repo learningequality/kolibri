@@ -3,5 +3,4 @@ wheel>=0.22
 docopt
 colorlog==2.6.0
 django==1.9.1
-django-webpack-loader
 django-mptt==0.8.0

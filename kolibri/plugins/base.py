@@ -5,7 +5,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import logging
 import os
-import re
 
 from kolibri.utils.conf import config
 
@@ -136,11 +135,4 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
         import into templates.
         """
         module_path = cls._module_path()
-        return {
-            module_path: {
-                'POLL_INTERVAL': 0.1,
-                'ignores': (re.compile(I) for I in ['.+\.hot-update.js', '.+\.map']),
-                "BUNDLE_DIR_NAME": module_path + "/",
-                "STATS_FILE": cls.stats_file(),
-            }
-        }
+        return module_path, cls.stats_file()

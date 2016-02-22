@@ -6,14 +6,15 @@ from kolibri.plugins.base import KolibriFrontEndPluginBase
 
 class KolibriFrontEndPluginBaseTestCase(TestCase):
     def setUp(self):
-        self.plugin_base = KolibriFrontEndPluginBase()
+        class KolibriTestFrontEnd(KolibriFrontEndPluginBase):
+            name = "test"
+            entry_file = "test.js"
+        self.plugin_base = KolibriTestFrontEnd()
 
     def test_module_file_path(self):
-        self.assertEqual(self.plugin_base._module_file_path(), "kolibri/plugins")
+        self.assertEqual(self.plugin_base._module_file_path(), "kolibri/plugins/test")
 
     def test_register_front_end_plugins(self):
-        plugin_config = self.plugin_base._register_front_end_plugins()["kolibri.plugins"]
-        self.assertIn("POLL_INTERVAL", plugin_config, "No POLL_INTERVAL key in config")
-        self.assertIn("BUNDLE_DIR_NAME", plugin_config, "No BUNDLE_DIR_NAME key in config")
-        self.assertIn("STATS_FILE", plugin_config, "No STATS_FILE key in config")
-        self.assertIn("ignores", plugin_config, "No ignores key in config")
+        module_path, stats_file = self.plugin_base._register_front_end_plugins()
+        self.assertEqual(module_path, "kolibri.plugins.test")
+        self.assertIn("test_stats.json", stats_file)
