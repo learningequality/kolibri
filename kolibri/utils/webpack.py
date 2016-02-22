@@ -8,7 +8,7 @@ from kolibri.plugins import hooks
 
 PLUGIN_CACHE = {}
 
-__initialized = False
+initialized = False
 
 ignores = (re.compile(I) for I in ['.+\.hot-update.js', '.+\.map'])
 
@@ -36,10 +36,10 @@ def load_stats_file(stats_file):
 
 def get_bundle(bundle_name, plugin):
     global PLUGIN_CACHE
-    global __initialized
+    global initialized
     global ignores
 
-    if not __initialized or settings.DEBUG:
+    if (not initialized) or settings.DEBUG:
         for callback in hooks.get_callables(hooks.FRONTEND_PLUGINS):
             module_path, stats_file = callback()
             try:
@@ -48,7 +48,7 @@ def get_bundle(bundle_name, plugin):
                 raise IOError(
                     'Error reading {}. Are you sure webpack has generated the file '
                     'and the path is correct?'.format(stats_file))
-        __initialized = True
+        initialized = True
 
     if plugin in PLUGIN_CACHE:
         for file in PLUGIN_CACHE[plugin]['chunks'][bundle_name]:
