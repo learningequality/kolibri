@@ -8,7 +8,11 @@ var parseBundlePlugin = function(data, base_dir) {
     var bundle_data = {};
     var external, bundle;
     var library;
-    if (typeof data.entry_file !== "undefined") {
+    if ((typeof data.entry_file !== "undefined") &&
+        (typeof data.name !== "undefined") &&
+        (typeof data.module_name !== "undefined") &&
+        (typeof data.module_path !== "undefined") &&
+        (typeof data.stats_file !== "undefined")) {
         bundle_data[data.name] = path.join(data.module_path, data.entry_file);
         if (typeof data.external !== "undefined" && data.external) {
             external = data.name;
@@ -33,11 +37,10 @@ var parseBundlePlugin = function(data, base_dir) {
                 root: base_dir
             }
         };
+        return [bundle, external];
     } else {
-        logging.error(module_name + " file is misconfigured, missing 'entry_file' parameter for bundle " + data.name);
+        logging.error(module_name + " file is misconfigured, missing parameter(s) for bundle " + data.name);
     }
-
-    return [bundle, external];
 };
 
 module.exports = parseBundlePlugin;

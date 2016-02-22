@@ -46,6 +46,7 @@
     "karma-webpack": "^1.7.0",
     "mocha": "^2.4.5",
     "phantomjs-prebuilt": "^2.1.4",
+    "rewire": "^2.5.1",
     "temp": "^0.8.3",
     "webpack": "^1.12.12",
     "webpack-bundle-tracker": "0.0.93"

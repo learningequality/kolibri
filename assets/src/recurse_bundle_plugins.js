@@ -31,7 +31,11 @@ var recurseBundlePlugins = function(directories, base_dir) {
         var result = readBundlePlugin(file, base_dir);
         bundles = bundles.concat(result[0]);
         for (var key in result[1]) {
-            externals[key] = result[1][key];
+            if (typeof externals[key] === "undefined") {
+                externals[key] = result[1][key];
+            } else {
+                logging.warn("Two plugins set with same external flag " + key);
+            }
         }
     }
 
