@@ -70,6 +70,7 @@ class ExtendedPlugin(NavMenuPlugin):
     """
     Demonstrates plugin inheritance. Notice that the ``hooks`` attribute need not be changed -- only the callback.
     """
+
     @classmethod
     def enable(cls):
         # Do nothing because the parent will initialize the plugin as we want
@@ -102,10 +103,14 @@ class KolibriExampleFrontEnd(KolibriFrontEndPluginBase):
     """
     Plugin to handle
     """
+    name = "example_plugin"
+    entry_file = "assets/js/example_plugin.js"
+
     def hooks(self):
         return {
             FRONTEND_PLUGINS: self._register_front_end_plugins
         }
+
 
 PLUGINS = [
     NavMenuPlugin,

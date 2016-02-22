@@ -13,9 +13,13 @@ logger = logging.getLogger(__name__)
 
 
 class MandatoryPluginMethodNotImplemented(NotImplementedError):
-
     def __init__(self):
         super(MandatoryPluginMethodNotImplemented, self).__init__("Plugin needs to define this method")
+
+
+class MandatoryPluginAttributeNotImplemented(NotImplementedError):
+    def __init__(self):
+        super(MandatoryPluginAttributeNotImplemented, self).__init__("Plugin needs to define this attribute")
 
 
 class KolibriPluginBase(object):
@@ -89,6 +93,32 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
     """
 
     @classmethod
+    def webpack_bundle_data(cls):
+        """
+        Returns information needed by the webpack parsing process.
+        :return: dict with keys "name", "entry_file", and, "external".
+        "name" - is the name that the frontend plugin has.
+        "entry_file" - is the Javascript file that defines the plugin.
+        "external" - an optional flag used only by the kolibri_core plugin.
+        """
+        try:
+            return {
+                "name": cls.name,
+                "entry_file": cls.entry_file,
+                "external": getattr(cls, "external", None),
+                "stats_file": cls.stats_file(),
+                "module_name": cls._module_path(),
+                "module_path": cls._module_file_path(),
+            }
+        except KeyError:
+            raise MandatoryPluginAttributeNotImplemented
+
+    @classmethod
+    def stats_file(cls):
+        return os.path.join(os.path.abspath(os.path.dirname(__name__)),
+                            cls._module_file_path(), "{plugin}_stats.json".format(plugin=cls.name))
+
+    @classmethod
     def _module_file_path(cls):
         """
         Returns the path of the class inheriting this classmethod.
@@ -111,7 +141,6 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
                 'POLL_INTERVAL': 0.1,
                 'ignores': (re.compile(I) for I in ['.+\.hot-update.js', '.+\.map']),
                 "BUNDLE_DIR_NAME": module_path + "/",
-                "STATS_FILE": os.path.join(os.path.abspath(os.path.dirname(__name__)),
-                                           cls._module_file_path(), "bundle_catalog.json")
+                "STATS_FILE": cls.stats_file(),
             }
         }

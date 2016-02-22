@@ -52,5 +52,5 @@ docs/modules.rst
 node_modules
 
 # webpack built files
-*bundle_catalog.json
+*stats.json
 kolibri/**/static/*
