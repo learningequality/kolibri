@@ -135,4 +135,4 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
         import into templates.
         """
         module_path = cls._module_path()
-        return module_path, cls.stats_file()
+        return module_path, cls.name, cls.stats_file()

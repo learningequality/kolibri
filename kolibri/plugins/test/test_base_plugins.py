@@ -15,6 +15,7 @@ class KolibriFrontEndPluginBaseTestCase(TestCase):
         self.assertEqual(self.plugin_base._module_file_path(), "kolibri/plugins/test")
 
     def test_register_front_end_plugins(self):
-        module_path, stats_file = self.plugin_base._register_front_end_plugins()
+        module_path, name, stats_file = self.plugin_base._register_front_end_plugins()
         self.assertEqual(module_path, "kolibri.plugins.test")
         self.assertIn("test_stats.json", stats_file)
+        self.assertEqual(name, "test")

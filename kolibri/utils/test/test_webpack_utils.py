@@ -11,7 +11,7 @@ class WebpackConfigTestCase(TestCase):
     files = [{"name": "this.css"}]
 
     def test_get_actual_plugin(self):
-        webpack.PLUGIN_CACHE = {"test": {"chunks": {"test": []}}}
+        webpack.PLUGIN_CACHE = {"test": {"test": {"chunks": {"test": []}}}}
         webpack.initialized = True
         self.assertEqual(list(webpack.get_bundle("test", "test")), [])
 

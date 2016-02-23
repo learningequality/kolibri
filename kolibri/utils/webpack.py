@@ -41,9 +41,11 @@ def get_bundle(bundle_name, plugin):
 
     if (not initialized) or settings.DEBUG:
         for callback in hooks.get_callables(hooks.FRONTEND_PLUGINS):
-            module_path, stats_file = callback()
+            module_path, name, stats_file = callback()
             try:
-                PLUGIN_CACHE[module_path] = load_stats_file(stats_file)
+                if module_path not in PLUGIN_CACHE:
+                    PLUGIN_CACHE[module_path] = {}
+                PLUGIN_CACHE[module_path][name] = load_stats_file(stats_file)
             except IOError:
                 raise IOError(
                     'Error reading {}. Are you sure webpack has generated the file '
@@ -51,7 +53,7 @@ def get_bundle(bundle_name, plugin):
         initialized = True
 
     if plugin in PLUGIN_CACHE:
-        for file in PLUGIN_CACHE[plugin]['chunks'][bundle_name]:
+        for file in PLUGIN_CACHE[plugin][bundle_name]['chunks'][bundle_name]:
             filename = file['name']
             ignore = any(regex.match(filename) for regex in ignores)
             if not ignore:
