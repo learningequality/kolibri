@@ -51,6 +51,10 @@ Adjust according to your operating system or personal preferences.
     $ mkvirtualenv --python=python3 kolibri
     $ workon kolibri
 
+#. Install all NodeJS dependency packages for building the frontend code::
+
+    $ npm install
+
 #. Install kolibri as an editable, meaning your installation will point to your git checkout::
 
     $ pip install -e .

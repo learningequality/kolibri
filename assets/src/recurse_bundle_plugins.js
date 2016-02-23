@@ -1,3 +1,8 @@
+/**
+ * Bundle plugin directory recurser module.
+ * @module recurseBundlePlugins
+ */
+
 var BundleTracker = require('webpack-bundle-tracker');
 var fs = require("fs");
 var path = require("path");
@@ -5,6 +10,13 @@ var logging = require("./logging");
 
 var readBundlePlugin = require('./read_bundle_plugin');
 
+/**
+ * Take an array of directories, recurse over all directories inside them, and look for any files named
+ * 'kolibri_plugin.py', then extract frontend bundle configuration data from them.
+ * @param {Array} directories - The directories overwhich to recursively search for plugin files.
+ * @param {string} base_dir - The absolute path of the base directory for writing files to.
+ * @returns {Array} bundles - An array containing webpack config objects.
+ */
 var recurseBundlePlugins = function(directories, base_dir) {
     var recurse = function(directories, base_dir) {
         var files = [];

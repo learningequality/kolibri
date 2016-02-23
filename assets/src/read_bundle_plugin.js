@@ -1,3 +1,8 @@
+/**
+ * Bundle plugin Python config reader module.
+ * @module readBundlePlugin
+ */
+
 var fs = require("fs");
 var path = require("path");
 var logging = require('./logging');
@@ -5,6 +10,16 @@ var execSync = require('child_process').execSync;
 
 var parseBundlePlugin = require('./parse_bundle_plugin');
 
+/**
+ * Take a Python plugin file name as input, and extract the information regarding front end plugin configuration from it
+ * using a Python script to import the relevant plugins and then run methods against them to retrieve the config data.
+ * @param {string} plugin_file - The directory path of the Python plugin file.
+ * @param {string} base_dir - The absolute path of the base directory for writing files to.
+ * @returns {Array}
+ * @returns {Array} [0] bundles - An array containing webpack config objects.
+ * @returns {Object} [1] externals - An object containing mapping from plugin name to plugin name for accessing those
+ * plugins as an external library.
+ */
 var readBundlePlugin = function(plugin_file, base_dir) {
     var plugin = path.relative(base_dir, plugin_file).replace(".py", "").replace(/\//g, ".");
     var bundles = [];
