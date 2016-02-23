@@ -4,3 +4,4 @@ pytest
 pytest-django
 pytest-cov
 coverage
+mock

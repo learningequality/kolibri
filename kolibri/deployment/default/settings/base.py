@@ -15,7 +15,7 @@ import os
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 
 KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
 
@@ -110,7 +110,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
-
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
