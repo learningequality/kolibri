@@ -70,11 +70,12 @@ local development.
 Now you can make your changes locally.
 
 4. When you're done making changes, check that your changes pass style and unit
-   tests, including testing other Python versions with tox::
+   tests, including testing other Python versions with tox, and testing any Javascript changes with npm::
 
     $ tox
+    $ npm test
 
-To get tox, just pip install it.
+To get tox, just pip install it. To get node (and hence npm) install it from https://nodejs.org.
 
 5. Commit your changes and push your branch to GitHub::
 

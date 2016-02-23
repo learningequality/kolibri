@@ -7,10 +7,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 import logging
 
 from django.utils.translation import ugettext as _
-
-from kolibri.plugins.base import KolibriPluginBase
-from kolibri.plugins.hooks import NAVIGATION_POPULATE
-
+from kolibri.plugins.base import KolibriFrontEndPluginBase, KolibriPluginBase
+from kolibri.plugins.hooks import FRONTEND_PLUGINS, NAVIGATION_POPULATE
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +70,7 @@ class ExtendedPlugin(NavMenuPlugin):
     """
     Demonstrates plugin inheritance. Notice that the ``hooks`` attribute need not be changed -- only the callback.
     """
+
     @classmethod
     def enable(cls):
         # Do nothing because the parent will initialize the plugin as we want
@@ -98,3 +97,23 @@ class ExtendedPlugin(NavMenuPlugin):
                 'menu_url': 'http://yahoo.com',
             }
         ]
+
+
+class KolibriExampleFrontEnd(KolibriFrontEndPluginBase):
+    """
+    Plugin to define a frontend plugin that can be loaded independently from other code.
+    """
+    name = "example_plugin"
+    entry_file = "assets/example/example_plugin.js"
+
+    def hooks(self):
+        return {
+            FRONTEND_PLUGINS: self._register_front_end_plugins
+        }
+
+
+PLUGINS = [
+    NavMenuPlugin,
+    ExtendedPlugin,
+    KolibriExampleFrontEnd,
+]
