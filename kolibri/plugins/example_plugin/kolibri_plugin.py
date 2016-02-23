@@ -101,10 +101,10 @@ class ExtendedPlugin(NavMenuPlugin):
 
 class KolibriExampleFrontEnd(KolibriFrontEndPluginBase):
     """
-    Plugin to handle
+    Plugin to define a frontend plugin that can be loaded independently from other code.
     """
     name = "example_plugin"
-    entry_file = "assets/js/example_plugin.js"
+    entry_file = "assets/example/example_plugin.js"
 
     def hooks(self):
         return {

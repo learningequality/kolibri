@@ -27,10 +27,21 @@ As such for a particular component of a frontend plugin, would appear in the ass
         content_search_plugin.js
 
 As can be seen above, plugins are defined in the root directory of the 'assets/src' folder. These are then referenced
-in the `bundle.ini` file in the base directory of the plugin. An example `bundle.ini` is shown here::
+in the `kolibri_plugin.py` file in the base directory of the plugin. The plugin is defined by subclassing the
+``KolibriFrontEndPluginBase`` class to define each frontend plugin::
 
-    [content_search]
-    entry_file = assets/src/content_search_plugin.js
+    from kolibri.plugins.base import KolibriFrontEndPluginBase
+    from kolibri.plugins.hooks import FRONTEND_PLUGINS
+
+    class KolibriExampleFrontEnd(KolibriFrontEndPluginBase):
+
+        name = "example_plugin"
+        entry_file = "assets/example/example_plugin.js"
+
+        def hooks(self):
+            return {
+                FRONTEND_PLUGINS: self._register_front_end_plugins
+            }
 
 Writing Frontend Plugins
 ------------------------

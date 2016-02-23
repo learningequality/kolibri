@@ -17,8 +17,9 @@ Other stuff you can do with plugins
 -----------------------------------
 
 Plugins can implement Javascript code that can be used in the frontend as a plugin to the core Kolibri Javascript code.
-Each of these Javascript plugins are defined in a ``bundles.ini`` file that defines the base Javascript file that
-defines the plugin. In addition, a Plugin object within the app will automatically add these plugins to an internal
+Each of these Javascript plugins are defined in the `kolibri_plugin.py` file by subclassing the
+``KolibriFrontEndPluginBase`` class to define each frontend plugin. This defines the base Javascript file that
+defines the plugin. In addition, this Plugin object within the app will automatically add these plugins to an internal
 frontend asset registry for loading in the front end. For more information on developing frontend code for Kolibri
 please see :doc:`frontend`.
 
