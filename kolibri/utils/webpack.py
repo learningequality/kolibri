@@ -23,6 +23,8 @@ ignores = (re.compile(I) for I in ['.+\.hot-update.js', '.+\.map'])
 class NoFrontEndPlugin(Exception):
     pass
 
+class WebpackError(EnvironmentError):
+    pass
 
 def load_stats_file(stats_file):
     """
@@ -35,14 +37,14 @@ def load_stats_file(stats_file):
     if settings.DEBUG:
         timeout = 0
         while stats['status'] == 'compiling':
-            time.sleep(settings.get('WEBPACK_POLL_INTERVAL', 0.1))
-            timeout += settings.get('WEBPACK_POLL_INTERVAL', 0.1)
+            time.sleep(getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1))
+            timeout += getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1)
             with open(stats_file) as f:
                 stats = json.load(f)
-            if timeout >= settings.get('WEBPACK_TIMEOUT', 1.0):
-                raise Exception('Webpack compilation still in progress')
+            if timeout >= getattr(settings, 'WEBPACK_POLL_INTERVAL', 1.0):
+                raise WebpackError('Webpack compilation still in progress')
         if stats['status'] == 'error':
-            raise IOError
+            raise WebpackError('Webpack compilation has errored')
     return stats
 
 
