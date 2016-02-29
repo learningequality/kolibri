@@ -21,7 +21,7 @@ var parseBundlePlugin = require('./parse_bundle_plugin');
  * plugins as an external library.
  */
 var readBundlePlugin = function(plugin_file, base_dir) {
-    var plugin = path.relative(base_dir, plugin_file).replace(".py", "").replace(/\//g, ".");
+    var plugin = path.relative(base_dir, plugin_file).replace(".py", "").replace(new RegExp("\\" + path.sep, 'g'), ".");
     var bundles = [];
     var externals = {};
 
