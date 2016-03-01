@@ -14,20 +14,21 @@ class BaseBackend(object):
     """
     Provides the authentication parts that are common to both backends.
     """
-    def _authenticate(self, username=None, password=None):
+    def _authenticate(self, userclass, username, password):
         """
-        Returns a BaseUser object if authentication succeeds, else None.
+        Returns a user object if authentication succeeds for the specified userclass class, else None.
 
+        :param userclass: A subclass of BaseUser
         :param username: A string
         :param password: A string
         """
         try:
-            user = BaseUser.objects.get(username=username)
+            user = userclass.objects.get(username=username)
             if user.check_password(password):
                 return user
             else:
                 return None
-        except BaseUser.DoesNotExist:
+        except userclass.DoesNotExist:
             return None
 
 
@@ -43,22 +44,19 @@ class FacilityBackend(BaseBackend):
 
         :param username: a string
         :param password: a string
-        :return: A FacilityUser instance if successful, or None if authentication failed *or* the authentication was
-          successful but the user is a DeviceOwner.
+        :return: A FacilityUser instance if successful, or None if authentication failed.
         """
-        user = self._authenticate(username, password)
-        return FacilityUser.objects.get(pk=user.pk) if user and not user._is_device_owner else None
+        return self._authenticate(FacilityUser, username, password)
 
     def get_user(self, user_id):
         """
         Gets a user. Auth backends are required to implement this.
 
-        :param user_id: A BaseUser pk
+        :param user_id: A FacilityUser pk
         :return: A FacilityUser instance if a BaseUser with that pk is found, else None.
         """
         try:
-            user = FacilityUser.objects.get(pk=user_id)
-            return user if not user._is_device_owner else None
+            return FacilityUser.objects.get(pk=user_id)
         except FacilityUser.DoesNotExist:
             return None
 
@@ -113,11 +111,9 @@ class DeviceBackend(BaseBackend):
 
         :param username: a string
         :param password: a string
-        :return: A DeviceOwner instance if successful, or None if authentication failed *or* the authentication was
-          successful but the user is a FacilityUser.
+        :return: A DeviceOwner instance if successful, or None if authentication failed.
         """
-        user = self._authenticate(username, password)
-        return DeviceOwner.objects.get(pk=user.pk) if user and user._is_device_owner else None
+        return self._authenticate(DeviceOwner, username, password)
 
     def get_user(self, user_id):
         """
