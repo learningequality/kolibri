@@ -44,7 +44,6 @@ class UserProxyManagerTestCase(TestCase):
         self.assertEqual(set([u.id for u in base_users]), set([u.id for u in facility_users]))
 
     def test_device_owner_manager_returns_device_owners(self):
-        # import IPython; IPython.embed()
         device_owner = DeviceOwner.objects.all()[0]
         self.assertIsInstance(device_owner, DeviceOwner)
 
