@@ -6,7 +6,9 @@ AUTHENTICATION_BACKENDS. Note that authentication backends are checked in the or
 """
 import functools
 
-from kolibri.auth.models import BaseUser, DeviceOwner, FacilityUser, Classroom, LearnerGroup
+from kolibri.auth.models import (
+    Classroom, DeviceOwner, FacilityUser, LearnerGroup
+)
 from kolibri.core.errors import KolibriError
 
 
