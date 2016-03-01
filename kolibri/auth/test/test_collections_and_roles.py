@@ -39,7 +39,6 @@ class CollectionRemovalTestCase(TestCase):
         self.assertEqual(Role.objects.filter(user=self.user2, kind=Role.KIND_COACH, collection=self.cr).count(), 0)
 
     def test_remove_admin(self):
-        # import IPython; IPython.embed()
         self.assertEqual(Role.objects.filter(user=self.user3, kind=Role.KIND_ADMIN, collection=self.f).count(), 1)
         self.f.remove_admin(self.user3)
         self.assertEqual(Role.objects.filter(user=self.user3, kind=Role.KIND_ADMIN, collection=self.f).count(), 0)
