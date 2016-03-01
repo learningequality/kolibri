@@ -28,6 +28,7 @@ from django.db import models
 from django.db.utils import IntegrityError
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
+from mptt.managers import TreeManager
 from mptt.models import TreeForeignKey, MPTTModel
 
 from kolibri.core.errors import KolibriError
@@ -45,7 +46,14 @@ class UUIDField(models.CharField):
 
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = 32
+        self.random = kwargs.pop("random", False)
         super(UUIDField, self).__init__(*args, **kwargs)
+
+    def get_default(self):
+        if self.random:
+            return uuid.uuid4().hex
+        else:
+            return super(UUIDField, self).get_default()
 
 
 class MorangoError(Exception):
@@ -113,6 +121,30 @@ class SyncableModel(models.Model):
         if not self.id:
             self.id = self.calculate_uuid()
         super(SyncableModel, self).clean()
+
+
+class MorangoTreeManager(TreeManager):
+
+    # Override the logic in Django MPTT that assigns tree ids, as we need to ensure tree ids do not
+    # conflict for facilities created on differentdevices and then later synced to the same device
+    # By default, tree ids are auto-increasing integers, but we use UUIDs to avoid collisions.
+    def _get_next_tree_id(self):
+        return uuid.uuid4().hex
+
+
+class MorangoMPTTModel(MPTTModel):
+    """
+    Any model that inherits from SyncableModel that wants to inherit from MPTTModel should instead inherit
+    from MorangoMPTTModel, which modifies some behavior to make it safe for the syncing system.
+    """
+
+    _default_manager = MorangoTreeManager()
+
+    # change tree_id to a uuid to avoid collisions; see explanation above in the MorangoTreeManager class
+    tree_id = UUIDField()
+
+    class Meta:
+        abstract = True
 
 
 ##############################################
@@ -291,7 +323,7 @@ class DeviceOwner(BaseUser):
         return True
 
 
-class Collection(MPTTModel, KolibriSyncableModel):
+class Collection(MorangoMPTTModel, KolibriSyncableModel):
     """
     Collections are hierarchical groups of users, used for grouping users and making decisions about permissions.
     Users belong to one or more Collections, by way of obtaining Roles associated with those Collections.
@@ -317,11 +349,6 @@ class Collection(MPTTModel, KolibriSyncableModel):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     kind = models.CharField(max_length=20, choices=KINDS)
 
-    tree_id = UUIDField()
-
-    class Meta:
-        unique_together = (("user", "collection", "kind"),)
-
     def clean(self):
 
         # enforce the Collection hierarchy of Facility > Classroom > LearnerGroup, by making sure that kind matches level
@@ -329,10 +356,8 @@ class Collection(MPTTModel, KolibriSyncableModel):
             raise ValidationError("Collections of kind '{kind}' cannot be at level {level} of the tree."
                 .format(kind=self.kind, level=self.level))
 
-        # ensure that the tree id comes from the FacilityDataset id, to avoid tree collisions upon sync
-        self.tree_id = self.dataset.id
-
         super(Collection, self).clean()
+
 
     def add_user(self, user, role_kind):
         """
@@ -423,6 +448,9 @@ class Role(KolibriSyncableModel):
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
     collection = TreeForeignKey("Collection")
     kind = models.CharField(max_length=20, choices=KINDS)
+
+    class Meta:
+        unique_together = (("user", "collection", "kind"),)
 
 
 class FacilityManager(models.Manager):
