@@ -20,18 +20,16 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import uuid
 
-from django.contrib.auth.models import AbstractBaseUser, _user_get_all_permissions, _user_has_module_perms, \
-    _user_has_perm
+from django.contrib.auth.models import AbstractBaseUser
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.utils import IntegrityError
-from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
-from mptt.managers import TreeManager
-from mptt.models import TreeForeignKey, MPTTModel
-
+from django.utils.translation import ugettext_lazy as _
 from kolibri.core.errors import KolibriError
+from mptt.managers import TreeManager
+from mptt.models import MPTTModel, TreeForeignKey
 
 
 class KolibriValidationError(KolibriError):
@@ -93,7 +91,7 @@ class SyncableModelPartitionQuerySet(models.QuerySet):
 
 class SyncableModel(models.Model):
 
-    _morango_partition_fields = {} # maps from a partition name to a model field name
+    _morango_partition_fields = {}  # maps from a partition name to a model field name
 
     objects = SyncableModelPartitionQuerySet.as_manager()
     # special reference to partition manager in case 'objects' is overridden in subclasses:
@@ -105,7 +103,7 @@ class SyncableModel(models.Model):
         abstract = True
 
     def calculate_uuid(self):
-        return uuid.uuid4().hex # for now, in this dummy stub, we're just using random UUIDs
+        return uuid.uuid4().hex  # for now, in this dummy stub, we're just using random UUIDs
 
     def get_partition(self):
         """
@@ -307,7 +305,7 @@ class DeviceOwner(BaseUser):
 
     objects = DeviceOwnerManager()
 
-    _require_dataset = False # don't require a FacilityDataset for DeviceOwner
+    _require_dataset = False  # don't require a FacilityDataset for DeviceOwner
 
     class Meta:
         proxy = True
@@ -352,12 +350,11 @@ class Collection(MorangoMPTTModel, KolibriSyncableModel):
     def clean(self):
 
         # enforce the Collection hierarchy of Facility > Classroom > LearnerGroup, by making sure that kind matches level
-        if self.kind != KINDS[self.level][0]:
+        if self.kind != self.KINDS[self.level][0]:
             raise ValidationError("Collections of kind '{kind}' cannot be at level {level} of the tree."
-                .format(kind=self.kind, level=self.level))
+                                  .format(kind=self.kind, level=self.level))
 
         super(Collection, self).clean()
-
 
     def add_user(self, user, role_kind):
         """
