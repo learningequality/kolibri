@@ -4,6 +4,10 @@ language: python
 
 sudo: false
 
+cache:
+  directories:
+    - node_modules
+
 matrix:
   include:
     - python: "2.7"
@@ -21,12 +25,16 @@ before_install:
   - pip install codecov
   - pip install tox
 
+install:
+  - npm install
+
 before_script:
   - tox -e lint
 
 # command to run tests, e.g. python setup.py test
 script:
   - tox -e $TOX_ENV
+  - npm run coverage
 
 after_success:
   - codecov

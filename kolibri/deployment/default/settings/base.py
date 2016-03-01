@@ -15,7 +15,7 @@ import os
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 
 KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
 
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'kolibri.auth.apps.KolibriAuthConfig',
-    'mptt',
+    'kolibri.content'
 ] + conf.config['INSTALLED_APPS']
 
 MIDDLEWARE_CLASSES = (
@@ -87,6 +87,10 @@ DATABASES = {
     }
 }
 
+# DIR for storing contentDBs
+CONTENT_DB_DIR = os.path.join(conf.KOLIBRI_HOME, '/content/content_db')
+# DIR for storing content copies for all channels
+CONTENT_COPY_DIR = os.path.join(conf.KOLIBRI_HOME, '/content/content_copy')
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -106,7 +110,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
-
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/

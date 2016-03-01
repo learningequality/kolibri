@@ -3,8 +3,8 @@ Plugins are initialized once when the server starts. Here are the initilization 
 
 1. Each module listed in INSTALLED_APPS (including those listed in the kolibri conf file) is searched for the special
    ``kolibri_plugin`` module.
-2. For each class in the module which inherits from ``KolibriPluginBase``, it's ``hooks`` method is called to inspect
-   which hooks it defines.
+2. For each class listed in the module's ``PLUGINS`` property, which inherits from ``KolibriPluginBase``, it's ``hooks``
+   method is called to inspect which hooks it defines.
 3. The callback assigned by the plugin class to the hook is registered in a module variable.
 4. At the appropriate time (see below) the callbacks for a given hook are all called.
 
@@ -49,8 +49,8 @@ def initialize():
                 plugin_module = importlib.import_module(app + ".kolibri_plugin")
                 logger.debug("Loaded kolibri plugin: {}".format(app))
                 plugin_classes = []
-                for obj in plugin_module.__dict__.values():
-                    if type(obj) == type and obj is not KolibriPluginBase and issubclass(obj, KolibriPluginBase):
+                for obj in plugin_module.PLUGINS:
+                    if type(obj) == type and issubclass(obj, KolibriPluginBase):
                         plugin_classes.append(obj)
                 for plugin_klass in plugin_classes:
                     plugin_obj = plugin_klass()
