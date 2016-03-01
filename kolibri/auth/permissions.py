@@ -120,7 +120,7 @@ class RoleBasedPermissions(BasePermissions):
             possessed_roles = user.role_types_in_relation_to_collection(target_collection=target_object)
 
         # grant permission if the user has at least one role that grants the appropriate permission
-        return len(possessed_roles).intersection(permitted_roles)) > 0
+        return len(possessed_roles.intersection(permitted_roles)) > 0
 
     def user_can_create_object(self, user, obj):
 

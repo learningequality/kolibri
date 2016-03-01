@@ -5,6 +5,9 @@
 ### the purposes of illustration. Some suggestions for tweaks to the actual models will come as a separate PR.    ###
 #####################################################################################################################
 
+from django.utils.translation import ugettext as _
+from django.db import models
+
 from .permissions import *
 
 ROLE_CHOICES = (
@@ -48,11 +51,11 @@ class RoleQuerySet(models.QuerySet):
         or target_collection, through the Collection hierarchy.
         """
 
-        assert (target_user or target_collection) and not (target_user and target_collection),
+        assert (target_user or target_collection) and not (target_user and target_collection), \
             "Exactly one of `target_user` and `target_collection` must be provided."
 
         # start with the basic conditions, establishing relationship between source user, her roles, and collections
-        conditions = self.base_conditions += (
+        conditions = self.base_conditions + (
             "{source_role}.user_id = {user_id}".format(user_id=source_user.id),
         )
 
