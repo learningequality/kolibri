@@ -4,6 +4,7 @@ To run this test, type this in command line <kolibri manage test -- kolibri.cont
 import os
 import shutil
 import tempfile
+import json
 from django.test import TestCase
 from django.db import connections, IntegrityError
 from django.test.utils import override_settings
@@ -280,6 +281,35 @@ class ContentMetadataTestCase(TestCase):
         expected_output = content.ContentMetadata.objects.using(self.the_channel_id).filter(title__in=["c2", "c2c2", "c2c3"])
         actual_output = api.children_of_kind(channel_id=self.the_channel_id, content=p, kind="topic")
         self.assertEqual(set(expected_output), set(actual_output))
+
+    """Tests for content API endpoints"""
+    def test_get_content_with_id_endpoint(self):
+        root_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
+        response = self.client.get('/content_api/get_content_with_id/', {'channel_id': self.the_channel_id, 'content': root_id})
+        result = json.loads(response.content)
+        self.assertEqual(result[0]['title'], 'root')
+
+    def test_get_ancestor_topics_endpoint(self):
+        c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
+        response = self.client.get('/content_api/get_ancestor_topics/', {'channel_id': self.the_channel_id, 'content': c1_id})
+        result = json.loads(response.content)
+        self.assertEqual(result[0]['title'], 'root')
+
+    def test_immediate_children_endpoint(self):
+        root_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
+        response = self.client.get('/content_api/immediate_children/', {'channel_id': self.the_channel_id, 'content': root_id})
+        result = json.loads(response.content)
+        self.assertEqual(result[0]['title'], 'c1')
+        self.assertEqual(result[1]['title'], 'c2')
+
+    def test_leaves_endpoint(self):
+        root_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
+        response = self.client.get('/content_api/leaves/', {'channel_id': self.the_channel_id, 'content': root_id})
+        result = json.loads(response.content)
+        self.assertEqual(result[0]['title'], 'c1')
+        self.assertEqual(result[1]['title'], 'c2c1')
+        self.assertEqual(result[2]['title'], 'c2c2')
+        self.assertEqual(result[3]['title'], 'c2c3')
 
     @classmethod
     def tearDownClass(self):
