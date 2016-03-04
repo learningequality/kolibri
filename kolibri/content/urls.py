@@ -171,16 +171,22 @@ def set_prerequisite_view(request, channel_id=None, content1=None, content2=None
     front-end call need to supply data: {channel_id: <UUID string>, content1: <UUID string>, content2: <UUID string>}
     :return: html status
     """
-    api.set_prerequisite(channel_id=channel_id, content1=content1, content2=content2)
-    return HttpResponse(status=200)
+    try:
+        api.set_prerequisite(channel_id=channel_id, content1=content1, content2=content2)
+        return HttpResponse(status=201)
+    except Exception, e:
+        return HttpResponse(str(e), status=500)
 
 def set_is_related_view(request, channel_id=None, content1=None, content2=None):
     """
     front-end call need to supply data: {channel_id: <UUID string>, content1: <UUID string>, content2: <UUID string>}
     :return: html status
     """
-    api.set_is_related(channel_id=channel_id, content1=content1, content2=content2)
-    return HttpResponse(status=200)
+    try:
+        api.set_is_related(channel_id=channel_id, content1=content1, content2=content2)
+        return HttpResponse(status=201)
+    except Exception, e:
+        return HttpResponse(str(e), status=500)
 
 
 router = routers.DefaultRouter()
