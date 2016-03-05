@@ -1,5 +1,5 @@
-var Kolibri = require("kolibri_core");
+'use strict';
 
-console.log(Kolibri);
+var Kolibri = require('kolibri_core');
 
 module.exports = {};

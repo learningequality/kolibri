@@ -1,3 +1,6 @@
-var Kolibri = require("./mediator/mediator");
+'use strict';
 
-console.log("Kolibri Initialized");
+var Kolibri = require('./mediator/mediator');
+var log = require('loglevel');
+
+log.info('Kolibri Initialized');

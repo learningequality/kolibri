@@ -41,6 +41,15 @@ var parseBundlePlugin = function(data, base_dir) {
             library = data.name;
         }
         bundle = {
+            module: {
+                preLoaders: [
+                    {
+                        test: /\.js$/, // include .js files
+                        exclude: /node_modules/, // exclude any and all files in the node_modules folder
+                    loader: "jshint-loader"
+                    }
+                ]
+            },
             context: base_dir,
             entry: bundle_data,
             output: {
@@ -57,6 +66,9 @@ var parseBundlePlugin = function(data, base_dir) {
             ],
             resolve: {
                 root: base_dir
+            },
+            jshint: {
+                failOnHint: true
             }
         };
         return [bundle, external];

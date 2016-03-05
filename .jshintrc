@@ -1,0 +1,17 @@
+{
+    "maxerr"        : 50,
+    "bitwise"       : true,
+    "curly"         : true,
+    "eqeqeq"        : true,
+    "forin"         : true,
+    "freeze"        : true,
+    "latedef"       : true,
+    "noarg"         : true,
+    "noempty"       : true,
+    "nonbsp"        : true,
+    "quotmark"      : true,
+    "undef"         : true,
+    "strict"        : "global",
+    "maxdepth"      : 3,
+    "maxlen"        : 80
+}
