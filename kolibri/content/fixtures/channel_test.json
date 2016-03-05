@@ -1,1 +1,485 @@
-[{"model": "contenttypes.contenttype", "pk": 1, "fields": {"app_label": "admin", "model": "logentry"}}, {"model": "contenttypes.contenttype", "pk": 2, "fields": {"app_label": "auth", "model": "permission"}}, {"model": "contenttypes.contenttype", "pk": 3, "fields": {"app_label": "auth", "model": "group"}}, {"model": "contenttypes.contenttype", "pk": 4, "fields": {"app_label": "contenttypes", "model": "contenttype"}}, {"model": "contenttypes.contenttype", "pk": 5, "fields": {"app_label": "sessions", "model": "session"}}, {"model": "contenttypes.contenttype", "pk": 6, "fields": {"app_label": "kolibriauth", "model": "baseuser"}}, {"model": "content.channelmetadata", "pk": 1, "fields": {"channel_id": "6199dde6-95db-4ee4-ab39-2222d5af1e5c", "name": "khan", "description": "dummy khan", "author": "eli", "theme": "i'm a json blob", "subscribed": true}}, {"model": "content.channelmetadata", "pk": 2, "fields": {"channel_id": "9788ab1e-eb91-4487-a2fb-89f9953e66ac", "name": "ucsd", "description": "dummy ucsd", "author": "eli", "theme": "i'm a json blob", "subscribed": true}}, {"model": "auth.permission", "pk": 1, "fields": {"name": "Can add log entry", "content_type": 1, "codename": "add_logentry"}}, {"model": "auth.permission", "pk": 2, "fields": {"name": "Can change log entry", "content_type": 1, "codename": "change_logentry"}}, {"model": "auth.permission", "pk": 3, "fields": {"name": "Can delete log entry", "content_type": 1, "codename": "delete_logentry"}}, {"model": "auth.permission", "pk": 4, "fields": {"name": "Can add permission", "content_type": 2, "codename": "add_permission"}}, {"model": "auth.permission", "pk": 5, "fields": {"name": "Can change permission", "content_type": 2, "codename": "change_permission"}}, {"model": "auth.permission", "pk": 6, "fields": {"name": "Can delete permission", "content_type": 2, "codename": "delete_permission"}}, {"model": "auth.permission", "pk": 7, "fields": {"name": "Can add group", "content_type": 3, "codename": "add_group"}}, {"model": "auth.permission", "pk": 8, "fields": {"name": "Can change group", "content_type": 3, "codename": "change_group"}}, {"model": "auth.permission", "pk": 9, "fields": {"name": "Can delete group", "content_type": 3, "codename": "delete_group"}}, {"model": "auth.permission", "pk": 10, "fields": {"name": "Can add content type", "content_type": 4, "codename": "add_contenttype"}}, {"model": "auth.permission", "pk": 11, "fields": {"name": "Can change content type", "content_type": 4, "codename": "change_contenttype"}}, {"model": "auth.permission", "pk": 12, "fields": {"name": "Can delete content type", "content_type": 4, "codename": "delete_contenttype"}}, {"model": "auth.permission", "pk": 13, "fields": {"name": "Can add session", "content_type": 5, "codename": "add_session"}}, {"model": "auth.permission", "pk": 14, "fields": {"name": "Can change session", "content_type": 5, "codename": "change_session"}}, {"model": "auth.permission", "pk": 15, "fields": {"name": "Can delete session", "content_type": 5, "codename": "delete_session"}}, {"model": "auth.permission", "pk": 16, "fields": {"name": "Can add base user", "content_type": 6, "codename": "add_baseuser"}}, {"model": "auth.permission", "pk": 17, "fields": {"name": "Can change base user", "content_type": 6, "codename": "change_baseuser"}}, {"model": "auth.permission", "pk": 18, "fields": {"name": "Can delete base user", "content_type": 6, "codename": "delete_baseuser"}}, {"model": "auth.permission", "pk": 19, "fields": {"name": "Can add facility user", "content_type": 6, "codename": "add_facilityuser"}}, {"model": "auth.permission", "pk": 20, "fields": {"name": "Can change facility user", "content_type": 6, "codename": "change_facilityuser"}}, {"model": "auth.permission", "pk": 21, "fields": {"name": "Can delete facility user", "content_type": 6, "codename": "delete_facilityuser"}}, {"model": "auth.permission", "pk": 22, "fields": {"name": "Can add device owner", "content_type": 6, "codename": "add_deviceowner"}}, {"model": "auth.permission", "pk": 23, "fields": {"name": "Can change device owner", "content_type": 6, "codename": "change_deviceowner"}}, {"model": "auth.permission", "pk": 24, "fields": {"name": "Can delete device owner", "content_type": 6, "codename": "delete_deviceowner"}}, {"model": "auth.permission", "pk": 25, "fields": {"name": "Can add Content Metadata", "content_type": 9, "codename": "add_contentmetadata"}}, {"model": "auth.permission", "pk": 26, "fields": {"name": "Can change Content Metadata", "content_type": 9, "codename": "change_contentmetadata"}}, {"model": "auth.permission", "pk": 27, "fields": {"name": "Can delete Content Metadata", "content_type": 9, "codename": "delete_contentmetadata"}}, {"model": "auth.permission", "pk": 28, "fields": {"name": "Can add mime type", "content_type": 10, "codename": "add_mimetype"}}, {"model": "auth.permission", "pk": 29, "fields": {"name": "Can change mime type", "content_type": 10, "codename": "change_mimetype"}}, {"model": "auth.permission", "pk": 30, "fields": {"name": "Can delete mime type", "content_type": 10, "codename": "delete_mimetype"}}, {"model": "auth.permission", "pk": 31, "fields": {"name": "Can add format", "content_type": 11, "codename": "add_format"}}, {"model": "auth.permission", "pk": 32, "fields": {"name": "Can change format", "content_type": 11, "codename": "change_format"}}, {"model": "auth.permission", "pk": 33, "fields": {"name": "Can delete format", "content_type": 11, "codename": "delete_format"}}, {"model": "auth.permission", "pk": 34, "fields": {"name": "Can add file", "content_type": 12, "codename": "add_file"}}, {"model": "auth.permission", "pk": 35, "fields": {"name": "Can change file", "content_type": 12, "codename": "change_file"}}, {"model": "auth.permission", "pk": 36, "fields": {"name": "Can delete file", "content_type": 12, "codename": "delete_file"}}, {"model": "auth.permission", "pk": 37, "fields": {"name": "Can add license", "content_type": 13, "codename": "add_license"}}, {"model": "auth.permission", "pk": 38, "fields": {"name": "Can change license", "content_type": 13, "codename": "change_license"}}, {"model": "auth.permission", "pk": 39, "fields": {"name": "Can delete license", "content_type": 13, "codename": "delete_license"}}, {"model": "auth.permission", "pk": 40, "fields": {"name": "Can add prerequisite content relationship", "content_type": 14, "codename": "add_prerequisitecontentrelationship"}}, {"model": "auth.permission", "pk": 41, "fields": {"name": "Can change prerequisite content relationship", "content_type": 14, "codename": "change_prerequisitecontentrelationship"}}, {"model": "auth.permission", "pk": 42, "fields": {"name": "Can delete prerequisite content relationship", "content_type": 14, "codename": "delete_prerequisitecontentrelationship"}}, {"model": "auth.permission", "pk": 43, "fields": {"name": "Can add related content relationship", "content_type": 15, "codename": "add_relatedcontentrelationship"}}, {"model": "auth.permission", "pk": 44, "fields": {"name": "Can change related content relationship", "content_type": 15, "codename": "change_relatedcontentrelationship"}}, {"model": "auth.permission", "pk": 45, "fields": {"name": "Can delete related content relationship", "content_type": 15, "codename": "delete_relatedcontentrelationship"}}, {"model": "auth.permission", "pk": 46, "fields": {"name": "Can add channel metadata", "content_type": 16, "codename": "add_channelmetadata"}}, {"model": "auth.permission", "pk": 47, "fields": {"name": "Can change channel metadata", "content_type": 16, "codename": "change_channelmetadata"}}, {"model": "auth.permission", "pk": 48, "fields": {"name": "Can delete channel metadata", "content_type": 16, "codename": "delete_channelmetadata"}}, {"model": "auth.permission", "pk": 49, "fields": {"name": "Can add content copy tracking", "content_type": 17, "codename": "add_contentcopytracking"}}, {"model": "auth.permission", "pk": 50, "fields": {"name": "Can change content copy tracking", "content_type": 17, "codename": "change_contentcopytracking"}}, {"model": "auth.permission", "pk": 51, "fields": {"name": "Can delete content copy tracking", "content_type": 17, "codename": "delete_contentcopytracking"}}]
+[
+    {
+        "fields": {
+            "author": "eli",
+            "channel_id": "6199dde6-95db-4ee4-ab39-2222d5af1e5c",
+            "description": "dummy khan",
+            "name": "khan",
+            "subscribed": true,
+            "theme": "i'm a json blob"
+        },
+        "model": "content.channelmetadata",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "author": "eli",
+            "channel_id": "9788ab1e-eb91-4487-a2fb-89f9953e66ac",
+            "description": "dummy ucsd",
+            "name": "ucsd",
+            "subscribed": true,
+            "theme": "i'm a json blob"
+        },
+        "model": "content.channelmetadata",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "codename": "add_logentry",
+            "content_type": 1,
+            "name": "Can add log entry"
+        },
+        "model": "auth.permission",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "codename": "change_logentry",
+            "content_type": 1,
+            "name": "Can change log entry"
+        },
+        "model": "auth.permission",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "codename": "delete_logentry",
+            "content_type": 1,
+            "name": "Can delete log entry"
+        },
+        "model": "auth.permission",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "codename": "add_permission",
+            "content_type": 2,
+            "name": "Can add permission"
+        },
+        "model": "auth.permission",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "codename": "change_permission",
+            "content_type": 2,
+            "name": "Can change permission"
+        },
+        "model": "auth.permission",
+        "pk": 5
+    },
+    {
+        "fields": {
+            "codename": "delete_permission",
+            "content_type": 2,
+            "name": "Can delete permission"
+        },
+        "model": "auth.permission",
+        "pk": 6
+    },
+    {
+        "fields": {
+            "codename": "add_group",
+            "content_type": 3,
+            "name": "Can add group"
+        },
+        "model": "auth.permission",
+        "pk": 7
+    },
+    {
+        "fields": {
+            "codename": "change_group",
+            "content_type": 3,
+            "name": "Can change group"
+        },
+        "model": "auth.permission",
+        "pk": 8
+    },
+    {
+        "fields": {
+            "codename": "delete_group",
+            "content_type": 3,
+            "name": "Can delete group"
+        },
+        "model": "auth.permission",
+        "pk": 9
+    },
+    {
+        "fields": {
+            "codename": "add_contenttype",
+            "content_type": 4,
+            "name": "Can add content type"
+        },
+        "model": "auth.permission",
+        "pk": 10
+    },
+    {
+        "fields": {
+            "codename": "change_contenttype",
+            "content_type": 4,
+            "name": "Can change content type"
+        },
+        "model": "auth.permission",
+        "pk": 11
+    },
+    {
+        "fields": {
+            "codename": "delete_contenttype",
+            "content_type": 4,
+            "name": "Can delete content type"
+        },
+        "model": "auth.permission",
+        "pk": 12
+    },
+    {
+        "fields": {
+            "codename": "add_session",
+            "content_type": 5,
+            "name": "Can add session"
+        },
+        "model": "auth.permission",
+        "pk": 13
+    },
+    {
+        "fields": {
+            "codename": "change_session",
+            "content_type": 5,
+            "name": "Can change session"
+        },
+        "model": "auth.permission",
+        "pk": 14
+    },
+    {
+        "fields": {
+            "codename": "delete_session",
+            "content_type": 5,
+            "name": "Can delete session"
+        },
+        "model": "auth.permission",
+        "pk": 15
+    },
+    {
+        "fields": {
+            "codename": "add_baseuser",
+            "content_type": 6,
+            "name": "Can add base user"
+        },
+        "model": "auth.permission",
+        "pk": 16
+    },
+    {
+        "fields": {
+            "codename": "change_baseuser",
+            "content_type": 6,
+            "name": "Can change base user"
+        },
+        "model": "auth.permission",
+        "pk": 17
+    },
+    {
+        "fields": {
+            "codename": "delete_baseuser",
+            "content_type": 6,
+            "name": "Can delete base user"
+        },
+        "model": "auth.permission",
+        "pk": 18
+    },
+    {
+        "fields": {
+            "codename": "add_facilityuser",
+            "content_type": 6,
+            "name": "Can add facility user"
+        },
+        "model": "auth.permission",
+        "pk": 19
+    },
+    {
+        "fields": {
+            "codename": "change_facilityuser",
+            "content_type": 6,
+            "name": "Can change facility user"
+        },
+        "model": "auth.permission",
+        "pk": 20
+    },
+    {
+        "fields": {
+            "codename": "delete_facilityuser",
+            "content_type": 6,
+            "name": "Can delete facility user"
+        },
+        "model": "auth.permission",
+        "pk": 21
+    },
+    {
+        "fields": {
+            "codename": "add_deviceowner",
+            "content_type": 6,
+            "name": "Can add device owner"
+        },
+        "model": "auth.permission",
+        "pk": 22
+    },
+    {
+        "fields": {
+            "codename": "change_deviceowner",
+            "content_type": 6,
+            "name": "Can change device owner"
+        },
+        "model": "auth.permission",
+        "pk": 23
+    },
+    {
+        "fields": {
+            "codename": "delete_deviceowner",
+            "content_type": 6,
+            "name": "Can delete device owner"
+        },
+        "model": "auth.permission",
+        "pk": 24
+    },
+    {
+        "fields": {
+            "codename": "add_contentmetadata",
+            "content_type": 9,
+            "name": "Can add Content Metadata"
+        },
+        "model": "auth.permission",
+        "pk": 25
+    },
+    {
+        "fields": {
+            "codename": "change_contentmetadata",
+            "content_type": 9,
+            "name": "Can change Content Metadata"
+        },
+        "model": "auth.permission",
+        "pk": 26
+    },
+    {
+        "fields": {
+            "codename": "delete_contentmetadata",
+            "content_type": 9,
+            "name": "Can delete Content Metadata"
+        },
+        "model": "auth.permission",
+        "pk": 27
+    },
+    {
+        "fields": {
+            "codename": "add_mimetype",
+            "content_type": 10,
+            "name": "Can add mime type"
+        },
+        "model": "auth.permission",
+        "pk": 28
+    },
+    {
+        "fields": {
+            "codename": "change_mimetype",
+            "content_type": 10,
+            "name": "Can change mime type"
+        },
+        "model": "auth.permission",
+        "pk": 29
+    },
+    {
+        "fields": {
+            "codename": "delete_mimetype",
+            "content_type": 10,
+            "name": "Can delete mime type"
+        },
+        "model": "auth.permission",
+        "pk": 30
+    },
+    {
+        "fields": {
+            "codename": "add_format",
+            "content_type": 11,
+            "name": "Can add format"
+        },
+        "model": "auth.permission",
+        "pk": 31
+    },
+    {
+        "fields": {
+            "codename": "change_format",
+            "content_type": 11,
+            "name": "Can change format"
+        },
+        "model": "auth.permission",
+        "pk": 32
+    },
+    {
+        "fields": {
+            "codename": "delete_format",
+            "content_type": 11,
+            "name": "Can delete format"
+        },
+        "model": "auth.permission",
+        "pk": 33
+    },
+    {
+        "fields": {
+            "codename": "add_file",
+            "content_type": 12,
+            "name": "Can add file"
+        },
+        "model": "auth.permission",
+        "pk": 34
+    },
+    {
+        "fields": {
+            "codename": "change_file",
+            "content_type": 12,
+            "name": "Can change file"
+        },
+        "model": "auth.permission",
+        "pk": 35
+    },
+    {
+        "fields": {
+            "codename": "delete_file",
+            "content_type": 12,
+            "name": "Can delete file"
+        },
+        "model": "auth.permission",
+        "pk": 36
+    },
+    {
+        "fields": {
+            "codename": "add_license",
+            "content_type": 13,
+            "name": "Can add license"
+        },
+        "model": "auth.permission",
+        "pk": 37
+    },
+    {
+        "fields": {
+            "codename": "change_license",
+            "content_type": 13,
+            "name": "Can change license"
+        },
+        "model": "auth.permission",
+        "pk": 38
+    },
+    {
+        "fields": {
+            "codename": "delete_license",
+            "content_type": 13,
+            "name": "Can delete license"
+        },
+        "model": "auth.permission",
+        "pk": 39
+    },
+    {
+        "fields": {
+            "codename": "add_prerequisitecontentrelationship",
+            "content_type": 14,
+            "name": "Can add prerequisite content relationship"
+        },
+        "model": "auth.permission",
+        "pk": 40
+    },
+    {
+        "fields": {
+            "codename": "change_prerequisitecontentrelationship",
+            "content_type": 14,
+            "name": "Can change prerequisite content relationship"
+        },
+        "model": "auth.permission",
+        "pk": 41
+    },
+    {
+        "fields": {
+            "codename": "delete_prerequisitecontentrelationship",
+            "content_type": 14,
+            "name": "Can delete prerequisite content relationship"
+        },
+        "model": "auth.permission",
+        "pk": 42
+    },
+    {
+        "fields": {
+            "codename": "add_relatedcontentrelationship",
+            "content_type": 15,
+            "name": "Can add related content relationship"
+        },
+        "model": "auth.permission",
+        "pk": 43
+    },
+    {
+        "fields": {
+            "codename": "change_relatedcontentrelationship",
+            "content_type": 15,
+            "name": "Can change related content relationship"
+        },
+        "model": "auth.permission",
+        "pk": 44
+    },
+    {
+        "fields": {
+            "codename": "delete_relatedcontentrelationship",
+            "content_type": 15,
+            "name": "Can delete related content relationship"
+        },
+        "model": "auth.permission",
+        "pk": 45
+    },
+    {
+        "fields": {
+            "codename": "add_channelmetadata",
+            "content_type": 16,
+            "name": "Can add channel metadata"
+        },
+        "model": "auth.permission",
+        "pk": 46
+    },
+    {
+        "fields": {
+            "codename": "change_channelmetadata",
+            "content_type": 16,
+            "name": "Can change channel metadata"
+        },
+        "model": "auth.permission",
+        "pk": 47
+    },
+    {
+        "fields": {
+            "codename": "delete_channelmetadata",
+            "content_type": 16,
+            "name": "Can delete channel metadata"
+        },
+        "model": "auth.permission",
+        "pk": 48
+    },
+    {
+        "fields": {
+            "codename": "add_contentcopytracking",
+            "content_type": 17,
+            "name": "Can add content copy tracking"
+        },
+        "model": "auth.permission",
+        "pk": 49
+    },
+    {
+        "fields": {
+            "codename": "change_contentcopytracking",
+            "content_type": 17,
+            "name": "Can change content copy tracking"
+        },
+        "model": "auth.permission",
+        "pk": 50
+    },
+    {
+        "fields": {
+            "codename": "delete_contentcopytracking",
+            "content_type": 17,
+            "name": "Can delete content copy tracking"
+        },
+        "model": "auth.permission",
+        "pk": 51
+    }
+]
