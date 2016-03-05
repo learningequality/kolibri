@@ -109,17 +109,16 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
         """
         Returns information needed by the webpack parsing process.
         :return: dict with keys "name", "entry_file", and, "external".
-        "name" - is the name that the frontend plugin has.
+        "name" - is the module path that the frontend plugin has.
         "entry_file" - is the Javascript file that defines the plugin.
         "external" - an optional flag used only by the kolibri_core plugin.
         """
         try:
             return {
-                "name": cls.name,
+                "name": cls._module_path() + "." + cls.__name__,
                 "entry_file": cls.entry_file,
                 "external": getattr(cls, "external", None),
                 "stats_file": cls.stats_file(),
-                "module_name": cls._module_path(),
                 "module_path": cls._module_file_path(),
             }
         except KeyError:
@@ -128,7 +127,7 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
     @classmethod
     def stats_file(cls):
         return os.path.join(os.path.abspath(os.path.dirname(__name__)),
-                            cls._module_file_path(), "{plugin}_stats.json".format(plugin=cls.name))
+                            cls._module_file_path(), "{plugin}_stats.json".format(plugin=cls.__name__))
 
     @classmethod
     def _module_file_path(cls):
@@ -147,5 +146,4 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
         Call this to register front end plugins in a Kolibri plugin to allow for
         import into templates.
         """
-        module_path = cls._module_path()
-        return module_path, cls.name, cls.stats_file()
+        return cls._module_path() + "." + cls.__name__, cls.stats_file()

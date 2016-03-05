@@ -46,5 +46,5 @@ def render_as_tags(bundle):
     return mark_safe('\n'.join(tags))
 
 @register.simple_tag()
-def frontend_assets(bundle_name, extension=None, plugin='kolibri.core'):
-    return render_as_tags(get_webpack_bundle(bundle_name, extension, plugin))
+def frontend_assets(bundle_path, extension=None):
+    return render_as_tags(get_webpack_bundle(bundle_path, extension))

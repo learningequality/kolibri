@@ -103,7 +103,6 @@ class KolibriExampleFrontEnd(KolibriFrontEndPluginBase):
     """
     Plugin to define a frontend plugin that can be loaded independently from other code.
     """
-    name = "example_plugin"
     entry_file = "assets/example/example_plugin.js"
 
     def hooks(self):

@@ -1,5 +1,5 @@
 'use strict';
 
-var Kolibri = require('kolibri_core');
+var Kolibri = require('kolibri.core.KolibriCoreFrontEnd');
 
 module.exports = {};

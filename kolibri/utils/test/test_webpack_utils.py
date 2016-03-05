@@ -20,19 +20,15 @@ class WebpackConfigTestCase(TestCase):
         self.test_dir = tempfile.mkdtemp()
 
     def test_get_actual_plugin(self):
-        webpack.PLUGIN_CACHE = {"test": {"test": {"chunks": {"test": []}}}}
+        webpack.PLUGIN_CACHE = {"test": []}
         webpack.initialized = True
-        self.assertEqual(list(webpack.get_bundle("test", "test")), [])
+        self.assertEqual(list(webpack.get_bundle("test")), [])
 
     def test_get_non_plugin(self):
         webpack.PLUGIN_CACHE = {}
         webpack.initialized = True
         with self.assertRaises(webpack.NoFrontEndPlugin):
-            list(webpack.get_bundle("test", "test"))
-
-    def test_get_non_existent_stats(self):
-        with self.assertRaises(IOError):
-            list(webpack.get_bundle("kolibri.core", "kolibri_core"))
+            list(webpack.get_bundle("test"))
 
     @override_settings(DEBUG=True)
     def test_get_error_stats_file(self):
@@ -59,12 +55,12 @@ class WebpackConfigTestCase(TestCase):
     def test_get_webpack_bundle(self, mocked_get_bundle):
         webpack.PLUGIN_CACHE = {}
         webpack.initialized = True
-        output = webpack.get_webpack_bundle("test", None, "test")
+        output = webpack.get_webpack_bundle("test", None)
         self.assertEqual(output[0]["name"], "this.css")
 
     @patch('kolibri.utils.webpack.get_bundle', return_value=files)
     def test_get_webpack_bundle_filter(self, mocked_get_bundle):
         webpack.PLUGIN_CACHE = {}
         webpack.initialized = True
-        output = webpack.get_webpack_bundle("test", "js", "test")
+        output = webpack.get_webpack_bundle("test", "js")
         self.assertEqual(len(list(output)), 0)
