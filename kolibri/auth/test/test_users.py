@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from kolibri.auth.models import FacilityUser, DeviceOwner, BaseUser, KolibriValidationError, FacilityDataset
+from kolibri.auth.models import BaseUser, DeviceOwner, FacilityDataset, FacilityUser, KolibriValidationError
 
 
 class IsDeviceOwnerTestCase(TestCase):
@@ -34,24 +34,24 @@ class UserProxyManagerTestCase(TestCase):
             DeviceOwner.objects.create(username=username)
 
     def test_facility_user_manager_returns_facility_users(self):
-        facility_user = FacilityUser.objects.all()[0]
+        facility_user = FacilityUser.objects.first()
         self.assertIsInstance(facility_user, FacilityUser)
 
     def test_fu_set_correct(self):
         """ continuation of test_facility_user_manager_returns_facility_users """
         base_users = BaseUser.objects.filter(username__in=self.fu_usernames)
         facility_users = FacilityUser.objects.all()
-        self.assertEqual(set([u.id for u in base_users]), set([u.id for u in facility_users]))
+        self.assertListEqual(sorted([u.id for u in base_users]), sorted([u.id for u in facility_users]))
 
     def test_device_owner_manager_returns_device_owners(self):
-        device_owner = DeviceOwner.objects.all()[0]
+        device_owner = DeviceOwner.objects.first()
         self.assertIsInstance(device_owner, DeviceOwner)
 
     def test_do_set_correct(self):
         """ continuation of test_device_owner_manager_returns_device_owners """
         base_users = BaseUser.objects.filter(username__in=self.do_usernames)
         device_owners = DeviceOwner.objects.all()
-        self.assertEqual(set([u.id for u in base_users]), set([u.id for u in device_owners]))
+        self.assertListEqual(sorted([u.id for u in base_users]), sorted([u.id for u in device_owners]))
 
 
 class UserSanityTestCase(TestCase):
