@@ -115,7 +115,7 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
         """
         try:
             return {
-                "name": cls._module_path() + "." + cls.__name__,
+                "name": cls.plugin_name(),
                 "entry_file": cls.entry_file,
                 "external": getattr(cls, "external", None),
                 "stats_file": cls.stats_file(),
@@ -141,9 +141,17 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
         return os.path.join(*cls.__module__.split(".")[:-1])
 
     @classmethod
+    def plugin_name(cls):
+        """
+        Returns the name of the frontend plugin as referenced in the frontend framework and template tags
+        :return: string
+        """
+        return cls._module_path() + "." + cls.__name__
+
+    @classmethod
     def _register_front_end_plugins(cls):
         """
         Call this to register front end plugins in a Kolibri plugin to allow for
         import into templates.
         """
-        return cls._module_path() + "." + cls.__name__, cls.stats_file()
+        return cls.plugin_name(), cls.stats_file()
