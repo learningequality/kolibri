@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Bundle plugin Python config reader module.
  * @module readBundlePlugin

@@ -13,5 +13,8 @@
     "undef"         : true,
     "strict"        : "global",
     "maxdepth"      : 3,
-    "maxlen"        : 80
+    "maxlen"        : 160,
+    "browser"       : true,
+    "mocha"         : true,
+    "node"          : true
 }

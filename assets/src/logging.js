@@ -1,3 +1,4 @@
+'use strict';
 /**
  * logging module.
  * @module logging
@@ -14,7 +15,7 @@ var log = function(msg, color) {
     console.log(color("Kolibri: " + msg));
 };
 
-logging = {
+var logging = {
     /** Warn logging. */
     warn: function(msg) {
         log(msg, colors.yellow);

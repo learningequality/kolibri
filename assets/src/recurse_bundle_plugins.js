@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Bundle plugin directory recurser module.
  * @module recurseBundlePlugins

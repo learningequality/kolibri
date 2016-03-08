@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Bundle plugin parser module.
  * @module parseBundlePlugin
@@ -14,8 +15,6 @@ var logging = require('./logging');
  * @param {Object} data - An object that contains the data for configuring the bundle.
  * @param {string} data.entry_file - The Javascript source file that initializes the plugin.
  * @param {string} data.name - The name that the plugin is referred to by.
- * @param {string} data.module_name - The name (e.g. 'kolibri.plugin.example') of the Python module
- * in which the frontend plugin is defined.
  * @param {string} data.module_path - Directory path to the module in which the plugin is defined.
  * @param {string} data.stats_file - The name of the webpack bundle stats file that the plugin data should be saved to.
  * @param {string} [data.external] - Flag to indicate that the module should be exposed as an external library
@@ -63,7 +62,11 @@ var parseBundlePlugin = function(data, base_dir) {
                 })
             ],
             resolve: {
-                root: base_dir
+                root: base_dir,
+                'alias': {
+                  'underscore': 'node_modules/lodash/core',
+                  'lodash': 'node_modules/lodash/core'
+                }
             },
             jshint: {
                 failOnHint: true
