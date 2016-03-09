@@ -2,13 +2,14 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.test import TestCase
 
-from kolibri.auth.models import FacilityUser, DeviceOwner
+from kolibri.auth.models import FacilityUser, DeviceOwner, FacilityDataset
 from kolibri.auth.backends import DeviceBackend, FacilityBackend
 
 
 class DeviceBackendTestCase(TestCase):
     def setUp(self):
-        user = self.user = FacilityUser(username="Mike")
+        self.dataset = FacilityDataset.objects.create()
+        user = self.user = FacilityUser(username="Mike", dataset=self.dataset)
         user.set_password("foo")
         user.save()
 
@@ -50,7 +51,8 @@ class DeviceBackendTestCase(TestCase):
 
 class FacilityBackendTestCase(TestCase):
     def setUp(self):
-        user = self.user = FacilityUser(username="Mike")
+        self.dataset = FacilityDataset.objects.create()
+        user = self.user = FacilityUser(username="Mike", dataset=self.dataset)
         user.set_password("foo")
         user.save()
 

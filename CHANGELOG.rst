@@ -16,3 +16,4 @@ Kolibri 0.0.1
   * Add Collections and Roles, implemented using a special tree structure for efficient querying
   * Add authentication & authorization backends
   * Implement permissions for FacilityUsers by checking hierarchy relationships
+  * Updates to *Users, Collections, and Roles, mostly to account for multiple facilities in one database
