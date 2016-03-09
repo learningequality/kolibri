@@ -3,13 +3,14 @@
 Most of the api endpoints here use django_rest_framework to expose the content app APIs,
 except some set methods that do not return anything.
 """
-from django.conf.urls import url
-from rest_framework import generics, status
+from django.conf.urls import include, url
+from rest_framework import generics, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework.routers import DefaultRouter
 
-from . import api, serializers
+from . import api, models, serializers
 
 
 @api_view(('GET',))
@@ -22,6 +23,22 @@ def api_root(request, format=None):
         'file': reverse('file-list', args=('channel_id', 'content_id', 'api_method'), request=request, format=format),
         'file_of_quality': reverse('file-list', args=('channel_id', 'content_id', 'format_quality', 'api_method'), request=request, format=format),
     })
+
+
+class ChannelMetadataList(viewsets.ModelViewSet):
+    queryset = models.ChannelMetadata.objects.all()
+    serializer_class = serializers.ChannelMetadataSerializer
+
+
+class ContentMetadataList(viewsets.ModelViewSet):
+    queryset = models.ContentMetadata.objects.all()
+    serializer_class = serializers.ContentMetadataSerializer
+
+
+class LicenseList(viewsets.ModelViewSet):
+    queryset = models.License.objects.all()
+    serializer_class = serializers.LicenseSerializer
+
 
 class ContentList(generics.ListAPIView):
     serializer_class = serializers.ContentMetadataSerializer
@@ -78,12 +95,18 @@ class FileList(generics.ListAPIView):
         except KeyError:
             return getattr(api, api_method)(channel_id=channel_id, content=content_id)
 
+router = DefaultRouter()
+router.register(r'channelmetadata', ChannelMetadataList)
+router.register(r'contentmetadata', ContentMetadataList)
+router.register(r'license', LicenseList)
+
 urlpatterns = [
+    url(r'^content/', include(router.urls)),
     url(r'^content_api/$', api_root),
     url(r'^content_api/(?P<channel_id>.*)/content/(?P<content_id>.*)/(?P<kind>.*)/(?P<api_method>.*)/$', ContentList.as_view(), name='content-list'),
     url(r'^content_api/(?P<channel_id>.*)/content/(?P<content_id>.*)/(?P<api_method>.*)/$', ContentList.as_view(), name='content-list'),
-    url(r'^content_api/(?P<channel_id>.*)/content_relationship/(?P<content1>.*)/(?P<content2>.*)/(?P<api_method>.*)/$',
-        ContentCreate.as_view(), name='content-relationship'),
+    url(r'^content_api/(?P<channel_id>.*)/content_relationship/(?P<content1>.*)/(?P<content2>.*)/(?P<api_method>.*)/$', ContentCreate.as_view(),
+        name='content-relationship'),
     url(r'^content_api/(?P<channel_id>.*)/format/(?P<content_id>.*)/(?P<api_method>.*)/$', FormatList.as_view(), name='format-list'),
     url(r'^content_api/(?P<channel_id>.*)/file/(?P<content_id>.*)/(?P<format_quality>.*)/(?P<api_method>.*)/$', FileList.as_view(), name='file-list'),
     url(r'^content_api/(?P<channel_id>.*)/file/(?P<content_id>.*)/(?P<api_method>.*)/$', FileList.as_view(), name='file-list'),
