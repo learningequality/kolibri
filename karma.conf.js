@@ -1,5 +1,6 @@
 // Karma configuration
 // Generated on Thu Feb 11 2016 12:59:11 GMT-0800 (PST)
+var RewirePlugin = require("rewire-webpack");
 
 module.exports = function(config) {
   config.set({
@@ -16,7 +17,6 @@ module.exports = function(config) {
     // list of files / patterns to load
     files: [
       'kolibri/**/assets/test/*.js',
-      {pattern: '*.js', included: false}, // load these, but not in the browser, just for linting
       {pattern: 'kolibri/**/assets/src/**/*.js', included: false} // load these, but not in the browser, just for linting
     ],
 
@@ -65,10 +65,15 @@ module.exports = function(config) {
     webpack: {
       // webpack configuration
       module: {
-          // Loaders for different asset files will go here.
-        loaders: [
-        ]
-      }
+
+      },
+      plugins: [
+          new RewirePlugin()
+      ]
+    },
+
+    jshintPreprocessor: {
+      jshintrc: './.jshintrc'
     },
 
 
