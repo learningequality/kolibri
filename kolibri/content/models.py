@@ -14,7 +14,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.contrib import admin
 from django.core.files.storage import FileSystemStorage
-from django.db import IntegrityError, connections, models
+from django.db import IntegrityError, OperationalError, connections, models
 from django.db.utils import ConnectionDoesNotExist
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -61,8 +61,11 @@ class ContentQuerySet(models.QuerySet):
                 'ENGINE': 'django.db.backends.sqlite3',
                 'NAME': os.path.join(settings.CONTENT_DB_DIR, alias+'.sqlite3'),
             }
+        try:
             if not connections[alias].introspection.table_names():
-                raise KeyError("ContentDB '%s' is empty or doesn't exist!!" % str(alias))
+                raise KeyError("ContentDB '%s' is empty!!" % str(alias))
+        except OperationalError:
+            raise KeyError("ContentDB '%s' doesn't exist!!" % str(alias))
         return super(ContentQuerySet, self).using(alias)
 
 class AbstractContent(models.Model):
