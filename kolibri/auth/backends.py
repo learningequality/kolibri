@@ -20,7 +20,7 @@ class BaseBackend(object):
         """
         Returns a user object if authentication succeeds for the specified userclass class, else None.
 
-        :param userclass: A subclass of BaseUser
+        :param userclass: A subclass of KolibriAbstractBaseUser
         :param username: A string
         :param password: A string
         """
@@ -125,8 +125,7 @@ class DeviceBackend(BaseBackend):
         :return: A DeviceOwner instance if a BaseUser with that pk is found, else None.
         """
         try:
-            user = DeviceOwner.objects.get(pk=user_id)
-            return user if user._is_device_owner else None
+            return DeviceOwner.objects.get(pk=user_id)
         except DeviceOwner.DoesNotExist:
             return None
 
