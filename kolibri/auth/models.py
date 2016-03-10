@@ -115,10 +115,10 @@ class SyncableModel(models.Model):
                 partition[partition_name] = getattr(self, field_name)
         return partition
 
-    def clean(self):
+    def clean_fields(self):
         if not self.id:
             self.id = self.calculate_uuid()
-        super(SyncableModel, self).clean()
+        super(SyncableModel, self).clean_fields()
 
 
 class MorangoTreeManager(TreeManager):
@@ -145,11 +145,6 @@ class MorangoMPTTModel(MPTTModel):
         abstract = True
 
 
-##############################################
-# /END MORANGO
-##############################################
-
-
 class KolibriSyncableModel(SyncableModel):
     """
     Kolibri-specific subclass of Morango's SyncableModel class. Here, we add any additional fields needed
@@ -168,26 +163,70 @@ class KolibriSyncableModel(SyncableModel):
     class Meta:
         abstract = True
 
-    dataset = models.ForeignKey("FacilityDataset", blank=True, null=True)
+
+##############################################
+# /END MORANGO
+##############################################
+
+
+class AbstractFacilityDataModel(models.Model):
+    """
+    Base model for Kolibri "Facility Data", which is data that is specific to a particular facility,
+    such as FacilityUsers, Collections, and other data associated with those users and collections.
+    """
+
+    dataset = models.ForeignKey("FacilityDataset")
+
+    class Meta:
+        abstract = True
+
+    def clean_fields(self, *args, **kwargs):
+        # ensure that we have, or can infer, a dataset for the model instance
+        self.ensure_dataset()
+        super(AbstractFacilityDataModel, self).clean_fields(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        if not self.id:
-            self.id = self.calculate_uuid()
-        if self._require_dataset and not self.dataset:
-            raise IntegrityError("This model must be associated with a particular FacilityDataset.")
-        super(KolibriSyncableModel, self).save(*args, **kwargs)
 
-    def clean(self):
-        super(KolibriSyncableModel, self).clean()
-        if self._require_dataset and not self.dataset:
-            raise KolibriValidationError("This model must be associated with a particular FacilityDataset.")
+        # before saving, ensure we have a dataset, and convert any validation errors into integrity errors,
+        # since by this point the `clean_fields` method should already have prevented this situation from arising
+        try:
+            self.ensure_dataset()
+        except KolibriValidationError as e:
+            raise IntegrityError(str(e))
+
+        super(AbstractFacilityDataModel, self).save(*args, **kwargs)
+
+    def ensure_dataset(self):
+        """
+        If no dataset has yet been specified, try to infer it. If a dataset has already been specified, to prevent
+        inconsistencies, make sure it matches the inferred dataset, otherwise raise a KolibriValidationError.
+        If we have no dataset and it can't be inferred, we raise a KolibriValidationError exception as well.
+        """
+        inferred_dataset = self.infer_dataset()
+        if self.dataset:
+            # make sure currently stored dataset matches inferred dataset, if any
+            if inferred_dataset and inferred_dataset != self.dataset:
+                raise KolibriValidationError("This model is not associated with the correct FacilityDataset.")
+        else:
+            # use the inferred dataset, if there is one, otherwise throw an error
+            if inferred_dataset:
+                self.dataset = inferred_dataset
+            else:
+                raise KolibriValidationError("FacilityDataset ('dataset') not provided, and could not be inferred.")
+
+    def infer_dataset(self):
+        """
+        This method is used by `ensure_dataset` to "infer" which dataset should be associated with this instance.
+        It should be overridden in any subclass of AbstractFacilityDataModel, to define a model-specific inference.
+        """
+        raise NotImplementedError("Subclasses of AbstractFacilityDataModel must override the `infer_dataset` method.")
 
 
-class FacilityDataset(KolibriSyncableModel):
+class FacilityDataset(AbstractFacilityDataModel):
     """
     FacilityDataset stores high-level metadata and settings for a particular facility. It is also the
-    model that all facility data models (data associated with a particular facility, that can be synced)
-    foreign key onto, to indicate that they belong to this particular facility.
+    model that all facility data models (data associated with a particular facility, and that inherit from
+    AbstractFacilityDataModel) foreign key onto, to indicate that they belong to this particular facility.
     """
 
     description = models.TextField(blank=True)
@@ -196,14 +235,17 @@ class FacilityDataset(KolibriSyncableModel):
     allow_signups = models.BooleanField(default=True)
 
     def __init__(self, *args, **kwargs):
-        kwargs["dataset"] = self
         super(FacilityDataset, self).__init__(*args, **kwargs)
+
+    def infer_dataset(self):
+        # the dataset for a dataset is itself
+        return self
 
     def save(self, *args, **kwargs):
         super(FacilityDataset, self).save(*args, **kwargs)
 
 
-class BaseUser(AbstractBaseUser, KolibriSyncableModel):
+class BaseUser(AbstractBaseUser, AbstractFacilityDataModel):
     """
     Our custom user type, derived from AbstractBaseUser as described in the Django docs.
     Draws liberally from django.contrib.auth.AbstractUser, except we remove some fields
@@ -250,8 +292,8 @@ class BaseUser(AbstractBaseUser, KolibriSyncableModel):
     def get_short_name(self):
         return self.first_name
 
-    def clean(self):
-        super(BaseUser, self).clean()
+    def clean_fields(self):
+        super(BaseUser, self).clean_fields()
         if self._is_device_owner and self.dataset is not None:
             raise KolibriValidationError("Device owners cannot be associated with a FacilityDataset.")
         if not self._is_device_owner and self.dataset is None:
@@ -321,7 +363,7 @@ class DeviceOwner(BaseUser):
         return True
 
 
-class Collection(MorangoMPTTModel, KolibriSyncableModel):
+class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     """
     Collections are hierarchical groups of users, used for grouping users and making decisions about permissions.
     Users belong to one or more Collections, by way of obtaining Roles associated with those Collections.
@@ -347,14 +389,14 @@ class Collection(MorangoMPTTModel, KolibriSyncableModel):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     kind = models.CharField(max_length=20, choices=KINDS)
 
-    def clean(self):
+    def clean_fields(self):
 
         # enforce the Collection hierarchy of Facility > Classroom > LearnerGroup, by making sure that kind matches level
         if self.kind != self.KINDS[self.level][0]:
             raise ValidationError("Collections of kind '{kind}' cannot be at level {level} of the tree."
                                   .format(kind=self.kind, level=self.level))
 
-        super(Collection, self).clean()
+        super(Collection, self).clean_fields()
 
     def add_user(self, user, role_kind):
         """
@@ -424,7 +466,7 @@ class Collection(MorangoMPTTModel, KolibriSyncableModel):
         self.remove_user(user, Role.KIND_LEARNER)
 
 
-class Role(KolibriSyncableModel):
+class Role(AbstractFacilityDataModel):
     """
     A User can be associated with a particular Collection through a Role object, which also stores the "kind"
     of the Role (currently, one of "admin", "coach", or "learner").
