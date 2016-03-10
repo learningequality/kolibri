@@ -169,6 +169,19 @@ class KolibriSyncableModel(SyncableModel):
 ##############################################
 
 
+class FacilityDataset(models.Model):
+    """
+    FacilityDataset stores high-level metadata and settings for a particular facility. It is also the
+    model that all models storing facility data (data that is associated with a particular facility, and that inherits
+    from AbstractFacilityDataModel) foreign key onto, to indicate that they belong to this particular facility.
+    """
+
+    description = models.TextField(blank=True)
+    location = models.CharField(max_length=200, blank=True)
+
+    allow_signups = models.BooleanField(default=True)
+
+
 class AbstractFacilityDataModel(models.Model):
     """
     Base model for Kolibri "Facility Data", which is data that is specific to a particular facility,
@@ -203,7 +216,7 @@ class AbstractFacilityDataModel(models.Model):
         If we have no dataset and it can't be inferred, we raise a KolibriValidationError exception as well.
         """
         inferred_dataset = self.infer_dataset()
-        if self.dataset:
+        if self.dataset_id:
             # make sure currently stored dataset matches inferred dataset, if any
             if inferred_dataset and inferred_dataset != self.dataset:
                 raise KolibriValidationError("This model is not associated with the correct FacilityDataset.")
@@ -222,38 +235,17 @@ class AbstractFacilityDataModel(models.Model):
         raise NotImplementedError("Subclasses of AbstractFacilityDataModel must override the `infer_dataset` method.")
 
 
-class FacilityDataset(AbstractFacilityDataModel):
-    """
-    FacilityDataset stores high-level metadata and settings for a particular facility. It is also the
-    model that all facility data models (data associated with a particular facility, and that inherit from
-    AbstractFacilityDataModel) foreign key onto, to indicate that they belong to this particular facility.
-    """
-
-    description = models.TextField(blank=True)
-    location = models.CharField(max_length=200, blank=True)
-
-    allow_signups = models.BooleanField(default=True)
-
-    def __init__(self, *args, **kwargs):
-        super(FacilityDataset, self).__init__(*args, **kwargs)
-
-    def infer_dataset(self):
-        # the dataset for a dataset is itself
-        return self
-
-    def save(self, *args, **kwargs):
-        super(FacilityDataset, self).save(*args, **kwargs)
-
-
-class BaseUser(AbstractBaseUser, AbstractFacilityDataModel):
+class KolibriAbstractBaseUser(AbstractBaseUser):
     """
     Our custom user type, derived from AbstractBaseUser as described in the Django docs.
-    Draws liberally from django.contrib.auth.AbstractUser, except we remove some fields
+    Draws liberally from django.contrib.auth.AbstractUser, except we exclude some fields
     we don't care about, like email.
 
-    This model is used for both FacilityUsers and DeviceOwners, which are proxy models.
-    You should prefer to use the proxy models for this class where possible.
+    This model is an abstract model, and is inherited by both FacilityUser and DeviceOwner.
     """
+
+    class Meta:
+        abstract = True
 
     USERNAME_FIELD = "username"
 
@@ -264,27 +256,16 @@ class BaseUser(AbstractBaseUser, AbstractFacilityDataModel):
         validators=[
             validators.RegexValidator(
                 r'^\w+$',
-                _('Enter a valid username. This value may contain only '
-                  'letters and numbers.')
+                _('Enter a valid username. This value may contain only letters and numbers.')
             ),
         ],
     )
-    first_name = models.CharField(_('first name'), max_length=40, blank=True)
-    last_name = models.CharField(_('last name'), max_length=40, blank=True)
-    date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
-
-    # A "private" field -- used to store whether the given user is a device owner
-    _is_device_owner = models.BooleanField(default=False, editable=False)
-
-    # We'll be tracking session data separately; removing the "last_login" field will avoid the
-    # FacilityUser models needing to be constantly re-synced after every login.
-    last_login = None
-
-    class Meta:
-        unique_together = (("username", "dataset"),)
+    first_name = models.CharField(_('first name'), max_length=60, blank=True)
+    last_name = models.CharField(_('last name'), max_length=60, blank=True)
+    date_joined = models.DateTimeField(_('date joined'), default=timezone.now, editable=False)
 
     def is_device_owner(self):
-        return self._is_device_owner
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `is_device_owner` method.")
 
     def get_full_name(self):
         return (self.first_name + " " + self.last_name).strip()
@@ -292,30 +273,15 @@ class BaseUser(AbstractBaseUser, AbstractFacilityDataModel):
     def get_short_name(self):
         return self.first_name
 
-    def clean_fields(self):
-        super(BaseUser, self).clean_fields()
-        if self._is_device_owner and self.dataset is not None:
-            raise KolibriValidationError("Device owners cannot be associated with a FacilityDataset.")
-        if not self._is_device_owner and self.dataset is None:
-            raise KolibriValidationError("Non-device owners must be associated with a FacilityDataset.")
 
-
-class FacilityUserManager(models.Manager):
-
-    def get_queryset(self):
-        return super(FacilityUserManager, self).get_queryset().filter(_is_device_owner=False)
-
-
-class FacilityUser(BaseUser):
+class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
     FacilityUsers are the fundamental object of the auth app. They represent the main users, and can be associated
     with a hierarchy of Collections through Roles, which then serve to determine permissions.
     """
 
-    objects = FacilityUserManager()
-
     class Meta:
-        proxy = True
+        unique_together = (("username", "dataset"),)
 
     def is_device_owner(self):
         """
@@ -323,18 +289,12 @@ class FacilityUser(BaseUser):
         """
         return False
 
-    def __init__(self, *args, **kwargs):
-        kwargs["_is_device_owner"] = False
-        super(FacilityUser, self).__init__(*args, **kwargs)
+    def infer_dataset(self):
+        # dataset must be provided when creating a FacilityUser
+        return None
 
 
-class DeviceOwnerManager(models.Manager):
-
-    def get_queryset(self):
-        return super(DeviceOwnerManager, self).get_queryset().filter(_is_device_owner=True)
-
-
-class DeviceOwner(BaseUser):
+class DeviceOwner(KolibriAbstractBaseUser):
     """
     When a user first installs Kolibri on a device, they will be prompted to create a *DeviceOwner*, a special kind of
     user which is associated with that device only, and who must give permission to make broad changes to the Kolibri
@@ -344,17 +304,6 @@ class DeviceOwner(BaseUser):
     device is a Classroom Server or Classroom Client, or determining manually which data should be synced -- must be
     performed by a DeviceOwner.
     """
-
-    objects = DeviceOwnerManager()
-
-    _require_dataset = False  # don't require a FacilityDataset for DeviceOwner
-
-    class Meta:
-        proxy = True
-
-    def __init__(self, *args, **kwargs):
-        kwargs["_is_device_owner"] = True
-        super(DeviceOwner, self).__init__(*args, **kwargs)
 
     def is_device_owner(self):
         """
@@ -465,6 +414,12 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     def remove_learner(self, user):
         self.remove_user(user, Role.KIND_LEARNER)
 
+    def infer_dataset(self):
+        if self.is_root_node():
+            return None  # the root node (Facility) must be explicitly tied to a dataset
+        else:
+            return self.get_root()  # subcollections inherit dataset from root of their tree
+
 
 class Role(AbstractFacilityDataModel):
     """
@@ -490,6 +445,12 @@ class Role(AbstractFacilityDataModel):
 
     class Meta:
         unique_together = (("user", "collection", "kind"),)
+
+    def infer_dataset(self):
+        user_dataset = self.user.infer_dataset()
+        collection_dataset = self.collection.infer_dataset()
+        assert user_dataset == collection_dataset
+        return user_dataset
 
 
 class FacilityManager(models.Manager):
