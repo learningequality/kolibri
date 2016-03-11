@@ -55,7 +55,7 @@ def initialize_plugin_cache():
     global PLUGIN_CACHE
     global initialized
     for callback in hooks.get_callables(hooks.FRONTEND_PLUGINS):
-        bundle_path, stats_file = callback()
+        bundle_path, stats_file, async_file = callback()
         try:
             PLUGIN_CACHE[bundle_path] = load_stats_file(stats_file)["chunks"][bundle_path]
         except IOError:

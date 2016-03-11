@@ -111,23 +111,33 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
         :return: dict with keys "name", "entry_file", and, "external".
         "name" - is the module path that the frontend plugin has.
         "entry_file" - is the Javascript file that defines the plugin.
-        "external" - an optional flag used only by the kolibri_core plugin.
+        "external" - an optional flag currently used only by the core plugin.
+        "core" - an optional flag *only* ever used by the core plugin.
         """
         try:
             return {
                 "name": cls.plugin_name(),
                 "entry_file": cls.entry_file,
                 "external": getattr(cls, "external", None),
+                "core": getattr(cls, "core", None),
                 "stats_file": cls.stats_file(),
+                "async_file": cls.async_file(),
                 "module_path": cls._module_file_path(),
             }
         except KeyError:
             raise MandatoryPluginAttributeNotImplemented
 
     @classmethod
+    def build_path(cls):
+        return os.path.join(os.path.abspath(os.path.dirname(__name__)), cls._module_file_path(), "build")
+
+    @classmethod
     def stats_file(cls):
-        return os.path.join(os.path.abspath(os.path.dirname(__name__)),
-                            cls._module_file_path(), "{plugin}_stats.json".format(plugin=cls.__name__))
+        return os.path.join(cls.build_path(), "{plugin}_stats.json".format(plugin=cls.__name__))
+
+    @classmethod
+    def async_file(cls):
+        return os.path.join(cls.build_path(), "{plugin}_async.json".format(plugin=cls.__name__))
 
     @classmethod
     def _module_file_path(cls):
@@ -154,4 +164,4 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
         Call this to register front end plugins in a Kolibri plugin to allow for
         import into templates.
         """
-        return cls.plugin_name(), cls.stats_file()
+        return cls.plugin_name(), cls.stats_file(), cls.async_file()
