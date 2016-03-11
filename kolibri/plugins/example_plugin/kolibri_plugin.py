@@ -8,7 +8,9 @@ import logging
 
 from django.utils.translation import ugettext as _
 from kolibri.plugins.base import KolibriFrontEndPluginBase, KolibriPluginBase
-from kolibri.plugins.hooks import FRONTEND_PLUGINS, NAVIGATION_POPULATE
+from kolibri.plugins.hooks import (
+    BASE_FRONTEND_ASYNC, FRONTEND_PLUGINS, NAVIGATION_POPULATE
+)
 
 logger = logging.getLogger(__name__)
 
@@ -107,7 +109,8 @@ class KolibriExampleFrontEnd(KolibriFrontEndPluginBase):
 
     def hooks(self):
         return {
-            FRONTEND_PLUGINS: self._register_front_end_plugins
+            FRONTEND_PLUGINS: self._register_front_end_plugins,
+            BASE_FRONTEND_ASYNC: self.plugin_name,
         }
 
 

@@ -6,12 +6,15 @@ Originally, it was a monkeypatch of django-webpack-loader - but as our needs are
 different, much of the code has simply been rewritten, and will continue to be done so to better much our use case.
 """
 import json
+import logging
 import re
 import time
 
 from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from kolibri.plugins import hooks
+
+logger = logging.getLogger(__name__)
 
 PLUGIN_CACHE = {}
 
@@ -26,7 +29,7 @@ class NoFrontEndPlugin(Exception):
 class WebpackError(EnvironmentError):
     pass
 
-def load_stats_file(stats_file):
+def load_stats_file(stats_file, bundle_path):
     """
     Function to open a webpack bundle tracker stats file to get information about the file chunks needed.
     :param stats_file: The path to the stats file.
@@ -45,7 +48,20 @@ def load_stats_file(stats_file):
                 raise WebpackError('Webpack compilation still in progress')
         if stats['status'] == 'error':
             raise WebpackError('Webpack compilation has errored')
-    return stats
+    return {
+        "files": stats["chunks"][bundle_path]
+    }
+
+
+def load_async_file(async_file):
+    """
+    Function to open a file containing events that the plugin listens to and should be loaded upon.
+    :param async_file: The path to the async events file.
+    :return: A dict containing the events/methods for the plugin.
+    """
+    with open(async_file) as f:
+        events = json.load(f)
+    return events
 
 
 def initialize_plugin_cache():
@@ -57,29 +73,56 @@ def initialize_plugin_cache():
     for callback in hooks.get_callables(hooks.FRONTEND_PLUGINS):
         bundle_path, stats_file, async_file = callback()
         try:
-            PLUGIN_CACHE[bundle_path] = load_stats_file(stats_file)["chunks"][bundle_path]
+            PLUGIN_CACHE[bundle_path] = load_stats_file(stats_file, bundle_path)
         except IOError:
             raise IOError(
                 'Error reading {}. Are you sure webpack has generated the file '
                 'and the path is correct?'.format(stats_file))
+        else:
+            try:
+                PLUGIN_CACHE[bundle_path]["async_events"] = load_async_file(async_file)
+            except IOError:
+                logger.info(
+                    'Error reading {}. Are you sure webpack has generated the file '
+                    'and the path is correct?'.format(async_file))
     initialized = True
 
-
-def get_bundle(bundle_path):
-    """
-    Function to return all files needed, given the name of the bundle, and the name of the Python plugin.
-    :param bundle_path: Name of the bundle (frontend plugin name).
-    :return: Generator of dicts containing information about each file.
-    """
-    global PLUGIN_CACHE
+def check_plugin_cache():
     global initialized
-    global ignores
 
     if (not initialized) or settings.DEBUG:
         initialize_plugin_cache()
 
+
+def get_async_events(bundle_path):
+    """
+    Function to return dict of events that trigger plugin load, given the name of the frontend plugin.
+    :param bundle_path: Name of the bundle (frontend plugin name).
+    :return: Dictionary of event/method pairs.
+    """
+    global PLUGIN_CACHE
+
+    check_plugin_cache()
+
     if bundle_path in PLUGIN_CACHE:
-        for file in PLUGIN_CACHE[bundle_path]:
+        return PLUGIN_CACHE[bundle_path]["async_events"]
+    else:
+        raise NoFrontEndPlugin("The specified plugin is not registered as a Front End Plugin")
+
+
+def get_bundle(bundle_path):
+    """
+    Function to return all files needed, given the name of the frontend plugin.
+    :param bundle_path: Name of the bundle (frontend plugin name).
+    :return: Generator of dicts containing information about each file.
+    """
+    global PLUGIN_CACHE
+    global ignores
+
+    check_plugin_cache()
+
+    if bundle_path in PLUGIN_CACHE:
+        for file in PLUGIN_CACHE[bundle_path]["files"]:
             filename = file['name']
             ignore = any(regex.match(filename) for regex in ignores)
             if not ignore:
