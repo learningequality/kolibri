@@ -16,5 +16,6 @@
     "maxlen"        : 160,
     "browser"       : true,
     "mocha"         : true,
-    "node"          : true
+    "node"          : true,
+    "globals"       : {"__plugin_name": true}
 }
