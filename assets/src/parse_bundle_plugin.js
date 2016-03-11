@@ -32,11 +32,12 @@ var parseBundlePlugin = function(data, base_dir) {
     if ((typeof data.entry_file !== "undefined") &&
         (typeof data.name !== "undefined") &&
         (typeof data.module_path !== "undefined") &&
-        (typeof data.stats_file !== "undefined")) {
+        (typeof data.stats_file !== "undefined") &&
+        (typeof data.async_file !== "undefined")) {
         bundle_data[data.name] = path.join(data.module_path, data.entry_file);
         if (typeof data.external !== "undefined" && data.external) {
             external = data.name;
-            library = data.name.replace(/\./g, "_");
+            library = data.core ? 'Kolibri' : data.name.replace(/\./g, "_");
         }
         bundle = {
             module: {
@@ -77,11 +78,12 @@ var parseBundlePlugin = function(data, base_dir) {
             },
             jshint: {
                 failOnHint: true
-            }
+            },
+            async_file: data.async_file
         };
         return [bundle, external];
     } else {
-        logging.error(data.name + " plugin is misconfigured, missing parameter(s)");
+        logging.error(data.name + ' plugin is misconfigured, missing parameter(s)');
     }
 };
 

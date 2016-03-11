@@ -10,6 +10,7 @@ var logging = require("./logging");
 var _ = require("lodash");
 
 var readBundlePlugin = require('./read_bundle_plugin');
+var EventExport = require('./event_export');
 
 /**
  * Take an array of directories, recurse over all directories inside them, and look for any files named
@@ -64,6 +65,7 @@ var recurseBundlePlugins = function(directories, base_dir, libs) {
                 externals: lib_externals,
                 kolibri: core_bundle,
                 plugin_name: bundle.name,
+                async_file: bundle.async_file
             }));
         } else {
             bundle.externals = externals;
