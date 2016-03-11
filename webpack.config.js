@@ -11,6 +11,18 @@ var js_source_dirs = [
     return path.join(__dirname, file_path);
 });
 
-var bundles = recurseBundlePlugins(js_source_dirs, __dirname);
+// Mappings for libraries that we bundle in the Kolibri core app.
+
+var libs =  function (kolibri_name) {
+    return {
+        'lodash': kolibri_name + '.lib._',
+        'backbone': kolibri_name + '.lib.Backbone',
+        'loglevel': kolibri_name + '.lib.loglevel',
+        'kolibri': kolibri_name
+    };
+
+};
+
+var bundles = recurseBundlePlugins(js_source_dirs, __dirname, libs);
 
 module.exports = bundles;

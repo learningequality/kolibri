@@ -9,6 +9,7 @@ var BundleTracker = require('webpack-bundle-tracker');
 var fs = require("fs");
 var path = require("path");
 var logging = require('./logging');
+var webpack = require('webpack');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle configuration for webpack.
@@ -43,10 +44,15 @@ var parseBundlePlugin = function(data, base_dir) {
                     {
                         test: /\.js$/, // include .js files
                         exclude: /node_modules/, // exclude any and all files in the node_modules folder
-                    loader: "jshint-loader"
+                        loader: "jshint-loader"
                     }
+                ],
+                loaders: [
+                    { test: /backbone\.js$/, loader: 'imports?define=>false' }
                 ]
             },
+            core: data.core,
+            name: data.name,
             context: base_dir,
             entry: bundle_data,
             output: {
@@ -59,13 +65,14 @@ var parseBundlePlugin = function(data, base_dir) {
                 new BundleTracker({
                     path: path.dirname(data.stats_file),
                     filename: path.basename(data.stats_file)
-                })
+                }),
+                new webpack.IgnorePlugin(/^jquery$/),
+                new webpack.DefinePlugin({__plugin_name: JSON.stringify(data.name)})
             ],
             resolve: {
                 root: base_dir,
-                'alias': {
-                  'underscore': 'node_modules/lodash/core',
-                  'lodash': 'node_modules/lodash/core'
+                alias: {
+                    'plugin_base': 'kolibri/plugins/assets/src/plugin_base/plugin_base'
                 }
             },
             jshint: {

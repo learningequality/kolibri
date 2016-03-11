@@ -4,10 +4,10 @@
  * @module recurseBundlePlugins
  */
 
-var BundleTracker = require('webpack-bundle-tracker');
 var fs = require("fs");
 var path = require("path");
 var logging = require("./logging");
+var _ = require("lodash");
 
 var readBundlePlugin = require('./read_bundle_plugin');
 
@@ -18,7 +18,7 @@ var readBundlePlugin = require('./read_bundle_plugin');
  * @param {string} base_dir - The absolute path of the base directory for writing files to.
  * @returns {Array} bundles - An array containing webpack config objects.
  */
-var recurseBundlePlugins = function(directories, base_dir) {
+var recurseBundlePlugins = function(directories, base_dir, libs) {
     var recurse = function(directories, base_dir) {
         var files = [];
         directories.forEach(function (directory) {
@@ -35,9 +35,10 @@ var recurseBundlePlugins = function(directories, base_dir) {
         return files;
     };
 
+    var externals = {};
+
     var files = recurse(directories, base_dir);
     var bundles = [];
-    var externals = {};
 
     for (var i = 0; i < files.length; i ++){
         var file = files[i];
@@ -52,9 +53,21 @@ var recurseBundlePlugins = function(directories, base_dir) {
         }
     }
 
+    var core_bundle = _.find(bundles, function(bundle) {return bundle.core && bundle.core !== null;});
+
+    var lib_externals = libs(core_bundle.output.library);
 
     bundles.forEach(function(bundle) {
-        bundle.externals = externals;
+        if (bundle.core === null) {
+            bundle.externals = _.extend({}, externals, lib_externals);
+            bundle.plugins.push(new EventExport({
+                externals: lib_externals,
+                kolibri: core_bundle,
+                plugin_name: bundle.name,
+            }));
+        } else {
+            bundle.externals = externals;
+        }
     });
 
     return bundles;
