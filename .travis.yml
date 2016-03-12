@@ -20,13 +20,12 @@ matrix:
       env: TOX_ENV=py3.4
     - python: "3.5"
       env: TOX_ENV=py3.5
+    - python: "2.7"
+      env: TOX_ENV=node
 
 before_install:
   - pip install codecov
   - pip install tox
-
-install:
-  - npm install
 
 before_script:
   - tox -e lint
@@ -34,7 +33,6 @@ before_script:
 # command to run tests, e.g. python setup.py test
 script:
   - tox -e $TOX_ENV
-  - npm run coverage
 
 after_success:
   - codecov
