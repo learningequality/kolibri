@@ -10,6 +10,8 @@ var fs = require("fs");
 var path = require("path");
 var logging = require('./logging');
 var webpack = require('webpack');
+var base_config = require('../../webpack.config.base');
+var _ = require('lodash');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle configuration for webpack.
@@ -27,7 +29,8 @@ var webpack = require('webpack');
  */
 var parseBundlePlugin = function(data, base_dir) {
     var bundle_data = {};
-    var external, bundle;
+    var external;
+    var bundle = _.clone(base_config);
     var library;
     if ((typeof data.entry_file !== "undefined") &&
         (typeof data.name !== "undefined") &&
@@ -39,19 +42,21 @@ var parseBundlePlugin = function(data, base_dir) {
             external = data.name;
             library = data.core ? 'Kolibri' : data.name.replace(/\./g, "_");
         }
-        bundle = {
-            module: {
-                preLoaders: [
-                    {
-                        test: /\.js$/, // include .js files
-                        exclude: /node_modules/, // exclude any and all files in the node_modules folder
-                        loader: "jshint-loader"
-                    }
-                ],
-                loaders: [
-                    { test: /backbone\.js$/, loader: 'imports?define=>false' }
-                ]
-            },
+        bundle.module.preLoaders.push({
+            test: /\.js$/, // include .js files
+            exclude: /node_modules/, // exclude any and all files in the node_modules folder
+            loader: "jshint-loader"
+        });
+
+        bundle.resolve.root = base_dir;
+        bundle.plugins = bundle.plugins.concat([
+            new BundleTracker({
+                path: path.dirname(data.stats_file),
+                filename: path.basename(data.stats_file)
+            }),
+            new webpack.DefinePlugin({__plugin_name: JSON.stringify(data.name)})
+        ]);
+        _.extend(bundle, {
             core: data.core,
             name: data.name,
             context: base_dir,
@@ -62,25 +67,12 @@ var parseBundlePlugin = function(data, base_dir) {
                 publicPath: path.join(data.name, "/"),
                 library: library
             },
-            plugins: [
-                new BundleTracker({
-                    path: path.dirname(data.stats_file),
-                    filename: path.basename(data.stats_file)
-                }),
-                new webpack.IgnorePlugin(/^jquery$/),
-                new webpack.DefinePlugin({__plugin_name: JSON.stringify(data.name)})
-            ],
-            resolve: {
-                root: base_dir,
-                alias: {
-                    'plugin_base': 'kolibri/plugins/assets/src/plugin_base/plugin_base'
-                }
-            },
+
             jshint: {
                 failOnHint: true
             },
             async_file: data.async_file
-        };
+        });
         return [bundle, external];
     } else {
         logging.error(data.name + ' plugin is misconfigured, missing parameter(s)');

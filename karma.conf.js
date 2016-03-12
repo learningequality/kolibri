@@ -1,6 +1,10 @@
 // Karma configuration
 // Generated on Thu Feb 11 2016 12:59:11 GMT-0800 (PST)
 var RewirePlugin = require("rewire-webpack");
+var _ = require("lodash");
+var webpack_config = _.clone(require("./webpack.config.base"));
+
+webpack_config.plugins.push(new RewirePlugin());
 
 module.exports = function(config) {
   config.set({
@@ -62,15 +66,7 @@ module.exports = function(config) {
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: ['PhantomJS'],
 
-    webpack: {
-      // webpack configuration
-      module: {
-
-      },
-      plugins: [
-          new RewirePlugin()
-      ]
-    },
+    webpack: webpack_config,
 
     jshintPreprocessor: {
       jshintrc: './.jshintrc'
