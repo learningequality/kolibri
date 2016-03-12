@@ -16,6 +16,7 @@ describe('parseBundlePlugin', function() {
                 name: "kolibri.plugin.test.test_plugin",
                 entry_file: "src/file.js",
                 stats_file: "output.json",
+                async_file: "output_async.json",
                 module_path: "kolibri/plugin/test"
             };
             assert(typeof parseBundlePlugin(data, "/")[0] !== "undefined");
@@ -27,6 +28,7 @@ describe('parseBundlePlugin', function() {
             var data = {
                 entry_file: "src/file.js",
                 stats_file: "output.json",
+                async_file: "output_async.json",
                 module_path: "kolibri/plugin/test"
             };
             assert(typeof parseBundlePlugin(data, "/") === "undefined");
@@ -38,6 +40,7 @@ describe('parseBundlePlugin', function() {
             var data = {
                 name: "kolibri.plugin.test.test_plugin",
                 stats_file: "output.json",
+                async_file: "output_async.json",
                 module_path: "kolibri/plugin/test"
             };
             assert(typeof parseBundlePlugin(data, "/") === "undefined");
@@ -49,6 +52,7 @@ describe('parseBundlePlugin', function() {
             var data = {
                 name: "kolibri.plugin.test.test_plugin",
                 entry_file: "src/file.js",
+                async_file: "output_async.json",
                 module_path: "kolibri/plugin/test"
             };
             assert(typeof parseBundlePlugin(data, "/") === "undefined");
@@ -60,7 +64,20 @@ describe('parseBundlePlugin', function() {
             var data = {
                 name: "kolibri.plugin.test.test_plugin",
                 entry_file: "src/file.js",
-                stats_file: "output.json",
+                async_file: "output_async.json",
+                stats_file: "output.json"
+            };
+            assert(typeof parseBundlePlugin(data, "/") === "undefined");
+            done();
+        });
+    });
+    describe('input is missing async_file, bundles output', function() {
+        it('should be undefined', function (done) {
+            var data = {
+                name: "kolibri.plugin.test.test_plugin",
+                entry_file: "src/file.js",
+                module_path: "kolibri/plugin/test",
+                stats_file: "output.json"
             };
             assert(typeof parseBundlePlugin(data, "/") === "undefined");
             done();
@@ -71,6 +88,7 @@ describe('parseBundlePlugin', function() {
             var data = {
                 name: "kolibri.plugin.test.test_plugin",
                 entry_file: "src/file.js",
+                async_file: "output_async.json",
                 external: true,
                 stats_file: "output.json",
                 module_path: "kolibri/plugin/test"
@@ -101,12 +119,14 @@ describe('readBundlePlugins', function() {
                     name: "kolibri.plugin.test.test_plugin",
                     entry_file: "src/file.js",
                     stats_file: "output.json",
+                    async_file: "output_async.json",
                     module_path: "kolibri/plugin/test"
                 },
                 {
                     name: "kolibri.plugin.test.test_plugin1",
                     entry_file: "src/file1.js",
                     stats_file: "output1.json",
+                    async_file: "output1_async.json",
                     module_path: "kolibri/plugin/test"
                 }
             ];
@@ -120,12 +140,14 @@ describe('readBundlePlugins', function() {
                 {
                     name: "kolibri.plugin.test.test_plugin",
                     stats_file: "output.json",
+                    async_file: "output_async.json",
                     module_path: "kolibri/plugin/test"
                 },
                 {
                     name: "kolibri.plugin.test.test_plugin1",
                     entry_file: "src/file1.js",
                     stats_file: "output1.json",
+                    async_file: "output1_async.json",
                     module_path: "kolibri/plugin/test"
                 }
             ];
@@ -139,11 +161,13 @@ describe('readBundlePlugins', function() {
                 {
                     name: "kolibri.plugin.test.test_plugin",
                     stats_file: "output.json",
+                    async_file: "output_async.json",
                     module_path: "kolibri/plugin/test"
                 },
                 {
                     name: "kolibri.plugin.test.test_plugin1",
                     stats_file: "output1.json",
+                    async_file: "output1_async.json",
                     module_path: "kolibri/plugin/test"
                 }
             ];
@@ -158,6 +182,7 @@ describe('readBundlePlugins', function() {
                     name: "kolibri.plugin.test.test_plugin",
                     entry_file: "src/file.js",
                     stats_file: "output.json",
+                    async_file: "output_async.json",
                     external: true,
                     module_path: "kolibri/plugin/test"
                 },
@@ -165,6 +190,7 @@ describe('readBundlePlugins', function() {
                     name: "kolibri.plugin.test.test_plugin1",
                     entry_file: "src/file1.js",
                     stats_file: "output1.json",
+                    async_file: "output1_async.json",
                     external: true,
                     module_path: "kolibri/plugin/test"
                 }
@@ -180,6 +206,7 @@ describe('readBundlePlugins', function() {
                     name: "kolibri.plugin.test.test_plugin",
                     entry_file: "src/file.js",
                     stats_file: "output.json",
+                    async_file: "output1_async.json",
                     external: true,
                     module_path: "kolibri/plugin/test"
                 },
@@ -187,6 +214,7 @@ describe('readBundlePlugins', function() {
                     name: "kolibri.plugin.test.test_plugin",
                     entry_file: "src/file1.js",
                     stats_file: "output1.json",
+                    async_file: "output1_async.json",
                     external: true,
                     module_path: "kolibri/plugin/test"
                 }

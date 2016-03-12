@@ -119,8 +119,8 @@ var Mediator = {
         });
     },
 
-    trigger: function(event) {
-        this._event_dispatcher.trigger(event);
+    trigger: function() {
+        this._event_dispatcher.trigger.apply(this._event_dispatcher, arguments);
     }
 };
 

@@ -56,7 +56,7 @@ var recurseBundlePlugins = function(directories, base_dir, libs) {
 
     var core_bundle = _.find(bundles, function(bundle) {return bundle.core && bundle.core !== null;});
 
-    var lib_externals = libs(core_bundle.output.library);
+    var lib_externals = core_bundle ? libs(core_bundle.output.library) : {};
 
     bundles.forEach(function(bundle) {
         if (bundle.core === null) {
