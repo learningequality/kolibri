@@ -96,10 +96,13 @@ Mediator.prototype._execute_callback_buffer = function(plugin) {
     }
 };
 
-Mediator.prototype.register_plugin_async = function(plugin_name, plugin_urls, events) {
+Mediator.prototype.register_plugin_async = function(plugin_name, plugin_urls, events, once) {
     var self = this;
     var callback_buffer = this._callback_buffer[plugin_name] = [];
-    _.forEach(events, function(value, key) {
+    var event_array = _.toPairs(events).concat(_.toPairs(once));
+    _.forEach(event_array, function(tuple) {
+        var key = tuple[0];
+        var value = tuple[1];
         var callback = function() {
             callback_buffer.push({
                 args: arguments,

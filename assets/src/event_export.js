@@ -40,7 +40,7 @@ Plugin.prototype.apply = function(compiler) {
 
 Plugin.prototype.writeOutput = function(events, once) {
     mkdirp.sync(path.dirname(this.async_file));
-    fs.writeFileSync(this.async_file, JSON.stringify(_.extend(once, events)));
+    fs.writeFileSync(this.async_file, JSON.stringify({once: once, events: events}));
 };
 
 module.exports = Plugin;
