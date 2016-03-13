@@ -4,7 +4,9 @@ var assert = require('assert');
 var sinon = require('sinon');
 var Backbone = require('backbone');
 
-var mediator = require('../src/mediator/mediator.js');
+var Mediator = require('../src/mediator/mediator.js');
+
+var mediator = new Mediator();
 
 describe('Mediator', function() {
     describe('plugin registry', function() {
