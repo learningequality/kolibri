@@ -7,7 +7,7 @@
 
 var scriptjs = require('scriptjs');
 var loadcss = require('fg-loadcss').loadCSS;
-var onloadcss = require('fg-loadcss/src/onloadCSS');
+var onloadcss = require('exports?onloadCSS!fg-loadcss/src/onloadCSS');
 var logging = require('loglevel');
 var _ = require('lodash');
 
