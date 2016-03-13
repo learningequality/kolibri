@@ -16,6 +16,8 @@ var Mediator = function(options) {
 
     this._callback_registry = {};
 
+    this._async_callback_registry = {};
+
     this._event_dispatcher = _.clone(Backbone.Events);
 };
 
@@ -26,9 +28,10 @@ Mediator.prototype.register_plugin_sync = function(plugin) {
     this._register_one_time_events(plugin);
 
     this._plugin_registry[plugin.name] = plugin;
+    this._clear_async_callbacks(plugin);
+    this._execute_callback_buffer(plugin);
     logging.info('Plugin: ' + plugin.name + ' registered');
     this.trigger('kolibri_register', plugin);
-    this._execute_callback_buffer(plugin);
 };
 
 Mediator.prototype._register_multiple_events = function(plugin) {
@@ -82,9 +85,11 @@ Mediator.prototype._register_event_listener = function(event, plugin, method, li
 };
 
 Mediator.prototype.stop_listening = function(event, plugin, method) {
-    var callback = this._callback_registry[plugin.name][event][method];
-    this._event_dispatcher.stopListening(this, event, callback);
-    delete this._callback_registry[plugin.name][event][method];
+    var callback = ((this._callback_registry[plugin.name] || {})[event] || {})[method];
+    if (typeof callback !== 'undefined') {
+        this._event_dispatcher.stopListening(this._event_dispatcher, event, callback);
+        delete this._callback_registry[plugin.name][event][method];
+    }
 };
 
 Mediator.prototype._execute_callback_buffer = function(plugin) {
@@ -100,28 +105,41 @@ Mediator.prototype.register_plugin_async = function(plugin_name, plugin_urls, ev
     var self = this;
     var callback_buffer = this._callback_buffer[plugin_name] = [];
     var event_array = _.toPairs(events).concat(_.toPairs(once));
+    if (typeof this._async_callback_registry[plugin_name] === 'undefined') {
+        this._async_callback_registry[plugin_name] = [];
+    }
     _.forEach(event_array, function(tuple) {
         var key = tuple[0];
         var value = tuple[1];
         var callback = function() {
-            callback_buffer.push({
-                args: arguments,
-                method: value
-            });
             if (typeof self._plugin_registry[plugin_name] === 'undefined') {
+                callback_buffer.push({
+                    args: arguments,
+                    method: value
+                });
                 asset_loader([plugin_urls], function(err, notFound) {
-                    if (!err) {
-                        self._event_dispatcher.stopListening(self._event_dispatcher, key, callback);
-                    } else {
-                        _.forEach(notFound, function(file) {
-                           logging.error(file + ' failed to load');
+                    if (err) {
+                        _.forEach(notFound, function (file) {
+                            logging.error(file + ' failed to load');
                         });
                     }
                 });
             }
         };
         self._event_dispatcher.listenTo(self._event_dispatcher, key, callback);
+        self._async_callback_registry[plugin_name].push({
+            event: key,
+            callback: callback
+        });
     });
+};
+
+Mediator.prototype._clear_async_callbacks = function(plugin) {
+    var self = this;
+    _.forEach(this._async_callback_registry[plugin.name], function(async) {
+        self._event_dispatcher.stopListening(self._event_dispatcher, async.event, async.callback);
+    });
+    delete this._async_callback_registry[plugin.name];
 };
 
 Mediator.prototype.trigger = function() {
