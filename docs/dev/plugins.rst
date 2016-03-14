@@ -51,5 +51,5 @@ Extended example, with inheritance
 View the source to learn more!
 
 .. automodule:: kolibri.plugins.example_plugin.kolibri_plugin
-    :members: NavMenuPlugin, ExtendedPlugin
+    :members: NavMenuPlugin, ExtendedPlugin, KolibriExampleFrontEnd
     :show-inheritance:

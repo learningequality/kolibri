@@ -66,7 +66,7 @@ def load_async_file(async_file):
 
 def initialize_plugin_cache():
     """
-    Function to initialize the plugin cache.
+    Function to initialize the plugin cache for Frontend Plugin information.
     """
     global PLUGIN_CACHE
     global initialized
@@ -90,6 +90,10 @@ def initialize_plugin_cache():
     initialized = True
 
 def check_plugin_cache():
+    """
+    Convenience function to check if the PLUGIN_CACHE has been initialized yet. If it has, it is a no-op.
+    :return:
+    """
     global initialized
 
     if (not initialized) or settings.DEBUG:
@@ -100,7 +104,8 @@ def get_async_events(bundle_path):
     """
     Function to return dict of events that trigger plugin load, given the name of the frontend plugin.
     :param bundle_path: Name of the bundle (frontend plugin name).
-    :return: Dictionary of event/method pairs.
+    :return: Dictionary of dictionaries of event/method pairs, for 'events' and for 'once' - multi-time and one-time
+    events, respectively.
     """
     global PLUGIN_CACHE
 

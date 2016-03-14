@@ -69,7 +69,6 @@ var assetLoader = function(assets, callback, timeout) {
 };
 
 /**
- * This callback is displayed as a global member.
  * @callback assetLoadCallback
  * @param {Error} err - Error object - null if no error.
  * @param {Array} notFound - Array of dependencies that could not be loaded - null if none.
