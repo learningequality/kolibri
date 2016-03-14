@@ -5,7 +5,7 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 
 function Plugin(options) {
-    this.externals = options.externals || '';
+    this.externals = options.externals || {};
     this.kolibri = options.kolibri || {};
     this.plugin_name = options.plugin_name || '';
     this.async_file = options.async_file || '';
@@ -20,7 +20,7 @@ Plugin.prototype.apply = function(compiler) {
 
         var base_dir = c.compilation.compiler.context;
         var output_path = c.compilation.compiler.outputPath;
-        //
+
         var document = jsdom();
 
         var window = document.defaultView;

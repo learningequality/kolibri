@@ -3,8 +3,9 @@
 var assert = require('assert');
 var sinon = require('sinon');
 var Backbone = require('backbone');
+var rewire = require('rewire');
 
-var Mediator = require('../src/mediator/mediator.js');
+var Mediator = rewire('../src/mediator/mediator.js');
 
 describe('Mediator', function() {
     beforeEach(function() {
@@ -405,6 +406,25 @@ describe('Mediator', function() {
             });
             it('should add args in the callback buffer when called', function() {
                 assert.deepEqual(this.mediator._callback_buffer[this.plugin_name].args, this.arg);
+            });
+        });
+        describe('async callbacks with error on script load', function() {
+            beforeEach(function() {
+                var self = this;
+                this.args = ['this', 'that'];
+                Mediator.__set__('asset_loader', function(files, callback) {
+                    callback('error!', self.plugin_urls);
+                });
+                this.spy = sinon.spy();
+                Mediator.__set__('logging', {error: this.spy});
+                this.mediator._async_callback_registry[this.plugin_name][0].callback(this.args);
+            });
+            it('should call logging.error twice', function() {
+                assert(this.spy.calledTwice);
+            });
+            it('should call logging.error with each of the args', function() {
+                assert(this.spy.calledWith(this.plugin_urls[0] + ' failed to load'));
+                assert(this.spy.calledWith(this.plugin_urls[1] + ' failed to load'));
             });
         });
     });

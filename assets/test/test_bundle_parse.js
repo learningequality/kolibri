@@ -4,10 +4,12 @@ var path = require('path');
 var temp = require('temp');
 var child_process = require('child_process');
 var rewire = require('rewire');
+var sinon = require('sinon');
 
 var parseBundlePlugin = require('../src/parse_bundle_plugin');
 var recurseBundlePlugins = rewire('../src/recurse_bundle_plugins');
 var readBundlePlugin = rewire('../src/read_bundle_plugin');
+var EventExport = require('../src/event_export');
 
 describe('parseBundlePlugin', function() {
     describe('input is valid, bundles output', function() {
@@ -94,6 +96,21 @@ describe('parseBundlePlugin', function() {
                 module_path: "kolibri/plugin/test"
             };
             assert(typeof parseBundlePlugin(data, "/")[1] !== "undefined");
+            done();
+        });
+    });
+    describe('input is valid, has core flag', function() {
+        it('should have its name set to Kolibri', function (done) {
+            var data = {
+                name: "kolibri.plugin.test.test_plugin",
+                entry_file: "src/file.js",
+                async_file: "output_async.json",
+                external: true,
+                core: true,
+                stats_file: "output.json",
+                module_path: "kolibri/plugin/test"
+            };
+            assert.equal(parseBundlePlugin(data, "/")[0].output.library, "Kolibri");
             done();
         });
     });
@@ -244,8 +261,11 @@ describe('recurseBundlePlugins', function() {
 
     describe('two valid input files, output', function() {
         it('should have two entries', function (done) {
+            recurseBundlePlugins.__set__("EventExport", function() {
+                return {};
+            });
             data = [
-                [[{}], {}],
+                [[{core: null, plugins: []}], {}],
                 [[{}], {}]
             ];
             temp.mkdir("dir1", function(err, dirPath1){
@@ -352,5 +372,29 @@ describe('recurseBundlePlugins', function() {
                 });
             });
         });
+    });
+});
+
+describe('EventExport', function() {
+    beforeEach(function() {
+        this.test_plugin = new EventExport({
+            externals: {
+                kolibri: 'kolibri'
+            },
+            kolibri: {
+                entry: {kolibri: 'this.js'},
+                name: 'kolibri'
+            },
+            plugin_name: 'test',
+            async_file: 'test_async.json'
+        });
+    });
+    it('should initialize', function() {
+        assert(typeof this.test_plugin !== 'undefined');
+    });
+    it('should call the plugin method of the compilation object', function() {
+        var spy = sinon.spy();
+        this.test_plugin.apply({plugin: spy});
+        assert(spy.called);
     });
 });

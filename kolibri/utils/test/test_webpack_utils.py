@@ -47,10 +47,28 @@ class WebpackConfigTestCase(TestCase):
         with self.assertRaises(webpack.WebpackError):
             webpack.load_stats_file(temp_stats_path, '')
 
+    def test_get_stats_file(self):
+        temp_stats_path = os.path.join(self.test_dir, 'stats.json')
+        bundle_path = "test"
+        with open(temp_stats_path, 'w') as f:
+            json.dump({"chunks": {bundle_path: []}}, f)
+        self.assertIn("files", webpack.load_stats_file(temp_stats_path, bundle_path))
+
     def test_get_no_stats_file(self):
         temp_stats_path = os.path.join(self.test_dir, 'stats_noooo.json')
         with self.assertRaises(IOError):
             webpack.load_stats_file(temp_stats_path, '')
+
+    def test_get_async_file(self):
+        temp_async_path = os.path.join(self.test_dir, 'async.json')
+        with open(temp_async_path, 'w') as f:
+            json.dump({}, f)
+        self.assertEqual({}, webpack.load_async_file(temp_async_path))
+
+    def test_get_no_async_file(self):
+        temp_async_path = os.path.join(self.test_dir, 'async_noooo.json')
+        with self.assertRaises(IOError):
+            webpack.load_async_file(temp_async_path)
 
     @patch('kolibri.utils.webpack.get_bundle', return_value=files)
     def test_get_webpack_bundle(self, mocked_get_bundle):
