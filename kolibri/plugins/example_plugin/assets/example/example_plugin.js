@@ -3,6 +3,7 @@
 var _ = require('lodash');
 var logging = require('loglevel');
 
+// This is aliased for your convenience!
 var Plugin = require('plugin_base');
 
 var ExamplePlugin = Plugin.extend({

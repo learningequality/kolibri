@@ -40,6 +40,7 @@ var parseBundlePlugin = function(data, base_dir) {
         bundle_data[data.name] = path.join(data.module_path, data.entry_file);
         if (typeof data.external !== "undefined" && data.external) {
             external = data.name;
+            // change the periods of the Python module path name to underscores, so that it is a valid JS variable name.
             library = data.core ? 'Kolibri' : data.name.replace(/\./g, "_");
         }
         bundle.module.preLoaders.push({
