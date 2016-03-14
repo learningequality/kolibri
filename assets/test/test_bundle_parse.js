@@ -9,7 +9,7 @@ var sinon = require('sinon');
 var parseBundlePlugin = require('../src/parse_bundle_plugin');
 var recurseBundlePlugins = rewire('../src/recurse_bundle_plugins');
 var readBundlePlugin = rewire('../src/read_bundle_plugin');
-var EventExport = require('../src/event_export');
+var EventExport = rewire('../src/event_export');
 
 describe('parseBundlePlugin', function() {
     describe('input is valid, bundles output', function() {
@@ -377,12 +377,24 @@ describe('recurseBundlePlugins', function() {
 
 describe('EventExport', function() {
     beforeEach(function() {
+        this.spy = sinon.spy();
+        var self = this;
+        EventExport.__set__('require', function(path) {
+            self.spy(path);
+            var output;
+            try {
+                output = require(path);
+            } catch (Error) {
+                output = {plugins: {}};
+            }
+            return output;
+        });
         this.test_plugin = new EventExport({
             externals: {
                 kolibri: 'kolibri'
             },
             kolibri: {
-                entry: {kolibri: 'this.js'},
+                entry: {kolibri: 'kolibri'},
                 name: 'kolibri'
             },
             plugin_name: 'test',
@@ -396,5 +408,47 @@ describe('EventExport', function() {
         var spy = sinon.spy();
         this.test_plugin.apply({plugin: spy});
         assert(spy.called);
+    });
+    describe('compilation done callback function', function() {
+        beforeEach(function() {
+            this.stub = sinon.stub(this.test_plugin, 'writeOutput');
+            var cb = function(event, callback) {
+                var c = {
+                    compilation: {
+                        compiler: {
+                            context: '',
+                            outputPath: 'test_path'
+                        },
+                        assets: {test: 'test'}
+                    }
+                };
+                callback(c);
+            };
+            this.test_plugin.apply({plugin: cb});
+        });
+        it('should call require twice', function() {
+            assert(this.spy.calledTwice);
+        });
+        it('should call writeOutput once', function() {
+            assert(this.stub.calledOnce);
+        });
+        it('should call writeOutput with two empty objects', function() {
+            assert(this.stub.calledWith({}, {}));
+        });
+    });
+    describe('writeOutput Method', function() {
+        it('should write the events objects to a file', function(done) {
+            var self = this;
+            temp.mkdir("plugin", function(err, dirPath){
+                self.test_plugin.async_file = path.join(dirPath, 'test_async.json');
+                var events = {test: "method"};
+                var once = {method: "test"};
+                self.test_plugin.writeOutput(events, once);
+                var output = JSON.parse(fs.readFileSync(self.test_plugin.async_file));
+                assert.deepEqual(output.events, events);
+                assert.deepEqual(output.once, once);
+                done();
+            });
+        });
     });
 });

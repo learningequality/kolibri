@@ -31,8 +31,8 @@ Plugin.prototype.apply = function(compiler) {
 
         for (var key in c.compilation.assets) {
             var plugin = require(path.join(base_dir, output_path, key));
-            var events = global[self.kolibri_var_name].plugins[self.plugin_name].events || {};
-            var once = global[self.kolibri_var_name].plugins[self.plugin_name].once || {};
+            var events = (global[self.kolibri_var_name].plugins[self.plugin_name] || {}).events || {};
+            var once = (global[self.kolibri_var_name].plugins[self.plugin_name] || {}).once || {};
             self.writeOutput(events, once);
         }
     });

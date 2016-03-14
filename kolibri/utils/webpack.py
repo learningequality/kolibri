@@ -82,9 +82,11 @@ def initialize_plugin_cache():
             try:
                 PLUGIN_CACHE[bundle_path]["async_events"] = load_async_file(async_file)
             except IOError:
-                logger.info(
-                    'Error reading {}. Are you sure webpack has generated the file '
-                    'and the path is correct?'.format(async_file))
+                # The Core frontend app is never loaded asynchronously so does not have a file for it.
+                if bundle_path != "kolibri.core.KolibriCoreFrontEnd":
+                    logger.error(
+                        'Error reading {}. Are you sure webpack has generated the file '
+                        'and the path is correct?'.format(async_file))
     initialized = True
 
 def check_plugin_cache():
