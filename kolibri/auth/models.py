@@ -18,155 +18,14 @@ coach role for one Classroom, and an admin role for another.
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-import uuid
-
 from django.contrib.auth.models import AbstractBaseUser
 from django.core import validators
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from kolibri.core.errors import KolibriError
-from mptt.managers import TreeManager
+from kolibri.core.errors import KolibriValidationError
 from mptt.models import MPTTModel, TreeForeignKey
-
-
-class KolibriValidationError(KolibriError):
-    pass
-
-
-##############################################
-# MORANGO: These pieces will live in Morango, but dummies/stubs are temporarily included here until Morango is ready.
-##############################################
-
-class UUIDField(models.CharField):
-
-    def __init__(self, *args, **kwargs):
-        kwargs['max_length'] = 32
-        self.random = kwargs.pop("random", False)
-        super(UUIDField, self).__init__(*args, **kwargs)
-
-    def get_default(self):
-        if self.random:
-            return uuid.uuid4().hex
-        else:
-            return super(UUIDField, self).get_default()
-
-
-class MorangoError(Exception):
-    pass
-
-
-class SyncableModelPartitionQuerySet(models.QuerySet):
-
-    def filter_by_partition(self, **kwargs):
-
-        query = {}
-
-        # if attempting to filter on a nonexistent partition, throw an error
-        nonexistent_partitions = set(kwargs.keys()) - set(self.model._morango_partition_fields.keys())
-        if nonexistent_partitions:
-            raise MorangoError(
-                "Cannot filter model '{model}' on nonexistent partitions '{partitions}'.".format(
-                    model=self.model.__name__,
-                    partitions=nonexistent_partitions
-                )
-            )
-
-        # for each of the provided arguments, add a filter query parameter mapped to the appropriate model field
-        for key, val in kwargs.items():
-
-            field_name = self.model._morango_partition_fields[key]
-
-            # if attempting to filter on a partition for which the current model has no field, there are no matches
-            if not hasattr(self.model, field_name):
-                return self.none()
-
-            query[field_name] = val
-
-        # apply the calculated filter to the queryset
-        return self.filter(**query)
-
-
-class SyncableModel(models.Model):
-
-    _morango_partition_fields = {}  # maps from a partition name to a model field name
-
-    objects = SyncableModelPartitionQuerySet.as_manager()
-    # special reference to partition manager in case 'objects' is overridden in subclasses:
-    partitioned_objects = SyncableModelPartitionQuerySet.as_manager()
-
-    id = UUIDField(primary_key=True)
-
-    class Meta:
-        abstract = True
-
-    def calculate_uuid(self):
-        return uuid.uuid4().hex  # for now, in this dummy stub, we're just using random UUIDs
-
-    def get_partition(self):
-        """
-        Calculate and return the partition attributes for the current model instance.
-        """
-        partition = {}
-        for partition_name, field_name in self._morango_partition_fields.items():
-            if hasattr(self, field_name):
-                partition[partition_name] = getattr(self, field_name)
-        return partition
-
-    def clean_fields(self):
-        if not self.id:
-            self.id = self.calculate_uuid()
-        super(SyncableModel, self).clean_fields()
-
-
-class MorangoTreeManager(TreeManager):
-
-    # Override the logic in Django MPTT that assigns tree ids, as we need to ensure tree ids do not
-    # conflict for facilities created on differentdevices and then later synced to the same device
-    # By default, tree ids are auto-increasing integers, but we use UUIDs to avoid collisions.
-    def _get_next_tree_id(self):
-        return uuid.uuid4().hex
-
-
-class MorangoMPTTModel(MPTTModel):
-    """
-    Any model that inherits from SyncableModel that wants to inherit from MPTTModel should instead inherit
-    from MorangoMPTTModel, which modifies some behavior to make it safe for the syncing system.
-    """
-
-    _default_manager = MorangoTreeManager()
-
-    # change tree_id to a uuid to avoid collisions; see explanation above in the MorangoTreeManager class
-    tree_id = UUIDField()
-
-    class Meta:
-        abstract = True
-
-
-class KolibriSyncableModel(SyncableModel):
-    """
-    Kolibri-specific subclass of Morango's SyncableModel class. Here, we add any additional fields needed
-    for partitioning the data (in this case, the "dataset" attribute), and specify the list of attributes
-    to be used for partitioning.
-    """
-
-    _morango_partition_fields = {
-        "dataset": "dataset_id",
-        "user": "user_id",
-    }
-
-    # in general, all syncable data must be associated with a FacilityDataset (but this can be overridden if needed)
-    _require_dataset = True
-
-    class Meta:
-        abstract = True
-
-
-##############################################
-# /END MORANGO
-##############################################
 
 
 class FacilityDataset(models.Model):
@@ -280,18 +139,17 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     with a hierarchy of Collections through Roles, which then serve to determine permissions.
     """
 
-    class Meta:
-        unique_together = (("username", "dataset"),)
+    facility = models.ForeignKey("Facility")
 
-    def is_device_owner(self):
-        """
-        For FacilityUsers, always False. Used in determining permissions.
-        """
-        return False
+    # FacilityUsers can't access the Django admin interface
+    is_staff = False
+    is_superuser = False
+
+    class Meta:
+        unique_together = (("username", "facility"),)
 
     def infer_dataset(self):
-        # dataset must be provided when creating a FacilityUser
-        return None
+        return self.facility.dataset
 
 
 class DeviceOwner(KolibriAbstractBaseUser):
@@ -305,14 +163,12 @@ class DeviceOwner(KolibriAbstractBaseUser):
     performed by a DeviceOwner.
     """
 
-    def is_device_owner(self):
-        """
-        For DeviceOwners, always True. Used in determining permissions.
-        """
-        return True
+    # DeviceOwners can access the Django admin interface
+    is_staff = True
+    is_superuser = True
 
 
-class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
+class Collection(MPTTModel, AbstractFacilityDataModel):
     """
     Collections are hierarchical groups of users, used for grouping users and making decisions about permissions.
     Users belong to one or more Collections, by way of obtaining Roles associated with those Collections.
@@ -342,8 +198,8 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
 
         # enforce the Collection hierarchy of Facility > Classroom > LearnerGroup, by making sure that kind matches level
         if self.kind != self.KINDS[self.level][0]:
-            raise ValidationError("Collections of kind '{kind}' cannot be at level {level} of the tree."
-                                  .format(kind=self.kind, level=self.level))
+            raise KolibriValidationError("Collections of kind '{kind}' cannot be at level {level} of the tree."
+                                         .format(kind=self.kind, level=self.level))
 
         super(Collection, self).clean_fields()
 
@@ -387,38 +243,13 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
         # delete the appropriate role, if it exists
         Role.objects.filter(user=user, collection=self, kind=role_kind, dataset=self.dataset).delete()
 
-    def add_admin(self, user):
-        return self.add_user(user, Role.KIND_ADMIN)
-
-    def add_coach(self, user):
-        return self.add_user(user, Role.KIND_COACH)
-
-    def add_learner(self, user):
-        return self.add_user(user, Role.KIND_LEARNER)
-
-    def add_admins(self, users):
-        return [self.add_user(user, Role.KIND_ADMIN) for user in users]
-
-    def add_coaches(self, users):
-        return [self.add_user(user, Role.KIND_COACH) for user in users]
-
-    def add_learners(self, users):
-        return [self.add_user(user, Role.KIND_LEARNER) for user in users]
-
-    def remove_admin(self, user):
-        self.remove_user(user, Role.KIND_ADMIN)
-
-    def remove_coach(self, user):
-        self.remove_user(user, Role.KIND_COACH)
-
-    def remove_learner(self, user):
-        self.remove_user(user, Role.KIND_LEARNER)
-
     def infer_dataset(self):
-        if self.is_root_node():
-            return None  # the root node (Facility) must be explicitly tied to a dataset
+        if self.parent:
+            # subcollections inherit dataset from root of their tree
+            # (we can't call `get_root` directly on self, as it won't work if self hasn't yet been saved)
+            return self.parent.get_root().dataset
         else:
-            return self.get_root()  # subcollections inherit dataset from root of their tree
+            return None  # the root node (i.e. Facility) must be explicitly tied to a dataset
 
 
 class Role(AbstractFacilityDataModel):
@@ -447,9 +278,10 @@ class Role(AbstractFacilityDataModel):
         unique_together = (("user", "collection", "kind"),)
 
     def infer_dataset(self):
-        user_dataset = self.user.infer_dataset()
-        collection_dataset = self.collection.infer_dataset()
-        assert user_dataset == collection_dataset
+        user_dataset = self.user.dataset
+        collection_dataset = self.collection.dataset
+        if user_dataset != collection_dataset:
+            raise KolibriValidationError("The collection and user for a Role object must be in the same dataset.")
         return user_dataset
 
 
@@ -467,8 +299,16 @@ class Facility(Collection):
         proxy = True
 
     def save(self, *args, **kwargs):
+        if self.parent:
+            raise IntegrityError("Facility must be the root of a collection tree, and cannot have a parent.")
         self.kind = Collection.KIND_FACILITY
         super(Facility, self).save(*args, **kwargs)
+
+    def infer_dataset(self):
+        # if we don't yet have a dataset, create a new one for this facility
+        if not self.dataset_id:
+            self.dataset = FacilityDataset.objects.create()
+        return self.dataset
 
     def get_classrooms(self):
         """
@@ -477,6 +317,24 @@ class Facility(Collection):
         :return: A Classroom QuerySet.
         """
         return Classroom.objects.filter(parent=self)
+
+    def add_admin(self, user):
+        return self.add_user(user, Role.KIND_ADMIN)
+
+    def add_admins(self, users):
+        return [self.add_admin(user) for user in users]
+
+    def remove_admin(self, user):
+        self.remove_user(user, Role.KIND_ADMIN)
+
+    def add_coach(self, user):
+        return self.add_user(user, Role.KIND_COACH)
+
+    def add_coaches(self, users):
+        return [self.add_coach(user) for user in users]
+
+    def remove_coach(self, user):
+        self.remove_user(user, Role.KIND_COACH)
 
 
 class ClassroomManager(models.Manager):
@@ -493,6 +351,8 @@ class Classroom(Collection):
         proxy = True
 
     def save(self, *args, **kwargs):
+        if not self.parent:
+            raise IntegrityError("Classroom cannot be the root of a collection tree, and must have a parent.")
         self.kind = Collection.KIND_CLASSROOM
         super(Classroom, self).save(*args, **kwargs)
 
@@ -512,6 +372,24 @@ class Classroom(Collection):
         """
         return LearnerGroup.objects.filter(parent=self)
 
+    def add_admin(self, user):
+        return self.add_user(user, Role.KIND_ADMIN)
+
+    def add_admins(self, users):
+        return [self.add_admin(user) for user in users]
+
+    def remove_admin(self, user):
+        self.remove_user(user, Role.KIND_ADMIN)
+
+    def add_coach(self, user):
+        return self.add_user(user, Role.KIND_COACH)
+
+    def add_coaches(self, users):
+        return [self.add_coach(user) for user in users]
+
+    def remove_coach(self, user):
+        self.remove_user(user, Role.KIND_COACH)
+
 
 class LearnerGroupManager(models.Manager):
 
@@ -527,6 +405,8 @@ class LearnerGroup(Collection):
         proxy = True
 
     def save(self, *args, **kwargs):
+        if not self.parent:
+            raise IntegrityError("LearnerGroup cannot be the root of a collection tree, and must have a parent.")
         self.kind = Collection.KIND_LEARNERGROUP
         super(LearnerGroup, self).save(*args, **kwargs)
 
@@ -537,3 +417,12 @@ class LearnerGroup(Collection):
         :return: A Classroom instance.
         """
         return Classroom.objects.get(id=self.parent_id)
+
+    def add_learner(self, user):
+        return self.add_user(user, Role.KIND_LEARNER)
+
+    def add_learners(self, users):
+        return [self.add_learner(user) for user in users]
+
+    def remove_learner(self, user):
+        self.remove_user(user, Role.KIND_LEARNER)

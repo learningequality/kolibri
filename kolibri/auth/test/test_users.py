@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 # from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from kolibri.auth.models import DeviceOwner, FacilityDataset, FacilityUser  # , KolibriValidationError
+from kolibri.auth.models import DeviceOwner, Facility, FacilityUser  # , KolibriValidationError
 
 
 class UserSanityTestCase(TestCase):
@@ -11,13 +11,13 @@ class UserSanityTestCase(TestCase):
     Sanity checks basic functionality of user models.
     """
     def setUp(self):
-        self.dataset = FacilityDataset.objects.create()
+        self.facility = Facility.objects.create()
         self.user = FacilityUser.objects.create(
             username="mike",
             first_name="Mike",
             last_name="Gallaspy",
             password="###",
-            dataset=self.dataset
+            facility=self.facility,
         )
         self.do = DeviceOwner.objects.create(
             username="bar",
@@ -25,10 +25,10 @@ class UserSanityTestCase(TestCase):
         )
 
     def test_facility_user(self):
-        self.assertFalse(self.user.is_device_owner())
+        self.assertFalse(self.user.is_superuser)
 
     def test_device_owner(self):
-        self.assertTrue(self.do.is_device_owner())
+        self.assertTrue(self.do.is_superuser)
 
     def test_short_name(self):
         self.assertEqual(self.user.get_short_name(), "Mike")

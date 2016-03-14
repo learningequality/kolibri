@@ -12,43 +12,28 @@ from kolibri.auth.models import (
 from kolibri.core.errors import KolibriError
 
 
-class BaseBackend(object):
+class FacilityUserBackend(object):
     """
-    Provides the authentication parts that are common to both backends.
+    A class that implements permissions checking for FacilityUsers.
     """
-    def _authenticate(self, userclass, username, password):
-        """
-        Returns a user object if authentication succeeds for the specified userclass class, else None.
 
-        :param userclass: A subclass of KolibriAbstractBaseUser
-        :param username: A string
-        :param password: A string
+    def authenticate(self, username=None, password=None, facility=None):
+        """
+        Authenticates the user if the credentials correspond to a FacilityUser for the specified Facility.
+
+        :param username: a string
+        :param password: a string
+        :param facility: a Facility
+        :return: A FacilityUser instance if successful, or None if authentication failed.
         """
         try:
-            user = userclass.objects.get(username=username)
+            user = FacilityUser.objects.get(username=username, facility=facility)
             if user.check_password(password):
                 return user
             else:
                 return None
-        except userclass.DoesNotExist:
+        except FacilityUser.DoesNotExist:
             return None
-
-
-class FacilityBackend(BaseBackend):
-    """
-    A class that implements permissions checking for Facility Users. Always returns False if the user is a DeviceAdmin,
-    in order to avoid unnecessary database queries.
-    """
-
-    def authenticate(self, username=None, password=None):
-        """
-        Authenticates the user if the credentials correspond to a Facility User
-
-        :param username: a string
-        :param password: a string
-        :return: A FacilityUser instance if successful, or None if authentication failed.
-        """
-        return self._authenticate(FacilityUser, username, password)
 
     def get_user(self, user_id):
         """
@@ -101,21 +86,27 @@ class FacilityBackend(BaseBackend):
         raise NotImplementedError()
 
 
-class DeviceBackend(BaseBackend):
+class DeviceOwnerBackend(object):
     """
-    A very simple backend that, when passed in a user for permissions checking, returns True if the user is a
-    DeviceAdmin, or False otherwise.
+    A class that implements permissions checking for DeviceOwners.
     """
 
     def authenticate(self, username=None, password=None):
         """
-        Authenticates the user if the credentials correspond to a Device Owner.
+        Authenticates the user if the credentials correspond to a DeviceOwner.
 
         :param username: a string
         :param password: a string
         :return: A DeviceOwner instance if successful, or None if authentication failed.
         """
-        return self._authenticate(DeviceOwner, username, password)
+        try:
+            user = DeviceOwner.objects.get(username=username)
+            if user.check_password(password):
+                return user
+            else:
+                return None
+        except DeviceOwner.DoesNotExist:
+            return None
 
     def get_user(self, user_id):
         """
@@ -130,7 +121,7 @@ class DeviceBackend(BaseBackend):
             return None
 
     def _has_perm(self, user_obj):
-        return user_obj.is_device_owner()
+        return user_obj.is_superuser
 
     def has_perm(self, user_obj, perm, obj=None):
         return self._has_perm(user_obj)
