@@ -72,6 +72,7 @@ Mediator.prototype.register_plugin_sync = function(plugin) {
  */
 Mediator.prototype._register_events = function(plugin, events_key, event_listener_method) {
     var events;
+    event_listener_method = _.bind(event_listener_method, this);
     if (typeof plugin[events_key] === 'undefined') {
         events = {};
     } else if (typeof plugin[events_key] === 'function') {
