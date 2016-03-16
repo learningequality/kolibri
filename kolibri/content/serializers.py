@@ -1,4 +1,4 @@
-from models import ChannelMetadata
+from models import ChannelMetadata, ContentMetadata
 from rest_framework import serializers
 
 
@@ -13,3 +13,13 @@ class ChannelMetadataSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'url': {'lookup_field': 'channel_id', 'view_name': 'channelmetadata-detail'}
         }
+
+
+class ContentMetadataSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ContentMetadata
+        depth = 1
+        fields = (
+            'content_id', 'title', 'description', 'kind', 'slug', 'total_file_size', 'available', 'license', 'parent', 'prerequisite', 'is_related'
+        )
