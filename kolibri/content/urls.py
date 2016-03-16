@@ -5,10 +5,11 @@ except some set methods that do not return anything.
 """
 from django.conf.urls import include, url
 from rest_framework import viewsets
+from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework_nested import routers
 
-from . import models, serializers
+from . import api, models, serializers
 
 
 class ChannelMetadataViewSet(viewsets.ViewSet):
@@ -39,6 +40,80 @@ class ContentMetadataViewset(viewsets.ViewSet):
             models.ContentMetadata.objects.using(channelmetadata_channel_id).get(content_id=content_id), context=context
         ).data
         return Response(content)
+
+    @detail_route()
+    def ancestor_topics(self, request, channelmetadata_channel_id, *args, **kwargs):
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        data = serializers.ContentMetadataSerializer(
+            api.get_ancestor_topics(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+        ).data
+        return Response(data)
+
+    @detail_route()
+    def immediate_children(self, request, channelmetadata_channel_id, *args, **kwargs):
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        data = serializers.ContentMetadataSerializer(
+            api.immediate_children(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+        ).data
+        return Response(data)
+
+    @detail_route()
+    def leaves(self, request, channelmetadata_channel_id, *args, **kwargs):
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        data = serializers.ContentMetadataSerializer(
+            api.leaves(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+        ).data
+        return Response(data)
+
+    @detail_route()
+    def all_prerequisites(self, request, channelmetadata_channel_id, *args, **kwargs):
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        data = serializers.ContentMetadataSerializer(
+            api.get_all_prerequisites(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+        ).data
+        return Response(data)
+
+    @detail_route()
+    def all_related(self, request, channelmetadata_channel_id, *args, **kwargs):
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        data = serializers.ContentMetadataSerializer(
+            api.get_all_related(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+        ).data
+        return Response(data)
+
+    @detail_route()
+    def all_formats(self, request, channelmetadata_channel_id, *args, **kwargs):
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        # import pdb
+        # pdb.set_trace()
+        data = serializers.FormatSerializer(
+            api.get_all_formats(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+        ).data
+        return Response(data)
+
+    @detail_route()
+    def available_formats(self, request, channelmetadata_channel_id, *args, **kwargs):
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        data = serializers.FormatSerializer(
+            api.get_available_formats(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+        ).data
+        return Response(data)
+
+    @detail_route()
+    def possible_formats(self, request, channelmetadata_channel_id, *args, **kwargs):
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        data = serializers.FormatSerializer(
+            api.get_possible_formats(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+        ).data
+        return Response(data)
+
+    @detail_route()
+    def files_for_quality(self, request, channelmetadata_channel_id, *args, **kwargs):
+        pass
+
+    @detail_route()
+    def missing_files(self, request, channelmetadata_channel_id, *args, **kwargs):
+        pass
 
 
 router = routers.SimpleRouter()
