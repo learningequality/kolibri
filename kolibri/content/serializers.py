@@ -15,6 +15,21 @@ class ChannelMetadataSerializer(serializers.HyperlinkedModelSerializer):
         }
 
 
+class DualLookuplinkedIdentityField(serializers.HyperlinkedIdentityField):
+    def __init__(self, view_name, lookup_field_1, lookup_field_2, **kwargs):
+        super(DualLookuplinkedIdentityField, self).__init__(view_name, **kwargs)
+
+    def to_representation(self, value):
+        view_name = self.view_name
+        lookup_field_1 = self._kwargs['lookup_field_1']
+        lookup_field_2 = self._kwargs['lookup_field_2']
+        kwargs = {lookup_field_1: self.context['channel_id'], lookup_field_2: getattr(value, lookup_field_2)}
+        request = self.context.get('request', None)
+        format = self.context.get('format', None)
+
+        return self.reverse(view_name, kwargs=kwargs, request=request, format=format)
+
+
 class ContentMetadataSerializer(serializers.ModelSerializer):
 
     class Meta:
