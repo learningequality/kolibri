@@ -31,10 +31,57 @@ class DualLookuplinkedIdentityField(serializers.HyperlinkedIdentityField):
 
 
 class ContentMetadataSerializer(serializers.ModelSerializer):
+    url = DualLookuplinkedIdentityField(
+        view_name='contentmetadata-detail',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='content_id'
+    )
+    ancestor_topics = DualLookuplinkedIdentityField(
+        view_name='contentmetadata-ancestor-topics',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='content_id',
+    )
+    immediate_children = DualLookuplinkedIdentityField(
+        view_name='contentmetadata-immediate-children',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='content_id',
+    )
+    leaves = DualLookuplinkedIdentityField(
+        view_name='contentmetadata-leaves',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='content_id',
+    )
+    all_prerequisites = DualLookuplinkedIdentityField(
+        view_name='contentmetadata-all-prerequisites',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='content_id',
+    )
+    all_related = DualLookuplinkedIdentityField(
+        view_name='contentmetadata-all-related',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='content_id',
+    )
+    all_formats = DualLookuplinkedIdentityField(
+        view_name='contentmetadata-all-formats',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='content_id',
+    )
+    available_formats = DualLookuplinkedIdentityField(
+        view_name='contentmetadata-available-formats',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='content_id',
+    )
+    possible_formats = DualLookuplinkedIdentityField(
+        view_name='contentmetadata-possible-formats',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='content_id',
+    )
 
     class Meta:
         model = ContentMetadata
         depth = 1
         fields = (
-            'content_id', 'title', 'description', 'kind', 'slug', 'total_file_size', 'available', 'license', 'parent', 'prerequisite', 'is_related'
+            'url', 'content_id', 'title', 'description', 'kind', 'slug', 'total_file_size', 'available',
+            'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children',
+            'leaves', 'all_prerequisites', 'all_related', 'all_formats', 'available_formats', 'possible_formats'
         )
