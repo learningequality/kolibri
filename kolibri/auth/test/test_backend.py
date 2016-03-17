@@ -7,6 +7,7 @@ from kolibri.auth.backends import DeviceOwnerBackend, FacilityUserBackend
 
 
 class DeviceOwnerBackendTestCase(TestCase):
+
     def setUp(self):
         self.facility = Facility.objects.create()
         user = self.user = FacilityUser(username="Mike", facility=self.facility)
@@ -22,6 +23,9 @@ class DeviceOwnerBackendTestCase(TestCase):
 
     def test_device_owner_authenticated(self):
         self.assertEqual(self.do, DeviceOwnerBackend().authenticate(username="Chuck", password="foobar"))
+
+    def test_incorrect_password_does_not_authenticate(self):
+        self.assertIsNone(DeviceOwnerBackend().authenticate(username="Chuck", password="blahblah"))
 
     def test_get_device_owner(self):
         self.assertEqual(self.do, DeviceOwnerBackend().get_user(self.do.id))
@@ -47,6 +51,7 @@ class DeviceOwnerBackendTestCase(TestCase):
 
 
 class FacilityUserBackendTestCase(TestCase):
+
     def setUp(self):
         self.facility = Facility.objects.create()
         user = self.user = FacilityUser(username="Mike", facility=self.facility)
@@ -65,6 +70,9 @@ class FacilityUserBackendTestCase(TestCase):
 
     def test_device_owner_not_authenticated(self):
         self.assertIsNone(FacilityUserBackend().authenticate(username="Chuck", password="foobar"))
+
+    def test_incorrect_password_does_not_authenticate(self):
+        self.assertIsNone(FacilityUserBackend().authenticate(username="Mike", password="blahblah", facility=self.facility))
 
     def test_get_facility_user(self):
         self.assertEqual(self.user, FacilityUserBackend().get_user(self.user.id))

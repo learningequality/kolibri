@@ -179,6 +179,8 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
     `in the dev bible <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit>`_.
     """
 
+    _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
+
     KIND_FACILITY = "facility"
     KIND_CLASSROOM = "classroom"
     KIND_LEARNERGROUP = "learnergroup"
@@ -194,14 +196,20 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     kind = models.CharField(max_length=20, choices=KINDS)
 
-    def clean_fields(self):
+    def clean_fields(self, *args, **kwargs):
+        self._ensure_kind()
+        super(Collection, self).clean_fields(*args, **kwargs)
 
-        # enforce the Collection hierarchy of Facility > Classroom > LearnerGroup, by making sure that kind matches level
-        if self.kind != self.KINDS[self.level][0]:
-            raise KolibriValidationError("Collections of kind '{kind}' cannot be at level {level} of the tree."
-                                         .format(kind=self.kind, level=self.level))
+    def save(self, *args, **kwargs):
+        self._ensure_kind()
+        super(Collection, self).save(*args, **kwargs)
 
-        super(Collection, self).clean_fields()
+    def _ensure_kind(self):
+        """
+        Make sure the "kind" is set correctly on the model, corresponding to the appropriate subclass of Collection.
+        """
+        if self._KIND:
+            self.kind = self._KIND
 
     def add_user(self, user, role_kind):
         """
@@ -285,15 +293,17 @@ class Role(AbstractFacilityDataModel):
         return user_dataset
 
 
-class FacilityManager(models.Manager):
+class CollectionProxyManager(models.Manager):
 
     def get_queryset(self):
-        return super(FacilityManager, self).get_queryset().filter(kind=Collection.KIND_FACILITY)
+        return super(CollectionProxyManager, self).get_queryset().filter(kind=self.model._KIND)
 
 
 class Facility(Collection):
 
-    objects = FacilityManager()
+    _KIND = Collection.KIND_FACILITY
+
+    objects = CollectionProxyManager()
 
     class Meta:
         proxy = True
@@ -301,7 +311,6 @@ class Facility(Collection):
     def save(self, *args, **kwargs):
         if self.parent:
             raise IntegrityError("Facility must be the root of a collection tree, and cannot have a parent.")
-        self.kind = Collection.KIND_FACILITY
         super(Facility, self).save(*args, **kwargs)
 
     def infer_dataset(self):
@@ -337,15 +346,11 @@ class Facility(Collection):
         self.remove_user(user, Role.KIND_COACH)
 
 
-class ClassroomManager(models.Manager):
-
-    def get_queryset(self):
-        return super(ClassroomManager, self).get_queryset().filter(kind=Collection.KIND_CLASSROOM)
-
-
 class Classroom(Collection):
 
-    objects = ClassroomManager()
+    _KIND = Collection.KIND_CLASSROOM
+
+    objects = CollectionProxyManager()
 
     class Meta:
         proxy = True
@@ -353,7 +358,6 @@ class Classroom(Collection):
     def save(self, *args, **kwargs):
         if not self.parent:
             raise IntegrityError("Classroom cannot be the root of a collection tree, and must have a parent.")
-        self.kind = Collection.KIND_CLASSROOM
         super(Classroom, self).save(*args, **kwargs)
 
     def get_facility(self):
@@ -391,15 +395,11 @@ class Classroom(Collection):
         self.remove_user(user, Role.KIND_COACH)
 
 
-class LearnerGroupManager(models.Manager):
-
-    def get_queryset(self):
-        return super(LearnerGroupManager, self).get_queryset().filter(kind=Collection.KIND_LEARNERGROUP)
-
-
 class LearnerGroup(Collection):
 
-    objects = LearnerGroupManager()
+    _KIND = Collection.KIND_LEARNERGROUP
+
+    objects = CollectionProxyManager()
 
     class Meta:
         proxy = True
@@ -407,7 +407,6 @@ class LearnerGroup(Collection):
     def save(self, *args, **kwargs):
         if not self.parent:
             raise IntegrityError("LearnerGroup cannot be the root of a collection tree, and must have a parent.")
-        self.kind = Collection.KIND_LEARNERGROUP
         super(LearnerGroup, self).save(*args, **kwargs)
 
     def get_classroom(self):

@@ -1,15 +1,16 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
+from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from kolibri.auth.models import FacilityUser, Facility, Classroom, LearnerGroup, Role, Collection, DeviceOwner
+from kolibri.auth.models import FacilityUser, Facility, Classroom, LearnerGroup, Role, Collection, DeviceOwner, FacilityDataset
 
 
-class CollectionRemovalTestCase(TestCase):
+class CollectionAndRoleDeletionTestCase(TestCase):
     """
-    Tests that removing users from a Collection properly deletes the corresponding Role object, and that deleting
-    a Collection also deletes the sub-Collections underneath it.
+    Tests that removing users from a Collection deletes the corresponding Role, and that deleting a Collection
+    or FacilityUser deletes all associated Roles.
     """
 
     def setUp(self):
@@ -81,6 +82,12 @@ class CollectionRemovalTestCase(TestCase):
         self.assertEqual(Collection.objects.count(), 0)
         self.assertEqual(Role.objects.count(), 0)
 
+    def test_delete_facility_user(self):
+        """ Deleting a FacilityUser should delete associated Roles """
+        role = Role.objects.get(user=self.user1, kind=Role.KIND_LEARNER)
+        self.user1.delete()
+        self.assertEqual(Role.objects.filter(id=role.id).count(), 0)
+
 
 class CollectionRelatedObjectTestCase(TestCase):
 
@@ -115,33 +122,88 @@ class CollectionsTestCase(TestCase):
 
     def setUp(self):
         self.facility = Facility.objects.create()
+        self.classroom = Classroom.objects.create(parent=self.facility)
 
-    def test_add_admin(self):
+    def test_add_and_remove_admin(self):
         user = FacilityUser.objects.create(username='foo', facility=self.facility)
+        self.classroom.add_admin(user)
         self.facility.add_admin(user)
+        self.assertEqual(Role.objects.filter(user=user, kind=Role.KIND_ADMIN, collection=self.classroom).count(), 1)
         self.assertEqual(Role.objects.filter(user=user, kind=Role.KIND_ADMIN, collection=self.facility).count(), 1)
+        self.classroom.remove_admin(user)
+        self.facility.remove_admin(user)
+        self.assertEqual(Role.objects.filter(user=user, kind=Role.KIND_ADMIN, collection=self.classroom).count(), 0)
+        self.assertEqual(Role.objects.filter(user=user, kind=Role.KIND_ADMIN, collection=self.facility).count(), 0)
+
+    def test_add_and_remove_coach(self):
+        user = FacilityUser.objects.create(username='foo', facility=self.facility)
+        self.classroom.add_coach(user)
+        self.facility.add_coach(user)
+        self.assertEqual(Role.objects.filter(user=user, kind=Role.KIND_COACH, collection=self.classroom).count(), 1)
+        self.assertEqual(Role.objects.filter(user=user, kind=Role.KIND_COACH, collection=self.facility).count(), 1)
+        self.classroom.remove_coach(user)
+        self.facility.remove_coach(user)
+        self.assertEqual(Role.objects.filter(user=user, kind=Role.KIND_COACH, collection=self.classroom).count(), 0)
+        self.assertEqual(Role.objects.filter(user=user, kind=Role.KIND_COACH, collection=self.facility).count(), 0)
+
+    def test_add_coaches(self):
+        user1 = FacilityUser.objects.create(username='foo1', facility=self.facility)
+        user2 = FacilityUser.objects.create(username='foo2', facility=self.facility)
+        self.classroom.add_coaches([user1, user2])
+        self.facility.add_coaches([user1, user2])
+        self.assertEqual(Role.objects.filter(kind=Role.KIND_COACH, collection=self.classroom).count(), 2)
+        self.assertEqual(Role.objects.filter(kind=Role.KIND_COACH, collection=self.facility).count(), 2)
+
+    def test_add_admins(self):
+        user1 = FacilityUser.objects.create(username='foo1', facility=self.facility)
+        user2 = FacilityUser.objects.create(username='foo2', facility=self.facility)
+        self.classroom.add_admins([user1, user2])
+        self.facility.add_admins([user1, user2])
+        self.assertEqual(Role.objects.filter(kind=Role.KIND_ADMIN, collection=self.classroom).count(), 2)
+        self.assertEqual(Role.objects.filter(kind=Role.KIND_ADMIN, collection=self.facility).count(), 2)
 
     def test_add_classroom(self):
-        Classroom.objects.create(parent=self.facility)
-        self.assertEqual(Classroom.objects.count(), 1)
-
-    def test_add_coach(self):
-        user = FacilityUser.objects.create(username='foo', facility=self.facility)
         classroom = Classroom.objects.create(parent=self.facility)
-        classroom.add_coach(user)
-        self.assertEqual(Role.objects.filter(user=user, kind=Role.KIND_COACH, collection=classroom).count(), 1)
+        self.assertEqual(Classroom.objects.count(), 2)
+        self.assertEqual(classroom.get_facility(), self.facility)
 
     def test_add_learner_group(self):
-        classroom = Classroom.objects.create(parent=self.facility)
+        classroom = Classroom.objects.create(name="blah", parent=self.facility)
+        classroom.full_clean()
         LearnerGroup.objects.create(parent=classroom)
         self.assertEqual(LearnerGroup.objects.count(), 1)
 
     def test_learner(self):
         user = FacilityUser.objects.create(username='foo', facility=self.facility)
         classroom = Classroom.objects.create(parent=self.facility)
-        learner_group = LearnerGroup.objects.create(parent=classroom)
+        learner_group = LearnerGroup.objects.create(name="blah", parent=classroom)
+        learner_group.full_clean()
         learner_group.add_learner(user)
         self.assertEqual(Role.objects.filter(user=user, kind=Role.KIND_LEARNER, collection=learner_group).count(), 1)
+
+    def test_parentless_classroom(self):
+        classroom = Classroom(name="myclass")
+        # shouldn't be valid, because no parent was specified, and Classrooms can't be the root of the collection tree
+        with self.assertRaises(ValidationError):
+            classroom.full_clean()
+        with self.assertRaises(IntegrityError):
+            classroom.save()
+
+    def test_parentless_learnergroup(self):
+        group = LearnerGroup(name="mygroup")
+        # shouldn't be valid, because no parent was specified, and LearnerGroups can't be the root of the collection tree
+        with self.assertRaises(ValidationError):
+            group.full_clean()
+        with self.assertRaises(IntegrityError):
+            group.save()
+
+    def test_facility_with_parent_facility(self):
+        with self.assertRaises(IntegrityError):
+            Facility.objects.create(name="blah", parent=self.facility)
+
+    def test_create_bare_collection_without_kind(self):
+        with self.assertRaises(ValidationError):
+            Collection(name="qqq", parent=self.facility).full_clean()
 
 
 class FacilityDatasetTestCase(TestCase):
@@ -183,3 +245,26 @@ class FacilityDatasetTestCase(TestCase):
         self.facility_user.facility = facility2
         with self.assertRaises(IntegrityError):
             self.facility_user.save()
+
+    def test_manually_passing_dataset_for_new_facility(self):
+        dataset = FacilityDataset.objects.create()
+        facility = Facility(name="blah", dataset=dataset)
+        facility.full_clean()
+        facility.save()
+        self.assertEqual(dataset, facility.dataset)
+
+
+class RoleTestCase(TestCase):
+
+    def setUp(self):
+        self.facility = Facility.objects.create()
+        self.classroom = Classroom.objects.create(parent=self.facility)
+        self.learner_group = LearnerGroup.objects.create(parent=self.classroom)
+        self.facility_user = FacilityUser.objects.create(username="blah", password="#", facility=self.facility)
+        self.device_owner = DeviceOwner.objects.create(username="blooh", password="#")
+
+    def test_invalid_role_type(self):
+        with self.assertRaises(AssertionError):
+            self.learner_group.add_user(self.facility_user, "blahblahnonexistentroletype")
+        with self.assertRaises(AssertionError):
+            self.learner_group.remove_user(self.facility_user, "blahblahnonexistentroletype")
