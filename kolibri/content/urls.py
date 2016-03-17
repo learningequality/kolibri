@@ -84,8 +84,7 @@ class ContentMetadataViewset(viewsets.ViewSet):
     @detail_route()
     def all_formats(self, request, channelmetadata_channel_id, *args, **kwargs):
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        # import pdb
-        # pdb.set_trace()
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.FormatSerializer(
             api.get_all_formats(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
         ).data
@@ -108,11 +107,59 @@ class ContentMetadataViewset(viewsets.ViewSet):
         return Response(data)
 
     @detail_route()
-    def files_for_quality(self, request, channelmetadata_channel_id, *args, **kwargs):
+    def missing_files(self, request, channelmetadata_channel_id, *args, **kwargs):
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        data = serializers.FileSerializer(
+            api.get_missing_files(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+        ).data
+        return Response(data)
+
+    @detail_route()
+    def get_content_with_id(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        get_content_with_id(channel_id=None, content=None)
+        """
         pass
 
     @detail_route()
-    def missing_files(self, request, channelmetadata_channel_id, *args, **kwargs):
+    def files_for_quality(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        get_files_for_quality(channel_id=None, content=None, format_quality=None, **kwargs)
+        """
+        pass
+
+    @detail_route()
+    def set_prerequisite(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        set_prerequisite(channel_id=None, content1=None, content2=None, **kwargs)
+        """
+        pass
+
+    @detail_route()
+    def set_is_related(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        set_is_related(channel_id=None, content1=None, content2=None, **kwargs)
+        """
+        pass
+
+    @detail_route()
+    def children_of_kind(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        children_of_kind(channel_id=None, content=None, kind=None, **kwargs)
+        """
+        pass
+
+    @detail_route()
+    def update_content_copy(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        update_content_copy(file_object=None, content_copy=None)
+        """
         pass
 
 
