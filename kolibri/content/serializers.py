@@ -1,4 +1,4 @@
-from models import ChannelMetadata, ContentMetadata
+from models import ChannelMetadata, ContentMetadata, File, Format
 from rest_framework import serializers
 
 
@@ -77,11 +77,32 @@ class ContentMetadataSerializer(serializers.ModelSerializer):
         lookup_field_2='content_id',
     )
 
+    missing_files = DualLookuplinkedIdentityField(
+        view_name='contentmetadata-missing-files',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='content_id',
+    )
+
     class Meta:
         model = ContentMetadata
         depth = 1
         fields = (
             'url', 'content_id', 'title', 'description', 'kind', 'slug', 'total_file_size', 'available',
             'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children',
-            'leaves', 'all_prerequisites', 'all_related', 'all_formats', 'available_formats', 'possible_formats'
+            'leaves', 'all_prerequisites', 'all_related', 'all_formats', 'available_formats',
+            'possible_formats', 'missing_files'
         )
+
+
+class FormatSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Format
+        view_name = 'format-list'
+        fields = ('available', 'format_size', 'quality', 'contentmetadata', 'mimetype')
+
+
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = File
+        fields = ('checksum', 'extension', 'available', 'file_size', 'content_copy', 'format')
