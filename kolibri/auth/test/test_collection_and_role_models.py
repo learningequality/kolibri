@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from ..constants import role_kinds, membership_kinds
+from ..constants import role_kinds
 from ..models import FacilityUser, Facility, Classroom, LearnerGroup, Role, Membership, Collection, DeviceOwner
 
 
@@ -37,9 +37,9 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
         self.lg.add_learner(user1)
 
     def test_remove_learner(self):
-        self.assertEqual(Membership.objects.filter(user=self.user1, kind=membership_kinds.LEARNER, collection=self.lg).count(), 1)
+        self.assertEqual(Membership.objects.filter(user=self.user1, collection=self.lg).count(), 1)
         self.lg.remove_learner(self.user1)
-        self.assertEqual(Membership.objects.filter(user=self.user1, kind=membership_kinds.LEARNER, collection=self.lg).count(), 0)
+        self.assertEqual(Membership.objects.filter(user=self.user1, collection=self.lg).count(), 0)
 
     def test_remove_coach(self):
         self.assertEqual(Role.objects.filter(user=self.user2, kind=role_kinds.COACH, collection=self.cr).count(), 1)
@@ -89,7 +89,7 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
 
     def test_delete_facility_user(self):
         """ Deleting a FacilityUser should delete associated Roles """
-        membership = Membership.objects.get(user=self.user1, kind=membership_kinds.LEARNER)
+        membership = Membership.objects.get(user=self.user1)
         self.user1.delete()
         self.assertEqual(Membership.objects.filter(id=membership.id).count(), 0)
 
@@ -184,7 +184,7 @@ class CollectionsTestCase(TestCase):
         learner_group = LearnerGroup.objects.create(name="blah", parent=classroom)
         learner_group.full_clean()
         learner_group.add_learner(user)
-        self.assertEqual(Membership.objects.filter(user=user, kind=membership_kinds.LEARNER, collection=learner_group).count(), 1)
+        self.assertEqual(Membership.objects.filter(user=user, collection=learner_group).count(), 1)
 
     def test_parentless_classroom(self):
         classroom = Classroom(name="myclass")

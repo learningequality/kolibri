@@ -27,7 +27,7 @@ from django.utils.translation import ugettext_lazy as _
 from kolibri.core.errors import KolibriValidationError
 from mptt.models import MPTTModel, TreeForeignKey
 
-from .constants import collection_kinds, membership_kinds, role_kinds
+from .constants import collection_kinds, role_kinds
 
 
 class FacilityDataset(models.Model):
@@ -242,45 +242,35 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         # delete the appropriate role, if it exists
         Role.objects.filter(user=user, collection=self, kind=role_kind).delete()
 
-    def add_membership(self, user, membership_kind):
+    def add_member(self, user):
         """
-        Create a Membership associating the provided user with this collection, with the specified kind.
-        If the Role object already exists, just return that, without changing anything.
+        Create a Membership associating the provided user with this collection.
+        If the Membership object already exists, just return that, without changing anything.
 
-        :param user: The FacilityUser to associate with this Collection.
-        :param membership_kind: The kind of membership to give the user with respect to this Collection.
-        :return: The Role object (possibly new) that associates the user with the Collection.
+        :param user: The FacilityUser to add to this Collection.
+        :return: The Membership object (possibly new) that associates the user with the Collection.
         """
-
-        # ensure the specified membership kind is valid
-        assert membership_kind in (kind[0] for kind in membership_kinds.choices), \
-            "'{membership_kind}' is not a valid membership kind.".format(membership_kind=membership_kind)
 
         # ensure the provided user is a FacilityUser
-        assert isinstance(user, FacilityUser), "Only FacilityUsers can be associted with a collection."
+        assert isinstance(user, FacilityUser), "Only FacilityUsers can be members of a collection."
 
         # create the necessary membership, if it doesn't already exist
-        membership, created = Membership.objects.get_or_create(user=user, collection=self, kind=membership_kind)
+        membership, created = Membership.objects.get_or_create(user=user, collection=self)
 
         return membership
 
-    def remove_membership(self, user, membership_kind):
+    def remove_member(self, user):
         """
-        Remove any Membership objects associating the provided user with this collection, with the specified kind.
+        Remove any Membership objects associating the provided user with this collection.
 
-        :param user: The FacilityUser to dissociate from this Collection (for the specific membership kind).
-        :param membership_kind: The kind of membership to remove from the user with respect to this Collection.
+        :param user: The FacilityUser to remove from this Collection.
         """
-
-        # ensure the specified membership kind is valid
-        assert membership_kind in (kind[0] for kind in membership_kinds.choices), \
-            "'{membership_kind}' is not a valid membership kind.".format(membership_kind=membership_kind)
 
         # ensure the provided user is a FacilityUser
-        assert isinstance(user, FacilityUser), "Only FacilityUsers can be associted with a collection."
+        assert isinstance(user, FacilityUser), "Only FacilityUsers can be removed from a collection."
 
         # delete the appropriate membership, if it exists
-        Membership.objects.filter(user=user, collection=self, kind=membership_kind).delete()
+        Membership.objects.filter(user=user, collection=self).delete()
 
     def infer_dataset(self):
         if self.parent:
@@ -303,16 +293,15 @@ class Membership(AbstractFacilityDataModel):
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
     collection = TreeForeignKey("Collection")
-    kind = models.CharField(max_length=20, choices=membership_kinds.choices)
 
     class Meta:
-        unique_together = (("user", "collection", "kind"),)
+        unique_together = (("user", "collection"),)
 
     def infer_dataset(self):
         user_dataset = self.user.dataset
         collection_dataset = self.collection.dataset
         if user_dataset != collection_dataset:
-            raise KolibriValidationError("Collection and user for a LearnerMembership object must be in same dataset.")
+            raise KolibriValidationError("Collection and user for a Membership object must be in same dataset.")
         return user_dataset
 
 
@@ -465,10 +454,10 @@ class LearnerGroup(Collection):
         return Classroom.objects.get(id=self.parent_id)
 
     def add_learner(self, user):
-        return self.add_membership(user, membership_kinds.LEARNER)
+        return self.add_member(user)
 
     def add_learners(self, users):
         return [self.add_learner(user) for user in users]
 
     def remove_learner(self, user):
-        self.remove_membership(user, membership_kinds.LEARNER)
+        self.remove_member(user)
