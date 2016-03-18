@@ -27,6 +27,8 @@ from django.utils.translation import ugettext_lazy as _
 from kolibri.core.errors import KolibriValidationError
 from mptt.models import MPTTModel, TreeForeignKey
 
+from .constants import collection_kinds, membership_kinds, role_kinds
+
 
 class FacilityDataset(models.Model):
     """
@@ -175,26 +177,15 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
     Collections can belong to other Collections, and user membership in a collection is conferred by parenthood.
     Collections are subdivided into several pre-defined levels.
 
-    The hierarchy of Roles and Collections forms a tree structure, and a description can be found
+    The hierarchy of Collections forms a tree structure, and a description can be found
     `in the dev bible <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit>`_.
     """
 
     _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
 
-    KIND_FACILITY = "facility"
-    KIND_CLASSROOM = "classroom"
-    KIND_LEARNERGROUP = "learnergroup"
-
-    # the ordering of kinds in the following tuple corresponds to their level in the hierarchy
-    KINDS = (
-        (KIND_FACILITY, _("Facility")),
-        (KIND_CLASSROOM, _("Classroom")),
-        (KIND_LEARNERGROUP, _("LearnerGroup")),
-    )
-
     name = models.CharField(max_length=100)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
-    kind = models.CharField(max_length=20, choices=KINDS)
+    kind = models.CharField(max_length=20, choices=collection_kinds.choices)
 
     def clean_fields(self, *args, **kwargs):
         self._ensure_kind()
@@ -211,7 +202,7 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         if self._KIND:
             self.kind = self._KIND
 
-    def add_user(self, user, role_kind):
+    def add_role(self, user, role_kind):
         """
         Create a Role associating the provided user with this collection, with the specified kind of role.
         If the Role object already exists, just return that, without changing anything.
@@ -222,18 +213,18 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         """
 
         # ensure the specified role kind is valid
-        assert role_kind in (kind[0] for kind in Role.KINDS), \
+        assert role_kind in (kind[0] for kind in role_kinds.choices), \
             "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
 
         # ensure the provided user is a FacilityUser
         assert isinstance(user, FacilityUser), "Only FacilityUsers can be associted with a collection."
 
         # create the necessary role, if it doesn't already exist
-        role, created = Role.objects.get_or_create(user=user, collection=self, kind=role_kind, dataset=self.dataset)
+        role, created = Role.objects.get_or_create(user=user, collection=self, kind=role_kind)
 
         return role
 
-    def remove_user(self, user, role_kind):
+    def remove_role(self, user, role_kind):
         """
         Remove any Role objects associating the provided user with this collection, with the specified kind of role.
 
@@ -242,14 +233,54 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         """
 
         # ensure the specified role kind is valid
-        assert role_kind in (kind[0] for kind in Role.KINDS), \
+        assert role_kind in (kind[0] for kind in role_kinds.choices), \
             "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
 
         # ensure the provided user is a FacilityUser
         assert isinstance(user, FacilityUser), "Only FacilityUsers can be associted with a collection."
 
         # delete the appropriate role, if it exists
-        Role.objects.filter(user=user, collection=self, kind=role_kind, dataset=self.dataset).delete()
+        Role.objects.filter(user=user, collection=self, kind=role_kind).delete()
+
+    def add_membership(self, user, membership_kind):
+        """
+        Create a Membership associating the provided user with this collection, with the specified kind.
+        If the Role object already exists, just return that, without changing anything.
+
+        :param user: The FacilityUser to associate with this Collection.
+        :param membership_kind: The kind of membership to give the user with respect to this Collection.
+        :return: The Role object (possibly new) that associates the user with the Collection.
+        """
+
+        # ensure the specified membership kind is valid
+        assert membership_kind in (kind[0] for kind in membership_kinds.choices), \
+            "'{membership_kind}' is not a valid membership kind.".format(membership_kind=membership_kind)
+
+        # ensure the provided user is a FacilityUser
+        assert isinstance(user, FacilityUser), "Only FacilityUsers can be associted with a collection."
+
+        # create the necessary membership, if it doesn't already exist
+        membership, created = Membership.objects.get_or_create(user=user, collection=self, kind=membership_kind)
+
+        return membership
+
+    def remove_membership(self, user, membership_kind):
+        """
+        Remove any Membership objects associating the provided user with this collection, with the specified kind.
+
+        :param user: The FacilityUser to dissociate from this Collection (for the specific membership kind).
+        :param membership_kind: The kind of membership to remove from the user with respect to this Collection.
+        """
+
+        # ensure the specified membership kind is valid
+        assert membership_kind in (kind[0] for kind in membership_kinds.choices), \
+            "'{membership_kind}' is not a valid membership kind.".format(membership_kind=membership_kind)
+
+        # ensure the provided user is a FacilityUser
+        assert isinstance(user, FacilityUser), "Only FacilityUsers can be associted with a collection."
+
+        # delete the appropriate membership, if it exists
+        Membership.objects.filter(user=user, collection=self, kind=membership_kind).delete()
 
     def infer_dataset(self):
         if self.parent:
@@ -260,27 +291,43 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
             return None  # the root node (i.e. Facility) must be explicitly tied to a dataset
 
 
-class Role(AbstractFacilityDataModel):
+class Membership(AbstractFacilityDataModel):
     """
-    A User can be associated with a particular Collection through a Role object, which also stores the "kind"
-    of the Role (currently, one of "admin", "coach", or "learner").
+    A User can be marked as a member of a Collection through a Membership object. Being a member of a Collection
+    also means being a member of all the Collections above that Collection in the tree (i.e. if you are a member
+    of a LearnerGroup, you are also a member of the Classroom that contains that LearnerGroup, and of the Facility
+    that contains that Classroom).
     """
-
-    KIND_ADMIN = "admin"
-    KIND_COACH = "coach"
-    KIND_LEARNER = "learner"
-
-    KINDS = (
-        (KIND_ADMIN, _("Admin")),
-        (KIND_COACH, _("Coach")),
-        (KIND_LEARNER, _("Learner")),
-    )
 
     user = models.ForeignKey('FacilityUser', blank=False, null=False)
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
     collection = TreeForeignKey("Collection")
-    kind = models.CharField(max_length=20, choices=KINDS)
+    kind = models.CharField(max_length=20, choices=membership_kinds.choices)
+
+    class Meta:
+        unique_together = (("user", "collection", "kind"),)
+
+    def infer_dataset(self):
+        user_dataset = self.user.dataset
+        collection_dataset = self.collection.dataset
+        if user_dataset != collection_dataset:
+            raise KolibriValidationError("Collection and user for a LearnerMembership object must be in same dataset.")
+        return user_dataset
+
+
+class Role(AbstractFacilityDataModel):
+    """
+    A User can have a role for a particular Collection through a Role object, which also stores the "kind"
+    of the Role (currently, one of "admin" or "coach"). Having a role for a Collection also implies having that
+    role for all sub-Collections of that Collection (i.e. all the Collections below it in the tree).
+    """
+
+    user = models.ForeignKey('FacilityUser', blank=False, null=False)
+    # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
+    # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
+    collection = TreeForeignKey("Collection")
+    kind = models.CharField(max_length=20, choices=role_kinds.choices)
 
     class Meta:
         unique_together = (("user", "collection", "kind"),)
@@ -301,7 +348,7 @@ class CollectionProxyManager(models.Manager):
 
 class Facility(Collection):
 
-    _KIND = Collection.KIND_FACILITY
+    _KIND = collection_kinds.FACILITY
 
     objects = CollectionProxyManager()
 
@@ -328,27 +375,27 @@ class Facility(Collection):
         return Classroom.objects.filter(parent=self)
 
     def add_admin(self, user):
-        return self.add_user(user, Role.KIND_ADMIN)
+        return self.add_role(user, role_kinds.ADMIN)
 
     def add_admins(self, users):
         return [self.add_admin(user) for user in users]
 
     def remove_admin(self, user):
-        self.remove_user(user, Role.KIND_ADMIN)
+        self.remove_role(user, role_kinds.ADMIN)
 
     def add_coach(self, user):
-        return self.add_user(user, Role.KIND_COACH)
+        return self.add_role(user, role_kinds.COACH)
 
     def add_coaches(self, users):
         return [self.add_coach(user) for user in users]
 
     def remove_coach(self, user):
-        self.remove_user(user, Role.KIND_COACH)
+        self.remove_role(user, role_kinds.COACH)
 
 
 class Classroom(Collection):
 
-    _KIND = Collection.KIND_CLASSROOM
+    _KIND = collection_kinds.CLASSROOM
 
     objects = CollectionProxyManager()
 
@@ -377,27 +424,27 @@ class Classroom(Collection):
         return LearnerGroup.objects.filter(parent=self)
 
     def add_admin(self, user):
-        return self.add_user(user, Role.KIND_ADMIN)
+        return self.add_role(user, role_kinds.ADMIN)
 
     def add_admins(self, users):
         return [self.add_admin(user) for user in users]
 
     def remove_admin(self, user):
-        self.remove_user(user, Role.KIND_ADMIN)
+        self.remove_role(user, role_kinds.ADMIN)
 
     def add_coach(self, user):
-        return self.add_user(user, Role.KIND_COACH)
+        return self.add_role(user, role_kinds.COACH)
 
     def add_coaches(self, users):
         return [self.add_coach(user) for user in users]
 
     def remove_coach(self, user):
-        self.remove_user(user, Role.KIND_COACH)
+        self.remove_role(user, role_kinds.COACH)
 
 
 class LearnerGroup(Collection):
 
-    _KIND = Collection.KIND_LEARNERGROUP
+    _KIND = collection_kinds.LEARNERGROUP
 
     objects = CollectionProxyManager()
 
@@ -418,10 +465,10 @@ class LearnerGroup(Collection):
         return Classroom.objects.get(id=self.parent_id)
 
     def add_learner(self, user):
-        return self.add_user(user, Role.KIND_LEARNER)
+        return self.add_membership(user, membership_kinds.LEARNER)
 
     def add_learners(self, users):
         return [self.add_learner(user) for user in users]
 
     def remove_learner(self, user):
-        self.remove_user(user, Role.KIND_LEARNER)
+        self.remove_membership(user, membership_kinds.LEARNER)
