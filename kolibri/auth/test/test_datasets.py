@@ -30,6 +30,12 @@ class FacilityDatasetTestCase(TestCase):
         with self.assertRaises(IntegrityError):
             facility2.add_admin(self.facility_user)
 
+    def test_cannot_create_membership_across_datasets(self):
+        facility2 = Facility.objects.create()
+        facility_user2 = FacilityUser.objects.create(username="blah", password="#", facility=facility2)
+        with self.assertRaises(IntegrityError):
+            self.learner_group.add_learner(facility_user2)
+
     def test_cannot_pass_inappropriate_dataset(self):
         facility2 = Facility.objects.create()
         with self.assertRaises(IntegrityError):
