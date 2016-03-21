@@ -19,7 +19,7 @@ def flatten(lst):
     return lst[:1] + flatten(lst[1:])
 
 
-class RelationsWithinFacilityTestCase(TestCase):
+class RolesWithinFacilityTestCase(TestCase):
 
     def setUp(self):
         self.data = create_dummy_facility_data()
@@ -55,7 +55,7 @@ class RelationsWithinFacilityTestCase(TestCase):
         self.assertNotIn(role_kinds.COACH, coach0.get_roles_for(learner1))
 
 
-class RelationsAcrossFacilitiesTestCase(TestCase):
+class RolesAcrossFacilitiesTestCase(TestCase):
 
     def setUp(self):
         self.data1 = create_dummy_facility_data()
@@ -134,7 +134,7 @@ class MembershipAcrossFacilitiesTestCase(TestCase):
             self.assertFalse(self.data2["learnergroups"][0][0].is_member(user))
 
 
-class DeviceOwnerRelationsTestCase(TestCase):
+class DeviceOwnerRolesTestCase(TestCase):
 
     def setUp(self):
         self.data = create_dummy_facility_data()
