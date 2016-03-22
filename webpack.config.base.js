@@ -25,7 +25,8 @@ var config = {
         // This allows us to specify some 'shortcuts' to avoid typing out very long relative paths for frequently
         // imported requires.
         alias: {
-            'kolibri_module': 'kolibri/plugins/assets/src/kolibri_module/kolibri_module'
+            'kolibri_module': 'kolibri/plugins/assets/src/kolibri_module/kolibri_module',
+            'components': 'kolibri/core/assets/src/components'
         }
     }
 };

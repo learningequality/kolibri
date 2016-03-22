@@ -6,7 +6,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 from kolibri.plugins.base import KolibriFrontEndPluginBase, KolibriPluginBase
-from kolibri.plugins.hooks import FRONTEND_PLUGINS, NAVIGATION_POPULATE
+from kolibri.plugins.hooks import (
+    BASE_FRONTEND_SYNC, FRONTEND_PLUGINS, NAVIGATION_POPULATE
+)
 
 
 def main_navigation():
@@ -46,7 +48,21 @@ class KolibriCoreFrontEnd(KolibriFrontEndPluginBase):
         }
 
 
+class KolibriComponentDemoPlugin(KolibriFrontEndPluginBase):
+    """
+    The SPA for demo of the component Views.
+    """
+    entry_file = "assets/src/components_demo.js"
+
+    def hooks(self):
+        return {
+            FRONTEND_PLUGINS: self._register_front_end_plugins,
+            BASE_FRONTEND_SYNC: self.plugin_name,
+        }
+
+
 PLUGINS = (
     KolibriCore,
     KolibriCoreFrontEnd,
+    KolibriComponentDemoPlugin,
 )
