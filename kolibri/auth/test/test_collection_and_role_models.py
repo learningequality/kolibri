@@ -105,7 +105,7 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
             self.cr.remove_coach(self.learner)
 
     def test_remove_indirect_admin_role(self):
-        """ Trying to remove the admin role for a a Facility admin from a descendent classroom doesn't actually remove anything. """
+        """ Trying to remove the admin role for a a Facility admin from a descendant classroom doesn't actually remove anything. """
         with self.assertRaises(UserHasRoleOnlyIndirectlyThroughHierarchyError):
             self.cr.remove_admin(self.facility_admin)
 
