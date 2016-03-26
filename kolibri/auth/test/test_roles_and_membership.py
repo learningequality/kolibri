@@ -82,7 +82,10 @@ class MembershipWithinFacilityTestCase(TestCase):
         self.data = create_dummy_facility_data()
 
     def test_facility_membership(self):
-        actual_members = flatten(self.data["learners_one_group"] + [self.data["learner_all_groups"]])
+        actual_members = flatten(self.data["learners_one_group"] + [self.data["learner_all_groups"]] +
+                                 self.data["unattached_users"] + [self.data["facility_admin"]] +
+                                 [self.data["facility_coach"]] + self.data["classroom_admins"] +
+                                 self.data["classroom_coaches"])
         returned_members = self.data["facility"].get_members()
         self.assertSetEqual(actual_members, returned_members)
         for user in actual_members:

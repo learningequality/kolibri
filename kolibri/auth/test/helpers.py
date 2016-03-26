@@ -55,7 +55,9 @@ def create_dummy_facility_data(classroom_count=2, learnergroup_count=2):
     ] for i, classroom_list in enumerate(data["learnergroups"])]
     data["learner_all_groups"] = FacilityUser.objects.create(username="learnerag", password="***", facility=facility)
 
-    data["all_users"] = [data["facility_admin"]] + data["classroom_coaches"] + data["facility"].get_members()
+    data["unattached_users"] = [FacilityUser.objects.create(username="orphan%d" % i, password="*", facility=facility) for i in range(3)]
+
+    data["all_users"] = data["facility"].get_members()
     data["all_collections"] = [data["facility"]] + data["classrooms"] + sum(data["learnergroups"], [])
 
     # create Roles linking users with Collections

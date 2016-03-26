@@ -8,7 +8,8 @@ from django.test import TestCase
 
 from .helpers import create_dummy_facility_data
 
-from ..models import DeviceOwner, Facility, Classroom, LearnerGroup
+from ..constants import role_kinds
+from ..models import DeviceOwner, Facility, Classroom, LearnerGroup, Role, FacilityUser
 
 
 class FacilityPermissionsTestCase(TestCase):
@@ -229,458 +230,339 @@ class LearnerGroupPermissionsTestCase(TestCase):
         self.assertTrue(self.own_learnergroup.user_can_update(self.device_owner))
         self.assertTrue(self.own_learnergroup.user_can_delete(self.device_owner))
 
-# from django.test import TestCase
-
-# from .dummy_permissions_classes import AllowAll, DenyAll, ThrowExceptions
-# from .dummy_test_models import DummyUserLogModel, DummyFacilitySettingModel
-
-# from ..models import FacilityUser, DeviceOwner, Facility
-# from ..permissions import BasePermissions
-
-# # Python3 compatibility
-# try:
-#     from itertools import izip as zip
-# except ImportError:
-#     pass
-
-
-# class FacilityUserPermissionsTestCase(TestCase):
-#     """
-#     Tests that permissions are granted/revoked as expected for FacilityUsers
-#     """
-#     def setUp(self):
-#         facility = Facility.objects.create()
-#         classrooms = [Classroom.objects.create() for _ in range(0, 2)]
-#         facility.add_classrooms(classrooms)
-#         learner_groups = [LearnerGroup.objects.create() for _ in classrooms]
-#         for c, lg in zip(classrooms, learner_groups):
-#             c.add_learner_group(lg)
-
-#         coach1, coach2 = FacilityUser.objects.create(username='coach1'), FacilityUser.objects.create(username='coach2')
-#         classrooms[0].add_coach(coach1)
-#         classrooms[1].add_coach(coach2)
-
-#         admin = FacilityUser.objects.create(username='boss_hogg')
-#         facility.add_admin(admin)
-
-#         learner1, learner2 = (FacilityUser.objects.create(username='student1'),
-#                               FacilityUser.objects.create(username='student2'))
-#         classrooms[0].learner_groups().first().add_learner(learner1)
-#         classrooms[1].learner_groups().first().add_learner(learner2)
-
-#         self.coach1, self.coach2, self.admin, self.learner1, self.learner2 = coach1, coach2, admin, learner1, learner2
-#         self.classrooms, self.learner_groups = classrooms, learner_groups
-
-#     def test_nonexistent_permissions_raises_error(self):
-#         with self.assertRaises(InvalidPermission):
-#             self.learner1.has_perm('foobar.perm')
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #       auth.add_facility       ##
-#     # noqa #                               ##
-#     # noqa ##################################
-
-#     def test_add_facility_pt1(self):
-#         """ FacilityUsers can't create new Facilities, regardless of their roles """
-#         self.assertFalse(self.admin.has_perm('auth.add_facility'))
-
-#     def test_add_facility_pt2(self):
-#         """ FacilityUsers can't create new Facilities, regardless of their roles """
-#         self.assertFalse(self.coach1.has_perm('auth.add_facility'))
-
-#     def test_add_facility_pt3(self):
-#         """ FacilityUsers can't create new Facilities, regardless of their roles """
-#         self.assertFalse(self.learner1.has_perm('auth.add_facility'))
-
-#     def test_add_facility_pt4(self):
-#         """ Raises exception if optional obj supplied """
-#         with self.assertRaises(InvalidPermission):
-#             self.assertFalse(self.learner1.has_perm('auth.add_facility', obj=[]))
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #       auth.remove_facility    ##
-#     # noqa #                               ##
-#     # noqa ##################################
-
-#     def test_remove_facility_pt1(self):
-#         """ FacilityUsers can't remove Facilities, regardless of their roles """
-#         self.assertFalse(self.admin.has_perm('auth.remove_facility'))
-
-#     def test_remove_facility_pt2(self):
-#         """ FacilityUsers can't remove Facilities, regardless of their roles """
-#         self.assertFalse(self.coach1.has_perm('auth.remove_facility'))
-
-#     def test_remove_facility_pt3(self):
-#         """ FacilityUsers can't remove Facilities, regardless of their roles """
-#         self.assertFalse(self.learner1.has_perm('auth.remove_facility'))
-
-#     def test_remove_facility_pt4(self):
-#         """ Raises exception if optional obj supplied """
-#         with self.assertRaises(InvalidPermission):
-#             self.assertFalse(self.learner1.has_perm('auth.remove_facility', obj=[]))
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #       auth.change_facility    ##
-#     # noqa #                               ##
-#     # noqa ##################################
-
-#     def test_change_facility(self):
-#         self.assertTrue(self.admin.has_perm('auth.change_facility'))
-
-#     def test_change_facility_denied_pt1(self):
-#         self.assertFalse(self.coach1.has_perm('auth.change_facility'))
 
-#     def test_change_facility_denied_pt2(self):
-#         self.assertFalse(self.learner1.has_perm('auth.change_facility'))
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #       auth.add_classroom      ##
-#     # noqa #                               ##
-#     # noqa ##################################
-
-#     def test_add_classroom_for_admin(self):
-#         self.assertTrue(self.admin.has_perm('auth.add_classroom'))
-
-#     def test_add_classroom_for_coach(self):
-#         self.assertFalse(self.coach1.has_perm('auth.add_classroom'))
-
-#     def test_add_classroom_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm('auth.add_classroom'))
-
-#     def test_add_classroom_rejects_optional_objects(self):
-#         with self.assertRaises(InvalidPermission):
-#             self.admin.has_perm('auth.add_classroom', obj={})
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #       auth.remove_classroom   ##
-#     # noqa #                               ##
-#     # noqa ##################################
-
-#     def test_remove_classroom_universal_for_admin(self):
-#         self.assertTrue(self.admin.has_perm('auth.remove_classroom'))
-
-#     def test_remove_classroom_universal_for_coach(self):
-#         self.assertFalse(self.coach1.has_perm('auth.remove_classroom'))
-
-#     def test_remove_classroom_universal_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm('auth.remove_classroom'))
-
-#     def test_remove_classroom_specific_for_admin(self):
-#         self.assertTrue(self.admin.has_perm('auth.remove_classroom', self.classrooms[0]))
-
-#     def test_remove_classroom_specific_for_coach_pt1(self):
-#         """ A Coach can remove his/her own Classroom """
-#         self.assertTrue(self.coach1.has_perm('auth.remove_classroom', self.classrooms[0]))
-
-#     def test_remove_classroom_specific_for_coach_pt2(self):
-#         """ A Coach can *not* remove another's Classroom! """
-#         self.assertFalse(self.coach1.has_perm('auth.remove_classroom', self.classrooms[1]))
-
-#     def test_remove_classroom_specific_for_learner(self):
-#         """ A Coach can *not* remove another's Classroom! """
-#         self.assertFalse(self.learner1.has_perm('auth.remove_classroom', self.classrooms[1]))
-
-#     def test_remove_classroom_optional_object_error(self):
-#         """ If you pass in an optional object to remove_classroom that's *not* a Classroom, raise an error """
-#         with self.assertRaises(InvalidPermission):
-#             self.admin.has_perm('auth.remove_classroom', {})
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #       auth.change_classroom   ##
-#     # noqa #                               ##
-#     # noqa ##################################
-
-#     def test_change_classroom_universal_for_admin(self):
-#         self.assertTrue(self.admin.has_perm('auth.change_classroom'))
-
-#     def test_change_classroom_universal_for_coach(self):
-#         self.assertFalse(self.coach2.has_perm('auth.change_classroom'))
-
-#     def test_change_classroom_universal_for_learner(self):
-#         self.assertFalse(self.learner2.has_perm('auth.change_classroom'))
-
-#     def test_change_classroom_specific_for_admin(self):
-#         self.assertTrue(self.admin.has_perm('auth.change_classroom', self.classrooms[0]))
-
-#     def test_change_classroom_specific_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm('auth.change_classroom', self.classrooms[0]))
-
-#     def test_change_classroom_specific_for_coach_pt1(self):
-#         """ Coaches can change their own Classrooms """
-#         self.assertTrue(self.coach2.has_perm('auth.change_classroom', self.classrooms[1]))
-
-#     def test_change_classroom_specific_for_coach_pt2(self):
-#         """ Coaches can *not* change another's Classroom """
-#         self.assertFalse(self.coach2.has_perm('auth.change_classroom', self.classrooms[0]))
-
-#     def test_change_classroom_optional_object_error(self):
-#         """ If you pass in an optional object to change_classroom that's *not* a Classroom, raise an error """
-#         with self.assertRaises(InvalidPermission):
-#             self.admin.has_perm('auth.change_classroom', {})
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #     auth.add_learner_group    ##
-#     # noqa #                               ##
-#     # noqa ##################################
-
-#     def test_add_learner_group_univeral_for_admin(self):
-#         self.assertTrue(self.admin.has_perm('auth.add_learner_group'))
-
-#     def test_add_learner_group_universal_for_coach(self):
-#         self.assertFalse(self.coach1.has_perm('auth.add_learner_group'))
-
-#     def test_add_learner_group_universal_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm('auth.add_learner_group'))
-
-#     def test_add_learner_group_rejects_non_classroom_objects(self):
-#         with self.assertRaises(InvalidPermission):
-#             self.admin.has_perm('auth.add_learner_group', obj={})
-
-#     def test_add_learner_group_specific_for_coach_pt1(self):
-#         """ Coach has permission for his/her own classroom """
-#         self.assertTrue(self.coach1.has_perm('auth.add_learner_group', self.classrooms[0]))
-
-#     def test_add_learner_group_specific_for_coach_pt2(self):
-#         """ But not another's classroom """
-#         self.assertFalse(self.coach1.has_perm('auth.add_learner_group', self.classrooms[1]))
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #  auth.remove_learner_group    ##
-#     # noqa #                               ##
-#     # noqa ##################################
-
-#     def test_remove_learner_group_universal_for_admin(self):
-#         self.assertTrue(self.admin.has_perm('auth.remove_learner_group'))
-
-#     def test_remove_learner_group_universal_for_coach(self):
-#         self.assertFalse(self.coach2.has_perm('auth.remove_learner_group'))
-
-#     def test_remove_learner_group_universal_for_learner(self):
-#         self.assertFalse(self.learner2.has_perm('auth.remove_learner_group'))
-
-#     def test_remove_learner_group_rejects_non_learner_group_objects(self):
-#         with self.assertRaises(InvalidPermission):
-#             self.admin.has_perm('auth.remove_learner_group', obj={})
-
-#     def test_remove_learner_group_specific_for_admin(self):
-#         self.assertTrue(self.admin.has_perm('auth.remove_learner_group', self.learner_groups[0]))
-
-#     def test_remove_learner_group_specific_for_coach_pt1(self):
-#         """ Coach can remove his/her own learner groups """
-#         self.assertTrue(self.coach1.has_perm('auth.remove_learner_group', self.learner_groups[0]))
-
-#     def test_remove_learner_group_specific_for_coach_pt2(self):
-#         """ Coach can't remove another's learner groups """
-#         self.assertFalse(self.coach1.has_perm('auth.remove_learner_group', self.learner_groups[1]))
-
-#     def test_remove_learner_group_specific_for_learner(self):
-#         self.assertFalse(self.learner2.has_perm('auth.remove_learner_group', self.learner_groups[0]))
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #  auth.change_learner_group    ##
-#     # noqa #                               ##
-#     # noqa ##################################
-
-#     def test_change_learner_group_universal_for_admin(self):
-#         self.assertTrue(self.admin.has_perm('auth.change_learner_group'))
-
-#     def test_change_learner_group_universal_for_coach(self):
-#         self.assertFalse(self.coach2.has_perm('auth.change_learner_group'))
-
-#     def test_change_learner_group_universal_for_learner(self):
-#         self.assertFalse(self.learner2.has_perm('auth.change_learner_group'))
-
-#     def test_change_learner_group_rejects_non_learner_group_objects(self):
-#         with self.assertRaises(InvalidPermission):
-#             self.admin.has_perm('auth.change_learner_group', obj={})
-
-#     def test_change_learner_group_specific_for_admin(self):
-#         self.assertTrue(self.admin.has_perm('auth.change_learner_group', self.learner_groups[0]))
-
-#     def test_change_learner_group_specific_for_coach_pt1(self):
-#         """ Coach can change his/her own learner groups """
-#         self.assertTrue(self.coach1.has_perm('auth.change_learner_group', self.learner_groups[0]))
-
-#     def test_change_learner_group_specific_for_coach_pt2(self):
-#         """ Coach can't change another's learner groups """
-#         self.assertFalse(self.coach1.has_perm('auth.change_learner_group', self.learner_groups[1]))
-
-#     def test_change_learner_group_specific_for_learner(self):
-#         self.assertFalse(self.learner2.has_perm('auth.change_learner_group', self.learner_groups[0]))
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #       auth.add_coach          ##
-#     # noqa #                               ##
-#     # noqa ##################################
-#     AUTH_ADD_COACH = 'auth.add_coach'
-
-#     def test_add_coach_universal_for_admin(self):
-#         self.assertTrue(self.admin.has_perm(self.AUTH_ADD_COACH))
-
-#     def test_add_coach_universal_for_coach(self):
-#         self.assertFalse(self.coach2.has_perm(self.AUTH_ADD_COACH))
-
-#     def test_add_coach_universal_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm(self.AUTH_ADD_COACH))
-
-#     def test_add_coach_specific_for_admin(self):
-#         self.assertTrue(self.admin.has_perm(self.AUTH_ADD_COACH, self.classrooms[0]))
-
-#     def test_add_coach_specific_for_coach_pt1(self):
-#         """ Coaches can add Coaches for their own classrooms """
-#         self.assertTrue(self.coach2.has_perm(self.AUTH_ADD_COACH, self.classrooms[1]))
-
-#     def test_add_coach_specific_for_coach_pt2(self):
-#         """ Coaches can *not* add Coaches for another's classroom """
-#         self.assertFalse(self.coach1.has_perm(self.AUTH_ADD_COACH, self.classrooms[1]))
-
-#     def test_add_coach_specific_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm(self.AUTH_ADD_COACH, self.classrooms[0]))
-
-#     def test_add_coach_rejects_non_classroom_objects(self):
-#         with self.assertRaises(InvalidPermission):
-#             self.admin.has_perm(self.AUTH_ADD_COACH, obj={})
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #       auth.remove_coach       ##
-#     # noqa #                               ##
-#     # noqa ##################################
-#     AUTH_REMOVE_COACH = 'auth.remove_coach'
-
-#     def test_remove_coach_universal_for_admin(self):
-#         self.assertTrue(self.admin.has_perm(self.AUTH_REMOVE_COACH))
-
-#     def test_remove_coach_universal_for_coach(self):
-#         self.assertFalse(self.coach2.has_perm(self.AUTH_REMOVE_COACH))
-
-#     def test_remove_coach_universal_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm(self.AUTH_REMOVE_COACH))
-
-#     def test_remove_coach_specific_for_admin(self):
-#         self.assertTrue(self.admin.has_perm(self.AUTH_REMOVE_COACH, self.classrooms[0]))
-
-#     def test_remove_coach_specific_for_coach_pt1(self):
-#         """ Coaches can remove Coaches for their own classrooms """
-#         self.assertTrue(self.coach2.has_perm(self.AUTH_REMOVE_COACH, self.classrooms[1]))
-
-#     def test_remove_coach_specific_for_coach_pt2(self):
-#         """ Coaches can *not* remove Coaches for another's classroom """
-#         self.assertFalse(self.coach1.has_perm(self.AUTH_REMOVE_COACH, self.classrooms[1]))
-
-#     def test_remove_coach_specific_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm(self.AUTH_REMOVE_COACH, self.classrooms[0]))
-
-#     def test_remove_coach_rejects_non_classroom_objects(self):
-#         with self.assertRaises(InvalidPermission):
-#             self.admin.has_perm(self.AUTH_REMOVE_COACH, obj={})
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #       auth.add_learner        ##
-#     # noqa #                               ##
-#     # noqa ##################################
-#     AUTH_ADD_LEARNER = 'auth.add_learner'
-
-#     def test_add_learner_universal_for_admin(self):
-#         self.assertTrue(self.admin.has_perm(self.AUTH_ADD_LEARNER))
-
-#     def test_add_learner_universal_for_coach(self):
-#         self.assertFalse(self.coach2.has_perm(self.AUTH_ADD_LEARNER))
-
-#     def test_add_learner_universal_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm(self.AUTH_ADD_LEARNER))
-
-#     def test_add_learner_specific_for_admin(self):
-#         self.assertTrue(self.admin.has_perm(self.AUTH_ADD_LEARNER, self.learner_groups[0]))
-
-#     def test_add_learner_specific_for_coach_pt1(self):
-#         """ Coaches can add Learners for their own LearnerGroups """
-#         self.assertTrue(self.coach2.has_perm(self.AUTH_ADD_LEARNER, self.learner_groups[1]))
-
-#     def test_add_learner_specific_for_coach_pt2(self):
-#         """ Coaches can *not* add Learners for another's LearnerGroups """
-#         self.assertFalse(self.coach1.has_perm(self.AUTH_ADD_LEARNER, self.learner_groups[1]))
-
-#     def test_add_learner_specific_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm(self.AUTH_ADD_LEARNER, self.learner_groups[0]))
-
-#     def test_add_learner_rejects_non_learner_group_objects(self):
-#         with self.assertRaises(InvalidPermission):
-#             self.admin.has_perm(self.AUTH_ADD_LEARNER, obj={})
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #       auth.remove_learner     ##
-#     # noqa #                               ##
-#     # noqa ##################################
-#     AUTH_REMOVE_LEARNER = 'auth.remove_learner'
-
-#     def test_remove_learner_universal_for_admin(self):
-#         self.assertTrue(self.admin.has_perm(self.AUTH_REMOVE_LEARNER))
-
-#     def test_remove_learner_universal_for_coach(self):
-#         self.assertFalse(self.coach2.has_perm(self.AUTH_REMOVE_LEARNER))
-
-#     def test_remove_learner_universal_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm(self.AUTH_REMOVE_LEARNER))
-
-#     def test_remove_learner_specific_for_admin(self):
-#         self.assertTrue(self.admin.has_perm(self.AUTH_REMOVE_LEARNER, self.learner_groups[0]))
-
-#     def test_remove_learner_specific_for_coach_pt1(self):
-#         """ Coaches can remove Learners for their own LearnerGroups """
-#         self.assertTrue(self.coach2.has_perm(self.AUTH_REMOVE_LEARNER, self.learner_groups[1]))
-
-#     def test_remove_learner_specific_for_coach_pt2(self):
-#         """ Coaches can *not* remove Learners for another's LearnerGroups """
-#         self.assertFalse(self.coach1.has_perm(self.AUTH_REMOVE_LEARNER, self.learner_groups[1]))
-
-#     def test_remove_learner_specific_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm(self.AUTH_REMOVE_LEARNER, self.learner_groups[0]))
-
-#     def test_remove_learner_rejects_non_classroom_objects(self):
-#         with self.assertRaises(InvalidPermission):
-#             self.admin.has_perm(self.AUTH_REMOVE_LEARNER, obj={})
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #   auth.add_facility_admin     ##
-#     # noqa #                               ##
-#     # noqa ##################################
-#     AUTH_ADD_FACILITY_ADMIN = 'auth.add_facility_admin'
-
-#     def test_add_facility_admin_for_admin(self):
-#         self.assertTrue(self.admin.has_perm(self.AUTH_ADD_FACILITY_ADMIN))
-
-#     def test_add_facility_admin_for_coach(self):
-#         self.assertFalse(self.coach2.has_perm(self.AUTH_ADD_FACILITY_ADMIN))
-
-#     def test_add_facility_admin_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm(self.AUTH_ADD_FACILITY_ADMIN))
-
-#     # noqa ##################################
-#     # noqa #                               ##
-#     # noqa #   auth.remove_facility_admin  ##
-#     # noqa #                               ##
-#     # noqa ##################################
-#     AUTH_REMOVE_FACILITY_ADMIN = 'auth.remove_facility_admin'
-
-#     def test_remove_facility_admin_for_admin(self):
-#         self.assertTrue(self.admin.has_perm(self.AUTH_REMOVE_FACILITY_ADMIN))
-
-#     def test_remove_facility_admin_for_coach(self):
-#         self.assertFalse(self.coach2.has_perm(self.AUTH_REMOVE_FACILITY_ADMIN))
-
-#     def test_remove_facility_admin_for_learner(self):
-#         self.assertFalse(self.learner1.has_perm(self.AUTH_REMOVE_FACILITY_ADMIN))
+class FacilityUserPermissionsTestCase(TestCase):
+    """
+    Tests of permissions for reading/modifying FacilityUser instances
+    """
+
+    def setUp(self):
+        self.data = create_dummy_facility_data()
+        self.data2 = create_dummy_facility_data()
+        self.member = self.data["learners_one_group"][0][0][0]
+        self.member2 = self.data2["learners_one_group"][0][0][0]
+        self.other_member = self.data["learners_one_group"][1][1][1]
+        self.own_learnergroup = self.data["learnergroups"][0][0]
+        self.own_classroom = self.data["classrooms"][0]
+        self.own_classroom_coach = self.data["classroom_coaches"][0]
+        self.own_classroom_admin = self.data["classroom_admins"][0]
+        self.other_classroom_admin = self.data["classroom_admins"][1]
+        self.device_owner = DeviceOwner.objects.create(username="boss")
+
+    def test_only_facility_admins_can_create_facility_user(self):
+        """ The only FacilityUser who can create a FacilityUser is a facility admin for the Facility """
+        unsaved_facilityuser = FacilityUser(username="janedoe", password="*", facility=self.data["facility"])
+        unsaved_facilityuser.full_clean()
+        self.assertTrue(unsaved_facilityuser.user_can_create(self.data["facilityadmin"]))
+        self.assertFalse(unsaved_facilityuser.user_can_create(self.data["facilitycoach"]))
+        self.assertFalse(unsaved_facilityuser.user_can_create(self.own_classroom_admin))
+        self.assertFalse(unsaved_facilityuser.user_can_create(self.own_classroom_coach))
+        self.assertFalse(unsaved_facilityuser.user_can_create(self.member))
+        self.assertFalse(unsaved_facilityuser.user_can_create(self.data["unattached_users"][0]))
+
+    def test_no_facility_user_can_create_facility_user_for_other_facility(self):
+        """ FacilityUsers cannot create a FacilityUser for a different Facility """
+        unsaved_facilityuser = FacilityUser(username="janedoe", password="*", facility=self.data2["facility"])
+        unsaved_facilityuser.full_clean()
+        self.assertFalse(unsaved_facilityuser.user_can_create(self.data["facilityadmin"]))
+        self.assertFalse(unsaved_facilityuser.user_can_create(self.data["facilitycoach"]))
+        self.assertFalse(unsaved_facilityuser.user_can_create(self.own_classroom_admin))
+        self.assertFalse(unsaved_facilityuser.user_can_create(self.own_classroom_coach))
+        self.assertFalse(unsaved_facilityuser.user_can_create(self.member))
+        self.assertFalse(unsaved_facilityuser.user_can_create(self.data["unattached_users"][0]))
+
+    def test_facility_user_can_read_self(self):
+        """ A FacilityUser can read its own FacilityUser model """
+        self.assertTrue(self.member.user_can_read(self.member))
+        self.assertTrue(self.own_classroom_admin.user_can_read(self.own_classroom_admin))
+        self.assertTrue(self.own_classroom_coach.user_can_read(self.own_classroom_coach))
+        self.assertTrue(self.data["facilityadmin"].user_can_read(self.data["facilityadmin"]))
+
+    def test_admins_and_coaches_can_read_facility_users(self):
+        """ Users with admin/coach role for a FacilityUser can read that FacilityUser """
+        self.assertTrue(self.member.user_can_read(self.data["facilityadmin"]))
+        self.assertTrue(self.member.user_can_read(self.data["facilitycoach"]))
+        self.assertTrue(self.member.user_can_read(self.own_classroom_admin))
+        self.assertTrue(self.member.user_can_read(self.own_classroom_coach))
+
+    def test_admins_and_coaches_for_other_classrooms_cannot_read_facility_users(self):
+        """ Users without admin/coach role for a specific FacilityUser cannot read that FacilityUser """
+        self.assertFalse(self.other_member.user_can_read(self.own_classroom_coach))
+        self.assertFalse(self.other_member.user_can_read(self.own_classroom_admin))
+
+    def test_only_facility_admins_and_coaches_can_read_unaffiliated_facility_users(self):
+        """ Only Facility admins/coaches can read FacilityUser that is not a member of a Classroom or LearnerGroup """
+        orphan = self.data["unattached_users"][0]
+        self.assertTrue(orphan.user_can_read(self.data["facilityadmin"]))
+        self.assertTrue(orphan.user_can_read(self.data["facilitycoach"]))
+        self.assertFalse(orphan.user_can_read(self.own_classroom_admin))
+        self.assertFalse(orphan.user_can_read(self.own_classroom_coach))
+        self.assertFalse(orphan.user_can_read(self.member))
+
+    def test_facility_user_can_update_self(self):
+        """ A FacilityUser can update its own FacilityUser model """
+        self.assertTrue(self.member.user_can_update(self.member))
+        self.assertTrue(self.own_classroom_coach.user_can_update(self.own_classroom_coach))
+        self.assertTrue(self.own_classroom_admin.user_can_update(self.own_classroom_admin))
+        self.assertTrue(self.data["facilityadmin"].user_can_update(self.data["facilityadmin"]))
+
+    def test_admins_but_not_coaches_can_update_facility_users(self):
+        """ Users with admin (but not coach) role for a FacilityUser can update that FacilityUser """
+        self.assertTrue(self.member.user_can_update(self.data["facilityadmin"]))
+        self.assertFalse(self.member.user_can_update(self.data["facilitycoach"]))
+        self.assertTrue(self.member.user_can_update(self.own_classroom_admin))
+        self.assertFalse(self.member.user_can_update(self.own_classroom_coach))
+
+    def test_admins_and_coaches_for_other_classrooms_cannot_update_facility_users(self):
+        """ Users without admin/coach role for a specific FacilityUser cannot update that FacilityUser """
+        self.assertFalse(self.other_member.user_can_update(self.own_classroom_coach))
+        self.assertFalse(self.other_member.user_can_update(self.own_classroom_admin))
+
+    def test_only_facility_admins_can_update_unaffiliated_facility_users(self):
+        """ Only Facility admins can update FacilityUser that is not a member of a Classroom or LearnerGroup """
+        orphan = self.data["unattached_users"][0]
+        self.assertTrue(orphan.user_can_update(self.data["facilityadmin"]))
+        self.assertFalse(orphan.user_can_update(self.data["facilitycoach"]))
+        self.assertFalse(orphan.user_can_update(self.own_classroom_admin))
+        self.assertFalse(orphan.user_can_update(self.own_classroom_coach))
+        self.assertFalse(orphan.user_can_update(self.member))
+
+    def test_facility_user_cannot_delete_self(self):
+        """ A FacilityUser cannot delete its own FacilityUser model, even for an admin/coach """
+        self.assertFalse(self.member.user_can_delete(self.member))
+        self.assertFalse(self.own_classroom_coach.user_can_delete(self.own_classroom_coach))
+        self.assertFalse(self.own_classroom_admin.user_can_delete(self.own_classroom_admin))
+        self.assertFalse(self.data["facilityadmin"].user_can_delete(self.data["facilityadmin"]))
+
+    def test_only_facility_admins_can_delete_facility_user(self):
+        """ The only FacilityUsers who can delete a FacilityUser are admins for the Facility """
+        self.assertTrue(self.member.user_can_delete(self.data["facilityadmin"]))
+        self.assertFalse(self.member.user_can_delete(self.data["facilitycoach"]))
+        self.assertFalse(self.member.user_can_delete(self.own_classroom_admin))
+        self.assertFalse(self.member.user_can_delete(self.own_classroom_coach))
+
+    def test_facility_users_cannot_delete_facility_users_from_other_facility(self):
+        """ FacilityUsers cannot delete FacilityUsers from another Facility """
+        self.assertFalse(self.member2.user_can_delete(self.data["facilityadmin"]))
+        self.assertFalse(self.member2.user_can_delete(self.data["facilitycoach"]))
+        self.assertFalse(self.member2.user_can_delete(self.own_classroom_admin))
+        self.assertFalse(self.member2.user_can_delete(self.own_classroom_coach))
+        self.assertFalse(self.member2.user_can_delete(self.member))
+
+    def test_device_owner_can_do_anything_to_a_facility_user(self):
+        """ DeviceOwner can do anything to a FacilityUser """
+        self.assertTrue(self.member.user_can_create(self.device_owner))
+        self.assertTrue(self.member.user_can_read(self.device_owner))
+        self.assertTrue(self.member.user_can_update(self.device_owner))
+        self.assertTrue(self.member.user_can_delete(self.device_owner))
+
+
+class DeviceOwnerPermissionsTestCase(TestCase):
+    """
+    Tests of permissions for reading/modifying DeviceOwner instances
+    """
+
+    def setUp(self):
+        self.data = create_dummy_facility_data()
+        self.member = self.data["learners_one_group"][0][0][0]
+        self.own_classroom_coach = self.data["classroom_coaches"][0]
+        self.own_classroom_admin = self.data["classroom_admins"][0]
+        self.device_owner = DeviceOwner.objects.create(username="boss")
+        self.device_owner2 = DeviceOwner.objects.create(username="ubermensch")
+
+    def test_non_device_owners_cannot_create_device_owner(self):
+        """ Users who are not DeviceOwners cannot create a DeviceOwner """
+        unsaved_deviceowner = DeviceOwner(username="janedoe", password="*")
+        unsaved_deviceowner.full_clean()
+        self.assertFalse(unsaved_deviceowner.user_can_create(self.data["facilityadmin"]))
+        self.assertFalse(unsaved_deviceowner.user_can_create(self.data["facilitycoach"]))
+        self.assertFalse(unsaved_deviceowner.user_can_create(self.own_classroom_admin))
+        self.assertFalse(unsaved_deviceowner.user_can_create(self.own_classroom_coach))
+        self.assertFalse(unsaved_deviceowner.user_can_create(self.member))
+        self.assertFalse(unsaved_deviceowner.user_can_create(self.data["unattached_users"][0]))
+
+    def test_non_device_owners_cannot_read_device_owner(self):
+        """ Users who are not DeviceOwners cannot read a DeviceOwner """
+        self.assertFalse(self.device_owner.user_can_read(self.data["facilityadmin"]))
+        self.assertFalse(self.device_owner.user_can_read(self.data["facilitycoach"]))
+        self.assertFalse(self.device_owner.user_can_read(self.own_classroom_admin))
+        self.assertFalse(self.device_owner.user_can_read(self.own_classroom_coach))
+        self.assertFalse(self.device_owner.user_can_read(self.member))
+        self.assertFalse(self.device_owner.user_can_read(self.data["unattached_users"][0]))
+
+    def test_non_device_owners_cannot_update_device_owner(self):
+        """ Users who are not DeviceOwners cannot update a DeviceOwner """
+        self.assertFalse(self.device_owner.user_can_update(self.data["facilityadmin"]))
+        self.assertFalse(self.device_owner.user_can_update(self.data["facilitycoach"]))
+        self.assertFalse(self.device_owner.user_can_update(self.own_classroom_admin))
+        self.assertFalse(self.device_owner.user_can_update(self.own_classroom_coach))
+        self.assertFalse(self.device_owner.user_can_update(self.member))
+        self.assertFalse(self.device_owner.user_can_update(self.data["unattached_users"][0]))
+
+    def test_non_device_owners_cannot_delete_device_owner(self):
+        """ Users who are not DeviceOwners cannot delete a DeviceOwner """
+        self.assertFalse(self.device_owner.user_can_delete(self.data["facilityadmin"]))
+        self.assertFalse(self.device_owner.user_can_delete(self.data["facilitycoach"]))
+        self.assertFalse(self.device_owner.user_can_delete(self.own_classroom_admin))
+        self.assertFalse(self.device_owner.user_can_delete(self.own_classroom_coach))
+        self.assertFalse(self.device_owner.user_can_delete(self.member))
+        self.assertFalse(self.device_owner.user_can_delete(self.data["unattached_users"][0]))
+
+    def test_device_owner_can_do_anything_to_a_device_owner(self):
+        """ DeviceOwner can do anything to a DeviceOwner, except delete itself """
+        self.assertTrue(self.device_owner2.user_can_create(self.device_owner))
+        self.assertTrue(self.device_owner2.user_can_read(self.device_owner))
+        self.assertTrue(self.device_owner2.user_can_update(self.device_owner))
+        self.assertTrue(self.device_owner2.user_can_delete(self.device_owner))
+        self.assertTrue(self.device_owner.user_can_create(self.device_owner))
+        self.assertTrue(self.device_owner.user_can_read(self.device_owner))
+        self.assertTrue(self.device_owner.user_can_update(self.device_owner))
+        self.assertFalse(self.device_owner.user_can_delete(self.device_owner))
+
+
+class RolePermissionsTestCase(TestCase):
+    """
+    Tests of permissions for reading/modifying Role instances
+    """
+
+    def setUp(self):
+        self.data = create_dummy_facility_data()
+        self.member = self.data["learners_one_group"][0][0][0]
+        self.own_classroom = self.data["classrooms"][0]
+        self.other_classroom = self.data["classrooms"][1]
+        self.own_classroom_coach = self.data["classroom_coaches"][0]
+        self.own_classroom_admin = self.data["classroom_admins"][0]
+        self.other_classroom_coach = self.data["classroom_coaches"][1]
+        self.other_classroom_admin = self.data["classroom_admins"][1]
+        self.device_owner = DeviceOwner.objects.create(username="boss")
+        self.role_user = self.data["unattached_users"][0]
+
+    def test_facility_admin_can_create_facility_admin_role(self):
+        unsaved_role = Role(user=self.role_user, collection=self.data["facility"], kind=role_kinds.ADMIN)
+        unsaved_role.full_clean()
+        self.assertTrue(unsaved_role.user_can_create(self.data["facilityadmin"]))
+        self.assertFalse(unsaved_role.user_can_create(self.data["facilitycoach"]))
+        self.assertFalse(unsaved_role.user_can_create(self.own_classroom_admin))
+        self.assertFalse(unsaved_role.user_can_create(self.own_classroom_coach))
+        self.assertFalse(unsaved_role.user_can_create(self.member))
+        self.assertFalse(unsaved_role.user_can_create(self.role_user))
+        self.assertTrue(unsaved_role.user_can_create(self.device_owner))
+
+    def test_facility_admin_can_create_facility_coach_role(self):
+        unsaved_role = Role(user=self.role_user, collection=self.data["facility"], kind=role_kinds.COACH)
+        unsaved_role.full_clean()
+        self.assertTrue(unsaved_role.user_can_create(self.data["facilityadmin"]))
+        self.assertFalse(unsaved_role.user_can_create(self.data["facilitycoach"]))
+        self.assertFalse(unsaved_role.user_can_create(self.own_classroom_admin))
+        self.assertFalse(unsaved_role.user_can_create(self.own_classroom_coach))
+        self.assertFalse(unsaved_role.user_can_create(self.member))
+        self.assertFalse(unsaved_role.user_can_create(self.role_user))
+        self.assertTrue(unsaved_role.user_can_create(self.device_owner))
+
+    def test_facility_or_classroom_admin_can_create_classroom_admin_role(self):
+        unsaved_role = Role(user=self.role_user, collection=self.own_classroom, kind=role_kinds.ADMIN)
+        unsaved_role.full_clean()
+        self.assertTrue(unsaved_role.user_can_create(self.data["facilityadmin"]))
+        self.assertFalse(unsaved_role.user_can_create(self.data["facilitycoach"]))
+        self.assertTrue(unsaved_role.user_can_create(self.own_classroom_admin))
+        self.assertFalse(unsaved_role.user_can_create(self.own_classroom_coach))
+        self.assertFalse(unsaved_role.user_can_create(self.other_classroom_admin))
+        self.assertFalse(unsaved_role.user_can_create(self.other_classroom_coach))
+        self.assertFalse(unsaved_role.user_can_create(self.member))
+        self.assertFalse(unsaved_role.user_can_create(self.role_user))
+        self.assertTrue(unsaved_role.user_can_create(self.device_owner))
+
+    def test_facility_or_classroom_admin_can_create_classroom_coach_role(self):
+        unsaved_role = Role(user=self.role_user, collection=self.own_classroom, kind=role_kinds.COACH)
+        unsaved_role.full_clean()
+        self.assertTrue(unsaved_role.user_can_create(self.data["facilityadmin"]))
+        self.assertFalse(unsaved_role.user_can_create(self.data["facilitycoach"]))
+        self.assertTrue(unsaved_role.user_can_create(self.own_classroom_admin))
+        self.assertFalse(unsaved_role.user_can_create(self.own_classroom_coach))
+        self.assertFalse(unsaved_role.user_can_create(self.other_classroom_admin))
+        self.assertFalse(unsaved_role.user_can_create(self.other_classroom_coach))
+        self.assertFalse(unsaved_role.user_can_create(self.member))
+        self.assertFalse(unsaved_role.user_can_create(self.role_user))
+        self.assertTrue(unsaved_role.user_can_create(self.device_owner))
+
+    def test_facility_admin_or_coach_can_read_facility_admin_role(self):
+        role = Role.objects.create(user=self.role_user, collection=self.data["facility"], kind=role_kinds.ADMIN)
+        self.assertTrue(role.user_can_read(self.data["facilityadmin"]))
+        self.assertTrue(role.user_can_read(self.data["facilitycoach"]))
+        self.assertFalse(role.user_can_read(self.own_classroom_admin))
+        self.assertFalse(role.user_can_read(self.own_classroom_coach))
+        self.assertFalse(role.user_can_read(self.other_classroom_admin))
+        self.assertFalse(role.user_can_read(self.other_classroom_coach))
+        self.assertFalse(role.user_can_read(self.member))
+        self.assertTrue(role.user_can_read(self.role_user))
+        self.assertTrue(role.user_can_read(self.device_owner))
+
+    def test_facility_or_classroom_admin_or_coach_can_read_classroom_admin_role(self):
+        role = Role.objects.create(user=self.role_user, collection=self.own_classroom, kind=role_kinds.ADMIN)
+        self.assertTrue(role.user_can_read(self.data["facilityadmin"]))
+        self.assertTrue(role.user_can_read(self.data["facilitycoach"]))
+        self.assertTrue(role.user_can_read(self.own_classroom_admin))
+        self.assertTrue(role.user_can_read(self.own_classroom_coach))
+        self.assertFalse(role.user_can_read(self.other_classroom_admin))
+        self.assertFalse(role.user_can_read(self.other_classroom_coach))
+        self.assertFalse(role.user_can_read(self.member))
+        self.assertTrue(role.user_can_read(self.role_user))
+        self.assertTrue(role.user_can_read(self.device_owner))
+
+    def test_nobody_can_update_role(self):
+        # None of the fields in a role are "mutable", so there's no reason to allow updates
+        # (changing a role from one kind to another means deleting the existing role and creating another)
+        role = Role.objects.create(user=self.role_user, collection=self.own_classroom, kind=role_kinds.COACH)
+        self.assertFalse(role.user_can_update(self.data["facilityadmin"]))
+        self.assertFalse(role.user_can_update(self.data["facilitycoach"]))
+        self.assertFalse(role.user_can_update(self.own_classroom_admin))
+        self.assertFalse(role.user_can_update(self.own_classroom_coach))
+        self.assertFalse(role.user_can_update(self.other_classroom_admin))
+        self.assertFalse(role.user_can_update(self.other_classroom_coach))
+        self.assertFalse(role.user_can_update(self.member))
+        self.assertFalse(role.user_can_update(self.role_user))
+        self.assertFalse(role.user_can_update(self.device_owner))
+
+    def test_facility_admin_can_delete_facility_admin_role(self):
+        role = Role.objects.create(user=self.role_user, collection=self.data["facility"], kind=role_kinds.ADMIN)
+        self.assertTrue.user_can_delete(self.data["facilityadmin"])
+        self.assertFalse(role.user_can_delete(self.data["facilitycoach"]))
+        self.assertFalse(role.user_can_delete(self.own_classroom_admin))
+        self.assertFalse(role.user_can_delete(self.own_classroom_coach))
+        self.assertFalse(role.user_can_delete(self.member))
+        self.assertTrue(role.user_can_delete(self.role_user))
+        self.assertTrue(role.user_can_delete(self.device_owner))
+
+    def test_facility_admin_can_delete_facility_coach_role(self):
+        role = Role.objects.create(user=self.role_user, collection=self.data["facility"], kind=role_kinds.COACH)
+        self.assertTrue(role.user_can_delete(self.data["facilityadmin"]))
+        self.assertFalse(role.user_can_delete(self.data["facilitycoach"]))
+        self.assertFalse(role.user_can_delete(self.own_classroom_admin))
+        self.assertFalse(role.user_can_delete(self.own_classroom_coach))
+        self.assertFalse(role.user_can_delete(self.member))
+        self.assertTrue(role.user_can_delete(self.role_user))
+        self.assertTrue(role.user_can_delete(self.device_owner))
+
+    def test_facility_or_classroom_admin_can_delete_classroom_admin_role(self):
+        role = Role.objects.create(user=self.role_user, collection=self.own_classroom, kind=role_kinds.ADMIN)
+        self.assertTrue(role.user_can_delete(self.data["facilityadmin"]))
+        self.assertFalse(role.user_can_delete(self.data["facilitycoach"]))
+        self.assertTrue(role.user_can_delete(self.own_classroom_admin))
+        self.assertFalse(role.user_can_delete(self.own_classroom_coach))
+        self.assertFalse(role.user_can_delete(self.other_classroom_admin))
+        self.assertFalse(role.user_can_delete(self.other_classroom_coach))
+        self.assertFalse(role.user_can_delete(self.member))
+        self.assertTrue(role.user_can_delete(self.role_user))
+        self.assertTrue(role.user_can_delete(self.device_owner))
+
+    def test_facility_or_classroom_admin_can_delete_classroom_coach_role(self):
+        role = Role.objects.create(user=self.role_user, collection=self.own_classroom, kind=role_kinds.COACH)
+        self.assertTrue(role.user_can_delete(self.data["facilityadmin"]))
+        self.assertFalse(role.user_can_delete(self.data["facilitycoach"]))
+        self.assertTrue(role.user_can_delete(self.own_classroom_admin))
+        self.assertFalse(role.user_can_delete(self.own_classroom_coach))
+        self.assertFalse(role.user_can_delete(self.other_classroom_admin))
+        self.assertFalse(role.user_can_delete(self.other_classroom_coach))
+        self.assertFalse(role.user_can_delete(self.member))
+        self.assertTrue(role.user_can_delete(self.role_user))
+        self.assertTrue(role.user_can_delete(self.device_owner))
