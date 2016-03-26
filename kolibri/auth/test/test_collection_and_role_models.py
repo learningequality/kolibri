@@ -22,34 +22,45 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
 
         self.facility = Facility.objects.create()
 
-        user1, user2, user3 = self.user1, self.user2, self.user3 = (
+        learner, classroom_coach, facility_admin = self.learner, self.classroom_coach, self.facility_admin = (
             FacilityUser.objects.create(username='foo', facility=self.facility),
             FacilityUser.objects.create(username='bar', facility=self.facility),
             FacilityUser.objects.create(username='baz', facility=self.facility),
         )
 
-        self.facility.add_admin(user3)
+        self.facility.add_admin(facility_admin)
 
         self.cr = Classroom.objects.create(parent=self.facility)
-        self.cr.add_coach(user2)
+        self.cr.add_coach(classroom_coach)
 
         self.lg = LearnerGroup.objects.create(parent=self.cr)
-        self.lg.add_learner(user1)
+        self.lg.add_learner(learner)
 
     def test_remove_learner(self):
-        self.assertEqual(Membership.objects.filter(user=self.user1, collection=self.lg).count(), 1)
-        self.lg.remove_learner(self.user1)
-        self.assertEqual(Membership.objects.filter(user=self.user1, collection=self.lg).count(), 0)
+        self.assertEqual(Membership.objects.filter(user=self.learner, collection=self.lg).count(), 1)
+        self.assertTrue(self.lg.remove_learner(self.learner))
+        self.assertEqual(Membership.objects.filter(user=self.learner, collection=self.lg).count(), 0)
+        self.assertFalse(self.lg.remove_learner(self.learner))  # if it doesn't exist, removal returns False
 
     def test_remove_coach(self):
-        self.assertEqual(Role.objects.filter(user=self.user2, kind=role_kinds.COACH, collection=self.cr).count(), 1)
-        self.cr.remove_coach(self.user2)
-        self.assertEqual(Role.objects.filter(user=self.user2, kind=role_kinds.COACH, collection=self.cr).count(), 0)
+        self.assertEqual(Role.objects.filter(user=self.classroom_coach, kind=role_kinds.COACH, collection=self.cr).count(), 1)
+        self.assertTrue(self.cr.remove_coach(self.classroom_coach))
+        self.assertEqual(Role.objects.filter(user=self.classroom_coach, kind=role_kinds.COACH, collection=self.cr).count(), 0)
+        self.assertFalse(self.cr.remove_coach(self.classroom_coach))  # if it doesn't exist, removal returns False
 
     def test_remove_admin(self):
-        self.assertEqual(Role.objects.filter(user=self.user3, kind=role_kinds.ADMIN, collection=self.facility).count(), 1)
-        self.facility.remove_admin(self.user3)
-        self.assertEqual(Role.objects.filter(user=self.user3, kind=role_kinds.ADMIN, collection=self.facility).count(), 0)
+        self.assertEqual(Role.objects.filter(user=self.facility_admin, kind=role_kinds.ADMIN, collection=self.facility).count(), 1)
+        self.assertTrue(self.facility.remove_admin(self.facility_admin))
+        self.assertEqual(Role.objects.filter(user=self.facility_admin, kind=role_kinds.ADMIN, collection=self.facility).count(), 0)
+        self.assertFalse(self.facility.remove_admin(self.facility_admin))  # if it doesn't exist, removal returns False
+
+    def test_remove_nonexistent_role(self):
+        self.assertFalse(self.facility.remove_admin(self.learner))
+        self.assertFalse(self.cr.remove_coach(self.learner))
+
+    def test_remove_indirect_admin_role(self):
+        """ Trying to remove the admin role for a a Facility admin from a descendent classroom doesn't actually remove anything. """
+        self.assertFalse(self.cr.remove_admin(self.facility_admin))
 
     def test_delete_learner_group(self):
         """ Deleting a LearnerGroup should delete its associated Memberships as well """
@@ -88,9 +99,9 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
         self.assertEqual(Role.objects.count(), 0)
 
     def test_delete_facility_user(self):
-        """ Deleting a FacilityUser should delete associated Roles """
-        membership = Membership.objects.get(user=self.user1)
-        self.user1.delete()
+        """ Deleting a FacilityUser should delete associated Memberships """
+        membership = Membership.objects.get(user=self.learner)
+        self.learner.delete()
         self.assertEqual(Membership.objects.filter(id=membership.id).count(), 0)
 
 
@@ -135,8 +146,8 @@ class CollectionsTestCase(TestCase):
         self.facility.add_admin(user)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.ADMIN, collection=self.classroom).count(), 1)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.ADMIN, collection=self.facility).count(), 1)
-        self.classroom.remove_admin(user)
-        self.facility.remove_admin(user)
+        self.assertTrue(self.classroom.remove_admin(user))
+        self.assertTrue(self.facility.remove_admin(user))
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.ADMIN, collection=self.classroom).count(), 0)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.ADMIN, collection=self.facility).count(), 0)
 
@@ -146,8 +157,8 @@ class CollectionsTestCase(TestCase):
         self.facility.add_coach(user)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.COACH, collection=self.classroom).count(), 1)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.COACH, collection=self.facility).count(), 1)
-        self.classroom.remove_coach(user)
-        self.facility.remove_coach(user)
+        self.assertTrue(self.classroom.remove_coach(user))
+        self.assertTrue(self.facility.remove_coach(user))
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.COACH, collection=self.classroom).count(), 0)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.COACH, collection=self.facility).count(), 0)
 

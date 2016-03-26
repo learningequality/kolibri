@@ -217,7 +217,7 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
             "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
 
         # ensure the provided user is a FacilityUser
-        assert isinstance(user, FacilityUser), "Only FacilityUsers can be associted with a collection."
+        assert isinstance(user, FacilityUser), "Only FacilityUsers can be associated with a collection."
 
         # create the necessary role, if it doesn't already exist
         role, created = Role.objects.get_or_create(user=user, collection=self, kind=role_kind)
@@ -230,6 +230,7 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
 
         :param user: The FacilityUser to dissociate from this Collection (for the specific role kind).
         :param role_kind: The kind of role to remove from the user with respect to this Collection.
+        :return: True if a Role was removed, False if there was no matching Role to remove.
         """
 
         # ensure the specified role kind is valid
@@ -237,10 +238,13 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
             "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
 
         # ensure the provided user is a FacilityUser
-        assert isinstance(user, FacilityUser), "Only FacilityUsers can be associted with a collection."
+        assert isinstance(user, FacilityUser), "Only FacilityUsers can be associated with a collection."
 
         # delete the appropriate role, if it exists
-        Role.objects.filter(user=user, collection=self, kind=role_kind).delete()
+        results = Role.objects.filter(user=user, collection=self, kind=role_kind).delete()
+
+        # return True if and only if a Role was deleted
+        return results[0] > 0
 
     def add_member(self, user):
         """
@@ -264,13 +268,17 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         Remove any Membership objects associating the provided user with this collection.
 
         :param user: The FacilityUser to remove from this Collection.
+        :return: True if a Membership was removed, False if there was no matching Membership to remove.
         """
 
         # ensure the provided user is a FacilityUser
         assert isinstance(user, FacilityUser), "Only FacilityUsers can be removed from a collection."
 
         # delete the appropriate membership, if it exists
-        Membership.objects.filter(user=user, collection=self).delete()
+        results = Membership.objects.filter(user=user, collection=self).delete()
+
+        # return True if and only if a Membership was deleted
+        return results[0] > 0
 
     def infer_dataset(self):
         if self.parent:
@@ -370,7 +378,7 @@ class Facility(Collection):
         return [self.add_admin(user) for user in users]
 
     def remove_admin(self, user):
-        self.remove_role(user, role_kinds.ADMIN)
+        return self.remove_role(user, role_kinds.ADMIN)
 
     def add_coach(self, user):
         return self.add_role(user, role_kinds.COACH)
@@ -379,7 +387,7 @@ class Facility(Collection):
         return [self.add_coach(user) for user in users]
 
     def remove_coach(self, user):
-        self.remove_role(user, role_kinds.COACH)
+        return self.remove_role(user, role_kinds.COACH)
 
 
 class Classroom(Collection):
@@ -419,7 +427,7 @@ class Classroom(Collection):
         return [self.add_admin(user) for user in users]
 
     def remove_admin(self, user):
-        self.remove_role(user, role_kinds.ADMIN)
+        return self.remove_role(user, role_kinds.ADMIN)
 
     def add_coach(self, user):
         return self.add_role(user, role_kinds.COACH)
@@ -428,7 +436,7 @@ class Classroom(Collection):
         return [self.add_coach(user) for user in users]
 
     def remove_coach(self, user):
-        self.remove_role(user, role_kinds.COACH)
+        return self.remove_role(user, role_kinds.COACH)
 
 
 class LearnerGroup(Collection):
@@ -460,4 +468,4 @@ class LearnerGroup(Collection):
         return [self.add_learner(user) for user in users]
 
     def remove_learner(self, user):
-        self.remove_member(user)
+        return self.remove_member(user)
