@@ -2,14 +2,14 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.test import TestCase
 
-from .dummy_permissions_classes import AllowAll, DenyAll, ThrowExceptions
+from .dummy_permissions_classes import ThrowExceptions
 from .dummy_test_models import DummyUserLogModel, DummyFacilitySettingModel
 
 from ..models import FacilityUser, DeviceOwner, Facility
-from ..permissions import BasePermissions
+from ..base_permissions import BasePermissions, AllowAll, DenyAll
 
 
-class BasePermissionsDenyAllTestCase(TestCase):
+class BasePermissionsThrowExceptionsTestCase(TestCase):
 
     def setUp(self):
         self.facility = Facility.objects.create()
@@ -19,20 +19,28 @@ class BasePermissionsDenyAllTestCase(TestCase):
         self.permissions = BasePermissions()
 
     def test_user_cannot_create(self):
-        self.assertFalse(self.permissions.user_can_create_object(self.facility_user, self.object))
-        self.assertFalse(self.permissions.user_can_create_object(self.device_owner, self.object))
+        with self.assertRaises(NotImplementedError):
+            self.assertFalse(self.permissions.user_can_create_object(self.facility_user, self.object))
+        with self.assertRaises(NotImplementedError):
+            self.assertFalse(self.permissions.user_can_create_object(self.device_owner, self.object))
 
     def test_user_cannot_read(self):
-        self.assertFalse(self.permissions.user_can_read_object(self.facility_user, self.object))
-        self.assertFalse(self.permissions.user_can_read_object(self.device_owner, self.object))
+        with self.assertRaises(NotImplementedError):
+            self.assertFalse(self.permissions.user_can_read_object(self.facility_user, self.object))
+        with self.assertRaises(NotImplementedError):
+            self.assertFalse(self.permissions.user_can_read_object(self.device_owner, self.object))
 
     def test_user_cannot_update(self):
-        self.assertFalse(self.permissions.user_can_update_object(self.facility_user, self.object))
-        self.assertFalse(self.permissions.user_can_update_object(self.device_owner, self.object))
+        with self.assertRaises(NotImplementedError):
+            self.assertFalse(self.permissions.user_can_update_object(self.facility_user, self.object))
+        with self.assertRaises(NotImplementedError):
+            self.assertFalse(self.permissions.user_can_update_object(self.device_owner, self.object))
 
     def test_user_cannot_delete(self):
-        self.assertFalse(self.permissions.user_can_delete_object(self.facility_user, self.object))
-        self.assertFalse(self.permissions.user_can_delete_object(self.device_owner, self.object))
+        with self.assertRaises(NotImplementedError):
+            self.assertFalse(self.permissions.user_can_delete_object(self.facility_user, self.object))
+        with self.assertRaises(NotImplementedError):
+            self.assertFalse(self.permissions.user_can_delete_object(self.device_owner, self.object))
 
 
 class TestBooleanOperationsOnPermissionClassesTestCase(TestCase):

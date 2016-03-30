@@ -4,17 +4,16 @@ The models in this file are defined for purposes of testing
 
 from django.db import models
 
-from ..constants import role_kinds
+from ..constants.role_kinds import ADMIN, COACH
 from ..models import FacilityUser, Facility, AbstractFacilityDataModel
-from ..permissions import PermitBasedOnRoleForUser, PermitBasedOnRoleForCollection, AssociatedUserCanReadWrite, \
-    UsersFromSameFacilityCanRead, apply_permissions
+from ..base_permissions import RoleBasedPermissions, IsOwn, IsFromSameFacility, apply_permissions
 
 @apply_permissions(  # make user log read-writeable by admins and user associated with log, and readable by coaches
-    AssociatedUserCanReadWrite(field="user") |
-    PermitBasedOnRoleForUser(
+    IsOwn() |
+    RoleBasedPermissions(
         target_field="user",
-        can_read=[role_kinds.ADMIN, role_kinds.COACH],
-        can_write=[role_kinds.ADMIN],
+        can_be_read_by=[ADMIN, COACH],
+        can_be_written_by=[ADMIN],
     )
 )
 class DummyUserLogModel(AbstractFacilityDataModel):
@@ -25,11 +24,11 @@ class DummyUserLogModel(AbstractFacilityDataModel):
 
 
 @apply_permissions(  # make facility settings readable by anyone from facility, and read-writeable by admins
-    UsersFromSameFacilityCanRead() |
-    PermitBasedOnRoleForCollection(
+    IsFromSameFacility(read_only=True) |
+    RoleBasedPermissions(
         target_field="facility",
-        can_read=[role_kinds.ADMIN],
-        can_write=[role_kinds.ADMIN],
+        can_be_read_by=[ADMIN],
+        can_be_written_by=[ADMIN],
     )
 )
 class DummyFacilitySettingModel(AbstractFacilityDataModel):
