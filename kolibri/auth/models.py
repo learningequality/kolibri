@@ -28,6 +28,12 @@ from kolibri.core.errors import KolibriValidationError
 from mptt.models import MPTTModel, TreeForeignKey
 
 from .constants import collection_kinds, role_kinds
+from .errors import (
+    InvalidRoleKind, UserDoesNotHaveRoleError,
+    UserHasRoleOnlyIndirectlyThroughHierarchyError,
+    UserIsMemberOnlyIndirectlyThroughHierarchyError, UserIsNotFacilityUser,
+    UserIsNotMemberError
+)
 
 
 class FacilityDataset(models.Model):
@@ -213,11 +219,12 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         """
 
         # ensure the specified role kind is valid
-        assert role_kind in (kind[0] for kind in role_kinds.choices), \
-            "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
+        if role_kind not in (kind[0] for kind in role_kinds.choices):
+            raise InvalidRoleKind("'{role_kind}' is not a valid role kind.".format(role_kind=role_kind))
 
         # ensure the provided user is a FacilityUser
-        assert isinstance(user, FacilityUser), "Only FacilityUsers can be associated with a collection."
+        if not isinstance(user, FacilityUser):
+            raise UserIsNotFacilityUser("You can only add roles for FacilityUsers.")
 
         # create the necessary role, if it doesn't already exist
         role, created = Role.objects.get_or_create(user=user, collection=self, kind=role_kind)
@@ -234,17 +241,24 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         """
 
         # ensure the specified role kind is valid
-        assert role_kind in (kind[0] for kind in role_kinds.choices), \
-            "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
+        if role_kind not in (kind[0] for kind in role_kinds.choices):
+            raise InvalidRoleKind("'{role_kind}' is not a valid role kind.".format(role_kind=role_kind))
 
         # ensure the provided user is a FacilityUser
-        assert isinstance(user, FacilityUser), "Only FacilityUsers can be associated with a collection."
+        if not isinstance(user, FacilityUser):
+            raise UserIsNotFacilityUser("You can only remove roles for FacilityUsers.")
+
+        # make sure the user has the role to begin with
+        if not user.has_role_for(self):
+            raise UserDoesNotHaveRoleError("User does not have this role for this collection.")
 
         # delete the appropriate role, if it exists
         results = Role.objects.filter(user=user, collection=self, kind=role_kind).delete()
 
-        # return True if and only if a Role was deleted
-        return results[0] > 0
+        # if no Roles were deleted, the user's role must have been indirect (via the collection hierarchy)
+        if results[0] == 0:
+            raise UserHasRoleOnlyIndirectlyThroughHierarchyError(
+                "Role cannot be removed, as user has it only indirectly, through the collection hierarchy.")
 
     def add_member(self, user):
         """
@@ -256,7 +270,8 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         """
 
         # ensure the provided user is a FacilityUser
-        assert isinstance(user, FacilityUser), "Only FacilityUsers can be members of a collection."
+        if not isinstance(user, FacilityUser):
+            raise UserIsNotFacilityUser("You can only add memberships for FacilityUsers.")
 
         # create the necessary membership, if it doesn't already exist
         membership, created = Membership.objects.get_or_create(user=user, collection=self)
@@ -272,13 +287,19 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         """
 
         # ensure the provided user is a FacilityUser
-        assert isinstance(user, FacilityUser), "Only FacilityUsers can be removed from a collection."
+        if not isinstance(user, FacilityUser):
+            raise UserIsNotFacilityUser("You can only remove memberships for FacilityUsers.")
+
+        if not self.is_member(user):
+            raise UserIsNotMemberError("The user is not a member of the collection, and cannot be removed.")
 
         # delete the appropriate membership, if it exists
         results = Membership.objects.filter(user=user, collection=self).delete()
 
-        # return True if and only if a Membership was deleted
-        return results[0] > 0
+        # if no Memberships were deleted, the user's membership must have been indirect (via the collection hierarchy)
+        if results[0] == 0:
+            raise UserIsMemberOnlyIndirectlyThroughHierarchyError(
+                "Membership cannot be removed, as user is a member only indirectly, through the collection hierarchy.")
 
     def infer_dataset(self):
         if self.parent:

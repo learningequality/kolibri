@@ -10,6 +10,8 @@ from django.test import TestCase
 
 from ..constants import role_kinds
 from ..models import FacilityUser, Facility, Classroom, LearnerGroup, Role, Membership, Collection, DeviceOwner
+from ..errors import UserDoesNotHaveRoleError, UserHasRoleOnlyIndirectlyThroughHierarchyError, UserIsNotFacilityUser, \
+    UserIsMemberOnlyIndirectlyThroughHierarchyError, InvalidRoleKind
 
 
 class CollectionRoleMembershipDeletionTestCase(TestCase):
@@ -36,31 +38,48 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
         self.lg = LearnerGroup.objects.create(parent=self.cr)
         self.lg.add_learner(learner)
 
+        self.device_owner = DeviceOwner.objects.create(username="blah", password="*")
+
     def test_remove_learner(self):
         self.assertEqual(Membership.objects.filter(user=self.learner, collection=self.lg).count(), 1)
-        self.assertTrue(self.lg.remove_learner(self.learner))
+        self.lg.remove_learner(self.learner)
         self.assertEqual(Membership.objects.filter(user=self.learner, collection=self.lg).count(), 0)
-        self.assertFalse(self.lg.remove_learner(self.learner))  # if it doesn't exist, removal returns False
+        with self.assertRaises(UserDoesNotHaveRoleError):
+            self.lg.remove_learner(self.learner)
 
     def test_remove_coach(self):
         self.assertEqual(Role.objects.filter(user=self.classroom_coach, kind=role_kinds.COACH, collection=self.cr).count(), 1)
-        self.assertTrue(self.cr.remove_coach(self.classroom_coach))
+        self.cr.remove_coach(self.classroom_coach)
         self.assertEqual(Role.objects.filter(user=self.classroom_coach, kind=role_kinds.COACH, collection=self.cr).count(), 0)
-        self.assertFalse(self.cr.remove_coach(self.classroom_coach))  # if it doesn't exist, removal returns False
+        with self.assertRaises(UserDoesNotHaveRoleError):
+            self.cr.remove_coach(self.classroom_coach)
 
     def test_remove_admin(self):
         self.assertEqual(Role.objects.filter(user=self.facility_admin, kind=role_kinds.ADMIN, collection=self.facility).count(), 1)
-        self.assertTrue(self.facility.remove_admin(self.facility_admin))
+        self.facility.remove_admin(self.facility_admin)
         self.assertEqual(Role.objects.filter(user=self.facility_admin, kind=role_kinds.ADMIN, collection=self.facility).count(), 0)
-        self.assertFalse(self.facility.remove_admin(self.facility_admin))  # if it doesn't exist, removal returns False
+        with self.assertRaises(UserDoesNotHaveRoleError):
+            self.facility.remove_admin(self.facility_admin)
 
     def test_remove_nonexistent_role(self):
-        self.assertFalse(self.facility.remove_admin(self.learner))
-        self.assertFalse(self.cr.remove_coach(self.learner))
+        with self.assertRaises(UserDoesNotHaveRoleError):
+            self.facility.remove_admin(self.learner)
+        with self.assertRaises(UserDoesNotHaveRoleError):
+            self.cr.remove_coach(self.learner)
 
     def test_remove_indirect_admin_role(self):
         """ Trying to remove the admin role for a a Facility admin from a descendent classroom doesn't actually remove anything. """
-        self.assertFalse(self.cr.remove_admin(self.facility_admin))
+        with self.assertRaises(UserHasRoleOnlyIndirectlyThroughHierarchyError):
+            self.cr.remove_admin(self.facility_admin)
+
+    def test_remove_indirect_membership(self):
+        """ Trying to remove a learner's membership from a classroom doesn't actually remove anything. """
+        with self.assertRaises(UserIsMemberOnlyIndirectlyThroughHierarchyError):
+            self.cr.remove_member(self.learner)
+
+    def test_remove_device_owner_role(self):
+        with self.assertRaises(UserIsNotFacilityUser):
+            self.cr.remove_admin(self.device_owner)
 
     def test_delete_learner_group(self):
         """ Deleting a LearnerGroup should delete its associated Memberships as well """
@@ -231,8 +250,8 @@ class RoleTestCase(TestCase):
         self.facility_user = FacilityUser.objects.create(username="blah", password="#", facility=self.facility)
         self.device_owner = DeviceOwner.objects.create(username="blooh", password="#")
 
-    def test_invalid_role_type(self):
-        with self.assertRaises(AssertionError):
+    def test_invalid_role_kind(self):
+        with self.assertRaises(InvalidRoleKind):
             self.learner_group.add_role(self.facility_user, "blahblahnonexistentroletype")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(InvalidRoleKind):
             self.learner_group.remove_role(self.facility_user, "blahblahnonexistentroletype")
