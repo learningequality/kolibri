@@ -12,7 +12,7 @@ def create_dummy_facility_data(classroom_count=2, learnergroup_count=2):
 
     :param int classroom_count: (optional), the number of classrooms to create in the facility (defaults to 2)
     :param int classroom_count: (optional), the number of learner groups to create in each classroom (defaults to 2)
-    :returns: total number of errors if strict is True, otherwise 0
+    :returns: a dictionary of objects (users, collections, etc) for a dummy facility
     :rtype: dict
     """
 
