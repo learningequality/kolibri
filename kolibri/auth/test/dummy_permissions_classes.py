@@ -1,4 +1,4 @@
-from ..base_permissions import BasePermissions
+from ..permissions.base import BasePermissions
 
 
 class ThrowExceptions(BasePermissions):

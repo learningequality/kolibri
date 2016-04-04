@@ -44,13 +44,13 @@ class RolesWithinFacilityTestCase(TestCase):
 
     def test_coach_has_coach_role_for_learner_from_own_classroom(self):
         coach0 = self.data["classroom_coaches"][0]
-        learner0 = self.data["learners_one_group"][0][0][0]
+        learner0 = self.data["learners_one_group"][0][0]
         self.assertTrue(coach0.has_role_for(role_kinds.COACH, learner0))
         self.assertIn(role_kinds.COACH, coach0.get_roles_for(learner0))
 
     def test_coach_has_no_coach_role_for_learner_from_other_classroom(self):
         coach0 = self.data["classroom_coaches"][0]
-        learner1 = self.data["learners_one_group"][1][0][0]
+        learner1 = self.data["learners_one_group"][1][0]
         self.assertFalse(coach0.has_role_for(role_kinds.COACH, learner1))
         self.assertNotIn(role_kinds.COACH, coach0.get_roles_for(learner1))
 
@@ -69,7 +69,7 @@ class RolesAcrossFacilitiesTestCase(TestCase):
                 self.assertEqual(len(user1.get_roles_for(user2)), 0)
 
     def test_no_roles_for_collections_across_facilities(self):
-        users1 = self.data1["classroom_coaches"] + [self.data1["facility_admin"]] + self.data1["facility"].get_members()
+        users1 = self.data1["classroom_coaches"] + [self.data1["facility_admin"]] + list(self.data1["facility"].get_members())
         collections2 = [self.data2["facility"]] + self.data2["classrooms"] + flatten(self.data2["learnergroups"])
         for user1 in users1:
             for collection2 in collections2:
@@ -87,7 +87,7 @@ class MembershipWithinFacilityTestCase(TestCase):
                                  [self.data["facility_coach"]] + self.data["classroom_admins"] +
                                  self.data["classroom_coaches"])
         returned_members = self.data["facility"].get_members()
-        self.assertSetEqual(actual_members, returned_members)
+        self.assertSetEqual(set(actual_members), set(returned_members))
         for user in actual_members:
             self.assertTrue(self.data["facility"].is_member(user))
 
@@ -95,7 +95,7 @@ class MembershipWithinFacilityTestCase(TestCase):
         for i, classroom in enumerate(self.data["classrooms"]):
             actual_members = flatten(self.data["learners_one_group"][i] + [self.data["learner_all_groups"]])
             returned_members = classroom.get_members()
-            self.assertSetEqual(actual_members, returned_members)
+            self.assertSetEqual(set(actual_members), set(returned_members))
             # ensure that `is_member` is True for all users in the classroom
             for user in actual_members:
                 self.assertTrue(classroom.is_member(user))
@@ -107,9 +107,9 @@ class MembershipWithinFacilityTestCase(TestCase):
         for i, classroom_users in enumerate(self.data["learners_one_group"]):
             for j, learnergroup_users in enumerate(classroom_users):
                 learnergroup = self.data["learnergroups"][i][j]
-                actual_members = self.data["learners_one_group"][i][j] + [self.data["learner_all_groups"]]
+                actual_members = [self.data["learners_one_group"][i][j]] + [self.data["learner_all_groups"]]
                 returned_members = learnergroup.get_members()
-                self.assertSetEqual(actual_members, returned_members)
+                self.assertSetEqual(set(actual_members), set(returned_members))
                 # ensure that `is_member` is True for all users in the learnergroup
                 for user in actual_members:
                     self.assertTrue(learnergroup.is_member(user))

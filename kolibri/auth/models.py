@@ -20,6 +20,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.contrib.auth.models import AbstractBaseUser
 from django.core import validators
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
@@ -37,6 +38,7 @@ from .errors import (
     UserIsNotMemberError
 )
 from .filters import HierarchyRelationsFilter
+from .permissions.base import BasePermissions
 
 
 class FacilityDataset(models.Model):
@@ -134,15 +136,13 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     last_name = models.CharField(_('last name'), max_length=60, blank=True)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now, editable=False)
 
-    def is_device_owner(self):
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `is_device_owner` method.")
-
     def get_full_name(self):
         return (self.first_name + " " + self.last_name).strip()
 
     def get_short_name(self):
         return self.first_name
 
+<<<<<<< HEAD
     def is_member_of(self, coll):
         """
         Determine whether this user is a member of the specified collection.
@@ -196,12 +196,80 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :rtype: bool
         """
         raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `has_role_for_collection` method.")
+=======
+    def can_create_instance(self, obj):
+        """
+        Checks whether this user (self) has permission to create a particular model instance (obj).
+
+        This method should be overridden by classes that inherit from KolibriAbstractBaseUser.
+
+        In general, unless an instance has already been initialized, this method should not be called directly;
+        instead, it should be preferred to call `can_create`.
+
+        :param obj: An (unsaved) instance of a Django model, to check permissions for.
+        :return: True if this user should have permission to create the object, otherwise False.
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_create_instance` method.")
+
+    def can_create(self, Model, data):
+        """
+        Checks whether this user (self) has permission to create an instance of Model with the specified attributes (data).
+
+        This method defers to the `can_create_instance` method, and in most cases should not itself be overridden.
+
+        :param Model: A subclass of django.db.models.Model
+        :param data: A dict of data to be used in creating an instance of the Model
+        :return: True if this user should have permission to create an instance of Model with the specified data, else False.
+        """
+        try:
+            instance = Model(**data)
+            instance.full_clean()
+        except TypeError:
+            return False  # if the data provided does not fit the Model, don't continue checking
+        except ValidationError:
+            return False  # if the data does not validate, don't continue checking
+        # now that we have an instance, defer to the permission-checking method that works with instances
+        return self.can_create_instance(instance)
+
+    def can_read(self, obj):
+        """
+        Checks whether this user (self) has permission to read a particular model instance (obj).
+
+        This method should be overridden by classes that inherit from KolibriAbstractBaseUser.
+
+        :param obj: An instance of a Django model, to check permissions for.
+        :return: True if this user should have permission to read the object, otherwise False.
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_read` method.")
+
+    def can_update(self, obj):
+        """
+        Checks whether this user (self) has permission to update a particular model instance (obj).
+
+        This method should be overridden by classes that inherit from KolibriAbstractBaseUser.
+
+        :param obj: An instance of a Django model, to check permissions for.
+        :return: True if this user should have permission to update the object, otherwise False.
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_update` method.")
+
+    def can_delete(self, obj):
+        """
+        Checks whether this user (self) has permission to delete a particular model instance (obj).
+
+        This method should be overridden by classes that inherit from KolibriAbstractBaseUser.
+
+        :param obj: An instance of a Django model, to check permissions for.
+        :return: True if this user should have permission to delete the object, otherwise False.
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_delete` method.")
+>>>>>>> Updates to class-based permissions interface as requested in #51 review.
 
 
 class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
     FacilityUsers are the fundamental object of the auth app. They represent the main users, and can be associated
-    with a hierarchy of Collections through Roles, which then serve to determine permissions.
+    with a hierarchy of Collections through Memberships and Roles, which then serve to determine permissions.
     """
 
     facility = models.ForeignKey("Facility")
@@ -216,6 +284,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     def infer_dataset(self):
         return self.facility.dataset
 
+<<<<<<< HEAD
     def is_member_of(self, coll):
         if self.dataset_id != coll.dataset_id:
             return False
@@ -267,6 +336,38 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             role_kind=kinds,
             descendant_collection=coll,
         ).filter(user=self).exists()
+=======
+    def _has_permissions_class(self, obj):
+        return hasattr(obj, "permissions") and isinstance(obj.permissions, BasePermissions)
+
+    def can_create_instance(self, obj):
+        # a FacilityUser's permissions are determined through the object's permission class
+        if self._has_permissions_class(obj):
+            return obj.permissions.user_can_create_object(self, obj)
+        else:
+            return False
+
+    def can_read(self, obj):
+        # a FacilityUser's permissions are determined through the object's permission class
+        if self._has_permissions_class(obj):
+            return obj.permissions.user_can_read_object(self, obj)
+        else:
+            return False
+
+    def can_update(self, obj):
+        # a FacilityUser's permissions are determined through the object's permission class
+        if self._has_permissions_class(obj):
+            return obj.permissions.user_can_update_object(self, obj)
+        else:
+            return False
+
+    def can_delete(self, obj):
+        # a FacilityUser's permissions are determined through the object's permission class
+        if self._has_permissions_class(obj):
+            return obj.permissions.user_can_delete_object(self, obj)
+        else:
+            return False
+>>>>>>> Updates to class-based permissions interface as requested in #51 review.
 
 
 class DeviceOwner(KolibriAbstractBaseUser):
@@ -278,12 +379,15 @@ class DeviceOwner(KolibriAbstractBaseUser):
     Actions not relating to user data but specifically to a device -- like upgrading Kolibri, changing whether the
     device is a Classroom Server or Classroom Client, or determining manually which data should be synced -- must be
     performed by a DeviceOwner.
+
+    A DeviceOwner is a superuser, and has full access to do anything she wants with data on the device.
     """
 
     # DeviceOwners can access the Django admin interface
     is_staff = True
     is_superuser = True
 
+<<<<<<< HEAD
     def is_member_of(self, coll):
         return False  # a DeviceOwner is not a member of any Collection
 
@@ -302,6 +406,23 @@ class DeviceOwner(KolibriAbstractBaseUser):
         if isinstance(kinds, string_types):
             kinds = [kinds]
         return role_kinds.ADMIN in kinds  # a DeviceOwner has admin role for all collections on the device
+=======
+    def can_create_instance(self, obj):
+        # DeviceOwners are superusers, and can do anything
+        return True
+
+    def can_read(self, obj):
+        # DeviceOwners are superusers, and can do anything
+        return True
+
+    def can_update(self, obj):
+        # DeviceOwners are superusers, and can do anything
+        return True
+
+    def can_delete(self, obj):
+        # DeviceOwners are superusers, and can do anything
+        return True
+>>>>>>> Updates to class-based permissions interface as requested in #51 review.
 
 
 class Collection(MPTTModel, AbstractFacilityDataModel):
@@ -518,6 +639,9 @@ class Facility(Collection):
         :return: A Classroom QuerySet.
         """
         return Classroom.objects.filter(parent=self)
+
+    def get_members(self):
+        return FacilityUser.objects.filter(dataset=self.dataset)
 
     def add_admin(self, user):
         return self.add_role(user, role_kinds.ADMIN)

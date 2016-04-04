@@ -3,11 +3,12 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.test import TestCase
 
 from .dummy_permissions_classes import ThrowExceptions
+from .helpers import create_dummy_facility_data
 from .dummy_test_models import DummyUserLogModel, DummyFacilitySettingModel
 
 from ..models import FacilityUser, DeviceOwner, Facility
-from ..base_permissions import BasePermissions, AllowAll, DenyAll
-
+from ..permissions.base import BasePermissions
+from ..permissions.general import AllowAll, DenyAll
 
 class BasePermissionsThrowExceptionsTestCase(TestCase):
 
@@ -46,23 +47,26 @@ class BasePermissionsThrowExceptionsTestCase(TestCase):
 class TestBooleanOperationsOnPermissionClassesTestCase(TestCase):
 
     def setUp(self):
+        self.facility = Facility.objects.create()
         self.obj = object()
-        self.user = FacilityUser.objects.create(username='dummyuser')
+        self.user = FacilityUser.objects.create(username='dummyuser', facility=self.facility)
         self.queryset = FacilityUser.objects.all()
 
-    def assertAllowAll(self, perms):
+    def assertAllowAll(self, perms, test_filtering=True):
         self.assertTrue(perms.user_can_create_object(self.user, self.obj))
         self.assertTrue(perms.user_can_read_object(self.user, self.obj))
         self.assertTrue(perms.user_can_update_object(self.user, self.obj))
         self.assertTrue(perms.user_can_delete_object(self.user, self.obj))
-        self.assertSetEqual(self.queryset, perms.readable_by_user_filter(self.user, self.queryset))
+        if test_filtering:
+            self.assertSetEqual(set(self.queryset), set(perms.readable_by_user_filter(self.user, self.queryset)))
 
-    def assertDenyAll(self, perms):
-        self.assertTrue(perms.user_can_create_object(self.user, self.obj))
-        self.assertTrue(perms.user_can_read_object(self.user, self.obj))
-        self.assertTrue(perms.user_can_update_object(self.user, self.obj))
-        self.assertTrue(perms.user_can_delete_object(self.user, self.obj))
-        self.assertEqual(len(perms.readable_by_user_filter(self.user, self.queryset)), 0)
+    def assertDenyAll(self, perms, test_filtering=True):
+        self.assertFalse(perms.user_can_create_object(self.user, self.obj))
+        self.assertFalse(perms.user_can_read_object(self.user, self.obj))
+        self.assertFalse(perms.user_can_update_object(self.user, self.obj))
+        self.assertFalse(perms.user_can_delete_object(self.user, self.obj))
+        if test_filtering:
+            self.assertEqual(len(perms.readable_by_user_filter(self.user, self.queryset)), 0)
 
     def test_allow_or_allow(self):
         self.assertAllowAll(AllowAll() | AllowAll())
@@ -89,10 +93,10 @@ class TestBooleanOperationsOnPermissionClassesTestCase(TestCase):
         self.assertDenyAll(DenyAll() & DenyAll())
 
     def test_or_is_shortcircuited_for_efficiency(self):
-        self.assertAllowAll(AllowAll() | ThrowExceptions())
+        self.assertAllowAll(AllowAll() | ThrowExceptions(), test_filtering=False)
 
     def test_and_is_shortcircuited_for_efficiency(self):
-        self.assertDenyAll(DenyAll() & ThrowExceptions())
+        self.assertDenyAll(DenyAll() & ThrowExceptions(), test_filtering=False)
 
     def test_or_is_not_shortcircuited_inappropriately(self):
         with self.assertRaises(Exception):
@@ -107,16 +111,16 @@ class DummyDataMixin(object):
 
     def setUp(self):
 
-        self.data1 = self.create_dummy_facility_data()
-        self.learner1 = self.data1["learners_one_group"][0][0][0]
-        self.learner1other = self.data1["learners_one_group"][0][0][1]
-        self.admin1 = self.data1["facilityadmin"]
+        self.data1 = create_dummy_facility_data()
+        self.learner1 = self.data1["learners_one_group"][0][0]
+        self.learner1other = self.data1["learners_one_group"][0][1]
+        self.admin1 = self.data1["facility_admin"]
         self.coach1 = self.data1["coaches"][0]
         self.coach1other = self.data1["coaches"][1]
 
-        self.data2 = self.create_dummy_facility_data()
-        self.learner2 = self.data2["learners_one_group"][0][0][0]
-        self.admin2 = self.data2["facilityadmin"]
+        self.data2 = create_dummy_facility_data()
+        self.learner2 = self.data2["learners_one_group"][0][0]
+        self.admin2 = self.data2["facility_admin"]
         self.coach2 = self.data2["coaches"][0]
 
         self.device_owner = DeviceOwner.objects.create(username="blooh", password="#")
