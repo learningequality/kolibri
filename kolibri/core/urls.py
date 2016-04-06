@@ -11,6 +11,6 @@ from . import views
 app_name = 'kolibri'
 
 urlpatterns = [
-    url('^', views.IndexView.as_view(), name='index'),
-    url('component_demo', ComponentDemoView.as_view(), name='component_demo'),
+    url('^component_demo$', ComponentDemoView.as_view(), name='component_demo'),
+    url('^$', views.IndexView.as_view(), name='index'),
 ]
