@@ -15,9 +15,13 @@ var Backbone = require('backbone');
  * @constructor
  */
 var Plugin = function (options) {
+    // __plugin_name is replaced during webpack compilation with the name derived from the Python module name
+    // and the name of the class that defines the frontend plugin.
     this.name = __plugin_name;
     _.extend(this, _.pick(options, this.plugin_options));
+    // Pass all arguments to the constructor directly to initialize for easy access.
     this.initialize.apply(this, arguments);
+    // Register the plugin with the Kolibri core app.
     this._register_plugin();
 };
 

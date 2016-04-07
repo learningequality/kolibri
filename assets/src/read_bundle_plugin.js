@@ -22,10 +22,12 @@ var parseBundlePlugin = require('./parse_bundle_plugin');
  * plugins as an external library.
  */
 var readBundlePlugin = function(plugin_file, base_dir) {
+    // Takes a module file path and turns it into a Python module path.
     var plugin = path.relative(base_dir, plugin_file).replace(".py", "").replace(new RegExp("\\" + path.sep, 'g'), ".");
     var bundles = [];
     var externals = {};
 
+    // Run the script below to extract the relevant information about the plugin configuration from the Python code.
     var result = execSync("python kolibri/utils/webpack_config_export.py " + plugin).toString();
 
     if (result.length > 0) {
@@ -34,12 +36,17 @@ var readBundlePlugin = function(plugin_file, base_dir) {
 
         for (var i = 0; i < results.length; i++) {
             var message = results[i];
+            // The above script prints JSON to stdout, here we parse that JSON and use it as input to our webpack
+            // configuration builder module, parseBundlePlugin.
             if (message.replace(/ /g, "") !== "") {
                 message = JSON.parse(message);
                 var output = parseBundlePlugin(message, base_dir);
                 if (typeof output !== "undefined") {
+                    // The first part of the output is the Webpack configuration for that Kolibri plugin.
                     bundles.push(output[0]);
                     if (typeof externals[output[1]] === "undefined") {
+                        // The second part of the output is any global variables that will be available to all other
+                        // plugins. For the moment, this is only the Kolibri global variable.
                         externals[output[1]] = output[1];
                     } else {
                         logging.warn("Two plugins setting with same external flag " + output[1] + " in plugin file: " + plugin_file);
@@ -51,6 +58,7 @@ var readBundlePlugin = function(plugin_file, base_dir) {
     if (bundles.length > 0) {
         for (var k = 0; k < bundles.length; k++) {
             for (var j = 0; j < bundles.length; j++) {
+                // We want to prevent the same bundle being built twice, so enforce that here by checking no duplicates.
                 if (k !== j) {
                     // Only one key per object here, so just get the first key
                     if (Object.keys(bundles[k].entry)[0] === Object.keys(bundles[j].entry)[0]) {

@@ -45,19 +45,25 @@ Plugin.prototype.apply = function(compiler) {
          * event has been fired), requires the Kolibri core app, and then loads the plugin, which automatically registers
          * itself against the Kolibri core app upon initialization.
          */
+        // Get the base_dir for the Kolibri project.
         var base_dir = c.compilation.compiler.context;
+        // Get the output path where files in this compilation are being written to.
         var output_path = c.compilation.compiler.outputPath;
 
+        // In order to be able to instantiate frontend code within a node.js environment, create a dummy DOM.
         var document = jsdom();
 
         var window = document.defaultView;
 
         global.document = window.document;
 
+        // Import the Kolibri core app so that we can run the plugin that is being built and have it register itself.
         global[self.kolibri_var_name] = require(path.join(base_dir, self.kolibri_path));
 
         for (var key in c.compilation.assets) {
+            // Require the plugin - this will then auto register itself against the above instance of the Kolibri core.
             var plugin = require(path.join(base_dir, output_path, key));
+            // Read off the two event objects from the plugin so that we can record them in a separate file.
             var events = (global[self.kolibri_var_name].plugins[self.plugin_name] || {}).events || {};
             var once = (global[self.kolibri_var_name].plugins[self.plugin_name] || {}).once || {};
             self.writeOutput(events, once);
@@ -73,6 +79,7 @@ Plugin.prototype.apply = function(compiler) {
  * the once object (describing all one time firing events) with mappings to the plugin methods that they call.
  */Plugin.prototype.writeOutput = function(events, once) {
     mkdirp.sync(path.dirname(this.async_file));
+    // Write a file that contains the event objects so that we know when to asynchronously load the plugin if needed.
     fs.writeFileSync(this.async_file, JSON.stringify({once: once, events: events}));
 };
 

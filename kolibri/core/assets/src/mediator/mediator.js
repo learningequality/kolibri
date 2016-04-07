@@ -51,11 +51,18 @@ var Mediator = function() {
  */
 Mediator.prototype.register_plugin_sync = function(plugin) {
 
+    // Register all events that will be called repeatedly.
     this._register_multiple_events(plugin);
+    // Register all events that are listened to once and then unbound.
     this._register_one_time_events(plugin);
 
+    // Create an entry in the plugin registry.
     this._plugin_registry[plugin.name] = plugin;
+
+    // Clear any previously bound asynchronous callbacks for this plugin.
     this._clear_async_callbacks(plugin);
+
+    // Execute any callbacks that were called before the plugin had loaded, in the order that they happened.
     this._execute_callback_buffer(plugin);
     logging.info('Plugin: ' + plugin.name + ' registered');
     this.trigger('kolibri_register', plugin);
@@ -73,6 +80,7 @@ Mediator.prototype.register_plugin_sync = function(plugin) {
 Mediator.prototype._register_events = function(plugin, events_key, event_listener_method) {
     var events;
     event_listener_method = _.bind(event_listener_method, this);
+    // Prevent undefined errors, allow events hash to be either an object or a function.
     if (typeof plugin[events_key] === 'undefined') {
         events = {};
     } else if (typeof plugin[events_key] === 'function') {
@@ -135,6 +143,7 @@ Mediator.prototype._register_one_time_event_listener = function(event, plugin, m
  * @private
  */
 Mediator.prototype._register_event_listener = function(event, plugin, method, listen_method) {
+    // Create a function that calls the plugin method, while setting 'this' to the plugin itself.
     var callback = function() {plugin[method].apply(plugin, arguments);};
     if (typeof this._callback_registry[plugin.name] === 'undefined') {
         this._callback_registry[plugin.name] = {};
@@ -142,6 +151,7 @@ Mediator.prototype._register_event_listener = function(event, plugin, method, li
     if (typeof this._callback_registry[plugin.name][event] === 'undefined') {
         this._callback_registry[plugin.name][event] = {};
     }
+    // Keep track of this function to allow easy unbinding later.
     this._callback_registry[plugin.name][event][method] = callback;
     listen_method.apply(this._event_dispatcher, [this._event_dispatcher, event, callback]);
 };
@@ -153,6 +163,7 @@ Mediator.prototype._register_event_listener = function(event, plugin, method, li
  * @param {string} method - the name of the method of the Plugin object.
  */
 Mediator.prototype.stop_listening = function(event, plugin, method) {
+    // Allow an event to be unlistened to.
     var callback = ((this._callback_registry[plugin.name] || {})[event] || {})[method];
     if (typeof callback !== 'undefined') {
         this._event_dispatcher.stopListening(this._event_dispatcher, event, callback);
@@ -169,6 +180,7 @@ Mediator.prototype.stop_listening = function(event, plugin, method) {
 Mediator.prototype._execute_callback_buffer = function(plugin) {
     if (typeof this._callback_buffer[plugin.name] !== 'undefined') {
         _.forEach(this._callback_buffer[plugin.name], function(buffer) {
+            // Do this to ensure proper 'this'ness.
             plugin[buffer.method].apply(plugin, buffer.args);
         });
         delete this._callback_buffer[plugin.name];
@@ -185,7 +197,10 @@ Mediator.prototype._execute_callback_buffer = function(plugin) {
  */
 Mediator.prototype.register_plugin_async = function(plugin_name, plugin_urls, events, once) {
     var self = this;
+    // Create a buffer for events that are fired before a plugin has loaded. Keep track of the method and the
+    // arguments passed to the callback.
     var callback_buffer = this._callback_buffer[plugin_name] = [];
+    // Look at all events, whether listened to once or multiple times.
     var event_array = _.toPairs(events).concat(_.toPairs(once));
     if (typeof this._async_callback_registry[plugin_name] === 'undefined') {
         this._async_callback_registry[plugin_name] = [];
@@ -193,12 +208,17 @@ Mediator.prototype.register_plugin_async = function(plugin_name, plugin_urls, ev
     _.forEach(event_array, function(tuple) {
         var key = tuple[0];
         var value = tuple[1];
+        // Create a callback function that will push objects to the callback buffer, and also trigger loading of the
+        // the frontend assets that the plugin needs, should an event it is listening for be triggered.
         var callback = function() {
+            // First check that the plugin hasn't already been loaded.
             if (typeof self._plugin_registry[plugin_name] === 'undefined') {
+                // Add the details about the event callback to the buffer.
                 callback_buffer.push({
                     args: arguments,
                     method: value
                 });
+                // Call the asset loader to load all the plugin files.
                 asset_loader([plugin_urls], function(err, notFound) {
                     if (err) {
                         _.forEach(notFound, function (file) {
@@ -208,7 +228,9 @@ Mediator.prototype.register_plugin_async = function(plugin_name, plugin_urls, ev
                 });
             }
         };
+        // Listen to the event and call the above function
         self._event_dispatcher.listenTo(self._event_dispatcher, key, callback);
+        // Keep track of all these functions for easy cleanup after the plugin has been loaded.
         self._async_callback_registry[plugin_name].push({
             event: key,
             callback: callback

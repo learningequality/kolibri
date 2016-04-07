@@ -30,6 +30,8 @@ var _ = require('lodash');
 var parseBundlePlugin = function(data, base_dir) {
     var bundle_data = {};
     var external;
+    // Start from a base configuration file that defines common features of the webpack configuration for all Kolibri
+    // plugins (including the core app).
     var bundle = _.clone(base_config);
     var library;
     if ((typeof data.entry_file !== "undefined") &&
@@ -39,6 +41,8 @@ var parseBundlePlugin = function(data, base_dir) {
         (typeof data.async_file !== "undefined")) {
         bundle_data[data.name] = path.join(data.module_path, data.entry_file);
         if (typeof data.external !== "undefined" && data.external) {
+            // If we want to create a plugin that can be directly referenced by other plugins, this sets it to be
+            // instantiated as a global variable. Only currently used by the Kolibri core app.
             external = data.name;
             // change the periods of the Python module path name to underscores, so that it is a valid JS variable name.
             library = data.core ? 'Kolibri' : data.name.replace(/\./g, "_");
@@ -51,10 +55,14 @@ var parseBundlePlugin = function(data, base_dir) {
 
         bundle.resolve.root = base_dir;
         bundle.plugins = bundle.plugins.concat([
+            // BundleTracker creates stats about our built files which we can then pass to Django to allow our template
+            // tags to load the correct frontend files.
             new BundleTracker({
                 path: path.dirname(data.stats_file),
                 filename: path.basename(data.stats_file)
             }),
+            // Plugins know their own name, by having a variable that we define here, based on the name they are given
+            // in kolibri_plugins.py inside their relevant module.
             new webpack.DefinePlugin({__plugin_name: JSON.stringify(data.name)})
         ]);
         _.extend(bundle, {

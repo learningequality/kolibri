@@ -8,6 +8,7 @@ var colors = require('colors');
 
 /**
  * Log a message in a particular colour.
+ * N.B. This is only for command line output, not in the browser.
  * @param {string} msg - The msg to log.
  * @param {Object} color - A function that maps the colour of the string for output.
  */

@@ -68,6 +68,14 @@ Adjust according to your operating system or personal preferences.
     $ pre-commit install
 
 
+To build frontend assets for production use the following::
+
+    $ npm run build
+
+To build frontend assets in development mode with sourcemaps and watching::
+
+    $ npm run watch
+
 Testing
 -------
 
@@ -94,14 +102,6 @@ This includes tests of the bundling functions that are used in creating front en
 To do continuous unit testing for code, and jshint running::
 
     $ npm run ci
-
-To build frontend assets for production use the following::
-
-    $ npm run build
-
-To build frontend assets in development mode with sourcemaps and watching::
-
-    $ npm run watch
 
 
 Current Features
