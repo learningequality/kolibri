@@ -63,7 +63,7 @@ var parseBundlePlugin = function(data, base_dir) {
             }),
             // Plugins know their own name, by having a variable that we define here, based on the name they are given
             // in kolibri_plugins.py inside their relevant module.
-            new webpack.DefinePlugin({__plugin_name: JSON.stringify(data.name)})
+            new webpack.DefinePlugin({__kolibri_module_name: JSON.stringify(data.name)})
         ]);
         _.extend(bundle, {
             core: data.core,

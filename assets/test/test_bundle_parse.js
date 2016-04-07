@@ -385,7 +385,7 @@ describe('EventExport', function() {
             try {
                 output = require(path);
             } catch (Error) {
-                output = {plugins: {}};
+                output = {kolibri_modules: {}};
             }
             return output;
         });
@@ -397,7 +397,7 @@ describe('EventExport', function() {
                 entry: {kolibri: 'kolibri'},
                 name: 'kolibri'
             },
-            plugin_name: 'test',
+            kolibri_module_name: 'test',
             async_file: 'test_async.json'
         });
     });

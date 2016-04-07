@@ -24,7 +24,7 @@ var mkdirp = require('mkdirp');
 function Plugin(options) {
     this.externals = options.externals || {};
     this.kolibri = options.kolibri || {};
-    this.plugin_name = options.plugin_name || '';
+    this.kolibri_module_name = options.kolibri_module_name || '';
     this.async_file = options.async_file || '';
     this.kolibri_var_name = this.externals.kolibri;
     this.kolibri_path = this.kolibri.entry[this.kolibri.name];
@@ -64,8 +64,8 @@ Plugin.prototype.apply = function(compiler) {
             // Require the plugin - this will then auto register itself against the above instance of the Kolibri core.
             var plugin = require(path.join(base_dir, output_path, key));
             // Read off the two event objects from the plugin so that we can record them in a separate file.
-            var events = (global[self.kolibri_var_name].plugins[self.plugin_name] || {}).events || {};
-            var once = (global[self.kolibri_var_name].plugins[self.plugin_name] || {}).once || {};
+            var events = (global[self.kolibri_var_name].kolibri_modules[self.kolibri_module_name] || {}).events || {};
+            var once = (global[self.kolibri_var_name].kolibri_modules[self.kolibri_module_name] || {}).once || {};
             self.writeOutput(events, once);
         }
     });

@@ -91,11 +91,11 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
     must implement, in order for them to be part of the webpack asset loading pipeline.
     Minimally these must implement the following properties and methods:
 
-    The name of the frontend plugin.
-    name = "example_plugin"
+    The name of the frontend module that this plugin defines.
+    name = "example_module"
 
     The path to the Javascript file that defines the plugin/acts as the entry point.
-    entry_file = "assets/js/example_plugin.js"
+    entry_file = "assets/js/example_module.js"
 
     This hook will register the frontend plugin to be available for rendering its built files into Django templates.
     def hooks(self):

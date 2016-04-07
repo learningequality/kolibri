@@ -53,7 +53,7 @@ var recurseBundlePlugins = function(directories, base_dir, libs) {
         var result = readBundlePlugin(file, base_dir);
         bundles = bundles.concat(result[0]);
         for (var key in result[1]) {
-            // Double check that no plugins set the same external flag (we don't want two different plugins trying
+            // Double check that no modules set the same external flag (we don't want two different modules trying
             // to occupy the same global variable name.
             if (typeof externals[key] === "undefined") {
                 externals[key] = result[1][key];
@@ -75,13 +75,13 @@ var recurseBundlePlugins = function(directories, base_dir, libs) {
         if (bundle.core === null) {
             // If this is not the core bundle, then we need to add the external library mappings.
             bundle.externals = _.extend({}, externals, lib_externals);
-            // For every Kolibri plugin (everything but the core app), we create a special output of the event bindings
-            // that the plugin listens to - this allows us to determine when we should load the plugin code when
+            // For every Kolibri module (everything but the core app), we create a special output of the event bindings
+            // that the module listens to - this allows us to determine when we should load the module code when
             // it is included asynchronously, see event_export.js for details on this implementation.
             bundle.plugins.push(new EventExport({
                 externals: lib_externals,
                 kolibri: core_bundle,
-                plugin_name: bundle.name,
+                kolibri_module_name: bundle.name,
                 async_file: bundle.async_file
             }));
         } else {

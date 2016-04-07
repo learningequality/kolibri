@@ -77,7 +77,7 @@ def render_as_async(bundle):
     chunks = get_webpack_bundle(bundle, None)
     async_events = get_async_events(bundle)
     urls = [render_as_url(chunk) for chunk in chunks]
-    js = 'Kolibri.register_plugin_async("{bundle}", ["{urls}"], {events}, {once});'.format(
+    js = 'Kolibri.register_kolibri_module_async("{bundle}", ["{urls}"], {events}, {once});'.format(
         bundle=bundle,
         urls='","'.join(urls),
         events=json.dumps(async_events.get('events')),

@@ -3,15 +3,20 @@ Frontend Code
 
 The behavior of much of Kolibri's user interface is defined by Javascript code.
 
+There are two distinct entities that control this behaviour - a Kolibri Plugin on the Python side, which manages the
+registration of the frontend code within Django (and also facilitates building of that code into compiled assets with
+Webpack) and a Kolibri Module - which is the Javascript object that wraps and manages the behaviour for a relatively
+independent piece of frontend code.
+
 Layout of Frontend Code
 -----------------------
 
 All frontend files (Javascript, Stylus, images, templates) should be committed in the relevant 'assets/src' folder of the
-app/plugin they are associated with.
+app/Kolibri module they are associated with.
 
 Kolibri uses a Component based file structure for organizing frontend assets in the 'assets/src' folder.
 
-As such for a particular component of a frontend plugin, would appear in the assets/src folder like this::
+As such for a particular component of a frontend Kolibri module, would appear in the assets/src folder like this::
 
     /src/
         search/
@@ -24,11 +29,11 @@ As such for a particular component of a frontend plugin, would appear in the ass
              search_list_item.handlebars
              search_bg.png
              search.styl
-        content_search_plugin.js
+        content_search_module.js
 
-As can be seen above, plugins are defined in the root directory of the 'assets/src' folder. These are then referenced
-in the `kolibri_plugin.py` file in the base directory of the plugin. The plugin is defined by subclassing the
-``KolibriFrontEndPluginBase`` class to define each frontend plugin.
+As can be seen above, Kolibri modules are defined in the root directory of the 'assets/src' folder. These are then
+referenced in the `kolibri_plugin.py` file in the base directory of the Kolibri plugin. The plugin is defined by
+subclassing the ``KolibriFrontEndPluginBase`` class to define each frontend Kolibri module.
 
 .. automodule:: kolibri.plugins.example_plugin.kolibri_plugin
     :members: KolibriExampleFrontEnd
@@ -37,12 +42,13 @@ in the `kolibri_plugin.py` file in the base directory of the plugin. The plugin 
 Writing Frontend Plugins
 ------------------------
 
-All Frontend Plugins should extend the Plugin class found in `kolibri/plugins/assets/src/plugin_base/plugin_base.js`.
+All Frontend Plugins should extend the KolibriModule class found in
+`kolibri/plugins/assets/src/kolibri_module/kolibri_module.js`.
 For convenience this can be referenced in a module with the following syntax::
 
-    var Plugin = require('plugin_base');
+    var KolibriModule = require('kolibri_module');
 
-    var ExamplePlugin = Plugin.extend({
+    var ExampleModule = KolibriModule.extend({
 
         events: {
             'something_happened': 'hello_world'
@@ -61,9 +67,10 @@ For convenience this can be referenced in a module with the following syntax::
         }
     });
 
-As can be seen above the plugin can be defined with with an events hash which will define events that the plugin will
-be registered to listen to by the Kolibri core app (this will be events fired either by the core app itself, or by
-other plugins). The once property can define a hash that will be listened to once, but then unbound once it has fired.
+As can be seen above the Kolibri module can be defined with with an events hash which will define events that the
+Kolibri module will be registered to listen to by the Kolibri core app (this will be events fired either by the core app
+itself, or by other Kolibri modules). The once property can define a hash that will be listened to once, but then
+unbound once it has fired.
 
 Frontend Tech Stack
 -------------------

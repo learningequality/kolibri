@@ -13,8 +13,8 @@ var _ = require('lodash');
  * @type {string[]}
  */
 var public_methods = [
-    'register_plugin_async',
-    'register_plugin_sync',
+    'register_kolibri_module_async',
+    'register_kolibri_module_sync',
     'stop_listening',
     'trigger'
 ];
@@ -39,7 +39,7 @@ var Kolibri = function() {
 
     // Bind 'this' value for public methods - those that will be exposed in the Facade.
     _.bindAll(mediator, public_methods);
-    this.plugins = mediator._plugin_registry;
+    this.kolibri_modules = mediator._kolibri_module_registry;
     _.extend(this, _.pick(mediator, public_methods));
 };
 

@@ -4,9 +4,9 @@ var _ = require('lodash');
 var logging = require('loglevel');
 
 // This is aliased for your convenience!
-var Plugin = require('plugin_base');
+var KolibriModule = require('kolibri_module');
 
-var ExamplePlugin = Plugin.extend({
+var ExampleModule = KolibriModule.extend({
 
     events: {
         'something_happened': 'hello_world'
@@ -19,6 +19,6 @@ var ExamplePlugin = Plugin.extend({
     }
 });
 
-var examplePlugin = new ExamplePlugin();
+var exampleModule = new ExampleModule();
 
-module.exports = examplePlugin;
+module.exports = exampleModule;
