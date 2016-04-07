@@ -121,6 +121,19 @@ describe('Mediator', function() {
             });
         });
     });
+    describe('_register_events method', function() {
+        it('should not throw a TypeError due to incorrect assignment of this when the event_listener_method is called', function() {
+            var self = this;
+            assert.doesNotThrow(function () {
+                self.mediator._register_events({
+                    name: 'test',
+                    events: {
+                        event: 'method'
+                    }
+                }, 'events', self.mediator._register_repeated_event_listener);
+            }, TypeError);
+        });
+    });
     describe('_register_multiple_events method',function() {
         beforeEach(function() {
             this._register_repeated_event_listener = sinon.stub(this.mediator, '_register_repeated_event_listener');
@@ -269,20 +282,28 @@ describe('Mediator', function() {
     });
     describe('_register_one_time_event_listener method', function() {
         beforeEach(function() {
-            this.stub = sinon.stub(this.mediator, '_register_event_listener');
             this.event = 'event';
             this.plugin = {name: 'test'};
             this.method = 'method';
-            this.mediator._register_one_time_event_listener(this.event, this.plugin, this.method);
         });
         afterEach(function() {
             this.stub.restore();
         });
         it('should call _register_event_listener method', function() {
+            this.stub = sinon.stub(this.mediator, '_register_event_listener');
+            this.mediator._register_one_time_event_listener(this.event, this.plugin, this.method);
             assert(this.stub.called);
         });
         it('should pass three args to _register_event_listener method', function() {
+            this.stub = sinon.stub(this.mediator, '_register_event_listener');
+            this.mediator._register_one_time_event_listener(this.event, this.plugin, this.method);
             assert(this.stub.calledWith(this.event, this.plugin, this.method));
+        });
+        it('should properly invoke the listenToOnce with this set to the Mediator event object', function() {
+            var self = this;
+            assert.doesNotThrow(function() {
+                self.mediator._register_one_time_event_listener(self.event, self.plugin, self.method);
+            });
         });
     });
     describe('_register_event_listener method', function() {
