@@ -13,6 +13,7 @@ var jsdom = require("jsdom").jsdom;
 var _ = require('lodash');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
+var logging = require('./logging');
 
 
 /**
@@ -62,11 +63,16 @@ Plugin.prototype.apply = function(compiler) {
 
         for (var key in c.compilation.assets) {
             // Require the plugin - this will then auto register itself against the above instance of the Kolibri core.
-            var plugin = require(path.join(base_dir, output_path, key));
-            // Read off the two event objects from the plugin so that we can record them in a separate file.
-            var events = (global[self.kolibri_var_name].kolibri_modules[self.kolibri_module_name] || {}).events || {};
-            var once = (global[self.kolibri_var_name].kolibri_modules[self.kolibri_module_name] || {}).once || {};
-            self.writeOutput(events, once);
+            try {
+                var plugin = require(path.join(base_dir, output_path, key));
+                // Read off the two event objects from the plugin so that we can record them in a separate file.
+                var events = (global[self.kolibri_var_name].kolibri_modules[self.kolibri_module_name] || {}).events || {};
+                var once = (global[self.kolibri_var_name].kolibri_modules[self.kolibri_module_name] || {}).once || {};
+                self.writeOutput(events, once);
+            }
+            catch (e) {
+                logging.warn("Module loading failed - no events hash exported.");
+            }
         }
     });
 };
