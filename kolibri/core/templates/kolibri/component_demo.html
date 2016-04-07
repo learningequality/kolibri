@@ -1,4 +1,6 @@
 {% extends "kolibri/base.html" %}
 {% load kolibri_tags%}
 
-{% frontend_assets 'kolibri.core.KolibriComponentDemoPlugin' %}
+{% block content %}
+    {% frontend_assets 'kolibri.core.KolibriComponentDemoPlugin' %}
+{% endblock %}

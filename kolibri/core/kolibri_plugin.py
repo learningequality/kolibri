@@ -6,9 +6,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 from kolibri.plugins.base import KolibriFrontEndPluginBase, KolibriPluginBase
-from kolibri.plugins.hooks import (
-    BASE_FRONTEND_SYNC, FRONTEND_PLUGINS, NAVIGATION_POPULATE
-)
+from kolibri.plugins.hooks import FRONTEND_PLUGINS, NAVIGATION_POPULATE
 
 
 def main_navigation():
@@ -57,7 +55,6 @@ class KolibriComponentDemoPlugin(KolibriFrontEndPluginBase):
     def hooks(self):
         return {
             FRONTEND_PLUGINS: self._register_front_end_plugins,
-            BASE_FRONTEND_SYNC: self.plugin_name,
         }
 
 
