@@ -143,7 +143,7 @@ Mediator.prototype._register_event_listener = function(event, plugin, method, li
         this._callback_registry[plugin.name][event] = {};
     }
     this._callback_registry[plugin.name][event][method] = callback;
-    listen_method.apply(this._event_dispatcher, this._event_dispatcher, event, callback);
+    listen_method.apply(this._event_dispatcher, [this._event_dispatcher, event, callback]);
 };
 
 /**
