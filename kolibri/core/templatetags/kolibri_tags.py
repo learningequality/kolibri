@@ -88,7 +88,29 @@ def render_as_async(bundle):
 
 @register.simple_tag()
 def frontend_assets(bundle_path, extension=None):
+    """
+    This template tag returns HTML that loads all JS and CSS assets (or filtered by extension) for insertion into the
+    Django template. KolibriModules loaded in this way will execute, initialize and register at page load.
+    :param bundle_path: The path of the bundle (the Python module path for the Kolibri plugin, and the name of the
+    Plugin Class that the KolibriModule is defined by).
+    :param extension: Extension to filter files by (probably 'js' or 'css').
+    :return: Marked safe HTML for insertion into the DOM.
+    """
     return render_as_tags(get_webpack_bundle(bundle_path, extension))
+
+
+@register.simple_tag()
+def async_frontend_assets(bundle_path):
+    """
+    This template tag returns inline Javascript (wrapped in a script tag) that registers the events that a KolibriModule
+    listens to, and a list of JS and CSS assets that need to be loaded to instantiate the KolibriModule Django template.
+    KolibriModules loaded in this way will not be executed, initialized or registered until one of the defined events is
+    triggered.
+    :param bundle_path: The path of the bundle (the Python module path for the Kolibri plugin, and the name of the
+    Plugin Class that the KolibriModule is defined by).
+    :return: Inline Javascript as HTML for insertion into the DOM.
+    """
+    return render_as_async(bundle_path)
 
 
 def frontend_sync(hook):
