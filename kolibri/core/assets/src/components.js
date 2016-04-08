@@ -24,7 +24,29 @@ var TextInputField = Mn.ItemView.extend({
     }
 });
 
-var TagList = Mn.CollectionView.extend({});
+/*
+Tag is an implementation detail -- not exposed directly, but rather used in TagList.
+ */
+var Tag = Mn.ItemView.extend({
+    template: _.template('<span><%= name %></span>'),
+
+    // The triggers hash converts DOM events into Backbone events
+    triggers: {
+        'click span': 'tagClicked'
+    }
+});
+
+var TagList = Mn.CollectionView.extend({
+    childView: Tag,
+
+    childEvents: {
+        tagClicked: 'onChildTagClicked'
+    },
+
+    onChildTagClicked: function(child, args) {
+        this.trigger('tag_list:tag_clicked', child.model.get('name'));
+    }
+});
 
 
 module.exports = {
