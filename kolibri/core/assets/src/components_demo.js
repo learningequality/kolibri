@@ -17,7 +17,6 @@ var app = new Mn.Application();
 
 
 var ComponentDemoPlugin = KolibriModule.extend({
-
     events: {},
 
     once: {},
@@ -25,21 +24,38 @@ var ComponentDemoPlugin = KolibriModule.extend({
     initialize: function() {
         logging.info('Demo initialized!');
         app.start();
-    },
-
+    }
 });
 
 
 var TextInputWithTagDisplay = Mn.LayoutView.extend({
     template: function(serialized_model) {
-        var template_html = '<div>Foo!</div>';
+        var template_html = '<div class="textinput"></div>' +
+                            '<div class="taglist"></div>';
         return _.template(template_html)({});
+    },
+
+    regions: {
+        textinput: '.textinput',
+        taglist: '.taglist'
+    },
+
+    initialize: function() {
+        this.textInputField = new components.TextInputField();
+        this.tagList = new components.TagList({model: this.model}); // Should have a "tags" attribute
+        this.listenTo(this.tagList, 'tag_list:tag_clicked', function(tag_name) {
+            console.log(tag_name + ' was clicked!');
+        });
+    },
+
+    onBeforeShow: function() {
+        this.showChildView('taglist', this.tagList);
+        this.showChildView('textinput', this.textInputField);
     }
 });
 
 
 app.on('start', function(){
-    //debugger;  // jshint ignore:line
     app.addRegions({
         content: '#content'
     });
