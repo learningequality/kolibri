@@ -41,7 +41,7 @@ var TextInputWithTagDisplay = Mn.LayoutView.extend({
     },
 
     initialize: function() {
-        this.textInputField = new components.TextInputField();
+        this.textInputField = new components.TextInputField({model: this.model});
         this.tagList = new components.TagList({model: this.model}); // Should have a "tags" attribute
         this.listenTo(this.tagList, 'tag_list:tag_clicked', function(tag_name) {
             console.log(tag_name + ' was clicked!');
@@ -60,7 +60,9 @@ app.on('start', function(){
         content: '#content'
     });
 
-    var tiwtd = new TextInputWithTagDisplay();
+    var tiwtd = new TextInputWithTagDisplay({model: new Backbone.Model({
+        enabled: true
+    })});
     app.getRegion('content').show(tiwtd);
 });
 
