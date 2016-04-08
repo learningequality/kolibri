@@ -20,25 +20,26 @@ var ComponentDemoPlugin = KolibriModule.extend({
 
     events: {},
 
-    once: { /* I'm broken, don't use me */ },
+    once: {},
 
     initialize: function() {
         logging.info('Demo initialized!');
         app.start();
-    }
+    },
+
 });
 
 
 var TextInputWithTagDisplay = Mn.LayoutView.extend({
     template: function(serialized_model) {
-        return _.template(this.template_html)({});
-    },
-
-    template_html: '<div>Foo!</div>'
+        var template_html = '<div>Foo!</div>';
+        return _.template(template_html)({});
+    }
 });
 
 
 app.on('start', function(){
+    //debugger;  // jshint ignore:line
     app.addRegions({
         content: '#content'
     });
