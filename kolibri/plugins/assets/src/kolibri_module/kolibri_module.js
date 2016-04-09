@@ -18,6 +18,10 @@ var KolibriModule = function (options) {
     // __kolibri_module_name is replaced during webpack compilation with the name derived from the Python module name
     // and the name of the class that defines the frontend kolibri_module.
     this.name = __kolibri_module_name;
+
+    // Insert the event hashes defined in the Python code.
+    this.events = __events;
+    this.once = __once;
     _.extend(this, _.pick(options, this.kolibri_module_options));
     // Pass all arguments to the constructor directly to initialize for easy access.
     this.initialize.apply(this, arguments);

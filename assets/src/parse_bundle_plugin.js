@@ -37,8 +37,7 @@ var parseBundlePlugin = function(data, base_dir) {
     if ((typeof data.entry_file !== "undefined") &&
         (typeof data.name !== "undefined") &&
         (typeof data.module_path !== "undefined") &&
-        (typeof data.stats_file !== "undefined") &&
-        (typeof data.async_file !== "undefined")) {
+        (typeof data.stats_file !== "undefined")) {
         bundle_data[data.name] = path.join(data.module_path, data.entry_file);
         if (typeof data.external !== "undefined" && data.external) {
             // If we want to create a plugin that can be directly referenced by other plugins, this sets it to be
@@ -63,7 +62,13 @@ var parseBundlePlugin = function(data, base_dir) {
             }),
             // Plugins know their own name, by having a variable that we define here, based on the name they are given
             // in kolibri_plugins.py inside their relevant module.
-            new webpack.DefinePlugin({__kolibri_module_name: JSON.stringify(data.name)})
+            // We also pass in the events hashes here as well, as they are defined in the Python specification of the
+            // KolibriModule.
+            new webpack.DefinePlugin({
+                __kolibri_module_name: JSON.stringify(data.name),
+                __events: JSON.stringify(data.events || {}),
+                __once: JSON.stringify(data.once || {})
+            })
         ]);
         _.extend(bundle, {
             core: data.core,

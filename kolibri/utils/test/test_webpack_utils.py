@@ -72,17 +72,6 @@ class WebpackConfigTestCase(TestCase):
         with self.assertRaises(IOError):
             webpack.load_stats_file(temp_stats_path, '')
 
-    def test_get_async_file(self):
-        temp_async_path = os.path.join(self.test_dir, 'async.json')
-        with open(temp_async_path, 'w') as f:
-            json.dump({}, f)
-        self.assertEqual({}, webpack.load_async_file(temp_async_path))
-
-    def test_get_no_async_file(self):
-        temp_async_path = os.path.join(self.test_dir, 'async_noooo.json')
-        with self.assertRaises(IOError):
-            webpack.load_async_file(temp_async_path)
-
     @patch('kolibri.utils.webpack.get_bundle', return_value=files)
     def test_get_webpack_bundle(self, mocked_get_bundle):
         webpack.PLUGIN_CACHE = {}
@@ -99,37 +88,21 @@ class WebpackConfigTestCase(TestCase):
 
     @patch('kolibri.utils.webpack.hooks.get_callables', return_value=((lambda: (None, None, None)),))
     @patch('kolibri.utils.webpack.load_stats_file', return_value={"files": []})
-    @patch('kolibri.utils.webpack.load_async_file', return_value="test1")
-    def test_initialize_plugin_cache(self, mocked_async, mocked_stats, mocked_get_callables):
+    def test_initialize_plugin_cache(self, mocked_stats, mocked_get_callables):
         webpack.PLUGIN_CACHE = {}
         webpack.initialized = False
         webpack.initialize_plugin_cache()
         self.assertTrue(webpack.initialized)
         mocked_get_callables.assert_called_with(hooks.FRONTEND_PLUGINS)
         mocked_stats.assert_called_with(None, None)
-        mocked_async.assert_called_with(None)
 
     @patch('kolibri.utils.webpack.hooks.get_callables', return_value=((lambda: (None, None, None)),))
     @patch('kolibri.utils.webpack.load_stats_file', side_effect=IOError)
-    @patch('kolibri.utils.webpack.load_async_file', return_value="test1")
-    def test_initialize_plugin_cache_stats_error(self, mocked_async, mocked_stats, mocked_get_callables):
+    def test_initialize_plugin_cache_stats_error(self, mocked_stats, mocked_get_callables):
         webpack.PLUGIN_CACHE = {}
         webpack.initialized = False
         with self.assertRaises(IOError):
             webpack.initialize_plugin_cache()
-
-    @patch('kolibri.utils.webpack.logger.error')
-    @patch('kolibri.utils.webpack.hooks.get_callables', return_value=((lambda: (None, None, None)),))
-    @patch('kolibri.utils.webpack.load_stats_file', return_value={"files": []})
-    @patch('kolibri.utils.webpack.load_async_file', side_effect=IOError)
-    def test_initialize_plugin_cache_async_error(self, mocked_async, mocked_stats, mocked_get_callables,
-                                                 mocked_error_logger):
-        webpack.PLUGIN_CACHE = {}
-        webpack.initialized = False
-        webpack.initialize_plugin_cache()
-        mocked_error_logger.assert_called_with(
-            'Error reading {}. Are you sure webpack has generated the file '
-            'and the path is correct?'.format(None))
 
     @patch('kolibri.utils.webpack.initialize_plugin_cache')
     def test_check_plugin_cache(self, mocked_initialize):

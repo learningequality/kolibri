@@ -8,12 +8,6 @@ var KolibriModule = require('kolibri_module');
 
 var ExampleModule = KolibriModule.extend({
 
-    events: {
-        'something_happened': 'hello_world'
-    },
-    once : {
-        'nothing_happened': 'hello_world'
-    },
     hello_world: function(message) {
         logging.info('Hello world!', message);
     }

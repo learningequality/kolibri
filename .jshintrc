@@ -17,5 +17,9 @@
     "browser"       : true,
     "mocha"         : true,
     "node"          : true,
-    "globals"       : {"__kolibri_module_name": true}
+    "globals"       : {
+        "__kolibri_module_name": true,
+        "__events": true,
+        "__once": true
+    }
 }

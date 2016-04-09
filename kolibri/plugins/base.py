@@ -108,22 +108,26 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
     def webpack_bundle_data(cls):
         """
         Returns information needed by the webpack parsing process.
-        :return: dict with keys "name", "entry_file", and, "external".
+        :return: dict
         "name" - is the module path that the frontend plugin has.
         "entry_file" - is the Javascript file that defines the plugin.
         "external" - an optional flag currently used only by the core plugin.
         "core" - an optional flag *only* ever used by the core plugin.
+        "events" - the hash of event names and method callbacks that the KolibriModule defined here registers to.
+        "once" - the hash of event names and method callbacks that the KolibriModule defined here registers to for a
+        one time callback.
         """
         try:
-            return {
+            output = cls.async_events()
+            output.update({
                 "name": cls.plugin_name(),
                 "entry_file": cls.entry_file,
                 "external": getattr(cls, "external", None),
                 "core": getattr(cls, "core", None),
                 "stats_file": cls.stats_file(),
-                "async_file": cls.async_file(),
                 "module_path": cls._module_file_path(),
-            }
+            })
+            return output
         except KeyError:
             raise MandatoryPluginAttributeNotImplemented
 
@@ -136,8 +140,11 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
         return os.path.join(cls.build_path(), "{plugin}_stats.json".format(plugin=cls.__name__))
 
     @classmethod
-    def async_file(cls):
-        return os.path.join(cls.build_path(), "{plugin}_async.json".format(plugin=cls.__name__))
+    def async_events(cls):
+        return {
+            "events": getattr(cls, "events", {}),
+            "once": getattr(cls, "once", {}),
+        }
 
     @classmethod
     def _module_file_path(cls):
@@ -164,4 +171,4 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
         Call this to register front end plugins in a Kolibri plugin to allow for
         import into templates.
         """
-        return cls.plugin_name(), cls.stats_file(), cls.async_file()
+        return cls.plugin_name(), cls.stats_file(), cls.async_events()

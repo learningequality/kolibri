@@ -17,7 +17,7 @@ class KolibriFrontEndPluginBaseTestCase(TestCase):
         self.assertEqual(self.plugin_base._module_file_path(), os.path.join("kolibri", "plugins", "test"))
 
     def test_register_front_end_plugins(self):
-        bundle_path, stats_file, async_file = self.plugin_base._register_front_end_plugins()
+        bundle_path, stats_file, async_events = self.plugin_base._register_front_end_plugins()
         self.assertEqual(bundle_path, "kolibri.plugins.test" + "." + type(self.plugin_base).__name__)
         self.assertIn(type(self.plugin_base).__name__ + "_stats.json", stats_file)
-        self.assertIn(type(self.plugin_base).__name__ + "_async.json", async_file)
+        self.assertEqual({"events": {}, "once": {}}, async_events)

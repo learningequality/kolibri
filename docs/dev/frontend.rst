@@ -82,13 +82,23 @@ As such for a particular component of a frontend Kolibri module, would appear in
              search.styl
         content_search_module.js
 
-As can be seen above, Kolibri modules are defined in the root directory of the 'assets/src' folder. These are then
-referenced in the `kolibri_plugin.py` file in the base directory of the Kolibri plugin. The plugin is defined by
+As can be seen above, Kolibri modules are defined in the root directory of the 'assets/src' folder.
+
+Defining a Kolibri Module
+-------------------------
+
+A Kolibri Module is initially defined in Python code as a Kolibri Python plugin. The plugin is defined by
 subclassing the ``KolibriFrontEndPluginBase`` class to define each frontend Kolibri module.
 
 .. automodule:: kolibri.plugins.example_plugin.kolibri_plugin
     :members: KolibriExampleFrontEnd
     :show-inheritance:
+
+The plugin defines the entry point file (the file that acts as the entry point for this particular Kolibri Module), as
+well as the events and callbacks to which that module listens. These are defined in the `events` and `once` properties
+of the plugin. Each defines a name of an event, and the name of the method on the Kolibri Module object. When these
+events are triggered on the Kolibri core Javascript app, these callbacks will be called - or if the Kolibri Module is
+registered for asynchronous loading, the Kolibri Module will be loaded, and then the callbacks called when it is ready.
 
 Writing Frontend Plugins
 ------------------------

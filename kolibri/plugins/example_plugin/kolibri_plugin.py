@@ -106,6 +106,12 @@ class KolibriExampleFrontEnd(KolibriFrontEndPluginBase):
     Plugin to define a frontend plugin that can be loaded independently from other code.
     """
     entry_file = "assets/example/example_module.js"
+    events = {
+        'something_happened': 'hello_world'
+    }
+    once = {
+        'nothing_happened': 'hello_world'
+    }
 
     def hooks(self):
         return {

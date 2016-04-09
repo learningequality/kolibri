@@ -53,17 +53,6 @@ def load_stats_file(stats_file, bundle_path):
     }
 
 
-def load_async_file(async_file):
-    """
-    Function to open a file containing events that the plugin listens to and should be loaded upon.
-    :param async_file: The path to the async events file.
-    :return: A dict containing the events/methods for the plugin.
-    """
-    with open(async_file) as f:
-        events = json.load(f)
-    return events
-
-
 def initialize_plugin_cache():
     """
     Function to initialize the plugin cache for Frontend Plugin information.
@@ -71,7 +60,7 @@ def initialize_plugin_cache():
     global PLUGIN_CACHE
     global initialized
     for callback in hooks.get_callables(hooks.FRONTEND_PLUGINS):
-        bundle_path, stats_file, async_file = callback()
+        bundle_path, stats_file, async_events = callback()
         try:
             PLUGIN_CACHE[bundle_path] = load_stats_file(stats_file, bundle_path)
         except IOError:
@@ -79,14 +68,7 @@ def initialize_plugin_cache():
                 'Error reading {}. Are you sure webpack has generated the file '
                 'and the path is correct?'.format(stats_file))
         else:
-            try:
-                PLUGIN_CACHE[bundle_path]["async_events"] = load_async_file(async_file)
-            except IOError:
-                # The Core frontend app is never loaded asynchronously so does not have a file for it.
-                if bundle_path != "kolibri.core.KolibriCoreFrontEnd":
-                    logger.error(
-                        'Error reading {}. Are you sure webpack has generated the file '
-                        'and the path is correct?'.format(async_file))
+            PLUGIN_CACHE[bundle_path]["async_events"] = async_events
     initialized = True
 
 def check_plugin_cache():

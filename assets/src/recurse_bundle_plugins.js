@@ -10,7 +10,6 @@ var logging = require("./logging");
 var _ = require("lodash");
 
 var readBundlePlugin = require('./read_bundle_plugin');
-var EventExport = require('./event_export');
 
 /**
  * Take an array of directories, recurse over all directories inside them, and look for any files named
@@ -75,15 +74,6 @@ var recurseBundlePlugins = function(directories, base_dir, libs) {
         if (bundle.core === null) {
             // If this is not the core bundle, then we need to add the external library mappings.
             bundle.externals = _.extend({}, externals, lib_externals);
-            // For every Kolibri module (everything but the core app), we create a special output of the event bindings
-            // that the module listens to - this allows us to determine when we should load the module code when
-            // it is included asynchronously, see event_export.js for details on this implementation.
-            bundle.plugins.push(new EventExport({
-                externals: lib_externals,
-                kolibri: core_bundle,
-                kolibri_module_name: bundle.name,
-                async_file: bundle.async_file
-            }));
         } else {
             bundle.externals = externals;
         }
