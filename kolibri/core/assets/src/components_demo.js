@@ -49,7 +49,7 @@ LayoutViews are containers for subviews.
  */
 var TextInputWithTagDisplay = Mn.LayoutView.extend({
     /*
-    The template and regions attributes define the DOM.
+    The template and regions attributes define the DOM containers for subviews.
     Regions are a Marionette abstraction which handle View loading/destroying -- they are essentially named DOM
     elements.
      */
