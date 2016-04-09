@@ -9,7 +9,7 @@ logging.info('Component views loaded!');
 
 
 var TextInputField = Mn.ItemView.extend({
-    template: function(seralized_model) {
+    template: function(serialized_model) {
         var template_html;
         if (this.model.get('enabled')) {
             template_html = '<input type="search" placeholder="Search here!">';
@@ -21,6 +21,18 @@ var TextInputField = Mn.ItemView.extend({
 
     initialize: function() {
         _.bindAll(this, 'template');
+    },
+
+    triggers: {
+        'change input': 'inputChanged'
+    },
+
+    onInputChanged: function(args) {
+        this.trigger('text_input_field:text_changed', args.view.$el.find('input').val());
+    },
+
+    clear: function() {
+        this.$el.find('input').val('');
     }
 });
 

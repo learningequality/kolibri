@@ -84,6 +84,14 @@ var TextInputWithTagDisplay = Mn.LayoutView.extend({
             var tag = coll.findWhere({name: tag_name});
             coll.remove(tag);
         });
+        // Similarly, I'm assuming that textInputFields emit the following event+arguments.
+        this.listenTo(this.textInputField, 'text_input_field:text_changed', function(text){
+            this.model.get('tags').push(new Backbone.Model({
+                name: text
+            }));
+            // Does this count as "introducing state"???
+            this.textInputField.clear();
+        });
     },
 
     // This convention is recommended by Marionette for efficient repaints.
