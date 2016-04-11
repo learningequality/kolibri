@@ -8,15 +8,9 @@ logging.setDefaultLevel(2);
 logging.info('Component views loaded!');
 
 
-var TextInputField = Mn.ItemView.extend({
+var AbstractTextInput = Mn.ItemView.extend({
     template: function(serialized_model) {
-        var template_html;
-        if (this.model.get('enabled')) {
-            template_html = '<input type="search" placeholder="Search here!">';
-        } else {
-            template_html = '<input type="search" disabled placeholder="Search here!">';
-        }
-        return _.template(template_html);
+        return _.template('<div>foo</div>');
     },
 
     initialize: function() {
@@ -33,6 +27,19 @@ var TextInputField = Mn.ItemView.extend({
 
     clear: function() {
         this.$el.find('input').val('');
+    }
+});
+
+
+var TextLineInput = AbstractTextInput.extend({
+    template: function(serialized_model) {
+        var template_html;
+        if (this.model.get('enabled')) {
+            template_html = '<input type="search" placeholder="Search here!">';
+        } else {
+            template_html = '<input type="search" disabled placeholder="Search here!">';
+        }
+        return _.template(template_html);
     }
 });
 
@@ -62,6 +69,6 @@ var TagList = Mn.CollectionView.extend({
 
 
 module.exports = {
-    TextInputField: TextInputField,
+    TextLineInput: TextLineInput,
     TagList: TagList
 };

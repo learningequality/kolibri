@@ -68,7 +68,7 @@ var TextInputWithTagDisplay = Mn.LayoutView.extend({
     initialize: function() {
         // A view should pass on it's own model or some element in it. Then events triggered on the model can
         // be handled by the Application.
-        this.textInputField = new components.TextInputField({model: this.model});
+        this.textInputField = new components.TextLineInput({model: this.model});
         this.tagList = new components.TagList({collection: this.model.get('tags')});
 
         // The list of events of base elements emit (and the arguments passed with those events)
