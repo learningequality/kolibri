@@ -9,11 +9,11 @@
   },
   "scripts": {
     "test": "npm run test-mocha && npm run test-karma",
-    "test-karma": "./node_modules/karma/bin/karma start --single-run",
-    "test-mocha": "./node_modules/mocha/bin/mocha assets/test/*.js",
+    "test-karma": "karma start --single-run",
+    "test-mocha": "mocha assets/test/*.js",
     "coverage": "npm run test-mocha-cov && npm run test-karma-cov",
     "test-mocha-cov": "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha assets/test/*.js --report lcovonly -- -R spec",
-    "test-karma-cov": "./node_modules/karma/bin/karma start karma.conf.ci.js",
+    "test-karma-cov": "karma start karma.conf.ci.js",
     "build": "webpack",
     "watch": "webpack --config webpack.config.dev.js --watch",
     "ci": "./node_modules/karma/bin/karma start"
