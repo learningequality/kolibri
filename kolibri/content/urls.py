@@ -190,13 +190,27 @@ class ContentMetadataViewset(viewsets.ViewSet):
         """
         pass
 
-    @detail_route()
-    def update_content_copy(self, request, channelmetadata_channel_id, *args, **kwargs):
+
+class FileViewset(viewsets.ViewSet):
+    def list(self, request, channelmetadata_channel_id=None):
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        files = serializers.FileSerializer(models.File.objects.all(), context, many=True).data
+        return Response(files)
+
+    def retrieve(self, request, pk=None, channelmetadata_channel_id=None):
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        files = serializers.FileSerializer(
+            models.File.objects.using(channelmetadata_channel_id).get(pk=pk), context=context
+        ).data
+        return Response(files)
+
+    def update_content_copy(self, request, channelmetadata_channel_id, pk, content_copy, *args, **kwargs):
         """
         endpoint for content api method
         update_content_copy(file_object=None, content_copy=None)
         """
-        pass
+        target_file = models.File.objects.using(channelmetadata_channel_id).get(pk=pk)
+        return Response(api.update_content_copy(file_object=target_file, content_copy=str(content_copy)))
 
 
 router = routers.SimpleRouter()
@@ -204,9 +218,12 @@ router.register(r'channel', ChannelMetadataViewSet, base_name='channelmetadata')
 
 channel_router = routers.NestedSimpleRouter(router, r'channel', lookup='channelmetadata')
 channel_router.register(r'content', ContentMetadataViewset, base_name='contentmetadata')
+channel_router.register(r'file', FileViewset, base_name='file')
 
 
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^', include(channel_router.urls)),
+    url(r'^channel/(?P<channelmetadata_channel_id>[^/.]+)/file/(?P<pk>[^/.]+)/update_content_copy/(?P<content_copy>.*)',
+        FileViewset.as_view({'put': 'update_content_copy'})),
 ]
