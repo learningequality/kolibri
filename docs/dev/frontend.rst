@@ -96,28 +96,21 @@ subclassing the ``KolibriFrontEndPluginBase`` class to define each frontend Koli
 
 The plugin defines the entry point file (the file that acts as the entry point for this particular Kolibri Module), as
 well as the events and callbacks to which that module listens. These are defined in the `events` and `once` properties
-of the plugin. Each defines a name of an event, and the name of the method on the Kolibri Module object. When these
-events are triggered on the Kolibri core Javascript app, these callbacks will be called - or if the Kolibri Module is
-registered for asynchronous loading, the Kolibri Module will be loaded, and then the callbacks called when it is ready.
+of the plugin. Each defines key-value pairs of the name of an event, and the name of the method on the Kolibri Module
+object. When these events are triggered on the Kolibri core Javascript app, these callbacks will be called - or if the
+Kolibri Module is registered for asynchronous loading, the Kolibri Module will be loaded, and then the callbacks called
+when it is ready.
 
-Writing Frontend Plugins
-------------------------
+Writing Kolibri Modules
+-----------------------
 
-All Frontend Plugins should extend the KolibriModule class found in
-`kolibri/plugins/assets/src/kolibri_module/kolibri_module.js`.
-For convenience this can be referenced in a module with the following syntax::
+All Kolibri Modules should extend the KolibriModule class found in
+`kolibri/plugins/assets/src/kolibri_module/kolibri_module.js`. For convenience this can be referenced in a module with
+the following syntax::
 
     var KolibriModule = require('kolibri_module');
 
     var ExampleModule = KolibriModule.extend({
-
-        events: {
-            'something_happened': 'hello_world'
-        },
-
-        once: {
-            'nothing_happened': 'goodbye_world'
-        },
 
         hello_world: function(message) {
             logging.info('Hello world!', message);
@@ -128,10 +121,9 @@ For convenience this can be referenced in a module with the following syntax::
         }
     });
 
-As can be seen above the Kolibri module can be defined with with an events hash which will define events that the
-Kolibri module will be registered to listen to by the Kolibri core app (this will be events fired either by the core app
-itself, or by other Kolibri modules). The once property can define a hash that will be listened to once, but then
-unbound once it has fired.
+The methods defined above are the ones that can be referenced in the `events` and `once` properties of the plugin that
+defines the Kolibri Module. Defining it in this way allows for asynchronous loading and registration without having to
+load or execute the Javascript code.
 
 Frontend Tech Stack
 -------------------
