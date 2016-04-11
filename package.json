@@ -48,6 +48,7 @@
     "karma-jshint-preprocessor": "0.0.6",
     "karma-mocha": "^0.2.1",
     "karma-phantomjs-launcher": "^1.0.0",
+    "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^1.7.0",
     "lodash": "^4.6.1",
     "loglevel": "^1.4.0",

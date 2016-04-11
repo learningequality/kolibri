@@ -5,6 +5,7 @@ var _ = require("lodash");
 var webpack_config = _.clone(require("./webpack.config.base"));
 
 webpack_config.plugins.push(new RewirePlugin());
+webpack_config.devtool = '#inline-source-map';
 
 module.exports = function(config) {
   config.set({
@@ -33,7 +34,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'kolibri/**/assets/test/*.js': ['jshint', 'webpack'],
+      'kolibri/**/assets/test/*.js': ['jshint', 'webpack', 'sourcemap'],
       '*.js': ['jshint'],
       'kolibri/**/assets/src/**/*.js': ['jshint']
     },
