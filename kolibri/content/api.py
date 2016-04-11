@@ -35,7 +35,7 @@ def can_get_content_with_id(func):
         return func(channel_id=channel_id, **kwargs)
     return wrapper
 
-def get_content_with_id(content_id, channel_id=None):
+def get_content_with_id(channel_id=None, content=None):
     """
     Get arbitrary sets of ContentMetadata objects based on content id(s).
 
@@ -43,10 +43,10 @@ def get_content_with_id(content_id, channel_id=None):
     :param content_id: list or str or uuid
     :return: QuerySet of ContentMetadata
     """
-    if isinstance(content_id, list):
-        return KolibriContent.ContentMetadata.objects.using(channel_id).filter(content_id__in=content_id)
+    if isinstance(content, list):
+        return KolibriContent.ContentMetadata.objects.using(channel_id).filter(content_id__in=content)
     else:
-        return KolibriContent.ContentMetadata.objects.using(channel_id).filter(content_id=content_id)
+        return KolibriContent.ContentMetadata.objects.using(channel_id).filter(content_id=content)
 
 @can_get_content_with_id
 def get_ancestor_topics(channel_id=None, content=None, **kwargs):
