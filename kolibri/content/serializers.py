@@ -103,6 +103,12 @@ class FormatSerializer(serializers.ModelSerializer):
 
 
 class FileSerializer(serializers.ModelSerializer):
+    url = DualLookuplinkedIdentityField(
+        view_name='file-detail',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='pk'
+    )
+
     class Meta:
         model = File
-        fields = ('checksum', 'extension', 'available', 'file_size', 'content_copy', 'format')
+        fields = ('url', 'checksum', 'extension', 'available', 'file_size', 'content_copy', 'format')
