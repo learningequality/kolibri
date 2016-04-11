@@ -43,6 +43,16 @@ var TextLineInput = AbstractTextInput.extend({
     }
 });
 
+
+var TextAreaInput = AbstractTextInput.extend({});
+
+
+var PasswordInput = AbstractTextInput.extend({});
+
+
+var ValidatingTextInput = AbstractTextInput.extend({});
+
+
 /*
 Tag is an implementation detail -- not exposed directly, but rather used in TagList.
  */
@@ -70,5 +80,8 @@ var TagList = Mn.CollectionView.extend({
 
 module.exports = {
     TextLineInput: TextLineInput,
+    TextAreaInput: TextAreaInput,
+    PasswordInput: PasswordInput,
+    ValidatingTextInput: ValidatingTextInput,
     TagList: TagList
 };
