@@ -14,7 +14,7 @@ var config = {
             // This is required in order to prevent Backbone from importing jQuery.
             // See here for more details: https://github.com/jashkenas/backbone/wiki/Using-Backbone-without-jQuery
             //{ test: /backbone\.js$/, loader: 'imports?define=>false' },
-            { test: /fg-loadcss\/src\/onloadCSS/, loader: 'exports?onloadCSS'}
+            { test: /fg-loadcss[/|\\]src[/|\\]onloadCSS/, loader: 'exports?onloadCSS'}
         ]
     },
     plugins: [
