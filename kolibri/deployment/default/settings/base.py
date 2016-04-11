@@ -89,9 +89,9 @@ DATABASES = {
 }
 
 # DIR for storing contentDBs
-CONTENT_DB_DIR = os.path.join(conf.KOLIBRI_HOME, 'content', 'content_db')
+CONTENT_DB_DIR = os.path.join(BASE_DIR, 'kolibri', 'content', 'content_db')
 # DIR for storing content copies for all channels
-CONTENT_COPY_DIR = os.path.join(conf.KOLIBRI_HOME, 'content', 'content_copy')
+CONTENT_COPY_DIR = os.path.join(BASE_DIR, 'kolibri', 'content', 'content_copy')
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
