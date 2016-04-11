@@ -40,7 +40,7 @@ var TextInputField = Mn.ItemView.extend({
 Tag is an implementation detail -- not exposed directly, but rather used in TagList.
  */
 var Tag = Mn.ItemView.extend({
-    template: _.template('<span><%= name %></span>'),
+    template: _.template('<span class="tag"><%= name %></span>'),
 
     // The triggers hash converts DOM events into Backbone events
     triggers: {

@@ -1,30 +1,46 @@
 'use strict';
 
 var $ = require('jquery');
+var assert = require('assert');
 var Backbone = require('backbone');
+var Mn = require('backbone.marionette');
+
 var components = require('../src/components.js');
 
-describe('TagList', function(){
-    before(function(){
-        var tags = new Backbone.Collection([
-            new Backbone.Model({name: 'tag1'}),
-            new Backbone.Model({name: 'tag2'}),
-            new Backbone.Model({name: 'tag3'})
-        ]);
-        this.tagList = new components.TagList({collection: tags});
-        this.listener = new Backbone.Model();
+describe('Components test suite:', function(){
+    before(function() {
+        this.app = new Mn.Application();
+        this.app.addRegions({body: 'body'});
     });
 
-    it('triggers a "tag_list:tag_clicked" event when a tag is clicked', function(done){
-        this.listener.listenTo(this.tagList, 'tag_list:tag_clicked', done);
-        this.tagList.$el.find('.tag:first').click();
+    after(function() {
+        this.app.getRegion('body').empty();
     });
 
-    it('passes the tag name to the callback function', function(done){
-        this.listener.listenTo(this.tagList, 'tag_list:tag_clicked', function(name){
-            assert(name === 'tag1');
-            done();
+    describe('TagList', function(){
+        before(function(){
+            var tags = new Backbone.Collection([
+                new Backbone.Model({name: 'tag1'}),
+                new Backbone.Model({name: 'tag2'}),
+                new Backbone.Model({name: 'tag3'})
+            ]);
+            this.tagList = new components.TagList({collection: tags});
+            this.app.getRegion('body').show(this.tagList);
         });
-        this.tagList.$el.find('.tag:first').click();
+
+        it('triggers a "tag_list:tag_clicked" event when a tag is clicked', function(done){
+            this.tagList.on('tag_list:tag_clicked', function(){
+                done();
+            });
+            this.tagList.$el.find('.tag:first').click();
+        });
+
+        it('passes the tag name to the callback function', function(done){
+            this.tagList.on('tag_list:tag_clicked', function(name){
+                assert(name === 'tag1');
+                done();
+            });
+            this.tagList.$el.find('.tag:first').click();
+        });
     });
 });
