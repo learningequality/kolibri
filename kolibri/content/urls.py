@@ -43,6 +43,10 @@ class ContentMetadataViewset(viewsets.ViewSet):
 
     @detail_route()
     def ancestor_topics(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        get_ancestor_topics(channel_id=None, content=None, **kwargs)
+        """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.ContentMetadataSerializer(
             api.get_ancestor_topics(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
@@ -51,6 +55,10 @@ class ContentMetadataViewset(viewsets.ViewSet):
 
     @detail_route()
     def immediate_children(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        immediate_children(channel_id=None, content=None, **kwargs)
+        """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.ContentMetadataSerializer(
             api.immediate_children(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
@@ -59,6 +67,10 @@ class ContentMetadataViewset(viewsets.ViewSet):
 
     @detail_route()
     def leaves(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        leaves(channel_id=None, content=None, **kwargs)
+        """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.ContentMetadataSerializer(
             api.leaves(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
@@ -67,6 +79,10 @@ class ContentMetadataViewset(viewsets.ViewSet):
 
     @detail_route()
     def all_prerequisites(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        get_all_prerequisites(channel_id=None, content=None, **kwargs)
+        """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.ContentMetadataSerializer(
             api.get_all_prerequisites(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
@@ -75,6 +91,10 @@ class ContentMetadataViewset(viewsets.ViewSet):
 
     @detail_route()
     def all_related(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        get_all_related(channel_id=None, content=None, **kwargs)
+        """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.ContentMetadataSerializer(
             api.get_all_related(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
@@ -83,6 +103,10 @@ class ContentMetadataViewset(viewsets.ViewSet):
 
     @detail_route()
     def all_formats(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        get_all_formats(channel_id=None, content=None, **kwargs)
+        """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.FormatSerializer(
@@ -92,6 +116,10 @@ class ContentMetadataViewset(viewsets.ViewSet):
 
     @detail_route()
     def available_formats(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        get_available_formats(channel_id=None, content=None, **kwargs)
+        """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.FormatSerializer(
             api.get_available_formats(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
@@ -100,6 +128,10 @@ class ContentMetadataViewset(viewsets.ViewSet):
 
     @detail_route()
     def possible_formats(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        get_possible_formats(channel_id=None, content=None, **kwargs)
+        """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.FormatSerializer(
             api.get_possible_formats(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
@@ -108,6 +140,10 @@ class ContentMetadataViewset(viewsets.ViewSet):
 
     @detail_route()
     def missing_files(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        get_missing_files(channel_id=None, content=None, **kwargs)
+        """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.FileSerializer(
             api.get_missing_files(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
