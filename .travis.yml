@@ -11,21 +11,44 @@ cache:
 matrix:
   include:
     - python: "2.7"
-      env: TOX_ENV=py2.7
+      env:
+        - TOX_ENV=py2.7
+        - TRAVIS_NODE_VERSION="0.12"
     - python: "2.7"
-      env: TOX_ENV=docs
+      env:
+        - TOX_ENV=docs
+        - TRAVIS_NODE_VERSION="0.12"
     - python: "2.7"
-      env: TOX_ENV=bdd
+      env:
+        - TOX_ENV=bdd
+        - TRAVIS_NODE_VERSION="0.12"
     - python: "3.4"
-      env: TOX_ENV=py3.4
+      env:
+        - TOX_ENV=py3.4
+        - TRAVIS_NODE_VERSION="0.12"
     - python: "3.5"
-      env: TOX_ENV=py3.5
+      env:
+        - TOX_ENV=py3.5
+        - TRAVIS_NODE_VERSION="0.12"
     - python: "2.7"
-      env: TOX_ENV=node
+      env:
+        - TOX_ENV=node0.12.x
+        - TRAVIS_NODE_VERSION="0.12"
+    - python: "2.7"
+      env:
+        - TOX_ENV=node4.x
+        - TRAVIS_NODE_VERSION="4"
+    - python: "2.7"
+      env:
+        - TOX_ENV=node5.x
+        - TRAVIS_NODE_VERSION="5"
 
 before_install:
   - pip install codecov
   - pip install tox
+  - . $HOME/.nvm/nvm.sh
+  - nvm install $TRAVIS_NODE_VERSION
+  - nvm use $TRAVIS_NODE_VERSION
 
 before_script:
   - tox -e lint
