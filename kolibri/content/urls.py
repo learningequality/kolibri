@@ -190,15 +190,15 @@ class ContentMetadataViewset(viewsets.ViewSet):
 class FileViewset(viewsets.ViewSet):
     def list(self, request, channelmetadata_channel_id=None):
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        files = serializers.FileSerializer(models.File.objects.all(), context, many=True).data
+        files = serializers.FileSerializer(models.File.objects.using(channelmetadata_channel_id).all(), context=context, many=True).data
         return Response(files)
 
     def retrieve(self, request, pk=None, channelmetadata_channel_id=None):
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        files = serializers.FileSerializer(
+        file = serializers.FileSerializer(
             models.File.objects.using(channelmetadata_channel_id).get(pk=pk), context=context
         ).data
-        return Response(files)
+        return Response(file)
 
     def update_content_copy(self, request, channelmetadata_channel_id, pk, content_copy, *args, **kwargs):
         """
