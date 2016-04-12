@@ -172,9 +172,15 @@ class ContentMetadataTestCase(TestCase):
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_missing_files(self):
-        p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
+        # get missing files on content
+        c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         expected_output = content.File.objects.using(self.the_channel_id).filter(id__in=[1, 2])
-        actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=p)
+        actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=c1)
+        self.assertEqual(set(expected_output), set(actual_output))
+        # get missing files on topic
+        c2 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2")
+        expected_output = content.File.objects.using(self.the_channel_id).filter(id__in=[3, 4])
+        actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=c2)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_all_prerequisites(self):
@@ -250,8 +256,10 @@ class ContentMetadataTestCase(TestCase):
         root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
         c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         self.assertFalse(root in api.get_all_related(channel_id=self.the_channel_id, content=c1))
+        self.assertFalse(c1 in api.get_all_related(channel_id=self.the_channel_id, content=root))
         api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
         self.assertTrue(root in api.get_all_related(channel_id=self.the_channel_id, content=c1))
+        self.assertTrue(c1 in api.get_all_related(channel_id=self.the_channel_id, content=root))
 
     def test_set_is_related_self_reference(self):
         c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
@@ -271,15 +279,21 @@ class ContentMetadataTestCase(TestCase):
         root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
         c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
-        # test for immediate cyclic exception
-        with self.assertRaises(IntegrityError):
-            api.set_is_related(channel_id=self.the_channel_id, content1=root, content2=c1)
+        # test for immediate cyclic handling
+        all_related_before = content.RelatedContentRelationship.objects.using(self.the_channel_id).all()
+        api.set_is_related(channel_id=self.the_channel_id, content1=root, content2=c1)
+        all_related_after = content.RelatedContentRelationship.objects.using(self.the_channel_id).all()
+        self.assertEqual(set(all_related_before), set(all_related_after))
 
     def test_children_of_kind(self):
         p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
         expected_output = content.ContentMetadata.objects.using(self.the_channel_id).filter(title__in=["c2", "c2c2", "c2c3"])
         actual_output = api.children_of_kind(channel_id=self.the_channel_id, content=p, kind="topic")
         self.assertEqual(set(expected_output), set(actual_output))
+
+    def test_channelMetadata_str(self):
+        cm = content.ChannelMetadata.objects.get(name='ucsd')
+        self.assertEqual(cm.name, str(cm))
 
     @classmethod
     def tearDownClass(self):
