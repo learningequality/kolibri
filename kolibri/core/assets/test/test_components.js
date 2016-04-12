@@ -73,12 +73,17 @@ describe('Components test suite:', function(){
             this.textInput.$el.find('input').focusout();
         });
 
-        it('is disabled with .toggleEnable', function(){
-            assert(false);
+        it('is disabled with .toggleEnabled', function(){
+            // TODO: Marionette does not seem to re-render a View if its underlying Model changes,
+            // except in specific cases as with the CollectionView. So for these tests to pass we should address that.
+            this.textInput.toggleEnabled();
+            assert(this.textInput.$el.find('input').disabled);
         });
 
-        it('is enabled gain when .toggleEnable called twice', function(){
-            assert(false);
+        it('is enabled gain when .toggleEnabled called twice', function(){
+            this.textInput.toggleEnabled();
+            this.textInput.toggleEnabled();
+            assert(!this.textInput.$el.find('input').disabled);
         });
     });
 

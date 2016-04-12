@@ -36,6 +36,10 @@ var AbstractTextInput = Mn.ItemView.extend({
 
     clear: function() {
         this.$el.find('input').val('');
+    },
+
+    toggleEnabled: function() {
+        this.model.set('enabled', !this.model.get('enabled'));
     }
 });
 
