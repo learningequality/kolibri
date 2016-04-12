@@ -9,7 +9,7 @@ from django.test import TestCase
 from .helpers import create_dummy_facility_data
 
 from ..constants import role_kinds
-from ..models import DeviceOwner, Facility, Classroom, LearnerGroup, Role, FacilityUser
+from ..models import DeviceOwner, Facility, Classroom, LearnerGroup, Role, Membership, FacilityUser
 
 
 class FacilityPermissionsTestCase(TestCase):
@@ -119,11 +119,11 @@ class ClassroomPermissionsTestCase(TestCase):
         self.assertTrue(self.own_classroom_admin.can_read(self.own_classroom))
         self.assertTrue(self.data["facility_admin"].can_read(self.own_classroom))
 
-    def test_members_and_classroom_admins_and_coaches_cannot_read_other_classroom(self):
+    def test_members_and_classroom_admins_and_coaches_can_read_other_classroom(self):
         """ Members and admins/coaches for a Classroom cannot read another Classroom """
-        self.assertFalse(self.member.can_read(self.other_classroom))
-        self.assertFalse(self.own_classroom_coach.can_read(self.other_classroom))
-        self.assertFalse(self.own_classroom_admin.can_read(self.other_classroom))
+        self.assertTrue(self.member.can_read(self.other_classroom))
+        self.assertTrue(self.own_classroom_coach.can_read(self.other_classroom))
+        self.assertTrue(self.own_classroom_admin.can_read(self.other_classroom))
 
     def test_only_admins_can_update_own_classroom(self):
         """ The only FacilityUsers who can update a Classroom are admins for that Classroom (or for the Facility) """
@@ -139,9 +139,9 @@ class ClassroomPermissionsTestCase(TestCase):
         self.assertFalse(self.member.can_update(self.other_classroom))
 
     def test_only_admins_can_delete_own_classroom(self):
-        """ The only FacilityUsers who can delete a Classroom are admins for that Classroom (or for the Facility) """
+        """ The only FacilityUsers who can delete a Classroom are admins for the the Facility """
         self.assertTrue(self.data["facility_admin"].can_delete(self.own_classroom))
-        self.assertTrue(self.own_classroom_admin.can_delete(self.own_classroom))
+        self.assertFalse(self.own_classroom_admin.can_delete(self.own_classroom))
         self.assertFalse(self.own_classroom_coach.can_delete(self.own_classroom))
         self.assertFalse(self.member.can_delete(self.own_classroom))
 
@@ -193,11 +193,11 @@ class LearnerGroupPermissionsTestCase(TestCase):
         self.assertTrue(self.own_classroom_admin.can_read(self.own_learnergroup))
         self.assertTrue(self.data["facility_admin"].can_read(self.own_learnergroup))
 
-    def test_members_and_classroom_admins_and_coaches_cannot_read_other_learnergroup(self):
-        """ Members and admins/coaches for a Classroom cannot read a LearnerGroup from another Classroom """
-        self.assertFalse(self.member.can_read(self.other_learnergroup))
-        self.assertFalse(self.own_classroom_coach.can_read(self.other_learnergroup))
-        self.assertFalse(self.own_classroom_admin.can_read(self.other_learnergroup))
+    # def test_members_and_classroom_admins_and_coaches_cannot_read_other_learnergroup(self):
+    #     """ Members and admins/coaches for a Classroom cannot read a LearnerGroup from another Classroom """
+    #     self.assertFalse(self.member.can_read(self.other_learnergroup))
+    #     self.assertFalse(self.own_classroom_coach.can_read(self.other_learnergroup))
+    #     self.assertFalse(self.own_classroom_admin.can_read(self.other_learnergroup))
 
     def test_only_admins_can_update_own_learnergroup(self):
         """ The only FacilityUsers who can update a LearnerGroup are admins for that LearnerGroup """
@@ -281,6 +281,7 @@ class FacilityUserPermissionsTestCase(TestCase):
 
     def test_admins_and_coaches_can_read_facility_users(self):
         """ Users with admin/coach role for a FacilityUser can read that FacilityUser """
+        self.data["facility_coach"].get_roles_for_user(self.member)
         self.assertTrue(self.data["facility_admin"].can_read(self.member))
         self.assertTrue(self.data["facility_coach"].can_read(self.member))
         self.assertTrue(self.own_classroom_admin.can_read(self.member))
@@ -328,12 +329,12 @@ class FacilityUserPermissionsTestCase(TestCase):
         self.assertFalse(self.own_classroom_coach.can_update(orphan))
         self.assertFalse(self.member.can_update(orphan))
 
-    def test_facility_user_cannot_delete_self(self):
-        """ A FacilityUser cannot delete its own FacilityUser model, even for an admin/coach """
-        self.assertFalse(self.member.can_delete(self.member))
-        self.assertFalse(self.own_classroom_coach.can_delete(self.own_classroom_coach))
-        self.assertFalse(self.own_classroom_admin.can_delete(self.own_classroom_admin))
-        self.assertFalse(self.data["facility_admin"].can_delete(self.data["facility_admin"]))
+    def test_facility_user_can_delete_self(self):
+        """ A FacilityUser can delete its own FacilityUser model """
+        self.assertTrue(self.member.can_delete(self.member))
+        self.assertTrue(self.own_classroom_coach.can_delete(self.own_classroom_coach))
+        self.assertTrue(self.own_classroom_admin.can_delete(self.own_classroom_admin))
+        self.assertTrue(self.data["facility_admin"].can_delete(self.data["facility_admin"]))
 
     def test_only_facility_admins_can_delete_facility_user(self):
         """ The only FacilityUsers who can delete a FacilityUser are admins for the Facility """
@@ -511,7 +512,7 @@ class RolePermissionsTestCase(TestCase):
         self.assertTrue(self.role_user.can_read(role))
         self.assertTrue(self.device_owner.can_read(role))
 
-    def test_nobody_can_update_role(self):
+    def test_facility_users_cannot_update_roles(self):
         # None of the fields in a role are "mutable", so there's no reason to allow updates
         # (changing a role from one kind to another means deleting the existing role and creating another)
         role = Role.objects.create(user=self.role_user, collection=self.own_classroom, kind=role_kinds.COACH)
@@ -523,7 +524,6 @@ class RolePermissionsTestCase(TestCase):
         self.assertFalse(self.other_classroom_coach.can_update(role))
         self.assertFalse(self.member.can_update(role))
         self.assertFalse(self.role_user.can_update(role))
-        self.assertFalse(self.device_owner.can_update(role))
 
     def test_facility_admin_can_delete_facility_admin_role(self):
         role = Role.objects.create(user=self.role_user, collection=self.data["facility"], kind=role_kinds.ADMIN)
@@ -542,7 +542,7 @@ class RolePermissionsTestCase(TestCase):
         self.assertFalse(self.own_classroom_admin.can_delete(role))
         self.assertFalse(self.own_classroom_coach.can_delete(role))
         self.assertFalse(self.member.can_delete(role))
-        self.assertTrue(self.role_user.can_delete(role))
+        self.assertFalse(self.role_user.can_delete(role))
         self.assertTrue(self.device_owner.can_delete(role))
 
     def test_facility_or_classroom_admin_can_delete_classroom_admin_role(self):
@@ -554,7 +554,7 @@ class RolePermissionsTestCase(TestCase):
         self.assertFalse(self.other_classroom_admin.can_delete(role))
         self.assertFalse(self.other_classroom_coach.can_delete(role))
         self.assertFalse(self.member.can_delete(role))
-        self.assertTrue(self.role_user.can_delete(role))
+        self.assertTrue(self.role_user.can_delete(role))  # the role's user can delete it as she is an admin for collection
         self.assertTrue(self.device_owner.can_delete(role))
 
     def test_facility_or_classroom_admin_can_delete_classroom_coach_role(self):
@@ -566,5 +566,67 @@ class RolePermissionsTestCase(TestCase):
         self.assertFalse(self.other_classroom_admin.can_delete(role))
         self.assertFalse(self.other_classroom_coach.can_delete(role))
         self.assertFalse(self.member.can_delete(role))
-        self.assertTrue(self.role_user.can_delete(role))
+        self.assertFalse(self.role_user.can_delete(role))
         self.assertTrue(self.device_owner.can_delete(role))
+
+
+class MembershipPermissionsTestCase(TestCase):
+    """
+    Tests of permissions for reading/modifying Membership instances
+    """
+
+    def setUp(self):
+        self.data = create_dummy_facility_data()
+        self.member = self.data["learners_one_group"][0][0]
+        self.own_classroom = self.data["classrooms"][0]
+        self.other_classroom = self.data["classrooms"][1]
+        self.own_learnergroup = self.data["learnergroups"][0][0]
+        self.other_learnergroup = self.data["learnergroups"][1][1]
+        self.own_classroom_coach = self.data["classroom_coaches"][0]
+        self.own_classroom_admin = self.data["classroom_admins"][0]
+        self.other_classroom_coach = self.data["classroom_coaches"][1]
+        self.other_classroom_admin = self.data["classroom_admins"][1]
+        self.device_owner = DeviceOwner.objects.create(username="boss")
+
+    def test_only_admin_for_user_can_create_membership(self):
+        # try adding member of own_classroom as a member of other_classroom
+        new_membership_data = {"user": self.member, "collection": self.other_learnergroup}
+        self.assertTrue(self.data["facility_admin"].can_create(Membership, new_membership_data))
+        self.assertFalse(self.data["facility_coach"].can_create(Membership, new_membership_data))
+        self.assertTrue(self.own_classroom_admin.can_create(Membership, new_membership_data))
+        self.assertFalse(self.own_classroom_coach.can_create(Membership, new_membership_data))
+        self.assertFalse(self.other_classroom_admin.can_create(Membership, new_membership_data))
+        self.assertFalse(self.other_classroom_coach.can_create(Membership, new_membership_data))
+        self.assertFalse(self.member.can_create(Membership, new_membership_data))
+        self.assertTrue(self.device_owner.can_create(Membership, new_membership_data))
+
+    def test_facility_or_classroom_admin_or_coach_or_member_can_read_membership(self):
+        membership = Membership.objects.get(user=self.member, collection=self.own_learnergroup)
+        self.assertTrue(self.data["facility_admin"].can_read(membership))
+        self.assertTrue(self.data["facility_coach"].can_read(membership))
+        self.assertTrue(self.own_classroom_admin.can_read(membership))
+        self.assertTrue(self.own_classroom_coach.can_read(membership))
+        self.assertFalse(self.other_classroom_admin.can_read(membership))
+        self.assertFalse(self.other_classroom_coach.can_read(membership))
+        self.assertTrue(self.member.can_read(membership))
+        self.assertTrue(self.device_owner.can_read(membership))
+
+    def test_facility_users_cannot_update_memberships(self):
+        # None of the fields in a Membership are "mutable", so there's no reason to allow updates
+        membership = Membership.objects.get(user=self.member, collection=self.own_learnergroup)
+        self.assertFalse(self.data["facility_admin"].can_update(membership))
+        self.assertFalse(self.data["facility_coach"].can_update(membership))
+        self.assertFalse(self.own_classroom_admin.can_update(membership))
+        self.assertFalse(self.own_classroom_coach.can_update(membership))
+        self.assertFalse(self.other_classroom_admin.can_update(membership))
+        self.assertFalse(self.other_classroom_coach.can_update(membership))
+        self.assertFalse(self.member.can_update(membership))
+
+    def test_admin_can_delete_membership(self):
+        membership = Membership.objects.get(user=self.member, collection=self.own_learnergroup)
+        self.assertTrue(self.data["facility_admin"].can_delete(membership))
+        self.assertFalse(self.data["facility_coach"].can_delete(membership))
+        self.assertTrue(self.own_classroom_admin.can_delete(membership))
+        self.assertFalse(self.own_classroom_coach.can_delete(membership))
+        self.assertFalse(self.member.can_delete(membership))
+        self.assertTrue(self.device_owner.can_delete(membership))

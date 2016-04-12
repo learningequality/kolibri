@@ -46,14 +46,15 @@ def create_dummy_facility_data(classroom_count=2, learnergroup_count=2):
             facility=facility,
         ) for i, classroom in enumerate(data["classrooms"])
     ]
-    data["learners_one_group"] = [[
-        FacilityUser.objects.create(
-            username="learnerclass%dgroup%d" % (i, j),
-            password="***",
-            facility=facility,
-        ) for j, group in enumerate(classroom_list)
-    ] for i, classroom_list in enumerate(data["learnergroups"])]
     data["learner_all_groups"] = FacilityUser.objects.create(username="learnerag", password="***", facility=facility)
+    data["learners_one_group"] = []
+    for i, classroom_list in enumerate(data["learnergroups"]):
+        data["learners_one_group"].append([])
+        for j, group in enumerate(classroom_list):
+            learner = FacilityUser.objects.create(username="learnerclass%dgroup%d" % (i, j), password="***", facility=facility)
+            data["learners_one_group"][i].append(learner)
+            group.add_learner(learner)
+            group.add_learner(data["learner_all_groups"])
 
     data["unattached_users"] = [FacilityUser.objects.create(username="orphan%d" % i, password="*", facility=facility) for i in range(3)]
 
