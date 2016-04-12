@@ -237,7 +237,6 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
 
         :param user: The FacilityUser to dissociate from this Collection (for the specific role kind).
         :param role_kind: The kind of role to remove from the user with respect to this Collection.
-        :return: True if a Role was removed, False if there was no matching Role to remove.
         """
 
         # ensure the specified role kind is valid
@@ -399,7 +398,7 @@ class Facility(Collection):
         return [self.add_admin(user) for user in users]
 
     def remove_admin(self, user):
-        return self.remove_role(user, role_kinds.ADMIN)
+        self.remove_role(user, role_kinds.ADMIN)
 
     def add_coach(self, user):
         return self.add_role(user, role_kinds.COACH)
@@ -408,7 +407,7 @@ class Facility(Collection):
         return [self.add_coach(user) for user in users]
 
     def remove_coach(self, user):
-        return self.remove_role(user, role_kinds.COACH)
+        self.remove_role(user, role_kinds.COACH)
 
 
 class Classroom(Collection):
@@ -448,7 +447,7 @@ class Classroom(Collection):
         return [self.add_admin(user) for user in users]
 
     def remove_admin(self, user):
-        return self.remove_role(user, role_kinds.ADMIN)
+        self.remove_role(user, role_kinds.ADMIN)
 
     def add_coach(self, user):
         return self.add_role(user, role_kinds.COACH)
@@ -457,7 +456,7 @@ class Classroom(Collection):
         return [self.add_coach(user) for user in users]
 
     def remove_coach(self, user):
-        return self.remove_role(user, role_kinds.COACH)
+        self.remove_role(user, role_kinds.COACH)
 
 
 class LearnerGroup(Collection):

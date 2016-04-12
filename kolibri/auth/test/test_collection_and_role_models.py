@@ -165,8 +165,8 @@ class CollectionsTestCase(TestCase):
         self.facility.add_admin(user)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.ADMIN, collection=self.classroom).count(), 1)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.ADMIN, collection=self.facility).count(), 1)
-        self.assertTrue(self.classroom.remove_admin(user))
-        self.assertTrue(self.facility.remove_admin(user))
+        self.classroom.remove_admin(user)
+        self.facility.remove_admin(user)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.ADMIN, collection=self.classroom).count(), 0)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.ADMIN, collection=self.facility).count(), 0)
 
@@ -176,8 +176,8 @@ class CollectionsTestCase(TestCase):
         self.facility.add_coach(user)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.COACH, collection=self.classroom).count(), 1)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.COACH, collection=self.facility).count(), 1)
-        self.assertTrue(self.classroom.remove_coach(user))
-        self.assertTrue(self.facility.remove_coach(user))
+        self.classroom.remove_coach(user)
+        self.facility.remove_coach(user)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.COACH, collection=self.classroom).count(), 0)
         self.assertEqual(Role.objects.filter(user=user, kind=role_kinds.COACH, collection=self.facility).count(), 0)
 
