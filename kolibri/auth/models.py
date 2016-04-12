@@ -229,6 +229,25 @@ class DeviceOwner(KolibriAbstractBaseUser):
     is_staff = True
     is_superuser = True
 
+    def is_member_of(self, coll):
+        return False  # a DeviceOwner is not a member of any Collection
+
+    def get_roles_for_user(self, user):
+        return set([role_kinds.ADMIN])  # a DeviceOwner has admin role for all users on the device
+
+    def get_roles_for_collection(self, coll):
+        return set([role_kinds.ADMIN])  # a DeviceOwner has admin role for all collections on the device
+
+    def has_role_for_user(self, kinds, user):
+        if isinstance(kinds, basestring):
+            kinds = [kinds]
+        return role_kinds.ADMIN in kinds  # a DeviceOwner has admin role for all users on the device
+
+    def has_role_for_collection(self, kinds, coll):
+        if isinstance(kinds, basestring):
+            kinds = [kinds]
+        return role_kinds.ADMIN in kinds  # a DeviceOwner has admin role for all collections on the device
+
 
 class Collection(MPTTModel, AbstractFacilityDataModel):
     """
