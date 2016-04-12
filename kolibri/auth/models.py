@@ -27,6 +27,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from kolibri.core.errors import KolibriValidationError
 from mptt.models import MPTTModel, TreeForeignKey
+from six import string_types
 
 from .constants import collection_kinds, role_kinds
 from .errors import (
@@ -293,12 +294,12 @@ class DeviceOwner(KolibriAbstractBaseUser):
         return set([role_kinds.ADMIN])  # a DeviceOwner has admin role for all collections on the device
 
     def has_role_for_user(self, kinds, user):
-        if isinstance(kinds, basestring):
+        if isinstance(kinds, string_types):
             kinds = [kinds]
         return role_kinds.ADMIN in kinds  # a DeviceOwner has admin role for all users on the device
 
     def has_role_for_collection(self, kinds, coll):
-        if isinstance(kinds, basestring):
+        if isinstance(kinds, string_types):
             kinds = [kinds]
         return role_kinds.ADMIN in kinds  # a DeviceOwner has admin role for all collections on the device
 

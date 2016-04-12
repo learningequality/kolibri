@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.query import F
+from six import string_types
 
 from .constants import collection_kinds
 
@@ -91,7 +92,7 @@ class HierarchyRelationsFilter(object):
     def _as_sql_reference(self, ref):
         if hasattr(ref, "id"):  # ref is a model instance; return its ID
             return ref.id
-        elif isinstance(ref, basestring) or isinstance(ref, int):  # ref is a string or integer; assume it's an ID
+        elif isinstance(ref, string_types) or isinstance(ref, int):  # ref is a string or integer; assume it's an ID
             return ref
         elif isinstance(ref, F):  # ref is an F expression; resolve it to a SQL reference
             return self._resolve_f_expression(ref)
@@ -162,7 +163,7 @@ class HierarchyRelationsFilter(object):
 
         if role_kind:
             # if role_kind is a single string, put it into a list
-            if isinstance(role_kind, basestring):
+            if isinstance(role_kind, string_types):
                 role_kind = [role_kind]
             # convert the list of kinds into a list of strings for use in SQL
             kinds_string = "('{kind_list}')".format(kind_list="','".join(role_kind))
