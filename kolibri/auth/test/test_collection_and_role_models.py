@@ -11,7 +11,7 @@ from django.test import TestCase
 from ..constants import role_kinds
 from ..models import FacilityUser, Facility, Classroom, LearnerGroup, Role, Membership, Collection, DeviceOwner
 from ..errors import UserDoesNotHaveRoleError, UserHasRoleOnlyIndirectlyThroughHierarchyError, UserIsNotFacilityUser, \
-    UserIsMemberOnlyIndirectlyThroughHierarchyError, InvalidRoleKind
+    UserIsMemberOnlyIndirectlyThroughHierarchyError, InvalidRoleKind, UserIsNotMemberError
 
 
 class CollectionRoleMembershipDeletionTestCase(TestCase):
@@ -41,23 +41,60 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
         self.device_owner = DeviceOwner.objects.create(username="blah", password="*")
 
     def test_remove_learner(self):
+        self.assertTrue(self.learner.is_member_of(self.lg))
+        self.assertTrue(self.learner.is_member_of(self.cr))
+        self.assertTrue(self.learner.is_member_of(self.facility))
         self.assertEqual(Membership.objects.filter(user=self.learner, collection=self.lg).count(), 1)
+
         self.lg.remove_learner(self.learner)
+
+        self.assertFalse(self.learner.is_member_of(self.lg))
+        self.assertFalse(self.learner.is_member_of(self.cr))
+        self.assertTrue(self.learner.is_member_of(self.facility))  # always a member of one's own facility
         self.assertEqual(Membership.objects.filter(user=self.learner, collection=self.lg).count(), 0)
-        with self.assertRaises(UserDoesNotHaveRoleError):
+
+        with self.assertRaises(UserIsNotMemberError):
             self.lg.remove_learner(self.learner)
 
     def test_remove_coach(self):
+        self.assertTrue(self.classroom_coach.has_role_for_collection(role_kinds.COACH, self.lg))
+        self.assertTrue(self.classroom_coach.has_role_for_collection(role_kinds.COACH, self.cr))
+        self.assertFalse(self.classroom_coach.has_role_for_collection(role_kinds.COACH, self.facility))
+        self.assertFalse(self.classroom_coach.has_role_for_collection(role_kinds.ADMIN, self.lg))
+        self.assertTrue(self.classroom_coach.has_role_for_user(role_kinds.COACH, self.learner))
+        self.assertFalse(self.classroom_coach.has_role_for_user(role_kinds.COACH, self.facility_admin))
+        self.assertFalse(self.classroom_coach.has_role_for_user(role_kinds.ADMIN, self.learner))
         self.assertEqual(Role.objects.filter(user=self.classroom_coach, kind=role_kinds.COACH, collection=self.cr).count(), 1)
+
         self.cr.remove_coach(self.classroom_coach)
+
+        self.assertFalse(self.classroom_coach.has_role_for_collection(role_kinds.COACH, self.lg))
+        self.assertFalse(self.classroom_coach.has_role_for_collection(role_kinds.COACH, self.cr))
+        self.assertFalse(self.classroom_coach.has_role_for_collection(role_kinds.COACH, self.facility))
+        self.assertFalse(self.classroom_coach.has_role_for_collection(role_kinds.ADMIN, self.lg))
+        self.assertFalse(self.classroom_coach.has_role_for_user(role_kinds.COACH, self.learner))
+        self.assertFalse(self.classroom_coach.has_role_for_user(role_kinds.COACH, self.facility_admin))
+        self.assertFalse(self.classroom_coach.has_role_for_user(role_kinds.ADMIN, self.learner))
         self.assertEqual(Role.objects.filter(user=self.classroom_coach, kind=role_kinds.COACH, collection=self.cr).count(), 0)
+
         with self.assertRaises(UserDoesNotHaveRoleError):
             self.cr.remove_coach(self.classroom_coach)
 
     def test_remove_admin(self):
+        self.assertTrue(self.facility_admin.has_role_for_collection(role_kinds.ADMIN, self.lg))
+        self.assertTrue(self.facility_admin.has_role_for_collection(role_kinds.ADMIN, self.cr))
+        self.assertTrue(self.facility_admin.has_role_for_collection(role_kinds.ADMIN, self.facility))
+        self.assertFalse(self.facility_admin.has_role_for_collection(role_kinds.COACH, self.lg))
+        self.assertTrue(self.facility_admin.has_role_for_user(role_kinds.ADMIN, self.learner))
+        self.assertTrue(self.facility_admin.has_role_for_user(role_kinds.ADMIN, self.facility_admin))
+        self.assertTrue(self.facility_admin.has_role_for_user(role_kinds.ADMIN, self.classroom_coach))
+        self.assertFalse(self.facility_admin.has_role_for_user(role_kinds.COACH, self.learner))
         self.assertEqual(Role.objects.filter(user=self.facility_admin, kind=role_kinds.ADMIN, collection=self.facility).count(), 1)
+
         self.facility.remove_admin(self.facility_admin)
+
         self.assertEqual(Role.objects.filter(user=self.facility_admin, kind=role_kinds.ADMIN, collection=self.facility).count(), 0)
+
         with self.assertRaises(UserDoesNotHaveRoleError):
             self.facility.remove_admin(self.facility_admin)
 

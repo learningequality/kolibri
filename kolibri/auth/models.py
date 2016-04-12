@@ -140,6 +140,60 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     def get_short_name(self):
         return self.first_name
 
+    def is_member_of(self, coll):
+        """
+        Determine whether this user has the specified role kind in relation to the target user.
+
+        :param user: The user that is the target of the role (for which this user has the roles).
+        :return: True if this user has the specified role kind with respect to the target user, otherwise False.
+        :rtype: bool
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `is_member_of` method.")
+
+    def get_roles_for_user(self, user):
+        """
+        Determine all the roles this user has in relation to the target user, and return a set containing the kinds of roles.
+
+        :param user: The target user for which this user has the roles.
+        :return: The kinds of roles this user has with respect to the target user.
+        :rtype: set of kolibri.auth.constants.role_kinds.* strings
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_user` method.")
+
+    def get_roles_for_collection(self, coll):
+        """
+        Determine all the roles this user has in relation to the specified collection, and return a set containing the kinds of roles.
+
+        :param coll: The target collection for which this user has the roles.
+        :return: The kinds of roles this user has with respect to the specified collection.
+        :rtype: set of kolibri.auth.constants.role_kinds.* strings
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_collection` method.")
+
+    def has_role_for_user(self, kinds, user):
+        """
+        Determine whether this user has (at least one of) the specified role kind(s) in relation to the specified user.
+
+        :param user: The user that is the target of the role (for which this user has the roles).
+        :param kinds: The kind (or kinds) of role to check for, as a string or iterable.
+        :type kinds: string from kolibri.auth.constants.role_kinds.*
+        :return: True if this user has the specified role kind with respect to the target user, otherwise False.
+        :rtype: bool
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `has_role_for_user` method.")
+
+    def has_role_for_collection(self, kinds, coll):
+        """
+        Determine whether this user has (at least one of) the specified role kind(s) in relation to the specified collection.
+
+        :param user: The user that is the target of the role (for which this user has the roles).
+        :param kinds: The kind (or kinds) of role to check for, as a string or iterable.
+        :type kinds: string from kolibri.auth.constants.role_kinds.*
+        :return: True if this user has the specified role kind with respect to the target collection, otherwise False.
+        :rtype: bool
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `has_role_for_collection` method.")
+
 
 class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
@@ -248,7 +302,7 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
             raise UserIsNotFacilityUser("You can only remove roles for FacilityUsers.")
 
         # make sure the user has the role to begin with
-        if not user.has_role_for(self):
+        if not user.has_role_for_collection(role_kind, self):
             raise UserDoesNotHaveRoleError("User does not have this role for this collection.")
 
         # delete the appropriate role, if it exists
@@ -289,7 +343,7 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         if not isinstance(user, FacilityUser):
             raise UserIsNotFacilityUser("You can only remove memberships for FacilityUsers.")
 
-        if not self.is_member(user):
+        if not user.is_member_of(self):
             raise UserIsNotMemberError("The user is not a member of the collection, and cannot be removed.")
 
         # delete the appropriate membership, if it exists
