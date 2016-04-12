@@ -21,6 +21,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.contrib.auth.models import AbstractBaseUser
 from django.core import validators
 from django.db import models
+from django.db.models.query import F
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -34,6 +35,7 @@ from .errors import (
     UserIsMemberOnlyIndirectlyThroughHierarchyError, UserIsNotFacilityUser,
     UserIsNotMemberError
 )
+from .filters import HierarchyRelationsFilter
 
 
 class FacilityDataset(models.Model):
@@ -212,6 +214,58 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     def infer_dataset(self):
         return self.facility.dataset
+
+    def is_member_of(self, coll):
+        if self.dataset_id != coll.dataset_id:
+            return False
+        if coll.kind == collection_kinds.FACILITY:
+            return True  # FacilityUser is always a member of her own facility
+        if self.membership_set.count() == 0 and coll.kind == "facility":
+            print("No membership, checking facility")
+        return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
+            target_user=F("id"),
+            ancestor_collection=coll,
+        ).filter(id=self.id).exists()
+
+    def get_roles_for_user(self, user):
+        if self.dataset_id != user.dataset_id:
+            return set([])
+        role_instances = HierarchyRelationsFilter(Role).filter_by_hierarchy(
+            role=F("id"),
+            source_user=self,
+            target_user=user,
+        )
+        return set([instance["kind"] for instance in role_instances.values("kind").distinct()])
+
+    def get_roles_for_collection(self, coll):
+        if self.dataset_id != coll.dataset_id:
+            return set([])
+        role_instances = HierarchyRelationsFilter(Role).filter_by_hierarchy(
+            role=F("id"),
+            source_user=self,
+            descendant_collection=coll,
+        )
+        return set([instance["kind"] for instance in role_instances.values("kind").distinct()])
+
+    def has_role_for_user(self, kinds, user):
+        if self.dataset_id != user.dataset_id:
+            return False
+        return HierarchyRelationsFilter(Role).filter_by_hierarchy(
+            ancestor_collection=F("collection"),
+            source_user=F("user"),
+            role_kind=kinds,
+            target_user=user,
+        ).filter(user=self).exists()
+
+    def has_role_for_collection(self, kinds, coll):
+        if self.dataset_id != coll.dataset_id:
+            return False
+        return HierarchyRelationsFilter(Role).filter_by_hierarchy(
+            ancestor_collection=F("collection"),
+            source_user=F("user"),
+            role_kind=kinds,
+            descendant_collection=coll,
+        ).filter(user=self).exists()
 
 
 class DeviceOwner(KolibriAbstractBaseUser):
