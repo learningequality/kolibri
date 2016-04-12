@@ -36,9 +36,9 @@ class KolibriCoreFrontEnd(KolibriFrontEndPluginBase):
     """
     Plugin to handle
     """
-    name = "kolibri_core"
     entry_file = "assets/src/kolibri_core_app.js"
     external = True
+    core = True
 
     def hooks(self):
         return {

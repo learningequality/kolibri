@@ -1,5 +1,11 @@
 // Karma configuration
 // Generated on Thu Feb 11 2016 12:59:11 GMT-0800 (PST)
+var RewirePlugin = require("rewire-webpack");
+var _ = require("lodash");
+var webpack_config = _.clone(require("./webpack.config.base"));
+
+webpack_config.plugins.push(new RewirePlugin());
+webpack_config.devtool = '#inline-source-map';
 
 module.exports = function(config) {
   config.set({
@@ -16,7 +22,6 @@ module.exports = function(config) {
     // list of files / patterns to load
     files: [
       'kolibri/**/assets/test/*.js',
-      {pattern: '*.js', included: false}, // load these, but not in the browser, just for linting
       {pattern: 'kolibri/**/assets/src/**/*.js', included: false} // load these, but not in the browser, just for linting
     ],
 
@@ -29,7 +34,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'kolibri/**/assets/test/*.js': ['jshint', 'webpack'],
+      'kolibri/**/assets/test/*.js': ['jshint', 'webpack', 'sourcemap'],
       '*.js': ['jshint'],
       'kolibri/**/assets/src/**/*.js': ['jshint']
     },
@@ -62,13 +67,10 @@ module.exports = function(config) {
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: ['PhantomJS'],
 
-    webpack: {
-      // webpack configuration
-      module: {
-          // Loaders for different asset files will go here.
-        loaders: [
-        ]
-      }
+    webpack: webpack_config,
+
+    jshintPreprocessor: {
+      jshintrc: './.jshintrc'
     },
 
 

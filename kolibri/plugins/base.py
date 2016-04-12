@@ -91,11 +91,11 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
     must implement, in order for them to be part of the webpack asset loading pipeline.
     Minimally these must implement the following properties and methods:
 
-    The name of the frontend plugin.
-    name = "example_plugin"
+    The name of the frontend module that this plugin defines.
+    name = "example_module"
 
     The path to the Javascript file that defines the plugin/acts as the entry point.
-    entry_file = "assets/js/example_plugin.js"
+    entry_file = "assets/js/example_module.js"
 
     This hook will register the frontend plugin to be available for rendering its built files into Django templates.
     def hooks(self):
@@ -108,27 +108,43 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
     def webpack_bundle_data(cls):
         """
         Returns information needed by the webpack parsing process.
-        :return: dict with keys "name", "entry_file", and, "external".
-        "name" - is the name that the frontend plugin has.
+        :return: dict
+        "name" - is the module path that the frontend plugin has.
         "entry_file" - is the Javascript file that defines the plugin.
-        "external" - an optional flag used only by the kolibri_core plugin.
+        "external" - an optional flag currently used only by the core plugin.
+        "core" - an optional flag *only* ever used by the core plugin.
+        "events" - the hash of event names and method callbacks that the KolibriModule defined here registers to.
+        "once" - the hash of event names and method callbacks that the KolibriModule defined here registers to for a
+        one time callback.
         """
         try:
-            return {
-                "name": cls.name,
+            output = cls.async_events()
+            output.update({
+                "name": cls.plugin_name(),
                 "entry_file": cls.entry_file,
                 "external": getattr(cls, "external", None),
+                "core": getattr(cls, "core", None),
                 "stats_file": cls.stats_file(),
-                "module_name": cls._module_path(),
                 "module_path": cls._module_file_path(),
-            }
+            })
+            return output
         except KeyError:
             raise MandatoryPluginAttributeNotImplemented
 
     @classmethod
+    def build_path(cls):
+        return os.path.join(os.path.abspath(os.path.dirname(__name__)), cls._module_file_path(), "build")
+
+    @classmethod
     def stats_file(cls):
-        return os.path.join(os.path.abspath(os.path.dirname(__name__)),
-                            cls._module_file_path(), "{plugin}_stats.json".format(plugin=cls.name))
+        return os.path.join(cls.build_path(), "{plugin}_stats.json".format(plugin=cls.__name__))
+
+    @classmethod
+    def async_events(cls):
+        return {
+            "events": getattr(cls, "events", {}),
+            "once": getattr(cls, "once", {}),
+        }
 
     @classmethod
     def _module_file_path(cls):
@@ -142,10 +158,17 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
         return os.path.join(*cls.__module__.split(".")[:-1])
 
     @classmethod
+    def plugin_name(cls):
+        """
+        Returns the name of the frontend plugin as referenced in the frontend framework and template tags
+        :return: string
+        """
+        return cls._module_path() + "." + cls.__name__
+
+    @classmethod
     def _register_front_end_plugins(cls):
         """
         Call this to register front end plugins in a Kolibri plugin to allow for
         import into templates.
         """
-        module_path = cls._module_path()
-        return module_path, cls.name, cls.stats_file()
+        return cls.plugin_name(), cls.stats_file(), cls.async_events()

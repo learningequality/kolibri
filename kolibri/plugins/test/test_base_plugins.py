@@ -10,7 +10,6 @@ from kolibri.plugins.base import KolibriFrontEndPluginBase
 class KolibriFrontEndPluginBaseTestCase(TestCase):
     def setUp(self):
         class KolibriTestFrontEnd(KolibriFrontEndPluginBase):
-            name = "test"
             entry_file = "test.js"
         self.plugin_base = KolibriTestFrontEnd()
 
@@ -18,7 +17,7 @@ class KolibriFrontEndPluginBaseTestCase(TestCase):
         self.assertEqual(self.plugin_base._module_file_path(), os.path.join("kolibri", "plugins", "test"))
 
     def test_register_front_end_plugins(self):
-        module_path, name, stats_file = self.plugin_base._register_front_end_plugins()
-        self.assertEqual(module_path, "kolibri.plugins.test")
-        self.assertIn("test_stats.json", stats_file)
-        self.assertEqual(name, "test")
+        bundle_path, stats_file, async_events = self.plugin_base._register_front_end_plugins()
+        self.assertEqual(bundle_path, "kolibri.plugins.test" + "." + type(self.plugin_base).__name__)
+        self.assertIn(type(self.plugin_base).__name__ + "_stats.json", stats_file)
+        self.assertEqual({"events": {}, "once": {}}, async_events)
