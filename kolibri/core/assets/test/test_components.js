@@ -66,27 +66,6 @@ describe('Components test suite:', function(){
             this.textInput.$el.find('input').trigger(ev);
         });
 
-        it('triggers a "text_input:text_changed" event when input stops for 5ms', function(done){
-            this.textInput.on('text_input:text_changed', function(text){
-                assert(text === 'aaaaa');
-                done();
-            });
-            var self = this;
-            var cnt = 0;
-            // The idea here is to give some input periodically and then stop.
-            var interval = setInterval(function(){
-                cnt++;
-                var ev = $.Event('keypress');
-                ev.which = 'a'.charCodeAt();
-                self.textInput.$el.find('input').trigger(ev);
-                if(cnt === 5) {
-                    clearInterval(interval);
-                    // We set the value directly, since keypress events don't seem to do the trick.
-                    self.textInput.$el.find('input').val(_.repeat('a', cnt));
-                }
-            }, 3);
-        });
-
         it('triggers a "text_input:text_changed" event when focus is changed', function(done){
             this.textInput.on('text_input:text_changed', function(){
                 done();

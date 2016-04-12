@@ -17,27 +17,13 @@ var AbstractTextInput = Mn.ItemView.extend({
     },
 
     events: {
-        'keyup input': 'keyup',
-        'keypress input': 'keypress'
+        'keyup input': 'keyup'
     },
 
     keyup: function(ev) {
         if(ev.which === 13) { // 13 corresponds to enter, and is normalized by jQuery
             this._trigger();
         }
-    },
-
-    keypress: function() {
-        /*
-            Trigger the "text_input:text_changed" event when input stops. Hard-coded to 5ms.
-         */
-        if(this._timeout){
-            clearTimeout(this._timeout);
-        }
-        var self = this;
-        this._timeout = setTimeout(function(){
-            self._trigger();
-        }, 5);
     },
 
     onInputChanged: function(){
