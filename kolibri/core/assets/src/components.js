@@ -9,20 +9,43 @@ logging.info('Component views loaded!');
 
 
 var AbstractTextInput = Mn.ItemView.extend({
-    template: function(serialized_model) {
-        return _.template('<div>foo</div>');
-    },
-
-    initialize: function() {
-        _.bindAll(this, 'template');
-    },
+    template: _.template('<div>foo</div>'),
 
     triggers: {
-        'change input': 'inputChanged'
+        'change input': 'inputChanged',
+        'focusout input': 'inputChanged'
     },
 
-    onInputChanged: function(args) {
-        this.trigger('text_input_field:text_changed', args.view.$el.find('input').val());
+    events: {
+        'keyup input': 'keyup',
+        'keypress input': 'keypress'
+    },
+
+    keyup: function(ev) {
+        if(ev.which === 13) { // 13 corresponds to enter, and is normalized by jQuery
+            this._trigger();
+        }
+    },
+
+    keypress: function() {
+        /*
+            Trigger the "text_input:text_changed" event when input stops. Hard-coded to 5ms.
+         */
+        if(this._timeout){
+            clearTimeout(this._timeout);
+        }
+        var self = this;
+        this._timeout = setTimeout(function(){
+            self._trigger();
+        }, 5);
+    },
+
+    onInputChanged: function(){
+        this._trigger();
+    },
+
+    _trigger: function() {
+        this.trigger('text_input:text_changed', this.$el.find('input').val());
     },
 
     clear: function() {
@@ -40,6 +63,10 @@ var TextLineInput = AbstractTextInput.extend({
             template_html = '<input type="search" disabled placeholder="Search here!">';
         }
         return _.template(template_html);
+    },
+
+    initialize: function() {
+        _.bindAll(this, 'template');
     }
 });
 

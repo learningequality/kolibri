@@ -15,13 +15,13 @@ describe('Components test suite:', function(){
     });
 
 
-    after(function() {
+    afterEach(function() {
         this.app.getRegion('body').empty();
     });
 
 
     describe('TagList', function(){
-        before(function(){
+        beforeEach(function(){
             var tags = new Backbone.Collection([
                 new Backbone.Model({name: 'tag1'}),
                 new Backbone.Model({name: 'tag2'}),
@@ -48,43 +48,63 @@ describe('Components test suite:', function(){
     });
 
 
-    describe('AbstractTextInput suite:', function(){
-        var classes = {
-            'TextLineInput': components.TextLineInput,
-            'TextAreaInput': components.TextAreaInput,
-            'PasswordInput': components.PasswordInput,
-            'ValidatingTextInput': components.ValidatingTextInput
-        };
+    describe('TextLineInput', function(){
+        beforeEach(function(){
+            var model = new Backbone.Model({
+                enabled: true
+            });
+            this.textInput = new components.TextLineInput({model: model});
+            this.app.getRegion('body').show(this.textInput);
+        });
 
-        _.forEach(classes, function(Klass, klass_name){
-            before(function(){
-                var model = new Backbone.Model({
-                    enabled: true
-                });
-                this.textInput = new Klass({model: model});
-                this.app.getRegion('body').show(this.textInput);
+        it('triggers a "text_input:text_changed" event when enter is pressed', function(done){
+            this.textInput.on('text_input:text_changed', function(){
+                done();
             });
+            var ev = $.Event('keyup');
+            ev.which = 13; // 13 corresponds to enter. This is normalized by jquery.
+            this.textInput.$el.find('input').trigger(ev);
+        });
 
-            it(klass_name + ' triggers a "text_input:text_changed" event when enter is pressed', function(done){
-                assert(false);
+        it('triggers a "text_input:text_changed" event when input stops for 5ms', function(done){
+            this.textInput.on('text_input:text_changed', function(text){
+                assert(text === 'aaaaa');
+                done();
             });
-            it(klass_name + ' triggers a "text_input:text_changed" event when input stops for 5ms', function(done){
-                assert(false);
+            var self = this;
+            var cnt = 0;
+            // The idea here is to give some input periodically and then stop.
+            var interval = setInterval(function(){
+                cnt++;
+                var ev = $.Event('keypress');
+                ev.which = 'a'.charCodeAt();
+                self.textInput.$el.find('input').trigger(ev);
+                if(cnt === 5) {
+                    clearInterval(interval);
+                    // We set the value directly, since keypress events don't seem to do the trick.
+                    self.textInput.$el.find('input').val(_.repeat('a', cnt));
+                }
+            }, 3);
+        });
+
+        it('triggers a "text_input:text_changed" event when focus is changed', function(done){
+            this.textInput.on('text_input:text_changed', function(){
+                done();
             });
-            it(klass_name + ' triggers a "text_input:text_changed" event when focus is changed', function(done){
-                assert(false);
-            });
-            it(klass_name + ' is disabled with .toggleEnable', function(){
-                assert(false);
-            });
-            it(klass_name + ' is enabled gain when .toggleEnable called twice', function(){
-                assert(false);
-            });
+            this.textInput.$el.find('input').focusout();
+        });
+
+        it('is disabled with .toggleEnable', function(){
+            assert(false);
+        });
+
+        it('is enabled gain when .toggleEnable called twice', function(){
+            assert(false);
         });
     });
 
 
-    describe('ValidatingTextInput, specifically:', function(){
+    describe('ValidatingTextInput:', function(){
         before(function(){
             var model = new Backbone.Model({
                 enabled: true,

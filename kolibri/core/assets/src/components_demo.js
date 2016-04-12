@@ -21,6 +21,7 @@ var KolibriModule = require('kolibri_module');
 var $ = require('jquery');
 var Backbone = require('backbone');
 Backbone.$ = $;
+global.$ = $;
 var Mn = require('backbone.marionette');
 var _ = require('lodash');
 
@@ -85,7 +86,7 @@ var TextInputWithTagDisplay = Mn.LayoutView.extend({
             coll.remove(tag);
         });
         // Similarly, I'm assuming that textInputFields emit the following event+arguments.
-        this.listenTo(this.textInputField, 'text_input_field:text_changed', function(text){
+        this.listenTo(this.textInputField, 'text_input:text_changed', function(text){
             this.model.get('tags').push(new Backbone.Model({
                 name: text
             }));
