@@ -3,8 +3,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.test import TestCase
 
 from .dummy_permissions_classes import ThrowExceptions
-from .helpers import create_dummy_facility_data
-from .dummy_test_models import DummyUserLogModel, DummyFacilitySettingModel
 
 from ..models import FacilityUser, DeviceOwner, Facility
 from ..permissions.base import BasePermissions
@@ -105,69 +103,3 @@ class TestBooleanOperationsOnPermissionClassesTestCase(TestCase):
     def test_and_is_not_shortcircuited_inappropriately(self):
         with self.assertRaises(Exception):
             self.assertDenyAll(ThrowExceptions() & DenyAll())
-
-
-class DummyDataMixin(object):
-
-    def setUp(self):
-
-        self.data1 = create_dummy_facility_data()
-        self.learner1 = self.data1["learners_one_group"][0][0]
-        self.learner1other = self.data1["learners_one_group"][0][1]
-        self.admin1 = self.data1["facility_admin"]
-        self.coach1 = self.data1["coaches"][0]
-        self.coach1other = self.data1["coaches"][1]
-
-        self.data2 = create_dummy_facility_data()
-        self.learner2 = self.data2["learners_one_group"][0][0]
-        self.admin2 = self.data2["facility_admin"]
-        self.coach2 = self.data2["coaches"][0]
-
-        self.device_owner = DeviceOwner.objects.create(username="blooh", password="#")
-
-
-class DummyModelPermissionsTestCase(DummyDataMixin, TestCase):
-
-    def test_dummy_user_log_permissions(self):
-        # create a dummy log record (without saving it)
-        log1 = DummyUserLogModel(user=self.learner1)
-
-        # check that everyone who should be able to read it can read it
-        for user in [self.learner1, self.admin1, self.coach1, self.device_owner]:
-            self.assertTrue(log1.user_can_read(user))
-        # check that everyone who shouldn't be able to read it cannot
-        for user in [self.learner1other, self.coach1other, self.learner2, self.admin2, self.coach2]:
-            self.assertFalse(log1.user_can_read(user))
-
-        # check that everyone who should be able to write it can write it
-        for user in [self.learner1, self.admin1, self.device_owner]:
-            self.assertTrue(log1.user_can_create(user))
-            self.assertTrue(log1.user_can_update(user))
-            self.assertTrue(log1.user_can_delete(user))
-        # check that everyone who shouldn't be able to write it cannot
-        for user in [self.learner1other, self.coach1, self.coach1other, self.learner2, self.admin2, self.coach2]:
-            self.assertFalse(log1.user_can_create(user))
-            self.assertFalse(log1.user_can_update(user))
-            self.assertFalse(log1.user_can_delete(user))
-
-    def test_dummy_facility_setting_permissions(self):
-        # create a dummy facility setting (without saving it)
-        setting1 = DummyFacilitySettingModel(facility=self.data1["facility"])
-
-        # check that everyone who should be able to read it can read it
-        for user in [self.learner1, self.admin1, self.coach1, self.device_owner, self.learner1other, self.coach1other]:
-            self.assertTrue(setting1.user_can_read(user))
-        # check that everyone who shouldn't be able to read it cannot
-        for user in [self.learner2, self.admin2, self.coach2]:
-            self.assertFalse(setting1.user_can_read(user))
-
-        # check that everyone who should be able to write it can write it
-        for user in [self.admin1, self.device_owner]:
-            self.assertTrue(setting1.user_can_create(user))
-            self.assertTrue(setting1.user_can_update(user))
-            self.assertTrue(setting1.user_can_delete(user))
-        # check that everyone who shouldn't be able to write it cannot
-        for user in [self.learner1, self.coach1, self.learner2, self.admin2, self.coach2]:
-            self.assertFalse(setting1.user_can_create(user))
-            self.assertFalse(setting1.user_can_update(user))
-            self.assertFalse(setting1.user_can_delete(user))

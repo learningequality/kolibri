@@ -142,7 +142,6 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     def get_short_name(self):
         return self.first_name
 
-<<<<<<< HEAD
     def is_member_of(self, coll):
         """
         Determine whether this user is a member of the specified collection.
@@ -196,7 +195,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :rtype: bool
         """
         raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `has_role_for_collection` method.")
-=======
+
     def can_create_instance(self, obj):
         """
         Checks whether this user (self) has permission to create a particular model instance (obj).
@@ -263,7 +262,82 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :return: True if this user should have permission to delete the object, otherwise False.
         """
         raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_delete` method.")
->>>>>>> Updates to class-based permissions interface as requested in #51 review.
+
+    def is_member_of(self, coll):
+        """
+        Determine whether this user has the specified role kind in relation to the target user.
+
+        :param user: The user that is the target of the role (for which this user has the roles).
+        :return: True if this user has the specified role kind with respect to the target user, otherwise False.
+        :rtype: bool
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `is_member_of` method.")
+
+    def get_roles_for_user(self, user):
+        """
+        Determine all the roles this user has in relation to the target user, and return a set containing the kinds of roles.
+
+        :param user: The target user for which this user has the roles.
+        :return: The kinds of roles this user has with respect to the target user.
+        :rtype: set of kolibri.auth.constants.role_kinds.* strings
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_user` method.")
+
+    def get_roles_for_collection(self, coll):
+        """
+        Determine all the roles this user has in relation to the specified collection, and return a set containing the kinds of roles.
+
+        :param coll: The target collection for which this user has the roles.
+        :return: The kinds of roles this user has with respect to the specified collection.
+        :rtype: set of kolibri.auth.constants.role_kinds.* strings
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_collection` method.")
+
+    def get_roles_for(self, obj):
+        """
+        Helper function that defers to `get_roles_for_user` or `get_roles_for_collection` based on the type of object passed in.
+        """
+        if isinstance(obj, KolibriAbstractBaseUser):
+            return self.get_roles_for_user(obj)
+        elif isinstance(obj, Collection):
+            return self.get_roles_for_collection(obj)
+        else:
+            raise ValueError("The `obj` argument to `get_roles_for` must be either an instance of KolibriAbstractBaseUser or Collection.")
+
+    def has_role_for_user(self, kinds, user):
+        """
+        Determine whether this user has (at least one of) the specified role kind(s) in relation to the specified user.
+
+        :param user: The user that is the target of the role (for which this user has the roles).
+        :param kinds: The kind (or kinds) of role to check for, as a string or iterable.
+        :type kinds: string from kolibri.auth.constants.role_kinds.*
+        :return: True if this user has the specified role kind with respect to the target user, otherwise False.
+        :rtype: bool
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `has_role_for_user` method.")
+
+    def has_role_for_collection(self, kinds, coll):
+        """
+        Determine whether this user has (at least one of) the specified role kind(s) in relation to the specified collection.
+
+        :param user: The user that is the target of the role (for which this user has the roles).
+        :param kinds: The kind (or kinds) of role to check for, as a string or iterable.
+        :type kinds: string from kolibri.auth.constants.role_kinds.*
+        :return: True if this user has the specified role kind with respect to the target collection, otherwise False.
+        :rtype: bool
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `has_role_for_collection` method.")
+
+    def has_role_for(self, kinds, obj):
+        """
+        Helper function that defers to `has_role_for_user` or `has_role_for_collection` based on the type of object passed in.
+        """
+        if isinstance(obj, KolibriAbstractBaseUser):
+            return self.has_role_for_user(kinds, obj)
+        elif isinstance(obj, Collection):
+            return self.has_role_for_collection(kinds, obj)
+        else:
+            raise ValueError("The `obj` argument to `has_role_for` must be either an instance of KolibriAbstractBaseUser or Collection.")
 
 
 class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
@@ -284,41 +358,38 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     def infer_dataset(self):
         return self.facility.dataset
 
-<<<<<<< HEAD
     def is_member_of(self, coll):
         if self.dataset_id != coll.dataset_id:
             return False
         if coll.kind == collection_kinds.FACILITY:
             return True  # FacilityUser is always a member of her own facility
-        if self.membership_set.count() == 0 and coll.kind == "facility":
-            print("No membership, checking facility")
         return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
             target_user=F("id"),
             ancestor_collection=coll,
         ).filter(id=self.id).exists()
 
     def get_roles_for_user(self, user):
-        if self.dataset_id != user.dataset_id:
+        if not hasattr(user, "dataset_id") or self.dataset_id != user.dataset_id:
             return set([])
         role_instances = HierarchyRelationsFilter(Role).filter_by_hierarchy(
-            role=F("id"),
-            source_user=self,
+            ancestor_collection=F("collection"),
+            source_user=F("user"),
             target_user=user,
-        )
+        ).filter(user=self)
         return set([instance["kind"] for instance in role_instances.values("kind").distinct()])
 
     def get_roles_for_collection(self, coll):
         if self.dataset_id != coll.dataset_id:
             return set([])
         role_instances = HierarchyRelationsFilter(Role).filter_by_hierarchy(
-            role=F("id"),
-            source_user=self,
+            ancestor_collection=F("collection"),
+            source_user=F("user"),
             descendant_collection=coll,
-        )
+        ).filter(user=self)
         return set([instance["kind"] for instance in role_instances.values("kind").distinct()])
 
     def has_role_for_user(self, kinds, user):
-        if self.dataset_id != user.dataset_id:
+        if not hasattr(user, "dataset_id") or self.dataset_id != user.dataset_id:
             return False
         return HierarchyRelationsFilter(Role).filter_by_hierarchy(
             ancestor_collection=F("collection"),
@@ -336,7 +407,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             role_kind=kinds,
             descendant_collection=coll,
         ).filter(user=self).exists()
-=======
+
     def _has_permissions_class(self, obj):
         return hasattr(obj, "permissions") and isinstance(obj.permissions, BasePermissions)
 
@@ -367,7 +438,6 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return obj.permissions.user_can_delete_object(self, obj)
         else:
             return False
->>>>>>> Updates to class-based permissions interface as requested in #51 review.
 
 
 class DeviceOwner(KolibriAbstractBaseUser):
@@ -387,7 +457,6 @@ class DeviceOwner(KolibriAbstractBaseUser):
     is_staff = True
     is_superuser = True
 
-<<<<<<< HEAD
     def is_member_of(self, coll):
         return False  # a DeviceOwner is not a member of any Collection
 
@@ -406,7 +475,7 @@ class DeviceOwner(KolibriAbstractBaseUser):
         if isinstance(kinds, string_types):
             kinds = [kinds]
         return role_kinds.ADMIN in kinds  # a DeviceOwner has admin role for all collections on the device
-=======
+
     def can_create_instance(self, obj):
         # DeviceOwners are superusers, and can do anything
         return True
@@ -422,7 +491,6 @@ class DeviceOwner(KolibriAbstractBaseUser):
     def can_delete(self, obj):
         # DeviceOwners are superusers, and can do anything
         return True
->>>>>>> Updates to class-based permissions interface as requested in #51 review.
 
 
 class Collection(MPTTModel, AbstractFacilityDataModel):
@@ -456,6 +524,14 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         """
         if self._KIND:
             self.kind = self._KIND
+
+    def get_members(self):
+        if self.kind == collection_kinds.FACILITY:
+            return FacilityUser.objects.filter(dataset=self.dataset)  # FacilityUser is always a member of her own facility
+        return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
+            target_user=F("id"),
+            ancestor_collection=self,
+        )
 
     def add_role(self, user, role_kind):
         """
@@ -639,9 +715,6 @@ class Facility(Collection):
         :return: A Classroom QuerySet.
         """
         return Classroom.objects.filter(parent=self)
-
-    def get_members(self):
-        return FacilityUser.objects.filter(dataset=self.dataset)
 
     def add_admin(self, user):
         return self.add_role(user, role_kinds.ADMIN)

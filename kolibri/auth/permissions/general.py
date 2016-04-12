@@ -150,7 +150,7 @@ class IsMember(BasePermissions):
 
         assert isinstance(coll, Collection)
 
-        return coll.is_member(user)
+        return user.is_member_of(coll)
 
     def user_can_create_object(self, user, obj):
         return (not self.read_only) and self._user_is_member(user, obj)

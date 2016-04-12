@@ -73,7 +73,7 @@ class RolesAcrossFacilitiesTestCase(TestCase):
         collections2 = [self.data2["facility"]] + self.data2["classrooms"] + flatten(self.data2["learnergroups"])
         for user1 in users1:
             for collection2 in collections2:
-                self.assertEqual(len(user1.get_roles_for(collections2)), 0)
+                self.assertEqual(len(user1.get_roles_for(collection2)), 0)
 
 
 class MembershipWithinFacilityTestCase(TestCase):
@@ -89,7 +89,7 @@ class MembershipWithinFacilityTestCase(TestCase):
         returned_members = self.data["facility"].get_members()
         self.assertSetEqual(set(actual_members), set(returned_members))
         for user in actual_members:
-            self.assertTrue(self.data["facility"].is_member(user))
+            self.assertTrue(user.is_member_of(self.data["facility"]))
 
     def test_classroom_membership(self):
         for i, classroom in enumerate(self.data["classrooms"]):
@@ -98,10 +98,10 @@ class MembershipWithinFacilityTestCase(TestCase):
             self.assertSetEqual(set(actual_members), set(returned_members))
             # ensure that `is_member` is True for all users in the classroom
             for user in actual_members:
-                self.assertTrue(classroom.is_member(user))
+                self.assertTrue(user.is_member_of(classroom))
             # ensure that `is_member` is False for all users not in the classroom
             for user in set(self.data["all_users"]) - set(actual_members):
-                self.assertFalse(classroom.is_member(user))
+                self.assertFalse(user.is_member_of(classroom))
 
     def test_learnergroup_membership(self):
         for i, classroom_users in enumerate(self.data["learners_one_group"]):
@@ -112,10 +112,10 @@ class MembershipWithinFacilityTestCase(TestCase):
                 self.assertSetEqual(set(actual_members), set(returned_members))
                 # ensure that `is_member` is True for all users in the learnergroup
                 for user in actual_members:
-                    self.assertTrue(learnergroup.is_member(user))
+                    self.assertTrue(user.is_member_of(learnergroup))
                 # ensure that `is_member` is False for all users not in the learnergroup
                 for user in set(self.data["all_users"]) - set(actual_members):
-                    self.assertFalse(learnergroup.is_member(user))
+                    self.assertFalse(user.is_member_of(learnergroup))
 
 
 class MembershipAcrossFacilitiesTestCase(TestCase):
@@ -126,15 +126,15 @@ class MembershipAcrossFacilitiesTestCase(TestCase):
 
     def test_users_are_not_members_of_other_facility(self):
         for user in self.data1["all_users"]:
-            self.assertFalse(self.data2["facility"].is_member(user))
+            self.assertFalse(user.is_member_of(self.data2["facility"]))
 
     def test_users_are_not_members_of_other_facility_classroom(self):
         for user in self.data1["all_users"]:
-            self.assertFalse(self.data2["classrooms"][0].is_member(user))
+            self.assertFalse(user.is_member_of(self.data2["classrooms"][0]))
 
     def test_users_are_not_members_of_other_facility_learnergroup(self):
         for user in self.data1["all_users"]:
-            self.assertFalse(self.data2["learnergroups"][0][0].is_member(user))
+            self.assertFalse(user.is_member_of(self.data2["learnergroups"][0][0]))
 
 
 class DeviceOwnerRolesTestCase(TestCase):
