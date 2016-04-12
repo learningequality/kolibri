@@ -139,7 +139,10 @@ class RoleBasedPermissions(BasePermissions):
 
     def user_can_create_object(self, user, obj):
 
-        roles = self.can_be_created_by or self.can_be_written_by
+        if self.can_be_created_by is not None:
+            roles = self.can_be_created_by
+        else:
+            roles = self.can_be_written_by
         assert isinstance(roles, list), \
             "If `can_be_created_by` is None, then either `can_be_written_by` must be defined as a fallback, or " + \
             "the `user_can_create_object` method must be overridden to define custom behavior."
@@ -158,7 +161,10 @@ class RoleBasedPermissions(BasePermissions):
 
     def user_can_update_object(self, user, obj):
 
-        roles = self.can_be_updated_by or self.can_be_written_by
+        if self.can_be_updated_by is not None:
+            roles = self.can_be_updated_by
+        else:
+            roles = self.can_be_written_by
         assert isinstance(roles, list), \
             "If `can_be_updated_by` is None, then either `can_be_written_by` must be defined as a fallback, or " + \
             "the `user_can_update_object` method must be overridden to define custom behavior."
@@ -168,7 +174,10 @@ class RoleBasedPermissions(BasePermissions):
 
     def user_can_delete_object(self, user, obj):
 
-        roles = self.can_be_deleted_by or self.can_be_written_by
+        if self.can_be_deleted_by is not None:
+            roles = self.can_be_deleted_by
+        else:
+            roles = self.can_be_written_by
         assert isinstance(roles, list), \
             "If `can_be_deleted_by` is None, then either `can_be_written_by` must be defined as a fallback, or " + \
             "the `user_can_delete_object` method must be overridden to define custom behavior."

@@ -38,7 +38,11 @@ from .errors import (
     UserIsNotMemberError
 )
 from .filters import HierarchyRelationsFilter
-from .permissions.base import BasePermissions
+from .permissions.auth import CollectionSpecificRoleBasedPermissions
+from .permissions.base import BasePermissions, RoleBasedPermissions
+from .permissions.general import (
+    IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
+)
 
 
 class FacilityDataset(models.Model):
@@ -346,6 +350,18 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     with a hierarchy of Collections through Memberships and Roles, which then serve to determine permissions.
     """
 
+    permissions = (
+        IsSelf() |  # FacilityUser can be read and written by itself
+        IsAdminForOwnFacility() |  # FacilityUser can be read and written by a facility admin
+        RoleBasedPermissions(  # FacilityUser can be read by admin or coach, and updated by admin, but not created/deleted by non-facility admin
+            target_field=".",
+            can_be_created_by=[],  # we can't check creation permissions by role, as user doesn't exist yet
+            can_be_read_by=[role_kinds.ADMIN, role_kinds.COACH],
+            can_be_updated_by=[role_kinds.ADMIN],
+            can_be_deleted_by=[],  # don't want a classroom admin deleting a user completely, just removing them from the class
+        )
+    )
+
     facility = models.ForeignKey("Facility")
 
     # FacilityUsers can't access the Django admin interface
@@ -389,6 +405,8 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         return set([instance["kind"] for instance in role_instances.values("kind").distinct()])
 
     def has_role_for_user(self, kinds, user):
+        if not kinds:
+            return False
         if not hasattr(user, "dataset_id") or self.dataset_id != user.dataset_id:
             return False
         return HierarchyRelationsFilter(Role).filter_by_hierarchy(
@@ -399,6 +417,8 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         ).filter(user=self).exists()
 
     def has_role_for_collection(self, kinds, coll):
+        if not kinds:
+            return False
         if self.dataset_id != coll.dataset_id:
             return False
         return HierarchyRelationsFilter(Role).filter_by_hierarchy(
@@ -503,6 +523,11 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
     The hierarchy of Collections forms a tree structure, and a description can be found
     `in the dev bible <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit>`_.
     """
+
+    # Collection can be read by anybody from the facility; writing is only allowed by an admin for the collection.
+    # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
+    # by roles in relation to the new collection's parent collection (see CollectionSpecificRoleBasedPermissions).
+    permissions = IsFromSameFacility(read_only=True) | CollectionSpecificRoleBasedPermissions()
 
     _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
 
@@ -642,6 +667,17 @@ class Membership(AbstractFacilityDataModel):
     that contains that Classroom).
     """
 
+    permissions = (
+        IsOwn(read_only=True) |  # users can read their own Memberships
+        RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the member user
+            target_field="user",
+            can_be_created_by=[role_kinds.ADMIN],
+            can_be_read_by=[role_kinds.ADMIN, role_kinds.COACH],
+            can_be_updated_by=[],  # Membership objects shouldn't be updated; they should be deleted and recreated as needed
+            can_be_deleted_by=[role_kinds.ADMIN],
+        )
+    )
+
     user = models.ForeignKey('FacilityUser', blank=False, null=False)
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
@@ -664,6 +700,17 @@ class Role(AbstractFacilityDataModel):
     of the Role (currently, one of "admin" or "coach"). Having a role for a Collection also implies having that
     role for all sub-Collections of that Collection (i.e. all the Collections below it in the tree).
     """
+
+    permissions = (
+        IsOwn(read_only=True) |  # users can read their own Roles
+        RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the role collection
+            target_field="collection",
+            can_be_created_by=[role_kinds.ADMIN],
+            can_be_read_by=[role_kinds.ADMIN, role_kinds.COACH],
+            can_be_updated_by=[],  # Role objects shouldn't be updated; they should be deleted and recreated as needed
+            can_be_deleted_by=[role_kinds.ADMIN],
+        )
+    )
 
     user = models.ForeignKey('FacilityUser', blank=False, null=False)
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.

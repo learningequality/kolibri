@@ -3,7 +3,7 @@ The permissions classes in this module are broadly useful. Other apps can import
 in their own "permissions.py" module, extend or remix them, and then apply them to their own models.
 """
 
-from ..models import Collection
+from ..constants import role_kinds
 from .base import BasePermissions
 
 
@@ -143,6 +143,9 @@ class IsMember(BasePermissions):
 
     def _user_is_member(self, user, obj):
 
+        # import here to avoid circular imports
+        from ..models import Collection
+
         if self.field_name == ".":
             coll = obj
         else:
@@ -166,6 +169,9 @@ class IsMember(BasePermissions):
 
     def readable_by_user_filter(self, user, queryset):
         # TODO(jamalex): reimplement this method in a more efficient way
+
+        # import here to avoid circular imports
+        from ..models import Collection
 
         # get all the collections in which the user is a member
         collections = Collection.objects.filter(membership__user=user).get_ancestors(include_self=True)
@@ -203,6 +209,48 @@ class IsFromSameFacility(BasePermissions):
     def readable_by_user_filter(self, user, queryset):
         # filter the queryset by facility dataset, if the user is associated with one
         if hasattr(user, "dataset"):
+            return queryset.filter(dataset=user.dataset)
+        else:
+            return queryset.none()
+
+class IsAdminForOwnFacility(BasePermissions):
+    """
+    Permissions class that only allows access to object if user is an admin for the facility the object is associated with.
+    """
+
+    def __init__(self, field_name=".", read_only=False):
+        self.read_only = read_only
+
+    def _user_is_admin_for_own_facility(self, user, obj=None):
+
+        # import here to avoid circular imports
+        from ..models import Facility
+
+        if not hasattr(user, "dataset"):
+            return False
+
+        # if we've been given an object, make sure it too is from the same dataset (facility)
+        if obj:
+            if not hasattr(obj, "dataset") or not user.dataset == obj.dataset:
+                return False
+
+        facility = Facility.objects.get(dataset=user.dataset)
+        return user.has_role_for_collection(role_kinds.ADMIN, facility)
+
+    def user_can_create_object(self, user, obj):
+        return (not self.read_only) and self._user_is_admin_for_own_facility(user, obj)
+
+    def user_can_read_object(self, user, obj):
+        return self._user_is_admin_for_own_facility(user, obj)
+
+    def user_can_update_object(self, user, obj):
+        return (not self.read_only) and self._user_is_admin_for_own_facility(user, obj)
+
+    def user_can_delete_object(self, user, obj):
+        return (not self.read_only) and self._user_is_admin_for_own_facility(user, obj)
+
+    def readable_by_user_filter(self, user, queryset):
+        if self._user_is_admin_for_own_facility(user):
             return queryset.filter(dataset=user.dataset)
         else:
             return queryset.none()
