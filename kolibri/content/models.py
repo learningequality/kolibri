@@ -94,7 +94,7 @@ class ContentMetadata(MPTTModel, AbstractContent):
     prerequisite = models.ManyToManyField('self', related_name='is_prerequisite_of', through='PrerequisiteContentRelationship', symmetrical=False, blank=True)
     is_related = models.ManyToManyField('self', related_name='relate_to', through='RelatedContentRelationship', symmetrical=False, blank=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
-    tags = models.ManyToManyField(ContentTag, blank=True)
+    tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
 
     class Meta:
         verbose_name = 'Content Metadata'
