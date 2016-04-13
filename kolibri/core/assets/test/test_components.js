@@ -87,6 +87,63 @@ describe('Components test suite:', function(){
         });
     });
 
+    describe('TextAreaInput', function(){
+        beforeEach(function(){
+            var model = new Backbone.Model({
+                enabled: true
+            });
+            this.textInput = new components.TextAreaInput({model: model});
+            this.app.getRegion('body').show(this.textInput);
+        });
+
+        it('triggers a "text_input:text_changed" event when enter is pressed', function(done){
+            this.textInput.on('text_input:text_changed', function(){
+                done();
+            });
+            var ev = $.Event('keyup');
+            ev.which = 13; // 13 corresponds to enter. This is normalized by jquery.
+            this.textInput.$el.find('input').trigger(ev);
+        });
+
+        it('triggers a "text_input:text_changed" event when focus is changed', function(done){
+            this.textInput.on('text_input:text_changed', function(){
+                done();
+            });
+            this.textInput.$el.find('input').focusout();
+        });
+
+        it('is disabled with .toggleEnabled');
+        it('is enabled gain when .toggleEnabled called twice');
+    });
+
+    describe('PasswordInput', function(){
+        beforeEach(function(){
+            var model = new Backbone.Model({
+                enabled: true
+            });
+            this.textInput = new components.PasswordInput({model: model});
+            this.app.getRegion('body').show(this.textInput);
+        });
+
+        it('triggers a "text_input:text_changed" event when enter is pressed', function(done){
+            this.textInput.on('text_input:text_changed', function(){
+                done();
+            });
+            var ev = $.Event('keyup');
+            ev.which = 13; // 13 corresponds to enter. This is normalized by jquery.
+            this.textInput.$el.find('input').trigger(ev);
+        });
+
+        it('triggers a "text_input:text_changed" event when focus is changed', function(done){
+            this.textInput.on('text_input:text_changed', function(){
+                done();
+            });
+            this.textInput.$el.find('input').focusout();
+        });
+
+        it('is disabled with .toggleEnabled');
+        it('is enabled gain when .toggleEnabled called twice');
+    });
 
     describe('ValidatingTextInput:', function(){
         before(function(){
@@ -98,8 +155,33 @@ describe('Components test suite:', function(){
             this.app.getRegion('body').show(this.textInput);
         });
 
-        it('triggers a "text_input:validated" event when valid input is entered', function(done){
-            assert(false);
+        it('triggers a "text_input:text_changed" event when enter is pressed', function(done){
+            this.textInput.on('text_input:text_changed', function(){
+                done();
+            });
+            var ev = $.Event('keyup');
+            ev.which = 13; // 13 corresponds to enter. This is normalized by jquery.
+            this.textInput.$el.find('input').trigger(ev);
         });
+
+        it('triggers a "text_input:validated" event when valid input is entered', function(done){
+            this.textInput.on('text_input:validated', function(){
+                done();
+            });
+            var ev = $.Event('keyup');
+            ev.which = 13; // 13 corresponds to enter. This is normalized by jquery.
+            this.textInput.$el.find('input').val('hello!!!');
+            this.textInput.$el.find('input').trigger(ev);
+        });
+
+        it('triggers a "text_input:text_changed" event when focus is changed', function(done){
+            this.textInput.on('text_input:text_changed', function(){
+                done();
+            });
+            this.textInput.$el.find('input').focusout();
+        });
+
+        it('is disabled with .toggleEnabled');
+        it('is enabled gain when .toggleEnabled called twice');
     });
 });
