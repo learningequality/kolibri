@@ -57,20 +57,12 @@ describe('Components test suite:', function(){
             this.app.getRegion('body').show(this.textInput);
         });
 
-        it('triggers a "text_input:text_changed" event when enter is pressed', function(done){
+        it('re-triggers a "text_input:text_changed" event when the DOM "change" event is triggered on its DOM node', function(done){
             this.textInput.on('text_input:text_changed', function(){
                 done();
             });
-            var ev = $.Event('keyup');
-            ev.which = 13; // 13 corresponds to enter. This is normalized by jquery.
+            var ev = $.Event('change');
             this.textInput.$el.find('input').trigger(ev);
-        });
-
-        it('triggers a "text_input:text_changed" event when focus is changed', function(done){
-            this.textInput.on('text_input:text_changed', function(){
-                done();
-            });
-            this.textInput.$el.find('input').focusout();
         });
 
         it('is disabled with .toggleEnabled', function(){
@@ -80,11 +72,7 @@ describe('Components test suite:', function(){
             assert(this.textInput.$el.find('input').disabled);
         });
 
-        it('is enabled gain when .toggleEnabled called twice', function(){
-            this.textInput.toggleEnabled();
-            this.textInput.toggleEnabled();
-            assert(!this.textInput.$el.find('input').disabled);
-        });
+        it('is enabled again when .toggleEnabled called twice');
     });
 
     describe('TextAreaInput', function(){
@@ -96,20 +84,12 @@ describe('Components test suite:', function(){
             this.app.getRegion('body').show(this.textInput);
         });
 
-        it('triggers a "text_input:text_changed" event when enter is pressed', function(done){
+        it('re-triggers a "text_input:text_changed" event when the DOM "change" event is triggered on its DOM node', function(done){
             this.textInput.on('text_input:text_changed', function(){
                 done();
             });
-            var ev = $.Event('keyup');
-            ev.which = 13; // 13 corresponds to enter. This is normalized by jquery.
-            this.textInput.$el.find('input').trigger(ev);
-        });
-
-        it('triggers a "text_input:text_changed" event when focus is changed', function(done){
-            this.textInput.on('text_input:text_changed', function(){
-                done();
-            });
-            this.textInput.$el.find('input').focusout();
+            var ev = $.Event('change');
+            this.textInput.$el.find('textarea').trigger(ev);
         });
 
         it('is disabled with .toggleEnabled');
@@ -125,20 +105,12 @@ describe('Components test suite:', function(){
             this.app.getRegion('body').show(this.textInput);
         });
 
-        it('triggers a "text_input:text_changed" event when enter is pressed', function(done){
+        it('re-triggers a "text_input:text_changed" event when the DOM "change" event is triggered on its DOM node', function(done){
             this.textInput.on('text_input:text_changed', function(){
                 done();
             });
-            var ev = $.Event('keyup');
-            ev.which = 13; // 13 corresponds to enter. This is normalized by jquery.
+            var ev = $.Event('change');
             this.textInput.$el.find('input').trigger(ev);
-        });
-
-        it('triggers a "text_input:text_changed" event when focus is changed', function(done){
-            this.textInput.on('text_input:text_changed', function(){
-                done();
-            });
-            this.textInput.$el.find('input').focusout();
         });
 
         it('is disabled with .toggleEnabled');
@@ -155,12 +127,11 @@ describe('Components test suite:', function(){
             this.app.getRegion('body').show(this.textInput);
         });
 
-        it('triggers a "text_input:text_changed" event when enter is pressed', function(done){
+        it('re-triggers a "text_input:text_changed" event when the DOM "change" event is triggered on its DOM node', function(done){
             this.textInput.on('text_input:text_changed', function(){
                 done();
             });
-            var ev = $.Event('keyup');
-            ev.which = 13; // 13 corresponds to enter. This is normalized by jquery.
+            var ev = $.Event('change');
             this.textInput.$el.find('input').trigger(ev);
         });
 
@@ -168,17 +139,8 @@ describe('Components test suite:', function(){
             this.textInput.on('text_input:validated', function(){
                 done();
             });
-            var ev = $.Event('keyup');
-            ev.which = 13; // 13 corresponds to enter. This is normalized by jquery.
             this.textInput.$el.find('input').val('hello!!!');
-            this.textInput.$el.find('input').trigger(ev);
-        });
-
-        it('triggers a "text_input:text_changed" event when focus is changed', function(done){
-            this.textInput.on('text_input:text_changed', function(){
-                done();
-            });
-            this.textInput.$el.find('input').focusout();
+            this.textInput.trigger('text_input:text_changed');
         });
 
         it('is disabled with .toggleEnabled');
