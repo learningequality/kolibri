@@ -24,25 +24,10 @@ var AbstractTextInput = Mn.ItemView.extend({
     },
 
     triggers: {
-        'change input': 'inputChanged',
-        'focusout input': 'inputChanged'
-    },
-
-    events: {
-        'keyup input': 'keyup'
-    },
-
-    keyup: function(ev) {
-        if(ev.which === 13) { // 13 corresponds to enter, and is normalized by jQuery
-            this._trigger();
-        }
+        'change input': 'inputChanged'
     },
 
     onInputChanged: function(){
-        this._trigger();
-    },
-
-    _trigger: function() {
         this.trigger('text_input:text_changed', this.$el.find('input').val());
     },
 
@@ -70,6 +55,14 @@ var TextAreaInput = AbstractTextInput.extend({
             template_html = '<textarea disabled placeholder="Write here!">';
         }
         return _.template(template_html);
+    },
+
+    triggers: {
+        'change textarea': 'inputChanged'
+    },
+
+    onInputChanged: function(){
+        this.trigger('text_input:text_changed', this.$el.find('textarea').val());
     }
 });
 
