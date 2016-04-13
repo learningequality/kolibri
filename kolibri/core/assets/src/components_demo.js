@@ -54,12 +54,18 @@ var TextInputWithTagDisplay = Mn.LayoutView.extend({
     Regions are a Marionette abstraction which handle View loading/destroying -- they are essentially named DOM
     elements.
      */
-    template: _.template('<div class="textinput"></div>' +
-                         '<div class="taglist"></div>'),
+    // The component Views provide semantic classes -- in the template, we use classes only to identify regions
+    // In other words, region classes shouldn't be the target of style rules
+    template: _.template('<div class="region1"></div>' +
+                         '<div class="region2"></div>'),
+
+    tagName: 'div',
+
+    className: 'tiwtd',
 
     regions: {
-        textinput: '.textinput',  // Th selector refers to DOM elements in the View's template only.
-        taglist: '.taglist'
+        textinput: '.region1',  // The selector refers to DOM elements in the View's template only.
+        taglist: '.region2'
     },
 
     /*

@@ -19,6 +19,8 @@ var AbstractTextInput = Mn.ItemView.extend({
         return _.template(template_html);
     },
 
+    className: 'textInput',
+
     initialize: function() {
         _.bindAll(this, 'template');
     },
@@ -81,7 +83,11 @@ var ValidatingTextInput = AbstractTextInput.extend({
 Tag is an implementation detail -- not exposed directly, but rather used in TagList.
  */
 var Tag = Mn.ItemView.extend({
-    template: _.template('<span class="tag"><%= name %></span>'),
+    template: _.template('<span><%= name %></span>'),
+
+    tagName: 'li',
+
+    className: 'tag',
 
     // The triggers hash converts DOM events into Backbone events
     triggers: {
@@ -91,6 +97,10 @@ var Tag = Mn.ItemView.extend({
 
 var TagList = Mn.CollectionView.extend({
     childView: Tag,
+
+    tagName: 'ul',
+
+    className: 'tagList',
 
     childEvents: {
         tagClicked: 'onChildTagClicked'
