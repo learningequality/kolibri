@@ -1,248 +1,176 @@
 """
-We have three main abstractions: Users, Collections, and Roles. Users represent people, like students in a school,
-teachers for a classroom, or volunteers setting up informal installations.
+We have three main abstractions: Users, Collections, and Roles.
 
-Collections are hierarchical groups of users. Users belong to one or more Collections, and Collections can belong to
-other Collections. Collections are subdivided into several pre-defined levels.
+Users represent people, like students in a school, teachers for a classroom, or volunteers setting up informal
+installations. There are two main user types, FacilityUser and DeviceOwner. A FacilityUser belongs to a particular
+facility, and has permissions only with respect to other data that is associated with that facility. A DeviceOwner
+is not associated with a particular facility, and has global permissions for data on the local device. FacilityUser
+accounts (like other facility data) may be synced across multiple devices, whereas a DeviceOwner account is specific
+to a single installation of Kolibri.
 
-Roles belong to collections, and represent permissions. Users have one or more Roles. For instance, Classes (a type
-of Collection) have an associated Coach Role -- that Coach has permission to view related User data for Users in the
-Class.
+Collections form a hierarchy, with Collections able to belong to other Collections. Collections are subdivided
+into several pre-defined levels (Facility > Classroom > LearnerGroup).
+
+A Role connects a FacilityUser and a Collection, for purposes of membership and permissions, along with a specified
+"kind" (such as "admin", "coach", or "learner"). Users can have more than one Role. For instance, a User may have a
+coach role for one Classroom, and an admin role for another.
 """
+
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.contrib.auth.models import AbstractBaseUser, _user_get_all_permissions, _user_has_module_perms, \
-    _user_has_perm
+from django.contrib.auth.models import AbstractBaseUser
 from django.core import validators
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.db.utils import IntegrityError
 from django.utils import timezone
-from mptt.models import TreeForeignKey, MPTTModel
-
-from kolibri.core.errors import KolibriError
-
-
-class KolibriValidationError(KolibriError):
-    pass
+from django.utils.translation import ugettext_lazy as _
+from kolibri.core.errors import KolibriValidationError
+from mptt.models import MPTTModel, TreeForeignKey
 
 
-class BaseUser(AbstractBaseUser):
+class FacilityDataset(models.Model):
+    """
+    FacilityDataset stores high-level metadata and settings for a particular facility. It is also the
+    model that all models storing facility data (data that is associated with a particular facility, and that inherits
+    from AbstractFacilityDataModel) foreign key onto, to indicate that they belong to this particular facility.
+    """
+
+    description = models.TextField(blank=True)
+    location = models.CharField(max_length=200, blank=True)
+
+    allow_signups = models.BooleanField(default=True)
+
+
+class AbstractFacilityDataModel(models.Model):
+    """
+    Base model for Kolibri "Facility Data", which is data that is specific to a particular facility,
+    such as FacilityUsers, Collections, and other data associated with those users and collections.
+    """
+
+    dataset = models.ForeignKey("FacilityDataset")
+
+    class Meta:
+        abstract = True
+
+    def clean_fields(self, *args, **kwargs):
+        # ensure that we have, or can infer, a dataset for the model instance
+        self.ensure_dataset()
+        super(AbstractFacilityDataModel, self).clean_fields(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+
+        # before saving, ensure we have a dataset, and convert any validation errors into integrity errors,
+        # since by this point the `clean_fields` method should already have prevented this situation from arising
+        try:
+            self.ensure_dataset()
+        except KolibriValidationError as e:
+            raise IntegrityError(str(e))
+
+        super(AbstractFacilityDataModel, self).save(*args, **kwargs)
+
+    def ensure_dataset(self):
+        """
+        If no dataset has yet been specified, try to infer it. If a dataset has already been specified, to prevent
+        inconsistencies, make sure it matches the inferred dataset, otherwise raise a KolibriValidationError.
+        If we have no dataset and it can't be inferred, we raise a KolibriValidationError exception as well.
+        """
+        inferred_dataset = self.infer_dataset()
+        if self.dataset_id:
+            # make sure currently stored dataset matches inferred dataset, if any
+            if inferred_dataset and inferred_dataset != self.dataset:
+                raise KolibriValidationError("This model is not associated with the correct FacilityDataset.")
+        else:
+            # use the inferred dataset, if there is one, otherwise throw an error
+            if inferred_dataset:
+                self.dataset = inferred_dataset
+            else:
+                raise KolibriValidationError("FacilityDataset ('dataset') not provided, and could not be inferred.")
+
+    def infer_dataset(self):
+        """
+        This method is used by `ensure_dataset` to "infer" which dataset should be associated with this instance.
+        It should be overridden in any subclass of AbstractFacilityDataModel, to define a model-specific inference.
+        """
+        raise NotImplementedError("Subclasses of AbstractFacilityDataModel must override the `infer_dataset` method.")
+
+
+class KolibriAbstractBaseUser(AbstractBaseUser):
     """
     Our custom user type, derived from AbstractBaseUser as described in the Django docs.
-    Draws liberally from django.contrib.auth.AbstractUser, except we remove some fields we don't care about, like
-    email, and we don't use the PermissionsMixin.
-    Encapsulates both FacilityUsers and DeviceOwners, which are proxy models.
+    Draws liberally from django.contrib.auth.AbstractUser, except we exclude some fields
+    we don't care about, like email.
 
-    You should prefer to use the proxy models for this class where possible.
+    This model is an abstract model, and is inherited by both FacilityUser and DeviceOwner.
     """
+
+    class Meta:
+        abstract = True
+
+    USERNAME_FIELD = "username"
+
     username = models.CharField(
         _('username'),
         max_length=30,
-        unique=True,
-        help_text=_('Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'),
+        help_text=_('Required. 30 characters or fewer. Letters and digits only.'),
         validators=[
             validators.RegexValidator(
-                r'^[\w.@+-]+$',
-                _('Enter a valid username. This value may contain only '
-                  'letters, numbers ' 'and @/./+/-/_ characters.')
+                r'^\w+$',
+                _('Enter a valid username. This value may contain only letters and numbers.')
             ),
         ],
-        error_messages={
-            'unique': _("A user with that username already exists."),
-        },
     )
-    first_name = models.CharField(_('first name'), max_length=30, blank=True)
-    last_name = models.CharField(_('last name'), max_length=30, blank=True)
-    is_active = models.BooleanField(
-        _('active'),
-        default=True,
-        help_text=_(
-            'Designates whether this user should be treated as active. '
-            'Unselect this instead of deleting accounts.'
-        ),
-    )
-    date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
-
-    # A "private" field -- used to check whether the given user is a device owner when we can't deal with the proxy
-    # models directly
-    _is_device_owner = models.BooleanField(default=None, blank=False, editable=False)
-
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['_is_device_owner']
+    first_name = models.CharField(_('first name'), max_length=60, blank=True)
+    last_name = models.CharField(_('last name'), max_length=60, blank=True)
+    date_joined = models.DateTimeField(_('date joined'), default=timezone.now, editable=False)
 
     def is_device_owner(self):
-        """ Abstract method. Used in authentication backends. """
-        raise NotImplementedError()
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `is_device_owner` method.")
 
     def get_full_name(self):
-        return self.first_name + " " + self.last_name
+        return (self.first_name + " " + self.last_name).strip()
 
     def get_short_name(self):
         return self.first_name
 
-    def has_perm(self, perm, obj=None):
-        """
-        Checks whether a user has the given permission.
 
-        :param perm: A string identifying the permission. See the backends module in this app for a complete list.
-        :param obj: An optional object, the interpretation of which depends on the permission string.
-        :return: True or False
-        :raises: ``InvalidPermission`` if the given permission string is unknown, or if the optional ``obj`` is an
-            unexpected type.
-        """
-        return _user_has_perm(self, perm, obj)
-
-    def has_module_perms(self, package_name):
-        return _user_has_module_perms(self, package_name)
-
-    def get_all_permissions(self, obj=None):
-        return _user_get_all_permissions(self, obj)
-
-    def is_facility_admin(self):
-        """
-        Identifies whether the given user instance is a FacilityAdmin or not, which can short-circuit some permissions
-        checks.
-
-        :return: True or False for FacilityUsers. Always False for DeviceOwners.
-        :raise: NotImplementedError for BaseUsers -- use the proxy models instead.
-        """
-        raise NotImplementedError()
-
-
-class FacilityUserManager(models.Manager):
-    def get_queryset(self):
-        return super(FacilityUserManager, self).get_queryset().filter(_is_device_owner=False)
-
-
-class FacilityUser(BaseUser):
+class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
-    FacilityUsers are the fundamental object of the auth app. They represent the main users, and belong to a
-    hierarchy of Collections and Roles, which determine permissions.
+    FacilityUsers are the fundamental object of the auth app. They represent the main users, and can be associated
+    with a hierarchy of Collections through Roles, which then serve to determine permissions.
     """
-    objects = FacilityUserManager()
+
+    facility = models.ForeignKey("Facility")
+
+    # FacilityUsers can't access the Django admin interface
+    is_staff = False
+    is_superuser = False
 
     class Meta:
-        proxy = True
+        unique_together = (("username", "facility"),)
 
-    def is_device_owner(self):
-        """ For FacilityUsers, always False. Used in determining permissions. """
-        return False
-
-    def save(self, *args, **kwargs):
-        if self._is_device_owner is None:
-            self._is_device_owner = False
-        elif self._is_device_owner:
-            raise KolibriValidationError("FacilityUser objects *must* have _is_device_owner set to False!")
-        return super(FacilityUser, self).save(*args, **kwargs)
-
-    def is_facility_admin(self):
-        return FacilityAdmin.objects.filter(user=self).exists()
+    def infer_dataset(self):
+        return self.facility.dataset
 
 
-class DeviceOwnerManager(models.Manager):
-    def get_queryset(self):
-        return super(DeviceOwnerManager, self).get_queryset().filter(_is_device_owner=True)
-
-
-class DeviceOwner(BaseUser):
+class DeviceOwner(KolibriAbstractBaseUser):
     """
     When a user first installs Kolibri on a device, they will be prompted to create a *DeviceOwner*, a special kind of
     user which is associated with that device only, and who must give permission to make broad changes to the Kolibri
     installation on that device (such as creating a Facility, or changing configuration settings).
 
-    Actions not relating to user data but specifically to a device, like upgrading Kolibri, changing whether the
-    device is a Classroom Server or Classroom Client, or determining manually which data should be synced must be
+    Actions not relating to user data but specifically to a device -- like upgrading Kolibri, changing whether the
+    device is a Classroom Server or Classroom Client, or determining manually which data should be synced -- must be
     performed by a DeviceOwner.
     """
-    objects = DeviceOwnerManager()
 
-    class Meta:
-        proxy = True
-
-    def is_device_owner(self):
-        """ For DeviceOwners, always True. Used in determining permissions. """
-        return True
-
-    def save(self, *args, **kwargs):
-        if self._is_device_owner is None:
-            self._is_device_owner = True
-        elif not self._is_device_owner:
-            raise KolibriValidationError("DeviceOwner objects *must* have _is_device_owner set to True!")
-        return super(DeviceOwner, self).save(*args, **kwargs)
-
-    def is_facility_admin(self):
-        return False
+    # DeviceOwners can access the Django admin interface
+    is_staff = True
+    is_superuser = True
 
 
-class HierarchyNode(MPTTModel):
+class Collection(MPTTModel, AbstractFacilityDataModel):
     """
-    Model representing a node in the hierarchy of Collections and Roles. This hierarchy forms a tree.
-    See `discussion in this repo <https://github.com/MCGallaspy/class_tree_proof>`_.
-
-    Should not be used directly, as this is an implementation detail.
-
-    The `kind` field is used to differentiate between nodes belonging to Collections and Roles, since it can't
-    necessarily be discerned from the order as with the "natural" tree.
-
-    The `kind_id` field is an intentionally denormalized reference to user ids, for efficient querying without table
-    joins. For nodes with `kind` Role, it holds the value `Role.user.id`. Otherwise it's NULL.
-    """
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
-    kind = models.CharField(max_length=50, blank=False, null=False, db_index=False)
-    kind_id = models.IntegerField(blank=True, null=True, db_index=False)
-
-    class Meta:
-        """
-        We know from prototyping that kind and kind_id will only be filtered on together, so we can achieve a constant
-        improvement by indexing them together.
-        """
-        index_together = [
-            ['kind', 'kind_id'],
-        ]
-
-    def insert_collection_node(self, node):
-        """
-        Inserts a "Collection" type node below itself.
-        Really it just inserts a child node, but when a different tree structure was under consideration, it was less
-        trivial. Reserved to make future changes.
-
-        :param node: A HierarchyNode instance.
-        :return: The calling node.
-        """
-        self._insert_child(node)
-        return self
-
-    def insert_role_node(self, node):
-        """
-        Inserts a "Role" type node below itself.
-        Really it just inserts a child node, but when a different tree structure was under consideration, it was less
-        trivial. Reserved to make future changes.
-
-        :param node: A HierarchyNode instance.
-        :return: The calling node.
-        """
-        self._insert_child(node)
-        return self
-
-    def _insert_child(self, child):
-        child.parent = self
-        child.save()
-
-
-class NodeReferencingModel(models.Model):
-    class Meta:
-        abstract = True
-
-    _node = TreeForeignKey('HierarchyNode', blank=False, null=False, on_delete=models.CASCADE)
-
-    def delete(self, *args, **kwargs):
-        self._node.delete()
-        return super(NodeReferencingModel, self).delete(*args, **kwargs)
-
-
-class Collection(NodeReferencingModel):
-    """
-    Collections are hierarchical groups of users, used for making decisions about user's permissions.
+    Collections are hierarchical groups of users, used for grouping users and making decisions about permissions.
     Users belong to one or more Collections, by way of obtaining Roles associated with those Collections.
     Collections can belong to other Collections, and user membership in a collection is conferred by parenthood.
     Collections are subdivided into several pre-defined levels.
@@ -250,248 +178,250 @@ class Collection(NodeReferencingModel):
     The hierarchy of Roles and Collections forms a tree structure, and a description can be found
     `in the dev bible <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit>`_.
     """
-    kind = models.CharField(max_length=50)
+
+    _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
+
+    KIND_FACILITY = "facility"
+    KIND_CLASSROOM = "classroom"
+    KIND_LEARNERGROUP = "learnergroup"
+
+    # the ordering of kinds in the following tuple corresponds to their level in the hierarchy
+    KINDS = (
+        (KIND_FACILITY, _("Facility")),
+        (KIND_CLASSROOM, _("Classroom")),
+        (KIND_LEARNERGROUP, _("LearnerGroup")),
+    )
+
+    name = models.CharField(max_length=100)
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    kind = models.CharField(max_length=20, choices=KINDS)
+
+    def clean_fields(self, *args, **kwargs):
+        self._ensure_kind()
+        super(Collection, self).clean_fields(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        self._node = HierarchyNode.objects.create(kind='Collection')
-        return super(Collection, self).save(*args, **kwargs)
+        self._ensure_kind()
+        super(Collection, self).save(*args, **kwargs)
 
-    def add_subcollection(self, collection):
-        self._node.insert_collection_node(collection._node)
+    def _ensure_kind(self):
+        """
+        Make sure the "kind" is set correctly on the model, corresponding to the appropriate subclass of Collection.
+        """
+        if self._KIND:
+            self.kind = self._KIND
 
-    def add_role(self, role):
-        self._node.insert_role_node(role._node)
+    def add_user(self, user, role_kind):
+        """
+        Create a Role associating the provided user with this collection, with the specified kind of role.
+        If the Role object already exists, just return that, without changing anything.
+
+        :param user: The FacilityUser to associate with this Collection.
+        :param role_kind: The kind of role to give the user with respect to this Collection.
+        :return: The Role object (possibly new) that associates the user with the Collection.
+        """
+
+        # ensure the specified role kind is valid
+        assert role_kind in (kind[0] for kind in Role.KINDS), \
+            "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
+
+        # ensure the provided user is a FacilityUser
+        assert isinstance(user, FacilityUser), "Only FacilityUsers can be associted with a collection."
+
+        # create the necessary role, if it doesn't already exist
+        role, created = Role.objects.get_or_create(user=user, collection=self, kind=role_kind, dataset=self.dataset)
+
+        return role
+
+    def remove_user(self, user, role_kind):
+        """
+        Remove any Role objects associating the provided user with this collection, with the specified kind of role.
+
+        :param user: The FacilityUser to dissociate from this Collection (for the specific role kind).
+        :param role_kind: The kind of role to remove from the user with respect to this Collection.
+        """
+
+        # ensure the specified role kind is valid
+        assert role_kind in (kind[0] for kind in Role.KINDS), \
+            "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
+
+        # ensure the provided user is a FacilityUser
+        assert isinstance(user, FacilityUser), "Only FacilityUsers can be associted with a collection."
+
+        # delete the appropriate role, if it exists
+        Role.objects.filter(user=user, collection=self, kind=role_kind, dataset=self.dataset).delete()
+
+    def infer_dataset(self):
+        if self.parent:
+            # subcollections inherit dataset from root of their tree
+            # (we can't call `get_root` directly on self, as it won't work if self hasn't yet been saved)
+            return self.parent.get_root().dataset
+        else:
+            return None  # the root node (i.e. Facility) must be explicitly tied to a dataset
 
 
-class Role(NodeReferencingModel):
+class Role(AbstractFacilityDataModel):
     """
-    Roles are abstractions for making decisions about user's permissions.
-    Users have one or more Roles, potentially with many different `kind`s.
-    Roles are associated with Collections by convention, for instance a Role with `kind` "Coach" is associated with
-    a Classroom collection -- this association is not strictly enforced, and so must be honored by the developer when
-    directly adding Roles to the hierarchy.
-    The hierarchy of Roles and Collections forms a tree structure, and a description can be found
-    `in the dev bible <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit>`_.
+    A User can be associated with a particular Collection through a Role object, which also stores the "kind"
+    of the Role (currently, one of "admin", "coach", or "learner").
     """
-    kind = models.CharField(max_length=50)
+
+    KIND_ADMIN = "admin"
+    KIND_COACH = "coach"
+    KIND_LEARNER = "learner"
+
+    KINDS = (
+        (KIND_ADMIN, _("Admin")),
+        (KIND_COACH, _("Coach")),
+        (KIND_LEARNER, _("Learner")),
+    )
+
     user = models.ForeignKey('FacilityUser', blank=False, null=False)
-
-    @classmethod
-    def permitted_objects(cls, perm, request_user):
-        raise NotImplementedError()
-
-    def save(self, *args, **kwargs):
-        self._node = HierarchyNode.objects.create(kind='Role', kind_id=self.user.id)
-        return super(Role, self).save(*args, **kwargs)
-
-
-class FacilityAdminManager(models.Manager):
-    def get_queryset(self):
-        return super(FacilityAdminManager, self).get_queryset().filter(kind='FacilityAdmin')
-
-
-class CoachManager(models.Manager):
-    def get_queryset(self):
-        return super(CoachManager, self).get_queryset().filter(kind='Coach')
-
-
-class LearnerManager(models.Manager):
-    def get_queryset(self):
-        return super(LearnerManager, self).get_queryset().filter(kind='Learner')
-
-
-class FacilityAdmin(Role):
-    objects = FacilityAdminManager()
+    # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
+    # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
+    collection = TreeForeignKey("Collection")
+    kind = models.CharField(max_length=20, choices=KINDS)
 
     class Meta:
-        proxy = True
+        unique_together = (("user", "collection", "kind"),)
 
-    def save(self, *args, **kwargs):
-        self.kind = "FacilityAdmin"
-        return super(FacilityAdmin, self).save(*args, **kwargs)
-
-
-class Coach(Role):
-    objects = CoachManager()
-
-    class Meta:
-        proxy = True
-
-    def save(self, *args, **kwargs):
-        self.kind = "Coach"
-        return super(Coach, self).save(*args, **kwargs)
+    def infer_dataset(self):
+        user_dataset = self.user.dataset
+        collection_dataset = self.collection.dataset
+        if user_dataset != collection_dataset:
+            raise KolibriValidationError("The collection and user for a Role object must be in the same dataset.")
+        return user_dataset
 
 
-class Learner(Role):
-    objects = LearnerManager()
+class CollectionProxyManager(models.Manager):
 
-    class Meta:
-        proxy = True
-
-    def save(self, *args, **kwargs):
-        self.kind = "Learner"
-        return super(Learner, self).save(*args, **kwargs)
-
-
-class FacilityManager(models.Manager):
     def get_queryset(self):
-        return super(FacilityManager, self).get_queryset().filter(kind='Facility')
-
-
-class ClassroomManager(models.Manager):
-    def get_queryset(self):
-        return super(ClassroomManager, self).get_queryset().filter(kind='Classroom')
-
-
-class LearnerGroupManager(models.Manager):
-    def get_queryset(self):
-        return super(LearnerGroupManager, self).get_queryset().filter(kind='LearnerGroup')
+        return super(CollectionProxyManager, self).get_queryset().filter(kind=self.model._KIND)
 
 
 class Facility(Collection):
-    objects = FacilityManager()
+
+    _KIND = Collection.KIND_FACILITY
+
+    objects = CollectionProxyManager()
 
     class Meta:
         proxy = True
 
-    def add_admin(self, user):
-        admin = FacilityAdmin.objects.create(user=user)
-        self.add_role(admin)
-
-    def add_classroom(self, classroom):
-        self.add_subcollection(classroom)
-
     def save(self, *args, **kwargs):
-        self.kind = "Facility"
-        return super(Facility, self).save(*args, **kwargs)
+        if self.parent:
+            raise IntegrityError("Facility must be the root of a collection tree, and cannot have a parent.")
+        super(Facility, self).save(*args, **kwargs)
 
-    def remove_admin(self, user):
-        role = FacilityAdmin.objects.get(user=user, _node__parent=self._node)
-        role.delete()
+    def infer_dataset(self):
+        # if we don't yet have a dataset, create a new one for this facility
+        if not self.dataset_id:
+            self.dataset = FacilityDataset.objects.create()
+        return self.dataset
+
+    def get_classrooms(self):
+        """
+        Returns a QuerySet of Classrooms under this Facility.
+
+        :return: A Classroom QuerySet.
+        """
+        return Classroom.objects.filter(parent=self)
+
+    def add_admin(self, user):
+        return self.add_user(user, Role.KIND_ADMIN)
 
     def add_admins(self, users):
-        """
-        Given an iterable of users, add each one as a FacilityAdmin.
+        return [self.add_admin(user) for user in users]
 
-        :param users: An iterable of FacilityUsers
-        :return: self, for chaining
-        """
-        for user in users:
-            self.add_admin(user)
-        return self
+    def remove_admin(self, user):
+        self.remove_user(user, Role.KIND_ADMIN)
 
-    def add_classrooms(self, classrooms):
-        """
-        Adds each Classroom in the iterable to the Facility.
+    def add_coach(self, user):
+        return self.add_user(user, Role.KIND_COACH)
 
-        :param classrooms: An iterable of Classrooms
-        :return: self, for chaining
-        """
-        for c in classrooms:
-            self.add_classroom(c)
-        return self
+    def add_coaches(self, users):
+        return [self.add_coach(user) for user in users]
+
+    def remove_coach(self, user):
+        self.remove_user(user, Role.KIND_COACH)
 
 
 class Classroom(Collection):
-    objects = ClassroomManager()
+
+    _KIND = Collection.KIND_CLASSROOM
+
+    objects = CollectionProxyManager()
 
     class Meta:
         proxy = True
 
-    def add_coach(self, user):
-        coach = Coach.objects.create(user=user)
-        self.add_role(coach)
-
-    def add_learner_group(self, learner_group):
-        self.add_subcollection(learner_group)
-
     def save(self, *args, **kwargs):
-        self.kind = "Classroom"
-        return super(Classroom, self).save(*args, **kwargs)
+        if not self.parent:
+            raise IntegrityError("Classroom cannot be the root of a collection tree, and must have a parent.")
+        super(Classroom, self).save(*args, **kwargs)
 
-    def remove_coach(self, user):
-        role = Coach.objects.get(user=user, _node__parent=self._node)
-        role.delete()
-
-    def delete(self, *args, **kwargs):
-        for coach in self.coaches():
-            coach.delete()
-        for lg in self.learner_groups():
-            lg.delete()
-        return super(Classroom, self).delete(*args, **kwargs)
-
-    def coaches(self):
+    def get_facility(self):
         """
-        Returns a QuerySet of Coaches associated with the classroom.
+        Gets the Classroom's parent Facility.
 
-        :return: A Coach QuerySet
+        :return: A Facility instance.
         """
-        return Coach.objects.filter(_node__parent=self._node)
+        return Facility.objects.get(id=self.parent_id)
 
-    def learner_groups(self):
+    def get_learner_groups(self):
         """
-        Returns a QuerySet of LearnerGroups associated with the classroom.
+        Returns a QuerySet of LearnerGroups associated with this Classroom.
 
-        :return: A LearnerGroup QuerySet
+        :return: A LearnerGroup QuerySet.
         """
-        return LearnerGroup.objects.filter(_node__parent=self._node)
+        return LearnerGroup.objects.filter(parent=self)
+
+    def add_admin(self, user):
+        return self.add_user(user, Role.KIND_ADMIN)
+
+    def add_admins(self, users):
+        return [self.add_admin(user) for user in users]
+
+    def remove_admin(self, user):
+        self.remove_user(user, Role.KIND_ADMIN)
+
+    def add_coach(self, user):
+        return self.add_user(user, Role.KIND_COACH)
 
     def add_coaches(self, users):
-        """
-        Given an iterable of users, add each one as a Coach.
+        return [self.add_coach(user) for user in users]
 
-        :param users: An iterable of FacilityUsers
-        :return: self, for chaining
-        """
-        for user in users:
-            self.add_coach(user)
-        return self
-
-    def add_learner_groups(self, learner_groups):
-        """
-        Adds each Classroom in the iterable to the Facility.
-
-        :param learner_groups: An iterable of LearnerGroups
-        :return: self, for chaining
-        """
-        for lg in learner_groups:
-            self.add_learner_group(lg)
-        return self
+    def remove_coach(self, user):
+        self.remove_user(user, Role.KIND_COACH)
 
 
 class LearnerGroup(Collection):
-    objects = LearnerGroupManager()
+
+    _KIND = Collection.KIND_LEARNERGROUP
+
+    objects = CollectionProxyManager()
 
     class Meta:
         proxy = True
 
-    def add_learner(self, user):
-        learner = Learner.objects.create(user=user)
-        self.add_role(learner)
-
     def save(self, *args, **kwargs):
-        self.kind = "LearnerGroup"
-        return super(LearnerGroup, self).save(*args, **kwargs)
+        if not self.parent:
+            raise IntegrityError("LearnerGroup cannot be the root of a collection tree, and must have a parent.")
+        super(LearnerGroup, self).save(*args, **kwargs)
 
-    def remove_learner(self, user):
-        role = Learner.objects.get(user=user, _node__parent=self._node)
-        role.delete()
+    def get_classroom(self):
+        """
+        Gets the LearnerGroup's parent Classroom.
+
+        :return: A Classroom instance.
+        """
+        return Classroom.objects.get(id=self.parent_id)
+
+    def add_learner(self, user):
+        return self.add_user(user, Role.KIND_LEARNER)
 
     def add_learners(self, users):
-        """
-        Given an iterable of users, add each one as a Learner.
+        return [self.add_learner(user) for user in users]
 
-        :param users: An iterable of FacilityUsers
-        :return: self, for chaining
-        """
-        for user in users:
-            self.add_learner(user)
-        return self
-
-    def classroom(self):
-        """
-        Gets the LearnerGroup's associated Classroom
-
-        :return: A Classroom instance, if it exists.
-        """
-        return Classroom.objects.get(_node=self._node.parent)
+    def remove_learner(self, user):
+        self.remove_user(user, Role.KIND_LEARNER)

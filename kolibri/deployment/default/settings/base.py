@@ -192,10 +192,8 @@ LOGGING = {
     }
 }
 
-REST_FRAMEWORK = {
-    'PAGE_SIZE': 10,
-}
 
-AUTH_USER_MODEL = 'kolibriauth.BaseUser'
+AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
 
-AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceBackend', 'kolibri.auth.backends.FacilityBackend']
+
+AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']

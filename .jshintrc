@@ -1,0 +1,25 @@
+{
+    "maxerr"        : 50,
+    "bitwise"       : true,
+    "curly"         : true,
+    "eqeqeq"        : true,
+    "forin"         : true,
+    "freeze"        : true,
+    "latedef"       : true,
+    "noarg"         : true,
+    "noempty"       : true,
+    "nonbsp"        : true,
+    "quotmark"      : true,
+    "undef"         : true,
+    "strict"        : "global",
+    "maxdepth"      : 3,
+    "maxlen"        : 160,
+    "browser"       : true,
+    "mocha"         : true,
+    "node"          : true,
+    "globals"       : {
+        "__kolibri_module_name": true,
+        "__events": true,
+        "__once": true
+    }
+}

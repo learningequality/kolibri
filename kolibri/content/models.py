@@ -257,20 +257,14 @@ class RelatedContentRelationship(ContentRelationship):
     class Admin:
         pass
 
-    def clean(self, *args, **kwargs):
+    def save(self, *args, **kwargs):
         # self reference exception
         if self.contentmetadata_1 == self.contentmetadata_2:
             raise IntegrityError('Cannot self reference as related.')
-        # immediate cyclic exception
+        # handle immediate cyclic
         elif RelatedContentRelationship.objects.using(self._state.db)\
                 .filter(contentmetadata_1=self.contentmetadata_2, contentmetadata_2=self.contentmetadata_1):
-            raise IntegrityError(
-                'Note: Related relationship is undirectional! %s and %s are already related!'
-                % (self.contentmetadata_1, self.contentmetadata_2))
-        super(RelatedContentRelationship, self).clean(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
+            return  # silently cancel the save
         super(RelatedContentRelationship, self).save(*args, **kwargs)
 
 class ChannelMetadata(models.Model):
