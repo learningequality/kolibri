@@ -108,7 +108,12 @@ app.on('start', function(){
     // Applications have methods for managing Regions in the DOM -- these are the same Regions used by LayoutViews.
     // addRegions instantiates a Region identified by a selector and attaches it to the app with the given name.
     app.addRegions({
-        content: '#content'  // This element already exists in the DOM.
+        content: '#content',  // This element already exists in the DOM.
+        textLineInput: '#textLineInput',
+        textAreaInput: '#textAreaInput',
+        passwordInput: '#passwordInput',
+        validatingInput: '#validatingInput'
+
     });
 
     // Just bootstrapping some data for the demo. In practice, this might be fetched from the server.
@@ -127,6 +132,24 @@ app.on('start', function(){
     });
     var tiwtd = new TextInputWithTagDisplay({model: appModel});
     app.getRegion('content').show(tiwtd);
+
+    var textLineInput = new components.TextLineInput({model: new Backbone.Model({enabled: true})});
+    app.getRegion('textLineInput').show(textLineInput);
+
+    var textAreaInput = new components.TextAreaInput({model: new Backbone.Model({enabled: true})});
+    app.getRegion('textAreaInput').show(textAreaInput);
+
+    var passwordInput = new components.PasswordInput({model: new Backbone.Model({enabled: true})});
+    app.getRegion('passwordInput').show(passwordInput);
+
+    var validatingInput = new components.ValidatingTextInput({model: new Backbone.Model({enabled: true})});
+    app.getRegion('validatingInput').show(validatingInput);
+
+    _.forEach([textLineInput, textAreaInput, passwordInput, validatingInput], function(view) {
+        view.on('text_input:text_changed', function(text){
+            console.log(view.cid + ' text changed! Got: "' + text + '"');
+        });
+    });
 });
 
 

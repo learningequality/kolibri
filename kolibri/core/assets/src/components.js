@@ -9,7 +9,19 @@ logging.info('Component views loaded!');
 
 
 var AbstractTextInput = Mn.ItemView.extend({
-    template: _.template('<div>foo</div>'),
+    template: function(serialized_model) {
+        var template_html;
+        if (this.model.get('enabled')) {
+            template_html = '<input type="' + this.input_tag_type + '" placeholder="Search here!">';
+        } else {
+            template_html = '<input type="' + this.input_tag_type + '" disabled placeholder="Search here!">';
+        }
+        return _.template(template_html);
+    },
+
+    initialize: function() {
+        _.bindAll(this, 'template');
+    },
 
     triggers: {
         'change input': 'inputChanged',
@@ -45,29 +57,31 @@ var AbstractTextInput = Mn.ItemView.extend({
 
 
 var TextLineInput = AbstractTextInput.extend({
+    input_tag_type: 'search'
+});
+
+
+var TextAreaInput = AbstractTextInput.extend({
     template: function(serialized_model) {
         var template_html;
         if (this.model.get('enabled')) {
-            template_html = '<input type="search" placeholder="Search here!">';
+            template_html = '<textarea placeholder="Write here!">';
         } else {
-            template_html = '<input type="search" disabled placeholder="Search here!">';
+            template_html = '<textarea disabled placeholder="Write here!">';
         }
         return _.template(template_html);
-    },
-
-    initialize: function() {
-        _.bindAll(this, 'template');
     }
 });
 
 
-var TextAreaInput = AbstractTextInput.extend({});
+var PasswordInput = AbstractTextInput.extend({
+    input_tag_type: 'password'
+});
 
 
-var PasswordInput = AbstractTextInput.extend({});
-
-
-var ValidatingTextInput = AbstractTextInput.extend({});
+var ValidatingTextInput = AbstractTextInput.extend({
+    input_tag_type: 'search'
+});
 
 
 /*
