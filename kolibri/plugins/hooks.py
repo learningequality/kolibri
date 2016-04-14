@@ -35,6 +35,8 @@ NAVIGATION_POPULATE = __enumerate_hook()
 FRONTEND_PLUGINS = __enumerate_hook()
 BASE_FRONTEND_SYNC = __enumerate_hook()
 BASE_FRONTEND_ASYNC = __enumerate_hook()
+# Add a hook for content renderer plugins to register themselves against.
+CONTENT_RENDERER_ASYNC = __enumerate_hook()
 # Add a hook for namespaced URL importing from plugins
 IMPORT_URLS = __enumerate_hook()
 
