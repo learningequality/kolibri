@@ -95,6 +95,17 @@ var Tag = Mn.ItemView.extend({
     }
 });
 
+
+var CrudItem = Mn.ItemView.extend({
+    template: _.template('<span>OH, CRUD!</span>')
+});
+
+
+var KolibriCrudView = Mn.CollectionView.extend({
+    childView: CrudItem
+});
+
+
 var TagList = Mn.CollectionView.extend({
     childView: Tag,
 
@@ -117,5 +128,6 @@ module.exports = {
     TextAreaInput: TextAreaInput,
     PasswordInput: PasswordInput,
     ValidatingTextInput: ValidatingTextInput,
-    TagList: TagList
+    TagList: TagList,
+    KolibriCrudView: KolibriCrudView
 };
