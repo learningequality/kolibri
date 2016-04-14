@@ -157,7 +157,7 @@ def main(args=None):
     # and don't feed to docopt.
     if '--' in args:
         pivot = args.index('--')
-        args, django_args = args[:pivot], args[pivot:]
+        args, django_args = args[:pivot], args[pivot+1:]
     else:
         django_args = []
 
