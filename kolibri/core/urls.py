@@ -43,4 +43,3 @@ app_name = 'kolibri'
 
 urlpatterns = plugin_urls() + [
     url('^$', views.IndexView.as_view(), name='index'),
-]

@@ -58,6 +58,15 @@ KolibriModule.prototype.stop_listening = function(event, method) {
     Kolibri.stop_listening(event, this, method);
 };
 
+/**
+ * Convenience method to fire an event on the global Mediator and pass in a data payload.
+ * @param {string} event - the event name
+ * @param [arguments] arguments - additional arguments to the event handler.
+ */
+KolibriModule.prototype.trigger = function() {
+    Kolibri.trigger.apply(Kolibri, arguments);
+};
+
 
 // The Backbone Model extend method is a standalone function that is used to extend many Backbone objects.
 // We use it here in preference to rolling our own to allow for extension of Plugins.
