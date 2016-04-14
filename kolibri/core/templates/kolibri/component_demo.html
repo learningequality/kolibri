@@ -1,0 +1,11 @@
+{% extends "kolibri/base.html" %}
+{% load kolibri_tags%}
+
+{% block content %}
+    <div id="content"></div>
+    <div id="textLineInput"></div>
+    <div id="textAreaInput"></div>
+    <div id="passwordInput"></div>
+    <div id="validatingInput"></div>
+    {% frontend_assets 'kolibri.core.KolibriComponentDemoPlugin' %}
+{% endblock %}
