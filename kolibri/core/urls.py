@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.conf.urls import url
 from kolibri.core.views.component_demo import ComponentDemoView
 from kolibri.plugins import hooks
+from kolibri.core.views.riot_demo import RiotDemoView
 
 from . import views
 

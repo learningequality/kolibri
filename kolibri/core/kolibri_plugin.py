@@ -57,9 +57,21 @@ class KolibriComponentDemoPlugin(KolibriFrontEndPluginBase):
             FRONTEND_PLUGINS: self._register_front_end_plugins,
         }
 
+class RiotDemo(KolibriFrontEndPluginBase):
+    """
+    SPA using riot
+    """
+    entry_file = "assets/src/riot_demo.js"
+
+    def hooks(self):
+        return {
+            FRONTEND_PLUGINS: self._register_front_end_plugins,
+        }
+
 
 PLUGINS = (
     KolibriCore,
     KolibriCoreFrontEnd,
     KolibriComponentDemoPlugin,
+    RiotDemo,
 )
