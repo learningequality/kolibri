@@ -1,16 +1,25 @@
 'use strict';
 
 var logging = require('loglevel');
-var KolibriModule = require('kolibri_module');
+var riot = require('riot');
 
 logging.setDefaultLevel(2);
-logging.info('Component demo loaded!');
+logging.info('Riot demo loaded!');
 
-var Plugin = KolibriModule.extend({
-  initialize: function() {
-    logging.info('Demo initialized!');
-  }
-});
+require('./riot-tags/hello.tag');
+
+riot.mount('hello');
 
 
-var plugin = new Plugin();
+
+
+// var KolibriModule = require('kolibri_module');
+
+// var Plugin = KolibriModule.extend({
+//   initialize: function() {
+//     logging.info('Demo initialized!');
+//   }
+// });
+
+
+// var plugin = new Plugin();
