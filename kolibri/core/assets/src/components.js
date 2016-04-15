@@ -101,13 +101,12 @@ var CrudItem = Mn.ItemView.extend({
     template: function(serialized_model) {
         var html = '';
         _.forEach(this.display, function(key) {
-            html += '<span>' + key + ': ' + serialized_model[key] + '</span><br />';
+            html += '<span>' + key + ': ' + serialized_model[key] + '</span>';
         });
-        html += '<br />';
         return _.template(html);
     },
 
-    tagName: 'span',
+    tagName: 'li',
 
     className: 'crudItem',
 
@@ -129,7 +128,11 @@ var KolibriCrudView = Mn.CollectionView.extend({
 
     initialize: function(options) {
         this.display = options.display || false;
-    }
+    },
+
+    tagName: 'ul',
+
+    className: 'ko_list'
 });
 
 
