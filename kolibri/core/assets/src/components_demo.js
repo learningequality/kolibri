@@ -173,7 +173,11 @@ var UserManagementView = Mn.LayoutView.extend({
     initialize: function() {
         // KolibriCrudView allows us to provide a unified resource collection interface.
         // For instance, we can easily spin up lists of any resource and and provide CRUD widgets on them.
-        this.userList = new components.KolibriCrudView({collection: this.model.get('users')});
+        this.userList = new components.KolibriCrudView({
+            collection: this.model.get('users'),
+            // If specified only the attributes in "display" are shown, otherwise all of the model's attrs are shown.
+            display: ['username', 'firstname', 'lastname']
+        });
 
         // The emerging convention is to pass on your model to your child views,
         // or as with the userList above, pass on some relevant piece of your model.
@@ -250,11 +254,15 @@ app.on('start', function(){
         users: new Backbone.Collection([
             {
                 username: 'foo',
-                classrooms: ['Classroom 1']
+                classrooms: ['Classroom 1'],
+                firstname: 'Foo',
+                lastname: 'Bar'
             },
             {
-                username: 'bar',
-                classrooms: ['Classroom 1', 'Classroom 2']
+                username: 'jco',
+                classrooms: ['Classroom 1', 'Classroom 2'],
+                firstname: 'John',
+                lastname: 'Coltrane'
             }
         ], {model: User}),
         classrooms: new Backbone.Collection([

@@ -96,13 +96,40 @@ var Tag = Mn.ItemView.extend({
 });
 
 
+// Implements CRUD actions for a given item
 var CrudItem = Mn.ItemView.extend({
-    template: _.template('<span>OH, CRUD!</span>')
+    template: function(serialized_model) {
+        var html = '';
+        _.forEach(this.display, function(key) {
+            html += '<span>' + key + ': ' + serialized_model[key] + '</span><br />';
+        });
+        html += '<br />';
+        return _.template(html);
+    },
+
+    tagName: 'span',
+
+    className: 'crudItem',
+
+    initialize: function(options) {
+        this.display = options.display || _.keys(this.model.attributes);
+        _.bindAll(this, 'template');
+    }
 });
 
 
 var KolibriCrudView = Mn.CollectionView.extend({
-    childView: CrudItem
+    childView: CrudItem,
+
+    childViewOptions: function() {
+        return {
+            display: this.display
+        };
+    },
+
+    initialize: function(options) {
+        this.display = options.display || false;
+    }
 });
 
 
