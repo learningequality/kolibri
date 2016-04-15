@@ -1,6 +1,18 @@
+{% load i18n kolibri_tags %}
+{% load staticfiles %}
 {% load kolibri_tags%}
+<html>
+<head>
+  <title>Riot Demo</title>
+</head>
+<body>
 
-{% block content %}
-  <main></main>
-  {% frontend_assets 'kolibri.core.RiotDemoPlugin' %}
-{% endblock %}
+test
+
+{% frontend_assets 'kolibri.core.KolibriCoreFrontEnd' %}
+{% frontend_assets 'kolibri.core.RiotDemoPlugin' %}
+
+</body>
+</html>
+
+

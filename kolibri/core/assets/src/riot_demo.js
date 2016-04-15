@@ -6,8 +6,11 @@ var KolibriModule = require('kolibri_module');
 logging.setDefaultLevel(2);
 logging.info('Component demo loaded!');
 
-var ComponentDemoPlugin = KolibriModule.extend({
+var Plugin = KolibriModule.extend({
   initialize: function() {
     logging.info('Demo initialized!');
   }
 });
+
+
+var plugin = new Plugin();
