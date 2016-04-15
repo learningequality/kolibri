@@ -56,16 +56,16 @@ var TextInputWithTagDisplay = Mn.LayoutView.extend({
      */
     // The component Views provide semantic classes -- in the template, we use classes only to identify regions
     // In other words, region classes shouldn't be the target of style rules
-    template: _.template('<div class="region1"></div>' +
-                         '<div class="region2"></div>'),
+    template: _.template('<div class="searchWrap"></div>' +
+                         '<div class="tagListWrap"></div>'),
 
     tagName: 'div',
 
     className: 'tiwtd',
 
     regions: {
-        textinput: '.region1',  // The selector refers to DOM elements in the View's template only.
-        taglist: '.region2'
+        textinput: '.searchWrap',  // The selector refers to DOM elements in the View's template only.
+        taglist: '.tagListWrap'
     },
 
     /*
