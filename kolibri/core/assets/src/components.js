@@ -103,12 +103,17 @@ var CrudItem = Mn.ItemView.extend({
         _.forEach(this.display, function(key) {
             html += '<span>' + key + ': ' + serialized_model[key] + '</span>';
         });
+        html += '<button class="delete standard-button">Delete</button>';
         return _.template(html);
     },
 
     tagName: 'li',
 
     className: 'crudItem',
+
+    triggers: {
+        'click .delete': 'itemDeleted'
+    },
 
     initialize: function(options) {
         this.display = options.display || _.keys(this.model.attributes);
@@ -132,7 +137,15 @@ var KolibriCrudView = Mn.CollectionView.extend({
 
     tagName: 'ul',
 
-    className: 'ko_list'
+    className: 'ko_list',
+
+    childEvents: {
+        itemDeleted: 'onChildItemDeleted'
+    },
+
+    onChildItemDeleted: function(child, args) {
+        this.collection.remove(child.model);
+    }
 });
 
 
