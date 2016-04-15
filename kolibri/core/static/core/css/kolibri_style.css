@@ -270,19 +270,19 @@ strong,
  font-weight: bold;
 }
 /*checkbox*/
-.ko_list ul li label input[type=checkbox]:not(old) {
+ul.ko_list li label input[type=checkbox]:not(old) {
   width     : 2em;
   margin    : 0;
   padding   : 0;
   font-size : 1em;
   opacity   : 0;
 }
-.ko_list ul li label input[type=checkbox]:not(old) {
+ul.ko_list li label input[type=checkbox]:not(old) {
   display      : inline-block;
   margin-left  : -10px;
   line-height  : 1.5em;
 }
-.ko_list ul li label > span {
+ul.ko_list li label > span {
   float: left;
   display          : inline-block;
   width            : 1em;
@@ -292,10 +292,10 @@ strong,
   background       : #cccccc;
   vertical-align   : bottom;
 }
-.ko_list ul li label input[type=checkbox]:not(old):checked + span {
+ul.ko_list li label input[type=checkbox]:not(old):checked + span {
   background : #BD8CC0;
 }
-.ko_list ul li label input[type=checkbox]:not(old):checked + span:before{
+ul.ko_list li label input[type=checkbox]:not(old):checked + span:before{
   content     : '✓';
   display     : block;
   width       : 1em;
@@ -743,4 +743,10 @@ strong,
 .alert {
   font-family: NotoSans;
   color: #EF2121;
+}
+
+
+/* User Management Demo Stuff */
+.ko_list li span {
+  padding: 0 5px;
 }
