@@ -32,8 +32,6 @@ How can I contribute?
 The project is just starting, but we want the entire development process, from conception to realization, to be carried
 out in the open. More will be added to this section in the very near future!
 
-We also have a `hipchat room for development <https://www.hipchat.com/gzQfGFgv1>`_. Since the Learning Equality team *mostly* lives in California, it's most active during PST business hours.
-
 Running Kolibri
 ---------------
 
@@ -64,8 +62,17 @@ Adjust according to your operating system or personal preferences.
     $ kolibri manage runserver
 
 # Install pre-commit hooks to ensure you commit good code::
+
     $ pre-commit install
 
+
+To build frontend assets for production use the following::
+
+    $ npm run build
+
+To build frontend assets in development mode with sourcemaps and watching::
+
+    $ npm run watch
 
 Testing
 -------
@@ -93,14 +100,6 @@ This includes tests of the bundling functions that are used in creating front en
 To do continuous unit testing for code, and jshint running::
 
     $ npm run ci
-
-To build frontend assets for production use the following::
-
-    $ npm run build
-
-To build frontend assets in development mode with sourcemaps and watching::
-
-    $ npm run watch
 
 
 Current Features

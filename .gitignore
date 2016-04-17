@@ -27,6 +27,7 @@ pip-log.txt
 .coverage
 .tox
 nosetests.xml
+htmlcov/
 
 # Translations
 *.mo
@@ -36,6 +37,7 @@ nosetests.xml
 .project
 .pydevproject
 .venv
+.idea
 
 # Complexity
 output/*.html
@@ -52,5 +54,5 @@ docs/modules.rst
 node_modules
 
 # webpack built files
-*stats.json
+kolibri/**/build/*
 kolibri/**/static/*

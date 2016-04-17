@@ -8,7 +8,9 @@ import logging
 
 from django.utils.translation import ugettext as _
 from kolibri.plugins.base import KolibriFrontEndPluginBase, KolibriPluginBase
-from kolibri.plugins.hooks import FRONTEND_PLUGINS, NAVIGATION_POPULATE
+from kolibri.plugins.hooks import (
+    BASE_FRONTEND_ASYNC, FRONTEND_PLUGINS, NAVIGATION_POPULATE
+)
 
 logger = logging.getLogger(__name__)
 
@@ -103,12 +105,18 @@ class KolibriExampleFrontEnd(KolibriFrontEndPluginBase):
     """
     Plugin to define a frontend plugin that can be loaded independently from other code.
     """
-    name = "example_plugin"
-    entry_file = "assets/example/example_plugin.js"
+    entry_file = "assets/example/example_module.js"
+    events = {
+        'something_happened': 'hello_world'
+    }
+    once = {
+        'nothing_happened': 'hello_world'
+    }
 
     def hooks(self):
         return {
-            FRONTEND_PLUGINS: self._register_front_end_plugins
+            FRONTEND_PLUGINS: self._register_front_end_plugins,
+            BASE_FRONTEND_ASYNC: self.plugin_name,
         }
 
 

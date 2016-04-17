@@ -12,7 +12,6 @@ import os
 from uuid import uuid4
 
 from django.conf import settings
-from django.contrib import admin
 from django.core.files.storage import FileSystemStorage
 from django.db import IntegrityError, OperationalError, connections, models
 from django.db.utils import ConnectionDoesNotExist
@@ -90,6 +89,8 @@ class ContentMetadata(MPTTModel, AbstractContent):
     prerequisite = models.ManyToManyField('self', related_name='is_prerequisite_of', through='PrerequisiteContentRelationship', symmetrical=False, blank=True)
     is_related = models.ManyToManyField('self', related_name='relate_to', through='RelatedContentRelationship', symmetrical=False, blank=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    sort_order = models.FloatField(blank=True, null=True)
+    license_owner = models.CharField(max_length=200, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Content Metadata'
@@ -256,49 +257,15 @@ class RelatedContentRelationship(ContentRelationship):
     class Admin:
         pass
 
-    def clean(self, *args, **kwargs):
+    def save(self, *args, **kwargs):
         # self reference exception
         if self.contentmetadata_1 == self.contentmetadata_2:
             raise IntegrityError('Cannot self reference as related.')
-        # immediate cyclic exception
+        # handle immediate cyclic
         elif RelatedContentRelationship.objects.using(self._state.db)\
                 .filter(contentmetadata_1=self.contentmetadata_2, contentmetadata_2=self.contentmetadata_1):
-            raise IntegrityError(
-                'Note: Related relationship is undirectional! %s and %s are already related!'
-                % (self.contentmetadata_1, self.contentmetadata_2))
-        super(RelatedContentRelationship, self).clean(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
+            return  # silently cancel the save
         super(RelatedContentRelationship, self).save(*args, **kwargs)
-
-class PrerequisiteRelationshipInline1(admin.TabularInline):
-    model = PrerequisiteContentRelationship
-    fk_name = 'contentmetadata_1'
-    max = 20
-    extra = 0
-
-class PrerequisiteRelationshipInline2(admin.TabularInline):
-    model = PrerequisiteContentRelationship
-    fk_name = 'contentmetadata_2'
-    max = 20
-    extra = 0
-
-class RelatedRelationshipInline1(admin.TabularInline):
-    model = RelatedContentRelationship
-    fk_name = 'contentmetadata_1'
-    max = 20
-    extra = 0
-
-class RelatedRelationshipInline2(admin.TabularInline):
-    model = RelatedContentRelationship
-    fk_name = 'contentmetadata_2'
-    max = 20
-    extra = 0
-
-class ContentMetadataAdmin(admin.ModelAdmin):
-    inlines = (PrerequisiteRelationshipInline1, PrerequisiteRelationshipInline2, RelatedRelationshipInline1, RelatedRelationshipInline2)
-
 
 class ChannelMetadata(models.Model):
     """

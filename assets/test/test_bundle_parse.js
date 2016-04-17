@@ -4,6 +4,7 @@ var path = require('path');
 var temp = require('temp');
 var child_process = require('child_process');
 var rewire = require('rewire');
+var sinon = require('sinon');
 
 var parseBundlePlugin = require('../src/parse_bundle_plugin');
 var recurseBundlePlugins = rewire('../src/recurse_bundle_plugins');
@@ -13,10 +14,9 @@ describe('parseBundlePlugin', function() {
     describe('input is valid, bundles output', function() {
         it('should have one entry', function (done) {
             var data = {
-                name: "test_plugin",
+                name: "kolibri.plugin.test.test_plugin",
                 entry_file: "src/file.js",
                 stats_file: "output.json",
-                module_name: "kolibri.plugin.test",
                 module_path: "kolibri/plugin/test"
             };
             assert(typeof parseBundlePlugin(data, "/")[0] !== "undefined");
@@ -28,7 +28,6 @@ describe('parseBundlePlugin', function() {
             var data = {
                 entry_file: "src/file.js",
                 stats_file: "output.json",
-                module_name: "kolibri.plugin.test",
                 module_path: "kolibri/plugin/test"
             };
             assert(typeof parseBundlePlugin(data, "/") === "undefined");
@@ -38,9 +37,8 @@ describe('parseBundlePlugin', function() {
     describe('input is missing entry_file, bundles output', function() {
         it('should be undefined', function (done) {
             var data = {
-                name: "test_plugin",
+                name: "kolibri.plugin.test.test_plugin",
                 stats_file: "output.json",
-                module_name: "kolibri.plugin.test",
                 module_path: "kolibri/plugin/test"
             };
             assert(typeof parseBundlePlugin(data, "/") === "undefined");
@@ -50,21 +48,8 @@ describe('parseBundlePlugin', function() {
     describe('input is missing stats_file, bundles output', function() {
         it('should be undefined', function (done) {
             var data = {
-                name: "test_plugin",
+                name: "kolibri.plugin.test.test_plugin",
                 entry_file: "src/file.js",
-                module_name: "kolibri.plugin.test",
-                module_path: "kolibri/plugin/test"
-            };
-            assert(typeof parseBundlePlugin(data, "/") === "undefined");
-            done();
-        });
-    });
-    describe('input is missing module_name, bundles output', function() {
-        it('should be undefined', function (done) {
-            var data = {
-                name: "test_plugin",
-                entry_file: "src/file.js",
-                stats_file: "output.json",
                 module_path: "kolibri/plugin/test"
             };
             assert(typeof parseBundlePlugin(data, "/") === "undefined");
@@ -74,10 +59,9 @@ describe('parseBundlePlugin', function() {
     describe('input is missing module_path, bundles output', function() {
         it('should be undefined', function (done) {
             var data = {
-                name: "test_plugin",
+                name: "kolibri.plugin.test.test_plugin",
                 entry_file: "src/file.js",
-                stats_file: "output.json",
-                module_name: "kolibri.plugin.test"
+                stats_file: "output.json"
             };
             assert(typeof parseBundlePlugin(data, "/") === "undefined");
             done();
@@ -86,14 +70,27 @@ describe('parseBundlePlugin', function() {
     describe('input is valid, has externals flag, externals output', function() {
         it('should have one entry', function (done) {
             var data = {
-                name: "test_plugin",
+                name: "kolibri.plugin.test.test_plugin",
                 entry_file: "src/file.js",
                 external: true,
                 stats_file: "output.json",
-                module_name: "kolibri.plugin.test",
                 module_path: "kolibri/plugin/test"
             };
             assert(typeof parseBundlePlugin(data, "/")[1] !== "undefined");
+            done();
+        });
+    });
+    describe('input is valid, has core flag', function() {
+        it('should have its name set to Kolibri', function (done) {
+            var data = {
+                name: "kolibri.plugin.test.test_plugin",
+                entry_file: "src/file.js",
+                external: true,
+                core: true,
+                stats_file: "output.json",
+                module_path: "kolibri/plugin/test"
+            };
+            assert.equal(parseBundlePlugin(data, "/")[0].output.library, "Kolibri");
             done();
         });
     });
@@ -116,17 +113,15 @@ describe('readBundlePlugins', function() {
         it('should have two entries', function (done) {
             data = [
                 {
-                    name: "test_plugin",
+                    name: "kolibri.plugin.test.test_plugin",
                     entry_file: "src/file.js",
                     stats_file: "output.json",
-                    module_name: "kolibri.plugin.test",
                     module_path: "kolibri/plugin/test"
                 },
                 {
-                    name: "test_plugin1",
+                    name: "kolibri.plugin.test.test_plugin1",
                     entry_file: "src/file1.js",
                     stats_file: "output1.json",
-                    module_name: "kolibri.plugin.test",
                     module_path: "kolibri/plugin/test"
                 }
             ];
@@ -138,16 +133,14 @@ describe('readBundlePlugins', function() {
         it('should have one entry', function (done) {
             data = [
                 {
-                    name: "test_plugin",
+                    name: "kolibri.plugin.test.test_plugin",
                     stats_file: "output.json",
-                    module_name: "kolibri.plugin.test",
                     module_path: "kolibri/plugin/test"
                 },
                 {
-                    name: "test_plugin1",
+                    name: "kolibri.plugin.test.test_plugin1",
                     entry_file: "src/file1.js",
                     stats_file: "output1.json",
-                    module_name: "kolibri.plugin.test",
                     module_path: "kolibri/plugin/test"
                 }
             ];
@@ -159,15 +152,13 @@ describe('readBundlePlugins', function() {
         it('should have no entries', function (done) {
             data = [
                 {
-                    name: "test_plugin",
+                    name: "kolibri.plugin.test.test_plugin",
                     stats_file: "output.json",
-                    module_name: "kolibri.plugin.test",
                     module_path: "kolibri/plugin/test"
                 },
                 {
-                    name: "test_plugin1",
+                    name: "kolibri.plugin.test.test_plugin1",
                     stats_file: "output1.json",
-                    module_name: "kolibri.plugin.test",
                     module_path: "kolibri/plugin/test"
                 }
             ];
@@ -179,19 +170,17 @@ describe('readBundlePlugins', function() {
         it('should have two entries', function (done) {
             data = [
                 {
-                    name: "test_plugin",
+                    name: "kolibri.plugin.test.test_plugin",
                     entry_file: "src/file.js",
                     stats_file: "output.json",
                     external: true,
-                    module_name: "kolibri.plugin.test",
                     module_path: "kolibri/plugin/test"
                 },
                 {
-                    name: "test_plugin1",
+                    name: "kolibri.plugin.test.test_plugin1",
                     entry_file: "src/file1.js",
                     stats_file: "output1.json",
                     external: true,
-                    module_name: "kolibri.plugin.test",
                     module_path: "kolibri/plugin/test"
                 }
             ];
@@ -203,19 +192,17 @@ describe('readBundlePlugins', function() {
         it('should have two entries', function (done) {
             data = [
                 {
-                    name: "test_plugin",
+                    name: "kolibri.plugin.test.test_plugin",
                     entry_file: "src/file.js",
                     stats_file: "output.json",
                     external: true,
-                    module_name: "kolibri.plugin.test",
                     module_path: "kolibri/plugin/test"
                 },
                 {
-                    name: "test_plugin",
+                    name: "kolibri.plugin.test.test_plugin",
                     entry_file: "src/file1.js",
                     stats_file: "output1.json",
                     external: true,
-                    module_name: "kolibri.plugin.test",
                     module_path: "kolibri/plugin/test"
                 }
             ];
@@ -245,7 +232,7 @@ describe('recurseBundlePlugins', function() {
     describe('two valid input files, output', function() {
         it('should have two entries', function (done) {
             data = [
-                [[{}], {}],
+                [[{core: null, plugins: []}], {}],
                 [[{}], {}]
             ];
             temp.mkdir("dir1", function(err, dirPath1){
