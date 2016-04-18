@@ -48,11 +48,9 @@ class HierarchyRelationsFilter(object):
 
     def __init__(self, queryset):
 
-        # convert the provided argument from a Model or Manager into a QuerySet as needed
+        # convert the provided argument from a Model class into a QuerySet as needed
         if issubclass(queryset, models.Model):
             queryset = queryset.objects.all()
-        elif isinstance(queryset, models.Manager):
-            queryset = queryset.all()
         self.queryset = queryset
 
         # import auth models here to avoid circular imports
