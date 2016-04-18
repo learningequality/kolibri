@@ -58,6 +58,7 @@
     "loglevel": "^1.4.0",
     "mkdirp": "^0.5.1",
     "mocha": "^2.4.5",
+    "normalize-css": "^2.3.1",
     "phantomjs-prebuilt": "^2.1.4",
     "rewire": "^2.5.1",
     "rewire-webpack": "^1.0.1",

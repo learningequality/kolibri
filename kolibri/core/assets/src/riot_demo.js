@@ -6,7 +6,8 @@ var riot = require('riot');
 logging.setDefaultLevel(2);
 logging.info('Riot demo loaded!');
 
-require('./riot-tags/app.tag');
+require('normalize-css');
+require('./riot-tags/app.tag.html');
 
 riot.mount('app');
 

@@ -11,7 +11,7 @@ var config = {
     module: {
         preLoaders: [
             {
-                test: /\.tag$/,
+                test: /\.tag.html$/,
                 exclude: /node_modules/,
                 loader: 'riotjs-loader',
                 query: { type: 'none' }

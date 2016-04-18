@@ -1,18 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+
 {% load i18n kolibri_tags %}
 {% load staticfiles %}
 {% load kolibri_tags%}
-<html>
+
 <head>
-  <title>Riot Demo</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Riot Demo App</title>
 </head>
+
 <body>
-
-<app></app>
-
-{% frontend_assets 'kolibri.core.KolibriCoreFrontEnd' %}
-{% frontend_assets 'kolibri.core.RiotDemoPlugin' %}
-
+  <app></app>
+  {% frontend_assets 'kolibri.core.KolibriCoreFrontEnd' %}
+  {% frontend_assets 'kolibri.core.RiotDemoPlugin' %}
 </body>
+
 </html>
-
-
