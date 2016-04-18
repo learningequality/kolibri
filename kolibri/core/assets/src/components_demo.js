@@ -123,6 +123,16 @@ var ClassroomView = Mn.LayoutView.extend({
                     '</li>';
         });
         html += '</ul>';
+        html += '<div class="ko_drop_list">';
+        html += '<button class="ko_drop_btn subheading">Add user \\/</button>';
+        html += '<div class="ko_drop_content subheading">';
+        _.forEach(this.usersToAdd, function(user){
+            html += _.join(['<a href="#" ', 'data-cid="', user.cid, '">'], '') +
+                    _.join([user.get('firstname'), user.get('lastname')], ' ') +
+                    '</a>';
+        });
+        html += '</div>';
+        html += '</div>';
         return _.template(html);
     },
 
@@ -138,7 +148,12 @@ var ClassroomView = Mn.LayoutView.extend({
             });
             return match !== undefined;
         });
-
+        this.usersToAdd = options.users.filter(_.bind(function(user){
+            var match = _.find(this.users, function(other) {
+                return other.get('username') === user.get('username');
+            });
+            return match === undefined;
+        }, this));
         _.bindAll(this, 'template');
     },
 
@@ -303,6 +318,12 @@ app.on('start', function(){
                 classrooms: ['Classroom 1', 'Classroom 2'],
                 firstname: 'John',
                 lastname: 'Coltrane'
+            },
+            {
+                username: 'jqp',
+                classrooms: [],
+                firstname: 'Jane Q.',
+                lastname: 'Public'
             }
         ], {model: User}),
         classrooms: new Backbone.Collection([
