@@ -122,7 +122,7 @@ var CrudItem = Mn.ItemView.extend({
 });
 
 
-var KolibriCrudView = Mn.CollectionView.extend({
+var CrudCollection = Mn.CollectionView.extend({
     childView: CrudItem,
 
     childViewOptions: function() {
@@ -138,13 +138,41 @@ var KolibriCrudView = Mn.CollectionView.extend({
     tagName: 'ul',
 
     className: 'ko_list',
-
-    childEvents: {
+        childEvents: {
         itemDeleted: 'onChildItemDeleted'
     },
 
     onChildItemDeleted: function(child, args) {
         this.collection.remove(child.model);
+    }
+});
+
+
+var KolibriCrudView = Mn.LayoutView.extend({
+    template: _.template('<div class="collectionRegion"></div>' +
+                         '<button class="add">Add</button>'),
+
+    regions: {
+        collectionRegion: '.collectionRegion'
+    },
+
+    events: {
+        'click .add': 'onAddClicked'
+    },
+
+    initialize: function(options) {
+        this.collectionView = new CrudCollection({
+            collection: options.collection,
+            display: options.display || false
+        });
+    },
+
+    onBeforeShow: function() {
+        this.showChildView('collectionRegion', this.collectionView);
+    },
+
+    onAddClicked: function() {
+        console.log('Add clicked!');
     }
 });
 

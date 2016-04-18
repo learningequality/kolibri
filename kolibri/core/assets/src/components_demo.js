@@ -181,7 +181,9 @@ var UserManagementView = Mn.LayoutView.extend({
 
         // The emerging convention is to pass on your model to your child views,
         // or as with the userList above, pass on some relevant piece of your model.
-        this.classRoster = new ClassRosterView({model: this.model});
+        this.classRoster = new ClassRosterView({
+            model: this.model
+        });
     },
 
     // This is just boilerplate, presumably to ensure child views are rendered so that the child+parent can be
