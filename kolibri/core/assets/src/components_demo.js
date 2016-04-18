@@ -117,12 +117,12 @@ var ClassroomView = Mn.LayoutView.extend({
         var html = _.join(['<span>', serialized_model.name, ':', '</span>'], '');
         html += '<ul class="ko_list userList">';
         _.forEach(this.users, function(user){
-            html += _.join(['<li data-cid="', user.cid, '">'], '') +
+            html += '<li>' +
                     _.join([user.get('firstname'), user.get('lastname')], ' ') +
+                    _.join(['<button class="delete standard-button" data-cid="', user.cid, '">Delete</button>'], '') +
                     '</li>';
         });
         html += '</ul>';
-        console.log(html);
         return _.template(html);
     },
 
@@ -140,7 +140,31 @@ var ClassroomView = Mn.LayoutView.extend({
         });
 
         _.bindAll(this, 'template');
+    },
+
+    events: {
+        'click .delete': 'onClickDelete'
+    },
+
+    onClickDelete: function(ev) {
+        var cid = $(ev.target).data('cid');
+        var user = _.find(this.users, function(user){
+            return user.cid === cid;
+        });
+        var excludeName = this.model.get('name');
+        user.set('classrooms', _.filter(user.get('classrooms'), function(name){
+            return name !== excludeName;
+        }));
     }
+});
+
+
+var ClassroomCollection = Mn.CollectionView.extend({
+    childView: ClassroomView,
+
+    tagName: 'ul',
+
+    className: 'ko_list'
 });
 
 
@@ -155,15 +179,23 @@ var ClassRosterView = Mn.LayoutView.extend({
     },
 
     initialize: function() {
-        this.classList = new Mn.CollectionView({
-            collection: this.model.get('classrooms'),
-            childView: ClassroomView,
+        var classrooms = this.model.get('classrooms');
+        var users = this.model.get('users');
+        this.classList = new ClassroomCollection({
+            collection: classrooms,
             childViewOptions: { // childViewOptions are passed to the initialize function of each child view
-                users: this.model.get('users')
-            },
-            tagName: 'ul',
-            className: 'ko_list'
+                users: users
+            }
         });
+        this.listenTo(users, 'change', _.bind(function(){
+            this.classList = new ClassroomCollection({
+                collection: classrooms,
+                childViewOptions: {
+                    users: users
+                }
+            });
+            this.getRegion('classList').show(this.classList);
+        }, this));
     },
 
     onBeforeShow: function() {

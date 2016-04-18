@@ -138,7 +138,8 @@ var CrudCollection = Mn.CollectionView.extend({
     tagName: 'ul',
 
     className: 'ko_list',
-        childEvents: {
+
+    childEvents: {
         itemDeleted: 'onChildItemDeleted'
     },
 
