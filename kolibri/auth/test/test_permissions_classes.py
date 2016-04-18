@@ -2,7 +2,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.test import TestCase
 
-from .dummy_permissions_classes import ThrowExceptions
 
 from ..models import FacilityUser, DeviceOwner, Facility
 from ..permissions.base import BasePermissions
@@ -91,15 +90,15 @@ class TestBooleanOperationsOnPermissionClassesTestCase(TestCase):
         self.assertDenyAll(DenyAll() & DenyAll())
 
     def test_or_is_shortcircuited_for_efficiency(self):
-        self.assertAllowAll(AllowAll() | ThrowExceptions(), test_filtering=False)
+        self.assertAllowAll(AllowAll() | BasePermissions(), test_filtering=False)
 
     def test_and_is_shortcircuited_for_efficiency(self):
-        self.assertDenyAll(DenyAll() & ThrowExceptions(), test_filtering=False)
+        self.assertDenyAll(DenyAll() & BasePermissions(), test_filtering=False)
 
     def test_or_is_not_shortcircuited_inappropriately(self):
         with self.assertRaises(Exception):
-            self.assertAllowAll(ThrowExceptions() | AllowAll())
+            self.assertAllowAll(BasePermissions() | AllowAll())
 
     def test_and_is_not_shortcircuited_inappropriately(self):
         with self.assertRaises(Exception):
-            self.assertDenyAll(ThrowExceptions() & DenyAll())
+            self.assertDenyAll(BasePermissions() & DenyAll())
