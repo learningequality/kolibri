@@ -139,7 +139,7 @@ class ClassroomPermissionsTestCase(TestCase):
         self.assertFalse(self.member.can_update(self.other_classroom))
 
     def test_only_admins_can_delete_own_classroom(self):
-        """ The only FacilityUsers who can delete a Classroom are admins for the the Facility """
+        """ The only FacilityUsers who can delete a Classroom are admins for the Facility """
         self.assertTrue(self.data["facility_admin"].can_delete(self.own_classroom))
         self.assertFalse(self.own_classroom_admin.can_delete(self.own_classroom))
         self.assertFalse(self.own_classroom_coach.can_delete(self.own_classroom))
@@ -275,7 +275,6 @@ class FacilityUserPermissionsTestCase(TestCase):
 
     def test_admins_and_coaches_can_read_facility_users(self):
         """ Users with admin/coach role for a FacilityUser can read that FacilityUser """
-        self.data["facility_coach"].get_roles_for_user(self.member)
         self.assertTrue(self.data["facility_admin"].can_read(self.member))
         self.assertTrue(self.data["facility_coach"].can_read(self.member))
         self.assertTrue(self.own_classroom_admin.can_read(self.member))
