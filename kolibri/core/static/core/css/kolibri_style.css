@@ -752,10 +752,12 @@ ul.ko_list li label input[type=checkbox]:not(old):checked + span:before{
 }
 
 
-.userListRegion {
+.userListContainer {
   width: 60%;
+  display: inline-block;
 }
 
 .classRosterRegion {
   width: 20%;
+  display: inline-block;
 }

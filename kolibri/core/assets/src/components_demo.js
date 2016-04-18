@@ -113,12 +113,24 @@ var TextInputWithTagDisplay = Mn.LayoutView.extend({
 // This is a deeply nested view, used below.
 // Marionette requires deeply-nested views to be defined before they're used in their containing views.
 var ClassroomView = Mn.LayoutView.extend({
-    template: _.template('<div><%= name %></div>' +
-                         '<div class="userList"></div>'),
+    template: function(serialized_model) {
+        var html = _.join(['<span>', serialized_model.name, ':', '</span>'], '');
+        html += '<ul class="ko_list userList">';
+        _.forEach(this.users, function(user){
+            html += _.join(['<li data-cid="', user.cid, '">'], '') +
+                    _.join([user.get('firstname'), user.get('lastname')], ' ') +
+                    '</li>';
+        });
+        html += '</ul>';
+        console.log(html);
+        return _.template(html);
+    },
+
+    tagName: 'li',
 
     initialize: function(options) {
         var classroom = this.model;
-        var users = options.users.filter(function(user){
+        this.users = options.users.filter(function(user){
             // Assuming for simplicity that user is a model that has a denormalized list of classrooms
             // In reality the user-classroom connection is modeled by a separate object.
             var match = _.find(user.get('classrooms'), function(cr_name) {
@@ -126,10 +138,8 @@ var ClassroomView = Mn.LayoutView.extend({
             });
             return match !== undefined;
         });
-        var usernames = users.map(function(user_model){
-            return user_model.get('username');
-        });
-        console.log(classroom.get('name') + '\'s users: ' + usernames);
+
+        _.bindAll(this, 'template');
     }
 });
 
@@ -137,7 +147,7 @@ var ClassroomView = Mn.LayoutView.extend({
 // This is not sufficiently general to be a first-class component.
 // It's just a thin wrapper around other components anyway.
 var ClassRosterView = Mn.LayoutView.extend({
-    template: _.template('<div>Class Roster</div>' +
+    template: _.template('<div class="heading">Class Roster</div>' +
                          '<div class="classListRegion"></div>'),
 
     regions: {
@@ -150,7 +160,9 @@ var ClassRosterView = Mn.LayoutView.extend({
             childView: ClassroomView,
             childViewOptions: { // childViewOptions are passed to the initialize function of each child view
                 users: this.model.get('users')
-            }
+            },
+            tagName: 'ul',
+            className: 'ko_list'
         });
     },
 
@@ -162,7 +174,10 @@ var ClassRosterView = Mn.LayoutView.extend({
 
 // This is the main view of the User Management demo.
 var UserManagementView = Mn.LayoutView.extend({
-    template: _.template('<div class="userListRegion"></div>' +
+    template: _.template('<div class="userListContainer">' +
+                            '<div class="heading">Users</div>' +
+                            '<div class="userListRegion"></div>' +
+                         '</div>' +
                          '<div class="classRosterRegion"></div>'),
 
     regions: {
