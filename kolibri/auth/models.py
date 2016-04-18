@@ -145,10 +145,10 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
 
     def is_member_of(self, coll):
         """
-        Determine whether this user has the specified role kind in relation to the target user.
+        Determine whether this user is a member of the specified collection.
 
-        :param user: The user that is the target of the role (for which this user has the roles).
-        :return: True if this user has the specified role kind with respect to the target user, otherwise False.
+        :param coll: The collection for which we are checking this user's membership.
+        :return: True if this user is a member of the specified collection, otherwise False.
         :rtype: bool
         """
         raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `is_member_of` method.")
