@@ -3,73 +3,8 @@
   <p>This app demonstrates an implementation of our <a href="https://docs.google.com/document/d/1w7ha3khbxjsNtL2objjYXJAgXpOdiq9uu3r4Vk9jJ_I/">reference example</a> using the <a href="http://riotjs.com/">riot.js</a> front-end framework.</p>
 
   <div class="wrapper">
-    <usermgmt>
-      <h2>Users</h2>
-      <users>
-        <user>
-          <div>
-            <div class="username">username</div>
-            <div class="fullname">First Name Last Name</div>
-          </div>
-          <div class="button-group">
-            <button>delete</button>
-            <button>edit</button>
-          </div>
-        </user>
-        <user>
-          <div>
-            <div class="username">username2</div>
-            <div class="fullname">First Name Last Name 2</div>
-          </div>
-          <div class="button-group">
-            <button>delete</button>
-            <button>edit</button>
-          </div>
-        </user>
-      </users>
-      <div class="add-btn-wrapper">
-        <button>+ Add</button>
-      </div>
-    </usermgmt>
-    <rostermgmt>
-      <h2>Class Rosters</h2>
-      <classlist>
-        <class>
-          <h3>Class 1</h3>
-          <classmembers>
-            <member>
-              <div class="fullname">First Name Last Name</div>
-              <div class="button-group">
-                <button>delete</button>
-              </div>
-            </member>
-            <member>
-              <div class="fullname">First Name Last Name 2</div>
-              <div class="button-group">
-                <button>delete</button>
-              </div>
-            </member>
-          </classmembers>
-          <div class="add-btn-wrapper">
-            <button>+ Add Student</button>
-          </div>
-        </class>
-        <class>
-          <h3>Class 2</h3>
-          <classmembers>
-            <member>
-              <div class="fullname">First Name Last Name 2</div>
-              <div class="button-group">
-                <button>delete</button>
-              </div>
-            </member>
-          </classmembers>
-          <div class="add-btn-wrapper">
-            <button>+ Add Student</button>
-          </div>
-        </class>
-      </classlist>
-    </rostermgmt>
+    <usermgmt></usermgmt>
+    <rostermgmt></rostermgmt>
   </div>
 
   <style scoped>
@@ -97,63 +32,6 @@
     display: flex;
     justify-content: space-around;
   }
-
-
-
-
-  /******** child components ********/
-
-  usermgmt .add-btn-wrapper {
-    display: block;
-    margin-top: 15px;
-  }
-
-  user {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-
-  user .button-group {
-    display: flex;
-    flex-direction: column;
-  }
-
-  user .button-group button {
-    margin: 2px;
-    margin-left: 10px;
-  }
-
-  user .username {
-    font-weight: bold;
-  }
-
-  class {
-    display: block;
-  }
-
-  class .add-btn-wrapper {
-    display: block;
-    margin-top: 15px;
-  }
-
-  member {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  member .button-group {
-    display: flex;
-    flex-direction: column;
-  }
-
-  member .button-group button {
-    margin: 2px;
-    margin-left: 10px;
-  }
-
 
   </style>
 
