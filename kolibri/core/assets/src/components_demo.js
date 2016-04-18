@@ -119,7 +119,7 @@ var ClassroomView = Mn.LayoutView.extend({
         _.forEach(this.users, function(user){
             html += '<li>' +
                     _.join([user.get('firstname'), user.get('lastname')], ' ') +
-                    _.join(['<button class="delete standard-button" data-cid="', user.cid, '">Delete</button>'], '') +
+                    _.join(['<button class="delete standard-button" data-cid="', user.cid, '">Remove</button>'], '') +
                     '</li>';
         });
         html += '</ul>';
@@ -187,15 +187,6 @@ var ClassRosterView = Mn.LayoutView.extend({
                 users: users
             }
         });
-        this.listenTo(users, 'change', _.bind(function(){
-            this.classList = new ClassroomCollection({
-                collection: classrooms,
-                childViewOptions: {
-                    users: users
-                }
-            });
-            this.getRegion('classList').show(this.classList);
-        }, this));
     },
 
     onBeforeShow: function() {
@@ -323,8 +314,26 @@ app.on('start', function(){
             }
         ], {model: Classroom})
     });
+
+    var redraw = function() {
+        umModel.trigger('redraw');
+    };
+    // "change" event corresponds to a collection's model's attributes changing
+    umModel.listenTo(umModel.get('users'), 'change', redraw);
+    umModel.listenTo(umModel.get('classrooms'), 'change', redraw);
+    // "update" is triggered when a model is added or removed from a collection
+    umModel.listenTo(umModel.get('users'), 'update', redraw);
+    umModel.listenTo(umModel.get('classrooms'), 'update', redraw);
+
+    app.listenTo(umModel, 'redraw', function(){
+        console.log('All our views are is dust in the wind...');
+        var newView = new UserManagementView({model: umModel});
+        app.getRegion('userManagementToyApp').show(newView);
+    });
+
     var userMgmt = new UserManagementView({model: umModel});
     app.getRegion('userManagementToyApp').show(userMgmt);
+
 });
 
 
