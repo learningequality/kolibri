@@ -193,12 +193,6 @@ class LearnerGroupPermissionsTestCase(TestCase):
         self.assertTrue(self.own_classroom_admin.can_read(self.own_learnergroup))
         self.assertTrue(self.data["facility_admin"].can_read(self.own_learnergroup))
 
-    # def test_members_and_classroom_admins_and_coaches_cannot_read_other_learnergroup(self):
-    #     """ Members and admins/coaches for a Classroom cannot read a LearnerGroup from another Classroom """
-    #     self.assertFalse(self.member.can_read(self.other_learnergroup))
-    #     self.assertFalse(self.own_classroom_coach.can_read(self.other_learnergroup))
-    #     self.assertFalse(self.own_classroom_admin.can_read(self.other_learnergroup))
-
     def test_only_admins_can_update_own_learnergroup(self):
         """ The only FacilityUsers who can update a LearnerGroup are admins for that LearnerGroup """
         self.assertTrue(self.data["facility_admin"].can_update(self.own_learnergroup))

@@ -327,7 +327,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return True  # FacilityUser is always a member of her own facility
         return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
             target_user=F("id"),
-            ancestor_collection=coll,
+            ancestor_collection=coll.id,
         ).filter(id=self.id).exists()
 
     def get_roles_for_user(self, user):

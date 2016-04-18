@@ -2,28 +2,12 @@
 This module defines the base classes for Kolibri's class-based Permissions system.
 """
 
-import six
-
 
 ####################################################################################################################
 # This section contains base classes that can be inherited and extended to define more complex permissions behavior.
 ####################################################################################################################
 
-class BasePermissionsMetaclass(type):
-    """
-    Metaclass for BasePermissions.
-    """
-
-    def __or__(cls, other):
-        """Defining this on the metaclass means we can "|" two classes together directly, without instantiating."""
-        return PermissionsFromAny(cls, other)
-
-    def __and__(cls, other):
-        """Defining this on the metaclass means we can "&" two classes together directly, without instantiating."""
-        return PermissionsFromAll(cls, other)
-
-
-class BasePermissions(six.with_metaclass(BasePermissionsMetaclass, object)):
+class BasePermissions(object):
     """
     Base Permission class from which all other Permission classes should inherit.
 

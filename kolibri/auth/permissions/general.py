@@ -49,30 +49,6 @@ class AllowAll(BasePermissions):
         return queryset
 
 
-class IsDeviceOwner(BasePermissions):
-    """
-    Permissions class that only allows access to a DeviceOwner (superuser), and denies access to all others.
-    """
-
-    def user_can_create_object(self, user, obj):
-        return user.is_superuser
-
-    def user_can_read_object(self, user, obj):
-        return user.is_superuser
-
-    def user_can_update_object(self, user, obj):
-        return user.is_superuser
-
-    def user_can_delete_object(self, user, obj):
-        return user.is_superuser
-
-    def readable_by_user_filter(self, user, queryset):
-        if user.is_superuser:
-            return queryset
-        else:
-            return queryset.none()
-
-
 class IsSelf(BasePermissions):
     """
     Permissions class that only allows access to the object if the object *is* the user.
