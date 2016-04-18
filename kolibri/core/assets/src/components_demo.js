@@ -158,7 +158,8 @@ var ClassroomView = Mn.LayoutView.extend({
     },
 
     events: {
-        'click .delete': 'onClickDelete'
+        'click .delete': 'onClickDelete',
+        'click .ko_drop_content a': 'onAddUser'
     },
 
     onClickDelete: function(ev) {
@@ -170,6 +171,17 @@ var ClassroomView = Mn.LayoutView.extend({
         user.set('classrooms', _.filter(user.get('classrooms'), function(name){
             return name !== excludeName;
         }));
+    },
+
+    onAddUser: function(ev) {
+        var cid = $(ev.target).data('cid');
+        var user = _.find(this.usersToAdd, function(user){
+            return user.cid === cid;
+        });
+        var crName = this.model.get('name');
+        var newCrs = _.clone(user.get('classrooms'));
+        newCrs.push(crName);
+        user.set('classrooms', newCrs);
     }
 });
 
