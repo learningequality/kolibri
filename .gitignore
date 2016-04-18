@@ -28,6 +28,7 @@ pip-log.txt
 .tox
 nosetests.xml
 htmlcov/
+kolibrihome_test/
 
 # Translations
 *.mo
