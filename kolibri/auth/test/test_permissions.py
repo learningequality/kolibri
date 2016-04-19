@@ -640,14 +640,13 @@ class MembershipPermissionsTestCase(TestCase):
 
     def test_facility_or_classroom_admin_or_coach_or_member_can_read_membership(self):
         membership = Membership.objects.get(user=self.member, collection=self.own_learnergroup)
-        self.assertTrue(self.data["facility_admin"].can_read(membership))
-        self.assertTrue(self.data["facility_coach"].can_read(membership))
-        self.assertTrue(self.own_classroom_admin.can_read(membership))
-        self.assertTrue(self.own_classroom_coach.can_read(membership))
-        self.assertFalse(self.other_classroom_admin.can_read(membership))
-        self.assertFalse(self.other_classroom_coach.can_read(membership))
-        self.assertTrue(self.member.can_read(membership))
-        self.assertTrue(self.device_owner.can_read(membership))
+        for user in [self.data["facility_admin"], self.data["facility_coach"], self.own_classroom_admin,
+                     self.own_classroom_coach, self.member, self.device_owner]:
+            self.assertTrue(user.can_read(membership))
+            self.assertIn(membership, user.filter_readable(Membership.objects.all()))
+        for user in [self.other_classroom_admin, self.other_classroom_coach]:
+            self.assertFalse(user.can_read(membership))
+            self.assertNotIn(membership, user.filter_readable(Membership.objects.all()))
 
     def test_facility_users_cannot_update_memberships(self):
         # None of the fields in a Membership are "mutable", so there's no reason to allow updates
