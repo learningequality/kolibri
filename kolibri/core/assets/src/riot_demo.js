@@ -17,9 +17,9 @@ require('./riot-tags/rostermgmt-class.tag.html');
 require('./riot-tags/rostermgmt-class-member.tag.html');
 require('./riot-tags/modal.tag.html');
 
-riot.mount('app');
 
 
+var rootview = riot.mount('app');
 
 
 

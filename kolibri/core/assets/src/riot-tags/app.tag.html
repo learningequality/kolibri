@@ -3,8 +3,8 @@
   <p>This app demonstrates an implementation of our <a href="https://docs.google.com/document/d/1w7ha3khbxjsNtL2objjYXJAgXpOdiq9uu3r4Vk9jJ_I/">reference example</a> using the <a href="http://riotjs.com/">riot.js</a> front-end framework.</p>
 
   <div class="wrapper">
-    <usermgmt></usermgmt>
-    <rostermgmt></rostermgmt>
+    <usermgmt users={state.users}></usermgmt>
+    <rostermgmt classes={state.classes}></rostermgmt>
   </div>
 
   <modal>
@@ -40,6 +40,11 @@
   </style>
 
   <script>
+  // grab a reference to the state object
+  this.state = require('../state');
+
+  // re-render this and all children when the state changes
+  this.state.on('change', this.update);
   </script>
 
 </app>
