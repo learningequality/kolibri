@@ -9,8 +9,8 @@ from django.test import TestCase
 from .helpers import create_dummy_facility_data
 
 from ..constants import role_kinds
+from ..filters import HierarchyRelationsFilter
 from ..models import DeviceOwner, Facility, Classroom, LearnerGroup, Role, Membership, FacilityUser
-
 
 class ImproperUsageIsProperlyHandledTestCase(TestCase):
     """
@@ -40,6 +40,12 @@ class ImproperUsageIsProperlyHandledTestCase(TestCase):
     def test_that_getting_roles_for_user_in_other_facility_returns_false(self):
         self.assertFalse(self.data1["facility_admin"].has_role_for_user([role_kinds.ADMIN], self.data2["learners_one_group"][0][0]))
 
+    def test_that_invalid_references_to_hierarchyrelationsfilter_throw_errors(self):
+        with self.assertRaises(Exception):
+            HierarchyRelationsFilter(Facility).filter_by_hierarchy(target_user=object())
+        with self.assertRaises(Exception):
+            HierarchyRelationsFilter(Facility).filter_by_hierarchy(target_user=["test"])
+
 
 class FacilityPermissionsTestCase(TestCase):
     """
@@ -62,18 +68,18 @@ class FacilityPermissionsTestCase(TestCase):
     def test_facility_users_can_read_own_facility(self):
         """ FacilityUsers can read their own Facility, regardless of their roles """
         own_facility = self.data1["facility"]
-        self.assertTrue(self.data1["facility_admin"].can_read(own_facility))
-        self.assertTrue(self.data1["classroom_coaches"][0].can_read(own_facility))
-        self.assertTrue(self.data1["learners_one_group"][0][0].can_read(own_facility))
-        self.assertTrue(self.data1["unattached_users"][0].can_read(own_facility))
+        for user in [self.data1["facility_admin"], self.data1["classroom_coaches"][0],
+                     self.data1["learners_one_group"][0][0], self.data1["unattached_users"][0]]:
+            self.assertTrue(user.can_read(own_facility))
+            self.assertIn(own_facility, user.filter_readable(Facility.objects.all()))
 
     def test_facility_users_cannot_read_other_facility(self):
         """ FacilityUsers cannot read other Facilities, regardless of their roles """
         other_facility = self.data2["facility"]
-        self.assertFalse(self.data1["facility_admin"].can_read(other_facility))
-        self.assertFalse(self.data1["classroom_coaches"][0].can_read(other_facility))
-        self.assertFalse(self.data1["learners_one_group"][0][0].can_read(other_facility))
-        self.assertFalse(self.data1["unattached_users"][0].can_read(other_facility))
+        for user in [self.data1["facility_admin"], self.data1["classroom_coaches"][0],
+                     self.data1["learners_one_group"][0][0], self.data1["unattached_users"][0]]:
+            self.assertFalse(user.can_read(other_facility))
+            self.assertNotIn(other_facility, user.filter_readable(Facility.objects.all()))
 
     def test_only_facility_admins_can_update_own_facility(self):
         """ The only FacilityUser who can update a Facility is a facility admin for that Facility """
@@ -118,6 +124,8 @@ class FacilityPermissionsTestCase(TestCase):
         self.assertTrue(self.device_owner.can_update(facility))
         self.assertTrue(self.device_owner.can_delete(facility))
 
+        self.assertSetEqual(set(Facility.objects.all()), set(self.device_owner.filter_readable(Facility.objects.all())))
+
 
 class ClassroomPermissionsTestCase(TestCase):
     """
@@ -143,16 +151,17 @@ class ClassroomPermissionsTestCase(TestCase):
 
     def test_members_can_read_own_classroom(self):
         """ Members of a Classroom can read that Classroom, as can coaches and admins for the Classroom """
-        self.assertTrue(self.member.can_read(self.own_classroom))
-        self.assertTrue(self.own_classroom_coach.can_read(self.own_classroom))
-        self.assertTrue(self.own_classroom_admin.can_read(self.own_classroom))
-        self.assertTrue(self.data["facility_admin"].can_read(self.own_classroom))
+        for user in [self.data["facility_admin"], self.own_classroom_coach,
+                     self.own_classroom_admin, self.member]:
+            self.assertTrue(user.can_read(self.own_classroom))
+            self.assertIn(self.own_classroom, user.filter_readable(Classroom.objects.all()))
 
     def test_members_and_classroom_admins_and_coaches_can_read_other_classroom(self):
-        """ Members and admins/coaches for a Classroom cannot read another Classroom """
-        self.assertTrue(self.member.can_read(self.other_classroom))
-        self.assertTrue(self.own_classroom_coach.can_read(self.other_classroom))
-        self.assertTrue(self.own_classroom_admin.can_read(self.other_classroom))
+        """ Members and admins/coaches for a Classroom can read another Classroom """
+        for user in [self.data["facility_admin"], self.own_classroom_coach,
+                     self.own_classroom_admin, self.member]:
+            self.assertTrue(user.can_read(self.other_classroom))
+            self.assertIn(self.other_classroom, user.filter_readable(Classroom.objects.all()))
 
     def test_only_admins_can_update_own_classroom(self):
         """ The only FacilityUsers who can update a Classroom are admins for that Classroom (or for the Facility) """
@@ -188,6 +197,8 @@ class ClassroomPermissionsTestCase(TestCase):
         self.assertTrue(self.device_owner.can_update(self.own_classroom))
         self.assertTrue(self.device_owner.can_delete(self.own_classroom))
 
+        self.assertSetEqual(set(Classroom.objects.all()), set(self.device_owner.filter_readable(Classroom.objects.all())))
+
 
 class LearnerGroupPermissionsTestCase(TestCase):
     """
@@ -217,10 +228,10 @@ class LearnerGroupPermissionsTestCase(TestCase):
 
     def test_members_can_read_own_learnergroup(self):
         """ Members of a LearnerGroup can read that LearnerGroup, as can coaches and admins for the LearnerGroup """
-        self.assertTrue(self.member.can_read(self.own_learnergroup))
-        self.assertTrue(self.own_classroom_coach.can_read(self.own_learnergroup))
-        self.assertTrue(self.own_classroom_admin.can_read(self.own_learnergroup))
-        self.assertTrue(self.data["facility_admin"].can_read(self.own_learnergroup))
+        for user in [self.data["facility_admin"], self.own_classroom_coach,
+                     self.own_classroom_admin, self.member]:
+            self.assertTrue(user.can_read(self.own_learnergroup))
+            self.assertIn(self.own_learnergroup, user.filter_readable(LearnerGroup.objects.all()))
 
     def test_only_admins_can_update_own_learnergroup(self):
         """ The only FacilityUsers who can update a LearnerGroup are admins for that LearnerGroup """
@@ -255,6 +266,8 @@ class LearnerGroupPermissionsTestCase(TestCase):
         self.assertTrue(self.device_owner.can_read(self.own_learnergroup))
         self.assertTrue(self.device_owner.can_update(self.own_learnergroup))
         self.assertTrue(self.device_owner.can_delete(self.own_learnergroup))
+
+        self.assertSetEqual(set(LearnerGroup.objects.all()), set(self.device_owner.filter_readable(LearnerGroup.objects.all())))
 
 
 class FacilityUserPermissionsTestCase(TestCase):
@@ -297,31 +310,34 @@ class FacilityUserPermissionsTestCase(TestCase):
 
     def test_facility_user_can_read_self(self):
         """ A FacilityUser can read its own FacilityUser model """
-        self.assertTrue(self.member.can_read(self.member))
-        self.assertTrue(self.own_classroom_admin.can_read(self.own_classroom_admin))
-        self.assertTrue(self.own_classroom_coach.can_read(self.own_classroom_coach))
-        self.assertTrue(self.data["facility_admin"].can_read(self.data["facility_admin"]))
+        for user in [self.own_classroom_admin, self.member, self.own_classroom_coach, self.data["facility_admin"]]:
+            self.assertTrue(user.can_read(user))
+            self.assertIn(user, user.filter_readable(FacilityUser.objects.all()))
 
     def test_admins_and_coaches_can_read_facility_users(self):
         """ Users with admin/coach role for a FacilityUser can read that FacilityUser """
-        self.assertTrue(self.data["facility_admin"].can_read(self.member))
-        self.assertTrue(self.data["facility_coach"].can_read(self.member))
-        self.assertTrue(self.own_classroom_admin.can_read(self.member))
-        self.assertTrue(self.own_classroom_coach.can_read(self.member))
+        print("test_admins_and_coaches_can_read_facility_users")
+        for user in [self.own_classroom_admin, self.own_classroom_coach, self.data["facility_admin"], self.data["facility_coach"]]:
+            self.assertTrue(user.can_read(self.member))
+            self.assertIn(self.member, user.filter_readable(FacilityUser.objects.all()))
 
-    def test_admins_and_coaches_for_other_classrooms_cannot_read_facility_users(self):
+    def test_members_and_admins_and_coaches_for_other_classrooms_cannot_read_facility_users(self):
         """ Users without admin/coach role for a specific FacilityUser cannot read that FacilityUser """
-        self.assertFalse(self.own_classroom_coach.can_read(self.other_member))
-        self.assertFalse(self.own_classroom_admin.can_read(self.other_member))
+        print("test_members_and_admins_and_coaches_for_other_classrooms_cannot_read_facility_users")
+        for user in [self.own_classroom_coach, self.own_classroom_admin, self.member]:
+            self.assertFalse(user.can_read(self.other_member))
+            self.assertNotIn(self.other_member, user.filter_readable(FacilityUser.objects.all()))
 
     def test_only_facility_admins_and_coaches_can_read_unaffiliated_facility_users(self):
         """ Only Facility admins/coaches can read FacilityUser that is not a member of a Classroom or LearnerGroup """
+        print("test_only_facility_admins_and_coaches_can_read_unaffiliated_facility_users")
         orphan = self.data["unattached_users"][0]
-        self.assertTrue(self.data["facility_admin"].can_read(orphan))
-        self.assertTrue(self.data["facility_coach"].can_read(orphan))
-        self.assertFalse(self.own_classroom_admin.can_read(orphan))
-        self.assertFalse(self.own_classroom_coach.can_read(orphan))
-        self.assertFalse(self.member.can_read(orphan))
+        for user in [self.data["facility_admin"], self.data["facility_coach"]]:
+            self.assertTrue(user.can_read(orphan))
+            self.assertIn(orphan, user.filter_readable(FacilityUser.objects.all()))
+        for user in [self.own_classroom_coach, self.own_classroom_admin, self.member]:
+            self.assertFalse(user.can_read(orphan))
+            self.assertNotIn(orphan, user.filter_readable(FacilityUser.objects.all()))
 
     def test_facility_user_can_update_self(self):
         """ A FacilityUser can update its own FacilityUser model """
@@ -383,6 +399,8 @@ class FacilityUserPermissionsTestCase(TestCase):
         self.assertTrue(self.device_owner.can_update(self.member))
         self.assertTrue(self.device_owner.can_delete(self.member))
 
+        self.assertSetEqual(set(FacilityUser.objects.all()), set(self.device_owner.filter_readable(FacilityUser.objects.all())))
+
 
 class DeviceOwnerPermissionsTestCase(TestCase):
     """
@@ -409,12 +427,10 @@ class DeviceOwnerPermissionsTestCase(TestCase):
 
     def test_non_device_owners_cannot_read_device_owner(self):
         """ Users who are not DeviceOwners cannot read a DeviceOwner """
-        self.assertFalse(self.data["facility_admin"].can_read(self.device_owner))
-        self.assertFalse(self.data["facility_coach"].can_read(self.device_owner))
-        self.assertFalse(self.own_classroom_admin.can_read(self.device_owner))
-        self.assertFalse(self.own_classroom_coach.can_read(self.device_owner))
-        self.assertFalse(self.member.can_read(self.device_owner))
-        self.assertFalse(self.data["unattached_users"][0].can_read(self.device_owner))
+        for user in [self.data["facility_admin"], self.data["facility_coach"], self.own_classroom_admin,
+                     self.own_classroom_coach, self.member, self.data["unattached_users"][0]]:
+            self.assertFalse(user.can_read(self.device_owner))
+            self.assertEqual(len(user.filter_readable(DeviceOwner.objects.all())), 0)
 
     def test_non_device_owners_cannot_update_device_owner(self):
         """ Users who are not DeviceOwners cannot update a DeviceOwner """
@@ -447,6 +463,9 @@ class DeviceOwnerPermissionsTestCase(TestCase):
         self.assertTrue(self.device_owner.can_read(self.device_owner2))
         self.assertTrue(self.device_owner.can_update(self.device_owner2))
         self.assertTrue(self.device_owner.can_delete(self.device_owner2))
+
+        self.assertIn(self.device_owner, self.device_owner.filter_readable(DeviceOwner.objects.all()))
+        self.assertIn(self.device_owner2, self.device_owner.filter_readable(DeviceOwner.objects.all()))
 
 
 class RolePermissionsTestCase(TestCase):
@@ -512,15 +531,12 @@ class RolePermissionsTestCase(TestCase):
 
     def test_facility_admin_or_coach_can_read_facility_admin_role(self):
         role = Role.objects.create(user=self.role_user, collection=self.data["facility"], kind=role_kinds.ADMIN)
-        self.assertTrue(self.data["facility_admin"].can_read(role))
-        self.assertTrue(self.data["facility_coach"].can_read(role))
-        self.assertFalse(self.own_classroom_admin.can_read(role))
-        self.assertFalse(self.own_classroom_coach.can_read(role))
-        self.assertFalse(self.other_classroom_admin.can_read(role))
-        self.assertFalse(self.other_classroom_coach.can_read(role))
-        self.assertFalse(self.member.can_read(role))
-        self.assertTrue(self.role_user.can_read(role))
-        self.assertTrue(self.device_owner.can_read(role))
+        for user in [self.data["facility_admin"], self.data["facility_coach"], self.role_user, self.device_owner]:
+            self.assertTrue(user.can_read(role))
+            self.assertIn(role, user.filter_readable(Role.objects.all()))
+        for user in [self.own_classroom_admin, self.own_classroom_coach, self.other_classroom_admin, self.other_classroom_coach, self.member]:
+            self.assertFalse(user.can_read(role))
+            self.assertNotIn(role, user.filter_readable(Role.objects.all()))
 
     def test_facility_or_classroom_admin_or_coach_can_read_classroom_admin_role(self):
         role = Role.objects.create(user=self.role_user, collection=self.own_classroom, kind=role_kinds.ADMIN)
