@@ -82,9 +82,6 @@ class RoleBasedPermissions(BasePermissions):
     can_be_updated_by = None
     can_be_deleted_by = None
 
-    # The following will be used as a fallback for creation, updating, or deletion, if they're not defined
-    can_be_written_by = None
-
     # Specify the field through which the role target (user or collection) will be referenced (or "." if the object itself
     # is the target). The referenced field should be a ForeignKey to either the FacilityUser or the Collection model.
     target_field = "user"  # by default, the target is the FacilityUser that is pointed to by the object's "user" field
@@ -104,17 +101,8 @@ class RoleBasedPermissions(BasePermissions):
         if can_be_deleted_by is not None:
             self.can_be_deleted_by = can_be_deleted_by
 
-        if can_be_written_by is not None:
-            self.can_be_written_by = can_be_written_by
-
         if target_field is not None:
             self.target_field = target_field
-
-        # to avoid confusion, ensure that the specific and general write permissions have not both been specified
-        if isinstance(self.can_be_written_by, list):
-            assert self.can_be_created_by is None, "Cannot define both `can_be_written_by` and `can_be_created_by`"
-            assert self.can_be_updated_by is None, "Cannot define both `can_be_written_by` and `can_be_updated_by`"
-            assert self.can_be_deleted_by is None, "Cannot define both `can_be_written_by` and `can_be_deleted_by`"
 
     def _get_target_object(self, obj):
         if self.target_field == ".":  # this means the object itself is the target
@@ -125,13 +113,10 @@ class RoleBasedPermissions(BasePermissions):
 
     def user_can_create_object(self, user, obj):
 
-        if self.can_be_created_by is not None:
-            roles = self.can_be_created_by
-        else:
-            roles = self.can_be_written_by
+        roles = self.can_be_created_by
+
         assert isinstance(roles, list), \
-            "If `can_be_created_by` is None, then either `can_be_written_by` must be defined as a fallback, or " + \
-            "the `user_can_create_object` method must be overridden to define custom behavior."
+            "If `can_be_created_by` is None, then `user_can_create_object` method must be overridden with custom behavior."
 
         target_object = self._get_target_object(obj)
         return user.has_role_for(roles, target_object)
@@ -139,6 +124,7 @@ class RoleBasedPermissions(BasePermissions):
     def user_can_read_object(self, user, obj):
 
         roles = self.can_be_read_by
+
         assert isinstance(roles, list), \
             "If `can_be_read_by` is None, then `user_can_read_object` method must be overridden with custom behavior."
 
@@ -147,26 +133,20 @@ class RoleBasedPermissions(BasePermissions):
 
     def user_can_update_object(self, user, obj):
 
-        if self.can_be_updated_by is not None:
-            roles = self.can_be_updated_by
-        else:
-            roles = self.can_be_written_by
+        roles = self.can_be_updated_by
+
         assert isinstance(roles, list), \
-            "If `can_be_updated_by` is None, then either `can_be_written_by` must be defined as a fallback, or " + \
-            "the `user_can_update_object` method must be overridden to define custom behavior."
+            "If `can_be_updated_by` is None, then `user_can_update_object` method must be overridden with custom behavior."
 
         target_object = self._get_target_object(obj)
         return user.has_role_for(roles, target_object)
 
     def user_can_delete_object(self, user, obj):
 
-        if self.can_be_deleted_by is not None:
-            roles = self.can_be_deleted_by
-        else:
-            roles = self.can_be_written_by
+        roles = self.can_be_deleted_by
+
         assert isinstance(roles, list), \
-            "If `can_be_deleted_by` is None, then either `can_be_written_by` must be defined as a fallback, or " + \
-            "the `user_can_delete_object` method must be overridden to define custom behavior."
+            "If `can_be_deleted_by` is None, then `user_can_delete_object` method must be overridden with custom behavior."
 
         target_object = self._get_target_object(obj)
         return user.has_role_for(roles, target_object)
@@ -211,10 +191,7 @@ class PermissionsFromAny(BasePermissions):
     def __init__(self, *perms):
         self.perms = []
         for perm in perms:
-            # if it's an uninstantiated class, instantiate it
-            if isinstance(perm, type) and issubclass(perm, BasePermissions):
-                perm = perm()
-            # ensure that what we now have is an instance of a subclass of BasePermissions
+            # ensure that perm is an instance of a subclass of BasePermissions
             assert isinstance(perm, BasePermissions), \
                 "each of the arguments to __init__ must be a subclass (or instance of a subclass) of BasePermissions"
             # add it into the children permissions list
@@ -260,10 +237,7 @@ class PermissionsFromAll(BasePermissions):
     def __init__(self, *perms):
         self.perms = []
         for perm in perms:
-            # if it's an uninstantiated class, instantiate it
-            if isinstance(perm, type) and issubclass(perm, BasePermissions):
-                perm = perm()
-            # ensure that what we now have is an instance of a subclass of BasePermissions
+            # ensure that perm is an instance of a subclass of BasePermissions
             assert isinstance(perm, BasePermissions), \
                 "each of the arguments to __init__ must be a subclass (or instance of a subclass) of BasePermissions"
             # add it into the children permissions list

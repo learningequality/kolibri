@@ -105,60 +105,6 @@ class IsOwn(BasePermissions):
         return queryset.filter(**{self.field_name: user.id})
 
 
-class IsMember(BasePermissions):
-    """
-    Permissions class that only allows access to the object if the object is a Collection (or has a field, `field_name`,
-    that foreign keys onto a Collection) and the user is a member of that Collection. If `field_name` is ".", which is
-    the default, then the object itself is the Collection. If `read_only` is set to True, then write permissions are
-    denied, even for the member.
-    """
-
-    def __init__(self, field_name=".", read_only=False):
-        self.read_only = read_only
-        self.field_name = field_name
-
-    def _user_is_member(self, user, obj):
-
-        # import here to avoid circular imports
-        from ..models import Collection
-
-        if self.field_name == ".":
-            coll = obj
-        else:
-            coll = getattr(obj, self.field_name)
-
-        assert isinstance(coll, Collection)
-
-        return user.is_member_of(coll)
-
-    def user_can_create_object(self, user, obj):
-        return (not self.read_only) and self._user_is_member(user, obj)
-
-    def user_can_read_object(self, user, obj):
-        return self._user_is_member(user, obj)
-
-    def user_can_update_object(self, user, obj):
-        return (not self.read_only) and self._user_is_member(user, obj)
-
-    def user_can_delete_object(self, user, obj):
-        return (not self.read_only) and self._user_is_member(user, obj)
-
-    def readable_by_user_filter(self, user, queryset):
-        # TODO(jamalex): reimplement this method in a more efficient way
-
-        # import here to avoid circular imports
-        from ..models import Collection
-
-        # get all the collections in which the user is a member
-        collections = Collection.objects.filter(membership__user=user).get_ancestors(include_self=True)
-
-        # filter the queryset based on the collections we calculated above
-        if self.field_name == ".":
-            return queryset.filter(id__in=collections)
-        else:
-            return queryset.filter(**{self.field_name + "__in": collections})
-
-
 class IsFromSameFacility(BasePermissions):
     """
     Permissions class that only allows access to object if user is associated with the same facility as the object.
@@ -183,11 +129,8 @@ class IsFromSameFacility(BasePermissions):
         return (not self.read_only) and self._facility_dataset_is_same(user, obj)
 
     def readable_by_user_filter(self, user, queryset):
-        # filter the queryset by facility dataset, if the user is associated with one
-        if hasattr(user, "dataset"):
-            return queryset.filter(dataset=user.dataset)
-        else:
-            return queryset.none()
+        return queryset.filter(dataset=user.dataset)
+
 
 class IsAdminForOwnFacility(BasePermissions):
     """
@@ -201,9 +144,6 @@ class IsAdminForOwnFacility(BasePermissions):
 
         # import here to avoid circular imports
         from ..models import Facility
-
-        if not hasattr(user, "dataset"):
-            return False
 
         # if we've been given an object, make sure it too is from the same dataset (facility)
         if obj:
