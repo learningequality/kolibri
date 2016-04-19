@@ -61,7 +61,7 @@ class RiotDemoPlugin(KolibriFrontEndPluginBase):
     """
     SPA using riot
     """
-    entry_file = "assets/src/riot_demo.js"
+    entry_file = "assets/src/riotapp.js"
 
     def hooks(self):
         return {

@@ -1,9 +1,9 @@
-<modal class="{show: false}">
+<modal>
   <div class="content">
     <!--
     `yield` is a special riot.js tag which allows the parent tag to
     pass in content. In this case, `app` passes in `usermgmt-editor`.
-    This makes modal a more re-usable component.
+    This makes `modal` a re-usable component.
     -->
     <yield/>
   </div>
@@ -11,7 +11,7 @@
   <style scoped>
 
   :scope {
-    display: none; /* Hidden by default*/
+    display: block;
     position: fixed;
     left: 0;
     top: 0;
@@ -19,10 +19,6 @@
     height: 100%;
     overflow: auto;
     background-color: rgba(0,0,0,0.6);
-  }
-
-  :scope.show {
-    display: block;
   }
 
   .content {

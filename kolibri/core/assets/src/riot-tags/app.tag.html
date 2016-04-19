@@ -7,12 +7,11 @@
     <rostermgmt classes={state.classes}></rostermgmt>
   </div>
 
-  <modal>
+  <modal hidden={!state.editorState.visible}>
     <usermgmt-editor></usermgmt-editor>
   </modal>
 
   <style scoped>
-
   /*
   The top-level tag in this component – in this case `app`.
   CSS component is scoping is poly-filled by riot.js
@@ -41,7 +40,7 @@
 
   <script>
   // grab a reference to the state object
-  this.state = require('../state');
+  this.state = require('../riotapp.state');
 
   // re-render this and all children when the state changes
   this.state.on('change', this.update);

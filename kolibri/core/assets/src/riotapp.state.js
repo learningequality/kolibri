@@ -3,6 +3,7 @@
 var riot = require('riot');
 
 var state = {
+
   /*
   A list of objects with keys:
     `name` - string
@@ -19,7 +20,15 @@ var state = {
   */
   users: [
     {username: 'user1234', fullname: 'Some Name'},
-  ]
+  ],
+
+  // editor state handling
+  editorState: {
+    visible: true,    // is the pop-up shown?
+    username: null,   // set username when used in 'edit' mode
+    fullname: '',     // initial value
+  }
+
 };
 
 

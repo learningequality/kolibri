@@ -1,6 +1,26 @@
 <usermgmt-editor>
-  <div>
-    edit me!!
+  <h2>
+    {state.editorState.username ? 'Edit User' : 'Add User'}
+  </h2>
+  <div class="form-row">
+    <label>Username:</label>
+    <input
+      type="text"
+      readonly={state.editorState.username}
+      value={state.editorState.username}
+      autofocus={!state.editorState.username}>
+    </input>
+  </div>
+  <div class="form-row">
+    <label>Full Name:</label>
+    <input
+      type="text"
+      autofocus={state.editorState.username}>
+    </input>
+  </div>
+  <div class="buttons">
+    <button>{state.editorState.username ? 'Save' : 'Add'}</button>
+    <button>Cancel</button>
   </div>
 
 
@@ -9,9 +29,31 @@
   :scope {
   }
 
+  :scope > h2 {
+    margin-top: 0;
+  }
+
+  .form-row {
+    display: flex;
+    margin-bottom: 4px;
+  }
+
+  .form-row label {
+    width: 30%;
+  }
+
+  .form-row input {
+    flex-grow: 1;
+  }
+
+  .buttons {
+    margin-top: 10px;
+  }
+
   </style>
 
   <script>
+  this.state = require('../riotapp.state');
   </script>
 
 </usermgmt-editor>
