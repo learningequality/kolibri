@@ -2,6 +2,8 @@
 This module defines the base classes for Kolibri's class-based Permissions system.
 """
 
+from django.db.models import F
+
 
 ####################################################################################################################
 # This section contains base classes that can be inherited and extended to define more complex permissions behavior.
@@ -168,6 +170,31 @@ class RoleBasedPermissions(BasePermissions):
 
         target_object = self._get_target_object(obj)
         return user.has_role_for(roles, target_object)
+
+    def readable_by_user_filter(self, user, queryset):
+
+        # import here to prevent circular dependencies
+        from ..models import Collection
+        from ..filters import HierarchyRelationsFilter
+
+        query = {
+            "source_user": user,
+            "role_kind": self.can_be_read_by,
+        }
+
+        if self.target_field == ".":
+            if issubclass(queryset.model, Collection):
+                query["descendant_collection"] = F("id")
+            else:
+                query["target_user"] = F("id")
+        else:
+            related_model = queryset.model._meta.get_field(self.target_field).remote_field.model
+            if issubclass(related_model, Collection):
+                query["descendant_collection"] = F(self.target_field)
+            else:
+                query["target_user"] = F(self.target_field)
+
+        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(**query)
 
 
 ####################################################################################################################

@@ -289,6 +289,15 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         else:
             raise ValueError("The `obj` argument to `has_role_for` must be either an instance of KolibriAbstractBaseUser or Collection.")
 
+    def filter_readable(self, queryset):
+        """
+        Filters a queryset down to only the elements that this user should have permission to read.
+
+        :param queryset: A QuerySet instance that the filtering should be applied to.
+        :return: Filtered QuerySet including only elements that are readable by this user.
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_delete` method.")
+
 
 class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
@@ -325,7 +334,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return False
         if coll.kind == collection_kinds.FACILITY:
             return True  # FacilityUser is always a member of her own facility
-        return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
+        return HierarchyRelationsFilter(FacilityUser.objects.all()).filter_by_hierarchy(
             target_user=F("id"),
             ancestor_collection=coll.id,
         ).filter(id=self.id).exists()
@@ -405,6 +414,12 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         else:
             return False
 
+    def filter_readable(self, queryset):
+        if self._has_permissions_class(queryset.model):
+            return queryset.model.permissions.readable_by_user_filter(self, queryset).distinct()
+        else:
+            return queryset.none()
+
 
 class DeviceOwner(KolibriAbstractBaseUser):
     """
@@ -457,6 +472,9 @@ class DeviceOwner(KolibriAbstractBaseUser):
     def can_delete(self, obj):
         # DeviceOwners are superusers, and can do anything
         return True
+
+    def filter_readable(self, queryset):
+        return queryset
 
 
 class Collection(MPTTModel, AbstractFacilityDataModel):
