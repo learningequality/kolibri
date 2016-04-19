@@ -1,8 +1,9 @@
 # Kolibri runtime requirements
 wheel>=0.22
-docopt
+docopt==0.6.2
 colorlog==2.6.0
 django==1.9.1
 django-mptt==0.8.0
 djangorestframework==3.3.2
 drf-nested-routers
+six==1.10.0
