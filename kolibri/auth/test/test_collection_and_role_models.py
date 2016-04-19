@@ -114,10 +114,6 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
         with self.assertRaises(UserIsMemberOnlyIndirectlyThroughHierarchyError):
             self.cr.remove_member(self.learner)
 
-    def test_remove_device_owner_role(self):
-        with self.assertRaises(UserIsNotFacilityUser):
-            self.cr.remove_admin(self.device_owner)
-
     def test_delete_learner_group(self):
         """ Deleting a LearnerGroup should delete its associated Memberships as well """
         self.assertEqual(Membership.objects.filter(collection=self.lg.id).count(), 1)
@@ -278,7 +274,7 @@ class CollectionsTestCase(TestCase):
             Collection(name="qqq", parent=self.facility).full_clean()
 
 
-class RoleTestCase(TestCase):
+class RoleErrorTestCase(TestCase):
 
     def setUp(self):
         self.facility = Facility.objects.create()
@@ -292,3 +288,40 @@ class RoleTestCase(TestCase):
             self.learner_group.add_role(self.facility_user, "blahblahnonexistentroletype")
         with self.assertRaises(InvalidRoleKind):
             self.learner_group.remove_role(self.facility_user, "blahblahnonexistentroletype")
+
+
+class DeviceOwnerRoleMembershipTestCase(TestCase):
+
+    def setUp(self):
+        self.facility = Facility.objects.create()
+        self.classroom = Classroom.objects.create(parent=self.facility)
+        self.learner_group = LearnerGroup.objects.create(parent=self.classroom)
+        self.facility_user = FacilityUser.objects.create(username="blah", password="#", facility=self.facility)
+        self.device_owner = DeviceOwner.objects.create(username="blooh", password="#")
+        self.device_owner2 = DeviceOwner.objects.create(username="bleeh", password="#")
+
+    def test_deviceowner_is_not_member_of_any_collection(self):
+        self.assertFalse(self.device_owner.is_member_of(self.classroom))
+        self.assertFalse(self.device_owner.is_member_of(self.facility))
+        self.assertFalse(self.device_owner.is_member_of(self.learner_group))
+
+    def test_deviceowner_is_admin_for_everything(self):
+        self.assertSetEqual(self.device_owner.get_roles_for_collection(self.classroom), set([role_kinds.ADMIN]))
+        self.assertSetEqual(self.device_owner.get_roles_for_collection(self.facility), set([role_kinds.ADMIN]))
+        self.assertSetEqual(self.device_owner.get_roles_for_user(self.facility_user), set([role_kinds.ADMIN]))
+        self.assertSetEqual(self.device_owner.get_roles_for_user(self.device_owner), set([role_kinds.ADMIN]))
+        self.assertSetEqual(self.device_owner.get_roles_for_user(self.device_owner2), set([role_kinds.ADMIN]))
+        self.assertTrue(self.device_owner.has_role_for_user([role_kinds.ADMIN], self.facility_user))
+        self.assertTrue(self.device_owner.has_role_for_collection([role_kinds.ADMIN], self.facility))
+
+    def test_device_owners_cannot_be_assigned_or_removed_from_roles(self):
+        with self.assertRaises(UserIsNotFacilityUser):
+            self.classroom.add_admin(self.device_owner)
+        with self.assertRaises(UserIsNotFacilityUser):
+            self.classroom.remove_admin(self.device_owner)
+
+    def test_device_owners_cannot_be_members(self):
+        with self.assertRaises(UserIsNotFacilityUser):
+            self.classroom.add_member(self.device_owner)
+        with self.assertRaises(UserIsNotFacilityUser):
+            self.classroom.remove_member(self.device_owner)

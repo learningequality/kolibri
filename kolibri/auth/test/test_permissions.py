@@ -12,6 +12,35 @@ from ..constants import role_kinds
 from ..models import DeviceOwner, Facility, Classroom, LearnerGroup, Role, Membership, FacilityUser
 
 
+class ImproperUsageIsProperlyHandledTestCase(TestCase):
+    """
+    Tests that error cases and misuse of the interface are properly caught.
+    """
+
+    def setUp(self):
+        self.data1 = create_dummy_facility_data()
+        self.data2 = create_dummy_facility_data()
+        self.device_owner = DeviceOwner.objects.create(username="boss")
+
+    def test_that_checking_creation_perms_on_invalid_model_returns_false(self):
+        # cannot create a LearnerGroup with invalid attribute name
+        self.assertFalse(self.data1["facility_admin"].can_create(LearnerGroup, {"bad_attr_name": 77, "parent": self.data1["facility"]}))
+        # cannot create a LearnerGroup with missing attribute value ("name")
+        self.assertFalse(self.data1["facility_admin"].can_create(LearnerGroup, {"parent": self.data1["facility"]}))
+
+    def test_that_getting_roles_for_noncollection_fails(self):
+        with self.assertRaises(ValueError):
+            self.data1["facility_admin"].get_roles_for(object())
+        with self.assertRaises(ValueError):
+            self.data1["facility_admin"].has_role_for([role_kinds.ADMIN], object())
+
+    def test_that_getting_roles_for_deviceowner_returns_false(self):
+        self.assertFalse(self.data1["facility_admin"].has_role_for_user([role_kinds.ADMIN], self.device_owner))
+
+    def test_that_getting_roles_for_user_in_other_facility_returns_false(self):
+        self.assertFalse(self.data1["facility_admin"].has_role_for_user([role_kinds.ADMIN], self.data2["learners_one_group"][0][0]))
+
+
 class FacilityPermissionsTestCase(TestCase):
     """
     Tests of permissions for reading/modifying Facility instances
