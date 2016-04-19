@@ -62,9 +62,8 @@ class HierarchyRelationsFilter(object):
             "facilityuser_table": FacilityUser._meta.db_table,
         }
 
-    def _add_extras(self, where=None, tables=None):
-        if where:
-            self.where += where
+    def _add_extras(self, where, tables=None):
+        self.where += where
         if tables:
             self.tables += [table.format(**self._table_names) for table in tables]
 
