@@ -107,7 +107,7 @@ You can also run tests through Django's `test` management command, accessed thro
 
 To run specific tests only, you can add `--`, followed by a label (consisting of the import path to the test(s)
 you want to run, possibly ending in some subset of a filename, classname, and method name). For example, the
-following will run only one test, named `test_facility_user_can_read_self` in the `FacilityUserPermissionsTestCase`
+following will run only one test, named `test_admin_can_delete_membership` in the `MembershipPermissionsTestCase`
 class in kolibri/auth/test/test_permissions.py::
 
     $ kolibri manage test -- kolibri.auth.test.test_permissions.MembershipPermissionsTestCase.test_admin_can_delete_membership
