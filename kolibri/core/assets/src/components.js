@@ -1,7 +1,12 @@
 'use strict';
+var $ = require('jquery');
 var logging = require('loglevel');
 var Mn = require('backbone.marionette');
 var _ = require('lodash');
+
+global.jQuery = $;
+require('bootstrap-modal');
+
 
 logging.setDefaultLevel(2);
 

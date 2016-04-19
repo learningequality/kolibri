@@ -26,6 +26,9 @@ global.$ = $;
 var Mn = require('backbone.marionette');
 var _ = require('lodash');
 
+var jQuery = $;
+require('bootstrap-modal');
+
 logging.setDefaultLevel(2);
 
 logging.info('Component demo loaded!');
@@ -287,9 +290,12 @@ app.on('start', function(){
         textAreaInput: '#textAreaInput',
         passwordInput: '#passwordInput',
         validatingInput: '#validatingInput',
-        userManagementToyApp: '#userManagementToyApp'
+        userManagementToyApp: '#userManagementToyApp',
+        modal: '#modal_view_el'
     });
 
+    /*
+    Commenting this out for now, to reduce clutter for the user management demo.
     // Just bootstrapping some data for the demo. In practice, this might be fetched from the server.
     var tags = new Backbone.Collection([
         new Backbone.Model({name: 'foo_tag'}),
@@ -324,7 +330,7 @@ app.on('start', function(){
             console.log(view.cid + ' text changed! Got: "' + text + '"');
         });
     });
-
+    */
 
     // Setting up static test data for the User Management demo
     // In Particular, we construct one very inhomogeneous model which represents the app's state.
@@ -383,6 +389,56 @@ app.on('start', function(){
 
 });
 
+
+/*
+ ModalView is used below.
+*/
+var ModalContainerView = Mn.LayoutView.extend({
+    template: _.template('<div class="modal-content">' +
+                            '<div class="modal-header">' +
+                                '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                                '<h4 class="modal-title" id="myModalLabel"><%= title %></h4>' +
+                            '</div>' +
+                            '<div class="modal-body">' +
+                            '</div>' +
+                        '</div>'),
+
+    regions: {
+        modal: '.modal-body'
+    },
+
+    initialize: function(options) {
+        // Will be used to set the title in the template implicitly
+        this.model = new Backbone.Model();
+        this.model.set('title', options.title || '');
+
+        this.subview = options.subview;
+        this.listenTo(this.subview, 'closeModal', _.bind(function(){
+            this.getRegion('modal').empty();
+            $('#modal').modal('hide');
+        }, this));
+    },
+
+    onBeforeShow: function() {
+        $('#modal').modal();
+        this.showChildView('modal', this.subview);
+    }
+});
+
+
+/*
+ Modals are requested to be shown by triggering the "showModal" event on the Application object,
+ and providing an instantiated view as an argument.
+ Any communication between a modalView and its originator should occur through a shared Model or Collection
+ provided to the instantiated modalView.
+ */
+app.on('showModal', function(modalView) {
+    var container = new ModalContainerView({
+        subview: modalView,
+        title: modalView.model.get('modalTitle')
+    });
+    app.getRegion('modal').show(container);
+});
 
 var cpd = new ComponentDemoPlugin();
 

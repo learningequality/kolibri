@@ -761,3 +761,7 @@ ul.ko_list li label input[type=checkbox]:not(old):checked + span:before{
   width: 20%;
   display: inline-block;
 }
+
+#modal {
+  display: none;
+}

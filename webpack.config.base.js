@@ -28,7 +28,8 @@ var config = {
         alias: {
             'kolibri_module': 'kolibri/plugins/assets/src/kolibri_module/kolibri_module',
             'components': 'kolibri/core/assets/src/components',
-            'handlebars.runtime': 'node_modules/handlebars/dist/handlebars.js'
+            'handlebars.runtime': 'node_modules/handlebars/dist/handlebars.js',
+            'bootstrap-modal': 'node_modules/bootstrap/js/modal.js'
         }
     }
 };
