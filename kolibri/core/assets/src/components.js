@@ -1,6 +1,7 @@
 'use strict';
 var $ = require('jquery');
 var logging = require('loglevel');
+var Backbone = require('backbone');
 var Mn = require('backbone.marionette');
 var _ = require('lodash');
 
@@ -154,6 +155,40 @@ var CrudCollection = Mn.CollectionView.extend({
 });
 
 
+var CrudAddItem = Mn.ItemView.extend({
+    template: function() {
+        var html = '';
+        _.forEach(this.create, function(attr){
+            html += _.join(['<input data-attr="', attr, '" type="text" placeholder="', attr ,'"></input>'], '');
+            html += '</br>';
+        });
+        html += '<button class="create flat-button">Create</button>';
+        return _.template(html);
+    },
+
+    triggers: {
+        'click .create': 'create'
+    },
+
+    initialize: function(options) {
+        this.create = options.create;
+        _.bindAll(this, 'template');
+    },
+
+    onCreate: function() {
+        _.forEach(this.$el.find('input'), _.bind(function(input_el) {
+            var attr = $(input_el).data('attr');
+            var val = $(input_el).val();
+            console.log(attr);
+            console.log(val);
+            this.model.set(attr, val);
+        }, this));
+        this.collection.add(this.model);
+        this.trigger('closeModal');
+    }
+});
+
+
 var KolibriCrudView = Mn.LayoutView.extend({
     template: _.template('<div class="collectionRegion"></div>' +
                          '<button class="add">Add</button>'),
@@ -167,6 +202,11 @@ var KolibriCrudView = Mn.LayoutView.extend({
     },
 
     initialize: function(options) {
+        this.addItemTitle = options.addItemTitle || 'Add a new item';
+        this.create = options.create;
+        this.collection = options.collection;
+        this.modelClass = options.modelClass || Backbone.Model;
+        this.createModalTitle = options.createModalTotal || 'Create a new item';
         this.collectionView = new CrudCollection({
             collection: options.collection,
             display: options.display || false
@@ -178,7 +218,13 @@ var KolibriCrudView = Mn.LayoutView.extend({
     },
 
     onAddClicked: function() {
-        console.log('Add clicked!');
+        var model = new this.modelClass();
+        var modalView = new CrudAddItem({
+            model: model,
+            collection: this.collection,
+            create: this.create
+        });
+        this.trigger('showModal', modalView, this.createModalTitle);
     }
 });
 

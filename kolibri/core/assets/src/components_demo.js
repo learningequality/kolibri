@@ -114,6 +114,14 @@ var TextInputWithTagDisplay = Mn.LayoutView.extend({
 });
 
 
+var User = Backbone.Model.extend({
+    initialize: function(options) {
+        options = options || {};
+        this.set('classrooms', options.classrooms || []);
+    }
+});
+
+
 // This is a deeply nested view, used below.
 // Marionette requires deeply-nested views to be defined before they're used in their containing views.
 var ClassroomView = Mn.LayoutView.extend({
@@ -258,8 +266,17 @@ var UserManagementView = Mn.LayoutView.extend({
         this.userList = new components.KolibriCrudView({
             collection: this.model.get('users'),
             // If specified only the attributes in "display" are shown, otherwise all of the model's attrs are shown.
-            display: ['username', 'firstname', 'lastname']
+            display: ['username', 'firstname', 'lastname'],
+            // Specify which attributes are specifiable when creating a new item. This *must* be provided.
+            create: ['username', 'firstname', 'lastname'],
+            // Setting the modelClass ensures that models are properly instantiated even when not all the fields
+            // are specifiable from the "create" dialog -- in this case, we initialize the classrooms attribute.
+            modelClass: User
         });
+
+        this.listenTo(this.userList, 'showModal', _.bind(function(modalView, modalTitle){
+            app.trigger('showModal', modalView, modalTitle);
+        }, this));
 
         // The emerging convention is to pass on your model to your child views,
         // or as with the userList above, pass on some relevant piece of your model.
@@ -335,7 +352,6 @@ app.on('start', function(){
     // Setting up static test data for the User Management demo
     // In Particular, we construct one very inhomogeneous model which represents the app's state.
     // That's so we can listen to events on the model and trigger rerenders as needed.
-    var User = Backbone.Model.extend({});
     var Classroom = Backbone.Model.extend({});
     var umModel = new Backbone.Model({
         users: new Backbone.Collection([
@@ -432,10 +448,10 @@ var ModalContainerView = Mn.LayoutView.extend({
  Any communication between a modalView and its originator should occur through a shared Model or Collection
  provided to the instantiated modalView.
  */
-app.on('showModal', function(modalView) {
+app.on('showModal', function(modalView, modalTitle) {
     var container = new ModalContainerView({
         subview: modalView,
-        title: modalView.model.get('modalTitle')
+        title: modalTitle
     });
     app.getRegion('modal').show(container);
 });
