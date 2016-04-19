@@ -1,35 +1,27 @@
 'use strict';
 
-var logging = require('loglevel');
+// load dependencies
 var riot = require('riot');
-
-logging.setDefaultLevel(2);
-logging.info('Riot demo loaded!');
-
 require('normalize-css');
 
+// load views
 require('./riot-tags/app.tag.html');
 require('./riot-tags/usermgmt.tag.html');
 require('./riot-tags/usermgmt-user.tag.html');
 require('./riot-tags/usermgmt-editor.tag.html');
-require('./riot-tags/rostermgmt.tag.html');
-require('./riot-tags/rostermgmt-class.tag.html');
-require('./riot-tags/rostermgmt-class-member.tag.html');
+require('./riot-tags/classmgmt.tag.html');
+require('./riot-tags/classmgmt-room.tag.html');
+require('./riot-tags/classmgmt-room-member.tag.html');
 require('./riot-tags/modal.tag.html');
 
+// load application state
+var state = require('./riotapp.state');
 
-
+// attach root view to DOM
 var rootview = riot.mount('app');
 
+// re-render all views whenever the state changes
+state.on('change', rootview.update);
 
-
-// var KolibriModule = require('kolibri_module');
-
-// var Plugin = KolibriModule.extend({
-//   initialize: function() {
-//     logging.info('Demo initialized!');
-//   }
-// });
-
-
-// var plugin = new Plugin();
+// off to the races...
+console.log('Riot demo loaded!');

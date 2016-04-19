@@ -1,49 +1,43 @@
 <app>
   <h1>Riot Toy App</h1>
   <p>This app demonstrates an implementation of our <a href="https://docs.google.com/document/d/1w7ha3khbxjsNtL2objjYXJAgXpOdiq9uu3r4Vk9jJ_I/">reference example</a> using the <a href="http://riotjs.com/">riot.js</a> front-end framework.</p>
-
   <div class="wrapper">
     <usermgmt users={state.users}></usermgmt>
-    <rostermgmt classes={state.classes}></rostermgmt>
+    <classmgmt classrooms={state.classrooms}></classmgmt>
   </div>
-
   <modal hidden={!state.editorState.visible}>
     <usermgmt-editor></usermgmt-editor>
   </modal>
 
+
   <style scoped>
-  /*
-  The top-level tag in this component – in this case `app`.
-  CSS component is scoping is poly-filled by riot.js
-  */
-  :scope {
-    display: block;
-    margin: 10px;
-    box-sizing: border-box;
-  }
-
-  /*
-  This component and all its children should have
-    box-sizing: border-box
-  unless they overwrite it.
-  */
-  *, *:before, *:after {
-    box-sizing: inherit;
-  }
-
-  .wrapper {
-    display: flex;
-    justify-content: space-around;
-  }
-
+    /*
+    The top-level tag in this component – in this case `app`.
+    CSS component is scoping is poly-filled by riot.js
+    */
+    :scope {
+      display: block;
+      margin: 10px;
+      box-sizing: border-box;
+    }
+    /*
+    This component and all its children should have
+      box-sizing: border-box
+    unless they overwrite it.
+    */
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+    .wrapper {
+      display: flex;
+      justify-content: space-around;
+    }
   </style>
 
-  <script>
-  // grab a reference to the state object
-  this.state = require('../riotapp.state');
 
-  // re-render this and all children when the state changes
-  this.state.on('change', this.update);
+  <script>
+    // grab a reference to the state object
+    this.state = require('../riotapp.state');
   </script>
 
 </app>
