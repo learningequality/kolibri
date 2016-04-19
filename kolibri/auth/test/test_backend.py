@@ -2,8 +2,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.test import TestCase
 
-from kolibri.auth.models import FacilityUser, DeviceOwner, Facility
-from kolibri.auth.backends import DeviceOwnerBackend, FacilityUserBackend
+from ..models import FacilityUser, DeviceOwner, Facility
+from ..backends import DeviceOwnerBackend, FacilityUserBackend
 
 
 class DeviceOwnerBackendTestCase(TestCase):
