@@ -316,21 +316,18 @@ class FacilityUserPermissionsTestCase(TestCase):
 
     def test_admins_and_coaches_can_read_facility_users(self):
         """ Users with admin/coach role for a FacilityUser can read that FacilityUser """
-        print("test_admins_and_coaches_can_read_facility_users")
         for user in [self.own_classroom_admin, self.own_classroom_coach, self.data["facility_admin"], self.data["facility_coach"]]:
             self.assertTrue(user.can_read(self.member))
             self.assertIn(self.member, user.filter_readable(FacilityUser.objects.all()))
 
     def test_members_and_admins_and_coaches_for_other_classrooms_cannot_read_facility_users(self):
         """ Users without admin/coach role for a specific FacilityUser cannot read that FacilityUser """
-        print("test_members_and_admins_and_coaches_for_other_classrooms_cannot_read_facility_users")
         for user in [self.own_classroom_coach, self.own_classroom_admin, self.member]:
             self.assertFalse(user.can_read(self.other_member))
             self.assertNotIn(self.other_member, user.filter_readable(FacilityUser.objects.all()))
 
     def test_only_facility_admins_and_coaches_can_read_unaffiliated_facility_users(self):
         """ Only Facility admins/coaches can read FacilityUser that is not a member of a Classroom or LearnerGroup """
-        print("test_only_facility_admins_and_coaches_can_read_unaffiliated_facility_users")
         orphan = self.data["unattached_users"][0]
         for user in [self.data["facility_admin"], self.data["facility_coach"]]:
             self.assertTrue(user.can_read(orphan))
