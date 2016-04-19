@@ -14,6 +14,8 @@ require('./riot-tags/user.tag.html');
 require('./riot-tags/rostermgmt.tag.html');
 require('./riot-tags/class.tag.html');
 require('./riot-tags/classmember.tag.html');
+require('./riot-tags/modal.tag.html');
+require('./riot-tags/usereditor.tag.html');
 
 riot.mount('app');
 
