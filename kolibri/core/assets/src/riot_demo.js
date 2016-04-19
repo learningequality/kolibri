@@ -10,12 +10,12 @@ require('normalize-css');
 
 require('./riot-tags/app.tag.html');
 require('./riot-tags/usermgmt.tag.html');
-require('./riot-tags/user.tag.html');
+require('./riot-tags/usermgmt-user.tag.html');
+require('./riot-tags/usermgmt-editor.tag.html');
 require('./riot-tags/rostermgmt.tag.html');
-require('./riot-tags/class.tag.html');
-require('./riot-tags/classmember.tag.html');
+require('./riot-tags/rostermgmt-class.tag.html');
+require('./riot-tags/rostermgmt-class-member.tag.html');
 require('./riot-tags/modal.tag.html');
-require('./riot-tags/usereditor.tag.html');
 
 riot.mount('app');
 

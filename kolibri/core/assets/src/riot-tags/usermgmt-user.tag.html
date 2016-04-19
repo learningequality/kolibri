@@ -1,8 +1,13 @@
-<classmember>
-  <div class="fullname">First Name Last Name</div>
+<usermgmt-user>
+  <div>
+    <div class="username">username</div>
+    <div class="fullname">First Name Last Name</div>
+  </div>
   <div class="button-group">
     <button>delete</button>
+    <button>edit</button>
   </div>
+
 
   <style scoped>
 
@@ -10,6 +15,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 10px;
   }
 
   .button-group {
@@ -22,9 +28,13 @@
     margin-left: 10px;
   }
 
+  .username {
+    font-weight: bold;
+  }
+
   </style>
 
   <script>
   </script>
 
-</classmember>
+</usermgmt-user>
