@@ -1,4 +1,6 @@
-from models import ChannelMetadata, ContentMetadata, File, Format
+from kolibri.content.models import (
+    ChannelMetadata, ContentMetadata, File, Format
+)
 from rest_framework import serializers
 
 
