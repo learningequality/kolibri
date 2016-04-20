@@ -4,10 +4,7 @@
   <div class="add-btn-wrapper">
     <button onclick={showAddForm}>+ Add</button>
   </div>
-  <usermgmt-addform
-    hidden={!addingUser}
-    onclose={hideAddForm}>
-  </usermgmt-addform>
+  <usermgmt-addform></usermgmt-addform>
 
 
   <style scoped>
@@ -21,18 +18,12 @@
   <script>
     var tag = this;
 
-    // are we showing the 'add user' form?
-    tag.addingUser = false;
-
     tag.showAddForm = function () {
-      tag.addingUser = true;
-      tag.update();
+      // Not sure if having an imperative API is good
+      // practice, but it seems relatively clean here.
+      tag.tags['usermgmt-addform'].open();
     };
 
-    tag.hideAddForm = function () {
-      tag.addingUser = false;
-      tag.update();
-    };
   </script>
 
 </usermgmt>

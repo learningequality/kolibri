@@ -1,17 +1,29 @@
-<usermgmt-addform>
-  <form class="content" onkeyup={keyup}>
+<usermgmt-addform hidden={!shown} onkeyup={keyup}>
+  <form class="content">
     <h2>Add User</h2>
     <div class="form-row">
       <label>Username:</label>
-      <input autofocus type="text" name="username"></input>
+      <input
+        type="text"
+        name="username"
+        class={invalid: !validation.username}
+      ></input>
     </div>
     <div class="form-row">
       <label>Full Name:</label>
-      <input type="text" name="fullname"></input>
+      <input
+        type="text"
+        name="fullname"
+        class={invalid: !validation.fullname}
+      ></input>
     </div>
     <div class="buttons">
-      <button type="submit" onclick={this.save}>Add</button>
-      <button type="reset" onclick={this.close}>Cancel</button>
+      <button type="submit" disabled={!canSubmit()} onclick={save}>
+        Add
+      </button>
+      <button type="reset" onclick={close}>
+        Cancel
+      </button>
     </div>
   </form>
 
@@ -54,16 +66,59 @@
 
   <script>
     var state = require('../riotapp.state');
-
+    var _ = require('lodash');
     var tag = this;
 
-    tag.close = function () {
-      // reset the input values
-      tag.username.value = "";
-      tag.fullname.value = "";
+    tag.shown = false;
 
-      // trigger 'close' callback
-      tag.opts.onclose();
+    // input validation
+    tag.validation = {};
+    tag.validation.username = false;
+    tag.validation.fullname = false;
+
+    tag.canSubmit = function () {
+      return tag.validation.username && tag.validation.fullname;
+    }
+
+    tag.validate = function () {
+      var usernameValid = true;
+      var fullnameValid = true;
+
+      // username and fullname are both required
+      if (tag.username.value === '') {
+        usernameValid = false;
+      }
+      if (tag.fullname.value === '') {
+        fullnameValid = false;
+      }
+      // username cannot already exist
+      var usernameExists = _.some(state.users, function(user) {
+        return user.username === tag.username.value;
+      })
+      if (usernameExists) {
+        usernameValid = false;
+      }
+
+      tag.validation.username = usernameValid;
+      tag.validation.fullname = fullnameValid;
+    };
+
+    /*
+    This function is actually called from the parent tag.
+    It's unusual and may be an anti-pattern.
+    */
+    tag.open = function () {
+      tag.username.value = '';
+      tag.fullname.value = '';
+      tag.validation.username = false;
+      tag.validation.fullname = false;
+      tag.shown = true;
+      tag.validate();
+      tag.username.focus() // not working for some reason
+    };
+
+    tag.close = function () {
+      tag.shown = false;
     };
 
     tag.save = function () {
@@ -74,11 +129,10 @@
     };
 
     tag.keyup = function (e) {
-      switch(e.keyCode) {
-        case 13: // 'enter' handled by 'onsubmit' event
-          return;
-        case 27: // 'esc'
-          tag.close();
+      tag.validate();
+      // handle escape key
+      if (e.keyCode === 27) {
+        tag.close();
       }
     }
 
