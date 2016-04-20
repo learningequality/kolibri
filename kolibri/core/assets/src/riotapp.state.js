@@ -26,6 +26,18 @@ state.classrooms = [
   {name: 'Class 2', students: []},
 ];
 
+state.addUserToClass = function(username, classname) {
+  var user = state.getUser(username);
+  var classroom = state.getClass(classname);
+  classroom.students.push(user);
+  state.trigger('change');
+};
+
+state.getClass = function(classname) {
+  return _.find(state.classrooms, function(c) {
+    return c.name === classname;
+  });
+};
 
 /* users
 A list of objects with keys:
@@ -46,6 +58,14 @@ state.deleteUser = function(username) {
   state.trigger('change');
 };
 
+state.getUser = function(username) {
+  return _.find(state.users, function(u) {
+    return u.username === username;
+  });
+};
+
+
+state.addUser('test', 'name');
 
 
 // module API
