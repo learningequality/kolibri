@@ -1,25 +1,28 @@
 <usermgmt-editor>
   <h2>
-    {state.editorState.username ? 'Edit User' : 'Add User'}
+    {opts.formstate.username ? 'Edit User' : 'Add User'}
   </h2>
   <div class="form-row">
     <label>Username:</label>
     <input
       type="text"
-      readonly={state.editorState.username}
-      value={state.editorState.username}
-      autofocus={!state.editorState.username}>
+      name="username",
+      readonly={opts.formstate.username}
+      value={opts.formstate.username}
+      autofocus={!opts.formstate.username}>
     </input>
   </div>
   <div class="form-row">
     <label>Full Name:</label>
     <input
       type="text"
-      autofocus={state.editorState.username}>
+      name="fullname",
+      value={opts.formstate.fullname}
+      autofocus={opts.formstate.username}>
     </input>
   </div>
   <div class="buttons">
-    <button>{state.editorState.username ? 'Save' : 'Add'}</button>
+    <button onclick={this.save}>{opts.formstate.username ? 'Save' : 'Add'}</button>
     <button>Cancel</button>
   </div>
 
@@ -45,7 +48,15 @@
 
 
   <script>
-    this.state = require('../riotapp.state');
+    var state = require('../riotapp.state');
+
+    var tag = this;
+    tag.save = function() {
+      console.log(tag);
+      state.addUser(tag.username.value, tag.fullname.value);
+      tag.opts.done();
+      tag.update(); // this really shouldn't be necessary - riot bug?
+    }
   </script>
 
 </usermgmt-editor>

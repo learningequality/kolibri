@@ -3,10 +3,11 @@
 // load dependencies
 var riot = require('riot');
 
-
 /*
   The application state is just an object
   with some event publishing capability.
+
+  NOTE - state should only be modified through setter methods.
 */
 var state = {};
 riot.observable(state);
@@ -30,25 +31,14 @@ A list of objects with keys:
   `username` - string
   `fullname` - string
 */
-state.users = [
-  {username: 'user1234', fullname: 'Some Name'},
-];
+state.users = [];
 
-
-/* editorState
-Used to control the edit pop-up.
-*/
-state.editorState = {
-  visible: false,    // is the pop-up shown?
-  username: null,   // set username when used in 'edit' mode
-  fullname: '',     // initial value
+state.addUser = function(username, fullname) {
+  console.log('Adding user...', username, fullname);
+  state.users.push({username: username, fullname: fullname});
+  state.trigger('change');
 };
 
-
-// add some more dummy data
-state.classrooms[1].students.push(state.users[0]);
-state.classrooms[1].students.push(state.users[0]);
-state.classrooms[1].students.push(state.users[0]);
 
 
 // module API
