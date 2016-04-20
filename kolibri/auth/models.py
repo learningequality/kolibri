@@ -480,12 +480,9 @@ class DeviceOwner(KolibriAbstractBaseUser):
 class Collection(MPTTModel, AbstractFacilityDataModel):
     """
     Collections are hierarchical groups of users, used for grouping users and making decisions about permissions.
-    Users belong to one or more Collections, by way of obtaining Roles associated with those Collections.
-    Collections can belong to other Collections, and user membership in a collection is conferred by parenthood.
+    Users can have roles for one or more Collections, by way of obtaining Roles associated with those Collections.
+    Collections can belong to other Collections, and user membership in a collection is conferred through Memberships.
     Collections are subdivided into several pre-defined levels.
-
-    The hierarchy of Collections forms a tree structure, and a description can be found
-    `in the dev bible <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit>`_.
     """
 
     # Collection can be read by anybody from the facility; writing is only allowed by an admin for the collection.
