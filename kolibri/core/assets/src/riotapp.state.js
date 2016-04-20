@@ -2,6 +2,7 @@
 
 // load dependencies
 var riot = require('riot');
+var _ = require('lodash');
 
 /*
   The application state is just an object
@@ -34,8 +35,14 @@ A list of objects with keys:
 state.users = [];
 
 state.addUser = function(username, fullname) {
-  console.log('Adding user...', username, fullname);
   state.users.push({username: username, fullname: fullname});
+  state.trigger('change');
+};
+
+state.deleteUser = function(username) {
+  _.remove(state.users, function(user) {
+    return user.username === username;
+  });
   state.trigger('change');
 };
 

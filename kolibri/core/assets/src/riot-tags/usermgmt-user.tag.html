@@ -4,7 +4,7 @@
     <div class="fullname">{fullname}</div>
   </div>
   <div class="button-group">
-    <button>delete</button>
+    <button onclick={delete}>delete</button>
     <button>edit</button>
   </div>
 
@@ -33,6 +33,13 @@
   </style>
 
 
-  <script></script>
+  <script>
+    var state = require('../riotapp.state');
+    var tag = this;
+
+    tag.delete = function () {
+      state.deleteUser(tag.username);
+    };
+  </script>
 
 </usermgmt-user>
