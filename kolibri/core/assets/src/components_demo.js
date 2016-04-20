@@ -16,6 +16,7 @@ Read the inline comments for more explanation.
 var components = require('components');
 var logging = require('loglevel');
 var KolibriModule = require('kolibri_module');
+var Handlebars = require('handlebars.runtime');
 
 // Set Backbone.$ explicitly, as it's required for View DOM manipulation in general and Marionette specifically.
 var $ = require('jquery');
@@ -114,26 +115,27 @@ var TextInputWithTagDisplay = Mn.LayoutView.extend({
 // Marionette requires deeply-nested views to be defined before they're used in their containing views.
 var ClassroomView = Mn.LayoutView.extend({
     template: function(serialized_model) {
-        var html = _.join(['<span>', serialized_model.name, ':', '</span>'], '');
-        html += '<ul class="ko_list userList">';
-        _.forEach(this.users, function(user){
-            html += '<li>' +
-                    _.join([user.get('firstname'), user.get('lastname')], ' ') +
-                    _.join(['<button class="delete standard-button" data-cid="', user.cid, '">Remove</button>'], '') +
-                    '</li>';
+        var html =
+            '<span>{{ name }}</span>' +
+            '<ul class="ko_list userList">' +
+                '{{#each users}}<li>' +
+                    '{{ firstname }} {{ lastname }}' +
+                    '<button class="delete standard-button" data-cid="{{ cid }}">Remove</button>' +
+                '</li>{{/each}}' +
+            '</ul>' +
+            '<div class="ko_drop_list">' +
+                '<button class="ko_drop_btn subheading">Add user \\/</button>' +
+                '<div class="ko_drop_content subheading">' +
+                    '{{#each usersToAdd }}<a href="#" data-cid="{{ cid }}">' +
+                    '{{ firstname }} {{ lastname }}' +
+                    '</a>{{/each}}' +
+                '</div>' +
+            '</div>';
+        _.extend(serialized_model, {
+            users: this.usersHash,
+            usersToAdd: this.usersToAddHash
         });
-        html += '</ul>';
-        html += '<div class="ko_drop_list">';
-        html += '<button class="ko_drop_btn subheading">Add user \\/</button>';
-        html += '<div class="ko_drop_content subheading">';
-        _.forEach(this.usersToAdd, function(user){
-            html += _.join(['<a href="#" ', 'data-cid="', user.cid, '">'], '') +
-                    _.join([user.get('firstname'), user.get('lastname')], ' ') +
-                    '</a>';
-        });
-        html += '</div>';
-        html += '</div>';
-        return _.template(html);
+        return Handlebars.compile(html)(serialized_model);
     },
 
     tagName: 'li',
@@ -154,6 +156,18 @@ var ClassroomView = Mn.LayoutView.extend({
             });
             return match === undefined;
         }, this));
+
+        // Used as template context variables
+        var userModelToHash = function(user) {
+            var attrs = _.clone(user.attributes);
+            _.extend(attrs, {
+                cid: user.cid
+            });
+            return attrs;
+        };
+        this.usersHash = _.map(this.users, userModelToHash);
+        this.usersToAddHash = _.map(this.usersToAdd, userModelToHash);
+
         _.bindAll(this, 'template');
     },
 
