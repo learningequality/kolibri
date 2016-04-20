@@ -288,20 +288,20 @@ class ContentMetadataTestCase(TestCase):
     def test_ancestor_topics_endpoint(self):
         c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
         response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c1_id) + '/ancestor_topics/')
-        result = json.loads(response.content)
+        result = json.loads(response.content.decode('utf-8'))
         self.assertEqual(result[0]['title'], 'root')
 
     def test_immediate_children_endpoint(self):
         root_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
         response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(root_id) + '/immediate_children/')
-        result = json.loads(response.content)
+        result = json.loads(response.content.decode('utf-8'))
         self.assertEqual(result[0]['title'], 'c1')
         self.assertEqual(result[1]['title'], 'c2')
 
     def test_leaves_endpoint(self):
         root_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
         response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(root_id) + '/leaves/')
-        result = json.loads(response.content)
+        result = json.loads(response.content.decode('utf-8'))
         self.assertEqual(result[0]['title'], 'c1')
         self.assertEqual(result[1]['title'], 'c2c1')
         self.assertEqual(result[2]['title'], 'c2c2')
@@ -310,38 +310,38 @@ class ContentMetadataTestCase(TestCase):
     def test_all_prerequisites_endpoint(self):
         c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
         response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c1_id) + '/all_prerequisites/')
-        result = json.loads(response.content)
+        result = json.loads(response.content.decode('utf-8'))
         self.assertEqual(result[0]['title'], 'root')
 
     def test_all_related_endpoint(self):
         c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
         response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c1_id) + '/all_related/')
-        result = json.loads(response.content)
+        result = json.loads(response.content.decode('utf-8'))
         self.assertEqual(result[0]['title'], 'c2')
 
     def test_all_formats_endpoint(self):
         c2_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2").content_id
         response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c2_id) + '/all_formats/')
-        result = json.loads(response.content)
+        result = json.loads(response.content.decode('utf-8'))
         self.assertEqual(result[0]['format_size'], 46)
 
     def test_available_formats_endpoint(self):
         c2_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2").content_id
         response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c2_id) + '/available_formats/')
-        result = json.loads(response.content)
+        result = json.loads(response.content.decode('utf-8'))
         self.assertEqual(len(result), 0)
 
     def test_possible_formats_endpoint(self):
         c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
         response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c1_id) + '/possible_formats/')
-        result = json.loads(response.content)
+        result = json.loads(response.content.decode('utf-8'))
         self.assertEqual(result[0]['format_size'], 102)
         self.assertEqual(result[1]['format_size'], 51)
 
     def test_missing_files_endpoint(self):
         c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
         response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c1_id) + '/missing_files/')
-        result = json.loads(response.content)
+        result = json.loads(response.content.decode('utf-8'))
         expected_output = content.File.objects.using(self.the_channel_id).filter(id__in=[1, 2])
         self.assertEqual(result[0]['format'], expected_output[0].format.id)
         self.assertEqual(result[1]['format'], expected_output[1].format.id)
@@ -349,7 +349,7 @@ class ContentMetadataTestCase(TestCase):
     def test_files_for_quality_endpoint(self):
         c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
         response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c1_id) + '/files_for_quality/high/')
-        result = json.loads(response.content)
+        result = json.loads(response.content.decode('utf-8'))
         fm = content.Format.objects.using(self.the_channel_id).get(format_size=102)
         self.assertEqual(result[0]['format'], fm.id)
 
@@ -370,7 +370,7 @@ class ContentMetadataTestCase(TestCase):
     def test_children_of_kind_endpoint(self):
         root_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
         response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(root_id) + '/children_of_kind/topic/')
-        result = json.loads(response.content)
+        result = json.loads(response.content.decode('utf-8'))
         cn_titles = [k['title'] for k in result]
         self.assertEqual(cn_titles[0], 'c2')
         self.assertEqual(cn_titles[1], 'c2c2')
