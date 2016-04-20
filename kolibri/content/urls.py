@@ -4,12 +4,11 @@ Most of the api endpoints here use django_rest_framework to expose the content a
 except some set methods that do not return anything.
 """
 from django.conf.urls import include, url
+from kolibri.content import api, models, serializers
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework_nested import routers
-
-from . import api, models, serializers
 
 
 class ChannelMetadataViewSet(viewsets.ViewSet):
