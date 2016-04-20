@@ -73,8 +73,6 @@ state.getUser = function(username) {
 };
 
 
-state.addUser('test', 'name');
-
 
 // module API
 module.exports = state;
