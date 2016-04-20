@@ -272,9 +272,11 @@ class ContentMetadataTestCase(TestCase):
         root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
         c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
-        # test for immediate cyclic exception
-        with self.assertRaises(IntegrityError):
+        # test for silently canceling save on immediate cyclic related_relationship
+        try:
             api.set_is_related(channel_id=self.the_channel_id, content1=root, content2=c1)
+        except:
+            self.assertTrue(False)
 
     def test_children_of_kind(self):
         p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
