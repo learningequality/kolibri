@@ -91,8 +91,6 @@ var CrudAddItem = Mn.ItemView.extend({
         _.forEach(this.$el.find('input'), _.bind(function(input_el) {
             var attr = $(input_el).data('attr');
             var val = $(input_el).val();
-            console.log(attr);
-            console.log(val);
             this.model.set(attr, val);
         }, this));
         this.collection.add(this.model);
@@ -101,6 +99,35 @@ var CrudAddItem = Mn.ItemView.extend({
 });
 
 
+/*
+    KolibriCrudView attempts to provide a unified interface for managing lists of objects.
+    As the name suggests, it provides four basic operations, all of which are customizable by passing options
+    to the constructor:
+    * Display a collection of items
+    * Create new items and add them to the collection
+    * Remove existing items from the collection
+    * Edit items in the collection
+
+    Required constructor options:
+    * collection: A Backbone.Collection which KolibriCrudView manages
+    * create: A list of strings naming attributes which the user must provide to create a new item.
+        At this time, input is only through a text field and no validation is provided.
+
+    Optional constructor options:
+    * display: A list of strings naming attributes of the collection's models which will be displayed.
+        If falsy, then *all* of the model's .attributes hash will be shown.
+        Default is `false`;
+    * createModalTitle: A string, the title of the modal when adding a new item.
+        Default: 'Create a new item'
+    * modelClass: The class of the Models in the collection. Can be specified to e.g. use custom initialization logic
+        when creating a new model through the add modal.
+        Default: Backbone.Model
+    * modalService: The object on which the "showModal" event is triggered when the user clicks the add button.
+        The event is passes two arguments, an instance of a CrudAddItem view to be displayed and the value of
+        createModalTitle. The intent is that the user will inject their own modal service object.
+        Default: the KolibriCrudView instance itself -- then the user may listen for the event to implement custom
+            logic.
+ */
 var KolibriCrudView = Mn.LayoutView.extend({
     template: _.template('<div class="collectionRegion"></div>' +
                          '<button class="add">Add</button>'),
@@ -114,14 +141,19 @@ var KolibriCrudView = Mn.LayoutView.extend({
     },
 
     initialize: function(options) {
-        this.addItemTitle = options.addItemTitle || 'Add a new item';
+        // Required options
         this.create = options.create;
         this.collection = options.collection;
+
+        // Options with default values
+        this.display = options.display || false;
         this.modelClass = options.modelClass || Backbone.Model;
-        this.createModalTitle = options.createModalTotal || 'Create a new item';
+        this.createModalTitle = options.createModalTitle || 'Create a new item';
+        this.modalService = options.modalService || this;
+
         this.collectionView = new CrudCollection({
-            collection: options.collection,
-            display: options.display || false
+            collection: this.collection,
+            display: this.display
         });
     },
 
@@ -140,7 +172,7 @@ var KolibriCrudView = Mn.LayoutView.extend({
         // In practice this means that when using KolibriCrudView, the user is responsible for setting up a
         // listener, otherwise the add functionality simply won't work.
         // But is this a good model for a modal service?
-        this.trigger('showModal', modalView, this.createModalTitle);
+        this.modalService.trigger('showModal', modalView, this.createModalTitle);
     }
 });
 

@@ -209,12 +209,10 @@ var UserManagementView = Mn.LayoutView.extend({
             create: ['username', 'firstname', 'lastname'],
             // Setting the modelClass ensures that models are properly instantiated even when not all the fields
             // are specifiable from the "create" dialog -- in this case, we initialize the classrooms attribute.
-            modelClass: User
+            modelClass: User,
+            // See the KolibriCrudView for explanation of this option
+            modalService: app
         });
-
-        this.listenTo(this.userList, 'showModal', _.bind(function(modalView, modalTitle){
-            app.trigger('showModal', modalView, modalTitle);
-        }, this));
 
         // The emerging convention is to pass on your model to your child views,
         // or as with the userList above, pass on some relevant piece of your model.
@@ -339,8 +337,9 @@ var ModalContainerView = Mn.LayoutView.extend({
 
 
 /*
- Modals are requested to be shown by triggering the "showModal" event on the Application object,
- and providing an instantiated view as an argument.
+ Modals are requested to be shown by triggering the "showModal" event on a modal service and providing an instantiated
+ view and the modal's title as arguments.
+ A modal service is anything that handles the "showModal" event -- in this case, it's the Application object.
  Any communication between a modalView and its originator should occur through a shared Model or Collection
  provided to the instantiated modalView.
  */
