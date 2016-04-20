@@ -17,25 +17,30 @@
       margin: 10px;
       box-sizing: border-box;
     }
+
     /*
-    This component and all its children should have
-      box-sizing: border-box
-    unless they overwrite it.
+    global styles
     */
     *, *:before, *:after {
       box-sizing: inherit;
     }
+
+    input {
+      border: 1px solid grey;
+    }
+
+    input.invalid {
+      border: 1px solid red;
+    }
+
+    /* layout constraints */
     .wrapper {
       display: flex;
       justify-content: space-around;
     }
 
-    /* These styles apply to all children */
-    input {
-      border: 1px solid grey;
-    }
-    input.invalid {
-      border: 1px solid red;
+    usermgmt, classmgmt {
+      min-width: 200px;
     }
 
   </style>
