@@ -2,15 +2,12 @@
   <h2>Users</h2>
   <usermgmt-user each={opts.users}></usermgmt-user>
   <div class="add-btn-wrapper">
-    <button onclick={addUser}>+ Add</button>
+    <button onclick={showAddForm}>+ Add</button>
   </div>
-  <modal hidden={!editorState.visible}>
-    <!-- Riot-'s handling of composition feels a bit screwy -->
-    <usermgmt-editor
-      formstate={parent.editorState}
-      done={parent.clearEditor}>
-    </usermgmt-editor>
-  </modal>
+  <usermgmt-addform
+    hidden={!addingUser}
+    onclose={hideAddForm}>
+  </usermgmt-addform>
 
 
   <style scoped>
@@ -24,24 +21,16 @@
   <script>
     var tag = this;
 
-    // keep editor state internal to the usermgmt component
-    tag.editorState = {
-      visible: false,   // is the pop-up shown?
-      username: null,   // set username when used in 'edit' mode
-      fullname: '',     // initial value
-    };
+    // are we showing the 'add user' form?
+    tag.addingUser = false;
 
-    tag.addUser = function () {
-      tag.editorState.visible = true;
-      tag.editorState.username = null;
-      tag.editorState.fullname = '';
+    tag.showAddForm = function () {
+      tag.addingUser = true;
       tag.update();
     };
 
-    tag.clearEditor = function () {
-      tag.editorState.visible = false;
-      tag.editorState.username = null;
-      tag.editorState.fullname = '';
+    tag.hideAddForm = function () {
+      tag.addingUser = false;
       tag.update();
     };
   </script>

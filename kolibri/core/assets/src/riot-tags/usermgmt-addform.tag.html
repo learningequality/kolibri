@@ -1,0 +1,87 @@
+<usermgmt-addform>
+  <form class="content" onkeyup={keyup}>
+    <h2>Add User</h2>
+    <div class="form-row">
+      <label>Username:</label>
+      <input autofocus type="text" name="username"></input>
+    </div>
+    <div class="form-row">
+      <label>Full Name:</label>
+      <input type="text" name="fullname"></input>
+    </div>
+    <div class="buttons">
+      <button type="submit" onclick={this.save}>Add</button>
+      <button type="reset" onclick={this.close}>Cancel</button>
+    </div>
+  </form>
+
+
+  <style scoped>
+    :scope {
+      display: block;
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.6);
+    }
+    .content {
+      background-color: white;
+      margin: 15% auto; /* 15% from the top and centered */
+      padding: 20px;
+      max-width: 60%;
+    }
+    .content > h2 {
+      margin-top: 0;
+    }
+    .form-row {
+      display: flex;
+      margin-bottom: 4px;
+    }
+    .form-row label {
+      width: 30%;
+    }
+    .form-row input {
+      flex-grow: 1;
+    }
+    .buttons {
+      margin-top: 10px;
+    }
+  </style>
+
+
+  <script>
+    var state = require('../riotapp.state');
+
+    var tag = this;
+
+    tag.close = function () {
+      // reset the input values
+      tag.username.value = "";
+      tag.fullname.value = "";
+
+      // trigger 'close' callback
+      tag.opts.onclose();
+    };
+
+    tag.save = function () {
+      // trigger action on app state
+      state.addUser(tag.username.value, tag.fullname.value);
+      // close the editor
+      tag.close();
+    };
+
+    tag.keyup = function (e) {
+      switch(e.keyCode) {
+        case 13: // 'enter' handled by 'onsubmit' event
+          return;
+        case 27: // 'esc'
+          tag.close();
+      }
+    }
+
+  </script>
+
+</usermgmt-addform>

@@ -8,11 +8,10 @@ require('normalize-css');
 require('./riot-tags/app.tag.html');
 require('./riot-tags/usermgmt.tag.html');
 require('./riot-tags/usermgmt-user.tag.html');
-require('./riot-tags/usermgmt-editor.tag.html');
+require('./riot-tags/usermgmt-addform.tag.html');
 require('./riot-tags/classmgmt.tag.html');
 require('./riot-tags/classmgmt-room.tag.html');
 require('./riot-tags/classmgmt-room-member.tag.html');
-require('./riot-tags/modal.tag.html');
 
 // load application state
 var state = require('./riotapp.state');
