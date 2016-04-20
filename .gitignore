@@ -56,3 +56,4 @@ node_modules
 # webpack built files
 kolibri/**/build/*
 kolibri/**/static/*
+!kolibri/core/static/core/css/kolibri_style.css

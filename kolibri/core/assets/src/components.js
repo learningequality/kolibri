@@ -95,6 +95,89 @@ var Tag = Mn.ItemView.extend({
     }
 });
 
+
+// Implements CRUD actions for a given item
+var CrudItem = Mn.ItemView.extend({
+    template: function(serialized_model) {
+        var html = '';
+        _.forEach(this.display, function(key) {
+            html += '<span>' + key + ': ' + serialized_model[key] + '</span>';
+        });
+        html += '<button class="delete standard-button">Delete</button>';
+        return _.template(html);
+    },
+
+    tagName: 'li',
+
+    className: 'crudItem',
+
+    triggers: {
+        'click .delete': 'itemDeleted'
+    },
+
+    initialize: function(options) {
+        this.display = options.display || _.keys(this.model.attributes);
+        _.bindAll(this, 'template');
+    }
+});
+
+
+var CrudCollection = Mn.CollectionView.extend({
+    childView: CrudItem,
+
+    childViewOptions: function() {
+        return {
+            display: this.display
+        };
+    },
+
+    initialize: function(options) {
+        this.display = options.display || false;
+    },
+
+    tagName: 'ul',
+
+    className: 'ko_list',
+
+    childEvents: {
+        itemDeleted: 'onChildItemDeleted'
+    },
+
+    onChildItemDeleted: function(child, args) {
+        this.collection.remove(child.model);
+    }
+});
+
+
+var KolibriCrudView = Mn.LayoutView.extend({
+    template: _.template('<div class="collectionRegion"></div>' +
+                         '<button class="add">Add</button>'),
+
+    regions: {
+        collectionRegion: '.collectionRegion'
+    },
+
+    events: {
+        'click .add': 'onAddClicked'
+    },
+
+    initialize: function(options) {
+        this.collectionView = new CrudCollection({
+            collection: options.collection,
+            display: options.display || false
+        });
+    },
+
+    onBeforeShow: function() {
+        this.showChildView('collectionRegion', this.collectionView);
+    },
+
+    onAddClicked: function() {
+        console.log('Add clicked!');
+    }
+});
+
+
 var TagList = Mn.CollectionView.extend({
     childView: Tag,
 
@@ -117,5 +200,6 @@ module.exports = {
     TextAreaInput: TextAreaInput,
     PasswordInput: PasswordInput,
     ValidatingTextInput: ValidatingTextInput,
-    TagList: TagList
+    TagList: TagList,
+    KolibriCrudView: KolibriCrudView
 };

@@ -16,6 +16,7 @@ Read the inline comments for more explanation.
 var components = require('components');
 var logging = require('loglevel');
 var KolibriModule = require('kolibri_module');
+var Handlebars = require('handlebars.runtime');
 
 // Set Backbone.$ explicitly, as it's required for View DOM manipulation in general and Marionette specifically.
 var $ = require('jquery');
@@ -109,6 +110,173 @@ var TextInputWithTagDisplay = Mn.LayoutView.extend({
     }
 });
 
+
+// This is a deeply nested view, used below.
+// Marionette requires deeply-nested views to be defined before they're used in their containing views.
+var ClassroomView = Mn.LayoutView.extend({
+    template: function(serialized_model) {
+        var html =
+            '<span>{{ name }}</span>' +
+            '<ul class="ko_list userList">' +
+                '{{#each users}}<li>' +
+                    '{{ firstname }} {{ lastname }}' +
+                    '<button class="delete standard-button" data-cid="{{ cid }}">Remove</button>' +
+                '</li>{{/each}}' +
+            '</ul>' +
+            '<div class="ko_drop_list">' +
+                '<button class="ko_drop_btn subheading">Add user \\/</button>' +
+                '<div class="ko_drop_content subheading">' +
+                    '{{#each usersToAdd }}<a href="#" data-cid="{{ cid }}">' +
+                    '{{ firstname }} {{ lastname }}' +
+                    '</a>{{/each}}' +
+                '</div>' +
+            '</div>';
+        _.extend(serialized_model, {
+            users: this.usersHash,
+            usersToAdd: this.usersToAddHash
+        });
+        return Handlebars.compile(html)(serialized_model);
+    },
+
+    tagName: 'li',
+
+    initialize: function(options) {
+        var classroom = this.model;
+        this.users = options.users.filter(function(user){
+            // Assuming for simplicity that user is a model that has a denormalized list of classrooms
+            // In reality the user-classroom connection is modeled by a separate object.
+            var match = _.find(user.get('classrooms'), function(cr_name) {
+                return cr_name === classroom.get('name');
+            });
+            return match !== undefined;
+        });
+        this.usersToAdd = options.users.filter(_.bind(function(user){
+            var match = _.find(this.users, function(other) {
+                return other.get('username') === user.get('username');
+            });
+            return match === undefined;
+        }, this));
+
+        // Used as template context variables
+        var userModelToHash = function(user) {
+            var attrs = _.clone(user.attributes);
+            _.extend(attrs, {
+                cid: user.cid
+            });
+            return attrs;
+        };
+        this.usersHash = _.map(this.users, userModelToHash);
+        this.usersToAddHash = _.map(this.usersToAdd, userModelToHash);
+
+        _.bindAll(this, 'template');
+    },
+
+    events: {
+        'click .delete': 'onClickDelete',
+        'click .ko_drop_content a': 'onAddUser'
+    },
+
+    onClickDelete: function(ev) {
+        var cid = $(ev.target).data('cid');
+        var user = _.find(this.users, function(user){
+            return user.cid === cid;
+        });
+        var excludeName = this.model.get('name');
+        user.set('classrooms', _.filter(user.get('classrooms'), function(name){
+            return name !== excludeName;
+        }));
+    },
+
+    onAddUser: function(ev) {
+        var cid = $(ev.target).data('cid');
+        var user = _.find(this.usersToAdd, function(user){
+            return user.cid === cid;
+        });
+        var crName = this.model.get('name');
+        var newCrs = _.clone(user.get('classrooms'));
+        newCrs.push(crName);
+        user.set('classrooms', newCrs);
+    }
+});
+
+
+var ClassroomCollection = Mn.CollectionView.extend({
+    childView: ClassroomView,
+
+    tagName: 'ul',
+
+    className: 'ko_list'
+});
+
+
+// This is not sufficiently general to be a first-class component.
+// It's just a thin wrapper around other components anyway.
+var ClassRosterView = Mn.LayoutView.extend({
+    template: _.template('<div class="heading">Class Roster</div>' +
+                         '<div class="classListRegion"></div>'),
+
+    regions: {
+        classList: '.classListRegion'
+    },
+
+    initialize: function() {
+        var classrooms = this.model.get('classrooms');
+        var users = this.model.get('users');
+        this.classList = new ClassroomCollection({
+            collection: classrooms,
+            childViewOptions: { // childViewOptions are passed to the initialize function of each child view
+                users: users
+            }
+        });
+    },
+
+    onBeforeShow: function() {
+        this.showChildView('classList', this.classList);
+    }
+});
+
+
+// This is the main view of the User Management demo.
+var UserManagementView = Mn.LayoutView.extend({
+    template: _.template('<div class="userListContainer">' +
+                            '<div class="heading">Users</div>' +
+                            '<div class="userListRegion"></div>' +
+                         '</div>' +
+                         '<div class="classRosterRegion"></div>'),
+
+    regions: {
+        userList: '.userListRegion',
+        classRoster: '.classRosterRegion'
+    },
+
+    initialize: function() {
+        // KolibriCrudView allows us to provide a unified resource collection interface.
+        // For instance, we can easily spin up lists of any resource and and provide CRUD widgets on them.
+        this.userList = new components.KolibriCrudView({
+            collection: this.model.get('users'),
+            // If specified only the attributes in "display" are shown, otherwise all of the model's attrs are shown.
+            display: ['username', 'firstname', 'lastname']
+        });
+
+        // The emerging convention is to pass on your model to your child views,
+        // or as with the userList above, pass on some relevant piece of your model.
+        this.classRoster = new ClassRosterView({
+            model: this.model
+        });
+    },
+
+    // This is just boilerplate, presumably to ensure child views are rendered so that the child+parent can be
+    // attached to the DOM in one go. But if we gut the rendering system and use some virtual dom implementation,
+    // then this could disappear -- it presumably wouldn't matter if child views are rendered *after* the parent.
+    onBeforeShow: function() {
+        this.showChildView('userList', this.userList);
+        this.showChildView('classRoster', this.classRoster);
+    }
+});
+
+
+
+
 // The Application object is Marionette's container object, and integrates with their debugging tool.
 app.on('start', function(){
     // Applications have methods for managing Regions in the DOM -- these are the same Regions used by LayoutViews.
@@ -118,8 +286,8 @@ app.on('start', function(){
         textLineInput: '#textLineInput',
         textAreaInput: '#textAreaInput',
         passwordInput: '#passwordInput',
-        validatingInput: '#validatingInput'
-
+        validatingInput: '#validatingInput',
+        userManagementToyApp: '#userManagementToyApp'
     });
 
     // Just bootstrapping some data for the demo. In practice, this might be fetched from the server.
@@ -156,6 +324,63 @@ app.on('start', function(){
             console.log(view.cid + ' text changed! Got: "' + text + '"');
         });
     });
+
+
+    // Setting up static test data for the User Management demo
+    // In Particular, we construct one very inhomogeneous model which represents the app's state.
+    // That's so we can listen to events on the model and trigger rerenders as needed.
+    var User = Backbone.Model.extend({});
+    var Classroom = Backbone.Model.extend({});
+    var umModel = new Backbone.Model({
+        users: new Backbone.Collection([
+            {
+                username: 'foo',
+                classrooms: ['Classroom 1'],
+                firstname: 'Foo',
+                lastname: 'Bar'
+            },
+            {
+                username: 'jco',
+                classrooms: ['Classroom 1', 'Classroom 2'],
+                firstname: 'John',
+                lastname: 'Coltrane'
+            },
+            {
+                username: 'jqp',
+                classrooms: [],
+                firstname: 'Jane Q.',
+                lastname: 'Public'
+            }
+        ], {model: User}),
+        classrooms: new Backbone.Collection([
+            {
+                name: 'Classroom 1'
+            },
+            {
+                name: 'Classroom 2'
+            }
+        ], {model: Classroom})
+    });
+
+    var redraw = function() {
+        umModel.trigger('redraw');
+    };
+    // "change" event corresponds to a collection's model's attributes changing
+    umModel.listenTo(umModel.get('users'), 'change', redraw);
+    umModel.listenTo(umModel.get('classrooms'), 'change', redraw);
+    // "update" is triggered when a model is added or removed from a collection
+    umModel.listenTo(umModel.get('users'), 'update', redraw);
+    umModel.listenTo(umModel.get('classrooms'), 'update', redraw);
+
+    app.listenTo(umModel, 'redraw', function(){
+        console.log('All our views are is dust in the wind...');
+        var newView = new UserManagementView({model: umModel});
+        app.getRegion('userManagementToyApp').show(newView);
+    });
+
+    var userMgmt = new UserManagementView({model: umModel});
+    app.getRegion('userManagementToyApp').show(userMgmt);
+
 });
 
 
