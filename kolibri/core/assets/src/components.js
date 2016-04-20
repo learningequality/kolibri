@@ -4,6 +4,7 @@ var logging = require('loglevel');
 var Backbone = require('backbone');
 var Mn = require('backbone.marionette');
 var _ = require('lodash');
+var Handlebars = require('handlebars.runtime');
 
 global.jQuery = $;
 require('bootstrap-modal');
@@ -17,12 +18,17 @@ logging.info('Component views loaded!');
 // Implements CRUD actions for a given item
 var CrudItem = Mn.ItemView.extend({
     template: function(serialized_model) {
-        var html = '';
-        _.forEach(this.display, function(key) {
-            html += '<span>' + key + ': ' + serialized_model[key] + '</span>';
+        var html =
+            '{{#each display}}<span>{{ key }} {{ value }}</span>{{/each}}' +
+            '<button class="delete standard-button">Delete</button>';
+        return Handlebars.compile(html)({
+            display: _.map(this.display, function(key) {
+                return {
+                    key: key,
+                    value: serialized_model[key]
+                };
+            })
         });
-        html += '<button class="delete standard-button">Delete</button>';
-        return _.template(html);
     },
 
     tagName: 'li',
@@ -69,13 +75,12 @@ var CrudCollection = Mn.CollectionView.extend({
 
 var CrudAddItem = Mn.ItemView.extend({
     template: function() {
-        var html = '';
-        _.forEach(this.create, function(attr){
-            html += _.join(['<input data-attr="', attr, '" type="text" placeholder="', attr ,'"></input>'], '');
-            html += '</br>';
-        });
-        html += '<button class="create flat-button">Create</button>';
-        return _.template(html);
+        var html =
+            '{{#each create}}' +
+                '<input data-attr="{{ this }}" type="text" placeholder="{{ this }}" /><br />' +
+            '{{/each}}' +
+            '<button class="create flat-button">Create</button>';
+        return Handlebars.compile(html)({create: this.create});
     },
 
     triggers: {
