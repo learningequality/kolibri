@@ -33,6 +33,14 @@ state.addUserToClass = function(username, classname) {
   state.trigger('change');
 };
 
+state.removeUserFromClass = function(username, classname) {
+  var classroom = state.getClass(classname);
+  _.remove(classroom.students, function(user) {
+    return user.username === username;
+  });
+  state.trigger('change');
+};
+
 state.getClass = function(classname) {
   return _.find(state.classrooms, function(c) {
     return c.name === classname;

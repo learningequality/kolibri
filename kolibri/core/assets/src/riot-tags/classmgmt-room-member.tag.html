@@ -1,7 +1,7 @@
 <classmgmt-room-member>
   <div class="fullname">{fullname}</div>
   <div class="button-group">
-    <button>delete</button>
+    <button onclick={remove}>delete</button>
   </div>
 
 
@@ -22,6 +22,13 @@
   </style>
 
 
-  <script></script>
+  <script>
+    var state = require('../riotapp.state');
+    var tag = this;
+
+    tag.remove = function() {
+      state.removeUserFromClass(tag.username, tag.opts.classname);
+    };
+  </script>
 
 </classmgmt-room-member>
