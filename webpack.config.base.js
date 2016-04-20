@@ -18,6 +18,7 @@ var config = {
             }
         ],
         loaders: [
+            { test: /\.css$/, loader: "style-loader!css-loader" },
             // This is required in order to prevent Backbone from importing jQuery.
             // See here for more details: https://github.com/jashkenas/backbone/wiki/Using-Backbone-without-jQuery
             //{ test: /backbone\.js$/, loader: 'imports?define=>false' },

@@ -69,5 +69,9 @@
     "temp": "^0.8.3",
     "webpack": "^1.12.12",
     "webpack-bundle-tracker": "0.0.93"
+  },
+  "devDependencies": {
+    "css-loader": "^0.23.1",
+    "style-loader": "^0.13.1"
   }
 }
