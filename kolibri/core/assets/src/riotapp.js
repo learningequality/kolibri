@@ -18,7 +18,7 @@ require('./riot-tags/modal.tag.html');
 var state = require('./riotapp.state');
 
 // attach root view to DOM
-var rootview = riot.mount('app');
+var rootview = riot.mount('app')[0];
 
 // re-render all views whenever the state changes
 state.on('change', rootview.update);
