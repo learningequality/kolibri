@@ -6,13 +6,13 @@
       name="input"
       type="text"
       placeholder="Username"
-      list="usernames"
+      list="{random_id}}"
       class={invalid: validation.noexist || validation.added}
       oninput={validate}
       onkeyup={keyup}>
     <button type="submit" disabled={!canAdd()}>+ Add Student</button>
   </form>
-  <datalist id="usernames">
+  <datalist id="{random_id}}">
     <option each={availableUsers()} value="{username}">
   </datalist>
 
@@ -35,6 +35,9 @@
 
     // reference to current classroom
     tag.classroom = state.getClass(tag.name);
+
+    // used to avoid collisions across instances of classmgmt-room
+    tag.random_id = "available-" + Math.random().toString();
 
     // input validation
     tag.validation = {};
