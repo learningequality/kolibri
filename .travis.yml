@@ -2,6 +2,9 @@
 
 language: python
 
+services:
+  - postgresql
+
 sudo: false
 
 cache:
@@ -42,6 +45,10 @@ matrix:
       env:
         - TOX_ENV=node5.x
         - TRAVIS_NODE_VERSION="5"
+    - python: "2.7"
+      env:
+        - TOX_ENV=postgres
+        - TRAVIS_NODE_VERSION="0.12"
 
 before_install:
   - pip install codecov
@@ -52,6 +59,7 @@ before_install:
 
 before_script:
   - tox -e lint
+  - psql -c 'create database travis_ci_test;' -U postgres
 
 # command to run tests, e.g. python setup.py test
 script:
