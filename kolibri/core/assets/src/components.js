@@ -74,6 +74,10 @@ var CrudCollection = Mn.CollectionView.extend({
 
 
 var CrudAddItem = Mn.ItemView.extend({
+    // Template should either be the html *or* (as it is here) be a *function* that returns the rendered html.
+    // If it's a function, it's passed an object which is the "serialized" model of the view instance.
+    // In other words, if the view instance is given a model attribute when instantiated, then the argument
+    // to this function will be a copy of that model's .attributes hash.
     template: function() {
         var html =
             '{{#each create}}' +
@@ -84,14 +88,24 @@ var CrudAddItem = Mn.ItemView.extend({
     },
 
     triggers: {
+        // Re-triggers the specified DOM event (from its template) as a Backbone.Event on this view.
         'click .create': 'create'
     },
 
     initialize: function(options) {
+        // Some options when passed to the constructor are automatically bound to the view instance.
+        // This is the case for the "model" attribute, so passing a model to a view constructor means that the
+        // instance has it available automatically as "this.model".
+        // Custom options (like "create" below) must be bound to the view instance manually, or otherwise handled
+        // by the initialize function.
         this.create = options.create;
+        // Since "template" is a callback, bindAll ensures "this" refers the view instance.
         _.bindAll(this, 'template');
     },
 
+    // For event "xyz", you can specify a handler without having to set up a listener using the camel-cased
+    // "onXyz" convention.
+    // E.g. "create" event is handled automatically by the "onCreate" function if it exists.
     onCreate: function() {
         _.forEach(this.$el.find('input'), _.bind(function(input_el) {
             var attr = $(input_el).data('attr');
@@ -102,6 +116,14 @@ var CrudAddItem = Mn.ItemView.extend({
         this.trigger('closeModal');
     }
 });
+
+
+/*
+    Advice to implementer:
+    Take inspiration from the CrudAddItem view and how it's used by KolibriCrudView in order to create a modal
+    that allows items to be edited.
+*/
+var CrudEditItem = Mn.ItemView.extend({});
 
 
 /*
