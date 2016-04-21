@@ -1,10 +1,14 @@
 {% load i18n kolibri_tags %}
+{% load staticfiles %}
 <html>
 <head>
   <title>{% block title %}{% endblock %} - {% trans "Kolibri" %}</title>
   {% frontend_assets 'kolibri.core.KolibriCoreFrontEnd' %}
   {% base_frontend_async %}
   {% base_frontend_sync %}
+  <link type="text/css" rel="stylesheet" href="{% static 'core/css/bootstrap.min.css' %}" />
+  <link type="text/css" rel="stylesheet" href="{% static 'core/css/components.css' %}" />
+  <link type="text/css" rel="stylesheet" href="{% static 'core/css/kolibri_style.css' %}" />
 </head>
 <body>
 
@@ -20,6 +24,20 @@
 {% endblock %}
 
 <hr>
+
+<div id="modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div id="modal_view_el" class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      </div>
+      <div class="modal-body">
+        <span>Foo!</span>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% block content %}
 

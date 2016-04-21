@@ -45,7 +45,21 @@ class KolibriCoreFrontEnd(KolibriFrontEndPluginBase):
             FRONTEND_PLUGINS: self._register_front_end_plugins
         }
 
+
+class KolibriComponentDemoPlugin(KolibriFrontEndPluginBase):
+    """
+    The SPA for demo of the component Views.
+    """
+    entry_file = "assets/src/components_demo.js"
+
+    def hooks(self):
+        return {
+            FRONTEND_PLUGINS: self._register_front_end_plugins,
+        }
+
+
 PLUGINS = (
     KolibriCore,
     KolibriCoreFrontEnd,
+    KolibriComponentDemoPlugin,
 )
