@@ -9,7 +9,5 @@ logging.info('Component demo loaded!');
 var ComponentDemoPlugin = KolibriModule.extend({
   initialize: function() {
     logging.info('Demo initialized!');
-    app.start();
   }
 });
-
