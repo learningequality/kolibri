@@ -60,6 +60,11 @@ state.addUser = function(username, fullname) {
 };
 
 state.deleteUser = function(username) {
+  _.forEach(state.classrooms, function(classroom){
+    _.remove(classroom.students, function(user) {
+      return user.username === username;
+    });
+  });
   _.remove(state.users, function(user) {
     return user.username === username;
   });
