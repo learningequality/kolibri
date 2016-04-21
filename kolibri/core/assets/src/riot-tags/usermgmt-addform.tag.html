@@ -1,0 +1,126 @@
+<usermgmt-addform class="modal {visible ? '' : 'modal-hidden'}" onkeyup={keyup}>
+  <form class="modal-content">
+    <h2>Add User</h2>
+    <div class="form-row">
+      <label>Username:</label>
+      <input
+        type="text"
+        name="username"
+        class={invalid: !validation.username}
+      ></input>
+    </div>
+    <div class="form-row">
+      <label>Full Name:</label>
+      <input
+        type="text"
+        name="fullname"
+        class={invalid: !validation.fullname}
+      ></input>
+    </div>
+    <div class="buttons">
+      <button type="submit" disabled={!canSubmit()} onclick={save}>
+        Add
+      </button>
+      <button type="reset" onclick={hide}>
+        Cancel
+      </button>
+    </div>
+  </form>
+
+
+  <style scoped>
+    h2 {
+      margin-top: 0;
+    }
+    .form-row {
+      display: flex;
+      margin-bottom: 4px;
+    }
+    .form-row label {
+      width: 30%;
+    }
+    .form-row input {
+      flex-grow: 1;
+    }
+    .buttons {
+      margin-top: 10px;
+    }
+  </style>
+
+
+  <script>
+    var state = require('../riotapp.state');
+    var _ = require('lodash');
+    var tag = this;
+
+    /*
+    the `modal_mixin` provides this tag with:
+     - a boolean `visible` attribute
+     - a `show` and `hide` method
+     - `show` and `hide` events
+     - `modal`, `modal-hidden`, and `modal-content` CSS classes
+    */
+    tag.mixin(require('./modal_mixin'));
+
+    // input validation
+    tag.validation = {};
+    tag.validation.username = false;
+    tag.validation.fullname = false;
+
+    tag.canSubmit = function () {
+      return tag.validation.username && tag.validation.fullname;
+    }
+
+    tag.validate = function () {
+      var usernameValid = true;
+      var fullnameValid = true;
+
+      // username and fullname are both required
+      if (tag.username.value === '') {
+        usernameValid = false;
+      }
+      if (tag.fullname.value === '') {
+        fullnameValid = false;
+      }
+      // username cannot already exist
+      var usernameExists = _.some(state.users, function(user) {
+        return user.username === tag.username.value;
+      })
+      if (usernameExists) {
+        usernameValid = false;
+      }
+
+      tag.validation.username = usernameValid;
+      tag.validation.fullname = fullnameValid;
+    };
+
+    /*
+    Initialize based on `show` event from `modal_mixin`
+    */
+    tag.on('show', function () {
+      tag.username.value = '';
+      tag.fullname.value = '';
+      tag.validation.username = false;
+      tag.validation.fullname = false;
+      tag.validate();
+      tag.username.focus() // not working for some reason
+    });
+
+    tag.save = function () {
+      // trigger action on app state
+      state.addUser(tag.username.value, tag.fullname.value);
+      // close the editor
+      tag.hide();
+    };
+
+    tag.keyup = function (e) {
+      tag.validate();
+      // handle escape key
+      if (e.keyCode === 27) {
+        tag.hide();
+      }
+    }
+
+  </script>
+
+</usermgmt-addform>

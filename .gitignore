@@ -50,8 +50,9 @@ docs/_build
 docs/kolibri*rst
 docs/modules.rst
 
-# node modules
+# node modules and npm
 node_modules
+npm-debug.log
 
 # webpack built files
 kolibri/**/build/*

@@ -1,0 +1,31 @@
+<usermgmt>
+  <h2>Users</h2>
+  <usermgmt-user each={opts.users}></usermgmt-user>
+  <div class="add-btn-wrapper">
+    <button onclick={showAddForm}>+ Add</button>
+  </div>
+  <usermgmt-addform></usermgmt-addform>
+
+
+  <style scoped>
+    .add-btn-wrapper {
+      display: block;
+      margin-top: 15px;
+    }
+  </style>
+
+
+  <script>
+    var tag = this;
+
+    tag.showAddForm = function () {
+      // Not sure if having an imperative API is good
+      // practice, but it seems relatively clean here.
+      // Also, note that the `show` function is defined
+      // by the `modal_mixin`.
+      tag.tags['usermgmt-addform'].show();
+    };
+
+  </script>
+
+</usermgmt>

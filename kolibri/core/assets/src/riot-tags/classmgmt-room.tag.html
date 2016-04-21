@@ -1,0 +1,101 @@
+<classmgmt-room>
+  <h3>{name}</h3>
+  <classmgmt-room-member each={students} classname={name}></classmgmt-room-member>
+  <form class="add-wrapper" onsubmit={add}>
+    <input
+      name="input"
+      type="text"
+      placeholder="Username"
+      list="{random_id}}"
+      class={invalid: validation.noexist || validation.added}
+      oninput={validate}
+      onkeyup={keyup}>
+    <button type="submit" disabled={!canAdd()}>+ Add Student</button>
+  </form>
+  <datalist id="{random_id}}">
+    <option each={availableUsers()} value="{username}">
+  </datalist>
+
+
+  <style scoped>
+    :scope {
+      display: block;
+    }
+    .add-wrapper {
+      display: block;
+      margin-top: 15px;
+    }
+  </style>
+
+
+  <script>
+    var state = require('../riotapp.state');
+    var _ = require('lodash');
+    var tag = this;
+
+    // reference to current classroom
+    tag.classroom = state.getClass(tag.name);
+
+    // used to avoid collisions across instances of classmgmt-room
+    tag.random_id = "available-" + Math.random().toString();
+
+    // input validation
+    tag.validation = {};
+    tag.validation.blank = true; // the input is empty
+    tag.validation.noexist = false; // the username doesn't exist
+    tag.validation.added = false; // the user is already in the class
+
+    tag.canAdd = function() {
+      return !(tag.validation.blank ||
+               tag.validation.noexist ||
+               tag.validation.added);
+    };
+
+    tag.validate = function() {
+      tag.validation.blank = tag.input.value === '';
+      // if it's blank, skip the other forms of validation
+      if (tag.validation.blank) {
+        tag.validation.noexist = false;
+        tag.validation.added = false;
+        return;
+      }
+      tag.validation.noexist = !_.includes(
+        _.map(state.users, 'username'),
+        tag.input.value
+      );
+      tag.validation.added = tag.classContains(tag.input.value);
+    };
+
+    tag.availableUsers = function(e) {
+      // brute-force / inefficient
+      var result = _.filter(state.users, function(u) {
+        return !tag.classContains(u.username);
+      });
+      return result;
+    };
+
+    tag.classContains = function(username) {
+      return _.some(tag.classroom.students, function(s) {
+        return username === s.username;
+      })
+    };
+
+    tag.keyup = function(e) {
+      // handle escape key
+      if (e.keyCode === 27) {
+        tag.input.value = '';
+      }
+      tag.validate();
+    };
+
+    tag.add = function() {
+      state.addUserToClass(tag.input.value, tag.classroom.name);
+      tag.input.value = '';
+    };
+
+    tag.on('update', tag.validate);
+
+
+  </script>
+
+</classmgmt-room>

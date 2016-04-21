@@ -1,0 +1,45 @@
+<usermgmt-user>
+  <div class="content">
+    <div class="username">{username}</div>
+    <div class="fullname">{fullname}</div>
+  </div>
+  <div class="button-group">
+    <button onclick={delete}>delete</button>
+    <button disabled>edit</button>
+  </div>
+
+
+  <style scoped>
+    :scope {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .button-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .button-group button {
+      margin: 2px;
+      margin-left: 10px;
+    }
+    .username {
+      font-weight: bold;
+    }
+    .content {
+      min-width: 150px;
+    }
+  </style>
+
+
+  <script>
+    var state = require('../riotapp.state');
+    var tag = this;
+
+    tag.delete = function () {
+      state.deleteUser(tag.username);
+    };
+  </script>
+
+</usermgmt-user>

@@ -1,0 +1,54 @@
+<app>
+  <h1>Riot Toy App</h1>
+  <p>This app demonstrates an implementation of our <a href="https://docs.google.com/document/d/1w7ha3khbxjsNtL2objjYXJAgXpOdiq9uu3r4Vk9jJ_I/">reference example</a> using the <a href="http://riotjs.com/">riot.js</a> front-end framework.</p>
+  <div class="wrapper">
+    <usermgmt users={state.users}></usermgmt>
+    <classmgmt classrooms={state.classrooms}></classmgmt>
+  </div>
+
+
+  <style scoped>
+    /*
+    The top-level tag in this component – in this case `app`.
+    CSS component is scoping is poly-filled by riot.js
+    */
+    :scope {
+      display: block;
+      margin: 10px;
+      box-sizing: border-box;
+    }
+
+    /*
+    global styles
+    */
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+
+    input {
+      border: 1px solid grey;
+    }
+
+    input.invalid {
+      border: 1px solid red;
+    }
+
+    /* layout constraints */
+    .wrapper {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    usermgmt, classmgmt {
+      min-width: 200px;
+    }
+
+  </style>
+
+
+  <script>
+    // grab a reference to the state object
+    this.state = require('../riotapp.state');
+  </script>
+
+</app>

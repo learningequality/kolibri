@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.conf.urls import url
 from kolibri.core.views.component_demo import ComponentDemoView
 from kolibri.plugins import hooks
+from kolibri.core.views.riot_demo import RiotDemoView
 
 from . import views
 
@@ -15,6 +16,7 @@ urlpatterns = [
     url('^component_demo$', ComponentDemoView.as_view(), name='component_demo'),
     url('^/$', views.IndexView.as_view(), name='index'),
     # url('.* ', views.TODOView.as_view())
+    url('^riot_demo$', RiotDemoView.as_view(), name='riot_demo'),
 ]
 
 def retrieve_plugin_urls():
