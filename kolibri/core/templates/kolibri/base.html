@@ -3,12 +3,14 @@
 <html>
 <head>
   <title>{% block title %}{% endblock %} - {% trans "Kolibri" %}</title>
+  {% block frontend_assets %}
   {% frontend_assets 'kolibri.core.KolibriCoreFrontEnd' %}
   {% base_frontend_async %}
   {% base_frontend_sync %}
   <link type="text/css" rel="stylesheet" href="{% static 'core/css/bootstrap.min.css' %}" />
   <link type="text/css" rel="stylesheet" href="{% static 'core/css/components.css' %}" />
   <link type="text/css" rel="stylesheet" href="{% static 'core/css/kolibri_style.css' %}" />
+  {% endblock %}
 </head>
 <body>
 
