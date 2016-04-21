@@ -177,6 +177,9 @@ var ClassRosterView = Mn.LayoutView.extend({
                 users: users
             }
         });
+        users.on('remove change add', _.bind(function() {
+            this.classList.render();
+        }, this));
     },
 
     onBeforeShow: function() {
@@ -275,22 +278,6 @@ app.on('start', function(){
                 name: 'Classroom 2'
             }
         ], {model: Classroom})
-    });
-
-    var redraw = function() {
-        umModel.trigger('redraw');
-    };
-    // "change" event corresponds to a collection's model's attributes changing
-    umModel.listenTo(umModel.get('users'), 'change', redraw);
-    umModel.listenTo(umModel.get('classrooms'), 'change', redraw);
-    // "update" is triggered when a model is added or removed from a collection
-    umModel.listenTo(umModel.get('users'), 'update', redraw);
-    umModel.listenTo(umModel.get('classrooms'), 'update', redraw);
-
-    app.listenTo(umModel, 'redraw', function(){
-        console.log('All our views are is dust in the wind...');
-        var newView = new UserManagementView({model: umModel});
-        app.getRegion('userManagementToyApp').show(newView);
     });
 
     var userMgmt = new UserManagementView({model: umModel});
