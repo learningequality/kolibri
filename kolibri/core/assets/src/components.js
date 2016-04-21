@@ -80,11 +80,12 @@ var CrudAddItem = Mn.ItemView.extend({
     // to this function will be a copy of that model's .attributes hash.
     template: function() {
         var html =
+            '{{#unless valid}}<span>Invalid Input!</span><br />{{/unless}}' +
             '{{#each create}}' +
-                '<input data-attr="{{ this }}" type="text" placeholder="{{ this }}" /><br />' +
+                '<input data-attr="{{ name }}" type="text" placeholder="{{ name }}" value="{{ default }}" /><br />' +
             '{{/each}}' +
             '<button class="create flat-button">Create</button>';
-        return Handlebars.compile(html)({create: this.create});
+        return Handlebars.compile(html)({create: this.create, valid: this.valid});
     },
 
     triggers: {
@@ -98,7 +99,14 @@ var CrudAddItem = Mn.ItemView.extend({
         // instance has it available automatically as "this.model".
         // Custom options (like "create" below) must be bound to the view instance manually, or otherwise handled
         // by the initialize function.
-        this.create = options.create;
+        this.create = _.map(options.create, function(attr) {
+            return {
+                name: attr,
+                default: ''
+            };
+        });
+        this.validators = options.validators;
+        this.valid = true;
         // Since "template" is a callback, bindAll ensures "this" refers the view instance.
         _.bindAll(this, 'template');
     },
@@ -107,13 +115,49 @@ var CrudAddItem = Mn.ItemView.extend({
     // "onXyz" convention.
     // E.g. "create" event is handled automatically by the "onCreate" function if it exists.
     onCreate: function() {
-        _.forEach(this.$el.find('input'), _.bind(function(input_el) {
-            var attr = $(input_el).data('attr');
-            var val = $(input_el).val();
-            this.model.set(attr, val);
-        }, this));
-        this.collection.add(this.model);
-        this.trigger('closeModal');
+        if ( this.validate() ) {
+            _.forEach(this.create, _.bind(function (obj) {
+                var attr = obj.name;
+                this.model.set(attr, this.getAttrVal(attr));
+            }, this));
+            this.collection.add(this.model);
+            this.trigger('closeModal');
+        } else {
+            // Shows an "Invalid!" message.
+            this.rerender = true;
+            this.render();
+        }
+    },
+
+    onBeforeRender: function() {
+        // Before re-rendering, make sure that values user has already entered aren't trashed
+        if (this.rerender) {
+            var self = this;
+            this.create = _.map(this.create, function(old) {
+                return {
+                    name: old.name,
+                    default: self.getAttrVal(old.name)
+                };
+            });
+        }
+    },
+
+    getAttrVal: function(attr) {
+        var el = this.$el.find('input[data-attr=' + attr + ']');
+        return $(el).val();
+    },
+
+    validate: function() {
+        var self = this;
+        self.valid = true;
+        _.forEach(this.create, function(obj) {
+            var attr = obj.name;
+            if ( _.has(self.validators, attr) ) {
+                // if valid is false at any point, then due to short-circuiting the remaining validators won't be called
+                self.valid = self.valid && self.validators[attr](self.getAttrVal(attr));
+            }
+        });
+        return self.valid;
     }
 });
 
@@ -177,6 +221,7 @@ var KolibriCrudView = Mn.LayoutView.extend({
         this.modelClass = options.modelClass || Backbone.Model;
         this.createModalTitle = options.createModalTitle || 'Create a new item';
         this.modalService = options.modalService || this;
+        this.createValidators = options.createValidators || {};
 
         this.collectionView = new CrudCollection({
             collection: this.collection,
@@ -193,7 +238,8 @@ var KolibriCrudView = Mn.LayoutView.extend({
         var modalView = new CrudAddItem({
             model: model,
             collection: this.collection,
-            create: this.create
+            create: this.create,
+            validators: this.createValidators
         });
         // Something *else* has to be listening to this object's "showModal" event in order to handle it.
         // In practice this means that when using KolibriCrudView, the user is responsible for setting up a

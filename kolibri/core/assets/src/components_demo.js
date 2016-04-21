@@ -204,12 +204,26 @@ var UserManagementView = Mn.LayoutView.extend({
     initialize: function() {
         // KolibriCrudView allows us to provide a unified resource collection interface.
         // For instance, we can easily spin up lists of any resource and and provide CRUD widgets on them.
+        var users = this.model.get('users');
         this.userList = new components.KolibriCrudView({
-            collection: this.model.get('users'),
+            collection: users,
             // If specified only the attributes in "display" are shown, otherwise all of the model's attrs are shown.
             display: ['username', 'firstname', 'lastname'],
             // Specify which attributes are specifiable when creating a new item. This *must* be provided.
             create: ['username', 'firstname', 'lastname'],
+            createValidators: {
+                username: function(name) {
+                    // Username must be unique
+                    var valid = true;
+                    users.forEach(function(other){
+                        if (other.get('username') === name){
+                            valid = false;
+                            return false; // Breaks out of .forEach
+                        }
+                    });
+                    return valid;
+                }
+            },
             // Setting the modelClass ensures that models are properly instantiated even when not all the fields
             // are specifiable from the "create" dialog -- in this case, we initialize the classrooms attribute.
             modelClass: User,
