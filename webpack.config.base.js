@@ -21,8 +21,7 @@ var config = {
 						{ test: /\.css$/, loader: 'style-loader!css-loader' },
 
 						//loader for stylus (assuming this is what we're sticking with)
-						{test: /\.styl$/, loader:
-							'css-loader!stylus-loader?paths=node_modules/bootstrap-stylus/stylus/'}
+				    { test: /\.styl$/, loader: 'style-loader!css-loader!stylus-loader' }
         ]
     },
     plugins: [

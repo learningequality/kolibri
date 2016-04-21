@@ -17,8 +17,9 @@ var components = require('components');
 var logging = require('loglevel');
 var KolibriModule = require('kolibri_module');
 var Handlebars = require('handlebars.runtime');
-//require('./components_demo.styl'); // CSS with processed url(...)s
-require('./components_demo.css');
+
+//seems to be working now... not sure why, but we should revisit this.
+require('./components_demo.styl');
 
 // Set Backbone.$ explicitly, as it's required for View DOM manipulation in general and Marionette specifically.
 var $ = require('jquery');
