@@ -1,5 +1,5 @@
 """
-Tests of the Role and Membership models, as well as the Collection model and its subclasses.
+Tests of the core auth models (Role, Membership, Collection, FacilityUser, DeviceOwner, etc).
 """
 
 from __future__ import absolute_import, print_function, unicode_literals
@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from ..constants import role_kinds
+from ..constants import role_kinds, collection_kinds
 from ..models import FacilityUser, Facility, Classroom, LearnerGroup, Role, Membership, Collection, DeviceOwner
 from ..errors import UserDoesNotHaveRoleError, UserHasRoleOnlyIndirectlyThroughHierarchyError, UserIsNotFacilityUser, \
     UserIsMemberOnlyIndirectlyThroughHierarchyError, InvalidRoleKind, UserIsNotMemberError
@@ -325,3 +325,50 @@ class DeviceOwnerRoleMembershipTestCase(TestCase):
             self.classroom.add_member(self.device_owner)
         with self.assertRaises(UserIsNotFacilityUser):
             self.classroom.remove_member(self.device_owner)
+
+
+class StringMethodTestCase(TestCase):
+
+    def setUp(self):
+
+        self.facility = Facility.objects.create(name="Arkham")
+
+        learner, classroom_coach, facility_admin = self.learner, self.classroom_coach, self.facility_admin = (
+            FacilityUser.objects.create(username='foo', facility=self.facility),
+            FacilityUser.objects.create(username='bar', facility=self.facility),
+            FacilityUser.objects.create(username='baz', facility=self.facility),
+        )
+
+        self.facility.add_admin(facility_admin)
+
+        self.cr = Classroom.objects.create(name="Classroom X", parent=self.facility)
+        self.cr.add_coach(classroom_coach)
+
+        self.lg = LearnerGroup.objects.create(name="Oodles of Fun", parent=self.cr)
+        self.lg.add_learner(learner)
+
+        self.device_owner = DeviceOwner.objects.create(username="blah", password="*")
+
+    def test_facility_user_str_method(self):
+        self.assertEqual(str(self.learner), '"foo"@"Arkham"')
+
+    def test_device_owner_str_method(self):
+        self.assertEqual(str(self.device_owner), "blah")
+
+    def test_collection_str_method(self):
+        self.assertEqual(str(Collection.objects.filter(kind=collection_kinds.FACILITY)[0]), '"Arkham" (facility)')
+
+    def test_membership_str_method(self):
+        self.assertEqual(str(self.learner.membership_set.all()[0]), '"foo"@"Arkham"\'s membership in "Oodles of Fun" (learnergroup)')
+
+    def test_role_str_method(self):
+        self.assertEqual(str(self.classroom_coach.role_set.all()[0]), '"bar"@"Arkham"\'s coach role for "Classroom X" (classroom)')
+
+    def test_facility_str_method(self):
+        self.assertEqual(str(self.facility), "Arkham")
+
+    def test_classroom_str_method(self):
+        self.assertEqual(str(self.cr), "Classroom X")
+
+    def test_learner_group_str_method(self):
+        self.assertEqual(str(self.lg), "Oodles of Fun")

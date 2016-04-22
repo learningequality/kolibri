@@ -25,6 +25,7 @@ from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from kolibri.core.errors import KolibriValidationError
 from mptt.models import MPTTModel, TreeForeignKey
@@ -299,6 +300,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_delete` method.")
 
 
+@python_2_unicode_compatible
 class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
     FacilityUsers are the fundamental object of the auth app. They represent the main users, and can be associated
@@ -420,7 +422,11 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         else:
             return queryset.none()
 
+    def __str__(self):
+        return '"{user}"@"{facility}"'.format(user=self.get_full_name() or self.username, facility=self.facility)
 
+
+@python_2_unicode_compatible
 class DeviceOwner(KolibriAbstractBaseUser):
     """
     When a user first installs Kolibri on a device, they will be prompted to create a *DeviceOwner*, a special kind of
@@ -476,7 +482,11 @@ class DeviceOwner(KolibriAbstractBaseUser):
     def filter_readable(self, queryset):
         return queryset
 
+    def __str__(self):
+        return self.get_full_name() or self.username
 
+
+@python_2_unicode_compatible
 class Collection(MPTTModel, AbstractFacilityDataModel):
     """
     Collections are hierarchical groups of users, used for grouping users and making decisions about permissions.
@@ -619,7 +629,11 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         else:
             return None  # the root node (i.e. Facility) must be explicitly tied to a dataset
 
+    def __str__(self):
+        return '"{name}" ({kind})'.format(name=self.name, kind=self.kind)
 
+
+@python_2_unicode_compatible
 class Membership(AbstractFacilityDataModel):
     """
     A User can be marked as a member of a Collection through a Membership object. Being a member of a Collection
@@ -654,7 +668,10 @@ class Membership(AbstractFacilityDataModel):
             raise KolibriValidationError("Collection and user for a Membership object must be in same dataset.")
         return user_dataset
 
+    def __str__(self):
+        return "{user}'s membership in {collection}".format(user=self.user, collection=self.collection)
 
+@python_2_unicode_compatible
 class Role(AbstractFacilityDataModel):
     """
     A User can have a role for a particular Collection through a Role object, which also stores the "kind"
@@ -689,6 +706,9 @@ class Role(AbstractFacilityDataModel):
             raise KolibriValidationError("The collection and user for a Role object must be in the same dataset.")
         return user_dataset
 
+    def __str__(self):
+        return "{user}'s {kind} role for {collection}".format(user=self.user, kind=self.kind, collection=self.collection)
+
 
 class CollectionProxyManager(models.Manager):
 
@@ -696,6 +716,7 @@ class CollectionProxyManager(models.Manager):
         return super(CollectionProxyManager, self).get_queryset().filter(kind=self.model._KIND)
 
 
+@python_2_unicode_compatible
 class Facility(Collection):
 
     _KIND = collection_kinds.FACILITY
@@ -742,7 +763,11 @@ class Facility(Collection):
     def remove_coach(self, user):
         self.remove_role(user, role_kinds.COACH)
 
+    def __str__(self):
+        return self.name
 
+
+@python_2_unicode_compatible
 class Classroom(Collection):
 
     _KIND = collection_kinds.CLASSROOM
@@ -791,7 +816,11 @@ class Classroom(Collection):
     def remove_coach(self, user):
         self.remove_role(user, role_kinds.COACH)
 
+    def __str__(self):
+        return self.name
 
+
+@python_2_unicode_compatible
 class LearnerGroup(Collection):
 
     _KIND = collection_kinds.LEARNERGROUP
@@ -822,3 +851,6 @@ class LearnerGroup(Collection):
 
     def remove_learner(self, user):
         return self.remove_member(user)
+
+    def __str__(self):
+        return self.name
