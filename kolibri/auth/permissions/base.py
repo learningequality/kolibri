@@ -24,8 +24,6 @@ class BasePermissions(object):
     - The queryset-filtering `readable_by_user_filter` method, which takes in a queryset and returns a queryset
       filtered down to just objects that should be readable by the user.
 
-    Any permission class that defines the above methods
-
     """
 
     def user_can_create_object(self, user, obj):
