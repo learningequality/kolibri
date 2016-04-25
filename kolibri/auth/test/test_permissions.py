@@ -9,6 +9,7 @@ from django.test import TestCase
 from .helpers import create_dummy_facility_data
 
 from ..constants import role_kinds
+from ..errors import InvalidHierarchyRelationsArgument
 from ..filters import HierarchyRelationsFilter
 from ..models import DeviceOwner, Facility, Classroom, LearnerGroup, Role, Membership, FacilityUser
 
@@ -41,9 +42,9 @@ class ImproperUsageIsProperlyHandledTestCase(TestCase):
         self.assertFalse(self.data1["facility_admin"].has_role_for_user([role_kinds.ADMIN], self.data2["learners_one_group"][0][0]))
 
     def test_that_invalid_references_to_hierarchyrelationsfilter_throw_errors(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidHierarchyRelationsArgument):
             HierarchyRelationsFilter(Facility).filter_by_hierarchy(target_user=object())
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidHierarchyRelationsArgument):
             HierarchyRelationsFilter(Facility).filter_by_hierarchy(target_user=["test"])
 
 

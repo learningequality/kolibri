@@ -3,6 +3,7 @@ from django.db.models.query import F
 from six import string_types
 
 from .constants import collection_kinds
+from .errors import InvalidHierarchyRelationsArgument
 
 
 class HierarchyRelationsFilter(object):
@@ -90,7 +91,7 @@ class HierarchyRelationsFilter(object):
         elif isinstance(ref, F):  # ref is an F expression; resolve it to a SQL reference
             return self._resolve_f_expression(ref)
         else:
-            raise ValueError("Not a valid reference: %r" % ref)
+            raise InvalidHierarchyRelationsArgument("Not a valid reference: %r" % ref)
 
     def _join_with_logical_operator(self, lst, operator):
         op = ") {operator} (".format(operator=operator)
