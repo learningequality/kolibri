@@ -96,9 +96,9 @@ class TestBooleanOperationsOnPermissionClassesTestCase(TestCase):
         self.assertDenyAll(DenyAll() & BasePermissions(), test_filtering=False)
 
     def test_or_is_not_shortcircuited_inappropriately(self):
-        with self.assertRaises(Exception):
+        with self.assertRaises(NotImplementedError):
             self.assertAllowAll(BasePermissions() | AllowAll())
 
     def test_and_is_not_shortcircuited_inappropriately(self):
-        with self.assertRaises(Exception):
+        with self.assertRaises(NotImplementedError):
             self.assertDenyAll(BasePermissions() & DenyAll())
