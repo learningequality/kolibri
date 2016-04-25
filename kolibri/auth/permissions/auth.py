@@ -12,13 +12,14 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
     A Permissions class intended for controlling access to a Collection object based on the user's role;
     writing is only allowed by an admin for the collection, and furthermore, no FacilityUser can delete a Facility.
     """
-    can_be_created_by = []  # see below for custom logic
-    can_be_read_by = [ADMIN, COACH]
-    can_be_updated_by = [ADMIN]
-    can_be_deleted_by = []  # see below for custom logic
 
-    # the target for checking the role is the object itself, as it's a collection
-    target_field = "."
+    def __init__(self):
+        super(CollectionSpecificRoleBasedPermissions, self).__init__(
+            target_field=".",
+            can_be_created_by=None,
+            can_be_read_by=(ADMIN, COACH),
+            can_be_updated_by=(ADMIN,),
+            can_be_deleted_by=None)
 
     def user_can_create_object(self, user, obj):
         """

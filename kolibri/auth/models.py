@@ -322,10 +322,10 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         IsAdminForOwnFacility() |  # FacilityUser can be read and written by a facility admin
         RoleBasedPermissions(  # FacilityUser can be read by admin or coach, and updated by admin, but not created/deleted by non-facility admin
             target_field=".",
-            can_be_created_by=[],  # we can't check creation permissions by role, as user doesn't exist yet
-            can_be_read_by=[role_kinds.ADMIN, role_kinds.COACH],
-            can_be_updated_by=[role_kinds.ADMIN],
-            can_be_deleted_by=[],  # don't want a classroom admin deleting a user completely, just removing them from the class
+            can_be_created_by=(),  # we can't check creation permissions by role, as user doesn't exist yet
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_updated_by=(role_kinds.ADMIN,),
+            can_be_deleted_by=(),  # don't want a classroom admin deleting a user completely, just removing them from the class
         )
     )
 
@@ -656,10 +656,10 @@ class Membership(AbstractFacilityDataModel):
         IsOwn(read_only=True) |  # users can read their own Memberships
         RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the member user
             target_field="user",
-            can_be_created_by=[role_kinds.ADMIN],
-            can_be_read_by=[role_kinds.ADMIN, role_kinds.COACH],
-            can_be_updated_by=[],  # Membership objects shouldn't be updated; they should be deleted and recreated as needed
-            can_be_deleted_by=[role_kinds.ADMIN],
+            can_be_created_by=(role_kinds.ADMIN,),
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_updated_by=(),  # Membership objects shouldn't be updated; they should be deleted and recreated as needed
+            can_be_deleted_by=(role_kinds.ADMIN,),
         )
     )
 
@@ -694,10 +694,10 @@ class Role(AbstractFacilityDataModel):
         IsOwn(read_only=True) |  # users can read their own Roles
         RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the role collection
             target_field="collection",
-            can_be_created_by=[role_kinds.ADMIN],
-            can_be_read_by=[role_kinds.ADMIN, role_kinds.COACH],
-            can_be_updated_by=[],  # Role objects shouldn't be updated; they should be deleted and recreated as needed
-            can_be_deleted_by=[role_kinds.ADMIN],
+            can_be_created_by=(role_kinds.ADMIN,),
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_updated_by=(),  # Role objects shouldn't be updated; they should be deleted and recreated as needed
+            can_be_deleted_by=(role_kinds.ADMIN,),
         )
     )
 

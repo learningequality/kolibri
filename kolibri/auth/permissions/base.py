@@ -65,42 +65,24 @@ class BasePermissions(object):
 class RoleBasedPermissions(BasePermissions):
     """
     Permissions class that defines a requesting user's permissions in terms of his or her kinds of roles with respect
-    to a User or Collection related to the object.
-
-    To use this class, either subclass it and define the relevant attributes, or directly create an instance and pass
-    in the attributes as parameters.
-
-    See the comments below adjacent to the default attributes, for reference as to how to configure this class.
+    to a User or Collection that is related to the object.
     """
 
-    # For each crud operation, specify a list of role kinds that should have permission to perform that operation.
-    # By default, give permissions to no roles; override this or pass it into __init__.
-    can_be_created_by = None
-    can_be_read_by = None
-    can_be_updated_by = None
-    can_be_deleted_by = None
-
-    # Specify the field through which the role target (user or collection) will be referenced (or "." if the object itself
-    # is the target). The referenced field should be a ForeignKey to either the FacilityUser or the Collection model.
-    target_field = "user"  # by default, the target is the FacilityUser that is pointed to by the object's "user" field
-
-    def __init__(self, can_be_created_by=None, can_be_read_by=None, can_be_updated_by=None, can_be_deleted_by=None,
-                 can_be_written_by=None, target_field=None):
-
-        if can_be_created_by is not None:
-            self.can_be_created_by = can_be_created_by
-
-        if can_be_read_by is not None:
-            self.can_be_read_by = can_be_read_by
-
-        if can_be_updated_by is not None:
-            self.can_be_updated_by = can_be_updated_by
-
-        if can_be_deleted_by is not None:
-            self.can_be_deleted_by = can_be_deleted_by
-
-        if target_field is not None:
-            self.target_field = target_field
+    def __init__(self, target_field, can_be_created_by, can_be_read_by, can_be_updated_by, can_be_deleted_by):
+        """
+        :param str target_field: the name of the field through which the role target (user or collection) will be referenced
+        (or "." if the object itself is the target). The referenced field should be a ``ForeignKey`` either to a
+        ``FacilityUser`` or a ``Collection`` model.
+        :param tuple can_be_created_by: a tuple of role kinds that should give a user permission to create the object
+        :param tuple can_be_read_by: a tuple of role kinds that should give a user permission to read the object
+        :param tuple can_be_updated_by: a tuple of role kinds that should give a user permission to update the object
+        :param tuple can_be_deleted_by: a tuple of role kinds that should give a user permission to delete the object
+        """
+        self.can_be_created_by = can_be_created_by
+        self.can_be_read_by = can_be_read_by
+        self.can_be_updated_by = can_be_updated_by
+        self.can_be_deleted_by = can_be_deleted_by
+        self.target_field = target_field
 
     def _get_target_object(self, obj):
         if self.target_field == ".":  # this means the object itself is the target
@@ -111,9 +93,9 @@ class RoleBasedPermissions(BasePermissions):
 
     def user_can_create_object(self, user, obj):
 
-        roles = self.can_be_created_by
+        roles = getattr(self, "can_be_created_by", None)
 
-        assert isinstance(roles, list), \
+        assert isinstance(roles, tuple), \
             "If `can_be_created_by` is None, then `user_can_create_object` method must be overridden with custom behavior."
 
         target_object = self._get_target_object(obj)
@@ -121,9 +103,9 @@ class RoleBasedPermissions(BasePermissions):
 
     def user_can_read_object(self, user, obj):
 
-        roles = self.can_be_read_by
+        roles = getattr(self, "can_be_read_by", None)
 
-        assert isinstance(roles, list), \
+        assert isinstance(roles, tuple), \
             "If `can_be_read_by` is None, then `user_can_read_object` method must be overridden with custom behavior."
 
         target_object = self._get_target_object(obj)
@@ -131,9 +113,9 @@ class RoleBasedPermissions(BasePermissions):
 
     def user_can_update_object(self, user, obj):
 
-        roles = self.can_be_updated_by
+        roles = getattr(self, "can_be_updated_by", None)
 
-        assert isinstance(roles, list), \
+        assert isinstance(roles, tuple), \
             "If `can_be_updated_by` is None, then `user_can_update_object` method must be overridden with custom behavior."
 
         target_object = self._get_target_object(obj)
@@ -141,9 +123,9 @@ class RoleBasedPermissions(BasePermissions):
 
     def user_can_delete_object(self, user, obj):
 
-        roles = self.can_be_deleted_by
+        roles = getattr(self, "can_be_deleted_by", None)
 
-        assert isinstance(roles, list), \
+        assert isinstance(roles, tuple), \
             "If `can_be_deleted_by` is None, then `user_can_delete_object` method must be overridden with custom behavior."
 
         target_object = self._get_target_object(obj)
