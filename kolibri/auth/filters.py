@@ -90,7 +90,7 @@ class HierarchyRelationsFilter(object):
         elif isinstance(ref, F):  # ref is an F expression; resolve it to a SQL reference
             return self._resolve_f_expression(ref)
         else:
-            raise Exception("Not a valid reference: %r" % ref)
+            raise ValueError("Not a valid reference: %r" % ref)
 
     def _join_with_logical_operator(self, lst, operator):
         op = ") {operator} (".format(operator=operator)
