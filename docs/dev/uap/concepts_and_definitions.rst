@@ -15,7 +15,7 @@ Users
 -----
 
 There are two kinds of users: ``FacilityUser`` and ``DeviceOwner``. A
-``FacilityUser`` is associated with a particular ``Facility``, and the user’s
+``FacilityUser`` is associated with a particular ``Facility``, and the user's
 account and data may be synchronized across multiple devices. A
 ``DeviceOwner`` account is not associated with a particular ``Facility``, but
 is specific to one device, and is never synchronized across multiple devices.
@@ -86,9 +86,9 @@ Role-Based Permissions
 ----------------------
 
 As a lot of Facility Data in Kolibri is associated with a particular
-``FacilityUser``, for many objects we can concisely define a requesting user’s
-permissions in terms of his or her roles for the object’s associated User. For
-example, if a ``ContentLog`` represents a particular ``FacilityUser``’s
+``FacilityUser``, for many objects we can concisely define a requesting user's
+permissions in terms of his or her roles for the object's associated User. For
+example, if a ``ContentLog`` represents a particular ``FacilityUser``'s
 interaction with a piece of content, we might decide that another
 ``FacilityUser`` can view the ``ContentLog`` if she is a coach (has the coach
 role) for the user. In our scenario above, this would mean that Bob would have
@@ -99,7 +99,7 @@ Some data may not be related to a particular user, but rather with a
 ``Collection`` (e.g. the ``Collection`` object itself, settings for a
 ``Collection``, or content assignments for a ``Collection``). Permissions for
 these objects can be defined in terms of the role the requesting User has with
-respect to the object’s associated Collection. So, for example, we might allow
+respect to the object's associated Collection. So, for example, we might allow
 Bob to assign content to Class A on the basis of him having the "coach" role
 for Class A.
 

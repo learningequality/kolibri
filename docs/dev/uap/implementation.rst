@@ -5,7 +5,7 @@ Collections
 -----------
 
 A ``Collection`` is implemented as a Django model that inherits from
-`django-mptt’s MPTTModel <http://django-mptt.github.io/django-mptt/>`_, which
+`django-mptt's MPTTModel <http://django-mptt.github.io/django-mptt/>`_, which
 allows for efficient traversal and querying of the collection hierarchy. For
 convenience, the specific types of collections -- ``Facility``, ``Classroom``,
 and ``LearnerGroup`` -- are implemented as _proxy models of the main
@@ -130,7 +130,7 @@ hierarchy, without needing to write custom SQL each time, we have implemented
 a ``HierarchyRelationsFilter`` helper class. The class is instantiated by
 passing in a queryset, and then exposes a ``filter_by_hierarchy`` method that
 allows various parts of the role-membership-collection hierarchy to be
-constrained, and anchored back into the queryset’s main table. It then returns
+constrained, and anchored back into the queryset's main table. It then returns
 a filtered queryset (with appropriate conditions applied) upon which further
 filters or other queryset operations can be applied.
 
@@ -211,6 +211,22 @@ the following overridable methods:
   queryset and returns a queryset filtered down to just objects that should be
   readable by the user.
 
+Associating Permissions with Models
+-----------------------------------
+
+A model is associated with a particular permissions class through a
+"permissions" attribute defined on the top level of the model class,
+referencing an instance of a Permissions class (a class that subclasses
+``BasePermissions``). For example, to specify that a model
+``ContentSummaryLog`` should draw its permissions rules from the
+``UserLogPermissions`` class, modify the model definition as follows::
+
+    class ContentSummaryLog(models.Model):
+
+        permissions = UserLogPermissions()
+
+        <remainder of model definition>
+
 Specifying Role-Based Permissions
 ---------------------------------
 
@@ -220,33 +236,33 @@ but many cases can be covered by more constrained rule specifications. In
 particular, the rules for many models can be specified in terms of the role-
 based permissions system described above. A built-in subclass of
 ``BasePermissions``, called ``RoleBasedPermissions``, makes this easy.
-Creating an instance of ``RoleBasedPermissions`` involves defining the
+Creating an instance of ``RoleBasedPermissions`` involves passing in the
 following parameters:
 
-- Lists of role kinds that should be granted each of the CRUD permissions,
+- Tuples of role kinds that should be granted each of the CRUD permissions,
   encoded in the following parameters: ``can_be_created_by``, ``can_be_read_by``,
   ``can_be_updated_by``, ``can_be_deleted_by``.
 - The ``target_field`` parameter that determines the "target" object for the
   role-checking; this should be the name of a field on the model that foreign
-  keys either onto a ``FacilityUser`` or a ``Collection``. If the model we’re
+  keys either onto a ``FacilityUser`` or a ``Collection``. If the model we're
   checking permissions for is itself the target, then ``target_field`` may be
   ``"."``.
 
 An example, showing that read permissions should be granted to a coach or
-admin for the user referred to by the model’s "user" field. Similarly, write
+admin for the user referred to by the model's "user" field. Similarly, write
 permissions should only be available to an admin for the user::
 
-    class UserLogPermissions(RoleBasedPermissions):
+    class UserLog(models.Model):
 
-        can_be_created_by = ["admin"]
-        can_be_read_by = ["coach", "admin"]
-        can_be_updated_by = ["admin"]
-        can_be_deleted_by = ["admin"]
+        permissions = RoleBasedPermissions(
+            target_field="user",
+            can_be_created_by=(role_kinds.ADMIN,),
+            can_be_read_by=(role_kinds.COACH, role_kinds.ADMIN),
+            can_be_updated_by=(role_kinds.ADMIN,),
+            can_be_deleted_by=(role_kinds.ADMIN,),
+        )
 
-        target_field = "user"
-
-Note that the ``target_field`` specification above is also the default, and
-hence could be omitted.
+        <remainder of model definition>
 
 Built-in Permissions Classes
 ----------------------------
@@ -268,22 +284,6 @@ So, for example, ``IsFromSameFacility(read_only=True)`` will allow any user
 from the same facility to read the model, but not to write to it, whereas
 ``IsFromSameFacility(read_only=False)`` or ``IsFromSameFacility()`` would
 allow both.
-
-Associating Permissions with Models
------------------------------------
-
-A model is associated with a particular permissions class through a
-"permissions" attribute defined on the top level of the model class,
-referencing an instance of a Permissions class (a class that subclasses
-``BasePermissions``). For example, to specify that a model
-``ContentSummaryLog`` should draw its permissions rules from the
-``UserLogPermissions`` class, modify the model definition as follows::
-
-    class ContentSummaryLog(models.Model):
-    
-        permissions = UserLogPermissions()
-        
-        <remainder of model definition>
 
 Combining Permissions Classes
 -----------------------------
@@ -319,10 +319,10 @@ not yet have an instance of the model. Instead, pass in the model class and a
     data = {"user": request.user, "content_id": "qq123"}
     if request.user.can_create(ContentSummaryLog, data):
         ContentSummaryLog.objects.create(**data)
-        
+
 To efficiently filter a queryset so that it only includes records that the
-user should have permission to read (to make sure you’re not sending them data
-they shouldn’t be able to access), use the ``filter_readable`` method::
+user should have permission to read (to make sure you're not sending them data
+they shouldn't be able to access), use the ``filter_readable`` method::
 
     all_results = ContentSummaryLog.objects.filter(content_id="qq123")
     permitted_results = request.user.filter_readable(all_results)
