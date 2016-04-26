@@ -286,6 +286,7 @@ app.on('start', function(){
     // addRegions instantiates a Region identified by a selector and attaches it to the app with the given name.
     app.addRegions({
         content: '#content',  // This element already exists in the DOM.
+				// so do these?
         textLineInput: '#textLineInput',
         textAreaInput: '#textAreaInput',
         passwordInput: '#passwordInput',

@@ -1,11 +1,23 @@
-body
-	background-color: blue
-html
-	background-color: orange
-	font-family: monospace
-p
-	background-color: red
+@font-face
+	font-family: 'Noto Sans'
+	src: url('https://fonts.googleapis.com/css?family=Noto+Sans&subset=latin')
+.tiwtd
+	width:50%
 
-button
-	color: blue
-	background-color: yellow
+// all the styles regerading tags
+.tag
+
+	// styles for the list that holds all the tags
+	&List
+		background-attachment:scroll
+		background-clip:border-box
+		background-color:white
+		border-bottom-left-radius:4px
+		border-top-left-radius:4px
+		box-sizing: border-box
+		color: rgb(105, 105, 105)
+		font-family: Noto Sans, sans-serif
+
+		// styles for the wrap around the tag list
+		&wrap
+			width:100%
