@@ -1,29 +1,36 @@
 """
-We have three main abstractions: Users, Collections, and Roles.
+We have four main abstractions: Users, Collections, Memberships, and Roles.
 
 Users represent people, like students in a school, teachers for a classroom, or volunteers setting up informal
-installations. There are two main user types, FacilityUser and DeviceOwner. A FacilityUser belongs to a particular
-facility, and has permissions only with respect to other data that is associated with that facility. A DeviceOwner
-is not associated with a particular facility, and has global permissions for data on the local device. FacilityUser
-accounts (like other facility data) may be synced across multiple devices, whereas a DeviceOwner account is specific
-to a single installation of Kolibri.
+installations. There are two main user types, ``FacilityUser`` and ``DeviceOwner``. A ``FacilityUser`` belongs to a
+particular facility, and has permissions only with respect to other data that is associated with that facility. A
+``DeviceOwner`` is not associated with a particular facility, and has global permissions for data on the local device.
+``FacilityUser`` accounts (like other facility data) may be synced across multiple devices, whereas a DeviceOwner account
+is specific to a single installation of Kolibri.
 
 Collections form a hierarchy, with Collections able to belong to other Collections. Collections are subdivided
-into several pre-defined levels (Facility > Classroom > LearnerGroup).
+into several pre-defined levels (``Facility`` > ``Classroom`` > ``LearnerGroup``).
 
-A Role connects a FacilityUser and a Collection, for purposes of membership and permissions, along with a specified
-"kind" (such as "admin", "coach", or "learner"). Users can have more than one Role. For instance, a User may have a
-coach role for one Classroom, and an admin role for another.
+A ``FacilityUser`` (but not a ``DeviceOwner``) can be marked as a member of a ``Collection`` through a ``Membership``
+object. Being a member of a Collection also means being a member of all the Collections above that Collection in the
+hierarchy.
+
+Another way in which a ``FacilityUser`` can be associated with a particular ``Collection`` is through a ``Role``
+object, which grants the user a role with respect to the ``Collection`` and all the collections below it. A ``Role``
+object also stores the "kind" of the role (currently, one of "admin" or "coach"), which affects what permissions the
+user gains through the ``Role``.
 """
 
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.contrib.auth.models import AbstractBaseUser
 from django.core import validators
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from kolibri.core.errors import KolibriValidationError
 from mptt.models import MPTTModel, TreeForeignKey
@@ -37,13 +44,18 @@ from .errors import (
     UserIsNotMemberError
 )
 from .filters import HierarchyRelationsFilter
+from .permissions.auth import CollectionSpecificRoleBasedPermissions
+from .permissions.base import BasePermissions, RoleBasedPermissions
+from .permissions.general import (
+    IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
+)
 
 
 class FacilityDataset(models.Model):
     """
-    FacilityDataset stores high-level metadata and settings for a particular facility. It is also the
+    ``FacilityDataset`` stores high-level metadata and settings for a particular ``Facility``. It is also the
     model that all models storing facility data (data that is associated with a particular facility, and that inherits
-    from AbstractFacilityDataModel) foreign key onto, to indicate that they belong to this particular facility.
+    from ``AbstractFacilityDataModel``) foreign key onto, to indicate that they belong to this particular ``Facility``.
     """
 
     description = models.TextField(blank=True)
@@ -54,8 +66,8 @@ class FacilityDataset(models.Model):
 
 class AbstractFacilityDataModel(models.Model):
     """
-    Base model for Kolibri "Facility Data", which is data that is specific to a particular facility,
-    such as FacilityUsers, Collections, and other data associated with those users and collections.
+    Base model for Kolibri "Facility Data", which is data that is specific to a particular ``Facility``,
+    such as ``FacilityUsers``, ``Collections``, and other data associated with those users and collections.
     """
 
     dataset = models.ForeignKey("FacilityDataset")
@@ -82,8 +94,8 @@ class AbstractFacilityDataModel(models.Model):
     def ensure_dataset(self):
         """
         If no dataset has yet been specified, try to infer it. If a dataset has already been specified, to prevent
-        inconsistencies, make sure it matches the inferred dataset, otherwise raise a KolibriValidationError.
-        If we have no dataset and it can't be inferred, we raise a KolibriValidationError exception as well.
+        inconsistencies, make sure it matches the inferred dataset, otherwise raise a ``KolibriValidationError``.
+        If we have no dataset and it can't be inferred, we raise a ``KolibriValidationError`` exception as well.
         """
         inferred_dataset = self.infer_dataset()
         if self.dataset_id:
@@ -100,18 +112,18 @@ class AbstractFacilityDataModel(models.Model):
     def infer_dataset(self):
         """
         This method is used by `ensure_dataset` to "infer" which dataset should be associated with this instance.
-        It should be overridden in any subclass of AbstractFacilityDataModel, to define a model-specific inference.
+        It should be overridden in any subclass of ``AbstractFacilityDataModel``, to define a model-specific inference.
         """
         raise NotImplementedError("Subclasses of AbstractFacilityDataModel must override the `infer_dataset` method.")
 
 
 class KolibriAbstractBaseUser(AbstractBaseUser):
     """
-    Our custom user type, derived from AbstractBaseUser as described in the Django docs.
-    Draws liberally from django.contrib.auth.AbstractUser, except we exclude some fields
+    Our custom user type, derived from ``AbstractBaseUser`` as described in the Django docs.
+    Draws liberally from ``django.contrib.auth.AbstractUser``, except we exclude some fields
     we don't care about, like email.
 
-    This model is an abstract model, and is inherited by both FacilityUser and DeviceOwner.
+    This model is an abstract model, and is inherited by both ``FacilityUser`` and ``DeviceOwner``.
     """
 
     class Meta:
@@ -134,9 +146,6 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     last_name = models.CharField(_('last name'), max_length=60, blank=True)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now, editable=False)
 
-    def is_device_owner(self):
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `is_device_owner` method.")
-
     def get_full_name(self):
         return (self.first_name + " " + self.last_name).strip()
 
@@ -145,10 +154,10 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
 
     def is_member_of(self, coll):
         """
-        Determine whether this user is a member of the specified collection.
+        Determine whether this user is a member of the specified ``Collection``.
 
-        :param coll: The collection for which we are checking this user's membership.
-        :return: True if this user is a member of the specified collection, otherwise False.
+        :param coll: The ``Collection`` for which we are checking this user's membership.
+        :return: ``True`` if this user is a member of the specified ``Collection``, otherwise False.
         :rtype: bool
         """
         raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `is_member_of` method.")
@@ -159,17 +168,17 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
 
         :param user: The target user for which this user has the roles.
         :return: The kinds of roles this user has with respect to the target user.
-        :rtype: set of kolibri.auth.constants.role_kinds.* strings
+        :rtype: set of ``kolibri.auth.constants.role_kinds.*`` strings
         """
         raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_user` method.")
 
     def get_roles_for_collection(self, coll):
         """
-        Determine all the roles this user has in relation to the specified collection, and return a set containing the kinds of roles.
+        Determine all the roles this user has in relation to the specified ``Collection``, and return a set containing the kinds of roles.
 
-        :param coll: The target collection for which this user has the roles.
-        :return: The kinds of roles this user has with respect to the specified collection.
-        :rtype: set of kolibri.auth.constants.role_kinds.* strings
+        :param coll: The target ``Collection`` for which this user has the roles.
+        :return: The kinds of roles this user has with respect to the specified ``Collection``.
+        :rtype: set of ``kolibri.auth.constants.role_kinds.*`` strings
         """
         raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_collection` method.")
 
@@ -179,30 +188,146 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
 
         :param user: The user that is the target of the role (for which this user has the roles).
         :param kinds: The kind (or kinds) of role to check for, as a string or iterable.
-        :type kinds: string from kolibri.auth.constants.role_kinds.*
-        :return: True if this user has the specified role kind with respect to the target user, otherwise False.
+        :type kinds: string from ``kolibri.auth.constants.role_kinds.*``
+        :return: ``True`` if this user has the specified role kind with respect to the target user, otherwise ``False``.
         :rtype: bool
         """
         raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `has_role_for_user` method.")
 
     def has_role_for_collection(self, kinds, coll):
         """
-        Determine whether this user has (at least one of) the specified role kind(s) in relation to the specified collection.
+        Determine whether this user has (at least one of) the specified role kind(s) in relation to the specified ``Collection``.
 
-        :param user: The user that is the target of the role (for which this user has the roles).
         :param kinds: The kind (or kinds) of role to check for, as a string or iterable.
         :type kinds: string from kolibri.auth.constants.role_kinds.*
-        :return: True if this user has the specified role kind with respect to the target collection, otherwise False.
+        :param coll: The target ``Collection`` for which this user has the roles.
+        :return: ``True`` if this user has the specified role kind with respect to the target ``Collection``, otherwise ``False``.
         :rtype: bool
         """
         raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `has_role_for_collection` method.")
 
+    def can_create_instance(self, obj):
+        """
+        Checks whether this user (self) has permission to create a particular model instance (obj).
 
+        This method should be overridden by classes that inherit from ``KolibriAbstractBaseUser``.
+
+        In general, unless an instance has already been initialized, this method should not be called directly;
+        instead, it should be preferred to call ``can_create``.
+
+        :param obj: An (unsaved) instance of a Django model, to check permissions for.
+        :return: ``True`` if this user should have permission to create the object, otherwise ``False``.
+        :rtype: bool
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_create_instance` method.")
+
+    def can_create(self, Model, data):
+        """
+        Checks whether this user (self) has permission to create an instance of Model with the specified attributes (data).
+
+        This method defers to the ``can_create_instance`` method, and in most cases should not itself be overridden.
+
+        :param Model: A subclass of ``django.db.models.Model``
+        :param data: A ``dict`` of data to be used in creating an instance of the Model
+        :return: ``True`` if this user should have permission to create an instance of Model with the specified data, else ``False``.
+        :rtype: bool
+        """
+        try:
+            instance = Model(**data)
+            instance.full_clean()
+        except TypeError:
+            return False  # if the data provided does not fit the Model, don't continue checking
+        except ValidationError:
+            return False  # if the data does not validate, don't continue checking
+        # now that we have an instance, defer to the permission-checking method that works with instances
+        return self.can_create_instance(instance)
+
+    def can_read(self, obj):
+        """
+        Checks whether this user (self) has permission to read a particular model instance (obj).
+
+        This method should be overridden by classes that inherit from ``KolibriAbstractBaseUser``.
+
+        :param obj: An instance of a Django model, to check permissions for.
+        :return: ``True`` if this user should have permission to read the object, otherwise ``False``.
+        :rtype: bool
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_read` method.")
+
+    def can_update(self, obj):
+        """
+        Checks whether this user (self) has permission to update a particular model instance (obj).
+
+        This method should be overridden by classes that inherit from KolibriAbstractBaseUser.
+
+        :param obj: An instance of a Django model, to check permissions for.
+        :return: ``True`` if this user should have permission to update the object, otherwise ``False``.
+        :rtype: bool
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_update` method.")
+
+    def can_delete(self, obj):
+        """
+        Checks whether this user (self) has permission to delete a particular model instance (obj).
+
+        This method should be overridden by classes that inherit from KolibriAbstractBaseUser.
+
+        :param obj: An instance of a Django model, to check permissions for.
+        :return: ``True`` if this user should have permission to delete the object, otherwise ``False``.
+        :rtype: bool
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_delete` method.")
+
+    def get_roles_for(self, obj):
+        """
+        Helper function that defers to ``get_roles_for_user`` or ``get_roles_for_collection`` based on the type of object passed in.
+        """
+        if isinstance(obj, KolibriAbstractBaseUser):
+            return self.get_roles_for_user(obj)
+        elif isinstance(obj, Collection):
+            return self.get_roles_for_collection(obj)
+        else:
+            raise ValueError("The `obj` argument to `get_roles_for` must be either an instance of KolibriAbstractBaseUser or Collection.")
+
+    def has_role_for(self, kinds, obj):
+        """
+        Helper function that defers to ``has_role_for_user`` or ``has_role_for_collection`` based on the type of object passed in.
+        """
+        if isinstance(obj, KolibriAbstractBaseUser):
+            return self.has_role_for_user(kinds, obj)
+        elif isinstance(obj, Collection):
+            return self.has_role_for_collection(kinds, obj)
+        else:
+            raise ValueError("The `obj` argument to `has_role_for` must be either an instance of KolibriAbstractBaseUser or Collection.")
+
+    def filter_readable(self, queryset):
+        """
+        Filters a queryset down to only the elements that this user should have permission to read.
+
+        :param queryset: A ``QuerySet`` instance that the filtering should be applied to.
+        :return: Filtered ``QuerySet`` including only elements that are readable by this user.
+        """
+        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_delete` method.")
+
+
+@python_2_unicode_compatible
 class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
-    FacilityUsers are the fundamental object of the auth app. They represent the main users, and can be associated
-    with a hierarchy of Collections through Roles, which then serve to determine permissions.
+    ``FacilityUser`` is the fundamental object of the auth app. These users represent the main users, and can be associated
+    with a hierarchy of ``Collections`` through ``Memberships`` and ``Roles``, which then serve to help determine permissions.
     """
+
+    permissions = (
+        IsSelf() |  # FacilityUser can be read and written by itself
+        IsAdminForOwnFacility() |  # FacilityUser can be read and written by a facility admin
+        RoleBasedPermissions(  # FacilityUser can be read by admin or coach, and updated by admin, but not created/deleted by non-facility admin
+            target_field=".",
+            can_be_created_by=(),  # we can't check creation permissions by role, as user doesn't exist yet
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_updated_by=(role_kinds.ADMIN,),
+            can_be_deleted_by=(),  # don't want a classroom admin deleting a user completely, just removing them from the class
+        )
+    )
 
     facility = models.ForeignKey("Facility")
 
@@ -221,35 +346,35 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return False
         if coll.kind == collection_kinds.FACILITY:
             return True  # FacilityUser is always a member of her own facility
-        if self.membership_set.count() == 0 and coll.kind == "facility":
-            print("No membership, checking facility")
-        return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
+        return HierarchyRelationsFilter(FacilityUser.objects.all()).filter_by_hierarchy(
             target_user=F("id"),
-            ancestor_collection=coll,
+            ancestor_collection=coll.id,
         ).filter(id=self.id).exists()
 
     def get_roles_for_user(self, user):
-        if self.dataset_id != user.dataset_id:
+        if not hasattr(user, "dataset_id") or self.dataset_id != user.dataset_id:
             return set([])
         role_instances = HierarchyRelationsFilter(Role).filter_by_hierarchy(
-            role=F("id"),
-            source_user=self,
+            ancestor_collection=F("collection"),
+            source_user=F("user"),
             target_user=user,
-        )
+        ).filter(user=self)
         return set([instance["kind"] for instance in role_instances.values("kind").distinct()])
 
     def get_roles_for_collection(self, coll):
         if self.dataset_id != coll.dataset_id:
             return set([])
         role_instances = HierarchyRelationsFilter(Role).filter_by_hierarchy(
-            role=F("id"),
-            source_user=self,
+            ancestor_collection=F("collection"),
+            source_user=F("user"),
             descendant_collection=coll,
-        )
+        ).filter(user=self)
         return set([instance["kind"] for instance in role_instances.values("kind").distinct()])
 
     def has_role_for_user(self, kinds, user):
-        if self.dataset_id != user.dataset_id:
+        if not kinds:
+            return False
+        if not hasattr(user, "dataset_id") or self.dataset_id != user.dataset_id:
             return False
         return HierarchyRelationsFilter(Role).filter_by_hierarchy(
             ancestor_collection=F("collection"),
@@ -259,6 +384,8 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         ).filter(user=self).exists()
 
     def has_role_for_collection(self, kinds, coll):
+        if not kinds:
+            return False
         if self.dataset_id != coll.dataset_id:
             return False
         return HierarchyRelationsFilter(Role).filter_by_hierarchy(
@@ -268,16 +395,59 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             descendant_collection=coll,
         ).filter(user=self).exists()
 
+    def _has_permissions_class(self, obj):
+        return hasattr(obj, "permissions") and isinstance(obj.permissions, BasePermissions)
 
+    def can_create_instance(self, obj):
+        # a FacilityUser's permissions are determined through the object's permission class
+        if self._has_permissions_class(obj):
+            return obj.permissions.user_can_create_object(self, obj)
+        else:
+            return False
+
+    def can_read(self, obj):
+        # a FacilityUser's permissions are determined through the object's permission class
+        if self._has_permissions_class(obj):
+            return obj.permissions.user_can_read_object(self, obj)
+        else:
+            return False
+
+    def can_update(self, obj):
+        # a FacilityUser's permissions are determined through the object's permission class
+        if self._has_permissions_class(obj):
+            return obj.permissions.user_can_update_object(self, obj)
+        else:
+            return False
+
+    def can_delete(self, obj):
+        # a FacilityUser's permissions are determined through the object's permission class
+        if self._has_permissions_class(obj):
+            return obj.permissions.user_can_delete_object(self, obj)
+        else:
+            return False
+
+    def filter_readable(self, queryset):
+        if self._has_permissions_class(queryset.model):
+            return queryset.model.permissions.readable_by_user_filter(self, queryset).distinct()
+        else:
+            return queryset.none()
+
+    def __str__(self):
+        return '"{user}"@"{facility}"'.format(user=self.get_full_name() or self.username, facility=self.facility)
+
+
+@python_2_unicode_compatible
 class DeviceOwner(KolibriAbstractBaseUser):
     """
-    When a user first installs Kolibri on a device, they will be prompted to create a *DeviceOwner*, a special kind of
+    When a user first installs Kolibri on a device, they will be prompted to create a ``DeviceOwner``, a special kind of
     user which is associated with that device only, and who must give permission to make broad changes to the Kolibri
-    installation on that device (such as creating a Facility, or changing configuration settings).
+    installation on that device (such as creating a ``Facility``, or changing configuration settings).
 
     Actions not relating to user data but specifically to a device -- like upgrading Kolibri, changing whether the
     device is a Classroom Server or Classroom Client, or determining manually which data should be synced -- must be
-    performed by a DeviceOwner.
+    performed by a ``DeviceOwner``.
+
+    A ``DeviceOwner`` is a superuser, and has full access to do anything she wants with data on the device.
     """
 
     # DeviceOwners can access the Django admin interface
@@ -303,17 +473,42 @@ class DeviceOwner(KolibriAbstractBaseUser):
             kinds = [kinds]
         return role_kinds.ADMIN in kinds  # a DeviceOwner has admin role for all collections on the device
 
+    def can_create_instance(self, obj):
+        # DeviceOwners are superusers, and can do anything
+        return True
 
+    def can_read(self, obj):
+        # DeviceOwners are superusers, and can do anything
+        return True
+
+    def can_update(self, obj):
+        # DeviceOwners are superusers, and can do anything
+        return True
+
+    def can_delete(self, obj):
+        # DeviceOwners are superusers, and can do anything
+        return True
+
+    def filter_readable(self, queryset):
+        return queryset
+
+    def __str__(self):
+        return self.get_full_name() or self.username
+
+
+@python_2_unicode_compatible
 class Collection(MPTTModel, AbstractFacilityDataModel):
     """
-    Collections are hierarchical groups of users, used for grouping users and making decisions about permissions.
-    Users belong to one or more Collections, by way of obtaining Roles associated with those Collections.
-    Collections can belong to other Collections, and user membership in a collection is conferred by parenthood.
-    Collections are subdivided into several pre-defined levels.
-
-    The hierarchy of Collections forms a tree structure, and a description can be found
-    `in the dev bible <https://docs.google.com/document/d/1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8/edit>`_.
+    ``Collections`` are hierarchical groups of ``FacilityUsers``, used for grouping users and making decisions about permissions.
+    ``FacilityUsers`` can have roles for one or more ``Collections``, by way of obtaining ``Roles`` associated with those ``Collections``.
+    ``Collections`` can belong to other ``Collections``, and user membership in a ``Collection`` is conferred through ``Memberships``.
+    ``Collections`` are subdivided into several pre-defined levels.
     """
+
+    # Collection can be read by anybody from the facility; writing is only allowed by an admin for the collection.
+    # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
+    # by roles in relation to the new collection's parent collection (see CollectionSpecificRoleBasedPermissions).
+    permissions = IsFromSameFacility(read_only=True) | CollectionSpecificRoleBasedPermissions()
 
     _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
 
@@ -331,19 +526,27 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
 
     def _ensure_kind(self):
         """
-        Make sure the "kind" is set correctly on the model, corresponding to the appropriate subclass of Collection.
+        Make sure the "kind" is set correctly on the model, corresponding to the appropriate subclass of ``Collection``.
         """
         if self._KIND:
             self.kind = self._KIND
 
+    def get_members(self):
+        if self.kind == collection_kinds.FACILITY:
+            return FacilityUser.objects.filter(dataset=self.dataset)  # FacilityUser is always a member of her own facility
+        return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
+            target_user=F("id"),
+            ancestor_collection=self,
+        )
+
     def add_role(self, user, role_kind):
         """
-        Create a Role associating the provided user with this collection, with the specified kind of role.
+        Create a ``Role`` associating the provided user with this collection, with the specified kind of role.
         If the Role object already exists, just return that, without changing anything.
 
-        :param user: The FacilityUser to associate with this Collection.
-        :param role_kind: The kind of role to give the user with respect to this Collection.
-        :return: The Role object (possibly new) that associates the user with the Collection.
+        :param user: The ``FacilityUser`` to associate with this ``Collection``.
+        :param role_kind: The kind of role to give the user with respect to this ``Collection``.
+        :return: The ``Role`` object (possibly new) that associates the user with the ``Collection``.
         """
 
         # ensure the specified role kind is valid
@@ -361,10 +564,10 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
 
     def remove_role(self, user, role_kind):
         """
-        Remove any Role objects associating the provided user with this collection, with the specified kind of role.
+        Remove any ``Role`` objects associating the provided user with this ``Collection``, with the specified kind of role.
 
-        :param user: The FacilityUser to dissociate from this Collection (for the specific role kind).
-        :param role_kind: The kind of role to remove from the user with respect to this Collection.
+        :param user: The ``FacilityUser`` to dissociate from this ``Collection`` (for the specific role kind).
+        :param role_kind: The kind of role to remove from the user with respect to this ``Collection``.
         """
 
         # ensure the specified role kind is valid
@@ -389,11 +592,11 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
 
     def add_member(self, user):
         """
-        Create a Membership associating the provided user with this collection.
-        If the Membership object already exists, just return that, without changing anything.
+        Create a ``Membership`` associating the provided user with this ``Collection``.
+        If the ``Membership`` object already exists, just return that, without changing anything.
 
-        :param user: The FacilityUser to add to this Collection.
-        :return: The Membership object (possibly new) that associates the user with the Collection.
+        :param user: The ``FacilityUser`` to add to this ``Collection``.
+        :return: The ``Membership`` object (possibly new) that associates the user with the ``Collection``.
         """
 
         # ensure the provided user is a FacilityUser
@@ -407,10 +610,10 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
 
     def remove_member(self, user):
         """
-        Remove any Membership objects associating the provided user with this collection.
+        Remove any ``Membership`` objects associating the provided user with this ``Collection``.
 
-        :param user: The FacilityUser to remove from this Collection.
-        :return: True if a Membership was removed, False if there was no matching Membership to remove.
+        :param user: The ``FacilityUser`` to remove from this ``Collection``.
+        :return: ``True`` if a ``Membership`` was removed, ``False`` if there was no matching ``Membership`` to remove.
         """
 
         # ensure the provided user is a FacilityUser
@@ -436,14 +639,29 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         else:
             return None  # the root node (i.e. Facility) must be explicitly tied to a dataset
 
+    def __str__(self):
+        return '"{name}" ({kind})'.format(name=self.name, kind=self.kind)
 
+
+@python_2_unicode_compatible
 class Membership(AbstractFacilityDataModel):
     """
-    A User can be marked as a member of a Collection through a Membership object. Being a member of a Collection
-    also means being a member of all the Collections above that Collection in the tree (i.e. if you are a member
-    of a LearnerGroup, you are also a member of the Classroom that contains that LearnerGroup, and of the Facility
-    that contains that Classroom).
+    A ``FacilityUser`` can be marked as a member of a ``Collection`` through a ``Membership`` object. Being a member of a
+    ``Collection`` also means being a member of all the ``Collections`` above that ``Collection`` in the tree (i.e. if you
+    are a member of a ``LearnerGroup``, you are also a member of the ``Classroom`` that contains that ``LearnerGroup``,
+    and of the ``Facility`` that contains that ``Classroom``).
     """
+
+    permissions = (
+        IsOwn(read_only=True) |  # users can read their own Memberships
+        RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the member user
+            target_field="user",
+            can_be_created_by=(role_kinds.ADMIN,),
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_updated_by=(),  # Membership objects shouldn't be updated; they should be deleted and recreated as needed
+            can_be_deleted_by=(role_kinds.ADMIN,),
+        )
+    )
 
     user = models.ForeignKey('FacilityUser', blank=False, null=False)
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
@@ -460,13 +678,28 @@ class Membership(AbstractFacilityDataModel):
             raise KolibriValidationError("Collection and user for a Membership object must be in same dataset.")
         return user_dataset
 
+    def __str__(self):
+        return "{user}'s membership in {collection}".format(user=self.user, collection=self.collection)
 
+@python_2_unicode_compatible
 class Role(AbstractFacilityDataModel):
     """
-    A User can have a role for a particular Collection through a Role object, which also stores the "kind"
-    of the Role (currently, one of "admin" or "coach"). Having a role for a Collection also implies having that
-    role for all sub-Collections of that Collection (i.e. all the Collections below it in the tree).
+    A ``FacilityUser`` can have a role for a particular ``Collection`` through a ``Role`` object, which also stores
+    the "kind" of the ``Role`` (currently, one of "admin" or "coach"). Having a role for a ``Collection`` also
+    implies having that role for all sub-collections of that ``Collection`` (i.e. all the ``Collections`` below it
+    in the tree).
     """
+
+    permissions = (
+        IsOwn(read_only=True) |  # users can read their own Roles
+        RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the role collection
+            target_field="collection",
+            can_be_created_by=(role_kinds.ADMIN,),
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_updated_by=(),  # Role objects shouldn't be updated; they should be deleted and recreated as needed
+            can_be_deleted_by=(role_kinds.ADMIN,),
+        )
+    )
 
     user = models.ForeignKey('FacilityUser', blank=False, null=False)
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
@@ -484,6 +717,9 @@ class Role(AbstractFacilityDataModel):
             raise KolibriValidationError("The collection and user for a Role object must be in the same dataset.")
         return user_dataset
 
+    def __str__(self):
+        return "{user}'s {kind} role for {collection}".format(user=self.user, kind=self.kind, collection=self.collection)
+
 
 class CollectionProxyManager(models.Manager):
 
@@ -491,6 +727,7 @@ class CollectionProxyManager(models.Manager):
         return super(CollectionProxyManager, self).get_queryset().filter(kind=self.model._KIND)
 
 
+@python_2_unicode_compatible
 class Facility(Collection):
 
     _KIND = collection_kinds.FACILITY
@@ -537,7 +774,11 @@ class Facility(Collection):
     def remove_coach(self, user):
         self.remove_role(user, role_kinds.COACH)
 
+    def __str__(self):
+        return self.name
 
+
+@python_2_unicode_compatible
 class Classroom(Collection):
 
     _KIND = collection_kinds.CLASSROOM
@@ -554,17 +795,17 @@ class Classroom(Collection):
 
     def get_facility(self):
         """
-        Gets the Classroom's parent Facility.
+        Gets the ``Classroom``'s parent ``Facility``.
 
-        :return: A Facility instance.
+        :return: A ``Facility`` instance.
         """
         return Facility.objects.get(id=self.parent_id)
 
     def get_learner_groups(self):
         """
-        Returns a QuerySet of LearnerGroups associated with this Classroom.
+        Returns a ``QuerySet`` of ``LearnerGroups`` associated with this ``Classroom``.
 
-        :return: A LearnerGroup QuerySet.
+        :return: A ``LearnerGroup`` ``QuerySet``.
         """
         return LearnerGroup.objects.filter(parent=self)
 
@@ -586,7 +827,11 @@ class Classroom(Collection):
     def remove_coach(self, user):
         self.remove_role(user, role_kinds.COACH)
 
+    def __str__(self):
+        return self.name
 
+
+@python_2_unicode_compatible
 class LearnerGroup(Collection):
 
     _KIND = collection_kinds.LEARNERGROUP
@@ -603,9 +848,9 @@ class LearnerGroup(Collection):
 
     def get_classroom(self):
         """
-        Gets the LearnerGroup's parent Classroom.
+        Gets the ``LearnerGroup``'s parent ``Classroom``.
 
-        :return: A Classroom instance.
+        :return: A ``Classroom`` instance.
         """
         return Classroom.objects.get(id=self.parent_id)
 
@@ -617,3 +862,6 @@ class LearnerGroup(Collection):
 
     def remove_learner(self, user):
         return self.remove_member(user)
+
+    def __str__(self):
+        return self.name
