@@ -95,6 +95,8 @@ class ContentMetadata(MPTTModel, AbstractContent):
     is_related = models.ManyToManyField('self', related_name='relate_to', through='RelatedContentRelationship', symmetrical=False, blank=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
+    sort_order = models.FloatField(blank=True, null=True)
+    license_owner = models.CharField(max_length=200, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Content Metadata'

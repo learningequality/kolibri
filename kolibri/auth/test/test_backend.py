@@ -2,8 +2,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.test import TestCase
 
-from kolibri.auth.models import FacilityUser, DeviceOwner, Facility
-from kolibri.auth.backends import DeviceOwnerBackend, FacilityUserBackend
+from ..models import FacilityUser, DeviceOwner, Facility
+from ..backends import DeviceOwnerBackend, FacilityUserBackend
 
 
 class DeviceOwnerBackendTestCase(TestCase):
@@ -32,16 +32,6 @@ class DeviceOwnerBackendTestCase(TestCase):
 
     def test_nonexistent_user_returns_none(self):
         self.assertIsNone(DeviceOwnerBackend().get_user(4756))
-
-    def test_perms_sanity(self):
-        """
-        DeviceOwnerBackend has very simple permissions -- True for DeviceOwners, otherwise False!
-        """
-        db = DeviceOwnerBackend()
-        self.assertTrue(db.has_perm(self.do, "foo"))
-        self.assertTrue(db.has_module_perms(self.do, "foo"))
-        self.assertFalse(db.has_perm(self.user, "foo"))
-        self.assertFalse(db.has_module_perms(self.user, "foo"))
 
     def test_authenticate_nonexistent_user_returns_none(self):
         self.assertIsNone(DeviceOwnerBackend().authenticate("foo", "bar"))

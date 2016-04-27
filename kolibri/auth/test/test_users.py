@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 # from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from kolibri.auth.models import DeviceOwner, Facility, FacilityUser  # , KolibriValidationError
+from ..models import DeviceOwner, Facility, FacilityUser
 
 
 class UserSanityTestCase(TestCase):
