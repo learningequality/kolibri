@@ -5,7 +5,8 @@
 // color definitions
 $kolibri-gray = rgb(105, 105, 105)
 
-// mixin for clearfix
+// mixin for clearfix, used when dealing with floats. Won't be a problem if we
+// float everything
 clearfix()
 	&:after
 		clear: both
@@ -14,16 +15,17 @@ clearfix()
 		height: 0
 		visibility: hidden
 
-
 /*************************Text Input With Tag Display*************************/
+// wrapper for tiwtd... not sure about this, should probably get rid of it
+.content
+
 // wrapper search with tag widget
 .tiwtd
-	clearfix()
+	// keeping at 50% to match initial sketch of this toy page
 	width:50%
 
 // all styles regarding the search box
 .textInput
-	clearfix()
 
 	// styles for the text box itself
 	input[type=search]
@@ -37,20 +39,20 @@ clearfix()
 
 		//  styles for the search bar's focus option
 		&:focus
-			// not including because of accesibility
-			// outline: 1px
+			// need to mod focus to be accessible, this is where styles go
+
 // all the styles regerading tags
 .tag
 	// styles for the tags themselves
 	background-color: $kolibri-gray
+	border-radius: 4px
 	color: white
 	display:block
 	float:left
 	margin: 1px
-	padding-bottom: .5em
-	padding-left: 1em
-	padding-right: 1em
-	padding-top: .5em
+	// consider making a mixin for this if using for many buttons
+	padding: .5em 1em .5em 1em
+
 	// styles for the list that holds all the tags
 	&List
 		background-attachment:scroll
@@ -59,10 +61,15 @@ clearfix()
 		border-bottom-left-radius:4px
 		border-top-left-radius:4px
 		box-sizing: border-box
-		clearfix()
+		float:left
 		font-family: Noto Sans, sans-serif
 		padding: 0
 
 		// styles for the wrap around the tag list
 		&wrap
-			width:100%
+			overflow: auto
+
+
+/*******************************Text Line Input*******************************/
+#textLineInput
+	// ust a filler for now
