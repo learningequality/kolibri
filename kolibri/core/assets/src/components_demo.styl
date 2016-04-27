@@ -1,12 +1,56 @@
 @font-face
 	font-family: 'Noto Sans'
 	src: url('https://fonts.googleapis.com/css?family=Noto+Sans&subset=latin')
+
+// color definitions
+$kolibri-gray = rgb(105, 105, 105)
+
+// mixin for clearfix
+clearfix()
+	&:after
+		clear: both
+		content: ""
+		display: block
+		height: 0
+		visibility: hidden
+
+
+/*************************Text Input With Tag Display*************************/
+// wrapper search with tag widget
 .tiwtd
+	clearfix()
 	width:50%
 
+// all styles regarding the search box
+.textInput
+	clearfix()
+
+	// styles for the text box itself
+	input[type=search]
+		background-color: transparent
+		border-bottom-color: $kolibri-gray
+		border-bottom-style: solid
+		border-width: 0 0 1px 0
+		font-size: 1.2em
+		padding: 3px
+		width: 100%
+
+		//  styles for the search bar's focus option
+		&:focus
+			// not including because of accesibility
+			// outline: 1px
 // all the styles regerading tags
 .tag
-
+	// styles for the tags themselves
+	background-color: $kolibri-gray
+	color: white
+	display:block
+	float:left
+	margin: 1px
+	padding-bottom: .5em
+	padding-left: 1em
+	padding-right: 1em
+	padding-top: .5em
 	// styles for the list that holds all the tags
 	&List
 		background-attachment:scroll
@@ -15,8 +59,9 @@
 		border-bottom-left-radius:4px
 		border-top-left-radius:4px
 		box-sizing: border-box
-		color: rgb(105, 105, 105)
+		clearfix()
 		font-family: Noto Sans, sans-serif
+		padding: 0
 
 		// styles for the wrap around the tag list
 		&wrap
