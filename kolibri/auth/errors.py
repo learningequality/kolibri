@@ -23,3 +23,7 @@ class UserIsNotMemberError(KolibriError):
 
 class UserIsMemberOnlyIndirectlyThroughHierarchyError(KolibriError):
     pass
+
+
+class InvalidHierarchyRelationsArgument(KolibriError):
+    pass

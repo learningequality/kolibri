@@ -3,6 +3,7 @@ from django.db.models.query import F
 from six import string_types
 
 from .constants import collection_kinds
+from .errors import InvalidHierarchyRelationsArgument
 
 
 class HierarchyRelationsFilter(object):
@@ -32,28 +33,24 @@ class HierarchyRelationsFilter(object):
         ],
         "where": [
             "descendant_collection.lft BETWEEN ancestor_collection.lft AND ancestor_collection.rght",
+            "descendant_collection.tree_id = ancestor_collection.tree_id",
         ]
     }
 
-    _membership_extra = {
-        "tables": [
-            '"{facilityuser_table}" AS "target_user"',
-            '"{membership_table}" AS "membership"',
-        ],
-        "where": [
-            "membership.user_id = target_user.id",
-            "membership.collection_id = descendant_collection.id",
-        ]
-    }
+    _membership_tables = [
+        '"{facilityuser_table}" AS "target_user"',
+        '"{membership_table}" AS "membership"',
+    ]
 
     def __init__(self, queryset):
 
-        # convert the provided argument from a Model or Manager into a QuerySet as needed
-        if issubclass(queryset, models.Model):
+        # convert the provided argument from a Model class into a QuerySet as needed
+        if isinstance(queryset, type) and issubclass(queryset, models.Model):
             queryset = queryset.objects.all()
-        elif isinstance(queryset, models.Manager):
-            queryset = queryset.all()
         self.queryset = queryset
+
+        self.tables = []
+        self.where = []
 
         # import auth models here to avoid circular imports
         from .models import Role, Collection, Membership, FacilityUser
@@ -66,13 +63,10 @@ class HierarchyRelationsFilter(object):
             "facilityuser_table": FacilityUser._meta.db_table,
         }
 
-    def _add_extras(self, queryset, **kwargs):
-        extras = {}
-        if "tables" in kwargs:
-            extras["tables"] = [table.format(**self._table_names) for table in kwargs["tables"]]
-        if "where" in kwargs:
-            extras["where"] = kwargs["where"]
-        return queryset.extra(**extras)
+    def _add_extras(self, where, tables=None):
+        self.where += where
+        if tables:
+            self.tables += [table.format(**self._table_names) for table in tables]
 
     def _resolve_f_expression(self, f_expr):
 
@@ -97,7 +91,11 @@ class HierarchyRelationsFilter(object):
         elif isinstance(ref, F):  # ref is an F expression; resolve it to a SQL reference
             return self._resolve_f_expression(ref)
         else:
-            raise Exception("Not a valid reference: %r" % ref)
+            raise InvalidHierarchyRelationsArgument("Not a valid reference: %r" % ref)
+
+    def _join_with_logical_operator(self, lst, operator):
+        op = ") {operator} (".format(operator=operator)
+        return "(({items}))".format(items=op.join(lst))
 
     def filter_by_hierarchy(self,
                             source_user=None,
@@ -124,33 +122,32 @@ class HierarchyRelationsFilter(object):
         :rtype: QuerySet
         """
 
-        queryset = self.queryset
-
         ################################################################################################################
         # 1. First, determine which components of the hierarchy tree are relevant to the current query, and add in the
         # corresponding tables and base conditions to establish the relationships between them.
         ################################################################################################################
 
         # 1(a). If needed, add in the SQL to establish the relationships between the target user (member) and the collections.
-        # (NOTE: This part should be kept first, before other "extras" apply, to avoid duplication of SQL by the "|")
         if target_user:  # there are two ways for the target user to be a member of the ancestor collection:
             # the first way is via the collection hierarchy; having a Membership for the descendant collection
-            member_via_hierarchy = self._add_extras(queryset, **self._membership_extra)
+            membership_via_hierarchy_where = self._join_with_logical_operator([
+                "membership.user_id = target_user.id",
+                "membership.collection_id = descendant_collection.id",
+            ], "AND")
             # the second, if the ancestor collection is the facility, is by virtue of being associated with that facility
-            where_clause = [
+            member_via_facility_where = self._join_with_logical_operator([
                 "ancestor_collection.kind = '{facility_kind}'".format(facility_kind=collection_kinds.FACILITY),
                 "ancestor_collection.dataset_id = target_user.dataset_id",
-            ]
-            member_via_facility = self._add_extras(queryset, where=where_clause)
-            # join the two querysets together with "|", so that either one will be matched
-            queryset = member_via_facility | member_via_hierarchy
+            ], "AND")
+            where_clause = self._join_with_logical_operator([member_via_facility_where, membership_via_hierarchy_where], "OR")
+            self._add_extras(tables=self._membership_tables, where=[where_clause])
 
         # 1(b). Add the tables and conditions relating the ancestor and descendant collections to one another:
-        queryset = self._add_extras(queryset, **self._collection_extra)
+        self._add_extras(**self._collection_extra)
 
         # 1(c). If needed, add the tables for source FacilityUser and Role, and conditions linking them together:
         if source_user or role_kind:
-            queryset = self._add_extras(queryset, **self._role_extra)
+            self._add_extras(**self._role_extra)
 
         ################################################################################################################
         # 2. Next, add in the additional conditions that apply constraints on the tables in the hierarchy, fixing their
@@ -159,7 +156,7 @@ class HierarchyRelationsFilter(object):
 
         if source_user:
             where_clause = ['source_user.id = {id}'.format(id=self._as_sql_reference(source_user))]
-            queryset = self._add_extras(queryset, where=where_clause)
+            self._add_extras(where=where_clause)
 
         if role_kind:
             # if role_kind is a single string, put it into a list
@@ -168,18 +165,22 @@ class HierarchyRelationsFilter(object):
             # convert the list of kinds into a list of strings for use in SQL
             kinds_string = "('{kind_list}')".format(kind_list="','".join(role_kind))
             where_clause = ['role.kind IN {kinds}'.format(kinds=kinds_string)]
-            queryset = self._add_extras(queryset, where=where_clause)
+            self._add_extras(where=where_clause)
 
         if ancestor_collection:
             where_clause = ['ancestor_collection.id = {id}'.format(id=self._as_sql_reference(ancestor_collection))]
-            queryset = self._add_extras(queryset, where=where_clause)
+            self._add_extras(where=where_clause)
 
         if descendant_collection:
             where_clause = ['descendant_collection.id = {id}'.format(id=self._as_sql_reference(descendant_collection))]
-            queryset = self._add_extras(queryset, where=where_clause)
+            self._add_extras(where=where_clause)
 
         if target_user:
             where_clause = ['target_user.id = {id}'.format(id=self._as_sql_reference(target_user))]
-            queryset = self._add_extras(queryset, where=where_clause)
+            self._add_extras(where=where_clause)
 
-        return queryset
+        joined_condition = "EXISTS (SELECT * FROM {tables} WHERE {where})".format(
+            tables=", ".join(self.tables),
+            where=self._join_with_logical_operator(self.where, "AND"))
+
+        return self.queryset.extra(where=[joined_condition])
