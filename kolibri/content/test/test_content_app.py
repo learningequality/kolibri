@@ -4,6 +4,7 @@ To run this test, type this in command line <kolibri manage test -- kolibri.cont
 import os
 import shutil
 import tempfile
+import json
 from django.test import TestCase
 from django.db import connections, IntegrityError
 from django.test.utils import override_settings
@@ -113,13 +114,13 @@ class ContentMetadataTestCase(TestCase):
         # test for single content_id
         the_content_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
         expected_output = content.ContentMetadata.objects.using(self.the_channel_id).filter(title="root")
-        actual_output = api.get_content_with_id(the_content_id, channel_id=self.the_channel_id)
+        actual_output = api.get_content_with_id(self.the_channel_id, the_content_id)
         self.assertEqual(set(expected_output), set(actual_output))
 
         # test for a list of content_ids
         the_content_ids = [cm.content_id for cm in content.ContentMetadata.objects.using(self.the_channel_id).all() if cm.title in ["root", "c1", "c2c2"]]
         expected_output2 = content.ContentMetadata.objects.using(self.the_channel_id).filter(title__in=["root", "c1", "c2c2"])
-        actual_output2 = api.get_content_with_id(the_content_ids, channel_id=self.the_channel_id)
+        actual_output2 = api.get_content_with_id(self.the_channel_id, the_content_ids)
         self.assertEqual(set(expected_output2), set(actual_output2))
 
         # test ContentMetadata __str__ method
@@ -172,15 +173,9 @@ class ContentMetadataTestCase(TestCase):
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_missing_files(self):
-        # get missing files on content
-        c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
+        p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         expected_output = content.File.objects.using(self.the_channel_id).filter(id__in=[1, 2])
-        actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=c1)
-        self.assertEqual(set(expected_output), set(actual_output))
-        # get missing files on topic
-        c2 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2")
-        expected_output = content.File.objects.using(self.the_channel_id).filter(id__in=[3, 4])
-        actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=c2)
+        actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=p)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_all_prerequisites(self):
@@ -256,10 +251,8 @@ class ContentMetadataTestCase(TestCase):
         root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
         c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         self.assertFalse(root in api.get_all_related(channel_id=self.the_channel_id, content=c1))
-        self.assertFalse(c1 in api.get_all_related(channel_id=self.the_channel_id, content=root))
         api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
         self.assertTrue(root in api.get_all_related(channel_id=self.the_channel_id, content=c1))
-        self.assertTrue(c1 in api.get_all_related(channel_id=self.the_channel_id, content=root))
 
     def test_set_is_related_self_reference(self):
         c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
@@ -279,11 +272,11 @@ class ContentMetadataTestCase(TestCase):
         root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
         c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
-        # test for immediate cyclic handling
-        all_related_before = content.RelatedContentRelationship.objects.using(self.the_channel_id).all()
-        api.set_is_related(channel_id=self.the_channel_id, content1=root, content2=c1)
-        all_related_after = content.RelatedContentRelationship.objects.using(self.the_channel_id).all()
-        self.assertEqual(set(all_related_before), set(all_related_after))
+        # test for silently canceling save on immediate cyclic related_relationship
+        try:
+            api.set_is_related(channel_id=self.the_channel_id, content1=root, content2=c1)
+        except:
+            self.assertTrue(False)
 
     def test_children_of_kind(self):
         p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
@@ -291,9 +284,108 @@ class ContentMetadataTestCase(TestCase):
         actual_output = api.children_of_kind(channel_id=self.the_channel_id, content=p, kind="topic")
         self.assertEqual(set(expected_output), set(actual_output))
 
-    def test_channelMetadata_str(self):
-        cm = content.ChannelMetadata.objects.get(name='ucsd')
-        self.assertEqual(cm.name, str(cm))
+    """Tests for content API endpoints"""
+    def test_ancestor_topics_endpoint(self):
+        c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
+        response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c1_id) + '/ancestor_topics/')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result[0]['title'], 'root')
+
+    def test_immediate_children_endpoint(self):
+        root_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
+        response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(root_id) + '/immediate_children/')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result[0]['title'], 'c1')
+        self.assertEqual(result[1]['title'], 'c2')
+
+    def test_leaves_endpoint(self):
+        root_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
+        response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(root_id) + '/leaves/')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result[0]['title'], 'c1')
+        self.assertEqual(result[1]['title'], 'c2c1')
+        self.assertEqual(result[2]['title'], 'c2c2')
+        self.assertEqual(result[3]['title'], 'c2c3')
+
+    def test_all_prerequisites_endpoint(self):
+        c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
+        response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c1_id) + '/all_prerequisites/')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result[0]['title'], 'root')
+
+    def test_all_related_endpoint(self):
+        c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
+        response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c1_id) + '/all_related/')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result[0]['title'], 'c2')
+
+    def test_all_formats_endpoint(self):
+        c2_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2").content_id
+        response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c2_id) + '/all_formats/')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result[0]['format_size'], 46)
+
+    def test_available_formats_endpoint(self):
+        c2_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2").content_id
+        response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c2_id) + '/available_formats/')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(len(result), 0)
+
+    def test_possible_formats_endpoint(self):
+        c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
+        response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c1_id) + '/possible_formats/')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result[0]['format_size'], 102)
+        self.assertEqual(result[1]['format_size'], 51)
+
+    def test_missing_files_endpoint(self):
+        c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
+        response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c1_id) + '/missing_files/')
+        result = json.loads(response.content.decode('utf-8'))
+        expected_output = content.File.objects.using(self.the_channel_id).filter(id__in=[1, 2])
+        self.assertEqual(result[0]['format'], expected_output[0].format.id)
+        self.assertEqual(result[1]['format'], expected_output[1].format.id)
+
+    def test_files_for_quality_endpoint(self):
+        c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
+        response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c1_id) + '/files_for_quality/high/')
+        result = json.loads(response.content.decode('utf-8'))
+        fm = content.Format.objects.using(self.the_channel_id).get(format_size=102)
+        self.assertEqual(result[0]['format'], fm.id)
+
+    def test_set_prerequisite_endpoint(self):
+        root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
+        c2 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c2")
+        self.assertFalse(api.get_all_prerequisites(channel_id=self.the_channel_id, content=root))
+        self.client.put('/channel/' + self.the_channel_id + '/content/' + str(c2.content_id) + '/set_prerequisite/' + str(root.content_id) + '/')
+        self.assertTrue(api.get_all_prerequisites(channel_id=self.the_channel_id, content=root))
+
+    def test_set_is_related_endpoint(self):
+        root = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
+        c1 = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
+        self.assertFalse(root in api.get_all_related(channel_id=self.the_channel_id, content=c1))
+        self.client.put('/channel/' + self.the_channel_id + '/content/' + str(c1.content_id) + '/set_is_related/' + str(root.content_id) + '/')
+        self.assertTrue(root in api.get_all_related(channel_id=self.the_channel_id, content=c1))
+
+    def test_children_of_kind_endpoint(self):
+        root_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root").content_id
+        response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(root_id) + '/children_of_kind/topic/')
+        result = json.loads(response.content.decode('utf-8'))
+        cn_titles = [k['title'] for k in result]
+        self.assertEqual(cn_titles[0], 'c2')
+        self.assertEqual(cn_titles[1], 'c2c2')
+        self.assertEqual(cn_titles[2], 'c2c3')
+
+    def test_update_content_copy_endpoint(self):
+        # add same content copy twise, there should be no duplication
+        fpath_1 = self.temp_f_1.name
+        fm_1 = content.Format.objects.using(self.the_channel_id).get(format_size=102)
+        fm_3 = content.Format.objects.using(self.the_channel_id).get(format_size=46)
+        file_1 = content.File.objects.using(self.the_channel_id).get(format=fm_1)
+        self.client.put('/channel/' + self.the_channel_id + '/file/' + str(file_1.pk) + '/update_content_copy/' + fpath_1)
+        file_3 = content.File.objects.using(self.the_channel_id).filter(format=fm_3)[1]
+        self.client.put('/channel/' + self.the_channel_id + '/file/' + str(file_3.pk) + '/update_content_copy/' + fpath_1)
+        self.assertEqual(1, len(os.listdir(settings.CONTENT_COPY_DIR+'/0/9/')))
 
     @classmethod
     def tearDownClass(self):
