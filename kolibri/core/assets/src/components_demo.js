@@ -26,6 +26,11 @@ global.$ = $;
 var Mn = require('backbone.marionette');
 var _ = require('lodash');
 
+// 'jQuery' needs to be defined in order for the bootstrap-modal jQuery plugin to start correctly.
+// ...but surely there has to be a better way for webpack to manage dependency injection?
+var jQuery = $;
+require('bootstrap-modal');
+
 logging.setDefaultLevel(2);
 
 logging.info('Component demo loaded!');
@@ -46,67 +51,11 @@ var ComponentDemoPlugin = KolibriModule.extend({
     }
 });
 
-/*
-LayoutViews are containers for subviews.
- */
-var TextInputWithTagDisplay = Mn.LayoutView.extend({
-    /*
-    The template and regions attributes define the DOM containers for subviews.
-    Regions are a Marionette abstraction which handle View loading/destroying -- they are essentially named DOM
-    elements.
-     */
-    // The component Views provide semantic classes -- in the template, we use classes only to identify regions
-    // In other words, region classes shouldn't be the target of style rules
-    template: _.template('<div class="region1"></div>' +
-                         '<div class="region2"></div>'),
 
-    tagName: 'div',
-
-    className: 'tiwtd',
-
-    regions: {
-        textinput: '.region1',  // The selector refers to DOM elements in the View's template only.
-        taglist: '.region2'
-    },
-
-    /*
-    A good ol' fashioned initialize function. Setup the child views, but *don't* display them. That's
-    the responsibility of the framework presently, and in the future our virtual dom(?)
-     */
-    initialize: function() {
-        // A view should pass on it's own model or some element in it. Then events triggered on the model can
-        // be handled by the Application.
-        this.textInputField = new components.TextLineInput({model: this.model});
-        this.tagList = new components.TagList({collection: this.model.get('tags')});
-
-        // The list of events of base elements emit (and the arguments passed with those events)
-        // should be enumerated in the documentation.
-        // In this case, I'm assuming that TagList base component emits a 'tag_clicked' event, namespaced by 'tag_list'
-        // We may choose a different convention.
-        this.listenTo(this.tagList, 'tag_list:tag_clicked', function(tag_name) {
-            console.log(tag_name + ' was clicked!');
-            // Don't try to redraw -- just change the underlying model and let the app handle redrawing.
-            // Note that Marionette handles the redraw itself, presumably in the CollectionView's logic.
-            // If we want to override this behavior, we'll have to look into the internals.
-            var coll = this.model.get('tags');
-            var tag = coll.findWhere({name: tag_name});
-            coll.remove(tag);
-        });
-        // Similarly, I'm assuming that textInputFields emit the following event+arguments.
-        this.listenTo(this.textInputField, 'text_input:text_changed', function(text){
-            this.model.get('tags').push(new Backbone.Model({
-                name: text
-            }));
-            // Does this count as "introducing state"???
-            this.textInputField.clear();
-        });
-    },
-
-    // This convention is recommended by Marionette for efficient repaints.
-    // See: http://marionettejs.com/docs/v2.4.5/marionette.layoutview.html#efficient-nested-view-structures
-    onBeforeShow: function() {
-        this.showChildView('taglist', this.tagList);
-        this.showChildView('textinput', this.textInputField);
+var User = Backbone.Model.extend({
+    initialize: function(options) {
+        options = options || {};
+        this.set('classrooms', options.classrooms || []);
     }
 });
 
@@ -228,6 +177,9 @@ var ClassRosterView = Mn.LayoutView.extend({
                 users: users
             }
         });
+        users.on('remove change add', _.bind(function() {
+            this.classList.render();
+        }, this));
     },
 
     onBeforeShow: function() {
@@ -252,10 +204,31 @@ var UserManagementView = Mn.LayoutView.extend({
     initialize: function() {
         // KolibriCrudView allows us to provide a unified resource collection interface.
         // For instance, we can easily spin up lists of any resource and and provide CRUD widgets on them.
+        var users = this.model.get('users');
         this.userList = new components.KolibriCrudView({
-            collection: this.model.get('users'),
+            collection: users,
             // If specified only the attributes in "display" are shown, otherwise all of the model's attrs are shown.
-            display: ['username', 'firstname', 'lastname']
+            display: ['username', 'firstname', 'lastname'],
+            // Specify which attributes are specifiable when creating a new item. This *must* be provided.
+            create: ['username', 'firstname', 'lastname'],
+            createValidators: {
+                username: function(name) {
+                    // Username must be unique
+                    var valid = true;
+                    users.forEach(function(other){
+                        if (other.get('username') === name){
+                            valid = false;
+                            return false; // Breaks out of .forEach
+                        }
+                    });
+                    return valid;
+                }
+            },
+            // Setting the modelClass ensures that models are properly instantiated even when not all the fields
+            // are specifiable from the "create" dialog -- in this case, we initialize the classrooms attribute.
+            modelClass: User,
+            // See the KolibriCrudView for explanation of this option
+            modalService: app
         });
 
         // The emerging convention is to pass on your model to your child views,
@@ -282,54 +255,13 @@ app.on('start', function(){
     // Applications have methods for managing Regions in the DOM -- these are the same Regions used by LayoutViews.
     // addRegions instantiates a Region identified by a selector and attaches it to the app with the given name.
     app.addRegions({
-        content: '#content',  // This element already exists in the DOM.
-        textLineInput: '#textLineInput',
-        textAreaInput: '#textAreaInput',
-        passwordInput: '#passwordInput',
-        validatingInput: '#validatingInput',
-        userManagementToyApp: '#userManagementToyApp'
+        userManagementToyApp: '#userManagementToyApp',
+        modal: '#modal_view_el'
     });
-
-    // Just bootstrapping some data for the demo. In practice, this might be fetched from the server.
-    var tags = new Backbone.Collection([
-        new Backbone.Model({name: 'foo_tag'}),
-        new Backbone.Model({name: 'bar_tag'}),
-        new Backbone.Model({name: 'baz_tag'})
-    ]);
-
-    // The entire Application state should be externalized. In this case, it's encapsulated in a Model, but in practice
-    // you could use several Models/Collections/etc, any object which uses the Backbone.Events framework should
-    // suffice.
-    var appModel = new Backbone.Model({
-        enabled: true,
-        tags: tags
-    });
-    var tiwtd = new TextInputWithTagDisplay({model: appModel});
-    app.getRegion('content').show(tiwtd);
-
-    var textLineInput = new components.TextLineInput({model: new Backbone.Model({enabled: true})});
-    app.getRegion('textLineInput').show(textLineInput);
-
-    var textAreaInput = new components.TextAreaInput({model: new Backbone.Model({enabled: true})});
-    app.getRegion('textAreaInput').show(textAreaInput);
-
-    var passwordInput = new components.PasswordInput({model: new Backbone.Model({enabled: true})});
-    app.getRegion('passwordInput').show(passwordInput);
-
-    var validatingInput = new components.ValidatingTextInput({model: new Backbone.Model({enabled: true})});
-    app.getRegion('validatingInput').show(validatingInput);
-
-    _.forEach([textLineInput, textAreaInput, passwordInput, validatingInput], function(view) {
-        view.on('text_input:text_changed', function(text){
-            console.log(view.cid + ' text changed! Got: "' + text + '"');
-        });
-    });
-
 
     // Setting up static test data for the User Management demo
     // In Particular, we construct one very inhomogeneous model which represents the app's state.
     // That's so we can listen to events on the model and trigger rerenders as needed.
-    var User = Backbone.Model.extend({});
     var Classroom = Backbone.Model.extend({});
     var umModel = new Backbone.Model({
         users: new Backbone.Collection([
@@ -362,27 +294,63 @@ app.on('start', function(){
         ], {model: Classroom})
     });
 
-    var redraw = function() {
-        umModel.trigger('redraw');
-    };
-    // "change" event corresponds to a collection's model's attributes changing
-    umModel.listenTo(umModel.get('users'), 'change', redraw);
-    umModel.listenTo(umModel.get('classrooms'), 'change', redraw);
-    // "update" is triggered when a model is added or removed from a collection
-    umModel.listenTo(umModel.get('users'), 'update', redraw);
-    umModel.listenTo(umModel.get('classrooms'), 'update', redraw);
-
-    app.listenTo(umModel, 'redraw', function(){
-        console.log('All our views are is dust in the wind...');
-        var newView = new UserManagementView({model: umModel});
-        app.getRegion('userManagementToyApp').show(newView);
-    });
-
     var userMgmt = new UserManagementView({model: umModel});
     app.getRegion('userManagementToyApp').show(userMgmt);
 
 });
 
+
+/*
+ ModalContainerView is used in the example "modal service" -- the idea is that this singleton view manages the
+ modal DOM elements and responds to requests to display a subview in the modal as the modal's content.
+*/
+var ModalContainerView = Mn.LayoutView.extend({
+    template: _.template('<div class="modal-content">' +
+                            '<div class="modal-header">' +
+                                '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                                '<h4 class="modal-title" id="myModalLabel"><%= title %></h4>' +
+                            '</div>' +
+                            '<div class="modal-body">' +
+                            '</div>' +
+                        '</div>'),
+
+    regions: {
+        modal: '.modal-body'
+    },
+
+    initialize: function(options) {
+        // Will be used to set the title in the template implicitly
+        this.model = new Backbone.Model();
+        this.model.set('title', options.title || '');
+
+        this.subview = options.subview;
+        this.listenTo(this.subview, 'closeModal', _.bind(function(){
+            this.getRegion('modal').empty();
+            $('#modal').modal('hide');
+        }, this));
+    },
+
+    onBeforeShow: function() {
+        $('#modal').modal();
+        this.showChildView('modal', this.subview);
+    }
+});
+
+
+/*
+ Modals are requested to be shown by triggering the "showModal" event on a modal service and providing an instantiated
+ view and the modal's title as arguments.
+ A modal service is anything that handles the "showModal" event -- in this case, it's the Application object.
+ Any communication between a modalView and its originator should occur through a shared Model or Collection
+ provided to the instantiated modalView.
+ */
+app.on('showModal', function(modalView, modalTitle) {
+    var container = new ModalContainerView({
+        subview: modalView,
+        title: modalTitle
+    });
+    app.getRegion('modal').show(container);
+});
 
 var cpd = new ComponentDemoPlugin();
 
