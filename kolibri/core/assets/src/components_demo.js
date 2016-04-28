@@ -18,6 +18,9 @@ var logging = require('loglevel');
 var KolibriModule = require('kolibri_module');
 var Handlebars = require('handlebars.runtime');
 
+//seems to be working now... not sure why, but we should revisit this.
+require('./components_demo.styl');
+
 // Set Backbone.$ explicitly, as it's required for View DOM manipulation in general and Marionette specifically.
 var $ = require('jquery');
 var Backbone = require('backbone');
@@ -57,16 +60,16 @@ var TextInputWithTagDisplay = Mn.LayoutView.extend({
      */
     // The component Views provide semantic classes -- in the template, we use classes only to identify regions
     // In other words, region classes shouldn't be the target of style rules
-    template: _.template('<div class="region1"></div>' +
-                         '<div class="region2"></div>'),
+    template: _.template('<div class="searchWrap"></div>' +
+                         '<div class="tagListWrap"></div>'),
 
     tagName: 'div',
 
     className: 'tiwtd',
 
     regions: {
-        textinput: '.region1',  // The selector refers to DOM elements in the View's template only.
-        taglist: '.region2'
+        textinput: '.searchWrap',  // The selector refers to DOM elements in the View's template only.
+        taglist: '.tagListWrap'
     },
 
     /*
@@ -283,6 +286,7 @@ app.on('start', function(){
     // addRegions instantiates a Region identified by a selector and attaches it to the app with the given name.
     app.addRegions({
         content: '#content',  // This element already exists in the DOM.
+				// so do these?
         textLineInput: '#textLineInput',
         textAreaInput: '#textAreaInput',
         passwordInput: '#passwordInput',
@@ -310,7 +314,7 @@ app.on('start', function(){
     var textLineInput = new components.TextLineInput({model: new Backbone.Model({enabled: true})});
     app.getRegion('textLineInput').show(textLineInput);
 
-    var textAreaInput = new components.TextAreaInput({model: new Backbone.Model({enabled: true})});
+    var textAreaInput = new components.TextAreaInput({model: new Backbone.Model({enabled: true, placeholder: 'Type Here!'})});
     app.getRegion('textAreaInput').show(textAreaInput);
 
     var passwordInput = new components.PasswordInput({model: new Backbone.Model({enabled: true})});

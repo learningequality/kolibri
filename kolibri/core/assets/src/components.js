@@ -10,13 +10,23 @@ logging.info('Component views loaded!');
 
 var AbstractTextInput = Mn.ItemView.extend({
     template: function(serialized_model) {
-        var template_html;
-        if (this.model.get('enabled')) {
-            template_html = '<input type="' + this.input_tag_type + '" placeholder="Search here!">';
-        } else {
-            template_html = '<input type="' + this.input_tag_type + '" disabled placeholder="Search here!">';
+        var template_html = '<input type="' + this.input_tag_type +'" ';
+
+        logging.info(typeof template_html);
+
+        //toggles disabled
+        if (!this.model.get('enabled')) {
+            template_html = template_html + 'disabled ';
         }
-        return _.template(template_html);
+        //adds placeholder, if desired
+        if(this.placeholder) {
+            logging.info('Theres a placeholder, its ' + this.placeholder);
+            template_html = template_html + 'placeholder="' + this.placeholder+ '" ';
+        }
+        //returns proper layout string, adds closing tag
+        logging.info(template_html.toString());
+
+        return _.template(template_html + '>');
     },
 
     className: 'textInput',
@@ -44,19 +54,26 @@ var AbstractTextInput = Mn.ItemView.extend({
 
 
 var TextLineInput = AbstractTextInput.extend({
-    input_tag_type: 'search'
+    input_tag_type: 'search',
+    placeholder: 'Search Here!'
 });
 
-
+//TODO add name field?
 var TextAreaInput = AbstractTextInput.extend({
     template: function(serialized_model) {
-        var template_html;
-        if (this.model.get('enabled')) {
-            template_html = '<textarea placeholder="Write here!">';
-        } else {
-            template_html = '<textarea disabled placeholder="Write here!">';
+        var template_html = '<textarea ';
+
+        //toggles disabled
+        if (!this.model.get('enabled')) {
+            template_html.concat('disabled ');
         }
-        return _.template(template_html);
+        //adds placeholder, if desired
+        if(this.model.get('placeholder')){
+					logging.info('Theres a placeholder, its ' + this.model.get('placeholder'));
+					template_html = template_html + 'placeholder="' + this.model.get('placeholder') + '" ';
+        }
+        //returns proper layout string, adds closing tag
+        return _.template(template_html + '>');
     },
 
     triggers: {
@@ -70,7 +87,8 @@ var TextAreaInput = AbstractTextInput.extend({
 
 
 var PasswordInput = AbstractTextInput.extend({
-    input_tag_type: 'password'
+    input_tag_type: 'password',
+		placeholder: 'Password'
 });
 
 

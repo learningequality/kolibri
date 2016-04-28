@@ -8,13 +8,20 @@
 var webpack = require('webpack');
 
 var config = {
+		//'use strict':
     module: {
         preLoaders: [],
         loaders: [
             // This is required in order to prevent Backbone from importing jQuery.
             // See here for more details: https://github.com/jashkenas/backbone/wiki/Using-Backbone-without-jQuery
             //{ test: /backbone\.js$/, loader: 'imports?define=>false' },
-            { test: /fg-loadcss[/|\\]src[/|\\]onloadCSS/, loader: 'exports?onloadCSS'}
+            { test: /fg-loadcss[/|\\]src[/|\\]onloadCSS/, loader: 'exports?onloadCSS'},
+
+						//Loaders for straight css
+						{ test: /\.css$/, loader: 'style-loader!css-loader' },
+
+						//loader for stylus (assuming this is what we're sticking with)
+				    { test: /\.styl$/, loader: 'style-loader!css-loader!stylus-loader' }
         ]
     },
     plugins: [
