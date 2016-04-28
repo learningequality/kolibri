@@ -71,6 +71,13 @@ class AbstractContent(models.Model):
     class Meta:
         abstract = True
 
+class ContentTag(AbstractContent):
+    tag_name = models.CharField(max_length=30, null=True, blank=True)
+    tag_type = models.CharField(max_length=30, null=True, blank=True)
+
+    def __str__(self):
+        return self.tag_name
+
 class ContentMetadata(MPTTModel, AbstractContent):
     """
     The top layer of the contentDB schema, defines the most common properties that are shared across all different contents.
@@ -87,6 +94,7 @@ class ContentMetadata(MPTTModel, AbstractContent):
     prerequisite = models.ManyToManyField('self', related_name='is_prerequisite_of', through='PrerequisiteContentRelationship', symmetrical=False, blank=True)
     is_related = models.ManyToManyField('self', related_name='relate_to', through='RelatedContentRelationship', symmetrical=False, blank=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
     sort_order = models.FloatField(blank=True, null=True)
     license_owner = models.CharField(max_length=200, blank=True, null=True)
 

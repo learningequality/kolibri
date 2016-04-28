@@ -65,6 +65,17 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
+            name='ContentTag',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('tag_name', models.CharField(blank=True, max_length=30, null=True)),
+                ('tag_type', models.CharField(blank=True, max_length=30, null=True)),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
             name='File',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -157,6 +168,11 @@ class Migration(migrations.Migration):
             model_name='contentmetadata',
             name='prerequisite',
             field=models.ManyToManyField(blank=True, related_name='is_prerequisite_of', through='content.PrerequisiteContentRelationship', to='content.ContentMetadata'),
+        ),
+        migrations.AddField(
+            model_name='contentmetadata',
+            name='tags',
+            field=models.ManyToManyField(blank=True, related_name='tagged_content', to='content.ContentTag'),
         ),
         migrations.AlterUniqueTogether(
             name='relatedcontentrelationship',
