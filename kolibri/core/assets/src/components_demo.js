@@ -314,7 +314,7 @@ app.on('start', function(){
     var textLineInput = new components.TextLineInput({model: new Backbone.Model({enabled: true})});
     app.getRegion('textLineInput').show(textLineInput);
 
-    var textAreaInput = new components.TextAreaInput({model: new Backbone.Model({enabled: true})});
+    var textAreaInput = new components.TextAreaInput({model: new Backbone.Model({enabled: true, placeholder: 'Type Here!'})});
     app.getRegion('textAreaInput').show(textAreaInput);
 
     var passwordInput = new components.PasswordInput({model: new Backbone.Model({enabled: true})});

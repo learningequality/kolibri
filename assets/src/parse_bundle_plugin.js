@@ -46,11 +46,15 @@ var parseBundlePlugin = function(data, base_dir) {
             // change the periods of the Python module path name to underscores, so that it is a valid JS variable name.
             library = data.core ? 'Kolibri' : data.name.replace(/\./g, "_");
         }
-        bundle.module.preLoaders.push({
+        bundle.module.preLoaders.push([{
             test: /\.js$/, // include .js files
             exclude: /node_modules/, // exclude any and all files in the node_modules folder
             loader: "jshint-loader"
-        });
+        	},{
+							test: /\.styl$/,
+							loader: 'stylint'
+					}
+			]);
 
         bundle.resolve.root = base_dir;
         bundle.plugins = bundle.plugins.concat([

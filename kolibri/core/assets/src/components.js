@@ -69,7 +69,8 @@ var TextAreaInput = AbstractTextInput.extend({
         }
         //adds placeholder, if desired
         if(this.model.get('placeholder')){
-            template_html.concat(this.placeholder + ' ');
+					logging.info('Theres a placeholder, its ' + this.model.get('placeholder'));
+					template_html = template_html + 'placeholder="' + this.model.get('placeholder') + '" ';
         }
         //returns proper layout string, adds closing tag
         return _.template(template_html + '>');
@@ -86,7 +87,8 @@ var TextAreaInput = AbstractTextInput.extend({
 
 
 var PasswordInput = AbstractTextInput.extend({
-    input_tag_type: 'password'
+    input_tag_type: 'password',
+		placeholder: 'Password'
 });
 
 

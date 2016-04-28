@@ -4,6 +4,7 @@
 
 // color definitions
 $kolibri-gray = rgb(105, 105, 105)
+$column-width = 50%
 
 // mixin for clearfix, used when dealing with floats. Won't be a problem if we
 // float everything
@@ -15,61 +16,89 @@ clearfix()
 		height: 0
 		visibility: hidden
 
-/*************************Text Input With Tag Display*************************/
-// wrapper for tiwtd... not sure about this, should probably get rid of it
-.content
+textInput()
+	&:focus
+		// need to mod focus to be accessible, this is where styles go
+		border-bottom-color: green
+		border-bottom-width: 2px
+		outline: 0
+
+	background-color: transparent
+	border-bottom-color: $kolibri-gray
+	border-bottom-style: solid
+	border-width: 0 0 1px 0
+	font-size: 1.2em
+
+widgetContainer()
+	padding-bottom: 1em
+	padding-top: 1em
+	width: $column-width
+
+/****************************Generalized Text Input****************************/
+
+// all styles regarding the search box
+// TODO text boxes should be made more flexible... right now they have set
+// place holders and input types
+.textInput
+	// styles for the text box itself
+	input[type=search], input[type=password]
+		padding: 3px
+		textInput()
+		width: 100%
+
+
+/********************************* Tag Display*********************************/
+// wrapper for tiwtd... not sure about this, should probably get rid or
+// use it as the containter for all the content in the page
+#content
+	widgetContainer()
 
 // wrapper search with tag widget
 .tiwtd
 	// keeping at 50% to match initial sketch of this toy page
-	width:50%
-
-// all styles regarding the search box
-.textInput
-
-	// styles for the text box itself
-	input[type=search]
-		background-color: transparent
-		border-bottom-color: $kolibri-gray
-		border-bottom-style: solid
-		border-width: 0 0 1px 0
-		font-size: 1.2em
-		padding: 3px
-		width: 100%
-
-		//  styles for the search bar's focus option
-		&:focus
-			// need to mod focus to be accessible, this is where styles go
-
-// all the styles regerading tags
-.tag
-	// styles for the tags themselves
-	background-color: $kolibri-gray
-	border-radius: 4px
-	color: white
-	display:block
-	float:left
-	margin: 1px
-	// consider making a mixin for this if using for many buttons
-	padding: .5em 1em .5em 1em
-
-	// styles for the list that holds all the tags
-	&List
-		background-attachment:scroll
-		background-clip:border-box
-		background-color:white
-		border-bottom-left-radius:4px
-		border-top-left-radius:4px
-		box-sizing: border-box
+	clearfix()
+	// all the styles regerading tags
+	.tag
+		// styles for the tags themselves
+		background-color: $kolibri-gray
+		border-radius: 4px
+		color: white
+		display:block
 		float:left
-		font-family: Noto Sans, sans-serif
-		padding: 0
+		margin: 1px
+		// consider making a mixin for this if using for many buttons
+		padding: .5em 1em .5em 1em
 
-		// styles for the wrap around the tag list
-		&wrap
-			overflow: auto
+		// styles for the list that holds all the tags
+		&List
+			background-color:transparent
+			border-bottom-left-radius:4px
+			border-top-left-radius:4px
+			box-sizing: border-box
+			float:left
+			font-family: Noto Sans, sans-serif
+			padding: 0
 
+			// styles for the wrap around the tag list
+			&wrap
+				overflow: auto
 
 /*******************************Text Line Input*******************************/
+// we really should just put everything in content
 #textLineInput
-	// ust a filler for now
+	// just to separate from the other elements that are being styled
+	widgetContainer()
+
+/*******************************Text Area Input*******************************/
+#textAreaInput
+	widgetContainer()
+
+textarea
+	height: 3em
+	resize: none
+	textInput()
+	width:100%
+
+/********************************Password Input********************************/
+#passwordInput
+	widgetContainer()
