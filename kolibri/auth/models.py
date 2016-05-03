@@ -436,6 +436,17 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         return '"{user}"@"{facility}"'.format(user=self.get_full_name() or self.username, facility=self.facility)
 
 
+class DeviceOwnerManager(models.Manager):
+
+    def create_superuser(self, username, password, **extra_fields):
+        if not username:
+            raise ValueError('The given username must be set')
+        user = DeviceOwner(username=username)
+        user.set_password(password)
+        user.save()
+        return user
+
+
 @python_2_unicode_compatible
 class DeviceOwner(KolibriAbstractBaseUser):
     """
@@ -449,6 +460,8 @@ class DeviceOwner(KolibriAbstractBaseUser):
 
     A ``DeviceOwner`` is a superuser, and has full access to do anything she wants with data on the device.
     """
+
+    objects = DeviceOwnerManager()
 
     # DeviceOwners can access the Django admin interface
     is_staff = True
@@ -494,6 +507,18 @@ class DeviceOwner(KolibriAbstractBaseUser):
 
     def __str__(self):
         return self.get_full_name() or self.username
+
+    def has_perm(self, perm, obj=None):
+        # ensure the DeviceOwner has full access to the Django admin
+        return True
+
+    def has_perms(self, perm_list, obj=None):
+        # ensure the DeviceOwner has full access to the Django admin
+        return True
+
+    def has_module_perms(self, app_label):
+        # ensure the DeviceOwner has full access to the Django admin
+        return True
 
 
 @python_2_unicode_compatible
