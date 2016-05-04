@@ -68,6 +68,10 @@ class LearnModule(KolibriFrontEndPluginBase):
         "kolibri_register": "start"
     }
 
+    base_url = "learn"
+
+    template = "kolibri/learn.html"
+
     def hooks(self):
         return {
             FRONTEND_PLUGINS: self._register_front_end_plugins,
