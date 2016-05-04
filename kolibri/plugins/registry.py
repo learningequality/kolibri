@@ -54,7 +54,7 @@ def initialize():
                         plugin_classes.append(obj)
                 for plugin_klass in plugin_classes:
                     plugin_obj = plugin_klass()
-                    for hook, callback in plugin_obj.hooks().items():
+                    for hook, callback in plugin_obj.get_hooks():
                         hooks.register_hook(hook, callback)
             except ImportError:
                 pass
