@@ -35,6 +35,8 @@ NAVIGATION_POPULATE = __enumerate_hook()
 FRONTEND_PLUGINS = __enumerate_hook()
 BASE_FRONTEND_SYNC = __enumerate_hook()
 BASE_FRONTEND_ASYNC = __enumerate_hook()
+URLCONF_POPULATE = __enumerate_hook()
+
 
 REGISTERED_HOOKS = {
     x: [] for x in range(__hook_index + 1)

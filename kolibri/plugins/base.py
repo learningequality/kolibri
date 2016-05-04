@@ -6,6 +6,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 import logging
 import os
 
+from django.conf.urls import url
+from django.template.response import SimpleTemplateResponse
+from kolibri.plugins import hooks
 from kolibri.utils.conf import config
 
 logger = logging.getLogger(__name__)
@@ -112,6 +115,18 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
             FRONTEND_PLUGINS: self._register_front_end_plugins
         }
     """
+
+    def get_hooks(self):
+        for h in super(KolibriFrontEndPluginBase, self).get_hooks():
+            yield h
+        if hasattr(self, 'base_url'):
+            yield hooks.URLCONF_POPULATE, self.urlconf_populate
+
+    def urlconf_populate(self):
+        yield url('^' + self.base_url, self.viewfunc, name=self.base_url)
+
+    def viewfunc(self, request):
+        return SimpleTemplateResponse(template=self.template)
 
     @classmethod
     def webpack_bundle_data(cls):
