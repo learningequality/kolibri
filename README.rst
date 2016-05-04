@@ -49,6 +49,9 @@ Adjust according to your operating system or personal preferences.
     $ mkvirtualenv --python=python3 kolibri
     $ workon kolibri
 
+#. Ensure NodeJS is installed, using a platform-appropriate installer. We test on versions v0.12, v4, and v5.
+   On Ubuntu, you may encounter issues building if you don't use NodeJS installed via [nvm](https://github.com/creationix/nvm).
+
 #. Install all NodeJS dependency packages for building the frontend code::
 
     $ npm install
