@@ -3,10 +3,9 @@ Plugins
 
 The behavior of Kolibri can be extended using plugins.
 
-How plugins work
-----------------
-
 .. automodule:: kolibri.plugins.registry
+
+.. automodule:: kolibri.plugins.hooks
 
 Enabling and disabling plugins
 ------------------------------

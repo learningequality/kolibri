@@ -1,21 +1,34 @@
 """
-Plugins are initialized once when the server starts. Here are the initilization steps:
+How plugins work
+----------------
 
-1. Each module listed in INSTALLED_APPS (including those listed in the kolibri conf file) is searched for the special
-   ``kolibri_plugin`` module.
-2. For each class listed in the module's ``PLUGINS`` property, which inherits from ``KolibriPluginBase``, it's ``hooks``
-   method is called to inspect which hooks it defines.
-3. The callback assigned by the plugin class to the hook is registered in a module variable.
-4. At the appropriate time (see below) the callbacks for a given hook are all called.
+From a user's perspective, plugins are enabled and disabled through the command
+line interface or through a UI. Users can also configure a plugin's behavior,
+but it's up to the plugin to provide the Form classes and register them.
 
-A few notes:
+.. note::
+    We have not yet written a configuration API, for now just make sure
+    configuration-related variables are kept in a central location of your
+    plugin.
 
-* Kolibri defines some hooks that are used in the core app. These can be found in the kolibri.plugins.registry module.
-* Arbitrary new hooks can be defined. At the Python level they're just dictionary keys. *Do not* user integers for
-  hook names -- those are reserved for the hooks defined by the Kolibri core. *Do* namespace your hooks!
-* *When* hook callbacks are called are entirely up to the hook definer. The core Kolibri app documents what hooks it
-  calls and when -- you can call core Kolibri hooks in your plugins too!
-* Callbacks *should* be called in the same order every time, but this is not a promise!
+However, from a developer's perspective, plugins are Django applications listed
+in ``INSTALLED_APPS`` and are initialized once when the server starts, mean at
+the load time of the django project, i.e. Kolibri.
+
+Loading a plugin
+~~~~~~~~~~~~~~~~
+
+In general, a plugin should **never** modify internals of Kolibri or other
+plugins without using the hooks API or normal conventional Django scenarios.
+
+.. note::
+
+    Each app in ``INSTALLED_APPS`` is searched for the special
+    ``kolibri_plugin`` module.
+
+Everything that a plugin does is expected to be defined through
+``<myapp>/kolibri_plugin.py``.
+
 
 """
 from __future__ import absolute_import, print_function, unicode_literals

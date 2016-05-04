@@ -3,7 +3,7 @@ import json
 import sys
 
 # Import cli in order to set environment vars that are required to import the modules below.
-import cli
+from . import cli
 
 if __name__ == "__main__":
     # Assert cli is imported, as otherwise, we have an unimported module that we are relying on for a side effect.
