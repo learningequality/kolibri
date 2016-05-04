@@ -72,6 +72,8 @@ class IsSelf(BasePermissions):
         return (not self.read_only) and (user == obj)
 
     def readable_by_user_filter(self, user, queryset):
+        if user.id is None:
+            return queryset.none()
         return queryset.filter(id=user.id)
 
 
@@ -129,7 +131,10 @@ class IsFromSameFacility(BasePermissions):
         return (not self.read_only) and self._facility_dataset_is_same(user, obj)
 
     def readable_by_user_filter(self, user, queryset):
-        return queryset.filter(dataset=user.dataset)
+        if hasattr(user, "dataset"):
+            return queryset.filter(dataset=user.dataset)
+        else:
+            return queryset.none()
 
 
 class IsAdminForOwnFacility(BasePermissions):
@@ -144,6 +149,9 @@ class IsAdminForOwnFacility(BasePermissions):
 
         # import here to avoid circular imports
         from ..models import Facility
+
+        if not hasattr(user, "dataset"):
+            return False
 
         # if we've been given an object, make sure it too is from the same dataset (facility)
         if obj:

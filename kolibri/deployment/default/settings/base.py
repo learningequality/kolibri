@@ -50,7 +50,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'kolibri.auth.middleware.CustomAuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -195,5 +195,10 @@ LOGGING = {
 
 AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
 
+AUTH_ANONYMOUS_USER_MODEL = "kolibri.auth.models.KolibriAnonymousUser"
 
 AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']
+
+REST_FRAMEWORK = {
+    "UNAUTHENTICATED_USER": AUTH_ANONYMOUS_USER_MODEL
+}
