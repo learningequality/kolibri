@@ -5,6 +5,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import logging
 
+from django.conf.urls import url
+from django.template.response import SimpleTemplateResponse
+from kolibri.plugins import hooks
 from kolibri.utils.conf import config
 
 

@@ -33,6 +33,7 @@ return the module.
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.conf.urls import url
+from kolibri.plugins import hooks
 
 from kolibri.plugins.registry import get_urls as plugin_urls
 
@@ -43,3 +44,4 @@ app_name = 'kolibri'
 
 urlpatterns = plugin_urls() + [
     url('^$', views.IndexView.as_view(), name='index'),
+]
