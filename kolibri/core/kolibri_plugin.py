@@ -45,7 +45,51 @@ class KolibriCoreFrontEnd(KolibriFrontEndPluginBase):
             FRONTEND_PLUGINS: self._register_front_end_plugins
         }
 
+
+class ManagementModule(KolibriFrontEndPluginBase):
+    """
+    The Management module.
+    """
+    entry_file = "assets/src/management.js"
+
+    def hooks(self):
+        return {
+            FRONTEND_PLUGINS: self._register_front_end_plugins,
+        }
+
+
+class LearnModule(KolibriFrontEndPluginBase):
+    """
+    The Learn module.
+    """
+    entry_file = "assets/src/learn.js"
+
+    events = {
+        "kolibri_register": "start"
+    }
+
+    def hooks(self):
+        return {
+            FRONTEND_PLUGINS: self._register_front_end_plugins,
+        }
+
+
+class NavigationModule(KolibriFrontEndPluginBase):
+    """
+    The Navigation module.
+    """
+    entry_file = "assets/src/navigation.js"
+
+    def hooks(self):
+        return {
+            FRONTEND_PLUGINS: self._register_front_end_plugins
+        }
+
+
 PLUGINS = (
     KolibriCore,
     KolibriCoreFrontEnd,
+    ManagementModule,
+    LearnModule,
+    NavigationModule,
 )
