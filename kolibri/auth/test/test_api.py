@@ -10,42 +10,44 @@ from .. import models
 
 
 class FacilityFactory(factory.DjangoModelFactory):
+
     class Meta:
         model = models.Facility
 
-    name = "Rock N' Roll High School"
+    name = factory.Sequence(lambda n: "Rock N' Roll High School #%d" % n)
 
 
 class FacilityUserFactory(factory.DjangoModelFactory):
+
     class Meta:
         model = models.FacilityUser
 
     facility = factory.SubFactory(FacilityFactory)
     username = factory.Sequence(lambda n: 'user%d' % n)
+    password = factory.PostGenerationMethodCall('set_password', 'password')
 
 
 class FacilityApiTestCase(APITestCase):
 
     def setUp(self):
         self.password = 'abc123'
-        self.facility = FacilityFactory.create()
-        self.user = FacilityUserFactory.create(facility=self.facility)
-        self.user.set_password(self.password)
-        self.user.save()
+        self.facility1 = FacilityFactory.create()
+        self.facility2 = FacilityFactory.create()
+        self.user1 = FacilityUserFactory.create(facility=self.facility1)
+        self.user2 = FacilityUserFactory.create(facility=self.facility2)
 
     def test_sanity(self):
-        self.assertTrue(self.client.login(username=self.user.username, password=self.password, facility=self.facility))
+        self.assertTrue(self.client.login(username=self.user1.username, password="password", facility=self.facility1))
 
     def test_facility_user_can_get_detail(self):
-        response = self.client.get(reverse('rest_framework:facility-detail', kwargs={'pk': self.facility.pk}),
+        self.client.login(username=self.user1.username, password="password", facility=self.facility1)
+        response = self.client.get(reverse('facility-detail', kwargs={'pk': self.facility1.pk}),
                                    format='json')
         # .assertDictContainsSubset checks that the first argument is a subset of the second argument
         self.assertDictContainsSubset({
-            'name': self.facility.name,
-            'kind': self.facility.kind,
-            'parent': ''
-        }, response.data)
+            'name': self.facility1.name,
+        }, dict(response.data))
 
-    def test_facility_user_cant_get_list(self):
-        response = self.client.get(reverse('rest_framework:facility-list'), format='json')
-        self.assertEqual(response.status_code, 403)
+    def test_anonymous_user_gets_empty_list(self):
+        response = self.client.get(reverse('facility-list'), format='json')
+        self.assertEqual(response.data, [])
