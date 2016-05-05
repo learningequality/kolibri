@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>{% block title %}{% endblock %} - {% trans "Kolibri" %}</title>
+  {% block frontend_assets %}
   {% frontend_assets 'kolibri.core.KolibriCoreFrontEnd' %}
 
   {# Nav stuff must come after the core app, but before anything else #}
@@ -10,6 +11,7 @@
 
   {% base_frontend_async %}
   {% base_frontend_sync %}
+  {% endblock %}
 </head>
 <body>
 

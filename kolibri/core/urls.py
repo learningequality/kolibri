@@ -18,5 +18,4 @@ for callback in hooks.get_callables(hooks.URLCONF_POPULATE):
 
 urlpatterns += [
     url('^', views.IndexView.as_view(), name='index'),
-    # url('.* ', views.TODOView.as_view())
 ]
