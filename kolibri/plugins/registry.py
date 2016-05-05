@@ -3,15 +3,22 @@ How plugins work
 ----------------
 
 From a user's perspective, plugins are enabled and disabled through the command
-line interface or through a UI. Users can also configure a plugin's behavior,
-but it's up to the plugin to provide the Form classes and register them.
+line interface or through a UI. Users can also configure a plugin's behavior
+through the main Kolibri interface. See: :ref:`user-plugins`.
+
 
 .. note::
     We have not yet written a configuration API, for now just make sure
     configuration-related variables are kept in a central location of your
     plugin.
 
-However, from a developer's perspective, plugins are Django applications listed
+    It's up to the plugin to provide configuration ``Form`` classes and register
+    them.
+
+    We should aim for a configuration style in which data can be pre-seeded,
+    dumped and exported easily.
+
+From a developer's perspective, plugins are Django applications listed
 in ``INSTALLED_APPS`` and are initialized once when the server starts, mean at
 the load time of the django project, i.e. Kolibri.
 
@@ -38,7 +45,6 @@ import logging
 
 from django.conf import settings
 
-from . import hooks
 from .base import KolibriPluginBase
 
 logger = logging.getLogger(__name__)
@@ -66,9 +72,8 @@ def initialize():
                     if type(obj) == type and issubclass(obj, KolibriPluginBase):
                         plugin_classes.append(obj)
                 for plugin_klass in plugin_classes:
-                    plugin_obj = plugin_klass()
-                    for hook, callback in plugin_obj.hooks().items():
-                        hooks.register_hook(hook, callback)
+                    # Initialize the class, nothing more happens for now.
+                    plugin_klass()
             except ImportError:
                 pass
 

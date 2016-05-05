@@ -1,7 +1,10 @@
+.. _dev-plugins:
+
 Plugins
 =======
 
-The behavior of Kolibri can be extended using plugins.
+The behavior of Kolibri can be extended using plugins. The following is a guide
+to developing plugins.
 
 .. automodule:: kolibri.plugins.registry
 
