@@ -7,13 +7,11 @@ from kolibri.plugins.base import KolibriFrontEndPluginBase
 from kolibri.plugins.hooks import FRONTEND_PLUGINS
 
 
-class KolibriCoreFrontEnd(KolibriFrontEndPluginBase):
+class NavigationModule(KolibriFrontEndPluginBase):
     """
-    Plugin to handle
+    The Navigation module.
     """
-    entry_file = "assets/src/kolibri_core_app.js"
-    external = True
-    core = True
+    entry_file = "assets/src/navigation.js"
 
     def hooks(self):
         return {
@@ -22,5 +20,5 @@ class KolibriCoreFrontEnd(KolibriFrontEndPluginBase):
 
 
 PLUGINS = (
-    KolibriCoreFrontEnd,
+    NavigationModule,
 )
