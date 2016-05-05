@@ -23,7 +23,7 @@ from kolibri.core.hooks import NavigationHook
 register = template.Library()
 
 
-@register.assignment_tag()
+@register.simple_tag()
 def kolibri_main_navigation():
 
     for hook in NavigationHook().registered_hooks:
