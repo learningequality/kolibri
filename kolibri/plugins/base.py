@@ -3,6 +3,7 @@
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
+import functools
 import logging
 import os
 
@@ -121,6 +122,17 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
             yield h
         if hasattr(self, 'base_url'):
             yield hooks.URLCONF_POPULATE, self.urlconf_populate
+            if hasattr(self, 'nav_items'):
+                yield hooks.NAVIGATION_POPULATE, functools.partial(self.nav_populate, self.nav_items())
+            if hasattr(self, 'user_nav_items'):
+                yield hooks.USER_NAVIGATION_POPULATE, functools.partial(self.nav_populate, self.user_nav_items())
+
+    def nav_populate(self, items):
+        for item in items:
+            item.update({
+                'url': self.base_url + '/' + item['url'],
+            })
+            yield item
 
     def urlconf_populate(self):
         yield url('^' + self.base_url, self.viewfunc, name=self.base_url)

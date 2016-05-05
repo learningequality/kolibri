@@ -1,23 +1,13 @@
 {% load i18n kolibri_tags %}
 <html>
 <head>
+  {% kolibri_main_navigation %}
   <title>{% block title %}{% endblock %} - {% trans "Kolibri" %}</title>
   {% frontend_assets 'kolibri.core.KolibriCoreFrontEnd' %}
   {% base_frontend_async %}
   {% base_frontend_sync %}
 </head>
 <body>
-
-{% block main_menu %}
-<ul role="nav">
-  {% kolibri_main_navigation as nav %}
-
-  {% for item in nav %}
-  <li><a href="{{ item.menu_url }}">{{ item.menu_name }}</a></li>
-  {% endfor %}
-
-</ul>
-{% endblock %}
 
 <hr>
 

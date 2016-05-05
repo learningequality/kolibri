@@ -29,12 +29,27 @@ from kolibri.utils.webpack import get_async_events, get_webpack_bundle
 register = template.Library()
 
 
-@register.assignment_tag()
+@register.simple_tag()
 def kolibri_main_navigation():
-
+    """
+    A tag to include a JS-object used by the Navigation KolibriModule to populate the site-wide nav menu.
+    Drop it into the head of a template, before Navigation JS assets are loaded.
+    :return: An html string
+    """
+    kolibri_reserved = {
+        'nav_items': [],
+        'user_nav_items': [],
+    }
     for callback in hooks.get_callables(hooks.NAVIGATION_POPULATE):
-        for item in callback():
-            yield item
+        kolibri_reserved['nav_items'] += callback()
+
+    for callback in hooks.get_callables(hooks.USER_NAVIGATION_POPULATE):
+        kolibri_reserved['user_nav_items'] += callback()
+
+    html = ("<script type='text/javascript'>"
+            "window.kolibri_reserved={0};"
+            "</script>".format(json.dumps(kolibri_reserved)))
+    return mark_safe(html)
 
 
 def render_as_tags(bundle):

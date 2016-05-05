@@ -32,6 +32,7 @@ def __enumerate_hook():
 
 # : Assign to a callable ``my_func(navigation)``.
 NAVIGATION_POPULATE = __enumerate_hook()
+USER_NAVIGATION_POPULATE = __enumerate_hook()
 FRONTEND_PLUGINS = __enumerate_hook()
 BASE_FRONTEND_SYNC = __enumerate_hook()
 BASE_FRONTEND_ASYNC = __enumerate_hook()
