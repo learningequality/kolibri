@@ -23,10 +23,20 @@ from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from kolibri.plugins import hooks
-from kolibri.plugins.hooks import BASE_FRONTEND_ASYNC, BASE_FRONTEND_SYNC
 from kolibri.utils.webpack import get_async_events, get_webpack_bundle
 
 register = template.Library()
+
+
+
+@register.simple_tag()
+def content_renderer_frontend_async():
+    """
+    This is a script tag for the hooks.CONTENT_RENDERER_ASYNC hook - this is used in the learn.html template to populate any
+    Javascript and CSS that should be registered at page load, but loading deferred until needed.
+    :return: HTML of script tags to insert into base.html
+    """
+    return frontend_async(hooks.CONTENT_RENDERER_ASYNC)
 
 
 @register.simple_tag()
@@ -142,11 +152,11 @@ def frontend_sync(hook):
 @register.simple_tag()
 def base_frontend_sync():
     """
-    This is a script tag for the BASE_FRONTEND_SYNC hook - this is used in the base.html template to populate any
+    This is a script tag for the hooks.BASE_FRONTEND_SYNC hook - this is used in the base.html template to populate any
     Javascript and CSS that should be loaded at page load.
     :return: HTML of script tags to insert into base.html
     """
-    return frontend_sync(BASE_FRONTEND_SYNC)
+    return frontend_sync(hooks.BASE_FRONTEND_SYNC)
 
 
 def frontend_async(hook):
@@ -162,8 +172,8 @@ def frontend_async(hook):
 @register.simple_tag()
 def base_frontend_async():
     """
-    This is a script tag for the BASE_FRONTEND_ASYNC hook - this is used in the base.html template to populate any
+    This is a script tag for the hooks.BASE_FRONTEND_ASYNC hook - this is used in the base.html template to populate any
     Javascript and CSS that should be registered at page load, but loading deferred until needed.
     :return: HTML of script tags to insert into base.html
     """
-    return frontend_async(BASE_FRONTEND_ASYNC)
+    return frontend_async(hooks.BASE_FRONTEND_ASYNC)
