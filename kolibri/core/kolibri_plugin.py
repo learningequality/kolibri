@@ -52,6 +52,10 @@ class ManagementModule(KolibriFrontEndPluginBase):
     """
     entry_file = "assets/src/management.js"
 
+    base_url = "management"
+
+    template = "kolibri/management.html"
+
     def hooks(self):
         return {
             FRONTEND_PLUGINS: self._register_front_end_plugins,
