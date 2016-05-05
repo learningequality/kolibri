@@ -2,7 +2,7 @@
 // Generated on Thu Feb 11 2016 12:59:11 GMT-0800 (PST)
 var RewirePlugin = require("rewire-webpack");
 var _ = require("lodash");
-var webpack_config = _.clone(require("./webpack.config.base"));
+var webpack_config = _.clone(require("../webpack_config/webpack.config.base"));
 
 webpack_config.plugins.push(new RewirePlugin());
 webpack_config.devtool = '#inline-source-map';
@@ -11,7 +11,7 @@ module.exports = function(config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: '',
+    basePath: '../',
 
 
     // frameworks to use
