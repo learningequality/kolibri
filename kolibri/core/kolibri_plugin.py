@@ -56,6 +56,22 @@ class ManagementModule(KolibriFrontEndPluginBase):
 
     template = "kolibri/management.html"
 
+    def nav_items(self):
+        return (
+            {
+                "url": "foo/bar",
+                "text": "Management Foo!"
+            },
+        )
+
+    def user_nav_items(self):
+        return (
+            {
+                "url": "learners",
+                "text": "Learner Management"
+            },
+        )
+
     def hooks(self):
         return {
             FRONTEND_PLUGINS: self._register_front_end_plugins,
@@ -75,6 +91,18 @@ class LearnModule(KolibriFrontEndPluginBase):
     base_url = "learn"
 
     template = "kolibri/learn.html"
+
+    def nav_items(self):
+        return (
+            {
+                "url": "",
+                "text": "Learn!"
+            },
+            {
+                "url": "foo",
+                "text": "Learn foo!"
+            }
+        )
 
     def hooks(self):
         return {
