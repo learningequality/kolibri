@@ -45,19 +45,19 @@ REGISTERED_HOOKS = {
 }
 
 
-def register_hook(hook, callback):
+def register_hook(hook, getter_func):
     """
     Takes a hook identifier and adds it to the registry
     """
-    if callback not in REGISTERED_HOOKS[hook]:
-        REGISTERED_HOOKS[hook].append(callback)
+    if getter_func not in REGISTERED_HOOKS[hook]:
+        REGISTERED_HOOKS[hook].append(getter_func)
     else:
-        raise RuntimeError("Callback already registered")
+        raise RuntimeError("function already registered")
 
 
 def get_callables(hook):
     """
     :param hook: The hook identifier, either a constant from this module or an arbitrary string.
-    :return: An iterable of callbacks.
+    :return: An iterable of getter functions.
     """
     return REGISTERED_HOOKS[hook]

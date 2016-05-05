@@ -12,8 +12,8 @@ app_name = 'kolibri'
 
 urlpatterns = []
 
-for callback in hooks.get_callables(hooks.URLCONF_POPULATE):
-    for urlconf in callback():
+for url_confs_func in hooks.get_callables(hooks.URLCONF_POPULATE):
+    for urlconf in url_confs_func():
         urlpatterns.append(urlconf)
 
 urlpatterns += [

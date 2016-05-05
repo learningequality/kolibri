@@ -50,11 +50,11 @@ def kolibri_main_navigation():
         'nav_items': [],
         'user_nav_items': [],
     }
-    for callback in hooks.get_callables(hooks.NAVIGATION_POPULATE):
-        kolibri_reserved['nav_items'] += callback()
+    for nav_item_list_func in hooks.get_callables(hooks.NAVIGATION_POPULATE):
+        kolibri_reserved['nav_items'] += nav_item_list_func()
 
-    for callback in hooks.get_callables(hooks.USER_NAVIGATION_POPULATE):
-        kolibri_reserved['user_nav_items'] += callback()
+    for user_nav_item_list_func in hooks.get_callables(hooks.USER_NAVIGATION_POPULATE):
+        kolibri_reserved['user_nav_items'] += user_nav_item_list_func()
 
     html = ("<script type='text/javascript'>"
             "window.kolibri_reserved={0};"
@@ -142,10 +142,10 @@ def frontend_sync(hook):
     """
     This function aggregates all the FrontEnd plugins that have registered themselves against a particular hook
     and then generates script tags to load those plugins into the page at page load.
-    :param hook: The hook against which to query for callbacks.
+    :param hook: The hook against which to query for getters.
     :return: HTML of script tags to insert into the page.
     """
-    tags = [render_as_tags(get_webpack_bundle(callback(), None)) for callback in hooks.get_callables(hook)]
+    tags = [render_as_tags(get_webpack_bundle(bundle_id_func(), None)) for bundle_id_func in hooks.get_callables(hook)]
     return mark_safe('\n'.join(tags))
 
 
@@ -163,10 +163,10 @@ def frontend_async(hook):
     """
     This function aggregates all the FrontEnd plugins that have registered themselves against a particular hook
     and then generates script tags to register those plugins at page load for later asynchrounous loading.
-    :param hook: The hook against which to query for callbacks.
+    :param hook: The hook against which to query for getters.
     :return: HTML of script tags to insert into the page.
     """
-    tags = [render_as_async(callback()) for callback in hooks.get_callables(hook)]
+    tags = [render_as_async(bundle_id_func()) for bundle_id_func in hooks.get_callables(hook)]
     return mark_safe('\n'.join(tags))
 
 @register.simple_tag()

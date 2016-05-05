@@ -62,10 +62,10 @@ class KolibriPluginBase(object):
         """
         The method actually called to generate hooks -- defined so that a plugin class can
         override this behavior to e.g. add hooks automatically.
-        :yield: a (hook, callback) tuple, where hook is a string and callback a function
+        :yield: a (hook, getter_func) tuple, where hook is a string and getter_func a function
         """
-        for hook, callback in self.hooks().items():
-            yield hook, callback
+        for hook, getter_func in self.hooks().items():
+            yield hook, getter_func
 
     @classmethod
     def _installed_apps_add(cls):
