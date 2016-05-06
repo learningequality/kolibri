@@ -56,7 +56,7 @@ class KolibriPluginBase(object):
         extendible, consider only having hooks that call methods of your plugin
         class
         """
-        raise MandatoryPluginMethodNotImplemented()
+        return {}
 
     def get_hooks(self):
         """
@@ -109,15 +109,10 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
 
     The path to the Javascript file that defines the plugin/acts as the entry point.
     entry_file = "assets/js/example_module.js"
-
-    This hook will register the frontend plugin to be available for rendering its built files into Django templates.
-    def hooks(self):
-        return {
-            FRONTEND_PLUGINS: self._register_front_end_plugins
-        }
     """
 
     def get_hooks(self):
+        yield hooks.FRONTEND_PLUGINS, self._register_front_end_plugins
         for h in super(KolibriFrontEndPluginBase, self).get_hooks():
             yield h
         if hasattr(self, 'base_url'):

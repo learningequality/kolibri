@@ -1,25 +1,3 @@
-"""
-Hooks are used for your plugin's ``hooks`` attribute, a dictionary
-with hooks you wish to use. The keys are pre-defined constants in this module or arbitrary strings. For instance::
-
-    from kolibri.plugins.base import KolibriPluginBase
-    from kolibri.plugins.hooks import NAVIGATION_POPULATE
-
-    class MyPlugin(KolibriPluginBase):
-
-        def my_navigation(self, navigation_items):
-            navigation_items.append(
-                {
-                    'menu_name': _("My list"),
-                    'menu_url': reverse_lazy("my_plugin:list_of_things")
-                }
-            )
-
-        def hooks(self):
-            return {
-                NAVIGATION_POPULATE: self.my_navigation
-            }
-"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 __hook_index = -1

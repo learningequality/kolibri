@@ -7,7 +7,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import logging
 
 from kolibri.plugins.base import KolibriFrontEndPluginBase
-from kolibri.plugins.hooks import CONTENT_RENDERER_ASYNC, FRONTEND_PLUGINS
+from kolibri.plugins.hooks import CONTENT_RENDERER_ASYNC
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,6 @@ class KolibriDocumentPDFRenderFrontEnd(KolibriFrontEndPluginBase):
 
     def hooks(self):
         return {
-            FRONTEND_PLUGINS: self._register_front_end_plugins,
             CONTENT_RENDERER_ASYNC: self.plugin_name,
         }
 

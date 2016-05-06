@@ -7,7 +7,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import logging
 
 from kolibri.plugins.base import KolibriFrontEndPluginBase
-from kolibri.plugins.hooks import BASE_FRONTEND_ASYNC, FRONTEND_PLUGINS
+from kolibri.plugins.hooks import BASE_FRONTEND_ASYNC
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,6 @@ class KolibriExampleFrontEnd(KolibriFrontEndPluginBase):
 
     def hooks(self):
         return {
-            FRONTEND_PLUGINS: self._register_front_end_plugins,
             BASE_FRONTEND_ASYNC: self.plugin_name,
         }
 
