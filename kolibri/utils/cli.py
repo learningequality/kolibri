@@ -25,7 +25,7 @@ Usage:
   kolibri shell [options] [-- DJANGO_OPTIONS ...]
   kolibri manage [options] COMMAND [-- DJANGO_OPTIONS ...]
   kolibri diagnose [options]
-  kolibri plugin PLUGIN (enable | disable)
+  kolibri plugin [options] PLUGIN (enable | disable)
   kolibri plugin --list
   kolibri -h | --help
   kolibri --version
@@ -88,11 +88,17 @@ os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
 logger = logging.getLogger(__name__)
 
 
-def setup_logging():
+def setup_logging(debug=False):
     """Configures logging in cases where a Django environment is not supposed
     to be configured"""
     from kolibri.deployment.default.settings.base import LOGGING
+    if debug:
+        from django.conf import settings
+        settings.DEBUG = True
+        LOGGING['handlers']['console']['level'] = 'DEBUG'
+        LOGGING['loggers']['kolibri']['level'] = 'DEBUG'
     logging_config.dictConfig(LOGGING)
+    logger.debug("Debug mode is on!")
 
 
 def manage(cmd, args=[]):
@@ -115,7 +121,6 @@ def plugin(plugin_name, args):
     Receives a plugin identifier and tries to load its main class. Calls class
     functions.
     """
-    setup_logging()
     from kolibri.utils import conf
     plugin_classes = []
 
@@ -157,7 +162,7 @@ def main(args=None):
     # and don't feed to docopt.
     if '--' in args:
         pivot = args.index('--')
-        args, django_args = args[:pivot], args[pivot+1:]
+        args, django_args = args[:pivot], args[pivot + 1:]
     else:
         django_args = []
 
@@ -170,6 +175,10 @@ def main(args=None):
         docopt_kwargs['argv'] = args
 
     arguments = docopt(USAGE, **docopt_kwargs)
+
+    debug = arguments['--debug']
+
+    setup_logging(debug=debug)
 
     if arguments['manage']:
         command = arguments['COMMAND']
