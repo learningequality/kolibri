@@ -24,6 +24,6 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin', include(admin.site.urls)),
-    url(r'^content', include('kolibri.content.urls', namespace='content')),
-    url(r'', include('kolibri.core.urls')),
+    url(r'', include('kolibri.content.urls')),
+    url(r'', include('kolibri.core.urls', namespace='core')),
 ]
