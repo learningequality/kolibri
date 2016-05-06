@@ -28,7 +28,6 @@ from kolibri.utils.webpack import get_async_events, get_webpack_bundle
 register = template.Library()
 
 
-
 @register.simple_tag()
 def content_renderer_frontend_async():
     """
