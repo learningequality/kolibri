@@ -60,3 +60,6 @@ coverage
 # webpack built files
 kolibri/**/build/*
 kolibri/**/static/*
+
+# swap files
+*.swp
