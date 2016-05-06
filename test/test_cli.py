@@ -43,10 +43,6 @@ class TestKolibriCLI(KolibriTestBase):
         with self.assertRaises(SystemExit):
             main("-h")
 
-    def test_plugin_cli(self):
-        main(("plugin", "kolibri.plugins.example_plugin", "enable"))
-        main(("plugin", "kolibri.plugins.example_plugin", "disable"))
-
     @classmethod
     def teardown_class(cls):
         try:
