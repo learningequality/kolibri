@@ -23,7 +23,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin', include(admin.site.urls)),
+    url(r'^content', include('kolibri.content.urls', namespace='content')),
     url(r'', include('kolibri.core.urls')),
-    url(r'', include('kolibri.content.urls')),
 ]

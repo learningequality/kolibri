@@ -17,5 +17,5 @@ for url_confs_func in hooks.get_callables(hooks.URLCONF_POPULATE):
         urlpatterns.append(urlconf)
 
 urlpatterns += [
-    url('^', views.IndexView.as_view(), name='index'),
+    url('', views.IndexView.as_view(), name='index'),
 ]
