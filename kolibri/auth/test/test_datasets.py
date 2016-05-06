@@ -59,3 +59,8 @@ class FacilityDatasetTestCase(TestCase):
         facility.full_clean()
         facility.save()
         self.assertEqual(dataset, facility.dataset)
+
+    def test_dataset_representation(self):
+        self.assertEqual(str(self.facility.dataset), "FacilityDataset for {}".format(self.facility.name))
+        new_dataset = FacilityDataset.objects.create()
+        self.assertEqual(str(new_dataset), "FacilityDataset (no associated Facility)")

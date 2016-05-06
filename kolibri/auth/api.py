@@ -27,6 +27,11 @@ class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
             # (and filtering here then leads to 404's instead of the more correct 403's)
             return queryset
 
+def _ensure_raw_dict(d):
+    if hasattr(d, "dict"):
+        d = d.dict()
+    return dict(d)
+
 
 class KolibriAuthPermissions(permissions.BasePermission):
     """
@@ -39,20 +44,17 @@ class KolibriAuthPermissions(permissions.BasePermission):
         # as `has_object_permission` isn't called for POST/create, we need to check here
         if request.method == "POST" and request.data:
             model = view.serializer_class.Meta.model
-            validated_data = view.serializer_class().to_internal_value(request.data.dict())
+            validated_data = view.serializer_class().to_internal_value(_ensure_raw_dict(request.data))
             return request.user.can_create(model, validated_data)
 
         # for other methods, we return True, as their permissions get checked below
         return True
 
     def has_object_permission(self, request, view, obj):
-        if request.method == "POST":
-            # this shouldn't get called under normal API use (as actual creation is checked above under
-            # ``has_permission``), but this gets called by the browsable API when generating a form
-            return request.user.can_create_instance(obj)
-        elif request.method in permissions.SAFE_METHODS:  # 'GET', 'OPTIONS' or 'HEAD'
+        # note that there is no entry for POST here, as creation is handled by `has_permission`, above
+        if request.method in permissions.SAFE_METHODS:  # 'GET', 'OPTIONS' or 'HEAD'
             return request.user.can_read(obj)
-        elif request.method == "PUT":
+        elif request.method in ["PUT", "PATCH"]:
             return request.user.can_update(obj)
         elif request.method == "DELETE":
             return request.user.can_delete(obj)

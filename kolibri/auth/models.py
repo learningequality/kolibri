@@ -69,8 +69,11 @@ class FacilityDataset(models.Model):
     allow_signups = models.BooleanField(default=True)
 
     def __str__(self):
-        return "FacilityDataset for {}".format(str(self.facility_set.all()))
-
+        facilities = self.collection_set.filter(kind=collection_kinds.FACILITY)
+        if facilities:
+            return "FacilityDataset for {}".format(Facility.objects.get(id=facilities[0].id))
+        else:
+            return "FacilityDataset (no associated Facility)"
 
 class AbstractFacilityDataModel(models.Model):
     """
@@ -325,9 +328,6 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
 
     class Meta:
         abstract = True
-
-    def get_username(self):
-        return self.username
 
     def is_member_of(self, coll):
         return False
