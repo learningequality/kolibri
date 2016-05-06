@@ -23,18 +23,43 @@ from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from kolibri.plugins import hooks
-from kolibri.plugins.hooks import BASE_FRONTEND_ASYNC, BASE_FRONTEND_SYNC
 from kolibri.utils.webpack import get_async_events, get_webpack_bundle
 
 register = template.Library()
 
 
-@register.assignment_tag()
-def kolibri_main_navigation():
 
-    for callback in hooks.get_callables(hooks.NAVIGATION_POPULATE):
-        for item in callback():
-            yield item
+@register.simple_tag()
+def content_renderer_frontend_async():
+    """
+    This is a script tag for the hooks.CONTENT_RENDERER_ASYNC hook - this is used in the learn.html template to populate any
+    Javascript and CSS that should be registered at page load, but loading deferred until needed.
+    :return: HTML of script tags to insert into base.html
+    """
+    return frontend_async(hooks.CONTENT_RENDERER_ASYNC)
+
+
+@register.simple_tag()
+def kolibri_main_navigation():
+    """
+    A tag to include a JS-object used by the Navigation KolibriModule to populate the site-wide nav menu.
+    Drop it into the head of a template, before Navigation JS assets are loaded.
+    :return: An html string
+    """
+    kolibri_reserved = {
+        'nav_items': [],
+        'user_nav_items': [],
+    }
+    for nav_item_list_func in hooks.get_callables(hooks.NAVIGATION_POPULATE):
+        kolibri_reserved['nav_items'] += nav_item_list_func()
+
+    for user_nav_item_list_func in hooks.get_callables(hooks.USER_NAVIGATION_POPULATE):
+        kolibri_reserved['user_nav_items'] += user_nav_item_list_func()
+
+    html = ("<script type='text/javascript'>"
+            "window.kolibri_reserved={0};"
+            "</script>".format(json.dumps(kolibri_reserved)))
+    return mark_safe(html)
 
 
 def render_as_tags(bundle):
@@ -117,38 +142,38 @@ def frontend_sync(hook):
     """
     This function aggregates all the FrontEnd plugins that have registered themselves against a particular hook
     and then generates script tags to load those plugins into the page at page load.
-    :param hook: The hook against which to query for callbacks.
+    :param hook: The hook against which to query for getters.
     :return: HTML of script tags to insert into the page.
     """
-    tags = [render_as_tags(get_webpack_bundle(callback(), None)) for callback in hooks.get_callables(hook)]
+    tags = [render_as_tags(get_webpack_bundle(bundle_id_func(), None)) for bundle_id_func in hooks.get_callables(hook)]
     return mark_safe('\n'.join(tags))
 
 
 @register.simple_tag()
 def base_frontend_sync():
     """
-    This is a script tag for the BASE_FRONTEND_SYNC hook - this is used in the base.html template to populate any
+    This is a script tag for the hooks.BASE_FRONTEND_SYNC hook - this is used in the base.html template to populate any
     Javascript and CSS that should be loaded at page load.
     :return: HTML of script tags to insert into base.html
     """
-    return frontend_sync(BASE_FRONTEND_SYNC)
+    return frontend_sync(hooks.BASE_FRONTEND_SYNC)
 
 
 def frontend_async(hook):
     """
     This function aggregates all the FrontEnd plugins that have registered themselves against a particular hook
     and then generates script tags to register those plugins at page load for later asynchrounous loading.
-    :param hook: The hook against which to query for callbacks.
+    :param hook: The hook against which to query for getters.
     :return: HTML of script tags to insert into the page.
     """
-    tags = [render_as_async(callback()) for callback in hooks.get_callables(hook)]
+    tags = [render_as_async(bundle_id_func()) for bundle_id_func in hooks.get_callables(hook)]
     return mark_safe('\n'.join(tags))
 
 @register.simple_tag()
 def base_frontend_async():
     """
-    This is a script tag for the BASE_FRONTEND_ASYNC hook - this is used in the base.html template to populate any
+    This is a script tag for the hooks.BASE_FRONTEND_ASYNC hook - this is used in the base.html template to populate any
     Javascript and CSS that should be registered at page load, but loading deferred until needed.
     :return: HTML of script tags to insert into base.html
     """
-    return frontend_async(BASE_FRONTEND_ASYNC)
+    return frontend_async(hooks.BASE_FRONTEND_ASYNC)

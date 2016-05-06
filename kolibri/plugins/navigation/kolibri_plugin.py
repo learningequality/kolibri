@@ -6,15 +6,13 @@ from __future__ import absolute_import, print_function, unicode_literals
 from kolibri.plugins.base import KolibriFrontEndPluginBase
 
 
-class KolibriCoreFrontEnd(KolibriFrontEndPluginBase):
+class NavigationModule(KolibriFrontEndPluginBase):
     """
-    Plugin to handle
+    The Navigation module.
     """
-    entry_file = "assets/src/kolibri_core_app.js"
-    external = True
-    core = True
+    entry_file = "assets/src/navigation.js"
 
 
 PLUGINS = (
-    KolibriCoreFrontEnd,
+    NavigationModule,
 )

@@ -2,22 +2,18 @@
 <html>
 <head>
   <title>{% block title %}{% endblock %} - {% trans "Kolibri" %}</title>
+  {% block frontend_assets %}
   {% frontend_assets 'kolibri.core.KolibriCoreFrontEnd' %}
+
+  {# Nav stuff must come after the core app, but before anything else #}
+  {% kolibri_main_navigation %}
+  {% frontend_assets 'kolibri.plugins.navigation.NavigationModule' %}
+
   {% base_frontend_async %}
   {% base_frontend_sync %}
+  {% endblock %}
 </head>
 <body>
-
-{% block main_menu %}
-<ul role="nav">
-  {% kolibri_main_navigation as nav %}
-
-  {% for item in nav %}
-  <li><a href="{{ item.menu_url }}">{{ item.menu_name }}</a></li>
-  {% endfor %}
-
-</ul>
-{% endblock %}
 
 <hr>
 

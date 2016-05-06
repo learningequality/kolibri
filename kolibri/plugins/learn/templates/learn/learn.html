@@ -1,0 +1,11 @@
+{% extends "kolibri/base.html" %}
+{% load learn_tags kolibri_tags %}
+{% block frontend_assets %}
+{{ block.super }}
+{% frontend_assets 'kolibri.plugins.learn.LearnModule' %}
+{% content_renderer_frontend_async %}
+{% endblock %}
+{% block content %}
+<div id="content-main"></div>
+<div id="content-render"></div>
+{% endblock %}

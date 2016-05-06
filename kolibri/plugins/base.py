@@ -3,9 +3,13 @@
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
+import functools
 import logging
 import os
 
+from django.conf.urls import url
+from django.template.response import SimpleTemplateResponse
+from kolibri.plugins import hooks
 from kolibri.utils.conf import config
 
 logger = logging.getLogger(__name__)
@@ -52,7 +56,16 @@ class KolibriPluginBase(object):
         extendible, consider only having hooks that call methods of your plugin
         class
         """
-        raise MandatoryPluginMethodNotImplemented()
+        return {}
+
+    def get_hooks(self):
+        """
+        The method actually called to generate hooks -- defined so that a plugin class can
+        override this behavior to e.g. add hooks automatically.
+        :yield: a (hook, getter_func) tuple, where hook is a string and getter_func a function
+        """
+        for hook, getter_func in self.hooks().items():
+            yield hook, getter_func
 
     @classmethod
     def _installed_apps_add(cls):
@@ -96,13 +109,31 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
 
     The path to the Javascript file that defines the plugin/acts as the entry point.
     entry_file = "assets/js/example_module.js"
-
-    This hook will register the frontend plugin to be available for rendering its built files into Django templates.
-    def hooks(self):
-        return {
-            FRONTEND_PLUGINS: self._register_front_end_plugins
-        }
     """
+
+    def get_hooks(self):
+        yield hooks.FRONTEND_PLUGINS, self._register_front_end_plugins
+        for h in super(KolibriFrontEndPluginBase, self).get_hooks():
+            yield h
+        if hasattr(self, 'base_url'):
+            yield hooks.URLCONF_POPULATE, self.urlconf_populate
+            if hasattr(self, 'nav_items'):
+                yield hooks.NAVIGATION_POPULATE, functools.partial(self.nav_populate, self.nav_items())
+            if hasattr(self, 'user_nav_items'):
+                yield hooks.USER_NAVIGATION_POPULATE, functools.partial(self.nav_populate, self.user_nav_items())
+
+    def nav_populate(self, items):
+        for item in items:
+            item.update({
+                'url': self.base_url + '/' + item['url'],
+            })
+            yield item
+
+    def urlconf_populate(self):
+        yield url('^' + self.base_url, self.viewfunc, name=self.base_url)
+
+    def viewfunc(self, request):
+        return SimpleTemplateResponse(template=self.template)
 
     @classmethod
     def webpack_bundle_data(cls):
