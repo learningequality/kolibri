@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'kolibri.auth.apps.KolibriAuthConfig',
     'kolibri.content',
+    'kolibri.core.webpack',
     'rest_framework',
 ] + conf.config['INSTALLED_APPS']
 

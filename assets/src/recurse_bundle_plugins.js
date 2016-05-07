@@ -19,46 +19,25 @@ var readBundlePlugin = require('./read_bundle_plugin');
  * @returns {Array} bundles - An array containing webpack config objects.
  */
 var recurseBundlePlugins = function(directories, base_dir, libs) {
-    var recurse = function(directories, base_dir) {
-        var files = [];
-        // Look through every directory passed in.
-        directories.forEach(function (directory) {
-            // Read all the files in the directory.
-            var dir_files = fs.readdirSync(directory);
-            dir_files.forEach(function (file) {
-                // Examine each item in the directory.
-                var stats = fs.statSync(path.join(directory, file));
-                if (stats.isDirectory()) {
-                    // If it's a directory, keep recursing to find more files.
-                    files = files.concat(recurse([path.join(directory, file)], base_dir));
-                } else if (file === "kolibri_plugin.py") {
-                    // If it's a file, we only care if it is kolibri_plugin.py, add it to our list.
-                    files.push(path.join(directory, file));
-                }
-            });
-        });
-        return files;
-    };
 
     var externals = {};
 
     // Find all the kolibri_plugin.py files in the Kolibri folder.
-    var files = recurse(directories, base_dir);
     var bundles = [];
 
-    for (var i = 0; i < files.length; i ++){
-        var file = files[i];
-        // Go through each one of the kolibri_plugin files and see if there are any Frontend plugins defined therein.
-        var result = readBundlePlugin(file, base_dir);
-        bundles = bundles.concat(result[0]);
-        for (var key in result[1]) {
-            // Double check that no modules set the same external flag (we don't want two different modules trying
-            // to occupy the same global variable name.
-            if (typeof externals[key] === "undefined") {
-                externals[key] = result[1][key];
-            } else {
-                logging.warn("Two plugins set with same external flag " + key);
-            }
+    var result = readBundlePlugin("", base_dir);
+
+    // Append all the found bundles
+    bundles = bundles.concat(result[0]);
+
+    // Inspect the mappings
+    for (var key in result[1]) {
+        // Double check that no modules set the same external flag (we don't want two different modules trying
+        // to occupy the same global variable name.
+        if (typeof externals[key] === "undefined") {
+            externals[key] = result[1][key];
+        } else {
+            logging.warn("Two plugins set with same external flag " + key);
         }
     }
 

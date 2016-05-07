@@ -5,15 +5,16 @@ Kolibri Hooks API
 What are hooks
 ~~~~~~~~~~~~~~
 
-Hooks are classes that define *something* that happens. It means that you can
+Hooks are classes that define *something* that happens at one or more places
+where the hook is looked for and applied. It means that you can
 "hook into a component" in Kolibri and have it do a predefined and
 parameterized *thing*. For instance, Kolibri could ask all its plugins who
 wants to add something to the user settings panel, and its then up to the
 plugins to inherit from that specific hook and feed back the parameters that
 the hook definition expects.
 
-The consequences of a hook callback are located anywhere in Kolibri. Each hook
-is defined through a class inheriting from ``KolibriHook``. But how the
+The consequences of a hook being applied can happen anywhere in Kolibri. Each
+hook is defined through a class inheriting from ``KolibriHook``. But how the
 inheritor of that class deals with plugins using it, is entirely up to each
 specific implementation and can be applied in templates, views, middleware -
 basically everywhere!
@@ -122,7 +123,6 @@ And here is the definition of that hook in kolibri.core.hooks:
                 menu[inheritor.label] = url
             return menu
 
-
         class Meta:
 
             abstract = True
@@ -158,8 +158,9 @@ template tag definition looks like this:
 
 .. warning::
 
-    Do not register callbacks for hooks outside of a plugin's
-    ``kolibri_plugin``. Callbacks should all be registered at load time, and
+    Do not load registered hook classes outside of a plugin's
+    ``kolibri_plugin``. Either define them there directly or import the modules
+    that define them. Hook classes should all be seen at load time, and
     placing that logic in ``kolibri_plugin`` guarantees that things are
     registered correctly.
 
@@ -167,14 +168,44 @@ template tag definition looks like this:
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
+import logging
 import six
+
+
+logger = logging.getLogger(__name__)
+
+
+# : Inspired by how Django's Model Meta option settings work, we define a simple
+# : list of valid options for Meta classes.
+DEFAULT_NAMES = ('abstract',)
+
+@six.python_2_unicode_compatible
+class Options(object):
+    """
+    Stores instance of options for Hook.Meta classes
+    """
+    def __init__(self, meta):
+        self.abstract = False
+        self.meta = meta
+        self.registered_hooks = set()
+        if meta:
+            # Deep copy because options may be immutable, and so we shouldn't
+            # have one object manipulate an instance of an option and that
+            # propagates to other objects.
+            meta_attrs = self.meta.__dict__.copy()
+            for attr_name in DEFAULT_NAMES:
+                if attr_name in meta_attrs:
+                    setattr(self, attr_name, meta_attrs.pop(attr_name))
 
 
 class KolibriHookMeta(type):
     """
-    WIP!!!
+    This is the base meta class of all hooks in Kolibri. A lot of the code is
+    lifted from django.db.models.ModelBase.
 
-    This is the base meta class of all hooks in Kolibri.
+    We didn't end up like this because of bad luck, rather it fitted perfectly
+    to how we want plugin functionality to be /plugged into/ in an explicit
+    manner:
 
         Metaclasses are deeper magic than 99% of users should ever worry about.
         If you wonder whether you need them, you don't (the people who actually
@@ -196,16 +227,56 @@ class KolibriHookMeta(type):
         # Also ensure initialization is only performed for subclasses of Model
         # (excluding Model class itself).
         parents = [b for b in bases if isinstance(b, KolibriHookMeta)]
+
+        # If there isn't any parents, it's the main class of everything
+        # ...and we just set some empty options
         if not parents:
-            return super_new(cls, name, bases, attrs)
+            base_class = super_new(cls, name, bases, attrs)
+            base_class.add_to_class('_meta', Options(None))
+            base_class.add_to_class('_parents', [])
+            return base_class
 
         # Create the class.
         module = attrs.pop('__module__')
         new_class = super_new(cls, name, bases, {'__module__': module})
 
-        HOOKS_REGISTRY.add(new_class)
+        attr_meta = attrs.pop('Meta', None)
+        abstract = getattr(attr_meta, 'abstract', False)
+        if not attr_meta:
+            meta = getattr(new_class, 'Meta', None)
+        else:
+            meta = attr_meta
+
+        # Meta of the base object can be retrieved by looking at the currently
+        # set _meta object... but we don't use it...
+        # base_meta = getattr(new_class, '_meta', None)
+
+        logger.debug("Meta of {}: {}".format(new_class, meta))
+
+        # Add all attributes to the class.
+        for obj_name, obj in attrs.items():
+            new_class.add_to_class(obj_name, obj)
+
+        new_class.add_to_class('_meta', Options(meta))
+        new_class.add_to_class('_parents', parents)
+
+        if abstract:
+            logger.debug("Abstract hook class {}".format(new_class))
+        else:
+            logger.debug("New registered hook class {}".format(new_class))
+            for parent in new_class._parents:
+                logger.debug("Parent {}".format(parent))
+                parent.register_hook(new_class)
 
         return new_class
+
+    def add_to_class(cls, name, value):
+        setattr(cls, name, value)
+
+    def register_hook(cls, child_hook):
+        cls._meta.registered_hooks.add(child_hook)
+        for parent in cls._parents:
+            parent.register_hook(child_hook)
 
 
 class KolibriHook(six.with_metaclass(KolibriHookMeta)):
@@ -217,14 +288,21 @@ class KolibriHook(six.with_metaclass(KolibriHookMeta)):
     """
 
     def __init__(self):
-        self.callbacks = []
+        # We have been initialized. A noop. But inheriting hooks might want to
+        # pay attention when they are initialized, since it's an event in itself
+        # signaling that whatever that hook was intended for is now being
+        # yielded or rendered.
+        pass
 
-    def register_callback(self, cb):
-        if cb not in self.callbacks:
-            self.callbacks.append(cb)
-        else:
-            raise RuntimeError("Callback already registered")
+    @property
+    def registered_hooks(self):
+        """
+        Always go through this method. This should guarantee that every time a
+        hook is accessed, it's also instantiated, giving it a chance to re-do
+        things that it wants done on every event.
+        """
+        for HookClass in self._meta.registered_hooks:
+            yield HookClass()
 
-
-# Keeps track of all the hooks discovered (hopefully at load time!)
-HOOKS_REGISTRY = set()
+    class Meta:
+        abstract = True

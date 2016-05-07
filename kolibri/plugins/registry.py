@@ -56,7 +56,7 @@ __initialized = False
 
 def initialize():
     """
-    Called once to register hook callbacks.
+    Called once at load time to register hook callbacks.
     """
     global __initialized
 
@@ -67,12 +67,14 @@ def initialize():
             try:
                 plugin_module = importlib.import_module(app + ".kolibri_plugin")
                 logger.debug("Loaded kolibri plugin: {}".format(app))
+                all_classes = dict([(name, cls) for name, cls in plugin_module.__dict__.items() if isinstance(cls, type)])
                 plugin_classes = []
-                for obj in plugin_module.PLUGINS:
+                for obj in all_classes.values():
                     if type(obj) == type and issubclass(obj, KolibriPluginBase):
                         plugin_classes.append(obj)
                 for plugin_klass in plugin_classes:
                     # Initialize the class, nothing more happens for now.
+                    logger.debug("Initializing plugin: {}".format(plugin_klass.__name__))
                     plugin_klass()
             except ImportError:
                 pass
