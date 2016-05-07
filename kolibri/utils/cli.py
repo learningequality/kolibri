@@ -180,6 +180,11 @@ def main(args=None):
 
     setup_logging(debug=debug)
 
+    # Alias
+    if arguments['shell']:
+        arguments['manage'] = True
+        arguments['COMMAND'] = 'shell'
+
     if arguments['manage']:
         command = arguments['COMMAND']
         manage(command, args=django_args)
@@ -189,5 +194,3 @@ def main(args=None):
         plugin_name = arguments['PLUGIN']
         plugin(plugin_name, arguments)
         return
-
-    logger.info(arguments)
