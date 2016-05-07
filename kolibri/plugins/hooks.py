@@ -179,7 +179,7 @@ logger = logging.getLogger(__name__)
 # : list of valid options for Meta classes.
 DEFAULT_NAMES = ('abstract',)
 
-@six.python_2_unicode_compatible
+
 class Options(object):
     """
     Stores instance of options for Hook.Meta classes
