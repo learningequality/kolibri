@@ -28,7 +28,7 @@ var readBundlePlugin = function(base_dir) {
     var externals = {};
 
     // Run the script below to extract the relevant information about the plugin configuration from the Python code.
-    var result = execSync("python -m kolibri manage webpack_json ").toString();
+    var result = execSync("python -m kolibri manage webpack_json").toString();
 
     if (result.length > 0) {
 
@@ -49,7 +49,7 @@ var readBundlePlugin = function(base_dir) {
                         // plugins. For the moment, this is only the Kolibri global variable.
                         externals[output[1]] = output[1];
                     } else {
-                        logging.warn("Two plugins setting with same external flag " + output[1] + " in plugin file: " + plugin_file);
+                        logging.warn("Two plugins setting with same external flag " + output[1]);
                     }
                 }
             }
@@ -62,8 +62,7 @@ var readBundlePlugin = function(base_dir) {
                 if (k !== j) {
                     // Only one key per object here, so just get the first key
                     if (Object.keys(bundles[k].entry)[0] === Object.keys(bundles[j].entry)[0]) {
-                        logging.error("Duplicate keys: " + Object.keys(bundles[k].entry)[0] +
-                            " in Python file: " + plugin_file);
+                        logging.error("Duplicate keys: " + Object.keys(bundles[k].entry)[0]);
                     }
                 }
             }

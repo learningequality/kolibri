@@ -8,7 +8,7 @@ var sinon = require('sinon');
 
 var parseBundlePlugin = require('../src/parse_bundle_plugin');
 var recurseBundlePlugins = rewire('../src/recurse_bundle_plugins');
-var readBundlePlugin = rewire('../src/read_bundle_plugin');
+var readBundlePlugins = rewire('../src/read_bundle_plugins');
 
 describe('parseBundlePlugin', function() {
     describe('input is valid, bundles output', function() {
@@ -96,11 +96,11 @@ describe('parseBundlePlugin', function() {
     });
 });
 
-describe('readBundlePlugins', function() {
+describe('readBundlePluginss', function() {
     var data = [];
 
     beforeEach(function() {
-        readBundlePlugin.__set__("execSync", function() {
+        readBundlePlugins.__set__("execSync", function() {
             var output = "";
             for (var i = 0; i < data.length; i++) {
                 output += JSON.stringify(data[i]) + ((i === data.length - 1) ? "" : "\n");
@@ -125,7 +125,7 @@ describe('readBundlePlugins', function() {
                     module_path: "kolibri/plugin/test"
                 }
             ];
-            assert(readBundlePlugin("", "")[0].length === 2);
+            assert(readBundlePlugins("", "")[0].length === 2);
             done();
         });
     });
@@ -144,7 +144,7 @@ describe('readBundlePlugins', function() {
                     module_path: "kolibri/plugin/test"
                 }
             ];
-            assert(readBundlePlugin("", "")[0].length === 1);
+            assert(readBundlePlugins("", "")[0].length === 1);
             done();
         });
     });
@@ -162,7 +162,7 @@ describe('readBundlePlugins', function() {
                     module_path: "kolibri/plugin/test"
                 }
             ];
-            assert(readBundlePlugin("", "")[0].length === 0);
+            assert(readBundlePlugins("", "")[0].length === 0);
             done();
         });
     });
@@ -184,7 +184,7 @@ describe('readBundlePlugins', function() {
                     module_path: "kolibri/plugin/test"
                 }
             ];
-            assert(Object.keys(readBundlePlugin("", "")[1]).length === 2);
+            assert(Object.keys(readBundlePlugins("", "")[1]).length === 2);
             done();
         });
     });
@@ -206,7 +206,7 @@ describe('readBundlePlugins', function() {
                     module_path: "kolibri/plugin/test"
                 }
             ];
-            assert(Object.keys(readBundlePlugin("", "")[1]).length === 1);
+            assert(Object.keys(readBundlePlugins("", "")[1]).length === 1);
             done();
         });
     });
@@ -222,35 +222,13 @@ describe('recurseBundlePlugins', function() {
 
     beforeEach(function() {
         ind = 0;
-        recurseBundlePlugins.__set__("readBundlePlugin", function() {
+        recurseBundlePlugins.__set__("readBundlePlugins", function() {
             var output = data[ind];
             ind = ind + 1;
             return output;
         });
     });
 
-    describe('two valid input files, output', function() {
-        it('should have two entries', function (done) {
-            data = [
-                [[{core: null, plugins: []}], {}],
-                [[{}], {}]
-            ];
-            temp.mkdir("dir1", function(err, dirPath1){
-                fs.writeFile(path.join(dirPath1, "kolibri_plugin.py"), "", function (err) {
-                    if (!err) {
-                        temp.mkdir("dir2", function(err, dirPath2){
-                            fs.writeFile(path.join(dirPath2, "kolibri_plugin.py"), "", function (err) {
-                                if (!err) {
-                                    assert(recurseBundlePlugins([dirPath1, dirPath2], "/").length === 2);
-                                    done();
-                                }
-                            });
-                        });
-                    }
-                });
-            });
-        });
-    });
     describe('one valid input file, output', function() {
         it('should have one entry', function (done) {
             data = [
@@ -308,32 +286,6 @@ describe('recurseBundlePlugins', function() {
                                 assert(recurseBundlePlugins([dirPath1], "/").length === 1);
                                 done();
                             }
-                        });
-                    }
-                });
-            });
-        });
-    });
-    describe('two valid input files with an external, output', function() {
-        it('should have two entries, each with externals', function (done) {
-            data = [
-                [[{}], {name: "this"}],
-                [[{}], {name1: "that"}]
-            ];
-            temp.mkdir("dir1", function(err, dirPath1){
-                fs.writeFile(path.join(dirPath1, "kolibri_plugin.py"), "", function (err) {
-                    if (!err) {
-                        temp.mkdir("dir2", function(err, dirPath2){
-                            fs.writeFile(path.join(dirPath2, "kolibri_plugin.py"), "", function (err) {
-                                if (!err) {
-                                    var output = recurseBundlePlugins([dirPath1, dirPath2], "/");
-                                    assert(output.length === 2);
-                                    for (var i = 0; i < output.length; i++) {
-                                        assert(Object.keys(output[i].externals).length === 2);
-                                    }
-                                    done();
-                                }
-                            });
                         });
                     }
                 });
