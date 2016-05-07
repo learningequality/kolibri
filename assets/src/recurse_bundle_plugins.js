@@ -9,7 +9,7 @@ var path = require("path");
 var logging = require("./logging");
 var _ = require("lodash");
 
-var readBundlePlugin = require('./read_bundle_plugin');
+var readBundlePlugins = require('./read_bundle_plugins');
 
 /**
  * Take an array of directories, recurse over all directories inside them, and look for any files named
@@ -25,7 +25,7 @@ var recurseBundlePlugins = function(directories, base_dir, libs) {
     // Find all the kolibri_plugin.py files in the Kolibri folder.
     var bundles = [];
 
-    var result = readBundlePlugin("", base_dir);
+    var result = readBundlePlugins(base_dir);
 
     // Append all the found bundles
     bundles = bundles.concat(result[0]);

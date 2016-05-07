@@ -21,17 +21,14 @@ var parseBundlePlugin = require('./parse_bundle_plugin');
  * @returns {Object} [1] externals - An object containing mapping from plugin name to plugin name for accessing those
  * plugins as an external library.
  */
-var readBundlePlugin = function(plugin_file, base_dir) {
-
-    logging.warn("Called with " + plugin_file + ", dir: " + base_dir);
+var readBundlePlugin = function(base_dir) {
 
     // Takes a module file path and turns it into a Python module path.
-    var plugin = path.relative(base_dir, plugin_file).replace(".py", "").replace(new RegExp("\\" + path.sep, 'g'), ".");
     var bundles = [];
     var externals = {};
 
     // Run the script below to extract the relevant information about the plugin configuration from the Python code.
-    var result = execSync("python -m kolibri manage webpack_json " + plugin).toString();
+    var result = execSync("python -m kolibri manage webpack_json ").toString();
 
     if (result.length > 0) {
 
