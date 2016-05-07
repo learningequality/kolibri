@@ -251,8 +251,6 @@ class KolibriHookMeta(type):
         # set _meta object... but we don't use it...
         # base_meta = getattr(new_class, '_meta', None)
 
-        logger.debug("Meta of {}: {}".format(new_class, meta))
-
         # Add all attributes to the class.
         for obj_name, obj in attrs.items():
             new_class.add_to_class(obj_name, obj)
@@ -260,12 +258,9 @@ class KolibriHookMeta(type):
         new_class.add_to_class('_meta', Options(meta))
         new_class.add_to_class('_parents', parents)
 
-        if abstract:
-            logger.debug("Abstract hook class {}".format(new_class))
-        else:
-            logger.debug("New registered hook class {}".format(new_class))
+        if not abstract:
+            logger.debug("Registered hook class {}".format(new_class))
             for parent in new_class._parents:
-                logger.debug("Parent {}".format(parent))
                 parent.register_hook(new_class)
 
         return new_class

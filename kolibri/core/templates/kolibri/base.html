@@ -12,7 +12,7 @@
   {% kolibri_main_navigation as nav %}
 
   {% for item in nav %}
-  <li><a href="{{ item.menu_url }}">{{ item.menu_name }}</a></li>
+  <li><a href="{{ item.url }}">{{ item.label }}</a></li>
   {% endfor %}
 
 </ul>
