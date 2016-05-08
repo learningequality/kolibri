@@ -8,5 +8,5 @@ class KolibriTagNavigationTestCase(TestCase):
 
     def test_navigation_tag(self):
         self.assertTrue(
-            kolibri_tags.kolibri_main_navigation()
+            len(list(kolibri_tags.kolibri_main_navigation())) > 0
         )

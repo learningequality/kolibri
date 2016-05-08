@@ -1,60 +1,54 @@
 """
-Kolibri Core hooks
-------------------
+Kolibri Webpack hooks
+---------------------
 
-WIP! Many applications are supposed to live inside the core namespace to make
-it explicit that they are part of the core.
-
-Do we put all their hooks in one module or should each app have its own hooks
-module?
-
-Anyways, for now to get hooks started, we have some defined here...
+To manage assets, we use the webpack format. In order to have assets bundled in,
+you should put them in ``yourapp/assets/src``.
 """
 
 from __future__ import absolute_import, print_function, unicode_literals
 
+import json
 import logging
 import os
+import time
 
-from kolibri.plugins.hooks import KolibriHook
+from django.conf import settings as django_settings
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.utils.functional import cached_property
+from django.utils.safestring import mark_safe
+
+from kolibri.core.webpack.utils import render_as_url
+from kolibri.plugins import hooks
+
+from . import settings
+
+
+class BundleNotFound(Exception):
+    pass
+
+class WebpackError(EnvironmentError):
+    pass
 
 
 logger = logging.getLogger(__name__)
 
 
-class WebpackBundleHook(KolibriHook):
+class WebpackBundleHook(hooks.KolibriHook):
     """
     This is the abstract hook class that all plugins that wish to load any
     assets into the front end must implement, in order for them to be part of
     the webpack asset loading pipeline.
-
-    Minimally these must implement the following properties and methods:
-
-    unique_slug
-
-    The path to the Javascript file that defines the plugin/acts as the entry point.
-    entry_file = "assets/js/example_module.js"
-
-    This hook will register the frontend plugin to be available for rendering its built files into Django templates.
-    def hooks(self):
-        return {
-            FRONTEND_PLUGINS: self._register_front_end_plugins
-        }
     """
 
     # : You should set a unique human readable name
     unique_slug = ""
 
     # : File for webpack to use as entry point
-    entry_file = "assets/src/kolibri_core_app.js"
+    src_file = "kolibri/core/assets/src/kolibri_core_app.js"
 
-    # TODO: What's this!?
-    # ??? -> an optional flag currently used only by the core plugin.
-    external = True
-
-    # TODO: What's this!?
-    # ??? -> an optional flag *only* ever used by the core plugin.
-    core = True
+    # : App static dir
+    static_dir = "kolibri/core/static"
 
     def __init__(self, *args, **kwargs):
         super(WebpackBundleHook, self).__init__(*args, **kwargs)
@@ -68,29 +62,74 @@ class WebpackBundleHook(KolibriHook):
     class Meta:
         abstract = True
 
+    @hooks.abstract_method
+    def get_by_slug(self, slug):
+        """
+        Fetch a registered hook by its slug
+        """
+        assert self._meta.abstract, "Only valid for abstract hooks"
+        for hook in self.registered_hooks:
+            if hook.unique_slug == slug:
+                return hook
+        raise BundleNotFound("No bundle with that name is loaded: {}".format(slug))
+
+    @cached_property
+    @hooks.registered_method
+    def stats_file_content(self):
+        with open(self.stats_file) as f:
+            stats = json.load(f)
+        if django_settings.DEBUG:
+            timeout = 0
+            while stats['status'] == 'compiling':
+                time.sleep(getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1))
+                timeout += getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1)
+                with open(self.stats_file) as f:
+                    stats = json.load(f)
+                if timeout >= getattr(settings, 'WEBPACK_POLL_INTERVAL', 1.0):
+                    raise WebpackError('Webpack compilation still in progress')
+            if stats['status'] == 'error':
+                raise WebpackError('Webpack compilation has errored')
+        return {
+            "files": stats["chunks"][self.unique_slug]
+        }
+
     @property
+    @hooks.registered_method
+    def bundle(self):
+        for f in self.stats_file_content["files"]:
+            filename = f['name']
+            if any(regex.match(filename) for regex in settings.IGNORE_PATTERNS):
+                continue
+            relpath = '{0}/{1}'.format(self.unique_slug, filename)
+            f['url'] = staticfiles_storage.url(relpath)
+            yield f
+
+    @hooks.registered_method
+    def bundle_filtered(self, extension=None):
+        bundle = self.bundle
+        if extension:
+            bundle = (chunk for chunk in bundle if chunk['name'].endswith('.{0}'.format(extension)))
+        return bundle
+
+    @hooks.registered_method
+    def async_events(self):
+        return self.stats_file_content["async_events"]
+
+    @property
+    @hooks.registered_method
     def webpack_bundle_data(self):
         """
         Returns information needed by the webpack parsing process.
-        :return: dict
-        "name" - is the module path that the frontend plugin has.
-        "entry_file" - is the Javascript file that defines the plugin.
-        "external" - an optional flag currently used only by the core plugin.
-        "core" - an optional flag *only* ever used by the core plugin.
-        "events" - the hash of event names and method callbacks that the KolibriModule defined here registers to.
-        "once" - the hash of event names and method callbacks that the KolibriModule defined here registers to for a
-        one time callback.
         """
-        output = self.async_events
-        output.update({
+        return {
             "name": self.unique_slug,
-            "entry_file": self.entry_file,
-            "external": getattr(self, "external", None),
-            "core": getattr(self, "core", None),
+            "src_file": self.src_file,
+            "static_dir": self.static_dir,
             "stats_file": self.stats_file,
             "module_path": self._module_file_path,
-        })
-        return output
+            "events": {},
+            "once": {},
+        }
 
     @property
     def build_path(self):
@@ -99,13 +138,6 @@ class WebpackBundleHook(KolibriHook):
     @property
     def stats_file(self):
         return os.path.join(self.build_path, "{plugin}_stats.json".format(plugin=self.unique_slug))
-
-    @property
-    def async_events(self):
-        return {
-            "events": getattr(self, "events", {}),
-            "once": getattr(self, "once", {}),
-        }
 
     @property
     def _module_file_path(self):
@@ -118,26 +150,109 @@ class WebpackBundleHook(KolibriHook):
         """
         return os.path.join(*self.__module__.split(".")[:-1])
 
+    def render_to_html(self, extension=None):
+        """
+        This function tags a bundle of file chunks and generates the appropriate
+        script tags for them, be they JS or CSS files.
 
-class FrontEndSyncHook(WebpackBundleHook):
+        :param bundle_data: The data returned from
+        :return: HTML of script tags for insertion into a page.
+        """
+        tags = []
+        js_tag = '<script type="text/javascript" src="{url}"></script>'
+        css_tag = '<link type="text/css" href="{url}" rel="stylesheet"/>'
+        for chunk in self.bundle_filtered(extension=extension):
+            if chunk['name'].endswith('.js'):
+                tags.append(js_tag.format(url=render_as_url(chunk)))
+            elif chunk['name'].endswith('.css'):
+                tags.append(css_tag.format(url=render_as_url(chunk)))
+        return mark_safe('\n'.join(tags))
+
+
+class FrontEndAssetHook(WebpackBundleHook):
     """
-    Define something that should be included for sync'ed purposes. Assets will
-    always be loaded.
+    An abstract class for all assets destined for the default front-end. You
+    probably want to use FrontEndSyncHook or FrontEndASyncHook to be explicit.
 
-    @rtibbles - please elaborate this :)
+    Everything inheriting from this hook will automatically be included in the
+    front-end.
     """
 
     class Meta:
         abstract = True
 
 
-class FrontEndASyncHook(WebpackBundleHook):
+class FrontEndSyncHook(FrontEndAssetHook):
     """
     Define something that should be included for sync'ed purposes. Assets will
     always be loaded.
-
-    @rtibbles - please elaborate this :)
     """
 
     class Meta:
         abstract = True
+
+
+class FrontEndCoreHook(FrontEndSyncHook):
+    """
+    A hook that asserts its only applied once, namely to load the core
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(FrontEndCoreHook, self).__init__(*args, **kwargs)
+        assert len(list(self.registered_hooks)) <= 1, "Only one core asset allowed"
+
+    @property
+    @hooks.registered_method
+    def webpack_bundle_data(self):
+        dct = super(FrontEndCoreHook, self).webpack_bundle_data
+        dct['core'] = True
+        dct['external'] = True
+        return dct
+
+    class Meta:
+        abstract = True
+
+
+class FrontEndASyncHook(FrontEndAssetHook):
+    """
+    Define something that should be included for sync'ed purposes.
+    """
+
+    # : A list of events to listen to
+    events = {}
+
+    # : A list of events to load the asset once
+    once = {}
+
+    @property
+    @hooks.registered_method
+    def webpack_bundle_data(self):
+        dct = super(FrontEndASyncHook, self).webpack_bundle_data
+        dct['events'] = self.events
+        dct['once'] = self.once
+        return dct
+
+    class Meta:
+        abstract = True
+
+    def render_to_html(self):
+        """
+        This function returns a script tag containing Javascript to register an
+        asynchronously loading Javascript FrontEnd plugin against the core
+        front-end Kolibri app. It passes in the events that would trigger
+        loading the plugin, both multi-time firing events (events) and one time
+        firing events (once).
+
+        It also passes in information about the methods that the events should
+        be delegated to once the plugin has loaded.
+
+        :returns: HTML of a script tag to insert into a page.
+        """
+        urls = [render_as_url(chunk) for chunk in self.bundle]
+        js = 'Kolibri.register_kolibri_module_async("{bundle}", ["{urls}"], {events}, {once});'.format(
+            bundle=self.unique_slug,
+            urls='","'.join(urls),
+            events=json.dumps(self.events),
+            once=json.dumps(self.once)
+        )
+        return mark_safe('<script>{js}</script>'.format(js=js))

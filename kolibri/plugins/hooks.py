@@ -168,9 +168,10 @@ template tag definition looks like this:
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
+import functools
 import logging
-import six
 
+import six
 
 logger = logging.getLogger(__name__)
 
@@ -178,6 +179,28 @@ logger = logging.getLogger(__name__)
 # : Inspired by how Django's Model Meta option settings work, we define a simple
 # : list of valid options for Meta classes.
 DEFAULT_NAMES = ('abstract',)
+
+
+def abstract_method(func):
+    @functools.wraps(func)
+    def inner(instance, *args, **kwargs):
+        assert \
+            instance._meta.abstract, \
+            "Method call only valid for an abstract hook"
+        return func(instance, *args, **kwargs)
+
+    return inner
+
+
+def registered_method(func):
+    @functools.wraps(func)
+    def inner(instance, *args, **kwargs):
+        assert \
+            instance._meta.abstract, \
+            "Method call only valid for a registered, non-abstract hook"
+        return func(instance, *args, **kwargs)
+
+    return inner
 
 
 class Options(object):
@@ -290,6 +313,7 @@ class KolibriHook(six.with_metaclass(KolibriHookMeta)):
         pass
 
     @property
+    @abstract_method
     def registered_hooks(self):
         """
         Always go through this method. This should guarantee that every time a

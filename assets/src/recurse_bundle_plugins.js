@@ -12,13 +12,13 @@ var _ = require("lodash");
 var readBundlePlugins = require('./read_bundle_plugins');
 
 /**
- * Take an array of directories, recurse over all directories inside them, and look for any files named
- * 'kolibri_plugin.py', then extract frontend bundle configuration data from them.
- * @param {Array} directories - The directories overwhich to recursively search for plugin files.
+ * Calls django management command 'webpack_json' to query for which JS bundles
+ * are present in the installation.
+ *
  * @param {string} base_dir - The absolute path of the base directory for writing files to.
  * @returns {Array} bundles - An array containing webpack config objects.
  */
-var recurseBundlePlugins = function(directories, base_dir, libs) {
+var recurseBundlePlugins = function(base_dir, libs) {
 
     var externals = {};
 

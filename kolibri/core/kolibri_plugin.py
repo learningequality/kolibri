@@ -5,10 +5,10 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
+from kolibri.core.webpack.hooks import FrontEndCoreHook
 from kolibri.plugins.base import KolibriPluginBase
 
 from . import hooks
-from .webpack.hooks import FrontEndSyncHook
 
 
 class KolibriCore(KolibriPluginBase):
@@ -24,8 +24,7 @@ class MainNavigationItem(hooks.NavigationHook):
     url = reverse_lazy('kolibri:index')
 
 
-class DefaultFrontEndAsset(FrontEndSyncHook):
+class DefaultFrontEndAsset(FrontEndCoreHook):
     unique_slug = "default_frontend"
-    entry_file = "assets/src/kolibri_core_app.js"
-    external = True
-    core = True
+    src_file = "kolibri/core/assets/src/kolibri_core_app.js"
+    static_dir = "kolibri/core/static"

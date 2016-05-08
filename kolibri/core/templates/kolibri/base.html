@@ -1,9 +1,8 @@
 {% load i18n kolibri_tags webpack_tags %}<html>
 <head>
   <title>{% block title %}{% endblock %} - {% trans "Kolibri" %}</title>
-  {% frontend_assets 'default_frontend' %}
-  {% base_frontend_async %}
-  {% base_frontend_sync %}
+  {% webpack_assets 'default_frontend' %}
+  {% base_frontend_assets %}
 </head>
 <body>
 
