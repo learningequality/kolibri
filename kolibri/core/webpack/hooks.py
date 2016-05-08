@@ -44,10 +44,11 @@ class WebpackBundleHook(hooks.KolibriHook):
     # : You should set a unique human readable name
     unique_slug = ""
 
-    # : File for webpack to use as entry point
-    src_file = "kolibri/core/assets/src/kolibri_core_app.js"
+    # : Relative path to js source file for webpack to use as entry point
+    # : For instance: "kolibri/core/assets/src/kolibri_core_app.js"
+    src_file = ""
 
-    # : App static dir
+    # : The static directory where you want stuff to be written to
     static_dir = "kolibri/core/static"
 
     def __init__(self, *args, **kwargs):
@@ -65,7 +66,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     @hooks.abstract_method
     def get_by_slug(self, slug):
         """
-        Fetch a registered hook by its slug
+        Fetch a registered hook instance by its unique slug
         """
         assert self._meta.abstract, "Only valid for abstract hooks"
         for hook in self.registered_hooks:
@@ -76,6 +77,14 @@ class WebpackBundleHook(hooks.KolibriHook):
     @cached_property
     @hooks.registered_method
     def stats_file_content(self):
+        """
+        TODO: This property is only cached on the instance, maybe it should be
+        cached in a static module property instead so we can cache the JSON data
+        across the whole app?
+
+        :returns: A dict of the data contained in the JSON files which are
+        written by Webpack.
+        """
         with open(self.stats_file) as f:
             stats = json.load(f)
         if django_settings.DEBUG:
@@ -96,6 +105,12 @@ class WebpackBundleHook(hooks.KolibriHook):
     @property
     @hooks.registered_method
     def bundle(self):
+        """
+        TODO: This is weird, why are we creating this as a dict object?
+
+        :returns: a generator yielding dict objects with properties of the built
+        asset, most notably its URL.
+        """
         for f in self.stats_file_content["files"]:
             filename = f['name']
             if any(regex.match(filename) for regex in settings.IGNORE_PATTERNS):
@@ -106,47 +121,65 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     @hooks.registered_method
     def bundle_filtered(self, extension=None):
+        """
+        TODO: Why is this helper function necessary!?
+
+        :returns: a possibly filtered list of data from self.bundle
+        """
         bundle = self.bundle
         if extension:
             bundle = (chunk for chunk in bundle if chunk['name'].endswith('.{0}'.format(extension)))
         return bundle
 
-    @hooks.registered_method
-    def async_events(self):
-        return self.stats_file_content["async_events"]
-
     @property
     @hooks.registered_method
     def webpack_bundle_data(self):
         """
-        Returns information needed by the webpack parsing process.
+        This is the main interface to the NPM Webpack building util. It is
+        used by the webpack_json management command. Inheritors may wish to
+        customize this.
+
+        :returns: A dict with information expected by webpack parsing process.
         """
         return {
             "name": self.unique_slug,
             "src_file": self.src_file,
             "static_dir": self.static_dir,
             "stats_file": self.stats_file,
-            "module_path": self._module_file_path,
             "events": {},
             "once": {},
         }
 
     @property
     def build_path(self):
-        return os.path.join(os.path.abspath(os.path.dirname(__name__)), self._module_file_path, "build")
+        """
+        An auto-generated path to where the build-time files are stored,
+        containing information about the built bundles.
+        """
+        return os.path.join(
+            os.path.abspath(os.path.dirname(__name__)),
+            self._module_file_path,
+            "build"
+        )
 
     @property
     def stats_file(self):
-        return os.path.join(self.build_path, "{plugin}_stats.json".format(plugin=self.unique_slug))
+        """
+        TODO: Do we want to rely on a generated stats file? It will have to be
+        read for every bundle, every time stuff is loaded.
+
+        An auto-generated path to where the build-time files are stored,
+        containing information about the built bundles.
+        """
+        return os.path.join(
+            self.build_path,
+            "{plugin}_stats.json".format(plugin=self.unique_slug)
+        )
 
     @property
     def _module_file_path(self):
         """
         Returns the path of the class inheriting this classmethod.
-        There is no such thing as Class properties, that's why it's implemented
-        as such.
-
-        Used in KolibriFrontEndPluginBase._register_front_end_plugins
         """
         return os.path.join(*self.__module__.split(".")[:-1])
 
