@@ -88,7 +88,7 @@ class ContentMetadata(MPTTModel, AbstractContent):
     content_id = models.UUIDField(primary_key=False, default=uuid4, editable=False)
     title = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True, null=True)
-    kind = models.CharField(max_length=50)
+    kind = models.ForeignKey('ContentKind', related_name='content_metadatas', blank=True, null=True)
     slug = models.CharField(max_length=100)
     total_file_size = models.IntegerField()
     available = models.BooleanField(default=False)
@@ -127,12 +127,18 @@ class FormatPreset(AbstractContent):
     multi_language = models.BooleanField(default=False)
     supplementary = models.BooleanField(default=False)
     order = models.IntegerField(blank=True, null=True)
-    content_kind = models.ForeignKey(ContentKind, related_name='format_presets', blank=True, null=True)
-    format = models.ManyToManyField(FileFormat, blank=True)
+    kind = models.ForeignKey(ContentKind, related_name='format_presets', blank=True, null=True)
+    allowed_format = models.ManyToManyField(FileFormat, blank=True)
+
+    def __str__(self):
+        return self.name
 
 class Language(AbstractContent):
     lang_code = models.CharField(primary_key=True, max_length=400)
     lang_name = models.CharField(max_length=400, blank=True, null=True)
+
+    def __str__(self):
+        return self.lang_name
 
 class File(AbstractContent):
     """
