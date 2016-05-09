@@ -1,6 +1,4 @@
-from kolibri.content.models import (
-    ChannelMetadata, ContentMetadata, File, Format
-)
+from kolibri.content.models import ChannelMetadata, ContentMetadata, File
 from rest_framework import serializers
 
 
@@ -63,21 +61,6 @@ class ContentMetadataSerializer(serializers.ModelSerializer):
         lookup_field_1='channelmetadata_channel_id',
         lookup_field_2='content_id',
     )
-    all_formats = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-all-formats',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
-    )
-    available_formats = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-available-formats',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
-    )
-    possible_formats = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-possible-formats',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
-    )
 
     missing_files = DualLookuplinkedIdentityField(
         view_name='contentmetadata-missing-files',
@@ -91,17 +74,8 @@ class ContentMetadataSerializer(serializers.ModelSerializer):
         fields = (
             'url', 'content_id', 'title', 'description', 'kind', 'slug', 'total_file_size', 'available',
             'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children',
-            'leaves', 'all_prerequisites', 'all_related', 'all_formats', 'available_formats',
-            'possible_formats', 'missing_files'
+            'leaves', 'all_prerequisites', 'all_related', 'missing_files'
         )
-
-
-class FormatSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Format
-        view_name = 'format-list'
-        fields = ('available', 'format_size', 'quality', 'contentmetadata', 'mimetype')
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -113,4 +87,4 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = File
-        fields = ('url', 'checksum', 'extension', 'available', 'file_size', 'content_copy', 'format')
+        fields = ('url', 'checksum', 'available', 'file_size', 'content_copy', 'contentmetadata', 'file_format', 'preset', 'lang')

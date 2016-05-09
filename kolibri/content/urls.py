@@ -101,43 +101,6 @@ class ContentMetadataViewset(viewsets.ViewSet):
         return Response(data)
 
     @detail_route()
-    def all_formats(self, request, channelmetadata_channel_id, *args, **kwargs):
-        """
-        endpoint for content api method
-        get_all_formats(channel_id=None, content=None, **kwargs)
-        """
-        context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.FormatSerializer(
-            api.get_all_formats(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
-        ).data
-        return Response(data)
-
-    @detail_route()
-    def available_formats(self, request, channelmetadata_channel_id, *args, **kwargs):
-        """
-        endpoint for content api method
-        get_available_formats(channel_id=None, content=None, **kwargs)
-        """
-        context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.FormatSerializer(
-            api.get_available_formats(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
-        ).data
-        return Response(data)
-
-    @detail_route()
-    def possible_formats(self, request, channelmetadata_channel_id, *args, **kwargs):
-        """
-        endpoint for content api method
-        get_possible_formats(channel_id=None, content=None, **kwargs)
-        """
-        context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.FormatSerializer(
-            api.get_possible_formats(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
-        ).data
-        return Response(data)
-
-    @detail_route()
     def missing_files(self, request, channelmetadata_channel_id, *args, **kwargs):
         """
         endpoint for content api method

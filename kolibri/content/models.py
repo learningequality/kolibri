@@ -148,7 +148,7 @@ class File(AbstractContent):
     contentmetadata = models.ForeignKey(ContentMetadata, related_name='files', blank=True, null=True)
     file_format = models.ForeignKey(FileFormat, related_name='files', blank=True, null=True)
     preset = models.ForeignKey(FormatPreset, related_name='files', blank=True, null=True)
-    lang = models.CharField(max_length=50, blank=True, null=True)
+    lang = models.ForeignKey(Language, blank=True, null=True)
 
     class Admin:
         pass
