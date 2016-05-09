@@ -11,10 +11,9 @@ import unittest
 
 import logging
 
-logger = logging.getLogger(__name__)
-
-
 from kolibri.utils.cli import main
+
+logger = logging.getLogger(__name__)
 
 
 class KolibriTestBase(unittest.TestCase):
