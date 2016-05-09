@@ -1,20 +1,27 @@
 """
 To run this test, type this in command line <kolibri manage test -- kolibri.content>
 """
+from __future__ import unicode_literals
 import os
 import shutil
 import tempfile
 import json
-from django.test import TestCase
+
+from django.conf import settings
 from django.db import connections, IntegrityError
 from django.test.utils import override_settings
+
 from kolibri.content import models as content
 from kolibri.content import api
-from django.conf import settings
+
+from rest_framework.test import APITestCase as TestCase
 
 
 @override_settings(
-    CONTENT_COPY_DIR=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/test_content_copy"
+    CONTENT_COPY_DIR=os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "test_content_copy"
+    )
 )
 class ContentMetadataTestCase(TestCase):
     """
@@ -32,17 +39,17 @@ class ContentMetadataTestCase(TestCase):
         # Create a temporary directory
         self.test_dir = tempfile.mkdtemp()
         # Create files in the temporary directory
-        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'), 'w')
-        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'), 'w')
+        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'), 'wb')
+        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'), 'wb')
         # Write something to it
-        self.temp_f_1.write('The owls are not what they seem')
-        self.temp_f_2.write('The owl are not what they seem')
+        self.temp_f_1.write(b'The owls are not what they seem')
+        self.temp_f_2.write(b'The owl are not what they seem')
 
         # Reopen the file and check if what we read back is the same
-        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'))
-        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'))
-        self.assertEqual(self.temp_f_1.read(), 'The owls are not what they seem')
-        self.assertEqual(self.temp_f_2.read(), 'The owl are not what they seem')
+        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'), 'rb')
+        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'), 'rb')
+        self.assertEqual(self.temp_f_1.read(), b'The owls are not what they seem')
+        self.assertEqual(self.temp_f_2.read(), b'The owl are not what they seem')
 
     """Tests for content API methods"""
     def test_can_get_content_with_id(self):
@@ -71,7 +78,7 @@ class ContentMetadataTestCase(TestCase):
         api.update_content_copy(file_1, fpath_1)
         file_3 = content.File.objects.using(self.the_channel_id).filter(format=fm_3)[1]
         api.update_content_copy(file_3, fpath_1)
-        self.assertEqual(1, len(os.listdir(settings.CONTENT_COPY_DIR+'/0/9/')))
+        self.assertEqual(1, len(os.listdir(os.path.join(settings.CONTENT_COPY_DIR, '0', '9'))))
 
         # swap the content copy in file_3
         fpath_2 = self.temp_f_2.name
@@ -87,7 +94,7 @@ class ContentMetadataTestCase(TestCase):
         self.assertTrue(file_2.content_copy)
         api.update_content_copy(file_2, None)
         self.assertFalse(file_2.content_copy)
-        content_copy_path = settings.CONTENT_COPY_DIR+'/3/3/335782204c8215e0061516c6b3b80271.mp4'
+        content_copy_path = os.path.join(settings.CONTENT_COPY_DIR, '3', '3', '335782204c8215e0061516c6b3b80271.mp4')
         self.assertTrue(os.path.isfile(content_copy_path))
 
         # all reference pointing to this content copy is gone,
@@ -385,7 +392,7 @@ class ContentMetadataTestCase(TestCase):
         self.client.put('/channel/' + self.the_channel_id + '/file/' + str(file_1.pk) + '/update_content_copy/' + fpath_1)
         file_3 = content.File.objects.using(self.the_channel_id).filter(format=fm_3)[1]
         self.client.put('/channel/' + self.the_channel_id + '/file/' + str(file_3.pk) + '/update_content_copy/' + fpath_1)
-        self.assertEqual(1, len(os.listdir(settings.CONTENT_COPY_DIR+'/0/9/')))
+        self.assertEqual(1, len(os.listdir(os.path.join(settings.CONTENT_COPY_DIR, '0', '9'))))
 
     @classmethod
     def tearDownClass(self):
