@@ -68,7 +68,6 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         Fetch a registered hook instance by its unique slug
         """
-        assert self._meta.abstract, "Only valid for abstract hooks"
         for hook in self.registered_hooks:
             if hook.unique_slug == slug:
                 return hook
