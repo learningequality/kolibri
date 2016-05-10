@@ -45,9 +45,10 @@ def webpack_assets(unique_slug):
 @register.simple_tag()
 def base_frontend_assets():
     """
-    This is a script tag for the ``FrontEndSyncHook`` hook - this is used in
-    ``/base.html`` template to populate any Javascript and CSS that should be
-    loaded at page load.
+    This is a script tag for all ``FrontEndAssetHook`` hooks that implement a
+    render_to_html() method - this is used in ``/base.html`` template to
+    populate any Javascript and CSS that should be loaded at page load.
+
     :return: HTML of script tags to insert into base.html
     """
     tags = []
