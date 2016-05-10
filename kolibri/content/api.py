@@ -148,6 +148,17 @@ def get_missing_files(channel_id=None, content=None, **kwargs):
         return KolibriContent.File.objects.using(channel_id).filter(available=False, format__contentmetadata=content)
 
 @can_get_content_with_id
+def get_all_presets(channel_id=None, content=None, **kwargs):
+    """
+    Get all ContentMetadatas that are the terminal nodes and also the descendants of the this ContentMetadata.
+
+    :param channel_id: str
+    :param content: ContentMetadata or str
+    :return: QuerySet of ContentMetadata
+    """
+    return KolibriContent.FormatPreset.objects.using(channel_id).filter(kind=content.kind)
+
+@can_get_content_with_id
 def get_all_prerequisites(channel_id=None, content=None, **kwargs):
     """
     Get cotents that are the prerequisites of this content.
