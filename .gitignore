@@ -60,3 +60,7 @@ kolibri/**/static/*
 
 # swap files
 *.swp
+
+# editor files
+*.sublime-project
+*.sublime-workspace
