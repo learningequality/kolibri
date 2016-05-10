@@ -8,6 +8,3 @@ pytest-cov
 coverage
 mock
 psycopg2==2.6.1
-pytest
-pytest-cov
-pytest-django
