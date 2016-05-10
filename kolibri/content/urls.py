@@ -154,10 +154,10 @@ class FormatPresetViewset(viewsets.ViewSet):
 
 
 router = routers.SimpleRouter()
-router.register(r'channel', ChannelMetadataViewSet, base_name='channelmetadata')
+router.register(r'api/content', ChannelMetadataViewSet, base_name='channelmetadata')
 
-channel_router = routers.NestedSimpleRouter(router, r'channel', lookup='channelmetadata')
-channel_router.register(r'content', ContentMetadataViewset, base_name='contentmetadata')
+channel_router = routers.NestedSimpleRouter(router, r'api/content', lookup='channelmetadata')
+channel_router.register(r'contentmetadata', ContentMetadataViewset, base_name='contentmetadata')
 channel_router.register(r'file', FileViewset, base_name='file')
 channel_router.register(r'preset', FormatPresetViewset, base_name='preset')
 
