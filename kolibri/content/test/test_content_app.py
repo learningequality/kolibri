@@ -12,13 +12,14 @@ from kolibri.content import models as content
 from kolibri.content import api
 from django.conf import settings
 
+from rest_framework.test import APITestCase
 
 @override_settings(
     CONTENT_COPY_DIR=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/test_content_copy"
 )
 class ContentMetadataTestCase(TestCase):
     """
-    Testcase for content API methods
+    Testcase for content metadata methods
     """
     fixtures = ['channel_test.json', 'content_test.json']
     multi_db = True
@@ -284,7 +285,49 @@ class ContentMetadataTestCase(TestCase):
         actual_output = api.children_of_kind(channel_id=self.the_channel_id, content=p, kind="topic")
         self.assertEqual(set(expected_output), set(actual_output))
 
-    """Tests for content API endpoints"""
+    @classmethod
+    def tearDownClass(self):
+        """
+        clean up files/folders created during the test
+        """
+        try:
+            shutil.rmtree(settings.CONTENT_COPY_DIR)
+            shutil.rmtree(self.test_dir)
+        except:
+            pass
+
+
+@override_settings(
+    CONTENT_COPY_DIR=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/test_content_copy"
+)
+class ContentMetadataAPITestCase(APITestCase):
+    """
+    Testcase for content API methods
+    """
+    fixtures = ['channel_test.json', 'content_test.json']
+    multi_db = True
+    the_channel_id = 'content_test'
+    connections.databases[the_channel_id] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    }
+
+    def setUp(self):
+        # Create a temporary directory
+        self.test_dir = tempfile.mkdtemp()
+        # Create files in the temporary directory
+        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'), 'w')
+        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'), 'w')
+        # Write something to it
+        self.temp_f_1.write('The owls are not what they seem')
+        self.temp_f_2.write('The owl are not what they seem')
+
+        # Reopen the file and check if what we read back is the same
+        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'))
+        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'))
+        self.assertEqual(self.temp_f_1.read(), 'The owls are not what they seem')
+        self.assertEqual(self.temp_f_2.read(), 'The owl are not what they seem')
+
     def test_ancestor_topics_endpoint(self):
         c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
         response = self.client.get('/channel/' + self.the_channel_id + '/content/' + str(c1_id) + '/ancestor_topics/')
@@ -377,7 +420,7 @@ class ContentMetadataTestCase(TestCase):
         self.assertEqual(cn_titles[2], 'c2c3')
 
     def test_update_content_copy_endpoint(self):
-        # add same content copy twise, there should be no duplication
+        # add same content copy twice, there should be no duplication
         fpath_1 = self.temp_f_1.name
         fm_1 = content.Format.objects.using(self.the_channel_id).get(format_size=102)
         fm_3 = content.Format.objects.using(self.the_channel_id).get(format_size=46)
