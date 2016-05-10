@@ -18,7 +18,29 @@
 {# The "verbatim" tag includes its contents literally, used for escaping Vue template variables #}
 {% verbatim %}
 <header id="navigation-module">
-  <nav>{{ message }}</nav>
+  <div>
+    <span>Title</span>
+    <a href="#">Home Link</a>
+    <div>
+      <span> {{ user.username }} -- {{ user.first_name + " " + user.last_name }}</span>
+      <ul>
+        <li v-for="item in user_nav_items">
+          <span v-for="value in item">
+            {{ $key }} : {{ value }},
+          </span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <nav>
+    <ul>
+      <li v-for="item in nav_items">
+        <span v-for="value in item">
+          {{ $key }} : {{ value }},
+        </span>
+      </li>
+    </ul>
+  </nav>
 </header>
 {% endverbatim %}
 
