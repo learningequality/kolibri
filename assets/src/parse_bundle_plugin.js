@@ -49,7 +49,7 @@ var parseBundlePlugin = function(data, base_dir) {
         bundle.module.preLoaders.push({
             test: /\.js$/, // include .js files
             exclude: /node_modules/, // exclude any and all files in the node_modules folder
-            loader: "jshint-loader"
+            loader: "eslint"
         });
 
         bundle.resolve.root = base_dir;
@@ -82,8 +82,8 @@ var parseBundlePlugin = function(data, base_dir) {
                 library: library
             },
 
-            jshint: {
-                failOnHint: true
+            eslint: {
+                failOnError: true
             },
             async_file: data.async_file
         });
