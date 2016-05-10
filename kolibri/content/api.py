@@ -82,43 +82,7 @@ def leaves(channel_id=None, content=None, **kwargs):
     return content.get_leafnodes().using(channel_id)
 
 @can_get_content_with_id
-def get_all_formats(channel_id=None, content=None, **kwargs):
-    """
-    Get all possible formats for a particular content including its descendants' formats.
-
-    :param channel_id: str
-    :param content: ContentMetadata or str
-    :return: QuerySet of Format
-    """
-    all_end_nodes = leaves(channel_id=channel_id, content=content)
-    return KolibriContent.Format.objects.using(channel_id).filter(contentmetadata__in=all_end_nodes)
-
-@can_get_content_with_id
-def get_available_formats(channel_id=None, content=None, **kwargs):
-    """
-    Get all available formats for a particular content excluding its descendants' formats.
-    if the pass-in content is a topic, this function will return null.
-
-    :param channel_id: str
-    :param content: ContentMetadata or str
-    :return: QuerySet of Format
-    """
-    return KolibriContent.Format.objects.using(channel_id).filter(contentmetadata=content, available=True)
-
-@can_get_content_with_id
-def get_possible_formats(channel_id=None, content=None, **kwargs):
-    """
-    Get all possible formats for a particular content excluding its descendants' formats.
-    if the pass-in content is a topic, this function will return null.
-
-    :param channel_id: str
-    :param content: ContentMetadata or str
-    :return: QuerySet of Format
-    """
-    return KolibriContent.Format.objects.using(channel_id).filter(contentmetadata=content)
-
-@can_get_content_with_id
-def get_files_for_quality(channel_id=None, content=None, format_quality=None, **kwargs):
+def get_files_for_quality(channel_id=None, content=None, preset_quality=None, **kwargs):
     """
     Get all files for a particular content in particular quality.
     For format_quality argument, please pass in a string like "high" or "low" or "normal".
@@ -129,8 +93,7 @@ def get_files_for_quality(channel_id=None, content=None, format_quality=None, **
     :param format_quality: str
     :return: QuerySet of File
     """
-    the_formats = get_possible_formats(channel_id=channel_id, content=content).filter(quality=format_quality)
-    return KolibriContent.File.objects.using(channel_id).filter(format__in=the_formats)
+    return get_all_presets(channel_id=channel_id, content=content).filter(name=preset_quality).files
 
 @can_get_content_with_id
 def get_missing_files(channel_id=None, content=None, **kwargs):
@@ -143,9 +106,9 @@ def get_missing_files(channel_id=None, content=None, **kwargs):
     """
     if content.kind == 'topic':
         all_end_nodes = leaves(channel_id=channel_id, content=content)
-        return KolibriContent.File.objects.using(channel_id).filter(available=False, format__contentmetadata__in=all_end_nodes)
+        return KolibriContent.File.objects.using(channel_id).filter(available=False, contentmetadata__in=all_end_nodes)
     else:
-        return KolibriContent.File.objects.using(channel_id).filter(available=False, format__contentmetadata=content)
+        return KolibriContent.File.objects.using(channel_id).filter(available=False, contentmetadata=content)
 
 @can_get_content_with_id
 def get_all_presets(channel_id=None, content=None, **kwargs):
@@ -215,7 +178,7 @@ def children_of_kind(channel_id=None, content=None, kind=None, **kwargs):
     :param kind: str
     :return: QuerySet of ContentMetadata
     """
-    return content.get_descendants(include_self=False).filter(kind=kind).using(channel_id)
+    return content.get_descendants(include_self=False).filter(kind__kind=kind).using(channel_id)
 
 def update_content_copy(file_object=None, content_copy=None):
     """

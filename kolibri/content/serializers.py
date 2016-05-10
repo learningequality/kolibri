@@ -69,7 +69,7 @@ class ContentMetadataSerializer(serializers.ModelSerializer):
         lookup_field_2='content_id',
     )
     all_presets = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-missing-files',
+        view_name='contentmetadata-all-presets',
         lookup_field_1='channelmetadata_channel_id',
         lookup_field_2='content_id',
     )
@@ -93,7 +93,7 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = File
-        # depth = 1
+        depth = 1
         fields = ('url', 'checksum', 'available', 'file_size', 'content_copy', 'contentmetadata', 'file_format', 'preset', 'lang')
 
 
