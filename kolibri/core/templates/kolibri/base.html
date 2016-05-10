@@ -15,6 +15,13 @@
 </head>
 <body>
 
+{# The "verbatim" tag includes its contents literally, used for escaping Vue template variables #}
+{% verbatim %}
+<header id="navigation-module">
+  <nav>{{ message }}</nav>
+</header>
+{% endverbatim %}
+
 <hr>
 
 {% block content %}
