@@ -247,8 +247,7 @@ class KolibriHookMeta(type):
 
         super_new = super(KolibriHookMeta, cls).__new__
 
-        # Also ensure initialization is only performed for subclasses of Model
-        # (excluding Model class itself).
+        # Parent classes of cls up until and including KolibriHookMeta
         parents = [b for b in bases if isinstance(b, KolibriHookMeta)]
 
         # If there isn't any parents, it's the main class of everything
