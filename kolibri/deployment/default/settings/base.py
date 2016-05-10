@@ -195,10 +195,8 @@ LOGGING = {
 
 AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
 
-AUTH_ANONYMOUS_USER_MODEL = "kolibri.auth.models.KolibriAnonymousUser"
-
 AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']
 
 REST_FRAMEWORK = {
-    "UNAUTHENTICATED_USER": AUTH_ANONYMOUS_USER_MODEL
+    "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser"
 }

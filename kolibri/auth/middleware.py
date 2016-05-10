@@ -1,12 +1,8 @@
-import importlib
-
-from django.conf import settings
 from django.contrib.auth import get_user
 from django.contrib.auth.middleware import AuthenticationMiddleware
 from django.utils.functional import SimpleLazyObject
 
-module, klass = settings.AUTH_ANONYMOUS_USER_MODEL.rsplit('.', 1)
-CustomAnonymousUser = getattr(importlib.import_module(module), klass)
+from .models import KolibriAnonymousUser
 
 
 def _get_user(request):
@@ -14,7 +10,7 @@ def _get_user(request):
     if not hasattr(request, '_cached_user'):
         user = get_user(request)
         if user.is_anonymous():
-            user = CustomAnonymousUser()
+            user = KolibriAnonymousUser()
         request._cached_user = user
 
     return request._cached_user
