@@ -1,4 +1,6 @@
-from kolibri.content.models import ChannelMetadata, ContentMetadata, File
+from kolibri.content.models import (
+    ChannelMetadata, ContentMetadata, File, FormatPreset
+)
 from rest_framework import serializers
 
 
@@ -61,8 +63,12 @@ class ContentMetadataSerializer(serializers.ModelSerializer):
         lookup_field_1='channelmetadata_channel_id',
         lookup_field_2='content_id',
     )
-
     missing_files = DualLookuplinkedIdentityField(
+        view_name='contentmetadata-missing-files',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='content_id',
+    )
+    all_presets = DualLookuplinkedIdentityField(
         view_name='contentmetadata-missing-files',
         lookup_field_1='channelmetadata_channel_id',
         lookup_field_2='content_id',
@@ -74,7 +80,7 @@ class ContentMetadataSerializer(serializers.ModelSerializer):
         fields = (
             'url', 'content_id', 'title', 'description', 'kind', 'slug', 'total_file_size', 'available',
             'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children',
-            'leaves', 'all_prerequisites', 'all_related', 'missing_files'
+            'leaves', 'all_prerequisites', 'all_related', 'missing_files', 'all_presets'
         )
 
 
@@ -87,4 +93,17 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = File
+        # depth = 1
         fields = ('url', 'checksum', 'available', 'file_size', 'content_copy', 'contentmetadata', 'file_format', 'preset', 'lang')
+
+
+class FormatPresetSerializer(serializers.ModelSerializer):
+    url = DualLookuplinkedIdentityField(
+        view_name='preset-detail',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='pk'
+    )
+
+    class Meta:
+        model = FormatPreset
+        fields = ('url', 'name', 'kind', 'allowed_format', 'multi_language', 'order', 'supplementary')

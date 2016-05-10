@@ -112,6 +112,18 @@ class ContentMetadataViewset(viewsets.ViewSet):
         ).data
         return Response(data)
 
+    @detail_route()
+    def all_presets(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        endpoint for content api method
+        get_all_presets(channel_id=None, content=None, **kwargs)
+        """
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        data = serializers.FileSerializer(
+            api.get_all_presets(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+        ).data
+        return Response(data)
+
     def files_for_quality(self, request, channelmetadata_channel_id, *args, **kwargs):
         """
         endpoint for content api method
@@ -173,12 +185,27 @@ class FileViewset(viewsets.ViewSet):
         return Response(api.update_content_copy(file_object=target_file, content_copy=str(content_copy)))
 
 
+class FormatPresetViewset(viewsets.ViewSet):
+    def list(self, request, channelmetadata_channel_id=None):
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        files = serializers.FormatPresetSerializer(models.FormatPreset.objects.using(channelmetadata_channel_id).all(), context=context, many=True).data
+        return Response(files)
+
+    def retrieve(self, request, pk=None, channelmetadata_channel_id=None):
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        file = serializers.FormatPresetSerializer(
+            models.FormatPreset.objects.using(channelmetadata_channel_id).get(pk=pk), context=context
+        ).data
+        return Response(file)
+
+
 router = routers.SimpleRouter()
 router.register(r'channel', ChannelMetadataViewSet, base_name='channelmetadata')
 
 channel_router = routers.NestedSimpleRouter(router, r'channel', lookup='channelmetadata')
 channel_router.register(r'content', ContentMetadataViewset, base_name='contentmetadata')
 channel_router.register(r'file', FileViewset, base_name='file')
+channel_router.register(r'preset', FormatPresetViewset, base_name='preset')
 
 
 urlpatterns = [
