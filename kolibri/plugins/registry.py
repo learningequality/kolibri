@@ -67,9 +67,13 @@ def initialize():
             try:
                 plugin_module = importlib.import_module(app + ".kolibri_plugin")
                 logger.debug("Loaded kolibri plugin: {}".format(app))
-                all_classes = dict([(name, cls) for name, cls in plugin_module.__dict__.items() if isinstance(cls, type)])
+                # Load a list of all class types in module
+                all_classes = [cls for cls in plugin_module.__dict__.values() if isinstance(cls, type)]
+                # Filter the list to only match the ones that belong to the module
+                # and not the ones that have been imported
+                all_classes = filter(lambda x: plugin_module.__package__ + ".kolibri_plugin" == x.__module__, all_classes)
                 plugin_classes = []
-                for obj in all_classes.values():
+                for obj in all_classes:
                     if type(obj) == type and issubclass(obj, KolibriPluginBase):
                         plugin_classes.append(obj)
                 for plugin_klass in plugin_classes:
