@@ -1,12 +1,7 @@
 {
   "name": "kolibri",
   "version": "0.0.1",
-  "description": "Kolibri is a Learning Management System / Learning App designed to run on low-power devices, targeting the needs of learners and teachers in contexts with limited infrastructure. A user can install Kolibri and serve the app on a local network, without an internet connection. Kolibri installations can be linked to one another, so that user data and content can be shared. Users can create content for Kolibri and share it when there is network access to another Kolibri installation or the internet.",
-  "main": "assets/bundles/kolibri.js",
-  "directories": {
-    "doc": "docs",
-    "test": "test"
-  },
+  "description": "Development utilities for Kolibri",
   "scripts": {
     "test": "npm run test-mocha && npm run test-karma",
     "test-karma": "./node_modules/karma/bin/karma start karma_config/karma.conf.js --single-run",
@@ -22,17 +17,11 @@
     "type": "git",
     "url": "git+https://github.com/learningequality/kolibri.git"
   },
-  "keywords": [
-    "learning",
-    "edtech",
-    "offline"
-  ],
   "author": "Learning Equality",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/learningequality/kolibri/issues"
   },
-  "homepage": "https://github.com/learningequality/kolibri#readme",
   "dependencies": {
     "backbone": "^1.3.1",
     "colors": "^1.1.2",
