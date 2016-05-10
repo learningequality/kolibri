@@ -10,7 +10,7 @@ var fs = require("fs");
 var path = require("path");
 var logging = require('./logging');
 var webpack = require('webpack');
-var base_config = require('../../webpack.config.base');
+var base_config = require('../../webpack_config/webpack.config.base');
 var _ = require('lodash');
 
 /**

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# complexity documentation build configuration file, created by
-# sphinx-quickstart on Tue Jul  9 22:26:36 2013.
+# complexity documentation build configuration file
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -13,6 +12,9 @@
 
 import sys
 import os
+import django
+import kolibri
+
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -31,9 +33,6 @@ os.environ["KOLIBRI_HOME"] = os.path.join(builddir, 'kolibri_home')
 
 if not os.path.exists(os.environ["KOLIBRI_HOME"]):
     os.mkdir(os.environ["KOLIBRI_HOME"])
-
-import django
-import kolibri
 
 django.setup()
 
@@ -205,7 +204,7 @@ htmlhelp_basename = 'kolibridoc'
 
 # -- Options for LaTeX output --------------------------------------------------
 
-latex_elements = {
+latex_elements = {}
 # The paper size ('letterpaper' or 'a4paper').
 # 'papersize': 'letterpaper',
 
@@ -214,13 +213,12 @@ latex_elements = {
 
 # Additional stuff for the LaTeX preamble.
 # 'preamble': '',
-}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'kolibri.tex', u'Kolibri Documentation',
-   u'Learning Equality', 'manual'),
+    ('index', 'kolibri.tex', u'Kolibri Documentation',
+     u'Learning Equality', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -263,9 +261,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'kolibri', u'Kolibri Documentation',
-   u'Learning Equality', 'kolibri', 'One line description of project.',
-   'Miscellaneous'),
+    ('index', 'kolibri', u'Kolibri Documentation',
+     u'Learning Equality', 'kolibri', 'One line description of project.',
+     'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
