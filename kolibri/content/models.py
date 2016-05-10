@@ -88,7 +88,7 @@ class ContentMetadata(MPTTModel, AbstractContent):
     content_id = models.UUIDField(primary_key=False, default=uuid4, editable=False)
     title = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True, null=True)
-    kind = models.CharField(max_length=50)
+    kind = models.ForeignKey('ContentKind', related_name='content_metadatas', blank=True, null=True)
     slug = models.CharField(max_length=100)
     total_file_size = models.IntegerField()
     available = models.BooleanField(default=False)
@@ -109,33 +109,36 @@ class ContentMetadata(MPTTModel, AbstractContent):
     def __str__(self):
         return self.title
 
-class MimeType(AbstractContent):
-    """
-    Normalize the "kind"(mimetype) of Format model
-    """
-    readable_name = models.CharField(max_length=50)
-    machine_name = models.CharField(max_length=100)
-
-    class Admin:
-        pass
+class ContentKind(AbstractContent):
+    kind = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
-        return self.readable_name
+        return self.kind
 
-class Format(AbstractContent):
-    """
-    The intermediate layer of the contentDB schema, defines a complete set of resources that is ready to be rendered on the front-end,
-    including the quality of the content.
-    Things it can represent are, for example, high_resolution_video, low_resolution_video, vectorized_video, khan_excercise...
-    """
-    available = models.BooleanField(default=False)
-    format_size = models.IntegerField(blank=True, null=True)
-    quality = models.CharField(max_length=50, blank=True, null=True)
-    contentmetadata = models.ForeignKey(ContentMetadata, related_name='formats', blank=True, null=True)
-    mimetype = models.ForeignKey(MimeType, blank=True, null=True)
+class FileFormat(AbstractContent):
+    extension = models.CharField(primary_key=True, max_length=40)
+    # content_kind = models.ForeignKey(ContentKind, related_name='kind', blank=True, null=True)
 
-    class Admin:
-        pass
+    def __str__(self):
+        return self.extension
+
+class FormatPreset(AbstractContent):
+    name = models.CharField(max_length=400, blank=True, null=True)
+    multi_language = models.BooleanField(default=False)
+    supplementary = models.BooleanField(default=False)
+    order = models.IntegerField(blank=True, null=True)
+    kind = models.ForeignKey(ContentKind, related_name='format_presets', blank=True, null=True)
+    allowed_format = models.ManyToManyField(FileFormat, blank=True)
+
+    def __str__(self):
+        return self.name
+
+class Language(AbstractContent):
+    lang_code = models.CharField(primary_key=True, max_length=400)
+    lang_name = models.CharField(max_length=400, blank=True, null=True)
+
+    def __str__(self):
+        return self.lang_name
 
 class File(AbstractContent):
     """
@@ -143,11 +146,15 @@ class File(AbstractContent):
     Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3...
     """
     checksum = models.CharField(max_length=400, blank=True, null=True)
-    extension = models.CharField(max_length=100, blank=True, null=True)
     available = models.BooleanField(default=False)
     file_size = models.IntegerField(blank=True, null=True)
-    content_copy = models.FileField(upload_to=content_copy_name, storage=ContentCopyStorage(), max_length=200, blank=True)
-    format = models.ForeignKey(Format, related_name='files', blank=True, null=True)
+    content_copy = models.FileField(upload_to=content_copy_name, storage=ContentCopyStorage(), max_length=500, blank=True)
+    # use choice for content_format
+    # content_format = models.CharField(max_length=50, blank=True, null=True)
+    contentmetadata = models.ForeignKey(ContentMetadata, related_name='files', blank=True, null=True)
+    file_format = models.ForeignKey(FileFormat, related_name='files', blank=True, null=True)
+    preset = models.ForeignKey(FormatPreset, related_name='files', blank=True, null=True)
+    lang = models.ForeignKey(Language, blank=True, null=True)
 
     class Admin:
         pass
