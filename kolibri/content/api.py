@@ -57,7 +57,7 @@ def get_ancestor_topics(channel_id=None, content=None, **kwargs):
     :param content: ContentMetadata or str
     :return: QuerySet of ContentMetadata
     """
-    return content.get_ancestors().filter(kind="topic").using(channel_id)
+    return content.get_ancestors().filter(kind__kind="topic").using(channel_id)
 
 @can_get_content_with_id
 def immediate_children(channel_id=None, content=None, **kwargs):
@@ -93,7 +93,7 @@ def get_files_for_quality(channel_id=None, content=None, preset_quality=None, **
     :param format_quality: str
     :return: QuerySet of File
     """
-    return get_all_presets(channel_id=channel_id, content=content).filter(name=preset_quality).files
+    return get_all_presets(channel_id=channel_id, content=content).get(name=preset_quality).files.all().filter(contentmetadata=content)
 
 @can_get_content_with_id
 def get_missing_files(channel_id=None, content=None, **kwargs):
@@ -113,7 +113,7 @@ def get_missing_files(channel_id=None, content=None, **kwargs):
 @can_get_content_with_id
 def get_all_presets(channel_id=None, content=None, **kwargs):
     """
-    Get all ContentMetadatas that are the terminal nodes and also the descendants of the this ContentMetadata.
+    Get all FormatPreset objects that are associated with the kind of the content.
 
     :param channel_id: str
     :param content: ContentMetadata or str
@@ -180,7 +180,7 @@ def children_of_kind(channel_id=None, content=None, kind=None, **kwargs):
     """
     return content.get_descendants(include_self=False).filter(kind__kind=kind).using(channel_id)
 
-def update_content_copy(file_object=None, content_copy=None):
+def update_content_copy(channel_id=None, file_object=None, content_copy_path=None):
     """
     Update the File object you pass in with the content copy
     You can pass None on content_copy to remove the associated file on disk.
@@ -190,9 +190,9 @@ def update_content_copy(file_object=None, content_copy=None):
     """
     if not file_object:
         raise TypeError("must provide a File object to update content copy")
-    if content_copy:
-        file_object.content_copy = DjFile(open(content_copy, 'rb'))
+    if content_copy_path:
+        file_object.content_copy = DjFile(open(content_copy_path, 'rb'))
     else:
         file_object.content_copy = None
 
-    file_object.save()
+    file_object.update_content(channel_id=channel_id)
