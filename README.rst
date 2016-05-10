@@ -49,6 +49,9 @@ Adjust according to your operating system or personal preferences.
     $ mkvirtualenv --python=python3 kolibri
     $ workon kolibri
 
+#. Ensure NodeJS is installed, using a platform-appropriate installer. We test on versions v0.12, v4, and v5.
+   On Ubuntu, you may encounter issues building if you don't use NodeJS installed via [nvm](https://github.com/creationix/nvm).
+
 #. Install all NodeJS dependency packages for building the frontend code::
 
     $ npm install
@@ -91,6 +94,17 @@ use simply ``tox``. This simulates what our CI also does.
 
 To run linting tests (pep8 and static code analysis), use ``tox -e lint`` or
 ``make lint``.
+
+Note that tox, by default, reuses its environment when it is run again. If you add anything to the requirements,
+you will want to either delete the `.tox` directory, or run ``tox`` with the ``-r`` argument to recreate the environment.
+
+We strive for 100% code coverage in Kolibri. When you open a Pull Request, code coverage (and your impact on coverage)
+will be reported. To test code coverage locally, so that you can work to improve it, you can run the following::
+
+    $ tox -e py3.4
+    $ coverage html
+
+    <open the generated ./htmlcov/index.html file in your browser>
 
 Kolibri comes with a Javascript test suite based on ``mocha``. To run all tests::
 

@@ -331,3 +331,41 @@ Note that for the ``DeviceOwner`` model, these methods will simply return
 ``True`` (or unfiltered querysets), as device owners are considered
 superusers. For the ``FacilityUser`` model, they defer to the permissions
 encoded in the ``permission`` object on the model class.
+
+
+Using Kolibri Permissions with Django REST Framework
+----------------------------------------------------
+
+There are two classes that make it simple to leverage the permissions system
+described above within a Django REST Framework ``ViewSet``, to restrict
+permissions appropriately on API endpoints, based on the currently logged-in
+user.
+
+``KolibriAuthPermissions`` is a subclass of
+``rest_framework.permissions.BasePermission`` that defers to our
+``KolibriAbstractBaseUser`` permissions interface methods for determining
+which object-level permissions to grant to the current user:
+
+- Permissions for 'POST' are based on ``request.user.can_create``
+- Permissions for 'GET', 'OPTIONS' and 'HEAD' are based on ``request.user.can_read``
+  (Note that adding ``KolibriAuthPermissions`` only checks object-level permissions,
+  and does not filter queries made against a list view; see
+  ``KolibriAuthPermissionsFilter`` below)
+- Permissions for 'PUT' and 'PATCH' are based on ``request.user.can_update``
+- Permissions for 'DELETE' are based on ``request.user.can_delete``
+
+``KolibriAuthPermissions`` is a subclass of
+``rest_framework.filters.BaseFilterBackend`` that filters list views to include
+only records for which the current user has read permissions. This only applies to
+'GET' requests.
+
+For example, to use the Kolibri permissions system to restrict permissions for an
+API endpoint providing access to a ``ContentLog`` model, you would do the following::
+
+    from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
+
+    class FacilityViewSet(viewsets.ModelViewSet):
+        permission_classes = (KolibriAuthPermissions,)
+        filter_backends = (KolibriAuthPermissionsFilter,)
+        queryset = ContentLog.objects.all()
+        serializer_class = ContentLogSerializer

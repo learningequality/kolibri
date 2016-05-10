@@ -97,6 +97,10 @@ class HierarchyRelationsFilter(object):
         op = ") {operator} (".format(operator=operator)
         return "(({items}))".format(items=op.join(lst))
 
+    def _is_non_facility_user(self, user):
+        from .models import KolibriAbstractBaseUser, FacilityUser
+        return isinstance(user, KolibriAbstractBaseUser) and not isinstance(user, FacilityUser)
+
     def filter_by_hierarchy(self,
                             source_user=None,
                             role_kind=None,
@@ -122,9 +126,13 @@ class HierarchyRelationsFilter(object):
         :rtype: QuerySet
         """
 
+        # if either the source or target user is not a facility user, return an empty queryset
+        if self._is_non_facility_user(source_user) or self._is_non_facility_user(target_user):
+            return self.queryset.none()
+
         ################################################################################################################
-        # 1. First, determine which components of the hierarchy tree are relevant to the current query, and add in the
-        # corresponding tables and base conditions to establish the relationships between them.
+        # 1. Determine which components of the hierarchy tree are relevant to the current query, and add in the
+        #    corresponding tables and base conditions to establish the relationships between them.
         ################################################################################################################
 
         # 1(a). If needed, add in the SQL to establish the relationships between the target user (member) and the collections.
@@ -150,18 +158,19 @@ class HierarchyRelationsFilter(object):
             self._add_extras(**self._role_extra)
 
         ################################################################################################################
-        # 2. Next, add in the additional conditions that apply constraints on the tables in the hierarchy, fixing their
-        # fields to particular values or tying them into a field on the base table that is being queried.
+        # 2. Add in the additional conditions that apply constraints on the tables in the hierarchy, fixing their
+        #    fields to particular values or tying them into a field on the base table that is being queried.
         ################################################################################################################
 
         if source_user:
             where_clause = ['source_user.id = {id}'.format(id=self._as_sql_reference(source_user))]
             self._add_extras(where=where_clause)
 
+        # if role_kind is a single string, put it into a list
+        if isinstance(role_kind, string_types):
+            role_kind = [role_kind]
+
         if role_kind:
-            # if role_kind is a single string, put it into a list
-            if isinstance(role_kind, string_types):
-                role_kind = [role_kind]
             # convert the list of kinds into a list of strings for use in SQL
             kinds_string = "('{kind_list}')".format(kind_list="','".join(role_kind))
             where_clause = ['role.kind IN {kinds}'.format(kinds=kinds_string)]
