@@ -4,7 +4,7 @@
  * @module kolibri_module
  */
 
-const Kolibri = require('kolibri');
+const Kolibri = require('./core_app');
 const _ = require('lodash');
 const Backbone = require('backbone');
 

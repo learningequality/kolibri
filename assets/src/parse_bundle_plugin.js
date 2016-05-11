@@ -44,7 +44,7 @@ var parseBundlePlugin = function(data, base_dir) {
             // instantiated as a global variable. Only currently used by the Kolibri core app.
             external = data.name;
             // change the periods of the Python module path name to underscores, so that it is a valid JS variable name.
-            library = data.core ? 'Kolibri' : data.name.replace(/\./g, "_");
+            library = data.core ? 'KolibriGlobalVar' : data.name.replace(/\./g, "_");
         }
 
         bundle.resolve.root = base_dir;

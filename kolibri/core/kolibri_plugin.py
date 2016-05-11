@@ -26,7 +26,7 @@ class MainNavigationItem(hooks.NavigationHook):
 
 class FrontEndCoreAssetHook(FrontEndCoreAssetHook):
     unique_slug = "default_frontend"
-    src_file = "kolibri/core/assets/src/kolibri_core_app.js"
+    src_file = "kolibri/core/assets/src/core_app.js"
     static_dir = "kolibri/core/static"
 
 
