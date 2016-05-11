@@ -6,7 +6,7 @@ The ONLY public object is ContentMetadata
 """
 from __future__ import print_function
 
-import hashlib
+# import hashlib
 import logging
 import os
 from uuid import uuid4
@@ -162,59 +162,56 @@ class File(AbstractContent):
     def __str__(self):
         return '{checksum}{extension}'.format(checksum=self.checksum, extension='.' + self.file_format.extension)
 
-    def update_content(self, channel_id, *args, **kwargs):
-        """
-        Overrider the default save method.
-        If the content_copy FileField gets passed a content copy:
-            1. generate the MD5 from the content copy
-            2. fill the other fields accordingly
-            3. update tracking for this content copy
-        If None is passed to the content_copy FileField:
-            1. delete the content copy.
-            2. update tracking for this content copy
-        """
-        if self.content_copy:  # if content_copy is supplied, hash out the file
-            md5 = hashlib.md5()
-            for chunk in self.content_copy.chunks():
-                md5.update(chunk)
-            self.checksum = md5.hexdigest()
-            self.available = True
-            self.file_size = self.content_copy.size
-            # if feed a format that doesn't exist yet will break the app
-            # not sure how we want to handle this yet
-            # import pdb
-            # pdb.set_trace()
-            self.file_format = FileFormat.objects.using(channel_id).get(extension=self.content_copy.name.split('.')[1])
-            # update ContentCopyTracking
-            try:
-                content_copy_track = ContentCopyTracking.objects.get(content_copy_id=self.checksum)
-                content_copy_track.referenced_count += 1
-                content_copy_track.save()
-            except ContentCopyTracking.DoesNotExist:
-                ContentCopyTracking.objects.create(referenced_count=1, content_copy_id=self.checksum)
-        else:
-            # update ContentCopyTracking, if referenced_count reach 0, delete the content copy on disk
-            try:
-                content_copy_track = ContentCopyTracking.objects.get(content_copy_id=self.checksum)
-                content_copy_track.referenced_count -= 1
-                content_copy_track.save()
-                if content_copy_track.referenced_count == 0:
-                    content_copy_path = os.path.join(
-                        settings.CONTENT_COPY_DIR,
-                        self.checksum[0:1],
-                        self.checksum[1:2],
-                        self.checksum + '.' + self.file_format.extension
-                    )
-                    if os.path.isfile(content_copy_path):
-                        os.remove(content_copy_path)
-            except ContentCopyTracking.DoesNotExist:
-                pass
-            self.checksum = None
-            self.available = False
-            self.file_size = None
-            self.extension = None
-        super(File, self).save(*args, **kwargs)
-
+    # def update_content(self, channel_id, *args, **kwargs):
+    #     """
+    #     Overrider the default save method.
+    #     If the content_copy FileField gets passed a content copy:
+    #         1. generate the MD5 from the content copy
+    #         2. fill the other fields accordingly
+    #         3. update tracking for this content copy
+    #     If None is passed to the content_copy FileField:
+    #         1. delete the content copy.
+    #         2. update tracking for this content copy
+    #     """
+    #     if self.content_copy:  # if content_copy is supplied, hash out the file
+    #         md5 = hashlib.md5()
+    #         for chunk in self.content_copy.chunks():
+    #             md5.update(chunk)
+    #         self.checksum = md5.hexdigest()
+    #         self.available = True
+    #         self.file_size = self.content_copy.size
+    #         # if feed a format that doesn't exist yet will break the app
+    #         # not sure how we want to handle this yet
+    #         self.file_format = FileFormat.objects.using(channel_id).get(extension=os.path.splitext(self.content_copy.name)[1])
+    #         # update ContentCopyTracking
+    #         try:
+    #             content_copy_track = ContentCopyTracking.objects.get(content_copy_id=self.checksum)
+    #             content_copy_track.referenced_count += 1
+    #             content_copy_track.save()
+    #         except ContentCopyTracking.DoesNotExist:
+    #             ContentCopyTracking.objects.create(referenced_count=1, content_copy_id=self.checksum)
+    #     else:
+    #         # update ContentCopyTracking, if referenced_count reach 0, delete the content copy on disk
+    #         try:
+    #             content_copy_track = ContentCopyTracking.objects.get(content_copy_id=self.checksum)
+    #             content_copy_track.referenced_count -= 1
+    #             content_copy_track.save()
+    #             if content_copy_track.referenced_count == 0:
+    #                 content_copy_path = os.path.join(
+    #                     settings.CONTENT_COPY_DIR,
+    #                     self.checksum[0:1],
+    #                     self.checksum[1:2],
+    #                     self.checksum + '.' + self.file_format.extension
+    #                 )
+    #                 if os.path.isfile(content_copy_path):
+    #                     os.remove(content_copy_path)
+    #         except ContentCopyTracking.DoesNotExist:
+    #             pass
+    #         self.checksum = None
+    #         self.available = False
+    #         self.file_size = None
+    #         self.extension = None
+    #     self.save()
 
 class License(AbstractContent):
     """
