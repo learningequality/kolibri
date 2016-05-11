@@ -137,12 +137,6 @@ def initialize(debug=False):
     Always called before running commands
     """
 
-    if not os.path.exists(KOLIBRI_HOME):
-        parent = os.path.dirname(KOLIBRI_HOME)
-        if not os.path.exists(parent):
-            raise RuntimeError("The parent of your KOLIBRI_HOME does not exist: {}".format(parent))
-        os.mkdir(KOLIBRI_HOME)
-
     setup_logging(debug=debug)
 
     if not os.path.isfile(VERSION_FILE):
