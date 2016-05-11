@@ -1,19 +1,6 @@
 """
 Kolibri template tags
 =====================
-
-To use
-
-.. code-block:: html
-
-    {% load kolibri_tags %}
-
-    <ul>
-    {% for navigation in kolibri_main_navigation %}
-        <li><a href="{{ navigation.menu_url }}">{{ navigation.menu_name }}</a></li>
-    {% endfor %}
-    </ul>
-
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
@@ -39,25 +26,24 @@ def content_renderer_frontend_async():
 
 
 @register.simple_tag()
-def kolibri_main_navigation():
+def initialized_data():
     """
-    A tag to include a JS-object used by the Navigation KolibriModule to populate the site-wide nav menu.
-    Drop it into the head of a template, before Navigation JS assets are loaded.
+    A tag to include an initial JS-object to bootstrap data into the app.
     :return: An html string
     """
-    kolibri_reserved = {
+    init_data = {
         'nav_items': [],
         'user_nav_items': [],
     }
     for nav_item_list_func in hooks.get_callables(hooks.NAVIGATION_POPULATE):
-        kolibri_reserved['nav_items'] += nav_item_list_func()
+        init_data['nav_items'] += nav_item_list_func()
 
     for user_nav_item_list_func in hooks.get_callables(hooks.USER_NAVIGATION_POPULATE):
-        kolibri_reserved['user_nav_items'] += user_nav_item_list_func()
+        init_data['user_nav_items'] += user_nav_item_list_func()
 
     html = ("<script type='text/javascript'>"
-            "window.kolibri_reserved={0};"
-            "</script>".format(json.dumps(kolibri_reserved)))
+            "window.kolibriGlobal.initData={0};"
+            "</script>".format(json.dumps(init_data)))
     return mark_safe(html)
 
 
@@ -101,7 +87,7 @@ def render_as_async(bundle):
     chunks = get_webpack_bundle(bundle, None)
     async_events = get_async_events(bundle)
     urls = [render_as_url(chunk) for chunk in chunks]
-    js = 'KolibriGlobalVar.register_kolibri_module_async("{bundle}", ["{urls}"], {events}, {once});'.format(
+    js = 'kolibriGlobal.register_kolibri_module_async("{bundle}", ["{urls}"], {events}, {once});'.format(
         bundle=bundle,
         urls='","'.join(urls),
         events=json.dumps(async_events.get('events')),
