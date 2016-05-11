@@ -82,7 +82,7 @@ def leaves(channel_id=None, content=None, **kwargs):
     return content.get_leafnodes().using(channel_id)
 
 @can_get_content_with_id
-def get_files_for_quality(channel_id=None, content=None, preset_quality=None, **kwargs):
+def get_files_for_preset(channel_id=None, content=None, preset=None, **kwargs):
     """
     Get all files for a particular content in particular quality.
     For format_quality argument, please pass in a string like "high" or "low" or "normal".
@@ -93,7 +93,7 @@ def get_files_for_quality(channel_id=None, content=None, preset_quality=None, **
     :param format_quality: str
     :return: QuerySet of File
     """
-    return get_all_presets(channel_id=channel_id, content=content).get(name=preset_quality).files.all().filter(contentmetadata=content)
+    return get_all_presets(channel_id=channel_id, content=content).get(id=preset).files.all().filter(contentmetadata=content)
 
 @can_get_content_with_id
 def get_missing_files(channel_id=None, content=None, **kwargs):
