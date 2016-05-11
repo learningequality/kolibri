@@ -106,4 +106,4 @@ class FormatPresetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FormatPreset
-        fields = ('url', 'name', 'kind', 'allowed_format', 'multi_language', 'order', 'supplementary')
+        fields = ('url', 'id', 'readable_name', 'kind', 'allowed_formats', 'multi_language', 'order', 'supplementary')

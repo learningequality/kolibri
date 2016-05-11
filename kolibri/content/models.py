@@ -17,6 +17,8 @@ from django.db import IntegrityError, OperationalError, connections, models
 from django.db.utils import ConnectionDoesNotExist
 from mptt.models import MPTTModel, TreeForeignKey
 
+from .constants import extensions, kinds, presets
+
 
 def content_copy_name(instance, filename):
     """
@@ -87,7 +89,7 @@ class ContentMetadata(MPTTModel, AbstractContent):
     """
     content_id = models.UUIDField(primary_key=False, default=uuid4, editable=False)
     title = models.CharField(max_length=200)
-    description = models.CharField(max_length=400, blank=True, null=True)
+    description = models.CharField(max_length=400, blank=True)
     kind = models.ForeignKey('ContentKind', related_name='content_metadatas', blank=True, null=True)
     slug = models.CharField(max_length=100)
     total_file_size = models.IntegerField()
@@ -98,7 +100,7 @@ class ContentMetadata(MPTTModel, AbstractContent):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
     sort_order = models.FloatField(blank=True, null=True)
-    license_owner = models.CharField(max_length=200, blank=True, null=True)
+    license_owner = models.CharField(max_length=200, blank=True)
 
     class Meta:
         verbose_name = 'Content Metadata'
@@ -110,32 +112,32 @@ class ContentMetadata(MPTTModel, AbstractContent):
         return self.title
 
 class ContentKind(AbstractContent):
-    kind = models.CharField(max_length=200, blank=True, null=True)
+    kind = models.CharField(primary_key=True, max_length=200, choices=kinds.choices)
 
     def __str__(self):
         return self.kind
 
 class FileFormat(AbstractContent):
-    extension = models.CharField(primary_key=True, max_length=40)
-    # content_kind = models.ForeignKey(ContentKind, related_name='kind', blank=True, null=True)
+    extension = models.CharField(primary_key=True, max_length=40, choices=extensions.choices)
 
     def __str__(self):
         return self.extension
 
 class FormatPreset(AbstractContent):
-    name = models.CharField(max_length=400, blank=True, null=True)
+    id = models.CharField(primary_key=True, max_length=150, choices=presets.choices)
+    readable_name = models.CharField(max_length=400)
     multi_language = models.BooleanField(default=False)
     supplementary = models.BooleanField(default=False)
-    order = models.IntegerField(blank=True, null=True)
-    kind = models.ForeignKey(ContentKind, related_name='format_presets', blank=True, null=True)
-    allowed_format = models.ManyToManyField(FileFormat, blank=True)
+    order = models.IntegerField()
+    kind = models.ForeignKey(ContentKind, related_name='format_presets')
+    allowed_formats = models.ManyToManyField(FileFormat, blank=True)
 
     def __str__(self):
         return self.name
 
 class Language(AbstractContent):
     lang_code = models.CharField(primary_key=True, max_length=400)
-    lang_name = models.CharField(max_length=400, blank=True, null=True)
+    lang_name = models.CharField(max_length=400)
 
     def __str__(self):
         return self.lang_name
@@ -145,12 +147,10 @@ class File(AbstractContent):
     The bottom layer of the contentDB schema, defines the basic building brick for content.
     Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3...
     """
-    checksum = models.CharField(max_length=400, blank=True, null=True)
+    checksum = models.CharField(max_length=400, blank=True)
     available = models.BooleanField(default=False)
     file_size = models.IntegerField(blank=True, null=True)
     content_copy = models.FileField(upload_to=content_copy_name, storage=ContentCopyStorage(), max_length=500, blank=True)
-    # use choice for content_format
-    # content_format = models.CharField(max_length=50, blank=True, null=True)
     contentmetadata = models.ForeignKey(ContentMetadata, related_name='files', blank=True, null=True)
     file_format = models.ForeignKey(FileFormat, related_name='files', blank=True, null=True)
     preset = models.ForeignKey(FormatPreset, related_name='files', blank=True, null=True)
@@ -298,9 +298,9 @@ class ChannelMetadata(models.Model):
     """
     channel_id = models.UUIDField(primary_key=False, unique=True, default=uuid4, editable=True)
     name = models.CharField(max_length=200)
-    description = models.CharField(max_length=400, blank=True, null=True)
-    author = models.CharField(max_length=400, blank=True, null=True)
-    theme = models.CharField(max_length=400, blank=True, null=True)
+    description = models.CharField(max_length=400, blank=True)
+    author = models.CharField(max_length=400, blank=True)
+    theme = models.CharField(max_length=400, blank=True)
     subscribed = models.BooleanField(default=False)
 
     class Meta:
