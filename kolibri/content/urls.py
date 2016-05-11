@@ -142,15 +142,15 @@ class FileViewset(viewsets.ViewSet):
 class FormatPresetViewset(viewsets.ViewSet):
     def list(self, request, channelmetadata_channel_id=None):
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        files = serializers.FormatPresetSerializer(models.FormatPreset.objects.using(channelmetadata_channel_id).all(), context=context, many=True).data
-        return Response(files)
+        presets = serializers.FormatPresetSerializer(models.FormatPreset.objects.using(channelmetadata_channel_id).all(), context=context, many=True).data
+        return Response(presets)
 
     def retrieve(self, request, pk=None, channelmetadata_channel_id=None):
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        file = serializers.FormatPresetSerializer(
+        preset = serializers.FormatPresetSerializer(
             models.FormatPreset.objects.using(channelmetadata_channel_id).get(pk=pk), context=context
         ).data
-        return Response(file)
+        return Response(preset)
 
 
 router = routers.SimpleRouter()
