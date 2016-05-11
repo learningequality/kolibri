@@ -11,6 +11,7 @@ from django.test.utils import override_settings
 from kolibri.content import models as content
 from kolibri.content import api
 from django.conf import settings
+from kolibri.content.constants import kinds
 
 from rest_framework.test import APITestCase
 
@@ -150,14 +151,14 @@ class ContentMetadataTestCase(TestCase):
 
     def test_get_all_presets(self):
         p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
-        expected_output = content.FormatPreset.objects.using(self.the_channel_id).filter(kind__kind='video')
+        expected_output = content.FormatPreset.objects.using(self.the_channel_id).filter(kind__kind=kinds.VIDEO)
         actual_output = api.get_all_presets(channel_id=self.the_channel_id, content=p)
         self.assertEqual(set(expected_output), set(actual_output))
 
-    def test_get_files_for_quality(self):
+    def test_get_files_for_preset(self):
         p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1")
         expected_output = content.File.objects.using(self.the_channel_id).filter(id=2)
-        actual_output = api.get_files_for_quality(channel_id=self.the_channel_id, content=p, preset_quality="low_res_video")
+        actual_output = api.get_files_for_preset(channel_id=self.the_channel_id, content=p, preset="low_res_video")
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_missing_files(self):
@@ -269,7 +270,7 @@ class ContentMetadataTestCase(TestCase):
     def test_children_of_kind(self):
         p = content.ContentMetadata.objects.using(self.the_channel_id).get(title="root")
         expected_output = content.ContentMetadata.objects.using(self.the_channel_id).filter(title__in=["c2", "c2c2", "c2c3"])
-        actual_output = api.children_of_kind(channel_id=self.the_channel_id, content=p, kind="topic")
+        actual_output = api.children_of_kind(channel_id=self.the_channel_id, content=p, kind=kinds.TOPIC)
         self.assertEqual(set(expected_output), set(actual_output))
 
     @classmethod
@@ -341,4 +342,4 @@ class ContentMetadataAPITestCase(APITestCase):
     def test_all_presets_endpoint(self):
         c1_id = content.ContentMetadata.objects.using(self.the_channel_id).get(title="c1").content_id
         response = self.client.get(self._reverse_channel_url("contentmetadata-all-presets", {"content_id": c1_id}))
-        self.assertEqual(response.data[0]['name'], 'high_res_video')
+        self.assertEqual(len(response.data), 5)
