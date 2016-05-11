@@ -4,9 +4,8 @@ enters the docs)
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.conf.urls import url
+from django.shortcuts import redirect
 from kolibri.plugins import hooks
-
-from . import views
 
 app_name = 'kolibri'
 
@@ -16,6 +15,10 @@ for url_confs_func in hooks.get_callables(hooks.URLCONF_POPULATE):
     for urlconf in url_confs_func():
         urlpatterns.append(urlconf)
 
+
+def redirect_view(request):
+    return redirect("/learn")
+
 urlpatterns += [
-    url('', views.IndexView.as_view(), name='index'),
+    url('', redirect_view, name='index'),
 ]
