@@ -19,12 +19,6 @@ logger = logging.getLogger(__name__)
 
 KOLIBRI_HOME = os.environ["KOLIBRI_HOME"]
 
-if not os.path.exists(KOLIBRI_HOME):
-    parent = os.path.dirname(KOLIBRI_HOME)
-    if not os.path.exists(parent):
-        raise RuntimeError("The parent of your KOLIBRI_HOME does not exist: {}".format(parent))
-    os.mkdir(KOLIBRI_HOME)
-
 conf_file = os.path.join(KOLIBRI_HOME, "kolibri_settings.json")
 
 if not os.path.isfile(conf_file):

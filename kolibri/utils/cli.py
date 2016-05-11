@@ -1,6 +1,6 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-
+import django
 import importlib
 import logging
 import os
@@ -10,6 +10,7 @@ import kolibri
 
 from docopt import docopt
 from logging import config as logging_config
+from django.core.management import call_command
 
 USAGE = """
 Kolibri
@@ -87,11 +88,74 @@ os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
 
 logger = logging.getLogger(__name__)
 
+KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
+VERSION_FILE = os.path.join(KOLIBRI_HOME, '.data_version')
+
+
+class PluginDoesNotExist(Exception):
+    """
+    This exception is local to the CLI environment in case actions are performed
+    on a plugin that cannot be loaded.
+    """
+    pass
+
+
+def _first_run():
+    """
+    Called once at least. Will not run if the .kolibri/.version file is
+    found.
+    """
+    if os.path.exists(VERSION_FILE):
+        logger.error("_first_run() called, but Kolibri is already initialized.")
+        return
+    logger.info("Kolibri running for the first time.")
+    logger.info(
+        "We don't yet use pre-migrated database seeds, so you're going to have "
+        "to wait a bit while we create a blank database...\n\n"
+    )
+
+    django.setup()
+
+    call_command("migrate")
+
+    from kolibri.core.settings import WELL_KNOWN_PLUGINS
+
+    for plugin_module in WELL_KNOWN_PLUGINS:
+        try:
+            plugin(plugin_module, enable=True)
+        except PluginDoesNotExist:
+            continue
+
+    logger.info("Automatically enabling applications.")
+
+    with open(VERSION_FILE, "w") as f:
+        f.write(kolibri.__version__)
+
+
+def initialize(debug=False):
+    """
+    Always called before running commands
+    """
+
+    if not os.path.exists(KOLIBRI_HOME):
+        parent = os.path.dirname(KOLIBRI_HOME)
+        if not os.path.exists(parent):
+            raise RuntimeError("The parent of your KOLIBRI_HOME does not exist: {}".format(parent))
+        os.mkdir(KOLIBRI_HOME)
+
+    setup_logging(debug=debug)
+
+    if not os.path.isfile(VERSION_FILE):
+        _first_run()
+
 
 def setup_logging(debug=False):
     """Configures logging in cases where a Django environment is not supposed
     to be configured"""
-    from kolibri.deployment.default.settings.base import LOGGING
+    try:
+        from django.conf.settings import LOGGING
+    except ImportError:
+        from kolibri.deployment.default.settings.base import LOGGING
     if debug:
         from django.conf import settings
         settings.DEBUG = True
@@ -116,7 +180,7 @@ def manage(cmd, args=[]):
     execute_from_command_line(argv=argv)
 
 
-def plugin(plugin_name, args):
+def plugin(plugin_name, **args):
     """
     Receives a plugin identifier and tries to load its main class. Calls class
     functions.
@@ -133,13 +197,13 @@ def plugin(plugin_name, args):
             if type(obj) == type and obj is not KolibriPluginBase and issubclass(obj, KolibriPluginBase):
                 plugin_classes.append(obj)
     except ImportError:
-        raise RuntimeError("Plugin does not exist")
+        raise PluginDoesNotExist("Plugin does not exist")
 
-    if args['enable']:
+    if args.get('enable', False):
         for klass in plugin_classes:
             klass.enable()
 
-    if args['disable']:
+    if args.get('disable', False):
         for klass in plugin_classes:
             klass.disable()
 
@@ -178,7 +242,7 @@ def main(args=None):
 
     debug = arguments['--debug']
 
-    setup_logging(debug=debug)
+    initialize(debug=debug)
 
     # Alias
     if arguments['shell']:
@@ -192,5 +256,5 @@ def main(args=None):
 
     if arguments['plugin']:
         plugin_name = arguments['PLUGIN']
-        plugin(plugin_name, arguments)
+        plugin(plugin_name, **arguments)
         return
