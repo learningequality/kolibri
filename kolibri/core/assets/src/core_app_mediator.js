@@ -66,6 +66,7 @@ Mediator.prototype.register_kolibri_module_sync = function(kolibri_module) {
     this._execute_callback_buffer(kolibri_module);
     logging.info('KolibriModule: ' + kolibri_module.name + ' registered');
     this.trigger('kolibri_register', kolibri_module);
+    kolibri_module.ready();
 };
 
 /**
