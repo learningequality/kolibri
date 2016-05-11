@@ -33,11 +33,11 @@ class ContentMetadataTestCase(TestCase):
         # Create a temporary directory
         self.test_dir = tempfile.mkdtemp()
         # Create files in the temporary directory
-        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'), 'wb')
-        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'), 'wb')
+        self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'), 'w')
+        self.temp_f_2 = open(os.path.join(self.test_dir, 'test_2.mp4'), 'w')
         # Write something to it
-        self.temp_f_1.write('The owls are not what they seem')
-        self.temp_f_2.write('The owl are not what they seem')
+        self.temp_f_1.write(bytes('The owls are not what they seem').encode('utf-8'))
+        self.temp_f_2.write(bytes('The owl are not what they seem').encode('utf-8'))
 
         # Reopen the file and check if what we read back is the same
         self.temp_f_1 = open(os.path.join(self.test_dir, 'test_1.pdf'))
