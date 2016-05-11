@@ -10,15 +10,27 @@
  */
 
 var webpack = require('webpack');
+var utils = require('./utils')
 
 var config = {
     module: {
-        preLoaders: [{
-            test: /\.js$/,
-            loader: "eslint",
-            exclude: /node_modules/
-        }],
+        preLoaders: [
+          {
+              test: /\.vue$/,
+              loader: 'eslint',
+              exclude: /node_modules/
+          },
+          {
+              test: /\.js$/,
+              loader: 'eslint',
+              exclude: /node_modules/
+          }
+        ],
         loaders: [
+            {
+              test: /\.vue$/,
+              loader: 'vue'
+            },
             // This is required in order to prevent Backbone from importing jQuery.
             // See here for more details: https://github.com/jashkenas/backbone/wiki/Using-Backbone-without-jQuery
             {
@@ -33,7 +45,11 @@ var config = {
             {
                 test: /fg-loadcss\/src\/onloadCSS/,
                 loader: 'exports?onloadCSS'
-            }
+            },
+            {
+                test: /\.html$/,
+                loader: 'vue-html'
+            },
         ]
     },
     plugins: [
@@ -48,7 +64,11 @@ var config = {
     },
     eslint: {
         failOnError: true
+    },
+    vue: {
+        loaders: utils.cssLoaders()
     }
+
 };
 
 module.exports = config;

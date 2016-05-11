@@ -10,10 +10,6 @@ class LearnModule(KolibriFrontEndPluginBase):
     """
     entry_file = "assets/src/learn.js"
 
-    events = {
-        "kolibri_register": "start"
-    }
-
     base_url = "learn"
 
     template = "learn/learn.html"
