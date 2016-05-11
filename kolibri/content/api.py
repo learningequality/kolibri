@@ -8,6 +8,7 @@ from django.core.files import File as DjFile
 from django.db.models import Q
 from kolibri.content import models as KolibriContent
 from kolibri.content.utils import validate
+from .constants import kinds
 
 """ContentDB API methods"""
 
@@ -57,7 +58,7 @@ def get_ancestor_topics(channel_id=None, content=None, **kwargs):
     :param content: ContentMetadata or str
     :return: QuerySet of ContentMetadata
     """
-    return content.get_ancestors().filter(kind__kind="topic").using(channel_id)
+    return content.get_ancestors().filter(kind__kind=kinds.TOPIC).using(channel_id)
 
 @can_get_content_with_id
 def immediate_children(channel_id=None, content=None, **kwargs):
@@ -104,7 +105,7 @@ def get_missing_files(channel_id=None, content=None, **kwargs):
     :param content: ContentMetadata or str
     :return: QuerySet of File
     """
-    if content.kind == 'topic':
+    if content.kind == kinds.TOPIC:
         all_end_nodes = leaves(channel_id=channel_id, content=content)
         return KolibriContent.File.objects.using(channel_id).filter(available=False, contentmetadata__in=all_end_nodes)
     else:
