@@ -5,7 +5,7 @@
  * @module Facade
  */
 
-var Mediator = require('../mediator/mediator');
+var Mediator = require('./core_app_mediator');
 var _ = require('lodash');
 
 /**
@@ -43,4 +43,4 @@ var Kolibri = function() {
     _.extend(this, _.pick(mediator, public_methods));
 };
 
-module.exports = Kolibri;
+module.exports = new Kolibri();

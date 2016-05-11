@@ -41,10 +41,9 @@ var config = {
         new webpack.IgnorePlugin(/^jquery$/)
     ],
     resolve: {
-        // This allows us to specify some 'shortcuts' to avoid typing out very long
-        // relative paths for frequently imported requires.
+        // shortcut to allow importing the core kolibri_module from other bundles (plugins)
         alias: {
-            'kolibri_module': 'kolibri/plugins/assets/src/kolibri_module/kolibri_module'
+            'kolibri_module': 'kolibri/core/assets/src/kolibri_module'
         }
     },
     eslint: {
