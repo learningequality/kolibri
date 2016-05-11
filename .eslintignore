@@ -1,12 +1,5 @@
 # TODO - refactor these files such that they pass eslint, and remove from here
 
-kolibri/plugins/video_mp4_render/assets/src/render_video_mp4_module.js
-kolibri/plugins/video_mp4_render/assets/src/render_video_mp4_module.js
-kolibri/plugins/assets/src/kolibri_module/kolibri_module.js
-kolibri/plugins/learn/assets/src/learn.js
-kolibri/plugins/document_pdf_render/assets/src/render_document_pdf_module.js
-kolibri/plugins/audio_mp3_render/assets/src/render_audio_mp3_module.js
 kolibri/core/assets/src/mediator/asset_loader.js
 kolibri/core/assets/src/mediator/mediator.js
 kolibri/core/assets/src/facade/facade.js
-kolibri/core/assets/src/kolibri_core_app.js

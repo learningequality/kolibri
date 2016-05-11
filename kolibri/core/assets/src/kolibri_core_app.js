@@ -1,10 +1,9 @@
-'use strict';
 
-var Kolibri = require('./facade/facade');
+const Kolibri = require('./facade/facade');
 
-var logging = require('loglevel');
+const logging = require('loglevel');
 
-var kolibri = new Kolibri();
+const kolibri = new Kolibri();
 
 logging.setDefaultLevel(2);
 
