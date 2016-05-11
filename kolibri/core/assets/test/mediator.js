@@ -5,7 +5,7 @@ var sinon = require('sinon');
 var Backbone = require('backbone');
 var rewire = require('rewire');
 
-var Mediator = rewire('../src/mediator/mediator.js');
+var Mediator = rewire('../src/core_app_mediator.js');
 
 describe('Mediator', function() {
     beforeEach(function() {

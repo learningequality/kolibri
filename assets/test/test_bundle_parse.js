@@ -81,7 +81,7 @@ describe('parseBundlePlugin', function() {
         });
     });
     describe('input is valid, has core flag', function() {
-        it('should have its name set to Kolibri', function (done) {
+        it('should have its name set to kolibriGlobal', function (done) {
             var data = {
                 name: "kolibri.plugin.test.test_plugin",
                 entry_file: "src/file.js",
@@ -90,7 +90,7 @@ describe('parseBundlePlugin', function() {
                 stats_file: "output.json",
                 module_path: "kolibri/plugin/test"
             };
-            assert.equal(parseBundlePlugin(data, "/")[0].output.library, "Kolibri");
+            assert.equal(parseBundlePlugin(data, "/")[0].output.library, "kolibriGlobal");
             done();
         });
     });

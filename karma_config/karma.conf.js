@@ -71,7 +71,7 @@ module.exports = function(config) {
 
     eslint: {
       engine: {
-        configFile: '.eslintrc'
+        configFile: '.eslintrc.js'
       }
     },
 
