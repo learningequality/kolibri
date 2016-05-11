@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span class="world">
     World
   </span>
 </template>
@@ -8,4 +8,11 @@
 <script></script>
 
 
-<style></style>
+<style lang="stylus" scoped>
+
+primary-color = blue
+
+.world
+  color primary-color
+
+</style>

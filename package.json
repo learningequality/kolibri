@@ -64,6 +64,8 @@
     "rewire-webpack": "^1.0.1",
     "scriptjs": "^2.5.8",
     "sinon": "^2.0.0-pre",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^2.0.0",
     "temp": "^0.8.3",
     "vue-hot-reload-api": "^1.2.0",
     "vue-html-loader": "^1.0.0",
