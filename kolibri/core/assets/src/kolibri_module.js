@@ -54,7 +54,8 @@ KolibriModule.prototype.initialize = function initialize() {};
 
 /**
  * A dummy ready function
- * Useful for initiating behaviour of the kolibri_module after it is registered against the Kolibri core app.
+ * Useful for initiating behaviour of the kolibri_module after it is registered against the
+ * Kolibri core app.
  */
 KolibriModule.prototype.initialize = function ready() {};
 
