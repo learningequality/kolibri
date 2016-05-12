@@ -96,7 +96,7 @@ describe('parseBundlePlugin', function() {
     });
 });
 
-describe('readBundlePluginss', function() {
+describe('readBundlePlugins', function() {
     var data = [];
 
     beforeEach(function() {
