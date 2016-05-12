@@ -1,11 +1,11 @@
 <template>
   <div>
-    <drop-down :list="classrooms"></drop-down>
+    <drop-down class="classroom-selector" :list="classrooms"></drop-down>
     <button>Create</button>
     <button>Delete</button>
   </div>
   <div>
-    <drop-down :list="learnerGroups"></drop-down>
+    <drop-down class="learner-group-selector" :list="learnerGroups"></drop-down>
     <button>Create</button>
     <button>Delete</button>
   </div>

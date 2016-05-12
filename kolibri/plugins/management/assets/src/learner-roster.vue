@@ -6,7 +6,7 @@
       <button>A-Z</button>
       <button>Z-A</button>
     </div>
-    <div>
+    <div class="learner-roster">
       <ul>
         <li v-for="learner in learners">
           <input type="checkbox">
