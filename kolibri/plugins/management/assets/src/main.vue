@@ -9,17 +9,17 @@
     <button>Create</button>
     <button>Delete</button>
   </div>
-  <learner-list></learner-list>
+  <learner-roster></learner-roster>
 </template>
 
 
 <script>
-import learnerList from './learner-list.vue';
+import learnerRoster from './learner-roster.vue';
 import dropDown from './drop-down.vue';
 
 export default {
   components: {
-    'learner-list': learnerList,
+    'learner-roster': learnerRoster,
     'drop-down': dropDown,
   },
   data: () => ({
