@@ -119,8 +119,8 @@ And here is the definition of that hook in kolibri.core.hooks:
         @classmethod
         def get_menu(cls):
             menu = {}
-            for inheritor in cls.inheritors:
-                menu[inheritor.label] = url
+            for hook in self.registered_hooks:
+                menu[hook.label] = url
             return menu
 
         class Meta:
@@ -141,8 +141,8 @@ template tag definition looks like this:
     @register.assignment_tag()
     def kolibri_main_navigation():
 
-        for label, url in NavigationHook.get_menu().items():
-            yield label, url
+        for item in NavigationHook().get_menu():
+            yield item
 
 
 .. code-block:: html
@@ -150,8 +150,8 @@ template tag definition looks like this:
     {% load kolibri_tags %}
 
     <ul>
-    {% for navigation in kolibri_main_navigation %}
-        <li><a href="{{ navigation.menu_url }}">{{ navigation.menu_name }}</a></li>
+    {% for menu_item in kolibri_main_navigation %}
+        <li><a href="{{ menu_item.url }}">{{ menu_item.label }}</a></li>
     {% endfor %}
     </ul>
 

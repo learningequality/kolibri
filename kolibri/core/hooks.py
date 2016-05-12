@@ -31,8 +31,8 @@ class NavigationHook(KolibriHook):
 
     def get_menu(self):
         menu = {}
-        for inheritor in self.inheritors:
-            menu[inheritor.label] = self.url
+        for hook in self.registered_hooks:
+            menu[hook.label] = self.url
         return menu
 
     class Meta:
