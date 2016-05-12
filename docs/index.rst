@@ -22,6 +22,7 @@ For Developers
    installation
    dev/plugins
    dev/uap
+   dev/user_management
    cli
    contributing
    authors
