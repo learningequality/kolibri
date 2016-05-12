@@ -14,14 +14,21 @@ rather define the default here so we don't have multiple layers of defaults.
 
 from django.conf import settings
 
-# : These plugins are automatically enabled if they exist at the first run of
-# : Kolibri. After that, they are not searched for automatically since that would
-# : require explicitly disabling them in case they were to be removed on purpose
-# : from INSTALLED_APPS.
+#: These plugins are automatically enabled if they exist at the first run of
+#: Kolibri. After that, they are not searched for automatically since that would
+#: require explicitly disabling them in case they were to be removed on purpose
+#: from INSTALLED_APPS.
 WELL_KNOWN_PLUGINS = getattr(
     settings,
     'KOLIBRI_WELL_KNOWN_PLUGINS',
     [
         'kolibri.plugins.example_plugin',
     ]
+)
+
+#: Skips automatically migrating the database when running kalite commands
+SKIP_AUTO_DATABASE_MIGRATION = getattr(
+    settings,
+    'KOLIBRI_SKIP_AUTO_DATABASE_MIGRATION',
+    False
 )

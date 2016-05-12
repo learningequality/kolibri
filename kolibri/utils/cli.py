@@ -116,9 +116,10 @@ def _first_run():
 
     django.setup()
 
-    call_command("migrate")
+    from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION, WELL_KNOWN_PLUGINS
 
-    from kolibri.core.settings import WELL_KNOWN_PLUGINS
+    if not SKIP_AUTO_DATABASE_MIGRATION:
+        call_command("migrate")
 
     for plugin_module in WELL_KNOWN_PLUGINS:
         try:
@@ -135,6 +136,8 @@ def _first_run():
 def initialize(debug=False):
     """
     Always called before running commands
+
+    :param: debug: Tells initialization to setup logging etc.
     """
 
     setup_logging(debug=debug)
