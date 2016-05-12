@@ -25,7 +25,7 @@ const KolibriModule = function KolibriModule(options, ...args) {
 
   _.extend(this, _.pick(options, this.kolibri_module_options));
   // Pass all arguments to the constructor directly to initialize for easy access.
-  this.initialize.apply(this, args);
+  this.initialize(options, ...args);
   // Register the kolibri_module with the Kolibri core app.
   this._registerKolibriModule();
 };
@@ -51,6 +51,12 @@ KolibriModule.prototype._registerKolibriModule = function _registerKolibriModule
  * Useful for setting up the kolibri_module before it is registered against the Kolibri core app.
  */
 KolibriModule.prototype.initialize = function initialize() {};
+
+/**
+ * A dummy ready function
+ * Useful for initiating behaviour of the kolibri_module after it is registered against the Kolibri core app.
+ */
+KolibriModule.prototype.initialize = function ready() {};
 
 /**
  * Convenience method to unregister the kolibri_module from listening to certain events.
