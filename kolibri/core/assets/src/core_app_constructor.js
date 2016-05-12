@@ -30,10 +30,10 @@ var lib = function() {
 };
 
 /**
- * Constructor for Facade object that forms the public API for the Kolibri core app.
+ * Constructor for object that forms the public API for the Kolibri core app.
  * @constructor
  */
-var Kolibri = function() {
+module.exports = function() {
     this.lib = new lib();
     var mediator = new Mediator();
 
@@ -42,5 +42,3 @@ var Kolibri = function() {
     this.kolibri_modules = mediator._kolibri_module_registry;
     _.extend(this, _.pick(mediator, public_methods));
 };
-
-module.exports = new Kolibri();

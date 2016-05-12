@@ -1,4 +1,3 @@
-
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.urlresolvers import reverse_lazy
@@ -24,7 +23,7 @@ class MainNavigationItem(hooks.NavigationHook):
 
 class FrontEndCoreAssetHook(FrontEndCoreAssetHook):
     unique_slug = "default_frontend"
-    src_file = "kolibri/core/assets/src/core_app.js"
+    src_file = "kolibri/core/assets/src/core_app_instance.js"
     static_dir = "kolibri/core/static"
 
 
