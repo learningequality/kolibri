@@ -43,6 +43,7 @@ coverage:
 
 docs: clean-docs
 	sphinx-apidoc -d 10 -H "Python Reference" -o docs/ kolibri kolibri/test kolibri/deployment/
+	./node_modules/.bin/jsdoc -t ./node_modules/jsdoc-sphinx/template/ --recurse kolibri/ -d ./docs/js_modules -p ./package.json
 	$(MAKE) -C docs html
 
 release: clean

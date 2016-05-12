@@ -28,3 +28,4 @@ For Developers
    changelog
    todo
    modules
+   js_docs
