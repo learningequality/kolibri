@@ -56,7 +56,7 @@ describe('Mediator', function() {
         });
         describe('called with valid input', function() {
             beforeEach(function() {
-                this.kolibri_module = {name: 'test'};
+                this.kolibri_module = {name: 'test', 'ready': function(){}};
                 this.mediator.register_kolibri_module_sync(this.kolibri_module);
             });
             it('should call the _register_multiple_events method', function() {
