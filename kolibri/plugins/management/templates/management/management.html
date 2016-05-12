@@ -1,4 +1,19 @@
-{% extends "kolibri/base.html" %}
-{% block content %}
-<span>The management app!</span>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Kolibri</title>
+  </head>
+  <body>
+    <main></main>
+
+{% load kolibri_tags %}
+{% frontend_assets 'kolibri.core.KolibriCoreFrontEnd' %}
+{% initialized_data %}
+{% frontend_assets 'kolibri.plugins.navigation.NavigationModule' %}
+{% frontend_assets 'kolibri.plugins.management.ManagementModule' %}
+{% base_frontend_async %}
+{% base_frontend_sync %}
+
+  </body>
+</html>
