@@ -7,13 +7,14 @@ import Vue from 'vue';
 import Main from './Main.vue';
 
 
-const vm = new Vue({
-  el: 'body',
-  components: { Main },
+const LearnModule = KolibriModule.extend({
+  ready() {
+    logging.info('Hello World');
+    this.vm = new Vue({
+      el: 'body',
+      components: { Main },
+    });
+  },
 });
-
-logging.info('HELLO');
-
-const LearnModule = KolibriModule.extend({ vm });
 
 module.exports = new LearnModule();
