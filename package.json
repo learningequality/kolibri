@@ -62,5 +62,9 @@
     "temp": "^0.8.3",
     "webpack": "^1.12.12",
     "webpack-bundle-tracker": "0.0.93"
+  },
+  "optionalDependencies": {
+    "jsdoc": "^3.4.0",
+    "jsdoc-sphinx": "0.0.4"
   }
 }
