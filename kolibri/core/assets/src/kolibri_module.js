@@ -4,7 +4,7 @@
  * @module kolibri_module
  */
 
-const Kolibri = require('./core_app');
+const Kolibri = require('./core_app_instance');
 const _ = require('lodash');
 const Backbone = require('backbone');
 
@@ -57,7 +57,7 @@ KolibriModule.prototype.initialize = function initialize() {};
  * Useful for initiating behaviour of the kolibri_module after it is registered against the
  * Kolibri core app.
  */
-KolibriModule.prototype.initialize = function ready() {};
+KolibriModule.prototype.ready = function ready() {};
 
 /**
  * Convenience method to unregister the kolibri_module from listening to certain events.
