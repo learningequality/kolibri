@@ -9,7 +9,7 @@
     <button>Create</button>
     <button>Delete</button>
   </div>
-  <learner-roster></learner-roster>
+  <learner-roster :learners="learners" ></learner-roster>
 </template>
 
 
@@ -17,12 +17,18 @@
 import learnerRoster from './learner-roster.vue';
 import dropDown from './drop-down.vue';
 
-export default {
-  components: {
-    'learner-roster': learnerRoster,
-    'drop-down': dropDown,
-  },
-  data: () => ({
+function getData() {
+  const learners = [
+    {
+      first_name: 'Abe',
+      last_name: 'Lincoln',
+    },
+    {
+      first_name: 'Jessica',
+      last_name: 'Aceret',
+    },
+  ];
+  return {
     classrooms: [
       'All classrooms',
       'Classroom 1',
@@ -31,7 +37,16 @@ export default {
       'All groups',
       'Group A',
     ],
-  }),
+    learners,
+  };
+}
+
+export default {
+  components: {
+    'learner-roster': learnerRoster,
+    'drop-down': dropDown,
+  },
+  data: getData,
 };
 </script>
 
