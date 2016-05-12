@@ -72,7 +72,8 @@ module.exports = function(config) {
     eslint: {
       engine: {
         configFile: '.eslintrc.js'
-      }
+      },
+      stopOnError: false
     },
 
 
