@@ -24,7 +24,7 @@ var libs = function(kolibri_name) {
         'loglevel': kolibri_name + '.lib.loglevel',
         'vue': kolibri_name + '.lib.vue',
         'kolibri': kolibri_name,
-        'kolibriCoreBase': kolibri_name + '.lib.kolibriCoreBase',
+        'core-base': kolibri_name + '.lib.coreBase',
     };
 
 };
