@@ -10,7 +10,7 @@
     "test-mocha-cov": "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha assets/test/*.js --report lcovonly -- -R spec",
     "test-karma-cov": "./node_modules/karma/bin/karma start karma_config/karma.conf.ci.js",
     "build": "webpack --config webpack_config/webpack.config.js",
-    "watch": "webpack --config webpack_config/webpack.config.dev.js --watch",
+    "watch": "webpack --config webpack_config/webpack.config.dev.js --watch --progress",
     "ci": "./node_modules/karma/bin/karma start karma_config/karma.conf.js"
   },
   "repository": {
