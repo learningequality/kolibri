@@ -1,18 +1,25 @@
 <template>
-  <h1>
-    Hello <world></world>
-  </h1>
+
+  <kolibri-core-base>
+    <h2>
+      Learn App
+    </h2>
+    <p>content</p>
+  </kolibri-core-base>
+
 </template>
 
 
 <script>
-import world from './world.vue';
 
-export default {
-  components: {
-    world,
-  },
-};
+  const kolibriCoreBase = require('kolibriCoreBase');
+
+  export default {
+    components: {
+      kolibriCoreBase,
+    },
+  };
+
 </script>
 
 
