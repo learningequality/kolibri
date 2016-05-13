@@ -47,12 +47,12 @@ var config = {
                 loader: 'exports?onloadCSS'
             },
             //Loaders for straight css
-						{
+            {
                 test: /\.css$/,
                 loader: 'style-loader!css-loader'
             },
             // loaders for stylus
-				    {
+            {
                 test: /\.styl$/,
                 loader: 'style-loader!css-loader!stylus-loader'
             }
