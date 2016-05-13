@@ -46,10 +46,6 @@ var config = {
                 test: /fg-loadcss\/src\/onloadCSS/,
                 loader: 'exports?onloadCSS'
             },
-            {
-                test: /\.html$/,
-                loader: 'vue-html'
-            },
         ]
     },
     plugins: [
