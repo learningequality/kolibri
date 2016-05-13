@@ -33,7 +33,7 @@ function Lib() {
   this._ = require('lodash');
 
   // views
-  this.kolibriCoreBase = require('./kolibri-core-base.vue');
+  this.coreBase = require('./core-base');
 }
 
 /**
