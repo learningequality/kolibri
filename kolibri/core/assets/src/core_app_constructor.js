@@ -30,7 +30,7 @@ function Lib() {
   this.vue = require('vue');
 
   // views
-  this.kolibriCoreBase = require('./kolibri-core-base.vue');
+  this.coreBase = require('./core-base');
 }
 
 /**
