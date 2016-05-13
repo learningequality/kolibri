@@ -5,7 +5,6 @@ $kolibri_nav_fonts = sans-serif
 body
   // Getting rid of HTML's default margin
   margin:0
-
 header
   font-family: $kolibri_nav_fonts
 
@@ -26,6 +25,8 @@ header
   &_right
     float: right
     width: 30%
+    span
+      float: right
 
 .navlinks
   box-sizing: border-box
@@ -41,5 +42,16 @@ header
     a
       text-decoration: none
       color: $kolibri_gray
+
 .usermenu
-  float: right
+  position:absolute
+  top: 2em
+  right: 1em
+  box-shadow: 2px 2px 3px $kolibri_gray
+  background-color: white
+  ul
+    padding: 3px
+    list-style: none
+  a
+    color: $kolibri_gray
+    text-decoration: none
