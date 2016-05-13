@@ -31,6 +31,7 @@ function Lib() {
 
   // views
   this.coreBase = require('./core-base');
+  this.kolibriCoreBase = require('./kolibri-core-base.vue');
 }
 
 /**
