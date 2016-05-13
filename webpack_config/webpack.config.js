@@ -18,6 +18,7 @@ var libs =  function (kolibri_name) {
         'lodash': kolibri_name + '.lib._',
         'backbone': kolibri_name + '.lib.Backbone',
         'loglevel': kolibri_name + '.lib.loglevel',
+        'vue': kolibri_name + '.lib.vue',
         'kolibri': kolibri_name
     };
 

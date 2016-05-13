@@ -26,6 +26,7 @@ var public_methods = [
 var lib = function() {
     this.Backbone = require('backbone');
     this.loglevel = require('loglevel');
+    this.vue = require('vue');
     this._ = require('lodash');
 };
 
