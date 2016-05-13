@@ -18,13 +18,18 @@ const publicMethods = [
 ];
 
 /**
- * Constructor for lib object that exposes third party libraries that
- * we bundle into the core app.
+ * Constructor for lib object that exposes libraries that are shared across all plugins.
+ * In addition to being added as properties of kolibriGlobal.lib, they are also made
+ * available to be require'd in other webpack-loaded modules and apps. This behavior
+ * is configured in webpack.config.js
  * @classdesc
  */
 function Lib() {
+  // libraries
   this.loglevel = require('loglevel');
   this.vue = require('vue');
+
+  // views
   this.kolibriCoreBase = require('./kolibri-core-base.vue');
 }
 
