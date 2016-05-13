@@ -22,7 +22,7 @@
 <script></script>
 
 
-<style scoped>
+<style lang="stylus" scoped>
 
   header {
     background-color: #E3E3F3;
@@ -39,7 +39,7 @@
 </style>
 
 
-<style>
+<style lang="stylus">
 
   /* These global styles apply to everything */
 
