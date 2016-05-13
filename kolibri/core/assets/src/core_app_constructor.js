@@ -28,6 +28,7 @@ function Lib() {
   this.loglevel = require('loglevel');
   this.vue = require('vue');
   this._ = require('lodash');
+  this.kolibriCoreBase = require('./kolibri-core-base.vue');
 }
 
 /**
