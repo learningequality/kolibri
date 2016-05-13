@@ -10,7 +10,7 @@
 var path = require('path');
 var webpack = require('webpack');
 var logging = require('../assets/src/logging');
-var recurseBundlePlugins = require('../assets/src/recurse_bundle_plugins');
+var readBundlePlugins = require('../assets/src/read_bundle_plugins');
 
 // Mappings for libraries that we bundle in the Kolibri core app.
 var libs =  function (kolibri_name) {
@@ -23,6 +23,6 @@ var libs =  function (kolibri_name) {
 
 };
 
-var bundles = recurseBundlePlugins(__dirname, libs);
+var bundles = readBundlePlugins(path.dirname(__dirname), libs);
 
 module.exports = bundles;

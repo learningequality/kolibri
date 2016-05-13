@@ -7,7 +7,6 @@ var rewire = require('rewire');
 var sinon = require('sinon');
 
 var parseBundlePlugin = require('../src/parse_bundle_plugin');
-var recurseBundlePlugins = rewire('../src/recurse_bundle_plugins');
 var readBundlePlugins = rewire('../src/read_bundle_plugins');
 
 describe('parseBundlePlugin', function() {
@@ -125,7 +124,7 @@ describe('readBundlePlugins', function() {
                     static_dir: "kolibri/plugin/test"
                 }
             ];
-            assert(readBundlePlugins("", "")[0].length === 2);
+            assert(readBundlePlugins("", "").length === 2);
             done();
         });
     });
@@ -144,7 +143,7 @@ describe('readBundlePlugins', function() {
                     static_dir: "kolibri/plugin/test"
                 }
             ];
-            assert(readBundlePlugins("", "")[0].length === 1);
+            assert(readBundlePlugins("", "").length === 1);
             done();
         });
     });
@@ -162,7 +161,7 @@ describe('readBundlePlugins', function() {
                     static_dir: "kolibri/plugin/test"
                 }
             ];
-            assert(readBundlePlugins("", "")[0].length === 0);
+            assert(readBundlePlugins("", "").length === 0);
             done();
         });
     });
@@ -184,7 +183,7 @@ describe('readBundlePlugins', function() {
                     static_dir: "kolibri/plugin/test"
                 }
             ];
-            assert(Object.keys(readBundlePlugins("", "")[1]).length === 2);
+            assert(Object.keys(readBundlePlugins("", "")[0].externals).length === 2);
             done();
         });
     });
@@ -206,90 +205,8 @@ describe('readBundlePlugins', function() {
                     static_dir: "kolibri/plugin/test"
                 }
             ];
-            assert(Object.keys(readBundlePlugins("", "")[1]).length === 1);
+            assert(Object.keys(readBundlePlugins("", "")[0].externals).length === 1);
             done();
-        });
-    });
-});
-
-describe('recurseBundlePlugins', function() {
-    var ind = 0;
-    var data = [[]];
-
-    after(function() {
-        temp.cleanupSync();
-    });
-
-    beforeEach(function() {
-        ind = 0;
-        recurseBundlePlugins.__set__("readBundlePlugins", function() {
-            var output = data[ind];
-            ind = ind + 1;
-            return output;
-        });
-    });
-
-    describe('one valid input file, output', function() {
-        it('should have one entry', function (done) {
-            data = [
-                [[{}], {}],
-                [[], {}]
-            ];
-            temp.mkdir("dir1", function(err, dirPath1){
-                fs.writeFile(path.join(dirPath1, "kolibri_plugin.py"), "", function (err) {
-                    if (!err) {
-                        temp.mkdir("dir2", function(err, dirPath2){
-                            fs.writeFile(path.join(dirPath2, "kolibri_plugin.py"), "", function (err) {
-                                if (!err) {
-                                    assert(recurseBundlePlugins([dirPath1, dirPath2], "/").length === 1);
-                                    done();
-                                }
-                            });
-                        });
-                    }
-                });
-            });
-        });
-    });
-    describe('no valid input files, output', function() {
-        it('should no entries', function (done) {
-            data = [
-                [[], {}],
-                [[], {}]
-            ];
-            temp.mkdir("dir1", function(err, dirPath1){
-                fs.writeFile(path.join(dirPath1, "kolibri_plugin.py"), "", function (err) {
-                    if (!err) {
-                        temp.mkdir("dir2", function(err, dirPath2){
-                            fs.writeFile(path.join(dirPath2, "kolibri_plugin.py"), "", function (err) {
-                                if (!err) {
-                                    assert(recurseBundlePlugins([dirPath1, dirPath2], "/").length === 0);
-                                    done();
-                                }
-                            });
-                        });
-                    }
-                });
-            });
-        });
-    });
-    describe('nested folders with one file, output', function() {
-        it('should have one entry', function (done) {
-            data = [
-                [[{}], {}]
-            ];
-            temp.mkdir("dir1", function(err, dirPath1){
-                fs.mkdir(path.join(dirPath1, "sub"), function (err) {
-                    if (!err) {
-                        fs.writeFile(path.join(dirPath1, "sub", "kolibri_plugin.py"), "", function (err) {
-                            if (!err) {
-                                assert(recurseBundlePlugins([dirPath1], "/").length === 1);
-                                done();
-                            }
-                        });
-                    }
-                });
-            });
         });
     });
 });
