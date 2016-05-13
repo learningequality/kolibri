@@ -15,14 +15,20 @@
 </head>
 <body>
 
+<!-- Not seeing a difference between using it or not -->
 {# The "verbatim" tag includes its contents literally, used for escaping Vue template variables #}
 {% verbatim %}
 <header id="navigation-module">
-  <div>
-    <span>Title</span>
-    <a href="#">Home Link</a>
-    <div>
-      <span> {{ user.username }} -- {{ user.first_name + " " + user.last_name }}</span>
+  <nav class="titlebar">
+
+    <!-- Handlebars-esque comments not working? -->
+    <!-- {# Adding this because it seems like it's somthing we might add with the custom education collections #} -->
+    <span class="titlebar_title">{{title_bar.title}}</span>
+    <a class="titlebar_homelink" href="{{title_bar.home_link}}">Home</a>
+
+    <!-- Right portion, where username and user items are displayed -->
+    <div class="titlebar_userdd">
+      <span>{{user.first_name}}</span>
       <ul>
         <li v-for="item in user_nav_items">
           <span v-for="value in item">
@@ -31,7 +37,9 @@
         </li>
       </ul>
     </div>
-  </div>
+  </nav>
+
+  <!-- Where the secondary nav is going to go -->
   <nav>
     <ul>
       <li v-for="item in nav_items">
@@ -42,7 +50,7 @@
     </ul>
   </nav>
 </header>
-{% endverbatim %}
+<!-- {% endverbatim %} -->
 
 <hr>
 
