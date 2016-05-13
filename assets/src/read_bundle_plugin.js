@@ -46,8 +46,11 @@ var readBundlePlugin = function(plugin_file, base_dir) {
                     bundles.push(output[0]);
                     if (typeof externals[output[1]] === "undefined") {
                         // The second part of the output is any global variables that will be available to all other
-                        // plugins. For the moment, this is only the Kolibri global variable.
-                        externals[output[1]] = output[1];
+                        // plugins. For the moment, this is only the `kolibriGlobal` variable.
+                        // Often be undefined, if there are no external variables to export
+                        if (output[1] !== undefined) {
+                            externals[output[1]] = output[1];
+                        }
                     } else {
                         logging.warn("Two plugins setting with same external flag " + output[1] + " in plugin file: " + plugin_file);
                     }

@@ -3,7 +3,7 @@
 var assert = require('assert');
 var rewire = require('rewire');
 
-var assetLoader = rewire('../src/mediator/asset_loader.js');
+var assetLoader = rewire('../src/asset_loader.js');
 
 describe('Asset loader', function() {
     describe('input is invalid', function() {

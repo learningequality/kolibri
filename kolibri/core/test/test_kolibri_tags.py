@@ -53,5 +53,5 @@ class KolibriTagRenderAsAsyncTestCase(TestCase):
            })
     @patch('kolibri.core.templatetags.kolibri_tags.render_as_url', return_value='test')
     def test_render_as_async(self, *args):
-        self.assertEqual('<script>Kolibri.register_kolibri_module_async("", ["test","test"], {}, {});</script>',
+        self.assertEqual('<script>kolibriGlobal.register_kolibri_module_async("", ["test","test"], {}, {});</script>',
                          kolibri_tags.render_as_async(""))

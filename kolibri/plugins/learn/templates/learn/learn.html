@@ -1,11 +1,20 @@
-{% extends "kolibri/base.html" %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Kolibri</title>
+  </head>
+  <body>
+    <main></main>
+
 {% load kolibri_tags %}
-{% block frontend_assets %}
-{{ block.super }}
+{% frontend_assets 'kolibri.core.KolibriCoreFrontEnd' %}
+{% initialized_data %}
+{% frontend_assets 'kolibri.plugins.navigation.NavigationModule' %}
 {% frontend_assets 'kolibri.plugins.learn.LearnModule' %}
 {% content_renderer_frontend_async %}
-{% endblock %}
-{% block content %}
-<div id="content-main"></div>
-<div id="content-render"></div>
-{% endblock %}
+{% base_frontend_async %}
+{% base_frontend_sync %}
+
+  </body>
+</html>
