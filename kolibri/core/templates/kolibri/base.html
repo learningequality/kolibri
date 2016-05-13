@@ -30,14 +30,14 @@
     <!-- Right portion, where username and user items are displayed -->
     <div class="titlebar_right">
       <!-- Probably going to make this an individual component -->
-      <span class="usermenu">{{user.first_name}}</span>
-      <!-- <ul>
-        <li v-for="item in user_nav_items">
-          <span v-for="value in item">
-            {{ $key }} : {{ value }},
-          </span>
-        </li>
-      </ul> -->
+      <span v-on:click="user_nav_display_toggle">{{user.first_name}}</span>
+      <div class="usermenu" v-bind:style="{display: user_nav_display}">
+        <ul>
+          <li v-for="item in user_nav_items">
+            <a href={{item.url}}>{{item.text}}</a>
+          </li>
+        </ul>
+      </div>
     </div>
   </nav>
 

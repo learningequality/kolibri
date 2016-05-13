@@ -17,6 +17,7 @@ window.onload = function(){
               title: 'Kolibri',
               home_link: '/'
             },
+            user_nav_display: 'none',
 
             // items that go into the user menu
             user_nav_items: global.kolibri_reserved.user_nav_items,
@@ -25,8 +26,17 @@ window.onload = function(){
                 first_name: 'Foo',
                 last_name: 'Bar'
             }
+        },
+        methods: {
+          user_nav_display_toggle: function(){
+            if (this.user_nav_display === 'none'){
+              this.user_nav_display = 'block';
+            }else {
+              this.user_nav_display = 'none';
+            }
+          },
         }
     });
 
-    console.log(nav.nav_items);
+    // console.log(nav.nav_items);
 };
