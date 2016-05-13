@@ -37,6 +37,4 @@ window.onload = function(){
           },
         }
     });
-
-    // console.log(nav.nav_items);
 };
