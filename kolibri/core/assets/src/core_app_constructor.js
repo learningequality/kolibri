@@ -25,6 +25,7 @@ const publicMethods = [
 function Lib() {
   this.loglevel = require('loglevel');
   this.vue = require('vue');
+  this.kolibriCoreBase = require('./kolibri-core-base.vue');
 }
 
 /**
