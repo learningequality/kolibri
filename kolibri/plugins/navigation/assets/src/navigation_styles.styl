@@ -1,0 +1,45 @@
+$kolibri_purple = #bd8cbf
+$kolibri_gray = #c4c4c4
+$kolibri_nav_fonts = sans-serif
+
+body
+  // Getting rid of HTML's default margin
+  margin:0
+
+header
+  font-family: $kolibri_nav_fonts
+
+.titlebar
+  // for consistent percentages. Maybe bring in normalize?
+  box-sizing: border-box
+  background-color: $kolibri_purple
+  color: white
+
+  // fix for the div float issue
+  overflow: auto
+  padding: 1 em
+  width: 100%
+
+  &_left
+    float: left
+    width:70%
+  &_right
+    float: right
+    width: 30%
+
+.navlinks
+  box-sizing: border-box
+  overflow: auto
+  width: 90%
+  margin: 0 5% 0 5%
+  padding-top: .5em
+  border-bottom: 1px solid $kolibri_gray
+  &_item
+    float:left
+    padding:0 .5em 0 .5em
+    font-size: 1.5em
+    a
+      text-decoration: none
+      color: $kolibri_gray
+.usermenu
+  float: right
