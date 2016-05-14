@@ -8,20 +8,19 @@ var fs = require("fs");
 var path = require("path");
 var logging = require('./logging');
 var execSync = require('child_process').execSync;
+var _ = require("lodash");
 
 var parseBundlePlugin = require('./parse_bundle_plugin');
 
 /**
  * Take a Python plugin file name as input, and extract the information regarding front end plugin configuration from it
  * using a Python script to import the relevant plugins and then run methods against them to retrieve the config data.
- * @param {string} plugin_file - The directory path of the Python plugin file.
  * @param {string} base_dir - The absolute path of the base directory for writing files to.
- * @returns {Array}
- * @returns {Array} [0] bundles - An array containing webpack config objects.
- * @returns {Object} [1] externals - An object containing mapping from plugin name to plugin name for accessing those
- * plugins as an external library.
+ * @param {Function} libs - A function that takes the global name assigned to the core app and returns a mapping from
+ * module names to the global namespace at which those modules can be accessed.
+ * @returns {Array} bundles - An array containing webpack config objects.
  */
-var readBundlePlugin = function(base_dir) {
+var readBundlePlugin = function(base_dir, libs) {
 
     // Takes a module file path and turns it into a Python module path.
     var bundles = [];
@@ -42,14 +41,17 @@ var readBundlePlugin = function(base_dir) {
                 message = JSON.parse(message);
                 var output = parseBundlePlugin(message, base_dir);
                 if (typeof output !== "undefined") {
+                    var webpack_configuration = output[0];
                     // The first part of the output is the Webpack configuration for that Kolibri plugin.
-                    bundles.push(output[0]);
-                    if (typeof externals[output[1]] === "undefined") {
-                        // The second part of the output is any global variables that will be available to all other
-                        // plugins. For the moment, this is only the Kolibri global variable.
-                        externals[output[1]] = output[1];
+                    bundles.push(webpack_configuration);
+                    // The second part of the output is any global variables that will be available to all other
+                    // plugins. For the moment, this is only the Kolibri global variable.
+                    var external = output[1];
+                    if (typeof externals[external] === "undefined") {
+
+                        externals[external] = external;
                     } else {
-                        logging.warn("Two plugins setting with same external flag " + output[1]);
+                        logging.warn("Two plugins setting with same external flag " + external);
                     }
                 }
             }
@@ -69,7 +71,25 @@ var readBundlePlugin = function(base_dir) {
         }
     }
 
-    return [bundles, externals];
+    // One bundle is special - that is the one for the core bundle.
+    var core_bundle = _.find(bundles, function(bundle) {return bundle.core && bundle.core !== null;});
+
+    // For that bundle, we replace all references to library modules (like Backbone) that we bundle into the core app
+    // with references to the core app itself, so if someone does `var Backbone = require('backbone');` webpack
+    // will replace it with a reference to Bacbkone bundled into the core Kolibri app.
+    var lib_externals = core_bundle ? libs(core_bundle.output.library) : {};
+
+    bundles.forEach(function(bundle) {
+        if (bundle.core === null) {
+            // If this is not the core bundle, then we need to add the external library mappings.
+            bundle.externals = _.extend({}, externals, lib_externals);
+        } else {
+            bundle.externals = externals;
+        }
+    });
+
+
+    return bundles;
 
 };
 
