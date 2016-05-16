@@ -57,7 +57,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         # Verify the uniqueness of the slug
         # It can be '0' in the parent class constructor
         assert \
-            len([x.unique_slug == self.unique_slug for x in self.registered_hooks]) <= 1, \
+            len([x for x in self.registered_hooks if x.unique_slug == self.unique_slug]) <= 1, \
             "Non-unique slug found: '{}'".format(self.unique_slug)
 
     class Meta:
