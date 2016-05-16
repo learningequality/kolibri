@@ -11,7 +11,7 @@ from kolibri.plugins.base import KolibriPluginBase
 logger = logging.getLogger(__name__)
 
 
-class NavMenuPlugin(KolibriPluginBase):
+class ExamplePlugin(KolibriPluginBase):
     """
     An example plugin that demonstrates how the Kolibri plugin system works.
     """
@@ -24,7 +24,7 @@ class NavMenuPlugin(KolibriPluginBase):
 
         :return: Nothing, though it may modify the mutable config parameter
         """
-        super(NavMenuPlugin, cls).enable()
+        super(ExamplePlugin, cls).enable()
         logger.info("Enabled example plugin")
 
     @classmethod
@@ -35,11 +35,15 @@ class NavMenuPlugin(KolibriPluginBase):
 
         :return: Nothing, though it may modify the mutable config parameter
         """
-        super(NavMenuPlugin, cls).disable()
+        super(ExamplePlugin, cls).disable()
         logger.info("Disable example plugin")
 
+    def url_module(self):
+        from . import urls
+        return urls
 
-class ExtendedPlugin(NavMenuPlugin):
+
+class ExtendedPlugin(ExamplePlugin):
     """
     Demonstrates plugin inheritance.
     """

@@ -44,12 +44,15 @@ import importlib
 import logging
 
 from django.conf import settings
+from django.conf.urls import include, url
 
 from .base import KolibriPluginBase
 
 logger = logging.getLogger(__name__)
 
-registry = {}
+# : Main registry is private for now, as we figure out if there is any external
+# : module that has a legitimate business
+__registry = []
 
 __initialized = False
 
@@ -58,7 +61,7 @@ def initialize():
     """
     Called once at load time to register hook callbacks.
     """
-    global __initialized
+    global __initialized, __registry
 
     if not __initialized:
         logger.debug("Loading kolibri plugin registry...")
@@ -73,14 +76,36 @@ def initialize():
                 # and not the ones that have been imported
                 all_classes = filter(lambda x: plugin_module.__package__ + ".kolibri_plugin" == x.__module__, all_classes)
                 plugin_classes = []
-                for obj in all_classes:
-                    if type(obj) == type and issubclass(obj, KolibriPluginBase):
-                        plugin_classes.append(obj)
-                for plugin_klass in plugin_classes:
+                for Klass in all_classes:
+                    if type(Klass) == type and issubclass(Klass, KolibriPluginBase):
+                        plugin_classes.append(Klass)
+                for PluginClass in plugin_classes:
                     # Initialize the class, nothing more happens for now.
-                    logger.debug("Initializing plugin: {}".format(plugin_klass.__name__))
-                    plugin_klass()
+                    logger.debug("Initializing plugin: {}".format(PluginClass.__name__))
+                    __registry.append(PluginClass())
             except ImportError:
                 pass
 
         __initialized = True
+
+
+def get_urls():
+
+    global __initialized, __registry
+    assert __initialized, "Registry not initialized"
+
+    urlpatterns = []
+    for plugin_instance in __registry:
+        url_module = plugin_instance.url_module()
+        if url_module:
+            urlpatterns.append(
+                url(
+                    plugin_instance.url_slug(),
+                    include(
+                        url_module,
+                        namespace=plugin_instance.url_namespace()
+                    )
+                )
+            )
+
+    return urlpatterns

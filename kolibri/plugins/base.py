@@ -75,3 +75,46 @@ class KolibriPluginBase(object):
     def disable(cls):
         """Modify the kolibri config dict to your plugin's needs"""
         cls._installed_apps_remove()
+
+    def url_module(self):
+        """
+        Return a url module, containing ``urlpatterns = [...]``, a conventional
+        Django application url module.
+
+        If your application has a urls.py, you should do this::
+
+            def url_module(self):
+                from myplugin import urls
+                return urls
+
+        URLs are by default accessed through Django's reverse lookups like
+        this::
+
+            reverse('kolibri:mypluginclass:url_name')
+
+        To customize "mypluginclass" (which is automatically derived from the
+        plugin's class name), override ``url_namespace``.
+
+        .. note:: We *could* make urls.py auto-detected.
+        """
+        return None
+
+    def url_namespace(self):
+        """
+        Used for the ``namespace`` argument when including the plugin's
+        urlpatterns. By default, returns a lowercase of the class name.
+        """
+        return self.__class__.__name__.lower()
+
+    def url_slug(self):
+        """
+        Where should urls be included? By default, this is a lower-case version
+        of the class name.
+
+        Example::
+
+            return r"my-plugin/"
+
+        .. warning:: Avoid the empty string, as you might get conflicts.
+        """
+        return self.__class__.__name__.lower() + "/"
