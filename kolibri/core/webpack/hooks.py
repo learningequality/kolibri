@@ -189,10 +189,10 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         return os.path.join(*self.__module__.split(".")[:-1])
 
-    def render_to_html(self, extension=None):
+    def render_to_page_load_sync_html(self, extension=None):
         """
-        This function tags a bundle of file chunks and generates the appropriate
-        script tags for them, be they JS or CSS files.
+        Generates the appropriate script tags for the bundle, be they JS or CSS
+        files.
 
         :param bundle_data: The data returned from
         :return: HTML of script tags for insertion into a page.
@@ -207,62 +207,9 @@ class WebpackBundleHook(hooks.KolibriHook):
                 tags.append(css_tag.format(url=render_as_url(chunk)))
         return mark_safe('\n'.join(tags))
 
-
-class FrontEndAssetHook(WebpackBundleHook):
-    """
-    An abstract class for all assets destined for the default front-end. You
-    probably want to use FrontEndSyncHook or FrontEndASyncHook to be explicit.
-
-    Everything inheriting from this hook will automatically be included in the
-    front-end.
-    """
-
-    class Meta:
-        abstract = True
-
-
-class FrontEndSyncHook(FrontEndAssetHook):
-    """
-    Define something that should be included for sync'ed purposes. Assets will
-    always be loaded.
-    """
-
-    class Meta:
-        abstract = True
-
-
-class FrontEndCoreHook(FrontEndSyncHook):
-    """
-    A hook that asserts its only applied once, namely to load the core
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(FrontEndCoreHook, self).__init__(*args, **kwargs)
-        assert len(list(self.registered_hooks)) <= 1, "Only one core asset allowed"
-
-    @property
-    @hooks.registered_method
-    def webpack_bundle_data(self):
-        dct = super(FrontEndCoreHook, self).webpack_bundle_data
-        dct['core'] = True
-        dct['external'] = True
-        return dct
-
-    class Meta:
-        abstract = True
-
-
-class FrontEndASyncHook(FrontEndAssetHook):
-    """
-    Define something that should be included for sync'ed purposes.
-    """
-
-    class Meta:
-        abstract = True
-
-    def render_to_html(self):
+    def render_to_page_load_async_html(self):
         """
-        This function returns a script tag containing Javascript to register an
+        Generates script tag containing Javascript to register an
         asynchronously loading Javascript FrontEnd plugin against the core
         front-end Kolibri app. It passes in the events that would trigger
         loading the plugin, both multi-time firing events (events) and one time
@@ -281,3 +228,37 @@ class FrontEndASyncHook(FrontEndAssetHook):
             once=json.dumps(self.once)
         )
         return mark_safe('<script>{js}</script>'.format(js=js))
+
+
+class FrontEndCoreHook(WebpackBundleHook):
+    """
+    A hook that asserts its only applied once, namely to load the core. This
+    should only be inherited once which is also an enforced property for now.
+
+    This is loaded before everything else.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(FrontEndCoreHook, self).__init__(*args, **kwargs)
+        assert len(list(self.registered_hooks)) <= 1, "Only one core asset allowed"
+
+    @property
+    @hooks.registered_method
+    def webpack_bundle_data(self):
+        dct = super(FrontEndCoreHook, self).webpack_bundle_data
+        dct['core'] = True
+        dct['external'] = True
+        return dct
+
+    class Meta:
+        abstract = True
+
+
+class FrontEndBaseHook(WebpackBundleHook):
+    """
+    Inherit a hook defining assets to be loaded in kolibri/base.html, that means
+    ALL pages. Use with care.
+    """
+
+    class Meta:
+        abstract = True
