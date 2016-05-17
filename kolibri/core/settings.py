@@ -26,7 +26,7 @@ WELL_KNOWN_PLUGINS = getattr(
     ]
 )
 
-#: Skips automatically migrating the database when running kalite commands
+#: Skips automatically migrating the database when running kolibri commands
 SKIP_AUTO_DATABASE_MIGRATION = getattr(
     settings,
     'KOLIBRI_SKIP_AUTO_DATABASE_MIGRATION',
