@@ -116,12 +116,12 @@ def _first_run():
 
     django.setup()
 
-    from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION, WELL_KNOWN_PLUGINS
+    from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION, DEFAULT_PLUGINS
 
     if not SKIP_AUTO_DATABASE_MIGRATION:
         call_command("migrate")
 
-    for plugin_module in WELL_KNOWN_PLUGINS:
+    for plugin_module in DEFAULT_PLUGINS:
         try:
             plugin(plugin_module, enable=True)
         except PluginDoesNotExist:

@@ -18,9 +18,9 @@ from django.conf import settings
 #: Kolibri. After that, they are not searched for automatically since that would
 #: require explicitly disabling them in case they were to be removed on purpose
 #: from INSTALLED_APPS.
-WELL_KNOWN_PLUGINS = getattr(
+DEFAULT_PLUGINS = getattr(
     settings,
-    'KOLIBRI_WELL_KNOWN_PLUGINS',
+    'KOLIBRI_DEFAULT_PLUGINS',
     [
         'kolibri.plugins.example_plugin',
     ]
