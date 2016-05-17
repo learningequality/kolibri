@@ -30,7 +30,7 @@ class _FrontEndCoreHook(hooks.FrontEndCoreHook):
         replace_parent = True
 
 
-class _FrontEndASyncHook(TestHookMixin, hooks.FrontEndASyncHook):
+class _FrontEndASyncHook(TestHookMixin, hooks.FrontEndBaseASyncHook):
     unique_slug = "im_an_async_hook"
 
     events = {
@@ -61,10 +61,10 @@ class WebpackBundleHookTestCase(TestCase):
 
     def test_sync_hook(self):
 
-        for hook in hooks.FrontEndAssetHook().registered_hooks:
+        for hook in hooks.FrontEndBaseASyncHook().registered_hooks:
             if type(hook) is _FrontEndASyncHook:
                 for event_key in _FrontEndASyncHook.events.keys():
                     self.assertIn(
                         event_key,
-                        hook.render_to_html(),
+                        hook.render_to_page_load_async_html(),
                     )

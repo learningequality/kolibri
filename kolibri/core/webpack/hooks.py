@@ -254,7 +254,17 @@ class FrontEndCoreHook(WebpackBundleHook):
         abstract = True
 
 
-class FrontEndBaseHook(WebpackBundleHook):
+class FrontEndBaseSyncHook(WebpackBundleHook):
+    """
+    Inherit a hook defining assets to be loaded in kolibri/base.html, that means
+    ALL pages. Use with care.
+    """
+
+    class Meta:
+        abstract = True
+
+
+class FrontEndBaseASyncHook(WebpackBundleHook):
     """
     Inherit a hook defining assets to be loaded in kolibri/base.html, that means
     ALL pages. Use with care.

@@ -26,7 +26,22 @@ register = template.Library()
 
 
 @register.simple_tag()
-def webpack_assets(unique_slug):
+def webpack_asset(unique_slug):
+    """
+    Return statically loaded ('sync' loaded) assets for a specific asset.
+
+    You need to define the asset by means of inheriting from WebpackBundleHook.
+
+    :param unique_slug: The slug defined for the bundle in its FrontEndSyncHook
+
+    :return: Inline Javascript as HTML for insertion into the DOM.
+    """
+    hook = hooks.WebpackBundleHook().get_by_slug(unique_slug)
+    return hook.render_to_page_load_sync_html()
+
+
+@register.simple_tag()
+def webpack_async_asset(unique_slug):
     """
     This template tag returns inline Javascript (wrapped in a script tag) that
     registers the events that a KolibriModule listens to, and a list of JS and
@@ -34,16 +49,18 @@ def webpack_assets(unique_slug):
     template. KolibriModules loaded in this way will not be executed,
     initialized or registered until one of the defined events is triggered.
 
+    You need to define the asset by means of inheriting from WebpackBundleHook.
+
     :param unique_slug: The slug defined for the bundle in its FrontEndSyncHook
 
     :return: Inline Javascript as HTML for insertion into the DOM.
     """
     hook = hooks.WebpackBundleHook().get_by_slug(unique_slug)
-    return hook.render_to_html()
+    return hook.render_to_page_load_async_html()
 
 
 @register.simple_tag()
-def base_frontend_assets():
+def webpack_base_assets():
     """
     This is a script tag for all ``FrontEndAssetHook`` hooks that implement a
     render_to_html() method - this is used in ``/base.html`` template to
@@ -52,8 +69,25 @@ def base_frontend_assets():
     :return: HTML of script tags to insert into base.html
     """
     tags = []
-    for hook in hooks.FrontEndAssetHook().registered_hooks:
+    for hook in hooks.FrontEndBaseSyncHook().registered_hooks:
         tags.append(
-            hook.render_to_html()
+            hook.render_to_page_load_sync_html()
+        )
+    return mark_safe('\n'.join(tags))
+
+
+@register.simple_tag()
+def webpack_base_async_assets():
+    """
+    This is a script tag for all ``FrontEndAssetHook`` hooks that implement a
+    render_to_html() method - this is used in ``/base.html`` template to
+    populate any Javascript and CSS that should be loaded at page load.
+
+    :return: HTML of script tags to insert into base.html
+    """
+    tags = []
+    for hook in hooks.FrontEndBaseASyncHook().registered_hooks:
+        tags.append(
+            hook.render_to_page_load_async_html()
         )
     return mark_safe('\n'.join(tags))
