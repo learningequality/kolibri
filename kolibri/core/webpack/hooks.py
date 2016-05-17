@@ -51,6 +51,12 @@ class WebpackBundleHook(hooks.KolibriHook):
     # : The static directory where you want stuff to be written to
     static_dir = "kolibri/core/static"
 
+    # : A list of events to listen to
+    events = {}
+
+    # : A list of events to load the asset once
+    once = {}
+
     def __init__(self, *args, **kwargs):
         super(WebpackBundleHook, self).__init__(*args, **kwargs)
 
@@ -145,8 +151,8 @@ class WebpackBundleHook(hooks.KolibriHook):
             "src_file": self.src_file,
             "static_dir": self.static_dir,
             "stats_file": self.stats_file,
-            "events": {},
-            "once": {},
+            "events": self.events,
+            "once": self.once,
         }
 
     @property
@@ -249,20 +255,6 @@ class FrontEndASyncHook(FrontEndAssetHook):
     """
     Define something that should be included for sync'ed purposes.
     """
-
-    # : A list of events to listen to
-    events = {}
-
-    # : A list of events to load the asset once
-    once = {}
-
-    @property
-    @hooks.registered_method
-    def webpack_bundle_data(self):
-        dct = super(FrontEndASyncHook, self).webpack_bundle_data
-        dct['events'] = self.events
-        dct['once'] = self.once
-        return dct
 
     class Meta:
         abstract = True
