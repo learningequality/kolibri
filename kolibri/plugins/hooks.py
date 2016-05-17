@@ -178,7 +178,7 @@ logger = logging.getLogger(__name__)
 
 # : Inspired by how Django's Model Meta option settings work, we define a simple
 # : list of valid options for Meta classes.
-DEFAULT_NAMES = ('abstract',)
+DEFAULT_NAMES = ('abstract', 'replace_parent')
 
 
 def abstract_method(func):
@@ -209,6 +209,7 @@ class Options(object):
     """
     def __init__(self, meta):
         self.abstract = False
+        self.replace_parent = False
         self.meta = meta
         self.registered_hooks = set()
         if meta:
@@ -219,6 +220,8 @@ class Options(object):
             for attr_name in DEFAULT_NAMES:
                 if attr_name in meta_attrs:
                     setattr(self, attr_name, meta_attrs.pop(attr_name))
+
+        assert not (self.abstract and self.replace_parent), "Cannot replace abstract hooks"
 
 
 class KolibriHookMeta(type):
@@ -285,10 +288,21 @@ class KolibriHookMeta(type):
             for parent in new_class._parents:
                 parent.register_hook(new_class)
 
+            if new_class._meta.replace_parent:
+                immediate_parent = parents[-1]
+                for parent in parents:
+                    parent.unregister_hook(immediate_parent)
+
         return new_class
 
     def add_to_class(cls, name, value):
         setattr(cls, name, value)
+
+    def unregister_hook(cls, child_hook):
+        if child_hook in cls._meta.registered_hooks:
+            cls._meta.registered_hooks.remove(child_hook)
+        for parent in cls._parents:
+            parent.unregister_hook(child_hook)
 
     def register_hook(cls, child_hook):
         cls._meta.registered_hooks.add(child_hook)
@@ -312,7 +326,6 @@ class KolibriHook(six.with_metaclass(KolibriHookMeta)):
         pass
 
     @property
-    @abstract_method
     def registered_hooks(self):
         """
         Always go through this method. This should guarantee that every time a

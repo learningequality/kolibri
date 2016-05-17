@@ -27,6 +27,7 @@ from . import settings
 class BundleNotFound(Exception):
     pass
 
+
 class WebpackError(EnvironmentError):
     pass
 
@@ -41,7 +42,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     the webpack asset loading pipeline.
     """
 
-    # : You should set a unique human readable name
+    #: You should set a unique human readable name
     unique_slug = ""
 
     # : Relative path to js source file for webpack to use as entry point
