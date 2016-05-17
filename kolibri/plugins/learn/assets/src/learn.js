@@ -1,14 +1,16 @@
 
-import KolibriModule from 'kolibri_module';
-import Vue from 'vue';
-import main from './main.vue';
-
+const KolibriModule = require('kolibri_module');
+const Vue = require('vue');
 
 const LearnModule = KolibriModule.extend({
   ready() {
+    // attaches the root learn module to the `main` tag in
+    // the learn.html django template.
     this.vm = new Vue({
       el: 'body',
-      components: { main },
+      components: {
+        main: require('./learn-main'),
+      },
     });
   },
 });

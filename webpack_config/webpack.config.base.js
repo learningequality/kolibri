@@ -16,7 +16,7 @@ var config = {
     module: {
         preLoaders: [
           {
-              test: /\.vue$/,
+              test: /\.vue.html$/,
               loader: 'eslint',
               exclude: /node_modules/
           },
@@ -28,7 +28,7 @@ var config = {
         ],
         loaders: [
             {
-              test: /\.vue$/,
+              test: /\.vue.html$/,
               loader: 'vue'
             },
             // This is required in order to prevent Backbone from importing jQuery.
@@ -66,7 +66,8 @@ var config = {
         // shortcut to allow importing the core kolibri_module from other bundles (plugins)
         alias: {
             'kolibri_module': 'kolibri/core/assets/src/kolibri_module'
-        }
+        },
+        extensions: ["", ".vue.html", ".js"],
     },
     eslint: {
         failOnError: true
