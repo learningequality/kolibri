@@ -101,8 +101,12 @@ const mutations = {
   },
 };
 
-
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state: getInitialState(),
   mutations,
 });
+
+export {
+  mutations,
+  store,
+};
