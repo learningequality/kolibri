@@ -1,8 +1,10 @@
 <template>
-  <select>
-    <option v-for="item in list">
-      {{ item }}
-    </option>
+  <select v-model="selected">
+    <template v-for="option in list">
+      <option :value="option">
+        {{ option.name }}
+      </option>
+    </template>
   </select>
 </template>
 
@@ -13,6 +15,10 @@ export default {
     list: {
       type: Array,
     },
+    initialSelection: null,
+  },
+  data() {
+    return { selected: this.initialSelection };
   },
 };
 </script>
