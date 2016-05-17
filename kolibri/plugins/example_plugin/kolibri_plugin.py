@@ -57,3 +57,7 @@ class ExtendedPlugin(ExamplePlugin):
     def disable(cls):
         # Do nothing because the parent will initialize the plugin as we want
         pass
+
+    def url_module(self):
+        # Do not return a url module, use the one inherited.
+        return None
