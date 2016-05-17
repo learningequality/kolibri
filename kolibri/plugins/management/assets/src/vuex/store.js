@@ -11,6 +11,8 @@ function getClassroomId() {
   return classroomCounter;
 }
 
+const ALL_CLASSROOMS = null;
+
 function getInitialState() {
   const johnDuck = {
     id: 2,
@@ -80,6 +82,7 @@ function getInitialState() {
     classrooms,
     learners,
     learnerGroups,
+    selectedClassroomId: ALL_CLASSROOMS, // is the value `null`, which has special meaning here
   };
 }
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <drop-down v-ref:classroom-selector :list="classrooms" :initial-selection="classrooms[0]"></drop-down>
+    <drop-down v-ref:classroom-selector :list="classrooms" :initial-selection="selectedClassroom"></drop-down>
     <button v-on:click="addClassroom({name: 'foo'})">Create</button>
     <button>Delete</button>
   </div>
@@ -17,7 +17,7 @@
 import learnerRoster from './learner-roster.vue';
 import dropDown from './drop-down.vue';
 import { addClassroom } from './vuex/actions.js';
-import { getClassrooms } from './vuex/getters.js';
+import { getClassrooms, getSelectedClassroomId } from './vuex/getters.js';
 
 export default {
   components: {
@@ -37,10 +37,20 @@ export default {
       _classrooms.push(...this.getClassrooms);
       return _classrooms;
     },
+    selectedClassroom() {
+      for (const classroom of this.classrooms) {
+        if (classroom.id === this.getSelectedClassroom) {
+          return classroom;
+        }
+      }
+      // Default value in case getSelectedClassroom is inconsistent
+      return this.classrooms[0];
+    },
   },
   vuex: {
     getters: {
       getClassrooms,
+      getSelectedClassroomId,
     },
     actions: {
       addClassroom,
