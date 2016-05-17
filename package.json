@@ -70,7 +70,7 @@
     "temp": "^0.8.3",
     "vue-hot-reload-api": "^1.2.0",
     "vue-html-loader": "^1.0.0",
-    "vue-loader": "^8.3.0",
+    "vue-loader": "indirectlylit/vue-loader#pad-css",
     "vue-style-loader": "^1.0.0",
     "webpack": "^1.12.12",
     "webpack-bundle-tracker": "0.0.93",
