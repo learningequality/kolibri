@@ -5,7 +5,7 @@
     <button>Delete</button>
   </div>
   <div>
-    <drop-down :list="[]" :initial-selection=""></drop-down>
+    <drop-down v-ref:learner-group-selector :list="[]" :initial-selection=""></drop-down>
     <button>Create</button>
     <button>Delete</button>
   </div>
