@@ -1,40 +1,15 @@
-'use strict';
+import logging from 'loglevel';
 
-require('./navigation_styles.styl');
-var Vue = require('vue');
 
-var Navigation = Vue.extend({
+import KolibriModule from 'kolibri_module';
+import Vue from 'vue';
+import Nav from './navigation.vue';
 
+
+const NavModule = KolibriModule.extend({
+  ready() {
+    logging.info('Navigation Loaded');
+  },
 });
 
-window.onload = function(){
-    var nav = new Navigation({
-        el: '#navigation-module',
-        data: {
-            // items that go in the title bar
-            nav_items: global.kolibri_reserved.nav_items,
-            title_bar: {
-              title: 'Kolibri',
-              home_link: '/'
-            },
-            user_nav_display: 'none',
-
-            // items that go into the user menu
-            user_nav_items: global.kolibri_reserved.user_nav_items,
-            user: {
-                username: 'foobar',
-                first_name: 'Foo',
-                last_name: 'Bar'
-            }
-        },
-        methods: {
-          user_nav_display_toggle: function(){
-            if (this.user_nav_display === 'none'){
-              this.user_nav_display = 'block';
-            }else {
-              this.user_nav_display = 'none';
-            }
-          },
-        }
-    });
-};
+module.exports = new NavModule();

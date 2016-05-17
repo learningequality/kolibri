@@ -2,6 +2,7 @@
 const KolibriModule = require('kolibri_module');
 const Vue = require('vue');
 
+
 const LearnModule = KolibriModule.extend({
   ready() {
     // attaches the root learn module to the `main` tag in
