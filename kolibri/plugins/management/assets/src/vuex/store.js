@@ -11,7 +11,7 @@ function getClassroomId() {
   return classroomCounter;
 }
 
-const ALL_CLASSROOMS = null;
+const ALL_CLASSROOMS_ID = null;
 
 function getInitialState() {
   const johnDuck = {
@@ -82,7 +82,7 @@ function getInitialState() {
     classrooms,
     learners,
     learnerGroups,
-    selectedClassroomId: ALL_CLASSROOMS, // is the value `null`, which has special meaning here
+    selectedClassroomId: ALL_CLASSROOMS_ID, // is the value `null`, which has special meaning here
   };
 }
 
@@ -106,7 +106,12 @@ const store = new Vuex.Store({
   mutations,
 });
 
+const constants = {
+  ALL_CLASSROOMS_ID,
+};
+
 export {
   mutations,
   store,
+  constants,
 };
