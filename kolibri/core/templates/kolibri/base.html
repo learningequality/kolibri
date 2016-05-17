@@ -15,36 +15,6 @@
 </head>
 <body>
 
-{# The "verbatim" tag includes its contents literally, used for escaping Vue template variables #}
-{% verbatim %}
-<header id="navigation-module">
-  <nav class="titlebar">
-
-    <div class="titlebar_left">
-      <span class="titlebar_title">{{title_bar.title}}</span>
-      <a class="titlebar_homelink" href="{{title_bar.home_link}}">Home</a>
-    </div>
-
-    <div class="titlebar_right">
-      <span v-on:click="user_nav_display_toggle">{{user.first_name}}</span>
-      <div class="usermenu" v-bind:style="{display: user_nav_display}">
-        <ul>
-          <li v-for="item in user_nav_items">
-            <a href={{item.url}}>{{item.text}}</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <nav class="navlinks">
-    <div class="navlinks_item" v-for="item in nav_items">
-      <a href="{{item.url}}">{{ item.text }}</a>
-    </div>
-  </nav>
-</header>
-{% endverbatim %}
-
 {% block content %}
 
 {% endblock %}
