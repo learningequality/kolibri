@@ -15,10 +15,7 @@ export default {
     list: {
       type: Array,
     },
-    initialSelection: null,
-  },
-  data() {
-    return { selected: this.initialSelection };
+    selected: null,
   },
 };
 </script>

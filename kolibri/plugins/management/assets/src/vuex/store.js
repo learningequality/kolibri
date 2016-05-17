@@ -95,6 +95,10 @@ const mutations = {
       learnerGroups: attrs.learnerGroups ? attrs.learnerGroups : [],
     });
   },
+  SET_SELECTED_CLASSROOM_ID(state, id) {
+    // Disable no-param-reassign rule... that is expressly the purpose of this function
+    state.selectedClassroomId = id; // eslint-disable-line no-param-reassign
+  },
 };
 
 
