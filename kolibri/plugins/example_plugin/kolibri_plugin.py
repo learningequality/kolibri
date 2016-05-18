@@ -69,8 +69,10 @@ class ExampleAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "example_plugin"
     src_file = "kolibri/plugins/example_plugin/assets/example/example_module.js"
     static_dir = "kolibri/plugins/example_plugin/static"
+    events = {
+        "hello": "hello_world"
+    }
 
-
-class ExampleInclusionHook(webpack_hooks.FrontEndBaseSyncHook):
+class ExampleInclusionHook(webpack_hooks.FrontEndBaseASyncHook):
 
     bundle_class = ExampleAsset

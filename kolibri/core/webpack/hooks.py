@@ -248,12 +248,13 @@ class WebpackInclusionHook(hooks.KolibriHook):
 
     def __init__(self, *args, **kwargs):
         super(WebpackInclusionHook, self).__init__(*args, **kwargs)
-        assert \
-            self.bundle_class is not None,\
-            "Must specify bundle property, this one did not: {} ({})".format(
-                type(self),
-                type(self.bundle)
-            )
+        if not self._meta.abstract:
+            assert \
+                self.bundle_class is not None,\
+                "Must specify bundle_class property, this one did not: {} ({})".format(
+                    type(self),
+                    type(self.bundle_class)
+                )
 
     def render_to_page_load_sync_html(self, extension=None):
         html = ""
