@@ -7,7 +7,7 @@ import Vue from 'vue';
 import Main from './Main.vue';
 
 
-const LearnModule = KolibriModule.extend({
+class LearnModule extends KolibriModule {
   ready() {
     logging.info('Hello World');
     this.vm = new Vue({
@@ -15,6 +15,6 @@ const LearnModule = KolibriModule.extend({
       components: { Main },
     });
   },
-});
+}
 
 module.exports = new LearnModule();

@@ -1,8 +1,8 @@
 
 // This is aliased for your convenience!
-const KolibriModule = require('kolibri_module');
+import KolibriModule from 'kolibri_module';
 
-const DocumentPDFModule = KolibriModule.extend({
+class DocumentPDFModule extends KolibriModule {
 
   render(contentData, renderArea) {
     const documentTag = document.createElement('a');
@@ -12,7 +12,7 @@ const DocumentPDFModule = KolibriModule.extend({
     titleTag.innerHTML = contentData.id;
     renderArea.appendChild(titleTag);
     renderArea.appendChild(documentTag);
-  },
-});
+  }
+}
 
 module.exports = new DocumentPDFModule();

@@ -3,7 +3,8 @@
 var assert = require('assert');
 var rewire = require('rewire');
 
-var assetLoader = rewire('../src/asset_loader.js');
+var assetLoaderModule = rewire('../src/asset_loader.js');
+var assetLoader = assetLoaderModule.default
 
 describe('Asset loader', function() {
     describe('input is invalid', function() {
@@ -16,7 +17,7 @@ describe('Asset loader', function() {
     });
     describe('js input is valid, file fetches', function() {
         it('should callback null', function (done) {
-            assetLoader.__set__('scriptjs', function(file, success, fail) {
+            assetLoaderModule.__set__('scriptjs', function(file, success, fail) {
                 success();
             });
             assetLoader(['nothing.js'], function(error, missing) {
@@ -27,7 +28,7 @@ describe('Asset loader', function() {
     });
     describe('css input is valid, file fetches', function() {
         it('should callback null', function (done) {
-            assetLoader.__set__('onloadcss', function(file, success) {
+            assetLoaderModule.__set__('onloadcss', function(file, success) {
                 success();
             });
             assetLoader(['nothing.css'], function(error, missing) {
@@ -38,7 +39,7 @@ describe('Asset loader', function() {
     });
     describe('js input is valid, file fails to fetch', function() {
         beforeEach(function(){
-            assetLoader.__set__('scriptjs', function(file, success, fail) {
+            assetLoaderModule.__set__('scriptjs', function(file, success, fail) {
                 fail();
             });
         });
@@ -57,10 +58,10 @@ describe('Asset loader', function() {
     });
     describe('css and js input is valid, files fetch', function() {
         beforeEach(function(){
-            assetLoader.__set__('scriptjs', function(file, success, fail) {
+            assetLoaderModule.__set__('scriptjs', function(file, success, fail) {
                 success();
             });
-            assetLoader.__set__('onloadcss', function(file, success) {
+            assetLoaderModule.__set__('onloadcss', function(file, success) {
                 success();
             });
         });
@@ -79,7 +80,7 @@ describe('Asset loader', function() {
     });
     describe('css input is valid, file fails to fetch', function() {
         beforeEach(function(){
-            assetLoader.__set__('onloadcss', function(file, success) {});
+            assetLoaderModule.__set__('onloadcss', function(file, success) {});
         });
         it('should raise an error', function (done) {
             assetLoader(['nothing.css'], function(error, missing) {

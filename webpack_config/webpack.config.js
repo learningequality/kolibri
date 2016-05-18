@@ -27,8 +27,6 @@ var js_source_dirs = [
 
 var libs =  function (kolibri_name) {
     return {
-        'lodash': kolibri_name + '.lib._',
-        'backbone': kolibri_name + '.lib.Backbone',
         'loglevel': kolibri_name + '.lib.loglevel',
         'vue': kolibri_name + '.lib.vue',
         'kolibri': kolibri_name
