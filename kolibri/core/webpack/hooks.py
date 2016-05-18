@@ -67,9 +67,6 @@ class WebpackBundleHook(hooks.KolibriHook):
             len([x for x in self.registered_hooks if x.unique_slug == self.unique_slug]) <= 1, \
             "Non-unique slug found: '{}'".format(self.unique_slug)
 
-    class Meta:
-        abstract = True
-
     @hooks.abstract_method
     def get_by_slug(self, slug):
         """
@@ -112,8 +109,6 @@ class WebpackBundleHook(hooks.KolibriHook):
     @hooks.registered_method
     def bundle(self):
         """
-        TODO: This is weird, why are we creating this as a dict object?
-
         :returns: a generator yielding dict objects with properties of the built
         asset, most notably its URL.
         """
@@ -207,7 +202,7 @@ class WebpackBundleHook(hooks.KolibriHook):
                 tags.append(css_tag.format(url=render_as_url(chunk)))
         return mark_safe('\n'.join(tags))
 
-    def render_to_page_load_async_html(self):
+    def render_to_page_load_async_html(self, extension=None):
         """
         Generates script tag containing Javascript to register an
         asynchronously loading Javascript FrontEnd plugin against the core
@@ -217,6 +212,8 @@ class WebpackBundleHook(hooks.KolibriHook):
 
         It also passes in information about the methods that the events should
         be delegated to once the plugin has loaded.
+
+        TODO: What do we do with the extension parameter here?
 
         :returns: HTML of a script tag to insert into a page.
         """
@@ -229,18 +226,58 @@ class WebpackBundleHook(hooks.KolibriHook):
         )
         return mark_safe('<script>{js}</script>'.format(js=js))
 
+    class Meta:
+        abstract = True
 
-class FrontEndCoreHook(WebpackBundleHook):
-    """
-    A hook that asserts its only applied once, namely to load the core. This
-    should only be inherited once which is also an enforced property for now.
 
-    This is loaded before everything else.
+class WebpackInclusionHook(hooks.KolibriHook):
     """
+    To define an asset target of inclusing in some html template, you must
+    define an inheritor of ``WebpackBundleHook`` for the asset files themselves
+    and then a ``WebpackInclusionHook`` to define where the inclusion takes
+    place.
+
+    This abstract hook does nothing, it's just the universal inclusion hook, and
+    no templates intend to include ALL assets at once.
+    """
+
+    #: Should define an instance of ``WebpackBundleHook``, likely abstract
+    bundle_class = None
 
     def __init__(self, *args, **kwargs):
-        super(FrontEndCoreHook, self).__init__(*args, **kwargs)
-        assert len(list(self.registered_hooks)) <= 1, "Only one core asset allowed"
+        super(WebpackInclusionHook, self).__init__(*args, **kwargs)
+        assert \
+            self.bundle_class is not None,\
+            "Must specify bundle property, this one did not: {} ({})".format(
+                type(self),
+                type(self.bundle)
+            )
+
+    def render_to_page_load_sync_html(self, extension=None):
+        html = ""
+        bundle = self.bundle_class()
+        if not bundle._meta.abstract:
+            html = bundle.render_to_page_load_sync_html(extension=extension)
+        else:
+            for hook in bundle.registered_hooks:
+                html += hook.render_to_page_load_sync_html(extension=extension)
+        return mark_safe(html)
+
+    def render_to_page_load_async_html(self, extension=None):
+        html = ""
+        bundle = self.bundle_class()
+        if not bundle._meta.abstract:
+            html = bundle.render_to_page_load_async_html(extension=extension)
+        else:
+            for hook in bundle.registered_hooks:
+                html += hook.render_to_page_load_async_html(extension=extension)
+        return mark_safe(html)
+
+    class Meta:
+        abstract = True
+
+
+class FrontEndCoreAssetHook(WebpackBundleHook):
 
     @property
     @hooks.registered_method
@@ -254,7 +291,28 @@ class FrontEndCoreHook(WebpackBundleHook):
         abstract = True
 
 
-class FrontEndBaseSyncHook(WebpackBundleHook):
+class FrontEndCoreHook(WebpackInclusionHook):
+    """
+    A hook that asserts its only applied once, namely to load the core. This
+    should only be inherited once which is also an enforced property for now.
+
+    This is loaded before everything else.
+    """
+
+    bundle = FrontEndCoreAssetHook
+
+    def __init__(self, *args, **kwargs):
+        super(FrontEndCoreHook, self).__init__(*args, **kwargs)
+        assert len(list(self.registered_hooks)) <= 1, "Only one core asset allowed"
+        assert \
+            isinstance(self.bundle, FrontEndCoreAssetHook),\
+            "Only allows a FrontEndCoreAssetHook instance as bundle"
+
+    class Meta:
+        abstract = True
+
+
+class FrontEndBaseSyncHook(WebpackInclusionHook):
     """
     Inherit a hook defining assets to be loaded in kolibri/base.html, that means
     ALL pages. Use with care.
@@ -264,7 +322,7 @@ class FrontEndBaseSyncHook(WebpackBundleHook):
         abstract = True
 
 
-class FrontEndBaseASyncHook(WebpackBundleHook):
+class FrontEndBaseASyncHook(WebpackInclusionHook):
     """
     Inherit a hook defining assets to be loaded in kolibri/base.html, that means
     ALL pages. Use with care.

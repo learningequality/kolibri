@@ -23,19 +23,23 @@ class _WebpackBundleHookInheritor(_WebpackBundleHookSwappedOut):
         replace_parent = True
 
 
-class _FrontEndCoreHook(hooks.FrontEndCoreHook):
+class _FrontEndCoreAssetHook(hooks.FrontEndCoreAssetHook):
     unique_slug = "im_a_core_hook"
 
     class Meta:
         replace_parent = True
 
 
-class _FrontEndASyncHook(TestHookMixin, hooks.FrontEndBaseASyncHook):
+class _FrontEndASyncAssetHook(TestHookMixin, hooks.WebpackBundleHook):
     unique_slug = "im_an_async_hook"
 
     events = {
         'some_weird_event_we_are_going_to_look_for': 'value'
     }
+
+
+class _FrontEndASyncInclusionTargetHook(hooks.FrontEndBaseASyncHook):
+    bundle_class = _FrontEndASyncAssetHook
 
 
 class WebpackBundleHookTestCase(TestCase):
@@ -61,10 +65,10 @@ class WebpackBundleHookTestCase(TestCase):
 
     def test_sync_hook(self):
 
-        for hook in hooks.FrontEndBaseASyncHook().registered_hooks:
-            if type(hook) is _FrontEndASyncHook:
-                for event_key in _FrontEndASyncHook.events.keys():
-                    self.assertIn(
-                        event_key,
-                        hook.render_to_page_load_async_html(),
-                    )
+        html = _FrontEndASyncInclusionTargetHook().render_to_page_load_async_html()
+        assert not _FrontEndASyncInclusionTargetHook().bundle_class()._meta.abstract
+        for event_key in _FrontEndASyncAssetHook.events.keys():
+            self.assertIn(
+                event_key,
+                html,
+            )

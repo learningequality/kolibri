@@ -196,7 +196,7 @@ def registered_method(func):
     @functools.wraps(func)
     def inner(instance, *args, **kwargs):
         assert \
-            instance._meta.abstract, \
+            not instance._meta.abstract, \
             "Method call only valid for a registered, non-abstract hook"
         return func(instance, *args, **kwargs)
 
@@ -207,6 +207,7 @@ class Options(object):
     """
     Stores instance of options for Hook.Meta classes
     """
+
     def __init__(self, meta):
         self.abstract = False
         self.replace_parent = False
@@ -267,10 +268,12 @@ class KolibriHookMeta(type):
 
         attr_meta = attrs.pop('Meta', None)
         abstract = getattr(attr_meta, 'abstract', False)
-        if not attr_meta:
-            meta = getattr(new_class, 'Meta', None)
-        else:
-            meta = attr_meta
+        # Commented out because it sets the meta properties of the parent
+        # if not attr_meta:
+        #     meta = getattr(new_class, 'Meta', None)
+        # else:
+        #     meta = attr_meta
+        meta = attr_meta
 
         # Meta of the base object can be retrieved by looking at the currently
         # set _meta object... but we don't use it...
