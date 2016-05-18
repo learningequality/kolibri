@@ -4,7 +4,7 @@
  * @module kolibri_module
  */
 
-const Kolibri = require('./core_app_instance');
+const Kolibri = require('kolibri');
 
 export default class KolibriModule {
   /**
