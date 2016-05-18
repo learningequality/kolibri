@@ -28,7 +28,6 @@ function Lib() {
   // libraries
   this.loglevel = require('loglevel');
   this.vue = require('vue');
-
   // views
   this.coreBase = require('./core-base');
 }

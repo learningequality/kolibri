@@ -124,10 +124,10 @@ class KolibriFrontEndPluginBase(KolibriPluginBase):
 
     def nav_populate(self, items):
         for item in items:
-            item.update({
+            yield {
+                'text': item['text'],
                 'url': self.base_url + '/' + item['url'],
-            })
-            yield item
+            }
 
     def urlconf_populate(self):
         yield url('^' + self.base_url, self.viewfunc, name=self.base_url)
