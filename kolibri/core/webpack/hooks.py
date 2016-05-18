@@ -66,6 +66,8 @@ class WebpackBundleHook(hooks.KolibriHook):
         assert \
             len([x for x in self.registered_hooks if x.unique_slug == self.unique_slug]) <= 1, \
             "Non-unique slug found: '{}'".format(self.unique_slug)
+        if not self._meta.abstract:
+            assert self.src_file, "No source JS defined"
 
     @hooks.abstract_method
     def get_by_slug(self, slug):
@@ -282,7 +284,7 @@ class FrontEndCoreAssetHook(WebpackBundleHook):
     @property
     @hooks.registered_method
     def webpack_bundle_data(self):
-        dct = super(FrontEndCoreHook, self).webpack_bundle_data
+        dct = super(FrontEndCoreAssetHook, self).webpack_bundle_data
         dct['core'] = True
         dct['external'] = True
         return dct

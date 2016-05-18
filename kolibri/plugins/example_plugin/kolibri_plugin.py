@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import logging
 
+from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins.base import KolibriPluginBase
 
 logger = logging.getLogger(__name__)
@@ -61,3 +62,15 @@ class ExtendedPlugin(ExamplePlugin):
     def url_module(self):
         # Do not return a url module, use the one inherited.
         return None
+
+
+class ExampleAsset(webpack_hooks.WebpackBundleHook):
+
+    unique_slug = "example_plugin"
+    src_file = "kolibri/plugins/example_plugin/assets/example/example_module.js"
+    static_dir = "kolibri/plugins/example_plugin/static"
+
+
+class ExampleInclusionHook(webpack_hooks.FrontEndBaseSyncHook):
+
+    bundle_class = ExampleAsset
