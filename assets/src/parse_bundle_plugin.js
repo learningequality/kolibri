@@ -16,9 +16,9 @@ var _ = require('lodash');
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle configuration for webpack.
  * @param {Object} data - An object that contains the data for configuring the bundle.
- * @param {string} data.entry_file - The Javascript source file that initializes the plugin.
+ * @param {string} data.src_file - The Javascript source file that initializes the plugin.
  * @param {string} data.name - The name that the plugin is referred to by.
- * @param {string} data.module_path - Directory path to the module in which the plugin is defined.
+ * @param {string} data.static_dir - Directory path to the module in which the plugin is defined.
  * @param {string} data.stats_file - The name of the webpack bundle stats file that the plugin data should be saved to.
  * @param {string} [data.external] - Flag to indicate that the module should be exposed as an external library
  * to other plugins.
@@ -34,11 +34,11 @@ var parseBundlePlugin = function(data, base_dir) {
     // plugins (including the core app).
     var bundle = _.clone(base_config);
     var library;
-    if ((typeof data.entry_file !== "undefined") &&
+    if ((typeof data.src_file !== "undefined") &&
         (typeof data.name !== "undefined") &&
-        (typeof data.module_path !== "undefined") &&
+        (typeof data.static_dir !== "undefined") &&
         (typeof data.stats_file !== "undefined")) {
-        bundle_data[data.name] = path.join(data.module_path, data.entry_file);
+        bundle_data[data.name] = data.src_file;
         if (typeof data.external !== "undefined" && data.external) {
             // If we want to create a plugin that can be directly referenced by other plugins, this sets it to be
             // instantiated as a global variable. Only currently used by the Kolibri core app.
@@ -51,7 +51,6 @@ var parseBundlePlugin = function(data, base_dir) {
             exclude: /node_modules/, // exclude any and all files in the node_modules folder
             loader: "jshint-loader"
         });
-
         bundle.resolve.root = base_dir;
         bundle.plugins = bundle.plugins.concat([
             // BundleTracker creates stats about our built files which we can then pass to Django to allow our template
@@ -76,7 +75,7 @@ var parseBundlePlugin = function(data, base_dir) {
             context: base_dir,
             entry: bundle_data,
             output: {
-                path: path.relative(base_dir, path.join(data.module_path, "static", data.name)),
+                path: path.relative(base_dir, path.join(data.static_dir, data.name)),
                 filename: "[name]-[hash].js",
                 publicPath: path.join(data.name, "/"),
                 library: library

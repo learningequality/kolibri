@@ -54,6 +54,9 @@ docs/modules.rst
 # node modules
 node_modules
 
+# Node coverage data
+coverage
+
 # webpack built files
 kolibri/**/build/*
 kolibri/**/static/*

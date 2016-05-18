@@ -9,22 +9,10 @@
 
 var path = require('path');
 var webpack = require('webpack');
-
 var logging = require('../assets/src/logging');
-var recurseBundlePlugins = require('../assets/src/recurse_bundle_plugins');
-
-
-// This defines the directories where we should search for kolibri_plugins.pys that will specify KolibriModules to be
-// built. It might be nice to use INSTALLED_APPS here?
-var js_source_dirs = [
-    "kolibri/core",
-    "kolibri/plugins"
-].map(function(file_path) {
-    return path.join(path.dirname(__dirname), file_path);
-});
+var readBundlePlugins = require('../assets/src/read_bundle_plugins');
 
 // Mappings for libraries that we bundle in the Kolibri core app.
-
 var libs =  function (kolibri_name) {
     return {
         'lodash': kolibri_name + '.lib._',
@@ -35,6 +23,6 @@ var libs =  function (kolibri_name) {
 
 };
 
-var bundles = recurseBundlePlugins(js_source_dirs, path.dirname(__dirname), libs);
+var bundles = readBundlePlugins(path.dirname(__dirname), libs);
 
 module.exports = bundles;

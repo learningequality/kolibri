@@ -1,10 +1,9 @@
-{% load i18n kolibri_tags %}
-<html>
+{% load i18n kolibri_tags webpack_tags %}<html>
 <head>
   <title>{% block title %}{% endblock %} - {% trans "Kolibri" %}</title>
-  {% frontend_assets 'kolibri.core.KolibriCoreFrontEnd' %}
-  {% base_frontend_async %}
-  {% base_frontend_sync %}
+  {% webpack_asset 'default_frontend' %}
+  {% webpack_base_assets %}
+  {% webpack_base_async_assets %}
 </head>
 <body>
 
@@ -13,7 +12,7 @@
   {% kolibri_main_navigation as nav %}
 
   {% for item in nav %}
-  <li><a href="{{ item.menu_url }}">{{ item.menu_name }}</a></li>
+  <li><a href="{{ item.url }}">{{ item.label }}</a></li>
   {% endfor %}
 
 </ul>
