@@ -21,6 +21,7 @@ from django import template
 from django.utils.safestring import mark_safe
 
 from .. import hooks
+from ..utils import webpack_asset_render
 
 register = template.Library()
 
@@ -68,12 +69,7 @@ def webpack_base_assets():
 
     :return: HTML of script tags to insert into base.html
     """
-    tags = []
-    for hook in hooks.FrontEndBaseSyncHook().registered_hooks:
-        tags.append(
-            hook.render_to_page_load_sync_html()
-        )
-    return mark_safe('\n'.join(tags))
+    return webpack_asset_render(hooks.FrontEndBaseSyncHook, async=False)
 
 
 @register.simple_tag()
@@ -85,9 +81,4 @@ def webpack_base_async_assets():
 
     :return: HTML of script tags to insert into base.html
     """
-    tags = []
-    for hook in hooks.FrontEndBaseASyncHook().registered_hooks:
-        tags.append(
-            hook.render_to_page_load_async_html()
-        )
-    return mark_safe('\n'.join(tags))
+    return webpack_asset_render(hooks.FrontEndBaseASyncHook, async=True)
