@@ -18,7 +18,6 @@ To use
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django import template
-from django.utils.safestring import mark_safe
 
 from .. import hooks
 from ..utils import webpack_asset_render
