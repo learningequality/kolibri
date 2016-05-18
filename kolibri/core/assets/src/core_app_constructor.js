@@ -3,8 +3,7 @@
  * @module Facade
  */
 
-const Mediator = require('./core_app_mediator');
-const _ = require('lodash');
+import Mediator from './core_app_mediator';
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -27,10 +26,8 @@ const publicMethods = [
  */
 function Lib() {
   // libraries
-  this.Backbone = require('backbone');
   this.loglevel = require('loglevel');
   this.vue = require('vue');
-  this._ = require('lodash');
 
   // views
   this.coreBase = require('./core-base');
@@ -46,7 +43,8 @@ module.exports = function CoreApp() {
   const mediator = new Mediator();
 
   // Bind 'this' value for public methods - those that will be exposed in the Facade.
-  _.bindAll(mediator, publicMethods);
   this.kolibri_modules = mediator._kolibri_module_registry;
-  _.extend(this, _.pick(mediator, publicMethods));
+  publicMethods.forEach((method) => {
+    this[method] = mediator[method].bind(mediator);
+  });
 };

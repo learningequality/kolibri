@@ -19,8 +19,6 @@ var readBundlePlugins = require('../assets/src/read_bundle_plugins');
 // kolibri_name is always == kolibriGlobal
 var libs = function(kolibri_name) {
     return {
-        'lodash': kolibri_name + '.lib._',
-        'backbone': kolibri_name + '.lib.Backbone',
         'loglevel': kolibri_name + '.lib.loglevel',
         'vue': kolibri_name + '.lib.vue',
         'kolibri': kolibri_name,
