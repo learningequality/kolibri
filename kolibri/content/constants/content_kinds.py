@@ -9,7 +9,7 @@ VIDEO = "video"
 AUDIO = "audio"
 EXERCISE = "exercise"
 DOCUMENT = "document"
-IMAGE = 'image'
+IMAGE = "image"
 
 choices = (
     (TOPIC, _("Topic")),
