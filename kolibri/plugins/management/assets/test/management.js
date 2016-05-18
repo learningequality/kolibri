@@ -5,6 +5,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import assert from 'assert';
+import _ from 'lodash';
 
 import { store, mutations, constants } from '../src/vuex/store.js';
 import Management from '../src/main.vue';
@@ -66,37 +67,33 @@ describe('The management module', () => {
         template: '<div><management v-ref:main></management></div>',
         components: { Management },
         store: testStore,
-      });
-      container.$mount();
+      }).$mount();
       this.vm = container.$refs.main;
+      this.store = testStore;
     });
 
     afterEach(function () {
       this.vm.$destroy();
     });
 
-    it('The roster shows all learners when you select "All classrooms".', function (done) {
-      Vue.nextTick(() => {
-        this.vm.selectedClassroom = {
-          id: constants.ALL_CLASSROOMS_ID,
-        };
-        assert.strictEqual(this.vm.$refs.learnerRoster.learners, fixture1.learners);
-        done();
-      });
-    });
-
     it('The roster shows only John Duck when you select "Classroom C".', function (done) {
       // Look at the fixture file for the magic numbers here.
+      this.store.dispatch('SET_SELECTED_CLASSROOM_ID', 3);
       Vue.nextTick(() => {
-        this.vm.selectedClassroom = {
-          id: 2,
-        };
-        assert.strictEqual(this.vm.$refs.learnerRoster.learners, [{
+        assert(_.isEqual(this.vm.$refs.learnerRoster.learners, [{
           id: 2,
           first_name: 'John',
           last_name: 'Duck',
           username: 'jduck',
-        }]);
+        }]));
+        done();
+      });
+    });
+
+    it('The roster shows all learners when you select "All classrooms".', function (done) {
+      this.store.dispatch('SET_SELECTED_CLASSROOM_ID', constants.ALL_CLASSROOMS_ID);
+      Vue.nextTick(() => {
+        assert(_.isEqual(this.vm.$refs.learnerRoster.learners, fixture1.learners));
         done();
       });
     });
