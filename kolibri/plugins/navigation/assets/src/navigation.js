@@ -6,10 +6,10 @@ import Vue from 'vue';
 import Nav from './navigation.vue';
 
 
-const NavModule = KolibriModule.extend({
+class NavModule extends KolibriModule {
   ready() {
     logging.info('Navigation Loaded');
-  },
-});
+  }
+}
 
 module.exports = new NavModule();
