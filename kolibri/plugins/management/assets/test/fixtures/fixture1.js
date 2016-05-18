@@ -1,10 +1,3 @@
-const johnDuck = {
-  id: 2,
-  first_name: 'John',
-  last_name: 'Duck',
-  username: 'jduck',
-};
-
 export default {
   learners: [
     {
@@ -13,7 +6,12 @@ export default {
       last_name: 'G',
       username: 'mike',
     },
-    johnDuck,
+    {
+      id: 2,
+      first_name: 'John',
+      last_name: 'Duck',
+      username: 'jduck',
+    },
     {
       id: 3,
       first_name: 'Abe',
@@ -25,17 +23,37 @@ export default {
     {
       id: 1,
       name: 'Classroom A',
-      learners: [1, 3],
+      learnerGroups: [1, 3],
+      // learners: [1, 2, 3],
     },
     {
       id: 2,
       name: 'Classroom B',
-      learners: [3],
+      learnerGroups: [],
     },
     {
       id: 3,
       name: 'Classroom C',
-      learners: [2],
+      learnerGroups: [2],
+      // learners: [2],
     },
   ],
+  learnerGroups: [
+    {
+      id: 1,
+      name: 'Group 1',
+      learners: [1, 2],
+    },
+    {
+      id: 2,
+      name: 'Group 2',
+      learners: [2],
+    },
+    {
+      id: 3,
+      name: 'Group 3',
+      learners: [3],
+    },
+  ],
+  selectedClassroomId: null, // `null` a special meaning for this app.
 };
