@@ -10,13 +10,12 @@
  */
 
 var webpack = require('webpack');
-var utils = require('./utils')
 
 var config = {
     module: {
         preLoaders: [
           {
-              test: /\.vue$/,
+              test: /\.vue.html$/,
               loader: 'eslint',
               exclude: /node_modules/
           },
@@ -28,7 +27,7 @@ var config = {
         ],
         loaders: [
             {
-              test: /\.vue$/,
+              test: /\.vue.html$/,
               loader: 'vue'
             },
             {
@@ -48,15 +47,17 @@ var config = {
         // shortcut to allow importing the core kolibri_module from other bundles (plugins)
         alias: {
             'kolibri_module': 'kolibri/core/assets/src/kolibri_module'
-        }
+        },
+        extensions: ["", ".vue.html", ".js"],
     },
     eslint: {
         failOnError: true
     },
     vue: {
-        loaders: utils.cssLoaders()
+        loaders: {
+            stylus: 'vue-style-loader!css-loader!stylus-loader!stylint',
+        }
     }
-
 };
 
 module.exports = config;

@@ -1,18 +1,16 @@
 
-import logging from 'loglevel';
-
-
-import KolibriModule from 'kolibri_module';
-import Vue from 'vue';
-import Main from './Main.vue';
-
+const KolibriModule = require('kolibri_module');
+const Vue = require('vue');
 
 class LearnModule extends KolibriModule {
   ready() {
-    logging.info('Hello World');
+    // attaches the root learn module to the `main` tag in
+    // the learn.html django template.
     this.vm = new Vue({
       el: 'body',
-      components: { Main },
+      components: {
+        main: require('./learn-main'),
+      },
     });
   }
 }

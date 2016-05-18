@@ -23,13 +23,18 @@ var js_source_dirs = [
     return path.join(path.dirname(__dirname), file_path);
 });
 
-// Mappings for libraries that we bundle in the Kolibri core app.
 
-var libs =  function (kolibri_name) {
+// Mappings for libraries that we bundle in the Kolibri core app.
+// * the keys are names exposed by webpack to use in `require` statements, across apps
+// * the values are references to the packages, already inserted into kolibriGlobal
+//
+// kolibri_name is always == kolibriGlobal
+var libs = function(kolibri_name) {
     return {
         'loglevel': kolibri_name + '.lib.loglevel',
         'vue': kolibri_name + '.lib.vue',
-        'kolibri': kolibri_name
+        'kolibri': kolibri_name,
+        'core-base': kolibri_name + '.lib.coreBase',
     };
 
 };
