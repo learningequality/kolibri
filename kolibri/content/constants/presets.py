@@ -4,26 +4,22 @@ This module contains constants representing the ids of FormatPreset.
 from django.utils.translation import ugettext_lazy as _
 
 # constants for FormatPreset
-HIGH_RES_VIDEO = "high_res_video"
-MID_RES_VIDEO = "mid_res_video"
-LOW_RES_VIDEO = "low_res_video"
-VECTOR_VIDEO = "vertor_video"
+VIDEO_HIGH_RES = "high_res_video"
+VIDEO_LOW_RES = "low_res_video"
+VIDEO_VECTOR = "vector_video"
 
-EN_SUBTITLE = "en_subtitle"
-ES_SUBTITLE = "es_subtitle"
-ZH_SUBTITLE = "zh_subtitle"
+VIDEO_THUMBNAIL = "thumbnail"
+DOC_THUMBNAIL = "thumbnail"
 
-THUMBNAIL = "thumbnail"
+VIDEO_CAPTION = "caption"
 
 choices = (
-    (HIGH_RES_VIDEO, _("High resolution video")),
-    (MID_RES_VIDEO, _("Medium resolution video")),
-    (LOW_RES_VIDEO, _("Low resolution video")),
-    (VECTOR_VIDEO, _("Vertor video")),
+    (VIDEO_HIGH_RES, _("High resolution video")),
+    (VIDEO_LOW_RES, _("Low resolution video")),
+    (VIDEO_VECTOR, _("Vertor video")),
 
-    (THUMBNAIL, _("Thumbnail")),
+    (VIDEO_THUMBNAIL, _("Thumbnail")),
+    (DOC_THUMBNAIL, _("Thumbnail")),
 
-    (EN_SUBTITLE, _("English subtitle")),
-    (ES_SUBTITLE, _("Spanish subtitle")),
-    (ZH_SUBTITLE, _("Chinese subtitle")),
+    (VIDEO_CAPTION, _("Caption")),
 )
