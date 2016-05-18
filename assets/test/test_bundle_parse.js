@@ -100,10 +100,7 @@ describe('readBundlePlugins', function() {
 
     beforeEach(function() {
         readBundlePlugins.__set__("execSync", function() {
-            var output = "";
-            for (var i = 0; i < data.length; i++) {
-                output += JSON.stringify(data[i]) + ((i === data.length - 1) ? "" : "\n");
-            }
+            var output = JSON.stringify(data);
             return new Buffer(output);
         });
     });
