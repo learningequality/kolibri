@@ -9,7 +9,6 @@ var scriptjs = require('scriptjs');
 var loadcss = require('fg-loadcss').loadCSS;
 var onloadcss = require('fg-loadcss/src/onloadCSS');
 var logging = require('loglevel');
-var _ = require('lodash');
 
 /**
  * Take an Array of frontend asset files and asynchronously load in order.
@@ -18,11 +17,11 @@ var _ = require('lodash');
  * @param {Number=} timeout - A ms timeout after which to error for CSS files - this compensates for the lack of wide
  * support for the onerror event on 'link' tags in HTML.
  */
-var assetLoader = function(assets, callback, timeout) {
+export default function(assets, callback, timeout) {
     if ((timeout === null) || (typeof timeout === 'undefined')) {
         timeout = 5000;
     }
-    if (!_.isArray(assets)) {
+    if (!Array.isArray(assets)) {
         logging.debug(assets);
         return callback(new Error('Non-array passed to assets'), null);
     }
@@ -30,16 +29,16 @@ var assetLoader = function(assets, callback, timeout) {
     var queue_length = assets.length;
 
     function cb(dep, success) {
-        if (!_.has(loaded, dep)) {
+        if (!loaded.hasOwnProperty(dep)) {
             if (success) {
                 loaded[dep] = 1;
             } else {
                 loaded[dep] = 0;
             }
-            if (_.keys(loaded).length === queue_length) {
-                var missing = _.keys(_.pickBy(loaded, function(load, dep) {
-                    return load === 0;
-                }));
+            if (Object.getOwnPropertyNames(loaded).length === queue_length) {
+                var missing = Object.getOwnPropertyNames(loaded).filter(function(dep) {
+                    return loaded[dep] === 0;
+                });
                 if (missing.length > 0) {
                     callback(new Error('Some assets failed to load'), missing);
                 } else {
@@ -49,8 +48,8 @@ var assetLoader = function(assets, callback, timeout) {
         }
     }
 
-    _.forEach(assets, function(asset) {
-       if (_.endsWith(asset, '.css')) {
+    assets.forEach(function(asset) {
+       if (asset.indexOf('.css') === (asset.length - 4)) {
            var stylesheet = loadcss(asset);
            onloadcss(stylesheet, function() {
               cb(asset, true);
@@ -58,7 +57,7 @@ var assetLoader = function(assets, callback, timeout) {
            setTimeout(function() {
                cb(asset, false);
            }, timeout);
-       } else if (_.endsWith(asset, '.js')) {
+       } else if (asset.indexOf('.js') === (asset.length - 3)) {
            scriptjs(asset, function() {
                cb(asset, true);
            }, function() {
@@ -74,4 +73,3 @@ var assetLoader = function(assets, callback, timeout) {
  * @param {Array} notFound - Array of dependencies that could not be loaded - null if none.
  */
 
-module.exports = assetLoader;

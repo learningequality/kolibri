@@ -31,8 +31,6 @@ var js_source_dirs = [
 // kolibri_name is always == kolibriGlobal
 var libs = function(kolibri_name) {
     return {
-        'lodash': kolibri_name + '.lib._',
-        'backbone': kolibri_name + '.lib.Backbone',
         'loglevel': kolibri_name + '.lib.loglevel',
         'vue': kolibri_name + '.lib.vue',
         'kolibri': kolibri_name,

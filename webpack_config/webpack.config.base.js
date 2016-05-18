@@ -10,7 +10,6 @@
  */
 
 var webpack = require('webpack');
-var utils = require('./utils')
 
 var config = {
     module: {
@@ -30,12 +29,6 @@ var config = {
             {
               test: /\.vue.html$/,
               loader: 'vue'
-            },
-            // This is required in order to prevent Backbone from importing jQuery.
-            // See here for more details: https://github.com/jashkenas/backbone/wiki/Using-Backbone-without-jQuery
-            {
-                test: /backbone\.js$/,
-                loader: 'imports?define=>false'
             },
             {
                 test: /\.js$/,
@@ -59,8 +52,6 @@ var config = {
         ]
     },
     plugins: [
-        // This is required in order to prevent Backbone from importing jQuery.
-        new webpack.IgnorePlugin(/^jquery$/)
     ],
     resolve: {
         // shortcut to allow importing the core kolibri_module from other bundles (plugins)
@@ -73,9 +64,10 @@ var config = {
         failOnError: true
     },
     vue: {
-        loaders: utils.cssLoaders()
+        loaders: {
+            stylus: 'vue-style-loader!css-loader!stylus-loader!stylint',
+        }
     }
-
 };
 
 module.exports = config;
