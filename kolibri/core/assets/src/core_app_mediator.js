@@ -6,15 +6,15 @@
  */
 
 
-var asset_loader = require('./asset_loader').default;
-var Vue = require('vue');
-var logging = require('loglevel');
+const asset_loader = require('./asset_loader').default;
+const Vue = require('vue');
+const logging = require('loglevel');
 
 /**
  * @constructor
  * @classdesc The Mediator class - registers and loads kolibri_modules and acts as a global event dispatcher.
  */
-export default class Kolibri {
+module.exports = class Kolibri {
   constructor() {
     /**
      * Keep track of all registered kolibri_modules - object is of form:

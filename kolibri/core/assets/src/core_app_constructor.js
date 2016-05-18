@@ -3,7 +3,7 @@
  * @module Facade
  */
 
-import Mediator from './core_app_mediator';
+const Mediator = require('./core_app_mediator');
 
 /**
  * Array containing the names of all methods of the Mediator that

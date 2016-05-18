@@ -1,5 +1,5 @@
-import logging from 'loglevel';
-import KolibriModule from 'kolibri_module';
+const logging = require('loglevel');
+const KolibriModule = require('kolibri_module');
 
 class NavModule extends KolibriModule {
   ready() {
