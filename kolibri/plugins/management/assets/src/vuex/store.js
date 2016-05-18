@@ -11,7 +11,9 @@ function getClassroomId() {
   return classroomCounter;
 }
 
-const ALL_CLASSROOMS_ID = null;
+const constants = {
+  ALL_CLASSROOMS_ID: null,
+};
 
 function getInitialState() {
   const johnDuck = {
@@ -82,11 +84,14 @@ function getInitialState() {
     classrooms,
     learners,
     learnerGroups,
-    selectedClassroomId: ALL_CLASSROOMS_ID, // is the value `null`, which has special meaning here
+    // ALL_CLASSROOMS_ID is the value `null`, which has special meaning here
+    selectedClassroomId: constants.ALL_CLASSROOMS_ID,
   };
 }
 
 
+/* eslint-disable no-param-reassign */
+/* disable eslint rule for mutations */
 const mutations = {
   ADD_CLASSROOM(state, attrs) {
     state.classrooms.push({
@@ -96,19 +101,15 @@ const mutations = {
     });
   },
   SET_SELECTED_CLASSROOM_ID(state, id) {
-    // Disable no-param-reassign rule... that is expressly the purpose of this function
-    state.selectedClassroomId = id; // eslint-disable-line no-param-reassign
+    state.selectedClassroomId = id;
   },
 };
+/* eslint-enable no-param-reassign */
 
 const store = new Vuex.Store({
   state: getInitialState(),
   mutations,
 });
-
-const constants = {
-  ALL_CLASSROOMS_ID,
-};
 
 export {
   mutations,
