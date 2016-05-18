@@ -10,7 +10,6 @@
  */
 
 var webpack = require('webpack');
-var utils = require('./utils')
 
 var config = {
     module: {
@@ -65,9 +64,10 @@ var config = {
         failOnError: true
     },
     vue: {
-        loaders: utils.cssLoaders()
+        loaders: {
+            stylus: 'vue-style-loader!css-loader!stylus-loader!stylint',
+        }
     }
-
 };
 
 module.exports = config;
