@@ -13,7 +13,7 @@ class LearnModule extends KolibriModule {
         main: require('./learn-main'),
       },
     });
-  },
+  }
 }
 
 module.exports = new LearnModule();
