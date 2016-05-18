@@ -11,7 +11,7 @@ export default class KolibriModule {
    * An array of options to select from the options object passed into the constructor.
    * @type {string[]}
    */
-  get kolibri_module_options() {
+  get kolibriModuleOptions() {
     return [];
   }
   /**
@@ -29,13 +29,13 @@ export default class KolibriModule {
     this.events = __events;
     this.once = __once;
     /* eslint-enable no-undef */
-    const safe_options = {};
-    this.kolibri_module_options.forEach((option) => {
+    const safeOptions = {};
+    this.kolibriModuleOptions.forEach((option) => {
       if (options[option]) {
-        safe_options[option] = options[option];
+        safeOptions[option] = options[option];
       }
     });
-    Object.assign(this, safe_options);
+    Object.assign(this, safeOptions);
     // Pass all arguments to the constructor directly to initialize for easy access.
     this.initialize(options, ...args);
     // Register the kolibri_module with the Kolibri core app.

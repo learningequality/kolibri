@@ -1,8 +1,8 @@
 
 // This is aliased for your convenience!
-const KolibriModule = require('kolibri_module');
+import KolibriModule from 'kolibri_module';
 
-const AudioMP4Module = KolibriModule.extend({
+class AudioMP4Module extends KolibriModule {
   render(contentData, renderArea) {
     const audioTag = document.createElement('audio');
     audioTag.autoplay = true;
@@ -12,7 +12,7 @@ const AudioMP4Module = KolibriModule.extend({
     titleTag.innerHTML = contentData.id;
     renderArea.appendChild(titleTag);
     renderArea.appendChild(audioTag);
-  },
-});
+  }
+}
 
 module.exports = new AudioMP4Module();
