@@ -7,7 +7,7 @@ doclink = """
 Documentation
 -------------
 
-The full documentation is at http://kolibri_skeleton.rtfd.org."""
+The full documentation is at http://kolibri.rtfd.org."""
 history = open('CHANGELOG.rst').read().replace('.. :changelog:', '')
 
 setup(
