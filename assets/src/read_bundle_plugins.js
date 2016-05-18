@@ -30,29 +30,25 @@ var readBundlePlugin = function(base_dir, libs) {
     var result = execSync("python -m kolibri manage webpack_json").toString();
 
     if (result.length > 0) {
-
-        var results = result.split(/\n/g);
+        // The above script prints JSON to stdout, here we parse that JSON and use it as input to our webpack
+        // configuration builder module, parseBundlePlugin.
+        var results = JSON.parse(result);
 
         for (var i = 0; i < results.length; i++) {
             var message = results[i];
-            // The above script prints JSON to stdout, here we parse that JSON and use it as input to our webpack
-            // configuration builder module, parseBundlePlugin.
-            if (message.replace(/ /g, "") !== "") {
-                message = JSON.parse(message);
-                var output = parseBundlePlugin(message, base_dir);
-                if (typeof output !== "undefined") {
-                    var webpack_configuration = output[0];
-                    // The first part of the output is the Webpack configuration for that Kolibri plugin.
-                    bundles.push(webpack_configuration);
-                    // The second part of the output is any global variables that will be available to all other
-                    // plugins. For the moment, this is only the Kolibri global variable.
-                    var external = output[1];
-                    if (typeof externals[external] === "undefined") {
+            var output = parseBundlePlugin(message, base_dir);
+            if (typeof output !== "undefined") {
+                var webpack_configuration = output[0];
+                // The first part of the output is the Webpack configuration for that Kolibri plugin.
+                bundles.push(webpack_configuration);
+                // The second part of the output is any global variables that will be available to all other
+                // plugins. For the moment, this is only the Kolibri global variable.
+                var external = output[1];
+                if (typeof externals[external] === "undefined") {
 
-                        externals[external] = external;
-                    } else {
-                        logging.warn("Two plugins setting with same external flag " + external);
-                    }
+                    externals[external] = external;
+                } else {
+                    logging.warn("Two plugins setting with same external flag " + external);
                 }
             }
         }
@@ -80,7 +76,7 @@ var readBundlePlugin = function(base_dir, libs) {
     var lib_externals = core_bundle ? libs(core_bundle.output.library) : {};
 
     bundles.forEach(function(bundle) {
-        if (bundle.core === null) {
+        if (bundle.core === null || typeof bundle.core === "undefined") {
             // If this is not the core bundle, then we need to add the external library mappings.
             bundle.externals = _.extend({}, externals, lib_externals);
         } else {
