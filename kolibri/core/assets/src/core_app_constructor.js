@@ -5,6 +5,8 @@
 
 import Mediator from './core_app_mediator';
 
+import loglevel from 'loglevel';
+
 /**
  * Array containing the names of all methods of the Mediator that
  * should be exposed publicly through the Facade.
@@ -14,7 +16,7 @@ const publicMethods = [
   'register_kolibri_module_async',
   'register_kolibri_module_sync',
   'stop_listening',
-  'trigger',
+  'emit',
 ];
 
 /**
@@ -35,7 +37,7 @@ function Lib() {
 module.exports = function CoreApp() {
   this.lib = new Lib();
   const mediator = new Mediator();
-
+  loglevel.info('hello');
   // Bind 'this' value for public methods - those that will be exposed in the Facade.
   this.kolibri_modules = mediator._kolibri_module_registry;
   publicMethods.forEach((method) => {
