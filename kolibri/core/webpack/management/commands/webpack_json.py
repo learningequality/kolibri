@@ -20,5 +20,4 @@ class Command(BaseCommand):
 
         logging.debug(args)
 
-        for hook in WebpackBundleHook().registered_hooks:
-            print(json.dumps(hook.webpack_bundle_data))
+        print(json.dumps([hook.webpack_bundle_data for hook in WebpackBundleHook().registered_hooks]))
