@@ -6,7 +6,7 @@
 
 const Kolibri = require('./core_app_instance');
 
-export default class KolibriModule {
+module.exports = class KolibriModule {
   /**
    * An array of options to select from the options object passed into the constructor.
    * @type {string[]}
@@ -84,4 +84,4 @@ export default class KolibriModule {
   emit(...args) {
     Kolibri.emit.apply(Kolibri, args);
   }
-}
+};
