@@ -9,7 +9,7 @@
     <button>Create</button>
     <button>Delete</button>
   </div>
-  <learner-roster v-ref:learner-roster :learners="[]"></learner-roster>
+  <learner-roster v-ref:learner-roster :learners="filteredLearners"></learner-roster>
 </template>
 
 
@@ -18,6 +18,7 @@ import learnerRoster from './learner-roster.vue';
 import dropDown from './drop-down.vue';
 import { addClassroom, setSelectedClassroomId } from './vuex/actions.js';
 import { getClassrooms, getSelectedClassroomId } from './vuex/getters.js';
+import { constants } from './vuex/store.js';
 
 export default {
   components: {
@@ -25,12 +26,9 @@ export default {
     'drop-down': dropDown,
   },
   computed: {
-    filters() {
-      return {};
-    },
     classrooms() {
       const _classrooms = [{
-        id: null,
+        id: constants.ALL_CLASSROOMS_ID,
         name: 'All classrooms',
         learnerGroups: [],
       }];
@@ -50,6 +48,31 @@ export default {
       set({ id }) {
         this.setSelectedClassroomId(id);
       },
+    },
+    filteredLearners() {
+      const learners = this.$store.state.learners;
+      let _learners = learners;
+      if (this.selectedClassroom.id !== constants.ALL_CLASSROOMS_ID) {
+        const learnerGroupIds = this.selectedClassroom.learnerGroups;
+        const learnerIds = new Set();
+        for (const group of this.$store.state.learnerGroups) {
+          if (learnerGroupIds.indexOf(group.id) !== -1) {
+            for (const learnerId of group.learners) {
+              if (!learnerIds.has(learnerId)) {
+                learnerIds.add(learnerId);
+              }
+            }
+          }
+        }
+
+        _learners = [];
+        for (const learner of learners) {
+          if (learnerIds.has(learner.id)) {
+            _learners.push(learner);
+          }
+        }
+      }
+      return _learners;
     },
   },
   vuex: {
