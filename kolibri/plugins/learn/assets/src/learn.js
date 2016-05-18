@@ -14,7 +14,7 @@ class LearnModule extends KolibriModule {
       el: 'body',
       components: { Main },
     });
-  },
+  }
 }
 
 module.exports = new LearnModule();

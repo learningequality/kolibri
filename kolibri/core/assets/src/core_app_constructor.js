@@ -14,7 +14,7 @@ const publicMethods = [
   'register_kolibri_module_async',
   'register_kolibri_module_sync',
   'stop_listening',
-  'trigger',
+  'emit',
 ];
 
 /**
