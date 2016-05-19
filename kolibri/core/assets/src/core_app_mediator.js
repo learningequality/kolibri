@@ -6,7 +6,7 @@
  */
 
 
-const asset_loader = require('./asset_loader').default;
+const asset_loader = require('./asset_loader');
 const Vue = require('vue');
 const logging = require('loglevel');
 
