@@ -422,7 +422,7 @@ class ContentMetadataAPITestCase(APITestCase):
         self.client.put(self._reverse_channel_url("file_update_content_copy", {"pk": file_1.pk, "content_copy": fpath_1}))
         file_3 = content.File.objects.using(self.the_channel_id).filter(format=fm_3)[1]
         self.client.put(self._reverse_channel_url("file_update_content_copy", {"pk": file_3.pk, "content_copy": fpath_1}))
-        self.assertEqual(1, len(os.listdir(os.path.join(settings.CONTENT_COPY_DIR, '0', '9'))))
+        self.assertEqual(1, len(os.listdir(os.path.join(settings.CONTENT_COPY_DIR, 'd', '4'))))
 
     @classmethod
     def tearDownClass(self):
