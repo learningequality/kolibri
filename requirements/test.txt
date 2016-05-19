@@ -2,9 +2,6 @@
 # These are for testing
 factory-boy==2.7.0
 fake-factory==0.5.7
-pytest
-pytest-django
-pytest-cov
 coverage
 mock
 pytest
