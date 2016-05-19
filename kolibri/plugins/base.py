@@ -7,18 +7,19 @@ import logging
 
 from kolibri.utils.conf import config
 
-
 logger = logging.getLogger(__name__)
 
 
 class MandatoryPluginMethodNotImplemented(NotImplementedError):
     def __init__(self):
-        super(MandatoryPluginMethodNotImplemented, self).__init__("Plugin needs to define this method")
+        super(MandatoryPluginMethodNotImplemented,
+              self).__init__("Plugin needs to define this method")  # pragma: no cover
 
 
 class MandatoryPluginAttributeNotImplemented(NotImplementedError):
     def __init__(self):
-        super(MandatoryPluginAttributeNotImplemented, self).__init__("Plugin needs to define this attribute")
+        super(MandatoryPluginAttributeNotImplemented,
+              self).__init__("Plugin needs to define this attribute")  # pragma: no cover
 
 
 class KolibriPluginBase(object):
