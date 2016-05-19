@@ -5,9 +5,7 @@
   {% block frontend_assets %}
   {% frontend_assets 'kolibri.core.KolibriCoreFrontEnd' %}
 
-  {# Nav stuff must come after the core app, but before anything else #}
   {% initialized_data %}
-  {% frontend_assets 'kolibri.plugins.navigation.NavigationModule' %}
 
   {% base_frontend_async %}
   {% base_frontend_sync %}

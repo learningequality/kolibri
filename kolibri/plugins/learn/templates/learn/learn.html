@@ -1,16 +1,15 @@
+{% load kolibri_tags %}
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
     <title>Kolibri</title>
+    {% initialized_data %}
   </head>
   <body>
     <main></main>
 
-{% load kolibri_tags %}
 {% frontend_assets 'kolibri.core.KolibriCoreFrontEnd' %}
-{% initialized_data %}
-{% frontend_assets 'kolibri.plugins.navigation.NavigationModule' %}
 {% frontend_assets 'kolibri.plugins.learn.LearnModule' %}
 {% content_renderer_frontend_async %}
 {% base_frontend_async %}
