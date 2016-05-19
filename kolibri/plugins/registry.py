@@ -74,7 +74,9 @@ def initialize():
                 all_classes = [cls for cls in plugin_module.__dict__.values() if isinstance(cls, type)]
                 # Filter the list to only match the ones that belong to the module
                 # and not the ones that have been imported
-                all_classes = filter(lambda x: plugin_module.__package__ + ".kolibri_plugin" == x.__module__, all_classes)
+                plugin_package = plugin_module.__package__ if plugin_module.__package__ else \
+                    plugin_module.__name__.rpartition('.')[0]
+                all_classes = filter(lambda x: plugin_package + ".kolibri_plugin" == x.__module__, all_classes)
                 plugin_classes = []
                 for Klass in all_classes:
                     if type(Klass) == type and issubclass(Klass, KolibriPluginBase):
