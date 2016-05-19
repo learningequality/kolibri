@@ -28,28 +28,25 @@
 </template>
 
 <script>
-'use strict';
-const Navigation = Vue.extend({});
-import Vue from 'vue';
+export default {
+  data() {
+    return {
+      // items that go in the title bar
+      nav_items: window._nav.nav_items,
+      title_bar: {
+        title: 'Kolibri',
+        home_link: '/',
+      },
+      user_nav_display: 'none',
 
-export default new Navigation({
-  el: '#navigation-module',
-  data: {
-    // items that go in the title bar
-    nav_items: global.kolibri_reserved.nav_items,
-    title_bar: {
-      title: 'Kolibri',
-      home_link: '/',
-    },
-    user_nav_display: 'none',
-
-    // items that go into the user menu
-    user_nav_items: global.kolibri_reserved.user_nav_items,
-    user: {
-      username: 'foobar',
-      first_name: 'Foo',
-      last_name: 'Bar',
-    },
+      // items that go into the user menu
+      user_nav_items: window._nav.user_nav_items,
+      user: {
+        username: 'foobar',
+        first_name: 'Foo',
+        last_name: 'Bar',
+      },
+    };
   },
   methods: {
     user_nav_display_toggle() {
@@ -60,7 +57,7 @@ export default new Navigation({
       }
     },
   },
-});
+};
 </script>
 
 <style lang="stylus" scoped>
@@ -69,9 +66,6 @@ export default new Navigation({
   $kolibri_gray = #c4c4c4
   $kolibri_nav_fonts = sans-serif
 
-  body
-    // Getting rid of HTML's default margin
-    margin:0
   header
     font-family: $kolibri_nav_fonts
 

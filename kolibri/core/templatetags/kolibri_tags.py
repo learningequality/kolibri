@@ -42,7 +42,7 @@ def initialized_data():
         init_data['user_nav_items'] += user_nav_item_list_func()
 
     html = ("<script type='text/javascript'>"
-            "window.kolibriGlobal.initData={0};"
+            "window._nav={0};"
             "</script>".format(json.dumps(init_data)))
     return mark_safe(html)
 
