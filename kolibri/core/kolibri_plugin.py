@@ -1,6 +1,5 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 from kolibri.core.webpack.hooks import FrontEndCoreAssetHook, FrontEndCoreHook
 from kolibri.plugins.base import KolibriPluginBase
@@ -17,8 +16,8 @@ class KolibriCore(KolibriPluginBase):
 
 
 class MainNavigationItem(hooks.NavigationHook):
-    label = _("Start page")
-    url = reverse_lazy('kolibri:index')
+    label = _("Do nothing")
+    url = '#'
 
 
 class FrontEndCoreAssetHook(FrontEndCoreAssetHook):
