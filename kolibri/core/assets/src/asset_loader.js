@@ -17,7 +17,7 @@ var logging = require('loglevel');
  * @param {Number=} timeout - A ms timeout after which to error for CSS files - this compensates for the lack of wide
  * support for the onerror event on 'link' tags in HTML.
  */
-export default function(assets, callback, timeout) {
+module.exports = function(assets, callback, timeout) {
     if ((timeout === null) || (typeof timeout === 'undefined')) {
         timeout = 5000;
     }
@@ -72,4 +72,3 @@ export default function(assets, callback, timeout) {
  * @param {Error} err - Error object - null if no error.
  * @param {Array} notFound - Array of dependencies that could not be loaded - null if none.
  */
-
