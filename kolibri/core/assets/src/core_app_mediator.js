@@ -14,7 +14,7 @@ const logging = require('loglevel');
  * @constructor
  * @classdesc The Mediator class - registers and loads kolibri_modules and acts as a global event dispatcher.
  */
-module.exports = class Kolibri {
+module.exports = class Mediator {
   constructor() {
     /**
      * Keep track of all registered kolibri_modules - object is of form:
