@@ -4,8 +4,8 @@
   "description": "Development utilities for Kolibri",
   "scripts": {
     "test": "npm run test-mocha && npm run test-karma",
-    "test-karma": "./node_modules/karma/bin/karma start karma_config/karma.conf.js --single-run",
-    "test-mocha": "./node_modules/mocha/bin/mocha assets/test/*.js",
+    "test-karma": "node ./node_modules/karma/bin/karma start karma_config/karma.conf.js --single-run",
+    "test-mocha": "node ./node_modules/mocha/bin/mocha assets/test/*.js",
     "coverage": "npm run test-mocha-cov && npm run test-karma-cov",
     "test-mocha-cov": "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha assets/test/*.js --report lcovonly -- -R spec",
     "test-karma-cov": "./node_modules/karma/bin/karma start karma_config/karma.conf.ci.js",
@@ -72,6 +72,7 @@
     "vue-html-loader": "^1.0.0",
     "vue-loader": "indirectlylit/vue-loader#pad-css",
     "vue-style-loader": "^1.0.0",
+    "vuex": "0.6.3",
     "webpack": "^1.12.12",
     "webpack-bundle-tracker": "0.0.93",
     "webpack-dev-middleware": "^1.4.0",
