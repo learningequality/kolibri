@@ -44,13 +44,9 @@ var parseBundlePlugin = function(data, base_dir) {
             // instantiated as a global variable. Only currently used by the Kolibri core app.
             external = data.name;
             // change the periods of the Python module path name to underscores, so that it is a valid JS variable name.
-            library = data.core ? 'Kolibri' : data.name.replace(/\./g, "_");
+            library = data.core ? 'kolibriGlobal' : data.name.replace(/\./g, "_");
         }
-        bundle.module.preLoaders.push({
-            test: /\.js$/, // include .js files
-            exclude: /node_modules/, // exclude any and all files in the node_modules folder
-            loader: "jshint-loader"
-        });
+
         bundle.resolve.root = base_dir;
         bundle.plugins = bundle.plugins.concat([
             // BundleTracker creates stats about our built files which we can then pass to Django to allow our template
@@ -64,7 +60,7 @@ var parseBundlePlugin = function(data, base_dir) {
             // We also pass in the events hashes here as well, as they are defined in the Python specification of the
             // KolibriModule.
             new webpack.DefinePlugin({
-                __kolibri_module_name: JSON.stringify(data.name),
+                __kolibriModuleName: JSON.stringify(data.name),
                 __events: JSON.stringify(data.events || {}),
                 __once: JSON.stringify(data.once || {})
             })
@@ -81,9 +77,6 @@ var parseBundlePlugin = function(data, base_dir) {
                 library: library
             },
 
-            jshint: {
-                failOnHint: true
-            },
             async_file: data.async_file
         });
         return [bundle, external];

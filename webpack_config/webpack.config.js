@@ -12,13 +12,18 @@ var webpack = require('webpack');
 var logging = require('../assets/src/logging');
 var readBundlePlugins = require('../assets/src/read_bundle_plugins');
 
+
 // Mappings for libraries that we bundle in the Kolibri core app.
-var libs =  function (kolibri_name) {
+// * the keys are names exposed by webpack to use in `require` statements, across apps
+// * the values are references to the packages, already inserted into kolibriGlobal
+//
+// kolibri_name is always == kolibriGlobal
+var libs = function(kolibri_name) {
     return {
-        'lodash': kolibri_name + '.lib._',
-        'backbone': kolibri_name + '.lib.Backbone',
         'loglevel': kolibri_name + '.lib.loglevel',
-        'kolibri': kolibri_name
+        'vue': kolibri_name + '.lib.vue',
+        'kolibri': kolibri_name,
+        'core-base': kolibri_name + '.lib.coreBase',
     };
 
 };
