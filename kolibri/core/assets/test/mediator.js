@@ -4,8 +4,7 @@ var assert = require('assert');
 var sinon = require('sinon');
 var rewire = require('rewire');
 
-var MediatorModule = rewire('../src/core_app_mediator.js');
-var Mediator = MediatorModule.default;
+var Mediator = rewire('../src/core_app_mediator.js');
 
 describe('Mediator', function() {
     beforeEach(function() {
@@ -435,11 +434,11 @@ describe('Mediator', function() {
             beforeEach(function() {
                 var self = this;
                 this.args = ['this', 'that'];
-                MediatorModule.__set__('asset_loader', function(files, callback) {
+                Mediator.__set__('asset_loader', function(files, callback) {
                     callback('error!', self.kolibri_module_urls);
                 });
                 this.spy = sinon.spy();
-                MediatorModule.__set__('logging', {error: this.spy});
+                Mediator.__set__('logging', {error: this.spy});
                 this.mediator._async_callback_registry[this.kolibri_module_name][0].callback(this.args);
             });
             it('should call logging.error twice', function() {
