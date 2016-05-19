@@ -34,14 +34,10 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.conf.urls import url
 from django.shortcuts import redirect
-from kolibri.plugins import hooks
-
 from kolibri.plugins.registry import get_urls as plugin_urls
 
-from . import views
-
-
 app_name = 'kolibri'
+
 
 def redirect_view(request):
     return redirect("/learn")
@@ -50,6 +46,4 @@ urlpatterns = [
     url('', redirect_view, name='index'),
 ]
 
-urlpatterns += plugin_urls() + [
-    url('^$', views.IndexView.as_view(), name='index'),
-]
+urlpatterns += plugin_urls()
