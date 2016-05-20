@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'kolibri.content',
     'kolibri.core.webpack',
     'rest_framework',
+    'django_js_reverse',
 ] + conf.config['INSTALLED_APPS']
 
 MIDDLEWARE_CLASSES = (
@@ -200,3 +201,10 @@ AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.
 REST_FRAMEWORK = {
     "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser"
 }
+
+# Configuration for Django JS Reverse
+JS_REVERSE_JS_VAR_NAME = 'urls'
+
+JS_REVERSE_JS_GLOBAL_OBJECT_NAME = 'kolibriGlobal'
+
+JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
