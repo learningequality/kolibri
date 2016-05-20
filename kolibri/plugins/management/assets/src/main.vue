@@ -1,16 +1,17 @@
 <template>
-
-  <div>
-    <drop-down v-ref:classroom-selector :list="classrooms" :selected.sync="selectedClassroom"></drop-down>
-    <button v-on:click="addClassroom({name: 'foo'})">Create</button>
-    <button>Delete</button>
-  </div>
-  <div>
-    <drop-down v-ref:learner-group-selector :list="[]" :initial-selection=""></drop-down>
-    <button>Create</button>
-    <button>Delete</button>
-  </div>
-  <learner-roster v-ref:learner-roster :learners="filteredLearners"></learner-roster>
+  <core-base>
+    <div>
+      <drop-down v-ref:classroom-selector :list="classrooms" :selected.sync="selectedClassroom"></drop-down>
+      <button v-on:click="addClassroom({name: 'foo'})">Create</button>
+      <button>Delete</button>
+    </div>
+    <div>
+      <drop-down v-ref:learner-group-selector :list="[]" :initial-selection=""></drop-down>
+      <button>Create</button>
+      <button>Delete</button>
+    </div>
+    <learner-roster v-ref:learner-roster :learners="filteredLearners"></learner-roster>
+  </core-base>
 
 </template>
 
@@ -31,10 +32,21 @@
   const store = require('./vuex/store.js');
   const constants = store.constants;
 
-  module.exports = {
+  export default {
     components: {
-      'learner-roster': learnerRoster,
-      'drop-down': dropDown,
+      'core-base': require('core-base'),
+      'learner-roster': require('./learner-roster.vue'),
+      'drop-down': require('./drop-down.vue'),
+    },
+  computed: {
+    classrooms() {
+      const _classrooms = [{
+        id: constants.ALL_CLASSROOMS_ID,
+        name: 'All classrooms',
+        learnerGroups: [],
+      }];
+      _classrooms.push(...this.getClassrooms);
+      return _classrooms;
     },
     computed: {
       classrooms() {
