@@ -5,4 +5,4 @@ from django.views.generic.base import TemplateView
 
 class ManagementView(TemplateView):
 
-    template_name = "kolibri/base.html"
+    template_name = "management/management.html"
