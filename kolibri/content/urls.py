@@ -112,19 +112,6 @@ class ContentNodeViewset(viewsets.ViewSet):
         ).data
         return Response(data)
 
-    @detail_route()
-    def all_presets(self, request, channelmetadata_channel_id, *args, **kwargs):
-        """
-        endpoint for content api method
-        get_all_presets(channel_id=None, content=None, **kwargs)
-        """
-        context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.FormatPresetSerializer(
-            api.get_all_presets(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
-        ).data
-        return Response(data)
-
-
 class FileViewset(viewsets.ViewSet):
     def list(self, request, channelmetadata_channel_id=None):
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
