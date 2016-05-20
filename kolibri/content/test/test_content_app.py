@@ -105,8 +105,14 @@ class ContentNodeTestCase(TestCase):
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_missing_files(self):
+        # for non-topic contentnode
         p = content.ContentNode.objects.using(self.the_channel_id).get(title="c1")
         expected_output = content.File.objects.using(self.the_channel_id).filter(id__in=[1, 2])
+        actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=p)
+        self.assertEqual(set(expected_output), set(actual_output))
+        # for topic contentnode
+        p = content.ContentNode.objects.using(self.the_channel_id).get(title="c2")
+        expected_output = content.File.objects.using(self.the_channel_id).filter(id__in=[3, 4, 5])
         actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=p)
         self.assertEqual(set(expected_output), set(actual_output))
 
@@ -216,6 +222,20 @@ class ContentNodeTestCase(TestCase):
         actual_output = api.children_of_kind(channel_id=self.the_channel_id, content=p, kind=content_kinds.TOPIC)
         self.assertEqual(set(expected_output), set(actual_output))
 
+    def test_all_str(self):
+        # test for File __str__
+        p = content.File.objects.using(self.the_channel_id).get(id=2)
+        self.assertEqual(str(p), '.mp4')
+        # test for ContentTag __str__
+        p = content.ContentTag.objects.using(self.the_channel_id).get(tag_name="tag_2")
+        self.assertEqual(str(p), 'tag_2')
+        # test for Language __str__
+        p = content.Language.objects.using(self.the_channel_id).get(lang_code="en")
+        self.assertEqual(str(p), 'English')
+        # test for ChannelMetadata __str__
+        p = content.ChannelMetadata.objects.get(name="khan")
+        self.assertEqual(str(p), 'khan')
+
     @classmethod
     def tearDownClass(self):
         """
@@ -281,3 +301,31 @@ class ContentNodeAPITestCase(APITestCase):
         expected_output = content.File.objects.using(self.the_channel_id).filter(id__in=[1, 2])
         self.assertEqual(response.data[0]['id'], expected_output[0].id)
         self.assertEqual(response.data[1]['id'], expected_output[1].id)
+
+    def test_contentnode_list(self):
+        response = self.client.get(self._reverse_channel_url("contentnode-list", {}))
+        self.assertEqual(len(response.data), 6)
+
+    def test_contentnode_retrieve(self):
+        c1_id = str(content.ContentNode.objects.using(self.the_channel_id).get(title="c1").content_id)
+        response = self.client.get(self._reverse_channel_url("contentnode-detail", {'content_id': c1_id}))
+        self.assertEqual(response.data['content_id'], c1_id)
+
+    def test_channelmetadata_list(self):
+        response = self.client.get(reverse("channelmetadata-list", kwargs={}))
+        self.assertEqual(response.data[0]['name'], 'khan')
+
+    def test_channelmetadata_retrieve(self):
+        channel_id = str(content.ChannelMetadata.objects.get(name="khan").channel_id)
+        response = self.client.get(reverse("channelmetadata-detail", kwargs={'channel_id': channel_id}))
+        self.assertEqual(response.data['name'], 'khan')
+
+    def test_file_list(self):
+        response = self.client.get(self._reverse_channel_url("file-list", {}))
+        self.assertEqual(len(response.data), 5)
+
+    def test_file_retrieve(self):
+        # import pdb
+        # pdb.set_trace()
+        response = self.client.get(self._reverse_channel_url("file-detail", {'pk': 1}))
+        self.assertEqual(response.data['preset'], 'high_res_video')
