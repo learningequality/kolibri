@@ -4,7 +4,6 @@ It exposes several convenience functions for accessing content
 """
 from functools import wraps
 
-from django.core.files import File as DjFile
 from django.db.models import Q
 from kolibri.content import models as KolibriContent
 from kolibri.content.utils import validate
@@ -169,20 +168,3 @@ def children_of_kind(channel_id=None, content=None, kind=None, **kwargs):
     :return: QuerySet of ContentNode
     """
     return content.get_descendants(include_self=False).filter(kind=kind).using(channel_id)
-
-def update_content_copy(channel_id=None, file_object=None, content_copy_path=None):
-    """
-    Update the File object you pass in with the content copy
-    You can pass None on content_copy to remove the associated file on disk.
-
-    :param file_object: File
-    :param content_copy: str
-    """
-    if not file_object:
-        raise TypeError("must provide a File object to update content copy")
-    if content_copy_path:
-        file_object.content_copy = DjFile(open(content_copy_path, 'rb'))
-    else:
-        file_object.content_copy = None
-
-    file_object.update_content(channel_id=channel_id)
