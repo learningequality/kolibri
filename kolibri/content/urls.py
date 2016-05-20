@@ -23,20 +23,20 @@ class ChannelMetadataViewSet(viewsets.ViewSet):
         return Response(channel)
 
 
-class ContentMetadataViewset(viewsets.ViewSet):
+class ContentNodeViewset(viewsets.ViewSet):
     lookup_field = 'content_id'
 
     def list(self, request, channelmetadata_channel_id=None):
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        contents = serializers.ContentMetadataSerializer(
-            models.ContentMetadata.objects.using(channelmetadata_channel_id).all(), context=context, many=True
+        contents = serializers.ContentNodeSerializer(
+            models.ContentNode.objects.using(channelmetadata_channel_id).all(), context=context, many=True
         ).data
         return Response(contents)
 
     def retrieve(self, request, content_id=None, channelmetadata_channel_id=None):
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        content = serializers.ContentMetadataSerializer(
-            models.ContentMetadata.objects.using(channelmetadata_channel_id).get(content_id=content_id), context=context
+        content = serializers.ContentNodeSerializer(
+            models.ContentNode.objects.using(channelmetadata_channel_id).get(content_id=content_id), context=context
         ).data
         return Response(content)
 
@@ -47,7 +47,7 @@ class ContentMetadataViewset(viewsets.ViewSet):
         get_ancestor_topics(channel_id=None, content=None, **kwargs)
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.ContentMetadataSerializer(
+        data = serializers.ContentNodeSerializer(
             api.get_ancestor_topics(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
         ).data
         return Response(data)
@@ -59,7 +59,7 @@ class ContentMetadataViewset(viewsets.ViewSet):
         immediate_children(channel_id=None, content=None, **kwargs)
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.ContentMetadataSerializer(
+        data = serializers.ContentNodeSerializer(
             api.immediate_children(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
         ).data
         return Response(data)
@@ -71,7 +71,7 @@ class ContentMetadataViewset(viewsets.ViewSet):
         leaves(channel_id=None, content=None, **kwargs)
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.ContentMetadataSerializer(
+        data = serializers.ContentNodeSerializer(
             api.leaves(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
         ).data
         return Response(data)
@@ -83,7 +83,7 @@ class ContentMetadataViewset(viewsets.ViewSet):
         get_all_prerequisites(channel_id=None, content=None, **kwargs)
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.ContentMetadataSerializer(
+        data = serializers.ContentNodeSerializer(
             api.get_all_prerequisites(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
         ).data
         return Response(data)
@@ -95,7 +95,7 @@ class ContentMetadataViewset(viewsets.ViewSet):
         get_all_related(channel_id=None, content=None, **kwargs)
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.ContentMetadataSerializer(
+        data = serializers.ContentNodeSerializer(
             api.get_all_related(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
         ).data
         return Response(data)
@@ -157,7 +157,7 @@ router = routers.SimpleRouter()
 router.register(r'api/content', ChannelMetadataViewSet, base_name='channelmetadata')
 
 channel_router = routers.NestedSimpleRouter(router, r'api/content', lookup='channelmetadata')
-channel_router.register(r'contentmetadata', ContentMetadataViewset, base_name='contentmetadata')
+channel_router.register(r'contentnode', ContentNodeViewset, base_name='contentnode')
 channel_router.register(r'file', FileViewset, base_name='file')
 channel_router.register(r'preset', FormatPresetViewset, base_name='preset')
 
