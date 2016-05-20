@@ -9,7 +9,7 @@ class ChannelMetadataSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ChannelMetadata
-        fields = ('url', 'channel_id', 'name', 'description', 'author', 'theme', 'subscribed', 'contentnodes')
+        fields = ('url', 'channel_id', 'name', 'description', 'author', 'contentnodes')
         extra_kwargs = {
             'url': {'lookup_field': 'channel_id', 'view_name': 'channelmetadata-detail'}
         }
@@ -66,11 +66,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         lookup_field_1='channelmetadata_channel_id',
         lookup_field_2='content_id',
     )
-    all_presets = DualLookuplinkedIdentityField(
-        view_name='contentnode-all-presets',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
-    )
 
     class Meta:
         model = ContentNode
@@ -78,7 +73,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         fields = (
             'url', 'content_id', 'title', 'description', 'kind', 'slug', 'total_file_size', 'available', 'tags', 'sort_order', 'license_owner',
             'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children',
-            'leaves', 'all_prerequisites', 'all_related', 'missing_files', 'all_presets'
+            'leaves', 'all_prerequisites', 'all_related', 'missing_files'
         )
 
 
