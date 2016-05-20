@@ -1,5 +1,15 @@
 <template>
-  <kolibri-nav></kolibri-nav>
+
+  <header>
+    <kolibri-nav></kolibri-nav>
+  </header>
+  <main>
+    <slot></slot>
+  </main>
+  <footer>
+    Call a podiatrist – I'm in a footer!
+  </footer>
+
 </template>
 
 <script>
