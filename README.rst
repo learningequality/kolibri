@@ -78,24 +78,18 @@ Adjust according to your operating system or personal preferences.
 
 #. Install pre-commit hooks to ensure you commit good code::
 
-<<<<<<< 1d448f3640094935b60d5ed16c380518d92e99d1
-# Install pre-commit hooks to ensure you commit good code::
-
     $ pre-commit install
 
 
-To build frontend assets for production use the following::
+#. To build frontend assets for production use the following::
 
     $ npm run build
 
-To build frontend assets in development mode with sourcemaps and watching::
+#. To build frontend assets in development mode with sourcemaps and watching::
 
     $ npm run watch
 
-=======
-    $ pre-commit install
 
->>>>>>> Tweak based on comments. Also add colorlog to dev requirements
 Testing
 -------
 
