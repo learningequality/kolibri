@@ -50,8 +50,8 @@ then
     # Match commits changing setup.py
     if echo "$git_changeset" | grep -q "\[\s*setup\s*\]" || \
        echo "$git_changeset" | grep -q "^setup\.py" || \
-       echo "$git_changeset" | grep -q "^requirements"
-       echo "$git_changeset" | grep -q "^Makefile"
+       echo "$git_changeset" | grep -q "^requirements" || \
+       echo "$git_changeset" | grep -q "^Makefile" || \
        echo "$git_changeset" | grep -q "^MANIFEST*"
     then
 
