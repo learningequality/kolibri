@@ -3,8 +3,6 @@
     hooks:
     -   id: trailing-whitespace
     -   id: flake8
-        args:
-        - --exclude=kolibri/*/migrations/*
     -   id: check-yaml
     -   id: check-added-large-files
     -   id: debug-statements
