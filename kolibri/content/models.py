@@ -214,8 +214,6 @@ class ChannelMetadata(models.Model):
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True)
     author = models.CharField(max_length=400, blank=True)
-    theme = models.CharField(max_length=400, blank=True)
-    subscribed = models.BooleanField(default=False)
 
     class Meta:
         app_label = "content"
