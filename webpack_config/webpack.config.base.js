@@ -15,7 +15,7 @@ var config = {
     module: {
         preLoaders: [
           {
-              test: /\.vue.html$/,
+              test: /\.vue$/,
               loader: 'eslint',
               exclude: /node_modules/
           },
@@ -27,7 +27,7 @@ var config = {
         ],
         loaders: [
             {
-              test: /\.vue.html$/,
+              test: /\.vue$/,
               loader: 'vue'
             },
             {
@@ -58,7 +58,7 @@ var config = {
         alias: {
             'kolibri_module': 'kolibri/core/assets/src/kolibri_module'
         },
-        extensions: ["", ".vue.html", ".js"],
+        extensions: ["", ".vue", ".js"],
     },
     eslint: {
         failOnError: true

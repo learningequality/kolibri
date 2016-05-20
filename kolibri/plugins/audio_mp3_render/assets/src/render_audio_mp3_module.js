@@ -1,6 +1,6 @@
 
 // This is aliased for your convenience!
-import KolibriModule from 'kolibri_module';
+const KolibriModule = require('kolibri_module');
 
 class AudioMP4Module extends KolibriModule {
   render(contentData, renderArea) {

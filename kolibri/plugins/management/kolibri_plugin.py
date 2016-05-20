@@ -3,10 +3,15 @@ from __future__ import absolute_import, print_function, unicode_literals
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins.base import KolibriPluginBase
 
+from . import hooks, urls
+
 
 class ManagementPlugin(KolibriPluginBase):
-    """ Required boilerplate so that the module is recognized as a plugin """
-    pass
+    def url_module(self):
+        return urls
+
+    def url_slug(self):
+        return "^management/"
 
 
 class ManagementAsset(webpack_hooks.WebpackBundleHook):
@@ -15,5 +20,5 @@ class ManagementAsset(webpack_hooks.WebpackBundleHook):
     static_dir = "kolibri/plugins/management/static"
 
 
-class ManagementInclusionHook(webpack_hooks.FrontEndBaseSyncHook):
+class ManagementInclusionHook(hooks.ManagementSyncHook):
     bundle_class = ManagementAsset
