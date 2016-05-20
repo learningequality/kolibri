@@ -126,7 +126,7 @@ Kolibri comes with a Javascript test suite based on ``mocha``. To run all tests:
 This includes tests of the bundling functions that are used in creating front end assets.
 To do continuous unit testing for code, and jshint running::
 
-    $ npm run ci
+    $ npm run test-karma:watch
 
 You can also run tests through Django's ``test`` management command, accessed through the ``kolibri`` command::
 

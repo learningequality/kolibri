@@ -11,7 +11,7 @@
     "test-karma-cov": "./node_modules/karma/bin/karma start karma_config/karma.conf.ci.js",
     "build": "webpack --config webpack_config/webpack.config.prod.js",
     "watch": "webpack --config webpack_config/webpack.config.dev.js --watch --progress",
-    "ci": "./node_modules/karma/bin/karma start karma_config/karma.conf.js"
+    "test-karma:watch": "./node_modules/karma/bin/karma start karma_config/karma.conf.js"
   },
   "repository": {
     "type": "git",
