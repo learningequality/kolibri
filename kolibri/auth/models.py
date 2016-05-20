@@ -23,7 +23,7 @@ user gains through the ``Role``.
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -51,6 +51,11 @@ from .permissions.general import (
 )
 
 
+def _has_permissions_class(obj):
+    return hasattr(obj, "permissions") and isinstance(obj.permissions, BasePermissions)
+
+
+@python_2_unicode_compatible
 class FacilityDataset(models.Model):
     """
     ``FacilityDataset`` stores high-level metadata and settings for a particular ``Facility``. It is also the
@@ -63,6 +68,12 @@ class FacilityDataset(models.Model):
 
     allow_signups = models.BooleanField(default=True)
 
+    def __str__(self):
+        facilities = self.collection_set.filter(kind=collection_kinds.FACILITY)
+        if facilities:
+            return "FacilityDataset for {}".format(Facility.objects.get(id=facilities[0].id))
+        else:
+            return "FacilityDataset (no associated Facility)"
 
 class AbstractFacilityDataModel(models.Model):
     """
@@ -310,6 +321,65 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_delete` method.")
 
 
+class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
+    """
+    Custom anonymous user that also exposes the same interface as KolibriAbstractBaseUser, for consistency.
+    """
+
+    class Meta:
+        abstract = True
+
+    def is_member_of(self, coll):
+        return False
+
+    def get_roles_for_user(self, user):
+        return set([])
+
+    def get_roles_for_collection(self, coll):
+        return set([])
+
+    def has_role_for_user(self, kinds, user):
+        return False
+
+    def has_role_for_collection(self, kinds, coll):
+        return False
+
+    def can_create_instance(self, obj):
+        # check the object permissions, if available, just in case permissions are granted to anon users
+        if _has_permissions_class(obj):
+            return obj.permissions.user_can_create_object(self, obj)
+        else:
+            return False
+
+    def can_read(self, obj):
+        # check the object permissions, if available, just in case permissions are granted to anon users
+        if _has_permissions_class(obj):
+            return obj.permissions.user_can_read_object(self, obj)
+        else:
+            return False
+
+    def can_update(self, obj):
+        # check the object permissions, if available, just in case permissions are granted to anon users
+        if _has_permissions_class(obj):
+            return obj.permissions.user_can_update_object(self, obj)
+        else:
+            return False
+
+    def can_delete(self, obj):
+        # check the object permissions, if available, just in case permissions are granted to anon users
+        if _has_permissions_class(obj):
+            return obj.permissions.user_can_delete_object(self, obj)
+        else:
+            return False
+
+    def filter_readable(self, queryset):
+        # check the object permissions, if available, just in case permissions are granted to anon users
+        if _has_permissions_class(queryset.model):
+            return queryset.model.permissions.readable_by_user_filter(self, queryset).distinct()
+        else:
+            return queryset.none()
+
+
 @python_2_unicode_compatible
 class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
@@ -395,45 +465,53 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             descendant_collection=coll,
         ).filter(user=self).exists()
 
-    def _has_permissions_class(self, obj):
-        return hasattr(obj, "permissions") and isinstance(obj.permissions, BasePermissions)
-
     def can_create_instance(self, obj):
         # a FacilityUser's permissions are determined through the object's permission class
-        if self._has_permissions_class(obj):
+        if _has_permissions_class(obj):
             return obj.permissions.user_can_create_object(self, obj)
         else:
             return False
 
     def can_read(self, obj):
         # a FacilityUser's permissions are determined through the object's permission class
-        if self._has_permissions_class(obj):
+        if _has_permissions_class(obj):
             return obj.permissions.user_can_read_object(self, obj)
         else:
             return False
 
     def can_update(self, obj):
         # a FacilityUser's permissions are determined through the object's permission class
-        if self._has_permissions_class(obj):
+        if _has_permissions_class(obj):
             return obj.permissions.user_can_update_object(self, obj)
         else:
             return False
 
     def can_delete(self, obj):
         # a FacilityUser's permissions are determined through the object's permission class
-        if self._has_permissions_class(obj):
+        if _has_permissions_class(obj):
             return obj.permissions.user_can_delete_object(self, obj)
         else:
             return False
 
     def filter_readable(self, queryset):
-        if self._has_permissions_class(queryset.model):
+        if _has_permissions_class(queryset.model):
             return queryset.model.permissions.readable_by_user_filter(self, queryset).distinct()
         else:
             return queryset.none()
 
     def __str__(self):
         return '"{user}"@"{facility}"'.format(user=self.get_full_name() or self.username, facility=self.facility)
+
+
+class DeviceOwnerManager(models.Manager):
+
+    def create_superuser(self, username, password, **extra_fields):
+        if not username:
+            raise ValueError('The given username must be set')
+        user = DeviceOwner(username=username)
+        user.set_password(password)
+        user.save()
+        return user
 
 
 @python_2_unicode_compatible
@@ -449,6 +527,8 @@ class DeviceOwner(KolibriAbstractBaseUser):
 
     A ``DeviceOwner`` is a superuser, and has full access to do anything she wants with data on the device.
     """
+
+    objects = DeviceOwnerManager()
 
     # DeviceOwners can access the Django admin interface
     is_staff = True
@@ -494,6 +574,18 @@ class DeviceOwner(KolibriAbstractBaseUser):
 
     def __str__(self):
         return self.get_full_name() or self.username
+
+    def has_perm(self, perm, obj=None):
+        # ensure the DeviceOwner has full access to the Django admin
+        return True
+
+    def has_perms(self, perm_list, obj=None):
+        # ensure the DeviceOwner has full access to the Django admin
+        return True
+
+    def has_module_perms(self, app_label):
+        # ensure the DeviceOwner has full access to the Django admin
+        return True
 
 
 @python_2_unicode_compatible

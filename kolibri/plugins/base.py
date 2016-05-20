@@ -4,7 +4,6 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 import logging
-import os
 
 from kolibri.utils.conf import config
 
@@ -13,12 +12,14 @@ logger = logging.getLogger(__name__)
 
 class MandatoryPluginMethodNotImplemented(NotImplementedError):
     def __init__(self):
-        super(MandatoryPluginMethodNotImplemented, self).__init__("Plugin needs to define this method")
+        super(MandatoryPluginMethodNotImplemented,
+              self).__init__("Plugin needs to define this method")  # pragma: no cover
 
 
 class MandatoryPluginAttributeNotImplemented(NotImplementedError):
     def __init__(self):
-        super(MandatoryPluginAttributeNotImplemented, self).__init__("Plugin needs to define this attribute")
+        super(MandatoryPluginAttributeNotImplemented,
+              self).__init__("Plugin needs to define this attribute")  # pragma: no cover
 
 
 class KolibriPluginBase(object):
@@ -45,14 +46,6 @@ class KolibriPluginBase(object):
         Used in KolibriPluginBase._installed_apps_add
         """
         return ".".join(cls.__module__.split(".")[:-1])
-
-    def hooks(self):
-        """
-        Return a list of hooks and callables for each hook. To make your plugin
-        extendible, consider only having hooks that call methods of your plugin
-        class
-        """
-        raise MandatoryPluginMethodNotImplemented()
 
     @classmethod
     def _installed_apps_add(cls):
@@ -84,91 +77,45 @@ class KolibriPluginBase(object):
         """Modify the kolibri config dict to your plugin's needs"""
         cls._installed_apps_remove()
 
-
-class KolibriFrontEndPluginBase(KolibriPluginBase):
-    """
-    This is the class that all plugins that wish to load any assets into the front end
-    must implement, in order for them to be part of the webpack asset loading pipeline.
-    Minimally these must implement the following properties and methods:
-
-    The name of the frontend module that this plugin defines.
-    name = "example_module"
-
-    The path to the Javascript file that defines the plugin/acts as the entry point.
-    entry_file = "assets/js/example_module.js"
-
-    This hook will register the frontend plugin to be available for rendering its built files into Django templates.
-    def hooks(self):
-        return {
-            FRONTEND_PLUGINS: self._register_front_end_plugins
-        }
-    """
-
-    @classmethod
-    def webpack_bundle_data(cls):
+    def url_module(self):
         """
-        Returns information needed by the webpack parsing process.
-        :return: dict
-        "name" - is the module path that the frontend plugin has.
-        "entry_file" - is the Javascript file that defines the plugin.
-        "external" - an optional flag currently used only by the core plugin.
-        "core" - an optional flag *only* ever used by the core plugin.
-        "events" - the hash of event names and method callbacks that the KolibriModule defined here registers to.
-        "once" - the hash of event names and method callbacks that the KolibriModule defined here registers to for a
-        one time callback.
-        """
-        try:
-            output = cls.async_events()
-            output.update({
-                "name": cls.plugin_name(),
-                "entry_file": cls.entry_file,
-                "external": getattr(cls, "external", None),
-                "core": getattr(cls, "core", None),
-                "stats_file": cls.stats_file(),
-                "module_path": cls._module_file_path(),
-            })
-            return output
-        except KeyError:
-            raise MandatoryPluginAttributeNotImplemented
+        Return a url module, containing ``urlpatterns = [...]``, a conventional
+        Django application url module.
 
-    @classmethod
-    def build_path(cls):
-        return os.path.join(os.path.abspath(os.path.dirname(__name__)), cls._module_file_path(), "build")
+        If your application has a urls.py, you should do this::
 
-    @classmethod
-    def stats_file(cls):
-        return os.path.join(cls.build_path(), "{plugin}_stats.json".format(plugin=cls.__name__))
+            def url_module(self):
+                from myplugin import urls
+                return urls
 
-    @classmethod
-    def async_events(cls):
-        return {
-            "events": getattr(cls, "events", {}),
-            "once": getattr(cls, "once", {}),
-        }
+        URLs are by default accessed through Django's reverse lookups like
+        this::
 
-    @classmethod
-    def _module_file_path(cls):
-        """
-        Returns the path of the class inheriting this classmethod.
-        There is no such thing as Class properties, that's why it's implemented
-        as such.
+            reverse('kolibri:mypluginclass:url_name')
 
-        Used in KolibriFrontEndPluginBase._register_front_end_plugins
-        """
-        return os.path.join(*cls.__module__.split(".")[:-1])
+        To customize "mypluginclass" (which is automatically derived from the
+        plugin's class name), override ``url_namespace``.
 
-    @classmethod
-    def plugin_name(cls):
+        .. note:: We *could* make urls.py auto-detected.
         """
-        Returns the name of the frontend plugin as referenced in the frontend framework and template tags
-        :return: string
-        """
-        return cls._module_path() + "." + cls.__name__
+        return None
 
-    @classmethod
-    def _register_front_end_plugins(cls):
+    def url_namespace(self):
         """
-        Call this to register front end plugins in a Kolibri plugin to allow for
-        import into templates.
+        Used for the ``namespace`` argument when including the plugin's
+        urlpatterns. By default, returns a lowercase of the class name.
         """
-        return cls.plugin_name(), cls.stats_file(), cls.async_events()
+        return self.__class__.__name__.lower()
+
+    def url_slug(self):
+        """
+        Where should urls be included? By default, this is a lower-case version
+        of the class name.
+
+        Example::
+
+            return r"my-plugin/"
+
+        .. warning:: Avoid the empty string, as you might get conflicts.
+        """
+        return self.__class__.__name__.lower() + "/"

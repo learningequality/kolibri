@@ -7,7 +7,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.test import TestCase
 
 from ..constants import role_kinds
-from ..models import DeviceOwner
+from ..models import DeviceOwner, KolibriAnonymousUser
 from .helpers import create_dummy_facility_data
 
 
@@ -80,6 +80,7 @@ class MembershipWithinFacilityTestCase(TestCase):
 
     def setUp(self):
         self.data = create_dummy_facility_data()
+        self.anon_user = KolibriAnonymousUser()
 
     def test_facility_membership(self):
         actual_members = flatten(self.data["learners_one_group"] + [self.data["learner_all_groups"]] +
@@ -90,6 +91,7 @@ class MembershipWithinFacilityTestCase(TestCase):
         self.assertSetEqual(set(actual_members), set(returned_members))
         for user in actual_members:
             self.assertTrue(user.is_member_of(self.data["facility"]))
+        self.assertFalse(self.anon_user.is_member_of(self.data["facility"]))
 
     def test_classroom_membership(self):
         for i, classroom in enumerate(self.data["classrooms"]):
@@ -102,6 +104,7 @@ class MembershipWithinFacilityTestCase(TestCase):
             # ensure that `is_member` is False for all users not in the classroom
             for user in set(self.data["all_users"]) - set(actual_members):
                 self.assertFalse(user.is_member_of(classroom))
+            self.assertFalse(self.anon_user.is_member_of(classroom))
 
     def test_learnergroup_membership(self):
         for i, classroom_users in enumerate(self.data["learners_one_group"]):
@@ -161,3 +164,25 @@ class DeviceOwnerRolesTestCase(TestCase):
 
     def test_device_owner_has_admin_role_for_other_device_owner(self):
         self.assertTrue(self.device_owner.has_role_for(role_kinds.ADMIN, self.device_owner2))
+
+
+class AnonymousUserRolesTestCase(TestCase):
+
+    def setUp(self):
+        self.data = create_dummy_facility_data()
+        self.device_owner = DeviceOwner.objects.create(username="blooh", password="#")
+        self.anon_user = KolibriAnonymousUser()
+
+    def test_anon_user_has_no_admin_role_for_anyone(self):
+        for user in self.data["all_users"]:
+            self.assertFalse(self.anon_user.has_role_for(role_kinds.ADMIN, user))
+            self.assertEqual(len(self.anon_user.get_roles_for(user)), 0)
+
+    def test_anon_user_has_no_admin_role_for_any_collection(self):
+        for coll in self.data["all_collections"]:
+            self.assertFalse(self.anon_user.has_role_for(role_kinds.ADMIN, coll))
+            self.assertEqual(len(self.anon_user.get_roles_for(coll)), 0)
+
+    def test_nobody_has_roles_for_anon_user(self):
+        for user in self.data["all_users"]:
+            self.assertEqual(len(user.get_roles_for(self.anon_user)), 0)

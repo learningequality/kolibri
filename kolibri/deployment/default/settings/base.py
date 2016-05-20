@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'kolibri.auth.apps.KolibriAuthConfig',
     'kolibri.content',
+    'kolibri.core.webpack',
     'rest_framework',
 ] + conf.config['INSTALLED_APPS']
 
@@ -50,7 +51,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'kolibri.auth.middleware.CustomAuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -151,7 +152,6 @@ LOGGING = {
     'handlers': {
         'console': {
             'level': 'INFO',
-            'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'color'
         },
@@ -195,5 +195,8 @@ LOGGING = {
 
 AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
 
-
 AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']
+
+REST_FRAMEWORK = {
+    "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser"
+}

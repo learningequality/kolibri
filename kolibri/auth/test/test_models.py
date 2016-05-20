@@ -327,6 +327,29 @@ class DeviceOwnerRoleMembershipTestCase(TestCase):
             self.classroom.remove_member(self.device_owner)
 
 
+class DeviceOwnerSuperuserTestCase(TestCase):
+
+    def test_device_owner_is_superuser(self):
+        device_owner = DeviceOwner.objects.create(username="test", password="##")
+        self.assertTrue(device_owner.is_superuser)
+
+    def test_device_owner_manager_supports_superuser_creation(self):
+        superusername = "boss"
+        DeviceOwner.objects.create_superuser(superusername, "password")
+        self.assertEqual(DeviceOwner.objects.get().username, superusername)
+
+    def test_device_owner_manager_superuser_creation_fails_with_empty_username(self):
+        superusername = ""
+        with self.assertRaises(ValueError):
+            DeviceOwner.objects.create_superuser(superusername, "password")
+        self.assertEqual(DeviceOwner.objects.count(), 0)
+
+    def test_device_owner_has_all_django_perms_for_django_admin(self):
+        device_owner = DeviceOwner.objects.create(username="test", password="##")
+        self.assertTrue(device_owner.has_perm("someperm", object()))
+        self.assertTrue(device_owner.has_perms(["someperm"], object()))
+        self.assertTrue(device_owner.has_module_perms("module.someapp"))
+
 class StringMethodTestCase(TestCase):
 
     def setUp(self):

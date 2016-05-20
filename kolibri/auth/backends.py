@@ -9,7 +9,7 @@ from kolibri.auth.models import DeviceOwner, FacilityUser
 
 class FacilityUserBackend(object):
     """
-    A class that implements permissions checking for FacilityUsers.
+    A class that implements authentication for FacilityUsers.
     """
 
     def authenticate(self, username=None, password=None, facility=None):
@@ -45,7 +45,7 @@ class FacilityUserBackend(object):
 
 class DeviceOwnerBackend(object):
     """
-    A class that implements permissions checking for DeviceOwners.
+    A class that implements authentication for DeviceOwners.
     """
 
     def authenticate(self, username=None, password=None):

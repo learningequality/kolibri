@@ -51,9 +51,20 @@ docs/_build
 docs/kolibri*rst
 docs/modules.rst
 
-# node modules
+# node
 node_modules
+npm-debug.log
+
+# Node coverage data
+coverage
 
 # webpack built files
 kolibri/**/build/*
 kolibri/**/static/*
+
+# swap files
+*.swp
+
+# editor files
+*.sublime-project
+*.sublime-workspace

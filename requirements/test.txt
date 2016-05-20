@@ -1,8 +1,9 @@
 -r base.txt
 # These are for testing
+factory-boy==2.7.0
+fake-factory==0.5.7
 coverage
 mock
-psycopg2==2.6.1
 pytest
 pytest-cov
 pytest-django

@@ -1,6 +1,6 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-
+import django
 import importlib
 import logging
 import os
@@ -10,6 +10,7 @@ import kolibri
 
 from docopt import docopt
 from logging import config as logging_config
+from django.core.management import call_command
 
 USAGE = """
 Kolibri
@@ -25,7 +26,7 @@ Usage:
   kolibri shell [options] [-- DJANGO_OPTIONS ...]
   kolibri manage [options] COMMAND [-- DJANGO_OPTIONS ...]
   kolibri diagnose [options]
-  kolibri plugin PLUGIN (enable | disable)
+  kolibri plugin [options] PLUGIN (enable | disable)
   kolibri plugin --list
   kolibri -h | --help
   kolibri --version
@@ -87,12 +88,78 @@ os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
 
 logger = logging.getLogger(__name__)
 
+KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
+VERSION_FILE = os.path.join(KOLIBRI_HOME, '.data_version')
 
-def setup_logging():
+
+class PluginDoesNotExist(Exception):
+    """
+    This exception is local to the CLI environment in case actions are performed
+    on a plugin that cannot be loaded.
+    """
+    pass
+
+
+def _first_run():
+    """
+    Called once at least. Will not run if the .kolibri/.version file is
+    found.
+    """
+    if os.path.exists(VERSION_FILE):
+        logger.error("_first_run() called, but Kolibri is already initialized.")
+        return
+    logger.info("Kolibri running for the first time.")
+    logger.info(
+        "We don't yet use pre-migrated database seeds, so you're going to have "
+        "to wait a bit while we create a blank database...\n\n"
+    )
+
+    django.setup()
+
+    from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION, DEFAULT_PLUGINS
+
+    if not SKIP_AUTO_DATABASE_MIGRATION:
+        call_command("migrate")
+
+    for plugin_module in DEFAULT_PLUGINS:
+        try:
+            plugin(plugin_module, enable=True)
+        except PluginDoesNotExist:
+            continue
+
+    logger.info("Automatically enabling applications.")
+
+    with open(VERSION_FILE, "w") as f:
+        f.write(kolibri.__version__)
+
+
+def initialize(debug=False):
+    """
+    Always called before running commands
+
+    :param: debug: Tells initialization to setup logging etc.
+    """
+
+    setup_logging(debug=debug)
+
+    if not os.path.isfile(VERSION_FILE):
+        _first_run()
+
+
+def setup_logging(debug=False):
     """Configures logging in cases where a Django environment is not supposed
     to be configured"""
-    from kolibri.deployment.default.settings.base import LOGGING
+    try:
+        from django.conf.settings import LOGGING
+    except ImportError:
+        from kolibri.deployment.default.settings.base import LOGGING
+    if debug:
+        from django.conf import settings
+        settings.DEBUG = True
+        LOGGING['handlers']['console']['level'] = 'DEBUG'
+        LOGGING['loggers']['kolibri']['level'] = 'DEBUG'
     logging_config.dictConfig(LOGGING)
+    logger.debug("Debug mode is on!")
 
 
 def manage(cmd, args=[]):
@@ -110,12 +177,11 @@ def manage(cmd, args=[]):
     execute_from_command_line(argv=argv)
 
 
-def plugin(plugin_name, args):
+def plugin(plugin_name, **args):
     """
     Receives a plugin identifier and tries to load its main class. Calls class
     functions.
     """
-    setup_logging()
     from kolibri.utils import conf
     plugin_classes = []
 
@@ -128,13 +194,13 @@ def plugin(plugin_name, args):
             if type(obj) == type and obj is not KolibriPluginBase and issubclass(obj, KolibriPluginBase):
                 plugin_classes.append(obj)
     except ImportError:
-        raise RuntimeError("Plugin does not exist")
+        raise PluginDoesNotExist("Plugin does not exist")
 
-    if args['enable']:
+    if args.get('enable', False):
         for klass in plugin_classes:
             klass.enable()
 
-    if args['disable']:
+    if args.get('disable', False):
         for klass in plugin_classes:
             klass.disable()
 
@@ -157,7 +223,7 @@ def main(args=None):
     # and don't feed to docopt.
     if '--' in args:
         pivot = args.index('--')
-        args, django_args = args[:pivot], args[pivot+1:]
+        args, django_args = args[:pivot], args[pivot + 1:]
     else:
         django_args = []
 
@@ -171,6 +237,15 @@ def main(args=None):
 
     arguments = docopt(USAGE, **docopt_kwargs)
 
+    debug = arguments['--debug']
+
+    initialize(debug=debug)
+
+    # Alias
+    if arguments['shell']:
+        arguments['manage'] = True
+        arguments['COMMAND'] = 'shell'
+
     if arguments['manage']:
         command = arguments['COMMAND']
         manage(command, args=django_args)
@@ -178,7 +253,5 @@ def main(args=None):
 
     if arguments['plugin']:
         plugin_name = arguments['PLUGIN']
-        plugin(plugin_name, arguments)
+        plugin(plugin_name, **arguments)
         return
-
-    logger.info(arguments)
