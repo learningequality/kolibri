@@ -2,7 +2,7 @@
 This is one of the Kolibri core components, the abstract layer of all contents.
 To access it, please use the public APIs in api.py
 
-The ONLY public object is ContentMetadata
+The ONLY public object is ContentNode
 """
 from __future__ import print_function
 
@@ -14,7 +14,8 @@ from django.db import IntegrityError, OperationalError, connections, models
 from django.db.utils import ConnectionDoesNotExist
 from mptt.models import MPTTModel, TreeForeignKey
 
-from .constants import extensions, kinds, presets
+from .constants import content_kinds, extensions, presets
+
 
 class ContentManager(models.Manager):
     pass
@@ -45,13 +46,13 @@ class AbstractContent(models.Model):
         abstract = True
 
 class ContentTag(AbstractContent):
-    tag_name = models.CharField(max_length=30, null=True, blank=True)
-    tag_type = models.CharField(max_length=30, null=True, blank=True)
+    tag_name = models.CharField(max_length=30, blank=True)
+    tag_type = models.CharField(max_length=30, blank=True)
 
     def __str__(self):
         return self.tag_name
 
-class ContentMetadata(MPTTModel, AbstractContent):
+class ContentNode(MPTTModel, AbstractContent):
     """
     The top layer of the contentDB schema, defines the most common properties that are shared across all different contents.
     Things it can represent are, for example, video, exercise, audio or document...
@@ -59,7 +60,7 @@ class ContentMetadata(MPTTModel, AbstractContent):
     content_id = models.UUIDField(primary_key=False, default=uuid4, editable=False)
     title = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True)
-    kind = models.ForeignKey('ContentKind', related_name='content_metadatas', blank=True, null=True)
+    kind = models.CharField(max_length=200, choices=content_kinds.choices, blank=True)
     slug = models.CharField(max_length=100)
     total_file_size = models.IntegerField()
     available = models.BooleanField(default=False)
@@ -80,30 +81,6 @@ class ContentMetadata(MPTTModel, AbstractContent):
     def __str__(self):
         return self.title
 
-class ContentKind(AbstractContent):
-    kind = models.CharField(primary_key=True, max_length=200, choices=kinds.choices)
-
-    def __str__(self):
-        return self.kind
-
-class FileFormat(AbstractContent):
-    extension = models.CharField(primary_key=True, max_length=40, choices=extensions.choices)
-
-    def __str__(self):
-        return self.extension
-
-class FormatPreset(AbstractContent):
-    id = models.CharField(primary_key=True, max_length=150, choices=presets.choices)
-    readable_name = models.CharField(max_length=400)
-    multi_language = models.BooleanField(default=False)
-    supplementary = models.BooleanField(default=False)
-    order = models.IntegerField()
-    kind = models.ForeignKey(ContentKind, related_name='format_presets')
-    allowed_formats = models.ManyToManyField(FileFormat, blank=True)
-
-    def __str__(self):
-        return self.name
-
 class Language(AbstractContent):
     lang_code = models.CharField(primary_key=True, max_length=400)
     lang_name = models.CharField(max_length=400)
@@ -117,22 +94,24 @@ class File(AbstractContent):
     Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3...
     """
     checksum = models.CharField(max_length=400, blank=True)
+    extension = models.CharField(max_length=40, choices=extensions.choices, blank=True)
     available = models.BooleanField(default=False)
     file_size = models.IntegerField(blank=True, null=True)
-    contentmetadata = models.ForeignKey(ContentMetadata, related_name='files', blank=True, null=True)
-    file_format = models.ForeignKey(FileFormat, related_name='files', blank=True, null=True)
-    preset = models.ForeignKey(FormatPreset, related_name='files', blank=True, null=True)
+    contentnode = models.ForeignKey(ContentNode, related_name='files', blank=True, null=True)
+    preset = models.CharField(max_length=150, choices=presets.choices, blank=True)
     lang = models.ForeignKey(Language, blank=True, null=True)
+    supplementary = models.BooleanField(default=False)
+    thumbnail = models.BooleanField(default=False)
 
     class Admin:
         pass
 
     def __str__(self):
-        return '{checksum}{extension}'.format(checksum=self.checksum, extension='.' + self.file_format.extension)
+        return '{checksum}{extension}'.format(checksum=self.checksum, extension='.' + self.extension)
 
 class License(AbstractContent):
     """
-    Normalize the license of ContentMetadata model
+    Normalize the license of ContentNode model
     """
     license_name = models.CharField(max_length=50)
 
@@ -142,42 +121,32 @@ class License(AbstractContent):
     def __str__(self):
         return self.license_name
 
-class ContentRelationship(AbstractContent):
+class PrerequisiteContentRelationship(AbstractContent):
     """
-    Provide a abstract model for defining any relationships between two ContentMetadata objects.
+    Predefine the prerequisite relationship between two ContentNode objects.
     """
-    contentmetadata_1 = models.ForeignKey(ContentMetadata, related_name='%(app_label)s_%(class)s_1')
-    contentmetadata_2 = models.ForeignKey(ContentMetadata, related_name='%(app_label)s_%(class)s_2')
+    contentnode_1 = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_1')
+    contentnode_2 = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_2')
 
     class Meta:
-        abstract = True
-
-    class Admin:
-        pass
-
-class PrerequisiteContentRelationship(ContentRelationship):
-    """
-    Predefine the prerequisite relationship between two ContentMetadata objects.
-    """
-    class Meta:
-        unique_together = ['contentmetadata_1', 'contentmetadata_2']
+        unique_together = ['contentnode_1', 'contentnode_2']
 
     class Admin:
         pass
 
     def clean(self, *args, **kwargs):
         # self reference exception
-        if self.contentmetadata_1 == self.contentmetadata_2:
+        if self.contentnode_1 == self.contentnode_2:
             raise IntegrityError('Cannot self reference as prerequisite.')
         # immediate cyclic exception
         elif PrerequisiteContentRelationship.objects.using(self._state.db)\
-                .filter(contentmetadata_1=self.contentmetadata_2, contentmetadata_2=self.contentmetadata_1):
+                .filter(contentnode_1=self.contentnode_2, contentnode_2=self.contentnode_1):
             raise IntegrityError(
                 'Note: Prerequisite relationship is directional! %s and %s cannot be prerequisite of each other!'
-                % (self.contentmetadata_1, self.contentmetadata_2))
+                % (self.contentnode_1, self.contentnode_2))
         # distant cyclic exception
         # elif <this is a nice to have exception, may implement in the future when the priority raises.>
-        #     raise Exception('Note: Prerequisite relationship is acyclic! %s and %s forms a closed loop!' % (self.contentmetadata_1, self.contentmetadata_2))
+        #     raise Exception('Note: Prerequisite relationship is acyclic! %s and %s forms a closed loop!' % (self.contentnode_1, self.contentnode_2))
         super(PrerequisiteContentRelationship, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
@@ -185,23 +154,26 @@ class PrerequisiteContentRelationship(ContentRelationship):
         super(PrerequisiteContentRelationship, self).save(*args, **kwargs)
 
 
-class RelatedContentRelationship(ContentRelationship):
+class RelatedContentRelationship(AbstractContent):
     """
-    Predefine the related relationship between two ContentMetadata objects.
+    Predefine the related relationship between two ContentNode objects.
     """
+    contentnode_1 = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_1')
+    contentnode_2 = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_2')
+
     class Meta:
-        unique_together = ['contentmetadata_1', 'contentmetadata_2']
+        unique_together = ['contentnode_1', 'contentnode_2']
 
     class Admin:
         pass
 
     def save(self, *args, **kwargs):
         # self reference exception
-        if self.contentmetadata_1 == self.contentmetadata_2:
+        if self.contentnode_1 == self.contentnode_2:
             raise IntegrityError('Cannot self reference as related.')
         # handle immediate cyclic
         elif RelatedContentRelationship.objects.using(self._state.db)\
-                .filter(contentmetadata_1=self.contentmetadata_2, contentmetadata_2=self.contentmetadata_1):
+                .filter(contentnode_1=self.contentnode_2, contentnode_2=self.contentnode_1):
             return  # silently cancel the save
         super(RelatedContentRelationship, self).save(*args, **kwargs)
 
