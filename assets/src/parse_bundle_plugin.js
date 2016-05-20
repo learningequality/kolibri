@@ -65,6 +65,16 @@ var parseBundlePlugin = function(data, base_dir) {
                 __once: JSON.stringify(data.once || {})
             })
         ]);
+        bundle.module.loaders = bundle.module.loaders.concat([
+          {
+            test: /\.(png|jpg|gif)$/,
+            loader: 'url',
+            query: {
+              limit: 10000,
+              name: '[name].[ext]?[hash]'
+            }
+          }
+        ]);
         _.extend(bundle, {
             core: data.core,
             name: data.name,
