@@ -39,12 +39,9 @@ commit="$TRAVIS_COMMIT"
 commits="$TRAVIS_COMMIT_RANGE"
 git_changeset=`git show --name-only --no-notes --oneline $commits`
 
-echo "Testing commit $commit"
-echo "Testing commit range $commits"
 
-echo "Changeset is: \n\n $git_changeset"
-echo ""
-
+# If something changes that's related to our sdist packaging
+# or installation mechanism, then we build and install.
 if [[ "$LABEL" == "setup_changed" ]]
 then
 
@@ -53,11 +50,17 @@ then
     # Match commits changing setup.py
     if echo "$git_changeset" | grep -q "\[\s*setup\s*\]" || \
        echo "$git_changeset" | grep -q "^setup\.py" || \
-       echo "$git_changeset" | grep -q "^requirements.txt"
+       echo "$git_changeset" | grep -q "^requirements"
+       echo "$git_changeset" | grep -q "^Makefile"
+       echo "$git_changeset" | grep -q "^MANIFEST*"
     then
 
-        pip install .
+        # Install build deps
+        pip install -r requirements/build.txt
 
+        # Build .whl
+        make sdist
+        pip install dist/kolibri-*.whl
         exit 0
 
     fi
