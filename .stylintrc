@@ -1,0 +1,4 @@
+// This empty rc file is necessary until to prevent builds from failing in certain environments.
+// https://github.com/rossPatton/stylint/pull/307 might address this eventually.
+
+{}
