@@ -1,6 +1,5 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
-
+const Vue = require('vue');
+const Vuex = require('vuex');
 
 Vue.use(Vuex);
 
@@ -110,7 +109,7 @@ const constants = {
   ALL_CLASSROOMS_ID,
 };
 
-export {
+module.exports = {
   mutations,
   store,
   constants,

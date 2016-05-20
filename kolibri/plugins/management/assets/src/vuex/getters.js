@@ -6,7 +6,7 @@ function getSelectedClassroomId(state) {
   return state.selectedClassroomId;
 }
 
-export {
+module.exports = {
   getClassrooms,
   getSelectedClassroomId,
 };

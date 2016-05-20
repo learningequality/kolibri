@@ -6,7 +6,7 @@ function setSelectedClassroomId({ dispatch }, id) {
   dispatch('SET_SELECTED_CLASSROOM_ID', id);
 }
 
-export {
+module.exports = {
   addClassroom,
   setSelectedClassroomId,
 };

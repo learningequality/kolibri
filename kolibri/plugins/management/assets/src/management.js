@@ -1,19 +1,16 @@
-import logging from 'loglevel';
+const KolibriModule = require('kolibri_module');
+const Vue = require('vue');
 
-
-import KolibriModule from 'kolibri_module';
-import Vue from 'vue';
-import Main from './Main.vue';
-import { store } from './vuex/store.js';
-
-const vm = new Vue({
-  el: 'body',
-  components: { Main },
-  store,
-});
-
-logging.info('HELLO');
-
-const ManagementModule = KolibriModule.extend({ vm });
+class ManagementModule extends KolibriModule {
+  ready() {
+    this.vm = new Vue({
+      el: 'body',
+      components: {
+        main: require('./main.vue'),
+      },
+      store: require('./vuex/store.js').store,
+    });
+  }
+}
 
 module.exports = new ManagementModule();

@@ -14,11 +14,19 @@
 
 
 <script>
-import learnerRoster from './learner-roster.vue';
-import dropDown from './drop-down.vue';
-import { addClassroom, setSelectedClassroomId } from './vuex/actions.js';
-import { getClassrooms, getSelectedClassroomId } from './vuex/getters.js';
-import { constants } from './vuex/store.js';
+const learnerRoster = require('./learner-roster.vue');
+const dropDown = require('./drop-down.vue');
+
+const actions = require('./vuex/actions.js');
+const addClassroom = actions.addClassroom;
+const setSelectedClassroomId = actions.setSelectedClassroomId;
+
+const getters = require('./vuex/getters.js');
+const getClassrooms = getters.getClassrooms;
+const getSelectedClassroomId = getters.getSelectedClassroomId;
+
+const store = require('./vuex/store.js');
+const constants = store.constants;
 
 export default {
   components: {
