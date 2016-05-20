@@ -6,46 +6,15 @@ The ONLY public object is ContentMetadata
 """
 from __future__ import print_function
 
-# import hashlib
-import logging
 import os
 from uuid import uuid4
 
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
 from django.db import IntegrityError, OperationalError, connections, models
 from django.db.utils import ConnectionDoesNotExist
 from mptt.models import MPTTModel, TreeForeignKey
 
 from .constants import extensions, kinds, presets
-
-
-def content_copy_name(instance, filename):
-    """
-    Create a name spaced file path from the File obejct's checksum property.
-    This path will be used to store the content copy
-
-    :param instance: File (content File model)
-    :param filename: str
-    :return: str
-    """
-    h = instance.checksum
-    basename, ext = os.path.splitext(filename)
-    return os.path.join(settings.CONTENT_COPY_DIR, h[0:1], h[1:2], h + ext.lower())
-
-class ContentCopyStorage(FileSystemStorage):
-    """
-    Overrider FileSystemStorage's default save method to ignore duplicated file.
-    """
-    def get_available_name(self, name):
-        return name
-
-    def _save(self, name, content):
-        if self.exists(name):
-            # if the file exists, do not call the superclasses _save method
-            logging.warn('Content copy "%s" already exists!' % name)
-            return name
-        return super(ContentCopyStorage, self)._save(name, content)
 
 class ContentManager(models.Manager):
     pass
@@ -150,7 +119,6 @@ class File(AbstractContent):
     checksum = models.CharField(max_length=400, blank=True)
     available = models.BooleanField(default=False)
     file_size = models.IntegerField(blank=True, null=True)
-    content_copy = models.FileField(upload_to=content_copy_name, storage=ContentCopyStorage(), max_length=500, blank=True)
     contentmetadata = models.ForeignKey(ContentMetadata, related_name='files', blank=True, null=True)
     file_format = models.ForeignKey(FileFormat, related_name='files', blank=True, null=True)
     preset = models.ForeignKey(FormatPreset, related_name='files', blank=True, null=True)
@@ -161,57 +129,6 @@ class File(AbstractContent):
 
     def __str__(self):
         return '{checksum}{extension}'.format(checksum=self.checksum, extension='.' + self.file_format.extension)
-
-    # def update_content(self, channel_id, *args, **kwargs):
-    #     """
-    #     Overrider the default save method.
-    #     If the content_copy FileField gets passed a content copy:
-    #         1. generate the MD5 from the content copy
-    #         2. fill the other fields accordingly
-    #         3. update tracking for this content copy
-    #     If None is passed to the content_copy FileField:
-    #         1. delete the content copy.
-    #         2. update tracking for this content copy
-    #     """
-    #     if self.content_copy:  # if content_copy is supplied, hash out the file
-    #         md5 = hashlib.md5()
-    #         for chunk in self.content_copy.chunks():
-    #             md5.update(chunk)
-    #         self.checksum = md5.hexdigest()
-    #         self.available = True
-    #         self.file_size = self.content_copy.size
-    #         # if feed a format that doesn't exist yet will break the app
-    #         # not sure how we want to handle this yet
-    #         self.file_format = FileFormat.objects.using(channel_id).get(extension=os.path.splitext(self.content_copy.name)[1])
-    #         # update ContentCopyTracking
-    #         try:
-    #             content_copy_track = ContentCopyTracking.objects.get(content_copy_id=self.checksum)
-    #             content_copy_track.referenced_count += 1
-    #             content_copy_track.save()
-    #         except ContentCopyTracking.DoesNotExist:
-    #             ContentCopyTracking.objects.create(referenced_count=1, content_copy_id=self.checksum)
-    #     else:
-    #         # update ContentCopyTracking, if referenced_count reach 0, delete the content copy on disk
-    #         try:
-    #             content_copy_track = ContentCopyTracking.objects.get(content_copy_id=self.checksum)
-    #             content_copy_track.referenced_count -= 1
-    #             content_copy_track.save()
-    #             if content_copy_track.referenced_count == 0:
-    #                 content_copy_path = os.path.join(
-    #                     settings.CONTENT_COPY_DIR,
-    #                     self.checksum[0:1],
-    #                     self.checksum[1:2],
-    #                     self.checksum + '.' + self.file_format.extension
-    #                 )
-    #                 if os.path.isfile(content_copy_path):
-    #                     os.remove(content_copy_path)
-    #         except ContentCopyTracking.DoesNotExist:
-    #             pass
-    #         self.checksum = None
-    #         self.available = False
-    #         self.file_size = None
-    #         self.extension = None
-    #     self.save()
 
 class License(AbstractContent):
     """
@@ -308,14 +225,3 @@ class ChannelMetadata(models.Model):
 
     def __str__(self):
         return self.name
-
-class ContentCopyTracking(models.Model):
-    """
-    Record how many times a content copy are referenced by File objects.
-    If it reaches 0, it's supposed to be deleted.
-    """
-    referenced_count = models.IntegerField(blank=True, null=True)
-    content_copy_id = models.CharField(max_length=400, unique=True)
-
-    class Admin:
-        pass
