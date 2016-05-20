@@ -19,6 +19,8 @@ BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 
 KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
 
+KOLIBRI_CORE_JS_NAME = 'kolibriGlobal'
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -205,6 +207,6 @@ REST_FRAMEWORK = {
 # Configuration for Django JS Reverse
 JS_REVERSE_JS_VAR_NAME = 'urls'
 
-JS_REVERSE_JS_GLOBAL_OBJECT_NAME = 'kolibriGlobal'
+JS_REVERSE_JS_GLOBAL_OBJECT_NAME = KOLIBRI_CORE_JS_NAME
 
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]

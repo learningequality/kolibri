@@ -17,7 +17,6 @@ from django.conf import settings as django_settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
-
 from kolibri.core.webpack.utils import render_as_url
 from kolibri.plugins import hooks
 
@@ -286,7 +285,7 @@ class FrontEndCoreAssetHook(WebpackBundleHook):
     @hooks.registered_method
     def webpack_bundle_data(self):
         dct = super(FrontEndCoreAssetHook, self).webpack_bundle_data
-        dct['core'] = True
+        dct['core_name'] = django_settings.KOLIBRI_CORE_JS_NAME
         dct['external'] = True
         return dct
 

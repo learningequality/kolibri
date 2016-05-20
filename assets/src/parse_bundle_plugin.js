@@ -39,12 +39,11 @@ var parseBundlePlugin = function(data, base_dir) {
         (typeof data.static_dir !== "undefined") &&
         (typeof data.stats_file !== "undefined")) {
         bundle_data[data.name] = data.src_file;
-        if (typeof data.external !== "undefined" && data.external) {
+        if (typeof data.external !== "undefined" && data.external && data.core_name) {
             // If we want to create a plugin that can be directly referenced by other plugins, this sets it to be
-            // instantiated as a global variable. Only currently used by the Kolibri core app.
+            // instantiated as a global variable. Only to be used by the Kolibri core app.
             external = data.name;
-            // change the periods of the Python module path name to underscores, so that it is a valid JS variable name.
-            library = data.core ? 'kolibriGlobal' : data.name.replace(/\./g, "_");
+            library = data.core_name;
         }
 
         bundle.resolve.root = base_dir;
@@ -66,7 +65,7 @@ var parseBundlePlugin = function(data, base_dir) {
             })
         ]);
         _.extend(bundle, {
-            core: data.core,
+            core_name: data.core_name,
             name: data.name,
             context: base_dir,
             entry: bundle_data,
