@@ -28,7 +28,7 @@ const getSelectedClassroomId = getters.getSelectedClassroomId;
 const store = require('./vuex/store.js');
 const constants = store.constants;
 
-export default {
+module.exports = {
   components: {
     'learner-roster': learnerRoster,
     'drop-down': dropDown,

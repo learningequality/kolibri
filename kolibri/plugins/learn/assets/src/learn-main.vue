@@ -12,7 +12,7 @@
 
 <script>
 
-  export default {
+  module.exports = {
     components: {
       'core-base': require('core-base'),
     },

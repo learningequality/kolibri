@@ -10,7 +10,7 @@
 
 
 <script>
-export default {
+module.exports = {
   props: {
     list: {
       type: Array,

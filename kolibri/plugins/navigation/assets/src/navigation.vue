@@ -28,11 +28,8 @@
 </template>
 
 <script>
-'use strict';
-const Navigation = Vue.extend({});
-import Vue from 'vue';
 
-export default new Navigation({
+module.exports = {
   el: '#navigation-module',
   data: {
     // items that go in the title bar
@@ -60,7 +57,8 @@ export default new Navigation({
       }
     },
   },
-});
+};
+
 </script>
 
 <style lang="stylus" scoped>
@@ -122,4 +120,5 @@ export default new Navigation({
     a
       color: $kolibri_gray
       text-decoration: none
+
 </style>

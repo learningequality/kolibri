@@ -27,7 +27,7 @@
 
 
 <script>
-export default {
+module.exports = {
   props: {
     learners: {
       type: Array,
