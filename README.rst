@@ -74,7 +74,11 @@ Adjust according to your operating system or personal preferences.
 
 #. Run the development server::
 
-    $ kolibri manage runserver
+    $ kolibri manage devserver --debug
+
+#. To run the development server and build frontend assets synchronously, use the following command::
+
+    $ kolibri manage devserver --debug -- --webpack
 
 #. Install pre-commit hooks to ensure you commit good code::
 
@@ -127,6 +131,10 @@ This includes tests of the bundling functions that are used in creating front en
 To do continuous unit testing for code, and jshint running::
 
     $ npm run test-karma:watch
+
+Alternatively, this can be run as a subprocess in the development server with the following flag::
+
+    $ kolibri manage devserver --debug -- --karma
 
 You can also run tests through Django's ``test`` management command, accessed through the ``kolibri`` command::
 
