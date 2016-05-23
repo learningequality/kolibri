@@ -35,9 +35,48 @@ set -e
 
 LABEL="$1"
 
+branches_to_always_test=( "master" "releases/*" )
+
+PR="$TRAVIS_PULL_REQUEST"
 commit="$TRAVIS_COMMIT"
 commits="$TRAVIS_COMMIT_RANGE"
+current_branch="$TRAVIS_BRANCH"
 git_changeset=`git show --name-only --no-notes --oneline $commits`
+
+# Some debug stuff, will be removed
+echo "Current branch: $current_branch"
+echo "Commit: $TRAVIS_COMMIT"
+echo "Commit range: $TRAVIS_COMMIT_RANGE"
+echo "PR: $PR"
+echo "Git change set: $git_changeset"
+
+function match_changes {
+    # Usage: match_changes "match1" "match2"
+    # if branch should always be tested
+    if ! [ "$PR" == "false" ]
+    then
+        for branch in "${branches_to_always_test[@]}"
+        do
+            if echo "$current_branch" | grep -q "$branch"
+            then
+                echo "Always testing $branch, so not skipping $LABEL..."
+                return 0
+            fi
+        done
+    fi
+
+    # Loop through all arguments
+    for pattern_to_match
+    do
+        if echo "$git_changeset" | grep -q "$pattern_to_match"
+        then
+            return 0
+        fi
+    done
+
+    # No matches
+    return 1
+}
 
 
 # If something changes that's related to our sdist packaging
@@ -48,11 +87,11 @@ then
     # Match with commit messages containing "[ setup ]"
     # Match commits changing requirements.txt
     # Match commits changing setup.py
-    if echo "$git_changeset" | grep -q "\[\s*setup\s*\]" || \
-       echo "$git_changeset" | grep -q "^setup\.py" || \
-       echo "$git_changeset" | grep -q "^requirements" || \
-       echo "$git_changeset" | grep -q "^Makefile" || \
-       echo "$git_changeset" | grep -q "^MANIFEST*"
+    if match_changes "\[\s*setup\s*\]" \
+                     "^setup\.py" \
+                     "^requirements" \
+                     "^Makefile" \
+                     "^MANIFEST*"
     then
 
         # Install build deps
