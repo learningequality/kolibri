@@ -13,13 +13,9 @@
 </template>
 
 <script>
-const Vue = require('vue');
-import navOptions from './navigation.vue.html';
-const VueNav = Vue.extend(navOptions);
-
 export default {
   components: {
-    'kolibri-nav': VueNav,
+    'kolibri-nav': require('./navigation.vue'),
   },
 };
 </script>
