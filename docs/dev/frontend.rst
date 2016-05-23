@@ -3,7 +3,7 @@ Frontend Code
 
 The behavior of much of Kolibri's user interface is defined by Javascript code.
 
-There are two distinct entities that control this behaviour - a Kolibri Plugin on the Python side, which manages the
+There are two distinct entities that control this behaviour - a Kolibri Hook on the Python side, which manages the
 registration of the frontend code within Django (and also facilitates building of that code into compiled assets with
 Webpack) and a Kolibri Module - which is the Javascript object that wraps and manages the behaviour for a relatively
 independent piece of frontend code.
@@ -21,22 +21,22 @@ the object the module returns.
 Synchronous and asynchronous loading is defined by the template tag used to import the Javascript for the KolibriModule
 into the Django template. Synchronous loading merely inserts the Javascript and CSS for the KolibriModule directly into
 the Django template, meaning it is executed at page load. This can be achieved in two ways, firstly simply by using the
-`frontend_assets` template tag:
+`webpack_asset` template tag:
 
-.. automodule:: kolibri.core.template_tags.kolibri_tags
-    :members: frontend_assets
+.. automodule:: kolibri.core.webpack.template_tags.webpack_tags
+    :members: webpack_asset
 
 In addition, if a KolibriModule needs to load in the template defined by another plugin or a core part of Kolibri, a
-template tag and hook can be defined to register that KolibriModule as to be loaded on that page. An example of this is
-found for the `base.html` template of the Kolibri core app:
+template tag and hook can be defined to register that KolibriModule's WebpackAssetHook to be loaded on that page. An
+example of this is found for the `base.html` template of the Kolibri core app:
 
-.. automodule:: kolibri.core.template_tags.kolibri_tags
-    :members: base_frontend_sync
+.. automodule:: kolibri.core.webpack.template_tags.webpack_tags
+    :members: webpack_base_assets
 
 This relies on the following function to collect all registered KolibriModules and load them synchronously:
 
-.. automodule:: kolibri.core.template_tags.kolibri_tags
-    :members: frontend_sync
+.. automodule:: kolibri.core.webpack.utils
+    :members: webpack_asset_render
 
 Asynchronous loading can also, analogously, be done in two ways. Asynchronous loading registers a KolibriModule against
 the core Kolibri Javascript app on the frontend at page load, but does not load, or execute any of the code until the
@@ -44,20 +44,8 @@ events that the KolibriModule specifies are triggered. When these are triggered,
 load the KolibriModule and pass on any callbacks once it has initialized. Asynchronous loading can be done either
 explicitly with a template tag that directly imports a single KolibriModule:
 
-.. automodule:: kolibri.core.template_tags.kolibri_tags
-    :members: async_frontend_assets
-
-Or the KolibriModule's defining plugin can be registered against a hook that is used in a template tag to asynchronously
-register KolibriModules from other plugins within a particular Django template. An example of this is found for the
-`base.html` template of the Kolibri core app:
-
-.. automodule:: kolibri.core.template_tags.kolibri_tags
-    :members: base_frontend_async
-
-This relies on the following function to collect all registered KolibriModules and register them to load asynchronously:
-
-.. automodule:: kolibri.core.template_tags.kolibri_tags
-    :members: frontend_async
+.. automodule:: kolibri.core.webpack.template_tags.webpack_tags
+    :members: webpack_base_async_assets
 
 Layout of Frontend Code
 -----------------------
@@ -87,43 +75,90 @@ As can be seen above, Kolibri modules are defined in the root directory of the '
 Defining a Kolibri Module
 -------------------------
 
-A Kolibri Module is initially defined in Python code as a Kolibri Python plugin. The plugin is defined by
-subclassing the ``KolibriFrontEndPluginBase`` class to define each frontend Kolibri module.
+A Kolibri Module is initially defined in Python code as a Kolibri Hook. The plugin is defined by
+subclassing the ``WebpackBundleHook`` class to define each frontend Kolibri module.
 
-.. automodule:: kolibri.plugins.example_plugin.kolibri_plugin
-    :members: KolibriExampleFrontEnd
-    :show-inheritance:
+.. automodule:: kolibri.core.webpack.hooks
+    :members: WebpackBundleHook
 
-The plugin defines the entry point file (the file that acts as the entry point for this particular Kolibri Module), as
+An example of this is found here:
+
+.. automodule:: kolibri.plugins.learn.kolibri_plugin
+    :members: LearnAsset
+
+The hook defines the entry point file (the file that acts as the entry point for this particular Kolibri Module), as
 well as the events and callbacks to which that module listens. These are defined in the `events` and `once` properties
 of the plugin. Each defines key-value pairs of the name of an event, and the name of the method on the Kolibri Module
 object. When these events are triggered on the Kolibri core Javascript app, these callbacks will be called - or if the
 Kolibri Module is registered for asynchronous loading, the Kolibri Module will be loaded, and then the callbacks called
 when it is ready.
 
+
+The Kolibri Core Javascript App
+-------------------------------
+
+The Kolibri Core Javascript App exposes commonly used libraries and acts as the mediator and point of communication
+between different Kolibri Modules.
+
+These methods are publicly exposed methods of the Mediator class::
+
+  kolibriGlobal.register_kolibri_module_async - Register a Kolibri module for asynchronous loading.
+  kolibriGlobal.register_kolibri_module_sync - Register a Kolibri module once it has loaded.
+  kolibriGlobal.stop_listening - Unbind an event/callback pair from triggering.
+  kolibriGlobal.emit - Emit an event, with optional args.
+
+In addition, the lib property exposes the following libraries::
+
+  kolibriGlobal.lib.vue - the global Vue module for Kolibri
+  kolibriGlobal.lib.loglevel - the global logging module for Kolibri
+  kolibriGlobal.lib.coreBase - the glboal component library for common UI components for Kolibri
+
+Finally, once loaded into the frontend, we embellish the kolibriGlobal object with the following object::
+
+  kolibriGlobal.urls
+
+This object is defined by `Django JS Reverse <https://github.com/ierror/django-js-reverse>`_ and exposes Django URLs
+on the client side. This will primarily be used for accessing API Urls for synchronizing with the REST API. See the
+Django JS Reverse documentation for details on invoking the Url.
+
+
 Writing Kolibri Modules
 -----------------------
 
 All Kolibri Modules should extend the KolibriModule class found in
-`kolibri/plugins/assets/src/kolibri_module/kolibri_module.js`. For convenience this can be referenced in a module with
+`kolibri/core/assets/src/kolibri_module.js`. For convenience this can be referenced in a module with
 the following syntax::
 
-    var KolibriModule = require('kolibri_module');
+    const KolibriModule = require('kolibri_module');
+    const logging = require('loglevel');
 
-    var ExampleModule = KolibriModule.extend({
+    class ExampleModule extends KolibriModule {
 
-        hello_world: function(message) {
+        initialize: () => {
+            logging.info('Doing something before the Module is registered with the Core App!');
+        }
+
+        ready: () => {
+            logging.info('Module is registered and ready to do things!');
+        }
+
+        hello_world: (message) => {
             logging.info('Hello world!', message);
-        },
+        }
 
-        goodbye_world: function(message) {
+        goodbye_world: (message) => {
             logging.info('Goodbye, cruel world!', message);
         }
-    });
+    }
 
 The methods defined above are the ones that can be referenced in the `events` and `once` properties of the plugin that
 defines the Kolibri Module. Defining it in this way allows for asynchronous loading and registration without having to
 load or execute the Javascript code.
+
+The ready method will be automatically executed once the Module is loaded and registered with the Kolibri Core App -
+whether the DOM is ready to be injected depends on how the Javascript has been inserted into the page. By convention,
+Javascript is currently being injected into the served HTML *after* the `<main>` tag, meaning that this tag should be
+available when the `ready` method is called.
 
 Frontend Tech Stack
 -------------------
