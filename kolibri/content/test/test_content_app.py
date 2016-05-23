@@ -150,40 +150,40 @@ class ContentNodeTestCase(TestCase):
         root = content.ContentNode.objects.using(self.the_channel_id).get(title="root")
         c2 = content.ContentNode.objects.using(self.the_channel_id).get(title="c2")
         self.assertFalse(api.get_all_prerequisites(channel_id=self.the_channel_id, content=root))
-        api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
+        api.set_prerequisite(channel_id=self.the_channel_id, target_node=root, prerequisite=c2)
         self.assertTrue(api.get_all_prerequisites(channel_id=self.the_channel_id, content=root))
 
     def test_set_prerequisite_self_reference(self):
         c2 = content.ContentNode.objects.using(self.the_channel_id).get(title="c2")
         # test for self reference exception
         with self.assertRaises(IntegrityError):
-            api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=c2)
+            api.set_prerequisite(channel_id=self.the_channel_id, target_node=c2, prerequisite=c2)
 
     def test_set_prerequisite_uniqueness(self):
         root = content.ContentNode.objects.using(self.the_channel_id).get(title="root")
         c2 = content.ContentNode.objects.using(self.the_channel_id).get(title="c2")
-        api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
+        api.set_prerequisite(channel_id=self.the_channel_id, target_node=c2, prerequisite=root)
         # test for uniqueness exception
         with self.assertRaises(IntegrityError):
-            api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
+            api.set_prerequisite(channel_id=self.the_channel_id, target_node=c2, prerequisite=root)
 
     def test_set_prerequisite_immediate_cyclic(self):
         root = content.ContentNode.objects.using(self.the_channel_id).get(title="root")
         c2 = content.ContentNode.objects.using(self.the_channel_id).get(title="c2")
-        api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
+        api.set_prerequisite(channel_id=self.the_channel_id, target_node=c2, prerequisite=root)
         # test for immediate cyclic exception
         with self.assertRaises(IntegrityError):
-            api.set_prerequisite(channel_id=self.the_channel_id, content1=root, content2=c2)
+            api.set_prerequisite(channel_id=self.the_channel_id, target_node=root, prerequisite=c2)
 
     # <the exception hasn't been implemented yet, may add in the future>
     # def test_set_prerequisite_distant_cyclic(self):
     #     root = content.ContentNode.objects.using(self.the_channel_id).get(title="root")
     #     c2 = content.ContentNode.objects.using(self.the_channel_id).get(title="c2")
-    #     api.set_prerequisite(channel_id=self.the_channel_id, content1=c2, content2=root)
+    #     api.set_prerequisite(channel_id=self.the_channel_id, target_node=root, prerequisite=c2)
     #     # test for distant cyclic exception
     #     c1 = content.ContentNode.objects.using(self.the_channel_id).get(title="c1")
     #     with self.assertRaises(Exception):
-    #         api.set_prerequisite(channel_id=self.the_channel_id, content1=c1, content2=c2)
+    #         api.set_prerequisite(channel_id=self.the_channel_id, target_node=c2, prerequisite=c1)
 
     def test_set_is_related(self):
         root = content.ContentNode.objects.using(self.the_channel_id).get(title="root")
@@ -325,7 +325,5 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(len(response.data), 5)
 
     def test_file_retrieve(self):
-        # import pdb
-        # pdb.set_trace()
         response = self.client.get(self._reverse_channel_url("file-detail", {'pk': 1}))
         self.assertEqual(response.data['preset'], 'high_res_video')

@@ -21,15 +21,21 @@ def can_get_content_with_id(func):
         content = kwargs.get('content')
         content1 = kwargs.get('content1')
         content2 = kwargs.get('content2')
+        target_node = kwargs.get('target_node')
+        prerequisite = kwargs.get('prerequisite')
 
         if isinstance(content, KolibriContent.ContentNode) or \
-                (isinstance(content1, KolibriContent.ContentNode) and isinstance(content2, KolibriContent.ContentNode)):
+                (isinstance(content1, KolibriContent.ContentNode) and isinstance(content2, KolibriContent.ContentNode)) or \
+                (isinstance(target_node, KolibriContent.ContentNode) and isinstance(prerequisite, KolibriContent.ContentNode)):
             pass
         elif validate.is_valid_uuid(content):
             kwargs['content'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=content)
         elif validate.is_valid_uuid(content1) and validate.is_valid_uuid(content2):
             kwargs['content1'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=content1)
             kwargs['content2'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=content2)
+        elif validate.is_valid_uuid(target_node) and validate.is_valid_uuid(prerequisite):
+            kwargs['target_node'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=target_node)
+            kwargs['prerequisite'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=prerequisite)
         else:
             raise TypeError("must provide a ContentNode object or a UUID content_id")
         return func(channel_id=channel_id, **kwargs)
@@ -119,7 +125,7 @@ def get_all_prerequisites(channel_id=None, content=None, **kwargs):
     :param content: ContentNode or str
     :return: QuerySet of ContentNode
     """
-    return KolibriContent.ContentNode.objects.using(channel_id).filter(prerequisite=content)
+    return KolibriContent.ContentNode.objects.using(channel_id).filter(is_prerequisite_of=content)
 
 @can_get_content_with_id
 def get_all_related(channel_id=None, content=None, **kwargs):
@@ -133,7 +139,7 @@ def get_all_related(channel_id=None, content=None, **kwargs):
     return KolibriContent.ContentNode.objects.using(channel_id).filter(Q(relate_to=content) | Q(is_related=content))
 
 @can_get_content_with_id
-def set_prerequisite(channel_id=None, content1=None, content2=None, **kwargs):
+def set_prerequisite(channel_id=None, target_node=None, prerequisite=None, **kwargs):
     """
     Set prerequisite relationship between content1 and content2.
 
@@ -142,7 +148,7 @@ def set_prerequisite(channel_id=None, content1=None, content2=None, **kwargs):
     :param content2: ContentNode or str
     """
     KolibriContent.PrerequisiteContentRelationship.objects.using(channel_id).create(
-        contentnode_1=content1, contentnode_2=content2)
+        target_node=target_node, prerequisite=prerequisite)
 
 @can_get_content_with_id
 def set_is_related(channel_id=None, content1=None, content2=None, **kwargs):

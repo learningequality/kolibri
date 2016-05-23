@@ -3,15 +3,15 @@ from django.contrib import admin
 from .models import PrerequisiteContentRelationship, RelatedContentRelationship
 
 
-class PrerequisiteRelationshipInline1(admin.TabularInline):
+class PrerequisiteRelationshipInlineTarget(admin.TabularInline):
     model = PrerequisiteContentRelationship
-    fk_name = 'contentnode_1'
+    fk_name = 'target_node'
     max = 20
     extra = 0
 
-class PrerequisiteRelationshipInline2(admin.TabularInline):
+class PrerequisiteRelationshipInlinePrerequisite(admin.TabularInline):
     model = PrerequisiteContentRelationship
-    fk_name = 'contentnode_2'
+    fk_name = 'prerequisite'
     max = 20
     extra = 0
 
@@ -28,4 +28,4 @@ class RelatedRelationshipInline2(admin.TabularInline):
     extra = 0
 
 class ContentNodeAdmin(admin.ModelAdmin):
-    inlines = (PrerequisiteRelationshipInline1, PrerequisiteRelationshipInline2, RelatedRelationshipInline1, RelatedRelationshipInline2)
+    inlines = (PrerequisiteRelationshipInlineTarget, PrerequisiteRelationshipInlinePrerequisite, RelatedRelationshipInline1, RelatedRelationshipInline2)
