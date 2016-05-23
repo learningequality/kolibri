@@ -136,4 +136,4 @@ differnt if the session user is a device owner:
 
 .. note:: **Roadmap:**
   Jessica has begun designing this. See
-  `the invision prototype. <https://projects.invisionapp.com/share/YJ75P75QH#/screens/155161431>`_
+  `the invision prototype. <https://projects.invisionapp.com/share/YJ75P75QH>`_
