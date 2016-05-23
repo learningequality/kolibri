@@ -8,7 +8,7 @@ import json
 
 from django import template
 from django.utils.html import mark_safe
-from kolibri.core.hooks import NavigationHook
+from kolibri.core.hooks import NavigationHook, UserNavigationHook
 
 register = template.Library()
 
@@ -26,6 +26,12 @@ def kolibri_main_navigation():
 
     for hook in NavigationHook().registered_hooks:
         init_data['nav_items'].append({
+            'text': str(hook.label),
+            'url': str(hook.url),
+        })
+
+    for hook in UserNavigationHook().registered_hooks:
+        init_data['user_nav_items'].append({
             'text': str(hook.label),
             'url': str(hook.url),
         })
