@@ -108,11 +108,32 @@ Space is reserved next to the roster for an information panel to display elabora
 selection. Right now it includes only the total # of students which match the criteria determined by the selectors
 and filters.
 
-Role Management
----------------
+Facility Management
+-------------------
 
-Role Management will provide an interface for assigning Coach and Admin roles to users.
+Facility Management (previously referred to as Role Management) will provide an interface for managing user Roles in
+a Facility. Users may multiply possess Coach and Admin roles for a Facility or Classrooms within a Facility.
+
+Kolibri user data is fundamentally divided into Facilities -- a user who belongs to one Facility can never see or
+interact with user account data from another Facility. However Kolibri provides another user type, called a Device
+Owner. Device Owners differ from Facility Users in the following ways:
+
+* Device Owners are not syncable from device to device -- this account type belongs to one physical machine only.
+  In contrast, Facility Users account and their associated data are syncable.
+* Device Owners enjoy every permission. They can be considered Admins for every Facility on the device.
+* Device Owners may see and edit *all* Facilities on their Device, including choosing *which* Facility data sets are
+  present on a physical device.
+
+The purview of the Facility Management app is to allow users to give and revoke the Coach and Admin roles for the
+Facility they belong to and the various Classrooms in that Facility. Moreover the functionality of the app is slightly
+differnt if the session user is a device owner:
+
+* If the session user is a Device Owner, the user may select which Facility to manage. Facility Users may only manage
+  their own Facility.
+* A Device Owner may edit or delete a Facility. Editing a Facility can change it's details like name, description,
+  etc. Deleting a Facility does not destroy it -- it is just removed from that device, so that Facility Users tied to
+  that Facility may no longer log in.
 
 .. note:: **Roadmap:**
-  This is currently undesigned. The first step is to clearly identify what actions we wish to enable for the session
-  user.
+  Jessica has begun designing this. See
+  `the invision prototype. <https://projects.invisionapp.com/share/YJ75P75QH>`_
