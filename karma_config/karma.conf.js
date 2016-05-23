@@ -69,6 +69,11 @@ module.exports = function(config) {
 
     webpack: webpack_config,
 
+    webpackMiddleware: {
+      // suppress all webpack building information
+      noInfo: true
+    },
+
     eslint: {
       engine: {
         configFile: '.eslintrc.js'
