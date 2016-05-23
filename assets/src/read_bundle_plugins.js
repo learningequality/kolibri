@@ -36,6 +36,7 @@ var readBundlePlugin = function(base_dir, libs) {
 
         for (var i = 0; i < results.length; i++) {
             var message = results[i];
+
             var output = parseBundlePlugin(message, base_dir);
             if (typeof output !== "undefined") {
                 var webpack_configuration = output[0];
@@ -44,7 +45,7 @@ var readBundlePlugin = function(base_dir, libs) {
                 // The second part of the output is any global variables that will be available to all other
                 // plugins. For the moment, this is only the Kolibri global variable.
                 var external = output[1];
-                if (typeof externals[external] === "undefined") {
+                if (external && typeof externals[external] === "undefined") {
 
                     externals[external] = external;
                 } else {
@@ -68,7 +69,7 @@ var readBundlePlugin = function(base_dir, libs) {
     }
 
     // One bundle is special - that is the one for the core bundle.
-    var core_bundle = _.find(bundles, function(bundle) {return bundle.core && bundle.core !== null;});
+    var core_bundle = _.find(bundles, function(bundle) {return bundle.core_name && bundle.core_name !== null;});
 
     // For that bundle, we replace all references to library modules (like Backbone) that we bundle into the core app
     // with references to the core app itself, so if someone does `var Backbone = require('backbone');` webpack
@@ -76,14 +77,13 @@ var readBundlePlugin = function(base_dir, libs) {
     var lib_externals = core_bundle ? libs(core_bundle.output.library) : {};
 
     bundles.forEach(function(bundle) {
-        if (bundle.core === null || typeof bundle.core === "undefined") {
+        if (bundle.core_name === null || typeof bundle.core_name === "undefined") {
             // If this is not the core bundle, then we need to add the external library mappings.
             bundle.externals = _.extend({}, externals, lib_externals);
         } else {
             bundle.externals = externals;
         }
     });
-
 
     return bundles;
 

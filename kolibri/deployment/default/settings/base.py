@@ -19,6 +19,8 @@ BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 
 KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
 
+KOLIBRI_CORE_JS_NAME = 'kolibriGlobal'
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -45,6 +47,7 @@ INSTALLED_APPS = [
     'kolibri.content',
     'kolibri.core.webpack',
     'rest_framework',
+    'django_js_reverse',
 ] + conf.config['INSTALLED_APPS']
 
 MIDDLEWARE_CLASSES = (
@@ -200,3 +203,10 @@ AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.
 REST_FRAMEWORK = {
     "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser"
 }
+
+# Configuration for Django JS Reverse
+JS_REVERSE_JS_VAR_NAME = 'urls'
+
+JS_REVERSE_JS_GLOBAL_OBJECT_NAME = KOLIBRI_CORE_JS_NAME
+
+JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]

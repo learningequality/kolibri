@@ -1,4 +1,4 @@
-{% load i18n kolibri_tags webpack_tags %}<html>
+{% load i18n kolibri_tags webpack_tags js_reverse cache %}<html>
 <head>
   <title>{% block title %}{% endblock %} - {% trans "Kolibri" %}</title>
 </head>
@@ -18,6 +18,11 @@
 <main></main>
 {% block frontend_assets %}
 {% webpack_asset 'default_frontend' %}
+<script type="text/javascript" charset="utf-8">
+  {% cache 5000 js_urls %}
+    {% js_reverse_inline %}
+  {% endcache %}
+</script>
 {% webpack_base_assets %}
 {% webpack_base_async_assets %}
 {% endblock %}

@@ -17,7 +17,7 @@ var readBundlePlugins = require('../assets/src/read_bundle_plugins');
 // * the keys are names exposed by webpack to use in `require` statements, across apps
 // * the values are references to the packages, already inserted into kolibriGlobal
 //
-// kolibri_name is always == kolibriGlobal
+// kolibri_name is always == kolibriGlobal (this is defined in the base settings - base.py)
 var libs = function(kolibri_name) {
     return {
         'loglevel': kolibri_name + '.lib.loglevel',

@@ -19,3 +19,4 @@ Kolibri 0.0.1
   * Adds pipelining and integration for building frontend assets with webpack and dynamically serving them in Django.
   * Updates to *Users, Collections, and Roles, mostly to account for multiple facilities in one database
   * Plugin API with hooks, documented and implemented
+  * Adds Django JS Reverse and loads into kolibriGlobal object
