@@ -32,10 +32,7 @@
     "expect": 3,
     "error": true
   },
-  "duplicates": {
-    "expect": true,
-    "error": true
-  },
+  "duplicates": false,
   "efficient": {
     "expect": "always",
     "error": true
@@ -45,10 +42,7 @@
     "expect": "@extends",
     "error": true
   },
-  "globalDupe": {
-    "expect": true,
-    "error": true
-  },
+  "globalDupe": false,
   "indentPref": {
     "expect": 2,
     "error": true
