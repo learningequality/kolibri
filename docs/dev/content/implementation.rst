@@ -1,5 +1,5 @@
-Implementation Details
-======================
+Implementation Details and Workflows
+====================================
 
 ContentNode
 -----------
@@ -17,7 +17,7 @@ The above command will return a queryset of all ContentNode objects within `your
 
 To support new a content kind, you start with defining a `kind` constant at ``kolibri/content/constants/content_kinds.py``. Currently we use Django choices to provide all the supporting content kinds for the `kind` field.
 
-The tree structure is established by the `parent` field that is a foreign key pointing to another ContentNode ojbect. You can also create a symmetric relationship using the 'is_related' field, or an asymmetric field using the 'prerequisite' field. More details about these two fields can be found below in ``PrerequisiteContentRelationship`` and ``RelatedContentRelationship``.
+The tree structure is established by the `parent` field that is a foreign key pointing to another ContentNode ojbect. You can also create a symmetric relationship using the `is_related` field, or an asymmetric field using the `prerequisite` field. More details about these two fields can be found below in ``PrerequisiteContentRelationship`` and ``RelatedContentRelationship``.
 
 File
 ----
@@ -96,3 +96,26 @@ A Python module that stores constants for the ``kind`` field in ContentNode mode
 .. automodule:: kolibri.content.constants.extensions
 .. automodule:: kolibri.content.constants.presets
 
+Workflows
+---------
+
+There are two workflows we currently designed to handle content UI rendering and content playback rendering
+
+- Content UI Rendering
+
+1. Start with a ContentNode object.
+2. Get the associated File object that has the ``thumbnail`` field being True.
+3. Get the thumbnail image using this File's ``checksum`` field.
+4. Determine the template using the ``kind`` field of this ContentNode object.
+5. Renders the template with the thumbnail image.
+
+
+- Content Playback Rendering
+
+1. Start with a ContentNode object.
+2. Select a preset constant based on this object's ``kind`` field.
+3. Use the preset constant to retrieve the queryset of all the File objects that have foreign key to this ContentNode object.
+4. Use the ``thumbnail`` field as a filter on this queryset to get the File object and use this File object's ``checksum`` field to get the source file(the thumbnail image)
+5. Use the ``supplementary`` field as a filter on this queryset to get the "supplementary" File objects, such as caption(subtitle), and use these File objects' ``checksum`` field to get the source files
+6. Use the ``supplementary`` field as a filter on this queryset to get the essential File object. Use its ``checksum`` field to get the source file and use its ``extension`` field to choose the content player.
+7. Play the content.
