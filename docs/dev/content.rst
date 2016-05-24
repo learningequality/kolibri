@@ -8,7 +8,8 @@ This is a core module found in ``kolibri/Content``.
 
    content/concepts_and_definitions
    content/implementation
-   content/api_methods_and_endpoints
+   content/api_methods
+   content/api_endpoints
 
 
 Models
