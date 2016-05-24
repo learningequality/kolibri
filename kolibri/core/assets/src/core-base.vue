@@ -21,6 +21,23 @@ export default {
 </script>
 
 
+<style lang="stylus" scoped>
+
+  $bg-color = #E3E3F3
+
+  header
+    background-color: $bg-color
+    display: flex
+    justify-content: space-between
+    padding: 10px
+
+  footer
+    bottom: 1vh
+    position: fixed
+
+</style>
+
+
 <style lang="stylus">
   /* These global styles apply to everything */
 
