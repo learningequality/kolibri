@@ -37,29 +37,37 @@ LABEL="$1"
 
 branches_to_always_test=( "master" "releases/*" )
 
-PR="$TRAVIS_PULL_REQUEST"
+# Set by Travis CI
 commit="$TRAVIS_COMMIT"
-commits="$TRAVIS_COMMIT_RANGE"
 current_branch="$TRAVIS_BRANCH"
-git_changeset=`git show --name-only --no-notes --oneline $commits`
 
-# Some debug stuff, will be removed
-echo "Current branch: $current_branch"
-echo "Commit: $TRAVIS_COMMIT"
-echo "Commit range: $TRAVIS_COMMIT_RANGE"
-echo "PR: $PR"
-echo "Git change set: $git_changeset"
+git_changeset=""
+
+if [ "$TRAVIS_PULL_REQUEST" == "false" ]
+then
+    # The changeset is $TRAVIS_COMMIT_RANGE
+    # echo "Using TRAVIS_COMMIT_RANGE as changeset"
+    git_changeset=`git show --name-only --no-notes --oneline $TRAVIS_COMMIT_RANGE`
+else
+    # The changeset is the diff between PR and branch that the PR is made
+    # against.
+    # echo "Using git log $TRAVIS_BRANCH..HEAD as changeset"
+    git_changeset=`git log $TRAVIS_BRANCH..HEAD --oneline --name-only`
+fi
+
+# echo "Travis branch / branch merging into: $TRAVIS_BRANCH"
+# echo "Git change set:\n\n$git_changeset"
 
 function match_changes {
     # Usage: match_changes "match1" "match2"
     # if branch should always be tested
-    if ! [ "$PR" == "false" ]
+    if [ "$TRAVIS_PULL_REQUEST" == "false" ]
     then
         for branch in "${branches_to_always_test[@]}"
         do
             if echo "$current_branch" | grep -q "$branch"
             then
-                echo "Always testing $branch, so not skipping $LABEL..."
+                # echo "Always testing $branch, so not skipping $LABEL..."
                 return 0
             fi
         done
@@ -70,6 +78,7 @@ function match_changes {
     do
         if echo "$git_changeset" | grep -q "$pattern_to_match"
         then
+            # echo "Conditional match for pattern '$pattern_to_match'"
             return 0
         fi
     done
@@ -107,5 +116,5 @@ then
 fi
 
 # No matches
-echo "[OK] - Skipping conditional test '$LABEL'"
+echo "[ OK ] Skipping conditional test '$LABEL'"
 exit 0
