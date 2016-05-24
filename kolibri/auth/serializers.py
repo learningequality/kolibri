@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function, unicode_literals
+
 from rest_framework import serializers
 
 from .models import (
@@ -59,17 +61,7 @@ class ClassroomSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Classroom
-        fields = ('id', 'name', )
-
-    def to_representation(self, instance):
-        representation = super(ClassroomSerializer, self).to_representation(instance)
-        representation['learnerGroups'] = []
-        for lg in instance.get_learner_groups():
-            representation['learnerGroups'].append({
-                'id': lg.id,
-                'name': lg.name,
-            })
-        return representation
+        fields = ('id', 'name', 'parent')
 
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
