@@ -104,7 +104,7 @@ These methods are publicly exposed methods of the Mediator class::
 
   kolibriGlobal.register_kolibri_module_async - Register a Kolibri module for asynchronous loading.
   kolibriGlobal.register_kolibri_module_sync - Register a Kolibri module once it has loaded.
-  kolibriGlobal.stop_listening - Unbind an event/callback pair from triggering.
+  kolibriGlobal.stopListening - Unbind an event/callback pair from triggering.
   kolibriGlobal.emit - Emit an event, with optional args.
 
 In addition, the lib property exposes the following libraries::
