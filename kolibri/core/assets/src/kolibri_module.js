@@ -1,7 +1,7 @@
 /**
  * KolibriModule module.
  * Provides the base class for Kolibri Modules - all Kolibri Modules must extend this Base class.
- * @module kolibri_module
+ * @module kolibriModule
  */
 
 const Kolibri = require('kolibri');
@@ -23,7 +23,7 @@ module.exports = class KolibriModule {
   constructor(options, ...args) {
     /* eslint-disable no-undef */
     // __kolibriModuleName is replaced during webpack compilation with the name derived from
-    // the Python module name and the name of the class that defines the frontend kolibri_module.
+    // the Python module name and the name of the class that defines the frontend kolibriModule.
     this.name = __kolibriModuleName;
     // Insert the event hashes defined in the Python code.
     this.events = __events;
@@ -38,37 +38,37 @@ module.exports = class KolibriModule {
     Object.assign(this, safeOptions);
     // Pass all arguments to the constructor directly to initialize for easy access.
     this.initialize(options, ...args);
-    // Register the kolibri_module with the Kolibri core app.
+    // Register the kolibriModule with the Kolibri core app.
     this._registerKolibriModule();
   }
 
   /**
-   * Method to automatically register the kolibri_module with the Koliri core app once it has
+   * Method to automatically register the kolibriModule with the Koliri core app once it has
    * initialized.
    * @private
    */
   _registerKolibriModule() {
-    Kolibri.register_kolibri_module_sync(this);
+    Kolibri.registerKolibriModuleSync(this);
   }
 
   /**
    * A dummy initialization function - this function will be passed anything passed to the
    * constructor.
-   * Useful for setting up the kolibri_module before it is registered against the Kolibri core app.
+   * Useful for setting up the kolibriModule before it is registered against the Kolibri core app.
    */
   initialize() {
   }
 
   /**
    * A dummy ready function
-   * Useful for initiating behaviour of the kolibri_module after it is registered against the
+   * Useful for initiating behaviour of the kolibriModule after it is registered against the
    * Kolibri core app.
    */
   ready() {
   }
 
   /**
-   * Convenience method to unregister the kolibri_module from listening to certain events.
+   * Convenience method to unregister the kolibriModule from listening to certain events.
    * @param {string} event - the event name
    * @param {string} method - the name of the method to unbind
    */
