@@ -434,7 +434,7 @@ describe('Mediator', function() {
             beforeEach(function() {
                 var self = this;
                 this.args = ['this', 'that'];
-                Mediator.__set__('asset_loader', function(files, callback) {
+                Mediator.__set__('assetLoader', function(files, callback) {
                     callback('error!', self.kolibriModuleUrls);
                 });
                 this.spy = sinon.spy();
