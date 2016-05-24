@@ -86,3 +86,13 @@ However, disallowing distant cyclic hasn't been implemented yet. So the followin
     >>> PrerequisiteContentRelationship.objects.using("your_database_name").create(target=c1, prerequisite=c2)
     >>> PrerequisiteContentRelationship.objects.using("your_database_name").create(target=c2, prerequisite=c3)
     >>> PrerequisiteContentRelationship.objects.using("your_database_name").create(target=c3, prerequisite=c1)
+
+Content Constants
+-----------------
+
+A Python module that stores constants for the ``kind`` field in ContentNode model and the ``preset`` field and ``extension`` field in File model.
+
+.. automodule:: kolibri.content.constants.content_kinds
+.. automodule:: kolibri.content.constants.extensions
+.. automodule:: kolibri.content.constants.presets
+
