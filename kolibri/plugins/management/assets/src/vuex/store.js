@@ -40,26 +40,18 @@ function getInitialState() {
       username: 'jbot',
     },
   ];
+
+  /* It should have a classrooms attribute that looks like this
   const classrooms = [
     {
       id: getClassroomId(),
       name: 'Classroom A',
       learnerGroups: [1, 2],
-      // learners: [1, 3],
-    },
-    {
-      id: getClassroomId(),
-      name: 'Classroom B',
-      learnerGroups: [],
-      // learners: [],
-    },
-    {
-      id: getClassroomId(),
-      name: 'Classroom C',
-      learnerGroups: [3],
-      // learners: [2],
     },
   ];
+  */
+  const classrooms = [];
+
   const learnerGroups = [
     {
       id: 1,
