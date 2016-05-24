@@ -35,6 +35,9 @@ var config = {
                 loader: 'babel',
                 exclude: /node_modules/
             },
+            // Hack to make the onloadCSS node module properly export-able.
+            // Not currently used - we may be able to delete this if we
+            // deprecate our custom KolibriModule async css loading functionality.
             {
                 test: /fg-loadcss\/src\/onloadCSS/,
                 loader: 'exports?onloadCSS'
@@ -65,7 +68,7 @@ var config = {
     },
     vue: {
         loaders: {
-            stylus: 'vue-style-loader!css-loader!stylus-loader!stylint',
+            stylus: 'vue-style-loader!css-loader?sourceMap!stylus-loader!stylint',
         }
     }
 };
