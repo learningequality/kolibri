@@ -2,3 +2,4 @@
 
 kolibri/core/assets/src/asset_loader.js
 kolibri/core/assets/test/asset_loader.js
+kolibri/core/assets/test/core_app_mediator.js
