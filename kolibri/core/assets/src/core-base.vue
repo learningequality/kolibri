@@ -31,19 +31,12 @@ export default {
     justify-content: space-between
     padding: 10px
 
+  main
+    margin: 10px
+
   footer
     bottom: 1vh
     position: fixed
+    padding: 10px
 
-</style>
-
-
-<style lang="stylus">
-  /* These global styles apply to everything */
-
-  html, body
-    font-family: sans-serif
-    margin:0
-    padding:0
-    box-sizing: border-box
 </style>

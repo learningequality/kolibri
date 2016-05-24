@@ -37,22 +37,20 @@ var config = {
                 loader: 'babel',
                 exclude: /node_modules/
             },
+            {
+                test: /\.css$/,
+                loader: 'style-loader!css-loader'
+            },
+            {
+                test: /\.styl$/,
+                loader: 'style-loader!css-loader?sourceMap!stylus-loader!stylint'
+            },
             // Hack to make the onloadCSS node module properly export-able.
             // Not currently used - we may be able to delete this if we
             // deprecate our custom KolibriModule async css loading functionality.
             {
                 test: /fg-loadcss\/src\/onloadCSS/,
                 loader: 'exports?onloadCSS'
-            },
-            //Loaders for straight css
-            {
-                test: /\.css$/,
-                loader: 'style-loader!css-loader'
-            },
-            // loaders for stylus
-            {
-                test: /\.styl$/,
-                loader: 'style-loader!css-loader!stylus-loader'
             }
         ]
     },
