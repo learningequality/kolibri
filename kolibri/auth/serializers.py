@@ -59,7 +59,17 @@ class ClassroomSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Classroom
-        exclude = ("dataset", "kind")
+        fields = ('id', 'name', )
+
+    def to_representation(self, instance):
+        representation = super(ClassroomSerializer, self).to_representation(instance)
+        representation['learnerGroups'] = []
+        for lg in instance.get_learner_groups():
+            representation['learnerGroups'].append({
+                'id': lg.id,
+                'name': lg.name,
+            })
+        return representation
 
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
