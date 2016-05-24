@@ -12,7 +12,7 @@
 
 <script>
 
-  export default {
+  module.exports = {
     components: {
       'core-base': require('core-base'),
     },
@@ -21,5 +21,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-</style>
+<style lang="stylus" scoped></style>

@@ -1,4 +1,5 @@
 <template>
+
   <div class="roster">
     <input type="search" placeholder="Search for learner...">
     <div>
@@ -23,28 +24,33 @@
       <div>{{ learners.length }}</div>
     </div>
   </div>
+
 </template>
 
 
 <script>
-export default {
-  props: {
-    learners: {
-      type: Array,
-      default: () => [{
-        last_name: 'Duck',
-        first_name: 'John',
-      }],
+
+  module.exports = {
+    props: {
+      learners: {
+        type: Array,
+        default: () => [{
+          last_name: 'Duck',
+          first_name: 'John',
+        }],
+      },
     },
-  },
-};
+  };
+
 </script>
 
 
 <style lang="stylus" scoped>
-.roster, .sidebar
-  display: inline-block
 
-.learner-count
-  border: solid, 1px, black
+  .roster, .sidebar
+    display: inline-block
+
+  .learner-count
+    border: solid, 1px, black
+
 </style>

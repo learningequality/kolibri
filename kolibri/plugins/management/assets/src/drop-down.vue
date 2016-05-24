@@ -1,4 +1,5 @@
 <template>
+
   <select v-model="selected">
     <template v-for="option in list">
       <option :value="option">
@@ -6,18 +7,21 @@
       </option>
     </template>
   </select>
+
 </template>
 
 
 <script>
-export default {
-  props: {
-    list: {
-      type: Array,
+
+  module.exports = {
+    props: {
+      list: {
+        type: Array,
+      },
+      selected: null,
     },
-    selected: null,
-  },
-};
+  };
+
 </script>
 
 
