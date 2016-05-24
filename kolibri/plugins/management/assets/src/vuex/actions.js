@@ -6,21 +6,40 @@ function setSelectedClassroomId({ dispatch }, id) {
   dispatch('SET_SELECTED_CLASSROOM_ID', id);
 }
 
+function setSelectedGroupId({ dispatch }, id) {
+  dispatch('SET_SELECTED_GROUP_ID', id);
+}
+
+
+// An action for setting up the initial state of the app by fetching data from the server
 function fetch({ dispatch }) {
   const urls = global.kolibriGlobal.urls;
   const xhr = new XMLHttpRequest();
+
   xhr.open('GET', urls.classroom_list());
   xhr.onreadystatechange = () => {
-    if (xhr.readyState === 4) { // DONE
-      if (xhr.status === 200) {
-        for (const classroom of JSON.parse(xhr.response)) {
-          console.log(classroom); // eslint-disable-line
-          dispatch('ADD_CLASSROOM', {
-            id: classroom.id,
-            name: classroom.name,
-          });
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      const classrooms = JSON.parse(xhr.response);
+      const cids = classrooms.map(c => c.id);
+      xhr.open('GET', `${urls.learnergroup_list()}?parent_in=${global.encodeURIComponent(JSON.stringify(cids))}`);  // eslint-disable-line max-len
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          const learnerGroups = JSON.parse(xhr.response);
+
+          dispatch('ADD_CLASSROOMS', classrooms.map(classroom =>
+            Object.assign({}, classroom, {
+              learnerGroups: learnerGroups.filter(g => g.parent === classroom.id),
+            })
+          ));
+
+          dispatch('ADD_LEARNER_GROUPS', learnerGroups.map(group =>
+            Object.assign({}, group, {
+              learners: [],
+            })
+          ));
         }
-      }
+      };
+      xhr.send();
     }
   };
   xhr.send();
@@ -29,5 +48,6 @@ function fetch({ dispatch }) {
 module.exports = {
   addClassroom,
   setSelectedClassroomId,
+  setSelectedGroupId,
   fetch,
 };
