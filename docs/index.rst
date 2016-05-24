@@ -22,6 +22,7 @@ For Developers
    installation
    dev/plugins
    dev/uap
+   dev/content
    cli
    contributing
    authors
