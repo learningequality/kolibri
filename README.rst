@@ -46,6 +46,10 @@ Adjust according to your operating system or personal preferences.
 #. Install a virtual environment for development (Python 2 or Python 3, you choose!)::
 
     $ sudo pip install virtualenvwrapper
+
+#. Follow the instructions from http://virtualenvwrapper.readthedocs.org/en/latest/install.html#basic-installation.
+   You will need to source the virtualenvwrapper.sh file for the following commands to work::
+
     $ mkvirtualenv --python=python3 kolibri
     $ workon kolibri
 
@@ -56,26 +60,39 @@ Adjust according to your operating system or personal preferences.
 
     $ npm install
 
+#. Install the other packages needed for development::
+
+   $ sudo pip install -r requirements/dev.txt
+
 #. Install kolibri as an editable, meaning your installation will point to your git checkout::
 
     $ pip install -e .
 
+#. Run the migration script to create and initialize the database::
+
+    $ kolibri manage migrate
+
 #. Run the development server::
 
-    $ kolibri manage runserver
+    $ kolibri manage devserver --debug
 
-# Install pre-commit hooks to ensure you commit good code::
+#. To run the development server and build frontend assets synchronously, use the following command::
+
+    $ kolibri manage devserver --debug -- --webpack
+
+#. Install pre-commit hooks to ensure you commit good code::
 
     $ pre-commit install
 
 
-To build frontend assets for production use the following::
+#. To build frontend assets for production use the following::
 
     $ npm run build
 
-To build frontend assets in development mode with sourcemaps and watching::
+#. To build frontend assets in development mode with sourcemaps and watching::
 
     $ npm run watch
+
 
 Testing
 -------
@@ -113,7 +130,11 @@ Kolibri comes with a Javascript test suite based on ``mocha``. To run all tests:
 This includes tests of the bundling functions that are used in creating front end assets.
 To do continuous unit testing for code, and jshint running::
 
-    $ npm run ci
+    $ npm run test-karma:watch
+
+Alternatively, this can be run as a subprocess in the development server with the following flag::
+
+    $ kolibri manage devserver --debug -- --karma
 
 You can also run tests through Django's ``test`` management command, accessed through the ``kolibri`` command::
 

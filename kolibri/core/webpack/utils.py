@@ -26,6 +26,7 @@ def render_as_url(chunk):
     url = chunk.get('publicPath') or chunk['url']
     return "{static}{url}".format(static=static, url=url)
 
+
 def webpack_asset_render(HookClass, async=False):
     """
     This is produces content for a  script tag for a WebpackInclusionHook subclass that implement

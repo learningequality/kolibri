@@ -66,14 +66,15 @@ describe('parseBundlePlugin', function() {
             done();
         });
     });
-    describe('input is valid, has externals flag, externals output', function() {
+    describe('input is valid, has externals flag and core_name value, externals output', function() {
         it('should have one entry', function (done) {
             var data = {
                 name: "kolibri.plugin.test.test_plugin",
                 src_file: "src/file.js",
                 external: true,
                 stats_file: "output.json",
-                static_dir: "kolibri/plugin/test"
+                static_dir: "kolibri/plugin/test",
+                core_name: "test_core"
             };
             assert(typeof parseBundlePlugin(data, "/")[1] !== "undefined");
             done();
@@ -85,7 +86,7 @@ describe('parseBundlePlugin', function() {
                 name: "kolibri.plugin.test.test_plugin",
                 src_file: "src/file.js",
                 external: true,
-                core: true,
+                core_name: "kolibriGlobal",
                 stats_file: "output.json",
                 static_dir: "kolibri/plugin/test"
             };
@@ -162,15 +163,16 @@ describe('readBundlePlugins', function() {
             done();
         });
     });
-    describe('two external flags on inputs, externals output', function() {
-        it('should have two entries', function (done) {
+    describe('two external flags on inputs, one with core_name value, externals output', function() {
+        it('should have one entry', function (done) {
             data = [
                 {
                     name: "kolibri.plugin.test.test_plugin",
                     src_file: "src/file.js",
                     stats_file: "output.json",
                     external: true,
-                    static_dir: "kolibri/plugin/test"
+                    static_dir: "kolibri/plugin/test",
+                    core_name: "test_global"
                 },
                 {
                     name: "kolibri.plugin.test.test_plugin1",
@@ -180,29 +182,31 @@ describe('readBundlePlugins', function() {
                     static_dir: "kolibri/plugin/test"
                 }
             ];
-            assert(Object.keys(readBundlePlugins("", "")[0].externals).length === 2);
+            assert(Object.keys(readBundlePlugins("", function(){return {};})[0].externals).length === 1);
             done();
         });
     });
     describe('two identically named external flags on inputs, externals output', function() {
-        it('should have two entries', function (done) {
+        it('should have one entry', function (done) {
             data = [
                 {
                     name: "kolibri.plugin.test.test_plugin",
                     src_file: "src/file.js",
                     stats_file: "output.json",
                     external: true,
-                    static_dir: "kolibri/plugin/test"
+                    static_dir: "kolibri/plugin/test",
+                    core_name: "test_global"
                 },
                 {
                     name: "kolibri.plugin.test.test_plugin",
                     src_file: "src/file1.js",
                     stats_file: "output1.json",
                     external: true,
-                    static_dir: "kolibri/plugin/test"
+                    static_dir: "kolibri/plugin/test",
+                    core_name: "test_global"
                 }
             ];
-            assert(Object.keys(readBundlePlugins("", "")[0].externals).length === 1);
+            assert(Object.keys(readBundlePlugins("", function(){return {};})[0].externals).length === 1);
             done();
         });
     });

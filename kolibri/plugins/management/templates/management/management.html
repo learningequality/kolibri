@@ -1,4 +1,6 @@
 {% extends "kolibri/base.html" %}
+{% load management_tags %}
+
 {% block content %}
-<span>The management app!</span>
+  {% management_assets %}
 {% endblock %}

@@ -23,6 +23,7 @@ For Developers
    dev/plugins
    dev/uap
    dev/content
+   dev/user_management
    cli
    contributing
    authors
