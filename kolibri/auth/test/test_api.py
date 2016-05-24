@@ -11,12 +11,29 @@ from .. import models
 
 DUMMY_PASSWORD = "password"
 
+
 class FacilityFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = models.Facility
 
     name = factory.Sequence(lambda n: "Rock N' Roll High School #%d" % n)
+
+
+class ClassroomFactory(factory.DjangoModelFactory):
+
+    class Meta:
+        model = models.Classroom
+
+    name = factory.Sequence(lambda n: "Basic Rock Theory #%d" % n)
+
+
+class LearnerGroupFactory(factory.DjangoModelFactory):
+
+    class Meta:
+        model = models.LearnerGroup
+
+    name = factory.Sequence(lambda n: "Group #%d" % n)
 
 
 class FacilityUserFactory(factory.DjangoModelFactory):
@@ -36,6 +53,22 @@ class DeviceOwnerFactory(factory.DjangoModelFactory):
 
     username = factory.Sequence(lambda n: 'deviceowner%d' % n)
     password = factory.PostGenerationMethodCall('set_password', DUMMY_PASSWORD)
+
+
+class ClassroomAPITestCase(APITestCase):
+
+    def setUp(self):
+        self.device_owner = DeviceOwnerFactory.create()
+        self.facility = FacilityFactory.create()
+        self.classroom = ClassroomFactory.create(parent=self.facility)
+        self.learner_group = LearnerGroupFactory.create(parent=self.classroom)
+        self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
+
+    def test_classroom_contains_learner_group_list(self):
+        response = self.client.get(reverse('classroom-detail', kwargs={'pk': self.classroom.pk}), format='json')
+        response_dict = dict(response.data)
+        self.assertListEqual(response_dict['learnerGroups'], [{'id': self.learner_group.id,
+                                                               'name': self.learner_group.name}])
 
 
 class FacilityAPITestCase(APITestCase):
