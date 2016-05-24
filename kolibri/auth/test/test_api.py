@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
+import collections
 import factory
 
 from django.core.urlresolvers import reverse
@@ -60,15 +61,27 @@ class ClassroomAPITestCase(APITestCase):
     def setUp(self):
         self.device_owner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
-        self.classroom = ClassroomFactory.create(parent=self.facility)
-        self.learner_group = LearnerGroupFactory.create(parent=self.classroom)
+        self.classrooms = [ClassroomFactory.create(parent=self.facility) for _ in range(10)]
+        self.learner_group = LearnerGroupFactory.create(parent=self.classrooms[0])
         self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
 
-    def test_classroom_contains_learner_group_list(self):
-        response = self.client.get(reverse('classroom-detail', kwargs={'pk': self.classroom.pk}), format='json')
-        response_dict = dict(response.data)
-        self.assertListEqual(response_dict['learnerGroups'], [{'id': self.learner_group.id,
-                                                               'name': self.learner_group.name}])
+    def test_classroom_list(self):
+        response = self.client.get(reverse('classroom-list'), format='json')
+        expected = [collections.OrderedDict((
+            ('id', classroom.id),
+            ('name', classroom.name),
+            ('parent', classroom.parent.id),
+        )) for classroom in self.classrooms]
+        self.assertItemsEqual(response.data, expected)
+
+    def test_classroom_detail(self):
+        response = self.client.get(reverse('classroom-detail', kwargs={'pk': self.classrooms[0].id}), format='json')
+        expected = {
+            'id': self.classrooms[0].id,
+            'name': self.classrooms[0].name,
+            'parent': self.classrooms[0].parent.id,
+        }
+        self.assertDictEqual(response.data, expected)
 
 
 class FacilityAPITestCase(APITestCase):
