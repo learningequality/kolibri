@@ -68,4 +68,4 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LearnerGroup
-        exclude = ("dataset", "kind")
+        fields = ('id', 'name', 'parent')
