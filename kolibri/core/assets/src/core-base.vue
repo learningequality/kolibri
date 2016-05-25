@@ -23,10 +23,10 @@ export default {
 
 <style lang="stylus" scoped>
 
-  $bg-color = #E3E3F3
+  @require 'theme.styl'
 
   header
-    background-color: $bg-color
+    background-color: $bg-light
     display: flex
     justify-content: space-between
     padding: 10px
@@ -35,8 +35,10 @@ export default {
     margin: 10px
 
   footer
+    background-color: $bg-light
     bottom: 1vh
     position: fixed
     padding: 10px
+    width: 100%
 
 </style>

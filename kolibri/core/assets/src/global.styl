@@ -1,3 +1,15 @@
 
+@require 'theme.styl'
+
 html, body
-  font-family: 'NotoSans', 'sans-serif'
+  font-family: $font
+  color: $text-default
+  background-color: $bg-canvas
+
+a
+  color: $action-normal
+  text-decoration: none
+
+  &:hover
+    color: $action-dark
+
