@@ -57,10 +57,10 @@ var config = {
     plugins: [
     ],
     resolve: {
-        // shortcut to allow importing the core kolibri_module from other bundles (plugins)
         alias: {
             'kolibri_module': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'kolibri_module'),
             'core-base': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'core-base'),
+            'theme.styl': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'theme.styl'),
         },
         extensions: ["", ".vue", ".js"],
     },

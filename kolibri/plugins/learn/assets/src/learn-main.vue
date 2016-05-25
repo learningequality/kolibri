@@ -5,6 +5,7 @@
       Learn App
     </h1>
     <p>content</p>
+    <p class="alert">alert!</p>
   </core-base>
 
 </template>
@@ -21,4 +22,12 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~theme.styl'
+
+  .alert
+    color: $text-alert
+    background-color: $text-alert-bg
+
+</style>
