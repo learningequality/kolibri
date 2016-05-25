@@ -31,12 +31,11 @@
 
 
 <script>
-
-  module.exports = {
-    el: '#navigation-module',
-    data: {
+export default {
+  data() {
+    return {
       // items that go in the title bar
-      nav_items: global.kolibri_reserved.nav_items,
+      nav_items: window._nav.nav_items,
       title_bar: {
         title: 'Kolibri',
         home_link: '/',
@@ -44,7 +43,7 @@
       user_nav_display: 'none',
 
       // items that go into the user menu
-      user_nav_items: global.kolibri_reserved.user_nav_items,
+      user_nav_items: window._nav.user_nav_items,
       user: {
         username: 'foobar',
         first_name: 'Foo',
@@ -62,6 +61,20 @@
     },
   };
 
+=======
+    };
+  },
+  methods: {
+    user_nav_display_toggle() {
+      if (this.user_nav_display === 'none') {
+        this.user_nav_display = 'block';
+      } else {
+        this.user_nav_display = 'none';
+      }
+    },
+  },
+};
+>>>>>>> 74e7515... Integrated navbar prototype using vue components:kolibri/core/assets/src/navigation.vue
 </script>
 
 
@@ -71,9 +84,6 @@
   $kolibri_gray = #c4c4c4
   $kolibri_nav_fonts = sans-serif
 
-  body
-    // Getting rid of HTML's default margin
-    margin:0
   header
     font-family: $kolibri_nav_fonts
 
