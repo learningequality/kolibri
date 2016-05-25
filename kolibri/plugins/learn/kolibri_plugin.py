@@ -26,6 +26,6 @@ class LearnInclusionHook(hooks.LearnSyncHook):
     bundle_class = LearnAsset
 
 
-class ManagementNavItem(NavigationHook):
+class LearnNavItem(NavigationHook):
     label = _("Learn!")
     url = '#'
