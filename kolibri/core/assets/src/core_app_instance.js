@@ -1,6 +1,7 @@
 
 // include global styles
 require('normalize.css');
+require('./font-NotoSans.css');
 require('./global.styl');
 
 // set up logging
