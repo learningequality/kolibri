@@ -3,15 +3,26 @@ from __future__ import absolute_import, print_function, unicode_literals
 import collections
 import factory
 import json
+import sys
 
 from django.core.urlresolvers import reverse
 
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase as BaseTestCase
 
 from .. import models
 
 DUMMY_PASSWORD = "password"
+
+
+# A weird hack because of http://bugs.python.org/issue17866
+if sys.version_info >= (3,):
+    class APITestCase(BaseTestCase):
+        def assertItemsEqual(self, *args, **kwargs):
+            self.assertCountEqual(*args, **kwargs)
+else:
+    class APITestCase(BaseTestCase):
+        pass
 
 
 class FacilityFactory(factory.DjangoModelFactory):
