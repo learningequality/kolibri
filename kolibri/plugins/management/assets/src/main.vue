@@ -18,9 +18,6 @@
 
 <script>
 
-  const learnerRoster = require('./learner-roster.vue');
-  const dropDown = require('./drop-down.vue');
-
   const actions = require('./vuex/actions.js');
   const addClassroom = actions.addClassroom;
   const setSelectedClassroomId = actions.setSelectedClassroomId;
@@ -38,16 +35,6 @@
       'learner-roster': require('./learner-roster.vue'),
       'drop-down': require('./drop-down.vue'),
     },
-  computed: {
-    classrooms() {
-      const _classrooms = [{
-        id: constants.ALL_CLASSROOMS_ID,
-        name: 'All classrooms',
-        learnerGroups: [],
-      }];
-      _classrooms.push(...this.getClassrooms);
-      return _classrooms;
-    },
     computed: {
       classrooms() {
         const _classrooms = [{
@@ -58,54 +45,65 @@
         _classrooms.push(...this.getClassrooms);
         return _classrooms;
       },
-      selectedClassroom: {
-        get() {
-          for (const classroom of this.classrooms) {
-            if (classroom.id === this.getSelectedClassroomId) {
-              return classroom;
+      computed: {
+        classrooms() {
+          const _classrooms = [{
+            id: constants.ALL_CLASSROOMS_ID,
+            name: 'All classrooms',
+            learnerGroups: [],
+          }];
+          _classrooms.push(...this.getClassrooms);
+          return _classrooms;
+        },
+        selectedClassroom: {
+          get() {
+            for (const classroom of this.classrooms) {
+              if (classroom.id === this.getSelectedClassroomId) {
+                return classroom;
+              }
             }
-          }
-          // Default value in case getSelectedClassroom is inconsistent
-          return this.classrooms[0];
+            // Default value in case getSelectedClassroom is inconsistent
+            return this.classrooms[0];
+          },
+          set({ id }) {
+            this.setSelectedClassroomId(id);
+          },
         },
-        set({ id }) {
-          this.setSelectedClassroomId(id);
-        },
-      },
-      filteredLearners() {
-        const learners = this.$store.state.learners;
-        let _learners = learners;
-        if (this.selectedClassroom.id !== constants.ALL_CLASSROOMS_ID) {
-          const learnerGroupIds = this.selectedClassroom.learnerGroups;
-          const learnerIds = new Set();
-          for (const group of this.$store.state.learnerGroups) {
-            if (learnerGroupIds.indexOf(group.id) !== -1) {
-              for (const learnerId of group.learners) {
-                if (!learnerIds.has(learnerId)) {
-                  learnerIds.add(learnerId);
+        filteredLearners() {
+          const learners = this.$store.state.learners;
+          let _learners = learners;
+          if (this.selectedClassroom.id !== constants.ALL_CLASSROOMS_ID) {
+            const learnerGroupIds = this.selectedClassroom.learnerGroups;
+            const learnerIds = new Set();
+            for (const group of this.$store.state.learnerGroups) {
+              if (learnerGroupIds.indexOf(group.id) !== -1) {
+                for (const learnerId of group.learners) {
+                  if (!learnerIds.has(learnerId)) {
+                    learnerIds.add(learnerId);
+                  }
                 }
               }
             }
-          }
 
-          _learners = [];
-          for (const learner of learners) {
-            if (learnerIds.has(learner.id)) {
-              _learners.push(learner);
+            _learners = [];
+            for (const learner of learners) {
+              if (learnerIds.has(learner.id)) {
+                _learners.push(learner);
+              }
             }
           }
-        }
-        return _learners;
+          return _learners;
+        },
       },
-    },
-    vuex: {
-      getters: {
-        getClassrooms,
-        getSelectedClassroomId,
-      },
-      actions: {
-        addClassroom,
-        setSelectedClassroomId,
+      vuex: {
+        getters: {
+          getClassrooms,
+          getSelectedClassroomId,
+        },
+        actions: {
+          addClassroom,
+          setSelectedClassroomId,
+        },
       },
     },
   };
