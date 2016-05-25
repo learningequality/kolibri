@@ -2,14 +2,14 @@
 // The following two rules are disabled so that we can use anonymous functions with mocha
 // This allows the test instance to be properly referenced with `this`
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
-import Vue from 'vue';
-import Vuex from 'vuex';
-import assert from 'assert';
-import _ from 'lodash';
+const Vue = require('vue');
+const Vuex = require('vuex');
+const assert = require('assert');
+const _ = require('lodash');
 
-import { store, mutations, constants } from '../src/vuex/store.js';
-import Management from '../src/main.vue';
-import fixture1 from './fixtures/fixture1.js';
+const { store, mutations, constants } = require('../src/vuex/store.js');
+const Management = require('../src/main.vue');
+const fixture1 = require('./fixtures/fixture1.js');
 
 
 describe('The management module', () => {

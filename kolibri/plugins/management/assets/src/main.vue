@@ -29,7 +29,7 @@
   const store = require('./vuex/store.js');
   const constants = store.constants;
 
-  export default {
+  module.exports = {
     components: {
       'core-base': require('core-base'),
       'learner-roster': require('./learner-roster.vue'),
