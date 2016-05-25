@@ -71,7 +71,8 @@ module.exports = function(config) {
 
     webpackMiddleware: {
       // suppress all webpack building information
-      noInfo: true
+      // But I like webpack output :) -- MCG
+      // noInfo: true
     },
 
     eslint: {

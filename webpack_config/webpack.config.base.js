@@ -9,6 +9,8 @@
  * It is called once for each plugin by parse_bundle_plugin.js
  */
 
+var fs = require('fs');
+var path = require('path');
 var webpack = require('webpack');
 
 var config = {
@@ -59,7 +61,8 @@ var config = {
     resolve: {
         // shortcut to allow importing the core kolibri_module from other bundles (plugins)
         alias: {
-            'kolibri_module': 'kolibri/core/assets/src/kolibri_module'
+            'kolibri_module': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'kolibri_module'),
+            'core-base': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'core-base'),
         },
         extensions: ["", ".vue", ".js"],
     },
