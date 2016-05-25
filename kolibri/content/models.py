@@ -177,12 +177,12 @@ class RelatedContentRelationship(AbstractContent):
             return  # silently cancel the save
         super(RelatedContentRelationship, self).save(*args, **kwargs)
 
-class ChannelMetadata(models.Model):
+class ChannelMetadata(AbstractContent):
     """
     Provide references to the corresponding contentDB when navigate between channels.
     Every content API method needs a channel_id argument, which is stored in this model.
     """
-    channel_id = models.UUIDField(primary_key=False, unique=True, default=uuid4, editable=True)
+    channel_id = models.UUIDField(primary_key=True, default=uuid4, editable=True)
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True)
     author = models.CharField(max_length=400, blank=True)
