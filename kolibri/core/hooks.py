@@ -17,12 +17,32 @@ import logging
 
 from kolibri.plugins.hooks import KolibriHook
 
-
 logger = logging.getLogger(__name__)
 
 
 class NavigationHook(KolibriHook):
 
+    # : A string label for the menu item
+    label = "Untitled"
+
+    # : A string or lazy proxy for the url
+    url = "/"
+
+    def get_menu(self):
+        menu = {}
+        for hook in self.registered_hooks:
+            menu[hook.label] = self.url
+        return menu
+
+    class Meta:
+
+        abstract = True
+
+
+class UserNavigationHook(KolibriHook):
+    """
+    A hook for adding navigation items to the user menu.
+    """
     # : A string label for the menu item
     label = "Untitled"
 

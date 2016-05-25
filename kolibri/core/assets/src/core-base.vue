@@ -1,13 +1,7 @@
 <template>
 
   <header>
-    <h3>Kolibri</h3>
-    <nav>
-      <ul>
-        <li><a href="#">Link 1</a></li>
-        <li><a href="#">Link 2</a></li>
-      <ul>
-    </nav>
+    <kolibri-nav></kolibri-nav>
   </header>
   <main>
     <slot></slot>
@@ -18,33 +12,21 @@
 
 </template>
 
-
-<script></script>
-
-
-<style lang="stylus" scoped>
-
-  $bg-color = #E3E3F3
-
-  header
-    background-color: $bg-color
-    display: flex
-    justify-content: space-between
-    padding: 10px
-
-  footer
-    bottom: 1vh
-    position: fixed
-
-
-</style>
+<script>
+export default {
+  components: {
+    'kolibri-nav': require('./navigation.vue'),
+  },
+};
+</script>
 
 
 <style lang="stylus">
-
   /* These global styles apply to everything */
 
   html, body
     font-family: sans-serif
-
+    margin:0
+    padding:0
+    box-sizing: border-box
 </style>

@@ -1,24 +1,22 @@
 <template>
-
-  <div>
-    <drop-down v-ref:classroom-selector :list="classrooms" :selected.sync="selectedClassroom"></drop-down>
-    <button v-on:click="addClassroom({name: 'foo'})">Create</button>
-    <button>Delete</button>
-  </div>
-  <div>
-    <drop-down v-ref:learner-group-selector :list="[]" :initial-selection=""></drop-down>
-    <button>Create</button>
-    <button>Delete</button>
-  </div>
-  <learner-roster v-ref:learner-roster :learners="filteredLearners"></learner-roster>
+  <core-base>
+    <div>
+      <drop-down v-ref:classroom-selector :list="classrooms" :selected.sync="selectedClassroom"></drop-down>
+      <button v-on:click="addClassroom({name: 'foo'})">Create</button>
+      <button>Delete</button>
+    </div>
+    <div>
+      <drop-down v-ref:learner-group-selector :list="[]" :initial-selection=""></drop-down>
+      <button>Create</button>
+      <button>Delete</button>
+    </div>
+    <learner-roster v-ref:learner-roster :learners="filteredLearners"></learner-roster>
+  </core-base>
 
 </template>
 
 
 <script>
-
-  const learnerRoster = require('./learner-roster.vue');
-  const dropDown = require('./drop-down.vue');
 
   const actions = require('./vuex/actions.js');
   const addClassroom = actions.addClassroom;
@@ -33,9 +31,11 @@
 
   module.exports = {
     components: {
-      'learner-roster': learnerRoster,
-      'drop-down': dropDown,
+      'core-base': require('core-base'),
+      'learner-roster': require('./learner-roster.vue'),
+      'drop-down': require('./drop-down.vue'),
     },
+
     computed: {
       classrooms() {
         const _classrooms = [{
@@ -46,6 +46,7 @@
         _classrooms.push(...this.getClassrooms);
         return _classrooms;
       },
+
       selectedClassroom: {
         get() {
           for (const classroom of this.classrooms) {
@@ -60,6 +61,7 @@
           this.setSelectedClassroomId(id);
         },
       },
+
       filteredLearners() {
         const learners = this.$store.state.learners;
         let _learners = learners;
@@ -86,6 +88,7 @@
         return _learners;
       },
     },
+
     vuex: {
       getters: {
         getClassrooms,
