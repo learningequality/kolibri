@@ -63,6 +63,7 @@ before_script:
 
 # command to run tests, e.g. python setup.py test
 script:
+  - ./testif.sh "setup_changed"
   - tox -e $TOX_ENV
 
 after_success:
