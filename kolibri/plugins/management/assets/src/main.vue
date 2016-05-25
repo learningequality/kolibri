@@ -81,8 +81,14 @@ export default {
     filteredLearners() {
       const learners = this.getLearners;
       let _learners = learners;
-      if (this.selectedClassroom.id !== constants.ALL_CLASSROOMS_ID) {
-        const learnerGroupIds = this.selectedClassroom.learnerGroups;
+      if (this.getSelectedClassroomId !== constants.ALL_CLASSROOMS_ID) {
+        let learnerGroupIds;
+        const groupId = this.getSelectedGroupId;
+        if (groupId === constants.ALL_GROUPS_ID || groupId === constants.NO_GROUPS_ID) {  // eslint-disable-line
+          learnerGroupIds = this.selectedClassroom.learnerGroups;
+        } else {
+          learnerGroupIds = [groupId];
+        }
         const learnerIds = new Set();
         this.getLearnerGroups.filter(
           g => learnerGroupIds.indexOf(g.id) !== -1
