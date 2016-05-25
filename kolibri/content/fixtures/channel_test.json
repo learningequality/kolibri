@@ -1,1 +1,1 @@
-[{"model": "content.channelmetadata", "pk": 1, "fields": {"channel_id": "6199dde6-95db-4ee4-ab39-2222d5af1e5c", "name": "khan", "description": "dummy khan", "author": "eli"}}, {"model": "content.channelmetadata", "pk": 2, "fields": {"channel_id": "9788ab1e-eb91-4487-a2fb-89f9953e66ac", "name": "ucsd", "description": "dummy ucsd", "author": "eli"}}]
+[{"model": "content.channelmetadata", "pk": "6199dde6-95db-4ee4-ab39-2222d5af1e5c", "fields": {"name": "khan", "description": "dummy khan", "author": "eli"}}]
