@@ -49,19 +49,6 @@ export default {
         first_name: 'Foo',
         last_name: 'Bar',
       },
-    },
-    methods: {
-      user_nav_display_toggle() {
-        if (this.user_nav_display === 'none') {
-          this.user_nav_display = 'block';
-        } else {
-          this.user_nav_display = 'none';
-        }
-      },
-    },
-  };
-
-=======
     };
   },
   methods: {
@@ -74,7 +61,7 @@ export default {
     },
   },
 };
->>>>>>> 74e7515... Integrated navbar prototype using vue components:kolibri/core/assets/src/navigation.vue
+
 </script>
 
 
