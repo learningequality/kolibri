@@ -93,7 +93,29 @@ describe('The management module', () => {
     it('The roster shows all learners when you select "All classrooms".', function (done) {
       this.store.dispatch('SET_SELECTED_CLASSROOM_ID', constants.ALL_CLASSROOMS_ID);
       Vue.nextTick(() => {
-        assert(_.isEqual(this.vm.$refs.learnerRoster.learners, fixture1.learners));
+        assert.deepStrictEqual(this.vm.$refs.learnerRoster.learners, fixture1.learners);
+        done();
+      });
+    });
+
+    it('The roster shows two students when you select "Classroom A" and "Group 1".', function (done) {  // eslint-disable-line max-len
+      this.store.dispatch('SET_SELECTED_CLASSROOM_ID', 1);
+      Vue.nextTick(() => {
+        this.store.dispatch('SET_SELECTED_GROUP_ID', 1);
+        Vue.nextTick(() => {
+          const expectedIds = [1, 2];
+          assert.deepStrictEqual(this.vm.$refs.learnerRoster.learners.map(learner =>
+            learner.id
+          ), expectedIds);
+          done();
+        });
+      });
+    });
+
+    it('The roster shows no students when you select "Classroom B".', function (done) {
+      this.store.dispatch('SET_SELECTED_CLASSROOM_ID', 2);
+      Vue.nextTick(() => {
+        assert(_.isEqual(this.vm.$refs.learnerRoster.learners, []));
         done();
       });
     });
