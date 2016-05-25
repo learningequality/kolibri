@@ -12,17 +12,20 @@ function setSelectedGroupId({ dispatch }, id) {
 
 
 // An action for setting up the initial state of the app by fetching data from the server
-function fetch({ dispatch }) {
-  const urls = global.kolibriGlobal.urls;
+function fetch({ dispatch }, classroomListUrl, learnerGroupUrl) {
+  /*
+  param urls: A django-js-reverse urls object for getting API urls.
+   */
   const xhr = new XMLHttpRequest();
 
-  xhr.open('GET', urls.classroom_list());
+  xhr.open('GET', classroomListUrl);
   xhr.onreadystatechange = () => {
     if (xhr.readyState === 4 && xhr.status === 200) {
       const classrooms = JSON.parse(xhr.response);
       const cids = classrooms.map(c => c.id);
-      xhr.open('GET', `${urls.learnergroup_list()}?parent_in=${global.encodeURIComponent(JSON.stringify(cids))}`);  // eslint-disable-line max-len
-      xhr.onreadystatechange = () => {
+      const xhr2 = new XMLHttpRequest();
+      xhr2.open('GET', `${learnerGroupUrl}?parent_in=${global.encodeURIComponent(JSON.stringify(cids))}`);  // eslint-disable-line max-len
+      xhr2.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
           const learnerGroups = JSON.parse(xhr.response);
 
@@ -39,7 +42,7 @@ function fetch({ dispatch }) {
           ));
         }
       };
-      xhr.send();
+      xhr2.send();
     }
   };
   xhr.send();

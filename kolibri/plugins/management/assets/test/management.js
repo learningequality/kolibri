@@ -6,7 +6,9 @@ const Vue = require('vue');
 const Vuex = require('vuex');
 const assert = require('assert');
 const _ = require('lodash');
+const sinon = require('sinon');
 
+const { fetch } = require('../src/vuex/actions.js');
 const { store, mutations, constants } = require('../src/vuex/store.js');
 const Management = require('../src/main.vue');
 const fixture1 = require('./fixtures/fixture1.js');
@@ -53,6 +55,27 @@ describe('The management module', () => {
         const child = this.vm.$refs.learnerRoster;
         assert.notStrictEqual(child, undefined);
         done();
+      });
+    });
+
+    describe('a "fetch" action', function () {
+      before(function () {
+        this.xhr = sinon.useFakeXMLHttpRequest();
+        this.requests = [];
+        this.xhr.onCreate = req => {
+          this.requests.push(req);
+        };
+      });
+
+      after(function () {
+        this.xhr.restore();
+      });
+
+      it('that makes 2 requests', function () {
+        const urls = sinon.spy();
+        fetch(store, urls, urls); // takes two urls that we don't care about...
+        this.requests.forEach(req => req.respond(200, {}, JSON.stringify([])));
+        assert.equal(this.requests.length, 2);
       });
     });
   });
