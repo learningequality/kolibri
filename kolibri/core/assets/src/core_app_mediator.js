@@ -6,259 +6,273 @@
  */
 
 
-var asset_loader = require('./asset_loader').default;
-var Vue = require('vue');
-var logging = require('loglevel');
+const assetLoader = require('./asset_loader');
+const Vue = require('vue');
+const logging = require('loglevel');
 
 /**
  * @constructor
- * @classdesc The Mediator class - registers and loads kolibri_modules and acts as a global event dispatcher.
+ * @classdesc The Mediator class - registers and loads kolibri_modules and acts as
+ * a global event dispatcher.
  */
-export default class Kolibri {
+module.exports = class Mediator {
   constructor() {
     /**
      * Keep track of all registered kolibri_modules - object is of form:
-     * kolibri_module_name: kolibri_module_object
+     * kolibriModuleName: kolibri_module_object
      **/
-    this._kolibri_module_registry = {};
+    this._kolibriModuleRegistry = {};
 
     /**
      * Keep track of all callbacks that have been fired for as yet unloaded modules.
-     * kolibri_module_name: {Function[]} of callbacks
+     * kolibriModuleName: {Function[]} of callbacks
      **/
-    this._callback_buffer = {};
+    this._callbackBuffer = {};
 
     /**
-     * Keep track of all registered callbacks bound to events - this allows for easier stopListening later.
-     * kolibri_module_name: {object} - event: {object} - method: callback function
+     * Keep track of all registered callbacks bound to events - this allows for easier
+     * stopListening later.
+     * kolibriModuleName: {object} - event: {object} - method: callback function
      **/
-    this._callback_registry = {};
+    this._callbackRegistry = {};
 
     /**
-     * Keep track of all registered async callbacks bound to events - this allows for easier stopListening later.
-     * kolibri_module_name: {object[]} - with keys 'event' and 'callback'.
+     * Keep track of all registered async callbacks bound to events - this allows for
+     * easier stopListening later.
+     * kolibriModuleName: {object[]} - with keys 'event' and 'callback'.
      **/
-    this._async_callback_registry = {};
+    this._asyncCallbackRegistry = {};
 
-    this._event_dispatcher = new Vue();
+    this._eventDispatcher = new Vue();
   }
 
   /**
-   * @param {KolibriModule} kolibri_module - object of KolibriModule class
-   * @description Registers a kolibri_module that has already been loaded into the frontend. Registers event listeners for
-   * multiple time and one time events. When all event listeners have been registered, any buffered callbacks are passed
+   * @param {KolibriModule} kolibriModule - object of KolibriModule class
+   * @description Registers a kolibriModule that has already been loaded into the
+   * frontend. Registers event listeners for multiple time and one time events.
+   * When all event listeners have been registered, any buffered callbacks are passed
    * to the KolibriModule object, in case it was previously registered asynchronously.
    */
-  register_kolibri_module_sync(kolibri_module) {
-
+  registerKolibriModuleSync(kolibriModule) {
     // Register all events that will be called repeatedly.
-    this._register_multiple_events(kolibri_module);
+    this._registerMultipleEvents(kolibriModule);
     // Register all events that are listened to once and then unbound.
-    this._register_one_time_events(kolibri_module);
+    this._registerOneTimeEvents(kolibriModule);
 
-    // Create an entry in the kolibri_module registry.
-    this._kolibri_module_registry[kolibri_module.name] = kolibri_module;
+    // Create an entry in the kolibriModule registry.
+    this._kolibriModuleRegistry[kolibriModule.name] = kolibriModule;
 
-    // Clear any previously bound asynchronous callbacks for this kolibri_module.
-    this._clear_async_callbacks(kolibri_module);
+    // Clear any previously bound asynchronous callbacks for this kolibriModule.
+    this._clearAsyncCallbacks(kolibriModule);
 
-    // Execute any callbacks that were called before the kolibri_module had loaded, in the order that they happened.
-    this._execute_callback_buffer(kolibri_module);
-    logging.info('KolibriModule: ' + kolibri_module.name + ' registered');
-    this.emit('kolibri_register', kolibri_module);
-    kolibri_module.ready();
+    // Execute any callbacks that were called before the kolibriModule had loaded,
+    // in the order that they happened.
+    this._executeCallbackBuffer(kolibriModule);
+    logging.info(`KolibriModule: ${kolibriModule.name} registered`);
+    this.emit('kolibri_register', kolibriModule);
+    kolibriModule.ready();
   }
 
   /**
-   * Generic event registration method - inspects KolibriModule class for event key and then registers all events with
+   * Generic event registration method - inspects KolibriModule class for event
+   * key and then registers all events with
    * specified event registration method
-   * @param {KolibriModule} kolibri_module - object of KolibriModule class
-   * @param {string} events_key - 'events' or 'once'
-   * @param {Function} event_listener_method - Mediator.prototype._register_multiple_events or
-   * Mediator.prototype._register_one_time_events
+   * @param {KolibriModule} kolibriModule - object of KolibriModule class
+   * @param {string} eventsKey - 'events' or 'once'
+   * @param {Function} eventListenerMethod - Mediator.prototype._registerMultipleEvents or
+   * Mediator.prototype._registerOneTimeEvents
    * @private
    */
-  _register_events(kolibri_module, events_key, event_listener_method) {
+  _registerEvents(kolibriModule, eventsKey, eventListenerMethod) {
     let events;
-    event_listener_method = event_listener_method.bind(this);
+    const boundEventListenerMethod = eventListenerMethod.bind(this);
     // Prevent undefined errors, allow events hash to be either an object or a function.
-    if (typeof kolibri_module[events_key] === 'undefined') {
+    if (typeof kolibriModule[eventsKey] === 'undefined') {
       events = {};
-    } else if (typeof kolibri_module[events_key] === 'function') {
-      events = kolibri_module[events_key]();
+    } else if (typeof kolibriModule[eventsKey] === 'function') {
+      events = kolibriModule[eventsKey]();
     } else {
-      events = kolibri_module[events_key];
+      events = kolibriModule[eventsKey];
     }
-    for (let key of Object.getOwnPropertyNames(events)) {
-      event_listener_method(key, kolibri_module, events[key]);
+    for (const key of Object.getOwnPropertyNames(events)) {
+      boundEventListenerMethod(key, kolibriModule, events[key]);
     }
   }
 
   /**
    * Method to register events that will fire multiple times until unregistered.
-   * @param {KolibriModule} kolibri_module - object of KolibriModule class
+   * @param {KolibriModule} kolibriModule - object of KolibriModule class
    * @private
    */
-  _register_multiple_events(kolibri_module) {
-    this._register_events(kolibri_module, 'events', this._register_repeated_event_listener);
+  _registerMultipleEvents(kolibriModule) {
+    this._registerEvents(kolibriModule, 'events', this._registerRepeatedEventListener);
   }
 
   /**
    * Method to register events that will fire only once.
-   * @param {KolibriModule} kolibri_module - object of KolibriModule class
+   * @param {KolibriModule} kolibriModule - object of KolibriModule class
    * @private
    */
-  _register_one_time_events(kolibri_module) {
-    this._register_events(kolibri_module, 'once', this._register_one_time_event_listener);
+  _registerOneTimeEvents(kolibriModule) {
+    this._registerEvents(kolibriModule, 'once', this._registerOneTimeEventListener);
   }
 
   /**
-   * Method to register a single repeating event for a particular kolibri_module with a method of that kolibri_module as a
+   * Method to register a single repeating event for a particular kolibriModule
+   * with a method of that kolibriModule as a
    * callback.
    * @param {string} event - the event name.
-   * @param {KolibriModule} kolibri_module - object of KolibriModule class
+   * @param {KolibriModule} kolibriModule - object of KolibriModule class
    * @param {string} method - the name of the method of the KolibriModule object.
    * @private
    */
-  _register_repeated_event_listener(event, kolibri_module, method) {
-    this._register_event_listener(event, kolibri_module, method, this._event_dispatcher.$on);
-  };
+  _registerRepeatedEventListener(event, kolibriModule, method) {
+    this._registerEventListener(event, kolibriModule, method, this._eventDispatcher.$on);
+  }
 
   /**
-   * Method to register a single one time event for a particular kolibri_module with a method of that kolibri_module as a
-   * callback.
+   * Method to register a single one time event for a particular kolibriModule
+   * with a method of that kolibriModule as a callback.
    * @param {string} event - the event name.
-   * @param {KolibriModule} kolibri_module - object of KolibriModule class
+   * @param {KolibriModule} kolibriModule - object of KolibriModule class
    * @param {string} method - the name of the method of the KolibriModule object.
    * @private
    */
-  _register_one_time_event_listener(event, kolibri_module, method) {
-    this._register_event_listener(event, kolibri_module, method, this._event_dispatcher.$once);
-  };
+  _registerOneTimeEventListener(event, kolibriModule, method) {
+    this._registerEventListener(event, kolibriModule, method, this._eventDispatcher.$once);
+  }
 
   /**
-   * Method to register either a one time or a multitime event and add it to the callback registry of the Mediator object
-   * for easy clean up and stopListening later.
+   * Method to register either a one time or a multitime event and add it to the
+   * callback registry of the Mediator object for easy clean up and stopListening
+   * later.
    * @param {string} event - the event name.
-   * @param {KolibriModule} kolibri_module - object of KolibriModule class
+   * @param {KolibriModule} kolibriModule - object of KolibriModule class
    * @param {string} method - the name of the method of the KolibriModule object.
-   * @param {Function} listen_method - Backbone.Events.listenTo or Backbone.Events.listenToOnce
+   * @param {Function} listenMethod - Backbone.Events.listenTo or Backbone.Events.listenToOnce
    * @private
    */
-  _register_event_listener(event, kolibri_module, method, listen_method) {
-    // Create a function that calls the kolibri_module method, while setting 'this' to the kolibri_module itself.
-    const callback = function () {
-      kolibri_module[method].apply(kolibri_module, arguments);
-    };
-    if (typeof this._callback_registry[kolibri_module.name] === 'undefined') {
-      this._callback_registry[kolibri_module.name] = {};
+  _registerEventListener(event, kolibriModule, method, listenMethod) {
+    // Create a function that calls the kolibriModule method, while setting
+    // 'this' to the kolibriModule itself.
+    function callback(...args) {
+      kolibriModule[method].apply(kolibriModule, ...args);
     }
-    if (typeof this._callback_registry[kolibri_module.name][event] === 'undefined') {
-      this._callback_registry[kolibri_module.name][event] = {};
+    if (typeof this._callbackRegistry[kolibriModule.name] === 'undefined') {
+      this._callbackRegistry[kolibriModule.name] = {};
+    }
+    if (typeof this._callbackRegistry[kolibriModule.name][event] === 'undefined') {
+      this._callbackRegistry[kolibriModule.name][event] = {};
     }
     // Keep track of this function to allow easy unbinding later.
-    this._callback_registry[kolibri_module.name][event][method] = callback;
-    listen_method.apply(this._event_dispatcher, [event, callback]);
+    this._callbackRegistry[kolibriModule.name][event][method] = callback;
+    listenMethod.apply(this._eventDispatcher, [event, callback]);
   }
 
   /**
    * Method to unbind event listeners once they have been registered.
    * @param {string} event - the event name.
-   * @param {KolibriModule} kolibri_module - object of KolibriModule class
+   * @param {KolibriModule} kolibriModule - object of KolibriModule class
    * @param {string} method - the name of the method of the KolibriModule object.
    */
-  stop_listening(event, kolibri_module, method) {
+  stopListening(event, kolibriModule, method) {
     // Allow an event to be unlistened to.
-    const callback = ((this._callback_registry[kolibri_module.name] || {})[event] || {})[method];
+    const callback = ((this._callbackRegistry[kolibriModule.name] || {})[event] || {})[method];
     if (typeof callback !== 'undefined') {
-      this._event_dispatcher.$off(event, callback);
-      delete this._callback_registry[kolibri_module.name][event][method];
+      this._eventDispatcher.$off(event, callback);
+      delete this._callbackRegistry[kolibriModule.name][event][method];
     }
   }
 
   /**
-   * Finds all callbacks that were called before the kolibri_module was loaded and registered synchronously and
+   * Finds all callbacks that were called before the kolibriModule was loaded
+   * and registered synchronously and
    * executes them in order of creation.
-   * @param {KolibriModule} kolibri_module - object of KolibriModule class
+   * @param {KolibriModule} kolibriModule - object of KolibriModule class
    * @private
    */
-  _execute_callback_buffer(kolibri_module) {
-    if (typeof this._callback_buffer[kolibri_module.name] !== 'undefined') {
-      this._callback_buffer[kolibri_module.name].forEach((buffer) => {
+  _executeCallbackBuffer(kolibriModule) {
+    if (typeof this._callbackBuffer[kolibriModule.name] !== 'undefined') {
+      this._callbackBuffer[kolibriModule.name].forEach((buffer) => {
         // Do this to ensure proper 'this'ness.
-        kolibri_module[buffer.method].apply(kolibri_module, buffer.args);
+        kolibriModule[buffer.method].apply(kolibriModule, buffer.args);
       });
-      delete this._callback_buffer[kolibri_module.name];
+      delete this._callbackBuffer[kolibriModule.name];
     }
   }
 
   /**
-   * Registers a kolibri_module before it has been loaded into the page. Buffers any events that are fired, causing the
-   * arguments to be saved in the callback buffer array for this kolibri_module.
-   * @param {string} kolibri_module_name - the name of the kolibri_module
-   * @param {string[]} kolibri_module_urls - the URLs of the Javascript and CSS files that constitute the kolibri_module
-   * @param {object} events - key, value pairs of event names and methods for repeating callbacks.
-   * @param {object} once - key value pairs of event names and methods for one time callbacks.
+   * Registers a kolibriModule before it has been loaded into the page. Buffers
+   * any events that are fired, causing the
+   * arguments to be saved in the callback buffer array for this kolibriModule.
+   * @param {string} kolibriModuleName - the name of the kolibriModule
+   * @param {string[]} kolibriModuleUrls - the URLs of the Javascript and CSS
+   * files that constitute the kolibriModule
+   * @param {object} events - key, value pairs of event names and methods for
+   * repeating callbacks.
+   * @param {object} once - key value pairs of event names and methods for one
+   * time callbacks.
    */
-  register_kolibri_module_async(kolibri_module_name, kolibri_module_urls, events, once) {
+  registerKolibriModuleAsync(kolibriModuleName, kolibriModuleUrls, events, once) {
     const self = this;
-    // Create a buffer for events that are fired before a kolibri_module has loaded. Keep track of the method and the
-    // arguments passed to the callback.
-    const callback_buffer = this._callback_buffer[kolibri_module_name] = [];
+    // Create a buffer for events that are fired before a kolibriModule has
+    // loaded. Keep track of the method and the arguments passed to the callback.
+    const callbackBuffer = this._callbackBuffer[kolibriModuleName] = [];
     // Look at all events, whether listened to once or multiple times.
-    const event_array = [];
-    for (let key of Object.getOwnPropertyNames(events)) {
-      event_array.push([key, events[key]]);
+    const eventArray = [];
+    for (const key of Object.getOwnPropertyNames(events)) {
+      eventArray.push([key, events[key]]);
     }
-    for (let key of Object.getOwnPropertyNames(once)) {
-      event_array.push([key, once[key]]);
+    for (const key of Object.getOwnPropertyNames(once)) {
+      eventArray.push([key, once[key]]);
     }
-    if (typeof this._async_callback_registry[kolibri_module_name] === 'undefined') {
-      this._async_callback_registry[kolibri_module_name] = [];
+    if (typeof this._asyncCallbackRegistry[kolibriModuleName] === 'undefined') {
+      this._asyncCallbackRegistry[kolibriModuleName] = [];
     }
-    event_array.forEach((tuple) => {
+    eventArray.forEach((tuple) => {
       const key = tuple[0];
       const value = tuple[1];
-      // Create a callback function that will push objects to the callback buffer, and also cause loading of the
-      // the frontend assets that the kolibri_module needs, should an event it is listening for be emitted.
-      const callback = () => {
-        // First check that the kolibri_module hasn't already been loaded.
-        if (typeof self._kolibri_module_registry[kolibri_module_name] === 'undefined') {
+      // Create a callback function that will push objects to the callback buffer,
+      // and also cause loading of the the frontend assets that the kolibriModule
+      // needs, should an event it is listening for be emitted.
+      const callback = (...args) => {
+        // First check that the kolibriModule hasn't already been loaded.
+        if (typeof self._kolibriModuleRegistry[kolibriModuleName] === 'undefined') {
           // Add the details about the event callback to the buffer.
-          callback_buffer.push({
-            args: arguments,
-            method: value
+          callbackBuffer.push({
+            args,
+            method: value,
           });
-          // Call the asset loader to load all the kolibri_module files.
-          asset_loader([kolibri_module_urls], (err, notFound) => {
+          // Call the asset loader to load all the kolibriModule files.
+          assetLoader([kolibriModuleUrls], (err, notFound) => {
             if (err) {
               notFound.forEach((file) => {
-                logging.error(file + ' failed to load');
+                logging.error(`${file} failed to load`);
               });
             }
           });
         }
       };
       // Listen to the event and call the above function
-      self._event_dispatcher.$on(key, callback);
-      // Keep track of all these functions for easy cleanup after the kolibri_module has been loaded.
-      self._async_callback_registry[kolibri_module_name].push({
+      self._eventDispatcher.$on(key, callback);
+      // Keep track of all these functions for easy cleanup after the kolibriModule has been loaded.
+      self._asyncCallbackRegistry[kolibriModuleName].push({
         event: key,
-        callback: callback
+        callback,
       });
     });
   }
 
   /**
-   * Function to unbind and remove all callbacks created by the register_kolibri_module_async method.
-   * @param {KolibriModule} kolibri_module - object of KolibriModule class
+   * Function to unbind and remove all callbacks created by the registerKolibriModuleAsync method.
+   * @param {KolibriModule} kolibriModule - object of KolibriModule class
    * @private
    */
-  _clear_async_callbacks(kolibri_module) {
-    (this._async_callback_registry[kolibri_module.name] || []).forEach((async) => {
-      this._event_dispatcher.$off(async.event, async.callback);
+  _clearAsyncCallbacks(kolibriModule) {
+    (this._asyncCallbackRegistry[kolibriModule.name] || []).forEach((async) => {
+      this._eventDispatcher.$off(async.event, async.callback);
     });
-    delete this._async_callback_registry[kolibri_module.name];
+    delete this._asyncCallbackRegistry[kolibriModule.name];
   }
 
   /**
@@ -266,6 +280,6 @@ export default class Kolibri {
    * Takes any arguments and passes them on.
    */
   emit(...args) {
-    this._event_dispatcher.$emit(...args);
+    this._eventDispatcher.$emit(...args);
   }
-}
+};

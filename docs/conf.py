@@ -10,11 +10,9 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
-import os
 import django
-import kolibri
-
+import os
+import sys
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -23,7 +21,10 @@ import kolibri
 
 cwd = os.getcwd()
 parent = os.path.dirname(cwd)
-sys.path.insert(0, parent)
+sys.path.insert(0, os.path.abspath(parent))
+
+# This import *must* come after the path insertion, otherwise sphinx won't be able to find the kolibri module
+import kolibri  # noqa
 
 builddir = os.path.join(cwd, '_build')
 

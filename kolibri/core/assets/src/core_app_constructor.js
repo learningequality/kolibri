@@ -3,7 +3,7 @@
  * @module Facade
  */
 
-import Mediator from './core_app_mediator';
+const Mediator = require('./core_app_mediator');
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -11,9 +11,9 @@ import Mediator from './core_app_mediator';
  * @type {string[]}
  */
 const publicMethods = [
-  'register_kolibri_module_async',
-  'register_kolibri_module_sync',
-  'stop_listening',
+  'registerKolibriModuleAsync',
+  'registerKolibriModuleSync',
+  'stopListening',
   'emit',
 ];
 
@@ -42,7 +42,7 @@ module.exports = function CoreApp() {
   const mediator = new Mediator();
 
   // Bind 'this' value for public methods - those that will be exposed in the Facade.
-  this.kolibri_modules = mediator._kolibri_module_registry;
+  this.kolibri_modules = mediator._kolibriModuleRegistry;
   publicMethods.forEach((method) => {
     this[method] = mediator[method].bind(mediator);
   });
