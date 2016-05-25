@@ -31,11 +31,11 @@
 
 
 <script>
-export default {
+module.exports = {
   data() {
     return {
       // items that go in the title bar
-      nav_items: window._nav.nav_items,
+      nav_items: window._nav ? window._nav.nav_items || [] : [],
       title_bar: {
         title: 'Kolibri',
         home_link: '/',
@@ -43,7 +43,7 @@ export default {
       user_nav_display: 'none',
 
       // items that go into the user menu
-      user_nav_items: window._nav.user_nav_items,
+      user_nav_items: window._nav ? window._nav.user_nav_items || [] : [],
       user: {
         username: 'foobar',
         first_name: 'Foo',
