@@ -8,7 +8,6 @@
 
 const assetLoader = require('./asset_loader');
 const Vue = require('vue');
-const VueIntl = require('vue-intl');
 const logging = require('loglevel');
 
 /**
@@ -44,36 +43,16 @@ module.exports = class Mediator {
      **/
     this._asyncCallbackRegistry = {};
 
+    // we use a Vue object solely for its event functionality
     this._eventDispatcher = new Vue();
 
-    /**
-     * Use the vue-intl plugin.
-     **/
-    Vue.use(VueIntl);
+    // wait to call kolibri_module `ready` until dependencies are loaded
+    this._ready = false;
+  }
 
-    /**
-     * If the browser doesn't support the Intl polyfill, we retrieve that and
-     * the modules need to wait until that happens.
-     **/
-    this.ready = false;
-    if (!global.hasOwnProperty('Intl')) {
-      require.ensure(
-        [
-          'intl',
-          'intl/locale-data/jsonp/en.js',
-          // add more locales here
-        ],
-        (require) => {
-          require('intl');
-          require('intl/locale-data/jsonp/en.js');
-          this.ready = true;
-          this.emit('ready');
-        }
-      );
-    } else {
-      this.ready = true;
-      this.emit('ready');
-    }
+  setReady() {
+    this._ready = true;
+    this.emit('ready');
   }
 
   /**
@@ -100,10 +79,10 @@ module.exports = class Mediator {
     this._executeCallbackBuffer(kolibriModule);
     logging.info(`KolibriModule: ${kolibriModule.name} registered`);
     this.emit('kolibri_register', kolibriModule);
-    if (this.ready) {
+    if (this._ready) {
       kolibriModule.ready();
     } else {
-      this._eventDispatcher.$on('ready', () => {
+      this._eventDispatcher.$once('ready', () => {
         kolibriModule.ready();
       });
     }
