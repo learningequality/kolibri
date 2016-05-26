@@ -50,6 +50,9 @@ module.exports = class Mediator {
     this._ready = false;
   }
 
+  /**
+   * Trigger 'ready' function on all registered modules
+   **/
   setReady() {
     this._ready = true;
     this.emit('ready');
