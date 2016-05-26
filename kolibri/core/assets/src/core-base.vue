@@ -21,13 +21,13 @@ export default {
 
 <style lang="stylus" scoped>
 
-  @require 'theme.styl'
+  @require '~core-theme.styl'
 
   main
     margin: 10px
 
   footer
-    background-color: $bg-light
+    background-color: $core-bg-light
     bottom: 1vh
     position: fixed
     padding: 10px

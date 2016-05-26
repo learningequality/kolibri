@@ -64,11 +64,11 @@
 
 <style lang="stylus" scoped>
 
-  @require '~theme.styl'
+  @require '~core-theme.styl'
 
 
   header
-    background-color: $bg-light
+    background-color: $core-bg-light
 
   .titlebar
     display: flex
@@ -83,8 +83,8 @@
     position: absolute
     top: 2em
     right: 1em
-    box-shadow: 2px 2px 3px $text-default
-    background-color: $bg-light
+    box-shadow: 2px 2px 3px $core-text-default
+    background-color: $core-bg-light
 
     ul
       padding: 3px

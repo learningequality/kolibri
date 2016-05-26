@@ -24,10 +24,10 @@
 
 <style lang="stylus" scoped>
 
-  @require '~theme.styl'
+  @require '~core-theme.styl'
 
   .alert
-    color: $text-alert
-    background-color: $text-alert-bg
+    color: $core-text-alert
+    background-color: $core-text-alert-bg
 
 </style>

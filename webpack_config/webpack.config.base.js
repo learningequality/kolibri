@@ -60,7 +60,7 @@ var config = {
         alias: {
             'kolibri_module': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'kolibri_module'),
             'core-base': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'core-base'),
-            'theme.styl': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'theme.styl'),
+            'core-theme.styl': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'core-theme.styl'),
         },
         extensions: ["", ".vue", ".js"],
     },

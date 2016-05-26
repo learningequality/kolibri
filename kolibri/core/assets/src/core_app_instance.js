@@ -2,7 +2,7 @@
 // include global styles
 require('normalize.css');
 require('./font-NotoSans.css');
-require('./global.styl');
+require('./core-global.styl');
 
 // set up logging
 const logging = require('loglevel');
