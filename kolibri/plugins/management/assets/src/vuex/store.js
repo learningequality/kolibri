@@ -84,6 +84,17 @@ const mutations = {
     }
   },
 
+  ADD_LEARNERS(state, learners) {
+    learners.forEach(learner => {
+      state.learners.push({
+        id: learner.id,
+        username: learner.username,
+        first_name: learner.first_name,
+        last_name: learner.last_name,
+      });
+    });
+  },
+
   SET_SELECTED_CLASSROOM_ID(state, id) {
     // Disable no-param-reassign rule... that is expressly the purpose of this function
     state.selectedClassroomId = id; // eslint-disable-line no-param-reassign
