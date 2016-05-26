@@ -5,7 +5,6 @@
 const Vue = require('vue');
 const Vuex = require('vuex');
 const assert = require('assert');
-const _ = require('lodash');
 const sinon = require('sinon');
 
 const { fetch } = require('../src/vuex/actions.js');
@@ -103,12 +102,12 @@ describe('The management module', () => {
       // Look at the fixture file for the magic numbers here.
       this.store.dispatch('SET_SELECTED_CLASSROOM_ID', 3);
       Vue.nextTick(() => {
-        assert(_.isEqual(this.vm.$refs.learnerRoster.learners, [{
+        assert.deepStrictEqual(this.vm.$refs.learnerRoster.learners, [{
           id: 2,
           first_name: 'John',
           last_name: 'Duck',
           username: 'jduck',
-        }]));
+        }]);
         done();
       });
     });
@@ -138,7 +137,7 @@ describe('The management module', () => {
     it('The roster shows no students when you select "Classroom B".', function (done) {
       this.store.dispatch('SET_SELECTED_CLASSROOM_ID', 2);
       Vue.nextTick(() => {
-        assert(_.isEqual(this.vm.$refs.learnerRoster.learners, []));
+        assert.deepStrictEqual(this.vm.$refs.learnerRoster.learners, []);
         done();
       });
     });

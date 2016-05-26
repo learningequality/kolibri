@@ -18,24 +18,40 @@ module.exports = {
       last_name: 'Lincoln',
       username: 'abe',
     },
+    {
+      id: 4,
+      first_name: 'Harriet',
+      last_name: 'Tubman',
+      username: 'htub',
+    },
   ],
   classrooms: [
     {
       id: 1,
       name: 'Classroom A',
       learnerGroups: [1, 3],
+      ungroupedLearners: [],
       // learners: [1, 2, 3],
     },
     {
       id: 2,
       name: 'Classroom B',
       learnerGroups: [],
+      ungroupedLearners: [],
     },
     {
       id: 3,
       name: 'Classroom C',
       learnerGroups: [2],
+      ungroupedLearners: [],
       // learners: [2],
+    },
+    {
+      id: 4,
+      name: 'Classroom with ungrouped learners',
+      learnerGroups: [],
+      ungroupedLearners: [4],
+      // learners: [4],
     },
   ],
   learnerGroups: [
