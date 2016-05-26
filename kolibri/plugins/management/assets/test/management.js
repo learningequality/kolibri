@@ -70,11 +70,11 @@ describe('The management module', () => {
         this.xhr.restore();
       });
 
-      it('that makes 2 requests', function () {
+      it('that makes 4 requests', function () {
         const urls = sinon.spy();
         fetch(store, urls, urls); // takes two urls that we don't care about...
         this.requests.forEach(req => req.respond(200, {}, JSON.stringify([])));
-        assert.equal(this.requests.length, 2);
+        assert.equal(this.requests.length, 4);
       });
     });
   });

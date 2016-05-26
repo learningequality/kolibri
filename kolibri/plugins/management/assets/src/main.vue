@@ -30,16 +30,28 @@
     },
 
     computed: {
+      /*
+      Populates the classroom selector. Note that we add the special value "All classrooms"
+      to the list of classrooms fetched from the server.
+       */
       classrooms() {
         const _classrooms = [{
           id: constants.ALL_CLASSROOMS_ID,
           name: 'All classrooms',
-          learnerGroups: [],
         }];
         _classrooms.push(...this.getClassrooms);
         return _classrooms;
       },
 
+      /*
+      Populates the group selector. Note that we add two special values to the list of groups
+      fetched from the server:
+      * "All groups" will display all grouped + ungrouped learners in the classroom.
+      * "Ungrouped" will display only ungrouped learners in the classroom. Learners are
+        considered ungrouped if they are members of the classroom but not members of any groups
+        in the classroom. Membership is determined by the existence of a Membership object on
+        the server -- see the `fetch` action for details.
+       */
       learnerGroups() {
         let _groups = [];
         if (this.getSelectedClassroomId !== constants.ALL_CLASSROOMS_ID) {
@@ -47,12 +59,10 @@
             {
               id: constants.ALL_GROUPS_ID,
               name: 'All groups',
-              learners: [],
             },
             {
               id: constants.UNGROUPED_ID,
               name: 'Ungrouped',
-              learners: this.selectedClassroom.ungroupedLearners,
             },
           ];
           _groups.push(...(this.getLearnerGroups.filter(g => this.selectedClassroom.learnerGroups.indexOf(g.id) !== -1)));  // eslint-disable-line max-len
@@ -60,11 +70,19 @@
         return _groups;
       },
 
+      /*
+      The currently selected classroom object -- take care to check if "All Classrooms" is
+      selected before using, otherwise you might encounter undefined values.
+       */
       selectedClassroom: {
         get() {
           return this.classrooms.find(c => c.id === this.getSelectedClassroomId);  // eslint-disable-line max-len
         },
 
+        /*
+        Note that we set a default value for the state variable selectedGroupId, so that it isn't
+        undefined.
+         */
         set({ id }) {
           this.setSelectedClassroomId(id);
           if (id === constants.ALL_CLASSROOMS_ID) {
@@ -75,6 +93,10 @@
         },
       },
 
+      /*
+      The currently selected group object -- take care to check if "All groups" or "Ungrouped" is
+      selected before using, otherwise you might encounter undefined values.
+       */
       selectedGroup: {
         get() {
           return this.learnerGroups.find(g => g.id === this.getSelectedGroupId);
@@ -85,26 +107,31 @@
         },
       },
 
+      /*
+      The list of learners sent to the learner roster. Determined by the currently selected
+      classroom and group.
+       */
       filteredLearners() {
         let learners = [];
         if (this.getSelectedClassroomId === constants.ALL_CLASSROOMS_ID) {
           learners = this.getLearners;
         } else {
+          let learnerIds;
+
           if (this.getSelectedGroupId === constants.UNGROUPED_ID) {
-            const learnerIds = new Set(this.selectedClassroom.ungroupedLearners);
-            learners = this.getLearners.filter(learner => learnerIds.has(learner.id));
+            learnerIds = new Set(this.selectedClassroom.ungroupedLearners);
           } else if (this.getSelectedGroupId === constants.ALL_GROUPS_ID) {
             const groupIds = this.selectedClassroom.learnerGroups;
             const groups = this.getLearnerGroups.filter(g => groupIds.indexOf(g.id) !== -1);
-            const learnerIds = new Set();
+            learnerIds = new Set();
             groups.forEach(g => g.learners.forEach(id => learnerIds.add(id)));
             this.selectedClassroom.ungroupedLearners.forEach(id => learnerIds.add(id));
-            learners = this.getLearners.filter(learner => learnerIds.has(learner.id));
           } else {
             const group = this.getLearnerGroups.find(g => g.id === this.getSelectedGroupId);
-            const learnerIds = new Set(group.learners);
-            learners = this.getLearners.filter(learner => learnerIds.has(learner.id));
+            learnerIds = new Set(group.learners);
           }
+
+          learners = this.getLearners.filter(learner => learnerIds.has(learner.id));
         }
         return learners;
       },
