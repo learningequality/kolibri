@@ -5,7 +5,7 @@
     <slot></slot>
   </main>
   <footer>
-    Call a podiatrist – I'm in a footer!
+    foot!
   </footer>
 
 </template>
