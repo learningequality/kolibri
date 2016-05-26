@@ -1,4 +1,5 @@
 <template>
+
   <core-base>
     <div>
       <drop-down v-ref:classroom-selector :list="classrooms" :selected.sync="selectedClassroom"></drop-down>
@@ -6,7 +7,7 @@
       <button>Delete</button>
     </div>
     <div>
-      <drop-down v-ref:learner-group-selector :list="[]" :initial-selection=""></drop-down>
+      <drop-down v-ref:learner-group-selector :list="learnerGroups" :selected.sync="selectedGroup"></drop-down>
       <button>Create</button>
       <button>Delete</button>
     </div>
@@ -18,22 +19,14 @@
 
 <script>
 
-  const actions = require('./vuex/actions.js');
-  const addClassroom = actions.addClassroom;
-  const setSelectedClassroomId = actions.setSelectedClassroomId;
-
-  const getters = require('./vuex/getters.js');
-  const getClassrooms = getters.getClassrooms;
-  const getSelectedClassroomId = getters.getSelectedClassroomId;
-
   const store = require('./vuex/store.js');
   const constants = store.constants;
 
-  module.exports = {
+  export default {
     components: {
       'core-base': require('core-base'),
-      'learner-roster': require('./learner-roster.vue'),
       'drop-down': require('./drop-down.vue'),
+      'learner-roster': require('./learner-roster.vue'),
     },
 
     computed: {
@@ -47,57 +40,82 @@
         return _classrooms;
       },
 
+      learnerGroups() {
+        let _groups = [];
+        if (this.selectedClassroom.id !== constants.ALL_CLASSROOMS_ID) {
+          _groups = [{
+            id: constants.ALL_GROUPS_ID,
+            name: 'All groups',
+            learners: [],
+          }];
+          _groups.push(...this.selectedClassroom.learnerGroups);
+        }
+        return _groups;
+      },
+
       selectedClassroom: {
         get() {
-          for (const classroom of this.classrooms) {
-            if (classroom.id === this.getSelectedClassroomId) {
-              return classroom;
-            }
-          }
-          // Default value in case getSelectedClassroom is inconsistent
-          return this.classrooms[0];
+          return this.classrooms.find(c => c.id === this.getSelectedClassroomId) || this.classrooms[0];  // eslint-disable-line max-len
         },
+
         set({ id }) {
           this.setSelectedClassroomId(id);
+          if (id === constants.ALL_CLASSROOMS_ID) {
+            this.setSelectedGroupId(constants.NO_GROUPS_ID);
+          } else {
+            this.setSelectedGroupId(constants.ALL_GROUPS_ID);
+          }
+        },
+      },
+
+      selectedGroup: {
+        get() {
+          return this.learnerGroups.find(g => g.id === this.getSelectedGroupId) ||
+            this.learnerGroups[0];
+        },
+
+        set({ id }) {
+          this.setSelectedGroupId(id);
         },
       },
 
       filteredLearners() {
-        const learners = this.$store.state.learners;
+        const learners = this.getLearners;
         let _learners = learners;
-        if (this.selectedClassroom.id !== constants.ALL_CLASSROOMS_ID) {
-          const learnerGroupIds = this.selectedClassroom.learnerGroups;
-          const learnerIds = new Set();
-          for (const group of this.$store.state.learnerGroups) {
-            if (learnerGroupIds.indexOf(group.id) !== -1) {
-              for (const learnerId of group.learners) {
-                if (!learnerIds.has(learnerId)) {
-                  learnerIds.add(learnerId);
-                }
-              }
-            }
+        if (this.getSelectedClassroomId !== constants.ALL_CLASSROOMS_ID) {
+          let learnerGroupIds;
+          const groupId = this.getSelectedGroupId;
+          if (groupId === constants.ALL_GROUPS_ID || groupId === constants.NO_GROUPS_ID) {  // eslint-disable-line
+            learnerGroupIds = this.selectedClassroom.learnerGroups;
+          } else {
+            learnerGroupIds = [groupId];
           }
+          const learnerIds = new Set();
+          this.getLearnerGroups.filter(
+            g => learnerGroupIds.indexOf(g.id) !== -1
+          )
+          .forEach(group => {
+            group.learners.forEach(learnerId => {
+              if (!learnerIds.has(learnerId)) {
+                learnerIds.add(learnerId);
+              }
+            });
+          });
 
           _learners = [];
-          for (const learner of learners) {
+          learners.forEach(learner => {
             if (learnerIds.has(learner.id)) {
               _learners.push(learner);
             }
-          }
+          });
         }
         return _learners;
       },
     },
 
     vuex: {
-      getters: {
-        getClassrooms,
-        getSelectedClassroomId,
-      },
-      actions: {
-        addClassroom,
-        setSelectedClassroomId,
-      },
+      getters: require('./vuex/getters.js'),
+      actions: require('./vuex/actions.js'),
     },
   };
 

@@ -1,15 +1,29 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
+import collections
 import factory
+import json
+import sys
 
 from django.core.urlresolvers import reverse
 
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase as BaseTestCase
 
 from .. import models
 
 DUMMY_PASSWORD = "password"
+
+
+# A weird hack because of http://bugs.python.org/issue17866
+if sys.version_info >= (3,):
+    class APITestCase(BaseTestCase):
+        def assertItemsEqual(self, *args, **kwargs):
+            self.assertCountEqual(*args, **kwargs)
+else:
+    class APITestCase(BaseTestCase):
+        pass
+
 
 class FacilityFactory(factory.DjangoModelFactory):
 
@@ -17,6 +31,22 @@ class FacilityFactory(factory.DjangoModelFactory):
         model = models.Facility
 
     name = factory.Sequence(lambda n: "Rock N' Roll High School #%d" % n)
+
+
+class ClassroomFactory(factory.DjangoModelFactory):
+
+    class Meta:
+        model = models.Classroom
+
+    name = factory.Sequence(lambda n: "Basic Rock Theory #%d" % n)
+
+
+class LearnerGroupFactory(factory.DjangoModelFactory):
+
+    class Meta:
+        model = models.LearnerGroup
+
+    name = factory.Sequence(lambda n: "Group #%d" % n)
 
 
 class FacilityUserFactory(factory.DjangoModelFactory):
@@ -36,6 +66,86 @@ class DeviceOwnerFactory(factory.DjangoModelFactory):
 
     username = factory.Sequence(lambda n: 'deviceowner%d' % n)
     password = factory.PostGenerationMethodCall('set_password', DUMMY_PASSWORD)
+
+
+class LearnerGroupAPITestCase(APITestCase):
+
+    def setUp(self):
+        self.device_owner = DeviceOwnerFactory.create()
+        self.facility = FacilityFactory.create()
+        self.classrooms = [ClassroomFactory.create(parent=self.facility) for _ in range(3)]
+        self.learner_groups = []
+        for classroom in self.classrooms:
+            self.learner_groups += [LearnerGroupFactory.create(parent=classroom) for _ in range(5)]
+        self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
+
+    def test_learnergroup_list(self):
+        response = self.client.get(reverse('learnergroup-list'), format='json')
+        expected = [collections.OrderedDict((
+            ('id', group.id),
+            ('name', group.name),
+            ('parent', group.parent.id),
+        )) for group in self.learner_groups]
+        self.assertItemsEqual(response.data, expected)
+
+    def test_learnergroup_detail(self):
+        response = self.client.get(reverse('learnergroup-detail', kwargs={'pk': self.learner_groups[0].id}), format='json')
+        expected = {
+            'id': self.learner_groups[0].id,
+            'name': self.learner_groups[0].name,
+            'parent': self.learner_groups[0].parent.id,
+        }
+        self.assertDictEqual(response.data, expected)
+
+    def test_parent_in_queryparam_with_one_id(self):
+        classroom_id = self.classrooms[0].id
+        response = self.client.get(reverse('learnergroup-list'), {'parent_in': json.dumps([classroom_id])},
+                                   format='json')
+        expected = [collections.OrderedDict((
+            ('id', group.id),
+            ('name', group.name),
+            ('parent', group.parent.id),
+        )) for group in self.learner_groups if group.parent.id == classroom_id]
+        self.assertItemsEqual(response.data, expected)
+
+    def test_parent_in_queryparam_with_two_ids(self):
+        classroom_ids = [self.classrooms[0].id, self.classrooms[1].id]
+        response = self.client.get(reverse('learnergroup-list'), {'parent_in': json.dumps(classroom_ids)},
+                                   format='json')
+        expected = [collections.OrderedDict((
+            ('id', group.id),
+            ('name', group.name),
+            ('parent', group.parent.id),
+        )) for group in self.learner_groups if group.parent.id in classroom_ids]
+        self.assertItemsEqual(response.data, expected)
+
+
+class ClassroomAPITestCase(APITestCase):
+
+    def setUp(self):
+        self.device_owner = DeviceOwnerFactory.create()
+        self.facility = FacilityFactory.create()
+        self.classrooms = [ClassroomFactory.create(parent=self.facility) for _ in range(10)]
+        self.learner_group = LearnerGroupFactory.create(parent=self.classrooms[0])
+        self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
+
+    def test_classroom_list(self):
+        response = self.client.get(reverse('classroom-list'), format='json')
+        expected = [collections.OrderedDict((
+            ('id', classroom.id),
+            ('name', classroom.name),
+            ('parent', classroom.parent.id),
+        )) for classroom in self.classrooms]
+        self.assertItemsEqual(response.data, expected)
+
+    def test_classroom_detail(self):
+        response = self.client.get(reverse('classroom-detail', kwargs={'pk': self.classrooms[0].id}), format='json')
+        expected = {
+            'id': self.classrooms[0].id,
+            'name': self.classrooms[0].name,
+            'parent': self.classrooms[0].parent.id,
+        }
+        self.assertDictEqual(response.data, expected)
 
 
 class FacilityAPITestCase(APITestCase):

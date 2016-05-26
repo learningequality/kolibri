@@ -56,4 +56,5 @@ module.exports = {
     },
   ],
   selectedClassroomId: null, // `null` a special meaning for this app.
+  selectedGroupId: 'nogroups', // also has a special meaning for this app
 };
