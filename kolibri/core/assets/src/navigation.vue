@@ -68,17 +68,10 @@
 
 <style lang="stylus" scoped>
 
-  $kolibri_purple = #bd8cbf
-  $kolibri_gray = #c4c4c4
-  $kolibri_nav_fonts = sans-serif
-
-  header
-    font-family: $kolibri_nav_fonts
+  @require '~theme.styl'
 
   .titlebar
-    // for consistent percentages. Maybe bring in normalize?
-    box-sizing: border-box
-    background-color: $kolibri_purple
+    background-color: $bg-canvas
     color: white
 
     // fix for the div float issue
@@ -99,28 +92,28 @@
     box-sizing: border-box
     overflow: auto
     width: 90%
-    margin: 0 5% 0 5%
-    padding-top: .5em
-    border-bottom: 1px solid $kolibri_gray
+    margin: 0 5%
+    padding-top: 0.5em
+    border-bottom: 1px solid $text-default
     &_item
       float:left
-      padding:0 .5em 0 .5em
+      padding: 0 0.5em
       font-size: 1.5em
       a
         text-decoration: none
-        color: $kolibri_gray
+        color: $text-default
 
   .usermenu
     position:absolute
     top: 2em
     right: 1em
-    box-shadow: 2px 2px 3px $kolibri_gray
+    box-shadow: 2px 2px 3px $text-default
     background-color: white
     ul
       padding: 3px
       list-style: none
     a
-      color: $kolibri_gray
+      color: $text-default
       text-decoration: none
 
 </style>
