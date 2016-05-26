@@ -141,5 +141,17 @@ describe('The management module', () => {
         done();
       });
     });
+
+    it('The roster shows one student when you select "Classroom with ungrouped learners" and "Ungrouped".', function (done) {  // eslint-disable-line max-len
+      this.store.dispatch('SET_SELECTED_CLASSROOM_ID', 4);
+      Vue.nextTick(() => {
+        this.store.dispatch('SET_SELECTED_GROUP_ID', constants.UNGROUPED_ID);
+        Vue.nextTick(() => {
+          const expectedIds = [4];
+          assert.deepStrictEqual(this.vm.$refs.learnerRoster.learners.map(learner => learner.id), expectedIds);  // eslint-disable-line max-len
+          done();
+        });
+      });
+    });
   });
 });
