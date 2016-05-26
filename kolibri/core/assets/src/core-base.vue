@@ -1,8 +1,6 @@
 <template>
 
-  <header>
-    <kolibri-nav></kolibri-nav>
-  </header>
+  <kolibri-nav></kolibri-nav>
   <main>
     <slot></slot>
   </main>
@@ -24,12 +22,6 @@ export default {
 <style lang="stylus" scoped>
 
   @require 'theme.styl'
-
-  header
-    background-color: $bg-light
-    display: flex
-    justify-content: space-between
-    padding: 10px
 
   main
     margin: 10px
