@@ -42,20 +42,27 @@
 
       learnerGroups() {
         let _groups = [];
-        if (this.selectedClassroom.id !== constants.ALL_CLASSROOMS_ID) {
-          _groups = [{
-            id: constants.ALL_GROUPS_ID,
-            name: 'All groups',
-            learners: [],
-          }];
-          _groups.push(...this.selectedClassroom.learnerGroups);
+        if (this.getSelectedClassroomId !== constants.ALL_CLASSROOMS_ID) {
+          _groups = [
+            {
+              id: constants.ALL_GROUPS_ID,
+              name: 'All groups',
+              learners: [],
+            },
+            {
+              id: constants.UNGROUPED_ID,
+              name: 'Ungrouped',
+              learners: this.selectedClassroom.ungroupedLearners,
+            },
+          ];
+          _groups.push(...(this.getLearnerGroups.filter(g => this.selectedClassroom.learnerGroups.indexOf(g.id) !== -1)));  // eslint-disable-line max-len
         }
         return _groups;
       },
 
       selectedClassroom: {
         get() {
-          return this.classrooms.find(c => c.id === this.getSelectedClassroomId) || this.classrooms[0];  // eslint-disable-line max-len
+          return this.classrooms.find(c => c.id === this.getSelectedClassroomId);  // eslint-disable-line max-len
         },
 
         set({ id }) {
@@ -70,8 +77,7 @@
 
       selectedGroup: {
         get() {
-          return this.learnerGroups.find(g => g.id === this.getSelectedGroupId) ||
-            this.learnerGroups[0];
+          return this.learnerGroups.find(g => g.id === this.getSelectedGroupId);
         },
 
         set({ id }) {
@@ -80,36 +86,27 @@
       },
 
       filteredLearners() {
-        const learners = this.getLearners;
-        let _learners = learners;
-        if (this.getSelectedClassroomId !== constants.ALL_CLASSROOMS_ID) {
-          let learnerGroupIds;
-          const groupId = this.getSelectedGroupId;
-          if (groupId === constants.ALL_GROUPS_ID || groupId === constants.NO_GROUPS_ID) {  // eslint-disable-line
-            learnerGroupIds = this.selectedClassroom.learnerGroups;
+        let learners = [];
+        if (this.getSelectedClassroomId === constants.ALL_CLASSROOMS_ID) {
+          learners = this.getLearners;
+        } else {
+          if (this.getSelectedGroupId === constants.UNGROUPED_ID) {
+            const learnerIds = new Set(this.selectedClassroom.ungroupedLearners);
+            learners = this.getLearners.filter(learner => learnerIds.has(learner.id));
+          } else if (this.getSelectedGroupId === constants.ALL_GROUPS_ID) {
+            const groupIds = this.selectedClassroom.learnerGroups;
+            const groups = this.getLearnerGroups.filter(g => groupIds.indexOf(g.id) !== -1);
+            const learnerIds = new Set();
+            groups.forEach(g => g.learners.forEach(id => learnerIds.add(id)));
+            this.selectedClassroom.ungroupedLearners.forEach(id => learnerIds.add(id));
+            learners = this.getLearners.filter(learner => learnerIds.has(learner.id));
           } else {
-            learnerGroupIds = [groupId];
+            const group = this.getLearnerGroups.find(g => g.id === this.getSelectedGroupId);
+            const learnerIds = new Set(group.learners);
+            learners = this.getLearners.filter(learner => learnerIds.has(learner.id));
           }
-          const learnerIds = new Set();
-          this.getLearnerGroups.filter(
-            g => learnerGroupIds.indexOf(g.id) !== -1
-          )
-          .forEach(group => {
-            group.learners.forEach(learnerId => {
-              if (!learnerIds.has(learnerId)) {
-                learnerIds.add(learnerId);
-              }
-            });
-          });
-
-          _learners = [];
-          learners.forEach(learner => {
-            if (learnerIds.has(learner.id)) {
-              _learners.push(learner);
-            }
-          });
         }
-        return _learners;
+        return learners;
       },
     },
 

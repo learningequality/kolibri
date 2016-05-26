@@ -70,6 +70,7 @@ const mutations = {
         id: classroom.id,
         name: classroom.name,
         learnerGroups: classroom.learnerGroups,
+        ungroupedLearners: classroom.ungroupedLearners,
       });
     }
   },

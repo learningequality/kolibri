@@ -1,5 +1,3 @@
-const { constants } = require('./store.js');
-
 function addClassroom({ dispatch }, attrs) {
   dispatch('ADD_CLASSROOM', attrs);
 }
@@ -42,26 +40,34 @@ function fetch({ dispatch }, classroomListUrl, learnerGroupListUrl,
                   const learners = JSON.parse(xhr3.response);
                   const memberships = JSON.parse(xhr4.response);
 
-                  dispatch('ADD_CLASSROOMS', classrooms.map(classroom => {
-                    const lgs = [{
-                      id: constants.UNGROUPED_ID,
-                      name: 'Ungrouped',
-                      learners: [],
-                    }];
-                    lgs.push(...learnerGroups.filter(g => g.parent === classroom.id));
-                    return Object.assign({}, classroom, {
-                      learnerGroups: lgs,
-                    });
-                  }));
-
+                  const groupedLearners = new Set();
                   dispatch('ADD_LEARNER_GROUPS', learnerGroups.map(group => {
                     const learnerIds = memberships.filter(m => m.collection === group.id)
                       .map(m => m.user);
+                    learnerIds.forEach(id => groupedLearners.add(id));
                     return Object.assign({}, group, {
                       learners: learners.filter(learner => learnerIds.indexOf(learner.id) !== -1)
                         .map(learner => learner.id),
                     });
                   }));
+
+                  dispatch(
+                    'ADD_CLASSROOMS',
+                    classrooms.map(classroom => {
+                      const learnerIds = memberships.filter(m => m.collection === classroom.id)
+                        .map(m => m.user);
+                      const ungroupedLearners = learnerIds.filter(id => !groupedLearners.has(id));
+                      return Object.assign(
+                        {},
+                        classroom,
+                        {
+                          learnerGroups: learnerGroups.filter(g => g.parent === classroom.id)
+                            .map(g => g.id),
+                          ungroupedLearners,
+                        }
+                      );
+                    })
+                  );
 
                   dispatch('ADD_LEARNERS', learners);
                 }
