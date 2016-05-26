@@ -82,7 +82,7 @@ var parseBundlePlugin = function(data, base_dir) {
             output: {
                 path: path.relative(base_dir, path.join(data.static_dir, data.name)),
                 filename: "[name]-[hash].js",
-                publicPath: path.join(data.name, "/"),
+                publicPath: path.join("/", data.staticUrlRoot, data.name, "/"),
                 library: library
             },
 
