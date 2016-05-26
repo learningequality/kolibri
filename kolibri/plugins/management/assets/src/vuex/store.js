@@ -9,6 +9,7 @@ const ALL_CLASSROOMS_ID = null;
 // Just don't want them to clash with *actual* group ids
 const ALL_GROUPS_ID = 'allgroups';
 const NO_GROUPS_ID = 'nogroups';
+const UNGROUPED_ID = 'ungrouped';
 
 function getInitialState() {
   /* It should have a classrooms attribute that looks like this
@@ -103,6 +104,7 @@ const constants = {
   ALL_CLASSROOMS_ID,
   ALL_GROUPS_ID,
   NO_GROUPS_ID,
+  UNGROUPED_ID,
 };
 
 module.exports = {

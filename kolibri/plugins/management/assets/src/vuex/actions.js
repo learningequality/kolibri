@@ -1,3 +1,5 @@
+const { constants } = require('./store.js');
+
 function addClassroom({ dispatch }, attrs) {
   dispatch('ADD_CLASSROOM', attrs);
 }
@@ -26,14 +28,19 @@ function fetch({ dispatch }, classroomListUrl, learnerGroupUrl) {
       const xhr2 = new XMLHttpRequest();
       xhr2.open('GET', `${learnerGroupUrl}?parent_in=${global.encodeURIComponent(JSON.stringify(cids))}`);  // eslint-disable-line max-len
       xhr2.onreadystatechange = () => {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          const learnerGroups = JSON.parse(xhr.response);
-
-          dispatch('ADD_CLASSROOMS', classrooms.map(classroom =>
-            Object.assign({}, classroom, {
-              learnerGroups: learnerGroups.filter(g => g.parent === classroom.id),
-            })
-          ));
+        if (xhr2.readyState === 4 && xhr2.status === 200) {
+          const learnerGroups = JSON.parse(xhr2.response);
+          dispatch('ADD_CLASSROOMS', classrooms.map(classroom => {
+            const lgs = [{
+              id: constants.UNGROUPED_ID,
+              name: 'Ungrouped',
+              learners: [],
+            }];
+            lgs.push(...learnerGroups.filter(g => g.parent === classroom.id));
+            return Object.assign({}, classroom, {
+              learnerGroups: lgs,
+            });
+          }));
 
           dispatch('ADD_LEARNER_GROUPS', learnerGroups.map(group =>
             Object.assign({}, group, {
