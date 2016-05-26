@@ -13,6 +13,35 @@ const Management = require('../src/main.vue');
 const fixture1 = require('./fixtures/fixture1.js');
 
 
+/*
+Neat little snippet for testing actions, modified from the vuex docs.
+Asserts that the expectedMutations (an array of objects with name & payload attributes)
+occurs in the given order. At least one expected mutation must be given.
+Does not fail if *more* mutations than expected occur -- it will simply terminate
+successfully as soon as the *expected* mutations finish up.
+ */
+function testAction(action, args, state, expectedMutations, done) {
+  let count = 0;
+
+  return new Promise((resolve) => {
+    // mock dispatch
+    const dispatch = (name, ...payload) => {
+      const mutation = expectedMutations[count];
+      assert.equal(name, mutation.name);
+      if (payload) {
+        assert.deepEqual(payload, mutation.payload, `Mutation ${name} not given right payload.`);
+      }
+      count++;
+      if (count >= expectedMutations.length) {
+        resolve();
+      }
+    };
+    // call the action with mocked store and arguments
+    action({ dispatch, state }, ...args);
+  }).then(done);
+}
+
+
 describe('The management module', () => {
   it('defines a Management vue', () => {
     // A sanity check
@@ -61,6 +90,7 @@ describe('The management module', () => {
       before(function () {
         this.xhr = sinon.useFakeXMLHttpRequest();
         this.requests = [];
+        this.urls = ['classrooms', 'learnergroups', 'learners', 'memberships'];
         this.xhr.onCreate = req => {
           this.requests.push(req);
         };
@@ -70,11 +100,39 @@ describe('The management module', () => {
         this.xhr.restore();
       });
 
-      it('that makes 4 requests', function () {
-        const urls = sinon.spy();
-        fetch(store, urls, urls); // takes two urls that we don't care about...
-        this.requests.forEach(req => req.respond(200, {}, JSON.stringify([])));
-        assert.equal(this.requests.length, 4);
+      it('that mutates the state in a particular way', function (done) {
+        const expectedMutations = [ // The order is significant in this case
+          /* eslint-disable */
+          {
+            name: 'ADD_LEARNER_GROUPS',
+            payload: [[
+              {"id":4,"name":"Foo's group","parent":2,"learners":[1]},
+              {"id":5,"name":"Bar's group","parent":3,"learners":[3]},
+            ]],
+          },
+          {
+            name: 'ADD_CLASSROOMS',
+            payload: [[
+              {"id":2,"name":"Foo","parent":1,"learnerGroups":[4],"ungroupedLearners":[2]},
+              {"id":3,"name":"Bar","parent":1,"learnerGroups":[5],"ungroupedLearners":[]},
+            ]],
+          },
+          {
+            name: 'ADD_LEARNERS',
+            payload: [[
+              {"id":1,"username":"mike","first_name":"mike","last_name":"gallaspy","facility":1},
+              {"id":2,"username":"jessica","first_name":"Jessica","last_name":"Aceret","facility":1},
+              {"id":3,"username":"jduck","first_name":"John","last_name":"Duck","facility":1}]],
+          },
+          /* eslint-enable */
+        ];
+        testAction(fetch, this.urls, {}, expectedMutations, done);
+        const responses = require('./fixtures/responseFixtures.js');
+        let count = 0;
+        this.requests.forEach(req => {
+          req.respond(200, {}, JSON.stringify(responses[count]));
+          count++;
+        });
       });
     });
   });
