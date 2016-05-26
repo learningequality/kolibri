@@ -3,7 +3,7 @@
   <core-base>
     <div>
       <drop-down v-ref:classroom-selector :list="classrooms" :selected.sync="selectedClassroom"></drop-down>
-      <button v-on:click="addClassroom({name: 'foo'})">Create</button>
+      <button>Create</button>
       <button>Delete</button>
     </div>
     <div>

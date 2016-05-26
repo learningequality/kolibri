@@ -35,8 +35,8 @@
       learners: {
         type: Array,
         default: () => [{
-          last_name: 'Duck',
-          first_name: 'John',
+          last_name: 'Default',
+          first_name: 'Value',
         }],
       },
     },

@@ -18,6 +18,7 @@ function getInitialState() {
       id: <my cool id>,
       name: 'Classroom A',
       learnerGroups: [<a list of learner group ids>],
+      ungroupedLearners: [<a list of learner ids>]
     },
   ];
   */
