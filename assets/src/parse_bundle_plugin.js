@@ -37,6 +37,7 @@ var parseBundlePlugin = function(data, base_dir) {
     if ((typeof data.src_file !== "undefined") &&
         (typeof data.name !== "undefined") &&
         (typeof data.static_dir !== "undefined") &&
+        (typeof data.static_url_root !== "undefined") &&
         (typeof data.stats_file !== "undefined")) {
         bundle_data[data.name] = data.src_file;
         if (typeof data.external !== "undefined" && data.external && data.core_name) {
@@ -82,7 +83,7 @@ var parseBundlePlugin = function(data, base_dir) {
             output: {
                 path: path.relative(base_dir, path.join(data.static_dir, data.name)),
                 filename: "[name]-[hash].js",
-                publicPath: path.join("/", data.staticUrlRoot, data.name, "/"),
+                publicPath: path.join("/", data.static_url_root, data.name, "/"),
                 library: library
             },
 

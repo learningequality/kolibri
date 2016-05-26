@@ -149,7 +149,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             "stats_file": self.stats_file,
             "events": self.events,
             "once": self.once,
-            "staticUrlRoot": getattr(django_settings, 'STATIC_URL'),
+            "static_url_root": getattr(django_settings, 'STATIC_URL'),
         }
 
     @property
