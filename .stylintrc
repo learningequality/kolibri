@@ -1,4 +1,112 @@
-// This empty rc file is necessary until to prevent builds from failing in certain environments.
-// https://github.com/rossPatton/stylint/pull/307 might address this eventually.
-
-{}
+{
+  "reporter": "stylint-stylish",
+  "reporterOptions": {
+    "verbose": true
+  },
+  "blocks": {
+    "expect": "never",
+    "error": true
+  },
+  "brackets": {
+    "expect": "never",
+    "error": true
+  },
+  "colons": {
+    "expect": "always",
+    "error": true
+  },
+  "colors": false,
+  "commaSpace": {
+    "expect": "always",
+    "error": true
+  },
+  "commentSpace": {
+    "expect": "always",
+    "error": true
+  },
+  "cssLiteral": {
+    "expect": "never",
+    "error": true
+  },
+  "depthLimit": {
+    "expect": 3,
+    "error": true
+  },
+  "duplicates": false,
+  "efficient": {
+    "expect": "always",
+    "error": true
+  },
+  "exclude": [],
+  "extendPref": {
+    "expect": "@extends",
+    "error": true
+  },
+  "globalDupe": false,
+  "indentPref": {
+    "expect": 2,
+    "error": true
+  },
+  "leadingZero": {
+    "expect": "always",
+    "error": true
+  },
+  "maxErrors": false,
+  "maxWarnings": false,
+  "mixed": {
+    "expect": true,
+    "error": true
+  },
+  "namingConvention": {
+    "expect": "lowercase-dash",
+    "error": true
+  },
+  "namingConventionStrict": {
+    "expect": true,
+    "error": true
+  },
+  "none": {
+    "expect": "always",
+    "error": true
+  },
+  "noImportant": {
+    "expect": true,
+    "error": true
+  },
+  "parenSpace": {
+    "expect": "never",
+    "error": true
+  },
+  "placeholders": false,
+  "prefixVarsWithDollar": {
+    "expect": "always",
+    "error": true
+  },
+  "quotePref": {
+    "expect": "single",
+    "error": true
+  },
+  "semicolons": {
+    "expect": "never",
+    "error": true
+  },
+  "sortOrder": false,
+  "stackedProperties": {
+    "expect": "never",
+    "error": true
+  },
+  "trailingWhitespace": {
+    "expect": "never",
+    "error": true
+  },
+  "universal": "never",
+  "valid": {
+    "expect": true,
+    "error": true
+  },
+  "zeroUnits": {
+    "expect": "never",
+    "error": true
+  },
+  "zIndexNormalize": false
+}

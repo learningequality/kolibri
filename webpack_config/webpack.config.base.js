@@ -16,26 +16,34 @@ var webpack = require('webpack');
 var config = {
     module: {
         preLoaders: [
-          {
-              test: /\.vue$/,
-              loader: 'eslint',
-              exclude: /node_modules/
-          },
-          {
-              test: /\.js$/,
-              loader: 'eslint',
-              exclude: /node_modules/
-          }
+            {
+                test: /\.vue$/,
+                loader: 'eslint',
+                exclude: /node_modules/
+            },
+            {
+                test: /\.js$/,
+                loader: 'eslint',
+                exclude: /node_modules/
+            }
         ],
         loaders: [
             {
-              test: /\.vue$/,
-              loader: 'vue'
+                test: /\.vue$/,
+                loader: 'vue'
             },
             {
                 test: /\.js$/,
                 loader: 'babel',
                 exclude: /node_modules/
+            },
+            {
+                test: /\.css$/,
+                loader: 'style-loader!css-loader'
+            },
+            {
+                test: /\.styl$/,
+                loader: 'style-loader!css-loader?sourceMap!stylus-loader!stylint'
             },
             // Hack to make the onloadCSS node module properly export-able.
             // Not currently used - we may be able to delete this if we
@@ -43,26 +51,16 @@ var config = {
             {
                 test: /fg-loadcss\/src\/onloadCSS/,
                 loader: 'exports?onloadCSS'
-            },
-            //Loaders for straight css
-            {
-                test: /\.css$/,
-                loader: 'style-loader!css-loader'
-            },
-            // loaders for stylus
-            {
-                test: /\.styl$/,
-                loader: 'style-loader!css-loader!stylus-loader'
             }
         ]
     },
     plugins: [
     ],
     resolve: {
-        // shortcut to allow importing the core kolibri_module from other bundles (plugins)
         alias: {
             'kolibri_module': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'kolibri_module'),
             'core-base': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'core-base'),
+            'core-theme.styl': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'core-theme.styl'),
         },
         extensions: ["", ".vue", ".js"],
     },
