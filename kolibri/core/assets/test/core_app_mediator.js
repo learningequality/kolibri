@@ -4,6 +4,10 @@ var assert = require('assert');
 var sinon = require('sinon');
 var rewire = require('rewire');
 
+if (!global.hasOwnProperty('Intl')) {
+  global.Intl = require('intl');
+}
+
 var Mediator = rewire('../src/core_app_mediator.js');
 
 describe('Mediator', function() {
