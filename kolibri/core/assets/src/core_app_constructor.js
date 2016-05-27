@@ -3,6 +3,8 @@
  * @module Facade
  */
 
+const vue = require('vue');
+const VueIntl = require('vue-intl');
 const Mediator = require('./core_app_mediator');
 
 /**
@@ -27,7 +29,7 @@ const publicMethods = [
 function Lib() {
   // libraries
   this.loglevel = require('loglevel');
-  this.vue = require('vue');
+  this.vue = vue;
   // views
   this.coreBase = require('./core-base');
 }
@@ -40,6 +42,32 @@ function Lib() {
 module.exports = function CoreApp() {
   this.lib = new Lib();
   const mediator = new Mediator();
+
+  /**
+   * Use the vue-intl plugin.
+   **/
+  vue.use(VueIntl);
+
+  /**
+   * If the browser doesn't support the Intl polyfill, we retrieve that and
+   * the modules need to wait until that happens.
+   **/
+  if (!global.hasOwnProperty('Intl')) {
+    require.ensure(
+      [
+        'intl',
+        'intl/locale-data/jsonp/en.js',
+        // add more locales here
+      ],
+      (require) => {
+        require('intl');
+        require('intl/locale-data/jsonp/en.js');
+        mediator.setReady();
+      }
+    );
+  } else {
+    mediator.setReady();
+  }
 
   // Bind 'this' value for public methods - those that will be exposed in the Facade.
   this.kolibri_modules = mediator._kolibriModuleRegistry;

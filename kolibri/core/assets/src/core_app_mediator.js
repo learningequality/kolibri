@@ -43,7 +43,19 @@ module.exports = class Mediator {
      **/
     this._asyncCallbackRegistry = {};
 
+    // we use a Vue object solely for its event functionality
     this._eventDispatcher = new Vue();
+
+    // wait to call kolibri_module `ready` until dependencies are loaded
+    this._ready = false;
+  }
+
+  /**
+   * Trigger 'ready' function on all registered modules
+   **/
+  setReady() {
+    this._ready = true;
+    this.emit('ready');
   }
 
   /**
@@ -70,7 +82,13 @@ module.exports = class Mediator {
     this._executeCallbackBuffer(kolibriModule);
     logging.info(`KolibriModule: ${kolibriModule.name} registered`);
     this.emit('kolibri_register', kolibriModule);
-    kolibriModule.ready();
+    if (this._ready) {
+      kolibriModule.ready();
+    } else {
+      this._eventDispatcher.$once('ready', () => {
+        kolibriModule.ready();
+      });
+    }
   }
 
   /**
