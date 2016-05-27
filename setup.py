@@ -2,6 +2,11 @@
 
 from setuptools import setup
 
+# Notice that we dare do this during setup.py -- this enforces a special
+# restraint on module initialization, namely that it shouldn't do anything
+# that depends on an installed environment.
+import kolibri
+
 readme = open('README.rst').read()
 doclink = """
 Documentation
@@ -12,12 +17,12 @@ history = open('CHANGELOG.rst').read().replace('.. :changelog:', '')
 
 setup(
     name='kolibri',
-    version='0.0.1',
+    version=kolibri.__version__,
     description='Kolibri',
     long_description=readme + '\n\n' + doclink + '\n\n' + history,
     author='Learning Equality',
     author_email='info@learningequality.org',
-    url='https://github.com/benjaoming/kolibri_skeleton',
+    url='https://github.com/learningequality/kolibri',
     packages=[
         'kolibri',
     ],
