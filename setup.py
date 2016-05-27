@@ -13,18 +13,28 @@ from setuptools.command.install_scripts import install_scripts
 import kolibri
 from kolibri import dist as kolibri_dist
 
+
+def read_file(fname):
+    """
+    Read file and decode in py2k
+    """
+    if sys.version_info < (3,):
+        return open(fname).read().decode("utf-8")
+    return open(fname).read()
+
 # Notice that we dare do this during setup.py -- this enforces a special
 # restraint on module initialization, namely that it shouldn't do anything
 # that depends on an installed environment.
 dist_name = 'kolibri'
 
-readme = open('README.rst').read().decode("utf-8")
+readme = read_file('README.rst')
 doclink = """
 Documentation
 -------------
 
 The full documentation is at http://kolibri.rtfd.org."""
-history = open('CHANGELOG.rst').read().decode("utf-8").replace('.. :changelog:', '')
+
+history = read_file('CHANGELOG.rst').replace('.. :changelog:', '')
 
 # Default description of the distributed package
 description = (
