@@ -48,9 +48,9 @@ A Django model that is a foreign key in File model to show what language it supp
 ChannelMetadata
 ---------------
 
-A Django model in its own database, `channeldb.sqlite`, stores all the database names for each channel, also including some metadata such as description, author, and human readable name. 
+A Django model in each channel database that stores the database readable names, description and author for each channel. 
 
 AbstractContent
 ---------------
 
-In Kolibri, each channel has its own database. To support dynamic channel switching, all models in the Content app inherit from AbstractContent, an abstract Django Model class with custom model Manager that enables query on different database based on the database name.
+In Kolibri, each channel has its own database. To support dynamic channel switching, all models in the Content app inherit from AbstractContent, an abstract Django Model class with custom model Manager that enables querying on different database based on the database name.
