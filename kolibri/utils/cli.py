@@ -1,16 +1,28 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-import django
-import importlib
-import logging
-import os
-import signal
-import sys
-import kolibri
+# Do this before importing anything else, we need to add bundled requirements
+# from the distributed version in case it exists before importing anything
+# else.
+# TODO: Do we want to manage the path at an even more fundametal place like
+# kolibri.__init__ !? Load order will still matter...
+import os  # noqa
+import sys  # noqa
+import kolibri  # noqa
+from kolibri import dist as kolibri_dist  # noqa
 
-from docopt import docopt
-from logging import config as logging_config
-from django.core.management import call_command
+# Setup path in case we are running with dependencies bundled into Kolibri
+sys.path.append(
+    os.path.realpath(os.path.dirname(kolibri_dist.__file__))
+)
+
+import django  # noqa
+import importlib  # noqa
+import logging  # noqa
+import signal  # noqa
+
+from docopt import docopt  # noqa
+from logging import config as logging_config  # noqa
+from django.core.management import call_command  # noqa
 
 USAGE = """
 Kolibri
