@@ -178,7 +178,7 @@ if static_requirements and is_building_dist:
         opts.isolated = True
         opts.compile = False
         opts.ignore_dependencies = True
-        opts.use_wheel = False
+        # opts.use_wheel = False
         opts.no_clean = False
         command.run(opts, distributions)
         # requirement_set.source_dir = STATIC_DIST_PACKAGES_TEMP
@@ -199,7 +199,7 @@ elif is_building_dist:
 setup(
     name=dist_name,
     version=kolibri.__version__,
-    description='Kolibri',
+    description=description,
     long_description="{readme}\n\n{doclink}\n\n{history}".format(
         readme=readme,
         doclink=doclink,
@@ -209,7 +209,7 @@ setup(
     author_email='info@learningequality.org',
     url='https://github.com/learningequality/kolibri',
     packages=[
-        'kolibri',
+        str('kolibri'),  # https://github.com/pypa/setuptools/pull/597
     ],
     entry_points={
         'console_scripts': [
