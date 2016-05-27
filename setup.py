@@ -18,13 +18,13 @@ from kolibri import dist as kolibri_dist
 # that depends on an installed environment.
 dist_name = 'kolibri'
 
-readme = open('README.rst').read()
+readme = open('README.rst').read().decode("utf-8")
 doclink = """
 Documentation
 -------------
 
 The full documentation is at http://kolibri.rtfd.org."""
-history = open('CHANGELOG.rst').read().replace('.. :changelog:', '')
+history = open('CHANGELOG.rst').read().decode("utf-8").replace('.. :changelog:', '')
 
 # Default description of the distributed package
 description = (
@@ -43,6 +43,7 @@ is_building_dist = any(
 )
 
 static_requirements = []
+static_dir = os.path.dirname(os.path.realpath(kolibri_dist.__file__))
 
 install_requires = [
     'colorlog',
@@ -147,7 +148,6 @@ if static_requirements and is_building_dist:
     )
 
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    static_dir = os.path.dirname(os.path.realpath(kolibri_dist.__file__))
     static_cache_dir = os.path.join(current_dir, 'dist-packages-cache')
     static_temp_dir = os.path.join(current_dir, 'dist-packages-temp')
 
@@ -186,12 +186,25 @@ if static_requirements and is_building_dist:
 
     install_distributions(static_requirements)
 
+elif is_building_dist:
+
+    if len(os.listdir(static_dir)) > 3:
+        raise RuntimeError(
+            "Please empty {} - make clean!".format(
+                static_dir
+            )
+        )
+
 
 setup(
     name=dist_name,
     version=kolibri.__version__,
     description='Kolibri',
-    long_description=readme + '\n\n' + doclink + '\n\n' + history,
+    long_description="{readme}\n\n{doclink}\n\n{history}".format(
+        readme=readme,
+        doclink=doclink,
+        history=history
+    ),
     author='Learning Equality',
     author_email='info@learningequality.org',
     url='https://github.com/learningequality/kolibri',
