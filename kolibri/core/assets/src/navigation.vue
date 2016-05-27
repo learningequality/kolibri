@@ -1,16 +1,16 @@
 <template>
 
-  <header id="navigation-module">
+  <header>
     <nav class="titlebar">
 
-      <div class="titlebar_left">
-        <span class="titlebar_title">{{title_bar.title}}</span>
-        <a class="titlebar_homelink" href="{{title_bar.home_link}}">Home</a>
+      <div>
+        <span>{{title_bar.title}}</span>
+        <a href="{{title_bar.home_link}}">Home</a>
       </div>
 
-      <div class="titlebar_right">
-        <span v-on:click="user_nav_display_toggle">{{user.first_name}}</span>
-        <div class="usermenu" v-bind:style="{display: user_nav_display}">
+      <div>
+        <span class="user-menu-btn" v-on:click="userNavDisplayToggle">{{user.first_name}}</span>
+        <div class="user-menu-popup" v-show="userNavDisplay">
           <ul>
             <li v-for="item in user_nav_items">
               <a href={{item.url}}>{{item.text}}</a>
@@ -21,7 +21,7 @@
     </nav>
 
     <nav class="navlinks">
-      <div class="navlinks_item" v-for="item in nav_items">
+      <div class="navlinks-item" v-for="item in nav_items">
         <a href="{{item.url}}">{{ item.text }}</a>
       </div>
     </nav>
@@ -31,95 +31,69 @@
 
 
 <script>
-module.exports = {
-  data() {
-    return {
-      // items that go in the title bar
-      nav_items: window._nav ? window._nav.nav_items || [] : [],
-      title_bar: {
-        title: 'Kolibri',
-        home_link: '/',
-      },
-      user_nav_display: 'none',
 
-      // items that go into the user menu
-      user_nav_items: window._nav ? window._nav.user_nav_items || [] : [],
-      user: {
-        username: 'foobar',
-        first_name: 'Foo',
-        last_name: 'Bar',
-      },
-    };
-  },
-  methods: {
-    user_nav_display_toggle() {
-      if (this.user_nav_display === 'none') {
-        this.user_nav_display = 'block';
-      } else {
-        this.user_nav_display = 'none';
-      }
+  module.exports = {
+    data() {
+      return {
+        // items that go in the title bar
+        nav_items: window._nav ? window._nav.nav_items || [] : [],
+        title_bar: {
+          title: 'Kolibri',
+          home_link: '/',
+        },
+        userNavDisplay: false,
+
+        // items that go into the user menu
+        user_nav_items: window._nav ? window._nav.user_nav_items || [] : [],
+        user: {
+          username: 'foobar',
+          first_name: 'Foo',
+          last_name: 'Bar',
+        },
+      };
     },
-  },
-};
+    methods: {
+      userNavDisplayToggle() {
+        this.userNavDisplay = !this.userNavDisplay;
+      },
+    },
+  };
 
 </script>
 
 
 <style lang="stylus" scoped>
 
-  $kolibri_purple = #bd8cbf
-  $kolibri_gray = #c4c4c4
-  $kolibri_nav_fonts = sans-serif
+  @require '~core-theme.styl'
+
 
   header
-    font-family: $kolibri_nav_fonts
+    background-color: $core-bg-light
 
   .titlebar
-    // for consistent percentages. Maybe bring in normalize?
-    box-sizing: border-box
-    background-color: $kolibri_purple
-    color: white
+    display: flex
+    justify-content: space-between
+    padding: 10px
 
-    // fix for the div float issue
-    overflow: auto
-    padding: 1 em
-    width: 100%
+  .user-menu-btn
+    cursor: pointer
 
-    &_left
-      float: left
-      width:70%
-    &_right
-      float: right
-      width: 30%
-      span
-        float: right
-
-  .navlinks
-    box-sizing: border-box
-    overflow: auto
-    width: 90%
-    margin: 0 5% 0 5%
-    padding-top: .5em
-    border-bottom: 1px solid $kolibri_gray
-    &_item
-      float:left
-      padding:0 .5em 0 .5em
-      font-size: 1.5em
-      a
-        text-decoration: none
-        color: $kolibri_gray
-
-  .usermenu
-    position:absolute
+  .user-menu-popup
+    text-align: right
+    position: absolute
     top: 2em
     right: 1em
-    box-shadow: 2px 2px 3px $kolibri_gray
-    background-color: white
+    box-shadow: 2px 2px 3px $core-text-default
+    background-color: $core-bg-light
+
     ul
       padding: 3px
       list-style: none
-    a
-      color: $kolibri_gray
-      text-decoration: none
+
+  .navlinks
+    display: flex
+
+  .navlinks-item
+    margin: 0 0.5em
 
 </style>

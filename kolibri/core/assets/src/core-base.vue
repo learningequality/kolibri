@@ -1,13 +1,11 @@
 <template>
 
-  <header>
-    <kolibri-nav></kolibri-nav>
-  </header>
+  <kolibri-nav></kolibri-nav>
   <main>
     <slot></slot>
   </main>
   <footer>
-    Call a podiatrist – I'm in a footer!
+    foot!
   </footer>
 
 </template>
@@ -21,12 +19,18 @@ export default {
 </script>
 
 
-<style lang="stylus">
-  /* These global styles apply to everything */
+<style lang="stylus" scoped>
 
-  html, body
-    font-family: sans-serif
-    margin:0
-    padding:0
-    box-sizing: border-box
+  @require '~core-theme.styl'
+
+  main
+    margin: 10px
+
+  footer
+    background-color: $core-bg-light
+    bottom: 1vh
+    position: fixed
+    padding: 10px
+    width: 100%
+
 </style>

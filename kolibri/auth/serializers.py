@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function, unicode_literals
+
 from rest_framework import serializers
 
 from .models import (
@@ -59,11 +61,11 @@ class ClassroomSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Classroom
-        exclude = ("dataset", "kind")
+        fields = ('id', 'name', 'parent')
 
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LearnerGroup
-        exclude = ("dataset", "kind")
+        fields = ('id', 'name', 'parent')
