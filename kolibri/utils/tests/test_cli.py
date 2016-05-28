@@ -3,32 +3,16 @@ Tests for `kolibri` module.
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
+import logging
 import os
 import shutil
 import tempfile
-import unittest
-
-
-import logging
 
 from kolibri.utils.cli import main
-import kolibri
+
+from .base import KolibriTestBase
 
 logger = logging.getLogger(__name__)
-
-
-class KolibriTestBase(unittest.TestCase):
-    """
-    Sets up an isolated,temporary environment for testing Kolibri
-    """
-
-    @classmethod
-    def setup_class(cls):
-        os.environ["KOLIBRI_HOME"] = tempfile.mkdtemp()
-
-    @classmethod
-    def teardown_class(cls):
-        shutil.rmtree(os.environ["KOLIBRI_HOME"])
 
 
 class TestKolibriCLI(KolibriTestBase):
@@ -42,9 +26,6 @@ class TestKolibriCLI(KolibriTestBase):
         # Test the -h
         with self.assertRaises(SystemExit):
             main("-h")
-
-    def test_version(self):
-        self.assertIn(".".join(kolibri.VERSION[:3]), kolibri.__version__)
 
     @classmethod
     def teardown_class(cls):
