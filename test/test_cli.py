@@ -12,6 +12,7 @@ import unittest
 import logging
 
 from kolibri.utils.cli import main
+import kolibri
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,9 @@ class TestKolibriCLI(KolibriTestBase):
         # Test the -h
         with self.assertRaises(SystemExit):
             main("-h")
+
+    def test_version(self):
+        self.assertIn(".".join(kolibri.VERSION[:3]), kolibri.__version__)
 
     @classmethod
     def teardown_class(cls):
