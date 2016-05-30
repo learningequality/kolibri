@@ -31,6 +31,7 @@ Added
  - Adds Django JS Reverse and loads into kolibriGlobal object
  - Creates kolibri.auth API endpoint filtering
  - Adds management plugin for managing learners, classrooms, and groups
+ - Automatic inclusion of requirements in a static build
 
 Changed
 ^^^^^^^
