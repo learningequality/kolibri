@@ -100,7 +100,8 @@ then
                      "^setup\.py" \
                      "^requirements" \
                      "^Makefile" \
-                     "^MANIFEST*"
+                     "^MANIFEST*" \
+       && true # <- because of set -e
     then
 
         # Install build deps
@@ -109,6 +110,26 @@ then
         # Build .whl
         make sdist
         pip install dist/kolibri-*.whl
+        exit 0
+
+    fi
+
+fi
+
+# If something changes that's related to our sdist packaging
+# or installation mechanism, then we build and install.
+if [[ "$LABEL" == "requirements_changed" ]]
+then
+
+    # Match with commit messages containing "[ license ]"
+    # Match commits changing requirements.txt
+    if match_changes "\[\s*license\s*\]" \
+                     "^requirements" \
+       && true # <- because of set -e
+    then
+
+        echo "Requirements changed, checking license info..."
+        test/license_check.sh
         exit 0
 
     fi
