@@ -10,6 +10,9 @@ import sys
 from setuptools import setup
 from setuptools.command.install_scripts import install_scripts
 
+# Notice that we dare do this during setup.py -- this enforces a special
+# restraint on module initialization, namely that it shouldn't do anything
+# that depends on an installed environment.
 import kolibri
 from kolibri import dist as kolibri_dist
 
@@ -22,9 +25,6 @@ def read_file(fname):
         return open(fname).read().decode("utf-8")
     return open(fname).read()
 
-# Notice that we dare do this during setup.py -- this enforces a special
-# restraint on module initialization, namely that it shouldn't do anything
-# that depends on an installed environment.
 dist_name = 'kolibri'
 
 readme = read_file('README.rst')
