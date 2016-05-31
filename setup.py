@@ -32,9 +32,7 @@ doclink = """
 Documentation
 -------------
 
-The full documentation is at http://kolibri.rtfd.org."""
-
-history = read_file('CHANGELOG.rst').replace('.. :changelog:', '')
+The full documentation is at `http://kolibri.rtfd.org <http://kolibri.rtfd.org>`_."""
 
 # Default description of the distributed package
 description = (
@@ -210,10 +208,9 @@ setup(
     name=dist_name,
     version=kolibri.__version__,
     description=description,
-    long_description="{readme}\n\n{doclink}\n\n{history}".format(
+    long_description="{readme}\n\n{doclink}".format(
         readme=readme,
-        doclink=doclink,
-        history=history
+        doclink=doclink
     ),
     author='Learning Equality',
     author_email='info@learningequality.org',
