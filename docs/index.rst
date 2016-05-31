@@ -5,31 +5,32 @@ Getting Started
 ---------------
 
 .. toctree::
-   :maxdepth: 2
+  :maxdepth: 2
 
-   readme
-   cli
+  readme
+  cli
 
 
 Technical Info
 --------------
 
 .. toctree::
-   :maxdepth: 2
+  :maxdepth: 2
 
 
-   dev/plugins
-   dev/uap
-   dev/user_management
-   modules
+  dev/plugins
+  dev/uap
+  dev/user_management
+  dev/frontend
+  modules
 
 
 Additional Info
 ---------------
 
 .. toctree::
-   :maxdepth: 2
+  :maxdepth: 2
 
-   changelog
-   contributing
-   authors
+  changelog
+  contributing
+  authors

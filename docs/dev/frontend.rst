@@ -23,20 +23,23 @@ into the Django template. Synchronous loading merely inserts the Javascript and 
 the Django template, meaning it is executed at page load. This can be achieved in two ways, firstly simply by using the
 `webpack_asset` template tag:
 
-.. automodule:: kolibri.core.webpack.template_tags.webpack_tags
+.. automodule:: kolibri.core.webpack.templatetags.webpack_tags
     :members: webpack_asset
+    :noindex:
 
 In addition, if a KolibriModule needs to load in the template defined by another plugin or a core part of Kolibri, a
 template tag and hook can be defined to register that KolibriModule's WebpackAssetHook to be loaded on that page. An
 example of this is found for the `base.html` template of the Kolibri core app:
 
-.. automodule:: kolibri.core.webpack.template_tags.webpack_tags
+.. automodule:: kolibri.core.webpack.templatetags.webpack_tags
     :members: webpack_base_assets
+    :noindex:
 
 This relies on the following function to collect all registered KolibriModules and load them synchronously:
 
 .. automodule:: kolibri.core.webpack.utils
     :members: webpack_asset_render
+    :noindex:
 
 Asynchronous loading can also, analogously, be done in two ways. Asynchronous loading registers a KolibriModule against
 the core Kolibri Javascript app on the frontend at page load, but does not load, or execute any of the code until the
@@ -44,7 +47,7 @@ events that the KolibriModule specifies are triggered. When these are triggered,
 load the KolibriModule and pass on any callbacks once it has initialized. Asynchronous loading can be done either
 explicitly with a template tag that directly imports a single KolibriModule:
 
-.. automodule:: kolibri.core.webpack.template_tags.webpack_tags
+.. automodule:: kolibri.core.webpack.templatetags.webpack_tags
     :members: webpack_base_async_assets
 
 Layout of Frontend Code
