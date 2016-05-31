@@ -27,13 +27,11 @@ devices at a school.
 How can I contribute?
 ---------------------
 
-`Join the mailing list! <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_
+`Join the mailing list! <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_ and check out the `contributing <CONTRIBUTING.rst>`_ page.
 
-The project is just starting, but we want the entire development process, from conception to realization, to be carried
-out in the open. More will be added to this section in the very near future!
 
-Running Kolibri
----------------
+Developing Kolibri
+------------------
 
 This is how we typically set up a development environment.
 Adjust according to your operating system or personal preferences.
@@ -47,24 +45,23 @@ Adjust according to your operating system or personal preferences.
 
     $ sudo pip install virtualenvwrapper
 
-#. Follow the instructions from http://virtualenvwrapper.readthedocs.org/en/latest/install.html#basic-installation.
-   You will need to source the virtualenvwrapper.sh file for the following commands to work::
+#. Follow `these instructions <http://virtualenvwrapper.readthedocs.org/en/latest/install.html#basic-installation>`_. You will need to source the virtualenvwrapper.sh file for the following commands to work::
 
     $ mkvirtualenv --python=python3 kolibri
     $ workon kolibri
 
-#. Ensure NodeJS is installed, using a platform-appropriate installer. We test on versions v0.12, v4, and v5.
-   On Ubuntu, you may encounter issues building if you don't use NodeJS installed via [nvm](https://github.com/creationix/nvm).
+#. Install `Node.js <https://nodejs.org/en/>`_. We test on versions v0.12, v4, and v5.
+   (Note: on Ubuntu, you may encounter issues building if you don't use Node.js installed via `nvm <https://github.com/creationix/nvm>`_.)
 
-#. Install all NodeJS dependency packages for building the frontend code::
+#. Install all Node.js dependency packages for building the frontend code::
 
     $ npm install
 
-#. Install the other packages needed for development::
+#. Install the Python packages needed for development::
 
    $ sudo pip install -r requirements/dev.txt
 
-#. Install kolibri as an editable, meaning your installation will point to your git checkout::
+#. Install the Kolibri Python package in 'editable' mode, meaning your installation will point to your git checkout::
 
     $ pip install -e .
 
@@ -85,15 +82,6 @@ Adjust according to your operating system or personal preferences.
     $ pre-commit install
 
 
-#. To build frontend assets for production use the following::
-
-    $ npm run build
-
-#. To build frontend assets in development mode with sourcemaps and watching::
-
-    $ npm run watch
-
-
 Testing
 -------
 
@@ -109,7 +97,7 @@ You can also use ``tox`` to setup a clean and disposable environment::
 To run Python tests for all environments, lint and documentation tests,
 use simply ``tox``. This simulates what our CI also does.
 
-To run linting tests (pep8 and static code analysis), use ``tox -e lint`` or
+To run Python linting tests (pep8 and static code analysis), use ``tox -e lint`` or
 ``make lint``.
 
 Note that tox, by default, reuses its environment when it is run again. If you add anything to the requirements,
@@ -148,33 +136,13 @@ class in kolibri/auth/test/test_permissions.py::
     $ kolibri manage test -- kolibri.auth.test.test_permissions.MembershipPermissionsTestCase.test_admin_can_delete_membership
 
 
-Current Features
-----------------
-
-This is a WIP. Architecture is new, and many things are mentioned with the predecessor KA Lite in mind.
-
-Software architecture
-~~~~~~~~~~~~~~~~~~~~~
-
-* Using py.test
-* Using tox to build py 2.7, 3.4, 3.5 and pypy
-* Automatic linting test (pep8)
-* Static code analysis check (pyflakes)
-* Travis CI (intention to replace with Circle)
-* Integration tests are separate from application code in ``test/``
-* Unit tests live in ``kolibri/test`` and ``kolibri/plugins/core/plugin_name/tests``
-* An example plugin is provided in ``kolibri/plugins/core/example``
-
-
 Documentation
 -------------
 
-Usage and API features are taking shape in ``docs/`` and are readable and online on `Read The Docs <http://kolibri.readthedocs.org/en/latest/>`_
+Usage, development dovs, and API features are taking shape in ``docs/`` and are readable and online on `Read The Docs <http://kolibri.readthedocs.org/en/latest/>`_
 
-Development documentation is in our `Google Drive <https://drive.google.com/open?id=0B-uSasYw3d7la01HeTlBWl9xdEk>`_,
-which you can view and comment on.
+Other documents:
 
-You may wish to start with the following documents:
-
+* Development documentation is in our `Google Drive <https://drive.google.com/open?id=0B-uSasYw3d7la01HeTlBWl9xdEk>`_, which you can view and comment on.
 * `Our governance model <https://drive.google.com/open?id=1Hebvda2YIMed__MDDVrg1iJav2YHK4zYEXJ59ITmCcE>`_
-* `The Kolibri dev bible <https://drive.google.com/open?id=1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8>`_, which aims to be the authoritative guide to Kolibri.
+* `The Kolibri dev bible <https://drive.google.com/open?id=1s8kqh1NSbHlzPCtaI1AbIsLsgGH3bopYbZdM1RzgxN8>`_, which is being superseded over time by the documentation in this repo.
