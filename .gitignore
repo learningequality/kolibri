@@ -48,8 +48,10 @@ output/*/index.html
 docs/_build
 
 # api-docs
-docs/kolibri*rst
-docs/modules.rst
+docs/py_modules/kolibri*rst
+docs/py_modules/modules.rst
+docs/kolibri*rst # old location
+docs/modules.rst # old location
 
 # node
 node_modules

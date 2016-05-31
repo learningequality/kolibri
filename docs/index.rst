@@ -22,7 +22,7 @@ Technical Info
   dev/uap
   dev/user_management
   dev/frontend
-  modules
+  py_modules/modules
 
 
 Additional Info
