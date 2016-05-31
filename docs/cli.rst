@@ -1,5 +1,5 @@
-The `kolibri` command
-=====================
+The ``kolibri`` command
+=======================
 
 .. automodule:: kolibri.utils.cli
     :undoc-members:
