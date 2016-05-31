@@ -25,11 +25,11 @@
   "private": true,
   "dependencies": {
     "babel-runtime": "^6.0.0",
+    "intl": "^1.2.3",
     "loglevel": "^1.4.0",
     "normalize.css": "^4.1.1",
     "vue": "^1.0.21",
-    "intl": "^1.2.3",
-    "vue-intl": "^0.2.0"
+    "vue-intl": "^0.3.0"
   },
   "devDependencies": {
     "babel-core": "^6.0.0",
