@@ -27,7 +27,7 @@ devices at a school.
 How can I contribute?
 ---------------------
 
-`Join the mailing list! <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_ and check out the `contributing <CONTRIBUTING.rst>`_ page.
+`Join the mailing list <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_ and check out the `contributing <CONTRIBUTING.rst>`_ page
 
 
 Developing Kolibri
