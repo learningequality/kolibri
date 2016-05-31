@@ -24,7 +24,7 @@ do
     fi
 
     details=`pip show "$requirement"`
-    license=`echo "$details" | grep -i "License:"`
+    license=`echo "$details" | grep -i "License" || echo ""`
     if echo "$license" | grep -qi "gpl" && true
     then
         echo "Problem! Incompatible license found in $requirement"

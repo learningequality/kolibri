@@ -33,7 +33,16 @@
 
 set -e
 
+# Goto location of this script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR
+
+# Traceback utility for Bash
+. "$DIR/traceback.sh"
+
 LABEL="$1"
+
+FORCE_RUN="$2"
 
 branches_to_always_test=( "master" "releases/*" )
 
@@ -59,6 +68,10 @@ fi
 # echo "Git change set:\n\n$git_changeset"
 
 function match_changes {
+    if ! [ "$FORCE_RUN" == "" ]
+    then
+        return 0
+    fi
     # Usage: match_changes "match1" "match2"
     # if branch should always be tested
     if [ "$TRAVIS_PULL_REQUEST" == "false" ]
@@ -104,13 +117,7 @@ then
        && true # <- because of set -e
     then
 
-        # Install build deps
-        pip install -r requirements/build.txt
-
-        # Build .whl
-        make sdist
-        pip install dist/kolibri-*.whl
-        exit 0
+        . conditional/test_build.sh
 
     fi
 
@@ -129,8 +136,7 @@ then
     then
 
         echo "Requirements changed, checking license info..."
-        test/license_check.sh
-        exit 0
+        . conditional/test_licenses.sh
 
     fi
 
