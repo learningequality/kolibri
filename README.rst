@@ -1,5 +1,5 @@
-Kolibri
-=============================
+Kolibri – Read Me
+=================
 
 .. image:: https://travis-ci.org/learningequality/kolibri.svg
     :target: https://travis-ci.org/learningequality/kolibri
