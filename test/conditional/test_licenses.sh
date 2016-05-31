@@ -12,7 +12,9 @@ set -e
 
 # Put requirement with a ";" at the end
 # Ignoring: docutils, because it's not distributed.
-IGNORES="docutils;"
+# Ignoring: nose because it's something Travis installs in its Python 3.5
+#           environment without it being distributed by us.
+IGNORES="docutils;nose;"
 
 echo "Checking all requirements installed with pip, except $IGNORES..."
 
