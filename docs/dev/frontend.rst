@@ -1,7 +1,7 @@
 Frontend Code
 =============
 
-The behavior of much of Kolibri's user interface is defined by JavaScript code.
+Kolibri's user interface is rendered purely by JavaScript code on the client-side. Django templates and tags are used purely to load the requisite client-side assets.
 
 There are two distinct entities that control this behaviour - a Kolibri Hook on the Python side, which manages the registration of the frontend code within Django (and also facilitates building of that code into compiled assets with Webpack) and a Kolibri Module - which is the JavaScript object that wraps and manages the behaviour for a relatively independent piece of frontend code.
 
@@ -9,71 +9,28 @@ There are two distinct entities that control this behaviour - a Kolibri Hook on 
 Architecture of the Frontend Code
 ---------------------------------
 
-Kolibri has a system for synchronously and asynchronously loading bundled JavaScript modules (that we're calling KolibriModules) which is mediated by a small core js app. KolibriModules define to which events they subscribe, and asynchronously registered KolibriModules are loaded by the core js app only when those events are triggered. For example if the ``VideoViewer`` ``KolibriModule`` subscribes to the "content_loaded:video" event, then when that event is triggered on the core js app it will asynchronously load the VideoViewer module and re-trigger the ``content_loaded:video`` event on the object the module returns.
+Kolibri has a system for synchronously and asynchronously loading bundled JavaScript modules (that we're calling Kolibri Modules) which is mediated by a small core JavaScript app. Kolibri Modules define to which events they subscribe, and asynchronously registered Kolibri Modules are loaded by the core js app only when those events are triggered. For example if the Video Viewer's Kolibri Module subscribes to the ``content_loaded:video`` event, then when that event is triggered on the core js app it will asynchronously load the Video Viewer module and re-trigger the ``content_loaded:video`` event on the object the module returns.
 
-Synchronous and asynchronous loading is defined by the template tag used to import the JavaScript for the ``KolibriModule`` into the Django template. Synchronous loading merely inserts the JavaScript and CSS for the ``KolibriModule`` directly into the Django template, meaning it is executed at page load. This can be achieved in two ways, firstly simply by using the ``webpack_asset`` template tag:
+Synchronous and asynchronous loading is defined by the template tag used to import the JavaScript for the ``KolibriModule`` into the Django template. Synchronous loading merely inserts the JavaScript and CSS for the ``KolibriModule`` directly into the Django template, meaning it is executed at page load.
 
-.. automodule:: kolibri.core.webpack.templatetags.webpack_tags
-    :members: webpack_asset
-    :noindex:
+This can be achieved in two ways using ``kolibri.core.webpack.templatetags.webpack_tags``:
 
-In addition, if a ``KolibriModule`` needs to load in the template defined by another plugin or a core part of Kolibri, a template tag and hook can be defined to register that ``KolibriModule``'s ``WebpackAssetHook`` to be loaded on that page. An example of this is found for the `base.html` template of the Kolibri core app:
+First, simply by using the ``webpack_asset`` template tag.
 
-.. automodule:: kolibri.core.webpack.templatetags.webpack_tags
-    :members: webpack_base_assets
-    :noindex:
+Additionally, if a ``KolibriModule`` needs to load in the template defined by another plugin or a core part of Kolibri, a template tag and hook can be defined to register that ``KolibriModule``'s assets to be loaded on that page. An example of this is found in the ``base.html`` template using the ``webpack_base_assets`` tag.
 
-This relies on the following function to collect all registered KolibriModules and load them synchronously:
+This relies on the following function to collect all registered Kolibri Modules and load them synchronously: ``kolibri.core.webpack.utils.webpack_asset_render``
 
-.. automodule:: kolibri.core.webpack.utils
-    :members: webpack_asset_render
-    :noindex:
+Asynchronous loading can also, analogously, be done in two ways. Asynchronous loading registers a ``KolibriModule`` against the core Kolibri JavaScript app on the frontend at page load, but does not load, or execute any of the code until the events that the ``KolibriModule`` specifies are triggered. When these are triggered, the Kolibri core JavaScript app will load the ``KolibriModule`` and pass on any callbacks once it has initialized. Asynchronous loading can be done either explicitly with a template tag that directly imports a single ``KolibriModule`` using ``webpack_base_async_assets``.
 
-Asynchronous loading can also, analogously, be done in two ways. Asynchronous loading registers a ``KolibriModule`` against the core Kolibri JavaScript app on the frontend at page load, but does not load, or execute any of the code until the events that the ``KolibriModule`` specifies are triggered. When these are triggered, the Kolibri core JavaScript app will load the ``KolibriModule`` and pass on any callbacks once it has initialized. Asynchronous loading can be done either explicitly with a template tag that directly imports a single ``KolibriModule``:
-
-.. automodule:: kolibri.core.webpack.templatetags.webpack_tags
-    :members: webpack_base_async_assets
-
-
-Layout of Frontend Code
------------------------
-
-All frontend files (JavaScript, Stylus, images, templates) should be committed in the relevant 'assets/src' folder of the app/Kolibri module they are associated with.
-
-Kolibri uses a Component based file structure for organizing frontend assets in the 'assets/src' folder.
-
-As such for a particular component of a frontend Kolibri module, would appear in the assets/src folder like this::
-
-    /src/
-        search/
-             search_model.js
-             search_box_view.js
-             search_list_view.js
-             search_list_item_view.js
-             search_box.handlebars
-             search_list.handlebars
-             search_list_item.handlebars
-             search_bg.png
-             search.styl
-        content_search_module.js
-
-As can be seen above, Kolibri modules are defined in the root directory of the 'assets/src' folder.
 
 
 Defining a Kolibri Module
 -------------------------
 
-A Kolibri Module is initially defined in Python code as a Kolibri Hook. The plugin is defined by subclassing the ``WebpackBundleHook`` class to define each frontend Kolibri module.
+A Kolibri Module is initially defined in Python code as a Kolibri Hook. The plugin is defined by sub-classing the ``WebpackBundleHook`` class (in ``kolibri.core.webpack.hooks``) to define each frontend Kolibri module.
 
-.. automodule:: kolibri.core.webpack.hooks
-    :members: WebpackBundleHook
-
-An example of this is found here:
-
-.. automodule:: kolibri.plugins.learn.kolibri_plugin
-    :members: LearnAsset
-
-The hook defines the entry point file (the file that acts as the entry point for this particular Kolibri Module), as well as the events and callbacks to which that module listens. These are defined in the `events` and `once` properties of the plugin. Each defines key-value pairs of the name of an event, and the name of the method on the Kolibri Module object. When these events are triggered on the Kolibri core JavaScript app, these callbacks will be called - or if the Kolibri Module is registered for asynchronous loading, the Kolibri Module will be loaded, and then the callbacks called when it is ready.
+The hook defines the entry point file (the file that acts as the entry point for this particular Kolibri Module), as well as the events and callbacks to which that module listens. These are defined in the ``events`` and ``once`` properties of the plugin. Each defines key-value pairs of the name of an event, and the name of the method on the Kolibri Module object. When these events are triggered on the Kolibri core JavaScript app, these callbacks will be called - or if the Kolibri Module is registered for asynchronous loading, the Kolibri Module will be loaded, and then the callbacks called when it is ready.
 
 
 The Kolibri Core JavaScript App
@@ -131,9 +88,9 @@ All Kolibri Modules should extend the ``KolibriModule`` class found in `kolibri/
         }
     }
 
-The methods defined above are the ones that can be referenced in the `events` and `once` properties of the plugin that defines the Kolibri Module. Defining it in this way allows for asynchronous loading and registration without having to load or execute the JavaScript code.
+The methods defined above are the ones that can be referenced in the ``events`` and ``once`` properties of the plugin that defines the Kolibri Module. Defining it in this way allows for asynchronous loading and registration without having to load or execute the JavaScript code.
 
-The ready method will be automatically executed once the Module is loaded and registered with the Kolibri Core App - whether the DOM is ready to be injected depends on how the JavaScript has been inserted into the page. By convention, JavaScript is currently being injected into the served HTML *after* the `<main>` tag, meaning that this tag should be available when the `ready` method is called.
+The ready method will be automatically executed once the Module is loaded and registered with the Kolibri Core App - whether the DOM is ready to be injected depends on how the JavaScript has been inserted into the page. By convention, JavaScript is currently being injected into the served HTML *after* the ``<app-root>`` tag, meaning that this tag should be available when the ``ready`` method is called.
 
 
 Frontend Tech Stack
