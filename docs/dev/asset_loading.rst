@@ -1,4 +1,4 @@
-Frontend Code
+Asset Loading
 =============
 
 Kolibri's user interface is rendered purely by JavaScript code on the client-side. Django templates and tags are used purely to load the requisite client-side assets.
@@ -6,8 +6,8 @@ Kolibri's user interface is rendered purely by JavaScript code on the client-sid
 There are two distinct entities that control this behaviour - a Kolibri Hook on the Python side, which manages the registration of the frontend code within Django (and also facilitates building of that code into compiled assets with Webpack) and a Kolibri Module - which is the JavaScript object that wraps and manages the behaviour for a relatively independent piece of frontend code.
 
 
-Architecture of the Frontend Code
----------------------------------
+Frontend Code Asset Loading Architecture
+----------------------------------------
 
 Kolibri has a system for synchronously and asynchronously loading bundled JavaScript modules (that we're calling Kolibri Modules) which is mediated by a small core JavaScript app. Kolibri Modules define to which events they subscribe, and asynchronously registered Kolibri Modules are loaded by the core js app only when those events are triggered. For example if the Video Viewer's Kolibri Module subscribes to the ``content_loaded:video`` event, then when that event is triggered on the core js app it will asynchronously load the Video Viewer module and re-trigger the ``content_loaded:video`` event on the object the module returns.
 

@@ -18,10 +18,13 @@ Technical Info
   :maxdepth: 2
 
 
+  dev/files
+  dev/glossary
   dev/plugins
   dev/uap
   dev/user_management
-  dev/frontend
+  dev/ui_components
+  dev/asset_loading
   py_modules/modules
 
 
