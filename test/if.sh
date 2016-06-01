@@ -5,7 +5,7 @@
 #
 # Usage:
 #
-#    testif.sh <label> && something_else
+#    if.sh <label> && something_else
 #
 # The intention is to be able to ONLY test certain aspects
 # when special conditions are satisfied.
