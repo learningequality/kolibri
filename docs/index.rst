@@ -8,6 +8,7 @@ Getting Started
   :maxdepth: 2
 
   readme
+  usageguide
   cli
 
 
