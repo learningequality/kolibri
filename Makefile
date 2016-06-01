@@ -17,6 +17,7 @@ clean-build:
 	rm -fr build/
 	rm -fr dist/
 	rm -fr *.egg-info
+	git clean -X -d -f kolibri/dist
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +

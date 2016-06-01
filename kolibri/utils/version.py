@@ -1,10 +1,14 @@
+"""
+Do not import anything from the rest of Kolibri in this module, it's crucial
+that it can be loaded without the settings/configuration/django stack!
+"""
 from __future__ import unicode_literals
 
 import datetime
 import os
 import subprocess
 
-from django.utils.lru_cache import lru_cache
+from .lru_cache import lru_cache
 
 
 def get_version(version=None):
