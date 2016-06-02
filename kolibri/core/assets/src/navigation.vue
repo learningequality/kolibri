@@ -1,7 +1,7 @@
 <template>
 
-  <header>
-    <nav class="titlebar">
+  <header role="banner">
+    <nav class="titlebar" aria-label="Main navigation">
 
       <div>
         <span>{{title_bar.title}}</span>
@@ -9,9 +9,10 @@
       </div>
 
       <div>
-        <span class="user-menu-btn" v-on:click="userNavDisplayToggle">{{user.first_name}}</span>
+        <button class="user-menu-btn" v-on:click="userNavDisplayToggle">{{user.first_name}}</span>
+        <!-- Why was the above a "span" element? If it is a button as I suspect, let's just use the proper semantic element and style it accordingly! -->
         <div class="user-menu-popup" v-show="userNavDisplay">
-          <ul>
+          <ul aria-label="User options">
             <li v-for="item in user_nav_items">
               <a href="{{item.url}}">{{item.text}}</a>
             </li>
@@ -20,7 +21,7 @@
       </div>
     </nav>
 
-    <nav class="navlinks">
+    <nav class="navlinks" aria-label="Content navigation">
       <div class="navlinks-item" v-for="item in nav_items">
         <a href="{{item.url}}">{{ item.text }}</a>
       </div>

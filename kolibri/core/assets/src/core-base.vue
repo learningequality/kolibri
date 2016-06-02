@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <!-- <kolibri-nav></kolibri-nav> -->
+    <kolibri-nav></kolibri-nav>
     <header class="base-header"><h1>Kolibri Learn</h1></header>
-    <main>
+    <main role="main">
       <slot></slot>
     </main>
   </div>
