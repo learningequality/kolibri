@@ -1,7 +1,7 @@
 <template>
 
   <header role="banner">
-    <nav class="titlebar" aria-label="Main navigation">
+    <nav class="titlebar" role="navigation" aria-label="Main navigation">
 
       <div>
         <span>{{title_bar.title}}</span>
