@@ -9,10 +9,10 @@
       </div>
 
       <div>
-        <button class="user-menu-btn" v-on:click="userNavDisplayToggle">{{user.first_name}}</span>
-        <!-- Why was the above a "span" element? If it is a button as I suspect, let's just use the proper semantic element and style it accordingly! -->
+        <button class="user-menu-btn" v-on:click="userNavDisplayToggle" aria-haspopup="true">{{user.first_name}}</button>
+
         <div class="user-menu-popup" v-show="userNavDisplay">
-          <ul aria-label="User options">
+          <ul aria-label="User options submenu">
             <li v-for="item in user_nav_items">
               <a href={{item.url}}>{{item.text}}</a>
             </li>
