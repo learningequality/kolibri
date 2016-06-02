@@ -1,7 +1,7 @@
 <template>
 
-  <header>
-    <nav class="titlebar">
+  <header role="banner">
+    <nav class="titlebar" role="navigation" aria-label="Main navigation">
 
       <div>
         <span>{{title_bar.title}}</span>
@@ -9,9 +9,10 @@
       </div>
 
       <div>
-        <span class="user-menu-btn" v-on:click="userNavDisplayToggle">{{user.first_name}}</span>
+        <button class="user-menu-btn" v-on:click="userNavDisplayToggle" aria-haspopup="true">{{user.first_name}}</button>
+
         <div class="user-menu-popup" v-show="userNavDisplay">
-          <ul>
+          <ul aria-label="User options submenu">
             <li v-for="item in user_nav_items">
               <a href={{item.url}}>{{item.text}}</a>
             </li>
@@ -20,7 +21,7 @@
       </div>
     </nav>
 
-    <nav class="navlinks">
+    <nav class="navlinks" aria-label="Content navigation">
       <div class="navlinks-item" v-for="item in nav_items">
         <a href="{{item.url}}">{{ item.text }}</a>
       </div>
