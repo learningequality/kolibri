@@ -1,10 +1,10 @@
 <template>
 
   <kolibri-nav></kolibri-nav>
-  <main>
+  <main role="main">
     <slot></slot>
   </main>
-  <footer>
+  <footer role="contentinfo">
     foot!
   </footer>
 
