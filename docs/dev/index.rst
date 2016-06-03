@@ -6,5 +6,6 @@ Developer Guide
 
    building
    plugins
+   tests
    uap
    user_management
