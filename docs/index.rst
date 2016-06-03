@@ -1,8 +1,10 @@
-Kolibri Developer Documentation
-===============================
+User/Deployment Guide
+=====================
 
 Getting Started
 ---------------
+
+To get a glimpse of what will happen, refer to :doc:`user_guide/index`.
 
 .. toctree::
   :maxdepth: 1
@@ -11,6 +13,8 @@ Getting Started
   dev/conventions
   usageguide
 
+Developer Guide
+===============
 
 Architecture
 ------------
@@ -48,3 +52,4 @@ Additional Info
   changelog
   contributing
   authors
+
