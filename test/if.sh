@@ -5,7 +5,7 @@
 #
 # Usage:
 #
-#    testif.sh <label> && something_else
+#    if.sh <label> && something_else
 #
 # The intention is to be able to ONLY test certain aspects
 # when special conditions are satisfied.
@@ -33,7 +33,16 @@
 
 set -e
 
+# Goto location of this script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR
+
+# Traceback utility for Bash
+. "$DIR/traceback.sh"
+
 LABEL="$1"
+
+FORCE_RUN="$2"
 
 branches_to_always_test=( "master" "releases/*" )
 
@@ -59,6 +68,10 @@ fi
 # echo "Git change set:\n\n$git_changeset"
 
 function match_changes {
+    if ! [ "$FORCE_RUN" == "" ]
+    then
+        return 0
+    fi
     # Usage: match_changes "match1" "match2"
     # if branch should always be tested
     if [ "$TRAVIS_PULL_REQUEST" == "false" ]
@@ -100,16 +113,30 @@ then
                      "^setup\.py" \
                      "^requirements" \
                      "^Makefile" \
-                     "^MANIFEST*"
+                     "^MANIFEST*" \
+       && true # <- because of set -e
     then
 
-        # Install build deps
-        pip install -r requirements/build.txt
+        . conditional/test_build.sh
 
-        # Build .whl
-        make sdist
-        pip install dist/kolibri-*.whl
-        exit 0
+    fi
+
+fi
+
+# If something changes that's related to our sdist packaging
+# or installation mechanism, then we build and install.
+if [[ "$LABEL" == "requirements_changed" ]]
+then
+
+    # Match with commit messages containing "[ license ]"
+    # Match commits changing requirements.txt
+    if match_changes "\[\s*license\s*\]" \
+                     "^requirements" \
+       && true # <- because of set -e
+    then
+
+        echo "Requirements changed, checking license info..."
+        . conditional/test_licenses.sh
 
     fi
 

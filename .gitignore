@@ -9,6 +9,8 @@
 *.egg
 *.egg-info
 dist
+dist-packages-temp
+dist-packages-cache
 build
 eggs
 parts

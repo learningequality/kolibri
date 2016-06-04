@@ -22,6 +22,7 @@ Technical Info
   dev/stack
   dev/glossary
   dev/conventions
+  dev/building
   dev/plugins
   dev/uap
   dev/user_management
