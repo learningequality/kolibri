@@ -1,11 +1,11 @@
-=======
+
 Credits
 =======
 
 Development Lead and Copyright Holder
 -------------------------------------
 
-* Learning Equality <info@learningequality.org>
+* Learning Equality – info@learningequality.org
 
 Community
 ---------
