@@ -1,12 +1,14 @@
+
 Kolibri
 =======
 
 .. image:: https://travis-ci.org/learningequality/kolibri.svg
-    :target: https://travis-ci.org/learningequality/kolibri
+  :target: https://travis-ci.org/learningequality/kolibri
 .. image:: http://codecov.io/github/learningequality/kolibri/coverage.svg?branch=master
-   :target: http://codecov.io/github/learningequality/kolibri?branch=master
+  :target: http://codecov.io/github/learningequality/kolibri?branch=master
 .. image:: https://readthedocs.org/projects/kolibri/badge/?version=latest
-   :target: http://kolibri.readthedocs.org/en/latest/
+  :target: http://kolibri.readthedocs.org/en/latest/
+
 
 What is Kolibri?
 ----------------
