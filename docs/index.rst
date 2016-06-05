@@ -5,38 +5,45 @@ Getting Started
 ---------------
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
   setup
   usageguide
+
+
+References
+----------
+
+.. toctree::
+  :maxdepth: 1
+
   cli
+  dev/conventions
+  dev/glossary
+  dev/files
+  py_modules/modules
 
 
-Technical Info
---------------
+Architecture
+------------
 
 .. toctree::
   :maxdepth: 2
 
-
   dev/stack
-  dev/glossary
-  dev/conventions
   dev/building
   dev/plugins
   dev/uap
   dev/user_management
   dev/ui_components
   dev/asset_loading
-  dev/files
-  py_modules/modules
 
 
 Additional Info
 ---------------
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
   changelog
   contributing
