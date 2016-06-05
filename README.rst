@@ -28,6 +28,13 @@ devices at a school.
 
 See https://learningequality.org/kolibri/ for more info.
 
+
+How can I use it?
+-----------------
+
+Kolibri is under active development and is not yet ready to be used. In the meantime, take a look at `KA-Lite <https://learningequality.org/kolibri/>`_, Kolibri's predecessor which is already deployed around the world.
+
+
 How can I contribute?
 ---------------------
 
