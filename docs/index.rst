@@ -11,19 +11,6 @@ Getting Started
   usageguide
 
 
-References
-----------
-
-.. toctree::
-  :maxdepth: 1
-
-  cli
-  dev/conventions
-  dev/glossary
-  dev/files
-  py_modules/modules
-
-
 Architecture
 ------------
 
@@ -37,6 +24,19 @@ Architecture
   dev/user_management
   dev/frontend
   dev/asset_loading
+
+
+References
+----------
+
+.. toctree::
+  :maxdepth: 1
+
+  cli
+  dev/conventions
+  dev/glossary
+  dev/files
+  py_modules/modules
 
 
 Additional Info
