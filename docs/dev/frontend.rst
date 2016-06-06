@@ -3,6 +3,18 @@ Front-end Architecture
 ======================
 
 
+Components
+----------
+
+We leverage `Vue.js components <https://vuejs.org/guide/components.html>`_ as the primary building blocks for our UI. It would be prudent to read through the `Vue.js guide <https://vuejs.org/guide/>`_ thoroughly.
+
+Each component contains HTML, styling which is scoped to that component and its children (written using `Stylus <http://stylus-lang.com/>`_), and logic which is also scoped to that component (written using `ES6 JavaScript <https://babeljs.io/docs/plugins/preset-es2015/>`_).
+
+Components allow us to define new custom tags that encapsulate a piece of self-contained functionality. When composed together, they form a tree structure.
+
+The Kolibri front-end is made of a few high-level "apps" with their own base URL and a single root component. Examples of apps are 'Learn' and 'Coach Reports'. We also provide a set of shared "core" functionality – including components, styles, and helper logic – which can be re-used across apps. Apps are independent of each other, and can only reference components and styles from within themselves and from core.
+
+
 Kolibri Modules
 ---------------
 
@@ -62,18 +74,6 @@ Finally, once loaded into the frontend, we embellish the kolibriGlobal object wi
   kolibriGlobal.urls
 
 This object is defined by `Django JS Reverse <https://github.com/ierror/django-js-reverse>`_ and exposes Django URLs on the client side. This will primarily be used for accessing API Urls for synchronizing with the REST API. See the Django JS Reverse documentation for details on invoking the Url.
-
-
-View Components
----------------
-
-*TODO*
-
-
-Global Styles
--------------
-
-*TODO*
 
 
 Unit Testing
