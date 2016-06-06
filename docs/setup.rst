@@ -16,7 +16,7 @@ Adjust according to your operating system or personal preferences.
 
     $ sudo pip install virtualenvwrapper
 
-#. Follow `these instructions <http://virtualenvwrapper.readthedocs.org/en/latest/install.html#basic-installation>`_. You will need to source the virtualenvwrapper.sh file for the following commands to work::
+#. Follow `these instructions <http://virtualenvwrapper.readthedocs.io/en/latest/install.html#basic-installation>`_. You will need to source the virtualenvwrapper.sh file for the following commands to work::
 
     $ mkvirtualenv --python=python3 kolibri
     $ workon kolibri

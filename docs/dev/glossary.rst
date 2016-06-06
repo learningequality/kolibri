@@ -18,7 +18,7 @@ Component
 
   Components are defined using using HTML, other components, styling, internationalized text, internal logic, and – if necessary – internal state. Every component has an interface defined by its input parameters, events, and slots that can take arbitrary HTML to render in itself.
 
-  See :doc:`ui_components` for more info.
+  See :doc:`frontend` for more info.
 
 Hook
   A 'hook' is the server-side mechanism by which plugins interact with each other and with the core app. Hooks allow behaviors and interactions to be defined abstractly by Kolibri core and then implemented concretely by plugins.

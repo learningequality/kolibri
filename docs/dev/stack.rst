@@ -68,7 +68,7 @@ We use a combination of both `Node.js <https://nodejs.org/en/>`_ and Python scri
 Preparation of client-side resources involves:
 
 - ES6 to ES5
-- Transforming Vue.js component files (*.vue) into JS and CSS
+- Transforming Vue.js component files (\*.vue) into JS and CSS
 - Stylus to CSS
 - Auto-prefixing CSS
 - Bundling multiple JS dependencies into single files
