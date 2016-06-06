@@ -35,7 +35,7 @@ Architecture
   dev/plugins
   dev/uap
   dev/user_management
-  dev/ui_components
+  dev/frontend
   dev/asset_loading
 
 
