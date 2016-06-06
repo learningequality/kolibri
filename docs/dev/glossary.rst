@@ -6,12 +6,12 @@ Words with special meanings in the Kolibri ecosystem.
 
 
 App
-  A Kolibri 'app' is a special sort of plugin which provides a top-level URL and a self-contained single-page javascript application. Each app generally has a single client-side ``KolibriModule`` object and attaches a single root view component to the HTML returned by a skeleton Django template.
+  A Kolibri 'app' is a special sort of plugin which provides a top-level URL and a self-contained single-page javascript application. Each app attaches a single root view component to the HTML returned by a skeleton Django template.
 
   Examples of apps are the Learn, Admin, and Coach Reports apps.
 
 Bundle
-  'Bundle' is a webpack term. *TODO*
+  'Bundle' is a webpack term, referring to a collection of client-side assets. See :doc:`asset_loading` for more info.
 
 Component
   A 'view component' is a composable UI element on the client-side, defined using Vue.js components.

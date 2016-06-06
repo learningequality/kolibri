@@ -36,7 +36,7 @@ The client is responsible for:
 - Managing client-side state using `Vuex <http://vuex.vuejs.org/en/index.html>`_
 - Interacting with the server through HTTP requests
 
-`loglevel <http://pimterry.github.io/loglevel/>`_ is used for logging.
+Additionally, `loglevel <http://pimterry.github.io/loglevel/>`_ is used for logging and `normalize.css <https://necolas.github.io/normalize.css/>`_ is included for browser style normalization.
 
 
 Internationalization
