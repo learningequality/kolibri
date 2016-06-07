@@ -16,7 +16,12 @@ clean: clean-build clean-pyc clean-docs
 clean-build:
 	rm -fr build/
 	rm -fr dist/
+	rm -fr dist-packages-cache/
+	rm -fr dist-packages-temp/
 	rm -fr *.egg-info
+	rm -fr .eggs
+	rm -fr .cache
+	git clean -X -d -f kolibri/dist
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +

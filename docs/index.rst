@@ -20,6 +20,7 @@ For Developers
    :maxdepth: 1
 
    installation
+   dev/building
    dev/plugins
    dev/uap
    dev/user_management
