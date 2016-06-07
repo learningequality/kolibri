@@ -119,6 +119,6 @@ We use a number of mechanisms to help encourage code quality and consistency. Th
 Helper Scripts
 ---------------
 
-*TODO: introduce stack (kolibri command, makefiles, npm commands, sphinx auto-build, etc)*
+*TODO: introduce stack (kolibri command, setup.py, makefiles, npm commands, sphinx auto-build, etc)*
 
 
