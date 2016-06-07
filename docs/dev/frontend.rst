@@ -75,29 +75,31 @@ On the client-side, each app corresponds to a single ``KolibriModule`` object an
 
 A Kolibri Module is initially defined in Python by sub-classing the ``WebpackBundleHook`` class (in ``kolibri.core.webpack.hooks``). The hook defines the JS entry point file where the ``KolibriModule`` subclass is instantiated, and where events and callbacks on the module are registered. These are defined in the ``events`` and ``once`` properties. Each defines key-value pairs of the name of an event, and the name of the method on the ``KolibriModule`` object. When these events are triggered on the Kolibri core JavaScript app, these callbacks will be called. (If the ``KolibriModule`` is registered for asynchronous loading, the Kolibri Module will first be loaded, and then the callbacks called when it is ready. See :doc:`asset_loading` for more information.)
 
-All apps should extend the ``KolibriModule`` class found in `kolibri/core/assets/src/kolibri_module.js`. For convenience this can be referenced in a module with the following syntax::
+All apps should extend the ``KolibriModule`` class found in `kolibri/core/assets/src/kolibri_module.js`. For convenience this can be referenced in a module with the following syntax:
 
-    const KolibriModule = require('kolibri_module');
-    const logging = require('loglevel');
+.. code-block:: javascript
 
-    class ExampleModule extends KolibriModule {
+  const KolibriModule = require('kolibri_module');
+  const logging = require('loglevel');
 
-        initialize: () => {
-            logging.info('Doing something before the Module is registered with the Core App!');
-        }
+  class ExampleModule extends KolibriModule {
 
-        ready: () => {
-            logging.info('Module is registered and ready to do things!');
-        }
-
-        hello_world: (message) => {
-            logging.info('Hello world!', message);
-        }
-
-        goodbye_world: (message) => {
-            logging.info('Goodbye, cruel world!', message);
-        }
+    initialize: () => {
+      logging.info('Doing something before the Module is registered with the Core App!');
     }
+
+    ready: () => {
+      logging.info('Module is registered and ready to do things!');
+    }
+
+    hello_world: (message) => {
+      logging.info('Hello world!', message);
+    }
+
+    goodbye_world: (message) => {
+      logging.info('Goodbye, cruel world!', message);
+    }
+  }
 
 The methods defined above are the ones that can be referenced in the ``events`` and ``once`` properties of the plugin that defines the ``KolibriModule`` subclass. Defining it in this way allows for asynchronous loading and registration without having to load or execute the JavaScript code.
 
@@ -111,18 +113,22 @@ We also provide a set of shared "core" functionality – including components, s
 
 The ``kolibriGlobal`` object exposes shared functionality through a common namespace ``window.kolibriGlobal`` and acts as the mediator and point of communication between different Kolibri Modules and third-party libraries.
 
-These methods are publicly exposed methods of the core app::
+These methods are publicly exposed methods of the core app:
 
-  kolibriGlobal.register_kolibri_module_async - Register a Kolibri module for asynchronous loading.
-  kolibriGlobal.register_kolibri_module_sync - Register a Kolibri module once it has loaded.
-  kolibriGlobal.stopListening - Unbind an event/callback pair from triggering.
-  kolibriGlobal.emit - Emit an event, with optional args.
+.. code-block:: javascript
 
-In addition, the ``lib`` property exposes the following globally-used libraries::
+  kolibriGlobal.register_kolibri_module_async   // Register a Kolibri module for asynchronous loading.
+  kolibriGlobal.register_kolibri_module_sync    // Register a Kolibri module once it has loaded.
+  kolibriGlobal.stopListening                   // Unbind an event/callback pair from triggering.
+  kolibriGlobal.emit                            // Emit an event, with optional args.
 
-  kolibriGlobal.lib['vue'] - Vue.js module
-  kolibriGlobal.lib['loglevel'] - logging module
-  kolibriGlobal.lib['core-base'] - shared base Vue.js component
+In addition, the ``lib`` property exposes the following globally-used libraries:
+
+.. code-block:: javascript
+
+  kolibriGlobal.lib['vue']                      // Vue.js module
+  kolibriGlobal.lib['loglevel']                 // logging module
+  kolibriGlobal.lib['core-base']                // shared base Vue.js component
 
 If additional global libraries and components are required across multiple apps, they need to be added to this object.
 
@@ -143,7 +149,9 @@ Unit Testing
 
 Unit testing is carried out using `Mocha <https://mochajs.org/>`_. All JavaScript code should have unit tests for all object methods and functions.
 
-Tests are written in JavaScript, and placed in the 'assets/test' folder. An example test is shown below::
+Tests are written in JavaScript, and placed in the 'assets/test' folder. An example test is shown below:
+
+.. code-block:: javascript
 
   var assert = require('assert');
 
