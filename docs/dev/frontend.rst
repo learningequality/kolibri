@@ -167,5 +167,5 @@ Tests are written in JavaScript, and placed in the 'assets/test' folder. An exam
   });
 
 
-Vue.js components can also be tested. See the management plugin for an example.
+Vue.js components can also be tested. The management plugin contains an example (*kolibri/plugins/management/assets/test/management.js*) where the component is bound to a temporary DOM node, changes are made to the state, and assertions are made about the new component structure.
 
