@@ -61,47 +61,31 @@ In the example above, the *main.vue* in *management* can use other assets in the
 
   For many development scenarios, only files in these directories need to be touched.
 
-  There is also a lot of logic and configuration relevant to front-end code loading, parsing, testing, and linting. This includes webpack, NPM, and integration with the plugin system. This is somewhat scattered, and includes logic in *assets/...*, *webpack_config/...*, *package.json*, *kolibri/core/webpack/...*, and other locations. Much of this functionality is described in other sections of the docs, but it can take some time to understand how it all hangs together.
+  There is also a lot of logic and configuration relevant to front-end code loading, parsing, testing, and linting. This includes webpack, NPM, and integration with the plugin system. This is somewhat scattered, and includes logic in *assets/...*, *webpack_config/...*, *package.json*, *kolibri/core/webpack/...*, and other locations. Much of this functionality is described in other sections of the docs (such as :doc:`asset_loading`), but it can take some time to understand how it all hangs together.
 
 
 Single-page Apps
 ----------------
 
-The Kolibri front-end is made of a few high-level "app" plugins, which are single-page JS applications with their own base URL and a single root component. Examples of apps are 'Learn' and 'User Management', as shown in the example above. Apps are independent of each other, and can only reference components and styles from within themselves and from core.
+The Kolibri front-end is made of a few high-level "app" plugins, which are single-page JS applications with their own base URL and a single root Vue.js component. Examples of apps are 'Learn' and 'User Management', as shown in the example above. Apps are independent of each other, and can only reference components and styles from within themselves and from core.
 
 Each app is implemented as a Kolibri plugin and is defined in a subdirectory of *kolibri/plugins*.
 
-On the client-side, each app corresponds to a single ``KolibriModule`` object and a single root component. The ``KolibriModule`` is responsible for mounting the root component into the DOM once all dependencies are loaded.
+On the Server-side, the ``kolibri_plugin.py`` file describes most of the configuration for the single-page app. In particular, this includes the base Django HTML template to return (with an empty ``<body>``), the URL at which the app is exposed, and the javascript entry file which is run on load.
+
+On the client-side, the app creates a single ``KolibriModule`` object in the entry file and registers this with the core app, a global variable called ``kolibriGlobal``. The Kolibri Module then mounts single root component to the HTML returned by the server, which recursively contains all additional components, html and logic.
+
+
+Defining a New Kolibri Module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+
+  This section is mostly relevant if you are creating a new app or plugin.
 
 A Kolibri Module is initially defined in Python by sub-classing the ``WebpackBundleHook`` class (in ``kolibri.core.webpack.hooks``). The hook defines the JS entry point file where the ``KolibriModule`` subclass is instantiated, and where events and callbacks on the module are registered. These are defined in the ``events`` and ``once`` properties. Each defines key-value pairs of the name of an event, and the name of the method on the ``KolibriModule`` object. When these events are triggered on the Kolibri core JavaScript app, these callbacks will be called. (If the ``KolibriModule`` is registered for asynchronous loading, the Kolibri Module will first be loaded, and then the callbacks called when it is ready. See :doc:`asset_loading` for more information.)
 
-All apps should extend the ``KolibriModule`` class found in `kolibri/core/assets/src/kolibri_module.js`. For convenience this can be referenced in a module with the following syntax:
-
-.. code-block:: javascript
-
-  const KolibriModule = require('kolibri_module');
-  const logging = require('loglevel');
-
-  class ExampleModule extends KolibriModule {
-
-    initialize: () => {
-      logging.info('Doing something before the Module is registered with the Core App!');
-    }
-
-    ready: () => {
-      logging.info('Module is registered and ready to do things!');
-    }
-
-    hello_world: (message) => {
-      logging.info('Hello world!', message);
-    }
-
-    goodbye_world: (message) => {
-      logging.info('Goodbye, cruel world!', message);
-    }
-  }
-
-The methods defined above are the ones that can be referenced in the ``events`` and ``once`` properties of the plugin that defines the ``KolibriModule`` subclass. Defining it in this way allows for asynchronous loading and registration without having to load or execute the JavaScript code.
+All apps should extend the ``KolibriModule`` class found in `kolibri/core/assets/src/kolibri_module.js`.
 
 The ``ready`` method will be automatically executed once the Module is loaded and registered with the Kolibri Core App. By convention, JavaScript is injected into the served HTML *after* the ``<app-root>`` tag, meaning that this tag should be available when the ``ready`` method is called, and the root component can be mounted here.
 
@@ -109,11 +93,54 @@ The ``ready`` method will be automatically executed once the Module is loaded an
 Shared Core Functionality
 -------------------------
 
-We also provide a set of shared "core" functionality – including components, styles, and helper logic – which can be re-used across apps.
 
-The ``kolibriGlobal`` object exposes shared functionality through a common namespace ``window.kolibriGlobal`` and acts as the mediator and point of communication between different Kolibri Modules and third-party libraries.
+Kolibri provides a set of shared "core" functionality – including components, styles, and helper logic, and libraries – which can be re-used across apps and plugins.
 
-These methods are publicly exposed methods of the core app:
+JS Libraries
+~~~~~~~~~~~~
+
+The following libraries are available globally, in all plugin code:
+
+- ``vue`` - the Vue.js object
+- ``loglevel`` - the `loglevel logging module <https://github.com/pimterry/loglevel>`_
+- ``core-base`` - a shared base Vue.js component (*core-base.vue*)
+
+These can be used in code with a standard CommonJS-style require statement - e.g.:
+
+.. code-block:: javascript
+
+  const vue = require('vue');
+  const coreBase = require('core-base');
+
+.. note::
+
+  Due to the mechanics of the `plugin and webpack build system <asset_loading>`_, adding additional globally-available objects is somewhat complicated.
+
+  References to the objects are attached to the ``kolibriGlobal`` object in *core_app_constructor.js*, and mapped to globally accessible names in *webpack.config.js*.
+
+
+
+Bootstrapped Data
+~~~~~~~~~~~~~~~~~
+
+The ``kolibriGlobal`` object is also used to bootstrap data into the JS app, rather than making unnecessary API requests.
+
+For example, we currently embellish the ``kolibriGlobal`` object with a ``urls`` object. This is defined by `Django JS Reverse <https://github.com/ierror/django-js-reverse>`_ and exposes Django URLs on the client side. This will primarily be used for accessing API Urls for synchronizing with the REST API. See the Django JS Reverse documentation for details on invoking the Url.
+
+
+Styling
+~~~~~~~
+
+For shared styles, two mechanisms are provided:
+
+* The *core-theme.styl* file provides values for some globally-relevant Stylus variables. These variables can be used in any component's ``<style>`` block by adding the line ``@require '~core-theme.styl'``.
+* The *core-global.styl* file is always inserted into the ``<head>`` after normalize.css and provides some basic styling to global elements
+
+
+Additional Functionality
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+These methods are also publicly exposed methods of the core app:
 
 .. code-block:: javascript
 
@@ -121,27 +148,6 @@ These methods are publicly exposed methods of the core app:
   kolibriGlobal.register_kolibri_module_sync    // Register a Kolibri module once it has loaded.
   kolibriGlobal.stopListening                   // Unbind an event/callback pair from triggering.
   kolibriGlobal.emit                            // Emit an event, with optional args.
-
-In addition, the ``lib`` property exposes the following globally-used libraries:
-
-.. code-block:: javascript
-
-  kolibriGlobal.lib['vue']                      // Vue.js module
-  kolibriGlobal.lib['loglevel']                 // logging module
-  kolibriGlobal.lib['core-base']                // shared base Vue.js component
-
-If additional global libraries and components are required across multiple apps, they need to be added to this object.
-
-We also embellish the ``kolibriGlobal`` object with the following object::
-
-  kolibriGlobal.urls
-
-This object is defined by `Django JS Reverse <https://github.com/ierror/django-js-reverse>`_ and exposes Django URLs on the client side. This will primarily be used for accessing API Urls for synchronizing with the REST API. See the Django JS Reverse documentation for details on invoking the Url.
-
-For shared styles, two mechanisms are provided:
-
-* The *core-theme.styl* file provides values for some globally-relevant Stylus variables. These variables can be used in any component's ``<style>`` block by adding the line ``@require '~core-theme.styl'``.
-* The *core-global.styl* file is always inserted into the ``<head>`` after normalize.css and provides some basic styling to global elements
 
 
 Unit Testing

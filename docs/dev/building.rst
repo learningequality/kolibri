@@ -1,7 +1,7 @@
-Building
-========
+Building the Python Package
+===========================
 
-The Kolibri build pipeline looks like this::
+The Kolibri Package build pipeline looks like this::
 
                         Git master branch
                                 |

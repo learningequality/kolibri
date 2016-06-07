@@ -51,7 +51,7 @@ Then, ``cd`` into the new directory:
 Install Project Dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Install deployment and development dependencies.
+Install project-specific development dependencies.
 
 .. note::
 

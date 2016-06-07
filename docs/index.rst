@@ -8,6 +8,7 @@ Getting Started
   :maxdepth: 1
 
   setup
+  dev/conventions
   usageguide
 
 
@@ -18,7 +19,6 @@ Architecture
   :maxdepth: 2
 
   dev/stack
-  dev/building
   dev/plugins
   dev/uap
   dev/user_management
@@ -33,9 +33,9 @@ References
   :maxdepth: 1
 
   cli
-  dev/conventions
-  dev/glossary
   dev/files
+  dev/glossary
+  dev/building
   py_modules/modules
 
 
