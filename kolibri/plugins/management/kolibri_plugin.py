@@ -1,9 +1,9 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
-from kolibri.core.hooks import UserNavigationHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins.base import KolibriPluginBase
+from kolibri.core.hooks import NavigationHook
 
 from . import hooks, urls
 
@@ -26,6 +26,6 @@ class ManagementInclusionHook(hooks.ManagementSyncHook):
     bundle_class = ManagementAsset
 
 
-class ManagementNavItem(UserNavigationHook):
-    label = _("Management!")
-    url = '#'
+class ManagementNavItem(NavigationHook):
+    label = _("Manage!")
+    url = '/manage'
