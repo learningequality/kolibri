@@ -8,7 +8,7 @@ import json
 
 from django import template
 from django.utils.html import mark_safe
-from kolibri.core.hooks import NavigationHook, UserNavigationHook
+from kolibri.core.hooks import NavigationHook
 
 register = template.Library()
 
@@ -30,13 +30,7 @@ def kolibri_main_navigation():
             'url': str(hook.url),
         })
 
-    for hook in UserNavigationHook().registered_hooks:
-        init_data['user_nav_items'].append({
-            'text': str(hook.label),
-            'url': str(hook.url),
-        })
-
-    html = ("<script type='text/javascript'>"
-            "window._nav={0};"
-            "</script>".format(json.dumps(init_data)))
+        html = ("<script type='text/javascript'>"
+                "window._nav={0};"
+                "</script>".format(json.dumps(init_data)))
     return mark_safe(html)
