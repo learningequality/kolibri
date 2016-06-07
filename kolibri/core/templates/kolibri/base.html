@@ -10,6 +10,7 @@
 {% block frontend_assets %}
 {% webpack_asset 'default_frontend' %}
 <script type="text/javascript" charset="utf-8">
+  var rootURL = "learn";
   {% cache 5000 js_urls %}
     {% js_reverse_inline %}
   {% endcache %}
