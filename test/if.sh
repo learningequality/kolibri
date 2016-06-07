@@ -61,7 +61,11 @@ else
     # The changeset is the diff between PR and branch that the PR is made
     # against.
     # echo "Using git log $TRAVIS_BRANCH..HEAD as changeset"
-    git_changeset=`git log $TRAVIS_BRANCH..HEAD --oneline --name-only`
+    # Because Travis' git clone does not contain the upstream branch being
+    # PR'ed against, we need to explicitly fetch it and compare the FETCH_HEAD
+    # in which it's stored with the detached head.
+    git fetch origin $TRAVIS_BRANCH
+    git_changeset=`git log FETCH_HEAD --oneline --name-only`
 fi
 
 # echo "Travis branch / branch merging into: $TRAVIS_BRANCH"
