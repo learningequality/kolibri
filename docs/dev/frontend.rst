@@ -6,17 +6,68 @@ Front-end Architecture
 Components
 ----------
 
-We leverage `Vue.js components <https://vuejs.org/guide/components.html>`_ as the primary building blocks for our UI. It would be prudent to read through the `Vue.js guide <https://vuejs.org/guide/>`_ thoroughly.
+We leverage `Vue.js components <https://vuejs.org/guide/components.html>`_ as the primary building blocks for our UI. For general UI development work, this is the most common tool a developer will use. It would be prudent to read through the `Vue.js guide <https://vuejs.org/guide/>`_ thoroughly.
 
 Each component contains HTML with dynamic Vue.js directives, styling which is scoped to that component and its children (written using `Stylus <http://stylus-lang.com/>`_), and logic which is also scoped to that component (written using `ES6 JavaScript <https://babeljs.io/docs/plugins/preset-es2015/>`_).
 
 Components allow us to define new custom tags that encapsulate a piece of self-contained, re-usable UI functionality. When composed together, they form a tree structure of parents and children. Each component has a well-defined interface used by its parent component, made up of `input properties <https://vuejs.org/guide/components.html#Props>`_, `events <https://vuejs.org/guide/components.html#Custom-Events>`_ and `content slots <https://vuejs.org/guide/components.html#Content-Distribution-with-Slots>`_. Components should never reference their parent.
 
+In addition to the Vue.js documentation, see :doc:`conventions` for some important consistency tips on writing new components.
+
+
+Layout of Frontend Code
+-----------------------
+
+Front-end code and assets are generally contained in one of two places: either in one of the plugin subdirectories (under *kolibri/plugins*) or in *kolibri/core*, which contains code shared across all plugins as described below.
+
+Within these directories, there should be an *assets* directory with *src* and *test* under it. Most assets will go in *src*, and tests for the components will go in *test*.
+
+For example:
+
+.. code-block:: none
+
+  kolibri/
+    core/                       # core (shared) items
+      assets/
+        src/
+          core-base.vue         # global base template, used by apps
+          core-modal.vue        # example of another shared component
+          core-global.styl      # globally defined styles, indluded in head
+          core-theme.styl       # style variable values
+          font-NotoSans.css     # embedded font
+        test/
+          ...                   # tests for core assets
+    plugins/
+      learn                     # learn plugin
+        assets/
+          src/
+            main.vue            # root view
+            learn.js            # instantiate learn app on client-side
+          test/
+            learn.js
+      management/
+        assets/
+          src/
+            learner-roster.vue  # nested-view
+            main.vue            # root view
+            management.js       # instantiate mgmt app on client-side
+          test/
+            management.js
+
+
+In the example above, the *main.vue* in *management* can use other assets in the same directory (such as *learner-roster.vue*) and it can use assets in core (such as variables in *core-theme.styl*). However it cannot use files in other plugin directories (such as *learn*).
+
+.. note::
+
+  For many development scenarios, only files in these directories need to be touched.
+
+  There is also a lot of logic and configuration relevant to front-end code loading, parsing, testing, and linting. This includes webpack, NPM, and integration with the plugin system. This is somewhat scattered, and includes logic in *assets/...*, *webpack_config/...*, *package.json*, *kolibri/core/webpack/...*, and other locations. Much of this functionality is described in other sections of the docs, but it can take some time to understand how it all hangs together.
+
 
 Single-page Apps
 ----------------
 
-The Kolibri front-end is made of a few high-level "apps", which are single-page JS applications with their own base URL and a single root component. Examples of apps are 'Learn' and 'Coach Reports'. Apps are independent of each other, and can only reference components and styles from within themselves and from core.
+The Kolibri front-end is made of a few high-level "app" plugins, which are single-page JS applications with their own base URL and a single root component. Examples of apps are 'Learn' and 'User Management', as shown in the example above. Apps are independent of each other, and can only reference components and styles from within themselves and from core.
 
 Each app is implemented as a Kolibri plugin and is defined in a subdirectory of *kolibri/plugins*.
 
@@ -107,4 +158,6 @@ Tests are written in JavaScript, and placed in the 'assets/test' folder. An exam
     });
   });
 
+
+Vue.js components can also be tested. See the management plugin for an example.
 
