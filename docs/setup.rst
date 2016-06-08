@@ -88,13 +88,13 @@ Wait for the build process to complete. This takes a while the first time, will 
 
 Now you should be able to access certain URLs, in particular:
 
-- http://127.0.0.1:8000/learn/
-- http://127.0.0.1:8000/management/
+- ``http://127.0.0.1:8000/learn/``
+- ``http://127.0.0.1:8000/management/``
 
 
 .. warning ::
 
-  Currently no page is set up at the root URL (*http://127.0.0.1:8000/*), so don't be suprised if that returns a 404.
+  Currently no page is set up at the root URL (``http://127.0.0.1:8000/``), so don't be suprised if that returns a 404.
 
 
 Additional Recommended Setup
