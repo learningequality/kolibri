@@ -64,7 +64,7 @@ except ImportError:
         f.cache_info().  Clear the cache and statistics with f.cache_clear().
         Access the underlying function with f.__wrapped__.
 
-        See:  https://en.wikipedia.org/wiki/Cache_algorithms#Least_Recently_Used
+        See:  https://en.wikipedia.org/wiki/Cache_algorithms#LRU
         """
 
         # Users should only access the lru_cache through its public API:

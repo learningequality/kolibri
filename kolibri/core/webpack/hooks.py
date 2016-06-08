@@ -40,7 +40,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     the webpack asset loading pipeline.
     """
 
-    #: You should set a unique human readable name
+    # : You should set a unique human readable name
     unique_slug = ""
 
     # : Relative path to js source file for webpack to use as entry point
@@ -86,7 +86,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         across the whole app?
 
         :returns: A dict of the data contained in the JSON files which are
-        written by Webpack.
+          written by Webpack.
         """
         with open(self.stats_file) as f:
             stats = json.load(f)
@@ -110,7 +110,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     def bundle(self):
         """
         :returns: a generator yielding dict objects with properties of the built
-        asset, most notably its URL.
+          asset, most notably its URL.
         """
         for f in self.stats_file_content["files"]:
             filename = f['name']

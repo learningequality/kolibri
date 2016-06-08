@@ -1,9 +1,9 @@
-============
+
 Contributing
 ============
 
 Contributions are welcome, and they are greatly appreciated! Every
-little bit helps, and credit will always be given. 
+little bit helps, and credit will always be given.
 
 You can contribute in many ways:
 
@@ -36,7 +36,7 @@ is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-Kolibri could always use more documentation, whether as part of the 
+Kolibri could always use more documentation, whether as part of the
 official Kolibri docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
@@ -93,7 +93,7 @@ Pull Request Guidelines
 Before you submit a pull request, check that it meets these guidelines:
 
 1. For your pull request description on Github, consider using our
-   template, see :ref:`prtemplate`. 
+   template, see :ref:`prtemplate`.
 2. Remember to add yourself to ``AUTHORS.rst`` and fill in ``CHANGELOG.rst``
    with your feature or bug fix.
 3. The pull request should include tests.
@@ -111,33 +111,33 @@ Pull Request Template
 ~~~~~~~~~~~~~~~~~~~~~
 
 Copy-paste the following to your Pull Request description on Github::
-    
+
     ## Summary
-    
+
     *Short description*
-    
+
     ## TODO
-    
+
     - [ ] Have tests been written for the new code?
     - [ ] Has documentation been written/updated?
     - [ ] New dependencies (if any) added to requirements file
     - [ ] Add an entry to CHANGELOG.rst
     - [ ] Add yourself it AUTHORS.rst if you don't appear there
-    
+
     ## Reviewer guidance
-    
+
     *If you PR has a significant size, give the reviewer some helpful remarks*
-    
+
     ## Issues addressed
-    
+
     List the issues solved or partly solved by the PR
-    
+
     ## Documentation
-    
+
     If the PR has documentation, link the file here (either .rst in your repo or if built on Read The Docs)
-    
+
     ## Screenshots (if appropriate)
-    
+
     They're nice. :)
 
 
