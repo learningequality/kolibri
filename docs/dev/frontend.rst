@@ -12,7 +12,7 @@ Each component contains HTML with dynamic Vue.js directives, styling which is sc
 
 Components allow us to define new custom tags that encapsulate a piece of self-contained, re-usable UI functionality. When composed together, they form a tree structure of parents and children. Each component has a well-defined interface used by its parent component, made up of `input properties <https://vuejs.org/guide/components.html#Props>`_, `events <https://vuejs.org/guide/components.html#Custom-Events>`_ and `content slots <https://vuejs.org/guide/components.html#Content-Distribution-with-Slots>`_. Components should never reference their parent.
 
-In addition to the Vue.js documentation, see :doc:`conventions` for some important consistency tips on writing new components.
+Read through :doc:`conventions` for some important consistency tips on writing new components.
 
 
 Layout of Frontend Code
@@ -81,7 +81,7 @@ Defining a New Kolibri Module
 
 .. note::
 
-  This section is mostly relevant if you are creating a new app or plugin.
+  This section is mostly relevant if you are creating a new app or plugin. If you are just creating new components, you don't need to do this.
 
 A Kolibri Module is initially defined in Python by sub-classing the ``WebpackBundleHook`` class (in ``kolibri.core.webpack.hooks``). The hook defines the JS entry point file where the ``KolibriModule`` subclass is instantiated, and where events and callbacks on the module are registered. These are defined in the ``events`` and ``once`` properties. Each defines key-value pairs of the name of an event, and the name of the method on the ``KolibriModule`` object. When these events are triggered on the Kolibri core JavaScript app, these callbacks will be called. (If the ``KolibriModule`` is registered for asynchronous loading, the Kolibri Module will first be loaded, and then the callbacks called when it is ready. See :doc:`asset_loading` for more information.)
 
