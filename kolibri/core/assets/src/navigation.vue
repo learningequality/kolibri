@@ -13,7 +13,7 @@
         <div class="user-menu-popup" v-show="userNavDisplay">
           <ul>
             <li v-for="item in user_nav_items">
-              <a href={{item.url}}>{{item.text}}</a>
+              <a href="{{item.url}}">{{item.text}}</a>
             </li>
           </ul>
         </div>

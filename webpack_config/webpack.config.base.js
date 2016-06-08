@@ -17,13 +17,13 @@ var config = {
     module: {
         preLoaders: [
             {
-                test: /\.vue$/,
+                test: /\.(vue|js)$/,
                 loader: 'eslint',
                 exclude: /node_modules/
             },
             {
-                test: /\.js$/,
-                loader: 'eslint',
+                test: /\.(vue|html)/,
+                loader: 'htmlhint',
                 exclude: /node_modules/
             }
         ],
@@ -66,6 +66,10 @@ var config = {
     },
     eslint: {
         failOnError: true
+    },
+    htmlhint: {
+        failOnError: true,
+        emitAs: "error"
     },
     vue: {
         loaders: {
