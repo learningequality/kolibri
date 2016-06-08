@@ -111,7 +111,7 @@ We use a number of mechanisms to help encourage code quality and consistency. Th
 - `tox <https://tox.readthedocs.io/en/latest/>`_ is used to run our test suites under a range of Python and Node environment versions
 - ``sphinx-build -b linkcheck`` checks the validity of documentation links
 - `pytest <http://pytest.org/latest/>`_ runs our Python unit tests. We also leverage the `Django test framework <https://docs.djangoproject.com/en/1.9/topics/testing/>`_.
-- In addition to building client assets, `webpack <https://webpack.github.io/>`_ runs linters on client-side code: `ESLint <http://eslint.org/>`_ for ES6 JavaScript and `Stylint <https://rosspatton.github.io/stylint/>`_ for Stylus.
+- In addition to building client assets, `webpack <https://webpack.github.io/>`_ runs linters on client-side code: `ESLint <http://eslint.org/>`_ for ES6 JavaScript, `Stylint <https://rosspatton.github.io/stylint/>`_ for Stylus, and `HTMLHint <http://htmlhint.com/>`_ for HTML and Vue.js components.
 - Client-side code is tested using a stack of tools including `Karma <https://karma-runner.github.io/0.13/index.html>`_, `Mocha <https://mochajs.org/>`_, `PhantomJS <http://phantomjs.org/>`_, `Sinon <http://sinonjs.org/>`_, and `rewire <https://github.com/jhnns/rewire>`_. *TODO: Explain what each of these do*
 - `codecov <https://codecov.io/>`_ reports on the test coverage for Python and Node.js code. *TODO - also client-side?*
 

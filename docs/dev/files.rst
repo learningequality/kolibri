@@ -54,6 +54,9 @@ webpack_config/...
 .gitignore
   standard `.gitignore file <https://git-scm.com/docs/gitignore>`_
 
+.htmlhintrc
+  configuration for our HTML linter, `HTMLHint <http://htmlhint.com/>`_
+
 .pre-commit-config.yaml
   configuration for our `pre-commit <http://pre-commit.com/>`_ hooks
 
