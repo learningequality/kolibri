@@ -9,8 +9,7 @@ To get a glimpse of what will happen, refer to :doc:`user_guide/index`.
 .. toctree::
   :maxdepth: 1
 
-  setup
-  dev/conventions
+  installation
   usageguide
 
 Developer Guide
@@ -22,6 +21,7 @@ Architecture
 .. toctree::
   :maxdepth: 2
 
+  setup
   dev/stack
   dev/plugins
   dev/uap

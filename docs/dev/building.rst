@@ -8,11 +8,11 @@ The Kolibri Package build pipeline looks like this::
                                 |
                                / \
                               /   \
-    Python dist with dependencies  \
+ Python dist, online dependencies  \
     `python setup.py bdist_wheel`   \
                 /                    \
-               /                Python dist with bundled dependencies
-        Upload to PyPi          `python setup.py bdist_wheel --static`
+               /                Python dist, bundled dependencies
+        Upload to PyPi        `python setup.py bdist_wheel --static`
        Installable with                 \
      `pip install kolibri`               \
                                     Upload to PyPi
