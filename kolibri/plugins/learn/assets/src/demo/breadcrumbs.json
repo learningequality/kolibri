@@ -1,14 +1,17 @@
-[
-  {
-    "name": "Home",
-    "url": "#"
-  },
-  {
-    "name": "Parent",
-    "url": "#"
-  },
-  {
-    "name": "Child",
-    "url": "#"
-  }
-]
+{
+  "crumbs": [
+    {
+      "name": "Home",
+      "url": "#"
+    },
+    {
+      "name": "Parent",
+      "url": "#"
+    },
+    {
+      "name": "Child",
+      "url": "#"
+    }
+  ],
+  "current": "me!"
+}
