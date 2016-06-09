@@ -29,7 +29,8 @@
     "loglevel": "^1.4.0",
     "normalize.css": "^4.1.1",
     "vue": "^1.0.21",
-    "vue-intl": "^0.3.0"
+    "vue-intl": "^0.3.0",
+    "vuex": "^0.6.3"
   },
   "devDependencies": {
     "babel-core": "^6.0.0",
@@ -82,7 +83,6 @@
     "vue-html-loader": "^1.0.0",
     "vue-loader": "^8.5.2",
     "vue-style-loader": "^1.0.0",
-    "vuex": "0.6.3",
     "webpack": "^1.12.12",
     "webpack-bundle-tracker": "0.0.93",
     "webpack-dev-middleware": "^1.4.0",
