@@ -42,6 +42,8 @@ Note that the top-level tags of `Vue.js components <https://vuejs.org/guide/comp
 
 - name custom tags using kebab-case
 
+- The root component file is called *app-root.vue*, and is mounted on a tag called ``<app-root>``.
+
 
 JavaScript Code
 ---------------

@@ -8,7 +8,7 @@ class LearnModule extends KolibriModule {
     this.vm = new Vue({
       el: 'body',
       components: {
-        'app-root': require('./learn-main'),
+        'app-root': require('./app-root'),
       },
     });
   }
