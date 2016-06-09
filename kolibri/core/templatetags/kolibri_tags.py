@@ -21,6 +21,6 @@ def kolibri_main_navigation():
     """
     nav_items = NavigationHook().get_menu()
     html = ("<script type='text/javascript'>"
-            "window._nav_items={0};"
+            "window._navItems={0};"
             "</script>".format(json.dumps(nav_items)))
     return mark_safe(html)

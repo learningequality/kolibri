@@ -16,8 +16,8 @@ class KolibriCore(KolibriPluginBase):
 
 
 class MainNavigationItem(hooks.NavigationHook):
-    label = _("Do nothing")
-    url = '#'
+    label = _("Kolibri Home")
+    url = ''
 
 
 class FrontEndCoreAssetHook(FrontEndCoreAssetHook):
