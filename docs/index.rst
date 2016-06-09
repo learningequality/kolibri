@@ -1,32 +1,50 @@
-Using Kolibri
-=============
+Kolibri Developer Documentation
+===============================
 
-If you're planning on using Kolibri, but you're not a developer, this is where you should look!
-We'll fill this in as we develop Kolibri more... we promise!
-
-.. toctree::
-   :maxdepth: 1
-
-   user_guide/index
-
-For Developers
-==============
-
-.. include:: ../README.rst
-
-.. include:: ../TODO.rst
+Getting Started
+---------------
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-   installation
-   dev/building
-   dev/plugins
-   dev/uap
-   dev/user_management
-   cli
-   contributing
-   authors
-   changelog
-   todo
-   modules
+  setup
+  dev/conventions
+  usageguide
+
+
+Architecture
+------------
+
+.. toctree::
+  :maxdepth: 2
+
+  dev/stack
+  dev/plugins
+  dev/uap
+  dev/user_management
+  dev/frontend
+  dev/asset_loading
+
+
+References
+----------
+
+.. toctree::
+  :maxdepth: 1
+
+  cli
+  dev/files
+  dev/glossary
+  dev/building
+  py_modules/modules
+
+
+Additional Info
+---------------
+
+.. toctree::
+  :maxdepth: 1
+
+  changelog
+  contributing
+  authors

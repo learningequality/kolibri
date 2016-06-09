@@ -3,7 +3,7 @@
     <nav class="titlebar" role="navigation" aria-label="Main navigation">
       <ul aria-label="User options submenu">
         <li v-for="item in nav_items">
-          <a href={{item.url}}>{{item.text}}</a>
+          <a href="{{item.url}}">{{item.text}}</a>
         </li>
       </ul>
     </nav>

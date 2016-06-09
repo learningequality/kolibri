@@ -48,6 +48,7 @@
     "extract-text-webpack-plugin": "^1.0.1",
     "fg-loadcss": "^1.2.0",
     "file-loader": "^0.8.5",
+    "htmlhint-loader": "^0.1.0",
     "imports-loader": "^0.6.5",
     "istanbul": "^0.4.2",
     "istanbul-instrumenter-loader": "^0.1.3",

@@ -1,6 +1,6 @@
 .. :changelog:
 
-Release notes
+Release Notes
 =============
 
 All notable changes to this project will be documented in this file.
@@ -32,6 +32,7 @@ Added
  - Creates kolibri.auth API endpoint filtering
  - Adds management plugin for managing learners, classrooms, and groups
  - Automatic inclusion of requirements in a static build
+ - Linting of client-side assets during webpack build process
 
 Changed
 ^^^^^^^
