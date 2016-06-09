@@ -7,7 +7,7 @@ class ManagementModule extends KolibriModule {
     this.vm = new Vue({
       el: 'body',
       components: {
-        'app-root': require('./main.vue'),
+        'app-root': require('./app-root.vue'),
       },
       store: require('./vuex/store.js').store,
       vuex: {

@@ -41,21 +41,21 @@ For example:
       learn                     # learn plugin
         assets/
           src/
-            main.vue            # root view
-            learn.js            # instantiate learn app on client-side
+            app-root.vue        # root view
+            app.js              # instantiate learn app on client-side
           test/
-            learn.js
+            app.js
       management/
         assets/
           src/
             learner-roster.vue  # nested-view
-            main.vue            # root view
-            management.js       # instantiate mgmt app on client-side
+            app-root.vue        # root view
+            app.js              # instantiate mgmt app on client-side
           test/
-            management.js
+            app.js
 
 
-In the example above, the *main.vue* in *management* can use other assets in the same directory (such as *learner-roster.vue*) and it can use assets in core (such as variables in *core-theme.styl*). However it cannot use files in other plugin directories (such as *learn*).
+In the example above, the *app-root.vue* file in *management* can use other assets in the same directory (such as *learner-roster.vue*) and it can use assets in core (such as variables in *core-theme.styl*). However it cannot use files in other plugin directories (such as *learn*).
 
 .. note::
 
@@ -67,13 +67,13 @@ In the example above, the *main.vue* in *management* can use other assets in the
 Single-page Apps
 ----------------
 
-The Kolibri front-end is made of a few high-level "app" plugins, which are single-page JS applications with their own base URL and a single root Vue.js component. Examples of apps are 'Learn' and 'User Management', as shown in the example above. Apps are independent of each other, and can only reference components and styles from within themselves and from core.
+The Kolibri front-end is made of a few high-level "app" plugins, which are single-page JS applications (conventionally *app.js*) with their own base URL and a single root Vue.js component. Examples of apps are 'Learn' and 'User Management', as shown in the example above. Apps are independent of each other, and can only reference components and styles from within themselves and from core.
 
 Each app is implemented as a Kolibri plugin and is defined in a subdirectory of *kolibri/plugins*.
 
 On the Server-side, the ``kolibri_plugin.py`` file describes most of the configuration for the single-page app. In particular, this includes the base Django HTML template to return (with an empty ``<body>``), the URL at which the app is exposed, and the javascript entry file which is run on load.
 
-On the client-side, the app creates a single ``KolibriModule`` object in the entry file and registers this with the core app, a global variable called ``kolibriGlobal``. The Kolibri Module then mounts single root component to the HTML returned by the server, which recursively contains all additional components, html and logic.
+On the client-side, the app creates a single ``KolibriModule`` object in the entry file (conventionally *app.js*) and registers this with the core app, a global variable called ``kolibriGlobal``. The Kolibri Module then mounts single root component to the HTML returned by the server, which recursively contains all additional components, html and logic.
 
 
 Defining a New Kolibri Module
@@ -83,11 +83,11 @@ Defining a New Kolibri Module
 
   This section is mostly relevant if you are creating a new app or plugin. If you are just creating new components, you don't need to do this.
 
-A Kolibri Module is initially defined in Python by sub-classing the ``WebpackBundleHook`` class (in ``kolibri.core.webpack.hooks``). The hook defines the JS entry point file where the ``KolibriModule`` subclass is instantiated, and where events and callbacks on the module are registered. These are defined in the ``events`` and ``once`` properties. Each defines key-value pairs of the name of an event, and the name of the method on the ``KolibriModule`` object. When these events are triggered on the Kolibri core JavaScript app, these callbacks will be called. (If the ``KolibriModule`` is registered for asynchronous loading, the Kolibri Module will first be loaded, and then the callbacks called when it is ready. See :doc:`asset_loading` for more information.)
+A Kolibri Module is initially defined in Python by sub-classing the ``WebpackBundleHook`` class (in ``kolibri.core.webpack.hooks``). The hook defines the JS entry point (conventionally called *app.js*) where the ``KolibriModule`` subclass is instantiated, and where events and callbacks on the module are registered. These are defined in the ``events`` and ``once`` properties. Each defines key-value pairs of the name of an event, and the name of the method on the ``KolibriModule`` object. When these events are triggered on the Kolibri core JavaScript app, these callbacks will be called. (If the ``KolibriModule`` is registered for asynchronous loading, the Kolibri Module will first be loaded, and then the callbacks called when it is ready. See :doc:`asset_loading` for more information.)
 
 All apps should extend the ``KolibriModule`` class found in `kolibri/core/assets/src/kolibri_module.js`.
 
-The ``ready`` method will be automatically executed once the Module is loaded and registered with the Kolibri Core App. By convention, JavaScript is injected into the served HTML *after* the ``<app-root>`` tag, meaning that this tag should be available when the ``ready`` method is called, and the root component can be mounted here.
+The ``ready`` method will be automatically executed once the Module is loaded and registered with the Kolibri Core App. By convention, JavaScript is injected into the served HTML *after* the ``<app-root>`` tag, meaning that this tag should be available when the ``ready`` method is called, and the root component (conventionally in *app-root.vue*) can be mounted here.
 
 
 Shared Core Functionality
