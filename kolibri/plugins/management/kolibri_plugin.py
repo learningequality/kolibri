@@ -28,4 +28,4 @@ class ManagementInclusionHook(hooks.ManagementSyncHook):
 
 class ManagementNavItem(NavigationHook):
     label = _("Manage!")
-    url = '/manage'
+    url = 'manage'

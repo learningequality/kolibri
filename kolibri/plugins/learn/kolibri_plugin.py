@@ -28,4 +28,4 @@ class LearnInclusionHook(hooks.LearnSyncHook):
 
 class LearnNavItem(NavigationHook):
     label = _("Learn!")
-    url = '#'
+    url = 'learn'

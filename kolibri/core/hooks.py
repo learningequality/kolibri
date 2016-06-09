@@ -28,10 +28,11 @@ class NavigationHook(KolibriHook):
     # : A string or lazy proxy for the url
     url = "/"
 
+    # : A method to return a dictionary with nav items for all registered hooks
     def get_menu(self):
         menu = {}
         for hook in self.registered_hooks:
-            menu[hook.label] = self.url
+            menu[hook.url] = str(hook.label)
         return menu
 
     class Meta:
