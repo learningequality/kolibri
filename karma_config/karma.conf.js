@@ -3,9 +3,11 @@
 var RewirePlugin = require("rewire-webpack");
 var _ = require("lodash");
 var webpack_config = _.clone(require("../frontend_build/src/webpack.config.base"));
+var path = require('path');
 
 webpack_config.plugins.push(new RewirePlugin());
 webpack_config.devtool = '#inline-source-map';
+webpack_config.resolve.alias['kolibri'] = path.resolve('kolibri/core/assets/src/core_app_instance');
 
 module.exports = function(config) {
   config.set({
@@ -22,6 +24,7 @@ module.exports = function(config) {
     // list of files / patterns to load
     files: [
       './node_modules/phantomjs-polyfill-find/find-polyfill.js',
+      'node_modules/babel-polyfill/dist/polyfill.js',
       'kolibri/**/assets/test/*.js',
       {pattern: 'kolibri/**/assets/src/**/*.js', included: false} // load these, but not in the browser, just for linting
     ],
@@ -71,9 +74,8 @@ module.exports = function(config) {
     webpack: webpack_config,
 
     webpackMiddleware: {
-      // suppress all webpack building information
-      // But I like webpack output :) -- MCG
-      // noInfo: true
+      // suppress all webpack building information to make test logs more readable.
+       noInfo: true
     },
 
     eslint: {
