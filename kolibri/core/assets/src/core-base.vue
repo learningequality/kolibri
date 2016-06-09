@@ -10,7 +10,7 @@
 
 <script>
 
-  export default {
+  module.exports = {
     components: {
       'kolibri-nav': require('./navigation.vue'),
     },
