@@ -2,7 +2,7 @@
 // This is aliased for your convenience!
 const KolibriModule = require('kolibri_module');
 
-class AudioMP4Module extends KolibriModule {
+class AudioMP3Module extends KolibriModule {
   render(contentData, renderArea) {
     const audioTag = document.createElement('audio');
     audioTag.autoplay = true;
@@ -15,4 +15,4 @@ class AudioMP4Module extends KolibriModule {
   }
 }
 
-module.exports = new AudioMP4Module();
+module.exports = new AudioMP3Module();
