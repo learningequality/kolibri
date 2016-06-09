@@ -2,8 +2,10 @@
   <header role="banner">
     <nav class="titlebar" role="navigation" aria-label="Main navigation">
       <ul aria-label="User options submenu">
-        <li v-for="item in nav_items">
-          <a href={{item.url}}>{{item.text}}</a>
+        <li v-for="(url, label) in nav_items">
+            <a :style="{fontWeight: url == app ? 'bold' : ''}" :href=" '/' + url">
+              {{label}}
+            </a>
         </li>
       </ul>
     </nav>
@@ -12,16 +14,15 @@
 
 
 <script>
+  /* global _navItems window*/
 
   module.exports = {
     data() {
       return {
         // items that go in the title bar
-        nav_items: window._nav ? window._nav.nav_items || [] : [],
-        title_bar: {
-          title: 'Kolibri',
-          home_link: '/',
-        },
+        nav_items: _navItems || [],
+        // the current app on
+        app: window.location.pathname.split('/')[1],
       };
     },
     methods: {
