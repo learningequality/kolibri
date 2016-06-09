@@ -102,7 +102,16 @@ Additional Recommended Setup
 
 If you're planning on contributing code to the project, there are a few additional steps you should consider taking.
 
-Setup DB
+
+Editor Config
+~~~~~~~~~~~~~
+
+We have a project-level *.editorconfig* file to help you configure your text editor or IDE to use our internal conventions.
+
+`Check your editor <http://editorconfig.org/#download>`_ to see if it supports EditorConfig out-of-the-box, or if a plugin is available.
+
+
+DB Setup
 ~~~~~~~~
 
 You can initialize the server using:
@@ -112,7 +121,7 @@ You can initialize the server using:
   kolibri manage migrate
 
 
-Install Pre-Commit
+Pre-Commit Install
 ~~~~~~~~~~~~~~~~~~
 
 We use `pre-commit <http://pre-commit.com/>`_ to help ensure consistent, clean code. The pip package should already be installed from a prior setup step, but you need to install the git hooks using this command.
@@ -122,8 +131,8 @@ We use `pre-commit <http://pre-commit.com/>`_ to help ensure consistent, clean c
   pre-commit install
 
 
-Test your Code
-~~~~~~~~~~~~~~
+Code Testing
+~~~~~~~~~~~~
 
 Kolibri comes with a Python test suite based on ``py.test``. To run tests in your current environment:
 
@@ -184,7 +193,7 @@ To run specific tests only, you can add ``--``, followed by a label (consisting 
   kolibri manage test -- kolibri.auth.test.test_permissions.MembershipPermissionsTestCase.test_admin_can_delete_membership
 
 
-Editing Documentation
+Documentation Editing
 ~~~~~~~~~~~~~~~~~~~~~
 
 To make changes to documentation, make an edit and then run:
