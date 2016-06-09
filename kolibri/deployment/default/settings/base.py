@@ -202,7 +202,8 @@ AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
 AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']
 
 REST_FRAMEWORK = {
-    "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser"
+    "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser",
+    'DEFAULT_FILTER_BACKENDS': ('url_filter.integrations.drf.DjangoFilterBackend',)
 }
 
 # Configuration for Django JS Reverse

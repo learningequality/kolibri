@@ -5,13 +5,13 @@
 const Vue = require('vue');
 const Vuex = require('vuex');
 const assert = require('assert');
-const sinon = require('sinon');
+const rewire = require('rewire');
 
-const { fetch } = require('../src/vuex/actions.js');
+const actions = rewire('../src/vuex/actions.js');
+const { fetch } = actions;
 const { store, mutations, constants } = require('../src/vuex/store.js');
 const Management = require('../src/vue');
 const fixture1 = require('./fixtures/fixture1.js');
-
 
 /*
 Neat little snippet for testing actions, modified from the vuex docs.
@@ -20,7 +20,7 @@ occurs in the given order. At least one expected mutation must be given.
 Does not fail if *more* mutations than expected occur -- it will simply terminate
 successfully as soon as the *expected* mutations finish up.
  */
-function testAction(action, args, state, expectedMutations, done) {
+function testAction(action, args, state, expectedMutations, done, errors) {
   let count = 0;
 
   return new Promise((resolve) => {
@@ -29,7 +29,12 @@ function testAction(action, args, state, expectedMutations, done) {
       const mutation = expectedMutations[count];
       assert.equal(name, mutation.name);
       if (payload) {
-        assert.deepEqual(payload, mutation.payload, `Mutation ${name} not given right payload.`);
+        try {
+          assert.deepEqual(payload, mutation.payload,
+            `Mutation ${name} not given right payload.`);
+        } catch (e) {
+          errors.push(e);
+        }
       }
       count++;
       if (count >= expectedMutations.length) {
@@ -40,7 +45,6 @@ function testAction(action, args, state, expectedMutations, done) {
     action({ dispatch, state }, ...args);
   }).then(done);
 }
-
 
 describe('The management module', () => {
   it('defines a Management vue', () => {
@@ -88,16 +92,34 @@ describe('The management module', () => {
 
     describe('a "fetch" action', function () {
       before(function () {
-        this.xhr = sinon.useFakeXMLHttpRequest();
-        this.requests = [];
-        this.urls = ['classrooms', 'learnergroups', 'learners', 'memberships'];
-        this.xhr.onCreate = req => {
-          this.requests.push(req);
-        };
+        const responses = require('./fixtures/responseFixtures.js');
+        const classroomCollection = responses.classroom;
+        const learnerGroupCollection = responses.learnergroup;
+        const learnerCollection = responses.facilityuser;
+        const memberCollection = responses.membership;
+        [
+          classroomCollection,
+          learnerGroupCollection,
+          learnerCollection,
+          memberCollection,
+        ].forEach((arr) => {
+          arr.fetch = function () { // eslint-disable-line no-param-reassign
+            return new Promise(function (resolve) {
+              resolve(arr);
+            });
+          };
+        });
+        actions.__set__('classroomCollection', classroomCollection);
+        actions.__set__('learnerGroupCollection', learnerGroupCollection);
+        actions.__set__('learnerCollection', learnerCollection);
+        actions.__set__('memberCollection', memberCollection);
+        this.errors = [];
       });
 
       after(function () {
-        this.xhr.restore();
+        this.errors.forEach(function (e) {
+          throw e;
+        });
       });
 
       it('that mutates the state in a particular way', function (done) {
@@ -126,13 +148,8 @@ describe('The management module', () => {
           },
           /* eslint-enable */
         ];
-        testAction(fetch, this.urls, {}, expectedMutations, done);
-        const responses = require('./fixtures/responseFixtures.js');
-        let count = 0;
-        this.requests.forEach(req => {
-          req.respond(200, {}, JSON.stringify(responses[count]));
-          count++;
-        });
+          // call the action with mocked store and arguments
+        testAction(fetch, [], {}, expectedMutations, done, this.errors);
       });
     });
   });
