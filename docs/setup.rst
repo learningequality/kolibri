@@ -57,7 +57,9 @@ Install project-specific development dependencies.
 
   It is considered best-practice to use a `Python virtual environment <https://virtualenv.pypa.io/en/stable/>`_ to isolate your Python dependencies during development. You may also want to consider using `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/en/latest/index.html>`_.
 
-  (Node.js automatically isolates project dependencies.)
+  If you're *not* using a Python virtual environment, you may need to use ``sudo`` with the ``pip install`` commands below.
+
+  (``npm install`` automatically isolates project dependencies and works without ``sudo``.)
 
 
 Run the following commands:
