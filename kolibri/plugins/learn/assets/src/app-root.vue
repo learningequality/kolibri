@@ -1,11 +1,21 @@
 <template>
 
   <core-base>
-    <h1>
-      Learn App
-    </h1>
-    <p>content</p>
-    <p class="alert">alert!</p>
+    Home / Folder A / Folder B
+    <main>
+      <h2>Topics</h2>
+      <ul>
+        <li>Topic Card</li>
+        <li>Topic Card</li>
+        <li>Topic Card</li>
+        <li>Topic Card</li>
+      </ul>
+      <h2>Content</h2>
+      <ul>
+        <li>Content Card</li>
+        <li>Content Card</li>
+      </ul>
+    </main>
   </core-base>
 
 </template>
@@ -25,9 +35,5 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-
-  .alert
-    color: $core-text-alert
-    background-color: $core-text-alert-bg
 
 </style>
