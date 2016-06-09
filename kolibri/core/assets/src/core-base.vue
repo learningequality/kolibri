@@ -7,12 +7,15 @@
 
 </template>
 
+
 <script>
-export default {
-  components: {
-    'kolibri-nav': require('./navigation.vue'),
-  },
-};
+
+  export default {
+    components: {
+      'kolibri-nav': require('./navigation.vue'),
+    },
+  };
+
 </script>
 
 
