@@ -9,9 +9,11 @@ Installation
 ------------
 
 .. warning::
-  Kolibri is not yet available on PyPi. It must be `run from source <https://github.com/learningequality/kolibri>`_ for now.
+  Kolibri is not yet available on PyPi. It must be run from source for now. See :doc:`setup`.
 
-You can install Kolibri as a standard package from PyPi using this command::
+You will be able to install Kolibri as a standard package from PyPi using this command:
 
-    $ pip install kolibri
+.. code-block:: bash
+
+  pip install kolibri
 
