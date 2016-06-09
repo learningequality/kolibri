@@ -1,7 +1,9 @@
 <template>
 
   <core-base>
-    Home / Folder A / Folder B
+    <nav>
+      Home / Folder A / Folder B
+    </nav>
     <main>
       <h2>Topics</h2>
       <ul>
