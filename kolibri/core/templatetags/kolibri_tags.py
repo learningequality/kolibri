@@ -19,18 +19,8 @@ def kolibri_main_navigation():
     A tag to include an initial JS-object to bootstrap data into the app.
     :return: An html string
     """
-    init_data = {
-        'nav_items': [],
-        'user_nav_items': [],
-    }
-
-    for hook in NavigationHook().registered_hooks:
-        init_data['nav_items'].append({
-            'text': str(hook.label),
-            'url': str(hook.url),
-        })
-
-        html = ("<script type='text/javascript'>"
-                "window._nav={0};"
-                "</script>".format(json.dumps(init_data)))
+    nav_items = NavigationHook().get_menu()
+    html = ("<script type='text/javascript'>"
+            "window._nav_items={0};"
+            "</script>".format(json.dumps(nav_items)))
     return mark_safe(html)
