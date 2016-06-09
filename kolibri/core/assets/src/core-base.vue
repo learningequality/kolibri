@@ -1,6 +1,7 @@
 <template>
 
-  <kolibri-nav></kolibri-nav>
+  <!-- <kolibri-nav></kolibri-nav> -->
+  <header class="base-header"><h1>Kolibri Learn</h1></header>
   <main>
     <slot></slot>
   </main>
@@ -25,5 +26,10 @@
 
   main
     margin: 10px
+
+  .base-header h1
+    color: $core-action-normal
+    text-align: center
+    font-size: smaller
 
 </style>
