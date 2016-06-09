@@ -4,9 +4,6 @@
   <main>
     <slot></slot>
   </main>
-  <footer>
-    foot!
-  </footer>
 
 </template>
 
@@ -25,12 +22,5 @@ export default {
 
   main
     margin: 10px
-
-  footer
-    background-color: $core-bg-light
-    bottom: 1vh
-    position: fixed
-    padding: 10px
-    width: 100%
 
 </style>
