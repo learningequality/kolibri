@@ -1,9 +1,7 @@
 <template>
 
   <core-base>
-    <nav>
-      Home / Folder A / Folder B
-    </nav>
+    <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs>
     <main>
       <h2>Topics</h2>
       <ul>
@@ -28,7 +26,11 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
+      'breadcrumbs': require('./breadcrumbs'),
     },
+    data: () => ({
+      breadcrumbs: require('./demo/breadcrumbs.json'),
+    }),
   };
 
 </script>
