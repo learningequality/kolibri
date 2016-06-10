@@ -19,7 +19,7 @@
         </li>
       </ul>
       <h2>Content</h2>
-      <content-cards :contentcards="contentCards.cards"></content-cards>
+      <content-cards :contentcards="contentCards"></content-cards>
     </main>
   </core-base>
 
@@ -37,7 +37,7 @@
     },
     data: () => ({
       breadcrumbs: require('./demo/breadcrumbs.json'),
-      contentCards: require('./demo/content-cards.json'),
+      contentCards: require('./demo/derivative-intro__content_only.json'),
       // Comment-out because it's missing and causing build error.
       // topics: require('./demo/graphing__topics_only.json'),
     }),

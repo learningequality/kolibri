@@ -1,8 +1,10 @@
 <template>
-  <a :href="content.link-href">
+  <a :href="#">
     <div class="content-card-container">
-      <img :src="content.thumbnail"/>
-      {{ content.title }}
+      <img :src="content.thumbnail" class="thumbnail"/>
+      <div class="title">
+        {{ content.title }}
+      </div>
     </div>
   </a>
 </template>
@@ -21,9 +23,15 @@
 
   @require '~core-theme.styl'
 
-  .content-card-container
+  .content-card
     height: 150px
     width: 200px
-    border: 1px
+
+  .thumbnail
+    width: 200px
+    height: 120px
+
+  .title
+    max-width: 200px
 
 </style>
