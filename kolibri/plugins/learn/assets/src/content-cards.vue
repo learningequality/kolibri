@@ -2,7 +2,11 @@
   Contents Here
   <ul class="content-card-list">
     <li v-for="content in contentcards">
-      <content-card :content="content"></content-card>
+      <content-card
+        :title="content.title"
+        :thumbsrc="content.thumbnail"
+        >
+      </content-card>
     </li>
   </ul>
 </template>

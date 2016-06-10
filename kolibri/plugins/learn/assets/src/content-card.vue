@@ -1,9 +1,9 @@
 <template>
-  <a :href="#">
+  <a href="linkhref">
     <div class="content-card-container">
-      <img :src="content.thumbnail" class="thumbnail"/>
+      <img :src="thumbsrc" class="thumbnail"/>
       <div class="title">
-        {{ content.title }}
+        {{ title }}
       </div>
     </div>
   </a>
@@ -13,7 +13,13 @@
 <script>
 
   module.exports = {
-    props: ['content'],
+    props: [
+      'title',
+      'thumbsrc',
+      'linkhref',
+      'kind',
+      'progress',
+    ],
   };
 
 </script>
