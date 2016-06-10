@@ -8,5 +8,6 @@
   "id-class-value": "dash",
   "inline-script-disabled": true,
   "space-tab-mixed-disabled": "space2",
-  "--attr-value-single-quotes": true
+  "--attr-value-single-quotes": true,
+  "--no-tag-self-close": true
 }

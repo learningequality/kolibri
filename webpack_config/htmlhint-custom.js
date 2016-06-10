@@ -27,3 +27,19 @@ HTMLHint.addRule({
         });
     }
 });
+
+/*
+  Based on the existing `tag-self-close` rule
+*/
+HTMLHint.addRule({
+    id: '--no-tag-self-close',
+    description: 'Self-closing tags are not valid HTML5.',
+    init: function(parser, reporter) {
+        var self = this;
+        parser.addListener('tagstart', function(event) {
+            if (event.close) {
+                reporter.warn('In : [ '+event.tagName+' ] self-closing tags are not valid HTML5.', event.line, event.col, self, event.raw);
+            }
+        });
+    }
+});
