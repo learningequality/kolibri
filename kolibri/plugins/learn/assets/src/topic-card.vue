@@ -27,7 +27,7 @@
     height: 150px
     width: 200px
     text-align: center
-    border: 1px solid black
+    background-color: $core-bg-light
 
   .topic-card-folder
     max-width: 50px

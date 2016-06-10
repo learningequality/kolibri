@@ -32,6 +32,9 @@
   .content-card
     height: 150px
     width: 200px
+    background-color: $core-bg-light
+    text-align: center
+
 
   .thumbnail
     width: 200px
