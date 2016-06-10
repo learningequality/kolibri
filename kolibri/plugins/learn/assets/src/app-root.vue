@@ -11,10 +11,7 @@
         <li>Topic Card</li>
       </ul>
       <h2>Content</h2>
-      <ul>
-        <li>Content Card</li>
-        <li>Content Card</li>
-      </ul>
+      <content-cards :contentcards="contentCards.cards"></content-cards>
     </main>
   </core-base>
 
@@ -27,9 +24,11 @@
     components: {
       'core-base': require('core-base'),
       'breadcrumbs': require('./breadcrumbs'),
+      'content-cards': require('./content-cards'),
     },
     data: () => ({
       breadcrumbs: require('./demo/breadcrumbs.json'),
+      contentCards: require('./demo/content-cards.json'),
     }),
   };
 
