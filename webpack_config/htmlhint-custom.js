@@ -38,7 +38,7 @@ HTMLHint.addRule({
         var self = this;
         parser.addListener('tagstart', function(event) {
             if (event.close) {
-                reporter.warn('In : [ '+event.tagName+' ] self-closing tags are not valid HTML5.', event.line, event.col, self, event.raw);
+                reporter.error('In : [ '+event.tagName+' ] self-closing tags are not valid HTML5.', event.line, event.col, self, event.raw);
             }
         });
     }
