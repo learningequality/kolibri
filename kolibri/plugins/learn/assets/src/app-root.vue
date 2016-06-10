@@ -1,26 +1,7 @@
 <template>
 
   <core-base>
-    <breadcrumbs
-      :crumbs="breadcrumbs.crumbs"
-      :current="breadcrumbs.current">
-    </breadcrumbs>
-    <main>
-      <h2>Topics</h2>
-      <ul>
-        <li v-for="topic in topics">
-          <topic-card
-            :title="topic.title"
-            :linkhref="topic.description"
-            :ntotal="topic.n_total"
-            :ncomplete="topic.n_complete"
-          >
-          </topic-card>
-        </li>
-      </ul>
-      <h2>Content</h2>
-      <content-cards :contentcards="contentCards"></content-cards>
-    </main>
+    <topic-page></topic-page>
   </core-base>
 
 </template>
@@ -31,16 +12,8 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
-      'breadcrumbs': require('./breadcrumbs'),
-      'content-cards': require('./content-cards'),
-      'topic-card': require('./topic-card'),
+      'topic-page': require('./topic-page'),
     },
-    data: () => ({
-      breadcrumbs: require('./demo/breadcrumbs.json'),
-      contentCards: require('./demo/derivative-intro__content_only.json'),
-      // Comment-out because it's missing and causing build error.
-      // topics: require('./demo/graphing__topics_only.json'),
-    }),
   };
 
 </script>
