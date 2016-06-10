@@ -19,8 +19,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~core-theme.styl'
-
-</style>
+<style lang="stylus" scoped></style>

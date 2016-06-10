@@ -2,9 +2,11 @@
 
 <div class="topic-card">
   <a href="{{linkhref}}">
-  <p>{{ ncomplete }} / {{ ntotal }} </p>
+  <p>
+    {{ ncomplete }} / {{ ntotal }}
+  </p>
   <img class="topic-card-folder" src="http://simpleicon.com/wp-content/uploads/folder-2.png">
-  <p> {{ title }} </p>
+  <p>{{ title }}</p>
   </a>
 </div>
 
@@ -13,7 +15,12 @@
 <script>
 
   module.exports = {
-    props: ['title', 'linkhref', 'ntotal', 'ncomplete'],
+    props: [
+      'title',
+      'linkhref',
+      'ntotal',
+      'ncomplete',
+    ],
   };
 
 </script>

@@ -5,18 +5,30 @@
     <h2 id="explore-topic-subtitle">Topics</h2>
     <div id="explore-topics">
       <div  v-for="topic in alltopics">
-        <topic-card :title="topic.title" linkhref="#" :ntotal="topic.n_total" :ncomplete="topic.n_complete"></topic-card>
+        <topic-card
+          :title="topic.title"
+          linkhref="#"
+          :ntotal="topic.n_total"
+          :ncomplete="topic.n_complete">
+        </topic-card>
       </div>
     </div>
 
     <h2 id="explore-content-subtitle">Content</h2>
     <div id="explore-contents">
       <div  v-for="content in allcontents">
-        <content-card :title="content.title" linkhref="#" :thumbsrc="content.thumbnail" :kind="content.kind" :progress="content.progress"></content-card>
+        <content-card
+          :title="content.title"
+          linkhref="#"
+          :thumbsrc="content.thumbnail"
+          :kind="content.kind"
+          :progress="content.progress">
+        </content-card>
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
   const breadcrumbs = require('./demo/breadcrumbs.json');
@@ -36,6 +48,7 @@
   };
 
 </script>
+
 
 <style lang="stylus" scoped>
   @require '~core-theme.styl'
