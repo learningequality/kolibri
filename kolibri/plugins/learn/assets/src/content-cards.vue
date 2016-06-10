@@ -2,12 +2,7 @@
   Contents Here
   <ul class="content-card-list">
     <li v-for="content in contentcards">
-      <a :href="content.link-href">
-        <div class="content-card-container">
-          <img :src="content.thumbnail"/>
-          {{ content.title }}
-        </div>
-      </a>
+      <content-card :content="content"></content-card>
     </li>
   </ul>
 </template>
@@ -17,6 +12,9 @@
 
   module.exports = {
     props: ['contentcards'],
+    components: {
+      'content-card': require('./content-card'),
+    },
   };
 
 </script>
@@ -29,10 +27,5 @@
   .content-card-list
     display: inline
     list-style: none
-
-  .content-card-container
-    height: 150px
-    width: 200px
-    border: 1px
 
 </style>
