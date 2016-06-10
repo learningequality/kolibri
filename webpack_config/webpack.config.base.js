@@ -13,6 +13,8 @@ var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 
+require('./htmlhint-custom'); // adds custom rules
+
 var config = {
   module: {
     preLoaders: [

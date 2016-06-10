@@ -19,7 +19,7 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang='stylus' scoped>
 
   @require '~core-theme.styl'
 

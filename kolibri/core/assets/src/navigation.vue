@@ -1,28 +1,28 @@
 <template>
 
   <header>
-    <nav class="titlebar">
+    <nav class='titlebar'>
 
       <div>
         <span>{{title_bar.title}}</span>
-        <a href="{{title_bar.home_link}}">Home</a>
+        <a href='{{title_bar.home_link}}'>Home</a>
       </div>
 
       <div>
-        <span class="user-menu-btn" v-on:click="userNavDisplayToggle">{{user.first_name}}</span>
-        <div class="user-menu-popup" v-show="userNavDisplay">
+        <span class='user-menu-btn' v-on:click='userNavDisplayToggle'>{{user.first_name}}</span>
+        <div class='user-menu-popup' v-show='userNavDisplay'>
           <ul>
-            <li v-for="item in user_nav_items">
-              <a href="{{item.url}}">{{item.text}}</a>
+            <li v-for='item in user_nav_items'>
+              <a href='{{item.url}}'>{{item.text}}</a>
             </li>
           </ul>
         </div>
       </div>
     </nav>
 
-    <nav class="navlinks">
-      <div class="navlinks-item" v-for="item in nav_items">
-        <a href="{{item.url}}">{{ item.text }}</a>
+    <nav class='navlinks'>
+      <div class='navlinks-item' v-for='item in nav_items'>
+        <a href='{{item.url}}'>{{ item.text }}</a>
       </div>
     </nav>
   </header>
@@ -62,7 +62,7 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang='stylus' scoped>
 
   @require '~core-theme.styl'
 
