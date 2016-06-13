@@ -1,10 +1,5 @@
 var assert = require('assert');
-var fs = require('fs');
-var path = require('path');
-var temp = require('temp');
-var child_process = require('child_process');
 var rewire = require('rewire');
-var sinon = require('sinon');
 
 var parseBundlePlugin = require('../src/parse_bundle_plugin');
 var readBundlePlugins = rewire('../src/read_bundle_plugins');
