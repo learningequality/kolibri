@@ -18,9 +18,6 @@ Files and Directories
 
   *TODO - what does it contain?*
 
-assets/...
-  Code for integrating Kolibri's plugin system with Webpack's build system. The files here interact closely with the files in the related *webpack_config/...* directory.
-
 dist-packages-cache
   Packaging-related, and ignored by git. *TODO - what does it contain?*
 
@@ -29,6 +26,9 @@ dist-packages-temp
 
 docs/...
   reStructuredText-based documentation, along with `Sphinx-based build code <http://www.sphinx-doc.org/en/stable/>`_
+
+frontend_build/...
+  Code for integrating Kolibri's plugin system with `webpack <https://webpack.github.io/>`_ instrumentation for bundling client-side dependencies.
 
 karma_config/...
   Configuration for `Karma <https://karma-runner.github.io/0.13/index.html>`_, our client-side unit test framework
@@ -41,9 +41,6 @@ requirements/...
 
 test/...
   helper files for running tests in `Travic CI <https://travis-ci.org/>`_ *TODO - is this correct?*
-
-webpack_config/...
-  `webpack <https://webpack.github.io/>`_ instrumentation for bundling client-side dependencies, coupled with scripts in *assets/...*
 
 .editorconfig
   general `editor configuration file <http://editorconfig.org/>`_

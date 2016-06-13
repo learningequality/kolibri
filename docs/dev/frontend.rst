@@ -61,7 +61,7 @@ In the example above, the *app-root.vue* file in *management* can use other asse
 
   For many development scenarios, only files in these directories need to be touched.
 
-  There is also a lot of logic and configuration relevant to front-end code loading, parsing, testing, and linting. This includes webpack, NPM, and integration with the plugin system. This is somewhat scattered, and includes logic in *assets/...*, *webpack_config/...*, *package.json*, *kolibri/core/webpack/...*, and other locations. Much of this functionality is described in other sections of the docs (such as :doc:`asset_loading`), but it can take some time to understand how it all hangs together.
+  There is also a lot of logic and configuration relevant to front-end code loading, parsing, testing, and linting. This includes webpack, NPM, and integration with the plugin system. This is somewhat scattered, and includes logic in *frontend_build/...*, *package.json*, *kolibri/core/webpack/...*, and other locations. Much of this functionality is described in other sections of the docs (such as :doc:`asset_loading`), but it can take some time to understand how it all hangs together.
 
 
 Single-page Apps

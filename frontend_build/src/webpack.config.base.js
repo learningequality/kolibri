@@ -13,7 +13,7 @@ var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 
-require('./htmlhint-custom'); // adds custom rules
+require('./htmlhint_custom'); // adds custom rules
 
 var config = {
   module: {
@@ -64,9 +64,9 @@ var config = {
   ],
   resolve: {
     alias: {
-      'kolibri_module': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'kolibri_module'),
-      'core-base': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'core-base'),
-      'core-theme.styl': path.join(__dirname, '..', 'kolibri', 'core', 'assets', 'src', 'core-theme.styl'),
+      'kolibri_module': path.join(__dirname, '..', '..', 'kolibri', 'core', 'assets', 'src', 'kolibri_module'),
+      'core-base': path.join(__dirname, '..', '..', 'kolibri', 'core', 'assets', 'src', 'core-base'),
+      'core-theme.styl': path.join(__dirname, '..', '..', 'kolibri', 'core', 'assets', 'src', 'core-theme.styl'),
     },
     extensions: ["", ".vue", ".js"],
   },
