@@ -19,13 +19,12 @@ var readBundlePlugins = require('../assets/src/read_bundle_plugins');
 //
 // kolibri_name is always == kolibriGlobal (this is defined in the base settings - base.py)
 var libs = function(kolibri_name) {
-    return {
-        'loglevel': kolibri_name + '.lib.loglevel',
-        'vue': kolibri_name + '.lib.vue',
-        'kolibri': kolibri_name,
-        'core-base': kolibri_name + '.lib.coreBase',
-    };
-
+  return {
+    'loglevel': kolibri_name + '.lib.loglevel',
+    'vue': kolibri_name + '.lib.vue',
+    'kolibri': kolibri_name,
+    'core-base': kolibri_name + '.lib.coreBase',
+  };
 };
 
 var bundles = readBundlePlugins(path.dirname(__dirname), libs);
