@@ -1,8 +1,11 @@
 <template>
+
   <template v-for="(title,block) in content">
     <rec-block :title="title" :block="block"></rec-block>
   </template>
+
 </template>
+
 
 <script>
 
@@ -15,7 +18,9 @@
       content,
     }),
   };
+
 </script>
+
 
 <style lang="stylus" scoped>
 

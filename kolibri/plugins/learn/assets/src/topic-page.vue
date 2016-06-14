@@ -1,4 +1,5 @@
 <template>
+
   <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs>
   <div class="topic-page">
 
@@ -27,13 +28,16 @@
       </div>
     </div>
   </div>
+
 </template>
 
 
 <script>
+
   const breadcrumbs = require('./demo/breadcrumbs.json');
   const alltopics = require('./demo/graphing__topics_only.json');
   const allcontents = require('./demo/inequalities__content_only.json');
+
   module.exports = {
     components: {
       'breadcrumbs': require('./breadcrumbs'),
@@ -51,6 +55,7 @@
 
 
 <style lang="stylus" scoped>
+
   @require '~core-theme.styl'
 
   .topic-page

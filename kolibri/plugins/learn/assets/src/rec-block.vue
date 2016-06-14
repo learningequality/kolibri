@@ -1,4 +1,5 @@
 <template>
+
   <h1>{{ title }}</h1>
   <content-cards :contentcards="block"></content-cards>
 
@@ -10,17 +11,18 @@
       <li>{{ key }}: {{ val }}</li>
     </ul>
 </template> -->
+
 </template>
 
 
 <script>
 
-module.exports = {
-  props: ['block', 'title'],
-  components: {
-    'contentcard': require('./content-cards'),
-  },
-};
+  module.exports = {
+    props: ['block', 'title'],
+    components: {
+      // contentcard: require('./content-cards'),
+    },
+  };
 
 </script>
 

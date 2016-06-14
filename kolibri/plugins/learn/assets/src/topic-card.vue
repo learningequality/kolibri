@@ -1,16 +1,17 @@
 <template>
 
-<div class="topic-card">
-  <a href="{{linkhref}}">
-  <p>
-    {{ ncomplete }} / {{ ntotal }}
-  </p>
-  <img class="topic-card-folder" src="http://simpleicon.com/wp-content/uploads/folder-2.png">
-  <p>{{ title }}</p>
-  </a>
-</div>
+  <div class="topic-card">
+    <a href="{{linkhref}}">
+    <p>
+      {{ ncomplete }} / {{ ntotal }}
+    </p>
+    <img class="topic-card-folder" src="http://simpleicon.com/wp-content/uploads/folder-2.png">
+    <p>{{ title }}</p>
+    </a>
+  </div>
 
 </template>
+
 
 <script>
 
@@ -41,6 +42,5 @@
 
   p
     margin-top: 5px
-
 
 </style>

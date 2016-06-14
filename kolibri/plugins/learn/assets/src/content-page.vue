@@ -2,8 +2,7 @@
 
   <h2>CONTENT!!!</h2>
   <viewerslot kind="" url="">
-    <div class="obama">
-    </div>
+    <div class="obama"></div>
   </viewerslot>
   <h3>
     {{ title }}
@@ -22,7 +21,15 @@
 <script>
 
   module.exports = {
-    props: ['title', 'description', 'all-contents', 'recommended'],
+    props: [
+      'title',
+      'description',
+      'all-contents',
+      'recommended',
+    ],
+    components: {
+      'content-card': require('./content-card'),
+    },
   };
 
 </script>

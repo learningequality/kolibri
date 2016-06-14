@@ -1,4 +1,5 @@
 <template>
+
   <a href="linkhref">
     <div class="content-card-container">
       <img :src="thumbsrc" class="thumbnail"/>
@@ -7,6 +8,7 @@
       </div>
     </div>
   </a>
+
 </template>
 
 
