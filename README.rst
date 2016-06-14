@@ -40,4 +40,6 @@ How can I contribute?
 
 `Join the mailing list <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_ and check out the `contributing <CONTRIBUTING.rst>`_ page.
 
+Chat with us on IRC: **#kolibri** (Freenode)
+
 `Developer Documentation <http://kolibri.readthedocs.org/en/latest/>`_ is available online, and in the ``docs/`` directory.
