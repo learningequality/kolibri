@@ -30,6 +30,7 @@
     "normalize.css": "^4.1.1",
     "vue": "^1.0.21",
     "vue-intl": "^0.3.0",
+    "vue-router": "^0.7.13",
     "vuex": "^0.6.3"
   },
   "devDependencies": {
