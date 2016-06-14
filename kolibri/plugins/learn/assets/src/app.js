@@ -5,14 +5,6 @@ Vue.use(VueRouter);
 
 class LearnModule extends KolibriModule {
   ready() {
-    const Foo = Vue.extend({
-      template: '<p>This is foo!</p>',
-    });
-
-    const Bar = Vue.extend({
-      template: '<p>This is bar!</p>',
-    });
-
     // attaches the root learn module to the `app-root` tag
     const main = Vue.extend({
       components: {
@@ -22,11 +14,14 @@ class LearnModule extends KolibriModule {
 
     this.router = new VueRouter();
     this.router.map({
-      '/foo': {
-        component: Foo,
+      '/topics': {
+        component: require('./topic-page'),
       },
-      '/bar': {
-        component: Bar,
+      '/recommendations': {
+        component: require('./recommendations-page'),
+      },
+      '/content': {
+        component: require('./content-page'),
       },
     });
 
