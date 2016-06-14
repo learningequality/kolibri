@@ -137,4 +137,60 @@ describe('--vue-component-conventions', function() {
       done();
     });
   });
+  describe('input is invalid', function() {
+    it('should have one error with rule id: --vue-component-conventions', function (done) {
+      var input = "<template>\n\n  html\n\n</template>\n\n\n<script>\n\n\n\n</script>\n\n\n<style lang='stylus' scoped>\n\n  styles\n\n</style>";
+      var output = HTMLHint.verify(input, ruleset);
+      assert(output.length === 1 && output[0].rule.id === "--vue-component-conventions");
+      done();
+    });
+  });
+  describe('input is invalid', function() {
+    it('should have one error with rule id: --vue-component-conventions', function (done) {
+      var input = "<template>\n\n  html\n\n</template>\n\n\n<script>  </script>\n\n\n<style lang='stylus' scoped>\n\n  styles\n\n</style>";
+      var output = HTMLHint.verify(input, ruleset);
+      assert(output.length === 1 && output[0].rule.id === "--vue-component-conventions");
+      done();
+    });
+  });
+  describe('input is valid', function() {
+    it('should have one error with rule id: --vue-component-conventions', function (done) {
+      var input = "<template>\n\n  html\n\n</template>\n\n\n<script></script>\n\n\n<style lang='stylus' scoped>\n\n  styles\n\n</style>";
+      var output = HTMLHint.verify(input, ruleset);
+      assert(output.length === 0);
+      done();
+    });
+  });
+  describe('input is invalid', function() {
+    it('should have one error with rule id: --vue-component-conventions', function (done) {
+      var input = "<template>\n\n  html\n\n</template>\n\n\n<script>\n\n  scripts\n</script>\n\n\n<style lang='stylus' scoped>\n\n  styles\n\n</style>";
+      var output = HTMLHint.verify(input, ruleset);
+      assert(output.length === 1 && output[0].rule.id === "--vue-component-conventions");
+      done();
+    });
+  });
+  describe('input is invalid', function() {
+    it('should have one error with rule id: --vue-component-conventions', function (done) {
+      var input = "<template>\n\n  html\n\n</template>\n\n\n<script>\n\n  scripts\n\n\n</script>\n\n\n<style lang='stylus' scoped>\n\n  styles\n\n</style>";
+      var output = HTMLHint.verify(input, ruleset);
+      assert(output.length === 1 && output[0].rule.id === "--vue-component-conventions");
+      done();
+    });
+  });
+  describe('input is invalid', function() {
+    it('should have one error with rule id: --vue-component-conventions', function (done) {
+      var input = "<template>\n\n  html\n</template>\n\n\n<script>\n\n  scripts\n\n</script>\n\n\n<style lang='stylus' scoped>\n\n  styles\n\n</style>";
+      var output = HTMLHint.verify(input, ruleset);
+      assert(output.length === 1 && output[0].rule.id === "--vue-component-conventions");
+      done();
+    });
+  });
+  describe('input is invalid', function() {
+    it('should have one error with rule id: --vue-component-conventions', function (done) {
+      var input = "<template>\n\n\n  html\n\n</template>\n\n\n<script>\n\n  scripts\n\n</script>\n\n\n<style lang='stylus' scoped>\n\n  styles\n\n</style>";
+      var output = HTMLHint.verify(input, ruleset);
+      assert(output.length === 1 && output[0].rule.id === "--vue-component-conventions");
+      done();
+    });
+  });
 });
