@@ -1,36 +1,33 @@
 <template>
 
-  <div>
+  <div class="topic-page">
     <br><br>
     <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs>
-    <div class="topic-page">
 
-      <h2 id="explore-topic-subtitle">Topics</h2>
-      <div id="explore-topics">
-        <div  v-for="topic in alltopics">
-          <topic-card
-            :title="topic.title"
-            linkhref="#"
-            :ntotal="topic.n_total"
-            :ncomplete="topic.n_complete">
-          </topic-card>
-        </div>
-      </div>
-
-      <h2 id="explore-content-subtitle">Content</h2>
-      <div id="explore-contents">
-        <div  v-for="content in allcontents">
-          <content-card
-            :title="content.title"
-            linkhref="#"
-            :thumbsrc="content.thumbnail"
-            :kind="content.kind"
-            :progress="content.progress">
-          </content-card>
-        </div>
-      </div>
+    <h2>Topics</h2>
+    <div class="card-list">
+      <topic-card
+        v-for="topic in alltopics"
+        class="card"
+        linkhref="#"
+        :title="topic.title"
+        :ntotal="topic.n_total"
+        :ncomplete="topic.n_complete">
+      </topic-card>
     </div>
 
+    <h2>Content</h2>
+    <div class="card-list">
+      <content-card
+        v-for="content in allcontents"
+        class="card"
+        linkhref="#"
+        :title="content.title"
+        :thumbsrc="content.thumbnail"
+        :kind="content.kind"
+        :progress="content.progress">
+      </content-card>
+    </div>
   </div>
 
 </template>
@@ -63,28 +60,15 @@
   @require '~core-theme.styl'
 
   .topic-page
-    background-color: $core-bg-canvas
-
-  #explore-content-subtitle
     padding-left: 10px
 
-  #explore-topic-subtitle
-    padding-left: 10px
-
-  #explore-topics
-    overflow:hidden
+  .card-list
+    overflow: hidden
     display: block
+    margin-left: -10px
 
-  #explore-topics div
+  .card
     float: left
-    padding: 10px
-
-  #explore-contents
-    overflow:hidden
-    display: block
-
-  #explore-contents div
-    float: left
-    padding: 10px
+    margin: 10px
 
 </style>
