@@ -27,7 +27,7 @@
   @require '~core-theme.styl'
 
   main
-    margin: 10px
+    margin: $nav-width + 1
 
   .base-header h1
     color: $core-action-normal
