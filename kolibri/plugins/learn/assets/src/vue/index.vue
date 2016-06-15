@@ -3,12 +3,12 @@
   <core-base>
 
     <nav id="learn-nav">
-      <a v-link="{ path: '/', exact: true }">Home</a> |
-      <a v-link="{ path: '/topics', exact: true }">Topic Page</a> |
+      <a v-link="{ path: '/explore', exact: true }">Topic Page</a> |
       <a v-link="{ path: '/recommendations', exact: true }">Recommendation Page</a> |
       <a v-link="{ path: '/content', exact: true }">Content Page</a>
     </nav>
 
+    <!-- see router.js -->
     <router-view></router-view>
 
   </core-base>
@@ -21,19 +21,6 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
-    },
-    created() {
-      this.$router.map({
-        '/topics': {
-          component: require('./topic-page'),
-        },
-        '/recommendations': {
-          component: require('./recs-page'),
-        },
-        '/content': {
-          component: require('./content-page'),
-        },
-      });
     },
   };
 
@@ -52,6 +39,5 @@
   .v-link-active
     cursor: default
     color: $core-text-annotation
-
 
 </style>
