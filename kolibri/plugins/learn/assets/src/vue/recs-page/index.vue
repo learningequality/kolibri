@@ -1,7 +1,7 @@
 <template>
 
   <template v-for="(title,block) in content">
-    <rec-block :title="title" :block="block"></rec-block>
+    <rec-section :title="title" :block="block"></rec-section>
   </template>
 
 </template>
@@ -9,10 +9,10 @@
 
 <script>
 
-  const content = require('./demo/content_recommendation_data.json');
+  const content = require('../../demo/content_recommendation_data.json');
   module.exports = {
     components: {
-      'rec-block': require('./rec-block'),
+      'rec-section': require('./rec-section'),
     },
     data: () => ({
       content,

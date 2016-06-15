@@ -22,8 +22,18 @@
     components: {
       'core-base': require('core-base'),
     },
-    ready() {
-      console.log(this.$route);
+    created() {
+      this.$router.map({
+        '/topics': {
+          component: require('./topic-page'),
+        },
+        '/recommendations': {
+          component: require('./recs-page'),
+        },
+        '/content': {
+          component: require('./content-page'),
+        },
+      });
     },
   };
 

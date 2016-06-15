@@ -34,15 +34,15 @@
 
 <script>
 
-  const breadcrumbs = require('./demo/breadcrumbs.json');
-  const alltopics = require('./demo/graphing__topics_only.json');
-  const allcontents = require('./demo/inequalities__content_only.json');
+  const breadcrumbs = require('../../demo/breadcrumbs.json');
+  const alltopics = require('../../demo/graphing__topics_only.json');
+  const allcontents = require('../../demo/inequalities__content_only.json');
 
   module.exports = {
     components: {
       'breadcrumbs': require('./breadcrumbs'),
-      'topic-card': require('./topic-card'),
-      'content-card': require('./content-card'),
+      'topic-card': require('../topic-card'),
+      'content-card': require('../content-card'),
     },
     data: () => ({
       breadcrumbs,

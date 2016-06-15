@@ -8,23 +8,11 @@ class LearnModule extends KolibriModule {
     // attaches the root learn module to the `app-root` tag
     const main = Vue.extend({
       components: {
-        'app-root': require('./app-root'),
+        vue: require('./vue'),
       },
     });
 
     this.router = new VueRouter();
-    this.router.map({
-      '/topics': {
-        component: require('./topic-page'),
-      },
-      '/recommendations': {
-        component: require('./recommendations-page'),
-      },
-      '/content': {
-        component: require('./content-page'),
-      },
-    });
-
     this.router.start(main, 'body');
   }
 }
