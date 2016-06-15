@@ -24,7 +24,7 @@ export default {
   @require '~core-theme.styl'
 
   main
-    margin: 10px
+    margin: $nav-width + 1
 
   footer
     background-color: $core-bg-light
