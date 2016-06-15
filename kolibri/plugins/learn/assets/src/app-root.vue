@@ -5,7 +5,7 @@
       Learn App
     </h1>
     <p>content</p>
-    <p class='alert'>alert!</p>
+    <p class="alert">alert!</p>
   </core-base>
 
 </template>
@@ -22,7 +22,7 @@
 </script>
 
 
-<style lang='stylus' scoped>
+<style lang="stylus" scoped>
 
   @require '~core-theme.styl'
 

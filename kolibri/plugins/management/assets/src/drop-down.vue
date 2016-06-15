@@ -1,8 +1,8 @@
 <template>
 
-  <select v-model='selected'>
-    <template v-for='option in list'>
-      <option :value='option'>
+  <select v-model="selected">
+    <template v-for="option in list">
+      <option :value="option">
         {{ option.name }}
       </option>
     </template>
@@ -25,4 +25,4 @@
 </script>
 
 
-<style lang='stylus' scoped></style>
+<style lang="stylus" scoped></style>

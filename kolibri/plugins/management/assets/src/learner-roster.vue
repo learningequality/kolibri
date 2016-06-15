@@ -1,25 +1,25 @@
 <template>
 
-  <div class='roster'>
-    <input type='search' placeholder='Search for learner...'>
+  <div class="roster">
+    <input type="search" placeholder="Search for learner...">
     <div>
       <button>+ Learner</button>
       <button>A-Z</button>
       <button>Z-A</button>
     </div>
-    <div class='learner-roster'>
+    <div class="learner-roster">
       <ul>
-        <li v-for='learner in learners'>
-          <input type='checkbox'>
-          <span class='vertical-divider'>|</span>
-          <a href='#'>{{ learner.last_name + ', ' + learner.first_name }}</a>
+        <li v-for="learner in learners">
+          <input type="checkbox">
+          <span class="vertical-divider">|</span>
+          <a href="#">{{ learner.last_name + ", " + learner.first_name }}</a>
           <button>Manage</button>
         </li>
       </ul>
     </div>
   </div>
-  <div class='sidebar'>
-    <div class='learner-count'>
+  <div class="sidebar">
+    <div class="learner-count">
       <div>Total:</div>
       <div>{{ learners.length }}</div>
     </div>
@@ -45,7 +45,7 @@
 </script>
 
 
-<style lang='stylus' scoped>
+<style lang="stylus" scoped>
 
   .roster, .sidebar
     display: inline-block
