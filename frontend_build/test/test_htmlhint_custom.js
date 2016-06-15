@@ -23,7 +23,8 @@ var ruleset = getConfig();
 // add custom rules
 require('../src/htmlhint_custom');
 
-
+//rule is currently disabled
+/*
 describe('--attr-value-single-quotes', function() {
   describe('input is valid', function() {
     it('should have no errors', function (done) {
@@ -42,7 +43,7 @@ describe('--attr-value-single-quotes', function() {
     });
   });
 });
-
+*/
 
 describe('--no-tag-self-close', function() {
   describe('input is valid', function() {
