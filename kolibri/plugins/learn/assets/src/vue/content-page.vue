@@ -1,20 +1,23 @@
 <template>
 
-  <h2>CONTENT!!!</h2>
-  <viewerslot kind="" url="">
-    <div class="obama"></div>
-  </viewerslot>
-  <h3>
-    {{ title }}
-  </h3>
-  <p>
-    {{ description }}
-  </p>
-  <div class="rec-grid">
-    <content-card v-for="content in recommended">
-      <img src="{{ content.thumbnail }}"/>
-    </content-card>
+  <div>
+    <h2>CONTENT!!!</h2>
+    <viewerslot kind="" url="">
+      <div class="obama"></div>
+    </viewerslot>
+    <h3>
+      {{ title }}
+    </h3>
+    <p>
+      {{ description }}
+    </p>
+    <div class="rec-grid">
+      <content-card v-for="content in recommended">
+        <img src="{{ content.thumbnail }}"/>
+      </content-card>
+    </div>
   </div>
+
 </template>
 
 

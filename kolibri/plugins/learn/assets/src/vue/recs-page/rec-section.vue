@@ -1,7 +1,9 @@
 <template>
 
-  <h1>{{ title }}</h1>
-  <content-cards :contentcards="block"></content-cards>
+  <div>
+    <h1>{{ title }}</h1>
+    <content-cards :contentcards="block"></content-cards>
+  </div>
 
 
 <!--   <template v-for="b in block">
