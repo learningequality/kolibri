@@ -1,12 +1,13 @@
 {
   "tagname-lowercase": true,
   "attr-lowercase": true,
-  "attr-value-double-quotes": true,
   "tag-pair": true,
   "spec-char-escape": true,
   "id-unique": true,
   "src-not-empty": true,
   "id-class-value": "dash",
   "inline-script-disabled": true,
-  "space-tab-mixed-disabled": "space2"
+  "space-tab-mixed-disabled": "space2",
+  "--no-tag-self-close": true,
+  "--vue-component-conventions": true
 }

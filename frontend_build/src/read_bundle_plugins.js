@@ -12,15 +12,29 @@ var _ = require("lodash");
 
 var parseBundlePlugin = require('./parse_bundle_plugin');
 
+
+// Mappings for libraries that we bundle in the Kolibri core app.
+// * the keys are names exposed by webpack to use in `require` statements, across apps
+// * the values are references to the packages, already inserted into kolibriGlobal
+//
+// kolibri_name is always == kolibriGlobal (this is defined in the base settings - base.py)
+var libs = function(kolibri_name) {
+  return {
+    'loglevel': kolibri_name + '.lib.loglevel',
+    'vue': kolibri_name + '.lib.vue',
+    'kolibri': kolibri_name,
+    'core-base': kolibri_name + '.lib.coreBase',
+  };
+};
+
 /**
  * Take a Python plugin file name as input, and extract the information regarding front end plugin configuration from it
  * using a Python script to import the relevant plugins and then run methods against them to retrieve the config data.
  * @param {string} base_dir - The absolute path of the base directory for writing files to.
- * @param {Function} libs - A function that takes the global name assigned to the core app and returns a mapping from
  * module names to the global namespace at which those modules can be accessed.
  * @returns {Array} bundles - An array containing webpack config objects.
  */
-var readBundlePlugin = function(base_dir, libs) {
+var readBundlePlugin = function(base_dir) {
 
   // Takes a module file path and turns it into a Python module path.
   var bundles = [];

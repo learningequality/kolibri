@@ -12,7 +12,7 @@
         <li v-for="learner in learners">
           <input type="checkbox">
           <span class="vertical-divider">|</span>
-          <a href="#">{{ learner.last_name + ', ' + learner.first_name }}</a>
+          <a href="#">{{ learner.last_name + ", " + learner.first_name }}</a>
           <button>Manage</button>
         </li>
       </ul>
