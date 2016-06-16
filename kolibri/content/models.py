@@ -187,7 +187,7 @@ class ChannelMetadata(AbstractContent):
     description = models.CharField(max_length=400, blank=True)
     author = models.CharField(max_length=400, blank=True)
     version = models.CharField(max_length=15, default='v0.01')
-    thumbnail = models.FilePathField(path=settings.CONTENT_DB_DIR, max_length=500, blank=True)
+    thumbnail = models.TextField(blank=True)
 
     class Meta:
         app_label = "content"
