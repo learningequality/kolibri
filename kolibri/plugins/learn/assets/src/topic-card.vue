@@ -1,0 +1,39 @@
+<template>
+
+<div class="topic-card">
+  <a href="{{linkhref}}">
+  <p>{{ ncomplete }} / {{ ntotal }} </p>
+  <img class="topic-card-folder" src="http://simpleicon.com/wp-content/uploads/folder-2.png">
+  <p> {{ title }} </p>
+  </a>
+</div>
+
+</template>
+
+<script>
+
+  module.exports = {
+    props: ['title', 'linkhref', 'ntotal', 'ncomplete'],
+  };
+
+</script>
+
+
+<style lang="stylus" scoped>
+
+  @require '~core-theme.styl'
+
+  .topic-card
+    height: 150px
+    width: 200px
+    text-align: center
+    border: 1px solid black
+
+  .topic-card-folder
+    max-width: 50px
+
+  p
+    margin-top: 5px
+
+
+</style>
