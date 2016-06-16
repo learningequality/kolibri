@@ -40,7 +40,7 @@ var parseBundlePlugin = function(data, base_dir) {
 
   // Start from a base configuration file that defines common features of the webpack configuration for all Kolibri
   // plugins (including the core app).
-  var bundle = _.clone(base_config);
+  var bundle = _.cloneDeep(base_config);
   var external;
   var library;
 
