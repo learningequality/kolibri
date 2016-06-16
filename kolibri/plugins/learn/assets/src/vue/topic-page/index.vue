@@ -67,7 +67,7 @@
     display: block
     margin-left: -10px
 
-  .card
+  .card-list .card
     float: left
     margin: 10px
 
