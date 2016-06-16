@@ -38,7 +38,8 @@
     data: () => ({
       breadcrumbs: require('./demo/breadcrumbs.json'),
       contentCards: require('./demo/content-cards.json'),
-      topics: require('./demo/graphing__topics_only.json'),
+      // Comment-out because it's missing and causing build error.
+      // topics: require('./demo/graphing__topics_only.json'),
     }),
   };
 
