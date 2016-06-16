@@ -13,7 +13,7 @@
     </p>
     <div class="rec-grid">
       <content-card v-for="content in recommended">
-        <img src="{{ content.thumbnail }}"/>
+        <img src="{{ content.thumbnail }}">
       </content-card>
     </div>
   </div>

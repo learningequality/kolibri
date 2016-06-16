@@ -2,7 +2,7 @@
 
   <a href="linkhref">
     <div class="content-card-container">
-      <img :src="thumbsrc" class="thumbnail"/>
+      <img :src="thumbsrc" class="thumbnail">
       <div class="title">
         {{ title }}
       </div>
