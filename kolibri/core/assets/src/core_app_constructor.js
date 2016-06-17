@@ -7,7 +7,8 @@ const vue = require('vue');
 const vuex = require('vuex');
 const VueIntl = require('vue-intl');
 const Mediator = require('./core_app_mediator');
-const ResourceManager = require('./api_resource');
+const ResourceManager = require('./api_resource').ResourceManager;
+const ContentMetaDataResource = require('./apiResources/contentMetaData');
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -50,6 +51,7 @@ module.exports = function CoreApp() {
   this.resources = new ResourceManager(this);
   const mediator = new Mediator();
 
+  this.resources.registerResource('contentmetadata', 'id', ContentMetaDataResource);
   /**
    * Use the vue-intl plugin.
    **/

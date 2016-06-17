@@ -25,7 +25,8 @@
         :title="content.title"
         :thumbsrc="content.thumbnail"
         :kind="content.kind"
-        :progress="content.progress">
+        :progress="content.progress"
+        :pk="content.id">
       </content-card>
     </div>
   </div>

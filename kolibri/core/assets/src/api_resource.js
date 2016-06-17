@@ -28,7 +28,7 @@ class Model {
     });
   }
   url() {
-    return this.resource.urls[`${this.resource.name}_detail`](this.id());
+    return this.resource.modelUrl(this.id());
   }
   id() {
     return this.attributes[this.resource.idKey];
@@ -61,7 +61,7 @@ class Collection {
     });
   }
   url() {
-    return this.resource.urls[`${this.resource.name}_list`]();
+    return this.resource.collectionUrl();
   }
   set(models) {
     let modelsToSet;
@@ -107,7 +107,7 @@ class Resource {
     return model;
   }
   addModel(model) {
-    if (!this.resource.models[model.id()]) {
+    if (!this.models[model.id()]) {
       this.models[model.id()] = model;
     } else {
       this.models[model.id()].set(model.attributes);
@@ -117,6 +117,12 @@ class Resource {
   get urls() {
     return this.kolibri.urls;
   }
+  get modelUrl() {
+    return this.urls[`${this.name}_detail`];
+  }
+  get collectionUrl() {
+    return this.urls[`${this.name}_list`];
+  }
 }
 
 class ResourceManager {
@@ -124,9 +130,9 @@ class ResourceManager {
     this.kolibri = kolibri;
     this._resources = {};
   }
-  registerResource({ name, idKey } = { idKey: 'id' }) {
+  registerResource(name, idKey = 'id', ResourceClass = Resource) {
     if (name && !this._resources[name]) {
-      this._resources[name] = new Resource({ name, idKey, kolibri: this.kolibri });
+      this._resources[name] = new ResourceClass({ name, idKey, kolibri: this.kolibri });
     } else {
       if (!name) {
         throw new TypeError('A resource must have a defined resource name!');
@@ -138,10 +144,13 @@ class ResourceManager {
   }
   getResource(name) {
     if (!this._resources[name]) {
-      return this.registerResource({ name });
+      return this.registerResource(name);
     }
     return this._resources[name];
   }
 }
 
-module.exports = ResourceManager;
+module.exports = {
+  ResourceManager,
+  Resource,
+};

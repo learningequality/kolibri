@@ -1,6 +1,6 @@
 <template>
 
-  <a :href="linkhref">
+  <a v-on:click="fetchFullContent(pk)" :href="linkhref">
     <div class="content-card-container">
       <div class="content-icon">
         <img :src="icon">
@@ -24,6 +24,7 @@
       'linkhref',
       'kind',
       'progress',
+      'pk',
     ],
     computed: {
       icon() {
@@ -32,6 +33,8 @@
         // See https://webpack.github.io/docs/context.html
         return require(`./content-icons/${this.progress}-${this.kind}.svg`);
       },
+    vuex: {
+      actions: require('../actions'),
     },
   };
 
