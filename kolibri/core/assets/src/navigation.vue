@@ -18,7 +18,7 @@
     data() {
       return {
         // items that go in the title bar
-        nav_items: _navItems || [],
+        nav_items: global._navItems || [],
         // the current app on
         app: window.location.pathname.split('/')[1],
       };
