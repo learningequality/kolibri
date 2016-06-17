@@ -33,13 +33,13 @@
 <style lang="stylus" scoped>
   /**
     * Core Themes Variables:
-    * + $nav-width
+    * + $core-nav-width
     */
 
   $nav-item-height = 10%
   nav
     height: 100%
-    width: $nav-width
+    width: $core-nav-width
     position: fixed
     top: 0
 
