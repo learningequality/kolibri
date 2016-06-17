@@ -8,7 +8,7 @@ Components
 
 We leverage `Vue.js components <https://vuejs.org/guide/components.html>`_ as the primary building blocks for our UI. For general UI development work, this is the most common tool a developer will use. It would be prudent to read through the `Vue.js guide <https://vuejs.org/guide/>`_ thoroughly.
 
-Each component contains HTML with dynamic Vue.js directives, styling which is scoped to that component and its children (written using `Stylus <http://stylus-lang.com/>`_), and logic which is also scoped to that component (written using `ES6 JavaScript <https://babeljs.io/docs/plugins/preset-es2015/>`_).
+Each component contains HTML with dynamic Vue.js directives, styling which is scoped to that component (written using `Stylus <http://stylus-lang.com/>`_), and logic which is also scoped to that component (written using `ES6 JavaScript <https://babeljs.io/docs/plugins/preset-es2015/>`_). Non-scoped styles can also be added, but these should be carefully namespaced.
 
 Components allow us to define new custom tags that encapsulate a piece of self-contained, re-usable UI functionality. When composed together, they form a tree structure of parents and children. Each component has a well-defined interface used by its parent component, made up of `input properties <https://vuejs.org/guide/components.html#Props>`_, `events <https://vuejs.org/guide/components.html#Custom-Events>`_ and `content slots <https://vuejs.org/guide/components.html#Content-Distribution-with-Slots>`_. Components should never reference their parent.
 
@@ -41,21 +41,29 @@ For example:
       learn                     # learn plugin
         assets/
           src/
-            app-root.vue        # root view
+            vue/
+              index.vue         # root view
+              some-page.vue     # top-level client-side page
+              another-page/     # top-level client-side page
+                index.vue
+                child.vue       # child component used only by parent
+              shared.vue        # shared across this plugin
             app.js              # instantiate learn app on client-side
+            router.js
+            store.js
           test/
             app.js
       management/
         assets/
           src/
             learner-roster.vue  # nested-view
-            app-root.vue        # root view
+            vue/index.vue        # root view
             app.js              # instantiate mgmt app on client-side
           test/
             app.js
 
 
-In the example above, the *app-root.vue* file in *management* can use other assets in the same directory (such as *learner-roster.vue*) and it can use assets in core (such as variables in *core-theme.styl*). However it cannot use files in other plugin directories (such as *learn*).
+In the example above, the *vue/another-page/index.vue* file in *learn* can use other assets in the same directory (such as *child.vue*), components in *vue* (such as *shared.vue*), and assets in core (such as variables in *core-theme.styl*). However it cannot use files in other plugin directories (such as *management*).
 
 .. note::
 
@@ -87,7 +95,7 @@ A Kolibri Module is initially defined in Python by sub-classing the ``WebpackBun
 
 All apps should extend the ``KolibriModule`` class found in `kolibri/core/assets/src/kolibri_module.js`.
 
-The ``ready`` method will be automatically executed once the Module is loaded and registered with the Kolibri Core App. By convention, JavaScript is injected into the served HTML *after* the ``<app-root>`` tag, meaning that this tag should be available when the ``ready`` method is called, and the root component (conventionally in *app-root.vue*) can be mounted here.
+The ``ready`` method will be automatically executed once the Module is loaded and registered with the Kolibri Core App. By convention, JavaScript is injected into the served HTML *after* the ``<rootvue>`` tag, meaning that this tag should be available when the ``ready`` method is called, and the root component (conventionally in *vue/index.vue*) can be mounted here.
 
 
 Shared Core Functionality
