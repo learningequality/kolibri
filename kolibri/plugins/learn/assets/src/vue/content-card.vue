@@ -32,28 +32,24 @@
   @require '~core-theme.styl'
 
   .content-card-container
-    font-size: 16px
-    height: 180px
-    width: 220px
+    width: 14em
+    height: 12em
     background-color: $core-bg-light
     text-align: left
     border-radius: 4px
 
-
-
-
   .thumbnail
-    width: 220px
+    width: 13.5em
     height: 120px
     border-radius: 4px 4px 0 0
 
   .title
-    max-width: 220px
-    max-height: 44px
-    margin: 6
+    max-width: 14em
+    max-height: 3em
+    margin: 0.4em 0.5em
     overflow: hidden
-    text-overflow: ellipsis
+    line-height: 1.5em
+    font-size: 1em
     color: $core-text-default
-    line-height: 22px
 
 </style>
