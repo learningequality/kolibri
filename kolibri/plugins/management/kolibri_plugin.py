@@ -18,7 +18,7 @@ class ManagementPlugin(KolibriPluginBase):
 
 class ManagementAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "management_module"
-    src_file = "kolibri/plugins/management/assets/src/management.js"
+    src_file = "kolibri/plugins/management/assets/src/app.js"
     static_dir = "kolibri/plugins/management/static"
 
 

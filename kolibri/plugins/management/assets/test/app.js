@@ -9,7 +9,7 @@ const sinon = require('sinon');
 
 const { fetch } = require('../src/vuex/actions.js');
 const { store, mutations, constants } = require('../src/vuex/store.js');
-const Management = require('../src/main.vue');
+const Management = require('../src/app-root.vue');
 const fixture1 = require('./fixtures/fixture1.js');
 
 

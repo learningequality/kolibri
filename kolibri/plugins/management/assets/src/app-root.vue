@@ -22,7 +22,7 @@
   const store = require('./vuex/store.js');
   const constants = store.constants;
 
-  export default {
+  module.exports = {
     components: {
       'core-base': require('core-base'),
       'drop-down': require('./drop-down.vue'),

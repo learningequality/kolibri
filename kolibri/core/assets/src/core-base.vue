@@ -4,18 +4,18 @@
   <main role="main">
     <slot></slot>
   </main>
-  <footer role="contentinfo">
-    foot!
-  </footer>
 
 </template>
 
+
 <script>
-export default {
-  components: {
-    'kolibri-nav': require('./navigation.vue'),
-  },
-};
+
+  module.exports = {
+    components: {
+      'kolibri-nav': require('./navigation.vue'),
+    },
+  };
+
 </script>
 
 
@@ -25,12 +25,5 @@ export default {
 
   main
     margin: $nav-width + 1
-
-  footer
-    background-color: $core-bg-light
-    bottom: 1vh
-    position: fixed
-    padding: 10px
-    width: 100%
 
 </style>
