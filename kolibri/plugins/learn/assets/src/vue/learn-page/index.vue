@@ -24,7 +24,7 @@
 
   module.exports = {
     components: {
-      'content-card': require('../vue/content-card'),
+      'content-card': require('../content-card'),
     },
     vuex: {
       getters: {

@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h2>CONTENT!!!</h2>
+    <h2>Explore Content</h2>
     <viewerslot kind="" url="">
       <div class="obama"></div>
     </viewerslot>
@@ -37,7 +37,7 @@
       'recommended',
     ],
     components: {
-      'content-card': require('./content-card'),
+      'content-card': require('../content-card'),
     },
     vuex: {
       getters: {
