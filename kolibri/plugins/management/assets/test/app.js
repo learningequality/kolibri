@@ -93,10 +93,10 @@ describe('The management module', () => {
     describe('a "fetch" action', function () {
       before(function () {
         const responses = require('./fixtures/responseFixtures.js');
-        const classroomCollection = responses.classroom;
-        const learnerGroupCollection = responses.learnergroup;
-        const learnerCollection = responses.facilityuser;
-        const memberCollection = responses.membership;
+        const classroomCollection = { models: responses.classroom };
+        const learnerGroupCollection = { models: responses.learnergroup };
+        const learnerCollection = { models: responses.facilityuser };
+        const memberCollection = { models: responses.membership };
         [
           classroomCollection,
           learnerGroupCollection,

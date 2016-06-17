@@ -7,6 +7,7 @@ const vue = require('vue');
 const vuex = require('vuex');
 const VueIntl = require('vue-intl');
 const Mediator = require('./core_app_mediator');
+const ResourceManager = require('./api_resource');
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -46,6 +47,7 @@ function Lib() {
  */
 module.exports = function CoreApp() {
   this.lib = new Lib();
+  this.resources = new ResourceManager(this);
   const mediator = new Mediator();
 
   /**

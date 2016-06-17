@@ -2,67 +2,146 @@ const logging = require('loglevel');
 const rest = require('rest');
 const mime = require('rest/interceptor/mime');
 
-const Kolibri = require('kolibri');
-
 const client = rest.wrap(mime);
 
-class Model extends Object {
-  constructor(data, { resourceName, idKey, params } = { idKey: 'id', params: {} }) {
-    super(data);
-    this._resourceName = resourceName;
-    if (typeof this._resourceName !== 'string') {
-      throw new TypeError('resourceName must be defined');
+class Model {
+  constructor(data, resource) {
+    this.attributes = {};
+    Object.assign(this.attributes, data);
+    this.resource = resource;
+    if (!this.resource) {
+      throw new TypeError('resource must be defined');
     }
-    this._idKey = idKey;
-    this._params = params;
+    this.resource.addModel(this);
+    this.synced = false;
   }
   fetch() {
     return new Promise((resolve, reject) => {
-      client({ path: this._url(), params: this._params }).then((response) => {
-        Object.assign(this, response.entity);
-        resolve(this);
+      client({ path: this.url() }).then((response) => {
+        this.set(response.entity);
+        this.synced = true;
+        resolve(this.attributes);
       }, (response) => {
         logging.error('An error occurred', response);
         reject(response);
       });
     });
   }
-  _url() {
-    return Kolibri.urls[`${this._resourceName}_detail`](this[this._idKey]);
+  url() {
+    return this.resource.urls[`${this.resource.name}_detail`](this.id());
+  }
+  id() {
+    return this.attributes[this.resource.idKey];
+  }
+  set(attributes) {
+    Object.assign(this.attributes, attributes);
   }
 }
 
-class Collection extends Array {
-  constructor(data = [], resourceName) {
-    data.forEach((val, ind, arr) => {
+class Collection {
+  constructor(data = [], resource) {
+    this.resource = resource;
+    if (!this.resource) {
+      throw new TypeError('resource must be defined');
+    }
+    this.models = [];
+    this._model_map = {};
+    this.synced = false;
+  }
+  fetch({ params } = { params: {} }) {
+    return new Promise((resolve, reject) => {
+      client({ path: this.url(), params }).then((response) => {
+        this.set(response.entity);
+        this.synced = true;
+        resolve(this.models);
+      }, (response) => {
+        logging.error('An error occurred', response);
+        reject(response);
+      });
+    });
+  }
+  url() {
+    return this.resource.urls[`${this.resource.name}_list`]();
+  }
+  set(models) {
+    let modelsToSet;
+    if (!Array.isArray(models)) {
+      modelsToSet = [models];
+    } else {
+      modelsToSet = models;
+    }
+    modelsToSet = modelsToSet.map((val) => {
       if (!(val instanceof Model)) {
-        arr[ind] = new Model(val, { resourceName }); // eslint-disable-line no-param-reassign
+        return new Model(val, { resource: this.resource });
+      }
+      return val;
+    });
+
+    modelsToSet.forEach((model) => {
+      const setModel = this.resource.addModel(model);
+      if (!this._model_map[model.id()]) {
+        this._model_map[model.id()] = setModel;
+        this.models.push(setModel);
       }
     });
-    super(...data);
-    this.resourceName = resourceName;
-    if (typeof this.resourceName !== 'string') {
-      throw new TypeError('resourceName must be defined');
-    }
-    this.fetch = ({ params } = { params: {} }) => {
-      const promise = new Promise((resolve, reject) => {
-        client({ path: this.url(), params }).then((response) => {
-          response.entity.forEach((item) => {
-            this.push(new Model(item, { resourceName }));
-          });
-          resolve(this);
-        }, (response) => {
-          logging.error('An error occurred', response);
-          reject(response);
-        });
-      });
-      return promise;
-    };
-    this.url = () => Kolibri.urls[`${this.resourceName}_list`]();
   }
 }
 
-module.exports = {
-  Model,
-  Collection,
-};
+class Resource {
+  constructor({ name, idKey, kolibri } = { idKey: 'id' }) {
+    this.models = {};
+    this.name = name;
+    this.idKey = idKey;
+    this.kolibri = kolibri;
+  }
+  getCollection(data = []) {
+    return new Collection(data, this);
+  }
+  getModel(id) {
+    let model;
+    if (!this.models[id]) {
+      model = new Model({ [this.idKey]: id }, this);
+    } else {
+      model = this.models[id];
+    }
+    return model;
+  }
+  addModel(model) {
+    if (!this.resource.models[model.id()]) {
+      this.models[model.id()] = model;
+    } else {
+      this.models[model.id()].set(model.attributes);
+    }
+    return this.models[model.id()];
+  }
+  get urls() {
+    return this.kolibri.urls;
+  }
+}
+
+class ResourceManager {
+  constructor(kolibri) {
+    this.kolibri = kolibri;
+    this._resources = {};
+  }
+  registerResource({ name, idKey } = { idKey: 'id' }) {
+    if (name && !this._resources[name]) {
+      this._resources[name] = new Resource({ name, idKey, kolibri: this.kolibri });
+    } else {
+      if (!name) {
+        throw new TypeError('A resource must have a defined resource name!');
+      } else {
+        throw new TypeError('A resource with that name has already been registered!');
+      }
+    }
+    return this._resources[name];
+  }
+  getResource(name) {
+    if (!this._resources[name]) {
+      return this.registerResource({ name });
+    }
+    return this._resources[name];
+  }
+}
+
+module.exports = ResourceManager;
