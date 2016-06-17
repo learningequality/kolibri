@@ -26,4 +26,9 @@
   main
     margin: $nav-width + 1
 
+  .base-header h1
+    color: $core-action-normal
+    text-align: center
+    font-size: smaller
+
 </style>

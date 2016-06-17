@@ -34,15 +34,19 @@ Note that the top-level tags of `Vue.js components <https://vuejs.org/guide/comp
   - one blank line of padding within a top-level tag
   - one level of indent for the contents of all top-level tags
 
-- As much as possible, keep components stateless. In practice, this means using ``props`` but not ``data``.
+- Keep most child-components stateless. In practice, this means using ``props`` but not ``data``.
 
 - Avoid using Vue.js' camelCase-to-kebab-case mapping. Instead, use square brackets and strings to reference names.
 
-- Use ``scoped`` styles
+- Use ``scoped`` styles where ever possible
 
-- name custom tags using kebab-case
+- Name custom tags using kebab-case
 
-- The root component file is called *app-root.vue*, and is mounted on a tag called ``<app-root>``.
+- Components are placed in the *vue* directory. The root component file is called *vue/index.vue*, and is mounted on a tag called ``<rootvue>``.
+
+- Components are defined either as a file with a ``.vue`` extension (*my-component.vue*) or as a directory with an *index.vue* file (*my-component/index.vue*). Both forms can be used with ``require('my-component')``.
+
+- Put child components inside the directory of a parent component if they are *only* used by the parent. Otherwise, put shared child components in the *vue* director.
 
 
 JavaScript Code

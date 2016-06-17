@@ -31,3 +31,14 @@ def learn_assets():
     :return: HTML of script tags to insert into management/management.html
     """
     return webpack_asset_render(hooks.LearnSyncHook, async=False)
+
+
+@register.simple_tag()
+def learn_async_assets():
+    """
+    Using in a template will inject script tags that include the javascript assets defined
+    by any concrete hook that subclasses ManagementSyncHook.
+
+    :return: HTML of script tags to insert into management/management.html
+    """
+    return webpack_asset_render(hooks.LearnAsyncHook, async=True)

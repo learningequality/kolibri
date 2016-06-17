@@ -72,3 +72,8 @@ kolibri/**/static/*
 # editor files
 *.sublime-project
 *.sublime-workspace
+
+
+# adding an ignore for hack session
+kolibri/plugins/learn/assets/src/demo/*.json
+
