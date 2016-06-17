@@ -1,15 +1,13 @@
 const KolibriModule = require('kolibri_module');
-const Vue = require('vue');
+const rootvue = require('./vue');
+const router = require('./router');
+const store = require('./store');
+const sync = require('vuex-router-sync').sync;
 
 class LearnModule extends KolibriModule {
   ready() {
-    // attaches the root learn module to the `app-root` tag
-    this.vm = new Vue({
-      el: 'body',
-      components: {
-        'app-root': require('./app-root'),
-      },
-    });
+    sync(store, router);
+    router.start(rootvue, 'rootvue');
   }
 }
 
