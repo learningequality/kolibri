@@ -31,18 +31,29 @@
 
   @require '~core-theme.styl'
 
-  .content-card
-    height: 150px
-    width: 200px
+  .content-card-container
+    font-size: 16px
+    height: 180px
+    width: 220px
     background-color: $core-bg-light
-    text-align: center
+    text-align: left
+    border-radius: 4px
+
+
 
 
   .thumbnail
-    width: 200px
+    width: 220px
     height: 120px
+    border-radius: 4px 4px 0 0
 
   .title
-    max-width: 200px
+    max-width: 220px
+    max-height: 44px
+    margin: 6
+    overflow: hidden
+    text-overflow: ellipsis
+    color: $core-text-default
+    line-height: 22px
 
 </style>
