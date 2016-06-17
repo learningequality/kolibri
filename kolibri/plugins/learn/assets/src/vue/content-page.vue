@@ -11,9 +11,15 @@
     <p>
       {{ description }}
     </p>
-    <div class="rec-grid">
-      <content-card v-for="content in recommended">
-        <img src="{{ content.thumbnail }}">
+    <div class="rec-grid card-list">
+      <content-card
+        v-for="content in recommended"
+        class="card"
+        linkhref="#"
+        :title="content.title"
+        :thumbsrc="content.thumbnail"
+        :kind="content.kind"
+        :progress="content.progress">
       </content-card>
     </div>
   </div>
@@ -32,6 +38,14 @@
     ],
     components: {
       'content-card': require('./content-card'),
+    },
+    vuex: {
+      getters: {
+        // better practice would be to define vuex getter functions globally
+        title: (state) => state.full.title,
+        description: (state) => state.full.description,
+        recommended: (state) => state.full.recommended,
+      },
     },
   };
 

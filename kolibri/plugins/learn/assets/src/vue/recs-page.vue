@@ -50,14 +50,16 @@
 
 <script>
 
-  const contents = require('../demo/content_recommendation_data.json');
   module.exports = {
     components: {
       'content-card': require('../vue/content-card'),
     },
-    data: () => ({
-      contents,
-    }),
+    vuex: {
+      getters: {
+        // better practice would be to define vuex getter functions globally
+        contents: state => state.recommended,
+      },
+    },
   };
 
 </script>
@@ -66,14 +68,5 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-
-  .card-list
-    overflow: hidden
-    display: block
-    margin-left: -10px
-
-  .card-list .card
-    float: left
-    margin: 10px
 
 </style>

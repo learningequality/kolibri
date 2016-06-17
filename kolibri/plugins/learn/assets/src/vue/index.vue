@@ -22,6 +22,8 @@
     components: {
       'core-base': require('core-base'),
     },
+    // make this and all child components aware of the store
+    store: require('../store'),
   };
 
 </script>
@@ -39,5 +41,21 @@
   .v-link-active
     cursor: default
     color: $core-text-annotation
+
+</style>
+
+
+<style lang="stylus">
+
+  @require '~core-theme.styl'
+
+  .card-list
+    overflow: hidden
+    display: block
+    margin-left: -10px
+
+  .card-list .card
+    float: left
+    margin: 10px
 
 </style>

@@ -7,7 +7,7 @@
     <h2>Topics</h2>
     <div class="card-list">
       <topic-card
-        v-for="topic in alltopics"
+        v-for="topic in topics"
         class="card"
         linkhref="#"
         :title="topic.title"
@@ -19,7 +19,7 @@
     <h2>Content</h2>
     <div class="card-list">
       <content-card
-        v-for="content in allcontents"
+        v-for="content in contents"
         class="card"
         linkhref="#"
         :title="content.title"
@@ -35,21 +35,20 @@
 
 <script>
 
-  const breadcrumbs = require('../../demo/breadcrumbs.json');
-  const alltopics = require('../../demo/graphing__topics_only.json');
-  const allcontents = require('../../demo/inequalities__content_only.json');
-
   module.exports = {
     components: {
       'breadcrumbs': require('./breadcrumbs'),
       'topic-card': require('../topic-card'),
       'content-card': require('../content-card'),
     },
-    data: () => ({
-      breadcrumbs,
-      alltopics,
-      allcontents,
-    }),
+    vuex: {
+      getters: {
+        // better practice would be to define vuex getter functions globally
+        breadcrumbs: state => state.breadcrumbs,
+        topics: state => state.topics,
+        contents: state => state.contents,
+      },
+    },
   };
 
 </script>
@@ -61,14 +60,5 @@
 
   .topic-page
     padding-left: 10px
-
-  .card-list
-    overflow: hidden
-    display: block
-    margin-left: -10px
-
-  .card-list .card
-    float: left
-    margin: 10px
 
 </style>
