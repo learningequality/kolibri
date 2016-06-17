@@ -1,6 +1,6 @@
 <template>
 
-  <core-base>
+  <core-base class="learn-page">
 
     <nav id="learn-nav">
       <a v-link="{ path: '/explore', exact: true }">Topic Page</a> |
@@ -47,15 +47,15 @@
 
 <style lang="stylus">
 
-  @require '~core-theme.styl'
+  // these styles are namespaced because they're not scoped
+  .learn-page
+    .card-list
+      overflow: hidden
+      display: block
+      margin-left: -10px
 
-  .card-list
-    overflow: hidden
-    display: block
-    margin-left: -10px
-
-  .card-list .card
-    float: left
-    margin: 10px
+    .card-list .card
+      float: left
+      margin: 10px
 
 </style>
