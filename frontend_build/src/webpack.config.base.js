@@ -17,7 +17,7 @@ var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 
-require('./htmlhint_custom'); // adds custom rules
+//require('./htmlhint_custom'); // adds custom rules
 
 var config = {
   module: {

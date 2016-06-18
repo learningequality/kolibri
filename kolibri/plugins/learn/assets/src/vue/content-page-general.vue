@@ -1,7 +1,6 @@
 <template>
 
   <div>
-    <h2>Explore Content</h2>
     <viewerslot kind="" url="">
       <div class="obama"></div>
     </viewerslot>
@@ -33,19 +32,10 @@
     props: [
       'title',
       'description',
-      'all-contents',
       'recommended',
     ],
     components: {
-      'content-card': require('../content-card'),
-    },
-    vuex: {
-      getters: {
-        // better practice would be to define vuex getter functions globally
-        title: (state) => state.full.title,
-        description: (state) => state.full.description,
-        recommended: (state) => state.full.recommended,
-      },
+      'content-card': require('./content-card'),
     },
   };
 
