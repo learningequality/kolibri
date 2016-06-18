@@ -1,15 +1,15 @@
 
 const KolibriModule = require('kolibri_module');
+const VideoComponent = require('./vue/index');
+const Vue = require('vue');
 
 class VideoMP4Module extends KolibriModule {
-  render(contentData, renderArea) {
-    const videoTag = document.createElement('video');
-    videoTag.autoplay = true;
-    videoTag.src = 'http://vid297.photobucket.com/albums/mm238/daystar170/RickRoll.mp4';
-    const titleTag = document.createElement('h1');
-    titleTag.innerHTML = contentData.id;
-    renderArea.appendChild(titleTag);
-    renderArea.appendChild(videoTag);
+  render(containerElement) {
+    const options = {
+      el: containerElement,
+    };
+    Object.assign(options, VideoComponent);
+    this.vm = new Vue(options);
   }
 }
 

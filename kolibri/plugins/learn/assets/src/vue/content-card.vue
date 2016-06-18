@@ -1,6 +1,6 @@
 <template>
 
-  <a href="linkhref">
+  <a :href="linkhref">
     <div class="content-card-container">
       <img :src="thumbsrc" class="thumbnail">
       <div class="title">

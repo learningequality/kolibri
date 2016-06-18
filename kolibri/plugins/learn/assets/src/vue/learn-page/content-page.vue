@@ -2,9 +2,8 @@
 
   <div>
     <h2>Learn Content</h2>
-    <viewerslot kind="" url="">
-      <div class="obama"></div>
-    </viewerslot>
+    <content-render kind="video" extension="mp4">
+    </content-render>
     <h3>
       {{ title }}
     </h3>
@@ -37,6 +36,7 @@
       'recommended',
     ],
     components: {
+      'content-render': require('../content-render'),
       'content-card': require('../content-card'),
     },
     vuex: {
