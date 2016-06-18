@@ -33,13 +33,13 @@
 
   .content-card-container
     width: 14em
-    height: 12em
+    height: 11.5em
     background-color: $core-bg-light
     text-align: left
     border-radius: 4px
 
   .thumbnail
-    width: 13.5em
+    width: 14em
     height: 120px
     border-radius: 4px 4px 0 0
 
