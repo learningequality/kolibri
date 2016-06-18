@@ -262,7 +262,7 @@ module.exports = class Mediator {
             method: value,
           });
           // Call the asset loader to load all the kolibriModule files.
-          assetLoader([kolibriModuleUrls], (err, notFound) => {
+          assetLoader(kolibriModuleUrls, (err, notFound) => {
             if (err) {
               notFound.forEach((file) => {
                 logging.error(`${file} failed to load`);
