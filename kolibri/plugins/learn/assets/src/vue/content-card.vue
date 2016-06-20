@@ -2,6 +2,8 @@
 
   <a href="linkhref">
     <div class="content-card-container">
+      <div class="content-icon">
+      </div>
       <img :src="thumbsrc" class="thumbnail">
       <div class="title">
         {{ title }}
@@ -36,6 +38,15 @@
     height: 11em
     background-color: $core-bg-light
     border-radius: 4px
+    position: relative
+
+  .content-icon
+    position: absolute
+    height: 30px
+    width: 30px
+    top: 0.35rem
+    left: 0.35rem
+    background-color: $core-action-normal
 
   .thumbnail
     width: 13.6em
