@@ -28,4 +28,4 @@ References
   files
   glossary
   building
-  py_modules/modules
+  ../py_modules/modules
