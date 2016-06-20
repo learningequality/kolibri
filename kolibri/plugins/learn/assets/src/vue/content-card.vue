@@ -49,7 +49,6 @@
     overflow: hidden
     line-height: 1.5em
     font-size: 0.9em
-    font-weight: 700
     color: $core-text-default
 
 </style>
