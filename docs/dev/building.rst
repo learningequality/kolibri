@@ -1,4 +1,4 @@
-Building the Python Package
+Distribution and installers
 ===========================
 
 The Kolibri Package build pipeline looks like this::
