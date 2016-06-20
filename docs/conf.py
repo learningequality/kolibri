@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals, print_function, absolute_import
 #
 # complexity documentation build configuration file
 #
@@ -73,18 +72,18 @@ def process_docstring(app, what, name, obj, options, lines):
             if help_text:
                 # Add the model field to the end of the docstring as a param
                 # using the help text as the description
-                lines.append(':param %s: %s' % (field.attname, help_text))
+                lines.append(u':param %s: %s' % (field.attname, help_text))
             else:
                 # Add the model field to the end of the docstring as a param
                 # using the verbose name as the description
-                lines.append(':param %s: %s' % (field.attname, verbose_name))
+                lines.append(u':param %s: %s' % (field.attname, verbose_name))
 
             # Add the field's type to the docstring
             if isinstance(field, models.ForeignKey):
                 to = field.rel.to
-                lines.append(':type %s: %s to :class:`~%s`' % (field.attname, type(field).__name__, to))
+                lines.append(u':type %s: %s to :class:`~%s`' % (field.attname, type(field).__name__, to))
             else:
-                lines.append(':type %s: %s' % (field.attname, type(field).__name__))
+                lines.append(u':type %s: %s' % (field.attname, type(field).__name__))
 
     return lines
 
@@ -119,10 +118,10 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Kolibri'
-copyright = '{year:d}, Learning Equality'.format(year=datetime.now().year)
+project = u'Kolibri'
+copyright = u'{year:d}, Learning Equality'.format(year=datetime.now().year)
 
-# The version info for the project yo're documenting, acts as replacement for
+# The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
@@ -274,8 +273,8 @@ latex_elements = {}
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'kolibri.tex', 'Kolibri Documentation',
-     'Learning Equality', 'manual'),
+    ('index', 'kolibri.tex', u'Kolibri Documentation',
+     u'Learning Equality', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -304,8 +303,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'kolibri', 'Kolibri Documentation',
-     ['Learning Equality'], 1)
+    ('index', 'kolibri', u'Kolibri Documentation',
+     [u'Learning Equality'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -318,8 +317,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'kolibri', 'Kolibri Documentation',
-     'Learning Equality', 'kolibri', 'One line description of project.',
+    ('index', 'kolibri', u'Kolibri Documentation',
+     u'Learning Equality', 'kolibri', 'One line description of project.',
      'Miscellaneous'),
 ]
 
