@@ -1,16 +1,15 @@
 
 const KolibriModule = require('kolibri_module');
+const PDFComponent = require('./vue/index');
+const Vue = require('vue');
 
 class DocumentPDFModule extends KolibriModule {
-
-  render(contentData, renderArea) {
-    const documentTag = document.createElement('a');
-    documentTag.href = 'http://www.benlandis.com/sheet-music/piano-rickroll.pdf';
-    documentTag.textContent = contentData.id;
-    const titleTag = document.createElement('h1');
-    titleTag.innerHTML = contentData.id;
-    renderArea.appendChild(titleTag);
-    renderArea.appendChild(documentTag);
+  render(containerElement) {
+    const options = {
+      el: containerElement,
+    };
+    Object.assign(options, PDFComponent);
+    this.vm = new Vue(options);
   }
 }
 
