@@ -39,7 +39,7 @@
 
   .thumbnail
     width: 13.6em
-    height: 120px
+    height: 7.6em
     border-radius: 4px 4px 0 0
 
   .title
