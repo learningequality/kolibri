@@ -1,4 +1,5 @@
 <template>
+
   <nav class="titlebar" role="navigation" aria-label="Main navigation">
     <ul aria-label="User options submenu">
       <li v-for="(url, label) in nav_items">
@@ -8,12 +9,13 @@
       </li>
     </ul>
   </nav>
+
 </template>
 
 
 <script>
-  /* global _navItems window */
 
+  /* global _navItems window */
   module.exports = {
     data() {
       return {
@@ -31,6 +33,7 @@
 
 
 <style lang="stylus" scoped>
+
   /**
     * Core Themes Variables:
     * + $core-nav-width
@@ -52,4 +55,5 @@
     height: $nav-item-height
     display: inline block
     vertical-align: middle
+
 </style>
