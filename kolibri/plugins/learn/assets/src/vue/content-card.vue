@@ -34,8 +34,8 @@
   @require '~core-theme.styl'
 
   .content-card-container
-    width: 13.6em
-    height: 11em
+    width: 13.2rem
+    height: 11rem
     background-color: $core-bg-light
     border-radius: 4px
     position: relative
@@ -49,17 +49,17 @@
     background-color: $core-action-normal
 
   .thumbnail
-    width: 13.6em
-    height: 7.6em
+    width: 13.2rem
+    height: 7.6rem
     border-radius: 4px 4px 0 0
 
   .title
-    max-width: 13.6em
-    max-height: 3em
-    margin: 0.4em
+    max-width: 13.2rem
+    max-height: 3rem
+    margin: 0.4rem
     overflow: hidden
-    line-height: 1.5em
-    font-size: 0.9em
+    line-height: 1.5rem
+    font-size: 0.9rem
     font-weight: 700
     color: $core-text-default
 
