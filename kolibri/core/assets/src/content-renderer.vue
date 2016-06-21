@@ -30,21 +30,33 @@
         return `${this.kind}/${this.extension}`;
       },
     },
-    ready() {
+    created() {
       this.Kolibri.once(`component_render:${this.contentType}`, this.setRendererComponent);
       this.Kolibri.emit(`content_render:${this.contentType}`);
     },
+    ready() {
+      this.ready = true;
+      this.renderContent();
+    },
     data: () => ({
-      currentView: null,
+      currentViewClass: null,
     }),
     methods: {
       setRendererComponent(component) {
-        const options = {
-          parent: this,
-          el: this.$els.container,
-        };
-        Object.assign(options, component);
-        this.currentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
+        this.currentViewClass = component;
+        if (this.ready && !this.contentView) {
+          this.renderContent();
+        }
+      },
+      renderContent() {
+        if (this.currentViewClass !== null) {
+          const options = {
+            parent: this,
+            el: this.$els.container,
+          };
+          Object.assign(options, this.currentViewClass);
+          this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
+        }
       },
     },
   };
