@@ -47,7 +47,7 @@ class AbstractContent(models.Model):
 
 class ContentTag(AbstractContent):
     tag_name = models.CharField(max_length=30, blank=True)
-    tag_type = models.CharField(max_length=30, blank=True)
+    channel = models.UUIDField(null=True, blank=True)
 
     def __str__(self):
         return self.tag_name
@@ -57,23 +57,25 @@ class ContentNode(MPTTModel, AbstractContent):
     The top layer of the contentDB schema, defines the most common properties that are shared across all different contents.
     Things it can represent are, for example, video, exercise, audio or document...
     """
-    content_id = models.UUIDField(primary_key=False, default=uuid4, editable=False)
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    license = models.ForeignKey('License')
+    prerequisite = models.ManyToManyField('self', related_name='is_prerequisite_of', through='PrerequisiteContentRelationship', symmetrical=False, blank=True)
+    is_related = models.ManyToManyField('self', related_name='relate_to', through='RelatedContentRelationship', symmetrical=False, blank=True)
+    tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
+
     title = models.CharField(max_length=200)
-    description = models.CharField(max_length=400, blank=True)
+    content_id = models.UUIDField(primary_key=False, default=uuid4, editable=False)
+    description = models.CharField(max_length=400, blank=True, null=True)
+    sort_order = models.FloatField(blank=True, null=True)
+    license_owner = models.CharField(max_length=200, blank=True)
+    author = models.CharField(max_length=200, blank=True)
     kind = models.CharField(max_length=200, choices=content_kinds.choices, blank=True)
     slug = models.CharField(max_length=100)
     total_file_size = models.IntegerField()
     available = models.BooleanField(default=False)
-    license = models.ForeignKey('License')
-    prerequisite = models.ManyToManyField('self', related_name='is_prerequisite_of', through='PrerequisiteContentRelationship', symmetrical=False, blank=True)
-    is_related = models.ManyToManyField('self', related_name='relate_to', through='RelatedContentRelationship', symmetrical=False, blank=True)
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
-    tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
-    sort_order = models.FloatField(blank=True, null=True)
-    license_owner = models.CharField(max_length=200, blank=True)
 
     class Meta:
-        verbose_name = 'Content Metadata'
+        verbose_name = 'ContentNode'
 
     class Admin:
         pass
@@ -82,8 +84,8 @@ class ContentNode(MPTTModel, AbstractContent):
         return self.title
 
 class Language(AbstractContent):
-    lang_code = models.CharField(primary_key=True, max_length=400)
-    lang_name = models.CharField(max_length=400)
+    lang_code = models.CharField(max_length=2, db_index=True)
+    lang_subcode = models.CharField(max_length=2, db_index=True)
 
     def __str__(self):
         return self.lang_name
@@ -102,6 +104,7 @@ class File(AbstractContent):
     lang = models.ForeignKey(Language, blank=True, null=True)
     supplementary = models.BooleanField(default=False)
     thumbnail = models.BooleanField(default=False)
+    url = models.CharField(max_length=400, blank=True)
 
     class Admin:
         pass
