@@ -189,7 +189,7 @@ class ChannelMetadata(AbstractContent):
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True)
     author = models.CharField(max_length=400, blank=True)
-    version = models.CharField(max_length=15, default='v0.01')
+    version = models.IntegerField(default=0)
     thumbnail = models.TextField(blank=True)
 
     class Meta:
