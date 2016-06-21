@@ -62,8 +62,6 @@ class ContentNode(MPTTModel):
     license_owner = models.CharField(max_length=200, blank=True)
     author = models.CharField(max_length=200, blank=True)
     kind = models.CharField(max_length=200, choices=content_kinds.choices, blank=True)
-    slug = models.CharField(max_length=100)
-    total_file_size = models.IntegerField()
     available = models.BooleanField(default=False)
 
     objects = ContentQuerySet.as_manager()
