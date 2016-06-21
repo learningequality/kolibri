@@ -3,7 +3,6 @@
   Custom rules for the HTML linter.
   Custom rule IDs are prefixed with a double dash ('--')
 */
-
 var HTMLHint = require('htmlhint').HTMLHint;
 
 /*
@@ -66,7 +65,7 @@ HTMLHint.addRule({
       var last = event.lastEvent;
       if (last.type === 'tagstart') {
         if (stack.length === 1 && last.tagName === "template") {
-          var match = event.raw.match(/^(\n*)( *)/);
+          var match = event.raw.replace(/\r/g, '').match(/^(\n*)( *)/);
           if (match && match[1].length !== 2) {
             reporter.error('Top-level content should be surrounded by one empty line.', event.line, event.col, self, event.raw);
           }
@@ -90,7 +89,7 @@ HTMLHint.addRule({
         else {
           // note - [^] is like . except it matches newlines
           // http://stackoverflow.com/questions/1068280/javascript-regex-multiline-flag-doesnt-work
-          var match = event.raw.match(/^(\n*)( *)[^]+?(\n*)$/);
+          var match = event.raw.replace(/\r/g, '').match(/^(\n*)( *)[^]+?(\n*)$/);
           if (match) {
             if (match && match[1].length !== 2) {
               reporter.error('Top-level content should be surrounded by one empty line.', event.line, event.col, self, event.raw);
@@ -99,7 +98,7 @@ HTMLHint.addRule({
               reporter.error('Top-level content should be indented two spaces.', event.line, event.col, self, event.raw);
             }
             if (match && match[3].length !== 2) {
-              var offset = (event.raw.match(/\n/g) || []).length;
+              var offset = (event.raw.replace(/\r/g, '').match(/\n/g) || []).length;
               reporter.error('Top-level content should be surrounded by one empty line.', event.line+offset, 1, self, event.raw);
             }
           }
@@ -113,9 +112,11 @@ HTMLHint.addRule({
             reporter.error('Content should start on the first line of the file.', event.line, event.col, self, event.raw);
           }
         }
-        else if (event.lastEvent.raw !== "\n\n\n") {
-          reporter.error('Need two endlines between top-level tags.', event.line, event.col, self, event.raw);
+        else if (event.lastEvent.raw !== "\n\n\n" || event.lastEvent.raw !== "\r\n\r\n\r\n") {
+          console.log(">>>>>", event.lastEvent.raw)
+          reporter.error('Need two endlines between top-level tags.', event.line, event.col, self, event.raw); //git gutter
         }
+
       }
       var tagName = event.tagName.toLowerCase();
       if (mapEmptyTags[tagName] === undefined && !event.close) {
@@ -130,7 +131,7 @@ HTMLHint.addRule({
       var last = event.lastEvent;
       if (last.type === 'text') {
         if (stack.length === 1 && event.tagName === "template") {
-          var match = last.raw.match(/(\n*)$/);
+          var match = last.raw.replace(/\r/g, '').match(/(\n*)$/);
           if (match && match[1].length !== 2) {
             reporter.error('Top-level content should be surrounded by one empty line.', event.line, event.col, self, event.raw);
           }
