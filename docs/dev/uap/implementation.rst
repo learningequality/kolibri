@@ -203,10 +203,10 @@ the following overridable methods:
 
 - The following four Boolean (True/False) permission checks, corresponding to
   the "CRUD" operations:
-    - ``user_can_create_object``
-    - ``user_can_read_object``
-    - ``user_can_update_object``
-    - ``user_can_delete_object``
+  - ``user_can_create_object``
+  - ``user_can_read_object``
+  - ``user_can_update_object``
+  - ``user_can_delete_object``
 - The queryset-filtering ``readable_by_user_filter`` method, which takes in a
   queryset and returns a queryset filtered down to just objects that should be
   readable by the user.

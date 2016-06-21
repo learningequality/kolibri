@@ -17,7 +17,6 @@ from django.conf import settings as django_settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
-from kolibri.core.webpack.utils import render_as_url
 from kolibri.plugins import hooks
 
 from . import settings
@@ -41,7 +40,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     the webpack asset loading pipeline.
     """
 
-    #: You should set a unique human readable name
+    # : You should set a unique human readable name
     unique_slug = ""
 
     # : Relative path to js source file for webpack to use as entry point
@@ -87,7 +86,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         across the whole app?
 
         :returns: A dict of the data contained in the JSON files which are
-        written by Webpack.
+          written by Webpack.
         """
         with open(self.stats_file) as f:
             stats = json.load(f)
@@ -111,7 +110,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     def bundle(self):
         """
         :returns: a generator yielding dict objects with properties of the built
-        asset, most notably its URL.
+          asset, most notably its URL.
         """
         for f in self.stats_file_content["files"]:
             filename = f['name']
@@ -150,6 +149,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             "stats_file": self.stats_file,
             "events": self.events,
             "once": self.once,
+            "static_url_root": getattr(django_settings, 'STATIC_URL'),
         }
 
     @property
@@ -198,9 +198,9 @@ class WebpackBundleHook(hooks.KolibriHook):
         css_tag = '<link type="text/css" href="{url}" rel="stylesheet"/>'
         for chunk in self.bundle_filtered(extension=extension):
             if chunk['name'].endswith('.js'):
-                tags.append(js_tag.format(url=render_as_url(chunk)))
+                tags.append(js_tag.format(url=chunk['url']))
             elif chunk['name'].endswith('.css'):
-                tags.append(css_tag.format(url=render_as_url(chunk)))
+                tags.append(css_tag.format(url=chunk['url']))
         return mark_safe('\n'.join(tags))
 
     def render_to_page_load_async_html(self, extension=None):
@@ -218,8 +218,9 @@ class WebpackBundleHook(hooks.KolibriHook):
 
         :returns: HTML of a script tag to insert into a page.
         """
-        urls = [render_as_url(chunk) for chunk in self.bundle]
-        js = 'Kolibri.registerKolibriModuleAsync("{bundle}", ["{urls}"], {events}, {once});'.format(
+        urls = [chunk['url'] for chunk in self.bundle]
+        js = '{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"], {events}, {once});'.format(
+            kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
             bundle=self.unique_slug,
             urls='","'.join(urls),
             events=json.dumps(self.events),

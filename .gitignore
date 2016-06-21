@@ -9,6 +9,8 @@
 *.egg
 *.egg-info
 dist
+dist-packages-temp
+dist-packages-cache
 build
 eggs
 parts
@@ -48,8 +50,10 @@ output/*/index.html
 docs/_build
 
 # api-docs
-docs/kolibri*rst
-docs/modules.rst
+docs/py_modules/kolibri*rst
+docs/py_modules/modules.rst
+docs/kolibri*rst # old location
+docs/modules.rst # old location
 
 # node
 node_modules
@@ -68,3 +72,8 @@ kolibri/**/static/*
 # editor files
 *.sublime-project
 *.sublime-workspace
+
+
+# adding an ignore for hack session
+kolibri/plugins/learn/assets/src/demo/*.json
+

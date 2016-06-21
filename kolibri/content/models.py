@@ -16,10 +16,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from .constants import content_kinds, extensions, presets
 
-
-class ContentManager(models.Manager):
-    pass
-
 class ContentQuerySet(models.QuerySet):
     """
     Overrider QuerySet's using method to establish database conncetions at the first time that database is hitten.
@@ -39,20 +35,16 @@ class ContentQuerySet(models.QuerySet):
             raise KeyError("ContentDB '%s' doesn't exist!!" % str(alias))
         return super(ContentQuerySet, self).using(alias)
 
-class AbstractContent(models.Model):
-    objects = ContentManager.from_queryset(ContentQuerySet)()
-
-    class Meta:
-        abstract = True
-
-class ContentTag(AbstractContent):
+class ContentTag(models.Model):
     tag_name = models.CharField(max_length=30, blank=True)
     channel = models.UUIDField(null=True, blank=True)
+
+    objects = ContentQuerySet.as_manager()
 
     def __str__(self):
         return self.tag_name
 
-class ContentNode(MPTTModel, AbstractContent):
+class ContentNode(MPTTModel):
     """
     The top layer of the contentDB schema, defines the most common properties that are shared across all different contents.
     Things it can represent are, for example, video, exercise, audio or document...
@@ -74,6 +66,8 @@ class ContentNode(MPTTModel, AbstractContent):
     total_file_size = models.IntegerField()
     available = models.BooleanField(default=False)
 
+    objects = ContentQuerySet.as_manager()
+
     class Meta:
         verbose_name = 'ContentNode'
 
@@ -83,14 +77,16 @@ class ContentNode(MPTTModel, AbstractContent):
     def __str__(self):
         return self.title
 
-class Language(AbstractContent):
+class Language(models.Model):
     lang_code = models.CharField(max_length=2, db_index=True)
     lang_subcode = models.CharField(max_length=2, db_index=True)
+
+    objects = ContentQuerySet.as_manager()
 
     def __str__(self):
         return self.lang_name
 
-class File(AbstractContent):
+class File(models.Model):
     """
     The bottom layer of the contentDB schema, defines the basic building brick for content.
     Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3...
@@ -106,17 +102,21 @@ class File(AbstractContent):
     thumbnail = models.BooleanField(default=False)
     url = models.CharField(max_length=400, blank=True)
 
+    objects = ContentQuerySet.as_manager()
+
     class Admin:
         pass
 
     def __str__(self):
         return '{checksum}{extension}'.format(checksum=self.checksum, extension='.' + self.extension)
 
-class License(AbstractContent):
+class License(models.Model):
     """
     Normalize the license of ContentNode model
     """
     license_name = models.CharField(max_length=50)
+
+    objects = ContentQuerySet.as_manager()
 
     class Admin:
         pass
@@ -124,12 +124,14 @@ class License(AbstractContent):
     def __str__(self):
         return self.license_name
 
-class PrerequisiteContentRelationship(AbstractContent):
+class PrerequisiteContentRelationship(models.Model):
     """
     Predefine the prerequisite relationship between two ContentNode objects.
     """
     target_node = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_target_node')
     prerequisite = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_prerequisite')
+
+    objects = ContentQuerySet.as_manager()
 
     class Meta:
         unique_together = ['target_node', 'prerequisite']
@@ -156,13 +158,14 @@ class PrerequisiteContentRelationship(AbstractContent):
         self.full_clean()
         super(PrerequisiteContentRelationship, self).save(*args, **kwargs)
 
-
-class RelatedContentRelationship(AbstractContent):
+class RelatedContentRelationship(models.Model):
     """
     Predefine the related relationship between two ContentNode objects.
     """
     contentnode_1 = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_1')
     contentnode_2 = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_2')
+
+    objects = ContentQuerySet.as_manager()
 
     class Meta:
         unique_together = ['contentnode_1', 'contentnode_2']
@@ -180,7 +183,7 @@ class RelatedContentRelationship(AbstractContent):
             return  # silently cancel the save
         super(RelatedContentRelationship, self).save(*args, **kwargs)
 
-class ChannelMetadata(AbstractContent):
+class ChannelMetadata(models.Model):
     """
     Provide references to the corresponding contentDB when navigate between channels.
     Every content API method needs a channel_id argument, which is stored in this model.
@@ -191,6 +194,8 @@ class ChannelMetadata(AbstractContent):
     author = models.CharField(max_length=400, blank=True)
     version = models.IntegerField(default=0)
     thumbnail = models.TextField(blank=True)
+
+    objects = ContentQuerySet.as_manager()
 
     class Meta:
         app_label = "content"

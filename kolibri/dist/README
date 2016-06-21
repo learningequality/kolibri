@@ -1,0 +1,4 @@
+Do not put anything in this package, it's automatically populated with
+dependencies at build time, when running setup.py bdist_wheel --static
+
+This directory is added to the path automatically at Kolibri runtime.

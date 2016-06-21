@@ -35,7 +35,7 @@ test suite.
   Role Management should be given a similar treatment -- quickly create digital prototypes and get quality feedback.
 
 Learner Management has several conceptual parts. These may not reflect how they're divided as Vue components, so I try
-to reference the current implementation below. The application corresponds to ``management/assets/main.vue`` and has
+to reference the current implementation below. The application corresponds to ``management/assets/app-root.vue`` and has
 several subcomponents.
 
 Learner Roster
@@ -92,8 +92,7 @@ The UI allows the list of learner in the roster to be filtered. This includes:
 * Potentially other filters, for example listing learners in alphabetical or reverse-alphabetical order.
 
 .. note::
-  The classroom and group selectors are both instances of ``drop-down.vue``. Space is reserved in ``main.vue``
-  right now for other filters, however they don't correspond to subcomponents.
+  The classroom and group selectors are both instances of ``drop-down.vue``. Space is reserved in ``app-root.vue`` right now for other filters, however they don't correspond to subcomponents.
 
 Miscellaneous widgets
 *********************

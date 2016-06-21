@@ -1,5 +1,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
+from django.utils.translation import ugettext_lazy as _
+from kolibri.core.hooks import UserNavigationHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins.base import KolibriPluginBase
 
@@ -16,9 +18,14 @@ class ManagementPlugin(KolibriPluginBase):
 
 class ManagementAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "management_module"
-    src_file = "kolibri/plugins/management/assets/src/management.js"
+    src_file = "kolibri/plugins/management/assets/src/app.js"
     static_dir = "kolibri/plugins/management/static"
 
 
 class ManagementInclusionHook(hooks.ManagementSyncHook):
     bundle_class = ManagementAsset
+
+
+class ManagementNavItem(UserNavigationHook):
+    label = _("Management!")
+    url = '#'

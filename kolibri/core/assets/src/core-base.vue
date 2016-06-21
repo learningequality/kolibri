@@ -1,50 +1,37 @@
 <template>
 
-  <header>
-    <h3>Kolibri</h3>
-    <nav>
-      <ul>
-        <li><a href="#">Link 1</a></li>
-        <li><a href="#">Link 2</a></li>
-      <ul>
-    </nav>
-  </header>
-  <main>
-    <slot></slot>
-  </main>
-  <footer>
-    Call a podiatrist – I'm in a footer!
-  </footer>
+  <div>
+    <!-- <kolibri-nav></kolibri-nav> -->
+    <header class="base-header"><h1>Kolibri Learn</h1></header>
+    <main>
+      <slot></slot>
+    </main>
+  </div>
 
 </template>
 
 
-<script></script>
+<script>
+
+  module.exports = {
+    components: {
+      'kolibri-nav': require('./navigation.vue'),
+    },
+  };
+
+</script>
 
 
 <style lang="stylus" scoped>
 
-  $bg-color = #E3E3F3
+  @require '~core-theme.styl'
 
-  header
-    background-color: $bg-color
-    display: flex
-    justify-content: space-between
-    padding: 10px
+  main
+    margin: 10px
 
-  footer
-    bottom: 1vh
-    position: fixed
-
-
-</style>
-
-
-<style lang="stylus">
-
-  /* These global styles apply to everything */
-
-  html, body
-    font-family: sans-serif
+  .base-header h1
+    color: $core-action-normal
+    text-align: center
+    font-size: smaller
 
 </style>

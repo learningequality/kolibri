@@ -16,7 +16,12 @@ clean: clean-build clean-pyc clean-docs
 clean-build:
 	rm -fr build/
 	rm -fr dist/
+	rm -fr dist-packages-cache/
+	rm -fr dist-packages-temp/
 	rm -fr *.egg-info
+	rm -fr .eggs
+	rm -fr .cache
+	git clean -X -d -f kolibri/dist
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -24,8 +29,10 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 clean-docs:
-	rm -f docs/kolibri*rst
-	rm -f docs/modules.rst
+	rm -f docs/py_modules/kolibri*rst
+	rm -f docs/py_modules/modules.rst
+	rm -f docs/kolibri*rst # old location
+	rm -f docs/modules.rst # old location
 	$(MAKE) -C docs clean
 
 lint:
@@ -42,7 +49,7 @@ coverage:
 	coverage report -m
 
 docs: clean-docs
-	sphinx-apidoc -d 10 -H "Python Reference" -o docs/ kolibri kolibri/test kolibri/deployment/
+	sphinx-apidoc -d 10 -H "Python Reference" -o docs/py_modules/ kolibri kolibri/test kolibri/deployment/ kolibri/dist/
 	$(MAKE) -C docs html
 
 release: clean
@@ -51,5 +58,5 @@ release: clean
 
 sdist: clean
 	python setup.py sdist
-	python setup.py bdist_wheel upload
+	python setup.py bdist_wheel
 	ls -l dist

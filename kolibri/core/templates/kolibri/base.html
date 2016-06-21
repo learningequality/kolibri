@@ -1,21 +1,12 @@
 {% load i18n kolibri_tags webpack_tags js_reverse cache %}<html>
 <head>
   <title>{% block title %}{% endblock %} - {% trans "Kolibri" %}</title>
+  {% kolibri_main_navigation %}
 </head>
+
 <body>
 
-{% block main_menu %}
-<ul role="nav">
-  {% kolibri_main_navigation as nav %}
-
-  {% for item in nav %}
-  <li><a href="{{ item.url }}">{{ item.label }}</a></li>
-  {% endfor %}
-
-</ul>
-{% endblock %}
-
-<main></main>
+<rootvue></rootvue>
 {% block frontend_assets %}
 {% webpack_asset 'default_frontend' %}
 <script type="text/javascript" charset="utf-8">

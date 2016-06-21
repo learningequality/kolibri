@@ -4,7 +4,7 @@ How plugins work
 
 From a user's perspective, plugins are enabled and disabled through the command
 line interface or through a UI. Users can also configure a plugin's behavior
-through the main Kolibri interface. See: :ref:`user-plugins`.
+through the main Kolibri interface.
 
 
 .. note::

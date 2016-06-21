@@ -4,21 +4,38 @@ const Vuex = require('vuex');
 Vue.use(Vuex);
 
 // Set up initial state
-let classroomCounter = 0;
-function getClassroomId() {
-  classroomCounter += 1;
-  return classroomCounter;
-}
-
 const ALL_CLASSROOMS_ID = null;
+// These constant values are totally arbitrary.
+// Just don't want them to clash with *actual* group ids
+const ALL_GROUPS_ID = 'allgroups';
+const NO_GROUPS_ID = 'nogroups';
+const UNGROUPED_ID = 'ungrouped';
 
 function getInitialState() {
-  const johnDuck = {
-    id: 2,
-    first_name: 'John',
-    last_name: 'Duck',
-    username: 'jduck',
-  };
+  /* It should have a classrooms attribute that looks like this
+  const classrooms = [
+    {
+      id: <my cool id>,
+      name: 'Classroom A',
+      learnerGroups: [<a list of learner group ids>],
+      ungroupedLearners: [<a list of learner ids>]
+    },
+  ];
+  */
+  const classrooms = [];
+
+  /* and a learnerGroups attribute that looks like this
+  const learnerGroups = [
+    {
+      id: <my cool id>,
+      name: 'Excelling!',
+      learners: [<a list of learner ids>],
+    },
+  ];
+  */
+  const learnerGroups = [];
+
+  /* and finally a learners attribute that looks like this
   const learners = [
     {
       id: 1,
@@ -26,62 +43,15 @@ function getInitialState() {
       last_name: 'G',
       username: 'mike',
     },
-    johnDuck,
-    {
-      id: 3,
-      first_name: 'Abe',
-      last_name: 'Lincoln',
-      username: 'abe',
-    },
-    {
-      id: 4,
-      first_name: 'Jessica',
-      last_name: 'Aceret',
-      username: 'jbot',
-    },
-  ];
-  const classrooms = [
-    {
-      id: getClassroomId(),
-      name: 'Classroom A',
-      learnerGroups: [1, 2],
-      // learners: [1, 3],
-    },
-    {
-      id: getClassroomId(),
-      name: 'Classroom B',
-      learnerGroups: [],
-      // learners: [],
-    },
-    {
-      id: getClassroomId(),
-      name: 'Classroom C',
-      learnerGroups: [3],
-      // learners: [2],
-    },
-  ];
-  const learnerGroups = [
-    {
-      id: 1,
-      name: 'Group 1',
-      learners: [1, 3],
-    },
-    {
-      id: 2,
-      name: 'Group 2',
-      learners: [3],
-    },
-    {
-      id: 3,
-      name: 'Group 3',
-      learners: [2],
-    },
-  ];
+  */
+  const learners = [];
+
   return {
     classrooms,
     learners,
     learnerGroups,
     selectedClassroomId: ALL_CLASSROOMS_ID, // is the value `null`, which has special meaning here
+    selectedGroupId: NO_GROUPS_ID,
   };
 }
 
@@ -89,14 +59,52 @@ function getInitialState() {
 const mutations = {
   ADD_CLASSROOM(state, attrs) {
     state.classrooms.push({
-      id: getClassroomId(),
-      name: attrs.name ? attrs.name : 'Foo',
-      learnerGroups: attrs.learnerGroups ? attrs.learnerGroups : [],
+      id: attrs.id,
+      name: attrs.name,
+      learnerGroups: attrs.learnerGroups,
     });
   },
+
+  ADD_CLASSROOMS(state, classrooms) {
+    for (const classroom of classrooms) {
+      state.classrooms.push({
+        id: classroom.id,
+        name: classroom.name,
+        learnerGroups: classroom.learnerGroups,
+        ungroupedLearners: classroom.ungroupedLearners,
+      });
+    }
+  },
+
+  ADD_LEARNER_GROUPS(state, groups) {
+    for (const group of groups) {
+      state.learnerGroups.push({
+        id: group.id,
+        name: group.name,
+        learners: group.learners,
+      });
+    }
+  },
+
+  ADD_LEARNERS(state, learners) {
+    learners.forEach(learner => {
+      state.learners.push({
+        id: learner.id,
+        username: learner.username,
+        first_name: learner.first_name,
+        last_name: learner.last_name,
+      });
+    });
+  },
+
   SET_SELECTED_CLASSROOM_ID(state, id) {
     // Disable no-param-reassign rule... that is expressly the purpose of this function
     state.selectedClassroomId = id; // eslint-disable-line no-param-reassign
+  },
+
+  SET_SELECTED_GROUP_ID(state, id) {
+    // Disable no-param-reassign rule... that is expressly the purpose of this function
+    state.selectedGroupId = id; // eslint-disable-line no-param-reassign
   },
 };
 
@@ -107,6 +115,9 @@ const store = new Vuex.Store({
 
 const constants = {
   ALL_CLASSROOMS_ID,
+  ALL_GROUPS_ID,
+  NO_GROUPS_ID,
+  UNGROUPED_ID,
 };
 
 module.exports = {
