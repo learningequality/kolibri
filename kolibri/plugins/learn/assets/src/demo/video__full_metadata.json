@@ -1,0 +1,62 @@
+{
+  "kind": "video",
+  "description": "Sal is given a rectangle on the coordinate plane and he draws the image of the rectangle under a dilation with scale factor 1 2/3 about an arbitrary point.",
+  "license": "CC-BY-NC-SA",
+  "tags": [
+    "Sal the Khan",
+    "Rectangles",
+    "Digital Archaeology"
+  ],
+  "title": "Dilating shapes: expanding",
+  "id": 2750,
+  "thumbnail": "images/dccf22d35689168ef1e7925e578ecd5a.png",
+  "recommended": [
+    {
+      "kind": "exercise",
+      "description": "Sal is given a triangle on the coordinate plane and he draws the image of the triangle under a dilation with scale factor 1/2 about the origin.",
+      "title": "Dilating shapes: shrinking",
+      "slug": "qlWZJ21O63s",
+      "id": 2749,
+      "progress": "complete",
+      "thumbnail": "images/f4e3276bc5eb12de6a156caebb59c8fd.png"
+    },
+    {
+      "kind": "exercise",
+      "description": "Given a figure and a definition of a dilation, manually draw the image.",
+      "title": "Dilate shapes",
+      "slug": "dilations",
+      "id": 2751,
+      "progress": "unstarted",
+      "thumbnail": "images/08d6c7b85fd29afc23bf0f74858ac919.png"
+    },
+    {
+      "kind": "video",
+      "description": "Sal shows how we can use dilations to map a line into another, parallel, line.",
+      "title": "Determining dilations",
+      "slug": "jq6WFvMikBQ",
+      "id": 2752,
+      "progress": "partial",
+      "thumbnail": "images/a678065dd3ab4d899b178a9d27f15281.png"
+    },
+    {
+      "kind": "audio",
+      "description": "Find both the center and the scale factor of a dilation that maps a given figure to another one.",
+      "title": "Determine dilations",
+      "slug": "defining-dilations-2",
+      "id": 2753,
+      "progress": "unstarted",
+      "thumbnail": "images/4fdfd6a403a26ab4b67d04811bf0d54d.png"
+    },
+    {
+      "kind": "video",
+      "description": "Sal shows how to perform a dilation on a hexagon using our interactive widget!",
+      "title": "Performing dilations",
+      "slug": "j5xis6Hlnds",
+      "id": 2747,
+      "progress": "complete",
+      "thumbnail": "images/2a7e0559cb11b87c7451626587a2ea6b.png"
+    }
+  ],
+  "progress": "partial",
+  "slug": "6dyWKD_JPhI"
+}

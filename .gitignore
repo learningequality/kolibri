@@ -73,7 +73,5 @@ kolibri/**/static/*
 *.sublime-project
 *.sublime-workspace
 
-
-# adding an ignore for hack session
-kolibri/plugins/learn/assets/src/demo/*.json
-
+# virtual environment
+venv/
