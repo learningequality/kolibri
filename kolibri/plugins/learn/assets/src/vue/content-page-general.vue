@@ -36,7 +36,7 @@
     ],
     components: {
       'content-render': require('content-renderer'),
-      'content-card': require('../content-card'),
+      'content-card': require('./content-card'),
     },
     vuex: {
       getters: {
