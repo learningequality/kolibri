@@ -1,13 +1,16 @@
 
-const ContentRendererModule = require('content_renderer_module');
-const PDFComponent = require('./vue/index');
+const KolibriModule = require('kolibri_module');
 
-class DocumentPDFModule extends ContentRendererModule {
-  get rendererComponent() {
-    return PDFComponent;
-  }
-  get contentType() {
-    return 'document/pdf';
+class DocumentPDFModule extends KolibriModule {
+
+  render(contentData, renderArea) {
+    const documentTag = document.createElement('a');
+    documentTag.href = 'http://www.benlandis.com/sheet-music/piano-rickroll.pdf';
+    documentTag.textContent = contentData.id;
+    const titleTag = document.createElement('h1');
+    titleTag.innerHTML = contentData.id;
+    renderArea.appendChild(titleTag);
+    renderArea.appendChild(documentTag);
   }
 }
 

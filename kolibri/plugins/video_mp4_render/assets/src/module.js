@@ -1,13 +1,15 @@
 
-const ContentRendererModule = require('content_renderer_module');
-const VideoComponent = require('./vue/index');
+const KolibriModule = require('kolibri_module');
 
-class VideoMP4Module extends ContentRendererModule {
-  get rendererComponent() {
-    return VideoComponent;
-  }
-  get contentType() {
-    return 'video/mp4';
+class VideoMP4Module extends KolibriModule {
+  render(contentData, renderArea) {
+    const videoTag = document.createElement('video');
+    videoTag.autoplay = true;
+    videoTag.src = 'http://vid297.photobucket.com/albums/mm238/daystar170/RickRoll.mp4';
+    const titleTag = document.createElement('h1');
+    titleTag.innerHTML = contentData.id;
+    renderArea.appendChild(titleTag);
+    renderArea.appendChild(videoTag);
   }
 }
 

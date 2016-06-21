@@ -77,5 +77,3 @@ kolibri/**/static/*
 # adding an ignore for hack session
 kolibri/plugins/learn/assets/src/demo/*.json
 
-# virtual environment
-venv/

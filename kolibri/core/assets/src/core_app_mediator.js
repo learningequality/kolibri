@@ -262,7 +262,7 @@ module.exports = class Mediator {
             method: value,
           });
           // Call the asset loader to load all the kolibriModule files.
-          assetLoader(kolibriModuleUrls, (err, notFound) => {
+          assetLoader([kolibriModuleUrls], (err, notFound) => {
             if (err) {
               notFound.forEach((file) => {
                 logging.error(`${file} failed to load`);
@@ -299,19 +299,5 @@ module.exports = class Mediator {
    */
   emit(...args) {
     this._eventDispatcher.$emit(...args);
-  }
-  /**
-   * Proxy to the Vue object that is the global dispatcher.
-   * Takes any arguments and passes them on.
-   */
-  on(...args) {
-    this._eventDispatcher.$on(...args);
-  }
-  /**
-   * Proxy to the Vue object that is the global dispatcher.
-   * Takes any arguments and passes them on.
-   */
-  once(...args) {
-    this._eventDispatcher.$once(...args);
   }
 };

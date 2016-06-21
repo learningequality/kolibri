@@ -3,10 +3,9 @@
   <core-base class="learn-page">
 
     <nav id="learn-nav">
-      <a v-link="{ path: '/learn', exact: true }">Learn</a> |
-      <a v-link="{ path: '/learn/content', exact: true }">Learn Content</a> |
-      <a v-link="{ path: '/explore', exact: true }">Explore</a> |
-      <a v-link="{ path: '/explore/content', exact: true }">Explore Content</a>
+      <a v-link="{ path: '/explore', exact: true }">Topic Page</a> |
+      <a v-link="{ path: '/recommendations', exact: true }">Recommendation Page</a> |
+      <a v-link="{ path: '/content', exact: true }">Content Page</a>
     </nav>
 
     <!-- see router.js -->

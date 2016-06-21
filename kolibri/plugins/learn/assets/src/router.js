@@ -10,16 +10,13 @@ const router = new VueRouter({
 
 router.map({
   '/explore': {
-    component: require('./vue/explore-page'),
+    component: require('./vue/topic-page'),
   },
-  '/learn': {
-    component: require('./vue/learn-page'),
+  '/recommendations': {
+    component: require('./vue/recs-page'),
   },
-  '/explore/content': {
-    component: require('./vue/explore-content-page'),
-  },
-  '/learn/content': {
-    component: require('./vue/learn-content-page'),
+  '/content': {
+    component: require('./vue/content-page'),
   },
 });
 

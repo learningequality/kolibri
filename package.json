@@ -28,7 +28,6 @@
     "intl": "^1.2.3",
     "loglevel": "^1.4.0",
     "normalize.css": "^4.1.1",
-    "pdfobject": "^2.0.201604172",
     "vue": "^1.0.21",
     "vue-intl": "^0.3.0",
     "vue-router": "^0.7.13",
