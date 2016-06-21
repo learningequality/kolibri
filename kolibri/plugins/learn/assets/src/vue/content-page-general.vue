@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <viewerslot kind="" url="">
-      <div class="obama"></div>
-    </viewerslot>
+    <h2>Learn Content</h2>
+    <content-render kind="audio" extension="mp3">
+    </content-render>
     <h3>
       {{ title }}
     </h3>
@@ -35,7 +35,16 @@
       'recommended',
     ],
     components: {
-      'content-card': require('./content-card'),
+      'content-render': require('content-renderer'),
+      'content-card': require('../content-card'),
+    },
+    vuex: {
+      getters: {
+        // better practice would be to define vuex getter functions globally
+        title: (state) => state.full.title,
+        description: (state) => state.full.description,
+        recommended: (state) => state.full.recommended,
+      },
     },
   };
 
