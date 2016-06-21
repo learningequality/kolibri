@@ -1,14 +1,11 @@
 <template>
 
-  <a href="{{linkhref}}">
-    <div class="topic-card-container">
-      <div class="thumbnail">
-        <div class="topic-card-folder"></div>
-      </div>
-      <div class="title">
-        {{ title }}
-      </div>
-    </div>
+  <a class="topic-card" href="{{linkhref}}">
+    <p>
+      {{ ncomplete }} / {{ ntotal }}
+    </p>
+    <img class="topic-card-folder" src="http://simpleicon.com/wp-content/uploads/folder-2.png">
+    <p>{{ title }}</p>
   </a>
 
 </template>
@@ -32,38 +29,17 @@
 
   @require '~core-theme.styl'
 
-  .topic-card-container
+  .topic-card
     display: block
-    width: 13.2rem
-    height: 11rem
-    border-radius: 4px
+    height: 150px
+    width: 200px
+    text-align: center
     background-color: $core-bg-light
 
-  .thumbnail
-    width: 13.2rem
-    height: 7.6rem
-    text-align: center
-    border-radius: 4px 4px 0 0
-    background: #E6E6E6 // New Color that we might add to core-theme.styl
-
-  .thumbnail:before
-    content: ''
-    display: inline-block
-    vertical-align: middle
-    height: 100%
-
   .topic-card-folder
-    width: 70px
-    height: 55px
-    vertical-align: middle
-    display: inline-block
-    background-color: $core-action-normal
+    max-width: 50px
 
-  .title
-    max-width:13.2rem
-    font-size: 0.9rem
-    font-weight: 700
-    margin: 0.4rem
-    color: $core-text-default
+  p
+    margin-top: 5px
 
 </style>

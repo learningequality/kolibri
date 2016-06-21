@@ -1,12 +1,27 @@
 <template>
 
   <div>
-    <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs>
-    <content-page-general 
-      :title="title" 
-      :description="description"
-      :recommended="recommended"
-    ></content-page-general>
+    <h2>CONTENT!!!</h2>
+    <viewerslot kind="" url="">
+      <div class="obama"></div>
+    </viewerslot>
+    <h3>
+      {{ title }}
+    </h3>
+    <p>
+      {{ description }}
+    </p>
+    <div class="rec-grid card-list">
+      <content-card
+        v-for="content in recommended"
+        class="card"
+        linkhref="#"
+        :title="content.title"
+        :thumbsrc="content.thumbnail"
+        :kind="content.kind"
+        :progress="content.progress">
+      </content-card>
+    </div>
   </div>
 
 </template>
@@ -15,9 +30,14 @@
 <script>
 
   module.exports = {
+    props: [
+      'title',
+      'description',
+      'all-contents',
+      'recommended',
+    ],
     components: {
-      'breadcrumbs': require('./breadcrumbs'),
-      'content-page-general': require('./content-page-general'),
+      'content-card': require('./content-card'),
     },
     vuex: {
       getters: {
@@ -25,7 +45,6 @@
         title: (state) => state.full.title,
         description: (state) => state.full.description,
         recommended: (state) => state.full.recommended,
-        breadcrumbs: state => state.breadcrumbs,
       },
     },
   };
