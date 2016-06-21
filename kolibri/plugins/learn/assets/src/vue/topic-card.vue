@@ -1,16 +1,13 @@
 <template>
 
   <a href="{{linkhref}}">
-<!--     <p>
-      {{ ncomplete }} / {{ ntotal }}
-    </p> -->
     <div class="topic-card-container">
-        <div class="thumbnail">
-          <div class="topic-card-folder"></div>
-        </div>
-        <div class="title">
+      <div class="thumbnail">
+        <div class="topic-card-folder"></div>
+      </div>
+      <div class="title">
         {{ title }}
-        </div>
+      </div>
     </div>
   </a>
 
@@ -47,16 +44,13 @@
     height: 7.6rem
     text-align: center
     border-radius: 4px 4px 0 0
-    background: #E6E6E6 // New Color that we might add to core-theme.styl
-
+    background: #E6E6E6  // New Color that we might add to core-theme.styl
 
   .thumbnail:before
     content: ''
     display: inline-block
     vertical-align: middle
     height: 100%
-
-
 
   .topic-card-folder
     width: 70px
