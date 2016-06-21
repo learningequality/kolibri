@@ -68,12 +68,13 @@ class ContentQuerySet(models.QuerySet):
         return super(ContentQuerySet, self).using(alias)
 
 class AbstractContent(models.Model):
-    objects = ContentManager.from_queryset(ContentQuerySet)()
 
     class Meta:
         abstract = True
 
 class ContentTag(AbstractContent):
+    objects = ContentManager.from_queryset(ContentQuerySet)()
+
     tag_name = models.CharField(max_length=30, null=True, blank=True)
     tag_type = models.CharField(max_length=30, null=True, blank=True)
 
@@ -85,6 +86,8 @@ class ContentMetadata(MPTTModel, AbstractContent):
     The top layer of the contentDB schema, defines the most common properties that are shared across all different contents.
     Things it can represent are, for example, video, exercise, audio or document...
     """
+    objects = ContentManager.from_queryset(ContentQuerySet)()
+
     content_id = models.UUIDField(primary_key=False, default=uuid4, editable=False)
     title = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True, null=True)
@@ -113,6 +116,8 @@ class MimeType(AbstractContent):
     """
     Normalize the "kind"(mimetype) of Format model
     """
+    objects = ContentManager.from_queryset(ContentQuerySet)()
+
     readable_name = models.CharField(max_length=50)
     machine_name = models.CharField(max_length=100)
 
@@ -128,6 +133,8 @@ class Format(AbstractContent):
     including the quality of the content.
     Things it can represent are, for example, high_resolution_video, low_resolution_video, vectorized_video, khan_excercise...
     """
+    objects = ContentManager.from_queryset(ContentQuerySet)()
+
     available = models.BooleanField(default=False)
     format_size = models.IntegerField(blank=True, null=True)
     quality = models.CharField(max_length=50, blank=True, null=True)
@@ -142,6 +149,8 @@ class File(AbstractContent):
     The bottom layer of the contentDB schema, defines the basic building brick for content.
     Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3...
     """
+    objects = ContentManager.from_queryset(ContentQuerySet)()
+
     checksum = models.CharField(max_length=400, blank=True, null=True)
     extension = models.CharField(max_length=100, blank=True, null=True)
     available = models.BooleanField(default=False)
@@ -204,6 +213,8 @@ class License(AbstractContent):
     """
     Normalize the license of ContentMetadata model
     """
+    objects = ContentManager.from_queryset(ContentQuerySet)()
+
     license_name = models.CharField(max_length=50)
 
     class Admin:
@@ -216,6 +227,7 @@ class ContentRelationship(AbstractContent):
     """
     Provide a abstract model for defining any relationships between two ContentMetadata objects.
     """
+
     contentmetadata_1 = models.ForeignKey(ContentMetadata, related_name='%(app_label)s_%(class)s_1')
     contentmetadata_2 = models.ForeignKey(ContentMetadata, related_name='%(app_label)s_%(class)s_2')
 
