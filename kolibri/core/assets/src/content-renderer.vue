@@ -4,8 +4,7 @@
     <h3>
       {{ title }}
     </h3>
-    <div v-el:container>
-    </div>
+    <div v-el:container></div>
   </div>
 
 </template>
@@ -13,27 +12,40 @@
 
 <script>
 
-  const Kolibri = require('kolibri');
-
   module.exports = {
-    props: [
-      'channelId',
-      'contentId',
-      'kind',
-      'extension',
-      'title',
-    ],
+    props: {
+      channelId: String,
+      contentId: String,
+      kind: String,
+      extension: String,
+      title: String,
+      contentData: {
+        type: Object,
+        default: () => ({ url: '#' }),
+      },
+
+    },
     computed: {
       contentType() {
         return `${this.kind}/${this.extension}`;
       },
     },
-    created() {
-      this.contentData = { url: '#' };
-    },
     ready() {
-      console.log(`content_render:${this.contentType}`);
-      Kolibri.emit(`content_render:${this.contentType}`, this.$els.container, this.contentData);
+      this.Kolibri.once(`component_render:${this.contentType}`, this.setRendererComponent);
+      this.Kolibri.emit(`content_render:${this.contentType}`);
+    },
+    data: () => ({
+      currentView: null,
+    }),
+    methods: {
+      setRendererComponent(component) {
+        const options = {
+          parent: this,
+          el: this.$els.container,
+        };
+        Object.assign(options, component);
+        this.currentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
+      },
     },
   };
 

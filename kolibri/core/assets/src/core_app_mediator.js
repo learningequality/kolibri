@@ -300,4 +300,18 @@ module.exports = class Mediator {
   emit(...args) {
     this._eventDispatcher.$emit(...args);
   }
+  /**
+   * Proxy to the Vue object that is the global dispatcher.
+   * Takes any arguments and passes them on.
+   */
+  on(...args) {
+    this._eventDispatcher.$on(...args);
+  }
+  /**
+   * Proxy to the Vue object that is the global dispatcher.
+   * Takes any arguments and passes them on.
+   */
+  once(...args) {
+    this._eventDispatcher.$once(...args);
+  }
 };

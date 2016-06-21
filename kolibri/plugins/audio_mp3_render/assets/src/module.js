@@ -1,15 +1,13 @@
 
-const KolibriModule = require('kolibri_module');
+const ContentRendererModule = require('content_renderer_module');
 const AudioComponent = require('./vue/index');
-const Vue = require('vue');
 
-class AudioMP3Module extends KolibriModule {
-  render(containerElement) {
-    const options = {
-      el: containerElement,
-    };
-    Object.assign(options, AudioComponent);
-    this.vm = new Vue(options);
+class AudioMP3Module extends ContentRendererModule {
+  get rendererComponent() {
+    return AudioComponent;
+  }
+  get contentType() {
+    return 'audio/mp3';
   }
 }
 
