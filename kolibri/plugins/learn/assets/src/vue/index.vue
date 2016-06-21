@@ -2,15 +2,15 @@
 
   <core-base class="learn-page">
 
+    <!-- see router.js -->
+    <router-view></router-view>
+
     <nav id="learn-nav">
       <a v-link="{ path: '/learn', exact: true }">Learn</a> |
       <a v-link="{ path: '/learn/content', exact: true }">Learn Content</a> |
       <a v-link="{ path: '/explore', exact: true }">Explore</a> |
       <a v-link="{ path: '/explore/content', exact: true }">Explore Content</a>
     </nav>
-
-    <!-- see router.js -->
-    <router-view></router-view>
 
   </core-base>
 
