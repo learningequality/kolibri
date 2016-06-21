@@ -36,7 +36,7 @@
       'recommended',
     ],
     components: {
-      'content-render': require('../content-render'),
+      'content-render': require('content-renderer'),
       'content-card': require('../content-card'),
     },
     vuex: {
