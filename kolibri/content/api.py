@@ -88,20 +88,6 @@ def leaves(channel_id, content, **kwargs):
     return content.get_leafnodes().using(channel_id)
 
 @can_get_content_with_id
-def get_files_for_preset(content, preset, **kwargs):
-    """
-    Get all files for a particular content in particular quality.
-    For format_quality argument, please pass in a string like "high" or "low" or "normal".
-    topic content will return null.
-
-    :param channel_id: str
-    :param content: ContentNode or str
-    :param format_quality: str
-    :return: QuerySet of File
-    """
-    return content.files.all().filter(preset=preset)
-
-@can_get_content_with_id
 def get_missing_files(channel_id, content, **kwargs):
     """
     Get all missing files of the content.
