@@ -17,7 +17,7 @@ def can_get_content_with_id(func):
     it can take keyword argument/s "content" or "content1" and "content2".
     """
     @wraps(func)
-    def wrapper(channel_id=None, **kwargs):
+    def wrapper(channel_id, **kwargs):
         content = kwargs.get('content')
         content1 = kwargs.get('content1')
         content2 = kwargs.get('content2')
@@ -38,10 +38,10 @@ def can_get_content_with_id(func):
             kwargs['prerequisite'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=prerequisite)
         else:
             raise TypeError("must provide a ContentNode object or a UUID content_id")
-        return func(channel_id=channel_id, **kwargs)
+        return func(channel_id, **kwargs)
     return wrapper
 
-def get_content_with_id(channel_id=None, content=None):
+def get_content_with_id(channel_id, content):
     """
     Get arbitrary sets of ContentNode objects based on content id(s).
 
@@ -55,7 +55,7 @@ def get_content_with_id(channel_id=None, content=None):
         return KolibriContent.ContentNode.objects.using(channel_id).filter(content_id=content)
 
 @can_get_content_with_id
-def get_ancestor_topics(channel_id=None, content=None, **kwargs):
+def get_ancestor_topics(channel_id, content, **kwargs):
     """"
     Get all ancestors that the their kind are topics
 
@@ -66,7 +66,7 @@ def get_ancestor_topics(channel_id=None, content=None, **kwargs):
     return content.get_ancestors().filter(kind=content_kinds.TOPIC).using(channel_id)
 
 @can_get_content_with_id
-def immediate_children(channel_id=None, content=None, **kwargs):
+def immediate_children(channel_id, content, **kwargs):
     """
     Get a set of ContentNodes that have this ContentNode as the immediate parent.
 
@@ -77,7 +77,7 @@ def immediate_children(channel_id=None, content=None, **kwargs):
     return content.get_children().using(channel_id)
 
 @can_get_content_with_id
-def leaves(channel_id=None, content=None, **kwargs):
+def leaves(channel_id, content, **kwargs):
     """
     Get all ContentNodes that are the terminal nodes and also the descendants of the this ContentNode.
 
@@ -88,7 +88,7 @@ def leaves(channel_id=None, content=None, **kwargs):
     return content.get_leafnodes().using(channel_id)
 
 @can_get_content_with_id
-def get_files_for_preset(content=None, preset=None, **kwargs):
+def get_files_for_preset(content, preset, **kwargs):
     """
     Get all files for a particular content in particular quality.
     For format_quality argument, please pass in a string like "high" or "low" or "normal".
@@ -102,7 +102,7 @@ def get_files_for_preset(content=None, preset=None, **kwargs):
     return content.files.all().filter(preset=preset)
 
 @can_get_content_with_id
-def get_missing_files(channel_id=None, content=None, **kwargs):
+def get_missing_files(channel_id, content, **kwargs):
     """
     Get all missing files of the content.
 
@@ -117,7 +117,7 @@ def get_missing_files(channel_id=None, content=None, **kwargs):
         return KolibriContent.File.objects.using(channel_id).filter(available=False, contentnode=content)
 
 @can_get_content_with_id
-def get_all_prerequisites(channel_id=None, content=None, **kwargs):
+def get_all_prerequisites(channel_id, content, **kwargs):
     """
     Get cotents that are the prerequisites of this content.
 
@@ -128,7 +128,7 @@ def get_all_prerequisites(channel_id=None, content=None, **kwargs):
     return KolibriContent.ContentNode.objects.using(channel_id).filter(is_prerequisite_of=content)
 
 @can_get_content_with_id
-def get_all_related(channel_id=None, content=None, **kwargs):
+def get_all_related(channel_id, content, **kwargs):
     """
     Get cotents that are related to this content.
 
@@ -139,7 +139,7 @@ def get_all_related(channel_id=None, content=None, **kwargs):
     return KolibriContent.ContentNode.objects.using(channel_id).filter(Q(relate_to=content) | Q(is_related=content))
 
 @can_get_content_with_id
-def set_prerequisite(channel_id=None, target_node=None, prerequisite=None, **kwargs):
+def set_prerequisite(channel_id, target_node, prerequisite, **kwargs):
     """
     Set prerequisite relationship between content1 and content2.
 
@@ -151,7 +151,7 @@ def set_prerequisite(channel_id=None, target_node=None, prerequisite=None, **kwa
         target_node=target_node, prerequisite=prerequisite)
 
 @can_get_content_with_id
-def set_is_related(channel_id=None, content1=None, content2=None, **kwargs):
+def set_is_related(channel_id, content1, content2, **kwargs):
     """
     Set is related relationship between content1 and content2.
 
@@ -163,7 +163,7 @@ def set_is_related(channel_id=None, content1=None, content2=None, **kwargs):
         contentnode_1=content1, contentnode_2=content2)
 
 @can_get_content_with_id
-def children_of_kind(channel_id=None, content=None, kind=None, **kwargs):
+def children_of_kind(channel_id, content, kind, **kwargs):
     """
     Get all ContentNodes of a particular kind under the given ContentNode.
     For kind argument, please pass in a string like "topic" or "video" or "exercise".
