@@ -3,6 +3,7 @@
   <a :href="linkhref">
     <div class="content-card-container">
       <div class="content-icon">
+        <img src="./content-icons/video.svg">
       </div>
       <img :src="thumbsrc" class="thumbnail">
       <div class="title">
@@ -46,7 +47,6 @@
     width: 30px
     top: 0.35rem
     left: 0.35rem
-    background-color: $core-action-normal
 
   .thumbnail
     width: 13.2rem
