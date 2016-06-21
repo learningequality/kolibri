@@ -1,0 +1,341 @@
+{
+  "popular": [
+    {
+      "kind": "document",
+      "description": "By using our knowledge of supplementary, adjacent, and vertical angles, we can solve problems involving the intersection of two lines. Including this one!",
+      "title": "Intro to vertical angles",
+      "slug": "_7aUxFzTG5w",
+      "id": 2633,
+      "progress": "complete",
+      "thumbnail": "images/c260ca171bf652596f184390c93167e1.png"
+    },
+    {
+      "kind": "exercise",
+      "description": "",
+      "title": "Vertical angles",
+      "slug": "vertical_angles",
+      "id": 2634,
+      "progress": "partial",
+      "thumbnail": "images/ce4a7fff37554506c4b1a1da42958aa1.png"
+    },
+    {
+      "kind": "audio",
+      "description": "Given algebraic expressions that represent a pair of two vertical angles, Sal forms and solves an equation.",
+      "title": "Equation practice with vertical angles",
+      "slug": "2CZrkdtgeNU",
+      "id": 2635,
+      "progress": "unstarted",
+      "thumbnail": "images/24597ee3be09f11535951894a3b598ad.png"
+    },
+    {
+      "kind": "document",
+      "description": "Given algebraic expressions that represent a pair of two vertical angles, form and solve an equation.",
+      "title": "Equation practice with vertical angles",
+      "slug": "vertical_angles_2",
+      "id": 2636,
+      "progress": "complete",
+      "thumbnail": "images/3e9a2898064b86244117f5a13da5afcf.png"
+    },
+    {
+      "kind": "video",
+      "description": "Proving that vertical angles are equal",
+      "title": "Vertical angles are congruent proof",
+      "slug": "wRBMmiNHQaE",
+      "id": 2637,
+      "progress": "partial",
+      "thumbnail": "images/f03fa805772287924b8c45583bd7c598.png"
+    },
+    {
+      "kind": "exercise",
+      "description": "Sal draws two parallel lines and a transversal, then introduces some new vocabulary.",
+      "title": "Angles, parallel lines, & transversals",
+      "slug": "H-E5rlpCVu4",
+      "id": 2638,
+      "progress": "unstarted",
+      "thumbnail": "images/6aecbebf1700777b7d38d88a9ed7da7f.png"
+    },
+    {
+      "kind": "audio",
+      "description": "Sal identifies parallel and perpendicular lines in geometric figures.",
+      "title": "Parallel & perpendicular lines",
+      "slug": "aq_XL6FrmGs",
+      "id": 2639,
+      "progress": "unstarted",
+      "thumbnail": "images/339216f807eb454db1cfb83fc519cec6.png"
+    },
+    {
+      "kind": "audio",
+      "description": "Sal draws two parallel lines and a transversal, then finds some missing angle measurements.",
+      "title": "Missing angles with a transversal",
+      "slug": "2WjGD3LZEWo",
+      "id": 2640,
+      "progress": "complete",
+      "thumbnail": "images/756aeb43755e578415ae8ec0bd93b572.png"
+    },
+    {
+      "kind": "audio",
+      "description": "Determine which angles must be congruent when parallel lines are crossed by a transversal.",
+      "title": "DEPRECATED Congruent angles",
+      "slug": "congruent_angles",
+      "id": 2641,
+      "progress": "unstarted",
+      "thumbnail": "images/05d770c534ab77830f37e8b47b0191f7.png"
+    },
+    {
+      "kind": "document",
+      "description": "Proof by contradiction that corresponding angle equivalence implies parallel lines",
+      "title": "Parallel lines & corresponding angles proof",
+      "slug": "9_3OxtdqmqE",
+      "id": 2642,
+      "progress": "complete",
+      "thumbnail": "images/89fd247100b9476ba26e63d11f935e24.png"
+    },
+    {
+      "kind": "exercise",
+      "description": "Find missing angles given two parallel lines and a transversal.",
+      "title": "Parallel lines",
+      "slug": "parallel_lines_1",
+      "id": 2643,
+      "progress": "unstarted",
+      "thumbnail": "images/7475c84af82c806871ceb27bf4f04449.png"
+    },
+    {
+      "kind": "document",
+      "description": "Sal solves an equation to find missing angles given two parallel lines and a transversal.",
+      "title": "Measures of angles formed by a transversal",
+      "slug": "Ld7Vxb5XV6A",
+      "id": 2644,
+      "progress": "unstarted",
+      "thumbnail": "images/e3a198d5577e4c76c056b02948925e97.png"
+    },
+    {
+      "kind": "audio",
+      "description": "",
+      "title": "Equation practice with congruent angles",
+      "slug": "parallel_lines_2",
+      "id": 2645,
+      "progress": "complete",
+      "thumbnail": "images/09dc0ea55e1c600b8011c5c4481dff6c.png"
+    },
+    {
+      "kind": "video",
+      "description": "46-50, deducing the measure of angles",
+      "title": "Missing angles (CA geometry)",
+      "slug": "_HJljJuVHLw",
+      "id": 2646,
+      "progress": "partial",
+      "thumbnail": "images/64cd63aff884e323e681532b9eed370b.png"
+    },
+    {
+      "kind": "document",
+      "description": "Sal proves that two angles are congruent in a really interesting triangle like figure.",
+      "title": "Proving angles are congruent",
+      "slug": "2SOK_IrpHeQ",
+      "id": 2647,
+      "progress": "partial",
+      "thumbnail": "images/5bf2ded1d461ae1de5d623cbe9ca1525.png"
+    },
+    {
+      "kind": "exercise",
+      "description": "",
+      "title": "Line & angle proofs examples",
+      "slug": "uYXhga17q1g",
+      "id": 2648,
+      "progress": "partial",
+      "thumbnail": "images/1b6a241461973a3b1229ed13970b4f13.png"
+    },
+    {
+      "kind": "exercise",
+      "description": "Explore different ways of proving some theorems about lines and angles. Some transformations are used.",
+      "title": "Line & angle proofs",
+      "slug": "line-and-angle-proofs",
+      "id": 2649,
+      "progress": "partial",
+      "thumbnail": "images/de9bf0127f2f808f5a623942b749014a.png"
+    }
+  ],
+  "review": [
+    {
+      "kind": "audio",
+      "description": "Understanding that the derivative is just the slope of a curve at a point (or the slope of the tangent line)",
+      "title": "Derivative as slope of a tangent line",
+      "slug": "ANyVpMS3HL4",
+      "id": 4487,
+      "progress": "unstarted",
+      "thumbnail": "images/88e65fc187d2a14585882e8336c876b9.png"
+    },
+    {
+      "kind": "document",
+      "description": "The slope of a tangent line can be expressed as the limit of certain secant lines.",
+      "title": "Tangent slope example 1",
+      "slug": "nGCW5teACC0",
+      "id": 4488,
+      "progress": "unstarted",
+      "thumbnail": "images/7d2c93a7d7cbcec59988961a7f860d2a.png"
+    },
+    {
+      "kind": "exercise",
+      "description": "",
+      "title": "Tangent slope example 2",
+      "slug": "H5eIE7zdnvI",
+      "id": 4489,
+      "progress": "partial",
+      "thumbnail": "images/af8c891e0fa8da04901001062ead6d3c.png"
+    },
+    {
+      "kind": "document",
+      "description": "",
+      "title": "Tangent slope example 3",
+      "slug": "hoRISaqp1Po",
+      "id": 4490,
+      "progress": "unstarted",
+      "thumbnail": "images/79666a8ec8002f6359615dd5561bda04.png"
+    },
+    {
+      "kind": "exercise",
+      "description": "Test your understanding of a tangent line as the limit of secant slopes.",
+      "title": "Tangent slope",
+      "slug": "tangent-slope-is-limiting-value-of-secant-slope",
+      "id": 4491,
+      "progress": "unstarted",
+      "thumbnail": "images/0b4cffe50c78993240a65598d60773c8.png"
+    },
+    {
+      "kind": "document",
+      "description": "The derivative can be thought of the slope of a tangent line, which is defined as the limit of the slopes of certain secant lines. \u00a0See what this looks like in action.",
+      "title": "Slope of tangent line using derivative definition",
+      "slug": "IePCHjMeFkE",
+      "id": 4492,
+      "progress": "partial",
+      "thumbnail": "images/a60f1ff5d84acd26df8b04e2c3d9534d.png"
+    },
+    {
+      "kind": "audio",
+      "description": "Here we find a formula for the derivative of f(x)=x^2.",
+      "title": "The derivative of f(x)=x^2 for any x",
+      "slug": "HEH_oKNLgUU",
+      "id": 4493,
+      "progress": "complete",
+      "thumbnail": "images/8edd676cdce673be6aa8aa64e96c9b7e.png"
+    },
+    {
+      "kind": "video",
+      "description": "Compare different (equivalent) definitions for the derivative.",
+      "title": "Formal and alternate form of the derivative",
+      "slug": "Df2escG-Vu0",
+      "id": 4494,
+      "progress": "complete",
+      "thumbnail": "images/b766b0a397d09428f6243bb566e9846e.png"
+    },
+    {
+      "kind": "document",
+      "description": "Enough abstract stuff already, let's see what the formal and alternative forms of the derivative look like in practice.",
+      "title": "Formal and alternate form of the derivative for ln x",
+      "slug": "m8yC7kR5Fuk",
+      "id": 4495,
+      "progress": "unstarted",
+      "thumbnail": "images/de56244a6cc4bf30ebcb76bae8f27beb.png"
+    },
+    {
+      "kind": "document",
+      "description": "A practice problem applying the different forms of the derivative.",
+      "title": "Formal and alternate form of the derivative example",
+      "slug": "ePh8iCbcXfA",
+      "id": 4496,
+      "progress": "complete",
+      "thumbnail": "images/e9a4674b7e590e2484cbc384a390faed.png"
+    },
+    {
+      "kind": "audio",
+      "description": "Test your understanding of each definition of the derivative",
+      "title": "The formal and alternate form of the derivative",
+      "slug": "the-formal-and-alternate-form-of-the-derivative",
+      "id": 4497,
+      "progress": "complete",
+      "thumbnail": "images/2e18ede8166b6f66b70c5a2beaa1a9fe.png"
+    }
+  ],
+  "next": [
+    {
+      "kind": "video",
+      "description": "Sal gives a formal proof that the\u00a0measures of interior angles of a triangle sum to 180\u00b0.",
+      "title": "Angles in a triangle sum to 180\u00b0 proof",
+      "slug": "6s1CI3uuhko",
+      "id": 2651,
+      "progress": "partial",
+      "thumbnail": "images/8773400005a78e061cbac88a468ea998.png"
+    },
+    {
+      "kind": "exercise",
+      "description": "Figuring out angles in a triangle. A little about exterior angles being the sum of the remote interior angles",
+      "title": "Triangle angle example",
+      "slug": "hmj3_zbz2eg",
+      "id": 2652,
+      "progress": "complete",
+      "thumbnail": "images/af8c891e0fa8da04901001062ead6d3c.png"
+    },
+    {
+      "kind": "exercise",
+      "description": "Another example finding angles in triangles",
+      "title": "Triangle angle example 2",
+      "slug": "eTwnt4G5xE4",
+      "id": 2653,
+      "progress": "unstarted",
+      "thumbnail": "images/4a17565bccfdc29984ca75f7429385cf.png"
+    },
+    {
+      "kind": "video",
+      "description": "Multiple ways to solve for the angles of multiple triangles",
+      "title": "Triangle angle example 3",
+      "slug": "iqeGTtyzQ1I",
+      "id": 2654,
+      "progress": "partial",
+      "thumbnail": "images/62108ea40b39690b8861060290c24ebd.png"
+    },
+    {
+      "kind": "video",
+      "description": "Interesting problem finding the sums of particular exterior angles of an irregular pentagon",
+      "title": "Triangle angle challenge problem",
+      "slug": "95logvV8nXY",
+      "id": 2655,
+      "progress": "partial",
+      "thumbnail": "images/c327258a6e9167a89fbe985914ebc7e0.png"
+    },
+    {
+      "kind": "exercise",
+      "description": "Proof by contradiction that corresponding angle equivalence implies parallel lines",
+      "title": "Parallel lines & corresponding angles proof",
+      "slug": "9_3OxtdqmqE",
+      "id": 2656,
+      "progress": "unstarted",
+      "thumbnail": "images/610ca8c7c25a030547698dfd822dcc16.png"
+    },
+    {
+      "kind": "exercise",
+      "description": "Example of angle hunting!",
+      "title": "Triangle angle challenge problem 2",
+      "slug": "0gzSreH8nUI",
+      "id": 2657,
+      "progress": "partial",
+      "thumbnail": "images/d971070b161c30afe802b069c452b1b2.png"
+    },
+    {
+      "kind": "document",
+      "description": "",
+      "title": "Finding angle measures 1",
+      "slug": "angles_1",
+      "id": 2658,
+      "progress": "partial",
+      "thumbnail": "images/fc725f875cd7720b13cda92c0e4aef16.png"
+    },
+    {
+      "kind": "audio",
+      "description": "",
+      "title": "Finding angle measures 2",
+      "slug": "angles_2",
+      "id": 2659,
+      "progress": "unstarted",
+      "thumbnail": "images/556cd92c70057d774648f2daeb2530f8.png"
+    }
+  ]
+}
