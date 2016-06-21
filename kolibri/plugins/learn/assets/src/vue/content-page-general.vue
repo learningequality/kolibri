@@ -1,10 +1,9 @@
 <template>
 
   <div>
-    <h2>Explore Content</h2>
-    <viewerslot kind="" url="">
-      <div class="obama"></div>
-    </viewerslot>
+    <h2>Learn Content</h2>
+    <content-render kind="audio" extension="mp3">
+    </content-render>
     <h3>
       {{ title }}
     </h3>
@@ -33,11 +32,11 @@
     props: [
       'title',
       'description',
-      'all-contents',
       'recommended',
     ],
     components: {
-      'content-card': require('../content-card'),
+      'content-render': require('content-renderer'),
+      'content-card': require('./content-card'),
     },
     vuex: {
       getters: {

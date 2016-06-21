@@ -16,10 +16,10 @@ router.map({
     component: require('./vue/learn-page'),
   },
   '/explore/content': {
-    component: require('./vue/explore-page/content-page'),
+    component: require('./vue/explore-content-page'),
   },
   '/learn/content': {
-    component: require('./vue/learn-page/content-page'),
+    component: require('./vue/learn-content-page'),
   },
 });
 

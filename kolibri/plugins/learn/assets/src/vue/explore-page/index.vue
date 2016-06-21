@@ -37,7 +37,7 @@
 
   module.exports = {
     components: {
-      'breadcrumbs': require('./breadcrumbs'),
+      'breadcrumbs': require('../breadcrumbs'),
       'topic-card': require('../topic-card'),
       'content-card': require('../content-card'),
     },
