@@ -44,7 +44,7 @@
     height: 7.6rem
     text-align: center
     border-radius: 4px 4px 0 0
-    background: #E6E6E6  // New Color that we might add to core-theme.styl
+    background: #E6E6E6 // New Color that we might add to core-theme.styl
 
   .thumbnail:before
     content: ''
