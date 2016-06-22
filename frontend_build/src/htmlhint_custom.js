@@ -139,9 +139,10 @@ HTMLHint.addRule({
     parser.addListener('tagend', function(event) {
       var eventData = clean(event.raw);
       var last = event.lastEvent;
+      var lastData = clean(last.raw);
       if (last.type === 'text') {
         if (stack.length === 1 && event.tagName === "template") {
-          var match = last.raw.match(/(\n*)$/);
+          var match = lastData.match(/(\n*)$/);
           if (match && match[1].length !== 2) {
             reporter.error('Top-level content should be surrounded by one empty line.', event.line, event.col, self, event.raw);
           }
