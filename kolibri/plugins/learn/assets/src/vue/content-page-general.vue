@@ -1,7 +1,9 @@
 <template>
 
   <div>
-    <h2>Learn Content</h2>
+    <h2>"Learn" Content</h2>
+    <content-render kind="audio" extension="mp3">
+    </content-render>
     <h3>
       {{ title }}
     </h3>
