@@ -3,7 +3,7 @@
   <a :href="linkhref">
     <div class="content-card-container">
       <div class="content-icon">
-        <img src="./content-icons/new/video.svg">
+        <img src="./content-icons/partial-video.svg">
       </div>
       <img :src="thumbsrc" class="thumbnail">
       <div class="title">
@@ -54,7 +54,7 @@
     border-radius: 4px 4px 0 0
 
   .title
-    max-width: 13.2rem
+    max-width: 200px
     max-height: 2.4rem
     margin: 0.4rem
     overflow: hidden
