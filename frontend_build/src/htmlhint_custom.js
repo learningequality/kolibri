@@ -123,7 +123,7 @@ HTMLHint.addRule({
           }
         }
         else if (event.lastEvent.raw && clean(event.lastEvent.raw) !== "\n\n\n") {
-          reporter.error('Need two endlines between top-level tags.', event.line, event.col, self, event.raw); //git gutter
+          reporter.error('Need two endlines between top-level tags.', event.line, event.col, self, event.raw);
         }
 
       }
