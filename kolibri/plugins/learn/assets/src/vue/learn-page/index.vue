@@ -61,7 +61,7 @@
   @require '~core-theme.styl'
 
   .rec-title
-    margin-top: 30px
+    margin-top: 5vh
     font-size: 1.4em
     font-weight: 100
 
