@@ -3,7 +3,7 @@
   <a :href="linkhref">
     <div class="content-card-container">
       <div class="content-icon">
-        <img src="./content-icons/video.svg">
+        <img src="./content-icons/new/video.svg">
       </div>
       <img :src="thumbsrc" class="thumbnail">
       <div class="title">
@@ -35,7 +35,7 @@
   @require '~core-theme.styl'
 
   .content-card-container
-    width: 13.2rem
+    width: 200px
     height: 11rem
     background-color: $core-bg-light
     border-radius: 4px
@@ -44,21 +44,21 @@
   .content-icon
     position: absolute
     height: 30px
-    width: 30px
+    width: 200px
     top: 0.35rem
     left: 0.35rem
 
   .thumbnail
-    width: 13.2rem
+    width: 200px
     height: 7.6rem
     border-radius: 4px 4px 0 0
 
   .title
     max-width: 13.2rem
-    max-height: 3rem
+    max-height: 2.4rem
     margin: 0.4rem
     overflow: hidden
-    line-height: 1.5rem
+    line-height: 1.2rem
     font-size: 0.9rem
     font-weight: 700
     color: $core-text-default
