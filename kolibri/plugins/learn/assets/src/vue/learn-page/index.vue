@@ -106,7 +106,7 @@
       background: url('./search.svg') no-repeat right
 
   .learn-page
-    margin-left: 10%
+    margin-left: 80px
 
   .learn-page-container
     max-width: (200*3) + 20*2
@@ -133,5 +133,11 @@
       max-width: (200*5) + 20*4
     .card-list-container
       max-width: (200*5) + 20*5
+
+  @media screen and (min-width: 1680px)
+    .learn-page-container
+      max-width: (200*6) + 20*5
+    .card-list-container
+      max-width: (200*6) + 20*6
 
 </style>
