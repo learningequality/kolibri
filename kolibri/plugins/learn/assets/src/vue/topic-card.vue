@@ -60,10 +60,13 @@
     background-color: $core-action-normal
 
   .title
-    max-width:210px
+    max-width: 210px
+    max-height: 2.4rem
+    margin: 0.4rem
+    overflow: hidden
+    line-height: 1.2rem
     font-size: 0.9rem
     font-weight: 700
-    margin: 0.4rem
     color: $core-text-default
 
 </style>
