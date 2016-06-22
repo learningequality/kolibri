@@ -2,8 +2,8 @@
 
   <div>
     <a v-link="{ path: '/learn', exact: true }">Home</a>
-    <content-page-general 
-      :title="title" 
+    <content-page-general
+      :title="title"
       :description="description"
       :recommended="recommended"
     ></content-page-general>
@@ -33,6 +33,7 @@
 
 <style lang="stylus" scoped>
 
+  @import 'jeet'
   @require '~core-theme.styl'
 
   .rec-grid content-card img

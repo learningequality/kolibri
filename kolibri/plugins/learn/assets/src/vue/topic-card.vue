@@ -30,6 +30,7 @@
 
 <style lang="stylus" scoped>
 
+  @import 'jeet'
   @require '~core-theme.styl'
 
   .topic-card-container
@@ -38,7 +39,7 @@
     height: 11rem
     border-radius: 4px
     background-color: $core-bg-light
-
+    
   .thumbnail
     width: 13.2rem
     height: 7.6rem

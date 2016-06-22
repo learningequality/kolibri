@@ -16,6 +16,7 @@
 var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
+var jeet = require('jeet');
 
 require('./htmlhint_custom'); // adds custom rules
 
@@ -96,7 +97,10 @@ var config = {
     loaders: {
       stylus: 'vue-style-loader!css-loader?sourceMap!stylus-loader!stylint',
     }
-  }
+  },
+  stylus: {
+    use: [jeet()]
+  },
 };
 
 module.exports = config;
