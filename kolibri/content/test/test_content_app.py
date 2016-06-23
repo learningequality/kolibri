@@ -98,12 +98,6 @@ class ContentNodeTestCase(TestCase):
         actual_output = api.leaves(channel_id=self.the_channel_id, content=p)
         self.assertEqual(set(expected_output), set(actual_output))
 
-    def test_get_files_for_preset(self):
-        p = content.ContentNode.objects.using(self.the_channel_id).get(title="c1")
-        expected_output = content.File.objects.using(self.the_channel_id).filter(id=2)
-        actual_output = api.get_files_for_preset(content=p, preset="low_res_video")
-        self.assertEqual(set(expected_output), set(actual_output))
-
     def test_get_missing_files(self):
         # for non-topic contentnode
         p = content.ContentNode.objects.using(self.the_channel_id).get(title="c1")
@@ -231,10 +225,10 @@ class ContentNodeTestCase(TestCase):
         self.assertEqual(str(p), 'tag_2')
         # test for Language __str__
         p = content.Language.objects.using(self.the_channel_id).get(lang_code="en")
-        self.assertEqual(str(p), 'English')
+        self.assertEqual(str(p), 'en')
         # test for ChannelMetadata __str__
-        p = content.ChannelMetadata.objects.get(name="khan")
-        self.assertEqual(str(p), 'khan')
+        p = content.ChannelMetadata.objects.using(self.the_channel_id).get(name="testing")
+        self.assertEqual(str(p), 'testing')
 
     @classmethod
     def tearDownClass(self):
@@ -313,12 +307,12 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_channelmetadata_list(self):
         response = self.client.get(reverse("channelmetadata-list", kwargs={}))
-        self.assertEqual(response.data[0]['name'], 'khan')
+        self.assertEqual(response.data[0]['name'], 'testing')
 
     def test_channelmetadata_retrieve(self):
-        channel_id = str(content.ChannelMetadata.objects.get(name="khan").channel_id)
+        channel_id = str(content.ChannelMetadata.objects.using(self.the_channel_id).get(name="testing").channel_id)
         response = self.client.get(reverse("channelmetadata-detail", kwargs={'channel_id': channel_id}))
-        self.assertEqual(response.data['name'], 'khan')
+        self.assertEqual(response.data['name'], 'testing')
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list", {}))
