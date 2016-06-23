@@ -43,7 +43,6 @@
   @require '~core-theme.styl'
 
   .content-card-container
-    content-card.vue
     width: 200px
     height: 11rem
     background-color: $core-bg-light
