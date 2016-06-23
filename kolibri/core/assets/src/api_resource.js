@@ -281,18 +281,6 @@ class ResourceManager {
     return this._resources[name];
   }
 
-  /**
-   * Get a resource from the resource manager. For convenience, will register a resource for that
-   * name if one does not exist.
-   * @param {String} name - The Django REST framework name for the API endpoint.
-   * @returns {Resource} - Return the Resource.
-   */
-  getResource(name) {
-    if (!this._resources[name]) {
-      throw new ReferenceError(`No resource named ${name} has been registered. `);
-    }
-    return this._resources[name];
-  }
 }
 
 module.exports = {
