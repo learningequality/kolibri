@@ -19,7 +19,7 @@ def is_valid_uuid(uuid_to_test, version=4):
     except (ValueError, AttributeError, TypeError):
         return False
 
-    return str(uuid_obj) == uuid_to_test
+    return uuid_obj.hex == uuid_to_test
 
 def scan_contentdb_dir():
     db_list = fnmatch.filter(os.listdir(settings.CONTENT_DB_DIR), '*.sqlite3')
