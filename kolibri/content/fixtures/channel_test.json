@@ -1,1 +1,1 @@
-[{"model": "content.channelmetadata", "pk": "6199dde6-95db-4ee4-ab39-2222d5af1e5c", "fields": {"name": "khan", "description": "dummy khan", "author": "eli"}}]
+[{"model": "content.channelmetadata", "pk": "6199dde695db4ee4ab392222d5af1e5c", "fields": {"name": "testing", "description": "test data", "author": "eli"}}]
