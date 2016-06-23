@@ -109,8 +109,8 @@ class ClassroomViewSet(viewsets.ModelViewSet):
 
 class LearnerGroupViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
     queryset = LearnerGroup.objects.all()
     serializer_class = LearnerGroupSerializer
 
-    filter_fields = ('parent', )
+    filter_fields = ('parent',)
