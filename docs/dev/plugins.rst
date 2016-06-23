@@ -6,15 +6,14 @@ Plugins
 The behavior of Kolibri can be extended using plugins. The following is a guide
 to developing plugins.
 
-.. automodule:: kolibri.plugins.registry
-
-.. automodule:: kolibri.plugins.hooks
-
 Enabling and disabling plugins
 ------------------------------
 
 Non-core plugins can be enabled or disabled using the ``kolibri plugin`` command. See :doc:`../cli`.
 
+.. automodule:: kolibri.plugins.registry
+
+.. automodule:: kolibri.plugins.hooks
 
 Other stuff you can do with plugins
 -----------------------------------

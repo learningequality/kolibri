@@ -52,7 +52,7 @@ current_branch="$TRAVIS_BRANCH"
 
 git_changeset=""
 
-if [ "$TRAVIS_PULL_REQUEST" == "false" ]
+if [ "$TRAVIS_BRANCH" == "" ]
 then
     # The changeset is $TRAVIS_COMMIT_RANGE
     # echo "Using TRAVIS_COMMIT_RANGE as changeset"
