@@ -23,20 +23,20 @@ class ChannelMetadataViewSet(viewsets.ViewSet):
         return Response(channel)
 
 
-class ContentMetadataViewset(viewsets.ViewSet):
+class ContentNodeViewset(viewsets.ViewSet):
     lookup_field = 'content_id'
 
     def list(self, request, channelmetadata_channel_id=None):
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        contents = serializers.ContentMetadataSerializer(
-            models.ContentMetadata.objects.using(channelmetadata_channel_id).all(), context=context, many=True
+        contents = serializers.ContentNodeSerializer(
+            models.ContentNode.objects.using(channelmetadata_channel_id).all(), context=context, many=True
         ).data
         return Response(contents)
 
     def retrieve(self, request, content_id=None, channelmetadata_channel_id=None):
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        content = serializers.ContentMetadataSerializer(
-            models.ContentMetadata.objects.using(channelmetadata_channel_id).get(content_id=content_id), context=context
+        content = serializers.ContentNodeSerializer(
+            models.ContentNode.objects.using(channelmetadata_channel_id).get(content_id=content_id), context=context
         ).data
         return Response(content)
 
@@ -47,7 +47,7 @@ class ContentMetadataViewset(viewsets.ViewSet):
         get_ancestor_topics(channel_id=None, content=None, **kwargs)
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.ContentMetadataSerializer(
+        data = serializers.ContentNodeSerializer(
             api.get_ancestor_topics(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
         ).data
         return Response(data)
@@ -59,7 +59,7 @@ class ContentMetadataViewset(viewsets.ViewSet):
         immediate_children(channel_id=None, content=None, **kwargs)
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.ContentMetadataSerializer(
+        data = serializers.ContentNodeSerializer(
             api.immediate_children(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
         ).data
         return Response(data)
@@ -71,7 +71,7 @@ class ContentMetadataViewset(viewsets.ViewSet):
         leaves(channel_id=None, content=None, **kwargs)
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.ContentMetadataSerializer(
+        data = serializers.ContentNodeSerializer(
             api.leaves(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
         ).data
         return Response(data)
@@ -83,7 +83,7 @@ class ContentMetadataViewset(viewsets.ViewSet):
         get_all_prerequisites(channel_id=None, content=None, **kwargs)
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.ContentMetadataSerializer(
+        data = serializers.ContentNodeSerializer(
             api.get_all_prerequisites(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
         ).data
         return Response(data)
@@ -95,45 +95,8 @@ class ContentMetadataViewset(viewsets.ViewSet):
         get_all_related(channel_id=None, content=None, **kwargs)
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.ContentMetadataSerializer(
+        data = serializers.ContentNodeSerializer(
             api.get_all_related(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
-        ).data
-        return Response(data)
-
-    @detail_route()
-    def all_formats(self, request, channelmetadata_channel_id, *args, **kwargs):
-        """
-        endpoint for content api method
-        get_all_formats(channel_id=None, content=None, **kwargs)
-        """
-        context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.FormatSerializer(
-            api.get_all_formats(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
-        ).data
-        return Response(data)
-
-    @detail_route()
-    def available_formats(self, request, channelmetadata_channel_id, *args, **kwargs):
-        """
-        endpoint for content api method
-        get_available_formats(channel_id=None, content=None, **kwargs)
-        """
-        context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.FormatSerializer(
-            api.get_available_formats(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
-        ).data
-        return Response(data)
-
-    @detail_route()
-    def possible_formats(self, request, channelmetadata_channel_id, *args, **kwargs):
-        """
-        endpoint for content api method
-        get_possible_formats(channel_id=None, content=None, **kwargs)
-        """
-        context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.FormatSerializer(
-            api.get_possible_formats(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
         ).data
         return Response(data)
 
@@ -149,45 +112,6 @@ class ContentMetadataViewset(viewsets.ViewSet):
         ).data
         return Response(data)
 
-    def files_for_quality(self, request, channelmetadata_channel_id, *args, **kwargs):
-        """
-        endpoint for content api method
-        get_files_for_quality(channel_id=None, content=None, format_quality=None, **kwargs)
-        """
-        context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.FileSerializer(
-            api.get_files_for_quality(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id'], format_quality=self.kwargs['quality']),
-            context=context,
-            many=True
-        ).data
-        return Response(data)
-
-    def set_prerequisite(self, request, channelmetadata_channel_id, *args, **kwargs):
-        """
-        endpoint for content api method
-        set_prerequisite(channel_id=None, content1=None, content2=None, **kwargs)
-        """
-        return Response(api.set_prerequisite(channel_id=channelmetadata_channel_id, content1=self.kwargs['content_id'], content2=self.kwargs['prerequisite']))
-
-    def set_is_related(self, request, channelmetadata_channel_id, *args, **kwargs):
-        """
-        endpoint for content api method
-        set_is_related(channel_id=None, content1=None, content2=None, **kwargs)
-        """
-        return Response(api.set_is_related(channel_id=channelmetadata_channel_id, content1=self.kwargs['content_id'], content2=self.kwargs['related']))
-
-    def children_of_kind(self, request, channelmetadata_channel_id, *args, **kwargs):
-        """
-        endpoint for content api method
-        children_of_kind(channel_id=None, content=None, kind=None, **kwargs)
-        """
-        context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        data = serializers.ContentMetadataSerializer(
-            api.children_of_kind(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id'], kind=self.kwargs['kind']), context=context, many=True
-        ).data
-        return Response(data)
-
-
 class FileViewset(viewsets.ViewSet):
     def list(self, request, channelmetadata_channel_id=None):
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
@@ -201,34 +125,16 @@ class FileViewset(viewsets.ViewSet):
         ).data
         return Response(file)
 
-    def update_content_copy(self, request, channelmetadata_channel_id, pk, content_copy, *args, **kwargs):
-        """
-        endpoint for content api method
-        update_content_copy(file_object=None, content_copy=None)
-        """
-        target_file = models.File.objects.using(channelmetadata_channel_id).get(pk=pk)
-        return Response(api.update_content_copy(file_object=target_file, content_copy=str(content_copy)))
-
 
 router = routers.SimpleRouter()
-router.register(r'channel', ChannelMetadataViewSet, base_name='channelmetadata')
+router.register(r'api/content', ChannelMetadataViewSet, base_name='channelmetadata')
 
-channel_router = routers.NestedSimpleRouter(router, r'channel', lookup='channelmetadata')
-channel_router.register(r'content', ContentMetadataViewset, base_name='contentmetadata')
+channel_router = routers.NestedSimpleRouter(router, r'api/content', lookup='channelmetadata')
+channel_router.register(r'contentnode', ContentNodeViewset, base_name='contentnode')
 channel_router.register(r'file', FileViewset, base_name='file')
 
 
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^', include(channel_router.urls)),
-    url(r'^channel/(?P<channelmetadata_channel_id>[^/.]+)/content/(?P<content_id>[^/.]+)/files_for_quality/(?P<quality>\w+)',
-        ContentMetadataViewset.as_view({'get': 'files_for_quality'}), name="contentmetadata_files_for_quality"),
-    url(r'^channel/(?P<channelmetadata_channel_id>[^/.]+)/content/(?P<content_id>[^/.]+)/children_of_kind/(?P<kind>\w+)',
-        ContentMetadataViewset.as_view({'get': 'children_of_kind'}), name="contentmetadata_children_of_kind"),
-    url(r'^channel/(?P<channelmetadata_channel_id>[^/.]+)/content/(?P<content_id>[^/.]+)/set_prerequisite/(?P<prerequisite>[^/.]+)',
-        ContentMetadataViewset.as_view({'put': 'set_prerequisite'}), name="contentmetadata_set_prerequisite"),
-    url(r'^channel/(?P<channelmetadata_channel_id>[^/.]+)/content/(?P<content_id>[^/.]+)/set_is_related/(?P<related>[^/.]+)',
-        ContentMetadataViewset.as_view({'put': 'set_is_related'}), name="contentmetadata_set_is_related"),
-    url(r'^channel/(?P<channelmetadata_channel_id>[^/.]+)/file/(?P<pk>[^/.]+)/update_content_copy/(?P<content_copy>.*)',
-        FileViewset.as_view({'put': 'update_content_copy'}), name="file_update_content_copy"),
 ]

@@ -73,6 +73,10 @@ kolibri/**/static/*
 *.sublime-project
 *.sublime-workspace
 
+# Content App
+storage/*
+kolibri/content/management/commands/*
+
 # virtual environment
 venv/
 
