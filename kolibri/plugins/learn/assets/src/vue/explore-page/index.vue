@@ -8,7 +8,6 @@
     <div class="card-list">
       <content-card
         v-for="topic in topics"
-        class="card"
         linkhref="#"
         :title="topic.title"
         :ntotal="topic.n_total"
@@ -20,7 +19,6 @@
     <div class="card-list">
       <content-card
         v-for="content in contents"
-        class="card"
         linkhref="#"
         :title="content.title"
         :thumbsrc="content.thumbnail"
@@ -56,6 +54,8 @@
 
 <style lang="stylus" scoped>
 
+  @import 'jeet'
   @require '~core-theme.styl'
+  // edit()
 
 </style>

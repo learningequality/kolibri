@@ -1,11 +1,10 @@
 <template>
 
   <a :href="linkhref">
-    <div class="content-card-container">
-      <h3 :style="background:thumbsrc">
+      <img v-if="thumbsrc" :src="thumbsrc">
+      <h4>
         {{ title }}
-      </h3>
-    </div>
+      </h4>
   </a>
 
 </template>
@@ -32,37 +31,14 @@
   @require '~core-theme.styl'
 
   a
-    edit()
-    column(1/4, cycle:4)
-
-  /*.content-card-container
-    width: 13.2rem
-    height: 11rem
+    column(1/4, cycle:4, gutter:1)
+    // height: 10em
+    box-sizing: border-box
+    padding: 1rem
     background-color: $core-bg-light
-    border-radius: 4px
-    position: relative
+    margin-bottom: 1rem
 
-  .content-icon
-    position: absolute
-    height: 30px
-    width: 30px
-    top: 0.35rem
-    left: 0.35rem
-    background-color: $core-action-normal
-
-  .thumbnail
-    width: 13.2rem
-    height: 7.6rem
-    border-radius: 4px 4px 0 0
-
-  .title
-    max-width: 13.2rem
-    max-height: 3rem
-    margin: 0.4rem
-    overflow: hidden
-    line-height: 1.5rem
-    font-size: 0.9rem
-    font-weight: 700
-    color: $core-text-default*/
+  img
+    column(1)
 
 </style>
