@@ -58,15 +58,15 @@
 
   .thumbnail
     width: 200px
-    height: 7.6rem
+    height: 7.1rem
     border-radius: 4px 4px 0 0
 
   .title
     max-width: 200px
-    max-height: 2.4rem
+    max-height: 2.5rem
     margin: 0.4rem
     overflow: hidden
-    line-height: 1.2rem
+    line-height: 1.3rem
     font-size: 0.9rem
     font-weight: 700
     color: $core-text-default
