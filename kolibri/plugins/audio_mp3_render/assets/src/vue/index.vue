@@ -16,13 +16,14 @@
     </div>
   </div>
 
-  <audio id="audio" src="http://media.w3.org/2010/07/bunny/04-Death_Becomes_Fur.oga" controls></audio>
+  <audio id="audio" src="http://www.stephaniequinn.com/Music/Commercial%20DEMO%20-%2004.mp3" controls></audio>
 
 </template>
 
 
 <script>
   
+  require('html5media/dist/api/1.1.8/html5media');
   module.exports = {};
 
 </script>

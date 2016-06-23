@@ -25,6 +25,7 @@
   "private": true,
   "dependencies": {
     "babel-runtime": "^6.0.0",
+    "html5media": "^1.1.8",
     "intl": "^1.2.3",
     "loglevel": "^1.4.0",
     "normalize.css": "^4.1.1",
