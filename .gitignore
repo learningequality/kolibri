@@ -73,6 +73,10 @@ kolibri/**/static/*
 *.sublime-project
 *.sublime-workspace
 
+# Content App
+storage/*
+kolibri/content/management/commands/*
+
 
 # adding an ignore for hack session
 kolibri/plugins/learn/assets/src/demo/*.json
