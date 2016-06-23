@@ -7,7 +7,7 @@
       </div>
       <img :src="thumbsrc" class="thumbnail">
       <div class="title">
-        {{ kind }}
+        {{ title }}
       </div>
     </div>
   </a>
