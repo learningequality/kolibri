@@ -57,7 +57,7 @@ var config = {
       },
       // moved from parse_bundle_plugin.js
       {
-        test: /\.(png|jpg|gif)$/,
+        test: /\.(png|jpg|gif|svg)$/,
         loader: 'url',
         query: {
           limit: 10000,
