@@ -22,8 +22,8 @@ const memberCollection = Kolibri.resources.MembershipResource.getCollection();
 function fetch({ dispatch }) {
   const learnerGroupPromise = new Promise((resolve) => {
     classroomCollection.fetch().then(() => {
-      const cids = classroomCollection.models.map(c => c.id);
-      learnerGroupCollection.fetch({ params: { parent__id__in: cids } }).then((groupData) => {
+      const cid = classroomCollection.models.map(c => c.id)[0];
+      learnerGroupCollection.fetch({ params: { parent: cid } }).then((groupData) => {
         resolve(groupData);
       });
     });
