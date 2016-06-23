@@ -16,6 +16,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from .constants import content_kinds, extensions, presets
 
+
 class UUIDField(models.CharField):
 
     def __init__(self, *args, **kwargs):
@@ -110,7 +111,6 @@ class File(models.Model):
     lang = models.ForeignKey(Language, blank=True, null=True)
     supplementary = models.BooleanField(default=False)
     thumbnail = models.BooleanField(default=False)
-    url = models.CharField(max_length=400, blank=True)
 
     objects = ContentQuerySet.as_manager()
 
@@ -119,6 +119,16 @@ class File(models.Model):
 
     def __str__(self):
         return '{checksum}{extension}'.format(checksum=self.checksum, extension='.' + self.extension)
+
+    def get_url(self):
+        """
+        Return a url for the client side to retrieve the content file.
+        The same url will also be exposed by the file serializer
+        """
+        if self.available:
+            return settings.STORAGE_URL + self.checksum[0] + '/' + self.checksum[1] + '/' + self.checksum + '.' + self.extension
+        else:
+            return None
 
 class License(models.Model):
     """
