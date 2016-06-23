@@ -20,32 +20,34 @@
         </div>
       </div>
 
-      <div class="card-list-container">
-        <h1 class="section-title">Topics</h1>
-        <div class="card-list">
-          <topic-card
-            v-for="topic in topics"
-            class="card"
-            linkhref="#"
-            :title="topic.title"
-            :ntotal="topic.n_total"
-            :ncomplete="topic.n_complete">
-          </topic-card>
+      <div class="card-section">
+        <div class="card-list-container">
+          <h1 class="section-title">Topics</h1>
+          <div class="card-list">
+            <topic-card
+              v-for="topic in topics"
+              class="card"
+              linkhref="#"
+              :title="topic.title"
+              :ntotal="topic.n_total"
+              :ncomplete="topic.n_complete">
+            </topic-card>
+          </div>
         </div>
-      </div>
 
-      <div class="card-list-container">
-        <h1 class="section-title">Content</h1>
-        <div class="card-list">
-          <content-card
-            v-for="content in contents"
-            class="card"
-            linkhref="#"
-            :title="content.title"
-            :thumbsrc="content.thumbnail"
-            :kind="content.kind"
-            :progress="content.progress">
-          </content-card>
+        <div class="card-list-container">
+          <h1 class="section-title">Content</h1>
+          <div class="card-list">
+            <content-card
+              v-for="content in contents"
+              class="card"
+              linkhref="#"
+              :title="content.title"
+              :thumbsrc="content.thumbnail"
+              :kind="content.kind"
+              :progress="content.progress">
+            </content-card>
+          </div>
         </div>
       </div>
     </div>
@@ -88,11 +90,17 @@
     width: 80px
     height: 100%
     position: fixed
+    top: 0
     background-color: $core-bg-light
 
   .learn-tool-bar
     height: 30px
-    padding-top: 30
+    width: (200*3) + 24*3
+    top: 0
+    padding: 30 0
+    position: fixed
+    z-index: 1
+    background-color: $core-bg-canvas
 
     .breadcrumbs-container
       float: left
@@ -127,6 +135,10 @@
           display: block
           background: url('./search.svg') no-repeat right
 
+  .card-section
+    position: relative
+    top: 60px
+
   .card-list-container
     max-width: (200*3) + 24*3
     margin-right: -24px
@@ -149,17 +161,23 @@
       max-width: (200*4) + 24*3
     .card-list-container
       max-width: (200*4) + 24*4
+    .learn-tool-bar
+      width: (200*4) + 24*3
 
   @media screen and (min-width: 1280px)
     .explore-page-container
       max-width: (200*5) + 24*4
     .card-list-container
       max-width: (200*5) + 24*5
+    .learn-tool-bar
+      width: (200*5) + 24*4
 
   @media screen and (min-width: 1680px)
     .explore-page-container
       max-width: (200*6) + 24*5
     .card-list-container
       max-width: (200*6) + 24*6
+    .learn-tool-bar
+      width: (200*6) + 24*5
 
 </style>
