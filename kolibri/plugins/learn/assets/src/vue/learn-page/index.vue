@@ -19,7 +19,7 @@
       </div>
       <div class="card-list-container">
         <div v-for="(title, block) in contents">
-          <h1 class="rec-title">{{ title }}</h1>
+          <h1 class="rec-title">{{ title | capitalize }}</h1>
           <div class="card-list">
             <content-card
               v-for="content in block"
