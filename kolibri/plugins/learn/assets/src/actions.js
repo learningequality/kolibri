@@ -6,8 +6,8 @@ const Kolibri = require('kolibri');
  * @param {String} id - The id of the model to be fetched.
  */
 const fetchFullContent = ({ dispatch }, id) => {
-  // Get the model from the contentmetadata resource.
-  const contentModel = Kolibri.resources.getResource('contentmetadata').getModel(id);
+  // Get the model from ContentMetaDataResource.
+  const contentModel = Kolibri.resources.ContentMetaDataResource.getModel(id);
   // Check to see if it is already synced from the server.
   if (contentModel.synced) {
     // If so, immediately dispatch the mutation to set the attributes of the model into the store.

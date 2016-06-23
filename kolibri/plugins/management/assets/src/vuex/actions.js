@@ -13,10 +13,10 @@ function setSelectedGroupId({ dispatch }, id) {
   dispatch('SET_SELECTED_GROUP_ID', id);
 }
 
-const classroomCollection = Kolibri.resources.getResource('classroom').getCollection();
-const learnerGroupCollection = Kolibri.resources.getResource('learnergroup').getCollection();
-const learnerCollection = Kolibri.resources.getResource('facilityuser').getCollection();
-const memberCollection = Kolibri.resources.getResource('membership').getCollection();
+const classroomCollection = Kolibri.resources.ClassroomResource.getCollection();
+const learnerGroupCollection = Kolibri.resources.LearnerGroupResource.getCollection();
+const learnerCollection = Kolibri.resources.FacilityUserResource.getCollection();
+const memberCollection = Kolibri.resources.MembershipResource.getCollection();
 
 // An action for setting up the initial state of the app by fetching data from the server
 function fetch({ dispatch }) {

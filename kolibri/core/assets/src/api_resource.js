@@ -150,14 +150,10 @@ class Collection {
 class Resource {
   /**
    * Create a resource with a Django REST API name corresponding to the name parameter.
-   * @param {String} name - The Django REST framework name for the API endpoint.
-   * @param {String} idKey - The primary key field for the API endpoint, defaults to 'id'.
    * @param {Kolibri} kolibri - The current instantiated instance of the core app.
    */
-  constructor({ name, idKey, kolibri } = { idKey: 'id' }) {
+  constructor(kolibri) {
     this.models = {};
-    this.name = name;
-    this.idKey = idKey;
     this.kolibri = kolibri;
   }
 
@@ -229,6 +225,22 @@ class Resource {
     // Leveraging Django REST Framework generated URL patterns.
     return this.urls[`${this.name}_list`];
   }
+
+  static idKey() {
+    return 'id';
+  }
+
+  get idKey() {
+    return this.constructor.idKey();
+  }
+
+  static resourceName() {
+    throw new ReferenceError('name is not defined for the base Resource class - please subclass.');
+  }
+
+  get name() {
+    return this.constructor.resourceName();
+  }
 }
 
 /** Class to manage all API resources.
@@ -244,30 +256,28 @@ class ResourceManager {
   * reference the urls.
    */
   constructor(kolibri) {
-    this.kolibri = kolibri;
+    this._kolibri = kolibri;
     this._resources = {};
   }
 
   /**
    * Register a resource with the resource manager. Only one resource of a particular name can be
    * registered.
-   * @param {String} name - The Django REST framework name for the API endpoint.
-   * @param {String} idKey - The primary key field for the API endpoint, defaults to 'id'.
-   * @param {Class} [ResourceClass=Resource] - The subclass of Resource to use in registering the
-   * resource. This can be used to register a resource with specific subclassed behaviour for that
+   * @param {Resource} ResourceClass - The subclass of Resource to use in registering the
+   * resource. This is used to register a resource with specific subclassed behaviour for that
    * resource.
    * @returns {Resource} - Return the instantiated Resource.
    */
-  registerResource(name, idKey = 'id', ResourceClass = Resource) {
-    if (name && !this._resources[name]) {
-      this._resources[name] = new ResourceClass({ name, idKey, kolibri: this.kolibri });
-    } else {
-      if (!name) {
-        throw new TypeError('A resource must have a defined resource name!');
-      } else {
-        throw new TypeError('A resource with that name has already been registered!');
-      }
+  registerResource(ResourceClass) {
+    const name = ResourceClass.resourceName();
+    if (!name) {
+      throw new TypeError('A resource must have a defined resource name!');
     }
+    if (this._resources[name]) {
+      throw new TypeError('A resource with that name has already been registered!');
+    }
+    this._resources[name] = new ResourceClass(this._kolibri);
+    Object.defineProperty(this, ResourceClass.name, { value: this._resources[name] });
     return this._resources[name];
   }
 
@@ -279,7 +289,7 @@ class ResourceManager {
    */
   getResource(name) {
     if (!this._resources[name]) {
-      return this.registerResource(name);
+      throw new ReferenceError(`No resource named ${name} has been registered. `);
     }
     return this._resources[name];
   }
