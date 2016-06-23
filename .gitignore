@@ -73,7 +73,9 @@ kolibri/**/static/*
 *.sublime-project
 *.sublime-workspace
 
+# virtual environment
+venv/
 
-# adding an ignore for hack session
-kolibri/plugins/learn/assets/src/demo/*.json
+# leftover from hack day - want to ensure people don't check these in
+kolibri/plugins/learn/assets/src/demo/
 

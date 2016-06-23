@@ -57,7 +57,7 @@ var config = {
       },
       // moved from parse_bundle_plugin.js
       {
-        test: /\.(png|jpg|gif)$/,
+        test: /\.(png|jpg|gif|svg)$/,
         loader: 'url',
         query: {
           limit: 10000,
@@ -80,6 +80,8 @@ var config = {
       'kolibri_module': path.join(__dirname, '..', '..', 'kolibri', 'core', 'assets', 'src', 'kolibri_module'),
       'core-base': path.join(__dirname, '..', '..', 'kolibri', 'core', 'assets', 'src', 'core-base'),
       'core-theme.styl': path.join(__dirname, '..', '..', 'kolibri', 'core', 'assets', 'src', 'core-theme.styl'),
+      'content-renderer': path.resolve('kolibri/core/assets/src/content-renderer'),
+      'content_renderer_module': path.resolve('kolibri/core/assets/src/content_renderer_module'),
     },
     extensions: ["", ".vue", ".js"],
   },

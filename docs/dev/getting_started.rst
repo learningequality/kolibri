@@ -1,5 +1,5 @@
-Development Environment
-=======================
+Getting started
+===============
 
 Basic Setup
 -------------

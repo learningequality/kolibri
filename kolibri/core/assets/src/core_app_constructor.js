@@ -17,6 +17,8 @@ const publicMethods = [
   'registerKolibriModuleSync',
   'stopListening',
   'emit',
+  'on',
+  'once',
 ];
 
 /**
@@ -32,6 +34,7 @@ function Lib() {
   this.vue = vue;
   // views
   this.coreBase = require('./core-base');
+  this.contentRenderer = require('./content-renderer');
 }
 
 /**
@@ -48,6 +51,7 @@ module.exports = function CoreApp() {
    **/
   vue.use(VueIntl);
 
+  vue.prototype.Kolibri = this;
   /**
    * If the browser doesn't support the Intl polyfill, we retrieve that and
    * the modules need to wait until that happens.
