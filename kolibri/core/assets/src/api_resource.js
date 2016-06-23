@@ -8,8 +8,10 @@ const client = rest.wrap(mime);
 class Model {
   /**
    * Create a model instance.
-   * @param {object} data - data to insert into the model at creation time - should include at least an id for fetching.
-   * @param {Resource} resource - object of the Resource class, specifies the urls and fetching behaviour for the model.
+   * @param {object} data - data to insert into the model at creation time - should include at
+   * least an id for fetching.
+   * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
+   * behaviour for the model.
    */
   constructor(data, resource) {
     // Assign any data to the attributes property of the Model.
@@ -27,8 +29,8 @@ class Model {
   /**
    * Method to fetch data from the server for this particular model.
    * Takes no parameters, as all specification should be in the associated Resource object.
-   * @returns {Promise} - Promise is resolved with Model attributes when the XHR successfully returns,
-   * otherwise reject is called with the response object.
+   * @returns {Promise} - Promise is resolved with Model attributes when the XHR successfully
+   * returns, otherwise reject is called with the response object.
    */
   fetch() {
     return new Promise((resolve, reject) => {
@@ -73,9 +75,10 @@ class Collection {
 
   /**
    * Method to fetch data from the server for this collection.
-   * @param {object} params - an object of parameters to be parsed into GET parameters on the fetch.
-   * @returns {Promise} - Promise is resolved with Array of Model attributes when the XHR successfully returns,
-   * otherwise reject is called with the response object.
+   * @param {object} params - an object of parameters to be parsed into GET parameters on the
+   * fetch.
+   * @returns {Promise} - Promise is resolved with Array of Model attributes when the XHR
+   * successfully returns, otherwise reject is called with the response object.
    */
   fetch({ params } = { params: {} }) {
     return new Promise((resolve, reject) => {
@@ -101,9 +104,11 @@ class Collection {
   }
 
   /**
-   * Make a model a member of the collection - record in the models Array, and in the mapping from id to model.
-   * Will automatically instantiate Models for data passed in as objects, and deduplicate within the collection.
-   * @param {(Object|Model|Object[]|Model[])} models - Either an Array or single instance of an object or Model.
+   * Make a model a member of the collection - record in the models Array, and in the mapping
+   * from id to model. Will automatically instantiate Models for data passed in as objects, and
+   * deduplicate within the collection.
+   * @param {(Object|Model|Object[]|Model[])} models - Either an Array or single instance of an
+   * object or Model.
    */
   set(models) {
     let modelsToSet;
@@ -114,7 +119,8 @@ class Collection {
     }
 
     modelsToSet.forEach((model) => {
-      // Note: this method ensures instantiation deduplication of models within the collection and across collections.
+      // Note: this method ensures instantiation deduplication of models within the collection
+      //  and across collections.
       const setModel = this.resource.addModel(model);
       if (!this._model_map[model.id]) {
         this._model_map[model.id] = setModel;
@@ -143,8 +149,10 @@ class Resource {
   }
 
   /**
-   * Optionally pass in data and instantiate a collection for saving that data or fetching data from the resource.
-   * @param {Object[]} data - Data to instantiate the Collection - see Model constructor for details of data.
+   * Optionally pass in data and instantiate a collection for saving that data or fetching
+   * data from the resource.
+   * @param {Object[]} data - Data to instantiate the Collection - see Model constructor for
+   * details of data.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
   getCollection(data = []) {
@@ -152,7 +160,8 @@ class Resource {
   }
 
   /**
-   * Get a model by id - this will either return a Model that has already been instantiated, or will instantiate a model
+   * Get a model by id - this will either return a Model that has already been instantiated,
+   * or will instantiate a model
    * that can later be fetched.
    * @param {String} id - The primary key of the Model instance.
    * @returns {Model} - Returns a Model instance.
@@ -196,13 +205,15 @@ class Resource {
 
 /** Class to manage all API resources.
  *  This is instantiated and attached to the core app constructor, and its methods exposed there.
- *  This means that a particular Resource should only be instantiated once during the lifecycle of the app,
- *  allowing for easy caching, as all Model instances can be shared in the central resource.
+ *  This means that a particular Resource should only be instantiated once during the lifecycle
+ * of the app, allowing for easy caching, as all Model instances can be shared in the central
+ * resource.
  */
 class ResourceManager {
   /**
    * Instantiate a Resource Manager to manage the creation of Resources.
-   * @param {Kolibri} kolibri - The current instantiated instance of the core app - needed to reference the urls.
+   * @param {Kolibri} kolibri - The current instantiated instance of the core app - needed to
+  * reference the urls.
    */
   constructor(kolibri) {
     this.kolibri = kolibri;
@@ -210,11 +221,13 @@ class ResourceManager {
   }
 
   /**
-   * Register a resource with the resource manager. Only one resource of a particular name can be registered.
+   * Register a resource with the resource manager. Only one resource of a particular name can be
+   * registered.
    * @param {String} name - The Django REST framework name for the API endpoint.
    * @param {String} idKey - The primary key field for the API endpoint, defaults to 'id'.
-   * @param {Class} [ResourceClass=Resource] - The subclass of Resource to use in registering the resource. This can be
-   * used to register a resource with specific subclassed behaviour for that resource.
+   * @param {Class} [ResourceClass=Resource] - The subclass of Resource to use in registering the
+   * resource. This can be used to register a resource with specific subclassed behaviour for that
+   * resource.
    * @returns {Resource} - Return the instantiated Resource.
    */
   registerResource(name, idKey = 'id', ResourceClass = Resource) {
@@ -231,8 +244,8 @@ class ResourceManager {
   }
 
   /**
-   * Get a resource from the resource manager. For convenience, will register a resource for that name if one does not
-   * exist.
+   * Get a resource from the resource manager. For convenience, will register a resource for that
+   * name if one does not exist.
    * @param {String} name - The Django REST framework name for the API endpoint.
    * @returns {Resource} - Return the Resource.
    */
