@@ -37,6 +37,7 @@
   #learn-nav
     text-align: center
     font-weight: bold
+    padding: 10% 0
 
   // this class is automatically added to links with the v-link directive
   .v-link-active
