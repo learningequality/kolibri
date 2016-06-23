@@ -9,7 +9,7 @@ class LearnModule extends KolibriModule {
   ready() {
     sync(store, router);
     router.start(rootvue, 'rootvue');
-    Kolibri.resources.getResource('contentmetadata').setChannel('khan');
+    Kolibri.resources.ContentNodeResource.setChannel('khan');
   }
 }
 

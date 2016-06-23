@@ -1,6 +1,6 @@
 const Resource = require('../api_resource').Resource;
 
-class ContentMetaDataResource extends Resource {
+class ContentNodeResource extends Resource {
   constructor(...args) {
     super(...args);
     this._models = {};
@@ -26,8 +26,8 @@ class ContentMetaDataResource extends Resource {
     return (...args) => super.collectionUrl(this.channelId, ...args);
   }
   static resourceName() {
-    return 'contentmetadata';
+    return 'contentnode';
   }
 }
 
-module.exports = ContentMetaDataResource;
+module.exports = ContentNodeResource;

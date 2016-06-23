@@ -1,6 +1,6 @@
 module.exports = [
   require('./classroom'),
-  require('./contentMetaData'),
+  require('./contentNode'),
   require('./facilityUser'),
   require('./learnerGroup'),
   require('./membership'),
