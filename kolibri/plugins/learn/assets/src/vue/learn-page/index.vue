@@ -62,8 +62,8 @@
 
   .rec-title
     margin-top: 5vh
-    font-size: 1.4em
-    font-weight: 100
+    font-size: 1.2em
+    font-weight: 700
 
   .temp-nav
     width: 80px
@@ -109,35 +109,35 @@
     margin-left: 80px
 
   .learn-page-container
-    max-width: (200*3) + 20*2
+    max-width: (200*3) + 24*2
     margin:auto
 
   .card-list-container
-    max-width: (200*3) + 20*3
-    margin-right: -20px
+    max-width: (200*3) + 24*3
+    margin-right: -24px
 
   .card-list
     margin: auto
 
   .card-list .card
-    margin: 0 20 20 0
+    margin: 0 24 24 0
 
   @media screen and (min-width: 1060px)
     .learn-page-container
-      max-width: (200*4) + 20*3
+      max-width: (200*4) + 24*3
     .card-list-container
-      max-width: (200*4) + 20*4
+      max-width: (200*4) + 24*4
 
   @media screen and (min-width: 1280px)
     .learn-page-container
-      max-width: (200*5) + 20*4
+      max-width: (200*5) + 24*4
     .card-list-container
-      max-width: (200*5) + 20*5
+      max-width: (200*5) + 24*5
 
   @media screen and (min-width: 1680px)
     .learn-page-container
-      max-width: (200*6) + 20*5
+      max-width: (200*6) + 24*5
     .card-list-container
-      max-width: (200*6) + 20*6
+      max-width: (200*6) + 24*6
 
 </style>
