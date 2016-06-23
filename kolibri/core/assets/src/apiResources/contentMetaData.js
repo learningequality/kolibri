@@ -1,7 +1,16 @@
 const Resource = require('../api_resource').Resource;
 
 class ContentMetaDataResource extends Resource {
+  constructor(...args) {
+    super(...args);
+    this._models = {};
+  }
   setChannel(channelId) {
+    // Track models for different channels separately.
+    if (!this._models[channelId]) {
+      this._models[channelId] = {};
+    }
+    this.models = this._models[channelId];
     this.channelId = channelId;
   }
   get modelUrl() {
