@@ -97,8 +97,7 @@
     .breadcrumbs-container
       float: left
       position: relative
-      top: 6px
-      vertical-align: middle
+      line-height: 30px
       display: inline-block
 
     .learn-tool-bar-container
