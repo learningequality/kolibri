@@ -17,4 +17,6 @@ Please feel free to add your name on this list if you do a PR!
 * Richard Tibbles (rtibbles)
 * Jamie Alexandre (jamalex)
 * David Cañas (dxcanas)
+* Radina Matic (radinamatic)
 * Devon Rueckner (indirectlylit)
+

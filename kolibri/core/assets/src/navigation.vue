@@ -1,61 +1,31 @@
 <template>
 
-  <header>
-    <nav class="titlebar">
-
-      <div>
-        <span>{{title_bar.title}}</span>
-        <a href="{{title_bar.home_link}}">Home</a>
-      </div>
-
-      <div>
-        <span class="user-menu-btn" v-on:click="userNavDisplayToggle">{{user.first_name}}</span>
-        <div class="user-menu-popup" v-show="userNavDisplay">
-          <ul>
-            <li v-for="item in user_nav_items">
-              <a href="{{item.url}}">{{item.text}}</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
-    <nav class="navlinks">
-      <div class="navlinks-item" v-for="item in nav_items">
-        <a href="{{item.url}}">{{ item.text }}</a>
-      </div>
-    </nav>
-  </header>
+  <nav class="titlebar" role="navigation" aria-label="Main navigation">
+    <ul aria-label="User options submenu">
+      <li v-for="(url, label) in nav_items">
+          <a :style="{fontWeight: url == app ? 'bold' : ''}" :href=" '/' + url">
+            {{label}}
+          </a>
+      </li>
+    </ul>
+  </nav>
 
 </template>
 
 
 <script>
 
+  /* global _navItems window */
   module.exports = {
     data() {
       return {
         // items that go in the title bar
-        nav_items: window._nav ? window._nav.nav_items || [] : [],
-        title_bar: {
-          title: 'Kolibri',
-          home_link: '/',
-        },
-        userNavDisplay: false,
-
-        // items that go into the user menu
-        user_nav_items: window._nav ? window._nav.user_nav_items || [] : [],
-        user: {
-          username: 'foobar',
-          first_name: 'Foo',
-          last_name: 'Bar',
-        },
+        nav_items: global._navItems || [],
+        // the current app on
+        app: window.location.pathname.split('/')[1],
       };
     },
     methods: {
-      userNavDisplayToggle() {
-        this.userNavDisplay = !this.userNavDisplay;
-      },
     },
   };
 
@@ -64,36 +34,26 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  /**
+    * Core Themes Variables:
+    * + $core-nav-width
+    */
 
+  $nav-item-height = 10%
+  nav
+    height: 100%
+    width: $core-nav-width
+    position: fixed
+    top: 0
 
-  header
-    background-color: $core-bg-light
+  ul
+    height: 100%
+    display: block
+    line-height: $nav-item-height / 2
 
-  .titlebar
-    display: flex
-    justify-content: space-between
-    padding: 10px
-
-  .user-menu-btn
-    cursor: pointer
-
-  .user-menu-popup
-    text-align: right
-    position: absolute
-    top: 2em
-    right: 1em
-    box-shadow: 2px 2px 3px $core-text-default
-    background-color: $core-bg-light
-
-    ul
-      padding: 3px
-      list-style: none
-
-  .navlinks
-    display: flex
-
-  .navlinks-item
-    margin: 0 0.5em
+  li
+    height: $nav-item-height
+    display: inline block
+    vertical-align: middle
 
 </style>

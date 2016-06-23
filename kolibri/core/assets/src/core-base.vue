@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <!-- <kolibri-nav></kolibri-nav> -->
+    <kolibri-nav></kolibri-nav>
     <header class="base-header"><h1>Kolibri Learn</h1></header>
-    <main>
+    <main role="main">
       <slot></slot>
     </main>
   </div>
@@ -27,7 +27,7 @@
   @require '~core-theme.styl'
 
   main
-    margin: 10px
+    margin-left: $core-nav-width + 1
 
   .base-header h1
     color: $core-action-normal
