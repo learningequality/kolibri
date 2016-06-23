@@ -1,0 +1,62 @@
+{
+  "kind": "video",
+  "description": "Sal is given a rectangle on the coordinate plane and he draws the image of the rectangle under a dilation with scale factor 1 2/3 about an arbitrary point.",
+  "license": "CC-BY-NC-SA",
+  "title": "Dilating shapes: expanding",
+  "slug": "6dyWKD_JPhI",
+  "tags": [
+    "Sal the Khan",
+    "Rectangles",
+    "Digital Archaeology"
+  ],
+  "thumbnail": "http://i.imgur.com/UVatxhs.png",
+  "recommended": [
+    {
+      "kind": "exercise",
+      "description": "Sal is given a triangle on the coordinate plane and he draws the image of the triangle under a dilation with scale factor 1/2 about the origin.",
+      "title": "Dilating shapes: shrinking",
+      "slug": "qlWZJ21O63s",
+      "thumbnail": "http://i.imgur.com/d6X346n.png",
+      "progress": "complete",
+      "id": 2749
+    },
+    {
+      "kind": "exercise",
+      "description": "Given a figure and a definition of a dilation, manually draw the image.",
+      "title": "Dilate shapes",
+      "slug": "dilations",
+      "thumbnail": "http://i.imgur.com/9VbHSEE.png",
+      "progress": "unstarted",
+      "id": 2751
+    },
+    {
+      "kind": "video",
+      "description": "Sal shows how we can use dilations to map a line into another, parallel, line.",
+      "title": "Determining dilations",
+      "slug": "jq6WFvMikBQ",
+      "thumbnail": "http://i.imgur.com/KzibtO6.png",
+      "progress": "partial",
+      "id": 2752
+    },
+    {
+      "kind": "audio",
+      "description": "Find both the center and the scale factor of a dilation that maps a given figure to another one.",
+      "title": "Determine dilations",
+      "slug": "defining-dilations-2",
+      "thumbnail": "http://i.imgur.com/aybaRGB.png",
+      "progress": "unstarted",
+      "id": 2753
+    },
+    {
+      "kind": "video",
+      "description": "Sal shows how to perform a dilation on a hexagon using our interactive widget!",
+      "title": "Performing dilations",
+      "slug": "j5xis6Hlnds",
+      "thumbnail": "http://i.imgur.com/F7LjHbF.png",
+      "progress": "complete",
+      "id": 2747
+    }
+  ],
+  "progress": "partial",
+  "id": 2750
+}

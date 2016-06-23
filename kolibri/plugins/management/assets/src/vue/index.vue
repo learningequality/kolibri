@@ -19,7 +19,7 @@
 
 <script>
 
-  const store = require('./vuex/store.js');
+  const store = require('../vuex/store.js');
   const constants = store.constants;
 
   module.exports = {
@@ -138,8 +138,8 @@
     },
 
     vuex: {
-      getters: require('./vuex/getters.js'),
-      actions: require('./vuex/actions.js'),
+      getters: require('../vuex/getters.js'),
+      actions: require('../vuex/actions.js'),
     },
   };
 

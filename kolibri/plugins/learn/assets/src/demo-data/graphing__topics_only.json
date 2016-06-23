@@ -1,0 +1,65 @@
+[
+    {
+        "kind": "topic",
+        "description": "How can we communicate exactly where something is in two dimensions?  Who was this Descartes character?  \n\nIn this tutorial, we cover the basics of the coordinate plane.  We then delve into graphing points and determining whether a point is a solution of an equation.  This will be a great tutorial experience if you are just starting to ramp up your understanding of graphing or need some fundamental review.",
+        "title": "Graphing on the coordinate plane",
+        "slug": "core-algebra-graphing-coordinate-plan",
+        "n_total": 18,
+        "id": 1488,
+        "n_complete": 2
+    },
+    {
+        "kind": "topic",
+        "description": "In this tutorial, we'll work through examples that show how a line can be viewed as all of coordinates whose x and y values satisfy a linear equation.  Likewise, a linear equation can be viewed as describing a relationship between the x and y values on a line.",
+        "title": "Solutions and graphs of two-variable equations",
+        "slug": "solutions-graphs-two-variable-equations",
+        "n_total": 8,
+        "id": 1494,
+        "n_complete": 6
+    },
+    {
+        "kind": "topic",
+        "description": "There are many ways to graph a line and this tutorial covers one of the simpler ones.  Since you only need two points for a line, let's find what value an equation takes on when x = 0 (essentially the y-intercept) and what value it takes on when y = 0 (the x-intercept).  Then we can graph the line by going through those two points.",
+        "title": "Graphing with intercepts",
+        "slug": "core-algebra-graphing-intercepts",
+        "n_total": 5,
+        "id": 1502,
+        "n_complete": 2
+    },
+    {
+        "kind": "topic",
+        "description": "If you've ever struggled to tell someone just how steep something is, you'll find the answer here.  In this tutorial, we cover the idea of the slope of a line.  We also think about how slope relates to the equation of a line and how you can determine the slope or y-intercept given some clues.\n\nThis tutorial is appropriate for someone who understands the basics of graphing equations and want to dig a bit deeper.  After this tutorial, you will be prepared to start thinking deeper about the equation of a line.",
+        "title": "Slope of a line",
+        "slug": "core-algebra-slope",
+        "n_total": 21,
+        "id": 1514,
+        "n_complete": 12
+    },
+    {
+        "kind": "topic",
+        "description": "Math is beautiful because there are so many way to appreciate the same relationship.  In this tutorial, we'll use our knowledge of slope to actually graph lines that have been expressed in slope-intercept form.",
+        "title": "Graphing linear equations in slope-intercept form",
+        "slug": "core-algebra-graphing-slope-intercept",
+        "n_total": 18,
+        "id": 1518,
+        "n_complete": 2
+    },
+    {
+        "kind": "topic",
+        "description": "You know a bit about slope and intercepts.  Now we will develop that know-how even further to construct the equation of a line in slope-intercept form.\n\n",
+        "title": "Constructing equations in slope-intercept form",
+        "slug": "core-algebra-equation-of-a-line",
+        "n_total": 18,
+        "id": 1528,
+        "n_complete": 8
+    },
+    {
+        "kind": "topic",
+        "description": "In this tutorial we'll see how to graph linear inequalities on the coordinate plane. We'll also learn how to determine if a particular point is a solution of an inequality.",
+        "title": "Graphing linear inequalities",
+        "slug": "core-algebra-graphing-linear-inequalities",
+        "n_total": 7,
+        "id": 1538,
+        "n_complete": 0
+    }
+]
