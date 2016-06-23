@@ -71,7 +71,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         model = ContentNode
         depth = 1
         fields = (
-            'url', 'content_id', 'title', 'description', 'kind', 'slug', 'total_file_size', 'available', 'tags', 'sort_order', 'license_owner',
+            'url', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
             'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children',
             'leaves', 'all_prerequisites', 'all_related', 'missing_files'
         )
