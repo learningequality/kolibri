@@ -2,12 +2,9 @@
 
   <a :href="linkhref">
     <div class="content-card-container">
-      <div class="content-icon">
-      </div>
-      <img :src="thumbsrc" class="thumbnail">
-      <div class="title">
+      <h3 :style="background:thumbsrc">
         {{ title }}
-      </div>
+      </h3>
     </div>
   </a>
 
@@ -31,9 +28,14 @@
 
 <style lang="stylus" scoped>
 
+  @import 'jeet'
   @require '~core-theme.styl'
 
-  .content-card-container
+  a
+    edit()
+    column(1/4, cycle:4)
+
+  /*.content-card-container
     width: 13.2rem
     height: 11rem
     background-color: $core-bg-light
@@ -61,6 +63,6 @@
     line-height: 1.5rem
     font-size: 0.9rem
     font-weight: 700
-    color: $core-text-default
+    color: $core-text-default*/
 
 </style>

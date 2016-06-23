@@ -2,7 +2,7 @@
 
   <div>
     <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs>
-    <content-page-general 
+    <content-page-general
       :title="title" 
       :description="description"
       :recommended="recommended"

@@ -6,14 +6,14 @@
 
     <h2>Topics</h2>
     <div class="card-list">
-      <topic-card
+      <content-card
         v-for="topic in topics"
         class="card"
         linkhref="#"
         :title="topic.title"
         :ntotal="topic.n_total"
         :ncomplete="topic.n_complete">
-      </topic-card>
+      </content-card>
     </div>
 
     <h2>Content</h2>
@@ -57,8 +57,5 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-
-  .topic-page
-    padding-left: 10px
 
 </style>
