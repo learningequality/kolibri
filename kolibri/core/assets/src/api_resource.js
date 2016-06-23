@@ -9,7 +9,7 @@ class Model {
   /**
    * Create a model instance.
    * @param {object} data - data to insert into the model at creation time - should include at
-   * least an id for fetching.
+   * least an id for fetching, or data an no id if the intention is to save a new model.
    * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
    * behaviour for the model.
    */
@@ -33,6 +33,7 @@ class Model {
    * returns, otherwise reject is called with the response object.
    */
   fetch() {
+    this.synced = false;
     return new Promise((resolve, reject) => {
       // Do a fetch on the URL.
       client({ path: this.url }).then((response) => {
@@ -48,12 +49,15 @@ class Model {
       });
     });
   }
+
   get url() {
     return this.resource.modelUrl(this.id);
   }
+
   get id() {
     return this.attributes[this.resource.idKey];
   }
+
   set(attributes) {
     Object.assign(this.attributes, attributes);
   }
@@ -63,6 +67,13 @@ class Model {
  *  Contains different Model objects, depending on the parameters passed to its fetch method.
  */
 class Collection {
+  /**
+   * Create a Collection instance.
+   * @param {Object[]|Model[]} data - Data to prepopulate the collection with,
+   * useful if wanting to save multiple models.
+   * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
+   * behaviour for the collection.
+   */
   constructor(data = [], resource) {
     this.resource = resource;
     if (!this.resource) {
@@ -81,6 +92,7 @@ class Collection {
    * successfully returns, otherwise reject is called with the response object.
    */
   fetch({ params } = { params: {} }) {
+    this.synced = false;
     return new Promise((resolve, reject) => {
       // Do a fetch on the URL, with the parameters passed in.
       client({ path: this.url, params }).then((response) => {
@@ -99,8 +111,9 @@ class Collection {
       });
     });
   }
+
   get url() {
-    return this.resource.collectionUrl;
+    return this.resource.collectionUrl();
   }
 
   /**
@@ -178,12 +191,22 @@ class Resource {
 
   /**
    * Add a model to the resource for deduplication, dirty checking, and tracking purposes.
+   * @param {Object} data - The data for the model to add.
+   * @returns {Model} - Returns the instantiated Model.
+   */
+  addModelData(data) {
+    const model = new Model(data, { resource: this });
+    return this.addModel(model);
+  }
+
+  /**
+   * Add a model to the resource for deduplication, dirty checking, and tracking purposes.
    * @param {Object|Model} model - Either the data for the model to add, or the Model itself.
    * @returns {Model} - Returns the instantiated Model.
    */
   addModel(model) {
     if (!(model instanceof Model)) {
-      model = new Model(model, { resource: this }); // eslint-disable-line no-param-reassign
+      return this.addModelData(model);
     }
     if (!this.models[model.id]) {
       this.models[model.id] = model;
@@ -192,13 +215,18 @@ class Resource {
     }
     return this.models[model.id];
   }
+
   get urls() {
     return this.kolibri.urls;
   }
+
   get modelUrl() {
+    // Leveraging Django REST Framework generated URL patterns.
     return this.urls[`${this.name}_detail`];
   }
+
   get collectionUrl() {
+    // Leveraging Django REST Framework generated URL patterns.
     return this.urls[`${this.name}_list`];
   }
 }
