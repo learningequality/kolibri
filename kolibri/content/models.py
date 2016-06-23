@@ -7,7 +7,7 @@ The ONLY public object is ContentNode
 from __future__ import print_function
 
 import os
-from uuid import uuid4
+import uuid
 
 from django.conf import settings
 from django.db import IntegrityError, OperationalError, connections, models
@@ -15,6 +15,18 @@ from django.db.utils import ConnectionDoesNotExist
 from mptt.models import MPTTModel, TreeForeignKey
 
 from .constants import content_kinds, extensions, presets
+
+class UUIDField(models.CharField):
+
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = 32
+        super(UUIDField, self).__init__(*args, **kwargs)
+
+    def get_default(self):
+        result = super(UUIDField, self).get_default()
+        if isinstance(result, uuid.UUID):
+            result = result.hex
+        return result
 
 class ContentQuerySet(models.QuerySet):
     """
@@ -37,7 +49,7 @@ class ContentQuerySet(models.QuerySet):
 
 class ContentTag(models.Model):
     tag_name = models.CharField(max_length=30, blank=True)
-    channel = models.UUIDField(null=True, blank=True)
+    channel = UUIDField(null=True, blank=True)
 
     objects = ContentQuerySet.as_manager()
 
@@ -56,7 +68,7 @@ class ContentNode(MPTTModel):
     tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
 
     title = models.CharField(max_length=200)
-    content_id = models.UUIDField(primary_key=False, default=uuid4, editable=False)
+    content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False)
     description = models.CharField(max_length=400, blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)
     license_owner = models.CharField(max_length=200, blank=True)
@@ -82,7 +94,7 @@ class Language(models.Model):
     objects = ContentQuerySet.as_manager()
 
     def __str__(self):
-        return self.lang_name
+        return self.lang_code
 
 class File(models.Model):
     """
@@ -186,7 +198,7 @@ class ChannelMetadata(models.Model):
     Provide references to the corresponding contentDB when navigate between channels.
     Every content API method needs a channel_id argument, which is stored in this model.
     """
-    channel_id = models.UUIDField(primary_key=True, default=uuid4, editable=True)
+    channel_id = UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True)
     author = models.CharField(max_length=400, blank=True)
