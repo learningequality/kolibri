@@ -4,7 +4,6 @@
   </div>
 
   <div class="learn-page">
-
     <div class="learn-page-container">
       <div class="learn-tool-bar-container">
         <div class="learn-tool-bar">
@@ -19,7 +18,7 @@
       </div>
       <div class="card-list-container">
         <div v-for="(title, block) in contents">
-          <h1 class="rec-title">{{ title | capitalize }}</h1>
+          <h1 class="section-title">{{ title | capitalize }}</h1>
           <div class="card-list">
             <content-card
               v-for="content in block"
@@ -60,28 +59,28 @@
 
   @require '~core-theme.styl'
 
-  .rec-title
-    margin-top: 5vh
-    font-size: 1.2em
-    font-weight: 700
-
   .temp-nav
     width: 80px
     height: 100%
     position: fixed
     background-color: $core-bg-light
 
+  .section-title
+    margin-top: 5vh
+    font-size: 1.2em
+    font-weight: 700
+
   .learn-tool-bar-container
     height: 30px
     padding-top: 30
 
-  .learn-tool-bar
-    float: right
-    opacity: 0.6
-    display: inline-flex
+    .learn-tool-bar
+      float: right
+      opacity: 0.6
+      display: inline-flex
 
-    .btn-channel
-      background: url('./arrow-down.svg') no-repeat right
+      .btn-channel
+        background: url('./arrow-down.svg') no-repeat right
 
   select.btn-channel
     border: 1px solid $core-text-default
@@ -89,7 +88,6 @@
     padding: 0.2em 0.8em
     -webkit-appearance: none
     width: 100%
-
 
   .btn-search
     height: 30px

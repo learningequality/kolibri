@@ -1,6 +1,6 @@
 <template>
 
-  <nav>
+  <nav class="breadcrumbs">
     <span v-for="crumb in crumbs">
       <a :href="crumb.url">{{ crumb.name }} </a> /
     </span>
