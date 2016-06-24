@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'kolibri.auth.apps.KolibriAuthConfig',
     'kolibri.content',
+    'kolibri.logger',
     'kolibri.core.webpack',
     'rest_framework',
     'django_js_reverse',
