@@ -4,221 +4,159 @@ It exposes several convenience functions for accessing content
 """
 from functools import wraps
 
-from django.core.files import File as DjFile
 from django.db.models import Q
 from kolibri.content import models as KolibriContent
 from kolibri.content.utils import validate
+from .constants import content_kinds
 
 """ContentDB API methods"""
 
 def can_get_content_with_id(func):
     """
-    decorator function for returning ContentMetadata object when giving content id.
+    decorator function for returning ContentNode object when giving content id.
     it can take keyword argument/s "content" or "content1" and "content2".
     """
     @wraps(func)
-    def wrapper(channel_id=None, **kwargs):
+    def wrapper(channel_id, **kwargs):
         content = kwargs.get('content')
         content1 = kwargs.get('content1')
         content2 = kwargs.get('content2')
+        target_node = kwargs.get('target_node')
+        prerequisite = kwargs.get('prerequisite')
 
-        if isinstance(content, KolibriContent.ContentMetadata) or \
-                (isinstance(content1, KolibriContent.ContentMetadata) and isinstance(content2, KolibriContent.ContentMetadata)):
+        if isinstance(content, KolibriContent.ContentNode) or \
+                (isinstance(content1, KolibriContent.ContentNode) and isinstance(content2, KolibriContent.ContentNode)) or \
+                (isinstance(target_node, KolibriContent.ContentNode) and isinstance(prerequisite, KolibriContent.ContentNode)):
             pass
         elif validate.is_valid_uuid(content):
-            kwargs['content'] = KolibriContent.ContentMetadata.objects.using(channel_id).get(content_id=content)
+            kwargs['content'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=content)
         elif validate.is_valid_uuid(content1) and validate.is_valid_uuid(content2):
-            kwargs['content1'] = KolibriContent.ContentMetadata.objects.using(channel_id).get(content_id=content1)
-            kwargs['content2'] = KolibriContent.ContentMetadata.objects.using(channel_id).get(content_id=content2)
+            kwargs['content1'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=content1)
+            kwargs['content2'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=content2)
+        elif validate.is_valid_uuid(target_node) and validate.is_valid_uuid(prerequisite):
+            kwargs['target_node'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=target_node)
+            kwargs['prerequisite'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=prerequisite)
         else:
-            raise TypeError("must provide a ContentMetadata object or a UUID content_id")
-        return func(channel_id=channel_id, **kwargs)
+            raise TypeError("must provide a ContentNode object or a UUID content_id")
+        return func(channel_id, **kwargs)
     return wrapper
 
-def get_content_with_id(channel_id=None, content=None):
+def get_content_with_id(channel_id, content):
     """
-    Get arbitrary sets of ContentMetadata objects based on content id(s).
+    Get arbitrary sets of ContentNode objects based on content id(s).
 
     :param channel_id: str
     :param content_id: list or str or uuid
-    :return: QuerySet of ContentMetadata
+    :return: QuerySet of ContentNode
     """
     if isinstance(content, list):
-        return KolibriContent.ContentMetadata.objects.using(channel_id).filter(content_id__in=content)
+        return KolibriContent.ContentNode.objects.using(channel_id).filter(content_id__in=content)
     else:
-        return KolibriContent.ContentMetadata.objects.using(channel_id).filter(content_id=content)
+        return KolibriContent.ContentNode.objects.using(channel_id).filter(content_id=content)
 
 @can_get_content_with_id
-def get_ancestor_topics(channel_id=None, content=None, **kwargs):
+def get_ancestor_topics(channel_id, content, **kwargs):
     """"
     Get all ancestors that the their kind are topics
 
     :param channel_id: str
-    :param content: ContentMetadata or str
-    :return: QuerySet of ContentMetadata
+    :param content: ContentNode or str
+    :return: QuerySet of ContentNode
     """
-    return content.get_ancestors().filter(kind="topic").using(channel_id)
+    return content.get_ancestors().filter(kind=content_kinds.TOPIC).using(channel_id)
 
 @can_get_content_with_id
-def immediate_children(channel_id=None, content=None, **kwargs):
+def immediate_children(channel_id, content, **kwargs):
     """
-    Get a set of ContentMetadatas that have this ContentMetadata as the immediate parent.
+    Get a set of ContentNodes that have this ContentNode as the immediate parent.
 
     :param channel_id: str
-    :param content: ContentMetadata or str
-    :return: QuerySet of ContentMetadata
+    :param content: ContentNode or str
+    :return: QuerySet of ContentNode
     """
     return content.get_children().using(channel_id)
 
 @can_get_content_with_id
-def leaves(channel_id=None, content=None, **kwargs):
+def leaves(channel_id, content, **kwargs):
     """
-    Get all ContentMetadatas that are the terminal nodes and also the descendants of the this ContentMetadata.
+    Get all ContentNodes that are the terminal nodes and also the descendants of the this ContentNode.
 
     :param channel_id: str
-    :param content: ContentMetadata or str
-    :return: QuerySet of ContentMetadata
+    :param content: ContentNode or str
+    :return: QuerySet of ContentNode
     """
     return content.get_leafnodes().using(channel_id)
 
 @can_get_content_with_id
-def get_all_formats(channel_id=None, content=None, **kwargs):
-    """
-    Get all possible formats for a particular content including its descendants' formats.
-
-    :param channel_id: str
-    :param content: ContentMetadata or str
-    :return: QuerySet of Format
-    """
-    all_end_nodes = leaves(channel_id=channel_id, content=content)
-    return KolibriContent.Format.objects.using(channel_id).filter(contentmetadata__in=all_end_nodes)
-
-@can_get_content_with_id
-def get_available_formats(channel_id=None, content=None, **kwargs):
-    """
-    Get all available formats for a particular content excluding its descendants' formats.
-    if the pass-in content is a topic, this function will return null.
-
-    :param channel_id: str
-    :param content: ContentMetadata or str
-    :return: QuerySet of Format
-    """
-    return KolibriContent.Format.objects.using(channel_id).filter(contentmetadata=content, available=True)
-
-@can_get_content_with_id
-def get_possible_formats(channel_id=None, content=None, **kwargs):
-    """
-    Get all possible formats for a particular content excluding its descendants' formats.
-    if the pass-in content is a topic, this function will return null.
-
-    :param channel_id: str
-    :param content: ContentMetadata or str
-    :return: QuerySet of Format
-    """
-    return KolibriContent.Format.objects.using(channel_id).filter(contentmetadata=content)
-
-@can_get_content_with_id
-def get_files_for_quality(channel_id=None, content=None, format_quality=None, **kwargs):
-    """
-    Get all files for a particular content in particular quality.
-    For format_quality argument, please pass in a string like "high" or "low" or "normal".
-    topic content will return null.
-
-    :param channel_id: str
-    :param content: ContentMetadata or str
-    :param format_quality: str
-    :return: QuerySet of File
-    """
-    the_formats = get_possible_formats(channel_id=channel_id, content=content).filter(quality=format_quality)
-    return KolibriContent.File.objects.using(channel_id).filter(format__in=the_formats)
-
-@can_get_content_with_id
-def get_missing_files(channel_id=None, content=None, **kwargs):
+def get_missing_files(channel_id, content, **kwargs):
     """
     Get all missing files of the content.
 
     :param channel_id: str
-    :param content: ContentMetadata or str
+    :param content: ContentNode or str
     :return: QuerySet of File
     """
-    if content.kind == 'topic':
+    if content.kind == content_kinds.TOPIC:
         all_end_nodes = leaves(channel_id=channel_id, content=content)
-        return KolibriContent.File.objects.using(channel_id).filter(available=False, format__contentmetadata__in=all_end_nodes)
+        return KolibriContent.File.objects.using(channel_id).filter(available=False, contentnode__in=all_end_nodes)
     else:
-        return KolibriContent.File.objects.using(channel_id).filter(available=False, format__contentmetadata=content)
+        return KolibriContent.File.objects.using(channel_id).filter(available=False, contentnode=content)
 
 @can_get_content_with_id
-def get_all_prerequisites(channel_id=None, content=None, **kwargs):
+def get_all_prerequisites(channel_id, content, **kwargs):
     """
     Get cotents that are the prerequisites of this content.
 
     :param channel_id: str
-    :param content: ContentMetadata or str
-    :return: QuerySet of ContentMetadata
+    :param content: ContentNode or str
+    :return: QuerySet of ContentNode
     """
-    return KolibriContent.ContentMetadata.objects.using(channel_id).filter(prerequisite=content)
+    return KolibriContent.ContentNode.objects.using(channel_id).filter(is_prerequisite_of=content)
 
 @can_get_content_with_id
-def get_all_related(channel_id=None, content=None, **kwargs):
+def get_all_related(channel_id, content, **kwargs):
     """
     Get cotents that are related to this content.
 
     :param channel_id: str
-    :param content: ContentMetadata or str
-    :return: QuerySet of ContentMetadata
+    :param content: ContentNode or str
+    :return: QuerySet of ContentNode
     """
-    return KolibriContent.ContentMetadata.objects.using(channel_id).filter(Q(relate_to=content) | Q(is_related=content))
+    return KolibriContent.ContentNode.objects.using(channel_id).filter(Q(relate_to=content) | Q(is_related=content))
 
 @can_get_content_with_id
-def set_prerequisite(channel_id=None, content1=None, content2=None, **kwargs):
+def set_prerequisite(channel_id, target_node, prerequisite, **kwargs):
     """
     Set prerequisite relationship between content1 and content2.
 
     :param channel_id: str
-    :param content1: ContentMetadata or str
-    :param content2: ContentMetadata or str
+    :param content1: ContentNode or str
+    :param content2: ContentNode or str
     """
     KolibriContent.PrerequisiteContentRelationship.objects.using(channel_id).create(
-        contentmetadata_1=content1, contentmetadata_2=content2)
+        target_node=target_node, prerequisite=prerequisite)
 
 @can_get_content_with_id
-def set_is_related(channel_id=None, content1=None, content2=None, **kwargs):
+def set_is_related(channel_id, content1, content2, **kwargs):
     """
     Set is related relationship between content1 and content2.
 
     :param channel_id: str
-    :param content1: ContentMetadata or str
-    :param content2: ContentMetadata or str
+    :param content1: ContentNode or str
+    :param content2: ContentNode or str
     """
     KolibriContent.RelatedContentRelationship.objects.using(channel_id).create(
-        contentmetadata_1=content1, contentmetadata_2=content2)
+        contentnode_1=content1, contentnode_2=content2)
 
 @can_get_content_with_id
-def children_of_kind(channel_id=None, content=None, kind=None, **kwargs):
+def children_of_kind(channel_id, content, kind, **kwargs):
     """
-    Get all ContentMetadatas of a particular kind under the given ContentMetadata.
+    Get all ContentNodes of a particular kind under the given ContentNode.
     For kind argument, please pass in a string like "topic" or "video" or "exercise".
 
     :param channel_id: str
-    :param content: ContentMetadata or str
+    :param content: ContentNode or str
     :param kind: str
-    :return: QuerySet of ContentMetadata
+    :return: QuerySet of ContentNode
     """
     return content.get_descendants(include_self=False).filter(kind=kind).using(channel_id)
-
-def update_content_copy(file_object=None, content_copy=None):
-    """
-    Update the File object you pass in with the content copy
-    You can pass None on content_copy to remove the associated file on disk.
-
-    :param file_object: File
-    :param content_copy: str
-    """
-    if not file_object:
-        raise TypeError("must provide a File object to update content copy")
-    if content_copy:
-        file_object.content_copy = DjFile(open(content_copy, 'rb'))
-    else:
-        file_object.content_copy = None
-
-    file_object.save()

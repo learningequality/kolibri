@@ -35,13 +35,13 @@
 
   .topic-card-container
     display: block
-    width: 13.2rem
+    width: 210px
     height: 11rem
     border-radius: 4px
     background-color: $core-bg-light
     
   .thumbnail
-    width: 13.2rem
+    width: 210px
     height: 7.6rem
     text-align: center
     border-radius: 4px 4px 0 0
@@ -61,7 +61,7 @@
     background-color: $core-action-normal
 
   .title
-    max-width:13.2rem
+    max-width:210px
     font-size: 0.9rem
     font-weight: 700
     margin: 0.4rem

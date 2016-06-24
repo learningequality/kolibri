@@ -1,17 +1,15 @@
-from kolibri.content.models import (
-    ChannelMetadata, ContentMetadata, File, Format
-)
+from kolibri.content.models import ChannelMetadata, ContentNode, File
 from rest_framework import serializers
 
 
 class ChannelMetadataSerializer(serializers.HyperlinkedModelSerializer):
 
-    contentmetadatas = serializers.HyperlinkedIdentityField(
-        lookup_field='channel_id', view_name='contentmetadata-list', lookup_url_kwarg='channelmetadata_channel_id')
+    contentnodes = serializers.HyperlinkedIdentityField(
+        lookup_field='channel_id', view_name='contentnode-list', lookup_url_kwarg='channelmetadata_channel_id')
 
     class Meta:
         model = ChannelMetadata
-        fields = ('url', 'channel_id', 'name', 'description', 'author', 'theme', 'subscribed', 'contentmetadatas')
+        fields = ('url', 'channel_id', 'name', 'description', 'author', 'contentnodes')
         extra_kwargs = {
             'url': {'lookup_field': 'channel_id', 'view_name': 'channelmetadata-detail'}
         }
@@ -32,76 +30,51 @@ class DualLookuplinkedIdentityField(serializers.HyperlinkedIdentityField):
         return self.reverse(view_name, kwargs=kwargs, request=request, format=format)
 
 
-class ContentMetadataSerializer(serializers.ModelSerializer):
+class ContentNodeSerializer(serializers.ModelSerializer):
     url = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-detail',
+        view_name='contentnode-detail',
         lookup_field_1='channelmetadata_channel_id',
         lookup_field_2='content_id'
     )
     ancestor_topics = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-ancestor-topics',
+        view_name='contentnode-ancestor-topics',
         lookup_field_1='channelmetadata_channel_id',
         lookup_field_2='content_id',
     )
     immediate_children = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-immediate-children',
+        view_name='contentnode-immediate-children',
         lookup_field_1='channelmetadata_channel_id',
         lookup_field_2='content_id',
     )
     leaves = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-leaves',
+        view_name='contentnode-leaves',
         lookup_field_1='channelmetadata_channel_id',
         lookup_field_2='content_id',
     )
     all_prerequisites = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-all-prerequisites',
+        view_name='contentnode-all-prerequisites',
         lookup_field_1='channelmetadata_channel_id',
         lookup_field_2='content_id',
     )
     all_related = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-all-related',
+        view_name='contentnode-all-related',
         lookup_field_1='channelmetadata_channel_id',
         lookup_field_2='content_id',
     )
-    all_formats = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-all-formats',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
-    )
-    available_formats = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-available-formats',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
-    )
-    possible_formats = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-possible-formats',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
-    )
-
     missing_files = DualLookuplinkedIdentityField(
-        view_name='contentmetadata-missing-files',
+        view_name='contentnode-missing-files',
         lookup_field_1='channelmetadata_channel_id',
         lookup_field_2='content_id',
     )
 
     class Meta:
-        model = ContentMetadata
+        model = ContentNode
         depth = 1
         fields = (
-            'url', 'content_id', 'title', 'description', 'kind', 'slug', 'total_file_size', 'available',
+            'url', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
             'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children',
-            'leaves', 'all_prerequisites', 'all_related', 'all_formats', 'available_formats',
-            'possible_formats', 'missing_files'
+            'leaves', 'all_prerequisites', 'all_related', 'missing_files'
         )
-
-
-class FormatSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Format
-        view_name = 'format-list'
-        fields = ('available', 'format_size', 'quality', 'contentmetadata', 'mimetype')
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -113,4 +86,5 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = File
-        fields = ('url', 'checksum', 'extension', 'available', 'file_size', 'content_copy', 'format')
+        depth = 1
+        fields = ('url', 'id', 'checksum', 'available', 'file_size', 'contentnode', 'extension', 'preset', 'lang', 'supplementary', 'thumbnail')
