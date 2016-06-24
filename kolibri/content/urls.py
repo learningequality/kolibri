@@ -5,7 +5,7 @@ except some set methods that do not return anything.
 """
 from django.conf.urls import include, url
 from kolibri.content import api, models, serializers
-from rest_framework import viewsets
+from rest_framework import filters, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework_nested import routers
@@ -22,15 +22,18 @@ class ChannelMetadataViewSet(viewsets.ViewSet):
         channel = serializers.ChannelMetadataSerializer(models.ChannelMetadata.objects.get(channel_id=channel_id), context={'request': request}).data
         return Response(channel)
 
+class ContentNodeFilter(filters.django_filters.FilterSet):
+        class Meta:
+            model = models.ContentNode
+            fields = ['title', 'description']
 
 class ContentNodeViewset(viewsets.ViewSet):
     lookup_field = 'content_id'
 
     def list(self, request, channelmetadata_channel_id=None):
+        filtered = ContentNodeFilter(request.GET, queryset=models.ContentNode.objects.using(channelmetadata_channel_id).all())
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
-        contents = serializers.ContentNodeSerializer(
-            models.ContentNode.objects.using(channelmetadata_channel_id).all(), context=context, many=True
-        ).data
+        contents = serializers.ContentNodeSerializer(filtered, context=context, many=True).data
         return Response(contents)
 
     def retrieve(self, request, content_id=None, channelmetadata_channel_id=None):
