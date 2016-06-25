@@ -67,13 +67,36 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         lookup_field_2='content_id',
     )
 
+    ancestor_ids = serializers.SerializerMethodField()
+    immediate_children_ids = serializers.SerializerMethodField()
+    preload = serializers.SerializerMethodField()
+
+    def get_ancestor_ids(self, target_node):
+        """
+        in descending order (root ancestor first, immediate parent last)
+        """
+        return target_node.get_ancestors().values_list('pk', flat=True)
+
+    def get_immediate_children_ids(self, target_node):
+        """
+        in tree order
+        """
+        return target_node.get_children().values_list('pk', flat=True)
+
+    def get_preload(self, target_node):
+        ancestros = target_node.get_ancestors().values()
+        immediate_children = target_node.get_children().values()
+        preload_metadata = {'ancestor': ancestros, 'immediate_children': immediate_children}
+
+        return preload_metadata
+
     class Meta:
         model = ContentNode
         depth = 1
         fields = (
             'url', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
             'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children',
-            'leaves', 'all_prerequisites', 'all_related', 'missing_files'
+            'leaves', 'all_prerequisites', 'all_related', 'missing_files', 'ancestor_ids', 'immediate_children_ids', 'preload'
         )
 
 
