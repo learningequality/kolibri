@@ -28,7 +28,7 @@ class ContentNodeFilter(filters.django_filters.FilterSet):
             fields = ['title', 'description']
 
 class ContentNodeViewset(viewsets.ViewSet):
-    lookup_field = 'content_id'
+    lookup_field = 'pk'
 
     def list(self, request, channelmetadata_channel_id=None):
         filtered = ContentNodeFilter(request.GET, queryset=models.ContentNode.objects.using(channelmetadata_channel_id).all())
@@ -36,10 +36,10 @@ class ContentNodeViewset(viewsets.ViewSet):
         contents = serializers.ContentNodeSerializer(filtered, context=context, many=True).data
         return Response(contents)
 
-    def retrieve(self, request, content_id=None, channelmetadata_channel_id=None):
+    def retrieve(self, request, pk=None, channelmetadata_channel_id=None):
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         content = serializers.ContentNodeSerializer(
-            models.ContentNode.objects.using(channelmetadata_channel_id).get(content_id=content_id), context=context
+            models.ContentNode.objects.using(channelmetadata_channel_id).get(pk=pk), context=context
         ).data
         return Response(content)
 
@@ -51,7 +51,7 @@ class ContentNodeViewset(viewsets.ViewSet):
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.ContentNodeSerializer(
-            api.get_ancestor_topics(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+            api.get_ancestor_topics(channel_id=channelmetadata_channel_id, content=self.kwargs['pk']), context=context, many=True
         ).data
         return Response(data)
 
@@ -63,7 +63,7 @@ class ContentNodeViewset(viewsets.ViewSet):
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.ContentNodeSerializer(
-            api.immediate_children(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+            api.immediate_children(channel_id=channelmetadata_channel_id, content=self.kwargs['pk']), context=context, many=True
         ).data
         return Response(data)
 
@@ -75,7 +75,7 @@ class ContentNodeViewset(viewsets.ViewSet):
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.ContentNodeSerializer(
-            api.leaves(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+            api.leaves(channel_id=channelmetadata_channel_id, content=self.kwargs['pk']), context=context, many=True
         ).data
         return Response(data)
 
@@ -87,7 +87,7 @@ class ContentNodeViewset(viewsets.ViewSet):
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.ContentNodeSerializer(
-            api.get_all_prerequisites(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+            api.get_all_prerequisites(channel_id=channelmetadata_channel_id, content=self.kwargs['pk']), context=context, many=True
         ).data
         return Response(data)
 
@@ -99,7 +99,7 @@ class ContentNodeViewset(viewsets.ViewSet):
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.ContentNodeSerializer(
-            api.get_all_related(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+            api.get_all_related(channel_id=channelmetadata_channel_id, content=self.kwargs['pk']), context=context, many=True
         ).data
         return Response(data)
 
@@ -111,7 +111,7 @@ class ContentNodeViewset(viewsets.ViewSet):
         """
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.FileSerializer(
-            api.get_missing_files(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+            api.get_missing_files(channel_id=channelmetadata_channel_id, content=self.kwargs['pk']), context=context, many=True
         ).data
         return Response(data)
 

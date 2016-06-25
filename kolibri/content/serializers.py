@@ -34,37 +34,37 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     url = DualLookuplinkedIdentityField(
         view_name='contentnode-detail',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id'
+        lookup_field_2='pk'
     )
     ancestor_topics = DualLookuplinkedIdentityField(
         view_name='contentnode-ancestor-topics',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
+        lookup_field_2='pk',
     )
     immediate_children = DualLookuplinkedIdentityField(
         view_name='contentnode-immediate-children',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
+        lookup_field_2='pk',
     )
     leaves = DualLookuplinkedIdentityField(
         view_name='contentnode-leaves',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
+        lookup_field_2='pk',
     )
     all_prerequisites = DualLookuplinkedIdentityField(
         view_name='contentnode-all-prerequisites',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
+        lookup_field_2='pk',
     )
     all_related = DualLookuplinkedIdentityField(
         view_name='contentnode-all-related',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
+        lookup_field_2='pk',
     )
     missing_files = DualLookuplinkedIdentityField(
         view_name='contentnode-missing-files',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
+        lookup_field_2='pk',
     )
 
     ancestor_ids = serializers.SerializerMethodField()
