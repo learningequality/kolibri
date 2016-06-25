@@ -18,7 +18,7 @@ class ContentInteractionLog(models.Model):
     start_timestamp = models.DateTimeField(auto_now=False, auto_now_add=False)
     completion_timestamp = models.DateTimeField(auto_now=False, auto_now_add=False)
     item_session = UUIDField(primary_key=False, default=uuid.uuid4, editable=False)
-    kind = "" # indicates how extra_fields should be interpreted
+    kind = ""  # indicates how extra_fields should be interpreted
     extra_fields = models.TextField(blank=True)
 
 
@@ -43,9 +43,9 @@ class ContentRatingLog(models.Model):
     user = models.ForeignKey(FacilityUser)
     content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False)
     channel_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False)
-    quality = models.IntegerField(validators = [MinValueValidator(1), MaxValueValidator(5)])
-    ease = models.IntegerField(validators = [MinValueValidator(1), MaxValueValidator(5)])
-    learning = models.IntegerField(validators = [MinValueValidator(1), MaxValueValidator(5)])
+    quality = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    ease = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    learning = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     feedback = models.TextField(blank=True)
 
 
