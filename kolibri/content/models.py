@@ -214,6 +214,7 @@ class ChannelMetadata(models.Model):
     author = models.CharField(max_length=400, blank=True)
     version = models.IntegerField(default=0)
     thumbnail = models.TextField(blank=True)
+    root_pk = models.IntegerField()
 
     objects = ContentQuerySet.as_manager()
 

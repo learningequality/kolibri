@@ -9,7 +9,7 @@ class ChannelMetadataSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ChannelMetadata
-        fields = ('url', 'channel_id', 'name', 'description', 'author', 'contentnodes')
+        fields = ('url', 'root_pk', 'channel_id', 'name', 'description', 'author', 'contentnodes')
         extra_kwargs = {
             'url': {'lookup_field': 'channel_id', 'view_name': 'channelmetadata-detail'}
         }
