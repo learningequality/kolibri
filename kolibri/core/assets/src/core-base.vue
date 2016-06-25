@@ -2,7 +2,7 @@
 
   <div>
     <!-- <kolibri-nav></kolibri-nav> -->
-    <header class="base-header"><h1>Kolibri Learn</h1></header>
+    <!-- <header class="base-header"><h1>Kolibri Learn</h1></header> -->
     <main>
       <slot></slot>
     </main>
@@ -25,9 +25,6 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-
-  main
-    margin: 10px
 
   .base-header h1
     color: $core-action-normal

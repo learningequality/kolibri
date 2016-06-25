@@ -3,7 +3,7 @@
   <a :href="linkhref">
     <div class="content-card-container">
       <div class="content-icon">
-        <img src="./content-icons/video.svg">
+        <img :src="icon">
       </div>
       <img :src="thumbsrc" class="thumbnail">
       <div class="title">
@@ -25,6 +25,14 @@
       'kind',
       'progress',
     ],
+    computed: {
+      icon() {
+        // Note: dynamic requires should be used carefully because
+        //  they greedily add items to the webpack bundle.
+        // See https://webpack.github.io/docs/context.html
+        return require(`./content-icons/${this.progress}-${this.kind}.svg`);
+      },
+    },
   };
 
 </script>
@@ -35,7 +43,7 @@
   @require '~core-theme.styl'
 
   .content-card-container
-    width: 210px
+    width: 200px
     height: 11rem
     background-color: $core-bg-light
     border-radius: 4px
@@ -44,21 +52,21 @@
   .content-icon
     position: absolute
     height: 30px
-    width: 30px
-    top: 5px
-    left: 5px
+    width: 200px
+    top: 0.35rem
+    left: 0.35rem
 
   .thumbnail
-    width: 210px
-    height: 7.6rem
+    width: 200px
+    height: 7.1rem
     border-radius: 4px 4px 0 0
 
   .title
-    max-width: 210px
-    max-height: 3rem
+    max-width: 200px
+    max-height: 2.5rem
     margin: 0.4rem
     overflow: hidden
-    line-height: 1.5rem
+    line-height: 1.3rem
     font-size: 0.9rem
     font-weight: 700
     color: $core-text-default

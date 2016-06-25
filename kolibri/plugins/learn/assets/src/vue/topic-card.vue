@@ -34,14 +34,14 @@
 
   .topic-card-container
     display: block
-    width: 210px
+    width: 200px
     height: 11rem
     border-radius: 4px
     background-color: $core-bg-light
 
   .thumbnail
-    width: 210px
-    height: 7.6rem
+    width: 200px
+    height: 7.1rem
     text-align: center
     border-radius: 4px 4px 0 0
     background: #E6E6E6 // New Color that we might add to core-theme.styl
@@ -60,10 +60,13 @@
     background-color: $core-action-normal
 
   .title
-    max-width:210px
+    max-width: 200px
+    max-height: 2.5rem
+    margin: 0.4rem
+    overflow: hidden
+    line-height: 1.3rem
     font-size: 0.9rem
     font-weight: 700
-    margin: 0.4rem
     color: $core-text-default
 
 </style>
