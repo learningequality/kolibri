@@ -84,8 +84,9 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         return target_node.get_children().values_list('pk', flat=True)
 
     def get_preload(self, target_node):
-        ancestros = target_node.get_ancestors().values()
-        immediate_children = target_node.get_children().values()
+        skip_list = self.context['skip_preload']
+        ancestros = target_node.get_ancestors().values().exclude(pk__in=skip_list)
+        immediate_children = target_node.get_children().values().exclude(pk__in=skip_list)
         preload_metadata = {'ancestor': ancestros, 'immediate_children': immediate_children}
 
         return preload_metadata

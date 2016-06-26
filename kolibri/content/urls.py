@@ -3,6 +3,8 @@
 Most of the api endpoints here use django_rest_framework to expose the content app APIs,
 except some set methods that do not return anything.
 """
+import ast
+
 from django.conf.urls import include, url
 from kolibri.content import api, models, serializers
 from rest_framework import filters, viewsets
@@ -37,7 +39,11 @@ class ContentNodeViewset(viewsets.ViewSet):
         return Response(contents)
 
     def retrieve(self, request, pk=None, channelmetadata_channel_id=None):
-        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        if request.method == 'GET' and 'skip' in request.GET:
+            skip_preload = ast.literal_eval(request.GET['skip'])
+        else:
+            skip_preload = []
+        context = {'request': request, 'channel_id': channelmetadata_channel_id, 'skip_preload': skip_preload}
         content = serializers.ContentNodeSerializer(
             models.ContentNode.objects.using(channelmetadata_channel_id).get(pk=pk), context=context
         ).data
