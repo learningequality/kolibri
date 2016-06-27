@@ -87,13 +87,16 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         skip_list = []
         if 'skip_preload' in self.context:
             skip_list = self.context['skip_preload']
-        ancestros = target_node.get_ancestors().values(
-            'available', 'kind', 'pk', 'description', 'title', 'author',
-            'parent_id', 'license_owner', 'sort_order', 'content_id', 'license_id').exclude(pk__in=skip_list)
-        immediate_children = target_node.get_children().values(
-            'available', 'kind', 'pk', 'description', 'title', 'author',
-            'parent_id', 'license_owner', 'sort_order', 'content_id', 'license_id').exclude(pk__in=skip_list)
-        preload_metadata = {'ancestor': ancestros, 'immediate_children': immediate_children}
+
+        immediate_children_list = []
+        for cn in target_node.get_children().using(self.context['channel_id']).exclude(pk__in=skip_list):
+            immediate_children_list.append(SimplifiedContentNodeSerializer(cn).data)
+
+        ancestros_list = []
+        for cn in target_node.get_ancestors().using(self.context['channel_id']).exclude(pk__in=skip_list):
+            ancestros_list.append(SimplifiedContentNodeSerializer(cn).data)
+
+        preload_metadata = {'ancestor': ancestros_list, 'immediate_children': immediate_children_list}
 
         return preload_metadata
 
@@ -102,8 +105,17 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         depth = 1
         fields = (
             'url', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children',
+            'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children', 'files',
             'leaves', 'all_prerequisites', 'all_related', 'missing_files', 'ancestor_ids', 'immediate_children_ids', 'preload'
+        )
+
+class SimplifiedContentNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentNode
+        depth = 1
+        fields = (
+            'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
+            'license', 'prerequisite', 'is_related', 'files'
         )
 
 
