@@ -7,3 +7,4 @@ djangorestframework==3.3.3
 drf-nested-routers
 six==1.10.0
 django-js-reverse==0.7.2
+django-filter==0.13.0
