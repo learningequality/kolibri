@@ -50,7 +50,6 @@ class ContentQuerySet(models.QuerySet):
 
 class ContentTag(models.Model):
     tag_name = models.CharField(max_length=30, blank=True)
-    channel = UUIDField(null=True, blank=True)
 
     objects = ContentQuerySet.as_manager()
 
