@@ -22,7 +22,7 @@ class ContentNodeTestCase(TestCase):
     """
     Testcase for content metadata methods
     """
-    fixtures = ['channel_test.json', 'content_test.json']
+    fixtures = ['content_test.json']
     multi_db = True
     the_channel_id = 'content_test'
     connections.databases[the_channel_id] = {
@@ -47,38 +47,41 @@ class ContentNodeTestCase(TestCase):
         self.assertEqual(self.temp_f_2.read(), 'The owl are not what they seem')
 
     """Tests for content API methods"""
-    def test_can_get_content_with_id(self):
+    def test_get_instance_with_pk_or_uuid(self):
         # pass content_id
         root_id = content.ContentNode.objects.using(self.the_channel_id).get(title="root").content_id
-        expected_output = content.ContentNode.objects.using(self.the_channel_id).filter(title__in=["c1", "c2"])
-        actual_output = api.immediate_children(channel_id=self.the_channel_id, content=str(root_id))
-        self.assertEqual(set(expected_output), set(actual_output))
+        expected_output = content.ContentNode.objects.using(self.the_channel_id).get(title='root')
+        actual_output = api.get_instance_with_pk_or_uuid(channel_id=self.the_channel_id, content=str(root_id))
+        self.assertEqual(expected_output, actual_output)
 
-        # pass content_ids
-        api.set_is_related(channel_id=self.the_channel_id, content1=str(expected_output[0].content_id), content2=str(root_id))
+        # pass pk
+        cn_pk = content.ContentNode.objects.using(self.the_channel_id).get(title='c1').pk
+        expected_output = content.ContentNode.objects.using(self.the_channel_id).get(title='c1')
+        actual_output = api.get_instance_with_pk_or_uuid(channel_id=self.the_channel_id, content=cn_pk)
+        self.assertEqual(expected_output, actual_output)
 
         # pass invalid type
         with self.assertRaises(TypeError):
-            api.immediate_children(channel_id=self.the_channel_id, content=432)
+            api.get_instance_with_pk_or_uuid(channel_id=self.the_channel_id, content='asdf')
 
-    def test_get_content_with_id(self):
+    def test_get_content_with_id_list(self):
         # test for single content_id
         the_content_id = content.ContentNode.objects.using(self.the_channel_id).get(title="root").content_id
-        expected_output = content.ContentNode.objects.using(self.the_channel_id).filter(title="root")
-        actual_output = api.get_content_with_id(self.the_channel_id, the_content_id)
-        self.assertEqual(set(expected_output), set(actual_output))
+        with self.assertRaises(TypeError):
+            api.get_content_with_id_list(self.the_channel_id, the_content_id)
 
         # test for a list of content_ids
         the_content_ids = [cm.content_id for cm in content.ContentNode.objects.using(self.the_channel_id).all() if cm.title in ["root", "c1", "c2c2"]]
         expected_output2 = content.ContentNode.objects.using(self.the_channel_id).filter(title__in=["root", "c1", "c2c2"])
-        actual_output2 = api.get_content_with_id(self.the_channel_id, the_content_ids)
+        actual_output2 = api.get_content_with_id_list(self.the_channel_id, the_content_ids)
         self.assertEqual(set(expected_output2), set(actual_output2))
 
         # test ContentNode __str__ method
-        self.assertEqual(actual_output[0].__str__(), 'root')
+        root_node = content.ContentNode.objects.using(self.the_channel_id).get(title="root")
+        self.assertEqual(root_node.__str__(), 'root')
 
         # test License __str__ method
-        self.assertEqual(actual_output[0].license.__str__(), 'WTFPL')
+        self.assertEqual(root_node.license.__str__(), 'WTFPL')
 
     def test_get_ancestor_topics(self):
         p = content.ContentNode.objects.using(self.the_channel_id).get(title="c2c3")
@@ -246,7 +249,7 @@ class ContentNodeAPITestCase(APITestCase):
     """
     Testcase for content API methods
     """
-    fixtures = ['channel_test.json', 'content_test.json']
+    fixtures = ['content_test.json']
     multi_db = True
     the_channel_id = 'content_test'
     connections.databases[the_channel_id] = {
@@ -261,37 +264,37 @@ class ContentNodeAPITestCase(APITestCase):
         return reverse(pattern_name, kwargs=kwargs)
 
     def test_ancestor_topics_endpoint(self):
-        c1_id = content.ContentNode.objects.using(self.the_channel_id).get(title="c1").content_id
-        response = self.client.get(self._reverse_channel_url("contentnode-ancestor-topics", {"content_id": c1_id}))
+        c1_pk = content.ContentNode.objects.using(self.the_channel_id).get(title="c1").pk
+        response = self.client.get(self._reverse_channel_url("contentnode-ancestor-topics", {"pk": c1_pk}))
         self.assertEqual(response.data[0]['title'], 'root')
 
     def test_immediate_children_endpoint(self):
-        root_id = content.ContentNode.objects.using(self.the_channel_id).get(title="root").content_id
-        response = self.client.get(self._reverse_channel_url("contentnode-immediate-children", {"content_id": root_id}))
+        root_pk = content.ContentNode.objects.using(self.the_channel_id).get(title="root").pk
+        response = self.client.get(self._reverse_channel_url("contentnode-immediate-children", {"pk": root_pk}))
         self.assertEqual(response.data[0]['title'], 'c1')
         self.assertEqual(response.data[1]['title'], 'c2')
 
     def test_leaves_endpoint(self):
-        root_id = content.ContentNode.objects.using(self.the_channel_id).get(title="root").content_id
-        response = self.client.get(self._reverse_channel_url("contentnode-leaves", {"content_id": root_id}))
+        root_pk = content.ContentNode.objects.using(self.the_channel_id).get(title="root").pk
+        response = self.client.get(self._reverse_channel_url("contentnode-leaves", {"pk": root_pk}))
         self.assertEqual(response.data[0]['title'], 'c1')
         self.assertEqual(response.data[1]['title'], 'c2c1')
         self.assertEqual(response.data[2]['title'], 'c2c2')
         self.assertEqual(response.data[3]['title'], 'c2c3')
 
     def test_all_prerequisites_endpoint(self):
-        c1_id = content.ContentNode.objects.using(self.the_channel_id).get(title="c1").content_id
-        response = self.client.get(self._reverse_channel_url("contentnode-all-prerequisites", {"content_id": c1_id}))
+        c1_pk = content.ContentNode.objects.using(self.the_channel_id).get(title="c1").pk
+        response = self.client.get(self._reverse_channel_url("contentnode-all-prerequisites", {"pk": c1_pk}))
         self.assertEqual(response.data[0]['title'], 'root')
 
     def test_all_related_endpoint(self):
-        c1_id = content.ContentNode.objects.using(self.the_channel_id).get(title="c1").content_id
-        response = self.client.get(self._reverse_channel_url("contentnode-all-related", {"content_id": c1_id}))
+        c1_pk = content.ContentNode.objects.using(self.the_channel_id).get(title="c1").pk
+        response = self.client.get(self._reverse_channel_url("contentnode-all-related", {"pk": c1_pk}))
         self.assertEqual(response.data[0]['title'], 'c2')
 
     def test_missing_files_endpoint(self):
-        c1_id = content.ContentNode.objects.using(self.the_channel_id).get(title="c1").content_id
-        response = self.client.get(self._reverse_channel_url("contentnode-missing-files", {"content_id": c1_id}))
+        c1_pk = content.ContentNode.objects.using(self.the_channel_id).get(title="c1").pk
+        response = self.client.get(self._reverse_channel_url("contentnode-missing-files", {"pk": c1_pk}))
         expected_output = content.File.objects.using(self.the_channel_id).filter(id__in=[1, 2])
         self.assertEqual(response.data[0]['id'], expected_output[0].id)
         self.assertEqual(response.data[1]['id'], expected_output[1].id)
@@ -301,9 +304,9 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(len(response.data), 6)
 
     def test_contentnode_retrieve(self):
-        c1_id = str(content.ContentNode.objects.using(self.the_channel_id).get(title="c1").content_id)
-        response = self.client.get(self._reverse_channel_url("contentnode-detail", {'content_id': c1_id}))
-        self.assertEqual(response.data['content_id'], c1_id)
+        c1_pk = content.ContentNode.objects.using(self.the_channel_id).get(title="c1").pk
+        response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': c1_pk}))
+        self.assertEqual(response.data['pk'], c1_pk)
 
     def test_channelmetadata_list(self):
         response = self.client.get(reverse("channelmetadata-list", kwargs={}))
