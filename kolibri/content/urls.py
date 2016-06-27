@@ -22,6 +22,20 @@ class ChannelMetadataViewSet(viewsets.ViewSet):
         channel = serializers.ChannelMetadataSerializer(models.ChannelMetadata.objects.get(channel_id=channel_id), context={'request': request}).data
         return Response(channel)
 
+    @detail_route()
+    def recommendations(self, request, channel_id, *args, **kwargs):
+        """
+        Recommend different content based on channel.
+
+        :param channel_id: str
+        :return: List of recommended content nodes
+        """
+        context = {'request': request, 'channel_id': channel_id}
+        contents = serializers.ContentNodeSerializer(
+            models.ContentNode.objects.using(channel_id).all(), context=context, many=True
+        ).data
+        return Response(contents)
+
 class ContentNodeFilter(filters.django_filters.FilterSet):
         class Meta:
             model = models.ContentNode
@@ -112,6 +126,21 @@ class ContentNodeViewset(viewsets.ViewSet):
         context = {'request': request, 'channel_id': channelmetadata_channel_id}
         data = serializers.FileSerializer(
             api.get_missing_files(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+        ).data
+        return Response(data)
+
+    @detail_route()
+    def recommendations(self, request, channelmetadata_channel_id, *args, **kwargs):
+        """
+        Recommend different content based on current content.
+
+        :param channelmetadata_channel_id: str
+        :param content: ContentNode or str
+        :return: List of recommended content nodes
+        """
+        context = {'request': request, 'channel_id': channelmetadata_channel_id}
+        data = serializers.ContentNodeSerializer(
+            api.immediate_children(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
         ).data
         return Response(data)
 
