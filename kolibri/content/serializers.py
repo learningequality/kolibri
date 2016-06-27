@@ -75,13 +75,13 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         """
         in descending order (root ancestor first, immediate parent last)
         """
-        return target_node.get_ancestors().values_list('pk', flat=True)
+        return target_node.get_ancestors().using(self.context['channel_id']).values_list('pk', flat=True)
 
     def get_immediate_children_ids(self, target_node):
         """
         in tree order
         """
-        return target_node.get_children().values_list('pk', flat=True)
+        return target_node.get_children().using(self.context['channel_id']).values_list('pk', flat=True)
 
     def get_preload(self, target_node):
         skip_list = []
