@@ -39,10 +39,9 @@ class ContentNodeViewset(viewsets.ViewSet):
         return Response(contents)
 
     def retrieve(self, request, pk=None, channelmetadata_channel_id=None):
+        skip_preload = []
         if request.method == 'GET' and 'skip' in request.GET:
             skip_preload = ast.literal_eval(request.GET['skip'])
-        else:
-            skip_preload = []
         context = {'request': request, 'channel_id': channelmetadata_channel_id, 'skip_preload': skip_preload}
         content = serializers.ContentNodeSerializer(
             models.ContentNode.objects.using(channelmetadata_channel_id).get(pk=pk), context=context
