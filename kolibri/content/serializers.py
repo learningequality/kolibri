@@ -96,9 +96,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         for cn in target_node.get_ancestors().using(self.context['channel_id']).exclude(pk__in=skip_list):
             ancestros_list.append(SimplifiedContentNodeSerializer(cn).data)
 
-        preload_metadata = {'ancestor': ancestros_list, 'immediate_children': immediate_children_list}
-
-        return preload_metadata
+        return {'ancestor': ancestros_list, 'immediate_children': immediate_children_list}
 
     class Meta:
         model = ContentNode
