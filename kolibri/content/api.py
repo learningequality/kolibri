@@ -70,7 +70,8 @@ def get_ancestor_topics(channel_id, content, **kwargs):
     :param content: ContentNode or str
     :return: QuerySet of ContentNode
     """
-    return content.get_ancestors().filter(kind=content_kinds.TOPIC).using(channel_id)
+    with using_content_database(channel_id):
+        return content.get_ancestors().filter(kind=content_kinds.TOPIC)
 
 @can_get_content_with_id
 def immediate_children(channel_id, content, **kwargs):
@@ -81,7 +82,8 @@ def immediate_children(channel_id, content, **kwargs):
     :param content: ContentNode or str
     :return: QuerySet of ContentNode
     """
-    return content.get_children().using(channel_id)
+    with using_content_database(channel_id):
+        return content.get_children()
 
 @can_get_content_with_id
 def leaves(channel_id, content, **kwargs):
@@ -92,7 +94,8 @@ def leaves(channel_id, content, **kwargs):
     :param content: ContentNode or str
     :return: QuerySet of ContentNode
     """
-    return content.get_leafnodes().using(channel_id)
+    with using_content_database(channel_id):
+        return content.get_leafnodes()
 
 @can_get_content_with_id
 def get_missing_files(channel_id, content, **kwargs):
@@ -103,11 +106,12 @@ def get_missing_files(channel_id, content, **kwargs):
     :param content: ContentNode or str
     :return: QuerySet of File
     """
-    if content.kind == content_kinds.TOPIC:
-        all_end_nodes = leaves(channel_id=channel_id, content=content)
-        return KolibriContent.File.objects.using(channel_id).filter(available=False, contentnode__in=all_end_nodes)
-    else:
-        return KolibriContent.File.objects.using(channel_id).filter(available=False, contentnode=content)
+    with using_content_database(channel_id):
+        if content.kind == content_kinds.TOPIC:
+            all_end_nodes = leaves(channel_id=channel_id, content=content)
+            return KolibriContent.File.objects.filter(available=False, contentnode__in=all_end_nodes)
+        else:
+            return KolibriContent.File.objects.filter(available=False, contentnode=content)
 
 @can_get_content_with_id
 def get_all_prerequisites(channel_id, content, **kwargs):
@@ -118,7 +122,8 @@ def get_all_prerequisites(channel_id, content, **kwargs):
     :param content: ContentNode or str
     :return: QuerySet of ContentNode
     """
-    return KolibriContent.ContentNode.objects.using(channel_id).filter(is_prerequisite_of=content)
+    with using_content_database(channel_id):
+        return KolibriContent.ContentNode.objects.filter(is_prerequisite_of=content)
 
 @can_get_content_with_id
 def get_all_related(channel_id, content, **kwargs):
@@ -129,7 +134,8 @@ def get_all_related(channel_id, content, **kwargs):
     :param content: ContentNode or str
     :return: QuerySet of ContentNode
     """
-    return KolibriContent.ContentNode.objects.using(channel_id).filter(Q(relate_to=content) | Q(is_related=content))
+    with using_content_database(channel_id):
+        return KolibriContent.ContentNode.objects.filter(Q(relate_to=content) | Q(is_related=content))
 
 @can_get_content_with_id
 def set_prerequisite(channel_id, target_node, prerequisite, **kwargs):
@@ -140,8 +146,9 @@ def set_prerequisite(channel_id, target_node, prerequisite, **kwargs):
     :param content1: ContentNode or str
     :param content2: ContentNode or str
     """
-    KolibriContent.PrerequisiteContentRelationship.objects.using(channel_id).create(
-        target_node=target_node, prerequisite=prerequisite)
+    with using_content_database(channel_id):
+        KolibriContent.PrerequisiteContentRelationship.objects.create(
+            target_node=target_node, prerequisite=prerequisite)
 
 @can_get_content_with_id
 def set_is_related(channel_id, content1, content2, **kwargs):
@@ -152,8 +159,9 @@ def set_is_related(channel_id, content1, content2, **kwargs):
     :param content1: ContentNode or str
     :param content2: ContentNode or str
     """
-    KolibriContent.RelatedContentRelationship.objects.using(channel_id).create(
-        contentnode_1=content1, contentnode_2=content2)
+    with using_content_database(channel_id):
+        KolibriContent.RelatedContentRelationship.objects.create(
+            contentnode_1=content1, contentnode_2=content2)
 
 @can_get_content_with_id
 def children_of_kind(channel_id, content, kind, **kwargs):
@@ -166,7 +174,8 @@ def children_of_kind(channel_id, content, kind, **kwargs):
     :param kind: str
     :return: QuerySet of ContentNode
     """
-    return content.get_descendants(include_self=False).filter(kind=kind).using(channel_id)
+    with using_content_database(channel_id):
+        return content.get_descendants(include_self=False).filter(kind=kind)
 
 
 def get_top_level_topics(channel_id):
@@ -175,4 +184,5 @@ def get_top_level_topics(channel_id):
     :param channel_id: str - the id for the channel.
     :return: QuerySet of ContentNode
     """
-    return KolibriContent.ContentNode.objects.using(channel_id).get(parent__isnull=True).get_children().using(channel_id).filter(kind="topic")
+    with using_content_database(channel_id):
+        return KolibriContent.ContentNode.objects.get(parent__isnull=True).get_children().filter(kind="topic")

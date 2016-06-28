@@ -58,8 +58,6 @@ class ContentDBRouter(object):
 
     def _get_db(self, model, **hints):
 
-        # import pdb; pdb.set_trace()
-
         # only interfere with models from the "content" app, in case we want to use other models in parallel
         if model._meta.app_label != "content":
             return None
