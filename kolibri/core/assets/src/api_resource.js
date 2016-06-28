@@ -28,15 +28,16 @@ class Model {
 
   /**
    * Method to fetch data from the server for this particular model.
-   * Takes no parameters, as all specification should be in the associated Resource object.
+   * @param {object} params - an object of parameters to be parsed into GET parameters on the
+   * fetch.
    * @returns {Promise} - Promise is resolved with Model attributes when the XHR successfully
    * returns, otherwise reject is called with the response object.
    */
-  fetch() {
+  fetch(params = {}) {
     this.synced = false;
     return new Promise((resolve, reject) => {
       // Do a fetch on the URL.
-      client({ path: this.url }).then((response) => {
+      client({ path: this.url, params }).then((response) => {
         // Set the retrieved Object onto the Model instance.
         this.set(response.entity);
         // Flag that the Model has been fetched.
