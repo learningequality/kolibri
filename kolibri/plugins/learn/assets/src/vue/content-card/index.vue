@@ -3,7 +3,7 @@
   <a :href="linkhref">
     <div class="content-card-container">
       <div class="content-icon">
-        <img src="./content-icons/video.svg">
+        <img :src="icon">
       </div>
       <img :src="thumbsrc" class="thumbnail">
       <div class="title">
@@ -25,6 +25,14 @@
       'kind',
       'progress',
     ],
+    computed: {
+      icon() {
+        // Note: dynamic requires should be used carefully because
+        //  they greedily add items to the webpack bundle.
+        // See https://webpack.github.io/docs/context.html
+        return require(`./content-icons/${this.progress}-${this.kind}.svg`);
+      },
+    },
   };
 
 </script>
@@ -44,9 +52,9 @@
   .content-icon
     position: absolute
     height: 30px
-    width: 30px
-    top: 5px
-    left: 5px
+    width: 200px
+    top: 0.35rem
+    left: 0.35rem
 
   .thumbnail
     width: 210px
