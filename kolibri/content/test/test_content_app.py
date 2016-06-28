@@ -12,15 +12,13 @@ from kolibri.content import models as content
 from kolibri.content import api
 from django.conf import settings
 from django.core.exceptions import ValidationError
-
 from ..constants import content_kinds
 from ..content_db_router import set_active_content_database
-
 from rest_framework.test import APITestCase
 
 
 @override_settings(
-    CONTENT_COPY_DIR=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/test_content_copy"
+    CONTENT_COPY_DIR=os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/test_content_copy"
 )
 class ContentNodeTestCase(TestCase):
     """
@@ -55,33 +53,35 @@ class ContentNodeTestCase(TestCase):
         self.assertEqual(self.temp_f_2.read(), 'The owl are not what they seem')
 
     """Tests for content API methods"""
+
     def test_get_instance_with_pk_or_uuid(self):
         # pass content_id
         root_id = content.ContentNode.objects.get(title="root").content_id
         expected_output = content.ContentNode.objects.get(title='root')
-        actual_output = api.get_instance_with_pk_or_uuid(channel_id=self.the_channel_id, content=str(root_id))
+        actual_output = api.get_instance_with_pk_or_uuid(content=str(root_id))
         self.assertEqual(expected_output, actual_output)
 
         # pass pk
         cn_pk = content.ContentNode.objects.get(title='c1').pk
         expected_output = content.ContentNode.objects.get(title='c1')
-        actual_output = api.get_instance_with_pk_or_uuid(channel_id=self.the_channel_id, content=cn_pk)
+        actual_output = api.get_instance_with_pk_or_uuid(content=cn_pk)
         self.assertEqual(expected_output, actual_output)
 
         # pass invalid type
         with self.assertRaises(TypeError):
-            api.get_instance_with_pk_or_uuid(channel_id=self.the_channel_id, content='asdf')
+            api.get_instance_with_pk_or_uuid(content='asdf')
 
     def test_get_content_with_id_list(self):
         # test for single content_id
         the_content_id = content.ContentNode.objects.get(title="root").content_id
         with self.assertRaises(TypeError):
-            api.get_content_with_id_list(self.the_channel_id, the_content_id)
+            api.get_content_with_id_list(the_content_id)
 
         # test for a list of content_ids
-        the_content_ids = [cm.content_id for cm in content.ContentNode.objects.all() if cm.title in ["root", "c1", "c2c2"]]
+        the_content_ids = [cm.content_id for cm in content.ContentNode.objects.all() if
+                           cm.title in ["root", "c1", "c2c2"]]
         expected_output2 = content.ContentNode.objects.filter(title__in=["root", "c1", "c2c2"])
-        actual_output2 = api.get_content_with_id_list(self.the_channel_id, the_content_ids)
+        actual_output2 = api.get_content_with_id_list(the_content_ids)
 
         self.assertEqual(set(expected_output2), set(actual_output2))
 
@@ -96,21 +96,21 @@ class ContentNodeTestCase(TestCase):
 
         p = content.ContentNode.objects.get(title="c2c3")
         expected_output = content.ContentNode.objects.filter(title__in=["root", "c2"])
-        actual_output = api.get_ancestor_topics(channel_id=self.the_channel_id, content=p)
+        actual_output = api.get_ancestor_topics(content=p)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_immediate_children(self):
 
         p = content.ContentNode.objects.get(title="root")
         expected_output = content.ContentNode.objects.filter(title__in=["c1", "c2"])
-        actual_output = api.immediate_children(channel_id=self.the_channel_id, content=p)
+        actual_output = api.immediate_children(content=p)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_leaves(self):
 
         p = content.ContentNode.objects.get(title="c2")
         expected_output = content.ContentNode.objects.filter(title__in=["c2c1", "c2c2", "c2c3"])
-        actual_output = api.leaves(channel_id=self.the_channel_id, content=p)
+        actual_output = api.leaves(content=p)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_missing_files(self):
@@ -118,12 +118,12 @@ class ContentNodeTestCase(TestCase):
         # for non-topic contentnode
         p = content.ContentNode.objects.get(title="c1")
         expected_output = content.File.objects.filter(id__in=[1, 2])
-        actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=p)
+        actual_output = api.get_missing_files(content=p)
         self.assertEqual(set(expected_output), set(actual_output))
         # for topic contentnode
         p = content.ContentNode.objects.get(title="c2")
         expected_output = content.File.objects.filter(id__in=[3, 4, 5])
-        actual_output = api.get_missing_files(channel_id=self.the_channel_id, content=p)
+        actual_output = api.get_missing_files(content=p)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_all_prerequisites(self):
@@ -135,11 +135,11 @@ class ContentNodeTestCase(TestCase):
         root = content.ContentNode.objects.get(title="root")
         # if root is the prerequisite of c1
         expected_output = content.ContentNode.objects.filter(title__in=["root"])
-        actual_output = api.get_all_prerequisites(channel_id=self.the_channel_id, content=c1)
+        actual_output = api.get_all_prerequisites(content=c1)
         self.assertEqual(set(expected_output), set(actual_output))
         # then c1 should not be the prerequisite of root
         expected_output = content.ContentNode.objects.filter(title__in=["c1"])
-        actual_output = api.get_all_prerequisites(channel_id=self.the_channel_id, content=root)
+        actual_output = api.get_all_prerequisites(content=root)
         self.assertNotEqual(set(actual_output), set(expected_output))
 
     def test_get_all_related(self):
@@ -151,45 +151,45 @@ class ContentNodeTestCase(TestCase):
         c2 = content.ContentNode.objects.get(title="c2")
         # if c1 is related to c2
         expected_output = content.ContentNode.objects.filter(title__in=["c2"])
-        actual_output = api.get_all_related(channel_id=self.the_channel_id, content=c1)
+        actual_output = api.get_all_related(content=c1)
         self.assertEqual(set(expected_output), set(actual_output))
         # then c2 should be related to c1
         expected_output = content.ContentNode.objects.filter(title__in=["c1"])
-        actual_output = api.get_all_related(channel_id=self.the_channel_id, content=c2)
+        actual_output = api.get_all_related(content=c2)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_set_prerequisite(self):
 
         root = content.ContentNode.objects.get(title="root")
         c2 = content.ContentNode.objects.get(title="c2")
-        self.assertFalse(api.get_all_prerequisites(channel_id=self.the_channel_id, content=root))
-        api.set_prerequisite(channel_id=self.the_channel_id, target_node=root, prerequisite=c2)
-        self.assertTrue(api.get_all_prerequisites(channel_id=self.the_channel_id, content=root))
+        self.assertFalse(api.get_all_prerequisites(content=root))
+        api.set_prerequisite(target_node=root, prerequisite=c2)
+        self.assertTrue(api.get_all_prerequisites(content=root))
 
     def test_set_prerequisite_self_reference(self):
 
         c2 = content.ContentNode.objects.get(title="c2")
         # test for self reference exception
         with self.assertRaises(IntegrityError):
-            api.set_prerequisite(channel_id=self.the_channel_id, target_node=c2, prerequisite=c2)
+            api.set_prerequisite(target_node=c2, prerequisite=c2)
 
     def test_set_prerequisite_uniqueness(self):
 
         root = content.ContentNode.objects.get(title="root")
         c2 = content.ContentNode.objects.get(title="c2")
-        api.set_prerequisite(channel_id=self.the_channel_id, target_node=c2, prerequisite=root)
+        api.set_prerequisite(target_node=c2, prerequisite=root)
         # test for uniqueness exception
         with self.assertRaises(ValidationError):
-            api.set_prerequisite(channel_id=self.the_channel_id, target_node=c2, prerequisite=root)
+            api.set_prerequisite(target_node=c2, prerequisite=root)
 
     def test_set_prerequisite_immediate_cyclic(self):
 
         root = content.ContentNode.objects.get(title="root")
         c2 = content.ContentNode.objects.get(title="c2")
-        api.set_prerequisite(channel_id=self.the_channel_id, target_node=c2, prerequisite=root)
+        api.set_prerequisite(target_node=c2, prerequisite=root)
         # test for immediate cyclic exception
         with self.assertRaises(IntegrityError):
-            api.set_prerequisite(channel_id=self.the_channel_id, target_node=root, prerequisite=c2)
+            api.set_prerequisite(target_node=root, prerequisite=c2)
 
     # <the exception hasn't been implemented yet, may add in the future>
     # def test_set_prerequisite_distant_cyclic(self):
@@ -205,34 +205,34 @@ class ContentNodeTestCase(TestCase):
 
         root = content.ContentNode.objects.get(title="root")
         c1 = content.ContentNode.objects.get(title="c1")
-        self.assertFalse(root in api.get_all_related(channel_id=self.the_channel_id, content=c1))
-        api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
-        self.assertTrue(root in api.get_all_related(channel_id=self.the_channel_id, content=c1))
+        self.assertFalse(root in api.get_all_related(content=c1))
+        api.set_is_related(content1=c1, content2=root)
+        self.assertTrue(root in api.get_all_related(content=c1))
 
     def test_set_is_related_self_reference(self):
 
         c1 = content.ContentNode.objects.get(title="c1")
         # test for self reference exception
         with self.assertRaises(IntegrityError):
-            api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=c1)
+            api.set_is_related(content1=c1, content2=c1)
 
     def test_set_is_related_uniqueness(self):
 
         root = content.ContentNode.objects.get(title="root")
         c1 = content.ContentNode.objects.get(title="c1")
-        api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
+        api.set_is_related(content1=c1, content2=root)
         # test for uniqueness exception
         with self.assertRaises(IntegrityError):
-            api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
+            api.set_is_related(content1=c1, content2=root)
 
     def test_set_is_related_immediate_cyclic(self):
 
         root = content.ContentNode.objects.get(title="root")
         c1 = content.ContentNode.objects.get(title="c1")
-        api.set_is_related(channel_id=self.the_channel_id, content1=c1, content2=root)
+        api.set_is_related(content1=c1, content2=root)
         # test for silently canceling save on immediate cyclic related_relationship
         try:
-            api.set_is_related(channel_id=self.the_channel_id, content1=root, content2=c1)
+            api.set_is_related(content1=root, content2=c1)
         except:
             self.assertTrue(False)
 
@@ -240,7 +240,7 @@ class ContentNodeTestCase(TestCase):
 
         p = content.ContentNode.objects.get(title="root")
         expected_output = content.ContentNode.objects.filter(title__in=["c2", "c2c2", "c2c3"])
-        actual_output = api.children_of_kind(channel_id=self.the_channel_id, content=p, kind=content_kinds.TOPIC)
+        actual_output = api.children_of_kind(content=p, kind=content_kinds.TOPIC)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_all_str(self):
@@ -295,11 +295,7 @@ class ContentNodeAPITestCase(APITestCase):
         return reverse(pattern_name, kwargs=kwargs)
 
     def test_ancestor_topics_endpoint(self):
-        c1_id = content.ContentNode.objects.get(title="c1").content_id
-        response = self.client.get(self._reverse_channel_url("contentnode-ancestor-topics", {"content_id": c1_id}))
-        self.assertEqual(response.data[0]['title'], 'root')
-
-        c1_pk = content.ContentNode.objects.using(self.the_channel_id).get(title="c1").pk
+        c1_pk = content.ContentNode.objects.get(title="c1").pk
         response = self.client.get(self._reverse_channel_url("contentnode-ancestor-topics", {"pk": c1_pk}))
         self.assertEqual(response.data[0]['title'], 'root')
 
