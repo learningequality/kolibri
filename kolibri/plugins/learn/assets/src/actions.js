@@ -6,7 +6,7 @@ const Kolibri = require('kolibri');
  * @param {String} id - The id of the model to be fetched.
  */
 const fetchFullContent = ({ dispatch }, id) => {
-  // Get the model from ContentMetaDataResource.
+  // Get the model from ContentNodeResource.
   const contentModel = Kolibri.resources.ContentNodeResource.getModel(id);
   // Check to see if it is already synced from the server.
   if (contentModel.synced) {
@@ -20,6 +20,23 @@ const fetchFullContent = ({ dispatch }, id) => {
   }
 };
 
+/**
+ * Action to fetch child topics of a particular topic from the API.
+ * @param {Function} dispatch - The dispatch method of the store object.
+ * @param {String} id - The id of the model to fetch the children of.
+ */
+const fetchNodes = ({ dispatch }, id) => {
+  // Get the collection from ContentNodeResource.
+  const contentCollection = Kolibri.resources.ContentNodeResource.getCollection();
+  contentCollection.fetch({ parent: id }).then((nodes) => {
+    const topics = nodes.filter((node) => node.kind === 'topic');
+    const contents = nodes.filter((node) => node.kind !== 'topic');
+    dispatch('SET_TOPICS', topics);
+    dispatch('SET_CONTENTS', contents);
+  });
+};
+
 module.exports = {
   fetchFullContent,
+  fetchNodes,
 };

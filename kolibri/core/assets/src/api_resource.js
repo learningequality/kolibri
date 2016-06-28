@@ -91,7 +91,7 @@ class Collection {
    * @returns {Promise} - Promise is resolved with Array of Model attributes when the XHR
    * successfully returns, otherwise reject is called with the response object.
    */
-  fetch({ params } = { params: {} }) {
+  fetch(params = {}) {
     this.synced = false;
     return new Promise((resolve, reject) => {
       // Do a fetch on the URL, with the parameters passed in.
@@ -191,7 +191,7 @@ class Resource {
    * @returns {Model} - Returns the instantiated Model.
    */
   addModelData(data) {
-    const model = new Model(data, { resource: this });
+    const model = new Model(data, this);
     return this.addModel(model);
   }
 
