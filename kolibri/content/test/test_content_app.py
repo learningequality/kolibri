@@ -295,10 +295,6 @@ class ContentNodeAPITestCase(APITestCase):
         return reverse(pattern_name, kwargs=kwargs)
 
     def test_ancestor_topics_endpoint(self):
-        c1_id = content.ContentNode.objects.get(title="c1").content_id
-        response = self.client.get(self._reverse_channel_url("contentnode-ancestor-topics", {"content_id": c1_id}))
-        self.assertEqual(response.data[0]['title'], 'root')
-
         c1_pk = content.ContentNode.objects.using(self.the_channel_id).get(title="c1").pk
         response = self.client.get(self._reverse_channel_url("contentnode-ancestor-topics", {"pk": c1_pk}))
         self.assertEqual(response.data[0]['title'], 'root')
