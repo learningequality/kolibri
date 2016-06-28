@@ -4,6 +4,7 @@ Most of the api endpoints here use django_rest_framework to expose the content a
 except some set methods that do not return anything.
 """
 from django.conf.urls import include, url
+from django.db.models import Q
 from kolibri.content import api, models, serializers
 from kolibri.content.content_db_router import using_content_database
 from rest_framework import filters, viewsets
@@ -26,14 +27,21 @@ class ChannelMetadataViewSet(viewsets.ViewSet):
             return Response(channel)
 
 
-class ContentNodeFilter(filters.django_filters.FilterSet):
+class ContentNodeFilter(filters.FilterSet):
+    search = filters.django_filters.MethodFilter(action='title_description_filter')
+
     def __init__(self, *args, **kwargs):
         super(ContentNodeFilter, self).__init__(*args, **kwargs)
         self.filters['parent'].field.queryset = self.queryset
 
     class Meta:
         model = models.ContentNode
-        fields = ['title', 'description', 'parent']
+        fields = ['parent']
+
+    def title_description_filter(self, queryset, value):
+        return queryset.filter(
+            Q(title__icontains=value) | Q(description__icontains=value)
+        )
 
 
 class ContentNodeViewset(viewsets.ViewSet):
