@@ -9,6 +9,7 @@ from kolibri.content import models as KolibriContent
 from kolibri.content.utils import validate
 
 from .constants import content_kinds
+from .content_db_router import using_content_database
 
 """ContentDB API methods"""
 
@@ -19,27 +20,31 @@ def can_get_content_with_id(func):
     """
     @wraps(func)
     def wrapper(channel_id, **kwargs):
-        content = kwargs.get('content')
-        content1 = kwargs.get('content1')
-        content2 = kwargs.get('content2')
-        target_node = kwargs.get('target_node')
-        prerequisite = kwargs.get('prerequisite')
 
-        if isinstance(content, KolibriContent.ContentNode) or \
-                (isinstance(content1, KolibriContent.ContentNode) and isinstance(content2, KolibriContent.ContentNode)) or \
-                (isinstance(target_node, KolibriContent.ContentNode) and isinstance(prerequisite, KolibriContent.ContentNode)):
-            pass
-        elif validate.is_valid_uuid(content):
-            kwargs['content'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=content)
-        elif validate.is_valid_uuid(content1) and validate.is_valid_uuid(content2):
-            kwargs['content1'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=content1)
-            kwargs['content2'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=content2)
-        elif validate.is_valid_uuid(target_node) and validate.is_valid_uuid(prerequisite):
-            kwargs['target_node'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=target_node)
-            kwargs['prerequisite'] = KolibriContent.ContentNode.objects.using(channel_id).get(content_id=prerequisite)
-        else:
-            raise TypeError("must provide a ContentNode object or a UUID content_id")
-        return func(channel_id, **kwargs)
+        with using_content_database(channel_id):
+
+            content = kwargs.get('content')
+            content1 = kwargs.get('content1')
+            content2 = kwargs.get('content2')
+            target_node = kwargs.get('target_node')
+            prerequisite = kwargs.get('prerequisite')
+
+            if isinstance(content, KolibriContent.ContentNode) or \
+                    (isinstance(content1, KolibriContent.ContentNode) and isinstance(content2, KolibriContent.ContentNode)) or \
+                    (isinstance(target_node, KolibriContent.ContentNode) and isinstance(prerequisite, KolibriContent.ContentNode)):
+                pass
+            elif validate.is_valid_uuid(content):
+                kwargs['content'] = KolibriContent.ContentNode.objects.get(content_id=content)
+            elif validate.is_valid_uuid(content1) and validate.is_valid_uuid(content2):
+                kwargs['content1'] = KolibriContent.ContentNode.objects.get(content_id=content1)
+                kwargs['content2'] = KolibriContent.ContentNode.objects.get(content_id=content2)
+            elif validate.is_valid_uuid(target_node) and validate.is_valid_uuid(prerequisite):
+                kwargs['target_node'] = KolibriContent.ContentNode.objects.get(content_id=target_node)
+                kwargs['prerequisite'] = KolibriContent.ContentNode.objects.get(content_id=prerequisite)
+            else:
+                raise TypeError("must provide a ContentNode object or a UUID content_id")
+            return func(channel_id, **kwargs)
+
     return wrapper
 
 def get_content_with_id(channel_id, content):
@@ -50,10 +55,11 @@ def get_content_with_id(channel_id, content):
     :param content_id: list or str or uuid
     :return: QuerySet of ContentNode
     """
-    if isinstance(content, list):
-        return KolibriContent.ContentNode.objects.using(channel_id).filter(content_id__in=content)
-    else:
-        return KolibriContent.ContentNode.objects.using(channel_id).filter(content_id=content)
+    with using_content_database(channel_id):
+        if isinstance(content, list):
+            return KolibriContent.ContentNode.objects.filter(content_id__in=content)
+        else:
+            return KolibriContent.ContentNode.objects.filter(content_id=content)
 
 @can_get_content_with_id
 def get_ancestor_topics(channel_id, content, **kwargs):
