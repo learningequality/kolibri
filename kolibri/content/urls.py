@@ -3,6 +3,8 @@
 Most of the api endpoints here use django_rest_framework to expose the content app APIs,
 except some set methods that do not return anything.
 """
+import ast
+
 from django.conf.urls import include, url
 from django.db.models import Q
 from kolibri.content import api, models, serializers
@@ -45,7 +47,7 @@ class ContentNodeFilter(filters.FilterSet):
 
 
 class ContentNodeViewset(viewsets.ViewSet):
-    lookup_field = 'content_id'
+    lookup_field = 'pk'
 
     def list(self, request, channelmetadata_channel_id=None):
         with using_content_database(channelmetadata_channel_id):
@@ -54,11 +56,14 @@ class ContentNodeViewset(viewsets.ViewSet):
             contents = serializers.ContentNodeSerializer(filtered, context=context, many=True).data
             return Response(contents)
 
-    def retrieve(self, request, content_id=None, channelmetadata_channel_id=None):
+    def retrieve(self, request, pk=None, channelmetadata_channel_id=None):
+        skip_preload = []
+        if request.method == 'GET' and 'skip' in request.GET:
+            skip_preload = ast.literal_eval(request.GET['skip'])
         with using_content_database(channelmetadata_channel_id):
-            context = {'request': request, 'channel_id': channelmetadata_channel_id}
+            context = {'request': request, 'channel_id': channelmetadata_channel_id, 'skip_preload': skip_preload}
             content = serializers.ContentNodeSerializer(
-                models.ContentNode.objects.get(content_id=content_id), context=context
+                models.ContentNode.objects.get(pk=pk), context=context
             ).data
             return Response(content)
 
@@ -71,7 +76,7 @@ class ContentNodeViewset(viewsets.ViewSet):
         with using_content_database(channelmetadata_channel_id):
             context = {'request': request, 'channel_id': channelmetadata_channel_id}
             data = serializers.ContentNodeSerializer(
-                api.get_ancestor_topics(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+                api.get_ancestor_topics(channel_id=channelmetadata_channel_id, content=self.kwargs['pk']), context=context, many=True
             ).data
             return Response(data)
 
@@ -84,7 +89,7 @@ class ContentNodeViewset(viewsets.ViewSet):
         with using_content_database(channelmetadata_channel_id):
             context = {'request': request, 'channel_id': channelmetadata_channel_id}
             data = serializers.ContentNodeSerializer(
-                api.immediate_children(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+                api.immediate_children(channel_id=channelmetadata_channel_id, content=self.kwargs['pk']), context=context, many=True
             ).data
             return Response(data)
 
@@ -97,7 +102,7 @@ class ContentNodeViewset(viewsets.ViewSet):
         with using_content_database(channelmetadata_channel_id):
             context = {'request': request, 'channel_id': channelmetadata_channel_id}
             data = serializers.ContentNodeSerializer(
-                api.leaves(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+                api.leaves(channel_id=channelmetadata_channel_id, content=self.kwargs['pk']), context=context, many=True
             ).data
             return Response(data)
 
@@ -110,7 +115,7 @@ class ContentNodeViewset(viewsets.ViewSet):
         with using_content_database(channelmetadata_channel_id):
             context = {'request': request, 'channel_id': channelmetadata_channel_id}
             data = serializers.ContentNodeSerializer(
-                api.get_all_prerequisites(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+                api.get_all_prerequisites(channel_id=channelmetadata_channel_id, content=self.kwargs['pk']), context=context, many=True
             ).data
             return Response(data)
 
@@ -123,7 +128,7 @@ class ContentNodeViewset(viewsets.ViewSet):
         with using_content_database(channelmetadata_channel_id):
             context = {'request': request, 'channel_id': channelmetadata_channel_id}
             data = serializers.ContentNodeSerializer(
-                api.get_all_related(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+                api.get_all_related(channel_id=channelmetadata_channel_id, content=self.kwargs['pk']), context=context, many=True
             ).data
             return Response(data)
 
@@ -136,7 +141,7 @@ class ContentNodeViewset(viewsets.ViewSet):
         with using_content_database(channelmetadata_channel_id):
             context = {'request': request, 'channel_id': channelmetadata_channel_id}
             data = serializers.FileSerializer(
-                api.get_missing_files(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
+                api.get_missing_files(channel_id=channelmetadata_channel_id, content=self.kwargs['pk']), context=context, many=True
             ).data
             return Response(data)
 

@@ -33,8 +33,9 @@
         // See https://webpack.github.io/docs/context.html
         return require(`./content-icons/${this.progress}-${this.kind}.svg`);
       },
+    },
     vuex: {
-      actions: require('../actions'),
+      actions: require('../../actions'),
     },
   };
 

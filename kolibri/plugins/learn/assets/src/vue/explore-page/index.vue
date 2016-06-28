@@ -8,7 +8,7 @@
       <div class="card-list">
         <topic-card
           v-for="topic in topics"
-          v-on:click="fetchNodes(topic.id)"
+          v-on:click="fetchNodes(topic.pk)"
           class="card"
           linkhref="#"
           :title="topic.title"
@@ -29,7 +29,7 @@
           :thumbsrc="content.thumbnail"
           :kind="content.kind"
           :progress="content.progress"
-          :pk="content.id">
+          :pk="content.pk">
         </content-card>
       </div>
     </div>

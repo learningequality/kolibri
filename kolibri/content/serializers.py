@@ -9,7 +9,7 @@ class ChannelMetadataSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ChannelMetadata
-        fields = ('url', 'channel_id', 'name', 'description', 'author', 'contentnodes')
+        fields = ('url', 'root_pk', 'channel_id', 'name', 'description', 'author', 'contentnodes')
         extra_kwargs = {
             'url': {'lookup_field': 'channel_id', 'view_name': 'channelmetadata-detail'}
         }
@@ -34,46 +34,86 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     url = DualLookuplinkedIdentityField(
         view_name='contentnode-detail',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id'
+        lookup_field_2='pk'
     )
     ancestor_topics = DualLookuplinkedIdentityField(
         view_name='contentnode-ancestor-topics',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
+        lookup_field_2='pk',
     )
     immediate_children = DualLookuplinkedIdentityField(
         view_name='contentnode-immediate-children',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
+        lookup_field_2='pk',
     )
     leaves = DualLookuplinkedIdentityField(
         view_name='contentnode-leaves',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
+        lookup_field_2='pk',
     )
     all_prerequisites = DualLookuplinkedIdentityField(
         view_name='contentnode-all-prerequisites',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
+        lookup_field_2='pk',
     )
     all_related = DualLookuplinkedIdentityField(
         view_name='contentnode-all-related',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
+        lookup_field_2='pk',
     )
     missing_files = DualLookuplinkedIdentityField(
         view_name='contentnode-missing-files',
         lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='content_id',
+        lookup_field_2='pk',
     )
+
+    ancestor_ids = serializers.SerializerMethodField()
+    immediate_children_ids = serializers.SerializerMethodField()
+    preload = serializers.SerializerMethodField()
+
+    def get_ancestor_ids(self, target_node):
+        """
+        in descending order (root ancestor first, immediate parent last)
+        """
+        return target_node.get_ancestors().using(self.context['channel_id']).values_list('pk', flat=True)
+
+    def get_immediate_children_ids(self, target_node):
+        """
+        in tree order
+        """
+        return target_node.get_children().using(self.context['channel_id']).values_list('pk', flat=True)
+
+    def get_preload(self, target_node):
+        skip_list = []
+        if 'skip_preload' in self.context:
+            skip_list = self.context['skip_preload']
+
+        immediate_children_list = []
+        for cn in target_node.get_children().using(self.context['channel_id']).exclude(pk__in=skip_list):
+            immediate_children_list.append(SimplifiedContentNodeSerializer(cn).data)
+
+        ancestros_list = []
+        for cn in target_node.get_ancestors().using(self.context['channel_id']).exclude(pk__in=skip_list):
+            ancestros_list.append(SimplifiedContentNodeSerializer(cn).data)
+
+        return {'ancestor': ancestros_list, 'immediate_children': immediate_children_list}
 
     class Meta:
         model = ContentNode
         depth = 1
         fields = (
-            'url', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children',
-            'leaves', 'all_prerequisites', 'all_related', 'missing_files', 'id'
+            'pk', 'url', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
+            'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children', 'files',
+            'leaves', 'all_prerequisites', 'all_related', 'missing_files', 'ancestor_ids', 'immediate_children_ids', 'preload'
+        )
+
+class SimplifiedContentNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentNode
+        depth = 1
+        fields = (
+            'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
+            'license', 'prerequisite', 'is_related', 'files'
         )
 
 

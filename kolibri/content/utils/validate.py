@@ -34,7 +34,7 @@ def sync_channelmetadata():
     """
     db_names = scan_contentdb_dir()
     # delete channelmetadata obejcts in default db that cannot be found in CONTENT_DB_DIR
-    ChannelMetadata.objects.exclude(channel_id__in=db_names)
+    ChannelMetadata.objects.exclude(channel_id__in=db_names).delete()
     # sync the channelmetadata objects in default db with channelmetadata objects in CONTENT_DB_DIR
     for db_name in db_names:
         update_values = ChannelMetadata.objects.using(db_name).values()[0]
