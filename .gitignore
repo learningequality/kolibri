@@ -76,6 +76,7 @@ kolibri/**/static/*
 # Content App
 storage/*
 kolibri/content/management/commands/*
+kolibri/content/content_db/*.sqlite3
 
 # virtual environment
 venv/

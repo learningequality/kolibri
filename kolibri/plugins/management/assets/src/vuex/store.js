@@ -1,7 +1,4 @@
-const Vue = require('vue');
 const Vuex = require('vuex');
-
-Vue.use(Vuex);
 
 // Set up initial state
 const ALL_CLASSROOMS_ID = null;

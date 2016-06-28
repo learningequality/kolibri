@@ -4,8 +4,11 @@
  */
 
 const vue = require('vue');
+const vuex = require('vuex');
 const VueIntl = require('vue-intl');
 const Mediator = require('./core_app_mediator');
+const ResourceManager = require('./api_resource').ResourceManager;
+const Resources = require('./apiResources/resources');
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -32,6 +35,7 @@ function Lib() {
   // libraries
   this.loglevel = require('loglevel');
   this.vue = vue;
+  this.vuex = vuex;
   // views
   this.coreBase = require('./core-base');
   this.contentRenderer = require('./content-renderer');
@@ -44,14 +48,21 @@ function Lib() {
  */
 module.exports = function CoreApp() {
   this.lib = new Lib();
+  this.resources = new ResourceManager(this);
   const mediator = new Mediator();
 
+  Resources.forEach((resourceClass) => this.resources.registerResource(resourceClass));
   /**
    * Use the vue-intl plugin.
    **/
   vue.use(VueIntl);
 
   vue.prototype.Kolibri = this;
+  /**
+   * Use vuex for state management.
+   */
+  vue.use(vuex);
+
   /**
    * If the browser doesn't support the Intl polyfill, we retrieve that and
    * the modules need to wait until that happens.
