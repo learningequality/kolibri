@@ -92,6 +92,9 @@ DATABASES = {
     }
 }
 
+# Enable dynamic routing for content databases
+DATABASE_ROUTERS = ['kolibri.content.content_db_router.ContentDBRouter']
+
 # DIR for storing contentDBs
 CONTENT_DB_DIR = os.path.join(BASE_DIR, 'kolibri', 'content', 'content_db')
 # DIR for storing content files for all channels
