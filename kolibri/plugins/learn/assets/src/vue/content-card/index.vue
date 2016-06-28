@@ -18,14 +18,47 @@
 <script>
 
   module.exports = {
-    props: [
-      'title',
-      'thumbsrc',
-      'linkhref',
-      'kind',
-      'progress',
-      'pk',
-    ],
+    props: {
+      pk: {
+        type: String,
+        required: true,
+      },
+      title: {
+        type: String,
+        required: true,
+      },
+      thumbsrc: {
+        type: String,
+        required: true,
+      },
+      linkhref: {
+        type: String,
+        required: true,
+      },
+      kind: {
+        type: String,
+        required: true,
+        validator(value) {
+          return [
+            'audio',
+            'video',
+            'document',
+            'exercise',
+          ].some(elem => elem === value);
+        },
+      },
+      progress: {
+        type: String,
+        required: true,
+        validator(value) {
+          return [
+            'complete',
+            'partial',
+            'unstarted',
+          ].some(elem => elem === value);
+        },
+      },
+    },
     computed: {
       icon() {
         // Note: dynamic requires should be used carefully because
