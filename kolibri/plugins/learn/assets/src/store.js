@@ -30,13 +30,13 @@ const mutations = {
     Object.assign(state.full, attributes);
   },
   SET_CHANNEL(state, channelId) {
-    state.channelId = channelId; // eslint-disable-line no-param-reassign
+    state.channelId = channelId;
   },
   SET_TOPICS(state, topics) {
-    state.topics = topics; // eslint-disable-line no-param-reassign
+    state.topics = topics;
   },
   SET_CONTENTS(state, contents) {
-    state.contents = contents; // eslint-disable-line no-param-reassign
+    state.contents = contents;
   },
 };
 

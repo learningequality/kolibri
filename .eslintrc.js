@@ -5,8 +5,9 @@ module.exports = {
   plugins: [
     'html'
   ],
-  // add your custom rules here
+  // custom rules
   'rules': {
+    'no-param-reassign': ['error', { 'props': false }], // permit vuex state mutations
     'quote-props': ['error', 'consistent-as-needed'],
     'quotes': ['error', 'single', { 'allowTemplateLiterals': true }],
     // allow debugger during development

@@ -95,13 +95,11 @@ const mutations = {
   },
 
   SET_SELECTED_CLASSROOM_ID(state, id) {
-    // Disable no-param-reassign rule... that is expressly the purpose of this function
-    state.selectedClassroomId = id; // eslint-disable-line no-param-reassign
+    state.selectedClassroomId = id;
   },
 
   SET_SELECTED_GROUP_ID(state, id) {
-    // Disable no-param-reassign rule... that is expressly the purpose of this function
-    state.selectedGroupId = id; // eslint-disable-line no-param-reassign
+    state.selectedGroupId = id;
   },
 };
 
