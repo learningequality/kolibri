@@ -45,7 +45,6 @@ class ContentQuerySet(models.QuerySet):
 
 class ContentTag(models.Model):
     tag_name = models.CharField(max_length=30, blank=True)
-    channel = UUIDField(null=True, blank=True)
 
     objects = ContentQuerySet.as_manager()
 
@@ -213,6 +212,7 @@ class ChannelMetadata(models.Model):
     author = models.CharField(max_length=400, blank=True)
     version = models.IntegerField(default=0)
     thumbnail = models.TextField(blank=True)
+    root_pk = models.IntegerField()
 
     objects = ContentQuerySet.as_manager()
 
