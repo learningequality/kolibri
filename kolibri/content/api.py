@@ -7,6 +7,7 @@ from functools import wraps
 from django.db.models import Q
 from kolibri.content import models as KolibriContent
 from kolibri.content.utils import validate
+
 from .constants import content_kinds
 
 """ContentDB API methods"""
@@ -160,3 +161,12 @@ def children_of_kind(channel_id, content, kind, **kwargs):
     :return: QuerySet of ContentNode
     """
     return content.get_descendants(include_self=False).filter(kind=kind).using(channel_id)
+
+
+def get_top_level_topics(channel_id):
+    """
+    Get all the top level topics for a channel.
+    :param channel_id: str - the id for the channel.
+    :return: QuerySet of ContentNode
+    """
+    return KolibriContent.ContentNode.objects.using(channel_id).get(parent__isnull=True).get_children().using(channel_id).filter(kind="topic")

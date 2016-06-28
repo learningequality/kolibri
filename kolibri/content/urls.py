@@ -22,10 +22,16 @@ class ChannelMetadataViewSet(viewsets.ViewSet):
         channel = serializers.ChannelMetadataSerializer(models.ChannelMetadata.objects.get(channel_id=channel_id), context={'request': request}).data
         return Response(channel)
 
+
 class ContentNodeFilter(filters.django_filters.FilterSet):
-        class Meta:
-            model = models.ContentNode
-            fields = ['title', 'description']
+    def __init__(self, *args, **kwargs):
+        super(ContentNodeFilter, self).__init__(*args, **kwargs)
+        self.filters['parent'].field.queryset = self.queryset
+
+    class Meta:
+        model = models.ContentNode
+        fields = ['title', 'description', 'parent']
+
 
 class ContentNodeViewset(viewsets.ViewSet):
     lookup_field = 'content_id'
@@ -114,6 +120,7 @@ class ContentNodeViewset(viewsets.ViewSet):
             api.get_missing_files(channel_id=channelmetadata_channel_id, content=self.kwargs['content_id']), context=context, many=True
         ).data
         return Response(data)
+
 
 class FileViewset(viewsets.ViewSet):
     def list(self, request, channelmetadata_channel_id=None):
