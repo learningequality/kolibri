@@ -44,7 +44,7 @@ class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
         depth = 1
-        fields = ('url', 'storage_url', 'id', 'checksum', 'available', 'file_size', 'extension', 'preset', 'lang', 'supplementary', 'thumbnail')
+        fields = ('url', 'storage_url', 'id', 'priority', 'checksum', 'available', 'file_size', 'extension', 'preset', 'lang', 'supplementary', 'thumbnail')
 
 
 class ContentNodeSerializer(serializers.ModelSerializer):
