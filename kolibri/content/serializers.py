@@ -93,13 +93,13 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         """
         in descending order (root ancestor first, immediate parent last)
         """
-        return target_node.get_ancestors().values_list('pk', flat=True)
+        return target_node.get_ancestors().using(self.context['channel_id']).values_list('pk', flat=True)
 
     def get_immediate_children_ids(self, target_node):
         """
         in tree order
         """
-        return target_node.get_children().values_list('pk', flat=True)
+        return target_node.get_children().using(self.context['channel_id']).values_list('pk', flat=True)
 
     def get_preload(self, target_node):
         skip_list = []
@@ -107,11 +107,11 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             skip_list = self.context['skip_preload']
 
         immediate_children_list = []
-        for cn in target_node.get_children().exclude(pk__in=skip_list):
+        for cn in target_node.get_children().using(self.context['channel_id']).exclude(pk__in=skip_list):
             immediate_children_list.append(SimplifiedContentNodeSerializer(cn).data)
 
         ancestros_list = []
-        for cn in target_node.get_ancestors().exclude(pk__in=skip_list):
+        for cn in target_node.get_ancestors().using(self.context['channel_id']).exclude(pk__in=skip_list):
             ancestros_list.append(SimplifiedContentNodeSerializer(cn).data)
 
         return {'ancestor': ancestros_list, 'immediate_children': immediate_children_list}
