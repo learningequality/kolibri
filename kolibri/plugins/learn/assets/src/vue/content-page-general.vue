@@ -21,6 +21,7 @@
         :progress="content.progress">
       </content-card>
     </div>
+    <content-render kind="video" extension="mp4"></content-render>
   </div>
 
 </template>
