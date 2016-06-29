@@ -21,9 +21,7 @@ from django.conf import settings
 DEFAULT_PLUGINS = getattr(
     settings,
     'KOLIBRI_DEFAULT_PLUGINS',
-    [
-        'kolibri.plugins.example_plugin',
-    ]
+    []
 )
 
 #: Skips automatically migrating the database when running kolibri commands
