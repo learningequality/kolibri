@@ -19,10 +19,7 @@
 
   module.exports = {
     props: {
-      pk: {
-        type: String,
-        required: true,
-      },
+      pk: {},
       title: {
         type: String,
         required: true,
