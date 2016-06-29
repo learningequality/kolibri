@@ -64,7 +64,7 @@ var config = {
           name: '[name].[ext]?[hash]'
         }
       },
-      // Usage of file loader allows referencing a local vtt file without inlining it.
+      // Usage of file loader allows referencing a local vtt file without in-lining it.
       // Can be removed once the local en.vtt test file is removed.
       {
         test: /\.(vtt)$/,
