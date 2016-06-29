@@ -1,9 +1,6 @@
 <template>
 
   <div>
-    <h3>
-      {{ title }}
-    </h3>
     <div v-el:container></div>
   </div>
 
@@ -14,25 +11,41 @@
 
   module.exports = {
     props: {
-      channelId: String,
-      contentId: String,
-      kind: String,
-      extension: String,
-      title: String,
       contentData: {
         type: Object,
-        default: () => ({ url: '#' }),
+        default: () => ({ pk: 0 }),
       },
-
     },
     computed: {
       contentType() {
-        return `${this.kind}/${this.extension}`;
+        if (this.contentData) {
+          return `${this.contentData.kind}/${this.extension}`;
+        }
+        return '';
+      },
+      extension() {
+        if (this.availableFiles.length > 0) {
+          // Remove leading full stop (editor's note: period) from extension field.
+          return this.availableFiles[0].extension.replace(/^./, '');
+        }
+        return '';
+      },
+      availableFiles() {
+        if (typeof this.contentData !== 'undefined' & Array.isArray(this.contentData.files)) {
+          return this.contentData.files.filter(
+            (file) => !file.thumbnail & !file.supplementary & file.available
+          );
+        }
+        return [];
       },
     },
+    init() {
+      this._eventListeners = [];
+    },
     created() {
-      this.Kolibri.once(`component_render:${this.contentType}`, this.setRendererComponent);
-      this.Kolibri.emit(`content_render:${this.contentType}`);
+      this.findRendererComponent();
+      // This means this component has to be torn down on channel switches.
+      this.$watch('contentData.pk', this.findRendererComponent);
     },
     ready() {
       this.ready = true;
@@ -42,14 +55,31 @@
       currentViewClass: null,
     }),
     methods: {
+      clearListeners() {
+        this._eventListeners.forEach((listener) => {
+          this.Kolibri.off(listener.event, listener.callback);
+        });
+        this._eventListeners = [];
+      },
+      findRendererComponent() {
+        this.rendered = false;
+        this.clearListeners();
+        const event = `component_render:${this.contentType}`;
+        console.log(event);
+        const callback = this.setRendererComponent;
+        this.Kolibri.once(event, callback);
+        this._eventListeners.push({ event, callback });
+        this.Kolibri.emit(`content_render:${this.contentType}`);
+      },
       setRendererComponent(component) {
         this.currentViewClass = component;
-        if (this.ready && !this.contentView) {
+        if (this.ready && !this.rendered) {
           this.renderContent();
         }
       },
       renderContent() {
         if (this.currentViewClass !== null) {
+          this.rendered = true;
           const propsData = {};
           const enumerables = Object.keys(this.contentData);
           const properties = Object.getOwnPropertyNames(this.contentData).filter(

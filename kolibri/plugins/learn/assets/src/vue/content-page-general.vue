@@ -2,14 +2,14 @@
 
   <div>
     <h2>Learn Content</h2>
-    <content-render :kind="kind" :extension="extension" :content-data="contentData">
-    </content-render>
     <h3>
       {{ title }}
     </h3>
     <p>
       {{ description }}
     </p>
+    <content-render :content-data="contentData">
+    </content-render>
     <div class="rec-grid card-list">
       <content-card
         v-for="content in recommended"
@@ -48,8 +48,6 @@
         title: (state) => state.full.title,
         description: (state) => state.full.description,
         recommended: (state) => state.full.recommended,
-        kind: (state) => state.full.kind,
-        extension: (state) => state.full.extension,
         contentData: (state) => state.full,
       },
       actions: require('../actions'),

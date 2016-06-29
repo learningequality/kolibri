@@ -22,6 +22,7 @@ const publicMethods = [
   'emit',
   'on',
   'once',
+  'off',
 ];
 
 /**
