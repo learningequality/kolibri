@@ -64,7 +64,24 @@ class ContentNode(MPTTModel):
     tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
 
     title = models.CharField(max_length=200)
+
+    # the instance_id is used for mapping a node between kolibri and the
+    # content curation server. We can't use the raw id, since ids aren't
+    # guaranteed to be consistent across different content curation servers
+    # (once we have a distributed content curation server), and content ids may
+    # be the same across different nodes within the same channel (for student
+    # logging and analytics purposes.) Apart from generating the instance_id
+    # upon node creation, we also change the instance_id whenever we move or
+    # copy a node).
+    instance_id = UUIDField(default=uuid.uuid4, editable=False, unique=True)
+
+    # the content_id is used for tracking a user's interaction with a piece of
+    # content, in the face of possibly many copies of that content. When a user
+    # interacts with a piece of content, all substantially similar pieces of
+    # content should be marked as such as well. We track these "substantially
+    # similar" types of content by having them have the same content_id.
     content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False)
+
     description = models.CharField(max_length=400, blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)
     license_owner = models.CharField(max_length=200, blank=True)
