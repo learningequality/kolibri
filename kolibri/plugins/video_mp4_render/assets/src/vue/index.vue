@@ -15,12 +15,12 @@
 <script>
 
   const videojs = require('video.js');
-  require('./replayPlayForward');
-  let videoPlayer = null;
+  require('./videojs-centerbtns');
+
   module.exports = {
 
     ready() {
-      videoPlayer = videojs(this.$els.video, {
+      this.videoPlayer = videojs(this.$els.video, {
         controls: true,
         autoplay: false,
         fluid: true,
@@ -34,36 +34,16 @@
         bigPlayButton: false,
         controlBar: {
           children: [
-            {
-              name: 'currentTimeDisplay',
-            },
-            {
-              name: 'timeDivider',
-            },
-            {
-              name: 'progressControl',
-            },
-            {
-              name: 'durationDisplay',
-            },
-            {
-              name: 'remainingTimeDisplay',
-            },
-            {
-              name: 'muteToggle',
-            },
-            {
-              name: 'VolumeBar',
-            },
-            {
-              name: 'playbackRateMenuButton',
-            },
-            {
-              name: 'captionsButton',
-            },
-            {
-              name: 'fullscreenToggle',
-            },
+            { name: 'currentTimeDisplay' },
+            { name: 'timeDivider' },
+            { name: 'progressControl' },
+            { name: 'durationDisplay' },
+            { name: 'remainingTimeDisplay' },
+            { name: 'muteToggle' },
+            { name: 'VolumeBar' },
+            { name: 'playbackRateMenuButton' },
+            { name: 'captionsButton' },
+            { name: 'fullscreenToggle' },
           ],
         },
       },
@@ -106,22 +86,21 @@
       captionsUrl: require('./en.vtt'),
       captionsLang: 'en',
       captionsLabel: 'English',
-      playingState: false,
     }),
     methods: {
       setPlayState(state) {
-        this.playState = state;
         if (state === true) {
-          videoPlayer.$('.videotoggle').classList.add('videopaused');
-          videoPlayer.$('.videoreplay').classList.add('display');
-          videoPlayer.$('.videoforward').classList.add('display');
+          this.videoPlayer.$('.videotoggle').classList.add('videopaused');
+          this.videoPlayer.$('.videoreplay').classList.add('display');
+          this.videoPlayer.$('.videoforward').classList.add('display');
         } else {
-          videoPlayer.$('.videotoggle').classList.remove('videopaused');
-          videoPlayer.$('.videoreplay').classList.remove('display');
-          videoPlayer.$('.videoforward').classList.remove('display');
+          this.videoPlayer.$('.videotoggle').classList.remove('videopaused');
+          this.videoPlayer.$('.videoreplay').classList.remove('display');
+          this.videoPlayer.$('.videoforward').classList.remove('display');
         }
       },
     },
+
   };
 
 </script>
@@ -130,6 +109,7 @@
 <style lang="stylus">
 
   // Default videojs stylesheet
+  // Unable to refrence the videojs using require since videojs dosen't have good webpack support
   @import '../../../../../../node_modules/video.js/dist/video-js.css'
 
   // Videojs skin customization

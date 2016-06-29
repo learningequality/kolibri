@@ -36,16 +36,6 @@ class TogglePlayButton extends videojsButton {
   }
 }
 
-const replayplayforward = function (options) {
-  this.ready(() => {
-    this.addChild('ReplayButton', options);
-    this.addChild('ForwardButton', options);
-    this.addChild('TogglePlayButton', options);
-  });
-};
-
 videojs.registerComponent('ReplayButton', ReplayButton);
 videojs.registerComponent('ForwardButton', ForwardButton);
 videojs.registerComponent('TogglePlayButton', TogglePlayButton);
-
-videojs.plugin('replayplayforward', replayplayforward);
