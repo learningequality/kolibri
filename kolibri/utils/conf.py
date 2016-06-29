@@ -44,7 +44,16 @@ if not os.path.isfile(conf_file):
 config = {}
 
 #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
-config['INSTALLED_APPS'] = []
+config['INSTALLED_APPS'] = [
+    # Note from Devon -
+    # Temporarily adding these here to get things working for most devs.
+    # It's not clear to me where the correct place to add them is.
+    "kolibri.plugins.management",
+    "kolibri.plugins.learn",
+    "kolibri.plugins.document_pdf_render",
+    "kolibri.plugins.video_mp4_render",
+    "kolibri.plugins.audio_mp3_render"
+]
 
 #: Well-known plugin names that are automatically searched for and enabled on
 #: first-run.
