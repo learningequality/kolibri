@@ -92,6 +92,7 @@
               Object.assign(propsData, JSON.parse(this.contentData[key]));
             }
           }
+          propsData.defaultFile = this.availableFiles[0];
           const options = {
             parent: this,
             el: this.$els.container,
