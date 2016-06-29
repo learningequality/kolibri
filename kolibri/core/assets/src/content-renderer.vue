@@ -25,8 +25,7 @@
       },
       extension() {
         if (this.availableFiles.length > 0) {
-          // Remove leading full stop (editor's note: period) from extension field.
-          return this.availableFiles[0].extension.replace(/^./, '');
+          return this.availableFiles[0].extension;
         }
         return '';
       },
@@ -65,7 +64,6 @@
         this.rendered = false;
         this.clearListeners();
         const event = `component_render:${this.contentType}`;
-        console.log(event);
         const callback = this.setRendererComponent;
         this.Kolibri.once(event, callback);
         this._eventListeners.push({ event, callback });

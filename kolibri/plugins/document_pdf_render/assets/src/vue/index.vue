@@ -13,7 +13,7 @@
   module.exports = {
     props: ['defaultFile'],
     ready() {
-      PDFobject.embed(this.defaultFile.url, this.$els.container);
+      PDFobject.embed(this.defaultFile.storage_url, this.$els.container);
     },
   };
 

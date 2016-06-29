@@ -32,9 +32,16 @@ return the module.
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
+from django.conf import settings
+from django.conf.urls import url
 from kolibri.plugins.registry import get_urls as plugin_urls
 
 app_name = 'kolibri'
 
 
 urlpatterns = plugin_urls()
+
+urlpatterns += [
+    url(r'^' + settings.STORAGE_URL[1:-1] + '(?P<path>.*)$', 'django.views.static.serve',
+        {'document_root': settings.STORAGE_ROOT})
+]
