@@ -7,7 +7,7 @@ function initialState() {
     topics: global.bootstrappedTopics || [],
     contents: [],
     recommended: require('./demo-data/content_recommendation_data.json'),
-    full: require('./demo-data/video__full_metadata.json'),
+    full: {},
     channel: 'dummy_db',
   };
 }

@@ -2,10 +2,8 @@
 
   <div>
     <a v-link="{ path: '/learn', exact: true }">Home</a>
-    <content-page-general 
-      :title="title" 
-      :description="description"
-      :recommended="recommended"
+    <content-page-general
+      :pk="pk"
     ></content-page-general>
   </div>
 
@@ -17,14 +15,6 @@
   module.exports = {
     components: {
       'content-page-general': require('./content-page-general'),
-    },
-    vuex: {
-      getters: {
-        // better practice would be to define vuex getter functions globally
-        title: (state) => state.full.title,
-        description: (state) => state.full.description,
-        recommended: (state) => state.full.recommended,
-      },
     },
   };
 

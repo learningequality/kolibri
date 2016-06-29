@@ -50,9 +50,22 @@
       },
       renderContent() {
         if (this.currentViewClass !== null) {
+          const propsData = {};
+          const enumerables = Object.keys(this.contentData);
+          const properties = Object.getOwnPropertyNames(this.contentData).filter(
+            (name) => enumerables.indexOf(name) > -1
+          );
+          for (const key in properties) {
+            if (key !== 'extra_fields') {
+              propsData[key] = this.contentData[key];
+            } else {
+              Object.assign(propsData, JSON.parse(this.contentData[key]));
+            }
+          }
           const options = {
             parent: this,
             el: this.$els.container,
+            propsData,
           };
           Object.assign(options, this.currentViewClass);
           this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap

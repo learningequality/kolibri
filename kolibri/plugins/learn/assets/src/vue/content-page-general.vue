@@ -2,7 +2,7 @@
 
   <div>
     <h2>Learn Content</h2>
-    <content-render kind="audio" extension="mp3">
+    <content-render :kind="kind" :extension="extension" :content-data="contentData">
     </content-render>
     <h3>
       {{ title }}
@@ -29,11 +29,15 @@
 <script>
 
   module.exports = {
-    props: [
-      'title',
-      'description',
-      'recommended',
-    ],
+    created() {
+      this.fetchFullContent(this.pk);
+    },
+    props: {
+      pk: {
+        type: Number,
+        default: 4,
+      },
+    },
     components: {
       'content-render': require('content-renderer'),
       'content-card': require('./content-card'),
@@ -44,7 +48,11 @@
         title: (state) => state.full.title,
         description: (state) => state.full.description,
         recommended: (state) => state.full.recommended,
+        kind: (state) => state.full.kind,
+        extension: (state) => state.full.extension,
+        contentData: (state) => state.full,
       },
+      actions: require('../actions'),
     },
   };
 
