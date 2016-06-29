@@ -57,10 +57,17 @@ var config = {
       },
       // moved from parse_bundle_plugin.js
       {
-        test: /\.(png|jpg|gif|svg)$/,
+        test: /\.(png|jpg|gif|svg|eot)$/,
         loader: 'url',
         query: {
           limit: 10000,
+          name: '[name].[ext]?[hash]'
+        }
+      },
+      {
+        test: /\.(vtt)$/,
+        loader: 'file',
+        query: {
           name: '[name].[ext]?[hash]'
         }
       },
