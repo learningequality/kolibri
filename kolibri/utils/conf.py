@@ -57,7 +57,7 @@ config['INSTALLED_APPS'] = [
 
 #: Well-known plugin names that are automatically searched for and enabled on
 #: first-run.
-config['AUTO_SEARCH_PLUGINS'] = ['some.plugin.module.path']
+config['AUTO_SEARCH_PLUGINS'] = []
 
 #: If a config file does not exist, we assume it's the first run
 config['FIRST_RUN'] = True
