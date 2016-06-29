@@ -28,8 +28,8 @@ class ContentNodeResource extends Resource {
   static resourceName() {
     return 'contentnode';
   }
-  static idkey() {
-    return 'content_id';
+  static idKey() {
+    return 'pk';
   }
 }
 

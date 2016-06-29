@@ -104,6 +104,9 @@ class Collection {
         this.set(response.entity);
         // Mark that the fetch has completed.
         this.synced = true;
+        this.models.forEach((model) => {
+          model.synced = true; // eslint-disable-line no-param-reassign
+        });
         // Return the data from the models, not the models themselves.
         resolve(this.models.map((model) => model.attributes));
       }, (response) => {
