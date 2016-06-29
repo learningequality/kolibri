@@ -30,6 +30,23 @@ class DualLookuplinkedIdentityField(serializers.HyperlinkedIdentityField):
         return self.reverse(view_name, kwargs=kwargs, request=request, format=format)
 
 
+class FileSerializer(serializers.ModelSerializer):
+    url = DualLookuplinkedIdentityField(
+        view_name='file-detail',
+        lookup_field_1='channelmetadata_channel_id',
+        lookup_field_2='pk'
+    )
+    storage_url = serializers.SerializerMethodField()
+
+    def get_storage_url(self, target_node):
+        return target_node.get_url()
+
+    class Meta:
+        model = File
+        depth = 1
+        fields = ('url', 'storage_url', 'id', 'checksum', 'available', 'file_size', 'extension', 'preset', 'lang', 'supplementary', 'thumbnail')
+
+
 class ContentNodeSerializer(serializers.ModelSerializer):
     url = DualLookuplinkedIdentityField(
         view_name='contentnode-detail',
@@ -67,6 +84,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         lookup_field_2='pk',
     )
 
+    files = FileSerializer(many=True, read_only=True)
     ancestor_ids = serializers.SerializerMethodField()
     immediate_children_ids = serializers.SerializerMethodField()
     preload = serializers.SerializerMethodField()
@@ -115,16 +133,3 @@ class SimplifiedContentNodeSerializer(serializers.ModelSerializer):
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
             'license', 'prerequisite', 'is_related', 'files'
         )
-
-
-class FileSerializer(serializers.ModelSerializer):
-    url = DualLookuplinkedIdentityField(
-        view_name='file-detail',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='pk'
-    )
-
-    class Meta:
-        model = File
-        depth = 1
-        fields = ('url', 'id', 'checksum', 'available', 'file_size', 'contentnode', 'extension', 'preset', 'lang', 'supplementary', 'thumbnail')
