@@ -21,6 +21,9 @@ router.map({
   '/learn/content': {
     component: require('./vue/learn-content-page'),
   },
+  '/scratchpad': {
+    component: require('./vue/scratchpad'),
+  },
 });
 
 router.redirect({
