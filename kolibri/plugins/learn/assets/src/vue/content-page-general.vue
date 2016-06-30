@@ -8,7 +8,14 @@
     <p>
       {{ description }}
     </p>
-    <content-render :content-data="contentData">
+    <content-render
+      :pk="pk"
+      :kind="kind"
+      :files="files"
+      :content-id="contentId"
+      :channel-id="channelId"
+      :available="available"
+      :extra-fields="extraFields">
     </content-render>
     <div class="rec-grid card-list">
       <content-card
@@ -30,10 +37,10 @@
 
   module.exports = {
     created() {
-      this.fetchFullContent(this.pk);
+      this.fetchFullContent(this.primaryKey);
     },
     props: {
-      pk: {
+      primaryKey: {
         type: Number,
         default: 4,
       },
@@ -48,7 +55,13 @@
         title: (state) => state.full.title,
         description: (state) => state.full.description,
         recommended: (state) => state.full.recommended,
-        contentData: (state) => state.full,
+        pk: (state) => state.full.pk,
+        kind: (state) => state.full.kind,
+        files: (state) => state.full.files,
+        contentId: (state) => state.full.content_id,
+        channelId: (state) => state.channel,
+        available: (state) => state.full.available,
+        extraFields: (state) => state.full.extra_fields,
       },
       actions: require('../actions'),
     },

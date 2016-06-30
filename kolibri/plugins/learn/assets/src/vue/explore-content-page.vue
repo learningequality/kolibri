@@ -3,7 +3,7 @@
   <div>
     <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs>
     <content-page-general
-      :pk="pk"
+      :primary-key="pk"
     ></content-page-general>
   </div>
 

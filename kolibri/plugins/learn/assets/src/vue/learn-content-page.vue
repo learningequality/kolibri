@@ -3,7 +3,7 @@
   <div>
     <a v-link="{ path: '/learn', exact: true }">Home</a>
     <content-page-general
-      :pk="pk"
+      :primary-key="pk"
     ></content-page-general>
   </div>
 

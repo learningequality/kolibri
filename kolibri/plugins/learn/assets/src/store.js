@@ -13,6 +13,9 @@ function initialState() {
       kind: '',
       files: [],
       pk: 0,
+      available: false,
+      extra_fields: '{}',
+      content_id: '',
     },
     channel: 'dummy_db',
   };

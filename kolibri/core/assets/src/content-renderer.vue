@@ -1,7 +1,12 @@
 <template>
 
   <div>
-    <div v-el:container></div>
+    <div v-if="available">
+      <div v-el:container></div>
+    </div>
+    <div v-else>
+      This content is not available.
+    </div>
   </div>
 
 </template>
@@ -11,31 +16,51 @@
 
   module.exports = {
     props: {
-      contentData: {
-        type: Object,
-        default: () => ({ pk: 0 }),
+      pk: {
+        type: Number,
+        default: 0,
+      },
+      kind: {
+        type: String,
+      },
+      files: {
+        type: Array,
+        default: () => [],
+      },
+      contentId: {
+        type: String,
+        default: '',
+      },
+      channelId: {
+        type: String,
+        default: '',
+      },
+      available: {
+        type: Boolean,
+        default: false,
+      },
+      extraFields: {
+        type: String,
+        default: '{}',
       },
     },
     computed: {
       contentType() {
-        if (this.contentData) {
-          return `${this.contentData.kind}/${this.extension}`;
+        if (typeof this.kind !== 'undefined' & typeof this.extension !== 'undefined') {
+          return `${this.kind}/${this.extension}`;
         }
-        return '';
+        return undefined;
       },
       extension() {
         if (this.availableFiles.length > 0) {
           return this.availableFiles[0].extension;
         }
-        return '';
+        return undefined;
       },
       availableFiles() {
-        if (typeof this.contentData !== 'undefined' & Array.isArray(this.contentData.files)) {
-          return this.contentData.files.filter(
-            (file) => !file.thumbnail & !file.supplementary & file.available
-          );
-        }
-        return [];
+        return this.files.filter(
+          (file) => !file.thumbnail & !file.supplementary & file.available
+        );
       },
     },
     init() {
@@ -44,7 +69,7 @@
     created() {
       this.findRendererComponent();
       // This means this component has to be torn down on channel switches.
-      this.$watch('contentData.pk', this.findRendererComponent);
+      this.$watch('pk', this.findRendererComponent);
     },
     ready() {
       this.ready = true;
@@ -61,13 +86,14 @@
         this._eventListeners = [];
       },
       findRendererComponent() {
-        this.rendered = false;
         this.clearListeners();
-        const event = `component_render:${this.contentType}`;
-        const callback = this.setRendererComponent;
-        this.Kolibri.once(event, callback);
-        this._eventListeners.push({ event, callback });
-        this.Kolibri.emit(`content_render:${this.contentType}`);
+        if (this.available) {
+          this.rendered = false;
+          const event = `component_render:${this.contentType}`;
+          const callback = this.setRendererComponent;
+          this.Kolibri.once(event, callback);
+          this._eventListeners.push({ event, callback });
+          this.Kolibri.emit(`content_render:${this.contentType}`);
       },
       setRendererComponent(component) {
         this.currentViewClass = component;
@@ -76,18 +102,18 @@
         }
       },
       renderContent() {
-        if (this.currentViewClass !== null) {
+        if (this.currentViewClass !== null & this.available & !this.rendered) {
           this.rendered = true;
           const propsData = {};
-          const enumerables = Object.keys(this.contentData);
-          const properties = Object.getOwnPropertyNames(this.contentData).filter(
+          const enumerables = Object.keys(this.$options.props);
+          const properties = Object.getOwnPropertyNames(this.$options.props).filter(
             (name) => enumerables.indexOf(name) > -1
           );
           for (const key in properties) {
-            if (key !== 'extra_fields') {
-              propsData[key] = this.contentData[key];
+            if (key !== 'extraFields') {
+              propsData[key] = this[key];
             } else {
-              Object.assign(propsData, JSON.parse(this.contentData[key]));
+              Object.assign(propsData, JSON.parse(this[key]));
             }
           }
           propsData.defaultFile = this.availableFiles[0];
