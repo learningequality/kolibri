@@ -14,6 +14,7 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework_nested import routers
 
+from recommendations import recommendations_content_node, recommendations_interaction_log
 
 class ChannelMetadataViewSet(viewsets.ViewSet):
     lookup_field = 'channel_id'
@@ -38,11 +39,11 @@ class ChannelMetadataViewSet(viewsets.ViewSet):
         :param channel_id: str
         :return: List of recommended content nodes
         """
-        context = {'request': request, 'channel_id': channel_id}
-        contents = serializers.ContentNodeSerializer(
-            models.ContentNode.objects.using(channel_id).all(), context=context, many=True
-        ).data
-        return Response(contents)
+        with using_content_database(channel_id):
+            context = {'request': request, 'channel_id': channel_id}
+            recommendations = recommendations_interaction_log()
+            data = serializers.ContentNodeSerializer(recommendations, context=context, many=True).data
+            return Response(data)
 
 
 class ContentNodeFilter(filters.FilterSet):
@@ -172,10 +173,12 @@ class ContentNodeViewset(viewsets.ViewSet):
         """
         with using_content_database(channelmetadata_channel_id):
             context = {'request': request, 'channel_id': channelmetadata_channel_id}
+            recommendations = recommendations_content_node(content=self.kwargs['pk'])
             data = serializers.ContentNodeSerializer(
-                api.immediate_children(content=self.kwargs['pk']), context=context, many=True
+                recommendations, context=context, many=True
             ).data
             return Response(data)
+
 
 class FileViewset(viewsets.ViewSet):
     def list(self, request, channelmetadata_channel_id=None):
