@@ -25,6 +25,7 @@ var libs = function(kolibri_name) {
     'kolibri': kolibri_name,
     'core-base': kolibri_name + '.lib.coreBase',
     'content-renderer': kolibri_name + '.lib.contentRenderer',
+    'vuex': kolibri_name + '.lib.vuex',
   };
 };
 

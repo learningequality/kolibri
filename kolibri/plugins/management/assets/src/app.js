@@ -16,12 +16,7 @@ class ManagementModule extends KolibriModule {
         },
       },
     });
-    this.vm.fetch(
-      global.kolibriGlobal.urls.classroom_list(),
-      global.kolibriGlobal.urls.learnergroup_list(),
-      global.kolibriGlobal.urls.facilityuser_list(),
-      global.kolibriGlobal.urls.membership_list()
-    );
+    this.vm.fetch();
   }
 }
 

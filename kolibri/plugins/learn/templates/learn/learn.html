@@ -2,6 +2,9 @@
 {% load learn_tags %}
 
 {% block content %}
+  <script>
+    window.bootstrappedTopics = JSON.parse("{{ topics|escapejs }}");
+  </script>
   {% learn_async_assets %}
   {% learn_assets %}
 {% endblock %}

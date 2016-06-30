@@ -1,20 +1,38 @@
 
-const Vue = require('vue');
 const Vuex = require('vuex');
-Vue.use(Vuex);
-
 
 function initialState() {
   return {
     breadcrumbs: require('./demo-data/breadcrumbs.json'),
-    topics: require('./demo-data/graphing__topics_only.json'),
-    contents: require('./demo-data/inequalities__content_only.json'),
+    topics: global.bootstrappedTopics || [],
+    contents: [],
     recommended: require('./demo-data/content_recommendation_data.json'),
     full: require('./demo-data/video__full_metadata.json'),
+    channel: 'dummy_db',
   };
 }
 
-const mutations = {};
+const mutations = {
+  /**
+   * Mutation to set all the attributes of a content item retrieved from the server onto
+   *  the 'full' key on the Store state.
+   * @param {Object} state - A Vuex state object.
+   * @param {Object} attributes - The object of key value pairs for the content node.
+   * @constructor
+   */
+  SET_FULL_CONTENT(state, attributes) {
+    Object.assign(state.full, attributes);
+  },
+  SET_CHANNEL(state, channelId) {
+    state.channelId = channelId; // eslint-disable-line no-param-reassign
+  },
+  SET_TOPICS(state, topics) {
+    state.topics = topics; // eslint-disable-line no-param-reassign
+  },
+  SET_CONTENTS(state, contents) {
+    state.contents = contents; // eslint-disable-line no-param-reassign
+  },
+};
 
 module.exports = new Vuex.Store({
   state: initialState(),

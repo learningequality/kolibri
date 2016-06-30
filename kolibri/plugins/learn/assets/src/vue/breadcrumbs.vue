@@ -1,11 +1,11 @@
 <template>
 
   <nav>
-    <span v-for="crumb in crumbs">
-      <a :href="crumb.url">{{ crumb.name }} </a> /
+    <span class="parent" v-for="crumb in crumbs">
+      <a :href="crumb.url">{{ crumb.name | capitalize }} </a> /
     </span>
-    <span>
-      {{ current }}
+    <span class="child">
+      {{ current | capitalize }}
     </span>
   </nav>
 
@@ -24,5 +24,12 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+
+  .parent , a
+    color: $core-text-annotation
+
+  .child
+    color: $core-text-default
+    font-weight: 700
 
 </style>

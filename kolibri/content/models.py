@@ -6,15 +6,15 @@ The ONLY public object is ContentNode
 """
 from __future__ import print_function
 
-import os
 import uuid
 
 from django.conf import settings
-from django.db import IntegrityError, OperationalError, connections, models
-from django.db.utils import ConnectionDoesNotExist
+from django.db import IntegrityError, models
 from mptt.models import MPTTModel, TreeForeignKey
 
 from .constants import content_kinds, extensions, presets
+from .content_db_router import get_active_content_database
+from .errors import ContentModelUsedOutsideDBContext
 
 
 class UUIDField(models.CharField):
@@ -29,33 +29,28 @@ class UUIDField(models.CharField):
             result = result.hex
         return result
 
+
 class ContentQuerySet(models.QuerySet):
     """
-    Overrider QuerySet's using method to establish database conncetions at the first time that database is hitten.
+    Ensure proper database routing happens even when queryset is evaluated lazily outside of `using_content_database`.
     """
-    def using(self, alias):
+    def __init__(self, *args, **kwargs):
+        # note: `get_active_content_database` can only be used in the context of `using_content_database`
         try:
-            connections[alias]
-        except ConnectionDoesNotExist:
-            connections.databases[alias] = {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': os.path.join(settings.CONTENT_DB_DIR, alias+'.sqlite3'),
-            }
-        try:
-            if not connections[alias].introspection.table_names():
-                raise KeyError("ContentDB '%s' is empty!!" % str(alias))
-        except OperationalError:
-            raise KeyError("ContentDB '%s' doesn't exist!!" % str(alias))
-        return super(ContentQuerySet, self).using(alias)
+            kwargs["using"] = kwargs.get("using", None) or get_active_content_database()
+        except ContentModelUsedOutsideDBContext:
+            pass
+        super(ContentQuerySet, self).__init__(*args, **kwargs)
+
 
 class ContentTag(models.Model):
     tag_name = models.CharField(max_length=30, blank=True)
-    channel = UUIDField(null=True, blank=True)
 
     objects = ContentQuerySet.as_manager()
 
     def __str__(self):
         return self.tag_name
+
 
 class ContentNode(MPTTModel):
     """
@@ -79,14 +74,12 @@ class ContentNode(MPTTModel):
 
     objects = ContentQuerySet.as_manager()
 
-    class Meta:
-        verbose_name = 'ContentNode'
-
     class Admin:
         pass
 
     def __str__(self):
         return self.title
+
 
 class Language(models.Model):
     lang_code = models.CharField(max_length=2, db_index=True)
@@ -96,6 +89,7 @@ class Language(models.Model):
 
     def __str__(self):
         return self.lang_code
+
 
 class File(models.Model):
     """
@@ -130,6 +124,7 @@ class File(models.Model):
         else:
             return None
 
+
 class License(models.Model):
     """
     Normalize the license of ContentNode model
@@ -143,6 +138,7 @@ class License(models.Model):
 
     def __str__(self):
         return self.license_name
+
 
 class PrerequisiteContentRelationship(models.Model):
     """
@@ -178,6 +174,7 @@ class PrerequisiteContentRelationship(models.Model):
         self.full_clean()
         super(PrerequisiteContentRelationship, self).save(*args, **kwargs)
 
+
 class RelatedContentRelationship(models.Model):
     """
     Predefine the related relationship between two ContentNode objects.
@@ -203,6 +200,7 @@ class RelatedContentRelationship(models.Model):
             return  # silently cancel the save
         super(RelatedContentRelationship, self).save(*args, **kwargs)
 
+
 class ChannelMetadata(models.Model):
     """
     Provide references to the corresponding contentDB when navigate between channels.
@@ -214,6 +212,7 @@ class ChannelMetadata(models.Model):
     author = models.CharField(max_length=400, blank=True)
     version = models.IntegerField(default=0)
     thumbnail = models.TextField(blank=True)
+    root_pk = models.IntegerField()
 
     objects = ContentQuerySet.as_manager()
 

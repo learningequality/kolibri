@@ -92,6 +92,9 @@ DATABASES = {
     }
 }
 
+# Enable dynamic routing for content databases
+DATABASE_ROUTERS = ['kolibri.content.content_db_router.ContentDBRouter']
+
 # DIR for storing contentDBs
 CONTENT_DB_DIR = os.path.join(BASE_DIR, 'kolibri', 'content', 'content_db')
 # DIR for storing content files for all channels
@@ -202,7 +205,7 @@ AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
 AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']
 
 REST_FRAMEWORK = {
-    "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser"
+    "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser",
 }
 
 # Configuration for Django JS Reverse
