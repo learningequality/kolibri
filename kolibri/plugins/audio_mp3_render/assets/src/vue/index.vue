@@ -19,9 +19,9 @@
       </div>
     </div>
     <div>
-      <button class="audio-button">restart</button>
-      <button class="audio-button">- 10s</button>
-      <button class="audio-button">+ 10s</button>
+      <button class="audio-button" @click="restart">restart</button>
+      <button class="audio-button" @click="minus20">- 20s</button>
+      <button class="audio-button" @click="plus20">+ 20s</button>
     </div>
   </div>
 
@@ -44,7 +44,7 @@
     data: () => ({
       isPlay: true,
       isPause: false,
-      updateMinute: false,
+      timebarChanged: false,
       currentMinutes: 0,
       currentSeconds: 0,
       totalMinutes: 0,
@@ -76,7 +76,7 @@
           this.pause();
         }
       },
-      /* Adds '0' before seconds. EX: 1:05 instead of 1:5*/
+      /* Adds '0' before seconds (e.g. 1:05 instead of 1:5) */
       formatSeconds(sec) {
         if (sec < 10) {
           return `0${sec}`;
@@ -90,18 +90,38 @@
       /* Gets raw current time and converts to XX:XX format */
       timeUpdate() {
         this.currentSeconds = Math.floor(this.$els.audio.currentTime % 60);
-        if (this.currentSeconds === 0 || this.updateMinute) {
+        if (this.currentSeconds === 0 || this.timebarChanged) {
           this.currentMinutes = Math.floor(this.$els.audio.currentTime / 60);
-          this.updateMinute = false;
+          this.timebarChanged = false;
         }
         /* Proportionally updates position of slider button according to current time */
         this.$els.timebar.value = ((this.$els.audio.currentTime / this.$els.audio.duration) * 100);
       },
+      updatePlay() {
+        this.timebarChanged = true;
+        this.timeUpdate();
+        this.play();
+      },
       /* Updates current time of audio if slider button position changes */
       setTimebar() {
         this.$els.audio.currentTime = (this.$els.timebar.value / 100) * this.$els.audio.duration;
-        this.updateMinute = true;
-        this.timeUpdate();
+        this.updatePlay();
+      },
+      restart() {
+        this.$els.audio.currentTime = 0;
+        this.updatePlay();
+      },
+      plus20() {
+        this.$els.audio.currentTime = this.$els.audio.currentTime + 20;
+        this.updatePlay();
+      },
+      minus20() {
+        this.$els.audio.currentTime = this.$els.audio.currentTime - 20;
+        if (this.$els.audio.currentTime < 0) {
+          this.$els.audio.currentTime = 0;
+          this.updatePlay();
+        }
+        this.updatePlay();
       },
     },
 
