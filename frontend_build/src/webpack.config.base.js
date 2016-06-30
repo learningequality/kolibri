@@ -79,6 +79,10 @@ var config = {
       {
         test: /fg-loadcss\/src\/onloadCSS/,
         loader: 'exports?onloadCSS'
+      },
+      {
+        test: require.resolve('html5media/dist/api/1.1.8/html5media'),
+        loader: "imports?this=>window"
       }
     ]
   },
