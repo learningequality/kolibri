@@ -3,7 +3,7 @@
   <a href="{{linkhref}}">
     <div class="topic-card-container">
       <div class="thumbnail">
-        <div class="topic-card-folder"></div>
+        <img class="topic-card-folder" src="./folder.svg">
       </div>
       <div class="title">
         {{ title }}
@@ -57,7 +57,6 @@
     height: 55px
     vertical-align: middle
     display: inline-block
-    background-color: $core-action-normal
 
   .title
     max-width:210px
