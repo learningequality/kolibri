@@ -3,14 +3,12 @@
 Most of the api endpoints here use django_rest_framework to expose the content app APIs,
 except some set methods that do not return anything.
 """
-import ast
-
 from django.conf import settings
 from django.conf.urls import include, url
 from django.db.models import Q
 from kolibri.content import api, models, serializers
 from kolibri.content.content_db_router import using_content_database
-from rest_framework import filters, viewsets
+from rest_framework import filters, pagination, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework_nested import routers
@@ -32,6 +30,12 @@ class ChannelMetadataViewSet(viewsets.ViewSet):
             return Response(channel)
 
 
+class StandardResultsSetPagination(pagination.PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
+
 class ContentNodeFilter(filters.FilterSet):
     search = filters.django_filters.MethodFilter(action='title_description_filter')
 
@@ -47,11 +51,12 @@ class ContentNodeFilter(filters.FilterSet):
         # only return the first 30 results to avoid major slow down
         return queryset.filter(
             Q(title__icontains=value) | Q(description__icontains=value)
-        )[0:30]
+        )
 
 
 class ContentNodeViewset(viewsets.ViewSet):
     lookup_field = 'pk'
+    pagination_class = StandardResultsSetPagination
 
     def list(self, request, channelmetadata_channel_id=None):
         with using_content_database(channelmetadata_channel_id):
@@ -61,11 +66,8 @@ class ContentNodeViewset(viewsets.ViewSet):
             return Response(contents)
 
     def retrieve(self, request, pk=None, channelmetadata_channel_id=None):
-        skip_preload = []
-        if request.method == 'GET' and 'skip' in request.GET:
-            skip_preload = ast.literal_eval(request.GET['skip'])
         with using_content_database(channelmetadata_channel_id):
-            context = {'request': request, 'channel_id': channelmetadata_channel_id, 'skip_preload': skip_preload}
+            context = {'request': request, 'channel_id': channelmetadata_channel_id}
             content = serializers.ContentNodeSerializer(
                 models.ContentNode.objects.get(pk=pk), context=context
             ).data

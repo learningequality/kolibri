@@ -85,10 +85,11 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         lookup_field_2='pk',
     )
 
+    # Here we use a FileSerialize instead just the files reverse FK is because we want to get the computed field storage_url
+    # In order to improve performance in production, we should implement a client side method to calculate the file url using
+    # extension and checksum field along with the setting.STORAGE_ROOT, which can be passed to front end at template boostrapping.
     files = FileSerializer(many=True, read_only=True)
-    ancestor_ids = serializers.SerializerMethodField()
-    immediate_children_ids = serializers.SerializerMethodField()
-    preload = serializers.SerializerMethodField()
+    ancestors = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
@@ -104,40 +105,19 @@ class ContentNodeSerializer(serializers.ModelSerializer):
                 for field_name in existing - allowed:
                     self.fields.pop(field_name)
 
-    def get_ancestor_ids(self, target_node):
+    def get_ancestors(self, target_node):
         """
         in descending order (root ancestor first, immediate parent last)
         """
-        return target_node.get_ancestors().using(self.context['channel_id']).values_list('pk', flat=True)
-
-    def get_immediate_children_ids(self, target_node):
-        """
-        in tree order
-        """
-        return target_node.get_children().using(self.context['channel_id']).values_list('pk', flat=True)
-
-    def get_preload(self, target_node):
-        skip_list = []
-        if 'skip_preload' in self.context:
-            skip_list = self.context['skip_preload']
-
-        immediate_children_list = []
-        for cn in target_node.get_children().using(self.context['channel_id']).exclude(pk__in=skip_list):
-            immediate_children_list.append(SimplifiedContentNodeSerializer(cn).data)
-
-        ancestros_list = []
-        for cn in target_node.get_ancestors().using(self.context['channel_id']).exclude(pk__in=skip_list):
-            ancestros_list.append(SimplifiedContentNodeSerializer(cn).data)
-
-        return {'ancestor': ancestros_list, 'immediate_children': immediate_children_list}
+        return target_node.get_ancestors().using(self.context['channel_id']).values('pk', 'title')
 
     class Meta:
         model = ContentNode
         depth = 1
         fields = (
             'pk', 'id', 'url', 'instance_id', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children', 'files',
-            'leaves', 'all_prerequisites', 'all_related', 'missing_files', 'ancestor_ids', 'immediate_children_ids', 'preload'
+            'license', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children', 'files', 'leaves', 'all_prerequisites',
+            'all_related', 'missing_files', 'ancestors'
         )
 
 class SimplifiedContentNodeSerializer(serializers.ModelSerializer):
