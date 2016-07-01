@@ -11,8 +11,9 @@
 
   const PDFobject = require('pdfobject');
   module.exports = {
+    props: ['defaultFile'],
     ready() {
-      PDFobject.embed('http://www.benlandis.com/sheet-music/piano-rickroll.pdf', this.$els.container);
+      PDFobject.embed(this.defaultFile.storage_url, this.$els.container);
     },
   };
 
