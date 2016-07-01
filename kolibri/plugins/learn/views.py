@@ -19,6 +19,5 @@ class LearnView(TemplateView):
             mcontext = {'request': self.request, 'channel_id': channel_id}
             topics_serializer = ContentNodeSerializer(get_top_level_topics(), context=mcontext,
                                                       many=True)
-            # topics_serializer.context["channel_id"] = channel_id
             context['topics'] = JSONRenderer().render(topics_serializer.data)
         return context
