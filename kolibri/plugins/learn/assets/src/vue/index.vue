@@ -87,16 +87,16 @@
     margin: 0
     padding: 0
 
-    li
-      display: table
-      height: $nav-element-height
+  li
+    display: table
+    height: $nav-element-height
 
-    span
-      display: table-cell
-      vertical-align: middle
+  span
+    display: table-cell
+    vertical-align: middle
 
-    svg
-      fill: $core-action-normal
+  svg
+    fill: $core-action-normal
 
   // this class is automatically added to links with the v-link directive
   a.v-link-active
