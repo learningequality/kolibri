@@ -70,13 +70,15 @@ class Model {
 class Collection {
   /**
    * Create a Collection instance.
+   * @param {Object} params - Default parameters to use when fetching data from the server.
    * @param {Object[]|Model[]} data - Data to prepopulate the collection with,
    * useful if wanting to save multiple models.
    * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
    * behaviour for the collection.
    */
-  constructor(data = [], resource) {
+  constructor(params = {}, data = [], resource) {
     this.resource = resource;
+    this.params = params;
     if (!this.resource) {
       throw new TypeError('resource must be defined');
     }
@@ -94,9 +96,10 @@ class Collection {
    */
   fetch(params = {}) {
     this.synced = false;
+    const merged_params = Object.assign({}, this.params, params);
     return new Promise((resolve, reject) => {
       // Do a fetch on the URL, with the parameters passed in.
-      client({ path: this.url, params }).then((response) => {
+      client({ path: this.url, merged_params }).then((response) => {
         // Reset current models to only include ones from this fetch.
         this.models = [];
         this._model_map = {};
@@ -145,6 +148,10 @@ class Collection {
       }
     });
   }
+
+  get data() {
+    return this.models.map((model) => model.attributes);
+  }
 }
 
 /** Class representing a single API resource.
@@ -158,18 +165,29 @@ class Resource {
    */
   constructor(kolibri) {
     this.models = {};
+    this.collections = {};
     this.kolibri = kolibri;
   }
 
   /**
    * Optionally pass in data and instantiate a collection for saving that data or fetching
    * data from the resource.
+   * @param {Object} params - default parameters to use for Collection fetching.
    * @param {Object[]} data - Data to instantiate the Collection - see Model constructor for
    * details of data.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  getCollection(data = []) {
-    return new Collection(data, this);
+  getCollection(params = {}, data = []) {
+    let collection;
+    // Note: to keep the key generation cheap, caching will only work for objects constructed
+    // with the same key order.
+    const key = JSON.stringify(params);
+    if (!this.collections[key]) {
+      collection = new Collection(params, data, this);
+    } else {
+      collection = this.collections[key];
+    }
+    return collection;
   }
 
   /**

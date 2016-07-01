@@ -21,19 +21,31 @@ const fetchFullContent = ({ dispatch }, id) => {
 };
 
 /**
+ * Function to dispatch mutations to topics and contents by node kind.
+ * @param {Object[]} nodes - Data to dispatch mutations with.
+ */
+const nodeAssignment = (nodes) => {
+  const topics = nodes.filter((node) => node.kind === 'topic');
+  const contents = nodes.filter((node) => node.kind !== 'topic');
+  dispatch('SET_TOPICS', topics);
+  dispatch('SET_CONTENTS', contents);
+};
+
+/**
  * Action to fetch child topics of a particular topic from the API.
  * @param {Function} dispatch - The dispatch method of the store object.
  * @param {String} id - The id of the model to fetch the children of.
  */
 const fetchNodes = ({ dispatch }, id) => {
   // Get the collection from ContentNodeResource.
-  const contentCollection = Kolibri.resources.ContentNodeResource.getCollection();
-  contentCollection.fetch({ parent: id }).then((nodes) => {
-    const topics = nodes.filter((node) => node.kind === 'topic');
-    const contents = nodes.filter((node) => node.kind !== 'topic');
-    dispatch('SET_TOPICS', topics);
-    dispatch('SET_CONTENTS', contents);
-  });
+  const contentCollection = Kolibri.resources.ContentNodeResource.getCollection({ parent: id });
+  if (contentCollection.synced) {
+    nodeAssignment(contentCollection.data);
+  } else {
+    contentCollection.fetch().then(() => {
+      nodeAssignment(contentCollection.data);
+    });
+  }
 };
 
 module.exports = {
