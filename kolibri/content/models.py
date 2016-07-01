@@ -126,6 +126,9 @@ class File(models.Model):
 
     objects = ContentQuerySet.as_manager()
 
+    class Meta:
+        ordering = ["priority"]
+
     class Admin:
         pass
 

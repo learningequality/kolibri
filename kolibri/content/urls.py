@@ -5,6 +5,7 @@ except some set methods that do not return anything.
 """
 import ast
 
+from django.conf import settings
 from django.conf.urls import include, url
 from django.db.models import Q
 from kolibri.content import api, models, serializers
@@ -43,9 +44,10 @@ class ContentNodeFilter(filters.FilterSet):
         fields = ['parent']
 
     def title_description_filter(self, queryset, value):
+        # only return the first 30 results to avoid major slow down
         return queryset.filter(
             Q(title__icontains=value) | Q(description__icontains=value)
-        )
+        )[0:30]
 
 
 class ContentNodeViewset(viewsets.ViewSet):
@@ -174,4 +176,6 @@ channel_router.register(r'file', FileViewset, base_name='file')
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^', include(channel_router.urls)),
+    url(r'^' + settings.STORAGE_URL[1:-1] + '(?P<path>.*)$', 'django.views.static.serve', {
+        'document_root': settings.STORAGE_ROOT}),
 ]

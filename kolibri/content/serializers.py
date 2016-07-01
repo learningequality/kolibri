@@ -1,3 +1,4 @@
+from django.core.handlers.wsgi import WSGIRequest
 from kolibri.content.models import ChannelMetadata, ContentNode, File
 from rest_framework import serializers
 
@@ -89,6 +90,20 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     immediate_children_ids = serializers.SerializerMethodField()
     preload = serializers.SerializerMethodField()
 
+    def __init__(self, *args, **kwargs):
+        # Instantiate the superclass normally
+        super(ContentNodeSerializer, self).__init__(*args, **kwargs)
+
+        # enable dynamic fields specification!
+        if not isinstance(self.context['request'], WSGIRequest):
+            if 'request' in self.context and self.context['request'].query_params.get('fields'):
+                fields = self.context['request'].query_params.get('fields').split(',')
+                # Drop any fields that are not specified in the `fields` argument.
+                allowed = set(fields)
+                existing = set(self.fields.keys())
+                for field_name in existing - allowed:
+                    self.fields.pop(field_name)
+
     def get_ancestor_ids(self, target_node):
         """
         in descending order (root ancestor first, immediate parent last)
@@ -120,7 +135,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         model = ContentNode
         depth = 1
         fields = (
-            'pk', 'url', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
+            'pk', 'id', 'url', 'instance_id', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
             'license', 'parent', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children', 'files',
             'leaves', 'all_prerequisites', 'all_related', 'missing_files', 'ancestor_ids', 'immediate_children_ids', 'preload'
         )
@@ -130,6 +145,6 @@ class SimplifiedContentNodeSerializer(serializers.ModelSerializer):
         model = ContentNode
         depth = 1
         fields = (
-            'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
+            'pk', 'instance_id', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
             'license', 'prerequisite', 'is_related', 'files'
         )
