@@ -23,8 +23,9 @@ const fetchFullContent = ({ dispatch }, id) => {
 /**
  * Function to dispatch mutations to topics and contents by node kind.
  * @param {Object[]} nodes - Data to dispatch mutations with.
+ * @param {Function} dispatch - dispatch method of Vuex Store.
  */
-const nodeAssignment = (nodes) => {
+const nodeAssignment = (nodes, dispatch) => {
   const topics = nodes.filter((node) => node.kind === 'topic');
   const contents = nodes.filter((node) => node.kind !== 'topic');
   dispatch('SET_TOPICS', topics);
@@ -40,10 +41,10 @@ const fetchNodes = ({ dispatch }, id) => {
   // Get the collection from ContentNodeResource.
   const contentCollection = Kolibri.resources.ContentNodeResource.getCollection({ parent: id });
   if (contentCollection.synced) {
-    nodeAssignment(contentCollection.data);
+    nodeAssignment(contentCollection.data, dispatch);
   } else {
     contentCollection.fetch().then(() => {
-      nodeAssignment(contentCollection.data);
+      nodeAssignment(contentCollection.data, dispatch);
     });
   }
 };

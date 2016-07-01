@@ -96,10 +96,10 @@ class Collection {
    */
   fetch(params = {}) {
     this.synced = false;
-    const merged_params = Object.assign({}, this.params, params);
+    const mergedParams = Object.assign({}, this.params, params);
     return new Promise((resolve, reject) => {
       // Do a fetch on the URL, with the parameters passed in.
-      client({ path: this.url, merged_params }).then((response) => {
+      client({ path: this.url, mergedParams }).then((response) => {
         // Reset current models to only include ones from this fetch.
         this.models = [];
         this._model_map = {};
