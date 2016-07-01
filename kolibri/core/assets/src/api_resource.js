@@ -89,17 +89,17 @@ class Collection {
 
   /**
    * Method to fetch data from the server for this collection.
-   * @param {object} params - an object of parameters to be parsed into GET parameters on the
+   * @param {object} extraParams - an object of parameters to be parsed into GET parameters on the
    * fetch.
    * @returns {Promise} - Promise is resolved with Array of Model attributes when the XHR
    * successfully returns, otherwise reject is called with the response object.
    */
-  fetch(params = {}) {
+  fetch(extraParams = {}) {
     this.synced = false;
-    const mergedParams = Object.assign({}, this.params, params);
+    const params = Object.assign({}, this.params, extraParams);
     return new Promise((resolve, reject) => {
       // Do a fetch on the URL, with the parameters passed in.
-      client({ path: this.url, mergedParams }).then((response) => {
+      client({ path: this.url, params }).then((response) => {
         // Reset current models to only include ones from this fetch.
         this.models = [];
         this._model_map = {};
@@ -179,9 +179,15 @@ class Resource {
    */
   getCollection(params = {}, data = []) {
     let collection;
-    // Note: to keep the key generation cheap, caching will only work for objects constructed
-    // with the same key order.
-    const key = JSON.stringify(params);
+    // Sort keys in order, then assign those keys to an empty object in that order.
+    // Then stringify to create a cache key.
+    const key = JSON.stringify(
+      Object.assign(
+        {}, ...Object.keys(params).sort().map(
+          (paramKey) => ({ [paramKey]: params[paramKey] })
+        )
+      )
+    );
     if (!this.collections[key]) {
       collection = new Collection(params, data, this);
     } else {
