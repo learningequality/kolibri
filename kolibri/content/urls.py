@@ -30,12 +30,6 @@ class ChannelMetadataViewSet(viewsets.ViewSet):
             return Response(channel)
 
 
-class StandardResultsSetPagination(pagination.PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-    max_page_size = 50
-
-
 class ContentNodeFilter(filters.FilterSet):
     search = filters.django_filters.MethodFilter(action='title_description_filter')
 
@@ -54,14 +48,23 @@ class ContentNodeFilter(filters.FilterSet):
         )
 
 
-class ContentNodeViewset(viewsets.ViewSet):
+class ContentNodeViewset(viewsets.ViewSet, pagination.PageNumberPagination):
     lookup_field = 'pk'
-    pagination_class = StandardResultsSetPagination
+    pagination.PageNumberPagination.page_size = 10
 
     def list(self, request, channelmetadata_channel_id=None):
+        """
+        Because we are using ViewSet to define the list method, it requires us to implement the pagination by our own.
+        So Just inherit the PageNumberPagination to use its paginate_queryset() and get_paginated_response(), simple as that
+        """
         with using_content_database(channelmetadata_channel_id):
             filtered = ContentNodeFilter(request.GET, queryset=models.ContentNode.objects.all())
             context = {'request': request, 'channel_id': channelmetadata_channel_id}
+            page = self.paginate_queryset(filtered, request)
+            if page is not None:
+                contents = serializers.ContentNodeSerializer(page, context=context, many=True).data
+                return self.get_paginated_response(contents)
+
             contents = serializers.ContentNodeSerializer(filtered, context=context, many=True).data
             return Response(contents)
 
