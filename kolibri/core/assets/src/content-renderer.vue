@@ -144,7 +144,7 @@
             // Only use non-enumerable, non-inherited properties of the props object.
             (name) => enumerables.indexOf(name) > -1
           );
-          for (const key in properties) {
+          for (const key of properties) {
             // Loop through all the properties, see if one of them is extraFields.
             if (key !== 'extraFields') {
               // If it isn't just put it directly into the data.

@@ -28,7 +28,6 @@
         :progress="content.progress">
       </content-card>
     </div>
-    <content-render kind="video" extension="mp4"></content-render>
   </div>
 
 </template>
@@ -43,7 +42,7 @@
     props: {
       primaryKey: {
         type: Number,
-        default: 4,
+        default: 10,
       },
     },
     components: {
