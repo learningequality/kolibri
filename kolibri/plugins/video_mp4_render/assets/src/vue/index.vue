@@ -3,8 +3,12 @@
   <div>
     <div class="videowrapper" v-el:videowrapper>
       <video v-el:video class="video-js vjs-default-skin" >
-        <source :src="videoUrl" type='video/mp4'>
-        <track kind="captions" :src="captionsUrl" :srclang="captionsLang" :label="captionsLabel">
+        <template v-for="video in getVideoSources()">
+          <source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" :type='"video/" + video.extension'>
+        </template>
+        <template v-for="track in getTrackSources()">
+          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
+        </template>
       </video>
     </div>
   </div>
@@ -15,9 +19,52 @@
 <script>
 
   const videojs = require('video.js');
+  const langcodes = require('./langcodes.json');
   require('./videojs-centerbtns');
 
   module.exports = {
+
+    props: ['files'],
+
+    methods: {
+
+      setPlayState(state) {
+        if (state === true) {
+          this.videoPlayer.$('.videotoggle').classList.add('videopaused');
+          this.videoPlayer.$('.videoreplay').classList.add('display');
+          this.videoPlayer.$('.videoforward').classList.add('display');
+        } else {
+          this.videoPlayer.$('.videotoggle').classList.remove('videopaused');
+          this.videoPlayer.$('.videoreplay').classList.remove('display');
+          this.videoPlayer.$('.videoforward').classList.remove('display');
+        }
+      },
+
+      getPosterSource() {
+        return this.files.filter(
+          (file) => file.extension === 'png' | file.extension === 'jpg'
+        )[0].storage_url;
+      },
+
+      getVideoSources() {
+        return this.files.filter(
+          (file) => file.extension === 'mp4' | file.extension === 'webm' | file.extension === 'ogg'
+        );
+      },
+
+      getTrackSources() {
+        return this.files.filter(
+          (file) => file.extension === 'vtt'
+        );
+      },
+
+      getLangName(langCode) {
+        return JSON.parse(langcodes).filter(
+          (lang) => lang.code === langCode
+        )[0].lang;
+      },
+
+    },
 
     ready() {
       this.videoPlayer = videojs(this.$els.video, {
@@ -25,7 +72,7 @@
         autoplay: false,
         fluid: true,
         preload: 'auto',
-        poster: this.posterUrl,
+        poster: this.getPosterSource(),
         playbackRates: [0.25, 0.5, 1.0, 1.25, 1.5, 2.0],
         textTrackDisplay: true,
         ReplayButton: true,
@@ -47,6 +94,7 @@
           ],
         },
       },
+
       () => {
         const centerButtons = this.$els.videowrapper.childNodes[1];
         const toggleButton = centerButtons
@@ -61,6 +109,7 @@
           replayButton.classList.remove('userInactive');
           forwardButton.classList.remove('userInactive');
         });
+
         videojs(this.$els.video).on('userinactive', () => {
           toggleButton.classList.add('userInactive');
           replayButton.classList.add('userInactive');
@@ -80,27 +129,6 @@
         });
       });
     },
-    data: () => ({
-      videoUrl: 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4',
-      posterUrl: 'http://i3.ytimg.com/vi/kITJ6qH7jS0/hqdefault.jpg',
-      captionsUrl: require('./en.vtt'),
-      captionsLang: 'en',
-      captionsLabel: 'English',
-    }),
-    methods: {
-      setPlayState(state) {
-        if (state === true) {
-          this.videoPlayer.$('.videotoggle').classList.add('videopaused');
-          this.videoPlayer.$('.videoreplay').classList.add('display');
-          this.videoPlayer.$('.videoforward').classList.add('display');
-        } else {
-          this.videoPlayer.$('.videotoggle').classList.remove('videopaused');
-          this.videoPlayer.$('.videoreplay').classList.remove('display');
-          this.videoPlayer.$('.videoforward').classList.remove('display');
-        }
-      },
-    },
-
   };
 
 </script>
