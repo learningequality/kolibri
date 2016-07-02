@@ -3,6 +3,9 @@
 Most of the api endpoints here use django_rest_framework to expose the content app APIs,
 except some set methods that do not return anything.
 """
+
+import ast
+
 from django.conf import settings
 from django.conf.urls import include, url
 from django.db.models import Q
@@ -50,20 +53,25 @@ class ContentNodeFilter(filters.FilterSet):
 
 class ContentNodeViewset(viewsets.ViewSet, pagination.PageNumberPagination):
     lookup_field = 'pk'
-    pagination.PageNumberPagination.page_size = 10
 
     def list(self, request, channelmetadata_channel_id=None):
         """
         Because we are using ViewSet to define the list method, it requires us to implement the pagination by our own.
-        So Just inherit the PageNumberPagination to use its paginate_queryset() and get_paginated_response(), simple as that
+        So Just inherit the PageNumberPagination to use its paginate_queryset() and get_paginated_response(), simple as that.
+        To use it, pass the page_size in your URL, for example:
+        http://localhost:8000/api/content/dummy_db/contentnode/?page_size=10
         """
         with using_content_database(channelmetadata_channel_id):
             filtered = ContentNodeFilter(request.GET, queryset=models.ContentNode.objects.all())
             context = {'request': request, 'channel_id': channelmetadata_channel_id}
-            page = self.paginate_queryset(filtered, request)
-            if page is not None:
-                contents = serializers.ContentNodeSerializer(page, context=context, many=True).data
-                return self.get_paginated_response(contents)
+
+            if request.method == 'GET' and 'page_size' in request.GET:
+                page_size = ast.literal_eval(request.GET['page_size'])
+                self.page_size = page_size
+                page = self.paginate_queryset(filtered, request)
+                if page is not None:
+                    contents = serializers.ContentNodeSerializer(page, context=context, many=True).data
+                    return self.get_paginated_response(contents)
 
             contents = serializers.ContentNodeSerializer(filtered, context=context, many=True).data
             return Response(contents)
