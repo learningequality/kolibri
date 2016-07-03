@@ -3,13 +3,15 @@
 Most of the api endpoints here use django_rest_framework to expose the content app APIs,
 except some set methods that do not return anything.
 """
+
 import ast
 
+from django.conf import settings
 from django.conf.urls import include, url
 from django.db.models import Q
 from kolibri.content import api, models, serializers
 from kolibri.content.content_db_router import using_content_database
-from rest_framework import filters, viewsets
+from rest_framework import filters, pagination, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework_nested import routers
@@ -43,27 +45,40 @@ class ContentNodeFilter(filters.FilterSet):
         fields = ['parent']
 
     def title_description_filter(self, queryset, value):
+        # only return the first 30 results to avoid major slow down
         return queryset.filter(
             Q(title__icontains=value) | Q(description__icontains=value)
         )
 
 
-class ContentNodeViewset(viewsets.ViewSet):
+class ContentNodeViewset(viewsets.ViewSet, pagination.PageNumberPagination):
     lookup_field = 'pk'
 
     def list(self, request, channelmetadata_channel_id=None):
+        """
+        Because we are using ViewSet to define the list method, it requires us to implement the pagination by our own.
+        So Just inherit the PageNumberPagination to use its paginate_queryset() and get_paginated_response(), simple as that.
+        To use it, pass the page_size in your URL, for example:
+        http://localhost:8000/api/content/dummy_db/contentnode/?page_size=10
+        """
         with using_content_database(channelmetadata_channel_id):
             filtered = ContentNodeFilter(request.GET, queryset=models.ContentNode.objects.all())
             context = {'request': request, 'channel_id': channelmetadata_channel_id}
+
+            if request.method == 'GET' and 'page_size' in request.GET:
+                page_size = ast.literal_eval(request.GET['page_size'])
+                self.page_size = page_size
+                page = self.paginate_queryset(filtered, request)
+                if page is not None:
+                    contents = serializers.ContentNodeSerializer(page, context=context, many=True).data
+                    return self.get_paginated_response(contents)
+
             contents = serializers.ContentNodeSerializer(filtered, context=context, many=True).data
             return Response(contents)
 
     def retrieve(self, request, pk=None, channelmetadata_channel_id=None):
-        skip_preload = []
-        if request.method == 'GET' and 'skip' in request.GET:
-            skip_preload = ast.literal_eval(request.GET['skip'])
         with using_content_database(channelmetadata_channel_id):
-            context = {'request': request, 'channel_id': channelmetadata_channel_id, 'skip_preload': skip_preload}
+            context = {'request': request, 'channel_id': channelmetadata_channel_id}
             content = serializers.ContentNodeSerializer(
                 models.ContentNode.objects.get(pk=pk), context=context
             ).data
@@ -174,4 +189,6 @@ channel_router.register(r'file', FileViewset, base_name='file')
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^', include(channel_router.urls)),
+    url(r'^' + settings.STORAGE_URL[1:-1] + '(?P<path>.*)$', 'django.views.static.serve', {
+        'document_root': settings.STORAGE_ROOT}),
 ]
