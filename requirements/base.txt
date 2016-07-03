@@ -1,7 +1,7 @@
 # Kolibri runtime requirements
 docopt==0.6.2
 colorlog==2.6.0
-django==1.9.1
+django==1.9.7
 # we need some unreleased django-mptt fixes that came in after 0.8.4; can switch to 0.8.5 when released
 git+https://github.com/django-mptt/django-mptt.git@9e131f91a9992d0495e1217bdcf7036a5e11d8c5#egg=django-mptt
 -e git+https://github.com/jamalex/kolibri.git@e2464dd3ebdb9109ee1db8e8c9097bede2d9d69b#egg=kolibri
