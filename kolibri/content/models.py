@@ -122,8 +122,12 @@ class File(models.Model):
     lang = models.ForeignKey(Language, blank=True, null=True)
     supplementary = models.BooleanField(default=False)
     thumbnail = models.BooleanField(default=False)
+    priority = models.IntegerField(blank=True, null=True)
 
     objects = ContentQuerySet.as_manager()
+
+    class Meta:
+        ordering = ["priority"]
 
     class Admin:
         pass
