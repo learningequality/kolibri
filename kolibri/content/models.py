@@ -10,6 +10,7 @@ import uuid
 
 from django.conf import settings
 from django.db import IntegrityError, models
+from django.utils.encoding import python_2_unicode_compatible
 from mptt.models import MPTTModel, TreeForeignKey
 
 from .constants import content_kinds, extensions, presets
@@ -40,6 +41,7 @@ class ContentDatabaseModel(models.Model):
         abstract = True
 
 
+@python_2_unicode_compatible
 class ContentTag(ContentDatabaseModel):
     tag_name = models.CharField(max_length=30, blank=True)
 
@@ -49,6 +51,7 @@ class ContentTag(ContentDatabaseModel):
         return self.tag_name
 
 
+@python_2_unicode_compatible
 class ContentNode(MPTTModel, ContentDatabaseModel):
     """
     The top layer of the contentDB schema, defines the most common properties that are shared across all different contents.
@@ -90,6 +93,7 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
         return self.title
 
 
+@python_2_unicode_compatible
 class Language(ContentDatabaseModel):
     lang_code = models.CharField(max_length=2, db_index=True)
     lang_subcode = models.CharField(max_length=2, db_index=True)
@@ -100,6 +104,7 @@ class Language(ContentDatabaseModel):
         return self.lang_code
 
 
+@python_2_unicode_compatible
 class File(ContentDatabaseModel):
     """
     The bottom layer of the contentDB schema, defines the basic building brick for content.
@@ -138,6 +143,7 @@ class File(ContentDatabaseModel):
             return None
 
 
+@python_2_unicode_compatible
 class License(ContentDatabaseModel):
     """
     Normalize the license of ContentNode model
@@ -205,6 +211,7 @@ class RelatedContentRelationship(ContentDatabaseModel):
         super(RelatedContentRelationship, self).save(*args, **kwargs)
 
 
+@python_2_unicode_compatible
 class ChannelMetadataAbstractBase(models.Model):
     """
     Provide references to the corresponding contentDB when navigate between channels.
