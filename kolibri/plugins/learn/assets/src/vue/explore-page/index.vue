@@ -1,5 +1,6 @@
 <template>
 
+  <search-widget></search-widget>
   <div class="topic-page">
     <breadcrumbs></breadcrumbs>
     <div v-if="topics.length > 0">
@@ -45,6 +46,7 @@
       'breadcrumbs': require('../breadcrumbs'),
       'topic-card': require('../topic-card'),
       'content-card': require('../content-card'),
+      'search-widget': require('../search-widget'),
     },
     vuex: {
       getters: {
