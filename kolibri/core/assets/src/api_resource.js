@@ -70,13 +70,15 @@ class Model {
 class Collection {
   /**
    * Create a Collection instance.
+   * @param {Object} params - Default parameters to use when fetching data from the server.
    * @param {Object[]|Model[]} data - Data to prepopulate the collection with,
    * useful if wanting to save multiple models.
    * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
    * behaviour for the collection.
    */
-  constructor(data = [], resource) {
+  constructor(params = {}, data = [], resource) {
     this.resource = resource;
+    this.params = params;
     if (!this.resource) {
       throw new TypeError('resource must be defined');
     }
@@ -87,13 +89,14 @@ class Collection {
 
   /**
    * Method to fetch data from the server for this collection.
-   * @param {object} params - an object of parameters to be parsed into GET parameters on the
+   * @param {object} extraParams - an object of parameters to be parsed into GET parameters on the
    * fetch.
    * @returns {Promise} - Promise is resolved with Array of Model attributes when the XHR
    * successfully returns, otherwise reject is called with the response object.
    */
-  fetch(params = {}) {
+  fetch(extraParams = {}) {
     this.synced = false;
+    const params = Object.assign({}, this.params, extraParams);
     return new Promise((resolve, reject) => {
       // Do a fetch on the URL, with the parameters passed in.
       client({ path: this.url, params }).then((response) => {
@@ -145,6 +148,10 @@ class Collection {
       }
     });
   }
+
+  get data() {
+    return this.models.map((model) => model.attributes);
+  }
 }
 
 /** Class representing a single API resource.
@@ -158,18 +165,35 @@ class Resource {
    */
   constructor(kolibri) {
     this.models = {};
+    this.collections = {};
     this.kolibri = kolibri;
   }
 
   /**
    * Optionally pass in data and instantiate a collection for saving that data or fetching
    * data from the resource.
+   * @param {Object} params - default parameters to use for Collection fetching.
    * @param {Object[]} data - Data to instantiate the Collection - see Model constructor for
    * details of data.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  getCollection(data = []) {
-    return new Collection(data, this);
+  getCollection(params = {}, data = []) {
+    let collection;
+    // Sort keys in order, then assign those keys to an empty object in that order.
+    // Then stringify to create a cache key.
+    const key = JSON.stringify(
+      Object.assign(
+        {}, ...Object.keys(params).sort().map(
+          (paramKey) => ({ [paramKey]: params[paramKey] })
+        )
+      )
+    );
+    if (!this.collections[key]) {
+      collection = new Collection(params, data, this);
+    } else {
+      collection = this.collections[key];
+    }
+    return collection;
   }
 
   /**
