@@ -22,12 +22,6 @@ class UUIDField(models.CharField):
         kwargs['max_length'] = 32
         super(UUIDField, self).__init__(*args, **kwargs)
 
-    def get_default(self):
-        result = super(UUIDField, self).get_default()
-        if isinstance(result, uuid.UUID):
-            result = result.hex
-        return result
-
 
 class ContentQuerySet(models.QuerySet):
     """

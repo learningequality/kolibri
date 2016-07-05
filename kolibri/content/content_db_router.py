@@ -16,7 +16,7 @@ from functools import wraps
 
 from django.apps import apps
 from django.conf import settings
-from django.db import DEFAULT_DB_ALIAS, OperationalError, connections
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.utils import ConnectionDoesNotExist
 
 from .errors import ContentModelUsedOutsideDBContext
@@ -40,15 +40,15 @@ def get_active_content_database(return_none_if_not_set=False):
     try:
         connections[alias]
     except ConnectionDoesNotExist:
+        filename = os.path.join(settings.CONTENT_DB_DIR, alias + '.sqlite3')
+        if not os.path.isfile(filename):
+            raise KeyError("Content DB '%s' doesn't exist!!" % alias)
         connections.databases[alias] = {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(settings.CONTENT_DB_DIR, alias + '.sqlite3'),
+            'NAME': filename,
         }
-        try:
-            if not connections[alias].introspection.table_names():
-                raise KeyError("Content DB '%s' is empty!!" % alias)
-        except OperationalError:
-            raise KeyError("Content DB '%s' doesn't exist!!" % alias)
+        if not connections[alias].introspection.table_names():
+            raise KeyError("Content DB '%s' is empty!!" % alias)
 
     return alias
 
@@ -88,10 +88,7 @@ class ContentDBRouter(object):
 
         from .models import ContentDatabaseModel
 
-        if model_name:
-            model = apps.get_model(app_label=app_label, model_name=model_name)
-        else:
-            model = None
+        model = apps.get_model(app_label=app_label, model_name=model_name) if model_name else None
 
         # allow migrations for ContentDatabaseModels on non-default DBs, and for others only on default DB
         if model and issubclass(model, ContentDatabaseModel):

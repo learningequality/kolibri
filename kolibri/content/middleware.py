@@ -1,7 +1,5 @@
 
-from .content_db_router import (
-    get_active_content_database, set_active_content_database
-)
+from .content_db_router import get_active_content_database, set_active_content_database
 
 
 class ContentDBRoutingMiddleware(object):
@@ -16,6 +14,5 @@ class ContentDBRoutingMiddleware(object):
             set_active_content_database(view_kwargs["channel_id"])
 
     def process_response(self, request, response):
-        if hasattr(request, "PREVIOUSLY_ACTIVE_CONTENT_DATABASE"):
-            set_active_content_database(getattr(request, "PREVIOUSLY_ACTIVE_CONTENT_DATABASE", None))
+        set_active_content_database(getattr(request, "PREVIOUSLY_ACTIVE_CONTENT_DATABASE", None))
         return response
