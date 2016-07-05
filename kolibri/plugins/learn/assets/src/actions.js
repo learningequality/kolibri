@@ -36,7 +36,21 @@ const fetchNodes = ({ dispatch }, id) => {
   });
 };
 
+const searchNodes = ({ dispatch }, params) => {
+  // Get the collection from ContentNodeResource.
+  const contentCollection = Kolibri.resources.ContentNodeResource.getCollection();
+  const wantedFields = ['pk', 'title', 'kind', 'instance_id', 'content_id', 'description', 'files'];
+  contentCollection.fetch({ search: params, fields: wantedFields, page_size: 10 }).then((data) => {
+    const nodes = data[0].results;
+    const topics = nodes.filter((node) => node.kind === 'topic');
+    const contents = nodes.filter((node) => node.kind !== 'topic');
+    dispatch('SET_SEARCH_TOPICS', topics);
+    dispatch('SET_SEARCH_CONTENTS', contents);
+  });
+};
+
 module.exports = {
   fetchFullContent,
   fetchNodes,
+  searchNodes,
 };
