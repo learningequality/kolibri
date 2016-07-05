@@ -4,7 +4,7 @@
 
     <nav id="learn-nav">
       <ul>
-        <a v-link="{ path: '/learn', exact: true }">
+        <a v-link="{ path: '/learn' }">
           <li><span>
           <svg fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
             <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
@@ -13,7 +13,7 @@
           Learn
           </span></li>
         </a>
-        <a v-link="{ path: '/explore', exact: true }">
+        <a v-link="{ path: '/explore' }">
           <li><span>
           <svg fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 10.9c-.61 0-1.1.49-1.1 1.1s.49 1.1 1.1 1.1c.61 0 1.1-.49 1.1-1.1s-.49-1.1-1.1-1.1zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm2.19 12.19L6 18l3.81-8.19L18 6l-3.81 8.19z"></path>
@@ -22,9 +22,6 @@
           Explore
           </span></li>
         </a>
-        <a v-link="{ path: '/learn/content', exact: true }"><li><span>Learn Content</span></li></a>
-        <a v-link="{ path: '/explore/content', exact: true }"><li><span>
-        Explore Content</span></li></a>
       </ul>
     </nav>
 
@@ -102,7 +99,6 @@
   a.v-link-active
     color: $core-bg-light
     background: $core-action-normal
-    cursor: default
 
     svg
       fill: $core-bg-light
