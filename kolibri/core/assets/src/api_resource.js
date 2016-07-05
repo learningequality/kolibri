@@ -139,8 +139,8 @@ class Collection {
       // Note: this method ensures instantiation deduplication of models within the collection
       //  and across collections.
       const setModel = this.resource.addModel(model);
-      if (!this._model_map[model.id]) {
-        this._model_map[model.id] = setModel;
+      if (!this._model_map[setModel.id]) {
+        this._model_map[setModel.id] = setModel;
         this.models.push(setModel);
       }
     });

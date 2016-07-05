@@ -2,10 +2,8 @@
 
   <div>
     <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs>
-    <content-page-general 
-      :title="title" 
-      :description="description"
-      :recommended="recommended"
+    <content-page-general
+      :primary-key="pk"
     ></content-page-general>
   </div>
 
@@ -22,10 +20,7 @@
     vuex: {
       getters: {
         // better practice would be to define vuex getter functions globally
-        title: (state) => state.full.title,
-        description: (state) => state.full.description,
-        recommended: (state) => state.full.recommended,
-        breadcrumbs: state => state.breadcrumbs,
+        breadcrumbs: (state) => state.breadcrumbs,
       },
     },
   };

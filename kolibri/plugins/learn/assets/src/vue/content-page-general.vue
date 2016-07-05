@@ -2,14 +2,21 @@
 
   <div>
     <h2>Learn Content</h2>
-    <content-render kind="audio" extension="mp3">
-    </content-render>
     <h3>
       {{ title }}
     </h3>
     <p>
       {{ description }}
     </p>
+    <content-render
+      :pk="pk"
+      :kind="kind"
+      :files="files"
+      :content-id="contentId"
+      :channel-id="channelId"
+      :available="available"
+      :extra-fields="extraFields">
+    </content-render>
     <div class="rec-grid card-list">
       <content-card
         v-for="content in recommended"
@@ -30,11 +37,15 @@
 <script>
 
   module.exports = {
-    props: [
-      'title',
-      'description',
-      'recommended',
-    ],
+    created() {
+      this.fetchFullContent(this.primaryKey);
+    },
+    props: {
+      primaryKey: {
+        type: Number,
+        default: 4,
+      },
+    },
     components: {
       'content-render': require('content-renderer'),
       'content-card': require('./content-card'),
@@ -45,7 +56,15 @@
         title: (state) => state.full.title,
         description: (state) => state.full.description,
         recommended: (state) => state.full.recommended,
+        pk: (state) => state.full.pk,
+        kind: (state) => state.full.kind,
+        files: (state) => state.full.files,
+        contentId: (state) => state.full.content_id,
+        channelId: (state) => state.channel,
+        available: (state) => state.full.available,
+        extraFields: (state) => state.full.extra_fields,
       },
+      actions: require('../actions'),
     },
   };
 

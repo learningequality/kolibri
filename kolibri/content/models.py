@@ -66,14 +66,12 @@ class ContentNode(MPTTModel):
     title = models.CharField(max_length=200)
 
     # the instance_id is used for mapping a node between kolibri and the
-    # content curation server. We can't use the raw id, since ids aren't
+    # content curation server. We can't use an auto-integer PK, since ids aren't
     # guaranteed to be consistent across different content curation servers
     # (once we have a distributed content curation server), and content ids may
     # be the same across different nodes within the same channel (for student
-    # logging and analytics purposes.) Apart from generating the instance_id
-    # upon node creation, we also change the instance_id whenever we move or
-    # copy a node).
-    instance_id = UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    # logging and analytics purposes.)
+    instance_id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
 
     # the content_id is used for tracking a user's interaction with a piece of
     # content, in the face of possibly many copies of that content. When a user
