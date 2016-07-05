@@ -14,7 +14,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from .constants import content_kinds, extensions, presets
 from .content_db_router import get_active_content_database
-from .errors import ContentModelUsedOutsideDBContext
 
 
 class UUIDField(models.CharField):
@@ -23,27 +22,25 @@ class UUIDField(models.CharField):
         kwargs['max_length'] = 32
         super(UUIDField, self).__init__(*args, **kwargs)
 
-    def get_default(self):
-        result = super(UUIDField, self).get_default()
-        if isinstance(result, uuid.UUID):
-            result = result.hex
-        return result
-
 
 class ContentQuerySet(models.QuerySet):
     """
     Ensure proper database routing happens even when queryset is evaluated lazily outside of `using_content_database`.
     """
     def __init__(self, *args, **kwargs):
-        # note: `get_active_content_database` can only be used in the context of `using_content_database`
-        try:
-            kwargs["using"] = kwargs.get("using", None) or get_active_content_database()
-        except ContentModelUsedOutsideDBContext:
-            pass
+        kwargs["using"] = kwargs.get("using", None) or get_active_content_database(return_none_if_not_set=True)
         super(ContentQuerySet, self).__init__(*args, **kwargs)
 
 
-class ContentTag(models.Model):
+class ContentDatabaseModel(models.Model):
+    """
+    All models that exist in content databases (rather than in the default database) should inherit from this class.
+    """
+    class Meta:
+        abstract = True
+
+
+class ContentTag(ContentDatabaseModel):
     tag_name = models.CharField(max_length=30, blank=True)
 
     objects = ContentQuerySet.as_manager()
@@ -52,7 +49,7 @@ class ContentTag(models.Model):
         return self.tag_name
 
 
-class ContentNode(MPTTModel):
+class ContentNode(MPTTModel, ContentDatabaseModel):
     """
     The top layer of the contentDB schema, defines the most common properties that are shared across all different contents.
     Things it can represent are, for example, video, exercise, audio or document...
@@ -89,14 +86,11 @@ class ContentNode(MPTTModel):
 
     objects = ContentQuerySet.as_manager()
 
-    class Admin:
-        pass
-
     def __str__(self):
         return self.title
 
 
-class Language(models.Model):
+class Language(ContentDatabaseModel):
     lang_code = models.CharField(max_length=2, db_index=True)
     lang_subcode = models.CharField(max_length=2, db_index=True)
 
@@ -106,7 +100,7 @@ class Language(models.Model):
         return self.lang_code
 
 
-class File(models.Model):
+class File(ContentDatabaseModel):
     """
     The bottom layer of the contentDB schema, defines the basic building brick for content.
     Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3...
@@ -144,7 +138,7 @@ class File(models.Model):
             return None
 
 
-class License(models.Model):
+class License(ContentDatabaseModel):
     """
     Normalize the license of ContentNode model
     """
@@ -152,14 +146,11 @@ class License(models.Model):
 
     objects = ContentQuerySet.as_manager()
 
-    class Admin:
-        pass
-
     def __str__(self):
         return self.license_name
 
 
-class PrerequisiteContentRelationship(models.Model):
+class PrerequisiteContentRelationship(ContentDatabaseModel):
     """
     Predefine the prerequisite relationship between two ContentNode objects.
     """
@@ -170,9 +161,6 @@ class PrerequisiteContentRelationship(models.Model):
 
     class Meta:
         unique_together = ['target_node', 'prerequisite']
-
-    class Admin:
-        pass
 
     def clean(self, *args, **kwargs):
         # self reference exception
@@ -194,7 +182,7 @@ class PrerequisiteContentRelationship(models.Model):
         super(PrerequisiteContentRelationship, self).save(*args, **kwargs)
 
 
-class RelatedContentRelationship(models.Model):
+class RelatedContentRelationship(ContentDatabaseModel):
     """
     Predefine the related relationship between two ContentNode objects.
     """
@@ -205,9 +193,6 @@ class RelatedContentRelationship(models.Model):
 
     class Meta:
         unique_together = ['contentnode_1', 'contentnode_2']
-
-    class Admin:
-        pass
 
     def save(self, *args, **kwargs):
         # self reference exception
@@ -220,26 +205,38 @@ class RelatedContentRelationship(models.Model):
         super(RelatedContentRelationship, self).save(*args, **kwargs)
 
 
-class ChannelMetadata(models.Model):
+class ChannelMetadataAbstractBase(models.Model):
     """
     Provide references to the corresponding contentDB when navigate between channels.
     Every content API method needs a channel_id argument, which is stored in this model.
     """
-    channel_id = UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
+    channel_id = UUIDField(primary_key=True)
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True)
     author = models.CharField(max_length=400, blank=True)
     version = models.IntegerField(default=0)
     thumbnail = models.TextField(blank=True)
-    root_pk = models.IntegerField()
-
-    objects = ContentQuerySet.as_manager()
+    root_pk = UUIDField()
 
     class Meta:
-        app_label = "content"
-
-    class Admin:
-        pass
+        abstract = True
 
     def __str__(self):
         return self.name
+
+
+class ChannelMetadata(ChannelMetadataAbstractBase, ContentDatabaseModel):
+    """
+    This class stores the channel metadata within the content database itself.
+    """
+
+    objects = ContentQuerySet.as_manager()
+
+
+class ChannelMetadataCache(ChannelMetadataAbstractBase):
+    """
+    This class stores the channel metadata cached/denormed into the primary database.
+    """
+
+    class Admin:
+        pass

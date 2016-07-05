@@ -1,41 +1,49 @@
-from django.core.handlers.wsgi import WSGIRequest
-from kolibri.content.models import ChannelMetadata, ContentNode, File
+from kolibri.content.models import ChannelMetadataCache, ContentNode, File
 from rest_framework import serializers
+from rest_framework.reverse import reverse
+
+from .content_db_router import get_active_content_database
 
 
-class ChannelMetadataSerializer(serializers.HyperlinkedModelSerializer):
+class ChannelMetadataCacheSerializer(serializers.ModelSerializer):
 
-    contentnodes = serializers.HyperlinkedIdentityField(
-        lookup_field='channel_id', view_name='contentnode-list', lookup_url_kwarg='channelmetadata_channel_id')
+    url = serializers.SerializerMethodField()
+    all_nodes_url = serializers.SerializerMethodField()
+    root_node_url = serializers.SerializerMethodField()
 
     class Meta:
-        model = ChannelMetadata
-        fields = ('url', 'root_pk', 'channel_id', 'name', 'description', 'author', 'contentnodes')
-        extra_kwargs = {
-            'url': {'lookup_field': 'channel_id', 'view_name': 'channelmetadata-detail'}
-        }
+        model = ChannelMetadataCache
+        fields = ('root_pk', 'channel_id', 'name', 'description', 'author', 'url', 'all_nodes_url', 'root_node_url')
+
+    def get_url(self, channel):
+        kwargs = {"pk": channel.channel_id}
+        request = self.context.get('request', None)
+        return reverse("channel-detail", kwargs=kwargs, request=request)
+
+    def get_all_nodes_url(self, channel):
+        kwargs = {"channel_id": channel.channel_id}
+        request = self.context.get('request', None)
+        return reverse("contentnode-list", kwargs=kwargs, request=request)
+
+    def get_root_node_url(self, channel):
+        kwargs = {"channel_id": channel.channel_id, "pk": channel.root_pk}
+        request = self.context.get('request', None)
+        return reverse("contentnode-detail", kwargs=kwargs, request=request)
 
 
 class DualLookuplinkedIdentityField(serializers.HyperlinkedIdentityField):
-    def __init__(self, view_name, lookup_field_1, lookup_field_2, **kwargs):
-        super(DualLookuplinkedIdentityField, self).__init__(view_name, **kwargs)
 
     def to_representation(self, value):
         view_name = self.view_name
-        lookup_field_1 = self._kwargs['lookup_field_1']
-        lookup_field_2 = self._kwargs['lookup_field_2']
-        kwargs = {lookup_field_1: self.context['channel_id'], lookup_field_2: getattr(value, lookup_field_2)}
+        kwargs = {"channel_id": get_active_content_database(), "pk": value.pk}
         request = self.context.get('request', None)
-        format = self.context.get('format', None)
 
-        return self.reverse(view_name, kwargs=kwargs, request=request, format=format)
+        return self.reverse(view_name, kwargs=kwargs, request=request)
 
 
 class FileSerializer(serializers.ModelSerializer):
     url = DualLookuplinkedIdentityField(
         view_name='file-detail',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='pk'
     )
     storage_url = serializers.SerializerMethodField()
 
@@ -49,40 +57,27 @@ class FileSerializer(serializers.ModelSerializer):
 
 
 class ContentNodeSerializer(serializers.ModelSerializer):
+    parent = serializers.PrimaryKeyRelatedField(read_only=True)
     url = DualLookuplinkedIdentityField(
         view_name='contentnode-detail',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='pk'
     )
     ancestor_topics = DualLookuplinkedIdentityField(
         view_name='contentnode-ancestor-topics',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='pk',
     )
     immediate_children = DualLookuplinkedIdentityField(
         view_name='contentnode-immediate-children',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='pk',
     )
     leaves = DualLookuplinkedIdentityField(
         view_name='contentnode-leaves',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='pk',
     )
     all_prerequisites = DualLookuplinkedIdentityField(
         view_name='contentnode-all-prerequisites',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='pk',
     )
     all_related = DualLookuplinkedIdentityField(
         view_name='contentnode-all-related',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='pk',
     )
     missing_files = DualLookuplinkedIdentityField(
         view_name='contentnode-missing-files',
-        lookup_field_1='channelmetadata_channel_id',
-        lookup_field_2='pk',
     )
 
     # Here we use a FileSerialize instead just the files reverse FK is because we want to get the computed field storage_url
@@ -96,29 +91,29 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         super(ContentNodeSerializer, self).__init__(*args, **kwargs)
 
         # enable dynamic fields specification!
-        if not isinstance(self.context['request'], WSGIRequest):
-            if 'request' in self.context and self.context['request'].query_params.get('fields'):
-                fields = self.context['request'].query_params.get('fields').split(',')
-                # Drop any fields that are not specified in the `fields` argument.
-                allowed = set(fields)
-                existing = set(self.fields.keys())
-                for field_name in existing - allowed:
-                    self.fields.pop(field_name)
+        if 'request' in self.context and self.context['request'].query_params.get('fields'):
+            fields = self.context['request'].query_params.get('fields').split(',')
+            # Drop any fields that are not specified in the `fields` argument.
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
 
     def get_ancestors(self, target_node):
         """
         in descending order (root ancestor first, immediate parent last)
         """
-        return target_node.get_ancestors().using(self.context['channel_id']).values('pk', 'title')
+        return target_node.get_ancestors().values('pk', 'title')
 
     class Meta:
         model = ContentNode
         depth = 1
         fields = (
-            'pk', 'id', 'url', 'instance_id', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
+            'pk', 'url', 'instance_id', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
             'license', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children', 'files', 'leaves', 'all_prerequisites',
-            'all_related', 'missing_files', 'ancestors'
+            'all_related', 'missing_files', 'ancestors', 'parent',
         )
+
 
 class SimplifiedContentNodeSerializer(serializers.ModelSerializer):
     class Meta:
