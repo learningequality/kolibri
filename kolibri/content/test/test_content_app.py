@@ -54,34 +54,34 @@ class ContentNodeTestCase(TestCase):
 
     """Tests for content API methods"""
 
-    def test_get_instance_with_pk_or_uuid(self):
-        # pass content_id
-        root_id = content.ContentNode.objects.get(title="root").content_id
+    def test_get_contentnode_from_instance_or_instance_id(self):
+        # pass instance_id
+        root_id = content.ContentNode.objects.get(title="root").instance_id
         expected_output = content.ContentNode.objects.get(title='root')
-        actual_output = api.get_instance_with_pk_or_uuid(content=str(root_id))
+        actual_output = api.get_contentnode_from_instance_or_instance_id(content=str(root_id))
         self.assertEqual(expected_output, actual_output)
 
         # pass pk
-        cn_pk = content.ContentNode.objects.get(title='c1').pk
+        cn_instance_id = content.ContentNode.objects.get(title='c1').instance_id
         expected_output = content.ContentNode.objects.get(title='c1')
-        actual_output = api.get_instance_with_pk_or_uuid(content=cn_pk)
+        actual_output = api.get_contentnode_from_instance_or_instance_id(content=cn_instance_id)
         self.assertEqual(expected_output, actual_output)
 
         # pass invalid type
         with self.assertRaises(TypeError):
-            api.get_instance_with_pk_or_uuid(content='asdf')
+            api.get_contentnode_from_instance_or_instance_id(content='asdf')
 
     def test_get_content_with_id_list(self):
-        # test for single content_id
-        the_content_id = content.ContentNode.objects.get(title="root").content_id
+        # test for single instance_id
+        the_instance_id = content.ContentNode.objects.get(title="root").instance_id
         with self.assertRaises(TypeError):
-            api.get_content_with_id_list(the_content_id)
+            api.get_content_with_id_list(the_instance_id)
 
-        # test for a list of content_ids
-        the_content_ids = [cm.content_id for cm in content.ContentNode.objects.all() if
-                           cm.title in ["root", "c1", "c2c2"]]
+        # test for a list of instance_ids
+        the_instance_ids = [cm.instance_id for cm in content.ContentNode.objects.all() if
+                            cm.title in ["root", "c1", "c2c2"]]
         expected_output2 = content.ContentNode.objects.filter(title__in=["root", "c1", "c2c2"])
-        actual_output2 = api.get_content_with_id_list(the_content_ids)
+        actual_output2 = api.get_content_with_id_list(the_instance_ids)
 
         self.assertEqual(set(expected_output2), set(actual_output2))
 
@@ -236,11 +236,11 @@ class ContentNodeTestCase(TestCase):
         except:
             self.assertTrue(False)
 
-    def test_children_of_kind(self):
+    def test_descendants_of_kind(self):
 
         p = content.ContentNode.objects.get(title="root")
         expected_output = content.ContentNode.objects.filter(title__in=["c2", "c2c2", "c2c3"])
-        actual_output = api.children_of_kind(content=p, kind=content_kinds.TOPIC)
+        actual_output = api.descendants_of_kind(content=p, kind=content_kinds.TOPIC)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_all_str(self):
@@ -290,42 +290,42 @@ class ContentNodeAPITestCase(APITestCase):
 
     def _reverse_channel_url(self, pattern_name, extra_kwargs):
         """Helper method to reverse a URL using the current channel ID"""
-        kwargs = {"channelmetadata_channel_id": self.the_channel_id}
+        kwargs = {"channel_id": self.the_channel_id}
         kwargs.update(extra_kwargs)
         return reverse(pattern_name, kwargs=kwargs)
 
     def test_ancestor_topics_endpoint(self):
-        c1_pk = content.ContentNode.objects.get(title="c1").pk
-        response = self.client.get(self._reverse_channel_url("contentnode-ancestor-topics", {"pk": c1_pk}))
+        c1_instance_id = content.ContentNode.objects.get(title="c1").instance_id
+        response = self.client.get(self._reverse_channel_url("contentnode-ancestor-topics", {"pk": c1_instance_id}))
         self.assertEqual(response.data[0]['title'], 'root')
 
     def test_immediate_children_endpoint(self):
-        root_pk = content.ContentNode.objects.get(title="root").pk
-        response = self.client.get(self._reverse_channel_url("contentnode-immediate-children", {"pk": root_pk}))
+        root_instance_id = content.ContentNode.objects.get(title="root").instance_id
+        response = self.client.get(self._reverse_channel_url("contentnode-immediate-children", {"pk": root_instance_id}))
         self.assertEqual(response.data[0]['title'], 'c1')
         self.assertEqual(response.data[1]['title'], 'c2')
 
     def test_leaves_endpoint(self):
-        root_pk = content.ContentNode.objects.get(title="root").pk
-        response = self.client.get(self._reverse_channel_url("contentnode-leaves", {"pk": root_pk}))
+        root_instance_id = content.ContentNode.objects.get(title="root").instance_id
+        response = self.client.get(self._reverse_channel_url("contentnode-leaves", {"pk": root_instance_id}))
         self.assertEqual(response.data[0]['title'], 'c1')
         self.assertEqual(response.data[1]['title'], 'c2c1')
         self.assertEqual(response.data[2]['title'], 'c2c2')
         self.assertEqual(response.data[3]['title'], 'c2c3')
 
     def test_all_prerequisites_endpoint(self):
-        c1_pk = content.ContentNode.objects.get(title="c1").pk
-        response = self.client.get(self._reverse_channel_url("contentnode-all-prerequisites", {"pk": c1_pk}))
+        c1_instance_id = content.ContentNode.objects.get(title="c1").instance_id
+        response = self.client.get(self._reverse_channel_url("contentnode-all-prerequisites", {"pk": c1_instance_id}))
         self.assertEqual(response.data[0]['title'], 'root')
 
     def test_all_related_endpoint(self):
-        c1_pk = content.ContentNode.objects.get(title="c1").pk
-        response = self.client.get(self._reverse_channel_url("contentnode-all-related", {"pk": c1_pk}))
+        c1_instance_id = content.ContentNode.objects.get(title="c1").instance_id
+        response = self.client.get(self._reverse_channel_url("contentnode-all-related", {"pk": c1_instance_id}))
         self.assertEqual(response.data[0]['title'], 'c2')
 
     def test_missing_files_endpoint(self):
-        c1_pk = content.ContentNode.objects.get(title="c1").pk
-        response = self.client.get(self._reverse_channel_url("contentnode-missing-files", {"pk": c1_pk}))
+        c1_instance_id = content.ContentNode.objects.get(title="c1").instance_id
+        response = self.client.get(self._reverse_channel_url("contentnode-missing-files", {"pk": c1_instance_id}))
         expected_output = content.File.objects.filter(id__in=[1, 2])
         self.assertEqual(response.data[0]['id'], expected_output[0].id)
         self.assertEqual(response.data[1]['id'], expected_output[1].id)
@@ -335,18 +335,9 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(len(response.data), 6)
 
     def test_contentnode_retrieve(self):
-        c1_pk = content.ContentNode.objects.get(title="c1").pk
-        response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': c1_pk}))
-        self.assertEqual(response.data['pk'], c1_pk)
-
-    def test_channelmetadata_list(self):
-        response = self.client.get(reverse("channelmetadata-list", kwargs={}))
-        self.assertEqual(response.data[0]['name'], 'testing')
-
-    def test_channelmetadata_retrieve(self):
-        channel_id = str(content.ChannelMetadata.objects.get(name="testing").channel_id)
-        response = self.client.get(reverse("channelmetadata-detail", kwargs={'channel_id': channel_id}))
-        self.assertEqual(response.data['name'], 'testing')
+        c1_instance_id = content.ContentNode.objects.get(title="c1").instance_id
+        response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': c1_instance_id}))
+        self.assertEqual(response.data['pk'], c1_instance_id)
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list", {}))

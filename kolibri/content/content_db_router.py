@@ -14,8 +14,9 @@ import os
 import threading
 from functools import wraps
 
+from django.apps import apps
 from django.conf import settings
-from django.db import OperationalError, connections
+from django.db import DEFAULT_DB_ALIAS, OperationalError, connections
 from django.db.utils import ConnectionDoesNotExist
 
 from .errors import ContentModelUsedOutsideDBContext
@@ -23,14 +24,17 @@ from .errors import ContentModelUsedOutsideDBContext
 THREAD_LOCAL = threading.local()
 
 
-def get_active_content_database():
+def get_active_content_database(return_none_if_not_set=False):
 
     # retrieve the temporary thread-local variable that `using_content_database` sets
     alias = getattr(THREAD_LOCAL, 'ACTIVE_CONTENT_DB_ALIAS', None)
 
     # if no content db alias has been activated, that's a problem
     if not alias:
-        raise ContentModelUsedOutsideDBContext()
+        if return_none_if_not_set:
+            return None
+        else:
+            raise ContentModelUsedOutsideDBContext()
 
     # try to connect to the content database, and if connection doesn't exist, create it
     try:
@@ -58,8 +62,10 @@ class ContentDBRouter(object):
 
     def _get_db(self, model, **hints):
 
-        # only interfere with models from the "content" app, in case we want to use other models in parallel
-        if model._meta.app_label != "content":
+        from .models import ContentDatabaseModel
+
+        # if the model does not inherit from ContentDatabaseModel, leave it for the default database
+        if not issubclass(model, ContentDatabaseModel):
             return None
 
         # if the model is already associated with a database, use that database
@@ -79,7 +85,21 @@ class ContentDBRouter(object):
         return True
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
-        return True
+
+        from .models import ContentDatabaseModel
+
+        if model_name:
+            model = apps.get_model(app_label=app_label, model_name=model_name)
+        else:
+            model = None
+
+        # allow migrations for ContentDatabaseModels on non-default DBs, and for others only on default DB
+        if model and issubclass(model, ContentDatabaseModel):
+            val = db != DEFAULT_DB_ALIAS
+        else:
+            val = db == DEFAULT_DB_ALIAS
+
+        return val
 
 
 class using_content_database(object):
