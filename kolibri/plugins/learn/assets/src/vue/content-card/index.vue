@@ -1,6 +1,6 @@
 <template>
 
-  <a v-link="{ name: 'explore-content', params: {content_id: pk} }">
+  <a v-link="{ name: 'explore-content', params: {content_id: id} }">
     <div class="content-card-container">
       <div class="content-icon">
         <img :src="icon">
@@ -19,7 +19,10 @@
 
   module.exports = {
     props: {
-      pk: {},
+      id: {
+        type: String,
+        required: true,
+      },
       title: {
         type: String,
         required: true,

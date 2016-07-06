@@ -24,6 +24,9 @@ class Model {
     // Register any created model with the Resource to track model instances.
     this.resource.addModel(this);
     this.synced = false;
+
+    // force IDs to always be strings - this should be changed on the server-side too
+    this.attributes[this.resource.idKey] = String(this.attributes[this.resource.idKey]);
   }
 
   /**
