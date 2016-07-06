@@ -34,24 +34,6 @@ class FileSerializer(serializers.ModelSerializer):
 
 class ContentNodeSerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
-    ancestor_topics = DualLookuplinkedIdentityField(
-        view_name='contentnode-ancestor-topics',
-    )
-    immediate_children = DualLookuplinkedIdentityField(
-        view_name='contentnode-immediate-children',
-    )
-    leaves = DualLookuplinkedIdentityField(
-        view_name='contentnode-leaves',
-    )
-    all_prerequisites = DualLookuplinkedIdentityField(
-        view_name='contentnode-all-prerequisites',
-    )
-    all_related = DualLookuplinkedIdentityField(
-        view_name='contentnode-all-related',
-    )
-    missing_files = DualLookuplinkedIdentityField(
-        view_name='contentnode-missing-files',
-    )
 
     # Here we use a FileSerializer instead just the files reverse FK is because we want to get the computed field storage_url
     # In order to improve performance in production, we should implement a client side method to calculate the file url using
@@ -82,6 +64,5 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         model = ContentNode
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children', 'files', 'leaves', 'all_prerequisites',
-            'all_related', 'missing_files', 'ancestors', 'parent',
+            'license', 'files', 'ancestors', 'parent'
         )

@@ -63,7 +63,9 @@
       "lft": 2,
       "sort_order": null,
       "level": 1,
-      "author": ""
+      "author": "",
+      "related": ["2e8bac07947855369fe2d77642dfc870"],
+      "has_prerequisite": ["da7ecc42e62553eebc8121242746e88a"]
     },
     "pk": "32a941fb77c2576e8f6b294cde4c3b0c",
     "model": "content.contentnode"
@@ -280,22 +282,6 @@
     },
     "pk": 4,
     "model": "content.license"
-  },
-  {
-    "fields": {
-      "target_node": "32a941fb77c2576e8f6b294cde4c3b0c",
-      "prerequisite": "da7ecc42e62553eebc8121242746e88a"
-    },
-    "pk": 1,
-    "model": "content.prerequisitecontentrelationship"
-  },
-  {
-    "fields": {
-      "contentnode_1": "32a941fb77c2576e8f6b294cde4c3b0c",
-      "contentnode_2": "2e8bac07947855369fe2d77642dfc870"
-    },
-    "pk": 1,
-    "model": "content.relatedcontentrelationship"
   },
   {
     "fields": {

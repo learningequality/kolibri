@@ -7,7 +7,7 @@ The ONLY public object is ContentNode
 from __future__ import print_function
 
 from django.conf import settings
-from django.db import IntegrityError, models
+from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -59,8 +59,8 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     id = UUIDField(primary_key=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     license = models.ForeignKey('License')
-    prerequisite = models.ManyToManyField('self', related_name='is_prerequisite_of', through='PrerequisiteContentRelationship', symmetrical=False, blank=True)
-    is_related = models.ManyToManyField('self', related_name='relate_to', through='RelatedContentRelationship', symmetrical=False, blank=True)
+    has_prerequisite = models.ManyToManyField('self', related_name='prerequisite_for', symmetrical=False, blank=True)
+    related = models.ManyToManyField('self', symmetrical=True, blank=True)
     tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
 
     title = models.CharField(max_length=200)
@@ -147,61 +147,6 @@ class License(ContentDatabaseModel):
 
     def __str__(self):
         return self.license_name
-
-
-class PrerequisiteContentRelationship(ContentDatabaseModel):
-    """
-    Predefine the prerequisite relationship between two ContentNode objects.
-    """
-    target_node = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_target_node')
-    prerequisite = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_prerequisite')
-
-    objects = ContentQuerySet.as_manager()
-
-    class Meta:
-        unique_together = ['target_node', 'prerequisite']
-
-    def clean(self, *args, **kwargs):
-        # self reference exception
-        if self.target_node == self.prerequisite:
-            raise IntegrityError('Cannot self reference as prerequisite.')
-        # immediate cyclic exception
-        elif PrerequisiteContentRelationship.objects.using(self._state.db)\
-                .filter(target_node=self.prerequisite, prerequisite=self.target_node):
-            raise IntegrityError(
-                'Note: Prerequisite relationship is directional! %s and %s cannot be prerequisite of each other!'
-                % (self.target_node, self.prerequisite))
-        # distant cyclic exception
-        # elif <this is a nice to have exception, may implement in the future when the priority raises.>
-        #     raise Exception('Note: Prerequisite relationship is acyclic! %s and %s forms a closed loop!' % (self.target_node, self.prerequisite))
-        super(PrerequisiteContentRelationship, self).clean(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super(PrerequisiteContentRelationship, self).save(*args, **kwargs)
-
-
-class RelatedContentRelationship(ContentDatabaseModel):
-    """
-    Predefine the related relationship between two ContentNode objects.
-    """
-    contentnode_1 = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_1')
-    contentnode_2 = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_2')
-
-    objects = ContentQuerySet.as_manager()
-
-    class Meta:
-        unique_together = ['contentnode_1', 'contentnode_2']
-
-    def save(self, *args, **kwargs):
-        # self reference exception
-        if self.contentnode_1 == self.contentnode_2:
-            raise IntegrityError('Cannot self reference as related.')
-        # handle immediate cyclic
-        elif RelatedContentRelationship.objects.using(self._state.db)\
-                .filter(contentnode_1=self.contentnode_2, contentnode_2=self.contentnode_1):
-            return  # silently cancel the save
-        super(RelatedContentRelationship, self).save(*args, **kwargs)
 
 
 @python_2_unicode_compatible
