@@ -1,12 +1,12 @@
 <template>
 
   <div>
-    <div class="videowrapper" v-el:videowrapper>
+    <div v-el:videowrapper class="videowrapper">
       <video v-el:video class="video-js vjs-default-skin" >
-        <template v-for="video in getVideoSources()">
-          <source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" :type='"video/" + video.extension'>
+        <template v-for="video in videoSources">
+          <source :src="video.storage_url" :type='"video/" + video.extension'>
         </template>
-        <template v-for="track in getTrackSources()">
+        <template v-for="track in trackSources">
           <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
         </template>
       </video>
@@ -26,7 +26,32 @@
 
     props: ['files'],
 
+    computed: {
+      posterSource() {
+        return this.files.filter(
+          (file) => file.extension === 'png' | file.extension === 'jpg'
+        )[0].storage_url;
+      },
+
+      videoSources() {
+        return this.files.filter(
+          (file) => file.extension === 'mp4' | file.extension === 'webm' | file.extension === 'ogg'
+        );
+      },
+
+      trackSources() {
+        return this.files.filter(
+          (file) => file.extension === 'vtt'
+        );
+      },
+    },
+
     methods: {
+      getLangName(langCode) {
+        return JSON.parse(langcodes).filter(
+          (lang) => lang.code === langCode
+        )[0].lang;
+      },
 
       setPlayState(state) {
         if (state === true) {
@@ -39,31 +64,6 @@
           this.videoPlayer.$('.videoforward').classList.remove('display');
         }
       },
-
-      getPosterSource() {
-        return this.files.filter(
-          (file) => file.extension === 'png' | file.extension === 'jpg'
-        )[0].storage_url;
-      },
-
-      getVideoSources() {
-        return this.files.filter(
-          (file) => file.extension === 'mp4' | file.extension === 'webm' | file.extension === 'ogg'
-        );
-      },
-
-      getTrackSources() {
-        return this.files.filter(
-          (file) => file.extension === 'vtt'
-        );
-      },
-
-      getLangName(langCode) {
-        return JSON.parse(langcodes).filter(
-          (lang) => lang.code === langCode
-        )[0].lang;
-      },
-
     },
 
     ready() {
@@ -72,7 +72,7 @@
         autoplay: false,
         fluid: true,
         preload: 'auto',
-        poster: this.getPosterSource(),
+        poster: this.posterSource,
         playbackRates: [0.25, 0.5, 1.0, 1.25, 1.5, 2.0],
         textTrackDisplay: true,
         ReplayButton: true,
