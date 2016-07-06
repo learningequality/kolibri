@@ -38,6 +38,12 @@ const nodeAssignment = (nodes, dispatch) => {
  * @param {String} id - The id of the model to fetch the children of.
  */
 const fetchNodes = ({ dispatch }, id) => {
+  if (id === undefined) {
+    // root node
+    nodeAssignment(global.bootstrappedTopics, dispatch);
+    return;
+  }
+
   // Get the collection from ContentNodeResource.
   const contentCollection = Kolibri.resources.ContentNodeResource.getCollection({ parent: id });
   if (contentCollection.synced) {

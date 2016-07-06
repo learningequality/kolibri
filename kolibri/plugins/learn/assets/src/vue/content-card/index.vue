@@ -1,6 +1,6 @@
 <template>
 
-  <a v-on:click="fetchFullContent(pk)" :href="linkhref">
+  <a v-link="{ name: 'explore-content', params: {content_id: pk} }">
     <div class="content-card-container">
       <div class="content-icon">
         <img :src="icon">
@@ -25,10 +25,6 @@
         required: true,
       },
       thumbsrc: {
-        type: String,
-        required: true,
-      },
-      linkhref: {
         type: String,
         required: true,
       },

@@ -13,17 +13,17 @@ router.map({
     component: require('./vue/explore-page'),
     name: 'explore-page',
   },
-  '/learn': {
-    component: require('./vue/learn-page'),
-    name: 'learn-page',
+  '/explore/topic/:content_id': {
+    component: require('./vue/explore-page'),
+    name: 'explore-topic-page',
   },
-  '/explore/content': {
+  '/explore/content/:content_id': {
     component: require('./vue/content-page'),
     name: 'explore-content',
   },
-  '/learn/content': {
-    component: require('./vue/content-page'),
-    name: 'learn-content',
+  '/learn': {
+    component: require('./vue/learn-page'),
+    name: 'learn-page',
   },
   '/scratchpad': {
     component: require('./vue/scratchpad'),

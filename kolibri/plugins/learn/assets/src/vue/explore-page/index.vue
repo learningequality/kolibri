@@ -8,9 +8,8 @@
       <div class="card-list">
         <topic-card
           v-for="topic in topics"
-          v-on:click="fetchNodes(topic.pk)"
           class="card"
-          linkhref="#"
+          :id="topic.pk"
           :title="topic.title"
           :ntotal="topic.n_total"
           :ncomplete="topic.n_complete">
@@ -24,7 +23,6 @@
         <content-card
           v-for="content in contents"
           class="card"
-          linkhref="#"
           :title="content.title"
           :thumbsrc="content.thumbnail"
           :kind="content.kind"
@@ -41,6 +39,9 @@
 <script>
 
   module.exports = {
+    created() {
+      this.fetchNodes(this.id);
+    },
     components: {
       'breadcrumbs': require('../breadcrumbs'),
       'topic-card': require('../topic-card'),
@@ -52,8 +53,15 @@
         breadcrumbs: state => state.breadcrumbs,
         topics: state => state.topics,
         contents: state => state.contents,
+        // from URL
+        id: state => state.route.params.content_id,
       },
       actions: require('../../actions'),
+    },
+    watch: {
+      id(value) {
+        this.fetchNodes(value);
+      },
     },
   };
 

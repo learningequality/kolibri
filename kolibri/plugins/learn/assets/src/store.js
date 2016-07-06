@@ -4,7 +4,7 @@ const Vuex = require('vuex');
 function initialState() {
   return {
     breadcrumbs: require('./demo-data/breadcrumbs.json'),
-    topics: global.bootstrappedTopics || [],
+    topics: [],
     contents: [],
     recommended: require('./demo-data/content_recommendation_data.json'),
     full: {

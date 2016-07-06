@@ -9,7 +9,7 @@
     </breadcrumbs>
     <a
       v-if="$route.name === 'learn-content'"
-      v-link="{ path: '/learn', exact: true }">
+      v-link="{ name: 'learn-content' }">
       Home
     </a>
 
@@ -22,7 +22,7 @@
         {{ description }}
       </p>
       <content-render
-        :pk="primaryKey"
+        :pk="id"
         :kind="kind"
         :files="files"
         :content-id="contentId"
@@ -53,7 +53,7 @@
 
   module.exports = {
     created() {
-      this.fetchFullContent(this.primaryKey);
+      this.fetchFullContent(this.id);
     },
     components: {
       'breadcrumbs': require('../breadcrumbs'),
@@ -67,15 +67,21 @@
         title: (state) => state.full.title,
         description: (state) => state.full.description,
         recommended: (state) => state.full.recommended,
-        primaryKey: (state) => state.full.pk,
         kind: (state) => state.full.kind,
         files: (state) => state.full.files,
         contentId: (state) => state.full.content_id,
         channelId: (state) => state.channel,
         available: (state) => state.full.available,
         extraFields: (state) => state.full.extra_fields,
+        // from URL
+        id: state => state.route.params.content_id,
       },
       actions: require('../../actions'),
+    },
+    watch: {
+      id(value) {
+        this.fetchFullContent(value);
+      },
     },
   };
 
