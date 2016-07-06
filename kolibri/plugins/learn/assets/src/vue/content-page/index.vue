@@ -20,7 +20,7 @@
         {{ description }}
       </p>
       <content-render
-        :pk="id"
+        :id="id"
         :kind="kind"
         :files="files"
         :content-id="contentId"
@@ -39,7 +39,6 @@
           :progress="content.progress">
         </content-card>
       </div>
-      <content-render kind="video" extension="mp4"></content-render>
     </div>
 
   </div>
