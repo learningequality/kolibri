@@ -226,6 +226,9 @@ def main(args=None):
     to use main() for integration tests in order to test the argument API.
     """
 
+    # ensure that Django is set up before we do anything else
+    django.setup()
+
     if not args:
         args = sys.argv[1:]
 

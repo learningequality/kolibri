@@ -6,15 +6,13 @@ The ONLY public object is ContentNode
 """
 from __future__ import print_function
 
-import uuid
-
 from django.conf import settings
-from django.db import IntegrityError, models
+from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from mptt.models import MPTTModel, TreeForeignKey
 
 from .constants import content_kinds, extensions, presets
 from .content_db_router import get_active_content_database
-from .errors import ContentModelUsedOutsideDBContext
 
 
 class UUIDField(models.CharField):
@@ -23,27 +21,27 @@ class UUIDField(models.CharField):
         kwargs['max_length'] = 32
         super(UUIDField, self).__init__(*args, **kwargs)
 
-    def get_default(self):
-        result = super(UUIDField, self).get_default()
-        if isinstance(result, uuid.UUID):
-            result = result.hex
-        return result
-
 
 class ContentQuerySet(models.QuerySet):
     """
     Ensure proper database routing happens even when queryset is evaluated lazily outside of `using_content_database`.
     """
     def __init__(self, *args, **kwargs):
-        # note: `get_active_content_database` can only be used in the context of `using_content_database`
-        try:
-            kwargs["using"] = kwargs.get("using", None) or get_active_content_database()
-        except ContentModelUsedOutsideDBContext:
-            pass
+        kwargs["using"] = kwargs.get("using", None) or get_active_content_database(return_none_if_not_set=True)
         super(ContentQuerySet, self).__init__(*args, **kwargs)
 
 
-class ContentTag(models.Model):
+class ContentDatabaseModel(models.Model):
+    """
+    All models that exist in content databases (rather than in the default database) should inherit from this class.
+    """
+    class Meta:
+        abstract = True
+
+
+@python_2_unicode_compatible
+class ContentTag(ContentDatabaseModel):
+    id = UUIDField(primary_key=True)
     tag_name = models.CharField(max_length=30, blank=True)
 
     objects = ContentQuerySet.as_manager()
@@ -52,33 +50,27 @@ class ContentTag(models.Model):
         return self.tag_name
 
 
-class ContentNode(MPTTModel):
+@python_2_unicode_compatible
+class ContentNode(MPTTModel, ContentDatabaseModel):
     """
     The top layer of the contentDB schema, defines the most common properties that are shared across all different contents.
     Things it can represent are, for example, video, exercise, audio or document...
     """
+    id = UUIDField(primary_key=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     license = models.ForeignKey('License')
-    prerequisite = models.ManyToManyField('self', related_name='is_prerequisite_of', through='PrerequisiteContentRelationship', symmetrical=False, blank=True)
-    is_related = models.ManyToManyField('self', related_name='relate_to', through='RelatedContentRelationship', symmetrical=False, blank=True)
+    has_prerequisite = models.ManyToManyField('self', related_name='prerequisite_for', symmetrical=False, blank=True)
+    related = models.ManyToManyField('self', symmetrical=True, blank=True)
     tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
 
     title = models.CharField(max_length=200)
-
-    # the instance_id is used for mapping a node between kolibri and the
-    # content curation server. We can't use an auto-integer PK, since ids aren't
-    # guaranteed to be consistent across different content curation servers
-    # (once we have a distributed content curation server), and content ids may
-    # be the same across different nodes within the same channel (for student
-    # logging and analytics purposes.)
-    instance_id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
 
     # the content_id is used for tracking a user's interaction with a piece of
     # content, in the face of possibly many copies of that content. When a user
     # interacts with a piece of content, all substantially similar pieces of
     # content should be marked as such as well. We track these "substantially
     # similar" types of content by having them have the same content_id.
-    content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False)
+    content_id = UUIDField()
 
     description = models.CharField(max_length=400, blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)
@@ -89,14 +81,12 @@ class ContentNode(MPTTModel):
 
     objects = ContentQuerySet.as_manager()
 
-    class Admin:
-        pass
-
     def __str__(self):
         return self.title
 
 
-class Language(models.Model):
+@python_2_unicode_compatible
+class Language(ContentDatabaseModel):
     lang_code = models.CharField(max_length=2, db_index=True)
     lang_subcode = models.CharField(max_length=2, db_index=True)
 
@@ -106,11 +96,13 @@ class Language(models.Model):
         return self.lang_code
 
 
-class File(models.Model):
+@python_2_unicode_compatible
+class File(ContentDatabaseModel):
     """
     The bottom layer of the contentDB schema, defines the basic building brick for content.
     Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3...
     """
+    id = UUIDField(primary_key=True)
     checksum = models.CharField(max_length=400, blank=True)
     extension = models.CharField(max_length=40, choices=extensions.choices, blank=True)
     available = models.BooleanField(default=False)
@@ -144,7 +136,8 @@ class File(models.Model):
             return None
 
 
-class License(models.Model):
+@python_2_unicode_compatible
+class License(ContentDatabaseModel):
     """
     Normalize the license of ContentNode model
     """
@@ -152,94 +145,42 @@ class License(models.Model):
 
     objects = ContentQuerySet.as_manager()
 
-    class Admin:
-        pass
-
     def __str__(self):
         return self.license_name
 
 
-class PrerequisiteContentRelationship(models.Model):
+@python_2_unicode_compatible
+class ChannelMetadataAbstractBase(models.Model):
     """
-    Predefine the prerequisite relationship between two ContentNode objects.
+    Holds metadata about all existing content databases that exist locally.
     """
-    target_node = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_target_node')
-    prerequisite = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_prerequisite')
-
-    objects = ContentQuerySet.as_manager()
-
-    class Meta:
-        unique_together = ['target_node', 'prerequisite']
-
-    class Admin:
-        pass
-
-    def clean(self, *args, **kwargs):
-        # self reference exception
-        if self.target_node == self.prerequisite:
-            raise IntegrityError('Cannot self reference as prerequisite.')
-        # immediate cyclic exception
-        elif PrerequisiteContentRelationship.objects.using(self._state.db)\
-                .filter(target_node=self.prerequisite, prerequisite=self.target_node):
-            raise IntegrityError(
-                'Note: Prerequisite relationship is directional! %s and %s cannot be prerequisite of each other!'
-                % (self.target_node, self.prerequisite))
-        # distant cyclic exception
-        # elif <this is a nice to have exception, may implement in the future when the priority raises.>
-        #     raise Exception('Note: Prerequisite relationship is acyclic! %s and %s forms a closed loop!' % (self.target_node, self.prerequisite))
-        super(PrerequisiteContentRelationship, self).clean(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super(PrerequisiteContentRelationship, self).save(*args, **kwargs)
-
-
-class RelatedContentRelationship(models.Model):
-    """
-    Predefine the related relationship between two ContentNode objects.
-    """
-    contentnode_1 = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_1')
-    contentnode_2 = models.ForeignKey(ContentNode, related_name='%(app_label)s_%(class)s_2')
-
-    objects = ContentQuerySet.as_manager()
-
-    class Meta:
-        unique_together = ['contentnode_1', 'contentnode_2']
-
-    class Admin:
-        pass
-
-    def save(self, *args, **kwargs):
-        # self reference exception
-        if self.contentnode_1 == self.contentnode_2:
-            raise IntegrityError('Cannot self reference as related.')
-        # handle immediate cyclic
-        elif RelatedContentRelationship.objects.using(self._state.db)\
-                .filter(contentnode_1=self.contentnode_2, contentnode_2=self.contentnode_1):
-            return  # silently cancel the save
-        super(RelatedContentRelationship, self).save(*args, **kwargs)
-
-
-class ChannelMetadata(models.Model):
-    """
-    Provide references to the corresponding contentDB when navigate between channels.
-    Every content API method needs a channel_id argument, which is stored in this model.
-    """
-    channel_id = UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
+    id = UUIDField(primary_key=True)
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True)
     author = models.CharField(max_length=400, blank=True)
     version = models.IntegerField(default=0)
     thumbnail = models.TextField(blank=True)
-    root_pk = models.IntegerField()
-
-    objects = ContentQuerySet.as_manager()
+    root_pk = UUIDField()
 
     class Meta:
-        app_label = "content"
-
-    class Admin:
-        pass
+        abstract = True
 
     def __str__(self):
         return self.name
+
+
+class ChannelMetadata(ChannelMetadataAbstractBase, ContentDatabaseModel):
+    """
+    This class stores the channel metadata within the content database itself.
+    """
+
+    objects = ContentQuerySet.as_manager()
+
+
+class ChannelMetadataCache(ChannelMetadataAbstractBase):
+    """
+    This class stores the channel metadata cached/denormed into the primary database.
+    """
+
+    class Admin:
+        pass

@@ -3,19 +3,24 @@ import os
 from uuid import UUID
 
 from django.conf import settings
-from kolibri.content.models import ChannelMetadata
+
+from ..content_db_router import using_content_database
+from ..models import ChannelMetadata, ChannelMetadataCache
 
 
-def is_valid_uuid(uuid_to_test, version=4):
+def is_valid_uuid(uuid_to_test, version=None):
     """
     Check if uuid_to_test is a valid UUID.
 
     :param uuid_to_test: str
-    :param version: int {1, 2, 3, 4}
+    :param version: int {1, 2, 3, 4} or None
     :return: True if uuid_to_test is from a valid UUID
     """
     try:
-        uuid_obj = UUID(uuid_to_test, version=version)
+        if version:
+            uuid_obj = UUID(uuid_to_test, version=version)
+        else:
+            uuid_obj = UUID(uuid_to_test)
     except (ValueError, AttributeError, TypeError):
         return False
 
@@ -34,8 +39,9 @@ def sync_channelmetadata():
     """
     db_names = scan_contentdb_dir()
     # delete channelmetadata obejcts in default db that cannot be found in CONTENT_DB_DIR
-    ChannelMetadata.objects.exclude(channel_id__in=db_names).delete()
+    ChannelMetadataCache.objects.exclude(id__in=db_names).delete()
     # sync the channelmetadata objects in default db with channelmetadata objects in CONTENT_DB_DIR
     for db_name in db_names:
-        update_values = ChannelMetadata.objects.using(db_name).values()[0]
-        ChannelMetadata.objects.update_or_create(channel_id=db_name, defaults=update_values)
+        with using_content_database(db_name):
+            update_values = ChannelMetadata.objects.values()[0]
+        ChannelMetadataCache.objects.update_or_create(id=db_name, defaults=update_values)
