@@ -11,25 +11,25 @@ from .constants import content_kinds
 """ContentDB API methods"""
 
 
-def get_contentnode_from_instance_or_instance_id(content):
+def get_contentnode_from_instance_or_id(content):
     if isinstance(content, models.ContentNode):
         return content
     elif validate.is_valid_uuid(content):
-        return models.ContentNode.objects.get(instance_id=content)
+        return models.ContentNode.objects.get(id=content)
     else:
-        raise TypeError("Argument must be a ContentNode or instance_id UUID." % content)
+        raise TypeError("Argument must be a ContentNode or UUID id." % content)
 
 
 def get_content_with_id_list(content):
     """
     Get arbitrary sets of ContentNode objects based on content ids.
-    :param content: list of instance_id uuids
+    :param content: list of uuid id's
     :return: QuerySet of ContentNode
     """
     if isinstance(content, list):
-        return models.ContentNode.objects.filter(instance_id__in=content)
+        return models.ContentNode.objects.filter(id__in=content)
     else:
-        raise TypeError("Must provide a list of UUID instance_id in order to use this method.")
+        raise TypeError("Must provide a list of UUID id's in order to use this method.")
 
 
 def get_ancestor_topics(content, **kwargs):
@@ -39,7 +39,7 @@ def get_ancestor_topics(content, **kwargs):
     :param content: ContentNode or str
     :return: QuerySet of ContentNode
     """
-    content_instance = get_contentnode_from_instance_or_instance_id(content)
+    content_instance = get_contentnode_from_instance_or_id(content)
     return content_instance.get_ancestors().filter(kind=content_kinds.TOPIC)
 
 
@@ -50,7 +50,7 @@ def immediate_children(content, **kwargs):
     :param content: ContentNode or str
     :return: QuerySet of ContentNode
     """
-    content_instance = get_contentnode_from_instance_or_instance_id(content)
+    content_instance = get_contentnode_from_instance_or_id(content)
     return content_instance.get_children()
 
 
@@ -61,7 +61,7 @@ def leaves(content, **kwargs):
     :param content: ContentNode or str
     :return: QuerySet of ContentNode
     """
-    content_instance = get_contentnode_from_instance_or_instance_id(content)
+    content_instance = get_contentnode_from_instance_or_id(content)
     return content_instance.get_leafnodes()
 
 
@@ -72,7 +72,7 @@ def get_missing_files(content, **kwargs):
     :param content: ContentNode or str
     :return: QuerySet of File
     """
-    content_instance = get_contentnode_from_instance_or_instance_id(content)
+    content_instance = get_contentnode_from_instance_or_id(content)
     if content_instance.kind == content_kinds.TOPIC:
         all_end_nodes = leaves(content=content_instance)
         return models.File.objects.filter(available=False, contentnode__in=all_end_nodes)
@@ -87,7 +87,7 @@ def get_all_prerequisites(content, **kwargs):
     :param content: ContentNode or str
     :return: QuerySet of ContentNode
     """
-    content_instance = get_contentnode_from_instance_or_instance_id(content)
+    content_instance = get_contentnode_from_instance_or_id(content)
     return models.ContentNode.objects.filter(is_prerequisite_of=content_instance)
 
 
@@ -98,7 +98,7 @@ def get_all_related(content, **kwargs):
     :param content: ContentNode or str
     :return: QuerySet of ContentNode
     """
-    content_instance = get_contentnode_from_instance_or_instance_id(content)
+    content_instance = get_contentnode_from_instance_or_id(content)
     return models.ContentNode.objects.filter(Q(relate_to=content_instance) | Q(is_related=content_instance))
 
 
@@ -109,8 +109,8 @@ def set_prerequisite(target_node, prerequisite, **kwargs):
     :param content1: ContentNode or str
     :param content2: ContentNode or str
     """
-    target_instance = get_contentnode_from_instance_or_instance_id(target_node)
-    prerequisite_instance = get_contentnode_from_instance_or_instance_id(prerequisite)
+    target_instance = get_contentnode_from_instance_or_id(target_node)
+    prerequisite_instance = get_contentnode_from_instance_or_id(prerequisite)
     models.PrerequisiteContentRelationship.objects.create(
         target_node=target_instance, prerequisite=prerequisite_instance)
 
@@ -122,8 +122,8 @@ def set_is_related(content1, content2, **kwargs):
     :param content1: ContentNode or str
     :param content2: ContentNode or str
     """
-    content1_instance = get_contentnode_from_instance_or_instance_id(content1)
-    content2_instance = get_contentnode_from_instance_or_instance_id(content2)
+    content1_instance = get_contentnode_from_instance_or_id(content1)
+    content2_instance = get_contentnode_from_instance_or_id(content2)
     models.RelatedContentRelationship.objects.create(
         contentnode_1=content1_instance, contentnode_2=content2_instance)
 
@@ -137,7 +137,7 @@ def descendants_of_kind(content, kind, **kwargs):
     :param kind: str
     :return: QuerySet of ContentNode
     """
-    content_instance = get_contentnode_from_instance_or_instance_id(content)
+    content_instance = get_contentnode_from_instance_or_id(content)
     return content_instance.get_descendants(include_self=False).filter(kind=kind)
 
 

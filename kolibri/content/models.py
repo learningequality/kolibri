@@ -6,8 +6,6 @@ The ONLY public object is ContentNode
 """
 from __future__ import print_function
 
-import uuid
-
 from django.conf import settings
 from django.db import IntegrityError, models
 from django.utils.encoding import python_2_unicode_compatible
@@ -43,6 +41,7 @@ class ContentDatabaseModel(models.Model):
 
 @python_2_unicode_compatible
 class ContentTag(ContentDatabaseModel):
+    id = UUIDField(primary_key=True)
     tag_name = models.CharField(max_length=30, blank=True)
 
     objects = ContentQuerySet.as_manager()
@@ -57,6 +56,7 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     The top layer of the contentDB schema, defines the most common properties that are shared across all different contents.
     Things it can represent are, for example, video, exercise, audio or document...
     """
+    id = UUIDField(primary_key=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     license = models.ForeignKey('License')
     prerequisite = models.ManyToManyField('self', related_name='is_prerequisite_of', through='PrerequisiteContentRelationship', symmetrical=False, blank=True)
@@ -65,20 +65,12 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
 
     title = models.CharField(max_length=200)
 
-    # the instance_id is used for mapping a node between kolibri and the
-    # content curation server. We can't use an auto-integer PK, since ids aren't
-    # guaranteed to be consistent across different content curation servers
-    # (once we have a distributed content curation server), and content ids may
-    # be the same across different nodes within the same channel (for student
-    # logging and analytics purposes.)
-    instance_id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-
     # the content_id is used for tracking a user's interaction with a piece of
     # content, in the face of possibly many copies of that content. When a user
     # interacts with a piece of content, all substantially similar pieces of
     # content should be marked as such as well. We track these "substantially
     # similar" types of content by having them have the same content_id.
-    content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False)
+    content_id = UUIDField()
 
     description = models.CharField(max_length=400, blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)
@@ -110,6 +102,7 @@ class File(ContentDatabaseModel):
     The bottom layer of the contentDB schema, defines the basic building brick for content.
     Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3...
     """
+    id = UUIDField(primary_key=True)
     checksum = models.CharField(max_length=400, blank=True)
     extension = models.CharField(max_length=40, choices=extensions.choices, blank=True)
     available = models.BooleanField(default=False)
@@ -214,10 +207,9 @@ class RelatedContentRelationship(ContentDatabaseModel):
 @python_2_unicode_compatible
 class ChannelMetadataAbstractBase(models.Model):
     """
-    Provide references to the corresponding contentDB when navigate between channels.
-    Every content API method needs a channel_id argument, which is stored in this model.
+    Holds metadata about all existing content databases that exist locally.
     """
-    channel_id = UUIDField(primary_key=True)
+    id = UUIDField(primary_key=True)
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True)
     author = models.CharField(max_length=400, blank=True)

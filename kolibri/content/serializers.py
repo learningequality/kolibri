@@ -1,34 +1,14 @@
 from kolibri.content.models import ChannelMetadataCache, ContentNode, File
 from rest_framework import serializers
-from rest_framework.reverse import reverse
 
 from .content_db_router import get_active_content_database
 
 
 class ChannelMetadataCacheSerializer(serializers.ModelSerializer):
 
-    url = serializers.SerializerMethodField()
-    all_nodes_url = serializers.SerializerMethodField()
-    root_node_url = serializers.SerializerMethodField()
-
     class Meta:
         model = ChannelMetadataCache
-        fields = ('root_pk', 'channel_id', 'name', 'description', 'author', 'url', 'all_nodes_url', 'root_node_url')
-
-    def get_url(self, channel):
-        kwargs = {"pk": channel.channel_id}
-        request = self.context.get('request', None)
-        return reverse("channel-detail", kwargs=kwargs, request=request)
-
-    def get_all_nodes_url(self, channel):
-        kwargs = {"channel_id": channel.channel_id}
-        request = self.context.get('request', None)
-        return reverse("contentnode-list", kwargs=kwargs, request=request)
-
-    def get_root_node_url(self, channel):
-        kwargs = {"channel_id": channel.channel_id, "pk": channel.root_pk}
-        request = self.context.get('request', None)
-        return reverse("contentnode-detail", kwargs=kwargs, request=request)
+        fields = ('root_pk', 'id', 'name', 'description', 'author')
 
 
 class DualLookuplinkedIdentityField(serializers.HyperlinkedIdentityField):
@@ -42,9 +22,6 @@ class DualLookuplinkedIdentityField(serializers.HyperlinkedIdentityField):
 
 
 class FileSerializer(serializers.ModelSerializer):
-    url = DualLookuplinkedIdentityField(
-        view_name='file-detail',
-    )
     storage_url = serializers.SerializerMethodField()
 
     def get_storage_url(self, target_node):
@@ -52,15 +29,11 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = File
-        depth = 1
-        fields = ('url', 'storage_url', 'id', 'priority', 'checksum', 'available', 'file_size', 'extension', 'preset', 'lang', 'supplementary', 'thumbnail')
+        fields = ('storage_url', 'id', 'priority', 'checksum', 'available', 'file_size', 'extension', 'preset', 'lang', 'supplementary', 'thumbnail')
 
 
 class ContentNodeSerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
-    url = DualLookuplinkedIdentityField(
-        view_name='contentnode-detail',
-    )
     ancestor_topics = DualLookuplinkedIdentityField(
         view_name='contentnode-ancestor-topics',
     )
@@ -80,7 +53,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         view_name='contentnode-missing-files',
     )
 
-    # Here we use a FileSerialize instead just the files reverse FK is because we want to get the computed field storage_url
+    # Here we use a FileSerializer instead just the files reverse FK is because we want to get the computed field storage_url
     # In order to improve performance in production, we should implement a client side method to calculate the file url using
     # extension and checksum field along with the setting.STORAGE_ROOT, which can be passed to front end at template boostrapping.
     files = FileSerializer(many=True, read_only=True)
@@ -107,19 +80,8 @@ class ContentNodeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ContentNode
-        depth = 1
         fields = (
-            'pk', 'url', 'instance_id', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
+            'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
             'license', 'prerequisite', 'is_related', 'ancestor_topics', 'immediate_children', 'files', 'leaves', 'all_prerequisites',
             'all_related', 'missing_files', 'ancestors', 'parent',
-        )
-
-
-class SimplifiedContentNodeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ContentNode
-        depth = 1
-        fields = (
-            'pk', 'instance_id', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'prerequisite', 'is_related', 'files'
         )
