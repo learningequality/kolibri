@@ -5,7 +5,7 @@
       <div class="content-icon">
         <img :src="icon">
       </div>
-      <img :src="thumbsrc" class="thumbnail">
+      <img :src="thumbnail" class="thumbnail">
       <div class="title">
         {{ title }}
       </div>
@@ -24,7 +24,7 @@
         type: String,
         required: true,
       },
-      thumbsrc: {
+      thumbnail: {
         type: String,
         required: true,
       },

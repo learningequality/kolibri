@@ -24,7 +24,7 @@
           v-for="content in contents"
           class="card"
           :title="content.title"
-          :thumbsrc="content.thumbnail"
+          :thumbnail="content.thumbnail"
           :kind="content.kind"
           :progress="content.progress"
           :pk="content.pk">
