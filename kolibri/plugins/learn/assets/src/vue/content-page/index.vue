@@ -3,9 +3,7 @@
   <div>
 
     <breadcrumbs
-      v-if="$route.name === 'explore-content'"
-      :crumbs="breadcrumbs.crumbs"
-      :current="breadcrumbs.current">
+      v-if="$route.name === 'explore-content'">
     </breadcrumbs>
     <a
       v-if="$route.name === 'learn-content'"
@@ -63,7 +61,6 @@
     vuex: {
       getters: {
         // better practice would be to define vuex getter functions globally
-        breadcrumbs: (state) => state.breadcrumbs,
         title: (state) => state.full.title,
         description: (state) => state.full.description,
         recommended: (state) => state.full.recommended,

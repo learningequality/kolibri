@@ -1,8 +1,7 @@
 <template>
 
   <div class="topic-page">
-    <br><br>
-    <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs>
+    <breadcrumbs></breadcrumbs>
     <div v-if="topics.length > 0">
       <h2>Topics</h2>
       <div class="card-list">
@@ -50,7 +49,6 @@
     vuex: {
       getters: {
         // better practice would be to define vuex getter functions globally
-        breadcrumbs: state => state.breadcrumbs,
         topics: state => state.topics,
         contents: state => state.contents,
         // from URL

@@ -3,10 +3,8 @@ const Vuex = require('vuex');
 
 function initialState() {
   return {
-    breadcrumbs: require('./demo-data/breadcrumbs.json'),
     topics: [],
     contents: [],
-    recommended: require('./demo-data/content_recommendation_data.json'),
     full: {
       title: '',
       description: '',
@@ -17,7 +15,6 @@ function initialState() {
       extra_fields: '{}',
       content_id: '',
     },
-    channel: 'dummy_db',
   };
 }
 
