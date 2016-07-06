@@ -7,10 +7,8 @@ except some set methods that do not return anything.
 from django.conf import settings
 from django.conf.urls import include, url
 from django.db.models import Q
-from kolibri.content import api, models, serializers
+from kolibri.content import models, serializers
 from rest_framework import filters, pagination, routers, viewsets
-from rest_framework.decorators import detail_route
-from rest_framework.response import Response
 
 
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
@@ -25,7 +23,7 @@ class ContentNodeFilter(filters.FilterSet):
 
     class Meta:
         model = models.ContentNode
-        fields = ['parent', 'search']
+        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related']
 
     def title_description_filter(self, queryset, value):
         # only return the first 30 results to avoid major slow down
@@ -52,72 +50,6 @@ class ContentNodeViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.ContentNode.objects.all()
-
-    @detail_route()
-    def ancestor_topics(self, request, *args, **kwargs):
-        """
-        endpoint for content api method
-        get_ancestor_topics(content=None, **kwargs)
-        """
-        data = serializers.ContentNodeSerializer(
-            api.get_ancestor_topics(content=self.kwargs['pk']), many=True, context={"request": request}
-        ).data
-        return Response(data)
-
-    @detail_route()
-    def immediate_children(self, request, *args, **kwargs):
-        """
-        endpoint for content api method
-        immediate_children(content=None, **kwargs)
-        """
-        data = serializers.ContentNodeSerializer(
-            api.immediate_children(content=self.kwargs['pk']), many=True, context={"request": request}
-        ).data
-        return Response(data)
-
-    @detail_route()
-    def leaves(self, request, *args, **kwargs):
-        """
-        endpoint for content api method
-        leaves(content=None, **kwargs)
-        """
-        data = serializers.ContentNodeSerializer(
-            api.leaves(content=self.kwargs['pk']), many=True, context={"request": request}
-        ).data
-        return Response(data)
-
-    @detail_route()
-    def all_prerequisites(self, request, *args, **kwargs):
-        """
-        endpoint for content api method
-        get_all_prerequisites(content=None, **kwargs)
-        """
-        data = serializers.ContentNodeSerializer(
-            api.get_all_prerequisites(content=self.kwargs['pk']), many=True, context={"request": request}
-        ).data
-        return Response(data)
-
-    @detail_route()
-    def all_related(self, request, *args, **kwargs):
-        """
-        endpoint for content api method
-        get_all_related(content=None, **kwargs)
-        """
-        data = serializers.ContentNodeSerializer(
-            api.get_all_related(content=self.kwargs['pk']), many=True, context={"request": request}
-        ).data
-        return Response(data)
-
-    @detail_route()
-    def missing_files(self, request, *args, **kwargs):
-        """
-        endpoint for content api method
-        get_missing_files(content=None, **kwargs)
-        """
-        data = serializers.FileSerializer(
-            api.get_missing_files(content=self.kwargs['pk']), many=True, context={"request": request}
-        ).data
-        return Response(data)
 
 
 class FileViewset(viewsets.ModelViewSet):
