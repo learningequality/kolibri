@@ -1,6 +1,6 @@
 <template>
 
-  <a href="{{linkhref}}">
+  <a v-link="{ name: 'explore-topic-page', params: {content_id: id} }">
     <div class="topic-card-container">
       <div class="thumbnail">
         <img class="topic-card-folder" src="./folder.svg">
@@ -18,6 +18,7 @@
 
   module.exports = {
     props: [
+      'id',
       'title',
       'linkhref',
       'ntotal',

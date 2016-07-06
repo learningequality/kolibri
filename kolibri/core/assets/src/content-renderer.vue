@@ -16,12 +16,13 @@
 
   module.exports = {
     props: {
-      pk: {
-        type: Number,
-        default: 0,
+      id: {
+        type: String,
+        required: true,
       },
       kind: {
         type: String,
+        required: true,
       },
       files: {
         type: Array,
@@ -69,7 +70,7 @@
     created() {
       this.findRendererComponent();
       // This means this component has to be torn down on channel switches.
-      this.$watch('pk', this.findRendererComponent);
+      this.$watch('id', this.findRendererComponent);
     },
     ready() {
       this.ready = true;
