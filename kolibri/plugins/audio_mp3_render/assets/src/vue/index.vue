@@ -5,21 +5,21 @@
       <button 
         @click="togglePlay" 
         class="play-button" 
-        :class="{ 'is-play': isPlay.status, 'is-pause': isPause.status }"
+        :class="{ 'is-play': isPlay, 'is-pause': isPause }"
         ></button>
       <div id="current-time">
-        {{ formattedCurrentMin }} : {{ formattedCurrentSec }}
+        {{ currentMinutes }} : {{ formattedCurrentSec }}
       </div>
       <input 
         v-el:timebar 
         @click="setTimebar" 
-        class="timeline" type="range" min="0" max="100" value="0"
-        ><div id="total-time">
-        {{ formattedTotalMin }} : {{ formattedTotalSec }}
+        class="timeline" type="range" min="0" max="100" value="0">
+      <div id="total-time">
+        {{ totalMinutes }} : {{ formattedTotalSec }}
       </div>
     </div>
     <div>
-      <button class="audio-button" @click="restart">restart</button>
+      <button class="audio-button" @click="replay">Replay</button>
       <button class="audio-button" @click="minus20">- 20s</button>
       <button class="audio-button" @click="plus20">+ 20s</button>
     </div>
@@ -30,72 +30,50 @@
     @timeupdate="timeUpdate"
     @loadedmetadata="setTotalTime"
     v-el:audio 
-    src="http://www.stephaniequinn.com/Music/Commercial%20DEMO%20-%2004.mp3"
-    ></audio>
+    src=""
+  ></audio>
 
 </template>
 
 
 <script>
 
-  const logging = require('loglevel');
   require('html5media/dist/api/1.1.8/html5media');
   module.exports = {
 
+    props: [
+      'defaultFile',
+    ],
     data: () => ({
-      isPlay: {
-        type: Boolean,
-        status: true,
-      },
-      isPause: {
-        type: Boolean,
-        status: false,
-      },
-      timebarChanged: {
-        type: Boolean,
-        status: false,
-      },
-      currentMinutes: {
-        type: Number,
-        min: 0,
-      },
-      currentSeconds: {
-        type: Number,
-        sec: 0,
-      },
-      totalMinutes: {
-        type: Number,
-        totalmin: 0,
-      },
-      totalSeconds: {
-        type: Number,
-        totalsec: 0,
-      },
+      isPlay: true,
+      isPause: false,
+      timebarChanged: false,
+      currentMinutes: 0,
+      currentSeconds: 0,
+      totalMinutes: 0,
+      totalSeconds: 0,
     }),
     computed: {
       formattedCurrentSec() {
-        return this.formatTime(this.currentSeconds.sec);
+        return this.formatTime(this.currentSeconds);
       },
       formattedTotalSec() {
-        return this.formatTime(this.totalSeconds.totalsec);
+        return this.formatTime(this.totalSeconds);
       },
-      formattedCurrentMin() {
-        return this.formatTime(this.currentMinutes.min);
-      },
-      formattedTotalMin() {
-        return this.formatTime(this.totalMinutes.totalmin);
-      },
+    },
+    ready() {
+      this.$els.audio.src = this.defaultFile.storage_url;
     },
     methods: {
       play() {
         this.$els.audio.play();
-        this.isPlay.status = false;
-        this.isPause.status = true;
+        this.isPlay = false;
+        this.isPause = true;
       },
       pause() {
         this.$els.audio.pause();
-        this.isPlay.status = true;
-        this.isPause.status = false;
+        this.isPlay = true;
+        this.isPause = false;
       },
       togglePlay() {
         if (this.$els.audio.paused) {
@@ -112,45 +90,55 @@
         return sec;
       },
       setTotalTime() {
-        this.totalSeconds.totalsec = Math.floor(this.$els.audio.duration % 60);
-        this.totalMinutes.totalmin = Math.floor(this.$els.audio.duration / 60);
+        this.totalSeconds = Math.floor(this.$els.audio.duration % 60);
+        this.totalMinutes = Math.floor(this.$els.audio.duration / 60);
       },
       /* Gets raw current time and converts to XX:XX format */
       timeUpdate() {
-        this.currentSeconds.sec = Math.floor(this.$els.audio.currentTime % 60);
-        if (this.currentSeconds.sec === 0 || this.timebarChanged.status) {
-          this.currentMinutes.min = Math.floor(this.$els.audio.currentTime / 60);
-          logging.info(this.currentMinutes.min);
-          this.timebarChanged.status = false;
+        this.currentSeconds = Math.floor(this.$els.audio.currentTime % 60);
+        if (this.currentSeconds === 0 || this.timebarChanged) {
+          this.currentMinutes = Math.floor(this.$els.audio.currentTime / 60);
+          this.timebarChanged = false;
+        }
+        if (this.$els.audio.currentTime === this.$els.audio.duration) {
+          this.pause();
         }
         /* Proportionally updates position of slider button according to current time */
         this.$els.timebar.value = ((this.$els.audio.currentTime / this.$els.audio.duration) * 100);
       },
-      updatePlay() {
-        this.timebarChanged.status = true;
+      updateTrackUI() {
+        this.timebarChanged = true;
         this.timeUpdate();
         this.play();
       },
       /* Updates current time of audio if slider button position changes */
       setTimebar() {
         this.$els.audio.currentTime = (this.$els.timebar.value / 100) * this.$els.audio.duration;
-        this.updatePlay();
+        this.updateTrackUI();
       },
-      restart() {
+      replay() {
         this.$els.audio.currentTime = 0;
-        this.updatePlay();
+        this.updateTrackUI();
       },
       plus20() {
-        this.$els.audio.currentTime = this.$els.audio.currentTime + 20;
-        this.updatePlay();
+        const sum = this.$els.audio.currentTime + 20;
+        /* Pauses audio at end if +20s goes over the audio duration */
+        if (sum > this.$els.audio.duration) {
+          this.$els.audio.currentTime = this.$els.audio.duration;
+          this.pause();
+          return;
+        }
+        this.$els.audio.currentTime = sum;
+        this.updateTrackUI();
       },
       minus20() {
-        this.$els.audio.currentTime = this.$els.audio.currentTime - 20;
-        if (this.$els.audio.currentTime < 0) {
-          this.$els.audio.currentTime = 0;
-          this.updatePlay();
+        const sum = this.$els.audio.currentTime - 20;
+        /* Makes sure minimum time is 0 after -20s */
+        if (sum < 0) {
+          this.replay();
         }
-        this.updatePlay();
+        this.$els.audio.currentTime = sum;
+        this.updateTrackUI();
       },
     },
 
@@ -164,39 +152,23 @@
   #audio-wrapper
     margin: 8% 5%
     
-  input[type=range]
-    -webkit-appearance: none
-    display: inline-block
-    width: 60%
-    background: lightgray
-    bottom: 20px
-    position: relative
-    bottom: 20px
-    border-radius: 15px
-    max-height: 15px
-
-  input[type=range]::-webkit-slider-thumb
-    -webkit-appearance: none
-    width: 40px
-    height: 40px
-    border-radius: 50%
-    background: #996182
-
-  input[type=range]:focus
-    outline: none
-    
   .play-button
     margin-right: 2%
     background: none
     width: 50px
     height: 50px
+    border: none
 
   .audio-button
     margin: 5% 2% 0 0
-    background: gray
-
-  .play-button, .audio-button
-    border: none
+    border: 2px solid #996182
+    background: transparent
+    padding: 10px 15px
+    color: #996182
+    border-radius: 4px
+    
+  .play-button:focus, .audio-button:focus
+    outline: none
     
   #current-time, #total-time
     display: inline-block
@@ -205,10 +177,81 @@
     position: relative
     bottom: 20px
     
+  @-moz-document url-prefix()
+    #current-time, #total-time
+      top: 0
+
   .is-play
     background: url('./play.svg') no-repeat
     
   .is-pause
     background: url('./pause.svg') no-repeat
+    
+  .timeline
+    background: transparent
+    
+  .timeline:focus
+    outline: none
+    
+  input[type=range]
+    -webkit-appearance: none
+    width: 60%
+        
+  input[type=range]:focus, input[type=range]::-moz-focus-outer
+    outline: none
+    border: none
+    
+  /* Chrome, Safari, Opera **********/
+  input[type=range]::-webkit-slider-runnable-track
+    display: inline-block
+    background: lightgray
+    border-radius: 15px
+    height: 15px
+    position: relative
+    bottom: 20px
+    animate: 0.2s
+    
+  input[type=range]::-webkit-slider-thumb
+    -webkit-appearance: none
+    width: 40px
+    height: 40px
+    border-radius: 50%
+    background: #996182
+    position: relative
+    bottom: 12px
+    
+  /* Firefox ***********/
+  input[type=range]::-moz-range-track
+    display: inline-block
+    background: lightgray
+    border-radius: 15px
+    height: 15px
+    animate: 0.2s
+
+  input[type=range]::-moz-range-thumb
+    width: 40px
+    height: 40px
+    border-radius: 50%
+    background: #996182
+    border: none
+    
+  /* IE/Edge **********/
+  input[type=range]::-ms-track
+    border: 3px solid transparent
+    color: transparent
+    padding: 10px 0
+    
+  input[type=range]::-ms-thumb
+    border: none
+    height: 40px
+    width: 40px
+    border-radius: 50%
+    background: #996182
+    
+  input[type=range]::-ms-fill-upper
+    background: lightgray
+
+  input[type=range]::-ms-fill-lower
+    background: gray
 
 </style>
