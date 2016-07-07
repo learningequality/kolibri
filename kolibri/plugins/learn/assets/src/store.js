@@ -1,4 +1,3 @@
-
 const Vuex = require('vuex');
 
 function initialState() {
@@ -18,6 +17,7 @@ function initialState() {
     channel: 'dummy_db',
     searchcontents: [],
     searchtopics: [],
+    searchtoggled: false,
   };
 }
 
@@ -46,6 +46,9 @@ const mutations = {
   },
   SET_SEARCH_TOPICS(state, topics) {
     state.searchtopics = topics; // eslint-disable-line no-param-reassign
+  },
+  SET_SEARCH_TOGGLED(state, toggled) {
+    state.searchtoggled = toggled; // eslint-disable-line no-param-reassign
   },
 };
 
