@@ -1,24 +1,12 @@
 from kolibri.content.models import ChannelMetadataCache, ContentNode, File
 from rest_framework import serializers
 
-from .content_db_router import get_active_content_database
-
 
 class ChannelMetadataCacheSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChannelMetadataCache
         fields = ('root_pk', 'id', 'name', 'description', 'author')
-
-
-class DualLookuplinkedIdentityField(serializers.HyperlinkedIdentityField):
-
-    def to_representation(self, value):
-        view_name = self.view_name
-        kwargs = {"channel_id": get_active_content_database(), "pk": value.pk}
-        request = self.context.get('request', None)
-
-        return self.reverse(view_name, kwargs=kwargs, request=request)
 
 
 class FileSerializer(serializers.ModelSerializer):
