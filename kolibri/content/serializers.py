@@ -1,4 +1,3 @@
-from django.core.handlers.wsgi import WSGIRequest
 from kolibri.content.models import ChannelMetadataCache, ContentNode, File
 from rest_framework import serializers
 
@@ -47,14 +46,13 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         super(ContentNodeSerializer, self).__init__(*args, **kwargs)
 
         # enable dynamic fields specification!
-        if not isinstance(self.context['request'], WSGIRequest):
-            if 'request' in self.context and self.context['request'].query_params.get('fields'):
-                fields = self.context['request'].query_params.get('fields').split(',')
-                # Drop any fields that are not specified in the `fields` argument.
-                allowed = set(fields)
-                existing = set(self.fields.keys())
-                for field_name in existing - allowed:
-                    self.fields.pop(field_name)
+        if 'request' in self.context and self.context['request'].GET.get('fields', None):
+            fields = self.context['request'].GET['fields'].split(',')
+            # Drop any fields that are not specified in the `fields` argument.
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
 
     def get_ancestors(self, target_node):
         """
