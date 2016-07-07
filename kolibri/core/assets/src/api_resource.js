@@ -194,6 +194,7 @@ class Resource {
     );
     if (!this.collections[key]) {
       collection = new Collection(params, data, this);
+      this.collections[key] = collection;
     } else {
       collection = this.collections[key];
     }
