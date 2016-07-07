@@ -5,17 +5,17 @@
       <button 
         @click="togglePlay" 
         class="play-button" 
-        :class="{ 'is-play': isPlay, 'is-pause': isPause }">
-      </button>
+        :class="{ 'is-play': isPlay.status, 'is-pause': isPause.status }"
+        ></button>
       <div id="current-time">
-        {{ currentMinutes }} : {{ formattedCurrentSec }}
+        {{ formattedCurrentMin }} : {{ formattedCurrentSec }}
       </div>
       <input 
         v-el:timebar 
         @click="setTimebar" 
-        class="timeline" type="range" min="0" max="100" value="0">
-      <div id="total-time">
-        {{ totalMinutes }} : {{ formattedTotalSec }}
+        class="timeline" type="range" min="0" max="100" value="0"
+        ><div id="total-time">
+        {{ formattedTotalMin }} : {{ formattedTotalSec }}
       </div>
     </div>
     <div>
@@ -30,44 +30,72 @@
     @timeupdate="timeUpdate"
     @loadedmetadata="setTotalTime"
     v-el:audio 
-    src="http://www.stephaniequinn.com/Music/Commercial%20DEMO%20-%2004.mp3">
-  </audio>
+    src="http://www.stephaniequinn.com/Music/Commercial%20DEMO%20-%2004.mp3"
+    ></audio>
 
 </template>
 
 
 <script>
 
+  const logging = require('loglevel');
   require('html5media/dist/api/1.1.8/html5media');
   module.exports = {
 
     data: () => ({
-      isPlay: true,
-      isPause: false,
-      timebarChanged: false,
-      currentMinutes: 0,
-      currentSeconds: 0,
-      totalMinutes: 0,
-      totalSeconds: 0,
+      isPlay: {
+        type: Boolean,
+        status: true,
+      },
+      isPause: {
+        type: Boolean,
+        status: false,
+      },
+      timebarChanged: {
+        type: Boolean,
+        status: false,
+      },
+      currentMinutes: {
+        type: Number,
+        min: 0,
+      },
+      currentSeconds: {
+        type: Number,
+        sec: 0,
+      },
+      totalMinutes: {
+        type: Number,
+        totalmin: 0,
+      },
+      totalSeconds: {
+        type: Number,
+        totalsec: 0,
+      },
     }),
     computed: {
       formattedCurrentSec() {
-        return this.formatSeconds(this.currentSeconds);
+        return this.formatTime(this.currentSeconds.sec);
       },
       formattedTotalSec() {
-        return this.formatSeconds(this.totalSeconds);
+        return this.formatTime(this.totalSeconds.totalsec);
+      },
+      formattedCurrentMin() {
+        return this.formatTime(this.currentMinutes.min);
+      },
+      formattedTotalMin() {
+        return this.formatTime(this.totalMinutes.totalmin);
       },
     },
     methods: {
       play() {
         this.$els.audio.play();
-        this.isPlay = false;
-        this.isPause = true;
+        this.isPlay.status = false;
+        this.isPause.status = true;
       },
       pause() {
         this.$els.audio.pause();
-        this.isPlay = true;
-        this.isPause = false;
+        this.isPlay.status = true;
+        this.isPause.status = false;
       },
       togglePlay() {
         if (this.$els.audio.paused) {
@@ -77,28 +105,29 @@
         }
       },
       /* Adds '0' before seconds (e.g. 1:05 instead of 1:5) */
-      formatSeconds(sec) {
+      formatTime(sec) {
         if (sec < 10) {
           return `0${sec}`;
         }
         return sec;
       },
       setTotalTime() {
-        this.totalSeconds = Math.floor(this.$els.audio.duration % 60);
-        this.totalMinutes = Math.floor(this.$els.audio.duration / 60);
+        this.totalSeconds.totalsec = Math.floor(this.$els.audio.duration % 60);
+        this.totalMinutes.totalmin = Math.floor(this.$els.audio.duration / 60);
       },
       /* Gets raw current time and converts to XX:XX format */
       timeUpdate() {
-        this.currentSeconds = Math.floor(this.$els.audio.currentTime % 60);
-        if (this.currentSeconds === 0 || this.timebarChanged) {
-          this.currentMinutes = Math.floor(this.$els.audio.currentTime / 60);
-          this.timebarChanged = false;
+        this.currentSeconds.sec = Math.floor(this.$els.audio.currentTime % 60);
+        if (this.currentSeconds.sec === 0 || this.timebarChanged.status) {
+          this.currentMinutes.min = Math.floor(this.$els.audio.currentTime / 60);
+          logging.info(this.currentMinutes.min);
+          this.timebarChanged.status = false;
         }
         /* Proportionally updates position of slider button according to current time */
         this.$els.timebar.value = ((this.$els.audio.currentTime / this.$els.audio.duration) * 100);
       },
       updatePlay() {
-        this.timebarChanged = true;
+        this.timebarChanged.status = true;
         this.timeUpdate();
         this.play();
       },
