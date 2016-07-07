@@ -49,9 +49,6 @@
 <script>
 
   module.exports = {
-    created() {
-      this.fetchFullContent(this.id);
-    },
     components: {
       'breadcrumbs': require('../breadcrumbs'),
       'content-card': require('../content-card'),
@@ -60,6 +57,7 @@
     vuex: {
       getters: {
         // better practice would be to define vuex getter functions globally
+        id: state => state.id,
         title: (state) => state.full.title,
         description: (state) => state.full.description,
         recommended: (state) => state.full.recommended,
@@ -69,15 +67,8 @@
         channelId: (state) => state.channel,
         available: (state) => state.full.available,
         extraFields: (state) => state.full.extra_fields,
-        // from URL
-        id: state => state.route.params.content_id,
       },
       actions: require('../../actions'),
-    },
-    watch: {
-      id(value) {
-        this.fetchFullContent(value);
-      },
     },
   };
 

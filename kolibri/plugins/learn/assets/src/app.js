@@ -1,16 +1,51 @@
 const KolibriModule = require('kolibri_module');
 const rootvue = require('./vue');
 const router = require('./router');
-const store = require('./store');
-const sync = require('vuex-router-sync').sync;
 const Kolibri = require('kolibri');
+
+const actions = require('./actions');
+const PageNames = require('./constants').PageNames;
+
 
 class LearnModule extends KolibriModule {
   initialize() {
     Kolibri.resources.ContentNodeResource.setChannel('dummy_db');
   }
   ready() {
-    sync(store, router);
+    router.on(
+      PageNames.EXPLORE_ROOT,
+      '/explore',
+      actions.navToExploreRoot
+    );
+
+    router.on(
+      PageNames.EXPLORE_TOPIC,
+      '/explore/topic/:content_id',
+      actions.temp
+    );
+
+    router.on(
+      PageNames.EXPLORE_CONTENT,
+      '/explore/content/:content_id',
+      actions.temp
+    );
+
+    router.on(
+      PageNames.LEARN_ROOT,
+      '/learn',
+      actions.navToLearnRoot
+    );
+
+    router.on(
+      PageNames.SCRATCHPAD,
+      '/scratchpad',
+      actions.temp
+    );
+
+    router.redirect({
+      '/': '/explore',
+    });
+
     router.start(rootvue, 'rootvue');
   }
 }

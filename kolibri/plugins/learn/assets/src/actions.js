@@ -1,4 +1,22 @@
 const Kolibri = require('kolibri');
+const logging = require('loglevel');
+const constants = require('./constants');
+
+
+const PageModes = constants.PageModes;
+const PageNames = constants.PageNames;
+
+function navToExploreRoot(store, toRoute, fromRoute) {
+  store.dispatch('SET_PAGE', PageNames.EXPLORE_ROOT, PageModes.EXPLORE);
+}
+
+function navToLearnRoot(store, toRoute, fromRoute) {
+  store.dispatch('SET_PAGE', PageNames.LEARN_ROOT, PageModes.LEARN);
+}
+
+function temp(store, toRoute, fromRoute) {
+  console.log(store, toRoute, fromRoute);
+}
 
 /**
  * Action to fetch a particular content node from the API.
@@ -71,6 +89,9 @@ const fetchNodes = ({ dispatch }, id) => {
 };
 
 module.exports = {
+  navToExploreRoot,
+  navToLearnRoot,
+  temp,
   fetchFullContent,
   fetchNodes,
 };

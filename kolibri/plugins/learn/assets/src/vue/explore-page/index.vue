@@ -38,9 +38,6 @@
 <script>
 
   module.exports = {
-    created() {
-      this.fetchNodes(this.id);
-    },
     components: {
       'breadcrumbs': require('../breadcrumbs'),
       'topic-card': require('../topic-card'),
@@ -49,17 +46,11 @@
     vuex: {
       getters: {
         // better practice would be to define vuex getter functions globally
+        id: state => state.id,
         topics: state => state.topics,
         contents: state => state.contents,
-        // from URL
-        id: state => state.route.params.content_id,
       },
       actions: require('../../actions'),
-    },
-    watch: {
-      id(value) {
-        this.fetchNodes(value);
-      },
     },
   };
 

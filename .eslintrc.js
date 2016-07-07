@@ -7,7 +7,10 @@ module.exports = {
   ],
   // custom rules
   'rules': {
-    'no-param-reassign': ['error', { 'props': false }], // permit vuex state mutations
+    // permit vuex state mutations
+    'no-param-reassign': ['error', { 'props': false }],
+    // permit functions to have unused parameters, e.g. for callbacks
+    'no-unused-vars': ['error', { 'args': 'none' }],
     'quote-props': ['error', 'consistent-as-needed'],
     'quotes': ['error', 'single', { 'allowTemplateLiterals': true }],
     // allow debugger during development

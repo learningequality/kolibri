@@ -1,8 +1,13 @@
 
+const constants = require('./constants');
 const Vuex = require('vuex');
 
 function initialState() {
   return {
+    pageName: constants.PageNames.EXPLORE_ROOT,
+    pageMode: constants.PageModes.EXPLORE,
+    id: null,
+
     topics: [],
     contents: [],
     full: {
@@ -19,6 +24,10 @@ function initialState() {
 }
 
 const mutations = {
+  SET_PAGE(state, name, mode) {
+    state.pageName = name;
+    state.pageMode = mode;
+  },
   /**
    * Mutation to set all the attributes of a content item retrieved from the server onto
    *  the 'full' key on the Store state.
