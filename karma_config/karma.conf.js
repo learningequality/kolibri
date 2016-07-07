@@ -3,9 +3,11 @@
 var RewirePlugin = require("rewire-webpack");
 var _ = require("lodash");
 var webpack_config = _.clone(require("../frontend_build/src/webpack.config.base"));
+var path = require('path');
 
 webpack_config.plugins.push(new RewirePlugin());
 webpack_config.devtool = '#inline-source-map';
+webpack_config.resolve.alias['kolibri'] = path.resolve('kolibri/core/assets/src/core_app_instance');
 
 module.exports = function(config) {
   config.set({
@@ -71,9 +73,8 @@ module.exports = function(config) {
     webpack: webpack_config,
 
     webpackMiddleware: {
-      // suppress all webpack building information
-      // But I like webpack output :) -- MCG
-      // noInfo: true
+      // suppress all webpack building information to make test logs more readable.
+       noInfo: true
     },
 
     eslint: {

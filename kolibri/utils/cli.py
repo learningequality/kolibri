@@ -205,8 +205,11 @@ def plugin(plugin_name, **args):
         for obj in plugin_module.__dict__.values():
             if type(obj) == type and obj is not KolibriPluginBase and issubclass(obj, KolibriPluginBase):
                 plugin_classes.append(obj)
-    except ImportError:
-        raise PluginDoesNotExist("Plugin does not exist")
+    except ImportError as e:
+        if e.message.startswith("No module named"):
+            raise PluginDoesNotExist("Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?".format(plugin_name))
+        else:
+            raise
 
     if args.get('enable', False):
         for klass in plugin_classes:
@@ -225,6 +228,9 @@ def main(args=None):
     Utility functions should be callable for unit testing purposes, but remember
     to use main() for integration tests in order to test the argument API.
     """
+
+    # ensure that Django is set up before we do anything else
+    django.setup()
 
     if not args:
         args = sys.argv[1:]

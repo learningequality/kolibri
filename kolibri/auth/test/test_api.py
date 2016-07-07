@@ -2,7 +2,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import collections
 import factory
-import json
 import sys
 
 from django.core.urlresolvers import reverse
@@ -99,24 +98,13 @@ class LearnerGroupAPITestCase(APITestCase):
 
     def test_parent_in_queryparam_with_one_id(self):
         classroom_id = self.classrooms[0].id
-        response = self.client.get(reverse('learnergroup-list'), {'parent_in': json.dumps([classroom_id])},
+        response = self.client.get(reverse('learnergroup-list'), {'parent': classroom_id},
                                    format='json')
         expected = [collections.OrderedDict((
             ('id', group.id),
             ('name', group.name),
             ('parent', group.parent.id),
         )) for group in self.learner_groups if group.parent.id == classroom_id]
-        self.assertItemsEqual(response.data, expected)
-
-    def test_parent_in_queryparam_with_two_ids(self):
-        classroom_ids = [self.classrooms[0].id, self.classrooms[1].id]
-        response = self.client.get(reverse('learnergroup-list'), {'parent_in': json.dumps(classroom_ids)},
-                                   format='json')
-        expected = [collections.OrderedDict((
-            ('id', group.id),
-            ('name', group.name),
-            ('parent', group.parent.id),
-        )) for group in self.learner_groups if group.parent.id in classroom_ids]
         self.assertItemsEqual(response.data, expected)
 
 

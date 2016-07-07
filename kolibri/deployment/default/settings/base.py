@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'kolibri.auth.apps.KolibriAuthConfig',
     'kolibri.content',
+    'kolibri.logger',
     'kolibri.core.webpack',
     'rest_framework',
     'django_js_reverse',
@@ -55,6 +56,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'kolibri.auth.middleware.CustomAuthenticationMiddleware',
+    'kolibri.content.middleware.ContentDBRoutingMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -91,6 +93,9 @@ DATABASES = {
         'NAME': os.path.join(conf.KOLIBRI_HOME, 'db.sqlite3'),
     }
 }
+
+# Enable dynamic routing for content databases
+DATABASE_ROUTERS = ['kolibri.content.content_db_router.ContentDBRouter']
 
 # DIR for storing contentDBs
 CONTENT_DB_DIR = os.path.join(BASE_DIR, 'kolibri', 'content', 'content_db')
@@ -202,7 +207,7 @@ AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
 AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']
 
 REST_FRAMEWORK = {
-    "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser"
+    "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser",
 }
 
 # Configuration for Django JS Reverse

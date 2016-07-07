@@ -11,15 +11,23 @@ const router = new VueRouter({
 router.map({
   '/explore': {
     component: require('./vue/explore-page'),
+    name: 'explore-page',
+  },
+  '/explore/topic/:content_id': {
+    component: require('./vue/explore-page'),
+    name: 'explore-topic-page',
+  },
+  '/explore/content/:content_id': {
+    component: require('./vue/content-page'),
+    name: 'explore-content',
   },
   '/learn': {
     component: require('./vue/learn-page'),
+    name: 'learn-page',
   },
-  '/explore/content': {
-    component: require('./vue/explore-content-page'),
-  },
-  '/learn/content': {
-    component: require('./vue/learn-content-page'),
+  '/scratchpad': {
+    component: require('./vue/scratchpad'),
+    name: 'scratchpad',
   },
 });
 

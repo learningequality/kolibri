@@ -42,7 +42,11 @@ var config = {
       {
         test: /\.js$/,
         loader: 'babel',
-        exclude: /node_modules/
+        exclude: /node_modules/,
+        query: {
+          presets: ['es2015-ie'],
+          plugins: ['transform-runtime']
+        },
       },
       {
         test: /\.json$/,
@@ -58,10 +62,19 @@ var config = {
       },
       // moved from parse_bundle_plugin.js
       {
-        test: /\.(png|jpg|gif|svg)$/,
+        test: /\.(png|jpg|gif|svg|eot)$/,
         loader: 'url',
         query: {
           limit: 10000,
+          name: '[name].[ext]?[hash]'
+        }
+      },
+      // Usage of file loader allows referencing a local vtt file without in-lining it.
+      // Can be removed once the local en.vtt test file is removed.
+      {
+        test: /\.(vtt)$/,
+        loader: 'file',
+        query: {
           name: '[name].[ext]?[hash]'
         }
       },
@@ -78,9 +91,9 @@ var config = {
   ],
   resolve: {
     alias: {
-      'kolibri_module': path.join(__dirname, '..', '..', 'kolibri', 'core', 'assets', 'src', 'kolibri_module'),
-      'core-base': path.join(__dirname, '..', '..', 'kolibri', 'core', 'assets', 'src', 'core-base'),
-      'core-theme.styl': path.join(__dirname, '..', '..', 'kolibri', 'core', 'assets', 'src', 'core-theme.styl'),
+      'kolibri_module': path.resolve('kolibri/core/assets/src/kolibri_module'),
+      'core-base': path.resolve('kolibri/core/assets/src/core-base'),
+      'core-theme.styl': path.resolve('kolibri/core/assets/src/core-theme.styl'),
       'content-renderer': path.resolve('kolibri/core/assets/src/content-renderer'),
       'content_renderer_module': path.resolve('kolibri/core/assets/src/content_renderer_module'),
     },

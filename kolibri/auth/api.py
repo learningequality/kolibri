@@ -1,7 +1,5 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-import json
-
 from rest_framework import filters, permissions, viewsets
 
 from .models import (
@@ -111,13 +109,8 @@ class ClassroomViewSet(viewsets.ModelViewSet):
 
 class LearnerGroupViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
     queryset = LearnerGroup.objects.all()
     serializer_class = LearnerGroupSerializer
 
-    def get_queryset(self):
-        queryset = LearnerGroup.objects.all()
-        parent_ids = self.request.query_params.get('parent_in', None)
-        if parent_ids:
-            queryset = queryset.filter(parent__in=json.loads(parent_ids))
-        return queryset
+    filter_fields = ('parent',)

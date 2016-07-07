@@ -1,21 +1,16 @@
 <template>
 
-  <div>
-    <div v-for="(title, block) in contents">
-      <h1>{{ title }}</h1>
-      <div class="card-list">
-        <content-card
-          v-for="content in block"
-          class="card"
-          linkhref="#"
-          :title="content.title"
-          :thumbsrc="content.thumbnail"
-          :kind="content.kind"
-          :progress="content.progress">
-        </content-card>
-      </div>
-    </div>
-  </div>
+  <span>TODO</span>
+  <!-- <card-grid header="Content" v-if="contents.length">
+    <content-card
+      v-for="content in contents"
+      :title="content.title"
+      :thumbnail="content.thumbnail"
+      :kind="content.kind"
+      :progress="content.progress"
+      :id="content.pk">
+    </content-card>
+  </card-grid> -->
 
 </template>
 
@@ -25,20 +20,11 @@
   module.exports = {
     components: {
       'content-card': require('../content-card'),
-    },
-    vuex: {
-      getters: {
-        // better practice would be to define vuex getter functions globally
-        contents: state => state.recommended,
-      },
+      'card-grid': require('../card-grid'),
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~core-theme.styl'
-
-</style>
+<style lang="stylus" scoped></style>
