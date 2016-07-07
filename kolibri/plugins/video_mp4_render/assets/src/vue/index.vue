@@ -1,12 +1,12 @@
 <template>
 
   <div>
-    <div v-el:videowrapper class="videowrapper">
+    <div class="videowrapper" v-el:videowrapper>
       <video v-el:video class="video-js vjs-default-skin" >
-        <template v-for="video in videoSources">
-          <source :src="video.storage_url" :type='"video/" + video.extension'>
+        <template v-for="video in getVideoSources()">
+          <source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" :type='"video/" + video.extension'>
         </template>
-        <template v-for="track in trackSources">
+        <template v-for="track in getTrackSources()">
           <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
         </template>
       </video>
@@ -26,32 +26,7 @@
 
     props: ['files'],
 
-    computed: {
-      posterSource() {
-        return this.files.filter(
-            (file) => file.extension === 'png' | file.extension === 'jpg'
-      )[0].storage_url;
-      },
-
-      videoSources() {
-        return this.files.filter(
-            (file) => file.extension === 'mp4' | file.extension === 'webm' | file.extension === 'ogg'
-      );
-      },
-
-      trackSources() {
-        return this.files.filter(
-            (file) => file.extension === 'vtt'
-      );
-      },
-    },
-
     methods: {
-      getLangName(langCode) {
-        return JSON.parse(langcodes).filter(
-            (lang) => lang.code === langCode
-      )[0].lang;
-      },
 
       setPlayState(state) {
         if (state === true) {
@@ -64,70 +39,95 @@
           this.videoPlayer.$('.videoforward').classList.remove('display');
         }
       },
+
+      getPosterSource() {
+        return this.files.filter(
+          (file) => file.extension === 'png' | file.extension === 'jpg'
+        )[0].storage_url;
+      },
+
+      getVideoSources() {
+        return this.files.filter(
+          (file) => file.extension === 'mp4' | file.extension === 'webm' | file.extension === 'ogg'
+        );
+      },
+
+      getTrackSources() {
+        return this.files.filter(
+          (file) => file.extension === 'vtt'
+        );
+      },
+
+      getLangName(langCode) {
+        return JSON.parse(langcodes).filter(
+          (lang) => lang.code === langCode
+        )[0].lang;
+      },
+
     },
 
     ready() {
       this.videoPlayer = videojs(this.$els.video, {
-            controls: true,
-            autoplay: false,
-            fluid: true,
-            preload: 'auto',
-            poster: this.posterSource,
-            playbackRates: [0.25, 0.5, 1.0, 1.25, 1.5, 2.0],
-            textTrackDisplay: true,
-            ReplayButton: true,
-            ForwardButton: true,
-            TogglePlayButton: true,
-            bigPlayButton: false,
-            controlBar: {
-              children: [
-                { name: 'currentTimeDisplay' },
-                { name: 'timeDivider' },
-                { name: 'progressControl' },
-                { name: 'durationDisplay' },
-                { name: 'remainingTimeDisplay' },
-                { name: 'muteToggle' },
-                { name: 'VolumeBar' },
-                { name: 'playbackRateMenuButton' },
-                { name: 'captionsButton' },
-                { name: 'fullscreenToggle' },
-              ],
-            },
-          },
+        controls: true,
+        autoplay: false,
+        fluid: true,
+        preload: 'auto',
+        poster: this.getPosterSource(),
+        playbackRates: [0.25, 0.5, 1.0, 1.25, 1.5, 2.0],
+        textTrackDisplay: true,
+        ReplayButton: true,
+        ForwardButton: true,
+        TogglePlayButton: true,
+        bigPlayButton: false,
+        controlBar: {
+          children: [
+            { name: 'currentTimeDisplay' },
+            { name: 'timeDivider' },
+            { name: 'progressControl' },
+            { name: 'durationDisplay' },
+            { name: 'remainingTimeDisplay' },
+            { name: 'muteToggle' },
+            { name: 'VolumeBar' },
+            { name: 'playbackRateMenuButton' },
+            { name: 'captionsButton' },
+            { name: 'fullscreenToggle' },
+          ],
+        },
+      },
 
-          () => {
-          const centerButtons = this.$els.videowrapper.childNodes[1];
-      const toggleButton = centerButtons
-        .getElementsByClassName('videotoggle')[0];
-      const replayButton = centerButtons
-        .getElementsByClassName('videoreplay')[0];
-      const forwardButton = centerButtons
-        .getElementsByClassName('videoforward')[0];
+      () => {
+        const centerButtons = this.$els.videowrapper.childNodes[1];
+        const toggleButton = centerButtons
+          .getElementsByClassName('videotoggle')[0];
+        const replayButton = centerButtons
+          .getElementsByClassName('videoreplay')[0];
+        const forwardButton = centerButtons
+          .getElementsByClassName('videoforward')[0];
 
-      videojs(this.$els.video).on('useractive', () => {
-        toggleButton.classList.remove('userInactive');
-      replayButton.classList.remove('userInactive');
-      forwardButton.classList.remove('userInactive');
-    });
+        videojs(this.$els.video).on('useractive', () => {
+          toggleButton.classList.remove('userInactive');
+          replayButton.classList.remove('userInactive');
+          forwardButton.classList.remove('userInactive');
+        });
 
-      videojs(this.$els.video).on('userinactive', () => {
-        toggleButton.classList.add('userInactive');
-      replayButton.classList.add('userInactive');
-      forwardButton.classList.add('userInactive');
-    });
+        videojs(this.$els.video).on('userinactive', () => {
+          toggleButton.classList.add('userInactive');
+          replayButton.classList.add('userInactive');
+          forwardButton.classList.add('userInactive');
+        });
 
-      videojs(this.$els.video).on('play', () => {
-        this.setPlayState(true);
-    });
+        videojs(this.$els.video).on('play', () => {
+          this.setPlayState(true);
+        });
 
-      videojs(this.$els.video).on('pause', () => {
-        this.setPlayState(false);
-    });
+        videojs(this.$els.video).on('pause', () => {
+          this.setPlayState(false);
+        });
 
-      videojs(this.$els.video).on('ended', () => {
-        this.setPlayState(false);
-    });
-    });
+        videojs(this.$els.video).on('ended', () => {
+          this.setPlayState(false);
+        });
+      });
     },
   };
 
@@ -161,7 +161,7 @@
     background-color: #000
     background-color: rgba(0, 0, 0, 0.7)
 
-  // Custom style
+   // Custom style
   .vjs-menu
     font-family: 'NotoSans', 'sans-serif'
 
