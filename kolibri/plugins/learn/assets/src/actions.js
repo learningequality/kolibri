@@ -49,8 +49,13 @@ const searchNodes = ({ dispatch }, params) => {
   });
 };
 
+const searchToggleSwitch = ({ dispatch }, params) => {
+  dispatch('SET_SEARCH_TOGGLED', params);
+};
+
 module.exports = {
   fetchFullContent,
   fetchNodes,
   searchNodes,
+  searchToggleSwitch,
 };
