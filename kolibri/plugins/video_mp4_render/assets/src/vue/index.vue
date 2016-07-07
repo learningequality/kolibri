@@ -28,21 +28,21 @@
 
     computed: {
       posterSource() {
-        const posterFileExtensions = ['png', 'jpg',];
+        const posterFileExtensions = ['png', 'jpg'];
         return this.files.filter(
           (file) => posterFileExtensions.some((ext) => ext === file.extension)
         )[0].storage_url;
       },
 
       videoSources() {
-        const videoFileExtensions = ['mp4', 'webm', 'ogg',];
+        const videoFileExtensions = ['mp4', 'webm', 'ogg'];
         return this.files.filter(
           (file) => videoFileExtensions.some((ext) => ext === file.extension)
         );
       },
 
       trackSources() {
-        const trackFileExtensions = ['vtt',];
+        const trackFileExtensions = ['vtt'];
         return this.files.filter(
           (file) => trackFileExtensions.some((ext) => ext === file.extension)
         );
