@@ -308,7 +308,11 @@ class ResourceManager {
       throw new TypeError('A resource with that name has already been registered!');
     }
     this._resources[name] = new ResourceClass(this._kolibri);
-    Object.defineProperty(this, ResourceClass.name, { value: this._resources[name] });
+    // Shim for IE9 compatibility of .name property.
+    // Modified from: http://matt.scharley.me/2012/03/monkey-patch-name-ie.html#comment-551654096
+    const className = ResourceClass.name || /function\s([^(]{1,})\(/.exec(
+        (ResourceClass).toString())[1].trim();
+    Object.defineProperty(this, className, { value: this._resources[name] });
     return this._resources[name];
   }
 

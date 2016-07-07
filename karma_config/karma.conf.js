@@ -24,7 +24,6 @@ module.exports = function(config) {
     // list of files / patterns to load
     files: [
       './node_modules/phantomjs-polyfill-find/find-polyfill.js',
-      'node_modules/babel-polyfill/dist/polyfill.js',
       'kolibri/**/assets/test/*.js',
       {pattern: 'kolibri/**/assets/src/**/*.js', included: false} // load these, but not in the browser, just for linting
     ],

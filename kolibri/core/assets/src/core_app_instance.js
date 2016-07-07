@@ -3,6 +3,7 @@
 require('normalize.css');
 require('./font-NotoSans.css');
 require('./core-global.styl');
+require('babel-polyfill');
 
 // set up logging
 const logging = require('loglevel');
