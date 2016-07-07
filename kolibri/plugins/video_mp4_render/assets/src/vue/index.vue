@@ -1,10 +1,14 @@
 <template>
 
   <div>
-    <div class="videowrapper" v-el:videowrapper>
+    <div v-el:videowrapper class="videowrapper">
       <video v-el:video class="video-js vjs-default-skin" >
-        <source :src="videoUrl" type='video/mp4'>
-        <track kind="captions" :src="captionsUrl" :srclang="captionsLang" :label="captionsLabel">
+        <template v-for="video in videoSources">
+          <source :src="video.storage_url" :type='"video/" + video.extension'>
+        </template>
+        <template v-for="track in trackSources">
+          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
+        </template>
       </video>
     </div>
   </div>
@@ -15,79 +19,43 @@
 <script>
 
   const videojs = require('video.js');
+  const langcodes = require('./langcodes.json');
   require('./videojs-centerbtns');
 
   module.exports = {
 
-    ready() {
-      this.videoPlayer = videojs(this.$els.video, {
-        controls: true,
-        autoplay: false,
-        fluid: true,
-        preload: 'auto',
-        poster: this.posterUrl,
-        playbackRates: [0.25, 0.5, 1.0, 1.25, 1.5, 2.0],
-        textTrackDisplay: true,
-        ReplayButton: true,
-        ForwardButton: true,
-        TogglePlayButton: true,
-        bigPlayButton: false,
-        controlBar: {
-          children: [
-            { name: 'currentTimeDisplay' },
-            { name: 'timeDivider' },
-            { name: 'progressControl' },
-            { name: 'durationDisplay' },
-            { name: 'remainingTimeDisplay' },
-            { name: 'muteToggle' },
-            { name: 'VolumeBar' },
-            { name: 'playbackRateMenuButton' },
-            { name: 'captionsButton' },
-            { name: 'fullscreenToggle' },
-          ],
-        },
+    props: ['files'],
+
+    computed: {
+      posterSource() {
+        const posterFileExtensions = ['png', 'jpg',];
+        return this.files.filter(
+            (file) => posterFileExtensions.some((ext) => ext === file.extension)
+      )[0].storage_url;
       },
-      () => {
-        const centerButtons = this.$els.videowrapper.childNodes[1];
-        const toggleButton = centerButtons
-          .getElementsByClassName('videotoggle')[0];
-        const replayButton = centerButtons
-          .getElementsByClassName('videoreplay')[0];
-        const forwardButton = centerButtons
-          .getElementsByClassName('videoforward')[0];
 
-        videojs(this.$els.video).on('useractive', () => {
-          toggleButton.classList.remove('userInactive');
-          replayButton.classList.remove('userInactive');
-          forwardButton.classList.remove('userInactive');
-        });
-        videojs(this.$els.video).on('userinactive', () => {
-          toggleButton.classList.add('userInactive');
-          replayButton.classList.add('userInactive');
-          forwardButton.classList.add('userInactive');
-        });
+      videoSources() {
+        const videoFileExtensions = ['mp4', 'webm', 'ogg',];
+        return this.files.filter(
+            (file) => videoFileExtensions.some((ext) => ext === file.extension)
+      );
+      },
 
-        videojs(this.$els.video).on('play', () => {
-          this.setPlayState(true);
-        });
-
-        videojs(this.$els.video).on('pause', () => {
-          this.setPlayState(false);
-        });
-
-        videojs(this.$els.video).on('ended', () => {
-          this.setPlayState(false);
-        });
-      });
+      trackSources() {
+        const trackFileExtensions = ['vtt',];
+        return this.files.filter(
+            (file) => trackFileExtensions.some((ext) => ext === file.extension)
+      );
+      },
     },
-    data: () => ({
-      videoUrl: 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4',
-      posterUrl: 'http://i3.ytimg.com/vi/kITJ6qH7jS0/hqdefault.jpg',
-      captionsUrl: require('./en.vtt'),
-      captionsLang: 'en',
-      captionsLabel: 'English',
-    }),
+
     methods: {
+      getLangName(langCode) {
+        return langcodes.filter(
+            (lang) => lang.code === langCode
+      )[0].lang;
+      },
+
       setPlayState(state) {
         if (state === true) {
           this.videoPlayer.$('.videotoggle').classList.add('videopaused');
@@ -101,6 +69,69 @@
       },
     },
 
+    ready() {
+      this.videoPlayer = videojs(this.$els.video, {
+            controls: true,
+            autoplay: false,
+            fluid: true,
+            preload: 'auto',
+            poster: this.posterSource,
+            playbackRates: [0.25, 0.5, 1.0, 1.25, 1.5, 2.0],
+            textTrackDisplay: true,
+            ReplayButton: true,
+            ForwardButton: true,
+            TogglePlayButton: true,
+            bigPlayButton: false,
+            controlBar: {
+              children: [
+                { name: 'currentTimeDisplay' },
+                { name: 'timeDivider' },
+                { name: 'progressControl' },
+                { name: 'durationDisplay' },
+                { name: 'remainingTimeDisplay' },
+                { name: 'muteToggle' },
+                { name: 'VolumeBar' },
+                { name: 'playbackRateMenuButton' },
+                { name: 'captionsButton' },
+                { name: 'fullscreenToggle' },
+              ],
+            },
+          },
+
+          () => {
+          const centerButtons = this.$els.videowrapper.childNodes[1];
+      const toggleButton = centerButtons
+        .getElementsByClassName('videotoggle')[0];
+      const replayButton = centerButtons
+        .getElementsByClassName('videoreplay')[0];
+      const forwardButton = centerButtons
+        .getElementsByClassName('videoforward')[0];
+
+      videojs(this.$els.video).on('useractive', () => {
+        toggleButton.classList.remove('userInactive');
+      replayButton.classList.remove('userInactive');
+      forwardButton.classList.remove('userInactive');
+    });
+
+      videojs(this.$els.video).on('userinactive', () => {
+        toggleButton.classList.add('userInactive');
+      replayButton.classList.add('userInactive');
+      forwardButton.classList.add('userInactive');
+    });
+
+      videojs(this.$els.video).on('play', () => {
+        this.setPlayState(true);
+    });
+
+      videojs(this.$els.video).on('pause', () => {
+        this.setPlayState(false);
+    });
+
+      videojs(this.$els.video).on('ended', () => {
+        this.setPlayState(false);
+    });
+    });
+    },
   };
 
 </script>
@@ -133,7 +164,7 @@
     background-color: #000
     background-color: rgba(0, 0, 0, 0.7)
 
-   // Custom style
+  // Custom style
   .vjs-menu
     font-family: 'NotoSans', 'sans-serif'
 
