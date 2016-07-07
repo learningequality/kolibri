@@ -1,7 +1,5 @@
 const Kolibri = require('kolibri');
-const logging = require('loglevel');
 const constants = require('./constants');
-
 
 const PageModes = constants.PageModes;
 const PageNames = constants.PageNames;
