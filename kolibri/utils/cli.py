@@ -205,8 +205,11 @@ def plugin(plugin_name, **args):
         for obj in plugin_module.__dict__.values():
             if type(obj) == type and obj is not KolibriPluginBase and issubclass(obj, KolibriPluginBase):
                 plugin_classes.append(obj)
-    except ImportError:
-        raise PluginDoesNotExist("Plugin does not exist")
+    except ImportError as e:
+        if e.message.startswith("No module named"):
+            raise PluginDoesNotExist("Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?".format(plugin_name))
+        else:
+            raise
 
     if args.get('enable', False):
         for klass in plugin_classes:
