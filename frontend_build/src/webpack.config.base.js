@@ -17,7 +17,7 @@ var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 
-require('./htmlhint_custom'); // adds custom rules
+//require('./htmlhint_custom'); // adds custom rules
 
 var config = {
   module: {
@@ -83,6 +83,10 @@ var config = {
       {
         test: /fg-loadcss\/src\/onloadCSS/,
         loader: 'exports?onloadCSS'
+      },
+      {
+        test: require.resolve('html5media/dist/api/1.1.8/html5media'),
+        loader: "imports?this=>window"
       }
     ]
   },
