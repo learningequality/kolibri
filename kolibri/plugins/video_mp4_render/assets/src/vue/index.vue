@@ -3,17 +3,10 @@
   <div>
     <div v-el:videowrapper class="videowrapper">
       <video v-el:video class="video-js vjs-default-skin" >
-<<<<<<< HEAD
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type='"video/" + video.extension'>
         </template>
         <template v-for="track in trackSources">
-=======
-        <template v-for="video in getVideoSources()">
-          <source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" :type='"video/" + video.extension'>
-        </template>
-        <template v-for="track in getTrackSources()">
->>>>>>> Video renderer should now be able to handle real data from the db.
           <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
         </template>
       </video>
@@ -33,64 +26,33 @@
 
     props: ['files'],
 
-<<<<<<< HEAD
     computed: {
       posterSource() {
-=======
-    methods: {
-
-      setPlayState(state) {
-        if (state === true) {
-          this.videoPlayer.$('.videotoggle').classList.add('videopaused');
-          this.videoPlayer.$('.videoreplay').classList.add('display');
-          this.videoPlayer.$('.videoforward').classList.add('display');
-        } else {
-          this.videoPlayer.$('.videotoggle').classList.remove('videopaused');
-          this.videoPlayer.$('.videoreplay').classList.remove('display');
-          this.videoPlayer.$('.videoforward').classList.remove('display');
-        }
-      },
-
-      getPosterSource() {
->>>>>>> Video renderer should now be able to handle real data from the db.
         return this.files.filter(
-          (file) => file.extension === 'png' | file.extension === 'jpg'
-        )[0].storage_url;
+            (file) => file.extension === 'png' | file.extension === 'jpg'
+      )[0].storage_url;
       },
 
-<<<<<<< HEAD
       videoSources() {
-=======
-      getVideoSources() {
->>>>>>> Video renderer should now be able to handle real data from the db.
         return this.files.filter(
-          (file) => file.extension === 'mp4' | file.extension === 'webm' | file.extension === 'ogg'
-        );
+            (file) => file.extension === 'mp4' | file.extension === 'webm' | file.extension === 'ogg'
+      );
       },
 
-<<<<<<< HEAD
       trackSources() {
-=======
-      getTrackSources() {
->>>>>>> Video renderer should now be able to handle real data from the db.
         return this.files.filter(
-          (file) => file.extension === 'vtt'
-        );
+            (file) => file.extension === 'vtt'
+      );
       },
-<<<<<<< HEAD
     },
 
     methods: {
-=======
-
->>>>>>> Video renderer should now be able to handle real data from the db.
       getLangName(langCode) {
         return JSON.parse(langcodes).filter(
-          (lang) => lang.code === langCode
-        )[0].lang;
+            (lang) => lang.code === langCode
+      )[0].lang;
       },
 
-<<<<<<< HEAD
       setPlayState(state) {
         if (state === true) {
           this.videoPlayer.$('.videotoggle').classList.add('videopaused');
@@ -102,76 +64,70 @@
           this.videoPlayer.$('.videoforward').classList.remove('display');
         }
       },
-=======
->>>>>>> Video renderer should now be able to handle real data from the db.
     },
 
     ready() {
       this.videoPlayer = videojs(this.$els.video, {
-        controls: true,
-        autoplay: false,
-        fluid: true,
-        preload: 'auto',
-<<<<<<< HEAD
-        poster: this.posterSource,
-=======
-        poster: this.getPosterSource(),
->>>>>>> Video renderer should now be able to handle real data from the db.
-        playbackRates: [0.25, 0.5, 1.0, 1.25, 1.5, 2.0],
-        textTrackDisplay: true,
-        ReplayButton: true,
-        ForwardButton: true,
-        TogglePlayButton: true,
-        bigPlayButton: false,
-        controlBar: {
-          children: [
-            { name: 'currentTimeDisplay' },
-            { name: 'timeDivider' },
-            { name: 'progressControl' },
-            { name: 'durationDisplay' },
-            { name: 'remainingTimeDisplay' },
-            { name: 'muteToggle' },
-            { name: 'VolumeBar' },
-            { name: 'playbackRateMenuButton' },
-            { name: 'captionsButton' },
-            { name: 'fullscreenToggle' },
-          ],
-        },
-      },
+            controls: true,
+            autoplay: false,
+            fluid: true,
+            preload: 'auto',
+            poster: this.posterSource,
+            playbackRates: [0.25, 0.5, 1.0, 1.25, 1.5, 2.0],
+            textTrackDisplay: true,
+            ReplayButton: true,
+            ForwardButton: true,
+            TogglePlayButton: true,
+            bigPlayButton: false,
+            controlBar: {
+              children: [
+                { name: 'currentTimeDisplay' },
+                { name: 'timeDivider' },
+                { name: 'progressControl' },
+                { name: 'durationDisplay' },
+                { name: 'remainingTimeDisplay' },
+                { name: 'muteToggle' },
+                { name: 'VolumeBar' },
+                { name: 'playbackRateMenuButton' },
+                { name: 'captionsButton' },
+                { name: 'fullscreenToggle' },
+              ],
+            },
+          },
 
-      () => {
-        const centerButtons = this.$els.videowrapper.childNodes[1];
-        const toggleButton = centerButtons
-          .getElementsByClassName('videotoggle')[0];
-        const replayButton = centerButtons
-          .getElementsByClassName('videoreplay')[0];
-        const forwardButton = centerButtons
-          .getElementsByClassName('videoforward')[0];
+          () => {
+          const centerButtons = this.$els.videowrapper.childNodes[1];
+      const toggleButton = centerButtons
+        .getElementsByClassName('videotoggle')[0];
+      const replayButton = centerButtons
+        .getElementsByClassName('videoreplay')[0];
+      const forwardButton = centerButtons
+        .getElementsByClassName('videoforward')[0];
 
-        videojs(this.$els.video).on('useractive', () => {
-          toggleButton.classList.remove('userInactive');
-          replayButton.classList.remove('userInactive');
-          forwardButton.classList.remove('userInactive');
-        });
+      videojs(this.$els.video).on('useractive', () => {
+        toggleButton.classList.remove('userInactive');
+      replayButton.classList.remove('userInactive');
+      forwardButton.classList.remove('userInactive');
+    });
 
-        videojs(this.$els.video).on('userinactive', () => {
-          toggleButton.classList.add('userInactive');
-          replayButton.classList.add('userInactive');
-          forwardButton.classList.add('userInactive');
-        });
+      videojs(this.$els.video).on('userinactive', () => {
+        toggleButton.classList.add('userInactive');
+      replayButton.classList.add('userInactive');
+      forwardButton.classList.add('userInactive');
+    });
 
-        videojs(this.$els.video).on('play', () => {
-          this.setPlayState(true);
-        });
+      videojs(this.$els.video).on('play', () => {
+        this.setPlayState(true);
+    });
 
-        videojs(this.$els.video).on('pause', () => {
-          this.setPlayState(false);
-        });
+      videojs(this.$els.video).on('pause', () => {
+        this.setPlayState(false);
+    });
 
-        videojs(this.$els.video).on('ended', () => {
-          this.setPlayState(false);
-        });
-      });
+      videojs(this.$els.video).on('ended', () => {
+        this.setPlayState(false);
+    });
+    });
     },
   };
 
@@ -205,7 +161,7 @@
     background-color: #000
     background-color: rgba(0, 0, 0, 0.7)
 
-   // Custom style
+  // Custom style
   .vjs-menu
     font-family: 'NotoSans', 'sans-serif'
 
