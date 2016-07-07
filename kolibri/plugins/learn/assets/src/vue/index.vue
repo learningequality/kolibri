@@ -50,13 +50,7 @@
 
   // these styles are namespaced because they're not scoped
   .learn-page
-    .card-list
-      overflow: hidden
-      display: block
-      margin-left: -10px
-
-    .card-list .card
-      float: left
-      margin: 10px
+    width: 900px
+    margin: auto
 
 </style>

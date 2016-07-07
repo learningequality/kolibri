@@ -1,31 +1,29 @@
 <template>
 
   <div class="topic-page">
-    <br><br>
     <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs>
 
-    <h2>Topics</h2>
-    <div class="card-list">
-      <content-card
+    <card-grid header="Topics" v-if="topics.length">
+      <topic-card
         v-for="topic in topics"
-        linkhref="#"
+        v-on:click="fetchNodes(topic.pk)"
         :title="topic.title"
         :ntotal="topic.n_total"
         :ncomplete="topic.n_complete">
-      </content-card>
-    </div>
+      </topic-card>
+    </card-grid>
 
-    <h2>Content</h2>
-    <div class="card-list">
+    <card-grid header="Content" v-if="contents.length">
       <content-card
         v-for="content in contents"
-        linkhref="#"
         :title="content.title"
         :thumbsrc="content.thumbnail"
         :kind="content.kind"
-        :progress="content.progress">
+        :progress="content.progress"
+        :pk="content.pk">
       </content-card>
-    </div>
+    </card-grid>
+
   </div>
 
 </template>
@@ -38,6 +36,7 @@
       'breadcrumbs': require('../breadcrumbs'),
       'topic-card': require('../topic-card'),
       'content-card': require('../content-card'),
+      'card-grid': require('../card-grid'),
     },
     vuex: {
       getters: {
@@ -46,16 +45,11 @@
         topics: state => state.topics,
         contents: state => state.contents,
       },
+      // actions: require('../../actions'),
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @import 'jeet'
-  @require '~core-theme.styl'
-  // edit()
-
-</style>
+<style lang="stylus" scoped></style>

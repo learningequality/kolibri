@@ -1,14 +1,9 @@
 <template>
 
   <a href="{{linkhref}}">
-    <div class="topic-card-container">
-      <div class="thumbnail">
-        <div class="topic-card-folder"></div>
-      </div>
-      <div class="title">
+      <h3 class="title">
         {{ title }}
-      </div>
-    </div>
+      </h3>
   </a>
 
 </template>
@@ -30,16 +25,15 @@
 
 <style lang="stylus" scoped>
 
-  @import 'jeet'
   @require '~core-theme.styl'
 
-  .topic-card-container
+  /*.topic-card-container
     display: block
     width: 210px
     height: 11rem
     border-radius: 4px
     background-color: $core-bg-light
-    
+
   .thumbnail
     width: 210px
     height: 7.6rem
@@ -65,6 +59,6 @@
     font-size: 0.9rem
     font-weight: 700
     margin: 0.4rem
-    color: $core-text-default
+    color: $core-text-default*/
 
 </style>
