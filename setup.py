@@ -60,7 +60,6 @@ install_requires = [
     'django-js-reverse==0.7.2',
     'djangorestframework==3.3.3',
     'docopt',
-    'drf-nested-routers',
     'six',
 ]
 
@@ -68,7 +67,7 @@ install_requires = [
 if '--static' in sys.argv:
     sys.argv.remove('--static')
     dist_name = 'kolibri-static'
-    description += " This static version, bundles all dependencies."
+    description += " This static version bundles all dependencies."
     install_requires, static_requirements = [], install_requires
     static_build = True
 

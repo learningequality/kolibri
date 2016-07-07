@@ -1,8 +1,8 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.views.generic.base import TemplateView
-from kolibri.content.api import get_top_level_topics
 from kolibri.content.content_db_router import using_content_database
+from kolibri.content.models import ContentNode
 from kolibri.content.serializers import ContentNodeSerializer
 from rest_framework.renderers import JSONRenderer
 
@@ -15,8 +15,9 @@ class LearnView(TemplateView):
         channel_id = getattr(self.request, "channel_id", "dummy_db")
         with using_content_database(channel_id):
             context = super(LearnView, self).get_context_data(**kwargs)
-            topics_serializer = ContentNodeSerializer(get_top_level_topics(),
-                                                      many=True)
-            topics_serializer.context["channel_id"] = channel_id
+
+            top_level_nodes = ContentNode.objects.get(parent__isnull=True).get_children()
+            mcontext = {'request': self.request}
+            topics_serializer = ContentNodeSerializer(top_level_nodes, context=mcontext, many=True)
             context['topics'] = JSONRenderer().render(topics_serializer.data)
         return context

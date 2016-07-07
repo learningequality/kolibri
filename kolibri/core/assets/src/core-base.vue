@@ -2,7 +2,6 @@
 
   <div>
     <!-- <kolibri-nav></kolibri-nav> -->
-    <header class="base-header"><h1>Kolibri Learn</h1></header>
     <main>
       <slot></slot>
     </main>

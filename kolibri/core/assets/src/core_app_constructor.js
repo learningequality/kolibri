@@ -5,7 +5,6 @@
 
 const vue = require('vue');
 const vuex = require('vuex');
-const VueIntl = require('vue-intl');
 const Mediator = require('./core_app_mediator');
 const ResourceManager = require('./api_resource').ResourceManager;
 const Resources = require('./apiResources/resources');
@@ -22,6 +21,7 @@ const publicMethods = [
   'emit',
   'on',
   'once',
+  'off',
 ];
 
 /**
@@ -52,10 +52,6 @@ module.exports = function CoreApp() {
   const mediator = new Mediator();
 
   Resources.forEach((resourceClass) => this.resources.registerResource(resourceClass));
-  /**
-   * Use the vue-intl plugin.
-   **/
-  vue.use(VueIntl);
 
   vue.prototype.Kolibri = this;
   /**
@@ -77,10 +73,20 @@ module.exports = function CoreApp() {
       (require) => {
         require('intl');
         require('intl/locale-data/jsonp/en.js');
+        /**
+         * Use the vue-intl plugin.
+         **/
+        const VueIntl = require('vue-intl');
+        vue.use(VueIntl);
         mediator.setReady();
       }
     );
   } else {
+    /**
+     * Use the vue-intl plugin.
+     **/
+    const VueIntl = require('vue-intl');
+    vue.use(VueIntl);
     mediator.setReady();
   }
 
