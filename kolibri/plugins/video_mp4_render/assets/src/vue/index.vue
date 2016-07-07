@@ -3,10 +3,17 @@
   <div>
     <div v-el:videowrapper class="videowrapper">
       <video v-el:video class="video-js vjs-default-skin" >
+<<<<<<< HEAD
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type='"video/" + video.extension'>
         </template>
         <template v-for="track in trackSources">
+=======
+        <template v-for="video in getVideoSources()">
+          <source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" :type='"video/" + video.extension'>
+        </template>
+        <template v-for="track in getTrackSources()">
+>>>>>>> merge
           <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
         </template>
       </video>
@@ -26,32 +33,11 @@
 
     props: ['files'],
 
+<<<<<<< HEAD
     computed: {
       posterSource() {
-        return this.files.filter(
-          (file) => file.extension === 'png' | file.extension === 'jpg'
-        )[0].storage_url;
-      },
-
-      videoSources() {
-        return this.files.filter(
-          (file) => file.extension === 'mp4' | file.extension === 'webm' | file.extension === 'ogg'
-        );
-      },
-
-      trackSources() {
-        return this.files.filter(
-          (file) => file.extension === 'vtt'
-        );
-      },
-    },
-
+=======
     methods: {
-      getLangName(langCode) {
-        return JSON.parse(langcodes).filter(
-          (lang) => lang.code === langCode
-        )[0].lang;
-      },
 
       setPlayState(state) {
         if (state === true) {
@@ -64,6 +50,60 @@
           this.videoPlayer.$('.videoforward').classList.remove('display');
         }
       },
+
+      getPosterSource() {
+>>>>>>> merge
+        return this.files.filter(
+          (file) => file.extension === 'png' | file.extension === 'jpg'
+        )[0].storage_url;
+      },
+
+<<<<<<< HEAD
+      videoSources() {
+=======
+      getVideoSources() {
+>>>>>>> merge
+        return this.files.filter(
+          (file) => file.extension === 'mp4' | file.extension === 'webm' | file.extension === 'ogg'
+        );
+      },
+
+<<<<<<< HEAD
+      trackSources() {
+=======
+      getTrackSources() {
+>>>>>>> merge
+        return this.files.filter(
+          (file) => file.extension === 'vtt'
+        );
+      },
+<<<<<<< HEAD
+    },
+
+    methods: {
+=======
+
+>>>>>>> merge
+      getLangName(langCode) {
+        return JSON.parse(langcodes).filter(
+          (lang) => lang.code === langCode
+        )[0].lang;
+      },
+
+<<<<<<< HEAD
+      setPlayState(state) {
+        if (state === true) {
+          this.videoPlayer.$('.videotoggle').classList.add('videopaused');
+          this.videoPlayer.$('.videoreplay').classList.add('display');
+          this.videoPlayer.$('.videoforward').classList.add('display');
+        } else {
+          this.videoPlayer.$('.videotoggle').classList.remove('videopaused');
+          this.videoPlayer.$('.videoreplay').classList.remove('display');
+          this.videoPlayer.$('.videoforward').classList.remove('display');
+        }
+      },
+=======
+>>>>>>> merge
     },
 
     ready() {
@@ -72,7 +112,11 @@
         autoplay: false,
         fluid: true,
         preload: 'auto',
+<<<<<<< HEAD
         poster: this.posterSource,
+=======
+        poster: this.getPosterSource(),
+>>>>>>> merge
         playbackRates: [0.25, 0.5, 1.0, 1.25, 1.5, 2.0],
         textTrackDisplay: true,
         ReplayButton: true,
