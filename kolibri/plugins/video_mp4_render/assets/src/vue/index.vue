@@ -28,28 +28,31 @@
 
     computed: {
       posterSource() {
+        const posterFileExtensions = ['png', 'jpg',];
         return this.files.filter(
-          (file) => file.extension === 'png' | file.extension === 'jpg'
+          (file) => posterFileExtensions.some((ext) => ext === file.extension)
         )[0].storage_url;
       },
 
       videoSources() {
+        const videoFileExtensions = ['mp4', 'webm', 'ogg',];
         return this.files.filter(
-          (file) => file.extension === 'mp4' | file.extension === 'webm' | file.extension === 'ogg'
+          (file) => videoFileExtensions.some((ext) => ext === file.extension)
         );
       },
 
       trackSources() {
+        const trackFileExtensions = ['vtt',];
         return this.files.filter(
-          (file) => file.extension === 'vtt'
+          (file) => trackFileExtensions.some((ext) => ext === file.extension)
         );
       },
     },
 
     methods: {
       getLangName(langCode) {
-        return JSON.parse(langcodes).filter(
-          (lang) => lang.code === langCode
+        return langcodes.filter(
+            (lang) => lang.code === langCode
         )[0].lang;
       },
 

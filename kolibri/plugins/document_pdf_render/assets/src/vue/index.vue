@@ -18,9 +18,9 @@
 
     props: ['defaultFile'],
 
-    data: {
-      supportsPDFs: false,
-    },
+    data: () => ({
+      supportsPDFs: PDFobject.supportsPDFs,
+    }),
 
     methods: {
       togglefullscreen() {
@@ -53,7 +53,6 @@
     },
 
     ready() {
-      this.supportsPDFs = PDFobject.supportsPDFs;
       PDFobject.embed(this.defaultFile.storage_url, this.$els.pdfcontainer);
     },
 
