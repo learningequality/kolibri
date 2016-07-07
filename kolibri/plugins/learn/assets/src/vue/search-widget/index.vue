@@ -4,12 +4,12 @@
     <label @click="searchToggleSwitch(true)" class="btn-search" :class=" {'btn-search-left' : search_toggled } " for="search">
       <span class="btn-search-img">search</span>
     </label>
-    <input type="search" required v-model="searchterm" debounce="500" name="search" autocomplete="off" placeholder="Find content..." @keyup="searchNodes(searchterm) | debounce 500" id="search" class="search-input" :class=" {'search-input-active' : search_toggled }" >
+    <input type="search" v-model="searchterm" name="search" autocomplete="off" placeholder="Find content..." @keyup="search | debounce 500" id="search" class="search-input" :class=" {'search-input-active' : search_toggled }" >
     <button v-show="search_toggled" @click="searchToggleSwitch(false)" class="close"><span class="btn-close-img">close</span></button>
   </form>
 
-  <h2 v-if="search_topics.length > 0 ||  search_contents.length > 0">Search results</h2>
-  <div class="card-list">
+  <h4 v-show="search_toggled" id="search-result" v-if="search_topics.length > 0 ||  search_contents.length > 0" transition="fade-right">Search results</h4>
+  <div v-show="search_toggled" class="card-list" transition="fade-right">
     <div v-if="search_topics.length > 0">
       <topic-card
         v-for="topic in search_topics"
@@ -34,6 +34,11 @@
         :pk="content.pk">
       </content-card>
     </div>
+
+    <ul v-if="pages_sum > 1" class="pagination">
+      <li @click="prePage" class="page-btn" v-bind:class="{ 'disabled': currentpage === 1 }">«</li>
+      <li @click="nextPage" class="page-btn"  v-bind:class="{ 'disabled': currentpage === pages_sum }">»</li>
+    </ul>
   </div>
 
 </template>
@@ -42,8 +47,29 @@
 <script>
 
   module.exports = {
-    data() {
-      return { searchterm: '' };
+    data: () => ({
+      searchterm: '',
+      currentpage: 1,
+    }),
+    methods: {
+      search() {
+        this.currentpage = 1;
+        this.searchNodes(this.searchterm, 1);
+      },
+      increasePage() {
+        this.currentpage += 1;
+      },
+      decreasePage() {
+        this.currentpage -= 1;
+      },
+      nextPage() {
+        this.increasePage();
+        this.searchNodes(this.searchterm, this.currentpage);
+      },
+      prePage() {
+        this.decreasePage();
+        this.searchNodes(this.searchterm, this.currentpage);
+      },
     },
     components: {
       'topic-card': require('../topic-card'),
@@ -55,6 +81,7 @@
         search_contents: state => state.searchcontents,
         search_topics: state => state.searchtopics,
         search_toggled: state => state.searchtoggled,
+        pages_sum: state => state.searchpages,
       },
       actions: require('../../actions'),
     },
@@ -129,6 +156,7 @@
       display: inline-block
       z-index: 1
     .search-input
+      outline: none
       position: relative
       display: inline-block
       width:0
@@ -164,6 +192,7 @@
         display: block
         background: url('./search.svg') no-repeat right
   .close
+    outline: none
     position: relative
     display: inline-block
     right: 40px
@@ -200,6 +229,15 @@
   .fast-leave
     opacity: 0
     transform: translateX(-100%)
+    
+  .fade-right-transition
+    transition: all 0.3s ease-out
+  .fade-right-enter
+    opacity: 0
+    transform: translateX(50%)
+  .fade-right-leave
+    opacity: 0
+    transform: translateX(100%)
   @media screen and (min-width: 570px)
     media-query(2)
   @media screen and (min-width: 810px)
@@ -210,5 +248,20 @@
     media-query(5)
   @media screen and (min-width: 1680px)
     media-query(6)
+
+
+  .page-btn
+    display: inline-block
+    width: 30px
+    height: 30px
+    color: $core-text-default
+    background-color: $core-bg-light
+    border-radius: 4px
+  .page-btn:hover
+    background-color: $core-action-light
+  .disabled
+    pointer-events: none
+    cursor: default
+    opacity: 0.5
 
 </style>
