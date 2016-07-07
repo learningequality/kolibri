@@ -45,7 +45,7 @@
     props: {
       primaryKey: {
         type: Number,
-        default: 4,
+        default: 5,
       },
     },
     components: {
