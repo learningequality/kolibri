@@ -1,16 +1,14 @@
 <template>
 
   <div class="topic-page">
-    <br><br>
-    <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs>
+    <breadcrumbs></breadcrumbs>
     <div v-if="topics.length > 0">
       <h2>Topics</h2>
       <div class="card-list">
         <topic-card
           v-for="topic in topics"
-          v-on:click="fetchNodes(topic.pk)"
           class="card"
-          linkhref="#"
+          :id="topic.pk"
           :title="topic.title"
           :ntotal="topic.n_total"
           :ncomplete="topic.n_complete">
@@ -24,12 +22,11 @@
         <content-card
           v-for="content in contents"
           class="card"
-          linkhref="#"
           :title="content.title"
-          :thumbsrc="content.thumbnail"
+          :thumbnail="content.thumbnail"
           :kind="content.kind"
           :progress="content.progress"
-          :pk="content.pk">
+          :id="content.pk">
         </content-card>
       </div>
     </div>
@@ -41,6 +38,9 @@
 <script>
 
   module.exports = {
+    created() {
+      this.fetchNodes(this.id);
+    },
     components: {
       'breadcrumbs': require('../breadcrumbs'),
       'topic-card': require('../topic-card'),
@@ -49,11 +49,17 @@
     vuex: {
       getters: {
         // better practice would be to define vuex getter functions globally
-        breadcrumbs: state => state.breadcrumbs,
         topics: state => state.topics,
         contents: state => state.contents,
+        // from URL
+        id: state => state.route.params.content_id,
       },
       actions: require('../../actions'),
+    },
+    watch: {
+      id(value) {
+        this.fetchNodes(value);
+      },
     },
   };
 

@@ -24,6 +24,9 @@ class Model {
     // Register any created model with the Resource to track model instances.
     this.resource.addModel(this);
     this.synced = false;
+
+    // force IDs to always be strings - this should be changed on the server-side too
+    this.attributes[this.resource.idKey] = String(this.attributes[this.resource.idKey]);
   }
 
   /**
@@ -70,13 +73,15 @@ class Model {
 class Collection {
   /**
    * Create a Collection instance.
+   * @param {Object} params - Default parameters to use when fetching data from the server.
    * @param {Object[]|Model[]} data - Data to prepopulate the collection with,
    * useful if wanting to save multiple models.
    * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
    * behaviour for the collection.
    */
-  constructor(data = [], resource) {
+  constructor(params = {}, data = [], resource) {
     this.resource = resource;
+    this.params = params;
     if (!this.resource) {
       throw new TypeError('resource must be defined');
     }
@@ -87,13 +92,14 @@ class Collection {
 
   /**
    * Method to fetch data from the server for this collection.
-   * @param {object} params - an object of parameters to be parsed into GET parameters on the
+   * @param {object} extraParams - an object of parameters to be parsed into GET parameters on the
    * fetch.
    * @returns {Promise} - Promise is resolved with Array of Model attributes when the XHR
    * successfully returns, otherwise reject is called with the response object.
    */
-  fetch(params = {}) {
+  fetch(extraParams = {}) {
     this.synced = false;
+    const params = Object.assign({}, this.params, extraParams);
     return new Promise((resolve, reject) => {
       // Do a fetch on the URL, with the parameters passed in.
       client({ path: this.url, params }).then((response) => {
@@ -139,11 +145,15 @@ class Collection {
       // Note: this method ensures instantiation deduplication of models within the collection
       //  and across collections.
       const setModel = this.resource.addModel(model);
-      if (!this._model_map[model.id]) {
-        this._model_map[model.id] = setModel;
+      if (!this._model_map[setModel.id]) {
+        this._model_map[setModel.id] = setModel;
         this.models.push(setModel);
       }
     });
+  }
+
+  get data() {
+    return this.models.map((model) => model.attributes);
   }
 }
 
@@ -158,18 +168,35 @@ class Resource {
    */
   constructor(kolibri) {
     this.models = {};
+    this.collections = {};
     this.kolibri = kolibri;
   }
 
   /**
    * Optionally pass in data and instantiate a collection for saving that data or fetching
    * data from the resource.
+   * @param {Object} params - default parameters to use for Collection fetching.
    * @param {Object[]} data - Data to instantiate the Collection - see Model constructor for
    * details of data.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  getCollection(data = []) {
-    return new Collection(data, this);
+  getCollection(params = {}, data = []) {
+    let collection;
+    // Sort keys in order, then assign those keys to an empty object in that order.
+    // Then stringify to create a cache key.
+    const key = JSON.stringify(
+      Object.assign(
+        {}, ...Object.keys(params).sort().map(
+          (paramKey) => ({ [paramKey]: params[paramKey] })
+        )
+      )
+    );
+    if (!this.collections[key]) {
+      collection = new Collection(params, data, this);
+    } else {
+      collection = this.collections[key];
+    }
+    return collection;
   }
 
   /**
@@ -281,7 +308,11 @@ class ResourceManager {
       throw new TypeError('A resource with that name has already been registered!');
     }
     this._resources[name] = new ResourceClass(this._kolibri);
-    Object.defineProperty(this, ResourceClass.name, { value: this._resources[name] });
+    // Shim for IE9 compatibility of .name property.
+    // Modified from: http://matt.scharley.me/2012/03/monkey-patch-name-ie.html#comment-551654096
+    const className = ResourceClass.name || /function\s([^(]{1,})\(/.exec(
+        (ResourceClass).toString())[1].trim();
+    Object.defineProperty(this, className, { value: this._resources[name] });
     return this._resources[name];
   }
 

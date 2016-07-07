@@ -1,9 +1,6 @@
-from rest_framework_nested import routers
+from rest_framework import routers
 
-from .api import (
-    ClassroomViewSet, DeviceOwnerViewSet, FacilityUserViewSet, FacilityViewSet,
-    LearnerGroupViewSet, MembershipViewSet, RoleViewSet
-)
+from .api import ClassroomViewSet, DeviceOwnerViewSet, FacilityUserViewSet, FacilityViewSet, LearnerGroupViewSet, MembershipViewSet, RoleViewSet
 
 router = routers.SimpleRouter()
 

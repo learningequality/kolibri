@@ -1,11 +1,11 @@
 <template>
 
-  <a v-on:click="fetchFullContent(pk)" :href="linkhref">
+  <a v-link="{ name: 'explore-content', params: {content_id: id} }">
     <div class="content-card-container">
       <div class="content-icon">
         <img :src="icon">
       </div>
-      <img :src="thumbsrc" class="thumbnail">
+      <img :src="thumbnail" class="thumbnail">
       <div class="title">
         {{ title }}
       </div>
@@ -19,16 +19,15 @@
 
   module.exports = {
     props: {
-      pk: {},
+      id: {
+        type: String,
+        required: true,
+      },
       title: {
         type: String,
         required: true,
       },
-      thumbsrc: {
-        type: String,
-        required: true,
-      },
-      linkhref: {
+      thumbnail: {
         type: String,
         required: true,
       },
