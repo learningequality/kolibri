@@ -1,57 +1,38 @@
 <template>
 
-  <div class="temp-nav">
-  </div>
+  <form class="searchform" v-on:submit.prevent>
+    <label @click="searchToggleSwitch(true)" class="btn-search" :class=" {'btn-search-left' : search_toggled } " for="search">
+      <span class="btn-search-img">search</span>
+    </label>
+    <input type="search" required v-model="searchterm" debounce="500" name="search" autocomplete="off" placeholder="Find content..." @keyup="searchNodes(searchterm) | debounce 500" id="search" class="search-input" :class=" {'search-input-active' : search_toggled }" >
+    <button v-show="search_toggled" @click="searchToggleSwitch(false)" class="close"><span class="btn-close-img">close</span></button>
+  </form>
 
-  <div class="page">
-    <div class="page-container">
-      <div class="tool-bar-container">
-        <div v-show="!search_toggled" class="breadcrumbs-container" transition="fast">
-          <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs>
-        </div>
-        <div class="tool-bar" :class="{ 'tool-bar-center' : search_toggled }" >
-          <select v-show="!search_toggled" class="btn-channel" transition="fast">
-            <option value="khan">Khan Academy</option>
-            <option value="ck12">CK-12</option>
-          </select>
-        </div>
+  <h2 v-if="search_topics.length > 0 ||  search_contents.length > 0">Search results</h2>
+  <div class="card-list">
+    <div v-if="search_topics.length > 0">
+      <topic-card
+        v-for="topic in search_topics"
+        v-on:click="fetchNodes(topic.pk)"
+        class="card"
+        linkhref="#"
+        :title="topic.title"
+        :ntotal="topic.n_total"
+        :ncomplete="topic.n_complete">
+      </topic-card>
+    </div>
 
-  <search-widget></search-widget>
-
-
-      </div>
-
-      <div class="card-section" transition="fast" v-show="!search_toggled">
-        <div v-if="topics.length > 0" class="card-list-container">
-          <h1 class="section-title">Topics</h1>
-          <div class="card-list">
-            <topic-card
-              v-for="topic in topics"
-              v-on:click="fetchNodes(topic.pk)"
-              class="card"
-              linkhref="#"
-              :title="topic.title"
-              :ntotal="topic.n_total"
-              :ncomplete="topic.n_complete">
-            </topic-card>
-          </div>
-        </div>
-
-        <div class="card-list-container">
-          <h1 class="section-title">Content</h1>
-          <div class="card-list">
-            <content-card
-              v-for="content in contents"
-              class="card"
-              linkhref="#"
-              :title="content.title"
-              :thumbsrc="content.thumbnail"
-              :kind="content.kind"
-              :progress="content.progress">
-            </content-card>
-          </div>
-        </div>
-      </div>
+    <div v-if="search_contents.length > 0">
+      <content-card
+        v-for="content in search_contents"
+        class="card"
+        linkhref="#"
+        :title="content.title"
+        :thumbsrc="content.files[0].storage_url"
+        :kind="content.kind"
+        :progress="content.progress"
+        :pk="content.pk">
+      </content-card>
     </div>
   </div>
 
@@ -61,18 +42,18 @@
 <script>
 
   module.exports = {
+    data() {
+      return { searchterm: '' };
+    },
     components: {
-      'breadcrumbs': require('../breadcrumbs'),
       'topic-card': require('../topic-card'),
       'content-card': require('../content-card'),
-      'search-widget': require('../search-widget'),
     },
     vuex: {
       getters: {
         // better practice would be to define vuex getter functions globally
-        breadcrumbs: state => state.breadcrumbs,
-        topics: state => state.topics,
-        contents: state => state.contents,
+        search_contents: state => state.searchcontents,
+        search_topics: state => state.searchtopics,
         search_toggled: state => state.searchtoggled,
       },
       actions: require('../../actions'),
@@ -134,6 +115,16 @@
     .tool-bar-center .btn-search
       pointer-events: none
       top: 0
+    select.btn-channel
+      display: inline-block
+      position: absolute
+      right: 50px
+      width: 160px
+      padding: 0.2em 0.8em
+      background: url('./arrow-down.svg') no-repeat right
+      border: 1px solid $core-text-default
+      border-radius: 50px
+      -webkit-appearance: none
     .searchform
       display: inline-block
       z-index: 1
@@ -169,6 +160,9 @@
       cursor: pointer
       z-index: 1
       top: 4
+      .btn-search-img
+        display: block
+        background: url('./search.svg') no-repeat right
   .close
     position: relative
     display: inline-block
@@ -180,6 +174,9 @@
     text-indent: -10000px
     cursor: pointer
     z-index: 1
+    .btn-close-img
+      display: block
+      background: url('./close.svg') no-repeat center
   .card-section
     position: relative
     top: 60px

@@ -1,4 +1,3 @@
-
 const Vuex = require('vuex');
 
 function initialState() {
@@ -18,6 +17,9 @@ function initialState() {
       content_id: '',
     },
     channel: 'dummy_db',
+    searchcontents: [],
+    searchtopics: [],
+    searchtoggled: false,
   };
 }
 
@@ -40,6 +42,15 @@ const mutations = {
   },
   SET_CONTENTS(state, contents) {
     state.contents = contents; // eslint-disable-line no-param-reassign
+  },
+  SET_SEARCH_CONTENTS(state, contents) {
+    state.searchcontents = contents; // eslint-disable-line no-param-reassign
+  },
+  SET_SEARCH_TOPICS(state, topics) {
+    state.searchtopics = topics; // eslint-disable-line no-param-reassign
+  },
+  SET_SEARCH_TOGGLED(state, toggled) {
+    state.searchtoggled = toggled; // eslint-disable-line no-param-reassign
   },
 };
 
