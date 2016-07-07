@@ -19,13 +19,16 @@ Including another URLconf
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
+from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'', include('kolibri.core.urls')),
-    url(r'', include('kolibri.content.urls')),
-    url(r'^api/', include('kolibri.auth.urls')),
+    url(r'^api/', include('kolibri.auth.api_urls')),
+    url(r'^api/', include('kolibri.content.api_urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^' + settings.STORAGE_URL[1:-1] + '(?P<path>.*)$', 'django.views.static.serve', {
+        'document_root': settings.STORAGE_ROOT}),
 ]

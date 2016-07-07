@@ -1,14 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Most of the api endpoints here use django_rest_framework to expose the content app APIs,
-except some set methods that do not return anything.
-"""
-
-from django.conf import settings
-from django.conf.urls import include, url
 from django.db.models import Q
 from kolibri.content import models, serializers
-from rest_framework import filters, pagination, routers, viewsets
+from rest_framework import filters, pagination, viewsets
 
 
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
@@ -58,18 +50,3 @@ class FileViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.File.objects.all()
-
-
-router = routers.SimpleRouter()
-router.register('content', ChannelMetadataCacheViewSet, base_name="channel")
-
-content_router = routers.SimpleRouter()
-content_router.register(r'contentnode', ContentNodeViewset, base_name='contentnode')
-content_router.register(r'file', FileViewset, base_name='file')
-
-urlpatterns = [
-    url(r'^' + settings.STORAGE_URL[1:-1] + '(?P<path>.*)$', 'django.views.static.serve', {
-        'document_root': settings.STORAGE_ROOT}),
-    url(r'^api/', include(router.urls)),
-    url(r'^api/content/(?P<channel_id>[^/.]+)/', include(content_router.urls)),
-]
