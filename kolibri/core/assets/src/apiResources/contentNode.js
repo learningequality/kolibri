@@ -18,12 +18,12 @@ class ContentNodeResource extends Resource {
     // with the channelId that is currently set.
     // N.B. Here and below the super calls are to getters that return functions that are
     // immediately invoked.
-    return (...args) => super.modelUrl(this.channelId, ...args);
+    return (...args) => this.urls[`${this.name}_detail`](this.channelId, ...args);
   }
   get collectionUrl() {
     // Return a function that calls the collectionUrl method of the base class, but prefix the
     // arguments with the channelId that is currently set.
-    return (...args) => super.collectionUrl(this.channelId, ...args);
+    return (...args) => this.urls[`${this.name}_list`](this.channelId, ...args);
   }
   static resourceName() {
     return 'contentnode';
