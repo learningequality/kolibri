@@ -88,6 +88,7 @@ class Collection {
     this.models = [];
     this._model_map = {};
     this.synced = false;
+    this.set(data);
   }
 
   /**
@@ -204,12 +205,14 @@ class Resource {
    * or will instantiate a model
    * that can later be fetched.
    * @param {String} id - The primary key of the Model instance.
+   * @param {Object} [data={}] - Optional additional data to pass into the Model.
    * @returns {Model} - Returns a Model instance.
    */
-  getModel(id) {
+  getModel(id, data = {}) {
     let model;
     if (!this.models[id]) {
-      model = new Model({ [this.idKey]: id }, this);
+      Object.assign(data, { [this.idKey]: id });
+      model = new Model(data, this);
     } else {
       model = this.models[id];
     }

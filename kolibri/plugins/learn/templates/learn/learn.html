@@ -3,7 +3,9 @@
 
 {% block content %}
   <script>
-    window.bootstrappedTopics = JSON.parse("{{ topics|escapejs }}");
+    var collection = {{kolibri}}.resources.ContentNodeResource.getCollection({parent: undefined}, JSON.parse("{{ nodes|escapejs }}"));
+    collection.synced = true;
+    var model = {{kolibri}}.resources.ContentNodeResource.getModel(undefined, JSON.parse("{{ rootnode|escapejs }}"))
   </script>
   {% learn_async_assets %}
   {% learn_assets %}
