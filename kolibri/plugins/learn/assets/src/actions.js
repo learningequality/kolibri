@@ -1,5 +1,4 @@
 const Kolibri = require('kolibri');
-const logging = require('loglevel');
 
 /**
  * Action to fetch a particular content node from the API.
@@ -8,6 +7,9 @@ const logging = require('loglevel');
  */
 const fetchFullContent = ({ dispatch }, id) => {
   // Get the model from ContentNodeResource.
+  if (typeof id === 'undefined') {
+    id = 'root'; // eslint-disable-line no-param-reassign
+  }
   const contentModel = Kolibri.resources.ContentNodeResource.getModel(id);
   // Check to see if it is already synced from the server.
   if (contentModel.synced) {
@@ -33,11 +35,9 @@ const nodeAssignment = (nodes, dispatch) => {
   // clean up API response
   contents.forEach(content => {
     if (!content.progress) {
-      logging.warn('"progress" was not included in API response');
       content.progress = 'unstarted'; // eslint-disable-line no-param-reassign
     }
     if (!content.thumbnail) {
-      logging.warn('"thumbnail" was not included in API response');
       content.files.forEach(file => {
         if (file.thumbnail) {
           content.thumbnail = file.storage_url; // eslint-disable-line no-param-reassign
@@ -56,13 +56,10 @@ const nodeAssignment = (nodes, dispatch) => {
  * @param {String} id - The id of the model to fetch the children of.
  */
 const fetchNodes = ({ dispatch }, id) => {
-  if (id === undefined) {
-    // root node
-    nodeAssignment(global.bootstrappedTopics, dispatch);
-    return;
-  }
-
   // Get the collection from ContentNodeResource.
+  if (typeof id === 'undefined') {
+    id = 'root'; // eslint-disable-line no-param-reassign
+  }
   const contentCollection = Kolibri.resources.ContentNodeResource.getCollection({ parent: id });
   if (contentCollection.synced) {
     nodeAssignment(contentCollection.data, dispatch);
