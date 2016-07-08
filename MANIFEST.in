@@ -3,15 +3,7 @@ include CONTRIBUTING.rst
 include CHANGELOG.rst
 include LICENSE
 include README.rst
-recursive-include kolibri/auth *
-recursive-include kolibri/content *
-recursive-include kolibri/core *
-recursive-include kolibri/deployment *
-recursive-include kolibri/dist *
-recursive-include kolibri/logger *
-recursive-include kolibri/plugins *
-recursive-include kolibri/test *
-recursive-include kolibri/utils *
+recursive-include kolibri/* *
 recursive-exclude kolibri/* *pyc
 recursive-include kolibri/*/static *.*
 recursive-include kolibri/dist *
