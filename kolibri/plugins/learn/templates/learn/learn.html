@@ -4,7 +4,6 @@
 {% block content %}
   <script>
     var root_node = JSON.parse("{{ rootnode|escapejs }}");
-    console.log('hi');
     var root_node_pk = String(root_node.pk);
     var model = {{kolibri}}.resources.ContentNodeResource.getModel(root_node_pk, root_node);
     model.synced = true;
