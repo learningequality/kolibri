@@ -51,9 +51,9 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+  @require 'learn'
 
   // Navbar styling
-  $nav-bar-width = 80
   $nav-element-height = 150
   $font-size = 1em
 
@@ -110,8 +110,9 @@
   // Page wrapper styling
   .page-wrapper
     padding-left: $nav-bar-width
-    width: 900px
     margin: auto
+
+    wrapper-auto-adjust($nav-bar-width)
 
 </style>
 
