@@ -50,10 +50,8 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         return target_node.get_ancestors().values('pk', 'title')
 
     def get_thumbnail(self, target_node):
-        try:
-            return target_node.files.get(thumbnail=True, available=True).get_url()
-        except File.DoesNotExist:
-            return None
+        thumbnail_model = target_node.files.filter(thumbnail=True, available=True).first()
+        return thumbnail_model.get_url() if thumbnail_model else None
 
     class Meta:
         model = ContentNode
