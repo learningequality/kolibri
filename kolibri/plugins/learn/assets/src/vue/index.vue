@@ -25,9 +25,12 @@
       </ul>
     </nav>
 
-    <div class="page-wrapper">
-      <!-- see router.js -->
-      <router-view></router-view>
+    <!-- accounts for margin offset by navbar -->
+    <div>
+      <div class="page-content">
+        <!-- see router.js -->
+        <router-view></router-view>
+      </div>
     </div>
 
   </core-base>
@@ -108,11 +111,12 @@
       fill: $core-bg-light
 
   // Page wrapper styling
-  .page-wrapper
-    padding-left: $nav-bar-width
-    margin: auto
+  div
+    margin-left: $nav-bar-width
 
-    wrapper-auto-adjust($nav-bar-width)
+  .page-content
+    margin: auto
+    width-auto-adjust()
 
 </style>
 
