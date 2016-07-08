@@ -17,7 +17,7 @@ class LearnModule extends KolibriModule {
       PageNames.EXPLORE_ROOT,
       '/explore',
       (toRoute, fromRoute) => {
-        actions.navToExploreTopic(store, 'root');
+        actions.navToExploreTopic(store, store.state.rootTopicId);
       }
     );
 

@@ -4,6 +4,7 @@ const Vuex = require('vuex');
 
 function initialState() {
   return {
+    rootTopicId: global.root_node_pk,
     pageName: constants.PageNames.EXPLORE_ROOT,
     pageMode: constants.PageModes.EXPLORE,
     pageState: {},

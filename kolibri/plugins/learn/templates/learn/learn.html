@@ -3,10 +3,13 @@
 
 {% block content %}
   <script>
-    var collection = {{kolibri}}.resources.ContentNodeResource.getCollection({parent: 'root'}, JSON.parse("{{ nodes|escapejs }}"));
-    collection.synced = true;
-    var model = {{kolibri}}.resources.ContentNodeResource.getModel('root', JSON.parse("{{ rootnode|escapejs }}"));
+    var root_node = JSON.parse("{{ rootnode|escapejs }}");
+    console.log('hi');
+    var root_node_pk = String(root_node.pk);
+    var model = {{kolibri}}.resources.ContentNodeResource.getModel(root_node_pk, root_node);
     model.synced = true;
+    var collection = {{kolibri}}.resources.ContentNodeResource.getCollection({parent: root_node_pk}, JSON.parse("{{ nodes|escapejs }}"));
+    collection.synced = true;
   </script>
   {% learn_async_assets %}
   {% learn_assets %}
