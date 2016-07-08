@@ -62,6 +62,7 @@ function navToExploreTopic(store, id) {
       }
       pageState.topic = _topicState(data);
       return Resources.getCollection({ parent: id });
+      return Resources.getCollection({ parent: id }).fetch();
     })
     .then((topicChildren) => {
       pageState.subtopics = topicChildren
