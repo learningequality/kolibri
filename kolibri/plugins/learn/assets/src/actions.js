@@ -27,8 +27,10 @@ const fetchFullContent = ({ dispatch }, id) => {
  * Function to dispatch mutations to topics and contents by node kind.
  * @param {Object[]} nodes - Data to dispatch mutations with.
  * @param {Function} dispatch - dispatch method of Vuex Store.
+ * @param {String} topicMutation - name of mutation to dispatch topic data to.
+ * @param {String} contentMutation - name of mutation to dispatch content data to.
  */
-const nodeAssignment = (nodes, dispatch) => {
+const nodeAssignment = (nodes, dispatch, topicMutation, contentMutation) => {
   const topics = nodes.filter((node) => node.kind === 'topic');
   const contents = nodes.filter((node) => node.kind !== 'topic');
 
@@ -46,8 +48,8 @@ const nodeAssignment = (nodes, dispatch) => {
     }
   });
 
-  dispatch('SET_TOPICS', topics);
-  dispatch('SET_CONTENTS', contents);
+  dispatch(topicMutation, topics);
+  dispatch(contentMutation, contents);
 };
 
 /**
@@ -62,10 +64,10 @@ const fetchNodes = ({ dispatch }, id) => {
   }
   const contentCollection = Kolibri.resources.ContentNodeResource.getCollection({ parent: id });
   if (contentCollection.synced) {
-    nodeAssignment(contentCollection.data, dispatch);
+    nodeAssignment(contentCollection.data, dispatch, 'SET_TOPICS', 'SET_CONTENTS');
   } else {
     contentCollection.fetch().then(() => {
-      nodeAssignment(contentCollection.data, dispatch);
+      nodeAssignment(contentCollection.data, dispatch, 'SET_TOPICS', 'SET_CONTENTS');
     });
   }
 };
@@ -73,21 +75,22 @@ const fetchNodes = ({ dispatch }, id) => {
 
 const searchNodes = ({ dispatch }, params, page) => {
   // Get the collection from ContentNodeResource.
-  const contentCollection = Kolibri.resources.ContentNodeResource.getCollection();
   const pageSize = 12;
-  contentCollection.fetch({
+  const contentCollection = Kolibri.resources.ContentNodeResource.getPagedCollection({
     search: params,
-    page_size: pageSize,
+  }, {
+    pageSize,
     page,
-  }).then((data) => {
-    const nodes = data[0].results;
-    const topics = nodes.filter((node) => node.kind === 'topic');
-    const contents = nodes.filter((node) => node.kind !== 'topic');
-    const pagesum = Math.ceil(data[0].count / pageSize);
-    dispatch('SET_SEARCH_TOPICS', topics);
-    dispatch('SET_SEARCH_CONTENTS', contents);
-    dispatch('SET_SEARCH_PAGES', pagesum);
   });
+  if (contentCollection.synced) {
+    nodeAssignment(contentCollection.data, dispatch, 'SET_SEARCH_TOPICS', 'SET_SEARCH_CONTENTS');
+    dispatch('SET_SEARCH_PAGES', contentCollection.pageCount);
+  } else {
+    contentCollection.fetch().then(() => {
+      nodeAssignment(contentCollection.data, dispatch, 'SET_SEARCH_TOPICS', 'SET_SEARCH_CONTENTS');
+      dispatch('SET_SEARCH_PAGES', contentCollection.pageCount);
+    });
+  }
 };
 
 const searchToggleSwitch = ({ dispatch }, params) => {

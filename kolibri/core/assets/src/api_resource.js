@@ -108,7 +108,22 @@ class Collection {
         this.models = [];
         this._model_map = {};
         // Set response object - an Array - on the Collection to record the data.
-        this.set(response.entity);
+        // First check that the response *is* an Array
+        if (Array.isArray(response.entity)) {
+          this.set(response.entity);
+        } else {
+          // If it's not, there are two possibilities - something is awry, or we have received
+          // paginated data! Check to see if it is paginated.
+          if (typeof response.entity.results !== 'undefined') {
+            // Paginated objects have 'results' as their results object so interpret this as
+            // such.
+            this.set(response.entity.results);
+            this.pageCount = Math.ceil(response.entity.count / this.pageSize);
+          } else {
+            // It's all gone a bit Pete Tong.
+            logging.debug('Data appears to be malformed', response.entity);
+          }
+        }
         // Mark that the fetch has completed.
         this.synced = true;
         this.models.forEach((model) => {
@@ -198,6 +213,24 @@ class Resource {
     } else {
       collection = this.collections[key];
     }
+    return collection;
+  }
+
+  /**
+   * Get a Collection with pagination settings.
+   * @param {Object} params - default parameters to use for Collection fetching.
+   * @param {Number} [pageSize=20] - The number of items to return in a page.
+   * @param {Number} [page=1] - Which page to return.
+   * @returns {Collection} - Returns an instantiated Collection object.
+   */
+  getPagedCollection(params = {}, { pageSize, page } = { pageSize: 20, page: 1 }) {
+    Object.assign(params, {
+      page,
+      page_size: pageSize,
+    });
+    const collection = this.getCollection(params);
+    collection.page = page;
+    collection.pageSize = pageSize;
     return collection;
   }
 
