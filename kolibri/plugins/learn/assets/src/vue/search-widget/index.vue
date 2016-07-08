@@ -10,7 +10,7 @@
 
   <h4 v-show="search_toggled && searchterm" v-bind:class="{ 'hideme': typing || !search_finished }" id="search-result" transition="fade">{{ prompttext }}</h4>
   <div v-show="search_toggled && searchterm" class="card-list" transition="fade" v-bind:class="{ 'search-in-progress': typing || !search_finished }">
-    <div v-if="search_topics.length > 0">
+    <card-grid v-if="search_topics.length > 0">
       <topic-card
         v-for="topic in search_topics"
         class="card"
@@ -19,9 +19,9 @@
         :ntotal="topic.n_total"
         :ncomplete="topic.n_complete">
       </topic-card>
-    </div>
+    </card-grid>
 
-    <div v-if="search_contents.length > 0">
+    <card-grid v-if="search_contents.length > 0">
       <content-card
         v-for="content in search_contents"
         class="card"
@@ -31,7 +31,7 @@
         :progress="content.progress"
         :id="content.pk">
       </content-card>
-    </div>
+    </card-grid>
   </div>
 
   <div v-show="search_toggled && searchterm" class="pagination-wrapper" transition="fade">
@@ -173,6 +173,7 @@
     components: {
       'topic-card': require('../topic-card'),
       'content-card': require('../content-card'),
+      'card-grid': require('../card-grid'),
     },
     vuex: {
       getters: {
