@@ -4,7 +4,7 @@
     <label @click="searchToggleSwitch(true)" class="btn-search" :class=" {'btn-search-left' : search_toggled } " for="search">
       <span class="btn-search-img">search</span>
     </label>
-    <input type="search" v-model="searchterm" name="search" autocomplete="off" placeholder="Find content..." @keyup="search | debounce 500" id="search" class="search-input" :class=" {'search-input-active' : search_toggled }" >
+    <input type="search" v-model="searchterm" name="search" autocomplete="off" placeholder="Find content..." @keyup="searchContent(1) | debounce 500" id="search" class="search-input" :class=" {'search-input-active' : search_toggled }" >
     <button v-show="search_toggled" @click="searchToggleSwitch(false)" class="close"><span class="btn-close-img">close</span></button>
   </form>
 
@@ -13,9 +13,8 @@
     <div v-if="search_topics.length > 0">
       <topic-card
         v-for="topic in search_topics"
-        v-on:click="fetchNodes(topic.pk)"
         class="card"
-        linkhref="#"
+        :id="topic.pk"
         :title="topic.title"
         :ntotal="topic.n_total"
         :ncomplete="topic.n_complete">
@@ -26,17 +25,73 @@
       <content-card
         v-for="content in search_contents"
         class="card"
-        linkhref="#"
         :title="content.title"
-        :thumbsrc="content.files[0].storage_url"
-        :kind="content.kind"
-        :progress="content.progress"
-        :pk="content.pk">
+        :thumbnail="content.files[0].storage_url"
+        :kind="content.kind">
       </content-card>
     </div>
 
     <ul v-if="pages_sum > 1" class="pagination">
       <li @click="prePage" class="page-btn" v-bind:class="{ 'disabled': currentpage === 1 }">«</li>
+
+      <!-- when there are less or equal than 5 pages, use this layout -->
+      <li 
+        class="page-btn"
+        v-if="pages_sum <= 5"
+        v-for="page in pages_sum"
+        v-bind:class="{ 'selected': currentpage === page + 1 }"
+        @click="searchContent(page + 1)"
+      >{{ page + 1 }}</li>
+
+      <!-- when there are more than 5 pages, use this very complicated layout -->
+      <!-- always show the first page btn -->
+      <li 
+        class="page-btn"
+        v-if="pages_sum > 5"
+        v-bind:class="{ 'selected': currentpage === 1 }"
+        @click="searchContent(1)"
+      >{{ 1 }}</li>
+
+      <li 
+        class="page-btn disabled"
+        v-if="pages_sum > 5 && currentpage >= 5"
+      > ... </li>
+      <li 
+        class="page-btn"
+        v-if="pages_sum > 5 && currentpage <5"
+        v-for="page in 4"
+        v-bind:class="{ 'selected': currentpage === page + 2 }"
+        @click="searchContent(page + 2)"
+      >{{ page + 2 }}</li>
+      <li 
+        class="page-btn"
+        v-if="pages_sum > 5 && currentpage >=5 && currentpage < pages_sum - 3"
+        v-for="page in 3"
+        v-bind:class="{ 'selected': currentpage === currentpage + page - 1 }"
+        @click="searchContent(currentpage + page - 1)"
+      >{{ currentpage + page - 1 }}</li>
+      <!-- when reach the last 4 pages -->
+      <li 
+        class="page-btn"
+        v-if="pages_sum > 5 && currentpage > pages_sum - 4 && currentpage <= pages_sum"
+        v-for="page in 4"
+        v-bind:class="{ 'selected': currentpage === pages_sum - 4 + page }"
+        @click="searchContent(pages_sum - 4 + page)"
+      >{{ pages_sum - 4 + page }}</li>
+
+      <li 
+        class="page-btn disabled"
+        v-if="pages_sum > 5 && currentpage < pages_sum - 3"
+      > ... </li>
+
+      <!-- always show the last page btn -->
+      <li 
+        class="page-btn"
+        v-if="pages_sum > 5"
+        v-bind:class="{ 'selected': currentpage === pages_sum }"
+        @click="searchContent(pages_sum)"
+      >{{ pages_sum }}</li>
+
       <li @click="nextPage" class="page-btn"  v-bind:class="{ 'disabled': currentpage === pages_sum }">»</li>
     </ul>
   </div>
@@ -52,9 +107,9 @@
       currentpage: 1,
     }),
     methods: {
-      search() {
-        this.currentpage = 1;
-        this.searchNodes(this.searchterm, 1);
+      searchContent(page) {
+        this.currentpage = page;
+        this.searchNodes(this.searchterm, page);
       },
       increasePage() {
         this.currentpage += 1;
@@ -258,6 +313,11 @@
     background-color: $core-bg-light
     border-radius: 4px
   .page-btn:hover
+    background-color: $core-action-light
+  .selected
+    pointer-events: none
+    cursor: default
+    color: $core-bg-light
     background-color: $core-action-light
   .disabled
     pointer-events: none
