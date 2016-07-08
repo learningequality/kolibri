@@ -15,8 +15,7 @@
             <option value="ck12">CK-12</option>
           </select>
         </div>
-
-  <search-widget></search-widget>
+        <search-widget></search-widget>
       </div>
 
       <div class="card-section" transition="fast" v-show="!search_toggled">
@@ -140,52 +139,7 @@
     .tool-bar-center .btn-search
       pointer-events: none
       top: 0
-    .searchform
-      display: inline-block
-      z-index: 1
-    .search-input
-      position: relative
-      display: inline-block
-      width:0
-      background-color: $core-bg-canvas
-      border-radius: 40px
-      border: 1px solid rgba(58, 58, 58, 0.1)
-      border:none
-      pointer-events: none
-      transition: width 0.2s ease-out
-      -webkit-backface-visibility: hidden
-      -webkit-transform: translate3d(0, 0, 0)
-    .search-input-active
-      input-width(1)
-      display: inline-block
-      padding: 0 40px
-      height:30px
-      border: 1px solid rgba(58, 58, 58, 1)
-      pointer-events: auto
-    .btn-search-left
-      left: 40px
-    .btn-search
-      position: relative
-      display: inline-block
-      height: 30px
-      width: 30px
-      background:none
-      border: none
-      text-indent: -10000px
-      cursor: pointer
-      z-index: 1
-      top: 4
-  .close
-    position: relative
-    display: inline-block
-    right: 40px
-    height: 30px
-    width: 30px
-    background:none
-    border: none
-    text-indent: -10000px
-    cursor: pointer
-    z-index: 1
+      
   .card-section
     position: relative
     top: 60px
