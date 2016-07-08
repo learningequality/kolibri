@@ -51,7 +51,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
 
     def get_thumbnail(self, target_node):
         try:
-            return target_node.files.get(thumbnail=True).get_url()
+            return target_node.files.get(thumbnail=True, available=True).get_url()
         except File.DoesNotExist:
             return None
 
