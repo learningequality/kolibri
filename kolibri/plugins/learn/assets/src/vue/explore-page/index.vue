@@ -7,7 +7,7 @@
     <div class="page-container">
       <div class="tool-bar-container">
         <div v-show="!search_toggled" class="breadcrumbs-container" transition="fast">
-          <!-- <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs> -->
+          <breadcrumbs v-if="breadcrumbs"></breadcrumbs>
         </div>
         <div class="tool-bar" :class="{ 'tool-bar-center' : search_toggled }" >
           <select v-show="!search_toggled" class="btn-channel" transition="fast">
@@ -19,34 +19,28 @@
       </div>
 
       <div class="card-section" transition="fast" v-show="!search_toggled">
-        <div v-if="topics.length > 0" class="card-list-container">
-          <h1 class="section-title">Topics</h1>
-          <div class="card-list">
-            <topic-card
-              v-for="topic in topics"
-              class="card"
-              :id="topic.pk"
-              :title="topic.title"
-              :ntotal="topic.n_total"
-              :ncomplete="topic.n_complete">
-            </topic-card>
-          </div>
-        </div>
+        <card-grid header="Topics" v-if="topics.length">
+          <topic-card
+            v-for="topic in topics"
+            :id="topic.pk"
+            :title="topic.title"
+            :ntotal="topic.n_total"
+            :ncomplete="topic.n_complete">
+          </topic-card>
+        </card-grid>
 
-        <div v-if="contents.length > 0" class="card-list-container">
-          <h1 class="section-title">Content</h1>
-          <div class="card-list">
-            <content-card
-              v-for="content in contents"
-              class="card"
-              :title="content.title"
-              :thumbnail="content.thumbnail"
-              :kind="content.kind"
-              :progress="content.progress"
-              :id="content.pk">
-            </content-card>
-          </div>
-        </div>
+        <card-grid header="Content" v-if="contents.length">
+          <content-card
+            v-for="content in contents"
+            class="card"
+            :title="content.title"
+            :thumbnail="content.thumbnail"
+            :kind="content.kind"
+            :progress="content.progress"
+            :id="content.pk">
+          </content-card>
+
+        </card-grid>
       </div>
     </div>
   </div>
@@ -65,6 +59,7 @@
       'topic-card': require('../topic-card'),
       'content-card': require('../content-card'),
       'search-widget': require('../search-widget'),
+      'card-grid': require('../card-grid'),
     },
     vuex: {
       getters: {

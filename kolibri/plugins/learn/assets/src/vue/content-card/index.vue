@@ -1,15 +1,12 @@
 <template>
 
   <a v-link="{ name: 'explore-content', params: {content_id: id} }">
-    <div class="content-card-container">
-      <div class="content-icon">
-        <img :src="icon">
-      </div>
-      <img :src="thumbnail" class="thumbnail">
-      <div class="title">
-        {{ title }}
-      </div>
-    </div>
+    <img class="content-icon" v-if="kind" :src="icon">
+    <img :src="thumbnail" class="thumbnail">
+    <h3>
+      {{ title }}
+    </h3>
+
   </a>
 
 </template>
@@ -75,33 +72,25 @@
 
   @require '~core-theme.styl'
 
-  .content-card-container
-    width: 210px
-    height: 11rem
-    background-color: $core-bg-light
-    border-radius: 4px
-    position: relative
+  $card-border-radius: 5px
 
-  .content-icon
-    position: absolute
-    height: 30px
-    width: 200px
-    top: 0.35rem
-    left: 0.35rem
+  h4
+    padding-left: 1rem
+    padding-right: 1rem
+
+  a
+    box-sizing: border-box
+    background-color: $core-bg-light
+    margin-bottom: 1rem
 
   .thumbnail
-    width: 210px
-    height: 7.6rem
-    border-radius: 4px 4px 0 0
+    width: 100%
 
-  .title
-    max-width: 210px
-    max-height: 3rem
-    margin: 0.4rem
-    overflow: hidden
-    line-height: 1.5rem
-    font-size: 0.9rem
-    font-weight: 700
-    color: $core-text-default
+  .content-icon
+    position: relative
+    top: 1.6em
+    left: 0.5em
+    margin-top: -1em
+    margin-bottom: -1em
 
 </style>

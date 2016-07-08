@@ -1,11 +1,9 @@
 <template>
 
-  <div>
-    <!-- <kolibri-nav></kolibri-nav> -->
-    <main>
-      <slot></slot>
-    </main>
-  </div>
+  <!-- <kolibri-nav></kolibri-nav> -->
+  <main>
+    <slot></slot>
+  </main>
 
 </template>
 
@@ -24,13 +22,5 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-
-  main
-    margin: 10px
-
-  .base-header h1
-    color: $core-action-normal
-    text-align: center
-    font-size: smaller
 
 </style>
