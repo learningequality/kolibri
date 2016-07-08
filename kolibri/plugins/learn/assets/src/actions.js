@@ -73,17 +73,18 @@ const fetchNodes = ({ dispatch }, id) => {
 
 const searchNodes = ({ dispatch }, params, page) => {
   // Get the collection from ContentNodeResource.
-  const contentCollection = Kolibri.resources.ContentNodeResource.getCollection();
   const pageSize = 12;
-  contentCollection.fetch({
+  const contentCollection = Kolibri.resources.ContentNodeResource.getPagedCollection({
     search: params,
-    page_size: pageSize,
+  }, {
+    pageSize,
     page,
-  }).then((data) => {
-    const nodes = data[0].results;
+  });
+  contentCollection.fetch().then(() => {
+    const nodes = contentCollection.data;
     const topics = nodes.filter((node) => node.kind === 'topic');
     const contents = nodes.filter((node) => node.kind !== 'topic');
-    const pagesum = Math.ceil(data[0].count / pageSize);
+    const pagesum = contentCollection.pageCount;
     dispatch('SET_SEARCH_TOPICS', topics);
     dispatch('SET_SEARCH_CONTENTS', contents);
     dispatch('SET_SEARCH_PAGES', pagesum);
