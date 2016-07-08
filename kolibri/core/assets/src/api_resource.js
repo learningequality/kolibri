@@ -1,8 +1,9 @@
 const logging = require('loglevel');
 const rest = require('rest');
 const mime = require('rest/interceptor/mime');
+const errorCode = require('rest/interceptor/errorCode');
 
-const client = rest.wrap(mime);
+const client = rest.wrap(mime).wrap(errorCode);
 
 /** Class representing a single API resource object */
 class Model {

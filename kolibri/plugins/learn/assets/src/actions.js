@@ -75,7 +75,7 @@ function navToExploreTopic(store, id) {
     })
     .catch((error) => {
       // TODO - how to parse and format?
-      store.dispatch('SET_PAGE_ERROR', error);
+      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
     });
 }
 

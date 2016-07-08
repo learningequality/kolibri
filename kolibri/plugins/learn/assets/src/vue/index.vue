@@ -31,12 +31,16 @@
       </ul>
     </nav>
 
-    <div class="page-wrapper">
+    <div class="page-wrapper" v-if="!loading && !error">
       <explore-page v-if='showExplorePage'></explore-page>
       <content-page v-if='showContentPage'></content-page>
       <learn-page v-if='showLearnPage'></learn-page>
       <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
     </div>
+    <div class="page-wrapper" v-if='error'>
+      <error-page></error-page>
+    </div>
+
 
     <!-- this is not used, but necessary for vue-router to function -->
     <router-view></router-view>
@@ -59,6 +63,7 @@
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
       'scratchpad-page': require('./scratchpad-page'),
+      'error-page': require('./error-page'),
     },
     computed: {
       showExplorePage() {
@@ -78,6 +83,8 @@
       getters: {
         pageMode: state => state.pageMode,
         pageName: state => state.pageName,
+        loading: state => state.loading,
+        error: state => state.error,
       },
     },
     // make this and all child components aware of the store
