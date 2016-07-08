@@ -74,11 +74,9 @@ const fetchNodes = ({ dispatch }, id) => {
 const searchNodes = ({ dispatch }, params, page) => {
   // Get the collection from ContentNodeResource.
   const contentCollection = Kolibri.resources.ContentNodeResource.getCollection();
-  const wantedFields = ['pk', 'title', 'kind', 'instance_id', 'content_id', 'description', 'files'];
-  const pageSize = 20;
+  const pageSize = 12;
   contentCollection.fetch({
     search: params,
-    fields: wantedFields,
     page_size: pageSize,
     page,
   }).then((data) => {
