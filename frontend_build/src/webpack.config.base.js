@@ -16,6 +16,7 @@
 var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
+var jeet = require('jeet');
 
 require('./htmlhint_custom'); // adds custom rules
 
@@ -83,6 +84,11 @@ var config = {
       {
         test: /fg-loadcss\/src\/onloadCSS/,
         loader: 'exports?onloadCSS'
+      },
+      // Allows <video> and <audio> HTML5 tags work on all major browsers. 
+      {
+        test: require.resolve('html5media/dist/api/1.1.8/html5media'),
+        loader: "imports?this=>window"
       }
     ]
   },
@@ -109,7 +115,10 @@ var config = {
     loaders: {
       stylus: 'vue-style-loader!css-loader?sourceMap!stylus-loader!stylint',
     }
-  }
+  },
+  stylus: {
+    use: [jeet()]
+  },
 };
 
 module.exports = config;

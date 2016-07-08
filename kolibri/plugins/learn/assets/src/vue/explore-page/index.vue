@@ -1,36 +1,29 @@
 <template>
 
-  <div class="topic-page">
-    <breadcrumbs></breadcrumbs>
-    <div v-if="topics.length > 0">
-      <h2>Topics</h2>
-      <div class="card-list">
-        <topic-card
-          v-for="topic in topics"
-          class="card"
-          :id="topic.id"
-          :title="topic.title"
-        >
-        </topic-card>
-      </div>
-    </div>
+  <breadcrumbs v-if="breadcrumbs"></breadcrumbs>
 
-    <div v-if="contents.length > 0">
-      <h2>Content</h2>
-      <div class="card-list">
-        <content-card
-          v-for="content in contents"
-          class="card"
-          :title="content.title"
-          :thumbnail="content.thumbnail"
-          :kind="content.kind"
-          :progress="content.progress"
-          :id="content.id"
-        >
-        </content-card>
-      </div>
-    </div>
-  </div>
+  <card-grid header="Topics" v-if="subtopics.length">
+    <topic-card
+      v-for="topic in subtopics"
+      :id="topic.id"
+      :title="topic.title"
+      :ntotal="topic.n_total"
+      :ncomplete="topic.n_complete">
+    </topic-card>
+  </card-grid>
+
+  <card-grid header="Content" v-if="contents.length">
+    <content-card
+      v-for="content in contents"
+      class="card"
+      :title="content.title"
+      :thumbnail="content.thumbnail"
+      :kind="content.kind"
+      :progress="content.progress"
+      :id="content.id">
+    </content-card>
+
+  </card-grid>
 
 </template>
 
@@ -42,6 +35,7 @@
       'breadcrumbs': require('../breadcrumbs'),
       'topic-card': require('../topic-card'),
       'content-card': require('../content-card'),
+      'card-grid': require('../card-grid'),
     },
     vuex: {
       getters: {
@@ -55,11 +49,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~core-theme.styl'
-
-  .topic-page
-    padding-left: 10px
-
-</style>
+<style lang="stylus" scoped></style>
