@@ -51,9 +51,9 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+  @require 'learn'
 
   // Navbar styling
-  $nav-bar-width = 80
   $nav-element-height = 150
   $font-size = 1em
 
@@ -109,22 +109,12 @@
 
   // Page wrapper styling
   .page-wrapper
-    margin-left: $nav-bar-width
+    padding-left: $nav-bar-width
+    margin: auto
+
+    wrapper-auto-adjust($nav-bar-width)
 
 </style>
 
 
-<style lang="stylus">
-
-  // these styles are namespaced because they're not scoped
-  .learn-page
-    .card-list
-      overflow: hidden
-      display: block
-      margin-left: -10px
-
-    .card-list .card
-      float: left
-      margin: 10px
-
-</style>
+<style lang="stylus"></style>

@@ -1,0 +1,16 @@
+/**
+  * Styles for responsiveness in learn app
+  */
+@require '~core-theme.styl'
+
+
+$card-width = 196px
+$card-gutter = 10px
+$card-presets = 2 3 4 5
+$nav-bar-width = 80px
+
+wrapper-auto-adjust()
+  for $preset in $card-presets
+    $min-width = $nav-bar-width + ($card-width * $preset) + ($card-gutter * ($preset - 1))
+    @media (min-width:$min-width)
+      width: $min-width
