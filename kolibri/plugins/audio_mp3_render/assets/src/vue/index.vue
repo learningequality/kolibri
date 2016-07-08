@@ -6,14 +6,16 @@
         @click="togglePlay" 
         class="play-button" 
         :class="{ 'is-play': isPlay, 'is-pause': isPause }"
-        ></button>
+      ></button>
       <div id="current-time">
         {{ currentMinutes }} : {{ formattedCurrentSec }}
       </div>
       <input 
-        v-el:timebar 
-        @click="setTimebar" 
-        class="timeline" type="range" min="0" max="100" value="0">
+        v-el:timebar
+        class="timeline" 
+        type="range" min="0" value="0"
+        :max="max"
+        v-model="rawTime">
       <div id="total-time">
         {{ totalMinutes }} : {{ formattedTotalSec }}
       </div>
@@ -25,12 +27,12 @@
     </div>
   </div>
 
-  <audio 
+  <audio
     id="audio" 
-    @timeupdate="timeUpdate"
+    v-el:audio
+    @timeupdate="updateRawTime"
     @loadedmetadata="setTotalTime"
-    v-el:audio 
-    src=""
+    :src="defaultFile.storage_url"
   ></audio>
 
 </template>
@@ -44,37 +46,61 @@
     props: [
       'defaultFile',
     ],
+
+    watch: {
+      rawTime(newVal, oldVal) {
+        if (Math.abs(newVal - oldVal) >= 1) {
+          this.$els.audio.currentTime = this.rawTime;
+        }
+      },
+    },
+
     data: () => ({
       isPlay: true,
       isPause: false,
-      timebarChanged: false,
-      currentMinutes: 0,
-      currentSeconds: 0,
-      totalMinutes: 0,
-      totalSeconds: 0,
+      max: 0,
+      rawTime: 0,
     }),
+
     computed: {
+      totalMinutes() {
+        return Math.floor(this.max / 60);
+      },
+
+      totalSeconds() {
+        return Math.floor(this.max % 60);
+      },
+
+      currentSeconds() {
+        return Math.floor(this.rawTime % 60);
+      },
+
+      currentMinutes() {
+        return Math.floor(this.rawTime / 60);
+      },
+
       formattedCurrentSec() {
         return this.formatTime(this.currentSeconds);
       },
+
       formattedTotalSec() {
         return this.formatTime(this.totalSeconds);
       },
     },
-    ready() {
-      this.$els.audio.src = this.defaultFile.storage_url;
-    },
+
     methods: {
       play() {
         this.$els.audio.play();
         this.isPlay = false;
         this.isPause = true;
       },
+
       pause() {
         this.$els.audio.pause();
         this.isPlay = true;
         this.isPause = false;
       },
+
       togglePlay() {
         if (this.$els.audio.paused) {
           this.play();
@@ -82,6 +108,15 @@
           this.pause();
         }
       },
+
+      updateRawTime() {
+        this.rawTime = this.$els.audio.currentTime;
+      },
+
+      setTotalTime() {
+        this.max = this.$els.audio.duration;
+      },
+
       /* Adds '0' before seconds (e.g. 1:05 instead of 1:5) */
       formatTime(sec) {
         if (sec < 10) {
@@ -89,56 +124,30 @@
         }
         return sec;
       },
-      setTotalTime() {
-        this.totalSeconds = Math.floor(this.$els.audio.duration % 60);
-        this.totalMinutes = Math.floor(this.$els.audio.duration / 60);
-      },
-      /* Gets raw current time and converts to XX:XX format */
-      timeUpdate() {
-        this.currentSeconds = Math.floor(this.$els.audio.currentTime % 60);
-        if (this.currentSeconds === 0 || this.timebarChanged) {
-          this.currentMinutes = Math.floor(this.$els.audio.currentTime / 60);
-          this.timebarChanged = false;
-        }
-        if (this.$els.audio.currentTime === this.$els.audio.duration) {
-          this.pause();
-        }
-        /* Proportionally updates position of slider button according to current time */
-        this.$els.timebar.value = ((this.$els.audio.currentTime / this.$els.audio.duration) * 100);
-      },
-      updateTrackUI() {
-        this.timebarChanged = true;
-        this.timeUpdate();
+
+      replay() {
+        this.rawTime = 0;
         this.play();
       },
-      /* Updates current time of audio if slider button position changes */
-      setTimebar() {
-        this.$els.audio.currentTime = (this.$els.timebar.value / 100) * this.$els.audio.duration;
-        this.updateTrackUI();
-      },
-      replay() {
-        this.$els.audio.currentTime = 0;
-        this.updateTrackUI();
-      },
+
       plus20() {
-        const sum = this.$els.audio.currentTime + 20;
+        const sum = this.rawTime + 20;
         /* Pauses audio at end if +20s goes over the audio duration */
         if (sum > this.$els.audio.duration) {
-          this.$els.audio.currentTime = this.$els.audio.duration;
+          this.rawTime = this.$els.audio.duration;
           this.pause();
           return;
         }
-        this.$els.audio.currentTime = sum;
-        this.updateTrackUI();
+        this.rawTime = sum;
       },
+
       minus20() {
-        const sum = this.$els.audio.currentTime - 20;
+        let sum = this.rawTime - 20;
         /* Makes sure minimum time is 0 after -20s */
         if (sum < 0) {
-          this.replay();
+          sum = 0;
         }
-        this.$els.audio.currentTime = sum;
-        this.updateTrackUI();
+        this.rawTime = sum;
       },
     },
 
