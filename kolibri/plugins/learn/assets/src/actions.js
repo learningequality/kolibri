@@ -72,7 +72,8 @@ function navToExploreTopic(store, id) {
 }
 
 function navToLearnRoot(store, toRoute, fromRoute) {
-  store.dispatch('SET_PAGE', PageNames.LEARN_ROOT, PageModes.LEARN);
+  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
+  store.dispatch('SET_PAGE_MODE', PageModes.LEARN);
 }
 
 function temp(store, toRoute, fromRoute) {

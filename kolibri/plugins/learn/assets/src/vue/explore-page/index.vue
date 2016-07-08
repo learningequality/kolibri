@@ -45,7 +45,7 @@
     },
     vuex: {
       getters: {
-        topics: state => state.pageState.topics,
+        subtopics: state => state.pageState.subtopics,
         contents: state => state.pageState.contents,
       },
       actions: require('../../actions'),

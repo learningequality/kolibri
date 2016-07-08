@@ -36,7 +36,9 @@ class LearnModule extends KolibriModule {
     router.on(
       PageNames.LEARN_ROOT,
       '/learn',
-      actions.navToLearnRoot
+      (toRoute, fromRoute) => {
+        actions.navToLearnRoot(store);
+      }
     );
 
     router.on(
