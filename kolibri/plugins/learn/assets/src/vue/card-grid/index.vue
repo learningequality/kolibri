@@ -48,6 +48,9 @@
 
   @require 'jeet'
 
+  h2
+    margin-top: 0
+
   .card-grid
     cf()
 
