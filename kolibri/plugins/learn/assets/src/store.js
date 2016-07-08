@@ -19,6 +19,7 @@ function initialState() {
     searchtopics: [],
     searchtoggled: false,
     searchpages: 0,
+    searchfinished: false,
   };
 }
 
@@ -53,6 +54,9 @@ const mutations = {
   },
   SET_SEARCH_PAGES(state, sum) {
     state.searchpages = sum; // eslint-disable-line no-param-reassign
+  },
+  SET_SEARCH_FINISHED(state, boolean) {
+    state.searchfinished = boolean; // eslint-disable-line no-param-reassign
   },
 };
 

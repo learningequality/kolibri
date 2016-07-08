@@ -4,12 +4,12 @@
     <label @click="searchToggleSwitch(true)" class="btn-search" :class=" {'btn-search-left' : search_toggled } " for="search">
       <span class="btn-search-img">search</span>
     </label>
-    <input type="search" v-model="searchterm" name="search" autocomplete="off" placeholder="Find content..." @keyup="searchContent(1) | debounce 500" id="search" class="search-input" :class=" {'search-input-active' : search_toggled }" >
+    <input type="search" v-model="searchterm" name="search" autocomplete="off" placeholder="Find content..." @keydown="isTyping()" @keyup="searchContent(1) | debounce 500" id="search" class="search-input" :class=" {'search-input-active' : search_toggled }" >
     <button v-show="search_toggled" @click="searchToggleSwitch(false)" class="close"><span class="btn-close-img">close</span></button>
   </form>
 
-  <h4 v-show="search_toggled" id="search-result" transition="fade-right">{{ prompttext }}</h4>
-  <div v-show="search_toggled" class="card-list" transition="fade-right">
+  <h4 v-show="search_toggled" v-bind:class="{ 'hideme': typing || !search_finished }" id="search-result" transition="fade-right">{{ prompttext }}</h4>
+  <div v-show="search_toggled" class="card-list" transition="fade-right" v-bind:class="{ 'search-in-progress': typing || !search_finished }">
     <div v-if="search_topics.length > 0">
       <topic-card
         v-for="topic in search_topics"
@@ -26,8 +26,10 @@
         v-for="content in search_contents"
         class="card"
         :title="content.title"
-        :thumbnail="content.files[0].storage_url"
-        :kind="content.kind">
+        :thumbnail="content.thumbnail"
+        :kind="content.kind"
+        :progress="content.progress"
+        :id="content.pk">
       </content-card>
     </div>
   </div>
@@ -107,14 +109,19 @@
     data: () => ({
       searchterm: '',
       currentpage: 1,
+      typing: false,
+      lastsearch: 'oblivion it is',
     }),
     computed: {
       prompttext() {
         if (this.search_topics.length > 0 || this.search_contents.length > 0) {
-          return 'Search results';
+          return 'Search result.';
         } else if (this.searchterm.length > 0 && this.search_topics.length === 0
-          && this.search_contents.length === 0) {
-          return 'No matched results';
+          && this.search_contents.length === 0 && this.search_finished) {
+          return 'Could not find anything matched.';
+        }
+        if (this.searchterm.length === 0) {
+          this.searchReset();
         }
         return '';
       },
@@ -122,8 +129,18 @@
     methods: {
       searchContent(page) {
         if (this.searchterm.length > 0) {
+          this.searchReset();
+          this.lastsearch = this.searchterm;
           this.currentpage = page;
           this.searchNodes(this.searchterm, page);
+        }
+        this.typing = false;
+      },
+      isTyping() {
+        if (this.lastsearch !== this.searchterm) {
+          this.typing = true;
+        } else {
+          this.typing = false;
         }
       },
       increasePage() {
@@ -152,6 +169,7 @@
         search_topics: state => state.searchtopics,
         search_toggled: state => state.searchtoggled,
         pages_sum: state => state.searchpages,
+        search_finished: state => state.searchfinished,
       },
       actions: require('../../actions'),
     },
@@ -320,6 +338,10 @@
     media-query(6)
 
 
+  .hideme
+    opacity: 0
+  .search-in-progress
+    opacity: 0.5
   .page-btn
     display: inline-block
     width: 30px

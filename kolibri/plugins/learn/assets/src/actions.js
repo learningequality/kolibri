@@ -75,7 +75,7 @@ const fetchNodes = ({ dispatch }, id) => {
 
 const searchNodes = ({ dispatch }, params, page) => {
   // Get the collection from ContentNodeResource.
-  const pageSize = 12;
+  const pageSize = 15;
   const contentCollection = Kolibri.resources.ContentNodeResource.getPagedCollection({
     search: params,
   }, {
@@ -85,12 +85,18 @@ const searchNodes = ({ dispatch }, params, page) => {
   if (contentCollection.synced) {
     nodeAssignment(contentCollection.data, dispatch, 'SET_SEARCH_TOPICS', 'SET_SEARCH_CONTENTS');
     dispatch('SET_SEARCH_PAGES', contentCollection.pageCount);
+    dispatch('SET_SEARCH_FINISHED', true);
   } else {
     contentCollection.fetch().then(() => {
       nodeAssignment(contentCollection.data, dispatch, 'SET_SEARCH_TOPICS', 'SET_SEARCH_CONTENTS');
       dispatch('SET_SEARCH_PAGES', contentCollection.pageCount);
+      dispatch('SET_SEARCH_FINISHED', true);
     });
   }
+};
+
+const searchReset = ({ dispatch }) => {
+  dispatch('SET_SEARCH_FINISHED', false);
 };
 
 const searchToggleSwitch = ({ dispatch }, params) => {
@@ -102,4 +108,5 @@ module.exports = {
   fetchNodes,
   searchNodes,
   searchToggleSwitch,
+  searchReset,
 };
