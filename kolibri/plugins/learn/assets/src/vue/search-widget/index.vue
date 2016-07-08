@@ -8,7 +8,7 @@
     <button v-show="search_toggled" @click="searchToggleSwitch(false)" class="close"><span class="btn-close-img">close</span></button>
   </form>
 
-  <h4 v-show="search_toggled" id="search-result" v-if="search_topics.length > 0 ||  search_contents.length > 0" transition="fade-right">Search results</h4>
+  <h4 v-show="search_toggled" id="search-result" transition="fade-right">{{ prompttext }}</h4>
   <div v-show="search_toggled" class="card-list" transition="fade-right">
     <div v-if="search_topics.length > 0">
       <topic-card
@@ -30,7 +30,9 @@
         :kind="content.kind">
       </content-card>
     </div>
+  </div>
 
+  <div v-show="search_toggled" class="pagination-wrapper" transition="fade-right">
     <ul v-if="pages_sum > 1" class="pagination">
       <li @click="prePage" class="page-btn" v-bind:class="{ 'disabled': currentpage === 1 }">«</li>
 
@@ -106,10 +108,23 @@
       searchterm: '',
       currentpage: 1,
     }),
+    computed: {
+      prompttext() {
+        if (this.search_topics.length > 0 || this.search_contents.length > 0) {
+          return 'Search results';
+        } else if (this.searchterm.length > 0 && this.search_topics.length === 0
+          && this.search_contents.length === 0) {
+          return 'No matched results';
+        }
+        return '';
+      },
+    },
     methods: {
       searchContent(page) {
-        this.currentpage = page;
-        this.searchNodes(this.searchterm, page);
+        if (this.searchterm.length > 0) {
+          this.currentpage = page;
+          this.searchNodes(this.searchterm, page);
+        }
       },
       increasePage() {
         this.currentpage += 1;
@@ -312,13 +327,15 @@
     color: $core-text-default
     background-color: $core-bg-light
     border-radius: 4px
+    user-select: none
+    cursor: pointer
   .page-btn:hover
     background-color: $core-action-light
   .selected
     pointer-events: none
     cursor: default
     color: $core-bg-light
-    background-color: $core-action-light
+    background-color: $core-action-normal
   .disabled
     pointer-events: none
     cursor: default
