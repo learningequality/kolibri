@@ -1,20 +1,29 @@
 <template>
 
-  <div class="topic-page">
+  <breadcrumbs v-if="breadcrumbs"></breadcrumbs>
 
-    <breadcrumbs></breadcrumbs>
+  <card-grid header="Topics" v-if="topics.length">
+    <topic-card
+      v-for="topic in topics"
+      :id="topic.pk"
+      :title="topic.title"
+      :ntotal="topic.n_total"
+      :ncomplete="topic.n_complete">
+    </topic-card>
+  </card-grid>
 
-    <card-grid header="Topics" v-if="topics.length">
-      <topic-card
-        v-for="topic in topics"
-        :id="topic.pk"
-        :title="topic.title"
-        :ntotal="topic.n_total"
-        :ncomplete="topic.n_complete">
-      </topic-card>
-    </card-grid>
+  <card-grid header="Content" v-if="contents.length">
+    <content-card
+      v-for="content in contents"
+      class="card"
+      :title="content.title"
+      :thumbnail="content.thumbnail"
+      :kind="content.kind"
+      :progress="content.progress"
+      :id="content.pk">
+    </content-card>
 
-  </div>
+  </card-grid>
 
 </template>
 
@@ -28,6 +37,7 @@
     components: {
       'breadcrumbs': require('../breadcrumbs'),
       'topic-card': require('../topic-card'),
+      'content-card': require('../content-card'),
       'card-grid': require('../card-grid'),
     },
     vuex: {
