@@ -1,8 +1,9 @@
 const KolibriModule = require('kolibri_module');
-const rootvue = require('./vue');
-const router = require('./router');
 const Kolibri = require('kolibri');
 
+const rootvue = require('./vue');
+const router = require('./router');
+const store = require('./store');
 const actions = require('./actions');
 const PageNames = require('./constants').PageNames;
 
@@ -15,7 +16,9 @@ class LearnModule extends KolibriModule {
     router.on(
       PageNames.EXPLORE_ROOT,
       '/explore',
-      actions.navToExploreRoot
+      (toRoute, fromRoute) => {
+        actions.navToExploreTopic(store, 'root');
+      }
     );
 
     router.on(

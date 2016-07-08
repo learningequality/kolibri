@@ -1,6 +1,4 @@
 
-const store = require('./store');
-
 const Vue = require('vue');
 const VueRouter = require('vue-router');
 
@@ -28,7 +26,6 @@ class Router {
 
   _hook(transitionObject) {
     this._actions[transitionObject.to.name](
-      store,
       transitionObject.to,
       transitionObject.from
     );
@@ -40,7 +37,6 @@ class Router {
    * @param name - http://router.vuejs.org/en/named.html
    * @param path - http://router.vuejs.org/en/route.html#route-matching
    * @param action - Vuex action to call. Passed parameters will be:
-   *  - the Vuex store
    *  - 'to' route
    *  - 'from' route
    */
