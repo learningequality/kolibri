@@ -14,6 +14,8 @@
 
 <script>
 
+  const logging = require('loglevel');
+
   module.exports = {
     props: {
       id: {
@@ -70,7 +72,7 @@
     created() {
       this.findRendererComponent();
       // This means this component has to be torn down on channel switches.
-      this.$watch('id', this.findRendererComponent);
+      this.$watch('files', this.findRendererComponent);
     },
     ready() {
       this.ready = true;
@@ -112,6 +114,7 @@
           this._eventListeners.push({ event, callback });
           // This is the event that is broadcast out to the content renderers.
           this.Kolibri.emit(`content_render:${this.contentType}`);
+          logging.debug(`Looking for content renderer for ${this.contentType}`);
         }
       },
     /**
