@@ -33,10 +33,14 @@ class Model {
    * Method to fetch data from the server for this particular model.
    * @param {object} params - an object of parameters to be parsed into GET parameters on the
    * fetch.
+   * @param {boolean} force - fetch whether or not it's been synced already.
    * @returns {Promise} - Promise is resolved with Model attributes when the XHR successfully
    * returns, otherwise reject is called with the response object.
    */
-  fetch(params = {}) {
+  fetch(params = {}, force = false) {
+    if (!force && this.synced) {
+      return Promise.resolve(this.attributes);
+    }
     this.synced = false;
     return new Promise((resolve, reject) => {
       // Do a fetch on the URL.
@@ -95,10 +99,14 @@ class Collection {
    * Method to fetch data from the server for this collection.
    * @param {object} extraParams - an object of parameters to be parsed into GET parameters on the
    * fetch.
+   * @param {boolean} force - fetch whether or not it's been synced already.
    * @returns {Promise} - Promise is resolved with Array of Model attributes when the XHR
    * successfully returns, otherwise reject is called with the response object.
    */
-  fetch(extraParams = {}) {
+  fetch(extraParams = {}, force = false) {
+    if (!force && this.synced) {
+      return Promise.resolve(this.models.map((model) => model.attributes));
+    }
     this.synced = false;
     const params = Object.assign({}, this.params, extraParams);
     return new Promise((resolve, reject) => {
