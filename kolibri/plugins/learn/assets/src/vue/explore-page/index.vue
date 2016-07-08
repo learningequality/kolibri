@@ -7,7 +7,7 @@
     <div class="page-container">
       <div class="tool-bar-container">
         <div v-show="!search_toggled" class="breadcrumbs-container" transition="fast">
-          <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs>
+          <!-- <breadcrumbs :crumbs="breadcrumbs.crumbs" :current="breadcrumbs.current"></breadcrumbs> -->
         </div>
         <div class="tool-bar" :class="{ 'tool-bar-center' : search_toggled }" >
           <select v-show="!search_toggled" class="btn-channel" transition="fast">
@@ -25,9 +25,8 @@
           <div class="card-list">
             <topic-card
               v-for="topic in topics"
-              v-on:click="fetchNodes(topic.pk)"
               class="card"
-              linkhref="#"
+              :id="topic.pk"
               :title="topic.title"
               :ntotal="topic.n_total"
               :ncomplete="topic.n_complete">
@@ -35,17 +34,17 @@
           </div>
         </div>
 
-        <div class="card-list-container">
+        <div v-if="contents.length > 0" class="card-list-container">
           <h1 class="section-title">Content</h1>
           <div class="card-list">
             <content-card
               v-for="content in contents"
               class="card"
-              linkhref="#"
               :title="content.title"
-              :thumbsrc="content.thumbnail"
+              :thumbnail="content.thumbnail"
               :kind="content.kind"
-              :progress="content.progress">
+              :progress="content.progress"
+              :id="content.pk">
             </content-card>
           </div>
         </div>
