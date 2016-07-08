@@ -45,7 +45,6 @@
     },
     vuex: {
       getters: {
-        // better practice would be to define vuex getter functions globally
         topics: state => state.pageState.topics,
         contents: state => state.pageState.contents,
       },

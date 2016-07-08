@@ -4,8 +4,6 @@ const constants = require('./constants');
 const PageModes = constants.PageModes;
 const PageNames = constants.PageNames;
 
-const router = require('./router');
-
 
 function _crumbState(ancestors) {
   return ancestors.map((ancestor, index) => {
@@ -54,24 +52,17 @@ function navToExploreTopic(store, id) {
   const pageState = { id };
 
   Resources.getModel(id).fetch()
-    .then((data) => {
-      // check if somehow we're on the wrong type
-      if (data.kind !== 'topic') {
-        router.go(PageNames.EXPLORE_CONTENT, { id });
-        return Promise.reject();
-      }
-      pageState.topic = _topicState(data);
-      return Resources.getCollection({ parent: id });
+    .then((topicAttributes) => {
+      pageState.topic = _topicState(topicAttributes);
       return Resources.getCollection({ parent: id }).fetch();
     })
     .then((topicChildren) => {
       pageState.subtopics = topicChildren
         .filter((item) => item.kind === 'topic')
-        .map((data) => _topicState(data, false));
+        .map((item) => _topicState(item, false));
       pageState.contents = topicChildren
         .filter((item) => item.kind !== 'topic')
-        .map((data) => _contentState(data, false));
-
+        .map((item) => _contentState(item, false));
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
