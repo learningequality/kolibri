@@ -109,6 +109,9 @@
 
   // Page wrapper styling
   .page-wrapper
+    position: absolute
+    top:0
+    left:0
     margin-left: $nav-bar-width
 
 </style>
