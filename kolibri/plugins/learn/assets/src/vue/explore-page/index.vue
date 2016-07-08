@@ -8,10 +8,9 @@
         <topic-card
           v-for="topic in topics"
           class="card"
-          :id="topic.pk"
+          :id="topic.id"
           :title="topic.title"
-          :ntotal="topic.n_total"
-          :ncomplete="topic.n_complete">
+        >
         </topic-card>
       </div>
     </div>
@@ -26,7 +25,8 @@
           :thumbnail="content.thumbnail"
           :kind="content.kind"
           :progress="content.progress"
-          :id="content.pk">
+          :id="content.id"
+        >
         </content-card>
       </div>
     </div>
@@ -46,9 +46,8 @@
     vuex: {
       getters: {
         // better practice would be to define vuex getter functions globally
-        id: state => state.id,
-        topics: state => state.topics,
-        contents: state => state.contents,
+        topics: state => state.pageState.topics,
+        contents: state => state.pageState.contents,
       },
       actions: require('../../actions'),
     },

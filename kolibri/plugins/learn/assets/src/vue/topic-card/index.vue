@@ -17,13 +17,16 @@
 <script>
 
   module.exports = {
-    props: [
-      'id',
-      'title',
-      'linkhref',
-      'ntotal',
-      'ncomplete',
-    ],
+    props: {
+      id: {
+        type: String,
+        required: true,
+      },
+      title: {
+        type: String,
+        required: true,
+      },
+    },
   };
 
 </script>
