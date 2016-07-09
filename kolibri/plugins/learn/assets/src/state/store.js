@@ -17,9 +17,9 @@ const mutations = {
     state.pageName = name;
   },
   SET_LOADING(state) {
+    state.loading = true;
     state.pageState = {};
     state.error = '';
-    state.loading = true;
   },
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
