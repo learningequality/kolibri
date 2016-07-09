@@ -106,7 +106,7 @@ class Collection {
    */
   fetch(extraParams = {}, force = false) {
     if (!force && this.synced) {
-      return Promise.resolve(this.models.map((model) => model.attributes));
+      return Promise.resolve(this.data);
     }
     this.synced = false;
     const params = Object.assign({}, this.params, extraParams);
@@ -124,7 +124,7 @@ class Collection {
           model.synced = true; // eslint-disable-line no-param-reassign
         });
         // Return the data from the models, not the models themselves.
-        resolve(this.models.map((model) => model.attributes));
+        resolve(this.data);
       }, (response) => {
         logging.error('An error occurred', response);
         reject(response);
