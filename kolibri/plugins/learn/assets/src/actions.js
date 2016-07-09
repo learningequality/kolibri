@@ -35,7 +35,7 @@ function _contentState(data, includeCrumbs = true) {
     description: data.description,
     thumbnail: data.thumbnail,
     files: data.files,
-    progress: data.description ? data.description : 'unstarted',
+    progress: data.progress ? data.progress : 'unstarted',
   };
   if (includeCrumbs) {
     state.breadcrumbs = _crumbState(data.ancestors);
