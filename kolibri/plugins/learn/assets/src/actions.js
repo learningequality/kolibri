@@ -82,8 +82,9 @@ function showLearnRoot(store) {
   store.dispatch('SET_PAGE_STATE', {}); // TODO
 }
 
-function temp(store, toRoute, fromRoute) {
-  console.log(store, toRoute, fromRoute);
+function showScratchpad(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
+  store.dispatch('SET_PAGE_STATE', {});
 }
 
 
@@ -91,5 +92,5 @@ module.exports = {
   showExploreTopic,
   showExploreContent,
   showLearnRoot,
-  temp,
+  showScratchpad,
 };

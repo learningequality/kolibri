@@ -48,7 +48,9 @@ class LearnModule extends KolibriModule {
     router.on(
       PageNames.SCRATCHPAD,
       '/scratchpad',
-      actions.temp
+      (toRoute, fromRoute) => {
+        actions.showScratchpad(store);
+      }
     );
 
     router.redirect({
