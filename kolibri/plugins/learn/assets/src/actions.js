@@ -49,18 +49,17 @@ function navToExploreTopic(store, id) {
   store.dispatch('SET_PAGE_MODE', PageModes.EXPLORE);
   store.dispatch('SET_LOADING');
 
-  const pageState = { id };
+  const attributesPromise = Resources.getModel(id).fetch();
+  const childrenPromise = Resources.getCollection({ parent: id }).fetch();
 
-  Resources.getModel(id).fetch()
-    .then((topicAttributes) => {
-      pageState.topic = _topicState(topicAttributes);
-      return Resources.getCollection({ parent: id }).fetch();
-    })
-    .then((topicChildren) => {
-      pageState.subtopics = topicChildren
+  Promise.all([attributesPromise, childrenPromise])
+    .then(([attributes, children]) => {
+      const pageState = { id };
+      pageState.topic = _topicState(attributes);
+      pageState.subtopics = children
         .filter((item) => item.kind === 'topic')
         .map((item) => _topicState(item, false));
-      pageState.contents = topicChildren
+      pageState.contents = children
         .filter((item) => item.kind !== 'topic')
         .map((item) => _contentState(item, false));
       store.dispatch('SET_PAGE_STATE', pageState);
