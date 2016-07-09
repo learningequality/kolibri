@@ -16,19 +16,17 @@ function _crumbState(ancestors) {
   });
 }
 
-function _topicState(data, includeCrumbs = true) {
+function _topicState(data) {
   const state = {
     id: data.pk,
     title: data.title,
     description: data.description,
+    breadcrumbs: _crumbState(data.ancestors),
   };
-  if (includeCrumbs) {
-    state.breadcrumbs = _crumbState(data.ancestors);
-  }
   return state;
 }
 
-function _contentState(data, includeCrumbs = true) {
+function _contentState(data) {
   const state = {
     id: data.pk,
     title: data.title,
@@ -37,10 +35,8 @@ function _contentState(data, includeCrumbs = true) {
     thumbnail: data.thumbnail,
     files: data.files,
     progress: data.progress ? data.progress : 'unstarted',
+    breadcrumbs: _crumbState(data.ancestors),
   };
-  if (includeCrumbs) {
-    state.breadcrumbs = _crumbState(data.ancestors);
-  }
   return state;
 }
 
@@ -57,10 +53,10 @@ function showExploreTopic(store, id) {
       pageState.topic = _topicState(attributes);
       pageState.subtopics = children
         .filter((item) => item.kind === 'topic')
-        .map((item) => _topicState(item, false));
+        .map((item) => _topicState(item));
       pageState.contents = children
         .filter((item) => item.kind !== 'topic')
-        .map((item) => _contentState(item, false));
+        .map((item) => _contentState(item));
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
