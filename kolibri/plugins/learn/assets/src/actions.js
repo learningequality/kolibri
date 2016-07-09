@@ -32,6 +32,7 @@ function _contentState(data, includeCrumbs = true) {
   const state = {
     id: data.pk,
     title: data.title,
+    kind: data.kind,
     description: data.description,
     thumbnail: data.thumbnail,
     files: data.files,
