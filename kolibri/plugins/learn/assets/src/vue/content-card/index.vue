@@ -68,9 +68,6 @@
         };
       },
     },
-    vuex: {
-      actions: require('../../actions'),
-    },
   };
 
 </script>

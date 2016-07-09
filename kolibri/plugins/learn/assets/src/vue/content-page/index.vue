@@ -74,7 +74,6 @@
         available: (state) => state.full.available,
         extraFields: (state) => state.full.extra_fields,
       },
-      actions: require('../../actions'),
     },
   };
 

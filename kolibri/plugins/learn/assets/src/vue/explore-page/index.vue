@@ -51,7 +51,6 @@
         contents: state => state.pageState.contents,
         isRoot: (state) => state.pageState.topic.id === state.rootTopicId,
       },
-      actions: require('../../actions'),
     },
   };
 
