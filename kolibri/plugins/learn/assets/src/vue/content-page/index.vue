@@ -3,8 +3,12 @@
   <div>
 
     <breadcrumbs
-      v-if="pageMode === $options.PageModes.EXPLORE">
+      v-if="pageMode === $options.PageModes.EXPLORE"
+      :rootid='rootTopicId'
+      :crumbs='breadcrumbs'
+      :current='title'>
     </breadcrumbs>
+
     <a
       v-if="pageMode === $options.PageModes.LEARN"
       v-link="{ name: $options.PageNames.LEARN_ROOT }">
@@ -12,9 +16,6 @@
     </a>
 
     <div>
-      <h3>
-        {{ title }}
-      </h3>
       <p>
         {{ description }}
       </p>
@@ -59,6 +60,7 @@
     vuex: {
       getters: {
         pageMode: getters.pageMode,
+        rootTopicId: state => state.rootTopicId,
         id: (state) => state.pageState.id,
         title: (state) => state.pageState.title,
         description: (state) => state.pageState.description,
@@ -67,6 +69,7 @@
         contentId: (state) => state.pageState.content_id,
         available: (state) => state.pageState.available,
         extraFields: (state) => state.pageState.extra_fields,
+        breadcrumbs: (state) => state.pageState.breadcrumbs,
       },
     },
   };

@@ -1,10 +1,12 @@
 <template>
 
-  <breadcrumbs v-if="breadcrumbs"></breadcrumbs>
+  <breadcrumbs
+    v-if='!isRoot'
+    :rootid='rootTopicId'
+    :crumbs='topic.breadcrumbs'
+    :current='topic.title'>
+  </breadcrumbs>
 
-  <h2 v-if='topic.title && !isRoot'>
-    {{ topic.title }}
-  </h2>
   <p v-if='topic.description'>
     {{ topic.description }}
   </p>
@@ -46,6 +48,7 @@
     },
     vuex: {
       getters: {
+        rootTopicId: state => state.rootTopicId,
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         contents: state => state.pageState.contents,

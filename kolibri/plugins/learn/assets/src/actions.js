@@ -5,15 +5,11 @@ const PageNames = constants.PageNames;
 
 
 function _crumbState(ancestors) {
-  return ancestors.map((ancestor, index) => {
-    if (index === 0) {
-      return { id: 'root', title: 'Home' }; // TODO - I18N
-    }
-    return {
-      id: ancestor.pk,
-      title: ancestor.title,
-    };
-  });
+  // skip the root node
+  return ancestors.slice(1).map(ancestor => ({
+    id: ancestor.pk,
+    title: ancestor.title,
+  }));
 }
 
 function _topicState(data) {
