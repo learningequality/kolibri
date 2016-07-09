@@ -32,7 +32,9 @@ class LearnModule extends KolibriModule {
     router.on(
       PageNames.EXPLORE_CONTENT,
       '/explore/content/:id',
-      actions.temp
+      (toRoute, fromRoute) => {
+        actions.showExploreContent(store, toRoute.params.id);
+      }
     );
 
     router.on(

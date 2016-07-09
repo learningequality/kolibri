@@ -12,7 +12,6 @@
     </a>
 
     <div>
-      <h2>Learn Content</h2>
       <h3>
         {{ title }}
       </h3>
@@ -24,7 +23,6 @@
         :kind="kind"
         :files="files"
         :content-id="contentId"
-        :channel-id="channelId"
         :available="available"
         :extra-fields="extraFields">
       </content-render>
@@ -61,18 +59,14 @@
     vuex: {
       getters: {
         pageMode: getters.pageMode,
-
-        // TODO
-        id: state => state.id,
-        title: (state) => state.full.title,
-        description: (state) => state.full.description,
-        recommended: (state) => state.full.recommended,
-        kind: (state) => state.full.kind,
-        files: (state) => state.full.files,
-        contentId: (state) => state.full.content_id,
-        channelId: (state) => state.channel,
-        available: (state) => state.full.available,
-        extraFields: (state) => state.full.extra_fields,
+        id: (state) => state.pageState.id,
+        title: (state) => state.pageState.title,
+        description: (state) => state.pageState.description,
+        kind: (state) => state.pageState.kind,
+        files: (state) => state.pageState.files,
+        contentId: (state) => state.pageState.content_id,
+        available: (state) => state.pageState.available,
+        extraFields: (state) => state.pageState.extra_fields,
       },
     },
   };

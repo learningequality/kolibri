@@ -33,6 +33,7 @@ function _contentState(data) {
     kind: data.kind,
     description: data.description,
     thumbnail: data.thumbnail,
+    available: data.available,
     files: data.files,
     progress: data.progress ? data.progress : 'unstarted',
     breadcrumbs: _crumbState(data.ancestors),
@@ -65,6 +66,21 @@ function showExploreTopic(store, id) {
     });
 }
 
+function showExploreContent(store, id) {
+  store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
+
+  Resources.getModel(id).fetch()
+    .then((attributes) => {
+      const pageState = _contentState(attributes);
+      store.dispatch('SET_PAGE_STATE', pageState);
+    })
+    .catch((error) => {
+      // TODO - how to parse and format?
+      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+    });
+}
+
 function showLearnRoot(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
   store.dispatch('SET_PAGE_STATE', {}); // TODO
@@ -77,6 +93,7 @@ function temp(store, toRoute, fromRoute) {
 
 module.exports = {
   showExploreTopic,
+  showExploreContent,
   showLearnRoot,
   temp,
 };
