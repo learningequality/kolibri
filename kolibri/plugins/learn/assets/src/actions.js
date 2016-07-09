@@ -44,7 +44,7 @@ function _contentState(data, includeCrumbs = true) {
   return state;
 }
 
-function navToExploreTopic(store, id) {
+function showExploreTopic(store, id) {
   store.dispatch('SET_LOADING');
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
@@ -69,7 +69,7 @@ function navToExploreTopic(store, id) {
     });
 }
 
-function navToLearnRoot(store) {
+function showLearnRoot(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
   store.dispatch('SET_PAGE_STATE', {}); // TODO
 }
@@ -80,7 +80,7 @@ function temp(store, toRoute, fromRoute) {
 
 
 module.exports = {
-  navToExploreTopic,
-  navToLearnRoot,
+  showExploreTopic,
+  showLearnRoot,
   temp,
 };

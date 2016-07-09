@@ -17,7 +17,7 @@ class LearnModule extends KolibriModule {
       PageNames.EXPLORE_ROOT,
       '/explore',
       (toRoute, fromRoute) => {
-        actions.navToExploreTopic(store, store.state.rootTopicId);
+        actions.showExploreTopic(store, store.state.rootTopicId);
       }
     );
 
@@ -25,7 +25,7 @@ class LearnModule extends KolibriModule {
       PageNames.EXPLORE_TOPIC,
       '/explore/topic/:id',
       (toRoute, fromRoute) => {
-        actions.navToExploreTopic(store, toRoute.params.id);
+        actions.showExploreTopic(store, toRoute.params.id);
       }
     );
 
@@ -39,7 +39,7 @@ class LearnModule extends KolibriModule {
       PageNames.LEARN_ROOT,
       '/learn',
       (toRoute, fromRoute) => {
-        actions.navToLearnRoot(store);
+        actions.showLearnRoot(store);
       }
     );
 
