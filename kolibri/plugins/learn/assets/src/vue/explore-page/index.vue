@@ -2,7 +2,14 @@
 
   <breadcrumbs v-if="breadcrumbs"></breadcrumbs>
 
-  <card-grid header="Topics" v-if="subtopics.length">
+  <h2 v-if='topic.title && !isRoot'>
+    {{ topic.title }}
+  </h2>
+  <p v-if='topic.description'>
+    {{ topic.description }}
+  </p>
+
+  <card-grid v-if="subtopics.length">
     <topic-card
       v-for="topic in subtopics"
       :id="topic.id"
@@ -12,7 +19,7 @@
     </topic-card>
   </card-grid>
 
-  <card-grid header="Content" v-if="contents.length">
+  <card-grid v-if="contents.length">
     <content-card
       v-for="content in contents"
       class="card"
@@ -39,8 +46,10 @@
     },
     vuex: {
       getters: {
+        topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         contents: state => state.pageState.contents,
+        isRoot: (state) => state.pageState.topic.id === state.rootTopicId,
       },
       actions: require('../../actions'),
     },
