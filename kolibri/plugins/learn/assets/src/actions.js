@@ -69,8 +69,9 @@ function navToExploreTopic(store, id) {
     });
 }
 
-function navToLearnRoot(store, toRoute, fromRoute) {
+function navToLearnRoot(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
+  store.dispatch('SET_PAGE_STATE', {}); // TODO
 }
 
 function temp(store, toRoute, fromRoute) {
