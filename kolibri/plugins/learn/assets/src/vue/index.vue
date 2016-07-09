@@ -52,7 +52,9 @@
 
 <script>
 
-  const constants = require('../constants');
+  const getters = require('../state/getters');
+  const constants = require('../state/constants');
+  const store = require('../state/store');
   const PageNames = constants.PageNames;
 
   module.exports = {
@@ -81,14 +83,13 @@
     },
     vuex: {
       getters: {
-        pageMode: state => state.pageMode,
+        pageMode: getters.pageMode,
         pageName: state => state.pageName,
         loading: state => state.loading,
         error: state => state.error,
       },
     },
-    // make this and all child components aware of the store
-    store: require('../store'),
+    store, // make this and all child components aware of the store
   };
 
 </script>

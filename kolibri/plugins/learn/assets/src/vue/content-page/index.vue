@@ -48,7 +48,8 @@
 
 <script>
 
-  const constants = require('../../constants');
+  const constants = require('../../state/constants');
+  const getters = require('../../state/getters');
 
   module.exports = {
     mixins: [constants], // makes constants available in $options
@@ -59,7 +60,7 @@
     },
     vuex: {
       getters: {
-        pageMode: state => state.pageMode,
+        pageMode: getters.pageMode,
 
         // TODO
         id: state => state.id,

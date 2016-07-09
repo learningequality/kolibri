@@ -14,7 +14,7 @@
 
 <script>
 
-  const PageNames = require('../../constants').PageNames;
+  const PageNames = require('../../state/constants').PageNames;
 
   module.exports = {
     props: {

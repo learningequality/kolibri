@@ -12,7 +12,7 @@
 
 <script>
 
-  const constants = require('../../constants');
+  const constants = require('../../state/constants');
 
   module.exports = {
     props: {

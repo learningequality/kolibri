@@ -1,7 +1,6 @@
 const Resources = require('kolibri').resources.ContentNodeResource;
-const constants = require('./constants');
+const constants = require('./state/constants');
 
-const PageModes = constants.PageModes;
 const PageNames = constants.PageNames;
 
 
@@ -46,7 +45,6 @@ function _contentState(data, includeCrumbs = true) {
 
 function navToExploreTopic(store, id) {
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
-  store.dispatch('SET_PAGE_MODE', PageModes.EXPLORE);
   store.dispatch('SET_LOADING');
 
   const attributesPromise = Resources.getModel(id).fetch();
@@ -72,7 +70,6 @@ function navToExploreTopic(store, id) {
 
 function navToLearnRoot(store, toRoute, fromRoute) {
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
-  store.dispatch('SET_PAGE_MODE', PageModes.LEARN);
 }
 
 function temp(store, toRoute, fromRoute) {

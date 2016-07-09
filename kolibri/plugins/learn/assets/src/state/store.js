@@ -6,7 +6,6 @@ function initialState() {
   return {
     rootTopicId: global.root_node_pk,
     pageName: constants.PageNames.EXPLORE_ROOT,
-    pageMode: constants.PageModes.EXPLORE,
     pageState: {},
     error: '',
     loading: true,
@@ -16,9 +15,6 @@ function initialState() {
 const mutations = {
   SET_PAGE_NAME(state, name) {
     state.pageName = name;
-  },
-  SET_PAGE_MODE(state, mode) {
-    state.pageMode = mode;
   },
   SET_LOADING(state) {
     state.pageState = {};
