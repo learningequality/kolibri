@@ -149,7 +149,7 @@
     svg
       fill: $core-bg-light
 
-  a.v-link-active:hover
+  a.active:hover
     svg
       fill: $core-bg-light
 

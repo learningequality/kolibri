@@ -3,11 +3,11 @@
   <div>
 
     <breadcrumbs
-      v-if="$route.name === 'explore-content'">
+      v-if="pageMode === $options.PageModes.EXPLORE">
     </breadcrumbs>
     <a
-      v-if="$route.name === 'learn-content'"
-      v-link="{ name: 'learn-content' }">
+      v-if="pageMode === $options.PageModes.LEARN"
+      v-link="{ name: $options.PageNames.LEARN_ROOT }">
       Home
     </a>
 
@@ -48,7 +48,10 @@
 
 <script>
 
+  const constants = require('../../constants');
+
   module.exports = {
+    mixins: [constants], // makes constants available in $options
     components: {
       'breadcrumbs': require('../breadcrumbs'),
       'content-card': require('../content-card'),
@@ -56,7 +59,9 @@
     },
     vuex: {
       getters: {
-        // better practice would be to define vuex getter functions globally
+        pageMode: state => state.pageMode,
+
+        // TODO
         id: state => state.id,
         title: (state) => state.full.title,
         description: (state) => state.full.description,

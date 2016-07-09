@@ -1,6 +1,6 @@
 <template>
 
-  <a v-link="{ name: 'explore-content', params: {content_id: id} }">
+  <a v-link="{ name: 'explore-content', params: { id: id } }">
     <img class="content-icon" v-if="kind" :src="icon">
     <img :src="thumbnail" class="thumbnail">
     <h3>
