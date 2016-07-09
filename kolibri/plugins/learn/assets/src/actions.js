@@ -37,13 +37,6 @@ const nodeAssignment = (nodes, dispatch) => {
     if (!content.progress) {
       content.progress = 'unstarted'; // eslint-disable-line no-param-reassign
     }
-    if (!content.thumbnail) {
-      content.files.forEach(file => {
-        if (file.thumbnail) {
-          content.thumbnail = file.storage_url; // eslint-disable-line no-param-reassign
-        }
-      });
-    }
   });
 
   dispatch('SET_TOPICS', topics);
