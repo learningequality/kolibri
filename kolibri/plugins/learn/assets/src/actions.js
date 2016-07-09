@@ -45,8 +45,8 @@ function _contentState(data, includeCrumbs = true) {
 }
 
 function navToExploreTopic(store, id) {
-  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
   store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
   const attributesPromise = Resources.getModel(id).fetch();
   const childrenPromise = Resources.getCollection({ parent: id }).fetch();
