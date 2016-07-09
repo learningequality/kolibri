@@ -1,6 +1,6 @@
 <template>
 
-  <a v-link="{ name: $options.PageNames.EXPLORE_TOPIC, params: { id: id } }">
+  <a v-link="link">
     <img class="topic-card-folder" class="thumbnail" src="./folder.svg">
     <h3 class="title">
       {{ title }}
@@ -15,7 +15,6 @@
   const constants = require('../../constants');
 
   module.exports = {
-    mixins: [constants], // makes constants available in $options
     props: {
       id: {
         type: String,
@@ -24,6 +23,14 @@
       title: {
         type: String,
         required: true,
+      },
+    },
+    computed: {
+      link() {
+        return {
+          name: constants.PageNames.EXPLORE_TOPIC,
+          params: { id: this.id },
+        };
       },
     },
   };

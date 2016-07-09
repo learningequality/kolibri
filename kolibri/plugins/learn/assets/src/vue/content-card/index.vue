@@ -1,6 +1,6 @@
 <template>
 
-  <a v-link="{ name: 'explore-content', params: { id: id } }">
+  <a v-link="link">
     <img class="content-icon" v-if="kind" :src="icon">
     <img :src="thumbnail" class="thumbnail">
     <h3>
@@ -13,6 +13,8 @@
 
 
 <script>
+
+  const PageNames = require('../../constants').PageNames;
 
   module.exports = {
     props: {
@@ -58,6 +60,12 @@
         //  they greedily add items to the webpack bundle.
         // See https://webpack.github.io/docs/context.html
         return require(`./content-icons/${this.progress}-${this.kind}.svg`);
+      },
+      link() {
+        return {
+          name: PageNames.EXPLORE_CONTENT,
+          params: { id: this.id },
+        };
       },
     },
     vuex: {

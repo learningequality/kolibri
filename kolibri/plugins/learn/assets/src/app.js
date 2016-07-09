@@ -23,13 +23,15 @@ class LearnModule extends KolibriModule {
 
     router.on(
       PageNames.EXPLORE_TOPIC,
-      '/explore/topic/:content_id',
-      actions.temp
+      '/explore/topic/:id',
+      (toRoute, fromRoute) => {
+        actions.navToExploreTopic(store, toRoute.params.id);
+      }
     );
 
     router.on(
       PageNames.EXPLORE_CONTENT,
-      '/explore/content/:content_id',
+      '/explore/content/:id',
       actions.temp
     );
 
