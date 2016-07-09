@@ -4,7 +4,7 @@
     <label @click="toggleSearch()" class="btn-search" :class=" {'btn-search-left' : search_toggled } " for="search">
       <span class="btn-search-img">search</span>
     </label>
-    <input id="searchbox" type="search" v-model="searchterm" name="search" autocomplete="off" placeholder="Find content..." @keydown="isTyping()" @keyup="searchContent(1) | debounce 500" id="search" class="search-input" :class=" {'search-input-active' : search_toggled }">
+    <input v-focus-model="focused" type="search" v-model="searchterm" name="search" autocomplete="off" placeholder="Find content..." @keydown="isTyping()" @keyup="searchContent(1) | debounce 500" id="search" class="search-input" :class=" {'search-input-active' : search_toggled }">
     <button v-show="search_toggled && searchterm" class="close-icon" type="reset" @click="reFocus()"></button>
   </form>
 
@@ -105,12 +105,16 @@
 
 <script>
 
+  const focusModel = require('vue-focus').focusModel;
+
   module.exports = {
+    directives: { focusModel },
     data: () => ({
       searchterm: '',
       currentpage: 1,
       typing: false,
       lastsearch: 'oblivion it is',
+      focused: false,
     }),
     computed: {
       prompttext() {
@@ -129,10 +133,9 @@
     methods: {
       reFocus() {
         this.searchterm = '';
-        document.getElementById('searchbox').focus();
+        this.focused = true;
       },
       toggleSearch() {
-        document.getElementById('searchbox').focus();
         if (this.search_toggled) {
           this.searchToggleSwitch(false);
         } else {
