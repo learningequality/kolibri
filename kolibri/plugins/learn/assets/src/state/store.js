@@ -9,6 +9,8 @@ function initialState() {
     pageState: {},
     error: '',
     loading: true,
+    searchLoading: false,
+    searchState: {},
   };
 }
 
@@ -28,6 +30,19 @@ const mutations = {
   },
   SET_PAGE_ERROR(state, error) {
     state.pageState = {};
+    state.error = error;
+    state.loading = false;
+  },
+  SET_SEARCH_LOADING(state, loading) {
+    state.searchLoading = loading;
+    state.error = '';
+  },
+  SET_SEARCH_STATE(state, searchState) {
+    state.searchState = searchState;
+    state.error = '';
+    state.searchLoading = false;
+  },
+  SET_SEARCH_ERROR(state, error) {
     state.error = error;
     state.loading = false;
   },
