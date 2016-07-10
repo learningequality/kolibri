@@ -119,5 +119,6 @@
     max-height: 48px /* fallback */
     -webkit-line-clamp: 3 /* number of lines to show */
     -webkit-box-orient: vertical
+    margin-top: 5px
 
 </style>
