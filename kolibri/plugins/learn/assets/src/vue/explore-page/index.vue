@@ -11,7 +11,7 @@
     {{ topic.description }}
   </p>
 
-  <card-grid header="Topics" v-if="subtopics.length">
+  <card-grid :header="isRoot ? 'Topics' : '' " v-if="subtopics.length">
     <topic-card
       v-for="topic in subtopics"
       :id="topic.id"
@@ -21,7 +21,7 @@
     </topic-card>
   </card-grid>
 
-  <card-grid header="Content" v-if="contents.length">
+  <card-grid :header="isRoot ? 'Content' : '' " v-if="contents.length">
     <content-card
       v-for="content in contents"
       class="card"
