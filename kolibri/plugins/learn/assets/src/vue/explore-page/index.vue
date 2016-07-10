@@ -2,10 +2,13 @@
 
   <div class="temp-nav">
   </div>
-
+  <search-widget></search-widget>
   <div class="page">
     <div class="page-container">
       <div class="tool-bar-container">
+        <label v-show="!search_toggled" @click="searchToggleSwitch(true)" class="btn-search" for="search">
+          <span class="btn-search-img">search</span>
+        </label>
         <div v-show="!search_toggled" class="breadcrumbs-container" transition="fast">
           <breadcrumbs v-if="breadcrumbs"></breadcrumbs>
         </div>
@@ -15,10 +18,9 @@
             <option value="ck12">CK-12</option>
           </select>
         </div>
-        <search-widget></search-widget>
       </div>
 
-      <div class="card-section" transition="fast" v-show="!search_toggled">
+      <div class="card-section" transition="fast">
         <card-grid header="Topics" v-if="topics.length">
           <topic-card
             v-for="topic in topics"
@@ -168,5 +170,19 @@
     media-query(5)
   @media screen and (min-width: 1680px)
     media-query(6)
+    
+  .btn-search
+    position: relative
+    float: right
+    display: inline-block
+    height: 30px
+    width: 30px
+    background:none
+    border: none
+    text-indent: -10000px
+    cursor: pointer
+  .btn-search-img
+    display: block
+    background: url('../search-widget/search.svg') no-repeat right
 
 </style>
