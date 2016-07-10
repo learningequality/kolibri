@@ -1,5 +1,4 @@
 const KolibriModule = require('kolibri_module');
-const Kolibri = require('kolibri');
 
 const rootvue = require('./vue');
 const router = require('./router');
@@ -9,9 +8,6 @@ const PageNames = require('./state/constants').PageNames;
 
 
 class LearnModule extends KolibriModule {
-  initialize() {
-    Kolibri.resources.ContentNodeResource.setChannel('dummy_db');
-  }
   ready() {
     router.on(
       PageNames.EXPLORE_ROOT,
