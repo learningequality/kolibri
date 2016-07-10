@@ -18,6 +18,7 @@
       <h6 v-show="searchterm" v-bind:class="{ 'hideme': typing || !search_finished }" id="search-prompt" transition="fade">{{ prompttext }}</h6>
       <div v-show="searchterm" class="result-list" v-if="search_topics.length > 0 || search_contents.length > 0" v-bind:class="{ 'search-in-progress': typing || !search_finished }">
         <search-card
+          @click="toggleSearch()"
           v-for="topic in search_topics"
           class="card"
           :title="topic.title"
@@ -26,6 +27,7 @@
           :id="topic.pk">
         </search-card>
         <search-card
+          @click="toggleSearch()"
           v-for="content in search_contents"
           class="card"
           :title="content.title"
@@ -39,7 +41,7 @@
 
     <div class="pagination-container" transition="fade">
       <ul class="pagination">
-        <li @click="prePage" class="page-btn pre-btn" v-bind:class="{ 'disabled': currentpage === 1 ||  !searchterm }">«</li>
+        <li @click="prePage" class="page-btn pre-btn" v-bind:class="{ 'disabled': currentpage === 1 ||  !searchterm }">&#60;</li>
 
         <!-- when there are less or equal than 5 pages, use this layout -->
         <li 
@@ -107,7 +109,7 @@
           @click="searchContent(pages_sum)"
         >{{ pages_sum }}</li>
 
-        <li @click="nextPage" class="page-btn last-btn"  v-bind:class="{ 'disabled': currentpage === pages_sum ||  !searchterm }">»</li>
+        <li @click="nextPage" class="page-btn last-btn"  v-bind:class="{ 'disabled': currentpage === pages_sum ||  !searchterm }">&#62;</li>
       </ul>
     </div>
   </div>
