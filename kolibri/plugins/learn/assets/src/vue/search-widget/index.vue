@@ -1,103 +1,115 @@
 <template>
 
-  <form class="searchform" v-on:submit.prevent>
-    <label @click="toggleSearch()" class="btn-search" :class=" {'btn-search-left' : search_toggled } " for="search">
-      <span class="btn-search-img">search</span>
-    </label>
-    <input v-focus-model="focused" type="search" v-model="searchterm" name="search" autocomplete="off" placeholder="Find content..." @keydown="isTyping()" @keyup="searchContent(1) | debounce 500" id="search" class="search-input" :class=" {'search-input-active' : search_toggled }">
-    <button v-show="search_toggled && searchterm" class="close-icon" type="reset" @click="reFocus()"></button>
-  </form>
+  <div v-show="search_toggled" @click="toggleSearch()" class="searchscreen" transition="fade"></div>
+  <div v-show="search_toggled" class="sidesearch" transition="glide">
+    <div class="search-container">
+      <label @click="toggleSearch()" class="close-search">
+          <span class="close-search-img">search</span>
+      </label>
+      <form class="searchform" v-on:submit.prevent>
+        <input v-focus-model="focused" type="search" v-model="searchterm" name="search" autocomplete="off" placeholder="Find content..." @keydown="isTyping()" @keyup="searchContent(1) | debounce 500" id="search" class="search-input">
+        <label v-show="searchterm" class="reset-search" type="reset" @click="reFocus()">
+          <span class="reset-img">clear</span>
+        </label>
+      </form>
+    </div>
 
-  <h4 v-show="search_toggled && searchterm" v-bind:class="{ 'hideme': typing || !search_finished }" id="search-result" transition="fade">{{ prompttext }}</h4>
-  <div v-show="search_toggled && searchterm" class="card-list" transition="fade" v-bind:class="{ 'search-in-progress': typing || !search_finished }">
-    <card-grid v-if="search_topics.length > 0">
-      <topic-card
-        v-for="topic in search_topics"
-        class="card"
-        :id="topic.pk"
-        :title="topic.title"
-        :ntotal="topic.n_total"
-        :ncomplete="topic.n_complete">
-      </topic-card>
-    </card-grid>
+    <div class="result-container">
+      <h6 v-show="searchterm" v-bind:class="{ 'hideme': typing || !search_finished }" id="search-prompt" transition="fade">{{ prompttext }}</h6>
+      <div v-show="searchterm" class="result-list" v-if="search_topics.length > 0 || search_contents.length > 0" v-bind:class="{ 'search-in-progress': typing || !search_finished }">
+        <search-card
+          v-for="topic in search_topics"
+          class="card"
+          :title="topic.title"
+          :description="topic.description"
+          :kind="topic.kind"
+          :id="topic.pk">
+        </search-card>
+        <search-card
+          v-for="content in search_contents"
+          class="card"
+          :title="content.title"
+          :description="content.description"
+          :kind="content.kind"
+          :progress="content.progress"
+          :id="content.pk">
+        </search-card>
+      </div>
+    </div>
 
-    <card-grid v-if="search_contents.length > 0">
-      <content-card
-        v-for="content in search_contents"
-        class="card"
-        :title="content.title"
-        :thumbnail="content.thumbnail"
-        :kind="content.kind"
-        :progress="content.progress"
-        :id="content.pk">
-      </content-card>
-    </card-grid>
-  </div>
+    <div class="pagination-container" transition="fade">
+      <ul class="pagination">
+        <li @click="prePage" class="page-btn pre-btn" v-bind:class="{ 'disabled': currentpage === 1 ||  !searchterm }">«</li>
 
-  <div v-show="search_toggled && searchterm" class="pagination-wrapper" transition="fade">
-    <ul v-if="pages_sum > 1" class="pagination">
-      <li @click="prePage" class="page-btn" v-bind:class="{ 'disabled': currentpage === 1 }">«</li>
+        <!-- when there are less or equal than 5 pages, use this layout -->
+        <li 
+          class="page-btn"
+          v-show="searchterm"
+          v-if="pages_sum <= 5 && pages_sum > 1"
+          v-for="page in pages_sum"
+          v-bind:class="{ 'selected': currentpage === page + 1 }"
+          @click="searchContent(page + 1)"
+        >{{ page + 1 }}</li>
 
-      <!-- when there are less or equal than 5 pages, use this layout -->
-      <li 
-        class="page-btn"
-        v-if="pages_sum <= 5"
-        v-for="page in pages_sum"
-        v-bind:class="{ 'selected': currentpage === page + 1 }"
-        @click="searchContent(page + 1)"
-      >{{ page + 1 }}</li>
+        <!-- when there are more than 5 pages, use this very complicated layout -->
+        <!-- always show the first page btn -->
+        <li 
+          class="page-btn"
+          v-show="searchterm"
+          v-if="pages_sum > 5"
+          v-bind:class="{ 'selected': currentpage === 1 }"
+          @click="searchContent(1)"
+        >{{ 1 }}</li>
 
-      <!-- when there are more than 5 pages, use this very complicated layout -->
-      <!-- always show the first page btn -->
-      <li 
-        class="page-btn"
-        v-if="pages_sum > 5"
-        v-bind:class="{ 'selected': currentpage === 1 }"
-        @click="searchContent(1)"
-      >{{ 1 }}</li>
+        <li 
+          class="page-btn disabled"
+          v-show="searchterm"
+          v-if="pages_sum > 5 && currentpage >= 5"
+        > ... </li>
+        <li 
+          class="page-btn"
+          v-show="searchterm"
+          v-if="pages_sum > 5 && currentpage <5"
+          v-for="page in 4"
+          v-bind:class="{ 'selected': currentpage === page + 2 }"
+          @click="searchContent(page + 2)"
+        >{{ page + 2 }}</li>
+        <li 
+          class="page-btn"
+          v-show="searchterm"
+          v-if="pages_sum > 5 && currentpage >=5 && currentpage < pages_sum - 3"
+          v-for="page in 3"
+          v-bind:class="{ 'selected': currentpage === currentpage + page - 1 }"
+          @click="searchContent(currentpage + page - 1)"
+        >{{ currentpage + page - 1 }}</li>
+        <!-- when reach the last 4 pages -->
+        <li 
+          class="page-btn"
+          v-show="searchterm"
+          v-if="pages_sum > 5 && currentpage > pages_sum - 4 && currentpage <= pages_sum"
+          v-for="page in 4"
+          v-bind:class="{ 'selected': currentpage === pages_sum - 4 + page }"
+          @click="searchContent(pages_sum - 4 + page)"
+        >{{ pages_sum - 4 + page }}</li>
 
-      <li 
-        class="page-btn disabled"
-        v-if="pages_sum > 5 && currentpage >= 5"
-      > ... </li>
-      <li 
-        class="page-btn"
-        v-if="pages_sum > 5 && currentpage <5"
-        v-for="page in 4"
-        v-bind:class="{ 'selected': currentpage === page + 2 }"
-        @click="searchContent(page + 2)"
-      >{{ page + 2 }}</li>
-      <li 
-        class="page-btn"
-        v-if="pages_sum > 5 && currentpage >=5 && currentpage < pages_sum - 3"
-        v-for="page in 3"
-        v-bind:class="{ 'selected': currentpage === currentpage + page - 1 }"
-        @click="searchContent(currentpage + page - 1)"
-      >{{ currentpage + page - 1 }}</li>
-      <!-- when reach the last 4 pages -->
-      <li 
-        class="page-btn"
-        v-if="pages_sum > 5 && currentpage > pages_sum - 4 && currentpage <= pages_sum"
-        v-for="page in 4"
-        v-bind:class="{ 'selected': currentpage === pages_sum - 4 + page }"
-        @click="searchContent(pages_sum - 4 + page)"
-      >{{ pages_sum - 4 + page }}</li>
+        <li 
+          class="page-btn disabled"
+          v-show="searchterm"
+          v-if="pages_sum > 5 && currentpage < pages_sum - 3"
+        > ... </li>
 
-      <li 
-        class="page-btn disabled"
-        v-if="pages_sum > 5 && currentpage < pages_sum - 3"
-      > ... </li>
+        <!-- always show the last page btn -->
+        <li 
+          class="page-btn"
+          v-show="searchterm"
+          v-if="pages_sum > 5"
+          v-bind:class="{ 'selected': currentpage === pages_sum }"
+          @click="searchContent(pages_sum)"
+        >{{ pages_sum }}</li>
 
-      <!-- always show the last page btn -->
-      <li 
-        class="page-btn"
-        v-if="pages_sum > 5"
-        v-bind:class="{ 'selected': currentpage === pages_sum }"
-        @click="searchContent(pages_sum)"
-      >{{ pages_sum }}</li>
-
-      <li @click="nextPage" class="page-btn"  v-bind:class="{ 'disabled': currentpage === pages_sum }">»</li>
-    </ul>
+        <li @click="nextPage" class="page-btn last-btn"  v-bind:class="{ 'disabled': currentpage === pages_sum ||  !searchterm }">»</li>
+      </ul>
+    </div>
   </div>
 
 </template>
@@ -174,9 +186,7 @@
       },
     },
     components: {
-      'topic-card': require('../topic-card'),
-      'content-card': require('../content-card'),
-      'card-grid': require('../card-grid'),
+      'search-card': require('./search-card'),
     },
     vuex: {
       getters: {
@@ -197,86 +207,111 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+      
+// search input box
+  .search-container
+    width: 100%
+    height: 70px
+    background-color: $core-bg-canvas
+  .sidesearch
+    height: 100%
+    width: 30%
+    min-width: 400px
+    max-width: 600px
+    background-color: $core-bg-canvas
+    position: fixed
+    right: 0
+    z-index: 99
+  .searchscreen
+    height: 100%
+    width: 100%
+    background-color: #dddddd
+    opacity: 0.7
+    position: fixed
+    z-index: 9
+    left: 0
   .search-input
     outline: none
     position: relative
-    display: inline-block
-    width:0
-    background-color: $core-bg-canvas
+    background-color: $core-bg-light
     border-radius: 40px
-    border: 1px solid rgba(58, 58, 58, 0.1)
-    border:none
-    pointer-events: none
-    transition: width 0.2s ease-out
-    -webkit-backface-visibility: hidden
-    -webkit-transform: translate3d(0, 0, 0)
-  .search-input-active
-    display: inline-block
-    padding: 0 40px
-    width: 70%
-    max-width: 600px
+    padding: 12px
+    width: 80%
+    max-width: 500px
     min-width: 300px
     height:30px
-    border: 1px solid rgba(58, 58, 58, 1)
+    border: 2px solid #cccccc
     pointer-events: auto
-  .btn-search-left
-    left: 40px
-  .btn-search
-    position: relative
-    display: inline-block
-    height: 30px
-    width: 30px
-    background:none
-    border: none
+    top: 32px
+    left: 50%
+    transform: translateX(-50%)
+  .reset-search
+    position: absolute
+    height: 40px
+    width: 40px
+    text-indent: -10000px
+    cursor: pointer
+    top: 28px
+    margin-left: 10px
+  .reset-img
+    padding-top: 16px
+    margin-right: 14px
+    display: block
+    background: url('./trash.svg') no-repeat right
+  .close-search
+    position: absolute
+    height: 40px
+    width: 40px
     text-indent: -10000px
     cursor: pointer
     z-index: 1
-  .btn-search-img
-    display: block
-    background: url('./search.svg') no-repeat right
-      
-  .close-icon
-    border:1px solid transparent
-    background-color: transparent
-    display: inline-block
-    vertical-align: middle
-    outline: none
-    cursor: pointer
-    right: 35px
-  .close-icon:after
-    content: 'X'
-    display: block
-    width: 15px
-    height: 15px
-    position: absolute
-    background-color: $core-text-annotation
-    z-index:1
-    top: -8px
-    bottom: none
-    margin: auto
-    padding: 3px
+    left: -20px
+    top: 26px
     border-radius: 50%
-    text-align: center
-    color: white
-    font-weight: normal
-    font-size: 12px
-    cursor: pointer
-  .close-icon
-    position: relative
-    padding: 4px
+    background-color: $core-text-annotation
+  .close-search-img
+    padding-top: 16px
+    margin-right: 8px
+    display: block
+    background: url('./close.svg') no-repeat right
+    
+// result list
+  .result-container
+    position: absolute
+    width: 100%
+    background-color: $core-bg-canvas
+    top: 70px
+    bottom: 78px
+  #search-prompt
+    color: $core-text-annotation
+    padding-left: 10px
+    margin: 4px
+  .result-list
+    overflow:hidden
+    overflow-y:auto
+    height: 100%
+  .spacer
+    background-color: red
 
-  .fade-transition
-    transition: all 0.3s ease-out
-  .fade-enter
-    opacity: 0
-  .fade-leave
-    opacity: 0
-  .hideme
-    opacity: 0
-  .search-in-progress
-    opacity: 0.5
+// paginationm
+  .pagination-container
+    width: 100%
+    height: 60px
+    background-color: $core-bg-canvas
+    position: absolute
+    bottom: 0
+    text-align: center
+  .pagination
+    padding: 0 12px
+    display: table
+    width: 100%
+    border-spacing: 4px
+  .pre-btn
+    float: left
+  .last-btn
+    float: right
+    margin-right: 20px
   .page-btn
-    display: inline-block
     width: 30px
     height: 30px
     color: $core-text-default
@@ -284,6 +319,8 @@
     border-radius: 4px
     user-select: none
     cursor: pointer
+    display: table-cell
+    vertical-align: middle
   .page-btn:hover
     background-color: $core-action-light
   .selected
@@ -295,11 +332,39 @@
     pointer-events: none
     cursor: default
     opacity: 0.5
-    
-  .pagination-wrapper
-    position: fixed
-    bottom: 10px
-    left: 50%
-    transform: translateX(-50%)
+
+// Transitions
+  .glide-transition
+    transition: all 0.3s ease-out
+  .glide-enter, .glide-leave
+    transform: translateX(100%)
+  .fade-transition
+    transition: all 0.3s ease-out
+  .fade-enter, .fade-leave
+    opacity: 0
+  .hideme
+    opacity: 0
+  .search-in-progress
+    opacity: 0.5
+
+// scrollbar
+::-webkit-scrollbar
+  width: 22px
+  margin-right: 20px
+  margin-left: 20px
+::-webkit-scrollbar-track
+  background: #cccccc
+  -webkit-border-radius: 14px
+  border-radius: 14px
+  margin-top: 3px
+  margin-bottom: 3px
+  border: 6px solid transparent
+  background-clip: padding-box
+::-webkit-scrollbar-thumb
+  -webkit-border-radius: 14px
+  border-radius: 14px
+  border: 7px solid transparent
+  background: #ffffff
+  background-clip: padding-box
 
 </style>
