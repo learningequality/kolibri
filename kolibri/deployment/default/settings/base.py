@@ -97,11 +97,17 @@ DATABASES = {
 # Enable dynamic routing for content databases
 DATABASE_ROUTERS = ['kolibri.content.content_db_router.ContentDBRouter']
 
-# DIR for storing contentDBs
-CONTENT_DB_DIR = os.path.join(BASE_DIR, 'kolibri', 'content', 'content_db')
-# DIR for storing content files for all channels
-STORAGE_ROOT = os.path.join(BASE_DIR, "storage")
-STORAGE_URL = '/storage/'
+
+# Content directories and URLs for channel metadata and content files
+
+# Directory and URL for storing content databases for channel data
+CONTENT_DATABASE_DIR = os.path.join(KOLIBRI_HOME, 'content', 'databases')
+CONTENT_DATABASE_URL = '/content/databases/'
+
+# Directory and URL for storing de-duped content files for all channels
+CONTENT_STORAGE_DIR = os.path.join(KOLIBRI_HOME, 'content', 'storage')
+CONTENT_STORAGE_URL = '/content/storage/'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -121,6 +127,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
@@ -202,15 +209,25 @@ LOGGING = {
 }
 
 
+# Customizing Django auth system
+# https://docs.djangoproject.com/en/1.9/topics/auth/customizing/
+
 AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
 
 AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']
+
+
+# Django REST Framework
+# http://www.django-rest-framework.org/api-guide/settings/
 
 REST_FRAMEWORK = {
     "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser",
 }
 
+
 # Configuration for Django JS Reverse
+# https://github.com/ierror/django-js-reverse#options
+
 JS_REVERSE_JS_VAR_NAME = 'urls'
 
 JS_REVERSE_JS_GLOBAL_OBJECT_NAME = KOLIBRI_CORE_JS_NAME

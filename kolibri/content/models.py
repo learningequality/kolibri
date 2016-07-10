@@ -131,7 +131,7 @@ class File(ContentDatabaseModel):
         The same url will also be exposed by the file serializer
         """
         if self.available:
-            return settings.STORAGE_URL + self.checksum[0] + '/' + self.checksum[1] + '/' + self.checksum + '.' + self.extension
+            return settings.CONTENT_STORAGE_URL + self.checksum[0] + '/' + self.checksum[1] + '/' + self.checksum + '.' + self.extension
         else:
             return None
 
