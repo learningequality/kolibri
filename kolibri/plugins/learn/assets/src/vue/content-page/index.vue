@@ -3,19 +3,19 @@
   <div>
 
     <breadcrumbs
-      v-if="$route.name === 'explore-content'">
+      v-if="pageMode === $options.PageModes.EXPLORE"
+      :rootid='rootTopicId'
+      :crumbs='breadcrumbs'
+      :current='title'>
     </breadcrumbs>
+
     <a
-      v-if="$route.name === 'learn-content'"
-      v-link="{ name: 'learn-content' }">
+      v-if="pageMode === $options.PageModes.LEARN"
+      v-link="{ name: $options.PageNames.LEARN_ROOT }">
       Home
     </a>
 
     <div>
-      <h2>Learn Content</h2>
-      <h3>
-        {{ title }}
-      </h3>
       <p>
         {{ description }}
       </p>
@@ -24,7 +24,6 @@
         :kind="kind"
         :files="files"
         :content-id="contentId"
-        :channel-id="channelId"
         :available="available"
         :extra-fields="extraFields">
       </content-render>
@@ -48,10 +47,11 @@
 
 <script>
 
+  const constants = require('../../state/constants');
+  const getters = require('../../state/getters');
+
   module.exports = {
-    created() {
-      this.fetchFullContent(this.id);
-    },
+    mixins: [constants], // makes constants available in $options
     components: {
       'breadcrumbs': require('../breadcrumbs'),
       'content-card': require('../content-card'),
@@ -59,24 +59,17 @@
     },
     vuex: {
       getters: {
-        // better practice would be to define vuex getter functions globally
-        title: (state) => state.full.title,
-        description: (state) => state.full.description,
-        recommended: (state) => state.full.recommended,
-        kind: (state) => state.full.kind,
-        files: (state) => state.full.files,
-        contentId: (state) => state.full.content_id,
-        channelId: (state) => state.channel,
-        available: (state) => state.full.available,
-        extraFields: (state) => state.full.extra_fields,
-        // from URL
-        id: state => state.route.params.content_id,
-      },
-      actions: require('../../actions'),
-    },
-    watch: {
-      id(value) {
-        this.fetchFullContent(value);
+        pageMode: getters.pageMode,
+        rootTopicId: state => state.rootTopicId,
+        id: (state) => state.pageState.id,
+        title: (state) => state.pageState.title,
+        description: (state) => state.pageState.description,
+        kind: (state) => state.pageState.kind,
+        files: (state) => state.pageState.files,
+        contentId: (state) => state.pageState.content_id,
+        available: (state) => state.pageState.available,
+        extraFields: (state) => state.pageState.extra_fields,
+        breadcrumbs: (state) => state.pageState.breadcrumbs,
       },
     },
   };

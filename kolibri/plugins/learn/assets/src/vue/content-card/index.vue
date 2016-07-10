@@ -1,6 +1,6 @@
 <template>
 
-  <a v-link="{ name: 'explore-content', params: {content_id: id} }">
+  <a v-link="link">
     <img class="content-icon" v-if="kind" :src="icon">
     <img :src="thumbnail" class="thumbnail">
     <h3>
@@ -13,6 +13,8 @@
 
 
 <script>
+
+  const PageNames = require('../../state/constants').PageNames;
 
   module.exports = {
     props: {
@@ -59,9 +61,12 @@
         // See https://webpack.github.io/docs/context.html
         return require(`./content-icons/${this.progress}-${this.kind}.svg`);
       },
-    },
-    vuex: {
-      actions: require('../../actions'),
+      link() {
+        return {
+          name: PageNames.EXPLORE_CONTENT,
+          params: { id: this.id },
+        };
+      },
     },
   };
 

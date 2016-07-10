@@ -1,69 +1,96 @@
-const Kolibri = require('kolibri');
+const Resources = require('kolibri').resources.ContentNodeResource;
+const constants = require('./state/constants');
 
-/**
- * Action to fetch a particular content node from the API.
- * @param {Function} dispatch - The dispatch method of the store object.
- * @param {String} id - The id of the model to be fetched.
- */
-const fetchFullContent = ({ dispatch }, id) => {
-  // Get the model from ContentNodeResource.
-  if (typeof id === 'undefined') {
-    id = 'root'; // eslint-disable-line no-param-reassign
-  }
-  const contentModel = Kolibri.resources.ContentNodeResource.getModel(id);
-  // Check to see if it is already synced from the server.
-  if (contentModel.synced) {
-    // If so, immediately dispatch the mutation to set the attributes of the model into the store.
-    dispatch('SET_FULL_CONTENT', contentModel.attributes);
-  } else {
-    // Otherwise, perform the fetch, and if the promise resolves, then call the mutation.
-    contentModel.fetch().then(() => {
-      dispatch('SET_FULL_CONTENT', contentModel.attributes);
+const PageNames = constants.PageNames;
+
+
+function _crumbState(ancestors) {
+  // skip the root node
+  return ancestors.slice(1).map(ancestor => ({
+    id: ancestor.pk,
+    title: ancestor.title,
+  }));
+}
+
+function _topicState(data) {
+  const state = {
+    id: data.pk,
+    title: data.title,
+    description: data.description,
+    breadcrumbs: _crumbState(data.ancestors),
+  };
+  return state;
+}
+
+function _contentState(data) {
+  const state = {
+    id: data.pk,
+    title: data.title,
+    kind: data.kind,
+    description: data.description,
+    thumbnail: data.thumbnail,
+    available: data.available,
+    files: data.files,
+    progress: data.progress ? data.progress : 'unstarted',
+    breadcrumbs: _crumbState(data.ancestors),
+  };
+  return state;
+}
+
+function showExploreTopic(store, id) {
+  store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
+
+  const attributesPromise = Resources.getModel(id).fetch();
+  const childrenPromise = Resources.getCollection({ parent: id }).fetch();
+
+  Promise.all([attributesPromise, childrenPromise])
+    .then(([attributes, children]) => {
+      const pageState = { id };
+      pageState.topic = _topicState(attributes);
+      pageState.subtopics = children
+        .filter((item) => item.kind === 'topic')
+        .map((item) => _topicState(item));
+      pageState.contents = children
+        .filter((item) => item.kind !== 'topic')
+        .map((item) => _contentState(item));
+      store.dispatch('SET_PAGE_STATE', pageState);
+    })
+    .catch((error) => {
+      // TODO - how to parse and format?
+      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
     });
-  }
-};
+}
 
-/**
- * Function to dispatch mutations to topics and contents by node kind.
- * @param {Object[]} nodes - Data to dispatch mutations with.
- * @param {Function} dispatch - dispatch method of Vuex Store.
- */
-const nodeAssignment = (nodes, dispatch) => {
-  const topics = nodes.filter((node) => node.kind === 'topic');
-  const contents = nodes.filter((node) => node.kind !== 'topic');
+function showExploreContent(store, id) {
+  store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
-  // clean up API response
-  contents.forEach(content => {
-    if (!content.progress) {
-      content.progress = 'unstarted'; // eslint-disable-line no-param-reassign
-    }
-  });
-
-  dispatch('SET_TOPICS', topics);
-  dispatch('SET_CONTENTS', contents);
-};
-
-/**
- * Action to fetch child topics of a particular topic from the API.
- * @param {Function} dispatch - The dispatch method of the store object.
- * @param {String} id - The id of the model to fetch the children of.
- */
-const fetchNodes = ({ dispatch }, id) => {
-  // Get the collection from ContentNodeResource.
-  if (typeof id === 'undefined') {
-    id = 'root'; // eslint-disable-line no-param-reassign
-  }
-  const contentCollection = Kolibri.resources.ContentNodeResource.getCollection({ parent: id });
-  if (contentCollection.synced) {
-    nodeAssignment(contentCollection.data, dispatch);
-  } else {
-    contentCollection.fetch().then(() => {
-      nodeAssignment(contentCollection.data, dispatch);
+  Resources.getModel(id).fetch()
+    .then((attributes) => {
+      const pageState = _contentState(attributes);
+      store.dispatch('SET_PAGE_STATE', pageState);
+    })
+    .catch((error) => {
+      // TODO - how to parse and format?
+      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
     });
-  }
-};
+}
+
+function showLearnRoot(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
+  store.dispatch('SET_PAGE_STATE', {}); // TODO
+}
+
+function showScratchpad(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
+  store.dispatch('SET_PAGE_STATE', {});
+}
+
 
 module.exports = {
-  fetchFullContent,
-  fetchNodes,
+  showExploreTopic,
+  showExploreContent,
+  showLearnRoot,
+  showScratchpad,
 };

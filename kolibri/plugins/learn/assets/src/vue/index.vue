@@ -4,7 +4,10 @@
 
     <nav id="learn-nav">
       <ul>
-        <a v-link="{ name: 'learn-page' }">
+        <a
+          v-link="{ name: $options.PageNames.LEARN_ROOT }"
+          :class='{active: pageMode === $options.PageModes.LEARN}'
+        >
           <li><span>
           <svg fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
             <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
@@ -13,7 +16,10 @@
           Learn
           </span></li>
         </a>
-        <a v-link="{ name: 'explore-page' }">
+        <a
+          v-link="{ name: $options.PageNames.EXPLORE_ROOT }"
+          :class='{active: pageMode === $options.PageModes.EXPLORE}'
+        >
           <li><span>
           <svg fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 10.9c-.61 0-1.1.49-1.1 1.1s.49 1.1 1.1 1.1c.61 0 1.1-.49 1.1-1.1s-.49-1.1-1.1-1.1zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm2.19 12.19L6 18l3.81-8.19L18 6l-3.81 8.19z"></path>
@@ -25,10 +31,19 @@
       </ul>
     </nav>
 
-    <div class="page-wrapper">
-      <!-- see router.js -->
-      <router-view></router-view>
+    <div class="page-wrapper" v-if="!loading && !error">
+      <explore-page v-if='showExplorePage'></explore-page>
+      <content-page v-if='showContentPage'></content-page>
+      <learn-page v-if='showLearnPage'></learn-page>
+      <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
     </div>
+    <div class="page-wrapper" v-if='error'>
+      <error-page></error-page>
+    </div>
+
+
+    <!-- this is not used, but necessary for vue-router to function -->
+    <router-view></router-view>
 
   </core-base>
 
@@ -37,12 +52,44 @@
 
 <script>
 
+  const getters = require('../state/getters');
+  const constants = require('../state/constants');
+  const store = require('../state/store');
+  const PageNames = constants.PageNames;
+
   module.exports = {
+    mixins: [constants], // makes constants available in $options
     components: {
       'core-base': require('core-base'),
+      'explore-page': require('./explore-page'),
+      'content-page': require('./content-page'),
+      'learn-page': require('./learn-page'),
+      'scratchpad-page': require('./scratchpad-page'),
+      'error-page': require('./error-page'),
     },
-    // make this and all child components aware of the store
-    store: require('../store'),
+    computed: {
+      showExplorePage() {
+        return this.pageName === PageNames.EXPLORE_ROOT || this.pageName === PageNames.EXPLORE_TOPIC;
+      },
+      showContentPage() {
+        return this.pageName === PageNames.EXPLORE_CONTENT;
+      },
+      showLearnPage() {
+        return this.pageName === PageNames.LEARN_ROOT;
+      },
+      showScratchpadPage() {
+        return this.pageName === PageNames.SCRATCHPAD;
+      },
+    },
+    vuex: {
+      getters: {
+        pageMode: getters.pageMode,
+        pageName: state => state.pageName,
+        loading: state => state.loading,
+        error: state => state.error,
+      },
+    },
+    store, // make this and all child components aware of the store
   };
 
 </script>
@@ -96,14 +143,14 @@
     fill: $core-action-normal
 
   // this class is automatically added to links with the v-link directive
-  a.v-link-active
+  a.active
     color: $core-bg-light
     background: $core-action-normal
 
     svg
       fill: $core-bg-light
 
-  a.v-link-active:hover
+  a.active:hover
     svg
       fill: $core-bg-light
 

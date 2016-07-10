@@ -4,13 +4,18 @@ class ContentNodeResource extends Resource {
   constructor(...args) {
     super(...args);
     this._models = {};
+    this._collections = {};
   }
   setChannel(channelId) {
     // Track models for different channels separately.
     if (!this._models[channelId]) {
       this._models[channelId] = {};
     }
+    if (!this._collections[channelId]) {
+      this._collections[channelId] = {};
+    }
     this.models = this._models[channelId];
+    this.collections = this._collections[channelId];
     this.channelId = channelId;
   }
   get modelUrl() {
