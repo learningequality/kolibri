@@ -38,4 +38,16 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  a
+    box-sizing: border-box
+    padding: 0.5rem
+
+  h3
+    font-size: 1rem
+    overflow: hidden
+    white-space: nowrap
+    text-overflow: ellipsis
+
+</style>
