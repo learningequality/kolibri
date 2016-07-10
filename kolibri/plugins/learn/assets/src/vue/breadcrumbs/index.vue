@@ -1,8 +1,11 @@
 <template>
 
   <nav>
+    <span class="parent">
+      <a v-link="rootLink">All</a> /
+    </span>
     <span class="parent" v-for="crumb in crumbs">
-      <a :href="crumb.url">{{ crumb.name | capitalize }} </a> /
+      <a v-link="crumbLink(crumb.id)">{{ crumb.title }} </a> /
     </span>
     <span class="child">
       {{ current | capitalize }}
@@ -14,8 +17,36 @@
 
 <script>
 
+  const PageNames = require('../../state/constants').PageNames;
+
   module.exports = {
-    props: ['crumbs', 'current'],
+    props: {
+      rootid: {
+        type: String,
+        required: true,
+      },
+      crumbs: {
+        type: Array,
+        required: true,
+      },
+      current: {
+        type: String,
+        required: true,
+      },
+    },
+    computed: {
+      rootLink() {
+        return { name: PageNames.EXPLORE_ROOT };
+      },
+    },
+    methods: {
+      crumbLink(id) {
+        return {
+          name: PageNames.EXPLORE_TOPIC,
+          params: { id },
+        };
+      },
+    },
   };
 
 </script>

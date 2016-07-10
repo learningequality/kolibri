@@ -1,18 +1,27 @@
 <template>
 
-  <breadcrumbs v-if="breadcrumbs"></breadcrumbs>
+  <breadcrumbs
+    v-if='!isRoot'
+    :rootid='rootTopicId'
+    :crumbs='topic.breadcrumbs'
+    :current='topic.title'>
+  </breadcrumbs>
 
-  <card-grid header="Topics" v-if="topics.length">
+  <p v-if='topic.description'>
+    {{ topic.description }}
+  </p>
+
+  <card-grid v-if="subtopics.length">
     <topic-card
-      v-for="topic in topics"
-      :id="topic.pk"
+      v-for="topic in subtopics"
+      :id="topic.id"
       :title="topic.title"
       :ntotal="topic.n_total"
       :ncomplete="topic.n_complete">
     </topic-card>
   </card-grid>
 
-  <card-grid header="Content" v-if="contents.length">
+  <card-grid v-if="contents.length">
     <content-card
       v-for="content in contents"
       class="card"
@@ -20,7 +29,7 @@
       :thumbnail="content.thumbnail"
       :kind="content.kind"
       :progress="content.progress"
-      :id="content.pk">
+      :id="content.id">
     </content-card>
 
   </card-grid>
@@ -31,9 +40,6 @@
 <script>
 
   module.exports = {
-    created() {
-      this.fetchNodes(this.id);
-    },
     components: {
       'breadcrumbs': require('../breadcrumbs'),
       'topic-card': require('../topic-card'),
@@ -42,17 +48,11 @@
     },
     vuex: {
       getters: {
-        // better practice would be to define vuex getter functions globally
-        topics: state => state.topics,
-        contents: state => state.contents,
-        // from URL
-        id: state => state.route.params.content_id,
-      },
-      actions: require('../../actions'),
-    },
-    watch: {
-      id(value) {
-        this.fetchNodes(value);
+        rootTopicId: state => state.rootTopicId,
+        topic: state => state.pageState.topic,
+        subtopics: state => state.pageState.subtopics,
+        contents: state => state.pageState.contents,
+        isRoot: (state) => state.pageState.topic.id === state.rootTopicId,
       },
     },
   };

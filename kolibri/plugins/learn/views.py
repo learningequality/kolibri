@@ -24,4 +24,5 @@ class LearnView(TemplateView):
             context['nodes'] = JSONRenderer().render(topics_serializer.data)
             context['rootnode'] = JSONRenderer().render(root_node_serializer.data)
         context['kolibri'] = settings.KOLIBRI_CORE_JS_NAME
+        context['channel_id'] = channel_id
         return context

@@ -1,8 +1,9 @@
 const logging = require('loglevel');
 const rest = require('rest');
 const mime = require('rest/interceptor/mime');
+const errorCode = require('rest/interceptor/errorCode');
 
-const client = rest.wrap(mime);
+const client = rest.wrap(mime).wrap(errorCode);
 
 /** Class representing a single API resource object */
 class Model {
@@ -33,10 +34,14 @@ class Model {
    * Method to fetch data from the server for this particular model.
    * @param {object} params - an object of parameters to be parsed into GET parameters on the
    * fetch.
+   * @param {boolean} force - fetch whether or not it's been synced already.
    * @returns {Promise} - Promise is resolved with Model attributes when the XHR successfully
    * returns, otherwise reject is called with the response object.
    */
-  fetch(params = {}) {
+  fetch(params = {}, force = false) {
+    if (!force && this.synced) {
+      return Promise.resolve(this.attributes);
+    }
     this.synced = false;
     return new Promise((resolve, reject) => {
       // Do a fetch on the URL.
@@ -95,10 +100,14 @@ class Collection {
    * Method to fetch data from the server for this collection.
    * @param {object} extraParams - an object of parameters to be parsed into GET parameters on the
    * fetch.
+   * @param {boolean} force - fetch whether or not it's been synced already.
    * @returns {Promise} - Promise is resolved with Array of Model attributes when the XHR
    * successfully returns, otherwise reject is called with the response object.
    */
-  fetch(extraParams = {}) {
+  fetch(extraParams = {}, force = false) {
+    if (!force && this.synced) {
+      return Promise.resolve(this.data);
+    }
     this.synced = false;
     const params = Object.assign({}, this.params, extraParams);
     return new Promise((resolve, reject) => {
@@ -115,7 +124,7 @@ class Collection {
           model.synced = true; // eslint-disable-line no-param-reassign
         });
         // Return the data from the models, not the models themselves.
-        resolve(this.models.map((model) => model.attributes));
+        resolve(this.data);
       }, (response) => {
         logging.error('An error occurred', response);
         reject(response);
