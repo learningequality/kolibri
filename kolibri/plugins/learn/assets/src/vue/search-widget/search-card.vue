@@ -1,11 +1,21 @@
 <template>
 
-  <div class="search-card" v-link="{ name: 'explore-content', params: {content_id: id} }">
+  <div class="search-card">
     <div class="header">
-      <img class="content-icon" v-if="kind" :src="icon">
-      <h4>
-        {{ title }}
-      </h4>
+      <topic-card v-if="topic"
+      :id="id"
+      :title="title"
+      :description="description">
+      </topic-card>
+      <content-card v-else
+      :id="id"
+      :title="title"
+      :description="description"
+      :thumbnail="thumbnail"
+      :kind="kind"
+      :progress="progress"
+      :show-thumbnail="false">
+      </content-card>
     </div>
     <p class="description">
       {{ description }}
@@ -18,6 +28,15 @@
 <script>
 
   module.exports = {
+    components: {
+      topicCard: require('../topic-card'),
+      contentCard: require('../content-card'),
+    },
+    computed: {
+      topic() {
+        return this.kind === 'topic';
+      },
+    },
     props: {
       id: {
         type: String,
@@ -31,6 +50,9 @@
         type: String,
         required: true,
       },
+      thumbnail: {
+        default: '',
+      },
       kind: {
         type: String,
         required: true,
@@ -43,6 +65,7 @@
             'topic',
           ].some(elem => elem === value);
         },
+        default: 'topic',
       },
       progress: {
         type: String,
@@ -54,20 +77,6 @@
           ].some(elem => elem === value);
         },
       },
-    },
-    computed: {
-      icon() {
-        // Note: dynamic requires should be used carefully because
-        //  they greedily add items to the webpack bundle.
-        // See https://webpack.github.io/docs/context.html
-        if (this.kind === 'topic') {
-          return require(`./content-icons/${this.kind}.svg`);
-        }
-        return require(`./content-icons/${this.progress}-${this.kind}.svg`);
-      },
-    },
-    vuex: {
-      actions: require('../../actions'),
     },
   };
 
@@ -92,20 +101,7 @@
   
   .header
     margin-top: 8px
-  .content-icon
-    width: 10%
-    vertical-align:middle
-  h4
-    width: 80%
-    margin-left: 8px
-    margin-right: 8px
-    margin-top: 0
-    margin-bottom: 0
-    color: $core-action-normal
-    display: inline-flex
-  a
-    box-sizing: border-box
-    margin-bottom: 1rem
+
   .description
     color: $core-text-default
     font-size: 12px

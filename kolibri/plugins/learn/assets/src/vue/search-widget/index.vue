@@ -1,7 +1,7 @@
 <template>
 
-  <div v-show="search_toggled" @click="toggleSearch()" class="searchscreen" transition="fade"></div>
-  <div v-show="search_toggled" class="sidesearch" transition="glide">
+  <div v-show="searchtoggled" @click="toggleSearch()" class="searchscreen" transition="fade"></div>
+  <div v-show="searchtoggled" class="sidesearch" transition="glide">
     <div class="search-container">
       <label @click="toggleSearch()" class="close-search">
           <span class="close-search-img">search</span>
@@ -15,24 +15,24 @@
     </div>
 
     <div class="result-container">
-      <h6 v-show="searchterm" v-bind:class="{ 'hideme': typing || !search_finished }" id="search-prompt" transition="fade">{{ prompttext }}</h6>
-      <div v-show="searchterm" class="result-list" v-if="search_topics.length > 0 || search_contents.length > 0" v-bind:class="{ 'search-in-progress': typing || !search_finished }">
+      <h6 v-show="searchterm" v-bind:class="{ 'hideme': typing || searchLoading }" id="search-prompt" transition="fade">{{ prompttext }}</h6>
+      <div v-show="searchterm" class="result-list" v-if="searchTopics.length > 0 || searchContents.length > 0" v-bind:class="{ 'search-in-progress': typing || searchLoading }">
         <search-card
-          v-for="topic in search_topics"
+          v-for="topic in searchTopics"
           class="card"
           :title="topic.title"
           :description="topic.description"
           :kind="topic.kind"
-          :id="topic.pk">
+          :id="topic.id">
         </search-card>
         <search-card
-          v-for="content in search_contents"
+          v-for="content in searchContents"
           class="card"
           :title="content.title"
           :description="content.description"
           :kind="content.kind"
           :progress="content.progress"
-          :id="content.pk">
+          :id="content.id">
         </search-card>
       </div>
     </div>
@@ -45,8 +45,8 @@
         <li 
           class="page-btn"
           v-show="searchterm"
-          v-if="pages_sum <= 5 && pages_sum > 1"
-          v-for="page in pages_sum"
+          v-if="pageCount <= 5 && pageCount > 1"
+          v-for="page in pageCount"
           v-bind:class="{ 'selected': currentpage === page + 1 }"
           @click="searchContent(page + 1)"
         >{{ page + 1 }}</li>
@@ -56,7 +56,7 @@
         <li 
           class="page-btn"
           v-show="searchterm"
-          v-if="pages_sum > 5"
+          v-if="pageCount > 5"
           v-bind:class="{ 'selected': currentpage === 1 }"
           @click="searchContent(1)"
         >{{ 1 }}</li>
@@ -64,12 +64,12 @@
         <li 
           class="page-btn disabled"
           v-show="searchterm"
-          v-if="pages_sum > 5 && currentpage >= 5"
+          v-if="pageCount > 5 && currentpage >= 5"
         > ... </li>
         <li 
           class="page-btn"
           v-show="searchterm"
-          v-if="pages_sum > 5 && currentpage <5"
+          v-if="pageCount > 5 && currentpage <5"
           v-for="page in 4"
           v-bind:class="{ 'selected': currentpage === page + 2 }"
           @click="searchContent(page + 2)"
@@ -77,7 +77,7 @@
         <li 
           class="page-btn"
           v-show="searchterm"
-          v-if="pages_sum > 5 && currentpage >=5 && currentpage < pages_sum - 3"
+          v-if="pageCount > 5 && currentpage >=5 && currentpage < pageCount - 3"
           v-for="page in 3"
           v-bind:class="{ 'selected': currentpage === currentpage + page - 1 }"
           @click="searchContent(currentpage + page - 1)"
@@ -86,28 +86,28 @@
         <li 
           class="page-btn"
           v-show="searchterm"
-          v-if="pages_sum > 5 && currentpage > pages_sum - 4 && currentpage <= pages_sum"
+          v-if="pageCount > 5 && currentpage > pageCount - 4 && currentpage <= pageCount"
           v-for="page in 4"
-          v-bind:class="{ 'selected': currentpage === pages_sum - 4 + page }"
-          @click="searchContent(pages_sum - 4 + page)"
-        >{{ pages_sum - 4 + page }}</li>
+          v-bind:class="{ 'selected': currentpage === pageCount - 4 + page }"
+          @click="searchContent(pageCount - 4 + page)"
+        >{{ pageCount - 4 + page }}</li>
 
         <li 
           class="page-btn disabled"
           v-show="searchterm"
-          v-if="pages_sum > 5 && currentpage < pages_sum - 3"
+          v-if="pageCount > 5 && currentpage < pageCount - 3"
         > ... </li>
 
         <!-- always show the last page btn -->
         <li 
           class="page-btn"
           v-show="searchterm"
-          v-if="pages_sum > 5"
-          v-bind:class="{ 'selected': currentpage === pages_sum }"
-          @click="searchContent(pages_sum)"
-        >{{ pages_sum }}</li>
+          v-if="pageCount > 5"
+          v-bind:class="{ 'selected': currentpage === pageCount }"
+          @click="searchContent(pageCount)"
+        >{{ pageCount }}</li>
 
-        <li @click="nextPage" class="page-btn last-btn"  v-bind:class="{ 'disabled': currentpage === pages_sum ||  !searchterm }">»</li>
+        <li @click="nextPage" class="page-btn last-btn"  v-bind:class="{ 'disabled': currentpage === pageCount ||  !searchterm }">»</li>
       </ul>
     </div>
   </div>
@@ -121,6 +121,12 @@
 
   module.exports = {
     directives: { focusModel },
+    props: {
+      searchtoggled: {
+        type: Boolean,
+        default: false,
+      },
+    },
     data: () => ({
       searchterm: '',
       currentpage: 1,
@@ -130,10 +136,10 @@
     }),
     computed: {
       prompttext() {
-        if (this.search_topics.length > 0 || this.search_contents.length > 0) {
+        if (this.searchTopics.length > 0 || this.searchContents.length > 0) {
           return 'Search result';
-        } else if (this.searchterm.length > 0 && this.search_topics.length === 0
-          && this.search_contents.length === 0 && this.search_finished) {
+        } else if (this.searchterm.length > 0 && this.searchTopics.length === 0
+          && this.searchContents.length === 0 && !this.searchLoading) {
           return 'Could not find anything matched';
         }
         if (this.searchterm.length === 0) {
@@ -148,18 +154,13 @@
         this.focused = true;
       },
       toggleSearch() {
-        if (this.search_toggled) {
-          this.searchToggleSwitch(false);
-        } else {
-          this.searchToggleSwitch(true);
-        }
+        this.searchtoggled = !this.searchtoggled;
       },
       searchContent(page) {
-        if (this.searchterm.length > 0) {
-          this.searchReset();
+        if (this.searchterm.length > 0 && !this.searchLoading) {
           this.lastsearch = this.searchterm;
           this.currentpage = page;
-          this.searchNodes(this.searchterm, page);
+          this.showSearchResults(this.searchterm, page);
         }
         this.typing = false;
       },
@@ -178,11 +179,11 @@
       },
       nextPage() {
         this.increasePage();
-        this.searchNodes(this.searchterm, this.currentpage);
+        this.showSearchResults(this.searchterm, this.currentpage);
       },
       prePage() {
         this.decreasePage();
-        this.searchNodes(this.searchterm, this.currentpage);
+        this.showSearchResults(this.searchterm, this.currentpage);
       },
     },
     components: {
@@ -191,11 +192,10 @@
     vuex: {
       getters: {
         // better practice would be to define vuex getter functions globally
-        search_contents: state => state.searchcontents,
-        search_topics: state => state.searchtopics,
-        search_toggled: state => state.searchtoggled,
-        pages_sum: state => state.searchpages,
-        search_finished: state => state.searchfinished,
+        searchContents: state => state.searchState.contents || [],
+        searchTopics: state => state.searchState.topics || [],
+        pageCount: state => state.searchState.pageCount,
+        searchLoading: state => state.searchLoading,
       },
       actions: require('../../actions'),
     },

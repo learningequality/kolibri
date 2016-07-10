@@ -2,7 +2,8 @@
 
   <a v-link="link">
     <img class="content-icon" v-if="kind" :src="icon">
-    <img :src="thumbnail" class="thumbnail">
+    <img :src="thumbnail" class="thumbnail" v-if="showThumbnail">
+    <div class="thumbnail" v-else>&nbsp;</div>
     <h3>
       {{ title }}
     </h3>
@@ -52,6 +53,11 @@
             'unstarted',
           ].some(elem => elem === value);
         },
+      },
+      showThumbnail: {
+        // Add this as an option to show a truncated card.
+        type: Boolean,
+        default: true,
       },
     },
     computed: {
