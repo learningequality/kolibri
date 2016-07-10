@@ -3,7 +3,6 @@ const constants = require('./state/constants');
 
 const PageNames = constants.PageNames;
 
-
 function _crumbState(ancestors) {
   // skip the root node
   return ancestors.slice(1).map(ancestor => ({
@@ -87,10 +86,45 @@ function showScratchpad(store) {
   store.dispatch('SET_PAGE_STATE', {});
 }
 
+function showSearchResults(store, params, page) {
+  store.dispatch('SET_SEARCH_LOADING', true);
+
+  const pageSize = 15;
+  const contentCollection = Resources.getPagedCollection({
+    search: params,
+  }, {
+    pageSize,
+    page,
+  });
+  const searchResultsPromise = contentCollection.fetch();
+
+  searchResultsPromise.then((results) => {
+    const searchState = { params };
+    searchState.pageCount = contentCollection.pageCount;
+    searchState.topics = results
+      .filter((item) => item.kind === 'topic')
+      .map((item) => _topicState(item));
+    searchState.contents = results
+      .filter((item) => item.kind !== 'topic')
+      .map((item) => _contentState(item));
+    store.dispatch('SET_SEARCH_STATE', searchState);
+    store.dispatch('SET_SEARCH_LOADING', false);
+  })
+  .catch((error) => {
+    // TODO - how to parse and format?
+    store.dispatch('SET_SEARCH_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
+
+const searchReset = ({ dispatch }) => {
+  dispatch('SET_SEARCH_LOADING', false);
+};
 
 module.exports = {
   showExploreTopic,
   showExploreContent,
   showLearnRoot,
   showScratchpad,
+  showSearchResults,
+  searchReset,
 };
