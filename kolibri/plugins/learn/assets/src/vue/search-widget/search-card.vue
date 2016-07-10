@@ -89,6 +89,9 @@
     padding: 2px 16px
     border-radius: 4px
     cursor: pointer
+    border: 2px solid transparent
+  .search-card:hover
+    border: 2px solid $core-action-light
   
   .header
     margin-top: 8px
