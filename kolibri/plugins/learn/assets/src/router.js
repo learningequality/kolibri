@@ -6,7 +6,7 @@ Vue.use(VueRouter);
 
 
 /** Wrapper around Vue Router.
- *  Implements URL mapping to Vuex actions rather than Vue components.
+ *  Implements URL mapping to functions rather than Vue components.
  */
 class Router {
   /**
@@ -36,7 +36,7 @@ class Router {
    * Set up a route
    * @param name - http://router.vuejs.org/en/named.html
    * @param path - http://router.vuejs.org/en/route.html#route-matching
-   * @param action - Vuex action to call. Passed parameters will be:
+   * @param action - function to call. Passed parameters will be:
    *  - 'to' route
    *  - 'from' route
    */
