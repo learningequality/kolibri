@@ -5,12 +5,13 @@
 
 
 $card-width = 196px
-$card-gutter = 10px
-$card-presets = 2 3 4 5
+$card-gutter = 20px
+$card-presets = 2 3 4
 $nav-bar-width = 80px
+$tool-bar-height = 5rem
 
-wrapper-auto-adjust()
+width-auto-adjust()
   for $preset in $card-presets
-    $min-width = $nav-bar-width + ($card-width * $preset) + ($card-gutter * ($preset - 1))
+    $min-width = ($card-width * $preset) + ($card-gutter * ($preset - 1))
     @media (min-width:$min-width)
       width: $min-width

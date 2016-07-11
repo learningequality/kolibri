@@ -1,48 +1,54 @@
 <template>
 
-  <div v-show="searchtoggled" @click="toggleSearch()" class="searchscreen" transition="fade"></div>
-  <div v-show="searchtoggled" class="sidesearch" transition="glide">
-    <div class="search-container">
-      <label @click="toggleSearch()" class="close-search">
-          <span class="close-search-img">search</span>
-      </label>
+  <div v-if="searchtoggled">
+    <div class="searchbar">
+      <span
+        @click="toggleSearch()"
+        class="close-search">
+        close
+      </span>
+
       <form class="searchform" v-on:submit.prevent>
         <input v-focus-model="focused" type="search" v-model="searchterm" name="search" autocomplete="off" placeholder="Find content..." @keydown="isTyping()" @keyup="searchContent(1) | debounce 500" id="search" class="search-input">
-        <label v-show="searchterm" class="reset-search" type="reset" @click="reFocus()">
-          <span class="reset-img">clear</span>
-        </label>
+        <img
+          class="reset-img"
+          v-show="searchterm"
+          @click="reFocus()"
+          src="./trash.svg">
       </form>
     </div>
 
-    <div class="result-container">
-      <h6 v-show="searchterm" v-bind:class="{ 'hideme': typing || searchLoading }" id="search-prompt" transition="fade">{{ prompttext }}</h6>
-      <div v-show="searchterm" class="result-list" v-if="searchTopics.length > 0 || searchContents.length > 0" v-bind:class="{ 'search-in-progress': typing || searchLoading }">
-        <search-card
+    <h6 v-if=" prompttext && (typing || searchLoading)" transition="fade">{{ prompttext }}</h6>
+
+    <section v-if="searchterm" v-if="searchTopics.length || searchContents.length" class="results">
+      <card-grid header="Topics" v-bind:class="{ 'search-in-progress': typing || searchLoading }">
+        <topic-card
           v-for="topic in searchTopics"
-          class="card"
           :title="topic.title"
           :description="topic.description"
           :kind="topic.kind"
           :id="topic.id">
-        </search-card>
-        <search-card
+        </topic-card>
+      </card-grid>
+
+      <card-grid header="Content">
+        <content-card
           v-for="content in searchContents"
-          class="card"
           :title="content.title"
+          :thumbnail="content.thumbnail"
           :description="content.description"
           :kind="content.kind"
           :progress="content.progress"
           :id="content.id">
-        </search-card>
-      </div>
-    </div>
+        </content-card>
+      </card-grid>
 
     <div class="pagination-container" transition="fade">
       <ul class="pagination">
         <li @click="prePage" class="page-btn pre-btn" v-bind:class="{ 'disabled': currentpage === 1 ||  !searchterm }">«</li>
 
         <!-- when there are less or equal than 5 pages, use this layout -->
-        <li 
+        <li
           class="page-btn"
           v-show="searchterm"
           v-if="pageCount <= 5 && pageCount > 1"
@@ -53,7 +59,7 @@
 
         <!-- when there are more than 5 pages, use this very complicated layout -->
         <!-- always show the first page btn -->
-        <li 
+        <li
           class="page-btn"
           v-show="searchterm"
           v-if="pageCount > 5"
@@ -61,12 +67,12 @@
           @click="searchContent(1)"
         >{{ 1 }}</li>
 
-        <li 
+        <li
           class="page-btn disabled"
           v-show="searchterm"
           v-if="pageCount > 5 && currentpage >= 5"
         > ... </li>
-        <li 
+        <li
           class="page-btn"
           v-show="searchterm"
           v-if="pageCount > 5 && currentpage <5"
@@ -74,7 +80,7 @@
           v-bind:class="{ 'selected': currentpage === page + 2 }"
           @click="searchContent(page + 2)"
         >{{ page + 2 }}</li>
-        <li 
+        <li
           class="page-btn"
           v-show="searchterm"
           v-if="pageCount > 5 && currentpage >=5 && currentpage < pageCount - 3"
@@ -83,7 +89,7 @@
           @click="searchContent(currentpage + page - 1)"
         >{{ currentpage + page - 1 }}</li>
         <!-- when reach the last 4 pages -->
-        <li 
+        <li
           class="page-btn"
           v-show="searchterm"
           v-if="pageCount > 5 && currentpage > pageCount - 4 && currentpage <= pageCount"
@@ -92,14 +98,14 @@
           @click="searchContent(pageCount - 4 + page)"
         >{{ pageCount - 4 + page }}</li>
 
-        <li 
+        <li
           class="page-btn disabled"
           v-show="searchterm"
           v-if="pageCount > 5 && currentpage < pageCount - 3"
         > ... </li>
 
         <!-- always show the last page btn -->
-        <li 
+        <li
           class="page-btn"
           v-show="searchterm"
           v-if="pageCount > 5"
@@ -110,6 +116,8 @@
         <li @click="nextPage" class="page-btn last-btn"  v-bind:class="{ 'disabled': currentpage === pageCount ||  !searchterm }">»</li>
       </ul>
     </div>
+
+    </section>
   </div>
 
 </template>
@@ -191,7 +199,9 @@
       },
     },
     components: {
-      'search-card': require('./search-card'),
+      'card-grid': require('../card-grid'),
+      'topic-card': require('../topic-card'),
+      'content-card': require('../content-card'),
     },
     vuex: {
       getters: {
@@ -212,99 +222,25 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-      
-// search input box
-  .search-container
+
+// search area
+  .searchbar
+  .searchform
     width: 100%
-    height: 70px
-    background-color: $core-bg-canvas
-  .sidesearch
-    height: 100%
-    width: 30%
-    min-width: 400px
-    max-width: 600px
-    background-color: $core-bg-canvas
-    position: fixed
-    right: 0
-    z-index: 99
-  .searchscreen
-    height: 100%
-    width: 100%
-    background-color: #dddddd
-    opacity: 0.7
-    position: fixed
-    z-index: 9
-    left: 0
-  .search-input
-    outline: none
-    position: relative
-    background-color: $core-bg-light
-    border-radius: 40px
-    padding: 12px
-    width: 80%
-    max-width: 500px
-    min-width: 300px
-    height:30px
-    border: 2px solid #cccccc
-    pointer-events: auto
-    top: 32px
-    left: 50%
-    transform: translateX(-50%)
-  .reset-search
-    position: absolute
-    height: 40px
-    width: 40px
-    text-indent: -10000px
-    cursor: pointer
-    top: 28px
-    margin-left: 10px
-  .reset-img
-    padding-top: 16px
-    margin-right: 14px
-    display: block
-    background: url('./trash.svg') no-repeat right
+    text-align: center
+    input
+      width: 80%
+
   .close-search
-    position: absolute
-    height: 40px
-    width: 40px
-    text-indent: -10000px
-    cursor: pointer
-    z-index: 1
-    left: -20px
-    top: 26px
-    border-radius: 50%
-    background-color: $core-text-annotation
-  .close-search-img
-    padding-top: 16px
-    margin-right: 8px
-    display: block
-    background: url('./close.svg') no-repeat right
-    
-// result list
-  .result-container
-    position: absolute
-    width: 100%
-    background-color: $core-bg-canvas
-    top: 70px
-    bottom: 78px
-  #search-prompt
-    color: $core-text-annotation
-    padding-left: 10px
-    margin: 4px
-  .result-list
-    overflow:hidden
-    overflow-y:auto
-    height: 100%
-  .spacer
-    background-color: red
+    color: gray
+    content: ''
+    background-image: url('./close.svg')
 
 // paginationm
   .pagination-container
     width: 100%
     height: 60px
     background-color: $core-bg-canvas
-    position: absolute
-    bottom: 0
     text-align: center
   .pagination
     padding: 0 12px
@@ -352,7 +288,7 @@
   .search-in-progress
     opacity: 0.5
 
-// scrollbar
+/* // scrollbar
 ::-webkit-scrollbar
   width: 22px
   margin-right: 20px
@@ -370,6 +306,6 @@
   border-radius: 14px
   border: 7px solid transparent
   background: #ffffff
-  background-clip: padding-box
+  background-clip: padding-box*/
 
 </style>

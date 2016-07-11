@@ -2,7 +2,7 @@
 
   <a v-link="link">
     <img class="content-icon" v-if="kind" :src="icon">
-    <img :src="thumbnail" class="thumbnail" v-if="showThumbnail">
+    <img :src="thumbnail" class="thumbnail" v-if="thumbnail" v-if="showThumbnail">
     <div class="thumbnail" v-else>&nbsp;</div>
     <h3>
       {{ title }}
