@@ -91,7 +91,7 @@ WSGI_APPLICATION = 'kolibri.deployment.default.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(conf.KOLIBRI_HOME, 'db.sqlite3'),
+        'NAME': os.path.join(KOLIBRI_HOME, 'db.sqlite3'),
     }
 }
 
@@ -119,6 +119,8 @@ if not os.path.exists(CONTENT_STORAGE_DIR):
 OLD_CONTENT_DATABASE_DIR = os.path.join(BASE_DIR, 'kolibri', 'content', 'content_db')
 OLD_CONTENT_STORAGE_DIR = os.path.join(BASE_DIR, "storage")
 def movetree(src, dst):
+    if not os.path.exists(src):
+        return
     if not os.path.exists(dst):
         os.makedirs(dst)
     for item in os.listdir(src):
@@ -127,7 +129,8 @@ def movetree(src, dst):
         if os.path.isdir(s):
             movetree(s, d)
         else:
-            shutil.move(s, d)
+            if not os.path.exists(d):
+                shutil.move(s, d)
 
 movetree(OLD_CONTENT_DATABASE_DIR, CONTENT_DATABASE_DIR)
 movetree(OLD_CONTENT_STORAGE_DIR, CONTENT_STORAGE_DIR)
@@ -151,6 +154,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(KOLIBRI_HOME, "static")
 
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
