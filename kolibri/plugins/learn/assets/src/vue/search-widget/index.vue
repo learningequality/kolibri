@@ -189,12 +189,16 @@
         this.currentpage -= 1;
       },
       nextPage() {
-        this.increasePage();
-        this.showSearchResults(this.searchterm, this.currentpage);
+        if (this.currentpage !== this.pageCount) {
+          this.increasePage();
+          this.showSearchResults(this.searchterm, this.currentpage);
+        }
       },
       prePage() {
-        this.decreasePage();
-        this.showSearchResults(this.searchterm, this.currentpage);
+        if (this.currentpage !== 1) {
+          this.decreasePage();
+          this.showSearchResults(this.searchterm, this.currentpage);
+        }
       },
     },
     components: {
