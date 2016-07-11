@@ -100,16 +100,14 @@
   @require '~core-theme.styl'
   @require '../learn'
 
-  /* positional styling for toolbar */
   .tool-bar
     width-auto-adjust()
     position: fixed
     top: 0
-    height: $tool-bar-height
-    padding: $tool-bar-height
+    padding-top: ($tool-bar-height / 4)
+    padding-bottom: ($tool-bar-height / 4)
     box-sizing: border-box
     background-color: $core-bg-canvas
-    float: left
     z-index: 1
   .breadcrumbs
     float: left
@@ -119,9 +117,8 @@
     margin-top: $tool-bar-height
 
   .breadcrumbs
-  select
-  label
-    height: $tool-bar-height/3
+  .search-tools
+    height: ($tool-bar-height / 2)
 
   select
     font-size: 0.8rem
