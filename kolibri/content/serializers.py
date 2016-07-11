@@ -22,10 +22,6 @@ class FileSerializer(serializers.ModelSerializer):
 
 class ContentNodeSerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
-
-    # Here we use a FileSerializer instead just the files reverse FK is because we want to get the computed field storage_url
-    # In order to improve performance in production, we should implement a client side method to calculate the file url using
-    # extension and checksum field along with the setting.STORAGE_ROOT, which can be passed to front end at template boostrapping.
     files = FileSerializer(many=True, read_only=True)
     ancestors = serializers.SerializerMethodField()
     thumbnail = serializers.SerializerMethodField()
