@@ -2,61 +2,63 @@
 
   <search-widget :searchtoggled.sync="searchToggled"></search-widget>
 
-  <!---------------------- Elements required for sidebar ---------------------->
-  <!-- Lots of these class names are not content-oriented or semantically
-  significant. Markup needs to reflect content, not styles. Will need to
-  refactor this. -->
-  <div class="tool-bar-container">
+  <!------------------------------ Top Toolbar ------------------------------>
 
-    <label v-show="!searchToggled" @click="searchToggleSwitch(true)" class="btn-search" for="search">
-      <span class="btn-search-img">search</span>
-    </label>
+  <div class="tool-bar">
 
-    <div v-show="!searchToggled" class="breadcrumbs-container" transition="fast">
-      <breadcrumbs
-        v-if='!isRoot'
-        :rootid='rootTopicId'
-        :crumbs='topic.breadcrumbs'
-        :current='topic.title'>
-      </breadcrumbs>
-    </div>
+    <breadcrumbs
+      v-show='!searchToggled'
+      v-if='!isRoot'
+      class='breadcrumbs'
+      :rootid='rootTopicId'
+      :crumbs='topic.breadcrumbs'
+      :current='topic.title'>
+    </breadcrumbs>
 
-    <!-- TODO exapsulate into the search bar vue component -->
-    <div class="tool-bar" :class="{ 'tool-bar-center' : searchToggled }" >
-      <select v-show="!searchToggled" class="btn-channel" transition="fast">
+    <div class="search-tools">
+
+      <select v-show="!searchToggled" class="channel-select" transition="fast">
         <option value="khan">Khan Academy</option>
         <option value="ck12">CK-12</option>
       </select>
+
+      <label v-show="!searchToggled" @click="searchToggleSwitch(true)">
+        <img alt="search" class="btn-search-img" src="../search-widget/search.svg">
+      </label>
+
     </div>
   </div>
-  <!-------------------------- End sidebar elements -------------------------->
 
-  <p v-if='topic.description'>
-    {{ topic.description }}
-  </p>
+  <!-- Toggles top margin if sidebar overlay is exposed -->
+  <section class="explore" :style="{'margin-top': searchToggled ? '0' : ''}">
 
-  <card-grid :header="isRoot ? 'Topics' : '' " v-if="subtopics.length">
-    <topic-card
-      v-for="topic in subtopics"
-      :id="topic.id"
-      :title="topic.title"
-      :ntotal="topic.n_total"
-      :ncomplete="topic.n_complete">
-    </topic-card>
-  </card-grid>
+    <p v-if='topic.description'>
+      {{ topic.description }}
+    </p>
 
-  <card-grid :header="isRoot ? 'Content' : '' " v-if="contents.length">
-    <content-card
-      v-for="content in contents"
-      class="card"
-      :title="content.title"
-      :thumbnail="content.thumbnail"
-      :kind="content.kind"
-      :progress="content.progress"
-      :id="content.id">
-    </content-card>
+    <card-grid :header="isRoot ? 'Topics' : '' " v-if="subtopics.length">
+      <topic-card
+        v-for="topic in subtopics"
+        :id="topic.id"
+        :title="topic.title"
+        :ntotal="topic.n_total"
+        :ncomplete="topic.n_complete">
+      </topic-card>
+    </card-grid>
 
-  </card-grid>
+    <card-grid :header="isRoot ? 'Content' : '' " v-if="contents.length">
+      <content-card
+        v-for="content in contents"
+        class="card"
+        :title="content.title"
+        :thumbnail="content.thumbnail"
+        :kind="content.kind"
+        :progress="content.progress"
+        :id="content.id">
+      </content-card>
+    </card-grid>
+
+  </section>
 
 </template>
 
@@ -98,57 +100,40 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-  $thumbnail-width = 200
-  $margin-width = 24
-  input-width(n-cols)
-    width: $thumbnail-width * (n-cols - 1)
-  media-query(n-cols)
-    .page-container
-      max-width: ($thumbnail-width * n-cols) + $margin-width * (n-cols - 1)
-    .tool-bar-container
-      width: ($thumbnail-width * n-cols) + $margin-width * (n-cols - 1)
-    .tool-bar-container .search-input-active
-      width: $thumbnail-width * (n-cols) * 0.7
-    .tool-bar-container .tool-bar-center
-      -webkit-transform: translateX(-(((($thumbnail-width * n-cols) + $margin-width * (n-cols - 1)) - ($thumbnail-width * (n-cols) * 0.7))/2)px)
-  .section-title
-    margin-top: 5vh
-    font-size: 1.2em
-    font-weight: 700
-  .tool-bar-container
+  @require '../learn'
+
+  .tool-bar
+    width-auto-adjust()
     position: fixed
     top: 0
-    height: 30px
+    height: $tool-bar-height
     padding: 30 0
+    box-sizing: border-box
     background-color: $core-bg-canvas
-    text-align: center
-    z-index: 1
-    .breadcrumbs-container
-      position: absolute
-      left:0
-      display: inline-block
-      line-height: 30px
-      z-index: -1000
-    .tool-bar
-      float: right
-      display: inline-block
-      opacity: 0.6
-      transition: all 0.3s ease-out
-    .tool-bar-center
-      height: 30px
-      text-align: center
-    .tool-bar-center .btn-search
-      pointer-events: none
-      top: 0
 
-  .card-section
-    position: relative
-    top: 60px
-  .page
-    margin-left: 80px
-  .page-container
-    max-width: (200*3) + 24*2
-    margin:auto
+  .breadcrumbs
+    float: left
+  .search-tools
+    float: right
+
+  select
+    font-size: 0.8rem
+    line-height: 1rem
+    padding: 0
+    border-width: 2
+    vertical-align: top
+
+  .breadcrumbs
+  select
+  label
+    height: 1.5rem
+
+  .explore
+    margin-top: $tool-bar-height
+
+  p
+    margin-top: 0
+
   .fast-transition
     transition: all 0.3s ease-out
   .fast-enter
@@ -157,29 +142,5 @@
   .fast-leave
     opacity: 0
     transform: translateX(-100%)
-  @media screen and (min-width: 570px)
-    media-query(2)
-  @media screen and (min-width: 810px)
-    media-query(3)
-  @media screen and (min-width: 1060px)
-    media-query(4)
-  @media screen and (min-width: 1280px)
-    media-query(5)
-  @media screen and (min-width: 1680px)
-    media-query(6)
-
-  .btn-search
-    position: relative
-    float: right
-    display: inline-block
-    height: 30px
-    width: 30px
-    background:none
-    border: none
-    text-indent: -10000px
-    cursor: pointer
-  .btn-search-img
-    display: block
-    background: url('../search-widget/search.svg') no-repeat right
 
 </style>

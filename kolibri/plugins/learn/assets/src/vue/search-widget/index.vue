@@ -42,7 +42,7 @@
         <li @click="prePage" class="page-btn pre-btn" v-bind:class="{ 'disabled': currentpage === 1 ||  !searchterm }">«</li>
 
         <!-- when there are less or equal than 5 pages, use this layout -->
-        <li 
+        <li
           class="page-btn"
           v-show="searchterm"
           v-if="pageCount <= 5 && pageCount > 1"
@@ -53,7 +53,7 @@
 
         <!-- when there are more than 5 pages, use this very complicated layout -->
         <!-- always show the first page btn -->
-        <li 
+        <li
           class="page-btn"
           v-show="searchterm"
           v-if="pageCount > 5"
@@ -61,12 +61,12 @@
           @click="searchContent(1)"
         >{{ 1 }}</li>
 
-        <li 
+        <li
           class="page-btn disabled"
           v-show="searchterm"
           v-if="pageCount > 5 && currentpage >= 5"
         > ... </li>
-        <li 
+        <li
           class="page-btn"
           v-show="searchterm"
           v-if="pageCount > 5 && currentpage <5"
@@ -74,7 +74,7 @@
           v-bind:class="{ 'selected': currentpage === page + 2 }"
           @click="searchContent(page + 2)"
         >{{ page + 2 }}</li>
-        <li 
+        <li
           class="page-btn"
           v-show="searchterm"
           v-if="pageCount > 5 && currentpage >=5 && currentpage < pageCount - 3"
@@ -83,7 +83,7 @@
           @click="searchContent(currentpage + page - 1)"
         >{{ currentpage + page - 1 }}</li>
         <!-- when reach the last 4 pages -->
-        <li 
+        <li
           class="page-btn"
           v-show="searchterm"
           v-if="pageCount > 5 && currentpage > pageCount - 4 && currentpage <= pageCount"
@@ -92,14 +92,14 @@
           @click="searchContent(pageCount - 4 + page)"
         >{{ pageCount - 4 + page }}</li>
 
-        <li 
+        <li
           class="page-btn disabled"
           v-show="searchterm"
           v-if="pageCount > 5 && currentpage < pageCount - 3"
         > ... </li>
 
         <!-- always show the last page btn -->
-        <li 
+        <li
           class="page-btn"
           v-show="searchterm"
           v-if="pageCount > 5"
@@ -207,7 +207,7 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-      
+
 // search input box
   .search-container
     width: 100%
@@ -274,7 +274,7 @@
     margin-right: 8px
     display: block
     background: url('./close.svg') no-repeat right
-    
+
 // result list
   .result-container
     position: absolute

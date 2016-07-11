@@ -41,7 +41,7 @@
         <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
       </div>
 
-      <div class="page-error" v-else>
+      <div v-else class="page-error">
         <error-page></error-page>
       </div>
 

@@ -1,7 +1,7 @@
 <template>
 
   <a v-link="link">
-    <img class="topic-card-folder" class="thumbnail" src="./folder.svg">
+    <img src="./folder.svg">
     <h3 class="title">
       {{ title }}
     </h3>
@@ -40,9 +40,13 @@
 
 <style lang="stylus" scoped>
 
+  img
+    width: 70%
+
   a
     box-sizing: border-box
     padding: 0.5rem
+    text-align: center
 
   h3
     font-size: 1rem
