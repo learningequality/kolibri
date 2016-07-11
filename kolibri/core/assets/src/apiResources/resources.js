@@ -1,7 +1,7 @@
-module.exports = [
-  require('./classroom'),
-  require('./contentNode'),
-  require('./facilityUser'),
-  require('./learnerGroup'),
-  require('./membership'),
-];
+module.exports = {
+  ClassroomResource: require('./classroom'),
+  ContentNodeResource: require('./contentNode'),
+  FacilityUserResource: require('./facilityUser'),
+  LearnerGroupResource: require('./learnerGroup'),
+  MembershipResource: require('./membership'),
+};
