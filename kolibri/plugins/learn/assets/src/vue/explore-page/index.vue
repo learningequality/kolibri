@@ -20,7 +20,7 @@
         <option value="ck12">CK-12</option>
       </select>
 
-      <label v-show="!searchToggled" @click="searchToggleSwitch(true)">
+      <label v-show="!searchToggled" @click="searchToggleSwitch(true)" for="search">
         <img alt="search" class="btn-search-img" src="../search-widget/search.svg">
       </label>
 
