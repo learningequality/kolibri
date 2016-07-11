@@ -28,7 +28,7 @@
 
   grid-auto-adjust()
     for $preset, $i in $card-presets
-      $min-width = $nav-bar-width + ($card-width * $preset) + ($card-gutter * ($preset - 1))
+      $min-width = ($card-width * $preset) + ($card-gutter * ($preset - 1))
       if($i)
         @media (min-width:$min-width)
           column(1/$preset, uncycle: $card-presets[$i-1], cycle: $preset, gutter: $card-gutter/$min-width)

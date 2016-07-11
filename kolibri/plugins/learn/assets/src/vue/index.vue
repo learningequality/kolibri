@@ -31,19 +31,24 @@
       </ul>
     </nav>
 
-    <div class="page-wrapper" v-if="!loading && !error">
-      <explore-page v-if='showExplorePage'></explore-page>
-      <content-page v-if='showContentPage'></content-page>
-      <learn-page v-if='showLearnPage'></learn-page>
-      <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
-    </div>
-    <div class="page-wrapper" v-if='error'>
-      <error-page></error-page>
-    </div>
+    <!-- accounts for margin offset by navbar -->
+    <div>
 
+      <div class="page-content" v-if="!loading && !error">
+        <explore-page v-if='showExplorePage'></explore-page>
+        <content-page v-if='showContentPage'></content-page>
+        <learn-page v-if='showLearnPage'></learn-page>
+        <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
+      </div>
 
-    <!-- this is not used, but necessary for vue-router to function -->
-    <router-view></router-view>
+      <div v-else class="page-error">
+        <error-page></error-page>
+      </div>
+
+      <!-- this is not used, but necessary for vue-router to function -->
+      <router-view></router-view>
+
+    </div>
 
   </core-base>
 
@@ -155,11 +160,13 @@
       fill: $core-bg-light
 
   // Page wrapper styling
-  .page-wrapper
-    padding-left: $nav-bar-width
-    margin: auto
+  div
+    margin-left: $nav-bar-width
 
-    wrapper-auto-adjust($nav-bar-width)
+  .page-content
+  .page-error
+    margin: auto
+    width-auto-adjust()
 
 </style>
 
