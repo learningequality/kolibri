@@ -134,6 +134,10 @@
       lastsearch: 'oblivion it is',
       focused: false,
     }),
+    created() {
+      // Preseed the searchterm with a value stored in the Vuex store.
+      this.searchterm = this.searchParams;
+    },
     computed: {
       prompttext() {
         if (this.searchTopics.length > 0 || this.searchContents.length > 0) {
@@ -196,6 +200,7 @@
         searchTopics: state => state.searchState.topics || [],
         pageCount: state => state.searchState.pageCount,
         searchLoading: state => state.searchLoading,
+        searchParams: state => state.searchState.params || '',
       },
       actions: require('../../actions'),
     },
