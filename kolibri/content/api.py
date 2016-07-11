@@ -1,9 +1,6 @@
 from django.db.models import Q
 from kolibri.content import models, serializers
 from rest_framework import filters, pagination, viewsets
-from .recommendations import recommendations_content_node
-from rest_framework.decorators import detail_route
-from rest_framework.response import Response
 
 from kolibri.logger.models import ContentInteractionLog
 from django.db.models.aggregates import Count
