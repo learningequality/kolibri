@@ -1,7 +1,7 @@
 <template>
 
   <a v-link="link">
-    <img src="./folder.svg">
+    <img src="../folder.svg">
     <h3 class="title">
       {{ title }}
     </h3>
