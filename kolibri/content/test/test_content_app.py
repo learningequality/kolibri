@@ -260,9 +260,9 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertTrue("pk" not in response.data)
 
     def test_contentnode_recommendations(self):
-        root_pk = str(content.ContentNode.objects.using(self.the_channel_id).get(title="root").pk)
-        response = self.client.get(self._reverse_channel_url("contentnode-recommendations", {'pk': root_pk}))
-        self.assertEqual(len(response.data), 4)
+        root_id = content.ContentNode.objects.get(title="root").id
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": root_id})
+        self.assertEqual(len(response.data), 5)
 
     def test_channelmetadata_list(self):
         data = content.ChannelMetadata.objects.values()[0]
@@ -277,7 +277,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data['name'], 'testing')
 
     def test_channelmetadata_recommendations(self):
-        response = self.client.get(reverse("channelmetadata-recommendations", kwargs={'channel_id': self.the_channel_id}))
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations": ""})
         self.assertEqual(len(response.data), 6)
 
     def test_file_list(self):
