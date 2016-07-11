@@ -264,4 +264,8 @@
   input[type=range]::-ms-fill-lower
     background: gray
 
+  /* hides popup label on slider */
+  input[type=range]::-ms-tooltip
+    display: none
+
 </style>
