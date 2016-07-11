@@ -247,8 +247,9 @@
   /* IE/Edge **********/
   input[type=range]::-ms-track
     border: 3px solid transparent
+    background: transparent
     color: transparent
-    padding: 10px 0
+    padding: 15px 0
     
   input[type=range]::-ms-thumb
     border: none
@@ -262,5 +263,9 @@
 
   input[type=range]::-ms-fill-lower
     background: gray
+
+  /* hides popup label on slider */
+  input[type=range]::-ms-tooltip
+    display: none
 
 </style>
