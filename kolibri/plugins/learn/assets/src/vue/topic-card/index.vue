@@ -41,7 +41,7 @@
 <style lang="stylus" scoped>
 
   img
-    width: 70%
+    width: 50%
 
   a
     box-sizing: border-box
@@ -49,7 +49,7 @@
     text-align: center
 
   h3
-    font-size: 1rem
+    font-size: 0.8rem
     overflow: hidden
     white-space: nowrap
     text-overflow: ellipsis
