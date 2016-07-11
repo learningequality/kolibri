@@ -159,7 +159,7 @@
     svg
       fill: $core-bg-light
 
-  // Page wrapper styling
+  // just a wrapper for the sidebar offset
   div
     margin-left: $nav-bar-width
 

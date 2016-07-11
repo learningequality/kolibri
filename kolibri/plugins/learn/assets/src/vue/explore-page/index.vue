@@ -1,8 +1,6 @@
 <template>
 
-  <search-widget :searchtoggled.sync="searchToggled"></search-widget>
-
-  <div class="tool-bar">
+  <div v-show="!searchToggled" class="tool-bar">
 
     <breadcrumbs
       v-show='!searchToggled'
@@ -28,7 +26,7 @@
   </div>
 
   <!-- Toggles top margin if sidebar overlay is exposed -->
-  <section class="explore" :style="{'margin-top': searchToggled ? '0' : ''}">
+  <section v-if="!searchToggled" class="explore" :style="{'margin-top': searchToggled ? '0' : ''}">
 
     <p v-if='topic.description'>
       {{ topic.description }}
@@ -57,6 +55,8 @@
     </card-grid>
 
   </section>
+
+  <search-widget :searchtoggled.sync="searchToggled"></search-widget>
 
 </template>
 
@@ -100,16 +100,15 @@
   @require '~core-theme.styl'
   @require '../learn'
 
-  /* positional styling for toolbar */
+    /* positional styling for toolbar */
   .tool-bar
     width-auto-adjust()
     position: fixed
     top: 0
-    height: $tool-bar-height
-    padding: $tool-bar-height
+    padding-top: ($tool-bar-height / 4)
+    padding-bottom: ($tool-bar-height / 4)
     box-sizing: border-box
     background-color: $core-bg-canvas
-    float: left
     z-index: 1
   .breadcrumbs
     float: left
@@ -121,7 +120,7 @@
   .breadcrumbs
   select
   label
-    height: $tool-bar-height/3
+    height: ($tool-bar-height / 2)
 
   select
     font-size: 0.8rem
