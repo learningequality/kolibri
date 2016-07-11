@@ -2,7 +2,7 @@
 
   <a v-link="link">
     <content-icon class="content-icon" v-if="kind" :kind="kind" :progress="progress"></content-icon>
-    <img :src="thumbnail" class="thumbnail" v-if="showThumbnail">
+    <img :src="validatedThumbnail" class="thumbnail" v-if="showThumbnail">
     <div class="thumbnail" v-else>&nbsp;</div>
     <h3>
       {{ title }}
@@ -32,7 +32,6 @@
       },
       thumbnail: {
         type: String,
-        required: true,
       },
       kind: {
         type: String,
@@ -69,6 +68,12 @@
           name: PageNames.EXPLORE_CONTENT,
           params: { id: this.id },
         };
+      },
+      validatedThumbnail() {
+        if (!this.thumbnail) {
+          return require(`./images/default_thumbnail.png`);
+        }
+        return this.thumbnail;
       },
     },
   };
