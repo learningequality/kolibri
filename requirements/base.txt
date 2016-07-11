@@ -8,3 +8,4 @@ djangorestframework==3.3.3
 six==1.10.0
 django-js-reverse==0.7.2
 django-filter==0.13.0
+cherrypy==6.0.2
