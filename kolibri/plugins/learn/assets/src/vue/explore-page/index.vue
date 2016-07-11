@@ -2,8 +2,6 @@
 
   <search-widget :searchtoggled.sync="searchToggled"></search-widget>
 
-  <!------------------------------ Top Toolbar ------------------------------>
-
   <div class="tool-bar">
 
     <breadcrumbs
@@ -102,35 +100,36 @@
   @require '~core-theme.styl'
   @require '../learn'
 
+  /* positional styling for toolbar */
   .tool-bar
     width-auto-adjust()
     position: fixed
     top: 0
     height: $tool-bar-height
-    padding: 30 0
+    padding: $tool-bar-height
     box-sizing: border-box
     background-color: $core-bg-canvas
-
+    float: left
+    z-index: 1
   .breadcrumbs
     float: left
   .search-tools
     float: right
-
-  select
-    font-size: 0.8rem
-    line-height: 1rem
-    padding: 0
-    border-width: 2
-    vertical-align: top
+  .explore
+    margin-top: $tool-bar-height
 
   .breadcrumbs
   select
   label
-    height: 1.5rem
+    height: $tool-bar-height/3
 
-  .explore
-    margin-top: $tool-bar-height
+  select
+    font-size: 0.8rem
+    padding: 0
+    position: relative
+    top: -8px
 
+  /* overwriting default HTML styles */
   p
     margin-top: 0
 

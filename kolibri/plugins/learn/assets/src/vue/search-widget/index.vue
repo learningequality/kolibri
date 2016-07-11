@@ -245,6 +245,7 @@
     top: 32px
     left: 50%
     transform: translateX(-50%)
+    padding: 0 1em
   .reset-search
     position: absolute
     height: 40px
