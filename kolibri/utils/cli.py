@@ -24,6 +24,7 @@ from docopt import docopt  # noqa
 from logging import config as logging_config  # noqa
 from django.core.management import call_command  # noqa
 
+
 USAGE = """
 Kolibri
 
@@ -272,4 +273,9 @@ def main(args=None):
     if arguments['plugin']:
         plugin_name = arguments['PLUGIN']
         plugin(plugin_name, **arguments)
+        return
+
+    if arguments['start']:
+        from . import server
+        server.start()
         return
