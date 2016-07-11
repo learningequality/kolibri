@@ -1,7 +1,9 @@
+from random import sample
+
 from django.db.models import Q
 from kolibri.content import models, serializers
 from rest_framework import filters, pagination, viewsets
-from random import sample
+
 
 # from kolibri.logger.models import ContentInteractionLog
 # from django.db.models.aggregates import Count
@@ -31,10 +33,9 @@ class ContentNodeFilter(filters.FilterSet):
 
     def filter_recommendations_for(self, queryset, value):
         recc_node = queryset.get(pk=value)
-        children = recc_node.get_children()
         descendants = recc_node.get_descendants(include_self=False)
         siblings = recc_node.get_siblings(include_self=False)
-        data = children | descendants | siblings  # concatenates different querysets
+        data = descendants | siblings  # concatenates different querysets
         return data
 
     def filter_recommendations(self, queryset, value):
