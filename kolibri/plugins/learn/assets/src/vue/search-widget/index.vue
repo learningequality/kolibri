@@ -270,7 +270,7 @@
     padding-top: 16px
     margin-right: 14px
     display: block
-    background: url('./trash.svg') no-repeat right
+    background: url('./images/trash.svg') no-repeat right
   .close-search
     position: absolute
     height: 40px
@@ -286,7 +286,7 @@
     padding-top: 16px
     margin-right: 8px
     display: block
-    background: url('./close.svg') no-repeat right
+    background: url('./images/close.svg') no-repeat right
 
 // result list
   .result-container

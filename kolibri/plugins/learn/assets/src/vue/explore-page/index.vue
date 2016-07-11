@@ -21,7 +21,7 @@
       </select>
 
       <label v-show="!searchToggled" @click="searchToggleSwitch(true)" for="search">
-        <img alt="search" class="btn-search-img" src="../search-widget/search.svg">
+        <img alt="search" class="btn-search-img" src="../search-widget/images/search.svg">
       </label>
 
     </div>
