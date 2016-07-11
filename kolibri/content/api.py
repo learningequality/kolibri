@@ -1,6 +1,12 @@
+from random import sample
+
 from django.db.models import Q
 from kolibri.content import models, serializers
 from rest_framework import filters, pagination, viewsets
+
+
+# from kolibri.logger.models import ContentInteractionLog
+# from django.db.models.aggregates import Count
 
 
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
@@ -12,16 +18,36 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
 
 class ContentNodeFilter(filters.FilterSet):
     search = filters.django_filters.MethodFilter(action='title_description_filter')
+    recommendations_for = filters.django_filters.MethodFilter()
+    recommendations = filters.django_filters.MethodFilter()
 
     class Meta:
         model = models.ContentNode
-        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related']
+        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'recommendations']
 
     def title_description_filter(self, queryset, value):
         # only return the first 30 results to avoid major slow down
         return queryset.filter(
             Q(title__icontains=value) | Q(description__icontains=value)
         )
+
+    def filter_recommendations_for(self, queryset, value):
+        recc_node = queryset.get(pk=value)
+        descendants = recc_node.get_descendants(include_self=False)
+        siblings = recc_node.get_siblings(include_self=False)
+        data = descendants | siblings  # concatenates different querysets
+        return data
+
+    def filter_recommendations(self, queryset, value):
+        # if ContentInteractionLog.objects.count() == 0:
+        content_ids = queryset.values_list('content_id', flat=True)
+        count = queryset.count()
+        if count > 100:
+            count = 100
+        return queryset.filter(content_id__in=sample(list(content_ids), count))  # return 100 random content nodes
+        #     content_counts_sorted = ContentInteractionLog.objects.values('content_id').annotate(Count('content_id')).order_by('-content_id__count')
+        #     return queryset.filter(
+        #         content_id__in=[content['content_id'] for content in content_counts_sorted][:10])  # return the 10 most frequently accessed pieces of content
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):

@@ -259,6 +259,11 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data['description'], "balbla2")
         self.assertTrue("pk" not in response.data)
 
+    def test_contentnode_recommendations(self):
+        root_id = content.ContentNode.objects.get(title="root").id
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": root_id})
+        self.assertEqual(len(response.data), 5)
+
     def test_channelmetadata_list(self):
         data = content.ChannelMetadata.objects.values()[0]
         content.ChannelMetadataCache.objects.create(**data)
@@ -270,6 +275,10 @@ class ContentNodeAPITestCase(APITestCase):
         content.ChannelMetadataCache.objects.create(**data)
         response = self.client.get(reverse("channel-detail", kwargs={'pk': data["id"]}))
         self.assertEqual(response.data['name'], 'testing')
+
+    def test_channelmetadata_recommendations(self):
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations": ""})
+        self.assertEqual(len(response.data), 6)
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
