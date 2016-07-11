@@ -70,6 +70,6 @@
       height: 100%
 
   .pdfcontainer
-    height: 80vh
+    height: 75vh
 
 </style>
