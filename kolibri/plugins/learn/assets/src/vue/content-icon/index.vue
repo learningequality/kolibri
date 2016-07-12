@@ -1,6 +1,6 @@
 <template>
 
-  <img :src="src">
+  <img :src="src" alt="">
 
 </template>
 
