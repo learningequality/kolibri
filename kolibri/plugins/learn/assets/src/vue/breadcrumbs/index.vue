@@ -1,6 +1,6 @@
 <template>
 
-  <nav>
+  <nav role="navigation" aria-label="Breadcrumbs navigation">
     <span class="parent">
       <a v-link="rootLink">All</a> /
     </span>
