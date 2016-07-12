@@ -169,7 +169,7 @@
     font-family: 'NotoSans', 'sans-serif'
 
   .video-js .vjs-current-time
-    display: inline
+    display: block
 
   .videowrapper
     position: relative
@@ -229,6 +229,6 @@
     pointer-events: none
 
   .video-js .display
-    display: inline
+    display: block
 
 </style>
