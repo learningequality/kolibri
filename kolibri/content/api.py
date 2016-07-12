@@ -33,14 +33,14 @@ class ContentNodeFilter(filters.FilterSet):
 
     def filter_recommendations_for(self, queryset, value):
         recc_node = queryset.get(pk=value)
-        descendants = recc_node.get_descendants(include_self=False).exclude(kind='topic')
-        siblings = recc_node.get_siblings(include_self=False).exclude(kind='topic')
+        descendants = recc_node.get_descendants(include_self=False).exclude(kind__in=['topic', ''])
+        siblings = recc_node.get_siblings(include_self=False).exclude(kind__in=['topic', ''])
         data = descendants | siblings  # concatenates different querysets
         return data
 
     def filter_recommendations(self, queryset, value):
         # if ContentInteractionLog.objects.count() == 0:
-        pks = queryset.values_list('pk', flat=True).exclude(kind='topic')
+        pks = queryset.values_list('pk', flat=True).exclude(kind__in=['topic', ''])
         count = queryset.count()
         if count > 100:
             count = 25
