@@ -1,8 +1,8 @@
 <template>
 
   <a v-link="link">
-    <img class="content-icon" v-if="kind" :src="icon">
-    <img :src="thumbnail" class="thumbnail" v-if="showThumbnail">
+    <content-icon class="content-icon" v-if="kind" :kind="kind" :progress="progress"></content-icon>
+    <img :src="validatedThumbnail" class="thumbnail" v-if="showThumbnail">
     <div class="thumbnail" v-else>&nbsp;</div>
     <h3>
       {{ title }}
@@ -18,6 +18,9 @@
   const PageNames = require('../../state/constants').PageNames;
 
   module.exports = {
+    components: {
+      'content-icon': require('../content-icon'),
+    },
     props: {
       id: {
         type: String,
@@ -29,7 +32,6 @@
       },
       thumbnail: {
         type: String,
-        required: true,
       },
       kind: {
         type: String,
@@ -61,17 +63,17 @@
       },
     },
     computed: {
-      icon() {
-        // Note: dynamic requires should be used carefully because
-        //  they greedily add items to the webpack bundle.
-        // See https://webpack.github.io/docs/context.html
-        return require(`./content-icons/${this.progress}-${this.kind}.svg`);
-      },
       link() {
         return {
           name: PageNames.EXPLORE_CONTENT,
           params: { id: this.id },
         };
+      },
+      validatedThumbnail() {
+        if (!this.thumbnail) {
+          return require(`./images/default_thumbnail.png`);
+        }
+        return this.thumbnail;
       },
     },
   };
