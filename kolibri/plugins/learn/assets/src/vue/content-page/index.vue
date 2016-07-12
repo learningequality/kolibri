@@ -9,11 +9,10 @@
       :current='title'>
     </breadcrumbs>
 
-    <a
-      v-if="pageMode === $options.PageModes.LEARN"
-      v-link="{ name: $options.PageNames.LEARN_ROOT }">
-      Home
-    </a>
+    <div v-if="pageMode === $options.PageModes.LEARN">
+      <a v-link="{ name: $options.PageNames.LEARN_ROOT }">Home</a>
+      <h1>{{ title }}</h1>
+    </div>
 
     <div>
       <p>
@@ -29,7 +28,7 @@
       </content-render>
     </div>
 
-    <card-grid>
+    <card-grid header='Recommended' v-if="pageMode === $options.PageModes.LEARN">
       <content-card
         v-for="content in recommended"
         :id="content.id"
