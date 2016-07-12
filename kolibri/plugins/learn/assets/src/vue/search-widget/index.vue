@@ -237,6 +237,7 @@
     background-color: $core-bg-canvas
     position: fixed
     right: 0
+    top: 0
     z-index: 99
   .searchscreen
     height: 100%
@@ -246,6 +247,7 @@
     position: fixed
     z-index: 9
     left: 0
+    top: 0
   .search-input
     outline: none
     position: relative

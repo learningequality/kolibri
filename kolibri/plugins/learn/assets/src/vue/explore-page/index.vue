@@ -5,7 +5,6 @@
   <div class="tool-bar">
 
     <breadcrumbs
-      v-show='!searchToggled'
       v-if='!isRoot'
       class='breadcrumbs'
       :rootid='rootTopicId'
@@ -15,12 +14,12 @@
 
     <div class="search-tools">
 
-      <select v-show="!searchToggled" class="channel-select" transition="fast">
+      <select class="channel-select" transition="fast">
         <option value="khan">Khan Academy</option>
         <option value="ck12">CK-12</option>
       </select>
 
-      <label v-show="!searchToggled" @click="searchToggleSwitch(true)" for="search">
+      <label @click="searchToggleSwitch(true)" for="search">
         <img alt="search" class="btn-search-img" src="../search-widget/images/search.svg">
       </label>
 
@@ -28,7 +27,7 @@
   </div>
 
   <!-- Toggles top margin if sidebar overlay is exposed -->
-  <section class="explore" :style="{'margin-top': searchToggled ? '0' : ''}">
+  <section class="explore">
 
     <p v-if='topic.description'>
       {{ topic.description }}
