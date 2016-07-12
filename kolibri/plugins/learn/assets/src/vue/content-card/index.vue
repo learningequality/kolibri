@@ -1,7 +1,12 @@
 <template>
 
   <a v-link="link">
-    <img class="content-icon" v-if="kind" :src="icon">
+    <content-icon
+      class="content-icon"
+      v-if="kind"
+      :kind="kind"
+      :progress="progress">
+    </content-icon>
     <img :src="thumbnailOrPlaceholder" class="thumbnail" v-if="showThumbnail">
     <div class="thumbnail" v-else>&nbsp;</div>
     <h3>
@@ -21,6 +26,9 @@
   const getters = require('../../state/getters');
 
   module.exports = {
+    components: {
+      'content-icon': require('../content-icon'),
+    },
     props: {
       id: {
         type: String,
@@ -63,15 +71,6 @@
       },
     },
     computed: {
-      icon() {
-        // Note: dynamic requires should be used carefully because
-        //  they greedily add items to the webpack bundle.
-        // See https://webpack.github.io/docs/context.html
-        return require(`./content-icons/${this.progress}-${this.kind}.svg`);
-      },
-      thumbnailOrPlaceholder() {
-        return this.thumbnail ? this.thumbnail : require('./no-thumb.svg');
-      },
       link() {
         if (this.pageMode === PageModes.EXPLORE) {
           return {
@@ -83,6 +82,9 @@
           name: PageNames.LEARN_CONTENT,
           params: { id: this.id },
         };
+      },
+      thumbnailOrPlaceholder() {
+        return this.thumbnail ? this.thumbnail : require(`./images/default_thumbnail.png`);
       },
     },
     vuex: {
