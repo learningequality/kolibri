@@ -191,6 +191,6 @@ Dependencies are tracked using ``npm shrinkwrap`` - `see the docs here <https://
 
 We distinguish development dependencies from runtime dependencies, and these should be installed as such using ``npm install --save-dev [dep]`` or ``npm install --save [dep]``, respectively. Then you'll need to run ``npm shrinkwrap``. Your new dependency should now be recorded in *package.json*, and all of its dependencies should be recorded in *npm-shrinkwrap.json*.
 
-Note that we currently don't have a way of mapping dependencies to plugins - dependencies are isntalled globally.
+Note that we currently don't have a way of mapping dependencies to plugins - dependencies are installed globally.
 
 
