@@ -7,7 +7,7 @@
           <span class="close-search-img">search</span>
       </label>
       <form class="searchform" v-on:submit.prevent>
-        <input v-focus-model="focused" type="search" v-model="searchterm" name="search" autocomplete="off" placeholder="Find content..." @keydown="isTyping()" @keyup="searchContent(1) | debounce 500" id="search" class="search-input">
+        <input v-focus-model="focused" type="search" v-model="searchterm" name="search" autocomplete="off" placeholder="Find content..." @keydown="isTyping()" @keyup="searchContent(1) | debounce 500" @keydown.esc="clearThenClose()" id="search" class="search-input">
         <label v-show="searchterm" class="reset-search" type="reset" @click="reFocus()">
           <span class="reset-img">clear</span>
         </label>
@@ -153,6 +153,13 @@
       },
     },
     methods: {
+      clearThenClose() {
+        if (this.searchterm.length > 0) {
+          return false;
+        }
+        this.searchtoggled = false;
+        return true;
+      },
       reFocus() {
         this.searchterm = '';
         this.focused = true;
@@ -182,12 +189,16 @@
         this.currentpage -= 1;
       },
       nextPage() {
-        this.increasePage();
-        this.showSearchResults(this.searchterm, this.currentpage);
+        if (this.currentpage !== this.pageCount) {
+          this.increasePage();
+          this.showSearchResults(this.searchterm, this.currentpage);
+        }
       },
       prePage() {
-        this.decreasePage();
-        this.showSearchResults(this.searchterm, this.currentpage);
+        if (this.currentpage !== 1) {
+          this.decreasePage();
+          this.showSearchResults(this.searchterm, this.currentpage);
+        }
       },
     },
     components: {
@@ -226,6 +237,7 @@
     background-color: $core-bg-canvas
     position: fixed
     right: 0
+    top: 0
     z-index: 99
   .searchscreen
     height: 100%
@@ -235,6 +247,7 @@
     position: fixed
     z-index: 9
     left: 0
+    top: 0
   .search-input
     outline: none
     position: relative
@@ -263,7 +276,7 @@
     padding-top: 16px
     margin-right: 14px
     display: block
-    background: url('./trash.svg') no-repeat right
+    background: url('./images/trash.svg') no-repeat right
   .close-search
     position: absolute
     height: 40px
@@ -279,7 +292,7 @@
     padding-top: 16px
     margin-right: 8px
     display: block
-    background: url('./close.svg') no-repeat right
+    background: url('./images/close.svg') no-repeat right
 
 // result list
   .result-container

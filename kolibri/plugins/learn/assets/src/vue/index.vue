@@ -106,7 +106,7 @@
   @require 'learn'
 
   // Navbar styling
-  $nav-element-height = 150
+  $nav-element-height = 150px
   $font-size = 1em
 
   #learn-nav
