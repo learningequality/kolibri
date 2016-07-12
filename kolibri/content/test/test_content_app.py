@@ -262,7 +262,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_contentnode_recommendations(self):
         root_id = content.ContentNode.objects.get(title="root").id
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": root_id})
-        self.assertEqual(len(response.data), 5)
+        self.assertEqual(len(response.data), 2)
 
     def test_channelmetadata_list(self):
         data = content.ChannelMetadata.objects.values()[0]
@@ -278,7 +278,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_channelmetadata_recommendations(self):
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations": ""})
-        self.assertEqual(len(response.data), 6)
+        self.assertEqual(len(response.data), 2)
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
