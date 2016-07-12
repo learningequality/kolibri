@@ -41,7 +41,7 @@ class ContentNodeFilter(filters.FilterSet):
     def filter_recommendations(self, queryset, value):
         # if ContentInteractionLog.objects.count() == 0:
         pks = queryset.values_list('pk', flat=True).exclude(kind__in=['topic', ''])
-        count = queryset.count()
+        count = pks.count()
         if count > 100:
             count = 25
         return queryset.filter(pk__in=sample(list(pks), count))  # return 100 random content nodes
