@@ -15,7 +15,10 @@
 
 <script>
 
-  const PageNames = require('../../state/constants').PageNames;
+  const constants = require('../../state/constants');
+  const PageNames = constants.PageNames;
+  const PageModes = constants.PageModes;
+  const getters = require('../../state/getters');
 
   module.exports = {
     props: {
@@ -70,10 +73,21 @@
         return this.thumbnail ? this.thumbnail : require('./no-thumb.svg');
       },
       link() {
+        if (this.pageMode === PageModes.EXPLORE) {
+          return {
+            name: PageNames.EXPLORE_CONTENT,
+            params: { id: this.id },
+          };
+        }
         return {
-          name: PageNames.EXPLORE_CONTENT,
+          name: PageNames.LEARN_CONTENT,
           params: { id: this.id },
         };
+      },
+    },
+    vuex: {
+      getters: {
+        pageMode: getters.pageMode,
       },
     },
   };

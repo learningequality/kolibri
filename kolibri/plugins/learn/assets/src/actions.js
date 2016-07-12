@@ -77,8 +77,19 @@ function showExploreContent(store, id) {
 }
 
 function showLearnRoot(store) {
+  store.dispatch('SET_LOADING');
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
-  store.dispatch('SET_PAGE_STATE', {}); // TODO
+
+  Resources.getCollection({ recommendations: '' }).fetch()
+    .then((children) => {
+      const pageState = {};
+      pageState.contents = children.map(_contentState);
+      store.dispatch('SET_PAGE_STATE', pageState);
+    })
+    .catch((error) => {
+      console.log('error!', error);
+      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+    });
 }
 
 function showScratchpad(store) {
