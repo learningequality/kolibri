@@ -2,7 +2,7 @@
 
   <a v-link="link">
     <img class="content-icon" v-if="kind" :src="icon">
-    <img :src="thumbnail" class="thumbnail" v-if="showThumbnail">
+    <img :src="thumbnailOrPlaceholder" class="thumbnail" v-if="showThumbnail">
     <div class="thumbnail" v-else>&nbsp;</div>
     <h3>
       {{ title }}
@@ -29,7 +29,6 @@
       },
       thumbnail: {
         type: String,
-        required: true,
       },
       kind: {
         type: String,
@@ -66,6 +65,9 @@
         //  they greedily add items to the webpack bundle.
         // See https://webpack.github.io/docs/context.html
         return require(`./content-icons/${this.progress}-${this.kind}.svg`);
+      },
+      thumbnailOrPlaceholder() {
+        return this.thumbnail ? this.thumbnail : require('./no-thumb.svg');
       },
       link() {
         return {
