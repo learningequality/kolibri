@@ -67,7 +67,8 @@ function showExploreContent(store, id) {
 
   Resources.getModel(id).fetch()
     .then((attributes) => {
-      const pageState = _contentState(attributes);
+      const pageState = {};
+      pageState.content = _contentState(attributes);
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
@@ -88,6 +89,22 @@ function showLearnRoot(store) {
     })
     .catch((error) => {
       console.log('error!', error);
+      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+    });
+}
+
+function showLearnContent(store, id) {
+  store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
+
+  Resources.getModel(id).fetch()
+    .then((attributes) => {
+      const pageState = {};
+      pageState.content = _contentState(attributes);
+      store.dispatch('SET_PAGE_STATE', pageState);
+    })
+    .catch((error) => {
+      // TODO - how to parse and format?
       store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
     });
 }
@@ -135,6 +152,7 @@ module.exports = {
   showExploreTopic,
   showExploreContent,
   showLearnRoot,
+  showLearnContent,
   showScratchpad,
   showSearchResults,
   searchReset,

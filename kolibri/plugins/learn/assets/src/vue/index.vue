@@ -77,7 +77,8 @@
         return this.pageName === PageNames.EXPLORE_ROOT || this.pageName === PageNames.EXPLORE_TOPIC;
       },
       showContentPage() {
-        return this.pageName === PageNames.EXPLORE_CONTENT;
+        return this.pageName === PageNames.EXPLORE_CONTENT ||
+          this.pageName === PageNames.LEARN_CONTENT;
       },
       showLearnPage() {
         return this.pageName === PageNames.LEARN_ROOT;
