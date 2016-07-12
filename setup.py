@@ -7,6 +7,7 @@ import os
 import shutil
 import sys
 
+from pip.req import parse_requirements
 from setuptools import setup
 from setuptools.command.install_scripts import install_scripts
 
@@ -53,17 +54,7 @@ is_building_dist = any(
 static_requirements = []
 static_dir = os.path.dirname(os.path.realpath(kolibri_dist.__file__))
 
-install_requires = [
-    'colorlog',
-    'CherryPy==6.0.2',
-    'django>=1.9,<1.10',
-    'django-filter>=0.13.0',
-    'django-mptt==0.8.4',
-    'django-js-reverse==0.7.2',
-    'djangorestframework==3.3.3',
-    'docopt',
-    'six',
-]
+install_requires = [str(ir.req) for ir in parse_requirements('./requirements.txt', session=False)]
 
 # Check if user supplied the special '--static' option
 if '--static' in sys.argv:
