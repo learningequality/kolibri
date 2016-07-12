@@ -31,8 +31,7 @@
       </ul>
     </nav>
 
-    <!-- accounts for margin offset by navbar -->
-    <div>
+    <main role="main">
 
       <div class="page-content" v-if="!loading && !error">
         <explore-page v-if='showExplorePage'></explore-page>
@@ -40,7 +39,6 @@
         <learn-page v-if='showLearnPage'></learn-page>
         <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
       </div>
-
       <div v-else class="page-error">
         <error-page></error-page>
       </div>
@@ -48,7 +46,7 @@
       <!-- this is not used, but necessary for vue-router to function -->
       <router-view></router-view>
 
-    </div>
+    </main>
 
   </core-base>
 
@@ -163,6 +161,7 @@
   div
     margin-left: $nav-bar-width
 
+  // accounts for margin offset by navbar
   .page-content
   .page-error
     margin: auto
