@@ -27,18 +27,18 @@
         :available="available"
         :extra-fields="extraFields">
       </content-render>
-      <div class="rec-grid card-list">
-        <content-card
-          v-for="content in recommended"
-          class="card"
-          linkhref="#"
-          :title="content.title"
-          :thumbsrc="content.thumbnail"
-          :kind="content.kind"
-          :progress="content.progress">
-        </content-card>
-      </div>
     </div>
+
+    <card-grid>
+      <content-card
+        v-for="content in recommended"
+        :id="content.id"
+        :title="content.title"
+        :thumbnail="content.thumbnail"
+        :kind="content.kind"
+        :progress="content.progress">
+      </content-card>
+    </card-grid>
 
   </div>
 
@@ -56,11 +56,15 @@
       'breadcrumbs': require('../breadcrumbs'),
       'content-card': require('../content-card'),
       'content-render': require('content-renderer'),
+      'card-grid': require('../card-grid'),
     },
     vuex: {
       getters: {
+        // general state
         pageMode: getters.pageMode,
         rootTopicId: state => state.rootTopicId,
+
+        // attributes for this content item
         id: (state) => state.pageState.content.id,
         title: (state) => state.pageState.content.title,
         description: (state) => state.pageState.content.description,
@@ -70,6 +74,9 @@
         available: (state) => state.pageState.content.available,
         extraFields: (state) => state.pageState.content.extra_fields,
         breadcrumbs: (state) => state.pageState.content.breadcrumbs,
+
+        // only used on learn page
+        recommended: (state) => state.pageState.recommended,
       },
     },
   };
@@ -77,16 +84,5 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="stylus" scoped></style>
 
-  @require '~core-theme.styl'
-
-  .rec-grid content-card img
-    max-width: 250px
-    max-height: 250px
-    margin: 0 15px 0 0
-
-  .rec-grid
-    display: inline-block
-
-</style>

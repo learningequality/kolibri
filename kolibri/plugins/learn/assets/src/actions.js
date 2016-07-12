@@ -97,10 +97,15 @@ function showLearnContent(store, id) {
   store.dispatch('SET_LOADING');
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
 
-  Resources.getModel(id).fetch()
-    .then((attributes) => {
+
+  const attributesPromise = Resources.getModel(id).fetch();
+  const recommendedPromise = Resources.getCollection({ recommendations_for: id }).fetch();
+
+  Promise.all([attributesPromise, recommendedPromise])
+    .then(([attributes, recommended]) => {
       const pageState = {};
       pageState.content = _contentState(attributes);
+      pageState.recommended = recommended.map(_contentState);
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
