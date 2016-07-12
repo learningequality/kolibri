@@ -65,6 +65,8 @@
 
   .container
     text-align: center
+    margin-top: 20px
+    margin-bottom: 20px
     &:fullscreen
       width: 100%
       height: 100%
