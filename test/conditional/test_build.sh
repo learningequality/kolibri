@@ -12,6 +12,7 @@ cd "$DIR/../../"
 pip install -r requirements/build.txt
 
 # Build .whl
+npm install
 make sdist
 pip install dist/kolibri-*.whl
 
