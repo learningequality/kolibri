@@ -113,7 +113,7 @@
   .search-tools
     float: right
   .explore
-    margin-top: $tool-bar-height
+    padding-top: $tool-bar-height
 
   .breadcrumbs
   .search-tools
@@ -124,10 +124,6 @@
     padding: 0
     position: relative
     top: -8px
-
-  /* overwriting default HTML styles */
-  p
-    margin-top: 0
 
   .fast-transition
     transition: all 0.3s ease-out

@@ -50,8 +50,5 @@
 
   h3
     font-size: 0.8rem
-    overflow: hidden
-    white-space: nowrap
-    text-overflow: ellipsis
 
 </style>
