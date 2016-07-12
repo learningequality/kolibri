@@ -15,5 +15,6 @@ recursive-include kolibri/utils *
 recursive-exclude kolibri/* *pyc
 recursive-include kolibri/*/static *.*
 recursive-include kolibri/dist *
+recursive-include kolibri/core/build/*
 recursive-exclude kolibri/dist *pyc
 prune kolibri/dist/*/__pycache___
