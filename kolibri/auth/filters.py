@@ -37,8 +37,11 @@ class HierarchyRelationsFilter(object):
         ]
     }
 
-    _membership_tables = [
+    _facilityuser_table = [
         '"{facilityuser_table}" AS "target_user"',
+    ]
+
+    _membership_table = [
         '"{membership_table}" AS "membership"',
     ]
 
@@ -50,6 +53,7 @@ class HierarchyRelationsFilter(object):
         self.queryset = queryset
 
         self.tables = []
+        self.left_join_tables = []
         self.where = []
 
         # import auth models here to avoid circular imports
@@ -63,10 +67,12 @@ class HierarchyRelationsFilter(object):
             "facilityuser_table": FacilityUser._meta.db_table,
         }
 
-    def _add_extras(self, where, tables=None):
+    def _add_extras(self, where, tables=None, left_join_tables=None):
         self.where += where
         if tables:
             self.tables += [table.format(**self._table_names) for table in tables]
+        if left_join_tables:
+            self.left_join_tables += [table.format(**self._table_names) for table in left_join_tables]
 
     def _resolve_f_expression(self, f_expr):
 
@@ -148,7 +154,7 @@ class HierarchyRelationsFilter(object):
                 "ancestor_collection.dataset_id = target_user.dataset_id",
             ], "AND")
             where_clause = self._join_with_logical_operator([member_via_facility_where, membership_via_hierarchy_where], "OR")
-            self._add_extras(tables=self._membership_tables, where=[where_clause])
+            self._add_extras(tables=self._facilityuser_table, left_join_tables=self._membership_table, where=[where_clause])
 
         # 1(b). Add the tables and conditions relating the ancestor and descendant collections to one another:
         self._add_extras(**self._collection_extra)
@@ -188,8 +194,9 @@ class HierarchyRelationsFilter(object):
             where_clause = ['target_user.id = {id}'.format(id=self._as_sql_reference(target_user))]
             self._add_extras(where=where_clause)
 
-        joined_condition = "EXISTS (SELECT * FROM {tables} WHERE {where})".format(
+        joined_condition = "EXISTS (SELECT * FROM {tables} {left_join_tables} WHERE {where})".format(
             tables=", ".join(self.tables),
+            left_join_tables="LEFT JOIN {tables}".format(tables=", ".join(self.left_join_tables)) if self.left_join_tables else "",
             where=self._join_with_logical_operator(self.where, "AND"))
 
         return self.queryset.extra(where=[joined_condition])
