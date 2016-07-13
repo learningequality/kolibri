@@ -4,20 +4,16 @@
 
     <side-nav></side-nav>
 
-    <main role="main">
-
-      <div class="page-content" v-if='!loading'>
-        <explore-page v-if='showExplorePage'></explore-page>
-        <content-page v-if='showContentPage'></content-page>
-        <learn-page v-if='showLearnPage'></learn-page>
-        <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
-        <error-page v-if='error'></error-page>
-      </div>
-
-      <!-- this is not used, but necessary for vue-router to function -->
-      <router-view></router-view>
-
+    <main role="main" class="page-content" v-if='!loading'>
+      <explore-page v-if='showExplorePage'></explore-page>
+      <content-page v-if='showContentPage'></content-page>
+      <learn-page v-if='showLearnPage'></learn-page>
+      <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
+      <error-page v-if='error'></error-page>
     </main>
+
+    <!-- this is not used, but necessary for vue-router to function -->
+    <router-view></router-view>
 
   </core-base>
 
