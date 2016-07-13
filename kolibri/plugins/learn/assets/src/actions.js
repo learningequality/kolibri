@@ -3,6 +3,14 @@ const constants = require('./state/constants');
 
 const PageNames = constants.PageNames;
 
+
+/**
+ * Vuex State Mappers
+ *
+ * The methods below help map data from
+ * the API to state in the Vuex store
+ */
+
 function _crumbState(ancestors) {
   // skip the root node
   return ancestors.slice(1).map(ancestor => ({
@@ -10,6 +18,7 @@ function _crumbState(ancestors) {
     title: ancestor.title,
   }));
 }
+
 
 function _topicState(data) {
   const state = {
@@ -20,6 +29,7 @@ function _topicState(data) {
   };
   return state;
 }
+
 
 function _contentState(data) {
   const state = {
@@ -35,6 +45,13 @@ function _contentState(data) {
   };
   return state;
 }
+
+
+/**
+ * Actions
+ *
+ * These methods are used to update client-side state
+ */
 
 function showExploreTopic(store, id) {
   store.dispatch('SET_LOADING');
@@ -56,10 +73,10 @@ function showExploreTopic(store, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
-      // TODO - how to parse and format?
       store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
     });
 }
+
 
 function showExploreContent(store, id) {
   store.dispatch('SET_LOADING');
@@ -71,10 +88,10 @@ function showExploreContent(store, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
-      // TODO - how to parse and format?
       store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
     });
 }
+
 
 function showLearnRoot(store) {
   store.dispatch('SET_LOADING');
@@ -86,10 +103,10 @@ function showLearnRoot(store) {
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
-      console.log('error!', error);
       store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
     });
 }
+
 
 function showLearnContent(store, id) {
   store.dispatch('SET_LOADING');
@@ -108,15 +125,10 @@ function showLearnContent(store, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
-      // TODO - how to parse and format?
       store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
     });
 }
 
-function showScratchpad(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
-  store.dispatch('SET_PAGE_STATE', {});
-}
 
 function showSearchResults(store, params, page) {
   store.dispatch('SET_SEARCH_LOADING', true);
@@ -148,9 +160,17 @@ function showSearchResults(store, params, page) {
   });
 }
 
+
 const searchReset = ({ dispatch }) => {
   dispatch('SET_SEARCH_LOADING', false);
 };
+
+
+function showScratchpad(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
+  store.dispatch('SET_PAGE_STATE', {});
+}
+
 
 module.exports = {
   showExploreTopic,
