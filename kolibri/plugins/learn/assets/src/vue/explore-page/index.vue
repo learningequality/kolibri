@@ -1,33 +1,30 @@
 <template>
 
-  <search-widget :searchtoggled.sync="searchToggled"></search-widget>
-
-  <div class="tool-bar">
-
-    <breadcrumbs
-      v-if='!isRoot'
-      class='breadcrumbs'
-      :rootid='rootTopicId'
-      :crumbs='topic.breadcrumbs'
-      :current='topic.title'>
-    </breadcrumbs>
+  <div>
 
     <div class="search-tools">
 
-      <select class="channel-select" transition="fast">
-        <option value="khan">Khan Academy</option>
-        <option value="ck12">CK-12</option>
-      </select>
-
-      <label @click="searchToggleSwitch(true)" for="search">
-        <img alt="search" class="btn-search-img" src="../search-widget/images/search.svg">
-      </label>
+      <search-widget class="search" :searchtoggled.sync="searchToggled"></search-widget>
 
     </div>
+
+    <div class="tool-bar">
+
+      <breadcrumbs
+        v-if='!isRoot'
+        v-show="!searchToggled"
+        class='breadcrumbs'
+        :rootid='rootTopicId'
+        :crumbs='topic.breadcrumbs'
+        :current='topic.title'>
+      </breadcrumbs>
+
+    </div>
+
   </div>
 
   <!-- Toggles top margin if sidebar overlay is exposed -->
-  <section class="explore">
+  <section class="explore" v-show="!searchToggled" transition="fade">
 
     <p v-if='topic.description'>
       {{ topic.description }}
@@ -76,8 +73,8 @@
       };
     },
     methods: {
-      searchToggleSwitch(value) {
-        this.searchToggled = value;
+      searchToggleSwitch() {
+        this.searchToggled = !this.searchToggled;
       },
     },
     vuex: {
@@ -101,37 +98,39 @@
 
   .tool-bar
     width-auto-adjust()
-    position: fixed
     top: 0
     padding-top: ($tool-bar-height / 4)
     padding-bottom: ($tool-bar-height / 4)
     box-sizing: border-box
     background-color: $core-bg-canvas
     z-index: 1
+    overflow: auto
   .breadcrumbs
     float: left
-  .search-tools
-    float: right
-  .explore
-    padding-top: $tool-bar-height
 
   .breadcrumbs
   .search-tools
     height: ($tool-bar-height / 2)
+    padding-top: ($tool-bar-height / 4)
+    padding-bottom: ($tool-bar-height / 4)
+
+  .search
+    float: right
+    width: 100%
 
   select
     font-size: 0.8rem
     padding: 0
     position: relative
     top: -8px
-
-  .fast-transition
+   
+  .fade-transition
     transition: all 0.3s ease-out
-  .fast-enter
+  .fade-enter
     opacity: 0
-    transform: translateX(-50%)
-  .fast-leave
+    transform: translateY(25%)
+  .fade-leave
     opacity: 0
-    transform: translateX(-100%)
+    transform: translateY(25%)
 
 </style>
