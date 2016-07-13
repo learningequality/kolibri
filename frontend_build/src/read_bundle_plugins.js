@@ -8,6 +8,7 @@ var fs = require("fs");
 var path = require("path");
 var logging = require('./logging');
 var execSync = require('child_process').execSync;
+var temp = require('temp').track();
 var _ = require("lodash");
 
 var parseBundlePlugin = require('./parse_bundle_plugin');
@@ -42,8 +43,15 @@ var readBundlePlugin = function(base_dir) {
   var bundles = [];
   var externals = {};
 
+  // the temporary path where the webpack_json json is stored
+  var webpack_json_tempfile = temp.openSync({suffix: '.json'}).path;
+
   // Run the script below to extract the relevant information about the plugin configuration from the Python code.
-  var result = execSync("python -m kolibri manage webpack_json").toString();
+  execSync("python -m kolibri manage webpack_json -- " + " --outputfile " + webpack_json_tempfile);
+
+  var result = fs.readFileSync(webpack_json_tempfile);
+
+  temp.cleanupSync();           // cleanup the tempfile immediately!
 
   if (result.length > 0) {
     // The above script prints JSON to stdout, here we parse that JSON and use it as input to our webpack
