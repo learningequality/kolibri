@@ -1,8 +1,13 @@
 <template>
 
   <a v-link="link">
-    <content-icon class="content-icon" v-if="kind" :kind="kind" :progress="progress"></content-icon>
-    <img :src="validatedThumbnail" class="thumbnail" v-if="showThumbnail">
+    <content-icon
+      class="content-icon"
+      v-if="kind"
+      :kind="kind"
+      :progress="progress">
+    </content-icon>
+    <img :src="thumbnailOrPlaceholder" class="thumbnail" v-if="showThumbnail">
     <div class="thumbnail" v-else>&nbsp;</div>
     <h3>
       {{ title }}
@@ -15,7 +20,10 @@
 
 <script>
 
-  const PageNames = require('../../state/constants').PageNames;
+  const constants = require('../../state/constants');
+  const PageNames = constants.PageNames;
+  const PageModes = constants.PageModes;
+  const getters = require('../../state/getters');
 
   module.exports = {
     components: {
@@ -64,16 +72,24 @@
     },
     computed: {
       link() {
+        if (this.pageMode === PageModes.EXPLORE) {
+          return {
+            name: PageNames.EXPLORE_CONTENT,
+            params: { id: this.id },
+          };
+        }
         return {
-          name: PageNames.EXPLORE_CONTENT,
+          name: PageNames.LEARN_CONTENT,
           params: { id: this.id },
         };
       },
-      validatedThumbnail() {
-        if (!this.thumbnail) {
-          return require(`./images/default_thumbnail.png`);
-        }
-        return this.thumbnail;
+      thumbnailOrPlaceholder() {
+        return this.thumbnail ? this.thumbnail : require(`./images/default_thumbnail.png`);
+      },
+    },
+    vuex: {
+      getters: {
+        pageMode: getters.pageMode,
       },
     },
   };

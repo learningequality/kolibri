@@ -9,11 +9,10 @@
       :current='title'>
     </breadcrumbs>
 
-    <a
-      v-if="pageMode === $options.PageModes.LEARN"
-      v-link="{ name: $options.PageNames.LEARN_ROOT }">
-      Home
-    </a>
+    <div v-if="pageMode === $options.PageModes.LEARN">
+      <a v-link="{ name: $options.PageNames.LEARN_ROOT }">Home</a>
+      <h1>{{ title }}</h1>
+    </div>
 
     <div>
       <p>
@@ -27,18 +26,18 @@
         :available="available"
         :extra-fields="extraFields">
       </content-render>
-      <div class="rec-grid card-list">
-        <content-card
-          v-for="content in recommended"
-          class="card"
-          linkhref="#"
-          :title="content.title"
-          :thumbsrc="content.thumbnail"
-          :kind="content.kind"
-          :progress="content.progress">
-        </content-card>
-      </div>
     </div>
+
+    <card-grid header='Recommended' v-if="pageMode === $options.PageModes.LEARN">
+      <content-card
+        v-for="content in recommended"
+        :id="content.id"
+        :title="content.title"
+        :thumbnail="content.thumbnail"
+        :kind="content.kind"
+        :progress="content.progress">
+      </content-card>
+    </card-grid>
 
   </div>
 
@@ -56,20 +55,27 @@
       'breadcrumbs': require('../breadcrumbs'),
       'content-card': require('../content-card'),
       'content-render': require('content-renderer'),
+      'card-grid': require('../card-grid'),
     },
     vuex: {
       getters: {
+        // general state
         pageMode: getters.pageMode,
         rootTopicId: state => state.rootTopicId,
-        id: (state) => state.pageState.id,
-        title: (state) => state.pageState.title,
-        description: (state) => state.pageState.description,
-        kind: (state) => state.pageState.kind,
-        files: (state) => state.pageState.files,
-        contentId: (state) => state.pageState.content_id,
-        available: (state) => state.pageState.available,
-        extraFields: (state) => state.pageState.extra_fields,
-        breadcrumbs: (state) => state.pageState.breadcrumbs,
+
+        // attributes for this content item
+        id: (state) => state.pageState.content.id,
+        title: (state) => state.pageState.content.title,
+        description: (state) => state.pageState.content.description,
+        kind: (state) => state.pageState.content.kind,
+        files: (state) => state.pageState.content.files,
+        contentId: (state) => state.pageState.content.content_id,
+        available: (state) => state.pageState.content.available,
+        extraFields: (state) => state.pageState.content.extra_fields,
+        breadcrumbs: (state) => state.pageState.content.breadcrumbs,
+
+        // only used on learn page
+        recommended: (state) => state.pageState.recommended,
       },
     },
   };
@@ -77,16 +83,5 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="stylus" scoped></style>
 
-  @require '~core-theme.styl'
-
-  .rec-grid content-card img
-    max-width: 250px
-    max-height: 250px
-    margin: 0 15px 0 0
-
-  .rec-grid
-    display: inline-block
-
-</style>

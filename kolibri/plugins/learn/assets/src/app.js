@@ -42,6 +42,14 @@ class LearnModule extends KolibriModule {
     );
 
     router.on(
+      PageNames.LEARN_CONTENT,
+      '/learn/content/:id',
+      (toRoute, fromRoute) => {
+        actions.showLearnContent(store, toRoute.params.id);
+      }
+    );
+
+    router.on(
       PageNames.SCRATCHPAD,
       '/scratchpad',
       (toRoute, fromRoute) => {

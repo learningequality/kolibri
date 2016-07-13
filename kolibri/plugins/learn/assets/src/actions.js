@@ -67,7 +67,7 @@ function showExploreContent(store, id) {
 
   Resources.getModel(id).fetch()
     .then((attributes) => {
-      const pageState = _contentState(attributes);
+      const pageState = { content: _contentState(attributes) };
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
@@ -77,8 +77,40 @@ function showExploreContent(store, id) {
 }
 
 function showLearnRoot(store) {
+  store.dispatch('SET_LOADING');
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
-  store.dispatch('SET_PAGE_STATE', {}); // TODO
+
+  Resources.getCollection({ recommendations: '' }).fetch()
+    .then((recommendations) => {
+      const pageState = { contents: recommendations.map(_contentState) };
+      store.dispatch('SET_PAGE_STATE', pageState);
+    })
+    .catch((error) => {
+      console.log('error!', error);
+      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+    });
+}
+
+function showLearnContent(store, id) {
+  store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
+
+
+  const attributesPromise = Resources.getModel(id).fetch();
+  const recommendedPromise = Resources.getCollection({ recommendations_for: id }).fetch();
+
+  Promise.all([attributesPromise, recommendedPromise])
+    .then(([attributes, recommended]) => {
+      const pageState = {
+        content: _contentState(attributes),
+        recommended: recommended.map(_contentState),
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+    })
+    .catch((error) => {
+      // TODO - how to parse and format?
+      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+    });
 }
 
 function showScratchpad(store) {
@@ -124,6 +156,7 @@ module.exports = {
   showExploreTopic,
   showExploreContent,
   showLearnRoot,
+  showLearnContent,
   showScratchpad,
   showSearchResults,
   searchReset,

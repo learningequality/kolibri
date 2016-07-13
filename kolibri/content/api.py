@@ -33,21 +33,16 @@ class ContentNodeFilter(filters.FilterSet):
 
     def filter_recommendations_for(self, queryset, value):
         recc_node = queryset.get(pk=value)
-        descendants = recc_node.get_descendants(include_self=False)
-        siblings = recc_node.get_siblings(include_self=False)
+        descendants = recc_node.get_descendants(include_self=False).exclude(kind__in=['topic', ''])
+        siblings = recc_node.get_siblings(include_self=False).exclude(kind__in=['topic', ''])
         data = descendants | siblings  # concatenates different querysets
         return data
 
     def filter_recommendations(self, queryset, value):
-        # if ContentInteractionLog.objects.count() == 0:
-        content_ids = queryset.values_list('content_id', flat=True)
-        count = queryset.count()
-        if count > 100:
-            count = 100
-        return queryset.filter(content_id__in=sample(list(content_ids), count))  # return 100 random content nodes
-        #     content_counts_sorted = ContentInteractionLog.objects.values('content_id').annotate(Count('content_id')).order_by('-content_id__count')
-        #     return queryset.filter(
-        #         content_id__in=[content['content_id'] for content in content_counts_sorted][:10])  # return the 10 most frequently accessed pieces of content
+        # return 25 random content nodes
+        pks = queryset.values_list('pk', flat=True).exclude(kind__in=['topic', ''])
+        count = min(pks.count(), 25)
+        return queryset.filter(pk__in=sample(list(pks), count))
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
