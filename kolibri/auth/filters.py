@@ -194,9 +194,12 @@ class HierarchyRelationsFilter(object):
             where_clause = ['target_user.id = {id}'.format(id=self._as_sql_reference(target_user))]
             self._add_extras(where=where_clause)
 
+        # build the left join clause if we have any left join tables; the "ON 1=1" is needed to avoid syntax errors on Postgres
+        left_join_sql = "LEFT JOIN {tables} ON 1=1".format(tables=", ".join(self.left_join_tables)) if self.left_join_tables else ""
+
         joined_condition = "EXISTS (SELECT * FROM {tables} {left_join_tables} WHERE {where})".format(
             tables=", ".join(self.tables),
-            left_join_tables="LEFT JOIN {tables}".format(tables=", ".join(self.left_join_tables)) if self.left_join_tables else "",
+            left_join_tables=left_join_sql,
             where=self._join_with_logical_operator(self.where, "AND"))
 
         return self.queryset.extra(where=[joined_condition])
