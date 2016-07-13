@@ -1,9 +1,9 @@
 <template>
 
   <!-- <kolibri-nav></kolibri-nav> -->
-  <main>
+  <div>
     <slot></slot>
-  </main>
+  </div>
 
 </template>
 
