@@ -5005,11 +5005,6 @@
       "from": "vuex@0.6.3",
       "resolved": "https://registry.npmjs.org/vuex/-/vuex-0.6.3.tgz"
     },
-    "vuex-router-sync": {
-      "version": "1.0.0",
-      "from": "vuex-router-sync@latest",
-      "resolved": "https://registry.npmjs.org/vuex-router-sync/-/vuex-router-sync-1.0.0.tgz"
-    },
     "watchpack": {
       "version": "0.2.9",
       "from": "watchpack@>=0.2.1 <0.3.0",
