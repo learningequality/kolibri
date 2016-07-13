@@ -81,8 +81,8 @@ function showLearnRoot(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
 
   Resources.getCollection({ recommendations: '' }).fetch()
-    .then((children) => {
-      const pageState = { contents: children.map(_contentState) };
+    .then((recommendations) => {
+      const pageState = { contents: recommendations.map(_contentState) };
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
