@@ -67,8 +67,7 @@ function showExploreContent(store, id) {
 
   Resources.getModel(id).fetch()
     .then((attributes) => {
-      const pageState = {};
-      pageState.content = _contentState(attributes);
+      const pageState = { content: _contentState(attributes) };
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
@@ -83,8 +82,7 @@ function showLearnRoot(store) {
 
   Resources.getCollection({ recommendations: '' }).fetch()
     .then((children) => {
-      const pageState = {};
-      pageState.contents = children.map(_contentState);
+      const pageState = { contents: children.map(_contentState) };
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
@@ -103,9 +101,10 @@ function showLearnContent(store, id) {
 
   Promise.all([attributesPromise, recommendedPromise])
     .then(([attributes, recommended]) => {
-      const pageState = {};
-      pageState.content = _contentState(attributes);
-      pageState.recommended = recommended.map(_contentState);
+      const pageState = {
+        content: _contentState(attributes),
+        recommended: recommended.map(_contentState),
+      };
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
