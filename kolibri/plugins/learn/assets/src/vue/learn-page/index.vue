@@ -1,6 +1,6 @@
 <template>
 
-  <card-grid header="Content" v-if="contents.length">
+  <card-grid header="Recommended" v-if="contents.length">
     <content-card
       v-for="content in contents"
       :title="content.title"
@@ -11,19 +11,47 @@
     </content-card>
   </card-grid>
 
+  <div class='button-wrapper'>
+    <button @click='toggle()' v-if='expanded'>
+      <i class="material-icons">&#xE5CE;</i> Show Less
+    </button>
+    <button class='pure-button' @click='toggle()' v-else>
+      <i class="material-icons">&#xE5CF;</i> <span>Show More</span>
+    </button>
+  </div>
+
 </template>
 
 
 <script>
+
+  const N_COLLAPSED = 6;
+  const N_EXPANDED = 12;
 
   module.exports = {
     components: {
       'content-card': require('../content-card'),
       'card-grid': require('../card-grid'),
     },
+    data() {
+      return {
+        expanded: false,
+      };
+    },
+    computed: {
+      contents() {
+        const num = this.expanded ? N_EXPANDED : N_COLLAPSED;
+        return this.recommendations.slice(0, num);
+      },
+    },
+    methods: {
+      toggle() {
+        this.expanded = !this.expanded;
+      },
+    },
     vuex: {
       getters: {
-        contents: state => state.pageState.contents,
+        recommendations: state => state.pageState.recommendations,
       },
     },
   };
@@ -31,4 +59,9 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .button-wrapper
+    text-align: center
+
+</style>
