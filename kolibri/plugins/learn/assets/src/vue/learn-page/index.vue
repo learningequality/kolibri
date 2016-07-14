@@ -13,10 +13,10 @@
 
   <div class='button-wrapper'>
     <button @click='toggle()' v-if='expanded'>
-      <i class="material-icons">&#xE5CE;</i> Show Less
+      <i class="material-icons">&#xE5CE;</i> <span class="button-text">Show Less</span>
     </button>
     <button class='pure-button' @click='toggle()' v-else>
-      <i class="material-icons">&#xE5CF;</i> <span>Show More</span>
+      <i class="material-icons">&#xE5CF;</i> <span class="button-text">Show More </span>
     </button>
   </div>
 
