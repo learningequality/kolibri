@@ -1,20 +1,17 @@
 <template>
 
-  <a class='root' v-link="link">
-    <div class='thumb-wrapper'>
-      <content-icon
-        class="content-icon"
-        v-if="kind"
-        :kind="kind"
-        :progress="progress">
-      </content-icon>
-      <div class='thumbnail' :style='{ "background-image": thumb }'></div>
-    </div>
-    <div class='text'>
-      {{ title }}
-    </div>
-
-  </a>
+  <div>
+    <card v-link="link" :title="title">
+      <div class='thumbnail' :style='{ "background-image": thumb }'>
+        <content-icon
+          class="content-icon"
+          v-if="kind"
+          :kind="kind"
+          :progress="progress">
+        </content-icon>
+      </div>
+    </card>
+  </div>
 
 </template>
 
@@ -29,6 +26,7 @@
   module.exports = {
     components: {
       'content-icon': require('../content-icon'),
+      'card': require('../card'),
     },
     props: {
       id: {
@@ -97,40 +95,10 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-  @require '../learn.styl'
-
-  $thumb-width = $card-height * 3.0 / 2.5;
-
-  .root
-    display: block
-    width: $card-width
-    height: $card-height
-    background-color: $core-bg-light
-    // margin-bottom: 1rem
-    overflow: hidden
-
-  .thumb-wrapper
-    position: relative
-    display: block
-    float: left
-    width: $thumb-width
-    height: $card-height
-
-  .text
-    display: block
-    float: right
-    width: $card-width - $thumb-width
-    height: $card-height
-    padding: 0.5em
-    font-size: 0.8rem
-    font-weight: bold
-
-
-  /* child elements */
 
   .thumbnail
-    width: $thumb-width
-    height: $card-height
+    width: 100%
+    height: 100%
     background-size: cover
     background-position: center
 
