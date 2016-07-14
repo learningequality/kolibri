@@ -2,9 +2,9 @@
 
   <div>
     <card v-link="link" :title="title">
-      <div class='thumbnail' :class="{ 'thumbnail-center' : !thumbnail}" :style='{ "background-image": thumb }'>
+      <div class='thumbnail' :class="{ 'thumbnail-center' : !thumb }" :style='{ "background-image": thumb }'>
         <content-icon
-          :class="{ 'content-icon' : thumbnail ,' content-icon-center' : !thumbnail   }"
+          :class='thumb ? "content-icon" : "content-icon-center" '
           v-if="kind"
           :kind="kind"
           :progress="progress">
