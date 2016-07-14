@@ -4,6 +4,8 @@
 
     <side-nav></side-nav>
 
+    <search-widget :searchtoggled="false"></search-widget>
+
     <main role="main" class="page-content" v-if='!loading'>
       <explore-page v-if='showExplorePage'></explore-page>
       <content-page v-if='showContentPage'></content-page>
@@ -32,6 +34,7 @@
     components: {
       'core-base': require('core-base'),
       'side-nav': require('./side-nav'),
+      'search-widget': require('./search-widget'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),

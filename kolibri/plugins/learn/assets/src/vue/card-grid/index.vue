@@ -1,7 +1,7 @@
 <template>
 
   <section>
-    <h2>{{header}}</h2>
+    <h3>{{header}}</h3>
     <div class="card-grid">
       <slot></slot>
     </div>

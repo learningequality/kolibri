@@ -2,20 +2,26 @@
 
   <div>
 
-    <breadcrumbs
-      v-if="pageMode === $options.PageModes.EXPLORE"
-      :rootid='rootTopicId'
-      :crumbs='breadcrumbs'
-      :current='title'>
-    </breadcrumbs>
+    <page-header :title='title'>
+      <breadcrumbs
+        v-if="pageMode === $options.PageModes.EXPLORE"
+        slot='extra-nav'
+        :rootid='rootTopicId'
+        :crumbs='breadcrumbs'>
+      </breadcrumbs>
+      <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_ROOT }">
+        ← Learn
+      </a>
+      <content-icon
+        slot='icon'
+        :kind="kind"
+        :progress="progress">
+      </content-icon>
+    </page-header>
 
-    <div v-if="pageMode === $options.PageModes.LEARN">
-      <a v-link="{ name: $options.PageNames.LEARN_ROOT }">Home</a>
-      <h1>{{ title }}</h1>
-      <p>
-        {{ description }}
-      </p>
-    </div>
+    <p>
+      {{ description }}
+    </p>
 
     <div class="content-container">
       <content-render
@@ -31,8 +37,8 @@
     <expandable-content-grid
       v-if="pageMode === $options.PageModes.LEARN"
       title="Recommended"
-      :contents="recommended"
-    ></expandable-content-grid>
+      :contents="recommended">
+    </expandable-content-grid>
 
   </div>
 
@@ -48,6 +54,8 @@
     mixins: [constants], // makes constants available in $options
     components: {
       'breadcrumbs': require('../breadcrumbs'),
+      'content-icon': require('../content-icon'),
+      'page-header': require('../page-header'),
       'content-render': require('content-renderer'),
       'expandable-content-grid': require('../expandable-content-grid'),
     },
@@ -81,6 +89,7 @@
 
   .content-container
     height: 60vh
+    margin-bottom: 1em
 
 </style>
 

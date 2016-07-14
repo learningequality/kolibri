@@ -2,29 +2,21 @@
 
   <div>
 
-    <div class="search-tools">
-
-      <search-widget class="search" :searchtoggled.sync="searchToggled"></search-widget>
-
-    </div>
-
-    <div class="tool-bar">
-
+    <page-header :title='title'>
       <breadcrumbs
         v-if='!isRoot'
-        v-show="!searchToggled"
-        class='breadcrumbs'
+        slot='extra-nav'
         :rootid='rootTopicId'
-        :crumbs='topic.breadcrumbs'
-        :current='topic.title'>
+        :crumbs='topic.breadcrumbs'>
       </breadcrumbs>
-
-    </div>
-
-  </div>
-
-  <!-- Toggles top margin if sidebar overlay is exposed -->
-  <section class="explore" v-show="!searchToggled" transition="fade">
+      <div slot='icon'>
+        <svg v-if='isRoot' role="presentation" fill="#996189" height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 10.9c-.61 0-1.1.49-1.1 1.1s.49 1.1 1.1 1.1c.61 0 1.1-.49 1.1-1.1s-.49-1.1-1.1-1.1zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm2.19 12.19L6 18l3.81-8.19L18 6l-3.81 8.19z"></path>
+          <path d="M0 0h24v24H0z" fill="none"></path>
+        </svg>
+        <img v-else src='../folder.svg' alt=''>
+      </div>
+    </page-header>
 
     <p v-if='topic.description'>
       {{ topic.description }}
@@ -32,7 +24,7 @@
 
     <span class="visuallyhidden" v-if="subtopics.length">You can navigate groups of content through headings.</span>
 
-    <card-grid :header="isRoot ? 'Topics' : '' " v-if="subtopics.length">
+    <card-grid v-if="subtopics.length">
       <topic-card
         v-for="topic in subtopics"
         :id="topic.id"
@@ -42,7 +34,7 @@
       </topic-card>
     </card-grid>
 
-    <card-grid :header="isRoot ? 'Content' : '' " v-if="contents.length">
+    <card-grid v-if="contents.length">
       <content-card
         v-for="content in contents"
         class="card"
@@ -54,7 +46,7 @@
       </content-card>
     </card-grid>
 
-  </section>
+  </div>
 
 </template>
 
@@ -64,19 +56,15 @@
   module.exports = {
     components: {
       'breadcrumbs': require('../breadcrumbs'),
+      'page-header': require('../page-header'),
       'topic-card': require('../topic-card'),
       'content-card': require('../content-card'),
-      'search-widget': require('../search-widget'),
       'card-grid': require('../card-grid'),
     },
-    data() {
-      return {
-        searchToggled: false,
-      };
-    },
-    methods: {
-      searchToggleSwitch() {
-        this.searchToggled = !this.searchToggled;
+    computed: {
+      title() {
+        // TODO - i18n
+        return this.isRoot ? 'Explore' : this.topic.title;
       },
     },
     vuex: {
@@ -93,56 +81,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~core-theme.styl'
-  @require '../learn'
-
-  .tool-bar
-    width-auto-adjust()
-    top: 0
-    padding-top: ($tool-bar-height / 4)
-    padding-bottom: ($tool-bar-height / 4)
-    box-sizing: border-box
-    background-color: $core-bg-canvas
-    z-index: 1
-    overflow: hidden
-  .breadcrumbs
-    float: left
-
-  .breadcrumbs
-  .search-tools
-    height: ($tool-bar-height / 2)
-    padding-top: ($tool-bar-height / 4)
-    padding-bottom: ($tool-bar-height / 4)
-
-  .search
-    float: right
-    width: 100%
-
-  select
-    font-size: 0.8rem
-    padding: 0
-    position: relative
-    top: -8px
-
-  .fade-transition
-    transition: all 0.3s ease-out
-  .fade-enter
-    opacity: 0
-    transform: translateY(25%)
-  .fade-leave
-    opacity: 0
-    transform: translateY(25%)
-
-  .visuallyhidden
-    border: none
-    clip: rect(0 0 0 0)
-    height: 1px
-    margin: -1px
-    overflow: hidden
-    padding: 0
-    position: absolute
-    width: 1px
-
-</style>
+<style lang="stylus" scoped></style>
