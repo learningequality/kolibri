@@ -2,18 +2,15 @@
 
   <div>
 
-    <breadcrumbs
-      v-if='!isRoot'
-      :rootid='rootTopicId'
-      :crumbs='topic.breadcrumbs'>
-    </breadcrumbs>
-
-    <h2 class='header'>
-      <img class='header-icon' src='../folder.svg' alt=''>
-      <div class='header-text'>
-        {{ topic.title }}
-      </div>
-    </h2>
+    <page-header :title='topic.title'>
+      <breadcrumbs
+        v-if='!isRoot'
+        slot='extra-nav'
+        :rootid='rootTopicId'
+        :crumbs='topic.breadcrumbs'>
+      </breadcrumbs>
+      <img slot='icon' class='header-icon' src='../folder.svg' alt=''>
+    </page-header>
 
     <p v-if='topic.description'>
       {{ topic.description }}
@@ -53,6 +50,7 @@
   module.exports = {
     components: {
       'breadcrumbs': require('../breadcrumbs'),
+      'page-header': require('../page-header'),
       'topic-card': require('../topic-card'),
       'content-card': require('../content-card'),
       'card-grid': require('../card-grid'),
@@ -71,19 +69,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .header
-    position: relative
-    margin-top: 0
-
-  .header-icon
-    display: block
-    position: absolute
-    top: 5px
-
-  .header-text
-    display: block
-    margin-left: 45px
-
-</style>
+<style lang="stylus" scoped></style>

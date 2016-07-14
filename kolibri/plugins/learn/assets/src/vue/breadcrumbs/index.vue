@@ -47,18 +47,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
-
-  nav
-    font-size: 12px
-
-  a
-    color: $core-text-annotation
-    font-weight: 700
-
-  .child
-    color: $core-text-default
-
   .sep
     margin-left: 0.5em
     margin-right: 0.5em
