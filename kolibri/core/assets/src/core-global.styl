@@ -21,7 +21,11 @@
 
 
 // http://www.paulirish.com/2012/box-sizing-border-box-ftw/
+// @stylint off
+// Stylint disapproves of * selectors, as it should, but we use them
+// here to enforce global behaviour.
 *, *:before, *:after
+  // @stylint on
   box-sizing: inherit
 
 
