@@ -106,7 +106,7 @@
     box-sizing: border-box
     background-color: $core-bg-canvas
     z-index: 1
-    overflow: auto
+    overflow: hidden
   .breadcrumbs
     float: left
 
