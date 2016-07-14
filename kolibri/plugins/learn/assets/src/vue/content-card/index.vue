@@ -7,10 +7,10 @@
       :kind="kind"
       :progress="progress">
     </content-icon>
-    <img :src="thumbnailOrPlaceholder" class="thumbnail" v-if="showThumbnail">
+    <img :src="thumbnailOrPlaceholder" class="thumbnail" v-if="showThumbnail" alt="">
     <div class="thumbnail" v-else>&nbsp;</div>
     <h3>
-      {{ title }}
+      <span class="visuallyhidden">{{ progress }} {{ kind }} </span>{{ title }}
     </h3>
 
   </a>
