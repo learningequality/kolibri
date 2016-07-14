@@ -1,6 +1,6 @@
 <template>
 
-  <img :src="src" alt="">
+  <img :src="src" :alt="altText">
 
 </template>
 
@@ -19,6 +19,10 @@
       },
     },
     computed: {
+      altText() {
+        // TODO - I18N
+        return `${this.progress} - ${this.kind}`;
+      },
       src() {
         // Note: dynamic requires should be used carefully because
         //  they greedily add items to the webpack bundle.
