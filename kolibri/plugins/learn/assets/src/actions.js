@@ -99,7 +99,7 @@ function showLearnRoot(store) {
 
   Resources.getCollection({ recommendations: '' }).fetch()
     .then((recommendations) => {
-      const pageState = { contents: recommendations.map(_contentState) };
+      const pageState = { recommendations: recommendations.map(_contentState) };
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
