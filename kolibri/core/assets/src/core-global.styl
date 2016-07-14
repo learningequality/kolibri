@@ -30,3 +30,36 @@ a
 
   &:hover
     color: $core-action-dark
+
+button
+  // structure (from https://github.com/yahoo/pure/blob/master/src/buttons/css/buttons-core.css)
+  display: inline-block
+  zoom: 1
+  line-height: normal
+  white-space: nowrap
+  vertical-align: middle
+  text-align: center
+  cursor: pointer
+  user-select: none
+  box-sizing: border-box
+
+  // style
+  font-size: 16px
+  color: $core-action-normal
+  background-color: $core-bg-light
+  border: 2px solid $core-action-normal
+  border-radius: 4px
+
+  &:hover
+    color: $core-action-dark
+    border: 2px solid $core-action-dark
+
+  // make icons the right size
+  .material-icons
+    font-size: 16px
+
+// Firefox: Get rid of the inner focus border
+// (from https://github.com/yahoo/pure/blob/master/src/buttons/css/buttons-core.css)
+button::-moz-focus-inner
+  padding: 0
+  border: none
