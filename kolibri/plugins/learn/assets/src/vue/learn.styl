@@ -3,15 +3,25 @@
   */
 @require '~core-theme.styl'
 
-
-$card-width = 196px
-$card-gutter = 10px
-$card-presets = 2 3 4
-$nav-bar-width = 80px
+$card-width = 200px         // fixed card width
+$card-gutter = 10px         // spacing between columns
+$n-cols-array = 1 2 3 4     // possible numbers of columns
+$nav-bar-width = 80px       // width of side-nav
+$nav-bar-padding = 30px     // space between side-nav and main content
 $tool-bar-height = 40px
 
+// compute the target grid width based on the number of columns
+grid-width($n-cols)
+  ($card-width * $n-cols) + ($card-gutter * ($n-cols - 1))
+
+// compute the media query breakpoint, based on the target grid width
+breakpoint($width)
+  $width + $nav-bar-width + $nav-bar-padding
+
+// generate a range of media query breakpoints
 width-auto-adjust()
-  for $preset in $card-presets
-    $min-width = ($card-width * $preset) + ($card-gutter * ($preset - 1))
-    @media (min-width:$min-width)
-      width: $min-width
+  min-width: $card-width
+  for $n-cols in $n-cols-array
+    $grid-width = grid-width($n-cols)
+    @media (min-width: breakpoint($grid-width))
+      width: $grid-width
