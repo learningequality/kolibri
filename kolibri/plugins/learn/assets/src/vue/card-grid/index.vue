@@ -23,10 +23,14 @@
 
 <style lang="stylus">
 
-  @require '../learn'
+  @require '../learn.styl'
   @require 'jeet'
 
-  grid-auto-adjust()
+  // @stylint off
+  .card-grid > *
+  // @stylint on
+    column(1, cycle: 1, gutter: 0)
+    min-width: $card-width
     for $n-cols, $i in $n-cols-array
       $grid-width = grid-width($n-cols)
       if($i)
@@ -34,11 +38,6 @@
           column(1/$n-cols, uncycle: $n-cols-array[$i-1], cycle: $n-cols, gutter: $card-gutter/$grid-width)
       @media (min-width: breakpoint($grid-width))
         column(1/$n-cols, cycle: $n-cols, gutter: $card-gutter/$grid-width)
-
-  // @stylint off
-  .card-grid > *
-    grid-auto-adjust()
-  // @stylint on
 
 </style>
 
