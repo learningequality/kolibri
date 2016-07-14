@@ -30,7 +30,7 @@
       {{ topic.description }}
     </p>
 
-    <span class="visuallyhidden">You can navigate groups of content through headings.</span>
+    <span class="visuallyhidden" v-if="subtopics.length">You can navigate groups of content through headings.</span>
 
     <card-grid :header="isRoot ? 'Topics' : '' " v-if="subtopics.length">
       <topic-card
@@ -125,7 +125,7 @@
     padding: 0
     position: relative
     top: -8px
-   
+
   .fade-transition
     transition: all 0.3s ease-out
   .fade-enter
