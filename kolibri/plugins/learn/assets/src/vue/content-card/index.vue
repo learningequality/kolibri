@@ -2,9 +2,9 @@
 
   <div>
     <card v-link="link" :title="title">
-      <div class='thumbnail' :style='{ "background-image": thumb }'>
+      <div class='thumbnail' :class="{ 'thumbnail-center' : !thumbnail}" :style='{ "background-image": thumb }'>
         <content-icon
-          class="content-icon"
+          :class="{ 'content-icon' : thumbnail ,' content-icon-center' : !thumbnail   }"
           v-if="kind"
           :kind="kind"
           :progress="progress">
@@ -78,8 +78,10 @@
         };
       },
       thumb() {
-        const url = this.thumbnail ? this.thumbnail : require(`./images/default_thumbnail.png`);
-        return `url(${url})`;
+        if (this.thumbnail) {
+          return `url(${this.thumbnail})`;
+        }
+        return ``;
       },
     },
     vuex: {
@@ -102,9 +104,23 @@
     background-size: cover
     background-position: center
 
+  .thumbnail-center
+    text-align: center
+
+  .thumbnail-center:before
+    content: ''
+    display: inline-block
+    vertical-align: middle
+    height:100%
+
   .content-icon
     position: absolute
     top: 0.5em
     left: 0.5em
+
+  .content-icon-center
+    width: 70%
+    display: inline-block
+    vertical-align: middle
 
 </style>
