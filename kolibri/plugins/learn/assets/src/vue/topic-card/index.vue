@@ -1,11 +1,10 @@
 <template>
 
-  <a v-link="link">
-    <img src="../folder.svg" alt="">
-    <h3 class="title">
-      {{ title }}
-    </h3>
-  </a>
+  <div>
+    <card v-link="link" :title="title">
+      <div class='thumbnail'></div>
+    </card>
+  </div>
 
 </template>
 
@@ -15,6 +14,9 @@
   const constants = require('../../state/constants');
 
   module.exports = {
+    components: {
+      card: require('../card'),
+    },
     props: {
       id: {
         type: String,
@@ -40,15 +42,13 @@
 
 <style lang="stylus" scoped>
 
-  img
-    width: 50%
-
-  a
-    box-sizing: border-box
-    padding: 0.5rem
-    text-align: center
-
-  h3
-    font-size: 0.8rem
+  .thumbnail
+    width: 100%
+    height: 100%
+    background-position: center
+    background-image: url(../folder.svg)
+    background-repeat: no-repeat
+    // chosen to approximage ~0.5em - the card's internal padding
+    background-size: 78%
 
 </style>

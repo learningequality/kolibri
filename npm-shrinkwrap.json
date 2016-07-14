@@ -3378,6 +3378,11 @@
       "from": "map-obj@>=1.0.1 <2.0.0",
       "resolved": "https://registry.npmjs.org/map-obj/-/map-obj-1.0.1.tgz"
     },
+    "material-design-icons": {
+      "version": "2.2.3",
+      "from": "material-design-icons@latest",
+      "resolved": "https://registry.npmjs.org/material-design-icons/-/material-design-icons-2.2.3.tgz"
+    },
     "media-typer": {
       "version": "0.3.0",
       "from": "media-typer@0.3.0",
@@ -5067,6 +5072,11 @@
       "version": "2.10.0",
       "from": "webpack-hot-middleware@>=2.6.0 <3.0.0",
       "resolved": "https://registry.npmjs.org/webpack-hot-middleware/-/webpack-hot-middleware-2.10.0.tgz"
+    },
+    "webpack-material-design-icons": {
+      "version": "0.0.2",
+      "from": "webpack-material-design-icons@0.0.2",
+      "resolved": "https://registry.npmjs.org/webpack-material-design-icons/-/webpack-material-design-icons-0.0.2.tgz"
     },
     "webpack-merge": {
       "version": "0.8.4",

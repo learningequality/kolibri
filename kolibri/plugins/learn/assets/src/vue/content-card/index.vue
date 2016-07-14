@@ -1,19 +1,17 @@
 <template>
 
-  <a v-link="link">
-    <content-icon
-      class="content-icon"
-      v-if="kind"
-      :kind="kind"
-      :progress="progress">
-    </content-icon>
-    <img :src="thumbnailOrPlaceholder" class="thumbnail" v-if="showThumbnail" alt="">
-    <div class="thumbnail" v-else>&nbsp;</div>
-    <h3>
-      <span class="visuallyhidden">{{ progress }} {{ kind }} </span>{{ title }}
-    </h3>
-
-  </a>
+  <div>
+    <card v-link="link" :title="title">
+      <div class='thumbnail' :style='{ "background-image": thumb }'>
+        <content-icon
+          class="content-icon"
+          v-if="kind"
+          :kind="kind"
+          :progress="progress">
+        </content-icon>
+      </div>
+    </card>
+  </div>
 
 </template>
 
@@ -28,6 +26,7 @@
   module.exports = {
     components: {
       'content-icon': require('../content-icon'),
+      'card': require('../card'),
     },
     props: {
       id: {
@@ -64,11 +63,6 @@
           ].some(elem => elem === value);
         },
       },
-      showThumbnail: {
-        // Add this as an option to show a truncated card.
-        type: Boolean,
-        default: true,
-      },
     },
     computed: {
       link() {
@@ -83,8 +77,9 @@
           params: { id: this.id },
         };
       },
-      thumbnailOrPlaceholder() {
-        return this.thumbnail ? this.thumbnail : require(`./images/default_thumbnail.png`);
+      thumb() {
+        const url = this.thumbnail ? this.thumbnail : require(`./images/default_thumbnail.png`);
+        return `url(${url})`;
       },
     },
     vuex: {
@@ -101,25 +96,15 @@
 
   @require '~core-theme.styl'
 
-  $card-border-radius: 5px
-
-  h4
-    padding-left: 1rem
-    padding-right: 1rem
-
-  a
-    box-sizing: border-box
-    background-color: $core-bg-light
-    margin-bottom: 1rem
-
   .thumbnail
     width: 100%
+    height: 100%
+    background-size: cover
+    background-position: center
 
   .content-icon
-    position: relative
-    top: 1.6em
+    position: absolute
+    top: 0.5em
     left: 0.5em
-    margin-top: -1em
-    margin-bottom: -1em
 
 </style>
