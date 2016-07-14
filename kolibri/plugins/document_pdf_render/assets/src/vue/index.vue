@@ -65,13 +65,9 @@
 
   .container
     text-align: center
-    margin-top: 20px
-    margin-bottom: 20px
+    height: 100%
     &:fullscreen
       width: 100%
       height: 100%
-
-  .pdfcontainer
-    height: 75vh
 
 </style>

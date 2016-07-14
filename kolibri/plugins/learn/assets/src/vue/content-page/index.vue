@@ -12,12 +12,12 @@
     <div v-if="pageMode === $options.PageModes.LEARN">
       <a v-link="{ name: $options.PageNames.LEARN_ROOT }">Home</a>
       <h1>{{ title }}</h1>
-    </div>
-
-    <div>
       <p>
         {{ description }}
       </p>
+    </div>
+
+    <div class="content-container">
       <content-render
         :id="id"
         :kind="kind"
@@ -77,5 +77,10 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .content-container
+    height: 60vh
+
+</style>
 

@@ -25,15 +25,14 @@
       <button class="audio-button" @click="minus20">- 20s</button>
       <button class="audio-button" @click="plus20">+ 20s</button>
     </div>
+    <audio
+      id="audio" 
+      v-el:audio
+      @timeupdate="updateDummyTime"
+      @loadedmetadata="setTotalTime"
+      :src="defaultFile.storage_url"
+    ></audio>
   </div>
-
-  <audio
-    id="audio" 
-    v-el:audio
-    @timeupdate="updateDummyTime"
-    @loadedmetadata="setTotalTime"
-    :src="defaultFile.storage_url"
-  ></audio>
 
 </template>
 
@@ -165,7 +164,8 @@
 <style lang="stylus" scoped>
 
   #audio-wrapper
-    margin: 8% 5%
+    padding: 8% 5%
+    height: 100%
     
   .play-button
     margin-right: 2%
