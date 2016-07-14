@@ -12,11 +12,11 @@
   </card-grid>
 
   <div class='button-wrapper'>
-    <button @click='toggle()' v-if='expanded'>
-      <i class="material-icons">&#xE5CE;</i> <span class="button-text">Show Less</span>
+    <button class='material-icon-btn' @click='toggle()' v-if='expanded'>
+      <i class='material-icons'>&#xE5CE;</i> Show Less
     </button>
-    <button class='pure-button' @click='toggle()' v-else>
-      <i class="material-icons">&#xE5CF;</i> <span class="button-text">Show More </span>
+    <button class='material-icon-btn' class='pure-button' @click='toggle()' v-else>
+      <i class='material-icons'>&#xE5CF;</i> Show More
     </button>
   </div>
 
