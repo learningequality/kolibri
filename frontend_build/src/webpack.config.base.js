@@ -17,6 +17,7 @@ var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 var jeet = require('jeet');
+var autoprefixer = require('autoprefixer');
 
 require('./htmlhint_custom'); // adds custom rules
 
@@ -54,15 +55,15 @@ var config = {
       },
       {
         test: /\.css$/,
-        loader: 'style-loader!css-loader'
+        loader: 'style-loader!css-loader!postcss-loader'
       },
       {
         test: /\.styl$/,
-        loader: 'style-loader!css-loader?sourceMap!stylus-loader!stylint'
+        loader: 'style-loader!css-loader?sourceMap!postcss-loader!stylus-loader!stylint'
       },
       // moved from parse_bundle_plugin.js
       {
-        test: /\.(png|jpg|gif|svg|eot)$/,
+        test: /\.(png|jpe?g|gif|svg)$/,
         loader: 'url',
         query: {
           limit: 10000,
@@ -72,7 +73,7 @@ var config = {
       // Usage of file loader allows referencing a local vtt file without in-lining it.
       // Can be removed once the local en.vtt test file is removed.
       {
-        test: /\.(vtt)$/,
+        test: /\.(vtt|eot|woff|ttf|woff2)$/,
         loader: 'file',
         query: {
           name: '[name].[ext]?[hash]'
@@ -85,7 +86,7 @@ var config = {
         test: /fg-loadcss\/src\/onloadCSS/,
         loader: 'exports?onloadCSS'
       },
-      // Allows <video> and <audio> HTML5 tags work on all major browsers. 
+      // Allows <video> and <audio> HTML5 tags work on all major browsers.
       {
         test: require.resolve('html5media/dist/api/1.1.8/html5media'),
         loader: "imports?this=>window"
@@ -119,6 +120,9 @@ var config = {
   stylus: {
     use: [jeet()]
   },
+  postcss: function () {
+    return [autoprefixer];
+  }
 };
 
 module.exports = config;
