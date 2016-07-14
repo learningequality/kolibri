@@ -3,6 +3,9 @@
 require('normalize.css');
 require('./font-NotoSans.css');
 require('./core-global.styl');
+require('webpack-material-design-icons');
+
+// polyfill for older browsers
 require('babel-polyfill');
 
 // set up logging

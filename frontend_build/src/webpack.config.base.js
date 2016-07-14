@@ -62,7 +62,7 @@ var config = {
       },
       // moved from parse_bundle_plugin.js
       {
-        test: /\.(png|jpg|gif|svg|eot)$/,
+        test: /\.(png|jpe?g|gif|svg)$/,
         loader: 'url',
         query: {
           limit: 10000,
@@ -72,7 +72,7 @@ var config = {
       // Usage of file loader allows referencing a local vtt file without in-lining it.
       // Can be removed once the local en.vtt test file is removed.
       {
-        test: /\.(vtt)$/,
+        test: /\.(vtt|eot|woff|ttf|woff2)$/,
         loader: 'file',
         query: {
           name: '[name].[ext]?[hash]'
@@ -85,7 +85,7 @@ var config = {
         test: /fg-loadcss\/src\/onloadCSS/,
         loader: 'exports?onloadCSS'
       },
-      // Allows <video> and <audio> HTML5 tags work on all major browsers. 
+      // Allows <video> and <audio> HTML5 tags work on all major browsers.
       {
         test: require.resolve('html5media/dist/api/1.1.8/html5media'),
         loader: "imports?this=>window"
