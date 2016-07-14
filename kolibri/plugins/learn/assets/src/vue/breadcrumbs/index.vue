@@ -2,13 +2,10 @@
 
   <nav role="navigation" aria-label="Breadcrumbs navigation">
     <span class="parent">
-      <a v-link="rootLink">All</a> /
+      <a v-link="rootLink">Learn</a> <span class='sep'>»</span>
     </span>
     <span class="parent" v-for="crumb in crumbs">
-      <a v-link="crumbLink(crumb.id)">{{ crumb.title }} </a> /
-    </span>
-    <span class="child">
-      {{ current | capitalize }}
+      <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a> <span class='sep'>»</span>
     </span>
   </nav>
 
@@ -27,10 +24,6 @@
       },
       crumbs: {
         type: Array,
-        required: true,
-      },
-      current: {
-        type: String,
         required: true,
       },
     },
@@ -56,11 +49,18 @@
 
   @require '~core-theme.styl'
 
-  .parent , a
+  nav
+    font-size: 12px
+
+  a
     color: $core-text-annotation
+    font-weight: 700
 
   .child
     color: $core-text-default
-    font-weight: 700
+
+  .sep
+    margin-left: 0.5em
+    margin-right: 0.5em
 
 </style>

@@ -5,9 +5,15 @@
     <breadcrumbs
       v-if='!isRoot'
       :rootid='rootTopicId'
-      :crumbs='topic.breadcrumbs'
-      :current='topic.title'>
+      :crumbs='topic.breadcrumbs'>
     </breadcrumbs>
+
+    <h2 class='header'>
+      <img class='header-icon' src='../folder.svg' alt=''>
+      <div class='header-text'>
+        {{ topic.title }}
+      </div>
+    </h2>
 
     <p v-if='topic.description'>
       {{ topic.description }}
@@ -65,4 +71,19 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .header
+    position: relative
+    margin-top: 0
+
+  .header-icon
+    display: block
+    position: absolute
+    top: 5px
+
+  .header-text
+    display: block
+    margin-left: 45px
+
+</style>
