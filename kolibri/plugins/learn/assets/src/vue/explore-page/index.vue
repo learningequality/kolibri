@@ -2,29 +2,12 @@
 
   <div>
 
-    <div class="search-tools">
-
-      <search-widget class="search" :searchtoggled.sync="searchToggled"></search-widget>
-
-    </div>
-
-    <div class="tool-bar">
-
-      <breadcrumbs
-        v-if='!isRoot'
-        v-show="!searchToggled"
-        class='breadcrumbs'
-        :rootid='rootTopicId'
-        :crumbs='topic.breadcrumbs'
-        :current='topic.title'>
-      </breadcrumbs>
-
-    </div>
-
-  </div>
-
-  <!-- Toggles top margin if sidebar overlay is exposed -->
-  <section class="explore" v-show="!searchToggled" transition="fade">
+    <breadcrumbs
+      v-if='!isRoot'
+      :rootid='rootTopicId'
+      :crumbs='topic.breadcrumbs'
+      :current='topic.title'>
+    </breadcrumbs>
 
     <p v-if='topic.description'>
       {{ topic.description }}
@@ -54,7 +37,7 @@
       </content-card>
     </card-grid>
 
-  </section>
+  </div>
 
 </template>
 
@@ -66,18 +49,7 @@
       'breadcrumbs': require('../breadcrumbs'),
       'topic-card': require('../topic-card'),
       'content-card': require('../content-card'),
-      'search-widget': require('../search-widget'),
       'card-grid': require('../card-grid'),
-    },
-    data() {
-      return {
-        searchToggled: false,
-      };
-    },
-    methods: {
-      searchToggleSwitch() {
-        this.searchToggled = !this.searchToggled;
-      },
     },
     vuex: {
       getters: {
@@ -93,56 +65,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~core-theme.styl'
-  @require '../learn'
-
-  .tool-bar
-    width-auto-adjust()
-    top: 0
-    padding-top: ($tool-bar-height / 4)
-    padding-bottom: ($tool-bar-height / 4)
-    box-sizing: border-box
-    background-color: $core-bg-canvas
-    z-index: 1
-    overflow: auto
-  .breadcrumbs
-    float: left
-
-  .breadcrumbs
-  .search-tools
-    height: ($tool-bar-height / 2)
-    padding-top: ($tool-bar-height / 4)
-    padding-bottom: ($tool-bar-height / 4)
-
-  .search
-    float: right
-    width: 100%
-
-  select
-    font-size: 0.8rem
-    padding: 0
-    position: relative
-    top: -8px
-
-  .fade-transition
-    transition: all 0.3s ease-out
-  .fade-enter
-    opacity: 0
-    transform: translateY(25%)
-  .fade-leave
-    opacity: 0
-    transform: translateY(25%)
-
-  .visuallyhidden
-    border: none
-    clip: rect(0 0 0 0)
-    height: 1px
-    margin: -1px
-    overflow: hidden
-    padding: 0
-    position: absolute
-    width: 1px
-
-</style>
+<style lang="stylus" scoped></style>
