@@ -1,17 +1,18 @@
 <template>
 
-  <a v-link="link">
-    <content-icon
-      class="content-icon"
-      v-if="kind"
-      :kind="kind"
-      :progress="progress">
-    </content-icon>
-    <img :src="thumbnailOrPlaceholder" class="thumbnail" v-if="showThumbnail" alt="">
-    <div class="thumbnail" v-else>&nbsp;</div>
-    <h3>
-      <span class="visuallyhidden">{{ progress }} {{ kind }} </span>{{ title }}
-    </h3>
+  <a class='root' v-link="link">
+    <div class='thumb-wrapper'>
+      <content-icon
+        class="content-icon"
+        v-if="kind"
+        :kind="kind"
+        :progress="progress">
+      </content-icon>
+      <div class='thumbnail' :style='{ "background-image": thumb }'></div>
+    </div>
+    <div class='text'>
+      {{ title }}
+    </div>
 
   </a>
 
@@ -64,11 +65,6 @@
           ].some(elem => elem === value);
         },
       },
-      showThumbnail: {
-        // Add this as an option to show a truncated card.
-        type: Boolean,
-        default: true,
-      },
     },
     computed: {
       link() {
@@ -83,8 +79,9 @@
           params: { id: this.id },
         };
       },
-      thumbnailOrPlaceholder() {
-        return this.thumbnail ? this.thumbnail : require(`./images/default_thumbnail.png`);
+      thumb() {
+        const url = this.thumbnail ? this.thumbnail : require(`./images/default_thumbnail.png`);
+        return `url(${url})`;
       },
     },
     vuex: {
@@ -100,26 +97,46 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+  @require '../learn.styl'
 
-  $card-border-radius: 5px
+  $thumb-width = $card-height * 3.0 / 2.5;
 
-  h4
-    padding-left: 1rem
-    padding-right: 1rem
-
-  a
-    box-sizing: border-box
+  .root
+    display: block
+    width: $card-width
+    height: $card-height
     background-color: $core-bg-light
-    margin-bottom: 1rem
+    // margin-bottom: 1rem
+    overflow: hidden
+
+  .thumb-wrapper
+    position: relative
+    display: block
+    float: left
+    width: $thumb-width
+    height: $card-height
+
+  .text
+    display: block
+    float: right
+    width: $card-width - $thumb-width
+    height: $card-height
+    padding: 0.5em
+    font-size: 0.8rem
+    font-weight: bold
+
+
+  /* child elements */
 
   .thumbnail
-    width: 100%
+    width: $thumb-width
+    height: $card-height
+    background-size: cover
+    background-position: center
 
   .content-icon
-    position: relative
-    top: 1.6em
+    position: absolute
+    top: 0.5em
     left: 0.5em
-    margin-top: -1em
-    margin-bottom: -1em
 
 </style>
