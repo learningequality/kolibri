@@ -19,10 +19,17 @@
 
 @require '~core-theme.styl'
 
+html
+  // https://davidwalsh.name/html5-boilerplate
+  font-size: 100%
+  text-size-adjust: 100%
+
+
 html, body
   font-family: $core-font
   color: $core-text-default
   background-color: $core-bg-canvas
+
 
 a
   color: $core-action-normal
@@ -31,6 +38,17 @@ a
 
   &:hover
     color: $core-action-dark
+
+
+// https://davidwalsh.name/html5-boilerplate
+img
+  -ms-interpolation-mode: bicubic
+
+
+// https://davidwalsh.name/html5-boilerplate
+svg:not(:root)
+  overflow: hidden
+
 
 button
   // structure (from https://github.com/yahoo/pure/blob/master/src/buttons/css/buttons-core.css)
@@ -61,6 +79,7 @@ button
   // make icons the right size
   .material-icons
     font-size: 16px
+
 
 // Firefox: Get rid of the inner focus border
 // (from https://github.com/yahoo/pure/blob/master/src/buttons/css/buttons-core.css)
