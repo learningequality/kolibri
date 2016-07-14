@@ -4,20 +4,35 @@ import uuid
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import FacilityUser
+from kolibri.auth.permissions.base import RoleBasedPermissions
 from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.models import UUIDField
 
-from .permissions import UserLogPermissions
 
+class BaseLogModel(models.Model):
 
-class ContentInteractionLog(models.Model):
+    permissions = (
+        IsOwn() |
+        RoleBasedPermissions(
+            target_field="user",
+            can_be_created_by=(role_kinds.ADMIN,),
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_updated_by=(role_kinds.ADMIN,),
+            can_be_deleted_by=(role_kinds.ADMIN,),
+        )
+    )
+
+    user = models.ForeignKey(FacilityUser, blank=True, null=True, db_index=True)
+
+    class Meta:
+        abstract = True
+
+class ContentInteractionLog(BaseLogModel):
     """
     This Model provides a record of an interaction with a content item.
     """
-    permissions = IsOwn(read_only=True) | UserLogPermissions()
-
-    user = models.ForeignKey(FacilityUser, blank=True, null=True, db_index=True)
     content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
     channel_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
     start_timestamp = models.DateTimeField(auto_now_add=True)
@@ -27,13 +42,10 @@ class ContentInteractionLog(models.Model):
     extra_fields = models.TextField(blank=True)
 
 
-class ContentSummaryLog(models.Model):
+class ContentSummaryLog(BaseLogModel):
     """
     This Model provides a summary of all interactions of a user with a content item.
     """
-    permissions = IsOwn(read_only=True) | UserLogPermissions()
-
-    user = models.ForeignKey(FacilityUser, blank=True, null=True, db_index=True)
     content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
     last_channel_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
     start_timestamp = models.DateTimeField(auto_now_add=True)
@@ -44,13 +56,10 @@ class ContentSummaryLog(models.Model):
     extra_fields = models.TextField(blank=True)
 
 
-class ContentRatingLog(models.Model):
+class ContentRatingLog(BaseLogModel):
     """
     This Model provides a record of user feedback on content.
     """
-    permissions = IsOwn() | UserLogPermissions()
-
-    user = models.ForeignKey(FacilityUser, blank=True, null=True, db_index=True)
     content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
     channel_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
     quality = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
@@ -59,13 +68,10 @@ class ContentRatingLog(models.Model):
     feedback = models.TextField(blank=True)
 
 
-class UserSessionLog(models.Model):
+class UserSessionLog(BaseLogModel):
     """
     This Model provides a record of a user session in Kolibri.
     """
-    permissions = IsOwn(read_only=True) | UserLogPermissions()
-
-    user = models.ForeignKey(FacilityUser, blank=True, null=True, db_index=True)
     channels = models.TextField(blank=True)
     start_timestamp = models.DateTimeField(auto_now_add=True)
     completion_timestamp = models.DateTimeField(blank=True, null=True)
