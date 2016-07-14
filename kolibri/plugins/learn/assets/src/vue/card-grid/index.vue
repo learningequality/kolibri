@@ -27,14 +27,13 @@
   @require 'jeet'
 
   grid-auto-adjust()
-    for $preset, $i in $card-presets
-      $min-width = ($card-width * $preset) + ($card-gutter * ($preset - 1))
+    for $n-cols, $i in $n-cols-array
+      $grid-width = grid-width($n-cols)
       if($i)
-        @media (min-width:$min-width)
-          column(1/$preset, uncycle: $card-presets[$i-1], cycle: $preset, gutter: $card-gutter/$min-width)
-
-      @media (min-width:$min-width)
-        column(1/$preset, cycle: $preset, gutter: $card-gutter/$min-width)
+        @media (min-width: breakpoint($grid-width))
+          column(1/$n-cols, uncycle: $n-cols-array[$i-1], cycle: $n-cols, gutter: $card-gutter/$grid-width)
+      @media (min-width: breakpoint($grid-width))
+        column(1/$n-cols, cycle: $n-cols, gutter: $card-gutter/$grid-width)
 
   // @stylint off
   .card-grid > *
