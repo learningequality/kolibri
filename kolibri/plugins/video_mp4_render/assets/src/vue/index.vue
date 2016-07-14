@@ -73,7 +73,6 @@
       this.videoPlayer = videojs(this.$els.video, {
         controls: true,
         autoplay: false,
-        fluid: true,
         preload: 'auto',
         poster: this.posterSource,
         playbackRates: [0.25, 0.5, 1.0, 1.25, 1.5, 2.0],
@@ -147,6 +146,7 @@
   .video-js
     font-size: 1em
     color: #fff
+    height: 100%
     .vjs-slider
       background-color: #545454
       background-color: rgba(84, 84, 84, 0.5)
