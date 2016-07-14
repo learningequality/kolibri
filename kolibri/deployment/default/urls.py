@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'', include('kolibri.core.urls')),
     url(r'^api/', include('kolibri.auth.api_urls')),
     url(r'^api/', include('kolibri.content.api_urls')),
+    url(r'^api/', include('kolibri.logger.api_urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^' + settings.STORAGE_URL[1:-1] + '(?P<path>.*)$', 'django.views.static.serve', {
         'document_root': settings.STORAGE_ROOT}),
