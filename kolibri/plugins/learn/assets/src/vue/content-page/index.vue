@@ -19,10 +19,11 @@
       </content-icon>
     </page-header>
 
-    <div>
-      <p>
-        {{ description }}
-      </p>
+    <p>
+      {{ description }}
+    </p>
+
+    <div class="content-container">
       <content-render
         :id="id"
         :kind="kind"
@@ -84,5 +85,11 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .content-container
+    height: 60vh
+    margin-bottom: 1em
+
+</style>
 
