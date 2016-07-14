@@ -33,16 +33,11 @@
       </content-render>
     </div>
 
-    <card-grid header='Recommended' v-if="pageMode === $options.PageModes.LEARN">
-      <content-card
-        v-for="content in recommended"
-        :id="content.id"
-        :title="content.title"
-        :thumbnail="content.thumbnail"
-        :kind="content.kind"
-        :progress="content.progress">
-      </content-card>
-    </card-grid>
+    <expandable-content-grid
+      v-if="pageMode === $options.PageModes.LEARN"
+      title="Recommended"
+      :contents="recommended">
+    </expandable-content-grid>
 
   </div>
 
@@ -60,9 +55,8 @@
       'breadcrumbs': require('../breadcrumbs'),
       'content-icon': require('../content-icon'),
       'page-header': require('../page-header'),
-      'content-card': require('../content-card'),
       'content-render': require('content-renderer'),
-      'card-grid': require('../card-grid'),
+      'expandable-content-grid': require('../expandable-content-grid'),
     },
     vuex: {
       getters: {

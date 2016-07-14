@@ -47,7 +47,7 @@
     float: left
     width: $thumb-width
     height: $card-height
-    border-radius: $radius
+    border-radius: $radius 0 0  $radius
     overflow: hidden
 
   .text
@@ -55,8 +55,9 @@
     float: right
     width: $card-width - $thumb-width
     height: $card-height
-    padding: 0.5em
-    font-size: 0.8rem
+    padding: 0.6em
+    font-size: 0.9rem
     font-weight: bold
+    color: $core-text-default
 
 </style>

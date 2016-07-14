@@ -140,7 +140,7 @@
 <style lang="stylus">
 
   // Default videojs stylesheet
-  // Unable to refrence the videojs using require since videojs dosen't have good webpack support
+  // Unable to reference the videojs using require since videojs doesn't have good webpack support
   @import '../../../../../../node_modules/video.js/dist/video-js.css'
 
   // Videojs skin customization
@@ -150,12 +150,11 @@
     .vjs-slider
       background-color: #545454
       background-color: rgba(84, 84, 84, 0.5)
-
     .vjs-load-progress
-      background: ligthen(#545454, 25%)
+      background: lighten(#545454, 25%)
       background: rgba(84, 84, 84, 0.5)
       div
-        background: ligthen(#545454, 50%)
+        background: lighten(#545454, 50%)
         background: rgba(84, 84, 84, 0.75)
 
   .video-js .vjs-control-bar,
@@ -165,69 +164,69 @@
     background-color: rgba(0, 0, 0, 0.7)
 
    // Custom style
-  .vjs-menu
+  .videowrapper
+    position: relative
+
+  .video-js .vjs-menu
     font-family: 'NotoSans', 'sans-serif'
 
   .video-js .vjs-current-time
     display: block
 
-  .videowrapper
-    position: relative
-
   .video-js .vjs-play-progress
     background-color: #996189
-
-  .video-js .videoreplay
-    background: url('../icons/ic_replay_10_white.svg')
-    background-repeat: no-repeat
-    background-size: contain
-    cursor: pointer
-    position: absolute
-    top: 50%
-    left: 40%
-    transform: translate(-50%, -50%)
-    height: 3em
-    width: 3em
-    display: none
-
-  .video-js .videoforward
-    background: url('../icons/ic_forward_10_white.svg')
-    background-repeat: no-repeat
-    background-size: contain
-    cursor: pointer
-    position: absolute
-    top: 50%
-    left: 60%
-    transform: translate(-50%, -50%)
-    height: 3em
-    width: 3em
-    display: none
-
-  .video-js .videotoggle
-    background: url('../icons/ic_play_circle_outline_white.svg')
-    background-repeat: no-repeat
-    background-size: contain
-    cursor: pointer
-    position: absolute
-    top: 50%
-    left: 50%
-    transform: translate(-50%, -50%)
-    height: 7em
-    width: 7em
-
-  .video-js .videopaused
-    background: url('../icons/ic_pause_circle_outline_white.svg')
-    background-repeat: no-repeat
-    background-size: contain
 
   .video-js .userInactive
     visibility: visible
     opacity: 0
     transition: visibility 1s, opacity 1s
 
-  .video-js .vjs-playing .vjs-tech
-    pointer-events: none
+  .video-js .videoreplay,
+  .video-js .videoforward,
+  .video-js .videotoggle
+    background-repeat: no-repeat
+    background-size: contain
+    cursor: pointer
+    position: absolute
+    top: 50%
+    transform: translate(-50%, -50%)
 
+  .video-js .videoreplay,
+  .video-js .videoforward
+    display: none
+    height: 10vw
+    width: 10vw
+    max-height: 133px
+    max-width: 133px
+
+  .video-js .videoreplay
+    background: url('../icons/ic_replay_10_white.svg')
+    background-repeat: no-repeat
+    background-size: contain
+    left: 35%
+
+  .video-js .videoforward
+    background: url('../icons/ic_forward_10_white.svg')
+    background-repeat: no-repeat
+    background-size: contain
+    left: 65%
+
+  .video-js .videotoggle
+    background: url('../icons/ic_play_circle_outline_white.svg')
+    background-repeat: no-repeat
+    background-size: contain
+    left: 50%
+    height: 15vw
+    width: 15vw
+    max-height: 200px
+    max-width: 200px
+
+  .video-js .videopaused
+    background: url('../icons/ic_pause_circle_outline_white.svg')
+    background-repeat: no-repeat
+    background-size: contain
+
+  .video-js .display,
   .video-js .display
     display: block
 
