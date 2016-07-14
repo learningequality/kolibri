@@ -5,7 +5,7 @@
       <slot name='extra-nav'></slot>
     </div>
     <h2 class='header'>
-      <div class='icon'>
+      <div class='icon-wrapper'>
         <slot name='icon'></slot>
       </div>
       <div class='text'>
@@ -33,14 +33,20 @@
 
 <style lang="stylus">
 
-  /*** WARNING - unscoped styles for children ***/
+  /** WARNING - unscoped styles for children                  */
+  /* use very precise selectors to minimize risk of collision */
 
   @require '~core-theme.styl'
 
-  // use a very precise selector to minimize risk of collision
   .header-wrapper .extra-nav a
     color: $core-text-annotation
     font-weight: 700
+
+  // @stylint off
+  .header-wrapper .icon-wrapper > *
+  // @stylint on
+    width: 1em
+    height: 1em
 
 </style>
 
@@ -57,7 +63,7 @@
     position: relative
     margin-top: 0.5em
 
-  .icon
+  .icon-wrapper
     display: block
     position: absolute
     top: 5px

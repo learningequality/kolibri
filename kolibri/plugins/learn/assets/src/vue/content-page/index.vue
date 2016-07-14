@@ -2,12 +2,19 @@
 
   <div>
 
-    <breadcrumbs
-      v-if="pageMode === $options.PageModes.EXPLORE"
-      :rootid='rootTopicId'
-      :crumbs='breadcrumbs'
-      :current='title'>
-    </breadcrumbs>
+    <page-header :title='title'>
+      <breadcrumbs
+        v-if="pageMode === $options.PageModes.EXPLORE"
+        slot='extra-nav'
+        :rootid='rootTopicId'
+        :crumbs='breadcrumbs'>
+      </breadcrumbs>
+      <content-icon
+        slot='icon'
+        :kind="kind"
+        :progress="progress">
+      </content-icon>
+    </page-header>
 
     <div v-if="pageMode === $options.PageModes.LEARN">
       <a v-link="{ name: $options.PageNames.LEARN_ROOT }">Home</a>
@@ -53,6 +60,8 @@
     mixins: [constants], // makes constants available in $options
     components: {
       'breadcrumbs': require('../breadcrumbs'),
+      'content-icon': require('../content-icon'),
+      'page-header': require('../page-header'),
       'content-card': require('../content-card'),
       'content-render': require('content-renderer'),
       'card-grid': require('../card-grid'),
