@@ -1,53 +1,18 @@
 <template>
 
-  <card-grid header="Recommended" v-if="contents.length">
-    <content-card
-      v-for="content in contents"
-      :title="content.title"
-      :thumbnail="content.thumbnail"
-      :kind="content.kind"
-      :progress="content.progress"
-      :id="content.id">
-    </content-card>
-  </card-grid>
-
-  <div class='button-wrapper'>
-    <button @click='toggle()' v-if='expanded'>
-      <i class="material-icons">&#xE5CE;</i> Show Less
-    </button>
-    <button class='pure-button' @click='toggle()' v-else>
-      <i class="material-icons">&#xE5CF;</i> <span>Show More</span>
-    </button>
-  </div>
+  <expandable-content-grid
+    title="Recommended"
+    :contents="recommendations"
+  ></expandable-content-grid>
 
 </template>
 
 
 <script>
 
-  const N_COLLAPSED = 6;
-  const N_EXPANDED = 12;
-
   module.exports = {
     components: {
-      'content-card': require('../content-card'),
-      'card-grid': require('../card-grid'),
-    },
-    data() {
-      return {
-        expanded: false,
-      };
-    },
-    computed: {
-      contents() {
-        const num = this.expanded ? N_EXPANDED : N_COLLAPSED;
-        return this.recommendations.slice(0, num);
-      },
-    },
-    methods: {
-      toggle() {
-        this.expanded = !this.expanded;
-      },
+      'expandable-content-grid': require('../expandable-content-grid'),
     },
     vuex: {
       getters: {
