@@ -12,11 +12,11 @@
   </card-grid>
 
   <div class='button-wrapper' v-if="contents.length > nCollapsed">
-    <button @click='toggle()' v-if='expanded'>
-      <i class="material-icons">&#xE5CE;</i> Show Less
+    <button class='material-icon-btn' @click='toggle()' v-if='expanded'>
+      <i class='material-icons'>&#xE5CE;</i> Show Less
     </button>
-    <button class='pure-button' @click='toggle()' v-else>
-      <i class="material-icons">&#xE5CF;</i> <span>Show More</span>
+    <button class='material-icon-btn' class='pure-button' @click='toggle()' v-else>
+      <i class='material-icons'>&#xE5CF;</i> Show More
     </button>
   </div>
 
