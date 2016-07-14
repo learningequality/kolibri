@@ -76,6 +76,7 @@
   .page-content
     margin: auto
     margin-left: $nav-bar-width * 1.5
+    margin-bottom: 50px
     width-auto-adjust()
 
 </style>
