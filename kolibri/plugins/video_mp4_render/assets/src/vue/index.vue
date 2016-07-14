@@ -21,10 +21,16 @@
   const videojs = require('video.js');
   const langcodes = require('./langcodes.json');
   require('./videojs-centerbtns');
+  const debounce = require('vue').util.debounce;
 
   module.exports = {
 
     props: ['files'],
+
+    data: () => ({
+      videoWidth: 0,
+      videoHeight: 0,
+    }),
 
     computed: {
       posterSource() {
@@ -47,6 +53,11 @@
           (file) => trackFileExtensions.some((ext) => ext === file.extension)
         );
       },
+
+      aspectRatio() {
+        return this.videoWidth / this.videoHeight;
+      },
+
     },
 
     methods: {
@@ -66,6 +77,20 @@
           this.videoPlayer.$('.videoreplay').classList.remove('display');
           this.videoPlayer.$('.videoforward').classList.remove('display');
         }
+      },
+
+      loadedMetaData() {
+        this.videoWidth = this.videoPlayer.videoWidth();
+        this.videoHeight = this.videoPlayer.videoHeight();
+        this.resizeVideo();
+      },
+
+      resizeVideo() {
+        this.videoPlayer.width(this.aspectRatio * this.$els.videowrapper.clientHeight);
+      },
+
+      debouncedResizeVideo() {
+        debounce(this.resizeVideo, 300);
       },
     },
 
@@ -96,6 +121,7 @@
           ],
         },
       },
+
 
       () => {
         const centerButtons = this.$els.videowrapper.childNodes[1];
@@ -130,6 +156,13 @@
           this.setPlayState(false);
         });
       });
+
+      this.videoPlayer.on('loadedmetadata', this.loadedMetaData);
+
+      global.addEventListener('resize', this.resizeVideo);
+    },
+    beforeDestroy() {
+      global.removeEventListener('resize', this.debouncedResizeVideo);
     },
   };
 
@@ -147,6 +180,7 @@
     font-size: 1em
     color: #fff
     height: 100%
+    margin: 0 auto
     .vjs-slider
       background-color: #545454
       background-color: rgba(84, 84, 84, 0.5)
