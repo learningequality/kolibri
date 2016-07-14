@@ -1,16 +1,29 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-import django
-import importlib
-import logging
-import os
-import signal
-import sys
-import kolibri
+# Do this before importing anything else, we need to add bundled requirements
+# from the distributed version in case it exists before importing anything
+# else.
+# TODO: Do we want to manage the path at an even more fundametal place like
+# kolibri.__init__ !? Load order will still matter...
+import os  # noqa
+import sys  # noqa
+import kolibri  # noqa
+from kolibri import dist as kolibri_dist  # noqa
 
-from docopt import docopt
-from logging import config as logging_config
-from django.core.management import call_command
+# Setup path in case we are running with dependencies bundled into Kolibri
+sys.path.append(
+    os.path.realpath(os.path.dirname(kolibri_dist.__file__))
+)
+
+import django  # noqa
+import importlib  # noqa
+import logging  # noqa
+import signal  # noqa
+
+from docopt import docopt  # noqa
+from logging import config as logging_config  # noqa
+from django.core.management import call_command  # noqa
+
 
 USAGE = """
 Kolibri
@@ -193,8 +206,11 @@ def plugin(plugin_name, **args):
         for obj in plugin_module.__dict__.values():
             if type(obj) == type and obj is not KolibriPluginBase and issubclass(obj, KolibriPluginBase):
                 plugin_classes.append(obj)
-    except ImportError:
-        raise PluginDoesNotExist("Plugin does not exist")
+    except ImportError as e:
+        if e.message.startswith("No module named"):
+            raise PluginDoesNotExist("Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?".format(plugin_name))
+        else:
+            raise
 
     if args.get('enable', False):
         for klass in plugin_classes:
@@ -213,6 +229,9 @@ def main(args=None):
     Utility functions should be callable for unit testing purposes, but remember
     to use main() for integration tests in order to test the argument API.
     """
+
+    # ensure that Django is set up before we do anything else
+    django.setup()
 
     if not args:
         args = sys.argv[1:]
@@ -254,4 +273,10 @@ def main(args=None):
     if arguments['plugin']:
         plugin_name = arguments['PLUGIN']
         plugin(plugin_name, **arguments)
+        return
+
+    if arguments['start']:
+        # import from server.py here to avoid circular imports caused by importing kolibri.deployment.default.wsgi
+        from . import server
+        server.start()
         return

@@ -1,764 +1,298 @@
 [
-    {
-        "fields": {
-            "available": false,
-            "content_id": "5b97da1c-caf1-403a-b794-fa9a4071d4af",
-            "description": "balbla1",
-            "kind": "topic",
-            "level": 0,
-            "lft": 1,
-            "license": 1,
-            "parent": null,
-            "rght": 12,
-            "slug": "slut_1",
-            "title": "root",
-            "total_file_size": 21,
-            "tree_id": 1
-        },
-        "model": "content.contentmetadata",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "available": false,
-            "content_id": "6b729e57-ff64-4cd5-91b9-527baa7a2239",
-            "description": "balbla2",
-            "kind": "video",
-            "level": 1,
-            "lft": 2,
-            "license": 1,
-            "parent": 1,
-            "rght": 3,
-            "slug": "slut_2",
-            "title": "c1",
-            "total_file_size": 22,
-            "tree_id": 1
-        },
-        "model": "content.contentmetadata",
-        "pk": 2
-    },
-    {
-        "fields": {
-            "available": false,
-            "content_id": "b2bee917-f406-49e3-975a-f9b5ca35732a",
-            "description": "balbla3",
-            "kind": "topic",
-            "level": 1,
-            "lft": 4,
-            "license": 2,
-            "parent": 1,
-            "rght": 11,
-            "slug": "slut_3",
-            "title": "c2",
-            "total_file_size": 23,
-            "tree_id": 1
-        },
-        "model": "content.contentmetadata",
-        "pk": 3
-    },
-    {
-        "fields": {
-            "available": false,
-            "content_id": "f9cb8dd6-3d6e-4a43-9be9-85ab5b4aadf3",
-            "description": "balbla4",
-            "kind": "exercise",
-            "level": 2,
-            "lft": 5,
-            "license": 3,
-            "parent": 3,
-            "rght": 6,
-            "slug": "slut_4",
-            "title": "c2c1",
-            "total_file_size": 23,
-            "tree_id": 1
-        },
-        "model": "content.contentmetadata",
-        "pk": 4
-    },
-    {
-        "fields": {
-            "available": false,
-            "content_id": "217d45ac-5b44-4bc2-8b4c-48a5f3f19914",
-            "description": "balbla5",
-            "kind": "topic",
-            "level": 2,
-            "lft": 7,
-            "license": 2,
-            "parent": 3,
-            "rght": 8,
-            "slug": "slut_5",
-            "title": "c2c2",
-            "total_file_size": 23,
-            "tree_id": 1
-        },
-        "model": "content.contentmetadata",
-        "pk": 5
-    },
-    {
-        "fields": {
-            "available": false,
-            "content_id": "ecef3cdd-282b-4d47-9ada-baca6a76d304",
-            "description": "balbla5",
-            "kind": "topic",
-            "level": 2,
-            "lft": 9,
-            "license": 2,
-            "parent": 3,
-            "rght": 10,
-            "slug": "slut_6",
-            "title": "c2c3",
-            "total_file_size": 24,
-            "tree_id": 1
-        },
-        "model": "content.contentmetadata",
-        "pk": 6
-    },
-    {
-        "fields": {
-            "machine_name": "Wall-E",
-            "readable_name": "video_lowres"
-        },
-        "model": "content.mimetype",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "machine_name": "Doraemon",
-            "readable_name": "video_high"
-        },
-        "model": "content.mimetype",
-        "pk": 2
-    },
-    {
-        "fields": {
-            "machine_name": "Optimus",
-            "readable_name": "exercise_lowres"
-        },
-        "model": "content.mimetype",
-        "pk": 3
-    },
-    {
-        "fields": {
-            "machine_name": "Asimo",
-            "readable_name": "audio_lowres"
-        },
-        "model": "content.mimetype",
-        "pk": 4
-    },
-    {
-        "fields": {
-            "machine_name": "Roomba",
-            "readable_name": "audio_normal"
-        },
-        "model": "content.mimetype",
-        "pk": 5
-    },
-    {
-        "fields": {
-            "machine_name": "Astro",
-            "readable_name": "audio_high"
-        },
-        "model": "content.mimetype",
-        "pk": 6
-    },
-    {
-        "fields": {
-            "machine_name": "Hal-2000",
-            "readable_name": "image_lowres"
-        },
-        "model": "content.mimetype",
-        "pk": 7
-    },
-    {
-        "fields": {
-            "machine_name": "Hal-2000",
-            "readable_name": "image_normal"
-        },
-        "model": "content.mimetype",
-        "pk": 8
-    },
-    {
-        "fields": {
-            "available": false,
-            "contentmetadata": 2,
-            "format_size": 102,
-            "mimetype": 2,
-            "quality": "high"
-        },
-        "model": "content.format",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "available": false,
-            "contentmetadata": 2,
-            "format_size": 51,
-            "mimetype": 1,
-            "quality": "low"
-        },
-        "model": "content.format",
-        "pk": 2
-    },
-    {
-        "fields": {
-            "available": false,
-            "contentmetadata": 4,
-            "format_size": 46,
-            "mimetype": 3,
-            "quality": "high"
-        },
-        "model": "content.format",
-        "pk": 3
-    },
-    {
-        "fields": {
-            "available": false,
-            "checksum": null,
-            "content_copy": "",
-            "extension": null,
-            "file_size": null,
-            "format": 1
-        },
-        "model": "content.file",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "available": false,
-            "checksum": null,
-            "content_copy": "",
-            "extension": null,
-            "file_size": null,
-            "format": 2
-        },
-        "model": "content.file",
-        "pk": 2
-    },
-    {
-        "fields": {
-            "available": false,
-            "checksum": null,
-            "content_copy": "",
-            "extension": null,
-            "file_size": null,
-            "format": 3
-        },
-        "model": "content.file",
-        "pk": 3
-    },
-    {
-        "fields": {
-            "available": false,
-            "checksum": null,
-            "content_copy": "",
-            "extension": null,
-            "file_size": null,
-            "format": 3
-        },
-        "model": "content.file",
-        "pk": 4
-    },
-    {
-        "fields": {
-            "license_name": "WTFPL"
-        },
-        "model": "content.license",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "license_name": "GNU"
-        },
-        "model": "content.license",
-        "pk": 2
-    },
-    {
-        "fields": {
-            "license_name": "CC"
-        },
-        "model": "content.license",
-        "pk": 3
-    },
-    {
-        "fields": {
-            "license_name": "MIT"
-        },
-        "model": "content.license",
-        "pk": 4
-    },
-    {
-        "fields": {
-            "contentmetadata_1": 1,
-            "contentmetadata_2": 2
-        },
-        "model": "content.prerequisitecontentrelationship",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "contentmetadata_1": 2,
-            "contentmetadata_2": 3
-        },
-        "model": "content.relatedcontentrelationship",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "codename": "add_logentry",
-            "content_type": 1,
-            "name": "Can add log entry"
-        },
-        "model": "auth.permission",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "codename": "change_logentry",
-            "content_type": 1,
-            "name": "Can change log entry"
-        },
-        "model": "auth.permission",
-        "pk": 2
-    },
-    {
-        "fields": {
-            "codename": "delete_logentry",
-            "content_type": 1,
-            "name": "Can delete log entry"
-        },
-        "model": "auth.permission",
-        "pk": 3
-    },
-    {
-        "fields": {
-            "codename": "add_permission",
-            "content_type": 2,
-            "name": "Can add permission"
-        },
-        "model": "auth.permission",
-        "pk": 4
-    },
-    {
-        "fields": {
-            "codename": "change_permission",
-            "content_type": 2,
-            "name": "Can change permission"
-        },
-        "model": "auth.permission",
-        "pk": 5
-    },
-    {
-        "fields": {
-            "codename": "delete_permission",
-            "content_type": 2,
-            "name": "Can delete permission"
-        },
-        "model": "auth.permission",
-        "pk": 6
-    },
-    {
-        "fields": {
-            "codename": "add_group",
-            "content_type": 3,
-            "name": "Can add group"
-        },
-        "model": "auth.permission",
-        "pk": 7
-    },
-    {
-        "fields": {
-            "codename": "change_group",
-            "content_type": 3,
-            "name": "Can change group"
-        },
-        "model": "auth.permission",
-        "pk": 8
-    },
-    {
-        "fields": {
-            "codename": "delete_group",
-            "content_type": 3,
-            "name": "Can delete group"
-        },
-        "model": "auth.permission",
-        "pk": 9
-    },
-    {
-        "fields": {
-            "codename": "add_contenttype",
-            "content_type": 4,
-            "name": "Can add content type"
-        },
-        "model": "auth.permission",
-        "pk": 10
-    },
-    {
-        "fields": {
-            "codename": "change_contenttype",
-            "content_type": 4,
-            "name": "Can change content type"
-        },
-        "model": "auth.permission",
-        "pk": 11
-    },
-    {
-        "fields": {
-            "codename": "delete_contenttype",
-            "content_type": 4,
-            "name": "Can delete content type"
-        },
-        "model": "auth.permission",
-        "pk": 12
-    },
-    {
-        "fields": {
-            "codename": "add_session",
-            "content_type": 5,
-            "name": "Can add session"
-        },
-        "model": "auth.permission",
-        "pk": 13
-    },
-    {
-        "fields": {
-            "codename": "change_session",
-            "content_type": 5,
-            "name": "Can change session"
-        },
-        "model": "auth.permission",
-        "pk": 14
-    },
-    {
-        "fields": {
-            "codename": "delete_session",
-            "content_type": 5,
-            "name": "Can delete session"
-        },
-        "model": "auth.permission",
-        "pk": 15
-    },
-    {
-        "fields": {
-            "codename": "add_baseuser",
-            "content_type": 6,
-            "name": "Can add base user"
-        },
-        "model": "auth.permission",
-        "pk": 16
-    },
-    {
-        "fields": {
-            "codename": "change_baseuser",
-            "content_type": 6,
-            "name": "Can change base user"
-        },
-        "model": "auth.permission",
-        "pk": 17
-    },
-    {
-        "fields": {
-            "codename": "delete_baseuser",
-            "content_type": 6,
-            "name": "Can delete base user"
-        },
-        "model": "auth.permission",
-        "pk": 18
-    },
-    {
-        "fields": {
-            "codename": "add_facilityuser",
-            "content_type": 6,
-            "name": "Can add facility user"
-        },
-        "model": "auth.permission",
-        "pk": 19
-    },
-    {
-        "fields": {
-            "codename": "change_facilityuser",
-            "content_type": 6,
-            "name": "Can change facility user"
-        },
-        "model": "auth.permission",
-        "pk": 20
-    },
-    {
-        "fields": {
-            "codename": "delete_facilityuser",
-            "content_type": 6,
-            "name": "Can delete facility user"
-        },
-        "model": "auth.permission",
-        "pk": 21
-    },
-    {
-        "fields": {
-            "codename": "add_deviceowner",
-            "content_type": 6,
-            "name": "Can add device owner"
-        },
-        "model": "auth.permission",
-        "pk": 22
-    },
-    {
-        "fields": {
-            "codename": "change_deviceowner",
-            "content_type": 6,
-            "name": "Can change device owner"
-        },
-        "model": "auth.permission",
-        "pk": 23
-    },
-    {
-        "fields": {
-            "codename": "delete_deviceowner",
-            "content_type": 6,
-            "name": "Can delete device owner"
-        },
-        "model": "auth.permission",
-        "pk": 24
-    },
-    {
-        "fields": {
-            "codename": "add_contentmetadata",
-            "content_type": 9,
-            "name": "Can add Content Metadata"
-        },
-        "model": "auth.permission",
-        "pk": 25
-    },
-    {
-        "fields": {
-            "codename": "change_contentmetadata",
-            "content_type": 9,
-            "name": "Can change Content Metadata"
-        },
-        "model": "auth.permission",
-        "pk": 26
-    },
-    {
-        "fields": {
-            "codename": "delete_contentmetadata",
-            "content_type": 9,
-            "name": "Can delete Content Metadata"
-        },
-        "model": "auth.permission",
-        "pk": 27
-    },
-    {
-        "fields": {
-            "codename": "add_mimetype",
-            "content_type": 10,
-            "name": "Can add mime type"
-        },
-        "model": "auth.permission",
-        "pk": 28
-    },
-    {
-        "fields": {
-            "codename": "change_mimetype",
-            "content_type": 10,
-            "name": "Can change mime type"
-        },
-        "model": "auth.permission",
-        "pk": 29
-    },
-    {
-        "fields": {
-            "codename": "delete_mimetype",
-            "content_type": 10,
-            "name": "Can delete mime type"
-        },
-        "model": "auth.permission",
-        "pk": 30
-    },
-    {
-        "fields": {
-            "codename": "add_format",
-            "content_type": 11,
-            "name": "Can add format"
-        },
-        "model": "auth.permission",
-        "pk": 31
-    },
-    {
-        "fields": {
-            "codename": "change_format",
-            "content_type": 11,
-            "name": "Can change format"
-        },
-        "model": "auth.permission",
-        "pk": 32
-    },
-    {
-        "fields": {
-            "codename": "delete_format",
-            "content_type": 11,
-            "name": "Can delete format"
-        },
-        "model": "auth.permission",
-        "pk": 33
-    },
-    {
-        "fields": {
-            "codename": "add_file",
-            "content_type": 12,
-            "name": "Can add file"
-        },
-        "model": "auth.permission",
-        "pk": 34
-    },
-    {
-        "fields": {
-            "codename": "change_file",
-            "content_type": 12,
-            "name": "Can change file"
-        },
-        "model": "auth.permission",
-        "pk": 35
-    },
-    {
-        "fields": {
-            "codename": "delete_file",
-            "content_type": 12,
-            "name": "Can delete file"
-        },
-        "model": "auth.permission",
-        "pk": 36
-    },
-    {
-        "fields": {
-            "codename": "add_license",
-            "content_type": 13,
-            "name": "Can add license"
-        },
-        "model": "auth.permission",
-        "pk": 37
-    },
-    {
-        "fields": {
-            "codename": "change_license",
-            "content_type": 13,
-            "name": "Can change license"
-        },
-        "model": "auth.permission",
-        "pk": 38
-    },
-    {
-        "fields": {
-            "codename": "delete_license",
-            "content_type": 13,
-            "name": "Can delete license"
-        },
-        "model": "auth.permission",
-        "pk": 39
-    },
-    {
-        "fields": {
-            "codename": "add_prerequisitecontentrelationship",
-            "content_type": 14,
-            "name": "Can add prerequisite content relationship"
-        },
-        "model": "auth.permission",
-        "pk": 40
-    },
-    {
-        "fields": {
-            "codename": "change_prerequisitecontentrelationship",
-            "content_type": 14,
-            "name": "Can change prerequisite content relationship"
-        },
-        "model": "auth.permission",
-        "pk": 41
-    },
-    {
-        "fields": {
-            "codename": "delete_prerequisitecontentrelationship",
-            "content_type": 14,
-            "name": "Can delete prerequisite content relationship"
-        },
-        "model": "auth.permission",
-        "pk": 42
-    },
-    {
-        "fields": {
-            "codename": "add_relatedcontentrelationship",
-            "content_type": 15,
-            "name": "Can add related content relationship"
-        },
-        "model": "auth.permission",
-        "pk": 43
-    },
-    {
-        "fields": {
-            "codename": "change_relatedcontentrelationship",
-            "content_type": 15,
-            "name": "Can change related content relationship"
-        },
-        "model": "auth.permission",
-        "pk": 44
-    },
-    {
-        "fields": {
-            "codename": "delete_relatedcontentrelationship",
-            "content_type": 15,
-            "name": "Can delete related content relationship"
-        },
-        "model": "auth.permission",
-        "pk": 45
-    },
-    {
-        "fields": {
-            "codename": "add_channelmetadata",
-            "content_type": 16,
-            "name": "Can add channel metadata"
-        },
-        "model": "auth.permission",
-        "pk": 46
-    },
-    {
-        "fields": {
-            "codename": "change_channelmetadata",
-            "content_type": 16,
-            "name": "Can change channel metadata"
-        },
-        "model": "auth.permission",
-        "pk": 47
-    },
-    {
-        "fields": {
-            "codename": "delete_channelmetadata",
-            "content_type": 16,
-            "name": "Can delete channel metadata"
-        },
-        "model": "auth.permission",
-        "pk": 48
-    },
-    {
-        "fields": {
-            "codename": "add_contentcopytracking",
-            "content_type": 17,
-            "name": "Can add content copy tracking"
-        },
-        "model": "auth.permission",
-        "pk": 49
-    },
-    {
-        "fields": {
-            "codename": "change_contentcopytracking",
-            "content_type": 17,
-            "name": "Can change content copy tracking"
-        },
-        "model": "auth.permission",
-        "pk": 50
-    },
-    {
-        "fields": {
-            "codename": "delete_contentcopytracking",
-            "content_type": 17,
-            "name": "Can delete content copy tracking"
-        },
-        "model": "auth.permission",
-        "pk": 51
-    }
+  {
+    "fields": {
+      "tag_name": "tag_1"
+    },
+    "pk": 1,
+    "model": "content.contenttag"
+  },
+  {
+    "fields": {
+      "tag_name": "tag_2"
+    },
+    "pk": 2,
+    "model": "content.contenttag"
+  },
+  {
+    "fields": {
+      "tag_name": "tag_3"
+    },
+    "pk": 3,
+    "model": "content.contenttag"
+  },
+  {
+    "fields": {
+      "license_owner": "",
+      "parent": null,
+      "title": "root",
+      "license": 1,
+      "tags": [
+        1,
+        2,
+        3
+      ],
+      "kind": "topic",
+      "content_id": "ffdfadc415214ec0b1438f002f23d7bf",
+      "tree_id": 1,
+      "rght": 12,
+      "description": "balbla1",
+      "available": false,
+      "lft": 1,
+      "sort_order": null,
+      "level": 0,
+      "author": ""
+    },
+    "pk": "da7ecc42e62553eebc8121242746e88a",
+    "model": "content.contentnode"
+  },
+  {
+    "fields": {
+      "license_owner": "",
+      "parent": "da7ecc42e62553eebc8121242746e88a",
+      "title": "c1",
+      "license": 1,
+      "tags": [
+        1
+      ],
+      "kind": "video",
+      "content_id": "c6f49ea527824f398f4d5d26faf19396",
+      "tree_id": 1,
+      "rght": 3,
+      "description": "balbla2",
+      "available": false,
+      "lft": 2,
+      "sort_order": null,
+      "level": 1,
+      "author": "",
+      "related": ["2e8bac07947855369fe2d77642dfc870"],
+      "has_prerequisite": ["da7ecc42e62553eebc8121242746e88a"]
+    },
+    "pk": "32a941fb77c2576e8f6b294cde4c3b0c",
+    "model": "content.contentnode"
+  },
+  {
+    "fields": {
+      "license_owner": "",
+      "parent": "da7ecc42e62553eebc8121242746e88a",
+      "title": "c2",
+      "license": 2,
+      "tags": [
+        2
+      ],
+      "kind": "topic",
+      "content_id": "1fe38e5af42f42678f8db66a18f8267a",
+      "tree_id": 1,
+      "rght": 11,
+      "description": "balbla3",
+      "available": false,
+      "lft": 4,
+      "sort_order": null,
+      "level": 1,
+      "author": ""
+    },
+    "pk": "2e8bac07947855369fe2d77642dfc870",
+    "model": "content.contentnode"
+  },
+  {
+    "fields": {
+      "license_owner": "",
+      "parent": "2e8bac07947855369fe2d77642dfc870",
+      "title": "c2c1",
+      "license": 3,
+      "tags": [],
+      "kind": "exercise",
+      "content_id": "ce603df7c46b424b934348995e1b05fb",
+      "tree_id": 1,
+      "rght": 6,
+      "description": "balbla4",
+      "available": false,
+      "lft": 5,
+      "sort_order": null,
+      "level": 2,
+      "author": ""
+    },
+    "pk": "2b6926ed22025518a8b9da91745b51d3",
+    "model": "content.contentnode"
+  },
+  {
+    "fields": {
+      "license_owner": "",
+      "parent": "2e8bac07947855369fe2d77642dfc870",
+      "title": "c2c2",
+      "license": 2,
+      "tags": [],
+      "kind": "topic",
+      "content_id": "481e1bda1faa445d801ceb2afbd2f42f",
+      "tree_id": 1,
+      "rght": 8,
+      "description": "balbla5",
+      "available": false,
+      "lft": 7,
+      "sort_order": null,
+      "level": 2,
+      "author": ""
+    },
+    "pk": "4d0c890de9b65d6880ccfa527800e0f4",
+    "model": "content.contentnode"
+  },
+  {
+    "fields": {
+      "license_owner": "",
+      "parent": "2e8bac07947855369fe2d77642dfc870",
+      "title": "c2c3",
+      "license": 2,
+      "tags": [],
+      "kind": "topic",
+      "content_id": "f2332710c2fd483386cdeb5ecbdda81f",
+      "tree_id": 1,
+      "rght": 10,
+      "description": "balbla5",
+      "available": false,
+      "lft": 9,
+      "sort_order": null,
+      "level": 2,
+      "author": ""
+    },
+    "pk": "b391bfeec8a458f89f013cf1ca9cf33a",
+    "model": "content.contentnode"
+  },
+  {
+    "fields": {
+      "lang_code": "en",
+      "lang_subcode": "01"
+    },
+    "pk": 1,
+    "model": "content.language"
+  },
+  {
+    "fields": {
+      "lang_code": "zh",
+      "lang_subcode": "02"
+    },
+    "pk": 2,
+    "model": "content.language"
+  },
+  {
+    "fields": {
+      "lang_code": "es",
+      "lang_subcode": "03"
+    },
+    "pk": 3,
+    "model": "content.language"
+  },
+  {
+    "fields": {
+      "lang": 1,
+      "checksum": "",
+      "thumbnail": false,
+      "file_size": null,
+      "available": false,
+      "preset": "high_res_video",
+      "extension": "mp4",
+      "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
+      "supplementary": false
+    },
+    "pk": 1,
+    "model": "content.file"
+  },
+  {
+    "fields": {
+      "lang": 1,
+      "checksum": "",
+      "thumbnail": false,
+      "file_size": null,
+      "available": false,
+      "preset": "low_res_video",
+      "extension": "mp4",
+      "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
+      "supplementary": false
+    },
+    "pk": 2,
+    "model": "content.file"
+  },
+  {
+    "fields": {
+      "lang": 3,
+      "checksum": "",
+      "thumbnail": false,
+      "file_size": null,
+      "available": false,
+      "preset": "vector_video",
+      "extension": "",
+      "contentnode": "2b6926ed22025518a8b9da91745b51d3",
+      "supplementary": false
+    },
+    "pk": 3,
+    "model": "content.file"
+  },
+  {
+    "fields": {
+      "lang": null,
+      "checksum": "",
+      "thumbnail": false,
+      "file_size": null,
+      "available": false,
+      "preset": "low_res_video",
+      "extension": "mp3",
+      "contentnode": "2b6926ed22025518a8b9da91745b51d3",
+      "supplementary": false
+    },
+    "pk": 4,
+    "model": "content.file"
+  },
+  {
+    "fields": {
+      "lang": null,
+      "checksum": "",
+      "thumbnail": false,
+      "file_size": null,
+      "available": false,
+      "preset": "caption",
+      "extension": "vtt",
+      "contentnode": "2b6926ed22025518a8b9da91745b51d3",
+      "supplementary": true
+    },
+    "pk": 5,
+    "model": "content.file"
+  },
+  {
+    "fields": {
+      "license_name": "WTFPL"
+    },
+    "pk": 1,
+    "model": "content.license"
+  },
+  {
+    "fields": {
+      "license_name": "GNU"
+    },
+    "pk": 2,
+    "model": "content.license"
+  },
+  {
+    "fields": {
+      "license_name": "CC"
+    },
+    "pk": 3,
+    "model": "content.license"
+  },
+  {
+    "fields": {
+      "license_name": "MIT"
+    },
+    "pk": 4,
+    "model": "content.license"
+  },
+  {
+    "fields": {
+      "name": "testing",
+      "description": "test data",
+      "thumbnail": "",
+      "author": "eli",
+      "version": 0,
+      "root_pk": "da7ecc42e62553eebc8121242746e88a"
+    },
+    "pk": "6199dde695db4ee4ab392222d5af1e5c",
+    "model": "content.channelmetadata"
+  }
 ]

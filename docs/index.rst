@@ -1,32 +1,15 @@
-Using Kolibri
-=============
-
-If you're planning on using Kolibri, but you're not a developer, this is where you should look!
-We'll fill this in as we develop Kolibri more... we promise!
+Getting Started
+---------------
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-   user_guide/index
-
-For Developers
-==============
-
+  user/index
+  dev/index
+  dev/content
+  cli
+  changelog
+  contributing
+  authors
+  
 .. include:: ../README.rst
-
-.. include:: ../TODO.rst
-
-.. toctree::
-   :maxdepth: 1
-
-   installation
-   dev/plugins
-   dev/uap
-   dev/content
-   dev/user_management
-   cli
-   contributing
-   authors
-   changelog
-   todo
-   modules

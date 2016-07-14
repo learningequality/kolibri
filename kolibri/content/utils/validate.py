@@ -1,17 +1,20 @@
 from uuid import UUID
 
 
-def is_valid_uuid(uuid_to_test, version=4):
+def is_valid_uuid(uuid_to_test, version=None):
     """
     Check if uuid_to_test is a valid UUID.
 
     :param uuid_to_test: str
-    :param version: int {1, 2, 3, 4}
+    :param version: int {1, 2, 3, 4} or None
     :return: True if uuid_to_test is from a valid UUID
     """
     try:
-        uuid_obj = UUID(uuid_to_test, version=version)
+        if version:
+            uuid_obj = UUID(uuid_to_test, version=version)
+        else:
+            uuid_obj = UUID(uuid_to_test)
     except (ValueError, AttributeError, TypeError):
         return False
 
-    return str(uuid_obj) == uuid_to_test
+    return uuid_obj.hex == uuid_to_test

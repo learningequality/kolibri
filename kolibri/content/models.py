@@ -2,307 +2,185 @@
 This is one of the Kolibri core components, the abstract layer of all contents.
 To access it, please use the public APIs in api.py
 
-The ONLY public object is ContentMetadata
+The ONLY public object is ContentNode
 """
 from __future__ import print_function
 
-import hashlib
-import logging
-import os
-from uuid import uuid4
-
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
-from django.db import IntegrityError, OperationalError, connections, models
-from django.db.utils import ConnectionDoesNotExist
+from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from mptt.models import MPTTModel, TreeForeignKey
 
+from .constants import content_kinds, extensions, presets
+from .content_db_router import get_active_content_database
 
-def content_copy_name(instance, filename):
-    """
-    Create a name spaced file path from the File obejct's checksum property.
-    This path will be used to store the content copy
 
-    :param instance: File (content File model)
-    :param filename: str
-    :return: str
-    """
-    h = instance.checksum
-    basename, ext = os.path.splitext(filename)
-    return os.path.join(settings.CONTENT_COPY_DIR, h[0:1], h[1:2], h + ext.lower())
+class UUIDField(models.CharField):
 
-class ContentCopyStorage(FileSystemStorage):
-    """
-    Overrider FileSystemStorage's default save method to ignore duplicated file.
-    """
-    def get_available_name(self, name):
-        return name
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = 32
+        super(UUIDField, self).__init__(*args, **kwargs)
 
-    def _save(self, name, content):
-        if self.exists(name):
-            # if the file exists, do not call the superclasses _save method
-            logging.warn('Content copy "%s" already exists!' % name)
-            return name
-        return super(ContentCopyStorage, self)._save(name, content)
-
-class ContentManager(models.Manager):
-    pass
 
 class ContentQuerySet(models.QuerySet):
     """
-    Overrider QuerySet's using method to establish database conncetions at the first time that database is hitten.
+    Ensure proper database routing happens even when queryset is evaluated lazily outside of `using_content_database`.
     """
-    def using(self, alias):
-        try:
-            connections[alias]
-        except ConnectionDoesNotExist:
-            connections.databases[alias] = {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': os.path.join(settings.CONTENT_DB_DIR, alias+'.sqlite3'),
-            }
-        try:
-            if not connections[alias].introspection.table_names():
-                raise KeyError("ContentDB '%s' is empty!!" % str(alias))
-        except OperationalError:
-            raise KeyError("ContentDB '%s' doesn't exist!!" % str(alias))
-        return super(ContentQuerySet, self).using(alias)
+    def __init__(self, *args, **kwargs):
+        kwargs["using"] = kwargs.get("using", None) or get_active_content_database(return_none_if_not_set=True)
+        super(ContentQuerySet, self).__init__(*args, **kwargs)
 
-class AbstractContent(models.Model):
-    objects = ContentManager.from_queryset(ContentQuerySet)()
 
+class ContentDatabaseModel(models.Model):
+    """
+    All models that exist in content databases (rather than in the default database) should inherit from this class.
+    """
     class Meta:
         abstract = True
 
-class ContentTag(AbstractContent):
-    tag_name = models.CharField(max_length=30, null=True, blank=True)
-    tag_type = models.CharField(max_length=30, null=True, blank=True)
+
+@python_2_unicode_compatible
+class ContentTag(ContentDatabaseModel):
+    id = UUIDField(primary_key=True)
+    tag_name = models.CharField(max_length=30, blank=True)
+
+    objects = ContentQuerySet.as_manager()
 
     def __str__(self):
         return self.tag_name
 
-class ContentMetadata(MPTTModel, AbstractContent):
+
+@python_2_unicode_compatible
+class ContentNode(MPTTModel, ContentDatabaseModel):
     """
     The top layer of the contentDB schema, defines the most common properties that are shared across all different contents.
     Things it can represent are, for example, video, exercise, audio or document...
     """
-    content_id = models.UUIDField(primary_key=False, default=uuid4, editable=False)
-    title = models.CharField(max_length=200)
-    description = models.CharField(max_length=400, blank=True, null=True)
-    kind = models.CharField(max_length=50)
-    slug = models.CharField(max_length=100)
-    total_file_size = models.IntegerField()
-    available = models.BooleanField(default=False)
-    license = models.ForeignKey('License')
-    prerequisite = models.ManyToManyField('self', related_name='is_prerequisite_of', through='PrerequisiteContentRelationship', symmetrical=False, blank=True)
-    is_related = models.ManyToManyField('self', related_name='relate_to', through='RelatedContentRelationship', symmetrical=False, blank=True)
+    id = UUIDField(primary_key=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    license = models.ForeignKey('License', null=True, blank=True)
+    has_prerequisite = models.ManyToManyField('self', related_name='prerequisite_for', symmetrical=False, blank=True)
+    related = models.ManyToManyField('self', symmetrical=True, blank=True)
     tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
+
+    title = models.CharField(max_length=200)
+
+    # the content_id is used for tracking a user's interaction with a piece of
+    # content, in the face of possibly many copies of that content. When a user
+    # interacts with a piece of content, all substantially similar pieces of
+    # content should be marked as such as well. We track these "substantially
+    # similar" types of content by having them have the same content_id.
+    content_id = UUIDField()
+
+    description = models.CharField(max_length=400, blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)
-    license_owner = models.CharField(max_length=200, blank=True, null=True)
+    license_owner = models.CharField(max_length=200, blank=True)
+    author = models.CharField(max_length=200, blank=True)
+    kind = models.CharField(max_length=200, choices=content_kinds.choices, blank=True)
+    available = models.BooleanField(default=False)
 
-    class Meta:
-        verbose_name = 'Content Metadata'
-
-    class Admin:
-        pass
+    objects = ContentQuerySet.as_manager()
 
     def __str__(self):
         return self.title
 
-class MimeType(AbstractContent):
-    """
-    Normalize the "kind"(mimetype) of Format model
-    """
-    readable_name = models.CharField(max_length=50)
-    machine_name = models.CharField(max_length=100)
 
-    class Admin:
-        pass
+@python_2_unicode_compatible
+class Language(ContentDatabaseModel):
+    lang_code = models.CharField(max_length=2, db_index=True)
+    lang_subcode = models.CharField(max_length=2, db_index=True)
+
+    objects = ContentQuerySet.as_manager()
 
     def __str__(self):
-        return self.readable_name
+        return self.lang_code
 
-class Format(AbstractContent):
-    """
-    The intermediate layer of the contentDB schema, defines a complete set of resources that is ready to be rendered on the front-end,
-    including the quality of the content.
-    Things it can represent are, for example, high_resolution_video, low_resolution_video, vectorized_video, khan_excercise...
-    """
-    available = models.BooleanField(default=False)
-    format_size = models.IntegerField(blank=True, null=True)
-    quality = models.CharField(max_length=50, blank=True, null=True)
-    contentmetadata = models.ForeignKey(ContentMetadata, related_name='formats', blank=True, null=True)
-    mimetype = models.ForeignKey(MimeType, blank=True, null=True)
 
-    class Admin:
-        pass
-
-class File(AbstractContent):
+@python_2_unicode_compatible
+class File(ContentDatabaseModel):
     """
     The bottom layer of the contentDB schema, defines the basic building brick for content.
     Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3...
     """
-    checksum = models.CharField(max_length=400, blank=True, null=True)
-    extension = models.CharField(max_length=100, blank=True, null=True)
+    id = UUIDField(primary_key=True)
+    checksum = models.CharField(max_length=400, blank=True)
+    extension = models.CharField(max_length=40, choices=extensions.choices, blank=True)
     available = models.BooleanField(default=False)
     file_size = models.IntegerField(blank=True, null=True)
-    content_copy = models.FileField(upload_to=content_copy_name, storage=ContentCopyStorage(), max_length=200, blank=True)
-    format = models.ForeignKey(Format, related_name='files', blank=True, null=True)
+    contentnode = models.ForeignKey(ContentNode, related_name='files', blank=True, null=True)
+    preset = models.CharField(max_length=150, choices=presets.choices, blank=True)
+    lang = models.ForeignKey(Language, blank=True, null=True)
+    supplementary = models.BooleanField(default=False)
+    thumbnail = models.BooleanField(default=False)
+    priority = models.IntegerField(blank=True, null=True)
+
+    objects = ContentQuerySet.as_manager()
+
+    class Meta:
+        ordering = ["priority"]
 
     class Admin:
         pass
 
     def __str__(self):
-        return '{checksum}{extension}'.format(checksum=self.checksum, extension=self.extension)
+        return '{checksum}{extension}'.format(checksum=self.checksum, extension='.' + self.extension)
 
-    def save(self, *args, **kwargs):
+    def get_url(self):
         """
-        Overrider the default save method.
-        If the content_copy FileField gets passed a content copy:
-            1. generate the MD5 from the content copy
-            2. fill the other fields accordingly
-            3. update tracking for this content copy
-        If None is passed to the content_copy FileField:
-            1. delete the content copy.
-            2. update tracking for this content copy
+        Return a url for the client side to retrieve the content file.
+        The same url will also be exposed by the file serializer
         """
-        if self.content_copy:  # if content_copy is supplied, hash out the file
-            md5 = hashlib.md5()
-            for chunk in self.content_copy.chunks():
-                md5.update(chunk)
-
-            self.checksum = md5.hexdigest()
-            self.available = True
-            self.file_size = self.content_copy.size
-            self.extension = os.path.splitext(self.content_copy.name)[1]
-            # update ContentCopyTracking
-            try:
-                content_copy_track = ContentCopyTracking.objects.get(content_copy_id=self.checksum)
-                content_copy_track.referenced_count += 1
-                content_copy_track.save()
-            except ContentCopyTracking.DoesNotExist:
-                ContentCopyTracking.objects.create(referenced_count=1, content_copy_id=self.checksum)
+        if self.available:
+            return settings.CONTENT_STORAGE_URL + self.checksum[0] + '/' + self.checksum[1] + '/' + self.checksum + '.' + self.extension
         else:
-            # update ContentCopyTracking, if referenced_count reach 0, delete the content copy on disk
-            try:
-                content_copy_track = ContentCopyTracking.objects.get(content_copy_id=self.checksum)
-                content_copy_track.referenced_count -= 1
-                content_copy_track.save()
-                if content_copy_track.referenced_count == 0:
-                    content_copy_path = os.path.join(settings.CONTENT_COPY_DIR, self.checksum[0:1], self.checksum[1:2], self.checksum + self.extension)
-                    if os.path.isfile(content_copy_path):
-                        os.remove(content_copy_path)
-            except ContentCopyTracking.DoesNotExist:
-                pass
-            self.checksum = None
-            self.available = False
-            self.file_size = None
-            self.extension = None
-        super(File, self).save(*args, **kwargs)
+            return None
 
-class License(AbstractContent):
+
+@python_2_unicode_compatible
+class License(ContentDatabaseModel):
     """
-    Normalize the license of ContentMetadata model
+    Normalize the license of ContentNode model
     """
     license_name = models.CharField(max_length=50)
 
-    class Admin:
-        pass
+    objects = ContentQuerySet.as_manager()
 
     def __str__(self):
         return self.license_name
 
-class ContentRelationship(AbstractContent):
+
+@python_2_unicode_compatible
+class ChannelMetadataAbstractBase(models.Model):
     """
-    Provide a abstract model for defining any relationships between two ContentMetadata objects.
+    Holds metadata about all existing content databases that exist locally.
     """
-    contentmetadata_1 = models.ForeignKey(ContentMetadata, related_name='%(app_label)s_%(class)s_1')
-    contentmetadata_2 = models.ForeignKey(ContentMetadata, related_name='%(app_label)s_%(class)s_2')
+    id = UUIDField(primary_key=True)
+    name = models.CharField(max_length=200)
+    description = models.CharField(max_length=400, blank=True)
+    author = models.CharField(max_length=400, blank=True)
+    version = models.IntegerField(default=0)
+    thumbnail = models.TextField(blank=True)
+    root_pk = UUIDField()
 
     class Meta:
         abstract = True
 
-    class Admin:
-        pass
-
-class PrerequisiteContentRelationship(ContentRelationship):
-    """
-    Predefine the prerequisite relationship between two ContentMetadata objects.
-    """
-    class Meta:
-        unique_together = ['contentmetadata_1', 'contentmetadata_2']
-
-    class Admin:
-        pass
-
-    def clean(self, *args, **kwargs):
-        # self reference exception
-        if self.contentmetadata_1 == self.contentmetadata_2:
-            raise IntegrityError('Cannot self reference as prerequisite.')
-        # immediate cyclic exception
-        elif PrerequisiteContentRelationship.objects.using(self._state.db)\
-                .filter(contentmetadata_1=self.contentmetadata_2, contentmetadata_2=self.contentmetadata_1):
-            raise IntegrityError(
-                'Note: Prerequisite relationship is directional! %s and %s cannot be prerequisite of each other!'
-                % (self.contentmetadata_1, self.contentmetadata_2))
-        # distant cyclic exception
-        # elif <this is a nice to have exception, may implement in the future when the priority raises.>
-        #     raise Exception('Note: Prerequisite relationship is acyclic! %s and %s forms a closed loop!' % (self.contentmetadata_1, self.contentmetadata_2))
-        super(PrerequisiteContentRelationship, self).clean(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super(PrerequisiteContentRelationship, self).save(*args, **kwargs)
-
-
-class RelatedContentRelationship(ContentRelationship):
-    """
-    Predefine the related relationship between two ContentMetadata objects.
-    """
-    class Meta:
-        unique_together = ['contentmetadata_1', 'contentmetadata_2']
-
-    class Admin:
-        pass
-
-    def save(self, *args, **kwargs):
-        # self reference exception
-        if self.contentmetadata_1 == self.contentmetadata_2:
-            raise IntegrityError('Cannot self reference as related.')
-        # handle immediate cyclic
-        elif RelatedContentRelationship.objects.using(self._state.db)\
-                .filter(contentmetadata_1=self.contentmetadata_2, contentmetadata_2=self.contentmetadata_1):
-            return  # silently cancel the save
-        super(RelatedContentRelationship, self).save(*args, **kwargs)
-
-class ChannelMetadata(models.Model):
-    """
-    Provide references to the corresponding contentDB when navigate between channels.
-    Every content API method needs a channel_id argument, which is stored in this model.
-    """
-    channel_id = models.UUIDField(primary_key=False, unique=True, default=uuid4, editable=True)
-    name = models.CharField(max_length=200)
-    description = models.CharField(max_length=400, blank=True, null=True)
-    author = models.CharField(max_length=400, blank=True, null=True)
-    theme = models.CharField(max_length=400, blank=True, null=True)
-    subscribed = models.BooleanField(default=False)
-
-    class Meta:
-        app_label = "content"
-
-    class Admin:
-        pass
-
     def __str__(self):
         return self.name
 
-class ContentCopyTracking(models.Model):
+
+class ChannelMetadata(ChannelMetadataAbstractBase, ContentDatabaseModel):
     """
-    Record how many times a content copy are referenced by File objects.
-    If it reaches 0, it's supposed to be deleted.
+    This class stores the channel metadata within the content database itself.
     """
-    referenced_count = models.IntegerField(blank=True, null=True)
-    content_copy_id = models.CharField(max_length=400, unique=True)
+
+    objects = ContentQuerySet.as_manager()
+
+
+class ChannelMetadataCache(ChannelMetadataAbstractBase):
+    """
+    This class stores the channel metadata cached/denormed into the primary database.
+    """
 
     class Admin:
         pass

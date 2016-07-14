@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function, unicode_literals
+
 from rest_framework import filters, permissions, viewsets
 
 from .models import (
@@ -26,6 +28,7 @@ class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
             # otherwise, return the full queryset, as permission checks will happen object-by-object
             # (and filtering here then leads to 404's instead of the more correct 403's)
             return queryset
+
 
 def _ensure_raw_dict(d):
     if hasattr(d, "dict"):
@@ -106,6 +109,8 @@ class ClassroomViewSet(viewsets.ModelViewSet):
 
 class LearnerGroupViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
     queryset = LearnerGroup.objects.all()
     serializer_class = LearnerGroupSerializer
+
+    filter_fields = ('parent',)

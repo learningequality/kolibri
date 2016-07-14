@@ -15,3 +15,4 @@ Models
 
 .. automodule:: kolibri.auth.models
     :members:
+    :noindex:

@@ -11,6 +11,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import shutil
 
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'kolibri.auth.apps.KolibriAuthConfig',
     'kolibri.content',
+    'kolibri.logger',
     'kolibri.core.webpack',
     'rest_framework',
     'django_js_reverse',
@@ -55,6 +57,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'kolibri.auth.middleware.CustomAuthenticationMiddleware',
+    'kolibri.content.middleware.ContentDBRoutingMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -88,14 +91,50 @@ WSGI_APPLICATION = 'kolibri.deployment.default.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(conf.KOLIBRI_HOME, 'db.sqlite3'),
+        'NAME': os.path.join(KOLIBRI_HOME, 'db.sqlite3'),
     }
 }
 
-# DIR for storing contentDBs
-CONTENT_DB_DIR = os.path.join(BASE_DIR, 'kolibri', 'content', 'content_db')
-# DIR for storing content copies for all channels
-CONTENT_COPY_DIR = os.path.join(BASE_DIR, 'kolibri', 'content', 'content_copy')
+# Enable dynamic routing for content databases
+DATABASE_ROUTERS = ['kolibri.content.content_db_router.ContentDBRouter']
+
+
+# Content directories and URLs for channel metadata and content files
+
+# Directory and URL for storing content databases for channel data
+CONTENT_DATABASE_DIR = os.path.join(KOLIBRI_HOME, 'content', 'databases')
+CONTENT_DATABASE_URL = '/content/databases/'
+if not os.path.exists(CONTENT_DATABASE_DIR):
+    os.makedirs(CONTENT_DATABASE_DIR)
+
+# Directory and URL for storing de-duped content files for all channels
+CONTENT_STORAGE_DIR = os.path.join(KOLIBRI_HOME, 'content', 'storage')
+CONTENT_STORAGE_URL = '/content/storage/'
+if not os.path.exists(CONTENT_STORAGE_DIR):
+    os.makedirs(CONTENT_STORAGE_DIR)
+
+
+# TEMPORARY: Move existing content DBs and content storage dirs into new locations.
+# (July 9, 2016: Remove this in a couple of weeks once everyone is switched over)
+OLD_CONTENT_DATABASE_DIR = os.path.join(BASE_DIR, 'kolibri', 'content', 'content_db')
+OLD_CONTENT_STORAGE_DIR = os.path.join(BASE_DIR, "storage")
+def movetree(src, dst):
+    if not os.path.exists(src):
+        return
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            movetree(s, d)
+        else:
+            if not os.path.exists(d):
+                shutil.move(s, d)
+
+movetree(OLD_CONTENT_DATABASE_DIR, CONTENT_DATABASE_DIR)
+movetree(OLD_CONTENT_STORAGE_DIR, CONTENT_STORAGE_DIR)
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -115,6 +154,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(KOLIBRI_HOME, "static")
+
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
@@ -196,15 +237,25 @@ LOGGING = {
 }
 
 
+# Customizing Django auth system
+# https://docs.djangoproject.com/en/1.9/topics/auth/customizing/
+
 AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
 
 AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']
 
+
+# Django REST Framework
+# http://www.django-rest-framework.org/api-guide/settings/
+
 REST_FRAMEWORK = {
-    "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser"
+    "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser",
 }
 
+
 # Configuration for Django JS Reverse
+# https://github.com/ierror/django-js-reverse#options
+
 JS_REVERSE_JS_VAR_NAME = 'urls'
 
 JS_REVERSE_JS_GLOBAL_OBJECT_NAME = KOLIBRI_CORE_JS_NAME
