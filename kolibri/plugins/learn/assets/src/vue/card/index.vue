@@ -39,6 +39,7 @@
     height: $card-height
     background-color: $core-bg-light
     overflow: hidden
+    border-radius: $radius
 
   .thumb-wrapper
     position: relative
@@ -46,6 +47,8 @@
     float: left
     width: $thumb-width
     height: $card-height
+    border-radius: $radius
+    overflow: hidden
 
   .text
     display: block
