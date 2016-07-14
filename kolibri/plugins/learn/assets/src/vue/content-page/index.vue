@@ -9,17 +9,15 @@
         :rootid='rootTopicId'
         :crumbs='breadcrumbs'>
       </breadcrumbs>
+      <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_ROOT }">
+        ← Learn
+      </a>
       <content-icon
         slot='icon'
         :kind="kind"
         :progress="progress">
       </content-icon>
     </page-header>
-
-    <div v-if="pageMode === $options.PageModes.LEARN">
-      <a v-link="{ name: $options.PageNames.LEARN_ROOT }">Home</a>
-      <h1>{{ title }}</h1>
-    </div>
 
     <div>
       <p>
