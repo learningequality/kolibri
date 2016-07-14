@@ -24,9 +24,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .button-wrapper
-    text-align: center
-
-</style>
+<style lang="stylus" scoped></style>
