@@ -2,7 +2,7 @@
 
   <div>
 
-    <page-header :title='topic.title'>
+    <page-header :title='title'>
       <breadcrumbs
         v-if='!isRoot'
         slot='extra-nav'
@@ -18,7 +18,7 @@
 
     <span class="visuallyhidden" v-if="subtopics.length">You can navigate groups of content through headings.</span>
 
-    <card-grid :header="isRoot ? 'Topics' : '' " v-if="subtopics.length">
+    <card-grid v-if="subtopics.length">
       <topic-card
         v-for="topic in subtopics"
         :id="topic.id"
@@ -28,7 +28,7 @@
       </topic-card>
     </card-grid>
 
-    <card-grid :header="isRoot ? 'Content' : '' " v-if="contents.length">
+    <card-grid v-if="contents.length">
       <content-card
         v-for="content in contents"
         class="card"
@@ -54,6 +54,12 @@
       'topic-card': require('../topic-card'),
       'content-card': require('../content-card'),
       'card-grid': require('../card-grid'),
+    },
+    computed: {
+      title() {
+        // TODO - i18n
+        return this.isRoot ? 'Explore' : this.topic.title;
+      },
     },
     vuex: {
       getters: {

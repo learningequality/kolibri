@@ -2,7 +2,7 @@
 
   <nav role="navigation" aria-label="Breadcrumbs navigation">
     <span class="parent">
-      <a v-link="rootLink">Learn</a> <span class='sep'>»</span>
+      <a v-link="rootLink">Explore</a> <span class='sep'>»</span>
     </span>
     <span class="parent" v-for="crumb in crumbs">
       <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a> <span class='sep'>»</span>
