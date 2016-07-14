@@ -151,10 +151,10 @@
       background-color: #545454
       background-color: rgba(84, 84, 84, 0.5)
     .vjs-load-progress
-      background: ligthen(#545454, 25%)
+      background: lighten(#545454, 25%)
       background: rgba(84, 84, 84, 0.5)
       div
-        background: ligthen(#545454, 50%)
+        background: lighten(#545454, 50%)
         background: rgba(84, 84, 84, 0.75)
 
   .video-js .vjs-control-bar,
