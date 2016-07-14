@@ -27,6 +27,7 @@ html, body
 a
   color: $core-action-normal
   text-decoration: none
+  transition: color $core-time ease-out
 
   &:hover
     color: $core-action-dark
@@ -47,12 +48,15 @@ button
   font-size: 16px
   color: $core-action-normal
   background-color: $core-bg-light
-  border: 2px solid $core-action-normal
   border-radius: 4px
+  border-width: 2px
+  border-style: solid
+  border-color: $core-action-normal
+  transition: border-color $core-time ease-out, color $core-time ease-out
 
   &:hover
     color: $core-action-dark
-    border: 2px solid $core-action-dark
+    border-color: $core-action-dark
 
   // make icons the right size
   .material-icons

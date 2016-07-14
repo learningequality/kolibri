@@ -84,15 +84,6 @@
     padding: 0
     list-style-type: none
 
-  a:hover
-    svg
-      fill: $core-action-dark
-
-  a
-    display: block
-    margin: 0
-    padding: 0
-
   li
     display: table
     height: $nav-element-height
@@ -101,18 +92,26 @@
     display: table-cell
     vertical-align: middle
 
-  svg
-    fill: $core-action-normal
+  a
+    display: block
+    margin: 0
+    padding: 0
 
   a.active
     color: $core-bg-light
     background: $core-action-normal
 
-    svg
-      fill: $core-bg-light
+  svg
+    fill: $core-action-normal
+    transition: fill $core-time ease-out
 
-  a.active:hover
-    svg
-      fill: $core-bg-light
+  a:hover svg
+    fill: $core-action-dark
+
+  a.active svg
+    fill: $core-bg-light
+
+  a.active:hover svg
+    fill: $core-bg-light
 
 </style>
