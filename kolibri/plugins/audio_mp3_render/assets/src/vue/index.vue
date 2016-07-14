@@ -30,7 +30,7 @@
   <audio
     id="audio" 
     v-el:audio
-    @timeupdate="updateRawTime"
+    @timeupdate="updateDummyTime"
     @loadedmetadata="setTotalTime"
     :src="defaultFile.storage_url"
   ></audio>
@@ -47,19 +47,14 @@
       'defaultFile',
     ],
 
-    watch: {
-      rawTime(newVal, oldVal) {
-        if (Math.abs(newVal - oldVal) >= 1) {
-          this.$els.audio.currentTime = this.rawTime;
-        }
-      },
-    },
-
     data: () => ({
       isPlay: true,
       isPause: false,
       max: 0,
-      rawTime: 0,
+      // This data attribute is required, as we cannot use this.$els.audio in our getter for
+      // rawTime, because at the time of getter initialization for the computed property,
+      // the DOM does not exist, so the above object path is undefined, which causes problems.
+      dummyTime: 0,
     }),
 
     computed: {
@@ -86,6 +81,17 @@
       formattedTotalSec() {
         return this.formatTime(this.totalSeconds);
       },
+      rawTime: {
+        cache: false,
+        get() {
+          return this.dummyTime;
+        },
+        set(value) {
+          // Set the actual time here and let the updateDummyTime method take care of updating
+          // based on the change event happening here on the currentTime.
+          this.$els.audio.currentTime = value;
+        },
+      },
     },
 
     methods: {
@@ -109,8 +115,8 @@
         }
       },
 
-      updateRawTime() {
-        this.rawTime = this.$els.audio.currentTime;
+      updateDummyTime() {
+        this.dummyTime = this.$els.audio.currentTime;
       },
 
       setTotalTime() {
