@@ -29,6 +29,7 @@
   // @stylint off
   .card-grid > *
   // @stylint on
+    margin-bottom: $card-gutter
     column(1, cycle: 1, gutter: 0)
     min-width: $card-width
     for $n-cols, $i in $n-cols-array
