@@ -17,6 +17,7 @@ var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 var jeet = require('jeet');
+var autoprefixer = require('autoprefixer');
 
 require('./htmlhint_custom'); // adds custom rules
 
@@ -54,11 +55,11 @@ var config = {
       },
       {
         test: /\.css$/,
-        loader: 'style-loader!css-loader'
+        loader: 'style-loader!css-loader!postcss-loader'
       },
       {
         test: /\.styl$/,
-        loader: 'style-loader!css-loader?sourceMap!stylus-loader!stylint'
+        loader: 'style-loader!css-loader?sourceMap!postcss-loader!stylus-loader!stylint'
       },
       // moved from parse_bundle_plugin.js
       {
@@ -119,6 +120,9 @@ var config = {
   stylus: {
     use: [jeet()]
   },
+  postcss: function () {
+    return [autoprefixer];
+  }
 };
 
 module.exports = config;

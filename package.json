@@ -80,6 +80,7 @@
     "mocha": "^2.4.5",
     "phantomjs-polyfill-find": "ptim/phantomjs-polyfill-find",
     "phantomjs-prebuilt": "^2.1.4",
+    "postcss-loader": "^0.9.1",
     "rewire": "^2.5.1",
     "rewire-webpack": "^1.0.1",
     "scriptjs": "^2.5.8",
