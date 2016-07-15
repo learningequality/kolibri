@@ -141,7 +141,7 @@
     height: 4em
     z-index: 10000
     margin-right: $right-margin
-    padding-top: 1em
+    margin-top: 1rem
     text-align: center
 
   .results
@@ -160,7 +160,7 @@
     width: 60%
     &:focus
       outline: none
-      border-color: #129FEA
+      border-color: $core-text-annotation
 
   .reset
     border:1px solid transparent
