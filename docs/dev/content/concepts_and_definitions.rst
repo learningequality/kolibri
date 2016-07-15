@@ -20,37 +20,17 @@ ContentDB Diagram
 **FK = Foreign Key
 **M2M = ManyToManyField
 
-License
--------
-
-A Django model that is a foreign key in ContentNode model to show what license the content is using.
-
-PrerequisiteContentRelationship
--------------------------------
-
-This model is used to establish an asymmetrical relationship between two ContentNode objects.
-
-RelatedContentRelationship
---------------------------
-
-This model is used to establish a symmetrical relationship between two ContentNode objects.
-
 ContentTag
 ----------
 
 This model is used to establish a filtering system for all ContentNode objects.
 
-Lang
-----
-
-A Django model that is a foreign key in File model to show what language it supports.
 
 ChannelMetadata
 ---------------
 
-A Django model in each channel database that stores the database readable names, description and author for each channel. 
+A Django model in each content database that stores the database readable names, description and author for each channel. 
 
-AbstractContent
----------------
-
-In Kolibri, each channel has its own database. To support dynamic channel switching, all models in the Content app inherit from AbstractContent, an abstract Django Model class with custom model Manager that enables querying on different database based on the database name.
+ChannelMetadataCache
+--------------------
+This class stores the channel metadata cached/denormed into the default database.
