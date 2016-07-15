@@ -54,14 +54,15 @@
 <style lang="stylus" scoped>
 
   .header-wrapper
-    margin-top: 2em
+    margin-top: 1em
 
   .extra-nav
     font-size: 12px
+    min-height: 16px
 
   .header
     position: relative
-    margin-top: 0.5em
+    margin-top: 0.3em
 
   .icon-wrapper
     display: block
