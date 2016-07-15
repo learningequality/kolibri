@@ -3,6 +3,8 @@
 require('normalize.css');
 require('./font-NotoSans.css');
 require('./core-global.styl');
+
+// polyfill for older browsers
 require('babel-polyfill');
 
 // set up logging

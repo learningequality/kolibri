@@ -16,12 +16,12 @@ from ..content_db_router import set_active_content_database, using_content_datab
 from ..errors import ContentModelUsedOutsideDBContext
 from rest_framework.test import APITestCase
 
-STORAGE_ROOT_TEMP = tempfile.mkdtemp()
-CONTENT_DB_DIR_TEMP = tempfile.mkdtemp()
+CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
+CONTENT_DATABASE_DIR_TEMP = tempfile.mkdtemp()
 
 @override_settings(
-    STORAGE_ROOT=STORAGE_ROOT_TEMP,
-    CONTENT_DB_DIR=CONTENT_DB_DIR_TEMP,
+    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
+    CONTENT_DATABASE_DIR=CONTENT_DATABASE_DIR_TEMP,
 )
 class ContentNodeTestCase(TestCase):
     """
@@ -149,8 +149,8 @@ class ContentNodeTestCase(TestCase):
 
 
 @override_settings(
-    STORAGE_ROOT=STORAGE_ROOT_TEMP,
-    CONTENT_DB_DIR=CONTENT_DB_DIR_TEMP,
+    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
+    CONTENT_DATABASE_DIR=CONTENT_DATABASE_DIR_TEMP,
 )
 class DatabaseRoutingTests(TestCase):
     multi_db = True
@@ -182,7 +182,7 @@ class DatabaseRoutingTests(TestCase):
 
     def test_database_on_disk_works_too(self):
         the_other_channel_id = 'content_test_2'
-        filename = os.path.join(settings.CONTENT_DB_DIR, the_other_channel_id + '.sqlite3')
+        filename = os.path.join(settings.CONTENT_DATABASE_DIR, the_other_channel_id + '.sqlite3')
         connections.databases[the_other_channel_id] = {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': filename,
@@ -194,7 +194,7 @@ class DatabaseRoutingTests(TestCase):
 
     def test_empty_database_on_disk_throws_error(self):
         yet_another_channel_id = 'content_test_3'
-        filename = os.path.join(settings.CONTENT_DB_DIR, yet_another_channel_id + '.sqlite3')
+        filename = os.path.join(settings.CONTENT_DATABASE_DIR, yet_another_channel_id + '.sqlite3')
         open(filename, 'a').close()  # touch the file to create an empty DB
         with self.assertRaises(KeyError):
             with using_content_database(yet_another_channel_id):
@@ -203,8 +203,8 @@ class DatabaseRoutingTests(TestCase):
 
 
 @override_settings(
-    STORAGE_ROOT=STORAGE_ROOT_TEMP,
-    CONTENT_DB_DIR=CONTENT_DB_DIR_TEMP,
+    CONTENT_STORAGE_DIR=CONTENT_STORAGE_DIR_TEMP,
+    CONTENT_DATABASE_DIR=CONTENT_DATABASE_DIR_TEMP,
 )
 class ContentNodeAPITestCase(APITestCase):
     """
@@ -260,9 +260,9 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertTrue("pk" not in response.data)
 
     def test_contentnode_recommendations(self):
-        root_pk = str(content.ContentNode.objects.using(self.the_channel_id).get(title="root").pk)
-        response = self.client.get(self._reverse_channel_url("contentnode-recommendations", {'pk': root_pk}))
-        self.assertEqual(len(response.data), 4)
+        root_id = content.ContentNode.objects.get(title="root").id
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": root_id})
+        self.assertEqual(len(response.data), 2)
 
     def test_channelmetadata_list(self):
         data = content.ChannelMetadata.objects.values()[0]
@@ -277,8 +277,8 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data['name'], 'testing')
 
     def test_channelmetadata_recommendations(self):
-        response = self.client.get(reverse("channelmetadata-recommendations", kwargs={'channel_id': self.the_channel_id}))
-        self.assertEqual(len(response.data), 6)
+        response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations": ""})
+        self.assertEqual(len(response.data), 2)
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))

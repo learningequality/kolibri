@@ -1,23 +1,33 @@
 <template>
 
-  <a v-link="{ name: 'explore-content', params: {content_id: id} }">
-    <div class="content-card-container">
-      <div class="content-icon">
-        <img :src="icon">
+  <div>
+    <card v-link="link" :title="title">
+      <div class='thumbnail' :class="{ 'thumbnail-center' : !thumb }" :style='{ "background-image": thumb }'>
+        <content-icon
+          :class='thumb ? "content-icon" : "content-icon-center" '
+          v-if="kind"
+          :kind="kind"
+          :progress="progress">
+        </content-icon>
       </div>
-      <img :src="thumbnail" class="thumbnail">
-      <div class="title">
-        {{ title }}
-      </div>
-    </div>
-  </a>
+    </card>
+  </div>
 
 </template>
 
 
 <script>
 
+  const constants = require('../../state/constants');
+  const PageNames = constants.PageNames;
+  const PageModes = constants.PageModes;
+  const getters = require('../../state/getters');
+
   module.exports = {
+    components: {
+      'content-icon': require('../content-icon'),
+      'card': require('../card'),
+    },
     props: {
       id: {
         type: String,
@@ -29,7 +39,6 @@
       },
       thumbnail: {
         type: String,
-        required: true,
       },
       kind: {
         type: String,
@@ -56,15 +65,29 @@
       },
     },
     computed: {
-      icon() {
-        // Note: dynamic requires should be used carefully because
-        //  they greedily add items to the webpack bundle.
-        // See https://webpack.github.io/docs/context.html
-        return require(`./content-icons/${this.progress}-${this.kind}.svg`);
+      link() {
+        if (this.pageMode === PageModes.EXPLORE) {
+          return {
+            name: PageNames.EXPLORE_CONTENT,
+            params: { id: this.id },
+          };
+        }
+        return {
+          name: PageNames.LEARN_CONTENT,
+          params: { id: this.id },
+        };
+      },
+      thumb() {
+        if (this.thumbnail) {
+          return `url(${this.thumbnail})`;
+        }
+        return ``;
       },
     },
     vuex: {
-      actions: require('../../actions'),
+      getters: {
+        pageMode: getters.pageMode,
+      },
     },
   };
 
@@ -75,33 +98,29 @@
 
   @require '~core-theme.styl'
 
-  .content-card-container
-    width: 210px
-    height: 11rem
-    background-color: $core-bg-light
-    border-radius: 4px
-    position: relative
+  .thumbnail
+    width: 100%
+    height: 100%
+    background-size: cover
+    background-position: center
+
+  .thumbnail-center
+    text-align: center
+
+  .thumbnail-center:before
+    content: ''
+    display: inline-block
+    vertical-align: middle
+    height:100%
 
   .content-icon
     position: absolute
-    height: 30px
-    width: 200px
-    top: 0.35rem
-    left: 0.35rem
+    top: 0.5em
+    left: 0.5em
 
-  .thumbnail
-    width: 210px
-    height: 7.6rem
-    border-radius: 4px 4px 0 0
-
-  .title
-    max-width: 210px
-    max-height: 3rem
-    margin: 0.4rem
-    overflow: hidden
-    line-height: 1.5rem
-    font-size: 0.9rem
-    font-weight: 700
-    color: $core-text-default
+  .content-icon-center
+    width: 70%
+    display: inline-block
+    vertical-align: middle
 
 </style>

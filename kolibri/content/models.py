@@ -58,7 +58,7 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     """
     id = UUIDField(primary_key=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
-    license = models.ForeignKey('License')
+    license = models.ForeignKey('License', null=True, blank=True)
     has_prerequisite = models.ManyToManyField('self', related_name='prerequisite_for', symmetrical=False, blank=True)
     related = models.ManyToManyField('self', symmetrical=True, blank=True)
     tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
@@ -131,7 +131,7 @@ class File(ContentDatabaseModel):
         The same url will also be exposed by the file serializer
         """
         if self.available:
-            return settings.STORAGE_URL + self.checksum[0] + '/' + self.checksum[1] + '/' + self.checksum + '.' + self.extension
+            return settings.CONTENT_STORAGE_URL + self.checksum[0] + '/' + self.checksum[1] + '/' + self.checksum + '.' + self.extension
         else:
             return None
 

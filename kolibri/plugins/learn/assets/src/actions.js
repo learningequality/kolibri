@@ -1,79 +1,183 @@
-const Kolibri = require('kolibri');
-const logging = require('loglevel');
+const Resources = require('kolibri').resources.ContentNodeResource;
+const constants = require('./state/constants');
+
+const PageNames = constants.PageNames;
+
 
 /**
- * Action to fetch a particular content node from the API.
- * @param {Function} dispatch - The dispatch method of the store object.
- * @param {String} id - The id of the model to be fetched.
+ * Vuex State Mappers
+ *
+ * The methods below help map data from
+ * the API to state in the Vuex store
  */
-const fetchFullContent = ({ dispatch }, id) => {
-  // Get the model from ContentNodeResource.
-  const contentModel = Kolibri.resources.ContentNodeResource.getModel(id);
-  // Check to see if it is already synced from the server.
-  if (contentModel.synced) {
-    // If so, immediately dispatch the mutation to set the attributes of the model into the store.
-    dispatch('SET_FULL_CONTENT', contentModel.attributes);
-  } else {
-    // Otherwise, perform the fetch, and if the promise resolves, then call the mutation.
-    contentModel.fetch().then(() => {
-      dispatch('SET_FULL_CONTENT', contentModel.attributes);
+
+function _crumbState(ancestors) {
+  // skip the root node
+  return ancestors.slice(1).map(ancestor => ({
+    id: ancestor.pk,
+    title: ancestor.title,
+  }));
+}
+
+
+function _topicState(data) {
+  const state = {
+    id: data.pk,
+    title: data.title,
+    description: data.description,
+    breadcrumbs: _crumbState(data.ancestors),
+  };
+  return state;
+}
+
+
+function _contentState(data) {
+  const state = {
+    id: data.pk,
+    title: data.title,
+    kind: data.kind,
+    description: data.description,
+    thumbnail: data.thumbnail,
+    available: data.available,
+    files: data.files,
+    progress: data.progress ? data.progress : 'unstarted',
+    breadcrumbs: _crumbState(data.ancestors),
+  };
+  return state;
+}
+
+
+/**
+ * Actions
+ *
+ * These methods are used to update client-side state
+ */
+
+function showExploreTopic(store, id) {
+  store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
+
+  const attributesPromise = Resources.getModel(id).fetch();
+  const childrenPromise = Resources.getCollection({ parent: id }).fetch();
+
+  Promise.all([attributesPromise, childrenPromise])
+    .then(([attributes, children]) => {
+      const pageState = { id };
+      pageState.topic = _topicState(attributes);
+      pageState.subtopics = children
+        .filter((item) => item.kind === 'topic')
+        .map((item) => _topicState(item));
+      pageState.contents = children
+        .filter((item) => item.kind !== 'topic')
+        .map((item) => _contentState(item));
+      store.dispatch('SET_PAGE_STATE', pageState);
+    })
+    .catch((error) => {
+      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
     });
-  }
-};
+}
 
-/**
- * Function to dispatch mutations to topics and contents by node kind.
- * @param {Object[]} nodes - Data to dispatch mutations with.
- * @param {Function} dispatch - dispatch method of Vuex Store.
- */
-const nodeAssignment = (nodes, dispatch) => {
-  const topics = nodes.filter((node) => node.kind === 'topic');
-  const contents = nodes.filter((node) => node.kind !== 'topic');
 
-  // clean up API response
-  contents.forEach(content => {
-    if (!content.progress) {
-      logging.warn('"progress" was not included in API response');
-      content.progress = 'unstarted'; // eslint-disable-line no-param-reassign
-    }
-    if (!content.thumbnail) {
-      logging.warn('"thumbnail" was not included in API response');
-      content.files.forEach(file => {
-        if (file.thumbnail) {
-          content.thumbnail = file.storage_url; // eslint-disable-line no-param-reassign
-        }
-      });
-    }
+function showExploreContent(store, id) {
+  store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
+
+  Resources.getModel(id).fetch()
+    .then((attributes) => {
+      const pageState = { content: _contentState(attributes) };
+      store.dispatch('SET_PAGE_STATE', pageState);
+    })
+    .catch((error) => {
+      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+    });
+}
+
+
+function showLearnRoot(store) {
+  store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
+
+  Resources.getCollection({ recommendations: '' }).fetch()
+    .then((recommendations) => {
+      const pageState = { recommendations: recommendations.map(_contentState) };
+      store.dispatch('SET_PAGE_STATE', pageState);
+    })
+    .catch((error) => {
+      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+    });
+}
+
+
+function showLearnContent(store, id) {
+  store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
+
+
+  const attributesPromise = Resources.getModel(id).fetch();
+  const recommendedPromise = Resources.getCollection({ recommendations_for: id }).fetch();
+
+  Promise.all([attributesPromise, recommendedPromise])
+    .then(([attributes, recommended]) => {
+      const pageState = {
+        content: _contentState(attributes),
+        recommended: recommended.map(_contentState),
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+    })
+    .catch((error) => {
+      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+    });
+}
+
+
+function showSearchResults(store, params, page) {
+  store.dispatch('SET_SEARCH_LOADING', true);
+
+  const pageSize = 15;
+  const contentCollection = Resources.getPagedCollection({
+    search: params,
+  }, {
+    pageSize,
+    page,
   });
+  const searchResultsPromise = contentCollection.fetch();
 
-  dispatch('SET_TOPICS', topics);
-  dispatch('SET_CONTENTS', contents);
+  searchResultsPromise.then((results) => {
+    const searchState = { params };
+    searchState.pageCount = contentCollection.pageCount;
+    searchState.topics = results
+      .filter((item) => item.kind === 'topic')
+      .map((item) => _topicState(item));
+    searchState.contents = results
+      .filter((item) => item.kind !== 'topic')
+      .map((item) => _contentState(item));
+    store.dispatch('SET_SEARCH_STATE', searchState);
+    store.dispatch('SET_SEARCH_LOADING', false);
+  })
+  .catch((error) => {
+    // TODO - how to parse and format?
+    store.dispatch('SET_SEARCH_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
+
+
+const searchReset = ({ dispatch }) => {
+  dispatch('SET_SEARCH_LOADING', false);
 };
 
-/**
- * Action to fetch child topics of a particular topic from the API.
- * @param {Function} dispatch - The dispatch method of the store object.
- * @param {String} id - The id of the model to fetch the children of.
- */
-const fetchNodes = ({ dispatch }, id) => {
-  if (id === undefined) {
-    // root node
-    nodeAssignment(global.bootstrappedTopics, dispatch);
-    return;
-  }
 
-  // Get the collection from ContentNodeResource.
-  const contentCollection = Kolibri.resources.ContentNodeResource.getCollection({ parent: id });
-  if (contentCollection.synced) {
-    nodeAssignment(contentCollection.data, dispatch);
-  } else {
-    contentCollection.fetch().then(() => {
-      nodeAssignment(contentCollection.data, dispatch);
-    });
-  }
-};
+function showScratchpad(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
+  store.dispatch('SET_PAGE_STATE', {});
+}
+
 
 module.exports = {
-  fetchFullContent,
-  fetchNodes,
+  showExploreTopic,
+  showExploreContent,
+  showLearnRoot,
+  showLearnContent,
+  showScratchpad,
+  showSearchResults,
+  searchReset,
 };

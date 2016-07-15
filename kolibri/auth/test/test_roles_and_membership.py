@@ -7,7 +7,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.test import TestCase
 
 from ..constants import role_kinds
-from ..models import DeviceOwner, KolibriAnonymousUser
+from ..models import DeviceOwner, KolibriAnonymousUser, FacilityUser, Facility, Classroom, LearnerGroup
 from .helpers import create_dummy_facility_data
 
 
@@ -53,6 +53,54 @@ class RolesWithinFacilityTestCase(TestCase):
         learner1 = self.data["learners_one_group"][1][0]
         self.assertFalse(coach0.has_role_for(role_kinds.COACH, learner1))
         self.assertNotIn(role_kinds.COACH, coach0.get_roles_for(learner1))
+
+
+class ImplicitMembershipTestCase(TestCase):
+
+    def setUp(self):
+        self.facility = Facility.objects.create(name="My Facility")
+        self.admin = FacilityUser.objects.create(username="admin", facility=self.facility)
+        self.facility.add_admin(self.admin)
+        self.learner = FacilityUser.objects.create(username="learner", facility=self.facility)
+
+    def test_has_admin_role_for_learner(self):
+        self.assertTrue(self.admin.has_role_for(role_kinds.ADMIN, self.learner))
+
+    def test_only_has_admin_role_for_learner(self):
+        self.assertEqual(self.admin.get_roles_for(self.learner), set([role_kinds.ADMIN]))
+
+    def test_admin_can_read_learner_object(self):
+        self.assertTrue(self.admin.can_read(self.learner))
+
+    def test_learner_is_in_list_of_readable_objects(self):
+        self.assertIn(self.learner, self.admin.filter_readable(FacilityUser.objects.all()))
+
+
+class ExplicitMembershipTestCase(TestCase):
+
+    def setUp(self):
+
+        self.facility = Facility.objects.create(name="My Facility")
+
+        self.admin = FacilityUser.objects.create(username="admin", facility=self.facility)
+        self.classroom = Classroom.objects.create(name="Class", parent=self.facility)
+        self.classroom.add_admin(self.admin)
+
+        self.learner = FacilityUser.objects.create(username="learner", facility=self.facility)
+        self.group = LearnerGroup.objects.create(name="Group", parent=self.classroom)
+        self.group.add_member(self.learner)
+
+    def test_has_admin_role_for_learner(self):
+        self.assertTrue(self.admin.has_role_for(role_kinds.ADMIN, self.learner))
+
+    def test_only_has_admin_role_for_learner(self):
+        self.assertEqual(self.admin.get_roles_for(self.learner), set([role_kinds.ADMIN]))
+
+    def test_admin_can_read_learner_object(self):
+        self.assertTrue(self.admin.can_read(self.learner))
+
+    def test_learner_is_in_list_of_readable_objects(self):
+        self.assertIn(self.learner, self.admin.filter_readable(FacilityUser.objects.all()))
 
 
 class RolesAcrossFacilitiesTestCase(TestCase):

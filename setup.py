@@ -56,6 +56,7 @@ static_dir = os.path.dirname(os.path.realpath(kolibri_dist.__file__))
 install_requires = [
     'colorlog',
     'django>=1.9,<1.10',
+    'django-filter>=0.13.0',
     'django-mptt==0.8.4',
     'django-js-reverse==0.7.2',
     'djangorestframework==3.3.3',

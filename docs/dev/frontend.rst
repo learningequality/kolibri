@@ -183,3 +183,14 @@ Tests are written in JavaScript, and placed in the 'assets/test' folder. An exam
 
 Vue.js components can also be tested. The management plugin contains an example (*kolibri/plugins/management/assets/test/management.js*) where the component is bound to a temporary DOM node, changes are made to the state, and assertions are made about the new component structure.
 
+
+Adding Dependencies
+-------------------
+
+Dependencies are tracked using ``npm shrinkwrap`` - `see the docs here <https://docs.npmjs.com/cli/shrinkwrap>`_.
+
+We distinguish development dependencies from runtime dependencies, and these should be installed as such using ``npm install --save-dev [dep]`` or ``npm install --save [dep]``, respectively. Then you'll need to run ``npm shrinkwrap``. Your new dependency should now be recorded in *package.json*, and all of its dependencies should be recorded in *npm-shrinkwrap.json*.
+
+Note that we currently don't have a way of mapping dependencies to plugins - dependencies are installed globally.
+
+To assist in tracking the source of bloat in our codebase, the command ``npm run bundle-stats`` is available to give a full readout of the size that uglified packages take up in the final Javascript code.

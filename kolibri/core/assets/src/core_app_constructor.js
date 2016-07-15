@@ -51,7 +51,8 @@ module.exports = function CoreApp() {
   this.resources = new ResourceManager(this);
   const mediator = new Mediator();
 
-  Resources.forEach((resourceClass) => this.resources.registerResource(resourceClass));
+  Object.keys(Resources).forEach((resourceClassName) =>
+    this.resources.registerResource(resourceClassName, Resources[resourceClassName]));
 
   vue.prototype.Kolibri = this;
   /**

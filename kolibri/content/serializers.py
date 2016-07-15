@@ -22,12 +22,9 @@ class FileSerializer(serializers.ModelSerializer):
 
 class ContentNodeSerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
-
-    # Here we use a FileSerializer instead just the files reverse FK is because we want to get the computed field storage_url
-    # In order to improve performance in production, we should implement a client side method to calculate the file url using
-    # extension and checksum field along with the setting.STORAGE_ROOT, which can be passed to front end at template boostrapping.
     files = FileSerializer(many=True, read_only=True)
     ancestors = serializers.SerializerMethodField()
+    thumbnail = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
@@ -48,9 +45,13 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         """
         return target_node.get_ancestors().values('pk', 'title')
 
+    def get_thumbnail(self, target_node):
+        thumbnail_model = target_node.files.filter(thumbnail=True, available=True).first()
+        return thumbnail_model.get_url() if thumbnail_model else None
+
     class Meta:
         model = ContentNode
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'files', 'ancestors', 'parent'
+            'license', 'files', 'ancestors', 'parent', 'thumbnail'
         )

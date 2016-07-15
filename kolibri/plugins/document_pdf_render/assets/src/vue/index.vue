@@ -3,7 +3,7 @@
   <div>
     <div v-el:container class="container" allowfullscreen>
       <button v-if="supportsPDFs" v-on:click="togglefullscreen">Toggle Fullscreen</button>
-      <div v-el:pdfcontainer></div>
+      <div v-el:pdfcontainer class="pdfcontainer"></div>
     </div>
   </div>
 
@@ -65,8 +65,13 @@
 
   .container
     text-align: center
+    height: 100%
     &:fullscreen
       width: 100%
       height: 100%
+
+  .pdfcontainer
+    /* Accounts for the button height. */
+    height: calc(100% - 28.75px)
 
 </style>

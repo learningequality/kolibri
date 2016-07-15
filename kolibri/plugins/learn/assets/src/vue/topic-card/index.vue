@@ -1,29 +1,40 @@
 <template>
 
-  <a v-link="{ name: 'explore-topic-page', params: {content_id: id} }">
-    <div class="topic-card-container">
-      <div class="thumbnail">
-        <img class="topic-card-folder" src="./folder.svg">
-      </div>
-      <div class="title">
-        {{ title }}
-      </div>
-    </div>
-  </a>
+  <div>
+    <card v-link="link" :title="title">
+      <div class='thumbnail'></div>
+    </card>
+  </div>
 
 </template>
 
 
 <script>
 
+  const constants = require('../../state/constants');
+
   module.exports = {
-    props: [
-      'id',
-      'title',
-      'linkhref',
-      'ntotal',
-      'ncomplete',
-    ],
+    components: {
+      card: require('../card'),
+    },
+    props: {
+      id: {
+        type: String,
+        required: true,
+      },
+      title: {
+        type: String,
+        required: true,
+      },
+    },
+    computed: {
+      link() {
+        return {
+          name: constants.PageNames.EXPLORE_TOPIC,
+          params: { id: this.id },
+        };
+      },
+    },
   };
 
 </script>
@@ -31,39 +42,13 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
-
-  .topic-card-container
-    display: block
-    width: 210px
-    height: 11rem
-    border-radius: 4px
-    background-color: $core-bg-light
-
   .thumbnail
-    width: 210px
-    height: 7.6rem
-    text-align: center
-    border-radius: 4px 4px 0 0
-    background: #E6E6E6 // New Color that we might add to core-theme.styl
-
-  .thumbnail:before
-    content: ''
-    display: inline-block
-    vertical-align: middle
+    width: 100%
     height: 100%
-
-  .topic-card-folder
-    width: 70px
-    height: 55px
-    vertical-align: middle
-    display: inline-block
-
-  .title
-    max-width:210px
-    font-size: 0.9rem
-    font-weight: 700
-    margin: 0.4rem
-    color: $core-text-default
+    background-position: center
+    background-image: url(../folder.svg)
+    background-repeat: no-repeat
+    // chosen to approximage ~0.5em - the card's internal padding
+    background-size: 78%
 
 </style>

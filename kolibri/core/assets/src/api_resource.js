@@ -1,8 +1,9 @@
 const logging = require('loglevel');
 const rest = require('rest');
 const mime = require('rest/interceptor/mime');
+const errorCode = require('rest/interceptor/errorCode');
 
-const client = rest.wrap(mime);
+const client = rest.wrap(mime).wrap(errorCode);
 
 /** Class representing a single API resource object */
 class Model {
@@ -33,10 +34,14 @@ class Model {
    * Method to fetch data from the server for this particular model.
    * @param {object} params - an object of parameters to be parsed into GET parameters on the
    * fetch.
+   * @param {boolean} force - fetch whether or not it's been synced already.
    * @returns {Promise} - Promise is resolved with Model attributes when the XHR successfully
    * returns, otherwise reject is called with the response object.
    */
-  fetch(params = {}) {
+  fetch(params = {}, force = false) {
+    if (!force && this.synced) {
+      return Promise.resolve(this.attributes);
+    }
     this.synced = false;
     return new Promise((resolve, reject) => {
       // Do a fetch on the URL.
@@ -88,16 +93,21 @@ class Collection {
     this.models = [];
     this._model_map = {};
     this.synced = false;
+    this.set(data);
   }
 
   /**
    * Method to fetch data from the server for this collection.
    * @param {object} extraParams - an object of parameters to be parsed into GET parameters on the
    * fetch.
+   * @param {boolean} force - fetch whether or not it's been synced already.
    * @returns {Promise} - Promise is resolved with Array of Model attributes when the XHR
    * successfully returns, otherwise reject is called with the response object.
    */
-  fetch(extraParams = {}) {
+  fetch(extraParams = {}, force = false) {
+    if (!force && this.synced) {
+      return Promise.resolve(this.data);
+    }
     this.synced = false;
     const params = Object.assign({}, this.params, extraParams);
     return new Promise((resolve, reject) => {
@@ -107,14 +117,29 @@ class Collection {
         this.models = [];
         this._model_map = {};
         // Set response object - an Array - on the Collection to record the data.
-        this.set(response.entity);
+        // First check that the response *is* an Array
+        if (Array.isArray(response.entity)) {
+          this.set(response.entity);
+        } else {
+          // If it's not, there are two possibilities - something is awry, or we have received
+          // paginated data! Check to see if it is paginated.
+          if (typeof response.entity.results !== 'undefined') {
+            // Paginated objects have 'results' as their results object so interpret this as
+            // such.
+            this.set(response.entity.results);
+            this.pageCount = Math.ceil(response.entity.count / this.pageSize);
+          } else {
+            // It's all gone a bit Pete Tong.
+            logging.debug('Data appears to be malformed', response.entity);
+          }
+        }
         // Mark that the fetch has completed.
         this.synced = true;
         this.models.forEach((model) => {
           model.synced = true; // eslint-disable-line no-param-reassign
         });
         // Return the data from the models, not the models themselves.
-        resolve(this.models.map((model) => model.attributes));
+        resolve(this.data);
       }, (response) => {
         logging.error('An error occurred', response);
         reject(response);
@@ -193,9 +218,28 @@ class Resource {
     );
     if (!this.collections[key]) {
       collection = new Collection(params, data, this);
+      this.collections[key] = collection;
     } else {
       collection = this.collections[key];
     }
+    return collection;
+  }
+
+  /**
+   * Get a Collection with pagination settings.
+   * @param {Object} params - default parameters to use for Collection fetching.
+   * @param {Number} [pageSize=20] - The number of items to return in a page.
+   * @param {Number} [page=1] - Which page to return.
+   * @returns {Collection} - Returns an instantiated Collection object.
+   */
+  getPagedCollection(params = {}, { pageSize, page } = { pageSize: 20, page: 1 }) {
+    Object.assign(params, {
+      page,
+      page_size: pageSize,
+    });
+    const collection = this.getCollection(params);
+    collection.page = page;
+    collection.pageSize = pageSize;
     return collection;
   }
 
@@ -204,12 +248,14 @@ class Resource {
    * or will instantiate a model
    * that can later be fetched.
    * @param {String} id - The primary key of the Model instance.
+   * @param {Object} [data={}] - Optional additional data to pass into the Model.
    * @returns {Model} - Returns a Model instance.
    */
-  getModel(id) {
+  getModel(id, data = {}) {
     let model;
     if (!this.models[id]) {
-      model = new Model({ [this.idKey]: id }, this);
+      Object.assign(data, { [this.idKey]: id });
+      model = new Model(data, this);
     } else {
       model = this.models[id];
     }
@@ -299,7 +345,7 @@ class ResourceManager {
    * resource.
    * @returns {Resource} - Return the instantiated Resource.
    */
-  registerResource(ResourceClass) {
+  registerResource(className, ResourceClass) {
     const name = ResourceClass.resourceName();
     if (!name) {
       throw new TypeError('A resource must have a defined resource name!');
@@ -308,10 +354,6 @@ class ResourceManager {
       throw new TypeError('A resource with that name has already been registered!');
     }
     this._resources[name] = new ResourceClass(this._kolibri);
-    // Shim for IE9 compatibility of .name property.
-    // Modified from: http://matt.scharley.me/2012/03/monkey-patch-name-ie.html#comment-551654096
-    const className = ResourceClass.name || /function\s([^(]{1,})\(/.exec(
-        (ResourceClass).toString())[1].trim();
     Object.defineProperty(this, className, { value: this._resources[name] });
     return this._resources[name];
   }
