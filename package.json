@@ -11,7 +11,8 @@
     "test-karma-cov": "./node_modules/karma/bin/karma start ./karma_config/karma.conf.ci.js",
     "build": "webpack --config ./frontend_build/src/webpack.config.prod.js",
     "watch": "webpack --config ./frontend_build/src/webpack.config.dev.js --watch --progress",
-    "test-karma:watch": "./node_modules/karma/bin/karma start ./karma_config/karma.conf.js"
+    "test-karma:watch": "./node_modules/karma/bin/karma start ./karma_config/karma.conf.js",
+    "bundle-stats": "webpack --config ./frontend_build/src/webpack.config.prod.js --json | node ./node_modules/webpack-bundle-size-analyzer/webpack-bundle-size-analyzer"
   },
   "repository": {
     "type": "git",
@@ -98,6 +99,7 @@
     "vue-loader": "8.5.3",
     "vue-style-loader": "1.0.0",
     "webpack": "1.13.1",
+    "webpack-bundle-size-analyzer": "2.0.2",
     "webpack-bundle-tracker": "0.0.93",
     "webpack-dev-middleware": "1.6.1",
     "webpack-hot-middleware": "2.12.1",
