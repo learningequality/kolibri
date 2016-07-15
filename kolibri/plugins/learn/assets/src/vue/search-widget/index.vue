@@ -9,6 +9,7 @@
         v-el:search
         placeholder="Find content..."
         autocomplete="off"
+        v-focus="searchOpen"
         v-model="localSearchTerm"
         id="search"
         name="search"
@@ -59,15 +60,14 @@
 
 <script>
 
-  const focusModel = require('vue-focus').focusModel;
+  const focus = require('vue-focus').focus;
   const actions = require('../../actions');
 
 
   module.exports = {
-    directives: { focusModel },
+    directives: { focus },
     data() {
       return {
-        focused: false,
         localSearchTerm: '',
       };
     },
@@ -83,8 +83,13 @@
     },
     methods: {
       clear() {
+        if (!this.localSearchTerm) {
+          this.toggleSearch();
+        } else {
           this.localSearchTerm = '';
+          this.$els.search.focus();
           this.triggerSearch(this.localSearchTerm);
+        }
       },
       search() {
         this.triggerSearch(this.localSearchTerm);
@@ -105,6 +110,7 @@
       },
       actions: {
         triggerSearch: actions.triggerSearch,
+        toggleSearch: actions.toggleSearch,
       },
     },
   };
