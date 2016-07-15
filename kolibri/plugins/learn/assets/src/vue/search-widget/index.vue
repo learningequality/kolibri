@@ -146,7 +146,6 @@
 
   .results
     margin-top: 5em
-    margin-right: $right-margin
     width-auto-adjust()
 
   input

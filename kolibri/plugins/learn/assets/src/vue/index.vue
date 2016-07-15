@@ -21,13 +21,12 @@
         <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
       </main>
 
-      <search-widget
-        class='search-pane'
-        transition='slide'
-        v-show='searchOpen'
-        :show-topics="exploreMode">
-      </search-widget>
-
+      <div v-show='searchOpen' class="pane-offset" transition="slide">
+        <search-widget
+          class='search-pane'
+          :show-topics="exploreMode">
+        </search-widget>
+      </div>
     </div>
 
     <!-- this is not used, but necessary for vue-router to function -->
@@ -137,17 +136,19 @@
       svg
         fill: #FFFFFF
 
-  .search-pane
-    overflow-y: scroll
+  .pane-offset
+    padding-left: $nav-bar-width + ($nav-bar-padding / 2)
     position: fixed
     top: 0
     left: 0
     height: 100%
-    width: 100%
+    width:100%
+  .search-pane
+    overflow-y: scroll
     box-shadow: 0 0 6px #ddd
-    margin-left: $nav-bar-width + ($nav-bar-padding / 2)
+    height: 100%
+    width: 100%
     padding-left: ($nav-bar-padding / 2)
-
 
   .slide-transition
     transition: all $core-time ease-out
