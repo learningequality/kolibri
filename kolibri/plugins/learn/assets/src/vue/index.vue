@@ -3,7 +3,6 @@
   <core-base>
 
     <div class='main'>
-      <side-nav class='nav'></side-nav>
 
       <error-page class='error' v-show='error'></error-page>
 
@@ -16,12 +15,11 @@
 
       <search-widget class='search-pane' v-show='searchOpen'></search-widget>
 
-      <div class='search-btn-wrapper'>
-        <span class='spacer'></span>
-        <button class='search-btn' @click='toggleSearch'>
-          {{ searchOpen ? 'BYE' : 'HI' }}
-        </button>
-      </div>
+      <button class='search-btn' @click='toggleSearch'>
+        {{ searchOpen ? '0' : '1' }}
+      </button>
+
+      <side-nav class='nav'></side-nav>
 
     </div>
 
@@ -102,28 +100,19 @@
     width: $nav-bar-width
     height: 100%
 
-  .search-btn-wrapper
+  .search-btn
     position: fixed
-    top: 0
-    left: $nav-bar-width + $nav-bar-padding
-
-    .spacer
-      width-auto-adjust()
-      display: inline-block
-
-    .search-btn
-      display: inline-block
-      position: relative
-      top: 2em
+    top: 2em
+    right: 2em
 
   .search-pane
     overflow-y: scroll
     position: fixed
     top: 0
-    left: $nav-bar-width + $nav-bar-padding
+    left: 0
+    padding-left: $nav-bar-width + $nav-bar-padding
     height: 100%
     width: 100%
-    background-color: rgba(255, 0, 0, 0.3)
 
   .page-content
     margin-left: $nav-bar-width + $nav-bar-padding

@@ -113,15 +113,15 @@
   @require '../learn.styl'
 
   .pane
-    background-color: $core-bg-canvas
+    // background-color: $core-bg-canvas
     margin-right: $right-margin
 
   .top
     background-color: $core-bg-canvas
     position: fixed
-    top: 1em
+    top: 0
     width: 100%
-    height: 50px
+    height: 3em
 
     input
       width: 60%
