@@ -4,6 +4,8 @@
 
     <side-nav></side-nav>
 
+    <error-page v-if='error'></error-page>
+
     <main role="main" class="page-content" v-if='!loading'>
       <search-widget :searchtoggled.sync="searchtoggled"></search-widget>
       <div v-if="!searchtoggled">
@@ -11,7 +13,6 @@
         <content-page v-if='showContentPage'></content-page>
         <learn-page v-if='showLearnPage'></learn-page>
         <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
-        <error-page v-if='error'></error-page>
       </div>
     </main>
 

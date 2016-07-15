@@ -10,21 +10,20 @@
         v-model="searchterm"
         id="search"
         name="search"
-        @keydown="setTyping()"
-        @keyup="searchContent() | debounce 500">
-      <button type="reset" @click="reFocus()">
+        @keyup="search() | debounce 500">
+      <button type="reset" @click="clear()">
         X
       </button>
     </div>
 
-    <h4 v-show="!typing && !searchLoading">
-      {{ prompttext }}
-    </h4>
+    <div v-if="!loading">
+      <h4>
+        {{ message }}
+      </h4>
 
-    <div :class="{ 'search-in-progress': typing || searchLoading }">
-      <card-grid v-if="searchTopics.length > 0">
+      <card-grid v-if="topics.length > 0">
         <topic-card
-          v-for="topic in searchTopics"
+          v-for="topic in topics"
           class="card"
           :id="topic.id"
           :title="topic.title"
@@ -33,9 +32,9 @@
         </topic-card>
       </card-grid>
 
-      <card-grid v-if="searchContents.length > 0">
+      <card-grid v-if="contents.length > 0">
         <content-card
-          v-for="content in searchContents"
+          v-for="content in contents"
           class="card"
           :title="content.title"
           :thumbnail="content.thumbnail"
@@ -54,51 +53,35 @@
 <script>
 
   const focusModel = require('vue-focus').focusModel;
+  const actions = require('../../actions');
 
-  const PAGE = 1;
 
   module.exports = {
     directives: { focusModel },
     data() {
       return {
         searchterm: '',
-        typing: false,
-        lastsearch: 'oblivion it is',
         focused: false,
       };
     },
     computed: {
-      prompttext() {
-        if (this.searchTopics.length > 0 || this.searchContents.length > 0) {
+      message() {
+        if (this.topics.length || this.contents.length) {
           return 'Search results:';
-        } else if (this.searchterm.length > 0 && this.searchTopics.length === 0
-          && this.searchContents.length === 0 && !this.searchLoading) {
+        } else if (!this.topics.length && !this.contents.length) {
           return 'Could not find any matches.';
-        }
-        if (this.searchterm.length === 0) {
-          this.searchReset();
         }
         return '';
       },
     },
     methods: {
-      reFocus() {
+      clear() {
         this.searchterm = '';
         this.focused = true;
+        this.triggerSearch(this.searchterm);
       },
-      searchContent() {
-        if (this.searchterm && !this.searchLoading) {
-          this.lastsearch = this.searchterm;
-          this.showSearchResults(this.searchterm, PAGE);
-        }
-        this.typing = false;
-      },
-      setTyping() {
-        if (this.lastsearch !== this.searchterm) {
-          this.typing = true;
-        } else {
-          this.typing = false;
-        }
+      search() {
+        this.triggerSearch(this.searchterm);
       },
     },
     components: {
@@ -108,12 +91,13 @@
     },
     vuex: {
       getters: {
-        searchContents: state => state.searchState.contents || [],
-        searchTopics: state => state.searchState.topics || [],
-        pageCount: state => state.searchState.pageCount,
-        searchLoading: state => state.searchLoading,
+        contents: state => state.searchState.contents,
+        topics: state => state.searchState.topics,
+        loading: state => state.searchLoading,
       },
-      actions: require('../../actions'),
+      actions: {
+        triggerSearch: actions.triggerSearch,
+      },
     },
   };
 
@@ -123,8 +107,5 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-
-  .search-in-progress
-    opacity: 0.5
 
 </style>

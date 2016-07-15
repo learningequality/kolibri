@@ -227,12 +227,12 @@ class Resource {
 
   /**
    * Get a Collection with pagination settings.
-   * @param {Object} params - default parameters to use for Collection fetching.
+   * @param {Object} [params={}] - default parameters to use for Collection fetching.
    * @param {Number} [pageSize=20] - The number of items to return in a page.
    * @param {Number} [page=1] - Which page to return.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  getPagedCollection(params = {}, { pageSize, page } = { pageSize: 20, page: 1 }) {
+  getPagedCollection(params = {}, pageSize = 20, page = 1) {
     Object.assign(params, {
       page,
       page_size: pageSize,
