@@ -130,12 +130,12 @@ function showLearnContent(store, id) {
 }
 
 
-function showSearchResults(store, params, page) {
+function showSearchResults(store, searchTerm, page) {
   store.dispatch('SET_SEARCH_LOADING', true);
 
   const pageSize = 15;
   const contentCollection = Resources.getPagedCollection({
-    search: params,
+    search: searchTerm,
   }, {
     pageSize,
     page,
@@ -143,7 +143,7 @@ function showSearchResults(store, params, page) {
   const searchResultsPromise = contentCollection.fetch();
 
   searchResultsPromise.then((results) => {
-    const searchState = { params };
+    const searchState = { searchTerm };
     searchState.pageCount = contentCollection.pageCount;
     searchState.topics = results
       .filter((item) => item.kind === 'topic')

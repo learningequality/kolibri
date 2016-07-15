@@ -10,8 +10,8 @@
         v-model="searchterm"
         id="search"
         name="search"
-        @keydown="isTyping()"
-        @keyup="searchContent(1) | debounce 500">
+        @keydown="setTyping()"
+        @keyup="searchContent() | debounce 500">
       <button type="reset" @click="reFocus()">
         X
       </button>
@@ -55,24 +55,17 @@
 
   const focusModel = require('vue-focus').focusModel;
 
+  const PAGE = 1;
+
   module.exports = {
     directives: { focusModel },
-    props: {
-      searchtoggled: {
-        type: Boolean,
-        default: false,
-      },
-    },
-    data: () => ({
-      searchterm: '',
-      currentpage: 1,
-      typing: false,
-      lastsearch: 'oblivion it is',
-      focused: false,
-    }),
-    created() {
-      // Preseed the searchterm with a value stored in the Vuex store.
-      this.searchterm = this.searchParams;
+    data() {
+      return {
+        searchterm: '',
+        typing: false,
+        lastsearch: 'oblivion it is',
+        focused: false,
+      };
     },
     computed: {
       prompttext() {
@@ -89,51 +82,22 @@
       },
     },
     methods: {
-      clearThenClose() {
-        if (this.searchterm.length > 0) {
-          return false;
-        }
-        this.searchtoggled = false;
-        return true;
-      },
       reFocus() {
         this.searchterm = '';
         this.focused = true;
       },
-      toggleSearch() {
-        this.searchtoggled = !this.searchtoggled;
-      },
-      searchContent(page) {
-        if (this.searchterm.length > 0 && !this.searchLoading) {
+      searchContent() {
+        if (this.searchterm && !this.searchLoading) {
           this.lastsearch = this.searchterm;
-          this.currentpage = page;
-          this.showSearchResults(this.searchterm, page);
+          this.showSearchResults(this.searchterm, PAGE);
         }
         this.typing = false;
       },
-      isTyping() {
+      setTyping() {
         if (this.lastsearch !== this.searchterm) {
           this.typing = true;
         } else {
           this.typing = false;
-        }
-      },
-      increasePage() {
-        this.currentpage += 1;
-      },
-      decreasePage() {
-        this.currentpage -= 1;
-      },
-      nextPage() {
-        if (this.currentpage !== this.pageCount) {
-          this.increasePage();
-          this.showSearchResults(this.searchterm, this.currentpage);
-        }
-      },
-      prePage() {
-        if (this.currentpage !== 1) {
-          this.decreasePage();
-          this.showSearchResults(this.searchterm, this.currentpage);
         }
       },
     },
@@ -144,12 +108,10 @@
     },
     vuex: {
       getters: {
-        // better practice would be to define vuex getter functions globally
         searchContents: state => state.searchState.contents || [],
         searchTopics: state => state.searchState.topics || [],
         pageCount: state => state.searchState.pageCount,
         searchLoading: state => state.searchLoading,
-        searchParams: state => state.searchState.params || '',
       },
       actions: require('../../actions'),
     },
