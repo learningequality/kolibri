@@ -64,7 +64,7 @@ var readBundlePlugin = function(base_dir) {
         if (external && typeof externals[external] === "undefined") {
 
           externals[external] = external;
-        } else {
+        } else if (external) {
           logging.warn("Two plugins setting with same external flag " + external);
         }
       }
