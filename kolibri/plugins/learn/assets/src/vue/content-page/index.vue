@@ -10,7 +10,7 @@
         :crumbs='breadcrumbs'>
       </breadcrumbs>
       <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_ROOT }">
-        ← Learn
+        <span id="little-arrow">←</span> Learn
       </a>
       <content-icon
         slot='icon'
@@ -90,6 +90,10 @@
   .content-container
     height: 60vh
     margin-bottom: 1em
+    
+  #little-arrow
+    font-size: 28px
+    font-weight: 900
 
 </style>
 

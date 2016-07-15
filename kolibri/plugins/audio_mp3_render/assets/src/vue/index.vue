@@ -164,7 +164,8 @@
 <style lang="stylus" scoped>
 
   #audio-wrapper
-    padding: 8% 5%
+    margin: 8% 5%
+    min-width: 500px
     height: 100%
     
   .play-button
@@ -173,6 +174,7 @@
     width: 50px
     height: 50px
     border: none
+    border-radius: 0
 
   .audio-button
     margin: 5% 2% 0 0
@@ -189,9 +191,8 @@
     display: inline-block
     font-size: 20px
     margin: 1%
-    position: relative
-    bottom: 20px
     
+  // hacky solution for CSS differences between Chrome and Firefox
   @-moz-document url-prefix()
     #current-time, #total-time
       top: 0
@@ -211,6 +212,7 @@
   input[type=range]
     -webkit-appearance: none
     width: 60%
+    -ms-transform: translateY(11px) // position: relative does not work on IE
         
   input[type=range]:focus, input[type=range]::-moz-focus-outer
     outline: none
@@ -222,8 +224,6 @@
     background: lightgray
     border-radius: 15px
     height: 15px
-    position: relative
-    bottom: 20px
     animate: 0.2s
     
   input[type=range]::-webkit-slider-thumb
@@ -252,23 +252,20 @@
     
   /* IE/Edge **********/
   input[type=range]::-ms-track
-    border: 3px solid transparent
+    border: 8px solid transparent
     background: transparent
     color: transparent
-    padding: 15px 0
+    height: 20px
     
   input[type=range]::-ms-thumb
     border: none
-    height: 40px
-    width: 40px
+    height: 25px
+    width: 25px
     border-radius: 50%
     background: #996182
     
-  input[type=range]::-ms-fill-upper
-    background: lightgray
-
-  input[type=range]::-ms-fill-lower
-    background: gray
+  input[type=range]::-ms-fill-upper, input[type=range]::-ms-fill-lower
+    background: lightgray // overrides IE default background colors of range slider
 
   /* hides popup label on slider */
   input[type=range]::-ms-tooltip
