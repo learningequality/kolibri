@@ -70,4 +70,8 @@
       width: 100%
       height: 100%
 
+  .pdfcontainer
+    /* Accounts for the button height. */
+    height: calc(100% - 28.75px)
+
 </style>
