@@ -113,23 +113,35 @@
   @require '../learn.styl'
 
   .pane
-    // background-color: $core-bg-canvas
+    background-color: $core-bg-canvas
     margin-right: $right-margin
 
   .top
     background-color: $core-bg-canvas
     position: fixed
     top: 0
-    width: 100%
-    height: 3em
-
-    input
-      width: 60%
-      display: block
-
+    width-auto-adjust()
+    height: 4em
+    z-index: 10000
+    margin-right: $right-margin
+    padding-top: 1em
+    text-align: center
 
   .results
+    margin-top: 5em
     margin-right: $right-margin
     width-auto-adjust()
 
+  input
+    display: inline-block
+    border: 1px solid #ccc
+    box-shadow: inset 0 1px 3px #ddd
+    border-radius: 2em
+    padding: 0.5em 1em
+    vertical-align: middle
+    box-sizing: border-box
+    width: 60%
+    &:focus
+      outline: none
+      border-color: #129FEA
 </style>
