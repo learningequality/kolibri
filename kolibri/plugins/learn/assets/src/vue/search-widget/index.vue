@@ -141,7 +141,7 @@
     height: 4em
     z-index: 10000
     margin-right: $right-margin
-    padding-top: 1em
+    margin-top: 1rem
     text-align: center
 
   .results

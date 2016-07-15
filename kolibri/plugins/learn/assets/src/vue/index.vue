@@ -123,9 +123,12 @@
         left: $grid-width + $offset
 
     position: fixed
-    top: 1em
+    top: 1rem
     z-index: 1
     border: none
+
+    height: 36px
+    width: 36px
 
     svg
       fill: $core-action-normal
