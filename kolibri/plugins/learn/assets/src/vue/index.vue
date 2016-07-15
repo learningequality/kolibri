@@ -4,14 +4,15 @@
 
     <side-nav></side-nav>
 
-    <search-widget :searchtoggled="false"></search-widget>
-
     <main role="main" class="page-content" v-if='!loading'>
-      <explore-page v-if='showExplorePage'></explore-page>
-      <content-page v-if='showContentPage'></content-page>
-      <learn-page v-if='showLearnPage'></learn-page>
-      <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
-      <error-page v-if='error'></error-page>
+      <search-widget :searchtoggled.sync="searchtoggled"></search-widget>
+      <div v-if="!searchtoggled">
+        <explore-page v-if='showExplorePage'></explore-page>
+        <content-page v-if='showContentPage'></content-page>
+        <learn-page v-if='showLearnPage'></learn-page>
+        <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
+        <error-page v-if='error'></error-page>
+      </div>
     </main>
 
     <!-- this is not used, but necessary for vue-router to function -->
@@ -31,6 +32,9 @@
 
   module.exports = {
     mixins: [constants], // makes constants available in $options
+    data: () => ({
+      searchtoggled: false,
+    }),
     components: {
       'core-base': require('core-base'),
       'side-nav': require('./side-nav'),
