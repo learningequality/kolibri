@@ -28,7 +28,7 @@ class ContentNodeFilter(filters.FilterSet):
     def title_description_filter(self, queryset, value):
         # only return the first 30 results to avoid major slow down
         return queryset.filter(
-            Q(title__icontains=value) | Q(description__icontains=value)
+            Q(parent__isnull=False), Q(title__icontains=value) | Q(description__icontains=value)
         )
 
     def filter_recommendations_for(self, queryset, value):
