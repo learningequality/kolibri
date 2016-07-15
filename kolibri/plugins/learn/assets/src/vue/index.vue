@@ -16,9 +16,13 @@
 
       <search-widget class='search-pane' v-show='searchOpen'></search-widget>
 
-      <button class='search-btn' @click='toggleSearch'>
-        {{ searchOpen ? 'BYE' : 'HI' }}
-      </button>
+      <div class='search-btn-wrapper'>
+        <span class='spacer'></span>
+        <button class='search-btn' @click='toggleSearch'>
+          {{ searchOpen ? 'BYE' : 'HI' }}
+        </button>
+      </div>
+
     </div>
 
     <!-- this is not used, but necessary for vue-router to function -->
@@ -98,10 +102,19 @@
     width: $nav-bar-width
     height: 100%
 
-  .search-btn
+  .search-btn-wrapper
     position: fixed
-    right: 1em
-    top: 1em
+    top: 0
+    left: $nav-bar-width + $nav-bar-padding
+
+    .spacer
+      width-auto-adjust()
+      display: inline-block
+
+    .search-btn
+      display: inline-block
+      position: relative
+      top: 2em
 
   .search-pane
     overflow-y: scroll

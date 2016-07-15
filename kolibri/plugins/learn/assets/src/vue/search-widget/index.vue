@@ -119,9 +119,14 @@
   .top
     background-color: $core-bg-canvas
     position: fixed
-    top: 0
+    top: 1em
     width: 100%
     height: 50px
+
+    input
+      width: 60%
+      display: block
+
 
   .results
     margin-right: $right-margin
