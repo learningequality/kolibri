@@ -42,7 +42,7 @@
         <li @click="prePage" class="page-btn" v-bind:class="{ 'disabled': currentpage === 1 }">«</li>
 
         <!-- when there are less or equal than 5 pages, use this layout -->
-        <li 
+        <li
           class="page-btn"
           v-if="pageCount <= 5"
           v-for="page in pageCount"
@@ -52,25 +52,25 @@
 
         <!-- when there are more than 5 pages, use this very complicated layout -->
         <!-- always show the first page btn -->
-        <li 
+        <li
           class="page-btn"
           v-if="pageCount > 5"
           v-bind:class="{ 'selected': currentpage === 1 }"
           @click="searchContent(1)"
         >{{ 1 }}</li>
 
-        <li 
+        <li
           class="page-btn disabled"
           v-if="pageCount > 5 && currentpage >= 5"
         > ... </li>
-        <li 
+        <li
           class="page-btn"
           v-if="pageCount > 5 && currentpage <5"
           v-for="page in 4"
           v-bind:class="{ 'selected': currentpage === page + 2 }"
           @click="searchContent(page + 2)"
         >{{ page + 2 }}</li>
-        <li 
+        <li
           class="page-btn"
           v-if="pageCount > 5 && currentpage >=5 && currentpage < pageCount - 3"
           v-for="page in 3"
@@ -78,7 +78,7 @@
           @click="searchContent(currentpage + page - 1)"
         >{{ currentpage + page - 1 }}</li>
         <!-- when reach the last 4 pages -->
-        <li 
+        <li
           class="page-btn"
           v-if="pageCount > 5 && currentpage > pageCount - 4 && currentpage <= pageCount"
           v-for="page in 4"
@@ -86,13 +86,13 @@
           @click="searchContent(pageCount - 4 + page)"
         >{{ pageCount - 4 + page }}</li>
 
-        <li 
+        <li
           class="page-btn disabled"
           v-if="pageCount > 5 && currentpage < pageCount - 3"
         > ... </li>
 
         <!-- always show the last page btn -->
-        <li 
+        <li
           class="page-btn"
           v-if="pageCount > 5"
           v-bind:class="{ 'selected': currentpage === pageCount }"
@@ -330,7 +330,7 @@
     pointer-events: none
     cursor: default
     opacity: 0.5
-    
+
   .pagination-wrapper
     position: fixed
     bottom: 10px
