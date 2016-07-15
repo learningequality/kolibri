@@ -2,9 +2,29 @@
 
   <div class='pane'>
 
+    <!-- search block -->
+    <div class='top'>
+      <input
+        type="search"
+        v-el:search
+        placeholder="Find content..."
+        autocomplete="off"
+        v-model="localSearchTerm"
+        id="search"
+        name="search"
+        @keyup="search() | debounce 500"
+        @keydown.esc.prevent="clear()">
+      <button class="reset" type="reset" @click="clear()" :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }">
+        <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+          <path d="M0 0h24v24H0z" fill="none"></path>
+        </svg>
+      </button>
+    </div>
+
     <!-- results -->
     <div class='results' v-if="!loading">
-      <h4>
+      <h4 v-if="searchTerm">
         {{ message }}
       </h4>
 
@@ -32,22 +52,6 @@
       </card-grid>
     </div>
 
-    <!-- search block -->
-    <div class='top'>
-      <input
-        type="search"
-        placeholder="Find content..."
-        autocomplete="off"
-        v-focus-model="focused"
-        v-model="searchterm"
-        id="search"
-        name="search"
-        @keyup="search() | debounce 500">
-      <button type="reset" @click="clear()">
-        X
-      </button>
-    </div>
-
   </div>
 
 </template>
@@ -63,8 +67,8 @@
     directives: { focusModel },
     data() {
       return {
-        searchterm: '',
         focused: false,
+        localSearchTerm: '',
       };
     },
     computed: {
@@ -79,12 +83,11 @@
     },
     methods: {
       clear() {
-        this.searchterm = '';
-        this.focused = true;
-        this.triggerSearch(this.searchterm);
+          this.localSearchTerm = '';
+          this.triggerSearch(this.localSearchTerm);
       },
       search() {
-        this.triggerSearch(this.searchterm);
+        this.triggerSearch(this.localSearchTerm);
       },
     },
     components: {
@@ -97,6 +100,8 @@
         contents: state => state.searchState.contents,
         topics: state => state.searchState.topics,
         loading: state => state.searchLoading,
+        searchTerm: state => state.searchState.searchTerm,
+        searchOpen: state => state.searchOpen,
       },
       actions: {
         triggerSearch: actions.triggerSearch,
@@ -144,4 +149,20 @@
     &:focus
       outline: none
       border-color: #129FEA
+
+  .reset
+    border:1px solid transparent
+    background-color: transparent
+    display: inline-block
+    vertical-align: middle
+    outline: none
+    cursor: pointer
+    right: 40px
+    position: relative
+    padding: 4px
+    svg
+      fill: $core-text-annotation
+      height: 15px
+      width: 15px
+
 </style>
