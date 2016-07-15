@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-import uuid
-
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from kolibri.auth.constants import role_kinds
@@ -29,15 +27,16 @@ class BaseLogModel(models.Model):
     class Meta:
         abstract = True
 
+
 class ContentInteractionLog(BaseLogModel):
     """
     This Model provides a record of an interaction with a content item.
     """
-    content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
-    channel_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
+    content_id = UUIDField(db_index=True)
+    channel_id = UUIDField(db_index=True)
     start_timestamp = models.DateTimeField(auto_now_add=True)
     completion_timestamp = models.DateTimeField(blank=True, null=True)
-    item_session = UUIDField(primary_key=False, default=uuid.uuid4, editable=False)
+    item_session = UUIDField()
     kind = models.CharField(max_length=200, blank=True)  # indicates how extra_fields should be interpreted
     extra_fields = models.TextField(blank=True)
 
@@ -46,8 +45,8 @@ class ContentSummaryLog(BaseLogModel):
     """
     This Model provides a summary of all interactions of a user with a content item.
     """
-    content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
-    last_channel_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
+    content_id = UUIDField(db_index=True)
+    channel_id = UUIDField(db_index=True)
     start_timestamp = models.DateTimeField(auto_now_add=True)
     last_activity_timestamp = models.DateTimeField(blank=True, null=True)
     completion_timestamp = models.DateTimeField(blank=True, null=True)
@@ -60,8 +59,8 @@ class ContentRatingLog(BaseLogModel):
     """
     This Model provides a record of user feedback on content.
     """
-    content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
-    channel_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
+    content_id = UUIDField(db_index=True)
+    channel_id = UUIDField(db_index=True)
     quality = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
     ease = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
     learning = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])

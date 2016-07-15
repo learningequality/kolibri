@@ -5,14 +5,14 @@ Permissions tests on the logging models.
 from django.test import TestCase
 from kolibri.auth.test.helpers import create_dummy_facility_data
 
-from ..models import ContentInteractionLog, ContentSummaryLog, ContentRatingLog, UserSessionLog
+from .factory_logger import ContentInteractionLogFactory, ContentSummaryLogFactory, ContentRatingLogFactory, UserSessionLogFactory
 
 
 class ContentInteractionLogPermissionsTestCase(TestCase):
 
     def setUp(self):
         self.data = create_dummy_facility_data()
-        self.data['interaction_log'] = ContentInteractionLog.objects.create(user=self.data["learners_one_group"][0][0])
+        self.data['interaction_log'] = ContentInteractionLogFactory.create(user=self.data["learners_one_group"][0][0])
 
     def test_facilityadmin_interactionlog_permissions(self):
         self.assertTrue(self.data['facility_admin'].can_create_instance(self.data['interaction_log']))
@@ -37,7 +37,7 @@ class ContentSummaryLogPermissionsTestCase(TestCase):
 
     def setUp(self):
         self.data = create_dummy_facility_data()
-        self.data['summary_log'] = ContentSummaryLog.objects.create(user=self.data["learners_one_group"][0][1])
+        self.data['summary_log'] = ContentSummaryLogFactory.create(user=self.data["learners_one_group"][0][1])
 
     def test_facilityadmin_summarylog_permissions(self):
         self.assertTrue(self.data['facility_admin'].can_create_instance(self.data['summary_log']))
@@ -63,7 +63,7 @@ class ContentRatingLogPermissionsTestCase(TestCase):
 
     def setUp(self):
         self.data = create_dummy_facility_data()
-        self.data['rating_log'] = ContentRatingLog.objects.create(user=self.data["learners_one_group"][1][0])
+        self.data['rating_log'] = ContentRatingLogFactory.create(user=self.data["learners_one_group"][1][0])
 
     def test_facilityadmin_ratinglog_permissions(self):
         self.assertTrue(self.data['facility_admin'].can_create_instance(self.data['rating_log']))
@@ -88,7 +88,7 @@ class UserSessionLogPermissionsTestCase(TestCase):
 
     def setUp(self):
         self.data = create_dummy_facility_data()
-        self.data['session_log'] = UserSessionLog.objects.create(user=self.data["learners_one_group"][1][1])
+        self.data['session_log'] = UserSessionLogFactory.create(user=self.data["learners_one_group"][1][1])
 
     def test_facilityadmin_sessionlog_permissions(self):
         self.assertTrue(self.data['facility_admin'].can_create_instance(self.data['session_log']))
