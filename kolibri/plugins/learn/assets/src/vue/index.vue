@@ -82,7 +82,7 @@
   // accounts for margin offset by navbar
   .page-content
     margin-left: $nav-bar-width + $nav-bar-padding
-    margin-right: auto
+    margin-right: $right-margin
     margin-bottom: 50px
     width-auto-adjust()
 
