@@ -29,7 +29,7 @@
         {{ message }}
       </h4>
 
-      <card-grid v-if="topics.length > 0">
+      <card-grid v-if="topics.length && showTopics">
         <topic-card
           v-for="topic in topics"
           class="card"
@@ -40,7 +40,7 @@
         </topic-card>
       </card-grid>
 
-      <card-grid v-if="contents.length > 0">
+      <card-grid v-if="contents.length">
         <content-card
           v-for="content in contents"
           class="card"
@@ -66,6 +66,12 @@
 
   module.exports = {
     directives: { focus },
+    props: {
+      showTopics: {
+        type: Boolean,
+        default: true,
+      },
+    },
     data() {
       return {
         localSearchTerm: '',

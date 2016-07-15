@@ -22,7 +22,7 @@
         <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
       </main>
 
-      <search-widget class='search-pane' v-show='searchOpen'></search-widget>
+      <search-widget class='search-pane' v-show='searchOpen' :show-topics="exploreMode"></search-widget>
 
     </div>
 
@@ -36,7 +36,9 @@
 
 <script>
 
-  const PageNames = require('../state/constants').PageNames;
+  const constants = require('../state/constants');
+  const PageNames = constants.PageNames;
+  const PageModes = constants.PageModes;
   const getters = require('../state/getters');
   const store = require('../state/store');
   const actions = require('../actions');
@@ -65,6 +67,9 @@
       },
       showScratchpadPage() {
         return this.pageName === PageNames.SCRATCHPAD;
+      },
+      exploreMode() {
+        return this.pageMode === PageModes.EXPLORE;
       },
     },
     vuex: {
