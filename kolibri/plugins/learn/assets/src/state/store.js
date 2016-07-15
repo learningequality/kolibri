@@ -9,6 +9,7 @@ function initialState() {
     pageState: {},
     error: '',
     loading: true,
+    searchOpen: false,
     searchLoading: false,
     searchState: {
       topics: [],
@@ -34,6 +35,9 @@ const mutations = {
   SET_SEARCH_STATE(state, searchState) {
     state.searchState = searchState;
     state.searchLoading = false;
+  },
+  TOGGLE_SEARCH(state) {
+    state.searchOpen = !state.searchOpen;
   },
   SET_ERROR(state, error) {
     state.error = error;

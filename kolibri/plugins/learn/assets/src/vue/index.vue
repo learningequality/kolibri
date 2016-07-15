@@ -1,20 +1,25 @@
 <template>
 
-  <core-base class="learn-page">
+  <core-base>
 
-    <side-nav></side-nav>
+    <div class='main'>
+      <side-nav class='nav'></side-nav>
 
-    <error-page v-if='error'></error-page>
+      <error-page class='error' v-show='error'></error-page>
 
-    <main role="main" class="page-content" v-if='!loading'>
-      <search-widget :searchtoggled.sync="searchtoggled"></search-widget>
-      <div v-if="!searchtoggled">
+      <main role="main" class="page-content" v-if='!loading'>
         <explore-page v-if='showExplorePage'></explore-page>
         <content-page v-if='showContentPage'></content-page>
         <learn-page v-if='showLearnPage'></learn-page>
         <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
-      </div>
-    </main>
+      </main>
+
+      <search-widget class='search-pane' v-show='searchOpen'></search-widget>
+
+      <button class='search-btn' @click='toggleSearch'>
+        {{ searchOpen ? 'BYE' : 'HI' }}
+      </button>
+    </div>
 
     <!-- this is not used, but necessary for vue-router to function -->
     <router-view></router-view>
@@ -26,16 +31,12 @@
 
 <script>
 
+  const PageNames = require('../state/constants').PageNames;
   const getters = require('../state/getters');
-  const constants = require('../state/constants');
   const store = require('../state/store');
-  const PageNames = constants.PageNames;
+  const actions = require('../actions');
 
   module.exports = {
-    mixins: [constants], // makes constants available in $options
-    data: () => ({
-      searchtoggled: false,
-    }),
     components: {
       'core-base': require('core-base'),
       'side-nav': require('./side-nav'),
@@ -65,8 +66,12 @@
       getters: {
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
+        searchOpen: state => state.searchOpen,
         loading: state => state.loading,
         error: state => state.error,
+      },
+      actions: {
+        toggleSearch: actions.toggleSearch,
       },
     },
     store, // make this and all child components aware of the store
@@ -80,14 +85,51 @@
   @require '~core-theme.styl'
   @require 'learn.styl'
 
-  // accounts for margin offset by navbar
+  .main
+    overflow-y: scroll
+    position: relative
+    height: 100%
+    width: 100%
+
+  .nav
+    position: fixed
+    top: 0
+    left: 0
+    width: $nav-bar-width
+    height: 100%
+
+  .search-btn
+    position: fixed
+    right: 1em
+    top: 1em
+
+  .search-pane
+    overflow-y: scroll
+    position: fixed
+    top: 0
+    left: $nav-bar-width + $nav-bar-padding
+    height: 100%
+    width: 100%
+    background-color: rgba(255, 0, 0, 0.3)
+
   .page-content
     margin-left: $nav-bar-width + $nav-bar-padding
     margin-right: $right-margin
     margin-bottom: 50px
     width-auto-adjust()
 
+  .error
+    margin-left: $nav-bar-width + $nav-bar-padding
+    margin-right: $right-margin
+
 </style>
 
 
-<style lang="stylus"></style>
+<style lang="stylus">
+
+  /* WARNING - unscoped styles.
+   * control all scrolling from vue.  */
+  html
+    overflow: hidden
+
+</style>

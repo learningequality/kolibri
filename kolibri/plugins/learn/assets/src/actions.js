@@ -167,6 +167,11 @@ function triggerSearch(store, searchTerm) {
 }
 
 
+function toggleSearch(store) {
+  store.dispatch('TOGGLE_SEARCH');
+}
+
+
 function showScratchpad(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
   store.dispatch('SET_PAGE_STATE', {});
@@ -180,4 +185,5 @@ module.exports = {
   showLearnContent,
   showScratchpad,
   triggerSearch,
+  toggleSearch,
 };
