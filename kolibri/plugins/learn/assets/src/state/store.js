@@ -14,6 +14,7 @@ function initialState() {
     searchState: {
       topics: [],
       contents: [],
+      searchTerm: '',
     },
   };
 }

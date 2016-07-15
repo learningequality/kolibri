@@ -140,7 +140,7 @@ function showLearnContent(store, id) {
 function triggerSearch(store, searchTerm) {
   if (!searchTerm) {
     const searchState = {
-      search: searchTerm,
+      searchTerm,
       topics: [],
       contents: [],
     };
@@ -154,7 +154,7 @@ function triggerSearch(store, searchTerm) {
   const searchResultsPromise = contentCollection.fetch();
 
   searchResultsPromise.then((results) => {
-    const searchState = { search: searchTerm };
+    const searchState = { searchTerm };
     const collection = _collectionState(results);
     searchState.topics = collection.topics;
     searchState.contents = collection.contents;
