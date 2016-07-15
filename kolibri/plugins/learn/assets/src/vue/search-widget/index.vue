@@ -160,7 +160,7 @@
     width: 60%
     &:focus
       outline: none
-      border-color: #129FEA
+      border-color: $core-text-annotation
 
   .reset
     border:1px solid transparent
