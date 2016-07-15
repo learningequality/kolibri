@@ -1,22 +1,9 @@
 <template>
 
-  <div>
-    <div>
-      <input
-        type="search"
-        placeholder="Find content..."
-        autocomplete="off"
-        v-focus-model="focused"
-        v-model="searchterm"
-        id="search"
-        name="search"
-        @keyup="search() | debounce 500">
-      <button type="reset" @click="clear()">
-        X
-      </button>
-    </div>
+  <div class='pane'>
 
-    <div v-if="!loading">
+    <!-- results -->
+    <div class='results' v-if="!loading">
       <h4>
         {{ message }}
       </h4>
@@ -43,6 +30,22 @@
           :id="content.id">
         </content-card>
       </card-grid>
+    </div>
+
+    <!-- search block -->
+    <div class='top'>
+      <input
+        type="search"
+        placeholder="Find content..."
+        autocomplete="off"
+        v-focus-model="focused"
+        v-model="searchterm"
+        id="search"
+        name="search"
+        @keyup="search() | debounce 500">
+      <button type="reset" @click="clear()">
+        X
+      </button>
     </div>
 
   </div>
@@ -107,5 +110,21 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+  @require '../learn.styl'
+
+  .pane
+    background-color: $core-bg-canvas
+    margin-right: $right-margin
+
+  .top
+    background-color: $core-bg-canvas
+    position: fixed
+    top: 0
+    width: 100%
+    height: 50px
+
+  .results
+    margin-right: $right-margin
+    width-auto-adjust()
 
 </style>

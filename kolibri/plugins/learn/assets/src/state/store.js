@@ -27,6 +27,7 @@ const mutations = {
   },
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
+    state.searchOpen = false;
     state.loading = false;
   },
   SET_SEARCH_LOADING(state) {
