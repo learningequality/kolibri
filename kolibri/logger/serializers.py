@@ -14,7 +14,7 @@ class ContentSummaryLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ContentSummaryLog
-        fields = ('pk', 'user', 'content_id', 'last_channel_id', 'start_timestamp',
+        fields = ('pk', 'user', 'content_id', 'channel_id', 'start_timestamp',
                   'last_activity_timestamp', 'completion_timestamp', 'progress', 'kind', 'extra_fields')
 
 
