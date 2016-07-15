@@ -1,19 +1,30 @@
 <template>
 
-  <core-base class="learn-page">
+  <core-base>
 
-    <side-nav></side-nav>
+    <div class='main'>
 
-    <main role="main" class="page-content" v-if='!loading'>
-      <search-widget :searchtoggled.sync="searchtoggled"></search-widget>
-      <div v-if="!searchtoggled">
+      <error-page class='error' v-show='error'></error-page>
+
+      <side-nav class='nav'></side-nav>
+
+      <button class='search-btn' :class="{ active: searchOpen }" @click='toggleSearch'>
+        <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+          <path d="M0 0h24v24H0z" fill="none"></path>
+        </svg>
+      </button>
+
+      <main role="main" class="page-content" v-if='!loading'>
         <explore-page v-if='showExplorePage'></explore-page>
         <content-page v-if='showContentPage'></content-page>
         <learn-page v-if='showLearnPage'></learn-page>
         <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
-        <error-page v-if='error'></error-page>
-      </div>
-    </main>
+      </main>
+
+      <search-widget class='search-pane' v-show='searchOpen' :show-topics="exploreMode"></search-widget>
+
+    </div>
 
     <!-- this is not used, but necessary for vue-router to function -->
     <router-view></router-view>
@@ -25,16 +36,14 @@
 
 <script>
 
-  const getters = require('../state/getters');
   const constants = require('../state/constants');
-  const store = require('../state/store');
   const PageNames = constants.PageNames;
+  const PageModes = constants.PageModes;
+  const getters = require('../state/getters');
+  const store = require('../state/store');
+  const actions = require('../actions');
 
   module.exports = {
-    mixins: [constants], // makes constants available in $options
-    data: () => ({
-      searchtoggled: false,
-    }),
     components: {
       'core-base': require('core-base'),
       'side-nav': require('./side-nav'),
@@ -59,13 +68,20 @@
       showScratchpadPage() {
         return this.pageName === PageNames.SCRATCHPAD;
       },
+      exploreMode() {
+        return this.pageMode === PageModes.EXPLORE;
+      },
     },
     vuex: {
       getters: {
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
+        searchOpen: state => state.searchOpen,
         loading: state => state.loading,
         error: state => state.error,
+      },
+      actions: {
+        toggleSearch: actions.toggleSearch,
       },
     },
     store, // make this and all child components aware of the store
@@ -79,14 +95,60 @@
   @require '~core-theme.styl'
   @require 'learn.styl'
 
-  // accounts for margin offset by navbar
+  .main
+    overflow-y: scroll
+    position: relative
+    height: 100%
+    width: 100%
+
+  .nav
+    position: fixed
+    top: 0
+    left: 0
+    width: $nav-bar-width
+    height: 100%
+    z-index: 2
+
+  .search-btn
+    position: fixed
+    top: 1em
+    right: 2em
+    z-index: 1
+    border: none
+    svg
+      fill: $core-action-normal
+    &.active
+      background-color: $core-action-normal
+      svg
+        fill: #FFFFFF
+
+  .search-pane
+    overflow-y: scroll
+    position: fixed
+    top: 0
+    left: 0
+    padding-left: $nav-bar-width + $nav-bar-padding
+    height: 100%
+    width: 100%
+
   .page-content
     margin-left: $nav-bar-width + $nav-bar-padding
-    margin-right: auto
+    margin-right: $right-margin
     margin-bottom: 50px
     width-auto-adjust()
+
+  .error
+    margin-left: $nav-bar-width + $nav-bar-padding
+    margin-right: $right-margin
 
 </style>
 
 
-<style lang="stylus"></style>
+<style lang="stylus">
+
+  /* WARNING - unscoped styles.
+   * control all scrolling from vue.  */
+  html
+    overflow: hidden
+
+</style>

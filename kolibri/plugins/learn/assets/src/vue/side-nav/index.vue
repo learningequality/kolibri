@@ -1,6 +1,6 @@
 <template>
 
-  <nav id="learn-nav" role="navigation" aria-label="Main user navigation">
+  <nav class="main" role="navigation" aria-label="Main user navigation">
     <ul>
       <a v-link="learnLink" :class="learnClass">
         <li>
@@ -66,18 +66,12 @@
   $nav-element-height = 150px
   $font-size = 1em
 
-  #learn-nav
-    position: fixed
-    top: 0
-    left: 0
-    width: $nav-bar-width
-    height: 100%
+  .main
     background: $core-bg-light
     text-align: center
     font-size: $font-size
     font-weight: 300
     overflow: hidden
-    z-index: 1
 
   ul
     margin: 0

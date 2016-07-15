@@ -47,6 +47,17 @@ function _contentState(data) {
 }
 
 
+function _collectionState(data) {
+  const topics = data
+    .filter((item) => item.kind === 'topic')
+    .map((item) => _topicState(item));
+  const contents = data
+    .filter((item) => item.kind !== 'topic')
+    .map((item) => _contentState(item));
+  return { topics, contents };
+}
+
+
 /**
  * Actions
  *
@@ -54,7 +65,7 @@ function _contentState(data) {
  */
 
 function showExploreTopic(store, id) {
-  store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_LOADING');
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
   const attributesPromise = Resources.getModel(id).fetch();
@@ -64,22 +75,19 @@ function showExploreTopic(store, id) {
     .then(([attributes, children]) => {
       const pageState = { id };
       pageState.topic = _topicState(attributes);
-      pageState.subtopics = children
-        .filter((item) => item.kind === 'topic')
-        .map((item) => _topicState(item));
-      pageState.contents = children
-        .filter((item) => item.kind !== 'topic')
-        .map((item) => _contentState(item));
+      const collection = _collectionState(children);
+      pageState.subtopics = collection.topics;
+      pageState.contents = collection.contents;
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
-      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
     });
 }
 
 
 function showExploreContent(store, id) {
-  store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_LOADING');
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
   Resources.getModel(id).fetch()
@@ -88,13 +96,13 @@ function showExploreContent(store, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
-      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
     });
 }
 
 
 function showLearnRoot(store) {
-  store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_LOADING');
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
 
   Resources.getCollection({ recommendations: '' }).fetch()
@@ -103,15 +111,14 @@ function showLearnRoot(store) {
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
-      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
     });
 }
 
 
 function showLearnContent(store, id) {
-  store.dispatch('SET_LOADING');
+  store.dispatch('SET_PAGE_LOADING');
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
-
 
   const attributesPromise = Resources.getModel(id).fetch();
   const recommendedPromise = Resources.getCollection({ recommendations_for: id }).fetch();
@@ -125,45 +132,44 @@ function showLearnContent(store, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
-      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
     });
 }
 
 
-function showSearchResults(store, params, page) {
-  store.dispatch('SET_SEARCH_LOADING', true);
+function triggerSearch(store, searchTerm) {
+  if (!searchTerm) {
+    const searchState = {
+      searchTerm,
+      topics: [],
+      contents: [],
+    };
+    store.dispatch('SET_SEARCH_STATE', searchState);
+    return;
+  }
 
-  const pageSize = 15;
-  const contentCollection = Resources.getPagedCollection({
-    search: params,
-  }, {
-    pageSize,
-    page,
-  });
+  store.dispatch('SET_SEARCH_LOADING');
+
+  const contentCollection = Resources.getPagedCollection({ search: searchTerm });
   const searchResultsPromise = contentCollection.fetch();
 
   searchResultsPromise.then((results) => {
-    const searchState = { params };
-    searchState.pageCount = contentCollection.pageCount;
-    searchState.topics = results
-      .filter((item) => item.kind === 'topic')
-      .map((item) => _topicState(item));
-    searchState.contents = results
-      .filter((item) => item.kind !== 'topic')
-      .map((item) => _contentState(item));
+    const searchState = { searchTerm };
+    const collection = _collectionState(results);
+    searchState.topics = collection.topics;
+    searchState.contents = collection.contents;
     store.dispatch('SET_SEARCH_STATE', searchState);
-    store.dispatch('SET_SEARCH_LOADING', false);
   })
   .catch((error) => {
     // TODO - how to parse and format?
-    store.dispatch('SET_SEARCH_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
   });
 }
 
 
-const searchReset = ({ dispatch }) => {
-  dispatch('SET_SEARCH_LOADING', false);
-};
+function toggleSearch(store) {
+  store.dispatch('TOGGLE_SEARCH');
+}
 
 
 function showScratchpad(store) {
@@ -178,6 +184,6 @@ module.exports = {
   showLearnRoot,
   showLearnContent,
   showScratchpad,
-  showSearchResults,
-  searchReset,
+  triggerSearch,
+  toggleSearch,
 };

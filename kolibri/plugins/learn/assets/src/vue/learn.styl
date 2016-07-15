@@ -3,12 +3,13 @@
   */
 @require '~core-theme.styl'
 
-$card-height = 90px         // fixed card height
-$card-width = 360px         // fixed card width
+$card-height = 85px         // fixed card height
+$card-width = 340px         // fixed card width
 $card-gutter = 20px         // spacing between columns
 $n-cols-array = 1 2 3 4     // possible numbers of columns
 $nav-bar-width = 80px       // width of side-nav
 $nav-bar-padding = 30px     // space between side-nav and main content
+$right-margin = 30px        // space for search button
 $tool-bar-height = 40px
 
 // compute the target grid width based on the number of columns
@@ -17,7 +18,7 @@ grid-width($n-cols)
 
 // compute the media query breakpoint, based on the target grid width
 breakpoint($width)
-  $width + $nav-bar-width + $nav-bar-padding
+  $width + $nav-bar-width + $nav-bar-padding + $card-gutter + $right-margin
 
 // generate a range of media query breakpoints
 width-auto-adjust()
