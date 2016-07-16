@@ -141,12 +141,11 @@
     height: 4em
     z-index: 10000
     margin-right: $right-margin
-    margin-top: 1rem
+    padding-top: 1rem
     text-align: center
 
   .results
     margin-top: 5em
-    margin-right: $right-margin
     width-auto-adjust()
 
   input
