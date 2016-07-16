@@ -71,6 +71,60 @@ class Model {
     return promise;
   }
 
+  /**
+   * Method to save data to the server for this particular model.
+   * @param {object} attrs - an object of attributes to be saved on the model.
+   * @returns {Promise} - Promise is resolved with Model attributes when the XHR successfully
+   * returns, otherwise reject is called with the response object.
+   */
+  save(attrs) {
+    const promise = new Promise((resolve, reject) => {
+      Promise.all(this.promises).then(() => {
+        let payload = {};
+        if (this.synced) {
+          // Model is synced with the server, so we can do dirty checking.
+          Object.keys(attrs).forEach((key) => {
+            if (attrs[key] !== this.attributes[key]) {
+              payload[key] = attrs[key];
+            }
+          });
+        } else {
+          payload = attrs;
+        }
+        this.synced = false;
+        let url;
+        let method;
+        if (this.id) {
+          // If this Model has an id, then can do a PATCH against the Model
+          url = this.url;
+          method = 'PATCH';
+        } else {
+          // Otherwise, must POST to the Collection endpoint to create the Model
+          url = this.resource.collectionUrl();
+          method = 'POST';
+        }
+        // Do a save on the URL.
+        client({ path: url, method }).then((response) => {
+          // Set the retrieved Object onto the Model instance.
+          this.set(response.entity);
+          // Flag that the Model has been fetched.
+          this.synced = true;
+          // Resolve the promise with the attributes of the Model.
+          resolve(this.attributes);
+          // Clean up the reference to this promise
+          this.promises.splice(this.promises.indexOf(promise), 1);
+        }, (response) => {
+          logging.error('An error occurred', response);
+          reject(response);
+          // Clean up the reference to this promise
+          this.promises.splice(this.promises.indexOf(promise), 1);
+        });
+      });
+    });
+    this.promises.push(promise);
+    return promise;
+  }
+
   get url() {
     return this.resource.modelUrl(this.id);
   }
