@@ -52,6 +52,7 @@ var config = {
       {
         test: /\.json$/,
         loader: 'json',
+        exclude: /node_modules/
       },
       {
         test: /\.css$/,
@@ -122,6 +123,9 @@ var config = {
   },
   postcss: function () {
     return [autoprefixer];
+  },
+  node: {
+    __filename: true
   }
 };
 

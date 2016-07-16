@@ -8,7 +8,7 @@
 
 const assetLoader = require('./asset_loader');
 const Vue = require('vue');
-const logging = require('loglevel');
+const logging = require('./logging').getLogger(__filename);
 
 /**
  * @constructor

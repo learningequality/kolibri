@@ -14,7 +14,7 @@
 
 <script>
 
-  const logging = require('loglevel');
+  const logging = require('./logging').getLogger(__filename);
 
   module.exports = {
     props: {
