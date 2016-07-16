@@ -21,7 +21,7 @@
         <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
       </main>
 
-      <div v-show='searchOpen' class="pane-offset" transition="slide">
+      <div v-show='searchOpen' class="pane-offset">
         <search-widget
           class='search-pane'
           :show-topics="exploreMode">
@@ -151,11 +151,14 @@
     padding-left: ($nav-bar-padding / 2)
 
   .slide-transition
-    transition: all $core-time ease-out
+    transition: all $core-time ease-in-out
     left: 0
 
   .slide-enter, .slide-leave
     left: 100vw
+
+  .slide-enter
+    position: absolute
 
   .page-content
     margin-left: $nav-bar-width + $nav-bar-padding
