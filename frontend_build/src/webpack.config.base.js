@@ -103,6 +103,7 @@ var config = {
       'core-theme.styl': path.resolve('kolibri/core/assets/src/core-theme.styl'),
       'content-renderer': path.resolve('kolibri/core/assets/src/content-renderer'),
       'content_renderer_module': path.resolve('kolibri/core/assets/src/content_renderer_module'),
+      'logging': path.resolve('kolibri/core/assets/src/logging'),
     },
     extensions: ["", ".vue", ".js"],
   },
