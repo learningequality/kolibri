@@ -40,26 +40,10 @@ class Logging {
   constructor() {
     this.registeredLoggers = {};
     this.defaultLogger = new Logger('root');
-  }
-
-  trace(msg) {
-    this.defaultLogger.trace(msg);
-  }
-
-  debug(msg) {
-    this.defaultLogger.debug(msg);
-  }
-
-  info(msg) {
-    this.defaultLogger.info(msg);
-  }
-
-  warn(msg) {
-    this.defaultLogger.warn(msg);
-  }
-
-  error(msg) {
-    this.defaultLogger.error(msg);
+    Object.keys(logging.levels).forEach((methodName) => {
+      const name = methodName.toLowerCase();
+      this[name] = (msg) => this.defaultLogger[name](msg);
+    });
   }
 
   getLogger(loggerName) {
