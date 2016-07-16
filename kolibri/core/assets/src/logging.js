@@ -4,6 +4,7 @@
  */
 
 const logging = require('loglevel');
+const console = global.console;
 
 class Logger {
   constructor(loggerName) {
@@ -11,12 +12,19 @@ class Logger {
     this.logger = logging.getLogger(loggerName);
     Object.keys(logging.levels).forEach((methodName) => {
       const name = methodName.toLowerCase();
-      this[name] = (msg) => this.logger[name](this.formatMessage(msg, name));
+      const logFunction = this.logger[name];
+      if (logFunction) {
+        if (logFunction.bind === 'undefined') { // IE < 10
+          this[name] = Function.prototype.bind.call(logFunction, console, this.messagePrefix(name));
+        } else {
+          this[name] = logFunction.bind(console, this.messagePrefix(name));
+        }
+      }
     });
   }
 
-  formatMessage(msg, type) {
-    return `[${new Date()} ${type.toUpperCase()}: ${this.loggerName}] ${msg}`;
+  messagePrefix(type) {
+    return `[${type.toUpperCase()}: ${this.loggerName}]`;
   }
 
   setLevel(level, persist) {
