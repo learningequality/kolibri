@@ -35,9 +35,13 @@
     computed: {
       posterSource() {
         const posterFileExtensions = ['png', 'jpg'];
-        return this.files.filter(
+        const posterArray = this.files.filter(
           (file) => posterFileExtensions.some((ext) => ext === file.extension)
-        )[0].storage_url;
+        );
+        if (posterArray.length === 0) {
+          return '';
+        }
+        return posterArray[0].storage_url;
       },
 
       videoSources() {
