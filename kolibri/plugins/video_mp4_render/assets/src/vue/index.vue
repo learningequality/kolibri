@@ -86,7 +86,16 @@
       },
 
       resizeVideo() {
-        this.videoPlayer.width(this.aspectRatio * this.$els.videowrapper.clientHeight);
+        const currentHeight = this.$els.videowrapper.clientHeight;
+        const currentWidth = this.$els.videowrapper.clientWidth;
+        const calcWidth = this.aspectRatio * currentHeight;
+        if (currentWidth < calcWidth) {
+          this.videoPlayer.height(currentWidth / this.aspectRatio);
+          this.videoPlayer.width(currentWidth);
+        } else {
+          this.videoPlayer.width(calcWidth);
+          this.videoPlayer.height(currentHeight);
+        }
       },
 
       debouncedResizeVideo() {
@@ -179,7 +188,6 @@
   .video-js
     font-size: 1em
     color: #fff
-    height: 100%
     margin: 0 auto
     .vjs-slider
       background-color: #545454
@@ -200,6 +208,7 @@
    // Custom style
   .videowrapper
     position: relative
+    height: 100%
 
   .video-js .vjs-menu
     font-family: 'NotoSans', 'sans-serif'
