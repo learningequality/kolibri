@@ -1,3 +1,11 @@
+"""
+This app is intended to provide the core functionality for tracking user
+engagement with content and Kolibri in general. As such, it is intended
+to store details of user interactions with content, a summary of those
+interactions, interactions with the software in general, as well as user
+feedback on the content and the software.
+"""
+
 from __future__ import unicode_literals
 
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -30,7 +38,7 @@ class BaseLogModel(models.Model):
 
 class ContentInteractionLog(BaseLogModel):
     """
-    This Model provides a record of an interaction with a content item.
+    This model provides a record of an interaction with a content item.
     """
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField(db_index=True)
@@ -43,7 +51,7 @@ class ContentInteractionLog(BaseLogModel):
 
 class ContentSummaryLog(BaseLogModel):
     """
-    This Model provides a summary of all interactions of a user with a content item.
+    This model provides a summary of all interactions of a user with a content item.
     """
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField(db_index=True)
@@ -57,7 +65,7 @@ class ContentSummaryLog(BaseLogModel):
 
 class ContentRatingLog(BaseLogModel):
     """
-    This Model provides a record of user feedback on content.
+    This model provides a record of user feedback on a content item.
     """
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField(db_index=True)
@@ -69,7 +77,7 @@ class ContentRatingLog(BaseLogModel):
 
 class UserSessionLog(BaseLogModel):
     """
-    This Model provides a record of a user session in Kolibri.
+    This model provides a record of a user session in Kolibri.
     """
     channels = models.TextField(blank=True)
     start_timestamp = models.DateTimeField(auto_now_add=True)

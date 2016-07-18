@@ -19,3 +19,4 @@ Please feel free to add your name on this list if you do a PR!
 * David Cañas (dxcanas)
 * Eli Dai (66eli77)
 * Devon Rueckner (indirectlylit)
+* Rafael Aguayo (ralphiee22)

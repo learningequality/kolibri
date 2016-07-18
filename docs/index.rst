@@ -6,10 +6,10 @@ Getting Started
 
   user/index
   dev/index
+  dev/logger
   cli
   changelog
   contributing
   authors
-  
-.. include:: ../README.rst
 
+.. include:: ../README.rst
