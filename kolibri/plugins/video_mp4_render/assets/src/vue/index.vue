@@ -105,6 +105,7 @@
 
     ready() {
       this.videoPlayer = videojs(this.$els.video, {
+        inactivityTimeout: 1000,
         controls: true,
         autoplay: false,
         preload: 'auto',
@@ -237,37 +238,37 @@
   .video-js .videoreplay,
   .video-js .videoforward
     display: none
-    height: 10vw
-    width: 10vw
-    max-height: 133px
-    max-width: 133px
+    height: 75px
+    width: 75px
 
   .video-js .videoreplay
     background: url('../icons/ic_replay_10_white.svg')
     background-repeat: no-repeat
     background-size: contain
-    left: 35%
+    background-color: rgba(0, 0, 0, 0.3)
+    left: calc(50% - 125px)
 
   .video-js .videoforward
     background: url('../icons/ic_forward_10_white.svg')
     background-repeat: no-repeat
     background-size: contain
-    left: 65%
+    background-color: rgba(0, 0, 0, 0.3)
+    left: calc(50% + 125px)
 
   .video-js .videotoggle
     background: url('../icons/ic_play_circle_outline_white.svg')
     background-repeat: no-repeat
     background-size: contain
+    background-color: rgba(0, 0, 0, 0.3)
     left: 50%
-    height: 15vw
-    width: 15vw
-    max-height: 200px
-    max-width: 200px
+    height: 125px
+    width: 125px
 
   .video-js .videopaused
     background: url('../icons/ic_pause_circle_outline_white.svg')
     background-repeat: no-repeat
     background-size: contain
+    background-color: rgba(0, 0, 0, 0.3)
 
   .video-js .display,
   .video-js .display
