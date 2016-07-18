@@ -110,7 +110,7 @@
         autoplay: false,
         preload: 'auto',
         poster: this.posterSource,
-        playbackRates: [0.25, 0.5, 1.0, 1.25, 1.5, 2.0],
+        playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
         textTrackDisplay: true,
         ReplayButton: true,
         ForwardButton: true,
