@@ -37,7 +37,7 @@ class Model {
    * Method to fetch data from the server for this particular model.
    * @param {object} params - an object of parameters to be parsed into GET parameters on the
    * fetch.
-   * @param {boolean} force - fetch whether or not it's been synced already.
+   * @param {boolean} [force=false] - fetch whether or not it's been synced already.
    * @returns {Promise} - Promise is resolved with Model attributes when the XHR successfully
    * returns, otherwise reject is called with the response object.
    */
@@ -91,34 +91,39 @@ class Model {
         } else {
           payload = attrs;
         }
-        this.synced = false;
-        let url;
-        let method;
-        if (this.id) {
-          // If this Model has an id, then can do a PATCH against the Model
-          url = this.url;
-          method = 'PATCH';
-        } else {
-          // Otherwise, must POST to the Collection endpoint to create the Model
-          url = this.resource.collectionUrl();
-          method = 'POST';
-        }
-        // Do a save on the URL.
-        client({ path: url, method }).then((response) => {
-          // Set the retrieved Object onto the Model instance.
-          this.set(response.entity);
-          // Flag that the Model has been fetched.
-          this.synced = true;
-          // Resolve the promise with the attributes of the Model.
+        if (!Object.keys(payload).length) {
+          // Nothing to save, so just resolve the promise now.
           resolve(this.attributes);
-          // Clean up the reference to this promise
-          this.promises.splice(this.promises.indexOf(promise), 1);
-        }, (response) => {
-          logging.error('An error occurred', response);
-          reject(response);
-          // Clean up the reference to this promise
-          this.promises.splice(this.promises.indexOf(promise), 1);
-        });
+        } else {
+          this.synced = false;
+          let url;
+          let method;
+          if (this.id) {
+            // If this Model has an id, then can do a PATCH against the Model
+            url = this.url;
+            method = 'PATCH';
+          } else {
+            // Otherwise, must POST to the Collection endpoint to create the Model
+            url = this.resource.collectionUrl();
+            method = 'POST';
+          }
+          // Do a save on the URL.
+          client({ path: url, method }).then((response) => {
+            // Set the retrieved Object onto the Model instance.
+            this.set(response.entity);
+            // Flag that the Model has been fetched.
+            this.synced = true;
+            // Resolve the promise with the attributes of the Model.
+            resolve(this.attributes);
+            // Clean up the reference to this promise
+            this.promises.splice(this.promises.indexOf(promise), 1);
+          }, (response) => {
+            logging.error('An error occurred', response);
+            reject(response);
+            // Clean up the reference to this promise
+            this.promises.splice(this.promises.indexOf(promise), 1);
+          });
+        }
       });
     });
     this.promises.push(promise);
