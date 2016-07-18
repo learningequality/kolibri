@@ -2,7 +2,7 @@
 
   <nav class="main" role="navigation" aria-label="Main user navigation">
     <ul>
-      <a v-link="learnLink" :class="learnClass">
+      <a v-link="learnLink" @click='closeSearch' :class="learnClass">
         <li>
           <span>
             <svg role="presentation" fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
@@ -13,7 +13,7 @@
           </span>
         </li>
       </a>
-      <a v-link="exploreLink" :class="exploreClass">
+      <a v-link="exploreLink" @click='closeSearch' :class="exploreClass">
         <li>
           <span>
             <svg role="presentation" fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
@@ -34,10 +34,24 @@
 
   const pageMode = require('../../state/getters').pageMode;
   const constants = require('../../state/constants');
+  const actions = require('../../actions');
 
   module.exports = {
     vuex: {
-      getters: { pageMode },
+      getters: {
+        pageMode,
+        searchOpen: state => state.searchOpen,
+      },
+      actions: {
+        // TODO - this logic should really be triggered purely by the vue router.
+        // however since the URL doesn't change when the user is on the root,
+        // this is currently to close the search pane.
+        closeSearch(store) {
+          if (this.searchOpen) {
+            actions.toggleSearch(store);
+          }
+        },
+      },
     },
     computed: {
       learnLink() {
