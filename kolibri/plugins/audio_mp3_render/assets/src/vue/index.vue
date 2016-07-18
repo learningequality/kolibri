@@ -163,6 +163,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme.styl'
+
   #audio-wrapper
     margin: 8% 5%
     min-width: 500px
@@ -171,21 +173,24 @@
   .play-button
     margin-right: 2%
     background: none
-    width: 50px
+    width: 44px
     height: 50px
     border: none
     border-radius: 0
 
   .audio-button
     margin: 5% 2% 0 0
-    border: 2px solid #996182
+    border: 2px solid $core-action-normal
     background: transparent
     padding: 10px 15px
-    color: #996182
+    color: $core-action-normal
     border-radius: 4px
     
-  .play-button:focus, .audio-button:focus
-    outline: none
+  .play-button, .audio-button
+    &:active
+      outline: none
+    &:focus
+      outline: 1px solid $core-action-normal
     
   #current-time, #total-time
     display: inline-block
@@ -205,9 +210,6 @@
     
   .timeline
     background: transparent
-    
-  .timeline:focus
-    outline: none
     
   input[type=range]
     -webkit-appearance: none
@@ -231,7 +233,7 @@
     width: 40px
     height: 40px
     border-radius: 50%
-    background: #996182
+    background: $core-action-normal
     position: relative
     bottom: 12px
     
@@ -247,7 +249,7 @@
     width: 40px
     height: 40px
     border-radius: 50%
-    background: #996182
+    background: $core-action-normal
     border: none
     
   /* IE/Edge **********/
@@ -262,7 +264,7 @@
     height: 25px
     width: 25px
     border-radius: 50%
-    background: #996182
+    background: $core-action-normal
     
   input[type=range]::-ms-fill-upper, input[type=range]::-ms-fill-lower
     background: lightgray // overrides IE default background colors of range slider
