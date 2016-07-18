@@ -122,7 +122,7 @@ class ContentNodeTestCase(TestCase):
     def test_all_str(self):
 
         # test for File __str__
-        p = content.File.objects.get(id=2)
+        p = content.File.objects.get(id="725257a0570044acbd59f8cf6a68b2bf")
         self.assertEqual(str(p), '.mp4')
         # test for ContentTag __str__
         p = content.ContentTag.objects.get(tag_name="tag_2")
@@ -250,7 +250,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
         response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': c1_id}))
-        self.assertEqual(response.data['pk'], c1_id)
+        self.assertEqual(response.data['pk'], c1_id.__str__())
 
     def test_contentnode_field_filtering(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
@@ -285,7 +285,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(len(response.data), 5)
 
     def test_file_retrieve(self):
-        response = self.client.get(self._reverse_channel_url("file-detail", {'pk': 1}))
+        response = self.client.get(self._reverse_channel_url("file-detail", {'pk': "9f9438fe6b0d42dd8e913d7d04cfb2b1"}))
         self.assertEqual(response.data['preset'], 'high_res_video')
 
     def tearDown(self):

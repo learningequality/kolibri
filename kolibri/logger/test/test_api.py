@@ -17,6 +17,7 @@ from .factory_logger import (
 )
 
 from ..models import ContentInteractionLog, ContentSummaryLog, ContentRatingLog, UserSessionLog
+from ..serializers import ContentInteractionLogSerializer, ContentSummaryLogSerializer, ContentRatingLogSerializer
 
 
 class ContentInteractionLogAPITestCase(APITestCase):
@@ -46,7 +47,8 @@ class ContentInteractionLogAPITestCase(APITestCase):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.get(reverse('contentinteractionlog-detail', kwargs={"pk": 1}))
         log = ContentInteractionLog.objects.get(pk=1)
-        self.assertEqual(response.data['content_id'], log.content_id)
+        interaction_serializer = ContentInteractionLogSerializer(log)
+        self.assertEqual(response.data['content_id'], interaction_serializer.data['content_id'])
 
     def test_admin_can_create_interactionlog(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
@@ -101,7 +103,8 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.get(reverse('contentsummarylog-detail', kwargs={"pk": 1}))
         log = ContentSummaryLog.objects.get(pk=1)
-        self.assertEqual(response.data['content_id'], log.content_id)
+        summary_serializer = ContentSummaryLogSerializer(log)
+        self.assertEqual(response.data['content_id'], summary_serializer.data['content_id'])
 
     def test_admin_can_create_summarylog(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
@@ -156,7 +159,8 @@ class ContentRatingLogAPITestCase(APITestCase):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.get(reverse('contentratinglog-detail', kwargs={"pk": 1}))
         log = ContentRatingLog.objects.get(pk=1)
-        self.assertEqual(response.data['content_id'], log.content_id)
+        rating_serializer = ContentRatingLogSerializer(log)
+        self.assertEqual(response.data['content_id'], rating_serializer.data['content_id'])
 
     def test_admin_can_create_ratinglog(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)

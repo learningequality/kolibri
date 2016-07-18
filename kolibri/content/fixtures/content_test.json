@@ -3,21 +3,21 @@
     "fields": {
       "tag_name": "tag_1"
     },
-    "pk": 1,
+    "pk": "1d21d6cf40554b68977366f8218248ae",
     "model": "content.contenttag"
   },
   {
     "fields": {
       "tag_name": "tag_2"
     },
-    "pk": 2,
+    "pk": "77b57a14a1f0466bb27ea7de8ff468be",
     "model": "content.contenttag"
   },
   {
     "fields": {
       "tag_name": "tag_3"
     },
-    "pk": 3,
+    "pk": "222455c2cc484298b1501a13e1c7eb5c",
     "model": "content.contenttag"
   },
   {
@@ -27,9 +27,9 @@
       "title": "root",
       "license": 1,
       "tags": [
-        1,
-        2,
-        3
+        "1d21d6cf40554b68977366f8218248ae",
+        "77b57a14a1f0466bb27ea7de8ff468be",
+        "222455c2cc484298b1501a13e1c7eb5c"
       ],
       "kind": "topic",
       "content_id": "ffdfadc415214ec0b1438f002f23d7bf",
@@ -52,7 +52,7 @@
       "title": "c1",
       "license": 1,
       "tags": [
-        1
+        "1d21d6cf40554b68977366f8218248ae"
       ],
       "kind": "video",
       "content_id": "c6f49ea527824f398f4d5d26faf19396",
@@ -77,7 +77,7 @@
       "title": "c2",
       "license": 2,
       "tags": [
-        2
+        "77b57a14a1f0466bb27ea7de8ff468be"
       ],
       "kind": "topic",
       "content_id": "1fe38e5af42f42678f8db66a18f8267a",
@@ -192,7 +192,7 @@
       "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
       "supplementary": false
     },
-    "pk": 1,
+    "pk": "9f9438fe6b0d42dd8e913d7d04cfb2b1",
     "model": "content.file"
   },
   {
@@ -207,7 +207,7 @@
       "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
       "supplementary": false
     },
-    "pk": 2,
+    "pk": "725257a0570044acbd59f8cf6a68b2bf",
     "model": "content.file"
   },
   {
@@ -222,7 +222,7 @@
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": false
     },
-    "pk": 3,
+    "pk": "e00699f859624e0f875ac6fe1e13d649",
     "model": "content.file"
   },
   {
@@ -237,7 +237,7 @@
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": false
     },
-    "pk": 4,
+    "pk": "4c30dc7619f74f97ae2ccd4fffd09bf3",
     "model": "content.file"
   },
   {
@@ -252,7 +252,7 @@
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": true
     },
-    "pk": 5,
+    "pk": "8ad3fffedf144cba9492e16daec1e39b",
     "model": "content.file"
   },
   {
