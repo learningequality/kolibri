@@ -35,9 +35,13 @@
     computed: {
       posterSource() {
         const posterFileExtensions = ['png', 'jpg'];
-        return this.files.filter(
+        const posterArray = this.files.filter(
           (file) => posterFileExtensions.some((ext) => ext === file.extension)
-        )[0].storage_url;
+        );
+        if (posterArray.length === 0) {
+          return '';
+        }
+        return posterArray[0].storage_url;
       },
 
       videoSources() {
@@ -105,11 +109,12 @@
 
     ready() {
       this.videoPlayer = videojs(this.$els.video, {
+        inactivityTimeout: 1000,
         controls: true,
         autoplay: false,
         preload: 'auto',
         poster: this.posterSource,
-        playbackRates: [0.25, 0.5, 1.0, 1.25, 1.5, 2.0],
+        playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
         textTrackDisplay: true,
         ReplayButton: true,
         ForwardButton: true,
@@ -237,37 +242,37 @@
   .video-js .videoreplay,
   .video-js .videoforward
     display: none
-    height: 10vw
-    width: 10vw
-    max-height: 133px
-    max-width: 133px
+    height: 75px
+    width: 75px
 
   .video-js .videoreplay
     background: url('../icons/ic_replay_10_white.svg')
     background-repeat: no-repeat
     background-size: contain
-    left: 35%
+    background-color: rgba(0, 0, 0, 0.3)
+    left: calc(50% - 125px)
 
   .video-js .videoforward
     background: url('../icons/ic_forward_10_white.svg')
     background-repeat: no-repeat
     background-size: contain
-    left: 65%
+    background-color: rgba(0, 0, 0, 0.3)
+    left: calc(50% + 125px)
 
   .video-js .videotoggle
     background: url('../icons/ic_play_circle_outline_white.svg')
     background-repeat: no-repeat
     background-size: contain
+    background-color: rgba(0, 0, 0, 0.3)
     left: 50%
-    height: 15vw
-    width: 15vw
-    max-height: 200px
-    max-width: 200px
+    height: 125px
+    width: 125px
 
   .video-js .videopaused
     background: url('../icons/ic_pause_circle_outline_white.svg')
     background-repeat: no-repeat
     background-size: contain
+    background-color: rgba(0, 0, 0, 0.3)
 
   .video-js .display,
   .video-js .display
