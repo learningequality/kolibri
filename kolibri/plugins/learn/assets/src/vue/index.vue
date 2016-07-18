@@ -180,4 +180,7 @@
   html
     overflow: hidden
 
+  div
+    height: 100%
+
 </style>
