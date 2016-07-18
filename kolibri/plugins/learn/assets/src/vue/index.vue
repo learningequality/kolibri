@@ -143,22 +143,12 @@
     left: 0
     height: 100%
     width:100%
+
   .search-pane
     overflow-y: scroll
-    box-shadow: 0 0 6px #ddd
     height: 100%
     width: 100%
     padding-left: ($nav-bar-padding / 2)
-
-  .slide-transition
-    transition: all $core-time ease-in-out
-    left: 0
-
-  .slide-enter, .slide-leave
-    left: 100vw
-
-  .slide-enter
-    position: absolute
 
   .page-content
     margin-left: $nav-bar-width + $nav-bar-padding
