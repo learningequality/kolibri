@@ -23,7 +23,7 @@
       {{ description }}
     </p>
 
-    <div class="content-container">
+    <div class="content-container" v-show='!searchOpen'>
       <content-render
         :id="id"
         :kind="kind"
@@ -64,6 +64,12 @@
         // general state
         pageMode: getters.pageMode,
         rootTopicId: state => state.rootTopicId,
+
+        // TODO - remove hack
+        // temporarily using this to address an IE10 bug where the PDF
+        // renderer displayed on top of the search pane.
+        // see https://trello.com/c/LSevcA40/263-windows-7-ie-10-when-you-click-the-search-button-on-a-pdf-page-under-learn-tab-the-pdf-file-still-shows-when-it-shouldnt
+        searchOpen: state => state.searchOpen,
 
         // attributes for this content item
         id: (state) => state.pageState.content.id,
