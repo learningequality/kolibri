@@ -99,8 +99,8 @@
   @require 'learn.styl'
 
   .main
+    position: fixed // must be fixed for ie10
     overflow-y: scroll
-    position: relative
     height: 100%
     width: 100%
 
