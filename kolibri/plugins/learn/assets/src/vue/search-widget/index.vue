@@ -161,15 +161,19 @@
       outline: none
       border-color: $core-text-annotation
 
+    // prevent IE10 from showing a duplicated 'x'  clear icon
+    &::-ms-clear
+      display: none
+
   .reset
-    border:1px solid transparent
-    background-color: transparent
+    border: none
+    background-color: white // IE10 needs a non-transparent bg to be clickable
     display: inline-block
-    vertical-align: middle
     outline: none
     cursor: pointer
-    right: 40px
     position: relative
+    top: 1px
+    right: 40px
     padding: 4px
     svg
       fill: $core-text-annotation
