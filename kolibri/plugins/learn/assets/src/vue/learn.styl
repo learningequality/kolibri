@@ -14,7 +14,7 @@ $tool-bar-height = 40px
 
 // compute the target grid width based on the number of columns
 grid-width($n-cols)
-  ($card-width * $n-cols) + ($card-gutter * ($n-cols - 1))
+  ($card-width * $n-cols) + ($card-gutter * $n-cols)
 
 // compute the media query breakpoint, based on the target grid width
 breakpoint($width)
