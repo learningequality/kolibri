@@ -186,4 +186,7 @@
 
   @require '~core-theme.styl'
 
+  div
+    height: inherit
+
 </style>
