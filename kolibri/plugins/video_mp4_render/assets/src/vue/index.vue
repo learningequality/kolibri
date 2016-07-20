@@ -21,7 +21,6 @@
   const videojs = require('video.js');
   const langcodes = require('./langcodes.json');
   require('./videojs-centerbtns');
-  const debounce = require('vue').util.debounce;
 
   module.exports = {
 
@@ -100,10 +99,6 @@
           this.videoPlayer.width(calcWidth);
           this.videoPlayer.height(currentHeight);
         }
-      },
-
-      debouncedResizeVideo() {
-        debounce(this.resizeVideo, 300);
       },
     },
 
