@@ -150,65 +150,6 @@ def enable_log_to_stdout(logname):
     # add ch to logger
     log.addHandler(ch)
 
-
-# If it's a static build, we invoke pip to bundle dependencies in python-packages
-# This would be the case for commands "bdist" and "sdist"
-if static_requirements and is_building_dist:
-
-    sys.stderr.write(
-        "This is a static build... invoking pip to put static dependencies in "
-        "dist-packages/\n\n"
-        "Requirements:\n\n" + "\n".join(static_requirements)
-    )
-
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    static_cache_dir = os.path.join(current_dir, 'dist-packages-cache')
-    static_temp_dir = os.path.join(current_dir, 'dist-packages-temp')
-
-    # Create directory where dynamically created dependencies are put
-    if not os.path.exists(static_cache_dir):
-        os.mkdir(static_cache_dir)
-
-    # Should remove the temporary directory always
-    if os.path.exists(static_temp_dir):
-        sys.stderr.write("Removing previous temporary sources for pip {}".format(static_temp_dir))
-        shutil.rmtree(static_temp_dir)
-
-    # Install from pip
-
-    # Code modified from this example:
-    # http://threebean.org/blog/2011/06/06/installing-from-pip-inside-python-or-a-simple-pip-api/
-    import pip.commands.install
-
-    # Ensure we get output from pip
-    enable_log_to_stdout('pip.commands.install')
-
-    def install_distributions(distributions):
-        command = pip.commands.install.InstallCommand()
-        opts, ___ = command.parser.parse_args([])
-        opts.target_dir = static_dir
-        opts.build_dir = static_temp_dir
-        opts.download_cache = static_cache_dir
-        opts.isolated = True
-        opts.compile = False
-        opts.ignore_dependencies = True
-        # opts.use_wheel = False
-        opts.no_clean = False
-        command.run(opts, distributions)
-        # requirement_set.source_dir = STATIC_DIST_PACKAGES_TEMP
-        # requirement_set.install(opts)
-
-    install_distributions(static_requirements)
-
-elif is_building_dist:
-
-    if len(os.listdir(static_dir)) > 3:
-        raise RuntimeError(
-            "Please empty {} - make clean!".format(
-                static_dir
-            )
-        )
-
 setup(
     name=dist_name,
     version=kolibri.__version__,
