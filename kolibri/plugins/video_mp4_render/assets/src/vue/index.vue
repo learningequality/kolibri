@@ -176,7 +176,7 @@
       global.addEventListener('resize', this.resizeVideo);
     },
     beforeDestroy() {
-      global.removeEventListener('resize', this.debouncedResizeVideo);
+      global.removeEventListener('resize', this.resizeVideo);
     },
   };
 
