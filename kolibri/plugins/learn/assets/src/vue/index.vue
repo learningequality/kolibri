@@ -4,21 +4,19 @@
 
     <div class='main'>
 
-      <error-page class='error' v-show='error'></error-page>
       <side-nav class='nav'></side-nav>
+      <search-button class='search-btn'></search-button>
+
+      <error-page class='error' v-show='error'></error-page>
 
       <main role="main" class="page-content" v-if='!loading'>
-        <button class='search-btn' :class="{ active: searchOpen }" @click='toggleSearch'>
-          <svg src="./icons/search.svg"></svg>
-        </button>
-
         <explore-page v-if='showExplorePage'></explore-page>
         <content-page v-if='showContentPage'></content-page>
         <learn-page v-if='showLearnPage'></learn-page>
         <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
       </main>
 
-      <div v-show='searchOpen' class="pane-offset" transition='slide'>
+      <div v-show='searchOpen' class="search-pane-offset" transition='search-slide'>
         <search-widget
           class='search-pane'
           :show-topics="exploreMode">
@@ -41,13 +39,13 @@
   const PageModes = constants.PageModes;
   const getters = require('../state/getters');
   const store = require('../state/store');
-  const actions = require('../actions');
 
   module.exports = {
     components: {
       'core-base': require('core-base'),
       'side-nav': require('./side-nav'),
       'search-widget': require('./search-widget'),
+      'search-button': require('./search-widget/search-button'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
@@ -79,9 +77,6 @@
         searchOpen: state => state.searchOpen,
         loading: state => state.loading,
         error: state => state.error,
-      },
-      actions: {
-        toggleSearch: actions.toggleSearch,
       },
     },
     store, // make this and all child components aware of the store
@@ -121,19 +116,8 @@
     position: fixed
     top: 1rem
     z-index: 1
-    border: none
 
-    height: 36px
-    width: 36px
-
-    svg
-      fill: $core-action-normal
-    &.active
-      background-color: $core-action-normal
-      svg
-        fill: #FFFFFF
-
-  .pane-offset
+  .search-pane-offset
     padding-left: $nav-bar-width + ($nav-bar-padding / 2)
     position: fixed
     top: 0
@@ -148,10 +132,10 @@
     padding-left: ($nav-bar-padding / 2)
     box-shadow: 0 0 6px #ddd
 
-  .slide-transition
+  .search-slide-transition
     transition: transform $core-time ease-out
 
-  .slide-enter, .slide-leave
+  .search-slide-enter, .search-slide-leave
     transform: translateX(100vw)
 
   .page-content
