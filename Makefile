@@ -44,7 +44,7 @@ test:
 test-all:
 	tox
 
-assets:
+assets: staticdeps
 	npm run build
 
 coverage:
@@ -59,7 +59,12 @@ release: clean assets
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 
-sdist: clean assets
+staticdeps:
+	pip install -t kolibri/dist/ -r requirements.txt
+
+dist: staticdeps assets
+	pip install -r requirements/build.txt
 	python setup.py sdist
 	python setup.py bdist_wheel
+	python setup.py bdist_pex --pex-args '--disable-cache'
 	ls -l dist
