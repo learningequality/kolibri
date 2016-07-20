@@ -5,10 +5,7 @@
       <a v-link="learnLink" @click='closeSearch' :class="learnClass">
         <li>
           <span>
-            <svg role="presentation" fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
-              <path d="M0 0h24v24H0z" fill="none"></path>
-            </svg>
+            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
             Learn
           </span>
         </li>
@@ -16,10 +13,7 @@
       <a v-link="exploreLink" @click='closeSearch' :class="exploreClass">
         <li>
           <span>
-            <svg role="presentation" fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 10.9c-.61 0-1.1.49-1.1 1.1s.49 1.1 1.1 1.1c.61 0 1.1-.49 1.1-1.1s-.49-1.1-1.1-1.1zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm2.19 12.19L6 18l3.81-8.19L18 6l-3.81 8.19z"></path>
-              <path d="M0 0h24v24H0z" fill="none"></path>
-            </svg>
+            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
             Explore
           </span>
         </li>
