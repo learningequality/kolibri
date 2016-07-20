@@ -11,9 +11,7 @@ import kolibri  # noqa
 from kolibri import dist as kolibri_dist  # noqa
 
 # Setup path in case we are running with dependencies bundled into Kolibri
-sys.path.append(
-    os.path.realpath(os.path.dirname(kolibri_dist.__file__))
-)
+sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
 
 import django  # noqa
 import importlib  # noqa
