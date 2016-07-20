@@ -2,28 +2,28 @@
 
   <core-base>
 
-    <div class='main'>
+    <div class="main">
 
-      <error-page class='error' v-show='error'></error-page>
-      <side-nav class='nav'></side-nav>
+      <error-page class="error" v-show="error"></error-page>
+      <side-nav class="nav"></side-nav>
 
-      <main role="main" class="page-content" v-if='!loading'>
-        <button class='search-btn' :class="{ active: searchOpen }" @click='toggleSearch'>
+      <main role="main" class="page-content" v-if="!loading">
+        <button class="search-btn" :class="{ active: searchOpen }" @click="toggleSearch">
           <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
             <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
             <path d="M0 0h24v24H0z" fill="none"></path>
           </svg>
         </button>
 
-        <explore-page v-if='showExplorePage'></explore-page>
-        <content-page v-if='showContentPage'></content-page>
-        <learn-page v-if='showLearnPage'></learn-page>
-        <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
+        <explore-page v-if="showExplorePage"></explore-page>
+        <content-page v-if="showContentPage"></content-page>
+        <learn-page v-if="showLearnPage"></learn-page>
+        <scratchpad-page v-if="showScratchpadPage"></scratchpad-page>
       </main>
 
-      <div v-show='searchOpen' class="pane-offset" transition='slide'>
+      <div v-show="searchOpen" class="pane-offset" transition="slide">
         <search-widget
-          class='search-pane'
+          class="search-pane"
           :show-topics="exploreMode">
         </search-widget>
       </div>

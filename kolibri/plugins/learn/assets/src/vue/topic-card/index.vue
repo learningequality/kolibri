@@ -2,7 +2,7 @@
 
   <div>
     <card v-link="link" :title="title">
-      <div class='thumbnail'></div>
+      <div class="thumbnail"></div>
     </card>
   </div>
 

@@ -2,7 +2,7 @@
 
   <div>
     <div v-el:container class="container" allowfullscreen>
-      <button class='btn' v-if="supportsPDFs" v-on:click="togglefullscreen">Toggle Fullscreen</button>
+      <button class="btn" v-if="supportsPDFs" v-on:click="togglefullscreen">Toggle Fullscreen</button>
       <div v-el:pdfcontainer class="pdfcontainer"></div>
     </div>
   </div>

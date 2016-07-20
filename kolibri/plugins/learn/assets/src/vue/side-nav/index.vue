@@ -2,7 +2,7 @@
 
   <nav class="main" role="navigation" aria-label="Main user navigation">
     <ul>
-      <a v-link="learnLink" @click='closeSearch' :class="learnClass">
+      <a v-link="learnLink" @click="closeSearch" :class="learnClass">
         <li>
           <span>
             <svg role="presentation" fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
@@ -13,7 +13,7 @@
           </span>
         </li>
       </a>
-      <a v-link="exploreLink" @click='closeSearch' :class="exploreClass">
+      <a v-link="exploreLink" @click="closeSearch" :class="exploreClass">
         <li>
           <span>
             <svg role="presentation" fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">

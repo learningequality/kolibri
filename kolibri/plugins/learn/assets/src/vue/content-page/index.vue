@@ -2,18 +2,18 @@
 
   <div>
 
-    <page-header :title='title'>
+    <page-header :title="title">
       <breadcrumbs
         v-if="pageMode === $options.PageModes.EXPLORE"
-        slot='extra-nav'
-        :rootid='rootTopicId'
-        :crumbs='breadcrumbs'>
+        slot="extra-nav"
+        :rootid="rootTopicId"
+        :crumbs="breadcrumbs">
       </breadcrumbs>
-      <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_ROOT }">
+      <a v-else slot="extra-nav" v-link="{ name: $options.PageNames.LEARN_ROOT }">
         <span id="little-arrow">←</span> Learn
       </a>
       <content-icon
-        slot='icon'
+        slot="icon"
         :kind="kind"
         :progress="progress">
       </content-icon>
@@ -23,7 +23,7 @@
       {{ description }}
     </p>
 
-    <div class="content-container" v-show='!searchOpen'>
+    <div class="content-container" v-show="!searchOpen">
       <content-render
         :id="id"
         :kind="kind"
@@ -96,7 +96,7 @@
   .content-container
     height: 60vh
     margin-bottom: 1em
-    
+
   #little-arrow
     font-size: 28px
     font-weight: 900
