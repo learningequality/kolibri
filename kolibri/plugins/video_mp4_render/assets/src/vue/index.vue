@@ -21,6 +21,7 @@
   const videojs = require('video.js');
   const langcodes = require('./langcodes.json');
   require('./videojs-centerbtns');
+  const debounce = require('vue').util.debounce;
 
   module.exports = {
 
@@ -100,6 +101,10 @@
           this.videoPlayer.height(currentHeight);
         }
       },
+
+      debouncedResizeVideo() {
+        debounce(this.resizeVideo, 300);
+      },
     },
 
     ready() {
@@ -168,10 +173,10 @@
 
       this.videoPlayer.on('loadedmetadata', this.loadedMetaData);
 
-      global.addEventListener('resize', this.resizeVideo);
+      global.addEventListener('resize', this.debouncedResizeVideo);
     },
     beforeDestroy() {
-      global.removeEventListener('resize', this.resizeVideo);
+      global.removeEventListener('resize', this.debouncedResizeVideo);
     },
   };
 
