@@ -10,6 +10,7 @@ cd "$DIR/../../"
 
 # Install build deps
 pip install -r requirements/build.txt
+pip install -r requirements/test.txt
 
 # Build .whl
 npm install
