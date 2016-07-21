@@ -98,8 +98,6 @@
 
   .nav
     position: fixed
-    top: 0
-    left: 0
     width: $nav-bar-width
     height: 100%
     z-index: 2
