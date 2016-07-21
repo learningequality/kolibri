@@ -1,24 +1,18 @@
 <template>
 
-  <nav class="main" role="navigation" aria-label="Main user navigation">
-    <ul>
-      <a v-link="learnLink" @click='closeSearch' :class="learnClass">
-        <li>
-          <span>
-            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
-            Learn
-          </span>
-        </li>
-      </a>
-      <a v-link="exploreLink" @click='closeSearch' :class="exploreClass">
-        <li>
-          <span>
-            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
-            Explore
-          </span>
-        </li>
-      </a>
-    </ul>
+  <nav role="navigation" aria-label="Main user navigation">
+    <a v-link="learnLink" @click='closeSearch' :class="learnClass">
+      <div class='content'>
+        <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
+        Learn
+      </div>
+    </a>
+    <a v-link="exploreLink" @click='closeSearch' :class="exploreClass">
+      <div class='content'>
+        <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
+        Explore
+      </div>
+    </a>
   </nav>
 
 </template>
@@ -70,34 +64,27 @@
 
   @require '~core-theme.styl'
   @require '../learn'
+  @require 'jeet'
 
   $nav-element-height = 150px
   $font-size = 1em
 
-  .main
+  nav
     background: $core-bg-light
-    text-align: center
     font-size: $font-size
     font-weight: 300
     overflow: hidden
 
-  ul
-    margin: 0
-    padding: 0
-    list-style-type: none
-
-  li
-    display: table
-    height: $nav-element-height
-
-  span
-    display: table-cell
-    vertical-align: middle
-
   a
+    text-align: center
+    position: relative
+    height: $nav-element-height
     display: block
     margin: 0
     padding: 0
+
+  .content
+    align(vertical)
 
   a.active
     color: $core-bg-light
