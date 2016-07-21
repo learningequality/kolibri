@@ -173,7 +173,7 @@
 
       this.videoPlayer.on('loadedmetadata', this.loadedMetaData);
 
-      global.addEventListener('resize', this.resizeVideo);
+      global.addEventListener('resize', this.debouncedResizeVideo);
     },
     beforeDestroy() {
       global.removeEventListener('resize', this.debouncedResizeVideo);
