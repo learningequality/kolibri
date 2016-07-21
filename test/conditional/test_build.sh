@@ -13,7 +13,7 @@ pip install -r requirements/build.txt
 
 # Build .whl
 npm install
-make sdist
+make dist
 pip install dist/kolibri-*.whl
 
 cd "$PREVIOUS_CWD"
