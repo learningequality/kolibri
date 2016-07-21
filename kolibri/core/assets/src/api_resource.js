@@ -65,6 +65,9 @@ class Model {
             this.promises.splice(this.promises.indexOf(promise), 1);
           });
         }
+      },
+      (reason) => {
+        reject(reason);
       });
     });
     this.promises.push(promise);
@@ -124,6 +127,9 @@ class Model {
             this.promises.splice(this.promises.indexOf(promise), 1);
           });
         }
+      },
+      (reason) => {
+        reject(reason);
       });
     });
     this.promises.push(promise);
@@ -222,6 +228,9 @@ class Collection {
             this.promises.splice(this.promises.indexOf(promise), 1);
           });
         }
+      },
+      (reason) => {
+        reject(reason);
       });
     });
     this.promises.push(promise);
