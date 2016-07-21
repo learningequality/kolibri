@@ -16,12 +16,13 @@
         <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
       </main>
 
-      <search-widget
-        v-show='searchOpen'
-        transition='search-slide'
-        class='search-pane'
-        :show-topics="exploreMode">
-      </search-widget>
+      <div class='search-pane' v-show='searchOpen' transition='search-slide'>
+        <div class='search-shadow'>
+          <search-widget
+            :show-topics="exploreMode">
+          </search-widget>
+        </div>
+      </div>
 
     </div>
 
@@ -96,7 +97,7 @@
     overflow-y: scroll
     height: 100%
     width: 100%
-    padding-left: $nav-bar-width + $nav-bar-padding
+    padding-left: $left-margin
     padding-right: $right-margin
     padding-bottom: 50px
 
@@ -104,7 +105,7 @@
     position: fixed
     top: 0
     left: 0
-    width: $nav-bar-width
+    width: $left-margin - $card-gutter
     height: 100%
     z-index: 2
 
@@ -121,8 +122,13 @@
     top: 0
     left: 0
     height: 100%
-    width:100%
-    // box-shadow: 0 0 6px #ddd
+    width: 100%
+    padding-left: $left-margin
+
+  .search-shadow
+    padding-right: $right-margin
+    box-shadow: 0 0 6px #ddd
+    min-height: 100%
 
   .search-slide-transition
     transition: transform $core-time ease-out

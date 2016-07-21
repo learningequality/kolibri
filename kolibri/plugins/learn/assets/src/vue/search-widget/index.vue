@@ -129,29 +129,24 @@
   @require '~core-theme.styl'
   @require '../learn.styl'
 
+  $top-offset = 70px
+
+  .wrapper
+    margin: auto
+    width-auto-adjust()
+
+  .results
+    padding-top: $top-offset
+
   .top
     background-color: $core-bg-canvas
+    height: $top-offset
+    padding-top: 1rem
+    z-index: 10000
+    text-align: center
     position: fixed
     top: 0
     width-auto-adjust()
-    height: 4em
-    z-index: 10000
-    margin-right: $right-margin
-    padding-top: 1rem
-    text-align: center
-
-    // center it
-    left: 50%
-    transform: translateX(-50%)
-
-  .results
-    margin: auto
-    margin-top: 5em
-    width-auto-adjust()
-
-    // seems necessary to keep things centered
-    position: relative
-    left: $nav-bar-padding * 0.5
 
   input
     display: inline-block
@@ -161,7 +156,7 @@
     padding: 0.5em 1em
     vertical-align: middle
     box-sizing: border-box
-    width: 50%
+    width: 75%
     &:focus
       outline: none
       border-color: $core-text-annotation
