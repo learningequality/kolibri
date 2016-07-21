@@ -7,7 +7,7 @@
       <side-nav class='nav'></side-nav>
       <search-button class='search-btn'></search-button>
 
-      <error-page class='error' v-show='error'></error-page>
+      <error-page v-show='error'></error-page>
 
       <main role="main" class="page-content" v-if='!loading'>
         <explore-page v-if='showExplorePage'></explore-page>
@@ -16,12 +16,13 @@
         <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
       </main>
 
-      <div v-show='searchOpen' class="search-pane-offset" transition='search-slide'>
-        <search-widget
-          class='search-pane'
-          :show-topics="exploreMode">
-        </search-widget>
-      </div>
+      <search-widget
+        v-show='searchOpen'
+        transition='search-slide'
+        class='search-pane'
+        :show-topics="exploreMode">
+      </search-widget>
+
     </div>
 
     <!-- this is not used, but necessary for vue-router to function -->
@@ -95,6 +96,9 @@
     overflow-y: scroll
     height: 100%
     width: 100%
+    padding-left: $nav-bar-width + $nav-bar-padding
+    padding-right: $right-margin
+    padding-bottom: 50px
 
   .nav
     position: fixed
@@ -105,32 +109,20 @@
     z-index: 2
 
   .search-btn
-    // position search button to always be in the right-hand margin
-    $offset = $nav-bar-width + $nav-bar-padding + ($right-margin / 3)
-    left: $card-width + $offset
-    for $n-cols in $n-cols-array
-      $grid-width = grid-width($n-cols)
-      @media (min-width: breakpoint($grid-width))
-        left: $grid-width + $offset
-
     position: fixed
     top: 1rem
+    right: 3.5rem
     z-index: 1
 
-  .search-pane-offset
-    padding-left: $nav-bar-width + ($nav-bar-padding / 2)
+  .search-pane
+    background-color: $core-bg-canvas
+    overflow-y: scroll
     position: fixed
     top: 0
     left: 0
     height: 100%
     width:100%
-
-  .search-pane
-    overflow-y: scroll
-    height: 100%
-    width: 100%
-    padding-left: ($nav-bar-padding / 2)
-    box-shadow: 0 0 6px #ddd
+    // box-shadow: 0 0 6px #ddd
 
   .search-slide-transition
     transition: transform $core-time ease-out
@@ -139,14 +131,8 @@
     transform: translateX(100vw)
 
   .page-content
-    margin-left: $nav-bar-width + $nav-bar-padding
-    margin-right: $right-margin
-    margin-bottom: 50px
+    margin: auto
     width-auto-adjust()
-
-  .error
-    margin-left: $nav-bar-width + $nav-bar-padding
-    margin-right: $right-margin
 
 </style>
 

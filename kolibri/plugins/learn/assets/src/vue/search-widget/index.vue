@@ -1,6 +1,6 @@
 <template>
 
-  <div class='pane'>
+  <div class='wrapper'>
 
     <!-- search block -->
     <div class='top'>
@@ -129,10 +129,6 @@
   @require '~core-theme.styl'
   @require '../learn.styl'
 
-  .pane
-    background-color: $core-bg-canvas
-    margin-right: $right-margin
-
   .top
     background-color: $core-bg-canvas
     position: fixed
@@ -144,9 +140,18 @@
     padding-top: 1rem
     text-align: center
 
+    // center it
+    left: 50%
+    transform: translateX(-50%)
+
   .results
+    margin: auto
     margin-top: 5em
     width-auto-adjust()
+
+    // seems necessary to keep things centered
+    position: relative
+    left: $nav-bar-padding * 0.5
 
   input
     display: inline-block
@@ -156,7 +161,7 @@
     padding: 0.5em 1em
     vertical-align: middle
     box-sizing: border-box
-    width: 60%
+    width: 50%
     &:focus
       outline: none
       border-color: $core-text-annotation
