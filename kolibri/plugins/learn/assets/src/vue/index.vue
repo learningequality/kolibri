@@ -105,14 +105,14 @@
     position: fixed
     top: 0
     left: 0
-    width: $left-margin - $card-gutter
+    width: $left-margin - $card-gutter * 0.5
     height: 100%
     z-index: 2
 
   .search-btn
     position: fixed
     top: 1rem
-    right: 3.5rem
+    right: 2rem
     z-index: 1
 
   .search-pane
