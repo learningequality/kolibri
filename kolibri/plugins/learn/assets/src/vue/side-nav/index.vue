@@ -1,6 +1,6 @@
 <template>
 
-  <nav class="main" role="navigation" aria-label="Main user navigation">
+  <nav class="side-nav" role="navigation" aria-label="Main user navigation">
     <ul>
       <a v-link="learnLink" @click='closeSearch' :class="learnClass">
         <li>
@@ -74,7 +74,7 @@
   $nav-element-height = 150px
   $font-size = 1em
 
-  .main
+  .side-nav
     background: $core-bg-light
     text-align: center
     font-size: $font-size
@@ -107,7 +107,7 @@
     height: $nav-element-height
     @media screen and (orientation: portrait)
       height: auto
-      width: 50px
+      width: 60px
 
   span
     display: table-cell
