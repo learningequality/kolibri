@@ -80,24 +80,47 @@
     font-size: $font-size
     font-weight: 300
     overflow: hidden
+    position: fixed
+    z-index: 2
+    @media screen and (orientation: landscape)
+      height: 100%
+      top: 0
+      left: 0
+      width: $nav-bar-width
+    @media screen and (orientation: portrait)
+      bottom: 0
+      width: 100%
+      height: 70px
 
   ul
     margin: 0
     padding: 0
     list-style-type: none
+    box-sizing: border-box
+    overflow: hidden
 
   li
-    display: table
+    display: inline-block
     height: $nav-element-height
 
   span
     display: table-cell
     vertical-align: middle
+    position: relative
+    transform: translateY(50%)
+    @media screen and (orientation: portrait)
+      display: table-caption
+      top: none
+      transform: none
+      padding-top: 2px
 
   a
-    display: block
+    display: inline-block
     margin: 0
     padding: 0
+    @media screen and (orientation: portrait)
+      width: 50%
+      float: left
 
   a.active
     color: $core-bg-light
