@@ -135,6 +135,8 @@
     margin-right: $right-margin
     margin-bottom: 50px
     width-auto-adjust()
+    @media screen and (orientation: portrait)
+      margin-left: $nav-bar-padding
 
   .error
     margin-left: $nav-bar-width + $nav-bar-padding
