@@ -90,7 +90,8 @@
     @media screen and (orientation: portrait)
       bottom: 0
       width: 100%
-      height: 70px
+      height: auto
+      display: table
 
   ul
     margin: 0
@@ -98,10 +99,15 @@
     list-style-type: none
     box-sizing: border-box
     overflow: hidden
+    @media screen and (orientation: portrait)
+      display: table-row
 
   li
     display: inline-block
     height: $nav-element-height
+    @media screen and (orientation: portrait)
+      height: auto
+      width: 50px
 
   span
     display: table-cell
@@ -109,9 +115,8 @@
     position: relative
     transform: translateY(50%)
     @media screen and (orientation: portrait)
-      display: table-caption
-      top: none
       transform: none
+      width: 0
       padding-top: 2px
 
   a
@@ -119,8 +124,7 @@
     margin: 0
     padding: 0
     @media screen and (orientation: portrait)
-      width: 50%
-      float: left
+      display: table-cell
 
   a.active
     color: $core-bg-light
