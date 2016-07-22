@@ -96,14 +96,6 @@
     height: 100%
     width: 100%
 
-  .nav
-    position: fixed
-    top: 0
-    left: 0
-    width: $nav-bar-width
-    height: 100%
-    z-index: 2
-
   .search-btn
     // position search button to always be in the right-hand margin
     $offset = $nav-bar-width + $nav-bar-padding + ($right-margin / 3)
