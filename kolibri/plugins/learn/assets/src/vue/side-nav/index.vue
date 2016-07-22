@@ -1,5 +1,6 @@
 <template>
 
+  <div class="nav-spacer"></div>
   <nav class="side-nav" role="navigation" aria-label="Main user navigation">
     <ul>
       <a v-link="learnLink" @click='closeSearch' :class="learnClass">
@@ -92,6 +93,12 @@
       width: 100%
       height: auto
       display: table
+      font-size: 10px
+
+  .nav-spacer
+    height: 0
+    @media screen and (orientation: portrait)
+      height: 40px
 
   ul
     margin: 0
@@ -133,6 +140,9 @@
   svg
     fill: $core-action-normal
     transition: fill $core-time ease-out
+    @media screen and (orientation: portrait)
+      height: 30px
+      margin-bottom: -2px
 
   a:hover svg
     fill: $core-action-dark
