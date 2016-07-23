@@ -1,6 +1,5 @@
 <template>
 
-  <div class="nav-spacer"></div>
   <nav class="side-nav" role="navigation" aria-label="Main user navigation">
     <ul>
       <a v-link="learnLink" @click='closeSearch' :class="learnClass">
