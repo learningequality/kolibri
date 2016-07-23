@@ -1,24 +1,20 @@
 <template>
 
-  <nav class="side-nav" role="navigation" aria-label="Main user navigation">
-    <ul>
+  <nav role="navigation" aria-label="Main user navigation">
+    <div class="nav-row">
       <a v-link="learnLink" @click='closeSearch' :class="learnClass">
-        <li>
-          <span>
-            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
-            Learn
-          </span>
-        </li>
+        <div class='content'>
+          <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
+          Learn
+        </div>
       </a>
       <a v-link="exploreLink" @click='closeSearch' :class="exploreClass">
-        <li>
-          <span>
-            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
-            Explore
-          </span>
-        </li>
+        <div class='content'>
+          <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
+          Explore
+        </div>
       </a>
-    </ul>
+    </div>
   </nav>
 
 </template>
@@ -70,13 +66,13 @@
 
   @require '~core-theme.styl'
   @require '../learn'
+  @require 'jeet'
 
   $nav-element-height = 150px
   $font-size = 1em
 
-  .side-nav
+  nav
     background: $core-bg-light
-    text-align: center
     font-size: $font-size
     font-weight: 300
     overflow: hidden
@@ -86,51 +82,42 @@
       height: 100%
       top: 0
       left: 0
-      width: $nav-bar-width
+      width: $left-margin - $card-gutter * 0.5
     @media screen and (orientation: portrait)
       bottom: 0
       width: 100%
       height: auto
       display: table
       font-size: 10px
+      
+  .nav-row
+    @media screen and (orientation: portrait)
+      display: table-row
 
   .nav-spacer
     height: 0
     @media screen and (orientation: portrait)
       height: 40px
 
-  ul
-    margin: 0
-    padding: 0
-    list-style-type: none
-    box-sizing: border-box
-    overflow: hidden
-    @media screen and (orientation: portrait)
-      display: table-row
-
-  li
-    display: inline-block
-    height: $nav-element-height
-    @media screen and (orientation: portrait)
-      height: auto
-      width: 60px
-
-  span
-    display: table-cell
-    vertical-align: middle
-    position: relative
-    transform: translateY(50%)
-    @media screen and (orientation: portrait)
-      transform: none
-      width: 0
-      padding-top: 2px
-
   a
-    display: inline-block
+    text-align: center
+    position: relative
+    height: $nav-element-height
+    display: block
     margin: 0
     padding: 0
     @media screen and (orientation: portrait)
       display: table-cell
+      height: auto
+      padding-bottom: 4px
+
+  .content
+    align(vertical)
+    @media screen and (orientation: portrait)
+      left: 50%
+      transform: translateX(-50%)
+      width: 50px
+      position: relative
 
   a.active
     color: $core-bg-light
@@ -142,6 +129,7 @@
     @media screen and (orientation: portrait)
       height: 30px
       margin-bottom: -2px
+      margin-top: 2px
 
   a:hover svg
     fill: $core-action-dark
