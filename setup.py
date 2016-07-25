@@ -25,7 +25,7 @@ def read_file(fname):
         return open(fname).read().decode("utf-8")
     return open(fname).read()
 
-dist_name = 'kolibri'
+dist_name = 'kolibri-static'
 
 readme = read_file('README.rst')
 doclink = """
