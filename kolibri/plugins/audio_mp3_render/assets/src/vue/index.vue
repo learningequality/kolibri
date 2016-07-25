@@ -25,15 +25,14 @@
       <button class="audio-button" @click="minus20">- 20s</button>
       <button class="audio-button" @click="plus20">+ 20s</button>
     </div>
+    <audio
+      id="audio" 
+      v-el:audio
+      @timeupdate="updateDummyTime"
+      @loadedmetadata="setTotalTime"
+      :src="defaultFile.storage_url"
+    ></audio>
   </div>
-
-  <audio
-    id="audio" 
-    v-el:audio
-    @timeupdate="updateDummyTime"
-    @loadedmetadata="setTotalTime"
-    :src="defaultFile.storage_url"
-  ></audio>
 
 </template>
 
@@ -164,34 +163,41 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme.styl'
+
   #audio-wrapper
     margin: 8% 5%
+    min-width: 500px
+    height: 100%
     
   .play-button
     margin-right: 2%
     background: none
-    width: 50px
+    width: 44px
     height: 50px
     border: none
+    border-radius: 0
 
   .audio-button
     margin: 5% 2% 0 0
-    border: 2px solid #996182
+    border: 2px solid $core-action-normal
     background: transparent
     padding: 10px 15px
-    color: #996182
+    color: $core-action-normal
     border-radius: 4px
     
-  .play-button:focus, .audio-button:focus
-    outline: none
+  .play-button, .audio-button
+    &:active
+      outline: none
+    &:focus
+      outline: 1px solid $core-action-normal
     
   #current-time, #total-time
     display: inline-block
     font-size: 20px
     margin: 1%
-    position: relative
-    bottom: 20px
     
+  // hacky solution for CSS differences between Chrome and Firefox
   @-moz-document url-prefix()
     #current-time, #total-time
       top: 0
@@ -205,12 +211,10 @@
   .timeline
     background: transparent
     
-  .timeline:focus
-    outline: none
-    
   input[type=range]
     -webkit-appearance: none
     width: 60%
+    -ms-transform: translateY(11px) // position: relative does not work on IE
         
   input[type=range]:focus, input[type=range]::-moz-focus-outer
     outline: none
@@ -222,8 +226,6 @@
     background: lightgray
     border-radius: 15px
     height: 15px
-    position: relative
-    bottom: 20px
     animate: 0.2s
     
   input[type=range]::-webkit-slider-thumb
@@ -231,7 +233,7 @@
     width: 40px
     height: 40px
     border-radius: 50%
-    background: #996182
+    background: $core-action-normal
     position: relative
     bottom: 12px
     
@@ -247,28 +249,25 @@
     width: 40px
     height: 40px
     border-radius: 50%
-    background: #996182
+    background: $core-action-normal
     border: none
     
   /* IE/Edge **********/
   input[type=range]::-ms-track
-    border: 3px solid transparent
+    border: 8px solid transparent
     background: transparent
     color: transparent
-    padding: 15px 0
+    height: 20px
     
   input[type=range]::-ms-thumb
     border: none
-    height: 40px
-    width: 40px
+    height: 25px
+    width: 25px
     border-radius: 50%
-    background: #996182
+    background: $core-action-normal
     
-  input[type=range]::-ms-fill-upper
-    background: lightgray
-
-  input[type=range]::-ms-fill-lower
-    background: gray
+  input[type=range]::-ms-fill-upper, input[type=range]::-ms-fill-lower
+    background: lightgray // overrides IE default background colors of range slider
 
   /* hides popup label on slider */
   input[type=range]::-ms-tooltip

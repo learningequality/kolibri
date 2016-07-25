@@ -102,9 +102,9 @@ describe('readBundlePlugins', function() {
   var data = [];
 
   beforeEach(function() {
-    readBundlePlugins.__set__("execSync", function() {
-      var output = JSON.stringify(data);
-      return new Buffer(output);
+    readBundlePlugins.__set__("execSync", function() {});
+    readBundlePlugins.__set__("fs.readFileSync", function() {
+      return JSON.stringify(data);
     });
   });
 

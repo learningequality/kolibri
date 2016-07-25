@@ -2,22 +2,28 @@
 
   <div>
 
-    <breadcrumbs
-      v-if="pageMode === $options.PageModes.EXPLORE"
-      :rootid='rootTopicId'
-      :crumbs='breadcrumbs'
-      :current='title'>
-    </breadcrumbs>
+    <page-header :title='title'>
+      <breadcrumbs
+        v-if="pageMode === $options.PageModes.EXPLORE"
+        slot='extra-nav'
+        :rootid='rootTopicId'
+        :crumbs='breadcrumbs'>
+      </breadcrumbs>
+      <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_ROOT }">
+        <span id="little-arrow">←</span> Learn
+      </a>
+      <content-icon
+        slot='icon'
+        :kind="kind"
+        :progress="progress">
+      </content-icon>
+    </page-header>
 
-    <div v-if="pageMode === $options.PageModes.LEARN">
-      <a v-link="{ name: $options.PageNames.LEARN_ROOT }">Home</a>
-      <h1>{{ title }}</h1>
-    </div>
+    <p>
+      {{ description }}
+    </p>
 
-    <div>
-      <p>
-        {{ description }}
-      </p>
+    <div class="content-container" v-show='!searchOpen'>
       <content-render
         :id="id"
         :kind="kind"
@@ -28,16 +34,11 @@
       </content-render>
     </div>
 
-    <card-grid header='Recommended' v-if="pageMode === $options.PageModes.LEARN">
-      <content-card
-        v-for="content in recommended"
-        :id="content.id"
-        :title="content.title"
-        :thumbnail="content.thumbnail"
-        :kind="content.kind"
-        :progress="content.progress">
-      </content-card>
-    </card-grid>
+    <expandable-content-grid
+      v-if="pageMode === $options.PageModes.LEARN"
+      title="Recommended"
+      :contents="recommended">
+    </expandable-content-grid>
 
   </div>
 
@@ -53,15 +54,22 @@
     mixins: [constants], // makes constants available in $options
     components: {
       'breadcrumbs': require('../breadcrumbs'),
-      'content-card': require('../content-card'),
+      'content-icon': require('../content-icon'),
+      'page-header': require('../page-header'),
       'content-render': require('content-renderer'),
-      'card-grid': require('../card-grid'),
+      'expandable-content-grid': require('../expandable-content-grid'),
     },
     vuex: {
       getters: {
         // general state
         pageMode: getters.pageMode,
         rootTopicId: state => state.rootTopicId,
+
+        // TODO - remove hack
+        // temporarily using this to address an IE10 bug where the PDF
+        // renderer displayed on top of the search pane.
+        // see https://trello.com/c/LSevcA40/263-windows-7-ie-10-when-you-click-the-search-button-on-a-pdf-page-under-learn-tab-the-pdf-file-still-shows-when-it-shouldnt
+        searchOpen: state => state.searchOpen,
 
         // attributes for this content item
         id: (state) => state.pageState.content.id,
@@ -83,5 +91,15 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .content-container
+    height: 60vh
+    margin-bottom: 1em
+    
+  #little-arrow
+    font-size: 28px
+    font-weight: 900
+
+</style>
 

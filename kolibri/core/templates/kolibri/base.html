@@ -1,7 +1,10 @@
-{% load i18n kolibri_tags webpack_tags js_reverse cache %}<html>
+{% load i18n kolibri_tags webpack_tags js_reverse cache %}<!DOCTYPE html>
+<html>
 <head>
-  <title>{% block title %}{% endblock %} - {% trans "Kolibri" %}</title>
+  <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% trans "Kolibri" %}</title>
   {% kolibri_main_navigation %}
 </head>
 
@@ -10,7 +13,7 @@
 <rootvue></rootvue>
 {% block frontend_assets %}
 {% webpack_asset 'default_frontend' %}
-<script type="text/javascript" charset="utf-8">
+<script type="text/javascript">
   {% cache 5000 js_urls %}
     {% js_reverse_inline %}
   {% endcache %}

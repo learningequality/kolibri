@@ -72,6 +72,21 @@ In the example above, the *vue/another-page/index.vue* file in *learn* can use o
   There is also a lot of logic and configuration relevant to front-end code loading, parsing, testing, and linting. This includes webpack, NPM, and integration with the plugin system. This is somewhat scattered, and includes logic in *frontend_build/...*, *package.json*, *kolibri/core/webpack/...*, and other locations. Much of this functionality is described in other sections of the docs (such as :doc:`asset_loading`), but it can take some time to understand how it all hangs together.
 
 
+SVG Icons
+---------
+
+SVGs can be inlined into Vue components using a special syntax:
+
+
+.. code-block:: html
+
+  <svg src="icon.svg"></svg>
+
+Then, if there is a file called ``icon.svg`` in the same directory, that file will be inserted directly into the outputted HTML. This allows aspects of the icon (e.g. fill) to be styled using CSS.
+
+Attributes (such as vue directives like ``v-if`` and SVG attributes like ``viewbox``) can also be added to the svg tag.
+
+
 Single-page Apps
 ----------------
 
@@ -193,4 +208,4 @@ We distinguish development dependencies from runtime dependencies, and these sho
 
 Note that we currently don't have a way of mapping dependencies to plugins - dependencies are installed globally.
 
-
+To assist in tracking the source of bloat in our codebase, the command ``npm run bundle-stats`` is available to give a full readout of the size that uglified packages take up in the final Javascript code.

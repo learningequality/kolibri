@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import time
+from pkg_resources import resource_filename
 
 from django.conf import settings as django_settings
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -158,11 +159,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """
-        return os.path.join(
-            os.path.abspath(os.path.dirname(__name__)),
-            self._module_file_path,
-            "build"
-        )
+        return resource_filename('kolibri.core', 'build')
 
     @property
     def stats_file(self):
@@ -175,7 +172,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         return os.path.join(
             self.build_path,
-            "{plugin}_stats.json".format(plugin=self.unique_slug)
+            '{plugin}_stats.json'.format(plugin=self.unique_slug)
         )
 
     @property

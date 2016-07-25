@@ -46,7 +46,7 @@
     width: 100%
     height: 100%
     background-position: center
-    background-image: url(../folder.svg)
+    background-image: url(../icons/folder.svg)
     background-repeat: no-repeat
     // chosen to approximage ~0.5em - the card's internal padding
     background-size: 78%

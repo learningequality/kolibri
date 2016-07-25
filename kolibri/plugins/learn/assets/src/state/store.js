@@ -9,8 +9,13 @@ function initialState() {
     pageState: {},
     error: '',
     loading: true,
+    searchOpen: false,
     searchLoading: false,
-    searchState: {},
+    searchState: {
+      topics: [],
+      contents: [],
+      searchTerm: '',
+    },
   };
 }
 
@@ -18,33 +23,26 @@ const mutations = {
   SET_PAGE_NAME(state, name) {
     state.pageName = name;
   },
-  SET_LOADING(state) {
+  SET_PAGE_LOADING(state) {
     state.loading = true;
-    state.pageState = {};
-    state.error = '';
   },
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
-    state.error = '';
+    state.searchOpen = false;
     state.loading = false;
   },
-  SET_PAGE_ERROR(state, error) {
-    state.pageState = {};
-    state.error = error;
-    state.loading = false;
-  },
-  SET_SEARCH_LOADING(state, loading) {
-    state.searchLoading = loading;
-    state.error = '';
+  SET_SEARCH_LOADING(state) {
+    state.searchLoading = true;
   },
   SET_SEARCH_STATE(state, searchState) {
     state.searchState = searchState;
-    state.error = '';
     state.searchLoading = false;
   },
-  SET_SEARCH_ERROR(state, error) {
+  TOGGLE_SEARCH(state) {
+    state.searchOpen = !state.searchOpen;
+  },
+  SET_ERROR(state, error) {
     state.error = error;
-    state.loading = false;
   },
 };
 

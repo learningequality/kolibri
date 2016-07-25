@@ -6,6 +6,8 @@ The ONLY public object is ContentNode
 """
 from __future__ import print_function
 
+import uuid
+
 from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -16,10 +18,44 @@ from .content_db_router import get_active_content_database
 
 
 class UUIDField(models.CharField):
+    """
+    Adaptation of Django's UUIDField, but with 32-char hex representation as Python representation rather than a UUID instance.
+    """
 
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = 32
         super(UUIDField, self).__init__(*args, **kwargs)
+
+    def prepare_value(self, value):
+        if isinstance(value, uuid.UUID):
+            return value.hex
+        return value
+
+    def deconstruct(self):
+        name, path, args, kwargs = super(UUIDField, self).deconstruct()
+        del kwargs['max_length']
+        return name, path, args, kwargs
+
+    def get_internal_type(self):
+        return "UUIDField"
+
+    def get_db_prep_value(self, value, connection, prepared=False):
+        if value is None:
+            return None
+        if not isinstance(value, uuid.UUID):
+            try:
+                value = uuid.UUID(value)
+            except AttributeError:
+                raise TypeError(self.error_messages['invalid'] % {'value': value})
+
+        if connection.features.has_native_uuid_field:
+            return value
+        return value.hex
+
+    def to_python(self, value):
+        if isinstance(value, uuid.UUID):
+            return value.hex
+        return value
 
 
 class ContentQuerySet(models.QuerySet):
