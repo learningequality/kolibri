@@ -137,6 +137,8 @@
 
   .results
     padding-top: $top-offset
+    @media screen and (max-width: $portrait-breakpoint)
+      margin-left: $card-gutter
 
   .top
     background-color: $core-bg-canvas
@@ -147,6 +149,9 @@
     position: fixed
     top: 0
     width-auto-adjust()
+    @media screen and (max-width: $portrait-breakpoint)
+      text-align: left
+      padding-right: 10px
 
   input
     display: inline-block
