@@ -101,6 +101,7 @@
     @media screen and (max-width: $portrait-breakpoint)
       padding-left: $card-gutter * 2
       padding-right: $card-gutter
+      padding-bottom: 100px
 
   .search-btn
     position: fixed
@@ -131,6 +132,7 @@
 
   .page-content
     margin: auto
+    padding-right: $card-gutter // visible right-margin in line with grid
     width-auto-adjust()
 
 </style>

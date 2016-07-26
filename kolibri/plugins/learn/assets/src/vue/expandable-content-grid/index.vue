@@ -79,10 +79,6 @@
 
   .button-wrapper
     text-align: center
-    position: absolute
-    left: 50%
-    transform: translateX(-50%)
-    padding-bottom: 60px
 
   .disclosure-button
     padding-right: 1em // visually compensate for icon padding on left
