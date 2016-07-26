@@ -118,6 +118,9 @@
     height: 100%
     width: 100%
     padding-left: $left-margin
+    @media screen and (max-width: $portrait-breakpoint)
+      padding-left: 0
+      margin-left: $card-gutter
 
   .search-shadow
     padding-right: $right-margin
