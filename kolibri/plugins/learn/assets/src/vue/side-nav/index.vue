@@ -1,19 +1,25 @@
 <template>
 
-  <nav role="navigation" aria-label="Main user navigation">
-    <a v-link="learnLink" @click='closeSearch' :class="learnClass">
-      <div class='content'>
-        <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
-        <label>Learn</label>
+  <div class='nav-wrapper'>
+    <nav class='nav-main' role="navigation" aria-label="Main user navigation">
+      <div class='link-wrapper'>
+        <a class='link' v-link="learnLink" @click='closeSearch' :class="learnClass">
+          <div class='content'>
+            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
+            <label>Learn</label>
+          </div>
+        </a>
       </div>
-    </a>
-    <a v-link="exploreLink" @click='closeSearch' :class="exploreClass">
-      <div class='content'>
-        <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
-        <label>Explore</label>
+      <div class='link-wrapper'>
+        <a class='link' v-link="exploreLink" @click='closeSearch' :class="exploreClass">
+          <div class='content'>
+            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
+            <label>Explore</label>
+          </div>
+        </a>
       </div>
-    </a>
-  </nav>
+    </nav>
+  </div>
 
 </template>
 
@@ -64,44 +70,45 @@
 
   @require '~core-theme.styl'
   @require '../learn'
-  @require 'jeet'
 
   $font-size = 1em
   $nav-size = $left-margin - $card-gutter * 0.5
   $portrait-scale = 0.8
 
-  nav
+  .nav-wrapper
+    display: table
     background: $core-bg-light
     font-weight: 300
-    overflow: hidden
     position: fixed
     z-index: 2
     @media screen and (min-width: $portrait-breakpoint + 1)
       font-size: 1em
       height: 100%
-      top: 0
-      left: 0
-      width: $nav-size px
     @media screen and (max-width: $portrait-breakpoint)
       font-size: $font-size * $portrait-scale
-      height: $nav-size * $portrait-scale px
       bottom: 0
       width: 100%
 
-  .content
-    align(all)
-
-  a
-    margin: 0
-    padding: 0
-    position: relative
-    @media screen and (min-width: $portrait-breakpoint + 1)
-      height: 150px
-      display: block
+  .nav-main
     @media screen and (max-width: $portrait-breakpoint)
-      height: 100%
-      column(1/2)
-      padding-bottom: 4px
+      display: table-row
+
+  .link-wrapper
+    @media screen and (min-width: $portrait-breakpoint + 1)
+      display: table-row
+    @media screen and (max-width: $portrait-breakpoint)
+      display: table-cell
+
+  .link
+    margin: 0
+    padding: 6px
+    vertical-align: middle
+    text-align: center
+    @media screen and (min-width: $portrait-breakpoint + 1)
+      display: table-cell
+      height: 150px
+    @media screen and (max-width: $portrait-breakpoint)
+      display: block
 
   a.active
     color: $core-bg-light
@@ -127,5 +134,8 @@
 
   a.active:hover svg
     fill: $core-bg-light
+
+  .content
+    display: inline-block
 
 </style>
