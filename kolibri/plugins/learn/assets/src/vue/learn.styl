@@ -8,12 +8,12 @@ $card-width = 280px         // fixed card width
 $card-gutter = 20px         // spacing between columns
 $n-cols-array = 1 2 3 4 5     // possible numbers of columns
 
-$left-margin = 120px
-$right-margin = 55px
+$left-margin = 100px
+$right-margin = 25px
 
 // compute the target grid width based on the number of columns
 grid-width($n-cols)
-  ($card-width * $n-cols) + ($card-gutter * $n-cols)
+  ($card-width * $n-cols) + ($card-gutter * ($n-cols + 1))
 
 $portrait-breakpoint = $left-margin * 2 + grid-width(1) + $right-margin
 
