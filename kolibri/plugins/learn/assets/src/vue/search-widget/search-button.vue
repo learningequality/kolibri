@@ -33,6 +33,7 @@
     border: none
     height: 36px
     width: 36px
+    background-color: $core-bg-canvas
 
     svg
       fill: $core-action-normal

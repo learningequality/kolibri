@@ -98,8 +98,10 @@
     padding-left: $left-margin
     padding-right: $right-margin
     padding-bottom: 50px
-    @media screen and (orientation: portrait)
-      padding-left: $left-margin - 20px
+    @media screen and (max-width: $portrait-breakpoint)
+      padding-left: $card-gutter * 2
+      padding-right: $card-gutter
+      padding-bottom: 100px
 
   .search-btn
     position: fixed
@@ -116,6 +118,9 @@
     height: 100%
     width: 100%
     padding-left: $left-margin
+    @media screen and (max-width: $portrait-breakpoint)
+      padding-left: 0
+      margin-left: $card-gutter
 
   .search-shadow
     padding-right: $right-margin
@@ -130,6 +135,7 @@
 
   .page-content
     margin: auto
+    padding-right: $card-gutter // visible right-margin in line with grid
     width-auto-adjust()
 
 </style>
