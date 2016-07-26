@@ -78,25 +78,25 @@
     overflow: hidden
     position: fixed
     z-index: 2
-    @media screen and (orientation: landscape)
+    @media screen and (min-width: $portrait-breakpoint)
       height: 100%
       top: 0
       left: 0
       width: $left-margin - $card-gutter * 0.5
-    @media screen and (orientation: portrait)
+    @media screen and (max-width: $portrait-breakpoint)
       bottom: 0
       width: 100%
       height: auto
       display: table
       font-size: 10px
-      
+
   .nav-row
-    @media screen and (orientation: portrait)
+    @media screen and (max-width: $portrait-breakpoint)
       display: table-row
 
   .nav-spacer
     height: 0
-    @media screen and (orientation: portrait)
+    @media screen and (max-width: $portrait-breakpoint)
       height: 40px
 
   a
@@ -106,14 +106,14 @@
     display: block
     margin: 0
     padding: 0
-    @media screen and (orientation: portrait)
+    @media screen and (max-width: $portrait-breakpoint)
       display: table-cell
       height: auto
       padding-bottom: 4px
 
   .content
     align(vertical)
-    @media screen and (orientation: portrait)
+    @media screen and (max-width: $portrait-breakpoint)
       left: 50%
       transform: translateX(-50%)
       width: 50px
@@ -126,7 +126,7 @@
   svg
     fill: $core-action-normal
     transition: fill $core-time ease-out
-    @media screen and (orientation: portrait)
+    @media screen and (max-width: $portrait-breakpoint)
       height: 30px
       margin-bottom: -2px
       margin-top: 2px

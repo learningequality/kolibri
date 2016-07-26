@@ -18,6 +18,8 @@ $right-margin = 55
 grid-width($n-cols)
   ($card-width * $n-cols) + ($card-gutter * $n-cols)
 
+$portrait-breakpoint = $left-margin + grid-width(1) + $right-margin
+
 // compute the media query breakpoint, based on the target grid width
 breakpoint($width)
   $left-margin + $width + $card-gutter + $right-margin

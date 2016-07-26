@@ -98,7 +98,7 @@
     padding-left: $left-margin
     padding-right: $right-margin
     padding-bottom: 50px
-    @media screen and (orientation: portrait)
+    @media screen and (max-width: $portrait-breakpoint)
       padding-left: $left-margin - 20px
 
   .search-btn
