@@ -24,7 +24,7 @@ breakpoint($width)
 
 // generate a range of media query breakpoints
 width-auto-adjust()
-  min-width: $card-width
+  width: grid-width(1)
   for $n-cols in $n-cols-array
     $grid-width = grid-width($n-cols)
     @media (min-width: breakpoint($grid-width))
