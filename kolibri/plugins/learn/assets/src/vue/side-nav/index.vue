@@ -78,7 +78,7 @@
     overflow: hidden
     position: fixed
     z-index: 2
-    @media screen and (min-width: $portrait-breakpoint)
+    @media screen and (min-width: $portrait-breakpoint + 1)
       height: 100%
       top: 0
       left: 0
