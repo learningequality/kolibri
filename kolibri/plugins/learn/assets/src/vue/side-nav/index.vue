@@ -71,10 +71,6 @@
   @require '~core-theme.styl'
   @require '../learn'
 
-  $font-size = 1em
-  $nav-size = $left-margin - $card-gutter * 0.5
-  $portrait-scale = 0.8
-
   .nav-wrapper
     display: table
     background: $core-bg-light
@@ -85,7 +81,7 @@
       font-size: 1em
       height: 100%
     @media screen and (max-width: $portrait-breakpoint)
-      font-size: $font-size * $portrait-scale
+      font-size: 0.8em
       bottom: 0
       width: 100%
 
