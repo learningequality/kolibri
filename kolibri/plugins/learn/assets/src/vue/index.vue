@@ -99,7 +99,8 @@
     padding-right: $right-margin
     padding-bottom: 50px
     @media screen and (max-width: $portrait-breakpoint)
-      padding-left: $left-margin - 20px
+      padding-left: $card-gutter * 2
+      padding-right: $card-gutter
 
   .search-btn
     position: fixed
