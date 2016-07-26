@@ -1,6 +1,6 @@
 <template>
 
-  <div class="pane">
+  <div class="wrapper">
 
     <!-- search block -->
     <div class="top">
@@ -129,24 +129,29 @@
   @require '~core-theme.styl'
   @require '../learn.styl'
 
-  .pane
-    background-color: $core-bg-canvas
-    margin-right: $right-margin
+  $top-offset = 70px
+
+  .wrapper
+    margin: auto
+    width-auto-adjust()
+
+  .results
+    padding-top: $top-offset
+    @media screen and (max-width: $portrait-breakpoint)
+      margin-left: $card-gutter
 
   .top
     background-color: $core-bg-canvas
+    height: $top-offset
+    padding-top: 1rem
+    z-index: 10000
+    text-align: center
     position: fixed
     top: 0
     width-auto-adjust()
-    height: 4em
-    z-index: 10000
-    margin-right: $right-margin
-    padding-top: 1rem
-    text-align: center
-
-  .results
-    margin-top: 5em
-    width-auto-adjust()
+    @media screen and (max-width: $portrait-breakpoint)
+      text-align: left
+      padding-right: 10px
 
   input
     display: inline-block
@@ -156,7 +161,7 @@
     padding: 0.5em 1em
     vertical-align: middle
     box-sizing: border-box
-    width: 60%
+    width: 75%
     &:focus
       outline: none
       border-color: $core-text-annotation

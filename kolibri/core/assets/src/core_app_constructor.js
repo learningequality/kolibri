@@ -33,7 +33,7 @@ const publicMethods = [
  */
 function Lib() {
   // libraries
-  this.loglevel = require('loglevel');
+  this.logging = require('./logging');
   this.vue = vue;
   this.vuex = vuex;
   // views

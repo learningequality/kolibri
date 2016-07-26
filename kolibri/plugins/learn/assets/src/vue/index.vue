@@ -1,13 +1,11 @@
 <template>
 
   <core-base>
-
+    <side-nav class="nav"></side-nav>
     <div class="main">
-
-      <side-nav class="nav"></side-nav>
       <search-button class="search-btn"></search-button>
 
-      <error-page class="error" v-show="error"></error-page>
+      <error-page v-show="error"></error-page>
 
       <main role="main" class="page-content" v-if="!loading">
         <explore-page v-if="showExplorePage"></explore-page>
@@ -16,12 +14,14 @@
         <scratchpad-page v-if="showScratchpadPage"></scratchpad-page>
       </main>
 
-      <div v-show="searchOpen" class="search-pane-offset" transition="search-slide">
-        <search-widget
-          class="search-pane"
-          :show-topics="exploreMode">
-        </search-widget>
+      <div class="search-pane" v-show="searchOpen" transition="search-slide">
+        <div class="search-shadow">
+          <search-widget
+            :show-topics="exploreMode">
+          </search-widget>
+        </div>
       </div>
+
     </div>
 
     <!-- this is not used, but necessary for vue-router to function -->
@@ -95,42 +95,37 @@
     overflow-y: scroll
     height: 100%
     width: 100%
-
-  .nav
-    position: fixed
-    top: 0
-    left: 0
-    width: $nav-bar-width
-    height: 100%
-    z-index: 2
+    padding-left: $left-margin
+    padding-right: $right-margin
+    padding-bottom: 50px
+    @media screen and (max-width: $portrait-breakpoint)
+      padding-left: $card-gutter * 2
+      padding-right: $card-gutter
+      padding-bottom: 100px
 
   .search-btn
-    // position search button to always be in the right-hand margin
-    $offset = $nav-bar-width + $nav-bar-padding + ($right-margin / 3)
-    left: $card-width + $offset
-    for $n-cols in $n-cols-array
-      $grid-width = grid-width($n-cols)
-      @media (min-width: breakpoint($grid-width))
-        left: $grid-width + $offset
-
     position: fixed
     top: 1rem
+    right: 2rem
     z-index: 1
 
-  .search-pane-offset
-    padding-left: $nav-bar-width + ($nav-bar-padding / 2)
+  .search-pane
+    background-color: $core-bg-canvas
+    overflow-y: scroll
     position: fixed
     top: 0
     left: 0
     height: 100%
-    width:100%
-
-  .search-pane
-    overflow-y: scroll
-    height: 100%
     width: 100%
-    padding-left: ($nav-bar-padding / 2)
+    padding-left: $left-margin
+    @media screen and (max-width: $portrait-breakpoint)
+      padding-left: 0
+      margin-left: $card-gutter
+
+  .search-shadow
+    padding-right: $right-margin
     box-shadow: 0 0 6px #ddd
+    min-height: 100%
 
   .search-slide-transition
     transition: transform $core-time ease-out
@@ -139,14 +134,9 @@
     transform: translateX(100vw)
 
   .page-content
-    margin-left: $nav-bar-width + $nav-bar-padding
-    margin-right: $right-margin
-    margin-bottom: 50px
+    margin: auto
+    padding-right: $card-gutter // visible right-margin in line with grid
     width-auto-adjust()
-
-  .error
-    margin-left: $nav-bar-width + $nav-bar-padding
-    margin-right: $right-margin
 
 </style>
 

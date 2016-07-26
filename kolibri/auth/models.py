@@ -23,6 +23,8 @@ user gains through the ``Role``.
 
 from __future__ import absolute_import, print_function, unicode_literals
 
+import logging as logger
+
 from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 from django.core import validators
 from django.core.exceptions import ValidationError
@@ -38,17 +40,15 @@ from six import string_types
 
 from .constants import collection_kinds, role_kinds
 from .errors import (
-    InvalidRoleKind, UserDoesNotHaveRoleError,
-    UserHasRoleOnlyIndirectlyThroughHierarchyError,
-    UserIsMemberOnlyIndirectlyThroughHierarchyError, UserIsNotFacilityUser,
-    UserIsNotMemberError
+    InvalidRoleKind, UserDoesNotHaveRoleError, UserHasRoleOnlyIndirectlyThroughHierarchyError, UserIsMemberOnlyIndirectlyThroughHierarchyError,
+    UserIsNotFacilityUser, UserIsNotMemberError
 )
 from .filters import HierarchyRelationsFilter
 from .permissions.auth import CollectionSpecificRoleBasedPermissions
 from .permissions.base import BasePermissions, RoleBasedPermissions
-from .permissions.general import (
-    IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
-)
+from .permissions.general import IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
+
+logging = logger.getLogger(__name__)
 
 
 def _has_permissions_class(obj):
@@ -246,9 +246,11 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         try:
             instance = Model(**data)
             instance.full_clean()
-        except TypeError:
+        except TypeError as e:
+            logging.error("TypeError while validating model before checking permissions: {}".format(e.args))
             return False  # if the data provided does not fit the Model, don't continue checking
-        except ValidationError:
+        except ValidationError as e:
+            logging.error("ValidationError while validating model before checking permissions: {}".format(e.args))
             return False  # if the data does not validate, don't continue checking
         # now that we have an instance, defer to the permission-checking method that works with instances
         return self.can_create_instance(instance)

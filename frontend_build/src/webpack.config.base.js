@@ -52,6 +52,7 @@ var config = {
       {
         test: /\.json$/,
         loader: 'json',
+        exclude: /node_modules/
       },
       {
         test: /\.css$/,
@@ -102,6 +103,7 @@ var config = {
       'core-theme.styl': path.resolve('kolibri/core/assets/src/core-theme.styl'),
       'content-renderer': path.resolve('kolibri/core/assets/src/content-renderer'),
       'content_renderer_module': path.resolve('kolibri/core/assets/src/content_renderer_module'),
+      'logging': path.resolve('kolibri/core/assets/src/logging'),
     },
     extensions: ["", ".vue", ".js"],
   },
@@ -123,6 +125,9 @@ var config = {
   },
   postcss: function () {
     return [autoprefixer];
+  },
+  node: {
+    __filename: true
   }
 };
 

@@ -1,4 +1,4 @@
-const logging = require('loglevel');
+const logging = require('logging').getLogger(__filename);
 const rest = require('rest');
 const mime = require('rest/interceptor/mime');
 const errorCode = require('rest/interceptor/errorCode');
