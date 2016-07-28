@@ -82,7 +82,7 @@
   @require '~core-theme.styl'
 
   // replace the correct path
-  .pageicon path[fill='#996189']
+  .pageicon [fill='#996189']
     fill: $core-text-default
 
   // a bit smaller
