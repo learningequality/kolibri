@@ -19,7 +19,7 @@
 
 <script>
 
-  const store = require('../vuex/store.js');
+  const store = require('../state/store.js');
   const constants = store.constants;
 
   module.exports = {
@@ -145,7 +145,7 @@
         getSelectedGroupId: state => state.selectedGroupId,
         getSelectedClassroomId: state => state.selectedClassroomId,
       },
-      actions: require('../vuex/actions.js'),
+      actions: require('../actions.js'),
     },
   };
 
