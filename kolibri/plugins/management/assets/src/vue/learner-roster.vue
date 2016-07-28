@@ -10,7 +10,7 @@
     </div>
     <div class="learner-roster">
       <ul>
-        <li v-for="learner in learners">
+        <li v-for="learner in getLearners">
           <input type="checkbox">
           <span class="vertical-divider">|</span>
           <a href="#">{{ learner.last_name + ", " + learner.first_name }}</a>
@@ -22,7 +22,7 @@
   <div class="sidebar">
     <div class="learner-count">
       <div>Total:</div>
-      <div>{{ learners.length }}</div>
+      <div>{{ getLearners.length }}</div>
     </div>
   </div>
 
@@ -35,18 +35,15 @@
     components: {
       'user-modal': require('./user-modal.vue'),
     },
-    props: {
-      learners: {
-        type: Array,
-        default: () => [{
-          last_name: 'Default',
-          first_name: 'Value',
-        }],
-      },
-    },
     methods: {
       openModal() {
+        console.log(this.getLearners);
         return 2;
+      },
+    },
+    vuex: {
+      getters: {
+        getLearners: state => state.learners,
       },
     },
   };
@@ -61,5 +58,9 @@
 
   .learner-count
     border: solid, 1px, black
+  .learner-roster
+    height: 300px
+    overflow:hidden
+    overflow-y:scroll
 
 </style>
