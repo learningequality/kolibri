@@ -84,6 +84,9 @@ class Model {
             this.promises.splice(this.promises.indexOf(promise), 1);
           });
         }
+      },
+      (reason) => {
+        reject(reason);
       });
     });
     this.promises.push(promise);
@@ -131,8 +134,13 @@ class Model {
           }
           // Do a save on the URL.
           client(clientObj).then((response) => {
+            const oldId = this.id;
             // Set the retrieved Object onto the Model instance.
             this.set(response.entity);
+            // if the model did not used to have an id and now does, add it to the cache.
+            if (!oldId && this.id) {
+              this.resource.addModel(this);
+            }
             // Flag that the Model has been fetched.
             this.synced = true;
             // Resolve the promise with the attributes of the Model.
@@ -146,6 +154,9 @@ class Model {
             this.promises.splice(this.promises.indexOf(promise), 1);
           });
         }
+      },
+      (reason) => {
+        reject(reason);
       });
     });
     this.promises.push(promise);
@@ -244,6 +255,9 @@ class Collection {
             this.promises.splice(this.promises.indexOf(promise), 1);
           });
         }
+      },
+      (reason) => {
+        reject(reason);
       });
     });
     this.promises.push(promise);
@@ -384,12 +398,16 @@ class Resource {
     if (!(model instanceof Model)) {
       return this.addModelData(model);
     }
-    if (!this.models[model.id]) {
-      this.models[model.id] = model;
-    } else {
-      this.models[model.id].set(model.attributes);
+    // Don't add to the model cache if the id is not defined.
+    if (model.id) {
+      if (!this.models[model.id]) {
+        this.models[model.id] = model;
+      } else {
+        this.models[model.id].set(model.attributes);
+      }
+      return this.models[model.id];
     }
-    return this.models[model.id];
+    return model;
   }
 
   get urls() {
@@ -449,6 +467,12 @@ class ResourceManager {
    * @returns {Resource} - Return the instantiated Resource.
    */
   registerResource(className, ResourceClass) {
+    if (!className) {
+      throw new TypeError('You must specify a className!');
+    }
+    if (!ResourceClass) {
+      throw new TypeError('You must specify a ResourceClass!');
+    }
     const name = ResourceClass.resourceName();
     if (!name) {
       throw new TypeError('A resource must have a defined resource name!');
