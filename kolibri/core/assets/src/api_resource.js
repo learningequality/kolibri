@@ -116,18 +116,21 @@ class Model {
         } else {
           this.synced = false;
           let url;
-          let method;
+          let clientObj;
           if (this.id) {
             // If this Model has an id, then can do a PATCH against the Model
             url = this.url;
-            method = 'PATCH';
+            clientObj = { path: url, method: 'PATCH' };
           } else {
             // Otherwise, must POST to the Collection endpoint to create the Model
             url = this.resource.collectionUrl();
-            method = 'POST';
+            const csrftoken = this.getCookie('csrftoken');
+            clientObj = { path: url, entity: payload,
+              headers: { 'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken } };
           }
           // Do a save on the URL.
-          client({ path: url, method }).then((response) => {
+          client(clientObj).then((response) => {
             // Set the retrieved Object onto the Model instance.
             this.set(response.entity);
             // Flag that the Model has been fetched.
