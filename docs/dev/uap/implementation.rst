@@ -187,6 +187,8 @@ modifying roles and memberships:
   ``get_roles_for_collection`` and ``get_roles_for_user`` methods of
   ``KolibriAbstractBaseUser``.
 
+.. _my-reference-label:
+
 Encoding Permission Rules
 -------------------------
 

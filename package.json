@@ -41,6 +41,7 @@
     "vuex": "0.6.3"
   },
   "devDependencies": {
+    "autoprefixer": "6.3.7",
     "babel-core": "6.10.4",
     "babel-loader": "6.2.4",
     "babel-plugin-transform-runtime": "6.9.0",
@@ -77,6 +78,7 @@
     "karma-sourcemap-loader": "0.3.7",
     "karma-webpack": "1.7.0",
     "lodash": "4.13.1",
+    "markup-inline-loader": "https://github.com/indirectlylit/markup-inline-loader",
     "mkdirp": "0.5.1",
     "mocha": "2.5.3",
     "phantomjs-polyfill-find": "ptim/phantomjs-polyfill-find",

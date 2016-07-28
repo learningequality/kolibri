@@ -44,6 +44,9 @@ test:
 test-all:
 	tox
 
+assets:
+	npm run build
+
 coverage:
 	coverage run --source kolibri setup.py test
 	coverage report -m
@@ -52,11 +55,11 @@ docs: clean-docs
 	sphinx-apidoc -d 10 -H "Python Reference" -o docs/py_modules/ kolibri kolibri/test kolibri/deployment/ kolibri/dist/
 	$(MAKE) -C docs html
 
-release: clean
+release: clean assets
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 
-sdist: clean
+sdist: clean assets
 	python setup.py sdist
 	python setup.py bdist_wheel
 	ls -l dist

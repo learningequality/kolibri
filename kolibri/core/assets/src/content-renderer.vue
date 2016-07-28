@@ -14,7 +14,7 @@
 
 <script>
 
-  const logging = require('loglevel');
+  const logging = require('logging').getLogger(__filename);
 
   module.exports = {
     props: {
@@ -185,5 +185,8 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+
+  div
+    height: inherit
 
 </style>

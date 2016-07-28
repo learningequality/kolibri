@@ -1,31 +1,27 @@
 <template>
 
-  <card-grid :header="title" v-if="slicedContents.length">
-    <content-card
-      v-for="content in slicedContents"
-      :title="content.title"
-      :thumbnail="content.thumbnail"
-      :kind="content.kind"
-      :progress="content.progress"
-      :id="content.id">
-    </content-card>
-  </card-grid>
+  <div>
+    <card-grid :header="title" v-if="slicedContents.length">
+      <content-card
+        v-for="content in slicedContents"
+        :title="content.title"
+        :thumbnail="content.thumbnail"
+        :kind="content.kind"
+        :progress="content.progress"
+        :id="content.id">
+      </content-card>
+    </card-grid>
 
-  <div class='button-wrapper' v-if="contents.length > nCollapsed">
-    <button class='disclosure-button' @click='toggle()' v-if='expanded'>
-      <svg fill="#000000" height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"></path>
-        <path d="M0 0h24v24H0z" fill="none"></path>
-      </svg>
-      Show Less
-    </button>
-    <button class='disclosure-button' @click='toggle()' v-else>
-      <svg fill="#000000" height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"></path>
-        <path d="M0 0h24v24H0z" fill="none"></path>
-      </svg>
-      Show More
-    </button>
+    <div class='button-wrapper' v-if="contents.length > nCollapsed">
+      <button class='disclosure-button' @click='toggle()' v-if='expanded'>
+        <svg src="show-less.svg"></svg>
+        Show Less
+      </button>
+      <button class='disclosure-button' @click='toggle()' v-else>
+        <svg src="show-more.svg"></svg>
+        Show More
+      </button>
+    </div>
   </div>
 
 </template>

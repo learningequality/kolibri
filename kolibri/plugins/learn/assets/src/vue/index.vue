@@ -1,32 +1,27 @@
 <template>
 
   <core-base>
-
+    <side-nav class='nav'></side-nav>
     <div class='main'>
+      <search-button class='search-btn'></search-button>
 
-      <error-page class='error' v-show='error'></error-page>
-      <side-nav class='nav'></side-nav>
+      <error-page v-show='error'></error-page>
 
       <main role="main" class="page-content" v-if='!loading'>
-        <button class='search-btn' :class="{ active: searchOpen }" @click='toggleSearch'>
-          <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
-            <path d="M0 0h24v24H0z" fill="none"></path>
-          </svg>
-        </button>
-
         <explore-page v-if='showExplorePage'></explore-page>
         <content-page v-if='showContentPage'></content-page>
         <learn-page v-if='showLearnPage'></learn-page>
         <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
       </main>
 
-      <div v-show='searchOpen' class="pane-offset">
-        <search-widget
-          class='search-pane'
-          :show-topics="exploreMode">
-        </search-widget>
+      <div class='search-pane' v-show='searchOpen' transition='search-slide'>
+        <div class='search-shadow'>
+          <search-widget
+            :show-topics="exploreMode">
+          </search-widget>
+        </div>
       </div>
+
     </div>
 
     <!-- this is not used, but necessary for vue-router to function -->
@@ -44,13 +39,13 @@
   const PageModes = constants.PageModes;
   const getters = require('../state/getters');
   const store = require('../state/store');
-  const actions = require('../actions');
 
   module.exports = {
     components: {
       'core-base': require('core-base'),
       'side-nav': require('./side-nav'),
       'search-widget': require('./search-widget'),
+      'search-button': require('./search-widget/search-button'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
@@ -83,9 +78,6 @@
         loading: state => state.loading,
         error: state => state.error,
       },
-      actions: {
-        toggleSearch: actions.toggleSearch,
-      },
     },
     store, // make this and all child components aware of the store
   };
@@ -99,76 +91,54 @@
   @require 'learn.styl'
 
   .main
+    position: fixed // must be fixed for ie10
     overflow-y: scroll
-    position: relative
     height: 100%
     width: 100%
-
-  .nav
-    position: fixed
-    top: 0
-    left: 0
-    width: $nav-bar-width
-    height: 100%
-    z-index: 2
+    padding-left: $left-margin
+    padding-right: $right-margin
+    padding-bottom: 50px
+    @media screen and (max-width: $portrait-breakpoint)
+      padding-left: $card-gutter * 2
+      padding-right: $card-gutter
+      padding-bottom: 100px
 
   .search-btn
-    // position search button to always be in the right-hand margin
-    $offset = $nav-bar-width + $nav-bar-padding + ($right-margin / 3)
-    left: $card-width + $offset
-    for $n-cols in $n-cols-array
-      $grid-width = grid-width($n-cols)
-      @media (min-width: breakpoint($grid-width))
-        left: $grid-width + $offset
-
     position: fixed
     top: 1rem
+    right: 2rem
     z-index: 1
-    border: none
+    @media screen and (max-width: $portrait-breakpoint)
+      right: 1rem
 
-    height: 36px
-    width: 36px
-
-    svg
-      fill: $core-action-normal
-    &.active
-      background-color: $core-action-normal
-      svg
-        fill: #FFFFFF
-
-  .pane-offset
-    padding-left: $nav-bar-width + ($nav-bar-padding / 2)
+  .search-pane
+    background-color: $core-bg-canvas
+    overflow-y: scroll
     position: fixed
     top: 0
     left: 0
     height: 100%
-    width:100%
-  .search-pane
-    overflow-y: scroll
-    box-shadow: 0 0 6px #ddd
-    height: 100%
     width: 100%
-    padding-left: ($nav-bar-padding / 2)
+    padding-left: $left-margin
+    @media screen and (max-width: $portrait-breakpoint)
+      padding-left: 0
+      margin-left: $card-gutter
 
-  .slide-transition
-    transition: all $core-time ease-in-out
-    left: 0
+  .search-shadow
+    padding-right: $right-margin
+    box-shadow: 0 0 6px #ddd
+    min-height: 100%
 
-  .slide-enter, .slide-leave
-    left: 100vw
+  .search-slide-transition
+    transition: transform $core-time ease-out
 
-  .slide-enter
-    position: absolute
+  .search-slide-enter, .search-slide-leave
+    transform: translateX(100vw)
 
   .page-content
-    margin-left: $nav-bar-width + $nav-bar-padding
-    margin-right: $right-margin
-    margin-bottom: 50px
+    margin: auto
+    padding-right: $card-gutter // visible right-margin in line with grid
     width-auto-adjust()
-
-  .error
-    margin-left: $nav-bar-width + $nav-bar-padding
-    margin-right: $right-margin
 
 </style>
 

@@ -27,13 +27,13 @@ def run_server():
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()
 
+    cherrypy.config.update({'server.socket_host': "0.0.0.0",
+                            'server.socket_port': 8080,
+                            'server.thread_pool': 30,
+                            'log.screen': True})
+
     # Instantiate a new server object
     server = cherrypy._cpserver.Server()
-
-    # Configure the server object
-    server.socket_host = "0.0.0.0"
-    server.socket_port = 8080
-    server.thread_pool = 30
 
     # Subscribe this server
     server.subscribe()

@@ -1,31 +1,25 @@
 <template>
 
-  <nav class="main" role="navigation" aria-label="Main user navigation">
-    <ul>
-      <a v-link="learnLink" :class="learnClass">
-        <li>
-          <span>
-            <svg role="presentation" fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
-              <path d="M0 0h24v24H0z" fill="none"></path>
-            </svg>
-            Learn
-          </span>
-        </li>
-      </a>
-      <a v-link="exploreLink" :class="exploreClass">
-        <li>
-          <span>
-            <svg role="presentation" fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 10.9c-.61 0-1.1.49-1.1 1.1s.49 1.1 1.1 1.1c.61 0 1.1-.49 1.1-1.1s-.49-1.1-1.1-1.1zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm2.19 12.19L6 18l3.81-8.19L18 6l-3.81 8.19z"></path>
-              <path d="M0 0h24v24H0z" fill="none"></path>
-            </svg>
-            Explore
-          </span>
-        </li>
-      </a>
-    </ul>
-  </nav>
+  <div class='nav-wrapper'>
+    <nav class='nav-main' role="navigation" aria-label="Main user navigation">
+      <div class='link-wrapper'>
+        <a class='link' v-link="learnLink" @click='closeSearch' :class="learnClass">
+          <div class='content'>
+            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
+            <label>Learn</label>
+          </div>
+        </a>
+      </div>
+      <div class='link-wrapper'>
+        <a class='link' v-link="exploreLink" @click='closeSearch' :class="exploreClass">
+          <div class='content'>
+            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
+            <label>Explore</label>
+          </div>
+        </a>
+      </div>
+    </nav>
+  </div>
 
 </template>
 
@@ -34,10 +28,24 @@
 
   const pageMode = require('../../state/getters').pageMode;
   const constants = require('../../state/constants');
+  const actions = require('../../actions');
 
   module.exports = {
     vuex: {
-      getters: { pageMode },
+      getters: {
+        pageMode,
+        searchOpen: state => state.searchOpen,
+      },
+      actions: {
+        // TODO - this logic should really be triggered purely by the vue router.
+        // however since the URL doesn't change when the user is on the root,
+        // this is currently to close the search pane.
+        closeSearch(store) {
+          if (this.searchOpen) {
+            actions.toggleSearch(store);
+          }
+        },
+      },
     },
     computed: {
       learnLink() {
@@ -63,41 +71,56 @@
   @require '~core-theme.styl'
   @require '../learn'
 
-  $nav-element-height = 150px
-  $font-size = 1em
-
-  .main
-    background: $core-bg-light
-    text-align: center
-    font-size: $font-size
-    font-weight: 300
-    overflow: hidden
-
-  ul
-    margin: 0
-    padding: 0
-    list-style-type: none
-
-  li
+  .nav-wrapper
     display: table
-    height: $nav-element-height
+    background: $core-bg-light
+    font-weight: 300
+    position: fixed
+    z-index: 2
+    @media screen and (min-width: $portrait-breakpoint + 1)
+      font-size: 1em
+      height: 100%
+    @media screen and (max-width: $portrait-breakpoint)
+      font-size: 0.8em
+      bottom: 0
+      width: 100%
 
-  span
-    display: table-cell
-    vertical-align: middle
+  .nav-main
+    @media screen and (max-width: $portrait-breakpoint)
+      display: table-row
 
-  a
-    display: block
+  .link-wrapper
+    @media screen and (min-width: $portrait-breakpoint + 1)
+      display: table-row
+    @media screen and (max-width: $portrait-breakpoint)
+      display: table-cell
+
+  .link
     margin: 0
-    padding: 0
+    padding: 6px
+    vertical-align: middle
+    text-align: center
+    @media screen and (min-width: $portrait-breakpoint + 1)
+      display: table-cell
+      height: 150px
+    @media screen and (max-width: $portrait-breakpoint)
+      display: block
 
   a.active
     color: $core-bg-light
     background: $core-action-normal
 
+  label
+    display: block
+    text-align: center
+
   svg
+    display: block
+    margin: auto
     fill: $core-action-normal
     transition: fill $core-time ease-out
+    @media screen and (max-width: $portrait-breakpoint)
+      height: 30px
 
   a:hover svg
     fill: $core-action-dark
@@ -107,5 +130,8 @@
 
   a.active:hover svg
     fill: $core-bg-light
+
+  .content
+    display: inline-block
 
 </style>

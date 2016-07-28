@@ -54,14 +54,19 @@ static_requirements = []
 static_dir = os.path.dirname(os.path.realpath(kolibri_dist.__file__))
 
 install_requires = [
-    'colorlog',
-    'django>=1.9,<1.10',
-    'django-filter>=0.13.0',
-    'django-mptt==0.8.4',
+    'cherrypy==6.0.2',
+    'django-filter==0.13.0',
     'django-js-reverse==0.7.2',
+    'six==1.10.0',
     'djangorestframework==3.3.3',
-    'docopt',
-    'six',
+    'django==1.9.7',
+    'colorlog==2.6.0',
+    'docopt==0.6.2',
+    'django-mptt>=0.8.4',              # apparently you also need to have the dependency_links packages be included in install_requires
+]
+
+dependency_links = [
+    'http://github.com/django-mptt/django-mptt/tarball/9e131f91#egg=django-mptt-0.8.4'
 ]
 
 # Check if user supplied the special '--static' option
@@ -69,7 +74,8 @@ if '--static' in sys.argv:
     sys.argv.remove('--static')
     dist_name = 'kolibri-static'
     description += " This static version bundles all dependencies."
-    install_requires, static_requirements = [], install_requires
+    install_requires, static_requirements = [], (install_requires + dependency_links)
+    dependency_links = []
     static_build = True
 
 
@@ -203,7 +209,6 @@ elif is_building_dist:
             )
         )
 
-
 setup(
     name=dist_name,
     version=kolibri.__version__,
@@ -226,6 +231,7 @@ setup(
     package_dir={'kolibri': 'kolibri'},
     include_package_data=True,
     install_requires=install_requires,
+    dependency_links=dependency_links,
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'tox', 'flake8'],
     license='MIT',

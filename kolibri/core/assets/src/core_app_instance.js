@@ -8,7 +8,7 @@ require('./core-global.styl');
 require('babel-polyfill');
 
 // set up logging
-const logging = require('loglevel');
+const logging = require('logging');
 logging.setDefaultLevel(process.env.NODE_ENV === 'production' ? 2 : 0);
 
 // Create an instance of the global app object.
