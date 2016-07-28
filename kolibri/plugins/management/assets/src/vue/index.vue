@@ -1,17 +1,7 @@
 <template>
 
   <core-base>
-    <div>
-      <drop-down v-ref:classroom-selector :list="classrooms" :selected.sync="selectedClassroom"></drop-down>
-      <button>Create</button>
-      <button>Delete</button>
-    </div>
-    <div>
-      <drop-down v-ref:learner-group-selector :list="learnerGroups" :selected.sync="selectedGroup"></drop-down>
-      <button>Create</button>
-      <button>Delete</button>
-    </div>
-    <learner-roster v-ref:learner-roster :learners="filteredLearners"></learner-roster>
+    <learner-roster></learner-roster>
   </core-base>
 
 </template>
