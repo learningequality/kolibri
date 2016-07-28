@@ -21,7 +21,7 @@
 
     <span class="visuallyhidden" v-if="subtopics.length">You can navigate groups of content through headings.</span>
 
-    <card-grid v-if="subtopics.length">
+    <list-grid v-if="subtopics.length">
       <topic-card
         v-for="topic in subtopics"
         :id="topic.id"
@@ -29,7 +29,7 @@
         :ntotal="topic.n_total"
         :ncomplete="topic.n_complete">
       </topic-card>
-    </card-grid>
+    </list-grid>
 
     <card-grid v-if="contents.length">
       <content-card
@@ -57,6 +57,7 @@
       'topic-card': require('../topic-card'),
       'content-card': require('../content-card'),
       'card-grid': require('../card-grid'),
+      'list-grid': require('../list-grid'),
     },
     computed: {
       title() {

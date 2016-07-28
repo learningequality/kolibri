@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <card v-link="link" :title="title">
+    <list v-link="link" :title="title">
       <div class='thumbnail'></div>
-    </card>
+    </list>
   </div>
 
 </template>
@@ -15,7 +15,7 @@
 
   module.exports = {
     components: {
-      card: require('../card'),
+      list: require('../list'),
     },
     props: {
       id: {
@@ -43,12 +43,14 @@
 <style lang="stylus" scoped>
 
   .thumbnail
-    width: 100%
+    position: relative
+    width: 60%
     height: 100%
     background-position: center
     background-image: url(../icons/folder.svg)
     background-repeat: no-repeat
     // chosen to approximage ~0.5em - the card's internal padding
     background-size: 78%
+    margin-left: 10%
 
 </style>
