@@ -21,13 +21,12 @@ let FacilityUserModel;
 
 function createUser(store, payload) {
   FacilityUserModel = Kolibri.resources.FacilityUserResource.addModelData(payload);
-  console.log('elielieli', payload);
   const newUserPromise = FacilityUserModel.save(payload);
   newUserPromise.then((results) => {
-    console.log('RRRRRRR', results);
+    // mutation ADD_LEARNERS only take array
+    store.dispatch('ADD_LEARNERS', [results]);
   })
   .catch((error) => {
-    // TODO - how to parse and format?
     store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
   });
 }
