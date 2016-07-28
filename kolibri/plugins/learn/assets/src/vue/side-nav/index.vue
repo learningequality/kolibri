@@ -6,7 +6,7 @@
         <a class='link' v-link="learnLink" @click='closeSearch' :class="learnClass">
           <div class='content'>
             <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
-            <label>Learn</label>
+            Learn
           </div>
         </a>
       </div>
@@ -14,7 +14,7 @@
         <a class='link' v-link="exploreLink" @click='closeSearch' :class="exploreClass">
           <div class='content'>
             <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
-            <label>Explore</label>
+            Explore
           </div>
         </a>
       </div>
