@@ -1,9 +1,10 @@
 <template>
 
   <div class="roster">
+    <user-modal></user-modal>
     <input type="search" placeholder="Search for learner...">
     <div>
-      <button>+ Learner</button>
+      <button @click="openModal">+ Learner</button>
       <button>A-Z</button>
       <button>Z-A</button>
     </div>
@@ -31,6 +32,9 @@
 <script>
 
   module.exports = {
+    components: {
+      'user-modal': require('./user-modal.vue'),
+    },
     props: {
       learners: {
         type: Array,
@@ -38,6 +42,11 @@
           last_name: 'Default',
           first_name: 'Value',
         }],
+      },
+    },
+    methods: {
+      openModal() {
+        return 2;
       },
     },
   };
