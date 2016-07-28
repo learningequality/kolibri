@@ -17,6 +17,20 @@ const classroomCollection = Kolibri.resources.ClassroomResource.getCollection();
 const learnerGroupCollection = Kolibri.resources.LearnerGroupResource.getCollection();
 const learnerCollection = Kolibri.resources.FacilityUserResource.getCollection();
 const memberCollection = Kolibri.resources.MembershipResource.getCollection();
+let FacilityUserModel;
+
+function createUser(store, payload) {
+  FacilityUserModel = Kolibri.resources.FacilityUserResource.addModelData(payload);
+  console.log('elielieli', payload);
+  const newUserPromise = FacilityUserModel.save(payload);
+  newUserPromise.then((results) => {
+    console.log('RRRRRRR', results);
+  })
+  .catch((error) => {
+    // TODO - how to parse and format?
+    store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
 
 // An action for setting up the initial state of the app by fetching data from the server
 function fetch({ dispatch }) {
@@ -75,4 +89,5 @@ module.exports = {
   setSelectedClassroomId,
   setSelectedGroupId,
   fetch,
+  createUser,
 };
