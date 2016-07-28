@@ -19,7 +19,7 @@
       </content-icon>
     </page-header>
 
-    <p>
+    <p class="description">
       {{ description }}
     </p>
 
@@ -96,7 +96,7 @@
   .content-container
     height: 60vh
     margin-bottom: 1em
-    
+
   #little-arrow
     font-size: 28px
     font-weight: 900
