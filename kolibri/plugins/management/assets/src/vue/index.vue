@@ -138,7 +138,13 @@
     },
 
     vuex: {
-      getters: require('../vuex/getters.js'),
+      getters: {
+        getLearners: state => state.learners,
+        getLearnerGroups: state => state.learnerGroups,
+        getClassrooms: state => state.classrooms,
+        getSelectedGroupId: state => state.selectedGroupId,
+        getSelectedClassroomId: state => state.selectedClassroomId,
+      },
       actions: require('../vuex/actions.js'),
     },
   };
