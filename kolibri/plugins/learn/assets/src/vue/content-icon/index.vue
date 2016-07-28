@@ -2,34 +2,22 @@
 
   <div>
     <!-- complete -->
-    <svg v-if="thisIs('complete', 'audio')" src="./content-icons/complete-audio.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size">
-    </svg>
-    <svg v-if="thisIs('complete', 'document')" src="./content-icons/complete-document.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size">
-    </svg>
-    <svg v-if="thisIs('complete', 'exercise')" src="./content-icons/complete-exercise.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size">
-    </svg>
-    <svg v-if="thisIs('complete', 'video')" src="./content-icons/complete-video.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size">
-    </svg>
+    <svg v-if="thisIs('complete', 'audio')" src="./content-icons/complete-audio.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
+    <svg v-if="thisIs('complete', 'document')" src="./content-icons/complete-document.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
+    <svg v-if="thisIs('complete', 'exercise')" src="./content-icons/complete-exercise.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
+    <svg v-if="thisIs('complete', 'video')" src="./content-icons/complete-video.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
 
     <!-- partial -->
-    <svg v-if="thisIs('partial', 'audio')" src="./content-icons/partial-audio.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size">
-    </svg>
-    <svg v-if="thisIs('partial', 'document')" src="./content-icons/partial-document.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size">
-    </svg>
-    <svg v-if="thisIs('partial', 'exercise')" src="./content-icons/partial-exercise.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size">
-    </svg>
-    <svg v-if="thisIs('partial', 'video')" src="./content-icons/partial-video.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size">
-    </svg>
+    <svg v-if="thisIs('partial', 'audio')" src="./content-icons/partial-audio.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
+    <svg v-if="thisIs('partial', 'document')" src="./content-icons/partial-document.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
+    <svg v-if="thisIs('partial', 'exercise')" src="./content-icons/partial-exercise.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
+    <svg v-if="thisIs('partial', 'video')" src="./content-icons/partial-video.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
 
     <!-- unstarted -->
-    <svg v-if="thisIs('unstarted', 'audio')" src="./content-icons/unstarted-audio.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size">
-    </svg>
-    <svg v-if="thisIs('unstarted', 'document')" src="./content-icons/unstarted-document.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size">
-    </svg>
-    <svg v-if="thisIs('unstarted', 'exercise')" src="./content-icons/unstarted-exercise.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size">
-    </svg>
-    <svg v-if="thisIs('unstarted', 'video')" src="./content-icons/unstarted-video.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size">
-    </svg>
+    <svg v-if="thisIs('unstarted', 'audio')" src="./content-icons/unstarted-audio.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
+    <svg v-if="thisIs('unstarted', 'document')" src="./content-icons/unstarted-document.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
+    <svg v-if="thisIs('unstarted', 'exercise')" src="./content-icons/unstarted-exercise.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
+    <svg v-if="thisIs('unstarted', 'video')" src="./content-icons/unstarted-video.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
   </div>
 
 </template>
