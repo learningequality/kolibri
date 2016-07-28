@@ -19,7 +19,6 @@ function getInitialState() {
     },
   ];
   */
-  const classrooms = [];
 
   /* and a learnerGroups attribute that looks like this
   const learnerGroups = [
@@ -30,7 +29,6 @@ function getInitialState() {
     },
   ];
   */
-  const learnerGroups = [];
 
   /* and finally a learners attribute that looks like this
   const learners = [
@@ -41,12 +39,12 @@ function getInitialState() {
       username: 'mike',
     },
   */
-  const learners = [];
 
   return {
-    classrooms,
-    learners,
-    learnerGroups,
+    classrooms: [],
+    learners: [],
+    learnerGroups: [],
+    error: '',
     selectedClassroomId: ALL_CLASSROOMS_ID, // is the value `null`, which has special meaning here
     selectedGroupId: NO_GROUPS_ID,
   };
@@ -86,10 +84,10 @@ const mutations = {
   ADD_LEARNERS(state, learners) {
     learners.forEach(learner => {
       state.learners.push({
-        id: learner.id,
-        username: learner.username,
-        first_name: learner.first_name,
-        last_name: learner.last_name,
+        id: learner.attributes.id,
+        username: learner.attributes.username,
+        first_name: learner.attributes.first_name,
+        last_name: learner.attributes.last_name,
       });
     });
   },
@@ -100,6 +98,10 @@ const mutations = {
 
   SET_SELECTED_GROUP_ID(state, id) {
     state.selectedGroupId = id;
+  },
+
+  SET_ERROR(state, error) {
+    state.error = error;
   },
 };
 
