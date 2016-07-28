@@ -436,6 +436,12 @@ class ResourceManager {
    * @returns {Resource} - Return the instantiated Resource.
    */
   registerResource(className, ResourceClass) {
+    if (!className) {
+      throw new TypeError('You must specify a className!');
+    }
+    if (!ResourceClass) {
+      throw new TypeError('You must specify a ResourceClass!');
+    }
     const name = ResourceClass.resourceName();
     if (!name) {
       throw new TypeError('A resource must have a defined resource name!');
