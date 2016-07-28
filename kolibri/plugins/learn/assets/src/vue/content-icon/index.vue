@@ -37,15 +37,24 @@
 
 <script>
 
+  const PROGRESS_STATES = ['complete', 'partial', 'unstarted'];
+  const KINDS = ['audio', 'document', 'video']; // not 'exercise' for now
+
   module.exports = {
     props: {
       progress: {
         type: String,
         default: 'unstarted',
+        validator(value) {
+          return PROGRESS_STATES.indexOf(value) !== -1;
+        },
       },
       kind: {
         type: String,
         required: true,
+        validator(value) {
+          return KINDS.indexOf(value) !== -1;
+        },
       },
     },
     computed: {
