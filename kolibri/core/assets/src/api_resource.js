@@ -130,7 +130,8 @@ class Model {
           if (this.id) {
             // If this Model has an id, then can do a PATCH against the Model
             url = this.url;
-            clientObj = { path: url, method: 'PATCH' };
+            clientObj = { path: url, method: 'PATCH', entity: payload,
+              headers: { 'Content-Type': 'application/json' } };
           } else {
             // Otherwise, must POST to the Collection endpoint to create the Model
             url = this.resource.collectionUrl();
