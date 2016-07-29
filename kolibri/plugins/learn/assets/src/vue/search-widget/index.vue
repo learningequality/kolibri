@@ -31,18 +31,18 @@
       </h4>
 
       <card-grid v-if="topics.length && showTopics">
-        <topic-card
+        <topic-list-item
           v-for="topic in topics"
           class="card"
           :id="topic.id"
           :title="topic.title"
           :ntotal="topic.n_total"
           :ncomplete="topic.n_complete">
-        </topic-card>
+        </topic-list-item>
       </card-grid>
 
       <card-grid v-if="contents.length">
-        <content-card
+        <content-grid-item
           v-for="content in contents"
           class="card"
           :title="content.title"
@@ -50,7 +50,7 @@
           :kind="content.kind"
           :progress="content.progress"
           :id="content.id">
-        </content-card>
+        </content-grid-item>
       </card-grid>
     </div>
 
@@ -103,8 +103,8 @@
       },
     },
     components: {
-      'topic-card': require('../topic-card'),
-      'content-card': require('../content-card'),
+      'topic-list-item': require('../topic-list-item'),
+      'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
     },
     vuex: {
