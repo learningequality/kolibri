@@ -13,7 +13,7 @@
         <li v-for="learner in getLearners">
           <input type="checkbox">
           <span class="vertical-divider">|</span>
-          <a href="#">{{ learner.last_name + ", " + learner.first_name }}</a>
+          <a href="#">{{ learner.last_name + ", " + learner.first_name + ", " + learner.role }}</a>
           <button>Manage</button>
         </li>
       </ul>

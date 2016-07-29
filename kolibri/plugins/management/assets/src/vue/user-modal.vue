@@ -1,6 +1,6 @@
 <template>
 
-  <form id="user-creation">
+  <div class="user-creation-modal">
     <h3>New User:</h3>
     <br>Username: <input type="text" v-model="userName" placeholder="Please type in your username."><br>
     <br>Password: <input type="text" v-model="passWord" placeholder="Please type in your password."><br>
@@ -8,13 +8,11 @@
     <br>Last name: <input type="text" v-model="lastName" placeholder="Please type in your last name."><br>
     <!-- radio buttons for electing role -->
     <h3>Role:</h3>
-    <br>Learner <input type="radio" name="picked" value="learner" v-model="picked"><br>
-    <br>Admin <input type="radio" name="picked" value="admin" v-model="picked"><br>
-
-    <p><pre>data: {{$data | json 2}}</pre></p>
+    <br>Learner <input type="radio" name="picked" value="learner" v-model="role"><br>
+    <br>Admin <input type="radio" name="picked" value="admin" v-model="role"><br>
 
     <button type="button" @click="createNewUser">Create User</button>
-  </form>
+  </div>
 
 </template>
 
@@ -30,7 +28,7 @@
         passWord: '',
         firstName: '',
         lastName: '',
-        picked: 'learner',
+        role: 'learner',
       };
     },
     methods: {
@@ -42,7 +40,7 @@
           last_name: this.lastName,
           facility: 1,
         };
-        this.createUser(payload);
+        this.createUser(payload, this.role);
       },
     },
     vuex: {
@@ -57,10 +55,7 @@
 
 <style lang="stylus" scoped>
 
-  .roster, .sidebar
+  .user-creation-modal
     display: inline-block
-
-  .learner-count
-    border: solid, 1px, black
 
 </style>
