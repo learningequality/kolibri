@@ -50,7 +50,7 @@ class Model {
     this.synced = false;
 
     // force IDs to always be strings - this should be changed on the server-side too
-    if ('id' in data) {
+    if (this.resource.idKey in data) {
       this.attributes[this.resource.idKey] = String(this.attributes[this.resource.idKey]);
     }
 
