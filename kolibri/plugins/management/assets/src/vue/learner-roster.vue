@@ -5,14 +5,12 @@
     <input type="search" placeholder="Search for learner...">
     <div>
       <button @click="openModal">+ Learner</button>
-      <button>A-Z</button>
-      <button>Z-A</button>
     </div>
     <div class="learner-roster">
       <ul>
         <li v-for="learner in getLearners">
           <a href="#">{{ learner.last_name + ", " + learner.first_name + ", " + learner.role }}</a>
-          <button>Manage</button>
+          <button @click="editUser(learner.id, learner.username, learner.last_name, learner.first_name, learner.role)">Manage</button>
           <button @click="deleteUser(learner.id)">Delete</button>
         </li>
       </ul>
@@ -39,7 +37,16 @@
     methods: {
       openModal() {
         console.log(this.getLearners);
-        return 2;
+      },
+      editUser(id) {
+        const payload = {
+          // password: this.passWord,
+          username: 'eli',
+          first_name: 'yoo',
+          last_name: 'hoo',
+          facility: 1,
+        };
+        this.updateUser(id, payload, 'learner');
       },
     },
     vuex: {
@@ -48,6 +55,7 @@
       },
       actions: {
         deleteUser: actions.deleteUser,
+        updateUser: actions.updateUser,
       },
     },
   };
