@@ -93,6 +93,18 @@ const mutations = {
     });
   },
 
+  DELETE_LEARNERS(state, ids) {
+    ids.forEach(id => {
+      state.learners.forEach((learner, index) => {
+        if (learner.id === id) {
+          if (index > -1) {
+            state.learners.splice(index, 1);
+          }
+        }
+      });
+    });
+  },
+
   SET_SELECTED_CLASSROOM_ID(state, id) {
     state.selectedClassroomId = id;
   },
