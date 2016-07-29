@@ -1,21 +1,5 @@
 const Kolibri = require('kolibri');
 
-
-function addClassroom({ dispatch }, attrs) {
-  dispatch('ADD_CLASSROOM', attrs);
-}
-
-function setSelectedClassroomId({ dispatch }, id) {
-  dispatch('SET_SELECTED_CLASSROOM_ID', id);
-}
-
-function setSelectedGroupId({ dispatch }, id) {
-  dispatch('SET_SELECTED_GROUP_ID', id);
-}
-
-const ClassroomResource = Kolibri.resources.ClassroomResource;
-const LearnerGroupResource = Kolibri.resources.LearnerGroupResource;
-const MembershipResource = Kolibri.resources.MembershipResource;
 const FacilityUserResource = Kolibri.resources.FacilityUserResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
@@ -63,66 +47,17 @@ function deleteUser(store, id) {
 
 // An action for setting up the initial state of the app by fetching data from the server
 function fetch({ dispatch }) {
-  const classroomCollection = ClassroomResource.getCollection();
-  const learnerGroupCollection = LearnerGroupResource.getCollection();
   const learnerCollection = FacilityUserResource.getCollection();
-  const memberCollection = MembershipResource.getCollection();
-
-  const learnerGroupPromise = new Promise((resolve) => {
-    classroomCollection.fetch().then(() => {
-      const cid = classroomCollection.models.map(c => c.id)[0];
-      learnerGroupCollection.fetch({ params: { parent: cid } }).then((groupData) => {
-        resolve(groupData);
-      });
-    });
-  });
-
   const learnerPromise = learnerCollection.fetch();
-
-  const memberPromise = memberCollection.fetch();
-
-  const promises = [learnerGroupPromise, learnerPromise, memberPromise];
-  // This block of code is executed if learnerGroup, learner, and membership
-  // fetching all return with status code 200.
-  // class fetching is not included because learnerGroup fetching depends upon it.
+  const promises = [learnerPromise];
   Promise.all(promises).then(() => {
-    const groupedLearners = new Set();
-    dispatch('ADD_LEARNER_GROUPS', learnerGroupCollection.models.map(group => {
-      const learnerIds = memberCollection.models.filter(m => m.collection === group.id)
-        .map(m => m.user);
-      learnerIds.forEach(id => groupedLearners.add(id));
-      return Object.assign({}, group, {
-        learners: learnerCollection.models.filter(learner => learnerIds.indexOf(learner.id) !== -1)
-          .map(learner => learner.id),
-      });
-    }));
-
-    dispatch(
-      'ADD_CLASSROOMS',
-      classroomCollection.models.map(classroom => {
-        const learnerIds = memberCollection.models.filter(m => m.collection === classroom.id)
-          .map(m => m.user);
-        const ungroupedLearners = learnerIds.filter(id => !groupedLearners.has(id));
-        return Object.assign(
-          {},
-          classroom,
-          {
-            learnerGroups: learnerGroupCollection.models.filter(g => g.parent === classroom.id)
-              .map(g => g.id),
-            ungroupedLearners,
-          }
-        );
-      })
-    );
     dispatch('ADD_LEARNERS', learnerCollection.models);
   });
 }
 
 module.exports = {
-  addClassroom,
-  setSelectedClassroomId,
-  setSelectedGroupId,
-  fetch,
   createUser,
+  updateUser,
   deleteUser,
+  fetch,
 };
