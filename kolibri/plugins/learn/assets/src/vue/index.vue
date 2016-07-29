@@ -108,6 +108,8 @@
     top: 1rem
     right: 2rem
     z-index: 1
+    @media screen and (max-width: $portrait-breakpoint)
+      right: 1rem
 
   .search-pane
     background-color: $core-bg-canvas
