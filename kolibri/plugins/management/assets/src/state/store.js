@@ -89,6 +89,21 @@ const mutations = {
         first_name: learner.attributes.first_name,
         last_name: learner.attributes.last_name,
         role: learner.attributes.role,
+        roleID: learner.attributes.roleID,
+      });
+    });
+  },
+
+  UPDATE_LEARNERS(state, learners) {
+    learners.forEach(learner => {
+      state.learners.forEach(existingLearner => {
+        if (existingLearner.id === learner.id) {
+          existingLearner.username = learner.attributes.username;
+          existingLearner.first_name = learner.attributes.first_name;
+          existingLearner.last_name = learner.attributes.last_name;
+          existingLearner.role = learner.attributes.role;
+          existingLearner.roleID = learner.attributes.roleID;
+        }
       });
     });
   },
