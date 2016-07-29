@@ -17,11 +17,11 @@ const classroomCollection = Kolibri.resources.ClassroomResource.getCollection();
 const learnerGroupCollection = Kolibri.resources.LearnerGroupResource.getCollection();
 const learnerCollection = Kolibri.resources.FacilityUserResource.getCollection();
 const memberCollection = Kolibri.resources.MembershipResource.getCollection();
-let FacilityUserModel;
-let RoleModel;
+const FacilityUserResource = Kolibri.resources.FacilityUserResource;
+const RoleResource = Kolibri.resources.RoleResource;
 
 function createUser(store, payload, role) {
-  FacilityUserModel = Kolibri.resources.FacilityUserResource.addModelData(payload);
+  const FacilityUserModel = FacilityUserResource.addModelData(payload);
   const newUserPromise = FacilityUserModel.save(payload);
   newUserPromise.then((model) => {
     // always add role atrribute to facilityUser
@@ -36,16 +36,26 @@ function createUser(store, payload, role) {
         collection: model.attributes.facility,
         kind: role,
       };
-      RoleModel = Kolibri.resources.RoleResource.addModelData(rolePayload);
+      const RoleModel = RoleResource.addModelData(rolePayload);
       const newRolePromise = RoleModel.save(rolePayload);
       newRolePromise.then((results) => {
-        console.log('RRRRR: ', results);
         // mutation ADD_LEARNERS only take array
         store.dispatch('ADD_LEARNERS', [model]);
       }).catch((error) => {
         store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
       });
     }
+  })
+  .catch((error) => {
+    store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
+
+function deleteUser(store, id) {
+  const FacilityUserModel = Kolibri.resources.FacilityUserResource.getModel(id);
+  const newUserPromise = FacilityUserModel.delete(id);
+  newUserPromise.then((userId) => {
+    store.dispatch('DELETE_LEARNERS', [userId]);
   })
   .catch((error) => {
     store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -110,4 +120,5 @@ module.exports = {
   setSelectedGroupId,
   fetch,
   createUser,
+  deleteUser,
 };
