@@ -4,4 +4,5 @@ module.exports = {
   FacilityUserResource: require('./facilityUser'),
   LearnerGroupResource: require('./learnerGroup'),
   MembershipResource: require('./membership'),
+  RoleResource: require('./role'),
 };
