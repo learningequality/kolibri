@@ -58,23 +58,6 @@ class Model {
     this.promises = [];
   }
 
-  getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        // Does this cookie string begin with the name we want?
-        if (cookie.substring(0, name.length + 1) === (name.concat('='))) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  }
-
-
   /**
    * Method to fetch data from the server for this particular model.
    * @param {object} params - an object of parameters to be parsed into GET parameters on the
@@ -150,10 +133,8 @@ class Model {
           } else {
             // Otherwise, must POST to the Collection endpoint to create the Model
             url = this.resource.collectionUrl();
-            const csrftoken = this.getCookie('csrftoken');
             clientObj = { path: url, entity: payload,
-              headers: { 'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken } };
+              headers: { 'Content-Type': 'application/json' } };
           }
           // Do a save on the URL.
           client(clientObj).then((response) => {
@@ -168,6 +149,41 @@ class Model {
             this.synced = true;
             // Resolve the promise with the Model.
             resolve(this);
+            // Clean up the reference to this promise
+            this.promises.splice(this.promises.indexOf(promise), 1);
+          }, (response) => {
+            logging.error('An error occurred', response);
+            reject(response);
+            // Clean up the reference to this promise
+            this.promises.splice(this.promises.indexOf(promise), 1);
+          });
+        }
+      },
+      (reason) => {
+        reject(reason);
+      });
+    });
+    this.promises.push(promise);
+    return promise;
+  }
+
+  delete(id) {
+    const promise = new Promise((resolve, reject) => {
+      Promise.all(this.promises).then(() => {
+        if (!this.id) {
+          // Nothing to delete, so just resolve the promise now.
+          resolve(this.attributes);
+        } else {
+          // Otherwise, DELETE the Model
+          const clientObj = { path: this.url, method: 'DELETE',
+            headers: { 'Content-Type': 'application/json',
+              'X-CSRFToken': this.getCookie('csrftoken') } };
+          // Do a save on the URL.
+          client(clientObj).then((response) => {
+            // delete this instance
+            // this.prototype.delete();
+            // Resolve the promise with the response.
+            resolve(id);
             // Clean up the reference to this promise
             this.promises.splice(this.promises.indexOf(promise), 1);
           }, (response) => {
