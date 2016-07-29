@@ -88,6 +88,7 @@ const mutations = {
         username: learner.attributes.username,
         first_name: learner.attributes.first_name,
         last_name: learner.attributes.last_name,
+        role: learner.attributes.role,
       });
     });
   },
