@@ -423,7 +423,7 @@ class Resource {
    * @param {Object} data - The data for the model to add.
    * @returns {Model} - Returns the instantiated Model.
    */
-  addModelData(data) {
+  createModel(data) {
     const model = new Model(data, this);
     return this.addModel(model);
   }
@@ -435,7 +435,7 @@ class Resource {
    */
   addModel(model) {
     if (!(model instanceof Model)) {
-      return this.addModelData(model);
+      return this.createModel(model);
     }
     // Don't add to the model cache if the id is not defined.
     if (model.id) {
