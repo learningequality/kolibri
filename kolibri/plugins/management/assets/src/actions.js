@@ -18,13 +18,34 @@ const learnerGroupCollection = Kolibri.resources.LearnerGroupResource.getCollect
 const learnerCollection = Kolibri.resources.FacilityUserResource.getCollection();
 const memberCollection = Kolibri.resources.MembershipResource.getCollection();
 let FacilityUserModel;
+let RoleModel;
 
-function createUser(store, payload) {
+function createUser(store, payload, role) {
   FacilityUserModel = Kolibri.resources.FacilityUserResource.addModelData(payload);
   const newUserPromise = FacilityUserModel.save(payload);
-  newUserPromise.then((results) => {
-    // mutation ADD_LEARNERS only take array
-    store.dispatch('ADD_LEARNERS', [results]);
+  newUserPromise.then((model) => {
+    // always add role atrribute to facilityUser
+    model.attributes.role = role;
+    // assgin role to this new user if the role is not learner
+    if (role === 'learner') {
+      // mutation ADD_LEARNERS only take array
+      store.dispatch('ADD_LEARNERS', [model]);
+    } else {
+      const rolePayload = {
+        user: model.attributes.id,
+        collection: model.attributes.facility,
+        kind: role,
+      };
+      RoleModel = Kolibri.resources.RoleResource.addModelData(rolePayload);
+      const newRolePromise = RoleModel.save(rolePayload);
+      newRolePromise.then((results) => {
+        console.log('RRRRR: ', results);
+        // mutation ADD_LEARNERS only take array
+        store.dispatch('ADD_LEARNERS', [model]);
+      }).catch((error) => {
+        store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      });
+    }
   })
   .catch((error) => {
     store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
