@@ -2,7 +2,7 @@
 
   <div>
     <page-header title="Learn">
-      <svg slot="icon" src="../icons/learn.svg"></svg>
+      <svg slot="icon" class="pageicon" src="../icons/learn.svg"></svg>
     </page-header>
     <expandable-content-grid :contents="recommendations"></expandable-content-grid>
   </div>

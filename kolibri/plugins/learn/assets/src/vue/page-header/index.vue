@@ -40,7 +40,7 @@
 
   .header-wrapper .extra-nav a
     color: $core-text-annotation
-    font-weight: 700
+    font-weight: 300
 
   // @stylint off
   .header-wrapper .icon-wrapper > *
