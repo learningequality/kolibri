@@ -1,9 +1,32 @@
 const logging = require('logging').getLogger(__filename);
 const rest = require('rest');
 const mime = require('rest/interceptor/mime');
+const csrf = require('rest/interceptor/csrf');
 const errorCode = require('rest/interceptor/errorCode');
 
-const client = rest.wrap(mime).wrap(errorCode);
+/**
+ * A helping method to get specific cookie based on its name.
+ * @param {string} name  - the name of the cookie.
+ * @returns {string} - cookieValue
+ * this function could probably find a better place to live..
+ */
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      // Does this cookie string begin with the name we want?
+      if (cookie.substring(0, name.length + 1) === (name.concat('='))) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+const client = rest.wrap(mime).wrap(csrf, { token: getCookie('csrftoken') }).wrap(errorCode);
 
 /** Class representing a single API resource object */
 class Model {
