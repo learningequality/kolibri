@@ -3,14 +3,20 @@ const Kolibri = require('kolibri');
 const FacilityUserResource = Kolibri.resources.FacilityUserResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
+/**
+ * Do a POST to create new user
+ * @param {object} payload
+ * @param {string} role
+ */
 function createUser(store, payload, role) {
-  const FacilityUserModel = FacilityUserResource.addModelData(payload);
+  const FacilityUserModel = FacilityUserResource.createModel(payload);
   const newUserPromise = FacilityUserModel.save(payload);
   newUserPromise.then((model) => {
     // always add role atrribute to facilityUser
     model.attributes.role = role;
     // assgin role to this new user if the role is not learner
-    if (role === 'learner') {
+    if (role === 'learner' || !role) {
+      model.attributes.roleID = null;
       // mutation ADD_LEARNERS only take array
       store.dispatch('ADD_LEARNERS', [model]);
     } else {
@@ -19,9 +25,10 @@ function createUser(store, payload, role) {
         collection: model.attributes.facility,
         kind: role,
       };
-      const RoleModel = RoleResource.addModelData(rolePayload);
+      const RoleModel = RoleResource.createModel(rolePayload);
       const newRolePromise = RoleModel.save(rolePayload);
       newRolePromise.then((results) => {
+        model.attributes.roleID = results.id;
         // mutation ADD_LEARNERS only take array
         store.dispatch('ADD_LEARNERS', [model]);
       }).catch((error) => {
