@@ -410,7 +410,6 @@ class Resource {
   getModel(id, data = {}) {
     let model;
     if (!this.models[id]) {
-      Object.assign(data, { [this.idKey]: id });
       model = new Model(data, this);
     } else {
       model = this.models[id];
