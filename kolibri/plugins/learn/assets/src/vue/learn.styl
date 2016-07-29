@@ -11,17 +11,10 @@ $n-cols-array = 1 2 3 4 5     // possible numbers of columns
 $left-margin = 100px
 $right-margin = 25px
 
-$list-height = 60px         // fixed card height
-$list-width = 100%         // fixed card width
-$list-gutter = 20px
-$n-cols-list-array = 1
 
 // compute the target grid width based on the number of columns
 grid-width($n-cols)
   ($card-width * $n-cols) + ($card-gutter * ($n-cols + 1))
-
-grid-list-width($n-cols)
-  ($list-width * $n-cols) + ($list-gutter * ($n-cols + 1))
 
 $portrait-breakpoint = $left-margin * 2 + grid-width(1) + $right-margin
 
