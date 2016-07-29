@@ -1,14 +1,14 @@
 <template>
 
-  <div class='header-wrapper'>
-    <div class='extra-nav'>
-      <slot name='extra-nav'></slot>
+  <div class="header-wrapper">
+    <div class="extra-nav">
+      <slot name="extra-nav"></slot>
     </div>
-    <h2 class='header'>
-      <div class='icon-wrapper'>
-        <slot name='icon'></slot>
+    <h2 class="header">
+      <div class="icon-wrapper">
+        <slot name="icon"></slot>
       </div>
-      <div class='text'>
+      <div class="text">
         {{ title }}
       </div>
     </h2>

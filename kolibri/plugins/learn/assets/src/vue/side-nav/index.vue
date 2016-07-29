@@ -1,18 +1,18 @@
 <template>
 
-  <div class='nav-wrapper'>
-    <nav class='nav-main' role="navigation" aria-label="Main user navigation">
-      <div class='link-wrapper'>
-        <a class='link' v-link="learnLink" @click='closeSearch' :class="learnClass">
-          <div class='content'>
+  <div class="nav-wrapper">
+    <nav class="nav-main" role="navigation" aria-label="Main user navigation">
+      <div class="link-wrapper">
+        <a class="link" v-link="learnLink" @click="closeSearch" :class="learnClass">
+          <div class="content">
             <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
             <div class="label">Learn</div>
           </div>
         </a>
       </div>
-      <div class='link-wrapper'>
-        <a class='link' v-link="exploreLink" @click='closeSearch' :class="exploreClass">
-          <div class='content'>
+      <div class="link-wrapper">
+        <a class="link" v-link="exploreLink" @click="closeSearch" :class="exploreClass">
+          <div class="content">
             <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
             <div class="label">Explore</div>
           </div>

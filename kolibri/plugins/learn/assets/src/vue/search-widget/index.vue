@@ -1,9 +1,9 @@
 <template>
 
-  <div class='wrapper'>
+  <div class="wrapper">
 
     <!-- search block -->
-    <div class='top' role="search">
+    <div class="top" role="search">
       <input
         type="search"
         v-el:search
@@ -25,7 +25,7 @@
     </div>
 
     <!-- results -->
-    <div class='results' v-if="!loading">
+    <div class="results" v-if="!loading">
       <h4 v-if="searchTerm">
         {{ message }}
       </h4>

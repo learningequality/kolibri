@@ -4,7 +4,7 @@
     <div v-el:videowrapper class="videowrapper">
       <video v-el:video class="video-js vjs-default-skin" >
         <template v-for="video in videoSources">
-          <source :src="video.storage_url" :type='"video/" + video.extension'>
+          <source :src="video.storage_url" :type="'video/' + video.extension">
         </template>
         <template v-for="track in trackSources">
           <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">

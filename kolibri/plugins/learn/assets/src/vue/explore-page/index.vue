@@ -2,20 +2,20 @@
 
   <div>
 
-    <page-header :title='title'>
+    <page-header :title="title">
       <breadcrumbs
-        v-if='!isRoot'
-        slot='extra-nav'
-        :rootid='rootTopicId'
-        :crumbs='topic.breadcrumbs'>
+        v-if="!isRoot"
+        slot="extra-nav"
+        :rootid="rootTopicId"
+        :crumbs="topic.breadcrumbs">
       </breadcrumbs>
-      <div slot='icon'>
+      <div slot="icon">
         <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"></svg>
         <svg v-else class="pageicon" src="../icons/folder.svg"></svg>
       </div>
     </page-header>
 
-    <p v-if='topic.description'>
+    <p v-if="topic.description">
       {{ topic.description }}
     </p>
 

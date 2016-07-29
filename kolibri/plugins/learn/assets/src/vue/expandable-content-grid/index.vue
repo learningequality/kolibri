@@ -12,12 +12,12 @@
       </content-card>
     </card-grid>
 
-    <div class='button-wrapper' v-if="contents.length > nCollapsed">
-      <button class='disclosure-button' @click='toggle()' v-if='expanded'>
+    <div class="button-wrapper" v-if="contents.length > nCollapsed">
+      <button class="disclosure-button" @click="toggle()" v-if="expanded">
         <svg src="show-less.svg"></svg>
         Show Less
       </button>
-      <button class='disclosure-button' @click='toggle()' v-else>
+      <button class="disclosure-button" @click="toggle()" v-else>
         <svg src="show-more.svg"></svg>
         Show More
       </button>

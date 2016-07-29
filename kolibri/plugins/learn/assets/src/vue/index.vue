@@ -1,21 +1,21 @@
 <template>
 
   <core-base>
-    <side-nav class='nav'></side-nav>
-    <div class='main'>
-      <search-button class='search-btn'></search-button>
+    <side-nav class="nav"></side-nav>
+    <div class="main">
+      <search-button class="search-btn"></search-button>
 
-      <error-page v-show='error'></error-page>
+      <error-page v-show="error"></error-page>
 
-      <main role="main" class="page-content" v-if='!loading'>
-        <explore-page v-if='showExplorePage'></explore-page>
-        <content-page v-if='showContentPage'></content-page>
-        <learn-page v-if='showLearnPage'></learn-page>
-        <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
+      <main role="main" class="page-content" v-if="!loading">
+        <explore-page v-if="showExplorePage"></explore-page>
+        <content-page v-if="showContentPage"></content-page>
+        <learn-page v-if="showLearnPage"></learn-page>
+        <scratchpad-page v-if="showScratchpadPage"></scratchpad-page>
       </main>
 
-      <div class='search-pane' v-show='searchOpen' transition='search-slide'>
-        <div class='search-shadow'>
+      <div class="search-pane" v-show="searchOpen" transition="search-slide">
+        <div class="search-shadow">
           <search-widget
             :show-topics="exploreMode">
           </search-widget>
