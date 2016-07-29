@@ -13,10 +13,9 @@ function setSelectedGroupId({ dispatch }, id) {
   dispatch('SET_SELECTED_GROUP_ID', id);
 }
 
-const classroomCollection = Kolibri.resources.ClassroomResource.getCollection();
-const learnerGroupCollection = Kolibri.resources.LearnerGroupResource.getCollection();
-const learnerCollection = Kolibri.resources.FacilityUserResource.getCollection();
-const memberCollection = Kolibri.resources.MembershipResource.getCollection();
+const ClassroomResource = Kolibri.resources.ClassroomResource;
+const LearnerGroupResource = Kolibri.resources.LearnerGroupResource;
+const MembershipResource = Kolibri.resources.MembershipResource;
 const FacilityUserResource = Kolibri.resources.FacilityUserResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
@@ -64,6 +63,11 @@ function deleteUser(store, id) {
 
 // An action for setting up the initial state of the app by fetching data from the server
 function fetch({ dispatch }) {
+  const classroomCollection = ClassroomResource.getCollection();
+  const learnerGroupCollection = LearnerGroupResource.getCollection();
+  const learnerCollection = FacilityUserResource.getCollection();
+  const memberCollection = MembershipResource.getCollection();
+
   const learnerGroupPromise = new Promise((resolve) => {
     classroomCollection.fetch().then(() => {
       const cid = classroomCollection.models.map(c => c.id)[0];

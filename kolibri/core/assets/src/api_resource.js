@@ -176,8 +176,7 @@ class Model {
         } else {
           // Otherwise, DELETE the Model
           const clientObj = { path: this.url, method: 'DELETE',
-            headers: { 'Content-Type': 'application/json',
-              'X-CSRFToken': this.getCookie('csrftoken') } };
+            headers: { 'Content-Type': 'application/json' } };
           // Do a save on the URL.
           client(clientObj).then((response) => {
             // delete this instance
