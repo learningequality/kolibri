@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <list v-link="link" :title="title">
+    <list-item v-link="link" :title="title">
       <div class='thumbnail'></div>
-    </list>
+    </list-item>
   </div>
 
 </template>
@@ -15,7 +15,7 @@
 
   module.exports = {
     components: {
-      list: require('../list'),
+      'list-item': require('../card-list/list-item'),
     },
     props: {
       id: {

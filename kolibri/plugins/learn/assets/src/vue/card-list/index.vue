@@ -2,7 +2,7 @@
 
   <section>
     <h3>{{header}}</h3>
-    <div class="list-grid">
+    <div class="card-list">
       <slot></slot>
     </div>
   </section>
@@ -29,7 +29,7 @@
   // Disable styling to make this a more generic container
 
   // @stylint off
-  .list-grid > *
+  .card-list > *
   // @stylint on
 
     margin-bottom: $list-gutter
@@ -63,7 +63,7 @@
   h2
     margin-top: 0
 
-  .list-grid
+  .card-list
     cf()
 
 </style>
