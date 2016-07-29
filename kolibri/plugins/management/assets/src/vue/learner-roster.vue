@@ -11,10 +11,9 @@
     <div class="learner-roster">
       <ul>
         <li v-for="learner in getLearners">
-          <input type="checkbox">
-          <span class="vertical-divider">|</span>
           <a href="#">{{ learner.last_name + ", " + learner.first_name + ", " + learner.role }}</a>
           <button>Manage</button>
+          <button @click="deleteUser(learner.id)">Delete</button>
         </li>
       </ul>
     </div>
@@ -31,6 +30,8 @@
 
 <script>
 
+  const actions = require('../actions');
+
   module.exports = {
     components: {
       'user-modal': require('./user-modal.vue'),
@@ -44,6 +45,9 @@
     vuex: {
       getters: {
         getLearners: state => state.learners,
+      },
+      actions: {
+        deleteUser: actions.deleteUser,
       },
     },
   };
