@@ -10,8 +10,8 @@
         :crumbs="topic.breadcrumbs">
       </breadcrumbs>
       <div slot="icon">
-        <svg v-if="isRoot" src="../icons/explore.svg"></svg>
-        <svg v-else src="../icons/folder.svg"></svg>
+        <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"></svg>
+        <svg v-else class="pageicon" src="../icons/folder.svg"></svg>
       </div>
     </page-header>
 
