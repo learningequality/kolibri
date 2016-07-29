@@ -6,6 +6,7 @@
         <content-icon
           :class='thumb ? "content-icon" : "content-icon-center" '
           v-if="kind"
+          :size="thumb ? 30 : 60"
           :kind="kind"
           :progress="progress">
         </content-icon>
