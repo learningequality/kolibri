@@ -5,7 +5,7 @@
       <slot></slot>
     </div>
     <div class='text'>
-      {{ title }}
+      <span class="title">{{ title }}</span>
     </div>
   </a>
 
@@ -29,35 +29,41 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-  @require '../learn.styl'
+  @require '../../learn.styl'
+  @require 'jeet'
 
-  $thumb-width = $card-height * 3.0 / 2.5;
+  $min-height = 60px         // min card height
 
   .root
-    display: block
-    width: $card-width
-    height: $card-height
-    background-color: $core-bg-light
-    overflow: hidden
-    border-radius: $radius
-
-  .thumb-wrapper
     position: relative
     display: block
-    float: left
-    width: $thumb-width
-    height: $card-height
-    border-radius: $radius 0 0  $radius
-    overflow: hidden
+    min-height: 60px
+    background-color: $core-bg-light
+    border-radius: $radius
+    display: table
+    width: 100%
+
+  .thumb-wrapper
+    position: absolute
+    left: 0.4em
+    width: $min-height
+    height: $min-height
+    border-radius: $radius 0 0 $radius
 
   .text
-    display: block
-    float: right
-    width: $card-width - $thumb-width
-    height: $card-height
-    padding: 0.6em
+    position: relative
+    width: 100%
     font-size: 0.9rem
     font-weight: bold
     color: $core-text-default
+    display: table-row
+
+  .title
+    display: table-cell
+    width: 100%
+    height: 100%
+    padding: 0.8em
+    padding-left: $min-height
+    vertical-align: middle
 
 </style>

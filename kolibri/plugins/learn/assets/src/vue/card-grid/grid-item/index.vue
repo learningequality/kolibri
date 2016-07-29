@@ -5,7 +5,7 @@
       <slot></slot>
     </div>
     <div class='text'>
-      <span class="title">{{ title }}</span>
+      {{ title }}
     </div>
   </a>
 
@@ -29,14 +29,14 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-  @require '../learn.styl'
+  @require '../../learn.styl'
 
-  $thumb-width = 60px
+  $thumb-width = $card-height * 3.0 / 2.5;
 
   .root
     display: block
-    width: $list-width
-    height: $list-height
+    width: $card-width
+    height: $card-height
     background-color: $core-bg-light
     overflow: hidden
     border-radius: $radius
@@ -46,23 +46,18 @@
     display: block
     float: left
     width: $thumb-width
-    height: $list-height
+    height: $card-height
     border-radius: $radius 0 0  $radius
     overflow: hidden
 
   .text
-    position: relative
     display: block
-    width: 100%
-    height: $list-height
+    float: right
+    width: $card-width - $thumb-width
+    height: $card-height
     padding: 0.6em
     font-size: 0.9rem
     font-weight: bold
     color: $core-text-default
-
-  .title
-    position: absolute
-    top: 50%
-    transform: translateY(-50%)
 
 </style>
