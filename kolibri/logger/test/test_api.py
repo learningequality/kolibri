@@ -8,12 +8,15 @@ import uuid
 from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+from kolibri.auth.test.test_api import (
+    FacilityFactory, ClassroomFactory,
+    LearnerGroupFactory, FacilityUserFactory,
+    DeviceOwnerFactory, DUMMY_PASSWORD
+)
 
 from .factory_logger import (
-    FacilityFactory, FacilityUserFactory,
     ContentInteractionLogFactory, ContentSummaryLogFactory,
     ContentRatingLogFactory, UserSessionLogFactory,
-    DUMMY_PASSWORD
 )
 
 from ..models import ContentInteractionLog, ContentSummaryLog, ContentRatingLog, UserSessionLog
@@ -24,15 +27,33 @@ class ContentInteractionLogAPITestCase(APITestCase):
 
     @classmethod
     def setUpClass(self):
+
+        # create facilities, add some users and admin
+        self.deviceowner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
+        self.user1 = FacilityUserFactory.create(facility=self.facility)
+        self.user2 = FacilityUserFactory.create(facility=self.facility)
+
+        # add user3 to new facility
+        self.facility2 = FacilityFactory.create()
+        self.user3 = FacilityUserFactory.create(facility=self.facility2)
+
+        # add admin to 1st facility
         self.admin = FacilityUserFactory.create(facility=self.facility)
-        self.user = FacilityUserFactory.create(facility=self.facility)
-        self.interaction_log = []
-        self.interaction_log += [ContentInteractionLogFactory.create(user=self.user) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
+        # create logs for each user
+        [ContentInteractionLogFactory.create(user=self.user1) for _ in range(3)]
+        [ContentInteractionLogFactory.create(user=self.user2) for _ in range(2)]
+        [ContentInteractionLogFactory.create(user=self.user3) for _ in range(1)]
+
+        # create classroom, learner group, add user2
+        self.classroom = ClassroomFactory.create(parent=self.facility)
+        self.learner_group = LearnerGroupFactory.create(parent=self.classroom)
+        self.learner_group.add_learner(self.user2)
+
     def setUp(self):
-        self.payload = {'user': self.user.pk,
+        self.payload = {'user': self.user1.pk,
                         'content_id': uuid.uuid4().hex,
                         'channel_id': uuid.uuid4().hex,
                         'item_session': uuid.uuid4().hex}
@@ -40,7 +61,7 @@ class ContentInteractionLogAPITestCase(APITestCase):
     def test_interactionlog_list(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.get(reverse('contentinteractionlog-list'))
-        expected_count = ContentInteractionLog.objects.count()
+        expected_count = ContentInteractionLog.objects.filter(user__facility_id=self.facility.id).count()
         self.assertEqual(len(response.data), expected_count)
 
     def test_interactionlog_detail(self):
@@ -56,7 +77,7 @@ class ContentInteractionLogAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_learner_can_create_interactionlog(self):
-        self.client.login(username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility)
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.post(reverse('contentinteractionlog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -68,6 +89,30 @@ class ContentInteractionLogAPITestCase(APITestCase):
         del self.payload['user']
         response = self.client.post(reverse('contentinteractionlog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_user_log_filtering(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('contentinteractionlog-list'), data={"user_id": self.user2.id})
+        expected_count = ContentInteractionLog.objects.filter(user__pk=self.user2.id).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_facility_log_filtering(self):
+        self.client.login(username=self.deviceowner.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('contentinteractionlog-list'), data={"facility": self.facility2.id})
+        expected_count = ContentInteractionLog.objects.filter(user__facility_id=self.facility2.id).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_classroom_log_filtering(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('contentinteractionlog-list'), data={"classroom": self.classroom.id})
+        expected_count = ContentInteractionLog.objects.filter(user__pk=self.user2.id).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_learner_group_log_filtering(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('contentinteractionlog-list'), data={"learner_group": self.learner_group.id})
+        expected_count = ContentInteractionLog.objects.filter(user__pk=self.user2.id).count()
+        self.assertEqual(len(response.data), expected_count)
 
     def tearDown(self):
         self.client.logout()
@@ -81,22 +126,39 @@ class ContentSummaryLogAPITestCase(APITestCase):
 
     @classmethod
     def setUpClass(self):
+        # create facilities, add some users and admin
+        self.deviceowner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
+        self.user1 = FacilityUserFactory.create(facility=self.facility)
+        self.user2 = FacilityUserFactory.create(facility=self.facility)
+
+        # add user3 to new facility
+        self.facility2 = FacilityFactory.create()
+        self.user3 = FacilityUserFactory.create(facility=self.facility2)
+
+        # add admin to 1st facility
         self.admin = FacilityUserFactory.create(facility=self.facility)
-        self.user = FacilityUserFactory.create(facility=self.facility)
-        self.summary_log = []
-        self.summary_log += [ContentSummaryLogFactory.create(user=self.user) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
+        # create logs for each user
+        [ContentSummaryLogFactory.create(user=self.user1) for _ in range(3)]
+        [ContentSummaryLogFactory.create(user=self.user2) for _ in range(2)]
+        [ContentSummaryLogFactory.create(user=self.user3) for _ in range(1)]
+
+        # create classroom, learner group, add user2
+        self.classroom = ClassroomFactory.create(parent=self.facility)
+        self.learner_group = LearnerGroupFactory.create(parent=self.classroom)
+        self.learner_group.add_learner(self.user2)
+
     def setUp(self):
-        self.payload = {'user': self.user.pk,
+        self.payload = {'user': self.user1.pk,
                         'content_id': uuid.uuid4().hex,
                         'channel_id': uuid.uuid4().hex}
 
     def test_summarylog_list(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.get(reverse('contentsummarylog-list'))
-        expected_count = ContentSummaryLog.objects.count()
+        expected_count = ContentSummaryLog.objects.filter(user__facility_id=self.facility.id).count()
         self.assertEqual(len(response.data), expected_count)
 
     def test_summarylog_detail(self):
@@ -112,7 +174,7 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_learner_can_create_summarylog(self):
-        self.client.login(username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility)
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.post(reverse('contentsummarylog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -124,6 +186,30 @@ class ContentSummaryLogAPITestCase(APITestCase):
         del self.payload['user']
         response = self.client.post(reverse('contentsummarylog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_user_log_filtering(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('contentsummarylog-list'), data={"user_id": self.user2.id})
+        expected_count = ContentSummaryLog.objects.filter(user__pk=self.user2.id).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_facility_log_filtering(self):
+        self.client.login(username=self.deviceowner.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('contentsummarylog-list'), data={"facility": self.facility2.id})
+        expected_count = ContentSummaryLog.objects.filter(user__facility_id=self.facility2.id).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_classroom_log_filtering(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('contentsummarylog-list'), data={"classroom": self.classroom.id})
+        expected_count = ContentSummaryLog.objects.filter(user__pk=self.user2.id).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_learner_group_log_filtering(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('contentsummarylog-list'), data={"learner_group": self.learner_group.id})
+        expected_count = ContentSummaryLog.objects.filter(user__pk=self.user2.id).count()
+        self.assertEqual(len(response.data), expected_count)
 
     def tearDown(self):
         self.client.logout()
@@ -137,22 +223,39 @@ class ContentRatingLogAPITestCase(APITestCase):
 
     @classmethod
     def setUpClass(self):
+        # create facilities, add some users and admin
+        self.deviceowner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
+        self.user1 = FacilityUserFactory.create(facility=self.facility)
+        self.user2 = FacilityUserFactory.create(facility=self.facility)
+
+        # add user3 to new facility
+        self.facility2 = FacilityFactory.create()
+        self.user3 = FacilityUserFactory.create(facility=self.facility2)
+
+        # add admin to 1st facility
         self.admin = FacilityUserFactory.create(facility=self.facility)
-        self.user = FacilityUserFactory.create(facility=self.facility)
-        self.rating_log = []
-        self.rating_log += [ContentRatingLogFactory.create(user=self.user) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
+        # create logs for each user
+        [ContentRatingLogFactory.create(user=self.user1) for _ in range(3)]
+        [ContentRatingLogFactory.create(user=self.user2) for _ in range(2)]
+        [ContentRatingLogFactory.create(user=self.user3) for _ in range(1)]
+
+        # create classroom, learner group, add user2
+        self.classroom = ClassroomFactory.create(parent=self.facility)
+        self.learner_group = LearnerGroupFactory.create(parent=self.classroom)
+        self.learner_group.add_learner(self.user2)
+
     def setUp(self):
-        self.payload = {'user': self.user.pk,
+        self.payload = {'user': self.user1.pk,
                         'content_id': uuid.uuid4().hex,
                         'channel_id': uuid.uuid4().hex}
 
     def test_ratinglog_list(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.get(reverse('contentratinglog-list'))
-        expected_count = ContentRatingLog.objects.count()
+        expected_count = ContentRatingLog.objects.filter(user__facility_id=self.facility.id).count()
         self.assertEqual(len(response.data), expected_count)
 
     def test_ratinglog_detail(self):
@@ -168,7 +271,7 @@ class ContentRatingLogAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_learner_can_create_ratinglog(self):
-        self.client.login(username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility)
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.post(reverse('contentratinglog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -180,6 +283,30 @@ class ContentRatingLogAPITestCase(APITestCase):
         del self.payload['user']
         response = self.client.post(reverse('contentratinglog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_user_log_filtering(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('contentratinglog-list'), data={"user_id": self.user2.id})
+        expected_count = ContentRatingLog.objects.filter(user__pk=self.user2.id).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_facility_log_filtering(self):
+        self.client.login(username=self.deviceowner.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('contentratinglog-list'), data={"facility": self.facility2.id})
+        expected_count = ContentRatingLog.objects.filter(user__facility_id=self.facility2.id).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_classroom_log_filtering(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('contentratinglog-list'), data={"classroom": self.classroom.id})
+        expected_count = ContentRatingLog.objects.filter(user__pk=self.user2.id).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_learner_group_log_filtering(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('contentratinglog-list'), data={"learner_group": self.learner_group.id})
+        expected_count = ContentRatingLog.objects.filter(user__pk=self.user2.id).count()
+        self.assertEqual(len(response.data), expected_count)
 
     def tearDown(self):
         self.client.logout()
@@ -193,17 +320,34 @@ class UserSessionLogAPITestCase(APITestCase):
 
     @classmethod
     def setUpClass(self):
+        # create facilities, add some users and admin
+        self.deviceowner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
+        self.user1 = FacilityUserFactory.create(facility=self.facility)
+        self.user2 = FacilityUserFactory.create(facility=self.facility)
+
+        # add user3 to new facility
+        self.facility2 = FacilityFactory.create()
+        self.user3 = FacilityUserFactory.create(facility=self.facility2)
+
+        # add admin to 1st facility
         self.admin = FacilityUserFactory.create(facility=self.facility)
-        self.user = FacilityUserFactory.create(facility=self.facility)
-        self.session_log = []
-        self.session_log += [UserSessionLogFactory.create(user=self.user) for _ in range(3)]
         self.facility.add_admin(self.admin)
+
+        # create logs for each user
+        [UserSessionLogFactory.create(user=self.user1) for _ in range(3)]
+        [UserSessionLogFactory.create(user=self.user2) for _ in range(2)]
+        [UserSessionLogFactory.create(user=self.user3) for _ in range(1)]
+
+        # create classroom, learner group, add user2
+        self.classroom = ClassroomFactory.create(parent=self.facility)
+        self.learner_group = LearnerGroupFactory.create(parent=self.classroom)
+        self.learner_group.add_learner(self.user2)
 
     def test_sessionlog_list(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.get(reverse('usersessionlog-list'))
-        expected_count = UserSessionLog.objects.count()
+        expected_count = UserSessionLog.objects.filter(user__facility_id=self.facility.id).count()
         self.assertEqual(len(response.data), expected_count)
 
     def test_sessionlog_detail(self):
@@ -214,21 +358,45 @@ class UserSessionLogAPITestCase(APITestCase):
 
     def test_admin_can_create_sessionlog(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.post(reverse('usersessionlog-list'), data={'user': self.user.pk}, format='json')
+        response = self.client.post(reverse('usersessionlog-list'), data={'user': self.user1.pk}, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_learner_can_create_sessionlog(self):
-        self.client.login(username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.post(reverse('usersessionlog-list'), data={'user': self.user.pk}, format='json')
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.post(reverse('usersessionlog-list'), data={'user': self.user1.pk}, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_anonymous_user_cannot_create_sessionlog_for_learner(self):
-        response = self.client.post(reverse('usersessionlog-list'), data={'user': self.user.pk}, format='json')
+        response = self.client.post(reverse('usersessionlog-list'), data={'user': self.user1.pk}, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_anonymous_user_can_create_sessionlog(self):
         response = self.client.post(reverse('usersessionlog-list'), format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_user_log_filtering(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('usersessionlog-list'), data={"user_id": self.user2.id})
+        expected_count = UserSessionLog.objects.filter(user__pk=self.user2.id).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_facility_log_filtering(self):
+        self.client.login(username=self.deviceowner.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('usersessionlog-list'), data={"facility": self.facility2.id})
+        expected_count = UserSessionLog.objects.filter(user__facility_id=self.facility2.id).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_classroom_log_filtering(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('usersessionlog-list'), data={"classroom": self.classroom.id})
+        expected_count = UserSessionLog.objects.filter(user__pk=self.user2.id).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_learner_group_log_filtering(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        response = self.client.get(reverse('usersessionlog-list'), data={"learner_group": self.learner_group.id})
+        expected_count = UserSessionLog.objects.filter(user__pk=self.user2.id).count()
+        self.assertEqual(len(response.data), expected_count)
 
     def tearDown(self):
         self.client.logout()

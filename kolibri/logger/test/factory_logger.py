@@ -1,28 +1,8 @@
 import factory
 import uuid
-from kolibri.auth import models as auth
+from kolibri.auth.test.test_api import FacilityUserFactory
 
 from .. import models
-
-DUMMY_PASSWORD = "password"
-
-
-class FacilityFactory(factory.DjangoModelFactory):
-
-    class Meta:
-        model = auth.Facility
-
-    name = factory.Sequence(lambda n: "Rock N' Roll High School #%d" % n)
-
-
-class FacilityUserFactory(factory.DjangoModelFactory):
-
-    class Meta:
-        model = auth.FacilityUser
-
-    facility = factory.SubFactory(FacilityFactory)
-    username = factory.Sequence(lambda n: 'user%d' % n)
-    password = factory.PostGenerationMethodCall('set_password', DUMMY_PASSWORD)
 
 
 class ContentInteractionLogFactory(factory.DjangoModelFactory):
