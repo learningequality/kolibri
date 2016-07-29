@@ -32,6 +32,7 @@
   @require '../learn.styl'
 
   $thumb-width = $card-height * 3.0 / 2.5;
+  $border-width = 1px
 
   .root
     display: block
@@ -40,6 +41,14 @@
     background-color: $core-bg-light
     overflow: hidden
     border-radius: $radius
+    transition: border-color $core-time ease-out
+    border-width: $border-width
+    border-style: solid
+    border-color: transparent
+
+    &:hover
+      border-color: $core-action-normal
+
 
   .thumb-wrapper
     position: relative
@@ -47,13 +56,13 @@
     float: left
     width: $thumb-width
     height: $card-height
-    border-radius: $radius 0 0  $radius
+    border-radius: $radius 0 0 $radius
     overflow: hidden
 
   .text
     display: block
     float: right
-    width: $card-width - $thumb-width
+    width: $card-width - $thumb-width - 2 * $border-width
     height: $card-height
     padding: 0.6em
     font-size: 0.9rem
