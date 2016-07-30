@@ -401,21 +401,15 @@ class Resource {
   }
 
   /**
-   * Get a model by id - this will either return a Model that has already been instantiated,
-   * or will instantiate a model
-   * that can later be fetched.
+   * Get a model by id
    * @param {String} id - The primary key of the Model instance.
-   * @param {Object} [data={}] - Optional additional data to pass into the Model.
    * @returns {Model} - Returns a Model instance.
    */
-  getModel(id, data = {}) {
-    let model;
+  getModel(id) {
     if (!this.models[id]) {
-      model = new Model(data, this);
-    } else {
-      model = this.models[id];
+      return null;
     }
-    return model;
+    return this.models[id];
   }
 
   /**
