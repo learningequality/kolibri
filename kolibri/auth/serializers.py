@@ -2,18 +2,29 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from rest_framework import serializers
 
-from .models import (
-    Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership,
-    Role
-)
+from .models import Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership, Role
 
 
 class FacilityUserSerializer(serializers.ModelSerializer):
+    role = serializers.SerializerMethodField()
+    roleID = serializers.SerializerMethodField()
+
+    def get_role(self, obj):
+        roles = obj.roles.all()
+        if len(roles) > 0:
+            return roles[0].kind
+        return 'learner'
+
+    def get_roleID(slef, obj):
+        roles = obj.roles.all()
+        if len(roles) > 0:
+            return roles[0].id
+        return None
 
     class Meta:
         model = FacilityUser
-        exclude = ("dataset", "last_login")
         extra_kwargs = {'password': {'write_only': True}}
+        fields = ('id', 'username', 'first_name', 'last_name', 'password', 'facility', 'role', 'roleID')
 
     def create(self, validated_data):
         user = FacilityUser(**validated_data)
