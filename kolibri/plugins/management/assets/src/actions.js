@@ -16,7 +16,6 @@ function createUser(store, payload, role) {
     model.attributes.role = role;
     // assgin role to this new user if the role is not learner
     if (role === 'learner' || !role) {
-      model.attributes.roleID = null;
       // mutation ADD_LEARNERS only take array
       store.dispatch('ADD_LEARNERS', [model]);
     } else {
@@ -28,7 +27,7 @@ function createUser(store, payload, role) {
       const RoleModel = RoleResource.createModel(rolePayload);
       const newRolePromise = RoleModel.save(rolePayload);
       newRolePromise.then((results) => {
-        model.attributes.roleID = results.id;
+        model.attributes.roleID = results.attributes.id;
         // mutation ADD_LEARNERS only take array
         store.dispatch('ADD_LEARNERS', [model]);
       }).catch((error) => {
@@ -49,56 +48,37 @@ function createUser(store, payload, role) {
  */
 function updateUser(store, id, payload, role) {
   const FacilityUserModel = FacilityUserResource.getModel(id);
+  if (!FacilityUserModel) {
+    store.dispatch('SET_ERROR', 'Cannot find any user by this id.');
+    return;
+  }
+  const oldRoldID = FacilityUserModel.attributes.roleID;
   const oldRole = FacilityUserModel.attributes.role;
+  if (oldRole !== role) {
+    if (role === 'learner' || !role) {
+      const OldRoleModel = RoleResource.getModel(oldRoldID);
+      const OldRolePromise = OldRoleModel.delete(oldRoldID);
+      OldRolePromise.then((oldRoleID) => { })
+      .catch((error) => {
+        store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      });
+    } else {
+      const rolePayload = {
+        user: id,
+        collection: FacilityUserModel.attributes.facility,
+        kind: role,
+      };
+      const RoleModel = RoleResource.createModel(rolePayload);
+      const newRolePromise = RoleModel.save(rolePayload);
+      newRolePromise.then((results) => { })
+      .catch((error) => {
+        store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      });
+    }
+  }
   const newUserPromise = FacilityUserModel.save(payload);
   newUserPromise.then((model) => {
-    if (oldRole === role) {
-      // mutation UPDATE_LEARNERS only take array
-      store.dispatch('UPDATE_LEARNERS', [model]);
-    } else {
-      // update add role atrribute to facilityUser
-      model.attributes.role = role;
-      // create new role
-      if (role === 'learner' || !role) {
-        // delete old role
-        const OldRoleModel = RoleResource.getModel(model.attributes.roleID);
-        const OldRolePromise = OldRoleModel.delete(model.attributes.roleID);
-        OldRolePromise.then((oldRoleID) => {
-          // assign new role id
-          model.attributes.roleID = null;
-          store.dispatch('UPDATE_LEARNERS', [model]);
-        });
-      } else {
-        const rolePayload = {
-          user: model.attributes.id,
-          collection: model.attributes.facility,
-          kind: role,
-        };
-        const RoleModel = RoleResource.createModel(rolePayload);
-        const newRolePromise = RoleModel.save(rolePayload);
-        newRolePromise.then((results) => {
-          if (oldRole === 'learner') {
-            // assign new role id
-            model.attributes.roleID = results.id;
-            store.dispatch('UPDATE_LEARNERS', [model]);
-          } else {
-            // delete old role
-            const OldRoleModel = RoleResource.getModel(model.attributes.roleID);
-            const OldRolePromise = OldRoleModel.delete(model.attributes.roleID);
-            OldRolePromise.then((oldRoleID) => {
-              // assign new role id
-              model.attributes.roleID = results.id;
-              store.dispatch('UPDATE_LEARNERS', [model]);
-            })
-            .catch((error) => {
-              store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
-            });
-          }
-        }).catch((error) => {
-          store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
-        });
-      }
-    }
+    store.dispatch('UPDATE_LEARNERS', [model]);
   })
   .catch((error) => {
     store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
