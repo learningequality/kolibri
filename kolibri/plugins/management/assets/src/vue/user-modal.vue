@@ -38,12 +38,15 @@
           username: this.userName,
           first_name: this.firstName,
           last_name: this.lastName,
-          facility: 1,
+          facility: this.facility,
         };
         this.createUser(payload, this.role);
       },
     },
     vuex: {
+      getters: {
+        facility: state => state.facility,
+      },
       actions: {
         createUser: actions.createUser,
       },

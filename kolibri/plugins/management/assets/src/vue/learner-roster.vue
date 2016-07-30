@@ -44,7 +44,7 @@
           username: 'eli',
           first_name: 'yoo',
           last_name: 'hoo',
-          facility: 1,
+          facility: this.facility,
         };
         this.updateUser(id, payload, 'learner');
       },
@@ -52,6 +52,7 @@
     vuex: {
       getters: {
         getLearners: state => state.learners,
+        facility: state => state.facility,
       },
       actions: {
         deleteUser: actions.deleteUser,
