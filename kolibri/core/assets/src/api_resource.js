@@ -304,6 +304,20 @@ class Collection {
     return promise;
   }
 
+  getCurrentFacility() {
+    const promise = new Promise((resolve, reject) => {
+      client({ path: this.resource.currentFacilityUrl() }).then((response) => {
+        resolve(response.entity);
+      }, (response) => {
+        logging.error('An error occurred', response);
+      });
+    },
+    (reject) => {
+      reject(reject);
+    });
+    return promise;
+  }
+
   get url() {
     return this.resource.collectionUrl();
   }
