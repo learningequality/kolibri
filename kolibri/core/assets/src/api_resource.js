@@ -182,7 +182,7 @@ class Model {
           // Do a save on the URL.
           client(clientObj).then((response) => {
             // delete this instance
-            // this.prototype.delete();
+            this.resource.removeModel(this);
             // Resolve the promise with the response.
             resolve(id);
             // Clean up the reference to this promise
@@ -457,8 +457,16 @@ class Resource {
     return model;
   }
 
+  removeModel(model) {
+    delete this.models[model.id];
+  }
+
   get urls() {
     return this.kolibri.urls;
+  }
+
+  get currentFacilityUrl() {
+    return this.urls[`currentfacility_list`];
   }
 
   get modelUrl() {
