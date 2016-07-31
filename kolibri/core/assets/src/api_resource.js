@@ -169,21 +169,27 @@ class Model {
     return promise;
   }
 
+  /**
+   * Method to delete model.
+   * @param {Integer} id - target model's id.
+   * @returns {Promise} - Promise is resolved with target model's id
+   * returns, otherwise reject is called with the response object.
+   */
   delete(id) {
     const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         if (!this.id) {
           // Nothing to delete, so just resolve the promise now.
-          resolve(this.attributes);
+          reject('Please pass in the model id.');
         } else {
           // Otherwise, DELETE the Model
           const clientObj = { path: this.url, method: 'DELETE',
             headers: { 'Content-Type': 'application/json' } };
-          // Do a save on the URL.
           client(clientObj).then((response) => {
             // delete this instance
             this.resource.removeModel(this);
-            // Resolve the promise with the response.
+            // Resolve the promise with the id.
+            // Vuex will use this id to delete the model in its state.
             resolve(id);
             // Clean up the reference to this promise
             this.promises.splice(this.promises.indexOf(promise), 1);

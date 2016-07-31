@@ -69,15 +69,6 @@
     display: table
     transition: opacity 0.3s ease
     
-  .modal-container
-    background: #fff
-    width: 450px
-    border-radius: 5px
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
-    transition: all 0.3s ease
-    margin: 0 auto
-    padding: 20px 30px
-    
   .modal-wrapper
     display: table-cell
     vertical-align: middle
@@ -85,7 +76,7 @@
   .modal-container
     background: #fff
     width: 450px
-    border-radius: 5px
+    border-radius: 4px
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     transition: all 0.3s ease
     margin: 0 auto
