@@ -66,5 +66,5 @@ dist: staticdeps assets
 	pip install -r requirements/build.txt
 	python setup.py sdist
 	python setup.py bdist_wheel
-	pex -r requirements.txt . --disable-cache -o `python setup.py --fullname`.pex -m kolibri
+	pex . --disable-cache -o dist/`python setup.py --fullname`.pex -m kolibri --python-shebang=/usr/bin/python
 	ls -l dist
