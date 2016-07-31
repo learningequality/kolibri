@@ -1,16 +1,15 @@
 <template>
 
   <div class="roster">
-    <user-modal></user-modal>
     <input type="search" placeholder="Search for learner...">
     <div>
-      <button @click="openModal">+ Learner</button>
+      <user-create-modal></user-create-modal>
     </div>
     <div class="learner-roster">
       <ul>
         <li v-for="learner in getLearners">
-          <a href="#">{{ learner.last_name + ", " + learner.first_name + ", " + learner.role }}</a>
-          <button @click="editUser(learner.id, learner.username, learner.last_name, learner.first_name, learner.role)">Manage</button>
+          <a>{{ learner.last_name + ", " + learner.first_name + ", " + learner.role }}</a>
+          <user-edit-modal :currid="learner.id" :currrole="learner.role" :currname="learner.username" :currfirstname="learner.first_name" :currlastname="learner.last_name"></user-edit-modal>
           <button @click="deleteUser(learner.id)">Delete</button>
         </li>
       </ul>
@@ -32,22 +31,8 @@
 
   module.exports = {
     components: {
-      'user-modal': require('./user-modal.vue'),
-    },
-    methods: {
-      openModal() {
-        console.log(this.getLearners);
-      },
-      editUser(id) {
-        const payload = {
-          // password: this.passWord,
-          username: 'eli',
-          first_name: 'yoo',
-          last_name: 'hoo',
-          facility: this.facility,
-        };
-        this.updateUser(id, payload, 'learner');
-      },
+      'user-create-modal': require('./user-create-modal.vue'),
+      'user-edit-modal': require('./user-edit-modal.vue'),
     },
     vuex: {
       getters: {
@@ -56,7 +41,6 @@
       },
       actions: {
         deleteUser: actions.deleteUser,
-        updateUser: actions.updateUser,
       },
     },
   };
