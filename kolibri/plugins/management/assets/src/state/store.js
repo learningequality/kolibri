@@ -52,6 +52,10 @@ const mutations = {
   SET_FACILITY(state, id) {
     state.facility = id;
   },
+
+  SET_ERROR(state, error) {
+    state.error = error;
+  },
 };
 
 const store = new Vuex.Store({
