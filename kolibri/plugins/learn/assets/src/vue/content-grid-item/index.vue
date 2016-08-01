@@ -1,16 +1,17 @@
 <template>
 
   <div>
-    <card v-link="link" :title="title">
+    <grid-item v-link="link" :title="title">
       <div class='thumbnail' :class="{ 'thumbnail-center' : !thumb }" :style='{ "background-image": thumb }'>
         <content-icon
           :class='thumb ? "content-icon" : "content-icon-center" '
           v-if="kind"
+          :size="thumb ? 30 : 60"
           :kind="kind"
           :progress="progress">
         </content-icon>
       </div>
-    </card>
+    </grid-item>
   </div>
 
 </template>
@@ -26,7 +27,7 @@
   module.exports = {
     components: {
       'content-icon': require('../content-icon'),
-      'card': require('../card'),
+      'grid-item': require('../card-grid/grid-item'),
     },
     props: {
       id: {

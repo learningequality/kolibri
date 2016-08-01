@@ -2,14 +2,14 @@
 
   <div>
     <card-grid :header="title" v-if="slicedContents.length">
-      <content-card
+      <content-grid-item
         v-for="content in slicedContents"
         :title="content.title"
         :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
         :id="content.id">
-      </content-card>
+      </content-grid-item>
     </card-grid>
 
     <div class='button-wrapper' v-if="contents.length > nCollapsed">
@@ -49,7 +49,7 @@
       },
     },
     components: {
-      'content-card': require('../content-card'),
+      'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
     },
     data() {

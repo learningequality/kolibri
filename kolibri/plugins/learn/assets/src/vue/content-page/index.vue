@@ -14,6 +14,8 @@
       </a>
       <content-icon
         slot='icon'
+        :ispageicon="true"
+        :size="25"
         :kind="kind"
         :progress="progress">
       </content-icon>

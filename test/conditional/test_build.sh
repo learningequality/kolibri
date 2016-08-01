@@ -10,11 +10,12 @@ cd "$DIR/../../"
 
 # Install build deps
 pip install -r requirements/build.txt
+pip install -r requirements/test.txt
 
 # Build .whl
 npm install
-make sdist
-pip install dist/kolibri-*.whl
+make dist
+pip install dist/kolibri*.whl
 
 cd "$PREVIOUS_CWD"
 
