@@ -8,7 +8,7 @@
         <br>Password: <input type="text" v-model="passWord" placeholder="Please type in your password."><br>
         <br>First name: <input type="text" v-model="firstName" placeholder="Please type in your first name."><br>
         <br>Last name: <input type="text" v-model="lastName" placeholder="Please type in your last name."><br>
-        <!-- radio buttons for electing role -->
+        <!-- radio buttons for selecting role -->
         <br>Learner <input type="radio" name="picked" value="learner" v-model="role"><br>
         <br>Admin <input type="radio" name="picked" value="admin" v-model="role"><br>
       </div>
@@ -70,7 +70,7 @@
 
   .title
     display: inline
-  
+
   .confirm-btn
     float: right
 
