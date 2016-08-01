@@ -47,8 +47,10 @@ INSTALLED_APPS = [
     'kolibri.auth.apps.KolibriAuthConfig',
     'kolibri.content',
     'kolibri.logger',
+    'kolibri.tasks.apps.KolibriTasksConfig',
     'kolibri.core.webpack',
     'rest_framework',
+    'kombu.transport.django',   # for celery and django communication
     'django_js_reverse',
 ] + conf.config['INSTALLED_APPS']
 
