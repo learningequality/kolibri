@@ -56,7 +56,7 @@ For example:
       management/
         assets/
           src/
-            learner-roster.vue  # nested-view
+            user-roster.vue  # nested-view
             vue/index.vue        # root view
             app.js              # instantiate mgmt app on client-side
           test/
