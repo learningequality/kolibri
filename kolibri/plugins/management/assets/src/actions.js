@@ -154,12 +154,7 @@ function fetchInitialData(store) {
   const promises = [facilityIdPromise, userPromise, rolePromise];
   Promise.all(promises).then(responses => {
     const id = responses[0];
-    if (id.constructor === Array) {
-      // for mvp, we assume only one facility ever existed.
-      store.dispatch('SET_FACILITY', id[0]);
-    } else {
-      store.dispatch('SET_FACILITY', id);
-    }
+    store.dispatch('SET_FACILITY', id[0]); // for mvp, we assume only one facility exists
     const users = responses[1];
     store.dispatch('ADD_USERS', users);
   },
