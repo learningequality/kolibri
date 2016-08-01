@@ -60,9 +60,6 @@
 
   @require 'jeet'
 
-  h2
-    margin-top: 0
-
   .header
     margin-top: 2em
     margin-bottom: 1.4em
