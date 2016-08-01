@@ -12,7 +12,6 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
-      'drop-down': require('./drop-down.vue'),
       'user-roster': require('./user-roster.vue'),
     },
     vuex: {

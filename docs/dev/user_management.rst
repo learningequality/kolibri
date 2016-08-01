@@ -91,9 +91,6 @@ The UI allows the list of learner in the roster to be filtered. This includes:
   to the classroom selector.
 * Potentially other filters, for example listing learners in alphabetical or reverse-alphabetical order.
 
-.. note::
-  The classroom and group selectors are both instances of ``drop-down.vue``. Space is reserved in ``app-root.vue`` right now for other filters, however they don't correspond to subcomponents.
-
 Miscellaneous widgets
 *********************
 
