@@ -14,8 +14,8 @@ function createUser(store, payload, role) {
   newUserPromise.then((model) => {
     // assgin role to this new user if the role is not learner
     if (role === 'learner' || !role) {
-      // mutation ADD_LEARNERS only take array
-      store.dispatch('ADD_LEARNERS', [model]);
+      // mutation ADD_USERS only take array
+      store.dispatch('ADD_USERS', [model]);
     } else {
       const rolePayload = {
         user: model.id,
@@ -26,7 +26,7 @@ function createUser(store, payload, role) {
       const newRolePromise = RoleModel.save(rolePayload);
       newRolePromise.then((results) => {
         FacilityUserModel.fetch({}, true).then(updatedModel => {
-          store.dispatch('ADD_LEARNERS', [updatedModel]);
+          store.dispatch('ADD_USERS', [updatedModel]);
         });
       }).catch((error) => {
         store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
