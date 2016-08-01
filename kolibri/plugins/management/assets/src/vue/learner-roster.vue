@@ -3,17 +3,14 @@
   <div class="roster">
     <input type="search" placeholder="Search for learner...">
     <div>
-      <button>+ Learner</button>
-      <button>A-Z</button>
-      <button>Z-A</button>
+      <user-create-modal></user-create-modal>
     </div>
     <div class="learner-roster">
       <ul>
-        <li v-for="learner in learners">
-          <input type="checkbox">
-          <span class="vertical-divider">|</span>
-          <a href="#">{{ learner.last_name + ", " + learner.first_name }}</a>
-          <button>Manage</button>
+        <li v-for="learner in getLearners">
+          <a>{{ learner.last_name + ", " + learner.first_name + ", "}} {{learner.roles.length ? learner.roles[0].kind : "learner" }}</a>
+          <user-edit-modal :userid="learner.id" :roles="learner.roles" :username="learner.username" :firstname="learner.first_name" :lastname="learner.last_name"></user-edit-modal>
+          <button @click="deleteUser(learner.id)">Delete</button>
         </li>
       </ul>
     </div>
@@ -21,7 +18,7 @@
   <div class="sidebar">
     <div class="learner-count">
       <div>Total:</div>
-      <div>{{ learners.length }}</div>
+      <div>{{ getLearners.length }}</div>
     </div>
   </div>
 
@@ -30,14 +27,19 @@
 
 <script>
 
+  const actions = require('../actions');
+
   module.exports = {
-    props: {
-      learners: {
-        type: Array,
-        default: () => [{
-          last_name: 'Default',
-          first_name: 'Value',
-        }],
+    components: {
+      'user-create-modal': require('./user-create-modal.vue'),
+      'user-edit-modal': require('./user-edit-modal.vue'),
+    },
+    vuex: {
+      getters: {
+        getLearners: state => state.learners,
+      },
+      actions: {
+        deleteUser: actions.deleteUser,
       },
     },
   };
@@ -52,5 +54,9 @@
 
   .learner-count
     border: solid, 1px, black
+  .learner-roster
+    height: 300px
+    overflow:hidden
+    overflow-y:scroll
 
 </style>
