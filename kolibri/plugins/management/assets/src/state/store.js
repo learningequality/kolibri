@@ -2,7 +2,7 @@ const Vuex = require('vuex');
 
 function getInitialState() {
   return {
-    facility: 1,
+    facility: undefined,
     learners: [],
     error: '',
   };
