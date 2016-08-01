@@ -21,7 +21,7 @@
       </content-icon>
     </page-header>
 
-    <p class="description">
+    <p class="page-description">
       {{ description }}
     </p>
 
