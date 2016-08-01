@@ -1,5 +1,5 @@
 import importlib
-from celery import Celery, Task
+from celery import Celery
 from django.core.management import get_commands, call_command
 
 import logging as logger
