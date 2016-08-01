@@ -6,39 +6,46 @@
       <user-create-modal></user-create-modal>
     </div>
 
+    <hr>
+
     <table class="learner-roster">
-      <tr>
-        <!-- Might want to populate this another way -->
-        <td>Student Name</td>
-        <td>Username</td>
-        <td>Edit</td>
-      </tr>
 
-      <tr v-for="learner in getLearners">
-        <!-- Student Name field -->
-        <td>
-          {{ learner.first_name + " " + learner.last_name}}
-          <!-- {{learner.roles.length ? learner.roles[0].kind : "learner" }} -->
-        </td>
+      <!-- Table Headers -->
+      <thead>
+        <tr>
+          <th>Student Name</th>
+          <th>Username</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
 
-        <!-- Username field -->
-        <td>
-          {{learner.username}}
-        </td>
+      <tbody>
+        <tr v-for="learner in getLearners">
+          <!-- Student Name field -->
+          <td>
+            {{ learner.first_name + " " + learner.last_name}}
+            <!-- {{learner.roles.length ? learner.roles[0].kind : "learner" }} -->
+          </td>
 
-        <!-- Edit field -->
-        <td>
-          <user-edit-modal
-            :userid="learner.id"
-            :roles="learner.roles"
-            :username="learner.username"
-            :firstname="learner.first_name"
-            :lastname="learner.last_name">
-          </user-edit-modal>
-        </td>
+          <!-- Username field -->
+          <td>
+            {{learner.username}}
+          </td>
 
-        <!-- <button @click="deleteUser(learner.id)">Delete</button> -->
-      </tr>
+          <!-- Edit field -->
+          <td>
+            <user-edit-modal
+              :userid="learner.id"
+              :roles="learner.roles"
+              :username="learner.username"
+              :firstname="learner.first_name"
+              :lastname="learner.last_name">
+            </user-edit-modal>
+          </td>
+
+          <!-- <button @click="deleteUser(learner.id)">Delete</button> -->
+        </tr>
+      </tbody>
     </table>
   </div>
   <div class="sidebar">
@@ -75,14 +82,37 @@
 
 <style lang="stylus" scoped>
 
-  .roster, .sidebar
-    display: inline-block
+  @require '~core-theme'
 
-  .learner-count
-    border: solid, 1px, black
+  /*Padding height that separates rows from eachother*/
+  $row-padding = 1.5em
+
+  .roster
+    width: 100%
+
   .learner-roster
+    width: 100%
+    /*background-color: $core-bg-light*/
+    /*padding-top:*/
+
+
+    /*Prevent lists that are too long*/
     height: 300px
     overflow:hidden
     overflow-y:scroll
+
+  hr
+    color: $core-text-annotation
+
+  tr
+    text-align: left
+
+  th
+    padding-bottom: (1.2 * $row-padding)
+    color: $core-text-annotation
+
+  td
+    padding-bottom: $row-padding
+    color: $core-text-default
 
 </style>
