@@ -12,11 +12,11 @@ class ManagementModule extends KolibriModule {
       store: require('./state/store.js').store,
       vuex: {
         actions: {
-          fetch: actions.fetch,
+          fetchInitialData: actions.fetchInitialData,
         },
       },
     });
-    this.vm.fetch();
+    this.vm.fetchInitialData();
   }
 }
 

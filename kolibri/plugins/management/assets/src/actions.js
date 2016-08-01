@@ -145,7 +145,7 @@ function deleteUser(store, id) {
 }
 
 // An action for setting up the initial state of the app by fetching data from the server
-function fetch(store) {
+function fetchInitialData(store) {
   const learnerCollection = FacilityUserResource.getCollection();
   const roleCollection = RoleResource.getCollection();
   const facilityIdPromise = learnerCollection.getCurrentFacility();
@@ -172,5 +172,5 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
-  fetch,
+  fetchInitialData,
 };
