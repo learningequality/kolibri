@@ -4,27 +4,20 @@ from rest_framework import serializers
 
 from .models import Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership, Role
 
+class RoleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Role
+        exclude = ("dataset",)
+
 
 class FacilityUserSerializer(serializers.ModelSerializer):
-    role = serializers.SerializerMethodField()
-    roleID = serializers.SerializerMethodField()
-
-    def get_role(self, obj):
-        roles = obj.roles.all()
-        if len(roles) > 0:
-            return roles[0].kind
-        return 'learner'
-
-    def get_roleID(slef, obj):
-        roles = obj.roles.all()
-        if len(roles) > 0:
-            return roles[0].id
-        return None
+    roles = RoleSerializer(many=True, read_only=True)
 
     class Meta:
         model = FacilityUser
         extra_kwargs = {'password': {'write_only': True}}
-        fields = ('id', 'username', 'first_name', 'last_name', 'password', 'facility', 'role', 'roleID')
+        fields = ('id', 'username', 'first_name', 'last_name', 'password', 'facility', 'roles')
 
     def create(self, validated_data):
         user = FacilityUser(**validated_data)
@@ -51,13 +44,6 @@ class MembershipSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Membership
-        exclude = ("dataset",)
-
-
-class RoleSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Role
         exclude = ("dataset",)
 
 

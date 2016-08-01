@@ -30,15 +30,15 @@
       modal: require('./modal.vue'),
     },
     props: [
-      'currid', 'currname', 'currfirstname', 'currlastname', 'currpassword', 'currrole',
+      'userid', 'username', 'firstname', 'lastname', 'roles',
     ],
     data() {
       return {
-        userName: this.currname,
+        userName: this.username,
         passWord: '',
-        firstName: this.currfirstname,
-        lastName: this.currlastname,
-        role: this.currrole,
+        firstName: this.firstname,
+        lastName: this.lastname,
+        role: this.roles.length ? this.roles[0].kind : 'learner',
       };
     },
     methods: {
@@ -50,7 +50,7 @@
           last_name: this.lastName,
           facility: this.facility,
         };
-        this.updateUser(this.currid, payload, this.role);
+        this.updateUser(this.userid, payload, this.role);
       },
     },
     vuex: {

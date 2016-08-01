@@ -8,8 +8,8 @@
     <div class="learner-roster">
       <ul>
         <li v-for="learner in getLearners">
-          <a>{{ learner.last_name + ", " + learner.first_name + ", " + learner.role }}</a>
-          <user-edit-modal :currid="learner.id" :currrole="learner.role" :currname="learner.username" :currfirstname="learner.first_name" :currlastname="learner.last_name"></user-edit-modal>
+          <a>{{ learner.last_name + ", " + learner.first_name + ", "}} {{learner.roles.length ? learner.roles[0].kind : "learner" }}</a>
+          <user-edit-modal :userid="learner.id" :roles="learner.roles" :username="learner.username" :firstname="learner.first_name" :lastname="learner.last_name"></user-edit-modal>
           <button @click="deleteUser(learner.id)">Delete</button>
         </li>
       </ul>
@@ -37,7 +37,6 @@
     vuex: {
       getters: {
         getLearners: state => state.learners,
-        facility: state => state.facility,
       },
       actions: {
         deleteUser: actions.deleteUser,
