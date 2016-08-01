@@ -29,7 +29,7 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-  @require '../learn.styl'
+  @require '../../learn.styl'
 
   $thumb-width = $card-height * 3.0 / 2.5;
 

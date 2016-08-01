@@ -1,6 +1,6 @@
 const KolibriModule = require('kolibri_module');
 const Vue = require('vue');
-const actions = require('./vuex/actions.js');
+const actions = require('./actions.js');
 
 class ManagementModule extends KolibriModule {
   ready() {
@@ -9,14 +9,14 @@ class ManagementModule extends KolibriModule {
       components: {
         rootvue: require('./vue'),
       },
-      store: require('./vuex/store.js').store,
+      store: require('./state/store.js').store,
       vuex: {
         actions: {
-          fetch: actions.fetch,
+          fetchInitialData: actions.fetchInitialData,
         },
       },
     });
-    this.vm.fetch();
+    this.vm.fetchInitialData();
   }
 }
 

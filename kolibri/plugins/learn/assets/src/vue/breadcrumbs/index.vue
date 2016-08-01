@@ -1,6 +1,6 @@
 <template>
 
-  <nav role="navigation" aria-label="Breadcrumbs navigation">
+  <nav class="nav" role="navigation" aria-label="Breadcrumbs navigation">
     <span class="parent">
       <a v-link="rootLink">Explore</a> <span class='sep'>»</span>
     </span>
@@ -50,5 +50,12 @@
   .sep
     margin-left: 0.5em
     margin-right: 0.5em
+
+  .nav
+    margin-top: 2em
+    margin-bottom:1.4em
+
+  .parent a:link
+    font-weight: 300
 
 </style>

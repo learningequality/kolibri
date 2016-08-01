@@ -98,14 +98,18 @@
     padding-left: $left-margin
     padding-right: $right-margin
     padding-bottom: 50px
-    @media screen and (orientation: portrait)
-      padding-left: $left-margin - 20px
+    @media screen and (max-width: $portrait-breakpoint)
+      padding-left: $card-gutter * 2
+      padding-right: $card-gutter
+      padding-bottom: 100px
 
   .search-btn
     position: fixed
     top: 1rem
     right: 2rem
     z-index: 1
+    @media screen and (max-width: $portrait-breakpoint)
+      right: 1rem
 
   .search-pane
     background-color: $core-bg-canvas
@@ -116,6 +120,9 @@
     height: 100%
     width: 100%
     padding-left: $left-margin
+    @media screen and (max-width: $portrait-breakpoint)
+      padding-left: 0
+      margin-left: $card-gutter
 
   .search-shadow
     padding-right: $right-margin
@@ -130,6 +137,7 @@
 
   .page-content
     margin: auto
+    padding-right: $card-gutter // visible right-margin in line with grid
     width-auto-adjust()
 
 </style>

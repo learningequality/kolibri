@@ -14,6 +14,8 @@
       </a>
       <content-icon
         slot='icon'
+        :ispageicon="true"
+        :size="25"
         :kind="kind"
         :progress="progress">
       </content-icon>
@@ -30,7 +32,8 @@
         :files="files"
         :content-id="contentId"
         :available="available"
-        :extra-fields="extraFields">
+        :extra-fields="extraFields"
+        :title="title">
       </content-render>
     </div>
 
@@ -96,7 +99,7 @@
   .content-container
     height: 60vh
     margin-bottom: 1em
-    
+
   #little-arrow
     font-size: 28px
     font-weight: 900

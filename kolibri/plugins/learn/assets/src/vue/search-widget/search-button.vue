@@ -1,6 +1,6 @@
 <template>
 
-  <button class='search-btn' :class="{ active: searchOpen }" @click='toggleSearch'>
+  <button aria-label="Search" class='search-btn' :class="{ active: searchOpen }" @click='toggleSearch'>
     <svg src="search.svg"></svg>
   </button>
 
@@ -33,6 +33,7 @@
     border: none
     height: 36px
     width: 36px
+    background-color: $core-bg-canvas
 
     svg
       fill: $core-action-normal

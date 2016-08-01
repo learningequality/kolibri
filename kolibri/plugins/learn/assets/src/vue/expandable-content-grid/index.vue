@@ -1,25 +1,27 @@
 <template>
 
-  <card-grid :header="title" v-if="slicedContents.length">
-    <content-card
-      v-for="content in slicedContents"
-      :title="content.title"
-      :thumbnail="content.thumbnail"
-      :kind="content.kind"
-      :progress="content.progress"
-      :id="content.id">
-    </content-card>
-  </card-grid>
+  <div>
+    <card-grid :header="title" v-if="slicedContents.length">
+      <content-grid-item
+        v-for="content in slicedContents"
+        :title="content.title"
+        :thumbnail="content.thumbnail"
+        :kind="content.kind"
+        :progress="content.progress"
+        :id="content.id">
+      </content-grid-item>
+    </card-grid>
 
-  <div class='button-wrapper' v-if="contents.length > nCollapsed">
-    <button class='disclosure-button' @click='toggle()' v-if='expanded'>
-      <svg src="show-less.svg"></svg>
-      Show Less
-    </button>
-    <button class='disclosure-button' @click='toggle()' v-else>
-      <svg src="show-more.svg"></svg>
-      Show More
-    </button>
+    <div class='button-wrapper' v-if="contents.length > nCollapsed">
+      <button class='disclosure-button' @click='toggle()' v-if='expanded'>
+        <svg src="show-less.svg"></svg>
+        Show Less
+      </button>
+      <button class='disclosure-button' @click='toggle()' v-else>
+        <svg src="show-more.svg"></svg>
+        Show More
+      </button>
+    </div>
   </div>
 
 </template>
@@ -47,7 +49,7 @@
       },
     },
     components: {
-      'content-card': require('../content-card'),
+      'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
     },
     data() {
@@ -77,10 +79,6 @@
 
   .button-wrapper
     text-align: center
-    position: absolute
-    left: 50%
-    transform: translateX(-50%)
-    padding-bottom: 60px
 
   .disclosure-button
     padding-right: 1em // visually compensate for icon padding on left

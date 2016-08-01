@@ -28,7 +28,7 @@ Make targets
 ------------
 
 To build both the slim Kolibri and the one with bundled dependencies, simply
-run `make sdist`. The `.whl` files will now be available in `dist/*whl` and
+run `make dist`. The `.whl` files will now be available in `dist/*whl` and
 you can install them with `pip install dist/filename.whl`.
 
 Automated CI tests
