@@ -1,24 +1,24 @@
 <template>
 
   <div class="roster">
-    <input type="search" placeholder="Search for learner...">
+    <input type="search" placeholder="Search for user...">
     <div>
       <user-create-modal></user-create-modal>
     </div>
-    <div class="learner-roster">
+    <div class="user-roster">
       <ul>
-        <li v-for="learner in getLearners">
-          <a>{{ learner.last_name + ", " + learner.first_name + ", "}} {{learner.roles.length ? learner.roles[0].kind : "learner" }}</a>
-          <user-edit-modal :userid="learner.id" :roles="learner.roles" :username="learner.username" :firstname="learner.first_name" :lastname="learner.last_name"></user-edit-modal>
-          <button @click="deleteUser(learner.id)">Delete</button>
+        <li v-for="user in getUsers">
+          <a>{{ user.last_name + ", " + user.first_name + ", "}} {{user.roles.length ? user.roles[0].kind : "user" }}</a>
+          <user-edit-modal :userid="user.id" :roles="user.roles" :username="user.username" :firstname="user.first_name" :lastname="user.last_name"></user-edit-modal>
+          <button @click="deleteUser(user.id)">Delete</button>
         </li>
       </ul>
     </div>
   </div>
   <div class="sidebar">
-    <div class="learner-count">
+    <div class="user-count">
       <div>Total:</div>
-      <div>{{ getLearners.length }}</div>
+      <div>{{ getUsers.length }}</div>
     </div>
   </div>
 
@@ -36,7 +36,7 @@
     },
     vuex: {
       getters: {
-        getLearners: state => state.learners,
+        getUsers: state => state.users,
       },
       actions: {
         deleteUser: actions.deleteUser,
@@ -52,9 +52,9 @@
   .roster, .sidebar
     display: inline-block
 
-  .learner-count
+  .user-count
     border: solid, 1px, black
-  .learner-roster
+  .user-roster
     height: 300px
     overflow:hidden
     overflow-y:scroll

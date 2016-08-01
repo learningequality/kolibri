@@ -1,7 +1,7 @@
 <template>
 
   <div class="user-creation-modal">
-    <modal btntext="+ Learner">
+    <modal btntext="+ User">
       <div class="title" slot="header">User creation</div>
       <div slot="body">
         <br>Username: <input type="text" v-model="userName" placeholder="Please type in your username."><br>
@@ -67,7 +67,7 @@
 
   .title
     display: inline
-  
+
   .create-btn
     float: right
 
