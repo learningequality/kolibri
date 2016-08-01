@@ -66,7 +66,7 @@ function updateUser(store, id, payload, role) {
           // force role change because if the role is the only changing attribute
           // FacilityUserModel.save() will not send request to server.
           responses.roles = [newRole];
-          store.dispatch('UPDATE_LEARNERS', [responses]);
+          store.dispatch('UPDATE_USERS', [responses]);
         })
         .catch((error) => {
           store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -89,7 +89,7 @@ function updateUser(store, id, payload, role) {
             // force role change because if the role is the only changing attribute
             // FacilityUserModel.save() will not send request to server.
             responses.roles = [newRole];
-            store.dispatch('UPDATE_LEARNERS', [responses]);
+            store.dispatch('UPDATE_USERS', [responses]);
           })
           .catch((error) => {
             store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -107,7 +107,7 @@ function updateUser(store, id, payload, role) {
           // force role change because if the role is the only changing attribute
           // FacilityUserModel.save() will not send request to server.
           responses.roles = [];
-          store.dispatch('UPDATE_LEARNERS', [responses]);
+          store.dispatch('UPDATE_USERS', [responses]);
         })
         .catch((error) => {
           store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -117,7 +117,7 @@ function updateUser(store, id, payload, role) {
   } else {
   // the role is not changed
     FacilityUserModel.save(payload).then(responses => {
-      store.dispatch('UPDATE_LEARNERS', [responses]);
+      store.dispatch('UPDATE_USERS', [responses]);
     })
     .catch((error) => {
       store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -137,7 +137,7 @@ function deleteUser(store, id) {
   const FacilityUserModel = Kolibri.resources.FacilityUserResource.getModel(id);
   const newUserPromise = FacilityUserModel.delete(id);
   newUserPromise.then((userId) => {
-    store.dispatch('DELETE_LEARNERS', [userId]);
+    store.dispatch('DELETE_USERS', [userId]);
   })
   .catch((error) => {
     store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -149,9 +149,9 @@ function fetchInitialData(store) {
   const learnerCollection = FacilityUserResource.getCollection();
   const roleCollection = RoleResource.getCollection();
   const facilityIdPromise = learnerCollection.getCurrentFacility();
-  const learnerPromise = learnerCollection.fetch();
+  const userPromise = learnerCollection.fetch();
   const rolePromise = roleCollection.fetch();
-  const promises = [facilityIdPromise, learnerPromise, rolePromise];
+  const promises = [facilityIdPromise, userPromise, rolePromise];
   Promise.all(promises).then(responses => {
     const id = responses[0];
     if (id.constructor === Array) {
@@ -160,8 +160,8 @@ function fetchInitialData(store) {
     } else {
       store.dispatch('SET_FACILITY', id);
     }
-    const learners = responses[1];
-    store.dispatch('ADD_LEARNERS', learners);
+    const users = responses[1];
+    store.dispatch('ADD_USERS', users);
   },
   rejects => {
     store.dispatch('SET_ERROR', JSON.stringify(rejects, null, '\t'));

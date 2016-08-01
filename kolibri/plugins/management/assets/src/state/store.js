@@ -3,44 +3,44 @@ const Vuex = require('vuex');
 function getInitialState() {
   return {
     facility: undefined,
-    learners: [],
+    users: [],
     error: '',
   };
 }
 
 
 const mutations = {
-  ADD_LEARNERS(state, learners) {
-    learners.forEach(learner => {
-      state.learners.push({
-        id: learner.id,
-        username: learner.username,
-        first_name: learner.first_name,
-        last_name: learner.last_name,
-        roles: learner.roles,
+  ADD_USERS(state, users) {
+    users.forEach(user => {
+      state.users.push({
+        id: user.id,
+        username: user.username,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        roles: user.roles,
       });
     });
   },
 
-  UPDATE_LEARNERS(state, learners) {
-    learners.forEach(learner => {
-      state.learners.forEach(existingLearner => {
-        if (existingLearner.id === learner.id.toString()) {
-          existingLearner.username = learner.username;
-          existingLearner.first_name = learner.first_name;
-          existingLearner.last_name = learner.last_name;
-          existingLearner.roles = learner.roles;
+  UPDATE_USERS(state, users) {
+    users.forEach(user => {
+      state.users.forEach(existingUser => {
+        if (existingUser.id === user.id.toString()) {
+          existingUser.username = user.username;
+          existingUser.first_name = user.first_name;
+          existingUser.last_name = user.last_name;
+          existingUser.roles = user.roles;
         }
       });
     });
   },
 
-  DELETE_LEARNERS(state, ids) {
+  DELETE_USERS(state, ids) {
     ids.forEach(id => {
-      state.learners.forEach((learner, index) => {
-        if (learner.id === id) {
+      state.users.forEach((user, index) => {
+        if (user.id === id) {
           if (index > -1) {
-            state.learners.splice(index, 1);
+            state.users.splice(index, 1);
           }
         }
       });
