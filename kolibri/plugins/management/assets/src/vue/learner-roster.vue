@@ -5,15 +5,41 @@
     <div>
       <user-create-modal></user-create-modal>
     </div>
-    <div class="learner-roster">
-      <ul>
-        <li v-for="learner in getLearners">
-          <a>{{ learner.last_name + ", " + learner.first_name + ", "}} {{learner.roles.length ? learner.roles[0].kind : "learner" }}</a>
-          <user-edit-modal :userid="learner.id" :roles="learner.roles" :username="learner.username" :firstname="learner.first_name" :lastname="learner.last_name"></user-edit-modal>
-          <button @click="deleteUser(learner.id)">Delete</button>
-        </li>
-      </ul>
-    </div>
+
+    <table class="learner-roster">
+      <tr>
+        <!-- Might want to populate this another way -->
+        <td>Student Name</td>
+        <td>Username</td>
+        <td>Edit</td>
+      </tr>
+
+      <tr v-for="learner in getLearners">
+        <!-- Student Name field -->
+        <td>
+          {{ learner.first_name + " " + learner.last_name}}
+          <!-- {{learner.roles.length ? learner.roles[0].kind : "learner" }} -->
+        </td>
+
+        <!-- Username field -->
+        <td>
+          {{learner.username}}
+        </td>
+
+        <!-- Edit field -->
+        <td>
+          <user-edit-modal
+            :userid="learner.id"
+            :roles="learner.roles"
+            :username="learner.username"
+            :firstname="learner.first_name"
+            :lastname="learner.last_name">
+          </user-edit-modal>
+        </td>
+
+        <!-- <button @click="deleteUser(learner.id)">Delete</button> -->
+      </tr>
+    </table>
   </div>
   <div class="sidebar">
     <div class="learner-count">
