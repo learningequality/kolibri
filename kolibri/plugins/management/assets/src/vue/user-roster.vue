@@ -7,7 +7,7 @@
     <div class="user-roster">
       <ul>
         <li v-for="user in getUsers">
-          <a>{{ user.last_name + ", " + user.first_name + ", "}} {{user.roles.length ? user.roles[0].kind : "user" }}</a>
+          <div>{{ user.last_name + ", " + user.first_name + ", "}} {{user.roles.length ? user.roles[0].kind : "user" }}</div>
           <user-edit-modal :userid="user.id" :roles="user.roles" :username="user.username" :firstname="user.first_name" :lastname="user.last_name"></user-edit-modal>
           <button @click="deleteUser(user.id)">Delete</button>
         </li>
