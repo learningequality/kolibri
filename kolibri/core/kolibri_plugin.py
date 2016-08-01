@@ -1,10 +1,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.utils.translation import ugettext_lazy as _
 from kolibri.core.webpack.hooks import FrontEndCoreAssetHook, FrontEndCoreHook
 from kolibri.plugins.base import KolibriPluginBase
-
-from . import hooks
 
 
 class KolibriCore(KolibriPluginBase):
@@ -15,11 +12,6 @@ class KolibriCore(KolibriPluginBase):
     pass
 
 
-class MainNavigationItem(hooks.NavigationHook):
-    label = _("Do nothing")
-    url = '#'
-
-
 class FrontEndCoreAssetHook(FrontEndCoreAssetHook):
     unique_slug = "default_frontend"
     src_file = "kolibri/core/assets/src/core_app_instance.js"
@@ -27,5 +19,4 @@ class FrontEndCoreAssetHook(FrontEndCoreAssetHook):
 
 
 class FrontEndCoreInclusionHook(FrontEndCoreHook):
-
     bundle_class = FrontEndCoreAssetHook

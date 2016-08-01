@@ -1,6 +1,5 @@
 <template>
 
-  <!-- <kolibri-nav></kolibri-nav> -->
   <div>
     <slot></slot>
   </div>
@@ -11,16 +10,10 @@
 <script>
 
   module.exports = {
-    components: {
-      'kolibri-nav': require('./navigation.vue'),
-    },
+    components: {},
   };
 
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~core-theme.styl'
-
-</style>
+<style lang="stylus" scoped></style>
