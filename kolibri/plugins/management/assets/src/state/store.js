@@ -25,7 +25,7 @@ const mutations = {
   UPDATE_LEARNERS(state, learners) {
     learners.forEach(learner => {
       state.learners.forEach(existingLearner => {
-        if (existingLearner.id === learner.id) {
+        if (existingLearner.id === learner.id.toString()) {
           existingLearner.username = learner.username;
           existingLearner.first_name = learner.first_name;
           existingLearner.last_name = learner.last_name;
