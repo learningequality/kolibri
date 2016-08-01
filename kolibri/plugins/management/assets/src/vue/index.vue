@@ -1,7 +1,7 @@
 <template>
 
   <core-base>
-    <learner-roster></learner-roster>
+    <user-roster></user-roster>
   </core-base>
 
 </template>
@@ -12,8 +12,7 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
-      'drop-down': require('./drop-down.vue'),
-      'learner-roster': require('./learner-roster.vue'),
+      'user-roster': require('./user-roster.vue'),
     },
     vuex: {
       actions: require('../actions.js'),

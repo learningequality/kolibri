@@ -4,13 +4,13 @@
     <modal btntext="Edit">
       <div class="title" slot="header">User edit</div>
       <div slot="body">
-        <br>Username: <input type="text" v-model="userName" placeholder="Please type in your username."><br>
-        <br>Password: <input type="text" v-model="passWord" placeholder="Please type in your password."><br>
-        <br>First name: <input type="text" v-model="firstName" placeholder="Please type in your first name."><br>
-        <br>Last name: <input type="text" v-model="lastName" placeholder="Please type in your last name."><br>
-        <!-- radio buttons for electing role -->
-        <br>Learner <input type="radio" name="picked" value="learner" v-model="role"><br>
-        <br>Admin <input type="radio" name="picked" value="admin" v-model="role"><br>
+        <br>Username: <input type="text" v-model="username_new" placeholder="Please type in your username."><br>
+        <br>Password: <input type="text" v-model="password_new" placeholder="Please type in your password."><br>
+        <br>First name: <input type="text" v-model="firstName_new" placeholder="Please type in your first name."><br>
+        <br>Last name: <input type="text" v-model="lastName_new" placeholder="Please type in your last name."><br>
+        <!-- radio buttons for selecting role -->
+        <br>Learner <input type="radio" value="learner" v-model="role_new"><br>
+        <br>Admin <input type="radio" value="admin" v-model="role_new"><br>
       </div>
       <div slot="footer">
         <button class="confirm-btn" type="button" @click="editUser">Confirm</button>
@@ -34,23 +34,23 @@
     ],
     data() {
       return {
-        userName: this.username,
-        passWord: '',
-        firstName: this.firstname,
-        lastName: this.lastname,
-        role: this.roles.length ? this.roles[0].kind : 'learner',
+        username_new: this.username,
+        password_new: '',
+        firstName_new: this.firstname,
+        lastName_new: this.lastname,
+        role_new: this.roles.length ? this.roles[0].kind : 'learner',
       };
     },
     methods: {
       editUser() {
         const payload = {
-          password: this.passWord,
-          username: this.userName,
-          first_name: this.firstName,
-          last_name: this.lastName,
+          password: this.password_new,
+          username: this.username_new,
+          first_name: this.firstName_new,
+          last_name: this.lastName_new,
           facility: this.facility,
         };
-        this.updateUser(this.userid, payload, this.role);
+        this.updateUser(this.userid, payload, this.role_new);
       },
     },
     vuex: {
@@ -70,7 +70,7 @@
 
   .title
     display: inline
-  
+
   .confirm-btn
     float: right
 

@@ -385,7 +385,7 @@ class StringMethodTestCase(TestCase):
         self.assertEqual(str(self.learner.membership_set.all()[0]), '"foo"@"Arkham"\'s membership in "Oodles of Fun" (learnergroup)')
 
     def test_role_str_method(self):
-        self.assertEqual(str(self.classroom_coach.role_set.all()[0]), '"bar"@"Arkham"\'s coach role for "Classroom X" (classroom)')
+        self.assertEqual(str(self.classroom_coach.roles.all()[0]), '"bar"@"Arkham"\'s coach role for "Classroom X" (classroom)')
 
     def test_facility_str_method(self):
         self.assertEqual(str(self.facility), "Arkham")

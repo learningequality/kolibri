@@ -14,8 +14,8 @@ function createUser(store, payload, role) {
   newUserPromise.then((model) => {
     // assgin role to this new user if the role is not learner
     if (role === 'learner' || !role) {
-      // mutation ADD_LEARNERS only take array
-      store.dispatch('ADD_LEARNERS', [model]);
+      // mutation ADD_USERS only take array
+      store.dispatch('ADD_USERS', [model]);
     } else {
       const rolePayload = {
         user: model.id,
@@ -26,7 +26,7 @@ function createUser(store, payload, role) {
       const newRolePromise = RoleModel.save(rolePayload);
       newRolePromise.then((results) => {
         FacilityUserModel.fetch({}, true).then(updatedModel => {
-          store.dispatch('ADD_LEARNERS', [updatedModel]);
+          store.dispatch('ADD_USERS', [updatedModel]);
         });
       }).catch((error) => {
         store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -66,7 +66,7 @@ function updateUser(store, id, payload, role) {
           // force role change because if the role is the only changing attribute
           // FacilityUserModel.save() will not send request to server.
           responses.roles = [newRole];
-          store.dispatch('UPDATE_LEARNERS', [responses]);
+          store.dispatch('UPDATE_USERS', [responses]);
         })
         .catch((error) => {
           store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -89,7 +89,7 @@ function updateUser(store, id, payload, role) {
             // force role change because if the role is the only changing attribute
             // FacilityUserModel.save() will not send request to server.
             responses.roles = [newRole];
-            store.dispatch('UPDATE_LEARNERS', [responses]);
+            store.dispatch('UPDATE_USERS', [responses]);
           })
           .catch((error) => {
             store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -107,7 +107,7 @@ function updateUser(store, id, payload, role) {
           // force role change because if the role is the only changing attribute
           // FacilityUserModel.save() will not send request to server.
           responses.roles = [];
-          store.dispatch('UPDATE_LEARNERS', [responses]);
+          store.dispatch('UPDATE_USERS', [responses]);
         })
         .catch((error) => {
           store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -117,7 +117,7 @@ function updateUser(store, id, payload, role) {
   } else {
   // the role is not changed
     FacilityUserModel.save(payload).then(responses => {
-      store.dispatch('UPDATE_LEARNERS', [responses]);
+      store.dispatch('UPDATE_USERS', [responses]);
     })
     .catch((error) => {
       store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -137,7 +137,7 @@ function deleteUser(store, id) {
   const FacilityUserModel = Kolibri.resources.FacilityUserResource.getModel(id);
   const newUserPromise = FacilityUserModel.delete(id);
   newUserPromise.then((userId) => {
-    store.dispatch('DELETE_LEARNERS', [userId]);
+    store.dispatch('DELETE_USERS', [userId]);
   })
   .catch((error) => {
     store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -145,23 +145,18 @@ function deleteUser(store, id) {
 }
 
 // An action for setting up the initial state of the app by fetching data from the server
-function fetch(store) {
+function fetchInitialData(store) {
   const learnerCollection = FacilityUserResource.getCollection();
   const roleCollection = RoleResource.getCollection();
   const facilityIdPromise = learnerCollection.getCurrentFacility();
-  const learnerPromise = learnerCollection.fetch();
+  const userPromise = learnerCollection.fetch();
   const rolePromise = roleCollection.fetch();
-  const promises = [facilityIdPromise, learnerPromise, rolePromise];
+  const promises = [facilityIdPromise, userPromise, rolePromise];
   Promise.all(promises).then(responses => {
     const id = responses[0];
-    if (id.constructor === Array) {
-      // for mvp, we assume only one facility ever existed.
-      store.dispatch('SET_FACILITY', id[0]);
-    } else {
-      store.dispatch('SET_FACILITY', id);
-    }
-    const learners = responses[1];
-    store.dispatch('ADD_LEARNERS', learners);
+    store.dispatch('SET_FACILITY', id[0]); // for mvp, we assume only one facility exists
+    const users = responses[1];
+    store.dispatch('ADD_USERS', users);
   },
   rejects => {
     store.dispatch('SET_ERROR', JSON.stringify(rejects, null, '\t'));
@@ -172,5 +167,5 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
-  fetch,
+  fetchInitialData,
 };
