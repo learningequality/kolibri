@@ -34,6 +34,7 @@ const publicMethods = [
 function Lib() {
   // libraries
   this.logging = require('./logging');
+  this.router = require('./router');
   this.vue = vue;
   this.vuex = vuex;
   // views
