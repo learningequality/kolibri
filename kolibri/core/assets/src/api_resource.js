@@ -425,12 +425,15 @@ class Resource {
    * @param {String} id - The primary key of the Model instance.
    * @returns {Model} - Returns a Model instance.
    */
-  getModel(id) {
+  getModel(id, data = {}) {
+    let model;
     if (!this.models[id]) {
       Object.assign(data, { [this.idKey]: id });
       model = new Model(data, this);
+    } else {
+      model = this.models[id];
     }
-    return this.models[id];
+    return model;
   }
 
   /**
