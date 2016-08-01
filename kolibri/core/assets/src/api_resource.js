@@ -427,7 +427,8 @@ class Resource {
    */
   getModel(id) {
     if (!this.models[id]) {
-      return null;
+      Object.assign(data, { [this.idKey]: id });
+      model = new Model(data, this);
     }
     return this.models[id];
   }

@@ -46,10 +46,6 @@ function createUser(store, payload, role) {
  */
 function updateUser(store, id, payload, role) {
   const FacilityUserModel = FacilityUserResource.getModel(id);
-  if (!FacilityUserModel) {
-    store.dispatch('SET_ERROR', 'Cannot find any user by this id.');
-    return;
-  }
   const oldRoldID = FacilityUserModel.attributes.roles.length ?
     FacilityUserModel.attributes.roles[0].id : null;
   const oldRole = FacilityUserModel.attributes.roles.length ?
