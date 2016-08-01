@@ -60,7 +60,7 @@ release: clean assets
 	python setup.py bdist_wheel upload
 
 staticdeps: clean
-	pip install -t kolibri/dist/ -r requirements.txt
+	DISABLE_SQLALCHEMY_CEXT=1 pip install -t kolibri/dist/ -r requirements.txt
 
 dist: staticdeps assets
 	pip install -r requirements/build.txt
