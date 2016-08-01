@@ -37,7 +37,12 @@ def setup_celery_for_management_commands():
 
 def schedule_command(funcname, *args, **kwargs):
     call_command = app.tasks[CALL_COMMAND_SHORTNAME]
-    return call_command.delay(funcname)
+    task = call_command.delay(
+        funcname,
+        update_state=call_command.update_state,
+        *args, **kwargs
+    )
+    return task.task_id
 
 
 def get_task_state():
