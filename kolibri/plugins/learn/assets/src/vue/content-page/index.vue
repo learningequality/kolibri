@@ -32,7 +32,8 @@
         :files="files"
         :content-id="contentId"
         :available="available"
-        :extra-fields="extraFields">
+        :extra-fields="extraFields"
+        :title="title">
       </content-render>
     </div>
 
