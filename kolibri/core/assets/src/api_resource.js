@@ -150,7 +150,7 @@ class Model {
             // Flag that the Model has been fetched.
             this.synced = true;
             // Resolve the promise with the Model.
-            resolve(this);
+            resolve(response.entity);
             // Clean up the reference to this promise
             this.promises.splice(this.promises.indexOf(promise), 1);
           }, (response) => {
