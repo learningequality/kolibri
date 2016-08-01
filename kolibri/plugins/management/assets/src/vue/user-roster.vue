@@ -1,7 +1,6 @@
 <template>
 
   <div class="roster">
-    <input type="search" placeholder="Search for user...">
     <div>
       <user-create-modal></user-create-modal>
     </div>
