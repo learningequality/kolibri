@@ -4,13 +4,13 @@
     <modal btntext="+ User">
       <div class="title" slot="header">User creation</div>
       <div slot="body">
-        <br>Username: <input type="text" v-model="userName" placeholder="Please type in your username."><br>
-        <br>Password: <input type="text" v-model="passWord" placeholder="Please type in your password."><br>
+        <br>Username: <input type="text" v-model="username" placeholder="Please type in your username."><br>
+        <br>Password: <input type="text" v-model="password" placeholder="Please type in your password."><br>
         <br>First name: <input type="text" v-model="firstName" placeholder="Please type in your first name."><br>
         <br>Last name: <input type="text" v-model="lastName" placeholder="Please type in your last name."><br>
         <!-- radio buttons for selecting role -->
-        <br>Learner <input type="radio" name="picked" value="learner" v-model="role"><br>
-        <br>Admin <input type="radio" name="picked" value="admin" v-model="role"><br>
+        <br>Learner <input type="radio" value="learner" v-model="role"><br>
+        <br>Admin <input type="radio" value="admin" v-model="role"><br>
       </div>
       <div slot="footer">
         <button class="create-btn" type="button" @click="createNewUser">Create User</button>
@@ -31,8 +31,8 @@
     },
     data() {
       return {
-        userName: '',
-        passWord: '',
+        username: '',
+        password: '',
         firstName: '',
         lastName: '',
         role: 'learner',
@@ -41,8 +41,8 @@
     methods: {
       createNewUser() {
         const payload = {
-          password: this.passWord,
-          username: this.userName,
+          password: this.password,
+          username: this.username,
           first_name: this.firstName,
           last_name: this.lastName,
           facility: this.facility,

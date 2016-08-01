@@ -4,8 +4,8 @@
     <modal btntext="Edit">
       <div class="title" slot="header">User edit</div>
       <div slot="body">
-        <br>Username: <input type="text" v-model="userName" placeholder="Please type in your username."><br>
-        <br>Password: <input type="text" v-model="passWord" placeholder="Please type in your password."><br>
+        <br>Username: <input type="text" v-model="username" placeholder="Please type in your username."><br>
+        <br>Password: <input type="text" v-model="password" placeholder="Please type in your password."><br>
         <br>First name: <input type="text" v-model="firstName" placeholder="Please type in your first name."><br>
         <br>Last name: <input type="text" v-model="lastName" placeholder="Please type in your last name."><br>
         <!-- radio buttons for selecting role -->
@@ -34,8 +34,8 @@
     ],
     data() {
       return {
-        userName: this.username,
-        passWord: '',
+        username: this.username,
+        password: '',
         firstName: this.firstname,
         lastName: this.lastname,
         role: this.roles.length ? this.roles[0].kind : 'learner',
@@ -44,8 +44,8 @@
     methods: {
       editUser() {
         const payload = {
-          password: this.passWord,
-          username: this.userName,
+          password: this.password,
+          username: this.username,
           first_name: this.firstName,
           last_name: this.lastName,
           facility: this.facility,
