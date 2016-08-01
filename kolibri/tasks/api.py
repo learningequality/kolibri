@@ -24,7 +24,7 @@ def setup_celery_for_management_commands():
             module=module,
         )
         logging.debug("registering {}".format(import_path))
-        mod = importlib.import_module(import_path)
+        importlib.import_module(import_path)
 
     # register the call_command command, which will be our main interface
     # for calling commands asynchronously
