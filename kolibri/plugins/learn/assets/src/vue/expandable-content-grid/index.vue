@@ -79,6 +79,7 @@
 
   .button-wrapper
     text-align: center
+    margin-top: 1em
 
   .disclosure-button
     padding-right: 1em // visually compensate for icon padding on left
