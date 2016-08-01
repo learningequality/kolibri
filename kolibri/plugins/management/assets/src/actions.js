@@ -12,24 +12,22 @@ function createUser(store, payload, role) {
   const FacilityUserModel = FacilityUserResource.createModel(payload);
   const newUserPromise = FacilityUserModel.save(payload);
   newUserPromise.then((model) => {
-    // always add role atrribute to facilityUser
-    model.attributes.role = role;
     // assgin role to this new user if the role is not learner
     if (role === 'learner' || !role) {
       // mutation ADD_LEARNERS only take array
       store.dispatch('ADD_LEARNERS', [model]);
     } else {
       const rolePayload = {
-        user: model.attributes.id,
-        collection: model.attributes.facility,
+        user: model.id,
+        collection: model.facility,
         kind: role,
       };
       const RoleModel = RoleResource.createModel(rolePayload);
       const newRolePromise = RoleModel.save(rolePayload);
       newRolePromise.then((results) => {
-        model.attributes.roleID = results.attributes.id;
-        // mutation ADD_LEARNERS only take array
-        store.dispatch('ADD_LEARNERS', [model]);
+        FacilityUserModel.fetch({}, true).then(updatedModel => {
+          store.dispatch('ADD_LEARNERS', [updatedModel]);
+        });
       }).catch((error) => {
         store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
       });
@@ -52,37 +50,64 @@ function updateUser(store, id, payload, role) {
     store.dispatch('SET_ERROR', 'Cannot find any user by this id.');
     return;
   }
-  const oldRoldID = FacilityUserModel.attributes.roleID;
-  const oldRole = FacilityUserModel.attributes.role;
-  if (oldRole !== role) {
-    if (role === 'learner' || !role) {
-      const OldRoleModel = RoleResource.getModel(oldRoldID);
-      const OldRolePromise = OldRoleModel.delete(oldRoldID);
-      OldRolePromise.then((oldRoleID) => { })
-      .catch((error) => {
-        store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
-      });
-    } else {
+  const oldRoldID = FacilityUserModel.attributes.roles.length ?
+    FacilityUserModel.attributes.roles[0].id : null;
+  const oldRole = FacilityUserModel.attributes.roles.length ?
+    FacilityUserModel.attributes.roles[0].kind : 'learner';
+  if (oldRole === 'learner') {
+    if (oldRole !== role) {
       const rolePayload = {
         user: id,
         collection: FacilityUserModel.attributes.facility,
         kind: role,
       };
       const RoleModel = RoleResource.createModel(rolePayload);
-      const newRolePromise = RoleModel.save(rolePayload);
-      newRolePromise.then((results) => { })
-      .catch((error) => {
-        store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      RoleModel.save(rolePayload).then((newRole) => {
+        FacilityUserModel.save(payload).then(responses => {
+          // force role change because if the role is the only changing attribute
+          // FacilityUserModel.save() will not send request to server.
+          responses.roles = [newRole];
+          store.dispatch('UPDATE_LEARNERS', [responses]);
+        })
+        .catch((error) => {
+          store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+        });
+      });
+    }
+  } else {
+    if (oldRole !== role) {
+      const OldRoleModel = RoleResource.getModel(oldRoldID);
+      console.log('wwww: ', oldRoldID);
+      OldRoleModel.delete(oldRoldID).then(() => {
+        FacilityUserModel.save(payload).then(responses => {
+          // force role change because if the role is the only changing attribute
+          // FacilityUserModel.save() will not send request to server.
+          responses.roles = [];
+          store.dispatch('UPDATE_LEARNERS', [responses]);
+        })
+        .catch((error) => {
+          store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+        });
+      });
+    }
+    if (role !== 'learner') {
+      const rolePayload = {
+        user: id,
+        collection: FacilityUserModel.attributes.facility,
+        kind: role,
+      };
+      const RoleModel = RoleResource.createModel(rolePayload);
+      RoleModel.save(rolePayload).then((newRole) => {
+        FacilityUserModel.save(payload).then(responses => {
+          responses.roles = [newRole];
+          store.dispatch('UPDATE_LEARNERS', [responses]);
+        })
+        .catch((error) => {
+          store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+        });
       });
     }
   }
-  const newUserPromise = FacilityUserModel.save(payload);
-  newUserPromise.then((model) => {
-    store.dispatch('UPDATE_LEARNERS', [model]);
-  })
-  .catch((error) => {
-    store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
 }
 
 /**
@@ -105,20 +130,24 @@ function deleteUser(store, id) {
 }
 
 // An action for setting up the initial state of the app by fetching data from the server
-function fetch({ dispatch }) {
+function fetch(store) {
   const learnerCollection = FacilityUserResource.getCollection();
   const facilityIdPromise = learnerCollection.getCurrentFacility();
   const learnerPromise = learnerCollection.fetch();
-  learnerPromise.then(() => {
-    dispatch('ADD_LEARNERS', learnerCollection.models);
-  });
-  facilityIdPromise.then((id) => {
+  const promises = [facilityIdPromise, learnerPromise];
+  Promise.all(promises).then(responses => {
+    const id = responses[0];
     if (id.constructor === Array) {
       // for mvp, we assume only one facility ever existed.
-      dispatch('SET_FACILITY', id[0]);
+      store.dispatch('SET_FACILITY', id[0]);
     } else {
-      dispatch('SET_FACILITY', id);
+      store.dispatch('SET_FACILITY', id);
     }
+    const learners = responses[1];
+    store.dispatch('ADD_LEARNERS', learners);
+  },
+  rejects => {
+    store.dispatch('SET_ERROR', JSON.stringify(rejects, null, '\t'));
   });
 }
 
