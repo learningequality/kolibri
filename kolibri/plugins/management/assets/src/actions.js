@@ -50,8 +50,11 @@ function updateUser(store, id, payload, role) {
     FacilityUserModel.attributes.roles[0].id : null;
   const oldRole = FacilityUserModel.attributes.roles.length ?
     FacilityUserModel.attributes.roles[0].kind : 'learner';
-  if (oldRole === 'learner') {
-    if (oldRole !== role) {
+
+  if (oldRole !== role) {
+  // the role changed
+    if (oldRole === 'learner') {
+    // role is admin or coach.
       const rolePayload = {
         user: id,
         collection: FacilityUserModel.attributes.facility,
@@ -69,16 +72,35 @@ function updateUser(store, id, payload, role) {
           store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
         });
       });
-    } else {
-      FacilityUserModel.save(payload).then(responses => {
-        store.dispatch('UPDATE_LEARNERS', [responses]);
+    } else if (role !== 'learner') {
+    // oldRole is admin and role is coach or oldRole is coach and role is admin.
+      const OldRoleModel = RoleResource.getModel(oldRoldID);
+      OldRoleModel.delete(oldRoldID).then(() => {
+      // create new role when old role is successfully deleted.
+        const rolePayload = {
+          user: id,
+          collection: FacilityUserModel.attributes.facility,
+          kind: role,
+        };
+        const RoleModel = RoleResource.createModel(rolePayload);
+        RoleModel.save(rolePayload).then((newRole) => {
+        // update the facilityUser when new role is successfully created.
+          FacilityUserModel.save(payload).then(responses => {
+            // force role change because if the role is the only changing attribute
+            // FacilityUserModel.save() will not send request to server.
+            responses.roles = [newRole];
+            store.dispatch('UPDATE_LEARNERS', [responses]);
+          })
+          .catch((error) => {
+            store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+          });
+        });
       })
       .catch((error) => {
         store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
       });
-    }
-  } else {
-    if (oldRole !== role) {
+    } else {
+    // role is learner and oldRole is admin or coach.
       const OldRoleModel = RoleResource.getModel(oldRoldID);
       OldRoleModel.delete(oldRoldID).then(() => {
         FacilityUserModel.save(payload).then(responses => {
@@ -92,29 +114,20 @@ function updateUser(store, id, payload, role) {
         });
       });
     }
-    if (role !== 'learner') {
-      const rolePayload = {
-        user: id,
-        collection: FacilityUserModel.attributes.facility,
-        kind: role,
-      };
-      const RoleModel = RoleResource.createModel(rolePayload);
-      RoleModel.save(rolePayload).then((newRole) => {
-        FacilityUserModel.save(payload).then(responses => {
-          responses.roles = [newRole];
-          store.dispatch('UPDATE_LEARNERS', [responses]);
-        })
-        .catch((error) => {
-          store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
-        });
-      });
-    }
+  } else {
+  // the role is not changed
+    FacilityUserModel.save(payload).then(responses => {
+      store.dispatch('UPDATE_LEARNERS', [responses]);
+    })
+    .catch((error) => {
+      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+    });
   }
 }
 
 /**
- * Pass a null id will do a POST to create new user,
- * @param {string} id
+ * Do a DELETE to delete the user.
+ * @param {string or Integer} id
  */
 function deleteUser(store, id) {
   if (!id) {
