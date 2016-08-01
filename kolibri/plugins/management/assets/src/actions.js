@@ -73,11 +73,17 @@ function updateUser(store, id, payload, role) {
           store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
         });
       });
+    } else {
+      FacilityUserModel.save(payload).then(responses => {
+        store.dispatch('UPDATE_LEARNERS', [responses]);
+      })
+      .catch((error) => {
+        store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      });
     }
   } else {
     if (oldRole !== role) {
       const OldRoleModel = RoleResource.getModel(oldRoldID);
-      console.log('wwww: ', oldRoldID);
       OldRoleModel.delete(oldRoldID).then(() => {
         FacilityUserModel.save(payload).then(responses => {
           // force role change because if the role is the only changing attribute
@@ -132,9 +138,11 @@ function deleteUser(store, id) {
 // An action for setting up the initial state of the app by fetching data from the server
 function fetch(store) {
   const learnerCollection = FacilityUserResource.getCollection();
+  const roleCollection = RoleResource.getCollection();
   const facilityIdPromise = learnerCollection.getCurrentFacility();
   const learnerPromise = learnerCollection.fetch();
-  const promises = [facilityIdPromise, learnerPromise];
+  const rolePromise = roleCollection.fetch();
+  const promises = [facilityIdPromise, learnerPromise, rolePromise];
   Promise.all(promises).then(responses => {
     const id = responses[0];
     if (id.constructor === Array) {
