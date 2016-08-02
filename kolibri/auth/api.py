@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.contrib.auth import get_user
+from django.contrib.auth.models import AnonymousUser
 from rest_framework import filters, permissions, viewsets
 from rest_framework.response import Response
 
@@ -101,6 +102,8 @@ class CurrentFacilityViewSet(viewsets.ViewSet):
     def list(self, request):
         logged_in_user = get_user(request)
         if type(logged_in_user) is DeviceOwner:
+            return Response(Facility.objects.all().values_list('id', flat=True))
+        elif type(logged_in_user) is AnonymousUser:
             return Response(Facility.objects.all().values_list('id', flat=True))
         else:
             return Response(logged_in_user.facility)

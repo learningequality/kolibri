@@ -24,7 +24,11 @@
       </div>
     </div>
 
-    <button type="button" @click="openModel">{{ btntext }}</button>
+    <div @click="openModel">
+      <slot name="openbtn">
+        <button>{{ btntext }}</button>
+      </slot>
+    </div>
   </div>
 
 </template>
