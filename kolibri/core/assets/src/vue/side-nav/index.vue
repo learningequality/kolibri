@@ -5,7 +5,7 @@
       <div class='link-wrapper'>
         <a class='link' v-link="learnLink" @click='closeSearch' :class="learnClass">
           <div class='content'>
-            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
+            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="learn.svg"></svg>
             <div class="label">Learn</div>
           </div>
         </a>
@@ -13,7 +13,7 @@
       <div class='link-wrapper'>
         <a class='link' v-link="exploreLink" @click='closeSearch' :class="exploreClass">
           <div class='content'>
-            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
+            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="explore.svg"></svg>
             <div class="label">Explore</div>
           </div>
         </a>
@@ -69,7 +69,6 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-  @require '../learn'
 
   .nav-wrapper
     display: table

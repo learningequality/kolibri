@@ -1,7 +1,6 @@
 <template>
 
   <core-base>
-    <side-nav class='nav'></side-nav>
     <div class='main'>
       <search-button class='search-btn'></search-button>
 
@@ -43,7 +42,6 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
-      'side-nav': require('./side-nav'),
       'search-widget': require('./search-widget'),
       'search-button': require('./search-widget/search-button'),
       'explore-page': require('./explore-page'),
