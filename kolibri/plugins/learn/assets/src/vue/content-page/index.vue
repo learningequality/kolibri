@@ -2,15 +2,17 @@
 
   <div>
 
-    <breadcrumbs
-      v-if="pageMode === $options.PageModes.EXPLORE"
-      slot='extra-nav'
-      :rootid='rootTopicId'
-      :crumbs='breadcrumbs'>
-    </breadcrumbs>
-    <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_ROOT }">
-      <span id="little-arrow">←</span> Learn
-    </a>
+    <page-header>
+      <breadcrumbs
+        v-if="pageMode === $options.PageModes.EXPLORE"
+        slot='extra-nav'
+        :rootid='rootTopicId'
+        :crumbs='breadcrumbs'>
+      </breadcrumbs>
+      <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_ROOT }">
+        <span id="little-arrow">←</span> Learn
+      </a>
+    </page-header>
 
     <div class="content-container" v-show='!searchOpen'>
       <content-render
@@ -24,7 +26,6 @@
     </div>
 
     <page-header :title='title'>
-
       <content-icon
         slot='icon'
         :ispageicon="true"
@@ -45,9 +46,7 @@
       {{ description }}
     </p>
 
-
-
-    <expandable-content-grid
+    <expandable-content-grid class="recommendation-section"
       v-if="pageMode === $options.PageModes.LEARN"
       title="Recommended"
       :contents="recommended">
@@ -107,6 +106,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme.styl'
+
   .content-container
     height: 60vh
     margin-bottom: 1em
@@ -114,6 +115,9 @@
   #little-arrow
     font-size: 28px
     font-weight: 900
+
+  .recommendation-section
+    margin-top: 6em
 
 </style>
 
