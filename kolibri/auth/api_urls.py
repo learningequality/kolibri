@@ -1,7 +1,9 @@
 from rest_framework import routers
 
 from .api import (
-    ClassroomViewSet, CurrentFacilityViewSet, DeviceOwnerViewSet, FacilityUserViewSet, FacilityViewSet, LearnerGroupViewSet, MembershipViewSet, RoleViewSet
+    ClassroomViewSet, CurrentFacilityViewSet, DeviceOwnerViewSet,
+    FacilityUserViewSet, FacilityViewSet, LearnerGroupViewSet,
+    MembershipViewSet, RoleViewSet, SessionViewSet
 )
 
 router = routers.SimpleRouter()
@@ -14,5 +16,6 @@ router.register(r'facility', FacilityViewSet)
 router.register(r'currentfacility', CurrentFacilityViewSet, base_name='currentfacility')
 router.register(r'classroom', ClassroomViewSet)
 router.register(r'learnergroup', LearnerGroupViewSet)
+router.register(r'session', SessionViewSet, base_name='session')
 
 urlpatterns = router.urls

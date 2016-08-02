@@ -48,7 +48,7 @@ class DeviceOwnerBackend(object):
     A class that implements authentication for DeviceOwners.
     """
 
-    def authenticate(self, username=None, password=None):
+    def authenticate(self, username=None, password=None, **kwargs):
         """
         Authenticates the user if the credentials correspond to a DeviceOwner.
 
