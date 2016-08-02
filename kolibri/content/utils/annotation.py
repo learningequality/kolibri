@@ -15,9 +15,9 @@ def _get_channel_list_from_scanning_contentdb_dir():
 
 def sync_channelmetadata():
     """
-    Everytime kolibri runs, scan through the settings.CONTENT_DATABASE_DIR folder to collect the names for all ContentDB,
-    and use the name to query each ContentDB to get the ChannelMetadata object,
-    and use them to update the ChannelMetadata object in the default database to ensure they are insync
+    Scan through the settings.CONTENT_DATABASE_DIR folder for all channel content databases,
+    and pull the data from each database's ChannelMetadata object to update the ChannelMetadataCache
+    object in the default database to ensure they are in sync.
     """
     db_names = _get_channel_list_from_scanning_contentdb_dir()
     # delete channelmetadata obejcts in default db that cannot be found in CONTENT_DATABASE_DIR

@@ -7,9 +7,9 @@ import subprocess
 import sys
 from threading import Thread
 
-from django.contrib.staticfiles.management.commands.runserver import \
-    Command as RunserverCommand
+from django.contrib.staticfiles.management.commands.runserver import Command as RunserverCommand
 from django.core.management.base import CommandError
+from kolibri.content.utils.annotation import sync_channelmetadata
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +46,8 @@ class Command(RunserverCommand):
 
         if options["karma"]:
             self.spawn_karma()
+
+        sync_channelmetadata()
 
         return super(Command, self).handle(*args, **options)
 

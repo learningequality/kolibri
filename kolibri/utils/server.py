@@ -3,6 +3,7 @@ import os
 import cherrypy
 from django.conf import settings
 from django.core.management import call_command
+from kolibri.content.utils.annotation import sync_channelmetadata
 from kolibri.deployment.default.wsgi import application
 
 
@@ -12,6 +13,8 @@ def start():
     call_command("collectstatic", interactive=False)
     call_command("collectstatic_js_reverse", interactive=False)
     call_command("migrate", interactive=False)
+
+    sync_channelmetadata()
 
     run_server()
 
