@@ -63,9 +63,9 @@
       * Method that returns a safe filename.
       */
       sanitizeFilename(filename) {
-        let sanitizedFilename = filename.replace(/[^a-z0-9+]+/gi, '');
+        let sanitizedFilename = filename.replace(/[^a-z0-9+]+/gi, '_');
         sanitizedFilename = sanitizedFilename.toLowerCase();
-        sanitizedFilename = sanitizedFilename.substring(0, 20);
+        sanitizedFilename = sanitizedFilename.substring(0, 50);
         if (!sanitizedFilename.trim()) {
           sanitizedFilename = 'download';
         }
