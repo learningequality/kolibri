@@ -1,5 +1,7 @@
 import importlib
 from celery import Celery
+from celery.backends.database.models import Task
+from sqlalchemy import create_engine, sql
 from django.core.management import get_commands, call_command
 
 import logging as logger
@@ -11,6 +13,7 @@ app = Celery()
 app.config_from_object('kolibri.deployment.default.celeryconfig.default')
 
 
+CELERY_BACKEND_CONNECTION = create_engine(app.broker_connection().hostname)
 CALL_COMMAND_SHORTNAME = 'kolibri.call_command'
 
 
@@ -37,15 +40,33 @@ def schedule_command(funcname, *args, **kwargs):
     return task.task_id
 
 
-def get_task_state():
+def get_task_state(task_id):
     pass
 
 
-def get_current_tasks(funcname):
-    pass
+def get_tasks():
+    # current implementation heavily depends on the fact that celery's result
+    # backend is an sqlalchemy sqlite DB. Otherwise, celery provides no fast way
+    # of querying tasks (since it was designed to be distributed.)
+
+    engine = CELERY_BACKEND_CONNECTION
+    conn = engine.connect()
+
+    query = sql.select([Task.task_id, Task.status, Task.result, Task.traceback, Task.date_done])
+
+    result = conn.execute(query)
+
+    for row in result:
+        yield {
+            'task_id': row.task_id,
+            'status': row.status,
+            'result': row.result,
+            'traceback': row.traceback,
+        }
+        # note: the row
 
 
-def cancel_task():
+def cancel_task(task_id):
     pass
 
 
