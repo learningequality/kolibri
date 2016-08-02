@@ -10,9 +10,8 @@
       </div>
       <div slot="body">
         <input type="text" class="login-form login-username" v-model="username" placeholder="Username">
-        <input type="text" class="login-form login-password" v-model="password" placeholder="Password">
-        <button class="login-button" @click="userLogin">Login</button>
-        <a href="#" id="login-forgot-pass">Forgot password?</a>
+        <input type="password" class="login-form login-password" v-model="password" placeholder="Password">
+        <button class="login-button" @click="userLogin">Login</button>  
       </div>
       <div slot="footer"></div>
     </modal>
@@ -72,6 +71,11 @@
     background: $core-action-normal
     color: white
     font-size: 16px
+    transition: 0.15s
+    &:hover
+      background: $core-action-dark
+      padding: 8px
+      transition: 0.15s
     
   .login-brand-box
     text-align: center
@@ -79,8 +83,11 @@
     img, p
       display: inline-block
     img
-      min-width: 60px
+      max-width: 100px
       height: auto
+      position: relative
+      top: 20px
+      right: 10px
 
   #login-brand
     font-size: 50px
@@ -92,20 +99,28 @@
     width: 300px
     margin: 0 auto
     display: block
-    padding: 5px 10px
+    padding: 5px 30px
     letter-spacing: 0.08em
     border: none
     border-bottom: 1px solid $core-text-default
+    max-height: 29px
     &:focus
       outline: none
       border-bottom: 3px solid $core-action-normal
     
   .login-username
     margin-bottom: 30px
-    
-  #login-forgot-pass
-    text-align: center
-    display: block
-    margin: auto
+    background: url('./user.svg') no-repeat 10px 10px
+    transition: 0.15s
+    &:focus
+      background: url('./user-active.svg') no-repeat 10px 10px
+      transition: 0.15s
+      
+  .login-password
+    background: url('./password.svg') no-repeat 10px 6px
+    transition: 0.15s
+    &:focus
+      background: url('./password-active.svg') no-repeat 10px 6px
+      transition: 0.15s
 
 </style>
