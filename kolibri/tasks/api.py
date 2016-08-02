@@ -43,7 +43,10 @@ def schedule_command(funcname, *args, **kwargs):
 
 
 def get_task_state(task_id):
-    pass
+    session = Session()
+    query = session.query(Task).filter(Task.task_id == task_id)
+
+    return query.one().to_dict()
 
 
 def get_tasks():
