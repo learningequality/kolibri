@@ -164,6 +164,6 @@
     color: $core-bg-light
     padding-left: 1em
     padding-right: 1em
-    border-radius: 1%
+    border-radius: 30px
 
 </style>
