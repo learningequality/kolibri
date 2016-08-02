@@ -163,9 +163,23 @@ function fetchInitialData(store) {
   });
 }
 
+function login(store, payload) {
+  console.log('payload: ', payload);
+  const learnerCollection = FacilityUserResource.getCollection();
+  const facilityIdPromise = learnerCollection.login(payload);
+  facilityIdPromise.then(response => {
+    console.log('facility id promise then called: ', response);
+  },
+  reject => {
+    store.dispatch('SET_ERROR', JSON.stringify(reject, null, '\t'));
+    console.log('rejects called asldkkjsdf: ', reject);
+  });
+}
+
 module.exports = {
   createUser,
   updateUser,
   deleteUser,
   fetchInitialData,
+  login,
 };

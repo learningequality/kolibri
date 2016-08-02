@@ -324,6 +324,23 @@ class Collection {
     return promise;
   }
 
+  login(payload) {
+    console.log('elielie: ', payload);
+    const promise = new Promise((resolve, reject) => {
+      client({ path: this.resource.loginUrl(), payload, method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }).then((response) => {
+        resolve(response.entity);
+      }, (response) => {
+        logging.error('An error occurred', response);
+      });
+    },
+    (reject) => {
+      reject(reject);
+    });
+    return promise;
+  }
+
   get url() {
     return this.resource.collectionUrl();
   }
@@ -477,6 +494,10 @@ class Resource {
 
   get currentFacilityUrl() {
     return this.urls[`currentfacility_list`];
+  }
+
+  get loginUrl() {
+    return this.urls[`session_list`];
   }
 
   get modelUrl() {
