@@ -129,9 +129,10 @@ class SessionViewSet(viewsets.ViewSet):
         return Response("successfully deleted!")
 
     def create(self, request):
+        # import pdb; pdb.set_trace()
         username = request.POST.get('username', '')
         password = request.POST.get('password', '')
-        facility_id = request.POST.get('facility', '')
+        facility_id = request.POST.get('facility', None)
         user = authenticate(username=username, password=password, facility=facility_id)
         if user is not None and user.is_active:
             # Correct password, and the user is marked "active"

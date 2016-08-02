@@ -9,9 +9,9 @@
         </div>
       </div>
       <div slot="body">
-        <input type="text" class="login-form login-username" placeholder="Username">
-        <input type="text" class="login-form login-password" placeholder="Password">
-        <button class="login-button">Login</button>
+        <input type="text" class="login-form login-username" v-model="username" placeholder="Username">
+        <input type="text" class="login-form login-password" v-model="password" placeholder="Password">
+        <button class="login-button" @click="userLogin">Login</button>
         <a href="#" id="login-forgot-pass">Forgot password?</a>
       </div>
       <div slot="footer"></div>
@@ -23,9 +23,37 @@
 
 <script>
 
+  const actions = require('../actions');
+
   module.exports = {
     components: {
       modal: require('./modal.vue'),
+    },
+    data() {
+      return {
+        username: '',
+        password: '',
+      };
+    },
+    methods: {
+      userLogin() {
+        console.log('userlogin called');
+        const payload = {
+          password: this.password,
+          username: this.username,
+          facility: this.facility,
+        };
+        this.login(payload);
+        console.log('login called');
+      },
+    },
+    vuex: {
+      getters: {
+        facility: state => state.facility,
+      },
+      actions: {
+        login: actions.login,
+      },
     },
 	};
 
