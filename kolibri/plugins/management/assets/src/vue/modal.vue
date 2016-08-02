@@ -4,11 +4,11 @@
     <div class="modal" v-show="showModal" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
+          <a @click="closeModal" class="close-btn">X</a>
           <div class="modal-header">
             <slot name="header">
               Kolibri
             </slot>
-            <a @click="closeModal" class="close-btn">X</a>
           </div>
           <div class="modal-body">
             <slot name="body">
