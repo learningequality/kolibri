@@ -1,6 +1,7 @@
 <template>
 
   <core-base>
+    <login-modal></login-modal>
     <user-roster></user-roster>
   </core-base>
 
@@ -13,6 +14,7 @@
     components: {
       'core-base': require('core-base'),
       'user-roster': require('./user-roster.vue'),
+      'login-modal': require('./login-modal.vue'),
     },
     vuex: {
       actions: require('../actions.js'),
