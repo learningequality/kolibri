@@ -24,7 +24,12 @@
       </div>
     </div>
 
-    <button type="button" @click="openModel">{{ btntext }}</button>
+    <div @click="openModal">
+    <!-- wrap this named slot so that the openModal method logic is encapsulated inside this modal component, but the parent component can pass anything for styling purpose -->
+      <slot name="openbtn">
+        <button>{{ btntext }}</button>
+      </slot>
+    </div>
   </div>
 
 </template>
@@ -45,7 +50,7 @@
       };
     },
     methods: {
-      openModel() {
+      openModal() {
         this.showModal = true;
       },
       closeModal() {
