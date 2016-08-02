@@ -117,7 +117,7 @@
     font-weight: 900
 
   .recommendation-section
-    margin-top: 6em
+    margin-top: 4em
 
 </style>
 
