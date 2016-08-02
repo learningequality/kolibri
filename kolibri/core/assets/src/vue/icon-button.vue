@@ -31,6 +31,7 @@
     svg
       vertical-align: middle
       fill: $core-action-normal
+      transition: fill $core-time ease-out
 
     &:hover svg
       fill: $core-action-dark
