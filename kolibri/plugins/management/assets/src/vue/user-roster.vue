@@ -95,7 +95,7 @@
       actions: {
         deleteUser: actions.deleteUser,
       },
-    },
+    }
   };
 
 </script>
@@ -152,6 +152,8 @@
   th
     padding-bottom: (1.2 * $row-padding)
     color: $core-text-annotation
+    font-weight: normal
+    font-size: 80%
 
   td
     padding-bottom: $row-padding
