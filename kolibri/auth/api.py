@@ -1,6 +1,6 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.contrib.auth import get_user
+from django.contrib.auth import authenticate, get_user, login, logout
 from rest_framework import filters, permissions, viewsets
 from rest_framework.response import Response
 
@@ -120,3 +120,24 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
     serializer_class = LearnerGroupSerializer
 
     filter_fields = ('parent',)
+
+
+class SessionViewSet(viewsets.ViewSet):
+
+    def destroy(self, request, pk=None):
+        logout(request)
+        return Response("successfully deleted!")
+
+    def create(self, request):
+        username = request.POST.get('username', '')
+        password = request.POST.get('password', '')
+        facility_id = request.POST.get('facility', '')
+        user = authenticate(username=username, password=password, facility=facility_id)
+        if user is not None and user.is_active:
+            # Correct password, and the user is marked "active"
+            login(request, user)
+            # Success!
+            return Response("Successfully logged in!")
+        else:
+            # Respond with error
+            return Response("User does not exist with those credentials!")
