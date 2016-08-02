@@ -4,15 +4,51 @@
     <div>
       <user-create-modal></user-create-modal>
     </div>
-    <div class="user-roster">
-      <ul>
-        <li v-for="user in getUsers">
-          <div>{{ user.last_name + ", " + user.first_name + ", "}} {{user.roles.length ? user.roles[0].kind : "user" }}</div>
-          <user-edit-modal :userid="user.id" :roles="user.roles" :username="user.username" :firstname="user.first_name" :lastname="user.last_name"></user-edit-modal>
-          <button @click="deleteUser(user.id)">Delete</button>
-        </li>
-      </ul>
-    </div>
+
+    <hr>
+
+    <table class="learner-roster">
+
+      <!-- Table Headers -->
+      <thead>
+        <tr>
+          <th>Student Name</th>
+          <th>Username</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+
+      <!-- Table body -->
+      <tbody>
+        <tr v-for="learner in getLearners">
+          <!-- Student Name field -->
+          <td>
+            {{ learner.first_name + " " + learner.last_name}}
+            <!-- {{learner.roles.length ? learner.roles[0].kind : "learner" }} -->
+          </td>
+
+          <!-- Username field -->
+          <td>
+            {{learner.username}}
+          </td>
+
+          <!-- Edit field -->
+          <td>
+            <user-edit-modal
+              :userid="learner.id"
+              :roles="learner.roles"
+              :username="learner.username"
+              :firstname="learner.first_name"
+              :lastname="learner.last_name">
+            </user-edit-modal>
+          </td>
+
+          <!-- <button @click="deleteUser(learner.id)">Delete</button> -->
+        </tr>
+      </tbody>
+
+    </table>
+
   </div>
   <div class="sidebar">
     <div class="user-count">
@@ -48,14 +84,43 @@
 
 <style lang="stylus" scoped>
 
-  .roster, .sidebar
-    display: inline-block
+  @require '~core-theme'
 
+  /*Padding height that separates rows from eachother*/
+  $row-padding = 1.5em
+
+  .roster
+    width: 100%
+
+<<<<<<< HEAD:kolibri/plugins/management/assets/src/vue/user-roster.vue
   .user-count
     border: solid, 1px, black
   .user-roster
+=======
+  .learner-roster
+    width: 100%
+    /*background-color: $core-bg-light*/
+    /*padding-top:*/
+
+
+    /*Prevent lists that are too long*/
+>>>>>>> usr_mgt_ui:kolibri/plugins/management/assets/src/vue/learner-roster.vue
     height: 300px
     overflow:hidden
     overflow-y:scroll
+
+  hr
+    color: $core-text-annotation
+
+  tr
+    text-align: left
+
+  th
+    padding-bottom: (1.2 * $row-padding)
+    color: $core-text-annotation
+
+  td
+    padding-bottom: $row-padding
+    color: $core-text-default
 
 </style>
