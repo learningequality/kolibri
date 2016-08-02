@@ -1,6 +1,6 @@
 <template>
 
-  <button v-on:click="downloadContent">Download</button>
+  <button class="actionbtn" v-on:click="downloadContent"><svg class="actionicon" src="/download.svg"></svg><span class="actiontext">Download {{kind | capitalize}}</span></button>
 
 </template>
 
@@ -77,4 +77,20 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~core-theme.styl'
+
+  .actionbtn
+    width: 200px
+    height: 36px
+
+  .actionicon
+    fill: $core-action-normal
+    margin-right: 6%
+    vertical-align: middle
+
+  .actiontext
+    vertical-align: middle
+
+</style>
