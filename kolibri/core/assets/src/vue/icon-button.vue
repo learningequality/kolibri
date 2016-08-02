@@ -2,7 +2,7 @@
 
   <button class="icon-button">
     <slot></slot>
-    {{ text }}
+    <span class="btn-text">{{ text }}</span>
   </button>
 
 </template>
@@ -45,5 +45,9 @@
 
   .icon-button
     padding-right: 8px
+    height: 36px
+
+  .btn-text
+    vertical-align: middle
 
 </style>
