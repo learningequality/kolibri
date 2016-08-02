@@ -1,22 +1,35 @@
 Developer Guide
 ===============
 
+.. toctree::
+   :maxdepth: 1
+
+   getting_started
+
+
 Architecture
 ------------
 
 .. toctree::
    :maxdepth: 1
 
-   getting_started
    tests
    stack
    plugins
    building
+   conventions
+   frontend
+
+Themes
+------
+
+.. toctree::
+   :maxdepth: 1
+
    uap
    user_management
-   frontend
    asset_loading
-   conventions
+   logger
 
 References
 ----------
