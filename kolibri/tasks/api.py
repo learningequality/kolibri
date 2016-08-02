@@ -4,6 +4,8 @@ from celery.backends.database.models import Task
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from django.core.management import get_commands, call_command
+from rest_framework import viewsets
+from rest_framework.response import Response
 
 import logging as logger
 
@@ -71,4 +73,22 @@ def _get_function_object(name):
 
 
 # look into viewsets
-# management commands?
+class TasksViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        return Response(get_tasks())
+
+    def create(self, request):
+        data = request.data
+
+        task_id = schedule_command(data["command"], *data["args"], **data["kwargs"])
+
+        return Response(task_id)
+
+    def retrieve(self, request, pk=None):
+        if pk:
+            return Response(get_task_state(pk))
+
+    def destroy(self, request, pk=None):
+        if pk:
+            return Response(cancel_task(pk))
