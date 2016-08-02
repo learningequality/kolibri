@@ -3,6 +3,7 @@ Tests that ensure the correct items are returned from api calls.
 Also tests whether the users with permissions can create logs.
 """
 
+import csv
 import uuid
 
 from django.core.urlresolvers import reverse
@@ -236,3 +237,23 @@ class UserSessionLogAPITestCase(APITestCase):
     @classmethod
     def tearDownClass(self):
         pass
+
+
+class ContentSummaryLogCSVExportTestCase(APITestCase):
+
+    def setUp(self):
+        self.facility = FacilityFactory.create()
+        self.admin = FacilityUserFactory.create(facility=self.facility)
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.summary_log = []
+        self.summary_log += [ContentSummaryLogFactory.create(user=self.user) for _ in range(3)]
+        self.facility.add_admin(self.admin)
+
+    def test_csv_download(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        expected_count = ContentSummaryLog.objects.count()
+        response = self.client.get(reverse('contentsummarylogcsv-list'))
+        results = [row for row in csv.reader(response.content.split("\n")) if row]
+        for row in results[1:]:
+            self.assertEqual(len(results[0]), len(row))
+        self.assertEqual(len(results[1:]), expected_count)

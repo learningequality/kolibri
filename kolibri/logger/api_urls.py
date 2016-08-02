@@ -10,6 +10,6 @@ router.register(r'contentsummarylog', ContentSummaryLogViewSet)
 router.register(r'contentratinglog', ContentRatingLogViewSet)
 router.register(r'usersessionlog', UserSessionLogViewSet)
 
-router.register(r'contentsummarylogcsv', ContentSummaryLogCSVExportViewSet)
+router.register(r'contentsummarylogcsv', ContentSummaryLogCSVExportViewSet, base_name='contentsummarylogcsv')
 
 urlpatterns = router.urls
