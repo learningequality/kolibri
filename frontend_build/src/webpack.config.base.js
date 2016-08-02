@@ -99,9 +99,9 @@ var config = {
   resolve: {
     alias: {
       'kolibri_module': path.resolve('kolibri/core/assets/src/kolibri_module'),
-      'core-base': path.resolve('kolibri/core/assets/src/core-base'),
+      'core-base': path.resolve('kolibri/core/assets/src/vue/core-base'),
       'core-theme.styl': path.resolve('kolibri/core/assets/src/core-theme.styl'),
-      'content-renderer': path.resolve('kolibri/core/assets/src/content-renderer'),
+      'content-renderer': path.resolve('kolibri/core/assets/src/vue/content-renderer'),
       'content_renderer_module': path.resolve('kolibri/core/assets/src/content_renderer_module'),
       'logging': path.resolve('kolibri/core/assets/src/logging'),
       'router': path.resolve('kolibri/core/assets/src/router'),

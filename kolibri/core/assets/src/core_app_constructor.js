@@ -38,8 +38,8 @@ function Lib() {
   this.vue = vue;
   this.vuex = vuex;
   // views
-  this.coreBase = require('./core-base');
-  this.contentRenderer = require('./content-renderer');
+  this.coreBase = require('./vue/core-base');
+  this.contentRenderer = require('./vue/content-renderer');
 }
 
 /**
