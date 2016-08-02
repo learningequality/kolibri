@@ -95,7 +95,7 @@
       actions: {
         deleteUser: actions.deleteUser,
       },
-    }
+    },
   };
 
 </script>
