@@ -56,9 +56,7 @@
         const x = new XMLHttpRequest();
         x.open('GET', this.availableFiles[0].storage_url, true);
         x.responseType = 'blob';
-        x.onload = function (e) {
-          downloadjs(e.target.response, sanitizedFilename, this.contentType);
-        };
+        x.onload = (e) => downloadjs(e.target.response, sanitizedFilename, this.contentType);
         x.send();
       },
       /**
