@@ -2,22 +2,14 @@
 
   <div class='nav-wrapper'>
     <nav class='nav-main' role="navigation" aria-label="Main user navigation">
-      <div class='link-wrapper'>
-        <a class='link' v-link="learnLink" @click='closeSearch' :class="learnClass">
-          <div class='content'>
-            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
-            <div class="label">Learn</div>
-          </div>
-        </a>
-      </div>
-      <div class='link-wrapper'>
-        <a class='link' v-link="exploreLink" @click='closeSearch' :class="exploreClass">
-          <div class='content'>
-            <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
-            <div class="label">Explore</div>
-          </div>
-        </a>
-      </div>
+      <nav-item :vlink="learnLink" :active="learnActive">
+        <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
+        <div class="label">Learn</div>
+      </nav-item>
+      <nav-item :vlink="exploreLink" :active="exploreActive">
+        <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
+        <div class="label">Explore</div>
+      </nav-item>
     </nav>
   </div>
 
@@ -28,37 +20,28 @@
 
   const pageMode = require('../../state/getters').pageMode;
   const constants = require('../../state/constants');
-  const actions = require('../../actions');
 
   module.exports = {
+    components: {
+      'nav-item': require('./nav-item'),
+    },
     vuex: {
       getters: {
         pageMode,
-        searchOpen: state => state.searchOpen,
-      },
-      actions: {
-        // TODO - this logic should really be triggered purely by the vue router.
-        // however since the URL doesn't change when the user is on the root,
-        // this is currently to close the search pane.
-        closeSearch(store) {
-          if (this.searchOpen) {
-            actions.toggleSearch(store);
-          }
-        },
       },
     },
     computed: {
       learnLink() {
         return { name: constants.PageNames.LEARN_ROOT };
       },
-      learnClass() {
-        return { active: this.pageMode === constants.PageModes.LEARN };
+      learnActive() {
+        return this.pageMode === constants.PageModes.LEARN;
       },
       exploreLink() {
         return { name: constants.PageNames.EXPLORE_ROOT };
       },
-      exploreClass() {
-        return { active: this.pageMode === constants.PageModes.EXPLORE };
+      exploreActive() {
+        return this.pageMode === constants.PageModes.EXPLORE;
       },
     },
   };
@@ -70,6 +53,10 @@
 
   @require '~core-theme.styl'
   @require '../learn'
+
+
+  ///////////////////////////
+  // Nav Wrapper Styles
 
   .nav-wrapper
     display: table
@@ -89,31 +76,16 @@
     @media screen and (max-width: $portrait-breakpoint)
       display: table-row
 
-  .link-wrapper
-    @media screen and (min-width: $portrait-breakpoint + 1)
-      display: table-row
-    @media screen and (max-width: $portrait-breakpoint)
-      display: table-cell
 
-  .link
-    margin: 0
-    padding: 6px
-    vertical-align: middle
-    text-align: center
-    @media screen and (min-width: $portrait-breakpoint + 1)
-      display: table-cell
-      height: 150px
-    @media screen and (max-width: $portrait-breakpoint)
-      display: block
-
-  a.active
-    color: $core-bg-light
-    background: $core-action-normal
+  ///////////////////////////
+  // content-specific styles
 
   .label
     text-align: center
 
-  svg
+  // the "scoped" styles below are a bit hacky:
+  // the `a` tag is actually inside the child template
+  a svg
     display: block
     margin: auto
     fill: $core-action-normal
@@ -129,8 +101,5 @@
 
   a.active:hover svg
     fill: $core-bg-light
-
-  .content
-    display: inline-block
 
 </style>
