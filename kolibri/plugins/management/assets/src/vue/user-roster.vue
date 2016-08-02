@@ -12,6 +12,8 @@
 
       <select name="user-filter">
         <option> All Users </option>
+        <option> Admins </option>
+        <option> Learners </option>
       </select>
 
       <input type="search">
@@ -160,10 +162,10 @@
     color: $core-text-default
 
   .user-role
-    background-color: $core-action-dark
+    background-color: $core-text-annotation
     color: $core-bg-light
     padding-left: 1em
     padding-right: 1em
-    border-radius: 30px
+    border-radius: 40px
 
 </style>

@@ -16,7 +16,7 @@
         <button class="confirm-btn" type="button" @click="editUser">Confirm</button>
       </div>
       <div slot="openbtn">
-        <button class="open-btn" type="button">Edit Me!</button>
+        <svg class="manage-edit" src="./icons/pencil.svg"></svg>
       </div>
     </modal>
   </div>
@@ -71,6 +71,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme.styl'
+
   .title
     display: inline
 
@@ -78,5 +80,8 @@
     float: right
   .open-btn
     background-color: red
+  .manage-edit
+    fill: $core-action-normal
+    cursor: pointer
 
 </style>
