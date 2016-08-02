@@ -17,14 +17,6 @@ CALL_COMMAND_SHORTNAME = 'kolibri.call_command'
 def setup_celery_for_management_commands():
 
     # import all management commands, so when the worker forks, it has them in memory.
-    management_cmd_import_template = "{app}.management.commands.{module}"
-    for module, django_app in get_commands().items():
-        import_path = management_cmd_import_template.format(
-            app=django_app,
-            module=module,
-        )
-        logging.debug("registering {}".format(import_path))
-        importlib.import_module(import_path)
 
     # register the call_command command, which will be our main interface
     # for calling commands asynchronously
