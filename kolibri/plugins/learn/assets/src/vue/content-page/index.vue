@@ -2,28 +2,15 @@
 
   <div>
 
-    <page-header :title='title'>
-      <breadcrumbs
-        v-if="pageMode === $options.PageModes.EXPLORE"
-        slot='extra-nav'
-        :rootid='rootTopicId'
-        :crumbs='breadcrumbs'>
-      </breadcrumbs>
-      <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_ROOT }">
-        <span id="little-arrow">←</span> Learn
-      </a>
-      <content-icon
-        slot='icon'
-        :ispageicon="true"
-        :size="25"
-        :kind="kind"
-        :progress="progress">
-      </content-icon>
-    </page-header>
-
-    <p class="page-description">
-      {{ description }}
-    </p>
+    <breadcrumbs
+      v-if="pageMode === $options.PageModes.EXPLORE"
+      slot='extra-nav'
+      :rootid='rootTopicId'
+      :crumbs='breadcrumbs'>
+    </breadcrumbs>
+    <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_ROOT }">
+      <span id="little-arrow">←</span> Learn
+    </a>
 
     <div class="content-container" v-show='!searchOpen'>
       <content-render
@@ -36,12 +23,29 @@
       </content-render>
     </div>
 
+    <page-header :title='title'>
+
+      <content-icon
+        slot='icon'
+        :ispageicon="true"
+        :size="25"
+        :kind="kind"
+        :progress="progress">
+      </content-icon>
+    </page-header>
+
     <download-button
       :kind="kind"
       :files="files"
       :available="available"
       :title="title">
     </download-button>
+
+    <p class="page-description">
+      {{ description }}
+    </p>
+
+
 
     <expandable-content-grid
       v-if="pageMode === $options.PageModes.LEARN"
