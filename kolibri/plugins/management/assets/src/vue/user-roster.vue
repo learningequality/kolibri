@@ -1,67 +1,75 @@
 <template>
 
-  <h2>
-    All Users
-  </h2>
+  <div class="user-roster">
 
-  <span> ( {{ getUsers.length }} )</span>
+    <h2>
+      All Users
+    </h2>
 
-  <div class="toolbar">
+    <span> ( {{ users.length }} )</span>
 
-    <input type="search">
+    <div class="toolbar">
 
-    <div class="create">
-      <user-create-modal></user-create-modal>
+      <select name="user-filter">
+        <option> All Users </option>
+      </select>
+
+      <input type="search">
+
+      <div class="create">
+        <user-create-modal></user-create-modal>
+      </div>
+
     </div>
 
+
+    <hr>
+
+    <table class="roster">
+
+      <!-- Table Headers -->
+      <thead>
+        <tr>
+          <th>Student Name</th>
+          <th>Username</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+
+      <!-- Table body -->
+      <tbody>
+        <tr v-for="user in users">
+          <!-- Student Name field -->
+          <td>
+            {{user.first_name}} {{user.last_name}}
+            <span class="user-role" v-for="role in user.roles" v-if="user.roles.length">
+              {{role.kind}}
+            </span>
+          </td>
+
+          <!-- Username field -->
+          <td>
+            {{user.username}}
+          </td>
+
+          <!-- Edit field -->
+          <td>
+            <user-edit-modal
+              :userid="user.id"
+              :roles="user.roles"
+              :username="user.username"
+              :firstname="user.first_name"
+              :lastname="user.last_name">
+            </user-edit-modal>
+          </td>
+
+          <!-- <button @click="deleteUser(user.id)">Delete</button> -->
+        </tr>
+      </tbody>
+
+    </table>
+
   </div>
-
-
-  <hr>
-
-  <table class="roster">
-
-    <!-- Table Headers -->
-    <thead>
-      <tr>
-        <th>Student Name</th>
-        <th>Username</th>
-        <th>Edit</th>
-      </tr>
-    </thead>
-
-    <!-- Table body -->
-    <tbody>
-      <tr v-for="learner in getUsers">
-        <!-- Student Name field -->
-        <td>
-          {{learner.first_name}} {{learner.last_name}}
-          <!-- {{learner.roles.length ? learner.roles[0].kind : "learner" }} -->
-        </td>
-
-        <!-- Username field -->
-        <td>
-          {{learner.username}}
-        </td>
-
-        <!-- Edit field -->
-        <td>
-          <user-edit-modal
-            :userid="learner.id"
-            :roles="learner.roles"
-            :username="learner.username"
-            :firstname="learner.first_name"
-            :lastname="learner.last_name">
-          </user-edit-modal>
-        </td>
-
-        <!-- <button @click="deleteUser(learner.id)">Delete</button> -->
-      </tr>
-    </tbody>
-
-  </table>
-
-  
 
 </template>
 
@@ -69,6 +77,7 @@
 <script>
 
   const actions = require('../actions');
+  const log = require('loglevel');
 
 
   module.exports = {
@@ -78,7 +87,10 @@
     },
     vuex: {
       getters: {
-        getUsers: state => state.users,
+        users(state) {
+          log.error(state.users[0].roles);
+          return state.users;
+        },
       },
       actions: {
         deleteUser: actions.deleteUser,
@@ -93,8 +105,11 @@
 
   @require '~core-theme'
 
-  /*Padding height that separates rows from eachother*/
+  // Padding height that separates rows from eachother
   $row-padding = 1.5em
+
+  .user-roster
+    padding: 1em
 
   .toolbar:after
     content: ''
@@ -102,10 +117,14 @@
     clear: both
 
 
+  // Toolbar Styling
   .create
     float: right
 
   input[type='search']
+    float: left
+
+  select[name='user-filter']
     float: left
 
   .roster
@@ -123,7 +142,9 @@
     display: inline-block
 
   hr
-    color: $core-text-annotation
+    background-color: $core-text-annotation
+    height: 1px
+    border: none
 
   tr
     text-align: left
@@ -137,5 +158,12 @@
   td
     padding-bottom: $row-padding
     color: $core-text-default
+
+  .user-role
+    background-color: $core-action-dark
+    color: $core-bg-light
+    padding-left: 1em
+    padding-right: 1em
+    border-radius: 1%
 
 </style>
