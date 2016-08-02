@@ -1,6 +1,8 @@
 <template>
 
-  <button class="actionbtn" v-on:click="downloadContent"><svg class="actionicon" src="/download.svg"></svg><span class="actiontext">Download {{kind | capitalize}}</span></button>
+  <icon-button @click="downloadContent" text="Download Media">
+    <svg src="download.svg"></svg>
+  </icon-button>
 
 </template>
 
@@ -27,6 +29,9 @@
         type: String,
         default: '',
       },
+    },
+    components: {
+      'icon-button': require('icon-button'),
     },
     computed: {
       contentType() {
@@ -77,20 +82,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~core-theme.styl'
-
-  .actionbtn
-    width: 200px
-    height: 36px
-
-  .actionicon
-    fill: $core-action-normal
-    margin-right: 6%
-    vertical-align: middle
-
-  .actiontext
-    vertical-align: middle
-
-</style>
+<style lang="stylus" scoped></style>

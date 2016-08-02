@@ -100,6 +100,7 @@ var config = {
     alias: {
       'kolibri_module': path.resolve('kolibri/core/assets/src/kolibri_module'),
       'core-base': path.resolve('kolibri/core/assets/src/core-base'),
+      'icon-button': path.resolve('kolibri/core/assets/src/vue/icon-button'),
       'core-theme.styl': path.resolve('kolibri/core/assets/src/core-theme.styl'),
       'content-renderer': path.resolve('kolibri/core/assets/src/content-renderer'),
       'content_renderer_module': path.resolve('kolibri/core/assets/src/content_renderer_module'),
