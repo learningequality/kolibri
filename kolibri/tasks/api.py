@@ -3,7 +3,7 @@ from celery import Celery
 from celery.backends.database.models import Task
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from django.core.management import get_commands, call_command
+from django.core.management import call_command
 from rest_framework import viewsets
 from rest_framework.response import Response
 
