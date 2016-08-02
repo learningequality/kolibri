@@ -92,11 +92,6 @@
   .roster
     width: 100%
 
-<<<<<<< HEAD:kolibri/plugins/management/assets/src/vue/user-roster.vue
-  .user-count
-    border: solid, 1px, black
-  .user-roster
-=======
   .learner-roster
     width: 100%
     /*background-color: $core-bg-light*/
@@ -104,7 +99,6 @@
 
 
     /*Prevent lists that are too long*/
->>>>>>> usr_mgt_ui:kolibri/plugins/management/assets/src/vue/learner-roster.vue
     height: 300px
     overflow:hidden
     overflow-y:scroll
