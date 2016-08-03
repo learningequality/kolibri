@@ -79,7 +79,7 @@
   .confirm-btn
     float: right
   .open-btn
-    background-color: red
+    background-color: white
   .manage-edit
     fill: $core-action-normal
     cursor: pointer

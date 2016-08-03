@@ -18,7 +18,9 @@
         <option value="learners"> Learners </option>
       </select>
 
-      <input type="search">
+
+      <svg class="search-button" src="./icons/search.svg"></svg>
+            <input type="search">
 
       <div class="create">
         <user-create-modal></user-create-modal>
@@ -70,7 +72,7 @@
           <!-- <button @click="deleteUser(user.id)">Delete</button> -->
         </tr>
       </tbody>
-
+    
     </table>
 
   </div>
@@ -137,6 +139,13 @@
 
   input[type='search']
     float: left
+    margin: 0 0 10px 10px
+    width: 400px
+    height: 25px
+    border-radius: 10px
+    padding: inherit
+    border: 1px solid #686868
+    
 
   select[name='user-filter']
     float: left
@@ -179,5 +188,9 @@
     padding-left: 1em
     padding-right: 1em
     border-radius: 40px
+  
+  .search-button
+    width: 20px
+    height: 20px
 
 </style>

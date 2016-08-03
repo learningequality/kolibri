@@ -1,7 +1,7 @@
 <template>
 
   <div class="user-creation-modal">
-    <modal btntext="+ User">
+    <modal btntext="Add New">
       <div class="title" slot="header">User creation</div>
       <div slot="body">
         <br>Username: <input type="text" v-model="username" placeholder="Please type in your username."><br>
@@ -14,6 +14,12 @@
       </div>
       <div slot="footer">
         <button class="create-btn" type="button" @click="createNewUser">Create User</button>
+      </div>
+      <div slot="openbtn">
+        <div class="manage-create">
+          <div class="add-text" src="">Add New</div>
+          <svg class="add-user" src="./icons/add_new_user.svg"></svg> 
+        </div>
       </div>
     </modal>
   </div>
@@ -70,5 +76,27 @@
 
   .create-btn
     float: right
+    
+  .manage-create
+    background-color: #996189
+    border-radius: 5px
+    color: #f9f9f9
+    float: right
+    height: 25px
+    width: 130px
+    font-size: 12px
+    text-indent: 50px
+    cursor: pointer
+  
+  .add-user
+    float: left
+    height: 80%
+    width: 30%
+
+  .add-text
+    float: left
+    position: absolute
+    padding: 3px
 
 </style>
+
