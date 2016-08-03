@@ -1,8 +1,27 @@
+from tqdm import tqdm
 from collections import namedtuple
 from django.core.management.base import BaseCommand
 
 
-Progress = namedtuple('Progress', ['progress', 'overall'])
+Progress = namedtuple('Progress', ['progress', 'total'])
+
+
+class ProgressTracker():
+
+    def __init__(self, total=100, update_func=None):
+        if update_func:     # custom progress bar provided by programmer
+            self.update_progress = update_func
+            self.progressbar = None
+        else:                   # standard progress bar progress tracking
+            self.progressbar = tqdm(total=total)
+            self.update_progress = self.progressbar.update
+
+    def __enter__(self):
+        return self.update_progress
+
+    def __exit__(self, *exc_details):
+        if self.progressbar:
+            self.progressbar.close()
 
 
 class AsyncCommand(BaseCommand):
@@ -23,23 +42,14 @@ class AsyncCommand(BaseCommand):
 
     CELERY_PROGRESS_STATE_NAME = "PROGRESS"
 
-    def _identity(*args, **kwargs):
-        # heh, are we all just NoneTypes after all?
-        pass
-
     def handle(self, *args, **options):
-        self.update_state = options.pop("update_state", self._identity)
+        self.update_progress = options.pop("update_state", None)
 
         self.handle_async(*args, **options)
 
-    def set_progress(self, progress, overall=None, message=None):
-        overall = overall or self.get_overall()
-        progress = Progress(progress, overall)
-        self.update_state(state=self.CELERY_PROGRESS_STATE_NAME,
-                          meta=progress)
+    start_progress = ProgressTracker
 
-    def get_overall():
-        pass
 
-    def set_overall():
-        pass
+def _identity(*args, **kwargs):
+    # heh, are we all just NoneTypes after all?
+    pass
