@@ -237,22 +237,20 @@ class LoginLogoutTestCase(APITestCase):
         self.user = FacilityUserFactory.create(facility=self.facility)
 
     def test_login_and_logout_device_owner(self):
-        self.client.post(reverse('session-list'), data={"username": self.device_owner.username, "password": DUMMY_PASSWORD})
+        self.client.post(reverse('login'), data={"username": self.device_owner.username, "password": DUMMY_PASSWORD})
         sessions = Session.objects.all()
         self.assertEqual(len(sessions), 1)
-        session_pk = sessions[0].session_key
-        self.client.delete(reverse('session-detail', kwargs={'pk': session_pk}))
+        self.client.post(reverse('logout'))
         self.assertEqual(len(Session.objects.all()), 0)
 
     def test_login_and_logout_facility_user(self):
-        self.client.post(reverse('session-list'), data={"username": self.user.username, "password": DUMMY_PASSWORD, "facility": self.facility.id})
+        self.client.post(reverse('login'), data={"username": self.user.username, "password": DUMMY_PASSWORD, "facility": self.facility.id})
         sessions = Session.objects.all()
         self.assertEqual(len(sessions), 1)
-        session_pk = sessions[0].session_key
-        self.client.delete(reverse('session-detail', kwargs={'pk': session_pk}))
+        self.client.post(reverse('logout'))
         self.assertEqual(len(Session.objects.all()), 0)
 
     def test_incorrect_credentials_does_not_log_in_user(self):
-        self.client.post(reverse('session-list'), data={"username": self.user.username, "password": "foo", "facility": self.facility.id})
+        self.client.post(reverse('login'), data={"username": self.user.username, "password": "foo", "facility": self.facility.id})
         sessions = Session.objects.all()
         self.assertEqual(len(sessions), 0)

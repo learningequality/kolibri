@@ -1,7 +1,9 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.contrib.auth import authenticate, get_user, login, logout
+from django.contrib.auth.models import AnonymousUser
 from rest_framework import filters, permissions, viewsets
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership, Role
@@ -102,6 +104,8 @@ class CurrentFacilityViewSet(viewsets.ViewSet):
         logged_in_user = get_user(request)
         if type(logged_in_user) is DeviceOwner:
             return Response(Facility.objects.all().values_list('id', flat=True))
+        elif type(logged_in_user) is AnonymousUser:
+            return Response(Facility.objects.all().values_list('id', flat=True))
         else:
             return Response(logged_in_user.facility)
 
@@ -122,23 +126,22 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
     filter_fields = ('parent',)
 
 
-class SessionViewSet(viewsets.ViewSet):
+@api_view(['POST'])
+def login_view(request):
+    username = request.data.get('username', '')
+    password = request.data.get('password', '')
+    facility_id = request.data.get('facility', None)
+    user = authenticate(username=username, password=password, facility=facility_id)
+    if user is not None and user.is_active:
+        # Correct password, and the user is marked "active"
+        login(request, user)
+        # Success!
+        return Response("Successfully logged in!")
+    else:
+        # Respond with error
+        return Response("User does not exist with those credentials!")
 
-    def destroy(self, request, pk=None):
-        logout(request)
-        return Response("successfully deleted!")
-
-    def create(self, request):
-        # import pdb; pdb.set_trace()
-        username = request.POST.get('username', '')
-        password = request.POST.get('password', '')
-        facility_id = request.POST.get('facility', None)
-        user = authenticate(username=username, password=password, facility=facility_id)
-        if user is not None and user.is_active:
-            # Correct password, and the user is marked "active"
-            login(request, user)
-            # Success!
-            return Response("Successfully logged in!")
-        else:
-            # Respond with error
-            return Response("User does not exist with those credentials!")
+@api_view(['POST'])
+def logout_view(request):
+    logout(request)
+    return Response("successfully logged out!")
