@@ -1,9 +1,10 @@
+from django.conf.urls import url
 from rest_framework import routers
 
 from .api import (
     ClassroomViewSet, CurrentFacilityViewSet, DeviceOwnerViewSet,
     FacilityUserViewSet, FacilityViewSet, LearnerGroupViewSet,
-    MembershipViewSet, RoleViewSet, SessionViewSet
+    MembershipViewSet, RoleViewSet, login_view, logout_view
 )
 
 router = routers.SimpleRouter()
@@ -16,6 +17,10 @@ router.register(r'facility', FacilityViewSet)
 router.register(r'currentfacility', CurrentFacilityViewSet, base_name='currentfacility')
 router.register(r'classroom', ClassroomViewSet)
 router.register(r'learnergroup', LearnerGroupViewSet)
-router.register(r'session', SessionViewSet, base_name='session')
 
-urlpatterns = router.urls
+urlpatterns = [
+    url(r'^login/$', login_view, name='login'),
+    url(r'^logout/$', logout_view, name='logout'),
+]
+
+urlpatterns += router.urls

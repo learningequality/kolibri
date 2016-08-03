@@ -148,7 +148,7 @@ function deleteUser(store, id) {
 function fetchInitialData(store) {
   const learnerCollection = FacilityUserResource.getCollection();
   const roleCollection = RoleResource.getCollection();
-  const facilityIdPromise = learnerCollection.getCurrentFacility();
+  const facilityIdPromise = FacilityUserResource.getCurrentFacility();
   const userPromise = learnerCollection.fetch();
   const rolePromise = roleCollection.fetch();
   const promises = [facilityIdPromise, userPromise, rolePromise];
@@ -163,16 +163,28 @@ function fetchInitialData(store) {
   });
 }
 
+/**
+ * Do a POST to login the user.
+ * @param {object} payload
+ */
 function login(store, payload) {
-  console.log('payload: ', payload);
-  const learnerCollection = FacilityUserResource.getCollection();
-  const facilityIdPromise = learnerCollection.login(payload);
+  const facilityIdPromise = FacilityUserResource.login(payload);
   facilityIdPromise.then(response => {
-    console.log('facility id promise then called: ', response);
   },
   reject => {
     store.dispatch('SET_ERROR', JSON.stringify(reject, null, '\t'));
-    console.log('rejects called asldkkjsdf: ', reject);
+  });
+}
+
+/**
+ * Do a POST to logout the user.
+ */
+function logout(store) {
+  const facilityIdPromise = FacilityUserResource.logout();
+  facilityIdPromise.then(response => {
+  },
+  reject => {
+    store.dispatch('SET_ERROR', JSON.stringify(reject, null, '\t'));
   });
 }
 
@@ -182,4 +194,5 @@ module.exports = {
   deleteUser,
   fetchInitialData,
   login,
+  logout,
 };

@@ -37,14 +37,12 @@
     },
     methods: {
       userLogin() {
-        console.log('userlogin called');
         const payload = {
-          password: this.password,
           username: this.username,
+          password: this.password,
           facility: this.facility,
         };
         this.login(payload);
-        console.log('login called');
       },
     },
     vuex: {
@@ -72,7 +70,7 @@
     background: $core-action-normal
     color: white
     font-size: 16px
-    
+
   .login-brand-box
     text-align: center
     margin: 15px auto
@@ -87,7 +85,7 @@
     letter-spacing: 0.1em
     font-weight: 100
     color: $core-action-normal
-    
+
   .login-form
     width: 300px
     margin: 0 auto
@@ -99,10 +97,10 @@
     &:focus
       outline: none
       border-bottom: 3px solid $core-action-normal
-    
+
   .login-username
     margin-bottom: 30px
-    
+
   #login-forgot-pass
     text-align: center
     display: block
