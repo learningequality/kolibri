@@ -11,10 +11,11 @@
     <div class="toolbar">
 
       <select v-model="filter" name="user-filter">
-        <option selected value="*"> All Users </option>
+        <option selected value="all"> All Users </option>
         <option v-bind:value="role" v-for="role in roles">
           {{role | capitalize}}
         </option>
+        <option value="learners"> Learners </option>
       </select>
 
       <input type="search">
@@ -173,10 +174,10 @@
     color: $core-text-default
 
   .user-role
-    background-color: $core-action-dark
+    background-color: $core-text-annotation
     color: $core-bg-light
     padding-left: 1em
     padding-right: 1em
-    border-radius: 30px
+    border-radius: 40px
 
 </style>
