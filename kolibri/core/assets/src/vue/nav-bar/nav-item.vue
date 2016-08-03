@@ -1,7 +1,7 @@
 <template>
 
   <div class='link-wrapper'>
-    <a class='link' v-link="vlink" @click='closeSearch' :class="{active: active}">
+    <a class='link' v-link="vlink" :class="{active: active}">
       <div class='content'>
         <slot></slot>
       </div>
@@ -12,8 +12,6 @@
 
 
 <script>
-
-  const actions = require('../../actions');
 
   module.exports = {
     props: {
@@ -26,21 +24,6 @@
         default: false,
       },
     },
-    vuex: {
-      getters: {
-        searchOpen: state => state.searchOpen,
-      },
-      actions: {
-        // TODO - this logic should really be triggered purely by the vue router.
-        // however since the URL doesn't change when the user is on the root,
-        // this is currently to close the search pane.
-        closeSearch(store) {
-          if (this.searchOpen) {
-            actions.toggleSearch(store);
-          }
-        },
-      },
-    },
   };
 
 </script>
@@ -49,7 +32,6 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-  @require '../learn'
 
   .nav-main
     @media screen and (max-width: $portrait-breakpoint)

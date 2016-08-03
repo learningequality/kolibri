@@ -1,7 +1,8 @@
 <template>
 
   <core-base>
-    <div class='main'>
+    <learn-nav slot="nav"></learn-nav>
+    <div slot="content" class='main'>
       <search-button class='search-btn'></search-button>
 
       <error-page v-show='error'></error-page>
@@ -42,6 +43,7 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
+      'learn-nav': require('./learn-nav'),
       'search-widget': require('./search-widget'),
       'search-button': require('./search-widget/search-button'),
       'explore-page': require('./explore-page'),

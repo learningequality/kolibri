@@ -1,9 +1,11 @@
 <template>
 
-  <side-nav></side-nav>
+  <nav-bar>
+    <slot name="nav"></slot>
+  </nav-bar>
 
   <div>
-    <slot></slot>
+    <slot name="content"></slot>
   </div>
 
 </template>
@@ -13,7 +15,7 @@
 
   module.exports = {
     components: {
-      'side-nav': require('./side-nav'),
+      'nav-bar': require('./nav-bar'),
     },
   };
 
