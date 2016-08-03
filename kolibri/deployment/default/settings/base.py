@@ -246,6 +246,7 @@ AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
 
 AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']
 
+CENTRAL_CONTENT_DOWNLOAD_DOMAIN = "https://unicefcontentcuration.learningequality.org"
 
 # Django REST Framework
 # http://www.django-rest-framework.org/api-guide/settings/
