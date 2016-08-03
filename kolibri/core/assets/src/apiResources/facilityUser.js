@@ -8,7 +8,7 @@ class FacilityUserResource extends Resource {
 
   getCurrentFacility() {
     const promise = new Promise((resolve, reject) => {
-      this.resource.client({ path: this.currentFacilityUrl() }).then((response) => {
+      this.client({ path: this.currentFacilityUrl() }).then((response) => {
         resolve(response.entity);
       }, (response) => {
         logging.error('An error occurred', response);
