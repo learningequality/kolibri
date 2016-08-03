@@ -10,12 +10,12 @@
 
     <div class="toolbar">
 
-      <select v-model="filter" name="user-filter">
+      <select v-model="roleFilter" name="user-filter">
         <option selected value="all"> All Users </option>
         <option v-bind:value="role" v-for="role in roles">
-          {{role | capitalize}}
+          {{role.kind | capitalize}}s
         </option>
-        <option value="learners"> Learners </option>
+        <option value="learner"> Learners </option>
       </select>
 
       <input type="search">
@@ -34,19 +34,21 @@
       <!-- Table Headers -->
       <thead>
         <tr>
-          <th>Student Name</th>
-          <th>Username</th>
-          <th>Edit</th>
+          <th> Student Name </th>
+          <th> Username </th>
+          <th> Edit </th>
         </tr>
       </thead>
 
       <!-- Table body -->
       <tbody>
-        <tr v-for="user in users">
+        <tr v-for="user in visibleUsers">
           <!-- Student Name field -->
           <td>
             {{user.first_name}} {{user.last_name}}
-            <span class="user-role" v-for="role in user.roles" v-if="user.roles.length">
+
+            <!-- Logic for role tags -->
+            <span class="user-role" v-for="role in user.roles">
               {{role.kind | capitalize}}
             </span>
           </td>
@@ -81,8 +83,6 @@
 <script>
 
   const actions = require('../actions');
-  // const log = require('loglevel');
-
 
   module.exports = {
     components: {
@@ -91,20 +91,43 @@
     },
     // Has to be a funcion due to vue's treatment of data
     data: () => ({
-      roles: [
-        'admin',
-        'coach',
-      ],
-      filter: '',
+      roleFilter: '',
+      search: '',
     }),
     computed: {
       visibleUsers() {
-        return this.users;
+        return this.users.filter((user) => {
+          const roleFilter = this.roleFilter;
+          let hasRole = true;
+          const hasName = true;
+
+          // check for filters
+          if (roleFilter !== 'all') {
+            // check for learner
+            if (roleFilter === 'learner') {
+              hasRole = !(user.roles.length);
+            } else {
+              hasRole = false;
+
+              // actual check for roles
+              user.roles.forEach(roleObject => {
+                if (roleObject.kind === roleFilter.kind) {
+                  hasRole = true;
+                }
+              });
+            }
+          }
+
+          // check for search phrase
+
+          return hasRole && hasName;
+        });
       },
     },
     vuex: {
       getters: {
         users: state => state.users,
+        roles: state => state.roles,
       },
       actions: {
         deleteUser: actions.deleteUser,

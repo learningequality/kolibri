@@ -5,6 +5,7 @@ function getInitialState() {
     facility: undefined,
     users: [],
     error: '',
+    roles: [],
   };
 }
 
@@ -53,6 +54,10 @@ const mutations = {
 
   SET_ERROR(state, error) {
     state.error = error;
+  },
+
+  SET_ROLES(state, roles) {
+    state.roles = roles;
   },
 };
 

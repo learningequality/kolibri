@@ -146,16 +146,22 @@ function deleteUser(store, id) {
 
 // An action for setting up the initial state of the app by fetching data from the server
 function fetchInitialData(store) {
-  const learnerCollection = FacilityUserResource.getCollection();
+  const userCollection = FacilityUserResource.getCollection();
   const roleCollection = RoleResource.getCollection();
-  const facilityIdPromise = learnerCollection.getCurrentFacility();
-  const userPromise = learnerCollection.fetch();
+
   const rolePromise = roleCollection.fetch();
+  const facilityIdPromise = userCollection.getCurrentFacility();
+  const userPromise = userCollection.fetch();
+
   const promises = [facilityIdPromise, userPromise, rolePromise];
+
   Promise.all(promises).then(responses => {
     const id = responses[0];
-    store.dispatch('SET_FACILITY', id[0]); // for mvp, we assume only one facility exists
     const users = responses[1];
+    const roles = responses[2];
+
+    store.dispatch('SET_FACILITY', id[0]); // for mvp, we assume only one facility exists
+    store.dispatch('SET_ROLES', roles);
     store.dispatch('ADD_USERS', users);
   },
   rejects => {
