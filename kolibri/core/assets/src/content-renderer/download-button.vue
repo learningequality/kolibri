@@ -1,6 +1,8 @@
 <template>
 
-  <button v-on:click="downloadContent">Download</button>
+  <icon-button @click="downloadContent" text="Download Media">
+    <svg src="download.svg"></svg>
+  </icon-button>
 
 </template>
 
@@ -27,6 +29,9 @@
         type: String,
         default: '',
       },
+    },
+    components: {
+      'icon-button': require('icon-button'),
     },
     computed: {
       contentType() {
