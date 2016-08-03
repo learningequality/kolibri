@@ -39,13 +39,14 @@ class Model {
    * behaviour for the model.
    */
   constructor(data, resource) {
-    // Assign any data to the attributes property of the Model.
-    this.attributes = {};
-    this.set(data);
     this.resource = resource;
     if (!this.resource) {
       throw new TypeError('resource must be defined');
     }
+
+    // Assign any data to the attributes property of the Model.
+    this.attributes = {};
+    this.set(data);
 
     this.synced = false;
 
