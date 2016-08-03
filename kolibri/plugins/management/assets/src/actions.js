@@ -148,7 +148,7 @@ function deleteUser(store, id) {
 function fetchInitialData(store) {
   const learnerCollection = FacilityUserResource.getCollection();
   const roleCollection = RoleResource.getCollection();
-  const facilityIdPromise = learnerCollection.getCurrentFacility();
+  const facilityIdPromise = FacilityUserResource.getCurrentFacility();
   const userPromise = learnerCollection.fetch();
   const rolePromise = roleCollection.fetch();
   const promises = [facilityIdPromise, userPromise, rolePromise];

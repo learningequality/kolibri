@@ -75,7 +75,7 @@ class Model {
         } else {
           this.synced = false;
           // Do a fetch on the URL.
-          client({ path: this.url, params }).then((response) => {
+          this.resource.client({ path: this.url, params }).then((response) => {
             // Set the retrieved Object onto the Model instance.
             this.set(response.entity);
             // Flag that the Model has been fetched.
@@ -139,7 +139,7 @@ class Model {
               headers: { 'Content-Type': 'application/json' } };
           }
           // Do a save on the URL.
-          client(clientObj).then((response) => {
+          this.resource.client(clientObj).then((response) => {
             const oldId = this.id;
             // Set the retrieved Object onto the Model instance.
             this.set(response.entity);
@@ -185,7 +185,7 @@ class Model {
           // Otherwise, DELETE the Model
           const clientObj = { path: this.url, method: 'DELETE',
             headers: { 'Content-Type': 'application/json' } };
-          client(clientObj).then((response) => {
+          this.resource.client(clientObj).then((response) => {
             // delete this instance
             this.resource.removeModel(this);
             // Resolve the promise with the id.
@@ -264,7 +264,7 @@ class Collection {
           resolve(this.data);
         } else {
           this.synced = false;
-          client({ path: this.url, params }).then((response) => {
+          this.resource.client({ path: this.url, params }).then((response) => {
             // Reset current models to only include ones from this fetch.
             this.models = [];
             this._model_map = {};
@@ -307,20 +307,6 @@ class Collection {
       });
     });
     this.promises.push(promise);
-    return promise;
-  }
-
-  getCurrentFacility() {
-    const promise = new Promise((resolve, reject) => {
-      client({ path: this.resource.currentFacilityUrl() }).then((response) => {
-        resolve(response.entity);
-      }, (response) => {
-        logging.error('An error occurred', response);
-      });
-    },
-    (reject) => {
-      reject(reject);
-    });
     return promise;
   }
 
@@ -475,10 +461,6 @@ class Resource {
     return this.kolibri.urls;
   }
 
-  get currentFacilityUrl() {
-    return this.urls[`currentfacility_list`];
-  }
-
   get modelUrl() {
     // Leveraging Django REST Framework generated URL patterns.
     return this.urls[`${this.name}_detail`];
@@ -503,6 +485,10 @@ class Resource {
 
   get name() {
     return this.constructor.resourceName();
+  }
+
+  get client() {
+    return client;
   }
 }
 
