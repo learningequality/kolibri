@@ -49,5 +49,6 @@
 
   .btn-text
     vertical-align: middle
+    margin-right: 2px
 
 </style>
