@@ -2,7 +2,7 @@
 
   <div>
 
-    <page-header :title='title'>
+    <page-header>
       <breadcrumbs
         v-if="pageMode === $options.PageModes.EXPLORE"
         slot='extra-nav'
@@ -12,18 +12,7 @@
       <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_ROOT }">
         <span id="little-arrow">←</span> Learn
       </a>
-      <content-icon
-        slot='icon'
-        :ispageicon="true"
-        :size="25"
-        :kind="kind"
-        :progress="progress">
-      </content-icon>
     </page-header>
-
-    <p class="page-description">
-      {{ description }}
-    </p>
 
     <div class="content-container" v-show='!searchOpen'>
       <content-render
@@ -36,6 +25,16 @@
       </content-render>
     </div>
 
+    <page-header :title='title'>
+      <content-icon
+        slot='icon'
+        :ispageicon="true"
+        :size="25"
+        :kind="kind"
+        :progress="progress">
+      </content-icon>
+    </page-header>
+
     <download-button
       :kind="kind"
       :files="files"
@@ -43,7 +42,11 @@
       :title="title">
     </download-button>
 
-    <expandable-content-grid
+    <p class="page-description">
+      {{ description }}
+    </p>
+
+    <expandable-content-grid class="recommendation-section"
       v-if="pageMode === $options.PageModes.LEARN"
       title="Recommended"
       :contents="recommended">
@@ -103,6 +106,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme.styl'
+
   .content-container
     height: 60vh
     margin-bottom: 1em
@@ -110,6 +115,9 @@
   #little-arrow
     font-size: 28px
     font-weight: 900
+
+  .recommendation-section
+    margin-top: 4em
 
 </style>
 
