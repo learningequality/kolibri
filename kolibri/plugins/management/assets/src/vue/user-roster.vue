@@ -10,8 +10,11 @@
 
     <div class="toolbar">
 
-      <select name="user-filter">
-        <option> All Users </option>
+      <select v-model="filter" name="user-filter">
+        <option selected value="*"> All Users </option>
+        <option v-bind:value="role" v-for="role in roles">
+          {{role | capitalize}}
+        </option>
       </select>
 
       <input type="search">
@@ -43,7 +46,7 @@
           <td>
             {{user.first_name}} {{user.last_name}}
             <span class="user-role" v-for="role in user.roles" v-if="user.roles.length">
-              {{role.kind}}
+              {{role.kind | capitalize}}
             </span>
           </td>
 
@@ -77,7 +80,7 @@
 <script>
 
   const actions = require('../actions');
-  const log = require('loglevel');
+  // const log = require('loglevel');
 
 
   module.exports = {
@@ -85,12 +88,22 @@
       'user-create-modal': require('./user-create-modal.vue'),
       'user-edit-modal': require('./user-edit-modal.vue'),
     },
+    // Has to be a funcion due to vue's treatment of data
+    data: () => ({
+      roles: [
+        'admin',
+        'coach',
+      ],
+      filter: '',
+    }),
+    computed: {
+      visibleUsers() {
+        return this.users;
+      },
+    },
     vuex: {
       getters: {
-        users(state) {
-          log.error(state.users[0].roles);
-          return state.users;
-        },
+        users: state => state.users,
       },
       actions: {
         deleteUser: actions.deleteUser,
