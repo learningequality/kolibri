@@ -3,18 +3,25 @@ from collections import namedtuple
 from django.core.management.base import BaseCommand
 
 
-Progress = namedtuple('Progress', ['progress', 'total'])
+Progress = namedtuple('Progress', ['progress', 'total', 'message'])
 
 
 class ProgressTracker():
 
     def __init__(self, total=100, update_func=None):
-        if update_func:     # custom progress bar provided by programmer
-            self.update_progress = update_func
-            self.progressbar = None
-        else:                   # standard progress bar progress tracking
-            self.progressbar = tqdm(total=total)
-            self.update_progress = self.progressbar.update
+        self.progressbar = tqdm(total=total)
+        self.total = total
+
+        self.progress = 0
+
+        # custom progress bar provided by programmer
+        self.custom_update_progress_func = update_func or _identity
+
+    def update_progress(self, increment=1, message=""):
+        self.progressbar.update(increment)
+
+        p = Progress(progress=self.progress, total=self.total, message=message)
+        self.custom_update_progress_func(increment, p)
 
     def __enter__(self):
         return self.update_progress
