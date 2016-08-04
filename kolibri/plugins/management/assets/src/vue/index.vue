@@ -1,7 +1,7 @@
 <template>
 
   <core-base>
-    <user-roster></user-roster>
+    <user-roster slot="content"></user-roster>
   </core-base>
 
 </template>
