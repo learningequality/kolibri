@@ -9,6 +9,31 @@
         <search-widget
           :show-topics="exploreMode">
         </search-widget>
+    <side-nav class='nav'></side-nav>
+    <div class='main'>
+      <search-button class='search-btn'></search-button>
+
+      <error-page v-show='error'></error-page>
+
+      <select v-model="currentChannel" v-on:change="switchChannel($event)">
+        <option v-for="channel in channels" :value="channel.id">
+          {{ channel.name }}
+        </option>
+      </select>
+
+      <main role="main" class="page-content" v-if='!loading'>
+        <explore-page v-if='showExplorePage'></explore-page>
+        <content-page v-if='showContentPage'></content-page>
+        <learn-page v-if='showLearnPage'></learn-page>
+        <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
+      </main>
+
+      <div class='search-pane' v-show='searchOpen' transition='search-slide'>
+        <div class='search-shadow'>
+          <search-widget
+            :show-topics="exploreMode">
+          </search-widget>
+        </div>
       </div>
     </div>
 
@@ -59,12 +84,32 @@
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
       },
+      channels() {
+        // get an array of channels ids and names
+        const channels = global.channels;
+        return channels;
+      },
+      currentChannel() {
+        // get current channel id
+        return this.currentChannelId;
+      },
+    },
+    methods: {
+      switchChannel(event) {
+        const newChannelId = event.target.value;
+        console.log(`Switch to channel with id: ${newChannelId}`);
+        this.$router.go(`${newChannelId}`);
+      },
     },
     vuex: {
       getters: {
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchOpen: state => state.searchOpen,
+
+        loading: state => state.loading,
+        error: state => state.error,
+        currentChannelId: state => state.currentChannelId,
       },
     },
     store, // make this and all child components aware of the store

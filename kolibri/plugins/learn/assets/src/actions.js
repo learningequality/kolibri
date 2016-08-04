@@ -63,8 +63,9 @@ function _collectionState(data) {
  * These methods are used to update client-side state
  */
 
-function showExploreTopic(store, id) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+
+function showExploreTopic(store, id, channelId) {
+  store.dispatch('SET_PAGE_LOADING');
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
   const attributesPromise = Resources.getModel(id).fetch();
@@ -77,6 +78,7 @@ function showExploreTopic(store, id) {
       const collection = _collectionState(children);
       pageState.subtopics = collection.topics;
       pageState.contents = collection.contents;
+      pageState.currentChannelId = channelId;
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
@@ -88,13 +90,15 @@ function showExploreTopic(store, id) {
 }
 
 
-function showExploreContent(store, id) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+
+function showExploreContent(store, id, channelId) {
+  store.dispatch('SET_PAGE_LOADING');
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
   Resources.getModel(id).fetch()
     .then((attributes) => {
       const pageState = { content: _contentState(attributes) };
+      pageState.currentChannelId = channelId;
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
@@ -106,13 +110,15 @@ function showExploreContent(store, id) {
 }
 
 
-function showLearnRoot(store) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+
+function showLearnRoot(store, channelId) {
+  store.dispatch('SET_PAGE_LOADING');
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
 
   Resources.getCollection({ recommendations: '' }).fetch()
     .then((recommendations) => {
       const pageState = { recommendations: recommendations.map(_contentState) };
+      pageState.currentChannelId = channelId;
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
@@ -124,8 +130,8 @@ function showLearnRoot(store) {
 }
 
 
-function showLearnContent(store, id) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+function showLearnContent(store, id, channelId) {
+  store.dispatch('SET_PAGE_LOADING');
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
 
   const attributesPromise = Resources.getModel(id).fetch();
@@ -137,6 +143,7 @@ function showLearnContent(store, id) {
         content: _contentState(attributes),
         recommended: recommended.map(_contentState),
       };
+      pageState.currentChannelId = channelId;
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
