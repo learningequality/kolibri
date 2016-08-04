@@ -64,6 +64,7 @@
       */
       sanitizeFilename(filename) {
         let sanitizedFilename = filename.replace(/[^a-z0-9+]+/gi, '_');
+        sanitizedFilename = sanitizedFilename.replace(/_$/, '');
         sanitizedFilename = sanitizedFilename.toLowerCase();
         sanitizedFilename = sanitizedFilename.substring(0, 50);
         if (!sanitizedFilename.trim()) {
