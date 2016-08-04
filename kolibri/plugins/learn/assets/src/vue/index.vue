@@ -141,13 +141,3 @@
     width-auto-adjust()
 
 </style>
-
-
-<style lang="stylus">
-
-  /* WARNING - unscoped styles.
-   * control all scrolling from vue.  */
-  html
-    overflow: hidden
-
-</style>
