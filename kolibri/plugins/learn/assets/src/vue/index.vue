@@ -6,10 +6,7 @@
       <search-button class='search-btn'></search-button>
 
       <main role="main" class="page-content" v-if='!loading'>
-        <explore-page v-if='showExplorePage'></explore-page>
-        <content-page v-if='showContentPage'></content-page>
-        <learn-page v-if='showLearnPage'></learn-page>
-        <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
+        <component :is="currentPage"></component>
       </main>
 
       <div class='search-pane' v-show='searchOpen' transition='search-slide'>
@@ -50,18 +47,21 @@
       'scratchpad-page': require('./scratchpad-page'),
     },
     computed: {
-      showExplorePage() {
-        return this.pageName === PageNames.EXPLORE_ROOT || this.pageName === PageNames.EXPLORE_TOPIC;
-      },
-      showContentPage() {
-        return this.pageName === PageNames.EXPLORE_CONTENT ||
-          this.pageName === PageNames.LEARN_CONTENT;
-      },
-      showLearnPage() {
-        return this.pageName === PageNames.LEARN_ROOT;
-      },
-      showScratchpadPage() {
-        return this.pageName === PageNames.SCRATCHPAD;
+      currentPage() {
+        if (this.pageName === PageNames.EXPLORE_ROOT || this.pageName === PageNames.EXPLORE_TOPIC) {
+          return 'explore-page';
+        }
+        if (this.pageName === PageNames.EXPLORE_CONTENT ||
+          this.pageName === PageNames.LEARN_CONTENT) {
+          return 'content-page';
+        }
+        if (this.pageName === PageNames.LEARN_ROOT) {
+          return 'learn-page';
+        }
+        if (this.pageName === PageNames.SCRATCHPAD) {
+          return 'scratchpad-page';
+        }
+        return null;
       },
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
