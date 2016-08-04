@@ -94,9 +94,20 @@
       * Route to selected channel.
       */
       switchChannel(event) {
-        const newChannelId = event.target.value;
-        console.log(`Switch to channel with id: ${newChannelId}`);
-        // this.$router.go(`${newChannelId}`);
+        let rootPage;
+        if (this.exploreMode) {
+          rootPage = constants.PageNames.EXPLORE_ROOT;
+        } else {
+          rootPage = constants.PageNames.LEARN_ROOT;
+        }
+        this.$router.go(
+          {
+            name: rootPage,
+            params: {
+              channel_id: event.target.value,
+            },
+          }
+        );
       },
     },
     vuex: {
