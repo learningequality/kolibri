@@ -1,6 +1,7 @@
 <template>
 
   <core-base>
+    <mgmt-nav slot="nav"></mgmt-nav>
     <user-roster slot="content"></user-roster>
   </core-base>
 
@@ -12,7 +13,8 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
-      'user-roster': require('./user-roster.vue'),
+      'mgmt-nav': require('./mgmt-nav'),
+      'user-roster': require('./user-roster'),
     },
     vuex: {
       actions: require('../actions.js'),
