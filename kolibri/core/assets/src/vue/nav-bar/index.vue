@@ -11,11 +11,7 @@
 
 <script>
 
-  module.exports = {
-    components: {
-      'nav-item': require('./nav-item'),
-    },
-  };
+  module.exports = {};
 
 </script>
 
