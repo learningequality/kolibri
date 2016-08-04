@@ -5,5 +5,4 @@ module.exports = {
   LearnerGroupResource: require('./learnerGroup'),
   MembershipResource: require('./membership'),
   RoleResource: require('./role'),
-  ChannelMetadataResource: require('./channelMetadata'),
 };
