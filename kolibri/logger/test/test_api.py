@@ -23,16 +23,13 @@ from ..serializers import ContentInteractionLogSerializer, ContentSummaryLogSeri
 
 class ContentInteractionLogAPITestCase(APITestCase):
 
-    @classmethod
-    def setUpClass(self):
+    def setUp(self):
         self.facility = FacilityFactory.create()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
         self.interaction_log = []
         self.interaction_log += [ContentInteractionLogFactory.create(user=self.user) for _ in range(3)]
         self.facility.add_admin(self.admin)
-
-    def setUp(self):
         self.payload = {'user': self.user.pk,
                         'content_id': uuid.uuid4().hex,
                         'channel_id': uuid.uuid4().hex,
@@ -70,26 +67,16 @@ class ContentInteractionLogAPITestCase(APITestCase):
         response = self.client.post(reverse('contentinteractionlog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def tearDown(self):
-        self.client.logout()
-
-    @classmethod
-    def tearDownClass(self):
-        pass
-
 
 class ContentSummaryLogAPITestCase(APITestCase):
 
-    @classmethod
-    def setUpClass(self):
+    def setUp(self):
         self.facility = FacilityFactory.create()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
         self.summary_log = []
         self.summary_log += [ContentSummaryLogFactory.create(user=self.user) for _ in range(3)]
         self.facility.add_admin(self.admin)
-
-    def setUp(self):
         self.payload = {'user': self.user.pk,
                         'content_id': uuid.uuid4().hex,
                         'channel_id': uuid.uuid4().hex}
@@ -136,16 +123,13 @@ class ContentSummaryLogAPITestCase(APITestCase):
 
 class ContentRatingLogAPITestCase(APITestCase):
 
-    @classmethod
-    def setUpClass(self):
+    def setUp(self):
         self.facility = FacilityFactory.create()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
         self.rating_log = []
         self.rating_log += [ContentRatingLogFactory.create(user=self.user) for _ in range(3)]
         self.facility.add_admin(self.admin)
-
-    def setUp(self):
         self.payload = {'user': self.user.pk,
                         'content_id': uuid.uuid4().hex,
                         'channel_id': uuid.uuid4().hex}
@@ -192,8 +176,7 @@ class ContentRatingLogAPITestCase(APITestCase):
 
 class UserSessionLogAPITestCase(APITestCase):
 
-    @classmethod
-    def setUpClass(self):
+    def setUp(self):
         self.facility = FacilityFactory.create()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
