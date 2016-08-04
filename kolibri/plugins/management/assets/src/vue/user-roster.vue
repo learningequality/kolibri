@@ -100,12 +100,15 @@
     computed: {
       visibleUsers() {
         const roleFilter = this.roleFilter;
-        const searchFilter = new RegExp(this.searchFilter, 'i');
+        // creates array of words in filter, removes empty strings
+        const searchFilter = this.searchFilter.split(' ').filter(Boolean).map(
+          // returns an array of search parameters, ignoring case
+          (query) => new RegExp(query, 'i'));
 
         return this.users.filter((user) => {
           // fullname created using es6 templates
           const fullname = `${user.first_name} ${user.last_name}`;
-          const names = [fullname, user.first_name, user.last_name, user.username];
+          const names = [fullname, user.username];
 
           let hasRole = true;
           let hasName = true;
@@ -128,12 +131,13 @@
           }
 
           // makes sure there's text in the search box
-          if (this.searchFilter) {
+          if (searchFilter.length) {
             hasName = false;
 
             // check for searchFilter phrase in user's names
             for (const name of names) {
-              if (searchFilter.test(name)) {
+              // test name through all filters
+              if (searchFilter.every(nameFilter => nameFilter.test(name))) {
                 hasName = true;
               }
             }
@@ -141,7 +145,9 @@
 
           // determines whether name should be on list
           return hasRole && hasName;
-        });
+
+          // aphabetize based on username
+        }).sort((user1, user2) => user1.username[0] > user2.username[0]);
       },
     },
     vuex: {
