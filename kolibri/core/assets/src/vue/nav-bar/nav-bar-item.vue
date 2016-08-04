@@ -1,7 +1,12 @@
 <template>
 
   <div class='link-wrapper'>
-    <a class='link' v-link="vlink" :class="{active: active}">
+    <a v-if="vlink" v-link="vlink" :class="{active: active}" class='link'>
+      <div class='content'>
+        <slot></slot>
+      </div>
+    </a>
+    <a v-else :href="href" :class="{active: active}" class='link'>
       <div class='content'>
         <slot></slot>
       </div>
@@ -15,9 +20,12 @@
 
   module.exports = {
     props: {
+      // Note - only pass in a vlink or an href, not both
       vlink: {
         type: Object,
-        required: true,
+      },
+      href: {
+        type: String,
       },
       active: {
         type: Boolean,
@@ -46,7 +54,7 @@
     text-align: center
     @media screen and (min-width: $portrait-breakpoint + 1)
       display: table-cell
-      height: 150px
+      height: 125px
     @media screen and (max-width: $portrait-breakpoint)
       display: block
 
