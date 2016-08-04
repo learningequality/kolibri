@@ -45,8 +45,9 @@
 
 
   module.exports = {
+
     data: () => ({
-      delta: 5,
+      lastScrollTop: 0,
     }),
 
     components: {
@@ -87,22 +88,25 @@
       },
 
       scrollTop() {
-        let lastScrollTop = 0;
+        const delta = 5;
         const st = this.$els.main.pageYOffset || this.$els.main.scrollTop;
+        console.log(this.$els.main.pageYOffset, '----- ', this.$els.main.scrollTop);
         const windowHeight = this.$els.main.clientHeight;
         const documentHeight = this.$els.content.clientHeight;
 
-        if (st > lastScrollTop && st > this.navbarHeight()) {
+        if (Math.abs(this.lastScrollTop - st) <= delta) {
+          return;
+        }
+
+        if (st > this.lastScrollTop && st > this.navbarHeight()) {
           this.$els.subnav.classList.remove('subnav-down');
           this.$els.subnav.classList.add('subnav-up');
         } else {
           if (st + windowHeight < documentHeight) {
-            console.log(documentHeight);
-            console.log(windowHeight + st);
             this.$els.subnav.classList.remove('subnav-up');
             this.$els.subnav.classList.add('subnav-down');
           }
-          lastScrollTop = st;
+          this.lastScrollTop = st;
         }
       },
 
