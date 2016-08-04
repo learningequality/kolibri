@@ -1,6 +1,8 @@
 <template>
 
-  <button v-on:click="downloadContent">Download</button>
+  <icon-button @click="downloadContent" text="Download Media">
+    <svg src="download.svg"></svg>
+  </icon-button>
 
 </template>
 
@@ -27,6 +29,9 @@
         type: String,
         default: '',
       },
+    },
+    components: {
+      'icon-button': require('icon-button'),
     },
     computed: {
       contentType() {
@@ -63,9 +68,9 @@
       * Method that returns a safe filename.
       */
       sanitizeFilename(filename) {
-        let sanitizedFilename = filename.replace(/[^a-z0-9+]+/gi, '');
+        let sanitizedFilename = filename.replace(/[^a-z0-9+]+/gi, '_');
         sanitizedFilename = sanitizedFilename.toLowerCase();
-        sanitizedFilename = sanitizedFilename.substring(0, 20);
+        sanitizedFilename = sanitizedFilename.substring(0, 50);
         if (!sanitizedFilename.trim()) {
           sanitizedFilename = 'download';
         }

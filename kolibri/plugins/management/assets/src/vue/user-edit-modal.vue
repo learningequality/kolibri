@@ -15,6 +15,9 @@
       <div slot="footer">
         <button class="confirm-btn" type="button" @click="editUser">Confirm</button>
       </div>
+      <div slot="openbtn">
+        <button class="open-btn" type="button">Edit Me!</button>
+      </div>
     </modal>
   </div>
 
@@ -73,5 +76,7 @@
 
   .confirm-btn
     float: right
+  .open-btn
+    background-color: red
 
 </style>

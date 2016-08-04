@@ -4,7 +4,7 @@
     <div class="modal" v-show="showModal" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
-          <img @click="closeModal" class="close-btn" src="./close.svg">
+          <img @click="closeModal" class="close-btn" src="./icons/close.svg">
           <div class="modal-header">
             <slot name="header">
               Kolibri
@@ -24,7 +24,11 @@
       </div>
     </div>
 
-    <button type="button" @click="openModel">{{ btntext }}</button>
+    <div @click="openModel">
+      <slot name="openbtn">
+        <button>{{ btntext }}</button>
+      </slot>
+    </div>
   </div>
 
 </template>

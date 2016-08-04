@@ -5,6 +5,7 @@ function getInitialState() {
     facility: undefined,
     users: [],
     error: '',
+    loggedInUsername: '',
   };
 }
 
@@ -53,6 +54,10 @@ const mutations = {
 
   SET_ERROR(state, error) {
     state.error = error;
+  },
+
+  SET_LOGGED_IN_USERNAME(state, username) {
+    state.loggedInUsername = username;
   },
 };
 

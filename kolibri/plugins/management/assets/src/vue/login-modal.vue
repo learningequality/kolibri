@@ -4,7 +4,7 @@
     <modal btntext="Login">
       <div class="title" slot="header">
         <div class="login-brand-box">
-          <img src="./kolibri-logo.svg">
+          <img src="./icons/kolibri-logo.svg">
           <p id="login-brand">Kolibri</p>
         </div>
       </div>
@@ -36,14 +36,12 @@
     },
     methods: {
       userLogin() {
-        console.log('userlogin called');
         const payload = {
-          password: this.password,
           username: this.username,
+          password: this.password,
           facility: this.facility,
         };
         this.login(payload);
-        console.log('login called');
       },
     },
     vuex: {
@@ -76,7 +74,7 @@
       background: $core-action-dark
       padding: 8px
       transition: 0.15s
-    
+      
   .login-brand-box
     text-align: center
     margin: 15px auto
@@ -94,7 +92,7 @@
     letter-spacing: 0.1em
     font-weight: 100
     color: $core-action-normal
-    
+
   .login-form
     width: 300px
     margin: 0 auto
@@ -107,20 +105,20 @@
     &:focus
       outline: none
       border-bottom: 3px solid $core-action-normal
-    
+
   .login-username
     margin-bottom: 30px
-    background: url('./user.svg') no-repeat 10px 10px
+    background: url('./icons/user.svg') no-repeat 10px 10px
     transition: 0.15s
     &:focus
-      background: url('./user-active.svg') no-repeat 10px 10px
+      background: url('./icons/user-active.svg') no-repeat 10px 10px
       transition: 0.15s
       
   .login-password
-    background: url('./password.svg') no-repeat 10px 6px
+    background: url('./icons/password.svg') no-repeat 10px 6px
     transition: 0.15s
     &:focus
-      background: url('./password-active.svg') no-repeat 10px 6px
+      background: url('./icons/password-active.svg') no-repeat 10px 6px
       transition: 0.15s
 
 </style>
