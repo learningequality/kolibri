@@ -2,7 +2,7 @@
 
   <core-base>
     <side-nav class='nav'></side-nav>
-    <div v-el:main class='main' v-scroll='onScroll' @scroll='scrollStatus'>
+    <div v-el:main class='main' v-scroll='onScroll' @scroll='hasScrolled'>
 
     <div v-el:subnav id="subnav" class="subnav-down" >
       <search-button class='search-btn'></search-button>
@@ -84,9 +84,6 @@
       },
     },
     methods: {
-      scrollStatus() {
-        this.hasScrolled();
-      },
 
       onScroll(e, position) {
         this.position = position;
