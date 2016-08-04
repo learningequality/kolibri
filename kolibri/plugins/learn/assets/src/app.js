@@ -11,7 +11,7 @@ class LearnModule extends KolibriModule {
   ready() {
     router.on(
       PageNames.EXPLORE_ROOT,
-      `/explore/`,
+      `/explore/:channel_id/`,
       (toRoute, fromRoute) => {
         // router.go({
         //   name: '',
@@ -32,7 +32,7 @@ class LearnModule extends KolibriModule {
 
     router.on(
       PageNames.EXPLORE_CONTENT,
-      '/explore/content/:id',
+      '/explore/:channel_id/content/:id',
       (toRoute, fromRoute) => {
         actions.showExploreContent(store, toRoute.params.id);
       }
@@ -40,7 +40,7 @@ class LearnModule extends KolibriModule {
 
     router.on(
       PageNames.LEARN_ROOT,
-      '/learn',
+      '/learn/:channel_id',
       (toRoute, fromRoute) => {
         actions.showLearnRoot(store);
       }
@@ -48,7 +48,7 @@ class LearnModule extends KolibriModule {
 
     router.on(
       PageNames.LEARN_CONTENT,
-      '/learn/content/:id',
+      '/learn/:channel_id/content/:id',
       (toRoute, fromRoute) => {
         actions.showLearnContent(store, toRoute.params.id);
       }
