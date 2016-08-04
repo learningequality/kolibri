@@ -99,11 +99,15 @@ var config = {
   resolve: {
     alias: {
       'kolibri_module': path.resolve('kolibri/core/assets/src/kolibri_module'),
-      'core-base': path.resolve('kolibri/core/assets/src/core-base'),
-      'core-theme.styl': path.resolve('kolibri/core/assets/src/core-theme.styl'),
-      'content-renderer': path.resolve('kolibri/core/assets/src/content-renderer'),
+      'core-base': path.resolve('kolibri/core/assets/src/vue/core-base'),
+      'nav-bar-item': path.resolve('kolibri/core/assets/src/vue/nav-bar/nav-bar-item'),
+      'icon-button': path.resolve('kolibri/core/assets/src/vue/icon-button'),
+      'core-theme.styl': path.resolve('kolibri/core/assets/src/styles/core-theme.styl'),
+      'content-renderer': path.resolve('kolibri/core/assets/src/vue/content-renderer'),
       'content_renderer_module': path.resolve('kolibri/core/assets/src/content_renderer_module'),
       'logging': path.resolve('kolibri/core/assets/src/logging'),
+      'router': path.resolve('kolibri/core/assets/src/router'),
+      'core-state': path.resolve('kolibri/core/assets/src/core-state'),
     },
     extensions: ["", ".vue", ".js"],
   },
