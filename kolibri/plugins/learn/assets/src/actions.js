@@ -40,8 +40,23 @@ function _contentState(data) {
     thumbnail: data.thumbnail,
     available: data.available,
     files: data.files,
+    content_id: data.content_id,
     progress: data.progress ? data.progress : 'unstarted',
     breadcrumbs: _crumbState(data.ancestors),
+  };
+  return state;
+}
+
+function _contentLoggingState(data) {
+  console.log('LOGGING:', data);
+  const state = {
+    content_id: data.content_id,
+    channel_id: '7199dde695db4ee4ab392222d5af1e5c',
+    start_timestamp: data.start_timestamp,
+    end_timestamp: data.end_timestamp,
+    progress: data.progress,
+    total_time: data.total_time,
+    extra_fields: data.extra_fields,
   };
   return state;
 }
@@ -92,7 +107,10 @@ function showExploreContent(store, id) {
 
   Resources.getModel(id).fetch()
     .then((attributes) => {
-      const pageState = { content: _contentState(attributes) };
+      const pageState = {
+        content: _contentState(attributes),
+        logging: _contentLoggingState(attributes),
+      };
       store.dispatch('SET_PAGE_STATE', pageState);
     })
     .catch((error) => {
