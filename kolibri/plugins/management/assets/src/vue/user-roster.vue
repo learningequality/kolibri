@@ -19,8 +19,8 @@
       </select>
 
 
+      <input v-model="searchFilter" type="search">
       <svg class="search-button" src="./icons/search.svg"></svg>
-            <input type="search">
 
       <div class="create">
         <user-create-modal></user-create-modal>
@@ -74,7 +74,7 @@
           <!-- <button @click="deleteUser(user.id)">Delete</button> -->
         </tr>
       </tbody>
-    
+
     </table>
 
   </div>
@@ -94,14 +94,17 @@
     // Has to be a funcion due to vue's treatment of data
     data: () => ({
       roleFilter: '',
-      search: '',
+      searchFilter: '',
     }),
     computed: {
       visibleUsers() {
         return this.users.filter((user) => {
           const roleFilter = this.roleFilter;
+          const searchFilter = new RegExp(this.searchFilter, 'i');
+          const names = [user.first_name, user.last_name, user.username];
+
           let hasRole = true;
-          const hasName = true;
+          let hasName = true;
 
           // check for filters
           if (roleFilter !== 'all') {
@@ -120,8 +123,19 @@
             }
           }
 
-          // check for search phrase
+          // makes sure there's text in the search box
+          if (this.searchFilter) {
+            hasName = false;
 
+            // check for searchFilter phrase in user's names
+            for (const name of names) {
+              if (searchFilter.test(name)) {
+                hasName = true;
+              }
+            }
+          }
+
+          // determines whether name should be on list
           return hasRole && hasName;
         });
       },
@@ -168,7 +182,7 @@
     border-radius: 10px
     padding: inherit
     border: 1px solid #686868
-    
+
 
   select[name='user-filter']
     float: left
@@ -211,7 +225,7 @@
     padding-left: 1em
     padding-right: 1em
     border-radius: 40px
-  
+
   .search-button
     width: 20px
     height: 20px
