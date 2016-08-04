@@ -4,6 +4,7 @@ Also tests whether the users with permissions can create logs.
 """
 
 import csv
+import StringIO
 import uuid
 
 from django.core.urlresolvers import reverse
@@ -113,13 +114,6 @@ class ContentSummaryLogAPITestCase(APITestCase):
         response = self.client.post(reverse('contentsummarylog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def tearDown(self):
-        self.client.logout()
-
-    @classmethod
-    def tearDownClass(self):
-        pass
-
 
 class ContentRatingLogAPITestCase(APITestCase):
 
@@ -166,13 +160,6 @@ class ContentRatingLogAPITestCase(APITestCase):
         response = self.client.post(reverse('contentratinglog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def tearDown(self):
-        self.client.logout()
-
-    @classmethod
-    def tearDownClass(self):
-        pass
-
 
 class UserSessionLogAPITestCase(APITestCase):
 
@@ -214,13 +201,6 @@ class UserSessionLogAPITestCase(APITestCase):
         response = self.client.post(reverse('usersessionlog-list'), format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def tearDown(self):
-        self.client.logout()
-
-    @classmethod
-    def tearDownClass(self):
-        pass
-
 
 class ContentSummaryLogCSVExportTestCase(APITestCase):
 
@@ -236,7 +216,7 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         expected_count = ContentSummaryLog.objects.count()
         response = self.client.get(reverse('contentsummarylogcsv-list'))
-        results = [row for row in csv.reader(response.content.split("\n")) if row]
+        results = list(csv.reader(StringIO.StringIO(response.content)))
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
