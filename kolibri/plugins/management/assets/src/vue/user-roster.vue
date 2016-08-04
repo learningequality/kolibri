@@ -18,9 +18,10 @@
         <option value="learner"> Learners </option>
       </select>
 
-
-      <input v-model="searchFilter" type="search">
-      <svg class="search-button" src="./icons/search.svg"></svg>
+      <div class="searchbar">
+        <input v-model="searchFilter" type="search">
+        <svg class="search-button" src="./icons/search.svg"></svg>
+      </div>
 
       <div class="create">
         <user-create-modal></user-create-modal>
@@ -185,8 +186,8 @@
     border-radius: 10px
     padding: inherit
     border: 1px solid #686868
-
-
+    outline: none
+    line-height: appear
   select[name='user-filter']
     float: left
 
@@ -232,5 +233,10 @@
   .search-button
     width: 20px
     height: 20px
+    
+  .searchbar .search-button
+    position: relative
+    right: 390px
+    top: 3px
 
 </style>
