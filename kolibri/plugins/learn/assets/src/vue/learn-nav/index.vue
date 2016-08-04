@@ -1,15 +1,19 @@
 <template>
 
-  <div>
-    <nav-bar-item :vlink="learnLink" :active="learnActive">
-      <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./learn.svg"></svg>
-      <div class="label">Learn</div>
-    </nav-bar-item>
-    <nav-bar-item :vlink="exploreLink" :active="exploreActive">
-      <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./explore.svg"></svg>
-      <div class="label">Explore</div>
-    </nav-bar-item>
-  </div>
+  <!--
+    In order to get the nev to work right, it seemed necessary to
+    have multiple root nodes in this template.
+
+    TODO: would be best to refactor this.
+  -->
+  <nav-bar-item :vlink="learnLink" :active="learnActive">
+    <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./learn.svg"></svg>
+    <div class="label">Learn</div>
+  </nav-bar-item>
+  <nav-bar-item :vlink="exploreLink" :active="exploreActive">
+    <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./explore.svg"></svg>
+    <div class="label">Explore</div>
+  </nav-bar-item>
 
 </template>
 
