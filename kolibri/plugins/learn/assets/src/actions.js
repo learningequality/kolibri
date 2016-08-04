@@ -1,6 +1,5 @@
 const Resources = require('kolibri').resources.ContentNodeResource;
 const constants = require('./state/constants');
-
 const PageNames = constants.PageNames;
 
 
@@ -65,7 +64,7 @@ function _collectionState(data) {
  */
 
 function showExploreTopic(store, id, channelId) {
-  store.dispatch('SET_PAGE_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
   const attributesPromise = Resources.getModel(id).fetch();
@@ -80,15 +79,18 @@ function showExploreTopic(store, id, channelId) {
       pageState.contents = collection.contents;
       pageState.currentChannelId = channelId;
       store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
     })
     .catch((error) => {
-      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
 
 function showExploreContent(store, id, channelId) {
-  store.dispatch('SET_PAGE_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
   Resources.getModel(id).fetch()
@@ -96,15 +98,18 @@ function showExploreContent(store, id, channelId) {
       const pageState = { content: _contentState(attributes) };
       pageState.currentChannelId = channelId;
       store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
     })
     .catch((error) => {
-      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
 
 function showLearnRoot(store, channelId) {
-  store.dispatch('SET_PAGE_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
 
   Resources.getCollection({ recommendations: '' }).fetch()
@@ -112,15 +117,18 @@ function showLearnRoot(store, channelId) {
       const pageState = { recommendations: recommendations.map(_contentState) };
       pageState.currentChannelId = channelId;
       store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
     })
     .catch((error) => {
-      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
 
 function showLearnContent(store, id, channelId) {
-  store.dispatch('SET_PAGE_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
 
   const attributesPromise = Resources.getModel(id).fetch();
@@ -134,9 +142,12 @@ function showLearnContent(store, id, channelId) {
       };
       pageState.currentChannelId = channelId;
       store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
     })
     .catch((error) => {
-      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
@@ -166,7 +177,7 @@ function triggerSearch(store, searchTerm) {
   })
   .catch((error) => {
     // TODO - how to parse and format?
-    store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
   });
 }
 
@@ -179,6 +190,8 @@ function toggleSearch(store) {
 function showScratchpad(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
   store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
 }
 
 

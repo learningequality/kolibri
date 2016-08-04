@@ -1,36 +1,29 @@
 
 const constants = require('./constants');
 const Vuex = require('vuex');
+const coreState = require('core-state');
 
-function initialState() {
-  return {
-    rootTopicId: global.root_node_pk,
-    pageName: constants.PageNames.EXPLORE_ROOT,
-    pageState: {},
-    error: '',
-    loading: true,
-    searchOpen: false,
-    searchLoading: false,
-    searchState: {
-      topics: [],
-      contents: [],
-      searchTerm: '',
-    },
-    currentChannelId: global.currentChannelId,
-  };
-}
+const initialState = {
+  rootTopicId: global.root_node_pk,
+  pageName: constants.PageNames.EXPLORE_ROOT,
+  pageState: {},
+  searchOpen: false,
+  searchLoading: false,
+  searchState: {
+    topics: [],
+    contents: [],
+    searchTerm: '',
+  },
+  currentChannelId: global.currentChannelId,
+};
 
 const mutations = {
   SET_PAGE_NAME(state, name) {
     state.pageName = name;
   },
-  SET_PAGE_LOADING(state) {
-    state.loading = true;
-  },
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
     state.searchOpen = false;
-    state.loading = false;
   },
   SET_SEARCH_LOADING(state) {
     state.searchLoading = true;
@@ -42,12 +35,14 @@ const mutations = {
   TOGGLE_SEARCH(state) {
     state.searchOpen = !state.searchOpen;
   },
-  SET_ERROR(state, error) {
-    state.error = error;
-  },
 };
 
+// assigns core state and mutations
+Object.assign(initialState, coreState.initialState);
+Object.assign(mutations, coreState.mutations);
+
+
 module.exports = new Vuex.Store({
-  state: initialState(),
+  state: initialState,
   mutations,
 });
