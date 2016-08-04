@@ -2,6 +2,7 @@ import os
 import requests
 from django.db.models import Sum
 from django.conf import settings
+from django.core.management.base import CommandError
 
 from kolibri.content.content_db_router import using_content_database
 from kolibri.content.models import ChannelMetadata, ContentNode, File
@@ -11,12 +12,49 @@ from kolibri.tasks.management.commands.base import AsyncCommand
 class Command(AsyncCommand):
 
     def add_arguments(self, parser):
-        parser.add_argument('channel_id', type=str)
-        parser.add_argument('content_id',
-                            nargs="*",  # 0 or more arguments of content_id can be passed in.
-                            type=str)
+        # let's save the parser in case we need to print a help statement
+        self._parser = parser
 
-    def handle_async(self, *args, **options):
+        # we want two groups of arguments. One group is when the
+        # 'retrievecotent local' command is given, where we'll expect a file
+        # directory to be given. Another is the 'retrievecontent network'
+        # command to be given, where we'll expect a channel.
+
+        # to implement these two groups of commands and their corresponding
+        # arguments, we'll need argparse.subparsers.
+        subparsers = parser.add_subparsers(dest='command', help="The following subcommands are available.")
+
+        # the network command has a channel id required positional argument,
+        # and some optional content_id arguments.
+
+        # TODO: implement a --content-domain parameter, for optionally
+        # specifying the domain for the curation server.
+
+        # Note: cmd should be the management command instance, as though the
+        # interface for adding arguments is argparse, Django overrides the
+        # parser object with its own thing, hence why we need to add cmd. See
+        # http://stackoverflow.com/questions/36706220/is-it-possible-to-create-subparsers-in-a-django-management-command
+        network_subparser = subparsers.add_parser(
+            name='network',
+            cmd=self,
+            help="Download the given channel through the network."
+        )
+        network_subparser.add_argument('channel_id', type=str)
+        network_subparser.add_argument(
+            'content_id',
+            nargs="*",  # 0 or more arguments of content_id can be passed in.
+            type=str,
+            default=[],
+        )
+
+        local_subparser = subparsers.add_parser(
+            name='local',
+            cmd=self,
+            help='Download the content from the given folder.'
+        )
+        local_subparser.add_argument('directory', type=str)
+
+    def handle_network_download(self, *args, **options):
         channel_id = options["channel_id"]
 
         content_download_url_template = os.path.join(
@@ -61,6 +99,18 @@ class Command(AsyncCommand):
                                 file_dl_progress_update(length)
 
         print("Finished downloading files.")
+
+    def handle_filesystem_download(self, *args, **options):
+        pass
+
+    def handle_async(self, *args, **options):
+        if options['command'] == 'network':
+            self.handle_network_download(*args, **options)
+        elif options['command'] == 'local':
+            self.handle_filesystem_download(*args, **options)
+        else:
+            self._parser.print_help()
+            raise CommandError("Please give a valid subcommand. Options you gave: {}".format(options))
 
 
 def _get_all_files(channel_id):
