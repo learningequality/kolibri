@@ -98,10 +98,13 @@
     }),
     computed: {
       visibleUsers() {
+        const roleFilter = this.roleFilter;
+        const searchFilter = new RegExp(this.searchFilter, 'i');
+
         return this.users.filter((user) => {
-          const roleFilter = this.roleFilter;
-          const searchFilter = new RegExp(this.searchFilter, 'i');
-          const names = [user.first_name, user.last_name, user.username];
+          // fullname created using es6 templates
+          const fullname = `${user.first_name} ${user.last_name}`;
+          const names = [fullname, user.first_name, user.last_name, user.username];
 
           let hasRole = true;
           let hasName = true;
