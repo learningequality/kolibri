@@ -2,7 +2,6 @@
 
   <div>
     <div v-if="available">
-      <button v-on:click="downloadContent">Download</button>
       <div v-el:container></div>
     </div>
     <div v-else>
@@ -16,7 +15,6 @@
 <script>
 
   const logging = require('logging').getLogger(__filename);
-  const downloadjs = require('./download.js');
 
   module.exports = {
     props: {
@@ -47,10 +45,6 @@
       extraFields: {
         type: String,
         default: '{}',
-      },
-      title: {
-        type: String,
-        default: '',
       },
     },
     computed: {
@@ -181,31 +175,6 @@
           // Instantiate the Vue instance directly using the Kolibri Vue constructor.
           this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
         }
-      },
-      /**
-      * Method that downloads the content.
-      */
-      downloadContent() {
-        const sanitizedFilename = this.sanitizeFilename(this.title);
-        const x = new XMLHttpRequest();
-        x.open('GET', this.availableFiles[0].storage_url, true);
-        x.responseType = 'blob';
-        x.onload = function (e) {
-          downloadjs(e.target.response, sanitizedFilename, this.contentType);
-        };
-        x.send();
-      },
-      /**
-      * Method that returns a safe filename.
-      */
-      sanitizeFilename(filename) {
-        let sanitizedFilename = filename.replace(/[^a-z0-9+]+/gi, '');
-        sanitizedFilename = sanitizedFilename.toLowerCase();
-        sanitizedFilename = sanitizedFilename.substring(0, 20);
-        if (!sanitizedFilename.trim()) {
-          sanitizedFilename = 'download';
-        }
-        return sanitizedFilename;
       },
     },
   };
