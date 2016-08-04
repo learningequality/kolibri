@@ -36,6 +36,8 @@ function Lib() {
   this.logging = require('../logging');
   this.vue = vue;
   this.vuex = vuex;
+  this.coreBase = require('../vue/core-base');
+  this.contentRenderer = require('../vue/content-renderer');
 }
 
 /**
