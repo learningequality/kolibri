@@ -75,21 +75,28 @@
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
       },
+      /*
+      * Get a list of channels.
+      */
       channels() {
-        // get an array of channels ids and names
         const channels = global.channels;
         return channels;
       },
+      /*
+      * Get the current channel ID.
+      */
       currentChannel() {
-        // get current channel id
         return this.currentChannelId;
       },
     },
     methods: {
+      /*
+      * Route to selected channel.
+      */
       switchChannel(event) {
         const newChannelId = event.target.value;
         console.log(`Switch to channel with id: ${newChannelId}`);
-        this.$router.go(`${newChannelId}`);
+        // this.$router.go(`${newChannelId}`);
       },
     },
     vuex: {
