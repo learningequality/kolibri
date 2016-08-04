@@ -18,22 +18,22 @@
   module.exports = {
     computed: {
       usersLink() {
-        return { name: constants.PageNames.USER_PAGE };
+        return { name: constants.PageNames.USER_MGMT_PAGE };
       },
       usersActive() {
-        return this.pageName === constants.PageNames.USER_PAGE;
+        return this.pageName === constants.PageNames.USER_MGMT_PAGE;
       },
       dataLink() {
-        return { name: constants.PageNames.DATA_PAGE };
+        return { name: constants.PageNames.DATA_EXPORT_PAGE };
       },
       dataActive() {
-        return this.pageName === constants.PageNames.DATA_PAGE;
+        return this.pageName === constants.PageNames.DATA_EXPORT_PAGE;
       },
       contentLink() {
-        return { name: constants.PageNames.CONTENT_PAGE };
+        return { name: constants.PageNames.CONTENT_MGMT_PAGE };
       },
       contentActive() {
-        return this.pageName === constants.PageNames.CONTENT_PAGE;
+        return this.pageName === constants.PageNames.CONTENT_MGMT_PAGE;
       },
     },
     vuex: {

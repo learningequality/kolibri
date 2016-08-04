@@ -10,7 +10,7 @@ const PageNames = require('./state/constants').PageNames;
 class ManagementModule extends KolibriModule {
   ready() {
     router.on(
-      PageNames.USER_PAGE,
+      PageNames.USER_MGMT_PAGE,
       '/users',
       (toRoute, fromRoute) => {
         actions.showUserPage(store);
@@ -18,7 +18,7 @@ class ManagementModule extends KolibriModule {
     );
 
     router.on(
-      PageNames.CONTENT_PAGE,
+      PageNames.CONTENT_MGMT_PAGE,
       '/content',
       (toRoute, fromRoute) => {
         actions.showContentPage(store);
@@ -26,7 +26,7 @@ class ManagementModule extends KolibriModule {
     );
 
     router.on(
-      PageNames.DATA_PAGE,
+      PageNames.DATA_EXPORT_PAGE,
       '/data',
       (toRoute, fromRoute) => {
         actions.showDataPage(store);

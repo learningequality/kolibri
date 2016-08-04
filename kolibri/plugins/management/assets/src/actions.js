@@ -151,7 +151,7 @@ function deleteUser(store, id) {
 // An action for setting up the initial state of the app by fetching data from the server
 function showUserPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.USER_PAGE);
+  store.dispatch('SET_PAGE_NAME', PageNames.USER_MGMT_PAGE);
   const learnerCollection = FacilityUserResource.getCollection();
   const roleCollection = RoleResource.getCollection();
   const facilityIdPromise = FacilityUserResource.getCurrentFacility();
@@ -171,14 +171,14 @@ function showUserPage(store) {
 }
 
 function showContentPage(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_PAGE);
+  store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
 }
 
 function showDataPage(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.DATA_PAGE);
+  store.dispatch('SET_PAGE_NAME', PageNames.DATA_EXPORT_PAGE);
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);

@@ -26,13 +26,13 @@
     },
     computed: {
       currentPage() {
-        if (this.pageName === PageNames.USER_PAGE) {
+        if (this.pageName === PageNames.USER_MGMT_PAGE) {
           return 'user-page';
         }
-        if (this.pageName === PageNames.DATA_PAGE) {
+        if (this.pageName === PageNames.DATA_EXPORT_PAGE) {
           return 'data-page';
         }
-        if (this.pageName === PageNames.CONTENT_PAGE) {
+        if (this.pageName === PageNames.CONTENT_MGMT_PAGE) {
           return 'content-page';
         }
         if (this.pageName === PageNames.SCRATCHPAD) {

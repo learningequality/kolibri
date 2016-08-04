@@ -4,7 +4,7 @@ const coreState = require('core-state');
 const constants = require('./constants');
 
 const initialState = {
-  pageName: constants.PageNames.USER_PAGE,
+  pageName: constants.PageNames.USER_MGMT_PAGE,
   pageState: {},
   facility: undefined,
   users: [], // this should be inside page state
