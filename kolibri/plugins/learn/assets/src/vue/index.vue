@@ -4,9 +4,7 @@
     <side-nav class='nav'></side-nav>
     <div class='main' v-scroll='onScroll'>
 
-    <div v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" >
-      <search-button class='search-btn'></search-button>
-    </div>
+      <toolbar></toolbar>
 
       <error-page v-show='error'></error-page>
 
@@ -57,6 +55,7 @@
     components: {
       'core-base': require('core-base'),
       'side-nav': require('./side-nav'),
+      'toolbar': require('./toolbar'),
       'search-widget': require('./search-widget'),
       'search-button': require('./search-widget/search-button'),
       'explore-page': require('./explore-page'),
