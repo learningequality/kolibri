@@ -7,6 +7,12 @@
 
       <error-page v-show='error'></error-page>
 
+      <select v-model="currentChannel" v-on:change="switchChannel($event)">
+        <option v-for="channel in channels" :value="channel.id">
+          {{ channel.name }}
+        </option>
+      </select>
+
       <main role="main" class="page-content" v-if='!loading'>
         <explore-page v-if='showExplorePage'></explore-page>
         <content-page v-if='showContentPage'></content-page>
@@ -69,6 +75,22 @@
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
       },
+      channels() {
+        // get an array of channels ids and names
+        const channels = global.channels;
+        return channels;
+      },
+      currentChannel() {
+        // get current channel id
+        return this.currentChannelId;
+      },
+    },
+    methods: {
+      switchChannel(event) {
+        const newChannelId = event.target.value;
+        console.log(`Switch to channel with id: ${newChannelId}`);
+        this.$router.go(`${newChannelId}`);
+      },
     },
     vuex: {
       getters: {
@@ -77,6 +99,7 @@
         searchOpen: state => state.searchOpen,
         loading: state => state.loading,
         error: state => state.error,
+        currentChannelId: state => state.currentChannelId,
       },
     },
     store, // make this and all child components aware of the store

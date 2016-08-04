@@ -4,12 +4,19 @@
 {% block content %}
   <script>
     {{kolibri}}.resources.ContentNodeResource.setChannel("{{ channel_id }}");
+    console.log("{{ channel_id }}");
     var root_node = JSON.parse("{{ rootnode|escapejs }}");
     var root_node_pk = String(root_node.pk);
     var model = {{kolibri}}.resources.ContentNodeResource.getModel(root_node_pk, root_node);
     model.synced = true;
     var collection = {{kolibri}}.resources.ContentNodeResource.getCollection({parent: root_node_pk}, JSON.parse("{{ nodes|escapejs }}"));
     collection.synced = true;
+    // TODO: Get the following 3 from the DB.
+    var channelMetadata = {{kolibri}}.resources.ChannelMetadataResource;
+    var channels = [{id: 'dummy_db', name: 'Smart Database'},{id: 1, name: 'chan_1'}, {id: 2, name: 'chan_2'}, {id: 3, name: 'chan_3'}];
+    var defaultChannelId = "{{ channel_id }}"; // TODO: API also fetches user default channel.
+    var rootTopicId = '81d66751-00fe-46a4-852a-c21e04cf81e3';
+    var currentChannelId = "{{ channel_id }}";
   </script>
   {% learn_async_assets %}
   {% learn_assets %}

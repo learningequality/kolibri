@@ -11,17 +11,22 @@ class LearnModule extends KolibriModule {
   ready() {
     router.on(
       PageNames.EXPLORE_ROOT,
-      '/explore',
+      `/explore/`,
       (toRoute, fromRoute) => {
-        actions.showExploreTopic(store, store.state.rootTopicId);
+        // router.go({
+        //   name: '',
+        //   params: {},
+        //   query: {},
+        // });
+        actions.showExploreTopic(store, store.state.rootTopicId, store.state.currentChannelId);
       }
     );
 
     router.on(
       PageNames.EXPLORE_TOPIC,
-      '/explore/topic/:id',
+      `/explore/:channel_id/topic/:id`,
       (toRoute, fromRoute) => {
-        actions.showExploreTopic(store, toRoute.params.id);
+        actions.showExploreTopic(store, toRoute.params.id, toRoute.params.channel_id);
       }
     );
 

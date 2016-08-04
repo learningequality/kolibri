@@ -13,7 +13,7 @@ class LearnView(TemplateView):
     template_name = "learn/learn.html"
 
     def get_context_data(self, **kwargs):
-        channel_id = getattr(self.request, "channel_id", "dummy_db")
+        channel_id = getattr(self.request, "channel_id", "7199dde695db4ee4ab392222d5af1e51")
         context = super(LearnView, self).get_context_data(**kwargs)
         with using_content_database(channel_id):
             root_node = ContentNode.objects.get(parent__isnull=True)
