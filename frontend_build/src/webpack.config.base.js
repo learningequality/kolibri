@@ -102,7 +102,7 @@ var config = {
       'core-base': path.resolve('kolibri/core/assets/src/vue/core-base'),
       'nav-bar-item': path.resolve('kolibri/core/assets/src/vue/nav-bar/nav-bar-item'),
       'icon-button': path.resolve('kolibri/core/assets/src/vue/icon-button'),
-      'core-theme.styl': path.resolve('kolibri/core/assets/src/core-theme.styl'),
+      'core-theme.styl': path.resolve('kolibri/core/assets/src/styles/core-theme.styl'),
       'content-renderer': path.resolve('kolibri/core/assets/src/vue/content-renderer'),
       'content_renderer_module': path.resolve('kolibri/core/assets/src/content_renderer_module'),
       'logging': path.resolve('kolibri/core/assets/src/logging'),

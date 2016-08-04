@@ -13,7 +13,7 @@ if (!global.hasOwnProperty('Intl')) {
   global.Intl = require('intl');
 }
 
-const Mediator = rewire('../src/core_app_mediator.js');
+const Mediator = rewire('../src/core-app/mediator');
 
 describe('Mediator', function () {
   beforeEach(function () {

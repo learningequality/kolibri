@@ -8,7 +8,7 @@
 const assert = require('assert');
 const rewire = require('rewire');
 
-const assetLoader = rewire('../src/asset_loader.js');
+const assetLoader = rewire('../src/core-app/asset-loader.js');
 
 describe('Asset loader', function () {
   describe('input is invalid', function () {

@@ -13,7 +13,7 @@ if (!global.hasOwnProperty('Intl')) {
   global.Intl = require('intl');
 }
 
-const Resources = rewire('../src/api_resource.js');
+const Resources = rewire('../src/api-resource.js');
 
 describe('ResourceManager', function () {
   beforeEach(function () {

@@ -6,7 +6,7 @@
  */
 
 
-const assetLoader = require('./asset_loader');
+const assetLoader = require('./asset-loader');
 const Vue = require('vue');
 const logging = require('logging').getLogger(__filename);
 

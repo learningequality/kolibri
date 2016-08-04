@@ -5,9 +5,9 @@
 
 const vue = require('vue');
 const vuex = require('vuex');
-const Mediator = require('./core_app_mediator');
-const ResourceManager = require('./api_resource').ResourceManager;
-const Resources = require('./apiResources/resources');
+const Mediator = require('./mediator');
+const ResourceManager = require('../api-resource').ResourceManager;
+const Resources = require('../api-resources');
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -33,7 +33,7 @@ const publicMethods = [
  */
 function Lib() {
   // libraries
-  this.logging = require('./logging');
+  this.logging = require('../logging');
   this.vue = vue;
   this.vuex = vuex;
 }

@@ -1,11 +1,17 @@
 <template>
 
-  <nav-bar>
-    <slot name="nav"></slot>
-  </nav-bar>
-
   <div>
-    <slot name="content"></slot>
+
+    <nav-bar>
+      <slot name="nav"></slot>
+    </nav-bar>
+
+    <div>
+      <slot name="content"></slot>
+    </div>
+
+    <error-box v-show='error'></error-box>
+
   </div>
 
 </template>
@@ -16,6 +22,7 @@
   module.exports = {
     components: {
       'nav-bar': require('./nav-bar'),
+      'error-box': require('./error-box'),
     },
   };
 

@@ -5,8 +5,6 @@
     <div slot="content" class='main'>
       <search-button class='search-btn'></search-button>
 
-      <error-page v-show='error'></error-page>
-
       <main role="main" class="page-content" v-if='!loading'>
         <explore-page v-if='showExplorePage'></explore-page>
         <content-page v-if='showContentPage'></content-page>
@@ -50,7 +48,6 @@
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
       'scratchpad-page': require('./scratchpad-page'),
-      'error-page': require('./error-page'),
     },
     computed: {
       showExplorePage() {
