@@ -15,11 +15,10 @@
       <div slot="footer">
         <button class="create-btn" type="button" @click="createNewUser">Create User</button>
       </div>
-      <div slot="openbtn">
-        <div class="manage-create">
-          <div class="add-text" src="">Add New</div>
-          <svg class="add-user" src="./icons/add_new_user.svg"></svg> 
-        </div>
+      <div class="manage-create" slot="openbtn">
+        <svg class="add-user" src="./icons/add_new_user.svg">
+        </svg>
+        <span class="add-text" src="">Add New</span> 
       </div>
     </modal>
   </div>
@@ -85,18 +84,18 @@
     height: 25px
     width: 130px
     font-size: 12px
-    text-indent: 50px
+    // text-indent: 50px
     cursor: pointer
   
   .add-user
     float: left
     height: 80%
     width: 30%
+    // padding: 10px
 
   .add-text
     float: left
-    position: absolute
-    padding: 3px
+    padding-top: 6px
 
 </style>
 
