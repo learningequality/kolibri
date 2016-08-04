@@ -1,7 +1,7 @@
 <template>
 
   <div class="top">
-    <a v-link="usersLink" class="first" :class="{active: usersActive}">Users</a>
+    <a v-link="usersLink" :class="{active: usersActive}">Users</a>
 
     <a v-link="dataLink" :class="{active: dataActive}">Data</a>
 
