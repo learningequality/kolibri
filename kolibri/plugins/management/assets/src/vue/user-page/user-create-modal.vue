@@ -23,11 +23,11 @@
 
 <script>
 
-  const actions = require('../actions');
+  const actions = require('../../actions');
 
   module.exports = {
     components: {
-      modal: require('./modal.vue'),
+      modal: require('../modal'),
     },
     data() {
       return {

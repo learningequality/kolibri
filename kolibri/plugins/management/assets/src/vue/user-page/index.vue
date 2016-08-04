@@ -26,12 +26,12 @@
 
 <script>
 
-  const actions = require('../actions');
+  const actions = require('../../actions');
 
   module.exports = {
     components: {
-      'user-create-modal': require('./user-create-modal.vue'),
-      'user-edit-modal': require('./user-edit-modal.vue'),
+      'user-create-modal': require('./user-create-modal'),
+      'user-edit-modal': require('./user-edit-modal'),
     },
     vuex: {
       getters: {

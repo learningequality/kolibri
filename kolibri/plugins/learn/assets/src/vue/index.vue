@@ -1,7 +1,7 @@
 <template>
 
   <core-base>
-    <learn-nav slot="nav"></learn-nav>
+    <main-nav slot="nav"></main-nav>
     <search-button slot="above" class='search-btn'></search-button>
     <component slot="content" :is="currentPage"></component>
     <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
@@ -31,7 +31,7 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
-      'learn-nav': require('./learn-nav'),
+      'main-nav': require('./main-nav'),
       'search-widget': require('./search-widget'),
       'search-button': require('./search-widget/search-button'),
       'explore-page': require('./explore-page'),
@@ -65,8 +65,6 @@
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchOpen: state => state.searchOpen,
-        loading: state => state.core.loading,
-        error: state => state.core.error,
       },
     },
     store, // make this and all child components aware of the store

@@ -3,6 +3,10 @@ const Kolibri = require('kolibri');
 const FacilityUserResource = Kolibri.resources.FacilityUserResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
+const constants = require('./state/constants');
+const PageNames = constants.PageNames;
+
+
 /**
  * Do a POST to create new user
  * @param {object} payload
@@ -145,27 +149,54 @@ function deleteUser(store, id) {
 }
 
 // An action for setting up the initial state of the app by fetching data from the server
-function fetchInitialData(store) {
+function showUserPage(store) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', PageNames.USER_PAGE);
   const learnerCollection = FacilityUserResource.getCollection();
   const roleCollection = RoleResource.getCollection();
   const facilityIdPromise = FacilityUserResource.getCurrentFacility();
   const userPromise = learnerCollection.fetch();
   const rolePromise = roleCollection.fetch();
   const promises = [facilityIdPromise, userPromise, rolePromise];
-  Promise.all(promises).then(responses => {
-    const id = responses[0];
+  Promise.all(promises).then(([id, users]) => {
     store.dispatch('SET_FACILITY', id[0]); // for mvp, we assume only one facility exists
-    const users = responses[1];
     store.dispatch('ADD_USERS', users);
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    store.dispatch('CORE_SET_ERROR', null);
   },
   rejects => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(rejects, null, '\t'));
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
   });
+}
+
+function showContentPage(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_PAGE);
+  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+}
+
+function showDataPage(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.DATA_PAGE);
+  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+}
+
+function showScratchpad(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
+  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
 }
 
 module.exports = {
   createUser,
   updateUser,
   deleteUser,
-  fetchInitialData,
+  showUserPage,
+  showContentPage,
+  showDataPage,
+  showScratchpad,
 };

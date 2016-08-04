@@ -1,6 +1,5 @@
 const Resources = require('kolibri').resources.ContentNodeResource;
 const constants = require('./state/constants');
-
 const PageNames = constants.PageNames;
 
 
