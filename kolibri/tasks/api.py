@@ -1,4 +1,3 @@
-import importlib
 from celery import Celery
 from celery.backends.database.models import Task
 from sqlalchemy import create_engine
@@ -22,8 +21,6 @@ CALL_COMMAND_SHORTNAME = 'kolibri.call_command'
 
 
 def setup_celery_for_management_commands():
-
-    # import all management commands, so when the worker forks, it has them in memory.
 
     # register the call_command command, which will be our main interface
     # for calling commands asynchronously
@@ -66,13 +63,6 @@ def cancel_task(task_id):
     pass
 
 
-def _get_function_object(name):
-    module_name, function_name = name.rsplit('.', 1)
-    module = importlib.import_module(module_name)
-    return getattr(module, function_name)
-
-
-# look into viewsets
 class TasksViewSet(viewsets.ViewSet):
 
     def list(self, request):

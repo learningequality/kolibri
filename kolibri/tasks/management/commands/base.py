@@ -15,7 +15,7 @@ class ProgressTracker():
         self.progress = 0
 
         # custom progress bar provided by programmer
-        self.custom_update_progress_func = update_func or _identity
+        self.custom_update_progress_func = update_func or _nullop
 
     def update_progress(self, increment=1, message=""):
         self.progressbar.update(increment)
@@ -57,6 +57,6 @@ class AsyncCommand(BaseCommand):
     start_progress = ProgressTracker
 
 
-def _identity(*args, **kwargs):
-    # heh, are we all just NoneTypes after all?
+def _nullop(*args, **kwargs):
+    # heh, are all our actions just for naught?
     pass

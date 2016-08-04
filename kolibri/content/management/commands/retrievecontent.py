@@ -5,8 +5,14 @@ from django.conf import settings
 from django.core.management.base import CommandError
 
 from kolibri.content.content_db_router import using_content_database
-from kolibri.content.models import ChannelMetadata, ContentNode, File
+from kolibri.content.models import File
 from kolibri.tasks.management.commands.base import AsyncCommand
+
+
+CONTENT_DEST_PATH_TEMPLATE = os.path.join(
+    settings.CONTENT_STORAGE_DIR,
+    "{filename}",
+)
 
 
 class Command(AsyncCommand):
@@ -61,20 +67,16 @@ class Command(AsyncCommand):
             settings.CENTRAL_CONTENT_DOWNLOAD_DOMAIN,
             "{filename}",
         )
-        content_path_template = os.path.join(
-            settings.CONTENT_STORAGE_DIR,
-            "{filename}",
-        )
 
         with using_content_database(channel_id):
-            files = _get_all_files(channel_id)
+            files = File.objects.all()
             total_bytes_to_download = files.aggregate(Sum('file_size'))['file_size__sum']
 
             with self.start_progress(total=total_bytes_to_download) as overall_progress_update:
 
                 for f in files:
                     url = content_download_url_template.format(filename=f.get_url())
-                    path = content_path_template.format(filename=f.get_url())
+                    path = CONTENT_DEST_PATH_TEMPLATE.format(filename=f.get_url())
 
                     try:
                         filedir = os.path.dirname(path)
@@ -98,8 +100,6 @@ class Command(AsyncCommand):
                                 overall_progress_update(length)
                                 file_dl_progress_update(length)
 
-        print("Finished downloading files.")
-
     def handle_filesystem_download(self, *args, **options):
         pass
 
@@ -111,17 +111,3 @@ class Command(AsyncCommand):
         else:
             self._parser.print_help()
             raise CommandError("Please give a valid subcommand. Options you gave: {}".format(options))
-
-
-def _get_all_files(channel_id):
-    channel = ChannelMetadata.objects.get(pk=channel_id)
-    channel_root_node = ContentNode.objects.get(pk=channel.root_pk)
-    all_nodes = channel_root_node.get_family()
-
-    files = File.objects.filter(contentnode__in=all_nodes)
-
-    return files
-
-    # ARON TOMORROW: Implement the retrievecontent command. Accepts only 1
-    # argument for now, a channel id. Downloads all the content for that
-    # channel.
