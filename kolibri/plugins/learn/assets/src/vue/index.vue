@@ -2,21 +2,14 @@
 
   <core-base>
     <learn-nav slot="nav"></learn-nav>
-    <div slot="content" class='main'>
-      <search-button class='search-btn'></search-button>
-
-      <main role="main" class="page-content" v-if='!loading'>
-        <component :is="currentPage"></component>
-      </main>
-
-      <div class='search-pane' v-show='searchOpen' transition='search-slide'>
-        <div class='search-shadow'>
-          <search-widget
-            :show-topics="exploreMode">
-          </search-widget>
-        </div>
+    <search-button slot="above" class='search-btn'></search-button>
+    <component slot="content" :is="currentPage"></component>
+    <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
+      <div class='search-shadow'>
+        <search-widget
+          :show-topics="exploreMode">
+        </search-widget>
       </div>
-
     </div>
 
     <!-- this is not used, but necessary for vue-router to function -->
@@ -87,19 +80,6 @@
   @require '~core-theme.styl'
   @require 'learn.styl'
 
-  .main
-    position: fixed // must be fixed for ie10
-    overflow-y: scroll
-    height: 100%
-    width: 100%
-    padding-left: $left-margin
-    padding-right: $right-margin
-    padding-bottom: 50px
-    @media screen and (max-width: $portrait-breakpoint)
-      padding-left: $card-gutter * 2
-      padding-right: $card-gutter
-      padding-bottom: 100px
-
   .search-btn
     position: fixed
     top: 1rem
@@ -131,10 +111,5 @@
 
   .search-slide-enter, .search-slide-leave
     transform: translateX(100vw)
-
-  .page-content
-    margin: auto
-    padding-right: $card-gutter // visible right-margin in line with grid
-    width-auto-adjust()
 
 </style>

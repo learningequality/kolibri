@@ -80,6 +80,7 @@ function showExploreTopic(store, id) {
       pageState.contents = collection.contents;
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
     })
     .catch((error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -97,6 +98,7 @@ function showExploreContent(store, id) {
       const pageState = { content: _contentState(attributes) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
     })
     .catch((error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -114,6 +116,7 @@ function showLearnRoot(store) {
       const pageState = { recommendations: recommendations.map(_contentState) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
     })
     .catch((error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -137,6 +140,7 @@ function showLearnContent(store, id) {
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
     })
     .catch((error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -183,6 +187,8 @@ function toggleSearch(store) {
 function showScratchpad(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
   store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
 }
 
 
