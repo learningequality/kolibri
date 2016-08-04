@@ -34,12 +34,8 @@ const publicMethods = [
 function Lib() {
   // libraries
   this.logging = require('./logging');
-  this.router = require('./router');
   this.vue = vue;
   this.vuex = vuex;
-  // views
-  this.coreBase = require('./vue/core-base');
-  this.contentRenderer = require('./vue/content-renderer');
 }
 
 /**
