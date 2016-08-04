@@ -11,13 +11,10 @@ class LearnModule extends KolibriModule {
   ready() {
     router.on(
       PageNames.EXPLORE_ROOT,
-      `/explore/:channel_id/`,
+      `/explore/:channel_id`,
       (toRoute, fromRoute) => {
-        // router.go({
-        //   name: '',
-        //   params: {},
-        //   query: {},
-        // });
+        // Go to default pk?
+        // router.go({});
         actions.showExploreTopic(store, store.state.rootTopicId, store.state.currentChannelId);
       }
     );
@@ -63,7 +60,7 @@ class LearnModule extends KolibriModule {
     );
 
     router.redirect({
-      '/': '/explore',
+      '/': '/explore/:channel_id',
     });
 
     router.start(rootvue, 'rootvue');
