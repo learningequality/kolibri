@@ -14,7 +14,6 @@
 <script>
 
   const constants = require('../../state/constants');
-  console.log('CO>>SAD', constants);
 
   module.exports = {
     computed: {
