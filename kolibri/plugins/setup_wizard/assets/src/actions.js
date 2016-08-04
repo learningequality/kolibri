@@ -3,8 +3,9 @@ const Kolibri = require('kolibri');
 const DeviceOwnerResource = Kolibri.resources.DeviceOwnerResource;
 
 function createDeviceOwner(store, payload) {
-  const deviceOwnerPromise = DeviceOwnerResource.createSuperUser(payload);
+  const deviceOwnerPromise = DeviceOwnerResource.createDeviceOwner(payload);
   deviceOwnerPromise.then(responses => {
+    console.log('yoyo: ', responses);
     window.location = responses;
   },
   rejects => {

@@ -38,7 +38,7 @@
     },
     vuex: {
       actions: {
-        createDeviceOwner: actions.createSuperuser,
+        createDeviceOwner: actions.createDeviceOwner,
       },
     },
   };

@@ -29,7 +29,7 @@ class DeviceOwnerResource extends Resource {
     return 'deviceowner';
   }
 
-  createSuperUser(data) {
+  createDeviceOwner(data) {
     const mpath = 'http://localhost:8000/setup_wizard/create_deviceowner_api/';
     const promise = new Promise((resolve, reject) => {
       client({ path: mpath, params: data }).then((response) => {

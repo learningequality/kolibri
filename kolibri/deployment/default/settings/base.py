@@ -56,6 +56,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'kolibri.plugins.setup_wizard.middleware.SetupWizardMiddleware',
     'kolibri.auth.middleware.CustomAuthenticationMiddleware',
     'kolibri.content.middleware.ContentDBRoutingMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
