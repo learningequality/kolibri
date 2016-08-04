@@ -65,7 +65,7 @@ function _collectionState(data) {
  */
 
 function showExploreTopic(store, id) {
-  store.dispatch('SET_PAGE_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
   const attributesPromise = Resources.getModel(id).fetch();
@@ -79,45 +79,51 @@ function showExploreTopic(store, id) {
       pageState.subtopics = collection.topics;
       pageState.contents = collection.contents;
       store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
     .catch((error) => {
-      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
 
 function showExploreContent(store, id) {
-  store.dispatch('SET_PAGE_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
   Resources.getModel(id).fetch()
     .then((attributes) => {
       const pageState = { content: _contentState(attributes) };
       store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
     .catch((error) => {
-      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
 
 function showLearnRoot(store) {
-  store.dispatch('SET_PAGE_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
 
   Resources.getCollection({ recommendations: '' }).fetch()
     .then((recommendations) => {
       const pageState = { recommendations: recommendations.map(_contentState) };
       store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
     .catch((error) => {
-      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
 
 function showLearnContent(store, id) {
-  store.dispatch('SET_PAGE_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
 
   const attributesPromise = Resources.getModel(id).fetch();
@@ -130,9 +136,11 @@ function showLearnContent(store, id) {
         recommended: recommended.map(_contentState),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     })
     .catch((error) => {
-      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
@@ -162,7 +170,7 @@ function triggerSearch(store, searchTerm) {
   })
   .catch((error) => {
     // TODO - how to parse and format?
-    store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
   });
 }
 

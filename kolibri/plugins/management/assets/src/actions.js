@@ -29,12 +29,12 @@ function createUser(store, payload, role) {
           store.dispatch('ADD_USERS', [updatedModel]);
         });
       }).catch((error) => {
-        store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       });
     }
   })
   .catch((error) => {
-    store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
   });
 }
 
@@ -69,7 +69,7 @@ function updateUser(store, id, payload, role) {
           store.dispatch('UPDATE_USERS', [responses]);
         })
         .catch((error) => {
-          store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
         });
       });
     } else if (role !== 'learner') {
@@ -92,12 +92,12 @@ function updateUser(store, id, payload, role) {
             store.dispatch('UPDATE_USERS', [responses]);
           })
           .catch((error) => {
-            store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+            store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
           });
         });
       })
       .catch((error) => {
-        store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       });
     } else {
     // role is learner and oldRole is admin or coach.
@@ -110,7 +110,7 @@ function updateUser(store, id, payload, role) {
           store.dispatch('UPDATE_USERS', [responses]);
         })
         .catch((error) => {
-          store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
         });
       });
     }
@@ -120,7 +120,7 @@ function updateUser(store, id, payload, role) {
       store.dispatch('UPDATE_USERS', [responses]);
     })
     .catch((error) => {
-      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
     });
   }
 }
@@ -140,7 +140,7 @@ function deleteUser(store, id) {
     store.dispatch('DELETE_USERS', [userId]);
   })
   .catch((error) => {
-    store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
   });
 }
 
@@ -159,7 +159,7 @@ function fetchInitialData(store) {
     store.dispatch('ADD_USERS', users);
   },
   rejects => {
-    store.dispatch('SET_ERROR', JSON.stringify(rejects, null, '\t'));
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(rejects, null, '\t'));
   });
 }
 

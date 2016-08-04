@@ -72,8 +72,8 @@
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchOpen: state => state.searchOpen,
-        loading: state => state.loading,
-        error: state => state.error,
+        loading: state => state.core.loading,
+        error: state => state.core.error,
       },
     },
     store, // make this and all child components aware of the store

@@ -16,7 +16,7 @@
   module.exports = {
     vuex: {
       getters: {
-        error: state => state.error,
+        error: state => state.core.error,
       },
     },
   };

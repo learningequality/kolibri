@@ -107,6 +107,7 @@ var config = {
       'content_renderer_module': path.resolve('kolibri/core/assets/src/content_renderer_module'),
       'logging': path.resolve('kolibri/core/assets/src/logging'),
       'router': path.resolve('kolibri/core/assets/src/router'),
+      'core-state': path.resolve('kolibri/core/assets/src/core-state'),
     },
     extensions: ["", ".vue", ".js"],
   },
