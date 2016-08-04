@@ -1,10 +1,10 @@
 <template>
 
   <div class="top">
-    <a v-link="usersLink" :class="{active: usersActive}">Users</a>
-    |
+    <a v-link="usersLink" class="first" :class="{active: usersActive}">Users</a>
+
     <a v-link="dataLink" :class="{active: dataActive}">Data</a>
-    |
+
     <a v-link="contentLink" :class="{active: contentActive}">Content</a>
   </div>
 
@@ -48,12 +48,25 @@
 
 <style lang="stylus" scoped>
 
-  .top
-    width: 100%
-    padding: 20px
+  @require '~core-theme.styl'
 
-  .active
-    color: turquoise
+  .top
+    position: relative
+    top: 1em
+    width: 100%
+    padding: 1em 2em
+    background: $core-bg-light
+    border-radius: 4px
+
+  .top a
+    padding: 0.6em 2em
+    text-decoration: none
+    color: $core-text-annotation
+
+  .top .active
+    color: $core-action-normal
     cursor: default
+    font-weight: 700
+    border-bottom: 0.3em $core-action-normal solid
 
 </style>
