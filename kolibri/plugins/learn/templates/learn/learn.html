@@ -4,7 +4,6 @@
 {% block content %}
   <script>
     {{kolibri}}.resources.ContentNodeResource.setChannel("{{ channel_id }}");
-    console.log("{{ channel_id }}");
     var root_node = JSON.parse("{{ rootnode|escapejs }}");
     var root_node_pk = String(root_node.pk);
     var model = {{kolibri}}.resources.ContentNodeResource.createModel(root_node);
