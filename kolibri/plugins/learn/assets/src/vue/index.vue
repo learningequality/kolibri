@@ -2,7 +2,7 @@
 
   <core-base>
     <side-nav class='nav'></side-nav>
-    <div v-el:main class='main' @scroll='scrollTop'>
+    <div v-el:main class='main' v-scroll='onScroll' @scroll='scrollStatus'>
 
     <div v-el:subnav id="subnav" class="subnav-down" >
       <search-button class='search-btn'></search-button>
@@ -42,11 +42,15 @@
   const PageModes = constants.PageModes;
   const getters = require('../state/getters');
   const store = require('../state/store');
+  require('vue-scroll');
 
 
   module.exports = {
 
     data: () => ({
+      didScroll: false,
+      st: 0,
+      delta: 5,
       lastScrollTop: 0,
     }),
 
@@ -80,34 +84,33 @@
       },
     },
     methods: {
-      navbarHeight() {
-        const navbarHeight = this.$els.subnav.clientHeight;
-        // this.$els.subnav.classList.remove('subnav-down');
-        // this.$els.subnav.classList.add('subnav-up');
-        return navbarHeight;
+      scrollStatus() {
+        this.hasScrolled();
       },
 
-      scrollTop() {
-        const delta = 5;
-        const st = this.$els.main.pageYOffset || this.$els.main.scrollTop;
-        console.log(this.$els.main.pageYOffset, '----- ', this.$els.main.scrollTop);
+      onScroll(e, position) {
+        this.position = position;
+        this.st = position.scrollTop;
+      },
+
+      hasScrolled() {
         const windowHeight = this.$els.main.clientHeight;
         const documentHeight = this.$els.content.clientHeight;
+        const currentHeight = this.st + windowHeight;
+        const navbarHeight = this.$els.subnav.clientHeight;
 
-        if (Math.abs(this.lastScrollTop - st) <= delta) {
+        if (Math.abs(this.lastScrollTop - this.st) <= this.delta) {
           return;
         }
 
-        if (st > this.lastScrollTop && st > this.navbarHeight()) {
-          this.$els.subnav.classList.remove('subnav-down');
-          this.$els.subnav.classList.add('subnav-up');
+        if (this.st > this.lastScrollTop && this.st > navbarHeight) {
+          this.$els.subnav.className = 'subnav-up';
         } else {
-          if (st + windowHeight < documentHeight) {
-            this.$els.subnav.classList.remove('subnav-up');
-            this.$els.subnav.classList.add('subnav-down');
+          if (currentHeight < documentHeight) {
+            this.$els.subnav.className = 'subnav-down';
           }
-          this.lastScrollTop = st;
         }
+        this.lastScrollTop = this.st;
       },
 
 
