@@ -2,15 +2,18 @@
 
   <core-base>
     <side-nav class='nav'></side-nav>
-    <div class='main'>
+    <div v-el:main class='main' @scroll='scrollTop'>
+
+    <div v-el:subnav id="subnav" class="subnav-down" >
       <search-button class='search-btn'></search-button>
+    </div>
 
       <error-page v-show='error'></error-page>
 
-      <main role="main" class="page-content" v-if='!loading'>
+      <main v-el:content role="main" class="page-content" v-if='!loading'>
         <explore-page v-if='showExplorePage'></explore-page>
         <content-page v-if='showContentPage'></content-page>
-        <learn-page v-if='showLearnPage'></learn-page>
+        <learn-page  v-if='showLearnPage'></learn-page>
         <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
       </main>
 
@@ -40,7 +43,12 @@
   const getters = require('../state/getters');
   const store = require('../state/store');
 
+
   module.exports = {
+    data: () => ({
+      delta: 5,
+    }),
+
     components: {
       'core-base': require('core-base'),
       'side-nav': require('./side-nav'),
@@ -69,6 +77,36 @@
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
       },
+    },
+    methods: {
+      navbarHeight() {
+        const navbarHeight = this.$els.subnav.clientHeight;
+        // this.$els.subnav.classList.remove('subnav-down');
+        // this.$els.subnav.classList.add('subnav-up');
+        return navbarHeight;
+      },
+
+      scrollTop() {
+        let lastScrollTop = 0;
+        const st = this.$els.main.pageYOffset || this.$els.main.scrollTop;
+        const windowHeight = this.$els.main.clientHeight;
+        const documentHeight = this.$els.content.clientHeight;
+
+        if (st > lastScrollTop && st > this.navbarHeight()) {
+          this.$els.subnav.classList.remove('subnav-down');
+          this.$els.subnav.classList.add('subnav-up');
+        } else {
+          if (st + windowHeight < documentHeight) {
+            console.log(documentHeight);
+            console.log(windowHeight + st);
+            this.$els.subnav.classList.remove('subnav-up');
+            this.$els.subnav.classList.add('subnav-down');
+          }
+          lastScrollTop = st;
+        }
+      },
+
+
     },
     vuex: {
       getters: {
@@ -103,8 +141,28 @@
       padding-right: $card-gutter
       padding-bottom: 100px
 
-  .search-btn
+  .subnav-down
     position: fixed
+    left: 0
+    top: 0
+    width: 100%
+    height: 46px
+    background: $core-bg-canvas
+    z-index: 100
+    transition: top 0.2s ease-in-out
+
+  .subnav-up
+    position: fixed
+    left: 0
+    top: -40px
+    width: 100%
+    height: 46px
+    background: $core-bg-canvas
+    z-index: 100
+    transition: top 0.2s ease-in-out
+
+  .search-btn
+    position: absolute
     top: 1rem
     right: 2rem
     z-index: 1
