@@ -11,12 +11,12 @@
     model.synced = true;
     var collection = {{kolibri}}.resources.ContentNodeResource.getCollection({parent: root_node_pk}, JSON.parse("{{ nodes|escapejs }}"));
     collection.synced = true;
-    // TODO: Get the following 3 from the DB.
-    var channelMetadata = {{kolibri}}.resources.ChannelMetadataResource;
-    var channels = [{id: 'dummy_db', name: 'Smart Database'},{id: 1, name: 'chan_1'}, {id: 2, name: 'chan_2'}, {id: 3, name: 'chan_3'}];
-    var defaultChannelId = "{{ channel_id }}"; // TODO: API also fetches user default channel.
-    var rootTopicId = '81d66751-00fe-46a4-852a-c21e04cf81e3';
-    var currentChannelId = "{{ channel_id }}";
+
+   // Get list of channels.
+    var channels = JSON.parse("{{ channels | escapejs }}");
+    var defaultChannelId = "7199dde6-95db-4ee4-ab39-2222d5af1e51"; // TODO: API also fetches user-selected default channel.
+    var currentChannelId = "7199dde6-95db-4ee4-ab39-2222d5af1e51";
+    var rootTopicId = channels[0].root_pk; // TODO: Use the current Channel IDS root_pk
   </script>
   {% learn_async_assets %}
   {% learn_assets %}
