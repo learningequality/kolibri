@@ -33,10 +33,6 @@
 
   @require '~core-theme.styl'
 
-  .nav-main
-    @media screen and (max-width: $portrait-breakpoint)
-      display: table-row
-
   .link-wrapper
     @media screen and (min-width: $portrait-breakpoint + 1)
       display: table-row
