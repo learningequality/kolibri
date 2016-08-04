@@ -2,9 +2,9 @@
 
   <core-base>
     <side-nav class='nav'></side-nav>
-    <div v-el:main class='main' v-scroll='onScroll' @scroll='hasScrolled'>
+    <div class='main' v-scroll='onScroll'>
 
-    <div v-el:subnav id="subnav" class="subnav-down" >
+    <div v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" >
       <search-button class='search-btn'></search-button>
     </div>
 
@@ -48,10 +48,10 @@
   module.exports = {
 
     data: () => ({
-      didScroll: false,
-      st: 0,
+      currScrollTop: 0,
       delta: 5,
       lastScrollTop: 0,
+      displayToolBar: true,
     }),
 
     components: {
@@ -87,30 +87,19 @@
 
       onScroll(e, position) {
         this.position = position;
-        this.st = position.scrollTop;
-      },
+        this.currScrollTop = position.scrollTop;
 
-      hasScrolled() {
-        const windowHeight = this.$els.main.clientHeight;
-        const documentHeight = this.$els.content.clientHeight;
-        const currentHeight = this.st + windowHeight;
-        const navbarHeight = this.$els.subnav.clientHeight;
-
-        if (Math.abs(this.lastScrollTop - this.st) <= this.delta) {
+        if (Math.abs(this.lastScrollTop - this.currScrollTop) <= this.delta) {
           return;
         }
 
-        if (this.st > this.lastScrollTop && this.st > navbarHeight) {
-          this.$els.subnav.className = 'subnav-up';
+        if (this.currScrollTop > this.lastScrollTop) {
+          this.displayToolBar = true;
         } else {
-          if (currentHeight < documentHeight) {
-            this.$els.subnav.className = 'subnav-down';
-          }
+          this.displayToolBar = false;
         }
-        this.lastScrollTop = this.st;
+        this.lastScrollTop = this.currScrollTop;
       },
-
-
     },
     vuex: {
       getters: {
@@ -145,7 +134,7 @@
       padding-right: $card-gutter
       padding-bottom: 100px
 
-  .subnav-down
+  .toolbar-show
     position: fixed
     left: 0
     top: 0
@@ -155,7 +144,7 @@
     z-index: 100
     transition: top 0.2s ease-in-out
 
-  .subnav-up
+  .toolbar-hide
     position: fixed
     left: 0
     top: -40px
@@ -167,7 +156,7 @@
 
   .search-btn
     position: absolute
-    top: 1rem
+    top: 0.4rem
     right: 2rem
     z-index: 1
     @media screen and (max-width: $portrait-breakpoint)
