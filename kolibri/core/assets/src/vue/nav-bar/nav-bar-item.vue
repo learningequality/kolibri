@@ -51,7 +51,6 @@
   .link
     margin: 0
     padding: 6px
-    vertical-align: middle
     text-align: center
     cursor: pointer
     @media screen and (min-width: $portrait-breakpoint + 1)
