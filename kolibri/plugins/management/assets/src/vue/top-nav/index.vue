@@ -1,11 +1,11 @@
 <template>
 
   <div class="top">
-    <a v-link="usersLink" :class="{active: usersActive}">Users</a>
+    <a v-link="usersLink" :class="{active: usersActive}" @click="blur">Users</a>
 
-    <a v-link="dataLink" :class="{active: dataActive}">Data</a>
+    <a v-link="dataLink" :class="{active: dataActive}" @click="blur">Data</a>
 
-    <a v-link="contentLink" :class="{active: contentActive}">Content</a>
+    <a v-link="contentLink" :class="{active: contentActive}" @click="blur">Content</a>
   </div>
 
 </template>
@@ -16,6 +16,11 @@
   const constants = require('../../state/constants');
 
   module.exports = {
+    methods: {
+      blur(evt) {
+        evt.target.blur();
+      },
+    },
     computed: {
       usersLink() {
         return { name: constants.PageNames.USER_MGMT_PAGE };
