@@ -19,8 +19,8 @@
       </select>
 
       <div class="searchbar">
-        <input v-model="searchFilter" type="search">
         <svg class="search-button" src="./icons/search.svg"></svg>
+        <input v-model="searchFilter" type="search">
       </div>
 
       <div class="create">
@@ -185,15 +185,11 @@
     float: right
 
   input[type='search']
-    float: left
-    margin: 0 0 10px 10px
-    width: 400px
-    height: 25px
-    border-radius: 10px
-    padding: inherit
-    border: 1px solid #686868
-    outline: none
-    line-height: appear
+    width: 372px
+    // border-radius: 10px
+    // padding: inherit
+    // border: 1px solid #686868
+
   select[name='user-filter']
     float: left
 
@@ -239,10 +235,25 @@
   .search-button
     width: 20px
     height: 20px
-    
+
   .searchbar .search-button
+    display: inline-block
+    float: left
+
+  .searchbar:after
+    content: ''
+    display: table
+    clear: both
+    // position: relative
+    // right: 390px
+    // top: 3px
+
+  .searchbar
+    border-radius: 10px
+    padding: inherit
+    border: 1px solid #686868
+    width: 400px
+    float: left
     position: relative
-    right: 390px
-    top: 3px
 
 </style>
