@@ -11,11 +11,11 @@ class SetupWizardPlugin(KolibriPluginBase):
         return urls
 
     def url_slug(self):
-        return "^setup_wizard/"
+        return "^setupwizard/"
 
 
 class SetupWizardAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "setup_wizard"
+    unique_slug = "setupwizard"
     src_file = "kolibri/plugins/setup_wizard/assets/src/app.js"
     static_dir = "kolibri/plugins/setup_wizard/static"
 
