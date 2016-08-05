@@ -7,9 +7,9 @@ import subprocess
 import sys
 from threading import Thread
 
-from django.contrib.staticfiles.management.commands.runserver import \
-    Command as RunserverCommand
+from django.contrib.staticfiles.management.commands.runserver import Command as RunserverCommand
 from django.core.management.base import CommandError
+from kolibri.content.utils.annotation import update_channel_metadata_cache
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +46,8 @@ class Command(RunserverCommand):
 
         if options["karma"]:
             self.spawn_karma()
+
+        update_channel_metadata_cache()
 
         return super(Command, self).handle(*args, **options)
 

@@ -253,6 +253,11 @@ CENTRAL_CONTENT_DOWNLOAD_DOMAIN = "https://unicefcontentcuration.learningequalit
 
 REST_FRAMEWORK = {
     "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser",
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework_csv.renderers.CSVRenderer',
+    ),
 }
 
 
