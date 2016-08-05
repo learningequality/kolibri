@@ -1,6 +1,6 @@
 <template>
 
-  <div v-scroll='onScroll' v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" >
+  <div v-scroll='onScroll' v-bind:class="['toolbar-show', displaytoolbar ? 'toolbar-hide' : '' ]" >
     <search-button class='search-btn'></search-button>
   </div>
 
@@ -9,16 +9,14 @@
 
 <script>
 
-  require('vue-scroll');
-
   module.exports = {
 
-    data: () => ({
-      currScrollTop: 0,
-      delta: 5,
-      lastScrollTop: 0,
-      displayToolBar: true,
-    }),
+    props: {
+      displaytoolbar: {
+        type: Boolean,
+        required: true,
+      },
+    },
 
     components: {
       'search-widget': require('../search-widget'),
@@ -26,34 +24,6 @@
       'breadcrumbs': require('../breadcrumbs'),
 
     },
-    methods: {
-
-      onScroll(e, position) {
-        this.position = position;
-        this.currScrollTop = position.scrollTop;
-
-        console.log('it is working');
-
-        if (Math.abs(this.lastScrollTop - this.currScrollTop) <= this.delta) {
-          return;
-        }
-
-        if (this.currScrollTop > this.lastScrollTop) {
-          this.displayToolBar = true;
-        } else {
-          this.displayToolBar = false;
-        }
-        this.lastScrollTop = this.currScrollTop;
-      },
-    },
-    // vuex: {
-    //   getters: {
-    //     searchOpen: state => state.searchOpen,
-    //     loading: state => state.loading,
-    //     error: state => state.error,
-    //     breadcrumbs: (state) => state.pageState.content.breadcrumbs,
-    //   },
-    // },
   };
 
 </script>

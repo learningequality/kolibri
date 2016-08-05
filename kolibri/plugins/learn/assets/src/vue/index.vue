@@ -4,7 +4,7 @@
     <side-nav class='nav'></side-nav>
     <div class='main' v-scroll='onScroll'>
 
-      <toolbar></toolbar>
+      <toolbar :displaytoolbar = 'displayToolBar'></toolbar>
 
       <error-page v-show='error'></error-page>
 
