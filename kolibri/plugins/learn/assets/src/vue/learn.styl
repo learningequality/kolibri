@@ -1,35 +1,10 @@
-/**
-  * Styles for responsiveness in learn app
-  */
+
 @require '~core-theme.styl'
-
-$card-height = 85px         // fixed card height
-$card-width = 280px         // fixed card width
-$card-gutter = 20px         // spacing between columns
-$n-cols-array = 1 2 3 4 5     // possible numbers of columns
-
-$left-margin = 100px
-$right-margin = 25px
-
-
-// compute the target grid width based on the number of columns
-grid-width($n-cols)
-  ($card-width * $n-cols) + ($card-gutter * ($n-cols + 1))
-
-$portrait-breakpoint = $left-margin * 2 + grid-width(1) + $right-margin
-
-// compute the media query breakpoint, based on the target grid width
-breakpoint($width)
-  $left-margin + $width + $card-gutter + $right-margin
-
-// generate a range of media query breakpoints
-width-auto-adjust()
-  width: grid-width(1)
-  for $n-cols in $n-cols-array
-    $grid-width = grid-width($n-cols)
-    @media (min-width: breakpoint($grid-width))
-      width: $grid-width
 
 .pageicon
   fill: $core-text-default
 
+.page-description
+  margin-top: 2em
+  margin-bottom: 1.4em
+  line-height: 1.8em
