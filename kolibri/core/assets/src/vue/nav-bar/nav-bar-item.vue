@@ -46,14 +46,17 @@
       display: table-row
     @media screen and (max-width: $portrait-breakpoint)
       display: table-cell
+      vertical-align: middle
 
   .link
     margin: 0
     padding: 6px
     vertical-align: middle
     text-align: center
+    cursor: pointer
     @media screen and (min-width: $portrait-breakpoint + 1)
       display: table-cell
+      vertical-align: middle
       height: 125px
     @media screen and (max-width: $portrait-breakpoint)
       display: block

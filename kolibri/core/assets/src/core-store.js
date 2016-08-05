@@ -7,13 +7,7 @@ const initialState = {
   core: {
     error: '',
     loading: true,
-    session: {
-      kind: UserKinds.ADMIN,
-      facility_id: '1',
-      user_id: '2',
-      username: 'starchy52',
-      fullname: 'Mr. Potato Head',
-    },
+    session: { kind: UserKinds.ANONYMOUS },
   },
 };
 
@@ -22,13 +16,7 @@ const mutations = {
     state.core.session = value;
   },
   CORE_CLEAR_SESSION(state) {
-    state.core.session = {
-      kind: UserKinds.ANONYMOUS,
-      facility_id: undefined,
-      user_id: undefined,
-      username: undefined,
-      fullname: undefined,
-    };
+    state.core.session = { kind: UserKinds.ANONYMOUS };
   },
   CORE_SET_PAGE_LOADING(state, value) {
     state.core.loading = value;
