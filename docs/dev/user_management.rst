@@ -49,7 +49,7 @@ interaction with the selectors and filters. Each item in this list corresponds t
 * A ``manage`` button which summons a class and group management modal for that student.
 
 .. note::
-  The roster described here corresponds to ``user-roster.vue``.
+  The roster described here corresponds to ``user-page.vue``.
 
 The detail view modal displays learner account data and provides a mechanism to reset a learner's password.
 

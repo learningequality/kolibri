@@ -1,0 +1,112 @@
+<template>
+
+  <div class="user-creation-modal">
+    <modal btntext="Add New">
+      <div class="title" slot="header">Add New Account</div>
+      <div slot="body">
+        <div class="name">
+          <label for="name">Name</label>
+          <input type="text" v-model="username" placeholder="Please type in your username.">
+        </div>
+        <div class="username">
+          <label>Username</label>
+          <input type="text" v-model="password" placeholder="Please type in your password.">
+        </div>
+        <div class="password">
+          <label>Password</label>
+          <input type="text" v-model="firstName" placeholder="Please type in your first name.">
+        </div>
+        <div class="confirm">
+          <label>Confirm Password</label>
+          <input type="text" v-model="lastName" placeholder="Please type in your last name.">
+        </div>
+        <!-- radio buttons for selecting role -->
+        <br>Learner <input type="radio" value="learner" v-model="role"><br>
+        <br>Admin <input type="radio" value="admin" v-model="role"><br>
+      </div>
+      <div slot="footer">
+        <button class="create-btn" type="button" @click="createNewUser">Create User</button>
+      </div>
+      <div class="manage-create" slot="openbtn">
+        <svg class="add-user" src="../icons/add_new_user.svg">
+        </svg>
+        <span class="add-text" src="">Add New</span>
+      </div>
+    </modal>
+  </div>
+
+</template>
+
+
+<script>
+
+  const actions = require('../../actions');
+
+  module.exports = {
+    components: {
+      modal: require('../modal'),
+    },
+    data() {
+      return {
+        username: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        role: 'learner',
+      };
+    },
+    methods: {
+      createNewUser() {
+        const payload = {
+          password: this.password,
+          username: this.username,
+          first_name: this.firstName,
+          last_name: this.lastName,
+          facility: this.facility,
+        };
+        this.createUser(payload, this.role);
+      },
+    },
+    vuex: {
+      getters: {
+        facility: state => state.facility,
+      },
+      actions: {
+        createUser: actions.createUser,
+      },
+    },
+  };
+
+</script>
+
+
+<style lang="stylus" scoped>
+
+  .title
+    display: inline
+
+  .create-btn
+    float: right
+
+  .manage-create
+    background-color: #996189
+    border-radius: 5px
+    color: #f9f9f9
+    float: right
+    height: 25px
+    width: 130px
+    font-size: 12px
+    // text-indent: 50px
+    cursor: pointer
+
+  .add-user
+    float: left
+    height: 80%
+    width: 30%
+    // padding: 10px
+
+  .add-text
+    float: left
+    padding-top: 6px
+
+</style>
