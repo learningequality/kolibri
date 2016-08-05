@@ -1,11 +1,13 @@
 <template>
 
   <div class="top">
-    <a v-link="usersLink" :class="{active: usersActive}">Users</a>
+    <div class="links">
+      <a v-link="usersLink" :class="{active: usersActive}">Users</a>
 
-    <a v-link="dataLink" :class="{active: dataActive}">Data</a>
+      <a v-link="dataLink" :class="{active: dataActive}">Data</a>
 
-    <a v-link="contentLink" :class="{active: contentActive}">Content</a>
+      <a v-link="contentLink" :class="{active: contentActive}">Content</a>
+    </div>
   </div>
 
 </template>
@@ -57,14 +59,19 @@
     padding: 1em 2em
     background: $core-bg-light
     border-radius: 4px
+    @media screen and (max-width: $portrait-breakpoint)
+      padding: 1em 0.2em
+
+  .links
+    @media screen and (max-width: $portrait-breakpoint)
+      text-align: center
 
   .top a
     padding: 0.6em 2em
     text-decoration: none
     color: $core-text-annotation
-
-  .top a:focus
-    border-bottom: 0.3em $core-action-light solid
+    @media screen and (max-width: $portrait-breakpoint)
+      padding: 0.6em 1em
 
   .top .active
     color: $core-action-normal
