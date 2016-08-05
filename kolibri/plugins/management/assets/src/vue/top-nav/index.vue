@@ -63,6 +63,9 @@
     text-decoration: none
     color: $core-text-annotation
 
+  .top a:focus
+    border-bottom: 0.3em $core-action-light solid
+
   .top .active
     color: $core-action-normal
     cursor: default
