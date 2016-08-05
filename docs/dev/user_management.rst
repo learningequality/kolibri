@@ -49,7 +49,7 @@ interaction with the selectors and filters. Each item in this list corresponds t
 * A ``manage`` button which summons a class and group management modal for that student.
 
 .. note::
-  The roster described here corresponds to ``learner-roster.vue``.
+  The roster described here corresponds to ``user-roster.vue``.
 
 The detail view modal displays learner account data and provides a mechanism to reset a learner's password.
 
@@ -90,9 +90,6 @@ The UI allows the list of learner in the roster to be filtered. This includes:
   Learner Groups in the classroom with the special option "All groups". This filters the list of learner analogously
   to the classroom selector.
 * Potentially other filters, for example listing learners in alphabetical or reverse-alphabetical order.
-
-.. note::
-  The classroom and group selectors are both instances of ``drop-down.vue``. Space is reserved in ``app-root.vue`` right now for other filters, however they don't correspond to subcomponents.
 
 Miscellaneous widgets
 *********************

@@ -795,7 +795,7 @@ class Role(AbstractFacilityDataModel):
         )
     )
 
-    user = models.ForeignKey('FacilityUser', blank=False, null=False)
+    user = models.ForeignKey('FacilityUser', related_name="roles", blank=False, null=False)
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
     collection = TreeForeignKey("Collection")

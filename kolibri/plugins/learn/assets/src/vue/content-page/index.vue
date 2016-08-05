@@ -21,7 +21,7 @@
       </content-icon>
     </page-header>
 
-    <p>
+    <p class="page-description">
       {{ description }}
     </p>
 
@@ -35,6 +35,13 @@
         :extra-fields="extraFields">
       </content-render>
     </div>
+
+    <download-button
+      :kind="kind"
+      :files="files"
+      :available="available"
+      :title="title">
+    </download-button>
 
     <expandable-content-grid
       v-if="pageMode === $options.PageModes.LEARN"
@@ -59,6 +66,7 @@
       'content-icon': require('../content-icon'),
       'page-header': require('../page-header'),
       'content-render': require('content-renderer'),
+      'download-button': require('content-renderer/download-button'),
       'expandable-content-grid': require('../expandable-content-grid'),
     },
     vuex: {
