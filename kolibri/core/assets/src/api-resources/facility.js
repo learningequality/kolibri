@@ -1,4 +1,4 @@
-const Resource = require('../api_resource').Resource;
+const Resource = require('../api-resource').Resource;
 
 class FacilityResource extends Resource {
   static resourceName() {
