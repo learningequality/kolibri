@@ -101,7 +101,6 @@
 
   .search-shadow
     padding-right: $right-margin
-    box-shadow: 0 0 6px #ddd
     min-height: 100%
 
   .search-slide-transition
