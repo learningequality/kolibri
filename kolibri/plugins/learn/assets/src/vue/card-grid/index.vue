@@ -1,7 +1,7 @@
 <template>
 
   <section>
-    <h3>{{header}}</h3>
+    <h3 class="header">{{header}}</h3>
     <div class="card-grid">
       <slot></slot>
     </div>
@@ -59,6 +59,10 @@
 <style lang="stylus" scoped>
 
   @require 'jeet'
+
+  .header
+    margin-top: 2em
+    margin-bottom: 1.4em
 
   .card-grid
     cf()

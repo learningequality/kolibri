@@ -56,8 +56,8 @@ For example:
       management/
         assets/
           src/
-            learner-roster.vue  # nested-view
-            vue/index.vue        # root view
+            vue/user-page.vue   # nested-view
+            vue/index.vue       # root view
             app.js              # instantiate mgmt app on client-side
           test/
             app.js
@@ -139,7 +139,7 @@ These can be used in code with a standard CommonJS-style require statement - e.g
 
   Due to the mechanics of the `plugin and webpack build system <asset_loading>`_, adding additional globally-available objects is somewhat complicated.
 
-  References to the objects are attached to the ``kolibriGlobal`` object in *core_app_constructor.js*, and mapped to globally accessible names in *webpack.config.js*.
+  References to the objects are attached to the ``kolibriGlobal`` object in *core-app/constructor.js*, and mapped to globally accessible names in *webpack.config.js*.
 
 
 

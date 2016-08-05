@@ -4,7 +4,6 @@ Also tests whether the users with permissions can create logs.
 """
 
 import csv
-import StringIO
 import uuid
 
 from django.core.urlresolvers import reverse
@@ -215,7 +214,7 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         expected_count = ContentSummaryLog.objects.count()
         response = self.client.get(reverse('contentsummarylogcsv-list'))
-        results = list(csv.reader(StringIO.StringIO(response.content)))
+        results = list(csv.reader(row for row in response.content.decode("utf-8").split("\n") if row))
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)

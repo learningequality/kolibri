@@ -15,7 +15,7 @@
       </div>
     </page-header>
 
-    <p v-if='topic.description'>
+    <p class="page-description" v-if='topic.description'>
       {{ topic.description }}
     </p>
 
