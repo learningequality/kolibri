@@ -5,10 +5,14 @@
       <div class="container">
         <div class="title">Device Owner Creation</div>
         <div class="creation-form">
-          <br>Username: <input type="text" v-model="username" placeholder="Please type in your username."><br>
-          <br>Password: <input type="text" v-model="password" placeholder="Please type in your password."><br>
+          <br>Username: <input type="text" v-model="username" placeholder="Example: Dylan Barth"><br>
+          <br>Password: <input type="text" v-model="password" placeholder="Example: 1212"><br>
         </div>
-        <button class="create-btn" type="button" @click="createTheDeviceOwner">Create</button>
+        <br>
+        <div class="title">Facility Creation</div>
+        <br>Facility: <input type="text" v-model="facility" placeholder="Example: San Diego High School"><br>
+        <br>
+        <button class="create-btn" type="button" @click="createBoth">Create</button>
       </div>
     </div>
   </div>
@@ -25,20 +29,24 @@
       return {
         username: '',
         password: '',
+        facility: '',
       };
     },
     methods: {
-      createTheDeviceOwner() {
-        const payload = {
+      createBoth() {
+        const deviceOwnerPayload = {
           password: this.password,
           username: this.username,
         };
-        this.createDeviceOwner(payload);
+        const facilityPayload = {
+          name: this.facility,
+        };
+        this.createDeviceOwnerAndFacility(deviceOwnerPayload, facilityPayload);
       },
     },
     vuex: {
       actions: {
-        createDeviceOwner: actions.createDeviceOwner,
+        createDeviceOwnerAndFacility: actions.createDeviceOwnerAndFacility,
       },
     },
   };
@@ -56,7 +64,6 @@
     left: 0
     width: 100%
     height: 100%
-    background: rgba(0, 0, 0, 0.7)
     display: table
   
   .wrapper
@@ -67,7 +74,6 @@
     background: #fff
     width: 450px
     border-radius: 4px
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     margin: 0 auto
     padding: 20px 30px
 
