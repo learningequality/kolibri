@@ -1,8 +1,6 @@
+from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from kolibri.auth.models import DeviceOwner
-
-
-# from .views import SetupWizardView
 
 
 class SetupWizardMiddleware():
@@ -12,11 +10,11 @@ class SetupWizardMiddleware():
     has_superuser = False
 
     def process_request(self, request):
-        if request.path_info == '/setup_wizard/create_deviceowner_api/':
-            pass
-        elif not self.has_superuser and not request.path_info == '/setup_wizard/create_deviceowner_view/':
+        if request.path.startswith(reverse("facility-list")) or request.path.startswith(reverse("deviceowner-list")):
+            pass  # the api endpoint to create DeviceOwner
+        elif not self.has_superuser and not request.path.startswith(reverse("kolibri:setupwizardplugin:setupwizard")):
             if DeviceOwner.objects.count() < 1:
-                # no superuser exists
-                return redirect('http://' + request.META['HTTP_HOST'] + '/setup_wizard/create_deviceowner_view/')
+                # no superuser exists, redirect to the DeviceOwner creation UI
+                return redirect(reverse("kolibri:setupwizardplugin:setupwizard"))
             else:
                 self.has_superuser = True
