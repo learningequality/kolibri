@@ -1,7 +1,7 @@
 const KolibriModule = require('kolibri_module');
+const router = require('router');
 
 const rootvue = require('./vue');
-const router = require('./router');
 const actions = require('./actions');
 const store = require('./state/store');
 const PageNames = require('./state/constants').PageNames;
