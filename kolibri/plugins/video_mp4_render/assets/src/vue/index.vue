@@ -10,6 +10,11 @@
           <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
         </template>
       </video>
+      <h2>Data:</h2>
+      <p>Progress: {{ progress }} %</p>
+      <p>Time Elapsed: {{ elapsedTime }}</p>
+      <p>Total Time Spent: {{ totalTime }}</p>
+      <p v-if="saving">Saving Progress...</p>
     </div>
   </div>
 
@@ -76,10 +81,12 @@
           this.videoPlayer.$('.videotoggle').classList.add('videopaused');
           this.videoPlayer.$('.videoreplay').classList.add('display');
           this.videoPlayer.$('.videoforward').classList.add('display');
+          this.startTrackingProgress(5000);
         } else {
           this.videoPlayer.$('.videotoggle').classList.remove('videopaused');
           this.videoPlayer.$('.videoreplay').classList.remove('display');
           this.videoPlayer.$('.videoforward').classList.remove('display');
+          this.stopTrackingProgress();
         }
       },
 
@@ -87,6 +94,7 @@
         this.videoWidth = this.videoPlayer.videoWidth();
         this.videoHeight = this.videoPlayer.videoHeight();
         this.resizeVideo();
+        this.initContentSession(this.videoPlayer.duration());
       },
 
       resizeVideo() {
@@ -176,7 +184,17 @@
       global.addEventListener('resize', this.debouncedResizeVideo);
     },
     beforeDestroy() {
+      this.stopTrackingProgress();
       global.removeEventListener('resize', this.debouncedResizeVideo);
+    },
+    vuex: {
+      actions: require('core-actions'),
+      // getters: {
+      //   progress: (state) => state.pageState.logging.summary.progress,
+      //   totalTime: (state) => state.pageState.logging.summary.total_time,
+      //   elapsedTime: (state) => state.pageState.logging.interaction.total_time,
+      //   saving: (state) => state.pageState.logging.interaction.pending_save,
+      // },
     },
   };
 

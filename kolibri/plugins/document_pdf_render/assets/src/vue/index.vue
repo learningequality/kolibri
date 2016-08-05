@@ -3,7 +3,13 @@
   <div>
     <div v-el:container class="container" allowfullscreen>
       <button class='btn' v-if="supportsPDFs" v-on:click="togglefullscreen">Toggle Fullscreen</button>
-      <div v-el:pdfcontainer class="pdfcontainer" @scroll="handleScroll"></div>
+      <div v-el:pdfcontainer class="pdfcontainer"></div>
+
+      <h2>Data:</h2>
+      <p>Progress: {{ progress }} %</p>
+      <p>Time Elapsed: {{ elapsedTime }}</p>
+      <p>Total Time Spent: {{ totalTime }}</p>
+      <p v-if="saving">Saving Progress...</p>
     </div>
   </div>
 
@@ -54,9 +60,18 @@
         console.log('called');
       },
     },
-
     ready() {
+      this.initContentSession();
       PDFobject.embed(this.defaultFile.storage_url, this.$els.pdfcontainer);
+    },
+    vuex: {
+      actions: require('core-actions'),
+      getters: {
+        progress: (state) => state.pageState.logging.summary.progress,
+        totalTime: (state) => state.pageState.logging.summary.total_time,
+        elapsedTime: (state) => state.pageState.logging.interaction.total_time,
+        saving: (state) => state.pageState.logging.interaction.pending_save,
+      },
     },
 
   };

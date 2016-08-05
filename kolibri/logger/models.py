@@ -44,7 +44,6 @@ class ContentInteractionLog(BaseLogModel):
     channel_id = UUIDField(db_index=True)
     start_timestamp = models.DateTimeField(auto_now_add=True)
     completion_timestamp = models.DateTimeField(blank=True, null=True)
-    item_session = UUIDField()
     kind = models.CharField(max_length=200, blank=True)  # indicates how extra_fields should be interpreted
     extra_fields = models.TextField(blank=True)
 

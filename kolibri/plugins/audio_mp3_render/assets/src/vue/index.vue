@@ -30,18 +30,15 @@
       v-el:audio
       @timeupdate="updateDummyTime"
       @loadedmetadata="setTotalTime"
-      @ended="setEndTime"
+      @ended="endPlay"
       :src="defaultFile.storage_url"
     ></audio>
-    <div class="data">
-      <h4>Data:</h4>
-      <p>Progress: {{progress}}</p>
-      <p>Start Timestamp: {{start_timestamp}}</p>
-      <p>End Timestamp: {{end_timestamp}}</p>
-      <p>Total Time: {{total_time / 1000}} seconds</p>
-      <p>Kind: {{kind}}</p>
-      <p>Extra: {{extra_fields}}</p>
-    </div>
+
+    <h2>Data:</h2>
+    <p>Progress: {{ progress }} %</p>
+    <p>Time Elapsed: {{ elapsedTime }}</p>
+    <p>Total Time Spent: {{ totalTime }}</p>
+    <p v-if="saving">Saving Progress...</p>
   </div>
 
 </template>
@@ -64,12 +61,6 @@
       // rawTime, because at the time of getter initialization for the computed property,
       // the DOM does not exist, so the above object path is undefined, which causes problems.
       dummyTime: 0,
-      interval_start: null,
-      start_timestamp: null,
-      end_timestamp: null,
-      progress: 0,
-      total_time: 0,
-      extra_fields: '{}',
     }),
 
     computed: {
@@ -110,11 +101,11 @@
     },
 
     beforeDestroy() {
-      this.saveProgress();
+      this.stopTrackingProgress();
     },
 
     ready() {
-      this.initProgress();
+      this.initTracking();
     },
 
     methods: {
@@ -122,15 +113,14 @@
         this.$els.audio.play();
         this.isPlay = false;
         this.isPause = true;
-        this.startProgressTracking();
-        this.interval_start = new Date();
+        this.startTrackingProgress(5000);
       },
 
       pause() {
         this.$els.audio.pause();
         this.isPlay = true;
         this.isPause = false;
-        this.setEndTime();
+        this.stopTrackingProgress();
       },
 
       togglePlay() {
@@ -141,23 +131,17 @@
         }
       },
 
+      endPlay() {
+        this.pause();
+      },
+
       updateDummyTime() {
         this.dummyTime = this.$els.audio.currentTime;
-        this.total_time += new Date() - this.interval_start;
-        this.progress = Math.min(100, Math.floor(
-            (this.total_time / 1000) /
-            (this.totalSeconds + this.totalMinutes * 60) * 100));
-        this.interval_start = new Date();
       },
 
       setTotalTime() {
         this.max = this.$els.audio.duration;
-      },
-
-      setEndTime() {
-        this.stopProgressTracking();
-        this.total_time += (this.end_timestamp - this.interval_start);
-        this.saveProgress();
+        this.setDuration(this.$els.audio.duration);
       },
 
       /* Adds '0' before seconds (e.g. 1:05 instead of 1:5) */
@@ -192,36 +176,15 @@
         }
         this.rawTime = sum;
       },
-
-      initProgress() {
-        this.initTracking();
-      },
-
-      startProgressTracking() {
-        this.startTrackingProgress();
-      },
-
-      saveProgress() {
-        this.updateProgress(0);
-      },
-
-      stopProgressTracking() {
-        this.stopTrackingProgress();
-      },
     },
     vuex: {
-      getters: {
-        id: (state) => state.pageState.content.id,
-        kind: (state) => state.pageState.content.kind,
-        contentId: (state) => state.pageState.content.content_id,
-        channelId: (state) => state.pageState.logging.channel_id,
-        startTimestamp: (state) => state.pageState.logging.start_timestamp,
-        endTimestamp: (state) => state.pageState.logging.end_timestamp,
-        progress: (state) => state.pageState.logging.progress,
-        totalTime: (state) => state.pageState.logging.total_time,
-        extra_fields: (state) => state.pageState.logging.extra_fields,
-      },
       actions: require('core-actions'),
+      getters: {
+        progress: (state) => state.pageState.logging.summary.progress,
+        totalTime: (state) => state.pageState.logging.summary.total_time,
+        elapsedTime: (state) => state.pageState.logging.interaction.total_time,
+        saving: (state) => state.pageState.logging.interaction.pending_save,
+      },
     },
 
   };

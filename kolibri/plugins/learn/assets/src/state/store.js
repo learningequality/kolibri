@@ -44,6 +44,9 @@ const mutations = {
   SET_ERROR(state, error) {
     state.error = error;
   },
+  SET_LOGGING_STATE(state, loggingState) {
+    state.loggingState = loggingState;
+  },
 };
 
 module.exports = new Vuex.Store({
