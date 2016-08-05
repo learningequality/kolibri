@@ -171,7 +171,7 @@ function login(store, payload) {
   const facilityIdPromise = FacilityUserResource.login(payload);
   facilityIdPromise.then(response => {
     store.dispatch('SET_LOGGED_IN_USERNAME', payload.username);
-    console.log('payload.username: ', payload.username);
+    store.dispatch('SET_LOGGED_IN_STATE', true);
   },
   reject => {
     store.dispatch('SET_ERROR', JSON.stringify(reject, null, '\t'));

@@ -1,7 +1,8 @@
 <template>
 
-  <div class="login-modal">
+  <div>
     <modal btntext="Login">
+    <div id="backdrop"></div>
       <div class="title" slot="header">
         <div class="login-brand-box">
           <img src="./icons/kolibri-logo.svg">
@@ -9,8 +10,8 @@
         </div>
       </div>
       <div slot="body">
-        <input type="text" class="login-form login-username" v-model="username" placeholder="Username">
-        <input type="password" class="login-form login-password" v-model="password" placeholder="Password">
+        <input type="text" class="login-form login-username" v-model="username" placeholder="Username" v-on:keyup.enter="userLogin">
+        <input type="password" class="login-form login-password" v-model="password" placeholder="Password" v-on:keyup.enter="userLogin">
         <button class="login-button" @click="userLogin">Login</button>  
       </div>
       <div slot="footer"></div>
@@ -28,12 +29,10 @@
     components: {
       modal: require('./modal.vue'),
     },
-    data() {
-      return {
-        username: '',
-        password: '',
-      };
-    },
+    data: () => ({
+      username: '',
+      password: '',
+    }),
     methods: {
       userLogin() {
         const payload = {
@@ -61,6 +60,14 @@
 
   @require '~core-theme.styl'
 
+  #backdrop
+    background: green
+    width: 100%
+    height: 200px
+
+  #test
+    background: #000000
+
   .login-button
     width: 300px
     display: block
@@ -73,7 +80,6 @@
     &:hover
       background: $core-action-dark
       padding: 8px
-      transition: 0.15s
       
   .login-brand-box
     text-align: center
@@ -108,17 +114,15 @@
 
   .login-username
     margin-bottom: 30px
-    background: url('./icons/user.svg') no-repeat 10px 10px
-    transition: 0.15s
+    background: url('./icons/user.svg') no-repeat 8px 6px
+    transition: all 0.15s
     &:focus
-      background: url('./icons/user-active.svg') no-repeat 10px 10px
-      transition: 0.15s
+      background: url('./icons/user-active.svg') no-repeat 8px 6px
       
   .login-password
-    background: url('./icons/password.svg') no-repeat 10px 6px
-    transition: 0.15s
+    background: url('./icons/password.svg') no-repeat 7px 3px
+    transition: all 0.15s
     &:focus
-      background: url('./icons/password-active.svg') no-repeat 10px 6px
-      transition: 0.15s
+      background: url('./icons/password-active.svg') no-repeat 7px 3px
 
 </style>

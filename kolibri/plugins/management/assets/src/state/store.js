@@ -5,7 +5,10 @@ function getInitialState() {
     facility: undefined,
     users: [],
     error: '',
-    loggedInUsername: '',
+    loggedInUsername: 'w0w_us3rnam3',
+    name: 'Jessica Aceret',
+    role: 'Learner',
+    loggedIn: false,
   };
 }
 
@@ -54,6 +57,10 @@ const mutations = {
 
   SET_ERROR(state, error) {
     state.error = error;
+  },
+
+  SET_LOGGED_IN_STATE(state, bool) {
+    state.loggedIn = bool;
   },
 
   SET_LOGGED_IN_USERNAME(state, username) {

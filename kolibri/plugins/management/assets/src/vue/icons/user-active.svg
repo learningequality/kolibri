@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="10px" height="10px" viewBox="0 0 10 10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Generator: Sketch 39.1 (31720) - http://www.bohemiancoding.com/sketch -->
     <title>Shape</title>
     <desc>Created with Sketch.</desc>
     <defs></defs>
     <g id="Log-In" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="Login-Modal-" transform="translate(-427.000000, -244.000000)" fill="#996189">
-            <path d="M432,244 C430.61875,244 429.5,245.11875 429.5,246.5 C429.5,247.88125 430.61875,249 432,249 C433.38125,249 434.5,247.88125 434.5,246.5 C434.5,245.11875 433.38125,244 432,244 Z M432,249.625 C430.33125,249.625 427,250.4625 427,252.125 L427,254 L437,254 L437,252.125 C437,250.4625 433.66875,249.625 432,249.625 L432,249.625 Z" id="Shape"></path>
+        <g id="Login-Modal--Copy" transform="translate(-427.000000, -244.000000)" fill="#996189">
+            <path d="M434,244 C432.06625,244 430.5,245.56625 430.5,247.5 C430.5,249.43375 432.06625,251 434,251 C435.93375,251 437.5,249.43375 437.5,247.5 C437.5,245.56625 435.93375,244 434,244 L434,244 Z M434,251.875 C431.66375,251.875 427,253.0475 427,255.375 L427,258 L441,258 L441,255.375 C441,253.0475 436.33625,251.875 434,251.875 L434,251.875 Z" id="Shape"></path>
         </g>
     </g>
 </svg>

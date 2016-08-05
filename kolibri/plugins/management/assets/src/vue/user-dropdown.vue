@@ -3,13 +3,12 @@
   <div class="user-dropdown">
     <ul class="dropdown-list">
       <li>
-        <h4 v-el: id="dropdown-name">Name Field</h4>
-        <p id="dropdown-username">username</p>
-        <p id="dropdown-usertype">user type</p>
+        <h4 v-el: id="dropdown-name">{{ name }}</h4>
+        <p id="dropdown-username">{{ loggedInUsername }}</p>
+        <p id="dropdown-usertype">{{ role }}</p>
       </li>
       <li id="logout-tab">
         <div @click="logout">
-          <img src="./icons/logout.svg">
           <span>Logout</span>
         </div>
       </li>
@@ -27,14 +26,12 @@
 
     props: [
       'loggedInUsername',
-      'first_name',
-      'roles',
     ],
     vuex: {
       getters: {
         loggedInUsername: state => state.loggedInUsername,
-        facility: state => state.facility,
-        getUsers: state => state.users,
+        name: state => state.name,
+        role: state => state.role,
       },
       actions: {
         logout: actions.logout,
@@ -56,7 +53,7 @@
     position: relative
     top: 20px
     left: 50px
-    max-width: 300px
+    max-width: 250px
     background: $core-bg-light
   	
   .dropdown-list
@@ -65,11 +62,13 @@
     li
       padding: 1px 20px
     &:before, &:after
+      // styling for left-facing arrow
       content: ' '
       height: 0
       width: 0
       position: absolute
     &:before
+      // styling for the left-facing arrow
       border-bottom-color: $core-bg-light
       top: 20px
       left: -39px
@@ -81,25 +80,35 @@
       
   #dropdown-name
     margin-top: 18px
-    margin-bottom: 0
+    margin-bottom: 0 // html linting yelled at me for not being 'succinct' enough :(
       
   #dropdown-username
     margin: 0
     color: $core-text-annotation
+    font-size: 14px
+    font-style: italic
     
   #dropdown-usertype
     text-transform: uppercase
     color: $core-text-annotation
     font-size: 12px
+    margin-top: 15px
 
   #logout-tab
-    padding: 20px
+    padding: 20px 20px 15px
     border-top: 0.5px solid #aaa
     div
-      color: $core-text-default
+      color: $core-action-normal
+      transition: all 0.2s
+      background: url('./icons/active-logout.svg') no-repeat
       &:hover
-        color: $core-action-normal
-        img
-          fill: $core-action-normal
+        background: url('./icons/logout-hover.svg') no-repeat
+      span
+        position: relative
+        bottom: 2px
+        margin-left: 25px
+        &:hover
+          cursor: pointer
+          color: $core-action-dark
 
 </style>

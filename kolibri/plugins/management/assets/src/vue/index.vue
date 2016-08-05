@@ -1,10 +1,11 @@
 <template>
 
   <core-base>
-    <button @click="showUserDropdown">Show user dropdown</button>
-    <button @click="hideUserDropdown">Hide user dropdown</button>
-    <user-dropdown v-show="showDropdown"></user-dropdown>
-    <login-modal></login-modal>
+    <button id="user-dropdown" v-show="login" @click="showUserDropdown">{{ user_initial }}</button>
+    <div id="dropdown" v-show="showDropdown" transition="slide">
+      <user-dropdown></user-dropdown>
+    </div>
+    <login-modal v-show="loggedOut"></login-modal>
     <user-roster></user-roster>
   </core-base>
 
@@ -22,16 +23,34 @@
     },
     data: () => ({
       showDropdown: false,
+      user_initial: '',
     }),
-    methods: {
-      showUserDropdown() {
-        this.showDropdown = true;
+    computed: {
+      user_initial() {
+        return this.name[0].toUpperCase();
       },
-      hideUserDropdown() {
-        this.showDropdown = false;
+      login() {
+        return this.loggedIn;
+      },
+      loggedOut() {
+        return !this.login;
       },
     },
+    methods: {
+      showUserDropdown() {
+        if (this.showDropdown) {
+          this.showDropdown = false;
+        } else {
+          this.showDropdown = true;
+        }
+      },
+
+    },
     vuex: {
+      getters: {
+        name: state => state.name,
+        loggedIn: state => state.loggedIn,
+      },
       actions: require('../actions.js'),
     },
   };
@@ -39,4 +58,19 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  #user-dropdown
+    display: block
+  
+  #dropdown
+    position: relative
+
+  .slide-transition
+    transition: all 0.25s ease
+    left: 0
+  
+  .slide-enter, .slide-leave
+    left: -300px
+
+</style>
