@@ -2,12 +2,24 @@
 
   <div class="user-creation-modal">
     <modal btntext="Add New">
-      <div class="title" slot="header">User creation</div>
+      <div class="title" slot="header">Add New Account</div>
       <div slot="body">
-        <br>Username: <input type="text" v-model="username" placeholder="Please type in your username."><br>
-        <br>Password: <input type="text" v-model="password" placeholder="Please type in your password."><br>
-        <br>First name: <input type="text" v-model="firstName" placeholder="Please type in your first name."><br>
-        <br>Last name: <input type="text" v-model="lastName" placeholder="Please type in your last name."><br>
+        <div class="name">
+          <label for="name">Name</label>
+          <input type="text" v-model="username" placeholder="Please type in your username.">
+        </div>
+        <div class="username">
+          <label>Username</label>
+          <input type="text" v-model="password" placeholder="Please type in your password.">
+        </div>
+        <div class="password">
+          <label>Password</label>
+          <input type="text" v-model="firstName" placeholder="Please type in your first name.">
+        </div>
+        <div class="confirm">
+          <label>Confirm Password</label>
+          <input type="text" v-model="lastName" placeholder="Please type in your last name.">
+        </div>
         <!-- radio buttons for selecting role -->
         <br>Learner <input type="radio" value="learner" v-model="role"><br>
         <br>Admin <input type="radio" value="admin" v-model="role"><br>
@@ -96,6 +108,7 @@
   .add-text
     float: left
     padding-top: 6px
+    
 
 </style>
 
