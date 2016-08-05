@@ -2,11 +2,11 @@
 
   <div class="top">
     <div class="links">
-      <a v-link="usersLink" :class="{active: usersActive}">Users</a>
+      <a v-link="usersLink" :class="{active: usersActive}" @click="blur">Users</a>
 
-      <a v-link="dataLink" :class="{active: dataActive}">Data</a>
+      <a v-link="dataLink" :class="{active: dataActive}" @click="blur">Data</a>
 
-      <a v-link="contentLink" :class="{active: contentActive}">Content</a>
+      <a v-link="contentLink" :class="{active: contentActive}" @click="blur">Content</a>
     </div>
   </div>
 
@@ -18,6 +18,11 @@
   const constants = require('../../state/constants');
 
   module.exports = {
+    methods: {
+      blur(evt) {
+        evt.target.blur();
+      },
+    },
     computed: {
       usersLink() {
         return { name: constants.PageNames.USER_MGMT_PAGE };
@@ -72,6 +77,9 @@
     color: $core-text-annotation
     @media screen and (max-width: $portrait-breakpoint)
       padding: 0.6em 1em
+
+  .top a:focus , .top a:hover
+    border-bottom: 0.3em $core-action-light solid
 
   .top .active
     color: $core-action-normal
