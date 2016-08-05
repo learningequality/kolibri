@@ -7,7 +7,6 @@ from . import hooks, urls
 
 
 class SetupWizardPlugin(KolibriPluginBase):
-    # pass
     def url_module(self):
         return urls
 

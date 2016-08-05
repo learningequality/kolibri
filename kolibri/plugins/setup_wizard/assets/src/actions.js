@@ -1,12 +1,17 @@
 const Kolibri = require('kolibri');
 
 const DeviceOwnerResource = Kolibri.resources.DeviceOwnerResource;
+const FacilityResource = Kolibri.resources.FacilityResource;
 
-function createDeviceOwner(store, payload) {
-  const deviceOwnerPromise = DeviceOwnerResource.createDeviceOwner(payload);
-  deviceOwnerPromise.then(responses => {
-    console.log('yoyo: ', responses);
-    window.location = responses;
+function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload) {
+  const DeviceOwnerModel = DeviceOwnerResource.createModel(deviceownerpayload);
+  const deviceOwnerPromise = DeviceOwnerModel.save(deviceownerpayload);
+  const FacilityModel = FacilityResource.createModel(facilitypayload);
+  const facilityPromise = FacilityModel.save(facilitypayload);
+  const promises = [deviceOwnerPromise, facilityPromise];
+  Promise.all(promises).then(responses => {
+    // redirect to learn page after successfully created the DeviceOwner and Facility.
+    window.location = window.location.origin.concat('/learn/');
   },
   rejects => {
     store.dispatch('SET_ERROR', JSON.stringify(rejects, null, '\t'));
@@ -15,5 +20,5 @@ function createDeviceOwner(store, payload) {
 
 
 module.exports = {
-  createDeviceOwner,
+  createDeviceOwnerAndFacility,
 };
