@@ -1,7 +1,7 @@
 
 const constants = require('./constants');
 const Vuex = require('vuex');
-const coreState = require('core-state');
+const coreStore = require('core-store');
 
 const initialState = {
   rootTopicId: global.root_node_pk,
@@ -37,8 +37,8 @@ const mutations = {
 };
 
 // assigns core state and mutations
-Object.assign(initialState, coreState.initialState);
-Object.assign(mutations, coreState.mutations);
+Object.assign(initialState, coreStore.initialState);
+Object.assign(mutations, coreStore.mutations);
 
 
 module.exports = new Vuex.Store({
