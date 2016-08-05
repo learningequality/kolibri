@@ -27,7 +27,7 @@
 
   module.exports = {
     components: {
-      modal: require('./modal.vue'),
+      modal: require('./modal/index.vue'),
     },
     data: () => ({
       username: '',

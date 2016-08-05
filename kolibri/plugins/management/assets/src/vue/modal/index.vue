@@ -4,7 +4,7 @@
     <div class="modal" v-show="showModal" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
-          <img @click="closeModal" class="close-btn" src="./icons/close.svg">
+          <img @click="closeModal" class="close-btn" src="../icons/close.svg">
           <div class="modal-header">
             <slot name="header">
               Kolibri

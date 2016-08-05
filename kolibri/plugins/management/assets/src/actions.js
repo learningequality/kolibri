@@ -196,6 +196,7 @@ function logout(store) {
   reject => {
     store.dispatch('SET_ERROR', JSON.stringify(reject, null, '\t'));
   });
+}
 
 function showContentPage(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
@@ -222,7 +223,7 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
-  fetchInitialData,
+  // fetchInitialData,
   login,
   logout,
   showUserPage,
