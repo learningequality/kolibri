@@ -3,6 +3,7 @@ Tests that ensure the correct items are returned from api calls.
 Also tests whether the users with permissions can create logs.
 """
 
+import csv
 import uuid
 
 from django.core.urlresolvers import reverse
@@ -22,16 +23,12 @@ from ..serializers import ContentInteractionLogSerializer, ContentSummaryLogSeri
 
 class ContentInteractionLogAPITestCase(APITestCase):
 
-    @classmethod
-    def setUpClass(self):
+    def setUp(self):
         self.facility = FacilityFactory.create()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
-        self.interaction_log = []
-        self.interaction_log += [ContentInteractionLogFactory.create(user=self.user) for _ in range(3)]
+        self.interaction_logs = [ContentInteractionLogFactory.create(user=self.user) for _ in range(3)]
         self.facility.add_admin(self.admin)
-
-    def setUp(self):
         self.payload = {'user': self.user.pk,
                         'content_id': uuid.uuid4().hex,
                         'channel_id': uuid.uuid4().hex,
@@ -45,8 +42,9 @@ class ContentInteractionLogAPITestCase(APITestCase):
 
     def test_interactionlog_detail(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.get(reverse('contentinteractionlog-detail', kwargs={"pk": 1}))
-        log = ContentInteractionLog.objects.get(pk=1)
+        log_id = self.interaction_logs[0].id
+        response = self.client.get(reverse('contentinteractionlog-detail', kwargs={"pk": log_id}))
+        log = ContentInteractionLog.objects.get(pk=log_id)
         interaction_serializer = ContentInteractionLogSerializer(log)
         self.assertEqual(response.data['content_id'], interaction_serializer.data['content_id'])
 
@@ -69,26 +67,15 @@ class ContentInteractionLogAPITestCase(APITestCase):
         response = self.client.post(reverse('contentinteractionlog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def tearDown(self):
-        self.client.logout()
-
-    @classmethod
-    def tearDownClass(self):
-        pass
-
 
 class ContentSummaryLogAPITestCase(APITestCase):
 
-    @classmethod
-    def setUpClass(self):
+    def setUp(self):
         self.facility = FacilityFactory.create()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
-        self.summary_log = []
-        self.summary_log += [ContentSummaryLogFactory.create(user=self.user) for _ in range(3)]
+        self.summary_logs = [ContentSummaryLogFactory.create(user=self.user) for _ in range(3)]
         self.facility.add_admin(self.admin)
-
-    def setUp(self):
         self.payload = {'user': self.user.pk,
                         'content_id': uuid.uuid4().hex,
                         'channel_id': uuid.uuid4().hex}
@@ -101,8 +88,9 @@ class ContentSummaryLogAPITestCase(APITestCase):
 
     def test_summarylog_detail(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.get(reverse('contentsummarylog-detail', kwargs={"pk": 1}))
-        log = ContentSummaryLog.objects.get(pk=1)
+        log_id = self.summary_logs[0].id
+        response = self.client.get(reverse('contentsummarylog-detail', kwargs={"pk": log_id}))
+        log = ContentSummaryLog.objects.get(pk=log_id)
         summary_serializer = ContentSummaryLogSerializer(log)
         self.assertEqual(response.data['content_id'], summary_serializer.data['content_id'])
 
@@ -125,26 +113,15 @@ class ContentSummaryLogAPITestCase(APITestCase):
         response = self.client.post(reverse('contentsummarylog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def tearDown(self):
-        self.client.logout()
-
-    @classmethod
-    def tearDownClass(self):
-        pass
-
 
 class ContentRatingLogAPITestCase(APITestCase):
 
-    @classmethod
-    def setUpClass(self):
+    def setUp(self):
         self.facility = FacilityFactory.create()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
-        self.rating_log = []
-        self.rating_log += [ContentRatingLogFactory.create(user=self.user) for _ in range(3)]
+        self.rating_logs = [ContentRatingLogFactory.create(user=self.user) for _ in range(3)]
         self.facility.add_admin(self.admin)
-
-    def setUp(self):
         self.payload = {'user': self.user.pk,
                         'content_id': uuid.uuid4().hex,
                         'channel_id': uuid.uuid4().hex}
@@ -157,8 +134,9 @@ class ContentRatingLogAPITestCase(APITestCase):
 
     def test_ratinglog_detail(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.get(reverse('contentratinglog-detail', kwargs={"pk": 1}))
-        log = ContentRatingLog.objects.get(pk=1)
+        log_id = self.rating_logs[0].id
+        response = self.client.get(reverse('contentratinglog-detail', kwargs={"pk": log_id}))
+        log = ContentRatingLog.objects.get(pk=log_id)
         rating_serializer = ContentRatingLogSerializer(log)
         self.assertEqual(response.data['content_id'], rating_serializer.data['content_id'])
 
@@ -181,23 +159,14 @@ class ContentRatingLogAPITestCase(APITestCase):
         response = self.client.post(reverse('contentratinglog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def tearDown(self):
-        self.client.logout()
-
-    @classmethod
-    def tearDownClass(self):
-        pass
-
 
 class UserSessionLogAPITestCase(APITestCase):
 
-    @classmethod
-    def setUpClass(self):
+    def setUp(self):
         self.facility = FacilityFactory.create()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
-        self.session_log = []
-        self.session_log += [UserSessionLogFactory.create(user=self.user) for _ in range(3)]
+        self.session_logs = [UserSessionLogFactory.create(user=self.user) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
     def test_sessionlog_list(self):
@@ -208,8 +177,9 @@ class UserSessionLogAPITestCase(APITestCase):
 
     def test_sessionlog_detail(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.get(reverse('usersessionlog-detail', kwargs={"pk": 1}))
-        log = UserSessionLog.objects.get(pk=1)
+        log_id = self.session_logs[0].id
+        response = self.client.get(reverse('usersessionlog-detail', kwargs={"pk": log_id}))
+        log = UserSessionLog.objects.get(pk=log_id)
         self.assertEqual(response.data['user'], log.user.id)
 
     def test_admin_can_create_sessionlog(self):
@@ -230,9 +200,21 @@ class UserSessionLogAPITestCase(APITestCase):
         response = self.client.post(reverse('usersessionlog-list'), format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def tearDown(self):
-        self.client.logout()
 
-    @classmethod
-    def tearDownClass(self):
-        pass
+class ContentSummaryLogCSVExportTestCase(APITestCase):
+
+    def setUp(self):
+        self.facility = FacilityFactory.create()
+        self.admin = FacilityUserFactory.create(facility=self.facility)
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.summary_logs = [ContentSummaryLogFactory.create(user=self.user) for _ in range(3)]
+        self.facility.add_admin(self.admin)
+
+    def test_csv_download(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        expected_count = ContentSummaryLog.objects.count()
+        response = self.client.get(reverse('contentsummarylogcsv-list'))
+        results = list(csv.reader(row for row in response.content.decode("utf-8").split("\n") if row))
+        for row in results[1:]:
+            self.assertEqual(len(results[0]), len(row))
+        self.assertEqual(len(results[1:]), expected_count)
