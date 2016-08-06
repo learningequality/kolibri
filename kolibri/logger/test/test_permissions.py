@@ -5,28 +5,28 @@ Permissions tests on the logging models.
 from django.test import TestCase
 from kolibri.auth.test.helpers import create_dummy_facility_data
 
-from .factory_logger import ContentInteractionLogFactory, ContentSummaryLogFactory, ContentRatingLogFactory, UserSessionLogFactory
+from .factory_logger import ContentSessionLogFactory, ContentSummaryLogFactory, ContentRatingLogFactory, UserSessionLogFactory
 
 
-class ContentInteractionLogPermissionsTestCase(TestCase):
+class ContentSessionLogPermissionsTestCase(TestCase):
 
     def setUp(self):
         self.data = create_dummy_facility_data()
-        self.data['interaction_log'] = ContentInteractionLogFactory.create(user=self.data["learners_one_group"][0][0])
+        self.data['interaction_log'] = ContentSessionLogFactory.create(user=self.data["learners_one_group"][0][0])
 
-    def test_facilityadmin_interactionlog_permissions(self):
+    def test_facilityadmin_sessionlog_permissions(self):
         self.assertTrue(self.data['facility_admin'].can_create_instance(self.data['interaction_log']))
         self.assertTrue(self.data['facility_admin'].can_read(self.data['interaction_log']))
         self.assertTrue(self.data['facility_admin'].can_update(self.data['interaction_log']))
         self.assertTrue(self.data['facility_admin'].can_delete(self.data['interaction_log']))
 
-    def test_coach_interactionlog_permissions(self):
+    def test_coach_sessionlog_permissions(self):
         self.assertFalse(self.data['facility_coach'].can_create_instance(self.data['interaction_log']))
         self.assertTrue(self.data['facility_coach'].can_read(self.data['interaction_log']))
         self.assertFalse(self.data['facility_coach'].can_update(self.data['interaction_log']))
         self.assertFalse(self.data['facility_coach'].can_delete(self.data['interaction_log']))
 
-    def test_learner_interactionlog_permissions(self):
+    def test_learner_sessionlog_permissions(self):
         learner = self.data["learners_one_group"][0][0]
         self.assertTrue(learner.can_create_instance(self.data['interaction_log']))
         self.assertTrue(learner.can_read(self.data['interaction_log']))
