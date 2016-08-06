@@ -8,4 +8,5 @@ module.exports = {
   DeviceOwnerResource: require('./deviceOwner'),
   FacilityResource: require('./facility'),
   ChannelMetadataResource: require('./channelMetadata'),
+  ChannelResource: require('./channel'),
 };
