@@ -10,11 +10,8 @@
           <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
         </template>
       </video>
-      <h2>Data:</h2>
-      <p>Progress: {{ progress }} %</p>
-      <p>Time Elapsed: {{ elapsedTime }}</p>
-      <p>Total Time Spent: {{ totalTime }}</p>
-      <p v-if="saving">Saving Progress...</p>
+      <h2>Progress: {{ progress }} % <i v-if="saving">Saving Progress...</i></h2>
+
     </div>
   </div>
 
@@ -81,7 +78,7 @@
           this.videoPlayer.$('.videotoggle').classList.add('videopaused');
           this.videoPlayer.$('.videoreplay').classList.add('display');
           this.videoPlayer.$('.videoforward').classList.add('display');
-          this.startTrackingProgress(5000);
+          this.startTrackingProgress();
         } else {
           this.videoPlayer.$('.videotoggle').classList.remove('videopaused');
           this.videoPlayer.$('.videoreplay').classList.remove('display');
@@ -188,13 +185,13 @@
       global.removeEventListener('resize', this.debouncedResizeVideo);
     },
     vuex: {
-      actions: require('core-actions'),
-      // getters: {
-      //   progress: (state) => state.pageState.logging.summary.progress,
-      //   totalTime: (state) => state.pageState.logging.summary.total_time,
-      //   elapsedTime: (state) => state.pageState.logging.interaction.total_time,
-      //   saving: (state) => state.pageState.logging.interaction.pending_save,
-      // },
+      actions: require('learn-actions'),
+      getters: {
+        progress: (state) => state.pageState.logging.summary.progress,
+        // totalTime: (state) => state.pageState.logging.summary.total_time,
+        // elapsedTime: (state) => state.pageState.logging.interaction.total_time,
+        saving: (state) => state.pageState.logging.summary.pending_save,
+      },
     },
   };
 
@@ -232,6 +229,7 @@
   .videowrapper
     position: relative
     height: 100%
+    background-color: #000
 
   .video-js .vjs-menu
     font-family: 'NotoSans', 'sans-serif'

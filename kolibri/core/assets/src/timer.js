@@ -7,33 +7,20 @@ class Timer {
   constructor() {
     this.intervalTimer = null;
     this.startTime = null;
-    this.timeElapsed = 0;
   }
 
   /*
    * Stop interval timer- returns time elapsed
    */
   stopTimer() {
-    this.updateTime();
+    const timeElapsed = new Date() - this.startTime;
     clearInterval(this.intervalTimer);
-    this.startTime = null;
-  }
-
-  resetTimer() {
-    this.timeElapsed = 0;
-    this.startTime = new Date();
+    this.intervalTimer = null;
+    return timeElapsed;
   }
 
   getTimeElapsed() {
-    this.updateTime();
-    return this.timeElapsed;
-  }
-
-  updateTime() {
-    if (this.startTime) {
-      this.timeElapsed += new Date() - this.startTime;
-      this.startTime = new Date();
-    }
+    return new Date() - this.startTime;
   }
 
   /*
@@ -42,10 +29,8 @@ class Timer {
    * @param {function} intervalAction
   */
   startTimer(intervalTime, intervalAction) {
-    // Stop any intervals that are already going
     if (this.intervalTimer) {
-      this.stopTimer();
-      this.resetTimer();
+      throw new Error('ERROR: Cannot have multiple timers running at the same time!');
     }
     this.intervalTimer = setInterval(intervalAction, intervalTime);
     this.startTime = new Date();

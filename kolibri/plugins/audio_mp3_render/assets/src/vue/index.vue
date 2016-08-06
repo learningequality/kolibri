@@ -34,11 +34,7 @@
       :src="defaultFile.storage_url"
     ></audio>
 
-    <h2>Data:</h2>
-    <p>Progress: {{ progress }} %</p>
-    <p>Time Elapsed: {{ elapsedTime }}</p>
-    <p>Total Time Spent: {{ totalTime }}</p>
-    <p v-if="saving">Saving Progress...</p>
+    <h2>Progress: {{ progress }} % <i v-if="saving">Saving Progress...</i></h2>
   </div>
 
 </template>
@@ -104,16 +100,12 @@
       this.stopTrackingProgress();
     },
 
-    ready() {
-      this.initTracking();
-    },
-
     methods: {
       play() {
         this.$els.audio.play();
         this.isPlay = false;
         this.isPause = true;
-        this.startTrackingProgress(5000);
+        this.startTrackingProgress();
       },
 
       pause() {
@@ -141,7 +133,7 @@
 
       setTotalTime() {
         this.max = this.$els.audio.duration;
-        this.setDuration(this.$els.audio.duration);
+        this.initContentSession(this.$els.audio.duration);
       },
 
       /* Adds '0' before seconds (e.g. 1:05 instead of 1:5) */
@@ -178,12 +170,10 @@
       },
     },
     vuex: {
-      actions: require('core-actions'),
+      actions: require('learn-actions'),
       getters: {
         progress: (state) => state.pageState.logging.summary.progress,
-        totalTime: (state) => state.pageState.logging.summary.total_time,
-        elapsedTime: (state) => state.pageState.logging.interaction.total_time,
-        saving: (state) => state.pageState.logging.interaction.pending_save,
+        saving: (state) => state.pageState.logging.summary.pending_save,
       },
     },
 
