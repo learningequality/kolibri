@@ -5,10 +5,10 @@
       <div class="modal-wrapper">
         <div class="modal-container">
           <div class="modal-header">
+            <a @click="closeModal" class="close-btn">X</a>
             <slot name="header">
               Kolibri
             </slot>
-            <a @click="closeModal" class="close-btn">X</a>
           </div>
           <div class="modal-body">
             <slot name="body">
@@ -72,11 +72,11 @@
     background: rgba(0, 0, 0, 0.7)
     display: table
     transition: opacity 0.3s ease
-    
+
   .modal-wrapper
     display: table-cell
     vertical-align: middle
-    
+
   .modal-container
     background: #fff
     width: 450px
@@ -85,23 +85,23 @@
     transition: all 0.3s ease
     margin: 0 auto
     padding: 20px 30px
-    
+
   .modal-header
     font-weight: bold
     padding-bottom: 10px
-    
+
   .modal-footer
     margin-top: 15px
     margin-bottom: 10px
     padding-bottom: inherit
-    
+
   .close-btn
     float: right
     cursor:pointer
-    
+
   .modal-enter, .modal-leave
     opacity: 0
-  
+
   .modal-enter .modal-container,
   .modal-leave .modal-container
     -webkit-transform: scale(1.1)

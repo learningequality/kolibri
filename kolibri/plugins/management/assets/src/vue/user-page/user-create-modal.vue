@@ -2,36 +2,41 @@
 
   <div class="user-creation-modal">
     <modal btntext="Add New">
-      <div class="title" slot="header">Add New Account</div>
-      <div slot="body">
-        <div class="name">
+
+      <h2 slot="header">Add New Account</h2>
+
+      <section slot="body">
+        <div class="user-field">
           <label for="name">Name</label>
-          <input type="text" v-model="username" placeholder="Please type in your username.">
+          <input type="text" autocomplete="name" id="name" autofocus="true" required v-model="name">
         </div>
-        <div class="username">
-          <label>Username</label>
-          <input type="text" v-model="password" placeholder="Please type in your password.">
+        <div class="user-field">
+          <label for="username">Username</label>
+          <input type="text" autocomplete="username" id="username" required v-model="username">
         </div>
-        <div class="password">
-          <label>Password</label>
-          <input type="text" v-model="firstName" placeholder="Please type in your first name.">
+        <div class="user-field">
+          <label for="username">Password</label>
+          <input type="password" id="password" required v-model="password">
         </div>
-        <div class="confirm">
-          <label>Confirm Password</label>
-          <input type="text" v-model="lastName" placeholder="Please type in your last name.">
+
+        <div class="user-field">
+          <select v-model="role">
+            <option value="learner" selected> Learner </option>
+            <option value="admin"> Admin </option>
+          </select>
         </div>
-        <!-- radio buttons for selecting role -->
-        <br>Learner <input type="radio" value="learner" v-model="role"><br>
-        <br>Admin <input type="radio" value="admin" v-model="role"><br>
-      </div>
-      <div slot="footer">
+
+      </section>
+
+      <section slot="footer">
         <button class="create-btn" type="button" @click="createNewUser">Create User</button>
-      </div>
-      <div class="manage-create" slot="openbtn">
+      </section>
+
+      <button class="create-button" slot="openbtn">
         <svg class="add-user" src="../icons/add_new_user.svg">
         </svg>
         <span class="add-text" src="">Add New</span>
-      </div>
+      </button>
     </modal>
   </div>
 
@@ -82,31 +87,19 @@
 
 <style lang="stylus" scoped>
 
-  .title
-    display: inline
+  $button-content-size = 1em
+  .user-field
+    padding-bottom: 5%
+    input, select
+      width: 100%
+    label
+      position: relative
 
-  .create-btn
-    float: right
-
-  .manage-create
-    background-color: #996189
-    border-radius: 5px
-    color: #f9f9f9
-    float: right
-    height: 25px
-    width: 130px
-    font-size: 12px
-    // text-indent: 50px
-    cursor: pointer
-
-  .add-user
-    float: left
-    height: 80%
-    width: 30%
-    // padding: 10px
-
-  .add-text
-    float: left
-    padding-top: 6px
+  .create-button
+    background-color: purple
+    vertical-align: center
+    font-size: $button-content-size
+    svg
+      height: $button-content-size
 
 </style>
