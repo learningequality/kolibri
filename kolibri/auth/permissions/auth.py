@@ -4,7 +4,8 @@ The permissions classes in this module define the specific permissions that gove
 
 from ..constants.collection_kinds import FACILITY
 from ..constants.role_kinds import ADMIN, COACH
-from .base import BasePermissions, RoleBasedPermissions
+from .base import RoleBasedPermissions
+from .general import DenyAll
 
 
 class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
@@ -44,12 +45,12 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             # for non-Facility Collections, defer to the roles to determine delete permissions
             return super(CollectionSpecificRoleBasedPermissions, self).user_can_update_object(user, obj.parent)
 
-class AnybodyCanCreateIfNoDeviceOwner(BasePermissions):
+class AnybodyCanCreateIfNoDeviceOwner(DenyAll):
     def user_can_create_object(self, user, obj):
         from ..models import DeviceOwner
         return DeviceOwner.objects.count() < 1
 
-class AnybodyCanCreateIfNoFacility(BasePermissions):
+class AnybodyCanCreateIfNoFacility(DenyAll):
     def user_can_create_object(self, user, obj):
         from ..models import Facility
         return Facility.objects.count() < 1
