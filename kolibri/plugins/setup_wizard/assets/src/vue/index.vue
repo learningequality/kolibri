@@ -6,7 +6,7 @@
       <div class="container">
         <div class="title">Device Owner</div>
         <br>
-        <div class="description">To use Kolibri, there are need to be at least one device owner. This account will have the highest privilege that can configure all settings about this installation.</div>
+        <div class="description">To use Kolibri, you first need to create a Device Owner account. This account will be used to configure high-level settings for this installation, and create other administrator accounts.</div>
         <div class="creation-form">
           <br><input :class="{ 'input-error': username_error }" type="text" v-model="username" placeholder="Username"><br>
           <br><input :class="{ 'input-error': password_error }" type="text" v-model="password" placeholder="Password"><br>
@@ -14,7 +14,7 @@
         <br>
         <div class="title">Facility</div>
         <br>
-        <div class="description">To use Kolibri, there are need to be at least one facility. This facility can represent your school or trainning center, and classrooms and learnning groups are orgnized under this facility.</div>
+        <div class="description">You also need to create a Facility, which represents your school, training center, or other location where this installation will be used.</div>
         <br><input :class="{ 'input-error': facility_error }" type="text" v-model="facility" placeholder="Facility name"><br>
         <br>
         <br>
@@ -53,21 +53,9 @@
           };
           this.createDeviceOwnerAndFacility(deviceOwnerPayload, facilityPayload);
         } else {
-          if (!this.username) {
-            this.username_error = true;
-          } else {
-            this.username_error = false;
-          }
-          if (!this.password) {
-            this.password_error = true;
-          } else {
-            this.password_error = false;
-          }
-          if (!this.facility) {
-            this.facility_error = true;
-          } else {
-            this.facility_error = false;
-          }
+          this.username_error = !this.username;
+          this.password_error = !this.password;
+          this.facility_error = !this.facility;
         }
       },
     },
