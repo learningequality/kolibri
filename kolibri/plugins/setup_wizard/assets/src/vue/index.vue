@@ -110,8 +110,7 @@
   .input-error
     border-width: 2px
     border-color: $core-text-alert
-    background-color: $core-text-alert-bg
-    
+    background-color: $core-text-alert-bg 
   .logo
     height: 20%
     max-height: 160px
