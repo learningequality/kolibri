@@ -44,7 +44,7 @@ from .errors import (
     UserIsNotFacilityUser, UserIsNotMemberError
 )
 from .filters import HierarchyRelationsFilter
-from .permissions.auth import CollectionSpecificRoleBasedPermissions
+from .permissions.auth import AnybodyCanCreateIfNoDeviceOwner, AnybodyCanCreateIfNoFacility, CollectionSpecificRoleBasedPermissions
 from .permissions.base import BasePermissions, RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
 
@@ -525,7 +525,7 @@ class DeviceOwner(KolibriAbstractBaseUser):
 
     A ``DeviceOwner`` is a superuser, and has full access to do anything she wants with data on the device.
     """
-
+    permissions = AnybodyCanCreateIfNoDeviceOwner()
     objects = DeviceOwnerManager()
 
     # DeviceOwners can access the Django admin interface
@@ -598,7 +598,7 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
     # Collection can be read by anybody from the facility; writing is only allowed by an admin for the collection.
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
     # by roles in relation to the new collection's parent collection (see CollectionSpecificRoleBasedPermissions).
-    permissions = IsFromSameFacility(read_only=True) | CollectionSpecificRoleBasedPermissions()
+    permissions = IsFromSameFacility(read_only=True) | CollectionSpecificRoleBasedPermissions() | AnybodyCanCreateIfNoFacility()
 
     _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
 

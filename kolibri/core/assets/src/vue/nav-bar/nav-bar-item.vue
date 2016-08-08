@@ -1,12 +1,12 @@
 <template>
 
   <div class='link-wrapper'>
-    <a v-if="vlink" v-link="vlink" :class="{active: active}" class='link'>
+    <a v-if="vlink" v-link="vlink" :class="{active: active}" @click="blur" v-el:link class='link'>
       <div class='content'>
         <slot></slot>
       </div>
     </a>
-    <a v-else :href="href" :class="{active: active}" class='link'>
+    <a v-else :href="href" :class="{active: active}" @click="blur" v-el:link class='link'>
       <div class='content'>
         <slot></slot>
       </div>
@@ -19,6 +19,11 @@
 <script>
 
   module.exports = {
+    methods: {
+      blur() {
+        this.$els.link.blur();
+      },
+    },
     props: {
       // Note - only pass in a vlink or an href, not both
       vlink: {
@@ -66,5 +71,13 @@
 
   .content
     display: inline-block
+
+  a:focus
+    background: $core-action-light
+    outline: none
+
+  .link.active:focus
+    color: $core-action-normal
+    background: $core-action-light
 
 </style>
