@@ -1,4 +1,5 @@
 const Resources = require('kolibri').resources.ContentNodeResource;
+const ChannelResource = require('kolibri').resources.ChannelResource;
 const constants = require('./state/constants');
 const PageNames = constants.PageNames;
 
@@ -63,6 +64,12 @@ function _collectionState(data) {
  * These methods are used to update client-side state
  */
 
+
+function setChannelMetadata() {
+  return 1;
+}
+
+console.log(ChannelResource, setChannelMetadata());
 
 function showExploreTopic(store, id, channelId) {
   store.dispatch('SET_PAGE_LOADING');

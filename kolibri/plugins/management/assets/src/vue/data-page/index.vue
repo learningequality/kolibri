@@ -2,7 +2,7 @@
 
   <div>
     <h2>DATA</h2>
-    <p>...</p>
+    <button>Download CSV</button>
   </div>
 
 </template>
