@@ -72,3 +72,50 @@ describe('ResourceManager', function () {
     });
   });
 });
+
+
+describe('Resource', function () {
+  beforeEach(function () {
+    this.resource = new Resources.Resource({});
+  });
+  afterEach(function () {
+    delete this.resource;
+  });
+  describe('kolibri property', function () {
+    it('should be empty object', function () {
+      assert.deepEqual(this.resource.kolibri, {});
+    });
+  });
+  describe('collections property', function () {
+    it('should be empty object', function () {
+      assert.deepEqual(this.resource.collections, {});
+    });
+  });
+  describe('models property', function () {
+    it('should be empty object', function () {
+      assert.deepEqual(this.resource.models, {});
+    });
+  });
+  describe('resourceName method', function () {
+    it('should throw a ReferenceError', function () {
+      assert.throws(Resources.Resource.resourceName, ReferenceError);
+    });
+  });
+  describe('static idKey method', function () {
+    it('should be "id" by default', function () {
+      assert.equal(Resources.Resource.idKey(), 'id');
+    });
+  });
+  describe('idKey property', function () {
+    it('should be "id" by default', function () {
+      assert.equal(this.resource.idKey, 'id');
+    });
+  });
+  describe('client property', function () {
+    it('should return the client variable in module scope', function () {
+      const testClient = { test: 'this' };
+      Resources.__set__('client', testClient);
+      assert.equal(this.resource.client, testClient);
+    });
+  });
+});
