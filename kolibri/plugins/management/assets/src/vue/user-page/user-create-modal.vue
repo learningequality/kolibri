@@ -7,8 +7,12 @@
 
       <section slot="body">
         <div class="user-field">
-          <label for="name">Name</label>
-          <input type="text" autocomplete="name" id="name" autofocus="true" required v-model="name">
+          <label for="name">First Name</label>
+          <input type="text" autocomplete="name"  autofocus="true" required v-model="firstName">
+        </div>
+        <div class="user-field">
+          <label for="name">Last Name</label>
+          <input type="text" autocomplete="name"  autofocus="true" required v-model="lastName">
         </div>
         <div class="user-field">
           <label for="username">Username</label>
