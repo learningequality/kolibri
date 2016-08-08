@@ -1,6 +1,6 @@
 <template>
 
-  <button v-bind:class="['icon-button', primary ? 'primary' : 'secondary']">
+  <button v-bind:class="[this.primary ? 'primary' : 'secondary', 'icon-button']">
     <slot></slot>
     <span class="btn-text">{{ text }}</span>
   </button>
@@ -16,8 +16,11 @@
         type: String,
         required: true,
       },
-      // primary is false by default, will be secondary unless specified
-      primary: false,
+      // primary is true by default, will be primary unless specified
+      primary: {
+        type: Boolean,
+        default: true,
+      },
     },
   };
 
