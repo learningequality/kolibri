@@ -42,4 +42,10 @@
       svg
         fill: #FFFFFF
 
+    &:focus
+      background:$core-action-light
+      outline: none
+      svg
+        fill: $core-action-normal
+
 </style>
