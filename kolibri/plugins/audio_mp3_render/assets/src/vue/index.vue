@@ -1,6 +1,10 @@
 <template>
 
   <div id="audio-wrapper">
+    <h3 class="progress-percent">
+      <i class="progress-saving" v-if="saving">Saving Progress...&nbsp;</i>
+      {{ progress }}%
+    </h3>
     <div id="play-and-time">
       <button
         @click="togglePlay"
@@ -31,10 +35,9 @@
       @timeupdate="updateDummyTime"
       @loadedmetadata="setTotalTime"
       @ended="endPlay"
+      @seeking="recordProgress"
       :src="defaultFile.storage_url"
     ></audio>
-
-    <h2>Progress: {{ progress }} % <i v-if="saving">Saving Progress...</i></h2>
   </div>
 
 </template>
@@ -57,6 +60,7 @@
       // rawTime, because at the time of getter initialization for the computed property,
       // the DOM does not exist, so the above object path is undefined, which causes problems.
       dummyTime: 0,
+      progressStartingPoint: 0,
     }),
 
     computed: {
@@ -97,7 +101,12 @@
     },
 
     beforeDestroy() {
+      this.recordProgress();
       this.stopTrackingProgress();
+    },
+
+    ready() {
+      this.initContentSession();
     },
 
     methods: {
@@ -129,11 +138,11 @@
 
       updateDummyTime() {
         this.dummyTime = this.$els.audio.currentTime;
+        this.recordProgress();
       },
 
       setTotalTime() {
         this.max = this.$els.audio.duration;
-        this.initContentSession(this.$els.audio.duration);
       },
 
       /* Adds '0' before seconds (e.g. 1:05 instead of 1:5) */
@@ -168,11 +177,16 @@
         }
         this.rawTime = sum;
       },
+
+      recordProgress() {
+        this.updateProgress((this.dummyTime - this.progressStartingPoint) / Math.floor(this.max));
+        this.progressStartingPoint = this.$els.audio.currentTime;
+      },
     },
     vuex: {
       actions: require('learn-actions'),
       getters: {
-        progress: (state) => state.pageState.logging.summary.progress,
+        progress: (state) => state.pageState.logging.summary.display_progress,
         saving: (state) => state.pageState.logging.summary.pending_save,
       },
     },
@@ -293,5 +307,10 @@
   /* hides popup label on slider */
   input[type=range]::-ms-tooltip
     display: none
+
+  .progress-percent
+    text-align:right
+    .progress-saving
+      font-size:10pt
 
 </style>

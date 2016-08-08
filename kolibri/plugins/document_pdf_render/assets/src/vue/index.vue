@@ -1,11 +1,13 @@
 <template>
 
   <div>
+    <h3 class="progress-percent">
+      <i class="progress-saving" v-if="saving">Saving Progress...&nbsp;</i>
+      {{ progress }}%
+    </h3>
     <div v-el:container class="container" allowfullscreen>
       <button class='btn' v-if="supportsPDFs" v-on:click="togglefullscreen">Toggle Fullscreen</button>
       <div v-el:pdfcontainer class="pdfcontainer"></div>
-
-      <h2>Progress: {{ progress }} % <i v-if="saving">Saving Progress...</i></h2>
     </div>
   </div>
 
@@ -52,11 +54,20 @@
           }
         }
       },
+
+      handleScroll() {
+        console.log('scrolling...');
+      },
     },
     ready() {
       this.initContentSession();
       PDFobject.embed(this.defaultFile.storage_url, this.$els.pdfcontainer);
-      this.startTrackingProgress(30000); // Wait 30 seconds to mark as completed
+      this.startTrackingProgress();
+      const self = this;
+      setTimeout(() => {
+        self.updateProgress(1);
+        self.stopTrackingProgress();
+      }, 15000);
     },
     beforeDestroy() {
       this.stopTrackingProgress();
@@ -64,7 +75,7 @@
     vuex: {
       actions: require('learn-actions'),
       getters: {
-        progress: (state) => state.pageState.logging.summary.progress,
+        progress: (state) => state.pageState.logging.summary.display_progress,
         // totalTime: (state) => state.pageState.logging.summary.total_time,
         // elapsedTime: (state) => state.pageState.logging.interaction.total_time,
         saving: (state) => state.pageState.logging.summary.pending_save,
@@ -91,5 +102,10 @@
   .pdfcontainer
     /* Accounts for the button height. */
     height: calc(100% - 4em)
+
+  .progress-percent
+    text-align:right
+    .progress-saving
+      font-size:10pt
 
 </style>

@@ -1,8 +1,12 @@
 <template>
 
   <div>
+    <h3 class="progress-percent">
+      <i class="progress-saving" v-if="saving">Saving Progress...&nbsp;</i>
+      {{ progress }}%
+    </h3>
     <div v-el:videowrapper class="videowrapper">
-      <video v-el:video class="video-js vjs-default-skin" >
+      <video v-el:video class="video-js vjs-default-skin" @seeking="recordProgress" @timeupdate="updateTime">
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type='"video/" + video.extension'>
         </template>
@@ -10,9 +14,8 @@
           <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
         </template>
       </video>
-      <h2>Progress: {{ progress }} % <i v-if="saving">Saving Progress...</i></h2>
-
     </div>
+
   </div>
 
 </template>
@@ -32,6 +35,8 @@
     data: () => ({
       videoWidth: 0,
       videoHeight: 0,
+      dummyTime: 0,
+      progressStartingPoint: 0,
     }),
 
     computed: {
@@ -74,6 +79,7 @@
       },
 
       setPlayState(state) {
+        this.recordProgress();
         if (state === true) {
           this.videoPlayer.$('.videotoggle').classList.add('videopaused');
           this.videoPlayer.$('.videoreplay').classList.add('display');
@@ -91,7 +97,7 @@
         this.videoWidth = this.videoPlayer.videoWidth();
         this.videoHeight = this.videoPlayer.videoHeight();
         this.resizeVideo();
-        this.initContentSession(this.videoPlayer.duration());
+        this.initContentSession();
       },
 
       resizeVideo() {
@@ -109,6 +115,17 @@
 
       debouncedResizeVideo() {
         debounce(this.resizeVideo, 300);
+      },
+
+      updateTime() {
+        this.dummyTime = this.videoPlayer.currentTime();
+        this.recordProgress();
+      },
+
+      recordProgress() {
+        this.updateProgress((this.dummyTime
+          - this.progressStartingPoint) / Math.floor(this.videoPlayer.duration()));
+        this.progressStartingPoint = this.videoPlayer.currentTime();
       },
     },
 
@@ -181,15 +198,14 @@
       global.addEventListener('resize', this.debouncedResizeVideo);
     },
     beforeDestroy() {
+      this.recordProgress();
       this.stopTrackingProgress();
       global.removeEventListener('resize', this.debouncedResizeVideo);
     },
     vuex: {
       actions: require('learn-actions'),
       getters: {
-        progress: (state) => state.pageState.logging.summary.progress,
-        // totalTime: (state) => state.pageState.logging.summary.total_time,
-        // elapsedTime: (state) => state.pageState.logging.interaction.total_time,
+        progress: (state) => state.pageState.logging.summary.display_progress,
         saving: (state) => state.pageState.logging.summary.pending_save,
       },
     },
@@ -293,5 +309,10 @@
   .video-js .display,
   .video-js .display
     display: block
+
+  .progress-percent
+    text-align:right
+    .progress-saving
+      font-size:10pt
 
 </style>

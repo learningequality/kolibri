@@ -7,8 +7,9 @@ const ContentSessionLogResource = Kolibri.resources.ContentSessionLogResource;
 const ContentSummaryLogResource = Kolibri.resources.ContentSummaryLogResource;
 
 const intervalTime = 5000;
-const progressThreshhold = 0.1;
-const timeThreshhold = 15;
+const progressThreshold = 0.2;
+const displayProgressThreshold = 0.1;
+const timeThreshold = 30;
 
 
 /**
@@ -77,6 +78,7 @@ function _contentSummaryLoggingState(data) {
     time_spent_before_current_session: data.total_time,
     progress_at_last_update: data.progress,
     duration: data.duration,
+    display_progress: (data.progress) ? data.progress : 0,
   };
   return state;
 }
@@ -90,6 +92,8 @@ function _contentSessionLoggingState(data) {
     total_time: data.total_time,
     extra_fields: data.extra_fields,
     total_time_at_last_update: data.total_time,
+    start_progress: 0,
+    progress_elapsed: 0,
   };
   return state;
 }
@@ -164,7 +168,10 @@ function showExploreContent(store, id) {
 
   Resources.getModel(id).fetch()
     .then((attributes) => {
-      const pageState = { content: _contentState(attributes) };
+      const pageState = {
+        content: _contentState(attributes),
+        logging: { summary: { progress: 0 } },
+      };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
@@ -206,6 +213,7 @@ function showLearnContent(store, id) {
       const pageState = {
         content: _contentState(attributes),
         recommended: recommended.map(_contentState),
+        logging: { summary: { progress: 0 } },
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -263,7 +271,7 @@ function showScratchpad(store) {
 /**
  * Create models to store progress
  */
-function initContentSession(store, contentDuration) {
+function initContentSession(store) {
   // const self = this;
   /* TODO: REMOVE THIS LATER */
   store.dispatch('CORE_SET_SESSION', {
@@ -289,7 +297,6 @@ function initContentSession(store, contentDuration) {
     //       total_time: 0,
     //       kind: store.state.pageState.content.kind,
     //       extra_fields: '{}',
-    //       duration: contentDuration,
     //     });
     //   } else {
     //     self.ContentSummaryLogModel = summary[0];
@@ -304,7 +311,7 @@ function initContentSession(store, contentDuration) {
     // });
 
   this.ContentSummaryLogModel = ContentSummaryLogResource.createModel(
-    _contentSummaryDefault(store, contentDuration));
+    _contentSummaryDefault(store));
   this.ContentSessionModel = ContentSessionLogResource.createModel(
     _contentSessionDefault(store));
   const loggingState = {
@@ -314,22 +321,63 @@ function initContentSession(store, contentDuration) {
   store.dispatch('SET_LOGGING_STATE', loggingState);
 }
 
+function updateProgress(store, progressPercent) {
+  const summaryLog = store.state.pageState.logging.summary;
+  const sessionLog = store.state.pageState.logging.session;
+
+  // Update summary progress
+  summaryLog.progress = Math.min(1, progressPercent + summaryLog.progress);
+
+  if (summaryLog.progress >= summaryLog.display_progress / 100 + displayProgressThreshold) {
+    summaryLog.display_progress = Math.floor(summaryLog.progress * 10) * 10;
+  }
+
+  // Update summary completion time if reached 100% progress
+  if (summaryLog.progress === 1) {
+    summaryLog.completion_timestamp = sessionLog.completion_timestamp;
+  }
+}
+
+function updateTimeSpent(store) {
+  const summaryLog = store.state.pageState.logging.summary;
+  const sessionLog = store.state.pageState.logging.session;
+
+  // Set last activity time
+  summaryLog.last_activity_timestamp = sessionLog.completion_timestamp = new Date();
+
+  // Set interaction total time
+  sessionLog.total_time = intervalTimer.getTimeElapsed()
+    + sessionLog.total_time_at_last_update;
+
+  // Update summary total time
+  summaryLog.total_time = sessionLog.total_time
+    + summaryLog.time_spent_before_current_session;
+}
+
 /**
  * Do a PATCH to update existing logging models
  * @param {boolean} forceSave
  */
-function saveProgress(store) {
-  console.log('********** UPDATING PROGRESS **********');
+function saveProgress(store, forceSave = false) {
   const summaryLog = store.state.pageState.logging.summary;
   const sessionLog = store.state.pageState.logging.session;
 
-  summaryLog.pending_save = sessionLog.pending_save = true;
-  console.log('Summary:', summaryLog);
-  console.log('Session:', sessionLog);
-  /* TODO: REMOVE- temporary hack to test automatic saving on intervals */
-  setTimeout(() => {
-    summaryLog.pending_save = sessionLog.pending_save = false;
-  }, 2000);
+  this.updateProgress(0);
+  this.updateTimeSpent();
+
+  if (forceSave || (!sessionLog.pending_save && !summaryLog.pending_save &&
+    (summaryLog.progress - summaryLog.progress_at_last_update >= progressThreshold
+    || sessionLog.total_time - sessionLog.total_time_at_last_update >= timeThreshold)
+    )) {
+    sessionLog.total_time_at_last_update = sessionLog.total_time;
+    summaryLog.progress_at_last_update = summaryLog.progress;
+    console.log('********** UPDATING PROGRESS **********');
+    summaryLog.pending_save = sessionLog.pending_save = true;
+    /* TODO: REMOVE- temporary hack to test automatic saving on intervals */
+    setTimeout(() => {
+      summaryLog.pending_save = sessionLog.pending_save = false;
+    }, 2000);
+  }
 
   // Save updated values
   // const interactionPromise =
@@ -345,55 +393,13 @@ function saveProgress(store) {
   // });
 }
 
-function updateProgress(store, progressPercent) {
-  const summaryLog = store.state.pageState.logging.summary;
-  const sessionLog = store.state.pageState.logging.session;
-
-  // Update summary progress
-  summaryLog.progress = Math.min(1, progressPercent);
-  console.log('PROGRESS:', summaryLog.progress);
-
-  // Update summary completion time if reached 100% progress
-  if (summaryLog.progress === 1) {
-    summaryLog.completion_timestamp = sessionLog.completion_timestamp;
-  }
-}
-
-function updateTimeSpent(store, forceSave = false) {
-  const summaryLog = store.state.pageState.logging.summary;
-  const sessionLog = store.state.pageState.logging.session;
-
-  // Set last activity time
-  summaryLog.last_activity_timestamp = sessionLog.completion_timestamp = new Date();
-
-  // Set interaction total time
-  sessionLog.total_time = (intervalTimer.getTimeElapsed()
-    + sessionLog.total_time_at_last_update) / 1000;
-
-  // Update summary total time
-  summaryLog.total_time = sessionLog.total_time
-    + summaryLog.time_spent_before_current_session;
-
-  updateProgress(store, (summaryLog.duration) ?
-    summaryLog.total_time / summaryLog.duration : 1);
-
-  if (forceSave || (!sessionLog.pending_save && !summaryLog.pending_save &&
-    (summaryLog.progress - summaryLog.progress_at_last_update >= progressThreshhold
-    || sessionLog.total_time - sessionLog.total_time_at_last_update >= timeThreshhold)
-    )) {
-    sessionLog.total_time_at_last_update = sessionLog.total_time;
-    summaryLog.progress_at_last_update = summaryLog.progress;
-    saveProgress(store);
-  }
-}
-
 /**
  * Start interval timer and set start time
  * @param {int} interval
  */
 function startTrackingProgress(store, interval = intervalTime) {
   // Start timer
-  intervalTimer.startTimer(interval, this.updateTimeSpent);
+  intervalTimer.startTimer(interval, this.saveProgress);
 }
 
 /**
@@ -402,7 +408,7 @@ function startTrackingProgress(store, interval = intervalTime) {
 function stopTrackingProgress(store) {
   // Stop timer and update progress
   intervalTimer.stopTimer();
-  updateTimeSpent(store, true);
+  this.saveProgress(true);
 }
 
 module.exports = {
@@ -417,4 +423,6 @@ module.exports = {
   startTrackingProgress,
   stopTrackingProgress,
   updateTimeSpent,
+  updateProgress,
+  saveProgress,
 };
