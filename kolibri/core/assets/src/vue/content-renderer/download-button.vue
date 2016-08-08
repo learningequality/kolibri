@@ -75,7 +75,7 @@
         if (!sanitizedFilename.trim()) {
           sanitizedFilename = 'download';
         }
-        return sanitizedFilename;
+        return `${sanitizedFilename}.${this.extension}`;
       },
     },
   };
