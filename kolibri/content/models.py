@@ -47,10 +47,10 @@ class UUIDField(models.CharField):
                 value = uuid.UUID(value)
             except AttributeError:
                 raise TypeError(self.error_messages['invalid'] % {'value': value})
-
-        if connection.features.has_native_uuid_field:
-            return value
         return value.hex
+
+    def from_db_value(self, value, expression, connection, context):
+        return self.to_python(value)
 
     def to_python(self, value):
         if isinstance(value, uuid.UUID):
