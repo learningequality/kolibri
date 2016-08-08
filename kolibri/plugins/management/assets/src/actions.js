@@ -165,8 +165,6 @@ function showUserPage(store) {
     const users = responses[1];
     const roles = responses[2];
 
-    console.log(id, users, roles)
-;
     store.dispatch('SET_FACILITY', id[0]); // for mvp, we assume only one facility exists
     store.dispatch('SET_ROLES', roles);
     store.dispatch('ADD_USERS', users);

@@ -57,7 +57,16 @@ const mutations = {
   },
 
   SET_ROLES(state, roles) {
-    state.roles = roles;
+    // used to efficiently check for dupes
+    const uniqueRoles = {};
+    // returns array with removed duplicates
+    state.roles = roles.filter(role => {
+      if (uniqueRoles.hasOwnProperty(role)) {
+        return false;
+      }
+
+      return (uniqueRoles[role] = true);
+    });
   },
 };
 
