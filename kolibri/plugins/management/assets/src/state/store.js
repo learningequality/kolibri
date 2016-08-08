@@ -7,22 +7,9 @@ const initialState = {
   pageName: constants.PageNames.USER_MGMT_PAGE,
   pageState: {},
   facility: undefined,
-  users: [], // this should be inside page state
-  roles: [],
 };
 
 const mutations = {
-  ADD_USERS(state, users) {
-    users.forEach(user => {
-      state.users.push({
-        id: user.id,
-        username: user.username,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        roles: user.roles,
-      });
-    });
-  },
   UPDATE_USERS(state, users) {
     users.forEach(user => {
       state.users.forEach(existingUser => {
@@ -56,18 +43,6 @@ const mutations = {
     state.pageState = pageState;
   },
 
-  SET_ROLES(state, roles) {
-    // used to efficiently check for dupes
-    const uniqueRoles = {};
-    // returns array with removed duplicates
-    state.roles = roles.filter(role => {
-      if (uniqueRoles.hasOwnProperty(role)) {
-        return false;
-      }
-
-      return (uniqueRoles[role] = true);
-    });
-  },
 };
 
 
