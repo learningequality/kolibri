@@ -36,7 +36,7 @@
         <button class="create-btn" type="button" @click="createNewUser">Create User</button>
       </section>
 
-      <icon-button text="Add New" slot="openbtn">
+      <icon-button text="Add New" :primary="false" slot="openbtn">
         <svg class="add-user" src="../icons/add_new_user.svg"></svg>
       </icon-button>
     </modal>
@@ -69,7 +69,7 @@
         const payload = {
           password: this.password,
           username: this.username,
-          first_name: this.parsedName[0],
+          first_name: this.firstName,
           last_name: this.lastName,
           facility: this.facility,
         };
