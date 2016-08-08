@@ -72,7 +72,7 @@ function setChannelMetadata() {
 console.log(ChannelResource, setChannelMetadata());
 
 function showExploreTopic(store, id, channelId) {
-  store.dispatch('SET_PAGE_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
   const attributesPromise = Resources.getModel(id).fetch();
@@ -98,7 +98,7 @@ function showExploreTopic(store, id, channelId) {
 
 
 function showExploreContent(store, id, channelId) {
-  store.dispatch('SET_PAGE_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
   Resources.getModel(id).fetch()
@@ -117,7 +117,7 @@ function showExploreContent(store, id, channelId) {
 
 
 function showLearnRoot(store, channelId) {
-  store.dispatch('SET_PAGE_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
 
   Resources.getCollection({ recommendations: '' }).fetch()
@@ -136,7 +136,7 @@ function showLearnRoot(store, channelId) {
 
 
 function showLearnContent(store, id, channelId) {
-  store.dispatch('SET_PAGE_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
 
   const attributesPromise = Resources.getModel(id).fetch();
