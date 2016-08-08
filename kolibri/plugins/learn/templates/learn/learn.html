@@ -12,21 +12,11 @@
     collection.synced = true;
 
     // Get list of channels.
-    var channelCollection = {{kolibri}}.resources.ContentNodeResource.getCollection({}, JSON.parse("{{ channels|escapejs }}"));
-    channelCollection.synced = true;
-
     var channels = JSON.parse("{{ channels | escapejs }}");
-    var defaultChannelId = "7199dde695db4ee4ab392222d5af1e51"; // TODO: API also fetches user-selected default channel.
-    var currentChannelId = defaultChannelId;
-    var root_pk = getChannelRootPk(channels, currentChannelId);
-    function getChannelRootPk(channels, channelId) {
-      for (channel in channels) {
-        if (channels[channel].id == channelId) {
-          return channels[channel].root_pk;
-        }
-      }
-    }
-    // {{kolibri}}.resources.ChannelResource.;
+    // Create model for channels.
+    var channelModel = {{kolibri}}.resources.ContentNodeResource.createModel(channels);
+    channelModel.synced = true;
+    var currentChannelId = channels[0].id; // TODO: API also fetches user-selected default channel or last visited via cookie.
   </script>
   {% learn_async_assets %}
   {% learn_assets %}

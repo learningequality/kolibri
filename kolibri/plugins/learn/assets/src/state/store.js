@@ -14,7 +14,6 @@ const initialState = {
     contents: [],
     searchTerm: '',
   },
-  defaultChannelId: global.defaultChannelId,
   currentChannelId: global.currentChannelId,
 };
 
