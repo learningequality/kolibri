@@ -5,9 +5,9 @@ const FacilityResource = Kolibri.resources.FacilityResource;
 
 function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload) {
   const DeviceOwnerModel = DeviceOwnerResource.createModel(deviceownerpayload);
-  const deviceOwnerPromise = DeviceOwnerModel.save(deviceownerpayload);
+  const deviceOwnerPromise = DeviceOwnerModel.save();
   const FacilityModel = FacilityResource.createModel(facilitypayload);
-  const facilityPromise = FacilityModel.save(facilitypayload);
+  const facilityPromise = FacilityModel.save();
   const promises = [deviceOwnerPromise, facilityPromise];
   Promise.all(promises).then(responses => {
     // redirect to learn page after successfully created the DeviceOwner and Facility.
