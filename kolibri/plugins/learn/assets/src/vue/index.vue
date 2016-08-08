@@ -155,13 +155,14 @@
     right: $card-gutter
     display: block
     width: 11em
-    padding: 0.2em 1em
+    padding: 0.2em 0.8em
     color: $core-text-annotation
     font-size: 0.9rem
     border: 1px solid $core-text-annotation
     border-radius: 50px
     background: url(./icons/arrowdown.svg) no-repeat right
     -webkit-appearance: none
+    -moz-appearance: none
     outline: none
 
   select:focus
