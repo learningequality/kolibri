@@ -36,11 +36,9 @@
         <button class="create-btn" type="button" @click="createNewUser">Create User</button>
       </section>
 
-      <button class="create-button" slot="openbtn">
-        <svg class="add-user" src="../icons/add_new_user.svg">
-        </svg>
-        <span class="add-text" src="">Add New</span>
-      </button>
+      <icon-button text="Add New" slot="openbtn">
+        <svg class="add-user" src="../icons/add_new_user.svg"></svg>
+      </icon-button>
     </modal>
   </div>
 
@@ -53,7 +51,8 @@
 
   module.exports = {
     components: {
-      modal: require('../modal'),
+      'modal': require('../modal'),
+      'icon-button': require('icon-button'),
     },
     data() {
       return {
@@ -66,10 +65,11 @@
     },
     methods: {
       createNewUser() {
+        // const parsedName = this.name.split(' ');
         const payload = {
           password: this.password,
           username: this.username,
-          first_name: this.firstName,
+          first_name: this.parsedName[0],
           last_name: this.lastName,
           facility: this.facility,
         };
@@ -98,12 +98,5 @@
       width: 100%
     label
       position: relative
-
-  .create-button
-    background-color: purple
-    vertical-align: center
-    font-size: $button-content-size
-    svg
-      height: $button-content-size
 
 </style>
