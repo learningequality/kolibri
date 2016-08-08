@@ -1,7 +1,6 @@
-const Resource = require('../api_resource').Resource;
+const Resource = require('../api-resource').Resource;
 
 class ChannelResource extends Resource {
-
   static resourceName() {
     return 'channel';
   }
