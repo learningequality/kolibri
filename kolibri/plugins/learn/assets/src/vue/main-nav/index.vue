@@ -81,4 +81,7 @@
   a.active:hover svg
     fill: $core-bg-light
 
+  a.active:focus svg
+    fill: $core-action-normal
+
 </style>
