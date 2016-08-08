@@ -3,10 +3,11 @@
   <div class='wrapper'>
 
     <!-- search block -->
-    <div class='top'>
+    <div class='top' role="search">
       <input
         type="search"
         v-el:search
+        aria-label="Type to find content"
         placeholder="Find content..."
         autocomplete="off"
         v-focus="searchOpen"
@@ -15,7 +16,7 @@
         name="search"
         @keyup="search() | debounce 500"
         @keydown.esc.prevent="clear()">
-      <button class="reset" type="reset" @click="clear()" :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }">
+      <button aria-label="Reset" class="reset" type="reset" @click="clear()" :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }">
         <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
           <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
           <path d="M0 0h24v24H0z" fill="none"></path>
@@ -30,18 +31,18 @@
       </h4>
 
       <card-grid v-if="topics.length && showTopics">
-        <topic-card
+        <topic-list-item
           v-for="topic in topics"
           class="card"
           :id="topic.id"
           :title="topic.title"
           :ntotal="topic.n_total"
           :ncomplete="topic.n_complete">
-        </topic-card>
+        </topic-list-item>
       </card-grid>
 
       <card-grid v-if="contents.length">
-        <content-card
+        <content-grid-item
           v-for="content in contents"
           class="card"
           :title="content.title"
@@ -49,7 +50,7 @@
           :kind="content.kind"
           :progress="content.progress"
           :id="content.id">
-        </content-card>
+        </content-grid-item>
       </card-grid>
     </div>
 
@@ -102,8 +103,8 @@
       },
     },
     components: {
-      'topic-card': require('../topic-card'),
-      'content-card': require('../content-card'),
+      'topic-list-item': require('../topic-list-item'),
+      'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
     },
     vuex: {
@@ -137,6 +138,8 @@
 
   .results
     padding-top: $top-offset
+    @media screen and (max-width: $portrait-breakpoint)
+      margin-left: $card-gutter
 
   .top
     background-color: $core-bg-canvas
@@ -147,6 +150,9 @@
     position: fixed
     top: 0
     width-auto-adjust()
+    @media screen and (max-width: $portrait-breakpoint)
+      text-align: left
+      padding-right: 10px
 
   input
     display: inline-block

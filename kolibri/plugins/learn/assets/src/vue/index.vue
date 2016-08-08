@@ -1,29 +1,15 @@
 <template>
 
   <core-base>
-
-    <div class='main'>
-
-      <side-nav class='nav'></side-nav>
-      <search-button class='search-btn'></search-button>
-
-      <error-page v-show='error'></error-page>
-
-      <main role="main" class="page-content" v-if='!loading'>
-        <explore-page v-if='showExplorePage'></explore-page>
-        <content-page v-if='showContentPage'></content-page>
-        <learn-page v-if='showLearnPage'></learn-page>
-        <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
-      </main>
-
-      <div class='search-pane' v-show='searchOpen' transition='search-slide'>
-        <div class='search-shadow'>
-          <search-widget
-            :show-topics="exploreMode">
-          </search-widget>
-        </div>
+    <main-nav slot="nav"></main-nav>
+    <search-button slot="above" class='search-btn'></search-button>
+    <component slot="content" :is="currentPage"></component>
+    <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
+      <div class='search-shadow'>
+        <search-widget
+          :show-topics="exploreMode">
+        </search-widget>
       </div>
-
     </div>
 
     <!-- this is not used, but necessary for vue-router to function -->
@@ -45,28 +31,30 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
-      'side-nav': require('./side-nav'),
+      'main-nav': require('./main-nav'),
       'search-widget': require('./search-widget'),
       'search-button': require('./search-widget/search-button'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
       'scratchpad-page': require('./scratchpad-page'),
-      'error-page': require('./error-page'),
     },
     computed: {
-      showExplorePage() {
-        return this.pageName === PageNames.EXPLORE_ROOT || this.pageName === PageNames.EXPLORE_TOPIC;
-      },
-      showContentPage() {
-        return this.pageName === PageNames.EXPLORE_CONTENT ||
-          this.pageName === PageNames.LEARN_CONTENT;
-      },
-      showLearnPage() {
-        return this.pageName === PageNames.LEARN_ROOT;
-      },
-      showScratchpadPage() {
-        return this.pageName === PageNames.SCRATCHPAD;
+      currentPage() {
+        if (this.pageName === PageNames.EXPLORE_ROOT || this.pageName === PageNames.EXPLORE_TOPIC) {
+          return 'explore-page';
+        }
+        if (this.pageName === PageNames.EXPLORE_CONTENT ||
+          this.pageName === PageNames.LEARN_CONTENT) {
+          return 'content-page';
+        }
+        if (this.pageName === PageNames.LEARN_ROOT) {
+          return 'learn-page';
+        }
+        if (this.pageName === PageNames.SCRATCHPAD) {
+          return 'scratchpad-page';
+        }
+        return null;
       },
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
@@ -77,8 +65,6 @@
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchOpen: state => state.searchOpen,
-        loading: state => state.loading,
-        error: state => state.error,
       },
     },
     store, // make this and all child components aware of the store
@@ -92,28 +78,13 @@
   @require '~core-theme.styl'
   @require 'learn.styl'
 
-  .main
-    position: fixed // must be fixed for ie10
-    overflow-y: scroll
-    height: 100%
-    width: 100%
-    padding-left: $left-margin
-    padding-right: $right-margin
-    padding-bottom: 50px
-
-  .nav
-    position: fixed
-    top: 0
-    left: 0
-    width: $left-margin - $card-gutter * 0.5
-    height: 100%
-    z-index: 2
-
   .search-btn
     position: fixed
     top: 1rem
     right: 2rem
     z-index: 1
+    @media screen and (max-width: $portrait-breakpoint)
+      right: 1rem
 
   .search-pane
     background-color: $core-bg-canvas
@@ -124,10 +95,12 @@
     height: 100%
     width: 100%
     padding-left: $left-margin
+    @media screen and (max-width: $portrait-breakpoint)
+      padding-left: 0
+      margin-left: $card-gutter
 
   .search-shadow
     padding-right: $right-margin
-    box-shadow: 0 0 6px #ddd
     min-height: 100%
 
   .search-slide-transition
@@ -135,19 +108,5 @@
 
   .search-slide-enter, .search-slide-leave
     transform: translateX(100vw)
-
-  .page-content
-    margin: auto
-    width-auto-adjust()
-
-</style>
-
-
-<style lang="stylus">
-
-  /* WARNING - unscoped styles.
-   * control all scrolling from vue.  */
-  html
-    overflow: hidden
 
 </style>

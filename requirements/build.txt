@@ -3,3 +3,4 @@
 # include base.txt
 sphinx
 sphinx-rtd-theme
+pex

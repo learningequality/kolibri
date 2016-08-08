@@ -7,7 +7,6 @@ Getting Started
   user/index
   dev/index
   dev/content
-  dev/logger
   cli
   changelog
   contributing

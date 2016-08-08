@@ -10,29 +10,29 @@
         :crumbs='topic.breadcrumbs'>
       </breadcrumbs>
       <div slot='icon'>
-        <svg v-if="isRoot" src="../icons/explore.svg"></svg>
-        <svg v-else src="../icons/folder.svg"></svg>
+        <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"></svg>
+        <svg v-else class="pageicon" src="../icons/folder.svg"></svg>
       </div>
     </page-header>
 
-    <p v-if='topic.description'>
+    <p class="page-description" v-if='topic.description'>
       {{ topic.description }}
     </p>
 
     <span class="visuallyhidden" v-if="subtopics.length">You can navigate groups of content through headings.</span>
 
-    <card-grid v-if="subtopics.length">
-      <topic-card
+    <card-list v-if="subtopics.length">
+      <topic-list-item
         v-for="topic in subtopics"
         :id="topic.id"
         :title="topic.title"
         :ntotal="topic.n_total"
         :ncomplete="topic.n_complete">
-      </topic-card>
-    </card-grid>
+      </topic-list-item>
+    </card-list>
 
     <card-grid v-if="contents.length">
-      <content-card
+      <content-grid-item
         v-for="content in contents"
         class="card"
         :title="content.title"
@@ -40,7 +40,7 @@
         :kind="content.kind"
         :progress="content.progress"
         :id="content.id">
-      </content-card>
+      </content-grid-item>
     </card-grid>
 
   </div>
@@ -54,9 +54,10 @@
     components: {
       'breadcrumbs': require('../breadcrumbs'),
       'page-header': require('../page-header'),
-      'topic-card': require('../topic-card'),
-      'content-card': require('../content-card'),
+      'topic-list-item': require('../topic-list-item'),
+      'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
+      'card-list': require('../card-list'),
     },
     computed: {
       title() {
