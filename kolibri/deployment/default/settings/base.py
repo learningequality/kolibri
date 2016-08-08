@@ -47,8 +47,10 @@ INSTALLED_APPS = [
     'kolibri.auth.apps.KolibriAuthConfig',
     'kolibri.content',
     'kolibri.logger',
+    'kolibri.tasks.apps.KolibriTasksConfig',
     'kolibri.core.webpack',
     'rest_framework',
+    'kombu.transport.django',   # for celery and django communication
     'django_js_reverse',
 ] + conf.config['INSTALLED_APPS']
 
@@ -244,12 +246,18 @@ AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
 
 AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']
 
+CENTRAL_CONTENT_DOWNLOAD_DOMAIN = "https://unicefcontentcuration.learningequality.org"
 
 # Django REST Framework
 # http://www.django-rest-framework.org/api-guide/settings/
 
 REST_FRAMEWORK = {
     "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser",
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework_csv.renderers.CSVRenderer',
+    ),
 }
 
 
