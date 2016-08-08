@@ -66,6 +66,10 @@
     padding-right: 8px
     height: 36px
 
+  .icon-button:focus
+    background:$core-action-light
+    outline: none
+
   .btn-text
     vertical-align: middle
     margin-right: 2px
