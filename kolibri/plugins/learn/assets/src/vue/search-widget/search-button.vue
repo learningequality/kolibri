@@ -43,9 +43,6 @@
         fill: #FFFFFF
 
     &:focus
-      background:$core-action-light
-      outline: none
-      svg
-        fill: $core-action-normal
+      outline: $core-action-light 2px solid
 
 </style>
