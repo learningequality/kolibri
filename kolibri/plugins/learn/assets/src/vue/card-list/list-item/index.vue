@@ -45,6 +45,7 @@
 
   .root:focus
     background-color: $core-action-light
+    outline: none
 
   .thumb-wrapper
     position: absolute
