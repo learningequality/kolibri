@@ -5,10 +5,6 @@ from kolibri.content import models, serializers
 from rest_framework import filters, pagination, viewsets
 
 
-# from kolibri.logger.models import ContentInteractionLog
-# from django.db.models.aggregates import Count
-
-
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ChannelMetadataCacheSerializer
 
