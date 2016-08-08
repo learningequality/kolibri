@@ -150,17 +150,19 @@
       right: 1rem
 
   select
+    position: relative
+    float: right
+    right: $card-gutter
     display: block
     width: 11em
     padding: 0.2em 1em
-    -webkit-appearance: none
-    outline: none
+    color: $core-text-annotation
+    font-size: 0.9rem
     border: 1px solid $core-text-annotation
     border-radius: 50px
     background: url(./icons/arrowdown.svg) no-repeat right
-    text-align: center
-    color: $core-text-annotation
-    font-size: 0.9rem
+    -webkit-appearance: none
+    outline: none
 
   select:focus
     background-color: $core-action-light
