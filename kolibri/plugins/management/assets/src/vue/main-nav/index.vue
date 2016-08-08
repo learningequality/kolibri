@@ -14,7 +14,7 @@
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
     <div class="label">Explore</div>
   </nav-bar-item>
-  <nav-bar-item v-show="isAdmin" href="/management" :active="true">
+  <nav-bar-item href="/management" :active="true">
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/manage.svg"></svg>
     <div class="label">Manage</div>
   </nav-bar-item>
@@ -24,16 +24,9 @@
 
 <script>
 
-  const UserKinds = require('kolibri').constants.UserKinds;
-
   module.exports = {
     components: {
       'nav-bar-item': require('nav-bar-item'),
-    },
-    vuex: {
-      getters: {
-        isAdmin: state => state.core.session.kind === UserKinds.ADMIN,
-      },
     },
   };
 

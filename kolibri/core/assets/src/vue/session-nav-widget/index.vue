@@ -15,12 +15,12 @@
     <div class="user-dropdown">
       <ul class="dropdown-list">
         <li>
-          <h4 v-el: id="dropdown-name">{{ fullname }}</h4>
+          <h4 id="dropdown-name">{{ fullname }}</h4>
           <p id="dropdown-username">{{ username }}</p>
           <p id="dropdown-usertype">{{ kind }}</p>
         </li>
         <li id="logout-tab">
-          <div @click="logout">
+          <div @click="userLogout">
             <span>Logout</span>
           </div>
         </li>
@@ -60,12 +60,13 @@
           this.showDropdown = true;
         }
       },
-      // user-dropdown
-      logout() {
+      ready() {
+        console.log('hi');
+      },
+      userLogout() {
         this.logOut();
         this.showDropdown = false;
       },
-      //
     },
     vuex: {
       actions: {
@@ -86,7 +87,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
   @require '~nav-bar-item.styl'
 
   $size-lg = 40px
@@ -132,6 +132,7 @@
     width: 250px
     background: $core-bg-light
     text-align: left
+    z-index: -1
     
   .dropdown-list
     list-style: none
@@ -195,25 +196,37 @@
     width: $size-sm
     line-height: $size-sm - 2 * $border // vertically center
     
+  // Portrait mode for user dropdown (or drop-up in this case)
   @media screen and (max-width: $portrait-breakpoint)
-    .dropdown-list
-      list-style: none
-      padding: 0
-      margin: 0
-    li
-      padding: 1px 20px
-    &:before, &:after
-      // styling for left-facing arrow
-      content: ' '
-      height: 0
-      width: 0
-      position: absolute
-    &:before
-      // styling for the left-facing arrow
-      border-bottom-color: $core-bg-light
-      top: 20px
-      left: -39px
+    .dropdown-list:before
       border: none
-      -webkit-filter: drop-shadow(-3px 0 2px #e3e3e3)
+
+    .user-dropdown
+      box-shadow: -3px -3px 4px #e3e3e3
+      border-radius: 0
+      top: -147px
+      left: auto
+      right: 0
+      text-align: right
+
+    .slide-transition
+      top: 0
+
+    .slide-enter, .slide-leave
+      top: 300px
+
+    #dropdown
+      right: 0
+      
+    #dropdown-name
+      font-size: 16px
+
+    #logout-tab
+      div
+        background-position: 135px 0
+        &:hover
+          background-position: 135px 0
+      span
+        font-size: 15px
 
 </style>

@@ -10,7 +10,7 @@
         </div>
       </div>
       <div slot="body">
-        <input type="text" class="login-form login-username" v-model="username_entered" placeholder="Username" v-on:keyup.enter="userLogin">
+        <input type="text" class="login-form login-username" v-model="username_entered" placeholder="Username" v-on:keyup.enter="userLogin" autofocus>
         <input type="password" class="login-form login-password" v-model="password_entered" placeholder="Password" v-on:keyup.enter="userLogin">
         <button class="login-button" @click="userLogin">Login</button>  
       </div>
@@ -27,7 +27,6 @@
 
 <script>
 
-  // const UserKinds = require('../../constants').UserKinds;
   const actions = require('../../actions');
 
   module.exports = {
@@ -66,6 +65,7 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+  @require '~nav-bar-item.styl'
 
   #person
     fill: $core-action-normal
@@ -120,7 +120,7 @@
     letter-spacing: 0.08em
     border: none
     border-bottom: 1px solid $core-text-default
-    max-height: 29px
+    height: 30px
     &:focus
       outline: none
       border-bottom: 3px solid $core-action-normal

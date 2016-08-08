@@ -30,7 +30,7 @@
     background: $core-bg-light
     font-weight: 300
     position: fixed
-    z-index: 2
+    z-index: auto
     @media screen and (min-width: $portrait-breakpoint + 1)
       font-size: 1em
       height: 100%
@@ -40,7 +40,10 @@
       width: 100%
 
   .nav-main
+    background: $core-bg-light
+    height: 100vh
     @media screen and (max-width: $portrait-breakpoint)
       display: table-row
+      height: auto
 
 </style>
