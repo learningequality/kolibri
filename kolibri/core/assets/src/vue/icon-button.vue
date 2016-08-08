@@ -51,4 +51,8 @@
     vertical-align: middle
     margin-right: 2px
 
+  button:focus
+    background:$core-action-light
+    outline: none
+
 </style>
