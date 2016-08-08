@@ -20,7 +20,6 @@
 
       <input
         v-model="searchFilter"
-        svg url="../icons/search.svg"
         type="search"
         placeholder="Search for a user...">
 

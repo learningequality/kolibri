@@ -113,7 +113,8 @@ class Model {
             }
           });
         } else {
-          payload = attrs;
+          this.set(attrs);
+          payload = this.attributes;
         }
         if (!Object.keys(payload).length) {
           // Nothing to save, so just resolve the promise now.

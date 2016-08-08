@@ -41,6 +41,10 @@
     overflow: hidden
     border-radius: $radius
 
+  .root:focus
+    background-color: $core-action-light
+    outline: none
+
   .thumb-wrapper
     position: relative
     display: block

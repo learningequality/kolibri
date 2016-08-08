@@ -1,6 +1,6 @@
 <template>
 
-  <button class="icon-button">
+  <button v-bind:class="['icon-button', primary ? 'primary' : 'secondary']">
     <slot></slot>
     <span class="btn-text">{{ text }}</span>
   </button>
@@ -16,6 +16,8 @@
         type: String,
         required: true,
       },
+      // primary is false by default, will be secondary unless specified
+      primary: false,
     },
   };
 
@@ -26,15 +28,32 @@
 
   @require '~core-theme.styl'
 
-  .icon-button
+  svg
+    vertical-align: middle
 
+  // styles specific to primary button
+  .primary
     svg
-      vertical-align: middle
       fill: $core-action-normal
       transition: fill $core-time ease-out
 
     &:hover svg
       fill: $core-action-dark
+
+
+  // styles specific to secondary button
+  .secondary
+    background-color: $core-action-dark
+    border: none
+    color: $core-action-light
+
+    // fighting button styling in core global. Need refactor
+    &:hover
+      color: $core-action-light
+      border: none
+
+    svg
+      fill: $core-action-light
 
 </style>
 
@@ -46,6 +65,10 @@
   .icon-button
     padding-right: 8px
     height: 36px
+
+  .icon-button:focus
+    background:$core-action-light
+    outline: none
 
   .btn-text
     vertical-align: middle
