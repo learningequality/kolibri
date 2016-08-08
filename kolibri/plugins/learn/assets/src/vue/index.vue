@@ -149,6 +149,22 @@
     @media screen and (max-width: $portrait-breakpoint)
       right: 1rem
 
+  select
+    display: block
+    width: 11em
+    padding: 0.2em 1em
+    -webkit-appearance: none
+    outline: none
+    border: 1px solid $core-text-annotation
+    border-radius: 50px
+    background: url(./icons/arrowdown.svg) no-repeat right
+    text-align: center
+    color: $core-text-annotation
+    font-size: 0.9rem
+
+  select:focus
+    background-color: $core-action-light
+
   .search-pane
     background-color: $core-bg-canvas
     overflow-y: scroll
