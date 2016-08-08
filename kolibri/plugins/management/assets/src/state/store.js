@@ -10,6 +10,9 @@ const initialState = {
 };
 
 const mutations = {
+  ADD_USER(state, user) {
+    state.pageState.users.push(user);
+  },
   UPDATE_USERS(state, users) {
     users.forEach(user => {
       state.users.forEach(existingUser => {
