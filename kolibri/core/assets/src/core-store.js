@@ -14,6 +14,7 @@ const initialState = {
 const mutations = {
   CORE_SET_SESSION(state, value) {
     state.core.session = value;
+    console.log('state.core.session: ', state.core.session);
   },
   CORE_CLEAR_SESSION(state) {
     state.core.session = { kind: UserKinds.ANONYMOUS };

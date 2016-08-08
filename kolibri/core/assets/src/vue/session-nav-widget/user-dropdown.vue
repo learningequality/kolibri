@@ -1,11 +1,11 @@
 <template>
 
-  <div class="user-dropdown">
+  <div v-show="showDropDown" class="user-dropdown">
     <ul class="dropdown-list">
       <li>
-        <h4 v-el: id="dropdown-name">{{ name }}</h4>
-        <p id="dropdown-username">{{ loggedInUsername }}</p>
-        <p id="dropdown-usertype">{{ role }}</p>
+        <h4 v-el: id="dropdown-name">{{ fullname }}</h4>
+        <p id="dropdown-username">{{ username }}</p>
+        <p id="dropdown-usertype">{{ kind }}</p>
       </li>
       <li id="logout-tab">
         <div @click="logout">
@@ -20,21 +20,28 @@
 
 <script>
 
-  const actions = require('../actions');
+  const actions = require('../../actions');
 
   module.exports = {
 
-    props: [
-      'loggedInUsername',
-    ],
+    data: () => ({
+      showDropDown: true,
+    }),
+    methods: {
+      logout() {
+        console.log('this.logout() called in userdropdown');
+        this.logOut();
+        this.showDropDown = false;
+      },
+    },
     vuex: {
       getters: {
-        loggedInUsername: state => state.loggedInUsername,
-        name: state => state.name,
-        role: state => state.role,
+        fullname: state => state.core.session.fullname,
+        username: state => state.core.session.username,
+        kind: state => state.core.session.kind,
       },
       actions: {
-        logout: actions.logout,
+        logOut: actions.logOut,
       },
     },
 
@@ -50,11 +57,12 @@
   .user-dropdown
     box-shadow: 1px 1px 4px #e3e3e3
     border-radius: $radius
-    position: relative
-    top: 20px
-    left: 50px
-    max-width: 250px
+    position: absolute
+    top: -100px
+    left: 100px
+    width: 250px
     background: $core-bg-light
+    text-align: left
   	
   .dropdown-list
     list-style: none
@@ -100,9 +108,9 @@
     div
       color: $core-action-normal
       transition: all 0.2s
-      background: url('./icons/active-logout.svg') no-repeat
+      background: url('./active-logout.svg') no-repeat
       &:hover
-        background: url('./icons/logout-hover.svg') no-repeat
+        background: url('./logout-hover.svg') no-repeat
       span
         position: relative
         bottom: 2px

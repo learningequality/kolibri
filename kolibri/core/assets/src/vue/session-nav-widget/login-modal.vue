@@ -1,8 +1,8 @@
 <template>
 
   <div>
-    <modal btntext="Login">
-    <div id="backdrop"></div>
+    <modal>
+      <div id="backdrop"></div>
       <div class="title" slot="header">
         <div class="login-brand-box">
           <img src="./icons/kolibri-logo.svg">
@@ -10,11 +10,15 @@
         </div>
       </div>
       <div slot="body">
-        <input type="text" class="login-form login-username" v-model="username" placeholder="Username" v-on:keyup.enter="userLogin">
-        <input type="password" class="login-form login-password" v-model="password" placeholder="Password" v-on:keyup.enter="userLogin">
+        <input type="text" class="login-form login-username" v-model="username_entered" placeholder="Username" v-on:keyup.enter="userLogin">
+        <input type="password" class="login-form login-password" v-model="password_entered" placeholder="Password" v-on:keyup.enter="userLogin">
         <button class="login-button" @click="userLogin">Login</button>  
       </div>
       <div slot="footer"></div>
+      <div slot="openbtn">
+        <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
+        <div class="label">Log In</div>
+      </div>
     </modal>
   </div>
 
@@ -23,32 +27,35 @@
 
 <script>
 
-  const actions = require('../actions');
+  // const UserKinds = require('../../constants').UserKinds;
+  const actions = require('../../actions');
 
   module.exports = {
     components: {
-      modal: require('./modal/index.vue'),
+      modal: require('../modal/index.vue'),
     },
-    data: () => ({
-      username: '',
-      password: '',
-    }),
+    data() {
+      return {
+        username_entered: '',
+        password_entered: '',
+      };
+    },
     methods: {
       userLogin() {
-        const payload = {
-          username: this.username,
-          password: this.password,
-          facility: this.facility,
+        const store = {
+          username: this.username_entered,
+          password: this.password_entered,
         };
-        this.login(payload);
+        this.login(store);
       },
     },
     vuex: {
       getters: {
-        facility: state => state.facility,
+        loginIcon: state => state.core.loginModalOpen,
+        userKind: state => state.core.session.kind,
       },
       actions: {
-        login: actions.login,
+        login: actions.logIn,
       },
     },
 	};
@@ -59,6 +66,12 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+
+  #person
+    fill: $core-action-normal
+    transition: all 0.2s ease
+    &:hover
+      fill: $core-action-dark
 
   #backdrop
     background: green

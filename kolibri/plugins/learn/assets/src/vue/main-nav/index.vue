@@ -14,7 +14,7 @@
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
     <div class="label">Explore</div>
   </nav-bar-item>
-  <nav-bar-item href="/management">
+  <nav-bar-item v-show="isAdmin" href="/management">
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/manage.svg"></svg>
     <div class="label">Manage</div>
   </nav-bar-item>
@@ -26,6 +26,7 @@
 
   const pageMode = require('../../state/getters').pageMode;
   const constants = require('../../state/constants');
+  const UserKinds = require('kolibri').constants.UserKinds;
 
   module.exports = {
     components: {
@@ -34,6 +35,7 @@
     vuex: {
       getters: {
         pageMode,
+        isAdmin: state => state.core.session.kind === UserKinds.ADMIN,
       },
     },
     computed: {

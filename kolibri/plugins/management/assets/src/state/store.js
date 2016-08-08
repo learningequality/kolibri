@@ -1,15 +1,4 @@
 
-// function getInitialState() {
-//   return {
-//     facility: undefined,
-//     users: [],
-//     error: '',
-//     loggedInUsername: 'w0w_us3rnam3',
-//     name: 'Jessica Aceret',
-//     role: 'Learner',
-//     loggedIn: false,
-//   };
-// }
 const Vuex = require('vuex');
 const coreStore = require('core-store');
 const constants = require('./constants');
@@ -64,14 +53,6 @@ const mutations = {
   },
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
-  },
-
-  SET_LOGGED_IN_STATE(state, bool) {
-    state.loggedIn = bool;
-  },
-
-  SET_LOGGED_IN_USERNAME(state, username) {
-    state.loggedInUsername = username;
   },
 };
 

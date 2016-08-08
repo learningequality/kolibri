@@ -24,6 +24,7 @@ class FacilityUserResource extends Resource {
     const promise = new Promise((resolve, reject) => {
       this.client({ path: this.loginUrl(), entity: payload, method: 'POST',
       headers: { 'Content-Type': 'application/json' } }).then((response) => {
+        console.log('login called in facilityResource.js');
         resolve(response.entity);
       }, (response) => {
         logging.error('An error occurred', response);

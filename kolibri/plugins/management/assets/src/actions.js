@@ -170,34 +170,6 @@ function showUserPage(store) {
   });
 }
 
-/**
- * Do a POST to login the user.
- * @param {object} payload
- */
-function login(store, payload) {
-  const facilityIdPromise = FacilityUserResource.login(payload);
-  facilityIdPromise.then(response => {
-    store.dispatch('SET_LOGGED_IN_USERNAME', payload.username);
-    store.dispatch('SET_LOGGED_IN_STATE', true);
-  },
-  reject => {
-    store.dispatch('SET_ERROR', JSON.stringify(reject, null, '\t'));
-  });
-}
-
-/**
- * Do a POST to logout the user.
- */
-function logout(store) {
-  const facilityIdPromise = FacilityUserResource.logout();
-  facilityIdPromise.then(response => {
-    console.log('logout in actions.js called');
-  },
-  reject => {
-    store.dispatch('SET_ERROR', JSON.stringify(reject, null, '\t'));
-  });
-}
-
 function showContentPage(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
   store.dispatch('SET_PAGE_STATE', {});
@@ -223,9 +195,6 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
-  // fetchInitialData,
-  login,
-  logout,
   showUserPage,
   showContentPage,
   showDataPage,
