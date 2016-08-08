@@ -215,13 +215,9 @@
 
   .audio-button
     margin: 5% 2% 0 0
-    border: 2px solid $core-action-normal
-    background: transparent
     padding: 10px 15px
-    color: $core-action-normal
-    border-radius: 4px
 
-  .play-button, .audio-button
+  .play-button
     &:active
       outline: none
     &:focus

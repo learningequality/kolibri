@@ -5,6 +5,8 @@ module.exports = {
   LearnerGroupResource: require('./learnerGroup'),
   MembershipResource: require('./membership'),
   RoleResource: require('./role'),
-  ContentSessionLogResource: require('./ContentSessionLog'),
+  ContentSessionLogResource: require('./contentSessionLog'),
   ContentSummaryLogResource: require('./contentSummaryLog'),
+  DeviceOwnerResource: require('./deviceOwner'),
+  FacilityResource: require('./facility'),
 };
