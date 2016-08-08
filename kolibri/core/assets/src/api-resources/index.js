@@ -7,6 +7,5 @@ module.exports = {
   RoleResource: require('./role'),
   DeviceOwnerResource: require('./deviceOwner'),
   FacilityResource: require('./facility'),
-  ChannelMetadataResource: require('./channelMetadata'),
   ChannelResource: require('./channel'),
 };

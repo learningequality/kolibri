@@ -97,7 +97,6 @@ function showExploreTopic(store, id, channelId) {
 }
 
 
-
 function showExploreContent(store, id, channelId) {
   store.dispatch('SET_PAGE_LOADING');
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
@@ -115,7 +114,6 @@ function showExploreContent(store, id, channelId) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
-
 
 
 function showLearnRoot(store, channelId) {

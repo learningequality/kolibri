@@ -9,34 +9,13 @@
         <search-widget
           :show-topics="exploreMode">
         </search-widget>
-    <side-nav class='nav'></side-nav>
-    <div class='main'>
-      <search-button class='search-btn'></search-button>
-
-      <error-page v-show='error'></error-page>
-
-      <select v-model="currentChannel" v-on:change="switchChannel($event)">
+      </div>
+    </div>
+    <select v-model="currentChannel" v-on:change="switchChannel($event)">
         <option v-for="channel in channels" :value="channel.id">
           {{ channel.name }}
         </option>
       </select>
-
-      <main role="main" class="page-content" v-if='!loading'>
-        <explore-page v-if='showExplorePage'></explore-page>
-        <content-page v-if='showContentPage'></content-page>
-        <learn-page v-if='showLearnPage'></learn-page>
-        <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
-      </main>
-
-      <div class='search-pane' v-show='searchOpen' transition='search-slide'>
-        <div class='search-shadow'>
-          <search-widget
-            :show-topics="exploreMode">
-          </search-widget>
-        </div>
-      </div>
-    </div>
-
     <!-- this is not used, but necessary for vue-router to function -->
     <router-view></router-view>
 
