@@ -1,3 +1,4 @@
+import datetime
 import factory
 import uuid
 from kolibri.auth import models as auth
@@ -33,6 +34,7 @@ class ContentSessionLogFactory(factory.DjangoModelFactory):
     user = factory.SubFactory(FacilityUserFactory)
     content_id = uuid.uuid4().hex
     channel_id = uuid.uuid4().hex
+    start_timestamp = datetime.datetime.now()
 
 
 class ContentSummaryLogFactory(factory.DjangoModelFactory):
@@ -43,6 +45,7 @@ class ContentSummaryLogFactory(factory.DjangoModelFactory):
     user = factory.SubFactory(FacilityUserFactory)
     content_id = uuid.uuid4().hex
     channel_id = uuid.uuid4().hex
+    start_timestamp = datetime.datetime.now()
 
 
 class ContentRatingLogFactory(factory.DjangoModelFactory):

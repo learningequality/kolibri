@@ -4,6 +4,7 @@ Also tests whether the users with permissions can create logs.
 """
 
 import csv
+import datetime
 import uuid
 
 from django.core.urlresolvers import reverse
@@ -32,7 +33,8 @@ class ContentSessionLogAPITestCase(APITestCase):
         self.payload = {'user': self.user.pk,
                         'content_id': uuid.uuid4().hex,
                         'channel_id': uuid.uuid4().hex,
-                        'kind': 'video'}
+                        'kind': 'video',
+                        'start_timestamp': str(datetime.datetime.now())}
 
     def test_contentsessionlog_list(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
@@ -79,7 +81,8 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.payload = {'user': self.user.pk,
                         'content_id': uuid.uuid4().hex,
                         'channel_id': uuid.uuid4().hex,
-                        'kind': "video"}
+                        'kind': "video",
+                        'start_timestamp': str(datetime.datetime.now())}
 
     def test_summarylog_list(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
