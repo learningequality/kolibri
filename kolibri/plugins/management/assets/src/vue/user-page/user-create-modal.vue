@@ -53,7 +53,8 @@
 
   module.exports = {
     components: {
-      modal: require('../modal'),
+      'icon-button': require('icon-button'),
+      'modal': require('../modal'),
     },
     data() {
       return {
@@ -100,7 +101,7 @@
       position: relative
 
   .create-button
-    background-color: purple
+    background-color: #996189
     vertical-align: center
     font-size: $button-content-size
     svg

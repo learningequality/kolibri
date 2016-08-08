@@ -20,6 +20,7 @@
 
       <input
         v-model="searchFilter"
+        svg url="../icons/search.svg"
         type="search"
         placeholder="Search for a user...">
 
@@ -238,6 +239,7 @@
     padding-left: 1em
     padding-right: 1em
     border-radius: 40px
+    margin-left: 20px
 
   .search-button
     width: 20px
