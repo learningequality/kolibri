@@ -9,7 +9,7 @@ ContentDBRoutingMiddleware
 This middleware will be applied to every request, and will dynamically select a database based on the channel_id.
 If a channel ID was included in the URL, it will ensure the appropriate content DB is used for the duration of the request. (Note: `set_active_content_database` is thread-local, so this shouldn't interfere with other parallel requests.)
 
-For example, this is how the client side dynamically requests data from a specific channels:
+For example, this is how the client side dynamically requests data from a specific channel:
 
     >>> localhost:8000/api/content/<channel_1_id>/contentnode
 
@@ -67,18 +67,18 @@ ContentNode
 allows for efficient traversal and querying of the ContentNode tree.
 ``ContentDatabaseModel`` is used as a marker so that the content_db_router knows to query against the content database only if the model inherits from ContentDatabaseModel.
 
-The tree structure is established by the ``parent`` field that is a foreign key pointing to another ContentNode ojbect. You can also create a symmetric relationship using the ``related`` field, or an asymmetric field using the ``is_prerequisite`` field.
+The tree structure is established by the ``parent`` field that is a foreign key pointing to another ContentNode object. You can also create a symmetric relationship using the ``related`` field, or an asymmetric field using the ``is_prerequisite`` field.
 
 File
 ----
 
 The ``File`` model also inherits from ``ContentDatabaseModel``.
 
-To find where the source file is located, the class method ``get_url`` uses the ``checksum`` field and ``settings.CONTENT_STORAGE_DIR`` to calculate the file path. Every source file is named based on its MD5 hash value (this value is also stored in the ``checksum`` field) and stored in a namespaced folder under the directory specified in ``settings.CONTENT_STORAGE_DIR``. Because it's likely to have thousands of source files, and some filesystems cannot handle a flat folder with a large number of files very well, we create namespaced subfolders to improve the performance. So the eventual file path would look something like:
+To find where the source file is located, the class method ``get_url`` uses the ``checksum`` field and ``settings.CONTENT_STORAGE_DIR`` to calculate the file path. Every source file is named based on its MD5 hash value (this value is also stored in the ``checksum`` field) and stored in a namespaced folder under the directory specified in ``settings.CONTENT_STORAGE_DIR``. Because it's likely to have thousands of content files, and some filesystems cannot handle a flat folder with a large number of files very well, we create namespaced subfolders to improve the performance. So the eventual file path would look something like:
 
     ``/home/user/.kolibri/content/storage/9/8/9808fa7c560b9801acccf0f6cf74c3ea.mp4``
 
-As you can see, it is fine to store your source files outside of the kolibri project folder as long as you set the ``settings.CONTENT_STORAGE_DIR`` accordingly.
+As you can see, it is fine to store your content files outside of the kolibri project folder as long as you set the ``settings.CONTENT_STORAGE_DIR`` accordingly.
 
 The front-end will then use the ``extension`` field to decide which content player should be used. When the ``supplementary`` field's value is ``True``, that means this File object isn't necessary and can display the content without it. For example, we will mark caption (subtitle) file as supplementary.
 
@@ -110,6 +110,6 @@ There are two workflows we currently designed to handle content UI rendering and
 1. Start with a ContentNode object.
 2. Retrieve a queryset of associated File objects that are filtered by the preset.
 3. Use the ``thumbnail`` field as a filter on this queryset to get the File object and call this File object's ``get_url`` method to get the source file (the thumbnail image)
-4. Use the ``supplementary`` field as a filter on this queryset to get the "supplementary" File objects, such as caption (subtitle), and call these File objects' ``get_url`` method to get the source files
+4. Use the ``supplementary`` field as a filter on this queryset to get the "supplementary" File objects, such as caption (subtitle), and call these File objects' ``get_url`` method to get the source files.
 5. Use the ``supplementary`` field as a filter on this queryset to get the essential File object. Call its ``get_url`` method to get the source file and use its ``extension`` field to choose the content player.
 6. Play the content.
