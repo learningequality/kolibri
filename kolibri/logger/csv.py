@@ -17,10 +17,10 @@ class ContentSummaryLogCSVSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentSummaryLog
         fields = ('username', 'facility_name', 'content_id', 'content_title', 'channel_id', 'channel_name', 'start_timestamp',
-                  'last_activity_timestamp', 'completion_timestamp', 'progress', 'kind')
+                  'end_timestamp', 'completion_timestamp', 'progress', 'kind')
         labels = {
             "start_timestamp": "Time of first interaction",
-            "last_activity_timestamp": "Time of last interaction",
+            "end_timestamp": "Time of last interaction",
             "completion_timestamp": "Time of completion",
         }
 

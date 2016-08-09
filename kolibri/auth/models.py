@@ -81,7 +81,7 @@ class AbstractFacilityDataModel(models.Model):
     such as ``FacilityUsers``, ``Collections``, and other data associated with those users and collections.
     """
 
-    dataset = models.ForeignKey("FacilityDataset")
+    dataset = models.ForeignKey(FacilityDataset)
 
     class Meta:
         abstract = True
@@ -826,6 +826,11 @@ class Facility(Collection):
 
     class Meta:
         proxy = True
+
+    @classmethod
+    def get_default_facility(cls):
+        # temporary approach to a default facility; later, we can make this more refined
+        return cls.objects.all().first()
 
     def save(self, *args, **kwargs):
         if self.parent:
