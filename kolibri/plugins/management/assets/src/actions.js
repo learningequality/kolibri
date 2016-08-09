@@ -15,7 +15,6 @@ const PageNames = constants.PageNames;
  * the API to state in the Vuex store
  */
 
-// modifies data to be suitable in vue
 function _userState(data) {
   // assume just one role for now
   let kind = UserKinds.LEARNER;
@@ -31,56 +30,37 @@ function _userState(data) {
   };
 }
 
-// returns true if there was a role to asssign, false if not (learner)
-// returns null and errors out if promise is unsuccessful.
-function assignUserRole(store, user, role) {
-  let userModel = user;
-
-  if (role !== 'learner') {
-    // prepare data for resource payload
-    const roleData = {
-      user: user.id,
-      collection: user.facility,
-      // assuming just 1 role for now
-      kind: role,
-    };
-
-    // create model in resource, then fetch to ensure that it was created
-    // duplicate data seems redundant?
-    const rolePromise = RoleResource.addModel(roleData).save(roleData);
-
-    // set role assigned to true if promise is successful, send error if not
-    rolePromise.then(newModel => {
-      userModel = newModel;
-    }, (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    });
-  }
-
-  return userModel;
-}
 
 /**
  * Do a POST to create new user
  * @param {object} payload
  * @param {string} role
  */
-
-// might want to consider optimistic dispatch
-
-function createUser(store, user) {
-  // parsing out role here rather than in the view
-  const payload = Object.assign({}, user);
-  delete payload.role;
-
-  // create a model with the proper payload, save to resource
-  const userPromise = FacilityUserResource.addModel(payload).save(payload);
-
-  // assigns user to role in facility (accounts for learner), errors otherwise
-  userPromise.then(model => {
-    // dispatches user model, modified if role is assigned.
-    store.dispatch('ADD_USER', _userState(assignUserRole(store, model, user.role)));
-  }, (error) => {
+function createUser(store, payload, role) {
+  const FacilityUserModel = FacilityUserResource.createModel(payload);
+  const newUserPromise = FacilityUserModel.save(payload);
+  newUserPromise.then((model) => {
+    // assgin role to this new user if the role is not learner
+    if (role === 'learner' || !role) {
+      store.dispatch('ADD_USER', _userState(model));
+    } else {
+      const rolePayload = {
+        user: model.id,
+        collection: model.facility,
+        kind: role,
+      };
+      const RoleModel = RoleResource.createModel(rolePayload);
+      const newRolePromise = RoleModel.save(rolePayload);
+      newRolePromise.then((results) => {
+        FacilityUserModel.fetch({}, true).then(updatedModel => {
+          store.dispatch('ADD_USER', _userState(updatedModel));
+        });
+      }).catch((error) => {
+        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      });
+    }
+  })
+  .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
   });
 }
@@ -177,17 +157,18 @@ function updateUser(store, id, payload, role) {
  * @param {string or Integer} id
  */
 function deleteUser(store, id) {
-  if (id) {
-    // gets the model, deletes from resource layer
-    Kolibri.resources.FacilityUserResource.getModel(id).delete(id).then(
-      userId => {
-        // updates the view store
-        store.dispatch('DELETE_USER', userId);
-      },
-      error => {
-        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      });
+  if (!id) {
+    // if no id passed, abort the function
+    return;
   }
+  const FacilityUserModel = Kolibri.resources.FacilityUserResource.getModel(id);
+  const newUserPromise = FacilityUserModel.delete(id);
+  newUserPromise.then((userId) => {
+    store.dispatch('DELETE_USERS', [userId]);
+  })
+  .catch((error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
 }
 
 // An action for setting up the initial state of the app by fetching data from the server
@@ -203,7 +184,11 @@ function showUserPage(store) {
   Promise.all(promises).then(([facilityId, users]) => {
     store.dispatch('SET_FACILITY', facilityId[0]); // for mvp, we assume only one facility exists
 
-    store.dispatch('SET_PAGE_STATE', users.map(_userState));
+    const pageState = {
+      users: users.map(_userState),
+    };
+
+    store.dispatch('SET_PAGE_STATE', pageState);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('CORE_SET_ERROR', null);
   },

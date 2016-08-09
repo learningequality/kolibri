@@ -15,7 +15,7 @@ const mutations = {
   },
   UPDATE_USERS(state, users) {
     users.forEach(user => {
-      state.users.forEach(existingUser => {
+      state.pageState.users.forEach(existingUser => {
         if (existingUser.id === user.id.toString()) {
           existingUser.username = user.username;
           existingUser.full_name = user.full_name;

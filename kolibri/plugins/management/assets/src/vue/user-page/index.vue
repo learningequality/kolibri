@@ -117,7 +117,7 @@
 
               // actual check for roles
               user.roles.forEach(roleObject => {
-                if (roleObject.kind === roleFilter.kind) {
+                if (roleObject.kind === roleFilter) {
                   hasRole = true;
                 }
               });

@@ -66,9 +66,8 @@
           username: this.username,
           full_name: this.fullName,
           facility: this.facility,
-          role: this.role,
         };
-        this.createUser(payload);
+        this.createUser(payload, this.role);
       },
     },
     vuex: {
