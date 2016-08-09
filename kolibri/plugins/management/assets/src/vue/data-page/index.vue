@@ -2,7 +2,7 @@
 
   <div>
     <h2>DATA</h2>
-    <p>...</p>
+    <button @click="downloadCSV">Download CSV</button>
   </div>
 
 </template>
@@ -10,7 +10,14 @@
 
 <script>
 
-  module.exports = {};
+  const Kolibri = require('kolibri');
+  module.exports = {
+    methods: {
+      downloadCSV() {
+        window.open(Kolibri.urls['contentsummarylogcsv-list'](), '_blank');
+      },
+    },
+  };
 
 </script>
 

@@ -5,7 +5,7 @@ module.exports = {
   LearnerGroupResource: require('./learnerGroup'),
   MembershipResource: require('./membership'),
   RoleResource: require('./role'),
-  ChannelResource: require('./channel'),
   DeviceOwnerResource: require('./deviceOwner'),
   FacilityResource: require('./facility'),
+  ChannelResource: require('./channel'),
 };

@@ -4,6 +4,10 @@
 
     <main-nav slot="nav"></main-nav>
     <search-button slot="above" class='search-btn'></search-button>
+    <select slot="above" v-model="currentChannel" v-on:change="switchChannel($event)">
+      <option v-for="channel in channels" :value="channel.id">{{ channel.name }}</option>
+    </select>
+    <component slot="content" :is="currentPage"></component>
     <div slot="content">
       <select v-model="currentChannel" v-on:change="switchChannel($event)">
         <option v-for="channel in channels" :value="channel.id">
@@ -19,7 +23,6 @@
         </search-widget>
       </div>
     </div>
-
     <!-- this is not used, but necessary for vue-router to function -->
     <router-view></router-view>
 
@@ -107,6 +110,8 @@
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchOpen: state => state.searchOpen,
+        loading: state => state.loading,
+        error: state => state.error,
         currentChannelId: state => state.currentChannelId,
       },
     },
