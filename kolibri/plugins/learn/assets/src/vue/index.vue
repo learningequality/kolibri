@@ -150,9 +150,6 @@
     -moz-appearance: none
     outline: none
 
-  select:focus
-    background-color: $core-action-light
-
   .search-pane
     background-color: $core-bg-canvas
     overflow-y: scroll
