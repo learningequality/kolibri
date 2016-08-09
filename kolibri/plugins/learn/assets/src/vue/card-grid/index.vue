@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h3 class="header">{{header}}</h3>
+    <h3 v-if="header" class="header">{{header}}</h3>
     <div class="card-grid">
       <slot></slot>
     </div>
