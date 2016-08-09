@@ -173,7 +173,12 @@
   $row-padding = 1.5em
 
   .user-roster
-    padding: 1em
+    padding: 1em 2em
+    background-color: white
+    position: relative
+    top: 2em
+    width: 100%
+    border-radius: 4px
 
   .toolbar:after
     content: ''
@@ -189,11 +194,13 @@
     display: inline-block
     box-sizing: border-box
     position: relative
+    top: 0
     left: 10px
     height: 100%
     width: 88%
     border-color: transparent
     background-color: transparent
+    clear: both
     &:focus
       outline: none
       border-color: transparent
@@ -203,6 +210,7 @@
     background-color: $core-bg-light
     border-color: $core-action-light
     height: 35px
+    outline: none
 
   .roster
     width: 100%
@@ -249,7 +257,7 @@
     float: left
     position: relative
     fill: $core-text-annotation
-    left: 7px
+    left: 5px
     top: 5px
 
   // .searchbar:after
@@ -261,12 +269,19 @@
     border-radius: 5px
     padding: inherit
     border: 1px solid #c0c0c0
-    width: 40%
+    width: 50%
     min-width: 200px
     max-width: 300px
     height: 35px
     float: left
     position: relative
     left: 10px
+    @media screen and (min-width: $portrait-breakpoint + 1)
+      font-size: 1em
+      width: 100%
+    @media screen and (max-width: $portrait-breakpoint)
+      font-size: 0.8em
+      width: 100%
+      display: table-row
 
 </style>
