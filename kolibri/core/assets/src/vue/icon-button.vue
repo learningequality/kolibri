@@ -54,9 +54,12 @@
     &:hover
       color: $core-action-light
       border: none
+      svg
+        fill: $core-action-light
 
     svg
       fill: $core-bg-canvas
+      transition: fill $core-time ease-out
 
 </style>
 
