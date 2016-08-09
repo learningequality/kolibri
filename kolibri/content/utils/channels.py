@@ -20,6 +20,7 @@ def get_channel_id_list_from_scanning_content_database_dir(content_database_dir)
     db_names = [db.split('.sqlite3', 1)[0] for db in db_list]
     valid_db_names = [name for name in db_names if _is_valid_hex_uuid(name)]
     invalid_db_names = set(db_names) - set(valid_db_names)
-    logging.warning("Ignoring databases in content database directory '{directory}' with invalid names: {names}"
-                    .format(directory=content_database_dir, names=invalid_db_names))
+    if invalid_db_names:
+        logging.warning("Ignoring databases in content database directory '{directory}' with invalid names: {names}"
+                        .format(directory=content_database_dir, names=invalid_db_names))
     return valid_db_names
