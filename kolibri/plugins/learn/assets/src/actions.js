@@ -19,6 +19,14 @@ const timeThreshold = 30;
  * the API to state in the Vuex store
  */
 
+
+/**
+ * Vuex State Mappers
+ *
+ * The methods below help map data from
+ * the API to state in the Vuex store
+ */
+
 function _crumbState(ancestors) {
   // skip the root node
   return ancestors.slice(1).map(ancestor => ({
@@ -54,6 +62,7 @@ function _contentState(data) {
   };
   return state;
 }
+
 
 function _collectionState(data) {
   const topics = data

@@ -1,3 +1,4 @@
+
 const UserKinds = require('./constants').UserKinds;
 
 function logIn(store) {

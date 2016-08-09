@@ -59,6 +59,7 @@ class ContentSessionLog(BaseLogModel):
     kind = models.CharField(max_length=200)
     extra_fields = models.TextField(default="{}")
 
+
 class ContentSummaryLog(BaseLogModel):
     """
     This model provides a summary of all interactions a user has had with a content item.

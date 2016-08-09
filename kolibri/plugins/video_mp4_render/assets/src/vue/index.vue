@@ -212,6 +212,7 @@
         progress: (state) => state.pageState.logging.summary.display_progress,
         saving: (state) => state.pageState.logging.summary.pending_save,
       },
+      global.removeEventListener('resize', this.debouncedResizeVideo);
     },
   };
 
