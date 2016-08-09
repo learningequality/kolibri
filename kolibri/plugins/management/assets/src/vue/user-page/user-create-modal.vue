@@ -72,8 +72,9 @@
           first_name: this.firstName,
           last_name: this.lastName,
           facility: this.facility,
+          role: this.role,
         };
-        this.createUser(payload, this.role);
+        this.createUser(payload);
       },
     },
     vuex: {

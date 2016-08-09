@@ -15,6 +15,7 @@ const PageNames = constants.PageNames;
  * the API to state in the Vuex store
  */
 
+// modifies data to be suitable in vue
 function _userState(data) {
   // assume just one role for now
   let kind = UserKinds.LEARNER;
@@ -31,37 +32,56 @@ function _userState(data) {
   };
 }
 
+// returns true if there was a role to asssign, false if not (learner)
+// returns null and errors out if promise is unsuccessful.
+function assignUserRole(store, user, role) {
+  let userModel = user;
+
+  if (role !== 'learner') {
+    // prepare data for resource payload
+    const roleData = {
+      user: user.id,
+      collection: user.facility,
+      // assuming just 1 role for now
+      kind: role,
+    };
+
+    // create model in resource, then fetch to ensure that it was created
+    // duplicate data seems redundant?
+    const rolePromise = RoleResource.addModel(roleData).save(roleData);
+
+    // set role assigned to true if promise is successful, send error if not
+    rolePromise.then(newModel => {
+      userModel = newModel;
+    }, (error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    });
+  }
+
+  return userModel;
+}
 
 /**
  * Do a POST to create new user
  * @param {object} payload
  * @param {string} role
  */
-function createUser(store, payload, role) {
-  const FacilityUserModel = FacilityUserResource.createModel(payload);
-  const newUserPromise = FacilityUserModel.save(payload);
-  newUserPromise.then((model) => {
-    // assgin role to this new user if the role is not learner
-    if (role === 'learner' || !role) {
-      store.dispatch('ADD_USER', _userState(model));
-    } else {
-      const rolePayload = {
-        user: model.id,
-        collection: model.facility,
-        kind: role,
-      };
-      const RoleModel = RoleResource.createModel(rolePayload);
-      const newRolePromise = RoleModel.save(rolePayload);
-      newRolePromise.then((results) => {
-        FacilityUserModel.fetch({}, true).then(updatedModel => {
-          store.dispatch('ADD_USER', _userState(updatedModel));
-        });
-      }).catch((error) => {
-        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      });
-    }
-  })
-  .catch((error) => {
+
+// might want to consider optimistic dispatch
+
+function createUser(store, user) {
+  // parsing out role here rather than in the view
+  const payload = Object.assign({}, user);
+  delete payload.role;
+
+  // create a model with the proper payload, save to resource
+  const userPromise = FacilityUserResource.addModel(payload).save(payload);
+
+  // assigns user to role in facility (accounts for learner), errors otherwise
+  userPromise.then(model => {
+    // dispatches user model, modified if role is assigned.
+    store.dispatch('ADD_USER', _userState(assignUserRole(store, model, user.role)));
+  }, (error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
   });
 }
