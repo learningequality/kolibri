@@ -51,6 +51,7 @@ module.exports = function CoreApp() {
   const mediator = new Mediator();
 
   this.constants = require('../constants');
+  this.coreActions = require('../core-actions');
 
   Object.keys(Resources).forEach((resourceClassName) =>
     this.resources.registerResource(resourceClassName, Resources[resourceClassName]));

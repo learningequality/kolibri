@@ -34,7 +34,7 @@
 <script>
 
   const UserKinds = require('../../constants').UserKinds;
-  const actions = require('../../actions');
+  const actions = require('../../core-actions');
 
   module.exports = {
     components: {
@@ -60,24 +60,22 @@
           this.showDropdown = true;
         }
       },
-      ready() {
-        console.log('hi');
-      },
+      // user-dropdown
       userLogout() {
-        this.logOut();
+        this.logout(this.Kolibri);
         this.showDropdown = false;
       },
     },
     vuex: {
       actions: {
-        logIn: actions.logIn,
-        logOut: actions.logOut,
+        logout: actions.kolibriLogout,
       },
       getters: {
         loggedIn: state => state.core.session.kind !== UserKinds.ANONYMOUS,
         fullname: state => state.core.session.fullname,
         username: state => state.core.session.username,
         kind: state => state.core.session.kind,
+        error: state => state.core.session.error,
       },
     },
   };
@@ -109,20 +107,20 @@
     border-width: $border
     border-style: solid
     border-color: $core-action-normal
-    
+
   #user-dropdown
     display: block
-  
+
   #dropdown
     position: absolute
 
   .slide-transition
     transition: all 0.25s ease
     left: 0
-  
+
   .slide-enter, .slide-leave
     left: -300px
-    
+
   .user-dropdown
     box-shadow: 1px 1px 4px #e3e3e3
     border-radius: $radius
@@ -156,17 +154,17 @@
       border-bottom: 15px solid transparent
       border-right: 20px solid $core-bg-light
       -webkit-filter: drop-shadow(-3px 0 2px #e3e3e3)
-      
+
   #dropdown-name
     margin-top: 18px
     margin-bottom: 0 // html linting yelled at me for not being 'succinct' enough :(
-      
+
   #dropdown-username
     margin: 0
     color: $core-text-annotation
     font-size: 14px
     font-style: italic
-    
+
   #dropdown-usertype
     text-transform: uppercase
     color: $core-text-annotation

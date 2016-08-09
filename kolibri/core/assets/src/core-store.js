@@ -7,17 +7,16 @@ const initialState = {
   core: {
     error: '',
     loading: true,
-    session: { kind: UserKinds.ANONYMOUS },
+    session: { kind: UserKinds.ANONYMOUS, error: '200' },
   },
 };
 
 const mutations = {
   CORE_SET_SESSION(state, value) {
     state.core.session = value;
-    console.log('state.core.session: ', state.core.session);
   },
   CORE_CLEAR_SESSION(state) {
-    state.core.session = { kind: UserKinds.ANONYMOUS };
+    state.core.session = { kind: UserKinds.ANONYMOUS, error: '200' };
   },
   CORE_SET_PAGE_LOADING(state, value) {
     state.core.loading = value;

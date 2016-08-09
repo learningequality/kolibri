@@ -12,7 +12,7 @@
       <div slot="body">
         <input type="text" class="login-form login-username" v-model="username_entered" placeholder="Username" v-on:keyup.enter="userLogin" autofocus>
         <input type="password" class="login-form login-password" v-model="password_entered" placeholder="Password" v-on:keyup.enter="userLogin">
-        <button class="login-button" @click="userLogin">Login</button>  
+        <button class="login-button" @click="userLogin">Login</button>
       </div>
       <div slot="footer"></div>
       <div slot="openbtn">
@@ -27,7 +27,7 @@
 
 <script>
 
-  const actions = require('../../actions');
+  const actions = require('../../core-actions');
 
   module.exports = {
     components: {
@@ -41,11 +41,11 @@
     },
     methods: {
       userLogin() {
-        const store = {
+        const payload = {
           username: this.username_entered,
           password: this.password_entered,
         };
-        this.login(store);
+        this.login(this.Kolibri, payload);
       },
     },
     vuex: {
@@ -54,7 +54,7 @@
         userKind: state => state.core.session.kind,
       },
       actions: {
-        login: actions.logIn,
+        login: actions.kolibriLogin,
       },
     },
 	};
@@ -93,7 +93,7 @@
     &:hover
       background: $core-action-dark
       padding: 8px
-      
+
   .login-brand-box
     text-align: center
     margin: 15px auto
@@ -131,7 +131,7 @@
     transition: all 0.15s
     &:focus
       background: url('./icons/user-active.svg') no-repeat 8px 6px
-      
+
   .login-password
     background: url('./icons/password.svg') no-repeat 7px 3px
     transition: all 0.15s

@@ -2,8 +2,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.auth.models import AnonymousUser
-from rest_framework import filters, permissions, viewsets
-from rest_framework.decorators import api_view
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
 
 from .models import Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership, Role
@@ -126,22 +125,49 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
     filter_fields = ('parent',)
 
 
-@api_view(['POST'])
-def login_view(request):
-    username = request.data.get('username', '')
-    password = request.data.get('password', '')
-    facility_id = request.data.get('facility', None)
-    user = authenticate(username=username, password=password, facility=facility_id)
-    if user is not None and user.is_active:
-        # Correct password, and the user is marked "active"
-        login(request, user)
-        # Success!
-        return Response("Successfully logged in!")
-    else:
-        # Respond with error
-        return Response("User does not exist with those credentials!")
+class SessionViewSet(viewsets.ViewSet):
 
-@api_view(['POST'])
-def logout_view(request):
-    logout(request)
-    return Response("successfully logged out!")
+    def create(self, request):
+        username = request.data.get('username', '')
+        password = request.data.get('password', '')
+        facility_id = request.data.get('facility', None)
+        user = authenticate(username=username, password=password, facility=facility_id)
+        if user is not None and user.is_active:
+            # Correct password, and the user is marked "active"
+            login(request, user)
+            # Success!
+            return Response(self.get_session(request))
+        else:
+            # Respond with error
+            return Response("User credentials invalid!", status=status.HTTP_401_UNAUTHORIZED)
+
+    def destroy(self, request, pk=None):
+        logout(request)
+        return Response([])
+
+    def retrieve(self, request, pk=None):
+        return Response(self.get_session(request))
+
+    def get_session(self, request):
+        user = get_user(request)
+        if isinstance(user, AnonymousUser):
+            return {'id': None, 'username': '', 'full_name': '', 'user_id': None, 'facility_id': None, 'kind': 'ANONYMOUS', 'error': '200'}
+
+        session = {'id': 'current', 'username': user.username,
+                   'full_name': user.first_name + user.last_name,
+                   'user_id': user.id}
+        if isinstance(user, DeviceOwner):
+            session.update({'facility_id': None, 'kind': 'SUPERUSER', 'error': '200'})
+            return session
+        else:
+            roles = Role.objects.filter(user_id=user.id)
+            if len(roles) is not 0:
+                session.update({'facility_id': user.facility_id, 'kind': [], 'error': '200'})
+                for role in roles:
+                    if role.kind == 'admin':
+                        session['kind'].append('ADMIN')
+                    else:
+                        session['kind'].append('COACH')
+            else:
+                session.update({'facility_id': user.facility_id, 'kind': 'LEARNER', 'error': '200'})
+            return session

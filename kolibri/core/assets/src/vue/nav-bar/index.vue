@@ -16,6 +16,11 @@
     components: {
       'session-nav-widget': require('../session-nav-widget'),
     },
+    vuex: {
+      getters: {
+        session: state => state.core.session,
+      },
+    },
   };
 
 </script>

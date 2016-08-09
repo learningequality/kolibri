@@ -21,14 +21,13 @@ class FacilityUserBackend(object):
         :param facility: a Facility
         :return: A FacilityUser instance if successful, or None if authentication failed.
         """
-        try:
-            user = FacilityUser.objects.get(username=username, facility=facility)
+        users = FacilityUser.objects.filter(username=username)
+        if facility:
+            users = users.filter(facility=facility)
+        for user in users:
             if user.check_password(password):
                 return user
-            else:
-                return None
-        except FacilityUser.DoesNotExist:
-            return None
+        return None
 
     def get_user(self, user_id):
         """
