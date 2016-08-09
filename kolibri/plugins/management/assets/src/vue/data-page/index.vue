@@ -2,7 +2,7 @@
 
   <div>
     <h2>DATA</h2>
-    <button v-on:click="downloadCSV">Download CSV</button>
+    <button @click="downloadCSV">Download CSV</button>
   </div>
 
 </template>
