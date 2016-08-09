@@ -12,7 +12,7 @@ from kolibri.tasks.management.commands.base import AsyncCommand
 
 KolibriExportedChannelData = namedtuple(
     "KolibriExportedChannelData",
-    ["name", "id"],
+    ["name", "id", "path"],
 )
 
 
@@ -41,7 +41,7 @@ def discover_kolibri_data(folder):
     )
 
     if not os.path.exists(kolibri_export_root_dir):
-        return None
+        raise StopIteration     # exit out of generator early
 
     export_db_dir = os.path.join(
         kolibri_export_root_dir,
@@ -66,9 +66,12 @@ def read_channel_data(channeldbpath):
 
     cursor = conn.cursor()
 
+    fields = list(KolibriExportedChannelData._fields)
+    fields.remove('path')       # path is inserted by this function, and not determined from the DB
+
     query = "SELECT {fields} FROM {tablename}".format(
         tablename=channel_metadata_tablename,
-        fields=",".join(KolibriExportedChannelData._fields),
+        fields=",".join(fields),
     )
 
     result = cursor.execute(query)
@@ -80,6 +83,7 @@ def read_channel_data(channeldbpath):
         data = KolibriExportedChannelData(
             name=row[0],
             id=row[1],
+            path=channeldbpath,
         )
         yield data
 
