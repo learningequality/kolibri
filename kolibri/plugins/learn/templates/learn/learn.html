@@ -10,6 +10,13 @@
     model.synced = true;
     var collection = {{kolibri}}.resources.ContentNodeResource.getCollection({parent: root_node_pk}, JSON.parse("{{ nodes|escapejs }}"));
     collection.synced = true;
+
+    // Get list of channels.
+    var channels = JSON.parse("{{ channels | escapejs }}");
+    // Create model for channels.
+    var channelModel = {{kolibri}}.resources.ContentNodeResource.createModel(channels);
+    channelModel.synced = true;
+    var currentChannelId = channels[0].id; // TODO: API also fetches user-selected default channel or last visited via cookie.
   </script>
   {% learn_async_assets %}
   {% learn_assets %}

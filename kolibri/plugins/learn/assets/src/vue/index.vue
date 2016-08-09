@@ -1,9 +1,21 @@
 <template>
 
   <core-base>
+
     <main-nav slot="nav"></main-nav>
     <search-button slot="above" class='search-btn'></search-button>
+    <select slot="above" v-model="currentChannel" v-on:change="switchChannel($event)">
+      <option v-for="channel in channels" :value="channel.id">{{ channel.name }}</option>
+    </select>
     <component slot="content" :is="currentPage"></component>
+    <div slot="content">
+      <select v-model="currentChannel" v-on:change="switchChannel($event)">
+        <option v-for="channel in channels" :value="channel.id">
+          {{ channel.name }}
+        </option>
+      </select>
+      <component :is="currentPage"></component>
+    </div>
     <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
       <div class='search-shadow'>
         <search-widget
@@ -11,7 +23,6 @@
         </search-widget>
       </div>
     </div>
-
     <!-- this is not used, but necessary for vue-router to function -->
     <router-view></router-view>
 
@@ -59,12 +70,49 @@
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
       },
+      /*
+      * Get a list of channels.
+      */
+      channels() {
+        const channels = global.channels;
+        return channels;
+      },
+      /*
+      * Get the current channel ID.
+      */
+      currentChannel() {
+        return this.currentChannelId;
+      },
+    },
+    methods: {
+      /*
+      * Route to selected channel.
+      */
+      switchChannel(event) {
+        let rootPage;
+        if (this.exploreMode) {
+          rootPage = constants.PageNames.EXPLORE_ROOT;
+        } else {
+          rootPage = constants.PageNames.LEARN_ROOT;
+        }
+        this.$router.go(
+          {
+            name: rootPage,
+            params: {
+              channel_id: event.target.value,
+            },
+          }
+        );
+      },
     },
     vuex: {
       getters: {
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchOpen: state => state.searchOpen,
+        loading: state => state.loading,
+        error: state => state.error,
+        currentChannelId: state => state.currentChannelId,
       },
     },
     store, // make this and all child components aware of the store
@@ -85,6 +133,22 @@
     z-index: 1
     @media screen and (max-width: $portrait-breakpoint)
       right: 1rem
+
+  select
+    position: relative
+    float: right
+    right: $card-gutter
+    display: block
+    width: 11em
+    padding: 0.2em 0.8em
+    color: $core-text-annotation
+    font-size: 0.9rem
+    border: 1px solid $core-text-annotation
+    border-radius: 50px
+    background: url(./icons/arrowdown.svg) no-repeat right
+    -webkit-appearance: none
+    -moz-appearance: none
+    outline: none
 
   .search-pane
     background-color: $core-bg-canvas

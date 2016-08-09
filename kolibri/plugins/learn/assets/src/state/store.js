@@ -14,6 +14,7 @@ const initialState = {
     contents: [],
     searchTerm: '',
   },
+  currentChannelId: global.currentChannelId,
 };
 
 const mutations = {

@@ -1,4 +1,5 @@
 const Resources = require('kolibri').resources.ContentNodeResource;
+const ChannelResource = require('kolibri').resources.ChannelResource;
 const constants = require('./state/constants');
 const PageNames = constants.PageNames;
 
@@ -63,7 +64,14 @@ function _collectionState(data) {
  * These methods are used to update client-side state
  */
 
-function showExploreTopic(store, id) {
+
+function setChannelMetadata() {
+  return 1;
+}
+
+console.log(ChannelResource, setChannelMetadata());
+
+function showExploreTopic(store, id, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
@@ -77,6 +85,7 @@ function showExploreTopic(store, id) {
       const collection = _collectionState(children);
       pageState.subtopics = collection.topics;
       pageState.contents = collection.contents;
+      pageState.currentChannelId = channelId;
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
@@ -88,13 +97,14 @@ function showExploreTopic(store, id) {
 }
 
 
-function showExploreContent(store, id) {
+function showExploreContent(store, id, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
   Resources.getModel(id).fetch()
     .then((attributes) => {
       const pageState = { content: _contentState(attributes) };
+      pageState.currentChannelId = channelId;
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
@@ -106,13 +116,14 @@ function showExploreContent(store, id) {
 }
 
 
-function showLearnRoot(store) {
+function showLearnRoot(store, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
 
   Resources.getCollection({ recommendations: '' }).fetch()
     .then((recommendations) => {
       const pageState = { recommendations: recommendations.map(_contentState) };
+      pageState.currentChannelId = channelId;
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
@@ -124,7 +135,7 @@ function showLearnRoot(store) {
 }
 
 
-function showLearnContent(store, id) {
+function showLearnContent(store, id, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
 
@@ -137,6 +148,7 @@ function showLearnContent(store, id) {
         content: _contentState(attributes),
         recommended: recommended.map(_contentState),
       };
+      pageState.currentChannelId = channelId;
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);

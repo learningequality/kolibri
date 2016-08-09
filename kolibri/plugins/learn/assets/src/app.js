@@ -11,23 +11,23 @@ class LearnModule extends KolibriModule {
   ready() {
     router.on(
       PageNames.EXPLORE_ROOT,
-      '/explore',
+      `/explore/:channel_id`,
       (toRoute, fromRoute) => {
-        actions.showExploreTopic(store, store.state.rootTopicId);
+        actions.showExploreTopic(store, store.state.rootTopicId, store.state.currentChannelId);
       }
     );
 
     router.on(
       PageNames.EXPLORE_TOPIC,
-      '/explore/topic/:id',
+      `/explore/:channel_id/topic/:id`,
       (toRoute, fromRoute) => {
-        actions.showExploreTopic(store, toRoute.params.id);
+        actions.showExploreTopic(store, toRoute.params.id, toRoute.params.channel_id);
       }
     );
 
     router.on(
       PageNames.EXPLORE_CONTENT,
-      '/explore/content/:id',
+      '/explore/:channel_id/content/:id',
       (toRoute, fromRoute) => {
         actions.showExploreContent(store, toRoute.params.id);
       }
@@ -35,7 +35,7 @@ class LearnModule extends KolibriModule {
 
     router.on(
       PageNames.LEARN_ROOT,
-      '/learn',
+      '/learn/:channel_id',
       (toRoute, fromRoute) => {
         actions.showLearnRoot(store);
       }
@@ -43,7 +43,7 @@ class LearnModule extends KolibriModule {
 
     router.on(
       PageNames.LEARN_CONTENT,
-      '/learn/content/:id',
+      '/learn/:channel_id/content/:id',
       (toRoute, fromRoute) => {
         actions.showLearnContent(store, toRoute.params.id);
       }
@@ -58,7 +58,7 @@ class LearnModule extends KolibriModule {
     );
 
     router.redirect({
-      '/': '/explore',
+      '/': `/explore/${global.currentChannelId}`,
     });
 
     router.start(rootvue, 'rootvue');
