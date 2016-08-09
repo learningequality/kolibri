@@ -31,17 +31,6 @@
 
 
   module.exports = {
-
-<<<<<<< HEAD
-=======
-    data: () => ({
-      currScrollTop: 0,
-      delta: 5,
-      lastScrollTop: 0,
-      displayToolBar: false,
-    }),
-
->>>>>>> babba330a2ce675e8a3d0759714b81896f6d5959
     components: {
       'core-base': require('core-base'),
       'toolbar': require('./toolbar'),
