@@ -10,6 +10,5 @@ Getting Started
   changelog
   contributing
   authors
-  
-.. include:: ../README.rst
 
+.. include:: ../README.rst

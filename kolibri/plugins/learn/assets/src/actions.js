@@ -1,7 +1,14 @@
 const Resources = require('kolibri').resources.ContentNodeResource;
 const constants = require('./state/constants');
-
 const PageNames = constants.PageNames;
+
+
+/**
+ * Vuex State Mappers
+ *
+ * The methods below help map data from
+ * the API to state in the Vuex store
+ */
 
 function _crumbState(ancestors) {
   // skip the root node
@@ -10,6 +17,7 @@ function _crumbState(ancestors) {
     title: ancestor.title,
   }));
 }
+
 
 function _topicState(data) {
   const state = {
@@ -20,6 +28,7 @@ function _topicState(data) {
   };
   return state;
 }
+
 
 function _contentState(data) {
   const state = {
@@ -36,8 +45,26 @@ function _contentState(data) {
   return state;
 }
 
+
+function _collectionState(data) {
+  const topics = data
+    .filter((item) => item.kind === 'topic')
+    .map((item) => _topicState(item));
+  const contents = data
+    .filter((item) => item.kind !== 'topic')
+    .map((item) => _contentState(item));
+  return { topics, contents };
+}
+
+
+/**
+ * Actions
+ *
+ * These methods are used to update client-side state
+ */
+
 function showExploreTopic(store, id) {
-  store.dispatch('SET_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
   const attributesPromise = Resources.getModel(id).fetch();
@@ -47,84 +74,129 @@ function showExploreTopic(store, id) {
     .then(([attributes, children]) => {
       const pageState = { id };
       pageState.topic = _topicState(attributes);
-      pageState.subtopics = children
-        .filter((item) => item.kind === 'topic')
-        .map((item) => _topicState(item));
-      pageState.contents = children
-        .filter((item) => item.kind !== 'topic')
-        .map((item) => _contentState(item));
+      const collection = _collectionState(children);
+      pageState.subtopics = collection.topics;
+      pageState.contents = collection.contents;
       store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
     })
     .catch((error) => {
-      // TODO - how to parse and format?
-      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
+
 function showExploreContent(store, id) {
-  store.dispatch('SET_LOADING');
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
   Resources.getModel(id).fetch()
     .then((attributes) => {
-      const pageState = _contentState(attributes);
+      const pageState = { content: _contentState(attributes) };
       store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
     })
     .catch((error) => {
-      // TODO - how to parse and format?
-      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
+
 function showLearnRoot(store) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
-  store.dispatch('SET_PAGE_STATE', {}); // TODO
+
+  Resources.getCollection({ recommendations: '' }).fetch()
+    .then((recommendations) => {
+      const pageState = { recommendations: recommendations.map(_contentState) };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+    })
+    .catch((error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    });
 }
+
+
+function showLearnContent(store, id) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
+
+  const attributesPromise = Resources.getModel(id).fetch();
+  const recommendedPromise = Resources.getCollection({ recommendations_for: id }).fetch();
+
+  Promise.all([attributesPromise, recommendedPromise])
+    .then(([attributes, recommended]) => {
+      const pageState = {
+        content: _contentState(attributes),
+        recommended: recommended.map(_contentState),
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+    })
+    .catch((error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    });
+}
+
+
+function triggerSearch(store, searchTerm) {
+  if (!searchTerm) {
+    const searchState = {
+      searchTerm,
+      topics: [],
+      contents: [],
+    };
+    store.dispatch('SET_SEARCH_STATE', searchState);
+    return;
+  }
+
+  store.dispatch('SET_SEARCH_LOADING');
+
+  const contentCollection = Resources.getPagedCollection({ search: searchTerm });
+  const searchResultsPromise = contentCollection.fetch();
+
+  searchResultsPromise.then((results) => {
+    const searchState = { searchTerm };
+    const collection = _collectionState(results);
+    searchState.topics = collection.topics;
+    searchState.contents = collection.contents;
+    store.dispatch('SET_SEARCH_STATE', searchState);
+  })
+  .catch((error) => {
+    // TODO - how to parse and format?
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
+
+
+function toggleSearch(store) {
+  store.dispatch('TOGGLE_SEARCH');
+}
+
 
 function showScratchpad(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
   store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
 }
 
-function showSearchResults(store, params, page) {
-  store.dispatch('SET_SEARCH_LOADING', true);
-
-  const pageSize = 15;
-  const contentCollection = Resources.getPagedCollection({
-    search: params,
-  }, {
-    pageSize,
-    page,
-  });
-  const searchResultsPromise = contentCollection.fetch();
-
-  searchResultsPromise.then((results) => {
-    const searchState = { params };
-    searchState.pageCount = contentCollection.pageCount;
-    searchState.topics = results
-      .filter((item) => item.kind === 'topic')
-      .map((item) => _topicState(item));
-    searchState.contents = results
-      .filter((item) => item.kind !== 'topic')
-      .map((item) => _contentState(item));
-    store.dispatch('SET_SEARCH_STATE', searchState);
-    store.dispatch('SET_SEARCH_LOADING', false);
-  })
-  .catch((error) => {
-    // TODO - how to parse and format?
-    store.dispatch('SET_SEARCH_ERROR', JSON.stringify(error, null, '\t'));
-  });
-}
-
-const searchReset = ({ dispatch }) => {
-  dispatch('SET_SEARCH_LOADING', false);
-};
 
 module.exports = {
   showExploreTopic,
   showExploreContent,
   showLearnRoot,
+  showLearnContent,
   showScratchpad,
-  showSearchResults,
-  searchReset,
+  triggerSearch,
+  toggleSearch,
 };

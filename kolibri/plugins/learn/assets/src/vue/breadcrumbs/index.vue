@@ -1,14 +1,11 @@
 <template>
 
-  <nav>
+  <nav class="nav" role="navigation" aria-label="Breadcrumbs navigation">
     <span class="parent">
-      <a v-link="rootLink">All</a> /
+      <a v-link="rootLink">Explore</a> <span class='sep'>»</span>
     </span>
     <span class="parent" v-for="crumb in crumbs">
-      <a v-link="crumbLink(crumb.id)">{{ crumb.title }} </a> /
-    </span>
-    <span class="child">
-      {{ current | capitalize }}
+      <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a> <span class='sep'>»</span>
     </span>
   </nav>
 
@@ -27,10 +24,6 @@
       },
       crumbs: {
         type: Array,
-        required: true,
-      },
-      current: {
-        type: String,
         required: true,
       },
     },
@@ -54,13 +47,15 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  .sep
+    margin-left: 0.5em
+    margin-right: 0.5em
 
-  .parent , a
-    color: $core-text-annotation
+  .nav
+    margin-top: 2em
+    margin-bottom:1.4em
 
-  .child
-    color: $core-text-default
-    font-weight: 700
+  .parent a:link
+    font-weight: 300
 
 </style>

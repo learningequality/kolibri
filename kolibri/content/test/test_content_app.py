@@ -15,6 +15,7 @@ from ..constants import content_kinds
 from ..content_db_router import set_active_content_database, using_content_database
 from ..errors import ContentModelUsedOutsideDBContext
 from rest_framework.test import APITestCase
+from kolibri.auth.models import DeviceOwner
 
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
 CONTENT_DATABASE_DIR_TEMP = tempfile.mkdtemp()
@@ -36,6 +37,9 @@ class ContentNodeTestCase(TestCase):
     }
 
     def setUp(self):
+
+        # create DeviceOwner to pass the setup_wizard middleware check
+        DeviceOwner.objects.create(username='test-device-owner', password=123)
 
         # set the active content database for the duration of the test
         set_active_content_database(self.the_channel_id)
@@ -122,7 +126,7 @@ class ContentNodeTestCase(TestCase):
     def test_all_str(self):
 
         # test for File __str__
-        p = content.File.objects.get(id=2)
+        p = content.File.objects.get(id="725257a0570044acbd59f8cf6a68b2bf")
         self.assertEqual(str(p), '.mp4')
         # test for ContentTag __str__
         p = content.ContentTag.objects.get(tag_name="tag_2")
@@ -219,6 +223,8 @@ class ContentNodeAPITestCase(APITestCase):
     }
 
     def setUp(self):
+        # create DeviceOwner to pass the setup_wizard middleware check
+        DeviceOwner.objects.create(username='test-device-owner', password=123)
         # set the active content database for the duration of the test
         set_active_content_database(self.the_channel_id)
 
@@ -250,7 +256,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
         response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': c1_id}))
-        self.assertEqual(response.data['pk'], c1_id)
+        self.assertEqual(response.data['pk'], c1_id.__str__())
 
     def test_contentnode_field_filtering(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
@@ -262,7 +268,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_contentnode_recommendations(self):
         root_id = content.ContentNode.objects.get(title="root").id
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": root_id})
-        self.assertEqual(len(response.data), 5)
+        self.assertEqual(len(response.data), 2)
 
     def test_channelmetadata_list(self):
         data = content.ChannelMetadata.objects.values()[0]
@@ -278,14 +284,14 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_channelmetadata_recommendations(self):
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations": ""})
-        self.assertEqual(len(response.data), 6)
+        self.assertEqual(len(response.data), 2)
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
         self.assertEqual(len(response.data), 5)
 
     def test_file_retrieve(self):
-        response = self.client.get(self._reverse_channel_url("file-detail", {'pk': 1}))
+        response = self.client.get(self._reverse_channel_url("file-detail", {'pk': "9f9438fe6b0d42dd8e913d7d04cfb2b1"}))
         self.assertEqual(response.data['preset'], 'high_res_video')
 
     def tearDown(self):

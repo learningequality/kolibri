@@ -44,6 +44,9 @@ test:
 test-all:
 	tox
 
+assets: staticdeps
+	npm run build
+
 coverage:
 	coverage run --source kolibri setup.py test
 	coverage report -m
@@ -52,11 +55,16 @@ docs: clean-docs
 	sphinx-apidoc -d 10 -H "Python Reference" -o docs/py_modules/ kolibri kolibri/test kolibri/deployment/ kolibri/dist/
 	$(MAKE) -C docs html
 
-release: clean
+release: clean assets
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 
-sdist: clean
-	python setup.py sdist
+staticdeps: clean
+	DISABLE_SQLALCHEMY_CEXT=1 pip install -t kolibri/dist/ -r requirements.txt
+
+dist: staticdeps assets
+	pip install -r requirements/build.txt
+	python setup.py sdist > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel
+	pex . --disable-cache -o dist/`python setup.py --fullname`.pex -m kolibri --python-shebang=/usr/bin/python
 	ls -l dist

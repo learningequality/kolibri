@@ -5,10 +5,6 @@ from kolibri.content import models, serializers
 from rest_framework import filters, pagination, viewsets
 
 
-# from kolibri.logger.models import ContentInteractionLog
-# from django.db.models.aggregates import Count
-
-
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ChannelMetadataCacheSerializer
 
@@ -26,28 +22,30 @@ class ContentNodeFilter(filters.FilterSet):
         fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'recommendations']
 
     def title_description_filter(self, queryset, value):
-        # only return the first 30 results to avoid major slow down
+        """
+        search for title or description that contains the keywords that are not necessary in adjacent
+        """
+        exact_match = queryset.filter(Q(parent__isnull=False), Q(title__icontains=value) | Q(description__icontains=value))
+        if exact_match:
+            return exact_match
+        # if no exact match, search for non-adjacent match
         return queryset.filter(
-            Q(title__icontains=value) | Q(description__icontains=value)
-        )
+            Q(parent__isnull=False),
+            reduce(lambda x, y: x & y, [Q(title__icontains=word) for word in value.split()]) |
+            reduce(lambda x, y: x & y, [Q(description__icontains=word) for word in value.split()]))
 
     def filter_recommendations_for(self, queryset, value):
         recc_node = queryset.get(pk=value)
-        descendants = recc_node.get_descendants(include_self=False)
-        siblings = recc_node.get_siblings(include_self=False)
+        descendants = recc_node.get_descendants(include_self=False).exclude(kind__in=['topic', ''])
+        siblings = recc_node.get_siblings(include_self=False).exclude(kind__in=['topic', ''])
         data = descendants | siblings  # concatenates different querysets
         return data
 
     def filter_recommendations(self, queryset, value):
-        # if ContentInteractionLog.objects.count() == 0:
-        content_ids = queryset.values_list('content_id', flat=True)
-        count = queryset.count()
-        if count > 100:
-            count = 100
-        return queryset.filter(content_id__in=sample(list(content_ids), count))  # return 100 random content nodes
-        #     content_counts_sorted = ContentInteractionLog.objects.values('content_id').annotate(Count('content_id')).order_by('-content_id__count')
-        #     return queryset.filter(
-        #         content_id__in=[content['content_id'] for content in content_counts_sorted][:10])  # return the 10 most frequently accessed pieces of content
+        # return 25 random content nodes
+        pks = queryset.values_list('pk', flat=True).exclude(kind__in=['topic', ''])
+        count = min(pks.count(), 25)
+        return queryset.filter(pk__in=sample(list(pks), count))
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):

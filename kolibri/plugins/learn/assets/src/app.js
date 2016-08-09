@@ -1,7 +1,7 @@
 const KolibriModule = require('kolibri_module');
+const router = require('router');
 
 const rootvue = require('./vue');
-const router = require('./router');
 const actions = require('./actions');
 const store = require('./state/store');
 const PageNames = require('./state/constants').PageNames;
@@ -38,6 +38,14 @@ class LearnModule extends KolibriModule {
       '/learn',
       (toRoute, fromRoute) => {
         actions.showLearnRoot(store);
+      }
+    );
+
+    router.on(
+      PageNames.LEARN_CONTENT,
+      '/learn/content/:id',
+      (toRoute, fromRoute) => {
+        actions.showLearnContent(store, toRoute.params.id);
       }
     );
 

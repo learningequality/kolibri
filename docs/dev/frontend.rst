@@ -56,8 +56,8 @@ For example:
       management/
         assets/
           src/
-            learner-roster.vue  # nested-view
-            vue/index.vue        # root view
+            vue/user-page.vue   # nested-view
+            vue/index.vue       # root view
             app.js              # instantiate mgmt app on client-side
           test/
             app.js
@@ -70,6 +70,21 @@ In the example above, the *vue/another-page/index.vue* file in *learn* can use o
   For many development scenarios, only files in these directories need to be touched.
 
   There is also a lot of logic and configuration relevant to front-end code loading, parsing, testing, and linting. This includes webpack, NPM, and integration with the plugin system. This is somewhat scattered, and includes logic in *frontend_build/...*, *package.json*, *kolibri/core/webpack/...*, and other locations. Much of this functionality is described in other sections of the docs (such as :doc:`asset_loading`), but it can take some time to understand how it all hangs together.
+
+
+SVG Icons
+---------
+
+SVGs can be inlined into Vue components using a special syntax:
+
+
+.. code-block:: html
+
+  <svg src="icon.svg"></svg>
+
+Then, if there is a file called ``icon.svg`` in the same directory, that file will be inserted directly into the outputted HTML. This allows aspects of the icon (e.g. fill) to be styled using CSS.
+
+Attributes (such as vue directives like ``v-if`` and SVG attributes like ``viewbox``) can also be added to the svg tag.
 
 
 Single-page Apps
@@ -124,7 +139,7 @@ These can be used in code with a standard CommonJS-style require statement - e.g
 
   Due to the mechanics of the `plugin and webpack build system <asset_loading>`_, adding additional globally-available objects is somewhat complicated.
 
-  References to the objects are attached to the ``kolibriGlobal`` object in *core_app_constructor.js*, and mapped to globally accessible names in *webpack.config.js*.
+  References to the objects are attached to the ``kolibriGlobal`` object in *core-app/constructor.js*, and mapped to globally accessible names in *webpack.config.js*.
 
 
 
@@ -183,3 +198,14 @@ Tests are written in JavaScript, and placed in the 'assets/test' folder. An exam
 
 Vue.js components can also be tested. The management plugin contains an example (*kolibri/plugins/management/assets/test/management.js*) where the component is bound to a temporary DOM node, changes are made to the state, and assertions are made about the new component structure.
 
+
+Adding Dependencies
+-------------------
+
+Dependencies are tracked using ``npm shrinkwrap`` - `see the docs here <https://docs.npmjs.com/cli/shrinkwrap>`_.
+
+We distinguish development dependencies from runtime dependencies, and these should be installed as such using ``npm install --save-dev [dep]`` or ``npm install --save [dep]``, respectively. Then you'll need to run ``npm shrinkwrap``. Your new dependency should now be recorded in *package.json*, and all of its dependencies should be recorded in *npm-shrinkwrap.json*.
+
+Note that we currently don't have a way of mapping dependencies to plugins - dependencies are installed globally.
+
+To assist in tracking the source of bloat in our codebase, the command ``npm run bundle-stats`` is available to give a full readout of the size that uglified packages take up in the final Javascript code.

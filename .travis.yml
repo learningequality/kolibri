@@ -10,6 +10,7 @@ sudo: false
 cache:
   directories:
     - node_modules
+    - $HOME/.cache/pip
 
 matrix:
   include:

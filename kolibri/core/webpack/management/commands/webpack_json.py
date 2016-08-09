@@ -12,12 +12,21 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    args = ()
     help = 'Creates a new schema'  # @ReservedAssignment
-    option_list = BaseCommand.option_list + ()
+
+    def add_arguments(self, parser):
+        parser.add_argument('--outputfile', type=str, default=None, dest="output_file")
 
     def handle(self, *args, **options):
 
         logging.debug(args)
 
-        print(json.dumps([hook.webpack_bundle_data for hook in WebpackBundleHook().registered_hooks]))
+        result = [hook.webpack_bundle_data for hook in WebpackBundleHook().registered_hooks]
+
+        if options["output_file"]:
+            logger.info("Writing webpack_json output to {}".format(options["output_file"]))
+            with open(options["output_file"], "w") as f:
+                json.dump(result, f)
+        else:
+            logger.info("No output file argument; writing webpack_json output to stdout.")
+            self.stdout.write(json.dumps(result))
