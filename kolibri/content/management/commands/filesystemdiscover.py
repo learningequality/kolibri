@@ -1,3 +1,5 @@
+import json
+import logging
 import os
 import sqlite3
 from collections import namedtuple
@@ -14,16 +16,22 @@ KolibriExportedChannelData = namedtuple(
 )
 
 
+logger = logging.getLogger(__name__)
+
+
 class Command(AsyncCommand):
 
     def add_arguments(self, parser):
         pass
 
     def handle_async(self, *args, **options):
-        drives = psutil.disk_partitions()
+        drives = psutil.disk_partitions(all=True)
 
+        discovered_drives = []
         for drive in drives:
-            discover_kolibri_data(drive.mountpoint)
+            discovered_drives += list(discover_kolibri_data(drive.mountpoint))
+
+        return json.dumps([d._asdict() for d in discovered_drives])
 
 
 def discover_kolibri_data(folder):
@@ -45,6 +53,10 @@ def discover_kolibri_data(folder):
 
     for path in channel_db_paths:
         for channeldata in read_channel_data(path):
+            logger.info("Found {path} with name {name}".format(
+                path=path,
+                name=channeldata.name)
+            )
             yield channeldata
 
 
