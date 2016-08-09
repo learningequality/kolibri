@@ -13,11 +13,11 @@ For example, this is how the client side dynamically requests data from a specif
 
     >>> localhost:8000/api/content/<channel_1_id>/contentnode
 
-this will respond with all the contentnode data stored in database .sqlite3
+this will respond with all the contentnode data stored in database <channel_1_id>.sqlite3
 
     >>> localhost:8000/api/content/<channel_2_id>/contentnode
 
-this will respond with all the contentnode data stored in database channel_2_id.sqlite3
+this will respond with all the contentnode data stored in database <channel_2_id>.sqlite3
 
 get_active_content_database
 ---------------------------
@@ -108,9 +108,8 @@ There are two workflows we currently designed to handle content UI rendering and
 - Content Playback Rendering
 
 1. Start with a ContentNode object.
-2. Select a preset constant based on this object's ``kind`` field.
-3. Use the preset constant to retrieve the queryset of all the File objects that have foreign key to this ContentNode object.
-4. Use the ``thumbnail`` field as a filter on this queryset to get the File object and call this File object's ``get_url`` method to get the source file (the thumbnail image)
-5. Use the ``supplementary`` field as a filter on this queryset to get the "supplementary" File objects, such as caption (subtitle), and call these File objects' ``get_url`` method to get the source files
-6. Use the ``supplementary`` field as a filter on this queryset to get the essential File object. Call its ``get_url`` method to get the source file and use its ``extension`` field to choose the content player.
-7. Play the content.
+2. Retrieve a queryset of associated File objects that are filtered by the preset.
+3. Use the ``thumbnail`` field as a filter on this queryset to get the File object and call this File object's ``get_url`` method to get the source file (the thumbnail image)
+4. Use the ``supplementary`` field as a filter on this queryset to get the "supplementary" File objects, such as caption (subtitle), and call these File objects' ``get_url`` method to get the source files
+5. Use the ``supplementary`` field as a filter on this queryset to get the essential File object. Call its ``get_url`` method to get the source file and use its ``extension`` field to choose the content player.
+6. Play the content.
