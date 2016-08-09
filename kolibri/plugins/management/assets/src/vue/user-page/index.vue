@@ -17,10 +17,13 @@
         <option value="learner"> Learners </option>
       </select>
 
-      <input
-        v-model="searchFilter"
+    <div class="searchbar">
+        <svg class="search-button" src="../icons/search.svg"></svg>
+        <input
         type="search"
+        v-model="searchFilter"
         placeholder="Search for a user...">
+    </div>
 
       <div class="create">
         <user-create-modal></user-create-modal>
@@ -184,17 +187,16 @@
 
   input[type='search']
     display: inline-block
-    border: 1px solid #ccc
-    box-shadow: inset 0 1px 3px #ddd
-    border-radius: 2em
-    padding: 0.5em 1em
-    vertical-align: middle
     box-sizing: border-box
     position: relative
     left: 10px
+    height: 100%
+    width: 88%
+    border-color: transparent
+    background-color: transparent
     &:focus
       outline: none
-      border-color: $core-text-annotation
+      border-color: transparent
 
   select[name='user-filter']
     float: left
@@ -242,30 +244,27 @@
     border-radius: 40px
     margin-left: 20px
 
-  .search-button
-    width: 20px
-    height: 20px
-
   .searchbar .search-button
     display: inline-block
     float: left
     position: relative
-    left: 5px
-    top: 1px
+    fill: $core-text-annotation
+    left: 7px
+    top: 5px
 
-  .searchbar:after
-    content: ''
-    display: table
-    clear: both
+  // .searchbar:after
+  //   content: ''
+  //   display: table
+  //   clear: both
 
   .searchbar
     border-radius: 5px
     padding: inherit
-    border: 1px solid #686868
+    border: 1px solid #c0c0c0
     width: 40%
     min-width: 200px
     max-width: 300px
-    height: 25px
+    height: 35px
     float: left
     position: relative
     left: 10px
