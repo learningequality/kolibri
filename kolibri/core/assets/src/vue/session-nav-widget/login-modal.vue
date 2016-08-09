@@ -52,6 +52,7 @@
       getters: {
         loginIcon: state => state.core.loginModalOpen,
         userKind: state => state.core.session.kind,
+        error: state => state.core.session.error,
       },
       actions: {
         login: actions.kolibriLogin,
