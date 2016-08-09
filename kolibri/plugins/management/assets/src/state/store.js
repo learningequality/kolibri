@@ -25,16 +25,8 @@ const mutations = {
       });
     });
   },
-  DELETE_USERS(state, ids) {
-    ids.forEach(id => {
-      state.users.forEach((user, index) => {
-        if (user.id === id) {
-          if (index > -1) {
-            state.users.splice(index, 1);
-          }
-        }
-      });
-    });
+  DELETE_USER(state, id) {
+    state.users = state.users.filter(user => user.id !== id);
   },
   SET_FACILITY(state, id) {
     state.facility = id;
