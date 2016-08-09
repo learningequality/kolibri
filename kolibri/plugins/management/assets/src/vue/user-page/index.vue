@@ -11,9 +11,7 @@
     <div class="toolbar">
       <select v-model="roleFilter" name="user-filter">
         <option selected value="all"> All Users </option>
-        <option v-bind:value="role" v-for="role in roles">
-          {{role.kind | capitalize}}s
-        </option>
+        <option value="admin"> Admins </option>
         <option value="learner"> Learners </option>
       </select>
 
@@ -46,7 +44,7 @@
         <tr v-for="user in visibleUsers">
           <!-- Student Name field -->
           <td>
-            {{user.first_name}} {{user.last_name}}
+            {{user.full_name}}
 
             <!-- Logic for role tags -->
             <span class="user-role" v-for="role in user.roles">
@@ -65,8 +63,7 @@
               :userid="user.id"
               :roles="user.roles"
               :username="user.username"
-              :firstname="user.first_name"
-              :lastname="user.last_name">
+              :fullname="user.full_name">
             </user-edit-modal>
           </td>
 
@@ -105,8 +102,7 @@
 
         return this.users.filter((user) => {
           // fullname created using es6 templates
-          const fullname = `${user.first_name} ${user.last_name}`;
-          const names = [fullname, user.username];
+          const names = [user.full_name, user.username];
 
           let hasRole = true;
           let hasName = true;
@@ -151,7 +147,6 @@
     vuex: {
       getters: {
         users: state => state.pageState.users,
-        roles: state => state.pageState.roles,
       },
       actions: {
         deleteUser: actions.deleteUser,

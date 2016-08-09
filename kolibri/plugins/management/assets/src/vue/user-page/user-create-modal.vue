@@ -7,12 +7,8 @@
 
       <section slot="body">
         <div class="user-field">
-          <label for="name">First Name</label>
-          <input type="text" autocomplete="name"  autofocus="true" required v-model="firstName">
-        </div>
-        <div class="user-field">
-          <label for="name">Last Name</label>
-          <input type="text" autocomplete="name"  autofocus="true" required v-model="lastName">
+          <label for="name">Name</label>
+          <input type="text" autocomplete="name"  autofocus="true" required v-model="fullName">
         </div>
         <div class="user-field">
           <label for="username">Username</label>
@@ -69,8 +65,7 @@
         const payload = {
           password: this.password,
           username: this.username,
-          first_name: this.firstName,
-          last_name: this.lastName,
+          full_name: this.fullName,
           facility: this.facility,
           role: this.role,
         };

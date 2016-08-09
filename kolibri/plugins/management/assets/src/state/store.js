@@ -18,8 +18,7 @@ const mutations = {
       state.users.forEach(existingUser => {
         if (existingUser.id === user.id.toString()) {
           existingUser.username = user.username;
-          existingUser.first_name = user.first_name;
-          existingUser.last_name = user.last_name;
+          existingUser.full_name = user.full_name;
           existingUser.roles = user.roles;
         }
       });

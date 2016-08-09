@@ -25,8 +25,7 @@ function _userState(data) {
   return {
     id: data.id,
     username: data.username,
-    first_name: data.first_name,
-    last_name: data.last_name,
+    full_name: data.full_name,
     roles: data.roles,
     kind, // unused for now
   };
@@ -179,10 +178,11 @@ function updateUser(store, id, payload, role) {
  */
 function deleteUser(store, id) {
   if (id) {
-    // gets the model, calls delete, and sets rules for promise
+    // gets the model, deletes from resource layer
     Kolibri.resources.FacilityUserResource.getModel(id).delete(id).then(
       userId => {
-        store.dispatch('DELETE_USERS', [userId]);
+        // updates the view store
+        store.dispatch('DELETE_USER', userId);
       },
       error => {
         store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -195,32 +195,15 @@ function showUserPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.USER_MGMT_PAGE);
   const userCollection = FacilityUserResource.getCollection();
-  const roleCollection = RoleResource.getCollection();
   const facilityIdPromise = FacilityUserResource.getCurrentFacility();
-  const rolePromise = roleCollection.fetch();
   const userPromise = userCollection.fetch();
 
-  const promises = [facilityIdPromise, userPromise, rolePromise];
+  const promises = [facilityIdPromise, userPromise];
 
-  Promise.all(promises).then(([facilityId, users, roles]) => {
+  Promise.all(promises).then(([facilityId, users]) => {
     store.dispatch('SET_FACILITY', facilityId[0]); // for mvp, we assume only one facility exists
 
-    // used to efficiently check for dupes
-    const uniqueRoles = {};
-    // returns array with removed duplicates
-    const filteredRoles = roles.filter(role => {
-      if (uniqueRoles.hasOwnProperty(role)) {
-        return false;
-      }
-      return (uniqueRoles[role] = true);
-    });
-
-    const pageState = {
-      users: users.map(_userState),
-      roles: filteredRoles,
-    };
-
-    store.dispatch('SET_PAGE_STATE', pageState);
+    store.dispatch('SET_PAGE_STATE', users.map(_userState));
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('CORE_SET_ERROR', null);
   },
