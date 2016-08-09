@@ -9,7 +9,6 @@
     <span> ( {{ users.length }} )</span>
 
     <div class="toolbar">
-
       <select v-model="roleFilter" name="user-filter">
         <option selected value="all"> All Users </option>
         <option v-bind:value="role" v-for="role in roles">
@@ -199,6 +198,9 @@
 
   select[name='user-filter']
     float: left
+    background-color: $core-bg-light
+    border-color: $core-action-light
+    height: 35px
 
   .roster
     width: 100%

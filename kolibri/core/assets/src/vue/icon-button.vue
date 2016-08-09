@@ -46,9 +46,9 @@
 
   // styles specific to secondary button
   .secondary
-    background-color: $core-action-dark
+    background-color: $core-action-normal
     border: none
-    color: $core-action-light
+    color: $core-bg-canvas
 
     // fighting button styling in core global. Need refactor
     &:hover
@@ -56,7 +56,7 @@
       border: none
 
     svg
-      fill: $core-action-light
+      fill: $core-bg-canvas
 
 </style>
 
