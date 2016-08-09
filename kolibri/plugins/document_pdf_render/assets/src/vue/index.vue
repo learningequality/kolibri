@@ -3,7 +3,7 @@
   <div>
     <h3 class="progress-percent">
       <i class="progress-saving" v-if="saving">Saving Progress...&nbsp;</i>
-      {{ progress }}%
+      {{ Math.floor(progress * 100) }}%
     </h3>
     <div v-el:container class="container" allowfullscreen>
       <button class='btn' v-if="supportsPDFs" v-on:click="togglefullscreen">Toggle Fullscreen</button>
@@ -75,7 +75,7 @@
     vuex: {
       actions: require('learn-actions'),
       getters: {
-        progress: (state) => state.pageState.logging.summary.display_progress,
+        progress: (state) => state.pageState.logging.summary.progress,
         // totalTime: (state) => state.pageState.logging.summary.total_time,
         // elapsedTime: (state) => state.pageState.logging.interaction.total_time,
         saving: (state) => state.pageState.logging.summary.pending_save,

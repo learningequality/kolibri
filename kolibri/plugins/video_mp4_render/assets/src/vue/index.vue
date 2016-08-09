@@ -3,7 +3,7 @@
   <div>
     <h3 class="progress-percent">
       <i class="progress-saving" v-if="saving">Saving Progress...&nbsp;</i>
-      {{ progress }}%
+      {{ Math.floor(progress * 100) }}%
     </h3>
     <div v-el:videowrapper class="videowrapper">
       <video v-el:video class="video-js vjs-default-skin" @seeking="recordProgress" @timeupdate="updateTime">
@@ -120,7 +120,7 @@
 
       updateTime() {
         this.dummyTime = this.videoPlayer.currentTime();
-        if (this.dummyTime - this.lastUpdateTime >= 5000) {
+        if (this.dummyTime - this.lastUpdateTime >= 5) {
           this.recordProgress();
           this.lastUpdateTime = this.dummyTime;
         }
@@ -209,10 +209,9 @@
     vuex: {
       actions: require('learn-actions'),
       getters: {
-        progress: (state) => state.pageState.logging.summary.display_progress,
+        progress: (state) => state.pageState.logging.summary.progress,
         saving: (state) => state.pageState.logging.summary.pending_save,
       },
-      global.removeEventListener('resize', this.debouncedResizeVideo);
     },
   };
 

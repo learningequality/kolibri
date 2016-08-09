@@ -3,7 +3,7 @@
   <div id="audio-wrapper">
     <h3 class="progress-percent">
       <i class="progress-saving" v-if="saving">Saving Progress...&nbsp;</i>
-      {{ progress }}%
+      {{ Math.floor(progress * 100) }}%
     </h3>
     <div id="play-and-time">
       <button
@@ -102,8 +102,8 @@
     },
 
     beforeDestroy() {
-      this.recordProgress();
       this.stopTrackingProgress();
+      this.recordProgress();
     },
 
     ready() {
@@ -115,10 +115,12 @@
         this.$els.audio.play();
         this.isPlay = false;
         this.isPause = true;
+        this.recordProgress();
         this.startTrackingProgress();
       },
 
       pause() {
+        this.recordProgress();
         this.$els.audio.pause();
         this.isPlay = true;
         this.isPause = false;
@@ -139,7 +141,7 @@
 
       updateDummyTime() {
         this.dummyTime = this.$els.audio.currentTime;
-        if (this.dummyTime - this.lastUpdateTime >= 5000) {
+        if (this.dummyTime - this.lastUpdateTime >= 5) {
           this.recordProgress();
           this.lastUpdateTime = this.dummyTime;
         }
@@ -190,7 +192,7 @@
     vuex: {
       actions: require('learn-actions'),
       getters: {
-        progress: (state) => state.pageState.logging.summary.display_progress,
+        progress: (state) => state.pageState.logging.summary.progress,
         saving: (state) => state.pageState.logging.summary.pending_save,
       },
     },

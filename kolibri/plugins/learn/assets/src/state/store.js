@@ -37,6 +37,23 @@ const mutations = {
   SET_LOGGING_STATE(state, loggingState) {
     state.pageState.logging = loggingState;
   },
+  SET_LOGGING_PROGRESS(state, sessionProgress, summaryProgress) {
+    state.pageState.logging.session.progress = sessionProgress;
+    state.pageState.logging.summary.progress = summaryProgress;
+  },
+  SET_LOGGING_COMPLETION_TIME(state, time) {
+    state.pageState.logging.summary.completion_timestamp = time;
+  },
+  SET_LOGGING_TIME(state, sessionTime, summaryTime, currentTime) {
+    state.pageState.logging.session.end_timestamp = currentTime;
+    state.pageState.logging.summary.end_timestamp = currentTime;
+    state.pageState.logging.session.time_spent = sessionTime;
+    state.pageState.logging.summary.time_spent = summaryTime;
+  },
+  SET_LOGGING_PENDING(state, summaryPending, sessionPending) {
+    state.pageState.logging.summary.pending_create = summaryPending;
+    state.pageState.logging.session.pending_create = sessionPending;
+  },
 };
 
 // assigns core state and mutations
