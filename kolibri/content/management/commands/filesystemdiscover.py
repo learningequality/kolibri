@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 import sqlite3
@@ -15,6 +14,18 @@ KolibriExportedChannelData = namedtuple(
     ["name", "id", "path"],
 )
 
+DriveData = namedtuple(
+    "DriveData",
+    [
+        "kind",
+        "name",
+        "id",
+        "writeable",
+        "has_content",
+        "channels",
+    ]
+)
+
 
 logger = logging.getLogger(__name__)
 
@@ -27,11 +38,20 @@ class Command(AsyncCommand):
     def handle_async(self, *args, **options):
         drives = psutil.disk_partitions(all=True)
 
-        discovered_drives = []
+        discovered_drives = {}
         for drive in drives:
-            discovered_drives += list(discover_kolibri_data(drive.mountpoint))
+            channels = list(discover_kolibri_data(drive.mountpoint))
 
-        return json.dumps([d._asdict() for d in discovered_drives])
+            discovered_drives[drive] = DriveData(
+                kind="localdrive",
+                id=drive.mountpoint,
+                name=drive.mountpoint,
+                writeable=False,             # Everything is false for now, TODO later
+                has_content=bool(channels),  # True if we found channels in it
+                channels=channels,
+            )
+
+        return discovered_drives
 
 
 def discover_kolibri_data(folder):
