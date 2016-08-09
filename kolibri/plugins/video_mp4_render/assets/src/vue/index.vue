@@ -6,7 +6,7 @@
       {{ Math.floor(progress * 100) }}%
     </h3>
     <div v-el:videowrapper class="videowrapper">
-      <video v-el:video class="video-js vjs-default-skin" @seeking="recordProgress" @timeupdate="updateTime">
+      <video v-el:video class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type='"video/" + video.extension'>
         </template>
@@ -125,10 +125,15 @@
           this.lastUpdateTime = this.dummyTime;
         }
       },
+      handleSeek() {
+        this.recordProgress();
+        this.dummyTime = this.videoPlayer.currentTime();
+        this.lastUpdateTime = this.dummyTime;
+      },
 
       recordProgress() {
-        this.updateProgress((this.dummyTime
-          - this.progressStartingPoint) / Math.floor(this.videoPlayer.duration()));
+        this.updateProgress(Math.max(0, (this.dummyTime - this.progressStartingPoint) /
+          Math.floor(this.videoPlayer.duration())));
         this.progressStartingPoint = this.videoPlayer.currentTime();
       },
     },

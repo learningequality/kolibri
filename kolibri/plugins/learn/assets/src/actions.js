@@ -360,7 +360,6 @@ function updateTimeSpent(store) {
 function updateTimerCallback(store, forceSave = false) {
   /* Create aliases for logs */
   const sessionLog = store.state.pageState.logging.session;
-  const summaryLog = store.state.pageState.logging.summary;
 
   /* Update timing values */
   this.updateTimeSpent();
@@ -382,20 +381,23 @@ function updateTimerCallback(store, forceSave = false) {
  * Must be called after initContentSession
  */
 function saveLogs(store) {
+  /* Create aliases for logs */
   const summaryLog = store.state.pageState.logging.summary;
   const sessionLog = store.state.pageState.logging.session;
-  const createSummary = !summaryLog.id;
-  const createSession = !sessionLog.id;
 
   /* Only continue if session and summary models are not being created */
   if (!sessionLog.pending_create && !summaryLog.pending_create) {
-    /* Get session model to update with new values */
+    /* Determine whether summary and session models have been created */
+    const createSummary = !summaryLog.id;
+    const createSession = !sessionLog.id;
+
+    /* Get session model to update with new values (create if doesn't exist) */
     const sessionModel = (createSession) ?
       ContentSessionLogResource.createModel() :
       ContentSessionLogResource.getModel(sessionLog.id);
     const sessionPromise = sessionModel.save(_contentSessionModel(store));
 
-    /* Get summary model to update with new values */
+    /* Get summary model to update with new values (create if doesn't exist) */
     const summaryModel = (createSummary) ?
       ContentSummaryLogResource.createModel() :
       ContentSummaryLogResource.getModel(summaryLog.id);
@@ -406,8 +408,6 @@ function saveLogs(store) {
 
     /* Perform save on summary and session models */
     Promise.all([summaryPromise, sessionPromise]).then((models) => {
-      console.log('Updated!:', models);
-
       /* Update logging state with returned values */
       const postSaveState = {
         summary: _contentSummaryLoggingState(models[0]),

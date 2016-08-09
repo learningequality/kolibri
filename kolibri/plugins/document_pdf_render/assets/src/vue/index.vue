@@ -54,10 +54,6 @@
           }
         }
       },
-
-      handleScroll() {
-        console.log('scrolling...');
-      },
     },
     ready() {
       this.initContentSession();

@@ -35,7 +35,7 @@
       @timeupdate="updateDummyTime"
       @loadedmetadata="setTotalTime"
       @ended="endPlay"
-      @seeking="recordProgress"
+      @seeking="handleSeek"
       :src="defaultFile.storage_url"
     ></audio>
   </div>
@@ -102,8 +102,8 @@
     },
 
     beforeDestroy() {
-      this.stopTrackingProgress();
       this.recordProgress();
+      this.stopTrackingProgress();
     },
 
     ready() {
@@ -120,10 +120,10 @@
       },
 
       pause() {
-        this.recordProgress();
         this.$els.audio.pause();
         this.isPlay = true;
         this.isPause = false;
+        this.recordProgress();
         this.stopTrackingProgress();
       },
 
@@ -184,8 +184,15 @@
         this.rawTime = sum;
       },
 
+      handleSeek() {
+        this.recordProgress();
+        this.dummyTime = this.$els.audio.currentTime;
+        this.lastUpdateTime = this.dummyTime;
+      },
+
       recordProgress() {
-        this.updateProgress((this.dummyTime - this.progressStartingPoint) / Math.floor(this.max));
+        this.updateProgress(Math.max((this.dummyTime
+          - this.progressStartingPoint) / Math.floor(this.max), 0));
         this.progressStartingPoint = this.$els.audio.currentTime;
       },
     },
