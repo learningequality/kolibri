@@ -65,7 +65,7 @@
   .title
     display: table-cell
     width: 100%
-    height: 100%
+    height: $min-height
     padding: 0.8em
     padding-left: $min-height
     vertical-align: middle
