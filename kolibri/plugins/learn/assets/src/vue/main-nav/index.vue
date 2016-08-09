@@ -61,4 +61,7 @@
 
   @require '~nav-bar-item.styl'
 
+  a.active:focus svg
+    fill: $core-action-normal
+
 </style>
