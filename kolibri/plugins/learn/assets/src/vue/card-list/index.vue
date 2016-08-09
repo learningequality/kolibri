@@ -1,11 +1,11 @@
 <template>
 
-  <section>
+  <div>
     <h3>{{header}}</h3>
     <div class="card-list">
       <slot></slot>
     </div>
-  </section>
+  </div>
 
 </template>
 
