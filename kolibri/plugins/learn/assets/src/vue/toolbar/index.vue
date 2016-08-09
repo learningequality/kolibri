@@ -1,6 +1,11 @@
 <template>
 
   <div v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" >
+    <breadcrumbs class='breadcrumbs'
+      v-if='!isRoot'
+      :rootid='rootTopicId'
+      :crumbs='topic.breadcrumbs'>
+    </breadcrumbs>
     <search-button v-on:scrolling="handleScroll" class='search-btn'></search-button>
   </div>
 
@@ -39,6 +44,13 @@
         this.lastScrollTop = this.currScrollTop;
       },
     },
+    vuex: {
+      getters: {
+        rootTopicId: state => state.rootTopicId,
+        topic: state => state.pageState.topic,
+        isRoot: (state) => state.pageState.topic.id === state.rootTopicId,
+      },
+    },
   };
 
 </script>
@@ -48,8 +60,15 @@
 
   @require '~core-theme.styl'
 
+  .breadcrumbs
+    position: relative
+    display: table-cell
+    vertical-align: middle
+    left: 120px
+
   .toolbar-show
     position: fixed
+    display: table
     left: -20px
     top: 0
     width: 100%
@@ -60,6 +79,7 @@
 
   .toolbar-hide
     position: fixed
+    display: table
     left: -20px
     top: -40px
     width: 100%
@@ -70,7 +90,7 @@
 
   .search-btn
     position: absolute
-    top: 0.4rem
+    top: 0.6rem
     right: 2rem
     z-index: 1
     @media screen and (max-width: $portrait-breakpoint)

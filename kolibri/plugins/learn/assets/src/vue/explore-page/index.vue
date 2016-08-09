@@ -3,12 +3,6 @@
   <div>
 
     <page-header :title='title'>
-      <breadcrumbs
-        v-if='!isRoot'
-        slot='extra-nav'
-        :rootid='rootTopicId'
-        :crumbs='topic.breadcrumbs'>
-      </breadcrumbs>
       <div slot='icon'>
         <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"></svg>
         <svg v-else class="pageicon" src="../icons/folder.svg"></svg>
@@ -67,7 +61,6 @@
     },
     vuex: {
       getters: {
-        rootTopicId: state => state.rootTopicId,
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         contents: state => state.pageState.contents,

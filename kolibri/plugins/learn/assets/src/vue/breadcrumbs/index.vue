@@ -51,9 +51,9 @@
     margin-left: 0.5em
     margin-right: 0.5em
 
-  .nav
-    margin-top: 2em
-    margin-bottom:1.4em
+  // .nav
+  //   margin-top: 2em
+  //   margin-bottom:1.4em
 
   .parent a:link
     font-weight: 300

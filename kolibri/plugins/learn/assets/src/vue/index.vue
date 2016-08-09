@@ -95,34 +95,6 @@
       padding-right: $card-gutter
       padding-bottom: 100px
 
-  .toolbar-show
-    position: fixed
-    left: 0
-    top: 0
-    width: 100%
-    height: 46px
-    background: $core-bg-canvas
-    z-index: 100
-    transition: top 0.2s ease-in-out
-
-  .toolbar-hide
-    position: fixed
-    left: 0
-    top: -40px
-    width: 100%
-    height: 46px
-    background: $core-bg-canvas
-    z-index: 100
-    transition: top 0.2s ease-in-out
-
-  // .search-btn
-  //   position: absolute
-  //   top: 0.4rem
-  //   right: 2rem
-  //   z-index: 1
-  //   @media screen and (max-width: $portrait-breakpoint)
-  //     right: 1rem
-
   .search-pane
     background-color: $core-bg-canvas
     overflow-y: scroll
