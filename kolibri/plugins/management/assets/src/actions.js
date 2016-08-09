@@ -178,18 +178,16 @@ function updateUser(store, id, payload, role) {
  * @param {string or Integer} id
  */
 function deleteUser(store, id) {
-  if (!id) {
-    // if no id passed, abort the function
-    return;
+  if (id) {
+    // gets the model, calls delete, and sets rules for promise
+    Kolibri.resources.FacilityUserResource.getModel(id).delete(id).then(
+      userId => {
+        store.dispatch('DELETE_USERS', [userId]);
+      },
+      error => {
+        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      });
   }
-  const FacilityUserModel = Kolibri.resources.FacilityUserResource.getModel(id);
-  const newUserPromise = FacilityUserModel.delete(id);
-  newUserPromise.then((userId) => {
-    store.dispatch('DELETE_USERS', [userId]);
-  })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
 }
 
 // An action for setting up the initial state of the app by fetching data from the server
