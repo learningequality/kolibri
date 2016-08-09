@@ -235,22 +235,36 @@ class LoginLogoutTestCase(APITestCase):
         self.device_owner = DeviceOwnerFactory.create()
         self.facility = FacilityFactory.create()
         self.user = FacilityUserFactory.create(facility=self.facility)
+        self.admin = FacilityUserFactory.create(facility=self.facility, password="bar")
+        self.facility.add_admin(self.admin)
+        self.cr = ClassroomFactory.create(parent=self.facility)
+        self.cr.add_coach(self.admin)
 
     def test_login_and_logout_device_owner(self):
-        self.client.post(reverse('login'), data={"username": self.device_owner.username, "password": DUMMY_PASSWORD})
+        self.client.post(reverse('session-list'), data={"username": self.device_owner.username, "password": DUMMY_PASSWORD})
         sessions = Session.objects.all()
         self.assertEqual(len(sessions), 1)
-        self.client.post(reverse('logout'))
+        self.client.delete(reverse('session-detail', kwargs={'pk': 'current'}))
         self.assertEqual(len(Session.objects.all()), 0)
 
     def test_login_and_logout_facility_user(self):
-        self.client.post(reverse('login'), data={"username": self.user.username, "password": DUMMY_PASSWORD, "facility": self.facility.id})
+        self.client.post(reverse('session-list'), data={"username": self.user.username, "password": DUMMY_PASSWORD, "facility": self.facility.id})
         sessions = Session.objects.all()
         self.assertEqual(len(sessions), 1)
-        self.client.post(reverse('logout'))
+        self.client.delete(reverse('session-detail', kwargs={'pk': 'current'}))
         self.assertEqual(len(Session.objects.all()), 0)
 
     def test_incorrect_credentials_does_not_log_in_user(self):
-        self.client.post(reverse('login'), data={"username": self.user.username, "password": "foo", "facility": self.facility.id})
+        self.client.post(reverse('session-list'), data={"username": self.user.username, "password": "foo", "facility": self.facility.id})
         sessions = Session.objects.all()
         self.assertEqual(len(sessions), 0)
+
+    def test_session_return_admin_and_coach_kind(self):
+        self.client.post(reverse('session-list'), data={"username": self.admin.username, "password": "bar", "facility": self.facility.id})
+        response = self.client.get(reverse('session-detail', kwargs={'pk': 'current'}))
+        self.assertTrue(response.data['kind'][0], 'ADMIN')
+        self.assertTrue(response.data['kind'][1], 'COACH')
+
+    def test_session_return_anon_kind(self):
+        response = self.client.get(reverse('session-detail', kwargs={'pk': 'current'}))
+        self.assertTrue(response.data['kind'][0], 'ANONYMOUS')

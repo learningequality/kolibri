@@ -29,7 +29,6 @@
     }),
     methods: {
       logout() {
-        console.log('this.logout() called in userdropdown');
         this.logOut();
         this.showDropDown = false;
       },
@@ -53,7 +52,7 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-  
+
   .user-dropdown
     box-shadow: 1px 1px 4px #e3e3e3
     border-radius: $radius
@@ -63,7 +62,7 @@
     width: 250px
     background: $core-bg-light
     text-align: left
-  	
+
   .dropdown-list
     list-style: none
     padding: 0
@@ -85,17 +84,17 @@
       border-bottom: 15px solid transparent
       border-right: 20px solid $core-bg-light
       -webkit-filter: drop-shadow(-3px 0 2px #e3e3e3)
-      
+
   #dropdown-name
     margin-top: 18px
     margin-bottom: 0 // html linting yelled at me for not being 'succinct' enough :(
-      
+
   #dropdown-username
     margin: 0
     color: $core-text-annotation
     font-size: 14px
     font-style: italic
-    
+
   #dropdown-usertype
     text-transform: uppercase
     color: $core-text-annotation
