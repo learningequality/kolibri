@@ -37,6 +37,7 @@
       videoHeight: 0,
       dummyTime: 0,
       progressStartingPoint: 0,
+      lastUpdateTime: 0,
     }),
 
     computed: {
@@ -119,7 +120,10 @@
 
       updateTime() {
         this.dummyTime = this.videoPlayer.currentTime();
-        this.recordProgress();
+        if (this.dummyTime - this.lastUpdateTime >= 5000) {
+          this.recordProgress();
+          this.lastUpdateTime = this.dummyTime;
+        }
       },
 
       recordProgress() {

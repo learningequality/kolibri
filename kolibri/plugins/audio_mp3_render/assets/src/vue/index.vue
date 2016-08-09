@@ -61,6 +61,7 @@
       // the DOM does not exist, so the above object path is undefined, which causes problems.
       dummyTime: 0,
       progressStartingPoint: 0,
+      lastUpdateTime: 0,
     }),
 
     computed: {
@@ -138,7 +139,10 @@
 
       updateDummyTime() {
         this.dummyTime = this.$els.audio.currentTime;
-        this.recordProgress();
+        if (this.dummyTime - this.lastUpdateTime >= 5000) {
+          this.recordProgress();
+          this.lastUpdateTime = this.dummyTime;
+        }
       },
 
       setTotalTime() {
