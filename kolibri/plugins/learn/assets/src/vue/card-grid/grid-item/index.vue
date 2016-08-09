@@ -31,7 +31,7 @@
   @require '~core-theme.styl'
   @require '../../learn.styl'
 
-  $thumb-width = $card-height * 3.0 / 2.5;
+  $thumb-width = $horizontal-card-height * 3.0 / 2.5;
 
   .root
     display: block
@@ -40,6 +40,9 @@
     background-color: $core-bg-light
     overflow: hidden
     border-radius: $radius
+    @media screen and (max-width: $portrait-breakpoint)
+      width: $horizontal-card-width
+      height: $horizontal-card-height
 
   .root:focus
     background-color: $core-action-light
@@ -52,6 +55,11 @@
     height: $thumbnail-height
     border-radius: $radius $radius 0 0
     overflow: hidden
+    @media screen and (max-width: $portrait-breakpoint)
+      float: left
+      width: $thumb-width
+      height: $horizontal-card-height
+      border-radius: $radius 0 0  $radius
 
   .text
     display: block
@@ -62,5 +70,9 @@
     line-height: 1.1rem
     font-weight: bold
     color: $core-text-default
+    @media screen and (max-width: $portrait-breakpoint)
+      float: right
+      width: $horizontal-card-width - $thumb-width
+      height: $horizontal-card-height
 
 </style>
