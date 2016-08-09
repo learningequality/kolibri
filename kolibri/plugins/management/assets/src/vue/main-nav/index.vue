@@ -35,28 +35,9 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~nav-bar-item.styl'
 
-  .label
-    text-align: center
-
-  // the "scoped" styles below are a bit hacky:
-  // the `a` tag is actually inside the child template
-  a svg
-    display: block
-    margin: auto
+  a.active:focus svg
     fill: $core-action-normal
-    transition: fill $core-time ease-out
-    @media screen and (max-width: $portrait-breakpoint)
-      height: 30px
-
-  a:hover svg
-    fill: $core-action-dark
-
-  a.active svg
-    fill: $core-bg-light
-
-  a.active:hover svg
-    fill: $core-bg-light
 
 </style>

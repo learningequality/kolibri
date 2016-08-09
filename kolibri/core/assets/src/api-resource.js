@@ -113,7 +113,8 @@ class Model {
             }
           });
         } else {
-          payload = attrs;
+          this.set(attrs);
+          payload = this.attributes;
         }
         if (!Object.keys(payload).length) {
           // Nothing to save, so just resolve the promise now.
@@ -214,7 +215,7 @@ class Model {
 
   set(attributes) {
     // force IDs to always be strings - this should be changed on the server-side too
-    if (this.resource.idKey in attributes) {
+    if (attributes && this.resource.idKey in attributes) {
       attributes[this.resource.idKey] = String(attributes[this.resource.idKey]);
     }
     Object.assign(this.attributes, attributes);

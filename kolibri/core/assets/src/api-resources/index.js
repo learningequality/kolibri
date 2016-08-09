@@ -6,4 +6,6 @@ module.exports = {
   MembershipResource: require('./membership'),
   RoleResource: require('./role'),
   ChannelResource: require('./channel'),
+  DeviceOwnerResource: require('./deviceOwner'),
+  FacilityResource: require('./facility'),
 };
