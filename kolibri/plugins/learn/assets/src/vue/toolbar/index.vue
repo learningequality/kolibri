@@ -1,7 +1,7 @@
 <template>
 
-  <div v-scroll='onScroll' v-bind:class="['toolbar-show', displaytoolbar ? 'toolbar-hide' : '' ]" >
-    <search-button class='search-btn'></search-button>
+  <div v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" >
+    <search-button v-on:scrolling="handleScroll" class='search-btn'></search-button>
   </div>
 
 </template>
@@ -11,18 +11,33 @@
 
   module.exports = {
 
-    props: {
-      displaytoolbar: {
-        type: Boolean,
-        required: true,
-      },
-    },
-
+    data: () => ({
+      currScrollTop: 0,
+      delta: 5,
+      lastScrollTop: 0,
+      displayToolBar: false,
+    }),
     components: {
       'search-widget': require('../search-widget'),
       'search-button': require('../search-widget/search-button'),
       'breadcrumbs': require('../breadcrumbs'),
+    },
+    methods: {
+      handleScroll(position) {
+        this.position = position;
+        this.currScrollTop = position.scrollTop;
 
+        if (Math.abs(this.lastScrollTop - this.currScrollTop) <= this.delta) {
+          return;
+        }
+
+        if (this.currScrollTop > this.lastScrollTop) {
+          this.displayToolBar = true;
+        } else {
+          this.displayToolBar = false;
+        }
+        this.lastScrollTop = this.currScrollTop;
+      },
     },
   };
 

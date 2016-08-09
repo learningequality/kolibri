@@ -214,6 +214,7 @@
   .videowrapper
     position: relative
     height: 100%
+    background-color: #000
 
   .video-js .vjs-menu
     font-family: 'NotoSans', 'sans-serif'

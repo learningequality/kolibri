@@ -44,7 +44,7 @@ from .errors import (
     UserIsNotFacilityUser, UserIsNotMemberError
 )
 from .filters import HierarchyRelationsFilter
-from .permissions.auth import CollectionSpecificRoleBasedPermissions
+from .permissions.auth import AnybodyCanCreateIfNoDeviceOwner, AnybodyCanCreateIfNoFacility, CollectionSpecificRoleBasedPermissions
 from .permissions.base import BasePermissions, RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
 
@@ -81,7 +81,7 @@ class AbstractFacilityDataModel(models.Model):
     such as ``FacilityUsers``, ``Collections``, and other data associated with those users and collections.
     """
 
-    dataset = models.ForeignKey("FacilityDataset")
+    dataset = models.ForeignKey(FacilityDataset)
 
     class Meta:
         abstract = True
@@ -153,15 +153,11 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
             ),
         ],
     )
-    first_name = models.CharField(_('first name'), max_length=60, blank=True)
-    last_name = models.CharField(_('last name'), max_length=60, blank=True)
+    full_name = models.CharField(_('full name'), max_length=120, blank=True)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now, editable=False)
 
-    def get_full_name(self):
-        return (self.first_name + " " + self.last_name).strip()
-
     def get_short_name(self):
-        return self.first_name
+        return self.full_name.split(' ', 1)[0]
 
     def is_member_of(self, coll):
         """
@@ -502,7 +498,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return queryset.none()
 
     def __str__(self):
-        return '"{user}"@"{facility}"'.format(user=self.get_full_name() or self.username, facility=self.facility)
+        return '"{user}"@"{facility}"'.format(user=self.full_name or self.username, facility=self.facility)
 
 
 class DeviceOwnerManager(models.Manager):
@@ -529,7 +525,7 @@ class DeviceOwner(KolibriAbstractBaseUser):
 
     A ``DeviceOwner`` is a superuser, and has full access to do anything she wants with data on the device.
     """
-
+    permissions = AnybodyCanCreateIfNoDeviceOwner()
     objects = DeviceOwnerManager()
 
     # DeviceOwners can access the Django admin interface
@@ -575,7 +571,7 @@ class DeviceOwner(KolibriAbstractBaseUser):
         return queryset
 
     def __str__(self):
-        return self.get_full_name() or self.username
+        return self.full_name or self.username
 
     def has_perm(self, perm, obj=None):
         # ensure the DeviceOwner has full access to the Django admin
@@ -602,7 +598,7 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
     # Collection can be read by anybody from the facility; writing is only allowed by an admin for the collection.
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
     # by roles in relation to the new collection's parent collection (see CollectionSpecificRoleBasedPermissions).
-    permissions = IsFromSameFacility(read_only=True) | CollectionSpecificRoleBasedPermissions()
+    permissions = IsFromSameFacility(read_only=True) | CollectionSpecificRoleBasedPermissions() | AnybodyCanCreateIfNoFacility()
 
     _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
 
@@ -830,6 +826,11 @@ class Facility(Collection):
 
     class Meta:
         proxy = True
+
+    @classmethod
+    def get_default_facility(cls):
+        # temporary approach to a default facility; later, we can make this more refined
+        return cls.objects.all().first()
 
     def save(self, *args, **kwargs):
         if self.parent:
