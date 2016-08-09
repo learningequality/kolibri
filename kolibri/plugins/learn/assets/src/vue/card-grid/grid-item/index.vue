@@ -48,19 +48,18 @@
   .thumb-wrapper
     position: relative
     display: block
-    float: left
-    width: $thumb-width
-    height: $card-height
-    border-radius: $radius 0 0  $radius
+    width: 100%
+    height: $thumbnail-height
+    border-radius: $radius $radius 0 0
     overflow: hidden
 
   .text
     display: block
-    float: right
-    width: $card-width - $thumb-width
-    height: $card-height
+    width: 100%
+    height: $card-height - $thumbnail-height
     padding: 0.6em
-    font-size: 0.9rem
+    font-size: 0.86rem
+    line-height: 1.1rem
     font-weight: bold
     color: $core-text-default
 
