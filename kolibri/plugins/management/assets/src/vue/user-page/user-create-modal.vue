@@ -61,7 +61,6 @@
     },
     methods: {
       createNewUser() {
-        // const parsedName = this.name.split(' ');
         const payload = {
           password: this.password,
           username: this.username,

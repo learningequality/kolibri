@@ -1,6 +1,6 @@
 <template>
 
-  <button v-bind:class="[this.primary ? 'primary' : 'secondary', 'icon-button']">
+  <button :class="[this.primary ? 'primary' : 'secondary', 'icon-button']">
     <slot></slot>
     <span class="btn-text">{{ text }}</span>
   </button>
