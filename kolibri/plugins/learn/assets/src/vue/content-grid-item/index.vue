@@ -2,11 +2,11 @@
 
   <div>
     <grid-item v-link="link" :title="title">
-      <div class='thumbnail' :class="{ 'thumbnail-center' : !thumb }" :style='{ "background-image": thumb }'>
+      <div class='thumbnail' :class="'thumbnail-center'" :style='{ "background-image": thumb }'>
         <content-icon
-          :class='thumb ? "content-icon" : "content-icon-center" '
+          class="content-icon-center"
           v-if="kind"
-          :size="thumb ? 30 : 60"
+          :size="60"
           :kind="kind"
           :progress="progress">
         </content-icon>
@@ -82,7 +82,7 @@
         if (this.thumbnail) {
           return `url(${this.thumbnail})`;
         }
-        return ``;
+        return '';
       },
     },
     vuex: {
@@ -104,6 +104,7 @@
     height: 100%
     background-size: cover
     background-position: center
+    background: url('./images/default_thumbnail.png')
 
   .thumbnail-center
     text-align: center
@@ -113,11 +114,6 @@
     display: inline-block
     vertical-align: middle
     height:100%
-
-  .content-icon
-    position: absolute
-    top: 0.5em
-    left: 0.5em
 
   .content-icon-center
     width: 70%
