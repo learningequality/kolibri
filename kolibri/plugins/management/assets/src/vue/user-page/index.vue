@@ -6,7 +6,7 @@
       All Users
     </h2>
 
-    <span> ( {{ users.length }} )</span>
+    <span> ( {{ visibleUsers.length }} )</span>
 
     <div class="toolbar">
       <select v-model="roleFilter" name="user-filter">
