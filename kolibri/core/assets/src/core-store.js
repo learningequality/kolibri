@@ -10,6 +10,7 @@ const initialState = {
     session: { kind: UserKinds.ANONYMOUS, error: '200' },
     login_modal_state: false,
     is_admin_or_superuser: false,
+    fullname: 'Device Owner',
   },
 };
 
@@ -17,6 +18,7 @@ const mutations = {
   CORE_SET_SESSION(state, value) {
     state.core.session = value;
     state.core.login_modal_state = false;
+    console.log('state.core.session: ', state.core.session);
   },
   // Makes settings for wrong credentials 401 error
   HANDLE_WRONG_CREDS(state, value) {

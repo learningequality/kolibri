@@ -15,7 +15,8 @@
     <div class="user-dropdown">
       <ul class="dropdown-list">
         <li>
-          <h4 id="dropdown-name">{{ fullname }}</h4>
+          <h4 v-if="deviceOwner" class="dropdown-name">Device Owner</h4>
+          <h4 v-else class="dropdown-name">{{ fullname }}</h4>
           <p id="dropdown-username">{{ username }}</p>
           <p id="dropdown-usertype">{{ kind }}</p>
         </li>
@@ -49,6 +50,9 @@
         if (this.fullname) {
           return this.fullname[0].toUpperCase();
         }
+        if (this.deviceOwner) {
+          return this.username[0].toUpperCase();
+        }
         return '?';
       },
     },
@@ -72,12 +76,10 @@
       },
       getters: {
         loggedIn: state => state.core.session.kind !== UserKinds.ANONYMOUS,
-        // fullname not yet working
-        fullname: state => state.core.session.fullname,
-        //
+        deviceOwner: state => state.core.session.kind === UserKinds.SUPERUSER,
+        fullname: state => state.core.session.full_name,
         username: state => state.core.session.username,
         kind: state => state.core.session.kind,
-        error: state => state.core.session.error,
       },
     },
   };
@@ -157,7 +159,7 @@
       border-right: 20px solid $core-bg-light
       -webkit-filter: drop-shadow(-3px 0 2px #e3e3e3)
 
-  #dropdown-name
+  .dropdown-name
     margin-top: 18px
     margin-bottom: 0 // html linting yelled at me for not being 'succinct' enough :(
 
