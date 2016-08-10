@@ -3,7 +3,7 @@
   <div class="user-creation-modal">
     <modal btntext="Add New">
 
-      <h1 slot="header">Add New Account</h1>
+      <h1 slot="header" class="header">Add New Account</h1>
 
       <div slot="body">
 
@@ -21,8 +21,8 @@
           <label for="username">Password</label>
           <input type="password" id="password" required v-model="password">
         </div>
-
         <div class="user-field">
+          <label for="role">Role</label>
           <select v-model="role">
             <option value="learner" selected> Learner </option>
             <option value="admin"> Admin </option>
@@ -92,9 +92,16 @@
 
   .user-field
     padding-bottom: 5%
-    input, select
+    input
       width: 100%
+      height: 40px
     label
       position: relative
+      cursor: pointer
+    select
+      height: 40px
+      width: 100%
+  .header
+    text-align: center
 
 </style>

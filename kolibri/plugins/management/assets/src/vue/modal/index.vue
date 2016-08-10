@@ -71,6 +71,7 @@
 
   .modal
     position: fixed
+    z-index: 1  // TODO: why is this necessary? fix search bar, don't add z-index
     top: 0
     left: 0
     width: 100%
