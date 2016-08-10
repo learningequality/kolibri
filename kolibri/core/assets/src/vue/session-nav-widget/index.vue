@@ -220,7 +220,7 @@
     #dropdown
       right: 0
       
-    #dropdown-name
+    .dropdown-name
       font-size: 16px
 
     #logout-tab

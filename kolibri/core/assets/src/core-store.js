@@ -10,7 +10,7 @@ const initialState = {
     session: { kind: UserKinds.ANONYMOUS, error: '200' },
     login_modal_state: false,
     is_admin_or_superuser: false,
-    fullname: 'Device Owner',
+    fullname: '',
   },
 };
 
