@@ -86,7 +86,7 @@
     bottom: 20px
     position: relative
     @media screen and (max-width: $portrait-breakpoint)
-      left: 0
+      left: 24px
 
   .search-btn
     position: absolute
