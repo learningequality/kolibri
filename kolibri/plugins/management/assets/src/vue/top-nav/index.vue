@@ -79,9 +79,8 @@
       padding: 0.6em 1em
 
   .top .active
-    color: $core-action-normal
+    color: $core-text-default
     cursor: default
-    font-weight: 700
     border-bottom: 0.3em $core-action-normal solid
 
 </style>
