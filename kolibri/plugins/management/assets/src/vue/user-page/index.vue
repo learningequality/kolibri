@@ -16,14 +16,14 @@
         <option value="learner"> Learners </option>
       </select>
 
-    <div class="searchbar">
+      <div class="searchbar">
         <svg class="search-button" src="../icons/search.svg"></svg>
         <input
-        aria-label="Search for a user..."
-        type="search"
-        v-model="searchFilter"
-        placeholder="Search for a user...">
-    </div>
+          aria-label="Search for a user..."
+          type="search"
+          v-model="searchFilter"
+          placeholder="Search for a user...">
+      </div>
 
       <div class="create">
         <user-create-modal></user-create-modal>
