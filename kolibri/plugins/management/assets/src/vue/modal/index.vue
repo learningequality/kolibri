@@ -5,7 +5,10 @@
       <div class="modal-wrapper">
         <div class="modal-container">
           <div class="modal-header">
-            <a @click="closeModal" class="close-btn">X</a>
+            <button @click="closeModal" class="close-btn">
+              <svg src="close.svg"></svg>
+              <span class="visuallyhidden">Close</span>
+            </button>
             <slot name="header">
               Kolibri
             </slot>
@@ -64,6 +67,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme.styl'
+
   .modal
     position: fixed
     top: 0
@@ -98,7 +103,8 @@
 
   .close-btn
     float: right
-    cursor:pointer
+    color: $core-text-default
+    border: none
 
   .modal-enter, .modal-leave
     opacity: 0
