@@ -36,14 +36,8 @@
     background-color: $core-bg-canvas
 
     svg
-      fill: $core-action-normal
+      fill: $core-text-annotation
     &.active
-      background-color: $core-action-normal
-      svg
-        fill: #FFFFFF
-
-    &:focus
-      outline: none
       svg
         fill: $core-action-normal
 

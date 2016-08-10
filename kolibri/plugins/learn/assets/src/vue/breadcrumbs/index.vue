@@ -2,17 +2,17 @@
 
   <div>
     <nav class="nav" role="navigation" aria-label="Breadcrumbs navigation">
-      <span class="parent" v-if="pageMode === $options.PageModes.EXPLORE && pageName !== $options.PageNames.EXPLORE_CONTENT && !isRoot">
-        <a v-link="exploreRoot">Explore</a> <span class='sep'>»</span>
+      <span class="parent" class="single" v-if="pageMode === $options.PageModes.EXPLORE && pageName !== $options.PageNames.EXPLORE_CONTENT && !isRoot">
+        <a v-link="exploreRoot">Explore</a>
       </span>
-      <span class="parent" v-if="pageName === $options.PageNames.LEARN_CONTENT">
-        <a v-link="learnRoot">Learn</a> <span class='sep'>»</span>
+      <span class="single" v-if="pageName === $options.PageNames.LEARN_CONTENT">
+        <a v-link="learnRoot">Learn</a>
       </span>
-      <span class="parent" v-if="pageName === $options.PageNames.EXPLORE_CONTENT">
-        <a v-link="contentLink">Back</a> <span class='sep'>»</span>
+      <span class="single" v-if="pageName === $options.PageNames.EXPLORE_CONTENT">
+        <a v-link="contentLink">Back</a>
       </span>
       <span class="parent" v-if="pageMode === $options.PageModes.EXPLORE" v-for="crumb in crumbs">
-        <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a> <span class='sep'>»</span>
+        <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a>
       </span>
     </nav>
   </div>
@@ -73,15 +73,21 @@
 
 <style lang="stylus" scoped>
 
-  .sep
-    margin-left: 0.5em
-    margin-right: 0.5em
+  @require '~core-theme.styl'
 
-  // .nav
-  //   margin-top: 2em
-  //   margin-bottom:1.4em
+  nav a
+    color: $core-text-annotation
+    vertical-align: middle
+    font-size: 0.9em
 
-  .parent a:link
-    font-weight: 300
+  .parent a::after
+    content: url('rightarrow.svg')
+    position: relative
+    top: 0.5em
+
+  .single a::before
+    content: url('back.svg')
+    position: relative
+    top: 0.5em
 
 </style>

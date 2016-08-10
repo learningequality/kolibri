@@ -1,6 +1,5 @@
 <template>
 
-
   <div v-scroll='onScroll' v-bind:class="['toolbar-show', displaytoolbar ? 'toolbar-hide' : '' ]" >
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
     <search-button class='search-btn'></search-button>
@@ -79,12 +78,6 @@
     display: table
     left: -20px
     top: -40px
-
-  .breadcrumbs
-    position: relative
-    left: 160px
-    bottom: 20px
-
 
   .search-btn
     position: absolute
