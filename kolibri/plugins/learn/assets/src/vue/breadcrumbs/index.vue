@@ -3,9 +3,9 @@
   <div>
     <nav class="nav" role="navigation" aria-label="You are here:">
       <span class="parent full-breadcrumbs" v-if="pageMode === $options.PageModes.EXPLORE && pageName !== $options.PageNames.EXPLORE_CONTENT && !isRoot">
-        <a v-link="exploreRoot">Explore</a><span class='sep'>&#62</span>
+        <a v-link="exploreRoot">Explore</a>
       </span>
-      <span class="parent" v-if="pageName === $options.PageNames.LEARN_CONTENT">
+      <span v-if="pageName === $options.PageNames.LEARN_CONTENT">
         <a v-link="learnRoot">
           <span class='sep'>
             <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -16,7 +16,7 @@
           </span>
         </a>
       </span>
-      <span class="parent" v-if="pageName === $options.PageNames.EXPLORE_CONTENT">
+      <span v-if="pageName === $options.PageNames.EXPLORE_CONTENT">
         <a v-link="parentLink">
           <span class='sep'>
             <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -28,7 +28,7 @@
         </a>
       </span>
       <span class="parent full-breadcrumbs" v-if="pageMode === $options.PageModes.EXPLORE" v-for="crumb in crumbs">
-        <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a><span class='sep'>&#62</span>
+        <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a>
       </span>
       <span class="back" v-if="!isRoot && pageMode === $options.PageModes.EXPLORE && pageName !== $options.PageNames.EXPLORE_CONTENT">
         <a v-link="backLink">
@@ -124,6 +124,11 @@
   .nav
     margin-top: 2em
     margin-bottom:1.4em
+  .parent:after
+    content: '>'
+    margin-left: 0.5em
+    margin-right: 0.5em
+    color: $core-text-annotation
   a
     display: inline-block
     vertical-align: middle
@@ -133,9 +138,10 @@
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
+    color: $core-text-annotation
   svg
     vertical-align: middle
-    fill: $core-action-normal
+    fill: $core-text-annotation
     margin-bottom: 2px
   .full-breadcrumbs
     @media screen and (max-width: $portrait-breakpoint)
