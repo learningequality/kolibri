@@ -31,6 +31,7 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+  @require '../learn.styl'
 
   .toolbar-show
     position: fixed
@@ -47,6 +48,8 @@
     left: 160px
     bottom: 20px
     position: relative
+    @media screen and (max-width: $portrait-breakpoint)
+      left: 0
   .search-btn
     position: absolute
     top: 0.4rem
