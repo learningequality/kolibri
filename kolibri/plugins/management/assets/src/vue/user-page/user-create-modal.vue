@@ -9,21 +9,21 @@
 
         <div class="user-field">
           <label for="name">Name</label>
-          <input type="text" autocomplete="name"  autofocus="true" required v-model="fullName">
+          <input type="text" autocomplete="name"  autofocus="true" required v-model="user.full_name">
         </div>
 
         <div class="user-field">
           <label for="username">Username</label>
-          <input type="text" autocomplete="username" id="username" required v-model="username">
+          <input type="text" autocomplete="username" id="username" required v-model="user.username">
         </div>
 
         <div class="user-field">
           <label for="username">Password</label>
-          <input type="password" id="password" required v-model="password">
+          <input type="password" id="password" required v-model="user.password">
         </div>
 
         <div class="user-field">
-          <select v-model="role">
+          <select v-model="user.role">
             <option value="learner" selected> Learner </option>
             <option value="admin"> Admin </option>
           </select>
@@ -55,21 +55,22 @@
     },
     data() {
       return {
-        username: '',
-        password: '',
-        fullName: '',
+        user: {
+          username: '',
+          password: '',
+          full_name: '',
+        },
         role: 'learner',
       };
     },
     methods: {
       createNewUser() {
-        const payload = {
-          password: this.password,
-          username: this.username,
-          full_name: this.fullName,
-          facility: this.facility,
-        };
-        this.createUser(payload, this.role);
+        this.user.facility = this.facility;
+        this.createUser(this.user, this.role).then(() => {
+          for (const userProp of Object.getOwnPropertyNames(this.user)) {
+            this.user[userProp] = '';
+          }
+        });
       },
     },
     vuex: {

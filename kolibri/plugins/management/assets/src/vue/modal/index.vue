@@ -1,7 +1,7 @@
 <template>
 
   <div class="modal-root">
-    <div class="modal" v-show="showModal" transition="modal">
+    <div class="modal" v-if="showModal" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
           <div class="modal-header">
