@@ -43,10 +43,6 @@
     display: table
     width: 100%
 
-  .root:focus
-    background-color: $core-action-light
-    outline: none
-
   .thumb-wrapper
     position: absolute
     left: 0.4em
