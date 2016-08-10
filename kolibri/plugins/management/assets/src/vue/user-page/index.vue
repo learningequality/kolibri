@@ -18,7 +18,7 @@
       </select>
 
       <div class="searchbar">
-        <svg class="icon" src="../icons/search.svg"></svg>
+        <svg class="icon" src="../icons/search.svg" role=" presentation" aria-hidden="true"></svg>
         <input
           aria-label="Search for a user..."
           type="search"
