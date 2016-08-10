@@ -18,7 +18,7 @@
       </select>
 
       <div class="searchbar">
-        <svg class="search-button" src="../icons/search.svg"></svg>
+        <svg class="icon" src="../icons/search.svg"></svg>
         <input
           aria-label="Search for a user..."
           type="search"
@@ -248,7 +248,7 @@
     border-radius: 40px
     margin-left: 20px
 
-  .searchbar .search-button
+  .searchbar .icon
     display: inline-block
     float: left
     position: relative
