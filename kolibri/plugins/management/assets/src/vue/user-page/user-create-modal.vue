@@ -57,8 +57,7 @@
       return {
         username: '',
         password: '',
-        firstName: '',
-        lastName: '',
+        fullName: '',
         role: 'learner',
       };
     },
