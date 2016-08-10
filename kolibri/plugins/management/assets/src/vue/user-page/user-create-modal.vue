@@ -32,7 +32,7 @@
       </div>
 
       <div slot="footer">
-        <button class="create-btn" type="button" @click="createNewUser">Create User</button>
+        <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
       </div>
 
       <icon-button text="Add New" :primary="false" slot="openbtn">
@@ -88,6 +88,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme'
+
   $button-content-size = 1em
 
   .user-field
@@ -103,5 +105,12 @@
       width: 100%
   .header
     text-align: center
+  .create-btn
+    float: right
+    background-color: $core-action-normal
+    color: $core-bg-canvas
+    &:hover
+      border-color: transparent
+      color: $core-action-light
 
 </style>
