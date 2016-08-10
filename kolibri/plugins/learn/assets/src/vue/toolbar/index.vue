@@ -61,6 +61,8 @@
     display: table-cell
     vertical-align: middle
     left: 120px
+    @media screen and (max-width: $portrait-breakpoint)
+      left: 3rem
 
   .toolbar-show
     position: fixed
