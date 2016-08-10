@@ -10,10 +10,12 @@
           <label for="name">Name</label>
           <input type="text" autocomplete="name"  autofocus="true" required v-model="fullName">
         </div>
+
         <div class="user-field">
           <label for="username">Username</label>
           <input type="text" autocomplete="username" id="username" required v-model="username">
         </div>
+
         <div class="user-field">
           <label for="username">Password</label>
           <input type="password" id="password" required v-model="password">
@@ -86,6 +88,7 @@
 <style lang="stylus" scoped>
 
   $button-content-size = 1em
+
   .user-field
     padding-bottom: 5%
     input, select
