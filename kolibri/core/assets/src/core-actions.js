@@ -2,11 +2,11 @@ function kolibriLogin(store, Kolibri, sessionPayload) {
   const SessionResource = Kolibri.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
-  const UserKinds = Kolibri.resources.UserKinds;
+  const UserKinds = require('./constants').UserKinds;
   sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', session);
     if (session.kind.includes(UserKinds.ADMIN) || session.kind === UserKinds.SUPERUSER) {
-      store.dispatch('SET_ADMIN_TYPE', true);
+      store.dispatch('SET_ADMIN_STATUS', true);
     }
   }).catch((error) => {
     // hack to handle invalid credentials
@@ -35,7 +35,11 @@ function currentLoggedInUser(store, Kolibri) {
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
   const sessionPromise = sessionModel.fetch();
+  const UserKinds = require('./constants').UserKinds;
   sessionPromise.then((session) => {
+    if (session.kind.includes(UserKinds.ADMIN) || session.kind === UserKinds.SUPERUSER) {
+      store.dispatch('SET_ADMIN_STATUS', true);
+    }
     store.dispatch('CORE_SET_SESSION', session);
   }).catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));

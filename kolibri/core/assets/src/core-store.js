@@ -24,6 +24,7 @@ const mutations = {
   },
   CORE_CLEAR_SESSION(state) {
     state.core.session = { kind: UserKinds.ANONYMOUS, error: '200' };
+    state.core.is_admin_or_superuser = false;
   },
   CORE_SET_PAGE_LOADING(state, value) {
     state.core.loading = value;
@@ -35,8 +36,7 @@ const mutations = {
   SET_MODAL_STATE(state, value) {
     state.core.login_modal_state = value;
   },
-  SET_ADMIN_TYPE(state, value) {
-    console.log('SET_ADMIN_TYPE: ', value);
+  SET_ADMIN_STATUS(state, value) {
     state.core.is_admin_or_superuser = value;
   },
 };

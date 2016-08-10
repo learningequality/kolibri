@@ -30,7 +30,7 @@
     },
     vuex: {
       getters: {
-        isAdminOrSuperuser: state => state.core.session.is_admin_or_superuser,
+        isAdminOrSuperuser: state => state.core.is_admin_or_superuser,
       },
     },
   };
