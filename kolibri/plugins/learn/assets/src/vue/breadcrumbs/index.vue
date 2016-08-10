@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <nav class="nav" role="navigation" aria-label="Breadcrumbs navigation">
+    <nav class="nav" role="navigation" aria-label="You are here:">
       <span class="parent" class="single" v-if="pageMode === $options.PageModes.EXPLORE && pageName !== $options.PageNames.EXPLORE_CONTENT && !isRoot">
         <a v-link="exploreRoot">Explore</a>
       </span>
