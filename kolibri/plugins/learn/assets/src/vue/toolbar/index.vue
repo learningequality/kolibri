@@ -1,12 +1,9 @@
 <template>
 
-  <div v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" >
-    <breadcrumbs class='breadcrumbs'
-      v-if='!isRoot'
-      :rootid='rootTopicId'
-      :crumbs='topic.breadcrumbs'>
-    </breadcrumbs>
-    <search-button v-on:scrolling="handleScroll" class='search-btn'></search-button>
+
+  <div v-scroll='onScroll' v-bind:class="['toolbar-show', displaytoolbar ? 'toolbar-hide' : '' ]" >
+    <breadcrumbs class="breadcrumbs"></breadcrumbs>
+    <search-button class='search-btn'></search-button>
   </div>
 
 </template>
@@ -72,7 +69,7 @@
     left: -20px
     top: 0
     width: 100%
-    height: 46px
+    height: 42px
     background: $core-bg-canvas
     z-index: 100
     transition: top 0.2s ease-in-out
@@ -82,11 +79,12 @@
     display: table
     left: -20px
     top: -40px
-    width: 100%
-    height: 46px
-    background: $core-bg-canvas
-    z-index: 100
-    transition: top 0.2s ease-in-out
+
+  .breadcrumbs
+    position: relative
+    left: 160px
+    bottom: 20px
+
 
   .search-btn
     position: absolute

@@ -46,7 +46,6 @@
 
   module.exports = {
     components: {
-      'breadcrumbs': require('../breadcrumbs'),
       'page-header': require('../page-header'),
       'topic-list-item': require('../topic-list-item'),
       'content-grid-item': require('../content-grid-item'),
