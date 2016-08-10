@@ -72,7 +72,9 @@
       },
       getters: {
         loggedIn: state => state.core.session.kind !== UserKinds.ANONYMOUS,
+        // fullname not yet working
         fullname: state => state.core.session.fullname,
+        //
         username: state => state.core.session.username,
         kind: state => state.core.session.kind,
         error: state => state.core.session.error,

@@ -1,7 +1,7 @@
 <template>
 
   <div class="modal-root" v-on:keyup.esc="toggleModal">
-    <div class="modal" v-show="showModal" transition="modal">
+    <div class="modal" v-show="modalstate" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
           <img @click="toggleModal" class="close-btn" src="./close.svg">
@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <div @click="toggleModal" v-show="showbtn">
+    <div @click="toggleModal">
       <slot name="openbtn">
         <button>{{ btntext }}</button>
       </slot>
@@ -36,30 +36,25 @@
 
 <script>
 
+  const actions = require('../../core-actions');
+
   module.exports = {
-    props: {
-      hidebtn: {
-        type: Boolean,
-        default: false,
-      },
-      btntext: {
-        type: String,
-        default: 'Open Modal',
-      },
-    },
-    data() {
-      return {
-        showModal: false,
-        showbtn: true,
-      };
-    },
+
     methods: {
       toggleModal() {
-        if (!this.showModal) {
-          this.showModal = true;
+        if (!this.modalstate) {
+          this.togglemodal(true);
         } else {
-          this.showModal = false;
+          this.togglemodal(false);
         }
+      },
+    },
+    vuex: {
+      getters: {
+        modalstate: state => state.core.login_modal_state,
+      },
+      actions: {
+        togglemodal: actions.togglemodal,
       },
     },
   };

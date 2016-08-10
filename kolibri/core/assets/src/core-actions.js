@@ -2,12 +2,16 @@ function kolibriLogin(store, Kolibri, sessionPayload) {
   const SessionResource = Kolibri.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
+  const UserKinds = Kolibri.resources.UserKinds;
   sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', session);
+    if (session.kind.includes(UserKinds.ADMIN) || session.kind === UserKinds.SUPERUSER) {
+      store.dispatch('SET_ADMIN_TYPE', true);
+    }
   }).catch((error) => {
     // hack to handle invalid credentials
     if (error.status.code === 401) {
-      store.dispatch('CORE_SET_SESSION', { kind: 'ANONYMOUS', error: '401' });
+      store.dispatch('HANDLE_WRONG_CREDS', { kind: 'ANONYMOUS', error: '401' });
     } else {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
     }
@@ -38,8 +42,17 @@ function currentLoggedInUser(store, Kolibri) {
   });
 }
 
+function togglemodal(store, bool) {
+  store.dispatch('SET_MODAL_STATE', bool);
+  if (!bool) {
+    // Clears the store to clear any error message from login modal
+    store.dispatch('CORE_CLEAR_SESSION');
+  }
+}
+
 module.exports = {
   kolibriLogin,
   kolibriLogout,
   currentLoggedInUser,
+  togglemodal,
 };

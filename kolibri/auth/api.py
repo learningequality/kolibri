@@ -154,7 +154,7 @@ class SessionViewSet(viewsets.ViewSet):
             return {'id': None, 'username': '', 'full_name': '', 'user_id': None, 'facility_id': None, 'kind': 'ANONYMOUS', 'error': '200'}
 
         session = {'id': 'current', 'username': user.username,
-                   'full_name': user.first_name + user.last_name,
+                   'full_name': user.full_name,
                    'user_id': user.id}
         if isinstance(user, DeviceOwner):
             session.update({'facility_id': None, 'kind': 'SUPERUSER', 'error': '200'})
