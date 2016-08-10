@@ -171,7 +171,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme'
+  @require '~core-theme.styl'
 
   // Padding height that separates rows from eachother
   $row-padding = 1.5em
