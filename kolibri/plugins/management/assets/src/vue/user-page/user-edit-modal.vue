@@ -6,8 +6,7 @@
       <div slot="body">
         <br>Username: <input type="text" v-model="username_new" placeholder="Please type in your username."><br>
         <br>Password: <input type="text" v-model="password_new" placeholder="Please type in your password."><br>
-        <br>First name: <input type="text" v-model="firstName_new" placeholder="Please type in your first name."><br>
-        <br>Last name: <input type="text" v-model="lastName_new" placeholder="Please type in your last name."><br>
+        <br>Full name: <input type="text" v-model="fullName_new" placeholder="Please type in your first name."><br>
         <!-- radio buttons for selecting role -->
         <br>Learner <input type="radio" value="learner" v-model="role_new"><br>
         <br>Admin <input type="radio" value="admin" v-model="role_new"><br>
@@ -16,7 +15,7 @@
         <button class="confirm-btn" type="button" @click="editUser">Confirm</button>
       </div>
       <div slot="openbtn">
-        <button class="open-btn" type="button">Edit Me!</button>
+        <svg class="manage-edit" src="../icons/pencil.svg"></svg>
       </div>
     </modal>
   </div>
@@ -33,14 +32,13 @@
       modal: require('../modal'),
     },
     props: [
-      'userid', 'username', 'firstname', 'lastname', 'roles',
+      'userid', 'username', 'fullname', 'roles',
     ],
     data() {
       return {
         username_new: this.username,
         password_new: '',
-        firstName_new: this.firstname,
-        lastName_new: this.lastname,
+        fullName_new: this.fullname,
         role_new: this.roles.length ? this.roles[0].kind : 'learner',
       };
     },
@@ -49,8 +47,7 @@
         const payload = {
           password: this.password_new,
           username: this.username_new,
-          first_name: this.firstName_new,
-          last_name: this.lastName_new,
+          full_name: this.fullName_new,
           facility: this.facility,
         };
         this.updateUser(this.userid, payload, this.role_new);
@@ -71,12 +68,19 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme.styl'
+
   .title
     display: inline
 
   .confirm-btn
     float: right
+
   .open-btn
-    background-color: red
+    background-color: white
+
+  .manage-edit
+    fill: $core-action-normal
+    cursor: pointer
 
 </style>

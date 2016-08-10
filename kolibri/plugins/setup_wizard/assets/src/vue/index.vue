@@ -1,21 +1,20 @@
 <template>
 
   <div class="device-owner-creation">
-    <div class="wrapper">
-      <img class="logo" src="./icons/logo-min.png">
+    <div class="wrapper" role="main">
+      <img class="logo" src="./icons/logo-min.png" alt="Kolibri logo">
       <div class="container">
-        <div class="title">Device Owner</div>
-        <br>
+        <h1>Create Kolibri Device Owner and Facility</h1>
+        <h2 class="title">Device Owner</h2>
         <div class="description">To use Kolibri, you first need to create a Device Owner account. This account will be used to configure high-level settings for this installation, and create other administrator accounts.</div>
         <div class="creation-form">
-          <br><input :class="{ 'input-error': username_error }" type="text" v-model="username" placeholder="Username"><br>
-          <br><input :class="{ 'input-error': password_error }" type="text" v-model="password" placeholder="Password"><br>
+          <br><input :class="{ 'input-error': username_error }" type="text" v-model="username" placeholder="Username" aria-label="Username"><br>
+          <br><input :class="{ 'input-error': password_error }" type="text" v-model="password" placeholder="Password" aria-label="Password"><br>
         </div>
         <br>
-        <div class="title">Facility</div>
-        <br>
+        <h2 class="title">Facility</h2>
         <div class="description">You also need to create a Facility, which represents your school, training center, or other location where this installation will be used.</div>
-        <br><input :class="{ 'input-error': facility_error }" type="text" v-model="facility" placeholder="Facility name"><br>
+        <br><input :class="{ 'input-error': facility_error }" type="text" v-model="facility" placeholder="Facility name" aria-label="Facility name"><br>
         <br>
         <br>
         <button class="create-btn" type="button" @click="createBoth">Create and get started</button>
@@ -91,7 +90,10 @@
     border-radius: 4px
     margin: 0 auto
     padding: 20px 30px
-  .title
+  h1
+    font-size: 18px
+  h2.title
+    font-size: 14px
     font-weight: bold
   .description
     font-size: 12px
