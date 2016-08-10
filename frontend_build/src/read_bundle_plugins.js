@@ -105,8 +105,7 @@ var readBundlePlugin = function(base_dir) {
       // If this is not the core bundle, then we need to add the external library mappings.
       bundle.externals = _.extend({}, externals, lib_externals);
     } else {
-      bundle.externals =  _.extend({}, externals, { kolibri: core_bundle.output.library });
-    }
+      bundle.externals = externals;    }
   });
 
   return bundles;
