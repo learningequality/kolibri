@@ -2,11 +2,12 @@
 
   <div class="user-roster">
 
-    <h1>
-      {{userPageTitle}}
-    </h1>
-
-    <span> ( {{ visibleUsers.length }} )</span>
+    <div class="header">
+      <h1>
+        {{userPageTitle}}
+      </h1>
+      <span> ( {{ visibleUsers.length }} )</span>
+    </div>
 
     <div class="toolbar">
       <label for="type-filter" class="visuallyhidden">Filter User Type</label>
@@ -218,7 +219,7 @@
     height: 35px
     outline: none
 
-  h1
+  .header h1
     display: inline-block
 
   hr
