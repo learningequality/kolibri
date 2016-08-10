@@ -1,18 +1,45 @@
 <template>
 
   <div>
-    <nav class="nav" role="navigation" aria-label="You are here:">
-      <span class="parent" class="single" v-if="pageMode === $options.PageModes.EXPLORE && pageName !== $options.PageNames.EXPLORE_CONTENT && !isRoot">
-        <a v-link="exploreRoot">Explore</a>
+    <nav class="nav" role="navigation" aria-label="Breadcrumbs navigation">
+      <span class="parent full-breadcrumbs" v-if="pageMode === $options.PageModes.EXPLORE && pageName !== $options.PageNames.EXPLORE_CONTENT && !isRoot">
+        <a v-link="exploreRoot">Explore</a><span class='sep'>&#62</span>
       </span>
-      <span class="single" v-if="pageName === $options.PageNames.LEARN_CONTENT">
-        <a v-link="learnRoot">Learn</a>
+      <span class="parent" v-if="pageName === $options.PageNames.LEARN_CONTENT">
+        <a v-link="learnRoot">
+          <span class='sep'>
+            <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+            </svg>
+          Learn
+          </span>
+        </a>
       </span>
-      <span class="single" v-if="pageName === $options.PageNames.EXPLORE_CONTENT">
-        <a v-link="contentLink">Back</a>
+      <span class="parent" v-if="pageName === $options.PageNames.EXPLORE_CONTENT">
+        <a v-link="parentLink">
+          <span class='sep'>
+            <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+            </svg>
+          Back
+          </span>
+        </a>
       </span>
-      <span class="parent" v-if="pageMode === $options.PageModes.EXPLORE" v-for="crumb in crumbs">
-        <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a>
+      <span class="parent full-breadcrumbs" v-if="pageMode === $options.PageModes.EXPLORE" v-for="crumb in crumbs">
+        <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a><span class='sep'>&#62</span>
+      </span>
+      <span class="back" v-if="!isRoot && pageMode === $options.PageModes.EXPLORE && pageName !== $options.PageNames.EXPLORE_CONTENT">
+        <a v-link="backLink">
+          <span class='sep'>
+            <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+            </svg>
+          Back
+          </span>
+        </a>
       </span>
     </nav>
   </div>
@@ -35,7 +62,7 @@
       exploreRoot() {
         return { name: PageNames.EXPLORE_ROOT };
       },
-      contentLink() {
+      parentLink() {
         let bread;
         let id;
         if (this.pageState.content) {
@@ -46,6 +73,21 @@
           name: PageNames.EXPLORE_TOPIC,
           params: { id },
         };
+      },
+      backLink() {
+        let bread;
+        let id;
+        if (this.pageState.topic) {
+          bread = this.pageState.topic.breadcrumbs;
+          if (bread[bread.length - 1]) {
+            id = bread[bread.length - 1].id;
+            return {
+              name: PageNames.EXPLORE_TOPIC,
+              params: { id },
+            };
+          }
+        }
+        return { name: PageNames.EXPLORE_ROOT };
       },
     },
     methods: {
@@ -74,20 +116,33 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+  @require '../learn.styl'
 
-  nav a
-    color: $core-text-annotation
+  .sep
+    margin-left: 0.5em
+    margin-right: 0.5em
+  .nav
+    margin-top: 2em
+    margin-bottom:1.4em
+  a
+    display: inline-block
     vertical-align: middle
-    font-size: 0.9em
-
-  .parent a::after
-    content: url('rightarrow.svg')
-    position: relative
-    top: 0.5em
-
-  .single a::before
-    content: url('back.svg')
-    position: relative
-    top: 0.5em
+    margin-bottom: 2px
+    font-weight: 300
+    max-width: 140px
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+  svg
+    vertical-align: middle
+    fill: $core-action-normal
+    margin-bottom: 2px
+  .full-breadcrumbs
+    @media screen and (max-width: $portrait-breakpoint)
+      display: none
+  .back
+    display: none
+    @media screen and (max-width: $portrait-breakpoint)
+      display: initial
 
 </style>
