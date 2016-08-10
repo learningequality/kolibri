@@ -9,7 +9,9 @@
         <div class="description">To use Kolibri, you first need to create a Device Owner account. This account will be used to configure high-level settings for this installation, and create other administrator accounts.</div>
         <div class="creation-form">
           <br><input :class="{ 'input-error': username_error }" type="text" v-model="username" placeholder="Username" aria-label="Username"><br>
-          <br><input :class="{ 'input-error': password_error }" type="text" v-model="password" placeholder="Password" aria-label="Password"><br>
+          <br><input :class="{ 'input-error': password_error }" type="password" v-model="password" placeholder="Password" aria-label="Password"><br>
+          <br><input :class="{ 'input-error': password_error }" type="password" v-model="confirm_password" placeholder="Confirm password" aria-label="Password"><br>
+          <p class="error-message" v-if="password_error">{{ errormessage }}</p>
         </div>
         <br>
         <h2 class="title">Facility</h2>
@@ -35,14 +37,17 @@
         username: '',
         username_error: false,
         password: '',
+        confirm_password: '',
         password_error: false,
         facility: '',
         facility_error: false,
+        errormessage: '',
       };
     },
     methods: {
       createBoth() {
-        if (this.username && this.password && this.facility) {
+        if (this.username && this.password && this.facility
+          && this.password === this.confirm_password) {
           const deviceOwnerPayload = {
             password: this.password,
             username: this.username,
@@ -53,8 +58,16 @@
           this.createDeviceOwnerAndFacility(deviceOwnerPayload, facilityPayload);
         } else {
           this.username_error = !this.username;
-          this.password_error = !this.password;
           this.facility_error = !this.facility;
+          if (!this.password && !this.confirm_password) {
+            this.password_error = true;
+            this.errormessage = 'Password cannot be empty!';
+          } else if (this.password !== this.confirm_password) {
+            this.password_error = true;
+            this.errormessage = 'Password does not match the confirm password!';
+          } else {
+            this.password_error = false;
+          }
         }
       },
     },
@@ -113,6 +126,8 @@
     border-width: 2px
     border-color: $core-text-alert
     background-color: $core-text-alert-bg
+  .error-message
+    color: $core-text-alert
   .logo
     height: 20%
     max-height: 160px
