@@ -70,9 +70,7 @@ function _getCurrentChannel() {
       ChannelResource.getCollection({}).fetch()
         .then((channelList) => {
           const cookieCurrentChannelId = cookiejs.get('currentChannel');
-          const uh = channelList.filter((channel) => channel.id === cookieCurrentChannelId);
-          // array.some
-          if (uh.length !== 0) {
+          if (channelList.some((channel) => channel.id === cookieCurrentChannelId)) {
             currentChannelId = cookieCurrentChannelId;
             resolve(currentChannelId);
           } else {
