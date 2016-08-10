@@ -3,15 +3,6 @@
   <div>
 
     <page-header :title='title'>
-      <breadcrumbs
-        v-if="pageMode === $options.PageModes.EXPLORE"
-        slot='extra-nav'
-        :rootid='rootTopicId'
-        :crumbs='breadcrumbs'>
-      </breadcrumbs>
-      <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_ROOT }">
-        <span id="little-arrow">←</span> Learn
-      </a>
       <content-icon
         slot='icon'
         :ispageicon="true"
@@ -62,7 +53,6 @@
   module.exports = {
     mixins: [constants], // makes constants available in $options
     components: {
-      'breadcrumbs': require('../breadcrumbs'),
       'content-icon': require('../content-icon'),
       'page-header': require('../page-header'),
       'content-render': require('content-renderer'),
@@ -73,7 +63,6 @@
       getters: {
         // general state
         pageMode: getters.pageMode,
-        rootTopicId: state => state.rootTopicId,
 
         // TODO - remove hack
         // temporarily using this to address an IE10 bug where the PDF
@@ -90,7 +79,6 @@
         contentId: (state) => state.pageState.content.content_id,
         available: (state) => state.pageState.content.available,
         extraFields: (state) => state.pageState.content.extra_fields,
-        breadcrumbs: (state) => state.pageState.content.breadcrumbs,
 
         // only used on learn page
         recommended: (state) => state.pageState.recommended,

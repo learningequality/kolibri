@@ -1,6 +1,7 @@
 <template>
 
   <div v-scroll='onScroll' v-bind:class="['toolbar-show', displaytoolbar ? 'toolbar-hide' : '' ]" >
+    <breadcrumbs class="breadcrumbs"></breadcrumbs>
     <search-button class='search-btn'></search-button>
   </div>
 
@@ -17,12 +18,10 @@
         required: true,
       },
     },
-
     components: {
       'search-widget': require('../search-widget'),
       'search-button': require('../search-widget/search-button'),
       'breadcrumbs': require('../breadcrumbs'),
-
     },
   };
 
@@ -42,7 +41,6 @@
     background: $core-bg-canvas
     z-index: 100
     transition: top 0.2s ease-in-out
-
   .toolbar-hide
     position: fixed
     left: 0
@@ -52,7 +50,9 @@
     background: $core-bg-canvas
     z-index: 100
     transition: top 0.2s ease-in-out
-
+  .breadcrumbs
+    left: 200px
+    position: relative
   .search-btn
     position: absolute
     top: 0.4rem
