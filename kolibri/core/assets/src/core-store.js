@@ -10,7 +10,6 @@ const initialState = {
     session: { kind: UserKinds.ANONYMOUS, error: '200' },
     login_modal_state: false,
     is_admin_or_superuser: false,
-    fullname: '',
   },
 };
 
@@ -21,7 +20,7 @@ const mutations = {
     console.log('state.core.session: ', state.core.session);
   },
   // Makes settings for wrong credentials 401 error
-  HANDLE_WRONG_CREDS(state, value) {
+  CORE_HANDLE_WRONG_CREDS(state, value) {
     state.core.session = value;
   },
   CORE_CLEAR_SESSION(state) {
@@ -35,10 +34,10 @@ const mutations = {
     state.core.error = error;
   },
   // Handles state of login modal appearance
-  SET_MODAL_STATE(state, value) {
+  CORE_SET_MODAL_STATE(state, value) {
     state.core.login_modal_state = value;
   },
-  SET_ADMIN_STATUS(state, value) {
+  CORE_SET_ADMIN_STATUS(state, value) {
     state.core.is_admin_or_superuser = value;
   },
 };
