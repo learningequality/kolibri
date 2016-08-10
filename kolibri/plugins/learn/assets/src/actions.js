@@ -29,8 +29,15 @@ function _topicState(data) {
   return state;
 }
 
-
 function _contentState(data) {
+  let progress;
+  if (!data.progress_fraction) {
+    progress = 'unstarted';
+  } else if (data.progress_fraction < 1) {
+    progress = 'partial';
+  } else {
+    progress = 'complete';
+  }
   const state = {
     id: data.pk,
     title: data.title,
@@ -39,7 +46,7 @@ function _contentState(data) {
     thumbnail: data.thumbnail,
     available: data.available,
     files: data.files,
-    progress: data.progress ? data.progress : 'unstarted',
+    progress,
     breadcrumbs: _crumbState(data.ancestors),
   };
   return state;
