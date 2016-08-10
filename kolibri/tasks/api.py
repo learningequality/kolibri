@@ -1,10 +1,14 @@
+import json
 from celery import Celery
 from celery.backends.database.models import Task
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from django.core.management import call_command
 from rest_framework import viewsets
+from rest_framework.decorators import list_route
 from rest_framework.response import Response
+
+from kolibri.content.utils.channels import find_kolibri_data_in_mountpoints
 
 import logging as logger
 
@@ -82,3 +86,38 @@ class TasksViewSet(viewsets.ViewSet):
     def destroy(self, request, pk=None):
         if pk:
             return Response(cancel_task(pk))
+
+    # convenience functions for triggering often used tasks
+
+    @list_route(methods=['post'])
+    def startdownloadchannel(self, request):
+        '''Download a channel's database from the main curation server, and then
+        download its content.
+
+        '''
+        pass
+
+    @list_route(methods=['post'])
+    def startlocalimportchannel(self, request):
+        '''
+        Import a channel locally, and move content to the local machine.
+
+        '''
+        pass
+
+    @list_route(methods=['get'])
+    def localdrive(self, request):
+        drives = find_kolibri_data_in_mountpoints()
+
+        # make sure everything is a dict, before converting to JSON
+        assert isinstance(drives, dict)
+
+        out = []
+        for mountdata in drives.values():
+            mountdata = mountdata._asdict()
+            if mountdata['has_content']:
+                mountdata['channels'] = [c._asdict() for c in mountdata['channels']]
+
+            out.append(mountdata)
+
+        return Response(out)
