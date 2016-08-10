@@ -171,7 +171,7 @@ class Model {
    * @returns {Promise} - Promise is resolved with target model's id
    * returns, otherwise reject is called with the response object.
    */
-  delete(id) {
+  delete() {
     const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         if (!this.id) {
@@ -186,7 +186,7 @@ class Model {
             this.resource.removeModel(this);
             // Resolve the promise with the id.
             // Vuex will use this id to delete the model in its state.
-            resolve(id);
+            resolve(this.id);
             // Clean up the reference to this promise
             this.promises.splice(this.promises.indexOf(promise), 1);
           }, (response) => {
