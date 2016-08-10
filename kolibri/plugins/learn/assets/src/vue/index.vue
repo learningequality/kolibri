@@ -1,21 +1,12 @@
 <template>
 
   <core-base>
-
     <main-nav slot="nav"></main-nav>
     <search-button slot="above" class='search-btn'></search-button>
-    <select slot="above" v-model="currentChannel" v-on:change="switchChannel($event)">
-      <option v-for="channel in channels" :value="channel.id">{{ channel.name }}</option>
+    <select slot="above" v-model="getCurrentChannel" v-on:change="switchChannel($event)">
+      <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
     </select>
     <component slot="content" :is="currentPage"></component>
-    <div slot="content">
-      <select v-model="currentChannel" v-on:change="switchChannel($event)">
-        <option v-for="channel in channels" :value="channel.id">
-          {{ channel.name }}
-        </option>
-      </select>
-      <component :is="currentPage"></component>
-    </div>
     <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
       <div class='search-shadow'>
         <search-widget
@@ -23,6 +14,7 @@
         </search-widget>
       </div>
     </div>
+
     <!-- this is not used, but necessary for vue-router to function -->
     <router-view></router-view>
 
@@ -52,14 +44,15 @@
     },
     computed: {
       currentPage() {
-        if (this.pageName === PageNames.EXPLORE_ROOT || this.pageName === PageNames.EXPLORE_TOPIC) {
+        if (this.pageName === PageNames.EXPLORE_CHANNEL ||
+          this.pageName === PageNames.EXPLORE_TOPIC) {
           return 'explore-page';
         }
         if (this.pageName === PageNames.EXPLORE_CONTENT ||
           this.pageName === PageNames.LEARN_CONTENT) {
           return 'content-page';
         }
-        if (this.pageName === PageNames.LEARN_ROOT) {
+        if (this.pageName === PageNames.LEARN_CHANNEL) {
           return 'learn-page';
         }
         if (this.pageName === PageNames.SCRATCHPAD) {
@@ -73,15 +66,14 @@
       /*
       * Get a list of channels.
       */
-      channels() {
-        const channels = global.channels;
-        return channels;
+      getChannels() {
+        return this.channelList;
       },
       /*
       * Get the current channel ID.
       */
-      currentChannel() {
-        return this.currentChannelId;
+      getCurrentChannel() {
+        return this.currentChannel;
       },
     },
     methods: {
@@ -91,9 +83,9 @@
       switchChannel(event) {
         let rootPage;
         if (this.exploreMode) {
-          rootPage = constants.PageNames.EXPLORE_ROOT;
+          rootPage = constants.PageNames.EXPLORE_CHANNEL;
         } else {
-          rootPage = constants.PageNames.LEARN_ROOT;
+          rootPage = constants.PageNames.LEARN_CHANNEL;
         }
         this.$router.go(
           {
@@ -112,7 +104,8 @@
         searchOpen: state => state.searchOpen,
         loading: state => state.loading,
         error: state => state.error,
-        currentChannelId: state => state.currentChannelId,
+        currentChannel: state => state.currentChannel,
+        channelList: state => state.channelList,
       },
     },
     store, // make this and all child components aware of the store
@@ -149,9 +142,6 @@
     -webkit-appearance: none
     -moz-appearance: none
     outline: none
-
-  select:focus
-    background-color: $core-action-light
 
   .search-pane
     background-color: $core-bg-canvas

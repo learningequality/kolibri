@@ -27,6 +27,6 @@ class LearnView(TemplateView):
         context['channel_id'] = channel_id
 
         channel_serializer = ChannelMetadataCacheSerializer(ChannelMetadataCache.objects.all(), many=True)
-        channels = JSONRenderer().render(channel_serializer.data)
-        context['channels'] = channels
+        channel_list = JSONRenderer().render(channel_serializer.data)
+        context['channelList'] = channel_list
         return context

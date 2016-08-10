@@ -2,7 +2,9 @@
 
   <div>
     <h2>DATA</h2>
-    <button @click="downloadCSV">Download CSV</button>
+    <icon-button @click="downloadCSV" text="Download CSV">
+      <svg src="../icons/download.svg"></svg>
+    </icon-button>
   </div>
 
 </template>
@@ -16,6 +18,9 @@
       downloadCSV() {
         window.open(Kolibri.urls['contentsummarylogcsv-list'](), '_blank');
       },
+    },
+    components: {
+      'icon-button': require('icon-button'),
     },
   };
 

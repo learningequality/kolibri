@@ -6,14 +6,22 @@ const actions = require('./actions');
 const store = require('./state/store');
 const PageNames = require('./state/constants').PageNames;
 
-
 class LearnModule extends KolibriModule {
   ready() {
     router.on(
       PageNames.EXPLORE_ROOT,
+      `/explore`,
+      (toRoute, fromRoute) => {
+        actions.redirectToExploreChannel(store);
+      }
+    );
+
+    router.on(
+      PageNames.EXPLORE_CHANNEL,
       `/explore/:channel_id`,
       (toRoute, fromRoute) => {
-        actions.showExploreTopic(store, store.state.rootTopicId, store.state.currentChannelId);
+        // TODO: Get Root Topic ID from channel List
+        actions.showExploreTopic(store, toRoute.params.channel_id, store.state.rootTopicId);
       }
     );
 
@@ -21,7 +29,7 @@ class LearnModule extends KolibriModule {
       PageNames.EXPLORE_TOPIC,
       `/explore/:channel_id/topic/:id`,
       (toRoute, fromRoute) => {
-        actions.showExploreTopic(store, toRoute.params.id, toRoute.params.channel_id);
+        actions.showExploreTopic(store, toRoute.params.channel_id, toRoute.params.id);
       }
     );
 
@@ -29,15 +37,23 @@ class LearnModule extends KolibriModule {
       PageNames.EXPLORE_CONTENT,
       '/explore/:channel_id/content/:id',
       (toRoute, fromRoute) => {
-        actions.showExploreContent(store, toRoute.params.id);
+        actions.showExploreContent(store, toRoute.params.channel_id, toRoute.params.id);
       }
     );
 
     router.on(
       PageNames.LEARN_ROOT,
+      '/learn',
+      (toRoute, fromRoute) => {
+        actions.redirectToLearnChannel(store);
+      }
+    );
+
+    router.on(
+      PageNames.LEARN_CHANNEL,
       '/learn/:channel_id',
       (toRoute, fromRoute) => {
-        actions.showLearnRoot(store);
+        actions.showLearnChannel(store, toRoute.params.channel_id);
       }
     );
 
@@ -45,7 +61,7 @@ class LearnModule extends KolibriModule {
       PageNames.LEARN_CONTENT,
       '/learn/:channel_id/content/:id',
       (toRoute, fromRoute) => {
-        actions.showLearnContent(store, toRoute.params.id);
+        actions.showLearnContent(store, toRoute.params.channel_id, toRoute.params.id);
       }
     );
 
@@ -58,7 +74,7 @@ class LearnModule extends KolibriModule {
     );
 
     router.redirect({
-      '/': `/explore/${global.currentChannelId}`,
+      '/': `/explore`,
     });
 
     router.start(rootvue, 'rootvue');
