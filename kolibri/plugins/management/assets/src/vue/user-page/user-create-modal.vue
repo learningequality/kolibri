@@ -5,7 +5,8 @@
 
       <h2 slot="header">Add New Account</h2>
 
-      <section slot="body">
+      <div slot="body">
+
         <div class="user-field">
           <label for="name">Name</label>
           <input type="text" autocomplete="name"  autofocus="true" required v-model="fullName">
@@ -28,11 +29,11 @@
           </select>
         </div>
 
-      </section>
+      </div>
 
-      <section slot="footer">
+      <div slot="footer">
         <button class="create-btn" type="button" @click="createNewUser">Create User</button>
-      </section>
+      </div>
 
       <icon-button text="Add New" :primary="false" slot="openbtn">
         <svg class="add-user" src="../icons/add_new_user.svg"></svg>
