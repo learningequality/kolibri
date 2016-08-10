@@ -55,6 +55,7 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+  @require '../learn.styl'
 
   .breadcrumbs
     position: relative
@@ -80,6 +81,12 @@
     display: table
     left: -20px
     top: -40px
+  .breadcrumbs
+    left: 160px
+    bottom: 20px
+    position: relative
+    @media screen and (max-width: $portrait-breakpoint)
+      left: 24px
 
   .search-btn
     position: absolute
