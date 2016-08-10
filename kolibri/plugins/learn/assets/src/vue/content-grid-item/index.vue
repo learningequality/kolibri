@@ -2,7 +2,7 @@
 
   <div>
     <grid-item v-link="link" :title="title">
-      <div class='thumbnail' :class="'thumbnail-center'" :style='{ "background-image": thumb }'>
+      <div class="thumbnail" :style='{ "background-image": thumb }'>
         <content-icon
           class="content-icon-center"
           v-if="kind"
@@ -104,12 +104,10 @@
     height: 100%
     background-size: cover
     background-position: center
-    background: url('./images/default_thumbnail.png')
-
-  .thumbnail-center
+    background-color: black
     text-align: center
 
-  .thumbnail-center:before
+  .thumbnail:before
     content: ''
     display: inline-block
     vertical-align: middle
