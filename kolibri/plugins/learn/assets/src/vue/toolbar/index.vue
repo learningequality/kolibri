@@ -1,8 +1,8 @@
 <template>
 
-  <div v-scroll='onScroll' v-bind:class="['toolbar-show', displaytoolbar ? 'toolbar-hide' : '' ]" >
+  <div v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" >
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
-    <search-button class='search-btn'></search-button>
+    <search-button v-on:scrolling="handleScroll" class='search-btn'></search-button>
   </div>
 
 </template>
