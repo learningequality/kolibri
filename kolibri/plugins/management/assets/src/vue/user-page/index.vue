@@ -2,9 +2,9 @@
 
   <div class="user-roster">
 
-    <h2>
+    <h1>
       {{userPageTitle}}
-    </h2>
+    </h1>
 
     <span> ( {{ visibleUsers.length }} )</span>
 
@@ -224,7 +224,7 @@
     overflow:hidden
     overflow-y:scroll
 
-  h2
+  h1
     display: inline-block
 
   hr
