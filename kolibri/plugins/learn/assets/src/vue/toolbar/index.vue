@@ -59,15 +59,12 @@
 
   .breadcrumbs
     position: relative
-    display: table-cell
-    vertical-align: middle
     left: 120px
     @media screen and (max-width: $portrait-breakpoint)
       left: 3rem
 
   .toolbar-show
     position: fixed
-    display: table
     left: -20px
     top: 0
     width: 100%
@@ -78,7 +75,6 @@
 
   .toolbar-hide
     position: fixed
-    display: table
     left: -20px
     top: -40px
   .breadcrumbs
