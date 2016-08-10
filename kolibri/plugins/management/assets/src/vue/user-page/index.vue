@@ -36,12 +36,14 @@
 
     <table class="roster">
 
+      <caption class="visuallyhidden">Users</caption>
+
       <!-- Table Headers -->
       <thead>
         <tr>
-          <th> Student Name </th>
-          <th> Username </th>
-          <th> Edit </th>
+          <th class="col-header" scope="col"> Student Name </th>
+          <th class="col-header" scope="col"> Username </th>
+          <th class="col-header" scope="col"> Edit </th>
         </tr>
       </thead>
 
@@ -49,22 +51,22 @@
       <tbody>
         <tr v-for="user in visibleUsers">
           <!-- Student Name field -->
-          <td>
+          <th scope="row" class="table-cell">
             {{user.full_name}}
 
             <!-- Logic for role tags -->
             <span class="user-role" v-for="role in user.roles">
               {{role.kind | capitalize}}
             </span>
-          </td>
+          </th>
 
           <!-- Username field -->
-          <td>
+          <td class="table-cell">
             {{user.username}}
           </td>
 
           <!-- Edit field -->
-          <td>
+          <td class="table-cell">
             <user-edit-modal
               :userid="user.id"
               :roles="user.roles"
@@ -230,13 +232,13 @@
   tr
     text-align: left
 
-  th
+  .col-header
     padding-bottom: (1.2 * $row-padding)
     color: $core-text-annotation
     font-weight: normal
     font-size: 80%
 
-  td
+  .table-cell
     padding-bottom: $row-padding
     color: $core-text-default
 

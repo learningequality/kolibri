@@ -3,7 +3,7 @@
   <div class="user-creation-modal">
     <modal btntext="Add New">
 
-      <h2 slot="header">Add New Account</h2>
+      <h1 slot="header">Add New Account</h1>
 
       <div slot="body">
 
