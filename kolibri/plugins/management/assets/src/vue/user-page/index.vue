@@ -70,7 +70,6 @@
             </user-edit-modal>
           </td>
 
-          <!-- <button @click="deleteUser(user.id)">Delete</button> -->
         </tr>
       </tbody>
 
@@ -219,9 +218,6 @@
 
   .roster
     width: 100%
-    /*background-color: $core-bg-light*/
-    /*padding-top:*/
-
 
     /*Prevent lists that are too long*/
     max-height: 300px
@@ -264,11 +260,6 @@
     fill: $core-text-annotation
     left: 5px
     top: 5px
-
-  // .searchbar:after
-  //   content: ''
-  //   display: table
-  //   clear: both
 
   .searchbar
     border-radius: 5px
