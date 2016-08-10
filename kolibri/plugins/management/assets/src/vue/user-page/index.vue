@@ -9,7 +9,8 @@
     <span> ( {{ visibleUsers.length }} )</span>
 
     <div class="toolbar">
-      <select v-model="roleFilter" name="user-filter">
+      <label for="type-filter" class="visuallyhidden">Filter User Type</label>
+      <select v-model="roleFilter" id="type-filter" name="type-filter" class="user-filter-dropdown">
         <option selected value="all"> All Users </option>
         <option value="admin"> Admins </option>
         <option value="learner"> Learners </option>
@@ -18,6 +19,7 @@
     <div class="searchbar">
         <svg class="search-button" src="../icons/search.svg"></svg>
         <input
+        aria-label="Search for a user..."
         type="search"
         v-model="searchFilter"
         placeholder="Search for a user...">
@@ -209,7 +211,7 @@
       outline: none
       border-color: transparent
 
-  select[name='user-filter']
+  .user-filter-dropdown
     float: left
     background-color: $core-bg-light
     border-color: $core-action-light
