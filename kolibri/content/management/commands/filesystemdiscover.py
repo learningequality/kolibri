@@ -41,17 +41,21 @@ class Command(AsyncCommand):
         discovered_drives = {}
         for drive in drives:
             channels = list(discover_kolibri_data(drive.mountpoint))
+            is_writeable = "rw" in drive.opts
 
-            discovered_drives[drive] = DriveData(
+            discovered_drives[drive.mountpoint] = DriveData(
                 kind="localdrive",
                 id=drive.mountpoint,
                 name=drive.mountpoint,
-                writeable=False,             # Everything is false for now, TODO later
+                writeable=is_writeable,      # Everything is false for now, TODO later
                 has_content=bool(channels),  # True if we found channels in it
                 channels=channels,
             )
 
-        return discovered_drives
+        if self._called_from_command_line:
+            return str(discovered_drives)
+        else:
+            return discovered_drives
 
 
 def discover_kolibri_data(folder):
