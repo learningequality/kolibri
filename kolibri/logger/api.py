@@ -2,15 +2,15 @@ from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilte
 from kolibri.content.api import OptionalPageNumberPagination
 from rest_framework import viewsets
 
-from .models import ContentInteractionLog, ContentRatingLog, ContentSummaryLog, UserSessionLog
-from .serializers import ContentInteractionLogSerializer, ContentRatingLogSerializer, ContentSummaryLogSerializer, UserSessionLogSerializer
+from .models import ContentRatingLog, ContentSessionLog, ContentSummaryLog, UserSessionLog
+from .serializers import ContentRatingLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, UserSessionLogSerializer
 
 
-class ContentInteractionLogViewSet(viewsets.ModelViewSet):
+class ContentSessionLogViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
-    queryset = ContentInteractionLog.objects.all()
-    serializer_class = ContentInteractionLogSerializer
+    queryset = ContentSessionLog.objects.all()
+    serializer_class = ContentSessionLogSerializer
     pagination_class = OptionalPageNumberPagination
 
 class ContentSummaryLogViewSet(viewsets.ModelViewSet):

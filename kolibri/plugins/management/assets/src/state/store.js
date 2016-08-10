@@ -1,12 +1,14 @@
-const Vuex = require('vuex');
 
-function getInitialState() {
-  return {
-    facility: undefined,
-    users: [],
-    error: '',
-  };
-}
+const Vuex = require('vuex');
+const coreStore = require('core-store');
+const constants = require('./constants');
+
+const initialState = {
+  pageName: constants.PageNames.USER_MGMT_PAGE,
+  pageState: {},
+  facility: undefined,
+  users: [], // this should be inside page state
+};
 
 
 const mutations = {
@@ -21,7 +23,6 @@ const mutations = {
       });
     });
   },
-
   UPDATE_USERS(state, users) {
     users.forEach(user => {
       state.users.forEach(existingUser => {
@@ -34,7 +35,6 @@ const mutations = {
       });
     });
   },
-
   DELETE_USERS(state, ids) {
     ids.forEach(id => {
       state.users.forEach((user, index) => {
@@ -46,22 +46,24 @@ const mutations = {
       });
     });
   },
-
   SET_FACILITY(state, id) {
     state.facility = id;
   },
-
-  SET_ERROR(state, error) {
-    state.error = error;
+  SET_PAGE_NAME(state, name) {
+    state.pageName = name;
+  },
+  SET_PAGE_STATE(state, pageState) {
+    state.pageState = pageState;
   },
 };
 
-const store = new Vuex.Store({
-  state: getInitialState(),
+
+// assigns core state and mutations
+Object.assign(initialState, coreStore.initialState);
+Object.assign(mutations, coreStore.mutations);
+
+
+module.exports = new Vuex.Store({
+  state: initialState,
   mutations,
 });
-
-module.exports = {
-  mutations,
-  store,
-};
