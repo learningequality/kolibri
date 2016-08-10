@@ -133,6 +133,7 @@
     display: inline-block
     vertical-align: middle
     margin-bottom: 2px
+    font-size: 0.9em
     font-weight: 300
     max-width: 140px
     white-space: nowrap
