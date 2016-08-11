@@ -2,7 +2,7 @@
 
   <div v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" >
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
-    <search-button v-on:scrolling="handleScroll" class='search-btn'></search-button>
+    <search-button @scrolling="handleScroll" class='search-btn'></search-button>
   </div>
 
 </template>
