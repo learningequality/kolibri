@@ -17,7 +17,6 @@ const mutations = {
   CORE_SET_SESSION(state, value) {
     state.core.session = value;
     state.core.login_modal_state = false;
-    console.log('state.core.session: ', state.core.session);
   },
   // Makes settings for wrong credentials 401 error
   CORE_HANDLE_WRONG_CREDS(state, value) {

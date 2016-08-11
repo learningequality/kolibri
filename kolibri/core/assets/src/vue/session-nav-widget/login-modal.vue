@@ -10,7 +10,7 @@
         </div>
       </div>
       <div slot="body">
-        <input type="text" class="login-form login-username" v-model="username_entered" placeholder="Username" v-on:keyup.enter="userLogin" aria-label="Username" autofocus>
+        <input type="text" class="login-form login-username" v-model="username_entered" placeholder="Username" v-on:keyup.enter="userLogin" aria-label="Username" v-el:usernamefield autofocus>
         <input type="password" class="login-form login-password" v-model="password_entered" placeholder="Password" v-on:keyup.enter="userLogin" aria-label="Password">
         <button class="login-button" @click="userLogin">Login</button>
         <div v-if="wrongCreds">Incorrect username or password.<br>Please try again!</div>
@@ -47,6 +47,14 @@
         this.login(this.Kolibri, payload);
         this.username_entered = '';
         this.password_entered = '';
+        /* This is to offset race condition issues */
+        window.setTimeout(this.refocus, 100);
+      },
+      /* Puts focus on username field if wrong credentials are given */
+      refocus() {
+        if (this.wrongCreds) {
+          this.$els.usernamefield.focus();
+        }
       },
     },
     vuex: {
