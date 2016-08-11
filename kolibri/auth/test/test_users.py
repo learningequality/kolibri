@@ -14,8 +14,7 @@ class UserSanityTestCase(TestCase):
         self.facility = Facility.objects.create()
         self.user = FacilityUser.objects.create(
             username="mike",
-            first_name="Mike",
-            last_name="Gallaspy",
+            full_name="Mike Gallaspy",
             password="###",
             facility=self.facility,
         )
@@ -32,6 +31,3 @@ class UserSanityTestCase(TestCase):
 
     def test_short_name(self):
         self.assertEqual(self.user.get_short_name(), "Mike")
-
-    def test_full_name(self):
-        self.assertEqual(self.user.get_full_name(), "Mike Gallaspy")

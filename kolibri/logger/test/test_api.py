@@ -4,6 +4,7 @@ Also tests whether the users with permissions can create logs.
 """
 
 import csv
+import datetime
 import uuid
 
 from django.core.urlresolvers import reverse
@@ -13,16 +14,16 @@ from kolibri.auth.models import DeviceOwner
 
 from .factory_logger import (
     FacilityFactory, FacilityUserFactory,
-    ContentInteractionLogFactory, ContentSummaryLogFactory,
+    ContentSessionLogFactory, ContentSummaryLogFactory,
     ContentRatingLogFactory, UserSessionLogFactory,
     DUMMY_PASSWORD
 )
 
-from ..models import ContentInteractionLog, ContentSummaryLog, ContentRatingLog, UserSessionLog
-from ..serializers import ContentInteractionLogSerializer, ContentSummaryLogSerializer, ContentRatingLogSerializer
+from ..models import ContentSessionLog, ContentSummaryLog, ContentRatingLog, UserSessionLog
+from ..serializers import ContentSessionLogSerializer, ContentSummaryLogSerializer, ContentRatingLogSerializer
 
 
-class ContentInteractionLogAPITestCase(APITestCase):
+class ContentSessionLogAPITestCase(APITestCase):
 
     def setUp(self):
         # create DeviceOwner to pass the setup_wizard middleware check
@@ -30,44 +31,45 @@ class ContentInteractionLogAPITestCase(APITestCase):
         self.facility = FacilityFactory.create()
         self.admin = FacilityUserFactory.create(facility=self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
-        self.interaction_logs = [ContentInteractionLogFactory.create(user=self.user) for _ in range(3)]
+        self.interaction_logs = [ContentSessionLogFactory.create(user=self.user) for _ in range(3)]
         self.facility.add_admin(self.admin)
         self.payload = {'user': self.user.pk,
                         'content_id': uuid.uuid4().hex,
                         'channel_id': uuid.uuid4().hex,
-                        'item_session': uuid.uuid4().hex}
+                        'kind': 'video',
+                        'start_timestamp': str(datetime.datetime.now())}
 
-    def test_interactionlog_list(self):
+    def test_contentsessionlog_list(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.get(reverse('contentinteractionlog-list'))
-        expected_count = ContentInteractionLog.objects.count()
+        response = self.client.get(reverse('contentsessionlog-list'))
+        expected_count = ContentSessionLog.objects.count()
         self.assertEqual(len(response.data), expected_count)
 
-    def test_interactionlog_detail(self):
+    def test_contentsessionlog_detail(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         log_id = self.interaction_logs[0].id
-        response = self.client.get(reverse('contentinteractionlog-detail', kwargs={"pk": log_id}))
-        log = ContentInteractionLog.objects.get(pk=log_id)
-        interaction_serializer = ContentInteractionLogSerializer(log)
+        response = self.client.get(reverse('contentsessionlog-detail', kwargs={"pk": log_id}))
+        log = ContentSessionLog.objects.get(pk=log_id)
+        interaction_serializer = ContentSessionLogSerializer(log)
         self.assertEqual(response.data['content_id'], interaction_serializer.data['content_id'])
 
-    def test_admin_can_create_interactionlog(self):
+    def test_admin_can_create_contentsessionlog(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.post(reverse('contentinteractionlog-list'), data=self.payload, format='json')
+        response = self.client.post(reverse('contentsessionlog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_learner_can_create_interactionlog(self):
+    def test_learner_can_create_contentsessionlog(self):
         self.client.login(username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.post(reverse('contentinteractionlog-list'), data=self.payload, format='json')
+        response = self.client.post(reverse('contentsessionlog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_anonymous_user_cannot_create_interactionlog_for_learner(self):
-        response = self.client.post(reverse('contentinteractionlog-list'), data=self.payload, format='json')
+    def test_anonymous_user_cannot_create_contentsessionlog_for_learner(self):
+        response = self.client.post(reverse('contentsessionlog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_anonymous_user_can_create_interactionlog(self):
+    def test_anonymous_user_can_create_contentsessionlog(self):
         del self.payload['user']
-        response = self.client.post(reverse('contentinteractionlog-list'), data=self.payload, format='json')
+        response = self.client.post(reverse('contentsessionlog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
@@ -83,7 +85,9 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.facility.add_admin(self.admin)
         self.payload = {'user': self.user.pk,
                         'content_id': uuid.uuid4().hex,
-                        'channel_id': uuid.uuid4().hex}
+                        'channel_id': uuid.uuid4().hex,
+                        'kind': "video",
+                        'start_timestamp': str(datetime.datetime.now())}
 
     def test_summarylog_list(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
@@ -112,11 +116,6 @@ class ContentSummaryLogAPITestCase(APITestCase):
     def test_anonymous_user_cannot_create_summarylog_for_learner(self):
         response = self.client.post(reverse('contentsummarylog-list'), data=self.payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_anonymous_user_can_create_summarylog(self):
-        del self.payload['user']
-        response = self.client.post(reverse('contentsummarylog-list'), data=self.payload, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class ContentRatingLogAPITestCase(APITestCase):
@@ -204,10 +203,6 @@ class UserSessionLogAPITestCase(APITestCase):
     def test_anonymous_user_cannot_create_sessionlog_for_learner(self):
         response = self.client.post(reverse('usersessionlog-list'), data={'user': self.user.pk}, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_anonymous_user_can_create_sessionlog(self):
-        response = self.client.post(reverse('usersessionlog-list'), format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class ContentSummaryLogCSVExportTestCase(APITestCase):

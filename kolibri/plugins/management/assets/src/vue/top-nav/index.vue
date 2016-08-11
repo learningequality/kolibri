@@ -78,13 +78,9 @@
     @media screen and (max-width: $portrait-breakpoint)
       padding: 0.6em 1em
 
-  .top a:focus , .top a:hover
-    border-bottom: 0.3em $core-action-light solid
-
   .top .active
-    color: $core-action-normal
+    color: $core-text-default
     cursor: default
-    font-weight: 700
     border-bottom: 0.3em $core-action-normal solid
 
 </style>

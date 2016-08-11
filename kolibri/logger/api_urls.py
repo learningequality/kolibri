@@ -1,11 +1,11 @@
 from rest_framework import routers
 
-from .api import ContentInteractionLogViewSet, ContentRatingLogViewSet, ContentSummaryLogViewSet, UserSessionLogViewSet
+from .api import ContentRatingLogViewSet, ContentSessionLogViewSet, ContentSummaryLogViewSet, UserSessionLogViewSet
 from .csv import ContentSummaryLogCSVExportViewSet
 
 router = routers.SimpleRouter()
 
-router.register(r'contentinteractionlog', ContentInteractionLogViewSet)
+router.register(r'ContentSessionLog', ContentSessionLogViewSet)
 router.register(r'contentsummarylog', ContentSummaryLogViewSet)
 router.register(r'contentratinglog', ContentRatingLogViewSet)
 router.register(r'usersessionlog', UserSessionLogViewSet)
