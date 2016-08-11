@@ -1,4 +1,3 @@
-
 const Kolibri = require('kolibri');
 const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
 const ChannelResource = require('kolibri').resources.ChannelResource;
@@ -133,6 +132,7 @@ function _contentSessionModel(store) {
     extra_fields: sessionLog.extra_fields,
   };
   return mapping;
+}
 
 /*
 * Returns a promise that gets current channel.
@@ -302,7 +302,7 @@ function showLearnContent(store, channelId, id) {
       const pageState = {
         content: _contentState(attributes),
         recommended: recommended.map(_contentState),
-        logging: { summary: { progress: 0 } },
+        logging: { summary: { progress: 0 } }, // To avoid error thrown by vue getter
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);

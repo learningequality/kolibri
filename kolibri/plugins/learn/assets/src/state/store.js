@@ -36,6 +36,12 @@ const mutations = {
   TOGGLE_SEARCH(state) {
     state.searchOpen = !state.searchOpen;
   },
+  SET_CURRENT_CHANNEL(state, channelId) {
+    state.currentChannel = channelId;
+  },
+  SET_CHANNEL_LIST(state, channelList) {
+    state.channelList = channelList;
+  },
   INIT_LOGGING_STATE(state, loggingState) {
     state.pageState.logging = loggingState;
   },
@@ -67,12 +73,6 @@ const mutations = {
   SET_LOGGING_PENDING(state, summaryPending, sessionPending) {
     state.pageState.logging.summary.pending_create = summaryPending;
     state.pageState.logging.session.pending_create = sessionPending;
-  },
-  SET_CURRENT_CHANNEL(state, channelId) {
-    state.currentChannel = channelId;
-  },
-  SET_CHANNEL_LIST(state, channelList) {
-    state.channelList = channelList;
   },
 };
 
