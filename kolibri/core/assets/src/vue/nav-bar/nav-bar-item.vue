@@ -72,12 +72,4 @@
   .content
     display: inline-block
 
-  a:focus
-    background: $core-action-light
-    outline: none
-
-  .link.active:focus
-    color: $core-action-normal
-    background: $core-action-light
-
 </style>

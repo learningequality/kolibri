@@ -1,20 +1,43 @@
 <template>
 
   <div class="user-creation-modal">
-    <modal btntext="+ User">
-      <div class="title" slot="header">User creation</div>
+    <modal v-ref:modal btntext="Add New">
+
+      <h1 slot="header">Add New Account</h1>
+
       <div slot="body">
-        <br>Username: <input type="text" v-model="username" placeholder="Please type in your username."><br>
-        <br>Password: <input type="text" v-model="password" placeholder="Please type in your password."><br>
-        <br>First name: <input type="text" v-model="firstName" placeholder="Please type in your first name."><br>
-        <br>Last name: <input type="text" v-model="lastName" placeholder="Please type in your last name."><br>
-        <!-- radio buttons for selecting role -->
-        <br>Learner <input type="radio" value="learner" v-model="role"><br>
-        <br>Admin <input type="radio" value="admin" v-model="role"><br>
+
+        <div class="user-field">
+          <label for="name">Name</label>
+          <input type="text" autocomplete="name"  autofocus="true" required v-model="user.full_name">
+        </div>
+
+        <div class="user-field">
+          <label for="username">Username</label>
+          <input type="text" autocomplete="username" id="username" required v-model="user.username">
+        </div>
+
+        <div class="user-field">
+          <label for="username">Password</label>
+          <input type="password" id="password" required v-model="user.password">
+        </div>
+
+        <div class="user-field">
+          <select v-model="user.role">
+            <option value="learner" selected> Learner </option>
+            <option value="admin"> Admin </option>
+          </select>
+        </div>
+
       </div>
+
       <div slot="footer">
         <button class="create-btn" type="button" @click="createNewUser">Create User</button>
       </div>
+
+      <icon-button text="Add New" :primary="false" slot="openbtn">
+        <svg class="add-user" src="../icons/add_new_user.svg"></svg>
+      </icon-button>
     </modal>
   </div>
 
@@ -27,27 +50,30 @@
 
   module.exports = {
     components: {
-      modal: require('../modal'),
+      'icon-button': require('icon-button'),
+      'modal': require('../modal'),
     },
     data() {
       return {
-        username: '',
-        password: '',
-        firstName: '',
-        lastName: '',
+        user: {
+          username: '',
+          password: '',
+          full_name: '',
+        },
         role: 'learner',
       };
     },
     methods: {
       createNewUser() {
-        const payload = {
-          password: this.password,
-          username: this.username,
-          first_name: this.firstName,
-          last_name: this.lastName,
-          facility: this.facility,
-        };
-        this.createUser(payload, this.role);
+        this.user.facility = this.facility;
+        // using promise to ensure that the user is created before closing
+        // can use this promise to have flash an error in the modal?
+        this.createUser(this.user, this.role).then(() => {
+          for (const userProp of Object.getOwnPropertyNames(this.user)) {
+            this.user[userProp] = '';
+          }
+          this.$refs.modal.closeModal();
+        });
       },
     },
     vuex: {
@@ -65,10 +91,13 @@
 
 <style lang="stylus" scoped>
 
-  .title
-    display: inline
+  $button-content-size = 1em
 
-  .create-btn
-    float: right
+  .user-field
+    padding-bottom: 5%
+    input, select
+      width: 100%
+    label
+      position: relative
 
 </style>

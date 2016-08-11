@@ -14,7 +14,7 @@
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
     <div class="label">Explore</div>
   </nav-bar-item>
-  <nav-bar-item href="/management">
+  <nav-bar-item v-if="isAdminOrSuperuser" href="/management">
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/manage.svg"></svg>
     <div class="label">Manage</div>
   </nav-bar-item>
@@ -34,17 +34,18 @@
     vuex: {
       getters: {
         pageMode,
+        isAdminOrSuperuser: state => state.core.is_admin_or_superuser,
       },
     },
     computed: {
       learnLink() {
-        return { name: constants.PageNames.LEARN_ROOT };
+        return { name: constants.PageNames.LEARN_CHANNEL };
       },
       learnActive() {
         return this.pageMode === constants.PageModes.LEARN;
       },
       exploreLink() {
-        return { name: constants.PageNames.EXPLORE_ROOT };
+        return { name: constants.PageNames.EXPLORE_CHANNEL };
       },
       exploreActive() {
         return this.pageMode === constants.PageModes.EXPLORE;
@@ -60,6 +61,6 @@
   @require '~nav-bar-item.styl'
 
   a.active:focus svg
-    fill: $core-action-normal
+    fill: $core-bg-light
 
 </style>

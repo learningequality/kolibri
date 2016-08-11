@@ -9,7 +9,7 @@
         :rootid='rootTopicId'
         :crumbs='breadcrumbs'>
       </breadcrumbs>
-      <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_ROOT }">
+      <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_CHANNEL }">
         <span id="little-arrow">←</span> Learn
       </a>
     </page-header>

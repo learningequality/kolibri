@@ -6,7 +6,31 @@ const TaskResource = Kolibri.resources.TaskResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
 const constants = require('./state/constants');
+const UserKinds = require('core-constants').UserKinds;
 const PageNames = constants.PageNames;
+
+
+/**
+ * Vuex State Mappers
+ *
+ * The methods below help map data from
+ * the API to state in the Vuex store
+ */
+
+function _userState(data) {
+  // assume just one role for now
+  let kind = UserKinds.LEARNER;
+  if (data.roles.length && data.roles[0].kind === 'admin') {
+    kind = UserKinds.ADMIN;
+  }
+  return {
+    id: data.id,
+    username: data.username,
+    full_name: data.full_name,
+    roles: data.roles,
+    kind, // unused for now
+  };
+}
 
 
 /**
@@ -17,11 +41,11 @@ const PageNames = constants.PageNames;
 function createUser(store, payload, role) {
   const FacilityUserModel = FacilityUserResource.createModel(payload);
   const newUserPromise = FacilityUserModel.save(payload);
-  newUserPromise.then((model) => {
-    // assgin role to this new user if the role is not learner
+  // returns a promise so the result can be used by the caller
+  return newUserPromise.then((model) => {
+    // assign role to this new user if the role is not learner
     if (role === 'learner' || !role) {
-      // mutation ADD_USERS only take array
-      store.dispatch('ADD_USERS', [model]);
+      store.dispatch('ADD_USER', _userState(model));
     } else {
       const rolePayload = {
         user: model.id,
@@ -32,7 +56,7 @@ function createUser(store, payload, role) {
       const newRolePromise = RoleModel.save(rolePayload);
       newRolePromise.then((results) => {
         FacilityUserModel.fetch({}, true).then(updatedModel => {
-          store.dispatch('ADD_USERS', [updatedModel]);
+          store.dispatch('ADD_USER', _userState(updatedModel));
         });
       }).catch((error) => {
         store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -154,15 +178,20 @@ function deleteUser(store, id) {
 function showUserPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.USER_MGMT_PAGE);
-  const learnerCollection = FacilityUserResource.getCollection();
-  const roleCollection = RoleResource.getCollection();
+  const userCollection = FacilityUserResource.getCollection();
   const facilityIdPromise = FacilityUserResource.getCurrentFacility();
-  const userPromise = learnerCollection.fetch();
-  const rolePromise = roleCollection.fetch();
-  const promises = [facilityIdPromise, userPromise, rolePromise];
-  Promise.all(promises).then(([id, users]) => {
-    store.dispatch('SET_FACILITY', id[0]); // for mvp, we assume only one facility exists
-    store.dispatch('ADD_USERS', users);
+  const userPromise = userCollection.fetch();
+
+  const promises = [facilityIdPromise, userPromise];
+
+  Promise.all(promises).then(([facilityId, users]) => {
+    store.dispatch('SET_FACILITY', facilityId[0]); // for mvp, we assume only one facility exists
+
+    const pageState = {
+      users: users.map(_userState),
+    };
+
+    store.dispatch('SET_PAGE_STATE', pageState);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('CORE_SET_ERROR', null);
   },
