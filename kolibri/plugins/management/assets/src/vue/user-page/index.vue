@@ -51,14 +51,14 @@
       <tbody>
         <tr v-for="user in visibleUsers">
           <!-- Student Name field -->
-          <td scope="row" class="table-cell">
+          <th scope="row" class="table-cell">
             {{user.full_name}}
 
             <!-- Logic for role tags -->
             <span class="user-role" v-for="role in user.roles">
               {{role.kind | capitalize}}
             </span>
-          </td>
+          </th>
 
           <!-- Username field -->
           <td class="table-cell">
@@ -242,6 +242,7 @@
     font-size: 80%
 
   .table-cell
+    font-weight: normal // compensates for <th> cells
     padding-bottom: $row-padding
     color: $core-text-default
 
