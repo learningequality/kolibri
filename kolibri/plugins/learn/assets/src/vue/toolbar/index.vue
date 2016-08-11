@@ -131,8 +131,8 @@
     top: -40px
 
   .breadcrumbs
-    left: 160px
-    bottom: 20px
+    left: 120px
+    bottom: 22px
     position: relative
     @media screen and (max-width: $portrait-breakpoint)
       left: 24px
@@ -156,7 +156,7 @@
 
   .search-btn
     position: absolute
-    top: 0.6rem
+    top: 0.1rem
     right: 2rem
     z-index: 1
     @media screen and (max-width: $portrait-breakpoint)
