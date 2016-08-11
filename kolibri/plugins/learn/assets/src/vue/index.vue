@@ -14,6 +14,7 @@
       >
         <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
       </select>
+      <toolbar slot="above"></toolbar>
     </div>
     <component slot="content" :is="currentPage"></component>
     <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
@@ -39,10 +40,13 @@
   const PageModes = constants.PageModes;
   const getters = require('../state/getters');
   const store = require('../state/store');
+  require('vue-scroll');
+
 
   module.exports = {
     components: {
       'core-base': require('core-base'),
+      'toolbar': require('./toolbar'),
       'main-nav': require('./main-nav'),
       'search-widget': require('./search-widget'),
       'search-button': require('./search-widget/search-button'),
@@ -126,13 +130,18 @@
   @require '~core-theme.styl'
   @require 'learn.styl'
 
-  .search-btn
-    position: fixed
-    top: 1rem
-    right: 2rem
-    z-index: 1
+  .main
+    position: fixed // must be fixed for ie10
+    overflow-y: scroll
+    height: 100%
+    width: 100%
+    padding-left: $left-margin
+    padding-right: $right-margin
+    padding-bottom: 50px
     @media screen and (max-width: $portrait-breakpoint)
-      right: 1rem
+      padding-left: $card-gutter * 2
+      padding-right: $card-gutter
+      padding-bottom: 100px
 
   .top-wrapper
     text-align: right
