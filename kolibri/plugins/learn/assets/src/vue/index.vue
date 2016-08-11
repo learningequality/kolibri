@@ -5,16 +5,7 @@
     <toolbar slot="above"></toolbar>
     <div slot="above" class="top-wrapper">
       <search-button class='search-btn'></search-button>
-      <label for="chan-select" class="visuallyhidden">Filter User Type</label>
-      <select
-        class="chan-select"
-        id="chan-select"
-        name="chan-select"
-        v-model="getCurrentChannel"
-        @change="switchChannel($event)"
-      >
-        <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
-      </select>
+
     </div>
     <component slot="content" :is="currentPage"></component>
     <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
@@ -74,47 +65,12 @@
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
       },
-      /*
-      * Get a list of channels.
-      */
-      getChannels() {
-        return this.channelList;
-      },
-      /*
-      * Get the current channel ID.
-      */
-      getCurrentChannel() {
-        return this.currentChannel;
-      },
-    },
-    methods: {
-      /*
-      * Route to selected channel.
-      */
-      switchChannel(event) {
-        let rootPage;
-        if (this.exploreMode) {
-          rootPage = constants.PageNames.EXPLORE_CHANNEL;
-        } else {
-          rootPage = constants.PageNames.LEARN_CHANNEL;
-        }
-        this.$router.go(
-          {
-            name: rootPage,
-            params: {
-              channel_id: event.target.value,
-            },
-          }
-        );
-      },
     },
     vuex: {
       getters: {
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchOpen: state => state.searchOpen,
-        currentChannel: state => state.currentChannel,
-        channelList: state => state.channelList,
       },
     },
     store, // make this and all child components aware of the store
@@ -132,18 +88,6 @@
     text-align: right
     padding-top: 22px
     padding-right: $right-margin * 2
-
-  .chan-select
-    width: 11em
-    padding: 0.2em 0.8em
-    color: $core-text-annotation
-    font-size: 0.9rem
-    border: 1px solid $core-text-annotation
-    border-radius: 50px
-    background: url(./icons/arrowdown.svg) no-repeat right
-    -webkit-appearance: none
-    -moz-appearance: none
-    outline: none
 
   .search-pane
     background-color: $core-bg-canvas
