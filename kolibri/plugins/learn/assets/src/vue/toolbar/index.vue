@@ -2,10 +2,11 @@
 
   <div v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" >
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
-    <div class="toggle-menu">
-      <label for="chan-select" class="visuallyhidden">Filter User Type</label>
+    <div :class="{ 'toggle-menu-on' : more }">
+      <label for="chan-select" class="visuallyhidden">Switch Channels</label>
       <select
         class="chan-select"
+        :class="[ more ? 'chan-select-mobile-location' : 'chan-select-location' ]"
         id="chan-select"
         name="chan-select"
         v-model="getCurrentChannel"
@@ -15,6 +16,7 @@
       </select>
     </div>
     <search-button @scrolling="handleScroll" class='search-btn'></search-button>
+    <button class="more" @click="toggleMore" ><svg src="../icons/more-ver.svg"></svg></button>
   </div>
 
 </template>
@@ -32,6 +34,7 @@
       delta: 5,
       lastScrollTop: 0,
       displayToolBar: false,
+      more: false,
     }),
     components: {
       'search-widget': require('../search-widget'),
@@ -61,6 +64,8 @@
           return;
         }
 
+        this.more = false;
+
         if (this.currScrollTop > this.lastScrollTop) {
           this.displayToolBar = true;
         } else {
@@ -86,6 +91,11 @@
             },
           }
         );
+      },
+      toggleMore() {
+        if (window.innerWidth <= 545) {
+          this.more = !this.more;
+        }
       },
     },
     vuex: {
@@ -137,10 +147,24 @@
     @media screen and (max-width: $portrait-breakpoint)
       left: 24px
 
+  .toggle-menu-on
+      position: fixed
+      display: table
+      top: 4em
+      right: 30px
+      width: 200px
+      height: 100px
+      background: $core-bg-canvas
+      border-radius: 4px
+      text-align: center
+      font-size: 0.9em
+      color: $core-text-annotation
+      box-shadow: 1px 1px 2px $core-text-annotation
+
+  .toggle-menu-on::after
+      content: 'Switch Channels:'
+
   .chan-select
-    position: absolute
-    top: 0.5rem
-    right: 6em
     z-index: 1
     width: 11em
     padding: 0.2em 0.8em
@@ -153,13 +177,37 @@
     -webkit-appearance: none
     -moz-appearance: none
     outline: none
+    @media screen and (max-width: $portrait-breakpoint)
+      display: none
+
+  .chan-select-location
+    position: absolute
+    top: 0.5rem
+    right: 6em
+
+  .chan-select-mobile-location
+    position: relative
+    display: table-cell
+    margin: 0 auto
+    top: 3.4em
+    right: auto
 
   .search-btn
     position: absolute
     top: 0.1rem
-    right: 2rem
+    right: 1.2rem
     z-index: 1
     @media screen and (max-width: $portrait-breakpoint)
-      right: 1rem
+      right: 3rem
+
+  .more
+    display: none
+    @media screen and (max-width: $portrait-breakpoint)
+      position: absolute
+      display: block
+      top: 0.3rem
+      right: 0
+      border: none
+      z-index: 1
 
 </style>
