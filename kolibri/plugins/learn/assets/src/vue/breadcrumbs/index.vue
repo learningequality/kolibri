@@ -81,12 +81,10 @@
         };
       },
       backLink() {
-        let bread;
-        let id;
         if (this.pageState.topic) {
-          bread = this.pageState.topic.breadcrumbs;
+          const bread = this.pageState.topic.breadcrumbs;
           if (bread[bread.length - 1]) {
-            id = bread[bread.length - 1].id;
+            const id = bread[bread.length - 1].id;
             return {
               name: PageNames.EXPLORE_TOPIC,
               params: { id },
