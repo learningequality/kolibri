@@ -4,7 +4,7 @@
 
     <div class="header">
       <h1>
-        {{userPageTitle}}
+        All Users
       </h1>
       <span> ( {{ visibleUsers.length }} )</span>
     </div>
@@ -149,16 +149,6 @@
 
           // aphabetize based on username
         }).sort((user1, user2) => user1.username[0] > user2.username[0]);
-      },
-      userPageTitle() {
-        switch (this.roleFilter) {
-          default:
-            return 'All Users';
-          case 'learner':
-            return 'Learners';
-          case 'admin':
-            return 'Admins';
-        }
       },
     },
     vuex: {
