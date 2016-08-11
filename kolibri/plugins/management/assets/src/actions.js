@@ -1,7 +1,7 @@
 const Kolibri = require('kolibri');
 
 const FacilityUserResource = Kolibri.resources.FacilityUserResource;
-const ContentNodeResource = Kolibri.resources.ContentNodeResource;
+const ChannelResource = Kolibri.resources.ChannelResource;
 const TaskResource = Kolibri.resources.TaskResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
@@ -208,8 +208,7 @@ function showContentPage(store) {
   taskCollectionPromise.then((taskList) => {
     const pageState = { showWizard: false };
     pageState.taskList = taskList;
-    // ChannelResource should be used
-    const channelCollectionPromise = ContentNodeResource.getCollection().fetch();
+    const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
     channelCollectionPromise.then((channelList) => {
       pageState.channelList = channelList;
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -228,8 +227,7 @@ function updateTasks(store) {
   taskCollectionPromise.then((taskList) => {
     const pageState = { showWizard: false };
     pageState.taskList = taskList;
-    // ChannelResource should be used
-    const channelCollectionPromise = ContentNodeResource.getCollection().fetch();
+    const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
     channelCollectionPromise.then((channelList) => {
       pageState.channelList = channelList;
       store.dispatch('SET_PAGE_STATE', pageState);
