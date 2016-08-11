@@ -1,7 +1,7 @@
 <template>
 
   <div class="modal-root" v-on:keyup.esc="toggleModal">
-    <div class="modal" v-show="modalstate" transition="modal">
+    <div class="modal" v-if="modalstate" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
           <img @click="toggleModal" class="close-btn" src="./close.svg">
@@ -73,11 +73,11 @@
     background: rgba(0, 0, 0, 0.7)
     display: table
     transition: opacity 0.3s ease
-    
+
   .modal-wrapper
     display: table-cell
     vertical-align: middle
-    
+
   .modal-container
     background: #fff
     width: 410px
@@ -86,26 +86,26 @@
     transition: all 0.3s ease
     margin: 0 auto
     padding: 20px 30px
-    
+
   .modal-header
     font-weight: bold
     padding-bottom: 10px
-    
+
   .modal-footer
     margin-top: 15px
     margin-bottom: 10px
     padding-bottom: inherit
-    
+
   .close-btn
     float: right
     cursor:pointer
     width: 15px
     height: auto
     margin-top: 5px
-    
+
   .modal-enter, .modal-leave
     opacity: 0
-  
+
   .modal-enter .modal-container,
   .modal-leave .modal-container
     -webkit-transform: scale(1.1)
