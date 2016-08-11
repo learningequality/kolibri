@@ -42,11 +42,6 @@
       'nav-bar-item': require('nav-bar-item'),
       'login-modal': require('./login-modal.vue'),
     },
-    props: {
-      href: {
-        type: String,
-      },
-    },
     data: () => ({
       showDropdown: false,
     }),
