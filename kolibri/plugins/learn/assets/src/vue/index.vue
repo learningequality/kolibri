@@ -3,10 +3,6 @@
   <core-base>
     <main-nav slot="nav"></main-nav>
     <toolbar slot="above"></toolbar>
-    <div slot="above" class="top-wrapper">
-      <search-button class='search-btn'></search-button>
-
-    </div>
     <component slot="content" :is="currentPage"></component>
     <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
       <div class='search-shadow'>
@@ -83,11 +79,6 @@
 
   @require '~core-theme.styl'
   @require 'learn.styl'
-
-  .top-wrapper
-    text-align: right
-    padding-top: 22px
-    padding-right: $right-margin * 2
 
   .search-pane
     background-color: $core-bg-canvas
