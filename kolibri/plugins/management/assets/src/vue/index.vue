@@ -6,7 +6,7 @@
       <top-nav></top-nav>
     </div>
     <component v-if="isAdminOrSuperuser" slot="content" :is="currentPage" class="page"></component>
-    <div v-else slot="content">
+    <div v-else slot="content" class="login-message">
       <h1>Did you forget to log in?</h1>
       <h3>You must be logged in as an Admin to view this page.</h3>
     </div>
@@ -73,9 +73,9 @@
     width: 100%
     border-radius: $radius
 
-  h1, h3
+  .login-message h1, h3
     text-align: center
-  h1
+  .login-message h1
     margin-top: 200px
 
 </style>
