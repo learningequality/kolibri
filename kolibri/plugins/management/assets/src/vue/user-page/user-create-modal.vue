@@ -32,6 +32,7 @@
       </div>
 
       <div slot="footer">
+        <p v-if="error">{{error}}</p>
         <button class="create-btn" type="button" @click="createNewUser">Create User</button>
       </div>
 
@@ -61,19 +62,25 @@
           full_name: '',
         },
         role: 'learner',
+        error: '',
       };
     },
     methods: {
       createNewUser() {
         this.user.facility = this.facility;
         // using promise to ensure that the user is created before closing
-        // can use this promise to have flash an error in the modal?
-        this.createUser(this.user, this.role).then(() => {
-          for (const userProp of Object.getOwnPropertyNames(this.user)) {
-            this.user[userProp] = '';
+        this.createUser(this.user, this.role).then(
+          () => {
+            for (const userProp of Object.getOwnPropertyNames(this.user)) {
+              this.user[userProp] = '';
+            }
+            this.$refs.modal.closeModal();
+          },
+          (error) => {
+            // Need more descriptive errors
+            this.error = `${error} Please make sure this username does not already exist.`;
           }
-          this.$refs.modal.closeModal();
-        });
+        );
       },
     },
     vuex: {
