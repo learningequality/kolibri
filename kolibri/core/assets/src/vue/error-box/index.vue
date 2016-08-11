@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h2>Whoops!</h2>
+    <h1>Whoops!</h1>
     <p>We've encountered an issue:</p>
     <textarea>
       {{ error }}

@@ -39,8 +39,9 @@ function _userState(data) {
 function createUser(store, payload, role) {
   const FacilityUserModel = FacilityUserResource.createModel(payload);
   const newUserPromise = FacilityUserModel.save(payload);
-  newUserPromise.then((model) => {
-    // assgin role to this new user if the role is not learner
+  // returns a promise so the result can be used by the caller
+  return newUserPromise.then((model) => {
+    // assign role to this new user if the role is not learner
     if (role === 'learner' || !role) {
       store.dispatch('ADD_USER', _userState(model));
     } else {
@@ -102,7 +103,7 @@ function updateUser(store, id, payload, role) {
     } else if (role !== 'learner') {
     // oldRole is admin and role is coach or oldRole is coach and role is admin.
       const OldRoleModel = RoleResource.getModel(oldRoldID);
-      OldRoleModel.delete(oldRoldID).then(() => {
+      OldRoleModel.delete().then(() => {
       // create new role when old role is successfully deleted.
         const rolePayload = {
           user: id,
@@ -129,7 +130,7 @@ function updateUser(store, id, payload, role) {
     } else {
     // role is learner and oldRole is admin or coach.
       const OldRoleModel = RoleResource.getModel(oldRoldID);
-      OldRoleModel.delete(oldRoldID).then(() => {
+      OldRoleModel.delete().then(() => {
         FacilityUserModel.save(payload).then(responses => {
           // force role change because if the role is the only changing attribute
           // FacilityUserModel.save() will not send request to server.
@@ -162,7 +163,7 @@ function deleteUser(store, id) {
     return;
   }
   const FacilityUserModel = Kolibri.resources.FacilityUserResource.getModel(id);
-  const newUserPromise = FacilityUserModel.delete(id);
+  const newUserPromise = FacilityUserModel.delete();
   newUserPromise.then((userId) => {
     store.dispatch('DELETE_USERS', [userId]);
   })

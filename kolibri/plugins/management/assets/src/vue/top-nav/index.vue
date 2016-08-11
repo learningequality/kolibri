@@ -63,7 +63,7 @@
     width: 100%
     padding: 1em 2em
     background: $core-bg-light
-    border-radius: 4px
+    border-radius: $radius
     @media screen and (max-width: $portrait-breakpoint)
       padding: 1em 0.2em
 

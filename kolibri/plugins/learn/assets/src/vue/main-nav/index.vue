@@ -39,13 +39,13 @@
     },
     computed: {
       learnLink() {
-        return { name: constants.PageNames.LEARN_ROOT };
+        return { name: constants.PageNames.LEARN_CHANNEL };
       },
       learnActive() {
         return this.pageMode === constants.PageModes.LEARN;
       },
       exploreLink() {
-        return { name: constants.PageNames.EXPLORE_ROOT };
+        return { name: constants.PageNames.EXPLORE_CHANNEL };
       },
       exploreActive() {
         return this.pageMode === constants.PageModes.EXPLORE;

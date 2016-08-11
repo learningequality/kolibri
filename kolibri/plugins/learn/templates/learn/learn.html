@@ -10,6 +10,8 @@
     model.synced = true;
     var collection = {{kolibri}}.resources.ContentNodeResource.getCollection({parent: root_node_pk}, JSON.parse("{{ nodes|escapejs }}"));
     collection.synced = true;
+    var channelCollection = {{kolibri}}.resources.ChannelResource.getCollection({}, JSON.parse("{{ channelList | escapejs }}"));
+    channelCollection.synced = true;
   </script>
   {% learn_async_assets %}
   {% learn_assets %}

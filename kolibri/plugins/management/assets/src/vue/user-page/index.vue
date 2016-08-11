@@ -181,14 +181,6 @@
   // Padding height that separates rows from eachother
   $row-padding = 1.5em
 
-  .user-roster
-    padding: 1em 2em
-    background-color: white
-    position: relative
-    top: 2em
-    width: 100%
-    border-radius: 4px
-
   .toolbar:after
     content: ''
     display: table
@@ -243,6 +235,7 @@
     font-size: 80%
 
   .table-cell
+    font-weight: normal // compensates for <th> cells
     padding-bottom: $row-padding
     color: $core-text-default
 
