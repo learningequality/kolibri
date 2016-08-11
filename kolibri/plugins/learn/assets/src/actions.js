@@ -1,6 +1,7 @@
+
 const Kolibri = require('kolibri');
-const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
-const ChannelResource = require('kolibri').resources.ChannelResource;
+const ContentNodeResource = Kolibri.resources.ContentNodeResource;
+const ChannelResource = Kolibri.resources.ChannelResource;
 const ContentSessionLogResource = Kolibri.resources.ContentSessionLogResource;
 const ContentSummaryLogResource = Kolibri.resources.ContentSummaryLogResource;
 const constants = require('./state/constants');
@@ -9,7 +10,7 @@ const cookiejs = require('js-cookie');
 const router = require('router');
 const intervalTimer = require('core-timer');
 
-const intervalTime = 5000;
+const intervalTime = 5000; // Frequency at which time logging is updated
 const progressThreshold = 0.2; // Update logs if user has reached 20% more progress
 const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
 
@@ -134,6 +135,7 @@ function _contentSessionModel(store) {
   return mapping;
 }
 
+
 /*
 * Returns a promise that gets current channel.
  */
@@ -183,6 +185,7 @@ function redirectToExploreChannel(store) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
+
 
 function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -271,7 +274,6 @@ function showLearnChannel(store, channelId) {
 
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations: '' }).fetch();
   const channelPromise = ChannelResource.getCollection({}).fetch();
-
   Promise.all([recommendedPromise, channelPromise])
     .then(([recommendations, channelList]) => {
       const pageState = { recommendations: recommendations.map(_contentState) };

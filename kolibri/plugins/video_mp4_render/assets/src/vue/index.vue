@@ -5,15 +5,17 @@
       <i class="progress-saving" v-if="saving">Saving Progress...&nbsp;</i>
       {{ Math.floor(progress * 100) }}%
     </h3>
-    <div v-el:videowrapper class="videowrapper">
-      <video v-el:video class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
-        <template v-for="video in videoSources">
-          <source :src="video.storage_url" :type='"video/" + video.extension'>
-        </template>
-        <template v-for="track in trackSources">
-          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
-        </template>
-      </video>
+    <div v-el:videowrapperwrapper class="videowrapperwrapper">
+      <div v-el:videowrapper class="videowrapper">
+        <video v-el:video class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
+          <template v-for="video in videoSources">
+            <source :src="video.storage_url" :type='"video/" + video.extension'>
+          </template>
+          <template v-for="track in trackSources">
+            <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
+          </template>
+        </video>
+      </div>
     </div>
 
   </div>
@@ -102,20 +104,28 @@
       },
 
       resizeVideo() {
-        const currentHeight = this.$els.videowrapper.clientHeight;
-        const currentWidth = this.$els.videowrapper.clientWidth;
-        const calcWidth = this.aspectRatio * currentHeight;
-        if (currentWidth < calcWidth) {
-          this.videoPlayer.height(currentWidth / this.aspectRatio);
-          this.videoPlayer.width(currentWidth);
+        const wrapperWrapperWidth = this.$els.videowrapperwrapper.clientWidth;
+        const wrapperWrapperHeight = this.$els.videowrapperwrapper.clientHeight;
+
+        const neededHeightGivenWidth = wrapperWrapperWidth * (1 / this.aspectRatio);
+        const neededWidthGivenHeight = wrapperWrapperHeight * this.aspectRatio;
+
+        let newWidth = 0;
+        let newHeight = 0;
+
+        if (neededHeightGivenWidth <= wrapperWrapperHeight) {
+          newWidth = wrapperWrapperWidth;
+          newHeight = neededHeightGivenWidth;
         } else {
-          this.videoPlayer.width(calcWidth);
-          this.videoPlayer.height(currentHeight);
+          newWidth = neededWidthGivenHeight;
+          newHeight = wrapperWrapperHeight;
         }
+
+        this.$els.videowrapper.setAttribute('style', `width:${newWidth}px;height:${newHeight}px`);
       },
 
-      debouncedResizeVideo() {
-        debounce(this.resizeVideo, 300);
+      get debouncedResizeVideo() {
+        return debounce(this.resizeVideo, 300);
       },
 
       updateTime() {
@@ -140,6 +150,7 @@
 
     ready() {
       this.videoPlayer = videojs(this.$els.video, {
+        fluid: true,
         inactivityTimeout: 1000,
         controls: true,
         autoplay: false,
@@ -252,9 +263,18 @@
 
    // Custom style
   .videowrapper
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
     position: relative
     height: 100%
     background-color: #000
+
+  .videowrapperwrapper
+    width: 100%
+    height: 100%
+    background-color: rgba(0, 0, 0, 0)
+    position: relative
 
   .video-js .vjs-menu
     font-family: 'NotoSans', 'sans-serif'
