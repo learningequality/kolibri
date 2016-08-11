@@ -187,7 +187,7 @@
     position: relative
     top: 2em
     width: 100%
-    border-radius: 4px
+    border-radius: $radius
 
   .toolbar:after
     content: ''

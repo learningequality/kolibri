@@ -86,7 +86,7 @@
   .modal-container
     background: #fff
     width: 450px
-    border-radius: 4px
+    border-radius: $radius
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     transition: all 0.3s ease
     margin: 0 auto

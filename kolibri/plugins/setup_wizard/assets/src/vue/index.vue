@@ -71,7 +71,7 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-  
+
   .device-owner-creation
     position: fixed
     top: 0
@@ -87,7 +87,7 @@
     width: 100%
     max-width: 430px
     min-width: 320px
-    border-radius: 4px
+    border-radius: $radius
     margin: 0 auto
     padding: 20px 30px
   h1
@@ -106,7 +106,7 @@
     border-width: 2px
     border-style: solid
     border-color: $core-bg-canvas
-    border-radius: 4px
+    border-radius: $radius
     padding: 6px
     background-color: $core-bg-canvas
   .input-error
