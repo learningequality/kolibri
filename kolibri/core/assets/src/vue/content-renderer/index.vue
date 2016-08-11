@@ -5,7 +5,7 @@
       <div v-el:container></div>
     </div>
     <div v-else>
-      This content is not available.
+      {{ $tr('contentRender') }}
     </div>
   </div>
 
@@ -17,6 +17,10 @@
   const logging = require('logging').getLogger(__filename);
 
   module.exports = {
+    $trNameSpace: 'contentRender',
+    $trs: {
+      msgNotAvailable: 'This content is not available.',
+    },
     props: {
       id: {
         type: String,

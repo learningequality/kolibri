@@ -62,6 +62,22 @@ module.exports = function CoreApp() {
    */
   vue.use(vuex);
 
+  function setUpVueIntl() {
+    /**
+     * Use the vue-intl plugin.
+     **/
+    const VueIntl = require('vue-intl');
+    vue.use(VueIntl);
+    vue.prototype.$tr = function (messageId, ...args) {
+      const message = {
+        id: `${this.$options.$trNameSpace}.${messageId}`,
+        defaultMessage: this.$options.$trs[messageId],
+      };
+      return this.$formatMessage(message, ...args);
+    };
+    mediator.setReady();
+  }
+
   /**
    * If the browser doesn't support the Intl polyfill, we retrieve that and
    * the modules need to wait until that happens.
@@ -76,21 +92,12 @@ module.exports = function CoreApp() {
       (require) => {
         require('intl');
         require('intl/locale-data/jsonp/en.js');
-        /**
-         * Use the vue-intl plugin.
-         **/
-        const VueIntl = require('vue-intl');
-        vue.use(VueIntl);
-        mediator.setReady();
+
+        setUpVueIntl();
       }
     );
   } else {
-    /**
-     * Use the vue-intl plugin.
-     **/
-    const VueIntl = require('vue-intl');
-    vue.use(VueIntl);
-    mediator.setReady();
+    setUpVueIntl();
   }
 
   // Bind 'this' value for public methods - those that will be exposed in the Facade.
