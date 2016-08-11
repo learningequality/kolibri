@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>CONTENT</h1>
+    <h1>Content Import/Export</h1>
     <p>...</p>
   </div>
 
