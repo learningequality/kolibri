@@ -68,9 +68,8 @@
         this.logout(this.Kolibri);
         this.showDropdown = false;
         /* Very hacky solution to redirect a user back to Learn tab on logout*/
-        const origin = window.location.origin;
-        const learnhome = '/learn/#!/learn';
-        window.location.href = origin + learnhome;
+        const learnURL = '/learn/#!/learn';
+        window.location.href = window.location.origin + learnURL;
       },
     },
     vuex: {

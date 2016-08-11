@@ -61,9 +61,8 @@
       /* If admin logs in, sends them to the manage tab */
       redirectAdmin() {
         if (this.kind === UserKinds.SUPERUSER || this.kind === UserKinds.ADMIN) {
-          const origin = window.location.origin;
-          const manage = '/management';
-          window.location.href = origin + manage;
+          const manageURL = '/management';
+          window.location.href = window.location.origin + manageURL;
         }
       },
     },
