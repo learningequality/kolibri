@@ -114,7 +114,7 @@ class ContentNodeTestCase(TestCase):
     def test_descendants_of_kind(self):
 
         p = content.ContentNode.objects.get(title="root")
-        expected_output = content.ContentNode.objects.filter(title__in=["c2", "c2c2", "c2c3"])
+        expected_output = content.ContentNode.objects.filter(title__in=["c2"])
         actual_output = p.get_descendants(include_self=False).filter(kind=content_kinds.TOPIC)
         self.assertEqual(set(expected_output), set(actual_output))
 
@@ -270,7 +270,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_contentnode_recommendations(self):
         root_id = content.ContentNode.objects.get(title="root").id
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": root_id})
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 4)
 
     def test_channelmetadata_list(self):
         data = content.ChannelMetadata.objects.values()[0]
@@ -286,7 +286,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_channelmetadata_recommendations(self):
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations": ""})
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 4)
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
