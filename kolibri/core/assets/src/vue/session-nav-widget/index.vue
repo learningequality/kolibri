@@ -11,23 +11,25 @@
     </div>
   </nav-bar-item>
 
-  <div id="dropdown" v-show="showDropdown" transition="slide">
-    <div class="user-dropdown">
-      <ul class="dropdown-list">
-        <li>
-          <h4 v-if="deviceOwner" class="dropdown-name">Device Owner</h4>
-          <h4 v-else class="dropdown-name">{{ fullname }}</h4>
-          <p id="dropdown-username">{{ username }}</p>
-          <p id="dropdown-usertype">{{ kind }}</p>
-        </li>
-        <li id="logout-tab">
-          <div @click="userLogout">
-            <span>Logout</span>
-          </div>
-        </li>
-      </ul>
+  <nav-bar-item href="/learn/#!/learn">
+    <div id="dropdown" v-show="showDropdown" transition="slide">
+      <div class="user-dropdown">
+        <ul class="dropdown-list">
+          <li>
+            <h4 v-if="deviceOwner" class="dropdown-name">Device Owner</h4>
+            <h4 v-else class="dropdown-name">{{ fullname }}</h4>
+            <p id="dropdown-username">{{ username }}</p>
+            <p id="dropdown-usertype">{{ kind }}</p>
+          </li>
+          <li id="logout-tab">
+            <div @click="userLogout">
+              <span>Logout</span>
+            </div>
+          </li>
+        </ul>
+      </div>
     </div>
-  </div>
+  </nav-bar-item>
 
 </template>
 
@@ -129,7 +131,7 @@
     box-shadow: 1px 1px 4px #e3e3e3
     border-radius: $radius
     position: absolute
-    top: -100px
+    top: -165px
     left: 100px
     width: 250px
     background: $core-bg-light
