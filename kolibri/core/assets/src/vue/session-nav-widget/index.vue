@@ -1,6 +1,6 @@
 <template>
 
-  <nav-bar-item>
+  <nav-bar-item tabindex="0" @click="openLogin" v-on:keyup.enter="openLogin">
     <div class="wrapper">
       <div v-if="loggedIn">
         <div class='user-icon' id="user-dropdown" @click="showUserDropdown">{{ initial }}</div>
@@ -82,10 +82,14 @@
         const learnURL = '/learn/#!/learn';
         window.location.href = window.location.origin + learnURL;
       },
+      openLogin() {
+        this.togglemodal(true);
+      },
     },
     vuex: {
       actions: {
         logout: actions.kolibriLogout,
+        togglemodal: actions.togglemodal,
       },
       getters: {
         loggedIn: state => state.core.session.kind !== UserKinds.ANONYMOUS,
@@ -93,6 +97,7 @@
         fullname: state => state.core.session.full_name,
         username: state => state.core.session.username,
         kind: state => state.core.session.kind,
+        modalstate: state => state.core.login_modal_state,
       },
     },
   };

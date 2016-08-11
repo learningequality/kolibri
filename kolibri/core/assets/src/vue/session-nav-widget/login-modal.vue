@@ -2,8 +2,8 @@
 
   <div>
     <modal>
-      <div id="backdrop"></div>
-      <div class="title" slot="header">
+      <div aria-hidden="false" id="backdrop"></div>
+      <div class="title" aria-labelledby="loginModal" slot="header">
         <div class="login-brand-box">
           <img src="./icons/kolibri-logo.svg" alt="Kolibri logo">
           <p id="login-brand">Kolibri</p>
@@ -16,7 +16,7 @@
         <div v-if="wrongCreds">Incorrect username or password.<br>Please try again!</div>
       </div>
       <div slot="footer"></div>
-      <div slot="openbtn">
+      <div slot="openbtn" @click="clearForm">
         <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
         <div class="label">Log In</div>
       </div>
@@ -46,16 +46,19 @@
           password: this.password_entered,
         };
         this.login(this.Kolibri, payload);
+        /* This is to offset race condition issues */
+        window.setTimeout(this.retry, 100);
+        window.setTimeout(this.redirectAdmin, 300);
+      },
+      clearForm() {
+        this.$els.usernamefield.focus();
         this.username_entered = '';
         this.password_entered = '';
-        /* This is to offset race condition issues */
-        window.setTimeout(this.refocus, 100);
-        window.setTimeout(this.redirectAdmin, 500);
       },
       /* Puts focus on username field if wrong credentials are given */
-      refocus() {
+      retry() {
         if (this.wrongCreds) {
-          this.$els.usernamefield.focus();
+          this.clearForm();
         }
       },
       /* If admin logs in, sends them to the manage tab */

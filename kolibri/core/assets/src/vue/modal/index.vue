@@ -1,10 +1,10 @@
 <template>
 
-  <div class="modal-root" v-on:keyup.esc="toggleModal">
+  <div class="modal-root" v-on:keyup.esc="toggleModal" role="dialog">
     <div class="modal" v-show="modalstate" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
-          <img @click="toggleModal" class="close-btn" src="./close.svg">
+          <img tabindex="0" v-on:keyup.enter="toggleModal" @click="toggleModal" class="close-btn" src="./close.svg" alt="Close Modal">
           <div class="modal-header">
             <slot name="header">
               Kolibri
