@@ -1,6 +1,8 @@
 const Kolibri = require('kolibri');
 
 const FacilityUserResource = Kolibri.resources.FacilityUserResource;
+const ContentNodeResource = Kolibri.resources.ContentNodeResource;
+const TaskResource = Kolibri.resources.TaskResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
 const constants = require('./state/constants');
@@ -171,10 +173,53 @@ function showUserPage(store) {
 }
 
 function showContentPage(store) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
-  store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
+  const taskCollectionPromise = TaskResource.getCollection().fetch();
+  taskCollectionPromise.then((taskList) => {
+    const pageState = { showWizard: false };
+    pageState.taskList = taskList;
+    // ChannelResource should be used
+    const channelCollectionPromise = ContentNodeResource.getCollection().fetch();
+    channelCollectionPromise.then((channelList) => {
+      pageState.channelList = channelList;
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    });
+  })
+  .catch((error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  });
+}
+
+// background worker calls this to continually update UI
+function updateTasks(store) {
+  const taskCollectionPromise = TaskResource.getCollection().fetch();
+  taskCollectionPromise.then((taskList) => {
+    const pageState = { showWizard: false };
+    pageState.taskList = taskList;
+    // ChannelResource should be used
+    const channelCollectionPromise = ContentNodeResource.getCollection().fetch();
+    channelCollectionPromise.then((channelList) => {
+      pageState.channelList = channelList;
+      store.dispatch('SET_PAGE_STATE', pageState);
+    });
+  })
+  .catch((error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
+
+function clearTask(store, id) {
+  const currentTaskPromise = TaskResource.getModel(id).delete(id);
+  currentTaskPromise.then(() => {
+    // only 1 task should be running, but we set to empty array
+    store.dispatch('DELETE_TASK');
+  })
+  .catch((error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
 }
 
 function showDataPage(store) {
@@ -199,4 +244,6 @@ module.exports = {
   showContentPage,
   showDataPage,
   showScratchpad,
+  updateTasks,
+  clearTask,
 };
