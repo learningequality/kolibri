@@ -106,7 +106,6 @@
     float: right
     color: $core-text-default
     border: none
-    border-color: transparent
 
   .modal-enter, .modal-leave
     opacity: 0
