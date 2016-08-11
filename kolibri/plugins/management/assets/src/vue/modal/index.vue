@@ -5,7 +5,7 @@
       <div class="modal-wrapper">
         <div class="modal-container">
           <button @click="closeModal" class="close-btn">
-            <svg src="close.svg"></svg>
+            <svg src="../icons/close.svg"></svg>
             <span class="visuallyhidden">Close</span>
           </button>
           <div class="modal-header">
