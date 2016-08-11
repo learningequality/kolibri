@@ -55,6 +55,7 @@
     padding-left: $left-margin
     padding-right: $right-margin
     padding-bottom: 50px
+    z-index: -2
     @media screen and (max-width: $portrait-breakpoint)
       padding-left: $card-gutter * 2
       padding-right: $card-gutter

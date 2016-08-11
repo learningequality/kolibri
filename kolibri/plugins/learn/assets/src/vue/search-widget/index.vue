@@ -173,7 +173,7 @@
 
   .reset
     border: none
-    background-color: white // IE10 needs a non-transparent bg to be clickable
+    background-color: $core-bg-light // IE10 needs a non-transparent bg to be clickable
     display: inline-block
     outline: none
     cursor: pointer

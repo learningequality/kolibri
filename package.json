@@ -26,6 +26,7 @@
   "private": true,
   "dependencies": {
     "babel-runtime": "6.9.2",
+    "js-cookie": "2.1.2",
     "html5media": "1.1.8",
     "intl": "1.2.4",
     "loglevel": "1.4.1",
