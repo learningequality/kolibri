@@ -5,7 +5,7 @@ const coreStore = require('core-store');
 
 const initialState = {
   rootTopicId: global.root_node_pk,
-  pageName: constants.PageNames.EXPLORE_ROOT,
+  pageName: constants.PageNames.EXPLORE_CHANNEL,
   pageState: {},
   searchOpen: false,
   searchLoading: false,
@@ -14,6 +14,8 @@ const initialState = {
     contents: [],
     searchTerm: '',
   },
+  currentChannel: '',
+  channelList: {},
 };
 
 const mutations = {
@@ -65,6 +67,12 @@ const mutations = {
   SET_LOGGING_PENDING(state, summaryPending, sessionPending) {
     state.pageState.logging.summary.pending_create = summaryPending;
     state.pageState.logging.session.pending_create = sessionPending;
+  },
+  SET_CURRENT_CHANNEL(state, channelId) {
+    state.currentChannel = channelId;
+  },
+  SET_CHANNEL_LIST(state, channelList) {
+    state.channelList = channelList;
   },
 };
 

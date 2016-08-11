@@ -1,9 +1,13 @@
+
 const Kolibri = require('kolibri');
-const Resources = Kolibri.resources.ContentNodeResource;
+const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
+const ChannelResource = require('kolibri').resources.ChannelResource;
 const ContentSessionLogResource = Kolibri.resources.ContentSessionLogResource;
 const ContentSummaryLogResource = Kolibri.resources.ContentSummaryLogResource;
 const constants = require('./state/constants');
 const PageNames = constants.PageNames;
+const cookiejs = require('js-cookie');
+const router = require('router');
 const intervalTimer = require('core-timer');
 
 const intervalTime = 5000;
@@ -101,7 +105,7 @@ function _contentSummaryModel(store) {
   const summaryLog = store.state.pageState.logging.summary;
   const mapping = {
     content_id: store.state.pageState.content.content_id,
-    channel_id: store.state.core.session.channel_id,
+    channel_id: store.state.currentChannel,
     user: store.state.core.session.user_id,
     start_timestamp: summaryLog.start_timestamp,
     end_timestamp: summaryLog.end_timestamp,
@@ -119,7 +123,7 @@ function _contentSessionModel(store) {
   const sessionLog = store.state.pageState.logging.session;
   const mapping = {
     content_id: store.state.pageState.content.content_id,
-    channel_id: store.state.core.session.channel_id,
+    channel_id: store.state.currentChannel,
     user: store.state.core.session.user_id,
     start_timestamp: sessionLog.start_timestamp,
     end_timestamp: sessionLog.end_timestamp,
@@ -129,6 +133,25 @@ function _contentSessionModel(store) {
     extra_fields: sessionLog.extra_fields,
   };
   return mapping;
+
+/*
+* Returns a promise that gets current channel.
+ */
+function _getCurrentChannel() {
+  let currentChannelId = null;
+  return new Promise((resolve, reject) => {
+    ChannelResource.getCollection({}).fetch()
+      .then((channelList) => {
+        const cookieCurrentChannelId = cookiejs.get('currentChannel');
+        if (channelList.some((channel) => channel.id === cookieCurrentChannelId)) {
+          currentChannelId = cookieCurrentChannelId;
+          resolve(currentChannelId);
+        } else {
+          currentChannelId = channelList[0].id;
+          resolve(currentChannelId);
+        }
+      });
+  });
 }
 
 
@@ -138,15 +161,64 @@ function _contentSessionModel(store) {
  * These methods are used to update client-side state
  */
 
-function showExploreTopic(store, id) {
+function redirectToExploreChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
+  _getCurrentChannel()
+    .then((currentChannel) => {
+      store.dispatch('SET_CURRENT_CHANNEL', currentChannel);
+      cookiejs.set('currentChannel', currentChannel);
+      store.dispatch('CORE_SET_ERROR', null);
+      router.go(
+        {
+          name: constants.PageNames.EXPLORE_CHANNEL,
+          params: {
+            channel_id: currentChannel,
+          },
+        }
+      );
+    })
+    .catch((error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    });
+}
 
-  const attributesPromise = Resources.getModel(id).fetch();
-  const childrenPromise = Resources.getCollection({ parent: id }).fetch();
+function redirectToLearnChannel(store) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
+  _getCurrentChannel()
+    .then((currentChannel) => {
+      store.dispatch('SET_CURRENT_CHANNEL', currentChannel);
+      cookiejs.set('currentChannel', currentChannel);
+      store.dispatch('CORE_SET_ERROR', null);
+      router.go(
+        {
+          name: constants.PageNames.LEARN_CHANNEL,
+          params: {
+            channel_id: currentChannel,
+          },
+        }
+      );
+    })
+    .catch((error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    });
+}
 
-  Promise.all([attributesPromise, childrenPromise])
-    .then(([attributes, children]) => {
+function showExploreTopic(store, channelId, id) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+  store.dispatch('SET_CURRENT_CHANNEL', channelId);
+  cookiejs.set('currentChannel', channelId);
+
+  const attributesPromise = ContentNodeResource.getModel(id).fetch();
+  const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
+  const channelPromise = ChannelResource.getCollection({}).fetch();
+
+  Promise.all([attributesPromise, childrenPromise, channelPromise])
+    .then(([attributes, children, channelList]) => {
       const pageState = { id };
       pageState.topic = _topicState(attributes);
       const collection = _collectionState(children);
@@ -155,6 +227,7 @@ function showExploreTopic(store, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('SET_CHANNEL_LIST', channelList);
     })
     .catch((error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -163,19 +236,25 @@ function showExploreTopic(store, id) {
 }
 
 
-function showExploreContent(store, id) {
+function showExploreContent(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
+  store.dispatch('SET_CURRENT_CHANNEL', channelId);
+  cookiejs.set('currentChannel', channelId);
 
-  Resources.getModel(id).fetch()
-    .then((attributes) => {
+  const attributesPromise = ContentNodeResource.getModel(id).fetch();
+  const channelPromise = ChannelResource.getCollection({}).fetch();
+
+  Promise.all([attributesPromise, channelPromise])
+    .then(([attributes, channelList]) => {
       const pageState = {
         content: _contentState(attributes),
-        logging: { summary: { progress: 0 } },
+        logging: { summary: { progress: 0 } }, // To avoid error thrown by vue getter
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('SET_CHANNEL_LIST', channelList);
     })
     .catch((error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -184,16 +263,22 @@ function showExploreContent(store, id) {
 }
 
 
-function showLearnRoot(store) {
+function showLearnChannel(store, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
+  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
+  store.dispatch('SET_CURRENT_CHANNEL', channelId);
+  cookiejs.set('currentChannel', channelId);
 
-  Resources.getCollection({ recommendations: '' }).fetch()
-    .then((recommendations) => {
+  const recommendedPromise = ContentNodeResource.getCollection({ recommendations: '' }).fetch();
+  const channelPromise = ChannelResource.getCollection({}).fetch();
+
+  Promise.all([recommendedPromise, channelPromise])
+    .then(([recommendations, channelList]) => {
       const pageState = { recommendations: recommendations.map(_contentState) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('SET_CHANNEL_LIST', channelList);
     })
     .catch((error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -202,15 +287,18 @@ function showLearnRoot(store) {
 }
 
 
-function showLearnContent(store, id) {
+function showLearnContent(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
+  store.dispatch('SET_CURRENT_CHANNEL', channelId);
+  cookiejs.set('currentChannel', channelId);
 
-  const attributesPromise = Resources.getModel(id).fetch();
-  const recommendedPromise = Resources.getCollection({ recommendations_for: id }).fetch();
+  const attributesPromise = ContentNodeResource.getModel(id).fetch();
+  const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
+  const channelPromise = ChannelResource.getCollection({}).fetch();
 
-  Promise.all([attributesPromise, recommendedPromise])
-    .then(([attributes, recommended]) => {
+  Promise.all([attributesPromise, recommendedPromise, channelPromise])
+    .then(([attributes, recommended, channelList]) => {
       const pageState = {
         content: _contentState(attributes),
         recommended: recommended.map(_contentState),
@@ -219,6 +307,7 @@ function showLearnContent(store, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('SET_CHANNEL_LIST', channelList);
     })
     .catch((error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -240,7 +329,7 @@ function triggerSearch(store, searchTerm) {
 
   store.dispatch('SET_SEARCH_LOADING');
 
-  const contentCollection = Resources.getPagedCollection({ search: searchTerm });
+  const contentCollection = ContentNodeResource.getPagedCollection({ search: searchTerm });
   const searchResultsPromise = contentCollection.fetch();
 
   searchResultsPromise.then((results) => {
@@ -275,12 +364,6 @@ function showScratchpad(store) {
  * To be called on page load for content renderers
  */
 function initContentSession(store) {
-  /* TODO: REMOVE THIS LATER */
-  store.dispatch('CORE_SET_SESSION', {
-    user_id: 1,
-    channel_id: '7199dde695db4ee4ab392222d5af1e5c',
-  });
-
   /* Set initial logging state */
   const loggingState = {
     summary: { progress: 0 },
@@ -467,9 +550,11 @@ function stopTrackingProgress(store) {
 }
 
 module.exports = {
+  redirectToExploreChannel,
+  redirectToLearnChannel,
   showExploreTopic,
   showExploreContent,
-  showLearnRoot,
+  showLearnChannel,
   showLearnContent,
   showScratchpad,
   triggerSearch,

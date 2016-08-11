@@ -64,6 +64,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme.styl'
+
   .modal
     position: fixed
     top: 0
@@ -73,39 +75,39 @@
     background: rgba(0, 0, 0, 0.7)
     display: table
     transition: opacity 0.3s ease
-    
+
   .modal-wrapper
     display: table-cell
     vertical-align: middle
-    
+
   .modal-container
     background: #fff
     width: 410px
-    border-radius: 4px
+    border-radius: $radius
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     transition: all 0.3s ease
     margin: 0 auto
     padding: 20px 30px
-    
+
   .modal-header
     font-weight: bold
     padding-bottom: 10px
-    
+
   .modal-footer
     margin-top: 15px
     margin-bottom: 10px
     padding-bottom: inherit
-    
+
   .close-btn
     float: right
     cursor:pointer
     width: 15px
     height: auto
     margin-top: 5px
-    
+
   .modal-enter, .modal-leave
     opacity: 0
-  
+
   .modal-enter .modal-container,
   .modal-leave .modal-container
     -webkit-transform: scale(1.1)

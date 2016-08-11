@@ -5,8 +5,8 @@
     <div v-if="isAdminOrSuperuser" slot="above">
       <top-nav></top-nav>
     </div>
-    <component v-if="isAdminOrSuperuser" slot="content" :is="currentPage"></component>
-    <div v-else slot="content">
+    <component v-if="isAdminOrSuperuser" slot="content" :is="currentPage" class="page"></component>
+    <div v-else slot="content" class="login-message">
       <h1>Did you forget to log in?</h1>
       <h3>You must be logged in as an Admin to view this page.</h3>
     </div>
@@ -63,9 +63,19 @@
 
 <style lang="stylus" scoped>
 
-  h1, h3
+  @require '~core-theme.styl'
+
+  .page
+    padding: 1em 2em
+    padding-bottom: 3em
+    background-color: $core-bg-light
+    margin-top: 2em
+    width: 100%
+    border-radius: $radius
+
+  .login-message h1, h3
     text-align: center
-  h1
+  .login-message h1
     margin-top: 200px
 
 </style>
