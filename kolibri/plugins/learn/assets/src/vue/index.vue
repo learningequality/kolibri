@@ -2,6 +2,7 @@
 
   <core-base>
     <main-nav slot="nav"></main-nav>
+    <toolbar slot="above"></toolbar>
     <div slot="above" class="top-wrapper">
       <search-button class='search-btn'></search-button>
       <label for="chan-select" class="visuallyhidden">Filter User Type</label>
@@ -14,7 +15,6 @@
       >
         <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
       </select>
-      <toolbar slot="above"></toolbar>
     </div>
     <component slot="content" :is="currentPage"></component>
     <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
