@@ -545,4 +545,6 @@ class ResourceManager {
 module.exports = {
   ResourceManager,
   Resource,
+  Collection,
+  Model,
 };

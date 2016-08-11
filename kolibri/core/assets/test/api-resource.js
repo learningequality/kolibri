@@ -76,7 +76,8 @@ describe('ResourceManager', function () {
 
 describe('Resource', function () {
   beforeEach(function () {
-    this.resource = new Resources.Resource({});
+    this.kolibri = {};
+    this.resource = new Resources.Resource(this.kolibri);
   });
   afterEach(function () {
     delete this.resource;
@@ -112,10 +113,44 @@ describe('Resource', function () {
     });
   });
   describe('client property', function () {
-    it('should return the client variable in module scope', function () {
-      const testClient = { test: 'this' };
-      Resources.__set__('client', testClient);
+    it('should return the rest client', function () {
+      const Rest = function () { return this; };
+      Rest.prototype.wrap = function () { return this; };
+      const testClient = new Rest();
+      Resources.__set__('rest', testClient);
       assert.equal(this.resource.client, testClient);
+    });
+  });
+  describe('urls property', function () {
+    it('should return the urls property of the passed in kolibri object', function () {
+      const urls = { hi: 'ho' };
+      this.kolibri.urls = urls;
+      assert.equal(this.resource.urls, urls);
+    });
+  });
+  describe('getModel method', function () {
+    it('should return a model instance', function () {
+      assert.ok(this.resource.getModel('test') instanceof Resources.Model);
+    });
+    it('should return an existing model from the cache', function () {
+      const testModel = new Resources.Model({}, this.resource);
+      this.resource.models.test = testModel;
+      assert.equal(this.resource.getModel('test'), testModel);
+    });
+    it('should call create model if the model is not in the cache', function () {
+      const spy = sinon.spy(this.resource, 'createModel');
+      this.resource.getModel('test');
+      assert.ok(spy.calledOnce);
+    });
+  });
+  describe('createModel method', function () {
+    it('should return a model instance', function () {
+      assert.ok(this.resource.createModel({}) instanceof Resources.Model);
+    });
+    it('should call add model', function () {
+      const spy = sinon.spy(this.resource, 'addModel');
+      this.resource.createModel({});
+      assert.ok(spy.calledOnce);
     });
   });
 });
