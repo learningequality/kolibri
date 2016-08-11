@@ -175,10 +175,7 @@ function showExploreContent(store, channelId, id) {
 
   Promise.all([attributesPromise, channelPromise])
     .then(([attributes, channelList]) => {
-      const pageState = {
-        content: _contentState(attributes),
-        logging: { summary: { progress: 0 } }, // To avoid error thrown by vue getter
-      };
+      const pageState = { content: _contentState(attributes) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
@@ -229,7 +226,6 @@ function showLearnContent(store, channelId, id) {
       const pageState = {
         content: _contentState(attributes),
         recommended: recommended.map(_contentState),
-        logging: { summary: { progress: 0 } }, // To avoid error thrown by vue getter
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
