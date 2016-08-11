@@ -7,4 +7,5 @@ module.exports = {
   RoleResource: require('./role'),
   DeviceOwnerResource: require('./deviceOwner'),
   FacilityResource: require('./facility'),
+  TaskResource: require('./task'),
 };

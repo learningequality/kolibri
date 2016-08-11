@@ -55,6 +55,12 @@ const mutations = {
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
+  DELETE_TASK(state) {
+    state.pageState.taskList = [];
+  },
+  SET_TASK(state, task) {
+    state.pageState.taskList = [task];
+  },
 };
 
 
