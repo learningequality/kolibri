@@ -26,8 +26,6 @@ function getCookie(name) {
   return cookieValue;
 }
 
-const client = rest.wrap(mime).wrap(csrf, { name: 'X-CSRFToken',
-  token: getCookie('csrftoken') }).wrap(errorCode);
 
 /** Class representing a single API resource object */
 class Model {
@@ -487,7 +485,8 @@ class Resource {
   }
 
   get client() {
-    return client;
+    return rest.wrap(mime).wrap(csrf, { name: 'X-CSRFToken',
+      token: getCookie('csrftoken') }).wrap(errorCode);
   }
 }
 

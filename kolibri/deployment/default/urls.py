@@ -21,8 +21,11 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.core.urlresolvers import reverse_lazy
+from django.views.generic import RedirectView
 
 urlpatterns = [
+    url(r'^$', RedirectView.as_view(url=reverse_lazy('kolibri:learnplugin:learn'))),
     url(r'^admin/', include(admin.site.urls)),
     url(r'', include('kolibri.core.urls')),
     url(r'^api/', include('kolibri.auth.api_urls')),

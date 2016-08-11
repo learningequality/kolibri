@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h2>Mgmt Scratchpad</h2>
+    <h1>Mgmt Scratchpad</h1>
     <p>Use this page for in-progress component prototyping.</p>
   </div>
 

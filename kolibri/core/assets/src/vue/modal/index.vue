@@ -1,13 +1,10 @@
 <template>
 
-  <div class="modal-root" v-on:keyup.esc="closeModal">
-    <div class="modal" v-if="showModal" transition="modal">
+  <div class="modal-root" v-on:keyup.esc="toggleModal">
+    <div class="modal" v-show="modalstate" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
-          <button @click="closeModal" class="close-btn">
-            <svg src="close.svg"></svg>
-            <span class="visuallyhidden">Close</span>
-          </button>
+          <img @click="toggleModal" class="close-btn" src="./close.svg">
           <div class="modal-header">
             <slot name="header">
               Kolibri
@@ -20,15 +17,14 @@
           </div>
           <div class="modal-footer">
             <slot name="footer">
-              <button @click="closeModal" class="close-btn">OK</button>
+              <button @click="toggleModal" class="close-btn">OK</button>
             </slot>
           </div>
         </div>
       </div>
     </div>
 
-    <div @click="openModal">
-    <!-- wrap this named slot so that the openModal method logic is encapsulated inside this modal component, but the parent component can pass anything to this slot for styling purpose -->
+    <div @click="toggleModal">
       <slot name="openbtn">
         <button>{{ btntext }}</button>
       </slot>
@@ -40,24 +36,25 @@
 
 <script>
 
+  const actions = require('../../core-actions');
+
   module.exports = {
-    props: {
-      btntext: {
-        type: String,
-        default: 'Open Modal',
-      },
-    },
-    data() {
-      return {
-        showModal: false,
-      };
-    },
+
     methods: {
-      openModal() {
-        this.showModal = true;
+      toggleModal() {
+        if (!this.modalstate) {
+          this.togglemodal(true);
+        } else {
+          this.togglemodal(false);
+        }
       },
-      closeModal() {
-        this.showModal = false;
+    },
+    vuex: {
+      getters: {
+        modalstate: state => state.core.login_modal_state,
+      },
+      actions: {
+        togglemodal: actions.togglemodal,
       },
     },
   };
@@ -85,7 +82,7 @@
 
   .modal-container
     background: #fff
-    width: 450px
+    width: 410px
     border-radius: $radius
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     transition: all 0.3s ease
@@ -103,8 +100,10 @@
 
   .close-btn
     float: right
-    color: $core-text-default
-    border: none
+    cursor:pointer
+    width: 15px
+    height: auto
+    margin-top: 5px
 
   .modal-enter, .modal-leave
     opacity: 0
