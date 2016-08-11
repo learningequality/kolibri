@@ -9,7 +9,7 @@
 
         <div class="user-field">
           <label for="name">Name</label>
-          <input type="text" autocomplete="name"  autofocus="true" required v-model="user.full_name">
+          <input type="text" id="name" autocomplete="name"  autofocus="true" required v-model="user.full_name">
         </div>
 
         <div class="user-field">
@@ -18,12 +18,13 @@
         </div>
 
         <div class="user-field">
-          <label for="username">Password</label>
+          <label for="password">Password</label>
           <input type="password" id="password" required v-model="user.password">
         </div>
 
         <div class="user-field">
-          <select v-model="user.role">
+          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
+          <select v-model="user.role" id="user-role">
             <option value="learner" selected> Learner </option>
             <option value="admin"> Admin </option>
           </select>
