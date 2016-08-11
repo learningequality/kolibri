@@ -132,7 +132,7 @@
     box-shadow: 1px 1px 4px #e3e3e3
     border-radius: $radius
     position: absolute
-    top: -165px
+    top: -100px
     left: 100px
     width: 250px
     background: $core-bg-light

@@ -29,6 +29,7 @@
 <script>
 
   const actions = require('../../core-actions');
+  const UserKinds = require('../../constants').UserKinds;
 
   module.exports = {
     components: {
@@ -49,6 +50,7 @@
         this.password_entered = '';
         /* This is to offset race condition issues */
         window.setTimeout(this.refocus, 100);
+        window.setTimeout(this.redirectAdmin, 500);
       },
       /* Puts focus on username field if wrong credentials are given */
       refocus() {
@@ -56,10 +58,18 @@
           this.$els.usernamefield.focus();
         }
       },
+      /* If admin logs in, sends them to the manage tab */
+      redirectAdmin() {
+        if (this.kind === UserKinds.SUPERUSER || this.kind === UserKinds.ADMIN) {
+          const origin = window.location.origin;
+          const manage = '/management';
+          window.location.href = origin + manage;
+        }
+      },
     },
     vuex: {
       getters: {
-        userKind: state => state.core.session.kind,
+        kind: state => state.core.session.kind,
         wrongCreds: state => state.core.session.error === '401',
         modalstate: state => state.core.login_modal_state,
       },
