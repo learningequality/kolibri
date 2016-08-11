@@ -47,6 +47,10 @@ class Router {
     this._actions[name] = action;
   }
 
+  go(options) {
+    this._vueRouter.go(options);
+  }
+
   redirect(options) {
     this._vueRouter.redirect(options);
   }

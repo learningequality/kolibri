@@ -33,7 +33,7 @@
     },
     computed: {
       rootLink() {
-        return { name: PageNames.EXPLORE_ROOT };
+        return { name: PageNames.EXPLORE_CHANNEL };
       },
     },
     methods: {

@@ -1,7 +1,7 @@
 <template>
 
   <div class="user-creation-modal">
-    <modal btntext="Add New">
+    <modal v-ref:modal btntext="Add New">
 
       <h1 slot="header" class="header">Add New Account</h1>
 
@@ -9,21 +9,25 @@
 
         <div class="user-field">
           <label for="name">Name</label>
-          <input type="text" autocomplete="name"  autofocus="true" required v-model="fullName">
+          <input type="text" autocomplete="name"  autofocus="true" required v-model="user.full_name">
         </div>
 
         <div class="user-field">
           <label for="username">Username</label>
-          <input type="text" autocomplete="username" id="username" required v-model="username">
+          <input type="text" autocomplete="username" id="username" required v-model="user.username">
         </div>
 
         <div class="user-field">
           <label for="username">Password</label>
-          <input type="password" id="password" required v-model="password">
+          <input type="password" id="password" required v-model="user.password">
         </div>
         <div class="user-field">
+<<<<<<< HEAD
           <label for="role">Role</label>
           <select v-model="role">
+=======
+          <select v-model="user.role">
+>>>>>>> upstream/master
             <option value="learner" selected> Learner </option>
             <option value="admin"> Admin </option>
           </select>
@@ -55,22 +59,25 @@
     },
     data() {
       return {
-        username: '',
-        password: '',
-        firstName: '',
-        lastName: '',
+        user: {
+          username: '',
+          password: '',
+          full_name: '',
+        },
         role: 'learner',
       };
     },
     methods: {
       createNewUser() {
-        const payload = {
-          password: this.password,
-          username: this.username,
-          full_name: this.fullName,
-          facility: this.facility,
-        };
-        this.createUser(payload, this.role);
+        this.user.facility = this.facility;
+        // using promise to ensure that the user is created before closing
+        // can use this promise to have flash an error in the modal?
+        this.createUser(this.user, this.role).then(() => {
+          for (const userProp of Object.getOwnPropertyNames(this.user)) {
+            this.user[userProp] = '';
+          }
+          this.$refs.modal.closeModal();
+        });
       },
     },
     vuex: {

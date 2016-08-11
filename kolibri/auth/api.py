@@ -1,8 +1,8 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.contrib.auth import get_user
+from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.auth.models import AnonymousUser
-from rest_framework import filters, permissions, viewsets
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
 
 from .models import Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership, Role
@@ -106,7 +106,7 @@ class CurrentFacilityViewSet(viewsets.ViewSet):
         elif type(logged_in_user) is AnonymousUser:
             return Response(Facility.objects.all().values_list('id', flat=True))
         else:
-            return Response(logged_in_user.facility)
+            return Response(logged_in_user.facility_id)
 
 
 class ClassroomViewSet(viewsets.ModelViewSet):
@@ -123,3 +123,51 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
     serializer_class = LearnerGroupSerializer
 
     filter_fields = ('parent',)
+
+
+class SessionViewSet(viewsets.ViewSet):
+
+    def create(self, request):
+        username = request.data.get('username', '')
+        password = request.data.get('password', '')
+        facility_id = request.data.get('facility', None)
+        user = authenticate(username=username, password=password, facility=facility_id)
+        if user is not None and user.is_active:
+            # Correct password, and the user is marked "active"
+            login(request, user)
+            # Success!
+            return Response(self.get_session(request))
+        else:
+            # Respond with error
+            return Response("User credentials invalid!", status=status.HTTP_401_UNAUTHORIZED)
+
+    def destroy(self, request, pk=None):
+        logout(request)
+        return Response([])
+
+    def retrieve(self, request, pk=None):
+        return Response(self.get_session(request))
+
+    def get_session(self, request):
+        user = get_user(request)
+        if isinstance(user, AnonymousUser):
+            return {'id': None, 'username': '', 'full_name': '', 'user_id': None, 'facility_id': None, 'kind': 'ANONYMOUS', 'error': '200'}
+
+        session = {'id': 'current', 'username': user.username,
+                   'full_name': user.full_name,
+                   'user_id': user.id}
+        if isinstance(user, DeviceOwner):
+            session.update({'facility_id': None, 'kind': 'SUPERUSER', 'error': '200'})
+            return session
+        else:
+            roles = Role.objects.filter(user_id=user.id)
+            if len(roles) is not 0:
+                session.update({'facility_id': user.facility_id, 'kind': [], 'error': '200'})
+                for role in roles:
+                    if role.kind == 'admin':
+                        session['kind'].append('ADMIN')
+                    else:
+                        session['kind'].append('COACH')
+            else:
+                session.update({'facility_id': user.facility_id, 'kind': 'LEARNER', 'error': '200'})
+            return session
