@@ -2,10 +2,19 @@
 
   <core-base>
     <main-nav slot="nav"></main-nav>
-    <search-button slot="above" class='search-btn'></search-button>
-    <select slot="above" v-model="getCurrentChannel" v-on:change="switchChannel($event)">
-      <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
-    </select>
+    <div slot="above" class="top-wrapper">
+      <search-button class='search-btn'></search-button>
+      <label for="chan-select" class="visuallyhidden">Filter User Type</label>
+      <select
+        class="chan-select"
+        id="chan-select"
+        name="chan-select"
+        v-model="getCurrentChannel"
+        @change="switchChannel($event)"
+      >
+        <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
+      </select>
+    </div>
     <component slot="content" :is="currentPage"></component>
     <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
       <div class='search-shadow'>
@@ -125,11 +134,12 @@
     @media screen and (max-width: $portrait-breakpoint)
       right: 1rem
 
-  select
-    position: relative
-    float: right
-    right: $card-gutter
-    display: block
+  .top-wrapper
+    text-align: right
+    padding-top: 22px
+    padding-right: $right-margin * 2
+
+  .chan-select
     width: 11em
     padding: 0.2em 0.8em
     color: $core-text-annotation
