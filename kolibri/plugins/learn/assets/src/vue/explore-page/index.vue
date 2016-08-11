@@ -1,51 +1,38 @@
 <template>
 
-  <search-widget :searchtoggled.sync="searchToggled"></search-widget>
+  <div>
 
-  <div class="tool-bar">
+    <page-header :title='title'>
+      <breadcrumbs
+        v-if='!isRoot'
+        slot='extra-nav'
+        :rootid='rootTopicId'
+        :crumbs='topic.breadcrumbs'>
+      </breadcrumbs>
+      <div slot='icon'>
+        <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"></svg>
+        <svg v-else class="pageicon" src="../icons/folder.svg"></svg>
+      </div>
+    </page-header>
 
-    <breadcrumbs
-      v-show='!searchToggled'
-      v-if='!isRoot'
-      class='breadcrumbs'
-      :rootid='rootTopicId'
-      :crumbs='topic.breadcrumbs'
-      :current='topic.title'>
-    </breadcrumbs>
-
-    <div class="search-tools">
-
-      <select v-show="!searchToggled" class="channel-select" transition="fast">
-        <option value="khan">Khan Academy</option>
-        <option value="ck12">CK-12</option>
-      </select>
-
-      <label v-show="!searchToggled" @click="searchToggleSwitch(true)" for="search">
-        <img alt="search" class="btn-search-img" src="../search-widget/search.svg">
-      </label>
-
-    </div>
-  </div>
-
-  <!-- Toggles top margin if sidebar overlay is exposed -->
-  <section class="explore" :style="{'margin-top': searchToggled ? '0' : ''}">
-
-    <p v-if='topic.description'>
+    <p class="page-description" v-if='topic.description'>
       {{ topic.description }}
     </p>
 
-    <card-grid :header="isRoot ? 'Topics' : '' " v-if="subtopics.length">
-      <topic-card
+    <span class="visuallyhidden" v-if="subtopics.length">You can navigate groups of content through headings.</span>
+
+    <card-list v-if="subtopics.length">
+      <topic-list-item
         v-for="topic in subtopics"
         :id="topic.id"
         :title="topic.title"
         :ntotal="topic.n_total"
         :ncomplete="topic.n_complete">
-      </topic-card>
-    </card-grid>
+      </topic-list-item>
+    </card-list>
 
-    <card-grid :header="isRoot ? 'Content' : '' " v-if="contents.length">
-      <content-card
+    <card-grid v-if="contents.length">
+      <content-grid-item
         v-for="content in contents"
         class="card"
         :title="content.title"
@@ -53,10 +40,10 @@
         :kind="content.kind"
         :progress="content.progress"
         :id="content.id">
-      </content-card>
+      </content-grid-item>
     </card-grid>
 
-  </section>
+  </div>
 
 </template>
 
@@ -66,19 +53,16 @@
   module.exports = {
     components: {
       'breadcrumbs': require('../breadcrumbs'),
-      'topic-card': require('../topic-card'),
-      'content-card': require('../content-card'),
-      'search-widget': require('../search-widget'),
+      'page-header': require('../page-header'),
+      'topic-list-item': require('../topic-list-item'),
+      'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
+      'card-list': require('../card-list'),
     },
-    data() {
-      return {
-        searchToggled: false,
-      };
-    },
-    methods: {
-      searchToggleSwitch(value) {
-        this.searchToggled = value;
+    computed: {
+      title() {
+        // TODO - i18n
+        return this.isRoot ? 'Explore' : this.topic.title;
       },
     },
     vuex: {
@@ -95,48 +79,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~core-theme.styl'
-  @require '../learn'
-
-  .tool-bar
-    width-auto-adjust()
-    position: fixed
-    top: 0
-    padding-top: ($tool-bar-height / 4)
-    padding-bottom: ($tool-bar-height / 4)
-    box-sizing: border-box
-    background-color: $core-bg-canvas
-    z-index: 1
-  .breadcrumbs
-    float: left
-  .search-tools
-    float: right
-  .explore
-    margin-top: $tool-bar-height
-
-  .breadcrumbs
-  .search-tools
-    height: ($tool-bar-height / 2)
-
-  select
-    font-size: 0.8rem
-    padding: 0
-    position: relative
-    top: -8px
-
-  /* overwriting default HTML styles */
-  p
-    margin-top: 0
-
-  .fast-transition
-    transition: all 0.3s ease-out
-  .fast-enter
-    opacity: 0
-    transform: translateX(-50%)
-  .fast-leave
-    opacity: 0
-    transform: translateX(-100%)
-
-</style>
+<style lang="stylus" scoped></style>

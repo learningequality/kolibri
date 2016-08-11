@@ -1,15 +1,17 @@
 <template>
 
   <div>
-    <div v-el:videowrapper class="videowrapper">
-      <video v-el:video class="video-js vjs-default-skin" >
-        <template v-for="video in videoSources">
-          <source :src="video.storage_url" :type='"video/" + video.extension'>
-        </template>
-        <template v-for="track in trackSources">
-          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
-        </template>
-      </video>
+    <div v-el:videowrapperwrapper class="videowrapperwrapper">
+      <div v-el:videowrapper class="videowrapper">
+        <video v-el:video class="video-js vjs-default-skin">
+          <template v-for="video in videoSources">
+            <source :src="video.storage_url" :type='"video/" + video.extension'>
+          </template>
+          <template v-for="track in trackSources">
+            <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
+          </template>
+        </video>
+      </div>
     </div>
   </div>
 
@@ -21,17 +23,27 @@
   const videojs = require('video.js');
   const langcodes = require('./langcodes.json');
   require('./videojs-centerbtns');
+  const debounce = require('vue').util.debounce;
 
   module.exports = {
 
     props: ['files'],
 
+    data: () => ({
+      videoWidth: 0,
+      videoHeight: 0,
+    }),
+
     computed: {
       posterSource() {
         const posterFileExtensions = ['png', 'jpg'];
-        return this.files.filter(
+        const posterArray = this.files.filter(
           (file) => posterFileExtensions.some((ext) => ext === file.extension)
-        )[0].storage_url;
+        );
+        if (posterArray.length === 0) {
+          return '';
+        }
+        return posterArray[0].storage_url;
       },
 
       videoSources() {
@@ -47,6 +59,11 @@
           (file) => trackFileExtensions.some((ext) => ext === file.extension)
         );
       },
+
+      aspectRatio() {
+        return this.videoWidth / this.videoHeight;
+      },
+
     },
 
     methods: {
@@ -67,16 +84,48 @@
           this.videoPlayer.$('.videoforward').classList.remove('display');
         }
       },
+
+      loadedMetaData() {
+        this.videoWidth = this.videoPlayer.videoWidth();
+        this.videoHeight = this.videoPlayer.videoHeight();
+        this.resizeVideo();
+      },
+
+      resizeVideo() {
+        const wrapperWrapperWidth = this.$els.videowrapperwrapper.clientWidth;
+        const wrapperWrapperHeight = this.$els.videowrapperwrapper.clientHeight;
+
+        const neededHeightGivenWidth = wrapperWrapperWidth * (1 / this.aspectRatio);
+        const neededWidthGivenHeight = wrapperWrapperHeight * this.aspectRatio;
+
+        let newWidth = 0;
+        let newHeight = 0;
+
+        if (neededHeightGivenWidth <= wrapperWrapperHeight) {
+          newWidth = wrapperWrapperWidth;
+          newHeight = neededHeightGivenWidth;
+        } else {
+          newWidth = neededWidthGivenHeight;
+          newHeight = wrapperWrapperHeight;
+        }
+
+        this.$els.videowrapper.setAttribute('style', `width:${newWidth}px;height:${newHeight}px`);
+      },
+
+      get debouncedResizeVideo() {
+        return debounce(this.resizeVideo, 300);
+      },
     },
 
     ready() {
       this.videoPlayer = videojs(this.$els.video, {
+        fluid: true,
+        inactivityTimeout: 1000,
         controls: true,
         autoplay: false,
-        fluid: true,
         preload: 'auto',
         poster: this.posterSource,
-        playbackRates: [0.25, 0.5, 1.0, 1.25, 1.5, 2.0],
+        playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
         textTrackDisplay: true,
         ReplayButton: true,
         ForwardButton: true,
@@ -97,6 +146,7 @@
           ],
         },
       },
+
 
       () => {
         const centerButtons = this.$els.videowrapper.childNodes[1];
@@ -131,6 +181,13 @@
           this.setPlayState(false);
         });
       });
+
+      this.videoPlayer.on('loadedmetadata', this.loadedMetaData);
+
+      global.addEventListener('resize', this.debouncedResizeVideo);
+    },
+    beforeDestroy() {
+      global.removeEventListener('resize', this.debouncedResizeVideo);
     },
   };
 
@@ -140,22 +197,22 @@
 <style lang="stylus">
 
   // Default videojs stylesheet
-  // Unable to refrence the videojs using require since videojs dosen't have good webpack support
+  // Unable to reference the videojs using require since videojs doesn't have good webpack support
   @import '../../../../../../node_modules/video.js/dist/video-js.css'
 
   // Videojs skin customization
   .video-js
     font-size: 1em
     color: #fff
+    margin: 0 auto
     .vjs-slider
       background-color: #545454
       background-color: rgba(84, 84, 84, 0.5)
-
     .vjs-load-progress
-      background: ligthen(#545454, 25%)
+      background: lighten(#545454, 25%)
       background: rgba(84, 84, 84, 0.5)
       div
-        background: ligthen(#545454, 50%)
+        background: lighten(#545454, 50%)
         background: rgba(84, 84, 84, 0.75)
 
   .video-js .vjs-control-bar,
@@ -165,70 +222,81 @@
     background-color: rgba(0, 0, 0, 0.7)
 
    // Custom style
-  .vjs-menu
-    font-family: 'NotoSans', 'sans-serif'
-
-  .video-js .vjs-current-time
-    display: inline
-
   .videowrapper
-    position: relative
-
-  .video-js .vjs-play-progress
-    background-color: #996189
-
-  .video-js .videoreplay
-    background: url('../icons/ic_replay_10_white.svg')
-    background-repeat: no-repeat
-    background-size: contain
-    cursor: pointer
-    position: absolute
-    top: 50%
-    left: 40%
-    transform: translate(-50%, -50%)
-    height: 3em
-    width: 3em
-    display: none
-
-  .video-js .videoforward
-    background: url('../icons/ic_forward_10_white.svg')
-    background-repeat: no-repeat
-    background-size: contain
-    cursor: pointer
-    position: absolute
-    top: 50%
-    left: 60%
-    transform: translate(-50%, -50%)
-    height: 3em
-    width: 3em
-    display: none
-
-  .video-js .videotoggle
-    background: url('../icons/ic_play_circle_outline_white.svg')
-    background-repeat: no-repeat
-    background-size: contain
-    cursor: pointer
-    position: absolute
     top: 50%
     left: 50%
     transform: translate(-50%, -50%)
-    height: 7em
-    width: 7em
+    position: relative
+    height: 100%
+    background-color: #000
 
-  .video-js .videopaused
-    background: url('../icons/ic_pause_circle_outline_white.svg')
-    background-repeat: no-repeat
-    background-size: contain
+  .videowrapperwrapper
+    width: 100%
+    height: 100%
+    background-color: rgba(0, 0, 0, 0)
+    position: relative
+
+  .video-js .vjs-menu
+    font-family: 'NotoSans', 'sans-serif'
+
+  .video-js .vjs-current-time
+    display: block
+
+  .video-js .vjs-play-progress
+    background-color: #996189
 
   .video-js .userInactive
     visibility: visible
     opacity: 0
     transition: visibility 1s, opacity 1s
 
-  .video-js .vjs-playing .vjs-tech
-    pointer-events: none
+  .video-js .videoreplay,
+  .video-js .videoforward,
+  .video-js .videotoggle
+    background-repeat: no-repeat
+    background-size: contain
+    cursor: pointer
+    position: absolute
+    top: 50%
+    transform: translate(-50%, -50%)
 
+  .video-js .videoreplay,
+  .video-js .videoforward
+    display: none
+    height: 75px
+    width: 75px
+
+  .video-js .videoreplay
+    background: url('../icons/ic_replay_10_white.svg')
+    background-repeat: no-repeat
+    background-size: contain
+    background-color: rgba(0, 0, 0, 0.3)
+    left: calc(50% - 125px)
+
+  .video-js .videoforward
+    background: url('../icons/ic_forward_10_white.svg')
+    background-repeat: no-repeat
+    background-size: contain
+    background-color: rgba(0, 0, 0, 0.3)
+    left: calc(50% + 125px)
+
+  .video-js .videotoggle
+    background: url('../icons/ic_play_circle_outline_white.svg')
+    background-repeat: no-repeat
+    background-size: contain
+    background-color: rgba(0, 0, 0, 0.3)
+    left: 50%
+    height: 125px
+    width: 125px
+
+  .video-js .videopaused
+    background: url('../icons/ic_pause_circle_outline_white.svg')
+    background-repeat: no-repeat
+    background-size: contain
+    background-color: rgba(0, 0, 0, 0.3)
+
+  .video-js .display,
   .video-js .display
-    display: inline
+    display: block
 
 </style>

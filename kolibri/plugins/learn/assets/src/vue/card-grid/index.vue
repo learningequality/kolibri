@@ -1,11 +1,11 @@
 <template>
 
-  <section>
-    <h2>{{header}}</h2>
+  <div>
+    <h3 v-if="header" class="header">{{header}}</h3>
     <div class="card-grid">
       <slot></slot>
     </div>
-  </section>
+  </div>
 
 </template>
 
@@ -23,23 +23,35 @@
 
 <style lang="stylus">
 
-  @require '../learn'
+  @require '../learn.styl'
   @require 'jeet'
 
-  grid-auto-adjust()
-    for $preset, $i in $card-presets
-      $min-width = ($card-width * $preset) + ($card-gutter * ($preset - 1))
-      if($i)
-        @media (min-width:$min-width)
-          column(1/$preset, uncycle: $card-presets[$i-1], cycle: $preset, gutter: $card-gutter/$min-width)
-
-      @media (min-width:$min-width)
-        column(1/$preset, cycle: $preset, gutter: $card-gutter/$min-width)
+  // Disable styling to make this a more generic container
 
   // @stylint off
   .card-grid > *
-    grid-auto-adjust()
   // @stylint on
+
+    margin-bottom: $card-gutter
+    column(1, cycle: 1, gutter: 0)
+    min-width: $card-width
+
+    // Assumes least to greatest
+    for $n-cols, $i in $n-cols-array
+      $grid-width = grid-width($n-cols)
+
+      if($i)
+        // We're only defining the min-width for this, so we need to uncycle
+        // the column widths that are defined "on top" of this one
+        @media (min-width: breakpoint($grid-width))
+          column(1/$n-cols, uncycle: $n-cols-array[($i-1)], cycle: $n-cols, gutter: $card-gutter/$grid-width)
+
+      // The highest level shouldn't need to uncycle anything.
+      @media (min-width: breakpoint($grid-width))
+        column(1/$n-cols, cycle: $n-cols, gutter: $card-gutter/$grid-width)
+
+      // Only functions as intended when there are 2 different sizes, how it's
+      // working now is beyond me. Need a refactor.
 
 </style>
 
@@ -48,8 +60,9 @@
 
   @require 'jeet'
 
-  h2
-    margin-top: 0
+  .header
+    margin-top: 2em
+    margin-bottom: 1.4em
 
   .card-grid
     cf()

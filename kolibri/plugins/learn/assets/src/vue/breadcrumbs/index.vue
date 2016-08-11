@@ -1,14 +1,15 @@
 <template>
 
-  <nav>
+  <nav class="nav" role="navigation" aria-label="You are here:">
     <span class="parent">
-      <a v-link="rootLink">All</a> /
+      <a v-link="rootLink">Explore</a> 
     </span>
     <span class="parent" v-for="crumb in crumbs">
-      <a v-link="crumbLink(crumb.id)">{{ crumb.title }} </a> /
+      <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a> 
     </span>
-    <span class="child">
-      {{ current | capitalize }}
+    <span class="current">
+      <span class="visuallyhidden">Current: </span>
+        <!-- TODO: Get current topic title -->
     </span>
   </nav>
 
@@ -29,14 +30,10 @@
         type: Array,
         required: true,
       },
-      current: {
-        type: String,
-        required: true,
-      },
     },
     computed: {
       rootLink() {
-        return { name: PageNames.EXPLORE_ROOT };
+        return { name: PageNames.EXPLORE_CHANNEL };
       },
     },
     methods: {
@@ -54,13 +51,16 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  .nav
+    margin-top: 2em
+    margin-bottom:1.4em
 
-  .parent , a
-    color: $core-text-annotation
+  .parent a:link
+    font-weight: 300
 
-  .child
-    color: $core-text-default
-    font-weight: 700
+  span.parent::after
+    content: '»'
+    margin-left: 0.5em
+    margin-right: 0.5em
 
 </style>

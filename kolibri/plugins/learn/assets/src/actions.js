@@ -1,7 +1,17 @@
-const Resources = require('kolibri').resources.ContentNodeResource;
+const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
+const ChannelResource = require('kolibri').resources.ChannelResource;
 const constants = require('./state/constants');
-
 const PageNames = constants.PageNames;
+const cookiejs = require('js-cookie');
+const router = require('router');
+
+
+/**
+ * Vuex State Mappers
+ *
+ * The methods below help map data from
+ * the API to state in the Vuex store
+ */
 
 function _crumbState(ancestors) {
   // skip the root node
@@ -10,6 +20,7 @@ function _crumbState(ancestors) {
     title: ancestor.title,
   }));
 }
+
 
 function _topicState(data) {
   const state = {
@@ -20,6 +31,7 @@ function _topicState(data) {
   };
   return state;
 }
+
 
 function _contentState(data) {
   const state = {
@@ -36,95 +48,247 @@ function _contentState(data) {
   return state;
 }
 
-function showExploreTopic(store, id) {
-  store.dispatch('SET_LOADING');
+
+function _collectionState(data) {
+  const topics = data
+    .filter((item) => item.kind === 'topic')
+    .map((item) => _topicState(item));
+  const contents = data
+    .filter((item) => item.kind !== 'topic')
+    .map((item) => _contentState(item));
+  return { topics, contents };
+}
+
+
+/*
+* Returns a promise that gets current channel.
+ */
+function _getCurrentChannel() {
+  let currentChannelId = null;
+  return new Promise((resolve, reject) => {
+    ChannelResource.getCollection({}).fetch()
+      .then((channelList) => {
+        const cookieCurrentChannelId = cookiejs.get('currentChannel');
+        if (channelList.some((channel) => channel.id === cookieCurrentChannelId)) {
+          currentChannelId = cookieCurrentChannelId;
+          resolve(currentChannelId);
+        } else {
+          currentChannelId = channelList[0].id;
+          resolve(currentChannelId);
+        }
+      });
+  });
+}
+
+
+/**
+ * Actions
+ *
+ * These methods are used to update client-side state
+ */
+
+function redirectToExploreChannel(store) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
+  _getCurrentChannel()
+    .then((currentChannel) => {
+      store.dispatch('SET_CURRENT_CHANNEL', currentChannel);
+      cookiejs.set('currentChannel', currentChannel);
+      store.dispatch('CORE_SET_ERROR', null);
+      router.go(
+        {
+          name: constants.PageNames.EXPLORE_CHANNEL,
+          params: {
+            channel_id: currentChannel,
+          },
+        }
+      );
+    })
+    .catch((error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    });
+}
 
-  const attributesPromise = Resources.getModel(id).fetch();
-  const childrenPromise = Resources.getCollection({ parent: id }).fetch();
+function redirectToLearnChannel(store) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
+  _getCurrentChannel()
+    .then((currentChannel) => {
+      store.dispatch('SET_CURRENT_CHANNEL', currentChannel);
+      cookiejs.set('currentChannel', currentChannel);
+      store.dispatch('CORE_SET_ERROR', null);
+      router.go(
+        {
+          name: constants.PageNames.LEARN_CHANNEL,
+          params: {
+            channel_id: currentChannel,
+          },
+        }
+      );
+    })
+    .catch((error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    });
+}
 
-  Promise.all([attributesPromise, childrenPromise])
-    .then(([attributes, children]) => {
+function showExploreTopic(store, channelId, id) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+  store.dispatch('SET_CURRENT_CHANNEL', channelId);
+  cookiejs.set('currentChannel', channelId);
+
+  const attributesPromise = ContentNodeResource.getModel(id).fetch();
+  const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
+  const channelPromise = ChannelResource.getCollection({}).fetch();
+
+  Promise.all([attributesPromise, childrenPromise, channelPromise])
+    .then(([attributes, children, channelList]) => {
       const pageState = { id };
       pageState.topic = _topicState(attributes);
-      pageState.subtopics = children
-        .filter((item) => item.kind === 'topic')
-        .map((item) => _topicState(item));
-      pageState.contents = children
-        .filter((item) => item.kind !== 'topic')
-        .map((item) => _contentState(item));
+      const collection = _collectionState(children);
+      pageState.subtopics = collection.topics;
+      pageState.contents = collection.contents;
       store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('SET_CHANNEL_LIST', channelList);
     })
     .catch((error) => {
-      // TODO - how to parse and format?
-      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
-function showExploreContent(store, id) {
-  store.dispatch('SET_LOADING');
+
+function showExploreContent(store, channelId, id) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
+  store.dispatch('SET_CURRENT_CHANNEL', channelId);
+  cookiejs.set('currentChannel', channelId);
 
-  Resources.getModel(id).fetch()
-    .then((attributes) => {
-      const pageState = _contentState(attributes);
+  const attributesPromise = ContentNodeResource.getModel(id).fetch();
+  const channelPromise = ChannelResource.getCollection({}).fetch();
+
+  Promise.all([attributesPromise, channelPromise])
+    .then(([attributes, channelList]) => {
+      const pageState = { content: _contentState(attributes) };
       store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('SET_CHANNEL_LIST', channelList);
     })
     .catch((error) => {
-      // TODO - how to parse and format?
-      store.dispatch('SET_PAGE_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
-function showLearnRoot(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
-  store.dispatch('SET_PAGE_STATE', {}); // TODO
+
+function showLearnChannel(store, channelId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
+  store.dispatch('SET_CURRENT_CHANNEL', channelId);
+  cookiejs.set('currentChannel', channelId);
+
+  const recommendedPromise = ContentNodeResource.getCollection({ recommendations: '' }).fetch();
+  const channelPromise = ChannelResource.getCollection({}).fetch();
+
+  Promise.all([recommendedPromise, channelPromise])
+    .then(([recommendations, channelList]) => {
+      const pageState = { recommendations: recommendations.map(_contentState) };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('SET_CHANNEL_LIST', channelList);
+    })
+    .catch((error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    });
 }
+
+
+function showLearnContent(store, channelId, id) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
+  store.dispatch('SET_CURRENT_CHANNEL', channelId);
+  cookiejs.set('currentChannel', channelId);
+
+  const attributesPromise = ContentNodeResource.getModel(id).fetch();
+  const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
+  const channelPromise = ChannelResource.getCollection({}).fetch();
+
+  Promise.all([attributesPromise, recommendedPromise, channelPromise])
+    .then(([attributes, recommended, channelList]) => {
+      const pageState = {
+        content: _contentState(attributes),
+        recommended: recommended.map(_contentState),
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('SET_CHANNEL_LIST', channelList);
+    })
+    .catch((error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    });
+}
+
+
+function triggerSearch(store, searchTerm) {
+  if (!searchTerm) {
+    const searchState = {
+      searchTerm,
+      topics: [],
+      contents: [],
+    };
+    store.dispatch('SET_SEARCH_STATE', searchState);
+    return;
+  }
+
+  store.dispatch('SET_SEARCH_LOADING');
+
+  const contentCollection = ContentNodeResource.getPagedCollection({ search: searchTerm });
+  const searchResultsPromise = contentCollection.fetch();
+
+  searchResultsPromise.then((results) => {
+    const searchState = { searchTerm };
+    const collection = _collectionState(results);
+    searchState.topics = collection.topics;
+    searchState.contents = collection.contents;
+    store.dispatch('SET_SEARCH_STATE', searchState);
+  })
+  .catch((error) => {
+    // TODO - how to parse and format?
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
+
+
+function toggleSearch(store) {
+  store.dispatch('TOGGLE_SEARCH');
+}
+
 
 function showScratchpad(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
   store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
 }
 
-function showSearchResults(store, params, page) {
-  store.dispatch('SET_SEARCH_LOADING', true);
-
-  const pageSize = 15;
-  const contentCollection = Resources.getPagedCollection({
-    search: params,
-  }, {
-    pageSize,
-    page,
-  });
-  const searchResultsPromise = contentCollection.fetch();
-
-  searchResultsPromise.then((results) => {
-    const searchState = { params };
-    searchState.pageCount = contentCollection.pageCount;
-    searchState.topics = results
-      .filter((item) => item.kind === 'topic')
-      .map((item) => _topicState(item));
-    searchState.contents = results
-      .filter((item) => item.kind !== 'topic')
-      .map((item) => _contentState(item));
-    store.dispatch('SET_SEARCH_STATE', searchState);
-    store.dispatch('SET_SEARCH_LOADING', false);
-  })
-  .catch((error) => {
-    // TODO - how to parse and format?
-    store.dispatch('SET_SEARCH_ERROR', JSON.stringify(error, null, '\t'));
-  });
-}
-
-const searchReset = ({ dispatch }) => {
-  dispatch('SET_SEARCH_LOADING', false);
-};
 
 module.exports = {
+  redirectToExploreChannel,
+  redirectToLearnChannel,
   showExploreTopic,
   showExploreContent,
-  showLearnRoot,
+  showLearnChannel,
+  showLearnContent,
   showScratchpad,
-  showSearchResults,
-  searchReset,
+  triggerSearch,
+  toggleSearch,
 };

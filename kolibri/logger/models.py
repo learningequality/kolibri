@@ -1,61 +1,100 @@
+"""
+This app is intended to provide the core functionality for tracking user
+engagement with content and Kolibri in general. As such, it is intended
+to store details of user interactions with content, a summary of those
+interactions, interactions with the software in general, as well as user
+feedback on the content and the software.
+"""
+
 from __future__ import unicode_literals
 
-import uuid
-
-from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from kolibri.auth.constants import role_kinds
+from kolibri.auth.models import AbstractFacilityDataModel, Facility, FacilityUser
+from kolibri.auth.permissions.base import RoleBasedPermissions
+from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.models import UUIDField
-from kolibri.auth.models import FacilityUser
+
+from .permissions import AnonymousUsersCanWriteAnonymousLogs
 
 
-class ContentInteractionLog(models.Model):
+class BaseLogModel(AbstractFacilityDataModel):
+
+    permissions = (
+        AnonymousUsersCanWriteAnonymousLogs() |
+        IsOwn() |
+        RoleBasedPermissions(
+            target_field="user",
+            can_be_created_by=(role_kinds.ADMIN,),
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_updated_by=(role_kinds.ADMIN,),
+            can_be_deleted_by=(role_kinds.ADMIN,),
+        )
+    )
+
+    class Meta:
+        abstract = True
+
+    def infer_dataset(self):
+        if self.user:
+            return self.user.dataset
+        else:
+            facility = Facility.get_default_facility()
+            assert facility, "Before you can save logs, you must have a facility"
+            return facility.dataset
+
+
+class ContentSessionLog(BaseLogModel):
     """
-    This Model provides a record of an interaction with a content item.
+    This model provides a record of interactions with a content item within a single visit to that content page.
     """
-    user = models.ForeignKey(FacilityUser, blank=True, null=True, db_index=True)
-    content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
-    channel_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
-    start_timestamp = models.DateTimeField(blank=False, null=False)
+    user = models.ForeignKey(FacilityUser, blank=True, null=True)
+    content_id = UUIDField(db_index=True)
+    channel_id = UUIDField()
+    start_timestamp = models.DateTimeField()
+    end_timestamp = models.DateTimeField(blank=True, null=True)
+    time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
+    progress = models.FloatField(default=0, validators=[MinValueValidator(0)])
+    kind = models.CharField(max_length=200)
+    extra_fields = models.TextField(default="{}")
+
+
+class ContentSummaryLog(BaseLogModel):
+    """
+    This model provides a summary of all interactions a user has had with a content item.
+    """
+    user = models.ForeignKey(FacilityUser)
+    content_id = UUIDField(db_index=True)
+    channel_id = UUIDField()
+    start_timestamp = models.DateTimeField()
+    end_timestamp = models.DateTimeField(blank=True, null=True)
     completion_timestamp = models.DateTimeField(blank=True, null=True)
-    item_session = UUIDField(primary_key=False, default=uuid.uuid4, editable=False)
-    kind = models.CharField(max_length=200, blank=True)  # indicates how extra_fields should be interpreted
-    extra_fields = models.TextField(blank=True)
+    time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
+    progress = models.FloatField(default=0, validators=[MinValueValidator(0), MaxValueValidator(1)])
+    kind = models.CharField(max_length=200)
+    extra_fields = models.TextField(default="{}")
 
 
-class ContentSummaryLog(models.Model):
+class ContentRatingLog(BaseLogModel):
     """
-    This Model provides a summary of all interactions of a user with a content item.
+    This model provides a record of user feedback on a content item.
     """
-    user = models.ForeignKey(FacilityUser, blank=True, null=True, db_index=True)
-    content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
-    last_channel_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
-    start_timestamp = models.DateTimeField(blank=False, null=False)
-    last_activity_timestamp = models.DateTimeField(blank=True, null=True)
-    completion_timestamp = models.DateTimeField(blank=True, null=True)
-    progress = models.DecimalField(default=0.0, max_digits=2, decimal_places=1)
-    kind = models.CharField(max_length=200, blank=True)  # indicates how extra_fields should be interpreted
-    extra_fields = models.TextField(blank=True)
-
-
-class ContentRatingLog(models.Model):
-    """
-    This Model provides a record of user feedback on content.
-    """
-    user = models.ForeignKey(FacilityUser, blank=True, null=True, db_index=True)
-    content_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
-    channel_id = UUIDField(primary_key=False, default=uuid.uuid4, editable=False, db_index=True)
+    user = models.ForeignKey(FacilityUser, blank=True, null=True)
+    content_id = UUIDField(db_index=True)
+    channel_id = UUIDField()
     quality = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
     ease = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
     learning = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
     feedback = models.TextField(blank=True)
 
 
-class UserSessionLog(models.Model):
+class UserSessionLog(BaseLogModel):
     """
-    This Model provides a record of a user session in Kolibri.
+    This model provides a record of a user session in Kolibri.
     """
-    user = models.ForeignKey(FacilityUser, blank=True, null=True, db_index=True)
+    user = models.ForeignKey(FacilityUser)
     channels = models.TextField(blank=True)
-    start_timestamp = models.DateTimeField(blank=False, null=False)
+    start_timestamp = models.DateTimeField(auto_now_add=True)
     completion_timestamp = models.DateTimeField(blank=True, null=True)
     pages = models.TextField(blank=True)

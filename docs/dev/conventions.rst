@@ -55,6 +55,11 @@ JavaScript Code
 - We use the `AirBnB Javascript Style guide <https://github.com/airbnb/javascript>`_ for client-side ES6 code in Vue components.
 - ``use strict`` is automatically inserted.
 - Use CommonJS-style ``require`` and ``module.exports`` statements, not ES6 ``import``/``export`` statements.
+- For logging statements we use a thin wrapper around the ``log-level`` JS library, that prefixes the log statements with information about the logging level and current file. To access the logger, simply include the following code snippet:
+
+.. code-block:: javascript
+
+  const logging = require('logging').getLogger(__filename);
 
 
 Stylus and CSS

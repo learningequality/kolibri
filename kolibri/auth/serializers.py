@@ -2,18 +2,22 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from rest_framework import serializers
 
-from .models import (
-    Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership,
-    Role
-)
+from .models import Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership, Role
+
+class RoleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Role
+        exclude = ("dataset",)
 
 
 class FacilityUserSerializer(serializers.ModelSerializer):
+    roles = RoleSerializer(many=True, read_only=True)
 
     class Meta:
         model = FacilityUser
-        exclude = ("dataset", "last_login")
         extra_kwargs = {'password': {'write_only': True}}
+        fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles')
 
     def create(self, validated_data):
         user = FacilityUser(**validated_data)
@@ -40,13 +44,6 @@ class MembershipSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Membership
-        exclude = ("dataset",)
-
-
-class RoleSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Role
         exclude = ("dataset",)
 
 

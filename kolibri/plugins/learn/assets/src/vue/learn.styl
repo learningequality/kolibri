@@ -1,17 +1,10 @@
-/**
-  * Styles for responsiveness in learn app
-  */
+
 @require '~core-theme.styl'
 
+.pageicon
+  fill: $core-text-default
 
-$card-width = 196px
-$card-gutter = 10px
-$card-presets = 2 3 4
-$nav-bar-width = 80px
-$tool-bar-height = 40px
-
-width-auto-adjust()
-  for $preset in $card-presets
-    $min-width = ($card-width * $preset) + ($card-gutter * ($preset - 1))
-    @media (min-width:$min-width)
-      width: $min-width
+.page-description
+  margin-top: 2em
+  margin-bottom: 1.4em
+  line-height: 1.8em

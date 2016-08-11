@@ -1,115 +1,59 @@
 <template>
 
-  <div v-show="searchtoggled" @click="toggleSearch()" class="searchscreen" transition="fade"></div>
-  <div v-show="searchtoggled" class="sidesearch" transition="glide">
-    <div class="search-container">
-      <label @click="toggleSearch()" class="close-search">
-          <span class="close-search-img">search</span>
-      </label>
-      <form class="searchform" v-on:submit.prevent>
-        <input v-focus-model="focused" type="search" v-model="searchterm" name="search" autocomplete="off" placeholder="Find content..." @keydown="isTyping()" @keyup="searchContent(1) | debounce 500" id="search" class="search-input">
-        <label v-show="searchterm" class="reset-search" type="reset" @click="reFocus()">
-          <span class="reset-img">clear</span>
-        </label>
-      </form>
+  <div class='wrapper'>
+
+    <!-- search block -->
+    <div class='top' role="search">
+      <input
+        type="search"
+        v-el:search
+        aria-label="Type to find content"
+        placeholder="Find content..."
+        autocomplete="off"
+        v-focus="searchOpen"
+        v-model="localSearchTerm"
+        id="search"
+        name="search"
+        @keyup="search() | debounce 500"
+        @keydown.esc.prevent="clear()">
+      <button aria-label="Reset" class="reset" type="reset" @click="clear()" :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }">
+        <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+          <path d="M0 0h24v24H0z" fill="none"></path>
+        </svg>
+      </button>
     </div>
 
-    <div class="result-container">
-      <h6 v-show="searchterm" v-bind:class="{ 'hideme': typing || searchLoading }" id="search-prompt" transition="fade">{{ prompttext }}</h6>
-      <div v-show="searchterm" class="result-list" v-if="searchTopics.length > 0 || searchContents.length > 0" v-bind:class="{ 'search-in-progress': typing || searchLoading }">
-        <search-card
-          v-for="topic in searchTopics"
+    <!-- results -->
+    <div class='results' v-if="!loading">
+      <h4 v-if="searchTerm">
+        {{ message }}
+      </h4>
+
+      <card-grid v-if="topics.length && showTopics">
+        <topic-list-item
+          v-for="topic in topics"
           class="card"
+          :id="topic.id"
           :title="topic.title"
-          :description="topic.description"
-          :kind="topic.kind"
-          :id="topic.id">
-        </search-card>
-        <search-card
-          v-for="content in searchContents"
+          :ntotal="topic.n_total"
+          :ncomplete="topic.n_complete">
+        </topic-list-item>
+      </card-grid>
+
+      <card-grid v-if="contents.length">
+        <content-grid-item
+          v-for="content in contents"
           class="card"
           :title="content.title"
-          :description="content.description"
+          :thumbnail="content.thumbnail"
           :kind="content.kind"
           :progress="content.progress"
           :id="content.id">
-        </search-card>
-      </div>
+        </content-grid-item>
+      </card-grid>
     </div>
 
-    <div class="pagination-container" transition="fade">
-      <ul class="pagination">
-        <li @click="prePage" class="page-btn pre-btn" v-bind:class="{ 'disabled': currentpage === 1 ||  !searchterm }">«</li>
-
-        <!-- when there are less or equal than 5 pages, use this layout -->
-        <li
-          class="page-btn"
-          v-show="searchterm"
-          v-if="pageCount <= 5 && pageCount > 1"
-          v-for="page in pageCount"
-          v-bind:class="{ 'selected': currentpage === page + 1 }"
-          @click="searchContent(page + 1)"
-        >{{ page + 1 }}</li>
-
-        <!-- when there are more than 5 pages, use this very complicated layout -->
-        <!-- always show the first page btn -->
-        <li
-          class="page-btn"
-          v-show="searchterm"
-          v-if="pageCount > 5"
-          v-bind:class="{ 'selected': currentpage === 1 }"
-          @click="searchContent(1)"
-        >{{ 1 }}</li>
-
-        <li
-          class="page-btn disabled"
-          v-show="searchterm"
-          v-if="pageCount > 5 && currentpage >= 5"
-        > ... </li>
-        <li
-          class="page-btn"
-          v-show="searchterm"
-          v-if="pageCount > 5 && currentpage <5"
-          v-for="page in 4"
-          v-bind:class="{ 'selected': currentpage === page + 2 }"
-          @click="searchContent(page + 2)"
-        >{{ page + 2 }}</li>
-        <li
-          class="page-btn"
-          v-show="searchterm"
-          v-if="pageCount > 5 && currentpage >=5 && currentpage < pageCount - 3"
-          v-for="page in 3"
-          v-bind:class="{ 'selected': currentpage === currentpage + page - 1 }"
-          @click="searchContent(currentpage + page - 1)"
-        >{{ currentpage + page - 1 }}</li>
-        <!-- when reach the last 4 pages -->
-        <li
-          class="page-btn"
-          v-show="searchterm"
-          v-if="pageCount > 5 && currentpage > pageCount - 4 && currentpage <= pageCount"
-          v-for="page in 4"
-          v-bind:class="{ 'selected': currentpage === pageCount - 4 + page }"
-          @click="searchContent(pageCount - 4 + page)"
-        >{{ pageCount - 4 + page }}</li>
-
-        <li
-          class="page-btn disabled"
-          v-show="searchterm"
-          v-if="pageCount > 5 && currentpage < pageCount - 3"
-        > ... </li>
-
-        <!-- always show the last page btn -->
-        <li
-          class="page-btn"
-          v-show="searchterm"
-          v-if="pageCount > 5"
-          v-bind:class="{ 'selected': currentpage === pageCount }"
-          @click="searchContent(pageCount)"
-        >{{ pageCount }}</li>
-
-        <li @click="nextPage" class="page-btn last-btn"  v-bind:class="{ 'disabled': currentpage === pageCount ||  !searchterm }">»</li>
-      </ul>
-    </div>
   </div>
 
 </template>
@@ -117,92 +61,64 @@
 
 <script>
 
-  const focusModel = require('vue-focus').focusModel;
+  const focus = require('vue-focus').focus;
+  const actions = require('../../actions');
+
 
   module.exports = {
-    directives: { focusModel },
+    directives: { focus },
     props: {
-      searchtoggled: {
+      showTopics: {
         type: Boolean,
-        default: false,
+        default: true,
       },
     },
-    data: () => ({
-      searchterm: '',
-      currentpage: 1,
-      typing: false,
-      lastsearch: 'oblivion it is',
-      focused: false,
-    }),
-    created() {
-      // Preseed the searchterm with a value stored in the Vuex store.
-      this.searchterm = this.searchParams;
+    data() {
+      return {
+        localSearchTerm: '',
+      };
     },
     computed: {
-      prompttext() {
-        if (this.searchTopics.length > 0 || this.searchContents.length > 0) {
-          return 'Search result';
-        } else if (this.searchterm.length > 0 && this.searchTopics.length === 0
-          && this.searchContents.length === 0 && !this.searchLoading) {
-          return 'Could not find anything matched';
-        }
-        if (this.searchterm.length === 0) {
-          this.searchReset();
+      message() {
+        if (this.topics.length || this.contents.length) {
+          return 'Search results:';
+        } else if (!this.topics.length && !this.contents.length) {
+          return 'Could not find any matches.';
         }
         return '';
       },
     },
     methods: {
-      reFocus() {
-        this.searchterm = '';
-        this.focused = true;
-      },
-      toggleSearch() {
-        this.searchtoggled = !this.searchtoggled;
-      },
-      searchContent(page) {
-        if (this.searchterm.length > 0 && !this.searchLoading) {
-          this.lastsearch = this.searchterm;
-          this.currentpage = page;
-          this.showSearchResults(this.searchterm, page);
-        }
-        this.typing = false;
-      },
-      isTyping() {
-        if (this.lastsearch !== this.searchterm) {
-          this.typing = true;
+      clear() {
+        if (!this.localSearchTerm) {
+          this.toggleSearch();
         } else {
-          this.typing = false;
+          this.localSearchTerm = '';
+          this.$els.search.focus();
+          this.triggerSearch(this.localSearchTerm);
         }
       },
-      increasePage() {
-        this.currentpage += 1;
-      },
-      decreasePage() {
-        this.currentpage -= 1;
-      },
-      nextPage() {
-        this.increasePage();
-        this.showSearchResults(this.searchterm, this.currentpage);
-      },
-      prePage() {
-        this.decreasePage();
-        this.showSearchResults(this.searchterm, this.currentpage);
+      search() {
+        this.triggerSearch(this.localSearchTerm);
       },
     },
     components: {
-      'search-card': require('./search-card'),
+      'topic-list-item': require('../topic-list-item'),
+      'content-grid-item': require('../content-grid-item'),
+      'card-grid': require('../card-grid'),
     },
     vuex: {
       getters: {
-        // better practice would be to define vuex getter functions globally
-        searchContents: state => state.searchState.contents || [],
-        searchTopics: state => state.searchState.topics || [],
-        pageCount: state => state.searchState.pageCount,
-        searchLoading: state => state.searchLoading,
-        searchParams: state => state.searchState.params || '',
+        contents: state => state.searchState.contents,
+        topics: state => state.searchState.topics,
+        loading: state => state.searchLoading,
+        searchTerm: state => state.searchState.searchTerm,
+        searchOpen: state => state.searchOpen,
       },
-      actions: require('../../actions'),
+      actions: {
+        triggerSearch: actions.triggerSearch,
+        toggleSearch: actions.toggleSearch,
+      },
     },
   };
 
@@ -212,165 +128,62 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+  @require '../learn.styl'
 
-// search input box
-  .search-container
-    width: 100%
-    height: 70px
-    background-color: $core-bg-canvas
-  .sidesearch
-    height: 100%
-    width: 30%
-    min-width: 400px
-    max-width: 600px
-    background-color: $core-bg-canvas
-    position: fixed
-    right: 0
-    z-index: 99
-  .searchscreen
-    height: 100%
-    width: 100%
-    background-color: #dddddd
-    opacity: 0.7
-    position: fixed
-    z-index: 9
-    left: 0
-  .search-input
-    outline: none
-    position: relative
-    background-color: $core-bg-light
-    border-radius: 40px
-    padding: 12px
-    width: 80%
-    max-width: 500px
-    min-width: 300px
-    height:30px
-    border: 2px solid #cccccc
-    pointer-events: auto
-    top: 32px
-    left: 50%
-    transform: translateX(-50%)
-    padding: 0 1em
-  .reset-search
-    position: absolute
-    height: 40px
-    width: 40px
-    text-indent: -10000px
-    cursor: pointer
-    top: 28px
-    margin-left: 10px
-  .reset-img
-    padding-top: 16px
-    margin-right: 14px
-    display: block
-    background: url('./trash.svg') no-repeat right
-  .close-search
-    position: absolute
-    height: 40px
-    width: 40px
-    text-indent: -10000px
-    cursor: pointer
-    z-index: 1
-    left: -20px
-    top: 26px
-    border-radius: 50%
-    background-color: $core-text-annotation
-  .close-search-img
-    padding-top: 16px
-    margin-right: 8px
-    display: block
-    background: url('./close.svg') no-repeat right
+  $top-offset = 70px
 
-// result list
-  .result-container
-    position: absolute
-    width: 100%
-    background-color: $core-bg-canvas
-    top: 70px
-    bottom: 78px
-  #search-prompt
-    color: $core-text-annotation
-    padding-left: 10px
-    margin: 4px
-  .result-list
-    overflow:hidden
-    overflow-y:auto
-    height: 100%
-  .spacer
-    background-color: red
+  .wrapper
+    margin: auto
+    width-auto-adjust()
 
-// paginationm
-  .pagination-container
-    width: 100%
-    height: 60px
+  .results
+    padding-top: $top-offset
+    @media screen and (max-width: $portrait-breakpoint)
+      margin-left: $card-gutter
+
+  .top
     background-color: $core-bg-canvas
-    position: absolute
-    bottom: 0
+    height: $top-offset
+    padding-top: 1rem
+    z-index: 10000
     text-align: center
-  .pagination
-    padding: 0 12px
-    display: table
-    width: 100%
-    border-spacing: 4px
-  .pre-btn
-    float: left
-  .last-btn
-    float: right
-    margin-right: 20px
-  .page-btn
-    width: 30px
-    height: 30px
-    color: $core-text-default
-    background-color: $core-bg-light
-    border-radius: 4px
-    user-select: none
-    cursor: pointer
-    display: table-cell
+    position: fixed
+    top: 0
+    width-auto-adjust()
+    @media screen and (max-width: $portrait-breakpoint)
+      text-align: left
+      padding-right: 10px
+
+  input
+    display: inline-block
+    border: 1px solid #ccc
+    box-shadow: inset 0 1px 3px #ddd
+    border-radius: 2em
+    padding: 0.5em 1em
     vertical-align: middle
-  .page-btn:hover
-    background-color: $core-action-light
-  .selected
-    pointer-events: none
-    cursor: default
-    color: $core-bg-light
-    background-color: $core-action-normal
-  .disabled
-    pointer-events: none
-    cursor: default
-    opacity: 0.5
+    box-sizing: border-box
+    width: 75%
+    &:focus
+      outline: none
+      border-color: $core-text-annotation
 
-// Transitions
-  .glide-transition
-    transition: all 0.3s ease-out
-  .glide-enter, .glide-leave
-    transform: translateX(100%)
-  .fade-transition
-    transition: all 0.3s ease-out
-  .fade-enter, .fade-leave
-    opacity: 0
-  .hideme
-    opacity: 0
-  .search-in-progress
-    opacity: 0.5
+    // prevent IE10 from showing a duplicated 'x'  clear icon
+    &::-ms-clear
+      display: none
 
-// scrollbar
-::-webkit-scrollbar
-  width: 22px
-  margin-right: 20px
-  margin-left: 20px
-::-webkit-scrollbar-track
-  background: #cccccc
-  -webkit-border-radius: 14px
-  border-radius: 14px
-  margin-top: 3px
-  margin-bottom: 3px
-  border: 6px solid transparent
-  background-clip: padding-box
-::-webkit-scrollbar-thumb
-  -webkit-border-radius: 14px
-  border-radius: 14px
-  border: 7px solid transparent
-  background: #ffffff
-  background-clip: padding-box
+  .reset
+    border: none
+    background-color: $core-bg-light // IE10 needs a non-transparent bg to be clickable
+    display: inline-block
+    outline: none
+    cursor: pointer
+    position: relative
+    top: 1px
+    right: 40px
+    padding: 4px
+    svg
+      fill: $core-text-annotation
+      height: 15px
+      width: 15px
 
 </style>

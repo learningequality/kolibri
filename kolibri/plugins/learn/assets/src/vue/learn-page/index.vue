@@ -1,16 +1,11 @@
 <template>
 
-  <span>TODO</span>
-  <!-- <card-grid header="Content" v-if="contents.length">
-    <content-card
-      v-for="content in contents"
-      :title="content.title"
-      :thumbnail="content.thumbnail"
-      :kind="content.kind"
-      :progress="content.progress"
-      :id="content.pk">
-    </content-card>
-  </card-grid> -->
+  <div>
+    <page-header title="Learn">
+      <svg slot="icon" class="pageicon" src="../icons/learn.svg"></svg>
+    </page-header>
+    <expandable-content-grid :contents="recommendations"></expandable-content-grid>
+  </div>
 
 </template>
 
@@ -19,8 +14,13 @@
 
   module.exports = {
     components: {
-      'content-card': require('../content-card'),
-      'card-grid': require('../card-grid'),
+      'page-header': require('../page-header'),
+      'expandable-content-grid': require('../expandable-content-grid'),
+    },
+    vuex: {
+      getters: {
+        recommendations: state => state.pageState.recommendations,
+      },
     },
   };
 

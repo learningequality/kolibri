@@ -1,54 +1,31 @@
 <template>
 
-  <core-base class="learn-page">
-
-    <nav id="learn-nav">
-      <ul>
-        <a
-          v-link="{ name: $options.PageNames.LEARN_ROOT }"
-          :class='{active: pageMode === $options.PageModes.LEARN}'
-        >
-          <li><span>
-          <svg fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
-            <path d="M0 0h24v24H0z" fill="none"></path>
-          </svg>
-          Learn
-          </span></li>
-        </a>
-        <a
-          v-link="{ name: $options.PageNames.EXPLORE_ROOT }"
-          :class='{active: pageMode === $options.PageModes.EXPLORE}'
-        >
-          <li><span>
-          <svg fill="#000000" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 10.9c-.61 0-1.1.49-1.1 1.1s.49 1.1 1.1 1.1c.61 0 1.1-.49 1.1-1.1s-.49-1.1-1.1-1.1zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm2.19 12.19L6 18l3.81-8.19L18 6l-3.81 8.19z"></path>
-            <path d="M0 0h24v24H0z" fill="none"></path>
-          </svg>
-          Explore
-          </span></li>
-        </a>
-      </ul>
-    </nav>
-
-    <!-- accounts for margin offset by navbar -->
-    <div>
-
-      <div class="page-content" v-if="!loading && !error">
-        <explore-page v-if='showExplorePage'></explore-page>
-        <content-page v-if='showContentPage'></content-page>
-        <learn-page v-if='showLearnPage'></learn-page>
-        <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
-      </div>
-
-      <div v-else class="page-error">
-        <error-page></error-page>
-      </div>
-
-      <!-- this is not used, but necessary for vue-router to function -->
-      <router-view></router-view>
-
+  <core-base>
+    <main-nav slot="nav"></main-nav>
+    <div slot="above" class="top-wrapper">
+      <search-button class='search-btn'></search-button>
+      <label for="chan-select" class="visuallyhidden">Filter User Type</label>
+      <select
+        class="chan-select"
+        id="chan-select"
+        name="chan-select"
+        v-model="getCurrentChannel"
+        @change="switchChannel($event)"
+      >
+        <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
+      </select>
     </div>
+    <component slot="content" :is="currentPage"></component>
+    <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
+      <div class='search-shadow'>
+        <search-widget
+          :show-topics="exploreMode">
+        </search-widget>
+      </div>
+    </div>
+
+    <!-- this is not used, but necessary for vue-router to function -->
+    <router-view></router-view>
 
   </core-base>
 
@@ -57,41 +34,85 @@
 
 <script>
 
-  const getters = require('../state/getters');
   const constants = require('../state/constants');
-  const store = require('../state/store');
   const PageNames = constants.PageNames;
+  const PageModes = constants.PageModes;
+  const getters = require('../state/getters');
+  const store = require('../state/store');
 
   module.exports = {
-    mixins: [constants], // makes constants available in $options
     components: {
       'core-base': require('core-base'),
+      'main-nav': require('./main-nav'),
+      'search-widget': require('./search-widget'),
+      'search-button': require('./search-widget/search-button'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
       'scratchpad-page': require('./scratchpad-page'),
-      'error-page': require('./error-page'),
     },
     computed: {
-      showExplorePage() {
-        return this.pageName === PageNames.EXPLORE_ROOT || this.pageName === PageNames.EXPLORE_TOPIC;
+      currentPage() {
+        if (this.pageName === PageNames.EXPLORE_CHANNEL ||
+          this.pageName === PageNames.EXPLORE_TOPIC) {
+          return 'explore-page';
+        }
+        if (this.pageName === PageNames.EXPLORE_CONTENT ||
+          this.pageName === PageNames.LEARN_CONTENT) {
+          return 'content-page';
+        }
+        if (this.pageName === PageNames.LEARN_CHANNEL) {
+          return 'learn-page';
+        }
+        if (this.pageName === PageNames.SCRATCHPAD) {
+          return 'scratchpad-page';
+        }
+        return null;
       },
-      showContentPage() {
-        return this.pageName === PageNames.EXPLORE_CONTENT;
+      exploreMode() {
+        return this.pageMode === PageModes.EXPLORE;
       },
-      showLearnPage() {
-        return this.pageName === PageNames.LEARN_ROOT;
+      /*
+      * Get a list of channels.
+      */
+      getChannels() {
+        return this.channelList;
       },
-      showScratchpadPage() {
-        return this.pageName === PageNames.SCRATCHPAD;
+      /*
+      * Get the current channel ID.
+      */
+      getCurrentChannel() {
+        return this.currentChannel;
+      },
+    },
+    methods: {
+      /*
+      * Route to selected channel.
+      */
+      switchChannel(event) {
+        let rootPage;
+        if (this.exploreMode) {
+          rootPage = constants.PageNames.EXPLORE_CHANNEL;
+        } else {
+          rootPage = constants.PageNames.LEARN_CHANNEL;
+        }
+        this.$router.go(
+          {
+            name: rootPage,
+            params: {
+              channel_id: event.target.value,
+            },
+          }
+        );
       },
     },
     vuex: {
       getters: {
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
-        loading: state => state.loading,
-        error: state => state.error,
+        searchOpen: state => state.searchOpen,
+        currentChannel: state => state.currentChannel,
+        channelList: state => state.channelList,
       },
     },
     store, // make this and all child components aware of the store
@@ -103,72 +124,54 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
-  @require 'learn'
+  @require 'learn.styl'
 
-  // Navbar styling
-  $nav-element-height = 150
-  $font-size = 1em
+  .search-btn
+    position: fixed
+    top: 1rem
+    right: 2rem
+    z-index: 1
+    @media screen and (max-width: $portrait-breakpoint)
+      right: 1rem
 
-  #learn-nav
+  .top-wrapper
+    text-align: right
+    padding-top: 22px
+    padding-right: $right-margin * 2
+
+  .chan-select
+    width: 11em
+    padding: 0.2em 0.8em
+    color: $core-text-annotation
+    font-size: 0.9rem
+    border: 1px solid $core-text-annotation
+    border-radius: 50px
+    background: url(./icons/arrowdown.svg) no-repeat right
+    -webkit-appearance: none
+    -moz-appearance: none
+    outline: none
+
+  .search-pane
+    background-color: $core-bg-canvas
+    overflow-y: scroll
     position: fixed
     top: 0
     left: 0
-    width: $nav-bar-width
     height: 100%
-    background: $core-bg-light
-    text-align: center
-    font-size: $font-size
-    font-weight: 300
-    overflow: hidden
-    z-index: 1
+    width: 100%
+    padding-left: $left-margin
+    @media screen and (max-width: $portrait-breakpoint)
+      padding-left: 0
+      margin-left: $card-gutter
 
-  ul
-    margin: 0
-    padding: 0
-    list-style-type: none
+  .search-shadow
+    padding-right: $right-margin
+    min-height: 100%
 
-  a:hover
-    svg
-      fill: $core-action-dark
+  .search-slide-transition
+    transition: transform $core-time ease-out
 
-  a
-    display: block
-    margin: 0
-    padding: 0
-
-  li
-    display: table
-    height: $nav-element-height
-
-  span
-    display: table-cell
-    vertical-align: middle
-
-  svg
-    fill: $core-action-normal
-
-  // this class is automatically added to links with the v-link directive
-  a.active
-    color: $core-bg-light
-    background: $core-action-normal
-
-    svg
-      fill: $core-bg-light
-
-  a.active:hover
-    svg
-      fill: $core-bg-light
-
-  // Page wrapper styling
-  div
-    margin-left: $nav-bar-width
-
-  .page-content
-  .page-error
-    margin: auto
-    width-auto-adjust()
+  .search-slide-enter, .search-slide-leave
+    transform: translateX(100vw)
 
 </style>
-
-
-<style lang="stylus"></style>

@@ -3,6 +3,7 @@ import os
 import cherrypy
 from django.conf import settings
 from django.core.management import call_command
+from kolibri.content.utils.annotation import update_channel_metadata_cache
 from kolibri.deployment.default.wsgi import application
 
 
@@ -12,6 +13,8 @@ def start():
     call_command("collectstatic", interactive=False)
     call_command("collectstatic_js_reverse", interactive=False)
     call_command("migrate", interactive=False)
+
+    update_channel_metadata_cache()
 
     run_server()
 
@@ -27,13 +30,13 @@ def run_server():
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()
 
+    cherrypy.config.update({'server.socket_host': "0.0.0.0",
+                            'server.socket_port': 8080,
+                            'server.thread_pool': 30,
+                            'log.screen': True})
+
     # Instantiate a new server object
     server = cherrypy._cpserver.Server()
-
-    # Configure the server object
-    server.socket_host = "0.0.0.0"
-    server.socket_port = 8080
-    server.thread_pool = 30
 
     # Subscribe this server
     server.subscribe()
