@@ -240,11 +240,11 @@ function updateTasks(store) {
   });
 }
 
-function clearTask(store, id) {
+function clearTasks(store, id) {
   const currentTaskPromise = TaskResource.getModel(id).delete(id);
   currentTaskPromise.then(() => {
     // only 1 task should be running, but we set to empty array
-    store.dispatch('DELETE_TASK');
+    store.dispatch('SET_TASKS', []);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -274,5 +274,5 @@ module.exports = {
   showDataPage,
   showScratchpad,
   updateTasks,
-  clearTask,
+  clearTasks,
 };
