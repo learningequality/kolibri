@@ -77,7 +77,7 @@
     float: right
 
   .open-btn
-    background-color: white
+    background-color: $core-bg-light
 
   .manage-edit
     fill: $core-action-normal
