@@ -18,7 +18,7 @@ function kolibriLogout(store, Kolibri) {
   const SessionResource = Kolibri.resources.SessionResource;
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
-  const logoutPromise = sessionModel.delete(id);
+  const logoutPromise = sessionModel.delete();
   logoutPromise.then((response) => {
     store.dispatch('CORE_CLEAR_SESSION');
   }).catch((error) => {
