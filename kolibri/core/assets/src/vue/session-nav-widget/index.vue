@@ -3,7 +3,7 @@
   <nav-bar-item>
     <div class="wrapper">
       <div v-if="loggedIn">
-        <div class='user-icon' id="user-dropdown" @click="showUserDropdown">{{ displayText }}</div>
+        <div class='user-icon' id="user-dropdown" @click="showUserDropdown">{{ initial }}</div>
       </div>
       <div v-else>
         <login-modal></login-modal>
@@ -15,10 +15,9 @@
     <div class="user-dropdown">
       <ul class="dropdown-list">
         <li>
-          <h4 v-if="deviceOwner" class="dropdown-name">Device Owner</h4>
-          <h4 v-else class="dropdown-name">{{ fullname }}</h4>
+          <h4 class="dropdown-name">{{ name }}</h4>
           <p id="dropdown-username">{{ username }}</p>
-          <p id="dropdown-usertype">{{ kind }}</p>
+          <p id="dropdown-usertype">{{ userkind }}</p>
         </li>
         <li id="logout-tab">
           <div @click="userLogout">
@@ -46,14 +45,26 @@
       showDropdown: false,
     }),
     computed: {
-      displayText() {
-        if (this.fullname) {
-          return this.fullname[0].toUpperCase();
-        }
+      initial() {
         if (this.deviceOwner) {
           return this.username[0].toUpperCase();
         }
+        if (this.fullname) {
+          return this.fullname[0].toUpperCase();
+        }
         return '?';
+      },
+      name() {
+        if (this.deviceOwner) {
+          return 'Device Owner';
+        }
+        return this.fullname;
+      },
+      userkind() {
+        if (this.deviceOwner) {
+          return '';
+        }
+        return this.kind;
       },
     },
     methods: {

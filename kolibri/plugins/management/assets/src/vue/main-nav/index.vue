@@ -28,11 +28,6 @@
     components: {
       'nav-bar-item': require('nav-bar-item'),
     },
-    vuex: {
-      getters: {
-        isAdminOrSuperuser: state => state.core.is_admin_or_superuser,
-      },
-    },
   };
 
 </script>

@@ -9,7 +9,6 @@ const initialState = {
     loading: true,
     session: { kind: UserKinds.ANONYMOUS, error: '200' },
     login_modal_state: false,
-    is_admin_or_superuser: false,
   },
 };
 
@@ -24,7 +23,6 @@ const mutations = {
   },
   CORE_CLEAR_SESSION(state) {
     state.core.session = { kind: UserKinds.ANONYMOUS, error: '200' };
-    state.core.is_admin_or_superuser = false;
   },
   CORE_SET_PAGE_LOADING(state, value) {
     state.core.loading = value;
@@ -35,9 +33,6 @@ const mutations = {
   // Handles state of login modal appearance
   CORE_SET_MODAL_STATE(state, value) {
     state.core.login_modal_state = value;
-  },
-  CORE_SET_ADMIN_STATUS(state, value) {
-    state.core.is_admin_or_superuser = value;
   },
 };
 

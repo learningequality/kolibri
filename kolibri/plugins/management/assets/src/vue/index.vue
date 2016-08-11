@@ -20,6 +20,7 @@
 
   const store = require('../state/store');
   const PageNames = require('../state/constants').PageNames;
+  const UserKinds = require('core-constants').UserKinds;
 
   module.exports = {
     components: {
@@ -47,12 +48,17 @@
         }
         return null;
       },
-
+      isAdminOrSuperuser() {
+        if (this.kind === UserKinds.SUPERUSER || this.kind === UserKinds.ADMIN) {
+          return true;
+        }
+        return false;
+      },
     },
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        isAdminOrSuperuser: state => state.core.is_admin_or_superuser,
+        kind: state => state.core.session.kind,
       },
     },
     store, // make this and all child components aware of the store

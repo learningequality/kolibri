@@ -29,7 +29,7 @@
 <script>
 
   const actions = require('../../core-actions');
-  const UserKinds = require('../../constants').UserKinds;
+  const UserKinds = require('core-constants').UserKinds;
 
   module.exports = {
     components: {
