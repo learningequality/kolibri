@@ -174,7 +174,7 @@ class Model {
       Promise.all(this.promises).then(() => {
         if (!this.id) {
           // Nothing to delete, so just resolve the promise now.
-          reject('Please pass in the model id.');
+          reject('Can not delete model that we do not have an id for');
         } else {
           // Otherwise, DELETE the Model
           const clientObj = { path: this.url, method: 'DELETE',
