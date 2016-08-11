@@ -65,22 +65,19 @@ function _collectionState(data) {
  */
 function _getCurrentChannel() {
   let currentChannelId = null;
-  return new Promise(
-    (resolve, reject) => {
-      ChannelResource.getCollection({}).fetch()
-        .then((channelList) => {
-          const cookieCurrentChannelId = cookiejs.get('currentChannel');
-          if (channelList.some((channel) => channel.id === cookieCurrentChannelId)) {
-            currentChannelId = cookieCurrentChannelId;
-            resolve(currentChannelId);
-          } else {
-            currentChannelId = channelList[0].id;
-            resolve(currentChannelId);
-          }
-        })
-        .catch((error) => {
-        });
-    });
+  return new Promise((resolve, reject) => {
+    ChannelResource.getCollection({}).fetch()
+      .then((channelList) => {
+        const cookieCurrentChannelId = cookiejs.get('currentChannel');
+        if (channelList.some((channel) => channel.id === cookieCurrentChannelId)) {
+          currentChannelId = cookieCurrentChannelId;
+          resolve(currentChannelId);
+        } else {
+          currentChannelId = channelList[0].id;
+          resolve(currentChannelId);
+        }
+      });
+  });
 }
 
 

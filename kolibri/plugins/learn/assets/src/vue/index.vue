@@ -102,8 +102,6 @@
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchOpen: state => state.searchOpen,
-        loading: state => state.loading,
-        error: state => state.error,
         currentChannel: state => state.currentChannel,
         channelList: state => state.channelList,
       },
