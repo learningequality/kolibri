@@ -93,9 +93,7 @@
         );
       },
       toggleMore() {
-        if (window.innerWidth <= 545) {
-          this.more = !this.more;
-        }
+        this.more = !this.more;
       },
     },
     vuex: {
@@ -148,18 +146,18 @@
       left: 24px
 
   .toggle-menu-on
-      position: fixed
-      display: table
-      top: 4em
-      right: 30px
-      width: 200px
-      height: 100px
-      background: $core-bg-canvas
-      border-radius: 4px
-      text-align: center
-      font-size: 0.9em
-      color: $core-text-annotation
-      box-shadow: 1px 1px 2px $core-text-annotation
+    position: fixed
+    display: table
+    top: 4em
+    right: 30px
+    width: 200px
+    height: 100px
+    background: $core-bg-canvas
+    border-radius: 4px
+    text-align: center
+    font-size: 0.9em
+    color: $core-text-annotation
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.25)
 
   .toggle-menu-on::after
       content: 'Switch Channels:'
