@@ -232,6 +232,9 @@
   tr
     text-align: left
 
+  .roster
+    width: 100%
+
   .col-header
     padding-bottom: (1.2 * $row-padding)
     color: $core-text-annotation
@@ -239,6 +242,7 @@
     font-size: 80%
 
   .table-cell
+    font-weight: normal // compensates for <th> cells
     padding-bottom: $row-padding
     color: $core-text-default
 

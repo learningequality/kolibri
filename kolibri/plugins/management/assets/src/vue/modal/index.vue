@@ -1,7 +1,7 @@
 <template>
 
   <div class="modal-root" v-on:keyup.esc="closeModal">
-    <div class="modal" v-show="showModal" transition="modal">
+    <div class="modal" v-if="showModal" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
           <img @click="closeModal" class="close-btn" src="../icons/close.svg">
