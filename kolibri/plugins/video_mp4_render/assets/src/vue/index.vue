@@ -112,8 +112,8 @@
         this.$els.videowrapper.setAttribute('style', `width:${newWidth}px;height:${newHeight}px`);
       },
 
-      debouncedResizeVideo() {
-        debounce(this.resizeVideo(), 300);
+      get debouncedResizeVideo() {
+        return debounce(this.resizeVideo, 300);
       },
     },
 
