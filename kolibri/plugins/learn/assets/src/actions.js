@@ -7,17 +7,8 @@ const PageNames = constants.PageNames;
 const intervalTimer = require('core-timer');
 
 const intervalTime = 5000;
-const progressThreshold = 0.2;
-// const displayProgressThreshold = 0.1;
-const timeThreshold = 30;
-
-
-/**
- * Vuex State Mappers
- *
- * The methods below help map data from
- * the API to state in the Vuex store
- */
+const progressThreshold = 0.2; // Update logs if user has reached 20% more progress
+const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
 
 
 /**
@@ -74,10 +65,10 @@ function _collectionState(data) {
   return { topics, contents };
 }
 
+
 function _contentSummaryLoggingState(data) {
   const state = {
-    id: (data.pk) ? data.pk : null,
-    pending_create: false,
+    id: data.pk,
     start_timestamp: data.start_timestamp,
     completion_timestamp: data.completion_timestamp,
     end_timestamp: data.end_timestamp,
@@ -85,14 +76,15 @@ function _contentSummaryLoggingState(data) {
     time_spent: data.time_spent,
     extra_fields: data.extra_fields,
     time_spent_before_current_session: data.time_spent,
+    progress_before_current_session: data.progress,
   };
   return state;
 }
 
+
 function _contentSessionLoggingState(data) {
   const state = {
-    id: (data.pk) ? data.pk : null,
-    pending_create: false,
+    id: data.pk,
     start_timestamp: data.start_timestamp,
     end_timestamp: data.end_timestamp,
     time_spent: data.time_spent,
@@ -104,24 +96,24 @@ function _contentSessionLoggingState(data) {
   return state;
 }
 
-function _contentSummaryModel(store) {
-  const sessionInProgress = store.state.pageState.logging.summary.id;
-  const summaryLog = store.state.pageState.logging.summary;
 
+function _contentSummaryModel(store) {
+  const summaryLog = store.state.pageState.logging.summary;
   const mapping = {
     content_id: store.state.pageState.content.content_id,
     channel_id: store.state.core.session.channel_id,
     user: store.state.core.session.user_id,
-    start_timestamp: (sessionInProgress) ? summaryLog.start_timestamp : new Date(),
-    end_timestamp: (sessionInProgress) ? summaryLog.end_timestamp : null,
-    completion_timestamp: (sessionInProgress) ? summaryLog.completion_timestamp : null,
-    progress: (sessionInProgress) ? summaryLog.progress : 0,
-    time_spent: (sessionInProgress) ? summaryLog.time_spent : 0,
+    start_timestamp: summaryLog.start_timestamp,
+    end_timestamp: summaryLog.end_timestamp,
+    completion_timestamp: summaryLog.completion_timestamp,
+    progress: summaryLog.progress,
+    time_spent: summaryLog.time_spent,
     kind: store.state.pageState.content.kind,
-    extra_fields: (sessionInProgress) ? summaryLog.extra_fields : '{}',
+    extra_fields: summaryLog.extra_fields,
   };
   return mapping;
 }
+
 
 function _contentSessionModel(store) {
   const sessionLog = store.state.pageState.logging.session;
@@ -129,15 +121,16 @@ function _contentSessionModel(store) {
     content_id: store.state.pageState.content.content_id,
     channel_id: store.state.core.session.channel_id,
     user: store.state.core.session.user_id,
-    start_timestamp: (sessionLog) ? sessionLog.start_timestamp : new Date(),
-    end_timestamp: (sessionLog) ? sessionLog.end_timestamp : null,
-    time_spent: (sessionLog) ? sessionLog.time_spent : 0,
-    progress: (sessionLog) ? sessionLog.progress : 0,
+    start_timestamp: sessionLog.start_timestamp,
+    end_timestamp: sessionLog.end_timestamp,
+    time_spent: sessionLog.time_spent,
+    progress: sessionLog.progress,
     kind: store.state.pageState.content.kind,
-    extra_fields: (sessionLog) ? sessionLog.extra_fields : '{}',
+    extra_fields: sessionLog.extra_fields,
   };
   return mapping;
 }
+
 
 /**
  * Actions
@@ -276,6 +269,7 @@ function showScratchpad(store) {
   store.dispatch('CORE_SET_ERROR', null);
 }
 
+
 /**
  * Create models to store logging information
  * To be called on page load for content renderers
@@ -287,31 +281,77 @@ function initContentSession(store) {
     channel_id: '7199dde695db4ee4ab392222d5af1e5c',
   });
 
-  /* Fetch collection matching content and user */
-  const summaryCollection = ContentSummaryLogResource.getCollection({
-    content_id: store.state.pageState.content.content_id,
-    user: store.state.core.user_id,
-  });
-  summaryCollection.fetch().then(summary => {
-    /* If a summary model exists, map that to the state. Otherwise use default mapping */
-    const summaryState = (summary.length > 0) ? summary[0] : _contentSummaryModel(store);
+  /* Set initial logging state */
+  const loggingState = {
+    summary: { progress: 0 },
+    session: { },
+  };
+  store.dispatch('INIT_LOGGING_STATE', loggingState);
 
-    /* Set logging state */
-    const loggingState = {
-      summary: _contentSummaryLoggingState(summaryState),
-      session: _contentSessionLoggingState(_contentSessionModel(store)),
-    };
-    store.dispatch('SET_LOGGING_STATE', loggingState);
+  /* Create summary log iff user exists */
+  if (store.state.core.session.user_id) {
+     /* Fetch collection matching content and user */
+    const summaryCollection = ContentSummaryLogResource.getCollection({
+      content_id: store.state.pageState.content.content_id,
+      user: store.state.core.user_id,
+    });
+    summaryCollection.fetch().then(summary => {
+      /* If a summary model exists, map that to the state */
+      if (summary.length > 0) {
+        store.dispatch('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState(summary[0]));
+      } else {
+        /* If a summary model does not exist, create default state */
+        store.dispatch('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState({
+          pk: null,
+          start_timestamp: new Date(),
+          completion_timestamp: null,
+          end_timestamp: null,
+          progress: 0,
+          time_spent: 0,
+          extra_fields: '{}',
+          time_spent_before_current_session: 0,
+          progress_before_current_session: 0,
+        }));
+
+        /* Save a new summary model and set id on state */
+        const summaryModel = ContentSummaryLogResource.createModel(_contentSummaryModel(store));
+        summaryModel.save().then((summaryData) => {
+          store.dispatch('SET_LOGGING_SUMMARY_ID', summaryData.pk);
+        });
+      }
+    });
+  }
+
+  /* Set session log state to default */
+  store.dispatch('SET_LOGGING_SESSION_STATE', _contentSessionLoggingState({
+    pk: null,
+    content_id: store.state.pageState.content.content_id,
+    channel_id: store.state.core.session.channel_id,
+    user: store.state.core.session.user_id,
+    start_timestamp: new Date(),
+    end_timestamp: null,
+    time_spent: 0,
+    progress: 0,
+    kind: store.state.pageState.content.kind,
+    extra_fields: '{}',
+  }));
+
+  /* Save a new session model and set id on state */
+  const sessionModel = ContentSessionLogResource.createModel(_contentSessionModel(store));
+  sessionModel.save().then((sessionData) => {
+    store.dispatch('SET_LOGGING_SESSION_ID', sessionData.pk);
   });
 }
+
 
 /**
  * Update the progress percentage
  * To be called periodically by content renderers on interval or on pause
  * Must be called after initContentSession
  * @param {float} progressPercent
+ * @param {boolean} forceSave
  */
-function updateProgress(store, progressPercent) {
+function updateProgress(store, progressPercent, forceSave = false) {
   /* Create aliases for logs */
   const summaryLog = store.state.pageState.logging.summary;
   const sessionLog = store.state.pageState.logging.session;
@@ -320,61 +360,59 @@ function updateProgress(store, progressPercent) {
   const originalProgress = summaryLog.progress;
 
   /* Calculate progress based on progressPercent */
-  const summaryProgress = Math.min(1, progressPercent + summaryLog.progress);
   const sessionProgress = sessionLog.progress + progressPercent;
+  const summaryProgress = (summaryLog.id) ?
+    Math.min(1, summaryLog.progress_before_current_session + sessionProgress) : 0;
 
   /* Update the logging state with new progress information */
   store.dispatch('SET_LOGGING_PROGRESS', sessionProgress, summaryProgress);
 
+  /* Determine if progress threshold has been met */
+  const progressThresholdMet = sessionProgress -
+    sessionLog.progress_at_last_save >= progressThreshold;
+
   /* Mark completion time if 100% progress reached */
-  if (originalProgress < 1 && summaryProgress === 1) {
+  const completedContent = originalProgress < 1 && summaryProgress === 1;
+  if (completedContent) {
     store.dispatch('SET_LOGGING_COMPLETION_TIME', new Date());
-    this.updateTimerCallback(true);
+  }
+
+  /* Save models if needed */
+  if (forceSave || completedContent || progressThresholdMet) {
+    this.saveLogs();
   }
 }
+
 
 /**
  * Update the total time spent and end time stamps
  * To be called periodically by interval timer
  * Must be called after initContentSession
+ * @param {boolean} forceSave
  */
-function updateTimeSpent(store) {
+function updateTimeSpent(store, forceSave = false) {
   /* Create aliases for logs */
   const summaryLog = store.state.pageState.logging.summary;
   const sessionLog = store.state.pageState.logging.session;
 
   /* Calculate new times based on how much time has passed since last save */
-  const sessionTime = intervalTimer.getTimeElapsed() + sessionLog.total_time_at_last_save;
-  const summaryTime = sessionTime + summaryLog.time_spent_before_current_session;
+  const sessionTime = intervalTimer.getNewTimeElapsed() + sessionLog.time_spent;
+  const summaryTime = (summaryLog.id) ?
+    sessionTime + summaryLog.time_spent_before_current_session : 0;
 
   /* Update the logging state with new timing information */
   store.dispatch('SET_LOGGING_TIME', sessionTime, summaryTime, new Date());
-}
 
-/**
- * Update logging information and decide whether or not to save
- * @param {boolean} forceSave
- * To be called periodically by interval timer and on pause
- * Must be called after initContentSession
- */
-function updateTimerCallback(store, forceSave = false) {
-  /* Create aliases for logs */
-  const sessionLog = store.state.pageState.logging.session;
-
-  /* Update timing values */
-  this.updateTimeSpent();
-
-  /* Calculate whether progress or time thresholds have been met */
-  const progressThresholdMet = sessionLog.progress -
-    sessionLog.progress_at_last_update >= progressThreshold;
+  /* Determine if time threshold has been met */
   const timeThresholdMet = sessionLog.time_spent -
-    sessionLog.total_time_at_last_update >= timeThreshold;
+    sessionLog.total_time_at_last_save >= timeThreshold;
 
-  /* Save if forced to save or a threshold has been met */
-  if (forceSave || timeThresholdMet || progressThresholdMet) {
+  /* Save models if needed */
+  if (forceSave || timeThresholdMet) {
     this.saveLogs();
   }
 }
+
 
 /**
  * Do a PATCH to update existing logging models
@@ -385,40 +423,29 @@ function saveLogs(store) {
   const summaryLog = store.state.pageState.logging.summary;
   const sessionLog = store.state.pageState.logging.session;
 
-  /* Only continue if session and summary models are not being created */
-  if (!sessionLog.pending_create && !summaryLog.pending_create) {
-    /* Determine whether summary and session models have been created */
-    const createSummary = !summaryLog.id;
-    const createSession = !sessionLog.id;
+  /* If a session model exists, save it with updated values */
+  if (sessionLog.id) {
+    const sessionModel = ContentSessionLogResource.getModel(sessionLog.id);
+    sessionModel.save(_contentSessionModel(store)).then((model) => {
+      /* Reset values used for threshold checking */
+      sessionLog.total_time_at_last_save = model.time_spent;
+      sessionLog.progress_at_last_save = model.progress;
+    }).catch((error) => {
+      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+    });
+  }
 
-    /* Get session model to update with new values (create if doesn't exist) */
-    const sessionModel = (createSession) ?
-      ContentSessionLogResource.createModel() :
-      ContentSessionLogResource.getModel(sessionLog.id);
-    const sessionPromise = sessionModel.save(_contentSessionModel(store));
-
-    /* Get summary model to update with new values (create if doesn't exist) */
-    const summaryModel = (createSummary) ?
-      ContentSummaryLogResource.createModel() :
-      ContentSummaryLogResource.getModel(summaryLog.id);
-    const summaryPromise = summaryModel.save(_contentSummaryModel(store));
-
-    /* Update pending_create values on logging state */
-    store.dispatch('SET_LOGGING_PENDING', createSummary, createSession);
-
-    /* Perform save on summary and session models */
-    Promise.all([summaryPromise, sessionPromise]).then((models) => {
-      /* Update logging state with returned values */
-      const postSaveState = {
-        summary: _contentSummaryLoggingState(models[0]),
-        session: _contentSessionLoggingState(models[1]),
-      };
-      store.dispatch('SET_LOGGING_STATE', postSaveState);
+  /* If a summary model exists, save it with updated values */
+  if (summaryLog.id) {
+    const summaryModel = ContentSummaryLogResource.getModel(summaryLog.id);
+    summaryModel.save(_contentSummaryModel(store)).then((model) => {
+      /* PLACEHOLDER */
     }).catch((error) => {
       store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
     });
   }
 }
+
 
 /**
  * Start interval timer and set start time
@@ -426,18 +453,17 @@ function saveLogs(store) {
  * Must be called after initContentSession
  */
 function startTrackingProgress(store, interval = intervalTime) {
-  // Start timer
-  intervalTimer.startTimer(interval, this.updateTimerCallback);
+  intervalTimer.startTimer(interval, this.updateTimeSpent);
 }
+
 
 /**
  * Stop interval timer and update latest times
  * Must be called after startTrackingProgress
  */
 function stopTrackingProgress(store) {
-  // Stop timer and update progress
   intervalTimer.stopTimer();
-  this.updateTimerCallback(true);
+  this.updateTimeSpent(true);
 }
 
 module.exports = {
@@ -454,5 +480,4 @@ module.exports = {
   updateTimeSpent,
   updateProgress,
   saveLogs,
-  updateTimerCallback,
 };

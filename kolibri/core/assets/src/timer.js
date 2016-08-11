@@ -9,6 +9,7 @@ class Timer {
     this.startTime = null;
     this.intervalTime = 0;
     this.intervalAction = null;
+    this.lastElapsedTimeCheck = null;
   }
 
   /*
@@ -19,8 +20,22 @@ class Timer {
     this.intervalTimer = null;
   }
 
+  /*
+   * Get time that has elapsed since timer started
+   */
   getTimeElapsed() {
-    return (new Date() - this.startTime) / 1000;
+    this.lastElapsedTimeCheck = new Date();
+    return (this.lastElapsedTimeCheck - this.startTime) / 1000;
+  }
+
+  /*
+   * Get time that has elapsed since last time elapsed time was checked
+   */
+  getNewTimeElapsed() {
+    const currentTime = new Date();
+    const timeElapsed = (currentTime - this.lastElapsedTimeCheck) / 1000;
+    this.lastElapsedTimeCheck = currentTime;
+    return timeElapsed;
   }
 
   /*
@@ -35,7 +50,7 @@ class Timer {
     this.intervalTime = intervalTime;
     this.intervalAction = intervalAction;
     this.intervalTimer = setInterval(this.intervalAction, this.intervalTime);
-    this.startTime = new Date();
+    this.startTime = this.lastElapsedTimeCheck = new Date();
     return this.startTime;
   }
 }

@@ -34,8 +34,20 @@ const mutations = {
   TOGGLE_SEARCH(state) {
     state.searchOpen = !state.searchOpen;
   },
-  SET_LOGGING_STATE(state, loggingState) {
+  INIT_LOGGING_STATE(state, loggingState) {
     state.pageState.logging = loggingState;
+  },
+  SET_LOGGING_SUMMARY_STATE(state, summaryState) {
+    state.pageState.logging.summary = summaryState;
+  },
+  SET_LOGGING_SUMMARY_ID(state, summaryId) {
+    state.pageState.logging.summary.id = summaryId;
+  },
+  SET_LOGGING_SESSION_ID(state, sessionId) {
+    state.pageState.logging.session.id = sessionId;
+  },
+  SET_LOGGING_SESSION_STATE(state, sessionState) {
+    state.pageState.logging.session = sessionState;
   },
   SET_LOGGING_PROGRESS(state, sessionProgress, summaryProgress) {
     state.pageState.logging.session.progress = sessionProgress;

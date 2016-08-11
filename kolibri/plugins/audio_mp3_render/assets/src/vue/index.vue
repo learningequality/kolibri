@@ -1,8 +1,7 @@
 <template>
 
   <div id="audio-wrapper">
-    <h3 class="progress-percent">
-      <i class="progress-saving" v-if="saving">Saving Progress...&nbsp;</i>
+    <h3 class="progress-percent" v-if="progress > 0">
       {{ Math.floor(progress * 100) }}%
     </h3>
     <div id="play-and-time">
@@ -200,7 +199,6 @@
       actions: require('learn-actions'),
       getters: {
         progress: (state) => state.pageState.logging.summary.progress,
-        saving: (state) => state.pageState.logging.summary.pending_save,
       },
     },
 
