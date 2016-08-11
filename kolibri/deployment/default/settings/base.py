@@ -11,7 +11,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import shutil
 
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf
@@ -119,27 +118,6 @@ if not os.path.exists(CONTENT_STORAGE_DIR):
 
 # The name of the folder we export data and content to, and what we look for in drives when we want to import
 EXPORT_FOLDER_NAME = "KOLIBRI_DATA"
-
-# TEMPORARY: Move existing content DBs and content storage dirs into new locations.
-# (July 9, 2016: Remove this in a couple of weeks once everyone is switched over)
-OLD_CONTENT_DATABASE_DIR = os.path.join(BASE_DIR, 'kolibri', 'content', 'content_db')
-OLD_CONTENT_STORAGE_DIR = os.path.join(BASE_DIR, "storage")
-def movetree(src, dst):
-    if not os.path.exists(src):
-        return
-    if not os.path.exists(dst):
-        os.makedirs(dst)
-    for item in os.listdir(src):
-        s = os.path.join(src, item)
-        d = os.path.join(dst, item)
-        if os.path.isdir(s):
-            movetree(s, d)
-        else:
-            if not os.path.exists(d):
-                shutil.move(s, d)
-
-movetree(OLD_CONTENT_DATABASE_DIR, CONTENT_DATABASE_DIR)
-movetree(OLD_CONTENT_STORAGE_DIR, CONTENT_STORAGE_DIR)
 
 
 # Internationalization
