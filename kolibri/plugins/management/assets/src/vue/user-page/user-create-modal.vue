@@ -22,12 +22,8 @@
           <input type="password" id="password" required v-model="user.password">
         </div>
         <div class="user-field">
-<<<<<<< HEAD
           <label for="role">Role</label>
-          <select v-model="role">
-=======
           <select v-model="user.role">
->>>>>>> upstream/master
             <option value="learner" selected> Learner </option>
             <option value="admin"> Admin </option>
           </select>
@@ -104,12 +100,15 @@
     input
       width: 100%
       height: 40px
+      font-weight: bold
     label
       position: relative
       cursor: pointer
     select
-      height: 40px
+      -webkit-appearance: menulist-button
       width: 100%
+      height: 40px
+      font-weight: bold
   .header
     text-align: center
   .create-btn
