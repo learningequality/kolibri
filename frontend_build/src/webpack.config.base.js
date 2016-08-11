@@ -99,6 +99,7 @@ var config = {
   resolve: {
     alias: {
       'kolibri_module': path.resolve('kolibri/core/assets/src/kolibri_module'),
+      'core-constants': path.resolve('kolibri/core/assets/src/constants'),
       'core-base': path.resolve('kolibri/core/assets/src/vue/core-base'),
       'core-actions': path.resolve('kolibri/core/assets/src/actions'),
       'learn-actions': path.resolve('kolibri/plugins/learn/assets/src/actions'),

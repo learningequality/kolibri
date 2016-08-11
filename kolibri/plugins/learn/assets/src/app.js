@@ -1,5 +1,6 @@
 const KolibriModule = require('kolibri_module');
 const router = require('router');
+const kolibri = require('kolibri');
 
 const rootvue = require('./vue');
 const actions = require('./actions');
@@ -62,6 +63,7 @@ class LearnModule extends KolibriModule {
     });
 
     router.start(rootvue, 'rootvue');
+    kolibri.coreActions.currentLoggedInUser(store, kolibri);
   }
 }
 

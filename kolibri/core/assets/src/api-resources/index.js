@@ -7,6 +7,7 @@ module.exports = {
   RoleResource: require('./role'),
   ContentSessionLogResource: require('./contentSessionLog'),
   ContentSummaryLogResource: require('./contentSummaryLog'),
+  SessionResource: require('./session'),
   DeviceOwnerResource: require('./deviceOwner'),
   FacilityResource: require('./facility'),
 };
