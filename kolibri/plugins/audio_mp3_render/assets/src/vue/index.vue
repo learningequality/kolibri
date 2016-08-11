@@ -1,9 +1,6 @@
 <template>
 
   <div id="audio-wrapper">
-    <h3 class="progress-percent" v-if="progress > 0">
-      {{ Math.floor(progress * 100) }}%
-    </h3>
     <div id="play-and-time">
       <button
         @click="togglePlay"
@@ -102,11 +99,7 @@
 
     beforeDestroy() {
       this.recordProgress();
-      this.stopTrackingProgress();
-    },
-
-    ready() {
-      this.initContentSession();
+      this.$emit('stopTracking', this.Kolibri);
     },
 
     methods: {
@@ -115,7 +108,7 @@
         this.isPlay = false;
         this.isPause = true;
         this.recordProgress();
-        this.startTrackingProgress();
+        this.$emit('startTracking', this.Kolibri);
       },
 
       pause() {
@@ -123,7 +116,7 @@
         this.isPlay = true;
         this.isPause = false;
         this.recordProgress();
-        this.stopTrackingProgress();
+        this.$emit('stopTracking', this.Kolibri);
       },
 
       togglePlay() {
@@ -190,18 +183,11 @@
       },
 
       recordProgress() {
-        this.updateProgress(Math.max((this.dummyTime
+        this.$emit('progressUpdate', this.Kolibri, Math.max((this.dummyTime
           - this.progressStartingPoint) / Math.floor(this.max), 0));
         this.progressStartingPoint = this.$els.audio.currentTime;
       },
     },
-    vuex: {
-      actions: require('learn-actions'),
-      getters: {
-        progress: (state) => state.pageState.logging.summary.progress,
-      },
-    },
-
   };
 
 </script>
@@ -314,10 +300,5 @@
   /* hides popup label on slider */
   input[type=range]::-ms-tooltip
     display: none
-
-  .progress-percent
-    text-align:right
-    .progress-saving
-      font-size:10pt
 
 </style>

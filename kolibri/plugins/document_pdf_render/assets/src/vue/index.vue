@@ -1,10 +1,6 @@
 <template>
 
   <div>
-    <h3 class="progress-percent">
-      <i class="progress-saving" v-if="saving">Saving Progress...&nbsp;</i>
-      {{ Math.floor(progress * 100) }}%
-    </h3>
     <div v-el:container class="container" allowfullscreen>
       <button class='btn' v-if="supportsPDFs" v-on:click="togglefullscreen">Toggle Fullscreen</button>
       <div v-el:pdfcontainer class="pdfcontainer"></div>
@@ -56,27 +52,16 @@
       },
     },
     ready() {
-      this.initContentSession();
       PDFobject.embed(this.defaultFile.storage_url, this.$els.pdfcontainer);
-      this.startTrackingProgress();
+      this.$emit('startTracking', this.Kolibri);
       const self = this;
       setTimeout(() => {
-        self.updateProgress(1);
+        self.$emit('progressUpdate', this.Kolibri, 1);
       }, 15000);
     },
     beforeDestroy() {
-      this.stopTrackingProgress();
+      this.$emit('stopTracking', this.Kolibri);
     },
-    vuex: {
-      actions: require('learn-actions'),
-      getters: {
-        progress: (state) => state.pageState.logging.summary.progress,
-        // totalTime: (state) => state.pageState.logging.summary.total_time,
-        // elapsedTime: (state) => state.pageState.logging.interaction.total_time,
-        saving: (state) => state.pageState.logging.summary.pending_save,
-      },
-    },
-
   };
 
 </script>
@@ -97,10 +82,5 @@
   .pdfcontainer
     /* Accounts for the button height. */
     height: calc(100% - 4em)
-
-  .progress-percent
-    text-align:right
-    .progress-saving
-      font-size:10pt
 
 </style>

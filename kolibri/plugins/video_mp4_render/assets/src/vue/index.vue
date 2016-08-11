@@ -1,10 +1,6 @@
 <template>
 
   <div>
-    <h3 class="progress-percent">
-      <i class="progress-saving" v-if="saving">Saving Progress...&nbsp;</i>
-      {{ Math.floor(progress * 100) }}%
-    </h3>
     <div v-el:videowrapperwrapper class="videowrapperwrapper">
       <div v-el:videowrapper class="videowrapper">
         <video v-el:video class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
@@ -87,12 +83,12 @@
           this.videoPlayer.$('.videotoggle').classList.add('videopaused');
           this.videoPlayer.$('.videoreplay').classList.add('display');
           this.videoPlayer.$('.videoforward').classList.add('display');
-          this.startTrackingProgress();
+          this.$emit('startTracking', this.Kolibri);
         } else {
           this.videoPlayer.$('.videotoggle').classList.remove('videopaused');
           this.videoPlayer.$('.videoreplay').classList.remove('display');
           this.videoPlayer.$('.videoforward').classList.remove('display');
-          this.stopTrackingProgress();
+          this.$emit('stopTracking', this.Kolibri);
         }
       },
 
@@ -100,7 +96,6 @@
         this.videoWidth = this.videoPlayer.videoWidth();
         this.videoHeight = this.videoPlayer.videoHeight();
         this.resizeVideo();
-        this.initContentSession();
       },
 
       resizeVideo() {
@@ -142,7 +137,8 @@
       },
 
       recordProgress() {
-        this.updateProgress(Math.max(0, (this.dummyTime - this.progressStartingPoint) /
+        this.$emit('progressUpdate', this.Kolibri, Math.max(0,
+          (this.dummyTime - this.progressStartingPoint) /
           Math.floor(this.videoPlayer.duration())));
         this.progressStartingPoint = this.videoPlayer.currentTime();
       },
@@ -219,15 +215,8 @@
     },
     beforeDestroy() {
       this.recordProgress();
-      this.stopTrackingProgress();
+      this.$emit('stopTracking', this.Kolibri);
       global.removeEventListener('resize', this.debouncedResizeVideo);
-    },
-    vuex: {
-      actions: require('learn-actions'),
-      getters: {
-        progress: (state) => state.pageState.logging.summary.progress,
-        saving: (state) => state.pageState.logging.summary.pending_save,
-      },
     },
   };
 
@@ -338,10 +327,5 @@
   .video-js .display,
   .video-js .display
     display: block
-
-  .progress-percent
-    text-align:right
-    .progress-saving
-      font-size:10pt
 
 </style>

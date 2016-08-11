@@ -2,6 +2,9 @@
 
   <div>
     <div v-if="available">
+        <h3 class="progress-percent" v-if="progress > 0">
+          {{ Math.floor(progress * 100) }}%
+        </h3>
       <div v-el:container></div>
     </div>
     <div v-else>
@@ -15,6 +18,7 @@
 <script>
 
   const logging = require('logging').getLogger(__filename);
+  const actions = require('../../core-actions');
 
   module.exports = {
     props: {
@@ -36,7 +40,7 @@
       },
       channelId: {
         type: String,
-        default: '',
+        default: '7199dde695db4ee4ab392222d5af1e5c',
       },
       available: {
         type: Boolean,
@@ -174,7 +178,24 @@
           Object.assign(options, this.currentViewClass);
           // Instantiate the Vue instance directly using the Kolibri Vue constructor.
           this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
+          this.contentView.$on('startTracking', this.startTracking);
+          this.contentView.$on('stopTracking', this.stopTracking);
+          this.contentView.$on('progressUpdate', this.updateProgress);
+          this.initSession(this.Kolibri, this.channelId, this.contentId, this.kind);
         }
+      },
+    },
+    vuex: {
+      actions: {
+        initSession: actions.initContentSession,
+        updateProgress: actions.updateProgress,
+        startTracking: actions.startTrackingProgress,
+        stopTracking: actions.stopTrackingProgress,
+        saveLogs: actions.saveLogs,
+        updateTimeSpent: actions.updateTimeSpent,
+      },
+      getters: {
+        progress: (state) => state.core.logging.summary.progress,
       },
     },
   };
@@ -188,5 +209,8 @@
 
   div
     height: inherit
+
+  .progress-percent
+    text-align:right
 
 </style>
