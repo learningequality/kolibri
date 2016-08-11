@@ -1,14 +1,18 @@
 <template>
 
-  <div class="modal-root">
+  <div class="modal-root" v-on:keyup.esc="closeModal">
     <div class="modal" v-show="showModal" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
+          <img @click="closeModal" class="close-btn" src="../icons/close.svg">
           <div class="modal-header">
+            <button @click="closeModal" class="close-btn">
+              <svg src="close.svg"></svg>
+              <span class="visuallyhidden">Close</span>
+            </button>
             <slot name="header">
               Kolibri
             </slot>
-            <a @click="closeModal" class="close-btn">X</a>
           </div>
           <div class="modal-body">
             <slot name="body">
@@ -64,6 +68,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme.styl'
+
   .modal
     position: fixed
     top: 0
@@ -73,11 +79,11 @@
     background: rgba(0, 0, 0, 0.7)
     display: table
     transition: opacity 0.3s ease
-    
+
   .modal-wrapper
     display: table-cell
     vertical-align: middle
-    
+
   .modal-container
     background: #fff
     width: 450px
@@ -86,23 +92,24 @@
     transition: all 0.3s ease
     margin: 0 auto
     padding: 20px 30px
-    
+
   .modal-header
     font-weight: bold
     padding-bottom: 10px
-    
+
   .modal-footer
     margin-top: 15px
     margin-bottom: 10px
     padding-bottom: inherit
-    
+
   .close-btn
     float: right
-    cursor:pointer
-    
+    color: $core-text-default
+    border: none
+
   .modal-enter, .modal-leave
     opacity: 0
-  
+
   .modal-enter .modal-container,
   .modal-leave .modal-container
     -webkit-transform: scale(1.1)

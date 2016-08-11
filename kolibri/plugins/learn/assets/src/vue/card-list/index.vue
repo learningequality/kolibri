@@ -1,11 +1,11 @@
 <template>
 
-  <section>
-    <h3>{{header}}</h3>
+  <div>
+    <h3 v-if="header">{{header}}</h3>
     <div class="card-list">
       <slot></slot>
     </div>
-  </section>
+  </div>
 
 </template>
 

@@ -1,11 +1,15 @@
 <template>
 
-  <nav class="nav" role="navigation" aria-label="Breadcrumbs navigation">
+  <nav class="nav" role="navigation" aria-label="You are here:">
     <span class="parent">
-      <a v-link="rootLink">Explore</a> <span class='sep'>»</span>
+      <a v-link="rootLink">Explore</a> 
     </span>
     <span class="parent" v-for="crumb in crumbs">
-      <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a> <span class='sep'>»</span>
+      <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a> 
+    </span>
+    <span class="current">
+      <span class="visuallyhidden">Current: </span>
+        <!-- TODO: Get current topic title -->
     </span>
   </nav>
 
@@ -47,15 +51,16 @@
 
 <style lang="stylus" scoped>
 
-  .sep
-    margin-left: 0.5em
-    margin-right: 0.5em
-
   .nav
     margin-top: 2em
     margin-bottom:1.4em
 
   .parent a:link
     font-weight: 300
+
+  span.parent::after
+    content: '»'
+    margin-left: 0.5em
+    margin-right: 0.5em
 
 </style>
