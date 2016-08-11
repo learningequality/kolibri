@@ -39,8 +39,9 @@ function _userState(data) {
 function createUser(store, payload, role) {
   const FacilityUserModel = FacilityUserResource.createModel(payload);
   const newUserPromise = FacilityUserModel.save(payload);
+  // returns a promise so the result can be used by the caller
   return newUserPromise.then((model) => {
-    // assgin role to this new user if the role is not learner
+    // assign role to this new user if the role is not learner
     if (role === 'learner' || !role) {
       store.dispatch('ADD_USER', _userState(model));
     } else {
