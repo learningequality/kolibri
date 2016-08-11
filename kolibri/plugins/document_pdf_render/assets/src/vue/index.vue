@@ -62,7 +62,6 @@
       const self = this;
       setTimeout(() => {
         self.updateProgress(1);
-        self.stopTrackingProgress();
       }, 15000);
     },
     beforeDestroy() {

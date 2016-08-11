@@ -378,7 +378,7 @@ function initContentSession(store) {
      /* Fetch collection matching content and user */
     const summaryCollection = ContentSummaryLogResource.getCollection({
       content_id: store.state.pageState.content.content_id,
-      user: store.state.core.user_id,
+      user: store.state.core.session.user_id,
     });
     summaryCollection.fetch().then(summary => {
       /* If a summary model exists, map that to the state */
