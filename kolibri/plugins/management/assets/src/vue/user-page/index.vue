@@ -212,14 +212,6 @@
     height: 35px
     outline: none
 
-  .roster
-    width: 100%
-
-    /*Prevent lists that are too long*/
-    max-height: 300px
-    overflow: hidden
-    overflow-y: scroll
-
   .header h1
     display: inline-block
 

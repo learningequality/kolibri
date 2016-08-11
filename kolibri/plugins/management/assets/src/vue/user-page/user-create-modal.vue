@@ -106,7 +106,6 @@
       position: relative
       cursor: pointer
     select
-      -webkit-appearance: menulist-button
       width: 100%
       height: 40px
       font-weight: bold
