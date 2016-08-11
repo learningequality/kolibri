@@ -3,31 +3,32 @@
   <div class="user-edit-modal">
     <modal btntext="Edit">
 
-      <h1 slot="header">Edit User</h1>
+      <h1 slot="header" class="header">Account Info</h1>
 
       <div slot="body">
 
         <div class="user-field">
-        <label for="username">Username</label>:
-        <input type="text" id="username" v-model="username_new" placeholder="Please type in your username.">
+          <label for="username">Full Name</label>:
+          <input type="text" class="edit-form edit-fullname" aria-label="fullname" id="name" v-model="fullName_new">
+        </div>
+
+        <div class="user-field">
+          <label for="name">Username</label>:
+          <input type="text" class="edit-form edit-username" aria-label="username" id="username" v-model="username_new">
+        </div>
+
+        <div class="user-field">
+          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
+          <select v-model="user.role" id="user-role">
+          <option value="learner" selected> Learner </option>
+          <option value="admin"> Admin </option>
+          </select>
         </div>
 
         <div class="user-field">
         <label for="password">Password</label>:
         <input type="text" id="password" v-model="password_new" placeholder="Please type in your password.">
         </div>
-
-        <div class="user-field">
-        <label for="name">Full name</label>:
-        <input type="text" id="name" v-model="fullName_new" placeholder="Please type in your first name.">
-        </div>
-
-        <!-- radio buttons for selecting role -->
-        <fieldset>
-        <legend>User role:</legend>
-        <input type="radio" id="learner" value="learner" v-model="role_new"> <label for="learner">Learner</label> <br>
-        <input type="radio" id="admin" value="admin" v-model="role_new"> <label for="admin">Admin</label>
-        </fieldset>
 
       </div>
 
@@ -108,10 +109,46 @@
 
   .user-field
     padding-bottom: 5%
-    input, select
+    input
       width: 100%
+      height: 40px
+      font-weight: bold
+      border: none
+      border-bottom: 1px solid #3a3a3a
     label
       position: relative
+    select
+      -webkit-appearance: menulist-button
+      width: 100%
+      height: 40px
+      font-weight: bold
+      background-color: transparent
+
+  .edit-form
+    width: 200px
+    margin: 0 auto
+    display: block
+    padding: 5px 10px
+    letter-spacing: 0.08em
+    border: none
+    border-bottom: 1px solid $core-text-default
+    height: 30px
+    &:focus
+      outline: none
+      border-bottom: 3px solid $core-action-normal
+
+  .edit-username
+    background: url('../icons/pencil.svg') no-repeat 280px 6px
+    fill: $core-action-light
+    transition: all 0.15s
+
+  .edit-fullname
+    background: url('../icons/pencil.svg') no-repeat 280px 6px
+    fill: $core-action-light
+    transition: all 0.15s
+
+  .header
+    text-align: center
 
   .manage-edit
     fill: $core-action-normal

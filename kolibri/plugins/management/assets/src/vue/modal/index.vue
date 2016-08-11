@@ -86,14 +86,8 @@
 
   .modal-container
     background: #fff
-<<<<<<< HEAD
-    width: 85%
-    height: auto
-    border-radius: 4px
-=======
-    width: 450px
+    max-width: 380px
     border-radius: $radius
->>>>>>> upstream/master
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     transition: all 0.3s ease
     margin: 0 auto

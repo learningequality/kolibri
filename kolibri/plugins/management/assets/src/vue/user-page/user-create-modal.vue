@@ -9,17 +9,17 @@
 
         <div class="user-field">
           <label for="name">Name</label>
-          <input type="text" id="name" autocomplete="name"  autofocus="true" required v-model="user.full_name">
+          <input type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="user.full_name">
         </div>
 
         <div class="user-field">
           <label for="username">Username</label>
-          <input type="text" autocomplete="username" id="username" required v-model="user.username">
+          <input type="text" class="add-form" autocomplete="username" id="username" required v-model="user.username">
         </div>
 
         <div class="user-field">
           <label for="password">Password</label>
-          <input type="password" id="password" required v-model="user.password">
+          <input type="password" class="add-form" id="password" required v-model="user.password">
         </div>
 
         <div class="user-field">
@@ -111,6 +111,18 @@
       height: 40px
       font-weight: bold
       background-color: transparent
+  .add-form
+    width: 300px
+    margin: 0 auto
+    display: block
+    padding: 5px 10px
+    letter-spacing: 0.08em
+    border: none
+    border-bottom: 1px solid $core-text-default
+    height: 30px
+    &:focus
+      outline: none
+      border-bottom: 3px solid $core-action-normal
   .header
     text-align: center
   .create-btn
