@@ -17,7 +17,7 @@
         <option value="learner"> Learners </option>
       </select>
 
-      <div class="searchbar">
+      <div class="searchbar" role="search">
         <svg class="icon" src="../icons/search.svg" role="presentation" aria-hidden="true"></svg>
         <input
           aria-label="Search for a user..."
@@ -41,7 +41,7 @@
       <!-- Table Headers -->
       <thead>
         <tr>
-          <th class="col-header" scope="col"> Student Name </th>
+          <th class="col-header" scope="col"> Full Name </th>
           <th class="col-header" scope="col"> Username </th>
           <th class="col-header" scope="col"> Edit </th>
         </tr>
@@ -50,7 +50,7 @@
       <!-- Table body -->
       <tbody>
         <tr v-for="user in visibleUsers">
-          <!-- Student Name field -->
+          <!-- Full Name field -->
           <th scope="row" class="table-cell">
             {{user.full_name}}
 
