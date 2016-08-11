@@ -224,6 +224,9 @@
 
    // Custom style
   .videowrapper
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
     position: relative
     height: 100%
     background-color: #000
@@ -231,6 +234,8 @@
   .videowrapperwrapper
     width: 100%
     height: 100%
+    background-color: #000
+    position: relative
 
   .video-js .vjs-menu
     font-family: 'NotoSans', 'sans-serif'
