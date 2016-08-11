@@ -204,7 +204,8 @@ function showUserPage(store) {
 function showContentPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
-  const taskCollectionPromise = TaskResource.getCollection().fetch();
+  // const taskCollectionPromise = TaskResource.getCollection().fetch();
+  const taskCollectionPromise = Promise.resolve([]); // TODO - remove
   taskCollectionPromise.then((taskList) => {
     const pageState = { showWizard: false };
     pageState.taskList = taskList;
