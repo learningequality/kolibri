@@ -1,7 +1,7 @@
 <template>
 
   <div class="user-creation-modal">
-    <modal btntext="Add New">
+    <modal v-ref:modal btntext="Add New">
 
       <h1 slot="header">Add New Account</h1>
 
@@ -66,10 +66,13 @@
     methods: {
       createNewUser() {
         this.user.facility = this.facility;
+        // using promise to ensure that the user is created before closing
+        // can use this promise to have flash an error in the modal?
         this.createUser(this.user, this.role).then(() => {
           for (const userProp of Object.getOwnPropertyNames(this.user)) {
             this.user[userProp] = '';
           }
+          this.$refs.modal.closeModal();
         });
       },
     },
