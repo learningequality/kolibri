@@ -1,15 +1,14 @@
 <template>
 
   <div class="modal-root" v-on:keyup.esc="closeModal">
-    <div class="modal" v-show="showModal" transition="modal">
+    <div class="modal" v-if="showModal" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
-          <img @click="closeModal" class="close-btn" src="../icons/close.svg">
+          <button @click="closeModal" class="close-btn">
+            <svg src="close.svg"></svg>
+            <span class="visuallyhidden">Close</span>
+          </button>
           <div class="modal-header">
-            <button @click="closeModal" class="close-btn">
-              <svg src="close.svg"></svg>
-              <span class="visuallyhidden">Close</span>
-            </button>
             <slot name="header">
               Kolibri
             </slot>
@@ -87,7 +86,7 @@
   .modal-container
     background: #fff
     width: 450px
-    border-radius: 4px
+    border-radius: $radius
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     transition: all 0.3s ease
     margin: 0 auto
