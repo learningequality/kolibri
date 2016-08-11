@@ -158,19 +158,8 @@
     text-align: center
     font-size: 0.9em
     color: $core-text-annotation
-    border: 1px solid #d0d4d9
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1)
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25)
     z-index: 2
-
-  .toggle-menu-on::after
-    content: ''
-    position: absolute
-    border-style: solid
-    border-width: 0 10px 10px 10px
-    right: 9px
-    margin-left: -8px
-    border-color: transparent transparent #fff transparent
-    top: -10px
 
   .toggle-menu-on::before
     content: ''
@@ -181,6 +170,16 @@
     border-width: 0 10px 10px 10px
     right: 9px
     margin-left: -8px
+
+  .toggle-menu-on::after
+    content: ''
+    position: absolute
+    border-style: solid
+    border-width: 0 10px 10px 10px
+    right: 9px
+    margin-left: -8px
+    border-color: transparent transparent #fff transparent
+    top: -10px
 
   .chan-select
     z-index: 1
