@@ -2,10 +2,10 @@
 
   <div>
     <nav class="nav" role="navigation" aria-label="You are here:">
-      <span class="parent full-breadcrumbs" v-if="pageMode === $options.PageModes.EXPLORE && pageName !== $options.PageNames.EXPLORE_CONTENT && !isRoot">
+      <span class="parent full-breadcrumbs" v-if="pageMode === thePageMode.EXPLORE && pageName !== thePageNames.EXPLORE_CONTENT && !isRoot">
         <a v-link="exploreRoot">Explore</a>
       </span>
-      <span v-if="pageName === $options.PageNames.LEARN_CONTENT">
+      <span v-if="pageName === thePageNames.LEARN_CONTENT">
         <a v-link="learnRoot">
           <span class='sep'>
             <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -16,7 +16,7 @@
           </span>
         </a>
       </span>
-      <span v-if="pageName === $options.PageNames.EXPLORE_CONTENT">
+      <span v-if="pageName === thePageNames.EXPLORE_CONTENT">
         <a v-link="parentLink">
           <span class='sep'>
             <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -27,10 +27,10 @@
           </span>
         </a>
       </span>
-      <span class="parent full-breadcrumbs" v-if="pageMode === $options.PageModes.EXPLORE" v-for="crumb in crumbs">
+      <span class="parent full-breadcrumbs" v-if="pageMode === thePageMode.EXPLORE" v-for="crumb in crumbs">
         <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a>
       </span>
-      <span class="back" v-if="!isRoot && pageMode === $options.PageModes.EXPLORE && pageName !== $options.PageNames.EXPLORE_CONTENT">
+      <span class="back" v-if="!isRoot && pageMode === thePageMode.EXPLORE && pageName !== thePageNames.EXPLORE_CONTENT">
         <a v-link="backLink">
           <span class='sep'>
             <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
