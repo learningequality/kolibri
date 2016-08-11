@@ -11,25 +11,23 @@
     </div>
   </nav-bar-item>
 
-  <nav-bar-item href="/learn/#!/learn">
-    <div id="dropdown" v-show="showDropdown" transition="slide">
-      <div class="user-dropdown">
-        <ul class="dropdown-list">
-          <li>
-            <h4 v-if="deviceOwner" class="dropdown-name">Device Owner</h4>
-            <h4 v-else class="dropdown-name">{{ fullname }}</h4>
-            <p id="dropdown-username">{{ username }}</p>
-            <p id="dropdown-usertype">{{ kind }}</p>
-          </li>
-          <li id="logout-tab">
-            <div @click="userLogout">
-              <span>Logout</span>
-            </div>
-          </li>
-        </ul>
-      </div>
+  <div id="dropdown" v-show="showDropdown" transition="slide">
+    <div class="user-dropdown">
+      <ul class="dropdown-list">
+        <li>
+          <h4 v-if="deviceOwner" class="dropdown-name">Device Owner</h4>
+          <h4 v-else class="dropdown-name">{{ fullname }}</h4>
+          <p id="dropdown-username">{{ username }}</p>
+          <p id="dropdown-usertype">{{ kind }}</p>
+        </li>
+        <li id="logout-tab">
+          <div @click="userLogout">
+            <span>Logout</span>
+          </div>
+        </li>
+      </ul>
     </div>
-  </nav-bar-item>
+  </div>
 
 </template>
 
@@ -43,6 +41,11 @@
     components: {
       'nav-bar-item': require('nav-bar-item'),
       'login-modal': require('./login-modal.vue'),
+    },
+    props: {
+      href: {
+        type: String,
+      },
     },
     data: () => ({
       showDropdown: false,
@@ -66,10 +69,13 @@
           this.showDropdown = true;
         }
       },
-      // user-dropdown
       userLogout() {
         this.logout(this.Kolibri);
         this.showDropdown = false;
+        /* Very hacky solution to redirect a user back to Learn tab on logout*/
+        const origin = window.location.origin;
+        const learnhome = '/learn/#!/learn';
+        window.location.href = origin + learnhome;
       },
     },
     vuex: {
