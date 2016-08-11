@@ -4,7 +4,10 @@
     <div class="modal" v-if="modalstate" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
-          <img @click="toggleModal" class="close-btn" src="./close.svg">
+          <button @click="toggleModal" class="close-btn">
+            <svg src="./close.svg"></svg>
+            <span class="visuallyhidden">Close</span>
+          </button>
           <div class="modal-header">
             <slot name="header">
               Kolibri
@@ -100,10 +103,8 @@
 
   .close-btn
     float: right
-    cursor:pointer
-    width: 15px
-    height: auto
-    margin-top: 5px
+    color: $core-text-default
+    border: none
 
   .modal-enter, .modal-leave
     opacity: 0
