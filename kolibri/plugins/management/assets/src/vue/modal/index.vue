@@ -71,6 +71,7 @@
 
   .modal
     position: fixed
+    z-index: 1  // TODO: why is this necessary? fix search bar, don't add z-index
     top: 0
     left: 0
     width: 100%
@@ -85,7 +86,8 @@
 
   .modal-container
     background: #fff
-    width: 450px
+    width: 85%
+    height: auto
     border-radius: 4px
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     transition: all 0.3s ease
@@ -105,6 +107,7 @@
     float: right
     color: $core-text-default
     border: none
+    border-color: transparent
 
   .modal-enter, .modal-leave
     opacity: 0

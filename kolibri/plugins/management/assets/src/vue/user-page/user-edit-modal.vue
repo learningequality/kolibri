@@ -72,7 +72,6 @@
 
   .title
     display: inline
-
   .confirm-btn
     float: right
 
