@@ -50,12 +50,18 @@
 <script>
 
   const PageNames = require('../../state/constants').PageNames;
-  const constants = require('../../state/constants');
+  const PageModes = require('../../state/constants').PageModes;
   const getters = require('../../state/getters');
 
   module.exports = {
-    mixins: [constants], // makes constants available in $options
+
     computed: {
+      thePageMode() {
+        return PageModes;
+      },
+      thePageNames() {
+        return PageNames;
+      },
       learnRoot() {
         return { name: PageNames.LEARN_ROOT };
       },
