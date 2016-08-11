@@ -4,12 +4,11 @@
     <div class="modal" v-if="showModal" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
-          <img @click="closeModal" class="close-btn" src="../icons/close.svg">
+          <button @click="closeModal" class="close-btn">
+            <svg src="close.svg"></svg>
+            <span class="visuallyhidden">Close</span>
+          </button>
           <div class="modal-header">
-            <button @click="closeModal" class="close-btn">
-              <svg src="close.svg"></svg>
-              <span class="visuallyhidden">Close</span>
-            </button>
             <slot name="header">
               Kolibri
             </slot>
