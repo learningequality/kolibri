@@ -1,15 +1,11 @@
 <template>
 
-  <div class="modal-root" v-on:keyup.esc="closeModal">
-    <div class="modal" v-if="showModal" transition="modal">
+  <div class="modal-root" v-on:keyup.esc="toggleModal">
+    <div class="modal" v-show="modalstate" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-container">
-          <img @click="closeModal" class="close-btn" src="../icons/close.svg">
+          <img @click="toggleModal" class="close-btn" src="./close.svg">
           <div class="modal-header">
-            <button @click="closeModal" class="close-btn">
-              <svg src="close.svg"></svg>
-              <span class="visuallyhidden">Close</span>
-            </button>
             <slot name="header">
               Kolibri
             </slot>
@@ -21,15 +17,14 @@
           </div>
           <div class="modal-footer">
             <slot name="footer">
-              <button @click="closeModal" class="close-btn">OK</button>
+              <button @click="toggleModal" class="close-btn">OK</button>
             </slot>
           </div>
         </div>
       </div>
     </div>
 
-    <div @click="openModal">
-    <!-- wrap this named slot so that the openModal method logic is encapsulated inside this modal component, but the parent component can pass anything to this slot for styling purpose -->
+    <div @click="toggleModal">
       <slot name="openbtn">
         <button>{{ btntext }}</button>
       </slot>
@@ -41,24 +36,25 @@
 
 <script>
 
+  const actions = require('../../core-actions');
+
   module.exports = {
-    props: {
-      btntext: {
-        type: String,
-        default: 'Open Modal',
-      },
-    },
-    data() {
-      return {
-        showModal: false,
-      };
-    },
+
     methods: {
-      openModal() {
-        this.showModal = true;
+      toggleModal() {
+        if (!this.modalstate) {
+          this.togglemodal(true);
+        } else {
+          this.togglemodal(false);
+        }
       },
-      closeModal() {
-        this.showModal = false;
+    },
+    vuex: {
+      getters: {
+        modalstate: state => state.core.login_modal_state,
+      },
+      actions: {
+        togglemodal: actions.togglemodal,
       },
     },
   };
@@ -67,8 +63,6 @@
 
 
 <style lang="stylus" scoped>
-
-  @require '~core-theme.styl'
 
   .modal
     position: fixed
@@ -79,37 +73,39 @@
     background: rgba(0, 0, 0, 0.7)
     display: table
     transition: opacity 0.3s ease
-
+    
   .modal-wrapper
     display: table-cell
     vertical-align: middle
-
+    
   .modal-container
     background: #fff
-    width: 450px
+    width: 410px
     border-radius: 4px
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     transition: all 0.3s ease
     margin: 0 auto
     padding: 20px 30px
-
+    
   .modal-header
     font-weight: bold
     padding-bottom: 10px
-
+    
   .modal-footer
     margin-top: 15px
     margin-bottom: 10px
     padding-bottom: inherit
-
+    
   .close-btn
     float: right
-    color: $core-text-default
-    border: none
-
+    cursor:pointer
+    width: 15px
+    height: auto
+    margin-top: 5px
+    
   .modal-enter, .modal-leave
     opacity: 0
-
+  
   .modal-enter .modal-container,
   .modal-leave .modal-container
     -webkit-transform: scale(1.1)
