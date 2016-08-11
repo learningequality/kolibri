@@ -2,6 +2,7 @@
 
   <core-base>
     <main-nav slot="nav"></main-nav>
+    <toolbar slot="above"></toolbar>
     <div slot="above" class="top-wrapper">
       <search-button class='search-btn'></search-button>
       <label for="chan-select" class="visuallyhidden">Filter User Type</label>
@@ -43,6 +44,7 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
+      'toolbar': require('./toolbar'),
       'main-nav': require('./main-nav'),
       'search-widget': require('./search-widget'),
       'search-button': require('./search-widget/search-button'),
@@ -125,14 +127,6 @@
 
   @require '~core-theme.styl'
   @require 'learn.styl'
-
-  .search-btn
-    position: fixed
-    top: 1rem
-    right: 2rem
-    z-index: 1
-    @media screen and (max-width: $portrait-breakpoint)
-      right: 1rem
 
   .top-wrapper
     text-align: right
