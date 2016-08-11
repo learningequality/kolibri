@@ -11,11 +11,15 @@
 
     <div class="toolbar">
       <label for="type-filter" class="visuallyhidden">Filter User Type</label>
-      <select v-model="roleFilter" id="type-filter" name="type-filter" class="user-filter-dropdown">
+      <select v-model="roleFilter" id="type-filter" name="type-filter">
         <option selected value="all"> All Users </option>
         <option value="admin"> Admins </option>
         <option value="learner"> Learners </option>
       </select>
+
+      <div class="create">
+        <user-create-modal></user-create-modal>
+      </div>
 
       <div class="searchbar">
         <svg class="icon" src="../icons/search.svg" role="presentation" aria-hidden="true"></svg>
@@ -24,10 +28,6 @@
           type="search"
           v-model="searchFilter"
           placeholder="Search for a user...">
-      </div>
-
-      <div class="create">
-        <user-create-modal></user-create-modal>
       </div>
 
     </div>
@@ -42,7 +42,7 @@
       <thead>
         <tr>
           <th class="col-header" scope="col"> Student Name </th>
-          <th class="col-header" scope="col"> Username </th>
+          <th class="col-header table-username" scope="col"> Username </th>
           <th class="col-header" scope="col"> Edit </th>
         </tr>
       </thead>
@@ -61,7 +61,7 @@
           </th>
 
           <!-- Username field -->
-          <td class="table-cell">
+          <td class="table-cell table-username">
             {{user.username}}
           </td>
 
@@ -214,7 +214,7 @@
       outline: none
       border-color: transparent
 
-  .user-filter-dropdown
+  #type-filter
     float: left
     background-color: $core-bg-light
     border-color: $core-action-light
@@ -231,6 +231,10 @@
 
   tr
     text-align: left
+
+  .roster
+    width: 100%
+    word-break: break-all
 
   .col-header
     padding-bottom: (1.2 * $row-padding)
@@ -269,12 +273,21 @@
     float: left
     position: relative
     left: 10px
-    @media screen and (min-width: $portrait-breakpoint + 1)
+  @media screen and (min-width: $portrait-breakpoint + 1)
+    .searchbar
       font-size: 1em
       width: 100%
-    @media screen and (max-width: $portrait-breakpoint)
+  @media screen and (max-width: $portrait-breakpoint)
+    .create, #type-filter
+      box-sizing: border-box
+      width: 50%
+    .searchbar
       font-size: 0.8em
       width: 100%
       display: table-row
+    .table-username
+      display: none
+    .user-role
+      display: inline-block
 
 </style>
