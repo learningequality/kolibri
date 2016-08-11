@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h2>CONTENT</h2>
+    <h1>CONTENT</h1>
     <p>...</p>
   </div>
 

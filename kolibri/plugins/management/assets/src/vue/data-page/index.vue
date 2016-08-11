@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h2>DATA</h2>
+    <h1>DATA</h1>
     <icon-button @click="downloadCSV" text="Download CSV">
       <svg src="../icons/download.svg"></svg>
     </icon-button>
