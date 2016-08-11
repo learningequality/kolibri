@@ -11,7 +11,7 @@ class LearnModule extends KolibriModule {
   ready() {
     router.on(
       PageNames.EXPLORE_ROOT,
-      `/explore`,
+      '/explore',
       (toRoute, fromRoute) => {
         actions.redirectToExploreChannel(store);
       }
@@ -19,7 +19,7 @@ class LearnModule extends KolibriModule {
 
     router.on(
       PageNames.EXPLORE_CHANNEL,
-      `/explore/:channel_id`,
+      '/explore/:channel_id',
       (toRoute, fromRoute) => {
         // TODO: Get Root Topic ID from channel List
         actions.showExploreTopic(store, toRoute.params.channel_id, store.state.rootTopicId);
@@ -28,7 +28,7 @@ class LearnModule extends KolibriModule {
 
     router.on(
       PageNames.EXPLORE_TOPIC,
-      `/explore/:channel_id/topic/:id`,
+      '/explore/:channel_id/topic/:id',
       (toRoute, fromRoute) => {
         actions.showExploreTopic(store, toRoute.params.channel_id, toRoute.params.id);
       }
@@ -75,7 +75,7 @@ class LearnModule extends KolibriModule {
     );
 
     router.redirect({
-      '/': `/explore`,
+      '/': '/explore',
     });
 
     router.start(rootvue, 'rootvue');
