@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'kolibri.content',
     'kolibri.logger',
     'kolibri.tasks.apps.KolibriTasksConfig',
+    'django_q',
     'kolibri.core.webpack',
     'rest_framework',
     'kombu.transport.django',   # for celery and django communication
@@ -95,7 +96,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(KOLIBRI_HOME, 'db.sqlite3'),
-    }
+    },
 }
 
 # Enable dynamic routing for content databases
@@ -154,6 +155,31 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+Q_CLUSTER = {
+    # name of the queue for this project. Since each kolibri installation's queue is self
+    # contained (since we use an isolated sqlite file), this doesn't really matter.
+    "name": "kolibriqueue",
+
+    # 3 concurrent worker processes, so 3 concurrent jobs at once
+    "workers": 3,
+
+    # 50 jobs before a worker gets reset, releasing its memory
+    "recycle": 50,
+
+    # seconds before a task is terminated. None means wait indefinitely for a task.
+    "timeout": None,
+
+    # number of successful tasks we save to the DB. 0 means save all. All failed tasks are saved.
+    "save_limit": 0,
+
+    # catch_up, when True, makes the workers catch up to all scheduled tasks that elapsed while it was down.
+    "catch_up": False,
+
+    # # DB name to use for the task queue. Should be separate from the default DB.
+    # "orm": "task_queue",
+    "orm": "default",
+}
 
 
 # Static files (CSS, JavaScript, Images)
@@ -273,3 +299,5 @@ JS_REVERSE_JS_VAR_NAME = 'urls'
 JS_REVERSE_JS_GLOBAL_OBJECT_NAME = KOLIBRI_CORE_JS_NAME
 
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
+
+DEBUG = True
