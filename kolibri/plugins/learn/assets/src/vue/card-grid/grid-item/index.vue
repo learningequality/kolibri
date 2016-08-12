@@ -59,12 +59,17 @@
 
   .text
     display: block
-    width: 100%
-    height: $card-height - $thumbnail-height
+    display: -webkit-box
+    -webkit-line-clamp: 3
+    -webkit-box-orient: vertical
+    width: 90%
+    max-height: 68px
     padding: 0.6em
     font-size: 0.9rem
     line-height: 1.2rem
     color: $core-text-default
+    overflow: hidden
+    text-overflow: ellipsis
     @media screen and (max-width: $portrait-breakpoint)
       float: right
       width: $horizontal-card-width - $thumb-width
