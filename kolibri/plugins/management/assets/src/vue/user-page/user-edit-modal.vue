@@ -72,7 +72,6 @@
         const payload = {
           username: this.username_new,
           full_name: this.fullName_new,
-          facility: this.facility,
         };
         if (this.password_new) {
           payload.password = this.password_new;
@@ -81,9 +80,6 @@
       },
     },
     vuex: {
-      getters: {
-        facility: state => state.facility,
-      },
       actions: {
         updateUser: actions.updateUser,
       },
