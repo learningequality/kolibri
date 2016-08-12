@@ -66,7 +66,7 @@
   .icon-wrapper
     display: block
     position: absolute
-    top: 5px
+    top: -1px
 
   .text
     display: block
