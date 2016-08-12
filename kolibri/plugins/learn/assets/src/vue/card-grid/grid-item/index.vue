@@ -62,7 +62,7 @@
     display: -webkit-box
     -webkit-line-clamp: 3
     -webkit-box-orient: vertical
-    width: 90%
+    width: 100%
     max-height: 68px
     padding: 0.6em
     font-size: 0.9rem
@@ -70,6 +70,7 @@
     color: $core-text-default
     overflow: hidden
     text-overflow: ellipsis
+
     @media screen and (max-width: $portrait-breakpoint)
       float: right
       width: $horizontal-card-width - $thumb-width
