@@ -47,6 +47,7 @@
     overflow: hidden
     text-overflow: ellipsis
     color: $core-text-annotation
+
   svg
     vertical-align: middle
     fill: $core-text-annotation

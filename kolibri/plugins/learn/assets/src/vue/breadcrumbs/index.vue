@@ -107,11 +107,13 @@
   .nav
     margin-top: 2em
     margin-bottom:1.4em
+
   .middle-bread:before
     content: '>'
     margin-left: 0.5em
     margin-right: 0.5em
     color: $core-text-annotation
+
   a
     display: inline-block
     vertical-align: middle
@@ -123,9 +125,11 @@
     overflow: hidden
     text-overflow: ellipsis
     color: $core-text-annotation
+
   .explore-bread
     @media screen and (max-width: $portrait-breakpoint)
       display: none
+
   .portrait-only
     display: none
     @media screen and (max-width: $portrait-breakpoint)
