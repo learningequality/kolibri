@@ -78,12 +78,15 @@
             this.username = '';
             this.password = '';
             this.$refs.modal.closeModal();
-          },
-          (error) => {
-            // Need more descriptive errors
-            this.errorMessage = `${error} Please make sure this username does not already exist.`;
-          }
-        );
+          }).catch((error) => {
+            if (error.status.code === 409) {
+              this.errorMessage = error.entity;
+            } else if (error.status.code === 403) {
+              this.errorMessage = error.entity;
+            } else {
+              this.errorMessage = `Whoops! Something went wrong.`;
+            }
+          });
       },
     },
     vuex: {
