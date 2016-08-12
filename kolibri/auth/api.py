@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.auth.models import AnonymousUser
 from rest_framework import filters, permissions, status, viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from .models import Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership, Role
@@ -68,6 +69,12 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter,)
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
+
+    def create(self, request, *args, **kwargs):
+        try:
+            return super(viewsets.ModelViewSet, self).create(request, *args, **kwargs)
+        except ValidationError:
+            return Response("An account with that username already exists.", status=status.HTTP_409_CONFLICT)
 
 
 class DeviceOwnerViewSet(viewsets.ModelViewSet):

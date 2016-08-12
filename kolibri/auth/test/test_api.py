@@ -228,6 +228,15 @@ class UserCreationTestCase(APITestCase):
         self.assertTrue(models.FacilityUser.objects.get(username=new_username).check_password(new_password))
         self.assertFalse(models.FacilityUser.objects.get(username=new_username).check_password(bad_password))
 
+    def test_creating_same_user_throws_409_error(self):
+        new_username = "goliath"
+        new_password = "davidsucks"
+        data = {"username": new_username, "password": new_password, "facility": self.facility.id}
+        response = self.client.post(reverse('facilityuser-list'), data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post(reverse('facilityuser-list'), data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
 
 class LoginLogoutTestCase(APITestCase):
 
