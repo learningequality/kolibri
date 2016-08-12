@@ -9,27 +9,27 @@
 
         <div class="user-field">
           <label for="name">Name</label>
-          <input type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
+          <input @focus="clearErrorMessage" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
         </div>
 
         <div class="user-field">
           <label for="username">Username</label>
-          <input type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
+          <input @focus="clearErrorMessage" type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
         </div>
 
         <div class="user-field">
           <label for="password">Password</label>
-          <input type="password" class="add-form" id="password" required v-model="password">
+          <input @focus="clearErrorMessage" type="password" class="add-form" id="password" required v-model="password">
         </div>
 
         <div class="user-field">
           <label for="confirm-password">Confirm Password</label>
-          <input type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
+          <input @focus="clearErrorMessage" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
         </div>
 
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-          <select v-model="role" id="user-role">
+          <select @focus="clearErrorMessage" v-model="role" id="user-role">
           <option value="learner" selected> Learner </option>
           <option value="admin"> Admin </option>
           </select>
@@ -86,7 +86,8 @@
               this.full_name = '';
               this.username = '';
               this.password = '';
-              this.errorMessage = '';
+              this.passwordConfirm = '';
+              this.clearErrorMessage();
               this.$refs.modal.closeModal();
             }).catch((error) => {
               if (error.status.code === 409) {
@@ -100,6 +101,9 @@
         } else {
           this.errorMessage = 'Passwords do not match';
         }
+      },
+      clearErrorMessage() {
+        this.errorMessage = '';
       },
     },
     vuex: {
