@@ -60,10 +60,7 @@ function createUser(store, payload, role) {
         store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       });
     }
-  })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
+  }).catch((error) => Promise.reject(error));
 }
 
 /**
