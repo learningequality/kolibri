@@ -38,7 +38,7 @@
       </div>
 
       <div class="footer" slot="footer">
-        <p v-if="errorMessage">{{errorMessage}}</p>
+        <p class="error-message" v-if="errorMessage">{{errorMessage}}</p>
         <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
       </div>
 
@@ -169,5 +169,8 @@
 
   .add-user-button
     width: 100%
+
+  .error-message
+    color: $core-text-alert
 
 </style>
