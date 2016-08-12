@@ -6,7 +6,6 @@ function kolibriLogin(store, Kolibri, sessionPayload) {
   sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', session);
     /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
-
     if (session.kind[0] === UserKinds.SUPERUSER || session.kind[0] === UserKinds.ADMIN) {
       const manageURL = Kolibri.urls['kolibri:managementplugin:management']();
       window.location.href = window.location.origin + manageURL;
@@ -14,6 +13,7 @@ function kolibriLogin(store, Kolibri, sessionPayload) {
       const learnURL = Kolibri.urls['kolibri:learnplugin:learn']();
       window.location.href = window.location.origin + learnURL;
     }
+    Kolibri.resources.clearCaches();
   }).catch((error) => {
     // hack to handle invalid credentials
     if (error.status.code === 401) {
@@ -34,6 +34,7 @@ function kolibriLogout(store, Kolibri) {
     /* Very hacky solution to redirect a user back to Learn tab on logout*/
     const learnURL = Kolibri.urls['kolibri:learnplugin:learn']();
     window.location.href = window.location.origin + learnURL;
+    Kolibri.resources.clearCaches();
   }).catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
   });
