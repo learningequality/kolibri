@@ -19,7 +19,7 @@
 
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-          <select v-model="user.role" id="user-role">
+          <select v-model="role_new" id="user-role">
             <option value="learner" selected> Learner </option>
             <option value="admin"> Admin </option>
           </select>
