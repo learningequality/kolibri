@@ -30,6 +30,8 @@
       v-el:audio
       @timeupdate="updateDummyTime"
       @loadedmetadata="setTotalTime"
+      @ended="endPlay"
+      @seeking="handleSeek"
       :src="defaultFile.storage_url"
     ></audio>
   </div>
@@ -54,6 +56,8 @@
       // rawTime, because at the time of getter initialization for the computed property,
       // the DOM does not exist, so the above object path is undefined, which causes problems.
       dummyTime: 0,
+      progressStartingPoint: 0,
+      lastUpdateTime: 0,
     }),
 
     computed: {
@@ -93,17 +97,26 @@
       },
     },
 
+    beforeDestroy() {
+      this.recordProgress();
+      this.$emit('stopTracking');
+    },
+
     methods: {
       play() {
         this.$els.audio.play();
         this.isPlay = false;
         this.isPause = true;
+        this.recordProgress();
+        this.$emit('startTracking');
       },
 
       pause() {
         this.$els.audio.pause();
         this.isPlay = true;
         this.isPause = false;
+        this.recordProgress();
+        this.$emit('stopTracking');
       },
 
       togglePlay() {
@@ -114,8 +127,16 @@
         }
       },
 
+      endPlay() {
+        this.pause();
+      },
+
       updateDummyTime() {
         this.dummyTime = this.$els.audio.currentTime;
+        if (this.dummyTime - this.lastUpdateTime >= 5) {
+          this.recordProgress();
+          this.lastUpdateTime = this.dummyTime;
+        }
       },
 
       setTotalTime() {
@@ -154,8 +175,21 @@
         }
         this.rawTime = sum;
       },
-    },
+      /* Catches when a user jumps around/skips while listening */
+      handleSeek() {
+        /* Record any progress up to this point */
+        this.recordProgress();
+        /* Set last check to be where player is at now */
+        this.dummyTime = this.$els.audio.currentTime;
+        this.lastUpdateTime = this.dummyTime;
+      },
 
+      recordProgress() {
+        this.$emit('progressUpdate', Math.max((this.dummyTime
+          - this.progressStartingPoint) / Math.floor(this.max), 0));
+        this.progressStartingPoint = this.$els.audio.currentTime;
+      },
+    },
   };
 
 </script>

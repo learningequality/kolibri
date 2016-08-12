@@ -1,13 +1,14 @@
 import os
+
 import requests
-from django.db.models import Sum
 from django.conf import settings
 from django.core.management.base import CommandError
-
+from django.db.models import Sum
 from kolibri.content.content_db_router import using_content_database
 from kolibri.content.models import File
 from kolibri.tasks.management.commands.base import AsyncCommand
 
+from ...utils import paths
 
 CONTENT_DEST_PATH_TEMPLATE = os.path.join(
     settings.CONTENT_STORAGE_DIR,
@@ -63,11 +64,6 @@ class Command(AsyncCommand):
     def handle_network_download(self, *args, **options):
         channel_id = options["channel_id"]
 
-        content_download_url_template = os.path.join(
-            settings.CENTRAL_CONTENT_DOWNLOAD_DOMAIN,
-            "{filename}",
-        )
-
         with using_content_database(channel_id):
             files = File.objects.all()
             total_bytes_to_download = files.aggregate(Sum('file_size'))['file_size__sum']
@@ -75,8 +71,9 @@ class Command(AsyncCommand):
             with self.start_progress(total=total_bytes_to_download) as overall_progress_update:
 
                 for f in files:
-                    url = content_download_url_template.format(filename=f.get_url())
-                    path = CONTENT_DEST_PATH_TEMPLATE.format(filename=f.get_url())
+                    filename = f.get_filename()
+                    url = paths.get_content_storage_file_url(filename)
+                    path = paths.get_content_storage_file_path(filename)
 
                     try:
                         filedir = os.path.dirname(path)
@@ -100,14 +97,14 @@ class Command(AsyncCommand):
                                 overall_progress_update(length)
                                 file_dl_progress_update(length)
 
-    def handle_filesystem_download(self, *args, **options):
+    def handle_filesystem_copy(self, *args, **options):
         pass
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':
             self.handle_network_download(*args, **options)
         elif options['command'] == 'local':
-            self.handle_filesystem_download(*args, **options)
+            self.handle_filesystem_copy(*args, **options)
         else:
             self._parser.print_help()
             raise CommandError("Please give a valid subcommand. Options you gave: {}".format(options))

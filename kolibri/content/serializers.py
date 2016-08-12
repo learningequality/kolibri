@@ -1,5 +1,8 @@
+from django.db.models import Sum
 from kolibri.content.models import ChannelMetadataCache, ContentNode, File
 from rest_framework import serializers
+
+from .content_db_router import default_database_is_attached, get_active_content_database
 
 
 class ChannelMetadataCacheSerializer(serializers.ModelSerializer):
@@ -25,6 +28,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     files = FileSerializer(many=True, read_only=True)
     ancestors = serializers.SerializerMethodField()
     thumbnail = serializers.SerializerMethodField()
+    progress_fraction = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
@@ -38,6 +42,31 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             existing = set(self.fields.keys())
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
+
+    def get_progress_fraction(self, target_node):
+
+        from kolibri.logger.models import ContentSummaryLog
+
+        # no progress if we don't have a request object or the user is anonymous
+        if 'request' not in self.context or self.context['request'].user.is_anonymous():
+            return 0
+
+        # we're getting  progress for the currently logged-in user
+        user = self.context["request"].user
+
+        # get the content_id for every content node that's under this node
+        leaf_ids = target_node.get_descendants(include_self=True).exclude(kind="topic").values_list("content_id", flat=True)
+
+        # get all summary logs for the current user that correspond to the descendant content nodes
+        if default_database_is_attached():  # if possible, do a direct join between the content and default databases
+            channel_alias = get_active_content_database()
+            summary_logs = ContentSummaryLog.objects.using(channel_alias).filter(user=user, content_id__in=leaf_ids)
+        else:  # otherwise, convert the leaf queryset into a flat list of ids and use that
+            summary_logs = ContentSummaryLog.objects.filter(user=user, content_id__in=list(leaf_ids))
+
+        # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
+        overall_progress = (summary_logs.aggregate(Sum("progress"))["progress__sum"] or 0) / leaf_ids.count()
+        return round(overall_progress, 4)
 
     def get_ancestors(self, target_node):
         """
@@ -53,5 +82,5 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         model = ContentNode
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'files', 'ancestors', 'parent', 'thumbnail'
+            'license', 'files', 'ancestors', 'parent', 'thumbnail', 'progress_fraction'
         )

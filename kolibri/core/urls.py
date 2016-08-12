@@ -34,6 +34,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.conf import settings
 from django.conf.urls.static import static
+from kolibri.content.utils import paths
 from kolibri.plugins.registry import get_urls as plugin_urls
 
 app_name = 'kolibri'
@@ -41,5 +42,5 @@ app_name = 'kolibri'
 
 urlpatterns = plugin_urls()
 
-urlpatterns += static(settings.CONTENT_STORAGE_URL, document_root=settings.CONTENT_STORAGE_DIR)
-urlpatterns += static(settings.CONTENT_DATABASE_URL, document_root=settings.CONTENT_DATABASE_DIR)
+urlpatterns += static(paths.get_content_storage_url("/"), document_root=settings.CONTENT_STORAGE_DIR)
+urlpatterns += static(paths.get_content_database_url("/"), document_root=settings.CONTENT_DATABASE_DIR)
