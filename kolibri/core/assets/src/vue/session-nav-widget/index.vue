@@ -11,6 +11,7 @@
     </div>
   </nav-bar-item>
 
+  <div id="dropdown-backdrop" @click="toggleDropdown" v-show="showDropdown"></div>
   <div id="dropdown" v-show="showDropdown" transition="slide">
     <div class="user-dropdown">
       <ul class="dropdown-list">
@@ -73,7 +74,7 @@
         if (!this.loggedIn) {
           this.openLogin();
         } else {
-          this.showUserDropdown();
+          this.toggleDropdown();
         }
         this.$els.navbaritem.blur();
       },
@@ -82,7 +83,7 @@
           this.togglemodal(true);
         }
       },
-      showUserDropdown() {
+      toggleDropdown() {
         if (!this.showDropdown) {
           this.showDropdown = true;
         } else {
@@ -143,6 +144,15 @@
 
   #dropdown
     position: absolute
+    z-index: 1
+    
+  #dropdown-backdrop
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    z-index: 0
 
   .slide-transition
     transition: all 0.25s ease
