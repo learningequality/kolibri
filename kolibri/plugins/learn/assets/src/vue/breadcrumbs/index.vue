@@ -11,7 +11,7 @@
       </span>
 
       <span class="portrait-only" v-if="!isRoot && pageName === allPageNames.EXPLORE_CHANNEL">
-        <first-bread :breadlink="PortraitOnlyParentLink"></first-bread>
+        <first-bread :breadlink="portraitOnlyParentLink"></first-bread>
       </span>
 
       <span v-if="pageName === allPageNames.EXPLORE_CONTENT">
@@ -35,7 +35,7 @@
 
   module.exports = {
     components: {
-      'first-bread': require('./back-bread'),
+      'first-bread': require('./first-bread'),
     },
     computed: {
       allPageMode() {
@@ -62,7 +62,7 @@
           params: { id },
         };
       },
-      PortraitOnlyParentLink() {
+      portraitOnlyParentLink() {
         if (this.pageState.topic) {
           const bread = this.pageState.topic.breadcrumbs;
           if (bread[bread.length - 1]) {
