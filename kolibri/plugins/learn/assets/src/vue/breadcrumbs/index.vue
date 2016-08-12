@@ -2,35 +2,24 @@
 
   <div>
     <nav class="nav" role="navigation" aria-label="You are here:">
-      <span class="parent full-breadcrumbs" v-if="pageMode === thePageMode.EXPLORE && pageName !== thePageNames.EXPLORE_CONTENT && !isRoot">
-        <a v-link="exploreRoot">Explore</a>
+      <span class="learn-bread" v-if="pageName === allPageNames.LEARN_CONTENT">
+        <first-bread :breadlink=learnRoot breadtext="Learn"></first-bread>
       </span>
-      <span v-if="pageName === thePageNames.LEARN_CONTENT">
-        <a v-link="learnRoot">
-          <span class='sep'>
-            <svg role="presentation" src="../icons/back.svg"></svg>
-          Learn
-          </span>
-        </a>
+
+      <span class="explore-bread" v-if="!isRoot && pageName === allPageNames.EXPLORE_CHANNEL">
+        <first-bread :showarrow='false' :breadlink=exploreRoot breadtext="Explore"></first-bread>
       </span>
-      <span v-if="pageName === thePageNames.EXPLORE_CONTENT">
-        <a v-link="parentLink">
-          <span class='sep'>
-            <svg role="presentation" src="../icons/back.svg"></svg>
-          Back
-          </span>
-        </a>
+
+      <span class="portrait-only" v-if="!isRoot && pageName === allPageNames.EXPLORE_CHANNEL">
+        <first-bread :breadlink=PortraitOnlyParentLink></first-bread>
       </span>
-      <span class="parent full-breadcrumbs" v-if="pageMode === thePageMode.EXPLORE" v-for="crumb in crumbs">
+
+      <span v-if="pageName === allPageNames.EXPLORE_CONTENT">
+        <first-bread :breadlink=parentLink></first-bread>
+      </span>
+
+      <span class="middle-bread explore-bread" v-if="pageMode === allPageMode.EXPLORE" v-for="crumb in crumbs">
         <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a>
-      </span>
-      <span class="back" v-if="!isRoot && pageMode === thePageMode.EXPLORE && pageName !== thePageNames.EXPLORE_CONTENT">
-        <a v-link="backLink">
-          <span class='sep'>
-            <svg role="presentation" src="../icons/back.svg"></svg>
-          Back
-          </span>
-        </a>
       </span>
     </nav>
   </div>
@@ -45,12 +34,14 @@
   const getters = require('../../state/getters');
 
   module.exports = {
-
+    components: {
+      'first-bread': require('./back-bread'),
+    },
     computed: {
-      thePageMode() {
+      allPageMode() {
         return PageModes;
       },
-      thePageNames() {
+      allPageNames() {
         return PageNames;
       },
       learnRoot() {
@@ -71,7 +62,7 @@
           params: { id },
         };
       },
-      backLink() {
+      PortraitOnlyParentLink() {
         if (this.pageState.topic) {
           const bread = this.pageState.topic.breadcrumbs;
           if (bread[bread.length - 1]) {
@@ -113,13 +104,10 @@
   @require '~core-theme.styl'
   @require '../learn.styl'
 
-  .sep
-    margin-left: 0.5em
-    margin-right: 0.5em
   .nav
     margin-top: 2em
     margin-bottom:1.4em
-  .parent:after
+  .middle-bread:before
     content: '>'
     margin-left: 0.5em
     margin-right: 0.5em
@@ -135,14 +123,10 @@
     overflow: hidden
     text-overflow: ellipsis
     color: $core-text-annotation
-  svg
-    vertical-align: middle
-    fill: $core-text-annotation
-    margin-bottom: 2px
-  .full-breadcrumbs
+  .explore-bread
     @media screen and (max-width: $portrait-breakpoint)
       display: none
-  .back
+  .portrait-only
     display: none
     @media screen and (max-width: $portrait-breakpoint)
       display: initial
