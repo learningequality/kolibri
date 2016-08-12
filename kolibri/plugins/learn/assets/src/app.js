@@ -74,6 +74,14 @@ class LearnModule extends KolibriModule {
       }
     );
 
+    router.on(
+      PageNames.CONTENT_UNAVAILABLE,
+      '/content-unavailable',
+      (toRoute, fromRoute) => {
+        actions.showContentUnavailable(store);
+      }
+    );
+
     router.redirect({
       '/': '/explore',
     });

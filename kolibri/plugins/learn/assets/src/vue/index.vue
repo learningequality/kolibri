@@ -39,6 +39,7 @@
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
       'scratchpad-page': require('./scratchpad-page'),
+      'content-unavailable-page': require('./content-unavailable-page'),
     },
     computed: {
       currentPage() {
@@ -55,6 +56,9 @@
         }
         if (this.pageName === PageNames.SCRATCHPAD) {
           return 'scratchpad-page';
+        }
+        if (this.pageName === PageNames.CONTENT_UNAVAILABLE) {
+          return 'content-unavailable-page';
         }
         return null;
       },
