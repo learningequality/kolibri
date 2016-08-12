@@ -65,7 +65,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             summary_logs = ContentSummaryLog.objects.filter(user=user, content_id__in=list(leaf_ids))
 
         # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
-        overall_progress = (summary_logs.aggregate(Sum("progress"))["progress__sum"] or 0) / leaf_ids.count()
+        overall_progress = (summary_logs.aggregate(Sum("progress"))["progress__sum"] or 0) / (leaf_ids.count() or 1)
         return round(overall_progress, 4)
 
     def get_ancestors(self, target_node):
