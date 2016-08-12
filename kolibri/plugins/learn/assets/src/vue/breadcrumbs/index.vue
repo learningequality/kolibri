@@ -3,19 +3,19 @@
   <div>
     <nav class="nav" role="navigation" aria-label="You are here:">
       <span class="learn-bread" v-if="pageName === allPageNames.LEARN_CONTENT">
-        <first-bread :breadlink=learnRoot breadtext="Learn"></first-bread>
+        <first-bread :breadlink="learnRoot" breadtext="Learn"></first-bread>
       </span>
 
       <span class="explore-bread" v-if="!isRoot && pageName === allPageNames.EXPLORE_CHANNEL">
-        <first-bread :showarrow='false' :breadlink=exploreRoot breadtext="Explore"></first-bread>
+        <first-bread :showarrow='false' :breadlink="exploreRoot" breadtext="Explore"></first-bread>
       </span>
 
       <span class="portrait-only" v-if="!isRoot && pageName === allPageNames.EXPLORE_CHANNEL">
-        <first-bread :breadlink=PortraitOnlyParentLink></first-bread>
+        <first-bread :breadlink="PortraitOnlyParentLink"></first-bread>
       </span>
 
       <span v-if="pageName === allPageNames.EXPLORE_CONTENT">
-        <first-bread :breadlink=parentLink></first-bread>
+        <first-bread :breadlink="parentLink"></first-bread>
       </span>
 
       <span class="middle-bread explore-bread" v-if="pageMode === allPageMode.EXPLORE" v-for="crumb in crumbs">
