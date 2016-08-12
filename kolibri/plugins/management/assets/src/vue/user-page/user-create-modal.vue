@@ -9,22 +9,22 @@
 
         <div class="user-field">
           <label for="name">Name</label>
-          <input type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="user.full_name">
+          <input type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
         </div>
 
         <div class="user-field">
           <label for="username">Username</label>
-          <input type="text" class="add-form" autocomplete="username" id="username" required v-model="user.username">
+          <input type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
         </div>
 
         <div class="user-field">
           <label for="password">Password</label>
-          <input type="password" class="add-form" id="password" required v-model="user.password">
+          <input type="password" class="add-form" id="password" required v-model="password">
         </div>
 
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-          <select v-model="user.role" id="user-role">
+          <select v-model="role" id="user-role">
           <option value="learner" selected> Learner </option>
           <option value="admin"> Admin </option>
           </select>
@@ -33,7 +33,8 @@
       </div>
 
       <div slot="footer">
-        <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
+        <p v-if="errorMessage">{{errorMessage}}</p>
+        <button class="create-btn" type="button" @click="createNewUser">Create User</button>
       </div>
 
       <icon-button class="add-user-button" text="Add New" :primary="false" slot="openbtn">
@@ -56,25 +57,37 @@
     },
     data() {
       return {
-        user: {
-          username: '',
-          password: '',
-          full_name: '',
-        },
+        username: '',
+        password: '',
+        full_name: '',
         role: 'learner',
+        errorMessage: '',
       };
     },
     methods: {
       createNewUser() {
-        this.user.facility = this.facility;
+        const newUser = {
+          username: this.username,
+          password: this.password,
+          full_name: this.full_name,
+          facility: this.facility,
+        };
         // using promise to ensure that the user is created before closing
-        // can use this promise to have flash an error in the modal?
-        this.createUser(this.user, this.role).then(() => {
-          for (const userProp of Object.getOwnPropertyNames(this.user)) {
-            this.user[userProp] = '';
-          }
-          this.$refs.modal.closeModal();
-        });
+        this.createUser(newUser, this.role).then(
+          () => {
+            this.full_name = '';
+            this.username = '';
+            this.password = '';
+            this.$refs.modal.closeModal();
+          }).catch((error) => {
+            if (error.status.code === 409) {
+              this.errorMessage = error.entity;
+            } else if (error.status.code === 403) {
+              this.errorMessage = error.entity;
+            } else {
+              this.errorMessage = `Whoops! Something went wrong.`;
+            }
+          });
       },
     },
     vuex: {
