@@ -76,8 +76,6 @@ extract$trs.prototype.apply = function(compiler) {
         }
       });
     });
-    // Grab the current compilation hash to version the filename.
-    self.hash = compilation.hash || '';
     if (Object.keys(messageExport).length) {
       // If we've got any messages to write out, write them out. Otherwise, don't bother.
       self.writeOutput(messageExport);
@@ -90,7 +88,7 @@ extract$trs.prototype.writeOutput = function(messageExport) {
   // Make sure the directory we are using exists.
   mkdirp.sync(this.messageDir);
   // Write out the data to JSON.
-  fs.writeFileSync(path.join(this.messageDir, this.messagesName + '-' + this.hash + '-messages.json'), JSON.stringify(messageExport));
+  fs.writeFileSync(path.join(this.messageDir, this.messagesName + '-messages.json'), JSON.stringify(messageExport));
 };
 
 module.exports = extract$trs;
