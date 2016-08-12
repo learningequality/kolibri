@@ -6,14 +6,6 @@ from .models import ContentRatingLog, ContentSessionLog, ContentSummaryLog, User
 from .serializers import ContentRatingLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, UserSessionLogSerializer
 
 
-class ContentSessionLogViewSet(viewsets.ModelViewSet):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
-    queryset = ContentSessionLog.objects.all()
-    serializer_class = ContentSessionLogSerializer
-    pagination_class = OptionalPageNumberPagination
-
-
 class ContentSessionLogFilter(filters.FilterSet):
 
     class Meta:
@@ -21,12 +13,13 @@ class ContentSessionLogFilter(filters.FilterSet):
         fields = ['user_id', 'content_id']
 
 
-class ContentSummaryLogViewSet(viewsets.ModelViewSet):
+class ContentSessionLogViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
-    queryset = ContentSummaryLog.objects.all()
-    serializer_class = ContentSummaryLogSerializer
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    queryset = ContentSessionLog.objects.all()
+    serializer_class = ContentSessionLogSerializer
     pagination_class = OptionalPageNumberPagination
+    filter_class = ContentSessionLogFilter
 
 
 class ContentSummaryFilter(filters.FilterSet):
@@ -34,6 +27,15 @@ class ContentSummaryFilter(filters.FilterSet):
     class Meta:
         model = ContentSummaryLog
         fields = ['user_id', 'content_id']
+
+
+class ContentSummaryLogViewSet(viewsets.ModelViewSet):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    queryset = ContentSummaryLog.objects.all()
+    serializer_class = ContentSummaryLogSerializer
+    pagination_class = OptionalPageNumberPagination
+    filter_class = ContentSummaryFilter
 
 
 class ContentRatingLogViewSet(viewsets.ModelViewSet):
