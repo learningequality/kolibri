@@ -3,7 +3,7 @@
   <div class="user-edit-modal">
     <modal btntext="Edit">
 
-      <h1 slot="header" class="header">Account Info</h1>
+      <h1 slot="header" class="header">Edit Account Info</h1>
 
       <div slot="body">
 
@@ -27,7 +27,7 @@
 
         <div class="user-field">
         <label for="password">Password</label>:
-        <input type="text" id="password" v-model="password_new" placeholder="Please type in your password.">
+        <input type="password" class="edit-form" id="password" required v-model="password_new" placeholder="Please type in your password.">
         </div>
 
       </div>
@@ -37,7 +37,7 @@
         </div>
 
         <button class="no-border" slot="openbtn">
-          <span class="visuallyhidden">Edit User</span>
+          <span class="visuallyhidden">Edit Account Info</span>
           <svg class="manage-edit" src="../icons/pencil.svg"></svg>
         </button>
 
