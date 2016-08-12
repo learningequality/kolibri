@@ -61,13 +61,17 @@ def get_active_content_database(return_none_if_not_set=False):
             raise KeyError("Content DB '%s' is empty!!" % alias)
 
     # if possible, attach the default database to the content database connection to enable joins
-    attach_default_database(alias)
+    _attach_default_database(alias)
 
     return alias
 
-def attach_default_database(alias):
-
-    # if the default database uses a sqlite file, attach it to the content database connection to enable joins
+def _attach_default_database(alias):
+    """
+    Attach the default (primary) database file to the content database connection, if both use sqlite files.
+    This allows us to do direct joins between tables across the two databases, for efficiently integrating
+    data from the two sources -- e.g. annotating ContentNodes with progress info from ContentSummaryLogs.
+    """
+    # if the default database uses a sqlite file, we can't attach it
     default_db = connections.databases[DEFAULT_DB_ALIAS]
     if default_db["ENGINE"].endswith(".sqlite3") and default_db["NAME"].endswith(".sqlite3"):
         default_db_path = connections.databases[DEFAULT_DB_ALIAS]["NAME"]
@@ -75,8 +79,9 @@ def attach_default_database(alias):
             # ensure we're connected to the content database before attaching the default database
             if not connections[alias].connection:
                 connections[alias].connect()
-            # attach the default database to the connection
-            connections[alias].connection.execute("attach database '%s' as defaultdb;" % default_db_path)
+            # attach the default database to the content db connection; this allows tables from both databases
+            # to be used together in the same query; see https://www.sqlite.org/lang_attach.html
+            connections[alias].connection.execute("ATTACH DATABASE '{}' AS defaultdb;".format(default_db_path))
             # record the fact that the default database has been attached to this content database
             _content_databases_with_attached_default_db.add(alias)
         except sqlite3.OperationalError:
