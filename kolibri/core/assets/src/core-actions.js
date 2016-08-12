@@ -10,8 +10,7 @@ function kolibriLogin(store, Kolibri, sessionPayload) {
       const manageURL = Kolibri.urls['kolibri:managementplugin:management']();
       window.location.href = window.location.origin + manageURL;
     } else {
-      const learnURL = Kolibri.urls['kolibri:learnplugin:learn']();
-      window.location.href = window.location.origin + learnURL;
+      Kolibri.emit('refresh');
     }
     Kolibri.resources.clearCaches();
   }).catch((error) => {
@@ -32,8 +31,7 @@ function kolibriLogout(store, Kolibri) {
   logoutPromise.then((response) => {
     store.dispatch('CORE_CLEAR_SESSION');
     /* Very hacky solution to redirect a user back to Learn tab on logout*/
-    const learnURL = Kolibri.urls['kolibri:learnplugin:learn']();
-    window.location.href = window.location.origin + learnURL;
+    window.location.href = window.location.origin;
     Kolibri.resources.clearCaches();
   }).catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
