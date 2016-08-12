@@ -55,13 +55,13 @@ $horizontal-card-height = 100px
 
 // compute the target grid width based on the number of columns
 grid-width($n-cols)
-  ($card-width * $n-cols) + ($card-gutter * ($n-cols + 1))
+  ($card-width * $n-cols) + ($card-gutter * ($n-cols))
 
 $portrait-breakpoint = $left-margin * 2 + grid-width(1) + $right-margin
 
 // compute the media query breakpoint, based on the target grid width
 breakpoint($width)
-  $left-margin + $width + $card-gutter + $right-margin
+  $width + 180px
 
 // generate a range of media query breakpoints
 width-auto-adjust()
