@@ -10,5 +10,6 @@ module.exports = {
   SessionResource: require('./session'),
   DeviceOwnerResource: require('./deviceOwner'),
   FacilityResource: require('./facility'),
+  TaskResource: require('./task'),
   ChannelResource: require('./channel'),
 };
