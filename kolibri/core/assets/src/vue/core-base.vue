@@ -4,7 +4,7 @@
     <nav-bar>
       <slot name="nav"></slot>
     </nav-bar>
-    <div class='main-wrapper' v-scroll='onScroll'>
+    <div class='main-wrapper' v-scroll='scrolled'>
       <error-box v-show='error'></error-box>
       <slot name="above"></slot>
       <main role="main" class="page-content" v-if='!loading'>
@@ -22,7 +22,6 @@
   require('vue-scroll');
 
   module.exports = {
-
     components: {
       'nav-bar': require('./nav-bar'),
       'error-box': require('./error-box'),
@@ -33,10 +32,23 @@
         error: state => state.core.error,
       },
     },
+    data: () => ({
+      didScroll: false,
+    }),
     methods: {
-      onScroll(e, position) {
-        this.$broadcast('scrolling', position);
+      scrolled(e, position) {
+        this.e = e;
+        this.position = position;
+        this.didScroll = true;
       },
+    },
+    ready() {
+      setInterval(() => {
+        if (this.didScroll) {
+          this.$broadcast('scrolling', this.position);
+          this.didScroll = false;
+        }
+      }, 75);
     },
   };
 
