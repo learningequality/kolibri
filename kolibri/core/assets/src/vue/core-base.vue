@@ -55,7 +55,6 @@
 
   .page-content
     margin: auto
-    padding-right: $card-gutter // visible right-margin in line with grid
     width-auto-adjust()
 
 </style>
