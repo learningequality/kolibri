@@ -105,13 +105,11 @@ DATABASE_ROUTERS = ['kolibri.content.content_db_router.ContentDBRouter']
 
 # Directory and URL for storing content databases for channel data
 CONTENT_DATABASE_DIR = os.path.join(KOLIBRI_HOME, 'content', 'databases')
-CONTENT_DATABASE_URL = '/content/databases/'
 if not os.path.exists(CONTENT_DATABASE_DIR):
     os.makedirs(CONTENT_DATABASE_DIR)
 
 # Directory and URL for storing de-duped content files for all channels
 CONTENT_STORAGE_DIR = os.path.join(KOLIBRI_HOME, 'content', 'storage')
-CONTENT_STORAGE_URL = '/content/storage/'
 if not os.path.exists(CONTENT_STORAGE_DIR):
     os.makedirs(CONTENT_STORAGE_DIR)
 
