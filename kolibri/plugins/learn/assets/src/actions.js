@@ -42,6 +42,7 @@ function _contentState(data) {
     thumbnail: data.thumbnail,
     available: data.available,
     files: data.files,
+    content_id: data.content_id,
     progress: data.progress ? data.progress : 'unstarted',
     breadcrumbs: _crumbState(data.ancestors),
   };
@@ -112,6 +113,7 @@ function redirectToExploreChannel(store) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
+
 
 function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -199,7 +201,6 @@ function showLearnChannel(store, channelId) {
 
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations: '' }).fetch();
   const channelPromise = ChannelResource.getCollection({}).fetch();
-
   Promise.all([recommendedPromise, channelPromise])
     .then(([recommendations, channelList]) => {
       const pageState = { recommendations: recommendations.map(_contentState) };
