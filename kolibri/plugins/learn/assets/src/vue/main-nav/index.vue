@@ -34,8 +34,8 @@
     },
     vuex: {
       getters: {
-        pageMode,
         kind: state => state.core.session.kind,
+        pageMode,
       },
     },
     computed: {
@@ -52,7 +52,7 @@
         return this.pageMode === constants.PageModes.EXPLORE;
       },
       isAdminOrSuperuser() {
-        if (this.kind === UserKinds.SUPERUSER || this.kind === UserKinds.ADMIN) {
+        if (this.kind[0] === UserKinds.SUPERUSER || this.kind[0] === UserKinds.ADMIN) {
           return true;
         }
         return false;

@@ -101,7 +101,7 @@
       },
       getters: {
         loggedIn: state => state.core.session.kind !== UserKinds.ANONYMOUS,
-        deviceOwner: state => state.core.session.kind === UserKinds.SUPERUSER,
+        deviceOwner: state => state.core.session.kind[0] === UserKinds.SUPERUSER,
         fullname: state => state.core.session.full_name,
         username: state => state.core.session.username,
         kind: state => state.core.session.kind,

@@ -157,7 +157,7 @@ class SessionViewSet(viewsets.ViewSet):
                    'full_name': user.full_name,
                    'user_id': user.id}
         if isinstance(user, DeviceOwner):
-            session.update({'facility_id': None, 'kind': 'SUPERUSER', 'error': '200'})
+            session.update({'facility_id': None, 'kind': ['SUPERUSER'], 'error': '200'})
             return session
         else:
             roles = Role.objects.filter(user_id=user.id)
@@ -169,5 +169,5 @@ class SessionViewSet(viewsets.ViewSet):
                     else:
                         session['kind'].append('COACH')
             else:
-                session.update({'facility_id': user.facility_id, 'kind': 'LEARNER', 'error': '200'})
+                session.update({'facility_id': user.facility_id, 'kind': ['LEARNER'], 'error': '200'})
             return session

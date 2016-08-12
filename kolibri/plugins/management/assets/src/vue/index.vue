@@ -49,7 +49,7 @@
         return null;
       },
       isAdminOrSuperuser() {
-        if (this.kind === UserKinds.SUPERUSER || this.kind === UserKinds.ADMIN) {
+        if (this.kind[0] === UserKinds.SUPERUSER || this.kind[0] === UserKinds.ADMIN) {
           return true;
         }
         return false;
