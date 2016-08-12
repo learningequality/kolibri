@@ -1,7 +1,7 @@
 <template>
 
   <a v-link=breadlink>
-    <span class='sep'>
+    <span class='back'>
       <svg v-if=showarrow role="presentation" src="../../icons/back.svg"></svg>
       {{ breadtext }}
     </span>
@@ -33,8 +33,9 @@
 
   @require '~core-theme.styl'
 
-  .sep
+  .back
     margin-right: 0.3em
+
   a
     display: inline-block
     vertical-align: middle
