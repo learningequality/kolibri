@@ -4,7 +4,7 @@
     <nav-bar>
       <slot name="nav"></slot>
     </nav-bar>
-    <div class='main-wrapper'>
+    <div class='main-wrapper' v-scroll='onScroll'>
       <error-box v-show='error'></error-box>
       <slot name="above"></slot>
       <main role="main" class="page-content" v-if='!loading'>
@@ -19,7 +19,10 @@
 
 <script>
 
+  require('vue-scroll');
+
   module.exports = {
+
     components: {
       'nav-bar': require('./nav-bar'),
       'error-box': require('./error-box'),
@@ -28,6 +31,11 @@
       getters: {
         loading: state => state.core.loading,
         error: state => state.core.error,
+      },
+    },
+    methods: {
+      onScroll(e, position) {
+        this.$broadcast('scrolling', position);
       },
     },
   };
