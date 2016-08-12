@@ -45,11 +45,13 @@
     methods: {
       editUser() {
         const payload = {
-          password: this.password_new,
           username: this.username_new,
           full_name: this.fullName_new,
           facility: this.facility,
         };
+        if (this.password_new) {
+          payload.password = this.password_new;
+        }
         this.updateUser(this.userid, payload, this.role_new);
       },
     },
