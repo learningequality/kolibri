@@ -2,7 +2,7 @@
 
   <div>
     <h1>No Content Channels Available</h1>
-    <p v-if="isAdminOrSuperuser">Download content channels from the <a href="/management/">Manage Content Page.</a></p>
+    <p v-if="isAdminOrSuperuser">Download content channels from the <a href="/management/#!/content">Content Management</a> page</p>
     <p v-else>You need to log in as an administrator to manage your content channels.</p>
   </div>
 
