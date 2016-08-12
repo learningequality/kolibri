@@ -117,6 +117,9 @@ if not os.path.exists(CONTENT_STORAGE_DIR):
     os.makedirs(CONTENT_STORAGE_DIR)
 
 
+# The name of the folder we export data and content to, and what we look for in drives when we want to import
+EXPORT_FOLDER_NAME = "KOLIBRI_DATA"
+
 # TEMPORARY: Move existing content DBs and content storage dirs into new locations.
 # (July 9, 2016: Remove this in a couple of weeks once everyone is switched over)
 OLD_CONTENT_DATABASE_DIR = os.path.join(BASE_DIR, 'kolibri', 'content', 'content_db')

@@ -52,7 +52,7 @@ class AsyncCommand(BaseCommand):
     def handle(self, *args, **options):
         self.update_progress = options.pop("update_state", None)
 
-        self.handle_async(*args, **options)
+        return self.handle_async(*args, **options)
 
     start_progress = ProgressTracker
 
