@@ -1,10 +1,11 @@
 <template>
 
-  <div class="modal-root" v-on:keyup.esc="toggleModal" role="dialog">
-    <div class="modal" v-if="modalstate" transition="modal">
+  <div class="modal-root" v-on:keyup.esc="closeModal" role="dialog">
+    <div class="modal" v-show="modalstate" transition="modal">
       <div class="modal-wrapper">
+        <div class="modal-backdrop" @click="closeModal"></div>
         <div class="modal-container">
-          <button @click="toggleModal" class="close-btn">
+          <button @click="closeModal" class="close-btn">
             <svg src="./close.svg"></svg>
             <span class="visuallyhidden">Close</span>
           </button>
@@ -20,14 +21,14 @@
           </div>
           <div class="modal-footer">
             <slot name="footer">
-              <button @click="toggleModal" class="close-btn">OK</button>
+              <button @click="closeModal" class="close-btn">OK</button>
             </slot>
           </div>
         </div>
       </div>
     </div>
 
-    <div @click="toggleModal">
+    <div>
       <slot name="openbtn">
         <button>{{ btntext }}</button>
       </slot>
@@ -44,12 +45,8 @@
   module.exports = {
 
     methods: {
-      toggleModal() {
-        if (!this.modalstate) {
-          this.togglemodal(true);
-        } else {
-          this.togglemodal(false);
-        }
+      closeModal() {
+        this.togglemodal(false);
       },
     },
     vuex: {
@@ -79,9 +76,17 @@
     display: table
     transition: opacity 0.3s ease
 
+  .modal-backdrop
+    top: 0
+    z-index: 2
+    width: 100%
+    height: 100%
+    position: fixed
+
   .modal-wrapper
     display: table-cell
     vertical-align: middle
+    position: relative
 
   .modal-container
     background: #fff
@@ -91,6 +96,8 @@
     transition: all 0.3s ease
     margin: 0 auto
     padding: 20px 30px
+    z-index: 3
+    position: relative
 
   .modal-header
     font-weight: bold
