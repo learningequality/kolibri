@@ -4,7 +4,7 @@
     <nav-bar>
       <slot name="nav"></slot>
     </nav-bar>
-    <div class='main-wrapper' v-scroll='scrolled'>
+    <div class='main-wrapper' v-scroll='onScroll'>
       <error-box v-show='error'></error-box>
       <slot name="above"></slot>
       <main role="main" class="page-content" v-if='!loading'>
@@ -33,20 +33,19 @@
       },
     },
     data: () => ({
-      didScroll: false,
+      scrolled: false,
     }),
     methods: {
-      scrolled(e, position) {
-        this.e = e;
+      onScroll(e, position) {
         this.position = position;
-        this.didScroll = true;
+        this.scrolled = true;
       },
     },
     ready() {
       setInterval(() => {
-        if (this.didScroll) {
+        if (this.scrolled) {
           this.$broadcast('scrolling', this.position);
-          this.didScroll = false;
+          this.scrolled = false;
         }
       }, 75);
     },
