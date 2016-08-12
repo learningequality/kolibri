@@ -10,6 +10,10 @@ const UserKinds = require('core-constants').UserKinds;
 const PageNames = constants.PageNames;
 
 
+// ================================
+// USER MANAGEMENT ACTIONS
+
+
 /**
  * Vuex State Mappers
  *
@@ -201,6 +205,11 @@ function showUserPage(store) {
   });
 }
 
+
+// ================================
+// CONTENT IMPORT/EXPORT ACTIONS
+
+
 function showContentPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
@@ -209,6 +218,9 @@ function showContentPage(store) {
   taskCollectionPromise.then((taskList) => {
     const pageState = { showWizard: false };
     pageState.taskList = taskList;
+    if (taskList.length) { // only one task at a time for now
+      store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
+    }
     const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
     channelCollectionPromise.then((channelList) => {
       pageState.channelList = channelList;
@@ -222,12 +234,35 @@ function showContentPage(store) {
   });
 }
 
+
+function startImportWizard(store) {
+  store.dispatch('SET_CONTENT_WIZARD_STATE', true, {
+    type: 'import',
+    page: 'start',
+  });
+}
+
+function startExportWizard(store) {
+  store.dispatch('SET_CONTENT_WIZARD_STATE', true, {
+    type: 'import',
+    page: 'start',
+  });
+}
+
+function cancelImportExportWizard(store) {
+  store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
+}
+
+
 // background worker calls this to continually update UI
 function updateTasks(store) {
   const taskCollectionPromise = TaskResource.getCollection().fetch();
   taskCollectionPromise.then((taskList) => {
     const pageState = { showWizard: false };
     pageState.taskList = taskList;
+    if (taskList.length) { // only one task at a time for now
+      store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
+    }
     const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
     channelCollectionPromise.then((channelList) => {
       pageState.channelList = channelList;
@@ -250,6 +285,11 @@ function clearTasks(store, id) {
   });
 }
 
+
+// ================================
+// OTHER ACTIONS
+
+
 function showDataPage(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.DATA_EXPORT_PAGE);
   store.dispatch('SET_PAGE_STATE', {});
@@ -269,9 +309,14 @@ module.exports = {
   updateUser,
   deleteUser,
   showUserPage,
+
   showContentPage,
-  showDataPage,
-  showScratchpad,
   updateTasks,
   clearTasks,
+  startImportWizard,
+  startExportWizard,
+  cancelImportExportWizard,
+
+  showDataPage,
+  showScratchpad,
 };
