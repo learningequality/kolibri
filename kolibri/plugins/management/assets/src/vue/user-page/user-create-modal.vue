@@ -9,22 +9,27 @@
 
         <div class="user-field">
           <label for="name">Name</label>
-          <input type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
+          <input @focus="clearErrorMessage" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
         </div>
 
         <div class="user-field">
           <label for="username">Username</label>
-          <input type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
+          <input @focus="clearErrorMessage" type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
         </div>
 
         <div class="user-field">
           <label for="password">Password</label>
-          <input type="password" class="add-form" id="password" required v-model="password">
+          <input @focus="clearErrorMessage" type="password" class="add-form" id="password" required v-model="password">
+        </div>
+
+        <div class="user-field">
+          <label for="confirm-password">Confirm Password</label>
+          <input @focus="clearErrorMessage" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
         </div>
 
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-          <select v-model="role" id="user-role">
+          <select @focus="clearErrorMessage" v-model="role" id="user-role">
           <option value="learner" selected> Learner </option>
           <option value="admin"> Admin </option>
           </select>
@@ -33,7 +38,7 @@
       </div>
 
       <div class="footer" slot="footer">
-        <p v-if="errorMessage">{{errorMessage}}</p>
+        <p class="error-message" v-if="errorMessage">{{errorMessage}}</p>
         <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
       </div>
 
@@ -59,6 +64,7 @@
       return {
         username: '',
         password: '',
+        passwordConfirm: '',
         full_name: '',
         role: 'learner',
         errorMessage: '',
@@ -68,26 +74,36 @@
       createNewUser() {
         const newUser = {
           username: this.username,
-          password: this.password,
           full_name: this.full_name,
           facility: this.facility,
         };
-        // using promise to ensure that the user is created before closing
-        this.createUser(newUser, this.role).then(
-          () => {
-            this.full_name = '';
-            this.username = '';
-            this.password = '';
-            this.$refs.modal.closeModal();
-          }).catch((error) => {
-            if (error.status.code === 409) {
-              this.errorMessage = error.entity;
-            } else if (error.status.code === 403) {
-              this.errorMessage = error.entity;
-            } else {
-              this.errorMessage = `Whoops! Something went wrong.`;
-            }
-          });
+
+        if (this.password === this.passwordConfirm) {
+          newUser.password = this.password;
+          // using promise to ensure that the user is created before closing
+          this.createUser(newUser, this.role).then(
+            () => {
+              this.full_name = '';
+              this.username = '';
+              this.password = '';
+              this.passwordConfirm = '';
+              this.clearErrorMessage();
+              this.$refs.modal.closeModal();
+            }).catch((error) => {
+              if (error.status.code === 409) {
+                this.errorMessage = error.entity;
+              } else if (error.status.code === 403) {
+                this.errorMessage = error.entity;
+              } else {
+                this.errorMessage = `Whoops! Something went wrong.`;
+              }
+            });
+        } else {
+          this.errorMessage = 'Passwords do not match.';
+        }
+      },
+      clearErrorMessage() {
+        this.errorMessage = '';
       },
     },
     vuex: {
@@ -153,5 +169,8 @@
 
   .add-user-button
     width: 100%
+
+  .error-message
+    color: $core-text-alert
 
 </style>
