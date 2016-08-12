@@ -44,10 +44,6 @@
       width: $horizontal-card-width
       height: $horizontal-card-height
 
-  .root:focus
-    background-color: $core-action-light
-    outline: none
-
   .thumb-wrapper
     position: relative
     display: block

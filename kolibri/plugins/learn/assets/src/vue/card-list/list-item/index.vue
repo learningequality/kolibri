@@ -43,10 +43,6 @@
     display: table
     width: 100%
 
-  .root:focus
-    background-color: $core-action-light
-    outline: none
-
   .thumb-wrapper
     position: absolute
     left: 0.4em
@@ -65,7 +61,7 @@
   .title
     display: table-cell
     width: 100%
-    height: 100%
+    height: $min-height
     padding: 0.8em
     padding-left: $min-height
     vertical-align: middle

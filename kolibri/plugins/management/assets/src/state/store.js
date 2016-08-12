@@ -7,44 +7,25 @@ const initialState = {
   pageName: constants.PageNames.USER_MGMT_PAGE,
   pageState: {},
   facility: undefined,
-  users: [], // this should be inside page state
 };
 
-
 const mutations = {
-  ADD_USERS(state, users) {
-    users.forEach(user => {
-      state.users.push({
-        id: user.id,
-        username: user.username,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        roles: user.roles,
-      });
-    });
+  ADD_USER(state, user) {
+    state.pageState.users.push(user);
   },
   UPDATE_USERS(state, users) {
     users.forEach(user => {
-      state.users.forEach(existingUser => {
+      state.pageState.users.forEach(existingUser => {
         if (existingUser.id === user.id.toString()) {
           existingUser.username = user.username;
-          existingUser.first_name = user.first_name;
-          existingUser.last_name = user.last_name;
+          existingUser.full_name = user.full_name;
           existingUser.roles = user.roles;
         }
       });
     });
   },
-  DELETE_USERS(state, ids) {
-    ids.forEach(id => {
-      state.users.forEach((user, index) => {
-        if (user.id === id) {
-          if (index > -1) {
-            state.users.splice(index, 1);
-          }
-        }
-      });
-    });
+  DELETE_USER(state, id) {
+    state.users = state.users.filter(user => user.id !== id);
   },
   SET_FACILITY(state, id) {
     state.facility = id;
@@ -55,6 +36,7 @@ const mutations = {
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
+
 };
 
 

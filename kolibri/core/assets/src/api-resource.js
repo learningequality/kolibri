@@ -26,8 +26,6 @@ function getCookie(name) {
   return cookieValue;
 }
 
-const client = rest.wrap(mime).wrap(csrf, { name: 'X-CSRFToken',
-  token: getCookie('csrftoken') }).wrap(errorCode);
 
 /** Class representing a single API resource object */
 class Model {
@@ -171,12 +169,12 @@ class Model {
    * @returns {Promise} - Promise is resolved with target model's id
    * returns, otherwise reject is called with the response object.
    */
-  delete(id) {
+  delete() {
     const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         if (!this.id) {
           // Nothing to delete, so just resolve the promise now.
-          reject('Please pass in the model id.');
+          reject('Can not delete model that we do not have an id for');
         } else {
           // Otherwise, DELETE the Model
           const clientObj = { path: this.url, method: 'DELETE',
@@ -186,7 +184,7 @@ class Model {
             this.resource.removeModel(this);
             // Resolve the promise with the id.
             // Vuex will use this id to delete the model in its state.
-            resolve(id);
+            resolve(this.id);
             // Clean up the reference to this promise
             this.promises.splice(this.promises.indexOf(promise), 1);
           }, (response) => {
@@ -487,7 +485,8 @@ class Resource {
   }
 
   get client() {
-    return client;
+    return rest.wrap(mime).wrap(csrf, { name: 'X-CSRFToken',
+      token: getCookie('csrftoken') }).wrap(errorCode);
   }
 }
 
