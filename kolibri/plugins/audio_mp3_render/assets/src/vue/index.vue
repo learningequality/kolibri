@@ -99,7 +99,7 @@
 
     beforeDestroy() {
       this.recordProgress();
-      this.$emit('stopTracking', this.Kolibri);
+      this.$emit('stopTracking');
     },
 
     methods: {
@@ -108,7 +108,7 @@
         this.isPlay = false;
         this.isPause = true;
         this.recordProgress();
-        this.$emit('startTracking', this.Kolibri);
+        this.$emit('startTracking');
       },
 
       pause() {
@@ -116,7 +116,7 @@
         this.isPlay = true;
         this.isPause = false;
         this.recordProgress();
-        this.$emit('stopTracking', this.Kolibri);
+        this.$emit('stopTracking');
       },
 
       togglePlay() {
@@ -175,15 +175,17 @@
         }
         this.rawTime = sum;
       },
-
+      /* Catches when a user jumps around/skips while listening */
       handleSeek() {
+        /* Record any progress up to this point */
         this.recordProgress();
+        /* Set last check to be where player is at now */
         this.dummyTime = this.$els.audio.currentTime;
         this.lastUpdateTime = this.dummyTime;
       },
 
       recordProgress() {
-        this.$emit('progressUpdate', this.Kolibri, Math.max((this.dummyTime
+        this.$emit('progressUpdate', Math.max((this.dummyTime
           - this.progressStartingPoint) / Math.floor(this.max), 0));
         this.progressStartingPoint = this.$els.audio.currentTime;
       },

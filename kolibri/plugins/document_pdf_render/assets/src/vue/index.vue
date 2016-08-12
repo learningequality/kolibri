@@ -20,6 +20,7 @@
 
     data: () => ({
       supportsPDFs: PDFobject.supportsPDFs,
+      timeout: null,
     }),
 
     methods: {
@@ -53,14 +54,17 @@
     },
     ready() {
       PDFobject.embed(this.defaultFile.storage_url, this.$els.pdfcontainer);
-      this.$emit('startTracking', this.Kolibri);
+      this.$emit('startTracking');
       const self = this;
-      setTimeout(() => {
-        self.$emit('progressUpdate', this.Kolibri, 1);
+      this.timeout = setTimeout(() => {
+        self.$emit('progressUpdate', 1);
       }, 15000);
     },
     beforeDestroy() {
-      this.$emit('stopTracking', this.Kolibri);
+      if (this.timeout) {
+        clearTimeout(this.timeout);
+      }
+      this.$emit('stopTracking');
     },
   };
 

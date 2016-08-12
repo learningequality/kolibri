@@ -83,12 +83,12 @@
           this.videoPlayer.$('.videotoggle').classList.add('videopaused');
           this.videoPlayer.$('.videoreplay').classList.add('display');
           this.videoPlayer.$('.videoforward').classList.add('display');
-          this.$emit('startTracking', this.Kolibri);
+          this.$emit('startTracking');
         } else {
           this.videoPlayer.$('.videotoggle').classList.remove('videopaused');
           this.videoPlayer.$('.videoreplay').classList.remove('display');
           this.videoPlayer.$('.videoforward').classList.remove('display');
-          this.$emit('stopTracking', this.Kolibri);
+          this.$emit('stopTracking');
         }
       },
 
@@ -130,14 +130,17 @@
           this.lastUpdateTime = this.dummyTime;
         }
       },
+      /* Catches when a user jumps around/skips while playing the video */
       handleSeek() {
+        /* Record any progress up to this point */
         this.recordProgress();
+        /* Set last check to be where player is at now */
         this.dummyTime = this.videoPlayer.currentTime();
         this.lastUpdateTime = this.dummyTime;
       },
 
       recordProgress() {
-        this.$emit('progressUpdate', this.Kolibri, Math.max(0,
+        this.$emit('progressUpdate', Math.max(0,
           (this.dummyTime - this.progressStartingPoint) /
           Math.floor(this.videoPlayer.duration())));
         this.progressStartingPoint = this.videoPlayer.currentTime();
@@ -215,7 +218,7 @@
     },
     beforeDestroy() {
       this.recordProgress();
-      this.$emit('stopTracking', this.Kolibri);
+      this.$emit('stopTracking');
       global.removeEventListener('resize', this.debouncedResizeVideo);
     },
   };

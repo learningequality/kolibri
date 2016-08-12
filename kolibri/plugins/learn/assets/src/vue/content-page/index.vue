@@ -20,6 +20,7 @@
         :kind="kind"
         :files="files"
         :content-id="contentId"
+        :channel-id="channelId"
         :available="available"
         :extra-fields="extraFields">
       </content-render>
@@ -91,6 +92,7 @@
         kind: (state) => state.pageState.content.kind,
         files: (state) => state.pageState.content.files,
         contentId: (state) => state.pageState.content.content_id,
+        channelId: (state) => state.currentChannel,
         available: (state) => state.pageState.content.available,
         extraFields: (state) => state.pageState.content.extra_fields,
         breadcrumbs: (state) => state.pageState.content.breadcrumbs,

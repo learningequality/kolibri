@@ -40,7 +40,7 @@
       },
       channelId: {
         type: String,
-        default: '7199dde695db4ee4ab392222d5af1e5c',
+        default: '',
       },
       available: {
         type: Boolean,
@@ -178,11 +178,20 @@
           Object.assign(options, this.currentViewClass);
           // Instantiate the Vue instance directly using the Kolibri Vue constructor.
           this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
-          this.contentView.$on('startTracking', this.startTracking);
-          this.contentView.$on('stopTracking', this.stopTracking);
-          this.contentView.$on('progressUpdate', this.updateProgress);
+          this.contentView.$on('startTracking', this.wrappedStartTracking);
+          this.contentView.$on('stopTracking', this.wrappedStopTracking);
+          this.contentView.$on('progressUpdate', this.wrappedUpdateProgress);
           this.initSession(this.Kolibri, this.channelId, this.contentId, this.kind);
         }
+      },
+      wrappedStartTracking() {
+        this.startTracking(this.Kolibri);
+      },
+      wrappedStopTracking() {
+        this.stopTracking(this.Kolibri);
+      },
+      wrappedUpdateProgress(progress) {
+        this.updateProgress(this.Kolibri, progress);
       },
     },
     vuex: {
@@ -191,8 +200,6 @@
         updateProgress: actions.updateProgress,
         startTracking: actions.startTrackingProgress,
         stopTracking: actions.stopTrackingProgress,
-        saveLogs: actions.saveLogs,
-        updateTimeSpent: actions.updateTimeSpent,
       },
       getters: {
         progress: (state) => state.core.logging.summary.progress,

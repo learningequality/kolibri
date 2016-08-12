@@ -1,5 +1,5 @@
 const intervalTime = 5000; // Frequency at which time logging is updated
-const progressThreshold = 0.2; // Update logs if user has reached 20% more progress
+const progressThreshold = 0.1; // Update logs if user has reached 20% more progress
 const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
 const intervalTimer = require('./timer');
 
@@ -200,6 +200,42 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
 
 
 /**
+ * Do a PATCH to update existing logging models
+ * Must be called after initContentSession
+ */
+function saveLogs(store, Kolibri) {
+  const ContentSessionLogResource = Kolibri.resources.ContentSessionLogResource;
+  const ContentSummaryLogResource = Kolibri.resources.ContentSummaryLogResource;
+  /* Create aliases for logs */
+  const summaryLog = store.state.core.logging.summary;
+  const sessionLog = store.state.core.logging.session;
+
+  /* Reset values used for threshold checking */
+  store.dispatch('SET_LOGGING_THRESHOLD_CHECKS', sessionLog.progress, sessionLog.time_spent);
+
+  /* If a session model exists, save it with updated values */
+  if (sessionLog.id) {
+    const sessionModel = ContentSessionLogResource.getModel(sessionLog.id);
+    sessionModel.save(_contentSessionModel(store)).then((data) => {
+      /* PLACEHOLDER */
+    }).catch((error) => {
+      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+    });
+  }
+
+  /* If a summary model exists, save it with updated values */
+  if (summaryLog.id) {
+    const summaryModel = ContentSummaryLogResource.getModel(summaryLog.id);
+    summaryModel.save(_contentSummaryModel(store)).then((data) => {
+      /* PLACEHOLDER */
+    }).catch((error) => {
+      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+    });
+  }
+}
+
+
+/**
  * Update the progress percentage
  * To be called periodically by content renderers on interval or on pause
  * Must be called after initContentSession
@@ -234,7 +270,7 @@ function updateProgress(store, Kolibri, progressPercent, forceSave = false) {
 
   /* Save models if needed */
   if (forceSave || completedContent || progressThresholdMet) {
-    this.saveLogs(Kolibri);
+    saveLogs(store, Kolibri);
   }
 }
 
@@ -264,42 +300,7 @@ function updateTimeSpent(store, Kolibri, forceSave = false) {
 
   /* Save models if needed */
   if (forceSave || timeThresholdMet) {
-    this.saveLogs(Kolibri);
-  }
-}
-
-
-/**
- * Do a PATCH to update existing logging models
- * Must be called after initContentSession
- */
-function saveLogs(store, Kolibri) {
-  const ContentSessionLogResource = Kolibri.resources.ContentSessionLogResource;
-  const ContentSummaryLogResource = Kolibri.resources.ContentSummaryLogResource;
-  /* Create aliases for logs */
-  const summaryLog = store.state.core.logging.summary;
-  const sessionLog = store.state.core.logging.session;
-
-  /* If a session model exists, save it with updated values */
-  if (sessionLog.id) {
-    const sessionModel = ContentSessionLogResource.getModel(sessionLog.id);
-    sessionModel.save(_contentSessionModel(store)).then((model) => {
-      /* Reset values used for threshold checking */
-      sessionLog.total_time_at_last_save = model.time_spent;
-      sessionLog.progress_at_last_save = model.progress;
-    }).catch((error) => {
-      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
-    });
-  }
-
-  /* If a summary model exists, save it with updated values */
-  if (summaryLog.id) {
-    const summaryModel = ContentSummaryLogResource.getModel(summaryLog.id);
-    summaryModel.save(_contentSummaryModel(store)).then((model) => {
-      /* PLACEHOLDER */
-    }).catch((error) => {
-      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
-    });
+    saveLogs(store, Kolibri);
   }
 }
 
@@ -309,9 +310,8 @@ function saveLogs(store, Kolibri) {
  * @param {int} interval
  */
 function startTrackingProgress(store, Kolibri, interval = intervalTime) {
-  const self = this;
   intervalTimer.startTimer(interval, () => {
-    self.updateTimeSpent(Kolibri, false);
+    updateTimeSpent(store, Kolibri, false);
   });
 }
 
@@ -322,7 +322,7 @@ function startTrackingProgress(store, Kolibri, interval = intervalTime) {
  */
 function stopTrackingProgress(store, Kolibri) {
   intervalTimer.stopTimer();
-  this.updateTimeSpent(Kolibri, true);
+  updateTimeSpent(store, Kolibri, true);
 }
 
 module.exports = {

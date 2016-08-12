@@ -74,6 +74,10 @@ const mutations = {
     state.core.logging.summary.pending_create = summaryPending;
     state.core.logging.session.pending_create = sessionPending;
   },
+  SET_LOGGING_THRESHOLD_CHECKS(state, progress, timeSpent) {
+    state.core.logging.session.total_time_at_last_save = timeSpent;
+    state.core.logging.session.progress_at_last_save = progress;
+  },
 };
 
 module.exports = {
