@@ -115,6 +115,8 @@ CONTENT_STORAGE_URL = '/content/storage/'
 if not os.path.exists(CONTENT_STORAGE_DIR):
     os.makedirs(CONTENT_STORAGE_DIR)
 
+# Base default URL for downloading content from an online server
+CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "https://unicefcontentcuration.learningequality.org"
 
 # The name of the folder we export data and content to, and what we look for in drives when we want to import
 EXPORT_FOLDER_NAME = "KOLIBRI_DATA"
@@ -228,7 +230,6 @@ AUTH_USER_MODEL = 'kolibriauth.DeviceOwner'
 
 AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.auth.backends.FacilityUserBackend']
 
-CENTRAL_CONTENT_DOWNLOAD_DOMAIN = "https://unicefcontentcuration.learningequality.org"
 
 # Django REST Framework
 # http://www.django-rest-framework.org/api-guide/settings/
