@@ -110,6 +110,7 @@
       height: 40px
       font-weight: bold
       background-color: transparent
+
   .add-form
     width: 300px
     margin: 0 auto
@@ -122,8 +123,10 @@
     &:focus
       outline: none
       border-bottom: 3px solid $core-action-normal
+
   .header
     text-align: center
+
   .create-btn
     float: right
     background-color: $core-action-normal
@@ -131,6 +134,7 @@
     &:hover
       border-color: transparent
       color: $core-action-light
+
   .add-user-button
     width: 100%
 

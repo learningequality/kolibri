@@ -255,10 +255,12 @@
     float: left
     position: relative
     left: 10px
+
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar
       font-size: 1em
       width: 100%
+
   @media screen and (max-width: $portrait-breakpoint)
     .create, #type-filter
       box-sizing: border-box

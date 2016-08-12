@@ -20,26 +20,26 @@
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
           <select v-model="user.role" id="user-role">
-          <option value="learner" selected> Learner </option>
-          <option value="admin"> Admin </option>
+            <option value="learner" selected> Learner </option>
+            <option value="admin"> Admin </option>
           </select>
         </div>
 
         <div class="user-field">
-        <label for="password">Password</label>:
-        <input type="password" class="edit-form" id="password" required v-model="password_new" placeholder="Please type in your password.">
+          <label for="password">Password</label>:
+          <input type="password" class="edit-form" id="password" required v-model="password_new" placeholder="Please type in your password.">
         </div>
 
       </div>
 
-        <div slot="footer">
-          <button class="confirm-btn" type="button" @click="editUser">Confirm</button>
-        </div>
+      <div slot="footer">
+        <button class="confirm-btn" type="button" @click="editUser">Confirm</button>
+      </div>
 
-        <button class="no-border" slot="openbtn">
-          <span class="visuallyhidden">Edit Account Info</span>
-          <svg class="manage-edit" src="../icons/pencil.svg"></svg>
-        </button>
+      <button class="no-border" slot="openbtn">
+        <span class="visuallyhidden">Edit Account Info</span>
+        <svg class="manage-edit" src="../icons/pencil.svg"></svg>
+      </button>
 
     </modal>
 
