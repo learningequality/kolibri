@@ -48,6 +48,16 @@ Note that the top-level tags of `Vue.js components <https://vuejs.org/guide/comp
 
 - Put child components inside the directory of a parent component if they are *only* used by the parent. Otherwise, put shared child components in the *vue* director.
 
+- Any user visisble interface text should be rendered translatable, this can be done by supplementing the Vue.js component definition with the following properties:
+  - ``$trs``, an object of the form::
+
+    {
+      msgId: 'Message text',
+    }
+
+  - ``$trNameSpace``, a string that namespaces the messages.
+
+- User visible strings should then either be rendered directly in the template with ``{{ $tr('msgId') }}`` or can be made available through computed properties (note, if you want to pass rendered strings into tag/component properties, this will be necessary as Vue.js does not evaluate Javascript expressions in these cases).
 
 JavaScript Code
 ---------------
