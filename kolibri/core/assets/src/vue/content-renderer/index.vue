@@ -8,7 +8,7 @@
       <div v-el:container></div>
     </div>
     <div v-else>
-      This content is not available.
+      {{ $tr('msgNotAvailable') }}
     </div>
   </div>
 
@@ -21,6 +21,10 @@
   const actions = require('../../core-actions');
 
   module.exports = {
+    $trNameSpace: 'contentRender',
+    $trs: {
+      msgNotAvailable: 'This content is not available.',
+    },
     props: {
       id: {
         type: String,
