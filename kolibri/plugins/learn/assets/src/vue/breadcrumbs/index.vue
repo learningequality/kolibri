@@ -18,7 +18,7 @@
         <first-bread :breadlink="parentLink"></first-bread>
       </span>
 
-      <span class="middle-bread explore-bread" v-if="pageMode === allPageMode.EXPLORE" v-for="crumb in crumbs">
+      <span class="middle-bread explore-bread" v-if="pageMode === allPageModes.EXPLORE" v-for="crumb in crumbs">
         <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a>
       </span>
     </nav>
@@ -38,7 +38,7 @@
       'first-bread': require('./first-bread'),
     },
     computed: {
-      allPageMode() {
+      allPageModes() {
         return PageModes;
       },
       allPageNames() {
