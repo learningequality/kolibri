@@ -4,14 +4,14 @@
     <div class='extra-nav'>
       <slot name='extra-nav'></slot>
     </div>
-    <h2 class='header'>
+    <h1 class='header'>
       <div class='icon-wrapper'>
         <slot name='icon'></slot>
       </div>
       <div class='text'>
         {{ title }}
       </div>
-    </h2>
+    </h1>
   </div>
 
 </template>
@@ -66,7 +66,7 @@
   .icon-wrapper
     display: block
     position: absolute
-    top: 5px
+    top: -1px
 
   .text
     display: block

@@ -1,20 +1,45 @@
 <template>
 
   <div class="user-creation-modal">
-    <modal btntext="+ User">
-      <div class="title" slot="header">User creation</div>
+    <modal v-ref:modal btntext="Add New">
+
+      <h1 slot="header" class="header">Add New Account</h1>
+
       <div slot="body">
-        <br>Username: <input type="text" v-model="username" placeholder="Please type in your username."><br>
-        <br>Password: <input type="text" v-model="password" placeholder="Please type in your password."><br>
-        <br>First name: <input type="text" v-model="firstName" placeholder="Please type in your first name."><br>
-        <br>Last name: <input type="text" v-model="lastName" placeholder="Please type in your last name."><br>
-        <!-- radio buttons for selecting role -->
-        <br>Learner <input type="radio" value="learner" v-model="role"><br>
-        <br>Admin <input type="radio" value="admin" v-model="role"><br>
+
+        <div class="user-field">
+          <label for="name">Name</label>
+          <input type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
+        </div>
+
+        <div class="user-field">
+          <label for="username">Username</label>
+          <input type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
+        </div>
+
+        <div class="user-field">
+          <label for="password">Password</label>
+          <input type="password" class="add-form" id="password" required v-model="password">
+        </div>
+
+        <div class="user-field">
+          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
+          <select v-model="role" id="user-role">
+          <option value="learner" selected> Learner </option>
+          <option value="admin"> Admin </option>
+          </select>
+        </div>
+
       </div>
-      <div slot="footer">
-        <button class="create-btn" type="button" @click="createNewUser">Create User</button>
+
+      <div class="footer" slot="footer">
+        <p v-if="errorMessage">{{errorMessage}}</p>
+        <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
       </div>
+
+      <icon-button class="add-user-button" text="Add New" :primary="false" slot="openbtn">
+        <svg class="add-user" src="../icons/add_new_user.svg"></svg>
+      </icon-button>
     </modal>
   </div>
 
@@ -27,27 +52,42 @@
 
   module.exports = {
     components: {
-      modal: require('../modal'),
+      'icon-button': require('icon-button'),
+      'modal': require('../modal'),
     },
     data() {
       return {
         username: '',
         password: '',
-        firstName: '',
-        lastName: '',
+        full_name: '',
         role: 'learner',
+        errorMessage: '',
       };
     },
     methods: {
       createNewUser() {
-        const payload = {
-          password: this.password,
+        const newUser = {
           username: this.username,
-          first_name: this.firstName,
-          last_name: this.lastName,
+          password: this.password,
+          full_name: this.full_name,
           facility: this.facility,
         };
-        this.createUser(payload, this.role);
+        // using promise to ensure that the user is created before closing
+        this.createUser(newUser, this.role).then(
+          () => {
+            this.full_name = '';
+            this.username = '';
+            this.password = '';
+            this.$refs.modal.closeModal();
+          }).catch((error) => {
+            if (error.status.code === 409) {
+              this.errorMessage = error.entity;
+            } else if (error.status.code === 403) {
+              this.errorMessage = error.entity;
+            } else {
+              this.errorMessage = `Whoops! Something went wrong.`;
+            }
+          });
       },
     },
     vuex: {
@@ -65,10 +105,53 @@
 
 <style lang="stylus" scoped>
 
-  .title
-    display: inline
+  @require '~core-theme'
+
+  $button-content-size = 1em
+
+  .user-field
+    padding-bottom: 5%
+    input
+      width: 100%
+      height: 40px
+      font-weight: bold
+    label
+      position: relative
+      cursor: pointer
+    select
+      width: 100%
+      height: 40px
+      font-weight: bold
+      background-color: transparent
+
+  .add-form
+    width: 300px
+    margin: 0 auto
+    display: block
+    padding: 5px 10px
+    letter-spacing: 0.08em
+    border: none
+    border-bottom: 1px solid $core-text-default
+    height: 30px
+    &:focus
+      outline: none
+      border-bottom: 3px solid $core-action-normal
+
+  .header
+    text-align: center
+
+  .footer
+    text-align: center
 
   .create-btn
-    float: right
+    width: 200px
+    background-color: $core-action-normal
+    color: $core-bg-canvas
+    &:hover
+      border-color: transparent
+      color: $core-action-light
+
+  .add-user-button
+    width: 100%
 
 </style>

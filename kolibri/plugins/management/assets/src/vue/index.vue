@@ -2,8 +2,15 @@
 
   <core-base>
     <main-nav slot="nav"></main-nav>
-    <top-nav slot="above"></top-nav>
-    <component slot="content" :is="currentPage"></component>
+    <div v-if="isAdminOrSuperuser" slot="above">
+      <top-nav></top-nav>
+    </div>
+    <component v-if="isAdminOrSuperuser" slot="content" :is="currentPage" class="page"></component>
+    <div v-else slot="content" class="login-message">
+      <h1>Did you forget to log in?</h1>
+      <h3>You must be logged in as an Admin to view this page.</h3>
+    </div>
+
   </core-base>
 
 </template>
@@ -40,10 +47,12 @@
         }
         return null;
       },
+
     },
     vuex: {
       getters: {
         pageName: state => state.pageName,
+        isAdminOrSuperuser: state => state.core.is_admin_or_superuser,
       },
     },
     store, // make this and all child components aware of the store
@@ -52,4 +61,21 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~core-theme.styl'
+
+  .page
+    padding: 1em 2em
+    padding-bottom: 3em
+    background-color: $core-bg-light
+    margin-top: 2em
+    width: 100%
+    border-radius: $radius
+
+  .login-message h1, h3
+    text-align: center
+  .login-message h1
+    margin-top: 200px
+
+</style>

@@ -7,7 +7,7 @@ class ContentSessionLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentSessionLog
         fields = ('pk', 'user', 'content_id', 'channel_id', 'start_timestamp',
-                  'end_timestamp', 'time_spent', 'kind', 'extra_fields')
+                  'end_timestamp', 'time_spent', 'kind', 'extra_fields', 'progress')
 
 
 class ContentSummaryLogSerializer(serializers.ModelSerializer):

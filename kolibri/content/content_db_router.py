@@ -46,9 +46,10 @@ def get_active_content_database(return_none_if_not_set=False):
     try:
         connections[alias]
     except ConnectionDoesNotExist:
-
-        # dynamically create a database entry to the desired content database
-        filename = os.path.join(settings.CONTENT_DATABASE_DIR, alias + '.sqlite3')
+        if alias.endswith(".sqlite3"):
+            filename = alias
+        else:
+            filename = os.path.join(settings.CONTENT_DATABASE_DIR, alias + '.sqlite3')
         if not os.path.isfile(filename):
             raise KeyError("Content DB '%s' doesn't exist!!" % alias)
         connections.databases[alias] = {
