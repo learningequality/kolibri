@@ -40,13 +40,13 @@
     },
     computed: {
       learnLink() {
-        return { name: constants.PageNames.LEARN_CHANNEL };
+        return { name: constants.PageNames.LEARN_ROOT };
       },
       learnActive() {
         return this.pageMode === constants.PageModes.LEARN;
       },
       exploreLink() {
-        return { name: constants.PageNames.EXPLORE_CHANNEL };
+        return { name: constants.PageNames.EXPLORE_ROOT };
       },
       exploreActive() {
         return this.pageMode === constants.PageModes.EXPLORE;

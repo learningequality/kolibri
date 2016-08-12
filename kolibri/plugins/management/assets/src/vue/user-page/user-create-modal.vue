@@ -3,39 +3,40 @@
   <div class="user-creation-modal">
     <modal v-ref:modal btntext="Add New">
 
-      <h1 slot="header">Add New Account</h1>
+      <h1 slot="header" class="header">Add New Account</h1>
 
       <div slot="body">
 
         <div class="user-field">
           <label for="name">Name</label>
-          <input type="text" autocomplete="name"  autofocus="true" required v-model="user.full_name">
+          <input type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="user.full_name">
         </div>
 
         <div class="user-field">
           <label for="username">Username</label>
-          <input type="text" autocomplete="username" id="username" required v-model="user.username">
+          <input type="text" class="add-form" autocomplete="username" id="username" required v-model="user.username">
         </div>
 
         <div class="user-field">
-          <label for="username">Password</label>
-          <input type="password" id="password" required v-model="user.password">
+          <label for="password">Password</label>
+          <input type="password" class="add-form" id="password" required v-model="user.password">
         </div>
 
         <div class="user-field">
-          <select v-model="user.role">
-            <option value="learner" selected> Learner </option>
-            <option value="admin"> Admin </option>
+          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
+          <select v-model="user.role" id="user-role">
+          <option value="learner" selected> Learner </option>
+          <option value="admin"> Admin </option>
           </select>
         </div>
 
       </div>
 
       <div slot="footer">
-        <button class="create-btn" type="button" @click="createNewUser">Create User</button>
+        <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
       </div>
 
-      <icon-button text="Add New" :primary="false" slot="openbtn">
+      <icon-button class="add-user-button" text="Add New" :primary="false" slot="openbtn">
         <svg class="add-user" src="../icons/add_new_user.svg"></svg>
       </icon-button>
     </modal>
@@ -91,13 +92,50 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme'
+
   $button-content-size = 1em
 
   .user-field
     padding-bottom: 5%
-    input, select
+    input
       width: 100%
+      height: 40px
+      font-weight: bold
     label
       position: relative
+      cursor: pointer
+    select
+      width: 100%
+      height: 40px
+      font-weight: bold
+      background-color: transparent
+
+  .add-form
+    width: 300px
+    margin: 0 auto
+    display: block
+    padding: 5px 10px
+    letter-spacing: 0.08em
+    border: none
+    border-bottom: 1px solid $core-text-default
+    height: 30px
+    &:focus
+      outline: none
+      border-bottom: 3px solid $core-action-normal
+
+  .header
+    text-align: center
+
+  .create-btn
+    float: right
+    background-color: $core-action-normal
+    color: $core-bg-canvas
+    &:hover
+      border-color: transparent
+      color: $core-action-light
+
+  .add-user-button
+    width: 100%
 
 </style>
