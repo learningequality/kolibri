@@ -32,7 +32,7 @@
 
       </div>
 
-      <div slot="footer">
+      <div class="footer" slot="footer">
         <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
       </div>
 
@@ -127,8 +127,11 @@
   .header
     text-align: center
 
+  .footer
+    text-align: center
+
   .create-btn
-    float: right
+    width: 200px
     background-color: $core-action-normal
     color: $core-bg-canvas
     &:hover
