@@ -61,7 +61,7 @@ function _collectionState(data) {
 
 
 /*
-* Returns a promise that gets current channel.
+ * Returns a promise that gets current channel.
  */
 function _getCurrentChannel() {
   let currentChannelId = null;
@@ -97,14 +97,12 @@ function redirectToExploreChannel(store) {
       if (currentChannel) {
         store.dispatch('SET_CURRENT_CHANNEL', currentChannel);
         cookiejs.set('currentChannel', currentChannel);
-        router.go(
-          {
-            name: constants.PageNames.EXPLORE_CHANNEL,
-            params: {
-              channel_id: currentChannel,
-            },
-          }
-        );
+        router.go({
+          name: constants.PageNames.EXPLORE_CHANNEL,
+          params: {
+            channel_id: currentChannel,
+          },
+        });
       } else {
         router.go({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
@@ -124,14 +122,12 @@ function redirectToLearnChannel(store) {
       if (currentChannel) {
         store.dispatch('SET_CURRENT_CHANNEL', currentChannel);
         cookiejs.set('currentChannel', currentChannel);
-        router.go(
-          {
-            name: constants.PageNames.LEARN_CHANNEL,
-            params: {
-              channel_id: currentChannel,
-            },
-          }
-        );
+        router.go({
+          name: constants.PageNames.LEARN_CHANNEL,
+          params: {
+            channel_id: currentChannel,
+          },
+        });
       } else {
         router.go({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
@@ -270,10 +266,10 @@ function triggerSearch(store, searchTerm) {
     searchState.contents = collection.contents;
     store.dispatch('SET_SEARCH_STATE', searchState);
   })
-  .catch((error) => {
-    // TODO - how to parse and format?
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
+    .catch((error) => {
+      // TODO - how to parse and format?
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    });
 }
 
 
