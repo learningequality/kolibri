@@ -181,6 +181,9 @@
     border-color: transparent transparent #fff transparent
     top: -10px
 
+  select:focus
+    outline: $core-action-light 2px solid
+
   .chan-select
     z-index: 1
     width: 11em
@@ -201,7 +204,6 @@
     position: absolute
     top: 0.5rem
     right: 6em
-
 
   .chan-select-mobile-location
     position: relative
