@@ -1,11 +1,11 @@
 <template>
 
-  <div class="modal-root" v-on:keyup.esc="closeModal" role="dialog">
+  <div class="modal-root" v-on:keyup.esc="closeModalHack" role="dialog">
     <div class="modal" v-show="modalstate" transition="modal">
       <div class="modal-wrapper">
-        <div class="modal-backdrop" @click="closeModal"></div>
+        <div class="modal-backdrop" @click="closeModalHack"></div>
         <div class="modal-container">
-          <button @click="closeModal" class="close-btn">
+          <button @click="closeModalHack" class="close-btn">
             <svg src="./close.svg"></svg>
             <span class="visuallyhidden">Close</span>
           </button>
@@ -21,7 +21,7 @@
           </div>
           <div class="modal-footer">
             <slot name="footer">
-              <button @click="closeModal" class="close-btn">OK</button>
+              <button @click="closeModalHack" class="close-btn">OK</button>
             </slot>
           </div>
         </div>
@@ -45,7 +45,10 @@
   module.exports = {
 
     methods: {
-      closeModal() {
+      closeModalHack() {
+        setTimeout(this.closeLoginModal, 100);
+      },
+      closeLoginModal() {
         this.togglemodal(false);
       },
     },

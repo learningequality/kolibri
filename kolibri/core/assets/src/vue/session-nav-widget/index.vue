@@ -1,9 +1,9 @@
 <template>
 
-  <nav-bar-item tabindex="0" @click="openLogin" v-on:keyup.enter="openLogin">
+  <nav-bar-item tabindex="0" v-el:navbaritem @click="loginTabHack" v-on:keyup.enter="loginTabHack">
     <div class="wrapper">
       <div v-if="loggedIn">
-        <div class='user-icon' id="user-dropdown" @click="showUserDropdown">{{ initial }}</div>
+        <div class='user-icon' id="user-dropdown">{{ initial }}</div>
       </div>
       <div v-else>
         <login-modal></login-modal>
@@ -20,7 +20,7 @@
           <p id="dropdown-usertype">{{ userkind }}</p>
         </li>
         <li id="logout-tab">
-          <div @click="userLogout">
+          <div tabindex="0" v-on:keyup.enter="userLogout" @click="userLogout" aria-label="Log out">
             <span>Logout</span>
           </div>
         </li>
@@ -68,22 +68,30 @@
       },
     },
     methods: {
-      showUserDropdown() {
-        if (this.showDropdown) {
-          this.showDropdown = false;
+      // extreme hack for making entire session tab clickable/accessible
+      loginTabHack() {
+        if (!this.loggedIn) {
+          this.openLogin();
         } else {
+          this.showUserDropdown();
+        }
+        this.$els.navbaritem.blur();
+      },
+      openLogin() {
+        if (!this.modalstate) {
+          this.togglemodal(true);
+        }
+      },
+      showUserDropdown() {
+        if (!this.showDropdown) {
           this.showDropdown = true;
+        } else {
+          this.showDropdown = false;
         }
       },
       userLogout() {
         this.logout(this.Kolibri);
         this.showDropdown = false;
-        /* Very hacky solution to redirect a user back to Learn tab on logout*/
-        const learnURL = '/learn/#!/learn';
-        window.location.href = window.location.origin + learnURL;
-      },
-      openLogin() {
-        this.togglemodal(true);
       },
     },
     vuex: {

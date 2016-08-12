@@ -2,7 +2,6 @@
 
   <div>
     <modal>
-      <div aria-hidden="false" id="backdrop"></div>
       <div class="title" aria-labelledby="loginModal" slot="header">
         <div class="login-brand-box">
           <img src="./icons/kolibri-logo.svg" alt="Kolibri logo">
@@ -29,7 +28,6 @@
 <script>
 
   const actions = require('../../core-actions');
-  const UserKinds = require('core-constants').UserKinds;
 
   module.exports = {
     components: {
@@ -48,7 +46,6 @@
         this.login(this.Kolibri, payload);
         /* This is to offset race condition issues */
         window.setTimeout(this.retry, 100);
-        window.setTimeout(this.redirectAdmin, 300);
       },
       clearForm() {
         this.$els.usernamefield.focus();
@@ -62,12 +59,6 @@
         }
       },
       /* If admin logs in, sends them to the manage tab */
-      redirectAdmin() {
-        if (this.kind === UserKinds.SUPERUSER || this.kind === UserKinds.ADMIN) {
-          const manageURL = '/management';
-          window.location.href = window.location.origin + manageURL;
-        }
-      },
     },
     vuex: {
       getters: {
@@ -94,11 +85,6 @@
     transition: all 0.2s ease
     &:hover
       fill: $core-action-dark
-
-  #backdrop
-    background: green
-    width: 100%
-    height: 200px
 
   #test
     background: #000000
