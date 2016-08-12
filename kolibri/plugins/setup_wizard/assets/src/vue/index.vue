@@ -31,6 +31,7 @@
 <script>
 
   const actions = require('../actions');
+  const store = require('../state/store');
 
   module.exports = {
     data() {
@@ -78,6 +79,7 @@
         createDeviceOwnerAndFacility: actions.createDeviceOwnerAndFacility,
       },
     },
+    store, // make this and all child components aware of the store
   };
 
 </script>
