@@ -31,7 +31,7 @@
   @require '~core-theme.styl'
   @require '../../learn.styl'
 
-  $thumb-width = $horizontal-card-height * 3.0 / 2.5;
+  $thumb-width = $horizontal-card-height
 
   .root
     display: block
@@ -70,10 +70,10 @@
     color: $core-text-default
     overflow: hidden
     text-overflow: ellipsis
-
     @media screen and (max-width: $portrait-breakpoint)
       float: right
+      max-height: 86px
       width: $horizontal-card-width - $thumb-width
-      height: $horizontal-card-height
+      -webkit-line-clamp: 4
 
 </style>
