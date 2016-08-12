@@ -14,7 +14,7 @@ class LearnView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(LearnView, self).get_context_data(**kwargs)
         context['kolibri'] = settings.KOLIBRI_CORE_JS_NAME
-        context['channelList'] = {}
+        context['channelList'] = []
         context['channel_id'] = ''
         context['nodes'] = []
         context['rootnode'] = []

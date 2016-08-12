@@ -61,15 +61,6 @@ function _collectionState(data) {
 
 
 /*
-* Helper function that checks if channelList is empty.
-*/
-function _isChannelListEmpty(channelList) {
-  const obj = channelList[0];
-  return (Object.keys(obj).length === 0) && (obj.constructor === Object);
-}
-
-
-/*
 * Returns a promise that gets current channel.
  */
 function _getCurrentChannel() {
@@ -77,7 +68,7 @@ function _getCurrentChannel() {
   return new Promise((resolve, reject) => {
     ChannelResource.getCollection({}).fetch()
       .then((channelList) => {
-        if (!_isChannelListEmpty(channelList)) {
+        if (channelList.length) {
           const cookieCurrentChannelId = cookiejs.get('currentChannel');
           if (channelList.some((channel) => channel.id === cookieCurrentChannelId)) {
             currentChannelId = cookieCurrentChannelId;
