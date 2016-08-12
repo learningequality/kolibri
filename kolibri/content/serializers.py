@@ -1,4 +1,5 @@
 from django.db.models import Sum
+from kolibri.auth.models import FacilityUser
 from kolibri.content.models import ChannelMetadataCache, ContentNode, File
 from rest_framework import serializers
 
@@ -47,8 +48,8 @@ class ContentNodeSerializer(serializers.ModelSerializer):
 
         from kolibri.logger.models import ContentSummaryLog
 
-        # no progress if we don't have a request object or the user is anonymous
-        if 'request' not in self.context or self.context['request'].user.is_anonymous():
+        # no progress if we don't have a request object or the user isn't a FacilityUser
+        if 'request' not in self.context or not isinstance(self.context['request'].user, FacilityUser):
             return 0
 
         # we're getting  progress for the currently logged-in user

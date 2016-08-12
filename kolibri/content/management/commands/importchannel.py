@@ -1,10 +1,9 @@
 import logging as logger
 
-import requests
 from kolibri.content.utils.annotation import update_channel_metadata_cache
 from kolibri.tasks.management.commands.base import AsyncCommand
 
-from ...utils import paths
+from ...utils import paths, transfer
 
 logging = logger.getLogger(__name__)
 
@@ -19,22 +18,16 @@ class Command(AsyncCommand):
         logging.info("Downloading data for channel id {}".format(channel_id))
 
         url = paths.get_content_database_file_url(channel_id)
-
         dest = paths.get_content_database_file_path(channel_id)
 
         logging.debug("URL to fetch: {}".format(url))
         logging.debug("Destination: {}".format(dest))
 
-        r = requests.get(url, stream=True)
-        r.raise_for_status()
+        with transfer.FileDownload(url, dest) as download:
 
-        dbsize = int(r.headers['content-length'])
+            with self.start_progress(total=download.total_size) as progress_update:
 
-        with self.start_progress(total=dbsize) as progress_update:
-            with open(dest, "wb") as f:
-                for content in r.iter_content(1024):
-                    f.write(content)
-                    contentlength = len(content)
-                    progress_update(contentlength)
+                for chunk in download:
+                    progress_update(len(chunk))
 
         update_channel_metadata_cache()

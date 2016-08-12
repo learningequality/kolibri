@@ -25,6 +25,7 @@ function _userState(data) {
   }
   return {
     id: data.id,
+    facility_id: data.facility,
     username: data.username,
     full_name: data.full_name,
     roles: data.roles,
