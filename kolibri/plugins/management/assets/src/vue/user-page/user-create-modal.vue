@@ -36,7 +36,7 @@
         <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
       </div>
 
-      <icon-button text="Add New" :primary="false" slot="openbtn">
+      <icon-button class="add-user-button" text="Add New" :primary="false" slot="openbtn">
         <svg class="add-user" src="../icons/add_new_user.svg"></svg>
       </icon-button>
     </modal>
@@ -131,5 +131,7 @@
     &:hover
       border-color: transparent
       color: $core-action-light
+  .add-user-button
+    width: 100%
 
 </style>
