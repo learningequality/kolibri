@@ -63,7 +63,7 @@ class Transfer(object):
             self.finalize()
             raise
         self.dest_file_obj.write(chunk)
-        return len(chunk)
+        return chunk
 
     def _move_tmp_to_dest(self):
         try:
@@ -105,7 +105,7 @@ class Transfer(object):
 class FileDownload(Transfer):
 
     def start(self):
-        assert not self.started
+        assert not self.started, "File download has already been started, and cannot be started again"
         # initiate the download, check for status errors, and calculate download size
         self.response = requests.get(self.source, stream=True)
         self.response.raise_for_status()
@@ -126,7 +126,7 @@ class FileDownload(Transfer):
 class FileCopy(Transfer):
 
     def start(self):
-        assert not self.started
+        assert not self.started, "File copy has already been started, and cannot be started again"
         self.total_size = os.path.getsize(self.source)
         self.source_file_obj = open(self.source, "rb")
         self.dest_file_obj = open(self.dest_tmp, "wb")
@@ -144,6 +144,7 @@ class FileCopy(Transfer):
         return self
 
     def close(self):
+        self.source_file_obj.close()
         self.dest_file_obj.close()
         self.response.close()
         self.closed = True

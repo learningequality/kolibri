@@ -85,8 +85,9 @@ class Command(AsyncCommand):
                         with self.start_progress(total=download.total_size) as file_dl_progress_update:
 
                             for chunk in download:
-                                overall_progress_update(chunk)
-                                file_dl_progress_update(chunk)
+                                length = len(chunk)
+                                overall_progress_update(length)
+                                file_dl_progress_update(length)
 
     def handle_filesystem_copy(self, *args, **options):
         pass
