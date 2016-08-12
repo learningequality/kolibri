@@ -23,6 +23,11 @@
         </div>
 
         <div class="user-field">
+          <label for="confirm-password">Confirm Password</label>
+          <input type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
+        </div>
+
+        <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
           <select v-model="role" id="user-role">
           <option value="learner" selected> Learner </option>
@@ -59,6 +64,7 @@
       return {
         username: '',
         password: '',
+        passwordConfirm: '',
         full_name: '',
         role: 'learner',
         errorMessage: '',
@@ -68,26 +74,32 @@
       createNewUser() {
         const newUser = {
           username: this.username,
-          password: this.password,
           full_name: this.full_name,
           facility: this.facility,
         };
-        // using promise to ensure that the user is created before closing
-        this.createUser(newUser, this.role).then(
-          () => {
-            this.full_name = '';
-            this.username = '';
-            this.password = '';
-            this.$refs.modal.closeModal();
-          }).catch((error) => {
-            if (error.status.code === 409) {
-              this.errorMessage = error.entity;
-            } else if (error.status.code === 403) {
-              this.errorMessage = error.entity;
-            } else {
-              this.errorMessage = `Whoops! Something went wrong.`;
-            }
-          });
+
+        if (this.password === this.passwordConfirm) {
+          newUser.password = this.password;
+          // using promise to ensure that the user is created before closing
+          this.createUser(newUser, this.role).then(
+            () => {
+              this.full_name = '';
+              this.username = '';
+              this.password = '';
+              this.errorMessage = '';
+              this.$refs.modal.closeModal();
+            }).catch((error) => {
+              if (error.status.code === 409) {
+                this.errorMessage = error.entity;
+              } else if (error.status.code === 403) {
+                this.errorMessage = error.entity;
+              } else {
+                this.errorMessage = `Whoops! Something went wrong.`;
+              }
+            });
+        } else {
+          this.errorMessage = 'Passwords do not match';
+        }
       },
     },
     vuex: {
