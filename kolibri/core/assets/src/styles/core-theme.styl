@@ -69,4 +69,5 @@ width-auto-adjust()
   for $n-cols in $n-cols-array
     $grid-width = grid-width($n-cols)
     @media (min-width: breakpoint($grid-width))
+    @media screen and (max-width: $portrait-breakpoint)
       width: $horizontal-card-width
