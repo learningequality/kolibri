@@ -32,9 +32,9 @@
 
       </div>
 
-      <div slot="footer">
+      <div class="footer" slot="footer">
         <p v-if="errorMessage">{{errorMessage}}</p>
-        <button class="create-btn" type="button" @click="createNewUser">Create User</button>
+        <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
       </div>
 
       <icon-button class="add-user-button" text="Add New" :primary="false" slot="openbtn">
@@ -140,8 +140,11 @@
   .header
     text-align: center
 
+  .footer
+    text-align: center
+
   .create-btn
-    float: right
+    width: 200px
     background-color: $core-action-normal
     color: $core-bg-canvas
     &:hover
