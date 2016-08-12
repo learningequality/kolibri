@@ -62,9 +62,8 @@
     width: 100%
     height: $card-height - $thumbnail-height
     padding: 0.6em
-    font-size: 0.86rem
-    line-height: 1.1rem
-    font-weight: bold
+    font-size: 0.9rem
+    line-height: 1.2rem
     color: $core-text-default
     @media screen and (max-width: $portrait-breakpoint)
       float: right
