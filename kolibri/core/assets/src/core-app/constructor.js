@@ -68,7 +68,7 @@ module.exports = function CoreApp() {
      **/
     const VueIntl = require('vue-intl');
     vue.use(VueIntl);
-    vue.prototype.$tr = function (messageId, ...args) {
+    vue.prototype.$tr = function $tr(messageId, ...args) {
       const message = {
         id: `${this.$options.$trNameSpace}.${messageId}`,
         defaultMessage: this.$options.$trs[messageId],

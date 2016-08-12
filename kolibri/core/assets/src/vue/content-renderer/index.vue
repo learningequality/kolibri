@@ -5,7 +5,7 @@
       <div v-el:container></div>
     </div>
     <div v-else>
-      {{ $tr('contentRender') }}
+      {{ $tr('msgNotAvailable') }}
     </div>
   </div>
 
