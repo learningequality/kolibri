@@ -3,7 +3,7 @@
   <div v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" >
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
     <div :class="{ 'toggle-menu-on' : more }">
-      <label for="chan-select" class="visuallyhidden">Switch Channels</label>
+      <label for="chan-select" :class="[ more ? 'lable-on' : 'visuallyhidden' ]" >Switch Channels</label>
       <select
         class="chan-select"
         :class="[ more ? 'chan-select-mobile-location' : 'chan-select-location' ]"
@@ -78,6 +78,7 @@
       */
       switchChannel(event) {
         let rootPage;
+        this.more = false;
         if (this.exploreMode) {
           rootPage = constants.PageNames.EXPLORE_CHANNEL;
         } else {
@@ -148,19 +149,37 @@
   .toggle-menu-on
     position: fixed
     display: table
-    top: 4em
-    right: 30px
+    top: 3em
+    right: 20px
     width: 200px
     height: 100px
-    background: $core-bg-canvas
+    background: $core-bg-light
     border-radius: 4px
     text-align: center
     font-size: 0.9em
     color: $core-text-annotation
-    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.25)
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25)
+    z-index: 2
+
+  .toggle-menu-on::before
+    content: ''
+    position: absolute
+    border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent
+    top: -11px
+    border-style: solid
+    border-width: 0 10px 10px 10px
+    right: 9px
+    margin-left: -8px
 
   .toggle-menu-on::after
-      content: 'Switch Channels:'
+    content: ''
+    position: absolute
+    border-style: solid
+    border-width: 0 10px 10px 10px
+    right: 9px
+    margin-left: -8px
+    border-color: transparent transparent #fff transparent
+    top: -10px
 
   .chan-select
     z-index: 1
@@ -183,12 +202,18 @@
     top: 0.5rem
     right: 6em
 
+
   .chan-select-mobile-location
     position: relative
     display: table-cell
     margin: 0 auto
-    top: 3.4em
+    top: 2.4em
     right: auto
+    background-color: $core-bg-light
+
+  .lable-on
+    position: relative
+    top: 1.2rem
 
   .search-btn
     position: absolute
