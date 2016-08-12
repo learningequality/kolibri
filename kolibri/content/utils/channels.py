@@ -1,32 +1,16 @@
 import fnmatch
 import logging as logger
 import os
-import psutil
-import sqlite3
-from collections import namedtuple
-from django.conf import settings
+
+from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
 from kolibri.utils.uuids import is_valid_uuid
+
+from ..content_db_router import using_content_database
+from .paths import get_content_database_folder_path
 
 logging = logger.getLogger(__name__)
 
-KolibriExportedChannelData = namedtuple(
-    "KolibriExportedChannelData",
-    ["name", "id", "path"],
-)
-
-DriveData = namedtuple(
-    "DriveData",
-    [
-        "kind",
-        "name",
-        "id",
-        "writeable",
-        "has_content",
-        "channels",
-    ]
-)
-
-def get_channel_id_list_from_scanning_content_database_dir(content_database_dir, return_full_dir=False):
+def get_channel_ids_for_content_database_dir(content_database_dir):
     """
     Returns a list of channel IDs for the channel databases that exist in a content database directory.
     """
@@ -39,87 +23,34 @@ def get_channel_id_list_from_scanning_content_database_dir(content_database_dir,
         logging.warning("Ignoring databases in content database directory '{directory}' with invalid names: {names}"
                         .format(directory=content_database_dir, names=invalid_db_names))
 
-    if not return_full_dir:
-        return valid_db_names
-    else:
-        full_dir_template = os.path.join(content_database_dir, "{}.sqlite3")
-        return [full_dir_template.format(f) for f in valid_db_names]
+    return valid_db_names
 
+def enumerate_content_database_file_paths(content_database_dir):
+    full_dir_template = os.path.join(content_database_dir, "{}.sqlite3")
+    channel_ids = get_channel_ids_for_content_database_dir(content_database_dir)
+    return [full_dir_template.format(f) for f in channel_ids]
 
-def find_kolibri_data_in_mountpoints(physical_drives_only=False):
-    drives = psutil.disk_partitions(all=(not physical_drives_only))
-
-    discovered_drives = {}
-    for drive in drives:
-        channels = list(discover_kolibri_data(drive.mountpoint))
-        is_writeable = "rw" in drive.opts
-
-        discovered_drives[drive.mountpoint] = DriveData(
-            kind="localdrive",
-            id=drive.mountpoint,
-            name=drive.mountpoint,
-            writeable=is_writeable,      # Everything is false for now, TODO later
-            has_content=bool(channels),  # True if we found channels in it
-            channels=channels,
-        )
-
-    return discovered_drives
-
-
-def discover_kolibri_data(folder):
-    kolibri_export_root_dir = os.path.join(
-        folder,
-        settings.EXPORT_FOLDER_NAME,
-    )
-
-    if not os.path.exists(kolibri_export_root_dir):
-        raise StopIteration     # exit out of generator early
-
-    export_db_dir = os.path.join(
-        kolibri_export_root_dir,
-        "content",
-        "databases",
-    )
-
-    channel_db_paths = get_channel_id_list_from_scanning_content_database_dir(export_db_dir, return_full_dir=True)
-
-    for path in channel_db_paths:
-        for channeldata in read_channel_data(path):
-            logger.info("Found {path} with name {name}".format(
-                path=path,
-                name=channeldata.name)
-            )
-            yield channeldata
-
-
-def read_channel_data(channeldbpath):
+def read_channel_metadata_from_db_file(channeldbpath):
     # import here to avoid circular imports whenever kolibri.content.models imports utils too
     from kolibri.content.models import ChannelMetadata
 
-    channel_metadata_tablename = ChannelMetadata._meta.db_table
-    conn = sqlite3.connect(channeldbpath)
+    with using_content_database(channeldbpath):
+        return ChannelMetadata.objects.first()
 
-    cursor = conn.cursor()
+def get_channels_for_data_folder(datafolder):
+    channels = []
+    for path in enumerate_content_database_file_paths(get_content_database_folder_path(datafolder)):
+        channel = read_channel_metadata_from_db_file(path)
+        channel_data = {
+            "path": path,
+            "id": channel.id,
+            "name": channel.name,
+        }
+        channels.append(channel_data)
+    return channels
 
-    fields = list(KolibriExportedChannelData._fields)
-    fields.remove('path')       # path is inserted by this function, and not determined from the DB
-
-    query = "SELECT {fields} FROM {tablename}".format(
-        tablename=channel_metadata_tablename,
-        fields=",".join(fields),
-    )
-
-    result = cursor.execute(query)
-
-    for row in result.fetchall():
-        # I don't like this, we hardcode the return positions. Find a way to
-        # dynamically determine the sqlite result position with its
-        # corresponding fields
-        data = KolibriExportedChannelData(
-            name=row[0],
-            id=row[1],
-            path=channeldbpath,
-        )
-        yield data
-
-    conn.close()
+def get_mounted_drives_with_channel_info():
+    drives = enumerate_mounted_disk_partitions()
+    for drive in drives.values():
+        drive.metadata["channels"] = get_channels_for_data_folder(drive.data_folder) if drive.data_folder else []
+    return drives
