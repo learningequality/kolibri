@@ -22,7 +22,6 @@
   require('vue-scroll');
 
   module.exports = {
-
     components: {
       'nav-bar': require('./nav-bar'),
       'error-box': require('./error-box'),
@@ -33,10 +32,22 @@
         error: state => state.core.error,
       },
     },
+    data: () => ({
+      scrolled: false,
+    }),
     methods: {
       onScroll(e, position) {
-        this.$broadcast('scrolling', position);
+        this.position = position;
+        this.scrolled = true;
       },
+    },
+    ready() {
+      setInterval(() => {
+        if (this.scrolled) {
+          this.$broadcast('scrolling', this.position);
+          this.scrolled = false;
+        }
+      }, 75);
     },
   };
 
