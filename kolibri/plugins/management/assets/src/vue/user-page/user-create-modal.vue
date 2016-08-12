@@ -99,7 +99,7 @@
               }
             });
         } else {
-          this.errorMessage = 'Passwords do not match';
+          this.errorMessage = 'Passwords do not match.';
         }
       },
       clearErrorMessage() {
