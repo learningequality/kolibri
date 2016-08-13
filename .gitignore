@@ -75,7 +75,6 @@ kolibri/**/static/*
 
 # Content App
 storage/*
-kolibri/content/management/commands/*
 kolibri/content/content_db/*.sqlite3
 
 # virtual environment
@@ -86,4 +85,7 @@ kolibri/plugins/learn/assets/src/demo/
 
 # ignore strange OSX icon files. (Note there are special characters after 'Icon')
 # see http://stackoverflow.com/a/30755378
-Icon
+Icon
+
+#ignore added files with DS_Store
+.DS_Store

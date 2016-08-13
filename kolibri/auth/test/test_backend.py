@@ -55,8 +55,8 @@ class FacilityUserBackendTestCase(TestCase):
     def test_facility_user_authenticated(self):
         self.assertEqual(self.user, FacilityUserBackend().authenticate(username="Mike", password="foo", facility=self.facility))
 
-    def test_facility_user_authentication_requires_facility(self):
-        self.assertIsNone(FacilityUserBackend().authenticate(username="Mike", password="foo"))
+    def test_facility_user_authentication_does_not_require_facility(self):
+        self.assertEqual(self.user, FacilityUserBackend().authenticate(username="Mike", password="foo"))
 
     def test_device_owner_not_authenticated(self):
         self.assertIsNone(FacilityUserBackend().authenticate(username="Chuck", password="foobar"))

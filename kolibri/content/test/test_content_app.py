@@ -1,6 +1,7 @@
 """
 To run this test, type this in command line <kolibri manage test -- kolibri.content>
 """
+import datetime
 import os
 import shutil
 import tempfile
@@ -15,6 +16,8 @@ from ..constants import content_kinds
 from ..content_db_router import set_active_content_database, using_content_database
 from ..errors import ContentModelUsedOutsideDBContext
 from rest_framework.test import APITestCase
+from kolibri.auth.models import DeviceOwner, Facility, FacilityUser
+from kolibri.logger.models import ContentSummaryLog
 
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
 CONTENT_DATABASE_DIR_TEMP = tempfile.mkdtemp()
@@ -36,6 +39,9 @@ class ContentNodeTestCase(TestCase):
     }
 
     def setUp(self):
+
+        # create DeviceOwner to pass the setup_wizard middleware check
+        DeviceOwner.objects.create(username='test-device-owner', password=123)
 
         # set the active content database for the duration of the test
         set_active_content_database(self.the_channel_id)
@@ -108,7 +114,7 @@ class ContentNodeTestCase(TestCase):
     def test_descendants_of_kind(self):
 
         p = content.ContentNode.objects.get(title="root")
-        expected_output = content.ContentNode.objects.filter(title__in=["c2", "c2c2", "c2c3"])
+        expected_output = content.ContentNode.objects.filter(title__in=["c2"])
         actual_output = p.get_descendants(include_self=False).filter(kind=content_kinds.TOPIC)
         self.assertEqual(set(expected_output), set(actual_output))
 
@@ -212,13 +218,15 @@ class ContentNodeAPITestCase(APITestCase):
     """
     fixtures = ['content_test.json']
     multi_db = True
-    the_channel_id = 'content_test'
+    the_channel_id = '15137d33c49f489ebe08893bfa6b5414'
     connections.databases[the_channel_id] = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ':memory:',
     }
 
     def setUp(self):
+        # create DeviceOwner to pass the setup_wizard middleware check
+        DeviceOwner.objects.create(username='test-device-owner', password=123)
         # set the active content database for the duration of the test
         set_active_content_database(self.the_channel_id)
 
@@ -262,7 +270,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_contentnode_recommendations(self):
         root_id = content.ContentNode.objects.get(title="root").id
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations_for": root_id})
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 4)
 
     def test_channelmetadata_list(self):
         data = content.ChannelMetadata.objects.values()[0]
@@ -278,7 +286,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_channelmetadata_recommendations(self):
         response = self.client.get(self._reverse_channel_url("contentnode-list"), data={"recommendations": ""})
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 4)
 
     def test_file_list(self):
         response = self.client.get(self._reverse_channel_url("file-list"))
@@ -287,6 +295,44 @@ class ContentNodeAPITestCase(APITestCase):
     def test_file_retrieve(self):
         response = self.client.get(self._reverse_channel_url("file-detail", {'pk': "9f9438fe6b0d42dd8e913d7d04cfb2b1"}))
         self.assertEqual(response.data['preset'], 'high_res_video')
+
+    def test_contentnode_progress(self):
+
+        # set up data for testing progress_fraction field on content node endpoint
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="learner", facility=facility)
+        user.set_password("pass")
+        user.save()
+        root = content.ContentNode.objects.get(title="root")
+        c1 = content.ContentNode.objects.get(title="c1")
+        c2 = content.ContentNode.objects.get(title="c2")
+        c2c1 = content.ContentNode.objects.get(title="c2c1")
+        c2c3 = content.ContentNode.objects.get(title="c2c3")
+        for node, progress in [(c2c1, 0.7), (c2c3, 0.5)]:
+            ContentSummaryLog.objects.create(
+                user=user,
+                content_id=node.content_id,
+                progress=progress,
+                channel_id=self.the_channel_id,
+                start_timestamp=datetime.datetime.now()
+            )
+
+        def assert_progress(node, progress):
+            response = self.client.get(self._reverse_channel_url("contentnode-detail", {'pk': node.id}))
+            self.assertEqual(response.data["progress_fraction"], progress)
+
+        # check that there is no progress when not logged in
+        assert_progress(root, 0)
+        assert_progress(c1, 0)
+        assert_progress(c2, 0)
+        assert_progress(c2c1, 0)
+
+        # check that progress is calculated appropriately when user is logged in
+        self.client.login(username="learner", password="pass", facility=facility)
+        assert_progress(root, 0.3)
+        assert_progress(c1, 0)
+        assert_progress(c2, 0.4)
+        assert_progress(c2c1, 0.7)
 
     def tearDown(self):
         """

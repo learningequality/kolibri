@@ -11,9 +11,7 @@ import kolibri  # noqa
 from kolibri import dist as kolibri_dist  # noqa
 
 # Setup path in case we are running with dependencies bundled into Kolibri
-sys.path.append(
-    os.path.realpath(os.path.dirname(kolibri_dist.__file__))
-)
+sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
 
 import django  # noqa
 import importlib  # noqa
@@ -132,7 +130,7 @@ def _first_run():
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION, DEFAULT_PLUGINS
 
     if not SKIP_AUTO_DATABASE_MIGRATION:
-        call_command("migrate")
+        call_command("migrate", interactive=False)
 
     for plugin_module in DEFAULT_PLUGINS:
         try:

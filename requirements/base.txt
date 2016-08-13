@@ -1,2 +1,15 @@
-# Base requirements are empty. All of our minimum requirements are specified in setup.py's install_requires variable!
--e .
+django-filter==0.13.0
+django-js-reverse==0.7.2
+six==1.10.0
+djangorestframework==3.3.3
+django==1.9.7
+colorlog==2.6.0
+docopt==0.6.2
+django-mptt==0.8.5
+djangorestframework-csv==1.4.1
+SQLAlchemy==1.0.14
+celery==3.1.23
+tqdm==4.8.3                     # progress bars
+requests==2.10.0
+https://github.com/cherrypy/cherrypy/archive/v6.2.0.zip
+psutil==4.3.0

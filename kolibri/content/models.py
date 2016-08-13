@@ -8,13 +8,13 @@ from __future__ import print_function
 
 import uuid
 
-from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from mptt.models import MPTTModel, TreeForeignKey
 
 from .constants import content_kinds, extensions, presets
 from .content_db_router import get_active_content_database
+from .utils import paths
 
 
 class UUIDField(models.CharField):
@@ -47,10 +47,10 @@ class UUIDField(models.CharField):
                 value = uuid.UUID(value)
             except AttributeError:
                 raise TypeError(self.error_messages['invalid'] % {'value': value})
-
-        if connection.features.has_native_uuid_field:
-            return value
         return value.hex
+
+    def from_db_value(self, value, expression, connection, context):
+        return self.to_python(value)
 
     def to_python(self, value):
         if isinstance(value, uuid.UUID):
@@ -161,13 +161,16 @@ class File(ContentDatabaseModel):
     def __str__(self):
         return '{checksum}{extension}'.format(checksum=self.checksum, extension='.' + self.extension)
 
+    def get_filename(self):
+        return "{}.{}".format(self.checksum, self.extension)
+
     def get_url(self):
         """
         Return a url for the client side to retrieve the content file.
-        The same url will also be exposed by the file serializer
+        The same url will also be exposed by the file serializer.
         """
         if self.available:
-            return settings.CONTENT_STORAGE_URL + self.checksum[0] + '/' + self.checksum[1] + '/' + self.checksum + '.' + self.extension
+            return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl="/")
         else:
             return None
 

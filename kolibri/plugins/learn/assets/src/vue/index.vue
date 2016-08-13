@@ -1,24 +1,24 @@
 <template>
 
   <core-base>
-
-    <div class='main'>
-
-      <side-nav class='nav'></side-nav>
+    <main-nav slot="nav"></main-nav>
+    <div slot="above" class="top-wrapper">
       <search-button class='search-btn'></search-button>
-
-      <error-page class='error' v-show='error'></error-page>
-
-      <main role="main" class="page-content" v-if='!loading'>
-        <explore-page v-if='showExplorePage'></explore-page>
-        <content-page v-if='showContentPage'></content-page>
-        <learn-page v-if='showLearnPage'></learn-page>
-        <scratchpad-page v-if='showScratchpadPage'></scratchpad-page>
-      </main>
-
-      <div v-show='searchOpen' class="search-pane-offset" transition='search-slide'>
+      <label for="chan-select" class="visuallyhidden">Filter User Type</label>
+      <select
+        class="chan-select"
+        id="chan-select"
+        name="chan-select"
+        v-model="getCurrentChannel"
+        @change="switchChannel($event)"
+      >
+        <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
+      </select>
+    </div>
+    <component slot="content" :is="currentPage"></component>
+    <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
+      <div class='search-shadow'>
         <search-widget
-          class='search-pane'
           :show-topics="exploreMode">
         </search-widget>
       </div>
@@ -43,31 +43,71 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
-      'side-nav': require('./side-nav'),
+      'main-nav': require('./main-nav'),
       'search-widget': require('./search-widget'),
       'search-button': require('./search-widget/search-button'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
       'scratchpad-page': require('./scratchpad-page'),
-      'error-page': require('./error-page'),
+      'content-unavailable-page': require('./content-unavailable-page'),
     },
     computed: {
-      showExplorePage() {
-        return this.pageName === PageNames.EXPLORE_ROOT || this.pageName === PageNames.EXPLORE_TOPIC;
-      },
-      showContentPage() {
-        return this.pageName === PageNames.EXPLORE_CONTENT ||
-          this.pageName === PageNames.LEARN_CONTENT;
-      },
-      showLearnPage() {
-        return this.pageName === PageNames.LEARN_ROOT;
-      },
-      showScratchpadPage() {
-        return this.pageName === PageNames.SCRATCHPAD;
+      currentPage() {
+        if (this.pageName === PageNames.EXPLORE_CHANNEL ||
+          this.pageName === PageNames.EXPLORE_TOPIC) {
+          return 'explore-page';
+        }
+        if (this.pageName === PageNames.EXPLORE_CONTENT ||
+          this.pageName === PageNames.LEARN_CONTENT) {
+          return 'content-page';
+        }
+        if (this.pageName === PageNames.LEARN_CHANNEL) {
+          return 'learn-page';
+        }
+        if (this.pageName === PageNames.SCRATCHPAD) {
+          return 'scratchpad-page';
+        }
+        if (this.pageName === PageNames.CONTENT_UNAVAILABLE) {
+          return 'content-unavailable-page';
+        }
+        return null;
       },
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
+      },
+      /*
+      * Get a list of channels.
+      */
+      getChannels() {
+        return this.channelList;
+      },
+      /*
+      * Get the current channel ID.
+      */
+      getCurrentChannel() {
+        return this.currentChannel;
+      },
+    },
+    methods: {
+      /*
+      * Route to selected channel.
+      */
+      switchChannel(event) {
+        let rootPage;
+        if (this.exploreMode) {
+          rootPage = constants.PageNames.EXPLORE_CHANNEL;
+        } else {
+          rootPage = constants.PageNames.LEARN_CHANNEL;
+        }
+        this.$router.go(
+          {
+            name: rootPage,
+            params: {
+              channel_id: event.target.value,
+            },
+          }
+        );
       },
     },
     vuex: {
@@ -75,8 +115,8 @@
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchOpen: state => state.searchOpen,
-        loading: state => state.loading,
-        error: state => state.error,
+        currentChannel: state => state.currentChannel,
+        channelList: state => state.channelList,
       },
     },
     store, // make this and all child components aware of the store
@@ -90,72 +130,52 @@
   @require '~core-theme.styl'
   @require 'learn.styl'
 
-  .main
-    position: fixed // must be fixed for ie10
-    overflow-y: scroll
-    height: 100%
-    width: 100%
-
-  .nav
-    position: fixed
-    top: 0
-    left: 0
-    width: $nav-bar-width
-    height: 100%
-    z-index: 2
-
   .search-btn
-    // position search button to always be in the right-hand margin
-    $offset = $nav-bar-width + $nav-bar-padding + ($right-margin / 3)
-    left: $card-width + $offset
-    for $n-cols in $n-cols-array
-      $grid-width = grid-width($n-cols)
-      @media (min-width: breakpoint($grid-width))
-        left: $grid-width + $offset
-
     position: fixed
     top: 1rem
+    right: 2rem
     z-index: 1
+    @media screen and (max-width: $portrait-breakpoint)
+      right: 1rem
 
-  .search-pane-offset
-    padding-left: $nav-bar-width + ($nav-bar-padding / 2)
+  .top-wrapper
+    text-align: right
+    padding-top: 22px
+    padding-right: $right-margin * 2
+
+  .chan-select
+    width: 11em
+    padding: 0.2em 0.8em
+    color: $core-text-annotation
+    font-size: 0.9rem
+    border: 1px solid $core-text-annotation
+    border-radius: 50px
+    background: url(./icons/arrowdown.svg) no-repeat right
+    -webkit-appearance: none
+    -moz-appearance: none
+    outline: none
+
+  .search-pane
+    background-color: $core-bg-canvas
+    overflow-y: scroll
     position: fixed
     top: 0
     left: 0
     height: 100%
-    width:100%
-
-  .search-pane
-    overflow-y: scroll
-    height: 100%
     width: 100%
-    padding-left: ($nav-bar-padding / 2)
-    box-shadow: 0 0 6px #ddd
+    padding-left: $left-margin
+    @media screen and (max-width: $portrait-breakpoint)
+      padding-left: 0
+      margin-left: $card-gutter
+
+  .search-shadow
+    padding-right: $right-margin
+    min-height: 100%
 
   .search-slide-transition
     transition: transform $core-time ease-out
 
   .search-slide-enter, .search-slide-leave
     transform: translateX(100vw)
-
-  .page-content
-    margin-left: $nav-bar-width + $nav-bar-padding
-    margin-right: $right-margin
-    margin-bottom: 50px
-    width-auto-adjust()
-
-  .error
-    margin-left: $nav-bar-width + $nav-bar-padding
-    margin-right: $right-margin
-
-</style>
-
-
-<style lang="stylus">
-
-  /* WARNING - unscoped styles.
-   * control all scrolling from vue.  */
-  html
-    overflow: hidden
 
 </style>

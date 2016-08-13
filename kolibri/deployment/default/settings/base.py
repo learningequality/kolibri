@@ -11,7 +11,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import shutil
 
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf
@@ -47,8 +46,10 @@ INSTALLED_APPS = [
     'kolibri.auth.apps.KolibriAuthConfig',
     'kolibri.content',
     'kolibri.logger',
+    'kolibri.tasks.apps.KolibriTasksConfig',
     'kolibri.core.webpack',
     'rest_framework',
+    'kombu.transport.django',   # for celery and django communication
     'django_js_reverse',
 ] + conf.config['INSTALLED_APPS']
 
@@ -56,6 +57,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'kolibri.plugins.setup_wizard.middleware.SetupWizardMiddleware',
     'kolibri.auth.middleware.CustomAuthenticationMiddleware',
     'kolibri.content.middleware.ContentDBRoutingMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
@@ -103,37 +105,16 @@ DATABASE_ROUTERS = ['kolibri.content.content_db_router.ContentDBRouter']
 
 # Directory and URL for storing content databases for channel data
 CONTENT_DATABASE_DIR = os.path.join(KOLIBRI_HOME, 'content', 'databases')
-CONTENT_DATABASE_URL = '/content/databases/'
 if not os.path.exists(CONTENT_DATABASE_DIR):
     os.makedirs(CONTENT_DATABASE_DIR)
 
 # Directory and URL for storing de-duped content files for all channels
 CONTENT_STORAGE_DIR = os.path.join(KOLIBRI_HOME, 'content', 'storage')
-CONTENT_STORAGE_URL = '/content/storage/'
 if not os.path.exists(CONTENT_STORAGE_DIR):
     os.makedirs(CONTENT_STORAGE_DIR)
 
-
-# TEMPORARY: Move existing content DBs and content storage dirs into new locations.
-# (July 9, 2016: Remove this in a couple of weeks once everyone is switched over)
-OLD_CONTENT_DATABASE_DIR = os.path.join(BASE_DIR, 'kolibri', 'content', 'content_db')
-OLD_CONTENT_STORAGE_DIR = os.path.join(BASE_DIR, "storage")
-def movetree(src, dst):
-    if not os.path.exists(src):
-        return
-    if not os.path.exists(dst):
-        os.makedirs(dst)
-    for item in os.listdir(src):
-        s = os.path.join(src, item)
-        d = os.path.join(dst, item)
-        if os.path.isdir(s):
-            movetree(s, d)
-        else:
-            if not os.path.exists(d):
-                shutil.move(s, d)
-
-movetree(OLD_CONTENT_DATABASE_DIR, CONTENT_DATABASE_DIR)
-movetree(OLD_CONTENT_STORAGE_DIR, CONTENT_STORAGE_DIR)
+# Base default URL for downloading content from an online server
+CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "https://unicefcontentcuration.learningequality.org"
 
 
 # Internationalization
@@ -250,6 +231,11 @@ AUTHENTICATION_BACKENDS = ['kolibri.auth.backends.DeviceOwnerBackend', 'kolibri.
 
 REST_FRAMEWORK = {
     "UNAUTHENTICATED_USER": "kolibri.auth.models.KolibriAnonymousUser",
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework_csv.renderers.CSVRenderer',
+    ),
 }
 
 

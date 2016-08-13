@@ -1,11 +1,11 @@
 <template>
 
-  <section>
-    <h3>{{header}}</h3>
+  <div>
+    <h3 v-if="header" class="header">{{header}}</h3>
     <div class="card-grid">
       <slot></slot>
     </div>
-  </section>
+  </div>
 
 </template>
 
@@ -60,8 +60,9 @@
 
   @require 'jeet'
 
-  h2
-    margin-top: 0
+  .header
+    margin-top: 2em
+    margin-bottom: 1.4em
 
   .card-grid
     cf()

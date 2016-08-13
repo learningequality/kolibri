@@ -1,10 +1,11 @@
+from django.db.models.query import F
 from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
-from kolibri.auth.models import Classroom, LearnerGroup
+from kolibri.auth.filters import HierarchyRelationsFilter
 from kolibri.content.api import OptionalPageNumberPagination
 from rest_framework import filters, viewsets
 
-from .models import ContentInteractionLog, ContentRatingLog, ContentSummaryLog, UserSessionLog
-from .serializers import ContentInteractionLogSerializer, ContentRatingLogSerializer, ContentSummaryLogSerializer, UserSessionLogSerializer
+from .models import ContentRatingLog, ContentSessionLog, ContentSummaryLog, UserSessionLog
+from .serializers import ContentRatingLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, UserSessionLogSerializer
 
 
 class BaseLogFilter(filters.FilterSet):
@@ -17,35 +18,39 @@ class BaseLogFilter(filters.FilterSet):
         return queryset.filter(user__facility_id=value)
 
     def filter_classroom(self, queryset, value):
-        classroom_members_pks = Classroom.objects.get(pk=value).get_members().values_list("id", flat=True)
-        return queryset.filter(user__pk__in=list(classroom_members_pks))
+        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+            ancestor_collection=value,
+            target_user=F("user"),
+        )
 
     def filter_learner_group(self, queryset, value):
-        learnergroup_members_pks = LearnerGroup.objects.get(pk=value).get_members().values_list("id", flat=True)
-        return queryset.filter(user__pk__in=list(learnergroup_members_pks))
+        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+            ancestor_collection=value,
+            target_user=F("user"),
+        )
 
 
-class ContentInteractionLogFilter(BaseLogFilter):
+class ContentSessionLogFilter(BaseLogFilter):
 
     class Meta:
-        model = ContentInteractionLog
-        fields = ['user_id']
+        model = ContentSessionLog
+        fields = ['user_id', 'content_id']
 
 
-class ContentInteractionLogViewSet(viewsets.ModelViewSet):
+class ContentSessionLogViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
-    queryset = ContentInteractionLog.objects.all()
-    serializer_class = ContentInteractionLogSerializer
+    queryset = ContentSessionLog.objects.all()
+    serializer_class = ContentSessionLogSerializer
     pagination_class = OptionalPageNumberPagination
-    filter_class = ContentInteractionLogFilter
+    filter_class = ContentSessionLogFilter
 
 
 class ContentSummaryLogFilter(BaseLogFilter):
 
     class Meta:
         model = ContentSummaryLog
-        fields = ['user_id']
+        fields = ['user_id', 'content_id']
 
 
 class ContentSummaryLogViewSet(viewsets.ModelViewSet):
@@ -61,7 +66,7 @@ class ContentRatingLogFilter(BaseLogFilter):
 
     class Meta:
         model = ContentRatingLog
-        fields = ['user_id']
+        fields = ['user_id', 'content_id']
 
 
 class ContentRatingLogViewSet(viewsets.ModelViewSet):

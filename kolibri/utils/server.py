@@ -3,6 +3,8 @@ import os
 import cherrypy
 from django.conf import settings
 from django.core.management import call_command
+from kolibri.content.utils import paths
+from kolibri.content.utils.annotation import update_channel_metadata_cache
 from kolibri.deployment.default.wsgi import application
 
 
@@ -13,6 +15,8 @@ def start():
     call_command("collectstatic_js_reverse", interactive=False)
     call_command("migrate", interactive=False)
 
+    update_channel_metadata_cache()
+
     run_server()
 
 def run_server():
@@ -21,8 +25,8 @@ def run_server():
     cherrypy.tree.graft(application, "/")
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
-    serve_static_dir(settings.CONTENT_DATABASE_DIR, settings.CONTENT_DATABASE_URL)
-    serve_static_dir(settings.CONTENT_STORAGE_DIR, settings.CONTENT_STORAGE_URL)
+    serve_static_dir(settings.CONTENT_DATABASE_DIR, paths.get_content_database_url("/"))
+    serve_static_dir(settings.CONTENT_STORAGE_DIR, paths.get_content_storage_url("/"))
 
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()

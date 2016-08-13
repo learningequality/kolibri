@@ -1,16 +1,19 @@
 <template>
 
   <div>
-    <div v-el:videowrapper class="videowrapper">
-      <video v-el:video class="video-js vjs-default-skin" >
-        <template v-for="video in videoSources">
-          <source :src="video.storage_url" :type='"video/" + video.extension'>
-        </template>
-        <template v-for="track in trackSources">
-          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
-        </template>
-      </video>
+    <div v-el:videowrapperwrapper class="videowrapperwrapper">
+      <div v-el:videowrapper class="videowrapper">
+        <video v-el:video class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
+          <template v-for="video in videoSources">
+            <source :src="video.storage_url" :type='"video/" + video.extension'>
+          </template>
+          <template v-for="track in trackSources">
+            <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
+          </template>
+        </video>
+      </div>
     </div>
+
   </div>
 
 </template>
@@ -30,6 +33,9 @@
     data: () => ({
       videoWidth: 0,
       videoHeight: 0,
+      dummyTime: 0,
+      progressStartingPoint: 0,
+      lastUpdateTime: 0,
     }),
 
     computed: {
@@ -72,14 +78,17 @@
       },
 
       setPlayState(state) {
+        this.recordProgress();
         if (state === true) {
           this.videoPlayer.$('.videotoggle').classList.add('videopaused');
           this.videoPlayer.$('.videoreplay').classList.add('display');
           this.videoPlayer.$('.videoforward').classList.add('display');
+          this.$emit('startTracking');
         } else {
           this.videoPlayer.$('.videotoggle').classList.remove('videopaused');
           this.videoPlayer.$('.videoreplay').classList.remove('display');
           this.videoPlayer.$('.videoforward').classList.remove('display');
+          this.$emit('stopTracking');
         }
       },
 
@@ -90,25 +99,57 @@
       },
 
       resizeVideo() {
-        const currentHeight = this.$els.videowrapper.clientHeight;
-        const currentWidth = this.$els.videowrapper.clientWidth;
-        const calcWidth = this.aspectRatio * currentHeight;
-        if (currentWidth < calcWidth) {
-          this.videoPlayer.height(currentWidth / this.aspectRatio);
-          this.videoPlayer.width(currentWidth);
+        const wrapperWrapperWidth = this.$els.videowrapperwrapper.clientWidth;
+        const wrapperWrapperHeight = this.$els.videowrapperwrapper.clientHeight;
+
+        const neededHeightGivenWidth = wrapperWrapperWidth * (1 / this.aspectRatio);
+        const neededWidthGivenHeight = wrapperWrapperHeight * this.aspectRatio;
+
+        let newWidth = 0;
+        let newHeight = 0;
+
+        if (neededHeightGivenWidth <= wrapperWrapperHeight) {
+          newWidth = wrapperWrapperWidth;
+          newHeight = neededHeightGivenWidth;
         } else {
-          this.videoPlayer.width(calcWidth);
-          this.videoPlayer.height(currentHeight);
+          newWidth = neededWidthGivenHeight;
+          newHeight = wrapperWrapperHeight;
         }
+
+        this.$els.videowrapper.setAttribute('style', `width:${newWidth}px;height:${newHeight}px`);
       },
 
-      debouncedResizeVideo() {
-        debounce(this.resizeVideo, 300);
+      get debouncedResizeVideo() {
+        return debounce(this.resizeVideo, 300);
+      },
+
+      updateTime() {
+        this.dummyTime = this.videoPlayer.currentTime();
+        if (this.dummyTime - this.lastUpdateTime >= 5) {
+          this.recordProgress();
+          this.lastUpdateTime = this.dummyTime;
+        }
+      },
+      /* Catches when a user jumps around/skips while playing the video */
+      handleSeek() {
+        /* Record any progress up to this point */
+        this.recordProgress();
+        /* Set last check to be where player is at now */
+        this.dummyTime = this.videoPlayer.currentTime();
+        this.lastUpdateTime = this.dummyTime;
+      },
+
+      recordProgress() {
+        this.$emit('progressUpdate', Math.max(0,
+          (this.dummyTime - this.progressStartingPoint) /
+          Math.floor(this.videoPlayer.duration())));
+        this.progressStartingPoint = this.videoPlayer.currentTime();
       },
     },
 
     ready() {
       this.videoPlayer = videojs(this.$els.video, {
+        fluid: true,
         inactivityTimeout: 1000,
         controls: true,
         autoplay: false,
@@ -176,6 +217,8 @@
       global.addEventListener('resize', this.debouncedResizeVideo);
     },
     beforeDestroy() {
+      this.recordProgress();
+      this.$emit('stopTracking');
       global.removeEventListener('resize', this.debouncedResizeVideo);
     },
   };
@@ -212,8 +255,18 @@
 
    // Custom style
   .videowrapper
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
     position: relative
     height: 100%
+    background-color: #000
+
+  .videowrapperwrapper
+    width: 100%
+    height: 100%
+    background-color: rgba(0, 0, 0, 0)
+    position: relative
 
   .video-js .vjs-menu
     font-family: 'NotoSans', 'sans-serif'
