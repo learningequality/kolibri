@@ -1,11 +1,11 @@
 <template>
 
   <div class="user-edit-modal">
-    <modal btntext="Edit">
+    <modal v-ref:modal btntext="Edit">
 
       <h1 slot="header" class="header">Edit Account Info</h1>
 
-      <div slot="body">
+      <div v-if="!usr_delete && !pw_reset" slot="body">
 
         <div class="user-field">
           <label for="username">Full Name</label>:
@@ -25,19 +25,35 @@
           </select>
         </div>
 
+      </div>
+
+      <div v-if="pw_reset" slot="body">
         <div class="user-field">
           <label for="password"> Reset Password</label>:
-          <input type="password" class="edit-form" id="password" required v-model="password_new" placeholder="Please type in your password.">
+          <input type="password" class="edit-form" id="password" required v-model="password_new">
         </div>
 
         <div class="user-field">
-          <button class="delete-btn" type="button" @click="clearUser">Delete Account</button>
+          <label for="password-confirm"> Confirm Reset Pasword</label>:
+          <input type="password" class="edit-form" id="password-confirm" required v-model="password_new_confirm">
         </div>
+      </div>
 
+      <div v-if="usr_delete" slot="body">
+        <div class="user-field">
+          <h2> Are you sure you want to delete {{username_new}}? </h2>
+        </div>
       </div>
 
       <div slot="footer">
+        <button class="cancel-btn" type="button" @click="usr_delete=pw_reset=false">Cancel</button>
         <button class="confirm-btn" type="button" @click="editUser">Confirm</button>
+        <br>
+
+        <div class="advanced-options" v-if="!pw_reset && !usr_delete">
+          <p @click="pw_reset=!pw_reset"> Reset Password </p>
+          <p @click="usr_delete=!usr_delete"> Delete User</p>
+        </div>
       </div>
 
       <button class="no-border" slot="openbtn">
@@ -67,24 +83,29 @@
       return {
         username_new: this.username,
         password_new: '',
+        password_new_confirm: '',
         fullName_new: this.fullname,
         role_new: this.roles.length ? this.roles[0].kind : 'learner',
+        usr_delete: false,
+        pw_reset: false,
       };
     },
     methods: {
       editUser() {
-        const payload = {
-          username: this.username_new,
-          full_name: this.fullName_new,
-          facility: this.facility,
-        };
-        if (this.password_new) {
-          payload.password = this.password_new;
+        if (this.usr_delete) {
+          this.deleteUser(this.userid);
+        } else {
+          const payload = {
+            username: this.username_new,
+            full_name: this.fullName_new,
+            facility: this.facility,
+          };
+          if (this.password_new && this.password_new === this.password_new_confirm) {
+            payload.password = this.password_new;
+          }
+          this.updateUser(this.userid, payload, this.role_new);
+          this.$refs.modal.closeModal();
         }
-        this.updateUser(this.userid, payload, this.role_new);
-      },
-      clearUser() {
-        this.deleteUser(this.userid);
       },
     },
     vuex: {
@@ -165,6 +186,9 @@
 
   .manage-edit
     fill: $core-action-normal
+    cursor: pointer
+
+  .advanced-options
     cursor: pointer
 
 </style>
