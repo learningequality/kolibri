@@ -65,14 +65,14 @@
     background: $core-bg-light
     border-radius: $radius
     @media screen and (max-width: 619px)
-    //hardcode media query , potential to revist
+      // hardcode media query , potential to revist
       width: 90%
       margin: 0 auto
       padding: 1em 0.2em
 
   .links
     @media screen and (max-width: 619px)
-    //hardcode media query , potential to revist
+      // hardcode media query , potential to revist
       text-align: center
 
   .top a
@@ -80,7 +80,7 @@
     text-decoration: none
     color: $core-text-annotation
     @media screen and (max-width: 619px)
-     //hardcode media query , potential to revist
+      // hardcode media query , potential to revist
       padding: 0.6em 1em
 
   .top .active
