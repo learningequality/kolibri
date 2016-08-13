@@ -26,8 +26,12 @@
         </div>
 
         <div class="user-field">
-          <label for="password">Password</label>:
+          <label for="password"> Reset Password</label>:
           <input type="password" class="edit-form" id="password" required v-model="password_new" placeholder="Please type in your password.">
+        </div>
+
+        <div class="user-field">
+          <button class="delete-btn" type="button" @click="clearUser">Delete Account</button>
         </div>
 
       </div>
@@ -79,6 +83,9 @@
         }
         this.updateUser(this.userid, payload, this.role_new);
       },
+      clearUser() {
+        this.deleteUser(this.userid);
+      },
     },
     vuex: {
       getters: {
@@ -86,6 +93,7 @@
       },
       actions: {
         updateUser: actions.updateUser,
+        deleteUser: actions.deleteUser,
       },
     },
   };
@@ -105,6 +113,9 @@
 
   .confirm-btn
     float: right
+
+  .delete-btn
+    width: 100%
 
   .open-btn
     background-color: $core-bg-light
