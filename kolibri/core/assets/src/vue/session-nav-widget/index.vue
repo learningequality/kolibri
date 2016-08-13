@@ -101,7 +101,7 @@
         togglemodal: actions.togglemodal,
       },
       getters: {
-        loggedIn: state => state.core.session.kind !== UserKinds.ANONYMOUS,
+        loggedIn: state => state.core.session.kind[0] !== UserKinds.ANONYMOUS,
         deviceOwner: state => state.core.session.kind[0] === UserKinds.SUPERUSER,
         fullname: state => state.core.session.full_name,
         username: state => state.core.session.username,
@@ -145,7 +145,7 @@
   #dropdown
     position: absolute
     z-index: 1
-    
+
   #dropdown-backdrop
     position: fixed
     top: 0
@@ -171,7 +171,7 @@
     background: $core-bg-light
     text-align: left
     z-index: -1
-    
+
   .dropdown-list
     list-style: none
     padding: 0
@@ -233,7 +233,7 @@
     height: $size-sm
     width: $size-sm
     line-height: $size-sm - 2 * $border // vertically center
-    
+
   // Portrait mode for user dropdown (or drop-up in this case)
   @media screen and (max-width: $portrait-breakpoint)
     .dropdown-list:before
@@ -255,7 +255,7 @@
 
     #dropdown
       right: 0
-      
+
     .dropdown-name
       font-size: 16px
 
