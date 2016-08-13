@@ -138,9 +138,11 @@ function togglemodal(store, bool) {
 function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
   const ContentSessionLogResource = Kolibri.resources.ContentSessionLogResource;
   const ContentSummaryLogResource = Kolibri.resources.ContentSummaryLogResource;
+  const UserKinds = require('core-constants').UserKinds;
 
   /* Create summary log iff user exists */
-  if (store.state.core.session.user_id) {
+  if (store.state.core.session.user_id &&
+    store.state.core.session.kind[0] !== UserKinds.SUPERUSER) {
      /* Fetch collection matching content and user */
     const summaryCollection = ContentSummaryLogResource.getCollection({
       content_id: contentId,
