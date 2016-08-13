@@ -62,8 +62,8 @@
   .text
     display: block
     display: -webkit-box
-    -webkit-line-clamp: 3
-    -webkit-box-orient: vertical
+    -webkit-line-clamp: 3 // Enhance Chrome, doesn't work on other browsers
+    -webkit-box-orient: vertical // Enhance Chrome, doesn't work on other browsers
     width: 100%
     max-height: 68px
     padding: 0.6em
@@ -77,6 +77,6 @@
       float: right
       max-height: 86px
       width: $horizontal-card-width - $thumb-width
-      -webkit-line-clamp: 4
+      -webkit-line-clamp: 4 // Enhance Chrome, doesn't work on other browsers
 
 </style>
