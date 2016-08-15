@@ -42,16 +42,6 @@
       youAreHere: 'You are here:',
       current: 'Current:',
     },
-    props: {
-      rootid: {
-        type: String,
-        required: true,
-      },
-      crumbs: {
-        type: Array,
-        required: true,
-      },
-    },
     components: {
       breadcrumb: require('./breadcrumb'),
     },
