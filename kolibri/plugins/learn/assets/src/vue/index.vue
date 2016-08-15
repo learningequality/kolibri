@@ -90,11 +90,8 @@
     left: 0
     height: 100%
     width: 100%
-    padding-left: $left-margin
+    padding-left: 74px
     @media screen and (max-width: $portrait-breakpoint)
-      padding-left: 0
-      margin-left: $card-gutter
-
       padding: 0
       padding-right: 15px
 

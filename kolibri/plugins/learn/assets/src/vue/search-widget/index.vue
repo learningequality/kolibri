@@ -130,30 +130,27 @@
   @require '~core-theme.styl'
   @require '../learn.styl'
 
-  $top-offset = 120px
+  $top-offset = 60px
 
   .wrapper
     margin: auto
     width-auto-adjust()
 
-  .results
-    padding-top: $top-offset
-    @media screen and (max-width: $portrait-breakpoint)
-      margin-left: $card-gutter
-
   .top
     background-color: $core-bg-canvas
-    height: $top-offset
-    padding-top: 4rem
+    height: 42px
+    padding-top: 0.5em
     z-index: 10000
     text-align: center
     position: fixed
     top: 0
     width-auto-adjust()
     @media screen and (max-width: $portrait-breakpoint)
-      text-align: left
-      padding-right: 10px
-  .input-wrapper
+      padding: 0.5em 0
+      text-align: center
+      width: 100%
+      right: 15px
+
   .top-wrapper
     position: relative
     display: block
@@ -163,25 +160,30 @@
     @media screen and (max-width: $portrait-breakpoint)
       left: 15px
 
+  .input-wrapper
+      float: left
+      width: 74%
     @media screen and (max-width: $portrait-breakpoint)
-      padding-left: 3.4em
+      padding-right: 6.4em
+      padding-left: 2em
 
   input
-    display: inline-block
-    border: 1px solid #ccc
-    box-shadow: inset 0 1px 3px #ddd
-    border-radius: 2em
-    padding: 0.5em 1em
+    height: 26px
+    border: 1px solid $core-text-annotation
+    border-radius: 4px
+    padding: 0.3em 1em
     vertical-align: middle
     box-sizing: border-box
-    width: 75%
+    width: 100%
+    font-size: 0.9em
+    left: -40px
     &:focus
-      outline: none
-      border-color: $core-text-annotation
-
-    // prevent IE10 from showing a duplicated 'x'  clear icon
-    &::-ms-clear
-      display: none
+      margin: 0 auto
+    @media screen and (max-width: $portrait-breakpoint)
+      position: relative
+      display: block
+      width: 100%
+      left: 0
 
   .reset
     border: none
@@ -190,22 +192,39 @@
     outline: none
     cursor: pointer
     position: relative
-    top: 1px
+    top: 0
     right: 40px
-    padding: 4px
+    padding: 0 4px
+    height: 22px
     svg
       fill: $core-text-annotation
       height: 15px
       width: 15px
+    @media screen and (max-width: $portrait-breakpoint)
+      background-color: transparent
+      top: -28px
+      left: 44%
+
   .search-btn
-    background: url('search.svg') no-repeat center
-    position: absolute
-    top: 0.1rem
-    right: 2.3rem
+    float: left
+    top: 0.5rem
+    height: 26px
+    width: 60px
+    margin-left: 10px
+    padding: 0.2em 0.7em
+    border-radius: 4px
+    font-size: 0.8em
+    background-color: $core-text-annotation
+    color: $core-bg-light
     z-index: 10001
     @media screen and (max-width: $portrait-breakpoint)
-      background: url('back.svg') no-repeat center
-      left: 1.3em
-      top: 0.3em
+      width: 62px
+      top: 0.7em
+
+  .results
+    padding-top: $top-offset
+    @media screen and (max-width: $portrait-breakpoint)
+      padding-top: 3em
+      margin: 0 1em
 
 </style>

@@ -147,7 +147,7 @@
     bottom: 22px
     position: relative
     @media screen and (max-width: $portrait-breakpoint)
-      left: 24px
+      left: 0.7em
 
   .toggle-menu-on
     position: fixed
@@ -163,6 +163,8 @@
     color: $core-text-annotation
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25)
     z-index: 2
+    @media screen and (max-width: $portrait-breakpoint)
+      right: 15px
 
   .toggle-menu-on::before
     content: ''
@@ -224,9 +226,10 @@
     position: absolute
     top: 0.1rem
     right: 1.2rem
+    margin-right: 1em
     z-index: 1
     @media screen and (max-width: $portrait-breakpoint)
-      right: 3rem
+      right: 2rem
 
   .more
     display: none
