@@ -51,13 +51,18 @@
       <div slot="footer">
         <p class="error" v-if="error_message"> {{error_message}} </p>
         <button class="cancel-btn" type="button" @click="cancel">
-          <template v-if="pw_reset || usr_delete"> Back </template>
-          <template v-else> Cancel </template>
+          <!-- For reset option -->
+          <template v-if="pw_reset"> Back </template>
+          <!-- For delete option -->
+          <template v-if="usr_delete"> No </template>
+          <!-- For main window -->
+          <template v-if="!pw_reset && !usr_delete"> Cancel </template>
         </button>
 
         <button class="confirm-btn" type="button" @click="editUser">
-          <template v-if="pw_reset || usr_delete"> Save </template>
-          <template v-else> Confirm </template>
+          <template v-if="pw_reset"> Save </template>
+          <template v-if="usr_delete"> Yes </template>
+          <template v-if="!pw_reset && !usr_delete"> Confirm </template>
         </button>
         <br>
 
