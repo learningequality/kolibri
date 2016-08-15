@@ -88,6 +88,20 @@ module.exports = function CoreApp() {
       }
       return this.$formatMessage(message, ...args);
     };
+    vue.prototype.$trHtml = function $trHtml(messageId, ...args) {
+      const defaultMessageText = this.$options.$trs[messageId];
+      const message = {
+        id: `${this.$options.$trNameSpace}.${messageId}`,
+        defaultMessage: defaultMessageText,
+      };
+      // Allow string reversal in debug mode.
+      if (process.env.NODE_ENV === 'debug') {
+        if (self.i18n.reversed) {
+          return defaultMessageText.split('').reverse().join('');
+        }
+      }
+      return this.$formatHTMLMessage(message, ...args);
+    };
     mediator.setReady();
   }
 
