@@ -50,6 +50,7 @@
 
       <div slot="footer">
         <p class="error" v-if="error_message"> {{error_message}} </p>
+        <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
         <button class="cancel-btn" type="button" @click="cancel">
           <!-- For reset option -->
           <template v-if="pw_reset"> Back </template>
@@ -105,10 +106,12 @@
         usr_delete: false,
         pw_reset: false,
         error_message: '',
+        confirmation_message: '',
       };
     },
     methods: {
       editUser() {
+        let updatable = true;
         // delete the user if that's the option selected
         if (this.usr_delete) {
           this.deleteUser(this.userid);
@@ -124,19 +127,17 @@
             // make sure passwords match
             if (this.password_new === this.password_new_confirm) {
               payload.password = this.password_new;
-              this.clearErrorMessage();
+              this.confirmation_message = 'Password change successful.';
             } else {
-              this.error_message = 'Passwords must match';
+              updatable = false;
+              this.error_message = 'Passwords must match.';
             }
           }
 
-          // save user changes
-          this.updateUser(this.userid, payload, this.role_new);
-          // do not close if in either of the advanced options
-          if (!(this.usr_delete || this.pw_reset)) {
-            this.$refs.modal.closeModal();
+          if (updatable) {
+            // save user changes
+            this.updateUser(this.userid, payload, this.role_new);
           }
-          this.clearErrorMessage();
         }
       },
       cancel() {
@@ -147,9 +148,13 @@
         }
 
         this.clearErrorMessage();
+        this.clearConfirmationMessage();
       },
       clearErrorMessage() {
         this.error_message = '';
+      },
+      clearConfirmationMessage() {
+        this.confirmation_message = '';
       },
     },
     vuex: {
@@ -249,5 +254,7 @@
 
   .error
     color: red
+  .confirm
+    color: green
 
 </style>
