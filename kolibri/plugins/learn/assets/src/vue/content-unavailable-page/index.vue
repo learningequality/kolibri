@@ -11,10 +11,21 @@
 
 <script>
 
+  const UserKinds = require('core-constants').UserKinds;
+
   module.exports = {
+
+    computed: {
+      isAdminOrSuperuser() {
+        if (this.kind[0] === UserKinds.SUPERUSER || this.kind[0] === UserKinds.ADMIN) {
+          return true;
+        }
+        return false;
+      },
+    },
     vuex: {
       getters: {
-        isAdminOrSuperuser: state => state.core.is_admin_or_superuser,
+        kind: state => state.core.session.kind,
       },
     },
 };

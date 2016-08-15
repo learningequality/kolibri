@@ -67,14 +67,15 @@
     padding-right: $right-margin
     padding-bottom: 50px
     z-index: -2
+    @media (max-width: 620px)
+      padding-left: 69px
+      padding-right: 0
     @media screen and (max-width: $portrait-breakpoint)
-      padding-left: $card-gutter * 2
-      padding-right: $card-gutter
+      padding: 0
       padding-bottom: 100px
 
   .page-content
     margin: auto
-    padding-right: $card-gutter // visible right-margin in line with grid
     width-auto-adjust()
 
 </style>

@@ -1,4 +1,4 @@
-from uuid import UUID
+import uuid
 
 
 def is_valid_uuid(uuid_to_test, version=None):
@@ -11,9 +11,9 @@ def is_valid_uuid(uuid_to_test, version=None):
     """
     try:
         if version:
-            uuid_obj = UUID(uuid_to_test, version=version)
+            uuid_obj = uuid.UUID(uuid_to_test, version=version)
         else:
-            uuid_obj = UUID(uuid_to_test)
+            uuid_obj = uuid.UUID(uuid_to_test)
     except (ValueError, AttributeError, TypeError):
         return False
 

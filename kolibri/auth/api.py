@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.auth.models import AnonymousUser
 from rest_framework import filters, permissions, status, viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from .models import Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership, Role
@@ -68,6 +69,12 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter,)
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
+
+    def create(self, request, *args, **kwargs):
+        try:
+            return super(viewsets.ModelViewSet, self).create(request, *args, **kwargs)
+        except ValidationError:
+            return Response("An account with that username already exists.", status=status.HTTP_409_CONFLICT)
 
 
 class DeviceOwnerViewSet(viewsets.ModelViewSet):
@@ -151,13 +158,13 @@ class SessionViewSet(viewsets.ViewSet):
     def get_session(self, request):
         user = get_user(request)
         if isinstance(user, AnonymousUser):
-            return {'id': None, 'username': '', 'full_name': '', 'user_id': None, 'facility_id': None, 'kind': 'ANONYMOUS', 'error': '200'}
+            return {'id': None, 'username': '', 'full_name': '', 'user_id': None, 'facility_id': None, 'kind': ['ANONYMOUS'], 'error': '200'}
 
         session = {'id': 'current', 'username': user.username,
                    'full_name': user.full_name,
                    'user_id': user.id}
         if isinstance(user, DeviceOwner):
-            session.update({'facility_id': None, 'kind': 'SUPERUSER', 'error': '200'})
+            session.update({'facility_id': None, 'kind': ['SUPERUSER'], 'error': '200'})
             return session
         else:
             roles = Role.objects.filter(user_id=user.id)
@@ -169,5 +176,5 @@ class SessionViewSet(viewsets.ViewSet):
                     else:
                         session['kind'].append('COACH')
             else:
-                session.update({'facility_id': user.facility_id, 'kind': 'LEARNER', 'error': '200'})
+                session.update({'facility_id': user.facility_id, 'kind': ['LEARNER'], 'error': '200'})
             return session
