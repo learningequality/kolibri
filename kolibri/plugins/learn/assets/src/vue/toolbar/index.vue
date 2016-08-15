@@ -127,7 +127,7 @@
 
   .toolbar-show
     position: fixed
-    left: -20px
+    left: -15px
     top: 0
     width: 100%
     height: 42px
@@ -137,7 +137,7 @@
 
   .toolbar-hide
     position: fixed
-    left: -20px
+    left: -15px
     top: -40px
 
   .breadcrumbs
