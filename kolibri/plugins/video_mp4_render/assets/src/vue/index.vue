@@ -3,7 +3,7 @@
   <div>
     <div v-el:videowrapperwrapper class="videowrapperwrapper">
       <div v-el:videowrapper class="videowrapper">
-        <video v-el:video class="video-js vjs-default-skin">
+        <video v-el:video class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
           <template v-for="video in videoSources">
             <source :src="video.storage_url" :type='"video/" + video.extension'>
           </template>
@@ -13,6 +13,7 @@
         </video>
       </div>
     </div>
+
   </div>
 
 </template>
@@ -32,6 +33,9 @@
     data: () => ({
       videoWidth: 0,
       videoHeight: 0,
+      dummyTime: 0,
+      progressStartingPoint: 0,
+      lastUpdateTime: 0,
     }),
 
     computed: {
@@ -74,14 +78,17 @@
       },
 
       setPlayState(state) {
+        this.recordProgress();
         if (state === true) {
           this.videoPlayer.$('.videotoggle').classList.add('videopaused');
           this.videoPlayer.$('.videoreplay').classList.add('display');
           this.videoPlayer.$('.videoforward').classList.add('display');
+          this.$emit('startTracking');
         } else {
           this.videoPlayer.$('.videotoggle').classList.remove('videopaused');
           this.videoPlayer.$('.videoreplay').classList.remove('display');
           this.videoPlayer.$('.videoforward').classList.remove('display');
+          this.$emit('stopTracking');
         }
       },
 
@@ -114,6 +121,29 @@
 
       get debouncedResizeVideo() {
         return debounce(this.resizeVideo, 300);
+      },
+
+      updateTime() {
+        this.dummyTime = this.videoPlayer.currentTime();
+        if (this.dummyTime - this.lastUpdateTime >= 5) {
+          this.recordProgress();
+          this.lastUpdateTime = this.dummyTime;
+        }
+      },
+      /* Catches when a user jumps around/skips while playing the video */
+      handleSeek() {
+        /* Record any progress up to this point */
+        this.recordProgress();
+        /* Set last check to be where player is at now */
+        this.dummyTime = this.videoPlayer.currentTime();
+        this.lastUpdateTime = this.dummyTime;
+      },
+
+      recordProgress() {
+        this.$emit('progressUpdate', Math.max(0,
+          (this.dummyTime - this.progressStartingPoint) /
+          Math.floor(this.videoPlayer.duration())));
+        this.progressStartingPoint = this.videoPlayer.currentTime();
       },
     },
 
@@ -187,6 +217,8 @@
       global.addEventListener('resize', this.debouncedResizeVideo);
     },
     beforeDestroy() {
+      this.recordProgress();
+      this.$emit('stopTracking');
       global.removeEventListener('resize', this.debouncedResizeVideo);
     },
   };

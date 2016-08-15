@@ -32,8 +32,15 @@ function _topicState(data) {
   return state;
 }
 
-
 function _contentState(data) {
+  let progress;
+  if (!data.progress_fraction) {
+    progress = 'unstarted';
+  } else if (data.progress_fraction < 1) {
+    progress = 'partial';
+  } else {
+    progress = 'complete';
+  }
   const state = {
     id: data.pk,
     title: data.title,
@@ -42,7 +49,8 @@ function _contentState(data) {
     thumbnail: data.thumbnail,
     available: data.available,
     files: data.files,
-    progress: data.progress ? data.progress : 'unstarted',
+    progress,
+    content_id: data.content_id,
     breadcrumbs: _crumbState(data.ancestors),
   };
   return state;
@@ -113,6 +121,7 @@ function redirectToExploreChannel(store) {
     });
 }
 
+
 function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
@@ -138,9 +147,13 @@ function redirectToLearnChannel(store) {
     });
 }
 
-function showExploreTopic(store, channelId, id) {
+function showExploreTopic(store, channelId, id, isChannelRoot = false) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+  if (isChannelRoot) {
+    store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+  } else {
+    store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_TOPIC);
+  }
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
   cookiejs.set('currentChannel', channelId);
 
@@ -199,7 +212,6 @@ function showLearnChannel(store, channelId) {
 
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations: '' }).fetch();
   const channelPromise = ChannelResource.getCollection({}).fetch();
-
   Promise.all([recommendedPromise, channelPromise])
     .then(([recommendations, channelList]) => {
       const pageState = { recommendations: recommendations.map(_contentState) };

@@ -12,6 +12,7 @@ var logging = require('./logging');
 var webpack = require('webpack');
 var base_config = require('./webpack.config.base');
 var _ = require('lodash');
+var extract$trs = require('./extract_$trs');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle configuration for webpack.
@@ -72,7 +73,8 @@ var parseBundlePlugin = function(data, base_dir) {
       __kolibriModuleName: JSON.stringify(data.name),
       __events: JSON.stringify(data.events || {}),
       __once: JSON.stringify(data.once || {})
-    })
+    }),
+    new extract$trs(path.relative(base_dir, path.dirname(data.stats_file)), data.name)
   ]);
 
   bundle.core_name = data.core_name;

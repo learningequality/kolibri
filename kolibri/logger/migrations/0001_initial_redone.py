@@ -7,7 +7,6 @@ import django.db.models.deletion
 import kolibri.content.models
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
 
     initial = True

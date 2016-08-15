@@ -22,7 +22,7 @@ class LearnModule extends KolibriModule {
       '/explore/:channel_id',
       (toRoute, fromRoute) => {
         // TODO: Get Root Topic ID from channel List
-        actions.showExploreTopic(store, toRoute.params.channel_id, store.state.rootTopicId);
+        actions.showExploreTopic(store, toRoute.params.channel_id, store.state.rootTopicId, true);
       }
     );
 
@@ -88,6 +88,8 @@ class LearnModule extends KolibriModule {
 
     router.start(rootvue, 'rootvue');
     kolibri.coreActions.currentLoggedInUser(store, kolibri);
+    // Wrap this to preserve 'this-ness' inside the router.
+    kolibri.on('refresh', () => router.refresh());
   }
 }
 

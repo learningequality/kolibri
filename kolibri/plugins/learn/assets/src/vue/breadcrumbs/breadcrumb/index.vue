@@ -1,9 +1,9 @@
 <template>
 
-  <a v-link=breadlink>
+  <a v-link="linkobject">
     <span class='back'>
-      <svg v-if=showarrow role="presentation" src="../../icons/back.svg"></svg>
-      {{ breadtext }}
+      <svg v-if="showarrow" role="presentation" src="../../icons/back.svg"></svg>
+      {{ text }}
     </span>
   </a>
 
@@ -18,11 +18,14 @@
         type: Boolean,
         default: true,
       },
-      breadtext: {
+      text: {
         type: String,
         default: 'back',
       },
-      breadlink: {},
+      linkobject: {
+        type: Object,
+        required: true,
+      },
     },
   };
 

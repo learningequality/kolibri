@@ -2,25 +2,26 @@
 
   <div>
     <nav class="nav" role="navigation" aria-label="You are here:">
-      <span class="learn-bread" v-if="pageName === allPageNames.LEARN_CONTENT">
-        <first-bread :breadlink="learnRoot" breadtext="Learn"></first-bread>
+      <span class="learn-bread" v-if="pageName === PageNames.LEARN_CONTENT">
+        <breadcrumb :linkobject="learnRootLink" text="Learn"></breadcrumb>
       </span>
 
-      <span class="explore-bread" v-if="!isRoot && pageName === allPageNames.EXPLORE_CHANNEL">
-        <first-bread :showarrow='false' :breadlink="exploreRoot" breadtext="Explore"></first-bread>
+      <template v-if="pageName === PageNames.EXPLORE_TOPIC">
+        <span class="landscape">
+          <breadcrumb :showarrow='false' :linkobject="exploreRootLink" text="Explore"></breadcrumb>
+        </span>
+        <span class="portrait">
+          <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
+        </span>
+        <span class="middle-breadcrumb landscape" v-for="crumb in topicCrumbs">
+          <a v-link="topicLink(crumb.id)">{{ crumb.title }}</a>
+        </span>
+      </template>
+
+      <span v-if="pageName === PageNames.EXPLORE_CONTENT">
+        <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
       </span>
 
-      <span class="portrait-only" v-if="!isRoot && pageName === allPageNames.EXPLORE_CHANNEL">
-        <first-bread :breadlink="portraitOnlyParentLink"></first-bread>
-      </span>
-
-      <span v-if="pageName === allPageNames.EXPLORE_CONTENT">
-        <first-bread :breadlink="parentLink"></first-bread>
-      </span>
-
-      <span class="middle-bread explore-bread" v-if="pageMode === allPageModes.EXPLORE" v-for="crumb in crumbs">
-        <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a>
-      </span>
     </nav>
   </div>
 
@@ -35,63 +36,58 @@
 
   module.exports = {
     components: {
-      'first-bread': require('./first-bread'),
+      breadcrumb: require('./breadcrumb'),
     },
     computed: {
-      allPageModes() {
+      PageModes() {
         return PageModes;
       },
-      allPageNames() {
+      PageNames() {
         return PageNames;
       },
-      learnRoot() {
-        return { name: PageNames.LEARN_ROOT };
-      },
-      exploreRoot() {
-        return { name: PageNames.EXPLORE_ROOT };
-      },
-      parentLink() {
-        let bread;
-        let id;
-        if (this.pageState.content) {
-          bread = this.pageState.content.breadcrumbs;
-          id = bread[bread.length - 1].id;
-        }
+      learnRootLink() {
         return {
-          name: PageNames.EXPLORE_TOPIC,
-          params: { id },
+          name: PageNames.LEARN_CHANNEL,
+          channel: this.currentChannel,
         };
       },
-      portraitOnlyParentLink() {
-        if (this.pageState.topic) {
-          const bread = this.pageState.topic.breadcrumbs;
-          if (bread[bread.length - 1]) {
-            const id = bread[bread.length - 1].id;
-            return {
-              name: PageNames.EXPLORE_TOPIC,
-              params: { id },
-            };
-          }
+      exploreRootLink() {
+        return {
+          name: PageNames.EXPLORE_CHANNEL,
+          channel: this.currentChannel,
+        };
+      },
+      parentExploreLink() {
+        let breadcrumbs = [];
+        if (this.pageName === PageNames.EXPLORE_CONTENT) {
+          breadcrumbs = this.pageState.content.breadcrumbs;
+        } else if (this.pageName === PageNames.EXPLORE_TOPIC) {
+          breadcrumbs = this.pageState.topic.breadcrumbs;
         }
-        return { name: PageNames.EXPLORE_ROOT };
+        if (breadcrumbs.length) {
+          return this.topicLink(breadcrumbs[breadcrumbs.length - 1].id);
+        }
+        return this.exploreRootLink;
       },
     },
     methods: {
-      crumbLink(id) {
+      topicLink(topicId) {
         return {
           name: PageNames.EXPLORE_TOPIC,
-          params: { id },
+          params: {
+            channel: this.currentChannel,
+            id: topicId,
+          },
         };
       },
     },
     vuex: {
       getters: {
         pageMode: getters.pageMode,
-        crumbs: state => (state.pageState.topic ? state.pageState.topic.breadcrumbs : null),
-        isRoot: state => (state.pageState.topic ?
-          state.pageState.topic.id === state.rootTopicId : false),
+        topicCrumbs: state => state.pageState.topic.breadcrumbs,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
+        currentChannel: state => state.currentChannel,
       },
     },
   };
@@ -108,7 +104,7 @@
     margin-top: 2em
     margin-bottom:1.4em
 
-  .middle-bread:before
+  .middle-breadcrumb:before
     content: '>'
     margin-left: 0.5em
     margin-right: 0.5em
@@ -126,11 +122,11 @@
     text-overflow: ellipsis
     color: $core-text-annotation
 
-  .explore-bread
+  .landscape
     @media screen and (max-width: $portrait-breakpoint)
       display: none
 
-  .portrait-only
+  .portrait
     display: none
     @media screen and (max-width: $portrait-breakpoint)
       display: initial

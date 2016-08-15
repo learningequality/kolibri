@@ -353,8 +353,7 @@ class Resource {
    * @param {Kolibri} kolibri - The current instantiated instance of the core app.
    */
   constructor(kolibri) {
-    this.models = {};
-    this.collections = {};
+    this.clearCache();
     this.kolibri = kolibri;
   }
 
@@ -450,6 +449,14 @@ class Resource {
     return model;
   }
 
+  /**
+   * Reset the cache for this Resource.
+   */
+  clearCache() {
+    this.models = {};
+    this.collections = {};
+  }
+
   removeModel(model) {
     delete this.models[model.id];
   }
@@ -532,6 +539,15 @@ class ResourceManager {
     this._resources[name] = new ResourceClass(this._kolibri);
     Object.defineProperty(this, className, { value: this._resources[name] });
     return this._resources[name];
+  }
+
+  /**
+   * Clear all caches for registered resources.
+   */
+  clearCaches() {
+    Object.keys(this._resources).forEach((key) => {
+      this._resources[key].clearCache();
+    });
   }
 
 }
