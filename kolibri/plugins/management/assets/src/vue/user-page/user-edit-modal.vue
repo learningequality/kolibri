@@ -151,5 +151,7 @@
   .manage-edit
     fill: $core-action-normal
     cursor: pointer
+    &:hover
+      fill: $core-action-dark
 
 </style>
