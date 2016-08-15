@@ -4,23 +4,23 @@
     <modal>
       <div class="title" aria-labelledby="loginModal" slot="header">
         <div class="login-brand-box">
-          <img src="./icons/kolibri-logo.svg" alt="Kolibri logo">
-          <p id="login-brand">Kolibri</p>
+          <img src="./icons/kolibri-logo.svg" :alt="kolibriLogo">
+          <p id="login-brand">{{ $tr('kolibri') }}</p>
         </div>
       </div>
       <div slot="body">
         <div v-if="wrongCreds">
-          <h1>Log In Error!</h1>
-          <span aria-live="polite">Incorrect username or password.<br>Please try again!</span>
+          <h1>{{ $tr('logInError') }}</h1>
+          <span aria-live="polite">{{ $tr('validationError') }}<br>{{ $tr('tryAgain') }}</span>
         </div>
-        <input type="text" class="login-form login-username" v-model="username_entered" placeholder="Username" v-on:keyup.enter="userLogin" aria-label="Username" v-el:usernamefield autofocus>
-        <input type="password" class="login-form login-password" v-model="password_entered" placeholder="Password" v-on:keyup.enter="userLogin" aria-label="Password">
-        <button class="login-button" @click="userLogin">Log in</button>
+        <input type="text" class="login-form login-username" v-model="username_entered" :placeholder="userName" v-on:keyup.enter="userLogin" :aria-label="userName" v-el:usernamefield autofocus>
+        <input type="password" class="login-form login-password" v-model="password_entered" :placeholder="password" v-on:keyup.enter="userLogin" :aria-label="password">
+        <button class="login-button" @click="userLogin">{{ $tr('logIn') }}</button>
       </div>
       <div slot="footer"></div>
       <div slot="openbtn" @click="clearForm">
         <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
-        <div class="label">Log In</div>
+        <div class="label">{{ $tr('logIn') }}</div>
       </div>
     </modal>
   </div>
@@ -33,6 +33,28 @@
   const actions = require('../../core-actions');
 
   module.exports = {
+    $trNameSpace: 'sessionWidget',
+    $trs: {
+      logIn: 'Log In',
+      kolibri: 'Kolibri',
+      kolibriLogo: 'Kolibri logo',
+      logInError: 'Log In Error!',
+      validationError: 'Incorrect username or password.',
+      tryAgain: 'Please try again!',
+      userName: 'Username',
+      password: 'Password',
+    },
+    computed: {
+      kolibriLogo() {
+        return this.$tr('kolibriLogo');
+      },
+      userName() {
+        return this.$tr('userName');
+      },
+      password() {
+        return this.$tr('password');
+      },
+    },
     components: {
       modal: require('../modal/index.vue'),
     },

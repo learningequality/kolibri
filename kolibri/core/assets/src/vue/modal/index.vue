@@ -7,21 +7,20 @@
         <div class="modal-container">
           <button @click="closeModalHack" class="close-btn">
             <svg src="./close.svg"></svg>
-            <span class="visuallyhidden">Close</span>
+            <span class="visuallyhidden">{{ $tr('close') }}</span>
           </button>
           <div class="modal-header">
             <slot name="header">
-              Kolibri
+              {{ $tr('kolibri') }}
             </slot>
           </div>
           <div class="modal-body">
             <slot name="body">
-              disappear in oblivion..
             </slot>
           </div>
           <div class="modal-footer">
             <slot name="footer">
-              <button @click="closeModalHack" class="close-btn">OK</button>
+              <button @click="closeModalHack" class="close-btn">{{ $tr('ok') }}</button>
             </slot>
           </div>
         </div>
@@ -43,6 +42,13 @@
   const actions = require('../../core-actions');
 
   module.exports = {
+
+    $trNameSpace: 'modalWidget',
+    $trs: {
+      close: 'Close',
+      ok: 'OK',
+      kolibri: 'Kolibri',
+    },
 
     methods: {
       closeModalHack() {

@@ -21,8 +21,8 @@
           <p id="dropdown-usertype">{{ userkind }}</p>
         </li>
         <li id="logout-tab">
-          <div tabindex="0" v-on:keyup.enter="userLogout" @click="userLogout" aria-label="Log out">
-            <span>Log out</span>
+          <div tabindex="0" v-on:keyup.enter="userLogout" @click="userLogout" :aria-label="logOutText">
+            <span>{{ $tr('logOut') }}</span>
           </div>
         </li>
       </ul>
@@ -38,6 +38,10 @@
   const actions = require('../../core-actions');
 
   module.exports = {
+    $trNameSpace: 'sessionWidget',
+    $trs: {
+      logOut: 'Log Out',
+    },
     components: {
       'nav-bar-item': require('nav-bar-item'),
       'login-modal': require('./login-modal.vue'),
@@ -66,6 +70,9 @@
           return '';
         }
         return this.kind;
+      },
+      logOutText() {
+        return this.$tr('logOut');
       },
     },
     methods: {
