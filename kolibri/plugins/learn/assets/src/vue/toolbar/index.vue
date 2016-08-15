@@ -134,11 +134,15 @@
     background: $core-bg-canvas
     z-index: 100
     transition: top 0.2s ease-in-out
+    @media screen and (max-width: $portrait-breakpoint)
+      left: 0
 
   .toolbar-hide
     position: fixed
     left: -15px
     top: -40px
+    @media screen and (max-width: $portrait-breakpoint)
+      left: 0
 
   .breadcrumbs
     left: 120px
