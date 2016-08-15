@@ -142,7 +142,7 @@
   @require '~core-theme.styl'
   @require '../learn.styl'
 
-  $top-offset = 70px
+  $top-offset = 120px
 
   .wrapper
     margin: auto
@@ -156,7 +156,7 @@
   .top
     background-color: $core-bg-canvas
     height: $top-offset
-    padding-top: 1rem
+    padding-top: 4rem
     z-index: 10000
     text-align: center
     position: fixed

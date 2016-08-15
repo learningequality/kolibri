@@ -2,16 +2,14 @@
 
   <div>
 
-    <page-header>
-      <breadcrumbs
-        v-if="pageMode === $options.PageModes.EXPLORE"
-        slot='extra-nav'
-        :rootid='rootTopicId'
-        :crumbs='breadcrumbs'>
-      </breadcrumbs>
-      <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_CHANNEL }">
-        <span id="little-arrow">←</span> {{ $tr('learn') }}
-      </a>
+    <page-header :title='title'>
+      <content-icon
+        slot='icon'
+        :ispageicon="true"
+        :size="25"
+        :kind="kind"
+        :progress="progress">
+      </content-icon>
     </page-header>
 
     <div class="content-container" v-show='!searchOpen'>
@@ -26,15 +24,9 @@
       </content-render>
     </div>
 
-    <page-header :title='title'>
-      <content-icon
-        slot='icon'
-        :ispageicon="true"
-        :size="25"
-        :kind="kind"
-        :progress="progress">
-      </content-icon>
-    </page-header>
+    <p class="page-description">
+      {{ description }}
+    </p>
 
     <download-button
       :kind="kind"
@@ -42,10 +34,6 @@
       :available="available"
       :title="title">
     </download-button>
-
-    <p class="page-description">
-      {{ description }}
-    </p>
 
     <expandable-content-grid class="recommendation-section"
       v-if="pageMode === $options.PageModes.LEARN"
@@ -66,7 +54,6 @@
   module.exports = {
     $trNameSpace: 'learnContent',
     $trs: {
-      learn: 'Learn',
       recommended: 'Recommended',
     },
     computed: {
@@ -76,7 +63,6 @@
     },
     mixins: [constants], // makes constants available in $options
     components: {
-      'breadcrumbs': require('../breadcrumbs'),
       'content-icon': require('../content-icon'),
       'page-header': require('../page-header'),
       'content-render': require('content-renderer'),
@@ -87,7 +73,6 @@
       getters: {
         // general state
         pageMode: getters.pageMode,
-        rootTopicId: state => state.rootTopicId,
 
         // TODO - remove hack
         // temporarily using this to address an IE10 bug where the PDF
@@ -105,7 +90,6 @@
         channelId: (state) => state.currentChannel,
         available: (state) => state.pageState.content.available,
         extraFields: (state) => state.pageState.content.extra_fields,
-        breadcrumbs: (state) => state.pageState.content.breadcrumbs,
 
         // only used on learn page
         recommended: (state) => state.pageState.recommended,
