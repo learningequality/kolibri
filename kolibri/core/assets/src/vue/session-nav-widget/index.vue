@@ -16,13 +16,13 @@
     <div class="user-dropdown">
       <ul class="dropdown-list">
         <li>
-          <h4 class="dropdown-name">{{ name }}</h4>
+          <p class="dropdown-name">{{ name }}</p>
           <p id="dropdown-username">{{ username }}</p>
           <p id="dropdown-usertype">{{ userkind }}</p>
         </li>
         <li id="logout-tab">
           <div tabindex="0" v-on:keyup.enter="userLogout" @click="userLogout" aria-label="Log out">
-            <span>Logout</span>
+            <span>Log out</span>
           </div>
         </li>
       </ul>
@@ -197,6 +197,7 @@
 
   .dropdown-name
     margin-top: 18px
+    font-weight: bold
     margin-bottom: 0 // html linting yelled at me for not being 'succinct' enough :(
 
   #dropdown-username
@@ -258,6 +259,7 @@
 
     .dropdown-name
       font-size: 16px
+      font-weight: bold
 
     #logout-tab
       div

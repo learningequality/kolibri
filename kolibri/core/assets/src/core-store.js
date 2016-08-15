@@ -7,7 +7,13 @@ const initialState = {
   core: {
     error: '',
     loading: true,
-    session: { kind: UserKinds.ANONYMOUS, error: '200' },
+    session: { id: undefined,
+               username: '',
+               full_name: '',
+               user_id: undefined,
+               facility_id: undefined,
+               kind: [UserKinds.ANONYMOUS],
+               error: '200' },
     login_modal_state: false,
     fullname: '',
     logging: {
@@ -27,7 +33,13 @@ const mutations = {
     state.core.session = value;
   },
   CORE_CLEAR_SESSION(state) {
-    state.core.session = { kind: UserKinds.ANONYMOUS, error: '200' };
+    state.core.session = { id: undefined,
+                           username: '',
+                           full_name: '',
+                           user_id: undefined,
+                           facility_id: undefined,
+                           kind: [UserKinds.ANONYMOUS],
+                           error: '200' };
   },
   CORE_SET_PAGE_LOADING(state, value) {
     state.core.loading = value;

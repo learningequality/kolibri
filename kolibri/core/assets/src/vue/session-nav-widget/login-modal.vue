@@ -9,10 +9,13 @@
         </div>
       </div>
       <div slot="body">
+        <div v-if="wrongCreds">
+          <h1>Log In Error!</h1>
+          <span aria-live="polite">Incorrect username or password.<br>Please try again!</span>
+        </div>
         <input type="text" class="login-form login-username" v-model="username_entered" placeholder="Username" v-on:keyup.enter="userLogin" aria-label="Username" v-el:usernamefield autofocus>
         <input type="password" class="login-form login-password" v-model="password_entered" placeholder="Password" v-on:keyup.enter="userLogin" aria-label="Password">
-        <button class="login-button" @click="userLogin">Login</button>
-        <div v-if="wrongCreds">Incorrect username or password.<br>Please try again!</div>
+        <button class="login-button" @click="userLogin">Log in</button>
       </div>
       <div slot="footer"></div>
       <div slot="openbtn" @click="clearForm">
