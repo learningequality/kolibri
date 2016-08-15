@@ -11,7 +11,10 @@
           <breadcrumb :showarrow='false' :linkobject="exploreRootLink" text="Explore"></breadcrumb>
         </span>
         <span class="portrait">
-          <breadcrumb :linkobject="portraitOnlyParentLink"></breadcrumb>
+          <breadcrumb :linkobject="parentLink"></breadcrumb>
+        </span>
+        <span class="middle-bread landscape" v-for="crumb in topicCrumbs">
+          <a v-link="topicLink(crumb.id)">{{ crumb.title }}</a>
         </span>
       </template>
 
@@ -19,9 +22,6 @@
         <breadcrumb :linkobject="parentLink"></breadcrumb>
       </span>
 
-      <span class="middle-bread explore-bread" v-if="pageMode === PageModes.EXPLORE" v-for="crumb in crumbs">
-        <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a>
-      </span>
     </nav>
   </div>
 
@@ -52,33 +52,20 @@
         return { name: PageNames.EXPLORE_ROOT };
       },
       parentLink() {
-        let bread;
-        let id;
-        if (this.pageState.content) {
-          bread = this.pageState.content.breadcrumbs;
-          id = bread[bread.length - 1].id;
+        let breadcrumbs = [];
+        if (this.pageName === PageNames.EXPLORE_CONTENT) {
+          breadcrumbs = this.pageState.content.breadcrumbs;
+        } else if (this.pageName === PageNames.EXPLORE_TOPIC) {
+          breadcrumbs = this.pageState.topic.breadcrumbs;
         }
-        return {
-          name: PageNames.EXPLORE_TOPIC,
-          params: { id },
-        };
-      },
-      portraitOnlyParentLink() {
-        if (this.pageState.topic) {
-          const bread = this.pageState.topic.breadcrumbs;
-          if (bread[bread.length - 1]) {
-            const id = bread[bread.length - 1].id;
-            return {
-              name: PageNames.EXPLORE_TOPIC,
-              params: { id },
-            };
-          }
+        if (breadcrumbs.length) {
+          return this.topicLink(breadcrumbs[breadcrumbs.length - 1].id);
         }
         return { name: PageNames.EXPLORE_ROOT };
       },
     },
     methods: {
-      crumbLink(id) {
+      topicLink(id) {
         return {
           name: PageNames.EXPLORE_TOPIC,
           params: { id },
@@ -88,7 +75,7 @@
     vuex: {
       getters: {
         pageMode: getters.pageMode,
-        crumbs: state => (state.pageState.topic ? state.pageState.topic.breadcrumbs : null),
+        topicCrumbs: state => state.pageState.topic.breadcrumbs,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
       },
