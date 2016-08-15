@@ -71,7 +71,7 @@
       padding-left: 69px
       padding-right: 0
     @media screen and (max-width: $portrait-breakpoint)
-      padding: 0
+      padding: 0 0.6em
       padding-bottom: 100px
 
   .page-content
