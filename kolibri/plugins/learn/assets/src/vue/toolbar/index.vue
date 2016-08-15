@@ -1,6 +1,6 @@
 <template>
 
-  <div v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" >
+  <div v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" v-show='!searchOpen' >
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
     <div :class="{ 'toggle-menu-on' : more }">
       <label for="chan-select" :class="[ more ? 'lable-on' : 'visuallyhidden' ]" >Switch Channels</label>
@@ -106,6 +106,7 @@
         pageName: state => state.pageName,
         currentChannel: state => state.currentChannel,
         channelList: state => state.channelList,
+        searchOpen: state => state.searchOpen,
       },
     },
   };
