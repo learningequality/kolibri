@@ -22,7 +22,7 @@ class LearnModule extends KolibriModule {
       '/explore/:channel_id',
       (toRoute, fromRoute) => {
         // TODO: Get Root Topic ID from channel List
-        actions.showExploreTopic(store, toRoute.params.channel_id, store.state.rootTopicId);
+        actions.showExploreTopic(store, toRoute.params.channel_id, store.state.rootTopicId, true);
       }
     );
 

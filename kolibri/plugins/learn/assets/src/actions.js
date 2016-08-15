@@ -147,9 +147,13 @@ function redirectToLearnChannel(store) {
     });
 }
 
-function showExploreTopic(store, channelId, id) {
+function showExploreTopic(store, channelId, id, isChannelRoot = false) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_TOPIC);
+  if (isChannelRoot) {
+    store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+  } else {
+    store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_TOPIC);
+  }
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
   cookiejs.set('currentChannel', channelId);
 
