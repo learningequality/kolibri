@@ -1,7 +1,7 @@
 <template>
 
   <button aria-label="Search" class='search-btn' :class="{ active: searchOpen }" @click='toggleSearch'>
-    <svg src="search.svg"></svg>
+    <slot></slot>
   </button>
 
 </template>
