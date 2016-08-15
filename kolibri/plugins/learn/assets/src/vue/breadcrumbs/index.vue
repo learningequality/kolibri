@@ -6,11 +6,11 @@
         <first-bread :breadlink="learnRoot" breadtext="Learn"></first-bread>
       </span>
 
-      <span class="explore-bread" v-if="!isRoot && pageName === allPageNames.EXPLORE_CHANNEL">
+      <span class="explore-bread" v-if="!isRoot && pageName === allPageNames.EXPLORE_TOPIC">
         <first-bread :showarrow='false' :breadlink="exploreRoot" breadtext="Explore"></first-bread>
       </span>
 
-      <span class="portrait-only" v-if="!isRoot && pageName === allPageNames.EXPLORE_CHANNEL">
+      <span class="portrait-only" v-if="!isRoot && pageName === allPageNames.EXPLORE_TOPIC">
         <first-bread :breadlink="portraitOnlyParentLink"></first-bread>
       </span>
 

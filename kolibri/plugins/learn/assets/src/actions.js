@@ -149,7 +149,7 @@ function redirectToLearnChannel(store) {
 
 function showExploreTopic(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_TOPIC);
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
   cookiejs.set('currentChannel', channelId);
 
