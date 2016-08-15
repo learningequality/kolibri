@@ -35,16 +35,14 @@
       </div>
 
       <div v-if="pw_reset" slot="body">
-        <p>
-          <b>Password reset for: {{username_new}}</b>
-        </p>
+        <p>Username: <b>{{username_new}}</b></p>
         <div class="user-field">
-          <label for="password"> Reset Password</label>:
+          <label for="password">Enter new password</label>:
           <input type="password" class="edit-form" id="password" required v-model="password_new">
         </div>
 
         <div class="user-field">
-          <label for="password-confirm"> Confirm Reset Pasword</label>:
+          <label for="password-confirm">Confirm new password</label>:
           <input type="password" class="edit-form" id="password-confirm" required v-model="password_new_confirm">
         </div>
       </div>
@@ -124,11 +122,14 @@
 
           // check to see if there's a new password
           if (this.password_new) {
+            console.log('New Password');
             // make sure passwords match
             if (this.password_new === this.password_new_confirm) {
+              console.log('Passwords Match');
               payload.password = this.password_new;
               this.clearErrorMessage();
             } else {
+              console.log('Passwords Match');
               this.error_message = 'Passwords must match';
             }
           }
@@ -211,6 +212,8 @@
       height: 40px
       font-weight: bold
       background-color: transparent
+    p
+      text-align: center
 
   .edit-form
     width: 200px
