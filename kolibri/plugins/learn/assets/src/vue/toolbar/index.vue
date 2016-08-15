@@ -15,7 +15,9 @@
         <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
       </select>
     </div>
-    <search-button @scrolling="handleScroll" class='search-btn'></search-button>
+    <search-button @scrolling="handleScroll" class='search-btn'>
+      <svg src="../search-widget/search.svg"></svg>
+    </search-button>
     <button class="more" @click="toggleMore" ><svg src="../icons/more-ver.svg"></svg></button>
   </div>
 
