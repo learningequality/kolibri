@@ -5,7 +5,7 @@
 
       <h1 slot="header" class="header">Edit Account Info</h1>
 
-      <div v-if="!usr_delete && !pw_reset" slot="body">
+      <div @keyup.enter="editUser" v-if="!usr_delete && !pw_reset" slot="body">
 
         <div class="user-field">
           <label for="username">Full Name</label>:
@@ -58,13 +58,18 @@
       <div slot="footer">
         <p class="error" v-if="error_message"> {{error_message}} </p>
         <button class="cancel-btn" type="button" @click="cancel">
-          <template v-if="pw_reset || usr_delete"> Back </template>
-          <template v-else> Cancel </template>
+          <!-- For reset option -->
+          <template v-if="pw_reset"> Back </template>
+          <!-- For delete option -->
+          <template v-if="usr_delete"> No </template>
+          <!-- For main window -->
+          <template v-if="!pw_reset && !usr_delete"> Cancel </template>
         </button>
 
         <button class="confirm-btn" type="button" @click="editUser">
-          <template v-if="pw_reset || usr_delete"> Save </template>
-          <template v-else> Confirm </template>
+          <template v-if="pw_reset"> Save </template>
+          <template v-if="usr_delete"> Yes </template>
+          <template v-if="!pw_reset && !usr_delete"> Confirm </template>
         </button>
         <br>
 
@@ -107,6 +112,7 @@
     },
     methods: {
       editUser() {
+        // delete the user if that's the option selected
         if (this.usr_delete) {
           this.deleteUser(this.userid);
         } else {
@@ -115,19 +121,25 @@
             full_name: this.fullName_new,
             facility: this.facility,
           };
-          // check to see if there's a new password AND if it is confirmed.
-          if (this.password_new && this.password_new === this.password_new_confirm) {
-            payload.password = this.password_new;
-            // save user changes
-            this.updateUser(this.userid, payload, this.role_new);
-            // do not close if in either of the advanced options
-            if (!(this.usr_delete || this.pw_reset)) {
-              this.$refs.modal.closeModal();
+
+          // check to see if there's a new password
+          if (this.password_new) {
+            // make sure passwords match
+            if (this.password_new === this.password_new_confirm) {
+              payload.password = this.password_new;
+              this.clearErrorMessage();
+            } else {
+              this.error_message = 'Passwords must match';
             }
-            this.clearErrorMessage();
-          } else {
-            this.error_message = 'Passwords must match';
           }
+
+          // save user changes
+          this.updateUser(this.userid, payload, this.role_new);
+          // do not close if in either of the advanced options
+          if (!(this.usr_delete || this.pw_reset)) {
+            this.$refs.modal.closeModal();
+          }
+          this.clearErrorMessage();
         }
       },
       cancel() {
