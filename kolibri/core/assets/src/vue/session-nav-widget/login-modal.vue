@@ -2,7 +2,7 @@
 
   <div>
     <modal>
-      <div class="title" aria-labelledby="loginModal" slot="header">
+      <div class="title" aria-label="Log into Kolibri" slot="header">
         <div class="login-brand-box">
           <img src="./icons/kolibri-logo.svg" alt="Kolibri logo">
           <p id="login-brand">Kolibri</p>
@@ -10,7 +10,7 @@
       </div>
       <div slot="body">
         <div v-if="wrongCreds">
-          <h1>Log In Error!</h1>
+          <h1>Log-in Error</h1>
           <span aria-live="polite">Incorrect username or password.<br>Please try again!</span>
         </div>
         <input type="text" class="login-form login-username" v-model="username_entered" placeholder="Username" v-on:keyup.enter="userLogin" aria-label="Username" v-el:usernamefield autofocus>
@@ -73,7 +73,7 @@
         login: actions.kolibriLogin,
       },
     },
-	};
+  };
 
 </script>
 
@@ -82,6 +82,9 @@
 
   @require '~core-theme.styl'
   @require '~nav-bar-item.styl'
+
+  h1
+    font-size: 1.1em
 
   #person
     fill: $core-action-normal
@@ -107,7 +110,7 @@
 
   .login-brand-box
     text-align: center
-    margin: 15px auto
+    margin: 15px 5px auto
     img, p
       display: inline-block
     img
@@ -122,6 +125,7 @@
     letter-spacing: 0.1em
     font-weight: 100
     color: $core-action-normal
+    margin-bottom: 15px
 
   .login-form
     width: 300px
@@ -137,7 +141,7 @@
       border-bottom: 3px solid $core-action-normal
 
   .login-username
-    margin-bottom: 30px
+    margin: 30px auto
     background: url('./icons/user.svg') no-repeat 8px 6px
     transition: all 0.15s
     &:focus
