@@ -49,7 +49,9 @@
 
       <div v-if="usr_delete" slot="body">
         <div class="user-field">
-          <p> Are you sure you want to delete {{username_new}}? </p>
+          <p> Are you sure you want to delete
+          <b>{{username_new}}</b>?
+          </p>
         </div>
       </div>
 
