@@ -105,6 +105,7 @@
     components: {
       'topic-list-item': require('../topic-list-item'),
       'content-grid-item': require('../content-grid-item'),
+      'search-button': require('./search-button'),
       'card-grid': require('../card-grid'),
     },
     vuex: {
@@ -185,5 +186,15 @@
       fill: $core-text-annotation
       height: 15px
       width: 15px
+  .search-btn
+    background: url('search.svg') no-repeat center
+    position: absolute
+    top: 0.1rem
+    right: 2.3rem
+    z-index: 10001
+    @media screen and (max-width: $portrait-breakpoint)
+      background: url('back.svg') no-repeat center
+      left: 1.3em
+      top: 0.3em
 
 </style>
