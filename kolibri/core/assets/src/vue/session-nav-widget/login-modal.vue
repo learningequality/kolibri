@@ -2,21 +2,23 @@
 
   <div>
     <modal>
-      <div id="backdrop"></div>
-      <div class="title" slot="header">
+      <div class="title" aria-labelledby="loginModal" slot="header">
         <div class="login-brand-box">
           <img src="./icons/kolibri-logo.svg" alt="Kolibri logo">
           <p id="login-brand">Kolibri</p>
         </div>
       </div>
       <div slot="body">
-        <input type="text" class="login-form login-username" v-model="username_entered" placeholder="Username" v-on:keyup.enter="userLogin" aria-label="Username" autofocus>
+        <div v-if="wrongCreds">
+          <h1>Log In Error!</h1>
+          <span aria-live="polite">Incorrect username or password.<br>Please try again!</span>
+        </div>
+        <input type="text" class="login-form login-username" v-model="username_entered" placeholder="Username" v-on:keyup.enter="userLogin" aria-label="Username" v-el:usernamefield autofocus>
         <input type="password" class="login-form login-password" v-model="password_entered" placeholder="Password" v-on:keyup.enter="userLogin" aria-label="Password">
-        <button class="login-button" @click="userLogin">Login</button>
-        <div v-if="wrongCreds">Incorrect username or password.<br>Please try again!</div>
+        <button class="login-button" @click="userLogin">Log in</button>
       </div>
       <div slot="footer"></div>
-      <div slot="openbtn">
+      <div slot="openbtn" @click="clearForm">
         <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
         <div class="label">Log In</div>
       </div>
@@ -45,13 +47,25 @@
           password: this.password_entered,
         };
         this.login(this.Kolibri, payload);
+        /* This is to offset race condition issues */
+        window.setTimeout(this.retry, 100);
+      },
+      clearForm() {
+        this.$els.usernamefield.focus();
         this.username_entered = '';
         this.password_entered = '';
       },
+      /* Puts focus on username field if wrong credentials are given */
+      retry() {
+        if (this.wrongCreds) {
+          this.clearForm();
+        }
+      },
+      /* If admin logs in, sends them to the manage tab */
     },
     vuex: {
       getters: {
-        userKind: state => state.core.session.kind,
+        kind: state => state.core.session.kind,
         wrongCreds: state => state.core.session.error === '401',
         modalstate: state => state.core.login_modal_state,
       },
@@ -74,11 +88,6 @@
     transition: all 0.2s ease
     &:hover
       fill: $core-action-dark
-
-  #backdrop
-    background: green
-    width: 100%
-    height: 200px
 
   #test
     background: #000000

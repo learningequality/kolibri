@@ -74,12 +74,22 @@ class LearnModule extends KolibriModule {
       }
     );
 
+    router.on(
+      PageNames.CONTENT_UNAVAILABLE,
+      '/content-unavailable',
+      (toRoute, fromRoute) => {
+        actions.showContentUnavailable(store);
+      }
+    );
+
     router.redirect({
       '/': '/explore',
     });
 
     router.start(rootvue, 'rootvue');
     kolibri.coreActions.currentLoggedInUser(store, kolibri);
+    // Wrap this to preserve 'this-ness' inside the router.
+    kolibri.on('refresh', () => router.refresh());
   }
 }
 

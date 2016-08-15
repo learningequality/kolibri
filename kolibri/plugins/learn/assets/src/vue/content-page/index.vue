@@ -14,17 +14,6 @@
       </a>
     </page-header>
 
-    <div class="content-container" v-show='!searchOpen'>
-      <content-render
-        :id="id"
-        :kind="kind"
-        :files="files"
-        :content-id="contentId"
-        :available="available"
-        :extra-fields="extraFields">
-      </content-render>
-    </div>
-
     <page-header :title='title'>
       <content-icon
         slot='icon'
@@ -35,16 +24,28 @@
       </content-icon>
     </page-header>
 
+    <div class="content-container" v-show='!searchOpen'>
+      <content-render
+        :id="id"
+        :kind="kind"
+        :files="files"
+        :content-id="contentId"
+        :channel-id="channelId"
+        :available="available"
+        :extra-fields="extraFields">
+      </content-render>
+    </div>
+
+    <p class="page-description">
+      {{ description }}
+    </p>
+
     <download-button
       :kind="kind"
       :files="files"
       :available="available"
       :title="title">
     </download-button>
-
-    <p class="page-description">
-      {{ description }}
-    </p>
 
     <expandable-content-grid class="recommendation-section"
       v-if="pageMode === $options.PageModes.LEARN"
@@ -91,6 +92,7 @@
         kind: (state) => state.pageState.content.kind,
         files: (state) => state.pageState.content.files,
         contentId: (state) => state.pageState.content.content_id,
+        channelId: (state) => state.currentChannel,
         available: (state) => state.pageState.content.available,
         extraFields: (state) => state.pageState.content.extra_fields,
         breadcrumbs: (state) => state.pageState.content.breadcrumbs,

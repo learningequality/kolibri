@@ -241,7 +241,8 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         """
         try:
             instance = Model(**data)
-            instance.full_clean()
+            instance.clean_fields()
+            instance.clean()
         except TypeError as e:
             logging.error("TypeError while validating model before checking permissions: {}".format(e.args))
             return False  # if the data provided does not fit the Model, don't continue checking

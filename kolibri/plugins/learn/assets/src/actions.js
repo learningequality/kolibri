@@ -32,8 +32,15 @@ function _topicState(data) {
   return state;
 }
 
-
 function _contentState(data) {
+  let progress;
+  if (!data.progress_fraction) {
+    progress = 'unstarted';
+  } else if (data.progress_fraction < 1) {
+    progress = 'partial';
+  } else {
+    progress = 'complete';
+  }
   const state = {
     id: data.pk,
     title: data.title,
@@ -42,7 +49,8 @@ function _contentState(data) {
     thumbnail: data.thumbnail,
     available: data.available,
     files: data.files,
-    progress: data.progress ? data.progress : 'unstarted',
+    progress,
+    content_id: data.content_id,
     breadcrumbs: _crumbState(data.ancestors),
   };
   return state;
@@ -61,21 +69,22 @@ function _collectionState(data) {
 
 
 /*
-* Returns a promise that gets current channel.
+ * Returns a promise that gets current channel.
  */
 function _getCurrentChannel() {
   let currentChannelId = null;
   return new Promise((resolve, reject) => {
     ChannelResource.getCollection({}).fetch()
       .then((channelList) => {
-        const cookieCurrentChannelId = cookiejs.get('currentChannel');
-        if (channelList.some((channel) => channel.id === cookieCurrentChannelId)) {
-          currentChannelId = cookieCurrentChannelId;
-          resolve(currentChannelId);
-        } else {
-          currentChannelId = channelList[0].id;
-          resolve(currentChannelId);
+        if (channelList.length) {
+          const cookieCurrentChannelId = cookiejs.get('currentChannel');
+          if (channelList.some((channel) => channel.id === cookieCurrentChannelId)) {
+            currentChannelId = cookieCurrentChannelId;
+          } else {
+            currentChannelId = channelList[0].id;
+          }
         }
+        resolve(currentChannelId);
       });
   });
 }
@@ -92,17 +101,19 @@ function redirectToExploreChannel(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
   _getCurrentChannel()
     .then((currentChannel) => {
-      store.dispatch('SET_CURRENT_CHANNEL', currentChannel);
-      cookiejs.set('currentChannel', currentChannel);
       store.dispatch('CORE_SET_ERROR', null);
-      router.go(
-        {
+      if (currentChannel) {
+        store.dispatch('SET_CURRENT_CHANNEL', currentChannel);
+        cookiejs.set('currentChannel', currentChannel);
+        router.go({
           name: constants.PageNames.EXPLORE_CHANNEL,
           params: {
             channel_id: currentChannel,
           },
-        }
-      );
+        });
+      } else {
+        router.go({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+      }
     })
     .catch((error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -110,22 +121,25 @@ function redirectToExploreChannel(store) {
     });
 }
 
+
 function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
   _getCurrentChannel()
     .then((currentChannel) => {
-      store.dispatch('SET_CURRENT_CHANNEL', currentChannel);
-      cookiejs.set('currentChannel', currentChannel);
       store.dispatch('CORE_SET_ERROR', null);
-      router.go(
-        {
+      if (currentChannel) {
+        store.dispatch('SET_CURRENT_CHANNEL', currentChannel);
+        cookiejs.set('currentChannel', currentChannel);
+        router.go({
           name: constants.PageNames.LEARN_CHANNEL,
           params: {
             channel_id: currentChannel,
           },
-        }
-      );
+        });
+      } else {
+        router.go({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+      }
     })
     .catch((error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -194,7 +208,6 @@ function showLearnChannel(store, channelId) {
 
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations: '' }).fetch();
   const channelPromise = ChannelResource.getCollection({}).fetch();
-
   Promise.all([recommendedPromise, channelPromise])
     .then(([recommendations, channelList]) => {
       const pageState = { recommendations: recommendations.map(_contentState) };
@@ -261,10 +274,10 @@ function triggerSearch(store, searchTerm) {
     searchState.contents = collection.contents;
     store.dispatch('SET_SEARCH_STATE', searchState);
   })
-  .catch((error) => {
-    // TODO - how to parse and format?
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
+    .catch((error) => {
+      // TODO - how to parse and format?
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    });
 }
 
 
@@ -280,6 +293,13 @@ function showScratchpad(store) {
   store.dispatch('CORE_SET_ERROR', null);
 }
 
+function showContentUnavailable(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
+  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+}
+
 
 module.exports = {
   redirectToExploreChannel,
@@ -289,6 +309,7 @@ module.exports = {
   showLearnChannel,
   showLearnContent,
   showScratchpad,
+  showContentUnavailable,
   triggerSearch,
   toggleSearch,
 };

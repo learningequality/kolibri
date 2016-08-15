@@ -169,12 +169,12 @@ class Model {
    * @returns {Promise} - Promise is resolved with target model's id
    * returns, otherwise reject is called with the response object.
    */
-  delete(id) {
+  delete() {
     const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         if (!this.id) {
           // Nothing to delete, so just resolve the promise now.
-          reject('Please pass in the model id.');
+          reject('Can not delete model that we do not have an id for');
         } else {
           // Otherwise, DELETE the Model
           const clientObj = { path: this.url, method: 'DELETE',
@@ -184,7 +184,7 @@ class Model {
             this.resource.removeModel(this);
             // Resolve the promise with the id.
             // Vuex will use this id to delete the model in its state.
-            resolve(id);
+            resolve(this.id);
             // Clean up the reference to this promise
             this.promises.splice(this.promises.indexOf(promise), 1);
           }, (response) => {
@@ -353,8 +353,7 @@ class Resource {
    * @param {Kolibri} kolibri - The current instantiated instance of the core app.
    */
   constructor(kolibri) {
-    this.models = {};
-    this.collections = {};
+    this.clearCache();
     this.kolibri = kolibri;
   }
 
@@ -450,6 +449,14 @@ class Resource {
     return model;
   }
 
+  /**
+   * Reset the cache for this Resource.
+   */
+  clearCache() {
+    this.models = {};
+    this.collections = {};
+  }
+
   removeModel(model) {
     delete this.models[model.id];
   }
@@ -532,6 +539,15 @@ class ResourceManager {
     this._resources[name] = new ResourceClass(this._kolibri);
     Object.defineProperty(this, className, { value: this._resources[name] });
     return this._resources[name];
+  }
+
+  /**
+   * Clear all caches for registered resources.
+   */
+  clearCaches() {
+    Object.keys(this._resources).forEach((key) => {
+      this._resources[key].clearCache();
+    });
   }
 
 }

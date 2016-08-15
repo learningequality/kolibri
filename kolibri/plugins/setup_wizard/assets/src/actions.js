@@ -14,7 +14,7 @@ function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload
     window.location = Kolibri.urls['kolibri:learnplugin:learn']();
   },
   rejects => {
-    store.dispatch('SET_ERROR', JSON.stringify(rejects, null, '\t'));
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(rejects, null, '\t'));
   });
 }
 
