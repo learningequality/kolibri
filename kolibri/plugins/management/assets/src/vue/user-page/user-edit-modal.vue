@@ -20,8 +20,8 @@
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
           <select v-model="role_new" id="user-role">
-            <option value="learner" selected> Learner </option>
-            <option value="admin"> Admin </option>
+            <option :selected="role_new == admin ? true : false" v-if="role_new" value="learner"> Learner </option>
+            <option :selected="role_new == admin ? true : false" value="admin"> Admin </option>
           </select>
         </div>
 
