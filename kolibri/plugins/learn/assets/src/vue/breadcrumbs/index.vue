@@ -6,13 +6,14 @@
         <breadcrumb :linkobject="learnRootLink" text="Learn"></breadcrumb>
       </span>
 
-      <span class="explore-bread" v-if="pageName === PageNames.EXPLORE_TOPIC">
-        <breadcrumb :showarrow='false' :linkobject="exploreRootLink" text="Explore"></breadcrumb>
-      </span>
-
-      <span class="portrait-only" v-if="pageName === PageNames.EXPLORE_TOPIC">
-        <breadcrumb :linkobject="portraitOnlyParentLink"></breadcrumb>
-      </span>
+      <template v-if="pageName === PageNames.EXPLORE_TOPIC">
+        <span class="explore-bread">
+          <breadcrumb :showarrow='false' :linkobject="exploreRootLink" text="Explore"></breadcrumb>
+        </span>
+        <span class="portrait-only">
+          <breadcrumb :linkobject="portraitOnlyParentLink"></breadcrumb>
+        </span>
+      </template>
 
       <span v-if="pageName === PageNames.EXPLORE_CONTENT">
         <breadcrumb :linkobject="parentLink"></breadcrumb>
