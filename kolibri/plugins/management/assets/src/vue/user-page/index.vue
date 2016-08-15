@@ -80,8 +80,8 @@
 
     </table>
 
-    <p v-if="noUsersExist">No Users Exist</p>
-    <p v-if="allUsersFilteredOut">No users match the filter.</p>
+    <p v-if="noUsersExist">{{ $tr('noUsersExist') }}</p>
+    <p v-if="allUsersFilteredOut">{{ $tr('allUsersFilteredOut') }}</p>
 
   </div>
 
@@ -170,6 +170,11 @@
       actions: {
         deleteUser: actions.deleteUser,
       },
+    },
+    $trNameSpace: 'userPage',
+    $trs: {
+      noUsersExist: 'No Users Exist.',
+      allUsersFilteredOut: 'No users match the filter.',
     },
   };
 
