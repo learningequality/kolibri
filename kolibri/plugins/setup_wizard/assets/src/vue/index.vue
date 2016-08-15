@@ -59,8 +59,8 @@
       },
       facilityName() {
         return this.$tr('facilityName');
-      }
-    }
+      },
+    },
     data() {
       return {
         username: '',
