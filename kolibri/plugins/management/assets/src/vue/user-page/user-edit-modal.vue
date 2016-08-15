@@ -28,6 +28,9 @@
       </div>
 
       <div v-if="pw_reset" slot="body">
+        <p>
+          <b>Password reset for: {{username_new}}</b>
+        </p>
         <div class="user-field">
           <label for="password"> Reset Password</label>:
           <input type="password" class="edit-form" id="password" required v-model="password_new">
@@ -46,11 +49,16 @@
       </div>
 
       <div slot="footer">
+        <p class="error" v-if="error_message"> {{error_message}} </p>
         <button class="cancel-btn" type="button" @click="cancel">
-          Cancel
+          <template v-if="pw_reset || usr_delete"> Back </template>
+          <template v-else> Cancel </template>
         </button>
 
-        <button class="confirm-btn" type="button" @click="editUser">Confirm</button>
+        <button class="confirm-btn" type="button" @click="editUser">
+          <template v-if="pw_reset || usr_delete"> Save </template>
+          <template v-else> Confirm </template>
+        </button>
         <br>
 
         <div class="advanced-options" v-if="!pw_reset && !usr_delete">
@@ -91,6 +99,7 @@
         role_new: this.roles.length ? this.roles[0].kind : 'learner',
         usr_delete: false,
         pw_reset: false,
+        error_message: '',
       };
     },
     methods: {
@@ -106,9 +115,16 @@
           // check to see if there's a new password AND if it is confirmed.
           if (this.password_new && this.password_new === this.password_new_confirm) {
             payload.password = this.password_new;
+            // save user changes
+            this.updateUser(this.userid, payload, this.role_new);
+            // do not close if in either of the advanced options
+            if (!(this.usr_delete || this.pw_reset)) {
+              this.$refs.modal.closeModal();
+            }
+            this.clearErrorMessage();
+          } else {
+            this.error_message = 'Passwords must match';
           }
-          this.updateUser(this.userid, payload, this.role_new);
-          this.$refs.modal.closeModal();
         }
       },
       cancel() {
@@ -117,6 +133,11 @@
         } else {
           this.$refs.modal.closeModal();
         }
+
+        this.clearErrorMessage();
+      },
+      clearErrorMessage() {
+        this.error_message = '';
       },
     },
     vuex: {
@@ -201,5 +222,10 @@
     button
       display: block
       border: none
+  p
+    word-break: keep-all
+
+  .error
+    color: red
 
 </style>
