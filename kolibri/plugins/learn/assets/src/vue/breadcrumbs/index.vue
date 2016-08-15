@@ -7,10 +7,10 @@
       </span>
 
       <template v-if="pageName === PageNames.EXPLORE_TOPIC">
-        <span class="explore-bread">
+        <span class="landscape">
           <breadcrumb :showarrow='false' :linkobject="exploreRootLink" text="Explore"></breadcrumb>
         </span>
-        <span class="portrait-only">
+        <span class="portrait">
           <breadcrumb :linkobject="portraitOnlyParentLink"></breadcrumb>
         </span>
       </template>
@@ -125,11 +125,11 @@
     text-overflow: ellipsis
     color: $core-text-annotation
 
-  .explore-bread
+  .landscape
     @media screen and (max-width: $portrait-breakpoint)
       display: none
 
-  .portrait-only
+  .portrait
     display: none
     @media screen and (max-width: $portrait-breakpoint)
       display: initial
