@@ -11,7 +11,7 @@
           <breadcrumb :showarrow='false' :linkobject="exploreRootLink" text="Explore"></breadcrumb>
         </span>
         <span class="portrait">
-          <breadcrumb :linkobject="parentLink"></breadcrumb>
+          <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
         </span>
         <span class="middle-breadcrumb landscape" v-for="crumb in topicCrumbs">
           <a v-link="topicLink(crumb.id)">{{ crumb.title }}</a>
@@ -19,7 +19,7 @@
       </template>
 
       <span v-if="pageName === PageNames.EXPLORE_CONTENT">
-        <breadcrumb :linkobject="parentLink"></breadcrumb>
+        <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
       </span>
 
     </nav>
@@ -46,12 +46,18 @@
         return PageNames;
       },
       learnRootLink() {
-        return { name: PageNames.LEARN_ROOT };
+        return {
+          name: PageNames.LEARN_CHANNEL,
+          channel: this.currentChannel,
+        };
       },
       exploreRootLink() {
-        return { name: PageNames.EXPLORE_ROOT };
+        return {
+          name: PageNames.EXPLORE_CHANNEL,
+          channel: this.currentChannel,
+        };
       },
-      parentLink() {
+      parentExploreLink() {
         let breadcrumbs = [];
         if (this.pageName === PageNames.EXPLORE_CONTENT) {
           breadcrumbs = this.pageState.content.breadcrumbs;
@@ -61,14 +67,17 @@
         if (breadcrumbs.length) {
           return this.topicLink(breadcrumbs[breadcrumbs.length - 1].id);
         }
-        return { name: PageNames.EXPLORE_ROOT };
+        return this.exploreRootLink;
       },
     },
     methods: {
-      topicLink(id) {
+      topicLink(topicId) {
         return {
           name: PageNames.EXPLORE_TOPIC,
-          params: { id },
+          params: {
+            channel: this.currentChannel,
+            id: topicId,
+          },
         };
       },
     },
@@ -78,6 +87,7 @@
         topicCrumbs: state => state.pageState.topic.breadcrumbs,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
+        currentChannel: state => state.currentChannel,
       },
     },
   };
