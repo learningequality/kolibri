@@ -4,26 +4,22 @@
 
     <!-- search block -->
     <div class='top' role="search">
-      <search-button class='search-btn'></search-button>
-      <div class="input-wrapper">
-        <input
-          type="search"
-          v-el:search
-          aria-label="Type to find content"
-          placeholder="Find content..."
-          autocomplete="off"
-          v-focus="searchOpen"
-          v-model="localSearchTerm"
-          id="search"
-          name="search"
-          @keyup="search() | debounce 500"
-          @keydown.esc.prevent="clear()">
-        <button aria-label="Reset" class="reset" type="reset" @click="clear()" :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }">
-          <svg height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
-            <path d="M0 0h24v24H0z" fill="none"></path>
-          </svg>
-        </button>
+      <div class="top-wrapper">
+        <div class="input-wrapper">
+          <input
+            type="search"
+            v-el:search
+            aria-label="Type to find content"
+            placeholder="Find content..."
+            autocomplete="off"
+            v-focus="searchOpen"
+            v-model="localSearchTerm"
+            id="search"
+            name="search"
+            @keyup="search() | debounce 500"
+            @keydown.esc.prevent="clear()">
+        </div>
+        <search-button class='search-btn'>Cancel</search-button>
       </div>
     </div>
 
@@ -158,7 +154,15 @@
       text-align: left
       padding-right: 10px
   .input-wrapper
+  .top-wrapper
     position: relative
+    display: block
+    height: 100%
+    width: 90%
+    margin: auto
+    @media screen and (max-width: $portrait-breakpoint)
+      left: 15px
+
     @media screen and (max-width: $portrait-breakpoint)
       padding-left: 3.4em
 
