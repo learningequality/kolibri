@@ -1,9 +1,12 @@
-{% load i18n kolibri_tags webpack_tags js_reverse cache %}<!DOCTYPE html>
+{% load i18n kolibri_tags webpack_tags js_reverse cache %}
+{% load staticfiles %}
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" href="{% static 'images/logo.ico' %}">
   <title>{% trans "Kolibri" %}</title>
 </head>
 
