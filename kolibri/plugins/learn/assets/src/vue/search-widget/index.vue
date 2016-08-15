@@ -163,15 +163,20 @@
     height: 100%
     width: 80%
     margin: auto
+    @media screen and (max-width: 619px)
+      width: 100%
     @media screen and (max-width: $portrait-breakpoint)
       left: 15px
 
   .input-wrapper
       float: left
-      width: 70%
-    @media screen and (max-width: $portrait-breakpoint)
-      padding-right: 6.4em
-      padding-left: 2em
+      width: 90%
+      @media screen and (max-width: 1500px)
+        width: 80%
+      @media screen and (max-width: 840px)
+        width: 70%
+      @media screen and (max-width: $portrait-breakpoint)
+        padding-left: 2em
 
   input
     height: 26px
@@ -199,17 +204,23 @@
     cursor: pointer
     position: relative
     top: 2px
-    right: 208px
+    right: 104px
     padding: 0 4px
     height: 22px
     svg
       fill: $core-text-annotation
       height: 15px
       width: 15px
+    @media screen and (max-width: 1500px)
+      right: 138px
+    @media screen and (max-width: 1277px)
+      right: 120px
+    @media screen and (max-width: 1059px)
+      right: 104px
+    @media screen and (max-width: 619px)
+      right: 102px
     @media screen and (max-width: $portrait-breakpoint)
-      background-color: transparent
-      top: -28px
-      left: 44%
+      right: 112px
 
   .search-btn
     float: left

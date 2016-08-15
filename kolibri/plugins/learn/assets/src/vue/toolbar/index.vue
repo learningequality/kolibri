@@ -147,7 +147,7 @@
     bottom: 22px
     position: relative
     @media screen and (max-width: $portrait-breakpoint)
-      left: 0.7em
+      left: 1.3em
 
   .toggle-menu-on
     position: fixed
