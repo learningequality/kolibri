@@ -91,14 +91,14 @@
 
   .device-owner-creation
     position: fixed
-    top: 0
+    top: 50%
     left: 0
     width: 100%
-    height: 100%
-    display: table
+    transform: translateY(-50%)
+    @media screen and (max-width: $portrait-breakpoint)
+      overflow-y: scroll
+      height: 100%
   .wrapper
-    overflow-y: scroll
-    display: table-cell
     vertical-align: middle
   .container
     background: #fff
