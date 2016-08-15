@@ -13,7 +13,7 @@
         <span class="portrait">
           <breadcrumb :linkobject="parentLink"></breadcrumb>
         </span>
-        <span class="middle-bread landscape" v-for="crumb in topicCrumbs">
+        <span class="middle-breadcrumb landscape" v-for="crumb in topicCrumbs">
           <a v-link="topicLink(crumb.id)">{{ crumb.title }}</a>
         </span>
       </template>
@@ -94,7 +94,7 @@
     margin-top: 2em
     margin-bottom:1.4em
 
-  .middle-bread:before
+  .middle-breadcrumb:before
     content: '>'
     margin-left: 0.5em
     margin-right: 0.5em
