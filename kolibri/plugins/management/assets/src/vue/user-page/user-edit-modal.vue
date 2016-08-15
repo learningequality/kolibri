@@ -25,6 +25,13 @@
           </select>
         </div>
 
+        <div class="advanced-options" v-if="!pw_reset && !usr_delete">
+          <button @click="pw_reset=!pw_reset"> Reset Password </button>
+          <button @click="usr_delete=!usr_delete"> Delete User</button>
+        </div>
+
+        <hr class="end-modal">
+
       </div>
 
       <div v-if="pw_reset" slot="body">
@@ -61,10 +68,6 @@
         </button>
         <br>
 
-        <div class="advanced-options" v-if="!pw_reset && !usr_delete">
-          <button @click="pw_reset=!pw_reset"> Reset Password </button>
-          <button @click="usr_delete=!usr_delete"> Delete User</button>
-        </div>
       </div>
 
       <button class="no-border" slot="openbtn">
@@ -218,10 +221,16 @@
     cursor: pointer
 
   .advanced-options
-    margin-top: 5%
+    padding-bottom: 5%
     button
       display: block
       border: none
+
+  .end-modal
+    position: relative
+    width: 378px
+    left: -30px
+
   p
     word-break: keep-all
 

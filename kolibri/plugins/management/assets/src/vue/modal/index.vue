@@ -91,7 +91,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     transition: all 0.3s ease
     margin: 0 auto
-    padding: 20px 30px
+    padding: 15px 30px
 
   .modal-header
     font-weight: bold
@@ -99,7 +99,6 @@
 
   .modal-footer
     margin-top: 15px
-    margin-bottom: 10px
     padding-bottom: inherit
 
   .close-btn
