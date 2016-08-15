@@ -6,11 +6,11 @@
         <breadcrumb :linkobject="learnRootLink" text="Learn"></breadcrumb>
       </span>
 
-      <span class="explore-bread" v-if="!isRoot && pageName === PageNames.EXPLORE_TOPIC">
+      <span class="explore-bread" v-if="pageName === PageNames.EXPLORE_TOPIC">
         <breadcrumb :showarrow='false' :linkobject="exploreRootLink" text="Explore"></breadcrumb>
       </span>
 
-      <span class="portrait-only" v-if="!isRoot && pageName === PageNames.EXPLORE_TOPIC">
+      <span class="portrait-only" v-if="pageName === PageNames.EXPLORE_TOPIC">
         <breadcrumb :linkobject="portraitOnlyParentLink"></breadcrumb>
       </span>
 
@@ -88,8 +88,6 @@
       getters: {
         pageMode: getters.pageMode,
         crumbs: state => (state.pageState.topic ? state.pageState.topic.breadcrumbs : null),
-        isRoot: state => (state.pageState.topic ?
-          state.pageState.topic.id === state.rootTopicId : false),
         pageName: state => state.pageName,
         pageState: state => state.pageState,
       },
