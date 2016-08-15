@@ -2,6 +2,7 @@ const intervalTime = 5000; // Frequency at which time logging is updated
 const progressThreshold = 0.1; // Update logs if user has reached 20% more progress
 const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
 const intervalTimer = require('./timer');
+const UserKinds = require('./constants').UserKinds;
 
 /**
  * Vuex State Mappers
@@ -69,14 +70,31 @@ function _contentSessionModel(store) {
   return mapping;
 }
 
+function _sessionState(data) {
+  const state = {
+    id: data.id,
+    username: data.username,
+    full_name: data.full_name,
+    user_id: data.user_id,
+    facility_id: data.facility_id,
+    kind: data.kind,
+    error: data.error,
+  };
+  return state;
+}
 
+
+/**
+ * Actions
+ *
+ * These methods are used to update client-side state
+ */
 function kolibriLogin(store, Kolibri, sessionPayload) {
   const SessionResource = Kolibri.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
-  const UserKinds = require('core-constants').UserKinds;
   sessionPromise.then((session) => {
-    store.dispatch('CORE_SET_SESSION', session);
+    store.dispatch('CORE_SET_SESSION', _sessionState(session));
     /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
     if (session.kind[0] === UserKinds.SUPERUSER || session.kind[0] === UserKinds.ADMIN) {
       const manageURL = Kolibri.urls['kolibri:managementplugin:management']();
@@ -88,7 +106,13 @@ function kolibriLogin(store, Kolibri, sessionPayload) {
   }).catch((error) => {
     // hack to handle invalid credentials
     if (error.status.code === 401) {
-      store.dispatch('CORE_HANDLE_WRONG_CREDS', { kind: 'ANONYMOUS', error: '401' });
+      store.dispatch('CORE_HANDLE_WRONG_CREDS', { id: undefined,
+                                                  username: '',
+                                                  full_name: '',
+                                                  user_id: undefined,
+                                                  facility_id: undefined,
+                                                  kind: [UserKinds.ANONYMOUS],
+                                                  error: '401' });
     } else {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
     }
@@ -116,7 +140,7 @@ function currentLoggedInUser(store, Kolibri) {
   const sessionModel = SessionResource.getModel(id);
   const sessionPromise = sessionModel.fetch();
   sessionPromise.then((session) => {
-    store.dispatch('CORE_SET_SESSION', session);
+    store.dispatch('CORE_SET_SESSION', _sessionState(session));
   }).catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
   });
@@ -138,7 +162,6 @@ function togglemodal(store, bool) {
 function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
   const ContentSessionLogResource = Kolibri.resources.ContentSessionLogResource;
   const ContentSummaryLogResource = Kolibri.resources.ContentSummaryLogResource;
-  const UserKinds = require('core-constants').UserKinds;
 
   /* Create summary log iff user exists */
   if (store.state.core.session.user_id &&
