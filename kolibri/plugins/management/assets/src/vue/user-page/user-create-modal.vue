@@ -80,7 +80,7 @@
 
         // check for all fields populated
         if (!(this.username && this.password && this.full_name && this.role)) {
-          this.errorMessage = 'All fields must be populated';
+          this.errorMessage = 'All fields are required';
         // check for password confirmation match
         } else if (!(this.password === this.passwordConfirm)) {
           this.errorMessage = 'Passwords do not match.';
