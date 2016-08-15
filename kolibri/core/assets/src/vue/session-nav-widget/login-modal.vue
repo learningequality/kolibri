@@ -2,7 +2,7 @@
 
   <div>
     <modal>
-      <div class="title" aria-labelledby="loginModal" slot="header">
+      <div class="title" :aria-label="$tr('title')" slot="header">
         <div class="login-brand-box">
           <img src="./icons/kolibri-logo.svg" :alt="kolibriLogo">
           <p id="login-brand">{{ $tr('kolibri') }}</p>
@@ -35,10 +35,11 @@
   module.exports = {
     $trNameSpace: 'sessionWidget',
     $trs: {
+      title: 'Log in to Kolibri',
       logIn: 'Log In',
       kolibri: 'Kolibri',
       kolibriLogo: 'Kolibri logo',
-      logInError: 'Log In Error!',
+      logInError: 'Log-in Error',
       validationError: 'Incorrect username or password.',
       tryAgain: 'Please try again!',
       userName: 'Username',
@@ -95,7 +96,7 @@
         login: actions.kolibriLogin,
       },
     },
-	};
+  };
 
 </script>
 
@@ -104,6 +105,9 @@
 
   @require '~core-theme.styl'
   @require '~nav-bar-item.styl'
+
+  h1
+    font-size: 1.1em
 
   #person
     fill: $core-action-normal
@@ -129,7 +133,7 @@
 
   .login-brand-box
     text-align: center
-    margin: 15px auto
+    margin: 15px 5px auto
     img, p
       display: inline-block
     img
@@ -144,6 +148,7 @@
     letter-spacing: 0.1em
     font-weight: 100
     color: $core-action-normal
+    margin-bottom: 15px
 
   .login-form
     width: 300px
@@ -159,7 +164,7 @@
       border-bottom: 3px solid $core-action-normal
 
   .login-username
-    margin-bottom: 30px
+    margin: 30px auto
     background: url('./icons/user.svg') no-repeat 8px 6px
     transition: all 0.15s
     &:focus

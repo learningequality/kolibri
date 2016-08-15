@@ -5,7 +5,7 @@
 
       <h1 slot="header" class="header">Add New Account</h1>
 
-      <div slot="body">
+      <div @keyup.enter="createNewUser" slot="body">
 
         <div class="user-field">
           <label for="name">Name</label>
@@ -78,7 +78,14 @@
           facility: this.facility,
         };
 
-        if (this.password === this.passwordConfirm) {
+        // check for all fields populated
+        if (!(this.username && this.password && this.full_name && this.role)) {
+          this.errorMessage = 'All fields are required';
+        // check for password confirmation match
+        } else if (!(this.password === this.passwordConfirm)) {
+          this.errorMessage = 'Passwords do not match.';
+        // create user
+        } else {
           newUser.password = this.password;
           // using promise to ensure that the user is created before closing
           this.createUser(newUser, this.role).then(
@@ -98,8 +105,6 @@
                 this.errorMessage = `Whoops! Something went wrong.`;
               }
             });
-        } else {
-          this.errorMessage = 'Passwords do not match.';
         }
       },
       clearErrorMessage() {

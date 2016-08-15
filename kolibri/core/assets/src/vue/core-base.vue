@@ -5,7 +5,7 @@
       <slot name="nav"></slot>
     </nav-bar>
     <div class='main-wrapper' v-scroll='onScroll' v-if='!loading'>
-      <error-box v-show='error'></error-box>
+      <error-box v-if='error'></error-box>
       <slot name="above"></slot>
       <main role="main" class="page-content">
         <slot name="content"></slot>
