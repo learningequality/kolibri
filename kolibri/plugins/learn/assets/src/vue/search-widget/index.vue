@@ -161,14 +161,14 @@
     position: relative
     display: block
     height: 100%
-    width: 90%
+    width: 80%
     margin: auto
     @media screen and (max-width: $portrait-breakpoint)
       left: 15px
 
   .input-wrapper
       float: left
-      width: 74%
+      width: 70%
     @media screen and (max-width: $portrait-breakpoint)
       padding-right: 6.4em
       padding-left: 2em
@@ -198,8 +198,8 @@
     outline: none
     cursor: pointer
     position: relative
-    top: 0
-    right: 40px
+    top: 2px
+    right: 208px
     padding: 0 4px
     height: 22px
     svg
@@ -229,6 +229,7 @@
 
   .results
     padding-top: $top-offset
+    padding-bottom: 100px
     @media screen and (max-width: $portrait-breakpoint)
       padding-top: 3em
       margin: 0 1em
