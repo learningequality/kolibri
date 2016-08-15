@@ -5,7 +5,7 @@ from .csv import ContentSummaryLogCSVExportViewSet
 
 router = routers.SimpleRouter()
 
-router.register(r'ContentSessionLog', ContentSessionLogViewSet)
+router.register(r'contentsessionlog', ContentSessionLogViewSet)
 router.register(r'contentsummarylog', ContentSummaryLogViewSet)
 router.register(r'contentratinglog', ContentRatingLogViewSet)
 router.register(r'usersessionlog', UserSessionLogViewSet)

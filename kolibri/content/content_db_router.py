@@ -11,6 +11,7 @@ Thanks to https://github.com/ambitioninc/django-dynamic-db-router for inspiratio
 """
 
 import os
+import sqlite3
 import threading
 from functools import wraps
 
@@ -23,6 +24,11 @@ from .errors import ContentModelUsedOutsideDBContext
 
 THREAD_LOCAL = threading.local()
 
+_content_databases_with_attached_default_db = set()
+
+def default_database_is_attached():
+    alias = get_active_content_database()
+    return alias in _content_databases_with_attached_default_db
 
 def get_active_content_database(return_none_if_not_set=False):
 
@@ -40,18 +46,48 @@ def get_active_content_database(return_none_if_not_set=False):
     try:
         connections[alias]
     except ConnectionDoesNotExist:
-        filename = os.path.join(settings.CONTENT_DATABASE_DIR, alias + '.sqlite3')
+        if alias.endswith(".sqlite3"):
+            filename = alias
+        else:
+            filename = os.path.join(settings.CONTENT_DATABASE_DIR, alias + '.sqlite3')
         if not os.path.isfile(filename):
             raise KeyError("Content DB '%s' doesn't exist!!" % alias)
         connections.databases[alias] = {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': filename,
         }
+
+        # check that the content database is not empty
         if not connections[alias].introspection.table_names():
             raise KeyError("Content DB '%s' is empty!!" % alias)
 
+    # if possible, attach the default database to the content database connection to enable joins
+    _attach_default_database(alias)
+
     return alias
 
+def _attach_default_database(alias):
+    """
+    Attach the default (primary) database file to the content database connection, if both use sqlite files.
+    This allows us to do direct joins between tables across the two databases, for efficiently integrating
+    data from the two sources -- e.g. annotating ContentNodes with progress info from ContentSummaryLogs.
+    """
+    # if the default database uses a sqlite file, we can't attach it
+    default_db = connections.databases[DEFAULT_DB_ALIAS]
+    if default_db["ENGINE"].endswith(".sqlite3") and default_db["NAME"].endswith(".sqlite3"):
+        default_db_path = connections.databases[DEFAULT_DB_ALIAS]["NAME"]
+        try:
+            # ensure we're connected to the content database before attaching the default database
+            if not connections[alias].connection:
+                connections[alias].connect()
+            # attach the default database to the content db connection; this allows tables from both databases
+            # to be used together in the same query; see https://www.sqlite.org/lang_attach.html
+            connections[alias].connection.execute("ATTACH DATABASE '{}' AS defaultdb;".format(default_db_path))
+            # record the fact that the default database has been attached to this content database
+            _content_databases_with_attached_default_db.add(alias)
+        except sqlite3.OperationalError:
+            # this will happen if the database is already attached; we can safely ignore
+            pass
 
 def set_active_content_database(alias):
     setattr(THREAD_LOCAL, 'ACTIVE_CONTENT_DB_ALIAS', alias)

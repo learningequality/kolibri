@@ -26,6 +26,7 @@
 
   const pageMode = require('../../state/getters').pageMode;
   const constants = require('../../state/constants');
+  const UserKinds = require('core-constants').UserKinds;
 
   module.exports = {
     components: {
@@ -33,8 +34,8 @@
     },
     vuex: {
       getters: {
+        kind: state => state.core.session.kind,
         pageMode,
-        isAdminOrSuperuser: state => state.core.is_admin_or_superuser,
       },
     },
     computed: {
@@ -49,6 +50,12 @@
       },
       exploreActive() {
         return this.pageMode === constants.PageModes.EXPLORE;
+      },
+      isAdminOrSuperuser() {
+        if (this.kind[0] === UserKinds.SUPERUSER || this.kind[0] === UserKinds.ADMIN) {
+          return true;
+        }
+        return false;
       },
     },
   };

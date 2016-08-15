@@ -158,23 +158,36 @@ class SessionViewSet(viewsets.ViewSet):
     def get_session(self, request):
         user = get_user(request)
         if isinstance(user, AnonymousUser):
-            return {'id': None, 'username': '', 'full_name': '', 'user_id': None, 'facility_id': None, 'kind': 'ANONYMOUS', 'error': '200'}
+            return {'id': None,
+                    'username': '',
+                    'full_name': '',
+                    'user_id': None,
+                    'facility_id': None,
+                    'kind': ['ANONYMOUS'],
+                    'error': '200'}
 
-        session = {'id': 'current', 'username': user.username,
+        session = {'id': 'current',
+                   'username': user.username,
                    'full_name': user.full_name,
                    'user_id': user.id}
         if isinstance(user, DeviceOwner):
-            session.update({'facility_id': None, 'kind': 'SUPERUSER', 'error': '200'})
+            session.update({'facility_id': None,
+                            'kind': ['SUPERUSER'],
+                            'error': '200'})
             return session
         else:
             roles = Role.objects.filter(user_id=user.id)
             if len(roles) is not 0:
-                session.update({'facility_id': user.facility_id, 'kind': [], 'error': '200'})
+                session.update({'facility_id': user.facility_id,
+                                'kind': [],
+                                'error': '200'})
                 for role in roles:
                     if role.kind == 'admin':
                         session['kind'].append('ADMIN')
                     else:
                         session['kind'].append('COACH')
             else:
-                session.update({'facility_id': user.facility_id, 'kind': 'LEARNER', 'error': '200'})
+                session.update({'facility_id': user.facility_id,
+                                'kind': ['LEARNER'],
+                                'error': '200'})
             return session

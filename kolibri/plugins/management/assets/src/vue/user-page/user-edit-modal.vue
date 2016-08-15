@@ -103,6 +103,7 @@
             full_name: this.fullName_new,
             facility: this.facility,
           };
+          // check to see if there's a new password AND if it is confirmed.
           if (this.password_new && this.password_new === this.password_new_confirm) {
             payload.password = this.password_new;
           }
@@ -119,9 +120,6 @@
       },
     },
     vuex: {
-      getters: {
-        facility: state => state.facility,
-      },
       actions: {
         updateUser: actions.updateUser,
         deleteUser: actions.deleteUser,

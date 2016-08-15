@@ -1,9 +1,9 @@
 <template>
 
-  <nav-bar-item>
+  <nav-bar-item tabindex="0" v-el:navbaritem @click="loginTabHack" v-on:keyup.enter="loginTabHack">
     <div class="wrapper">
       <div v-if="loggedIn">
-        <div class='user-icon' id="user-dropdown" @click="showUserDropdown">{{ displayText }}</div>
+        <div class='user-icon' id="user-dropdown">{{ initial }}</div>
       </div>
       <div v-else>
         <login-modal></login-modal>
@@ -11,17 +11,17 @@
     </div>
   </nav-bar-item>
 
+  <div id="dropdown-backdrop" @click="toggleDropdown" v-show="showDropdown"></div>
   <div id="dropdown" v-show="showDropdown" transition="slide">
     <div class="user-dropdown">
       <ul class="dropdown-list">
         <li>
-          <h4 v-if="deviceOwner" class="dropdown-name">Device Owner</h4>
-          <h4 v-else class="dropdown-name">{{ fullname }}</h4>
+          <h4 class="dropdown-name">{{ name }}</h4>
           <p id="dropdown-username">{{ username }}</p>
-          <p id="dropdown-usertype">{{ kind }}</p>
+          <p id="dropdown-usertype">{{ userkind }}</p>
         </li>
         <li id="logout-tab">
-          <div @click="userLogout">
+          <div tabindex="0" v-on:keyup.enter="userLogout" @click="userLogout" aria-label="Log out">
             <span>Logout</span>
           </div>
         </li>
@@ -46,25 +46,50 @@
       showDropdown: false,
     }),
     computed: {
-      displayText() {
-        if (this.fullname) {
-          return this.fullname[0].toUpperCase();
-        }
+      initial() {
         if (this.deviceOwner) {
           return this.username[0].toUpperCase();
         }
+        if (this.fullname) {
+          return this.fullname[0].toUpperCase();
+        }
         return '?';
+      },
+      name() {
+        if (this.deviceOwner) {
+          return 'Device Owner';
+        }
+        return this.fullname;
+      },
+      userkind() {
+        if (this.deviceOwner) {
+          return '';
+        }
+        return this.kind;
       },
     },
     methods: {
-      showUserDropdown() {
-        if (this.showDropdown) {
-          this.showDropdown = false;
+      // extreme hack for making entire session tab clickable/accessible
+      loginTabHack() {
+        if (!this.loggedIn) {
+          this.openLogin();
         } else {
-          this.showDropdown = true;
+          this.toggleDropdown();
+        }
+        this.$els.navbaritem.blur();
+      },
+      openLogin() {
+        if (!this.modalstate) {
+          this.togglemodal(true);
         }
       },
-      // user-dropdown
+      toggleDropdown() {
+        if (!this.showDropdown) {
+          this.showDropdown = true;
+        } else {
+          this.showDropdown = false;
+        }
+      },
       userLogout() {
         this.logout(this.Kolibri);
         this.showDropdown = false;
@@ -73,13 +98,15 @@
     vuex: {
       actions: {
         logout: actions.kolibriLogout,
+        togglemodal: actions.togglemodal,
       },
       getters: {
-        loggedIn: state => state.core.session.kind !== UserKinds.ANONYMOUS,
-        deviceOwner: state => state.core.session.kind === UserKinds.SUPERUSER,
+        loggedIn: state => state.core.session.kind[0] !== UserKinds.ANONYMOUS,
+        deviceOwner: state => state.core.session.kind[0] === UserKinds.SUPERUSER,
         fullname: state => state.core.session.full_name,
         username: state => state.core.session.username,
         kind: state => state.core.session.kind,
+        modalstate: state => state.core.login_modal_state,
       },
     },
   };
@@ -117,6 +144,15 @@
 
   #dropdown
     position: absolute
+    z-index: 1
+
+  #dropdown-backdrop
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    z-index: 0
 
   .slide-transition
     transition: all 0.25s ease
@@ -135,7 +171,7 @@
     background: $core-bg-light
     text-align: left
     z-index: -1
-    
+
   .dropdown-list
     list-style: none
     padding: 0
@@ -197,7 +233,7 @@
     height: $size-sm
     width: $size-sm
     line-height: $size-sm - 2 * $border // vertically center
-    
+
   // Portrait mode for user dropdown (or drop-up in this case)
   @media screen and (max-width: $portrait-breakpoint)
     .dropdown-list:before
@@ -219,7 +255,7 @@
 
     #dropdown
       right: 0
-      
+
     .dropdown-name
       font-size: 16px
 
