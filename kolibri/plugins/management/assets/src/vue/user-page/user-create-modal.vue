@@ -78,7 +78,14 @@
           facility: this.facility,
         };
 
-        if (this.password === this.passwordConfirm) {
+        // check for all fields populated
+        if (!(this.username && this.password && this.full_name && this.role)) {
+          this.errorMessage = 'All fields must be populated';
+        // check for password confirmation match
+        } else if (!(this.password === this.passwordConfirm)) {
+          this.errorMessage = 'Passwords do not match.';
+        // create user
+        } else {
           newUser.password = this.password;
           // using promise to ensure that the user is created before closing
           this.createUser(newUser, this.role).then(
@@ -98,8 +105,6 @@
                 this.errorMessage = `Whoops! Something went wrong.`;
               }
             });
-        } else {
-          this.errorMessage = 'Passwords do not match.';
         }
       },
       clearErrorMessage() {
