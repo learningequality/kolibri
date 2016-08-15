@@ -62,6 +62,12 @@ module.exports = function CoreApp() {
    */
   vue.use(vuex);
 
+  this.i18n = {
+    reversed: false,
+  };
+
+  const self = this;
+
   function setUpVueIntl() {
     /**
      * Use the vue-intl plugin.
@@ -69,10 +75,17 @@ module.exports = function CoreApp() {
     const VueIntl = require('vue-intl');
     vue.use(VueIntl);
     vue.prototype.$tr = function $tr(messageId, ...args) {
+      const defaultMessageText = this.$options.$trs[messageId];
       const message = {
         id: `${this.$options.$trNameSpace}.${messageId}`,
-        defaultMessage: this.$options.$trs[messageId],
+        defaultMessage: defaultMessageText,
       };
+      // Allow string reversal in debug mode.
+      if (process.env.NODE_ENV === 'debug') {
+        if (self.i18n.reversed) {
+          return defaultMessageText.split('').reverse().join('');
+        }
+      }
       return this.$formatMessage(message, ...args);
     };
     mediator.setReady();
