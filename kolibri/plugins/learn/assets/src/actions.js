@@ -102,9 +102,6 @@ function _getCurrentChannelId() {
           }
         }
         resolve(currentChannelId);
-      })
-      .catch((error) => {
-
       });
   });
 }
@@ -129,9 +126,6 @@ function _getCurrentChannelRootTopicId() {
         }
       }
       resolve(currentChannelRootTopicId);
-    })
-    .catch((error) => {
-
     });
   });
 }
@@ -221,14 +215,11 @@ function showExploreChannel(store, channelId) {
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('SET_CHANNEL_LIST', channelList);
-        })
-        .catch((error) => {
-          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
         });
     })
     .catch((error) => {
-
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
 
@@ -293,7 +284,7 @@ function showLearnChannel(store, channelId) {
   ContentNodeResource.setChannel(channelId);
 
   const recommendedPromise =
-  ContentNodeResource.getCollection({ recommendations: '' }).fetch({}, true);
+    ContentNodeResource.getCollection({ recommendations: '' }).fetch({}, true);
   const channelPromise = ChannelResource.getCollection({}).fetch();
   Promise.all([recommendedPromise, channelPromise])
     .then(([recommendations, channelList]) => {
