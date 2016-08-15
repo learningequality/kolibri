@@ -1,14 +1,14 @@
 <template>
 
-  <nav class="nav" role="navigation" aria-label="You are here:">
+  <nav class="nav" role="navigation" :aria-label="youAreHere">
     <span class="parent">
-      <a v-link="rootLink">Explore</a> 
+      <a v-link="rootLink">{{ $tr('explore') }}</a>
     </span>
     <span class="parent" v-for="crumb in crumbs">
-      <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a> 
+      <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a>
     </span>
     <span class="current">
-      <span class="visuallyhidden">Current: </span>
+      <span class="visuallyhidden">{{ $tr('current') }} </span>
         <!-- TODO: Get current topic title -->
     </span>
   </nav>
@@ -21,6 +21,12 @@
   const PageNames = require('../../state/constants').PageNames;
 
   module.exports = {
+    $trNameSpace: 'learn',
+    $trs: {
+      explore: 'Explore',
+      youAreHere: 'You are here:',
+      current: 'Current:',
+    },
     props: {
       rootid: {
         type: String,
@@ -34,6 +40,9 @@
     computed: {
       rootLink() {
         return { name: PageNames.EXPLORE_CHANNEL };
+      },
+      youAreHere() {
+        return this.$tr('youAreHere');
       },
     },
     methods: {

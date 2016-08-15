@@ -10,7 +10,7 @@
         :crumbs='breadcrumbs'>
       </breadcrumbs>
       <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_CHANNEL }">
-        <span id="little-arrow">←</span> Learn
+        <span id="little-arrow">←</span> {{ $tr('learn') }}
       </a>
     </page-header>
 
@@ -49,7 +49,7 @@
 
     <expandable-content-grid class="recommendation-section"
       v-if="pageMode === $options.PageModes.LEARN"
-      title="Recommended"
+      :title="recommendedText"
       :contents="recommended">
     </expandable-content-grid>
 
@@ -64,6 +64,16 @@
   const getters = require('../../state/getters');
 
   module.exports = {
+    $trNameSpace: 'learnContent',
+    $trs: {
+      learn: 'Learn',
+      recommended: 'Recommended',
+    },
+    computed: {
+      recommendedText() {
+        return this.$tr('recommended');
+      },
+    },
     mixins: [constants], // makes constants available in $options
     components: {
       'breadcrumbs': require('../breadcrumbs'),

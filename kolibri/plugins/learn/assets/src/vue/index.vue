@@ -4,7 +4,7 @@
     <main-nav slot="nav"></main-nav>
     <div slot="above" class="top-wrapper">
       <search-button class='search-btn'></search-button>
-      <label for="chan-select" class="visuallyhidden">Filter User Type</label>
+      <label for="chan-select" class="visuallyhidden">{{ $tr('selectChannel') }}</label>
       <select
         class="chan-select"
         id="chan-select"
@@ -41,6 +41,11 @@
   const store = require('../state/store');
 
   module.exports = {
+    $trNameSpace: 'learn',
+
+    $trs: {
+      selectChannel: 'Select Channel',
+    },
     components: {
       'core-base': require('core-base'),
       'main-nav': require('./main-nav'),

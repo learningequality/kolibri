@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <card-grid :header="title" v-if="slicedContents.length">
+    <card-grid :header="computedTitle" v-if="slicedContents.length">
       <content-grid-item
         v-for="content in slicedContents"
         :title="content.title"
@@ -13,10 +13,10 @@
     </card-grid>
 
     <div class='button-wrapper' v-if="contents.length > nCollapsed">
-      <icon-button @click='toggle()' text="Show Less" v-if='expanded'>
+      <icon-button @click='toggle()' :text="less" v-if='expanded'>
         <svg src="show-less.svg"></svg>
       </icon-button>
-      <icon-button @click='toggle()' text="Show More" v-else>
+      <icon-button @click='toggle()' :text="more" v-else>
         <svg src="show-more.svg"></svg>
       </icon-button>
     </div>
@@ -28,10 +28,16 @@
 <script>
 
   module.exports = {
+    $trNameSpace: 'learnExpandable',
+    $trs: {
+      less: 'Show Less',
+      more: 'Show More',
+      defaultTitle: 'Contents',
+    },
     props: {
       title: {
         type: String,
-        default: 'Contents',
+        default: '',
       },
       contents: {
         type: Array,
@@ -60,6 +66,15 @@
       slicedContents() {
         const num = this.expanded ? this.nExpanded : this.nCollapsed;
         return this.contents.slice(0, num);
+      },
+      less() {
+        return this.$tr('less');
+      },
+      more() {
+        return this.$tr('more');
+      },
+      computedTitle() {
+        return this.title.length ? this.title : this.$tr('defaultTitle');
       },
     },
     methods: {
