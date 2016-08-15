@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'kolibri.logger',
     'kolibri.tasks.apps.KolibriTasksConfig',
     'kolibri.core.webpack',
+    'kolibri.core.discovery',
     'rest_framework',
     'kombu.transport.django',   # for celery and django communication
     'django_js_reverse',
