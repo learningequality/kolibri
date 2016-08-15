@@ -189,16 +189,6 @@
       outline: none
       border-bottom: 3px solid $core-action-normal
 
-  .edit-username
-    background: url('../icons/pencil.svg') no-repeat 280px 6px
-    fill: $core-action-light
-    transition: all 0.15s
-
-  .edit-fullname
-    background: url('../icons/pencil.svg') no-repeat 280px 6px
-    fill: $core-action-light
-    transition: all 0.15s
-
   .header
     text-align: center
 
