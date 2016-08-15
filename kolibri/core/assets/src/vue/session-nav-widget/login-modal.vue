@@ -2,7 +2,7 @@
 
   <div>
     <modal>
-      <div class="title" aria-label="Log in to Kolibri" slot="header">
+      <div class="title" aria-label="Log into Kolibri" slot="header">
         <div class="login-brand-box">
           <img src="./icons/kolibri-logo.svg" alt="Kolibri logo">
           <p id="login-brand">Kolibri</p>
@@ -10,7 +10,7 @@
       </div>
       <div slot="body">
         <div v-if="wrongCreds">
-          <h1>Log In Error!</h1>
+          <h1>Log-in Error</h1>
           <span aria-live="polite">Incorrect username or password.<br>Please try again!</span>
         </div>
         <input type="text" class="login-form login-username" v-model="username_entered" placeholder="Username" v-on:keyup.enter="userLogin" aria-label="Username" v-el:usernamefield autofocus>
@@ -82,6 +82,9 @@
 
   @require '~core-theme.styl'
   @require '~nav-bar-item.styl'
+
+  h1
+    font-size: 1.1em
 
   #person
     fill: $core-action-normal
