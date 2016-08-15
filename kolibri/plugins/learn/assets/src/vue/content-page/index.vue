@@ -14,6 +14,16 @@
       </a>
     </page-header>
 
+    <page-header :title='title'>
+      <content-icon
+        slot='icon'
+        :ispageicon="true"
+        :size="25"
+        :kind="kind"
+        :progress="progress">
+      </content-icon>
+    </page-header>
+
     <div class="content-container" v-show='!searchOpen'>
       <content-render
         :id="id"
@@ -26,15 +36,9 @@
       </content-render>
     </div>
 
-    <page-header :title='title'>
-      <content-icon
-        slot='icon'
-        :ispageicon="true"
-        :size="25"
-        :kind="kind"
-        :progress="progress">
-      </content-icon>
-    </page-header>
+    <p class="page-description">
+      {{ description }}
+    </p>
 
     <download-button
       :kind="kind"
@@ -42,10 +46,6 @@
       :available="available"
       :title="title">
     </download-button>
-
-    <p class="page-description">
-      {{ description }}
-    </p>
 
     <expandable-content-grid class="recommendation-section"
       v-if="pageMode === $options.PageModes.LEARN"
