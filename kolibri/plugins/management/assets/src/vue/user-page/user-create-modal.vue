@@ -5,7 +5,7 @@
 
       <h1 slot="header" class="header">Add New Account</h1>
 
-      <div slot="body">
+      <div @keyup.enter="createNewUser" slot="body">
 
         <div class="user-field">
           <label for="name">Name</label>
