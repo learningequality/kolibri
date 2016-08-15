@@ -69,8 +69,8 @@ function _collectionState(data) {
 
 
 /*
-* Returns the promise that fetches the channel list.
-*/
+ * Returns the promise that fetches the channel list.
+ */
 function _getChannelList() {
   let returnChannelList = null;
   return new Promise((resolve, reject) => {
@@ -91,29 +91,28 @@ function _getChannelList() {
 function _getCurrentChannelId() {
   let currentChannelId = null;
   return new Promise((resolve, reject) => {
-    const channelListPromise = _getChannelList();
-    Promise.all([channelListPromise])
-    .then(([channelList]) => {
-      if (channelList.length) {
-        const cookieCurrentChannelId = cookiejs.get('currentChannel');
-        if (channelList.some((channel) => channel.id === cookieCurrentChannelId)) {
-          currentChannelId = cookieCurrentChannelId;
-        } else {
-          currentChannelId = channelList[0].id;
+    _getChannelList()
+      .then((channelList) => {
+        if (channelList.length) {
+          const cookieCurrentChannelId = cookiejs.get('currentChannel');
+          if (channelList.some((channel) => channel.id === cookieCurrentChannelId)) {
+            currentChannelId = cookieCurrentChannelId;
+          } else {
+            currentChannelId = channelList[0].id;
+          }
         }
-      }
-      resolve(currentChannelId);
-    })
-    .catch((error) => {
+        resolve(currentChannelId);
+      })
+      .catch((error) => {
 
-    });
+      });
   });
 }
 
 
 /*
-* Returns a promise that fetches the the root topic id of the current channel.
-*/
+ * Returns a promise that fetches the the root topic id of the current channel.
+ */
 function _getCurrentChannelRootTopicId() {
   let currentChannelRootTopicId = null;
   return new Promise((resolve, reject) => {
@@ -144,19 +143,16 @@ function _getCurrentChannelRootTopicId() {
  * These methods are used to update client-side state
  */
 
+
 function redirectToExploreChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
-  const currentChannelIdPromise = _getCurrentChannelId();
-  const currentChannelRootTopicIdPromise = _getCurrentChannelRootTopicId();
-
-  Promise.all([currentChannelIdPromise, currentChannelRootTopicIdPromise])
-    .then(([currentChannelId, currentRootTopicId]) => {
+  _getCurrentChannelId()
+    .then((currentChannelId) => {
       store.dispatch('CORE_SET_ERROR', null);
       if (currentChannelId) {
         store.dispatch('SET_CURRENT_CHANNEL', currentChannelId);
-        store.dispatch('SET_ROOT_TOPIC_ID', currentRootTopicId);
         cookiejs.set('currentChannel', currentChannelId);
         router.go({
           name: constants.PageNames.EXPLORE_CHANNEL,
@@ -179,15 +175,11 @@ function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
 
-  const currentChannelIdPromise = _getCurrentChannelId();
-  const currentChannelRootTopicIdPromise = _getCurrentChannelRootTopicId();
-
-  Promise.all([currentChannelIdPromise, currentChannelRootTopicIdPromise])
-    .then(([currentChannelId, currentRootTopicId]) => {
+  _getCurrentChannelId()
+    .then((currentChannelId) => {
       store.dispatch('CORE_SET_ERROR', null);
       if (currentChannelId) {
         store.dispatch('SET_CURRENT_CHANNEL', currentChannelId);
-        store.dispatch('SET_ROOT_TOPIC_ID', currentRootTopicId);
         cookiejs.set('currentChannel', currentChannelId);
         router.go({
           name: constants.PageNames.LEARN_CHANNEL,
@@ -205,7 +197,6 @@ function redirectToLearnChannel(store) {
     });
 }
 
-
 function showExploreChannel(store, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
@@ -213,9 +204,8 @@ function showExploreChannel(store, channelId) {
   cookiejs.set('currentChannel', channelId);
   ContentNodeResource.setChannel(channelId);
 
-  const currentChannelRootTopicIdPromise = _getCurrentChannelRootTopicId();
-  Promise.all([currentChannelRootTopicIdPromise])
-    .then(([rootTopicId]) => {
+  _getCurrentChannelRootTopicId()
+    .then((rootTopicId) => {
       store.dispatch('SET_ROOT_TOPIC_ID', rootTopicId);
       const attributesPromise = ContentNodeResource.getModel(rootTopicId).fetch();
       const childrenPromise = ContentNodeResource.getCollection({ parent: rootTopicId }).fetch();
@@ -389,6 +379,7 @@ function showScratchpad(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
 }
+
 
 function showContentUnavailable(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
