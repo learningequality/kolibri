@@ -2,7 +2,7 @@
 
   <div>
     <modal>
-      <div class="title" aria-labelledby="loginModal" slot="header">
+      <div class="title" aria-label="Log in to Kolibri" slot="header">
         <div class="login-brand-box">
           <img src="./icons/kolibri-logo.svg" alt="Kolibri logo">
           <p id="login-brand">Kolibri</p>
@@ -73,7 +73,7 @@
         login: actions.kolibriLogin,
       },
     },
-	};
+  };
 
 </script>
 
@@ -107,7 +107,7 @@
 
   .login-brand-box
     text-align: center
-    margin: 15px auto
+    margin: 15px 5px auto
     img, p
       display: inline-block
     img
@@ -122,6 +122,7 @@
     letter-spacing: 0.1em
     font-weight: 100
     color: $core-action-normal
+    margin-bottom: 15px
 
   .login-form
     width: 300px
@@ -137,7 +138,7 @@
       border-bottom: 3px solid $core-action-normal
 
   .login-username
-    margin-bottom: 30px
+    margin: 30px auto
     background: url('./icons/user.svg') no-repeat 8px 6px
     transition: all 0.15s
     &:focus
