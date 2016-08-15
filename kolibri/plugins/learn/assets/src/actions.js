@@ -32,8 +32,15 @@ function _topicState(data) {
   return state;
 }
 
-
 function _contentState(data) {
+  let progress;
+  if (!data.progress_fraction) {
+    progress = 'unstarted';
+  } else if (data.progress_fraction < 1) {
+    progress = 'partial';
+  } else {
+    progress = 'complete';
+  }
   const state = {
     id: data.pk,
     title: data.title,
@@ -42,7 +49,8 @@ function _contentState(data) {
     thumbnail: data.thumbnail,
     available: data.available,
     files: data.files,
-    progress: data.progress ? data.progress : 'unstarted',
+    progress,
+    content_id: data.content_id,
     breadcrumbs: _crumbState(data.ancestors),
   };
   return state;
@@ -112,6 +120,7 @@ function redirectToExploreChannel(store) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
+
 
 function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -199,7 +208,6 @@ function showLearnChannel(store, channelId) {
 
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations: '' }).fetch();
   const channelPromise = ChannelResource.getCollection({}).fetch();
-
   Promise.all([recommendedPromise, channelPromise])
     .then(([recommendations, channelList]) => {
       const pageState = { recommendations: recommendations.map(_contentState) };
