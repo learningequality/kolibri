@@ -2,23 +2,23 @@
 
   <div>
     <nav class="nav" role="navigation" aria-label="You are here:">
-      <span class="learn-bread" v-if="pageName === allPageNames.LEARN_CONTENT">
-        <first-bread :breadlink="learnRoot" breadtext="Learn"></first-bread>
+      <span class="learn-bread" v-if="pageName === PageNames.LEARN_CONTENT">
+        <breadcrumb :linkobject="learnRootLink" text="Learn"></breadcrumb>
       </span>
 
-      <span class="explore-bread" v-if="!isRoot && pageName === allPageNames.EXPLORE_TOPIC">
-        <first-bread :showarrow='false' :breadlink="exploreRoot" breadtext="Explore"></first-bread>
+      <span class="explore-bread" v-if="!isRoot && pageName === PageNames.EXPLORE_TOPIC">
+        <breadcrumb :showarrow='false' :linkobject="exploreRootLink" text="Explore"></breadcrumb>
       </span>
 
-      <span class="portrait-only" v-if="!isRoot && pageName === allPageNames.EXPLORE_TOPIC">
-        <first-bread :breadlink="portraitOnlyParentLink"></first-bread>
+      <span class="portrait-only" v-if="!isRoot && pageName === PageNames.EXPLORE_TOPIC">
+        <breadcrumb :linkobject="portraitOnlyParentLink"></breadcrumb>
       </span>
 
-      <span v-if="pageName === allPageNames.EXPLORE_CONTENT">
-        <first-bread :breadlink="parentLink"></first-bread>
+      <span v-if="pageName === PageNames.EXPLORE_CONTENT">
+        <breadcrumb :linkobject="parentLink"></breadcrumb>
       </span>
 
-      <span class="middle-bread explore-bread" v-if="pageMode === allPageModes.EXPLORE" v-for="crumb in crumbs">
+      <span class="middle-bread explore-bread" v-if="pageMode === PageModes.EXPLORE" v-for="crumb in crumbs">
         <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a>
       </span>
     </nav>
@@ -35,19 +35,19 @@
 
   module.exports = {
     components: {
-      'first-bread': require('./first-bread'),
+      breadcrumb: require('./breadcrumb'),
     },
     computed: {
-      allPageModes() {
+      PageModes() {
         return PageModes;
       },
-      allPageNames() {
+      PageNames() {
         return PageNames;
       },
-      learnRoot() {
+      learnRootLink() {
         return { name: PageNames.LEARN_ROOT };
       },
-      exploreRoot() {
+      exploreRootLink() {
         return { name: PageNames.EXPLORE_ROOT };
       },
       parentLink() {
