@@ -41,18 +41,21 @@
 
       <div v-if="usr_delete" slot="body">
         <div class="user-field">
-          <h2> Are you sure you want to delete {{username_new}}? </h2>
+          <p> Are you sure you want to delete {{username_new}}? </p>
         </div>
       </div>
 
       <div slot="footer">
-        <button class="cancel-btn" type="button" @click="usr_delete=pw_reset=false">Cancel</button>
+        <button class="cancel-btn" type="button" @click="cancel">
+          Cancel
+        </button>
+
         <button class="confirm-btn" type="button" @click="editUser">Confirm</button>
         <br>
 
         <div class="advanced-options" v-if="!pw_reset && !usr_delete">
-          <p @click="pw_reset=!pw_reset"> Reset Password </p>
-          <p @click="usr_delete=!usr_delete"> Delete User</p>
+          <button @click="pw_reset=!pw_reset"> Reset Password </button>
+          <button @click="usr_delete=!usr_delete"> Delete User</button>
         </div>
       </div>
 
@@ -107,6 +110,13 @@
           this.$refs.modal.closeModal();
         }
       },
+      cancel() {
+        if (this.usr_delete || this.pw_reset) {
+          this.usr_delete = this.pw_reset = false;
+        } else {
+          this.$refs.modal.closeModal();
+        }
+      },
     },
     vuex: {
       getters: {
@@ -132,8 +142,18 @@
   .no-border
     border: none
 
+  .confirm-btn, .cancel-btn
+    width: 48%
+
   .confirm-btn
     float: right
+    background-color: $core-action-normal
+    color: white
+    &:hover
+      border-color: $core-action-normal
+
+  .cancel-btn
+    float:left
 
   .delete-btn
     width: 100%
@@ -189,6 +209,9 @@
     cursor: pointer
 
   .advanced-options
-    cursor: pointer
+    margin-top: 5%
+    button
+      display: block
+      border: none
 
 </style>
