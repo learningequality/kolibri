@@ -4,10 +4,10 @@
     <nav-bar>
       <slot name="nav"></slot>
     </nav-bar>
-    <div class='main-wrapper' v-scroll='onScroll'>
+    <div class='main-wrapper' v-scroll='onScroll' v-if='!loading'>
       <error-box v-show='error'></error-box>
       <slot name="above"></slot>
-      <main role="main" class="page-content" v-if='!loading'>
+      <main role="main" class="page-content">
         <slot name="content"></slot>
       </main>
       <slot name="below"></slot>
