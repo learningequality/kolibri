@@ -1,28 +1,50 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.conf import settings
 from django.views.generic.base import TemplateView
 from kolibri.content.content_db_router import using_content_database
-from kolibri.content.models import ContentNode
-from kolibri.content.serializers import ContentNodeSerializer
+from kolibri.content.models import ChannelMetadataCache, ContentNode
+from kolibri.content.serializers import ChannelMetadataCacheSerializer, ContentNodeSerializer
 from rest_framework.renderers import JSONRenderer
 
 
 class LearnView(TemplateView):
-
     template_name = "learn/learn.html"
 
     def get_context_data(self, **kwargs):
-        channel_id = getattr(self.request, "channel_id", "da32c86316b623399732d886af6c7c49")
         context = super(LearnView, self).get_context_data(**kwargs)
-        with using_content_database(channel_id):
-            root_node = ContentNode.objects.get(parent__isnull=True)
-            top_level_nodes = root_node.get_children()
-            mcontext = {'request': self.request}
-            topics_serializer = ContentNodeSerializer(top_level_nodes, context=mcontext, many=True)
-            root_node_serializer = ContentNodeSerializer(root_node, context=mcontext)
-            context['nodes'] = JSONRenderer().render(topics_serializer.data)
-            context['rootnode'] = JSONRenderer().render(root_node_serializer.data)
-        context['kolibri'] = settings.KOLIBRI_CORE_JS_NAME
-        context['channel_id'] = channel_id
+        context['channelList'] = []
+        context['channel_id'] = ''
+        context['nodes'] = []
+        context['rootnode'] = []
+
+        channels = ChannelMetadataCache.objects.all()
+        if not channels:
+            return context
+        else:
+            channel_serializer = ChannelMetadataCacheSerializer(channels, many=True)
+            channel_list = JSONRenderer().render(channel_serializer.data)
+            context['channelList'] = channel_list
+
+            cookie_current_channel = self.request.COOKIES.get("currentChannel")
+            channelExists = False
+            for channel in ChannelMetadataCache.objects.all():
+                if channel.id == cookie_current_channel:
+                    channelExists = True
+                    break
+            if (cookie_current_channel is not None) and channelExists:
+                channel_id = cookie_current_channel
+            else:
+                channel_id = ChannelMetadataCache.objects.first().id
+
+            context['channel_id'] = channel_id
+
+            with using_content_database(channel_id):
+                root_node = ContentNode.objects.get(parent__isnull=True)
+                top_level_nodes = root_node.get_children()
+                mcontext = {'request': self.request}
+                topics_serializer = ContentNodeSerializer(top_level_nodes, context=mcontext, many=True)
+                root_node_serializer = ContentNodeSerializer(root_node, context=mcontext)
+                context['nodes'] = JSONRenderer().render(topics_serializer.data)
+                context['rootnode'] = JSONRenderer().render(root_node_serializer.data)
+
         return context

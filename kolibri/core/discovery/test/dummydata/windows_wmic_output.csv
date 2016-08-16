@@ -1,0 +1,4 @@
+Node,Access,Availability,BlockSize,Caption,Compressed,ConfigManagerErrorCode,ConfigManagerUserConfig,Description,DeviceID,DriveType,ErrorCleared,ErrorDescription,ErrorMethodology,FileSystem,FreeSpace,InstallDate,LastErrorCode,MaximumComponentLength,MediaType,Name,NumberOfBlocks,PNPDeviceID,PowerManagementCapabilities,PowerManagementSupported,ProviderName,Purpose,QuotasDisabled,QuotasIncomplete,QuotasRebuilding,Size,Status,StatusInfo,SupportsDiskQuotas,SupportsFileBasedCompression,VolumeName,VolumeSerialNumber
+IE8WINXP,,,,C:,FALSE,,,Local Fixed Disk,C:,3,,,,NTFS,132940218368,,,255,12,C:,,,,,,,TRUE,FALSE,FALSE,136251727872,,,TRUE,TRUE,,C00A56A9
+IE8WINXP,,,,D:,FALSE,,,DVD-ROM Disc,D:,5,,,,CDFS,0,,,110,11,D:,,,,,,,,,,58388480,,,FALSE,FALSE,VBOXADDITIONS_4.,84BE9BD0
+IE8WINXP,,,,E:,,,,CD-ROM Disc,E:,5,,,,,,,,,11,E:,,,,,,,,,,,,,,,,

@@ -2,29 +2,6 @@
 
   <div>
 
-    <page-header>
-      <breadcrumbs
-        v-if="pageMode === $options.PageModes.EXPLORE"
-        slot='extra-nav'
-        :rootid='rootTopicId'
-        :crumbs='breadcrumbs'>
-      </breadcrumbs>
-      <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_ROOT }">
-        <span id="little-arrow">←</span> Learn
-      </a>
-    </page-header>
-
-    <div class="content-container" v-show='!searchOpen'>
-      <content-render
-        :id="id"
-        :kind="kind"
-        :files="files"
-        :content-id="contentId"
-        :available="available"
-        :extra-fields="extraFields">
-      </content-render>
-    </div>
-
     <page-header :title='title'>
       <content-icon
         slot='icon'
@@ -35,6 +12,22 @@
       </content-icon>
     </page-header>
 
+    <div class="content-container" v-show='!searchOpen'>
+      <content-render
+        :id="id"
+        :kind="kind"
+        :files="files"
+        :content-id="contentId"
+        :channel-id="channelId"
+        :available="available"
+        :extra-fields="extraFields">
+      </content-render>
+    </div>
+
+    <p class="page-description">
+      {{ description }}
+    </p>
+
     <download-button
       :kind="kind"
       :files="files"
@@ -42,13 +35,9 @@
       :title="title">
     </download-button>
 
-    <p class="page-description">
-      {{ description }}
-    </p>
-
     <expandable-content-grid class="recommendation-section"
       v-if="pageMode === $options.PageModes.LEARN"
-      title="Recommended"
+      :title="recommendedText"
       :contents="recommended">
     </expandable-content-grid>
 
@@ -63,9 +52,17 @@
   const getters = require('../../state/getters');
 
   module.exports = {
+    $trNameSpace: 'learnContent',
+    $trs: {
+      recommended: 'Recommended',
+    },
+    computed: {
+      recommendedText() {
+        return this.$tr('recommended');
+      },
+    },
     mixins: [constants], // makes constants available in $options
     components: {
-      'breadcrumbs': require('../breadcrumbs'),
       'content-icon': require('../content-icon'),
       'page-header': require('../page-header'),
       'content-render': require('content-renderer'),
@@ -76,7 +73,6 @@
       getters: {
         // general state
         pageMode: getters.pageMode,
-        rootTopicId: state => state.rootTopicId,
 
         // TODO - remove hack
         // temporarily using this to address an IE10 bug where the PDF
@@ -91,9 +87,9 @@
         kind: (state) => state.pageState.content.kind,
         files: (state) => state.pageState.content.files,
         contentId: (state) => state.pageState.content.content_id,
+        channelId: (state) => state.currentChannel,
         available: (state) => state.pageState.content.available,
         extraFields: (state) => state.pageState.content.extra_fields,
-        breadcrumbs: (state) => state.pageState.content.breadcrumbs,
 
         // only used on learn page
         recommended: (state) => state.pageState.recommended,

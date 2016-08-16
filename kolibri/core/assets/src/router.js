@@ -29,7 +29,9 @@ class Router {
       transitionObject.to,
       transitionObject.from
     );
-    transitionObject.next();
+    if (transitionObject.next) {
+      transitionObject.next();
+    }
   }
 
   /**
@@ -47,12 +49,23 @@ class Router {
     this._actions[name] = action;
   }
 
+  go(options) {
+    this._vueRouter.go(options);
+  }
+
   redirect(options) {
     this._vueRouter.redirect(options);
   }
 
   start(vm, selector) {
     this._vueRouter.start(vm, selector);
+  }
+
+  /**
+   * Make the router reexecute actions for its current location.
+   */
+  refresh() {
+    this._hook(this._vueRouter._currentTransition);
   }
 }
 

@@ -1,8 +1,8 @@
 <template>
 
   <div>
-    <h2>Whoops!</h2>
-    <p>We've encountered an issue:</p>
+    <h1>{{ $tr('errorHeader') }}</h1>
+    <p>{{ $tr('errorPrefixText') }}</p>
     <textarea>
       {{ error }}
     </textarea>
@@ -14,6 +14,11 @@
 <script>
 
   module.exports = {
+    $trNameSpace: 'error',
+    $trs: {
+      errorHeader: 'Error',
+      errorPrefixText: 'We\'ve encountered an issue:',
+    },
     vuex: {
       getters: {
         error: state => state.core.error,

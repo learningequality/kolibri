@@ -31,7 +31,7 @@
   @require '~core-theme.styl'
   @require '../../learn.styl'
 
-  $thumb-width = $card-height * 3.0 / 2.5;
+  $thumb-width = $horizontal-card-height
 
   .root
     display: block
@@ -40,28 +40,43 @@
     background-color: $core-bg-light
     overflow: hidden
     border-radius: $radius
-
-  .root:focus
-    background-color: $core-action-light
-    outline: none
+    @media screen and (max-width: 619px)
+      // Hard-code media query, potential to revisit
+      width: $horizontal-card-width
+      height: $horizontal-card-height
 
   .thumb-wrapper
     position: relative
     display: block
-    float: left
-    width: $thumb-width
-    height: $card-height
-    border-radius: $radius 0 0  $radius
+    width: 100%
+    height: $thumbnail-height
+    border-radius: $radius $radius 0 0
     overflow: hidden
+    @media screen and (max-width: 619px)
+      // Hard-code media query, potential to revisit
+      float: left
+      width: $thumb-width
+      height: $horizontal-card-height
+      border-radius: $radius 0 0  $radius
 
   .text
     display: block
-    float: right
-    width: $card-width - $thumb-width
-    height: $card-height
+    display: -webkit-box
+    -webkit-line-clamp: 3 // Enhance Chrome, doesn't work on other browsers
+    -webkit-box-orient: vertical // Enhance Chrome, doesn't work on other browsers
+    width: 100%
+    max-height: 68px
     padding: 0.6em
     font-size: 0.9rem
-    font-weight: bold
+    line-height: 1.2rem
     color: $core-text-default
+    overflow: hidden
+    text-overflow: ellipsis
+    @media screen and (max-width: 619px)
+      // Hard-code media query, potential to revisit
+      float: right
+      max-height: 86px
+      width: $horizontal-card-width - $thumb-width
+      -webkit-line-clamp: 4 // Enhance Chrome, doesn't work on other browsers
 
 </style>

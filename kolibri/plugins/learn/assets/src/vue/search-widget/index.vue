@@ -7,8 +7,8 @@
       <input
         type="search"
         v-el:search
-        aria-label="Type to find content"
-        placeholder="Find content..."
+        :aria-label="ariaLabel"
+        :placeholder="placeHolder"
         autocomplete="off"
         v-focus="searchOpen"
         v-model="localSearchTerm"
@@ -66,6 +66,12 @@
 
 
   module.exports = {
+    $trNameSpace: 'learnSearch',
+
+    $trs: {
+      ariaLabel: 'Type to find content',
+      placeHolder: 'Find content...',
+    },
     directives: { focus },
     props: {
       showTopics: {
@@ -86,6 +92,12 @@
           return 'Could not find any matches.';
         }
         return '';
+      },
+      ariaLabel() {
+        return this.$tr('ariaLabel');
+      },
+      placeHolder() {
+        return this.$tr('placeHolder');
       },
     },
     methods: {
@@ -130,7 +142,7 @@
   @require '~core-theme.styl'
   @require '../learn.styl'
 
-  $top-offset = 70px
+  $top-offset = 120px
 
   .wrapper
     margin: auto
@@ -144,7 +156,7 @@
   .top
     background-color: $core-bg-canvas
     height: $top-offset
-    padding-top: 1rem
+    padding-top: 4rem
     z-index: 10000
     text-align: center
     position: fixed
@@ -173,7 +185,7 @@
 
   .reset
     border: none
-    background-color: white // IE10 needs a non-transparent bg to be clickable
+    background-color: $core-bg-light // IE10 needs a non-transparent bg to be clickable
     display: inline-block
     outline: none
     cursor: pointer

@@ -29,6 +29,15 @@
   const KINDS = ['audio', 'document', 'video']; // not 'exercise' for now
 
   module.exports = {
+    $trNameSpace: 'learn',
+    $trs: {
+      complete: 'complete',
+      partial: 'partial',
+      unstarted: 'unstarted',
+      audio: 'audio',
+      document: 'document',
+      video: 'video',
+    },
     props: {
       ispageicon: {
         type: Boolean,
@@ -55,8 +64,7 @@
     },
     computed: {
       altText() {
-        // TODO - I18N
-        return `${this.progress} - ${this.kind}`;
+        return `${this.$tr(this.progress)} - ${this.$tr(this.kind)}`;
       },
     },
     methods: {

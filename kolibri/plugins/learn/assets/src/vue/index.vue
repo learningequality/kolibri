@@ -2,7 +2,7 @@
 
   <core-base>
     <main-nav slot="nav"></main-nav>
-    <search-button slot="above" class='search-btn'></search-button>
+    <toolbar slot="above"></toolbar>
     <component slot="content" :is="currentPage"></component>
     <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
       <div class='search-shadow'>
@@ -31,6 +31,7 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
+      'toolbar': require('./toolbar'),
       'main-nav': require('./main-nav'),
       'search-widget': require('./search-widget'),
       'search-button': require('./search-widget/search-button'),
@@ -38,21 +39,26 @@
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
       'scratchpad-page': require('./scratchpad-page'),
+      'content-unavailable-page': require('./content-unavailable-page'),
     },
     computed: {
       currentPage() {
-        if (this.pageName === PageNames.EXPLORE_ROOT || this.pageName === PageNames.EXPLORE_TOPIC) {
+        if (this.pageName === PageNames.EXPLORE_CHANNEL ||
+          this.pageName === PageNames.EXPLORE_TOPIC) {
           return 'explore-page';
         }
         if (this.pageName === PageNames.EXPLORE_CONTENT ||
           this.pageName === PageNames.LEARN_CONTENT) {
           return 'content-page';
         }
-        if (this.pageName === PageNames.LEARN_ROOT) {
+        if (this.pageName === PageNames.LEARN_CHANNEL) {
           return 'learn-page';
         }
         if (this.pageName === PageNames.SCRATCHPAD) {
           return 'scratchpad-page';
+        }
+        if (this.pageName === PageNames.CONTENT_UNAVAILABLE) {
+          return 'content-unavailable-page';
         }
         return null;
       },
@@ -77,14 +83,6 @@
 
   @require '~core-theme.styl'
   @require 'learn.styl'
-
-  .search-btn
-    position: fixed
-    top: 1rem
-    right: 2rem
-    z-index: 1
-    @media screen and (max-width: $portrait-breakpoint)
-      right: 1rem
 
   .search-pane
     background-color: $core-bg-canvas

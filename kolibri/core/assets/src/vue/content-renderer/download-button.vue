@@ -1,6 +1,6 @@
 <template>
 
-  <icon-button @click="downloadContent" text="Download Media">
+  <icon-button @click="downloadContent" :text="downloadMediaText">
     <svg src="download.svg"></svg>
   </icon-button>
 
@@ -12,6 +12,10 @@
   const downloadjs = require('./download.js');
 
   module.exports = {
+    $trNameSpace: 'contentRender',
+    $trs: {
+      downloadMedia: 'Download Media',
+    },
     props: {
       kind: {
         type: String,
@@ -51,6 +55,9 @@
           (file) => !file.thumbnail & !file.supplementary & file.available
         );
       },
+      downloadMediaText() {
+        return this.$tr('downloadMedia');
+      },
     },
     methods: {
       /**
@@ -69,12 +76,13 @@
       */
       sanitizeFilename(filename) {
         let sanitizedFilename = filename.replace(/[^a-z0-9+]+/gi, '_');
+        sanitizedFilename = sanitizedFilename.replace(/_$/, '');
         sanitizedFilename = sanitizedFilename.toLowerCase();
         sanitizedFilename = sanitizedFilename.substring(0, 50);
         if (!sanitizedFilename.trim()) {
           sanitizedFilename = 'download';
         }
-        return sanitizedFilename;
+        return `${sanitizedFilename}.${this.extension}`;
       },
     },
   };

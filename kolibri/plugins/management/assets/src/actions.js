@@ -1,10 +1,41 @@
 const Kolibri = require('kolibri');
 
 const FacilityUserResource = Kolibri.resources.FacilityUserResource;
+const ChannelResource = Kolibri.resources.ChannelResource;
+const TaskResource = Kolibri.resources.TaskResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
 const constants = require('./state/constants');
+const UserKinds = require('core-constants').UserKinds;
 const PageNames = constants.PageNames;
+
+
+// ================================
+// USER MANAGEMENT ACTIONS
+
+
+/**
+ * Vuex State Mappers
+ *
+ * The methods below help map data from
+ * the API to state in the Vuex store
+ */
+
+function _userState(data) {
+  // assume just one role for now
+  let kind = UserKinds.LEARNER;
+  if (data.roles.length && data.roles[0].kind === 'admin') {
+    kind = UserKinds.ADMIN;
+  }
+  return {
+    id: data.id,
+    facility_id: data.facility,
+    username: data.username,
+    full_name: data.full_name,
+    roles: data.roles,
+    kind, // unused for now
+  };
+}
 
 
 /**
@@ -15,11 +46,11 @@ const PageNames = constants.PageNames;
 function createUser(store, payload, role) {
   const FacilityUserModel = FacilityUserResource.createModel(payload);
   const newUserPromise = FacilityUserModel.save(payload);
-  newUserPromise.then((model) => {
-    // assgin role to this new user if the role is not learner
+  // returns a promise so the result can be used by the caller
+  return newUserPromise.then((model) => {
+    // assign role to this new user if the role is not learner
     if (role === 'learner' || !role) {
-      // mutation ADD_USERS only take array
-      store.dispatch('ADD_USERS', [model]);
+      store.dispatch('ADD_USER', _userState(model));
     } else {
       const rolePayload = {
         user: model.id,
@@ -30,16 +61,13 @@ function createUser(store, payload, role) {
       const newRolePromise = RoleModel.save(rolePayload);
       newRolePromise.then((results) => {
         FacilityUserModel.fetch({}, true).then(updatedModel => {
-          store.dispatch('ADD_USERS', [updatedModel]);
+          store.dispatch('ADD_USER', _userState(updatedModel));
         });
       }).catch((error) => {
         store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       });
     }
-  })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
+  }).catch((error) => Promise.reject(error));
 }
 
 /**
@@ -79,7 +107,7 @@ function updateUser(store, id, payload, role) {
     } else if (role !== 'learner') {
     // oldRole is admin and role is coach or oldRole is coach and role is admin.
       const OldRoleModel = RoleResource.getModel(oldRoldID);
-      OldRoleModel.delete(oldRoldID).then(() => {
+      OldRoleModel.delete().then(() => {
       // create new role when old role is successfully deleted.
         const rolePayload = {
           user: id,
@@ -106,7 +134,7 @@ function updateUser(store, id, payload, role) {
     } else {
     // role is learner and oldRole is admin or coach.
       const OldRoleModel = RoleResource.getModel(oldRoldID);
-      OldRoleModel.delete(oldRoldID).then(() => {
+      OldRoleModel.delete().then(() => {
         FacilityUserModel.save(payload).then(responses => {
           // force role change because if the role is the only changing attribute
           // FacilityUserModel.save() will not send request to server.
@@ -138,10 +166,10 @@ function deleteUser(store, id) {
     // if no id passed, abort the function
     return;
   }
-  const FacilityUserModel = Kolibri.resources.FacilityUserResource.getModel(id);
-  const newUserPromise = FacilityUserModel.delete(id);
-  newUserPromise.then((userId) => {
-    store.dispatch('DELETE_USERS', [userId]);
+  const FacilityUserModel = FacilityUserResource.getModel(id);
+  const deleteUserPromise = FacilityUserModel.delete();
+  deleteUserPromise.then((user) => {
+    store.dispatch('DELETE_USER', id);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -152,15 +180,20 @@ function deleteUser(store, id) {
 function showUserPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.USER_MGMT_PAGE);
-  const learnerCollection = FacilityUserResource.getCollection();
-  const roleCollection = RoleResource.getCollection();
+  const userCollection = FacilityUserResource.getCollection();
   const facilityIdPromise = FacilityUserResource.getCurrentFacility();
-  const userPromise = learnerCollection.fetch();
-  const rolePromise = roleCollection.fetch();
-  const promises = [facilityIdPromise, userPromise, rolePromise];
-  Promise.all(promises).then(([id, users]) => {
-    store.dispatch('SET_FACILITY', id[0]); // for mvp, we assume only one facility exists
-    store.dispatch('ADD_USERS', users);
+  const userPromise = userCollection.fetch();
+
+  const promises = [facilityIdPromise, userPromise];
+
+  Promise.all(promises).then(([facilityId, users]) => {
+    store.dispatch('SET_FACILITY', facilityId[0]); // for mvp, we assume only one facility exists
+
+    const pageState = {
+      users: users.map(_userState),
+    };
+
+    store.dispatch('SET_PAGE_STATE', pageState);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
     store.dispatch('CORE_SET_ERROR', null);
   },
@@ -170,12 +203,90 @@ function showUserPage(store) {
   });
 }
 
+
+// ================================
+// CONTENT IMPORT/EXPORT ACTIONS
+
+
 function showContentPage(store) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
-  store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
+  // const taskCollectionPromise = TaskResource.getCollection().fetch();
+  const taskCollectionPromise = Promise.resolve([]); // TODO - remove
+  taskCollectionPromise.then((taskList) => {
+    const pageState = { showWizard: false };
+    pageState.taskList = taskList;
+    if (taskList.length) { // only one task at a time for now
+      store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
+    }
+    const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
+    channelCollectionPromise.then((channelList) => {
+      pageState.channelList = channelList;
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    });
+  })
+  .catch((error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  });
 }
+
+
+function startImportWizard(store) {
+  store.dispatch('SET_CONTENT_WIZARD_STATE', true, {
+    type: 'import',
+    page: 'start',
+  });
+}
+
+function startExportWizard(store) {
+  store.dispatch('SET_CONTENT_WIZARD_STATE', true, {
+    type: 'import',
+    page: 'start',
+  });
+}
+
+function cancelImportExportWizard(store) {
+  store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
+}
+
+
+// background worker calls this to continually update UI
+function updateTasks(store) {
+  const taskCollectionPromise = TaskResource.getCollection().fetch();
+  taskCollectionPromise.then((taskList) => {
+    const pageState = { showWizard: false };
+    pageState.taskList = taskList;
+    if (taskList.length) { // only one task at a time for now
+      store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
+    }
+    const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
+    channelCollectionPromise.then((channelList) => {
+      pageState.channelList = channelList;
+      store.dispatch('SET_PAGE_STATE', pageState);
+    });
+  })
+  .catch((error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
+
+function clearTasks(store, id) {
+  const currentTaskPromise = TaskResource.getModel(id).delete(id);
+  currentTaskPromise.then(() => {
+    // only 1 task should be running, but we set to empty array
+    store.dispatch('SET_TASKS', []);
+  })
+  .catch((error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
+
+
+// ================================
+// OTHER ACTIONS
+
 
 function showDataPage(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.DATA_EXPORT_PAGE);
@@ -196,7 +307,14 @@ module.exports = {
   updateUser,
   deleteUser,
   showUserPage,
+
   showContentPage,
+  updateTasks,
+  clearTasks,
+  startImportWizard,
+  startExportWizard,
+  cancelImportExportWizard,
+
   showDataPage,
   showScratchpad,
 };
