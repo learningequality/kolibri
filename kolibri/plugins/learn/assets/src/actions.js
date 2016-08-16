@@ -93,7 +93,7 @@ function _getCurrentChannelId() {
   return new Promise((resolve, reject) => {
     _getChannelList()
       .then((channelList) => {
-        if (channelList) {
+        if (channelList && channelList.length) {
           const cookieCurrentChannelId = cookiejs.get('currentChannel');
           if (channelList.some((channel) => channel.id === cookieCurrentChannelId)) {
             currentChannelId = cookieCurrentChannelId;
