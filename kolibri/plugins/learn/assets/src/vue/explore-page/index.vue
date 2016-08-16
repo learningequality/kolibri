@@ -3,12 +3,6 @@
   <div>
 
     <page-header :title='title'>
-      <breadcrumbs
-        v-if='!isRoot'
-        slot='extra-nav'
-        :rootid='rootTopicId'
-        :crumbs='topic.breadcrumbs'>
-      </breadcrumbs>
       <div slot='icon'>
         <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"></svg>
         <svg v-else class="pageicon" src="../icons/folder.svg"></svg>
@@ -19,7 +13,7 @@
       {{ topic.description }}
     </p>
 
-    <span class="visuallyhidden" v-if="subtopics.length">You can navigate groups of content through headings.</span>
+    <span class="visuallyhidden" v-if="subtopics.length">{{ $tr('navigate') }}</span>
 
     <card-list v-if="subtopics.length">
       <topic-list-item
@@ -51,8 +45,12 @@
 <script>
 
   module.exports = {
+    $trNameSpace: 'learnExplore',
+    $trs: {
+      explore: 'Explore',
+      navigate: 'You can navigate groups of content through headings.',
+    },
     components: {
-      'breadcrumbs': require('../breadcrumbs'),
       'page-header': require('../page-header'),
       'topic-list-item': require('../topic-list-item'),
       'content-grid-item': require('../content-grid-item'),
@@ -61,13 +59,11 @@
     },
     computed: {
       title() {
-        // TODO - i18n
-        return this.isRoot ? 'Explore' : this.topic.title;
+        return this.isRoot ? this.$tr('explore') : this.topic.title;
       },
     },
     vuex: {
       getters: {
-        rootTopicId: state => state.rootTopicId,
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         contents: state => state.pageState.contents,

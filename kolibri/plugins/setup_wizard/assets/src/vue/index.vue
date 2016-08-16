@@ -4,22 +4,22 @@
     <div class="wrapper" role="main">
       <img class="logo" src="./icons/logo-min.png" alt="Kolibri logo">
       <div class="container">
-        <h1>Create Kolibri Device Owner and Facility</h1>
-        <h2 class="title">Device Owner</h2>
-        <div class="description">To use Kolibri, you first need to create a Device Owner account. This account will be used to configure high-level settings for this installation, and create other administrator accounts.</div>
+        <h1>{{ $tr('header') }}</h1>
+        <h2 class="title">{{ tr('deviceOwner') }}</h2>
+        <div class="description">{{ tr('deviceOwnerDescription') }}</div>
         <div class="creation-form">
-          <br><input :class="{ 'input-error': username_error }" type="text" v-model="username" placeholder="Username" aria-label="Username"><br>
-          <br><input :class="{ 'input-error': password_error }" type="password" v-model="password" placeholder="Password" aria-label="Password"><br>
-          <br><input :class="{ 'input-error': password_error }" type="password" v-model="confirm_password" placeholder="Confirm password" aria-label="Confirm password">
+          <br><input :class="{ 'input-error': username_error }" type="text" v-model="username" :placeholder="username" :aria-label="username"><br>
+          <br><input :class="{ 'input-error': password_error }" type="password" v-model="password" :placeholder="password" :aria-label="password"><br>
+          <br><input :class="{ 'input-error': password_error }" type="password" v-model="confirm_password" :placeholder="confirmPassword" :aria-label="confirmPassword">
           <p class="error-message">{{ errormessage }}</p>
         </div>
-        <h2 class="title">Facility</h2>
-        <div class="description">You also need to create a Facility, which represents your school, training center, or other location where this installation will be used.</div>
-        <br><input :class="{ 'input-error': facility_error }" type="text" v-model="facility" placeholder="Facility name" aria-label="Facility name"><br>
+        <h2 class="title">{{ $tr('facility') }}</h2>
+        <div class="description">{{ tr('facilityOwnerDescription') }}</div>
+        <br><input :class="{ 'input-error': facility_error }" type="text" v-model="facility" :placeholder="facilityName" :aria-label="facilityName"><br>
         <br>
         <br>
         <div class="btn-wrapper">
-          <button class="create-btn" type="button" @click="createBoth">Create and get started</button>
+          <button class="create-btn" type="button" @click="createBoth">{{ $tr('getStarted') }}</button>
         </div>
       </div>
     </div>
@@ -34,6 +34,33 @@
   const store = require('../state/store');
 
   module.exports = {
+    $trNameSpace: 'setupWizard',
+    $trs: {
+      header: 'Create Kolibri Device Owner and Facility',
+      deviceOwner: 'Recommended',
+      deviceOwnerDescription: 'To use Kolibri, you first need to create a Device Owner account. This account will be used to configure high-level settings for this installation, and create other administrator accounts.', // eslint-disable-line max-len
+      username: 'Username',
+      password: 'Password',
+      confirmPassword: 'Confirm password',
+      facility: 'Facility',
+      facilityDescription: 'You also need to create a Facility, which represents your school, training center, or other location where this installation will be used.', // eslint-disable-line max-len
+      facilityName: 'Facility name',
+      getStarted: 'Create and get started',
+    },
+    computed: {
+      username() {
+        return this.$tr('username');
+      },
+      password() {
+        return this.$tr('password');
+      },
+      confirmPassword() {
+        return this.$tr('confirmPassword');
+      },
+      facilityName() {
+        return this.$tr('facilityName');
+      },
+    },
     data() {
       return {
         username: '',

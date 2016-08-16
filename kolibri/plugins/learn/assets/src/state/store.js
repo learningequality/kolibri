@@ -4,7 +4,6 @@ const Vuex = require('vuex');
 const coreStore = require('core-store');
 
 const initialState = {
-  rootTopicId: global.root_node_pk,
   pageName: constants.PageNames.EXPLORE_CHANNEL,
   pageState: {},
   searchOpen: false,
@@ -14,8 +13,9 @@ const initialState = {
     contents: [],
     searchTerm: '',
   },
-  currentChannel: '',
   channelList: {},
+  currentChannel: '',
+  rootTopicId: '',
 };
 
 const mutations = {
@@ -41,6 +41,9 @@ const mutations = {
   },
   SET_CHANNEL_LIST(state, channelList) {
     state.channelList = channelList;
+  },
+  SET_ROOT_TOPIC_ID(state, rootTopicId) {
+    state.rootTopicId = rootTopicId;
   },
 };
 

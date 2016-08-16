@@ -8,15 +8,15 @@
   -->
   <nav-bar-item :vlink="learnLink" :active="learnActive">
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
-    <div class="label">Learn</div>
+    <div class="label">{{ $tr('learn') }}</div>
   </nav-bar-item>
   <nav-bar-item :vlink="exploreLink" :active="exploreActive">
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
-    <div class="label">Explore</div>
+    <div class="label">{{ $tr('explore') }}</div>
   </nav-bar-item>
   <nav-bar-item v-if="isAdminOrSuperuser" href="/management">
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/manage.svg"></svg>
-    <div class="label">Manage</div>
+    <div class="label">{{ $tr('manage') }}</div>
   </nav-bar-item>
 
 </template>
@@ -29,6 +29,12 @@
   const UserKinds = require('core-constants').UserKinds;
 
   module.exports = {
+    $trNameSpace: 'learnNav',
+    $trs: {
+      learn: 'Learn',
+      explore: 'Explore',
+      manage: 'Manage',
+    },
     components: {
       'nav-bar-item': require('nav-bar-item'),
     },
