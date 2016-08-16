@@ -1,14 +1,14 @@
 <template>
 
   <div>
-    <nav class="nav" role="navigation" :aria-label="youAreHere">
+    <nav class="nav" role="navigation" :aria-label="$tr('youAreHere')">
       <span class="learn-bread" v-if="pageName === PageNames.LEARN_CONTENT">
-        <breadcrumb :linkobject="learnRootLink" :text="learn"></breadcrumb>
+        <breadcrumb :linkobject="learnRootLink" :text="$tr('learn')"></breadcrumb>
       </span>
 
       <template v-if="pageName === PageNames.EXPLORE_TOPIC">
         <span class="landscape">
-          <breadcrumb :showarrow='false' :linkobject="exploreRootLink" :text="explore"></breadcrumb>
+          <breadcrumb :showarrow='false' :linkobject="exploreRootLink" :text="$tr('explore')"></breadcrumb>
         </span>
         <span class="portrait">
           <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
@@ -40,7 +40,6 @@
       learn: 'Learn',
       explore: 'Explore',
       youAreHere: 'You are here:',
-      current: 'Current:',
     },
     components: {
       breadcrumb: require('./breadcrumb'),
@@ -75,15 +74,6 @@
           return this.topicLink(breadcrumbs[breadcrumbs.length - 1].id);
         }
         return this.exploreRootLink;
-      },
-      youAreHere() {
-        return this.$tr('youAreHere');
-      },
-      learnText() {
-        return this.$tr('learn');
-      },
-      exploreText() {
-        return this.$tr('explore');
       },
     },
     methods: {
