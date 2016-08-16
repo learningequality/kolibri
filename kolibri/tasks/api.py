@@ -4,7 +4,7 @@ from rest_framework import viewsets, serializers
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
-from kolibri.content.utils.channels import find_kolibri_data_in_mountpoints
+from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.tasks.management.commands.base import Progress
 
 import logging as logger
@@ -55,11 +55,6 @@ class TasksViewSet(viewsets.ViewSet):
         channel_id = data['id']
 
         task_id = async(_importchannel, channel_id, group=TASKTYPE, progress_updates=True)
-        # task_id = async_chain([
-        #         (call_command, ("importchannel", channel_id)),
-        #         (call_command, ("retrievecontent", "network", channel_id))
-        #     ],
-        #     group=TASKTYPE)
 
         # id status metadata
 
@@ -87,7 +82,7 @@ class TasksViewSet(viewsets.ViewSet):
 
     @list_route(methods=['get'])
     def localdrive(self, request):
-        drives = find_kolibri_data_in_mountpoints()
+        drives = get_mounted_drives_with_channel_info()
 
         # make sure everything is a dict, before converting to JSON
         assert isinstance(drives, dict)
@@ -95,7 +90,7 @@ class TasksViewSet(viewsets.ViewSet):
         out = []
         for mountdata in drives.values():
             mountdata = mountdata._asdict()
-            if mountdata['has_content']:
+            if mountdata['metadata']['channels']:
                 mountdata['channels'] = [c._asdict() for c in mountdata['channels']]
 
             out.append(mountdata)
