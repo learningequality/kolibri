@@ -41,10 +41,14 @@ class Command(AsyncCommand):
         dbsize = int(r.headers['content-length'])
 
         with self.start_progress(total=dbsize) as progress_update:
+            progress_extra_data = {
+                "channel_id": channel_id,
+            }
+
             with open(dest, "wb") as f:
                 for content in r.iter_content(1024):
                     f.write(content)
                     contentlength = len(content)
-                    progress_update(contentlength)
+                    progress_update(contentlength, progress_extra_data)
 
         update_channel_metadata_cache()

@@ -1,6 +1,8 @@
 from tqdm import tqdm
 from collections import namedtuple
+from decimal import Decimal
 from django.core.management.base import BaseCommand
+import logging; logger = logging.getLogger(__name__)
 
 
 Progress = namedtuple(
@@ -22,14 +24,17 @@ class ProgressTracker():
         self.progress = 0
 
         # custom progress bar provided by programmer
-        self.custom_update_progress_func = update_func or _nullop
+        if callable(update_func):
+            self.custom_update_progress_func = update_func
+        else:
+            self.custom_update_progress_func = _nullop
 
     def update_progress(self, increment=1, message="", extra_data=None):
         self.progressbar.update(increment)
 
         self.progress += increment
 
-        progress_fraction = Decimal(self.progress) / self.total
+        progress_fraction = self.progress / float(self.total)
         p = Progress(
             progress_fraction=progress_fraction,
             message=message,
@@ -69,7 +74,8 @@ class AsyncCommand(BaseCommand):
 
         return self.handle_async(*args, **options)
 
-    start_progress = ProgressTracker
+    def start_progress(self, total=100):
+        return ProgressTracker(total=total, update_func=self.update_progress)
 
 
 def _nullop(*args, **kwargs):
