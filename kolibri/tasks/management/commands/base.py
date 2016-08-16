@@ -1,8 +1,6 @@
 from tqdm import tqdm
 from collections import namedtuple
-from decimal import Decimal
 from django.core.management.base import BaseCommand
-import logging; logger = logging.getLogger(__name__)
 
 
 Progress = namedtuple(
