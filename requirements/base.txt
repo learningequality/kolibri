@@ -10,4 +10,4 @@ djangorestframework-csv==1.4.1
 tqdm==4.8.3                     # progress bars
 requests==2.10.0
 https://github.com/cherrypy/cherrypy/archive/v6.2.0.zip
-https://github.com/fle-internal/django-q/archive/85c361b10e38a9f8e263952ad6422dfa20d07949.zip
+https://github.com/fle-internal/django-q/archive/65641d354226dbbae0a71309adc8cb99587717b1.zip
