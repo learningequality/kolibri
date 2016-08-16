@@ -1,7 +1,13 @@
 <template>
 
   <div>
-    <h1>Export Data</h1>
+    <h1>Export Usage Data</h1>
+
+    <p>
+      Download a comma-separated spreadsheet containing information about users and
+      their interactions with the content on this device.
+    </p>
+
     <icon-button @click="downloadCSV" text="Download CSV">
       <svg src="../icons/download.svg"></svg>
     </icon-button>
