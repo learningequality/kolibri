@@ -19,7 +19,7 @@
       </template>
 
       <span v-if="pageName === PageNames.EXPLORE_CONTENT">
-        <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
+        <breadcrumb :linkobject="parentExploreLink" :text="('Back')" ></breadcrumb>
       </span>
 
     </nav>
