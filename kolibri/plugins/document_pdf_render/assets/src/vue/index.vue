@@ -2,7 +2,9 @@
 
   <div>
     <div v-el:container class="container" allowfullscreen>
-      <button class='btn' v-if="supportsPDFs" v-on:click="togglefullscreen">Toggle Fullscreen</button>
+      <button class='btn' v-if="supportsPDFs" v-on:click="togglefullscreen">
+        {{ inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen') }}
+      </button>
       <div v-el:pdfcontainer class="pdfcontainer"></div>
     </div>
   </div>
@@ -21,6 +23,7 @@
     data: () => ({
       supportsPDFs: PDFobject.supportsPDFs,
       timeout: null,
+      inFullscreen: false,
     }),
 
     methods: {
@@ -39,6 +42,7 @@
           } else if (container.msRequestFullscreen) {
             container.msRequestFullscreen();
           }
+          this.inFullscreen = true;
         } else {
           if (document.exitFullscreen) {
             document.exitFullscreen();
@@ -49,6 +53,15 @@
           } else if (document.msExitFullscreen) {
             document.msExitFullscreen();
           }
+          this.inFullscreen = false;
+        }
+      },
+      updateFullscreenState() {
+        if (!document.fullscreenElement
+          && !document.webkitFullscreenElement
+          && !document.mozFullScreenElement
+          && !document.msFullscreenElement) {
+          this.inFullscreen = false;
         }
       },
     },
@@ -59,12 +72,27 @@
       this.timeout = setTimeout(() => {
         self.$emit('progressUpdate', 1);
       }, 15000);
+
+      document.addEventListener('fullscreenchange', this.updateFullscreenState, false);
+      document.addEventListener('webkitfullscreenchange', this.updateFullscreenState, false);
+      document.addEventListener('mozfullscreenchange', this.updateFullscreenState, false);
+      document.addEventListener('MSFullscreenChange', this.updateFullscreenState, false);
     },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
       this.$emit('stopTracking');
+
+      document.removeEventListener('fullscreenchange', this.updateFullscreenState, false);
+      document.removeEventListener('webkitfullscreenchange', this.updateFullscreenState, false);
+      document.removeEventListener('mozfullscreenchange', this.updateFullscreenState, false);
+      document.removeEventListener('MSFullscreenChange', this.updateFullscreenState, false);
+    },
+    $trNameSpace: 'pdfRenderer',
+    $trs: {
+      exitFullscreen: 'Exit Fullscreen',
+      enterFullscreen: 'Enter Fullscreen',
     },
   };
 
