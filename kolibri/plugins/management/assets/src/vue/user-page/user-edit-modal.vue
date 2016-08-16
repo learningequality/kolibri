@@ -34,7 +34,7 @@
 
       </div>
 
-      <div v-if="pw_reset" slot="body">
+      <div @keyup.enter="editUser" v-if="pw_reset" slot="body">
         <p>Username: <b>{{username_new}}</b></p>
         <div class="user-field">
           <label for="password">Enter new password</label>:
@@ -47,7 +47,7 @@
         </div>
       </div>
 
-      <div v-if="usr_delete" slot="body">
+      <div @keyup.enter="editUser" v-if="usr_delete" slot="body">
         <div class="user-field">
           <p> Are you sure you want to delete
           <b>{{username_new}}</b>?
@@ -128,10 +128,11 @@
           // check to see if there's a new password
           if (this.password_new) {
             updatable = false;
+            this.clearErrorMessage();
+            this.clearConfirmationMessage();
             // make sure passwords match
             if (this.password_new === this.password_new_confirm) {
               payload.password = this.password_new;
-              this.clearErrorMessage();
               this.confirmation_message = 'Password change successful.';
             } else {
               this.error_message = 'Passwords must match.';
@@ -143,6 +144,9 @@
             this.updateUser(this.userid, payload, this.role_new);
             this.password_new = '';
             this.password_new_confirm = '';
+            if (!(this.usr_delete || this.pw_reset)) {
+              this.cancel();
+            }
           }
         }
       },
