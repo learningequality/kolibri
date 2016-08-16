@@ -248,7 +248,7 @@ function saveLogs(store, Kolibri) {
     sessionModel.save(_contentSessionModel(store)).then((data) => {
       /* PLACEHOLDER */
     }).catch((error) => {
-      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
     });
   }
 
@@ -258,7 +258,7 @@ function saveLogs(store, Kolibri) {
     summaryModel.save(_contentSummaryModel(store)).then((data) => {
       /* PLACEHOLDER */
     }).catch((error) => {
-      store.dispatch('SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
     });
   }
 }
