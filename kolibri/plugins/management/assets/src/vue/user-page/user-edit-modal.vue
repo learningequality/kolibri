@@ -1,7 +1,7 @@
 <template>
 
   <div class="user-edit-modal">
-    <modal v-on:close="clear()" v-ref:modal btntext="Edit">
+    <modal v-on:open="clear()" v-ref:modal btntext="Edit">
 
       <h1 slot="header" class="header">Edit Account Info</h1>
 
@@ -166,7 +166,11 @@
         }
       },
       clear() {
+        console.log(this.fullName_new);
+        console.log(this.username_new);
         this.$data = this.$options.data();
+        console.log(this.fullName_new);
+        console.log(this.username_new);
       },
       close() {
         this.$refs.modal.closeModal();
