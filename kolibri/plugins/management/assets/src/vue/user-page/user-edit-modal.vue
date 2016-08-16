@@ -125,17 +125,15 @@
     },
     methods: {
       editUser() {
-        if (this.usr_delete) {
-          const payload = {
-            username: this.username_new,
-            full_name: this.fullName_new,
-            facility: this.facility,
-          };
-          this.updateUser(this.userid, payload, this.role_new);
+        const payload = {
+          username: this.username_new,
+          full_name: this.fullName_new,
+          facility: this.facility,
+        };
+        this.updateUser(this.userid, payload, this.role_new);
 
-          // close the modal after successful submission
-          this.close();
-        }
+        // close the modal after successful submission
+        this.close();
       },
       delete() {
         this.deleteUser(this.userid);
