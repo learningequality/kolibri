@@ -10,12 +10,12 @@
     </div>
 
     <div class="toolbar">
-      <label for="type-filter" class="visuallyhidden">Filter User Type</label>
-      <select v-model="roleFilter" id="type-filter" name="type-filter">
-        <option selected value="all"> All Users </option>
-        <option value="admin"> Admins </option>
-        <option value="learner"> Learners </option>
-      </select>
+        <label for="type-filter" class="visuallyhidden">Filter User Type</label>
+        <select v-model="roleFilter" id="type-filter" name="type-filter">
+          <option selected value="all"> All Users </option>
+          <option value="admin"> Admins </option>
+          <option value="learner"> Learners </option>
+        </select>
 
       <div class="create">
         <user-create-modal></user-create-modal>
@@ -217,7 +217,7 @@
     background-color: $core-bg-light
     border-color: $core-action-light
     height: 35px
-    outline: none
+    cursor: pointer
 
   .header h1
     display: inline-block
@@ -276,16 +276,21 @@
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar
       font-size: 1em
-      width: 100%
+      width: 80%
 
   @media screen and (max-width: $portrait-breakpoint)
     .create, #type-filter
       box-sizing: border-box
       width: 50%
+    #type-filter
+      position: relative
+      top: 5px
     .searchbar
-      font-size: 0.8em
-      width: 100%
+      font-size: 0.9em
+      width: 102%
       display: table-row
+      margin: 5px
+      float: right
     .table-username
       display: none
     .user-role

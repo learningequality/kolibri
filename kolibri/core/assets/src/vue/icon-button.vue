@@ -72,6 +72,10 @@
     padding-right: 8px
     height: 36px
 
+  @media screen and (max-width: $portrait-breakpoint)
+    .icon-button
+      margin: 5px
+
   .btn-text
     vertical-align: middle
     margin-right: 2px
