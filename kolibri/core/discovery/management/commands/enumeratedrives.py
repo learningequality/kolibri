@@ -2,7 +2,7 @@ import logging as logger
 
 from django.core.management.base import BaseCommand
 
-from ...utils.filesystem.base import enumerate_mounted_disk_partitions
+from ...utils.filesystem import enumerate_mounted_disk_partitions
 
 logging = logger.getLogger(__name__)
 

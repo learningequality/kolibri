@@ -9,7 +9,7 @@ import sys
 
 from .dummydata import windows_data, osx_data, linux_data
 
-from ..utils.filesystem.base import enumerate_mounted_disk_partitions, EXPORT_FOLDER_NAME
+from ..utils.filesystem import enumerate_mounted_disk_partitions, EXPORT_FOLDER_NAME
 
 def _get_mocked_popen(cmd_resp):
 
