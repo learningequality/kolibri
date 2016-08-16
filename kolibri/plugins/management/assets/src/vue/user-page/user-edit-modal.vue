@@ -25,26 +25,33 @@
           </select>
         </div>
 
+        <div class="advanced-options" v-if="!pw_reset && !usr_delete">
+          <button @click="pw_reset=!pw_reset"> Reset Password </button>
+          <button @click="usr_delete=!usr_delete"> Delete User</button>
+        </div>
+
+        <hr class="end-modal">
+
       </div>
 
       <div v-if="pw_reset" slot="body">
-        <p>
-          <b>Password reset for: {{username_new}}</b>
-        </p>
+        <p>Username: <b>{{username_new}}</b></p>
         <div class="user-field">
-          <label for="password"> Reset Password</label>:
+          <label for="password">Enter new password</label>:
           <input type="password" class="edit-form" id="password" required v-model="password_new">
         </div>
 
         <div class="user-field">
-          <label for="password-confirm"> Confirm Reset Pasword</label>:
+          <label for="password-confirm">Confirm new password</label>:
           <input type="password" class="edit-form" id="password-confirm" required v-model="password_new_confirm">
         </div>
       </div>
 
       <div v-if="usr_delete" slot="body">
         <div class="user-field">
-          <p> Are you sure you want to delete {{username_new}}? </p>
+          <p> Are you sure you want to delete
+          <b>{{username_new}}</b>?
+          </p>
         </div>
       </div>
 
@@ -67,10 +74,6 @@
         </button>
         <br>
 
-        <div class="advanced-options" v-if="!pw_reset && !usr_delete">
-          <button @click="pw_reset=!pw_reset"> Reset Password </button>
-          <button @click="usr_delete=!usr_delete"> Delete User</button>
-        </div>
       </div>
 
       <button class="no-border" slot="openbtn">
@@ -124,12 +127,13 @@
 
           // check to see if there's a new password
           if (this.password_new) {
+            updatable = false;
             // make sure passwords match
             if (this.password_new === this.password_new_confirm) {
               payload.password = this.password_new;
+              this.clearErrorMessage();
               this.confirmation_message = 'Password change successful.';
             } else {
-              updatable = false;
               this.error_message = 'Passwords must match.';
             }
           }
@@ -137,6 +141,8 @@
           if (updatable) {
             // save user changes
             this.updateUser(this.userid, payload, this.role_new);
+            this.password_new = '';
+            this.password_new_confirm = '';
           }
         }
       },
@@ -213,6 +219,8 @@
       height: 40px
       font-weight: bold
       background-color: transparent
+    p
+      text-align: center
 
   .edit-form
     width: 200px
@@ -227,16 +235,6 @@
       outline: none
       border-bottom: 3px solid $core-action-normal
 
-  .edit-username
-    background: url('../icons/pencil.svg') no-repeat 280px 6px
-    fill: $core-action-light
-    transition: all 0.15s
-
-  .edit-fullname
-    background: url('../icons/pencil.svg') no-repeat 280px 6px
-    fill: $core-action-light
-    transition: all 0.15s
-
   .header
     text-align: center
 
@@ -245,10 +243,16 @@
     cursor: pointer
 
   .advanced-options
-    margin-top: 5%
+    padding-bottom: 5%
     button
       display: block
       border: none
+
+  .end-modal
+    position: relative
+    width: 378px
+    left: -30px
+
   p
     word-break: keep-all
 
