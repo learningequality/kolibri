@@ -9,7 +9,13 @@ from .constants import drivetypes
 
 logger = logging.getLogger(__name__)
 
-MOUNT_PARSER = re.compile("^(?P<device>\S+) on (?P<path>.+?) ((type (?P<filesystem1>\S+)|(\((?P<filesystem2>[^, ]+))))", flags=re.MULTILINE)
+# Regex parser for the output of `mount` on OSX, which contains rows that looks like:
+#  /dev/disk1s1 on /Volumes/HP v125w (msdos, local, nodev, nosuid, noowners)
+OSX_MOUNT_PARSER = re.compile("^(?P<device>\S+) on (?P<path>.+) \((?P<filesystem>[^, ]+)", flags=re.MULTILINE)
+
+# Regex parser for the output of `mount` on Linux, which contains rows that looks like:
+#  /dev/sdb2 on /media/user/KEEPOD type ext4 (rw,nosuid,nodev,uhelper=udisks2)
+LINUX_MOUNT_PARSER = re.compile("^(?P<device>\S+) on (?P<path>.+) type (?P<filesystem>\S+)", flags=re.MULTILINE)
 
 FILESYSTEM_BLACKLIST = set(["anon_inodefs", "bdev", "binfmt_misc", "cgroup", "cpuset", "debugfs", "devpts", "devtmpfs",
                             "ecryptfs", "fuse", "fuse.gvfsd-fuse", "fusectl", "hugetlbfs", "mqueue", "nfs", "nfs4", "nfsd",
@@ -23,17 +29,24 @@ def get_drive_list():
     Gets a list of drives and metadata by parsing the output of `mount`, and adding additional info from various commands.
     Disk size/usage comes from shutil.disk_usage or os.statvfs, and name/type info from dbus (Linux) or diskutil (OSX).
     """
-    drives = []
+
     drivelist = subprocess.Popen('mount', shell=True, stdout=subprocess.PIPE)
     drivelisto, err = drivelist.communicate()
+
+    drives = []
+
+    if sys.platform == "darwin":
+        MOUNT_PARSER = OSX_MOUNT_PARSER
+    else:
+        MOUNT_PARSER = LINUX_MOUNT_PARSER
+
     for drivematch in MOUNT_PARSER.finditer(drivelisto.decode()):
 
         drive = drivematch.groupdict()
         path = drive["path"]
-        filesystem = drive.get("filesystem1") or drive.get("filesystem2")
 
         # skip the drive if the filesystem or path is in a blacklist
-        if filesystem in FILESYSTEM_BLACKLIST or any(path.startswith(p) for p in PATH_PREFIX_BLACKLIST):
+        if drive["filesystem"] in FILESYSTEM_BLACKLIST or any(path.startswith(p) for p in PATH_PREFIX_BLACKLIST):
             logger.debug("Skipping blacklisted drive '{}'".format(path))
             continue
 
@@ -50,7 +63,7 @@ def get_drive_list():
         drives.append({
             "path": path,
             "name": dbus_drive_info.get("name") or diskutil_info.get("name") or path,
-            "filesystem": filesystem,
+            "filesystem": drive["filesystem"],
             "freespace": usage["free"],
             "totalspace": usage["total"],
             "drivetype": dbus_drive_info.get("drivetype") or diskutil_info.get("drivetype") or "",
