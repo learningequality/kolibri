@@ -22,6 +22,7 @@
           <button class="create-btn" type="button" @click="createBoth">Create and get started</button>
         </div>
       </div>
+      <br>
     </div>
   </div>
 
@@ -90,16 +91,16 @@
   @require '~core-theme.styl'
 
   .device-owner-creation
-    position: fixed
-    top: 50%
-    left: 0
+    position: absolute
+    overflow-y: scroll
     width: 100%
-    transform: translateY(-50%)
-    @media screen and (max-width: $portrait-breakpoint)
-      overflow-y: scroll
-      height: 100%
+    height: 100%
   .wrapper
-    vertical-align: middle
+    position: absolute
+    max-height: 100%
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
   .container
     background: #fff
     width: 100%
@@ -138,8 +139,11 @@
     color: $core-text-alert
   .logo
     height: 20%
+    width: 20%
     max-height: 160px
     min-height: 100px
+    max-width: 160px
+    min-width: 100px
     display: block
     margin-left: auto
     margin-right: auto
