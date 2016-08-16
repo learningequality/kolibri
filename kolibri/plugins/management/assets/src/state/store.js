@@ -47,7 +47,7 @@ const mutations = {
     });
   },
   DELETE_USER(state, id) {
-    state.users = state.users.filter(user => user.id !== id);
+    state.pageState.users = state.pageState.users.filter(user => user.id !== id);
   },
   SET_FACILITY(state, id) {
     state.facility = id;

@@ -3,10 +3,8 @@
   <div class="top">
     <div class="links">
       <a v-link="usersLink" :class="{active: usersActive}" @click="blur">Users</a>
-
       <a v-link="dataLink" :class="{active: dataActive}" @click="blur">Data</a>
-
-      <a v-link="contentLink" :class="{active: contentActive}" @click="blur">Content</a>
+      <!-- <a v-link="contentLink" :class="{active: contentActive}" @click="blur">Content</a> -->
     </div>
   </div>
 
@@ -64,18 +62,23 @@
     padding: 1em 2em
     background: $core-bg-light
     border-radius: $radius
-    @media screen and (max-width: $portrait-breakpoint)
+    @media screen and (max-width: 619px)
+      // hardcode media query , potential to revist
+      width: 90%
+      margin: 0 auto
       padding: 1em 0.2em
 
   .links
-    @media screen and (max-width: $portrait-breakpoint)
+    @media screen and (max-width: 619px)
+      // hardcode media query , potential to revist
       text-align: center
 
   .top a
     padding: 0.6em 2em
     text-decoration: none
     color: $core-text-annotation
-    @media screen and (max-width: $portrait-breakpoint)
+    @media screen and (max-width: 619px)
+      // hardcode media query , potential to revist
       padding: 0.6em 1em
 
   .top .active

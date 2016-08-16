@@ -37,7 +37,8 @@
     "video.js": "5.10.4",
     "vue": "1.0.26",
     "vue-focus": "0.1.1",
-    "vue-intl": "0.3.0",
+    "vue-scroll": "1.0.3",
+    "vue-intl": "0.4.0",
     "vue-router": "0.7.13",
     "vuex": "0.6.3"
   },
@@ -58,6 +59,7 @@
     "eslint-loader": "1.4.1",
     "eslint-plugin-html": "1.5.1",
     "eslint-plugin-react": "4.3.0",
+    "esprima": "^2.7.2",
     "exports-loader": "0.6.3",
     "extract-text-webpack-plugin": "1.0.1",
     "fg-loadcss": "1.2.0",

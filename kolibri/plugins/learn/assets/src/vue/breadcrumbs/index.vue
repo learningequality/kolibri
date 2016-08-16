@@ -1,17 +1,29 @@
 <template>
 
-  <nav class="nav" role="navigation" aria-label="You are here:">
-    <span class="parent">
-      <a v-link="rootLink">Explore</a> 
-    </span>
-    <span class="parent" v-for="crumb in crumbs">
-      <a v-link="crumbLink(crumb.id)">{{ crumb.title }}</a> 
-    </span>
-    <span class="current">
-      <span class="visuallyhidden">Current: </span>
-        <!-- TODO: Get current topic title -->
-    </span>
-  </nav>
+  <div>
+    <nav class="nav" role="navigation" :aria-label="$tr('youAreHere')">
+      <span class="learn-bread" v-if="pageName === PageNames.LEARN_CONTENT">
+        <breadcrumb :linkobject="learnRootLink" :text="$tr('learn')"></breadcrumb>
+      </span>
+
+      <template v-if="pageName === PageNames.EXPLORE_TOPIC">
+        <span class="landscape">
+          <breadcrumb :showarrow='false' :linkobject="exploreRootLink" :text="$tr('explore')"></breadcrumb>
+        </span>
+        <span class="portrait">
+          <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
+        </span>
+        <span class="middle-breadcrumb landscape" v-for="crumb in topicCrumbs">
+          <a v-link="topicLink(crumb.id)">{{ crumb.title }}</a>
+        </span>
+      </template>
+
+      <span v-if="pageName === PageNames.EXPLORE_CONTENT">
+        <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
+      </span>
+
+    </nav>
+  </div>
 
 </template>
 
@@ -19,29 +31,70 @@
 <script>
 
   const PageNames = require('../../state/constants').PageNames;
+  const PageModes = require('../../state/constants').PageModes;
+  const getters = require('../../state/getters');
 
   module.exports = {
-    props: {
-      rootid: {
-        type: String,
-        required: true,
-      },
-      crumbs: {
-        type: Array,
-        required: true,
-      },
+    $trNameSpace: 'learn',
+    $trs: {
+      learn: 'Learn',
+      explore: 'Explore',
+      youAreHere: 'You are here:',
+    },
+    components: {
+      breadcrumb: require('./breadcrumb'),
     },
     computed: {
-      rootLink() {
-        return { name: PageNames.EXPLORE_CHANNEL };
+      PageModes() {
+        return PageModes;
+      },
+      PageNames() {
+        return PageNames;
+      },
+      learnRootLink() {
+        return {
+          name: PageNames.LEARN_CHANNEL,
+          channel: this.currentChannel,
+        };
+      },
+      exploreRootLink() {
+        return {
+          name: PageNames.EXPLORE_CHANNEL,
+          channel: this.currentChannel,
+        };
+      },
+      parentExploreLink() {
+        let breadcrumbs = [];
+        if (this.pageName === PageNames.EXPLORE_CONTENT) {
+          breadcrumbs = this.contentCrumbs;
+        } else if (this.pageName === PageNames.EXPLORE_TOPIC) {
+          breadcrumbs = this.topicCrumbs;
+        }
+        if (breadcrumbs.length) {
+          return this.topicLink(breadcrumbs[breadcrumbs.length - 1].id);
+        }
+        return this.exploreRootLink;
       },
     },
     methods: {
-      crumbLink(id) {
+      topicLink(topicId) {
         return {
           name: PageNames.EXPLORE_TOPIC,
-          params: { id },
+          params: {
+            channel: this.currentChannel,
+            id: topicId,
+          },
         };
+      },
+    },
+    vuex: {
+      getters: {
+        pageMode: getters.pageMode,
+        topicCrumbs: state => state.pageState.topic.breadcrumbs,
+        contentCrumbs: state => state.pageState.content.breadcrumbs,
+        pageName: state => state.pageName,
+        pageState: state => state.pageState,
+        currentChannel: state => state.currentChannel,
       },
     },
   };
@@ -51,16 +104,38 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme.styl'
+  @require '../learn.styl'
+
   .nav
     margin-top: 2em
     margin-bottom:1.4em
 
-  .parent a:link
-    font-weight: 300
-
-  span.parent::after
-    content: '»'
+  .middle-breadcrumb:before
+    content: '>'
     margin-left: 0.5em
     margin-right: 0.5em
+    color: $core-text-annotation
+
+  a
+    display: inline-block
+    vertical-align: middle
+    margin-bottom: 2px
+    font-size: 0.9em
+    font-weight: 300
+    max-width: 140px
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+    color: $core-text-annotation
+
+  .landscape
+    @media screen and (max-width: $portrait-breakpoint)
+      display: none
+
+  .portrait
+    display: none
+    @media screen and (max-width: $portrait-breakpoint)
+      display: initial
 
 </style>

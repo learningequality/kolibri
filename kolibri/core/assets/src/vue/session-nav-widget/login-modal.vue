@@ -2,23 +2,25 @@
 
   <div>
     <modal>
-      <div id="backdrop"></div>
-      <div class="title" slot="header">
+      <div class="title" :aria-label="$tr('title')" slot="header">
         <div class="login-brand-box">
-          <img src="./icons/kolibri-logo.svg" alt="Kolibri logo">
-          <p id="login-brand">Kolibri</p>
+          <img src="./icons/kolibri-logo.svg" :alt="kolibriLogo">
+          <p id="login-brand">{{ $tr('kolibri') }}</p>
         </div>
       </div>
       <div slot="body">
-        <input type="text" class="login-form login-username" v-model="username_entered" placeholder="Username" v-on:keyup.enter="userLogin" aria-label="Username" autofocus>
-        <input type="password" class="login-form login-password" v-model="password_entered" placeholder="Password" v-on:keyup.enter="userLogin" aria-label="Password">
-        <button class="login-button" @click="userLogin">Login</button>
-        <div v-if="wrongCreds">Incorrect username or password.<br>Please try again!</div>
+        <div v-if="wrongCreds">
+          <h1>{{ $tr('logInError') }}</h1>
+          <span aria-live="polite">{{ $tr('validationError') }}<br>{{ $tr('tryAgain') }}</span>
+        </div>
+        <input type="text" class="login-form login-username" v-model="username_entered" :placeholder="userName" v-on:keyup.enter="userLogin" :aria-label="userName" v-el:usernamefield autofocus>
+        <input type="password" class="login-form login-password" v-model="password_entered" :placeholder="password" v-on:keyup.enter="userLogin" :aria-label="password">
+        <button class="login-button" @click="userLogin">{{ $tr('logIn') }}</button>
       </div>
       <div slot="footer"></div>
-      <div slot="openbtn">
+      <div slot="openbtn" @click="clearForm">
         <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
-        <div class="label">Log In</div>
+        <div class="label">{{ $tr('logIn') }}</div>
       </div>
     </modal>
   </div>
@@ -31,6 +33,29 @@
   const actions = require('../../core-actions');
 
   module.exports = {
+    $trNameSpace: 'sessionWidget',
+    $trs: {
+      title: 'Log in to Kolibri',
+      logIn: 'Log In',
+      kolibri: 'Kolibri',
+      kolibriLogo: 'Kolibri logo',
+      logInError: 'Log-in Error',
+      validationError: 'Incorrect username or password.',
+      tryAgain: 'Please try again!',
+      userName: 'Username',
+      password: 'Password',
+    },
+    computed: {
+      kolibriLogo() {
+        return this.$tr('kolibriLogo');
+      },
+      userName() {
+        return this.$tr('userName');
+      },
+      password() {
+        return this.$tr('password');
+      },
+    },
     components: {
       modal: require('../modal/index.vue'),
     },
@@ -45,13 +70,25 @@
           password: this.password_entered,
         };
         this.login(this.Kolibri, payload);
+        /* This is to offset race condition issues */
+        window.setTimeout(this.retry, 100);
+      },
+      clearForm() {
+        this.$els.usernamefield.focus();
         this.username_entered = '';
         this.password_entered = '';
       },
+      /* Puts focus on username field if wrong credentials are given */
+      retry() {
+        if (this.wrongCreds) {
+          this.clearForm();
+        }
+      },
+      /* If admin logs in, sends them to the manage tab */
     },
     vuex: {
       getters: {
-        userKind: state => state.core.session.kind,
+        kind: state => state.core.session.kind,
         wrongCreds: state => state.core.session.error === '401',
         modalstate: state => state.core.login_modal_state,
       },
@@ -59,7 +96,7 @@
         login: actions.kolibriLogin,
       },
     },
-	};
+  };
 
 </script>
 
@@ -69,16 +106,14 @@
   @require '~core-theme.styl'
   @require '~nav-bar-item.styl'
 
+  h1
+    font-size: 1.1em
+
   #person
     fill: $core-action-normal
     transition: all 0.2s ease
     &:hover
       fill: $core-action-dark
-
-  #backdrop
-    background: green
-    width: 100%
-    height: 200px
 
   #test
     background: #000000
@@ -98,7 +133,7 @@
 
   .login-brand-box
     text-align: center
-    margin: 15px auto
+    margin: 15px 5px auto
     img, p
       display: inline-block
     img
@@ -113,6 +148,7 @@
     letter-spacing: 0.1em
     font-weight: 100
     color: $core-action-normal
+    margin-bottom: 15px
 
   .login-form
     width: 300px
@@ -128,7 +164,7 @@
       border-bottom: 3px solid $core-action-normal
 
   .login-username
-    margin-bottom: 30px
+    margin: 30px auto
     background: url('./icons/user.svg') no-repeat 8px 6px
     transition: all 0.15s
     &:focus

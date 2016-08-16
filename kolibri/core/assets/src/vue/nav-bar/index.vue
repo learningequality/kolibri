@@ -1,7 +1,7 @@
 <template>
 
   <div class='nav-wrapper'>
-    <nav class='nav-main' role="navigation" aria-label="Main user navigation">
+    <nav class='nav-main' role="navigation" :aria-label="ariaLabel">
       <slot></slot>
       <session-nav-widget></session-nav-widget>
     </nav>
@@ -13,6 +13,15 @@
 <script>
 
   module.exports = {
+    $trNameSpace: 'navbar',
+    $trs: {
+      navigationLabel: 'Main user navigation',
+    },
+    computed: {
+      ariaLabel() {
+        return this.$tr('navigationLabel');
+      },
+    },
     components: {
       'session-nav-widget': require('../session-nav-widget'),
     },

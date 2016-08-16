@@ -2,19 +2,7 @@
 
   <core-base>
     <main-nav slot="nav"></main-nav>
-    <div slot="above" class="top-wrapper">
-      <search-button class='search-btn'></search-button>
-      <label for="chan-select" class="visuallyhidden">Filter User Type</label>
-      <select
-        class="chan-select"
-        id="chan-select"
-        name="chan-select"
-        v-model="getCurrentChannel"
-        @change="switchChannel($event)"
-      >
-        <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
-      </select>
-    </div>
+    <toolbar slot="above"></toolbar>
     <component slot="content" :is="currentPage"></component>
     <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
       <div class='search-shadow'>
@@ -43,6 +31,7 @@
   module.exports = {
     components: {
       'core-base': require('core-base'),
+      'toolbar': require('./toolbar'),
       'main-nav': require('./main-nav'),
       'search-widget': require('./search-widget'),
       'search-button': require('./search-widget/search-button'),
@@ -50,6 +39,7 @@
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
       'scratchpad-page': require('./scratchpad-page'),
+      'content-unavailable-page': require('./content-unavailable-page'),
     },
     computed: {
       currentPage() {
@@ -67,43 +57,13 @@
         if (this.pageName === PageNames.SCRATCHPAD) {
           return 'scratchpad-page';
         }
+        if (this.pageName === PageNames.CONTENT_UNAVAILABLE) {
+          return 'content-unavailable-page';
+        }
         return null;
       },
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
-      },
-      /*
-      * Get a list of channels.
-      */
-      getChannels() {
-        return this.channelList;
-      },
-      /*
-      * Get the current channel ID.
-      */
-      getCurrentChannel() {
-        return this.currentChannel;
-      },
-    },
-    methods: {
-      /*
-      * Route to selected channel.
-      */
-      switchChannel(event) {
-        let rootPage;
-        if (this.exploreMode) {
-          rootPage = constants.PageNames.EXPLORE_CHANNEL;
-        } else {
-          rootPage = constants.PageNames.LEARN_CHANNEL;
-        }
-        this.$router.go(
-          {
-            name: rootPage,
-            params: {
-              channel_id: event.target.value,
-            },
-          }
-        );
       },
     },
     vuex: {
@@ -111,8 +71,6 @@
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchOpen: state => state.searchOpen,
-        currentChannel: state => state.currentChannel,
-        channelList: state => state.channelList,
       },
     },
     store, // make this and all child components aware of the store
@@ -125,31 +83,6 @@
 
   @require '~core-theme.styl'
   @require 'learn.styl'
-
-  .search-btn
-    position: fixed
-    top: 1rem
-    right: 2rem
-    z-index: 1
-    @media screen and (max-width: $portrait-breakpoint)
-      right: 1rem
-
-  .top-wrapper
-    text-align: right
-    padding-top: 22px
-    padding-right: $right-margin * 2
-
-  .chan-select
-    width: 11em
-    padding: 0.2em 0.8em
-    color: $core-text-annotation
-    font-size: 0.9rem
-    border: 1px solid $core-text-annotation
-    border-radius: 50px
-    background: url(./icons/arrowdown.svg) no-repeat right
-    -webkit-appearance: none
-    -moz-appearance: none
-    outline: none
 
   .search-pane
     background-color: $core-bg-canvas

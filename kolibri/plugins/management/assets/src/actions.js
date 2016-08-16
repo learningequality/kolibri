@@ -29,6 +29,7 @@ function _userState(data) {
   }
   return {
     id: data.id,
+    facility_id: data.facility,
     username: data.username,
     full_name: data.full_name,
     roles: data.roles,
@@ -66,10 +67,7 @@ function createUser(store, payload, role) {
         store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       });
     }
-  })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
+  }).catch((error) => Promise.reject(error));
 }
 
 /**
@@ -109,7 +107,7 @@ function updateUser(store, id, payload, role) {
     } else if (role !== 'learner') {
     // oldRole is admin and role is coach or oldRole is coach and role is admin.
       const OldRoleModel = RoleResource.getModel(oldRoldID);
-      OldRoleModel.delete(oldRoldID).then(() => {
+      OldRoleModel.delete().then(() => {
       // create new role when old role is successfully deleted.
         const rolePayload = {
           user: id,
@@ -136,7 +134,7 @@ function updateUser(store, id, payload, role) {
     } else {
     // role is learner and oldRole is admin or coach.
       const OldRoleModel = RoleResource.getModel(oldRoldID);
-      OldRoleModel.delete(oldRoldID).then(() => {
+      OldRoleModel.delete().then(() => {
         FacilityUserModel.save(payload).then(responses => {
           // force role change because if the role is the only changing attribute
           // FacilityUserModel.save() will not send request to server.
@@ -168,10 +166,10 @@ function deleteUser(store, id) {
     // if no id passed, abort the function
     return;
   }
-  const FacilityUserModel = Kolibri.resources.FacilityUserResource.getModel(id);
-  const newUserPromise = FacilityUserModel.delete(id);
-  newUserPromise.then((userId) => {
-    store.dispatch('DELETE_USERS', [userId]);
+  const FacilityUserModel = FacilityUserResource.getModel(id);
+  const deleteUserPromise = FacilityUserModel.delete();
+  deleteUserPromise.then((user) => {
+    store.dispatch('DELETE_USER', id);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));

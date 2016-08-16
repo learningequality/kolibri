@@ -62,6 +62,49 @@ module.exports = function CoreApp() {
    */
   vue.use(vuex);
 
+  this.i18n = {
+    reversed: false,
+  };
+
+  const self = this;
+
+  function setUpVueIntl() {
+    /**
+     * Use the vue-intl plugin.
+     **/
+    const VueIntl = require('vue-intl');
+    vue.use(VueIntl);
+    vue.prototype.$tr = function $tr(messageId, ...args) {
+      const defaultMessageText = this.$options.$trs[messageId];
+      const message = {
+        id: `${this.$options.$trNameSpace}.${messageId}`,
+        defaultMessage: defaultMessageText,
+      };
+      // Allow string reversal in debug mode.
+      if (process.env.NODE_ENV === 'debug') {
+        if (self.i18n.reversed) {
+          return defaultMessageText.split('').reverse().join('');
+        }
+      }
+      return this.$formatMessage(message, ...args);
+    };
+    vue.prototype.$trHtml = function $trHtml(messageId, ...args) {
+      const defaultMessageText = this.$options.$trs[messageId];
+      const message = {
+        id: `${this.$options.$trNameSpace}.${messageId}`,
+        defaultMessage: defaultMessageText,
+      };
+      // Allow string reversal in debug mode.
+      if (process.env.NODE_ENV === 'debug') {
+        if (self.i18n.reversed) {
+          return defaultMessageText.split('').reverse().join('');
+        }
+      }
+      return this.$formatHTMLMessage(message, ...args);
+    };
+    mediator.setReady();
+  }
+
   /**
    * If the browser doesn't support the Intl polyfill, we retrieve that and
    * the modules need to wait until that happens.
@@ -76,21 +119,12 @@ module.exports = function CoreApp() {
       (require) => {
         require('intl');
         require('intl/locale-data/jsonp/en.js');
-        /**
-         * Use the vue-intl plugin.
-         **/
-        const VueIntl = require('vue-intl');
-        vue.use(VueIntl);
-        mediator.setReady();
+
+        setUpVueIntl();
       }
     );
   } else {
-    /**
-     * Use the vue-intl plugin.
-     **/
-    const VueIntl = require('vue-intl');
-    vue.use(VueIntl);
-    mediator.setReady();
+    setUpVueIntl();
   }
 
   // Bind 'this' value for public methods - those that will be exposed in the Facade.
