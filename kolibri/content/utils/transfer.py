@@ -57,7 +57,7 @@ class Transfer(object):
 
     def next(self):
         try:
-            chunk = self._content_iterator.next()
+            chunk = next(self._content_iterator)
         except StopIteration:
             self.completed = True
             self.finalize()
