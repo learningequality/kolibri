@@ -67,9 +67,9 @@
       parentExploreLink() {
         let breadcrumbs = [];
         if (this.pageName === PageNames.EXPLORE_CONTENT) {
-          breadcrumbs = this.pageState.content.breadcrumbs;
+          breadcrumbs = this.contentCrumbs;
         } else if (this.pageName === PageNames.EXPLORE_TOPIC) {
-          breadcrumbs = this.pageState.topic.breadcrumbs;
+          breadcrumbs = this.topicCrumbs;
         }
         if (breadcrumbs.length) {
           return this.topicLink(breadcrumbs[breadcrumbs.length - 1].id);
@@ -101,6 +101,7 @@
       getters: {
         pageMode: getters.pageMode,
         topicCrumbs: state => state.pageState.topic.breadcrumbs,
+        contentCrumbs: state => state.pageState.content.breadcrumbs,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
         currentChannel: state => state.currentChannel,
