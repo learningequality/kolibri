@@ -252,6 +252,7 @@
     padding-right: 1em
     border-radius: 40px
     margin-left: 20px
+    font-size: 0.875em
 
   .searchbar .icon
     display: inline-block
