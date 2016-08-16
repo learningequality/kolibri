@@ -192,8 +192,8 @@
 
   .chan-select
     z-index: 1
-    width: 11em
     padding: 0.2em 0.8em
+    padding-right: 1.8em
     color: $core-text-annotation
     font-size: 0.9rem
     border: 1px solid $core-text-annotation
