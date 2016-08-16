@@ -20,7 +20,7 @@
       },
       text: {
         type: String,
-        default: 'back',
+        required: true,
       },
       linkobject: {
         type: Object,
