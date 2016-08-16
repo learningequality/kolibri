@@ -166,11 +166,7 @@
         }
       },
       clear() {
-        console.log(this.fullName_new);
-        console.log(this.username_new);
         this.$data = this.$options.data();
-        console.log(this.fullName_new);
-        console.log(this.username_new);
       },
       close() {
         this.$refs.modal.closeModal();
