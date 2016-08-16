@@ -136,7 +136,7 @@ class WindowsFilesystemTestCase(TestCase):
         self.assertEqual(self.drives["D:\\"].datafolder, "D:\\" + EXPORT_FOLDER_NAME)
 
     def test_drive_space(self):
-        self.assertEqual(self.drives["C:\\"].freespace, 133134696448)
+        self.assertEqual(self.drives["C:\\"].freespace, 132940218368)
         self.assertEqual(self.drives["C:\\"].totalspace, 136251727872)
         self.assertEqual(self.drives["D:\\"].freespace, 0)
         self.assertEqual(self.drives["D:\\"].totalspace, 58388480)

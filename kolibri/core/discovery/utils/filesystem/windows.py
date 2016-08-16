@@ -1,6 +1,6 @@
+import csv
 import logging
 import os
-import re
 
 from .constants import drivetypes
 
@@ -12,7 +12,7 @@ def get_drive_list():
 
     drives = []
 
-    drive_list = _parse_wmic_output(os.popen('wmic logicaldisk').read())
+    drive_list = _parse_wmic_csv_output(os.popen('wmic logicaldisk list full /format:csv').read())
 
     for drive in drive_list:
 
@@ -44,29 +44,16 @@ def get_drive_list():
 
     return drives
 
-def _parse_wmic_output(text):
+def _parse_wmic_csv_output(text):
     """
-    Parse the output of Windows "wmic" command.
-    Adapted from: http://autosqa.com/blog/index.php/2016/03/18/how-to-parse-wmic-output-with-python/
+    Parse the output of Windows "wmic logicaldisk list full /format:csv" command.
     """
-    result = []
-    # remove empty lines
-    lines = [s for s in text.splitlines() if s.strip()]
-    # No Instance(s) Available
-    if len(lines) == 0:
-        return result
-    header_line = lines[0]
-    # Find headers and their positions
-    headers = re.findall('\S+\s+|\S$', header_line)
-    pos = [0]
-    for header in headers:
-        pos.append(pos[-1] + len(header))
-    for i in range(len(headers)):
-        headers[i] = headers[i].strip()
-    # Parse each entries
-    for r in range(1, len(lines)):
-        row = {}
-        for i in range(len(pos)-1):
-            row[headers[i]] = lines[r][pos[i]:pos[i+1]].strip()
-        result.append(row)
-    return result
+
+    # parse out the comma-separated values of each non-empty row
+    rows = [row for row in csv.reader(text.split("\n")) if row]
+
+    # use the first row as the header row
+    header = rows.pop(0)
+
+    # turn each row into a dict, mapping the header text of each column to the row's value for that column
+    return [dict(zip(header, row)) for row in rows]

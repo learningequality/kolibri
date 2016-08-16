@@ -1,10 +1,10 @@
 import os
 
-with open(os.path.join(os.path.dirname(__file__), "windows_wmic_output.txt")) as f:
-    wmic_txt = f.read()
+with open(os.path.join(os.path.dirname(__file__), "windows_wmic_output.csv")) as f:
+    wmic_csv = f.read()
 
 popen_responses = {
-    "wmic logicaldisk": wmic_txt,
+    "wmic logicaldisk list full /format:csv": wmic_csv,
 }
 
 os_access_read = {
