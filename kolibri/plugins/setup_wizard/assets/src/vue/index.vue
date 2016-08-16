@@ -138,8 +138,8 @@
   .error-message
     color: $core-text-alert
   .logo
-    height: 20%
-    width: 20%
+    height: 40%
+    width: 40%
     max-height: 160px
     min-height: 100px
     max-width: 160px
