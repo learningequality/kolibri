@@ -5,7 +5,7 @@
 
       <h1 slot="header" class="header">Edit Account Info</h1>
 
-      <div @keyup.enter="editUser" v-if="!usr_delete && !pw_reset" slot="body">
+      <div @keyup.enter="editUser" v-if="!this.usr_delete && !this.pw_reset" slot="body">
 
         <div class="user-field">
           <label for="username">Full Name</label>:
@@ -25,7 +25,7 @@
           </select>
         </div>
 
-        <div class="advanced-options" v-if="!pw_reset && !usr_delete">
+          <div class="advanced-options" v-if="!this.usr_delete && !this.pw_reset">
           <button @click="pw_reset=!pw_reset"> Reset Password </button>
           <button @click="usr_delete=!usr_delete"> Delete User</button>
         </div>
@@ -34,7 +34,7 @@
 
       </div>
 
-      <div @keyup.enter="editUser" v-if="pw_reset" slot="body">
+      <div @keyup.enter="changePassword" v-if="pw_reset" slot="body">
         <p>Username: <b>{{username_new}}</b></p>
         <div class="user-field">
           <label for="password">Enter new password</label>:
@@ -47,7 +47,7 @@
         </div>
       </div>
 
-      <div @keyup.enter="editUser" v-if="usr_delete" slot="body">
+      <div @keyup.enter="deleteUser" v-if="usr_delete" slot="body">
         <div class="user-field">
           <p> Are you sure you want to delete
           <b>{{username_new}}</b>?
@@ -59,7 +59,7 @@
         <p class="error" v-if="error_message"> {{error_message}} </p>
         <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
 
-        <button v-if="!pw_reset && !usr_delete" class="undo-btn" type="button" @click="close">
+        <button v-if="!this.usr_delete && !this.pw_reset" class="undo-btn" type="button" @click="close">
           Cancel
         </button>
 
@@ -72,10 +72,16 @@
         </button>
 
 
-        <button class="confirm-btn" type="button" @click="editUser">
-          <template v-if="pw_reset"> Save </template>
-          <template v-if="usr_delete"> Yes </template>
-          <template v-if="!pw_reset && !usr_delete"> Confirm </template>
+        <button v-if="!this.usr_delete && !this.pw_reset" class="confirm-btn" type="button" @click="editUser">
+          Confirm
+        </button>
+
+        <button v-if="pw_reset" class="confirm-btn" type="button" @click="changePassword">
+          Save
+        </button>
+
+        <button v-if="usr_delete" class="confirm-btn" type="button" @click="delete">
+          Yes
         </button>
         <br>
 
@@ -119,52 +125,50 @@
     },
     methods: {
       editUser() {
-        let updatable = true;
-        // delete the user if that's the option selected
         if (this.usr_delete) {
-          this.deleteUser(this.userid);
-        } else {
           const payload = {
             username: this.username_new,
             full_name: this.fullName_new,
             facility: this.facility,
           };
+          this.updateUser(this.userid, payload, this.role_new);
 
-          // check to see if there's a new password
-          if (this.password_new) {
-            updatable = false;
-            this.clearErrorMessage();
-            this.clearConfirmationMessage();
-            // make sure passwords match
-            if (this.password_new === this.password_new_confirm) {
-              payload.password = this.password_new;
-              this.confirmation_message = 'Password change successful.';
-            } else {
-              this.error_message = 'Passwords must match.';
-            }
-          }
+          // close the modal after successful submission
+          this.close();
+        }
+      },
+      delete() {
+        this.deleteUser(this.userid);
+      },
+      changePassword() {
+        // checks to make sure there's a new password
+        if (this.password_new) {
+          this.clearErrorMessage();
+          this.clearConfirmationMessage();
 
-          if (updatable) {
-            // save user changes
+          // make sure passwords match
+          if (this.password_new === this.password_new_confirm) {
+            const payload = {
+              username: this.username_new,
+              full_name: this.fullName_new,
+              facility: this.facility,
+              password: this.password_new,
+            };
             this.updateUser(this.userid, payload, this.role_new);
-            this.password_new = '';
-            this.password_new_confirm = '';
-            if (!(this.usr_delete || this.pw_reset)) {
-              this.clear();
-            }
+            this.confirmation_message = 'Password change successful.';
+
+          // passwords don't match
+          } else {
+            this.error_message = 'Passwords must match.';
           }
+
+        // if user didn't populate the password fields
+        } else {
+          this.error_message = 'Please enter a new password.';
         }
       },
       clear() {
-        if (this.usr_delete || this.pw_reset) {
-          this.usr_delete = this.pw_reset = false;
-        } else {
-          this.$data = this.$options.data();
-        }
-
-
-        this.clearErrorMessage();
-        this.clearConfirmationMessage();
+        this.$data = this.$options.data();
       },
       close() {
         this.$refs.modal.closeModal();
