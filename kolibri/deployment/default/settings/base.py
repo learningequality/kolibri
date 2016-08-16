@@ -97,10 +97,16 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(KOLIBRI_HOME, 'db.sqlite3'),
     },
+    'ormq': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(KOLIBRI_HOME, 'ormq.sqlite3'),
+    }
 }
 
 # Enable dynamic routing for content databases
-DATABASE_ROUTERS = ['kolibri.content.content_db_router.ContentDBRouter']
+DATABASE_ROUTERS = ['django_q.router.ORMBrokerRouter',
+                    # note: the content db router seems to override any other routers you put in here. Make sure it's the last.
+                    'kolibri.content.content_db_router.ContentDBRouter']
 
 
 # Content directories and URLs for channel metadata and content files
@@ -178,7 +184,7 @@ Q_CLUSTER = {
 
     # # DB name to use for the task queue. Should be separate from the default DB.
     # "orm": "task_queue",
-    "orm": "default",
+    "orm": "ormq",
 }
 
 
