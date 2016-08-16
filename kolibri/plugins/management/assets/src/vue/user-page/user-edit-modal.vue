@@ -1,7 +1,7 @@
 <template>
 
   <div class="user-edit-modal">
-    <modal v-ref:modal btntext="Edit">
+    <modal v-on:close="clear()" v-ref:modal btntext="Edit">
 
       <h1 slot="header" class="header">Edit Account Info</h1>
 
@@ -58,14 +58,19 @@
       <div slot="footer">
         <p class="error" v-if="error_message"> {{error_message}} </p>
         <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
-        <button class="cancel-btn" type="button" @click="cancel">
+
+        <button v-if="!pw_reset && !usr_delete" class="undo-btn" type="button" @click="close">
+          Cancel
+        </button>
+
+        <button v-else class="undo-btn" type="button" @click="clear">
           <!-- For reset option -->
           <template v-if="pw_reset"> Back </template>
           <!-- For delete option -->
           <template v-if="usr_delete"> No </template>
           <!-- For main window -->
-          <template v-if="!pw_reset && !usr_delete"> Cancel </template>
         </button>
+
 
         <button class="confirm-btn" type="button" @click="editUser">
           <template v-if="pw_reset"> Save </template>
@@ -145,20 +150,24 @@
             this.password_new = '';
             this.password_new_confirm = '';
             if (!(this.usr_delete || this.pw_reset)) {
-              this.cancel();
+              this.clear();
             }
           }
         }
       },
-      cancel() {
+      clear() {
         if (this.usr_delete || this.pw_reset) {
           this.usr_delete = this.pw_reset = false;
         } else {
-          this.$refs.modal.closeModal();
+          this.$data = this.$options.data();
         }
+
 
         this.clearErrorMessage();
         this.clearConfirmationMessage();
+      },
+      close() {
+        this.$refs.modal.closeModal();
       },
       clearErrorMessage() {
         this.error_message = '';
@@ -188,7 +197,7 @@
   .no-border
     border: none
 
-  .confirm-btn, .cancel-btn
+  .confirm-btn, .undo-btn
     width: 48%
 
   .confirm-btn
