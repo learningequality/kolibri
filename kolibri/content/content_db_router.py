@@ -11,7 +11,6 @@ Thanks to https://github.com/ambitioninc/django-dynamic-db-router for inspiratio
 """
 
 import os
-import sqlite3
 import threading
 from functools import wraps
 
@@ -25,6 +24,12 @@ from .errors import ContentModelUsedOutsideDBContext
 THREAD_LOCAL = threading.local()
 
 _content_databases_with_attached_default_db = set()
+
+# since Django uses pysqlite2 if available, we need to catch its OperationalError instead
+try:
+    from pysqlite2.dbapi2 import OperationalError
+except ImportError:
+    from sqlite3 import OperationalError
 
 def default_database_is_attached():
     alias = get_active_content_database()
@@ -85,7 +90,7 @@ def _attach_default_database(alias):
             connections[alias].connection.execute("ATTACH DATABASE '{}' AS defaultdb;".format(default_db_path))
             # record the fact that the default database has been attached to this content database
             _content_databases_with_attached_default_db.add(alias)
-        except sqlite3.OperationalError:
+        except OperationalError:
             # this will happen if the database is already attached; we can safely ignore
             pass
 
