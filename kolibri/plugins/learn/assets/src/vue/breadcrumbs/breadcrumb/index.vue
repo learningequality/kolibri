@@ -2,6 +2,7 @@
 
   <a v-link="linkobject">
     <span class='back'>
+      <span v-if="showarrow" class="visuallyhidden">{{ $tr('back') }}</span>
       <svg v-if="showarrow" role="presentation" src="../../icons/back.svg"></svg>
       {{ text }}
     </span>
@@ -20,12 +21,16 @@
       },
       text: {
         type: String,
-        required: true,
+        default: '',
       },
       linkobject: {
         type: Object,
         required: true,
       },
+    },
+    $trNameSpace: 'breadcrumb',
+    $trs: {
+      back: 'Back',
     },
   };
 
