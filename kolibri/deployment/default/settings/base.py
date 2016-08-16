@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'kolibri.logger',
     'kolibri.tasks.apps.KolibriTasksConfig',
     'kolibri.core.webpack',
+    'kolibri.core.discovery',
     'rest_framework',
     'kombu.transport.django',   # for celery and django communication
     'django_js_reverse',
@@ -238,6 +239,11 @@ REST_FRAMEWORK = {
         'rest_framework_csv.renderers.CSVRenderer',
     ),
 }
+
+
+# System warnings to disable
+# see https://docs.djangoproject.com/en/1.9/ref/settings/#silenced-system-checks
+SILENCED_SYSTEM_CHECKS = ["auth.W004"]
 
 
 # Configuration for Django JS Reverse
