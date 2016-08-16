@@ -8,7 +8,8 @@ ALLOWED_PATH_LIST = [
     "deviceowner-list",
     "kolibri:setupwizardplugin:setupwizard",
     "task-localdrive",
-
+    "task-startremoteimport",
+    "task-list",
 ]
 
 
