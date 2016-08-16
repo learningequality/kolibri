@@ -198,6 +198,7 @@
     z-index: 1
     padding: 0.2em 0.8em
     padding-right: 1.8em
+    min-width: 160px
     color: $core-text-annotation
     font-size: 0.9rem
     border: 1px solid $core-text-annotation

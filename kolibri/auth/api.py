@@ -113,7 +113,7 @@ class CurrentFacilityViewSet(viewsets.ViewSet):
         elif type(logged_in_user) is AnonymousUser:
             return Response(Facility.objects.all().values_list('id', flat=True))
         else:
-            return Response(logged_in_user.facility_id)
+            return Response([logged_in_user.facility_id])
 
 
 class ClassroomViewSet(viewsets.ModelViewSet):

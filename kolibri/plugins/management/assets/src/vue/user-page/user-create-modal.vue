@@ -179,4 +179,11 @@
   .error-message
     color: $core-text-alert
 
+  .secondary
+    &:hover
+      color: #ffffff
+      background-color: $core-action-dark
+      svg
+        fill: #ffffff
+
 </style>
