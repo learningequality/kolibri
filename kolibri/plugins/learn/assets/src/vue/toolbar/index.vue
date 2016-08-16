@@ -139,10 +139,9 @@
     background: $core-bg-canvas
     z-index: 100
     transition: top 0.2s ease-in-out
+    outline: 1px solid $core-bg-canvas // prevent box outline flicking on Chrome
 
   .toolbar-hide
-    position: fixed
-    left: -20px
     top: -40px
 
   .breadcrumbs
