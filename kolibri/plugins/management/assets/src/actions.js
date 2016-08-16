@@ -162,10 +162,10 @@ function deleteUser(store, id) {
     // if no id passed, abort the function
     return;
   }
-  const FacilityUserModel = Kolibri.resources.FacilityUserResource.getModel(id);
-  const newUserPromise = FacilityUserModel.delete();
-  newUserPromise.then((userId) => {
-    store.dispatch('DELETE_USERS', [userId]);
+  const FacilityUserModel = FacilityUserResource.getModel(id);
+  const deleteUserPromise = FacilityUserModel.delete();
+  deleteUserPromise.then((user) => {
+    store.dispatch('DELETE_USER', id);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));

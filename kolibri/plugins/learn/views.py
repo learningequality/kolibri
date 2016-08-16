@@ -1,10 +1,9 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.conf import settings
 from django.views.generic.base import TemplateView
 from kolibri.content.content_db_router import using_content_database
-from kolibri.content.models import ContentNode, ChannelMetadataCache
-from kolibri.content.serializers import ContentNodeSerializer, ChannelMetadataCacheSerializer
+from kolibri.content.models import ChannelMetadataCache, ContentNode
+from kolibri.content.serializers import ChannelMetadataCacheSerializer, ContentNodeSerializer
 from rest_framework.renderers import JSONRenderer
 
 
@@ -13,7 +12,6 @@ class LearnView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(LearnView, self).get_context_data(**kwargs)
-        context['kolibri'] = settings.KOLIBRI_CORE_JS_NAME
         context['channelList'] = []
         context['channel_id'] = ''
         context['nodes'] = []

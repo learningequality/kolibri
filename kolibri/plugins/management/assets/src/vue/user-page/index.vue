@@ -48,7 +48,7 @@
       </thead>
 
       <!-- Table body -->
-      <tbody>
+      <tbody v-if="usersMatchFilter">
         <tr v-for="user in visibleUsers">
           <!-- Full Name field -->
           <th scope="row" class="table-cell">
@@ -80,6 +80,9 @@
 
     </table>
 
+    <p v-if="noUsersExist">{{ $tr('noUsersExist') }}</p>
+    <p v-if="allUsersFilteredOut">{{ $tr('allUsersFilteredOut') }}</p>
+
   </div>
 
 </template>
@@ -100,6 +103,15 @@
       searchFilter: '',
     }),
     computed: {
+      noUsersExist() {
+        return this.users.length === 0;
+      },
+      allUsersFilteredOut() {
+        return !this.noUsersExist && (this.visibleUsers.length === 0);
+      },
+      usersMatchFilter() {
+        return !this.noUsersExist && !this.allUsersFilteredOut;
+      },
       visibleUsers() {
         const roleFilter = this.roleFilter;
         // creates array of words in filter, removes empty strings
@@ -158,6 +170,11 @@
       actions: {
         deleteUser: actions.deleteUser,
       },
+    },
+    $trNameSpace: 'userPage',
+    $trs: {
+      noUsersExist: 'No Users Exist.',
+      allUsersFilteredOut: 'No users match the filter.',
     },
   };
 

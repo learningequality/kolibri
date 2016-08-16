@@ -28,6 +28,7 @@
 
   const constants = require('../../state/constants');
   const getters = require('../../state/getters');
+  const PageModes = constants.PageModes;
 
   module.exports = {
 
@@ -62,6 +63,10 @@
       getCurrentChannel() {
         return this.currentChannel;
       },
+      channelsExist() {
+        return !((Object.keys(this.getChannels).length === 0) &&
+          (this.getChannels.constructor === Object));
+      },
     },
     methods: {
       handleScroll(position) {
@@ -87,7 +92,7 @@
       switchChannel(event) {
         let rootPage;
         this.more = false;
-        if (this.exploreMode) {
+        if (this.pageMode === PageModes.EXPLORE) {
           rootPage = constants.PageNames.EXPLORE_CHANNEL;
         } else {
           rootPage = constants.PageNames.LEARN_CHANNEL;
@@ -142,6 +147,7 @@
     background: $core-bg-canvas
     z-index: 100
     transition: top 0.2s ease-in-out
+    outline: 1px solid $core-bg-canvas // prevent box outline flicking on Chrome
 
   .toolbar-hide
     position: fixed
