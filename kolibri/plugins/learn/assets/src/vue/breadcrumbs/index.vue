@@ -1,14 +1,14 @@
 <template>
 
   <div>
-    <nav class="nav" role="navigation" aria-label="You are here:">
+    <nav class="nav" role="navigation" :aria-label="youAreHere">
       <span class="learn-bread" v-if="pageName === PageNames.LEARN_CONTENT">
-        <breadcrumb :linkobject="learnRootLink" text="Learn"></breadcrumb>
+        <breadcrumb :linkobject="learnRootLink" :text="learn"></breadcrumb>
       </span>
 
       <template v-if="pageName === PageNames.EXPLORE_TOPIC">
         <span class="landscape">
-          <breadcrumb :showarrow='false' :linkobject="exploreRootLink" text="Explore"></breadcrumb>
+          <breadcrumb :showarrow='false' :linkobject="exploreRootLink" :text="explore"></breadcrumb>
         </span>
         <span class="portrait">
           <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
@@ -35,6 +35,23 @@
   const getters = require('../../state/getters');
 
   module.exports = {
+    $trNameSpace: 'learn',
+    $trs: {
+      learn: 'Learn',
+      explore: 'Explore',
+      youAreHere: 'You are here:',
+      current: 'Current:',
+    },
+    props: {
+      rootid: {
+        type: String,
+        required: true,
+      },
+      crumbs: {
+        type: Array,
+        required: true,
+      },
+    },
     components: {
       breadcrumb: require('./breadcrumb'),
     },
@@ -68,6 +85,15 @@
           return this.topicLink(breadcrumbs[breadcrumbs.length - 1].id);
         }
         return this.exploreRootLink;
+      },
+      youAreHere() {
+        return this.$tr('youAreHere');
+      },
+      learnText() {
+        return this.$tr('learn');
+      },
+      exploreText() {
+        return this.$tr('explore');
       },
     },
     methods: {

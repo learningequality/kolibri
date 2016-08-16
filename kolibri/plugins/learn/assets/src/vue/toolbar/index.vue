@@ -3,7 +3,7 @@
   <div v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" v-show='!searchOpen' >
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
     <div :class="{ 'toggle-menu-on' : more }">
-      <label for="chan-select" :class="[ more ? 'lable-on' : 'visuallyhidden' ]" >Switch Channels</label>
+      <label for="chan-select" :class="[ more ? 'label-on' : 'visuallyhidden' ]" >{{ $tr('switchChannels') }}</label>
       <select
         class="chan-select"
         :class="[ more ? 'chan-select-mobile-location' : 'chan-select-location' ]"
@@ -30,6 +30,12 @@
   const getters = require('../../state/getters');
 
   module.exports = {
+
+    $trNameSpace: 'learnToolbar',
+
+    $trs: {
+      switchChannels: 'Switch Channels',
+    },
 
     data: () => ({
       currScrollTop: 0,
@@ -219,7 +225,7 @@
     right: auto
     background-color: $core-bg-light
 
-  .lable-on
+  .label-on
     position: relative
     top: 1.2rem
 

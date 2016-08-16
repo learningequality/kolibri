@@ -71,6 +71,12 @@
 
 
   module.exports = {
+    $trNameSpace: 'learnSearch',
+
+    $trs: {
+      ariaLabel: 'Type to find content',
+      placeHolder: 'Find content...',
+    },
     directives: { focus },
     props: {
       showTopics: {
@@ -91,6 +97,12 @@
           return 'Could not find any matches.';
         }
         return '';
+      },
+      ariaLabel() {
+        return this.$tr('ariaLabel');
+      },
+      placeHolder() {
+        return this.$tr('placeHolder');
       },
     },
     methods: {

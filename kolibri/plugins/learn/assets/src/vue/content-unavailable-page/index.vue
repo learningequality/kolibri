@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <h1>No Content Channels Available</h1>
-    <p v-if="isAdminOrSuperuser">Download content channels from the <a href="/management/#!/content">Content Management</a> page</p>
-    <p v-else>You need to log in as an administrator to manage your content channels.</p>
+    <h1>{{ $tr('header') }}</h1>
+    <p v-if="isAdminOrSuperuser">{{{ $trHtml('adminLink') }}}</p>
+    <p v-else>{{ $tr('notAdmin') }}</p>
   </div>
 
 </template>
@@ -14,6 +14,13 @@
   const UserKinds = require('core-constants').UserKinds;
 
   module.exports = {
+
+    $trNameSpace: 'learnContentUnavailable',
+    $trs: {
+      header: 'No Content Channels Available',
+      adminLink: 'Download content channels from the <a href="/management/#!/content">Content Management</a> page', // eslint-disable-line max-len
+      notAdmin: 'You need to log in as an administrator to manage your content channels.',
+    },
 
     computed: {
       isAdminOrSuperuser() {

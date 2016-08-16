@@ -1,6 +1,6 @@
 <template>
 
-  <icon-button @click="downloadContent" text="Download Media">
+  <icon-button @click="downloadContent" :text="downloadMediaText">
     <svg src="download.svg"></svg>
   </icon-button>
 
@@ -12,6 +12,10 @@
   const downloadjs = require('./download.js');
 
   module.exports = {
+    $trNameSpace: 'contentRender',
+    $trs: {
+      downloadMedia: 'Download Media',
+    },
     props: {
       kind: {
         type: String,
@@ -50,6 +54,9 @@
         return this.files.filter(
           (file) => !file.thumbnail & !file.supplementary & file.available
         );
+      },
+      downloadMediaText() {
+        return this.$tr('downloadMedia');
       },
     },
     methods: {

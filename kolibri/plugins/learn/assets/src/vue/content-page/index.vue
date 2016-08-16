@@ -12,16 +12,6 @@
       </content-icon>
     </page-header>
 
-    <page-header :title='title'>
-      <content-icon
-        slot='icon'
-        :ispageicon="true"
-        :size="25"
-        :kind="kind"
-        :progress="progress">
-      </content-icon>
-    </page-header>
-
     <div class="content-container" v-show='!searchOpen'>
       <content-render
         :id="id"
@@ -47,7 +37,7 @@
 
     <expandable-content-grid class="recommendation-section"
       v-if="pageMode === $options.PageModes.LEARN"
-      title="Recommended"
+      :title="recommendedText"
       :contents="recommended">
     </expandable-content-grid>
 
@@ -62,6 +52,15 @@
   const getters = require('../../state/getters');
 
   module.exports = {
+    $trNameSpace: 'learnContent',
+    $trs: {
+      recommended: 'Recommended',
+    },
+    computed: {
+      recommendedText() {
+        return this.$tr('recommended');
+      },
+    },
     mixins: [constants], // makes constants available in $options
     components: {
       'content-icon': require('../content-icon'),
