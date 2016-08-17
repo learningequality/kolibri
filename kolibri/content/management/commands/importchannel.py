@@ -28,6 +28,9 @@ class Command(AsyncCommand):
             with self.start_progress(total=download.total_size) as progress_update:
 
                 for chunk in download:
-                    progress_update(len(chunk))
+                    progress_extra_data = {
+                        "channel_id": channel_id,
+                    }
+                    progress_update(len(chunk), progress_extra_data)
 
         update_channel_metadata_cache()

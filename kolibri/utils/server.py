@@ -13,7 +13,8 @@ def start():
     # TODO(aronasorman): move to install/plugin-enabling scripts, and remove from here
     call_command("collectstatic", interactive=False)
     call_command("collectstatic_js_reverse", interactive=False)
-    call_command("migrate", interactive=False)
+    call_command("migrate", interactive=False, database="default")
+    call_command("migrate", interactive=False, database="ormq")
 
     update_channel_metadata_cache()
 

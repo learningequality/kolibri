@@ -1,84 +1,140 @@
-from celery import Celery
-from celery.backends.database.models import Task
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+import json
 from django.core.management import call_command
-from rest_framework import viewsets
+from rest_framework import viewsets, serializers
+from rest_framework.decorators import list_route
 from rest_framework.response import Response
+
+from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
+from kolibri.tasks.management.commands.base import Progress
 
 import logging as logger
 
 logging = logger.getLogger(__name__)
 
 
-app = Celery()
-app.config_from_object('kolibri.deployment.default.celeryconfig.default')
-
-
-CELERY_BACKEND_CONNECTION = create_engine(app.broker_connection().hostname)
-Session = sessionmaker(bind=CELERY_BACKEND_CONNECTION)
-CALL_COMMAND_SHORTNAME = 'kolibri.call_command'
-
-
-def setup_celery_for_management_commands():
-
-    # register the call_command command, which will be our main interface
-    # for calling commands asynchronously
-    cc_task = app.task(call_command)
-
-    # avoid the need to put in the full module path for call_command. Instead,
-    # shortcut it to call_command.
-    app.tasks[CALL_COMMAND_SHORTNAME] = app.tasks.get(cc_task.name)
-
-
-def schedule_command(funcname, *args, **kwargs):
-    call_command = app.tasks[CALL_COMMAND_SHORTNAME]
-    task = call_command.delay(
-        funcname,
-        update_state=call_command.update_state,
-        *args, **kwargs
-    )
-    return task.task_id
-
-
-def get_task_state(task_id):
-    session = Session()
-    query = session.query(Task).filter(Task.task_id == task_id)
-
-    return query.one().to_dict()
-
-
-def get_tasks():
-    # current implementation heavily depends on the fact that celery's result
-    # backend is an sqlalchemy sqlite DB. Otherwise, celery provides no fast way
-    # of querying tasks (since it was designed to be distributed.)
-
-    session = Session()
-
-    for task in session.query(Task):
-        yield task.to_dict()
-
-
-def cancel_task(task_id):
-    pass
-
-
 class TasksViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        return Response(get_tasks())
+        from django_q.models import Task
+        tasks_response = [_task_to_response(t) for t in Task.objects.all()]
+        return Response(tasks_response)
 
     def create(self, request):
-        data = request.data
-
-        task_id = schedule_command(data["command"], *data["args"], **data["kwargs"])
-
-        return Response(task_id)
+        # unimplemented. Call out to the task-specific APIs for now.
+        pass
 
     def retrieve(self, request, pk=None):
-        if pk:
-            return Response(get_task_state(pk))
+        from django_q.models import Task
+
+        task = _task_to_response(Task.get_task(pk))
+        return Response(task)
 
     def destroy(self, request, pk=None):
-        if pk:
-            return Response(cancel_task(pk))
+        # unimplemented for now.
+        pass
+
+    # convenience functions for triggering often used tasks
+
+    @list_route(methods=['post'])
+    def startremoteimport(self, request):
+        '''Download a channel's database from the main curation server, and then
+        download its content.
+
+        '''
+        TASKTYPE = "remoteimport"
+
+        # loading django_q apparently requires django settings to load first.
+        # Import here to avoid circular imports.
+        from django_q.tasks import async
+        from django_q.models import Task
+        data = json.loads(request.body.decode('utf-8'))
+
+        if "id" not in data:
+            raise serializers.ValidationError("The 'id' field is required.")
+
+        channel_id = data['id']
+
+        task_id = async(_importchannel, channel_id, group=TASKTYPE, progress_updates=True)
+
+        # id status metadata
+
+        # wait for the task instance to be saved first before continuing
+        taskobj = Task.get_task(task_id)
+        if taskobj:             # the task object has been saved!
+            resp = _task_to_response(taskobj)
+        else:                   # task object hasn't been saved yet, fake the response for now
+            resp = {
+                "type": TASKTYPE,
+                "status": "PENDING",
+                "percentage": 0,
+                "metadata": {},
+                "id": task_id,
+            }
+
+        return Response(resp)
+
+    @list_route(methods=['post'])
+    def startlocalimportchannel(self, request):
+        '''
+        Import a channel locally, and move content to the local machine.
+
+        '''
+
+    @list_route(methods=['get'])
+    def localdrive(self, request):
+        drives = get_mounted_drives_with_channel_info()
+
+        # make sure everything is a dict, before converting to JSON
+        assert isinstance(drives, dict)
+
+        out = []
+        for mountdata in drives.values():
+            mountdata = mountdata._asdict()
+            if mountdata['metadata']['channels']:
+                mountdata['channels'] = [c._asdict() for c in mountdata['channels']]
+
+            out.append(mountdata)
+
+        return Response(out)
+
+def _importchannel(channel_id, update_state=None):
+    call_command("importchannel", channel_id, update_state=update_state)
+    call_command("retrievecontent", "network", channel_id, update_state=update_state)
+
+
+def _task_to_response(task_instance):
+    """"
+    Converts a Task object to a dict with the attributes that the
+    frontend expects.
+    """
+    tasktype = task_instance.group
+    status = task_instance.task_status
+    percentage = task_instance.progress_fraction
+    id = task_instance.id
+
+    p = task_instance.progress_data
+    # ARON: find out why progress metadata isn't being added. Check if this if statement below is getting processed properly.
+
+    if not isinstance(p, Progress):
+        task_type_specific_metadata = {}
+    else:
+        percentage = p.progress_fraction
+        message = p.message
+        extra_data = p.extra_data
+
+        task_type_specific_metadata = {
+            "msg": message,
+        }
+
+        try:
+            task_type_specific_metadata.update(extra_data)
+        except TypeError:       # extra_data isn't iterable, do nothing
+            pass
+
+    return {
+        "type": tasktype,
+        "status": status,
+        "percentage": percentage,
+        "metadata": task_type_specific_metadata,
+        "id": id,
+    }
