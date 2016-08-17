@@ -22,6 +22,7 @@
           <button class="create-btn" type="button" @click="createBoth">{{ $tr('getStarted') }}</button>
         </div>
       </div>
+      <br>
     </div>
   </div>
 
@@ -103,16 +104,16 @@
   @require '~core-theme.styl'
 
   .device-owner-creation
-    position: fixed
-    top: 0
-    left: 0
+    position: absolute
+    overflow-y: scroll
     width: 100%
     height: 100%
-    display: table
   .wrapper
-    overflow-y: scroll
-    display: table-cell
-    vertical-align: middle
+    position: absolute
+    max-height: 100%
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
   .container
     background: #fff
     width: 100%
@@ -150,9 +151,12 @@
   .error-message
     color: $core-text-alert
   .logo
-    height: 20%
+    height: 40%
+    width: 40%
     max-height: 160px
     min-height: 100px
+    max-width: 160px
+    min-width: 100px
     display: block
     margin-left: auto
     margin-right: auto

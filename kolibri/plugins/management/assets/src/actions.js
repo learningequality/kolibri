@@ -1,13 +1,17 @@
 const Kolibri = require('kolibri');
 
 const FacilityUserResource = Kolibri.resources.FacilityUserResource;
-const ContentNodeResource = Kolibri.resources.ContentNodeResource;
+const ChannelResource = Kolibri.resources.ChannelResource;
 const TaskResource = Kolibri.resources.TaskResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
 const constants = require('./state/constants');
 const UserKinds = require('core-constants').UserKinds;
 const PageNames = constants.PageNames;
+
+
+// ================================
+// USER MANAGEMENT ACTIONS
 
 
 /**
@@ -199,15 +203,23 @@ function showUserPage(store) {
   });
 }
 
+
+// ================================
+// CONTENT IMPORT/EXPORT ACTIONS
+
+
 function showContentPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
-  const taskCollectionPromise = TaskResource.getCollection().fetch();
+  // const taskCollectionPromise = TaskResource.getCollection().fetch();
+  const taskCollectionPromise = Promise.resolve([]); // TODO - remove
   taskCollectionPromise.then((taskList) => {
     const pageState = { showWizard: false };
     pageState.taskList = taskList;
-    // ChannelResource should be used
-    const channelCollectionPromise = ContentNodeResource.getCollection().fetch();
+    if (taskList.length) { // only one task at a time for now
+      store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
+    }
+    const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
     channelCollectionPromise.then((channelList) => {
       pageState.channelList = channelList;
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -220,14 +232,36 @@ function showContentPage(store) {
   });
 }
 
+
+function startImportWizard(store) {
+  store.dispatch('SET_CONTENT_WIZARD_STATE', true, {
+    type: 'import',
+    page: 'start',
+  });
+}
+
+function startExportWizard(store) {
+  store.dispatch('SET_CONTENT_WIZARD_STATE', true, {
+    type: 'import',
+    page: 'start',
+  });
+}
+
+function cancelImportExportWizard(store) {
+  store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
+}
+
+
 // background worker calls this to continually update UI
 function updateTasks(store) {
   const taskCollectionPromise = TaskResource.getCollection().fetch();
   taskCollectionPromise.then((taskList) => {
     const pageState = { showWizard: false };
     pageState.taskList = taskList;
-    // ChannelResource should be used
-    const channelCollectionPromise = ContentNodeResource.getCollection().fetch();
+    if (taskList.length) { // only one task at a time for now
+      store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
+    }
+    const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
     channelCollectionPromise.then((channelList) => {
       pageState.channelList = channelList;
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -238,16 +272,21 @@ function updateTasks(store) {
   });
 }
 
-function clearTask(store, id) {
+function clearTasks(store, id) {
   const currentTaskPromise = TaskResource.getModel(id).delete(id);
   currentTaskPromise.then(() => {
     // only 1 task should be running, but we set to empty array
-    store.dispatch('DELETE_TASK');
+    store.dispatch('SET_TASKS', []);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
   });
 }
+
+
+// ================================
+// OTHER ACTIONS
+
 
 function showDataPage(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.DATA_EXPORT_PAGE);
@@ -268,9 +307,14 @@ module.exports = {
   updateUser,
   deleteUser,
   showUserPage,
+
   showContentPage,
+  updateTasks,
+  clearTasks,
+  startImportWizard,
+  startExportWizard,
+  cancelImportExportWizard,
+
   showDataPage,
   showScratchpad,
-  updateTasks,
-  clearTask,
 };

@@ -31,11 +31,15 @@
 
     <!-- results -->
     <div class='results' v-if="!loading">
-      <h4 v-if="searchTerm">
+      <h1 v-if="searchTerm">
         {{ message }}
+      </h1>
+
+      <h4 v-if="topics.length && showTopics">
+        Topic
       </h4>
 
-      <card-grid v-if="topics.length && showTopics">
+      <card-list class="card-list" v-if="topics.length && showTopics">
         <topic-list-item
           v-for="topic in topics"
           class="card"
@@ -44,7 +48,11 @@
           :ntotal="topic.n_total"
           :ncomplete="topic.n_complete">
         </topic-list-item>
-      </card-grid>
+      </card-list>
+
+      <h4 v-if="contents.length">
+        Content
+      </h4>
 
       <card-grid v-if="contents.length">
         <content-grid-item
@@ -149,6 +157,12 @@
   @require '../learn.styl'
 
   $top-offset = 60px
+
+  h4
+    margin-top: 3em
+
+  .card-list
+    margin-bottom: $card-gutter
 
   .wrapper
     margin: auto

@@ -47,9 +47,10 @@ INSTALLED_APPS = [
     'kolibri.content',
     'kolibri.logger',
     'kolibri.tasks.apps.KolibriTasksConfig',
+    'django_q',
     'kolibri.core.webpack',
+    'kolibri.core.discovery',
     'rest_framework',
-    'kombu.transport.django',   # for celery and django communication
     'django_js_reverse',
 ] + conf.config['INSTALLED_APPS']
 
@@ -95,11 +96,17 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(KOLIBRI_HOME, 'db.sqlite3'),
+    },
+    'ormq': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(KOLIBRI_HOME, 'ormq.sqlite3'),
     }
 }
 
 # Enable dynamic routing for content databases
-DATABASE_ROUTERS = ['kolibri.content.content_db_router.ContentDBRouter']
+DATABASE_ROUTERS = ['django_q.router.ORMBrokerRouter',
+                    # note: the content db router seems to override any other routers you put in here. Make sure it's the last.
+                    'kolibri.content.content_db_router.ContentDBRouter']
 
 
 # Content directories and URLs for channel metadata and content files
@@ -130,6 +137,31 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+Q_CLUSTER = {
+    # name of the queue for this project. Since each kolibri installation's queue is self
+    # contained (since we use an isolated sqlite file), this doesn't really matter.
+    "name": "kolibriqueue",
+
+    # 3 concurrent worker processes, so 3 concurrent jobs at once
+    "workers": 3,
+
+    # 50 jobs before a worker gets reset, releasing its memory
+    "recycle": 50,
+
+    # seconds before a task is terminated. None means wait indefinitely for a task.
+    "timeout": None,
+
+    # number of successful tasks we save to the DB. 0 means save all. All failed tasks are saved.
+    "save_limit": 0,
+
+    # catch_up, when True, makes the workers catch up to all scheduled tasks that elapsed while it was down.
+    "catch_up": False,
+
+    # # DB name to use for the task queue. Should be separate from the default DB.
+    # "orm": "task_queue",
+    "orm": "ormq",
+}
 
 
 # Static files (CSS, JavaScript, Images)
@@ -240,6 +272,11 @@ REST_FRAMEWORK = {
 }
 
 
+# System warnings to disable
+# see https://docs.djangoproject.com/en/1.9/ref/settings/#silenced-system-checks
+SILENCED_SYSTEM_CHECKS = ["auth.W004"]
+
+
 # Configuration for Django JS Reverse
 # https://github.com/ierror/django-js-reverse#options
 
@@ -248,3 +285,5 @@ JS_REVERSE_JS_VAR_NAME = 'urls'
 JS_REVERSE_JS_GLOBAL_OBJECT_NAME = KOLIBRI_CORE_JS_NAME
 
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
+
+DEBUG = True
