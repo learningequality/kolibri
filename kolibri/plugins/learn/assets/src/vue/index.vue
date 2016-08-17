@@ -90,9 +90,9 @@
     left: 0
     height: 100%
     width: 100%
-    padding-left: $nav-width
+    @media screen and (min-width: $portrait-breakpoint + 1)
+      padding-left: $nav-width
     @media screen and (max-width: $portrait-breakpoint)
-      padding: 0
       padding-right: 15px
 
   .search-slide-transition
