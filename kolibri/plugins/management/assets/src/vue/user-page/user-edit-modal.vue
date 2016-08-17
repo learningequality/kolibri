@@ -101,6 +101,7 @@
 
   const actions = require('../../actions');
   const coreActions = require('core-actions');
+  const constants = require('core-constants');
 
   module.exports = {
     components: {
@@ -130,11 +131,18 @@
           facility: this.facility,
         };
         this.updateUser(this.userid, payload, this.role_new);
+        // if logged in admin updates role to learner, redirect to learn page
+        if (Number(this.userid) === this.session_user_id) {
+          if (this.role_new === constants.UserKinds.LEARNER.toLowerCase()) {
+            window.location.href = window.location.origin;
+          }
+        }
 
         // close the modal after successful submission
         this.close();
       },
       delete() {
+        // if logged in admin deleted their own account, log them out
         if (Number(this.userid) === this.session_user_id) {
           this.logout(this.Kolibri);
         }
