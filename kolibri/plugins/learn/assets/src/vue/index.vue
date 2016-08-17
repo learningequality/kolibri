@@ -90,7 +90,7 @@
     left: 0
     height: 100%
     width: 100%
-    padding-left: 74px
+    padding-left: $nav-width
     @media screen and (max-width: $portrait-breakpoint)
       padding: 0
       padding-right: 15px
