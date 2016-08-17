@@ -2,7 +2,7 @@
 
   <div>
     <h1>{{ $tr('errorHeader') }}</h1>
-    <label for="error-textxbox">{{ $tr('errorPrefixText') }}</label><br>
+    <label for="error-textxbox" aria-live="polite">{{ $tr('errorPrefixText') }}</label><br>
     <textarea id="error-textbox">
       {{ error }}
     </textarea>
