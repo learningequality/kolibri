@@ -19,7 +19,7 @@
       </template>
 
       <span v-if="pageName === PageNames.EXPLORE_CONTENT">
-        <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
+        <breadcrumb :linkobject="parentExploreLink" :text="$tr('back')"></breadcrumb>
       </span>
 
     </nav>
@@ -40,6 +40,7 @@
       learn: 'Learn',
       explore: 'Explore',
       youAreHere: 'You are here:',
+      back: 'Back',
     },
     components: {
       breadcrumb: require('./breadcrumb'),

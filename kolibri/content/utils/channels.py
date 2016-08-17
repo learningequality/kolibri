@@ -52,5 +52,5 @@ def get_channels_for_data_folder(datafolder):
 def get_mounted_drives_with_channel_info():
     drives = enumerate_mounted_disk_partitions()
     for drive in drives.values():
-        drive.metadata["channels"] = get_channels_for_data_folder(drive.data_folder) if drive.data_folder else []
+        drive.metadata["channels"] = get_channels_for_data_folder(drive.data_folder) if drive.datafolder else []
     return drives
