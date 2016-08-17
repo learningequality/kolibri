@@ -200,6 +200,7 @@
     width: 100%
     font-size: 0.9em
     left: -40px
+    background-color: $core-bg-canvas
     &:focus
       margin: 0 auto
     @media screen and (max-width: $portrait-breakpoint)
@@ -210,7 +211,7 @@
 
   .reset
     border: none
-    background-color: $core-bg-light // IE10 needs a non-transparent bg to be clickable
+    background-color: $core-bg-canvas // IE10 needs a non-transparent bg to be clickable
     display: inline-block
     outline: none
     cursor: pointer
@@ -243,8 +244,8 @@
     padding: 0.2em 0.7em
     border-radius: 4px
     font-size: 0.8em
-    background-color: $core-text-annotation
-    color: $core-bg-light
+    border: 1px solid $core-text-annotation
+    color: $core-text-annotation
     z-index: 10001
     @media screen and (max-width: $portrait-breakpoint)
       width: 62px
