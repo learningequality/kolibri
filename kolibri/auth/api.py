@@ -72,7 +72,7 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            return super(viewsets.ModelViewSet, self).create(request, *args, **kwargs)
+            return super(FacilityUserViewSet, self).create(request, *args, **kwargs)
         except ValidationError:
             return Response("An account with that username already exists.", status=status.HTTP_409_CONFLICT)
 
@@ -113,7 +113,7 @@ class CurrentFacilityViewSet(viewsets.ViewSet):
         elif type(logged_in_user) is AnonymousUser:
             return Response(Facility.objects.all().values_list('id', flat=True))
         else:
-            return Response(logged_in_user.facility_id)
+            return Response([logged_in_user.facility_id])
 
 
 class ClassroomViewSet(viewsets.ModelViewSet):

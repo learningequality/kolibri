@@ -238,6 +238,27 @@ class UserCreationTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
 
+class UserUpdateTestCase(APITestCase):
+
+    def setUp(self):
+        self.device_owner = DeviceOwnerFactory.create()
+        self.facility = FacilityFactory.create()
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
+
+    def test_user_update_info(self):
+        self.client.patch(reverse('facilityuser-detail', kwargs={'pk': self.user.pk}), {'username': 'foo'}, format="json")
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.username, "foo")
+
+    def test_user_update_password(self):
+        new_password = 'baz'
+        self.client.patch(reverse('facilityuser-detail', kwargs={'pk': self.user.pk}), {'password': new_password}, format="json")
+        self.client.logout()
+        response = self.client.login(username=self.user.username, password=new_password, facility=self.facility)
+        self.assertTrue(response)
+
+
 class LoginLogoutTestCase(APITestCase):
 
     def setUp(self):

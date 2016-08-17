@@ -182,10 +182,13 @@
           Object.assign(options, this.currentViewClass);
           // Instantiate the Vue instance directly using the Kolibri Vue constructor.
           this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
-          this.contentView.$on('startTracking', this.wrappedStartTracking);
-          this.contentView.$on('stopTracking', this.wrappedStopTracking);
-          this.contentView.$on('progressUpdate', this.wrappedUpdateProgress);
-          this.initSession(this.Kolibri, this.channelId, this.contentId, this.kind);
+
+          // ====== disable content logging until we track down some issues =======
+
+          // this.contentView.$on('startTracking', this.wrappedStartTracking);
+          // this.contentView.$on('stopTracking', this.wrappedStopTracking);
+          // this.contentView.$on('progressUpdate', this.wrappedUpdateProgress);
+          // this.initSession(this.Kolibri, this.channelId, this.contentId, this.kind);
         }
       },
       wrappedStartTracking() {

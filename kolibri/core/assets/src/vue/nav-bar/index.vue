@@ -48,6 +48,7 @@
     @media screen and (min-width: $portrait-breakpoint + 1)
       font-size: 1em
       height: 100%
+      width: $nav-width
     @media screen and (max-width: $portrait-breakpoint)
       font-size: 0.8em
       bottom: 0

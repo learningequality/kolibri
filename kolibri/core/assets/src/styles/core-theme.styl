@@ -45,18 +45,21 @@ $card-width = 200px         // fixed card width
 $card-gutter = 20px         // spacing between columns
 $n-cols-array = 1 2 3 4 5 6    // possible numbers of columns
 
+$nav-width = 75px
 $left-margin = 100px
 $right-margin = 25px
 
 $horizontal-card-width = 320px
 $horizontal-card-height = 100px
 
+$learn-toolbar-height = 42px
 
 // compute the target grid width based on the number of columns
 grid-width($n-cols)
   ($card-width * $n-cols) + ($card-gutter * ($n-cols))
 
 $portrait-breakpoint = $left-margin * 2 + grid-width(1) + $right-margin
+$medium-breakpoint = 619px // TODO - compute this based on variables
 
 // compute the media query breakpoint, based on the target grid width
 breakpoint($width)
@@ -69,5 +72,6 @@ width-auto-adjust()
     $grid-width = grid-width($n-cols)
     @media (min-width: breakpoint($grid-width))
       width: $grid-width
-    @media screen and (max-width: 619px)
+    @media screen and (max-width: $medium-breakpoint + 1)
       width: $horizontal-card-width // Hard-code media query, potential to revisit
+

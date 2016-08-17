@@ -15,9 +15,7 @@
         <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
       </select>
     </div>
-    <search-button @scrolling="handleScroll" class='search-btn'>
-      <svg src="../search-widget/search.svg"></svg>
-    </search-button>
+    <search-button @scrolling="handleScroll" class='search-btn'></search-button>
     <button class="more" @click="toggleMore" ><svg src="../icons/more-ver.svg"></svg></button>
   </div>
 
@@ -143,7 +141,7 @@
     left: -15px
     top: 0
     width: 100%
-    height: 42px
+    height: $learn-toolbar-height
     background: $core-bg-canvas
     z-index: 100
     transition: top 0.2s ease-in-out
@@ -203,9 +201,10 @@
 
   .chan-select
     z-index: 1
-    width: 11em
     height: 24px
-    padding: 0 0.8em
+    padding: 0.2em 0.8em
+    padding-right: 1.8em
+    min-width: 160px
     color: $core-text-annotation
     font-size: 0.9rem
     border: 1px solid $core-text-annotation

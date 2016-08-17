@@ -203,7 +203,7 @@ function showExploreChannel(store, channelId) {
       store.dispatch('SET_ROOT_TOPIC_ID', rootTopicId);
       const attributesPromise = ContentNodeResource.getModel(rootTopicId).fetch();
       const childrenPromise = ContentNodeResource.getCollection({ parent: rootTopicId }).fetch();
-      const channelPromise = ChannelResource.getCollection({}).fetch();
+      const channelPromise = _getChannelList();
       Promise.all([attributesPromise, childrenPromise, channelPromise])
         .then(([attributes, children, channelList]) => {
           const pageState = { rootTopicId };
@@ -232,7 +232,7 @@ function showExploreTopic(store, channelId, id) {
 
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
-  const channelPromise = ChannelResource.getCollection({}).fetch();
+  const channelPromise = _getChannelList();
   Promise.all([attributesPromise, childrenPromise, channelPromise])
     .then(([attributes, children, channelList]) => {
       const pageState = { id };
@@ -259,7 +259,7 @@ function showExploreContent(store, channelId, id) {
   cookiejs.set('currentChannel', channelId);
 
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
-  const channelPromise = ChannelResource.getCollection({}).fetch();
+  const channelPromise = _getChannelList();
 
   Promise.all([attributesPromise, channelPromise])
     .then(([attributes, channelList]) => {
@@ -285,7 +285,7 @@ function showLearnChannel(store, channelId) {
 
   const recommendedPromise =
     ContentNodeResource.getCollection({ recommendations: '' }).fetch({}, true);
-  const channelPromise = ChannelResource.getCollection({}).fetch();
+  const channelPromise = _getChannelList();
   Promise.all([recommendedPromise, channelPromise])
     .then(([recommendations, channelList]) => {
       const pageState = { recommendations: recommendations.map(_contentState) };
@@ -306,10 +306,9 @@ function showLearnContent(store, channelId, id) {
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
   cookiejs.set('currentChannel', channelId);
-
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
-  const channelPromise = ChannelResource.getCollection({}).fetch();
+  const channelPromise = _getChannelList();
 
   Promise.all([attributesPromise, recommendedPromise, channelPromise])
     .then(([attributes, recommended, channelList]) => {

@@ -3,6 +3,16 @@ from django.shortcuts import redirect
 from kolibri.auth.models import DeviceOwner
 
 
+ALLOWED_PATH_LIST = [
+    "facility-list",
+    "deviceowner-list",
+    "kolibri:setupwizardplugin:setupwizard",
+    "task-localdrive",
+    "task-startremoteimport",
+    "task-list",
+]
+
+
 class SetupWizardMiddleware():
     """
     display the superuser creation app if no superuser exists.
@@ -16,7 +26,7 @@ class SetupWizardMiddleware():
             return
 
         # Don't redirect for URLs that are required for the setup wizard
-        allowed_paths = [reverse(name) for name in ["facility-list", "deviceowner-list", "kolibri:setupwizardplugin:setupwizard"]]
+        allowed_paths = [reverse(name) for name in ALLOWED_PATH_LIST]
         if any(request.path.startswith(path_prefix) for path_prefix in allowed_paths):
             return
 

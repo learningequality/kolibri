@@ -12,6 +12,7 @@ recursive-include kolibri/logger *
 recursive-include kolibri/plugins *
 recursive-include kolibri/test *
 recursive-include kolibri/utils *
+recursive-include kolibri/tasks *
 recursive-exclude kolibri/* *pyc
 recursive-include kolibri/*/static *.*
 recursive-include kolibri/dist *
