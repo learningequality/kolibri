@@ -105,6 +105,9 @@
         localSearchTerm: '',
       };
     },
+    ready() {
+      this.localSearchTerm = this.searchTerm;
+    },
     computed: {
       message() {
         if (this.topics.length || this.contents.length) {
