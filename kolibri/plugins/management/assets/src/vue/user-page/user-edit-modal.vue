@@ -100,6 +100,7 @@
 <script>
 
   const actions = require('../../actions');
+  const coreActions = require('core-actions');
 
   module.exports = {
     components: {
@@ -134,6 +135,9 @@
         this.close();
       },
       delete() {
+        if (Number(this.userid) === this.session_user_id) {
+          this.logout(this.Kolibri);
+        }
         this.deleteUser(this.userid);
       },
       changePassword() {
@@ -178,8 +182,12 @@
     },
     vuex: {
       actions: {
+        logout: coreActions.kolibriLogout,
         updateUser: actions.updateUser,
         deleteUser: actions.deleteUser,
+      },
+      getters: {
+        session_user_id: state => state.core.session.user_id,
       },
     },
   };

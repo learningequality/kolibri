@@ -35,7 +35,7 @@
 <script>
 
   const UserKinds = require('../../constants').UserKinds;
-  const actions = require('../../core-actions');
+  const actions = require('core-actions');
 
   module.exports = {
     $trNameSpace: 'sessionWidget',
