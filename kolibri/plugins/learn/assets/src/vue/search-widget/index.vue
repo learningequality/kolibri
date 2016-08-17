@@ -174,7 +174,7 @@
 
   .top
     background-color: $core-bg-canvas
-    height: 42px
+    height: $learn-toolbar-height
     padding-top: 0.5em
     z-index: 10000
     text-align: center
