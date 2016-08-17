@@ -2,7 +2,7 @@
 
   <div>
     <h1>{{ $tr('errorHeader') }}</h1>
-    <label for="error-textxbox" aria-live="polite">{{ $tr('errorPrefixText') }}</label><br>
+    <label for="error-textbox" aria-live="polite">{{ $tr('errorPrefixText') }}</label><br>
     <textarea id="error-textbox">
       {{ error }}
     </textarea>
@@ -30,6 +30,9 @@
 
 
 <style lang="stylus" scoped>
+
+  h1
+    margin-top: 50px
 
   textarea
     width: 100%
