@@ -2,8 +2,8 @@
 
   <div>
     <h1>{{ $tr('errorHeader') }}</h1>
-    <p>{{ $tr('errorPrefixText') }}</p>
-    <textarea>
+    <label for="error-textxbox">{{ $tr('errorPrefixText') }}</label><br>
+    <textarea id="error-textbox">
       {{ error }}
     </textarea>
   </div>
