@@ -34,7 +34,8 @@ var parseBundlePlugin = function(data, base_dir) {
       (typeof data.name === "undefined") ||
       (typeof data.static_dir === "undefined") ||
       (typeof data.static_url_root === "undefined") ||
-      (typeof data.stats_file === "undefined")) {
+      (typeof data.stats_file === "undefined") ||
+      (typeof data.locale_data_folder === "undefined")) {
     logging.error(data.name + ' plugin is misconfigured, missing parameter(s)');
     return;
   }
@@ -74,7 +75,7 @@ var parseBundlePlugin = function(data, base_dir) {
       __events: JSON.stringify(data.events || {}),
       __once: JSON.stringify(data.once || {})
     }),
-    new extract$trs(path.relative(base_dir, path.dirname(data.stats_file)), data.name)
+    new extract$trs(data.locale_data_folder, data.name)
   ]);
 
   bundle.core_name = data.core_name;

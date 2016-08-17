@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import time
+
 from pkg_resources import resource_filename
 
 from django.conf import settings as django_settings
@@ -151,6 +152,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             "events": self.events,
             "once": self.once,
             "static_url_root": getattr(django_settings, 'STATIC_URL'),
+            "locale_data_folder": os.path.join(getattr(django_settings, 'LOCALE_PATHS')[0], 'en', 'LC_FRONTEND_MESSAGES'),
         }
 
     @property
