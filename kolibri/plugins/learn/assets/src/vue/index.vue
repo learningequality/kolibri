@@ -5,9 +5,9 @@
     <toolbar slot="above"></toolbar>
     <component slot="content" :is="currentPage"></component>
     <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
-        <search-widget
-          :show-topics="exploreMode">
-        </search-widget>
+      <search-widget
+        :show-topics="exploreMode">
+      </search-widget>
     </div>
 
     <!-- this is not used, but necessary for vue-router to function -->
