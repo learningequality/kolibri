@@ -41,24 +41,28 @@
       status: 'in_progress',
       type: 'local_export',
       id: '12345678901234567890',
+      metadata: {},
     },
     {
       progress: 0.0,
       status: 'pending',
       type: 'local_export',
       id: '12345678901234567890',
+      metadata: {},
     },
     {
       progress: 0.3,
       status: 'error',
       type: 'local_export',
       id: '12345678901234567890',
+      metadata: {},
     },
     {
       progress: 1.0,
       status: 'success',
       type: 'local_export',
       id: '12345678901234567890',
+      metadata: {},
     },
   ];
 

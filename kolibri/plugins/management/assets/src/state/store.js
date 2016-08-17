@@ -58,7 +58,6 @@ const mutations = {
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
-
   // content import-export-specific mutations
   SET_TASKS(state, taskList) {
     state.pageState.taskList = taskList;

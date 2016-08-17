@@ -37,6 +37,23 @@ function _userState(data) {
   };
 }
 
+function _taskState(data) {
+  const state = {
+    id: data.id,
+    type: data.type,
+    status: data.status,
+    metadata: data.metadata,
+    percentage: data.percentage,
+  };
+  return state;
+}
+
+
+/**
+ * Actions
+ *
+ * These methods are used to update client-side state
+ */
 
 /**
  * Do a POST to create new user
@@ -215,7 +232,7 @@ function showContentPage(store) {
   const taskCollectionPromise = Promise.resolve([]); // TODO - remove
   taskCollectionPromise.then((taskList) => {
     const pageState = { showWizard: false };
-    pageState.taskList = taskList;
+    pageState.taskList = taskList.map(_taskState);
     if (taskList.length) { // only one task at a time for now
       store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
     }
@@ -255,15 +272,17 @@ function cancelImportExportWizard(store) {
 // background worker calls this to continually update UI
 function updateTasks(store) {
   const taskCollectionPromise = TaskResource.getCollection().fetch();
+  // get all running tasks
   taskCollectionPromise.then((taskList) => {
     const pageState = { showWizard: false };
-    pageState.taskList = taskList;
+    pageState.taskList = taskList.map(_taskState);
     if (taskList.length) { // only one task at a time for now
       store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
     }
     const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
     channelCollectionPromise.then((channelList) => {
       pageState.channelList = channelList;
+      // update page, if they are still on it
       store.dispatch('SET_PAGE_STATE', pageState);
     });
   })
@@ -273,10 +292,40 @@ function updateTasks(store) {
 }
 
 function clearTasks(store, id) {
-  const currentTaskPromise = TaskResource.getModel(id).delete(id);
+  const currentTaskPromise = TaskResource.getModel(id).delete();
   currentTaskPromise.then(() => {
     // only 1 task should be running, but we set to empty array
     store.dispatch('SET_TASKS', []);
+  })
+  .catch((error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
+
+function localImportContent(store, driveId) {
+  const localImportPromise = TaskResource.localImportContent(driveId);
+  localImportPromise.then((task) => {
+    store.dispatch('SET_TASKS', [_taskState(task)]);
+  })
+  .catch((error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
+
+function localExportContent(store, driveId) {
+  const localExportPromise = TaskResource.localExportContent(driveId);
+  localExportPromise.then((task) => {
+    store.dispatch('SET_TASKS', [_taskState(task)]);
+  })
+  .catch((error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
+
+function remoteImportContent(store, channelId) {
+  const remoteImportPromise = TaskResource.remoteImportContent(channelId);
+  remoteImportPromise.then((task) => {
+    store.dispatch('ADD_TASK', [_taskState(task)]);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -314,6 +363,9 @@ module.exports = {
   startImportWizard,
   startExportWizard,
   cancelImportExportWizard,
+  localExportContent,
+  localImportContent,
+  remoteImportContent,
 
   showDataPage,
   showScratchpad,
