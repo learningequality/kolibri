@@ -1,11 +1,11 @@
 <template>
 
   <div class="user-edit-modal">
-    <modal v-on:open="clear()" v-ref:modal btntext="Edit">
+    <modal @open="clear()" v-ref:modal btntext="Edit">
 
       <h1 slot="header" class="header">Edit Account Info</h1>
 
-      <div @keyup.enter="editUser" v-if="!this.usr_delete && !this.pw_reset" slot="body">
+      <div @keyup.enter="editUser" v-if="!usr_delete && !pw_reset" slot="body">
 
         <div class="user-field">
           <label for="fullname">Full Name</label>:
@@ -25,7 +25,7 @@
           </select>
         </div>
 
-          <div class="advanced-options" v-if="!this.usr_delete && !this.pw_reset">
+        <div class="advanced-options" v-if="!usr_delete && !pw_reset">
           <button @click="pw_reset=!pw_reset"> Reset Password </button>
           <button @click="usr_delete=!usr_delete"> Delete User</button>
         </div>
@@ -49,9 +49,7 @@
 
       <div @keyup.enter="deleteUser" v-if="usr_delete" slot="body">
         <div class="user-field">
-          <p> Are you sure you want to delete
-          <b>{{username_new}}</b>?
-          </p>
+          <p>Are you sure you want to delete<b>{{username_new}}</b>?</p>
         </div>
       </div>
 
@@ -59,7 +57,7 @@
         <p class="error" v-if="error_message"> {{error_message}} </p>
         <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
 
-        <button v-if="!this.usr_delete && !this.pw_reset" class="undo-btn" type="button" @click="close">
+        <button v-if="!usr_delete && !pw_reset" class="undo-btn" type="button" @click="close">
           Cancel
         </button>
 
@@ -72,7 +70,7 @@
         </button>
 
 
-        <button v-if="!this.usr_delete && !this.pw_reset" class="confirm-btn" type="button" @click="editUser">
+        <button v-if="!usr_delete && !pw_reset" class="confirm-btn" type="button" @click="editUser">
           Confirm
         </button>
 
@@ -108,7 +106,7 @@
       modal: require('../modal'),
     },
     props: [
-      'userid', 'username', 'fullname', 'roles',
+      'userid', 'username', 'fullname', 'roles', // TODO - validation
     ],
     data() {
       return {
