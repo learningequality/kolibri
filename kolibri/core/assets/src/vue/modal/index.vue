@@ -39,7 +39,7 @@
 
 <script>
 
-  const actions = require('../../core-actions');
+  const actions = require('core-actions');
 
   module.exports = {
 

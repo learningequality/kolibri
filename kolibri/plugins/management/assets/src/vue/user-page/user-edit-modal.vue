@@ -100,6 +100,8 @@
 <script>
 
   const actions = require('../../actions');
+  const coreActions = require('kolibri').coreActions;
+  const UserKinds = require('kolibri').constants.UserKinds;
 
   module.exports = {
     components: {
@@ -129,11 +131,21 @@
           facility: this.facility,
         };
         this.updateUser(this.userid, payload, this.role_new);
+        // if logged in admin updates role to learner, redirect to learn page
+        if (Number(this.userid) === this.session_user_id) {
+          if (this.role_new === UserKinds.LEARNER.toLowerCase()) {
+            window.location.href = window.location.origin;
+          }
+        }
 
         // close the modal after successful submission
         this.close();
       },
       delete() {
+        // if logged in admin deleted their own account, log them out
+        if (Number(this.userid) === this.session_user_id) {
+          this.logout(this.Kolibri);
+        }
         this.deleteUser(this.userid);
       },
       changePassword() {
@@ -178,8 +190,12 @@
     },
     vuex: {
       actions: {
+        logout: coreActions.kolibriLogout,
         updateUser: actions.updateUser,
         deleteUser: actions.deleteUser,
+      },
+      getters: {
+        session_user_id: state => state.core.session.user_id,
       },
     },
   };

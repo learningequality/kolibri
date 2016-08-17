@@ -22,7 +22,7 @@
 
   const store = require('../state/store');
   const PageNames = require('../state/constants').PageNames;
-  const UserKinds = require('core-constants').UserKinds;
+  const UserKinds = require('kolibri').constants.UserKinds;
 
   module.exports = {
     components: {
