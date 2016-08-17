@@ -63,6 +63,7 @@
     overflow-y: scroll
     height: 100%
     width: 100%
+    padding-top: $right-margin
     padding-left: $left-margin
     padding-right: $right-margin
     padding-bottom: 50px
