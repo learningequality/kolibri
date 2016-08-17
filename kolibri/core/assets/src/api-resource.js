@@ -480,7 +480,12 @@ class Resource {
   }
 
   get idKey() {
-    return this.constructor.idKey();
+    // In IE <= 10, static methods are not properly inherited
+    // Do this to still return a value.
+    // N.B. This will prevent a resource being subclassed from another
+    // resource, but then being able to reference its parent's
+    // idKey.
+    return this.constructor.idKey ? this.constructor.idKey() : 'id';
   }
 
   static resourceName() {
