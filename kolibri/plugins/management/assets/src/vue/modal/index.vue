@@ -55,9 +55,11 @@
     methods: {
       openModal() {
         this.showModal = true;
+        this.$dispatch('open');
       },
       closeModal() {
         this.showModal = false;
+        this.$dispatch('close');
       },
     },
   };
