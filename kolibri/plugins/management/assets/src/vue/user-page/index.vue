@@ -10,12 +10,12 @@
     </div>
 
     <div class="toolbar">
-        <label for="type-filter" class="visuallyhidden">Filter User Type</label>
-        <select v-model="roleFilter" id="type-filter" name="type-filter">
-          <option selected value="all"> All Users </option>
-          <option value="admin"> Admins </option>
-          <option value="learner"> Learners </option>
-        </select>
+      <label for="type-filter" class="visuallyhidden">Filter User Type</label>
+      <select v-model="roleFilter" id="type-filter" name="type-filter">
+        <option selected value="all"> All Users </option>
+        <option value="admin"> Admins </option>
+        <option value="learner"> Learners </option>
+      </select>
 
       <div class="create">
         <user-create-modal></user-create-modal>
@@ -187,6 +187,8 @@
 
   // Padding height that separates rows from eachother
   $row-padding = 1.5em
+  // height of elements in toolbar,  based off of icon-button height
+  $toolbar-height = 36px
 
   .toolbar:after
     content: ''
@@ -216,7 +218,7 @@
     float: left
     background-color: $core-bg-light
     border-color: $core-action-light
-    height: 35px
+    height: $toolbar-height
     cursor: pointer
 
   .header h1
@@ -253,6 +255,7 @@
     border-radius: 40px
     margin-left: 20px
     font-size: 0.875em
+    display: inline-block
 
   .searchbar .icon
     display: inline-block
@@ -269,10 +272,9 @@
     width: 50%
     min-width: 200px
     max-width: 300px
-    height: 35px
+    height: $toolbar-height
     float: left
-    position: relative
-    left: 10px
+    margin-left: 5px
 
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar
@@ -282,19 +284,13 @@
   @media screen and (max-width: $portrait-breakpoint)
     .create, #type-filter
       box-sizing: border-box
-      width: 50%
-    #type-filter
-      position: relative
-      top: 5px
+      width: 49%
     .searchbar
       font-size: 0.9em
-      width: 102%
-      display: table-row
-      margin: 5px
+      width: 100%
+      margin-top: 5px
       float: right
     .table-username
       display: none
-    .user-role
-      display: inline-block
 
 </style>

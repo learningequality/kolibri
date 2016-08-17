@@ -144,7 +144,6 @@
       height: 40px
       font-weight: bold
       background-color: transparent
-      cursor: pointer
 
   .add-form
     width: 300px

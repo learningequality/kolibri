@@ -232,7 +232,6 @@
       height: 40px
       font-weight: bold
       background-color: transparent
-      cursor: pointer
     p
       text-align: center
 
