@@ -229,6 +229,7 @@
 
   .reset
     border: none
+    border-radius: 4px
     background-color: $core-bg-canvas // IE10 needs a non-transparent bg to be clickable
     display: inline-block
     outline: none
@@ -240,6 +241,8 @@
     height: 22px
     svg
       fill: $core-text-annotation
+      position: relative
+      top: -2px
     @media screen and (max-width: 1500px)
       right: 138px
     @media screen and (max-width: 1277px)
