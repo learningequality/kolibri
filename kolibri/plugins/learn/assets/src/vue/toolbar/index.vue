@@ -7,9 +7,8 @@
         name="chan-select"
         id="chan-select"
         class="chan-select"
-        v-model="getCurrentChannel"
-        @change="switchChannel($event)">
-        <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
+        v-model="currentChannel">
+        <option v-for="channel in channelList" :value="channel.id">{{ channel.name }}</option>
       </select>
     <search-button @scrolling="handleScroll" class='search-btn'></search-button>
   </div>
@@ -43,14 +42,21 @@
       'breadcrumbs': require('../breadcrumbs'),
     },
     computed: {
-      getChannels() {
-        return this.channelList;
-      },
-      getCurrentChannel() {
-        return this.currentChannel;
+      /*
+      * Get and set the current channel ID.
+      */
+      currentChannel: {
+        get() {
+          return this.currentChannelGetter;
+        },
+        set(newChannelId, oldChannelId) {
+          if (newChannelId !== oldChannelId) {
+            this.switchChannel(newChannelId);
+          }
+        },
       },
       channelsExist() {
-        return !((Object.keys(this.getChannels).length === 0) &&
+        return !(this.getChannels && (Object.keys(this.getChannels).length === 0) &&
           (this.getChannels.constructor === Object));
       },
     },
@@ -72,7 +78,7 @@
         }
         this.lastScrollTop = this.currScrollTop;
       },
-      switchChannel(event) {
+      switchChannel(channelId) {
         let rootPage;
         this.more = false;
         if (this.pageMode === PageModes.EXPLORE) {
@@ -85,7 +91,7 @@
           {
             name: rootPage,
             params: {
-              channel_id: event.target.value,
+              channel_id: channelId,
             },
           }
         );
@@ -101,7 +107,7 @@
         isRoot: (state) => state.pageState.topic.id === state.rootTopicId,
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
-        currentChannel: state => state.currentChannel,
+        currentChannelGetter: state => state.currentChannel,
         channelList: state => state.channelList,
         searchOpen: state => state.searchOpen,
       },
