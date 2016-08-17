@@ -1,7 +1,11 @@
 <template>
 
-  <button aria-label="Search" class='search-btn' :class="{ active: searchOpen }" @click='toggleSearch'>
-    <slot></slot>
+  <button
+    aria-label="Search"
+    class='search-btn'
+    @click='toggleSearch'
+  >
+    <svg src="../search-widget/search.svg"></svg>
   </button>
 
 </template>
@@ -13,9 +17,6 @@
 
   module.exports = {
     vuex: {
-      getters: {
-        searchOpen: state => state.searchOpen,
-      },
       actions: {
         toggleSearch: actions.toggleSearch,
       },
@@ -37,8 +38,5 @@
 
     svg
       fill: $core-text-annotation
-    &.active
-      svg
-        fill: $core-action-normal
 
 </style>

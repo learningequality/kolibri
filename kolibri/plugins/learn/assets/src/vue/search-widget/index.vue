@@ -29,7 +29,7 @@
           >
           <svg src="./clear.svg" height="15" width="15" viewbox="0 0 24 24"></svg>
         </button>
-        <search-button class='search-btn'>Cancel</search-button>
+        <button @click="toggleSearch" class='search-btn'>Cancel</button>
       </div>
     </div>
 
