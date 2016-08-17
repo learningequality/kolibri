@@ -160,7 +160,14 @@
           return hasRole && hasName;
 
           // aphabetize based on username
-        }).sort((user1, user2) => user1.username[0] > user2.username[0]);
+        }).sort((user1, user2) => {
+          if (user1.username[0] > user2.username[0]) {
+            return 1;
+          } else if (user1.username[0] < user2.username[0]) {
+            return -1;
+          }
+          return 0;
+        });
       },
     },
     vuex: {
@@ -233,6 +240,9 @@
   .roster
     width: 100%
     word-break: break-all
+
+  th
+    text-align: inherit
 
   .col-header
     padding-bottom: (1.2 * $row-padding)
