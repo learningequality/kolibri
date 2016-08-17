@@ -80,6 +80,7 @@
         } else {
           rootPage = constants.PageNames.LEARN_CHANNEL;
         }
+        this.clearSearch();
         this.$router.go(
           {
             name: rootPage,
@@ -103,6 +104,9 @@
         currentChannel: state => state.currentChannel,
         channelList: state => state.channelList,
         searchOpen: state => state.searchOpen,
+      },
+      actions: {
+        clearSearch: require('../../actions').clearSearch,
       },
     },
   };

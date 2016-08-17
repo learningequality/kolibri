@@ -357,6 +357,13 @@ function triggerSearch(store, searchTerm) {
     });
 }
 
+function clearSearch(store) {
+  store.dispatch('SET_SEARCH_STATE', {
+    topics: [],
+    contents: [],
+    searchTerm: '',
+  });
+}
 
 function toggleSearch(store) {
   store.dispatch('TOGGLE_SEARCH');
@@ -391,4 +398,5 @@ module.exports = {
   showContentUnavailable,
   triggerSearch,
   toggleSearch,
+  clearSearch,
 };
