@@ -57,6 +57,7 @@ grid-width($n-cols)
   ($card-width * $n-cols) + ($card-gutter * ($n-cols))
 
 $portrait-breakpoint = $left-margin * 2 + grid-width(1) + $right-margin
+$medium-breakpoint = 619px // TODO - compute this based on variables
 
 // compute the media query breakpoint, based on the target grid width
 breakpoint($width)
@@ -69,5 +70,6 @@ width-auto-adjust()
     $grid-width = grid-width($n-cols)
     @media (min-width: breakpoint($grid-width))
       width: $grid-width
-    @media screen and (max-width: 619px)
+    @media screen and (max-width: $medium-breakpoint + 1)
       width: $horizontal-card-width // Hard-code media query, potential to revisit
+

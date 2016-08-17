@@ -189,7 +189,7 @@
     height: 100%
     width: 80%
     margin: auto
-    @media screen and (max-width: 619px)
+    @media screen and (max-width: $medium-breakpoint)
       width: 100%
     @media screen and (max-width: $portrait-breakpoint)
       left: 15px
@@ -244,7 +244,7 @@
       right: 120px
     @media screen and (max-width: 1059px)
       right: 104px
-    @media screen and (max-width: 619px)
+    @media screen and (max-width: $medium-breakpoint)
       right: 102px
     @media screen and (max-width: $portrait-breakpoint)
       right: 112px
