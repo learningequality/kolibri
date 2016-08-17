@@ -72,7 +72,7 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            return super(viewsets.ModelViewSet, self).create(request, *args, **kwargs)
+            return super(FacilityUserViewSet, self).create(request, *args, **kwargs)
         except ValidationError:
             return Response("An account with that username already exists.", status=status.HTTP_409_CONFLICT)
 

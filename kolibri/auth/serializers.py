@@ -25,6 +25,15 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+    def update(self, instance, validated_data):
+        if 'password' in validated_data:
+            serializers.raise_errors_on_nested_writes('update', self, validated_data)
+            instance.set_password(validated_data['password'])
+            instance.save()
+            return instance
+        else:
+            return super(FacilityUserSerializer, self).update(instance, validated_data)
+
 
 class DeviceOwnerSerializer(serializers.ModelSerializer):
 
