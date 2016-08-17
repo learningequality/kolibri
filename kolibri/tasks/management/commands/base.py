@@ -3,7 +3,14 @@ from collections import namedtuple
 from django.core.management.base import BaseCommand
 
 
-Progress = namedtuple('Progress', ['progress', 'total', 'message'])
+Progress = namedtuple(
+    'Progress',
+    [
+        'progress_fraction',
+        'message',
+        'extra_data',
+    ]
+)
 
 
 class ProgressTracker():
@@ -15,13 +22,24 @@ class ProgressTracker():
         self.progress = 0
 
         # custom progress bar provided by programmer
-        self.custom_update_progress_func = update_func or _nullop
+        if callable(update_func):
+            self.custom_update_progress_func = update_func
+        else:
+            self.custom_update_progress_func = _nullop
 
-    def update_progress(self, increment=1, message=""):
+    def update_progress(self, increment=1, message="", extra_data=None):
         self.progressbar.update(increment)
 
-        p = Progress(progress=self.progress, total=self.total, message=message)
-        self.custom_update_progress_func(increment, p)
+        self.progress += increment
+
+        progress_fraction = self.progress / float(self.total)
+        p = Progress(
+            progress_fraction=progress_fraction,
+            message=message,
+            extra_data=extra_data,
+        )
+
+        self.custom_update_progress_func(progress_fraction, p)
 
     def __enter__(self):
         return self.update_progress
@@ -54,7 +72,8 @@ class AsyncCommand(BaseCommand):
 
         return self.handle_async(*args, **options)
 
-    start_progress = ProgressTracker
+    def start_progress(self, total=100):
+        return ProgressTracker(total=total, update_func=self.update_progress)
 
 
 def _nullop(*args, **kwargs):
