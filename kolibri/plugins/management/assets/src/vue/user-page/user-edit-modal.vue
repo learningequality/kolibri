@@ -8,12 +8,12 @@
       <div @keyup.enter="editUser" v-if="!this.usr_delete && !this.pw_reset" slot="body">
 
         <div class="user-field">
-          <label for="username">Full Name</label>:
-          <input type="text" class="edit-form edit-fullname" aria-label="fullname" id="name" v-model="fullName_new">
+          <label for="fullname">Full Name</label>:
+          <input type="text" class="edit-form edit-fullname" aria-label="fullname" id="fullname" v-model="fullName_new">
         </div>
 
         <div class="user-field">
-          <label for="name">Username</label>:
+          <label for="username">Username</label>:
           <input type="text" class="edit-form edit-username" aria-label="username" id="username" v-model="username_new">
         </div>
 
