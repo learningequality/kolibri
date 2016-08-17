@@ -12,7 +12,8 @@ describe('parseBundlePlugin', function() {
         src_file: "src/file.js",
         stats_file: "output.json",
         static_url_root: "static",
-        static_dir: "kolibri/plugin/test"
+        static_dir: "kolibri/plugin/test",
+        locale_data_folder: "kolibri/locale/test"
       };
       assert(typeof parseBundlePlugin(data, "/")[0] !== "undefined");
       done();
@@ -24,7 +25,8 @@ describe('parseBundlePlugin', function() {
         src_file: "src/file.js",
         stats_file: "output.json",
         static_url_root: "static",
-        static_dir: "kolibri/plugin/test"
+        static_dir: "kolibri/plugin/test",
+        locale_data_folder: "kolibri/locale/test"
       };
       assert(typeof parseBundlePlugin(data, "/") === "undefined");
       done();
@@ -36,7 +38,8 @@ describe('parseBundlePlugin', function() {
         name: "kolibri.plugin.test.test_plugin",
         stats_file: "output.json",
         static_url_root: "static",
-        static_dir: "kolibri/plugin/test"
+        static_dir: "kolibri/plugin/test",
+        locale_data_folder: "kolibri/locale/test"
       };
       assert(typeof parseBundlePlugin(data, "/") === "undefined");
       done();
@@ -48,7 +51,8 @@ describe('parseBundlePlugin', function() {
         name: "kolibri.plugin.test.test_plugin",
         src_file: "src/file.js",
         static_url_root: "static",
-        static_dir: "kolibri/plugin/test"
+        static_dir: "kolibri/plugin/test",
+        locale_data_folder: "kolibri/locale/test"
       };
       assert(typeof parseBundlePlugin(data, "/") === "undefined");
       done();
@@ -60,7 +64,21 @@ describe('parseBundlePlugin', function() {
         name: "kolibri.plugin.test.test_plugin",
         src_file: "src/file.js",
         static_url_root: "static",
-        stats_file: "output.json"
+        stats_file: "output.json",
+        locale_data_folder: "kolibri/locale/test"
+      };
+      assert(typeof parseBundlePlugin(data, "/") === "undefined");
+      done();
+    });
+  });
+  describe('input is missing locale_data_folder, bundles output', function() {
+    it('should be undefined', function (done) {
+      var data = {
+        name: "kolibri.plugin.test.test_plugin",
+        src_file: "src/file.js",
+        static_url_root: "static",
+        stats_file: "output.json",
+        static_dir: "kolibri/plugin/test"
       };
       assert(typeof parseBundlePlugin(data, "/") === "undefined");
       done();
@@ -75,7 +93,8 @@ describe('parseBundlePlugin', function() {
         stats_file: "output.json",
         static_dir: "kolibri/plugin/test",
         static_url_root: "static",
-        core_name: "test_core"
+        core_name: "test_core",
+        locale_data_folder: "kolibri/locale/test"
       };
       assert(typeof parseBundlePlugin(data, "/")[1] !== "undefined");
       done();
@@ -90,7 +109,8 @@ describe('parseBundlePlugin', function() {
         core_name: "kolibriGlobal",
         stats_file: "output.json",
         static_url_root: "static",
-        static_dir: "kolibri/plugin/test"
+        static_dir: "kolibri/plugin/test",
+        locale_data_folder: "kolibri/locale/test"
       };
       assert.equal(parseBundlePlugin(data, "/")[0].output.library, "kolibriGlobal");
       done();
@@ -116,14 +136,16 @@ describe('readBundlePlugins', function() {
           src_file: "src/file.js",
           stats_file: "output.json",
           static_url_root: "static",
-          static_dir: "kolibri/plugin/test"
+          static_dir: "kolibri/plugin/test",
+          locale_data_folder: "kolibri/locale/test"
         },
         {
           name: "kolibri.plugin.test.test_plugin1",
           src_file: "src/file1.js",
           stats_file: "output1.json",
           static_url_root: "static",
-          static_dir: "kolibri/plugin/test"
+          static_dir: "kolibri/plugin/test",
+          locale_data_folder: "kolibri/locale/test"
         }
       ];
       assert(readBundlePlugins("", "").length === 2);
@@ -137,14 +159,16 @@ describe('readBundlePlugins', function() {
           name: "kolibri.plugin.test.test_plugin",
           stats_file: "output.json",
           static_url_root: "static",
-          static_dir: "kolibri/plugin/test"
+          static_dir: "kolibri/plugin/test",
+          locale_data_folder: "kolibri/locale/test"
         },
         {
           name: "kolibri.plugin.test.test_plugin1",
           src_file: "src/file1.js",
           stats_file: "output1.json",
           static_url_root: "static",
-          static_dir: "kolibri/plugin/test"
+          static_dir: "kolibri/plugin/test",
+          locale_data_folder: "kolibri/locale/test"
         }
       ];
       assert(readBundlePlugins("", "").length === 1);
@@ -158,13 +182,15 @@ describe('readBundlePlugins', function() {
           name: "kolibri.plugin.test.test_plugin",
           stats_file: "output.json",
           static_url_root: "static",
-          static_dir: "kolibri/plugin/test"
+          static_dir: "kolibri/plugin/test",
+          locale_data_folder: "kolibri/locale/test"
         },
         {
           name: "kolibri.plugin.test.test_plugin1",
           stats_file: "output1.json",
           static_url_root: "static",
-          static_dir: "kolibri/plugin/test"
+          static_dir: "kolibri/plugin/test",
+          locale_data_folder: "kolibri/locale/test"
         }
       ];
       assert(readBundlePlugins("", "").length === 0);
@@ -181,7 +207,8 @@ describe('readBundlePlugins', function() {
           external: true,
           static_dir: "kolibri/plugin/test",
           static_url_root: "static",
-          core_name: "test_global"
+          core_name: "test_global",
+          locale_data_folder: "kolibri/locale/test"
         },
         {
           name: "kolibri.plugin.test.test_plugin1",
@@ -189,7 +216,8 @@ describe('readBundlePlugins', function() {
           stats_file: "output1.json",
           external: true,
           static_url_root: "static",
-          static_dir: "kolibri/plugin/test"
+          static_dir: "kolibri/plugin/test",
+          locale_data_folder: "kolibri/locale/test"
         }
       ];
       assert(Object.keys(readBundlePlugins("", function(){return {};})[0].externals).length === 1);
@@ -206,7 +234,8 @@ describe('readBundlePlugins', function() {
           external: true,
           static_dir: "kolibri/plugin/test",
           static_url_root: "static",
-          core_name: "test_global"
+          core_name: "test_global",
+          locale_data_folder: "kolibri/locale/test"
         },
         {
           name: "kolibri.plugin.test.test_plugin",
@@ -215,7 +244,8 @@ describe('readBundlePlugins', function() {
           external: true,
           static_dir: "kolibri/plugin/test",
           static_url_root: "static",
-          core_name: "test_global"
+          core_name: "test_global",
+          locale_data_folder: "kolibri/locale/test"
         }
       ];
       assert(Object.keys(readBundlePlugins("", function(){return {};})[0].externals).length === 1);
