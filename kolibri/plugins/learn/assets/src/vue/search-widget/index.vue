@@ -20,13 +20,13 @@
             @keydown.esc.prevent="clear()"
           >
         </div>
-          <button
-            aria-label="Reset"
-            class="reset"
-            type="reset"
-            @click="clear()"
-            :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }"
-          >
+        <button
+          aria-label="Reset"
+          class="reset"
+          type="reset"
+          @click="clear()"
+          :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }"
+        >
           <svg src="./clear.svg" height="15" width="15" viewbox="0 0 24 24"></svg>
         </button>
         <button @click="toggleSearch" class='search-btn'>Cancel</button>
