@@ -234,7 +234,7 @@
     right: 1.2rem
     z-index: 1
     @media screen and (max-width: 840px)
-      right: 3rem
+      right: 2.4rem
 
   .more
     display: none
