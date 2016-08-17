@@ -208,7 +208,7 @@
     -webkit-appearance: none
     -moz-appearance: none
     outline: none
-    @media screen and (max-width: $portrait-breakpoint)
+    @media screen and (max-width: 840px)
       display: none
 
   .chan-select-location
@@ -233,12 +233,12 @@
     top: 0.1rem
     right: 1.2rem
     z-index: 1
-    @media screen and (max-width: $portrait-breakpoint)
-      right: 3rem
+    @media screen and (max-width: 840px)
+      right: 2.4rem
 
   .more
     display: none
-    @media screen and (max-width: $portrait-breakpoint)
+    @media screen and (max-width: 840px)
       position: absolute
       display: block
       top: 0.3rem
