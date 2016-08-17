@@ -92,8 +92,6 @@
     width: 100%
     @media screen and (min-width: $portrait-breakpoint + 1)
       padding-left: $nav-width
-    @media screen and (max-width: $portrait-breakpoint)
-      padding-right: 15px
 
   .search-slide-transition
     transition: transform $core-time ease-out

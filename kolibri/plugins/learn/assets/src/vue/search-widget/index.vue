@@ -1,35 +1,39 @@
 <template>
 
-  <div class='wrapper'>
+  <div class='main-wrapper'>
 
     <!-- search block -->
-    <div class='top' role="search">
-      <div class="top-wrapper">
-        <div class="input-wrapper">
-          <input
-            type="search"
-            v-el:search
-            aria-label="Type to find content"
-            placeholder="Find content..."
-            autocomplete="off"
-            v-focus="searchOpen"
-            v-model="localSearchTerm"
-            id="search"
-            name="search"
-            @keyup="search() | debounce 500"
-            @keydown.esc.prevent="clear()"
-          >
+    <div class='top-floating-bar' role="search">
+      <div class="table-wrapper">
+        <div class="table-row">
+          <div class="input-table-cell">
+            <input
+              type="search"
+              v-el:search
+              aria-label="Type to find content"
+              placeholder="Find content..."
+              autocomplete="off"
+              v-focus="searchOpen"
+              v-model="localSearchTerm"
+              id="search"
+              name="search"
+              @keyup="search() | debounce 500"
+              @keydown.esc.prevent="clear()"
+            >
+            <button
+              aria-label="Reset"
+              class="reset"
+              type="reset"
+              @click="clear()"
+              :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }"
+            >
+              <svg src="./clear.svg" height="15" width="15" viewbox="0 0 24 24"></svg>
+            </button>
+          </div>
+          <div class="cancel-btn-table-cell">
+            <button @click="toggleSearch" class='search-btn'>Cancel</button>
+          </div>
         </div>
-        <button
-          aria-label="Reset"
-          class="reset"
-          type="reset"
-          @click="clear()"
-          :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }"
-        >
-          <svg src="./clear.svg" height="15" width="15" viewbox="0 0 24 24"></svg>
-        </button>
-        <button @click="toggleSearch" class='search-btn'>Cancel</button>
       </div>
     </div>
 
@@ -168,11 +172,11 @@
   .card-list
     margin-bottom: $card-gutter
 
-  .wrapper
+  .main-wrapper
     margin: auto
     width-auto-adjust()
 
-  .top
+  .top-floating-bar
     background-color: $core-bg-canvas
     height: $learn-toolbar-height
     padding-top: 0.5em
@@ -187,94 +191,73 @@
       width: 100%
       right: 15px
 
-  .top-wrapper
-    position: relative
-    display: block
-    height: 100%
-    width: 80%
+  .table-wrapper
     margin: auto
+    width: 80%
+    max-width: 800px
+    display: table
     @media screen and (max-width: $medium-breakpoint)
       width: 100%
     @media screen and (max-width: $portrait-breakpoint)
-      left: 15px
+      width: $horizontal-card-width
 
-  .input-wrapper
-      float: left
-      width: 90%
-      @media screen and (max-width: 1500px)
-        width: 80%
-      @media screen and (max-width: 840px)
-        width: 70%
-      @media screen and (max-width: $portrait-breakpoint)
-        padding-left: 2em
+
+  .table-row
+    position: relative
+    display: table-row
+
+  .input-table-cell
+    display: table-cell
+    position: relative
+    width: 100%
 
   input
+    width: 100%
+    display: inline-block
     height: 26px
     border: 1px solid $core-text-annotation
     border-radius: 4px
     padding: 0.3em 1em
     vertical-align: middle
     box-sizing: border-box
-    width: 100%
     font-size: 0.9em
-    left: -40px
     background-color: $core-bg-canvas
     &:focus
       margin: 0 auto
-    @media screen and (max-width: $portrait-breakpoint)
-      position: relative
-      display: block
-      width: 100%
-      left: 0
 
   .reset
+    position: absolute
+    right: 5px
+    top: 2px
     border: none
     border-radius: 4px
     background-color: $core-bg-canvas // IE10 needs a non-transparent bg to be clickable
-    display: inline-block
     outline: none
     cursor: pointer
-    position: relative
-    top: 2px
-    right: 104px
     padding: 0 4px
     height: 22px
     svg
       fill: $core-text-annotation
       position: relative
       top: -2px
-    @media screen and (max-width: 1500px)
-      right: 138px
-    @media screen and (max-width: 1277px)
-      right: 120px
-    @media screen and (max-width: 1059px)
-      right: 104px
-    @media screen and (max-width: $medium-breakpoint)
-      right: 102px
-    @media screen and (max-width: $portrait-breakpoint)
-      right: 112px
+
+  .cancel-btn-table-cell
+    display: table-cell
+    padding-left: $card-gutter
+    @media screen and (min-width: $portrait-breakpoint + 1)
+      padding-right: $card-gutter
 
   .search-btn
-    float: left
-    top: 0.5rem
     height: 26px
     width: 60px
-    margin-left: 10px
     padding: 0.2em 0.7em
     border-radius: 4px
     font-size: 0.8em
     border: 1px solid $core-text-annotation
     color: $core-text-annotation
-    z-index: 10001
-    @media screen and (max-width: $portrait-breakpoint)
-      width: 62px
-      top: 0.7em
 
   .results
     padding-top: $top-offset
     padding-bottom: 100px
-    @media screen and (max-width: $portrait-breakpoint)
-      padding-top: 3em
-      margin: 0 1em
 
 </style>
