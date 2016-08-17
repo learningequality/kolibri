@@ -100,8 +100,8 @@
 <script>
 
   const actions = require('../../actions');
-  const coreActions = require('core-actions');
-  const constants = require('core-constants');
+  const coreActions = require('kolibri').coreActions;
+  const UserKinds = require('kolibri').constants.UserKinds;
 
   module.exports = {
     components: {
@@ -133,7 +133,7 @@
         this.updateUser(this.userid, payload, this.role_new);
         // if logged in admin updates role to learner, redirect to learn page
         if (Number(this.userid) === this.session_user_id) {
-          if (this.role_new === constants.UserKinds.LEARNER.toLowerCase()) {
+          if (this.role_new === UserKinds.LEARNER.toLowerCase()) {
             window.location.href = window.location.origin;
           }
         }
