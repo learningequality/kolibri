@@ -55,10 +55,6 @@
           }
         },
       },
-      channelsExist() {
-        return !(this.getChannels && (Object.keys(this.getChannels).length === 0) &&
-          (this.getChannels.constructor === Object));
-      },
     },
     methods: {
       handleScroll(position) {
