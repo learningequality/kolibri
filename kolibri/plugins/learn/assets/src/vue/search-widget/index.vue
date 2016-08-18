@@ -105,11 +105,15 @@
         localSearchTerm: '',
       };
     },
+    ready() {
+      this.localSearchTerm = this.searchTerm;
+    },
     computed: {
       message() {
-        if (this.topics.length || this.contents.length) {
+        if ((this.showTopics && this.topics.length) || this.contents.length) {
           return 'Search results:';
-        } else if (!this.topics.length && !this.contents.length) {
+        } else if (!(this.showTopics && this.topics.length) &&
+          !this.contents.length) {
           return 'Could not find any matches.';
         }
         return '';

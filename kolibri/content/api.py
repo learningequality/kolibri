@@ -1,3 +1,4 @@
+from functools import reduce
 from random import sample
 
 from django.db.models import Q
@@ -29,6 +30,7 @@ class ContentNodeFilter(filters.FilterSet):
         if exact_match:
             return exact_match
         # if no exact match, search for non-adjacent match
+
         return queryset.filter(
             Q(parent__isnull=False),
             reduce(lambda x, y: x & y, [Q(title__icontains=word) for word in value.split()]) |
