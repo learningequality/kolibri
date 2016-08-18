@@ -61,7 +61,6 @@
 
   .header
     position: relative
-    margin-top: 0.3em
 
   .icon-wrapper
     display: block
