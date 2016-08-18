@@ -1,22 +1,17 @@
 <template>
 
-  <div v-bind:class="['toolbar-show', displayToolBar ? 'toolbar-hide' : '' ]" v-show='!searchOpen' >
+  <div v-bind:class="['toolbar', displayToolbar ? 'toolbar-hide' : '']" v-show='!searchOpen'>
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
-    <div :class="{ 'toggle-menu-on' : more }">
-      <label for="chan-select" :class="[ more ? 'label-on' : 'visuallyhidden' ]" >{{ $tr('switchChannels') }}</label>
+      <label for="chan-select" class="visuallyhidden">{{ $tr('switchChannels') }}</label>
       <select
-        class="chan-select"
-        :class="[ more ? 'chan-select-mobile-location' : 'chan-select-location' ]"
-        id="chan-select"
         name="chan-select"
+        id="chan-select"
+        class="chan-select"
         v-model="getCurrentChannel"
-        @change="switchChannel($event)"
-      >
+        @change="switchChannel($event)">
         <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
       </select>
-    </div>
     <search-button @scrolling="handleScroll" class='search-btn'></search-button>
-    <button class="more" @click="toggleMore" ><svg src="../icons/more-ver.svg"></svg></button>
   </div>
 
 </template>
@@ -31,16 +26,15 @@
   module.exports = {
 
     $trNameSpace: 'learnToolbar',
-
     $trs: {
       switchChannels: 'Switch Channels',
     },
 
     data: () => ({
       currScrollTop: 0,
-      delta: 5,
       lastScrollTop: 0,
-      displayToolBar: false,
+      delta: 5,
+      displayToolbar: false,
       more: false,
     }),
     components: {
@@ -49,15 +43,9 @@
       'breadcrumbs': require('../breadcrumbs'),
     },
     computed: {
-      /*
-      * Get a list of channels.
-      */
       getChannels() {
         return this.channelList;
       },
-      /*
-      * Get the current channel ID.
-      */
       getCurrentChannel() {
         return this.currentChannel;
       },
@@ -78,15 +66,12 @@
         this.more = false;
 
         if (this.currScrollTop > this.lastScrollTop) {
-          this.displayToolBar = true;
+          this.displayToolbar = true;
         } else {
-          this.displayToolBar = false;
+          this.displayToolbar = false;
         }
         this.lastScrollTop = this.currScrollTop;
       },
-      /*
-      * Route to selected channel.
-      */
       switchChannel(event) {
         let rootPage;
         this.more = false;
@@ -130,13 +115,7 @@
   @require '~core-theme.styl'
   @require '../learn.styl'
 
-  .breadcrumbs
-    position: relative
-    left: 120px
-    @media screen and (max-width: $portrait-breakpoint)
-      left: 3rem
-
-  .toolbar-show
+  .toolbar
     position: fixed
     left: -15px
     top: 0
@@ -153,51 +132,11 @@
     top: -40px
 
   .breadcrumbs
-    left: 120px
-    bottom: 22px
     position: relative
+    bottom: 22px
+    left: 120px
     @media screen and (max-width: $portrait-breakpoint)
       left: 1.3em
-
-  .toggle-menu-on
-    position: fixed
-    display: table
-    top: 3em
-    right: 20px
-    width: 200px
-    height: 100px
-    background: $core-bg-light
-    border-radius: 4px
-    text-align: center
-    font-size: 0.9em
-    color: $core-text-annotation
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25)
-    z-index: 2
-    @media screen and (max-width: $portrait-breakpoint)
-      right: 15px
-
-  .toggle-menu-on::before
-    content: ''
-    position: absolute
-    border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent
-    top: -11px
-    border-style: solid
-    border-width: 0 10px 10px 10px
-    right: 9px
-    margin-left: -8px
-
-  .toggle-menu-on::after
-    content: ''
-    position: absolute
-    border-style: solid
-    border-width: 0 10px 10px 10px
-    right: 9px
-    margin-left: -8px
-    border-color: transparent transparent #fff transparent
-    top: -10px
-
-  select:focus
-    outline: $core-action-light 2px solid
 
   .chan-select
     z-index: 1
@@ -214,25 +153,11 @@
     -webkit-appearance: none
     -moz-appearance: none
     outline: none
-    @media screen and (max-width: $portrait-breakpoint)
-      display: none
-
-  .chan-select-location
     position: absolute
     top: 0.5rem
     right: 6em
-
-  .chan-select-mobile-location
-    position: relative
-    display: table-cell
-    margin: 0 auto
-    top: 2.4em
-    right: auto
-    background-color: $core-bg-light
-
-  .label-on
-    position: relative
-    top: 1.2rem
+    &:focus
+      outline: $core-action-light 2px solid
 
   .search-btn
     position: absolute
@@ -240,17 +165,5 @@
     right: 1.2rem
     margin-right: 1em
     z-index: 1
-    @media screen and (max-width: $portrait-breakpoint)
-      right: 2rem
-
-  .more
-    display: none
-    @media screen and (max-width: $portrait-breakpoint)
-      position: absolute
-      display: block
-      top: 0.3rem
-      right: 0
-      border: none
-      z-index: 1
 
 </style>
