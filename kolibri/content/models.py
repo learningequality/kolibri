@@ -108,12 +108,13 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     # similar" types of content by having them have the same content_id.
     content_id = UUIDField()
 
-    description = models.CharField(max_length=400, blank=True, null=True)
+    description = models.CharField(max_length=400, blank=True)
     sort_order = models.FloatField(blank=True, null=True)
     license_owner = models.CharField(max_length=200, blank=True)
     author = models.CharField(max_length=200, blank=True)
     kind = models.CharField(max_length=200, choices=content_kinds.choices, blank=True)
     available = models.BooleanField(default=False)
+    stemmed_metaphone = models.CharField(max_length=800, blank=True)  # for fuzzy search in title and description
 
     objects = ContentQuerySet.as_manager()
 
