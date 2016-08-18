@@ -74,3 +74,14 @@ makemessages: assets
 
 compilemessages:
 	python -m kolibri manage compilemessages -- -l en > /dev/null
+
+syncmessages: ensurecrowdinclient uploadmessages downloadmessages
+
+ensurecrowdinclient:
+	ls -l crowdin-cli.jar || wget https://crowdin.com/downloads/crowdin-cli.jar # make sure we have the official crowdin cli client
+
+uploadmessages:
+	java -jar crowdin-cli.jar upload sources -b `git symbolic-ref HEAD | xargs basename`
+
+downloadmessages:
+	java -jar crowdin-cli.jar download -b `git symbolic-ref HEAD | xargs basename`
