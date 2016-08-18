@@ -4,7 +4,7 @@ const constants = require('./state/constants');
 const PageNames = constants.PageNames;
 const cookiejs = require('js-cookie');
 const router = require('router');
-
+const ConditionalPromise = require('conditionalPromise');
 
 /**
  * Vuex State Mappers
@@ -112,7 +112,7 @@ function _getCurrentChannelId() {
  */
 function _getCurrentChannelRootTopicId() {
   let currentChannelRootTopicId = null;
-  return new Promise((resolve, reject) => {
+  return new ConditionalPromise((resolve, reject) => {
     const currentChannelIdPromise = _getCurrentChannelId();
     const channelListPromise = _getChannelList();
     Promise.all([currentChannelIdPromise, channelListPromise])
@@ -130,6 +130,20 @@ function _getCurrentChannelRootTopicId() {
   });
 }
 
+/**
+ * Action inhibition checks
+ *
+ * These generator functions produce functions that help to determine whether the
+ * asynchronous outcomes of certain actions should still be applied as mutations.
+ */
+
+function checkSamePageId(store) {
+  const pageId = store.state.core.pageSessionId;
+  return () => {
+    console.log(store.state.core.pageSessionId, pageId);
+    return store.state.core.pageSessionId === pageId;
+  };
+}
 
 /**
  * Actions
@@ -204,8 +218,8 @@ function showExploreChannel(store, channelId) {
       const attributesPromise = ContentNodeResource.getModel(rootTopicId).fetch();
       const childrenPromise = ContentNodeResource.getCollection({ parent: rootTopicId }).fetch();
       const channelPromise = _getChannelList();
-      Promise.all([attributesPromise, childrenPromise, channelPromise])
-        .then(([attributes, children, channelList]) => {
+      ConditionalPromise.all([attributesPromise, childrenPromise, channelPromise])
+        .only(checkSamePageId(store), ([attributes, children, channelList]) => {
           const pageState = { rootTopicId };
           pageState.topic = _topicState(attributes);
           const collection = _collectionState(children);
@@ -216,8 +230,7 @@ function showExploreChannel(store, channelId) {
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('SET_CHANNEL_LIST', channelList);
         });
-    })
-    .catch((error) => {
+    }, (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
@@ -233,8 +246,8 @@ function showExploreTopic(store, channelId, id) {
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
   const channelPromise = _getChannelList();
-  Promise.all([attributesPromise, childrenPromise, channelPromise])
-    .then(([attributes, children, channelList]) => {
+  ConditionalPromise.all([attributesPromise, childrenPromise, channelPromise])
+    .only(checkSamePageId(store), ([attributes, children, channelList]) => {
       const pageState = { id };
       pageState.topic = _topicState(attributes);
       const collection = _collectionState(children);
@@ -244,8 +257,7 @@ function showExploreTopic(store, channelId, id) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('SET_CHANNEL_LIST', channelList);
-    })
-    .catch((error) => {
+    }, (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
@@ -261,15 +273,14 @@ function showExploreContent(store, channelId, id) {
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   const channelPromise = _getChannelList();
 
-  Promise.all([attributesPromise, channelPromise])
-    .then(([attributes, channelList]) => {
+  ConditionalPromise.all([attributesPromise, channelPromise])
+    .only(checkSamePageId(store), ([attributes, channelList]) => {
       const pageState = { content: _contentState(attributes) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('SET_CHANNEL_LIST', channelList);
-    })
-    .catch((error) => {
+    }, (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
@@ -286,15 +297,14 @@ function showLearnChannel(store, channelId) {
   const recommendedPromise =
     ContentNodeResource.getCollection({ recommendations: '' }).fetch({}, true);
   const channelPromise = _getChannelList();
-  Promise.all([recommendedPromise, channelPromise])
-    .then(([recommendations, channelList]) => {
+  ConditionalPromise.all([recommendedPromise, channelPromise])
+    .only(checkSamePageId(store), ([recommendations, channelList]) => {
       const pageState = { recommendations: recommendations.map(_contentState) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('SET_CHANNEL_LIST', channelList);
-    })
-    .catch((error) => {
+    }, (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
@@ -310,8 +320,8 @@ function showLearnContent(store, channelId, id) {
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
   const channelPromise = _getChannelList();
 
-  Promise.all([attributesPromise, recommendedPromise, channelPromise])
-    .then(([attributes, recommended, channelList]) => {
+  ConditionalPromise.all([attributesPromise, recommendedPromise, channelPromise])
+    .only(checkSamePageId(store), ([attributes, recommended, channelList]) => {
       const pageState = {
         content: _contentState(attributes),
         recommended: recommended.map(_contentState),
@@ -320,8 +330,7 @@ function showLearnContent(store, channelId, id) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('SET_CHANNEL_LIST', channelList);
-    })
-    .catch((error) => {
+    }, (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
