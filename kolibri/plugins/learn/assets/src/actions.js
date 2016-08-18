@@ -139,10 +139,7 @@ function _getCurrentChannelRootTopicId() {
 
 function checkSamePageId(store) {
   const pageId = store.state.core.pageSessionId;
-  return () => {
-    console.log(store.state.core.pageSessionId, pageId);
-    return store.state.core.pageSessionId === pageId;
-  };
+  return () => store.state.core.pageSessionId === pageId;
 }
 
 /**
