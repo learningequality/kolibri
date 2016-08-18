@@ -5,6 +5,7 @@
       <label for="chan-select" class="visuallyhidden">{{ $tr('switchChannels') }}</label>
       <select
         name="chan-select"
+        id="chan-select"
         class="chan-select"
         v-model="getCurrentChannel"
         @change="switchChannel($event)">
