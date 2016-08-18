@@ -13,8 +13,8 @@
           <h1>{{ $tr('logInError') }}</h1>
           <span aria-live="polite">{{ $tr('validationError') }}<br>{{ $tr('tryAgain') }}</span>
         </div>
-        <input type="text" class="login-form login-username" v-model="username_entered" :placeholder="userName" v-on:keyup.enter="userLogin" :aria-label="userName" v-el:usernamefield autofocus>
-        <input type="password" class="login-form login-password" v-model="password_entered" :placeholder="password" v-on:keyup.enter="userLogin" :aria-label="password">
+        <input type="text" class="login-form login-username" v-model="username_entered" :placeholder="userName" v-on:keydown.enter="userLogin" :aria-label="userName" v-el:usernamefield autofocus>
+        <input type="password" class="login-form login-password" v-model="password_entered" :placeholder="password" v-on:keydown.enter="userLogin" :aria-label="password">
         <button class="login-button" @click="userLogin">{{ $tr('logIn') }}</button>
       </div>
       <div slot="footer"></div>
