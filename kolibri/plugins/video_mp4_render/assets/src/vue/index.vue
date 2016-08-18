@@ -221,6 +221,7 @@
       this.recordProgress();
       this.$emit('stopTracking');
       global.removeEventListener('resize', this.debouncedResizeVideo);
+      this.videoPlayer.dispose();
     },
   };
 
