@@ -2,7 +2,7 @@
 
   <div v-bind:class="['toolbar', displayToolbar ? 'toolbar-hide' : '']" v-show='!searchOpen'>
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
-     <label for="chan-select" class="visuallyhidden">{{ $tr('switchChannels') }}</label>
+      <label for="chan-select" class="visuallyhidden">{{ $tr('switchChannels') }}</label>
       <select
         name="chan-select"
         class="chan-select"
