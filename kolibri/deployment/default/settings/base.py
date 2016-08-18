@@ -15,11 +15,20 @@ import os
 # This is essential! We load the kolibri conf INSIDE the Django conf
 from kolibri.utils import conf
 
+# import kolibri, so we can get the path to the module.
+import kolibri
+
+KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
+
 BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 
 KOLIBRI_HOME = os.environ['KOLIBRI_HOME']
 
 KOLIBRI_CORE_JS_NAME = 'kolibriGlobal'
+
+LOCALE_PATHS = [
+    os.path.join(KOLIBRI_MODULE_PATH, "locale"),
+]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/

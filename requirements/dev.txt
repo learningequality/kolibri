@@ -1,4 +1,5 @@
 -r base.txt
+-r i18n.txt
 flake8
 pre-commit
 tox

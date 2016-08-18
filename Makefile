@@ -62,9 +62,15 @@ release: clean assets
 staticdeps: clean
 	DISABLE_SQLALCHEMY_CEXT=1 pip install -t kolibri/dist/ -r requirements.txt
 
-dist: staticdeps assets
+dist: staticdeps assets compilemessages
 	pip install -r requirements/build.txt
 	python setup.py sdist > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel
 	pex . --disable-cache -o dist/`python setup.py --fullname`.pex -m kolibri --python-shebang=/usr/bin/python
 	ls -l dist
+
+makemessages: assets
+	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*' --ignore 'docs/conf.py'
+
+compilemessages:
+	python -m kolibri manage compilemessages -- -l en > /dev/null
