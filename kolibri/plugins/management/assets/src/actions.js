@@ -304,8 +304,8 @@ function clearTasks(store, id) {
 
 function localImportContent(store, driveId) {
   const localImportPromise = TaskResource.localImportContent(driveId);
-  localImportPromise.then((task) => {
-    store.dispatch('SET_TASKS', [_taskState(task)]);
+  localImportPromise.then((response) => {
+    store.dispatch('SET_TASKS', [_taskState(response.entity)]);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -314,8 +314,8 @@ function localImportContent(store, driveId) {
 
 function localExportContent(store, driveId) {
   const localExportPromise = TaskResource.localExportContent(driveId);
-  localExportPromise.then((task) => {
-    store.dispatch('SET_TASKS', [_taskState(task)]);
+  localExportPromise.then((response) => {
+    store.dispatch('SET_TASKS', [_taskState(response.entity)]);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -324,8 +324,8 @@ function localExportContent(store, driveId) {
 
 function remoteImportContent(store, channelId) {
   const remoteImportPromise = TaskResource.remoteImportContent(channelId);
-  remoteImportPromise.then((task) => {
-    store.dispatch('ADD_TASK', [_taskState(task)]);
+  remoteImportPromise.then((response) => {
+    store.dispatch('ADD_TASK', [_taskState(response.entity)]);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));

@@ -138,7 +138,7 @@ function currentLoggedInUser(store, Kolibri) {
   const SessionResource = Kolibri.resources.SessionResource;
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
-  const sessionPromise = sessionModel.fetch();
+  const sessionPromise = sessionModel.fetch({}, true);
   sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
   }).catch((error) => {
