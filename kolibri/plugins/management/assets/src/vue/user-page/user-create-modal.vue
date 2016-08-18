@@ -1,7 +1,7 @@
 <template>
 
   <div class="user-creation-modal">
-    <modal v-ref:modal btntext="Add New">
+    <modal @open="clear" v-ref:modal btntext="Add New">
 
       <h1 slot="header" class="header">Add New Account</h1>
 
@@ -90,11 +90,6 @@
           // using promise to ensure that the user is created before closing
           this.createUser(newUser, this.role).then(
             () => {
-              this.full_name = '';
-              this.username = '';
-              this.password = '';
-              this.passwordConfirm = '';
-              this.clearErrorMessage();
               this.$refs.modal.closeModal();
             }).catch((error) => {
               if (error.status.code === 409) {
@@ -106,6 +101,9 @@
               }
             });
         }
+      },
+      clear() {
+        this.$data = this.$options.data();
       },
       clearErrorMessage() {
         this.errorMessage = '';
