@@ -2,11 +2,9 @@
 
   <core-base>
     <main-nav slot="nav"></main-nav>
-<!-- // disable log downloading until we track down some issues
     <div v-if="isAdminOrSuperuser" slot="above">
       <top-nav></top-nav>
     </div>
--->
     <component v-if="isAdminOrSuperuser" slot="content" :is="currentPage" class="page"></component>
     <div v-else slot="content" class="login-message">
       <h1>Did you forget to log in?</h1>
