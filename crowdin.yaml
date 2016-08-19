@@ -1,0 +1,10 @@
+project_identifier: kolibri
+api_key: <insert API key here>
+base_path: .
+
+files:
+  - source: '/kolibri/locale/en/LC_FRONTEND_MESSAGES/*.json'
+    translation: '/kolibri/locale/%locale_with_underscore%/LC_FRONTEND_MESSAGES/%original_file_name%'
+
+  - source: '/kolibri/locale/en/LC_MESSAGES/*.po'
+    translation: '/kolibri/locale/%locale_with_underscore%/LC_MESSAGES/%original_file_name%'

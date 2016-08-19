@@ -1,3 +1,4 @@
+from functools import reduce
 from random import sample
 
 from django.db.models import Q
