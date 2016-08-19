@@ -22,8 +22,8 @@ class Command(AsyncCommand):
         self._parser = parser
 
         # we want two groups of arguments. One group is when the
-        # 'retrievecontent local' command is given, where we'll expect a file
-        # directory to be given. Another is the 'retrievecontent network'
+        # 'importcontent local' command is given, where we'll expect a file
+        # directory to be given. Another is the 'importcontent network'
         # command to be given, where we'll expect a channel.
 
         # to implement these two groups of commands and their corresponding
