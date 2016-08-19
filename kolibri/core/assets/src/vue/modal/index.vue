@@ -1,6 +1,6 @@
 <template>
 
-  <div class="modal-root" v-on:keyup.esc="closeModalHack" role="dialog">
+  <div class="modal-root" v-on:keydown.esc="closeModalHack" role="dialog">
     <div class="modal" v-show="modalstate" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-backdrop" @click="closeModalHack"></div>
