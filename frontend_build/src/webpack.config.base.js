@@ -101,7 +101,7 @@ var config = {
       'kolibri_module': path.resolve('kolibri/core/assets/src/kolibri_module'),
       'core-constants': path.resolve('kolibri/core/assets/src/constants'),
       'core-base': path.resolve('kolibri/core/assets/src/vue/core-base'),
-      'core-actions': path.resolve('kolibri/core/assets/src/actions'),
+      'core-actions': path.resolve('kolibri/core/assets/src/core-actions'),
       'learn-actions': path.resolve('kolibri/plugins/learn/assets/src/actions'),
       'nav-bar-item': path.resolve('kolibri/core/assets/src/vue/nav-bar/nav-bar-item'),
       'nav-bar-item.styl': path.resolve('kolibri/core/assets/src/vue/nav-bar/nav-bar-item.styl'),

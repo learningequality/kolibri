@@ -5,11 +5,9 @@
     <toolbar slot="above"></toolbar>
     <component slot="content" :is="currentPage"></component>
     <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
-      <div class='search-shadow'>
-        <search-widget
-          :show-topics="exploreMode">
-        </search-widget>
-      </div>
+      <search-widget
+        :show-topics="exploreMode">
+      </search-widget>
     </div>
 
     <!-- this is not used, but necessary for vue-router to function -->
@@ -92,14 +90,8 @@
     left: 0
     height: 100%
     width: 100%
-    padding-left: $left-margin
-    @media screen and (max-width: $portrait-breakpoint)
-      padding-left: 0
-      margin-left: $card-gutter
-
-  .search-shadow
-    padding-right: $right-margin
-    min-height: 100%
+    @media screen and (min-width: $portrait-breakpoint + 1)
+      padding-left: $nav-width
 
   .search-slide-transition
     transition: transform $core-time ease-out

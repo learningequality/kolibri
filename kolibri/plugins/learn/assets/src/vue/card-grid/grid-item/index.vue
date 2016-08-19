@@ -40,8 +40,7 @@
     background-color: $core-bg-light
     overflow: hidden
     border-radius: $radius
-    @media screen and (max-width: 619px)
-      // Hard-code media query, potential to revisit
+    @media screen and (max-width: $medium-breakpoint)
       width: $horizontal-card-width
       height: $horizontal-card-height
 
@@ -52,8 +51,7 @@
     height: $thumbnail-height
     border-radius: $radius $radius 0 0
     overflow: hidden
-    @media screen and (max-width: 619px)
-      // Hard-code media query, potential to revisit
+    @media screen and (max-width: $medium-breakpoint)
       float: left
       width: $thumb-width
       height: $horizontal-card-height
@@ -72,8 +70,7 @@
     color: $core-text-default
     overflow: hidden
     text-overflow: ellipsis
-    @media screen and (max-width: 619px)
-      // Hard-code media query, potential to revisit
+    @media screen and (max-width: $medium-breakpoint)
       float: right
       max-height: 86px
       width: $horizontal-card-width - $thumb-width

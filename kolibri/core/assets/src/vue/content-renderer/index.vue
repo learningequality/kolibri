@@ -18,7 +18,7 @@
 <script>
 
   const logging = require('logging').getLogger(__filename);
-  const actions = require('../../core-actions');
+  const actions = require('core-actions');
 
   module.exports = {
     $trNameSpace: 'contentRender',

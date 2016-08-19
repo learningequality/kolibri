@@ -19,6 +19,10 @@ class TransferCanceled(Exception):
     pass
 
 
+class TransferNotYetClosed(Exception):
+    pass
+
+
 class Transfer(object):
 
     def __init__(self, source, dest, block_size=2048, remove_existing_temp_file=True):
@@ -60,6 +64,7 @@ class Transfer(object):
             chunk = next(self._content_iterator)
         except StopIteration:
             self.completed = True
+            self.close()
             self.finalize()
             raise
         self.dest_file_obj.write(chunk)
@@ -78,8 +83,8 @@ class Transfer(object):
 
     def __exit__(self, *exc_details):
         if not self.closed:
-            self.finalize()
             self.close()
+            self.finalize()
 
     def _kill_gracefully(self, *args, **kwargs):
         self.cancel()
@@ -96,6 +101,8 @@ class Transfer(object):
     def finalize(self):
         if not self.completed:
             raise TransferNotYetCompleted("Transfer must have completed before it can be finalized.")
+        if not self.closed:
+            raise TransferNotYetClosed("Transfer must be closed before it can be finalized.")
         if self.finalized:
             return
         self._move_tmp_to_dest()

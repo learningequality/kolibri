@@ -67,11 +67,11 @@
     padding-right: $right-margin
     padding-bottom: 50px
     z-index: -2
-    @media (max-width: 620px)
+    @media (max-width: $medium-breakpoint + 1)
       padding-left: 69px
       padding-right: 0
     @media screen and (max-width: $portrait-breakpoint)
-      padding: 0
+      padding: 0 0.6em
       padding-bottom: 100px
 
   .page-content
