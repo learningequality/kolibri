@@ -140,11 +140,12 @@ class FileCopy(Transfer):
         self.started = True
 
     def _read_block_iterator(self):
-        block = self.source_file_obj.read(self.block_size)
-        if not block:
-            raise StopIteration
-        self.dest_file_obj.write(block)
-        yield len(block)
+        while True:
+            block = self.source_file_obj.read(self.block_size)
+            if not block:
+                break
+            self.dest_file_obj.write(block)
+            yield block
 
     def __iter__(self):
         self._content_iterator = self._read_block_iterator()
@@ -153,5 +154,4 @@ class FileCopy(Transfer):
     def close(self):
         self.source_file_obj.close()
         self.dest_file_obj.close()
-        self.response.close()
         self.closed = True
