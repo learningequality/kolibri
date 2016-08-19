@@ -224,3 +224,24 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
+
+
+class ContentSessionLogCSVExportTestCase(APITestCase):
+
+    def setUp(self):
+        # create DeviceOwner to pass the setup_wizard middleware check
+        DeviceOwner.objects.create(username='test-device-owner', password=123)
+        self.facility = FacilityFactory.create()
+        self.admin = FacilityUserFactory.create(facility=self.facility)
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.interaction_logs = [ContentSessionLogFactory.create(user=self.user) for _ in range(3)]
+        self.facility.add_admin(self.admin)
+
+    def test_csv_download(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        expected_count = ContentSessionLog.objects.count()
+        response = self.client.get(reverse('contentsessionlogcsv-list'))
+        results = list(csv.reader(row for row in response.content.decode("utf-8").split("\n") if row))
+        for row in results[1:]:
+            self.assertEqual(len(results[0]), len(row))
+        self.assertEqual(len(results[1:]), expected_count)
