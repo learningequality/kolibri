@@ -3,9 +3,10 @@ from random import sample
 
 from django.db.models import Q
 from kolibri.content import models, serializers
+from porter2stemmer import Porter2Stemmer
 from rest_framework import filters, pagination, viewsets
+
 from .utils.metaphone import dm
-from .utils.stemmer import stem
 
 
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
@@ -19,6 +20,7 @@ class ContentNodeFilter(filters.FilterSet):
     search = filters.django_filters.MethodFilter(action='title_description_filter')
     recommendations_for = filters.django_filters.MethodFilter()
     recommendations = filters.django_filters.MethodFilter()
+    stemmer = Porter2Stemmer()
 
     class Meta:
         model = models.ContentNode
@@ -34,7 +36,7 @@ class ContentNodeFilter(filters.FilterSet):
         # if no exact match, fuzzy search using the stemmed_metaphone field in ContentNode that covers the title and description
         return queryset.filter(
             Q(parent__isnull=False),
-            reduce(lambda x, y: x & y, [Q(stemmed_metaphone__icontains=dm(stem(word))[0]) for word in value.split()]))
+            reduce(lambda x, y: x & y, [Q(stemmed_metaphone__icontains=dm(self.stemmer.stem(word))[0]) for word in value.split()]))
 
     def filter_recommendations_for(self, queryset, value):
         recc_node = queryset.get(pk=value)
