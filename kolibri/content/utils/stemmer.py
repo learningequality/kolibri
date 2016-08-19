@@ -417,6 +417,3 @@ def stem(string):
     # 5 END
 
     return word
-
-if __name__ == '__main__':
-    main()

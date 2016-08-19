@@ -33,7 +33,7 @@ class ContentNodeFilter(filters.FilterSet):
         # if no exact match, fuzzy search using the stemmed_metaphone field in ContentNode that covers the title and description
         return queryset.filter(
             Q(parent__isnull=False),
-            reduce(lambda x, y: x & y, [Q(stemmed_metaphone__icontains=dm(stem(word))) for word in value.split()]))
+            reduce(lambda x, y: x & y, [Q(stemmed_metaphone__icontains=dm(stem(word))[0]) for word in value.split()]))
 
     def filter_recommendations_for(self, queryset, value):
         recc_node = queryset.get(pk=value)

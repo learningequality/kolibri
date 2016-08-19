@@ -17,8 +17,6 @@ Usage:
     ('RXRT', 'RKRT')
     >>> dm(u'katherine') == dm(u'catherine')
     True
-    >>> dm(u'Bartoš'), dm(u'Bartosz'), dm(u'Bartosch'), dm(u'Bartos')
-    (('PRT', ''), ('PRTS', 'PRTX'), ('PRTX', ''), ('PRTS', ''))
 """
 
 import unicodedata
@@ -133,7 +131,6 @@ def dm(st):
                     else:  # default for 'C'
                         nxt = ('K', 1)
         elif ch == u'\xc7':  # will never get here with st.encode('ascii', 'replace') above
-            # \xc7 is UTF-8 encoding of Ç
             nxt = ('S', 1)
         elif ch == 'D':
             if st[pos:pos + 2] == 'DG':
@@ -271,7 +268,7 @@ def dm(st):
                 nxt = ('N', 2)
             else:
                 nxt = ('N', 1)
-        elif ch == u'\xd1':  # UTF-8 encoding of ﾄ
+        elif ch == u'\xd1':
             nxt = ('N', 1)
         elif ch == 'P':
             if st[pos + 1] == 'H':
@@ -434,7 +431,3 @@ def dm(st):
         return (pri, '')
     else:
         return (pri, sec)
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
