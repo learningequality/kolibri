@@ -3,10 +3,10 @@ import os
 from django.conf import settings
 from django.core.management.base import CommandError
 from django.db.models import Sum
-from kolibri.content.content_db_router import using_content_database
-from kolibri.content.models import File
 from kolibri.tasks.management.commands.base import AsyncCommand
 
+from ...content_db_router import using_content_database
+from ...models import File
 from ...utils import paths, transfer
 
 CONTENT_DEST_PATH_TEMPLATE = os.path.join(
@@ -22,7 +22,7 @@ class Command(AsyncCommand):
         self._parser = parser
 
         # we want two groups of arguments. One group is when the
-        # 'retrievecotent local' command is given, where we'll expect a file
+        # 'retrievecontent local' command is given, where we'll expect a file
         # directory to be given. Another is the 'retrievecontent network'
         # command to be given, where we'll expect a channel.
 

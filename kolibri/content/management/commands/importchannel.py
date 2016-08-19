@@ -1,9 +1,8 @@
 import logging as logger
 
-from kolibri.content.utils.annotation import update_channel_metadata_cache
 from kolibri.tasks.management.commands.base import AsyncCommand
 
-from ...utils import paths, transfer
+from ...utils import annotation, paths, transfer
 
 logging = logger.getLogger(__name__)
 
@@ -33,4 +32,4 @@ class Command(AsyncCommand):
                     }
                     progress_update(len(chunk), progress_extra_data)
 
-        update_channel_metadata_cache()
+        annotation.update_channel_metadata_cache()
