@@ -1,9 +1,7 @@
 <template>
 
   <div class="user-edit-modal">
-    <modal @open="clear()" v-ref:modal btntext="Edit">
-
-      <h1 slot="header" class="header">Edit Account Info</h1>
+    <modal @open="clear" title="Edit Account Info" v-ref:modal btntext="Edit">
 
       <div @keyup.enter="editUser" v-if="!usr_delete && !pw_reset" slot="body">
 
@@ -20,12 +18,12 @@
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
           <select v-model="role_new" id="user-role">
-            <option :selected="role_new == admin ? true : false" v-if="role_new" value="learner"> Learner </option>
-            <option :selected="role_new == admin ? true : false" value="admin"> Admin </option>
+            <option :selected="role_new == admin" v-if="role_new" value="learner"> Learner </option>
+            <option :selected="role_new == admin" value="admin"> Admin </option>
           </select>
         </div>
 
-        <div class="advanced-options" v-if="!usr_delete && !pw_reset">
+        <div class="advanced-options">
           <button @click="pw_reset=!pw_reset"> Reset Password </button>
           <button @click="usr_delete=!usr_delete"> Delete User</button>
         </div>

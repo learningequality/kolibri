@@ -1,19 +1,27 @@
 <template>
 
   <!-- Accessibility properties for the overlay -->
+
+  <!-- Aria-Hidden and TabIndex in .modal might not be necessary because of conditional rendering -->
+  <!-- mostly there in case we switch to v-show -->
   <div class="modal-overlay"
-    v-if="showModal"
+    v-if="visible"
     @keyup.esc="closeModal"
     id="modal-window"
-    aria-hidden="{{(!showModal).toString()}}"
     role="dialog"
-    aria-labelledby="modal-title">
+    :aria-hidden="(!visible).toString()"
+    :aria-labelledby="title ? 'modal-title' : null"
+    :aria-label="title ? null : 'popup-modal'">
 
-    <div class="modal" v-el:modal transition="modal">
+    <div class="modal" v-el:modal :tabindex="visible ? '0' : '-1'" transition="modal">
       <!-- Close Button -->
       <button aria-label="close" @click="closeModal" class="btn-close">
         <svg src="../icons/close.svg"></svg>
       </button>
+
+      <!-- Modal Title -->
+      <!-- Not mandatory, but if available, names the modal according aria-labels -->
+      <h1 v-if="title" class="title" id="modal-title">{{title}}</h1>
 
       <!-- Modal Content -->
       <slot name="body" class="modal-content" id="modal-holder" role="document">
@@ -38,11 +46,16 @@
 
 <script>
 
+  const vue = require('vue');
+
   module.exports = {
     props: {
       // mostly keeping around for backwards compatibility
       // TODO get rid of this prop
       btntext: {
+        type: String,
+      },
+      title: {
         type: String,
       },
       disableClose: {
@@ -53,22 +66,20 @@
     },
     events: {
       open() {
-        this.showModal = true;
+        this.visible = true;
         this.lastFocus = document.activeElement;
 
-        /* eslint-disable*/
         // Need to wait for DOM to update asynchronously, then get the modal element
-        vue.nextTick(() => console.log(this.$get('$els.modal')));
-        /* eslint-enable*/
+        vue.nextTick(() => this.$els.modal.focus());
       },
       close() {
-        this.showModal = false;
+        this.visible = false;
         this.lastFocus.focus();
       },
     },
     data() {
       return {
-        showModal: false,
+        visible: false,
         lastFocus: '',
       };
     },
@@ -76,7 +87,6 @@
       openModal() {
         // propogate open event here and in parent
         this.$dispatch('open');
-        console.log(this.$els.modal);
       },
       closeModal() {
         // propogate close event here and in parent
@@ -119,6 +129,9 @@
     float: right
     color: $core-text-default
     border: none
+
+  .title
+    text-align: center
 
   // Animation Specs
   .modal-enter, .modal-leave
