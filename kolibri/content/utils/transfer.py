@@ -44,8 +44,11 @@ class Transfer(object):
         try:
             filedir = os.path.dirname(self.dest)
             os.makedirs(filedir)
-        except OSError:  # directories already exist
-            pass
+        except OSError as e:
+            if e.errno == 17:  # File exists (folder already created)
+                logger.debug("Not creating directory '{}' as it already exists.".format(filedir))
+            else:
+                raise
 
         if os.path.isfile(self.dest_tmp):
             if remove_existing_temp_file:
@@ -84,7 +87,8 @@ class Transfer(object):
     def __exit__(self, *exc_details):
         if not self.closed:
             self.close()
-            self.finalize()
+        if not self.completed:
+            self.cancel()
 
     def _kill_gracefully(self, *args, **kwargs):
         self.cancel()
