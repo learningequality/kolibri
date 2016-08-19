@@ -108,7 +108,7 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     # similar" types of content by having them have the same content_id.
     content_id = UUIDField()
 
-    description = models.CharField(max_length=400, blank=True)
+    description = models.CharField(max_length=400, blank=True, null=True)
     sort_order = models.FloatField(blank=True, null=True)
     license_owner = models.CharField(max_length=200, blank=True)
     author = models.CharField(max_length=200, blank=True)
