@@ -146,18 +146,14 @@
 
   .chan-select
     z-index: 1
-    height: 24px
     padding: 0.2em 0.8em
     padding-right: 1.8em
     min-width: 160px
     color: $core-text-annotation
     font-size: 0.9rem
     border: 1px solid $core-text-annotation
-    border-radius: 50px
-    background: url(../icons/arrowdown.svg) no-repeat right
+    border-radius: 0.5em
     background-color: $core-bg-canvas
-    -webkit-appearance: none
-    -moz-appearance: none
     outline: none
     position: absolute
     top: 0.5rem

@@ -93,6 +93,8 @@
 
         // only used on learn page
         recommended: (state) => state.pageState.recommended,
+
+        progress: (state) => state.pageState.content.progress,
       },
     },
   };
