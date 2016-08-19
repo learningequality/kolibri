@@ -4,8 +4,8 @@ from random import sample
 from django.db.models import Q
 from kolibri.content import models, serializers
 from rest_framework import filters, pagination, viewsets
-from utils.metaphone import dm
-from utils.stemmer import stem
+from .utils.metaphone import dm
+from .utils.stemmer import stem
 
 
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
