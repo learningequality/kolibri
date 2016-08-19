@@ -7,6 +7,8 @@
   <div class="modal-overlay"
     v-if="visible"
     @keyup.esc="closeModal"
+    @click="closeModal($event)"
+    v-el:modal-overlay
     id="modal-window"
     role="dialog"
     :aria-hidden="(!visible).toString()"
@@ -93,9 +95,12 @@
         // propogate open event here and in parent
         this.$dispatch('open');
       },
-      closeModal() {
+      closeModal(bgClickEvent = false) {
         // propogate close event here and in parent
-        this.$dispatch('close');
+        if (bgClickEvent.target === this.$els.modalOverlay) {
+          console.log(bgClickEvent);
+          this.$dispatch('close');
+        }
       },
     },
   };
