@@ -64,6 +64,11 @@
         required: false,
       },
     },
+    ready() {
+      if (this.disableClose) {
+        this.$off('close');
+      }
+    },
     events: {
       open() {
         this.visible = true;
