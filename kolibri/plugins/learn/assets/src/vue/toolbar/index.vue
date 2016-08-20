@@ -145,21 +145,11 @@
       left: 1.3em
 
   .chan-select
-    z-index: 1
-    padding: 0.2em 0.8em
-    padding-right: 1.8em
-    min-width: 160px
     color: $core-text-annotation
     font-size: 0.9rem
-    border: 1px solid $core-text-annotation
-    border-radius: 0.5em
-    background-color: $core-bg-canvas
-    outline: none
     position: absolute
     top: 0.5rem
     right: 6em
-    &:focus
-      outline: $core-action-light 2px solid
 
   .search-btn
     position: absolute
