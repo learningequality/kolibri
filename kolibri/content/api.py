@@ -26,9 +26,12 @@ class ContentNodeFilter(filters.FilterSet):
         fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'recommendations']
 
     def _dm_complex_lookup(self, dm_hashes):
+        """
+        this helper funciton will check if the secondary double metaphone hash value exists, if so, perform a OR query for both hashes.
+        """
         if dm_hashes[1]:
-            return Q(stemmed_metaphone__icontains=dm_hashes[0]) | Q(stemmed_metaphone__icontains=dm_hashes[1])
-        return Q(stemmed_metaphone__icontains=dm_hashes[0])
+            return Q(stemmed_metaphone__contains=dm_hashes[0]) | Q(stemmed_metaphone__contains=dm_hashes[1])
+        return Q(stemmed_metaphone__contains=dm_hashes[0])
 
     def title_description_filter(self, queryset, value):
         """
