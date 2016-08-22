@@ -11,7 +11,7 @@
           <breadcrumb :showarrow='false' :linkobject="exploreRootLink" :text="$tr('explore')"></breadcrumb>
         </span>
         <span class="portrait">
-          <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
+          <breadcrumb :linkobject="parentExploreLink" :text="$tr('back')"></breadcrumb>
         </span>
         <span class="middle-breadcrumb landscape" v-for="crumb in topicCrumbs">
           <a v-link="topicLink(crumb.id)">{{ crumb.title }}</a>
@@ -40,7 +40,7 @@
       learn: 'Learn',
       explore: 'Explore',
       youAreHere: 'You are here:',
-      back: 'Back',
+      back: 'Up',
     },
     components: {
       breadcrumb: require('./breadcrumb'),
