@@ -25,6 +25,11 @@ class ContentNodeFilter(filters.FilterSet):
         model = models.ContentNode
         fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'recommendations']
 
+    def _dm_complex_lookup(self, dm_hashes):
+        if dm_hashes[1]:
+            return Q(stemmed_metaphone__icontains=dm_hashes[0]) | Q(stemmed_metaphone__icontains=dm_hashes[1])
+        return Q(stemmed_metaphone__icontains=dm_hashes[0])
+
     def title_description_filter(self, queryset, value):
         """
         search for title or description that contains the keywords that are not necessary in adjacent
@@ -35,7 +40,7 @@ class ContentNodeFilter(filters.FilterSet):
         # if no exact match, fuzzy search using the stemmed_metaphone field in ContentNode that covers the title and description
         return queryset.filter(
             Q(parent__isnull=False),
-            reduce(lambda x, y: x & y, [Q(stemmed_metaphone__icontains=doublemetaphone(self.stemmer.stem(word))[0]) for word in value.split()]))
+            reduce(lambda x, y: x & y, [self._dm_complex_lookup(doublemetaphone(self.stemmer.stem(word))) for word in value.split()]))
 
     def filter_recommendations_for(self, queryset, value):
         recc_node = queryset.get(pk=value)
