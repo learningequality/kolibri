@@ -3,7 +3,7 @@
   <a v-link="linkobject">
     <span class='back'>
       <span v-if="showarrow" class="visuallyhidden">{{ $tr('back') }}</span>
-      <svg v-if="showarrow" role="presentation" src="../../icons/back.svg"></svg>
+      <svg v-if="showarrow" role="presentation" src="../../icons/navigate_before.svg"></svg>
       {{ text }}
     </span>
   </a>
