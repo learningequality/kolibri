@@ -113,6 +113,7 @@ var config = {
       'router': path.resolve('kolibri/core/assets/src/router'),
       'core-store': path.resolve('kolibri/core/assets/src/core-store'),
       'core-timer': path.resolve('kolibri/core/assets/src/timer'),
+      'loading-spinner': path.resolve('kolibri/core/assets/src/vue/loading-spinner'),
     },
     extensions: ["", ".vue", ".js"],
   },

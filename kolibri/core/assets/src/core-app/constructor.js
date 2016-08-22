@@ -38,6 +38,7 @@ function Lib() {
   this.vuex = vuex;
   this.coreBase = require('../vue/core-base');
   this.contentRenderer = require('../vue/content-renderer');
+  this.loadingSpinner = require('../vue/loading-spinner');
 }
 
 /**
