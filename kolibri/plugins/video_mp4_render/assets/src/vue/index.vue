@@ -196,7 +196,7 @@
         bigPlayButton: false,
         inactivityTimeout: 1000,
         preload: 'metadata',
-        poster: this.posterSource,
+        // poster: this.posterSource,
         playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
         controlBar: {
           children: [
