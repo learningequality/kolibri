@@ -1,55 +1,51 @@
 <template>
 
-  <div class="user-creation-modal">
-    <modal @open="clear" v-ref:modal title="Add New Account" btntext="Add New">
+  <modal @open="clear" title="Add New Account">
 
-      <div @keyup.enter="createNewUser" slot="body">
+    <div @keyup.enter="createNewUser" slot="body">
 
-        <!-- Fields for the user to fill out -->
-        <section class="user-fields">
-          <div class="user-field">
-            <label for="name">Name</label>
-            <input @focus="clearErrorMessage" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
-          </div>
+      <!-- Fields for the user to fill out -->
+      <section class="user-fields">
+        <div class="user-field">
+          <label for="name">Name</label>
+          <input @focus="clearErrorMessage" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
+        </div>
 
-          <div class="user-field">
-            <label for="username">Username</label>
-            <input @focus="clearErrorMessage" type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
-          </div>
+        <div class="user-field">
+          <label for="username">Username</label>
+          <input @focus="clearErrorMessage" type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
+        </div>
 
-          <div class="user-field">
-            <label for="password">Password</label>
-            <input @focus="clearErrorMessage" type="password" class="add-form" id="password" required v-model="password">
-          </div>
+        <div class="user-field">
+          <label for="password">Password</label>
+          <input @focus="clearErrorMessage" type="password" class="add-form" id="password" required v-model="password">
+        </div>
 
-          <div class="user-field">
-            <label for="confirm-password">Confirm Password</label>
-            <input @focus="clearErrorMessage" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
-          </div>
+        <div class="user-field">
+          <label for="confirm-password">Confirm Password</label>
+          <input @focus="clearErrorMessage" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
+        </div>
 
-          <div class="user-field">
-            <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-            <select @focus="clearErrorMessage" v-model="role" id="user-role">
-            <option value="learner" selected> Learner </option>
-            <option value="admin"> Admin </option>
-            </select>
-          </div>
-        </section>
+        <div class="user-field">
+          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
+          <select @focus="clearErrorMessage" v-model="role" id="user-role">
+          <option value="learner" selected> Learner </option>
+          <option value="admin"> Admin </option>
+          </select>
+        </div>
+      </section>
 
-        <!-- Button Options at footer of modal -->
-        <section class="footer">
-          <p class="error-message" v-if="errorMessage">{{errorMessage}}</p>
-          <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
-        </section>
-      </div>
+      <!-- Button Options at footer of modal -->
+      <section class="footer">
+        <p class="error-message" v-if="errorMessage">{{errorMessage}}</p>
+        <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
+      </section>
+    </div>
+  </modal>
 
-
-
-      <icon-button class="add-user-button" text="Add New" :primary="false" slot="openbtn">
-        <svg class="add-user" src="../icons/add_new_user.svg"></svg>
-      </icon-button>
-    </modal>
-  </div>
+  <icon-button @click="open" class="add-user-button" text="Add New" :primary="false">
+    <svg class="add-user" src="../icons/add_new_user.svg"></svg>
+  </icon-button>
 
 </template>
 
@@ -93,7 +89,7 @@
           // using promise to ensure that the user is created before closing
           this.createUser(newUser, this.role).then(
             () => {
-              this.$refs.modal.closeModal();
+              this.close();
             }).catch((error) => {
               if (error.status.code === 409) {
                 this.errorMessage = error.entity;
@@ -110,6 +106,12 @@
       },
       clearErrorMessage() {
         this.errorMessage = '';
+      },
+      close() {
+        this.$broadcast('close');
+      },
+      open() {
+        this.$broadcast('open');
       },
     },
     vuex: {

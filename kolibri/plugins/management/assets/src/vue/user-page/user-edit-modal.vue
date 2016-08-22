@@ -57,7 +57,7 @@
 
 
         <!-- Error Messages -->
-        <p class="error" v-if="error_message"> {{error_message}} </p>
+        <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
         <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
 
         <!-- Button Section TODO: cleaunup -->

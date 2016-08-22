@@ -35,14 +35,6 @@
     </div>
   </div>
 
-  <!-- Think this might be more appropriate as a boolean, or case-by-case -->
-  <div v-if="btntext" @click="openModal">
-  <!-- wrap this named slot so that the openModal method logic is encapsulated inside this modal component, but the parent component can pass anything to this slot for styling purpose -->
-    <slot name="openbtn">
-      <button>{{ btntext }}</button>
-    </slot>
-  </div>
-
 </template>
 
 
