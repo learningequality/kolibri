@@ -63,7 +63,7 @@ class Model {
   fetch(params = {}, force = false) {
     const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
-        if (!force && this.synced) {
+        if (!force && this.synced && this.cached) {
           resolve(this.attributes);
         } else {
           this.synced = false;
@@ -218,6 +218,10 @@ class Model {
     }
     Object.assign(this.attributes, attributes);
   }
+
+  get cached() {
+    return this.id && this.id in this.resource.models;
+  }
 }
 
 /** Class representing a 'view' of a single API resource.
@@ -258,7 +262,7 @@ class Collection {
     const params = Object.assign({}, this.params, extraParams);
     const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
-        if (!force && this.synced) {
+        if (!force && this.synced && this.cached) {
           resolve(this.data);
         } else {
           this.synced = false;
@@ -340,6 +344,10 @@ class Collection {
 
   get data() {
     return this.models.map((model) => model.attributes);
+  }
+
+  get cached() {
+    return this.models.reduce((currentValue, model) => currentValue && model.cached, true);
   }
 }
 
