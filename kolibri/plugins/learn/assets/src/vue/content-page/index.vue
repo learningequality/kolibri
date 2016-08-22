@@ -65,8 +65,6 @@
     components: {
       'content-icon': require('../content-icon'),
       'page-header': require('../page-header'),
-      'content-render': require('content-renderer'),
-      'download-button': require('content-renderer/download-button'),
       'expandable-content-grid': require('../expandable-content-grid'),
     },
     vuex: {
