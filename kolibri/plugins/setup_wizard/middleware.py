@@ -23,6 +23,8 @@ class SetupWizardMiddleware():
         # If a DeviceOwner has already been created, no need to do anything here
         self.deviceowner_already_created = self.deviceowner_already_created or DeviceOwner.objects.exists()
         if self.deviceowner_already_created:
+            if request.path.startswith(reverse("kolibri:setupwizardplugin:setupwizard")):
+                return redirect(reverse("kolibri:learnplugin:learn"))
             return
 
         # Don't redirect for URLs that are required for the setup wizard
