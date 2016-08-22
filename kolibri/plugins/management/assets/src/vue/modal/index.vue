@@ -7,7 +7,7 @@
   <div class="modal-overlay"
     v-if="visible"
     @keyup.esc="closeModal"
-    @click="closeModal($event)"
+    @click="bgClick($event)"
     v-el:modal-overlay
     id="modal-window"
     role="dialog"
@@ -60,9 +60,15 @@
       title: {
         type: String,
       },
+      // Modal options
       disableClose: {
         type: Boolean,
         default: false,
+        required: false,
+      },
+      backgroundClickClose: {
+        type: Boolean,
+        default: true,
         required: false,
       },
     },
@@ -95,11 +101,13 @@
         // propogate open event here and in parent
         this.$dispatch('open');
       },
-      closeModal(bgClickEvent = false) {
-        // propogate close event here and in parent
-        if (bgClickEvent.target === this.$els.modalOverlay) {
-          console.log(bgClickEvent);
-          this.$dispatch('close');
+      closeModal() {
+        this.$dispatch('close');
+      },
+      bgClick(clickEvent) {
+        // check to make sure the area being clicked is the overlay, not the modal
+        if (this.backgroundClickClose && (clickEvent.target === this.$els.modalOverlay)) {
+          this.closeModal();
         }
       },
     },
