@@ -465,8 +465,12 @@ class Resource {
     this.collections = {};
   }
 
+  removeModelById(id) {
+    delete this.models[id];
+  }
+
   removeModel(model) {
-    delete this.models[model.id];
+    this.removeModelById(model.id);
   }
 
   get urls() {
