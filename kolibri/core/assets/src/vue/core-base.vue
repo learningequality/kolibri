@@ -26,7 +26,6 @@
     components: {
       'nav-bar': require('./nav-bar'),
       'error-box': require('./error-box'),
-      'loading-spinner': require('loading-spinner'),
     },
     vuex: {
       getters: {

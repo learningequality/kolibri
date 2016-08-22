@@ -225,9 +225,6 @@
       global.removeEventListener('resize', this.debouncedResizeVideo);
       this.videoPlayer.dispose();
     },
-    components: {
-      'loading-spinner': require('loading-spinner'),
-    },
   };
 
 </script>

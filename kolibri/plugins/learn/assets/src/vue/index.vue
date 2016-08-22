@@ -28,7 +28,6 @@
 
   module.exports = {
     components: {
-      'core-base': require('core-base'),
       'toolbar': require('./toolbar'),
       'main-nav': require('./main-nav'),
       'search-widget': require('./search-widget'),

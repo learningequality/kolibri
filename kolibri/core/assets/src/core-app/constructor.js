@@ -36,9 +36,6 @@ function Lib() {
   this.logging = require('../logging');
   this.vue = vue;
   this.vuex = vuex;
-  this.coreBase = require('../vue/core-base');
-  this.contentRenderer = require('../vue/content-renderer');
-  this.loadingSpinner = require('../vue/loading-spinner');
 }
 
 /**
@@ -62,6 +59,12 @@ module.exports = function CoreApp() {
    * Use vuex for state management.
    */
   vue.use(vuex);
+
+  // Register global components
+  vue.component('content-render', require('../vue/content-renderer'));
+  vue.component('download-button', require('../vue/content-renderer/download-button'));
+  vue.component('loading-spinner', require('../vue/loading-spinner'));
+  vue.component('core-base', require('../vue/core-base'));
 
   this.i18n = {
     reversed: false,
