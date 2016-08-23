@@ -3,9 +3,8 @@ from random import sample
 
 from django.db.models import Q
 from kolibri.content import models, serializers
-from metaphone import doublemetaphone
-from porter2stemmer import Porter2Stemmer
 from rest_framework import filters, pagination, viewsets
+from .utils.search import fuzz
 
 
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
@@ -19,19 +18,10 @@ class ContentNodeFilter(filters.FilterSet):
     search = filters.django_filters.MethodFilter(action='title_description_filter')
     recommendations_for = filters.django_filters.MethodFilter()
     recommendations = filters.django_filters.MethodFilter()
-    stemmer = Porter2Stemmer()
 
     class Meta:
         model = models.ContentNode
         fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'recommendations']
-
-    def _dm_complex_lookup(self, dm_hashes):
-        """
-        this helper funciton will check if the secondary double metaphone hash value exists, if so, perform a OR query for both hashes.
-        """
-        if dm_hashes[1]:
-            return Q(stemmed_metaphone__contains=dm_hashes[0]) | Q(stemmed_metaphone__contains=dm_hashes[1])
-        return Q(stemmed_metaphone__contains=dm_hashes[0])
 
     def title_description_filter(self, queryset, value):
         """
@@ -41,9 +31,11 @@ class ContentNodeFilter(filters.FilterSet):
         if exact_match:
             return exact_match
         # if no exact match, fuzzy search using the stemmed_metaphone field in ContentNode that covers the title and description
+        fuzzed_tokens = [fuzz(word) for word in value.split()]
+        token_queries = [reduce(lambda x, y: x | y, [Q(stemmed_metaphone__contains=token) for token in tokens]) for tokens in fuzzed_tokens]
         return queryset.filter(
             Q(parent__isnull=False),
-            reduce(lambda x, y: x & y, [self._dm_complex_lookup(doublemetaphone(self.stemmer.stem(word))) for word in value.split()]))
+            reduce(lambda x, y: x & y, token_queries))
 
     def filter_recommendations_for(self, queryset, value):
         recc_node = queryset.get(pk=value)
