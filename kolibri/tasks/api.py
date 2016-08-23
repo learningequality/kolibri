@@ -1,13 +1,11 @@
-import json
-from django.core.management import call_command
-from rest_framework import viewsets, serializers
-from rest_framework.decorators import list_route
-from rest_framework.response import Response
+import logging as logger
 
+from django.core.management import call_command
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.tasks.management.commands.base import Progress
-
-import logging as logger
+from rest_framework import serializers, viewsets
+from rest_framework.decorators import list_route
+from rest_framework.response import Response
 
 logging = logger.getLogger(__name__)
 
@@ -47,12 +45,11 @@ class TasksViewSet(viewsets.ViewSet):
         # Import here to avoid circular imports.
         from django_q.tasks import async
         from django_q.models import Task
-        data = json.loads(request.body.decode('utf-8'))
 
-        if "id" not in data:
+        if "id" not in request.data:
             raise serializers.ValidationError("The 'id' field is required.")
 
-        channel_id = data['id']
+        channel_id = request.data['id']
 
         task_id = async(_importchannel, channel_id, group=TASKTYPE, progress_updates=True)
 

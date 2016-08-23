@@ -228,8 +228,7 @@ function showUserPage(store) {
 function showContentPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
-  // const taskCollectionPromise = TaskResource.getCollection().fetch();
-  const taskCollectionPromise = Promise.resolve([]); // TODO - remove
+  const taskCollectionPromise = TaskResource.getCollection().fetch();
   taskCollectionPromise.then((taskList) => {
     const pageState = { showWizard: false };
     pageState.taskList = taskList.map(_taskState);
@@ -271,7 +270,7 @@ function cancelImportExportWizard(store) {
 
 // background worker calls this to continually update UI
 function updateTasks(store) {
-  const taskCollectionPromise = TaskResource.getCollection().fetch();
+  const taskCollectionPromise = TaskResource.getCollection().fetch({}, true);
   // get all running tasks
   taskCollectionPromise.then((taskList) => {
     const pageState = { showWizard: false };
@@ -325,7 +324,17 @@ function localExportContent(store, driveId) {
 function remoteImportContent(store, channelId) {
   const remoteImportPromise = TaskResource.remoteImportContent(channelId);
   remoteImportPromise.then((response) => {
-    store.dispatch('ADD_TASK', [_taskState(response.entity)]);
+    store.dispatch('SET_TASKS', [_taskState(response.entity)]);
+  })
+  .catch((error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
+
+function localDrive(store) {
+  const localDrivePromise = TaskResource.localDrive();
+  localDrivePromise.then((response) => {
+    store.dispatch('SET_LOCAL_DRIVES', response.entity);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -366,6 +375,7 @@ module.exports = {
   localExportContent,
   localImportContent,
   remoteImportContent,
+  localDrive,
 
   showDataPage,
   showScratchpad,

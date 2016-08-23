@@ -20,6 +20,7 @@ Content import/export page:
     channelList: [] // list of objects
     showWizard: false // boolean
     wizardState: {} // object
+    localDriveList: [] // list of objects
   }
 
 **/
@@ -65,6 +66,9 @@ const mutations = {
   SET_CONTENT_WIZARD_STATE(state, shown, wizardState) {
     state.pageState.showWizard = shown;
     state.pageState.wizardState = wizardState;
+  },
+  SET_LOCAL_DRIVES(state, localDrives) {
+    state.pageState.localDriveList = localDrives;
   },
 };
 

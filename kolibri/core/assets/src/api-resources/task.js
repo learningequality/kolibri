@@ -20,14 +20,22 @@ class TaskResource extends Resource {
     return this.client(clientObj);
   }
 
+  localDrive() {
+    const clientObj = { path: this.localDriveUrl() };
+    return this.client(clientObj);
+  }
+
   get localExportUrl() {
-    return this.urls[`${this.name}_list/startlocalexportchannel`]; // not yet implemented in api
+    return this.urls[`${this.name}_startlocalexportchannel`]; // not yet implemented in api
   }
   get localImportUrl() {
-    return this.urls[`${this.name}_list/startlocalimportchannel`];
+    return this.urls[`${this.name}_startlocalimportchannel`];
   }
   get remoteImportUrl() {
-    return this.urls[`${this.name}_list/startremoteimport`];
+    return this.urls[`${this.name}_startremoteimport`];
+  }
+  get localDriveUrl() {
+    return this.urls[`${this.name}_localdrive`];
   }
 }
 
