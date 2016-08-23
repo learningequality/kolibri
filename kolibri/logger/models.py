@@ -16,13 +16,13 @@ from kolibri.auth.permissions.base import RoleBasedPermissions
 from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.models import UUIDField
 
-from .permissions import AnonymousUsersCanWriteAnonymousLogs
+from .permissions import AnyoneCanWriteAnonymousLogs
 
 
 class BaseLogModel(AbstractFacilityDataModel):
 
     permissions = (
-        AnonymousUsersCanWriteAnonymousLogs() |
+        AnyoneCanWriteAnonymousLogs() |
         IsOwn() |
         RoleBasedPermissions(
             target_field="user",

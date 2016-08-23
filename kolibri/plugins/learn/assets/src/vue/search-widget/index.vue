@@ -144,6 +144,7 @@
       'content-grid-item': require('../content-grid-item'),
       'search-button': require('./search-button'),
       'card-grid': require('../card-grid'),
+      'card-list': require('../card-list'),
     },
     vuex: {
       getters: {
