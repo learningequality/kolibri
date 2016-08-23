@@ -1,7 +1,7 @@
 <template>
 
   <div class="user-edit-modal">
-    <modal @open="clear" title="Edit Account Info" v-ref:modal btntext="Edit">
+    <modal @open="clear" title="Edit Account Info" btntext="Edit">
 
       <!-- User Edit Normal -->
       <div @keyup.enter="editUser" slot="body">
@@ -85,14 +85,12 @@
           Yes
         </button>
       </div>
-
-
-      <button class="no-border" slot="openbtn">
-        <span class="visuallyhidden">Edit Account Info</span>
-        <svg class="manage-edit" src="../icons/pencil.svg"></svg>
-      </button>
-
     </modal>
+
+    <button class="no-border" @click="open">
+      <span class="visuallyhidden">Edit Account Info</span>
+      <svg class="manage-edit" src="../icons/pencil.svg"></svg>
+    </button>
 
   </div>
 
@@ -179,6 +177,9 @@
       },
       clear() {
         this.$data = this.$options.data();
+      },
+      open() {
+        this.$broadcast('open');
       },
       close() {
         this.$broadcast('close');
