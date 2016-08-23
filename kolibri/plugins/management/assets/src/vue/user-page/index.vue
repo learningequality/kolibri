@@ -42,6 +42,7 @@
       <thead>
         <tr>
           <th class="col-header" scope="col"> Full Name </th>
+          <th class="col-header table-role" scope="col"> Role </th>
           <th class="col-header table-username" scope="col"> Username </th>
           <th class="col-header" scope="col"> Edit </th>
         </tr>
@@ -52,13 +53,18 @@
         <tr v-for="user in visibleUsers">
           <!-- Full Name field -->
           <th scope="row" class="table-cell">
-            {{user.full_name}}
+            <span class="table-name">
+              {{user.full_name}}
+            </span>
+          </th>
 
-            <!-- Logic for role tags -->
+          <!-- Logic for role tags -->
+          <td class="table-cell table-role">
             <span class="user-role" v-for="role in user.roles">
               {{role.kind | capitalize}}
             </span>
-          </th>
+          </td>
+<!--           </th> -->
 
           <!-- Username field -->
           <td class="table-cell table-username">
@@ -251,6 +257,7 @@
     color: $core-text-annotation
     font-weight: normal
     font-size: 80%
+    width: 30%
 
   .table-cell
     font-weight: normal // compensates for <th> cells
@@ -263,7 +270,7 @@
     padding-left: 1em
     padding-right: 1em
     border-radius: 40px
-    margin-left: 20px
+    // margin-left: 20px
     font-size: 0.875em
     display: inline-block
 
@@ -286,10 +293,23 @@
     float: left
     margin-left: 5px
 
+  .table-name
+    $line-height = 1em
+    line-height: $line-height
+    max-height: ($line-height * 2)
+    display: inline-block
+    padding-right: 1em
+
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar
       font-size: 1em
       width: 80%
+
+  @media print
+    .toolbar
+      display: none
+    .user-roster
+      width: 500px
 
   @media screen and (max-width: $portrait-breakpoint)
     .create, #type-filter
@@ -302,5 +322,12 @@
       float: right
     .table-username
       display: none
+    .table-name
+      overflow: hidden
+      text-overflow: ellipsis
+      white-space: nowrap
+      width: 100px
+    .col-header
+      width: 50%
 
 </style>
