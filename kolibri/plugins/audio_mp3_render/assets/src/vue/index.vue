@@ -243,7 +243,7 @@
 
   input[type=range]
     -webkit-appearance: none
-    width: 60%
+    width: 55%
     -ms-transform: translateY(11px) // position: relative does not work on IE
 
   input[type=range]:focus, input[type=range]::-moz-focus-outer
@@ -302,5 +302,10 @@
   /* hides popup label on slider */
   input[type=range]::-ms-tooltip
     display: none
+    
+  @media screen and (max-width: $medium-breakpoint + 1)
+    #play-and-time
+      input
+        width: 25%
 
 </style>

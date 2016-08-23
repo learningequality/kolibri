@@ -26,7 +26,6 @@
 
   module.exports = {
     components: {
-      'core-base': require('core-base'),
       'top-nav': require('./top-nav'),
       'main-nav': require('./main-nav'),
       'user-page': require('./user-page'),
