@@ -6,16 +6,14 @@
   <!-- mostly there in case we switch to v-show -->
   <div class="modal-overlay"
     v-if="visible"
-    @keyup.esc="closeModal"
+    @keydown.esc="closeModal"
     @click="bgClick($event)"
     v-el:modal-overlay
     id="modal-window"
     role="dialog"
-    :aria-hidden="(!visible).toString()"
-    :aria-labelledby="title ? 'modal-title' : null"
-    :aria-label="title ? null : 'popup-modal'">
+    aria-labelledby="modal-title">
 
-    <div class="modal" v-el:modal :tabindex="visible ? '0' : '-1'" transition="modal">
+    <div class="modal" v-el:modal :tabindex="0" transition="modal">
       <!-- Close Button -->
       <button aria-label="close" @click="closeModal" class="btn-close">
         <svg src="../icons/close.svg"></svg>
@@ -23,7 +21,13 @@
 
       <!-- Modal Title -->
       <!-- Not mandatory, but if available, names the modal according aria-labels -->
-      <h1 v-if="title" class="title" id="modal-title">{{title}}</h1>
+      <h1 v-show="!invisibleTitle" class="title" id="modal-title">
+        <!-- Accessible error reporting per @radina -->
+        <span v-if="error" class="accessible-error-indicator" aria-hidden=true>
+          Error:
+        </span>
+          {{title}}
+      </h1>
 
       <!-- Modal Content -->
       <slot name="body" class="modal-content" id="modal-holder" role="document">
@@ -44,13 +48,13 @@
 
   module.exports = {
     props: {
-      // mostly keeping around for backwards compatibility
-      // TODO get rid of this prop
-      btntext: {
-        type: String,
-      },
       title: {
         type: String,
+        required: true,
+      },
+      invisibleTitle: {
+        type: Boolean,
+        default: false,
       },
       // Modal options
       disableClose: {
@@ -62,6 +66,11 @@
         type: Boolean,
         default: true,
         required: false,
+      },
+      // useed to toggle error message in header
+      error: {
+        type: Boolean,
+        default: false,
       },
     },
     ready() {
@@ -75,11 +84,22 @@
         this.lastFocus = document.activeElement;
 
         // Need to wait for DOM to update asynchronously, then get the modal element
-        vue.nextTick(() => this.$els.modal.focus());
+        vue.nextTick(() => {
+          this.focusModal();
+
+          // listening for tab keydowns
+          window.onkeydown = (keypressed) => {
+            // makes checks to ensure that the element that's been focused is in the window
+            if (keypressed.key === 'Tab' && !this.$els.modal.contains(document.activeElement)) {
+              this.focusModal();
+            }
+          };
+        });
       },
       close() {
         this.visible = false;
         this.lastFocus.focus();
+        window.stopPropagation;
       },
     },
     data() {
@@ -95,6 +115,9 @@
       },
       closeModal() {
         this.$dispatch('close');
+      },
+      focusModal() {
+        this.$els.modal.focus();
       },
       bgClick(clickEvent) {
         // check to make sure the area being clicked is the overlay, not the modal
@@ -142,6 +165,10 @@
 
   .title
     text-align: center
+
+  // not necessary for sighted users
+  .accessible-error-indicator
+    display: none
 
   // Animation Specs
   .modal-enter, .modal-leave
