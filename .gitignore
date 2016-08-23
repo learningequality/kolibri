@@ -34,6 +34,7 @@ kolibrihome_test/
 
 # Translations
 *.mo
+kolibri/locale/
 
 # Mr Developer
 .mr.developer.cfg

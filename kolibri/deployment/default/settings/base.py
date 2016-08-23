@@ -153,7 +153,7 @@ Q_CLUSTER = {
     "name": "kolibriqueue",
 
     # 3 concurrent worker processes, so 3 concurrent jobs at once
-    "workers": 3,
+    "workers": 1,
 
     # 50 jobs before a worker gets reset, releasing its memory
     "recycle": 50,
