@@ -4,7 +4,7 @@
     <div class="links">
       <a v-link="usersLink" :class="{active: usersActive}" @click="blur">Users</a>
       <a v-link="dataLink" :class="{active: dataActive}" @click="blur">Data</a>
-      <!-- <a v-link="contentLink" :class="{active: contentActive}" @click="blur">Content</a> -->
+      <a v-link="contentLink" :class="{active: contentActive}" @click="blur">Content</a>
     </div>
   </div>
 
