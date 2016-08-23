@@ -63,7 +63,7 @@ class Model {
   fetch(params = {}, force = false) {
     const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
-        if (!force && this.synced && this.cached) {
+        if (!force && this.synced) {
           resolve(this.attributes);
         } else {
           this.synced = false;
@@ -218,10 +218,6 @@ class Model {
     }
     Object.assign(this.attributes, attributes);
   }
-
-  get cached() {
-    return this.id && this.id in this.resource.models;
-  }
 }
 
 /** Class representing a 'view' of a single API resource.
@@ -262,7 +258,7 @@ class Collection {
     const params = Object.assign({}, this.params, extraParams);
     const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
-        if (!force && this.synced && this.cached) {
+        if (!force && this.synced) {
           resolve(this.data);
         } else {
           this.synced = false;
@@ -346,8 +342,14 @@ class Collection {
     return this.models.map((model) => model.attributes);
   }
 
-  get cached() {
-    return this.models.reduce((currentValue, model) => currentValue && model.cached, true);
+  get synced() {
+    // We only say the Collection is synced if it, itself, is synced, and all its
+    // constituent models are also.
+    return this.models.reduce((synced, model) => synced && model.synced, this._synced);
+  }
+
+  set synced(value) {
+    this._synced = value;
   }
 }
 
@@ -465,12 +467,12 @@ class Resource {
     this.collections = {};
   }
 
-  removeModelById(id) {
-    delete this.models[id];
+  unCacheModel(id) {
+    this.models[id].synced = false;
   }
 
   removeModel(model) {
-    this.removeModelById(model.id);
+    delete this.models[model.id];
   }
 
   get urls() {
