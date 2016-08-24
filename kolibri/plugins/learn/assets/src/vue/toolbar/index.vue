@@ -2,14 +2,14 @@
 
   <div v-bind:class="['toolbar', displayToolbar ? 'toolbar-hide' : '']" v-show='!searchOpen'>
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
-      <label for="chan-select" class="visuallyhidden">{{ $tr('switchChannels') }}</label>
-      <select
-        name="chan-select"
-        id="chan-select"
-        class="chan-select"
-        v-model="currentChannel">
-        <option v-for="channel in channelList" :value="channel.id">{{ channel.name }}</option>
-      </select>
+    <label for="chan-select" class="visuallyhidden">{{ $tr('switchChannels') }}</label>
+    <select
+      name="chan-select"
+      id="chan-select"
+      class="chan-select"
+      v-model="currentChannel">
+      <option v-for="channel in channelList" :value="channel.id">{{ channel.name }}</option>
+    </select>
     <search-button @scrolling="handleScroll" class='search-btn'></search-button>
   </div>
 
