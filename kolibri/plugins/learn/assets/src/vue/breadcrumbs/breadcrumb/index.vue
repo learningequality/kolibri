@@ -27,6 +27,9 @@
       },
     },
     $trNameSpace: 'breadcrumb',
+    $trs: {
+      back: 'Back',
+    },
   };
 
 </script>
