@@ -2,15 +2,7 @@
 
   <div>
 
-    <page-header :title='title'>
-      <content-icon
-        slot='icon'
-        :ispageicon="true"
-        :size="25"
-        :kind="kind"
-        :progress="progress">
-      </content-icon>
-    </page-header>
+    <page-header :title='title'></page-header>
 
     <div class="content-container" v-show='!searchOpen'>
       <content-render
@@ -65,8 +57,6 @@
     components: {
       'content-icon': require('../content-icon'),
       'page-header': require('../page-header'),
-      'content-render': require('content-renderer'),
-      'download-button': require('content-renderer/download-button'),
       'expandable-content-grid': require('../expandable-content-grid'),
     },
     vuex: {

@@ -65,8 +65,6 @@ class AsyncCommand(BaseCommand):
 
     """
 
-    CELERY_PROGRESS_STATE_NAME = "PROGRESS"
-
     def handle(self, *args, **options):
         self.update_progress = options.pop("update_state", None)
 
