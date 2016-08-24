@@ -14,7 +14,7 @@ pip install -r requirements/test.txt
 
 # Build .whl
 npm install
-make dist
+make dist > /dev/null
 pip install dist/kolibri*.whl
 
 cd "$PREVIOUS_CWD"
