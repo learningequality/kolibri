@@ -17,17 +17,18 @@
         <option value="learner"> Learners </option>
       </select>
 
-      <div class="create">
-        <user-create-modal></user-create-modal>
-      </div>
-
       <div class="searchbar" role="search">
         <svg class="icon" src="../icons/search.svg" role="presentation" aria-hidden="true"></svg>
         <input
+          id="search-field"
           aria-label="Search for a user..."
           type="search"
           v-model="searchFilter"
           placeholder="Search for a user...">
+      </div>
+
+      <div class="create">
+        <user-create-modal></user-create-modal>
       </div>
 
     </div>
@@ -289,12 +290,16 @@
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar
       font-size: 1em
+      width: 53%
+    #search-field
       width: 80%
 
   @media screen and (max-width: $portrait-breakpoint)
     .create, #type-filter
       box-sizing: border-box
       width: 49%
+    .create
+      margin-top: -78px
     .searchbar
       font-size: 0.9em
       width: 100%
