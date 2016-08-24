@@ -164,6 +164,10 @@
     right: 6em
     &:focus
       outline: $core-action-light 2px solid
+    @media screen and (max-width: $portrait-breakpoint)
+      transform: translateX(-50%)
+      left: 53%
+
 
   .search-btn
     position: absolute
@@ -171,5 +175,7 @@
     right: 1.2rem
     margin-right: 1em
     z-index: 1
+    @media screen and (max-width: $portrait-breakpoint)
+      margin-right: -1em
 
 </style>
