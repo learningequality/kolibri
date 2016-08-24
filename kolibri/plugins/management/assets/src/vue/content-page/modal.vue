@@ -1,0 +1,73 @@
+<template>
+
+  <div class="fake-modal" @keyup.esc="cancel" @keyup.enter="submit">
+    <div>
+      <button class="back-btn" v-if="showback">Back</button>
+      <button class="close-btn" @click="cancel">X</button>
+    </div>
+    <h1 v-if="title">{{ title }}</h1>
+    <div>
+      <slot name="body"></slot>
+    </div>
+    <div v-if="error">{{ error }}</div>
+    <div class="buttons">
+      <slot name="buttons"></slot>
+    </div>
+  </div>
+
+</template>
+
+
+<script>
+
+  module.exports = {
+    props: {
+      title: {
+        type: String,
+      },
+      showback: {
+        type: Boolean,
+        default: false,
+      },
+      error: {
+        type: String,
+      },
+    },
+    components: {
+      'icon-button': require('icon-button'),
+    },
+    data: () => ({
+    }),
+    methods: {
+      cancel() {
+        console.log('MODAL CANCEL');
+        this.$emit('cancel');
+      },
+      submit() {
+        console.log('MODAL SUBMIT');
+        this.$emit('submit');
+      },
+    },
+  };
+
+</script>
+
+
+<style lang="stylus" scoped>
+
+  .back-btn
+    float: left
+
+  .close-btn
+    float: right
+
+  .fake-modal
+    border: 2px solid black
+    margin: 10px
+    padding: 10px
+
+  .buttons
+    margin: 10px
+    text-align: center
+
+</style>

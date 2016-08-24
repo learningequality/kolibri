@@ -18,9 +18,7 @@ Content import/export page:
   {
     taskList: [] // list of objects
     channelList: [] // list of objects
-    showWizard: false // boolean
     wizardState: {} // object
-    localDriveList: [] // list of objects
   }
 
 **/
@@ -59,16 +57,16 @@ const mutations = {
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
+
   // content import-export-specific mutations
-  SET_TASKS(state, taskList) {
+  SET_CONTENT_PAGE_TASKS(state, taskList) {
     state.pageState.taskList = taskList;
   },
-  SET_CONTENT_WIZARD_STATE(state, shown, wizardState) {
-    state.pageState.showWizard = shown;
-    state.pageState.wizardState = wizardState;
+  SET_CONTENT_PAGE_CHANNELS(state, channelList) {
+    state.pageState.channelList = channelList;
   },
-  SET_LOCAL_DRIVES(state, localDrives) {
-    state.pageState.localDriveList = localDrives;
+  SET_CONTENT_PAGE_WIZARD_STATE(state, wizardState) {
+    state.pageState.wizardState = wizardState;
   },
 };
 

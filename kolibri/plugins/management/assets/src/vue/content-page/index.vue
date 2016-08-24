@@ -9,21 +9,11 @@
 
     <hr>
 
-    <icon-button v-if="!tasks.length" text="Add Channel" :primary="true" @click="remoteImport">
+    <icon-button v-if="!tasks.length" text="Add Channel" :primary="true" @click="startImportWizard">
       <svg src="../icons/add.svg"></svg>
     </icon-button>
 
-    <wizard v-if="showWizard">
-      Hello!
-    </wizard>
-
-    <div v-if="tasks.length">
-      <ul>
-        <li>Progress: {{ tasks[0].percentage }}</li>
-        <li>Status: {{ tasks[0].status }}</li>
-        <li>Type: {{ tasks[0].type }}</li>
-      </ul>
-    </div>
+    <component v-if="wizardState.shown" :is="wizardComponent"></component>
 
     <h1>My Channels</h1>
     <ul>
@@ -70,48 +60,61 @@
   ];
 
   const actions = require('../../actions');
+  const ContentWizardPages = require('../../state/constants').ContentWizardPages;
 
   module.exports = {
     components: {
       'icon-button': require('icon-button'),
-      'wizard': require('./wizard'),
       'task-status': require('./task-status'),
+      'wizard-import-source': require('./wizard-import-source'),
+      'wizard-import-network': require('./wizard-import-network'),
+      'wizard-import-local': require('./wizard-import-local'),
+      'wizard-export': require('./wizard-export'),
     },
     data: () => ({
-      i: 0,
+      i: 0, // TODO - remove debuging
       intervalId: undefined,
     }),
     attached() {
-      this.intervalId = setInterval(this.updateTasks, 1000);
+      this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
     },
     detached() {
       clearInterval(this.intervalId);
     },
-    methods: {
-      remoteImport() {
-        this.downloadChannel('88623b4026f04df095604abf0f91ecfe');
+    computed: {
+      wizardComponent() {
+        switch (this.wizardState.page) {
+          case ContentWizardPages.CHOOSE_IMPORT_SOURCE:
+            return 'wizard-import-source';
+          case ContentWizardPages.IMPORT_NETWORK:
+            return 'wizard-import-network';
+          case ContentWizardPages.IMPORT_LOCAL:
+            return 'wizard-import-local';
+          case ContentWizardPages.EXPORT:
+            return 'wizard-export';
+          default:
+            return undefined;
+        }
       },
     },
     vuex: {
       getters: {
         localChannels: state => state.pageState.channelList,
         tasks: state => state.pageState.taskList,
-        showWizard: state => state.pageState.showWizard,
+        wizardState: state => state.pageState.wizardState,
       },
       actions: {
-        incrementDebugTask(state) {
+        incrementDebugTask(state) { // TODO - remove debuging
           this.i = (this.i + 1) % tasks.length;
           if (this.i) {
-            state.dispatch('SET_TASKS', [tasks[this.i]]);
-            state.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
+            state.dispatch('SET_CONTENT_PAGE_TASKS', [tasks[this.i]]);
+            state.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', false, {});
           } else {
-            state.dispatch('SET_TASKS', []);
+            state.dispatch('SET_CONTENT_PAGE_TASKS', []);
           }
         },
         startImportWizard: actions.startImportWizard,
-        startExportWizard: actions.startExportWizard,
-        downloadChannel: actions.remoteImportContent,
-        updateTasks: actions.updateTasks,
+        pollTasksAndChannels: actions.pollTasksAndChannels,
       },
     },
   };

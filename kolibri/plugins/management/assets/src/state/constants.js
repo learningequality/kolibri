@@ -7,6 +7,16 @@ const PageNames = {
   SCRATCHPAD: 'SCRATCHPAD',
 };
 
+
+// content import/export wizard pages
+const ContentWizardPages = {
+  CHOOSE_IMPORT_SOURCE: 'CHOOSE_IMPORT_SOURCE',
+  IMPORT_NETWORK: 'IMPORT_NETWORK',
+  IMPORT_LOCAL: 'IMPORT_LOCAL',
+  EXPORT: 'EXPORT',
+};
+
 module.exports = {
   PageNames,
+  ContentWizardPages,
 };

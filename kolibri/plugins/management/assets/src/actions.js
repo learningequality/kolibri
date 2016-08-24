@@ -8,6 +8,7 @@ const RoleResource = Kolibri.resources.RoleResource;
 const constants = require('./state/constants');
 const UserKinds = require('core-constants').UserKinds;
 const PageNames = constants.PageNames;
+const ContentWizardPages = constants.ContentWizardPages;
 
 
 // ================================
@@ -230,11 +231,10 @@ function showContentPage(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
   const taskCollectionPromise = TaskResource.getCollection().fetch();
   taskCollectionPromise.then((taskList) => {
-    const pageState = { showWizard: false };
-    pageState.taskList = taskList.map(_taskState);
-    if (taskList.length) { // only one task at a time for now
-      store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
-    }
+    const pageState = {
+      taskList: taskList.map(_taskState),
+      wizardState: { shown: false },
+    };
     const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
     channelCollectionPromise.then((channelList) => {
       pageState.channelList = channelList;
@@ -248,37 +248,50 @@ function showContentPage(store) {
   });
 }
 
-
 function startImportWizard(store) {
-  store.dispatch('SET_CONTENT_WIZARD_STATE', true, {
-    type: 'import',
-    page: 'start',
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: true,
+    page: ContentWizardPages.CHOOSE_IMPORT_SOURCE,
   });
 }
 
 function startExportWizard(store) {
-  store.dispatch('SET_CONTENT_WIZARD_STATE', true, {
-    type: 'import',
-    page: 'start',
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: true,
+    page: ContentWizardPages.EXPORT,
+  });
+}
+
+function showImportNetworkWizard(store) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: true,
+    page: ContentWizardPages.IMPORT_NETWORK,
+  });
+}
+
+function showImportLocalWizard(store) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: true,
+    page: ContentWizardPages.IMPORT_LOCAL,
   });
 }
 
 function cancelImportExportWizard(store) {
-  store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: false,
+  });
 }
 
 
-// background worker calls this to continually update UI
-function updateTasks(store) {
+// called from a timer to continually update UI
+function pollTasksAndChannels(store) {
   const taskCollectionPromise = TaskResource.getCollection().fetch({}, true);
   // get all running tasks
   taskCollectionPromise.then((taskList) => {
-    const pageState = { showWizard: false };
-    pageState.taskList = taskList.map(_taskState);
-    if (taskList.length) { // only one task at a time for now
-      store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
-    }
-    const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
+    const pageState = {
+      taskList: taskList.map(_taskState),
+    };
+    const channelCollectionPromise = ChannelResource.getCollection({}).fetch({}, true);
     channelCollectionPromise.then((channelList) => {
       pageState.channelList = channelList;
       // update page, if they are still on it
@@ -294,7 +307,7 @@ function clearTasks(store, id) {
   const currentTaskPromise = TaskResource.getModel(id).delete();
   currentTaskPromise.then(() => {
     // only 1 task should be running, but we set to empty array
-    store.dispatch('SET_TASKS', []);
+    store.dispatch('SET_CONTENT_PAGE_TASKS', []);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -304,7 +317,7 @@ function clearTasks(store, id) {
 function localImportContent(store, driveId) {
   const localImportPromise = TaskResource.localImportContent(driveId);
   localImportPromise.then((response) => {
-    store.dispatch('SET_TASKS', [_taskState(response.entity)]);
+    store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -314,7 +327,7 @@ function localImportContent(store, driveId) {
 function localExportContent(store, driveId) {
   const localExportPromise = TaskResource.localExportContent(driveId);
   localExportPromise.then((response) => {
-    store.dispatch('SET_TASKS', [_taskState(response.entity)]);
+    store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -324,7 +337,7 @@ function localExportContent(store, driveId) {
 function remoteImportContent(store, channelId) {
   const remoteImportPromise = TaskResource.remoteImportContent(channelId);
   remoteImportPromise.then((response) => {
-    store.dispatch('SET_TASKS', [_taskState(response.entity)]);
+    store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -334,7 +347,8 @@ function remoteImportContent(store, channelId) {
 function localDrive(store) {
   const localDrivePromise = TaskResource.localDrive();
   localDrivePromise.then((response) => {
-    store.dispatch('SET_LOCAL_DRIVES', response.entity);
+    // ### put in wizard state
+    // store.dispatch('SET_LOCAL_DRIVES', response.entity);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -367,10 +381,12 @@ module.exports = {
   showUserPage,
 
   showContentPage,
-  updateTasks,
+  pollTasksAndChannels,
   clearTasks,
   startImportWizard,
   startExportWizard,
+  showImportNetworkWizard,
+  showImportLocalWizard,
   cancelImportExportWizard,
   localExportContent,
   localImportContent,
