@@ -17,6 +17,10 @@
         <option value="learner"> Learners </option>
       </select>
 
+      <div class="create">
+        <user-create-modal></user-create-modal>
+      </div>
+
       <div class="searchbar" role="search">
         <svg class="icon" src="../icons/search.svg" role="presentation" aria-hidden="true"></svg>
         <input
@@ -24,10 +28,6 @@
           type="search"
           v-model="searchFilter"
           placeholder="Search for a user...">
-      </div>
-
-      <div class="create">
-        <user-create-modal></user-create-modal>
       </div>
 
     </div>

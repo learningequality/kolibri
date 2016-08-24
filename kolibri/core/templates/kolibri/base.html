@@ -9,10 +9,17 @@
   <link rel="shortcut icon" href="{% static 'images/logo.ico' %}">
   <title>{% trans "Kolibri" %}</title>
 </head>
-
+<style>
+  .loading-spinner {
+    width: 97vw;
+    height: 97vh;
+    background: url("{% static 'images/loading-spinner.gif' %}") no-repeat center;
+  }
+</style>
 <body>
-
-<rootvue></rootvue>
+<rootvue>
+  <div class="loading-spinner"></div>
+</rootvue>
 {% block frontend_assets %}
 {% webpack_asset 'default_frontend' %}
 <script type="text/javascript">

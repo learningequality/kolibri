@@ -1,8 +1,9 @@
 <template>
 
   <div>
-    <div v-el:videowrapperwrapper class="videowrapperwrapper hidden">
-      <div v-el:videowrapper class="videowrapper">
+    <div v-el:videowrapperwrapper class="videowrapperwrapper">
+      <loading-spinner v-show="loading"></loading-spinner>
+      <div v-el:videowrapper v-show="!loading" class="videowrapper">
         <video v-el:video class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
           <template v-for="video in videoSources">
             <source :src="video.storage_url" :type='"video/" + video.extension'>
@@ -36,6 +37,7 @@
       dummyTime: 0,
       progressStartingPoint: 0,
       lastUpdateTime: 0,
+      loading: true,
     }),
 
     computed: {
@@ -97,7 +99,7 @@
         this.videoHeight = this.videoPlayer.videoHeight();
         this.resizeVideo();
         this.videoPlayerIsReady();
-        this.$els.videowrapperwrapper.classList.remove('hidden');
+        this.loading = false;
       },
 
       resizeVideo() {
@@ -196,7 +198,7 @@
         bigPlayButton: false,
         inactivityTimeout: 1000,
         preload: 'metadata',
-        poster: this.posterSource,
+        // poster: this.posterSource,
         playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
         controlBar: {
           children: [
@@ -256,6 +258,12 @@
     background-color: rgba(0, 0, 0, 0.7)
 
    // Custom style
+  .videowrapperwrapper
+    width: 100%
+    height: 100%
+    background-color: rgba(0, 0, 0, 0)
+    position: relative
+
   .videowrapper
     top: 50%
     left: 50%
@@ -263,15 +271,6 @@
     position: relative
     height: 100%
     background-color: #000
-
-  .videowrapperwrapper
-    width: 100%
-    height: 100%
-    background-color: rgba(0, 0, 0, 0)
-    position: relative
-
-  .hidden
-    visibility: hidden
 
   .video-js .vjs-menu
     font-family: 'NotoSans', 'sans-serif'
