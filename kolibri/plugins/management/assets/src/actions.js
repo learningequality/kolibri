@@ -1,4 +1,5 @@
 const Kolibri = require('kolibri');
+const logging = require('logging');
 
 const FacilityUserResource = Kolibri.resources.FacilityUserResource;
 const ChannelResource = Kolibri.resources.ChannelResource;
@@ -285,22 +286,24 @@ function cancelImportExportWizard(store) {
 
 // called from a timer to continually update UI
 function pollTasksAndChannels(store) {
-  const taskCollectionPromise = TaskResource.getCollection().fetch({}, true);
-  // get all running tasks
-  taskCollectionPromise.then((taskList) => {
-    const pageState = {
-      taskList: taskList.map(_taskState),
-    };
-    const channelCollectionPromise = ChannelResource.getCollection({}).fetch({}, true);
-    channelCollectionPromise.then((channelList) => {
-      pageState.channelList = channelList;
-      // update page, if they are still on it
-      store.dispatch('SET_PAGE_STATE', pageState);
-    });
-  })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
+  TaskResource.getCollection().fetch({}, true).then(
+    (taskList) => {
+      ChannelResource.getCollection({}).fetch({}, true).then((channelList) => {
+        store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
+        store.dispatch('SET_CONTENT_PAGE_CHANNELS', channelList);
+
+        // Close the wizard if there's an outstanding task.
+        // (this can be removed when we support more than one
+        // concurrent task.)
+        if (taskList.length && store.pageState.wizardState.shown) {
+          cancelImportExportWizard(store);
+        }
+      });
+    },
+    (error) => {
+      logging.error(`poll error: ${error}`);
+    }
+  );
 }
 
 function clearTasks(store, id) {
