@@ -124,13 +124,11 @@ class Model {
           if (this.id) {
             // If this Model has an id, then can do a PATCH against the Model
             url = this.url;
-            clientObj = { path: url, method: 'PATCH', entity: payload,
-              headers: { 'Content-Type': 'application/json' } };
+            clientObj = { path: url, method: 'PATCH', entity: payload };
           } else {
             // Otherwise, must POST to the Collection endpoint to create the Model
             url = this.resource.collectionUrl();
-            clientObj = { path: url, entity: payload,
-              headers: { 'Content-Type': 'application/json' } };
+            clientObj = { path: url, entity: payload };
           }
           // Do a save on the URL.
           this.resource.client(clientObj).then((response) => {
@@ -177,8 +175,7 @@ class Model {
           reject('Can not delete model that we do not have an id for');
         } else {
           // Otherwise, DELETE the Model
-          const clientObj = { path: this.url, method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' } };
+          const clientObj = { path: this.url, method: 'DELETE' };
           this.resource.client(clientObj).then((response) => {
             // delete this instance
             this.resource.removeModel(this);
@@ -497,7 +494,7 @@ class Resource {
   }
 
   get client() {
-    return rest.wrap(mime).wrap(csrf, { name: 'X-CSRFToken',
+    return rest.wrap(mime, { mime: 'application/json' }).wrap(csrf, { name: 'X-CSRFToken',
       token: getCookie('csrftoken') }).wrap(errorCode);
   }
 }
