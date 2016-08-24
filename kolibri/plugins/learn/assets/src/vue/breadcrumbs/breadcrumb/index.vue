@@ -1,11 +1,9 @@
 <template>
 
   <a v-link="linkobject">
-    <span class='back'>
-      <span v-if="showarrow" class="visuallyhidden">{{ $tr('back') }}</span>
-      <svg v-if="showarrow" role="presentation" src="../../icons/navigate_before.svg"></svg>
-      {{ text }}
-    </span>
+    <span v-if="showarrow" class="visuallyhidden">{{ $tr('back') }}</span>
+    <svg v-if="showarrow" role="presentation" src="../../icons/folder_back.svg"></svg>
+    {{ text }}
   </a>
 
 </template>
@@ -29,9 +27,6 @@
       },
     },
     $trNameSpace: 'breadcrumb',
-    $trs: {
-      back: 'Back',
-    },
   };
 
 </script>
@@ -41,13 +36,9 @@
 
   @require '~core-theme.styl'
 
-  .back
-    margin-right: 0.3em
-
   a
     display: inline-block
     vertical-align: middle
-    margin-bottom: 2px
     font-size: 0.9em
     font-weight: 300
     max-width: 140px
@@ -55,10 +46,10 @@
     overflow: hidden
     text-overflow: ellipsis
     color: $core-text-annotation
+    margin-top: -5px
+    margin-left: 10px
 
   svg
-    vertical-align: middle
     fill: $core-text-annotation
-    margin-bottom: 2px
 
 </style>
