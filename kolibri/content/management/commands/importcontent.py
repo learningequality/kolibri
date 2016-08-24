@@ -1,6 +1,5 @@
 import os
 
-from django.conf import settings
 from django.core.management.base import CommandError
 from django.db.models import Sum
 from kolibri.tasks.management.commands.base import AsyncCommand
@@ -9,11 +8,9 @@ from ...content_db_router import using_content_database
 from ...models import File
 from ...utils import paths, transfer
 
-CONTENT_DEST_PATH_TEMPLATE = os.path.join(
-    settings.CONTENT_STORAGE_DIR,
-    "{filename}",
-)
-
+# constants to specify the transfer method to be used
+DOWNLOAD_METHOD = "download"
+COPY_METHOD = "copy"
 
 class Command(AsyncCommand):
 
@@ -61,9 +58,13 @@ class Command(AsyncCommand):
         local_subparser.add_argument('channel_id', type=str)
         local_subparser.add_argument('directory', type=str)
 
-    def handle_transfer(self, method, *args, **options):
+    def download_content(self, channel_id):
+        self._transfer(DOWNLOAD_METHOD, channel_id)
 
-        channel_id = options["channel_id"]
+    def copy_content(self, channel_id, path):
+        self._transfer(COPY_METHOD, channel_id, path=path)
+
+    def _transfer(self, method, channel_id, path=None):
 
         with using_content_database(channel_id):
             files = File.objects.all()
@@ -82,11 +83,11 @@ class Command(AsyncCommand):
                         continue
 
                     # determine where we're downloading/copying from, and create appropriate transfer object
-                    if method == "network":
+                    if method == DOWNLOAD_METHOD:
                         url = paths.get_content_storage_file_url(filename)
                         filetransfer = transfer.FileDownload(url, dest)
-                    elif method == "local":
-                        srcpath = paths.get_content_storage_file_path(filename, datafolder=options["directory"])
+                    elif method == COPY_METHOD:
+                        srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
                         filetransfer = transfer.FileCopy(srcpath, dest)
 
                     with filetransfer:
@@ -100,9 +101,9 @@ class Command(AsyncCommand):
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':
-            self.handle_transfer("network", *args, **options)
+            self.download_content(options["channel_id"])
         elif options['command'] == 'local':
-            self.handle_transfer("local", *args, **options)
+            self.copy_content(options["channel_id"], options["directory"])
         else:
             self._parser.print_help()
-            raise CommandError("Please give a valid subcommand. Options you gave: {}".format(options))
+            raise CommandError("Please give a valid subcommand. You gave: {}".format(options["command"]))
