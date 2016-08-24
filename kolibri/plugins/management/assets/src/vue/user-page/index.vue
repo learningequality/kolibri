@@ -17,6 +17,10 @@
         <option value="learner"> Learners </option>
       </select>
 
+      <div class="create">
+        <user-create-modal></user-create-modal>
+      </div>
+
       <div class="searchbar" role="search">
         <svg class="icon" src="../icons/search.svg" role="presentation" aria-hidden="true"></svg>
         <input
@@ -24,10 +28,6 @@
           type="search"
           v-model="searchFilter"
           placeholder="Search for a user...">
-      </div>
-
-      <div class="create">
-        <user-create-modal></user-create-modal>
       </div>
 
     </div>
@@ -219,7 +219,7 @@
     top: 0
     left: 10px
     height: 100%
-    width: 88%
+    width: 85%
     border-color: transparent
     background-color: transparent
     clear: both
@@ -286,9 +286,7 @@
     border-radius: 5px
     padding: inherit
     border: 1px solid #c0c0c0
-    width: 50%
-    min-width: 200px
-    max-width: 300px
+    width: 300px
     height: $toolbar-height
     float: left
     margin-left: 5px
@@ -300,18 +298,14 @@
     display: inline-block
     padding-right: 1em
 
-  @media screen and (min-width: $portrait-breakpoint + 1)
-    .searchbar
-      font-size: 1em
-      width: 80%
-
   @media print
     .toolbar
       display: none
     .user-roster
       width: 500px
 
-  @media screen and (max-width: $portrait-breakpoint)
+  // TODO temporary fix until remove width calculation from learn
+  @media screen and (max-width: 840px)
     .create, #type-filter
       box-sizing: border-box
       width: 49%
