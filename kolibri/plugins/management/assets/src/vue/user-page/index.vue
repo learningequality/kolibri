@@ -221,6 +221,7 @@
     &:focus
       outline: none
       border-color: transparent
+      border-bottom: 2px solid $core-action-normal
 
   #type-filter
     float: left
@@ -289,8 +290,9 @@
 
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar
-      font-size: 1em
-      width: 53%
+      font-size: 0.9em
+      min-width: 170px
+      width: 45%
     #search-field
       width: 80%
 
