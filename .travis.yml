@@ -16,6 +16,10 @@ matrix:
   include:
     - python: "2.7"
       env:
+        - TOX_ENV=build
+        - TRAVIS_NODE_VERSION="0.12"
+    - python: "2.7"
+      env:
         - TOX_ENV=py2.7
         - TRAVIS_NODE_VERSION="0.12"
     - python: "2.7"
@@ -64,8 +68,6 @@ before_script:
 
 # command to run tests, e.g. python setup.py test
 script:
-  - test/if.sh "setup_changed"
-  - test/if.sh "requirements_changed"
   - tox -e $TOX_ENV
 
 after_success:
