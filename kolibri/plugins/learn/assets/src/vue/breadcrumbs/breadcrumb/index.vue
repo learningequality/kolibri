@@ -28,7 +28,7 @@
     },
     $trNameSpace: 'breadcrumb',
     $trs: {
-      back: 'Back to previous content group',
+      back: 'Back to previous topic',
     },
   };
 
