@@ -5,7 +5,9 @@
         <h3 class="progress-percent" v-if="progress > 0">
           {{ Math.floor(progress * 100) }}%
         </h3>
-      <div v-el:container></div>
+      <div v-el:container>
+        <loading-spinner></loading-spinner>
+      </div>
     </div>
     <div v-else>
       {{ $tr('msgNotAvailable') }}
