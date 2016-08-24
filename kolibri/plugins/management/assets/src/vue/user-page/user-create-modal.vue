@@ -1,6 +1,6 @@
 <template>
 
-  <modal :error="errorMessage ? true : false" @open="clear" title="Add New Account">
+  <modal :error="errorMessage ? true : false" @open="clear" :disable-close="true" title="Add New Account">
 
     <div @keyup.enter="createNewUser" slot="body">
 
@@ -86,11 +86,15 @@
         // create user
         } else {
           newUser.password = this.password;
+
+          // loading message
+          this.confirmation_message = 'Loading...';
           // using promise to ensure that the user is created before closing
           this.createUser(newUser, this.role).then(
             () => {
               this.close();
             }).catch((error) => {
+              this.clear();
               if (error.status.code === 409) {
                 this.errorMessage = error.entity;
               } else if (error.status.code === 403) {

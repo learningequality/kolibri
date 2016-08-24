@@ -98,8 +98,9 @@
       },
       close() {
         this.visible = false;
+        // removing keyboard listener
+        window.onkeydown = null;
         this.lastFocus.focus();
-        window.stopPropagation;
       },
     },
     data() {
