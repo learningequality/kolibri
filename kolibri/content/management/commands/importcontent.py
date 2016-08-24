@@ -77,7 +77,6 @@ class Command(AsyncCommand):
                     dest = paths.get_content_storage_file_path(filename)
 
                     # if the file already exists, add its size to our overall progress, and skip
-                    # TODO(jamalex): could do md5 checks here instead, to be ultra-safe
                     if os.path.isfile(dest) and os.path.getsize(dest) == f.file_size:
                         overall_progress_update(f.file_size)
                         continue
