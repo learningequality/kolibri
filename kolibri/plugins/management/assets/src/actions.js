@@ -253,6 +253,8 @@ function startImportWizard(store) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
     shown: true,
     page: ContentWizardPages.CHOOSE_IMPORT_SOURCE,
+    error: null,
+    busy: false,
   });
 }
 
@@ -260,6 +262,8 @@ function startExportWizard(store) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
     shown: true,
     page: ContentWizardPages.EXPORT,
+    error: null,
+    busy: false,
   });
 }
 
@@ -267,6 +271,8 @@ function showImportNetworkWizard(store) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
     shown: true,
     page: ContentWizardPages.IMPORT_NETWORK,
+    error: null,
+    busy: false,
   });
 }
 
@@ -274,12 +280,16 @@ function showImportLocalWizard(store) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
     shown: true,
     page: ContentWizardPages.IMPORT_LOCAL,
+    error: null,
+    busy: false,
   });
 }
 
 function cancelImportExportWizard(store) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
     shown: false,
+    error: null,
+    busy: false,
   });
 }
 
@@ -305,7 +315,7 @@ function pollTasksAndChannels(store) {
         // Close the wizard if there's an outstanding task.
         // (this can be removed when we support more than one
         // concurrent task.)
-        if (taskList.length && store.pageState.wizardState.shown) {
+        if (taskList.length && store.state.pageState.wizardState.shown) {
           cancelImportExportWizard(store);
         }
       });
@@ -317,43 +327,57 @@ function pollTasksAndChannels(store) {
 }
 
 function deleteTask(store, id) {
-  const currentTaskPromise = TaskResource.getModel(id).delete();
-  currentTaskPromise.then(() => {
-    // only 1 task should be running, but we set to empty array
-    store.dispatch('SET_CONTENT_PAGE_TASKS', []);
-  })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
+  console.log('NOT IMPLEMENTED');
+  console.log('To clear tasks, from the command-line, run:');
+  console.log(
+    `sqlite3 ~/.kolibri/ormq.sqlite3 'delete from django_q_task; delete from django_q_ormq;'`
+  );
+  // const currentTaskPromise = TaskResource.getModel(id).delete();
+  // currentTaskPromise.then(() => {
+  //   // only 1 task should be running, but we set to empty array
+  //   store.dispatch('SET_CONTENT_PAGE_TASKS', []);
+  // })
+  // .catch((error) => {
+  //   store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  // });
 }
 
 function triggerLocalContentImportTask(store, driveId) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
   const localImportPromise = TaskResource.localImportContent(driveId);
   localImportPromise.then((response) => {
     store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
+    cancelImportExportWizard(store);
   })
   .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.entity[0]); // TODO
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
   });
 }
 
 function triggerLocalContentExportTask(store, driveId) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
   const localExportPromise = TaskResource.localExportContent(driveId);
   localExportPromise.then((response) => {
     store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
+    cancelImportExportWizard(store);
   })
   .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.entity[0]); // TODO
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
   });
 }
 
 function triggerRemoteContentImportTask(store, channelId) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
   const remoteImportPromise = TaskResource.remoteImportContent(channelId);
   remoteImportPromise.then((response) => {
     store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
+    cancelImportExportWizard(store);
   })
   .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.entity[0]); // TODO
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
   });
 }
 

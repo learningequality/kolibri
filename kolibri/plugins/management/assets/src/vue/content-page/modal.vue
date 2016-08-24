@@ -3,7 +3,7 @@
   <div class="fake-modal" @keyup.esc="cancel" @keyup.enter="submit">
     <div>
       <button class="back-btn" v-if="showback">Back</button>
-      <button class="close-btn" @click="cancel">X</button>
+      <button class="close-btn" @click="cancel" :disabled="noclose">X</button>
     </div>
     <h1 v-if="title">{{ title }}</h1>
     <div>
@@ -31,6 +31,11 @@
       },
       error: {
         type: String,
+        default: null,
+      },
+      noclose: {
+        type: Boolean,
+        default: false,
       },
     },
     components: {
@@ -40,11 +45,11 @@
     }),
     methods: {
       cancel() {
-        console.log('MODAL CANCEL');
-        this.$emit('cancel');
+        if (!this.noclose) {
+          this.$emit('cancel');
+        }
       },
       submit() {
-        console.log('MODAL SUBMIT');
         this.$emit('submit');
       },
     },

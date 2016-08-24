@@ -17,8 +17,9 @@
 
     <h1>My Channels</h1>
     <ul>
-      <li v-for="channel in pageState.localChannels">{{ channel.name }}</li>
+      <li v-for="channel in pageState.channelList">{{ channel.name }}</li>
     </ul>
+    <p v-if="!pageState.channelList.length">No channels installed</p>
 
   </div>
 

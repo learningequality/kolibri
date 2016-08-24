@@ -43,6 +43,8 @@
     &:hover svg
       fill: $core-action-dark
 
+    &:disabled svg
+      fill: $core-text-annotation
 
   // styles specific to secondary button
   .secondary
@@ -56,6 +58,12 @@
       border: none
       svg
         fill: $core-action-light
+
+    &:disabled
+      color: $core-text-annotation
+      border: none
+      svg
+        fill: $core-text-annotation
 
     svg
       fill: $core-bg-canvas

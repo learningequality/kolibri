@@ -17,9 +17,9 @@ const ContentWizardPages = {
 };
 
 const TaskTypes = {
-  REMOTE_IMPORT: 'remote_import',
-  LOCAL_IMPORT: 'local_import',
-  LOCAL_EXPORT: 'local_export',
+  REMOTE_IMPORT: 'remoteimport',
+  LOCAL_IMPORT: 'localimport',
+  LOCAL_EXPORT: 'localexport',
 };
 
 const TaskStatuses = {

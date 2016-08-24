@@ -25,8 +25,8 @@
     $trs: {
       buttonConfirm: 'Confirm',
       buttonCancel: 'Cancel',
-      failed: 'Please confirm and try again.',
-      completed: `Please confirm to add channels to 'My Channels' list.`,
+      failed: 'Failed.',
+      completed: `Finished!`,
       loading: 'Please wait...',
       remoteImport: 'Importing from Curation Server',
       localImport: 'Importing from Local Drive',
@@ -95,9 +95,6 @@
 
 
 <style lang="stylus" scoped>
-
-  div
-    background-color: #ffffe6
 
   .buttons
     margin: 10px

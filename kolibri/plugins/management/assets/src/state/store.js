@@ -68,6 +68,12 @@ const mutations = {
   SET_CONTENT_PAGE_WIZARD_STATE(state, wizardState) {
     state.pageState.wizardState = wizardState;
   },
+  SET_CONTENT_PAGE_WIZARD_ERROR(state, error) {
+    state.pageState.wizardState.error = error;
+  },
+  SET_CONTENT_PAGE_WIZARD_BUSY(state, isBusy) {
+    state.pageState.wizardState.busy = isBusy;
+  },
 };
 
 

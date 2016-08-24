@@ -1,17 +1,23 @@
 <template>
 
-  <modal title="Import Channel from the Internet" @cancel="cancelImportExportWizard">
+  <modal
+    title="Import Channel from the Internet"
+    :error="wizardState.error"
+    :noclose="wizardState.busy"
+    @cancel="cancel"
+    @submit="submit"
+  >
     <div slot="body">
       <p>Please enter a content channel ID:</p>
       <div>
-        <input placeholder="67fbdf31efa94b4d8bd1a3abd2993196" v-model="contentId">
+        <input v-model="contentId" :disabled="wizardState.busy">
       </div>
     </div>
     <div slot="buttons">
-      <button @click="cancelImportExportWizard">
+      <button @click="cancel" :disabled="wizardState.busy">
         Cancel
       </button>
-      <button @click="import">
+      <button @click="submit" :disabled="wizardState.busy">
         Import
       </button>
     </div>
@@ -33,13 +39,19 @@
       contentId: '',
     }),
     methods: {
-      import() {
-        this.remoteImportContent(this.contentId);
+      submit() {
+        this.triggerRemoteContentImportTask(this.contentId);
+      },
+      cancel() {
+        this.cancelImportExportWizard();
       },
     },
     vuex: {
+      getters: {
+        wizardState: (state) => state.pageState.wizardState,
+      },
       actions: {
-        remoteImportContent: actions.remoteImportContent,
+        triggerRemoteContentImportTask: actions.triggerRemoteContentImportTask,
         cancelImportExportWizard: actions.cancelImportExportWizard,
       },
     },

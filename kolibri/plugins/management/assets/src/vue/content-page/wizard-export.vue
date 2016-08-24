@@ -1,6 +1,12 @@
 <template>
 
-  <modal title="Export Channel to a Local Drive" @cancel="cancelImportExportWizard">
+  <modal
+    title="Export Channel to a Local Drive"
+    :error="wizardState.error"
+    :noclose="wizardState.busy"
+    @cancel="cancel"
+    @submit="submit"
+  >
     <div slot="body">
       <p>Please select a drive to export to:</p>
       <select>
@@ -10,11 +16,11 @@
       </select>
     </div>
     <div slot="buttons">
-      <button @click="cancelImportExportWizard">
+      <button @click="cancel" :disabled="wizardState.busy">
         Cancel
       </button>
-      <button>
-        Export
+      <button @click="submit" :disabled="wizardState.busy">
+        Import
       </button>
     </div>
   </modal>
@@ -31,7 +37,19 @@
       'modal': require('./modal'),
       'icon-button': require('icon-button'),
     },
+    methods: {
+      submit() {
+      },
+      cancel() {
+        if (!this.wizardState.busy) {
+          this.cancelImportExportWizard();
+        }
+      },
+    },
     vuex: {
+      getters: {
+        wizardState: (state) => state.pageState.wizardState,
+      },
       actions: {
         cancelImportExportWizard: actions.cancelImportExportWizard,
       },
