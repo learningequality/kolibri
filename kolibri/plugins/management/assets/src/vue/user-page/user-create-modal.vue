@@ -1,6 +1,6 @@
 <template>
 
-  <modal :error="errorMessage ? true : false" @open="clear" :disable-close="true" title="Add New Account">
+  <modal :error="errorMessage ? true : false" @open="clear" title="Add New Account">
 
     <div @keyup.enter="createNewUser" slot="body">
 
