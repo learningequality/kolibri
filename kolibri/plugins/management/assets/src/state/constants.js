@@ -16,7 +16,22 @@ const ContentWizardPages = {
   EXPORT: 'EXPORT',
 };
 
+const TaskTypes = {
+  REMOTE_IMPORT: 'remote_import',
+  LOCAL_IMPORT: 'local_import',
+  LOCAL_EXPORT: 'local_export',
+};
+
+const TaskStatuses = {
+  IN_PROGRESS: 'in_progress',
+  SUCCESS: 'success',
+  ERROR: 'error',
+  PENDING: 'pending',
+};
+
 module.exports = {
   PageNames,
   ContentWizardPages,
+  TaskTypes,
+  TaskStatuses,
 };

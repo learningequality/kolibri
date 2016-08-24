@@ -1,17 +1,13 @@
 <template>
 
-  <div v-if="showProgress" class="task">
-    <h1>
-      {{title}}
-    </h1>
-    <progress max="1" value={{taskProgress}}></progress>
-    <h2>
-      {{subTitle}}
-    </h2>
-    <button class="buttons" @click='hideProgressBar'>
-      {{buttonMessage}}
+  <div class="task">
+    <h1>{{ title }}</h1>
+    <progress max="1" :value="percentage"></progress>
+    <h2>{{ subTitle }}</h2>
+    <button class="buttons" @click="clearTask">
+      {{ buttonMessage }}
     </button>
-    </div>
+  </div>
 
 </template>
 
@@ -19,10 +15,12 @@
 <script>
 
   const actions = require('../../actions');
+  const logging = require('logging');
+  const constants = require('../../state/constants');
+  const TaskTypes = constants.TaskTypes;
+  const TaskStatuses = constants.TaskStatuses;
 
   module.exports = {
-    components: {
-    },
     $trNameSpace: 'contentPage',
     $trs: {
       buttonConfirm: 'Confirm',
@@ -30,46 +28,65 @@
       failed: 'Please confirm and try again.',
       completed: `Please confirm to add channels to 'My Channels' list.`,
       loading: 'Please wait...',
-
+      remoteImport: 'Importing from Curation Server',
+      localImport: 'Importing from Local Drive',
+      localExport: 'Exporting to Local Drive',
     },
-    data: () => ({
-      showProgress: true,
-    }),
     computed: {
       buttonMessage() {
-        if (this.status === 'FAILED' || this.taskProgress === 1) {
+        if (this.status === TaskStatuses.ERROR || this.percentage === 1) {
           return this.$tr('buttonConfirm');
         }
         return this.$tr('buttonCancel');
       },
+      title() {
+        switch (this.type) {
+          case TaskTypes.REMOTE_IMPORT:
+            return this.$tr('remoteImport');
+          case TaskTypes.LOCAL_IMPORT:
+            return this.$tr('localImport');
+          case TaskTypes.LOCAL_EXPORT:
+            return this.$tr('localExport');
+          default:
+            logging.error(`unknown task type: ${this.type}`);
+            return undefined;
+        }
+      },
       subTitle() {
-        if (this.status === 'FAILED') {
+        if (this.status === TaskStatuses.ERROR) {
           return this.$tr('failed');
-        } else if (this.taskProgress === 1) {
+        } else if (this.percentage === 1) {
           return this.$tr('completed');
         }
         return this.$tr('loading');
       },
     },
     methods: {
-      hideProgressBar() {
-        if (this.showProgress) {
-          this.showProgress = false;
-          // this.clearTasks(this.id);
-        } else {
-          this.showProgress = true;
-        }
+      clearTask() {
+        this.deleteTask(this.id);
+      },
+    },
+    props: {
+      type: {
+        type: String,
+        required: true,
+      },
+      status: {
+        type: String,
+        required: true,
+      },
+      percentage: {
+        type: Number,
+        required: true,
+      },
+      id: {
+        type: String,
+        required: true,
       },
     },
     vuex: {
-      getters: {
-        title: state => state.pageState.taskList[0].type,
-        status: state => state.pageState.taskList[0].status,
-        taskProgress: state => state.pageState.taskList[0].percentage,
-        id: state => state.pageState.taskList[0].id,
-      },
       actions: {
-        clearTasks: actions.clearTasks,
+        deleteTask: actions.deleteTask,
       },
     },
   };

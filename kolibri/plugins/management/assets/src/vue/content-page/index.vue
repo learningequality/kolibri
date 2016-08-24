@@ -2,22 +2,26 @@
 
   <div>
 
-    <task-status v-if="tasks.length !== 0">
-    </task-status>
+    <task-status v-if="pageState.taskList.length"
+      :type="pageState.taskList[0].type"
+      :status="pageState.taskList[0].status"
+      :percentage="pageState.taskList[0].percentage"
+      :id="pageState.taskList[0].id"
+    ></task-status>
 
     <button @click="incrementDebugTask">next task</button>
 
     <hr>
 
-    <icon-button v-if="!tasks.length" text="Add Channel" :primary="true" @click="startImportWizard">
+    <icon-button v-if="!pageState.taskList.length" text="Add Channel" :primary="true" @click="startImportWizard">
       <svg src="../icons/add.svg"></svg>
     </icon-button>
 
-    <component v-if="wizardState.shown" :is="wizardComponent"></component>
+    <component v-if="pageState.wizardState.shown" :is="wizardComponent"></component>
 
     <h1>My Channels</h1>
     <ul>
-      <li v-for="channel in localChannels">{{ channel.name }}</li>
+      <li v-for="channel in pageState.localChannels">{{ channel.name }}</li>
     </ul>
 
   </div>
@@ -27,7 +31,7 @@
 
 <script>
 
-  const tasks = [
+  const debugTasks = [
     {},
     {
       percentage: 0.5,
@@ -83,7 +87,7 @@
     },
     computed: {
       wizardComponent() {
-        switch (this.wizardState.page) {
+        switch (this.pageState.wizardState.page) {
           case ContentWizardPages.CHOOSE_IMPORT_SOURCE:
             return 'wizard-import-source';
           case ContentWizardPages.IMPORT_NETWORK:
@@ -99,15 +103,13 @@
     },
     vuex: {
       getters: {
-        localChannels: state => state.pageState.channelList,
-        tasks: state => state.pageState.taskList,
-        wizardState: state => state.pageState.wizardState,
+        pageState: state => state.pageState,
       },
       actions: {
         incrementDebugTask(state) { // TODO - remove debuging
-          this.i = (this.i + 1) % tasks.length;
+          this.i = (this.i + 1) % debugTasks.length;
           if (this.i) {
-            state.dispatch('SET_CONTENT_PAGE_TASKS', [tasks[this.i]]);
+            state.dispatch('SET_CONTENT_PAGE_TASKS', [debugTasks[this.i]]);
             state.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', false, {});
           } else {
             state.dispatch('SET_CONTENT_PAGE_TASKS', []);

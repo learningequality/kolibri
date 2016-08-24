@@ -283,6 +283,16 @@ function cancelImportExportWizard(store) {
   });
 }
 
+function updateWizardLocalDriveList(store) {
+  const localDrivePromise = TaskResource.localDrive();
+  localDrivePromise.then((response) => {
+    // ### put in wizard state
+    // store.dispatch('SET_LOCAL_DRIVES', response.entity);
+  })
+  .catch((error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
 
 // called from a timer to continually update UI
 function pollTasksAndChannels(store) {
@@ -306,7 +316,7 @@ function pollTasksAndChannels(store) {
   );
 }
 
-function clearTasks(store, id) {
+function deleteTask(store, id) {
   const currentTaskPromise = TaskResource.getModel(id).delete();
   currentTaskPromise.then(() => {
     // only 1 task should be running, but we set to empty array
@@ -317,7 +327,7 @@ function clearTasks(store, id) {
   });
 }
 
-function localImportContent(store, driveId) {
+function triggerLocalContentImportTask(store, driveId) {
   const localImportPromise = TaskResource.localImportContent(driveId);
   localImportPromise.then((response) => {
     store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
@@ -327,7 +337,7 @@ function localImportContent(store, driveId) {
   });
 }
 
-function localExportContent(store, driveId) {
+function triggerLocalContentExportTask(store, driveId) {
   const localExportPromise = TaskResource.localExportContent(driveId);
   localExportPromise.then((response) => {
     store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
@@ -337,21 +347,10 @@ function localExportContent(store, driveId) {
   });
 }
 
-function remoteImportContent(store, channelId) {
+function triggerRemoteContentImportTask(store, channelId) {
   const remoteImportPromise = TaskResource.remoteImportContent(channelId);
   remoteImportPromise.then((response) => {
     store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
-  })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
-}
-
-function localDrive(store) {
-  const localDrivePromise = TaskResource.localDrive();
-  localDrivePromise.then((response) => {
-    // ### put in wizard state
-    // store.dispatch('SET_LOCAL_DRIVES', response.entity);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
@@ -385,16 +384,16 @@ module.exports = {
 
   showContentPage,
   pollTasksAndChannels,
-  clearTasks,
+  deleteTask,
   startImportWizard,
   startExportWizard,
   showImportNetworkWizard,
   showImportLocalWizard,
   cancelImportExportWizard,
-  localExportContent,
-  localImportContent,
-  remoteImportContent,
-  localDrive,
+  triggerLocalContentExportTask,
+  triggerLocalContentImportTask,
+  triggerRemoteContentImportTask,
+  updateWizardLocalDriveList,
 
   showDataPage,
   showScratchpad,
