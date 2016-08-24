@@ -1,6 +1,8 @@
 class ConditionalPromise {
   /**
-   * Create a conditional promise - like a promise, but cancelable!
+   * Create a conditional promise - like a promise, but with an additional method 'only'
+   * that allows for chaining resolve/reject handlers that will only be called if a
+   * certain condition pertains.
    */
   constructor(...args) {
     if ([...args].length) {
@@ -18,19 +20,19 @@ class ConditionalPromise {
     return this;
   }
 
-  only(cancelCheck, resolve, reject) {
+  only(continueCheck, resolve, reject) {
     /*
-     * When the promise resolves, call the resolve function, only if cancelCheck evaluates to true.
-     * @param {cancelCheck} Function - Function that returns a Boolean.
+     * When the promise resolves, call resolve function, only if continueCheck evaluates to true.
+     * @param {continueCheck} Function - Function that returns a Boolean,
      * @param {resolve} Function - Function to call if the Promise succeeds.
      * @param {reject} Function - Function to call if the Promise fails.
      */
     this._promise.then((success) => {
-      if (cancelCheck() && resolve) {
+      if (continueCheck() && resolve) {
         resolve(success);
       }
     }, (error) => {
-      if (cancelCheck() && reject) {
+      if (continueCheck() && reject) {
         reject(error);
       }
     });
