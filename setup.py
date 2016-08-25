@@ -4,9 +4,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import logging
 import os
-import shutil
 import sys
 
+from pip.req import parse_requirements
 from setuptools import setup
 from setuptools.command.install_scripts import install_scripts
 
@@ -25,7 +25,7 @@ def read_file(fname):
         return open(fname).read().decode("utf-8")
     return open(fname).read()
 
-dist_name = 'kolibri-static'
+dist_name = 'kolibri'
 
 readme = read_file('README.rst')
 doclink = """
@@ -53,7 +53,8 @@ is_building_dist = any(
 static_requirements = []
 static_dir = os.path.dirname(os.path.realpath(kolibri_dist.__file__))
 
-install_requires = []
+install_requires = parse_requirements('requirements.txt', session=False)
+install_requires = [str(ir.req) for ir in install_requires]
 
 dependency_links = []
 
