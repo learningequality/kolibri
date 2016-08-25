@@ -42,7 +42,11 @@
       <thead>
         <tr>
           <th class="col-header" scope="col"> Full Name </th>
-          <th class="col-header table-role" scope="col"> Role </th>
+          <th class="col-header" scope="col">
+            <span class="role-header" aria-hidden="true">
+              Role
+            </span>
+          </th>
           <th class="col-header table-username" scope="col"> Username </th>
           <th class="col-header" scope="col"> Edit </th>
         </tr>
@@ -64,7 +68,6 @@
               {{role.kind | capitalize}}
             </span>
           </td>
-<!--           </th> -->
 
           <!-- Username field -->
           <td class="table-cell table-username">
@@ -270,7 +273,6 @@
     padding-left: 1em
     padding-right: 1em
     border-radius: 40px
-    // margin-left: 20px
     font-size: 0.875em
     display: inline-block
 
@@ -297,6 +299,9 @@
     max-height: ($line-height * 2)
     display: inline-block
     padding-right: 1em
+
+  .role-header
+    display: none
 
   @media print
     .toolbar
