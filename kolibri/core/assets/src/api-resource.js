@@ -3,6 +3,7 @@ const rest = require('rest');
 const mime = require('rest/interceptor/mime');
 const csrf = require('rest/interceptor/csrf');
 const errorCode = require('rest/interceptor/errorCode');
+const ConditionalPromise = require('./conditionalPromise');
 
 /**
  * A helping method to get specific cookie based on its name.
@@ -61,7 +62,7 @@ class Model {
    * returns, otherwise reject is called with the response object.
    */
   fetch(params = {}, force = false) {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         if (!force && this.synced) {
           resolve(this.attributes);
@@ -100,7 +101,7 @@ class Model {
    * returns, otherwise reject is called with the response object.
    */
   save(attrs) {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         let payload = {};
         if (this.synced) {
@@ -170,7 +171,7 @@ class Model {
    * returns, otherwise reject is called with the response object.
    */
   delete() {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         if (!this.id) {
           // Nothing to delete, so just resolve the promise now.
@@ -256,7 +257,7 @@ class Collection {
    */
   fetch(extraParams = {}, force = false) {
     const params = Object.assign({}, this.params, extraParams);
-    const promise = new Promise((resolve, reject) => {
+    const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         if (!force && this.synced) {
           resolve(this.data);
