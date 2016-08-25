@@ -83,11 +83,5 @@
   .chan-select
     color: $core-text-annotation
     font-size: 0.9rem
-    position: absolute
-    top: 0.5rem
-    right: 6em
-    @media screen and (max-width: $portrait-breakpoint)
-      transform: translateX(-50%)
-      left: 53%
 
 </style>

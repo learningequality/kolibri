@@ -2,7 +2,11 @@
 
   <div class="toolbar" :class="{ 'toolbar-hide': !shown }" v-show='!searchOpen'>
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
-    <channel-switcher></channel-switcher>
+    <div class="table-wrapper">
+      <div class="row-wrapper">
+        <channel-switcher class="switcher"></channel-switcher>
+      </div>
+    </div>
     <search-button class="search-btn"></search-button>
   </div>
 
@@ -39,9 +43,11 @@
   @require '~core-theme.styl'
   @require '../learn.styl'
 
+  $avoid-scrollbar = -25px
+
   .toolbar
     position: fixed
-    left: -15px
+    left: $avoid-scrollbar
     top: 0
     width: 100%
     height: $learn-toolbar-height
@@ -52,8 +58,8 @@
 
   .toolbar-hide
     position: fixed
-    left: -15px
-    top: -40px
+    left: $avoid-scrollbar
+    top: -1 * $learn-toolbar-height
 
   .breadcrumbs
     position: relative
@@ -62,13 +68,25 @@
     @media screen and (max-width: $portrait-breakpoint)
       left: 1.3em
 
-  .search-btn
+  .table-wrapper
+    display: table
+    height: $learn-toolbar-height
     position: absolute
-    top: 0.1rem
-    right: 1.2rem
-    margin-right: 1em
-    z-index: 1
-    @media screen and (max-width: $portrait-breakpoint)
-      margin-right: -1em
+    top: 0
+    right: 5rem
+
+  .row-wrapper
+    display: table-row
+
+  .switcher
+    display: table-cell
+    vertical-align: middle
+
+  .search-btn
+    height: $learn-toolbar-height
+    position: absolute
+    top: 0
+    width: 36px
+    right: 2rem
 
 </style>
