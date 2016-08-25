@@ -4,7 +4,7 @@
     <modal @open="clear" title="Edit Account Info" :error="error_message ? true : false">
 
       <!-- User Edit Normal -->
-      <div @keyup.enter="editUser">
+      <div @keydown.enter="editUser">
         <template v-if="!usr_delete && !pw_reset">
 
           <div class="user-field">
@@ -61,29 +61,30 @@
         <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
 
         <!-- Button Section TODO: cleaunup -->
-        <button v-if="!usr_delete && !pw_reset" class="undo-btn" type="button" @click="close">
-          Cancel
-        </button>
+        <section @keydown.enter.stop>
+          <button v-if="!usr_delete && !pw_reset" class="undo-btn" type="button" @click="close">
+            Cancel
+          </button>
 
-        <button v-else class="undo-btn" type="button" @click="clear">
-          <!-- For reset option -->
-          <template v-if="pw_reset"> Back </template>
-          <!-- For delete option -->
-          <template v-if="usr_delete"> No </template>
-        </button>
+          <button v-else class="undo-btn" type="button" @click="clear">
+            <!-- For reset option -->
+            <template v-if="pw_reset"> Back </template>
+            <!-- For delete option -->
+            <template v-if="usr_delete"> No </template>
+          </button>
 
+          <button v-if="!usr_delete && !pw_reset" class="confirm-btn" type="button" @click="editUser">
+            Confirm
+          </button>
 
-        <button v-if="!usr_delete && !pw_reset" class="confirm-btn" type="button" @click="editUser">
-          Confirm
-        </button>
+          <button v-if="pw_reset" class="confirm-btn" type="button" @click="changePassword">
+            Save
+          </button>
 
-        <button v-if="pw_reset" class="confirm-btn" type="button" @click="changePassword">
-          Save
-        </button>
-
-        <button v-if="usr_delete" class="confirm-btn" type="button" @click="delete">
-          Yes
-        </button>
+          <button v-if="usr_delete" class="confirm-btn" type="button" @click="delete">
+            Yes
+          </button>
+        </section>
       </div>
     </modal>
 

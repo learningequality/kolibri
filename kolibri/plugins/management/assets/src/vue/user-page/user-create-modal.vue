@@ -2,7 +2,7 @@
 
   <modal :error="errorMessage ? true : false" @open.stop="clear" title="Add New Account">
 
-    <div @keyup.enter="createNewUser">
+    <div @keydown.enter="createNewUser">
 
       <!-- Fields for the user to fill out -->
       <section class="user-fields">
@@ -38,7 +38,9 @@
       <!-- Button Options at footer of modal -->
       <section class="footer">
         <p class="error-message" v-if="errorMessage">{{errorMessage}}</p>
-        <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
+        <button class="create-btn" type="button" @keydown.enter.stop @click="createNewUser">
+          Create Account
+        </button>
       </section>
     </div>
   </modal>
@@ -112,6 +114,7 @@
         this.errorMessage = '';
       },
       close() {
+        this.clear();
         this.$broadcast('close');
       },
       open() {
