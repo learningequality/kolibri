@@ -4,6 +4,7 @@
     <nav-bar>
       <slot name="nav"></slot>
     </nav-bar>
+    <loading-spinner class='main-wrapper' v-show="loading"></loading-spinner>
     <div class='main-wrapper' v-scroll='onScroll' v-if='!loading'>
       <error-box v-if='error'></error-box>
       <slot name="above"></slot>
@@ -44,7 +45,7 @@
     ready() {
       setInterval(() => {
         if (this.scrolled) {
-          this.$broadcast('scrolling', this.position);
+          this.$emit('scroll', this.position);
           this.scrolled = false;
         }
       }, 75);

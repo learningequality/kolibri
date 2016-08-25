@@ -5,9 +5,6 @@
       <slot name='extra-nav'></slot>
     </div>
     <h1 class='header'>
-      <div class='icon-wrapper'>
-        <slot name='icon'></slot>
-      </div>
       <div class='text'>
         {{ title }}
       </div>
@@ -62,13 +59,7 @@
   .header
     position: relative
 
-  .icon-wrapper
-    display: block
-    position: absolute
-    top: -1px
-
   .text
     display: block
-    margin-left: 45px
 
 </style>
