@@ -31,7 +31,6 @@
       'toolbar': require('./toolbar'),
       'main-nav': require('./main-nav'),
       'search-widget': require('./search-widget'),
-      'search-button': require('./search-widget/search-button'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),

@@ -20,7 +20,7 @@
     }),
     components: {
       'search-widget': require('../search-widget'),
-      'search-button': require('../search-widget/search-button'),
+      'search-button': require('./search-button'),
       'breadcrumbs': require('../breadcrumbs'),
       'channel-switcher': require('./channel-switcher'),
     },
