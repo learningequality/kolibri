@@ -44,8 +44,11 @@ class Transfer(object):
         try:
             filedir = os.path.dirname(self.dest)
             os.makedirs(filedir)
-        except OSError:  # directories already exist
-            pass
+        except OSError as e:
+            if e.errno == 17:  # File exists (folder already created)
+                logger.debug("Not creating directory '{}' as it already exists.".format(filedir))
+            else:
+                raise
 
         if os.path.isfile(self.dest_tmp):
             if remove_existing_temp_file:
@@ -55,6 +58,9 @@ class Transfer(object):
 
         # record whether the destination file already exists, so it can be checked, but don't error out
         self.dest_exists = os.path.isfile(dest)
+
+        # open the destination file for writing
+        self.dest_file_obj = open(self.dest_tmp, "wb")
 
     def __next__(self):  # proxy this method to fully support Python 3
         return self.next()
@@ -84,7 +90,8 @@ class Transfer(object):
     def __exit__(self, *exc_details):
         if not self.closed:
             self.close()
-            self.finalize()
+        if not self.completed:
+            self.cancel()
 
     def _kill_gracefully(self, *args, **kwargs):
         self.cancel()
@@ -108,6 +115,10 @@ class Transfer(object):
         self._move_tmp_to_dest()
         self.finalized = True
 
+    def close(self):
+        self.dest_file_obj.close()
+        self.closed = True
+
 
 class FileDownload(Transfer):
 
@@ -117,7 +128,6 @@ class FileDownload(Transfer):
         self.response = requests.get(self.source, stream=True)
         self.response.raise_for_status()
         self.total_size = int(self.response.headers['content-length'])
-        self.dest_file_obj = open(self.dest_tmp, "wb")
         self.started = True
 
     def __iter__(self):
@@ -125,9 +135,8 @@ class FileDownload(Transfer):
         return self
 
     def close(self):
-        self.dest_file_obj.close()
         self.response.close()
-        self.closed = True
+        super(FileCopy, self).close()
 
 
 class FileCopy(Transfer):
@@ -136,15 +145,14 @@ class FileCopy(Transfer):
         assert not self.started, "File copy has already been started, and cannot be started again"
         self.total_size = os.path.getsize(self.source)
         self.source_file_obj = open(self.source, "rb")
-        self.dest_file_obj = open(self.dest_tmp, "wb")
         self.started = True
 
     def _read_block_iterator(self):
-        block = self.source_file_obj.read(self.block_size)
-        if not block:
-            raise StopIteration
-        self.dest_file_obj.write(block)
-        yield len(block)
+        while True:
+            block = self.source_file_obj.read(self.block_size)
+            if not block:
+                break
+            yield block
 
     def __iter__(self):
         self._content_iterator = self._read_block_iterator()
@@ -152,6 +160,4 @@ class FileCopy(Transfer):
 
     def close(self):
         self.source_file_obj.close()
-        self.dest_file_obj.close()
-        self.response.close()
-        self.closed = True
+        super(FileCopy, self).close()

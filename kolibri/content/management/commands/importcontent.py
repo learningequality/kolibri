@@ -1,19 +1,16 @@
 import os
 
-from django.conf import settings
 from django.core.management.base import CommandError
 from django.db.models import Sum
-from kolibri.content.content_db_router import using_content_database
-from kolibri.content.models import File
 from kolibri.tasks.management.commands.base import AsyncCommand
 
+from ...content_db_router import using_content_database
+from ...models import File
 from ...utils import paths, transfer
 
-CONTENT_DEST_PATH_TEMPLATE = os.path.join(
-    settings.CONTENT_STORAGE_DIR,
-    "{filename}",
-)
-
+# constants to specify the transfer method to be used
+DOWNLOAD_METHOD = "download"
+COPY_METHOD = "copy"
 
 class Command(AsyncCommand):
 
@@ -22,8 +19,8 @@ class Command(AsyncCommand):
         self._parser = parser
 
         # we want two groups of arguments. One group is when the
-        # 'retrievecotent local' command is given, where we'll expect a file
-        # directory to be given. Another is the 'retrievecontent network'
+        # 'importcontent local' command is given, where we'll expect a file
+        # directory to be given. Another is the 'importcontent network'
         # command to be given, where we'll expect a channel.
 
         # to implement these two groups of commands and their corresponding
@@ -56,47 +53,57 @@ class Command(AsyncCommand):
         local_subparser = subparsers.add_parser(
             name='local',
             cmd=self,
-            help='Download the content from the given folder.'
+            help='Copy the content from the given folder.'
         )
+        local_subparser.add_argument('channel_id', type=str)
         local_subparser.add_argument('directory', type=str)
 
-    def handle_network_download(self, *args, **options):
-        channel_id = options["channel_id"]
+    def download_content(self, channel_id):
+        self._transfer(DOWNLOAD_METHOD, channel_id)
+
+    def copy_content(self, channel_id, path):
+        self._transfer(COPY_METHOD, channel_id, path=path)
+
+    def _transfer(self, method, channel_id, path=None):
 
         with using_content_database(channel_id):
             files = File.objects.all()
-            total_bytes_to_download = files.aggregate(Sum('file_size'))['file_size__sum']
+            total_bytes_to_transfer = files.aggregate(Sum('file_size'))['file_size__sum']
 
-            with self.start_progress(total=total_bytes_to_download) as overall_progress_update:
+            with self.start_progress(total=total_bytes_to_transfer) as overall_progress_update:
 
                 for f in files:
+
                     filename = f.get_filename()
-                    url = paths.get_content_storage_file_url(filename)
-                    path = paths.get_content_storage_file_path(filename)
+                    dest = paths.get_content_storage_file_path(filename)
 
                     # if the file already exists, add its size to our overall progress, and skip
-                    # TODO(jamalex): could do md5 checks here instead, to be ultra-safe
-                    if os.path.isfile(path) and os.path.getsize(path) == f.file_size:
+                    if os.path.isfile(dest) and os.path.getsize(dest) == f.file_size:
                         overall_progress_update(f.file_size)
                         continue
 
-                    with transfer.FileDownload(url, path) as download:
+                    # determine where we're downloading/copying from, and create appropriate transfer object
+                    if method == DOWNLOAD_METHOD:
+                        url = paths.get_content_storage_file_url(filename)
+                        filetransfer = transfer.FileDownload(url, dest)
+                    elif method == COPY_METHOD:
+                        srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
+                        filetransfer = transfer.FileCopy(srcpath, dest)
 
-                        with self.start_progress(total=download.total_size) as file_dl_progress_update:
+                    with filetransfer:
 
-                            for chunk in download:
+                        with self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
+
+                            for chunk in filetransfer:
                                 length = len(chunk)
                                 overall_progress_update(length)
                                 file_dl_progress_update(length)
 
-    def handle_filesystem_copy(self, *args, **options):
-        pass
-
     def handle_async(self, *args, **options):
         if options['command'] == 'network':
-            self.handle_network_download(*args, **options)
+            self.download_content(options["channel_id"])
         elif options['command'] == 'local':
-            self.handle_filesystem_copy(*args, **options)
+            self.copy_content(options["channel_id"], options["directory"])
         else:
             self._parser.print_help()
-            raise CommandError("Please give a valid subcommand. Options you gave: {}".format(options))
+            raise CommandError("Please give a valid subcommand. You gave: {}".format(options["command"]))

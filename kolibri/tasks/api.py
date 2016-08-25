@@ -1,13 +1,12 @@
 import json
-from django.core.management import call_command
-from rest_framework import viewsets, serializers
-from rest_framework.decorators import list_route
-from rest_framework.response import Response
+import logging as logger
 
+from django.core.management import call_command
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.tasks.management.commands.base import Progress
-
-import logging as logger
+from rest_framework import serializers, viewsets
+from rest_framework.decorators import list_route
+from rest_framework.response import Response
 
 logging = logger.getLogger(__name__)
 
@@ -99,7 +98,7 @@ class TasksViewSet(viewsets.ViewSet):
 
 def _importchannel(channel_id, update_state=None):
     call_command("importchannel", channel_id, update_state=update_state)
-    call_command("retrievecontent", "network", channel_id, update_state=update_state)
+    call_command("importcontent", "network", channel_id, update_state=update_state)
 
 
 def _task_to_response(task_instance):
