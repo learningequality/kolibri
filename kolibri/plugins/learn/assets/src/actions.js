@@ -1,5 +1,6 @@
 const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
 const ChannelResource = require('kolibri').resources.ChannelResource;
+const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('./state/constants');
 const PageNames = constants.PageNames;
 const cookiejs = require('js-cookie');
@@ -299,18 +300,27 @@ function showLearnChannel(store, channelId) {
   cookiejs.set('currentChannel', channelId);
   ContentNodeResource.setChannel(channelId);
 
-  const recommendedPromise =
-    ContentNodeResource.getCollection({ recommendations: '' }).fetch({}, true);
-  _updateChannelList(store);
-  recommendedPromise.only(checkSamePageId(store), (recommendations) => {
-    const pageState = { recommendations: recommendations.map(_contentState) };
-    store.dispatch('SET_PAGE_STATE', pageState);
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('CORE_SET_ERROR', null);
-  }, (error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-  });
+  const sessionPromise = SessionResource.getModel('current').fetch();
+  sessionPromise.then((session) => {
+    const payload = { recommendations: session.user_id, channel: channelId };
+    const recommendedPromise =
+    ContentNodeResource.getCollection(payload).fetch({}, true);
+    _updateChannelList(store);
+    ConditionalPromise.all([recommendedPromise])
+      .only(checkSamePageId(store), ([recommendations]) => {
+        const pageState = { recommendations: recommendations.map(_contentState) };
+        store.dispatch('SET_PAGE_STATE', pageState);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        store.dispatch('CORE_SET_ERROR', null);
+      }, (error) => {
+        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      });
+  })
+    .catch((error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    });
 }
 
 

@@ -2,6 +2,7 @@ from functools import reduce
 from random import sample
 
 from django.db.models import Q
+from django.db.models.aggregates import Count
 from kolibri.content import models, serializers
 from rest_framework import filters, pagination, viewsets
 from .utils.search import fuzz
@@ -45,10 +46,39 @@ class ContentNodeFilter(filters.FilterSet):
         return data
 
     def filter_recommendations(self, queryset, value):
-        # return 25 random content nodes
-        pks = queryset.values_list('pk', flat=True).exclude(kind__in=['topic', ''])
-        count = min(pks.count(), 25)
-        return queryset.filter(pk__in=sample(list(pks), count))
+
+        from kolibri.logger.models import ContentSessionLog
+
+        if ContentSessionLog.objects.count() < 50:
+            # return 25 random content nodes if not enough session logs
+            pks = queryset.values_list('pk', flat=True).exclude(kind__in=['topic', ''])
+            count = min(pks.count(), 25)
+            return queryset.filter(pk__in=sample(list(pks), count))
+
+        # if user is anonymous, only give them the most popular content nodes
+        if value is None:
+            recently_viewed = queryset.objects.none()
+        else:
+            if self.data['channel']:  # filter by channel if available
+                user_session_logs = ContentSessionLog.objects.filter(user=value, channel_id=self.data['channel'])
+            else:
+                user_session_logs = ContentSessionLog.objects.filter(user=value)
+
+            # get the most recently viewed, but not finished, content nodes
+            content_ids = user_session_logs.exclude(progress=1).order_by('end_timestamp').values_list('content_id', flat=True).distinct()
+            recently_viewed = queryset.filter(content_id__in=list(content_ids[:10]))
+
+        # get the most popular logs for this channel
+        if self.data['channel']:  # filter by channel if available
+            session_logs = ContentSessionLog.objects.filter(channel_id=self.data['channel'])
+        else:
+            session_logs = ContentSessionLog.objects.all()
+
+        # get the most accessed content nodes
+        content_counts_sorted = session_logs.values_list('content_id', flat=True).annotate(Count('content_id')).order_by('-content_id__count')
+        most_popular = queryset.filter(content_id__in=list(content_counts_sorted[:10]))
+
+        return recently_viewed | most_popular
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
