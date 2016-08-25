@@ -96,7 +96,7 @@ class TasksViewSet(viewsets.ViewSet):
 
 def _importchannel(channel_id, update_state=None):
     call_command("importchannel", channel_id, update_state=update_state)
-    call_command("retrievecontent", "network", channel_id, update_state=update_state)
+    call_command("importcontent", "network", channel_id, update_state=update_state)
 
 
 def _task_to_response(task_instance):

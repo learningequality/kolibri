@@ -3,7 +3,7 @@
   <div>
     <nav class="nav" role="navigation" :aria-label="$tr('youAreHere')">
       <span class="learn-bread" v-if="pageName === PageNames.LEARN_CONTENT">
-        <breadcrumb :linkobject="learnRootLink" :text="$tr('learn')"></breadcrumb>
+        <breadcrumb :linkobject="learnRootLink"></breadcrumb>
       </span>
 
       <template v-if="pageName === PageNames.EXPLORE_TOPIC">
@@ -19,7 +19,7 @@
       </template>
 
       <span v-if="pageName === PageNames.EXPLORE_CONTENT">
-        <breadcrumb :linkobject="parentExploreLink" :text="$tr('back')"></breadcrumb>
+        <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
       </span>
 
     </nav>
@@ -37,10 +37,8 @@
   module.exports = {
     $trNameSpace: 'learn',
     $trs: {
-      learn: 'Learn',
       explore: 'Explore',
       youAreHere: 'You are here:',
-      back: 'Back',
     },
     components: {
       breadcrumb: require('./breadcrumb'),

@@ -3,6 +3,8 @@ include CONTRIBUTING.rst
 include CHANGELOG.rst
 include LICENSE
 include README.rst
+include requirements.txt
+recursive-include requirements *.txt
 recursive-include kolibri/locale *.mo
 recursive-include kolibri/auth *
 recursive-include kolibri/content *

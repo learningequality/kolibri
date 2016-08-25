@@ -36,6 +36,7 @@ function Lib() {
   this.logging = require('../logging');
   this.vue = vue;
   this.vuex = vuex;
+  this.conditionalPromise = require('../conditionalPromise');
 }
 
 /**

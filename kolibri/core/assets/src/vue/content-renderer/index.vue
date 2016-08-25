@@ -5,6 +5,7 @@
         <h3 class="progress-percent" v-if="progress > 0">
           {{ Math.floor(progress * 100) }}%
         </h3>
+      <loading-spinner v-if="!currentViewClass"></loading-spinner>
       <div v-el:container></div>
     </div>
     <div v-else>
