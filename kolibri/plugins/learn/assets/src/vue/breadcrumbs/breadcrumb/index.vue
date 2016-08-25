@@ -48,7 +48,6 @@
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
-    color: $core-text-annotation
     margin-top: -5px
     margin-left: 10px
 

@@ -126,7 +126,6 @@
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
-    color: $core-text-annotation
 
   .landscape
     @media screen and (max-width: $portrait-breakpoint)
