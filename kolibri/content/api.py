@@ -19,6 +19,8 @@ class ContentNodeFilter(filters.FilterSet):
     search = filters.django_filters.MethodFilter(action='title_description_filter')
     recommendations_for = filters.django_filters.MethodFilter()
     recommendations = filters.django_filters.MethodFilter()
+    next_steps = filters.django_filters.MethodFilter()
+    popular = filters.django_filters.MethodFilter()
 
     class Meta:
         model = models.ContentNode
@@ -39,6 +41,9 @@ class ContentNodeFilter(filters.FilterSet):
             reduce(lambda x, y: x & y, token_queries))
 
     def filter_recommendations_for(self, queryset, value):
+        """
+        Recommend items that are similar to this piece of content.
+        """
         recc_node = queryset.get(pk=value)
         descendants = recc_node.get_descendants(include_self=False).exclude(kind__in=['topic', ''])
         siblings = recc_node.get_siblings(include_self=False).exclude(kind__in=['topic', ''])
@@ -46,6 +51,13 @@ class ContentNodeFilter(filters.FilterSet):
         return data
 
     def filter_recommendations(self, queryset, value):
+        """
+        Recommend content items specific for this user.
+
+        :param queryset: all content nodes for this channel
+        :param value: id of currently logged in user, or none if user is anonymous
+        :return: recommended content nodes for user, or empty queryset if user is anonymous
+        """
 
         from kolibri.logger.models import ContentSessionLog
 
@@ -68,6 +80,43 @@ class ContentNodeFilter(filters.FilterSet):
             content_ids = user_session_logs.exclude(progress=1).order_by('end_timestamp').values_list('content_id', flat=True).distinct()
             recently_viewed = queryset.filter(content_id__in=list(content_ids[:10]))
 
+        return recently_viewed
+
+    def filter_next_steps(self, queryset, value):
+        """
+        Recommend uncompleted content, content that has user completed content as a prerequisite.
+
+        :param queryset: all content nodes for this channel
+        :param value: id of currently logged in user, or none if user is anonymous
+        :return: uncompleted content nodes, or empty queryset if user is anonymous
+        """
+        from kolibri.logger.models import ContentSummaryLog
+
+        # if user is anonymous, don't return any nodes
+        if value is None:
+            return queryset.objects.none()
+
+        if self.data['channel']:
+            summary_logs = ContentSummaryLog.objects.filter(user=value, channel_id=self.data['channel'])
+        else:
+            summary_logs = ContentSummaryLog.objects.filter(user=value)
+
+        content_ids = summary_logs.exclude(progress=1).values_list('content_id', flat=True)
+        unfinished_nodes = queryset.filter(content_id__in=list(content_ids[:10]))
+
+        return unfinished_nodes
+
+    def filter_popular(self, queryset, value):
+        """
+        Recommend content that is popular with all users.
+
+        :param queryset: all content nodes for this channel
+        :param value: id of currently logged in user, or none if user is anonymous
+        :return: 10 most popular content nodes
+        """
+
+        from kolibri.logger.models import ContentSessionLog
+
         # get the most popular logs for this channel
         if self.data['channel']:  # filter by channel if available
             session_logs = ContentSessionLog.objects.filter(channel_id=self.data['channel'])
@@ -78,7 +127,7 @@ class ContentNodeFilter(filters.FilterSet):
         content_counts_sorted = session_logs.values_list('content_id', flat=True).annotate(Count('content_id')).order_by('-content_id__count')
         most_popular = queryset.filter(content_id__in=list(content_counts_sorted[:10]))
 
-        return recently_viewed | most_popular
+        return most_popular
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
