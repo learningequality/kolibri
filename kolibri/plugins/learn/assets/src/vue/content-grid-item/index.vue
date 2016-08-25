@@ -2,7 +2,7 @@
 
   <div>
     <grid-item v-link="link" :title="title">
-      <div class="thumbnail" :style='{ "background-image": thumb }'>
+      <div class="thumbnail" :style="{ 'background-image': thumb }">
         <content-icon
           class="content-icon-center"
           v-if="kind"
