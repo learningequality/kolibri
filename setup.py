@@ -50,22 +50,22 @@ is_building_dist = any(
     )]
 )
 
-static_requirements = []
 static_dir = os.path.dirname(os.path.realpath(kolibri_dist.__file__))
-
-install_requires = parse_requirements('requirements.txt', session=False)
-install_requires = [str(ir.req) for ir in install_requires]
-
-dependency_links = []
 
 # Check if user supplied the special '--static' option
 if '--static' in sys.argv:
     sys.argv.remove('--static')
     dist_name = 'kolibri-static'
     description += " This static version bundles all dependencies."
-    install_requires, static_requirements = [], (install_requires + dependency_links)
+    install_requires, static_requirements = [], []
     dependency_links = []
     static_build = True
+else:
+    req_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "requirements.txt")
+    reqs = parse_requirements(req_file, session=False)
+    install_requires = [str(ir.req) for ir in reqs]
+    static_requirements = []
+    dependency_links = []
 
 
 ################
