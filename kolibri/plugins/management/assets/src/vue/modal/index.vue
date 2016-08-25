@@ -3,7 +3,6 @@
   <!-- Accessibility properties for the overlay -->
 
   <!-- Aria-Hidden and TabIndex in .modal might not be necessary because of conditional rendering -->
-  <!-- mostly there in case we switch to v-show -->
   <div class="modal-overlay"
     v-if="visible"
     @keydown.esc="closeModal"
@@ -30,9 +29,9 @@
       </h1>
 
       <!-- Modal Content -->
-      <slot name="body" class="modal-content" id="modal-holder" role="document">
+      <slot>
         <p>
-          To populate, add <code>slot="body"</code> to the HTML element you want to fill here.
+          To populate, wrap your content in <code> with modal </code>.
         </p>
       </slot>
 

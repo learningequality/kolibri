@@ -4,7 +4,7 @@
     <modal @open="clear" title="Edit Account Info" :error="error_message ? true : false">
 
       <!-- User Edit Normal -->
-      <div @keyup.enter="editUser" slot="body">
+      <div @keyup.enter="editUser">
         <template v-if="!usr_delete && !pw_reset">
 
           <div class="user-field">
@@ -87,11 +87,6 @@
       </div>
     </modal>
 
-    <button class="no-border" @click="open">
-      <span class="visuallyhidden">Edit Account Info</span>
-      <svg class="manage-edit" src="../icons/pencil.svg"></svg>
-    </button>
-
   </div>
 
 </template>
@@ -122,6 +117,10 @@
         error_message: '',
         confirmation_message: '',
       };
+    },
+    ready() {
+      // only because this modal is conditionally created
+      this.open();
     },
     methods: {
       editUser() {
@@ -179,9 +178,11 @@
         this.$data = this.$options.data();
       },
       open() {
+        this.$emit('open');
         this.$broadcast('open');
       },
       close() {
+        this.$emit('close');
         this.$broadcast('close');
       },
       clearErrorMessage() {
@@ -212,9 +213,6 @@
 
   .title
     display: inline
-
-  .no-border
-    border: none
 
   .confirm-btn, .undo-btn
     width: 48%
@@ -269,12 +267,6 @@
 
   .header
     text-align: center
-
-  .manage-edit
-    fill: $core-action-normal
-    cursor: pointer
-    &:hover
-      fill: $core-action-dark
 
   .advanced-options
     padding-bottom: 5%

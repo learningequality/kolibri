@@ -1,8 +1,8 @@
 <template>
 
-  <modal :error="errorMessage ? true : false" @open="clear" :disable-close="true" title="Add New Account">
+  <modal :error="errorMessage ? true : false" @open.stop="clear" title="Add New Account">
 
-    <div @keyup.enter="createNewUser" slot="body">
+    <div @keyup.enter="createNewUser">
 
       <!-- Fields for the user to fill out -->
       <section class="user-fields">

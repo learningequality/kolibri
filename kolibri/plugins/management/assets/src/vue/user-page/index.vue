@@ -18,6 +18,7 @@
       </select>
 
       <div class="create">
+        <!-- Includes the create button -->
         <user-create-modal></user-create-modal>
       </div>
 
@@ -33,6 +34,18 @@
     </div>
 
     <hr>
+
+    <template v-if="editingUser">
+      <!-- Conditionally generated, opens upon entering the dom -->
+      <!-- Because of conditional props -->
+      <user-edit-modal
+        :userid="currentUserEdit.id"
+        :username="currentUserEdit.username"
+        :fullname="currentUserEdit.full_name"
+        :roles="currentUserEdit.roles"
+        @close="closeEditModal">
+      </user-edit-modal>
+    </template>
 
     <table class="roster">
 
@@ -67,12 +80,10 @@
 
           <!-- Edit field -->
           <td class="table-cell">
-            <user-edit-modal
-              :userid="user.id"
-              :roles="user.roles"
-              :username="user.username"
-              :fullname="user.full_name">
-            </user-edit-modal>
+            <button class="edit-button" @click="openEditModal(user)">
+              <span class="visuallyhidden">Edit Account Info</span>
+              <svg src="../icons/pencil.svg"></svg>
+            </button>
           </td>
 
         </tr>
@@ -101,6 +112,8 @@
     data: () => ({
       roleFilter: '',
       searchFilter: '',
+      editingUser: false,
+      currentUserEdit: {},
     }),
     computed: {
       noUsersExist() {
@@ -168,6 +181,16 @@
           }
           return 0;
         });
+      },
+    },
+    methods: {
+      openEditModal(user) {
+        this.currentUserEdit = user;
+        this.editingUser = true;
+      },
+      closeEditModal() {
+        this.editingUser = false;
+        this.currentUserEdit = {};
       },
     },
     vuex: {
@@ -285,6 +308,14 @@
     height: $toolbar-height
     float: left
     margin-left: 5px
+
+  .edit-button
+    border: none
+    svg
+      fill: $core-action-normal
+      cursor: pointer
+      &:hover
+        fill: $core-action-dark
 
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar
