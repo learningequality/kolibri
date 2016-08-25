@@ -37,8 +37,8 @@
       opacity: 1
 
   .loading-spinner
-    width: 50%
-    height: 50%
+    width: 25%
+    height: 25%
     position: absolute
     top: 50%
     left: 50%
