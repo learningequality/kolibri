@@ -26,7 +26,7 @@
     position: relative
     opacity: 0
     animation-duration: 0s
-    animation-delay: 250ms
+    animation-delay: 2500ms
     animation-name: delaydisplay
     animation-fill-mode: forwards
 
@@ -37,8 +37,8 @@
       opacity: 1
 
   .loading-spinner
-    width: 25%
-    height: 25%
+    width: 125px
+    height: 125px
     position: absolute
     top: 50%
     left: 50%
