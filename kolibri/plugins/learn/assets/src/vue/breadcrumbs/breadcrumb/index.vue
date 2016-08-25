@@ -48,8 +48,6 @@
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
-    margin-top: -5px
-    margin-left: 10px
 
   svg
     fill: $core-text-annotation
