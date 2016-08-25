@@ -9,40 +9,40 @@
   <link rel="shortcut icon" href="{% static 'images/logo.ico' %}">
   <title>{% trans "Kolibri" %}</title>
 </head>
-<style>
-  .loading-spinner-wrapper-base{
-    width: 97vw;
-    height: 97vh;
-    position: relative;
-    opacity: 0;
-    animation-duration: 0s;
-    animation-delay: 250ms;
-    animation-name: delaydisplay;
-    animation-fill-mode: forwards;
-  }
-
-  @keyframes delaydisplay {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  .loading-spinner-base {
-    width: 25%;
-    height: 25%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: url("{% static 'images/loading-spinner.gif' %}") no-repeat center;
-    background-size: contain;
-  }
-</style>
 <body>
 <rootvue>
+  <style>
+    .loading-spinner-wrapper-base{
+      width: 97vw;
+      height: 97vh;
+      position: relative;
+      opacity: 0;
+      animation-duration: 0s;
+      animation-delay: 250ms;
+      animation-name: delaydisplay;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes delaydisplay {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .loading-spinner-base {
+      width: 25%;
+      height: 25%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: url("{% static 'images/loading-spinner.gif' %}") no-repeat center;
+      background-size: contain;
+    }
+  </style>
   <div class="loading-spinner-wrapper-base">
     <div class="loading-spinner-base"></div>
   </div>
