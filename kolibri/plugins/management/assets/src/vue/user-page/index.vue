@@ -42,6 +42,11 @@
       <thead>
         <tr>
           <th class="col-header" scope="col"> Full Name </th>
+          <th class="col-header" scope="col">
+            <span class="role-header" aria-hidden="true">
+              Role
+            </span>
+          </th>
           <th class="col-header table-username" scope="col"> Username </th>
           <th class="col-header" scope="col"> Edit </th>
         </tr>
@@ -52,13 +57,17 @@
         <tr v-for="user in visibleUsers">
           <!-- Full Name field -->
           <th scope="row" class="table-cell">
-            {{user.full_name}}
+            <span class="table-name">
+              {{user.full_name}}
+            </span>
+          </th>
 
-            <!-- Logic for role tags -->
+          <!-- Logic for role tags -->
+          <td class="table-cell table-role">
             <span class="user-role" v-for="role in user.roles">
               {{role.kind | capitalize}}
             </span>
-          </th>
+          </td>
 
           <!-- Username field -->
           <td class="table-cell table-username">
@@ -213,7 +222,7 @@
     top: 0
     left: 10px
     height: 100%
-    width: 88%
+    width: 85%
     border-color: transparent
     background-color: transparent
     clear: both
@@ -251,6 +260,7 @@
     color: $core-text-annotation
     font-weight: normal
     font-size: 80%
+    width: 30%
 
   .table-cell
     font-weight: normal // compensates for <th> cells
@@ -263,7 +273,6 @@
     padding-left: 1em
     padding-right: 1em
     border-radius: 40px
-    margin-left: 20px
     font-size: 0.875em
     display: inline-block
 
@@ -279,19 +288,29 @@
     border-radius: 5px
     padding: inherit
     border: 1px solid #c0c0c0
-    width: 50%
-    min-width: 200px
-    max-width: 300px
+    width: 300px
     height: $toolbar-height
     float: left
     margin-left: 5px
 
-  @media screen and (min-width: $portrait-breakpoint + 1)
-    .searchbar
-      font-size: 1em
-      width: 80%
+  .table-name
+    $line-height = 1em
+    line-height: $line-height
+    max-height: ($line-height * 2)
+    display: inline-block
+    padding-right: 1em
 
-  @media screen and (max-width: $portrait-breakpoint)
+  .role-header
+    display: none
+
+  @media print
+    .toolbar
+      display: none
+    .user-roster
+      width: 500px
+
+  // TODO temporary fix until remove width calculation from learn
+  @media screen and (max-width: 840px)
     .create, #type-filter
       box-sizing: border-box
       width: 49%
@@ -302,5 +321,12 @@
       float: right
     .table-username
       display: none
+    .table-name
+      overflow: hidden
+      text-overflow: ellipsis
+      white-space: nowrap
+      width: 100px
+    .col-header
+      width: 50%
 
 </style>
