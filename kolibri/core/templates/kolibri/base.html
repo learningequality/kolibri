@@ -10,15 +10,42 @@
   <title>{% trans "Kolibri" %}</title>
 </head>
 <style>
-  .loading-spinner {
+  .loading-spinner-wrapper-base{
     width: 97vw;
     height: 97vh;
+    position: relative;
+    opacity: 0;
+    animation-duration: 0s;
+    animation-delay: 250ms;
+    animation-name: delaydisplay;
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes delaydisplay {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .loading-spinner-base {
+    width: 50%;
+    height: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background: url("{% static 'images/loading-spinner.gif' %}") no-repeat center;
+    background-size: contain;
   }
 </style>
 <body>
 <rootvue>
-  <div class="loading-spinner"></div>
+  <div class="loading-spinner-wrapper-base">
+    <div class="loading-spinner-base"></div>
+  </div>
 </rootvue>
 {% block frontend_assets %}
 {% webpack_asset 'default_frontend' %}
