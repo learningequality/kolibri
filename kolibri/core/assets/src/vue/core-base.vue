@@ -45,7 +45,7 @@
     ready() {
       setInterval(() => {
         if (this.scrolled) {
-          this.$broadcast('scrolling', this.position);
+          this.$emit('scroll', this.position);
           this.scrolled = false;
         }
       }, 75);

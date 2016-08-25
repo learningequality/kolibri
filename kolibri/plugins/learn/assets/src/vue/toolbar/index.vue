@@ -1,9 +1,9 @@
 <template>
 
-  <div v-bind:class="['toolbar', displayToolbar ? 'toolbar-hide' : '']" v-show='!searchOpen'>
+  <div class="toolbar" :class="{ 'toolbar-hide': !shown }" v-show='!searchOpen'>
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
     <channel-switcher></channel-switcher>
-    <search-button @scrolling="handleScroll" class="search-btn"></search-button>
+    <search-button class="search-btn"></search-button>
   </div>
 
 </template>
@@ -12,28 +12,17 @@
 <script>
 
   module.exports = {
-    data: () => ({
-      currScrollTop: 0,
-      lastScrollTop: 0,
-      delta: 5,
-      displayToolbar: false,
-    }),
+    props: {
+      shown: {
+        type: Boolean,
+        default: true,
+      },
+    },
     components: {
       'search-widget': require('../search-widget'),
       'search-button': require('./search-button'),
       'breadcrumbs': require('../breadcrumbs'),
       'channel-switcher': require('./channel-switcher'),
-    },
-    methods: {
-      handleScroll(position) {
-        this.position = position;
-        this.currScrollTop = position.scrollTop;
-        if (Math.abs(this.lastScrollTop - this.currScrollTop) <= this.delta) {
-          return;
-        }
-        this.displayToolbar = this.currScrollTop > this.lastScrollTop;
-        this.lastScrollTop = this.currScrollTop;
-      },
     },
     vuex: {
       getters: {
