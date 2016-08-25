@@ -227,10 +227,6 @@
     border-color: transparent
     background-color: transparent
     clear: both
-    &:focus
-      outline: none
-      border-color: transparent
-      border-bottom: 2px solid $core-action-normal
 
   #type-filter
     float: left
