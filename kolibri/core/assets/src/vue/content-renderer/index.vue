@@ -191,6 +191,9 @@
         }
       },
       wrappedStartTracking() {
+        // Assume that as soon as we have started tracking data for this content item,
+        // our ContentNode cache is no longer valid.
+        this.Kolibri.resources.ContentNodeResource.unCacheModel(this.id);
         this.startTracking(this.Kolibri);
       },
       wrappedStopTracking() {
