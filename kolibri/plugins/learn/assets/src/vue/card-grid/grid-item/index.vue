@@ -40,6 +40,7 @@
     background-color: $core-bg-light
     overflow: hidden
     border-radius: $radius
+    text-decoration: none
     @media screen and (max-width: $medium-breakpoint)
       width: $horizontal-card-width
       height: $horizontal-card-height
