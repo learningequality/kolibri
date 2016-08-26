@@ -192,8 +192,6 @@
     @media screen and (max-width: $portrait-breakpoint)
       padding: 0.5em 0
       text-align: center
-      width: 100%
-      right: 15px
 
   .table-wrapper
     margin: auto
