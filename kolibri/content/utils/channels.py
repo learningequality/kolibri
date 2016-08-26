@@ -23,7 +23,20 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
         logging.warning("Ignoring databases in content database directory '{directory}' with invalid names: {names}"
                         .format(directory=content_database_dir, names=invalid_db_names))
 
-    return valid_db_names
+    # empty database files are created if we delete a database file while the server is running and connected to it;
+    # here, we delete and exclude such databases to avoid errors when we try to connect to them
+    empty_db_files = set({})
+    for db_name in valid_db_names:
+        filename = os.path.join(content_database_dir, "{}.sqlite3".format(db_name))
+        if os.path.getsize(filename) == 0:
+            empty_db_files.add(db_name)
+            os.remove(filename)
+    if empty_db_files:
+        logging.warning("Removing empty databases in content database directory '{directory}' with IDs: {names}"
+                        .format(directory=content_database_dir, names=empty_db_files))
+    valid_dbs = list(set(valid_db_names) - set(empty_db_files))
+
+    return valid_dbs
 
 def enumerate_content_database_file_paths(content_database_dir):
     full_dir_template = os.path.join(content_database_dir, "{}.sqlite3")
