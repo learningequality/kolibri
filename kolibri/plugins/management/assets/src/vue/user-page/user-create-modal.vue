@@ -37,14 +37,14 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <p class="error-message" v-if="errorMessage">{{errorMessage}}</p>
+        <p class="error-message" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
         <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
       </section>
     </div>
   </modal>
 
   <icon-button @click="open" class="add-user-button" text="Add New" :primary="false">
-    <svg class="add-user" src="../icons/add_new_user.svg"></svg>
+    <svg class="add-user" src="../icons/add_new_user.svg" role="presentation"></svg>
   </icon-button>
 
 </template>
