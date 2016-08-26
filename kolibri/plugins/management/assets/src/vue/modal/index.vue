@@ -23,8 +23,8 @@
       <!-- Not mandatory, but if available, names the modal according aria-labels -->
       <h1 v-show="!invisibleTitle" class="title" id="modal-title">
         <!-- Accessible error reporting per @radina -->
-        <span v-if="error" class="accessible-error-indicator" aria-hidden=true>
-          Error:
+        <span v-if="error" class="visuallyhidden">
+          Error in:
         </span>
           {{title}}
       </h1>
@@ -165,10 +165,6 @@
 
   .title
     text-align: center
-
-  // not necessary for sighted users
-  .accessible-error-indicator
-    display: none
 
   // Animation Specs
   .modal-enter, .modal-leave
