@@ -82,24 +82,17 @@
       open() {
         this.visible = true;
         this.lastFocus = document.activeElement;
-
         // Need to wait for DOM to update asynchronously, then get the modal element
         vue.nextTick(() => {
           this.focusModal();
-
-          // listening for tab keydowns
-          window.onkeydown = (keypressed) => {
-            // makes checks to ensure that the element that's been focused is in the window
-            if (keypressed.key === 'Tab' && !this.$els.modal.contains(document.activeElement)) {
-              this.focusModal();
-            }
-          };
+          // pass in a function, not a function call.
+          window.addEventListener('focusout', this.focusElementTest, true);
         });
       },
       close() {
         this.visible = false;
-        // removing keyboard listener
-        window.onkeydown = null;
+        // needs to be an exact match to the one that was assigned.
+        window.removeEventListener('focusout', this.focusElementTest, true);
         this.lastFocus.focus();
       },
     },
@@ -119,6 +112,12 @@
       },
       focusModal() {
         this.$els.modal.focus();
+      },
+      focusElementTest(event) {
+        // FocusOut happens when the element is about to be blurred
+        if (!this.$els.modal.contains(event.relatedTarget)) {
+          this.focusModal();
+        }
       },
       bgClick(clickEvent) {
         // check to make sure the area being clicked is the overlay, not the modal
