@@ -202,6 +202,14 @@ function redirectToLearnChannel(store) {
     });
 }
 
+function showChannelList(store) {
+  const channelPromise = _getChannelList();
+  channelPromise.then((channelList) => {
+    store.dispatch('SET_CHANNEL_LIST', channelList);
+  });
+  return channelPromise;
+}
+
 function showExploreChannel(store, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
@@ -214,9 +222,10 @@ function showExploreChannel(store, channelId) {
       store.dispatch('SET_ROOT_TOPIC_ID', rootTopicId);
       const attributesPromise = ContentNodeResource.getModel(rootTopicId).fetch();
       const childrenPromise = ContentNodeResource.getCollection({ parent: rootTopicId }).fetch();
-      const channelPromise = _getChannelList();
-      ConditionalPromise.all([attributesPromise, childrenPromise, channelPromise])
-        .only(checkSamePageId(store), ([attributes, children, channelList]) => {
+      showChannelList(store);
+
+      ConditionalPromise.all([attributesPromise, childrenPromise])
+        .only(checkSamePageId(store), ([attributes, children]) => {
           const pageState = { rootTopicId };
           pageState.topic = _topicState(attributes);
           const collection = _collectionState(children);
@@ -225,7 +234,6 @@ function showExploreChannel(store, channelId) {
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
-          store.dispatch('SET_CHANNEL_LIST', channelList);
         }).catch((error) => {
           store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
           store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -245,9 +253,9 @@ function showExploreTopic(store, channelId, id) {
 
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
-  const channelPromise = _getChannelList();
-  ConditionalPromise.all([attributesPromise, childrenPromise, channelPromise])
-    .only(checkSamePageId(store), ([attributes, children, channelList]) => {
+  showChannelList(store);
+  ConditionalPromise.all([attributesPromise, childrenPromise])
+    .only(checkSamePageId(store), ([attributes, children]) => {
       const pageState = { id };
       pageState.topic = _topicState(attributes);
       const collection = _collectionState(children);
@@ -256,7 +264,6 @@ function showExploreTopic(store, channelId, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_CHANNEL_LIST', channelList);
     }, (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -271,19 +278,17 @@ function showExploreContent(store, channelId, id) {
   cookiejs.set('currentChannel', channelId);
 
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
-  const channelPromise = _getChannelList();
+  showChannelList(store);
 
-  ConditionalPromise.all([attributesPromise, channelPromise])
-    .only(checkSamePageId(store), ([attributes, channelList]) => {
-      const pageState = { content: _contentState(attributes) };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_CHANNEL_LIST', channelList);
-    }, (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+  attributesPromise.only(checkSamePageId(store), (attributes) => {
+    const pageState = { content: _contentState(attributes) };
+    store.dispatch('SET_PAGE_STATE', pageState);
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    store.dispatch('CORE_SET_ERROR', null);
+  }, (error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  });
 }
 
 
@@ -296,18 +301,16 @@ function showLearnChannel(store, channelId) {
 
   const recommendedPromise =
     ContentNodeResource.getCollection({ recommendations: '' }).fetch({}, true);
-  const channelPromise = _getChannelList();
-  ConditionalPromise.all([recommendedPromise, channelPromise])
-    .only(checkSamePageId(store), ([recommendations, channelList]) => {
-      const pageState = { recommendations: recommendations.map(_contentState) };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_CHANNEL_LIST', channelList);
-    }, (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+  showChannelList(store);
+  recommendedPromise.only(checkSamePageId(store), (recommendations) => {
+    const pageState = { recommendations: recommendations.map(_contentState) };
+    store.dispatch('SET_PAGE_STATE', pageState);
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    store.dispatch('CORE_SET_ERROR', null);
+  }, (error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  });
 }
 
 
@@ -318,10 +321,10 @@ function showLearnContent(store, channelId, id) {
   cookiejs.set('currentChannel', channelId);
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
-  const channelPromise = _getChannelList();
+  showChannelList(store);
 
-  ConditionalPromise.all([attributesPromise, recommendedPromise, channelPromise])
-    .only(checkSamePageId(store), ([attributes, recommended, channelList]) => {
+  ConditionalPromise.all([attributesPromise, recommendedPromise])
+    .only(checkSamePageId(store), ([attributes, recommended]) => {
       const pageState = {
         content: _contentState(attributes),
         recommended: recommended.map(_contentState),
@@ -329,7 +332,6 @@ function showLearnContent(store, channelId, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_CHANNEL_LIST', channelList);
     }, (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
