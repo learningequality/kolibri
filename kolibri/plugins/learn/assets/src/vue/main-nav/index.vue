@@ -52,6 +52,9 @@
         return this.pageMode === constants.PageModes.LEARN;
       },
       exploreLink() {
+        if (this.exploreActive) {
+          return { name: constants.PageNames.EXPLORE_CHANNEL };
+        }
         return { name: constants.PageNames.EXPLORE_ROOT };
       },
       exploreActive() {
