@@ -323,19 +323,30 @@ function showLearnContent(store, channelId, id) {
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
   showChannelList(store);
 
-  ConditionalPromise.all([attributesPromise, recommendedPromise])
-    .only(checkSamePageId(store), ([attributes, recommended]) => {
-      const pageState = {
-        content: _contentState(attributes),
-        recommended: recommended.map(_contentState),
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-    }, (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+  attributesPromise.only(checkSamePageId(store), (attributes) => {
+    const pageState = {
+      content: _contentState(attributes),
+      recommended: store.state.pageState.recommended,
+    };
+    store.dispatch('SET_PAGE_STATE', pageState);
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    store.dispatch('CORE_SET_ERROR', null);
+  }, (error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  });
+  recommendedPromise.only(checkSamePageId(store), (recommended) => {
+    const pageState = {
+      content: store.state.pageState.content,
+      recommended: recommended.map(_contentState),
+    };
+    store.dispatch('SET_PAGE_STATE', pageState);
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    store.dispatch('CORE_SET_ERROR', null);
+  }, (error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  });
 }
 
 
