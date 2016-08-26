@@ -32,8 +32,6 @@
 
   button
     border: none
-    height: 36px
-    width: 36px
     background-color: $core-bg-canvas
 
     svg

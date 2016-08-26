@@ -1,16 +1,13 @@
 <template>
 
-  <div v-bind:class="['toolbar', displayToolbar ? 'toolbar-hide' : '']" v-show='!searchOpen'>
+  <div class="toolbar" :class="{ 'toolbar-hide': !shown }" v-show='!searchOpen'>
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
-      <label for="chan-select" class="visuallyhidden">{{ $tr('switchChannels') }}</label>
-      <select
-        name="chan-select"
-        id="chan-select"
-        class="chan-select"
-        v-model="currentChannel">
-        <option v-for="channel in channelList" :value="channel.id">{{ channel.name }}</option>
-      </select>
-    <search-button @scrolling="handleScroll" class='search-btn'></search-button>
+    <div class="table-wrapper">
+      <div class="row-wrapper">
+        <channel-switcher class="switcher"></channel-switcher>
+      </div>
+    </div>
+    <search-button class="search-btn"></search-button>
   </div>
 
 </template>
@@ -18,97 +15,22 @@
 
 <script>
 
-  const constants = require('../../state/constants');
-  const getters = require('../../state/getters');
-  const PageModes = constants.PageModes;
-
   module.exports = {
-
-    $trNameSpace: 'learnToolbar',
-    $trs: {
-      switchChannels: 'Switch Channels',
+    props: {
+      shown: {
+        type: Boolean,
+        default: true,
+      },
     },
-
-    data: () => ({
-      currScrollTop: 0,
-      lastScrollTop: 0,
-      delta: 5,
-      displayToolbar: false,
-      more: false,
-    }),
     components: {
       'search-widget': require('../search-widget'),
-      'search-button': require('../search-widget/search-button'),
+      'search-button': require('./search-button'),
       'breadcrumbs': require('../breadcrumbs'),
-    },
-    computed: {
-      /*
-      * Get and set the current channel ID.
-      */
-      currentChannel: {
-        get() {
-          return this.currentChannelGetter;
-        },
-        set(newChannelId, oldChannelId) {
-          if (newChannelId !== oldChannelId) {
-            this.switchChannel(newChannelId);
-          }
-        },
-      },
-    },
-    methods: {
-      handleScroll(position) {
-        this.position = position;
-        this.currScrollTop = position.scrollTop;
-
-        if (Math.abs(this.lastScrollTop - this.currScrollTop) <= this.delta) {
-          return;
-        }
-
-        this.more = false;
-
-        if (this.currScrollTop > this.lastScrollTop) {
-          this.displayToolbar = true;
-        } else {
-          this.displayToolbar = false;
-        }
-        this.lastScrollTop = this.currScrollTop;
-      },
-      switchChannel(channelId) {
-        let rootPage;
-        this.more = false;
-        if (this.pageMode === PageModes.EXPLORE) {
-          rootPage = constants.PageNames.EXPLORE_CHANNEL;
-        } else {
-          rootPage = constants.PageNames.LEARN_CHANNEL;
-        }
-        this.clearSearch();
-        this.$router.go(
-          {
-            name: rootPage,
-            params: {
-              channel_id: channelId,
-            },
-          }
-        );
-      },
-      toggleMore() {
-        this.more = !this.more;
-      },
+      'channel-switcher': require('./channel-switcher'),
     },
     vuex: {
       getters: {
-        rootTopicId: state => state.rootTopicId,
-        topic: state => state.pageState.topic,
-        isRoot: (state) => state.pageState.topic.id === state.rootTopicId,
-        pageMode: getters.pageMode,
-        pageName: state => state.pageName,
-        currentChannelGetter: state => state.currentChannel,
-        channelList: state => state.channelList,
         searchOpen: state => state.searchOpen,
-      },
-      actions: {
-        clearSearch: require('../../actions').clearSearch,
       },
     },
   };
@@ -121,9 +43,11 @@
   @require '~core-theme.styl'
   @require '../learn.styl'
 
+  $avoid-scrollbar = -25px
+
   .toolbar
     position: fixed
-    left: -15px
+    left: $avoid-scrollbar
     top: 0
     width: 100%
     height: $learn-toolbar-height
@@ -134,8 +58,8 @@
 
   .toolbar-hide
     position: fixed
-    left: -15px
-    top: -40px
+    left: $avoid-scrollbar
+    top: -1 * $learn-toolbar-height
 
   .breadcrumbs
     position: relative
@@ -144,38 +68,25 @@
     @media screen and (max-width: $portrait-breakpoint)
       left: 1.3em
 
-  .chan-select
-    z-index: 1
-    height: 24px
-    padding: 0.2em 0.8em
-    padding-right: 1.8em
-    min-width: 160px
-    color: $core-text-annotation
-    font-size: 0.9rem
-    border: 1px solid $core-text-annotation
-    border-radius: 50px
-    background: url(../icons/arrowdown.svg) no-repeat right
-    background-color: $core-bg-canvas
-    -webkit-appearance: none
-    -moz-appearance: none
-    outline: none
+  .table-wrapper
+    display: table
+    height: $learn-toolbar-height
     position: absolute
-    top: 0.5rem
-    right: 6em
-    &:focus
-      outline: $core-action-light 2px solid
-    @media screen and (max-width: $portrait-breakpoint)
-      transform: translateX(-50%)
-      left: 53%
+    top: 0
+    right: 5rem
 
+  .row-wrapper
+    display: table-row
+
+  .switcher
+    display: table-cell
+    vertical-align: middle
 
   .search-btn
+    height: $learn-toolbar-height
     position: absolute
-    top: 0.1rem
-    right: 1.2rem
-    margin-right: 1em
-    z-index: 1
-    @media screen and (max-width: $portrait-breakpoint)
-      margin-right: -1em
+    top: 0
+    width: 36px
+    right: 2rem
 
 </style>

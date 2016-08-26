@@ -64,8 +64,8 @@ staticdeps: clean
 
 dist: staticdeps assets compilemessages
 	pip install -r requirements/build.txt
-	python setup.py sdist --format=gztar,zip > /dev/null # silence the sdist output! Too noisy!
-	python setup.py bdist_wheel
+	python setup.py sdist --format=gztar,zip --static > /dev/null # silence the sdist output! Too noisy!
+	python setup.py bdist_wheel --static
 	pex . --disable-cache -o dist/`python setup.py --fullname`.pex -m kolibri --python-shebang=/usr/bin/python
 	ls -l dist
 
