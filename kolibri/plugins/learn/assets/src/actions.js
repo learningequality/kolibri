@@ -148,14 +148,14 @@ function redirectToExploreChannel(store) {
       if (currentChannelId) {
         store.dispatch('SET_CURRENT_CHANNEL', currentChannelId);
         cookiejs.set('currentChannel', currentChannelId);
-        router.go({
+        router.replace({
           name: constants.PageNames.EXPLORE_CHANNEL,
           params: {
             channel_id: currentChannelId,
           },
         });
       } else {
-        router.go({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     })
     .catch((error) => {
@@ -175,14 +175,14 @@ function redirectToLearnChannel(store) {
       if (currentChannelId) {
         store.dispatch('SET_CURRENT_CHANNEL', currentChannelId);
         cookiejs.set('currentChannel', currentChannelId);
-        router.go({
+        router.replace({
           name: constants.PageNames.LEARN_CHANNEL,
           params: {
             channel_id: currentChannelId,
           },
         });
       } else {
-        router.go({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     })
     .catch((error) => {
