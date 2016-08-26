@@ -89,7 +89,7 @@
 
     <button class="no-border" @click="open">
       <span class="visuallyhidden">Edit Account Info</span>
-      <svg class="manage-edit" src="../icons/pencil.svg"></svg>
+      <svg class="manage-edit" role="presentation" src="../icons/pencil.svg"></svg>
     </button>
 
   </div>
