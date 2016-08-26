@@ -16,6 +16,8 @@
         <span class="middle-breadcrumb landscape" v-for="crumb in topicCrumbs">
           <a v-link="topicLink(crumb.id)">{{ crumb.title }}</a>
         </span>
+        <!-- Had to add a space or else the breadcrumbs would jump.-->
+        <span class="middle-breadcrumb landscape"> {{' ' + title}}</span>
       </template>
 
       <span v-if="pageName === PageNames.EXPLORE_CONTENT">
@@ -94,6 +96,7 @@
         pageName: state => state.pageName,
         pageState: state => state.pageState,
         currentChannel: state => state.currentChannel,
+        title: state => state.pageState.topic.title,
       },
     },
   };
@@ -108,7 +111,7 @@
 
   .nav
     margin-top: 2em
-    margin-bottom:1.4em
+    margin-bottom:1.5em
 
   .middle-breadcrumb:before
     content: '>'
@@ -116,10 +119,9 @@
     margin-right: 0.5em
     color: $core-text-annotation
 
-  a
-    display: inline-block
+  .middle-breadcrumb
+    display: inline
     vertical-align: middle
-    margin-bottom: 2px
     font-size: 0.9em
     font-weight: 300
     max-width: 140px
