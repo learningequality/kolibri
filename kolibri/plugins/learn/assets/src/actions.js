@@ -159,12 +159,30 @@ function redirectToExploreChannel(store) {
       if (currentChannelId) {
         store.dispatch('SET_CURRENT_CHANNEL', currentChannelId);
         cookiejs.set('currentChannel', currentChannelId);
-        router.go({
-          name: constants.PageNames.EXPLORE_CHANNEL,
-          params: {
-            channel_id: currentChannelId,
-          },
-        });
+        if (cookiejs.get('currentExploreType') === 'topic') {
+          router.go({
+            name: constants.PageNames.EXPLORE_TOPIC,
+            params: {
+              channel_id: currentChannelId,
+              id: cookiejs.get('currentExploreId'),
+            },
+          });
+        } else if (cookiejs.get('currentExploreType') === 'content') {
+          router.go({
+            name: constants.PageNames.EXPLORE_CONTENT,
+            params: {
+              channel_id: currentChannelId,
+              id: cookiejs.get('currentExploreId'),
+            },
+          });
+        } else {
+          router.go({
+            name: constants.PageNames.EXPLORE_CHANNEL,
+            params: {
+              channel_id: currentChannelId,
+            },
+          });
+        }
       } else {
         router.go({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
@@ -207,6 +225,7 @@ function showExploreChannel(store, channelId) {
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
   cookiejs.set('currentChannel', channelId);
+  cookiejs.set('currentExploreType', 'root');
   ContentNodeResource.setChannel(channelId);
 
   _getCurrentChannelRootTopicId()
@@ -239,6 +258,8 @@ function showExploreTopic(store, channelId, id) {
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_TOPIC);
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
   cookiejs.set('currentChannel', channelId);
+  cookiejs.set('currentExploreType', 'topic');
+  cookiejs.set('currentExploreId', id);
 
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
@@ -266,6 +287,8 @@ function showExploreContent(store, channelId, id) {
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
   cookiejs.set('currentChannel', channelId);
+  cookiejs.set('currentExploreType', 'content');
+  cookiejs.set('currentExploreId', id);
 
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   const channelPromise = _getChannelList();
