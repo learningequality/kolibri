@@ -20,13 +20,14 @@
       </button>
 
       <!-- Modal Title -->
-      <!-- Not mandatory, but if available, names the modal according aria-labels -->
       <h1 v-show="!invisibleTitle" class="title" id="modal-title">
         <!-- Accessible error reporting per @radina -->
-        <span v-if="error" class="visuallyhidden">
+        <span v-if="hasError" class="visuallyhidden">
           Error in:
         </span>
-          {{title}}
+
+        {{title}}
+
       </h1>
 
       <!-- Modal Content -->
@@ -68,7 +69,7 @@
         required: false,
       },
       // useed to toggle error message in header
-      error: {
+      hasError: {
         type: Boolean,
         default: false,
       },
@@ -86,13 +87,13 @@
         vue.nextTick(() => {
           this.focusModal();
           // pass in a function, not a function call.
-          window.addEventListener('focusout', this.focusElementTest, true);
+          window.addEventListener('blur', this.focusElementTest, true);
         });
       },
       close() {
         this.visible = false;
         // needs to be an exact match to the one that was assigned.
-        window.removeEventListener('focusout', this.focusElementTest, true);
+        window.removeEventListener('blur', this.focusElementTest, true);
         this.lastFocus.focus();
       },
     },
@@ -142,7 +143,7 @@
     width: 100%
     height: 100%
     background: rgba(0, 0, 0, 0.7)
-    // transition: opacity 0.3s ease
+    transition: opacity 0.3s ease
 
   .modal
     position: absolute

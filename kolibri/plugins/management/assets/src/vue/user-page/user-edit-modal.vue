@@ -1,7 +1,7 @@
 <template>
 
   <div class="user-edit-modal">
-    <modal @open="clear" title="Edit Account Info" :error="error_message ? true : false">
+    <modal @open="clear" title="Edit Account Info" :has-error="error_message ? true : false">
 
       <!-- User Edit Normal -->
       <div @keyup.enter="editUser" slot="body">
