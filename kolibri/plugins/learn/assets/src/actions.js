@@ -226,6 +226,9 @@ function showExploreChannel(store, channelId) {
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('SET_CHANNEL_LIST', channelList);
+        }).catch((error) => {
+          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
         });
     }, (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
