@@ -12,7 +12,6 @@ class AudioMP3RenderPlugin(KolibriPluginBase):
 class AudioMP3RenderAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "audio_mp3_render_module"
     src_file = "kolibri/plugins/audio_mp3_render/assets/src/module.js"
-    static_dir = "kolibri/plugins/audio_mp3_render/static"
     events = {
         "content_render:audio/mp3": "render"
     }

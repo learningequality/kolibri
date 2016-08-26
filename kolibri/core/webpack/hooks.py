@@ -49,9 +49,6 @@ class WebpackBundleHook(hooks.KolibriHook):
     # : For instance: "kolibri/core/assets/src/kolibri_core_app.js"
     src_file = ""
 
-    # : The static directory where you want stuff to be written to
-    static_dir = "kolibri/core/static"
-
     # : A list of events to listen to
     events = {}
 
@@ -156,12 +153,20 @@ class WebpackBundleHook(hooks.KolibriHook):
         }
 
     @property
+    def module_path(self):
+        return '.'.join(self.__module__.split('.')[:-1])
+
+    @property
     def build_path(self):
         """
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """
-        return resource_filename('kolibri.core', 'build')
+        return resource_filename(self.module_path, 'build')
+
+    @property
+    def static_dir(self):
+        return resource_filename(self.module_path, 'static')
 
     @property
     def stats_file(self):

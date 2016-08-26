@@ -12,7 +12,6 @@ class DocumentPDFRenderPlugin(KolibriPluginBase):
 class DocumentPDFRenderAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "document_pdf_render_module"
     src_file = "kolibri/plugins/document_pdf_render/assets/src/module.js"
-    static_dir = "kolibri/plugins/document_pdf_render/static"
     events = {
         "content_render:document/pdf": "render"
     }

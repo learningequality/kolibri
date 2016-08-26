@@ -17,7 +17,6 @@ class LearnPlugin(KolibriPluginBase):
 class LearnAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "learn_module"
     src_file = "kolibri/plugins/learn/assets/src/app.js"
-    static_dir = "kolibri/plugins/learn/static"
 
 
 class LearnInclusionHook(hooks.LearnSyncHook):
