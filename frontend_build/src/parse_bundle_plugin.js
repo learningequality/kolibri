@@ -13,6 +13,7 @@ var webpack = require('webpack');
 var base_config = require('./webpack.config.base');
 var _ = require('lodash');
 var extract$trs = require('./extract_$trs');
+var merge = require('webpack-merge');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle configuration for webpack.
@@ -46,6 +47,16 @@ var parseBundlePlugin = function(data, base_dir) {
   var bundle = _.cloneDeep(base_config);
   var external;
   var library;
+
+  var local_config;
+
+  try {
+    local_config = require(path.join(data.plugin_path, 'webpack.config.js'));
+  } catch (e) {
+    local_config = {};
+  }
+
+  bundle = merge.smart(bundle, local_config);
 
   // This might be non-standard use of the entry option? It seems to
   // interact with read_bundle_plugins.js

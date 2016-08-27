@@ -86,11 +86,6 @@ var config = {
       {
         test: /fg-loadcss\/src\/onloadCSS/,
         loader: 'exports?onloadCSS'
-      },
-      // Allows <video> and <audio> HTML5 tags work on all major browsers.
-      {
-        test: require.resolve('html5media/dist/api/1.1.8/html5media'),
-        loader: "imports?this=>window"
       }
     ]
   },

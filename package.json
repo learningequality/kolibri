@@ -27,7 +27,6 @@
   "private": true,
   "dependencies": {
     "babel-runtime": "6.9.2",
-    "html5media": "1.1.8",
     "intl": "1.2.4",
     "js-cookie": "2.1.2",
     "loglevel": "1.4.1",
@@ -108,7 +107,7 @@
     "webpack-bundle-tracker": "0.0.93",
     "webpack-dev-middleware": "1.6.1",
     "webpack-hot-middleware": "2.12.1",
-    "webpack-merge": "0.8.4"
+    "webpack-merge": "0.14.1"
   },
   "optionalDependencies": {
     "fsevents": "*"
