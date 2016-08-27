@@ -145,6 +145,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             "name": self.unique_slug,
             "src_file": self.src_file,
             "static_dir": self.static_dir,
+            "plugin_path": os.path.dirname(self.build_path),
             "stats_file": self.stats_file,
             "events": self.events,
             "once": self.once,

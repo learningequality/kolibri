@@ -231,7 +231,7 @@
 
   // Default videojs stylesheet
   // Unable to reference the videojs using require since videojs doesn't have good webpack support
-  @import '../../../../../../node_modules/video.js/dist/video-js.css'
+  @import '../../../node_modules/video.js/dist/video-js.css'
 
   // Videojs skin customization
   .video-js

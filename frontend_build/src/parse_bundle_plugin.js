@@ -35,7 +35,8 @@ var parseBundlePlugin = function(data, base_dir) {
       (typeof data.static_dir === "undefined") ||
       (typeof data.static_url_root === "undefined") ||
       (typeof data.stats_file === "undefined") ||
-      (typeof data.locale_data_folder === "undefined")) {
+      (typeof data.locale_data_folder === "undefined") ||
+      (typeof data.plugin_path === "undefined")) {
     logging.error(data.name + ' plugin is misconfigured, missing parameter(s)');
     return;
   }
@@ -58,7 +59,7 @@ var parseBundlePlugin = function(data, base_dir) {
     library = data.core_name;
   }
 
-  bundle.resolve.root = base_dir;
+  bundle.resolve.root = [base_dir, path.join(data.plugin_path, 'node_modules')];
   bundle.plugins = bundle.plugins.concat([
     // BundleTracker creates stats about our built files which we can then pass to Django to allow our template
     // tags to load the correct frontend files.
