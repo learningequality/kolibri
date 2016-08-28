@@ -144,9 +144,8 @@ describe('readBundlePlugins', function() {
   var data = [];
 
   beforeEach(function() {
-    readBundlePlugins.__set__("execSync", function() {});
-    readBundlePlugins.__set__("fs.readFileSync", function() {
-      return JSON.stringify(data);
+    readBundlePlugins.__set__("readWebpackJson", function() {
+      return data;
     });
   });
 
