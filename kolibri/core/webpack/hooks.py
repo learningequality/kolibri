@@ -101,7 +101,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             if stats['status'] == 'error':
                 raise WebpackError('Webpack compilation has errored')
         return {
-            "files": stats["chunks"][self.unique_slug]
+            "files": stats.get("chunks", {}).get(self.unique_slug, [])
         }
 
     @property
@@ -172,9 +172,6 @@ class WebpackBundleHook(hooks.KolibriHook):
     @property
     def stats_file(self):
         """
-        TODO: Do we want to rely on a generated stats file? It will have to be
-        read for every bundle, every time stuff is loaded.
-
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """
