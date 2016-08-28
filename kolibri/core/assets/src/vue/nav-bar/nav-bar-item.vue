@@ -54,6 +54,7 @@
       vertical-align: middle
 
   .link
+    width: $nav-width
     margin: 0
     padding: 6px
     text-align: center

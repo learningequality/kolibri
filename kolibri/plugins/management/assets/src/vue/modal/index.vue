@@ -19,13 +19,14 @@
       </button>
 
       <!-- Modal Title -->
-      <!-- Not mandatory, but if available, names the modal according aria-labels -->
       <h1 v-show="!invisibleTitle" class="title" id="modal-title">
         <!-- Accessible error reporting per @radina -->
-        <span v-if="error" class="accessible-error-indicator" aria-hidden=true>
-          Error:
+        <span v-if="hasError" class="visuallyhidden">
+          Error in:
         </span>
-          {{title}}
+
+        {{title}}
+
       </h1>
 
       <!-- Modal Content -->
@@ -67,7 +68,7 @@
         required: false,
       },
       // useed to toggle error message in header
-      error: {
+      hasError: {
         type: Boolean,
         default: false,
       },
@@ -81,24 +82,17 @@
       open() {
         this.visible = true;
         this.lastFocus = document.activeElement;
-
         // Need to wait for DOM to update asynchronously, then get the modal element
         vue.nextTick(() => {
           this.focusModal();
-
-          // listening for tab keydowns
-          window.onkeydown = (keypressed) => {
-            // makes checks to ensure that the element that's been focused is in the window
-            if (keypressed.key === 'Tab' && !this.$els.modal.contains(document.activeElement)) {
-              this.focusModal();
-            }
-          };
+          // pass in a function, not a function call.
+          window.addEventListener('blur', this.focusElementTest, true);
         });
       },
       close() {
         this.visible = false;
-        // removing keyboard listener
-        window.onkeydown = null;
+        // needs to be an exact match to the one that was assigned.
+        window.removeEventListener('blur', this.focusElementTest, true);
         this.lastFocus.focus();
       },
     },
@@ -118,6 +112,12 @@
       },
       focusModal() {
         this.$els.modal.focus();
+      },
+      focusElementTest(event) {
+        // FocusOut happens when the element is about to be blurred
+        if (!this.$els.modal.contains(event.relatedTarget)) {
+          this.focusModal();
+        }
       },
       bgClick(clickEvent) {
         // check to make sure the area being clicked is the overlay, not the modal
@@ -142,7 +142,7 @@
     width: 100%
     height: 100%
     background: rgba(0, 0, 0, 0.7)
-    // transition: opacity 0.3s ease
+    transition: opacity 0.3s ease
 
   .modal
     position: absolute
@@ -165,10 +165,6 @@
 
   .title
     text-align: center
-
-  // not necessary for sighted users
-  .accessible-error-indicator
-    display: none
 
   // Animation Specs
   .modal-enter, .modal-leave

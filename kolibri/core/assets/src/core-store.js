@@ -7,6 +7,7 @@ const initialState = {
   core: {
     error: '',
     loading: true,
+    pageSessionId: 0,
     session: { id: undefined,
                username: '',
                full_name: '',
@@ -42,7 +43,11 @@ const mutations = {
                            error: '200' };
   },
   CORE_SET_PAGE_LOADING(state, value) {
-    state.core.loading = value;
+    const update = { loading: value };
+    if (value) {
+      Object.assign(update, { pageSessionId: state.core.pageSessionId + 1 });
+    }
+    Object.assign(state.core, update);
   },
   CORE_SET_ERROR(state, error) {
     state.core.error = error;

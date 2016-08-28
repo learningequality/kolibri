@@ -1,9 +1,7 @@
 <template>
 
   <modal :error="errorMessage ? true : false" @open.stop="clear" title="Add New Account">
-
     <div @keydown.enter="createNewUser">
-
       <!-- Fields for the user to fill out -->
       <section class="user-fields">
         <div class="user-field">
@@ -46,7 +44,7 @@
   </modal>
 
   <icon-button @click="open" class="add-user-button" text="Add New" :primary="false">
-    <svg class="add-user" src="../icons/add_new_user.svg"></svg>
+    <svg class="add-user" src="../icons/add_new_user.svg" role="presentation"></svg>
   </icon-button>
 
 </template>

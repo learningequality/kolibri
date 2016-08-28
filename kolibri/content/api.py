@@ -4,6 +4,7 @@ from random import sample
 from django.db.models import Q
 from kolibri.content import models, serializers
 from rest_framework import filters, pagination, viewsets
+from .utils.search import fuzz
 
 
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
@@ -29,12 +30,12 @@ class ContentNodeFilter(filters.FilterSet):
         exact_match = queryset.filter(Q(parent__isnull=False), Q(title__icontains=value) | Q(description__icontains=value))
         if exact_match:
             return exact_match
-        # if no exact match, search for non-adjacent match
-
+        # if no exact match, fuzzy search using the stemmed_metaphone field in ContentNode that covers the title and description
+        fuzzed_tokens = [fuzz(word) for word in value.split()]
+        token_queries = [reduce(lambda x, y: x | y, [Q(stemmed_metaphone__contains=token) for token in tokens]) for tokens in fuzzed_tokens]
         return queryset.filter(
             Q(parent__isnull=False),
-            reduce(lambda x, y: x & y, [Q(title__icontains=word) for word in value.split()]) |
-            reduce(lambda x, y: x & y, [Q(description__icontains=word) for word in value.split()]))
+            reduce(lambda x, y: x & y, token_queries))
 
     def filter_recommendations_for(self, queryset, value):
         recc_node = queryset.get(pk=value)

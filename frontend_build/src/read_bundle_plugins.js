@@ -25,6 +25,7 @@ var libs = function(kolibri_name) {
     'vue': kolibri_name + '.lib.vue',
     'kolibri': kolibri_name,
     'vuex': kolibri_name + '.lib.vuex',
+    'conditionalPromise': kolibri_name + '.lib.conditionalPromise',
   };
 };
 

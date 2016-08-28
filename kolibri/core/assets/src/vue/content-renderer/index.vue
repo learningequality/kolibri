@@ -5,6 +5,7 @@
         <h3 class="progress-percent" v-if="progress > 0">
           {{ Math.floor(progress * 100) }}%
         </h3>
+      <loading-spinner v-if="!currentViewClass"></loading-spinner>
       <div v-el:container></div>
     </div>
     <div v-else>
@@ -190,6 +191,9 @@
         }
       },
       wrappedStartTracking() {
+        // Assume that as soon as we have started tracking data for this content item,
+        // our ContentNode cache is no longer valid.
+        this.Kolibri.resources.ContentNodeResource.unCacheModel(this.id);
         this.startTracking(this.Kolibri);
       },
       wrappedStopTracking() {
