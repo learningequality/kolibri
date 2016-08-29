@@ -2,26 +2,43 @@
 
   <div>
     <nav class="nav" role="navigation" :aria-label="$tr('youAreHere')">
-      <span class="learn-bread" v-if="pageName === PageNames.LEARN_CONTENT">
-        <breadcrumb :linkobject="learnRootLink"></breadcrumb>
+
+      <span v-if="pageName === PageNames.LEARN_CONTENT">
+        <a v-link="learnRootLink">
+          <span class="visuallyhidden">{{ $tr('back') }}</span>
+          <svg role="presentation" src="../icons/folder_back.svg"></svg>
+          {{ text }}
+        </a>
       </span>
 
-      <template v-if="pageName === PageNames.EXPLORE_TOPIC">
-        <span class="landscape">
-          <breadcrumb :showarrow='false' :linkobject="exploreRootLink" :text="$tr('explore')"></breadcrumb>
+      <span v-if="pageName === PageNames.EXPLORE_CONTENT">
+        <a v-link="parentExploreLink">
+          <span class="visuallyhidden">{{ $tr('back') }}</span>
+          <svg role="presentation" src="../icons/folder_back.svg"></svg>
+          {{ text }}
+        </a>
+      </span>
+
+      <span v-if="pageName === PageNames.EXPLORE_TOPIC">
+
+        <span class="first-breadcrumb landscape">
+          <a v-link="exploreRootLink">{{ $tr('explore') }}</a>
         </span>
+
         <span class="portrait">
-          <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
+          <a v-link="parentExploreLink">
+            <span class="visuallyhidden">{{ $tr('back') }}</span>
+            <svg role="presentation" src="../icons/folder_back.svg"></svg>
+            {{ text }}
+          </a>
         </span>
+
         <span class="middle-breadcrumb landscape" v-for="crumb in topicCrumbs">
           <a v-link="topicLink(crumb.id)">{{ crumb.title }}</a>
         </span>
-        <!-- Had to add a space or else the breadcrumbs would jump.-->
-        <span class="middle-breadcrumb landscape"> {{' ' + title}}</span>
-      </template>
 
-      <span v-if="pageName === PageNames.EXPLORE_CONTENT">
-        <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
+        <span class="middle-breadcrumb landscape">{{ title }}</span>
+
       </span>
 
     </nav>
@@ -41,9 +58,7 @@
     $trs: {
       explore: 'Explore',
       youAreHere: 'You are here:',
-    },
-    components: {
-      breadcrumb: require('./breadcrumb'),
+      back: 'Back to previous topic',
     },
     computed: {
       PageModes() {
@@ -119,8 +134,8 @@
     margin-right: 0.5em
     color: $core-text-annotation
 
-  .middle-breadcrumb
-    display: inline
+  .middle-breadcrumb, .first-breadcrumb
+    display: inline-block
     vertical-align: middle
     font-size: 0.9em
     font-weight: 300
@@ -128,6 +143,9 @@
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
+    a
+      color: $core-text-annotation
+      display: inline-block
 
   .landscape
     @media screen and (max-width: $portrait-breakpoint)
@@ -137,5 +155,8 @@
     display: none
     @media screen and (max-width: $portrait-breakpoint)
       display: initial
+
+  svg
+    fill: $core-text-annotation
 
 </style>
