@@ -9,14 +9,18 @@
     @keydown.esc="closeModal"
     @click="bgClick($event)"
     v-el:modal-overlay
-    id="modal-window"
-    role="dialog"
-    aria-labelledby="modal-title">
+    id="modal-window">
 
-    <div class="modal" v-el:modal :tabindex="0" transition="modal">
+    <div class="modal"
+      v-el:modal
+      :tabindex="0"
+      transition="modal"
+      role="dialog"
+      aria-labelledby="modal-title">
+      
       <!-- Close Button -->
-      <button aria-label="close" @click="closeModal" class="btn-close">
-        <svg src="../icons/close.svg"></svg>
+      <button aria-label="Close dialog window" @click="closeModal" class="btn-close">
+        <svg src="../icons/close.svg" role="presentation"></svg>
       </button>
 
       <!-- Modal Title -->
