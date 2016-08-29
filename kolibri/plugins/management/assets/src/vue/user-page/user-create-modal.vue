@@ -43,10 +43,6 @@
     </div>
   </modal>
 
-  <icon-button @click="open" class="add-user-button" text="Add New" :primary="false">
-    <svg class="add-user" src="../icons/add_new_user.svg" role="presentation"></svg>
-  </icon-button>
-
 </template>
 
 
@@ -68,6 +64,9 @@
         role: 'learner',
         errorMessage: '',
       };
+    },
+    ready() {
+      this.open();
     },
     methods: {
       createNewUser() {
@@ -179,9 +178,6 @@
     &:hover
       border-color: transparent
       color: $core-action-light
-
-  .add-user-button
-    width: 100%
 
   .error-message
     color: $core-text-alert

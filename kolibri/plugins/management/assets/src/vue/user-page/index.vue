@@ -28,16 +28,17 @@
       </div>
 
       <div class="create">
-        <user-create-modal></user-create-modal>
+        <icon-button @click="openCreateModal" class="add-user-button" text="Add New" :primary="false">
+          <svg class="add-user" src="../icons/add_new_user.svg" role="presentation"></svg>
+        </icon-button>
       </div>
 
     </div>
 
     <hr>
 
+    <!-- Modals -->
     <template v-if="editingUser">
-      <!-- Conditionally generated, opens upon entering the dom -->
-      <!-- Because of conditional props -->
       <user-edit-modal
         :userid="currentUserEdit.id"
         :username="currentUserEdit.username"
@@ -45,6 +46,9 @@
         :roles="currentUserEdit.roles"
         @close="closeEditModal">
       </user-edit-modal>
+    </template>
+    <template v-if="creatingUser">
+      <user-create-modal @close="closeCreateModal"></user-create-modal>
     </template>
 
     <table class="roster">
@@ -89,10 +93,10 @@
 
           <!-- Edit field -->
           <td class="table-cell">
-            <button class="edit-button" @click="openEditModal(user)">
+            <icon-button class="edit-button" @click="openEditModal(user)">
               <span class="visuallyhidden">Edit Account Info</span>
               <svg src="../icons/pencil.svg"></svg>
-            </button>
+            </icon-button>
           </td>
 
         </tr>
@@ -116,11 +120,13 @@
     components: {
       'user-create-modal': require('./user-create-modal'),
       'user-edit-modal': require('./user-edit-modal'),
+      'icon-button': require('icon-button'),
     },
     // Has to be a funcion due to vue's treatment of data
     data: () => ({
       roleFilter: '',
       searchFilter: '',
+      creatingUser: false,
       editingUser: false,
       currentUserEdit: {},
     }),
@@ -200,6 +206,12 @@
       closeEditModal() {
         this.editingUser = false;
         this.currentUserEdit = {};
+      },
+      openCreateModal() {
+        this.creatingUser = true;
+      },
+      closeCreateModal() {
+        this.creatingUser = false;
       },
     },
     vuex: {
@@ -320,6 +332,10 @@
       cursor: pointer
       &:hover
         fill: $core-action-dark
+
+  .add-user-button
+    width: 100%
+
 
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar
