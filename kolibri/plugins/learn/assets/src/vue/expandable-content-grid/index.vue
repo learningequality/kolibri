@@ -41,7 +41,7 @@
       },
       contents: {
         type: Array,
-        default: [],
+        default: () => [],
       },
       nCollapsed: {
         type: Number,
