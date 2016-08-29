@@ -130,6 +130,14 @@ function _getCurrentChannelRootTopicId() {
   });
 }
 
+function _updateChannelList(store) {
+  const channelPromise = _getChannelList();
+  channelPromise.then((channelList) => {
+    store.dispatch('SET_CHANNEL_LIST', channelList);
+  });
+  return channelPromise;
+}
+
 /**
  * Action inhibition checks
  *
@@ -202,14 +210,6 @@ function redirectToLearnChannel(store) {
     });
 }
 
-function showChannelList(store) {
-  const channelPromise = _getChannelList();
-  channelPromise.then((channelList) => {
-    store.dispatch('SET_CHANNEL_LIST', channelList);
-  });
-  return channelPromise;
-}
-
 function showExploreChannel(store, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
@@ -222,7 +222,7 @@ function showExploreChannel(store, channelId) {
       store.dispatch('SET_ROOT_TOPIC_ID', rootTopicId);
       const attributesPromise = ContentNodeResource.getModel(rootTopicId).fetch();
       const childrenPromise = ContentNodeResource.getCollection({ parent: rootTopicId }).fetch();
-      showChannelList(store);
+      _updateChannelList(store);
 
       ConditionalPromise.all([attributesPromise, childrenPromise])
         .only(checkSamePageId(store), ([attributes, children]) => {
@@ -253,7 +253,7 @@ function showExploreTopic(store, channelId, id) {
 
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
-  showChannelList(store);
+  _updateChannelList(store);
   ConditionalPromise.all([attributesPromise, childrenPromise])
     .only(checkSamePageId(store), ([attributes, children]) => {
       const pageState = { id };
@@ -278,7 +278,7 @@ function showExploreContent(store, channelId, id) {
   cookiejs.set('currentChannel', channelId);
 
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
-  showChannelList(store);
+  _updateChannelList(store);
 
   attributesPromise.only(checkSamePageId(store), (attributes) => {
     const pageState = { content: _contentState(attributes) };
@@ -301,7 +301,7 @@ function showLearnChannel(store, channelId) {
 
   const recommendedPromise =
     ContentNodeResource.getCollection({ recommendations: '' }).fetch({}, true);
-  showChannelList(store);
+  _updateChannelList(store);
   recommendedPromise.only(checkSamePageId(store), (recommendations) => {
     const pageState = { recommendations: recommendations.map(_contentState) };
     store.dispatch('SET_PAGE_STATE', pageState);
@@ -321,7 +321,7 @@ function showLearnContent(store, channelId, id) {
   cookiejs.set('currentChannel', channelId);
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
-  showChannelList(store);
+  _updateChannelList(store);
 
   attributesPromise.only(checkSamePageId(store), (attributes) => {
     const pageState = {
