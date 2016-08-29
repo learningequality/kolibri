@@ -1,12 +1,10 @@
 <template>
 
-  <div>
-    <div v-el:container class="container" allowfullscreen>
-      <button class='btn' v-if="supportsPDFs" v-on:click="togglefullscreen">
-        {{ inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen') }}
-      </button>
-      <div v-el:pdfcontainer class="pdfcontainer"></div>
-    </div>
+  <div v-el:container class="container" allowfullscreen>
+    <button class="btn" v-if="supportsPDFs" @:click="togglefullscreen">
+      {{ inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen') }}
+    </button>
+    <div v-el:pdfcontainer class="pdfcontainer"></div>
   </div>
 
 </template>

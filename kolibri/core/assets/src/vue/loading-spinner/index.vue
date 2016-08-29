@@ -1,9 +1,7 @@
 <template>
 
-  <div>
-    <div class="loading-spinner-wrapper">
-      <div class="loading-spinner"></div>
-    </div>
+  <div class="loading-spinner-wrapper">
+    <div class="loading-spinner"></div>
   </div>
 
 </template>

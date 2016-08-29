@@ -136,7 +136,7 @@ class FileDownload(Transfer):
 
     def close(self):
         self.response.close()
-        super(FileCopy, self).close()
+        super(FileDownload, self).close()
 
 
 class FileCopy(Transfer):

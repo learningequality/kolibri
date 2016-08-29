@@ -2,7 +2,7 @@
 
   <div>
     <list-item v-link="link" :title="title">
-      <div class='thumbnail'></div>
+      <div class="thumbnail"></div>
     </list-item>
   </div>
 

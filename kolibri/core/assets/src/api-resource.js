@@ -342,6 +342,16 @@ class Collection {
   get data() {
     return this.models.map((model) => model.attributes);
   }
+
+  get synced() {
+    // We only say the Collection is synced if it, itself, is synced, and all its
+    // constituent models are also.
+    return this.models.reduce((synced, model) => synced && model.synced, this._synced);
+  }
+
+  set synced(value) {
+    this._synced = value;
+  }
 }
 
 /** Class representing a single API resource.
@@ -456,6 +466,10 @@ class Resource {
   clearCache() {
     this.models = {};
     this.collections = {};
+  }
+
+  unCacheModel(id) {
+    this.models[id].synced = false;
   }
 
   removeModel(model) {

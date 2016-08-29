@@ -2,7 +2,7 @@
 
   <button :class="[this.primary ? 'primary' : 'secondary', 'icon-button']">
     <slot></slot>
-    <span class="btn-text">{{ text }}</span>
+    <span v-if="text" class="btn-text">{{ text }}</span>
   </button>
 
 </template>
@@ -14,7 +14,8 @@
     props: {
       text: {
         type: String,
-        required: true,
+        // why did we want this to be required?
+        required: false,
       },
       // primary is true by default, will be primary unless specified
       primary: {

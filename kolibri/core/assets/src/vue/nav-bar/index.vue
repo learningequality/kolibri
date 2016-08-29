@@ -1,7 +1,7 @@
 <template>
 
-  <div class='nav-wrapper'>
-    <nav class='nav-main' role="navigation" :aria-label="ariaLabel">
+  <div class="nav-wrapper">
+    <nav class="nav-main" role="navigation" :aria-label="ariaLabel">
       <slot></slot>
       <session-nav-widget></session-nav-widget>
     </nav>
