@@ -115,10 +115,6 @@
         confirmation_message: '',
       };
     },
-    ready() {
-      // only because this modal is conditionally created
-      this.open();
-    },
     methods: {
       editUser() {
         const payload = {

@@ -65,9 +65,6 @@
         errorMessage: '',
       };
     },
-    ready() {
-      this.open();
-    },
     methods: {
       createNewUser() {
         const newUser = {

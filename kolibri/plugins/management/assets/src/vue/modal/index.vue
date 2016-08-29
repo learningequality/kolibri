@@ -4,7 +4,6 @@
 
   <!-- Aria-Hidden and TabIndex in .modal might not be necessary because of conditional rendering -->
   <div class="modal-overlay"
-    v-if="visible"
     @keydown.esc="closeModal"
     @click="bgClick($event)"
     v-el:modal-overlay
@@ -44,8 +43,6 @@
 
 <script>
 
-  const vue = require('vue');
-
   module.exports = {
     props: {
       title: {
@@ -77,21 +74,19 @@
       if (this.disableClose) {
         this.$off('close');
       }
+
+      this.$emit('open');
     },
     events: {
       open() {
-        this.visible = true;
         this.lastFocus = document.activeElement;
         // Need to wait for DOM to update asynchronously, then get the modal element
-        vue.nextTick(() => {
-          this.focusModal();
-          // pass in a function, not a function call.
-          window.addEventListener('blur', this.focusElementTest, true);
-          window.addEventListener('scroll', (event) => event.preventDefault());
-        });
+        this.focusModal();
+        // pass in a function, not a function call.
+        window.addEventListener('blur', this.focusElementTest, true);
+        window.addEventListener('scroll', (event) => event.preventDefault());
       },
       close() {
-        this.visible = false;
         // needs to be an exact match to the one that was assigned.
         window.removeEventListener('blur', this.focusElementTest, true);
         this.lastFocus.focus();
@@ -99,7 +94,6 @@
     },
     data() {
       return {
-        visible: false,
         lastFocus: '',
       };
     },
@@ -155,7 +149,7 @@
     background: #fff
     max-width: 380px
     max-height: 80%
-    overflow-y: scroll
+    overflow-y: auto
     border-radius: $radius
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     transition: all 0.3s ease
