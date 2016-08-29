@@ -2,8 +2,8 @@
 
   <button
     aria-label="Search"
-    class='search-btn'
-    @click='toggleSearch'
+    class="search-btn"
+    @click="toggleSearch"
   >
     <svg src="../search-widget/search.svg"></svg>
   </button>

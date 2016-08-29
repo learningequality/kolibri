@@ -74,6 +74,10 @@
           (file) => !file.thumbnail & !file.supplementary & file.available
         );
       },
+      defaultFile() {
+        return this.availableFiles &&
+          this.availableFiles.length ? this.availableFiles[0] : undefined;
+      },
     },
     init() {
       this._eventListeners = [];
@@ -168,7 +172,7 @@
             }
           }
           // Add a defaultFile to the propsData, which is the first file in the availableFiles.
-          propsData.defaultFile = this.availableFiles[0];
+          propsData.defaultFile = this.defaultFile;
           // Create an options object for the soon to be instantiated renderer component.
           const options = {
             // Set the parent so that it is in the Vue family.

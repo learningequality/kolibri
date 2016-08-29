@@ -2,14 +2,14 @@
 
   <div>
 
-    <page-header :title='title'>
-      <div slot='icon'>
+    <page-header :title="title">
+      <div slot="icon">
         <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"></svg>
         <svg v-else class="pageicon" src="../icons/folder.svg"></svg>
       </div>
     </page-header>
 
-    <p class="page-description" v-if='topic.description'>
+    <p class="page-description" v-if="topic.description">
       {{ topic.description }}
     </p>
 

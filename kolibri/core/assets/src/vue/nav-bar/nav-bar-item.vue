@@ -1,13 +1,13 @@
 <template>
 
-  <div class='link-wrapper'>
-    <a v-if="vlink" v-link="vlink" :class="{active: active}" @click="blur" v-el:link class='link'>
-      <div class='content'>
+  <div class="link-wrapper">
+    <a v-if="vlink" v-link="vlink" :class="{active: active}" @click="blur" v-el:link class="link">
+      <div class="content">
         <slot></slot>
       </div>
     </a>
-    <a v-else :href="href" :class="{active: active}" @click="blur" v-el:link class='link'>
-      <div class='content'>
+    <a v-else :href="href" :class="{active: active}" @click="blur" v-el:link class="link">
+      <div class="content">
         <slot></slot>
       </div>
     </a>

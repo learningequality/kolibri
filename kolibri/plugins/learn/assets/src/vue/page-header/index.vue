@@ -1,11 +1,11 @@
 <template>
 
-  <div class='header-wrapper'>
-    <div class='extra-nav'>
-      <slot name='extra-nav'></slot>
+  <div class="header-wrapper">
+    <div class="extra-nav">
+      <slot name="extra-nav"></slot>
     </div>
-    <h1 class='header'>
-      <div class='text'>
+    <h1 class="header">
+      <div class="text">
         {{ title }}
       </div>
     </h1>

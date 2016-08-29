@@ -3,7 +3,7 @@
   <nav-bar-item tabindex="0" v-el:navbaritem @click="loginTabHack" v-on:keyup.enter="loginTabHack">
     <div class="wrapper">
       <div v-if="loggedIn">
-        <div class='user-icon' id="user-dropdown">{{ initial }}</div>
+        <div class="user-icon" id="user-dropdown">{{ initial }}</div>
       </div>
       <div v-else>
         <login-modal></login-modal>
