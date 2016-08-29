@@ -1,10 +1,13 @@
 from functools import reduce
 from random import sample
 
+from django.core.cache import cache
 from django.db.models import Q
 from django.db.models.aggregates import Count
 from kolibri.content import models, serializers
+from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from rest_framework import filters, pagination, viewsets
+
 from .utils.search import fuzz
 
 
@@ -21,6 +24,7 @@ class ContentNodeFilter(filters.FilterSet):
     recommendations = filters.django_filters.MethodFilter()
     next_steps = filters.django_filters.MethodFilter()
     popular = filters.django_filters.MethodFilter()
+    resume = filters.django_filters.MethodFilter()
 
     class Meta:
         model = models.ContentNode
@@ -50,38 +54,6 @@ class ContentNodeFilter(filters.FilterSet):
         data = descendants | siblings  # concatenates different querysets
         return data
 
-    def filter_recommendations(self, queryset, value):
-        """
-        Recommend content items specific for this user.
-
-        :param queryset: all content nodes for this channel
-        :param value: id of currently logged in user, or none if user is anonymous
-        :return: recommended content nodes for user, or empty queryset if user is anonymous
-        """
-
-        from kolibri.logger.models import ContentSessionLog
-
-        if ContentSessionLog.objects.count() < 50:
-            # return 25 random content nodes if not enough session logs
-            pks = queryset.values_list('pk', flat=True).exclude(kind__in=['topic', ''])
-            count = min(pks.count(), 25)
-            return queryset.filter(pk__in=sample(list(pks), count))
-
-        # if user is anonymous, only give them the most popular content nodes
-        if value is None:
-            recently_viewed = queryset.objects.none()
-        else:
-            if self.data['channel']:  # filter by channel if available
-                user_session_logs = ContentSessionLog.objects.filter(user=value, channel_id=self.data['channel'])
-            else:
-                user_session_logs = ContentSessionLog.objects.filter(user=value)
-
-            # get the most recently viewed, but not finished, content nodes
-            content_ids = user_session_logs.exclude(progress=1).order_by('end_timestamp').values_list('content_id', flat=True).distinct()
-            recently_viewed = queryset.filter(content_id__in=list(content_ids[:10]))
-
-        return recently_viewed
-
     def filter_next_steps(self, queryset, value):
         """
         Recommend uncompleted content, content that has user completed content as a prerequisite.
@@ -90,18 +62,31 @@ class ContentNodeFilter(filters.FilterSet):
         :param value: id of currently logged in user, or none if user is anonymous
         :return: uncompleted content nodes, or empty queryset if user is anonymous
         """
-        from kolibri.logger.models import ContentSummaryLog
 
         # if user is anonymous, don't return any nodes
-        if value is None:
-            return queryset.objects.none()
+        if value == '':
+            return queryset.none()
 
         if self.data['channel']:
-            summary_logs = ContentSummaryLog.objects.filter(user=value, channel_id=self.data['channel'])
+            from kolibri.content.content_db_router import using_content_database
+            from kolibri.content.models import ContentNode
+            with using_content_database(self.data['channel']):
+                # custom SQL query to get uncompleted content based on mptt algorithm
+                return ContentNode.objects.raw('''SELECT incomplete_node.*
+                                                  FROM logger_contentsummarylog AS complete_log,
+                                                  logger_contentsummarylog AS incomplete_log,
+                                                  content_contentnode AS complete_node,
+                                                  content_contentnode AS incomplete_node
+                                                  WHERE NOT (incomplete_log.progress < 1 AND incomplete_log.content_id = incomplete_node.content_id)
+                                                  AND complete_log.user_id = %s
+                                                  AND incomplete_log.user_id = %s
+                                                  AND complete_log.progress = 1
+                                                  AND complete_node.rght = incomplete_node.lft - 1
+                                                  AND complete_log.content_id = complete_node.content_id''', [value, value])
         else:
-            summary_logs = ContentSummaryLog.objects.filter(user=value)
+            summary_logs = ContentSummaryLog.objects.filter(user=value).exclude(progress=1)
 
-        content_ids = summary_logs.exclude(progress=1).values_list('content_id', flat=True)
+        content_ids = summary_logs.values_list('content_id', flat=True)
         unfinished_nodes = queryset.filter(content_id__in=list(content_ids[:10]))
 
         return unfinished_nodes
@@ -115,19 +100,54 @@ class ContentNodeFilter(filters.FilterSet):
         :return: 10 most popular content nodes
         """
 
-        from kolibri.logger.models import ContentSessionLog
+        if ContentSessionLog.objects.count() < 50:
+            # return 25 random content nodes if not enough session logs
+            pks = queryset.values_list('pk', flat=True).exclude(kind__in=['topic', ''])
+            count = min(pks.count(), 25)
+            return queryset.filter(pk__in=sample(list(pks), count))
 
-        # get the most popular logs for this channel
         if self.data['channel']:  # filter by channel if available
             session_logs = ContentSessionLog.objects.filter(channel_id=self.data['channel'])
+            cache_key = 'popular_for_{}'.format(self.data['channel_id'])
+            if cache.get(cache_key):
+                return cache.get(cache_key)
         else:
             session_logs = ContentSessionLog.objects.all()
+            cache_key = 'popular'
+            if cache.get(cache_key):
+                return cache.get(cache_key)
 
         # get the most accessed content nodes
         content_counts_sorted = session_logs.values_list('content_id', flat=True).annotate(Count('content_id')).order_by('-content_id__count')
         most_popular = queryset.filter(content_id__in=list(content_counts_sorted[:10]))
 
+        # cache the popular results queryset for 10 minutes, for efficiency
+        cache.set(cache_key, most_popular, 60 * 10)
         return most_popular
+
+    def filter_resume(self, queryset, value):
+        """
+        Recommend content that the user has recently engaged with, but not finished.
+
+        :param queryset: all content nodes for this channel
+        :param value: id of currently logged in user, or none if user is anonymous
+        :return: 10 most recently viewed content nodes
+        """
+
+        # if user is anonymous, return no nodes
+        if value == '':
+            return queryset.none()
+
+        if self.data['channel']:  # filter by channel if available
+            user_summary_logs = ContentSummaryLog.objects.filter(user=value, channel_id=self.data['channel'])
+        else:
+            user_summary_logs = ContentSummaryLog.objects.filter(user=value)
+
+        # get the most recently viewed, but not finished, content nodes
+        content_ids = user_summary_logs.exclude(progress=1).order_by('end_timestamp').values_list('content_id', flat=True).distinct()
+        resume = queryset.filter(content_id__in=list(content_ids[:10]))
+
+        return resume
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
