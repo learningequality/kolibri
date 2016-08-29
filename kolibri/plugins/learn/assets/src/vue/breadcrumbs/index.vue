@@ -37,7 +37,9 @@
           <a v-link="topicLink(crumb.id)">{{ crumb.title }}</a>
         </span>
 
-        <span class="middle-breadcrumb landscape">{{ title }}</span>
+        <span class="middle-breadcrumb landscape">
+          {{ title }}
+        </span>
 
       </span>
 
@@ -135,7 +137,6 @@
     color: $core-text-annotation
 
   .middle-breadcrumb, .first-breadcrumb
-    display: inline-block
     vertical-align: middle
     font-size: 0.9em
     font-weight: 300
