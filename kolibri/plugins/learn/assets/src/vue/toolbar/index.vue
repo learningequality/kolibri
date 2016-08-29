@@ -1,6 +1,6 @@
 <template>
 
-  <div class="toolbar" :class="{ 'toolbar-hide': !shown }" v-show='!searchOpen'>
+  <div class="toolbar" :class="{ 'toolbar-hide': !shown }" v-show="!searchOpen">
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
     <div class="table-wrapper">
       <div class="row-wrapper">

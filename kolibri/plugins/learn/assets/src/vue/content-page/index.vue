@@ -2,9 +2,9 @@
 
   <div>
 
-    <page-header :title='title'></page-header>
+    <page-header :title="title"></page-header>
 
-    <div class="content-container" v-show='!searchOpen'>
+    <div class="content-container" v-show="!searchOpen">
       <content-render
         :id="id"
         :kind="kind"
