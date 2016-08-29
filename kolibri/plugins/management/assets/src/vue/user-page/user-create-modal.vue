@@ -35,7 +35,7 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <p class="error" v-if="error_message" aria-live="polite">{{errorMessage}}</p>
+        <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
         <button class="create-btn" type="button" @keydown.enter.stop @click="createNewUser">
           Create Account
         </button>
@@ -111,9 +111,6 @@
         this.clear();
         this.$broadcast('close');
       },
-      open() {
-        this.$broadcast('open');
-      },
     },
     vuex: {
       getters: {
@@ -176,7 +173,7 @@
       border-color: transparent
       color: $core-action-light
 
-  .error-message
+  .error
     color: $core-text-alert
 
   .secondary

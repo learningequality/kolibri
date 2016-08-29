@@ -170,10 +170,6 @@
       clear() {
         this.$data = this.$options.data();
       },
-      open() {
-        this.$emit('open');
-        this.$broadcast('open');
-      },
       close() {
         this.$emit('close');
         this.$broadcast('close');
