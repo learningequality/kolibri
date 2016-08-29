@@ -35,7 +35,7 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <p class="error-message" v-if="errorMessage">{{errorMessage}}</p>
+        <p class="error" v-if="error_message" aria-live="polite">{{errorMessage}}</p>
         <button class="create-btn" type="button" @keydown.enter.stop @click="createNewUser">
           Create Account
         </button>
