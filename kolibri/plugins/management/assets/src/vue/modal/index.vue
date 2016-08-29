@@ -87,6 +87,7 @@
           this.focusModal();
           // pass in a function, not a function call.
           window.addEventListener('blur', this.focusElementTest, true);
+          window.addEventListener('scroll', (event) => event.preventDefault());
         });
       },
       close() {
@@ -143,6 +144,7 @@
     height: 100%
     background: rgba(0, 0, 0, 0.7)
     transition: opacity 0.3s ease
+    background-attachment: fixed
 
   .modal
     position: absolute
@@ -152,6 +154,8 @@
     width: 60%
     background: #fff
     max-width: 380px
+    max-height: 80%
+    overflow-y: scroll
     border-radius: $radius
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     transition: all 0.3s ease
@@ -159,7 +163,7 @@
     padding: 15px 30px
     @media (max-width: $portrait-breakpoint)
       width: 85%
-
+      top: 45%
   .btn-close
     float: right
     color: $core-text-default
