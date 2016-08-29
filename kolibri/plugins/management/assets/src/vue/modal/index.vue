@@ -157,6 +157,8 @@
     transition: all 0.3s ease
     margin: 0 auto
     padding: 15px 30px
+    @media (max-width: $portrait-breakpoint)
+      width: 85%
 
   .btn-close
     float: right

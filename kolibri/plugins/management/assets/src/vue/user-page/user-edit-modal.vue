@@ -275,11 +275,6 @@
       display: block
       border: none
 
-  .end-modal
-    position: relative
-    width: 378px
-    left: -30px
-
   p
     word-break: keep-all
 
