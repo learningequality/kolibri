@@ -11,7 +11,7 @@ class VideoMP4RenderPlugin(KolibriPluginBase):
 
 class VideoMP4RenderAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "video_mp4_render_module"
-    src_file = "kolibri/plugins/video_mp4_render/assets/src/module.js"
+    src_file = "assets/src/module.js"
     events = {
         "content_render:video/mp4": "render"
     }

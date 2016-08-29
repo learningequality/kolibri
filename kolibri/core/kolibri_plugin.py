@@ -14,7 +14,7 @@ class KolibriCore(KolibriPluginBase):
 
 class FrontEndCoreAppAssetHook(FrontEndCoreAssetHook):
     unique_slug = "default_frontend"
-    src_file = "kolibri/core/assets/src/core-app"
+    src_file = "assets/src/core-app"
 
 
 class FrontEndCoreInclusionHook(FrontEndCoreHook):

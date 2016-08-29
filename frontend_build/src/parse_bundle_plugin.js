@@ -61,7 +61,7 @@ var parseBundlePlugin = function(data, base_dir) {
   // This might be non-standard use of the entry option? It seems to
   // interact with read_bundle_plugins.js
   bundle.entry = {}
-  bundle.entry[data.name] = data.src_file;
+  bundle.entry[data.name] = path.join(data.plugin_path, data.src_file);
 
   if (typeof data.external !== "undefined" && data.external && data.core_name) {
     // If we want to create a plugin that can be directly referenced by other plugins, this sets it to be
