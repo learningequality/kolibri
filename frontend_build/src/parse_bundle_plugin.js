@@ -70,7 +70,14 @@ var parseBundlePlugin = function(data, base_dir) {
     library = data.core_name;
   }
 
-  bundle.resolve.root = [base_dir, path.join(data.plugin_path, 'node_modules')];
+  // Add local resolution paths
+  bundle.resolve.root = [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')];
+  // Add local and global resolution paths for loaders to allow any plugin to
+  // access kolibri/node_modules loaders during bundling.
+  bundle["resolveLoader"] = {
+    root: [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')]
+  };
+
   bundle.plugins = bundle.plugins.concat([
     // BundleTracker creates stats about our built files which we can then pass to Django to allow our template
     // tags to load the correct frontend files.
