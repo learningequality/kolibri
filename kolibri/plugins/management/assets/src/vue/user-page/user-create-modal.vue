@@ -109,6 +109,7 @@
       },
       close() {
         this.clear();
+        this.$emit('close');
         this.$broadcast('close');
       },
     },

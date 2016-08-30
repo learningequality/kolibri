@@ -28,7 +28,7 @@
       </div>
 
       <div class="create">
-        <icon-button @click="openCreateModal" class="add-user-button" text="Add New" :primary="false">
+        <icon-button @click="openCreateUserModal" class="create-user-button" text="Add New" :primary="false">
           <svg class="add-user" src="../icons/add_new_user.svg" role="presentation"></svg>
         </icon-button>
       </div>
@@ -38,18 +38,17 @@
     <hr>
 
     <!-- Modals -->
-    <template v-if="editingUser">
-      <user-edit-modal
-        :userid="currentUserEdit.id"
-        :username="currentUserEdit.username"
-        :fullname="currentUserEdit.full_name"
-        :roles="currentUserEdit.roles"
-        @close="closeEditModal">
-      </user-edit-modal>
-    </template>
-    <template v-if="creatingUser">
-      <user-create-modal @close="closeCreateModal"></user-create-modal>
-    </template>
+    <user-edit-modal
+      v-if="editingUser"
+      :userid="currentUserEdit.id"
+      :username="currentUserEdit.username"
+      :fullname="currentUserEdit.full_name"
+      :roles="currentUserEdit.roles"
+      @close="closeEditUserModal">
+    </user-edit-modal>
+
+    <user-create-modal v-if="creatingUser" @close="closeCreateUserModal">
+    </user-create-modal>
 
     <table class="roster">
 
@@ -93,7 +92,7 @@
 
           <!-- Edit field -->
           <td class="table-cell">
-            <icon-button class="edit-button" @click="openEditModal(user)">
+            <icon-button class="edit-user-button" @click="openEditUserModal(user)">
               <span class="visuallyhidden">Edit Account Info</span>
               <svg src="../icons/pencil.svg"></svg>
             </icon-button>
@@ -128,7 +127,7 @@
       searchFilter: '',
       creatingUser: false,
       editingUser: false,
-      currentUserEdit: {},
+      currentUserEdit: null,
     }),
     computed: {
       noUsersExist() {
@@ -199,18 +198,18 @@
       },
     },
     methods: {
-      openEditModal(user) {
+      openEditUserModal(user) {
         this.currentUserEdit = user;
         this.editingUser = true;
       },
-      closeEditModal() {
+      closeEditUserModal() {
         this.editingUser = false;
         this.currentUserEdit = {};
       },
-      openCreateModal() {
+      openCreateUserModal() {
         this.creatingUser = true;
       },
-      closeCreateModal() {
+      closeCreateUserModal() {
         this.creatingUser = false;
       },
     },
@@ -325,7 +324,7 @@
     float: left
     margin-left: 5px
 
-  .edit-button
+  .edit-user-button
     border: none
     svg
       fill: $core-action-normal
@@ -333,7 +332,7 @@
       &:hover
         fill: $core-action-dark
 
-  .add-user-button
+  .create-user-button
     width: 100%
 
 

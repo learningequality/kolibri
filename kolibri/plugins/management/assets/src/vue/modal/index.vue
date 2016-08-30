@@ -15,7 +15,7 @@
       transition="modal"
       role="dialog"
       aria-labelledby="modal-title">
-      
+
       <!-- Close Button -->
       <button aria-label="Close dialog window" @click="closeModal" class="btn-close">
         <svg src="../icons/close.svg" role="presentation"></svg>
@@ -79,7 +79,7 @@
         this.$off('close');
       }
 
-      this.$emit('open');
+      this.openModal();
     },
     events: {
       open() {
@@ -88,7 +88,7 @@
         this.focusModal();
         // pass in a function, not a function call.
         window.addEventListener('blur', this.focusElementTest, true);
-        window.addEventListener('scroll', (event) => event.preventDefault());
+        window.addEventListener('scroll', (event) => event.preventDefault(), true);
       },
       close() {
         // needs to be an exact match to the one that was assigned.
