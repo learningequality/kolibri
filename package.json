@@ -84,7 +84,7 @@
     "phantomjs-polyfill-find": "ptim/phantomjs-polyfill-find",
     "phantomjs-prebuilt": "2.1.7",
     "postcss-loader": "0.9.1",
-    "recursive-install": "https://github.com/learningequality/recursive-install.git",
+    "recursive-install": "1.2.0",
     "rewire": "2.5.2",
     "rewire-webpack": "1.0.1",
     "sinon": "2.0.0-pre.2",
