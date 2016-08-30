@@ -14,11 +14,18 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
     """
     Returns a list of channel IDs for the channel databases that exist in a content database directory.
     """
+
+    # immediately return an empty list if the content database directory doesn't exist
+    if not os.path.isdir(content_database_dir):
+        return []
+
+    # get a list of all the database files in the directory, and extract IDs
     db_list = fnmatch.filter(os.listdir(content_database_dir), '*.sqlite3')
     db_names = [db.split('.sqlite3', 1)[0] for db in db_list]
+
+    # determine which database names are valid, and only use those ones
     valid_db_names = [name for name in db_names if is_valid_uuid(name)]
     invalid_db_names = set(db_names) - set(valid_db_names)
-
     if invalid_db_names:
         logging.warning("Ignoring databases in content database directory '{directory}' with invalid names: {names}"
                         .format(directory=content_database_dir, names=invalid_db_names))
@@ -65,5 +72,5 @@ def get_channels_for_data_folder(datafolder):
 def get_mounted_drives_with_channel_info():
     drives = enumerate_mounted_disk_partitions()
     for drive in drives.values():
-        drive.metadata["channels"] = get_channels_for_data_folder(drive.data_folder) if drive.datafolder else []
+        drive.metadata["channels"] = get_channels_for_data_folder(drive.datafolder) if drive.datafolder else []
     return drives
