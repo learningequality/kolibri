@@ -108,14 +108,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         # make sure everything is a dict, before converting to JSON
         assert isinstance(drives, dict)
-
-        out = []
-        for mountdata in drives.values():
-            mountdata = mountdata._asdict()
-            if mountdata['metadata']['channels']:
-                mountdata['channels'] = [c._asdict() for c in mountdata['channels']]
-
-            out.append(mountdata)
+        out = [mountdata._asdict() for mountdata in drives.values()]
 
         return Response(out)
 
