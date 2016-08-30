@@ -2,12 +2,12 @@
 
   <div>
     <div v-if="available">
-      <loading-spinner v-if="!currentViewClass"></loading-spinner>
-      <div v-el:container></div>
       <div class="progress-bar-wrapper">
         <div class="progress-bar-complete" v-bind:style="{ width: progressPercent + '%' }"></div>
       </div>
-      <p class="progress-bar-text">{{ progressPercent + ' %' }}</p>
+      <p class="progress-bar-text">{{ progressPercent + ' % ' + $tr('complete') }}</p>
+      <loading-spinner v-if="!currentViewClass"></loading-spinner>
+      <div v-el:container></div>
     </div>
     <div v-else>
       {{ $tr('msgNotAvailable') }}
@@ -26,6 +26,7 @@
     $trNameSpace: 'contentRender',
     $trs: {
       msgNotAvailable: 'This content is not available.',
+      complete: 'Complete',
     },
     props: {
       id: {
@@ -237,7 +238,7 @@
   .progress-bar-wrapper
     display: inline-block
     position: relative
-    width: 100%
+    width: 200px
     height: 0.75em
     background-color: $core-action-light
 
@@ -248,7 +249,6 @@
     transition: width, 0.25s, ease
 
   .progress-bar-text
-    text-align: right
     margin: 0
 
 </style>
