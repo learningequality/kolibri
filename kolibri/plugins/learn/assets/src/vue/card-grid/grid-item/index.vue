@@ -1,10 +1,10 @@
 <template>
 
-  <a class='root'>
-    <div class='thumb-wrapper'>
+  <a class="root">
+    <div class="thumb-wrapper">
       <slot></slot>
     </div>
-    <div class='text'>
+    <div class="text">
       {{ title }}
     </div>
   </a>
@@ -40,6 +40,7 @@
     background-color: $core-bg-light
     overflow: hidden
     border-radius: $radius
+    text-decoration: none
     @media screen and (max-width: $medium-breakpoint)
       width: $horizontal-card-width
       height: $horizontal-card-height

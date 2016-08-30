@@ -61,6 +61,10 @@ class Router {
     this._vueRouter.start(vm, selector);
   }
 
+  replace(options) {
+    this._vueRouter.replace(options);
+  }
+
   /**
    * Make the router reexecute actions for its current location.
    */

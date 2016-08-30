@@ -1,11 +1,9 @@
 <template>
 
-  <div class="user-edit-modal">
-    <modal @open="clear()" v-ref:modal btntext="Edit">
-
-      <h1 slot="header" class="header">Edit Account Info</h1>
-
-      <div @keyup.enter="editUser" v-if="!usr_delete && !pw_reset" slot="body">
+  <modal @open="clear" title="Edit Account Info" :has-error="error_message ? true : false">
+    <!-- User Edit Normal -->
+    <div @keydown.enter="editUser">
+      <template v-if="!usr_delete && !pw_reset">
 
         <div class="user-field">
           <label for="fullname">Full Name</label>:
@@ -20,21 +18,22 @@
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
           <select v-model="role_new" id="user-role">
-            <option :selected="role_new == admin ? true : false" v-if="role_new" value="learner"> Learner </option>
-            <option :selected="role_new == admin ? true : false" value="admin"> Admin </option>
+            <option :selected="role_new == learner" v-if="role_new" value="learner"> Learner </option>
+            <option :selected="role_new == admin" value="admin"> Admin </option>
           </select>
         </div>
 
-        <div class="advanced-options" v-if="!usr_delete && !pw_reset">
+        <div class="advanced-options">
           <button @click="pw_reset=!pw_reset"> Reset Password </button>
           <button @click="usr_delete=!usr_delete"> Delete User</button>
         </div>
 
         <hr class="end-modal">
 
-      </div>
+      </template>
 
-      <div @keyup.enter="changePassword" v-if="pw_reset" slot="body">
+      <!-- Password Reset Mode -->
+      <template v-if="pw_reset" >
         <p>Username: <b>{{username_new}}</b></p>
         <div class="user-field">
           <label for="password">Enter new password</label>:
@@ -45,18 +44,22 @@
           <label for="password-confirm">Confirm new password</label>:
           <input type="password" class="edit-form" id="password-confirm" required v-model="password_new_confirm">
         </div>
-      </div>
+      </template>
 
-      <div @keyup.enter="deleteUser" v-if="usr_delete" slot="body">
+      <!-- User Delete Mode -->
+      <template v-if="usr_delete">
         <div class="user-field">
           <p>Are you sure you want to delete <b>{{username_new}}</b>?</p>
         </div>
-      </div>
+      </template>
 
-      <div slot="footer">
-        <p class="error" v-if="error_message"> {{error_message}} </p>
-        <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
 
+      <!-- Error Messages -->
+      <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
+      <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
+
+      <!-- Button Section TODO: cleaunup -->
+      <section @keydown.enter.stop>
         <button v-if="!usr_delete && !pw_reset" class="undo-btn" type="button" @click="close">
           Cancel
         </button>
@@ -66,9 +69,7 @@
           <template v-if="pw_reset"> Back </template>
           <!-- For delete option -->
           <template v-if="usr_delete"> No </template>
-          <!-- For main window -->
         </button>
-
 
         <button v-if="!usr_delete && !pw_reset" class="confirm-btn" type="button" @click="editUser">
           Confirm
@@ -81,18 +82,9 @@
         <button v-if="usr_delete" class="confirm-btn" type="button" @click="delete">
           Yes
         </button>
-        <br>
-
-      </div>
-
-      <button class="no-border" slot="openbtn">
-        <span class="visuallyhidden">Edit Account Info</span>
-        <svg class="manage-edit" src="../icons/pencil.svg"></svg>
-      </button>
-
-    </modal>
-
-  </div>
+      </section>
+    </div>
+  </modal>
 
 </template>
 
@@ -179,7 +171,8 @@
         this.$data = this.$options.data();
       },
       close() {
-        this.$refs.modal.closeModal();
+        this.$emit('close');
+        this.$broadcast('close');
       },
       clearErrorMessage() {
         this.error_message = '';
@@ -209,9 +202,6 @@
 
   .title
     display: inline
-
-  .no-border
-    border: none
 
   .confirm-btn, .undo-btn
     width: 48%
@@ -267,22 +257,11 @@
   .header
     text-align: center
 
-  .manage-edit
-    fill: $core-action-normal
-    cursor: pointer
-    &:hover
-      fill: $core-action-dark
-
   .advanced-options
     padding-bottom: 5%
     button
       display: block
       border: none
-
-  .end-modal
-    position: relative
-    width: 378px
-    left: -30px
 
   p
     word-break: keep-all

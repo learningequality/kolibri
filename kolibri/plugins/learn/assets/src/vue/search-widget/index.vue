@@ -1,9 +1,9 @@
 <template>
 
-  <div class='main-wrapper'>
+  <div class="main-wrapper">
 
     <!-- search block -->
-    <div class='top-floating-bar' role="search">
+    <div class="top-floating-bar" role="search">
       <div class="table-wrapper">
         <div class="table-row">
           <div class="input-table-cell">
@@ -31,14 +31,14 @@
             </button>
           </div>
           <div class="cancel-btn-table-cell">
-            <button @click="toggleSearch" class='search-btn'>Cancel</button>
+            <button @click="toggleSearch" class="search-btn">Cancel</button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- results -->
-    <div class='results' v-if="!loading">
+    <div class="results" v-if="!loading">
       <h1 v-if="searchTerm">
         {{ message }}
       </h1>
@@ -192,8 +192,6 @@
     @media screen and (max-width: $portrait-breakpoint)
       padding: 0.5em 0
       text-align: center
-      width: 100%
-      right: 15px
 
   .table-wrapper
     margin: auto

@@ -4,7 +4,7 @@
     <main-nav slot="nav"></main-nav>
     <toolbar slot="above" :shown="showToolbar"></toolbar>
     <component slot="content" :is="currentPage"></component>
-    <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
+    <div slot="below" class="search-pane" v-show="searchOpen" transition="search-slide">
       <search-widget :show-topics="exploreMode"></search-widget>
     </div>
 

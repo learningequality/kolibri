@@ -1,10 +1,10 @@
 <template>
 
-  <a class='root'>
-    <div class='thumb-wrapper'>
+  <a class="root">
+    <div class="thumb-wrapper">
       <slot></slot>
     </div>
-    <div class='text'>
+    <div class="text">
       <span class="title">{{ title }}</span>
     </div>
   </a>
@@ -42,6 +42,7 @@
     border-radius: $radius
     display: table
     width: 100%
+    text-decoration: none
 
   .thumb-wrapper
     position: absolute
