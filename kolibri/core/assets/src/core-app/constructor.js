@@ -65,6 +65,7 @@ module.exports = function CoreApp() {
   vue.component('content-render', require('../vue/content-renderer'));
   vue.component('download-button', require('../vue/content-renderer/download-button'));
   vue.component('loading-spinner', require('../vue/loading-spinner'));
+  vue.component('progress-bar', require('../vue/progress-bar'));
   vue.component('core-base', require('../vue/core-base'));
 
   this.i18n = {

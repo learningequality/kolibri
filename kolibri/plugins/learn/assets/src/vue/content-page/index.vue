@@ -4,21 +4,19 @@
 
     <page-header :title="title"></page-header>
 
-    <div class="content-container" v-show="!searchOpen">
-      <content-render
-        :id="id"
-        :kind="kind"
-        :files="files"
-        :content-id="contentId"
-        :channel-id="channelId"
-        :available="available"
-        :extra-fields="extraFields">
-      </content-render>
-    </div>
+    <content-render
+      v-show="!searchOpen"
+      class="content-renderer"
+      :id="id"
+      :kind="kind"
+      :files="files"
+      :content-id="contentId"
+      :channel-id="channelId"
+      :available="available"
+      :extra-fields="extraFields">
+    </content-render>
 
-    <p class="page-description">
-      {{ description }}
-    </p>
+    <p class="page-description">{{ description }}</p>
 
     <download-button
       :kind="kind"
@@ -27,7 +25,8 @@
       :title="title">
     </download-button>
 
-    <expandable-content-grid class="recommendation-section"
+    <expandable-content-grid
+      class="recommendation-section"
       v-if="pageMode === $options.PageModes.LEARN"
       :title="recommendedText"
       :contents="recommended">
@@ -94,13 +93,8 @@
 
   @require '~core-theme.styl'
 
-  .content-container
+  .content-renderer
     height: 60vh
-    margin-bottom: 1em
-
-  #little-arrow
-    font-size: 28px
-    font-weight: 900
 
   .recommendation-section
     margin-top: 4em
