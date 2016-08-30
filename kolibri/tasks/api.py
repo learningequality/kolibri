@@ -1,7 +1,9 @@
 import logging as logger
 
 from django.core.management import call_command
-from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
+from django_q.models import Task
+from django_q.tasks import async
+from kolibri.content.utils.channels import get_channels_for_data_folder, get_mounted_drives_with_channel_info
 from kolibri.tasks.management.commands.base import Progress
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import list_route
@@ -31,8 +33,6 @@ class TasksViewSet(viewsets.ViewSet):
         # unimplemented for now.
         pass
 
-    # convenience functions for triggering often used tasks
-
     @list_route(methods=['post'])
     def startremoteimport(self, request):
         '''Download a channel's database from the main curation server, and then
@@ -41,32 +41,49 @@ class TasksViewSet(viewsets.ViewSet):
         '''
         TASKTYPE = "remoteimport"
 
-        # loading django_q apparently requires django settings to load first.
-        # Import here to avoid circular imports.
-        from django_q.tasks import async
-        from django_q.models import Task
+        if "channel_id" not in request.data:
+            raise serializers.ValidationError("The 'channel_id' field is required.")
 
-        if "id" not in request.data:
-            raise serializers.ValidationError("The 'id' field is required.")
+        task_id = async(_networkimport, request.data['channel_id'], group=TASKTYPE, progress_updates=True)
 
-        channel_id = request.data['id']
+        # attempt to get the created Task, otherwise return pending status
+        resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id)
 
-        task_id = async(_importchannel, channel_id, group=TASKTYPE, progress_updates=True)
+        return Response(resp)
 
-        # id status metadata
+    @list_route(methods=['post'])
+    def startlocalimport(self, request):
+        '''
+        Import a channel from a local drive, and copy content to the local machine.
 
-        # wait for the task instance to be saved first before continuing
-        taskobj = Task.get_task(task_id)
-        if taskobj:             # the task object has been saved!
-            resp = _task_to_response(taskobj)
-        else:                   # task object hasn't been saved yet, fake the response for now
-            resp = {
-                "type": TASKTYPE,
-                "status": "PENDING",
-                "percentage": 0,
-                "metadata": {},
-                "id": task_id,
-            }
+        '''
+        TASKTYPE = "localimport"
+
+        if "drive_id" not in request.data:
+            raise serializers.ValidationError("The 'drive_id' field is required.")
+
+        task_id = async(_localimport, request.data['drive_id'], group=TASKTYPE, progress_updates=True)
+
+        # attempt to get the created Task, otherwise return pending status
+        resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id)
+
+        return Response(resp)
+
+    @list_route(methods=['post'])
+    def startlocalexport(self, request):
+        '''
+        Export a channel to a local drive, and copy content to the drive.
+
+        '''
+        TASKTYPE = "localexport"
+
+        if "drive_id" not in request.data:
+            raise serializers.ValidationError("The 'drive_id' field is required.")
+
+        task_id = async(_localexport, request.data['drive_id'], group=TASKTYPE, progress_updates=True)
+
+        # attempt to get the created Task, otherwise return pending status
+        resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id)
 
         return Response(resp)
 
@@ -85,13 +102,6 @@ class TasksViewSet(viewsets.ViewSet):
         ])
         return Response({})
 
-    @list_route(methods=['post'])
-    def startlocalimportchannel(self, request):
-        '''
-        Import a channel locally, and move content to the local machine.
-
-        '''
-
     @list_route(methods=['get'])
     def localdrive(self, request):
         drives = get_mounted_drives_with_channel_info()
@@ -109,16 +119,40 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(out)
 
-def _importchannel(channel_id, update_state=None):
+def _networkimport(channel_id, update_state=None):
     call_command("importchannel", "network", channel_id, update_state=update_state)
     call_command("importcontent", "network", channel_id, update_state=update_state)
 
+def _localimport(drive_id, update_state=None):
+    drives = get_mounted_drives_with_channel_info()
+    drive = drives[drive_id]
+    for channel in drive.metadata["channels"]:
+        call_command("importchannel", "local", channel["id"], drive.datafolder, update_state=update_state)
+        call_command("importcontent", "local", channel["id"], drive.datafolder, update_state=update_state)
 
-def _task_to_response(task_instance):
+def _localexport(drive_id, update_state=None):
+    drives = get_mounted_drives_with_channel_info()
+    drive = drives[drive_id]
+    for channel in get_channels_for_data_folder(drive.datafolder):
+        call_command("exportchannel", channel["id"], drive.datafolder, update_state=update_state)
+        call_command("exportcontent", channel["id"], drive.datafolder, update_state=update_state)
+
+def _task_to_response(task_instance, task_type=None, task_id=None):
     """"
     Converts a Task object to a dict with the attributes that the
     frontend expects.
     """
+
+    if not task_instance:
+        pending_response = {
+            "type": task_type,
+            "status": "PENDING",
+            "percentage": 0,
+            "metadata": {},
+            "id": task_id,
+        }
+        return pending_response
+
     tasktype = task_instance.group
     status = task_instance.task_status
     percentage = task_instance.progress_fraction
