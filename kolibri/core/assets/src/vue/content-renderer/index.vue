@@ -2,11 +2,12 @@
 
   <div>
     <div v-if="available">
-        <h3 class="progress-percent" v-if="progress > 0">
-          {{ Math.floor(progress * 100) }}%
-        </h3>
       <loading-spinner v-if="!currentViewClass"></loading-spinner>
       <div v-el:container></div>
+      <div class="progress-bar-wrapper">
+        <div class="progress-bar-complete" v-bind:style="{ width: progressPercent + '%' }"></div>
+      </div>
+      <p class="progress-bar-text">{{ progressPercent + ' %' }}</p>
     </div>
     <div v-else>
       {{ $tr('msgNotAvailable') }}
@@ -77,6 +78,9 @@
       defaultFile() {
         return this.availableFiles &&
           this.availableFiles.length ? this.availableFiles[0] : undefined;
+      },
+      progressPercent() {
+        return Math.floor(this.progress * 100);
       },
     },
     init() {
@@ -230,7 +234,21 @@
   div
     height: inherit
 
-  .progress-percent
-    text-align:right
+  .progress-bar-wrapper
+    display: inline-block
+    position: relative
+    width: 100%
+    height: 0.75em
+    background-color: $core-action-light
+
+  .progress-bar-complete
+    height: 100%
+    width: 0
+    background-color: $core-action-normal
+    transition: width, 0.25s, ease
+
+  .progress-bar-text
+    text-align: right
+    margin: 0
 
 </style>
