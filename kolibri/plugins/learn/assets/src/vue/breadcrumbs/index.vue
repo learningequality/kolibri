@@ -130,7 +130,7 @@
     margin-top: 2em
     margin-bottom:1.5em
 
-  .middle-breadcrumb:before
+  .middle-breadcrumb::before
     content: '>'
     margin-left: 0.5em
     margin-right: 0.5em
