@@ -25,6 +25,12 @@ class TaskResource extends Resource {
     return this.client(clientObj);
   }
 
+// TODO: switch to Model.delete()
+  clearTask(taskId) {
+    const clientObj = { path: this.clearTaskUrl(), entity: { id: taskId } };
+    return this.client(clientObj);
+  }
+
   get localExportUrl() {
     return this.urls[`${this.name}_startlocalexportchannel`]; // not yet implemented in api
   }
@@ -36,6 +42,9 @@ class TaskResource extends Resource {
   }
   get localDriveUrl() {
     return this.urls[`${this.name}_localdrive`];
+  }
+  get clearTaskUrl() {
+    return this.urls[`${this.name}_cleartask`];
   }
 }
 

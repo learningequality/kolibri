@@ -326,20 +326,14 @@ function pollTasksAndChannels(store) {
   );
 }
 
-function deleteTask(store, id) {
-  console.log('NOT IMPLEMENTED');
-  console.log('To clear tasks, from the command-line, run:');
-  console.log(
-    `sqlite3 ~/.kolibri/ormq.sqlite3 'delete from django_q_task; delete from django_q_ormq;'`
-  );
-  // const currentTaskPromise = TaskResource.getModel(id).delete();
-  // currentTaskPromise.then(() => {
-  //   // only 1 task should be running, but we set to empty array
-  //   store.dispatch('SET_CONTENT_PAGE_TASKS', []);
-  // })
-  // .catch((error) => {
-  //   store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  // });
+function clearTask(store, taskId) {
+  const clearTaskPromise = TaskResource.clearTask(taskId);
+  clearTaskPromise.then(() => {
+    store.dispatch('SET_CONTENT_PAGE_TASKS', []);
+  })
+  .catch((error) => {
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
 }
 
 function triggerLocalContentImportTask(store, driveId) {
@@ -408,7 +402,7 @@ module.exports = {
 
   showContentPage,
   pollTasksAndChannels,
-  deleteTask,
+  clearTask,
   startImportWizard,
   startExportWizard,
   showImportNetworkWizard,

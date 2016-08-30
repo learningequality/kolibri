@@ -63,7 +63,7 @@
     },
     methods: {
       clearTask() {
-        this.deleteTask(this.id);
+        this.clearTask(this.id);
       },
     },
     props: {
@@ -86,7 +86,7 @@
     },
     vuex: {
       actions: {
-        deleteTask: actions.deleteTask,
+        clearTask: actions.clearTask,
       },
     },
   };
