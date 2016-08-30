@@ -1,9 +1,7 @@
 <template>
 
-  <modal :has-error="errorMessage ? true : false" @open="clear" title="Add New Account">
-
-    <div @keyup.enter="createNewUser" slot="body">
-
+  <modal :has-error="errorMessage ? true : false" @open.stop="clear" title="Add New Account">
+    <div @keydown.enter="createNewUser">
       <!-- Fields for the user to fill out -->
       <section class="user-fields">
         <div class="user-field">
@@ -37,15 +35,13 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <p class="error-message" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
-        <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
+        <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
+        <button class="create-btn" type="button" @keydown.enter.stop @click="createNewUser">
+          Create Account
+        </button>
       </section>
     </div>
   </modal>
-
-  <icon-button @click="open" class="add-user-button" text="Add New" :primary="false">
-    <svg class="add-user" src="../icons/add_new_user.svg" role="presentation"></svg>
-  </icon-button>
 
 </template>
 
@@ -112,10 +108,9 @@
         this.errorMessage = '';
       },
       close() {
+        this.clear();
+        this.$emit('close');
         this.$broadcast('close');
-      },
-      open() {
-        this.$broadcast('open');
       },
     },
     vuex: {
@@ -179,10 +174,7 @@
       border-color: transparent
       color: $core-action-light
 
-  .add-user-button
-    width: 100%
-
-  .error-message
+  .error
     color: $core-text-alert
 
   .secondary

@@ -28,12 +28,27 @@
       </div>
 
       <div class="create">
-        <user-create-modal></user-create-modal>
+        <icon-button @click="openCreateUserModal" class="create-user-button" text="Add New" :primary="false">
+          <svg class="add-user" src="../icons/add_new_user.svg" role="presentation"></svg>
+        </icon-button>
       </div>
 
     </div>
 
     <hr>
+
+    <!-- Modals -->
+    <user-edit-modal
+      v-if="editingUser"
+      :userid="currentUserEdit.id"
+      :username="currentUserEdit.username"
+      :fullname="currentUserEdit.full_name"
+      :roles="currentUserEdit.roles"
+      @close="closeEditUserModal">
+    </user-edit-modal>
+
+    <user-create-modal v-if="creatingUser" @close="closeCreateUserModal">
+    </user-create-modal>
 
     <table class="roster">
 
@@ -77,12 +92,10 @@
 
           <!-- Edit field -->
           <td class="table-cell">
-            <user-edit-modal
-              :userid="user.id"
-              :roles="user.roles"
-              :username="user.username"
-              :fullname="user.full_name">
-            </user-edit-modal>
+            <icon-button class="edit-user-button" @click="openEditUserModal(user)">
+              <span class="visuallyhidden">Edit Account Info</span>
+              <svg src="../icons/pencil.svg"></svg>
+            </icon-button>
           </td>
 
         </tr>
@@ -106,11 +119,15 @@
     components: {
       'user-create-modal': require('./user-create-modal'),
       'user-edit-modal': require('./user-edit-modal'),
+      'icon-button': require('icon-button'),
     },
     // Has to be a funcion due to vue's treatment of data
     data: () => ({
       roleFilter: '',
       searchFilter: '',
+      creatingUser: false,
+      editingUser: false,
+      currentUserEdit: null,
     }),
     computed: {
       noUsersExist() {
@@ -178,6 +195,22 @@
           }
           return 0;
         });
+      },
+    },
+    methods: {
+      openEditUserModal(user) {
+        this.currentUserEdit = user;
+        this.editingUser = true;
+      },
+      closeEditUserModal() {
+        this.editingUser = false;
+        this.currentUserEdit = {};
+      },
+      openCreateUserModal() {
+        this.creatingUser = true;
+      },
+      closeCreateUserModal() {
+        this.creatingUser = false;
       },
     },
     vuex: {
@@ -290,6 +323,18 @@
     height: $toolbar-height
     float: left
     margin-left: 5px
+
+  .edit-user-button
+    border: none
+    svg
+      fill: $core-action-normal
+      cursor: pointer
+      &:hover
+        fill: $core-action-dark
+
+  .create-user-button
+    width: 100%
+
 
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar

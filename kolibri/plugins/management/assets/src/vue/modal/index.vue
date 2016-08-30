@@ -3,9 +3,7 @@
   <!-- Accessibility properties for the overlay -->
 
   <!-- Aria-Hidden and TabIndex in .modal might not be necessary because of conditional rendering -->
-  <!-- mostly there in case we switch to v-show -->
   <div class="modal-overlay"
-    v-if="visible"
     @keydown.esc="closeModal"
     @click="bgClick($event)"
     v-el:modal-overlay
@@ -17,7 +15,7 @@
       transition="modal"
       role="dialog"
       aria-labelledby="modal-title">
-      
+
       <!-- Close Button -->
       <button aria-label="Close dialog window" @click="closeModal" class="btn-close">
         <svg src="../icons/close.svg" role="presentation"></svg>
@@ -35,9 +33,9 @@
       </h1>
 
       <!-- Modal Content -->
-      <slot name="body" class="modal-content" id="modal-holder" role="document">
+      <slot>
         <p>
-          To populate, add <code>slot="body"</code> to the HTML element you want to fill here.
+          To populate, wrap your content in <code> with modal </code>.
         </p>
       </slot>
 
@@ -48,8 +46,6 @@
 
 
 <script>
-
-  const vue = require('vue');
 
   module.exports = {
     props: {
@@ -82,20 +78,19 @@
       if (this.disableClose) {
         this.$off('close');
       }
+
+      this.openModal();
     },
     events: {
       open() {
-        this.visible = true;
         this.lastFocus = document.activeElement;
         // Need to wait for DOM to update asynchronously, then get the modal element
-        vue.nextTick(() => {
-          this.focusModal();
-          // pass in a function, not a function call.
-          window.addEventListener('blur', this.focusElementTest, true);
-        });
+        this.focusModal();
+        // pass in a function, not a function call.
+        window.addEventListener('blur', this.focusElementTest, true);
+        window.addEventListener('scroll', (event) => event.preventDefault(), true);
       },
       close() {
-        this.visible = false;
         // needs to be an exact match to the one that was assigned.
         window.removeEventListener('blur', this.focusElementTest, true);
         this.lastFocus.focus();
@@ -103,7 +98,6 @@
     },
     data() {
       return {
-        visible: false,
         lastFocus: '',
       };
     },
@@ -148,6 +142,7 @@
     height: 100%
     background: rgba(0, 0, 0, 0.7)
     transition: opacity 0.3s ease
+    background-attachment: fixed
 
   .modal
     position: absolute
@@ -157,12 +152,16 @@
     width: 60%
     background: #fff
     max-width: 380px
+    max-height: 80%
+    overflow-y: auto
     border-radius: $radius
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     transition: all 0.3s ease
     margin: 0 auto
     padding: 15px 30px
-
+    @media (max-width: $portrait-breakpoint)
+      width: 85%
+      top: 45%
   .btn-close
     float: right
     color: $core-text-default

@@ -1,66 +1,65 @@
 <template>
 
-  <div class="user-edit-modal">
-    <modal @open="clear" title="Edit Account Info" :has-error="error_message ? true : false">
+  <modal @open="clear" title="Edit Account Info" :has-error="error_message ? true : false">
+    <!-- User Edit Normal -->
+    <div @keydown.enter="editUser">
+      <template v-if="!usr_delete && !pw_reset">
 
-      <!-- User Edit Normal -->
-      <div @keyup.enter="editUser" slot="body">
-        <template v-if="!usr_delete && !pw_reset">
+        <div class="user-field">
+          <label for="fullname">Full Name</label>:
+          <input type="text" class="edit-form edit-fullname" aria-label="fullname" id="fullname" v-model="fullName_new">
+        </div>
 
-          <div class="user-field">
-            <label for="fullname">Full Name</label>:
-            <input type="text" class="edit-form edit-fullname" aria-label="fullname" id="fullname" v-model="fullName_new">
-          </div>
+        <div class="user-field">
+          <label for="username">Username</label>:
+          <input type="text" class="edit-form edit-username" aria-label="username" id="username" v-model="username_new">
+        </div>
 
-          <div class="user-field">
-            <label for="username">Username</label>:
-            <input type="text" class="edit-form edit-username" aria-label="username" id="username" v-model="username_new">
-          </div>
+        <div class="user-field">
+          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
+          <select v-model="role_new" id="user-role">
+            <option :selected="role_new == learner" v-if="role_new" value="learner"> Learner </option>
+            <option :selected="role_new == admin" value="admin"> Admin </option>
+          </select>
+        </div>
 
-          <div class="user-field">
-            <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-            <select v-model="role_new" id="user-role">
-              <option :selected="role_new == learner" v-if="role_new" value="learner"> Learner </option>
-              <option :selected="role_new == admin" value="admin"> Admin </option>
-            </select>
-          </div>
+        <div class="advanced-options">
+          <button @click="pw_reset=!pw_reset"> Reset Password </button>
+          <button @click="usr_delete=!usr_delete"> Delete User</button>
+        </div>
 
-          <div class="advanced-options">
-            <button @click="pw_reset=!pw_reset"> Reset Password </button>
-            <button @click="usr_delete=!usr_delete"> Delete User</button>
-          </div>
+        <hr class="end-modal">
 
-          <hr class="end-modal">
+      </template>
 
-        </template>
+      <!-- Password Reset Mode -->
+      <template v-if="pw_reset" >
+        <p>Username: <b>{{username_new}}</b></p>
+        <div class="user-field">
+          <label for="password">Enter new password</label>:
+          <input type="password" class="edit-form" id="password" required v-model="password_new">
+        </div>
 
-        <!-- Password Reset Mode -->
-        <template v-if="pw_reset" >
-          <p>Username: <b>{{username_new}}</b></p>
-          <div class="user-field">
-            <label for="password">Enter new password</label>:
-            <input type="password" class="edit-form" id="password" required v-model="password_new">
-          </div>
+        <div class="user-field">
+          <label for="password-confirm">Confirm new password</label>:
+          <input type="password" class="edit-form" id="password-confirm" required v-model="password_new_confirm">
+        </div>
+      </template>
 
-          <div class="user-field">
-            <label for="password-confirm">Confirm new password</label>:
-            <input type="password" class="edit-form" id="password-confirm" required v-model="password_new_confirm">
-          </div>
-        </template>
-
-        <!-- User Delete Mode -->
-        <template v-if="usr_delete">
-          <div class="user-field">
-            <p>Are you sure you want to delete <b>{{username_new}}</b>?</p>
-          </div>
-        </template>
+      <!-- User Delete Mode -->
+      <template v-if="usr_delete">
+        <div class="user-field">
+          <p>Are you sure you want to delete <b>{{username_new}}</b>?</p>
+        </div>
+      </template>
 
 
-        <!-- Error Messages -->
-        <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
-        <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
+      <!-- Error Messages -->
+      <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
+      <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
 
-        <!-- Button Section TODO: cleaunup -->
+      <!-- Button Section TODO: cleaunup -->
+      <section @keydown.enter.stop>
         <button v-if="!usr_delete && !pw_reset" class="undo-btn" type="button" @click="close">
           Cancel
         </button>
@@ -71,7 +70,6 @@
           <!-- For delete option -->
           <template v-if="usr_delete"> No </template>
         </button>
-
 
         <button v-if="!usr_delete && !pw_reset" class="confirm-btn" type="button" @click="editUser">
           Confirm
@@ -84,15 +82,9 @@
         <button v-if="usr_delete" class="confirm-btn" type="button" @click="delete">
           Yes
         </button>
-      </div>
-    </modal>
-
-    <button class="no-border" @click="open">
-      <span class="visuallyhidden">Edit Account Info</span>
-      <svg class="manage-edit" role="presentation" src="../icons/pencil.svg"></svg>
-    </button>
-
-  </div>
+      </section>
+    </div>
+  </modal>
 
 </template>
 
@@ -178,10 +170,8 @@
       clear() {
         this.$data = this.$options.data();
       },
-      open() {
-        this.$broadcast('open');
-      },
       close() {
+        this.$emit('close');
         this.$broadcast('close');
       },
       clearErrorMessage() {
@@ -212,9 +202,6 @@
 
   .title
     display: inline
-
-  .no-border
-    border: none
 
   .confirm-btn, .undo-btn
     width: 48%
@@ -270,22 +257,11 @@
   .header
     text-align: center
 
-  .manage-edit
-    fill: $core-action-normal
-    cursor: pointer
-    &:hover
-      fill: $core-action-dark
-
   .advanced-options
     padding-bottom: 5%
     button
       display: block
       border: none
-
-  .end-modal
-    position: relative
-    width: 378px
-    left: -30px
 
   p
     word-break: keep-all
