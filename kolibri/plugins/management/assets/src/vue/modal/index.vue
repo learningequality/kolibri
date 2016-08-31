@@ -1,8 +1,6 @@
 <template>
 
   <!-- Accessibility properties for the overlay -->
-
-  <!-- Aria-Hidden and TabIndex in .modal might not be necessary because of conditional rendering -->
   <div class="modal-overlay"
     @keydown.esc="closeModal"
     @click="bgClick($event)"
@@ -24,19 +22,13 @@
       <!-- Modal Title -->
       <h1 v-show="!invisibleTitle" class="title" id="modal-title">
         <!-- Accessible error reporting per @radina -->
-        <span v-if="hasError" class="visuallyhidden">
-          Error in:
-        </span>
-
+        <span v-if="hasError" class="visuallyhidden">Error in:</span>
         {{title}}
-
       </h1>
 
       <!-- Modal Content -->
       <slot>
-        <p>
-          To populate, wrap your content in <code> with modal </code>.
-        </p>
+        <p>To populate, wrap your content in <code> with modal </code>.</p>
       </slot>
 
     </div>
@@ -68,7 +60,7 @@
         default: true,
         required: false,
       },
-      // useed to toggle error message in header
+      // toggles error message indicator in header
       hasError: {
         type: Boolean,
         default: false,
@@ -162,6 +154,7 @@
     @media (max-width: $portrait-breakpoint)
       width: 85%
       top: 45%
+
   .btn-close
     float: right
     color: $core-text-default
