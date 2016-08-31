@@ -333,3 +333,6 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 # texinfo_no_detailmenu = False
+
+# Use Django's LOCALE_PATHS config as the target destinations for built po files
+locale_dirs = django.conf.settings.LOCALE_PATHS
