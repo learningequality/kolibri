@@ -87,20 +87,28 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
+    @list_route(methods=['post'])
+    def cleartask(self, request):
+        '''
+        Temporary hack to clear all tasks. Should actually take a single task ID.
+        '''
+        import subprocess
+        import os
+        print("CLEAR TASKS HACK")
+        subprocess.check_output([
+            "sqlite3",
+            os.path.expanduser("~/.kolibri/ormq.sqlite3"),
+            "delete from django_q_task; delete from django_q_ormq;"
+        ])
+        return Response({})
+
     @list_route(methods=['get'])
     def localdrive(self, request):
         drives = get_mounted_drives_with_channel_info()
 
         # make sure everything is a dict, before converting to JSON
         assert isinstance(drives, dict)
-
-        out = []
-        for mountdata in drives.values():
-            mountdata = mountdata._asdict()
-            if mountdata['metadata']['channels']:
-                mountdata['channels'] = [c._asdict() for c in mountdata['channels']]
-
-            out.append(mountdata)
+        out = [mountdata._asdict() for mountdata in drives.values()]
 
         return Response(out)
 

@@ -1,23 +1,20 @@
 <template>
 
-  <div class="fake-modal">
-    <h1>
-      Please choose a source:
-    </h1>
-    <div class="buttons">
-      <icon-button text="Internet">
+  <modal title="Please choose a source..." @cancel="cancelImportExportWizard">
+    <div slot="body">
+      <icon-button text="Internet" @click="showImportNetworkWizard">
         <svg src="./world.svg"></svg>
       </icon-button>
-      <icon-button text="Local Drives">
+      <icon-button text="Local Drives" @click="showImportLocalWizard">
         <svg src="./storage.svg"></svg>
       </icon-button>
     </div>
-    <div class="buttons">
+    <div slot="buttons">
       <button @click="cancelImportExportWizard">
         Cancel
       </button>
     </div>
-  </div>
+  </modal>
 
 </template>
 
@@ -28,16 +25,13 @@
 
   module.exports = {
     components: {
+      'modal': require('./modal'),
       'icon-button': require('icon-button'),
     },
-    data: () => ({
-    }),
-    methods: {
-    },
     vuex: {
-      getters: {
-      },
       actions: {
+        showImportNetworkWizard: actions.showImportNetworkWizard,
+        showImportLocalWizard: actions.showImportLocalWizard,
         cancelImportExportWizard: actions.cancelImportExportWizard,
       },
     },
@@ -46,15 +40,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .fake-modal
-    border: 2px solid black
-    margin: 10px
-    padding: 10px
-
-  .buttons
-    margin: 10px
-    text-align: center
-
-</style>
+<style lang="stylus" scoped></style>
