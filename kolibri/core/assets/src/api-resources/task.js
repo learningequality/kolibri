@@ -16,7 +16,7 @@ class TaskResource extends Resource {
   }
 
   remoteImportContent(channelId) {
-    const clientObj = { path: this.remoteImportUrl(), entity: { id: channelId } };
+    const clientObj = { path: this.remoteImportUrl(), entity: { channel_id: channelId } };
     return this.client(clientObj);
   }
 
