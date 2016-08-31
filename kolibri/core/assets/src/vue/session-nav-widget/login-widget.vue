@@ -1,7 +1,8 @@
 <template>
 
   <div>
-    <modal>
+
+    <modal v-if="modalstate">
       <div class="title" :aria-label="$tr('title')" slot="header">
         <div class="login-brand-box">
           <img src="./icons/kolibri-logo.svg" :alt="kolibriLogo">
@@ -13,16 +14,33 @@
           <h1>{{ $tr('logInError') }}</h1>
           <span aria-live="polite">{{ $tr('validationError') }}<br>{{ $tr('tryAgain') }}</span>
         </div>
-        <input type="text" class="login-form login-username" v-model="username_entered" :placeholder="userName" v-on:keydown.enter="userLogin" :aria-label="userName" v-el:usernamefield autofocus>
-        <input type="password" class="login-form login-password" v-model="password_entered" :placeholder="password" v-on:keydown.enter="userLogin" :aria-label="password">
+        <input
+          type="text"
+          class="login-form login-username"
+          autofocus
+          v-model="username_entered"
+          v-el:usernamefield
+          :placeholder="userName"
+          :aria-label="userName"
+          @keydown.enter="userLogin"
+        >
+        <input
+          type="password"
+          class="login-form login-password"
+          v-model="password_entered"
+          :placeholder="password"
+          @keydown.enter="userLogin"
+          :aria-label="password"
+        >
         <button class="login-button" @click="userLogin">{{ $tr('logIn') }}</button>
       </div>
-      <div slot="footer"></div>
-      <div slot="openbtn" @click="clearForm">
-        <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
-        <div class="label">{{ $tr('logIn') }}</div>
-      </div>
     </modal>
+
+    <div @click="clearForm">
+      <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
+      <div class="label">{{ $tr('logIn') }}</div>
+    </div>
+
   </div>
 
 </template>
@@ -57,7 +75,7 @@
       },
     },
     components: {
-      modal: require('../modal/index.vue'),
+      modal: require('../modal'),
     },
     data: () => ({
       username_entered: '',
@@ -88,9 +106,8 @@
     },
     vuex: {
       getters: {
-        kind: state => state.core.session.kind,
         wrongCreds: state => state.core.session.error === '401',
-        modalstate: state => state.core.login_modal_state,
+        modalstate: state => state.core.login_modal_visible,
       },
       actions: {
         login: actions.kolibriLogin,

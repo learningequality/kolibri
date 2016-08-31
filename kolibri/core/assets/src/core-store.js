@@ -15,7 +15,7 @@ const initialState = {
                facility_id: undefined,
                kind: [UserKinds.ANONYMOUS],
                error: '200' },
-    login_modal_state: false,
+    login_modal_visible: false,
     fullname: '',
     logging: {
       summary: { progress: 0 },
@@ -27,7 +27,7 @@ const initialState = {
 const mutations = {
   CORE_SET_SESSION(state, value) {
     state.core.session = value;
-    state.core.login_modal_state = false;
+    state.core.login_modal_visible = false;
   },
   // Makes settings for wrong credentials 401 error
   CORE_HANDLE_WRONG_CREDS(state, value) {
@@ -53,8 +53,8 @@ const mutations = {
     state.core.error = error;
   },
   // Handles state of login modal appearance
-  CORE_SET_MODAL_STATE(state, value) {
-    state.core.login_modal_state = value;
+  CORE_SET_LOGIN_MODAL_VISIBLE(state, value) {
+    state.core.login_modal_visible = value;
   },
   SET_LOGGING_SUMMARY_STATE(state, summaryState) {
     state.core.logging.summary = summaryState;

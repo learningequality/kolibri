@@ -1,13 +1,14 @@
 <template>
 
-  <nav-bar-item tabindex="0" v-el:navbaritem @click="loginTabHack" v-on:keyup.enter="loginTabHack">
+  <nav-bar-item v-if="loggedIn" tabindex="0" @click="toggleDropdown" @keyup.enter="toggleDropdown">
     <div class="wrapper">
-      <div v-if="loggedIn">
-        <div class="user-icon" id="user-dropdown">{{ initial }}</div>
-      </div>
-      <div v-else>
-        <login-modal></login-modal>
-      </div>
+      <div class="user-icon" id="user-dropdown">{{ initial }}</div>
+    </div>
+  </nav-bar-item>
+
+  <nav-bar-item v-else tabindex="0" @click="openLogin" @keyup.enter="openLogin">
+    <div class="wrapper">
+      <login-widget></login-widget>
     </div>
   </nav-bar-item>
 
@@ -21,7 +22,7 @@
           <p id="dropdown-usertype">{{ userkind }}</p>
         </li>
         <li id="logout-tab">
-          <div tabindex="0" v-on:keyup.enter="userLogout" @click="userLogout" :aria-label="logOutText">
+          <div tabindex="0" @keyup.enter="userLogout" @click="userLogout" :aria-label="logOutText">
             <span>{{ $tr('logOut') }}</span>
           </div>
         </li>
@@ -44,7 +45,7 @@
     },
     components: {
       'nav-bar-item': require('nav-bar-item'),
-      'login-modal': require('./login-modal.vue'),
+      'login-widget': require('./login-widget'),
     },
     data: () => ({
       showDropdown: false,
@@ -76,26 +77,11 @@
       },
     },
     methods: {
-      // extreme hack for making entire session tab clickable/accessible
-      loginTabHack() {
-        if (!this.loggedIn) {
-          this.openLogin();
-        } else {
-          this.toggleDropdown();
-        }
-        this.$els.navbaritem.blur();
-      },
       openLogin() {
-        if (!this.modalstate) {
-          this.togglemodal(true);
-        }
+        this.setLoginModalVisible(true);
       },
       toggleDropdown() {
-        if (!this.showDropdown) {
-          this.showDropdown = true;
-        } else {
-          this.showDropdown = false;
-        }
+        this.showDropdown = !this.showDropdown;
       },
       userLogout() {
         this.logout(this.Kolibri);
@@ -105,7 +91,7 @@
     vuex: {
       actions: {
         logout: actions.kolibriLogout,
-        togglemodal: actions.togglemodal,
+        setLoginModalVisible: actions.setLoginModalVisible,
       },
       getters: {
         loggedIn: state => state.core.session.kind[0] !== UserKinds.ANONYMOUS,
@@ -113,7 +99,6 @@
         fullname: state => state.core.session.full_name,
         username: state => state.core.session.username,
         kind: state => state.core.session.kind,
-        modalstate: state => state.core.login_modal_state,
       },
     },
   };

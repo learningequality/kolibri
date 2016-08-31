@@ -1,7 +1,7 @@
 <template>
 
-  <div class="modal-root" v-on:keydown.esc="closeModalHack" role="dialog">
-    <div class="modal" v-show="modalstate" transition="modal">
+  <div class="modal-root" @keydown.esc="closeModalHack" role="dialog">
+    <div class="modal" transition="modal">
       <div class="modal-wrapper">
         <div class="modal-backdrop" @click="closeModalHack"></div>
         <div class="modal-container">
@@ -18,19 +18,8 @@
             <slot name="body">
             </slot>
           </div>
-          <div class="modal-footer">
-            <slot name="footer">
-              <button @click="closeModalHack" class="close-btn">{{ $tr('ok') }}</button>
-            </slot>
-          </div>
         </div>
       </div>
-    </div>
-
-    <div>
-      <slot name="openbtn">
-        <button>{{ btntext }}</button>
-      </slot>
     </div>
   </div>
 
@@ -55,15 +44,12 @@
         setTimeout(this.closeLoginModal, 100);
       },
       closeLoginModal() {
-        this.togglemodal(false);
+        this.setLoginModalVisible(false);
       },
     },
     vuex: {
-      getters: {
-        modalstate: state => state.core.login_modal_state,
-      },
       actions: {
-        togglemodal: actions.togglemodal,
+        setLoginModalVisible: actions.setLoginModalVisible,
       },
     },
   };

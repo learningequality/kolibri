@@ -146,12 +146,8 @@ function currentLoggedInUser(store, Kolibri) {
   });
 }
 
-function togglemodal(store, bool) {
-  store.dispatch('CORE_SET_MODAL_STATE', bool);
-  if (!bool) {
-    // Clears the store to clear any error message from login modal
-    store.dispatch('CORE_CLEAR_SESSION');
-  }
+function setLoginModalVisible(store, bool) {
+  store.dispatch('CORE_SET_LOGIN_MODAL_VISIBLE', bool);
 }
 
 
@@ -358,7 +354,7 @@ module.exports = {
   kolibriLogin,
   kolibriLogout,
   currentLoggedInUser,
-  togglemodal,
+  setLoginModalVisible,
   initContentSession,
   startTrackingProgress,
   stopTrackingProgress,
