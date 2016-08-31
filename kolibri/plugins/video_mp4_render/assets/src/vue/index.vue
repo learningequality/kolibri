@@ -125,29 +125,29 @@
       },
 
       videoPlayerIsReady() {
-        this.videoPlayer.addChild('ReplayButton');
-        this.videoPlayer.addChild('ForwardButton');
-        this.videoPlayer.addChild('TogglePlayButton');
+        // this.videoPlayer.addChild('ReplayButton');
+        // this.videoPlayer.addChild('ForwardButton');
+        // this.videoPlayer.addChild('TogglePlayButton');
 
-        const centerButtons = this.$els.videowrapper.childNodes[1];
-        const toggleButton = centerButtons
-          .getElementsByClassName('videotoggle')[0];
-        const replayButton = centerButtons
-          .getElementsByClassName('videoreplay')[0];
-        const forwardButton = centerButtons
-          .getElementsByClassName('videoforward')[0];
+        // const centerButtons = this.$els.videowrapper.childNodes[1];
+        // const toggleButton = centerButtons
+        //   .getElementsByClassName('videotoggle')[0];
+        // const replayButton = centerButtons
+        //   .getElementsByClassName('videoreplay')[0];
+        // const forwardButton = centerButtons
+        //   .getElementsByClassName('videoforward')[0];
 
-        videojs(this.$els.video).on('useractive', () => {
-          toggleButton.classList.remove('userInactive');
-          replayButton.classList.remove('userInactive');
-          forwardButton.classList.remove('userInactive');
-        });
+        // videojs(this.$els.video).on('useractive', () => {
+        //   toggleButton.classList.remove('userInactive');
+        //   replayButton.classList.remove('userInactive');
+        //   forwardButton.classList.remove('userInactive');
+        // });
 
-        videojs(this.$els.video).on('userinactive', () => {
-          toggleButton.classList.add('userInactive');
-          replayButton.classList.add('userInactive');
-          forwardButton.classList.add('userInactive');
-        });
+        // videojs(this.$els.video).on('userinactive', () => {
+        //   toggleButton.classList.add('userInactive');
+        //   replayButton.classList.add('userInactive');
+        //   forwardButton.classList.add('userInactive');
+        // });
 
         videojs(this.$els.video).on('play', () => {
           this.setPlayState(true);
@@ -192,13 +192,14 @@
         autoplay: false,
         controls: true,
         textTrackDisplay: true,
-        bigPlayButton: false,
+        bigPlayButton: true,
         inactivityTimeout: 1000,
         preload: 'metadata',
         // poster: this.posterSource,
         playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
         controlBar: {
           children: [
+            { name: 'playToggle' },
             { name: 'currentTimeDisplay' },
             { name: 'timeDivider' },
             { name: 'progressControl' },
