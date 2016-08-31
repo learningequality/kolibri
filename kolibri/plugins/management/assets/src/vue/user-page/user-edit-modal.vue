@@ -1,6 +1,6 @@
 <template>
 
-  <modal @open="clear" title="Edit Account Info" :has-error="error_message ? true : false">
+  <core-modal @open="clear" title="Edit Account Info" :has-error="error_message ? true : false">
     <!-- User Edit Normal -->
     <div @keydown.enter="editUser">
       <template v-if="!usr_delete && !pw_reset">
@@ -84,7 +84,7 @@
         </button>
       </section>
     </div>
-  </modal>
+  </core-modal>
 
 </template>
 
@@ -96,9 +96,7 @@
   const UserKinds = require('kolibri').constants.UserKinds;
 
   module.exports = {
-    components: {
-      modal: require('../modal'),
-    },
+    components: {},
     props: [
       'userid', 'username', 'fullname', 'roles', // TODO - validation
     ],

@@ -16,7 +16,7 @@
 
       <!-- Close Button -->
       <button aria-label="Close dialog window" @click="closeModal" class="btn-close">
-        <svg src="../icons/close.svg" role="presentation"></svg>
+        <svg src="./close.svg" role="presentation"></svg>
       </button>
 
       <!-- Modal Title -->
