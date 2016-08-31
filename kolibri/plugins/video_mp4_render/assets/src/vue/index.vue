@@ -235,25 +235,25 @@
   @import '../../../../../../node_modules/video.js/dist/video-js.css'
 
   // Videojs skin customization
-  .video-js
-    font-size: 1em
-    color: #fff
-    margin: 0 auto
-    .vjs-slider
-      background-color: #545454
-      background-color: rgba(84, 84, 84, 0.5)
-    .vjs-load-progress
-      background: lighten(#545454, 25%)
-      background: rgba(84, 84, 84, 0.5)
-      div
-        background: lighten(#545454, 50%)
-        background: rgba(84, 84, 84, 0.75)
+  // .video-js
+  //   font-size: 1em
+  //   color: #fff
+  //   margin: 0 auto
+  //   .vjs-slider
+  //     background-color: #545454
+  //     background-color: rgba(84, 84, 84, 0.5)
+  //   .vjs-load-progress
+  //     background: lighten(#545454, 25%)
+  //     background: rgba(84, 84, 84, 0.5)
+  //     div
+  //       background: lighten(#545454, 50%)
+  //       background: rgba(84, 84, 84, 0.75)
 
-  .video-js .vjs-control-bar,
-  .video-js .vjs-big-play-button,
-  .video-js .vjs-menu-button .vjs-menu-content
-    background-color: #000
-    background-color: rgba(0, 0, 0, 0.7)
+  // .video-js .vjs-control-bar,
+  // .video-js .vjs-big-play-button,
+  // .video-js .vjs-menu-button .vjs-menu-content
+  //   background-color: #000
+  //   background-color: rgba(0, 0, 0, 0.7)
 
    // Custom style
   .videowrapperwrapper
@@ -301,21 +301,21 @@
     width: 75px
 
   .video-js .videoreplay
-    background: url('../icons/ic_replay_10_white.svg')
+    background: url('../icons/replay.svg')
     background-repeat: no-repeat
     background-size: contain
     background-color: rgba(0, 0, 0, 0.3)
     left: calc(50% - 125px)
 
   .video-js .videoforward
-    background: url('../icons/ic_forward_10_white.svg')
+    background: url('../icons/forward.svg')
     background-repeat: no-repeat
     background-size: contain
     background-color: rgba(0, 0, 0, 0.3)
     left: calc(50% + 125px)
 
   .video-js .videotoggle
-    background: url('../icons/ic_play_circle_outline_white.svg')
+    background: url('../icons/play.svg')
     background-repeat: no-repeat
     background-size: contain
     background-color: rgba(0, 0, 0, 0.3)
@@ -324,7 +324,7 @@
     width: 125px
 
   .video-js .videopaused
-    background: url('../icons/ic_pause_circle_outline_white.svg')
+    background: url('../icons/pause.svg')
     background-repeat: no-repeat
     background-size: contain
     background-color: rgba(0, 0, 0, 0.3)
