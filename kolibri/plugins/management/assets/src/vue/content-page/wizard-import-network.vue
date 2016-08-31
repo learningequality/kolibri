@@ -4,8 +4,10 @@
     title="Import Channel from the Internet"
     :error="wizardState.error"
     :noclose="wizardState.busy"
+    :showback="true"
     @cancel="cancel"
     @submit="submit"
+    @back="startImportWizard"
   >
     <div slot="body">
       <p>Please enter a content channel ID:</p>
@@ -51,6 +53,7 @@
         wizardState: (state) => state.pageState.wizardState,
       },
       actions: {
+        startImportWizard: actions.startImportWizard,
         triggerRemoteContentImportTask: actions.triggerRemoteContentImportTask,
         cancelImportExportWizard: actions.cancelImportExportWizard,
       },

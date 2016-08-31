@@ -2,7 +2,7 @@
 
   <div class="fake-modal" @keyup.esc="cancel" @keyup.enter="submit">
     <div>
-      <button class="back-btn" v-if="showback">Back</button>
+      <button class="back-btn" @click="back" v-if="showback">Back</button>
       <button class="close-btn" @click="cancel" :disabled="noclose">X</button>
     </div>
     <h1 v-if="title">{{ title }}</h1>
@@ -50,7 +50,14 @@
         }
       },
       submit() {
-        this.$emit('submit');
+        if (!this.noclose) {
+          this.$emit('submit');
+        }
+      },
+      back() {
+        if (!this.noclose) {
+          this.$emit('back');
+        }
       },
     },
   };

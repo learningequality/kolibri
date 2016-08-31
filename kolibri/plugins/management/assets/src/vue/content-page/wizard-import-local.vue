@@ -4,8 +4,10 @@
     title="Import Channel from a Local Drive"
     :error="wizardState.error"
     :noclose="wizardState.busy"
+    :showback="true"
     @cancel="cancel"
     @submit="submit"
+    @back="startImportWizard"
   >
     <div slot="body">
 
@@ -33,7 +35,7 @@
       </template>
       <loading-spinner v-else></loading-spinner>
 
-      <button @click="refresh" :disabled="wizardState.busy">
+      <button @click="updateWizardLocalDriveList" :disabled="wizardState.busy">
         Refresh
       </button>
     </div>
@@ -90,9 +92,6 @@
       },
     },
     methods: {
-      refresh() {
-        this.updateWizardLocalDriveList();
-      },
       submit() {
         this.triggerLocalContentImportTask(this.driveToUse);
       },
@@ -107,6 +106,7 @@
         wizardState: (state) => state.pageState.wizardState,
       },
       actions: {
+        startImportWizard: actions.startImportWizard,
         updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
         cancelImportExportWizard: actions.cancelImportExportWizard,
         triggerLocalContentImportTask: actions.triggerLocalContentImportTask,
