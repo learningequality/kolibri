@@ -1,16 +1,16 @@
 <template>
 
   <div>
-    <div class="visuallyhidden" id="progress-bar-label">{{ $tr('progressComplete') }}</div>
+    <div class="visuallyhidden" id="progress-bar-label">{{ $tr('yourProgressIs') }}</div>
     <div class="progress-bar-wrapper"
-      role="progress-bar"
+      role="progressbar"
       aria-labelledby="progress-bar-label"
       :aria-valuenow="progressPercent"
       aria-valuemin="0"
       aria-valuemax="100">
       <div class="progress-bar-complete" v-bind:style="{ width: progressPercent + '%' }"></div>
     </div>
-    <p class="progress-bar-text">{{ progressPercent + ' % ' + $tr('complete') }}</p>
+    <p class="progress-bar-text">{{ progressPercent + '% ' + $tr('complete') }}</p>
   </div>
 
 </template>
@@ -21,7 +21,7 @@
   module.exports = {
     $trNameSpace: 'progressBar',
     $trs: {
-      progressComplete: 'Progress Complete',
+      yourProgressIs: 'Your progress is:',
       complete: 'Complete',
     },
     props: {
