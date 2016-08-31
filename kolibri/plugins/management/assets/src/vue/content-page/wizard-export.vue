@@ -8,19 +8,41 @@
     @submit="submit"
   >
     <div slot="body">
-      <p>Please select a drive to export to:</p>
-      <select>
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-      </select>
+
+      <template v-if="!drivesLoading">
+        <p v-if="writableDrives.length === 0">
+          No writable driveswere detected.
+        </p>
+        <p v-if="writableDrives.length === 1">
+          Writable drive detected: {{ writableDrives[0].name }}
+        </p>
+        <template v-if="writableDrives.length > 1">
+          <p>Writable drives detected:</p>
+          <div v-for="(index, drive) in writableDrives">
+            <input
+              type="radio"
+              :id="'drive-'+index"
+              :value="drive.id"
+              v-model="selectedDrive"
+            >
+            <label :for="'drive-'+index">{{drive.name}} {{index}}</label>
+          </div>
+        </template>
+
+        <p v-if="unwritableDrives.length">Note: {{unwritableDrives.length}} additional drives were detected, but don't appear to be writable.</p>
+      </template>
+      <loading-spinner v-else></loading-spinner>
+
+      <button @click="updateWizardLocalDriveList" :disabled="wizardState.busy">
+        Refresh
+      </button>
     </div>
     <div slot="buttons">
       <button @click="cancel" :disabled="wizardState.busy">
         Cancel
       </button>
-      <button @click="submit" :disabled="wizardState.busy">
-        Import
+      <button @click="submit" :disabled="!canSubmit">
+        Export
       </button>
     </div>
   </modal>
@@ -37,8 +59,39 @@
       'modal': require('./modal'),
       'icon-button': require('icon-button'),
     },
+    data: () => ({
+      selectedDrive: undefined, // used when there's more than one option
+    }),
+    computed: {
+      driveToUse() {
+        if (this.writableDrives.length === 1) {
+          return this.writableDrives[0].id;
+        }
+        return this.selectedDrive;
+      },
+      drivesLoading() {
+        return this.wizardState.driveList === null;
+      },
+      writableDrives() {
+        return this.wizardState.driveList.filter(
+          (drive) => drive.writable
+        );
+      },
+      unwritableDrives() {
+        return this.wizardState.driveList.filter(
+          (drive) => !drive.writable
+        );
+      },
+      canSubmit() {
+        if (this.drivesLoading || this.wizardState.busy) {
+          return false;
+        }
+        return Boolean(this.driveToUse);
+      },
+    },
     methods: {
       submit() {
+        this.triggerLocalContentExportTask(this.driveToUse);
       },
       cancel() {
         if (!this.wizardState.busy) {
@@ -51,7 +104,10 @@
         wizardState: (state) => state.pageState.wizardState,
       },
       actions: {
+        startImportWizard: actions.startImportWizard,
+        updateWizardLocalDriveList: actions.updateWizardLocalDriveList,
         cancelImportExportWizard: actions.cancelImportExportWizard,
+        triggerLocalContentExportTask: actions.triggerLocalContentExportTask,
       },
     },
   };

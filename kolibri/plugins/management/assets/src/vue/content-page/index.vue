@@ -9,9 +9,11 @@
       :id="pageState.taskList[0].id"
     ></task-status>
 
-    <icon-button v-if="!pageState.taskList.length" text="Add Channel" :primary="true" @click="startImportWizard">
-      <svg src="../icons/add.svg"></svg>
-    </icon-button>
+
+    <div>
+      <button @click="startImportWizard">Import</button>
+      <button @click="startExportWizard">Export</button>
+    </div>
 
     <component v-if="pageState.wizardState.shown" :is="wizardComponent"></component>
 
@@ -71,6 +73,7 @@
       },
       actions: {
         startImportWizard: actions.startImportWizard,
+        startExportWizard: actions.startExportWizard,
         pollTasksAndChannels: actions.pollTasksAndChannels,
       },
     },

@@ -282,6 +282,7 @@ function startExportWizard(store) {
     drivesLoading: false,
     driveList: null,
   });
+  updateWizardLocalDriveList(store);
 }
 
 function showImportNetworkWizard(store) {
