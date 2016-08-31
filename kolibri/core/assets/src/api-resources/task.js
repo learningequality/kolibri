@@ -6,12 +6,12 @@ class TaskResource extends Resource {
   }
 
   localExportContent(driveId) {
-    const clientObj = { path: this.localExportUrl(), entity: { id: driveId } };
+    const clientObj = { path: this.localExportUrl(), entity: { drive_id: driveId } };
     return this.client(clientObj);
   }
 
   localImportContent(driveId) {
-    const clientObj = { path: this.localImportUrl(), entity: { id: driveId } };
+    const clientObj = { path: this.localImportUrl(), entity: { drive_id: driveId } };
     return this.client(clientObj);
   }
 
@@ -20,8 +20,8 @@ class TaskResource extends Resource {
     return this.client(clientObj);
   }
 
-  localDrive() {
-    const clientObj = { path: this.localDriveUrl() };
+  localDrives() {
+    const clientObj = { path: this.localDrivesUrl() };
     return this.client(clientObj);
   }
 
@@ -32,15 +32,15 @@ class TaskResource extends Resource {
   }
 
   get localExportUrl() {
-    return this.urls[`${this.name}_startlocalexportchannel`]; // not yet implemented in api
+    return this.urls[`${this.name}_startlocalexport`];
   }
   get localImportUrl() {
-    return this.urls[`${this.name}_startlocalimportchannel`];
+    return this.urls[`${this.name}_startlocalimport`];
   }
   get remoteImportUrl() {
     return this.urls[`${this.name}_startremoteimport`];
   }
-  get localDriveUrl() {
+  get localDrivesUrl() {
     return this.urls[`${this.name}_localdrive`];
   }
   get clearTaskUrl() {

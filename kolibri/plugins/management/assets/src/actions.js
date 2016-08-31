@@ -249,12 +249,27 @@ function showContentPage(store) {
   });
 }
 
+function updateWizardLocalDriveList(store) {
+  const localDrivesPromise = TaskResource.localDrives();
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
+  localDrivesPromise.then((response) => {
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_DRIVES', response.entity);
+  })
+  .catch((error) => {
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
+
 function startImportWizard(store) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
     shown: true,
     page: ContentWizardPages.CHOOSE_IMPORT_SOURCE,
     error: null,
     busy: false,
+    drivesLoading: false,
+    driveList: null,
   });
 }
 
@@ -264,6 +279,8 @@ function startExportWizard(store) {
     page: ContentWizardPages.EXPORT,
     error: null,
     busy: false,
+    drivesLoading: false,
+    driveList: null,
   });
 }
 
@@ -273,6 +290,8 @@ function showImportNetworkWizard(store) {
     page: ContentWizardPages.IMPORT_NETWORK,
     error: null,
     busy: false,
+    drivesLoading: false,
+    driveList: null,
   });
 }
 
@@ -282,7 +301,10 @@ function showImportLocalWizard(store) {
     page: ContentWizardPages.IMPORT_LOCAL,
     error: null,
     busy: false,
+    drivesLoading: false,
+    driveList: null,
   });
+  updateWizardLocalDriveList(store);
 }
 
 function cancelImportExportWizard(store) {
@@ -290,17 +312,8 @@ function cancelImportExportWizard(store) {
     shown: false,
     error: null,
     busy: false,
-  });
-}
-
-function updateWizardLocalDriveList(store) {
-  const localDrivePromise = TaskResource.localDrive();
-  localDrivePromise.then((response) => {
-    // ### put in wizard state
-    // store.dispatch('SET_LOCAL_DRIVES', response.entity);
-  })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    drivesLoading: false,
+    driveList: null,
   });
 }
 
