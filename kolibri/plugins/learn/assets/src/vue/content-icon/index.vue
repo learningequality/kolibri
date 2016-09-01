@@ -8,7 +8,7 @@
       viewbox="0 0 32 32">
       <circle
         style="fill:#d5d5d5"
-        :style="{ 'stroke-dasharray': Math.floor(progress * 100) + ' 100' }"
+        :style="{ 'stroke-dasharray': progressPercent + ' 100' }"
         class="outer-circle"
         cy="16"
         cx="16"
@@ -90,6 +90,14 @@
     computed: {
       altText() {
         return `${this.progress} - ${this.$tr(this.kind)}`;
+      },
+      progressPercent() {
+        let progressPercent = Math.floor(this.progress * 100);
+        // Due to rounding error
+        if (progressPercent === 100) {
+          progressPercent = 101;
+        }
+        return progressPercent;
       },
     },
     methods: {
