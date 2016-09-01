@@ -54,7 +54,6 @@
     },
     mixins: [constants], // makes constants available in $options
     components: {
-      'content-icon': require('../content-icon'),
       'page-header': require('../page-header'),
       'expandable-content-grid': require('../expandable-content-grid'),
     },

@@ -26,7 +26,6 @@
 
   module.exports = {
     components: {
-      'content-icon': require('../content-icon'),
       'grid-item': require('../card-grid/grid-item'),
     },
     props: {
