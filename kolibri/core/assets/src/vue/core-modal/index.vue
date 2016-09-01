@@ -20,9 +20,9 @@
       </button>
 
       <!-- Modal Title -->
-      <h1 v-show="!invisibleTitle" class="title" id="modal-title">
+      <h1 v-show="!invisibletitle" class="title" id="modal-title">
         <!-- Accessible error reporting per @radina -->
-        <span v-if="hasError" class="visuallyhidden">Error in:</span>
+        <span v-if="haserror" class="visuallyhidden">Error in:</span>
         {{title}}
       </h1>
 
@@ -45,29 +45,29 @@
         type: String,
         required: true,
       },
-      invisibleTitle: {
+      invisibletitle: {
         type: Boolean,
         default: false,
       },
       // Modal options
-      disableClose: {
+      disableclose: {
         type: Boolean,
         default: false,
         required: false,
       },
-      backgroundClickClose: {
+      backgroundclickclose: {
         type: Boolean,
         default: true,
         required: false,
       },
       // toggles error message indicator in header
-      hasError: {
+      haserror: {
         type: Boolean,
         default: false,
       },
     },
     ready() {
-      if (this.disableClose) {
+      if (this.disableclose) {
         this.$off('close');
       }
 
@@ -112,7 +112,7 @@
       },
       bgClick(clickEvent) {
         // check to make sure the area being clicked is the overlay, not the modal
-        if (this.backgroundClickClose && (clickEvent.target === this.$els.modalOverlay)) {
+        if (this.backgroundclickclose && (clickEvent.target === this.$els.modalOverlay)) {
           this.closeModal();
         }
       },
