@@ -39,7 +39,7 @@ function _contentState(data) {
   } else if (data.progress_fraction > 1.0) {
     progress = 1.0;
   } else {
-    progress = data.progress;
+    progress = data.progress_fraction;
   }
   const state = {
     id: data.pk,
