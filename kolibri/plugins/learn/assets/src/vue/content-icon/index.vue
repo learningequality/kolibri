@@ -2,29 +2,26 @@
 
   <div>
     <svg
-      :title="altText"
-      height="32"
-      width="32"
-      viewbox="0 0 32 32">
+      viewbox="0 0 32 32"
+      class="content-icon"
+      :title="altText">
       <circle
-        style="fill:#d5d5d5"
-        :style="{ 'stroke-dasharray': progressPercent + ' 100' }"
-        class="outer-circle"
         cy="16"
         cx="16"
-        r="16">
+        r="16"
+        class="progress-circle"
+        :style="{ 'stroke-dasharray': progressPercent + ' 100' }">
       </circle>
       <circle
-        style="fill:#ffffff"
-        class="inner-circle"
         cy="16"
         cx="16"
-        r="13.5">
+        r="13.5"
+        class="inner-circle">
       </circle>
-      <svg v-if="thisIs('audio')" src="./content-icons/audio.svg"></svg>
-      <svg v-if="thisIs('document')" src="./content-icons/document.svg"></svg>
-      <svg v-if="thisIs('exercise')" src="./content-icons/exercise.svg"></svg>
-      <svg v-if="thisIs('video')" src="./content-icons/video.svg"></svg>
+      <svg v-if="thisIs('audio')" src="./content-icons/audio.svg" class="content-type-icon"></svg>
+      <svg v-if="thisIs('document')" src="./content-icons/document.svg" class="content-type-icon"></svg>
+      <svg v-if="thisIs('exercise')" src="./content-icons/exercise.svg" class="content-type-icon"></svg>
+      <svg v-if="thisIs('video')" src="./content-icons/video.svg" class="content-type-icon"></svg>
     </svg>
   </div>
 
@@ -96,15 +93,22 @@
 
   @require '~core-theme.styl'
 
-  svg
+  .content-icon
     width: 100%
     height: 100%
     transform: rotate(-90deg)
     border-radius: 50%
 
-  .outer-circle
+  .progress-circle
+    fill: #d5d5d5
     stroke: $core-action-normal
     stroke-width: 32
     stroke-dasharray: 0 100 // 0 = 0 % full
+
+  .inner-circle
+    fill: white
+
+  .content-type-icon
+    fill: $core-action-normal
 
 </style>
