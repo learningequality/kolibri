@@ -123,27 +123,29 @@ class WindowsFilesystemTestCase(TestCase):
     @patch("os.path", ntpath)
     def setUp(self):
         self.drives = enumerate_mounted_disk_partitions()
+        self.c_drive = self.drives["3bd36621a8f83b8693a9443bca0f6249"]
+        self.d_drive = self.drives["3f6139dd093efa3c0f1494d26aaefe6a"]
 
     def test_drive_list_members(self):
         self.assertSetEqual(set(drive.path for drive in self.drives.values()), set(["C:\\", "D:\\"]))
 
     def test_drive_writability(self):
-        self.assertTrue(self.drives["C:\\"].writable)
-        self.assertFalse(self.drives["D:\\"].writable)
+        self.assertTrue(self.c_drive.writable)
+        self.assertFalse(self.d_drive.writable)
 
     def test_drive_data_folders(self):
-        self.assertEqual(self.drives["C:\\"].datafolder, None)
-        self.assertEqual(self.drives["D:\\"].datafolder, "D:\\" + EXPORT_FOLDER_NAME)
+        self.assertEqual(self.c_drive.datafolder, "C:\\" + EXPORT_FOLDER_NAME)
+        self.assertEqual(self.d_drive.datafolder, "D:\\" + EXPORT_FOLDER_NAME)
 
     def test_drive_space(self):
-        self.assertEqual(self.drives["C:\\"].freespace, 132940218368)
-        self.assertEqual(self.drives["C:\\"].totalspace, 136251727872)
-        self.assertEqual(self.drives["D:\\"].freespace, 0)
-        self.assertEqual(self.drives["D:\\"].totalspace, 58388480)
+        self.assertEqual(self.c_drive.freespace, 132940218368)
+        self.assertEqual(self.c_drive.totalspace, 136251727872)
+        self.assertEqual(self.d_drive.freespace, 0)
+        self.assertEqual(self.d_drive.totalspace, 58388480)
 
     def test_drive_names(self):
-        self.assertEqual(self.drives["C:\\"].name, 'Local Fixed Disk')
-        self.assertEqual(self.drives["D:\\"].name, 'VBOXADDITIONS_4.')
+        self.assertEqual(self.c_drive.name, 'Local Fixed Disk')
+        self.assertEqual(self.d_drive.name, 'VBOXADDITIONS_4.')
 
 
 class LinuxFilesystemTestCase(TestCase):
@@ -159,27 +161,30 @@ class LinuxFilesystemTestCase(TestCase):
     @patch("os.path", posixpath)
     def setUp(self):
         self.drives = enumerate_mounted_disk_partitions()
+        self.f571_drive = self.drives["d2f96b64797f558fdee1ce09b05a2e0b"]
+        self.root_drive = self.drives["72811d8a13d19fb91b281155853b6d29"]
+        self.disk_drive = self.drives["c84ca86ee4163913ceedccbc892338ac"]
 
     def test_drive_list_members(self):
         self.assertSetEqual(set(drive.path for drive in self.drives.values()), set(['/media/user/F571-7814', '/', '/media/user/disk']))
 
     def test_drive_writability(self):
-        self.assertTrue(self.drives["/"].writable)
-        self.assertTrue(self.drives["/media/user/F571-7814"].writable)
-        self.assertFalse(self.drives["/media/user/disk"].writable)
+        self.assertTrue(self.root_drive.writable)
+        self.assertTrue(self.f571_drive.writable)
+        self.assertFalse(self.disk_drive.writable)
 
     def test_drive_data_folders(self):
-        self.assertEqual(self.drives["/"].datafolder, None)
-        self.assertEqual(self.drives["/media/user/F571-7814"].datafolder, "/media/user/F571-7814/" + EXPORT_FOLDER_NAME)
-        self.assertEqual(self.drives["/media/user/disk"].datafolder, None)
+        self.assertEqual(self.root_drive.datafolder, "/" + EXPORT_FOLDER_NAME)
+        self.assertEqual(self.f571_drive.datafolder, "/media/user/F571-7814/" + EXPORT_FOLDER_NAME)
+        self.assertEqual(self.disk_drive.datafolder, "/media/user/disk/" + EXPORT_FOLDER_NAME)
 
     def test_drive_space(self):
-        self.assertEqual(self.drives["/media/user/F571-7814"].freespace, 772001792)
-        self.assertEqual(self.drives["/media/user/F571-7814"].totalspace, 2142232576)
-        self.assertEqual(self.drives["/"].freespace, 12704473088)
-        self.assertEqual(self.drives["/"].totalspace, 117579513856)
-        self.assertEqual(self.drives["/media/user/disk"].freespace, 11328000)
-        self.assertEqual(self.drives["/media/user/disk"].totalspace, 31801344)
+        self.assertEqual(self.f571_drive.freespace, 772001792)
+        self.assertEqual(self.f571_drive.totalspace, 2142232576)
+        self.assertEqual(self.root_drive.freespace, 12704473088)
+        self.assertEqual(self.root_drive.totalspace, 117579513856)
+        self.assertEqual(self.disk_drive.freespace, 11328000)
+        self.assertEqual(self.disk_drive.totalspace, 31801344)
 
 
 class OSXFilesystemTestCase(TestCase):
@@ -195,24 +200,26 @@ class OSXFilesystemTestCase(TestCase):
     @patch("os.path", posixpath)
     def setUp(self):
         self.drives = enumerate_mounted_disk_partitions()
+        self.hp_drive = self.drives["564505d949b37895bd0426ee5d270060"]
+        self.root_drive = self.drives["b933f0b9c3b63a90fbd78bfcece4c87a"]
 
     def test_drive_list_members(self):
         self.assertSetEqual(set(drive.path for drive in self.drives.values()), set(['/Volumes/HP v125w', '/']))
 
     def test_drive_writability(self):
-        self.assertFalse(self.drives["/"].writable)
-        self.assertTrue(self.drives["/Volumes/HP v125w"].writable)
+        self.assertFalse(self.root_drive.writable)
+        self.assertTrue(self.hp_drive.writable)
 
     def test_drive_data_folders(self):
-        self.assertEqual(self.drives["/"].datafolder, None)
-        self.assertEqual(self.drives["/Volumes/HP v125w"].datafolder, "/Volumes/HP v125w/" + EXPORT_FOLDER_NAME)
+        self.assertEqual(self.root_drive.datafolder, "/" + EXPORT_FOLDER_NAME)
+        self.assertEqual(self.hp_drive.datafolder, "/Volumes/HP v125w/" + EXPORT_FOLDER_NAME)
 
     def test_drive_space(self):
-        self.assertEqual(self.drives["/Volumes/HP v125w"].freespace, 1234)
-        self.assertEqual(self.drives["/Volumes/HP v125w"].totalspace, 45678)
-        self.assertEqual(self.drives["/"].freespace, 0)
-        self.assertEqual(self.drives["/"].totalspace, 1000)
+        self.assertEqual(self.hp_drive.freespace, 1234)
+        self.assertEqual(self.hp_drive.totalspace, 45678)
+        self.assertEqual(self.root_drive.freespace, 0)
+        self.assertEqual(self.root_drive.totalspace, 1000)
 
     def test_drive_names(self):
-        self.assertEqual(self.drives["/Volumes/HP v125w"].name, 'Untitled 1')
-        self.assertEqual(self.drives["/"].name, 'Macintosh HD')
+        self.assertEqual(self.hp_drive.name, 'Untitled 1')
+        self.assertEqual(self.root_drive.name, 'Macintosh HD')
