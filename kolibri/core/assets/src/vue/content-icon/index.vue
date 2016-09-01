@@ -30,7 +30,7 @@
 
 <script>
 
-  const KINDS = ['audio', 'document', 'video']; // not 'exercise' for now
+  const ContentKinds = require('core-constants').ContentKinds;
 
   module.exports = {
     $trNameSpace: 'learn',
@@ -62,7 +62,12 @@
         type: String,
         required: true,
         validator(value) {
-          return KINDS.indexOf(value) !== -1;
+          for (const contentKind in ContentKinds) {
+            if (ContentKinds[contentKind] === value) {
+              return true;
+            }
+          }
+          return false;
         },
       },
     },
