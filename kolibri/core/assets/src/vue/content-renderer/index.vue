@@ -3,7 +3,12 @@
   <div>
     <div v-if="available" class="fill-height">
       <loading-spinner v-if="!currentViewClass"></loading-spinner>
-      <progress-bar :progress-percent="progressPercent"></progress-bar>
+      <div class="content-icon-wrapper">
+        <content-icon
+          :progress="progress"
+          :kind="kind">
+        </content-icon>
+      </div>
       <div v-el:container class="content-wrapper"></div>
     </div>
     <div v-else>
@@ -233,5 +238,9 @@
 
   .content-wrapper
     height: calc(100% - 36px)
+
+  .content-icon-wrapper
+    width: 2em
+    height: 2em
 
 </style>
