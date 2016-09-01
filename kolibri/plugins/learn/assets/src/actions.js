@@ -35,11 +35,11 @@ function _topicState(data) {
 function _contentState(data) {
   let progress;
   if (!data.progress_fraction) {
-    progress = 'unstarted';
-  } else if (data.progress_fraction < 1) {
-    progress = 'partial';
+    progress = 0.0;
+  } else if (data.progress_fraction > 1.0) {
+    progress = 1.0;
   } else {
-    progress = 'complete';
+    progress = data.progress;
   }
   const state = {
     id: data.pk,

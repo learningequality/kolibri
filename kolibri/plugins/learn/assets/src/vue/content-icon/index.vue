@@ -1,23 +1,10 @@
 <template>
 
   <div>
-    <!-- complete -->
-    <svg v-if="thisIs('complete', 'audio')" src="./content-icons/complete-audio.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
-    <svg v-if="thisIs('complete', 'document')" src="./content-icons/complete-document.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
-    <svg v-if="thisIs('complete', 'exercise')" src="./content-icons/complete-exercise.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
-    <svg v-if="thisIs('complete', 'video')" src="./content-icons/complete-video.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
-
-    <!-- partial -->
-    <svg v-if="thisIs('partial', 'audio')" src="./content-icons/partial-audio.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
-    <svg v-if="thisIs('partial', 'document')" src="./content-icons/partial-document.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
-    <svg v-if="thisIs('partial', 'exercise')" src="./content-icons/partial-exercise.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
-    <svg v-if="thisIs('partial', 'video')" src="./content-icons/partial-video.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
-
-    <!-- unstarted -->
-    <svg v-if="thisIs('unstarted', 'audio')" src="./content-icons/unstarted-audio.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
-    <svg v-if="thisIs('unstarted', 'document')" src="./content-icons/unstarted-document.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
-    <svg v-if="thisIs('unstarted', 'exercise')" src="./content-icons/unstarted-exercise.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
-    <svg v-if="thisIs('unstarted', 'video')" src="./content-icons/unstarted-video.svg" :class="{pageicon: ispageicon}" :title="altText" :width="size" :height="size"></svg>
+    <svg v-if="thisIs('audio')" src="./content-icons/audio.svg" :class="{pageicon: ispageicon}" :title="altText"></svg>
+    <svg v-if="thisIs('document')" src="./content-icons/document.svg" :class="{pageicon: ispageicon}" :title="altText"></svg>
+    <svg v-if="thisIs('exercise')" src="./content-icons/exercise.svg" :class="{pageicon: ispageicon}" :title="altText"></svg>
+    <svg v-if="thisIs('video')" src="./content-icons/video.svg" :class="{pageicon: ispageicon}" :title="altText"></svg>
   </div>
 
 </template>
@@ -25,7 +12,6 @@
 
 <script>
 
-  const PROGRESS_STATES = ['complete', 'partial', 'unstarted'];
   const KINDS = ['audio', 'document', 'video']; // not 'exercise' for now
 
   module.exports = {
@@ -48,10 +34,10 @@
         default: 30,
       },
       progress: {
-        type: String,
-        default: 'unstarted',
+        type: Number,
+        default: 0.0,
         validator(value) {
-          return PROGRESS_STATES.indexOf(value) !== -1;
+          return (value >= 0.0) && (value <= 1.0);
         },
       },
       kind: {
@@ -64,12 +50,18 @@
     },
     computed: {
       altText() {
-        return `${this.$tr(this.progress)} - ${this.$tr(this.kind)}`;
+        return `${this.progress} - ${this.$tr(this.kind)}`;
+      },
+      iconSrc() {
+        return `./content-icons/unstarted-${this.kind}.svg`;
+      },
+      progressPercent() {
+        return Math.floor(this.progress * 100);
       },
     },
     methods: {
-      thisIs(progress, kind) {
-        return this.progress === progress && this.kind === kind;
+      thisIs(kind) {
+        return this.kind === kind;
       },
     },
   };
@@ -81,11 +73,15 @@
 
   @require '~core-theme.styl'
 
-  // replace the correct path
-  .pageicon [fill='#996189']
-    fill: $core-text-default
+  svg
+    width: 100%
+    height: 100%
+    transform: rotate(-90deg)
+    border-radius: 50%
 
-  .pageicon [fill='#FFF']
-    fill: none
+  .outer-circle
+    stroke: $core-action-normal
+    stroke-width: 32
+    stroke-dasharray: 25 100 // 25 = 25 % full
 
 </style>

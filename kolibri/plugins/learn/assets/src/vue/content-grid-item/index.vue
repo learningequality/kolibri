@@ -54,14 +54,11 @@
         },
       },
       progress: {
-        type: String,
+        type: Number,
         required: true,
+        default: 0.0,
         validator(value) {
-          return [
-            'complete',
-            'partial',
-            'unstarted',
-          ].some(elem => elem === value);
+          return (value >= 0.0) && (value <= 1.0);
         },
       },
     },
@@ -106,16 +103,22 @@
     background-position: center
     background-color: black
     text-align: center
+    position: relative
 
   .thumbnail:before
     content: ''
     display: inline-block
     vertical-align: middle
-    height:100%
+    height: 100%
 
   .content-icon-center
-    width: 70%
     display: inline-block
     vertical-align: middle
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    width: 60px
+    height: 60px
 
 </style>
