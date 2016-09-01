@@ -1,8 +1,13 @@
 <template>
 
-  <core-modal @open="clear" title="Edit Account Info" :has-error="error_message ? true : false">
+  <core-modal
+    title="Edit Account Info"
+    :has-error="error_message ? true : false"
+    @open="clear"
+    @submit="editUser"
+  >
     <!-- User Edit Normal -->
-    <div @keydown.enter="editUser">
+    <div>
       <template v-if="!usr_delete && !pw_reset">
 
         <div class="user-field">

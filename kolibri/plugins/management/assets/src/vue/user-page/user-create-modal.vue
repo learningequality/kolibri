@@ -1,7 +1,12 @@
 <template>
 
-  <core-modal :has-error="errorMessage ? true : false" @open.stop="clear" title="Add New Account">
-    <div @keydown.enter="createNewUser">
+  <core-modal
+    title="Add New Account"
+    :has-error="errorMessage ? true : false"
+    @open.stop="clear"
+    @submit="createNewUser"
+  >
+    <div>
       <!-- Fields for the user to fill out -->
       <section class="user-fields">
         <div class="user-field">

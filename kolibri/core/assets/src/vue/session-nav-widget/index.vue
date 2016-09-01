@@ -6,9 +6,10 @@
     </div>
   </nav-bar-item>
 
-  <nav-bar-item v-else tabindex="0" @click="openLogin" @keyup.enter="openLogin">
+  <nav-bar-item v-else tabindex="0" @click="showLoginModal" @keyup.enter="showLoginModal">
     <div class="wrapper">
-      <login-widget></login-widget>
+      <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
+      <div class="label">{{ $tr('logIn') }}</div>
     </div>
   </nav-bar-item>
 
@@ -30,6 +31,8 @@
     </div>
   </div>
 
+  <login-modal v-if="modalstate"></login-modal>
+
 </template>
 
 
@@ -42,10 +45,11 @@
     $trNameSpace: 'sessionWidget',
     $trs: {
       logOut: 'Log Out',
+      logIn: 'Log In',
     },
     components: {
       'nav-bar-item': require('nav-bar-item'),
-      'login-widget': require('./login-widget'),
+      'login-modal': require('./login-modal'),
     },
     data: () => ({
       showDropdown: false,
@@ -77,9 +81,6 @@
       },
     },
     methods: {
-      openLogin() {
-        this.setLoginModalVisible(true);
-      },
       toggleDropdown() {
         this.showDropdown = !this.showDropdown;
       },
@@ -91,7 +92,7 @@
     vuex: {
       actions: {
         logout: actions.kolibriLogout,
-        setLoginModalVisible: actions.setLoginModalVisible,
+        showLoginModal: actions.showLoginModal,
       },
       getters: {
         loggedIn: state => state.core.session.kind[0] !== UserKinds.ANONYMOUS,
@@ -99,6 +100,7 @@
         fullname: state => state.core.session.full_name,
         username: state => state.core.session.username,
         kind: state => state.core.session.kind,
+        modalstate: state => state.core.loginModalVisible,
       },
     },
   };
@@ -260,5 +262,11 @@
           background-position: 135px 0
       span
         font-size: 15px
+
+  #person
+    fill: $core-action-normal
+    transition: all 0.2s ease
+    &:hover
+      fill: $core-action-dark
 
 </style>

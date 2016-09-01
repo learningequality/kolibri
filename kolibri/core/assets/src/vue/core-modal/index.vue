@@ -3,6 +3,7 @@
   <!-- Accessibility properties for the overlay -->
   <div class="modal-overlay"
     @keydown.esc="closeModal"
+    @keydown.enter="submitModal"
     @click="bgClick($event)"
     v-el:modal-overlay
     id="modal-window">
@@ -100,6 +101,9 @@
       },
       closeModal() {
         this.$dispatch('close');
+      },
+      submitModal() {
+        this.$dispatch('submit');
       },
       focusModal() {
         this.$els.modal.focus();

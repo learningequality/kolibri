@@ -1,47 +1,44 @@
 <template>
 
-  <div>
-
-    <modal v-if="modalstate">
-      <div class="title" :aria-label="$tr('title')" slot="header">
-        <div class="login-brand-box">
-          <img src="./icons/kolibri-logo.svg" :alt="kolibriLogo">
-          <p id="login-brand">{{ $tr('kolibri') }}</p>
-        </div>
+  <core-modal
+    :title="$tr('title')"
+    :invisibletitle="true"
+    :backgroundclickclose="true"
+    :haserror="wrongCreds"
+    @open="clearForm"
+    @close="cancelLoginModal"
+    @submit="userLogin"
+  >
+    <div class="title">
+      <div class="login-brand-box">
+        <img src="./icons/kolibri-logo.svg" alt="">
+        <p id="login-brand">{{ $tr('kolibri') }}</p>
       </div>
-      <div slot="body">
-        <div v-if="wrongCreds">
-          <h1>{{ $tr('logInError') }}</h1>
-          <span aria-live="polite">{{ $tr('validationError') }}<br>{{ $tr('tryAgain') }}</span>
-        </div>
-        <input
-          type="text"
-          class="login-form login-username"
-          autofocus
-          v-model="username_entered"
-          v-el:usernamefield
-          :placeholder="userName"
-          :aria-label="userName"
-          @keydown.enter="userLogin"
-        >
-        <input
-          type="password"
-          class="login-form login-password"
-          v-model="password_entered"
-          :placeholder="password"
-          @keydown.enter="userLogin"
-          :aria-label="password"
-        >
-        <button class="login-button" @click="userLogin">{{ $tr('logIn') }}</button>
-      </div>
-    </modal>
-
-    <div @click="clearForm">
-      <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
-      <div class="label">{{ $tr('logIn') }}</div>
     </div>
-
-  </div>
+    <div>
+      <div v-if="wrongCreds" class="error-wrapper">
+        <h1>{{ $tr('logInError') }}</h1>
+        <span aria-live="polite">{{ $tr('validationError') }}<br>{{ $tr('tryAgain') }}</span>
+      </div>
+      <input
+        type="text"
+        class="login-form login-username"
+        autofocus
+        v-model="username_entered"
+        v-el:usernamefield
+        :placeholder="$tr('userName')"
+        :aria-label="$tr('userName')"
+      >
+      <input
+        type="password"
+        class="login-form login-password"
+        v-model="password_entered"
+        :placeholder="$tr('password')"
+        :aria-label="$tr('password')"
+      >
+      <button class="login-button" @click="userLogin">{{ $tr('logIn') }}</button>
+    </div>
+  </core-modal>
 
 </template>
 
@@ -51,32 +48,18 @@
   const actions = require('core-actions');
 
   module.exports = {
-    $trNameSpace: 'sessionWidget',
+    $trNameSpace: 'loginModal',
     $trs: {
       title: 'Log in to Kolibri',
       logIn: 'Log In',
       kolibri: 'Kolibri',
-      kolibriLogo: 'Kolibri logo',
       logInError: 'Log-in Error',
       validationError: 'Incorrect username or password.',
       tryAgain: 'Please try again!',
       userName: 'Username',
       password: 'Password',
     },
-    computed: {
-      kolibriLogo() {
-        return this.$tr('kolibriLogo');
-      },
-      userName() {
-        return this.$tr('userName');
-      },
-      password() {
-        return this.$tr('password');
-      },
-    },
-    components: {
-      modal: require('../modal'),
-    },
+    components: {},
     data: () => ({
       username_entered: '',
       password_entered: '',
@@ -87,30 +70,23 @@
           username: this.username_entered,
           password: this.password_entered,
         };
-        this.login(this.Kolibri, payload);
-        /* This is to offset race condition issues */
-        window.setTimeout(this.retry, 100);
+        this.kolibriLogin(this.Kolibri, payload);
+        this.clearForm();
       },
       clearForm() {
         this.$els.usernamefield.focus();
         this.username_entered = '';
         this.password_entered = '';
       },
-      /* Puts focus on username field if wrong credentials are given */
-      retry() {
-        if (this.wrongCreds) {
-          this.clearForm();
-        }
-      },
       /* If admin logs in, sends them to the manage tab */
     },
     vuex: {
       getters: {
-        wrongCreds: state => state.core.session.error === '401',
-        modalstate: state => state.core.login_modal_visible,
+        wrongCreds: state => state.core.loginError === 401,
       },
       actions: {
-        login: actions.kolibriLogin,
+        cancelLoginModal: actions.cancelLoginModal,
+        kolibriLogin: actions.kolibriLogin,
       },
     },
   };
@@ -125,15 +101,6 @@
 
   h1
     font-size: 1.1em
-
-  #person
-    fill: $core-action-normal
-    transition: all 0.2s ease
-    &:hover
-      fill: $core-action-dark
-
-  #test
-    background: #000000
 
   .login-button
     width: 300px
@@ -192,5 +159,8 @@
     transition: all 0.15s
     &:focus
       background: url('./icons/password-active.svg') no-repeat 7px 3px
+
+  .error-wrapper
+    text-align: center
 
 </style>

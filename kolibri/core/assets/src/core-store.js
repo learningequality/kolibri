@@ -8,40 +8,49 @@ const initialState = {
     error: '',
     loading: true,
     pageSessionId: 0,
-    session: { id: undefined,
-               username: '',
-               full_name: '',
-               user_id: undefined,
-               facility_id: undefined,
-               kind: [UserKinds.ANONYMOUS],
-               error: '200' },
-    login_modal_visible: false,
+    session: {
+      id: undefined,
+      username: '',
+      full_name: '',
+      user_id: undefined,
+      facility_id: undefined,
+      kind: [UserKinds.ANONYMOUS],
+    },
+    loginModalVisible: false,
+    loginError: null,
     fullname: '',
     logging: {
       summary: { progress: 0 },
-      session: { },
+      session: {},
     },
   },
 };
 
 const mutations = {
+
   CORE_SET_SESSION(state, value) {
     state.core.session = value;
-    state.core.login_modal_visible = false;
+    state.core.loginModalVisible = false;
   },
   // Makes settings for wrong credentials 401 error
-  CORE_HANDLE_WRONG_CREDS(state, value) {
-    state.core.session = value;
+  CORE_SET_LOGIN_ERROR(state, value) {
+    state.core.loginError = value;
   },
   CORE_CLEAR_SESSION(state) {
-    state.core.session = { id: undefined,
-                           username: '',
-                           full_name: '',
-                           user_id: undefined,
-                           facility_id: undefined,
-                           kind: [UserKinds.ANONYMOUS],
-                           error: '200' };
+    state.core.session = {
+      id: undefined,
+      username: '',
+      full_name: '',
+      user_id: undefined,
+      facility_id: undefined,
+      kind: [UserKinds.ANONYMOUS],
+    };
   },
+  CORE_SET_LOGIN_MODAL_VISIBLE(state, value) {
+    state.core.loginModalVisible = value;
+  },
+
+
   CORE_SET_PAGE_LOADING(state, value) {
     const update = { loading: value };
     if (value) {
@@ -51,10 +60,6 @@ const mutations = {
   },
   CORE_SET_ERROR(state, error) {
     state.core.error = error;
-  },
-  // Handles state of login modal appearance
-  CORE_SET_LOGIN_MODAL_VISIBLE(state, value) {
-    state.core.login_modal_visible = value;
   },
   SET_LOGGING_SUMMARY_STATE(state, summaryState) {
     state.core.logging.summary = summaryState;
