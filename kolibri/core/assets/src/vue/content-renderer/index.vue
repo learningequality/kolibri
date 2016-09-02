@@ -238,7 +238,7 @@
     height: 100%
 
   .content-wrapper
-    height: calc(100% - 36px)
+    height: calc(100% - 2em)
 
   .content-icon-wrapper
     width: 2em

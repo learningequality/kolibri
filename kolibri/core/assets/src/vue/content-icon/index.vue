@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="svg-wrapper">
     <svg
       viewbox="0 0 32 32"
       class="content-icon"
@@ -97,6 +97,10 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme.styl'
+
+  .svg-wrapper
+    width: 100%
+    height: 100%
 
   .content-icon
     width: 100%
