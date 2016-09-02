@@ -31,7 +31,7 @@
     </div>
   </div>
 
-  <login-modal v-if="modalstate"></login-modal>
+  <login-modal v-if="loginModalVisible"></login-modal>
 
 </template>
 
@@ -100,7 +100,7 @@
         fullname: state => state.core.session.full_name,
         username: state => state.core.session.username,
         kind: state => state.core.session.kind,
-        modalstate: state => state.core.loginModalVisible,
+        loginModalVisible: state => state.core.loginModalVisible,
       },
     },
   };
