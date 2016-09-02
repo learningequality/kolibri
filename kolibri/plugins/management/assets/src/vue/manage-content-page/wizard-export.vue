@@ -1,13 +1,13 @@
 <template>
 
-  <modal
+  <core-modal
     title="Export Channel to a Local Drive"
-    :error="wizardState.error"
-    :noclose="wizardState.busy"
-    @cancel="cancel"
+    :error="wizardState.error ? true : false"
+    :disableclose="wizardState.busy"
+    @close="cancel"
     @submit="submit"
   >
-    <div slot="body">
+    <div>
 
       <template v-if="!drivesLoading">
         <p v-if="writableDrives.length === 0">
@@ -37,7 +37,12 @@
         Refresh
       </button>
     </div>
-    <div slot="buttons">
+
+    <div>
+      {{ wizardState.error }}
+    </div>
+
+    <div>
       <button @click="cancel" :disabled="wizardState.busy">
         Cancel
       </button>
@@ -45,7 +50,7 @@
         Export
       </button>
     </div>
-  </modal>
+  </core-modal>
 
 </template>
 
