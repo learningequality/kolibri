@@ -2,14 +2,15 @@
 
   <div>
     <div v-if="available" class="fill-height">
-      <loading-spinner v-if="!currentViewClass"></loading-spinner>
-      <div class="content-icon-wrapper">
+      <div v-if="currentViewClass" class="content-icon-wrapper">
         <content-icon
           :progress="progress"
           :kind="kind">
         </content-icon>
       </div>
-      <div v-el:container class="content-wrapper"></div>
+      <div v-el:container class="content-wrapper">
+        <loading-spinner></loading-spinner>
+      </div>
     </div>
     <div v-else>
       {{ $tr('msgNotAvailable') }}
