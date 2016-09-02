@@ -2,14 +2,12 @@
 
   <div>
     <div v-if="available" class="fill-height">
-      <div v-if="currentViewClass" class="content-icon-wrapper">
-        <content-icon
-          :progress="progress"
-          :kind="kind">
-        </content-icon>
+      <div class="content-icon-wrapper">
+        <content-icon :progress="progress" :kind="kind"></content-icon>
       </div>
-      <div v-el:container class="content-wrapper">
-        <loading-spinner></loading-spinner>
+      <div class="content-wrapper">
+        <loading-spinner v-if="!currentViewClass"></loading-spinner>
+        <div v-el:container></div>
       </div>
     </div>
     <div v-else>
@@ -237,11 +235,11 @@
   .fill-height
     height: 100%
 
-  .content-wrapper
-    height: calc(100% - 2em)
-
   .content-icon-wrapper
     width: 2em
     height: 2em
+
+  .content-wrapper
+    height: calc(100% - 2em)
 
 </style>
