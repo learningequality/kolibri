@@ -23,6 +23,7 @@ var libs = function(kolibri_name) {
     'kolibri': kolibri_name,
     'vuex': kolibri_name + '.lib.vuex',
     'conditionalPromise': kolibri_name + '.lib.conditionalPromise',
+    'cookie-js': kolibri_name + '.lib.cookiejs'
   };
 };
 

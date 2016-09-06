@@ -8,6 +8,12 @@ const vuex = require('vuex');
 const Mediator = require('./mediator');
 const ResourceManager = require('../api-resource').ResourceManager;
 const Resources = require('../api-resources');
+const rest = require('rest');
+const mime = require('rest/interceptor/mime');
+const csrf = require('rest/interceptor/csrf');
+const errorCode = require('rest/interceptor/errorCode');
+const cookiejs = require('js-cookie');
+
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -37,6 +43,7 @@ function Lib() {
   this.vue = vue;
   this.vuex = vuex;
   this.conditionalPromise = require('../conditionalPromise');
+  this.cookiejs = require('js-cookie');
 }
 
 /**
@@ -51,6 +58,8 @@ module.exports = function CoreApp() {
 
   this.constants = require('../constants');
   this.coreActions = require('../core-actions');
+  this.client = rest.wrap(mime, { mime: 'application/json' }).wrap(csrf, { name: 'X-CSRFToken',
+      token: cookiejs.get('csrftoken') }).wrap(errorCode);
 
   Object.keys(Resources).forEach((resourceClassName) =>
     this.resources.registerResource(resourceClassName, Resources[resourceClassName]));
