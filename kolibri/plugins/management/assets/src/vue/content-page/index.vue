@@ -2,30 +2,26 @@
 
   <div>
 
-    <button @click="incrementDebugTask">next task</button>
+    <task-status v-if="pageState.taskList.length"
+      :type="pageState.taskList[0].type"
+      :status="pageState.taskList[0].status"
+      :percentage="pageState.taskList[0].percentage"
+      :id="pageState.taskList[0].id"
+    ></task-status>
 
-    <hr>
 
-    <icon-button v-if="!tasks.length" text="Add Channel" :primary="true" @click="startImportWizard">
-      <svg src="../icons/add.svg"></svg>
-    </icon-button>
-
-    <wizard v-if="showWizard">
-      Hello!
-    </wizard>
-
-    <div v-if="tasks.length">
-      <ul>
-        <li>Progress: {{ tasks[0].progress }}</li>
-        <li>Status: {{ tasks[0].status }}</li>
-        <li>Type: {{ tasks[0].type }}</li>
-      </ul>
+    <div>
+      <button @click="startImportWizard">Import</button>
+      <button @click="startExportWizard">Export</button>
     </div>
+
+    <component v-if="pageState.wizardState.shown" :is="wizardComponent"></component>
 
     <h1>My Channels</h1>
     <ul>
-      <li v-for="channel in localChannels">{{ channel.name }}</li>
+      <li v-for="channel in pageState.channelList">{{ channel.name }}</li>
     </ul>
+    <p v-if="!pageState.channelList.length">No channels installed</p>
 
   </div>
 
@@ -34,63 +30,51 @@
 
 <script>
 
-  const tasks = [
-    {},
-    {
-      progress: 0.5,
-      status: 'in_progress',
-      type: 'local_export',
-      id: '12345678901234567890',
-    },
-    {
-      progress: 0.0,
-      status: 'pending',
-      type: 'local_export',
-      id: '12345678901234567890',
-    },
-    {
-      progress: 0.3,
-      status: 'error',
-      type: 'local_export',
-      id: '12345678901234567890',
-    },
-    {
-      progress: 1.0,
-      status: 'success',
-      type: 'local_export',
-      id: '12345678901234567890',
-    },
-  ];
-
   const actions = require('../../actions');
+  const ContentWizardPages = require('../../state/constants').ContentWizardPages;
 
   module.exports = {
     components: {
       'icon-button': require('icon-button'),
-      'wizard': require('./wizard'),
+      'task-status': require('./task-status'),
+      'wizard-import-source': require('./wizard-import-source'),
+      'wizard-import-network': require('./wizard-import-network'),
+      'wizard-import-local': require('./wizard-import-local'),
+      'wizard-export': require('./wizard-export'),
     },
     data: () => ({
-      i: 0,
+      intervalId: undefined,
     }),
-    methods: {},
+    attached() {
+      this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+    },
+    detached() {
+      clearInterval(this.intervalId);
+    },
+    computed: {
+      wizardComponent() {
+        switch (this.pageState.wizardState.page) {
+          case ContentWizardPages.CHOOSE_IMPORT_SOURCE:
+            return 'wizard-import-source';
+          case ContentWizardPages.IMPORT_NETWORK:
+            return 'wizard-import-network';
+          case ContentWizardPages.IMPORT_LOCAL:
+            return 'wizard-import-local';
+          case ContentWizardPages.EXPORT:
+            return 'wizard-export';
+          default:
+            return undefined;
+        }
+      },
+    },
     vuex: {
       getters: {
-        localChannels: state => state.pageState.channelList,
-        tasks: state => state.pageState.taskList,
-        showWizard: state => state.pageState.showWizard,
+        pageState: state => state.pageState,
       },
       actions: {
-        incrementDebugTask(state) {
-          this.i = (this.i + 1) % tasks.length;
-          if (this.i) {
-            state.dispatch('SET_TASKS', [tasks[this.i]]);
-            state.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
-          } else {
-            state.dispatch('SET_TASKS', []);
-          }
-        },
         startImportWizard: actions.startImportWizard,
         startExportWizard: actions.startExportWizard,
+        pollTasksAndChannels: actions.pollTasksAndChannels,
       },
     },
   };

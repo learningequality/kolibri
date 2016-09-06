@@ -53,7 +53,6 @@ h3, h4, h5, h6
 
 a
   color: $core-action-normal
-  text-decoration: none
   transition: color $core-time ease-out
 
   &:hover
@@ -99,6 +98,11 @@ button
 
   &:focus
     outline: $core-action-light 2px solid
+
+  &:disabled
+    color: $core-text-annotation
+    border-color: $core-text-annotation
+    cursor: default
 
 
 // Firefox: Get rid of the inner focus border

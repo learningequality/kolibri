@@ -18,9 +18,13 @@
 
 <style lang="stylus" scoped>
 
+  $size = 125px
+
   .loading-spinner-wrapper
     width: 100%
     height: 100%
+    min-width: $size
+    min-height: $size
     position: relative
     opacity: 0
     animation-duration: 0s
@@ -35,8 +39,8 @@
       opacity: 1
 
   .loading-spinner
-    width: 125px
-    height: 125px
+    width: $size
+    height: $size
     position: absolute
     top: 50%
     left: 50%

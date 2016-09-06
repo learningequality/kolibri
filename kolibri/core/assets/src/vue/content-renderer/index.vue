@@ -1,12 +1,15 @@
 <template>
 
   <div>
-    <div v-if="available">
-        <h3 class="progress-percent" v-if="progress > 0">
-          {{ Math.floor(progress * 100) }}%
-        </h3>
+    <div v-if="available" class="fill-height">
       <loading-spinner v-if="!currentViewClass"></loading-spinner>
-      <div v-el:container></div>
+      <div class="content-icon-wrapper">
+        <content-icon
+          :progress="progress"
+          :kind="kind">
+        </content-icon>
+      </div>
+      <div v-el:container class="content-wrapper"></div>
     </div>
     <div v-else>
       {{ $tr('msgNotAvailable') }}
@@ -77,6 +80,9 @@
       defaultFile() {
         return this.availableFiles &&
           this.availableFiles.length ? this.availableFiles[0] : undefined;
+      },
+      progressPercent() {
+        return Math.floor(this.progress * 100);
       },
     },
     init() {
@@ -227,10 +233,14 @@
 
   @require '~core-theme.styl'
 
-  div
-    height: inherit
+  .fill-height
+    height: 100%
 
-  .progress-percent
-    text-align:right
+  .content-wrapper
+    height: calc(100% - 36px)
+
+  .content-icon-wrapper
+    width: 2em
+    height: 2em
 
 </style>

@@ -8,3 +8,6 @@ files:
 
   - source: '/kolibri/locale/en/LC_MESSAGES/*.po'
     translation: '/kolibri/locale/%locale_with_underscore%/LC_MESSAGES/%original_file_name%'
+
+  - source: '/kolibri/locale/docs/en/LC_MESSAGES/*.po'
+    translation: '/kolibri/locale/docs/%locale_with_underscore%/LC_MESSAGES/%original_file_name%'

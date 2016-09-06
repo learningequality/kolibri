@@ -42,6 +42,7 @@
     border-radius: $radius
     display: table
     width: 100%
+    text-decoration: none
 
   .thumb-wrapper
     position: absolute
