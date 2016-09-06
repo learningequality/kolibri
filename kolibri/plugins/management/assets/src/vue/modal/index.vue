@@ -78,18 +78,14 @@
       if (this.disableClose) {
         this.$off('close');
       }
-
-      this.openModal();
+      this.lastFocus = document.activeElement;
+      // Need to wait for DOM to update asynchronously, then get the modal element
+      this.focusModal();
+      // pass in a function, not a function call.
+      window.addEventListener('blur', this.focusElementTest, true);
+      window.addEventListener('scroll', (event) => event.preventDefault(), true);
     },
     events: {
-      open() {
-        this.lastFocus = document.activeElement;
-        // Need to wait for DOM to update asynchronously, then get the modal element
-        this.focusModal();
-        // pass in a function, not a function call.
-        window.addEventListener('blur', this.focusElementTest, true);
-        window.addEventListener('scroll', (event) => event.preventDefault(), true);
-      },
       close() {
         // needs to be an exact match to the one that was assigned.
         window.removeEventListener('blur', this.focusElementTest, true);
@@ -102,10 +98,6 @@
       };
     },
     methods: {
-      openModal() {
-        // propogate open event here and in parent
-        this.$dispatch('open');
-      },
       closeModal() {
         this.$dispatch('close');
       },
