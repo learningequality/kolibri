@@ -208,7 +208,11 @@
   /* Default videojs stylesheet.
      Unable to reference the videojs using require since videojs doesn't have good webpack support
   */
+  @require '~core-theme.styl'
   @import '../../../../../../node_modules/video.js/dist/video-js.css'
+
+  $video-player-color = black
+  $video-player-accent-color = $core-action-normal
 
   .videowrapperwrapper
     width: 100%
@@ -250,7 +254,7 @@
 
     &:hover
       .vjs-big-play-button
-        background-color: black
+        background-color: $video-player-color
 
     .vjs-big-play-button
       position: absolute
@@ -262,11 +266,10 @@
       font-size: 2.5em
       line-height: 2.5em
       border-radius: 50%
-      border: none
-      background-color: black
+      background-color: $video-player-color
 
     .vjs-slider
-      background-color: black
+      background-color: $video-player-color
 
     .vjs-progress-control
       position: absolute
@@ -283,11 +286,11 @@
       background: grey
 
     .vjs-play-progress
-      background-color: orange
+      background-color: $video-player-accent-color
 
     .vjs-control-bar,
     .vjs-menu-button .vjs-menu-content
-      background-color: black
+      background-color: $video-player-color
 
     .vjs-control-bar
       justify-content: center
