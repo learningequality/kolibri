@@ -21,7 +21,7 @@
 
   const videojs = require('video.js');
   const langcodes = require('./langcodes.json');
-  require('./videojs-centerbtns');
+  require('./videojs-replay-forward-btns');
   const debounce = require('vue').util.debounce;
 
   module.exports = {
@@ -79,14 +79,8 @@
       setPlayState(state) {
         this.recordProgress();
         if (state === true) {
-          this.videoPlayer.$('.videotoggle').classList.add('videopaused');
-          this.videoPlayer.$('.videoreplay').classList.add('display');
-          this.videoPlayer.$('.videoforward').classList.add('display');
           this.$emit('startTracking');
         } else {
-          this.videoPlayer.$('.videotoggle').classList.remove('videopaused');
-          this.videoPlayer.$('.videoreplay').classList.remove('display');
-          this.videoPlayer.$('.videoforward').classList.remove('display');
           this.$emit('stopTracking');
         }
       },
@@ -125,30 +119,6 @@
       },
 
       videoPlayerIsReady() {
-        // this.videoPlayer.addChild('ReplayButton');
-        // this.videoPlayer.addChild('ForwardButton');
-        // this.videoPlayer.addChild('TogglePlayButton');
-
-        // const centerButtons = this.$els.videowrapper.childNodes[1];
-        // const toggleButton = centerButtons
-        //   .getElementsByClassName('videotoggle')[0];
-        // const replayButton = centerButtons
-        //   .getElementsByClassName('videoreplay')[0];
-        // const forwardButton = centerButtons
-        //   .getElementsByClassName('videoforward')[0];
-
-        // videojs(this.$els.video).on('useractive', () => {
-        //   toggleButton.classList.remove('userInactive');
-        //   replayButton.classList.remove('userInactive');
-        //   forwardButton.classList.remove('userInactive');
-        // });
-
-        // videojs(this.$els.video).on('userinactive', () => {
-        //   toggleButton.classList.add('userInactive');
-        //   replayButton.classList.add('userInactive');
-        //   forwardButton.classList.add('userInactive');
-        // });
-
         videojs(this.$els.video).on('play', () => {
           this.setPlayState(true);
         });
@@ -169,6 +139,7 @@
           this.lastUpdateTime = this.dummyTime;
         }
       },
+
       /* Catches when a user jumps around/skips while playing the video */
       handleSeek() {
         /* Record any progress up to this point */
@@ -199,14 +170,18 @@
         playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
         controlBar: {
           children: [
-            { name: 'playToggle' },
-            { name: 'currentTimeDisplay' },
-            { name: 'timeDivider' },
             { name: 'progressControl' },
+            { name: 'currentTimeDisplay' },
+            { name: 'TimeDivider' },
             { name: 'durationDisplay' },
-            { name: 'remainingTimeDisplay' },
-            { name: 'muteToggle' },
-            { name: 'VolumeBar' },
+            { name: 'ReplayButton' },
+            { name: 'playToggle' },
+            { name: 'ForwardButton' },
+            {
+              name: 'VolumeMenuButton',
+              inline: false,
+              vertical: true,
+            },
             { name: 'playbackRateMenuButton' },
             { name: 'captionsButton' },
             { name: 'fullscreenToggle' },
@@ -230,32 +205,11 @@
 
 <style lang="stylus">
 
-  // Default videojs stylesheet
-  // Unable to reference the videojs using require since videojs doesn't have good webpack support
+  /* Default videojs stylesheet.
+     Unable to reference the videojs using require since videojs doesn't have good webpack support
+  */
   @import '../../../../../../node_modules/video.js/dist/video-js.css'
 
-  // Videojs skin customization
-  // .video-js
-  //   font-size: 1em
-  //   color: #fff
-  //   margin: 0 auto
-  //   .vjs-slider
-  //     background-color: #545454
-  //     background-color: rgba(84, 84, 84, 0.5)
-  //   .vjs-load-progress
-  //     background: lighten(#545454, 25%)
-  //     background: rgba(84, 84, 84, 0.5)
-  //     div
-  //       background: lighten(#545454, 50%)
-  //       background: rgba(84, 84, 84, 0.75)
-
-  // .video-js .vjs-control-bar,
-  // .video-js .vjs-big-play-button,
-  // .video-js .vjs-menu-button .vjs-menu-content
-  //   background-color: #000
-  //   background-color: rgba(0, 0, 0, 0.7)
-
-   // Custom style
   .videowrapperwrapper
     width: 100%
     height: 100%
@@ -268,68 +222,123 @@
     transform: translate(-50%, -50%)
     position: relative
     height: 100%
-    background-color: #000
+    background-color: black
 
-  .video-js .vjs-menu
-    font-family: 'NotoSans', 'sans-serif'
 
-  .video-js .vjs-current-time
-    display: block
+  @media screen and (max-width: 840px)
+    .video-js
+      font-size: 0.8em
 
-  .video-js .vjs-play-progress
-    background-color: #996189
+  @media screen and (min-width: 841px)
+    .video-js
+      font-size: 1em
 
-  .video-js .userInactive
-    visibility: visible
-    opacity: 0
-    transition: visibility 1s, opacity 1s
+  @media screen and (max-width: 841px)
+    .video-js
+      .vjs-control-bar,
+      .vjs-menu-button .vjs-menu-content
+        font-size: 0.8em
 
-  .video-js .videoreplay,
-  .video-js .videoforward,
-  .video-js .videotoggle
-    background-repeat: no-repeat
-    background-size: contain
-    cursor: pointer
-    position: absolute
-    top: 50%
-    transform: translate(-50%, -50%)
+  @media screen and (min-width: 841px)
+    .video-js
+      .vjs-control-bar,
+      .vjs-menu-button .vjs-menu-content
+        font-size: 1em
 
-  .video-js .videoreplay,
-  .video-js .videoforward
-    display: none
-    height: 75px
-    width: 75px
+  .video-js
+    color: white
 
-  .video-js .videoreplay
-    background: url('../icons/replay.svg')
-    background-repeat: no-repeat
-    background-size: contain
-    background-color: rgba(0, 0, 0, 0.3)
-    left: calc(50% - 125px)
+    &:hover
+      .vjs-big-play-button
+        background-color: black
 
-  .video-js .videoforward
-    background: url('../icons/forward.svg')
-    background-repeat: no-repeat
-    background-size: contain
-    background-color: rgba(0, 0, 0, 0.3)
-    left: calc(50% + 125px)
+    .vjs-big-play-button
+      position: absolute
+      top: 50%
+      left: 50%
+      transform: translate(-50%, -50%)
+      height: 2.5em
+      width: 2.5em
+      font-size: 2.5em
+      line-height: 2.5em
+      border-radius: 50%
+      border: none
+      background-color: black
 
-  .video-js .videotoggle
-    background: url('../icons/play.svg')
-    background-repeat: no-repeat
-    background-size: contain
-    background-color: rgba(0, 0, 0, 0.3)
-    left: 50%
-    height: 125px
-    width: 125px
+    .vjs-slider
+      background-color: black
 
-  .video-js .videopaused
-    background: url('../icons/pause.svg')
-    background-repeat: no-repeat
-    background-size: contain
-    background-color: rgba(0, 0, 0, 0.3)
+    .vjs-progress-control
+      position: absolute
+      left: 0
+      right: 0
+      width: auto
+      height: 2em
+      top: -1em
 
-  .video-js .display
-    display: block
+    .vjs-progress-holder
+      margin: 0
+
+    .vjs-load-progress
+      background: grey
+
+    .vjs-play-progress
+      background-color: orange
+
+    .vjs-control-bar,
+    .vjs-menu-button .vjs-menu-content
+      background-color: black
+
+    .vjs-control-bar
+      justify-content: center
+
+    .vjs-current-time,
+    .vjs-time-divider,
+    .vjs-duration,
+    .vjs-volume-menu-button,
+    .vjs-playback-rate,
+    .vjs-fullscreen-control
+      position: absolute
+
+    .vjs-current-time
+      display: block
+      left: 0
+
+    .vjs-time-divider
+      display: block
+      left: 3em
+
+    .vjs-duration
+      display: block
+      left: 4em
+
+    .vjs-menu,
+      li
+        &:focus,
+        &:hover
+          background-color: grey
+
+    .vjs-volume-menu-button
+      right: 6em
+      .vjs-slider
+        background-color: grey
+
+    .vjs-playback-rate
+      right: 3em
+
+    .vjs-fullscreen-control
+      right: 0
+
+    .videoreplay
+      background: url('../icons/replay.svg')
+      background-repeat: no-repeat
+      background-position: center
+      background-size: 45%
+
+    .videoforward
+      background: url('../icons/forward.svg')
+      background-repeat: no-repeat
+      background-position: center
+      background-size: 45%
 
 </style>

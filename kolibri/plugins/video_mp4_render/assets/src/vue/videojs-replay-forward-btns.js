@@ -21,21 +21,7 @@ class ForwardButton extends videojsButton {
   }
 }
 
-class TogglePlayButton extends videojsButton {
-  buildCSSClass() {
-    return 'vjs-control vjs-button videotoggle';
-  }
-  handleClick() {
-    const player = this.player();
-    this.toggleClass('videopaused');
-    if (player.paused()) {
-      player.play();
-    } else {
-      player.pause();
-    }
-  }
-}
-
+ReplayButton.prototype.controlText_ = 'Replay';
+ForwardButton.prototype.controlText_ = 'Forward';
 videojs.registerComponent('ReplayButton', ReplayButton);
 videojs.registerComponent('ForwardButton', ForwardButton);
-videojs.registerComponent('TogglePlayButton', TogglePlayButton);
