@@ -1,6 +1,7 @@
 const KolibriModule = require('kolibri_module');
 const router = require('router');
 const kolibri = require('kolibri');
+const coreActions = require('core-actions');
 
 const rootvue = require('./vue');
 const actions = require('./actions');
@@ -86,7 +87,7 @@ class LearnModule extends KolibriModule {
     });
 
     router.start(rootvue, 'rootvue');
-    kolibri.coreActions.currentLoggedInUser(store, kolibri);
+    coreActions.currentLoggedInUser(store, kolibri);
     // Wrap this to preserve 'this-ness' inside the router.
     kolibri.on('refresh', () => router.refresh());
   }

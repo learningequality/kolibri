@@ -11,7 +11,7 @@
 
 <script>
 
-  const UserKinds = require('kolibri').constants.UserKinds;
+  const UserKinds = require('core-constants').UserKinds;
 
   module.exports = {
 

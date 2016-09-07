@@ -26,7 +26,7 @@
 
   const pageMode = require('../../state/getters').pageMode;
   const constants = require('../../state/constants');
-  const UserKinds = require('kolibri').constants.UserKinds;
+  const UserKinds = require('core-constants').UserKinds;
 
   module.exports = {
     $trNameSpace: 'learnNav',

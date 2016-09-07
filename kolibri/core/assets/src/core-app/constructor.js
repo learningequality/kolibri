@@ -13,6 +13,7 @@ const mime = require('rest/interceptor/mime');
 const csrf = require('rest/interceptor/csrf');
 const errorCode = require('rest/interceptor/errorCode');
 const cookiejs = require('js-cookie');
+const constructorExport = require('./api').constructorExport;
 
 
 /**
@@ -31,33 +32,16 @@ const publicMethods = [
 ];
 
 /**
- * Constructor for lib object that exposes libraries that are shared across all plugins.
- * In addition to being added as properties of kolibriGlobal.lib, they are also made
- * available to be require'd in other webpack-loaded modules and apps. This behavior
- * is configured in webpack.config.js
- * @classdesc
- */
-function Lib() {
-  // libraries
-  this.logging = require('../logging');
-  this.vue = vue;
-  this.vuex = vuex;
-  this.conditionalPromise = require('../conditionalPromise');
-  this.cookiejs = require('js-cookie');
-}
-
-/**
  * Constructor for object that forms the public API for the Kolibri
  * core app.
  * @constructor
  */
 module.exports = function CoreApp() {
-  this.lib = new Lib();
+  Object.assign(this, constructorExport());
+
   this.resources = new ResourceManager(this);
   const mediator = new Mediator();
 
-  this.constants = require('../constants');
-  this.coreActions = require('../core-actions');
   this.client = rest.wrap(mime, { mime: 'application/json' }).wrap(csrf, { name: 'X-CSRFToken',
       token: cookiejs.get('csrftoken') }).wrap(errorCode);
 

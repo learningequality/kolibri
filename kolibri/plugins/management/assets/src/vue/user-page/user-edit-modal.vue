@@ -97,8 +97,8 @@
 <script>
 
   const actions = require('../../actions');
-  const coreActions = require('kolibri').coreActions;
-  const UserKinds = require('kolibri').constants.UserKinds;
+  const coreActions = require('core-actions');
+  const UserKinds = require('core-constants').UserKinds;
 
   module.exports = {
     components: {},
