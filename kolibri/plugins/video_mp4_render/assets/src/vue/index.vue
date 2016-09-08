@@ -280,10 +280,11 @@
       font-size: 2.5em
       line-height: 2.5em
       border-radius: 50%
+      border: none
       background-color: $video-player-color
 
     .vjs-slider
-      background-color: $video-player-color
+      background-color: grey
 
     .vjs-progress-control
       position: absolute
@@ -292,15 +293,22 @@
       width: auto
       height: 2em
       top: -1em
+      visibility: inherit
+      opacity: inherit
 
     .vjs-progress-holder
       margin: 0
 
     .vjs-load-progress
-      background: grey
+      background: darkgrey
 
     .vjs-play-progress
       background-color: $video-player-accent-color
+
+    .vjs-progress-control
+      &:hover
+        .vjs-progress-holder
+          font-size: 1em
 
     .vjs-control-bar,
     .vjs-menu-button .vjs-menu-content
