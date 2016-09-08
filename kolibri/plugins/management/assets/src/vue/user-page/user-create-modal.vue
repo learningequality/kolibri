@@ -91,8 +91,9 @@
               this.close();
             }).catch((error) => {
               this.clear();
-              if (error.status.code === 409) {
-                this.errorMessage = error.entity;
+              if (error.status.code === 400) {
+                // access the first error message
+                this.errorMessage = error.entity[Object.keys(error.entity)[0]];
               } else if (error.status.code === 403) {
                 this.errorMessage = error.entity;
               } else {
