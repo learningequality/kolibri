@@ -8,6 +8,9 @@
 // By default any module specified with both and included with a relative (rather than absolute)
 // path will be aliased to allow short hand references. Obviously, this is not needed for
 // modules already in node_modules.
+//
+// N.B. You cannot use keys that require quotation marks in this object.
+// e.g. 'content-icon' (although this can be used as a value in requireName or module).
 
 const keys = [
   'module', // Require statement for the module.
@@ -16,23 +19,23 @@ const keys = [
 
 const apiSpec = {
   lib: {
-    'logging': {
+    logging: {
       requireName: 'logging',
       module: require('../logging'),
     },
-    'vue': {
+    vue: {
       requireName: 'vue',
       module: require('vue'),
     },
-    'vuex': {
+    vuex: {
       requireName: 'vuex',
       module: require('vuex'),
     },
-    'js-cookie': {
+    jscookie: {
       requireName: 'js-cookie',
       module: require('js-cookie'),
     },
-    'conditionalPromise': {
+    conditionalPromise: {
       requireName: 'conditionalPromise',
       module: require('../conditionalPromise'),
     },
@@ -53,29 +56,29 @@ const apiSpec = {
       },
     },
     components: {
-      'content-render': {
+      contentRender: {
         module: require('../vue/content-renderer'),
       },
-      'download-button': {
+      downloadButton: {
         module: require('../vue/content-renderer/download-button'),
       },
-      'loading-spinner': {
+      loadingSpinner: {
         module: require('../vue/loading-spinner'),
       },
-      'progress-bar': {
+      progressBar: {
         module: require('../vue/progress-bar'),
       },
-      'content-icon': {
+      contentIcon: {
         module: require('../vue/content-icon'),
       },
-      'core-base': {
+      coreBase: {
         module: require('../vue/core-base'),
       },
-      'nav-bar-item': {
+      navBarItem: {
         module: require('../vue/nav-bar/nav-bar-item'),
         requireName: 'nav-bar-item',
       },
-      'icon-button': {
+      iconButton: {
         module: require('../vue/icon-button'),
         requireName: 'icon-button',
       },
@@ -86,11 +89,11 @@ const apiSpec = {
     },
   },
   styles: {
-    'nav-bar-item': {
+    navBarItem: {
       requireName: 'nav-bar-item.styl',
       module: require('../vue/nav-bar/nav-bar-item.styl'),
     },
-    'core-theme': {
+    coreTheme: {
       module: require('../styles/core-theme.styl'),
       requireName: 'core-theme.styl',
     },
