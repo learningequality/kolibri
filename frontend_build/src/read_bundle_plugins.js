@@ -10,22 +10,7 @@ var _ = require("lodash");
 
 var parseBundlePlugin = require('./parse_bundle_plugin');
 
-
-// Mappings for libraries that we bundle in the Kolibri core app.
-// * the keys are names exposed by webpack to use in `require` statements, across apps
-// * the values are references to the packages, already inserted into kolibriGlobal
-//
-// kolibri_name is always == kolibriGlobal (this is defined in the base settings - base.py)
-var libs = function(kolibri_name) {
-  return {
-    'logging': kolibri_name + '.lib.logging',
-    'vue': kolibri_name + '.lib.vue',
-    'kolibri': kolibri_name,
-    'vuex': kolibri_name + '.lib.vuex',
-    'conditionalPromise': kolibri_name + '.lib.conditionalPromise',
-    'cookie-js': kolibri_name + '.lib.cookiejs'
-  };
-};
+var coreExternals = require('./apiSpecExportTools').coreExternals;
 
 /**
  * Take a Python plugin file name as input, and extract the information regarding front end plugin configuration from it
@@ -81,12 +66,12 @@ var readBundlePlugin = function(base_dir) {
   // For that bundle, we replace all references to library modules (like Backbone) that we bundle into the core app
   // with references to the core app itself, so if someone does `var Backbone = require('backbone');` webpack
   // will replace it with a reference to Bacbkone bundled into the core Kolibri app.
-  var lib_externals = core_bundle ? libs(core_bundle.output.library) : {};
+  var core_externals = core_bundle ? coreExternals(core_bundle.output.library) : {};
 
   bundles.forEach(function(bundle) {
     if (bundle.core_name === null || typeof bundle.core_name === "undefined") {
       // If this is not the core bundle, then we need to add the external library mappings.
-      bundle.externals = _.extend({}, externals, lib_externals);
+      bundle.externals = _.extend({}, externals, core_externals);
     } else {
       bundle.externals = externals;
     }
