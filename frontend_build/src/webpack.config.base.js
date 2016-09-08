@@ -35,10 +35,8 @@ var autoprefixer = require('autoprefixer');
 
 var aliases = require('./apiSpecExportTools').coreAliases();
 
-Object.assign(aliases, {
-  'kolibri_module': path.resolve('kolibri/core/assets/src/kolibri_module'),
-  'content_renderer_module': path.resolve('kolibri/core/assets/src/content_renderer_module'),
-});
+aliases['kolibri_module']= path.resolve('kolibri/core/assets/src/kolibri_module');
+aliases['content_renderer_module'] = path.resolve('kolibri/core/assets/src/content_renderer_module');
 
 require('./htmlhint_custom'); // adds custom rules
 
