@@ -324,6 +324,8 @@
     .vjs-playback-rate,
     .vjs-fullscreen-control
       position: absolute
+      visibility: inherit
+      opacity: inherit
 
     .vjs-current-time
       display: block
