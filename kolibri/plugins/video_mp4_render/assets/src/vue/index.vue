@@ -21,10 +21,17 @@
 
   const videojs = require('video.js');
   const langcodes = require('./langcodes.json');
-  require('./videojs-replay-forward-btns');
+  const customButtons = require('./videojs-replay-forward-btns');
   const debounce = require('vue').util.debounce;
 
   module.exports = {
+
+    $trNameSpace: 'videoRender',
+
+    $trs: {
+      replay: 'Replay',
+      forward: 'Forward',
+    },
 
     props: ['files'],
 
@@ -155,6 +162,13 @@
           Math.floor(this.videoPlayer.duration())));
         this.progressStartingPoint = this.videoPlayer.currentTime();
       },
+    },
+
+    created() {
+      customButtons.ReplayButton.prototype.controlText_ = this.$tr('replay');
+      customButtons.ForwardButton.prototype.controlText_ = this.$tr('forward');
+      videojs.registerComponent('ReplayButton', customButtons.ReplayButton);
+      videojs.registerComponent('ForwardButton', customButtons.ForwardButton);
     },
 
     ready() {

@@ -21,7 +21,7 @@ class ForwardButton extends videojsButton {
   }
 }
 
-ReplayButton.prototype.controlText_ = 'Replay';
-ForwardButton.prototype.controlText_ = 'Forward';
-videojs.registerComponent('ReplayButton', ReplayButton);
-videojs.registerComponent('ForwardButton', ForwardButton);
+module.exports = {
+  ReplayButton,
+  ForwardButton,
+};
