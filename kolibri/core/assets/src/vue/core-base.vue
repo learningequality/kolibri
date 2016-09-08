@@ -4,7 +4,7 @@
     <nav-bar>
       <slot name="nav"></slot>
     </nav-bar>
-    <loading-spinner v-show="loading" class="loading-spinner-fixed"></loading-spinner>
+    <loading-spinner v-if="loading" class="loading-spinner-fixed"></loading-spinner>
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
       <error-box v-if="error"></error-box>
       <slot name="above"></slot>
