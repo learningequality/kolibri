@@ -13,7 +13,7 @@ const mime = require('rest/interceptor/mime');
 const csrf = require('rest/interceptor/csrf');
 const errorCode = require('rest/interceptor/errorCode');
 const cookiejs = require('js-cookie');
-const constructorExport = require('./api').constructorExport;
+const constructorExport = require('./constructorExport');
 
 
 /**
