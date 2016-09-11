@@ -23,7 +23,7 @@
       namemodel: {
         type: String,
         required: true,
-        twoway: true,
+        twoWay: true,
       },
     },
   };

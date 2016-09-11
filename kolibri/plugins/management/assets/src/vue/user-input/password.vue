@@ -21,7 +21,7 @@
       passwordmodel: {
         type: String,
         required: true,
-        twoway: true,
+        twoWay: true,
       },
       confirm: {
         type: Boolean,

@@ -1,90 +1,79 @@
 <template>
 
-  <modal @open="clear" title="Edit Account Info" :has-error="error_message ? true : false">
-    <!-- User Edit Normal -->
-    <div @keydown.enter="editUser">
-      <template v-if="!usr_delete && !pw_reset">
+  <div>
+    <modal @open="clear" title="Edit Account Info" :has-error="error_message ? true : false">
+      <!-- User Edit Normal -->
+      <div @keydown.enter="editUser">
+        <template v-if="!usr_delete && !pw_reset">
 
-        <div class="user-field">
-          <label for="fullname">Full Name</label>:
-          <input type="text" class="edit-form edit-fullname" aria-label="fullname" id="fullname" v-model="fullName_new">
-        </div>
+          <name :namemodel.sync="fullName_new"></name>
 
-        <div class="user-field">
-          <label for="username">Username</label>:
-          <input type="text" class="edit-form edit-username" aria-label="username" id="username" v-model="username_new">
-        </div>
+          <username :usernamemodel.sync="username_new"></username>
 
-        <div class="user-field">
-          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-          <select v-model="role_new" id="user-role">
-            <option :selected="role_new == learner" v-if="role_new" value="learner"> Learner </option>
-            <option :selected="role_new == admin" value="admin"> Admin </option>
-          </select>
-        </div>
+          <role :rolemodel.sync="role_new"></role>
 
-        <div class="advanced-options">
-          <button @click="pw_reset=!pw_reset"> Reset Password </button>
-          <button @click="usr_delete=!usr_delete"> Delete User</button>
-        </div>
+          <div class="advanced-options">
+            <button @click="pw_reset=!pw_reset"> Reset Password </button>
+            <button @click="usr_delete=!usr_delete"> Delete User</button>
+          </div>
 
-        <hr class="end-modal">
+          <hr class="end-modal">
 
-      </template>
+        </template>
 
-      <!-- Password Reset Mode -->
-      <template v-if="pw_reset" >
-        <p>Username: <b>{{username_new}}</b></p>
-        <div class="user-field">
-          <label for="password">Enter new password</label>:
-          <input type="password" class="edit-form" id="password" required v-model="password_new">
-        </div>
+        <!-- Password Reset Mode -->
+        <template v-if="pw_reset" >
 
-        <div class="user-field">
-          <label for="password-confirm">Confirm new password</label>:
-          <input type="password" class="edit-form" id="password-confirm" required v-model="password_new_confirm">
-        </div>
-      </template>
+          <field-wrapper>
+            Username: <b>{{username_new}}</b>
+          </field-wrapper>
 
-      <!-- User Delete Mode -->
-      <template v-if="usr_delete">
-        <div class="user-field">
-          <p>Are you sure you want to delete <b>{{username_new}}</b>?</p>
-        </div>
-      </template>
+          <password-and-confirm
+            :passwordmodel.sync="password_new"
+            :confirmpasswordmodel.sync="password_new_confirm">
+          </password-and-confirm>
+        </template>
+
+        <!-- User Delete Mode -->
+        <template v-if="usr_delete">
+          <div class="user-field">
+            <p>Are you sure you want to delete <b>{{username_new}}</b>?</p>
+          </div>
+        </template>
 
 
-      <!-- Error Messages -->
-      <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
-      <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
+        <!-- Error Messages -->
+        <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
+        <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
 
-      <!-- Button Section TODO: cleaunup -->
-      <section @keydown.enter.stop>
-        <button v-if="!usr_delete && !pw_reset" class="undo-btn" type="button" @click="close">
-          Cancel
-        </button>
+        <!-- Button Section TODO: cleaunup -->
+        <section @keydown.enter.stop>
+          <button v-if="!usr_delete && !pw_reset" class="undo-btn" type="button" @click="close">
+            Cancel
+          </button>
 
-        <button v-else class="undo-btn" type="button" @click="clear">
-          <!-- For reset option -->
-          <template v-if="pw_reset"> Back </template>
-          <!-- For delete option -->
-          <template v-if="usr_delete"> No </template>
-        </button>
+          <button v-else class="undo-btn" type="button" @click="clear">
+            <!-- For reset option -->
+            <template v-if="pw_reset"> Back </template>
+            <!-- For delete option -->
+            <template v-if="usr_delete"> No </template>
+          </button>
 
-        <button v-if="!usr_delete && !pw_reset" class="confirm-btn" type="button" @click="editUser">
-          Confirm
-        </button>
+          <button v-if="!usr_delete && !pw_reset" class="confirm-btn" type="button" @click="editUser">
+            Confirm
+          </button>
 
-        <button v-if="pw_reset" class="confirm-btn" type="button" @click="changePassword">
-          Save
-        </button>
+          <button v-if="pw_reset" class="confirm-btn" type="button" @click="changePassword">
+            Save
+          </button>
 
-        <button v-if="usr_delete" class="confirm-btn" type="button" @click="delete">
-          Yes
-        </button>
-      </section>
-    </div>
-  </modal>
+          <button v-if="usr_delete" class="confirm-btn" type="button" @click="delete">
+            Yes
+          </button>
+        </section>
+      </div>
+    </modal>
+  </div>
 
 </template>
 
@@ -97,7 +86,12 @@
 
   module.exports = {
     components: {
-      modal: require('../modal'),
+      'modal': require('../modal'),
+      'name': require('../user-input/name'),
+      'username': require('../user-input/username'),
+      'role': require('../user-input/role'),
+      'password-and-confirm': require('../user-input/password-and-confirm'),
+      'field-wrapper': require('../user-input/field-wrapper'),
     },
     props: [
       'userid', 'username', 'fullname', 'roles', // TODO - validation

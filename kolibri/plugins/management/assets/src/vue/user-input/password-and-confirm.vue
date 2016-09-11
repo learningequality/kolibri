@@ -24,12 +24,12 @@
       passwordmodel: {
         type: String,
         required: true,
-        twoway: true,
+        twoWay: true,
       },
       confirmpasswordmodel: {
         type: String,
         required: true,
-        twoway: true,
+        twoWay: true,
       },
     },
   };
