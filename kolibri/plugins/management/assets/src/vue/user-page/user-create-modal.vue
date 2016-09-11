@@ -26,7 +26,7 @@
             :rolemodel.sync="role">
           </role>
         </section>
-        
+
         <!-- Button Options at footer of modal -->
         <section class="footer">
           <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
@@ -130,39 +130,6 @@
 
   @require '~core-theme'
 
-  $button-content-size = 1em
-
-  .user-field
-    padding-bottom: 5%
-    input
-      width: 100%
-      height: 40px
-      font-weight: bold
-    label
-      position: relative
-      cursor: pointer
-    select
-      width: 100%
-      height: 40px
-      font-weight: bold
-      background-color: transparent
-
-  .add-form
-    width: 300px
-    margin: 0 auto
-    display: block
-    padding: 5px 10px
-    letter-spacing: 0.08em
-    border: none
-    border-bottom: 1px solid $core-text-default
-    height: 30px
-    &:focus
-      outline: none
-      border-bottom: 3px solid $core-action-normal
-
-  .header
-    text-align: center
-
   .footer
     text-align: center
 
@@ -176,12 +143,5 @@
 
   .error
     color: $core-text-alert
-
-  .secondary
-    &:hover
-      color: #ffffff
-      background-color: $core-action-dark
-      svg
-        fill: #ffffff
 
 </style>
