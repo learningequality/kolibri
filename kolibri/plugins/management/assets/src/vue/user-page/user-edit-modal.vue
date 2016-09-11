@@ -93,9 +93,24 @@
       'password-and-confirm': require('../user-input/password-and-confirm'),
       'field-wrapper': require('../user-input/field-wrapper'),
     },
-    props: [
-      'userid', 'username', 'fullname', 'roles', // TODO - validation
-    ],
+    props: {
+      userid: {
+        type: Number,
+        required: true,
+      },
+      username: {
+        type: String,
+        required: true,
+      },
+      fullname: {
+        type: String,
+        required: true,
+      },
+      roles: {
+        type: Array,
+        required: true,
+      },
+    },
     data() {
       return {
         username_new: this.username,
@@ -129,10 +144,12 @@
       },
       delete() {
         // if logged in admin deleted their own account, log them out
-        if (Number(this.userid) === this.session_user_id) {
+        if (this.userid === this.session_user_id) {
           this.logout(this.Kolibri);
         }
         this.deleteUser(this.userid);
+
+        this.close();
       },
       changePassword() {
         // checks to make sure there's a new password
