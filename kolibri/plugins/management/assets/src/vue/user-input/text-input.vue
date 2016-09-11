@@ -10,14 +10,14 @@
 
   # Example:
 
-  <fieldwrapper model.sync="nameModel" title="Name">
+  <text-input model.sync="nameModel" title="Name"></text-input>
 -->
 
 
 <template>
 
   <div>
-    <fieldwrapper>
+    <field-wrapper>
       <label :for="field_id"> {{ title }} </label>
         {{
           // focus dispatches upwards, so that parents can listen to the event
@@ -25,12 +25,12 @@
         }}
         <input
           @focus="$dispatch('focus')"
-          type="text"
+          :type="type"
           :autocomplete="autcomplete"
           :id="field_id"
           :required="required"
           v-model="model">
-    </fieldwrapper>
+    </field-wrapper>
   </div>
 
 </template>
@@ -40,7 +40,7 @@
 
   module.exports = {
     components: {
-      fieldwrapper: require('./fieldwrapper'),
+      'field-wrapper': require('./field-wrapper'),
     },
     computed: {
       field_id() {
@@ -63,10 +63,17 @@
         type: String,
         required: false,
       },
+      // debating whether to include this,
+      // since we're not using `<form>` to validate
       required: {
         type: Boolean,
         required: false,
         default: false,
+      },
+      type: {
+        type: String,
+        required: false,
+        default: 'text',
       },
     },
   };

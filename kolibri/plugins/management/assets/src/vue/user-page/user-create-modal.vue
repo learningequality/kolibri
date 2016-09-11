@@ -5,33 +5,28 @@
       <div @keydown.enter="createNewUser">
         <!-- Fields for the user to fill out -->
         <section class="user-fields">
-          <div class="user-field">
-            <label for="name">Name</label>
-            <input @focus="clearErrorMessage" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
-          </div>
+          <name
+            @focus="clearErrorMessage"
+            :namemodel.sync="full_name">
+          </name>
 
-          <username @focus="clearErrorMessage" :usernamemodel.sync="username">
+          <username
+            @focus="clearErrorMessage"
+            :usernamemodel.sync="username">
           </username>
 
-          <div class="user-field">
-            <label for="password">Password</label>
-            <input @focus="clearErrorMessage" type="password" class="add-form" id="password" required v-model="password">
-          </div>
+          <password-and-confirm
+            @focus="clearErrorMessage"
+            :passwordmodel.sync="password"
+            :confirmpasswordmodel.sync="passwordConfirm">
+          </password-and-confirm>
 
-          <div class="user-field">
-            <label for="confirm-password">Confirm Password</label>
-            <input @focus="clearErrorMessage" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
-          </div>
-
-          <div class="user-field">
-            <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-            <select @focus="clearErrorMessage" v-model="role" id="user-role">
-            <option value="learner" selected> Learner </option>
-            <option value="admin"> Admin </option>
-            </select>
-          </div>
+          <role
+            @focus="clearErrorMessage"
+            :rolemodel.sync="role">
+          </role>
         </section>
-
+        
         <!-- Button Options at footer of modal -->
         <section class="footer">
           <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
@@ -55,6 +50,9 @@
       'icon-button': require('icon-button'),
       'modal': require('../modal'),
       'username': require('../user-input/username'),
+      'name': require('../user-input/name'),
+      'password-and-confirm': require('../user-input/password-and-confirm'),
+      'role': require('../user-input/role'),
     },
     data() {
       return {

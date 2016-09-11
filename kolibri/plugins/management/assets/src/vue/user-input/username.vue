@@ -1,4 +1,13 @@
-<!-- Going to have to use sync any time you want to use this -->
+<!--
+  # Required:
+
+  - usernamemodel: The data representing the username you want to update
+    + MUST use model.sync for two-way databinding.
+
+  # Example:
+
+  <username usernamemodel.sync="user.username"></username>
+-->
 
 
 <template>
@@ -6,7 +15,6 @@
   <div>
     <text-input
       autocomplete="username"
-      :required="true"
       title="Username"
       :model.sync="usernamemodel">
     </text-input>
@@ -19,7 +27,6 @@
 
   module.exports = {
     components: {
-      'fieldwrapper': require('./fieldwrapper'),
       'text-input': require('./text-input'),
     },
     props: {

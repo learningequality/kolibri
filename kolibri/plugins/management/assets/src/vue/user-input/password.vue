@@ -1,12 +1,10 @@
-<!--
-  Going to have to use sync any time you want to use this
--->
-
-
 <template>
 
   <div>
-    <text-input :model.sync="namemodel" title="Name">
+    <text-input
+      :title="this.confirm ? 'Confirm Password' : 'Password'"
+      :model.sync="passwordmodel"
+      type="password">
     </text-input>
   </div>
 
@@ -20,10 +18,15 @@
       'text-input': require('./text-input'),
     },
     props: {
-      namemodel: {
+      passwordmodel: {
         type: String,
         required: true,
         twoway: true,
+      },
+      confirm: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
   };
