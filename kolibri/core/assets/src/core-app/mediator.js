@@ -9,6 +9,11 @@
 const assetLoader = require('./asset-loader');
 const Vue = require('vue');
 const logging = require('kolibri/lib/logging').getLogger(__filename);
+const rest = require('rest');
+const mime = require('rest/interceptor/mime');
+const errorCode = require('rest/interceptor/errorCode');
+
+const client = rest.wrap(mime, { mime: 'application/json' }).wrap(errorCode);
 
 /**
  * @constructor
@@ -48,6 +53,12 @@ module.exports = class Mediator {
 
     // wait to call kolibri_module `ready` until dependencies are loaded
     this._ready = false;
+
+    /**
+     * Keep track of all registered language assets for modules.
+     * kolibriModuleName: {object} - with keys for different languages.
+     **/
+    this._languageAssetRegistry = {};
   }
 
   /**
@@ -320,5 +331,53 @@ module.exports = class Mediator {
    */
   off(...args) {
     this._eventDispatcher.$off(...args);
+  }
+
+  _fetchLanguageAssets(moduleName, language) {
+    let promise;
+    if (this._languageAssetRegistry[moduleName] &&
+      this._languageAssetRegistry[moduleName][language] &&
+      this._languageAssetRegistry[moduleName][language].promise) {
+      promise = this._languageAssetRegistry[moduleName][language].promise;
+    } else {
+      promise = new Promise((resolve, reject) => {
+        if (moduleName in this._languageAssetRegistry &&
+          this._languageAssetRegistry[moduleName][language]) {
+          if (this._languageAssetRegistry[moduleName][language].loaded) {
+            resolve();
+          } else {
+            this._languageAssetRegistry[moduleName][language].promise = promise;
+            client({ path: this._languageAssetRegistry[moduleName][language].url }).then(
+              (response) => {
+                const messageMap = response.entity;
+                this.registerLanguageAssets(moduleName, language, messageMap);
+                resolve();
+              }, (error) => {
+              logging.error(
+                `Message file for ${moduleName} for language: ${language} did not load`);
+            });
+          }
+        } else {
+          resolve();
+        }
+      });
+    }
+    return promise;
+  }
+
+  registerLanguageAssets(moduleName, language, messageMap) {
+    this._languageAssetRegistry[moduleName] = this._languageAssetRegistry[moduleName] || {};
+    this._languageAssetRegistry[moduleName][language] =
+      this._languageAssetRegistry[moduleName][language] || {};
+    this._languageAssetRegistry[moduleName][language].loaded = true;
+    Vue.registerMessages(language, messageMap);
+  }
+
+  registerLanguageAssetsUrl(moduleName, language, messageMapUrl) {
+    this._languageAssetRegistry[moduleName] = this._languageAssetRegistry[moduleName] || {};
+    this._languageAssetRegistry[moduleName][language] = {
+      loaded: false,
+      url: messageMapUrl,
+    };
   }
 };
