@@ -1,22 +1,24 @@
 <template>
 
-  <field-wrapper>
-    <label for="user-role">
-      <span class="visuallyhidden">
-        User Role
-      </span>
-    </label>
+  <div>
+    <field-wrapper>
+      <label for="user-role">
+        <span class="visuallyhidden">
+          User Role
+        </span>
+      </label>
 
-    <select v-model="rolemodel" id="user-role">
-      <option value="learner">
-        Learner
-      </option>
+      <select v-model="rolemodel" id="user-role">
+        <option value="learner">
+          Learner
+        </option>
 
-      <option value="admin">
-        Admin
-      </option>
-    </select>
-  </field-wrapper>
+        <option value="admin">
+          Admin
+        </option>
+      </select>
+    </field-wrapper>
+  </div>
 
 </template>
 

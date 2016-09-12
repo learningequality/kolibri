@@ -60,15 +60,15 @@
           </button>
 
           <button v-if="!usr_delete && !pw_reset" class="confirm-btn" type="button" @click="editUser">
-            Confirm
+            {{ $tr('confirm') }}
           </button>
 
           <button v-if="pw_reset" class="confirm-btn" type="button" @click="changePassword">
-            Save
+            {{ $tr('save') }}
           </button>
 
           <button v-if="usr_delete" class="confirm-btn" type="button" @click="delete">
-            Yes
+            {{ $tr('yes') }}
           </button>
         </section>
       </div>
@@ -85,6 +85,15 @@
   const UserKinds = require('kolibri').constants.UserKinds;
 
   module.exports = {
+    $trNameSpace: 'management',
+    $trs: {
+      back: 'Back',
+      cancel: 'Cancel',
+      close: 'Close',
+      confirm: 'Confirm',
+      save: 'Save',
+      yes: 'Yes',
+    },
     components: {
       'modal': require('../modal'),
       'name': require('../user-input/name'),
@@ -232,38 +241,6 @@
 
   .open-btn
     background-color: $core-bg-light
-
-  .user-field
-    padding-bottom: 5%
-    input
-      width: 100%
-      height: 40px
-      font-weight: bold
-      border: none
-      border-bottom: 1px solid #3a3a3a
-    label
-      position: relative
-    select
-      -webkit-appearance: menulist-button
-      width: 100%
-      height: 40px
-      font-weight: bold
-      background-color: transparent
-    p
-      text-align: center
-
-  .edit-form
-    width: 200px
-    margin: 0 auto
-    display: block
-    padding: 5px 10px
-    letter-spacing: 0.08em
-    border: none
-    border-bottom: 1px solid $core-text-default
-    height: 30px
-    &:focus
-      outline: none
-      border-bottom: 3px solid $core-action-normal
 
   .header
     text-align: center
