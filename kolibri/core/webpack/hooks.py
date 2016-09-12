@@ -19,6 +19,7 @@ from django.conf import settings as django_settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
+from django.utils.translation import get_language
 from kolibri.plugins import hooks
 
 from . import settings
@@ -120,18 +121,6 @@ class WebpackBundleHook(hooks.KolibriHook):
             f['url'] = staticfiles_storage.url(relpath)
             yield f
 
-    @hooks.registered_method
-    def bundle_filtered(self, extension=None):
-        """
-        TODO: Why is this helper function necessary!?
-
-        :returns: a possibly filtered list of data from self.bundle
-        """
-        bundle = self.bundle
-        if extension:
-            bundle = (chunk for chunk in bundle if chunk['name'].endswith('.{0}'.format(extension)))
-        return bundle
-
     @property
     @hooks.registered_method
     def webpack_bundle_data(self):
@@ -188,7 +177,56 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         return os.path.join(*self.__module__.split(".")[:-1])
 
-    def render_to_page_load_sync_html(self, extension=None):
+    @cached_property
+    def frontend_message_file(self):
+        lang_code = get_language()
+        if django_settings.DEBUG:
+            static_root = self.static_dir
+        else:
+            static_root = getattr(django_settings, 'STATIC_ROOT')
+        message_file_name = "{name}-messages.json".format(name=self.unique_slug)
+        file_path = os.path.join(static_root, lang_code, message_file_name)
+        if os.path.exists(file_path):
+            return file_path
+
+    @cached_property
+    def frontend_messages(self):
+        if self.frontend_message_file:
+            with open(self.frontend_message_file) as f:
+                return f.read()
+
+    @cached_property
+    def frontend_message_file_url(self):
+        lang_code = get_language()
+        message_file_name = "{name}-messages.json".format(name=self.unique_slug)
+        if self.frontend_message_file:
+            return "{static}{lang_code}/{file_name}".format(
+                static=getattr(django_settings, 'STATIC_URL'),
+                file_name=message_file_name,
+                lang_code=lang_code,
+            )
+
+    def js_and_css_tags(self):
+        js_tag = '<script type="text/javascript" src="{url}"></script>'
+        css_tag = '<link type="text/css" href="{url}" rel="stylesheet"/>'
+        for chunk in self.bundle:
+            if chunk['name'].endswith('.js'):
+                yield js_tag.format(url=chunk['url'])
+            elif chunk['name'].endswith('.css'):
+                yield css_tag.format(url=chunk['url'])
+
+    def frontend_message_tag(self):
+        if self.frontend_messages:
+            return ['<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", {messages});</script>'.format(
+                kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
+                bundle=self.unique_slug,
+                lang_code=get_language(),
+                messages=self.frontend_messages,
+            )]
+        else:
+            return []
+
+    def render_to_page_load_sync_html(self):
         """
         Generates the appropriate script tags for the bundle, be they JS or CSS
         files.
@@ -196,17 +234,11 @@ class WebpackBundleHook(hooks.KolibriHook):
         :param bundle_data: The data returned from
         :return: HTML of script tags for insertion into a page.
         """
-        tags = []
-        js_tag = '<script type="text/javascript" src="{url}"></script>'
-        css_tag = '<link type="text/css" href="{url}" rel="stylesheet"/>'
-        for chunk in self.bundle_filtered(extension=extension):
-            if chunk['name'].endswith('.js'):
-                tags.append(js_tag.format(url=chunk['url']))
-            elif chunk['name'].endswith('.css'):
-                tags.append(css_tag.format(url=chunk['url']))
+        tags = list(self.js_and_css_tags()) + self.frontend_message_tag()
+
         return mark_safe('\n'.join(tags))
 
-    def render_to_page_load_async_html(self, extension=None):
+    def render_to_page_load_async_html(self):
         """
         Generates script tag containing Javascript to register an
         asynchronously loading Javascript FrontEnd plugin against the core
@@ -227,8 +259,15 @@ class WebpackBundleHook(hooks.KolibriHook):
             bundle=self.unique_slug,
             urls='","'.join(urls),
             events=json.dumps(self.events),
-            once=json.dumps(self.once)
+            once=json.dumps(self.once),
         )
+        if self.frontend_message_file_url:
+            js += '{kolibri_name}.registerLanguageAssetsUrl("{bundle}", "{lang_code}", "{message_url}");'.format(
+                kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
+                bundle=self.unique_slug,
+                lang_code=get_language(),
+                message_url=self.frontend_message_file_url
+            )
         return mark_safe('<script>{js}</script>'.format(js=js))
 
     class Meta:
@@ -259,24 +298,24 @@ class WebpackInclusionHook(hooks.KolibriHook):
                     type(self.bundle_class)
                 )
 
-    def render_to_page_load_sync_html(self, extension=None):
+    def render_to_page_load_sync_html(self):
         html = ""
         bundle = self.bundle_class()
         if not bundle._meta.abstract:
-            html = bundle.render_to_page_load_sync_html(extension=extension)
+            html = bundle.render_to_page_load_sync_html()
         else:
             for hook in bundle.registered_hooks:
-                html += hook.render_to_page_load_sync_html(extension=extension)
+                html += hook.render_to_page_load_sync_html()
         return mark_safe(html)
 
-    def render_to_page_load_async_html(self, extension=None):
+    def render_to_page_load_async_html(self):
         html = ""
         bundle = self.bundle_class()
         if not bundle._meta.abstract:
-            html = bundle.render_to_page_load_async_html(extension=extension)
+            html = bundle.render_to_page_load_async_html()
         else:
             for hook in bundle.registered_hooks:
-                html += hook.render_to_page_load_async_html(extension=extension)
+                html += hook.render_to_page_load_async_html()
         return mark_safe(html)
 
     class Meta:

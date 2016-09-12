@@ -93,13 +93,16 @@ module.exports = class Mediator {
     this._executeCallbackBuffer(kolibriModule);
     logging.info(`KolibriModule: ${kolibriModule.name} registered`);
     this.emit('kolibri_register', kolibriModule);
-    if (this._ready) {
-      kolibriModule.ready();
-    } else {
-      this._eventDispatcher.$once('ready', () => {
+    const ready = () => {
+      if (this._ready) {
         kolibriModule.ready();
-      });
-    }
+      } else {
+        this._eventDispatcher.$once('ready', () => {
+          kolibriModule.ready();
+        });
+      }
+    };
+    this._fetchLanguageAssets(kolibriModule.name, Vue.locale).then(ready, ready);
   }
 
   /**
@@ -280,6 +283,7 @@ module.exports = class Mediator {
               });
             }
           });
+          this._fetchLanguageAssets(kolibriModuleName, Vue.locale);
         }
       };
       // Listen to the event and call the above function

@@ -29,6 +29,8 @@ const publicMethods = [
   'on',
   'once',
   'off',
+  'registerLanguageAssets',
+  'registerLanguageAssetsUrl',
 ];
 
 /**
