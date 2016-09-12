@@ -77,6 +77,17 @@ var readBundlePlugin = function(base_dir) {
     }
   });
 
+  // Create name to path mapping to allow translated json files to be copied into
+  // the correct static directory.
+
+  var namePathMapping = {};
+
+  bundles.forEach(function (bundle) {
+    namePathMapping[bundle.name] = path.resolve(path.dirname(bundle.output.path));
+  });
+
+  fs.writeFileSync(path.join(base_dir, 'kolibri', 'locale', 'pathMapping.json'), JSON.stringify(namePathMapping));
+
   return bundles;
 
 };
