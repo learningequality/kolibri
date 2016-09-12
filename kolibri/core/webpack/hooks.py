@@ -332,6 +332,18 @@ class FrontEndCoreAssetHook(WebpackBundleHook):
         dct['external'] = True
         return dct
 
+    def render_to_page_load_sync_html(self):
+        """
+        Generates the appropriate script tags for the core bundle, be they JS or CSS
+        files.
+
+        :return: HTML of script tags for insertion into a page.
+        """
+        tags = ['<script>var coreLanguageMessages = {messages};</script>'.format(
+            messages=self.frontend_messages)] + list(self.js_and_css_tags())
+
+        return mark_safe('\n'.join(tags))
+
     class Meta:
         abstract = True
 

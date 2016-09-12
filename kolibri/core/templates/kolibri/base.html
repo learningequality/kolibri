@@ -1,5 +1,6 @@
 {% load i18n kolibri_tags webpack_tags js_reverse cache %}
 {% load staticfiles %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -45,6 +46,10 @@
   </script>
 </rootvue>
 {% block frontend_assets %}
+<script>
+  // Set global language variable.
+  var languageCode = "{{ LANGUAGE_CODE }}";
+</script>
 {% webpack_asset 'default_frontend' %}
 <script type="text/javascript">
   {% cache 5000 js_urls %}

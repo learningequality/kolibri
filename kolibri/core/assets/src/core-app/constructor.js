@@ -110,6 +110,14 @@ module.exports = class CoreApp {
         }
         return this.$formatHTMLMessage(message, ...args);
       };
+
+      if (global.languageCode) {
+        vue.setLocale(global.languageCode);
+        if (global.coreLanguageMessages) {
+          vue.registerMessages(global.languageCode, global.coreLanguageMessages);
+        }
+      }
+
       mediator.setReady();
     }
 
