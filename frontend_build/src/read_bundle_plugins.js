@@ -7,6 +7,7 @@
 var readWebpackJson = require('./read_webpack_json');
 var logging = require('./logging');
 var _ = require("lodash");
+var mkdirp = require('mkdirp');
 
 var parseBundlePlugin = require('./parse_bundle_plugin');
 
@@ -86,7 +87,11 @@ var readBundlePlugin = function(base_dir) {
     namePathMapping[bundle.name] = path.resolve(path.dirname(bundle.output.path));
   });
 
-  fs.writeFileSync(path.join(base_dir, 'kolibri', 'locale', 'pathMapping.json'), JSON.stringify(namePathMapping));
+  var locale_dir = path.join(base_dir, 'kolibri', 'locale')
+
+  mkdirp.sync(locale_dir);
+
+  fs.writeFileSync(path.join(locale_dir, 'pathMapping.json'), JSON.stringify(namePathMapping));
 
   return bundles;
 
