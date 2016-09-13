@@ -104,15 +104,8 @@ function kolibriLogin(store, Kolibri, sessionPayload) {
     }
     Kolibri.resources.clearCaches();
   }).catch((error) => {
-    // hack to handle invalid credentials
     if (error.status.code === 401) {
-      store.dispatch('CORE_HANDLE_WRONG_CREDS', { id: undefined,
-                                                  username: '',
-                                                  full_name: '',
-                                                  user_id: undefined,
-                                                  facility_id: undefined,
-                                                  kind: [UserKinds.ANONYMOUS],
-                                                  error: '401' });
+      store.dispatch('CORE_SET_LOGIN_ERROR', 401);
     } else {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
     }
@@ -146,12 +139,14 @@ function currentLoggedInUser(store, Kolibri) {
   });
 }
 
-function togglemodal(store, bool) {
-  store.dispatch('CORE_SET_MODAL_STATE', bool);
-  if (!bool) {
-    // Clears the store to clear any error message from login modal
-    store.dispatch('CORE_CLEAR_SESSION');
-  }
+function showLoginModal(store, bool) {
+  store.dispatch('CORE_SET_LOGIN_MODAL_VISIBLE', true);
+  store.dispatch('CORE_SET_LOGIN_ERROR', null);
+}
+
+function cancelLoginModal(store, bool) {
+  store.dispatch('CORE_SET_LOGIN_MODAL_VISIBLE', false);
+  store.dispatch('CORE_SET_LOGIN_ERROR', null);
 }
 
 
@@ -358,7 +353,8 @@ module.exports = {
   kolibriLogin,
   kolibriLogout,
   currentLoggedInUser,
-  togglemodal,
+  showLoginModal,
+  cancelLoginModal,
   initContentSession,
   startTrackingProgress,
   stopTrackingProgress,
