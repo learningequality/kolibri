@@ -5,9 +5,8 @@
     :invisibletitle="true"
     :backgroundclickclose="true"
     :haserror="wrongCreds"
-    @open="clearForm"
-    @close="cancelLoginModal"
-    @submit="userLogin"
+    @enter="userLogin"
+    @cancel="cancelLoginModal"
   >
     <div class="title">
       <div class="login-brand-box">
@@ -64,6 +63,11 @@
       username_entered: '',
       password_entered: '',
     }),
+    attached() {
+      this.$els.usernamefield.focus();
+      this.username_entered = '';
+      this.password_entered = '';
+    },
     methods: {
       userLogin() {
         const payload = {
@@ -71,14 +75,8 @@
           password: this.password_entered,
         };
         this.kolibriLogin(this.Kolibri, payload);
-        this.clearForm();
-      },
-      clearForm() {
         this.$els.usernamefield.focus();
-        this.username_entered = '';
-        this.password_entered = '';
       },
-      /* If admin logs in, sends them to the manage tab */
     },
     vuex: {
       getters: {

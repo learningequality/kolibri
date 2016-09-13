@@ -84,11 +84,13 @@
       };
     },
     methods: {
-      closeModal() {
-        this.$dispatch('close');
+      closeModal(event) {
+        event.preventDefault();
+        this.$emit('cancel');
       },
-      submitModal() {
-        this.$dispatch('submit');
+      submitModal(event) {
+        event.preventDefault();
+        this.$emit('enter');
       },
       focusModal() {
         this.$els.modal.focus();

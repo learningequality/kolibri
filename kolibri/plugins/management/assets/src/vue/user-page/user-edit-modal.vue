@@ -3,8 +3,8 @@
   <core-modal
     title="Edit Account Info"
     :has-error="error_message ? true : false"
-    @open="clear"
-    @submit="editUser"
+    @enter="editUser"
+    @cancel="close"
   >
     <!-- User Edit Normal -->
     <div>
@@ -118,6 +118,10 @@
         confirmation_message: '',
       };
     },
+    attached() {
+      // clear form on load
+      this.$data = this.$options.data();
+    },
     methods: {
       editUser() {
         const payload = {
@@ -170,12 +174,8 @@
           this.error_message = 'Please enter a new password.';
         }
       },
-      clear() {
-        this.$data = this.$options.data();
-      },
       close() {
-        this.$emit('close');
-        this.$broadcast('close');
+        this.$emit('close'); // signal parent to close
       },
       clearErrorMessage() {
         this.error_message = '';
