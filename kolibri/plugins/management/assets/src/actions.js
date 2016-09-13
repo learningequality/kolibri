@@ -30,7 +30,7 @@ function _userState(data) {
     kind = UserKinds.ADMIN;
   }
   return {
-    id: Number(data.id),
+    id: data.id,
     facility_id: data.facility,
     username: data.username,
     full_name: data.full_name,

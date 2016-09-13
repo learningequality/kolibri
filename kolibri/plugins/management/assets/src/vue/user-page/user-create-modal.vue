@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <modal :has-error="errorMessage ? true : false" @open.stop="clear" title="Add New Account">
+    <core-modal :has-error="errorMessage ? true : false" @open.stop="clear" title="Add New Account">
       <div @keydown.enter="createNewUser">
         <!-- Fields for the user to fill out -->
         <section class="user-fields">
@@ -38,7 +38,7 @@
 
         </section>
       </div>
-    </modal>
+    </core-modal>
   </div>
 
 </template>
@@ -50,7 +50,6 @@
 
   module.exports = {
     components: {
-      'modal': require('../modal'),
       'username': require('../user-input/username'),
       'name': require('../user-input/name'),
       'password-and-confirm': require('../user-input/password-and-confirm'),

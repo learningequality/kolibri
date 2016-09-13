@@ -96,7 +96,6 @@
       no: 'No',
     },
     components: {
-      'modal': require('../modal'),
       'name': require('../user-input/name'),
       'username': require('../user-input/username'),
       'role': require('../user-input/role'),
@@ -105,7 +104,8 @@
     },
     props: {
       userid: {
-        type: Number,
+        // api returns a string for this?
+        type: String,
         required: true,
       },
       username: {
@@ -227,21 +227,6 @@
   .button-section
     button
       width: 48%
-
-  .confirm-btn
-    float: right
-
-  .cancel-btn
-    float:left
-
-  .delete-btn
-    width: 100%
-
-  .open-btn
-    background-color: $core-bg-light
-
-  .header
-    text-align: center
 
   .advanced-options
     padding-bottom: 5%
