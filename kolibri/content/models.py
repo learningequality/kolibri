@@ -165,7 +165,7 @@ class File(ContentDatabaseModel):
     def get_filename(self):
         return "{}.{}".format(self.checksum, self.extension)
 
-    def get_url(self):
+    def get_storage_url(self):
         """
         Return a url for the client side to retrieve the content file.
         The same url will also be exposed by the file serializer.
