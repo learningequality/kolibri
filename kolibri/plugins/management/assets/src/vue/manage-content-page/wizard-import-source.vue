@@ -7,12 +7,14 @@
   >
     <div>
       <div class="main">
+        <div class="button-wrapper">
         <icon-button text="Internet" @click="showImportNetworkWizard">
           <svg src="./world.svg"></svg>
         </icon-button>
         <icon-button text="Local Drives" @click="showImportLocalWizard">
           <svg src="./storage.svg"></svg>
         </icon-button>
+        </div>
       </div>
       <div class="buttons">
         <button @click="cancelImportExportWizard">
