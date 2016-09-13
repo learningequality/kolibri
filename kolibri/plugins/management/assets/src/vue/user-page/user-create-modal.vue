@@ -25,13 +25,20 @@
             @focus="clearErrorMessage"
             :rolemodel.sync="role">
           </role>
+
         </section>
 
         <!-- Button Options at footer of modal -->
         <section class="footer">
           <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
-          <icon-button primary="false" text="Create Account" @keydown.enter.stop @click="createNewUser">
+
+          <icon-button
+            :primary="false"
+            text="Create Account"
+            @keydown.enter.stop
+            @click="createNewUser">
           </icon-button>
+
         </section>
       </div>
     </modal>
@@ -131,14 +138,6 @@
 
   .footer
     text-align: center
-
-  .create-btn
-    width: 200px
-    background-color: $core-action-normal
-    color: $core-bg-canvas
-    &:hover
-      border-color: transparent
-      color: $core-action-light
 
   .error
     color: $core-text-alert

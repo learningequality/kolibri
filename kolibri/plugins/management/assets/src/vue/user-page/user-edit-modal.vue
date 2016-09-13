@@ -47,29 +47,42 @@
         <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
 
         <!-- Button Section TODO: cleaunup -->
-        <section @keydown.enter.stop>
-          <button v-if="!usr_delete && !pw_reset" class="undo-btn" type="button" @click="close">
-            Cancel
-          </button>
+        <section class="button-section" @keydown.enter.stop>
+          <icon-button
+            :text="$tr('cancel')"
+            v-if="!usr_delete && !pw_reset"
+            @click="close">
+          </icon-button>
 
-          <button v-else class="undo-btn" type="button" @click="clear">
-            <!-- For reset option -->
-            <template v-if="pw_reset"> Back </template>
-            <!-- For delete option -->
-            <template v-if="usr_delete"> No </template>
-          </button>
+          <icon-button
+            :text="$tr('no')"
+            v-if="usr_delete"
+            @click="clear">
+          </icon-button>
 
-          <button v-if="!usr_delete && !pw_reset" class="confirm-btn" type="button" @click="editUser">
-            {{ $tr('confirm') }}
-          </button>
+          <icon-button
+            :text="$tr('back')"
+            v-if="pw_reset"
+            @click="clear">
+          </icon-button>
 
-          <button v-if="pw_reset" class="confirm-btn" type="button" @click="changePassword">
-            {{ $tr('save') }}
-          </button>
+          <icon-button
+            v-if="!usr_delete && !pw_reset"
+            :text="$tr('confirm')"
+            @click="editUser">
+          </icon-button>
 
-          <button v-if="usr_delete" class="confirm-btn" type="button" @click="delete">
-            {{ $tr('yes') }}
-          </button>
+          <icon-button
+            v-if="pw_reset"
+            :text="$tr('save')"
+            @click="changePassword">
+          </icon-button>
+
+          <icon-button
+            v-if="usr_delete"
+            :text="$tr('yes')"
+            @click="delete">
+          </icon-button>
         </section>
       </div>
     </modal>
@@ -93,8 +106,10 @@
       confirm: 'Confirm',
       save: 'Save',
       yes: 'Yes',
+      no: 'No',
     },
     components: {
+      'icon-button': require('icon-button'),
       'modal': require('../modal'),
       'name': require('../user-input/name'),
       'username': require('../user-input/username'),
@@ -223,15 +238,12 @@
   .title
     display: inline
 
-  .confirm-btn, .undo-btn
-    width: 48%
+  .button-section
+    button
+      width: 48%
 
   .confirm-btn
     float: right
-    background-color: $core-action-normal
-    color: white
-    &:hover
-      border-color: $core-action-normal
 
   .cancel-btn
     float:left
