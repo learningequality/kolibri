@@ -8,12 +8,12 @@
     <div>
       <div class="main">
         <div class="button-wrapper">
-        <icon-button text="Internet" @click="showImportNetworkWizard">
-          <svg src="./world.svg"></svg>
-        </icon-button>
-        <icon-button text="Local Drives" @click="showImportLocalWizard">
-          <svg src="./storage.svg"></svg>
-        </icon-button>
+          <icon-button class="large-icon-button" bottomtext="Internet" @click="showImportNetworkWizard">
+            <svg height="50" width="50" src="./world.svg"></svg>
+          </icon-button>
+          <icon-button class="large-icon-button" bottomtext="Local Drives" @click="showImportLocalWizard">
+            <svg height="50" width="50" src="./storage.svg"></svg>
+          </icon-button>
         </div>
       </div>
       <div class="buttons">
@@ -55,12 +55,17 @@
   .main
     text-align: center
 
+  .large-icon-button
+    width: 140px
+    height: 120px
+    margin: 0.6em
+
   .button-wrapper
     margin-top: 2em
     margin-bottom: 1em
 
   .buttons
-    margin-top: 1em
+    margin: 1em
     text-align: center
 
   .text-only-buttons
