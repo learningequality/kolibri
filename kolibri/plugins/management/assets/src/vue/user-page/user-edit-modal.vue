@@ -120,9 +120,12 @@
     },
     attached() {
       // clear form on load
-      this.$data = this.$options.data();
+      this.clear();
     },
     methods: {
+      clear() {
+        this.$data = this.$options.data();
+      },
       editUser() {
         const payload = {
           username: this.username_new,
