@@ -32,7 +32,7 @@ class ZipContentTestCase(TestCase):
         # create DeviceOwner to pass the setup_wizard middleware check
         DeviceOwner.objects.create(username='test-device-owner', password=123)
 
-        self.hash = hashlib.md5("DUMMYDATA").hexdigest()
+        self.hash = hashlib.md5("DUMMYDATA".encode()).hexdigest()
         self.extension = "zip"
         self.filename = "{}.{}".format(self.hash, self.extension)
 
@@ -61,11 +61,11 @@ class ZipContentTestCase(TestCase):
 
         # test reading the data from file #1 inside the zip
         response = self.client.get(self.zip_file_base_url + self.test_name_1)
-        self.assertEqual(response.streaming_content.next(), self.test_str_1)
+        self.assertEqual(next(response.streaming_content).decode(), self.test_str_1)
 
         # test reading the data from file #2 inside the zip
         response = self.client.get(self.zip_file_base_url + self.test_name_2)
-        self.assertEqual(response.streaming_content.next(), self.test_str_2)
+        self.assertEqual(next(response.streaming_content).decode(), self.test_str_2)
 
     def test_nonexistent_zip_file_access(self):
         bad_base_url = self.zip_file_base_url.replace(self.zip_file_base_url[20:25], "aaaaa")
