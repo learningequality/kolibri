@@ -1,6 +1,6 @@
 <template>
 
-  <div class="loading-spinner-wrapper">
+  <div v-show="isVisible" class="loading-spinner-wrapper">
     <div class="loading-spinner"></div>
   </div>
 
@@ -10,7 +10,22 @@
 <script>
 
   module.exports = {
-
+    data: () => ({
+      timeoutId: undefined,
+      isVisible: false,
+    }),
+    methods: {
+      show() {
+        this.isVisible = true;
+      },
+    },
+    attached() {
+      this.isVisible = false;
+      this.timeoutId = window.setTimeout(this.show, 2500);
+    },
+    detached() {
+      window.clearTimeout(this.timeoutId);
+    },
   };
 
 </script>
@@ -18,29 +33,14 @@
 
 <style lang="stylus" scoped>
 
-  $size = 125px
-
   .loading-spinner-wrapper
     width: 100%
     height: 100%
-    min-width: $size
-    min-height: $size
     position: relative
-    opacity: 0
-    animation-duration: 0s
-    animation-delay: 2500ms
-    animation-name: delaydisplay
-    animation-fill-mode: forwards
-
-  @keyframes delaydisplay
-    from
-      opacity: 0
-    to
-      opacity: 1
 
   .loading-spinner
-    width: $size
-    height: $size
+    width: 125px
+    height: 125px
     position: absolute
     top: 50%
     left: 50%

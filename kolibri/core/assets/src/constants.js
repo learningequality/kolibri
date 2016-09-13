@@ -6,6 +6,13 @@ const UserKinds = {
   ANONYMOUS: 'ANONYMOUS',
 };
 
+const ContentKinds = {
+  AUDIO: 'audio',
+  DOCUMENT: 'document',
+  VIDEO: 'video',
+};
+
 module.exports = {
   UserKinds,
+  ContentKinds,
 };
