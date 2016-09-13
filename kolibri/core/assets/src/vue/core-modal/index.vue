@@ -2,8 +2,8 @@
 
   <!-- Accessibility properties for the overlay -->
   <div class="modal-overlay"
-    @keydown.esc.prevent="emitCancelEvent"
-    @keydown.enter.prevent="emitEnterEvent"
+    @keydown.esc="emitCancelEvent"
+    @keydown.enter="emitEnterEvent"
     @click="bgClick($event)"
     v-el:modal-overlay
     id="modal-window">
@@ -85,7 +85,9 @@
     detached() {
       window.removeEventListener('blur', this.focusElementTest, true);
       window.removeEventListener('scroll', this.preventScroll, true);
-      this.lastFocus.focus();
+      // Wait for events to finish propagating before changing the focus.
+      // Otherwise the `lastFocus` item receives events such as 'enter'.
+      window.setTimeout(() => this.lastFocus.focus());
     },
     data() {
       return {
