@@ -10,6 +10,9 @@ from rest_framework import filters, pagination, viewsets
 
 from .utils.search import fuzz
 
+def _join_with_logical_operator(lst, operator):
+    op = ") {operator} (".format(operator=operator)
+    return "(({items}))".format(items=op.join(lst))
 
 class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ChannelMetadataCacheSerializer
@@ -71,18 +74,31 @@ class ContentNodeFilter(filters.FilterSet):
             from kolibri.content.content_db_router import using_content_database
             from kolibri.content.models import ContentNode
             with using_content_database(self.data['channel']):
+                tables = [
+                    '"{summarylog_table}" AS "complete_log"',
+                    '"{summarylog_table}" AS "incomplete_log"',
+                    '"{content_table}" AS "complete_node"',
+                    '"{content_table}" AS "incomplete_node"',
+                ]
+                table_names = {
+                    "summarylog_table": ContentSummaryLog._meta.db_table,
+                    "content_table": ContentNode._meta.db_table,
+                }
+                # aliases for sql table names
+                sql_tables_and_aliases = [table.format(**table_names) for table in tables]
+                # where conditions joined by ANDs
+                where_statements = ["NOT (incomplete_log.progress < 1 AND incomplete_log.content_id = incomplete_node.content_id)",
+                                    "complete_log.user_id = {user_id}".format(user_id=value),
+                                    "incomplete_log.user_id = {user_id}".format(user_id=value),
+                                    "complete_log.progress = 1",
+                                    "complete_node.rght = incomplete_node.lft - 1",
+                                    "complete_log.content_id = complete_node.content_id"]
                 # custom SQL query to get uncompleted content based on mptt algorithm
-                return ContentNode.objects.raw('''SELECT incomplete_node.*
-                                                  FROM logger_contentsummarylog AS complete_log,
-                                                  logger_contentsummarylog AS incomplete_log,
-                                                  content_contentnode AS complete_node,
-                                                  content_contentnode AS incomplete_node
-                                                  WHERE NOT (incomplete_log.progress < 1 AND incomplete_log.content_id = incomplete_node.content_id)
-                                                  AND complete_log.user_id = %s
-                                                  AND incomplete_log.user_id = %s
-                                                  AND complete_log.progress = 1
-                                                  AND complete_node.rght = incomplete_node.lft - 1
-                                                  AND complete_log.content_id = complete_node.content_id''', [value, value])
+                next_steps_recommendations = "SELECT incomplete_node.* FROM {tables} WHERE {where}".format(
+                    tables=", ".join(sql_tables_and_aliases),
+                    where=_join_with_logical_operator(where_statements, "AND")
+                )
+                return ContentNode.objects.raw(next_steps_recommendations)
         else:
             summary_logs = ContentSummaryLog.objects.filter(user=value).exclude(progress=1)
 
