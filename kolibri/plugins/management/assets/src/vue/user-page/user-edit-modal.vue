@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <modal @open="clear" title="Edit Account Info" :has-error="error_message ? true : false">
+    <core-modal @open="clear" title="Edit Account Info" :has-error="error_message ? true : false">
       <!-- User Edit Normal -->
       <div @keydown.enter="editUser">
         <template v-if="!usr_delete && !pw_reset">
@@ -72,7 +72,7 @@
           </button>
         </section>
       </div>
-    </modal>
+    </core-modal>
   </div>
 
 </template>
