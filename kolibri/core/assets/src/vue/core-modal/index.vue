@@ -2,8 +2,8 @@
 
   <!-- Accessibility properties for the overlay -->
   <div class="modal-overlay"
-    @keydown.esc="closeModal"
-    @keydown.enter="submitModal"
+    @keydown.esc="emitCancelEvent"
+    @keydown.enter="emitEnterEvent"
     @click="bgClick($event)"
     v-el:modal-overlay
     id="modal-window">
@@ -16,7 +16,7 @@
       aria-labelledby="modal-title">
 
       <!-- Close Button -->
-      <button aria-label="Close dialog window" @click="closeModal" class="btn-close">
+      <button aria-label="Close dialog window" @click="emitCancelEvent" class="btn-close">
         <svg src="./close.svg" role="presentation"></svg>
       </button>
 
@@ -56,7 +56,7 @@
         default: false,
         required: false,
       },
-      backgroundclickclose: {
+      enablebgclickcancel: {
         type: Boolean,
         default: true,
         required: false,
@@ -84,11 +84,11 @@
       };
     },
     methods: {
-      closeModal(event) {
+      emitCancelEvent(event) {
         event.preventDefault();
         this.$emit('cancel');
       },
-      submitModal(event) {
+      emitEnterEvent(event) {
         event.preventDefault();
         this.$emit('enter');
       },
@@ -106,8 +106,8 @@
       },
       bgClick(event) {
         // check to make sure the area being clicked is the overlay, not the modal
-        if (this.backgroundclickclose && (event.target === this.$els.modalOverlay)) {
-          this.closeModal();
+        if (this.enablebgclickcancel && (event.target === this.$els.modalOverlay)) {
+          this.emitCancelEvent();
         }
       },
     },

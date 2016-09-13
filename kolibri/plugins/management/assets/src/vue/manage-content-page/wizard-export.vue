@@ -4,8 +4,8 @@
     title="Export Channel to a Local Drive"
     :error="wizardState.error ? true : false"
     :disableclose="wizardState.busy"
-    @close="cancel"
-    @submit="submit"
+    @cancel="cancel"
+    @enter="submit"
   >
     <div>
 
