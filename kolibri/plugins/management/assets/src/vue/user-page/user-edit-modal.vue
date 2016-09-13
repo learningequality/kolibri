@@ -46,43 +46,30 @@
         <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
         <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
 
-        <!-- Button Section TODO: cleaunup -->
         <section class="button-section" @keydown.enter.stop>
-          <icon-button
-            :text="$tr('cancel')"
-            v-if="!usr_delete && !pw_reset"
-            @click="close">
-          </icon-button>
+          <button v-if="!usr_delete && !pw_reset" @click="close">
+              {{$tr('cancel')}}
+          </button>
 
-          <icon-button
-            :text="$tr('no')"
-            v-if="usr_delete"
-            @click="clear">
-          </icon-button>
+          <button v-if="usr_delete" @click="clear">
+              {{$tr('no')}}
+          </button>
 
-          <icon-button
-            :text="$tr('back')"
-            v-if="pw_reset"
-            @click="clear">
-          </icon-button>
+          <button v-if="pw_reset" @click="clear">
+              {{$tr('back')}}
+          </button>
 
-          <icon-button
-            v-if="!usr_delete && !pw_reset"
-            :text="$tr('confirm')"
-            @click="editUser">
-          </icon-button>
+          <button class="filled" v-if="!usr_delete && !pw_reset" @click="editUser">
+            {{$tr('confirm')}}
+          </button>
 
-          <icon-button
-            v-if="pw_reset"
-            :text="$tr('save')"
-            @click="changePassword">
-          </icon-button>
+          <button class="filled" v-if="pw_reset" @click="changePassword">
+            {{$tr('save')}}
+          </button>
 
-          <icon-button
-            v-if="usr_delete"
-            :text="$tr('yes')"
-            @click="delete">
-          </icon-button>
+          <button class="filled" v-if="usr_delete" @click="delete">
+            {{$tr('yes')}}
+          </button>
         </section>
       </div>
     </modal>
@@ -109,7 +96,6 @@
       no: 'No',
     },
     components: {
-      'icon-button': require('icon-button'),
       'modal': require('../modal'),
       'name': require('../user-input/name'),
       'username': require('../user-input/username'),

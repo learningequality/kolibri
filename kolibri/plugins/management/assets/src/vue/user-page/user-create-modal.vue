@@ -32,12 +32,9 @@
         <section class="footer">
           <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
 
-          <icon-button
-            :primary="false"
-            text="Create Account"
-            @keydown.enter.stop
-            @click="createNewUser">
-          </icon-button>
+          <button class="filled" @keydown.enter.stop @click="createNewUser">
+              Create Account
+          </button>
 
         </section>
       </div>
@@ -53,7 +50,6 @@
 
   module.exports = {
     components: {
-      'icon-button': require('icon-button'),
       'modal': require('../modal'),
       'username': require('../user-input/username'),
       'name': require('../user-input/name'),
@@ -135,6 +131,10 @@
 <style lang="stylus" scoped>
 
   @require '~core-theme'
+
+  button
+    width: 200px
+    height: 35px
 
   .footer
     text-align: center
