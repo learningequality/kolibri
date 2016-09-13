@@ -18,7 +18,7 @@
       <button @click="cancel" :disabled="wizardState.busy">
         Cancel
       </button>
-      <button @click="submit" :disabled="wizardState.busy">
+      <button @click="submit" :disabled="!canSubmit">
         Import
       </button>
     </div>
@@ -38,6 +38,14 @@
     data: () => ({
       contentId: '',
     }),
+    computed: {
+      canSubmit() {
+        if (this.wizardState.busy) {
+          return false;
+        }
+        return Boolean(this.contentId);
+      },
+    },
     methods: {
       submit() {
         this.triggerRemoteContentImportTask(this.contentId);
