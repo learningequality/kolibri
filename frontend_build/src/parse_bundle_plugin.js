@@ -37,7 +37,8 @@ var parseBundlePlugin = function(data, base_dir) {
       (typeof data.static_url_root === "undefined") ||
       (typeof data.stats_file === "undefined") ||
       (typeof data.locale_data_folder === "undefined") ||
-      (typeof data.plugin_path === "undefined")) {
+      (typeof data.plugin_path === "undefined") ||
+      (typeof data.version === "undefined")) {
     logging.error(data.name + ' plugin is misconfigured, missing parameter(s)');
     return;
   }
@@ -102,8 +103,8 @@ var parseBundlePlugin = function(data, base_dir) {
   bundle.context = base_dir;
   bundle.output = {
     path: path.join(data.static_dir, data.name),
-    filename: "[name]-[hash].js",
     publicPath: path.join("/", data.static_url_root, data.name, "/"),
+    filename: "[name]-" + data.version + ".js",
     library: library
   };
 

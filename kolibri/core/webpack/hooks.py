@@ -15,6 +15,7 @@ import time
 
 from pkg_resources import resource_filename
 
+import kolibri
 from django.conf import settings as django_settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.functional import cached_property
@@ -55,6 +56,9 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     # : A list of events to load the asset once
     once = {}
+
+    # : Kolibri version for build hashes
+    version = kolibri.__version__
 
     def __init__(self, *args, **kwargs):
         super(WebpackBundleHook, self).__init__(*args, **kwargs)
@@ -141,6 +145,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             "once": self.once,
             "static_url_root": getattr(django_settings, 'STATIC_URL'),
             "locale_data_folder": os.path.join(getattr(django_settings, 'LOCALE_PATHS')[0], 'en', 'LC_FRONTEND_MESSAGES'),
+            "version": self.version,
         }
 
     @property
