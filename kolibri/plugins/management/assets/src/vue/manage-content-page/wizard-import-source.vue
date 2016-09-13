@@ -17,7 +17,7 @@
         </div>
       </div>
       <div class="buttons">
-        <button @click="cancelImportExportWizard">
+        <button class="text-only-buttons" @click="cancelImportExportWizard">
           Cancel
         </button>
       </div>
@@ -55,5 +55,13 @@
   .buttons
     margin-top: 1em
     text-align: center
+
+  .text-only-buttons
+    height: 36px
+    padding-right: 2em
+    padding-left: 2em
+    margin: 1em
+    color: $core-text-annotation
+    border: 1px $core-text-annotation solid
 
 </style>
