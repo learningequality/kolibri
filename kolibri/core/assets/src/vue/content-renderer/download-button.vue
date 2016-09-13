@@ -1,15 +1,15 @@
 <template>
 
-  <icon-button @click="downloadContent" :text="downloadMediaText">
-    <svg src="download.svg"></svg>
-  </icon-button>
+  <a :href="downloadLink">
+    <icon-button :text="downloadMediaText">
+      <svg src="download.svg"></svg>
+    </icon-button>
+  </a>
 
 </template>
 
 
 <script>
-
-  const downloadjs = require('./download.js');
 
   module.exports = {
     $trNameSpace: 'contentRender',
@@ -58,19 +58,15 @@
       downloadMediaText() {
         return this.$tr('downloadMedia');
       },
+      downloadLink() {
+        const filePath = this.availableFiles[0].storage_url;
+        // Extract filename from the storage url.
+        const filename = filePath.replace(/^.*[\\\/]/, '');
+        const newFilename = this.sanitizeFilename(this.title);
+        return `/downloadcontent/${filename}/${newFilename}`;
+      },
     },
     methods: {
-      /**
-      * Method that downloads the content.
-      */
-      downloadContent() {
-        const sanitizedFilename = this.sanitizeFilename(this.title);
-        const x = new XMLHttpRequest();
-        x.open('GET', this.availableFiles[0].storage_url, true);
-        x.responseType = 'blob';
-        x.onload = (e) => downloadjs(e.target.response, sanitizedFilename, this.contentType);
-        x.send();
-      },
       /**
       * Method that returns a safe filename.
       */
