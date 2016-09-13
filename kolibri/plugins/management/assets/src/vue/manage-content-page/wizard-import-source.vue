@@ -6,15 +6,19 @@
     @cancel="cancelImportExportWizard"
   >
     <div>
-      <icon-button text="Internet" @click="showImportNetworkWizard">
-        <svg src="./world.svg"></svg>
-      </icon-button>
-      <icon-button text="Local Drives" @click="showImportLocalWizard">
-        <svg src="./storage.svg"></svg>
-      </icon-button>
-      <button @click="cancelImportExportWizard">
-        Cancel
-      </button>
+      <div class="main">
+        <icon-button text="Internet" @click="showImportNetworkWizard">
+          <svg src="./world.svg"></svg>
+        </icon-button>
+        <icon-button text="Local Drives" @click="showImportLocalWizard">
+          <svg src="./storage.svg"></svg>
+        </icon-button>
+      </div>
+      <div class="buttons">
+        <button @click="cancelImportExportWizard">
+          Cancel
+        </button>
+      </div>
     </div>
   </core-modal>
 
@@ -41,4 +45,13 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .main
+    text-align: center
+
+  .buttons
+    margin-top: 1em
+    text-align: center
+
+</style>

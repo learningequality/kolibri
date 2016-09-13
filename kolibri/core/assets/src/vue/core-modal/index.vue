@@ -15,17 +15,14 @@
       role="dialog"
       aria-labelledby="modal-title">
 
-      <button class="back-btn" @click="back" v-if="showback">Back</button>
-
-      <!-- Back Button -->
-      <button aria-label="Go back" @click="emitBackEvent" class="btn-back" v-if="showback">
-        <svg src="./back.svg" role="presentation"></svg>
-      </button>
-
-      <!-- Close Button -->
-      <button aria-label="Close dialog window" @click="emitCancelEvent" class="btn-close">
-        <svg src="./close.svg" role="presentation"></svg>
-      </button>
+      <div class="top-buttons">
+        <button aria-label="Go back" @click="emitBackEvent" class="btn-back" v-if="enablebackbtn">
+          <svg src="./back.svg" role="presentation"></svg>
+        </button>
+        <button aria-label="Close dialog window" @click="emitCancelEvent" class="btn-close">
+          <svg src="./close.svg" role="presentation"></svg>
+        </button>
+      </div>
 
       <!-- Modal Title -->
       <h1 v-show="!invisibletitle" class="title" id="modal-title">
@@ -161,10 +158,21 @@
       width: 85%
       top: 45%
 
-  .btn-close
-    float: right
+  .top-buttons
+    position: relative
+    height: 20px
+
+  .btn-back
     color: $core-text-default
     border: none
+    position: absolute
+    left: 0
+
+  .btn-close
+    color: $core-text-default
+    border: none
+    position: absolute
+    right: 0
 
   .title
     text-align: center
