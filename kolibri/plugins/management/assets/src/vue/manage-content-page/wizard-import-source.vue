@@ -49,6 +49,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme.styl'
+
   .main
     text-align: center
 
