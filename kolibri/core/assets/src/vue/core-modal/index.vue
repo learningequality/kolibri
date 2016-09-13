@@ -67,27 +67,20 @@
         default: false,
       },
     },
-    ready() {
-      if (this.disableclose) {
-        this.$off('close');
-      }
+    attached() {
       this.lastFocus = document.activeElement;
-      // Need to wait for DOM to update asynchronously, then get the modal element
       this.focusModal();
-      // pass in a function, not a function call.
       window.addEventListener('blur', this.focusElementTest, true);
-      window.addEventListener('scroll', (event) => event.preventDefault(), true);
+      window.addEventListener('scroll', this.preventScroll, true);
     },
-    events: {
-      close() {
-        // needs to be an exact match to the one that was assigned.
-        window.removeEventListener('blur', this.focusElementTest, true);
-        this.lastFocus.focus();
-      },
+    detached() {
+      window.removeEventListener('blur', this.focusElementTest, true);
+      window.removeEventListener('scroll', this.preventScroll, true);
+      this.lastFocus.focus();
     },
     data() {
       return {
-        lastFocus: '',
+        lastFocus: null,
       };
     },
     methods: {
@@ -102,13 +95,16 @@
       },
       focusElementTest(event) {
         // FocusOut happens when the element is about to be blurred
-        if (!this.$els.modal.contains(event.relatedTarget)) {
+        if (this.$els.modal && !this.$els.modal.contains(event.relatedTarget)) {
           this.focusModal();
         }
       },
-      bgClick(clickEvent) {
+      preventScroll(event) {
+        event.preventDefault();
+      },
+      bgClick(event) {
         // check to make sure the area being clicked is the overlay, not the modal
-        if (this.backgroundclickclose && (clickEvent.target === this.$els.modalOverlay)) {
+        if (this.backgroundclickclose && (event.target === this.$els.modalOverlay)) {
           this.closeModal();
         }
       },
