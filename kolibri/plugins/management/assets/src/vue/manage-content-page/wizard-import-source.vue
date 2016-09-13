@@ -53,6 +53,10 @@
   .main
     text-align: center
 
+  .button-wrapper
+    margin-top: 2em
+    margin-bottom: 1em
+
   .buttons
     margin-top: 1em
     text-align: center
