@@ -1,20 +1,22 @@
 <template>
 
-  <modal title="Please choose a source..." @cancel="cancelImportExportWizard">
-    <div slot="body">
+  <core-modal
+    title="Please choose a source..."
+    :enablebgclickcancel="false"
+    @cancel="cancelImportExportWizard"
+  >
+    <div>
       <icon-button text="Internet" @click="showImportNetworkWizard">
         <svg src="./world.svg"></svg>
       </icon-button>
       <icon-button text="Local Drives" @click="showImportLocalWizard">
         <svg src="./storage.svg"></svg>
       </icon-button>
-    </div>
-    <div slot="buttons">
       <button @click="cancelImportExportWizard">
         Cancel
       </button>
     </div>
-  </modal>
+  </core-modal>
 
 </template>
 
@@ -25,7 +27,6 @@
 
   module.exports = {
     components: {
-      'modal': require('./modal'),
       'icon-button': require('icon-button'),
     },
     vuex: {

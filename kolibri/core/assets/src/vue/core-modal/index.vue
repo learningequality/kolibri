@@ -2,8 +2,8 @@
 
   <!-- Accessibility properties for the overlay -->
   <div class="modal-overlay"
-    @keydown.esc="emitCancelEvent"
-    @keydown.enter="emitEnterEvent"
+    @keydown.esc.prevent="emitCancelEvent"
+    @keydown.enter.prevent="emitEnterEvent"
     @click="bgClick($event)"
     v-el:modal-overlay
     id="modal-window">
@@ -14,6 +14,13 @@
       transition="modal"
       role="dialog"
       aria-labelledby="modal-title">
+
+      <button class="back-btn" @click="back" v-if="showback">Back</button>
+
+      <!-- Back Button -->
+      <button aria-label="Go back" @click="emitBackEvent" class="btn-back" v-if="showback">
+        <svg src="./back.svg" role="presentation"></svg>
+      </button>
 
       <!-- Close Button -->
       <button aria-label="Close dialog window" @click="emitCancelEvent" class="btn-close">
@@ -54,12 +61,14 @@
       disableclose: {
         type: Boolean,
         default: false,
-        required: false,
       },
       enablebgclickcancel: {
         type: Boolean,
         default: true,
-        required: false,
+      },
+      enablebackbtn: {
+        type: Boolean,
+        default: false,
       },
       // toggles error message indicator in header
       haserror: {
@@ -85,12 +94,13 @@
     },
     methods: {
       emitCancelEvent(event) {
-        event.preventDefault();
         this.$emit('cancel');
       },
       emitEnterEvent(event) {
-        event.preventDefault();
         this.$emit('enter');
+      },
+      emitBackEvent(event) {
+        this.$emit('back');
       },
       focusModal() {
         this.$els.modal.focus();
