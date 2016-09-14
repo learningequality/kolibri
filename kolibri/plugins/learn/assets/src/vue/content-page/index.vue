@@ -18,12 +18,7 @@
 
     <p class="page-description">{{ description }}</p>
 
-    <download-button
-      :kind="kind"
-      :files="files"
-      :available="available"
-      :title="title">
-    </download-button>
+    <download-button :files="files"></download-button>
 
     <expandable-content-grid
       class="recommendation-section"

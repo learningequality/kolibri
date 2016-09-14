@@ -59,6 +59,7 @@ class ZipContentView(View):
 
         return response
 
+
 class DownloadContentView(View):
 
     def get(self, request, filename, new_filename):
@@ -76,11 +77,11 @@ class DownloadContentView(View):
         # generate a file response
         response = FileResponse(open(path, 'rb'))
 
-        # set the content-type
-        response['Content-Type'] = mimetypes.guess_type(new_filename)[0]
+        # set the content-type by guessing from the filename
+        response['Content-Type'] = mimetypes.guess_type(filename)[0]
 
         # set the content-disposition as attachment to force download
-        response['Content-Disposition'] = 'attachment; filename=%s' % new_filename
+        response['Content-Disposition'] = 'attachment;'
 
         # set the content-length tht the file size
         response['Content-Length'] = os.path.getsize(path)
