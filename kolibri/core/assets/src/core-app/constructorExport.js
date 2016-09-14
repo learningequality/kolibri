@@ -17,8 +17,8 @@ const constructorExport = () => {
         recurseObjectKeysAndImport(obj[key], path.concat(key));
       }
     });
-    // Don't allow privileged keys in the top namespace, as, logically, that would overwrite
-    // the global object.
+    // By checking path.length is not falsy, we ignore 'module' or 'requireName' in
+    // the top namespace, as, logically, that would overwrite the global object.
     // Only module matters for actually building the kolibri global object.
     if (path.length && obj.module) {
       // Ensure the path exists in our export object

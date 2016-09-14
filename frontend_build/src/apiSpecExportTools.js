@@ -12,18 +12,16 @@ var specFilePath = path.resolve(path.join(__dirname, '../../kolibri/core/assets/
 
 // Read the spec file and do a regex replace to change all instances of 'require('...')'
 // to just be the string of the require path.
+// Our strict linting rules should ensure that this regex suffices.
 var apiSpecFile = fs.readFileSync(specFilePath, 'utf-8').replace(/require\(('\S+')\)/g, '$1');
 
 // Invoke the module constructor to compile a module from this altered representation.
 var Module = module.constructor;
-
 var m = new Module(specFilePath, module.parent);
-
 m._compile(apiSpecFile, specFilePath);
 
 // Tada! The apiSpec object is now exported without doing any of the internal requires.
 var apiSpec = m.exports.apiSpec;
-
 var keys = m.exports.keys;
 
 function coreExternals(kolibri_name) {
@@ -33,14 +31,14 @@ function coreExternals(kolibri_name) {
   var externalsObj = {
     kolibri: kolibri_name
   };
-  function recurseObjectKeysAndExternalize (obj, pathArray) {
+  function recurseObjectKeysAndExternalize(obj, pathArray) {
     Object.keys(obj).forEach(function (key) {
       if (keys.indexOf(key) === -1) {
         recurseObjectKeysAndExternalize(obj[key], pathArray.concat(key));
       }
     });
-    // Don't allow privileged keys in the top namespace, as, logically, that would overwrite
-    // the global object.
+    // By checking path.length is greater than 1, we ignore 'module' or 'requireName' in
+    // the top namespace, as, logically, that would overwrite the global object.
     // For externals we only care about modules with modules and requireNames.
     if (pathArray.length > 1 && obj.module && obj.requireName) {
       externalsObj[obj.requireName] = pathArray.join('.');
@@ -61,8 +59,8 @@ function coreAliases() {
         recurseObjectKeysAndAlias(obj[key], pathArray.concat(key));
       }
     });
-    // Don't allow privileged keys in the top namespace, as, logically, that would overwrite
-    // the global object.
+    // By checking path.length is not falsy, we ignore 'module' or 'requireName' in
+    // the top namespace, as, logically, that would overwrite the global object.
     // For aliases we only care about modules with modules and requireNames.
     // We also only want to include modules that are using relative imports, so as to exclude
     // modules that are already in node_modules.
