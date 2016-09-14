@@ -122,7 +122,10 @@ class WebpackBundleHook(hooks.KolibriHook):
             if any(regex.match(filename) for regex in settings.IGNORE_PATTERNS):
                 continue
             relpath = '{0}/{1}'.format(self.unique_slug, filename)
-            f['url'] = staticfiles_storage.url(relpath)
+            if django_settings.DEBUG:
+                f['url'] = f['publicPath']
+            else:
+                f['url'] = staticfiles_storage.url(relpath)
             yield f
 
     @property

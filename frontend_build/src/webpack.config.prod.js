@@ -1,8 +1,6 @@
 /*
- * This takes all bundles defined in our production webpack configuration and adds inline source maps to all of them
- * for easier debugging.
- * Any dev specific modifications to the build should be specified in here, where each bundles[i] object is a webpack
- * configuration object that needs to be edited/manipulated to add features to.
+ * This defines the production settings for our webpack build.
+ * Anything defined here is only applied during production building.
  */
 
 var webpack = require('webpack');
