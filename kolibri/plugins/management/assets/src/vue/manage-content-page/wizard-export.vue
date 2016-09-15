@@ -8,43 +8,45 @@
     @cancel="cancel"
     @enter="submit"
   >
-    <div>
+    <div class="main">
 
       <template v-if="!drivesLoading">
-        <p v-if="writableDrives.length === 0">
-          No writable driveswere detected.
-        </p>
-        <p v-if="writableDrives.length === 1">
-          Writable drive detected: {{ writableDrives[0].name }}
-        </p>
-        <template v-if="writableDrives.length > 1">
-          <p>Writable drives detected:</p>
-          <div v-for="(index, drive) in writableDrives">
-            <input
-              type="radio"
-              :id="'drive-'+index"
-              :value="drive.id"
-              v-model="selectedDrive"
-            >
-            <label :for="'drive-'+index">{{drive.name}} {{index}}</label>
-          </div>
-        </template>
+        <div class="modal-message">
+          <h2 class="core-text-alert" v-if="writableDrives.length === 0">
+            No writable driveswere detected.
+          </h2>
+          <h2 v-if="writableDrives.length === 1">
+            Writable drive detected: {{ writableDrives[0].name }}
+          </h2>
+          <template v-if="writableDrives.length > 1">
+            <h2>Writable drives detected:</h2>
+            <div v-for="(index, drive) in writableDrives">
+              <input
+                type="radio"
+                :id="'drive-'+index"
+                :value="drive.id"
+                v-model="selectedDrive"
+              >
+              <label :for="'drive-'+index">{{drive.name}} {{index}}</label>
+            </div>
+          </template>
 
-        <p v-if="unwritableDrives.length">Note: {{unwritableDrives.length}} additional drives were detected, but don't appear to be writable.</p>
+          <p class="core-text-annotation" v-if="unwritableDrives.length">Note: {{unwritableDrives.length}} additional drives were detected, but don't appear to be writable.</p>
+        </div>
       </template>
       <loading-spinner v-else></loading-spinner>
 
-      <button @click="updateWizardLocalDriveList" :disabled="wizardState.busy">
-        Refresh
-      </button>
+      <icon-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" text="Refresh">
+        <svg src="../icons/refresh.svg"></svg>
+      </icon-button>
     </div>
 
     <div>
       {{ wizardState.error }}
     </div>
 
-    <div>
-      <button @click="cancel" :disabled="wizardState.busy">
+    <div class="button-wrapper">
+      <button class="button-cancel" @click="cancel" :disabled="wizardState.busy">
         Cancel
       </button>
       <button @click="submit" :disabled="!canSubmit">
@@ -121,4 +123,22 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~core-theme.styl'
+
+  .main
+    text-align: center
+    margin-bottom: 2em
+
+  .modal-message
+    margin: 2em 0
+
+  .button-wrapper
+    margin: 1em
+    text-align: center
+
+  button
+    margin: 0.4em
+
+</style>
