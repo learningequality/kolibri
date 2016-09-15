@@ -13,11 +13,13 @@
 
   module.exports = {
     props: {
+      // text display next to icon
       text: {
         type: String,
         // why did we want this to be required?
         required: false,
       },
+      // text display underneath the icon
       bottomtext: {
         type: String,
         required: false,
@@ -83,7 +85,6 @@
   @require '~core-theme.styl'
 
   .icon-button
-    padding-right: 8px
     height: 36px
 
   .btn-text
