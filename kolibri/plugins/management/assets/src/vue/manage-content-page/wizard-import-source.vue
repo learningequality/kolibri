@@ -14,7 +14,7 @@
           <svg height="50" width="50" src="./storage.svg"></svg>
         </icon-button>
       </div>
-      <button class="button-cancel" @click="cancelImportExportWizard">
+      <button @click="cancelImportExportWizard">
         Cancel
       </button>
     </div>

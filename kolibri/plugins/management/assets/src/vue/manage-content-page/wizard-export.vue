@@ -47,7 +47,7 @@
     </div>
 
     <div class="button-wrapper">
-      <button class="button-cancel" @click="cancel" :disabled="wizardState.busy">
+      <button @click="cancel" :disabled="wizardState.busy">
         Cancel
       </button>
       <button @click="submit" :disabled="!canSubmit">
