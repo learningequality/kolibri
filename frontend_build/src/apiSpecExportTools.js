@@ -24,6 +24,10 @@ m._compile(apiSpecFile, specFilePath);
 var apiSpec = m.exports.apiSpec;
 var keys = m.exports.keys;
 
+function requireName(pathArray) {
+  return ['kolibri'].concat(pathArray.slice(1)).join('/')
+}
+
 function coreExternals(kolibri_name) {
   /*
    * Function for creating a hash of externals for modules that are exposed on the core kolibri object.
@@ -40,7 +44,7 @@ function coreExternals(kolibri_name) {
     // By checking path.length is greater than 1, we ignore 'module' in
     // the top namespace, as, logically, that would overwrite the global object.
     if (pathArray.length > 1 && obj.module) {
-      externalsObj[pathArray.slice(-1)] = pathArray.join('.');
+      externalsObj[obj.module.indexOf('.') === 0 ? requireName(pathArray) : obj.module] = pathArray.join('.');
     }
   };
   recurseObjectKeysAndExternalize(apiSpec, [kolibri_name]);
@@ -64,7 +68,7 @@ function coreAliases() {
     // modules that are already in node_modules.
     if (pathArray.length > 1 && obj.module && obj.module.indexOf('.') === 0) {
       // Map from the requireName to a resolved path (relative to the apiSpecFile) to the module in question.
-      aliasesObj[pathArray.join("/")] = path.resolve(path.join(path.dirname(specFilePath), obj.module));
+      aliasesObj[requireName(pathArray)] = path.resolve(path.join(path.dirname(specFilePath), obj.module));
     }
   };
   recurseObjectKeysAndAlias(apiSpec, ['kolibri']);
