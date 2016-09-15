@@ -1,0 +1,32 @@
+i18n
+====
+
+As a platform intended for use around the world, Kolibri has a strong mandate for translation and internationalization. As such, it has been designed with technologies to enable this built in.
+
+
+Backend Translation
+-------------------
+
+For any strings in Django, we are using the standard Django i18n machinery (gettext and associated functions) to provide translations. See the `Django i18n documentation <https://docs.djangoproject.com/en/1.10/topics/i18n/>`_ for more information.
+
+
+Frontend Translation
+--------------------
+
+For any strings in the frontend, we are using `Vue-Intl <https://www.npmjs.com/package/vue-intl>`_ an in house port of `React-intl <https://www.npmjs.com/package/react-intl>`_.
+
+Within Kolibri, messages are defined on the body of the Vue component::
+
+  - ``$trs``, an object of the form::
+
+    {
+      msgId: 'Message text',
+    }
+
+  - ``$trNameSpace``, a string that namespaces the messages.
+
+User visible strings should be rendered directly in the template with ``{{ $tr('msgId') }}``. These strings are collected during the build process, and bundled into exported JSON files. These files are then uploaded to Crowdin for translation.
+
+Downloaded files from crowdin need to be copied into the relevant plugins from which they have come using the `distributefrontendmessages` make command.
+
+These messages will then be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the Frontend is based off the current Django language for the request.

@@ -102,6 +102,8 @@ module.exports = class Mediator {
         });
       }
     };
+    // Ensure all language assets that are needed for this module have been fetched
+    // before we declare this module ready!
     this._fetchLanguageAssets(kolibriModule.name, Vue.locale).then(ready, ready);
   }
 
@@ -283,6 +285,7 @@ module.exports = class Mediator {
               });
             }
           });
+          // Start fetching any language assets that this module might need also.
           this._fetchLanguageAssets(kolibriModuleName, Vue.locale);
         }
       };
@@ -337,24 +340,43 @@ module.exports = class Mediator {
     this._eventDispatcher.$off(...args);
   }
 
+  /**
+   * Internal method for loading language assets from server when needed.
+   * @param  {String} moduleName name of the module.
+   * @param  {String} language   language code whose assets we are loading.
+   * @return {Promise}           a promise that resolves when the assets are loaded.
+   */
   _fetchLanguageAssets(moduleName, language) {
+    // We either return a new promise, or a promise that has already been
+    // instantiated when this method was called previously.
     let promise;
     if (this._languageAssetRegistry[moduleName] &&
       this._languageAssetRegistry[moduleName][language] &&
       this._languageAssetRegistry[moduleName][language].promise) {
+      // We have previously instantiated a promise for fetching language assets,
+      // so return that and we're done!
       promise = this._languageAssetRegistry[moduleName][language].promise;
     } else {
+      // No promise has been defined and stored for this previously, so create a new one.
       promise = new Promise((resolve, reject) => {
         if (moduleName in this._languageAssetRegistry &&
           this._languageAssetRegistry[moduleName][language]) {
+          // Check that we have information in the registry that we need to load language assets.
           if (this._languageAssetRegistry[moduleName][language].loaded) {
+            // Language assets already loaded, just resolve the promise right away.
             resolve();
           } else {
+            // Store the promise in the registry for later reference.
             this._languageAssetRegistry[moduleName][language].promise = promise;
+            // Fetch the language asset from the url stored in the registry.
             client({ path: this._languageAssetRegistry[moduleName][language].url }).then(
               (response) => {
+                // We are loading a JSON file so the response body will be the messages object
+                // for the language in question.
                 const messageMap = response.entity;
+                // Register this messages object for the language.
                 this.registerLanguageAssets(moduleName, language, messageMap);
+                // Resolve with no value, all relevant changes have been made already.
                 resolve();
               }, (error) => {
               logging.error(
@@ -368,17 +390,37 @@ module.exports = class Mediator {
     }
     return promise;
   }
-
+  /**
+   * A method for directly registering language assets on the mediator.
+   * This is used to set language assets as loaded and register them to the Vue intl
+   * translation apparatus.
+   * @param  {String} moduleName name of the module.
+   * @param  {String} language   language code whose messages we are registering.
+   * @param  {Object} messageMap an object with message id to message mappings.
+   */
   registerLanguageAssets(moduleName, language, messageMap) {
+    // Create empty entry in the language asset registry for this module if needed
     this._languageAssetRegistry[moduleName] = this._languageAssetRegistry[moduleName] || {};
+    // Create empty entry in the language asset registry for this module/language if needed.
     this._languageAssetRegistry[moduleName][language] =
       this._languageAssetRegistry[moduleName][language] || {};
+    // Set this asset as loaded in the registry so any future async loading will be resolved
+    // without needing a server request.
     this._languageAssetRegistry[moduleName][language].loaded = true;
+    // Register the message object on the Vue intl translation layer.
     Vue.registerMessages(language, messageMap);
   }
-
+  /**
+   * A method for registering urls from which to fetch language assets.
+   * Mainly used for asynchronously loading modules.
+   * @param  {String} moduleName name of the module.
+   * @param  {String} language   language code whose messages we are registering.
+   * @param  {String} messageMapUrl The URL from which to fetch the message object.
+   */
   registerLanguageAssetsUrl(moduleName, language, messageMapUrl) {
+    // Create empty entry in the language asset registry for this module if needed
     this._languageAssetRegistry[moduleName] = this._languageAssetRegistry[moduleName] || {};
+    // Set loaded as false, and add url for later use.
     this._languageAssetRegistry[moduleName][language] = {
       loaded: false,
       url: messageMapUrl,

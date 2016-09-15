@@ -91,6 +91,10 @@ var readBundlePlugin = function(base_dir) {
 
   mkdirp.sync(locale_dir);
 
+  // This will output a file mapping from the bundle name to the static directory where
+  // the built files for this mapping are put. This is used for redistributing translated message files
+  // back to their plugins.
+
   fs.writeFileSync(path.join(locale_dir, 'pathMapping.json'), JSON.stringify(namePathMapping));
 
   return bundles;

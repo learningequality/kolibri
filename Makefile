@@ -91,4 +91,4 @@ downloadmessages:
 	java -jar crowdin-cli.jar download -b `git symbolic-ref HEAD | xargs basename`
 
 distributefrontendmessages:
-	python ./kolibri/utils/distribute_frontend_messages.py
+	python ./utils/distribute_frontend_messages.py
