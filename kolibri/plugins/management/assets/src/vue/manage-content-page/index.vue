@@ -1,6 +1,6 @@
 <template>
 
-  <div class="main alert-bg">
+  <div v-if="pageState.taskList.length" class="main alert-bg">
 
     <task-status v-if="pageState.taskList.length"
       :type="pageState.taskList[0].type"
