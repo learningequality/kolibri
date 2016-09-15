@@ -122,13 +122,14 @@ Kolibri provides a set of shared "core" functionality – including components, 
 JS Libraries
 ~~~~~~~~~~~~
 
-The following libraries are available globally, in all plugin code:
+The following libraries are available globally, in all module code:
 
 - ``vue`` - the Vue.js object
-- ``loglevel`` - the `loglevel logging module <https://github.com/pimterry/loglevel>`_
+- ``vuex`` - the Vuex object
+- ``logging`` - our wrapper around the `loglevel logging module <https://github.com/pimterry/loglevel>`_
 - ``core-base`` - a shared base Vue.js component (*core-base.vue*)
 
-These can be used in code with a standard CommonJS-style require statement - e.g.:
+And many others. The complete specification for commonly shared modules can be found in `kolibri/core/assets/src/core-app/apiSpec.js` - this object defines which modules are imported into the core object. If the module in question has the 'requireName' attribute set on the core specification, then it can be used in code with a standard CommonJS-style require statement - e.g.:
 
 .. code-block:: javascript
 
@@ -137,10 +138,27 @@ These can be used in code with a standard CommonJS-style require statement - e.g
 
 .. note::
 
-  Due to the mechanics of the `plugin and webpack build system <asset_loading>`_, adding additional globally-available objects is somewhat complicated.
+  Due to the mechanics of the `plugin and webpack build system <asset_loading>`_, adding additional globally-available objects is relatively straightforward.
 
-  References to the objects are attached to the ``kolibriGlobal`` object in *core-app/constructor.js*, and mapped to globally accessible names in *webpack.config.js*.
+  To expose something on the core app, add a key to the object in `apiSpec.js` which maps to an object with the following keys::
 
+  modulePath: {
+      module: require('module-name'),
+      requireName: 'name-module-required-by-anywhere-in-kolibri-or-modules'
+    }
+
+  This module would now be available for import anywhere with the following statement::
+
+    const MODULE = require('name-module-required-by-anywhere-in-kolibri-or-modules');
+
+  For better organisation of the Core API specification, modules can also be attached at arbitrarily nested paths::
+
+  modulePath: {
+      nestedPath: {
+        module: require('module-name'),
+        requireName: 'name-module-required-by-anywhere-in-kolibri-or-modules'
+      }
+    }
 
 
 Bootstrapped Data
