@@ -3,8 +3,8 @@
   <div class="task">
     <h1>{{ title }}</h1>
     <progress max="1" :value="percentage"></progress>
-    <h2>{{ subTitle }}</h2>
-    <button class="buttons" @click="clearTask">
+    <p class="core-text-annotation">{{ subTitle }}</p>
+    <button class="button-cancel" class="buttons" @click="clearTask">
       {{ buttonMessage }}
     </button>
   </div>
@@ -96,6 +96,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~core-theme.styl'
+
   .buttons
     margin: 10px
     text-align: center
@@ -105,5 +107,18 @@
 
   progress
     width: 100%
+    height: 16px
+    -webkit-appearance: none
+    -moz-appearance: none
+    appearance: none
+    border: none
+    color: $core-action-normal
+
+  progress[value]::-webkit-progress-bar
+    border-radius: 50px
+
+  progress[value]::-webkit-progress-value
+    background-color: $core-action-normal
+    border-radius: 50px
 
 </style>

@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="main alert-bg">
 
     <task-status v-if="pageState.taskList.length"
       :type="pageState.taskList[0].type"
@@ -8,7 +8,9 @@
       :percentage="pageState.taskList[0].percentage"
       :id="pageState.taskList[0].id"
     ></task-status>
+  </div>
 
+  <div class="main light-bg">
 
     <div v-if="!pageState.taskList.length">
       <button @click="startImportWizard">Import</button>
@@ -82,4 +84,21 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~core-theme.styl'
+
+  .main
+    padding: 1em 2em
+    padding-bottom: 3em
+    margin-top: 2em
+    width: 100%
+    border-radius: 4px
+
+  .light-bg
+    background-color: $core-bg-light
+
+  .alert-bg
+    background-color: $core-text-alert-bg
+
+</style>
