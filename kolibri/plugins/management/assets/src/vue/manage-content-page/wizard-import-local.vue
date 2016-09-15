@@ -38,16 +38,22 @@
       </template>
       <loading-spinner v-else></loading-spinner>
 
-      <icon-button class="refresh" text="Refresh" @click="updateWizardLocalDriveList" :disabled="wizardState.busy">
+      <icon-button class="refresh"
+        text="Refresh"
+        @click="updateWizardLocalDriveList"
+        :disabled="wizardState.busy">
         <svg src="../icons/refresh.svg"></svg>
       </icon-button>
       <div class="button-wrapper">
         <button @click="cancel" :disabled="wizardState.busy">
           Cancel
         </button>
-        <button @click="submit" :disabled="!canSubmit">
-          Import
-        </button>
+        <icon-button
+          text="Import"
+          @click="submit"
+          :disabled="!canSubmit"
+          :primary="false" >
+        </icon-button>
       </div>
     </div>
   </core-modal>

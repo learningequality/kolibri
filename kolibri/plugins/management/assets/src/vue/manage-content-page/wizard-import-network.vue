@@ -19,9 +19,12 @@
         <button @click="cancel" :disabled="wizardState.busy">
           Cancel
         </button>
-        <button @click="submit" :disabled="!canSubmit">
-          Import
-        </button>
+        <icon-button
+          text="Import"
+          @click="submit"
+          :disabled="!canSubmit"
+          :primary="false" >
+        </icon-button>
       </div>
     </div>
   </core-modal>
