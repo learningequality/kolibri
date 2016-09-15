@@ -81,7 +81,7 @@
 
   input
     margin: 1em 0
-    padding: 0.4em 0.6em
+    padding: 0.6em 0.8em
     border: 2px solid $core-action-normal
     border-radius: 4px
 
