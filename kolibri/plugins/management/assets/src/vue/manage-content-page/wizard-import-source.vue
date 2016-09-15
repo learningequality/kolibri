@@ -5,22 +5,18 @@
     :enablebgclickcancel="false"
     @cancel="cancelImportExportWizard"
   >
-    <div>
-      <div class="main">
-        <div class="button-wrapper">
-          <icon-button class="large-icon-button" bottomtext="Internet" @click="showImportNetworkWizard">
-            <svg height="50" width="50" src="./world.svg"></svg>
-          </icon-button>
-          <icon-button class="large-icon-button" bottomtext="Local Drives" @click="showImportLocalWizard">
-            <svg height="50" width="50" src="./storage.svg"></svg>
-          </icon-button>
-        </div>
+    <div class="main">
+      <div class="button-wrapper">
+        <icon-button class="large-icon-button" bottomtext="Internet" @click="showImportNetworkWizard">
+          <svg height="50" width="50" src="./world.svg"></svg>
+        </icon-button>
+        <icon-button class="large-icon-button" bottomtext="Local Drives" @click="showImportLocalWizard">
+          <svg height="50" width="50" src="./storage.svg"></svg>
+        </icon-button>
       </div>
-      <div class="buttons">
-        <button class="text-only-buttons" @click="cancelImportExportWizard">
-          Cancel
-        </button>
-      </div>
+      <button class="button-cancel" @click="cancelImportExportWizard">
+        Cancel
+      </button>
     </div>
   </core-modal>
 
@@ -53,6 +49,7 @@
 
   .main
     text-align: center
+    margin-bottom: 2em
 
   .large-icon-button
     width: 140px
@@ -60,19 +57,6 @@
     margin: 0.6em
 
   .button-wrapper
-    margin-top: 2em
-    margin-bottom: 1em
-
-  .buttons
-    margin: 1em
-    text-align: center
-
-  .text-only-buttons
-    height: 36px
-    padding-right: 2em
-    padding-left: 2em
-    margin: 1em
-    color: $core-text-annotation
-    border: 1px $core-text-annotation solid
+    margin: 2em 0
 
 </style>
