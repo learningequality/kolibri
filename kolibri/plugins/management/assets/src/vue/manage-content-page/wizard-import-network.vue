@@ -10,17 +10,19 @@
     @enter="submit"
     @back="startImportWizard"
   >
-    <div>
-      <p>Please enter a content channel ID:</p>
+    <div class="main">
+      <h2>Please enter a content channel ID:</h2>
       <div>
         <input v-model="contentId" :disabled="wizardState.busy">
       </div>
-      <button @click="cancel" :disabled="wizardState.busy">
-        Cancel
-      </button>
-      <button @click="submit" :disabled="!canSubmit">
-        Import
-      </button>
+      <div class="button-wrapper">
+        <button class="button-cancel" @click="cancel" :disabled="wizardState.busy">
+          Cancel
+        </button>
+        <button @click="submit" :disabled="!canSubmit">
+          Import
+        </button>
+      </div>
     </div>
   </core-modal>
 
@@ -69,4 +71,24 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~core-theme.styl'
+
+  .main
+    text-align: center
+    margin: 2em 0
+
+  input
+    margin: 1em 0
+    padding: 0.4em 0.6em
+    border: 2px solid $core-action-normal
+    border-radius: 4px
+
+  .button-wrapper
+    margin: 1em
+
+  button
+    margin: 0.4em
+
+</style>
