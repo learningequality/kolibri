@@ -203,12 +203,10 @@
   @media screen and (max-width: 620px)
     .page-title
       float: none
-      text-align: center
       margin: 0.4em 0
 
     .button-wrapper
       float: none
-      text-align: center
       margin: 0.4em 0
 
 </style>
