@@ -4,8 +4,7 @@ var rewire = require('rewire');
 var apiSpecExportTools = rewire('../src/apiSpecExportTools');
 
 var testSpec = {
-  module: 'test',
-  requireName: 'test'
+  module: 'test'
 };
 
 var oneDeepSpec = {
@@ -67,26 +66,23 @@ describe('coreAliases', function() {
       done();
     });
   });
-  describe('1 nested valid spec with local import but no requireName', function() {
-    it('should have no entries', function (done) {
+  describe('1 nested valid spec with local import', function() {
+    it('should have one entry', function (done) {
       apiSpecExportTools.__set__("apiSpec", {
         test: {
           module: './test'
         }
       });
-      assert(Object.keys(apiSpecExportTools.coreAliases()).length === 0);
+      assert(Object.keys(apiSpecExportTools.coreAliases()).length === 1);
       done();
     });
-  });
-  describe('1 nested valid spec with local import', function() {
-    it('should have one entry', function (done) {
+    it('should have a path of kolibri/test', function (done) {
       apiSpecExportTools.__set__("apiSpec", {
         test: {
-          module: './test',
-          requireName: 'test'
+          module: './test'
         }
       });
-      assert(Object.keys(apiSpecExportTools.coreAliases()).length === 1);
+      assert(Object.keys(apiSpecExportTools.coreAliases())[0] === "kolibri/test");
       done();
     });
   });
@@ -95,12 +91,22 @@ describe('coreAliases', function() {
       apiSpecExportTools.__set__("apiSpec", {
         test: {
           test: {
-            module: './test',
-            requireName: 'test'
+            module: './test'
           }
         }
       });
       assert(Object.keys(apiSpecExportTools.coreAliases()).length === 1);
+      done();
+    });
+    it('should have a path of kolibri/test/test', function (done) {
+      apiSpecExportTools.__set__("apiSpec", {
+        test: {
+          test: {
+            module: './test'
+          }
+        }
+      });
+      assert(Object.keys(apiSpecExportTools.coreAliases())[0] === "kolibri/test/test");
       done();
     });
   });

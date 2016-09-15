@@ -37,11 +37,10 @@ function coreExternals(kolibri_name) {
         recurseObjectKeysAndExternalize(obj[key], pathArray.concat(key));
       }
     });
-    // By checking path.length is greater than 1, we ignore 'module' or 'requireName' in
+    // By checking path.length is greater than 1, we ignore 'module' in
     // the top namespace, as, logically, that would overwrite the global object.
-    // For externals we only care about modules with modules and requireNames.
-    if (pathArray.length > 1 && obj.module && obj.requireName) {
-      externalsObj[obj.requireName] = pathArray.join('.');
+    if (pathArray.length > 1 && obj.module) {
+      externalsObj[pathArray.slice(-1)] = pathArray.join('.');
     }
   };
   recurseObjectKeysAndExternalize(apiSpec, [kolibri_name]);
@@ -55,21 +54,20 @@ function coreAliases() {
   var aliasesObj = {};
   function recurseObjectKeysAndAlias (obj, pathArray) {
     Object.keys(obj).forEach(function (key) {
-      if (keys.indexOf(key) === -1) {
+      if (keys.indexOf(key) === -1 && obj[key] && typeof obj[key] === 'object') {
         recurseObjectKeysAndAlias(obj[key], pathArray.concat(key));
       }
     });
-    // By checking path.length is not falsy, we ignore 'module' or 'requireName' in
+    // By checking path.length is greater than 1, we ignore 'module' in
     // the top namespace, as, logically, that would overwrite the global object.
-    // For aliases we only care about modules with modules and requireNames.
-    // We also only want to include modules that are using relative imports, so as to exclude
+    // We only want to include modules that are using relative imports, so as to exclude
     // modules that are already in node_modules.
-    if (pathArray.length && obj.module && obj.requireName && obj.module.indexOf('.') === 0) {
+    if (pathArray.length > 1 && obj.module && obj.module.indexOf('.') === 0) {
       // Map from the requireName to a resolved path (relative to the apiSpecFile) to the module in question.
-      aliasesObj[obj.requireName] = path.resolve(path.join(path.dirname(specFilePath), obj.module));
+      aliasesObj[pathArray.join("/")] = path.resolve(path.join(path.dirname(specFilePath), obj.module));
     }
   };
-  recurseObjectKeysAndAlias(apiSpec, []);
+  recurseObjectKeysAndAlias(apiSpec, ['kolibri']);
   return aliasesObj;
 }
 
