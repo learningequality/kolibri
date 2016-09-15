@@ -13,6 +13,7 @@
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <h2 class="core-text-alert" v-if="writableDrives.length === 0">
+            <svg class="error-svg" src="../icons/error.svg"></svg>
             No writable driveswere detected.
           </h2>
           <h2 v-if="writableDrives.length === 1">
@@ -133,6 +134,9 @@
 
   .modal-message
     margin: 2em 0
+
+  .error-svg
+    margin: 0 0.6em
 
   .button-wrapper
     margin: 1em
