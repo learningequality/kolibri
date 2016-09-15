@@ -3,8 +3,8 @@ const ChannelResource = require('kolibri').resources.ChannelResource;
 const constants = require('./state/constants');
 const PageNames = constants.PageNames;
 const cookiejs = require('js-cookie');
-const router = require('router');
-const ConditionalPromise = require('conditionalPromise');
+const router = require('kolibri/coreVue/router');
+const ConditionalPromise = require('kolibri/lib/conditionalPromise');
 
 /**
  * Vuex State Mappers

@@ -30,7 +30,7 @@
 
 <style lang="stylus">
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   svg
     vertical-align: middle
@@ -75,7 +75,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .icon-button
     padding-right: 8px

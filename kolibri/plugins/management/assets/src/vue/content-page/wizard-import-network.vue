@@ -35,7 +35,7 @@
   module.exports = {
     components: {
       'modal': require('./modal'),
-      'icon-button': require('icon-button'),
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
     },
     data: () => ({
       contentId: '',
