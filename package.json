@@ -36,7 +36,7 @@
     "vue": "1.0.26",
     "vue-focus": "0.1.1",
     "vue-scroll": "1.0.3",
-    "vue-intl": "0.4.0",
+    "vue-intl": "0.5.0",
     "vue-router": "0.7.13",
     "vuex": "0.6.3"
   },
