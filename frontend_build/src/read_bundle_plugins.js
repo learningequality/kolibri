@@ -7,6 +7,8 @@
 var readWebpackJson = require('./read_webpack_json');
 var logging = require('./logging');
 var _ = require("lodash");
+var path = require('path');
+var fs = require('fs');
 var mkdirp = require('mkdirp');
 
 var parseBundlePlugin = require('./parse_bundle_plugin');
