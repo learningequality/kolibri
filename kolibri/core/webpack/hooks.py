@@ -103,7 +103,7 @@ class WebpackBundleHook(hooks.KolibriHook):
                 raise WebpackError('Webpack compilation has errored')
         return {
             "files": stats.get("chunks", {}).get(self.unique_slug, []),
-            "hasMessages": stats["messages"],
+            "hasMessages": stats.get("messages", False),
         }
 
     @property
