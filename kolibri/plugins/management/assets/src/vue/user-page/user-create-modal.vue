@@ -1,52 +1,45 @@
 <template>
 
-  <core-modal
-    title="Add New Account"
-    :has-error="errorMessage ? true : false"
-    @open.stop="clear"
-    @submit="createNewUser"
-  >
-    <div>
-      <!-- Fields for the user to fill out -->
-      <section class="user-fields">
-        <div class="user-field">
-          <label for="name">Name</label>
-          <input @focus="clearErrorMessage" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
-        </div>
+  <div>
+    <core-modal :has-error="errorMessage ? true : false" @open.stop="clear" title="Add New Account">
+      <div @keydown.enter="createNewUser">
+        <!-- Fields for the user to fill out -->
+        <section class="user-fields">
+          <name
+            @focus="clearErrorMessage"
+            :namemodel.sync="full_name">
+          </name>
 
-        <div class="user-field">
-          <label for="username">Username</label>
-          <input @focus="clearErrorMessage" type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
-        </div>
+          <username
+            @focus="clearErrorMessage"
+            :usernamemodel.sync="username">
+          </username>
 
-        <div class="user-field">
-          <label for="password">Password</label>
-          <input @focus="clearErrorMessage" type="password" class="add-form" id="password" required v-model="password">
-        </div>
+          <password-and-confirm
+            @focus="clearErrorMessage"
+            :passwordmodel.sync="password"
+            :confirmpasswordmodel.sync="passwordConfirm">
+          </password-and-confirm>
 
-        <div class="user-field">
-          <label for="confirm-password">Confirm Password</label>
-          <input @focus="clearErrorMessage" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
-        </div>
+          <role
+            @focus="clearErrorMessage"
+            :rolemodel.sync="role">
+          </role>
 
-        <div class="user-field">
-          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-          <select @focus="clearErrorMessage" v-model="role" id="user-role">
-          <option value="learner" selected> Learner </option>
-          <option value="admin"> Admin </option>
-          </select>
-        </div>
-      </section>
+        </section>
 
-      <!-- Button Options at footer of modal -->
-      <section class="footer">
-        <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
-        <button class="create-btn" type="button" @keydown.enter.stop @click="createNewUser">
-          Create Account
-        </button>
-      </section>
-    </div>
-  </core-modal>
+        <!-- Button Options at footer of modal -->
+        <section class="footer">
+          <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
+
+          <button class="filled" @keydown.enter.stop @click="createNewUser">
+              Create Account
+          </button>
+
+        </section>
+      </div>
+    </core-modal>
+  </div>
 
 </template>
 
@@ -57,7 +50,10 @@
 
   module.exports = {
     components: {
-      'icon-button': require('icon-button'),
+      'username': require('../user-input/username'),
+      'name': require('../user-input/name'),
+      'password-and-confirm': require('../user-input/password-and-confirm'),
+      'role': require('../user-input/role'),
     },
     data() {
       return {
@@ -135,58 +131,14 @@
 
   @require '~core-theme'
 
-  $button-content-size = 1em
-
-  .user-field
-    padding-bottom: 5%
-    input
-      width: 100%
-      height: 40px
-      font-weight: bold
-    label
-      position: relative
-      cursor: pointer
-    select
-      width: 100%
-      height: 40px
-      font-weight: bold
-      background-color: transparent
-
-  .add-form
-    width: 300px
-    margin: 0 auto
-    display: block
-    padding: 5px 10px
-    letter-spacing: 0.08em
-    border: none
-    border-bottom: 1px solid $core-text-default
-    height: 30px
-    &:focus
-      outline: none
-      border-bottom: 3px solid $core-action-normal
-
-  .header
-    text-align: center
+  button
+    width: 200px
+    height: 35px
 
   .footer
     text-align: center
 
-  .create-btn
-    width: 200px
-    background-color: $core-action-normal
-    color: $core-bg-canvas
-    &:hover
-      border-color: transparent
-      color: $core-action-light
-
   .error
     color: $core-text-alert
-
-  .secondary
-    &:hover
-      color: #ffffff
-      background-color: $core-action-dark
-      svg
-        fill: #ffffff
 
 </style>

@@ -104,6 +104,22 @@ button
     border-color: $core-text-annotation
     cursor: default
 
+  &.filled
+    background-color: $core-action-normal
+    color: $core-bg-canvas
+
+    &:hover
+      color: $core-action-light
+      fill: $core-action-light
+
+    &:disabled
+      color: $core-text-annotation
+      svg
+        fill: $core-text-annotation
+
+    svg
+      fill: $core-bg-canvas
+      transition: fill $core-time ease-out
 
 // Firefox: Get rid of the inner focus border
 // (from https://github.com/yahoo/pure/blob/master/src/buttons/css/buttons-core.css)

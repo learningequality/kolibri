@@ -1,95 +1,79 @@
 <template>
 
-  <core-modal
-    title="Edit Account Info"
-    :has-error="error_message ? true : false"
-    @open="clear"
-    @submit="editUser"
-  >
-    <!-- User Edit Normal -->
-    <div>
-      <template v-if="!usr_delete && !pw_reset">
+  <div>
+    <core-modal @open="clear" title="Edit Account Info" :has-error="error_message ? true : false">
+      <!-- User Edit Normal -->
+      <div @keydown.enter="editUser">
+        <template v-if="!usr_delete && !pw_reset">
 
-        <div class="user-field">
-          <label for="fullname">Full Name</label>:
-          <input type="text" class="edit-form edit-fullname" aria-label="fullname" id="fullname" v-model="fullName_new">
-        </div>
+          <name :namemodel.sync="fullName_new"></name>
 
-        <div class="user-field">
-          <label for="username">Username</label>:
-          <input type="text" class="edit-form edit-username" aria-label="username" id="username" v-model="username_new">
-        </div>
+          <username :usernamemodel.sync="username_new"></username>
 
-        <div class="user-field">
-          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-          <select v-model="role_new" id="user-role">
-            <option :selected="role_new == learner" v-if="role_new" value="learner"> Learner </option>
-            <option :selected="role_new == admin" value="admin"> Admin </option>
-          </select>
-        </div>
+          <role :rolemodel.sync="role_new"></role>
 
-        <div class="advanced-options">
-          <button @click="pw_reset=!pw_reset"> Reset Password </button>
-          <button @click="usr_delete=!usr_delete"> Delete User</button>
-        </div>
+          <div class="advanced-options">
+            <button @click="pw_reset=!pw_reset"> Reset Password </button>
+            <button @click="usr_delete=!usr_delete"> Delete User</button>
+          </div>
 
-        <hr class="end-modal">
+          <hr class="end-modal">
 
-      </template>
+        </template>
 
-      <!-- Password Reset Mode -->
-      <template v-if="pw_reset" >
-        <p>Username: <b>{{username_new}}</b></p>
-        <div class="user-field">
-          <label for="password">Enter new password</label>:
-          <input type="password" class="edit-form" id="password" required v-model="password_new">
-        </div>
+        <!-- Password Reset Mode -->
+        <template v-if="pw_reset" >
 
-        <div class="user-field">
-          <label for="password-confirm">Confirm new password</label>:
-          <input type="password" class="edit-form" id="password-confirm" required v-model="password_new_confirm">
-        </div>
-      </template>
+          <field-wrapper>
+            Username: <b>{{username_new}}</b>
+          </field-wrapper>
 
-      <!-- User Delete Mode -->
-      <template v-if="usr_delete">
-        <div class="user-field">
-          <p>Are you sure you want to delete <b>{{username_new}}</b>?</p>
-        </div>
-      </template>
+          <password-and-confirm
+            :passwordmodel.sync="password_new"
+            :confirmpasswordmodel.sync="password_new_confirm">
+          </password-and-confirm>
+        </template>
+
+        <!-- User Delete Mode -->
+        <template v-if="usr_delete">
+          <div class="user-field">
+            <p>Are you sure you want to delete <b>{{username_new}}</b>?</p>
+          </div>
+        </template>
 
 
-      <!-- Error Messages -->
-      <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
-      <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
+        <!-- Error Messages -->
+        <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
+        <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
 
-      <!-- Button Section TODO: cleaunup -->
-      <section @keydown.enter.stop>
-        <button v-if="!usr_delete && !pw_reset" class="undo-btn" type="button" @click="close">
-          Cancel
-        </button>
+        <section class="button-section" @keydown.enter.stop>
+          <button v-if="!usr_delete && !pw_reset" @click="close">
+              {{$tr('cancel')}}
+          </button>
 
-        <button v-else class="undo-btn" type="button" @click="clear">
-          <!-- For reset option -->
-          <template v-if="pw_reset"> Back </template>
-          <!-- For delete option -->
-          <template v-if="usr_delete"> No </template>
-        </button>
+          <button v-if="usr_delete" @click="clear">
+              {{$tr('no')}}
+          </button>
 
-        <button v-if="!usr_delete && !pw_reset" class="confirm-btn" type="button" @click="editUser">
-          Confirm
-        </button>
+          <button v-if="pw_reset" @click="clear">
+              {{$tr('back')}}
+          </button>
 
-        <button v-if="pw_reset" class="confirm-btn" type="button" @click="changePassword">
-          Save
-        </button>
+          <button class="filled" v-if="!usr_delete && !pw_reset" @click="editUser">
+            {{$tr('confirm')}}
+          </button>
 
-        <button v-if="usr_delete" class="confirm-btn" type="button" @click="delete">
-          Yes
-        </button>
-      </section>
-    </div>
-  </core-modal>
+          <button class="filled" v-if="pw_reset" @click="changePassword">
+            {{$tr('save')}}
+          </button>
+
+          <button class="filled" v-if="usr_delete" @click="delete">
+            {{$tr('yes')}}
+          </button>
+        </section>
+      </div>
+    </core-modal>
+  </div>
 
 </template>
 
@@ -101,10 +85,42 @@
   const UserKinds = require('kolibri').constants.UserKinds;
 
   module.exports = {
-    components: {},
-    props: [
-      'userid', 'username', 'fullname', 'roles', // TODO - validation
-    ],
+    $trNameSpace: 'management',
+    $trs: {
+      back: 'Back',
+      cancel: 'Cancel',
+      close: 'Close',
+      confirm: 'Confirm',
+      save: 'Save',
+      yes: 'Yes',
+      no: 'No',
+    },
+    components: {
+      'name': require('../user-input/name'),
+      'username': require('../user-input/username'),
+      'role': require('../user-input/role'),
+      'password-and-confirm': require('../user-input/password-and-confirm'),
+      'field-wrapper': require('../user-input/field-wrapper'),
+    },
+    props: {
+      userid: {
+        // api returns a string for this?
+        type: String,
+        required: true,
+      },
+      username: {
+        type: String,
+        required: true,
+      },
+      fullname: {
+        type: String,
+        required: true,
+      },
+      roles: {
+        type: Array,
+        required: true,
+      },
+    },
     data() {
       return {
         username_new: this.username,
@@ -138,10 +154,12 @@
       },
       delete() {
         // if logged in admin deleted their own account, log them out
-        if (Number(this.userid) === this.session_user_id) {
+        if (this.userid === this.session_user_id) {
           this.logout(this.Kolibri);
         }
         this.deleteUser(this.userid);
+
+        this.close();
       },
       changePassword() {
         // checks to make sure there's a new password
@@ -206,59 +224,9 @@
   .title
     display: inline
 
-  .confirm-btn, .undo-btn
-    width: 48%
-
-  .confirm-btn
-    float: right
-    background-color: $core-action-normal
-    color: white
-    &:hover
-      border-color: $core-action-normal
-
-  .cancel-btn
-    float:left
-
-  .delete-btn
-    width: 100%
-
-  .open-btn
-    background-color: $core-bg-light
-
-  .user-field
-    padding-bottom: 5%
-    input
-      width: 100%
-      height: 40px
-      font-weight: bold
-      border: none
-      border-bottom: 1px solid #3a3a3a
-    label
-      position: relative
-    select
-      -webkit-appearance: menulist-button
-      width: 100%
-      height: 40px
-      font-weight: bold
-      background-color: transparent
-    p
-      text-align: center
-
-  .edit-form
-    width: 200px
-    margin: 0 auto
-    display: block
-    padding: 5px 10px
-    letter-spacing: 0.08em
-    border: none
-    border-bottom: 1px solid $core-text-default
-    height: 30px
-    &:focus
-      outline: none
-      border-bottom: 3px solid $core-action-normal
-
-  .header
-    text-align: center
+  .button-section
+    button
+      width: 48%
 
   .advanced-options
     padding-bottom: 5%
