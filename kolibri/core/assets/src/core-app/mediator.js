@@ -366,8 +366,6 @@ module.exports = class Mediator {
             // Language assets already loaded, just resolve the promise right away.
             resolve();
           } else {
-            // Store the promise in the registry for later reference.
-            this._languageAssetRegistry[moduleName][language].promise = promise;
             // Fetch the language asset from the url stored in the registry.
             client({ path: this._languageAssetRegistry[moduleName][language].url }).then(
               (response) => {
@@ -381,12 +379,18 @@ module.exports = class Mediator {
               }, (error) => {
               logging.error(
                 `Message file for ${moduleName} for language: ${language} did not load`);
+              reject();
             });
           }
         } else {
           resolve();
         }
       });
+      if (moduleName in this._languageAssetRegistry &&
+        this._languageAssetRegistry[moduleName][language]) {
+        // Store the promise in the registry for later reference.
+        this._languageAssetRegistry[moduleName][language].promise = promise;
+      }
     }
     return promise;
   }
