@@ -15,17 +15,17 @@
       <div>
         <input v-model="contentId" :disabled="wizardState.busy">
       </div>
-      <div class="button-wrapper">
-        <button @click="cancel" :disabled="wizardState.busy">
-          Cancel
-        </button>
-        <icon-button
-          text="Import"
-          @click="submit"
-          :disabled="!canSubmit"
-          :primary="false" >
-        </icon-button>
-      </div>
+    </div>
+    <div class="button-wrapper">
+      <button @click="cancel" :disabled="wizardState.busy">
+        Cancel
+      </button>
+      <icon-button
+        text="Import"
+        @click="submit"
+        :disabled="!canSubmit"
+        :primary="false" >
+      </icon-button>
     </div>
   </core-modal>
 
@@ -80,7 +80,7 @@
 
   .main
     text-align: center
-    margin: 2em 0
+    margin: 4em 0
 
   input
     margin: 1em 0
@@ -89,7 +89,8 @@
     border-radius: 4px
 
   .button-wrapper
-    margin: 1em
+    margin: 1em 0
+    text-align: center
 
   button
     margin: 0.4em

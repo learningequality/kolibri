@@ -6,7 +6,7 @@
     @cancel="cancelImportExportWizard"
   >
     <div class="main">
-      <div class="button-wrapper">
+      <div class="lg-button-wrapper">
         <icon-button class="large-icon-button" bottomtext="Internet" @click="showImportNetworkWizard">
           <svg height="50" width="50" src="./world.svg"></svg>
         </icon-button>
@@ -14,7 +14,7 @@
           <svg height="50" width="50" src="./storage.svg"></svg>
         </icon-button>
       </div>
-      <button @click="cancelImportExportWizard">
+      <button class="cancel-btn" @click="cancelImportExportWizard">
         Cancel
       </button>
     </div>
@@ -49,14 +49,17 @@
 
   .main
     text-align: center
-    margin-bottom: 2em
+    margin-bottom: 4em 0
 
   .large-icon-button
     width: 140px
     height: 120px
     margin: 0.6em
 
-  .button-wrapper
-    margin: 2em 0
+  .lg-button-wrapper
+    margin: 4em 0
+
+  .cancel-btn
+    margin-bottom: 2em
 
 </style>

@@ -40,23 +40,23 @@
       </template>
       <loading-spinner v-else></loading-spinner>
 
-      <icon-button class="refresh"
+      <icon-button
         text="Refresh"
         @click="updateWizardLocalDriveList"
         :disabled="wizardState.busy">
         <svg src="../icons/refresh.svg"></svg>
       </icon-button>
-      <div class="button-wrapper">
-        <button @click="cancel" :disabled="wizardState.busy">
-          Cancel
-        </button>
-        <icon-button
-          text="Import"
-          @click="submit"
-          :disabled="!canSubmit"
-          :primary="false" >
-        </icon-button>
-      </div>
+    </div>
+    <div class="button-wrapper">
+      <button @click="cancel" :disabled="wizardState.busy">
+        Cancel
+      </button>
+      <icon-button
+        text="Import"
+        @click="submit"
+        :disabled="!canSubmit"
+        :primary="false" >
+      </icon-button>
     </div>
   </core-modal>
 
@@ -133,6 +133,7 @@
 
   .main
     text-align: center
+    margin: 4em 0
 
   .modal-message
     margin: 2em 0
@@ -145,12 +146,10 @@
 
   .drive-names
     margin: 0.6em 0
-  .refresh
-    display: block
-    margin: 0 auto
 
   .button-wrapper
-    margin: 2em 0
+    margin: 1em 0
+    text-align: center
 
   button
     margin: 0.4em

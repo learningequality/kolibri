@@ -44,7 +44,7 @@
       </icon-button>
     </div>
 
-    <div>
+    <div class="core-text-alert">
       {{ wizardState.error }}
     </div>
 
@@ -135,7 +135,7 @@
 
   .main
     text-align: center
-    margin-bottom: 2em
+    margin: 4em 0
 
   .modal-message
     margin: 2em 0
@@ -154,7 +154,7 @@
     font-weight: 700
 
   .button-wrapper
-    margin: 1em
+    margin: 1em 0
     text-align: center
 
   button
