@@ -1,0 +1,8 @@
+{
+  "name": "kolibri-document-pdf-render-plugin",
+  "description": "Document/PDF Render Plugin for Kolibri",
+  "private": true,
+  "dependencies": {
+    "pdfobject": "2.0.201604172"
+  }
+}

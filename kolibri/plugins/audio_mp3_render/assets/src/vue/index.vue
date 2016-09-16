@@ -302,7 +302,7 @@
   /* hides popup label on slider */
   input[type=range]::-ms-tooltip
     display: none
-    
+
   @media screen and (max-width: $medium-breakpoint + 1)
     #play-and-time
       input

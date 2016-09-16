@@ -4,11 +4,8 @@
  * @module readBundlePlugin
  */
 
-var fs = require("fs");
-var path = require("path");
+var readWebpackJson = require('./read_webpack_json');
 var logging = require('./logging');
-var execSync = require('child_process').execSync;
-var temp = require('temp').track();
 var _ = require("lodash");
 
 var parseBundlePlugin = require('./parse_bundle_plugin');
@@ -42,38 +39,24 @@ var readBundlePlugin = function(base_dir) {
   var bundles = [];
   var externals = {};
 
-  // the temporary path where the webpack_json json is stored
-  var webpack_json_tempfile = temp.openSync({suffix: '.json'}).path;
+  var results = readWebpackJson();
 
-  // Run the script below to extract the relevant information about the plugin configuration from the Python code.
-  execSync("python -m kolibri manage webpack_json -- " + " --outputfile " + webpack_json_tempfile);
+  for (var i = 0; i < results.length; i++) {
+    var message = results[i];
 
-  var result = fs.readFileSync(webpack_json_tempfile);
+    var output = parseBundlePlugin(message, base_dir);
+    if (typeof output !== "undefined") {
+      var webpack_configuration = output[0];
+      // The first part of the output is the Webpack configuration for that Kolibri plugin.
+      bundles.push(webpack_configuration);
+      // The second part of the output is any global variables that will be available to all other
+      // plugins. For the moment, this is only the Kolibri global variable.
+      var external = output[1];
+      if (external && typeof externals[external] === "undefined") {
 
-  temp.cleanupSync();           // cleanup the tempfile immediately!
-
-  if (result.length > 0) {
-    // The above script prints JSON to stdout, here we parse that JSON and use it as input to our webpack
-    // configuration builder module, parseBundlePlugin.
-    var results = JSON.parse(result);
-
-    for (var i = 0; i < results.length; i++) {
-      var message = results[i];
-
-      var output = parseBundlePlugin(message, base_dir);
-      if (typeof output !== "undefined") {
-        var webpack_configuration = output[0];
-        // The first part of the output is the Webpack configuration for that Kolibri plugin.
-        bundles.push(webpack_configuration);
-        // The second part of the output is any global variables that will be available to all other
-        // plugins. For the moment, this is only the Kolibri global variable.
-        var external = output[1];
-        if (external && typeof externals[external] === "undefined") {
-
-          externals[external] = external;
-        } else if (external) {
-          logging.warn("Two plugins setting with same external flag " + external);
-        }
+        externals[external] = external;
+      } else if (external) {
+        logging.warn("Two plugins setting with same external flag " + external);
       }
     }
   }
