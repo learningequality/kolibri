@@ -3,7 +3,8 @@ import logging as logger
 from django.core.management import call_command
 from django_q.models import Task
 from django_q.tasks import async
-from kolibri.content.utils.channels import get_channels_for_data_folder, get_mounted_drives_with_channel_info
+from kolibri.content.models import ChannelMetadataCache
+from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.tasks.management.commands.base import Progress
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import list_route
@@ -126,9 +127,9 @@ def _localimport(drive_id, update_state=None):
 def _localexport(drive_id, update_state=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
-    for channel in get_channels_for_data_folder(drive.datafolder):
-        call_command("exportchannel", channel["id"], drive.datafolder, update_state=update_state)
-        call_command("exportcontent", channel["id"], drive.datafolder, update_state=update_state)
+    for channel in ChannelMetadataCache.objects.all():
+        call_command("exportchannel", channel.id, drive.datafolder, update_state=update_state)
+        call_command("exportcontent", channel.id, drive.datafolder, update_state=update_state)
 
 def _task_to_response(task_instance, task_type=None, task_id=None):
     """"
