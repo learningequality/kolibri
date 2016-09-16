@@ -133,8 +133,8 @@ And many others. The complete specification for commonly shared modules can be f
 
 .. code-block:: javascript
 
-  const vue = require('vue');
-  const coreBase = require('core-base');
+  const vue = require('kolibri/lib/vue');
+  const coreBase = require('kolibri/coreVue/components/coreBase');
 
 .. note::
 
@@ -142,24 +142,40 @@ And many others. The complete specification for commonly shared modules can be f
 
   To expose something on the core app, add a key to the object in `apiSpec.js` which maps to an object with the following keys::
 
+.. code-block:: javascript
+
   modulePath: {
       module: require('module-name'),
-      requireName: 'name-module-required-by-anywhere-in-kolibri-or-modules'
     }
 
   This module would now be available for import anywhere with the following statement::
 
-    const MODULE = require('name-module-required-by-anywhere-in-kolibri-or-modules');
+.. code-block:: javascript
+
+  const MODULE = require('kolibri/modulePath');
 
   For better organisation of the Core API specification, modules can also be attached at arbitrarily nested paths::
+
+.. code-block:: javascript
 
   modulePath: {
       nestedPath: {
         module: require('module-name'),
-        requireName: 'name-module-required-by-anywhere-in-kolibri-or-modules'
       }
     }
 
+  This module would now be available for import anywhere with the following statement::
+
+.. code-block:: javascript
+
+    const MODULE = require('kolibri/modulePath/nestedPath');
+
+  For convenience (and to prevent accidental imports), 3rd party (NPM) modules installed in node_modules can be required
+  by their usual name also:
+
+  .. code-block:: javascript
+
+    const vue = require('vue');
 
 Bootstrapped Data
 ~~~~~~~~~~~~~~~~~

@@ -44,7 +44,11 @@ function coreExternals(kolibri_name) {
     // By checking path.length is greater than 1, we ignore 'module' in
     // the top namespace, as, logically, that would overwrite the global object.
     if (pathArray.length > 1 && obj.module) {
-      externalsObj[obj.module.indexOf('.') === 0 ? requireName(pathArray) : obj.module] = pathArray.join('.');
+      // Check if this is a global import (i.e. from node_modules)
+      if (obj.module.indexOf('.') !== 0) {
+        externalsObj[obj.module] = pathArray.join('.');
+      }
+      externalsObj[requireName(pathArray)] = pathArray.join('.');
     }
   };
   recurseObjectKeysAndExternalize(apiSpec, [kolibri_name]);
