@@ -5,7 +5,6 @@ from django_q.models import Task
 from django_q.tasks import async
 from kolibri.content.models import ChannelMetadataCache
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
-from kolibri.tasks.management.commands.base import Progress
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
@@ -114,67 +113,41 @@ class TasksViewSet(viewsets.ViewSet):
         return Response(out)
 
 def _networkimport(channel_id, update_state=None):
-    call_command("importchannel", "network", channel_id, update_state=update_state)
+    call_command("importchannel", "network", channel_id)
     call_command("importcontent", "network", channel_id, update_state=update_state)
 
 def _localimport(drive_id, update_state=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
     for channel in drive.metadata["channels"]:
-        call_command("importchannel", "local", channel["id"], drive.datafolder, update_state=update_state)
+        call_command("importchannel", "local", channel["id"], drive.datafolder)
         call_command("importcontent", "local", channel["id"], drive.datafolder, update_state=update_state)
 
 def _localexport(drive_id, update_state=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
     for channel in ChannelMetadataCache.objects.all():
-        call_command("exportchannel", channel.id, drive.datafolder, update_state=update_state)
+        call_command("exportchannel", channel.id, drive.datafolder)
         call_command("exportcontent", channel.id, drive.datafolder, update_state=update_state)
 
 def _task_to_response(task_instance, task_type=None, task_id=None):
     """"
-    Converts a Task object to a dict with the attributes that the
-    frontend expects.
+    Converts a Task object to a dict with the attributes that the frontend expects.
     """
 
     if not task_instance:
-        pending_response = {
+        return {
             "type": task_type,
             "status": "PENDING",
             "percentage": 0,
-            "metadata": {},
+            "progress": [],
             "id": task_id,
         }
-        return pending_response
-
-    tasktype = task_instance.group
-    status = task_instance.task_status
-    percentage = task_instance.progress_fraction
-    id = task_instance.id
-
-    p = task_instance.progress_data
-    # ARON: find out why progress metadata isn't being added. Check if this if statement below is getting processed properly.
-
-    if not isinstance(p, Progress):
-        task_type_specific_metadata = {}
-    else:
-        percentage = p.progress_fraction
-        message = p.message
-        extra_data = p.extra_data
-
-        task_type_specific_metadata = {
-            "msg": message,
-        }
-
-        try:
-            task_type_specific_metadata.update(extra_data)
-        except TypeError:       # extra_data isn't iterable, do nothing
-            pass
 
     return {
-        "type": tasktype,
-        "status": status,
-        "percentage": percentage,
-        "metadata": task_type_specific_metadata,
-        "id": id,
+        "type": task_instance.group,
+        "status": task_instance.task_status,
+        "percentage": task_instance.progress_fraction,
+        "progress": [dict(p.__dict__) for p in task_instance.progress_data],
+        "id": task_instance.id,
     }
