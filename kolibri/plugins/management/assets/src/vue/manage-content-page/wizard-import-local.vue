@@ -22,18 +22,20 @@
           </h2>
           <template v-if="drivesWithData.length > 1">
             <h2>Drives detected with data:</h2>
-            <div v-for="(index, drive) in drivesWithData">
-              <input
-                type="radio"
-                :id="'drive-'+index"
-                :value="drive.id"
-                v-model="selectedDrive"
-              >
-              <label :for="'drive-'+index">{{drive.name}} {{index}}</label>
+            <div class="drive-list">
+              <div class="drive-names" v-for="(index, drive) in drivesWithData">
+                <input
+                  type="radio"
+                  :id="'drive-'+index"
+                  :value="drive.id"
+                  v-model="selectedDrive"
+                >
+                <label :for="'drive-'+index">{{drive.name}} {{index}}</label>
+              </div>
             </div>
           </template>
 
-          <p class="core-text-annotation" v-if="drivesWithoutData.length">Note: {{drivesWithoutData.length}} additional drives were detected, but don't appear to have data on them.</p>
+          <p class="core-text-annotation" v-if="drivesWithoutData.length"><strong>Note:</strong> {{drivesWithoutData.length}} additional drives were detected, but don't appear to have data on them.</p>
         </div>
       </template>
       <loading-spinner v-else></loading-spinner>
@@ -138,6 +140,11 @@
   .error-svg
     margin: 0 0.6em
 
+  .drive-list
+    margin: 2em
+
+  .drive-names
+    margin: 0.6em 0
   .refresh
     display: block
     margin: 0 auto

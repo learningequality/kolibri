@@ -21,18 +21,20 @@
           </h2>
           <template v-if="writableDrives.length > 1">
             <h2>Writable drives detected:</h2>
-            <div v-for="(index, drive) in writableDrives">
-              <input
-                type="radio"
-                :id="'drive-'+index"
-                :value="drive.id"
-                v-model="selectedDrive"
-              >
-              <label :for="'drive-'+index">{{drive.name}} {{index}}</label>
+            <div class="drive-list">
+              <div class="drive-names" v-for="(index, drive) in writableDrives">
+                <input
+                  type="radio"
+                  :id="'drive-'+index"
+                  :value="drive.id"
+                  v-model="selectedDrive"
+                >
+                <label :for="'drive-'+index">{{drive.name}} {{index}}</label>
+              </div>
             </div>
           </template>
 
-          <p class="core-text-annotation" v-if="unwritableDrives.length">Note: {{unwritableDrives.length}} additional drives were detected, but don't appear to be writable.</p>
+          <p class="core-text-annotation" v-if="unwritableDrives.length"><strong>Note:</strong> {{unwritableDrives.length}} additional drives were detected, but don't appear to be writable.</p>
         </div>
       </template>
       <loading-spinner v-else></loading-spinner>
@@ -137,6 +139,16 @@
 
   .error-svg
     margin: 0 0.6em
+
+  .drive-list
+    margin: 2em
+
+  .drive-names
+    margin: 0.6em 0
+
+  input[type='radio']:checked + label
+    color: $core-action-normal
+    font-weight: 700
 
   .button-wrapper
     margin: 1em
