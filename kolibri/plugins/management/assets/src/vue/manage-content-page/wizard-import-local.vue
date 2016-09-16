@@ -1,7 +1,7 @@
 <template>
 
   <core-modal
-    title="Import Channel from a Local Drive"
+    title="Import from a Local Drive"
     :error="wizardState.error"
     :enablebgclickcancel="false"
     :disableclose="wizardState.busy"

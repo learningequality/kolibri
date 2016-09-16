@@ -1,7 +1,7 @@
 <template>
 
   <core-modal
-    title="Import Channel from the Internet"
+    title="Import from the Internet"
     :error="wizardState.error"
     :enablebgclickcancel="false"
     :disableclose="wizardState.busy"

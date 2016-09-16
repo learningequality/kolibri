@@ -1,7 +1,7 @@
 <template>
 
   <core-modal
-    title="Export Channel to a Local Drive"
+    title="Export to a Local Drive"
     :error="wizardState.error ? true : false"
     :disableclose="wizardState.busy"
     :enablebgclickcancel="false"
