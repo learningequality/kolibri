@@ -12,11 +12,10 @@ from __future__ import absolute_import, print_function, unicode_literals
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
-# This is essential! We load the kolibri conf INSIDE the Django conf
-from kolibri.utils import conf
-
 # import kolibri, so we can get the path to the module.
 import kolibri
+# This is essential! We load the kolibri conf INSIDE the Django conf
+from kolibri.utils import conf
 
 KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
 
@@ -61,6 +60,7 @@ INSTALLED_APPS = [
     'kolibri.core.discovery',
     'rest_framework',
     'django_js_reverse',
+    'django_extensions',
 ] + conf.config['INSTALLED_APPS']
 
 MIDDLEWARE_CLASSES = (
