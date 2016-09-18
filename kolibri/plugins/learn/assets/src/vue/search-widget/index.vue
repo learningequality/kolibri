@@ -235,7 +235,7 @@
     border: none
     border-radius: 4px
     background-color: $core-bg-canvas // IE10 needs a non-transparent bg to be clickable
-    outline: none
+    // outline: none
     cursor: pointer
     padding: 0 4px
     height: 22px
@@ -243,9 +243,9 @@
       fill: $core-text-annotation
       position: relative
       top: -2px
-    &:focus
-      border: $core-action-normal 1px solid
-      filter: invert(5%)
+    // &:focus
+      // border: $core-action-normal 1px solid
+      // filter: invert(5%)
 
   .cancel-btn-table-cell
     display: table-cell
