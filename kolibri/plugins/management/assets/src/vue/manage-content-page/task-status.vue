@@ -15,7 +15,7 @@
 <script>
 
   const actions = require('../../actions');
-  const logging = require('logging');
+  const logging = require('kolibri/lib/logging');
   const constants = require('../../state/constants');
   const TaskTypes = constants.TaskTypes;
   const TaskStatuses = constants.TaskStatuses;

@@ -35,7 +35,7 @@
 
   module.exports = {
     components: {
-      'icon-button': require('icon-button'),
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
       'task-status': require('./task-status'),
       'wizard-import-source': require('./wizard-import-source'),
       'wizard-import-network': require('./wizard-import-network'),

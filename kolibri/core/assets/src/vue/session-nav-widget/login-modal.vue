@@ -44,7 +44,7 @@
 
 <script>
 
-  const actions = require('core-actions');
+  const actions = require('kolibri/coreVue/vuex/actions');
 
   module.exports = {
     $trNameSpace: 'loginModal',
@@ -94,8 +94,8 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
-  @require '~nav-bar-item.styl'
+  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri/styles/navBarItem'
 
   h1
     font-size: 1.1em

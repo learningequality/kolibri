@@ -57,7 +57,7 @@
 
   module.exports = {
     components: {
-      'icon-button': require('icon-button'),
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
     },
     data() {
       return {
@@ -131,7 +131,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme'
+  @require '~kolibri/styles/coreTheme'
 
   $button-content-size = 1em
 

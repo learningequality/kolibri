@@ -49,9 +49,6 @@ class WebpackBundleHook(hooks.KolibriHook):
     # : For instance: "kolibri/core/assets/src/kolibri_core_app.js"
     src_file = ""
 
-    # : The static directory where you want stuff to be written to
-    static_dir = "kolibri/core/static"
-
     # : A list of events to listen to
     events = {}
 
@@ -104,7 +101,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             if stats['status'] == 'error':
                 raise WebpackError('Webpack compilation has errored')
         return {
-            "files": stats["chunks"][self.unique_slug]
+            "files": stats.get("chunks", {}).get(self.unique_slug, [])
         }
 
     @property
@@ -148,6 +145,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             "name": self.unique_slug,
             "src_file": self.src_file,
             "static_dir": self.static_dir,
+            "plugin_path": os.path.dirname(self.build_path),
             "stats_file": self.stats_file,
             "events": self.events,
             "once": self.once,
@@ -156,19 +154,24 @@ class WebpackBundleHook(hooks.KolibriHook):
         }
 
     @property
+    def module_path(self):
+        return '.'.join(self.__module__.split('.')[:-1])
+
+    @property
     def build_path(self):
         """
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """
-        return resource_filename('kolibri.core', 'build')
+        return resource_filename(self.module_path, 'build')
+
+    @property
+    def static_dir(self):
+        return resource_filename(self.module_path, 'static')
 
     @property
     def stats_file(self):
         """
-        TODO: Do we want to rely on a generated stats file? It will have to be
-        read for every bundle, every time stuff is loaded.
-
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """

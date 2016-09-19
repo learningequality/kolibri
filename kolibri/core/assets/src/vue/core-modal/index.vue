@@ -127,7 +127,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .modal-overlay
     position: fixed

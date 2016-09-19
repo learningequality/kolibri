@@ -97,8 +97,8 @@
 <script>
 
   const actions = require('../../actions');
-  const coreActions = require('kolibri').coreActions;
-  const UserKinds = require('kolibri').constants.UserKinds;
+  const coreActions = require('kolibri/coreVue/vuex/actions');
+  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
 
   module.exports = {
     components: {},
@@ -204,7 +204,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .title
     display: inline

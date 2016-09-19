@@ -13,6 +13,7 @@ var webpack = require('webpack');
 var base_config = require('./webpack.config.base');
 var _ = require('lodash');
 var extract$trs = require('./extract_$trs');
+var merge = require('webpack-merge');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle configuration for webpack.
@@ -35,7 +36,8 @@ var parseBundlePlugin = function(data, base_dir) {
       (typeof data.static_dir === "undefined") ||
       (typeof data.static_url_root === "undefined") ||
       (typeof data.stats_file === "undefined") ||
-      (typeof data.locale_data_folder === "undefined")) {
+      (typeof data.locale_data_folder === "undefined") ||
+      (typeof data.plugin_path === "undefined")) {
     logging.error(data.name + ' plugin is misconfigured, missing parameter(s)');
     return;
   }
@@ -46,10 +48,20 @@ var parseBundlePlugin = function(data, base_dir) {
   var external;
   var library;
 
+  var local_config;
+
+  try {
+    local_config = require(path.join(data.plugin_path, 'webpack.config.js'));
+  } catch (e) {
+    local_config = {};
+  }
+
+  bundle = merge.smart(bundle, local_config);
+
   // This might be non-standard use of the entry option? It seems to
   // interact with read_bundle_plugins.js
   bundle.entry = {}
-  bundle.entry[data.name] = data.src_file;
+  bundle.entry[data.name] = path.join(data.plugin_path, data.src_file);
 
   if (typeof data.external !== "undefined" && data.external && data.core_name) {
     // If we want to create a plugin that can be directly referenced by other plugins, this sets it to be
@@ -58,7 +70,14 @@ var parseBundlePlugin = function(data, base_dir) {
     library = data.core_name;
   }
 
-  bundle.resolve.root = base_dir;
+  // Add local resolution paths
+  bundle.resolve.root = [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')];
+  // Add local and global resolution paths for loaders to allow any plugin to
+  // access kolibri/node_modules loaders during bundling.
+  bundle["resolveLoader"] = {
+    root: [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')]
+  };
+
   bundle.plugins = bundle.plugins.concat([
     // BundleTracker creates stats about our built files which we can then pass to Django to allow our template
     // tags to load the correct frontend files.
@@ -82,7 +101,7 @@ var parseBundlePlugin = function(data, base_dir) {
   bundle.name = data.name;
   bundle.context = base_dir;
   bundle.output = {
-    path: path.relative(base_dir, path.join(data.static_dir, data.name)),
+    path: path.join(data.static_dir, data.name),
     filename: "[name]-[hash].js",
     publicPath: path.join("/", data.static_url_root, data.name, "/"),
     library: library

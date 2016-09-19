@@ -4,7 +4,18 @@
     <page-header :title="learnName">
       <svg slot="icon" class="pageicon" src="../icons/learn.svg"></svg>
     </page-header>
-    <expandable-content-grid :contents="recommendations"></expandable-content-grid>
+    <expandable-content-grid
+      :contents="recommendations.popular"
+      :title="'Most Popular'">
+    </expandable-content-grid>
+    <expandable-content-grid
+      :contents="recommendations.nextSteps"
+      :title="'Next Steps'">
+    </expandable-content-grid>
+    <expandable-content-grid
+      :contents="recommendations.resume"
+      :title="'Resume'">
+    </expandable-content-grid>
   </div>
 
 </template>
