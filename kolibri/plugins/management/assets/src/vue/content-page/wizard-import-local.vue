@@ -59,7 +59,7 @@
   module.exports = {
     components: {
       'modal': require('./modal'),
-      'icon-button': require('icon-button'),
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
     },
     data: () => ({
       selectedDrive: undefined, // used when there's more than one option

@@ -26,7 +26,7 @@
 
   const pageMode = require('../../state/getters').pageMode;
   const constants = require('../../state/constants');
-  const UserKinds = require('kolibri').constants.UserKinds;
+  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
 
   module.exports = {
     $trNameSpace: 'learnNav',
@@ -36,7 +36,7 @@
       manage: 'Manage',
     },
     components: {
-      'nav-bar-item': require('nav-bar-item'),
+      'nav-bar-item': require('kolibri/coreVue/components/navBarItem'),
     },
     vuex: {
       getters: {
@@ -71,7 +71,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~nav-bar-item.styl'
+  @require '~kolibri/styles/navBarItem'
 
   a.active:focus svg
     fill: $core-bg-light

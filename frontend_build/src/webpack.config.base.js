@@ -33,6 +33,11 @@ var webpack = require('webpack');
 var jeet = require('jeet');
 var autoprefixer = require('autoprefixer');
 
+var aliases = require('./apiSpecExportTools').coreAliases();
+
+aliases['kolibri_module']= path.resolve('kolibri/core/assets/src/kolibri_module');
+aliases['content_renderer_module'] = path.resolve('kolibri/core/assets/src/content_renderer_module');
+
 require('./htmlhint_custom'); // adds custom rules
 
 var config = {
@@ -110,21 +115,7 @@ var config = {
   plugins: [
   ],
   resolve: {
-    alias: {
-      'kolibri_module': path.resolve('kolibri/core/assets/src/kolibri_module'),
-      'core-constants': path.resolve('kolibri/core/assets/src/constants'),
-      'core-actions': path.resolve('kolibri/core/assets/src/core-actions'),
-      'learn-actions': path.resolve('kolibri/plugins/learn/assets/src/actions'),
-      'nav-bar-item': path.resolve('kolibri/core/assets/src/vue/nav-bar/nav-bar-item'),
-      'nav-bar-item.styl': path.resolve('kolibri/core/assets/src/vue/nav-bar/nav-bar-item.styl'),
-      'icon-button': path.resolve('kolibri/core/assets/src/vue/icon-button'),
-      'core-theme.styl': path.resolve('kolibri/core/assets/src/styles/core-theme.styl'),
-      'content_renderer_module': path.resolve('kolibri/core/assets/src/content_renderer_module'),
-      'logging': path.resolve('kolibri/core/assets/src/logging'),
-      'router': path.resolve('kolibri/core/assets/src/router'),
-      'core-store': path.resolve('kolibri/core/assets/src/core-store'),
-      'core-timer': path.resolve('kolibri/core/assets/src/timer'),
-    },
+    alias: aliases,
     extensions: ["", ".vue", ".js"],
   },
   eslint: {

@@ -53,7 +53,7 @@
       },
     },
     components: {
-      'icon-button': require('icon-button'),
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
       'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
     },
@@ -89,7 +89,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .button-wrapper
     text-align: center
