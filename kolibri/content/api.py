@@ -67,7 +67,7 @@ class ContentNodeFilter(filters.FilterSet):
         """
 
         # if user is anonymous, don't return any nodes
-        if value == '':
+        if not value:
             return queryset.none()
 
         if self.data['channel']:
@@ -151,7 +151,7 @@ class ContentNodeFilter(filters.FilterSet):
         """
 
         # if user is anonymous, return no nodes
-        if value == '':
+        if not value:
             return queryset.none()
 
         if self.data['channel']:  # filter by channel if available
