@@ -120,7 +120,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   // Padding height that separates rows from eachother
   $row-padding = 1.5em
