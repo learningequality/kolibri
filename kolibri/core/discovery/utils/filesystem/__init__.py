@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import os
 import sys
@@ -30,7 +31,7 @@ DriveData = namedtuple(
 def enumerate_mounted_disk_partitions():
     """
     Searches the local device for attached partitions/drives, and computes metadata about each one.
-    Returns a dict that maps mount paths to DriveData objects containing metadata about each drive.
+    Returns a dict that maps drive IDs to DriveData objects containing metadata about each drive.
     Note that drives for which the current user does not have read permissions are not included.
     """
 
@@ -44,13 +45,14 @@ def enumerate_mounted_disk_partitions():
     for drive in drive_list:
 
         path = drive["path"]
+        drive_id = hashlib.sha1((drive["guid"] or path).encode('utf-8')).hexdigest()[:32]
 
-        drives[path] = DriveData(
-            id=drive["guid"] or path,
+        drives[drive_id] = DriveData(
+            id=drive_id,
             path=path,
             name=drive["name"],
             writable=os.access(path, os.W_OK),
-            datafolder=find_kolibri_data_folder(path),
+            datafolder=get_kolibri_data_folder_path(path),
             freespace=drive["freespace"],
             totalspace=drive["totalspace"],
             filesystem=drive["filesystem"],
@@ -61,18 +63,13 @@ def enumerate_mounted_disk_partitions():
     return drives
 
 
-def find_kolibri_data_folder(folder):
+def get_kolibri_data_folder_path(folder):
     """
-    Looks for a folder with name matching EXPORT_FOLDER_NAME underneath the provided folder path.
-    If it is found, the full path to the data folder is returned. Otherwise, None is returned.
+    Constructs an export data folder path by concatenating the parent folder
+    to the EXPORT_FOLDER_NAME folder name.
     """
 
-    kolibri_data_dir = os.path.join(
+    return os.path.join(
         folder,
         EXPORT_FOLDER_NAME,
     )
-
-    if os.path.exists(kolibri_data_dir):
-        return kolibri_data_dir
-    else:
-        return None

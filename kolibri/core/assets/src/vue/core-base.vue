@@ -4,7 +4,7 @@
     <nav-bar>
       <slot name="nav"></slot>
     </nav-bar>
-    <loading-spinner class="main-wrapper" v-show="loading"></loading-spinner>
+    <loading-spinner v-if="loading" class="loading-spinner-fixed"></loading-spinner>
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
       <error-box v-if="error"></error-box>
       <slot name="above"></slot>
@@ -78,5 +78,8 @@
   .page-content
     margin: auto
     width-auto-adjust()
+
+  .loading-spinner-fixed
+    position: fixed
 
 </style>

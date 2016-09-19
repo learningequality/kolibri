@@ -17,7 +17,7 @@ class FileSerializer(serializers.ModelSerializer):
     storage_url = serializers.SerializerMethodField()
 
     def get_storage_url(self, target_node):
-        return target_node.get_url()
+        return target_node.get_storage_url()
 
     class Meta:
         model = File
@@ -77,7 +77,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
 
     def get_thumbnail(self, target_node):
         thumbnail_model = target_node.files.filter(thumbnail=True, available=True).first()
-        return thumbnail_model.get_url() if thumbnail_model else None
+        return thumbnail_model.get_storage_url() if thumbnail_model else None
 
     class Meta:
         model = ContentNode

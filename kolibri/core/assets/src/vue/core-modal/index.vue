@@ -1,10 +1,9 @@
 <template>
 
   <!-- Accessibility properties for the overlay -->
-
-  <!-- Aria-Hidden and TabIndex in .modal might not be necessary because of conditional rendering -->
   <div class="modal-overlay"
     @keydown.esc="closeModal"
+    @keydown.enter="submitModal"
     @click="bgClick($event)"
     v-el:modal-overlay
     id="modal-window">
@@ -18,25 +17,19 @@
 
       <!-- Close Button -->
       <button aria-label="Close dialog window" @click="closeModal" class="btn-close">
-        <svg src="../icons/close.svg" role="presentation"></svg>
+        <svg src="./close.svg" role="presentation"></svg>
       </button>
 
       <!-- Modal Title -->
-      <h1 v-show="!invisibleTitle" class="title" id="modal-title">
+      <h1 v-show="!invisibletitle" class="title" id="modal-title">
         <!-- Accessible error reporting per @radina -->
-        <span v-if="hasError" class="visuallyhidden">
-          Error in:
-        </span>
-
+        <span v-if="haserror" class="visuallyhidden">Error in:</span>
         {{title}}
-
       </h1>
 
       <!-- Modal Content -->
       <slot>
-        <p>
-          To populate, wrap your content in <code> with modal </code>.
-        </p>
+        <p>To populate, wrap your content in <code> with modal </code>.</p>
       </slot>
 
     </div>
@@ -53,43 +46,39 @@
         type: String,
         required: true,
       },
-      invisibleTitle: {
+      invisibletitle: {
         type: Boolean,
         default: false,
       },
       // Modal options
-      disableClose: {
+      disableclose: {
         type: Boolean,
         default: false,
         required: false,
       },
-      backgroundClickClose: {
+      backgroundclickclose: {
         type: Boolean,
         default: true,
         required: false,
       },
-      // useed to toggle error message in header
-      hasError: {
+      // toggles error message indicator in header
+      haserror: {
         type: Boolean,
         default: false,
       },
     },
     ready() {
-      if (this.disableClose) {
+      if (this.disableclose) {
         this.$off('close');
       }
-
-      this.openModal();
+      this.lastFocus = document.activeElement;
+      // Need to wait for DOM to update asynchronously, then get the modal element
+      this.focusModal();
+      // pass in a function, not a function call.
+      window.addEventListener('blur', this.focusElementTest, true);
+      window.addEventListener('scroll', (event) => event.preventDefault(), true);
     },
     events: {
-      open() {
-        this.lastFocus = document.activeElement;
-        // Need to wait for DOM to update asynchronously, then get the modal element
-        this.focusModal();
-        // pass in a function, not a function call.
-        window.addEventListener('blur', this.focusElementTest, true);
-        window.addEventListener('scroll', (event) => event.preventDefault(), true);
-      },
       close() {
         // needs to be an exact match to the one that was assigned.
         window.removeEventListener('blur', this.focusElementTest, true);
@@ -102,12 +91,11 @@
       };
     },
     methods: {
-      openModal() {
-        // propogate open event here and in parent
-        this.$dispatch('open');
-      },
       closeModal() {
         this.$dispatch('close');
+      },
+      submitModal() {
+        this.$dispatch('submit');
       },
       focusModal() {
         this.$els.modal.focus();
@@ -120,7 +108,7 @@
       },
       bgClick(clickEvent) {
         // check to make sure the area being clicked is the overlay, not the modal
-        if (this.backgroundClickClose && (clickEvent.target === this.$els.modalOverlay)) {
+        if (this.backgroundclickclose && (clickEvent.target === this.$els.modalOverlay)) {
           this.closeModal();
         }
       },
@@ -162,6 +150,7 @@
     @media (max-width: $portrait-breakpoint)
       width: 85%
       top: 45%
+
   .btn-close
     float: right
     color: $core-text-default

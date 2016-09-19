@@ -228,14 +228,23 @@ class UserCreationTestCase(APITestCase):
         self.assertTrue(models.FacilityUser.objects.get(username=new_username).check_password(new_password))
         self.assertFalse(models.FacilityUser.objects.get(username=new_username).check_password(bad_password))
 
-    def test_creating_same_user_throws_409_error(self):
+    def test_creating_same_facility_user_throws_400_error(self):
         new_username = "goliath"
         new_password = "davidsucks"
         data = {"username": new_username, "password": new_password, "facility": self.facility.id}
         response = self.client.post(reverse('facilityuser-list'), data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response = self.client.post(reverse('facilityuser-list'), data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_creating_same_device_owner_throws_400_error(self):
+        new_username = "goliath"
+        new_password = "davidsucks"
+        data = {"username": new_username, "password": new_password}
+        response = self.client.post(reverse('deviceowner-list'), data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post(reverse('deviceowner-list'), data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class UserUpdateTestCase(APITestCase):
@@ -256,6 +265,18 @@ class UserUpdateTestCase(APITestCase):
         self.client.patch(reverse('facilityuser-detail', kwargs={'pk': self.user.pk}), {'password': new_password}, format="json")
         self.client.logout()
         response = self.client.login(username=self.user.username, password=new_password, facility=self.facility)
+        self.assertTrue(response)
+
+    def test_device_owner_update_info(self):
+        self.client.patch(reverse('deviceowner-detail', kwargs={'pk': self.device_owner.pk}), {'username': 'foo'}, format="json")
+        self.device_owner.refresh_from_db()
+        self.assertEqual(self.device_owner.username, "foo")
+
+    def test_device_owner_update_password(self):
+        new_password = 'baz'
+        self.client.patch(reverse('deviceowner-detail', kwargs={'pk': self.device_owner.pk}), {'password': new_password}, format="json")
+        self.client.logout()
+        response = self.client.login(username=self.device_owner.username, password=new_password)
         self.assertTrue(response)
 
 

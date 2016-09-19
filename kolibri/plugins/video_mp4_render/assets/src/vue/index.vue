@@ -1,7 +1,7 @@
 <template>
 
   <div v-el:videowrapperwrapper class="videowrapperwrapper">
-    <loading-spinner v-show="loading"></loading-spinner>
+    <loading-spinner v-if="loading"></loading-spinner>
     <div v-el:videowrapper v-show="!loading" class="videowrapper">
       <video v-el:video class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
         <template v-for="video in videoSources">
@@ -231,7 +231,7 @@
 
   // Default videojs stylesheet
   // Unable to reference the videojs using require since videojs doesn't have good webpack support
-  @import '../../../../../../node_modules/video.js/dist/video-js.css'
+  @import '../../../node_modules/video.js/dist/video-js.css'
 
   // Videojs skin customization
   .video-js

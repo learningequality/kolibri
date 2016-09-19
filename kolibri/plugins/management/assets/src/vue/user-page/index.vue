@@ -46,8 +46,9 @@
       :roles="currentUserEdit.roles"
       @close="closeEditUserModal">
     </user-edit-modal>
-
-    <user-create-modal v-if="creatingUser" @close="closeCreateUserModal">
+    <user-create-modal
+      v-if="creatingUser"
+      @close="closeCreateUserModal">
     </user-create-modal>
 
     <table class="roster">

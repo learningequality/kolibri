@@ -69,7 +69,11 @@ dist: staticdeps assets compilemessages
 	pex . --disable-cache -o dist/`python setup.py --fullname`.pex -m kolibri --python-shebang=/usr/bin/python
 	ls -l dist
 
-makemessages: assets
+makedocsmessages:
+	make -C docs/ gettext
+	cd docs && sphinx-intl update -p _build/locale -l en
+
+makemessages: assets makedocsmessages
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*' --ignore 'docs/conf.py'
 
 compilemessages:

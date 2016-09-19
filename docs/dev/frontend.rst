@@ -209,3 +209,7 @@ We distinguish development dependencies from runtime dependencies, and these sho
 Note that we currently don't have a way of mapping dependencies to plugins - dependencies are installed globally.
 
 To assist in tracking the source of bloat in our codebase, the command ``npm run bundle-stats`` is available to give a full readout of the size that uglified packages take up in the final Javascript code.
+
+Individual plugins can also have their own package.json for their own dependencies. Running ``npm install`` will also install all the dependencies for each activated plugin (inside a node_modules folder inside the plugin itself). These dependencies will only be available to that plugin at build time.
+
+In addition, a plugin can have its own webpack.config.js for plugin specific webpack configuration (loaders, plugins, etc.). These options will be merged with the base options using ``webpack-merge``.
