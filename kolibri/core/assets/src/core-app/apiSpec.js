@@ -4,92 +4,86 @@
 
 // module must be specified.
 // module maps a module into the API, at the specified path.
-// By default any module specified with a relative (rather than absolute)
-// path will be aliased to allow short hand references. Obviously, this is not needed for
-// modules already in node_modules.
+// By default any module specified will be aliased to allow for require statements
+// namespaced in a way analogous to the API spec below.
 //
 // These modules will now be referenceable as e.g.: require('kolibri/lib/logging');
 //
 // N.B. You cannot use keys that require quotation marks in this object.
 // e.g. 'content-icon' (although this can be used as a value in module).
 
-const keys = [
-  'module', // Require statement for the module.
-];
-
-const apiSpec = {
-  lib: {
-    logging: {
-      module: require('../logging'),
-    },
-    vue: {
-      module: require('vue'),
-    },
-    vuex: {
-      module: require('vuex'),
-    },
-    jscookie: {
-      module: require('js-cookie'),
-    },
-    conditionalPromise: {
-      module: require('../conditionalPromise'),
-    },
-  },
-  coreVue: {
-    vuex: {
-      constants: {
-        module: require('../constants'),
-      },
-      actions: {
-        module: require('../core-actions'),
-      },
-      store: {
-        module: require('../core-store'),
-      },
-    },
-    components: {
-      contentRenderer: {
-        module: require('../vue/content-renderer'),
-      },
-      downloadButton: {
-        module: require('../vue/content-renderer/download-button'),
-      },
-      loadingSpinner: {
-        module: require('../vue/loading-spinner'),
-      },
-      progressBar: {
-        module: require('../vue/progress-bar'),
-      },
-      contentIcon: {
-        module: require('../vue/content-icon'),
-      },
-      coreBase: {
-        module: require('../vue/core-base'),
-      },
-      navBarItem: {
-        module: require('../vue/nav-bar/nav-bar-item'),
-      },
-      iconButton: {
-        module: require('../vue/icon-button'),
-      },
-    },
-    router: {
-      module: require('../router'),
-    },
-  },
-  styles: {
-    navBarItem: {
-      module: require('../vue/nav-bar/nav-bar-item.styl'),
-    },
-    coreTheme: {
-      module: require('../styles/core-theme.styl'),
-    },
-  },
-};
-
-/* eslint-disable object-shorthand */
 module.exports = {
-  apiSpec: apiSpec,
-  keys: keys,
+  keys: [
+    'module', // Require statement for the module.
+  ],
+
+  apiSpec: {
+    lib: {
+      logging: {
+        module: require('../logging'),
+      },
+      vue: {
+        module: require('vue'),
+      },
+      vuex: {
+        module: require('vuex'),
+      },
+      jscookie: {
+        module: require('js-cookie'),
+      },
+      conditionalPromise: {
+        module: require('../conditionalPromise'),
+      },
+    },
+    coreVue: {
+      vuex: {
+        constants: {
+          module: require('../constants'),
+        },
+        actions: {
+          module: require('../core-actions'),
+        },
+        store: {
+          module: require('../core-store'),
+        },
+      },
+      components: {
+        contentRenderer: {
+          module: require('../vue/content-renderer'),
+        },
+        downloadButton: {
+          module: require('../vue/content-renderer/download-button'),
+        },
+        loadingSpinner: {
+          module: require('../vue/loading-spinner'),
+        },
+        progressBar: {
+          module: require('../vue/progress-bar'),
+        },
+        contentIcon: {
+          module: require('../vue/content-icon'),
+        },
+        coreBase: {
+          module: require('../vue/core-base'),
+        },
+        navBarItem: {
+          module: require('../vue/nav-bar/nav-bar-item'),
+        },
+        iconButton: {
+          module: require('../vue/icon-button'),
+        },
+      },
+      router: {
+        module: require('../router'),
+      },
+    },
+    styles: {
+      navBarItem: {
+        module: require('../vue/nav-bar/nav-bar-item.styl'),
+      },
+      coreTheme: {
+        module: require('../styles/core-theme.styl'),
+      },
+    },
+  },
 };
-/* eslint-enable */
