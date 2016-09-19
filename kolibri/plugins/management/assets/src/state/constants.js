@@ -23,10 +23,10 @@ const TaskTypes = {
 };
 
 const TaskStatuses = {
-  IN_PROGRESS: 'in_progress',
-  SUCCESS: 'success',
-  ERROR: 'error',
-  PENDING: 'pending',
+  IN_PROGRESS: 'IN_PROGRESS',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  PENDING: 'PENDING',
 };
 
 module.exports = {
