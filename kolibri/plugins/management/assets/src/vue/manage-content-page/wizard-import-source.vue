@@ -5,22 +5,18 @@
     :enablebgclickcancel="false"
     @cancel="cancelImportExportWizard"
   >
-    <div>
-      <div class="main">
-        <div class="button-wrapper">
-          <icon-button class="large-icon-button" bottomtext="Internet" @click="showImportNetworkWizard">
-            <svg height="50" width="50" src="./world.svg"></svg>
-          </icon-button>
-          <icon-button class="large-icon-button" bottomtext="Local Drives" @click="showImportLocalWizard">
-            <svg height="50" width="50" src="./storage.svg"></svg>
-          </icon-button>
-        </div>
+    <div class="main">
+      <div class="lg-button-wrapper">
+        <icon-button class="large-icon-button" bottomtext="Internet" @click="showImportNetworkWizard">
+          <svg height="50" width="50" src="./world.svg"></svg>
+        </icon-button>
+        <icon-button class="large-icon-button" bottomtext="Local Drives" @click="showImportLocalWizard">
+          <svg height="50" width="50" src="./storage.svg"></svg>
+        </icon-button>
       </div>
-      <div class="buttons">
-        <button class="text-only-buttons" @click="cancelImportExportWizard">
-          Cancel
-        </button>
-      </div>
+      <button class="cancel-btn" @click="cancelImportExportWizard">
+        Cancel
+      </button>
     </div>
   </core-modal>
 
@@ -54,19 +50,18 @@
 
   .main
     text-align: center
+    margin-bottom: 4em 0
 
   .large-icon-button
     width: 140px
     height: 120px
     margin: 0.6em
 
-  .button-wrapper
-    margin-top: 2em
-    margin-bottom: 1em
+  .lg-button-wrapper
+    margin: 4em 0
 
-  .buttons
-    margin: 1em
-    text-align: center
+  .cancel-btn
+    margin-bottom: 2em
 
   .text-only-buttons
     height: 36px

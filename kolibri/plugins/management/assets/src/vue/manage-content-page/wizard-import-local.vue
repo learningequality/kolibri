@@ -1,7 +1,7 @@
 <template>
 
   <core-modal
-    title="Import Channel from a Local Drive"
+    title="Import from a Local Drive"
     :error="wizardState.error"
     :enablebgclickcancel="false"
     :disableclose="wizardState.busy"
@@ -10,42 +10,53 @@
     @enter="submit"
     @back="startImportWizard"
   >
-    <div>
+    <div class="main">
 
       <template v-if="!drivesLoading">
-        <p v-if="drivesWithData.length === 0">
-          No drives with data were detected.
-        </p>
-        <p v-if="drivesWithData.length === 1">
-          Drive detected with data: {{ drivesWithData[0].name }}
-        </p>
-        <template v-if="drivesWithData.length > 1">
-          <p>Drives detected with data:</p>
-          <div v-for="(index, drive) in drivesWithData">
-            <input
-              type="radio"
-              :id="'drive-'+index"
-              :value="drive.id"
-              v-model="selectedDrive"
-            >
-            <label :for="'drive-'+index">{{drive.name}} {{index}}</label>
-          </div>
-        </template>
+        <div class="modal-message">
+          <h2 class="core-text-alert" v-if="drivesWithData.length === 0">
+            <svg class="error-svg" src="../icons/error.svg"></svg>No drives with data were detected.
+          </h2>
+          <h2 v-if="drivesWithData.length === 1">
+            Drive detected with data: {{ drivesWithData[0].name }}
+          </h2>
+          <template v-if="drivesWithData.length > 1">
+            <h2>Drives detected with data:</h2>
+            <div class="drive-list">
+              <div class="drive-names" v-for="(index, drive) in drivesWithData">
+                <input
+                  type="radio"
+                  :id="'drive-'+index"
+                  :value="drive.id"
+                  v-model="selectedDrive"
+                >
+                <label :for="'drive-'+index">{{drive.name}} {{index}}</label>
+              </div>
+            </div>
+          </template>
 
-        <p v-if="drivesWithoutData.length">Note: {{drivesWithoutData.length}} additional drives were detected, but don't appear to have data on them.</p>
+          <p class="core-text-annotation" v-if="drivesWithoutData.length"><strong>Note:</strong> {{drivesWithoutData.length}} additional drives were detected, but don't appear to have data on them.</p>
+        </div>
       </template>
       <loading-spinner v-else></loading-spinner>
 
-      <button @click="updateWizardLocalDriveList" :disabled="wizardState.busy">
-        Refresh
-      </button>
-
+      <icon-button
+        text="Refresh"
+        @click="updateWizardLocalDriveList"
+        :disabled="wizardState.busy">
+        <svg src="../icons/refresh.svg"></svg>
+      </icon-button>
+    </div>
+    <div class="button-wrapper">
       <button @click="cancel" :disabled="wizardState.busy">
         Cancel
       </button>
-      <button @click="submit" :disabled="!canSubmit">
-        Import
-      </button>
+      <icon-button
+        text="Import"
+        @click="submit"
+        :disabled="!canSubmit"
+        :primary="false" >
+      </icon-button>
     </div>
   </core-modal>
 
@@ -117,4 +128,31 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~core-theme.styl'
+
+  .main
+    text-align: center
+    margin: 4em 0
+
+  .modal-message
+    margin: 2em 0
+
+  .error-svg
+    margin: 0 0.6em
+
+  .drive-list
+    margin: 2em
+
+  .drive-names
+    margin: 0.6em 0
+
+  .button-wrapper
+    margin: 1em 0
+    text-align: center
+
+  button
+    margin: 0.4em
+
+</style>
