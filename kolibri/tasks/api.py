@@ -159,6 +159,6 @@ def _task_to_response(task_instance, task_type=None, task_id=None):
         "type": task_instance.group,
         "status": task_instance.task_status,
         "percentage": task_instance.progress_fraction,
-        "progress": [dict(p.__dict__) for p in task_instance.progress_data],
+        "progress": [dict(p.__dict__) for p in task_instance.progress_data] if task_instance.progress_data else task_instance.progress_data,
         "id": task_instance.id,
     }
