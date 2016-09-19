@@ -16,5 +16,5 @@ plugins.map(function(plugin) {
     };
   }
 }).reduce(function (code, result) {
-    return result.exitCode > code ? result.exitCode : code
-  }, 0);
+  return result.exitCode > code ? result.exitCode : code;
+}, 0);
