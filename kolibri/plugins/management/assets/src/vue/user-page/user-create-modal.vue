@@ -3,8 +3,8 @@
   <core-modal
     title="Add New Account"
     :has-error="errorMessage ? true : false"
-    @open.stop="clear"
-    @submit="createNewUser"
+    @enter="createNewUser"
+    @cancel="close"
   >
     <div>
       <!-- Fields for the user to fill out -->
@@ -69,6 +69,10 @@
         errorMessage: '',
       };
     },
+    attached() {
+      // clear form on load
+      this.$data = this.$options.data();
+    },
     methods: {
       createNewUser() {
         const newUser = {
@@ -94,7 +98,6 @@
             () => {
               this.close();
             }).catch((error) => {
-              this.clear();
               if (error.status.code === 400) {
                 // access the first error message
                 this.errorMessage = error.entity[Object.keys(error.entity)[0]];
@@ -106,16 +109,11 @@
             });
         }
       },
-      clear() {
-        this.$data = this.$options.data();
-      },
       clearErrorMessage() {
         this.errorMessage = '';
       },
       close() {
-        this.clear();
-        this.$emit('close');
-        this.$broadcast('close');
+        this.$emit('close'); // signal parent to close
       },
     },
     vuex: {

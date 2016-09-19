@@ -66,6 +66,9 @@ module.exports = {
         coreBase: {
           module: require('../vue/core-base'),
         },
+        coreModal: {
+          module: require('../vue/core-modal'),
+        },
         navBarItem: {
           module: require('../vue/nav-bar/nav-bar-item'),
         },

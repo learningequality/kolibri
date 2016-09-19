@@ -28,7 +28,7 @@
       'main-nav': require('./main-nav'),
       'user-page': require('./user-page'),
       'data-page': require('./data-page'),
-      'content-page': require('./content-page'),
+      'manage-content-page': require('./manage-content-page'),
       'scratchpad-page': require('./scratchpad-page'),
     },
     computed: {
@@ -40,7 +40,7 @@
           return 'data-page';
         }
         if (this.pageName === PageNames.CONTENT_MGMT_PAGE) {
-          return 'content-page';
+          return 'manage-content-page';
         }
         if (this.pageName === PageNames.SCRATCHPAD) {
           return 'scratchpad-page';
