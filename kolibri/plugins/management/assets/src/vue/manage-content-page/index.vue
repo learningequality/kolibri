@@ -10,7 +10,7 @@
     ></task-status>
 
 
-    <div>
+    <div v-if="!pageState.taskList.length">
       <button @click="startImportWizard">Import</button>
       <button @click="startExportWizard">Export</button>
     </div>

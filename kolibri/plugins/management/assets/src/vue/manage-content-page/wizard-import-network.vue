@@ -1,29 +1,28 @@
 <template>
 
-  <modal
+  <core-modal
     title="Import Channel from the Internet"
     :error="wizardState.error"
-    :noclose="wizardState.busy"
-    :showback="true"
+    :enablebgclickcancel="false"
+    :disableclose="wizardState.busy"
+    :enablebackbtn="true"
     @cancel="cancel"
-    @submit="submit"
+    @enter="submit"
     @back="startImportWizard"
   >
-    <div slot="body">
+    <div>
       <p>Please enter a content channel ID:</p>
       <div>
         <input v-model="contentId" :disabled="wizardState.busy">
       </div>
-    </div>
-    <div slot="buttons">
       <button @click="cancel" :disabled="wizardState.busy">
         Cancel
       </button>
-      <button @click="submit" :disabled="wizardState.busy">
+      <button @click="submit" :disabled="!canSubmit">
         Import
       </button>
     </div>
-  </modal>
+  </core-modal>
 
 </template>
 
@@ -34,12 +33,19 @@
 
   module.exports = {
     components: {
-      'modal': require('./modal'),
       'icon-button': require('icon-button'),
     },
     data: () => ({
       contentId: '',
     }),
+    computed: {
+      canSubmit() {
+        if (this.wizardState.busy) {
+          return false;
+        }
+        return Boolean(this.contentId);
+      },
+    },
     methods: {
       submit() {
         this.triggerRemoteContentImportTask(this.contentId);
