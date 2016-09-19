@@ -45,11 +45,11 @@
       },
       nCollapsed: {
         type: Number,
-        default: 6,
+        default: 3,
       },
       nExpanded: {
         type: Number,
-        default: 12,
+        default: 9,
       },
     },
     components: {
