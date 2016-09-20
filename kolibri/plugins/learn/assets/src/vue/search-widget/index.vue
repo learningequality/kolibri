@@ -43,9 +43,9 @@
         {{ message }}
       </h1>
 
-      <h4 v-if="topics.length && showTopics">
+      <h2 v-if="topics.length && showTopics">
         Topic
-      </h4>
+      </h2>
 
       <card-list class="card-list" v-if="topics.length && showTopics">
         <topic-list-item
@@ -58,9 +58,9 @@
         </topic-list-item>
       </card-list>
 
-      <h4 v-if="contents.length">
+      <h2 v-if="contents.length">
         Content
-      </h4>
+      </h2>
 
       <card-grid v-if="contents.length">
         <content-grid-item
@@ -170,8 +170,9 @@
 
   $top-offset = 60px
 
-  h4
-    margin-top: 3em
+  h2
+    margin-top: 2em
+    font-size: 1em
 
   .card-list
     margin-bottom: $card-gutter
@@ -229,19 +230,20 @@
 
   .reset
     position: absolute
-    right: 5px
+    right: 3px
     top: 2px
     border: none
-    border-radius: 4px
     background-color: $core-bg-canvas // IE10 needs a non-transparent bg to be clickable
-    outline: none
-    cursor: pointer
     padding: 0 4px
     height: 22px
+    outline-offset: -2px
     svg
       fill: $core-text-annotation
       position: relative
       top: -2px
+ 
+    &:focus // Removing border in FF removes outline too (Normalize?)
+      outline: 2px solid $core-action-light
 
   .cancel-btn-table-cell
     display: table-cell
