@@ -55,15 +55,15 @@ git_changeset=""
 if [ "$TRAVIS_BRANCH" == "" ]
 then
     # The changeset is $TRAVIS_COMMIT_RANGE
-    # echo "Using TRAVIS_COMMIT_RANGE as changeset"
+    echo "Conditional tests: Using TRAVIS_COMMIT_RANGE as changeset"
     git_changeset=`git show --name-only --no-notes --oneline $TRAVIS_COMMIT_RANGE`
 else
     # The changeset is the diff between PR and branch that the PR is made
     # against.
-    # echo "Using git log $TRAVIS_BRANCH..HEAD as changeset"
     # Because Travis' git clone does not contain the upstream branch being
     # PR'ed against, we need to explicitly fetch it and compare the FETCH_HEAD
     # in which it's stored with the detached head.
+    echo "Conditional tests: Using git log FETCH_HEAD as changeset"
     git fetch origin $TRAVIS_BRANCH
     git_changeset=`git log FETCH_HEAD --oneline --name-only`
 fi
@@ -84,7 +84,7 @@ function match_changes {
         do
             if echo "$current_branch" | grep -q "$branch"
             then
-                # echo "Always testing $branch, so not skipping $LABEL..."
+                echo "Always testing $branch, so not skipping $LABEL..."
                 return 0
             fi
         done
@@ -95,7 +95,8 @@ function match_changes {
     do
         if echo "$git_changeset" | grep -q "$pattern_to_match"
         then
-            # echo "Conditional match for pattern '$pattern_to_match'"
+            echo "Conditional test: Matched pattern '$pattern_to_match' from changeset: "
+            echo "$git_changeset"
             return 0
         fi
     done
