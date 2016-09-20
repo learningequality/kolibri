@@ -188,21 +188,21 @@ class File(ContentDatabaseModel):
         """
         return PRESET_LOOKUP.get(self.preset, _('Unknown Format'))
 
+    def get_download_filename(self):
+        """
+        Return a valid filename to be downloaded as.
+        """
+        title = self.contentnode.title
+        filename = "{} ({}).{}".format(title, self.get_preset(), self.extension)
+        valid_filename = get_valid_filename(filename)
+        return valid_filename
+
     def get_download_url(self):
         """
         Return the download url.
         """
         new_filename = self.get_download_filename()
         return reverse('downloadcontent', kwargs={'filename': self.get_filename(), 'new_filename': new_filename})
-
-    def get_download_filename(self):
-        """
-        Return a valid filename to be downloaded as.
-        """
-        title = self.contentnode.title
-        filename = title + ' (' + self.get_preset() + ')'
-        valid_filename = get_valid_filename(filename)
-        return valid_filename
 
 
 @python_2_unicode_compatible
