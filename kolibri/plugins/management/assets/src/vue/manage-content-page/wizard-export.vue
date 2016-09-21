@@ -42,7 +42,7 @@
           </icon-button>
         </div>
       </template>
-      <loading-spinner v-else></loading-spinner>
+      <loading-spinner v-else :delay="0" class="spinner"></loading-spinner>
 
     </div>
 
@@ -167,5 +167,8 @@
 
   .refresh-btn-wrapper
     text-align: center
+
+  .spinner
+    height: 200px
 
 </style>
