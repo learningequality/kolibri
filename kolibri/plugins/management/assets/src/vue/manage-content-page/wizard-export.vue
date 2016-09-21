@@ -135,7 +135,10 @@
 
   .main
     text-align: center
-    margin: 4em 0
+    margin: 3em 0
+
+  h2
+    font-size: 1em
 
   .modal-message
     margin: 2em 0

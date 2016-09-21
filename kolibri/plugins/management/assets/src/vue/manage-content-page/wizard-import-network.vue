@@ -11,7 +11,7 @@
     @back="startImportWizard"
   >
     <div class="main">
-      <h2>Please enter a content channel ID:</h2>
+      <h2 class="label">Please enter a content channel ID:</h2>
       <div>
         <input v-model="contentId" :disabled="wizardState.busy">
       </div>
@@ -81,7 +81,10 @@
 
   .main
     text-align: center
-    margin: 4em 0
+    margin: 3em 0
+
+  h2
+    font-size: 1em
 
   input
     margin: 1em 0
