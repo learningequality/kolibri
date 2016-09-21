@@ -1,7 +1,7 @@
 <template>
 
   <div class="dropdown">
-    <button>Download Content &#9660</button>
+    <button>{{ $tr('downloadContent') }} &#9660</button>
     <div class="dropdown-items">
       <a class="dropdown-item" v-for="file in files" href="{{ file.download_url }}">
         {{ file.preset + ' (' + prettifyFileSize(file.file_size) + ')' }}
@@ -19,7 +19,7 @@
   module.exports = {
     $trNameSpace: 'contentRender',
     $trs: {
-      downloadMedia: 'Download Media',
+      downloadContent: 'Download Content',
     },
     props: {
       files: {
@@ -29,11 +29,6 @@
     },
     components: {
       'icon-button': require('kolibri/coreVue/components/iconButton'),
-    },
-    computed: {
-      downloadMediaText() {
-        return this.$tr('downloadMedia');
-      },
     },
     methods: {
       /**

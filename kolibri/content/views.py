@@ -83,7 +83,7 @@ class DownloadContentView(View):
         # set the content-disposition as attachment to force download
         response['Content-Disposition'] = 'attachment;'
 
-        # set the content-length tht the file size
+        # set the content-length to the file size
         response['Content-Length'] = os.path.getsize(path)
 
         return response
