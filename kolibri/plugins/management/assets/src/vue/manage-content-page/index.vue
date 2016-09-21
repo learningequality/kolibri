@@ -19,13 +19,15 @@
         <div class="button-wrapper" v-if="!pageState.taskList.length">
           <icon-button
             text="Import"
+            class="button"
             @click="startImportWizard"
             :primary="false"
           >
             <svg src="../icons/add.svg"></svg>
           </icon-button>
-          <icon-button class="export-button"
+          <icon-button
             text="Export"
+            class="button"
             :primary="false"
             @click="startExportWizard">
             <svg src="../icons/export.svg"></svg>
@@ -36,12 +38,12 @@
       <p class="core-text-alert" v-if="!pageState.channelList.length">No channels installed</p>
       <table>
       <!-- Table Headers -->
-        <thead>
+<!--         <thead>
           <tr>
             <th class="col-header col-channel" scope="col"> Channel Name </th>
             <th class="col-header col-export" scope="col"> Export </th>
           </tr>
-        </thead>
+        </thead> -->
         <!-- Table body -->
         <tbody>
           <tr v-for="channel in pageState.channelList">
@@ -52,8 +54,8 @@
               </span>
             </th>
             <!-- Export Button -->
-            <td class="table-cell table-export" width="30%">
-            </td>
+<!--             <td class="table-cell table-export" width="30%">
+            </td> -->
           </tr>
         </tbody>
       </table>
@@ -203,6 +205,8 @@
 
     .button-wrapper
       float: none
-      margin: 0.4em 0
+
+      .button
+        margin: 5px
 
 </style>
