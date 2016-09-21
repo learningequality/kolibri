@@ -1,63 +1,62 @@
 <template>
 
-  <div v-if="pageState.taskList.length" class="main alert-bg">
-
-    <task-status v-if="pageState.taskList.length"
-      :type="pageState.taskList[0].type"
-      :status="pageState.taskList[0].status"
-      :percentage="pageState.taskList[0].percentage"
-      :id="pageState.taskList[0].id"
-    ></task-status>
-  </div>
-
-  <div class="main light-bg">
+  <div>
 
     <component v-if="pageState.wizardState.shown" :is="wizardComponent"></component>
-    <div class="table-title">
-      <h1 class="page-title">My Channels</h1>
-      <div class="button-wrapper" v-if="!pageState.taskList.length">
-        <icon-button
-          text="Import Channel"
-          @click="startImportWizard"
-          :primary="false">
-          <svg src="../icons/add.svg"></svg>
-          </icon-button>
-      </div>
+
+    <div v-if="pageState.taskList.length" class="main alert-bg">
+      <task-status v-if="pageState.taskList.length"
+        :type="pageState.taskList[0].type"
+        :status="pageState.taskList[0].status"
+        :percentage="pageState.taskList[0].percentage"
+        :id="pageState.taskList[0].id"
+      ></task-status>
     </div>
 
-    <hr>
-
-    <p class="core-text-alert" v-if="!pageState.channelList.length">No channels installed</p>
-
-    <table>
-    <!-- Table Headers -->
-      <thead>
-        <tr>
-          <th class="col-header col-channel" scope="col"> Channel Name </th>
-          <th class="col-header col-export" scope="col"> Export </th>
-        </tr>
-      </thead>
-      <!-- Table body -->
-      <tbody>
-        <tr v-for="channel in pageState.channelList">
-          <!-- Channel Name -->
-          <th scope="row" class="table-cell" width="70%">
-            <span class="channel-name">
-              {{ channel.name }}
-            </span>
-          </th>
-          <!-- Export Button -->
-          <td class="table-cell table-export" width="30%">
-            <icon-button class="export-button"
-              text=" "
-              @click="startExportWizard">
-              <span class="visuallyhidden">Export Channel</span>
-              <svg src="../icons/export.svg"></svg>
+    <div class="main light-bg">
+      <div class="table-title">
+        <h1 class="page-title">My Channels</h1>
+        <div class="button-wrapper" v-if="!pageState.taskList.length">
+          <icon-button
+            text="Import Channel"
+            @click="startImportWizard"
+            :primary="false">
+            <svg src="../icons/add.svg"></svg>
             </icon-button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+        </div>
+      </div>
+      <hr>
+      <p class="core-text-alert" v-if="!pageState.channelList.length">No channels installed</p>
+      <table>
+      <!-- Table Headers -->
+        <thead>
+          <tr>
+            <th class="col-header col-channel" scope="col"> Channel Name </th>
+            <th class="col-header col-export" scope="col"> Export </th>
+          </tr>
+        </thead>
+        <!-- Table body -->
+        <tbody>
+          <tr v-for="channel in pageState.channelList">
+            <!-- Channel Name -->
+            <th scope="row" class="table-cell" width="70%">
+              <span class="channel-name">
+                {{ channel.name }}
+              </span>
+            </th>
+            <!-- Export Button -->
+            <td class="table-cell table-export" width="30%">
+              <icon-button class="export-button"
+                text=" "
+                @click="startExportWizard">
+                <span class="visuallyhidden">Export Channel</span>
+                <svg src="../icons/export.svg"></svg>
+              </icon-button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
   </div>
 
