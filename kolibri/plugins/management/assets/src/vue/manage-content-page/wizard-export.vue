@@ -156,10 +156,6 @@
   .drive-names
     margin: 0.6em 0
 
-  input[type='radio']:checked + label
-    color: $core-action-normal
-    font-weight: 700
-
   .button-wrapper
     margin: 1em 0
     text-align: center
