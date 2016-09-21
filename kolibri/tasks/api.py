@@ -146,6 +146,7 @@ def _task_to_response(task_instance, task_type=None, task_id=None):
     Converts a Task object to a dict with the attributes that the frontend expects.
     """
 
+
     if not task_instance:
         return {
             "type": task_type,
@@ -155,10 +156,23 @@ def _task_to_response(task_instance, task_type=None, task_id=None):
             "id": task_id,
         }
 
-    return {
-        "type": task_instance.group,
-        "status": task_instance.task_status,
-        "percentage": task_instance.progress_fraction,
-        "progress": [dict(p.__dict__) for p in task_instance.progress_data] if task_instance.progress_data else task_instance.progress_data,
-        "id": task_instance.id,
-    }
+    else:
+        try:
+            progress_data = iter(task_instance.progress_data)
+
+            outputable_progress_data = []
+            for p in progress_data:
+                outputable_progress = p._asdict() if hasattr(p, '_asdict') else p.__dict__
+                outputable_progress_data.append(outputable_progress)
+
+            progress_data = outputable_progress_data
+        except TypeError:   # progress_data not iterable, just return it
+            progress_data = task_instance.progress_data
+
+        return {
+            "type": task_instance.group,
+            "status": task_instance.task_status,
+            "percentage": task_instance.progress_fraction,
+            "progress": progress_data,
+            "id": task_instance.id,
+        }
