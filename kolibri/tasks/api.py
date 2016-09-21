@@ -4,7 +4,7 @@ import requests
 from django.core.management import call_command
 from django.http import Http404
 from django.utils.translation import ugettext as _
-from django_q.models import Task
+from django_q.models import Task, OrmQ
 from django_q.tasks import async
 from kolibri.content.models import ChannelMetadataCache
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
@@ -101,16 +101,16 @@ class TasksViewSet(viewsets.ViewSet):
     @list_route(methods=['post'])
     def cleartask(self, request):
         '''
-        Temporary hack to clear all tasks. Should actually take a single task ID.
+        Clears a task with its task id given in the task_id parameter.
         '''
-        import subprocess
-        import os
-        print("CLEAR TASKS HACK")
-        subprocess.check_output([
-            "sqlite3",
-            os.path.expanduser("~/.kolibri/ormq.sqlite3"),
-            "delete from django_q_task; delete from django_q_ormq;"
-        ])
+
+        if 'task_id' not in request.data:
+            raise serializers.ValidationError("The 'task_id' field is required.")
+
+        task_id = request.data['task_id']
+        OrmQ.objects.filter(pk=task_id).delete()
+        Task.objects.filter(pk=task_id).delete()
+
         return Response({})
 
     @list_route(methods=['get'])
