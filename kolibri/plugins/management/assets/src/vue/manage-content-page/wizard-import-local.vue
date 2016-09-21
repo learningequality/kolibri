@@ -37,15 +37,17 @@
 
           <p class="core-text-annotation" v-if="drivesWithoutData.length"><strong>Note:</strong> {{drivesWithoutData.length}} additional drives were detected, but don't appear to have data on them.</p>
         </div>
+        <div class="refresh-btn-wrapper">
+          <icon-button
+            text="Refresh"
+            @click="updateWizardLocalDriveList"
+            :disabled="wizardState.busy">
+            <svg src="../icons/refresh.svg"></svg>
+          </icon-button>
+        </div>
       </template>
       <loading-spinner v-else></loading-spinner>
 
-      <icon-button
-        text="Refresh"
-        @click="updateWizardLocalDriveList"
-        :disabled="wizardState.busy">
-        <svg src="../icons/refresh.svg"></svg>
-      </icon-button>
     </div>
     <div class="button-wrapper">
       <button @click="cancel" :disabled="wizardState.busy">
@@ -157,5 +159,8 @@
 
   button
     margin: 0.4em
+
+  .refresh-btn-wrapper
+    text-align: center
 
 </style>

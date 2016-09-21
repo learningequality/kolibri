@@ -36,12 +36,14 @@
 
           <p class="core-text-annotation" v-if="unwritableDrives.length"><strong>Note:</strong> {{unwritableDrives.length}} additional drives were detected, but don't appear to be writable.</p>
         </div>
+        <div class="refresh-btn-wrapper">
+          <icon-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" text="Refresh">
+            <svg src="../icons/refresh.svg"></svg>
+          </icon-button>
+        </div>
       </template>
       <loading-spinner v-else></loading-spinner>
 
-      <icon-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" text="Refresh">
-        <svg src="../icons/refresh.svg"></svg>
-      </icon-button>
     </div>
 
     <div class="core-text-alert">
@@ -162,5 +164,8 @@
 
   button
     margin: 0.4em
+
+  .refresh-btn-wrapper
+    text-align: center
 
 </style>
