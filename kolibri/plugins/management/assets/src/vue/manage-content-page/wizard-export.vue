@@ -9,7 +9,6 @@
     @enter="submit"
   >
     <div class="main">
-
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <h2 class="core-text-alert" v-if="writableDrives.length === 0">
@@ -43,13 +42,10 @@
         </div>
       </template>
       <loading-spinner v-else :delay="0" class="spinner"></loading-spinner>
-
     </div>
-
     <div class="core-text-alert">
       {{ wizardState.error }}
     </div>
-
     <div class="button-wrapper">
       <button @click="cancel" :disabled="wizardState.busy">
         Cancel

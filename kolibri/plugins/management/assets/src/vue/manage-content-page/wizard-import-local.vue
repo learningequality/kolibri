@@ -11,7 +11,6 @@
     @back="startImportWizard"
   >
     <div class="main">
-
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <h2 class="core-text-alert" v-if="drivesWithData.length === 0">
@@ -34,7 +33,6 @@
               </div>
             </div>
           </template>
-
           <p class="core-text-annotation" v-if="drivesWithoutData.length"><strong>Note:</strong> {{drivesWithoutData.length}} additional drives were detected, but don't appear to have data on them.</p>
         </div>
         <div class="refresh-btn-wrapper">
@@ -47,7 +45,9 @@
         </div>
       </template>
       <loading-spinner v-else :delay="0" class="spinner"></loading-spinner>
-
+    </div>
+    <div class="core-text-alert">
+      {{ wizardState.error }}
     </div>
     <div class="button-wrapper">
       <button @click="cancel" :disabled="wizardState.busy">
@@ -165,5 +165,8 @@
 
   .spinner
     height: 200px
+
+  .core-text-alert
+    text-align: center
 
 </style>

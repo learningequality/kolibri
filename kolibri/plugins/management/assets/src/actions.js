@@ -358,7 +358,7 @@ function triggerLocalContentImportTask(store, driveId) {
     cancelImportExportWizard(store);
   })
   .catch((error) => {
-    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.entity[0]); // TODO
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
     store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
   });
 }
@@ -371,7 +371,7 @@ function triggerLocalContentExportTask(store, driveId) {
     cancelImportExportWizard(store);
   })
   .catch((error) => {
-    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.entity[0]); // TODO
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
     store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
   });
 }
@@ -384,7 +384,11 @@ function triggerRemoteContentImportTask(store, channelId) {
     cancelImportExportWizard(store);
   })
   .catch((error) => {
-    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.entity[0]); // TODO
+    if (error.status.code === 404) {
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', 'That ID was not found on our server.');
+    } else {
+      store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.status.text);
+    }
     store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
   });
 }

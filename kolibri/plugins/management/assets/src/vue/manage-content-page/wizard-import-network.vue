@@ -16,6 +16,9 @@
         <input v-model="contentId" :disabled="wizardState.busy">
       </div>
     </div>
+    <div class="core-text-alert">
+      {{ wizardState.error }}
+    </div>
     <div class="button-wrapper">
       <button @click="cancel" :disabled="wizardState.busy">
         Cancel
@@ -100,5 +103,8 @@
 
   button
     margin: 0.4em
+
+  .core-text-alert
+    text-align: center
 
 </style>
