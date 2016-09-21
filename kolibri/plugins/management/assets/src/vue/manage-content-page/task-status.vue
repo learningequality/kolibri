@@ -96,6 +96,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri/styles/coreTheme'
+
   .buttons
     margin: 10px
     text-align: center
@@ -105,5 +107,18 @@
 
   progress
     width: 100%
+    height: 16px
+    -webkit-appearance: none
+    -moz-appearance: none
+    appearance: none
+    border: none
+    color: $core-action-normal
+
+  progress[value]::-webkit-progress-bar
+    border-radius: 50px
+
+  progress[value]::-webkit-progress-value
+    background-color: $core-action-normal
+    border-radius: 50px
 
 </style>
