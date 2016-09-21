@@ -18,11 +18,18 @@
         <h1 class="page-title">My Channels</h1>
         <div class="button-wrapper" v-if="!pageState.taskList.length">
           <icon-button
-            text="Import Channel"
+            text="Import"
             @click="startImportWizard"
-            :primary="false">
+            :primary="false"
+          >
             <svg src="../icons/add.svg"></svg>
-            </icon-button>
+          </icon-button>
+          <icon-button class="export-button"
+            text="Export"
+            :primary="false"
+            @click="startExportWizard">
+            <svg src="../icons/export.svg"></svg>
+          </icon-button>
         </div>
       </div>
       <hr>
@@ -46,12 +53,6 @@
             </th>
             <!-- Export Button -->
             <td class="table-cell table-export" width="30%">
-              <icon-button class="export-button"
-                text=" "
-                @click="startExportWizard">
-                <span class="visuallyhidden">Export Channel</span>
-                <svg src="../icons/export.svg"></svg>
-              </icon-button>
             </td>
           </tr>
         </tbody>
@@ -194,10 +195,6 @@
 
   .table-export
     padding-left: 0.6em
-
-  .export-button
-    padding: 0
-    border: none
 
   @media screen and (max-width: 620px)
     .page-title
