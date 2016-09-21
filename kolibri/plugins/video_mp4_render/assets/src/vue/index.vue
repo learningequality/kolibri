@@ -186,17 +186,16 @@
           children: [
             { name: 'progressControl' },
             { name: 'currentTimeDisplay' },
-            { name: 'TimeDivider' },
             { name: 'durationDisplay' },
-            { name: 'ReplayButton' },
-            { name: 'playToggle' },
-            { name: 'ForwardButton' },
             {
               name: 'VolumeMenuButton',
               inline: false,
               vertical: true,
             },
             { name: 'playbackRateMenuButton' },
+            { name: 'ReplayButton' },
+            { name: 'playToggle' },
+            { name: 'ForwardButton' },
             { name: 'captionsButton' },
             { name: 'fullscreenToggle' },
           ],
@@ -224,7 +223,7 @@
   @import '../../../node_modules/video.js/dist/video-js.css'
 
   $video-player-color = black
-  $video-player-accent-color = $core-action-normal
+  $video-player-accent-color = indigo
 
   .videowrapperwrapper
     width: 100%
@@ -300,7 +299,7 @@
     .vjs-load-progress
       background: darkgrey
 
-    .vjs-play-progress
+    .vjs-play-progress,
       background-color: $video-player-accent-color
 
     .vjs-progress-control
@@ -316,7 +315,6 @@
       justify-content: center
 
     .vjs-current-time,
-    .vjs-time-divider,
     .vjs-duration,
     .vjs-volume-menu-button,
     .vjs-playback-rate,
@@ -324,18 +322,17 @@
       position: absolute
       visibility: inherit
       opacity: inherit
+      bottom: 0
 
     .vjs-current-time
       display: block
       left: 0
-
-    .vjs-time-divider
-      display: block
-      left: 3em
+      width: 48px
+      height: 48px
 
     .vjs-duration
       display: block
-      left: 4em
+      right: 0
 
     .vjs-menu
       li
@@ -359,11 +356,20 @@
       background-repeat: no-repeat
       background-position: center
       background-size: 45%
+      bottom: 0
 
     .videoforward
       background: url('../icons/forward.svg')
       background-repeat: no-repeat
       background-position: center
       background-size: 45%
+      bottom: 0
+
+    .vjs-button
+      width: 48px
+      height: 48px
+
+    .vjs-control-bar
+      height: 60px
 
 </style>
