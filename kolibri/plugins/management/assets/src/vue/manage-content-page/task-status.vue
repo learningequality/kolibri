@@ -4,7 +4,7 @@
     <h1>{{ title }}</h1>
     <progress max="1" :value="percentage"></progress>
     <h2>{{ subTitle }}</h2>
-    <button class="buttons" @click="clearTask">
+    <button class="buttons" @click="clearTaskHandler">
       {{ buttonMessage }}
     </button>
   </div>
@@ -62,7 +62,7 @@
       },
     },
     methods: {
-      clearTask() {
+      clearTaskHandler() {
         this.clearTask(this.id);
       },
     },
