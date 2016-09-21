@@ -82,7 +82,7 @@
       intervalId: undefined,
     }),
     attached() {
-      // this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+      this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
     },
     detached() {
       clearInterval(this.intervalId);
