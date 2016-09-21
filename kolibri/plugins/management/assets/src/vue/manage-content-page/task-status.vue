@@ -3,8 +3,8 @@
   <div class="task">
     <h1>{{ title }}</h1>
     <progress max="1" :value="percentage"></progress>
-    <p class="core-text-annotation">{{ subTitle }}</p>
-    <button class="button-cancel" class="buttons" @click="clearTask">
+    <h2>{{ subTitle }}</h2>
+    <button class="buttons" @click="clearTaskHandler">
       {{ buttonMessage }}
     </button>
   </div>
@@ -62,7 +62,7 @@
       },
     },
     methods: {
-      clearTask() {
+      clearTaskHandler() {
         this.clearTask(this.id);
       },
     },

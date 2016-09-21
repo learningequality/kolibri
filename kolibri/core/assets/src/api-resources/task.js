@@ -27,7 +27,7 @@ class TaskResource extends Resource {
 
 // TODO: switch to Model.delete()
   clearTask(taskId) {
-    const clientObj = { path: this.clearTaskUrl(), entity: { id: taskId } };
+    const clientObj = { path: this.clearTaskUrl(), entity: { task_id: taskId } };
     return this.client(clientObj);
   }
 
