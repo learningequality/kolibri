@@ -107,7 +107,9 @@
     },
     methods: {
       submit() {
-        this.triggerLocalContentExportTask(this.driveToUse);
+        if (this.canSubmit) {
+          this.triggerLocalContentExportTask(this.driveToUse);
+        }
       },
       cancel() {
         if (!this.wizardState.busy) {

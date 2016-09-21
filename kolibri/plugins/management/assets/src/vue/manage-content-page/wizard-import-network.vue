@@ -54,7 +54,9 @@
     },
     methods: {
       submit() {
-        this.triggerRemoteContentImportTask(this.contentId);
+        if (this.canSubmit) {
+          this.triggerRemoteContentImportTask(this.contentId);
+        }
       },
       cancel() {
         this.cancelImportExportWizard();
