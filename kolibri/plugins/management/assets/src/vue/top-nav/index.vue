@@ -2,9 +2,15 @@
 
   <div class="top">
     <div class="links">
-      <a v-link="usersLink" :class="{active: usersActive}" @click="blur">Users</a>
-      <a v-link="dataLink" :class="{active: dataActive}" @click="blur">Data</a>
-      <!-- <a v-link="contentLink" :class="{active: contentActive}" @click="blur">Content</a> -->
+      <a v-link="usersLink" :class="{active: usersActive}" @click="blur">
+        Users
+      </a>
+      <a v-link="dataLink" :class="{active: dataActive}" @click="blur">
+        Data
+      </a>
+      <a v-link="contentLink" :class="{active: contentActive}" @click="blur" v-if="isDeviceOwner">
+        Content
+      </a>
     </div>
   </div>
 
@@ -13,6 +19,7 @@
 
 <script>
 
+  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
   const constants = require('../../state/constants');
 
   module.exports = {
@@ -43,6 +50,7 @@
     },
     vuex: {
       getters: {
+        isDeviceOwner: state => state.core.session.kind[0] === UserKinds.SUPERUSER,
         pageName: state => state.pageName,
       },
     },
@@ -53,7 +61,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .top
     position: relative

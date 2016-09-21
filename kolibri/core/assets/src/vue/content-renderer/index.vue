@@ -1,12 +1,14 @@
 <template>
 
   <div>
-    <div v-if="available">
-        <h3 class="progress-percent" v-if="progress > 0">
-          {{ Math.floor(progress * 100) }}%
-        </h3>
-      <loading-spinner v-if="!currentViewClass"></loading-spinner>
-      <div v-el:container></div>
+    <div v-if="available" class="fill-height">
+      <div class="content-icon-wrapper">
+        <content-icon :progress="progress" :kind="kind"></content-icon>
+      </div>
+      <div class="content-wrapper">
+        <loading-spinner v-if="!currentViewClass"></loading-spinner>
+        <div v-el:container></div>
+      </div>
     </div>
     <div v-else>
       {{ $tr('msgNotAvailable') }}
@@ -18,8 +20,8 @@
 
 <script>
 
-  const logging = require('logging').getLogger(__filename);
-  const actions = require('core-actions');
+  const logging = require('kolibri/lib/logging').getLogger(__filename);
+  const actions = require('kolibri/coreVue/vuex/actions');
 
   module.exports = {
     $trNameSpace: 'contentRender',
@@ -77,6 +79,9 @@
       defaultFile() {
         return this.availableFiles &&
           this.availableFiles.length ? this.availableFiles[0] : undefined;
+      },
+      progressPercent() {
+        return Math.floor(this.progress * 100);
       },
     },
     init() {
@@ -225,12 +230,16 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
-  div
-    height: inherit
+  .fill-height
+    height: 100%
 
-  .progress-percent
-    text-align:right
+  .content-icon-wrapper
+    width: 2em
+    height: 2em
+
+  .content-wrapper
+    height: calc(100% - 2em)
 
 </style>

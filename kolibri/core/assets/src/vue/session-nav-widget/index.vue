@@ -1,13 +1,15 @@
 <template>
 
-  <nav-bar-item tabindex="0" v-el:navbaritem @click="loginTabHack" v-on:keyup.enter="loginTabHack">
+  <nav-bar-item v-if="loggedIn" tabindex="0" @click="toggleDropdown" @keyup.enter="toggleDropdown">
     <div class="wrapper">
-      <div v-if="loggedIn">
-        <div class="user-icon" id="user-dropdown">{{ initial }}</div>
-      </div>
-      <div v-else>
-        <login-modal></login-modal>
-      </div>
+      <div class="user-icon" id="user-dropdown">{{ initial }}</div>
+    </div>
+  </nav-bar-item>
+
+  <nav-bar-item v-else tabindex="0" @click="showLoginModal" @keyup.enter="showLoginModal">
+    <div class="wrapper">
+      <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
+      <div class="label">{{ $tr('logIn') }}</div>
     </div>
   </nav-bar-item>
 
@@ -21,7 +23,7 @@
           <p id="dropdown-usertype">{{ userkind }}</p>
         </li>
         <li id="logout-tab">
-          <div tabindex="0" v-on:keyup.enter="userLogout" @click="userLogout" :aria-label="logOutText">
+          <div tabindex="0" @keyup.enter="userLogout" @click="userLogout" :aria-label="logOutText">
             <span>{{ $tr('logOut') }}</span>
           </div>
         </li>
@@ -29,22 +31,25 @@
     </div>
   </div>
 
+  <login-modal v-if="loginModalVisible"></login-modal>
+
 </template>
 
 
 <script>
 
   const UserKinds = require('../../constants').UserKinds;
-  const actions = require('core-actions');
+  const actions = require('kolibri/coreVue/vuex/actions');
 
   module.exports = {
     $trNameSpace: 'sessionWidget',
     $trs: {
       logOut: 'Log Out',
+      logIn: 'Log In',
     },
     components: {
-      'nav-bar-item': require('nav-bar-item'),
-      'login-modal': require('./login-modal.vue'),
+      'nav-bar-item': require('kolibri/coreVue/components/navBarItem'),
+      'login-modal': require('./login-modal'),
     },
     data: () => ({
       showDropdown: false,
@@ -76,26 +81,8 @@
       },
     },
     methods: {
-      // extreme hack for making entire session tab clickable/accessible
-      loginTabHack() {
-        if (!this.loggedIn) {
-          this.openLogin();
-        } else {
-          this.toggleDropdown();
-        }
-        this.$els.navbaritem.blur();
-      },
-      openLogin() {
-        if (!this.modalstate) {
-          this.togglemodal(true);
-        }
-      },
       toggleDropdown() {
-        if (!this.showDropdown) {
-          this.showDropdown = true;
-        } else {
-          this.showDropdown = false;
-        }
+        this.showDropdown = !this.showDropdown;
       },
       userLogout() {
         this.logout(this.Kolibri);
@@ -105,7 +92,7 @@
     vuex: {
       actions: {
         logout: actions.kolibriLogout,
-        togglemodal: actions.togglemodal,
+        showLoginModal: actions.showLoginModal,
       },
       getters: {
         loggedIn: state => state.core.session.kind[0] !== UserKinds.ANONYMOUS,
@@ -113,7 +100,7 @@
         fullname: state => state.core.session.full_name,
         username: state => state.core.session.username,
         kind: state => state.core.session.kind,
-        modalstate: state => state.core.login_modal_state,
+        loginModalVisible: state => state.core.loginModalVisible,
       },
     },
   };
@@ -123,7 +110,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~nav-bar-item.styl'
+  @require '~kolibri/styles/navBarItem'
 
   $size-lg = 40px
   $size-sm = 30px
@@ -275,5 +262,11 @@
           background-position: 135px 0
       span
         font-size: 15px
+
+  #person
+    fill: $core-action-normal
+    transition: all 0.2s ease
+    &:hover
+      fill: $core-action-dark
 
 </style>

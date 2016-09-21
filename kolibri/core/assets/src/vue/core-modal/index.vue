@@ -1,10 +1,9 @@
 <template>
 
   <!-- Accessibility properties for the overlay -->
-
-  <!-- Aria-Hidden and TabIndex in .modal might not be necessary because of conditional rendering -->
   <div class="modal-overlay"
-    @keydown.esc="closeModal"
+    @keydown.esc="emitCancelEvent"
+    @keydown.enter="emitEnterEvent"
     @click="bgClick($event)"
     v-el:modal-overlay
     id="modal-window">
@@ -16,27 +15,25 @@
       role="dialog"
       aria-labelledby="modal-title">
 
-      <!-- Close Button -->
-      <button aria-label="Close dialog window" @click="closeModal" class="btn-close">
-        <svg src="../icons/close.svg" role="presentation"></svg>
-      </button>
+      <div class="top-buttons">
+        <button aria-label="Go back" @click="emitBackEvent" class="btn-back" v-if="enablebackbtn">
+          <svg src="./back.svg" role="presentation"></svg>
+        </button>
+        <button aria-label="Close dialog window" @click="emitCancelEvent" class="btn-close">
+          <svg src="./close.svg" role="presentation"></svg>
+        </button>
+      </div>
 
       <!-- Modal Title -->
-      <h1 v-show="!invisibleTitle" class="title" id="modal-title">
+      <h1 v-show="!invisibletitle" class="title" id="modal-title">
         <!-- Accessible error reporting per @radina -->
-        <span v-if="hasError" class="visuallyhidden">
-          Error in:
-        </span>
-
+        <span v-if="haserror" class="visuallyhidden">Error in:</span>
         {{title}}
-
       </h1>
 
       <!-- Modal Content -->
       <slot>
-        <p>
-          To populate, wrap your content in <code> with modal </code>.
-        </p>
+        <p>To populate, wrap your content in <code> with modal </code>.</p>
       </slot>
 
     </div>
@@ -53,75 +50,73 @@
         type: String,
         required: true,
       },
-      invisibleTitle: {
+      invisibletitle: {
         type: Boolean,
         default: false,
       },
       // Modal options
-      disableClose: {
+      disableclose: {
         type: Boolean,
         default: false,
-        required: false,
       },
-      backgroundClickClose: {
+      enablebgclickcancel: {
         type: Boolean,
         default: true,
-        required: false,
       },
-      // useed to toggle error message in header
-      hasError: {
+      enablebackbtn: {
+        type: Boolean,
+        default: false,
+      },
+      // toggles error message indicator in header
+      haserror: {
         type: Boolean,
         default: false,
       },
     },
-    ready() {
-      if (this.disableClose) {
-        this.$off('close');
-      }
-
-      this.openModal();
+    attached() {
+      this.lastFocus = document.activeElement;
+      this.focusModal();
+      window.addEventListener('blur', this.focusElementTest, true);
+      window.addEventListener('scroll', this.preventScroll, true);
     },
-    events: {
-      open() {
-        this.lastFocus = document.activeElement;
-        // Need to wait for DOM to update asynchronously, then get the modal element
-        this.focusModal();
-        // pass in a function, not a function call.
-        window.addEventListener('blur', this.focusElementTest, true);
-        window.addEventListener('scroll', (event) => event.preventDefault(), true);
-      },
-      close() {
-        // needs to be an exact match to the one that was assigned.
-        window.removeEventListener('blur', this.focusElementTest, true);
-        this.lastFocus.focus();
-      },
+    detached() {
+      window.removeEventListener('blur', this.focusElementTest, true);
+      window.removeEventListener('scroll', this.preventScroll, true);
+      // Wait for events to finish propagating before changing the focus.
+      // Otherwise the `lastFocus` item receives events such as 'enter'.
+      window.setTimeout(() => this.lastFocus.focus());
     },
     data() {
       return {
-        lastFocus: '',
+        lastFocus: null,
       };
     },
     methods: {
-      openModal() {
-        // propogate open event here and in parent
-        this.$dispatch('open');
+      emitCancelEvent(event) {
+        this.$emit('cancel');
       },
-      closeModal() {
-        this.$dispatch('close');
+      emitEnterEvent(event) {
+        this.$emit('enter');
+      },
+      emitBackEvent(event) {
+        this.$emit('back');
       },
       focusModal() {
         this.$els.modal.focus();
       },
       focusElementTest(event) {
         // FocusOut happens when the element is about to be blurred
-        if (!this.$els.modal.contains(event.relatedTarget)) {
+        if (this.$els.modal && !this.$els.modal.contains(event.relatedTarget)) {
           this.focusModal();
         }
       },
-      bgClick(clickEvent) {
+      preventScroll(event) {
+        event.preventDefault();
+      },
+      bgClick(event) {
         // check to make sure the area being clicked is the overlay, not the modal
-        if (this.backgroundClickClose && (clickEvent.target === this.$els.modalOverlay)) {
-          this.closeModal();
+        if (this.enablebgclickcancel && (event.target === this.$els.modalOverlay)) {
+          this.emitCancelEvent();
         }
       },
     },
@@ -132,7 +127,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .modal-overlay
     position: fixed
@@ -162,10 +157,22 @@
     @media (max-width: $portrait-breakpoint)
       width: 85%
       top: 45%
-  .btn-close
-    float: right
+
+  .top-buttons
+    position: relative
+    height: 20px
+
+  .btn-back
     color: $core-text-default
     border: none
+    position: absolute
+    left: 0
+
+  .btn-close
+    color: $core-text-default
+    border: none
+    position: absolute
+    right: 0
 
   .title
     text-align: center

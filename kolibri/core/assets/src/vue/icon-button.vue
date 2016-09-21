@@ -30,7 +30,7 @@
 
 <style lang="stylus">
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   svg
     vertical-align: middle
@@ -44,6 +44,8 @@
     &:hover svg
       fill: $core-action-dark
 
+    &:disabled svg
+      fill: $core-text-annotation
 
   // styles specific to secondary button
   .secondary
@@ -58,6 +60,12 @@
       svg
         fill: $core-action-light
 
+    &:disabled
+      color: $core-text-annotation
+      border: none
+      svg
+        fill: $core-text-annotation
+
     svg
       fill: $core-bg-canvas
       transition: fill $core-time ease-out
@@ -67,7 +75,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .icon-button
     padding-right: 8px

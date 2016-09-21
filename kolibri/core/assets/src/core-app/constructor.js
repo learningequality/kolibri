@@ -8,6 +8,13 @@ const vuex = require('vuex');
 const Mediator = require('./mediator');
 const ResourceManager = require('../api-resource').ResourceManager;
 const Resources = require('../api-resources');
+const rest = require('rest');
+const mime = require('rest/interceptor/mime');
+const csrf = require('rest/interceptor/csrf');
+const errorCode = require('rest/interceptor/errorCode');
+const cookiejs = require('js-cookie');
+const constructorExport = require('./constructorExport');
+
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -25,122 +32,116 @@ const publicMethods = [
 ];
 
 /**
- * Constructor for lib object that exposes libraries that are shared across all plugins.
- * In addition to being added as properties of kolibriGlobal.lib, they are also made
- * available to be require'd in other webpack-loaded modules and apps. This behavior
- * is configured in webpack.config.js
- * @classdesc
- */
-function Lib() {
-  // libraries
-  this.logging = require('../logging');
-  this.vue = vue;
-  this.vuex = vuex;
-  this.conditionalPromise = require('../conditionalPromise');
-}
-
-/**
  * Constructor for object that forms the public API for the Kolibri
  * core app.
  * @constructor
  */
-module.exports = function CoreApp() {
-  this.lib = new Lib();
-  this.resources = new ResourceManager(this);
-  const mediator = new Mediator();
 
-  this.constants = require('../constants');
-  this.coreActions = require('../core-actions');
+module.exports = class CoreApp {
+  constructor() {
+    Object.assign(this, constructorExport());
 
-  Object.keys(Resources).forEach((resourceClassName) =>
-    this.resources.registerResource(resourceClassName, Resources[resourceClassName]));
+    this.resources = new ResourceManager(this);
+    const mediator = new Mediator();
 
-  vue.prototype.Kolibri = this;
-  /**
-   * Use vuex for state management.
-   */
-  vue.use(vuex);
+    Object.keys(Resources).forEach((resourceClassName) =>
+      this.resources.registerResource(resourceClassName, Resources[resourceClassName]));
 
-  // Register global components
-  vue.component('content-render', require('../vue/content-renderer'));
-  vue.component('download-button', require('../vue/content-renderer/download-button'));
-  vue.component('loading-spinner', require('../vue/loading-spinner'));
-  vue.component('core-base', require('../vue/core-base'));
-
-  this.i18n = {
-    reversed: false,
-  };
-
-  // Shim window.location.origin for IE.
-  if (!window.location.origin) {
-    window.location.origin = `${window.location.protocol}//${window.location.hostname}${(
-          window.location.port ? `:${window.location.port}` : '')}`;
-  }
-
-  const self = this;
-
-  function setUpVueIntl() {
+    vue.prototype.Kolibri = this;
     /**
-     * Use the vue-intl plugin.
+     * Use vuex for state management.
+     */
+    vue.use(vuex);
+
+    // Register global components
+    vue.component('content-render', require('../vue/content-renderer'));
+    vue.component('download-button', require('../vue/content-renderer/download-button'));
+    vue.component('loading-spinner', require('../vue/loading-spinner'));
+    vue.component('core-modal', require('../vue/core-modal'));
+    vue.component('progress-bar', require('../vue/progress-bar'));
+    vue.component('content-icon', require('../vue/content-icon'));
+    vue.component('core-base', require('../vue/core-base'));
+
+    this.i18n = {
+      reversed: false,
+    };
+
+    // Shim window.location.origin for IE.
+    if (!window.location.origin) {
+      window.location.origin = `${window.location.protocol}//${window.location.hostname}${(
+            window.location.port ? `:${window.location.port}` : '')}`;
+    }
+
+    const self = this;
+
+    function setUpVueIntl() {
+      /**
+       * Use the vue-intl plugin.
+       **/
+      const VueIntl = require('vue-intl');
+      vue.use(VueIntl);
+      vue.prototype.$tr = function $tr(messageId, ...args) {
+        const defaultMessageText = this.$options.$trs[messageId];
+        const message = {
+          id: `${this.$options.$trNameSpace}.${messageId}`,
+          defaultMessage: defaultMessageText,
+        };
+        // Allow string reversal in debug mode.
+        if (process.env.NODE_ENV === 'debug') {
+          if (self.i18n.reversed) {
+            return defaultMessageText.split('').reverse().join('');
+          }
+        }
+        return this.$formatMessage(message, ...args);
+      };
+      vue.prototype.$trHtml = function $trHtml(messageId, ...args) {
+        const defaultMessageText = this.$options.$trs[messageId];
+        const message = {
+          id: `${this.$options.$trNameSpace}.${messageId}`,
+          defaultMessage: defaultMessageText,
+        };
+        // Allow string reversal in debug mode.
+        if (process.env.NODE_ENV === 'debug') {
+          if (self.i18n.reversed) {
+            return defaultMessageText.split('').reverse().join('');
+          }
+        }
+        return this.$formatHTMLMessage(message, ...args);
+      };
+      mediator.setReady();
+    }
+
+    /**
+     * If the browser doesn't support the Intl polyfill, we retrieve that and
+     * the modules need to wait until that happens.
      **/
-    const VueIntl = require('vue-intl');
-    vue.use(VueIntl);
-    vue.prototype.$tr = function $tr(messageId, ...args) {
-      const defaultMessageText = this.$options.$trs[messageId];
-      const message = {
-        id: `${this.$options.$trNameSpace}.${messageId}`,
-        defaultMessage: defaultMessageText,
-      };
-      // Allow string reversal in debug mode.
-      if (process.env.NODE_ENV === 'debug') {
-        if (self.i18n.reversed) {
-          return defaultMessageText.split('').reverse().join('');
+    if (!global.hasOwnProperty('Intl')) {
+      require.ensure(
+        [
+          'intl',
+          'intl/locale-data/jsonp/en.js',
+          // add more locales here
+        ],
+        (require) => {
+          require('intl');
+          require('intl/locale-data/jsonp/en.js');
+
+          setUpVueIntl();
         }
-      }
-      return this.$formatMessage(message, ...args);
-    };
-    vue.prototype.$trHtml = function $trHtml(messageId, ...args) {
-      const defaultMessageText = this.$options.$trs[messageId];
-      const message = {
-        id: `${this.$options.$trNameSpace}.${messageId}`,
-        defaultMessage: defaultMessageText,
-      };
-      // Allow string reversal in debug mode.
-      if (process.env.NODE_ENV === 'debug') {
-        if (self.i18n.reversed) {
-          return defaultMessageText.split('').reverse().join('');
-        }
-      }
-      return this.$formatHTMLMessage(message, ...args);
-    };
-    mediator.setReady();
+      );
+    } else {
+      setUpVueIntl();
+    }
+
+    // Bind 'this' value for public methods - those that will be exposed in the Facade.
+    this.kolibri_modules = mediator._kolibriModuleRegistry;
+    publicMethods.forEach((method) => {
+      this[method] = mediator[method].bind(mediator);
+    });
   }
 
-  /**
-   * If the browser doesn't support the Intl polyfill, we retrieve that and
-   * the modules need to wait until that happens.
-   **/
-  if (!global.hasOwnProperty('Intl')) {
-    require.ensure(
-      [
-        'intl',
-        'intl/locale-data/jsonp/en.js',
-        // add more locales here
-      ],
-      (require) => {
-        require('intl');
-        require('intl/locale-data/jsonp/en.js');
-
-        setUpVueIntl();
-      }
-    );
-  } else {
-    setUpVueIntl();
+  get client() {
+    return rest.wrap(mime, { mime: 'application/json' }).wrap(csrf, { name: 'X-CSRFToken',
+        token: cookiejs.get('csrftoken') }).wrap(errorCode);
   }
-
-  // Bind 'this' value for public methods - those that will be exposed in the Facade.
-  this.kolibri_modules = mediator._kolibriModuleRegistry;
-  publicMethods.forEach((method) => {
-    this[method] = mediator[method].bind(mediator);
-  });
 };

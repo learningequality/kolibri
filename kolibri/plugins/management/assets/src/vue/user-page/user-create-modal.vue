@@ -1,7 +1,12 @@
 <template>
 
-  <modal :has-error="errorMessage ? true : false" @open.stop="clear" title="Add New Account">
-    <div @keydown.enter="createNewUser">
+  <core-modal
+    title="Add New Account"
+    :has-error="errorMessage ? true : false"
+    @enter="createNewUser"
+    @cancel="close"
+  >
+    <div>
       <!-- Fields for the user to fill out -->
       <section class="user-fields">
         <div class="user-field">
@@ -41,7 +46,7 @@
         </button>
       </section>
     </div>
-  </modal>
+  </core-modal>
 
 </template>
 
@@ -52,8 +57,7 @@
 
   module.exports = {
     components: {
-      'icon-button': require('icon-button'),
-      'modal': require('../modal'),
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
     },
     data() {
       return {
@@ -64,6 +68,10 @@
         role: 'learner',
         errorMessage: '',
       };
+    },
+    attached() {
+      // clear form on load
+      this.$data = this.$options.data();
     },
     methods: {
       createNewUser() {
@@ -90,9 +98,9 @@
             () => {
               this.close();
             }).catch((error) => {
-              this.clear();
-              if (error.status.code === 409) {
-                this.errorMessage = error.entity;
+              if (error.status.code === 400) {
+                // access the first error message
+                this.errorMessage = error.entity[Object.keys(error.entity)[0]];
               } else if (error.status.code === 403) {
                 this.errorMessage = error.entity;
               } else {
@@ -101,16 +109,11 @@
             });
         }
       },
-      clear() {
-        this.$data = this.$options.data();
-      },
       clearErrorMessage() {
         this.errorMessage = '';
       },
       close() {
-        this.clear();
-        this.$emit('close');
-        this.$broadcast('close');
+        this.$emit('close'); // signal parent to close
       },
     },
     vuex: {
@@ -128,7 +131,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme'
+  @require '~kolibri/styles/coreTheme'
 
   $button-content-size = 1em
 

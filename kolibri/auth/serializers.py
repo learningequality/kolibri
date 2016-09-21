@@ -34,6 +34,11 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         else:
             return super(FacilityUserSerializer, self).update(instance, validated_data)
 
+    def validate_username(self, value):
+        if FacilityUser.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError('An account with that username already exists.')
+        return value
+
 
 class DeviceOwnerSerializer(serializers.ModelSerializer):
 
@@ -47,6 +52,20 @@ class DeviceOwnerSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+    def update(self, instance, validated_data):
+        if 'password' in validated_data:
+            serializers.raise_errors_on_nested_writes('update', self, validated_data)
+            instance.set_password(validated_data['password'])
+            instance.save()
+            return instance
+        else:
+            return super(DeviceOwnerSerializer, self).update(instance, validated_data)
+
+    def validate_username(self, value):
+        if DeviceOwner.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError('An account with that username already exists.')
+        return value
 
 
 class MembershipSerializer(serializers.ModelSerializer):

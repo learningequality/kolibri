@@ -1,31 +1,5 @@
-const logging = require('logging').getLogger(__filename);
-const rest = require('rest');
-const mime = require('rest/interceptor/mime');
-const csrf = require('rest/interceptor/csrf');
-const errorCode = require('rest/interceptor/errorCode');
+const logging = require('kolibri/lib/logging').getLogger(__filename);
 const ConditionalPromise = require('./conditionalPromise');
-
-/**
- * A helping method to get specific cookie based on its name.
- * @param {string} name  - the name of the cookie.
- * @returns {string} - cookieValue
- * this function could probably find a better place to live..
- */
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      // Does this cookie string begin with the name we want?
-      if (cookie.substring(0, name.length + 1) === (name.concat('='))) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
 
 
 /** Class representing a single API resource object */
@@ -125,13 +99,11 @@ class Model {
           if (this.id) {
             // If this Model has an id, then can do a PATCH against the Model
             url = this.url;
-            clientObj = { path: url, method: 'PATCH', entity: payload,
-              headers: { 'Content-Type': 'application/json' } };
+            clientObj = { path: url, method: 'PATCH', entity: payload };
           } else {
             // Otherwise, must POST to the Collection endpoint to create the Model
             url = this.resource.collectionUrl();
-            clientObj = { path: url, entity: payload,
-              headers: { 'Content-Type': 'application/json' } };
+            clientObj = { path: url, entity: payload };
           }
           // Do a save on the URL.
           this.resource.client(clientObj).then((response) => {
@@ -178,8 +150,7 @@ class Model {
           reject('Can not delete model that we do not have an id for');
         } else {
           // Otherwise, DELETE the Model
-          const clientObj = { path: this.url, method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' } };
+          const clientObj = { path: this.url, method: 'DELETE' };
           this.resource.client(clientObj).then((response) => {
             // delete this instance
             this.resource.removeModel(this);
@@ -512,8 +483,7 @@ class Resource {
   }
 
   get client() {
-    return rest.wrap(mime).wrap(csrf, { name: 'X-CSRFToken',
-      token: getCookie('csrftoken') }).wrap(errorCode);
+    return this.kolibri.client;
   }
 }
 

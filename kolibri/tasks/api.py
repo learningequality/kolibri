@@ -1,9 +1,14 @@
-import json
 import logging as logger
 
+import requests
 from django.core.management import call_command
+from django.http import Http404
+from django.utils.translation import ugettext as _
+from django_q.models import Task
+from django_q.tasks import async
+from kolibri.content.models import ChannelMetadataCache
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
-from kolibri.tasks.management.commands.base import Progress
+from kolibri.content.utils.paths import get_content_database_file_url
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
@@ -32,8 +37,6 @@ class TasksViewSet(viewsets.ViewSet):
         # unimplemented for now.
         pass
 
-    # convenience functions for triggering often used tasks
-
     @list_route(methods=['post'])
     def startremoteimport(self, request):
         '''Download a channel's database from the main curation server, and then
@@ -42,42 +45,73 @@ class TasksViewSet(viewsets.ViewSet):
         '''
         TASKTYPE = "remoteimport"
 
-        # loading django_q apparently requires django settings to load first.
-        # Import here to avoid circular imports.
-        from django_q.tasks import async
-        from django_q.models import Task
-        data = json.loads(request.body.decode('utf-8'))
+        if "channel_id" not in request.data:
+            raise serializers.ValidationError("The 'channel_id' field is required.")
 
-        if "id" not in data:
-            raise serializers.ValidationError("The 'id' field is required.")
+        channel_id = request.data['channel_id']
 
-        channel_id = data['id']
+        # ensure the requested channel_id can be found on the central server, otherwise error
+        status = requests.head(get_content_database_file_url(channel_id)).status_code
+        if status == 404:
+            raise Http404(_("The requested channel does not exist on the content server."))
 
-        task_id = async(_importchannel, channel_id, group=TASKTYPE, progress_updates=True)
+        task_id = async(_networkimport, channel_id, group=TASKTYPE, progress_updates=True)
 
-        # id status metadata
-
-        # wait for the task instance to be saved first before continuing
-        taskobj = Task.get_task(task_id)
-        if taskobj:             # the task object has been saved!
-            resp = _task_to_response(taskobj)
-        else:                   # task object hasn't been saved yet, fake the response for now
-            resp = {
-                "type": TASKTYPE,
-                "status": "PENDING",
-                "percentage": 0,
-                "metadata": {},
-                "id": task_id,
-            }
+        # attempt to get the created Task, otherwise return pending status
+        resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id)
 
         return Response(resp)
 
     @list_route(methods=['post'])
-    def startlocalimportchannel(self, request):
+    def startlocalimport(self, request):
         '''
-        Import a channel locally, and move content to the local machine.
+        Import a channel from a local drive, and copy content to the local machine.
 
         '''
+        TASKTYPE = "localimport"
+
+        if "drive_id" not in request.data:
+            raise serializers.ValidationError("The 'drive_id' field is required.")
+
+        task_id = async(_localimport, request.data['drive_id'], group=TASKTYPE, progress_updates=True)
+
+        # attempt to get the created Task, otherwise return pending status
+        resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id)
+
+        return Response(resp)
+
+    @list_route(methods=['post'])
+    def startlocalexport(self, request):
+        '''
+        Export a channel to a local drive, and copy content to the drive.
+
+        '''
+        TASKTYPE = "localexport"
+
+        if "drive_id" not in request.data:
+            raise serializers.ValidationError("The 'drive_id' field is required.")
+
+        task_id = async(_localexport, request.data['drive_id'], group=TASKTYPE, progress_updates=True)
+
+        # attempt to get the created Task, otherwise return pending status
+        resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id)
+
+        return Response(resp)
+
+    @list_route(methods=['post'])
+    def cleartask(self, request):
+        '''
+        Temporary hack to clear all tasks. Should actually take a single task ID.
+        '''
+        import subprocess
+        import os
+        print("CLEAR TASKS HACK")
+        subprocess.check_output([
+            "sqlite3",
+            os.path.expanduser("~/.kolibri/ormq.sqlite3"),
+            "delete from django_q_task; delete from django_q_ormq;"
+        ])
+        return Response({})
 
     @list_route(methods=['get'])
     def localdrive(self, request):
@@ -85,55 +119,46 @@ class TasksViewSet(viewsets.ViewSet):
 
         # make sure everything is a dict, before converting to JSON
         assert isinstance(drives, dict)
-
-        out = []
-        for mountdata in drives.values():
-            mountdata = mountdata._asdict()
-            if mountdata['metadata']['channels']:
-                mountdata['channels'] = [c._asdict() for c in mountdata['channels']]
-
-            out.append(mountdata)
+        out = [mountdata._asdict() for mountdata in drives.values()]
 
         return Response(out)
 
-def _importchannel(channel_id, update_state=None):
-    call_command("importchannel", channel_id, update_state=update_state)
+def _networkimport(channel_id, update_state=None):
+    call_command("importchannel", "network", channel_id)
     call_command("importcontent", "network", channel_id, update_state=update_state)
 
+def _localimport(drive_id, update_state=None):
+    drives = get_mounted_drives_with_channel_info()
+    drive = drives[drive_id]
+    for channel in drive.metadata["channels"]:
+        call_command("importchannel", "local", channel["id"], drive.datafolder)
+        call_command("importcontent", "local", channel["id"], drive.datafolder, update_state=update_state)
 
-def _task_to_response(task_instance):
+def _localexport(drive_id, update_state=None):
+    drives = get_mounted_drives_with_channel_info()
+    drive = drives[drive_id]
+    for channel in ChannelMetadataCache.objects.all():
+        call_command("exportchannel", channel.id, drive.datafolder)
+        call_command("exportcontent", channel.id, drive.datafolder, update_state=update_state)
+
+def _task_to_response(task_instance, task_type=None, task_id=None):
     """"
-    Converts a Task object to a dict with the attributes that the
-    frontend expects.
+    Converts a Task object to a dict with the attributes that the frontend expects.
     """
-    tasktype = task_instance.group
-    status = task_instance.task_status
-    percentage = task_instance.progress_fraction
-    id = task_instance.id
 
-    p = task_instance.progress_data
-    # ARON: find out why progress metadata isn't being added. Check if this if statement below is getting processed properly.
-
-    if not isinstance(p, Progress):
-        task_type_specific_metadata = {}
-    else:
-        percentage = p.progress_fraction
-        message = p.message
-        extra_data = p.extra_data
-
-        task_type_specific_metadata = {
-            "msg": message,
+    if not task_instance:
+        return {
+            "type": task_type,
+            "status": "PENDING",
+            "percentage": 0,
+            "progress": [],
+            "id": task_id,
         }
 
-        try:
-            task_type_specific_metadata.update(extra_data)
-        except TypeError:       # extra_data isn't iterable, do nothing
-            pass
-
     return {
-        "type": tasktype,
-        "status": status,
-        "percentage": percentage,
-        "metadata": task_type_specific_metadata,
-        "id": id,
+        "type": task_instance.group,
+        "status": task_instance.task_status,
+        "percentage": task_instance.progress_fraction,
+        "progress": [dict(p.__dict__) for p in task_instance.progress_data] if task_instance.progress_data else task_instance.progress_data,
+        "id": task_instance.id,
     }

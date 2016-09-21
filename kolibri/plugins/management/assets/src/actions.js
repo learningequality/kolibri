@@ -1,4 +1,5 @@
 const Kolibri = require('kolibri');
+const logging = require('kolibri/lib/logging');
 
 const FacilityUserResource = Kolibri.resources.FacilityUserResource;
 const ChannelResource = Kolibri.resources.ChannelResource;
@@ -6,8 +7,9 @@ const TaskResource = Kolibri.resources.TaskResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
 const constants = require('./state/constants');
-const UserKinds = require('core-constants').UserKinds;
+const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
 const PageNames = constants.PageNames;
+const ContentWizardPages = constants.ContentWizardPages;
 
 
 // ================================
@@ -37,6 +39,23 @@ function _userState(data) {
   };
 }
 
+function _taskState(data) {
+  const state = {
+    id: data.id,
+    type: data.type,
+    status: data.status,
+    metadata: data.metadata,
+    percentage: data.percentage,
+  };
+  return state;
+}
+
+
+/**
+ * Actions
+ *
+ * These methods are used to update client-side state
+ */
 
 /**
  * Do a POST to create new user
@@ -211,14 +230,12 @@ function showUserPage(store) {
 function showContentPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
-  // const taskCollectionPromise = TaskResource.getCollection().fetch();
-  const taskCollectionPromise = Promise.resolve([]); // TODO - remove
+  const taskCollectionPromise = TaskResource.getCollection().fetch();
   taskCollectionPromise.then((taskList) => {
-    const pageState = { showWizard: false };
-    pageState.taskList = taskList;
-    if (taskList.length) { // only one task at a time for now
-      store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
-    }
+    const pageState = {
+      taskList: taskList.map(_taskState),
+      wizardState: { shown: false },
+    };
     const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
     channelCollectionPromise.then((channelList) => {
       pageState.channelList = channelList;
@@ -232,54 +249,143 @@ function showContentPage(store) {
   });
 }
 
+function updateWizardLocalDriveList(store) {
+  const localDrivesPromise = TaskResource.localDrives();
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
+  localDrivesPromise.then((response) => {
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_DRIVES', response.entity);
+  })
+  .catch((error) => {
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+  });
+}
 
 function startImportWizard(store) {
-  store.dispatch('SET_CONTENT_WIZARD_STATE', true, {
-    type: 'import',
-    page: 'start',
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: true,
+    page: ContentWizardPages.CHOOSE_IMPORT_SOURCE,
+    error: null,
+    busy: false,
+    drivesLoading: false,
+    driveList: null,
   });
 }
 
 function startExportWizard(store) {
-  store.dispatch('SET_CONTENT_WIZARD_STATE', true, {
-    type: 'import',
-    page: 'start',
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: true,
+    page: ContentWizardPages.EXPORT,
+    error: null,
+    busy: false,
+    drivesLoading: false,
+    driveList: null,
   });
+  updateWizardLocalDriveList(store);
+}
+
+function showImportNetworkWizard(store) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: true,
+    page: ContentWizardPages.IMPORT_NETWORK,
+    error: null,
+    busy: false,
+    drivesLoading: false,
+    driveList: null,
+  });
+}
+
+function showImportLocalWizard(store) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: true,
+    page: ContentWizardPages.IMPORT_LOCAL,
+    error: null,
+    busy: false,
+    drivesLoading: false,
+    driveList: null,
+  });
+  updateWizardLocalDriveList(store);
 }
 
 function cancelImportExportWizard(store) {
-  store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_STATE', {
+    shown: false,
+    error: null,
+    busy: false,
+    drivesLoading: false,
+    driveList: null,
+  });
 }
 
+// called from a timer to continually update UI
+function pollTasksAndChannels(store) {
+  TaskResource.getCollection().fetch({}, true).then(
+    (taskList) => {
+      ChannelResource.getCollection({}).fetch({}, true).then((channelList) => {
+        store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
+        store.dispatch('SET_CONTENT_PAGE_CHANNELS', channelList);
 
-// background worker calls this to continually update UI
-function updateTasks(store) {
-  const taskCollectionPromise = TaskResource.getCollection().fetch();
-  taskCollectionPromise.then((taskList) => {
-    const pageState = { showWizard: false };
-    pageState.taskList = taskList;
-    if (taskList.length) { // only one task at a time for now
-      store.dispatch('SET_CONTENT_WIZARD_STATE', false, {});
+        // Close the wizard if there's an outstanding task.
+        // (this can be removed when we support more than one
+        // concurrent task.)
+        if (taskList.length && store.state.pageState.wizardState.shown) {
+          cancelImportExportWizard(store);
+        }
+      });
+    },
+    (error) => {
+      logging.error(`poll error: ${error}`);
     }
-    const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
-    channelCollectionPromise.then((channelList) => {
-      pageState.channelList = channelList;
-      store.dispatch('SET_PAGE_STATE', pageState);
-    });
+  );
+}
+
+function clearTask(store, taskId) {
+  const clearTaskPromise = TaskResource.clearTask(taskId);
+  clearTaskPromise.then(() => {
+    store.dispatch('SET_CONTENT_PAGE_TASKS', []);
   })
   .catch((error) => {
     store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
   });
 }
 
-function clearTasks(store, id) {
-  const currentTaskPromise = TaskResource.getModel(id).delete(id);
-  currentTaskPromise.then(() => {
-    // only 1 task should be running, but we set to empty array
-    store.dispatch('SET_TASKS', []);
+function triggerLocalContentImportTask(store, driveId) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
+  const localImportPromise = TaskResource.localImportContent(driveId);
+  localImportPromise.then((response) => {
+    store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
+    cancelImportExportWizard(store);
   })
   .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.entity[0]); // TODO
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+  });
+}
+
+function triggerLocalContentExportTask(store, driveId) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
+  const localExportPromise = TaskResource.localExportContent(driveId);
+  localExportPromise.then((response) => {
+    store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
+    cancelImportExportWizard(store);
+  })
+  .catch((error) => {
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.entity[0]); // TODO
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
+  });
+}
+
+function triggerRemoteContentImportTask(store, channelId) {
+  store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
+  const remoteImportPromise = TaskResource.remoteImportContent(channelId);
+  remoteImportPromise.then((response) => {
+    store.dispatch('SET_CONTENT_PAGE_TASKS', [_taskState(response.entity)]);
+    cancelImportExportWizard(store);
+  })
+  .catch((error) => {
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_ERROR', error.entity[0]); // TODO
+    store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
   });
 }
 
@@ -309,11 +415,17 @@ module.exports = {
   showUserPage,
 
   showContentPage,
-  updateTasks,
-  clearTasks,
+  pollTasksAndChannels,
+  clearTask,
   startImportWizard,
   startExportWizard,
+  showImportNetworkWizard,
+  showImportLocalWizard,
   cancelImportExportWizard,
+  triggerLocalContentExportTask,
+  triggerLocalContentImportTask,
+  triggerRemoteContentImportTask,
+  updateWizardLocalDriveList,
 
   showDataPage,
   showScratchpad,

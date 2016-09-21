@@ -1,6 +1,6 @@
 
 const Vuex = require('vuex');
-const coreStore = require('core-store');
+const coreStore = require('kolibri/coreVue/vuex/store');
 const constants = require('./constants');
 
 /**
@@ -18,7 +18,6 @@ Content import/export page:
   {
     taskList: [] // list of objects
     channelList: [] // list of objects
-    showWizard: false // boolean
     wizardState: {} // object
   }
 
@@ -60,12 +59,23 @@ const mutations = {
   },
 
   // content import-export-specific mutations
-  SET_TASKS(state, taskList) {
+  SET_CONTENT_PAGE_TASKS(state, taskList) {
     state.pageState.taskList = taskList;
   },
-  SET_CONTENT_WIZARD_STATE(state, shown, wizardState) {
-    state.pageState.showWizard = shown;
+  SET_CONTENT_PAGE_CHANNELS(state, channelList) {
+    state.pageState.channelList = channelList;
+  },
+  SET_CONTENT_PAGE_WIZARD_STATE(state, wizardState) {
     state.pageState.wizardState = wizardState;
+  },
+  SET_CONTENT_PAGE_WIZARD_DRIVES(state, driveList) {
+    state.pageState.wizardState.driveList = driveList;
+  },
+  SET_CONTENT_PAGE_WIZARD_ERROR(state, error) {
+    state.pageState.wizardState.error = error;
+  },
+  SET_CONTENT_PAGE_WIZARD_BUSY(state, isBusy) {
+    state.pageState.wizardState.busy = isBusy;
   },
 };
 

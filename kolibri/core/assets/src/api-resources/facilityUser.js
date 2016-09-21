@@ -1,5 +1,5 @@
 const Resource = require('../api-resource').Resource;
-const logging = require('logging').getLogger(__filename);
+const logging = require('kolibri/lib/logging').getLogger(__filename);
 
 class FacilityUserResource extends Resource {
   static resourceName() {
