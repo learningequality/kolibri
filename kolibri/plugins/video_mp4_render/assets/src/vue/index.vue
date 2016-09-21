@@ -239,29 +239,20 @@
     height: 100%
     background-color: black
 
+  .video-js
+    font-size: 1em
 
-  @media screen and (max-width: 840px)
-    .video-js
-      font-size: 0.8em
-
-  @media screen and (min-width: 841px)
-    .video-js
+  .video-js
+    .vjs-control-bar,
+    .vjs-menu-button .vjs-menu-content
       font-size: 1em
-
-  @media screen and (max-width: 841px)
-    .video-js
-      .vjs-control-bar,
-      .vjs-menu-button .vjs-menu-content
-        font-size: 0.8em
-
-  @media screen and (min-width: 841px)
-    .video-js
-      .vjs-control-bar,
-      .vjs-menu-button .vjs-menu-content
-        font-size: 1em
 
   .video-js
     color: white
+
+    .vjs-button
+      width: 48px
+      height: 48px
 
     &:hover
       .vjs-big-play-button
@@ -299,7 +290,7 @@
     .vjs-load-progress
       background: darkgrey
 
-    .vjs-play-progress,
+    .vjs-play-progress
       background-color: $video-player-accent-color
 
     .vjs-progress-control
@@ -315,14 +306,12 @@
       justify-content: center
 
     .vjs-current-time,
-    .vjs-duration,
-    .vjs-volume-menu-button,
-    .vjs-playback-rate,
-    .vjs-fullscreen-control
+    .vjs-duration
       position: absolute
       visibility: inherit
       opacity: inherit
-      bottom: 0
+      top: 0
+      height: 0.5em
 
     .vjs-current-time
       display: block
@@ -341,15 +330,8 @@
           background-color: grey
 
     .vjs-volume-menu-button
-      right: 6em
       .vjs-slider
         background-color: grey
-
-    .vjs-playback-rate
-      right: 3em
-
-    .vjs-fullscreen-control
-      right: 0
 
     .videoreplay
       background: url('../icons/replay.svg')
@@ -365,11 +347,7 @@
       background-size: 45%
       bottom: 0
 
-    .vjs-button
-      width: 48px
-      height: 48px
-
-    .vjs-control-bar
-      height: 60px
+    .vjs-captions-button
+      display: block
 
 </style>
