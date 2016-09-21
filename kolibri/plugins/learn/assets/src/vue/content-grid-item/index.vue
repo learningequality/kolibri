@@ -93,7 +93,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .thumbnail
     width: 100%

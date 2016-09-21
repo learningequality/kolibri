@@ -45,15 +45,15 @@
       },
       nCollapsed: {
         type: Number,
-        default: 6,
+        default: 3,
       },
       nExpanded: {
         type: Number,
-        default: 12,
+        default: 9,
       },
     },
     components: {
-      'icon-button': require('icon-button'),
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
       'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
     },
@@ -89,7 +89,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .button-wrapper
     text-align: center

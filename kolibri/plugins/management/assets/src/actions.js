@@ -1,5 +1,5 @@
 const Kolibri = require('kolibri');
-const logging = require('logging');
+const logging = require('kolibri/lib/logging');
 
 const FacilityUserResource = Kolibri.resources.FacilityUserResource;
 const ChannelResource = Kolibri.resources.ChannelResource;
@@ -7,7 +7,7 @@ const TaskResource = Kolibri.resources.TaskResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
 const constants = require('./state/constants');
-const UserKinds = require('core-constants').UserKinds;
+const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
 const PageNames = constants.PageNames;
 const ContentWizardPages = constants.ContentWizardPages;
 

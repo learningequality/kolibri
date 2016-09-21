@@ -1,13 +1,14 @@
 <template>
 
-  <modal
+  <core-modal
     title="Export Channel to a Local Drive"
-    :error="wizardState.error"
-    :noclose="wizardState.busy"
+    :error="wizardState.error ? true : false"
+    :disableclose="wizardState.busy"
+    :enablebgclickcancel="false"
     @cancel="cancel"
-    @submit="submit"
+    @enter="submit"
   >
-    <div slot="body">
+    <div>
 
       <template v-if="!drivesLoading">
         <p v-if="writableDrives.length === 0">
@@ -37,7 +38,12 @@
         Refresh
       </button>
     </div>
-    <div slot="buttons">
+
+    <div>
+      {{ wizardState.error }}
+    </div>
+
+    <div>
       <button @click="cancel" :disabled="wizardState.busy">
         Cancel
       </button>
@@ -45,7 +51,7 @@
         Export
       </button>
     </div>
-  </modal>
+  </core-modal>
 
 </template>
 
@@ -56,8 +62,8 @@
 
   module.exports = {
     components: {
-      'modal': require('./modal'),
-      'icon-button': require('icon-button'),
+      'core-modal': require('kolibri/coreVue/components/coreModal'),
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
     },
     data: () => ({
       selectedDrive: undefined, // used when there's more than one option

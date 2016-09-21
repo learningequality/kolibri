@@ -11,7 +11,7 @@
 
 <script>
 
-  const UserKinds = require('kolibri').constants.UserKinds;
+  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
 
   module.exports = {
 
@@ -42,6 +42,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
 </style>

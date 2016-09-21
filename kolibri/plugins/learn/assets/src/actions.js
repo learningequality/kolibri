@@ -1,10 +1,11 @@
 const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
 const ChannelResource = require('kolibri').resources.ChannelResource;
+const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('./state/constants');
 const PageNames = constants.PageNames;
 const cookiejs = require('js-cookie');
-const router = require('router');
-const ConditionalPromise = require('conditionalPromise');
+const router = require('kolibri/coreVue/router');
+const ConditionalPromise = require('kolibri/lib/conditionalPromise');
 
 /**
  * Vuex State Mappers
@@ -299,18 +300,34 @@ function showLearnChannel(store, channelId) {
   cookiejs.set('currentChannel', channelId);
   ContentNodeResource.setChannel(channelId);
 
-  const recommendedPromise =
-    ContentNodeResource.getCollection({ recommendations: '' }).fetch({}, true);
-  _updateChannelList(store);
-  recommendedPromise.only(checkSamePageId(store), (recommendations) => {
-    const pageState = { recommendations: recommendations.map(_contentState) };
-    store.dispatch('SET_PAGE_STATE', pageState);
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('CORE_SET_ERROR', null);
-  }, (error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-  });
+  const id = 'current';
+  const sessionModel = SessionResource.getModel(id);
+  const sessionPromise = sessionModel.fetch();
+  sessionPromise.then((session) => {
+    const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
+    const popularPayload = { popular: session.user_id, channel: channelId };
+    const resumePayload = { resume: session.user_id, channel: channelId };
+    const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
+    const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
+    const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
+    _updateChannelList(store);
+    ConditionalPromise.all([nextStepsPromise, popularPromise, resumePromise])
+      .only(checkSamePageId(store), ([nextSteps, popular, resume]) => {
+        const pageState = { recommendations: { nextSteps: nextSteps.map(_contentState),
+                                               popular: popular.map(_contentState),
+                                               resume: resume.map(_contentState) } };
+        store.dispatch('SET_PAGE_STATE', pageState);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        store.dispatch('CORE_SET_ERROR', null);
+      }, (error) => {
+        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      });
+  })
+    .catch((error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    });
 }
 
 

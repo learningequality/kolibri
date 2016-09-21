@@ -44,7 +44,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .link-wrapper
     @media screen and (min-width: $portrait-breakpoint + 1)

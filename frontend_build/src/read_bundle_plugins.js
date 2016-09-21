@@ -4,30 +4,13 @@
  * @module readBundlePlugin
  */
 
-var fs = require("fs");
-var path = require("path");
+var readWebpackJson = require('./read_webpack_json');
 var logging = require('./logging');
-var execSync = require('child_process').execSync;
-var temp = require('temp').track();
 var _ = require("lodash");
 
 var parseBundlePlugin = require('./parse_bundle_plugin');
 
-
-// Mappings for libraries that we bundle in the Kolibri core app.
-// * the keys are names exposed by webpack to use in `require` statements, across apps
-// * the values are references to the packages, already inserted into kolibriGlobal
-//
-// kolibri_name is always == kolibriGlobal (this is defined in the base settings - base.py)
-var libs = function(kolibri_name) {
-  return {
-    'logging': kolibri_name + '.lib.logging',
-    'vue': kolibri_name + '.lib.vue',
-    'kolibri': kolibri_name,
-    'vuex': kolibri_name + '.lib.vuex',
-    'conditionalPromise': kolibri_name + '.lib.conditionalPromise',
-  };
-};
+var coreExternals = require('./apiSpecExportTools').coreExternals;
 
 /**
  * Take a Python plugin file name as input, and extract the information regarding front end plugin configuration from it
@@ -42,38 +25,24 @@ var readBundlePlugin = function(base_dir) {
   var bundles = [];
   var externals = {};
 
-  // the temporary path where the webpack_json json is stored
-  var webpack_json_tempfile = temp.openSync({suffix: '.json'}).path;
+  var results = readWebpackJson();
 
-  // Run the script below to extract the relevant information about the plugin configuration from the Python code.
-  execSync("python -m kolibri manage webpack_json -- " + " --outputfile " + webpack_json_tempfile);
+  for (var i = 0; i < results.length; i++) {
+    var message = results[i];
 
-  var result = fs.readFileSync(webpack_json_tempfile);
+    var output = parseBundlePlugin(message, base_dir);
+    if (typeof output !== "undefined") {
+      var webpack_configuration = output[0];
+      // The first part of the output is the Webpack configuration for that Kolibri plugin.
+      bundles.push(webpack_configuration);
+      // The second part of the output is any global variables that will be available to all other
+      // plugins. For the moment, this is only the Kolibri global variable.
+      var external = output[1];
+      if (external && typeof externals[external] === "undefined") {
 
-  temp.cleanupSync();           // cleanup the tempfile immediately!
-
-  if (result.length > 0) {
-    // The above script prints JSON to stdout, here we parse that JSON and use it as input to our webpack
-    // configuration builder module, parseBundlePlugin.
-    var results = JSON.parse(result);
-
-    for (var i = 0; i < results.length; i++) {
-      var message = results[i];
-
-      var output = parseBundlePlugin(message, base_dir);
-      if (typeof output !== "undefined") {
-        var webpack_configuration = output[0];
-        // The first part of the output is the Webpack configuration for that Kolibri plugin.
-        bundles.push(webpack_configuration);
-        // The second part of the output is any global variables that will be available to all other
-        // plugins. For the moment, this is only the Kolibri global variable.
-        var external = output[1];
-        if (external && typeof externals[external] === "undefined") {
-
-          externals[external] = external;
-        } else if (external) {
-          logging.warn("Two plugins setting with same external flag " + external);
-        }
+        externals[external] = external;
+      } else if (external) {
+        logging.warn("Two plugins setting with same external flag " + external);
       }
     }
   }
@@ -97,12 +66,12 @@ var readBundlePlugin = function(base_dir) {
   // For that bundle, we replace all references to library modules (like Backbone) that we bundle into the core app
   // with references to the core app itself, so if someone does `var Backbone = require('backbone');` webpack
   // will replace it with a reference to Bacbkone bundled into the core Kolibri app.
-  var lib_externals = core_bundle ? libs(core_bundle.output.library) : {};
+  var core_externals = core_bundle ? coreExternals(core_bundle.output.library) : {};
 
   bundles.forEach(function(bundle) {
     if (bundle.core_name === null || typeof bundle.core_name === "undefined") {
       // If this is not the core bundle, then we need to add the external library mappings.
-      bundle.externals = _.extend({}, externals, lib_externals);
+      bundle.externals = _.extend({}, externals, core_externals);
     } else {
       bundle.externals = externals;
     }

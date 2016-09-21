@@ -40,7 +40,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
   @require '../learn.styl'
 
   $avoid-scrollbar = -25px

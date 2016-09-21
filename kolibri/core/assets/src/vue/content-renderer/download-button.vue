@@ -28,7 +28,7 @@
       },
     },
     components: {
-      'icon-button': require('icon-button'),
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
     },
     computed: {
       downloadMediaText() {

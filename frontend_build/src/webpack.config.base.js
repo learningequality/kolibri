@@ -12,12 +12,31 @@
  *  and used as a template, with additional plugin-specific
  *  modifications made on top.
  */
+var path = require('path');
+
+/*
+ * This is a filthy hack. Do as I say, not as I do.
+ * Taken from: https://gist.github.com/branneman/8048520#6-the-hack
+ * This forces the NODE_PATH environment variable to include the main
+ * kolibri node_modules folder, so that even plugins being built outside
+ * of the kolibri folder will have access to all installed loaders, etc.
+ * Doing it here, rather than at command invocation, allows us to do this
+ * in a cross platform way, and also to avoid having to prepend it to all
+ * our commands that end up invoking webpack.
+ */
+
+process.env.NODE_PATH = path.resolve(path.join(__dirname, '..', '..', 'node_modules'));
+require('module').Module._initPaths();
 
 var fs = require('fs');
-var path = require('path');
 var webpack = require('webpack');
 var jeet = require('jeet');
 var autoprefixer = require('autoprefixer');
+
+var aliases = require('./apiSpecExportTools').coreAliases();
+
+aliases['kolibri_module']= path.resolve('kolibri/core/assets/src/kolibri_module');
+aliases['content_renderer_module'] = path.resolve('kolibri/core/assets/src/content_renderer_module');
 
 require('./htmlhint_custom'); // adds custom rules
 
@@ -45,8 +64,12 @@ var config = {
         loader: 'babel',
         exclude: /node_modules/,
         query: {
-          presets: ['es2015-ie'],
-          plugins: ['transform-runtime']
+          // Babel loader ignores Webpack config options
+          // So we pass a module reference rather than a path here
+          // to ensure that they get properly resolved when building happens
+          // outside of the kolibri base path.
+          presets: [require.resolve('babel-preset-es2015-ie')],
+          plugins: [require.resolve('babel-plugin-transform-runtime')]
         },
       },
       {
@@ -86,32 +109,13 @@ var config = {
       {
         test: /fg-loadcss\/src\/onloadCSS/,
         loader: 'exports?onloadCSS'
-      },
-      // Allows <video> and <audio> HTML5 tags work on all major browsers.
-      {
-        test: require.resolve('html5media/dist/api/1.1.8/html5media'),
-        loader: "imports?this=>window"
       }
     ]
   },
   plugins: [
   ],
   resolve: {
-    alias: {
-      'kolibri_module': path.resolve('kolibri/core/assets/src/kolibri_module'),
-      'core-constants': path.resolve('kolibri/core/assets/src/constants'),
-      'core-actions': path.resolve('kolibri/core/assets/src/core-actions'),
-      'learn-actions': path.resolve('kolibri/plugins/learn/assets/src/actions'),
-      'nav-bar-item': path.resolve('kolibri/core/assets/src/vue/nav-bar/nav-bar-item'),
-      'nav-bar-item.styl': path.resolve('kolibri/core/assets/src/vue/nav-bar/nav-bar-item.styl'),
-      'icon-button': path.resolve('kolibri/core/assets/src/vue/icon-button'),
-      'core-theme.styl': path.resolve('kolibri/core/assets/src/styles/core-theme.styl'),
-      'content_renderer_module': path.resolve('kolibri/core/assets/src/content_renderer_module'),
-      'logging': path.resolve('kolibri/core/assets/src/logging'),
-      'router': path.resolve('kolibri/core/assets/src/router'),
-      'core-store': path.resolve('kolibri/core/assets/src/core-store'),
-      'core-timer': path.resolve('kolibri/core/assets/src/timer'),
-    },
+    alias: aliases,
     extensions: ["", ".vue", ".js"],
   },
   eslint: {

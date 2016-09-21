@@ -1,8 +1,13 @@
 <template>
 
-  <modal @open="clear" title="Edit Account Info" :has-error="error_message ? true : false">
+  <core-modal
+    title="Edit Account Info"
+    :has-error="error_message ? true : false"
+    @enter="editUser"
+    @cancel="close"
+  >
     <!-- User Edit Normal -->
-    <div @keydown.enter="editUser">
+    <div>
       <template v-if="!usr_delete && !pw_reset">
 
         <div class="user-field">
@@ -84,7 +89,7 @@
         </button>
       </section>
     </div>
-  </modal>
+  </core-modal>
 
 </template>
 
@@ -92,13 +97,11 @@
 <script>
 
   const actions = require('../../actions');
-  const coreActions = require('kolibri').coreActions;
-  const UserKinds = require('kolibri').constants.UserKinds;
+  const coreActions = require('kolibri/coreVue/vuex/actions');
+  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
 
   module.exports = {
-    components: {
-      modal: require('../modal'),
-    },
+    components: {},
     props: [
       'userid', 'username', 'fullname', 'roles', // TODO - validation
     ],
@@ -115,7 +118,14 @@
         confirmation_message: '',
       };
     },
+    attached() {
+      // clear form on load
+      this.clear();
+    },
     methods: {
+      clear() {
+        this.$data = this.$options.data();
+      },
       editUser() {
         const payload = {
           username: this.username_new,
@@ -167,12 +177,8 @@
           this.error_message = 'Please enter a new password.';
         }
       },
-      clear() {
-        this.$data = this.$options.data();
-      },
       close() {
-        this.$emit('close');
-        this.$broadcast('close');
+        this.$emit('close'); // signal parent to close
       },
       clearErrorMessage() {
         this.error_message = '';
@@ -198,7 +204,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .title
     display: inline

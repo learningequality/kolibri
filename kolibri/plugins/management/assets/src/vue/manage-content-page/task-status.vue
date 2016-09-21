@@ -15,7 +15,7 @@
 <script>
 
   const actions = require('../../actions');
-  const logging = require('logging');
+  const logging = require('kolibri/lib/logging');
   const constants = require('../../state/constants');
   const TaskTypes = constants.TaskTypes;
   const TaskStatuses = constants.TaskStatuses;
@@ -23,7 +23,7 @@
   module.exports = {
     $trNameSpace: 'contentPage',
     $trs: {
-      buttonConfirm: 'Confirm',
+      buttonClose: 'Close',
       buttonCancel: 'Cancel',
       failed: 'Failed.',
       completed: `Finished!`,
@@ -34,8 +34,8 @@
     },
     computed: {
       buttonMessage() {
-        if (this.status === TaskStatuses.ERROR || this.percentage === 1) {
-          return this.$tr('buttonConfirm');
+        if (this.status === TaskStatuses.FAILED || this.status === TaskStatuses.SUCCESS) {
+          return this.$tr('buttonClose');
         }
         return this.$tr('buttonCancel');
       },
@@ -53,9 +53,9 @@
         }
       },
       subTitle() {
-        if (this.status === TaskStatuses.ERROR) {
+        if (this.status === TaskStatuses.FAILED) {
           return this.$tr('failed');
-        } else if (this.percentage === 1) {
+        } else if (this.status === TaskStatuses.SUCCESS) {
           return this.$tr('completed');
         }
         return this.$tr('loading');

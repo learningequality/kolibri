@@ -1,10 +1,14 @@
 import logging as logger
 
+import requests
 from django.core.management import call_command
+from django.http import Http404
+from django.utils.translation import ugettext as _
 from django_q.models import Task
 from django_q.tasks import async
-from kolibri.content.utils.channels import get_channels_for_data_folder, get_mounted_drives_with_channel_info
-from kolibri.tasks.management.commands.base import Progress
+from kolibri.content.models import ChannelMetadataCache
+from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
+from kolibri.content.utils.paths import get_content_database_file_url
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
@@ -44,7 +48,14 @@ class TasksViewSet(viewsets.ViewSet):
         if "channel_id" not in request.data:
             raise serializers.ValidationError("The 'channel_id' field is required.")
 
-        task_id = async(_networkimport, request.data['channel_id'], group=TASKTYPE, progress_updates=True)
+        channel_id = request.data['channel_id']
+
+        # ensure the requested channel_id can be found on the central server, otherwise error
+        status = requests.head(get_content_database_file_url(channel_id)).status_code
+        if status == 404:
+            raise Http404(_("The requested channel does not exist on the content server."))
+
+        task_id = async(_networkimport, channel_id, group=TASKTYPE, progress_updates=True)
 
         # attempt to get the created Task, otherwise return pending status
         resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id)
@@ -113,67 +124,41 @@ class TasksViewSet(viewsets.ViewSet):
         return Response(out)
 
 def _networkimport(channel_id, update_state=None):
-    call_command("importchannel", "network", channel_id, update_state=update_state)
+    call_command("importchannel", "network", channel_id)
     call_command("importcontent", "network", channel_id, update_state=update_state)
 
 def _localimport(drive_id, update_state=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
     for channel in drive.metadata["channels"]:
-        call_command("importchannel", "local", channel["id"], drive.datafolder, update_state=update_state)
+        call_command("importchannel", "local", channel["id"], drive.datafolder)
         call_command("importcontent", "local", channel["id"], drive.datafolder, update_state=update_state)
 
 def _localexport(drive_id, update_state=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
-    for channel in get_channels_for_data_folder(drive.datafolder):
-        call_command("exportchannel", channel["id"], drive.datafolder, update_state=update_state)
-        call_command("exportcontent", channel["id"], drive.datafolder, update_state=update_state)
+    for channel in ChannelMetadataCache.objects.all():
+        call_command("exportchannel", channel.id, drive.datafolder)
+        call_command("exportcontent", channel.id, drive.datafolder, update_state=update_state)
 
 def _task_to_response(task_instance, task_type=None, task_id=None):
     """"
-    Converts a Task object to a dict with the attributes that the
-    frontend expects.
+    Converts a Task object to a dict with the attributes that the frontend expects.
     """
 
     if not task_instance:
-        pending_response = {
+        return {
             "type": task_type,
             "status": "PENDING",
             "percentage": 0,
-            "metadata": {},
+            "progress": [],
             "id": task_id,
         }
-        return pending_response
-
-    tasktype = task_instance.group
-    status = task_instance.task_status
-    percentage = task_instance.progress_fraction
-    id = task_instance.id
-
-    p = task_instance.progress_data
-    # ARON: find out why progress metadata isn't being added. Check if this if statement below is getting processed properly.
-
-    if not isinstance(p, Progress):
-        task_type_specific_metadata = {}
-    else:
-        percentage = p.progress_fraction
-        message = p.message
-        extra_data = p.extra_data
-
-        task_type_specific_metadata = {
-            "msg": message,
-        }
-
-        try:
-            task_type_specific_metadata.update(extra_data)
-        except TypeError:       # extra_data isn't iterable, do nothing
-            pass
 
     return {
-        "type": tasktype,
-        "status": status,
-        "percentage": percentage,
-        "metadata": task_type_specific_metadata,
-        "id": id,
+        "type": task_instance.group,
+        "status": task_instance.task_status,
+        "percentage": task_instance.progress_fraction,
+        "progress": [dict(p.__dict__) for p in task_instance.progress_data] if task_instance.progress_data else task_instance.progress_data,
+        "id": task_instance.id,
     }
