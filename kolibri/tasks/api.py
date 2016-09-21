@@ -108,7 +108,10 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError("The 'task_id' field is required.")
 
         task_id = request.data['task_id']
-        OrmQ.objects.filter(pk=task_id).delete()
+
+        # we need to decrypt tasks first to get their real task_id. Hence why this python-side task_id retrieval and deletion.
+        [taskitem.delete() for taskitem in OrmQ.objects.all() if taskitem.task()["id"] == task_id]
+
         Task.objects.filter(pk=task_id).delete()
 
         return Response({})
