@@ -11,11 +11,15 @@
         {{ currentMinutes }} : {{ formattedCurrentSec }}
       </div>
       <input
+        v-if="notIE9"
         v-el:timebar
         class="timeline"
         type="range" min="0" value="0"
         :max="max"
         v-model="rawTime">
+      <!--[if lte IE 9]>
+      <span> / </span>
+      <![endif]-->
       <div id="total-time">
         {{ totalMinutes }} : {{ formattedTotalSec }}
       </div>
@@ -33,7 +37,9 @@
       @ended="endPlay"
       @seeking="handleSeek"
       :src="defaultFile.storage_url"
-    ></audio>
+    >
+    Your browser cannot play this audio file correctly! Please consider updating your browser to the latest version.
+    </audio>
   </div>
 
 </template>
@@ -84,6 +90,17 @@
       formattedTotalSec() {
         return this.formatTime(this.totalSeconds);
       },
+
+      notIE9() {
+        // For version of IE 9 and below, hides the seeker due to incompatibility.
+        // This is a short term MVP hack, longer term is to integrate video.js with audio tracks.
+        const ieVersion = parseFloat(navigator.appVersion.split('MSIE')[1]);
+        if (ieVersion === 9) {
+          return false;
+        }
+        return true;
+      },
+
       rawTime: {
         cache: false,
         get() {
