@@ -1,12 +1,12 @@
 
 @require '~kolibri/styles/coreTheme'
 
-.label
+.nav-main .label
   text-align: center
 
 // the "scoped" styles below are a bit hacky:
 // the `a` tag is actually inside the child template
-a svg
+.nav-main a svg
   display: block
   margin: auto
   fill: $core-action-normal
@@ -14,12 +14,12 @@ a svg
   @media screen and (max-width: $portrait-breakpoint)
     height: 30px
 
-a:hover svg
+.nav-main a:hover svg
   fill: $core-action-dark
 
-a.active svg
+.nav-main a.active svg
   fill: $core-bg-light
 
-a.active:hover svg
+.nav-main a.active:hover svg
   fill: $core-bg-light
 
