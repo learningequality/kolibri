@@ -16,10 +16,10 @@
       aria-labelledby="modal-title">
 
       <div class="top-buttons">
-        <button aria-label="Go back" @click="emitBackEvent" class="btn-back" v-if="enablebackbtn">
+        <button aria-label="Go back" @click="emitBackEvent" class="header-btn btn-back" v-if="enablebackbtn">
           <svg src="./back.svg" role="presentation"></svg>
         </button>
-        <button aria-label="Close dialog window" @click="emitCancelEvent" class="btn-close">
+        <button aria-label="Close dialog window" @click="emitCancelEvent" class="header-btn btn-close">
           <svg src="./close.svg" role="presentation"></svg>
         </button>
       </div>
@@ -161,18 +161,18 @@
   .top-buttons
     position: relative
     height: 20px
+    margin-bottom: 25px
+
+  .header-btn
+    color: $core-text-default
+    border: none
+    position: absolute
 
   .btn-back
-    color: $core-text-default
-    border: none
-    position: absolute
-    left: 0
+    left: -25px
 
   .btn-close
-    color: $core-text-default
-    border: none
-    position: absolute
-    right: 0
+    right: -25px
 
   .title
     text-align: center
