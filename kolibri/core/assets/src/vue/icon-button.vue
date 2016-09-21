@@ -2,8 +2,7 @@
 
   <button :class="[this.primary ? 'primary' : 'secondary', 'icon-button']">
     <slot></slot>
-    <span v-if="text" class="btn-text">{{ text }}</span>
-    <span v-if="bottomtext" class="btn-bottom-text">{{ bottomtext }}</span>
+    <span v-if="text" :class="bottomtext ? 'btn-bottom-text' : 'btn-text'">{{ text }}</span>
   </button>
 
 </template>
@@ -16,13 +15,11 @@
       // text display next to icon
       text: {
         type: String,
-        // why did we want this to be required?
-        required: false,
       },
-      // text display underneath the icon
+      // display text underneath the icon
       bottomtext: {
-        type: String,
-        required: false,
+        type: Boolean,
+        default: false,
       },
       // primary is true by default, will be primary unless specified
       primary: {
