@@ -1,11 +1,24 @@
 import os
 
+import atexit
+import multiprocessing
 import cherrypy
 from django.conf import settings
 from django.core.management import call_command
 from kolibri.content.utils import paths
 from kolibri.content.utils.annotation import update_channel_metadata_cache
 from kolibri.deployment.default.wsgi import application
+
+
+def start_background_workers():
+    p = multiprocessing.Process(target=call_command, args=("qcluster",))
+
+    # note: atexit normally only runs when python exits normally, aka doesn't
+    # exit through a signal. However, this function gets run because cherrypy
+    # catches all the various signals, and runs the atexit callbacks.
+    atexit.register(p.terminate)
+
+    p.start()
 
 
 def start():
@@ -15,6 +28,9 @@ def start():
     call_command("collectstatic_js_reverse", interactive=False)
     call_command("migrate", interactive=False, database="default")
     call_command("migrate", interactive=False, database="ormq")
+
+    # start the qcluster process
+    start_background_workers()
 
     update_channel_metadata_cache()
 
