@@ -4,7 +4,7 @@ import requests
 from django.core.management import call_command
 from django.http import Http404
 from django.utils.translation import ugettext as _
-from django_q.models import Task
+from django_q.models import Task, OrmQ
 from django_q.tasks import async
 from kolibri.content.models import ChannelMetadataCache
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
@@ -101,16 +101,19 @@ class TasksViewSet(viewsets.ViewSet):
     @list_route(methods=['post'])
     def cleartask(self, request):
         '''
-        Temporary hack to clear all tasks. Should actually take a single task ID.
+        Clears a task with its task id given in the task_id parameter.
         '''
-        import subprocess
-        import os
-        print("CLEAR TASKS HACK")
-        subprocess.check_output([
-            "sqlite3",
-            os.path.expanduser("~/.kolibri/ormq.sqlite3"),
-            "delete from django_q_task; delete from django_q_ormq;"
-        ])
+
+        if 'task_id' not in request.data:
+            raise serializers.ValidationError("The 'task_id' field is required.")
+
+        task_id = request.data['task_id']
+
+        # we need to decrypt tasks first to get their real task_id. Hence why this python-side task_id retrieval and deletion.
+        [taskitem.delete() for taskitem in OrmQ.objects.all() if taskitem.task()["id"] == task_id]
+
+        Task.objects.filter(pk=task_id).delete()
+
         return Response({})
 
     @list_route(methods=['get'])
@@ -155,10 +158,23 @@ def _task_to_response(task_instance, task_type=None, task_id=None):
             "id": task_id,
         }
 
-    return {
-        "type": task_instance.group,
-        "status": task_instance.task_status,
-        "percentage": task_instance.progress_fraction,
-        "progress": [dict(p.__dict__) for p in task_instance.progress_data] if task_instance.progress_data else task_instance.progress_data,
-        "id": task_instance.id,
-    }
+    else:
+        try:
+            progress_data = iter(task_instance.progress_data)
+
+            outputable_progress_data = []
+            for p in progress_data:
+                outputable_progress = p._asdict() if hasattr(p, '_asdict') else p.__dict__
+                outputable_progress_data.append(outputable_progress)
+
+            progress_data = outputable_progress_data
+        except TypeError:   # progress_data not iterable, just return it
+            progress_data = task_instance.progress_data
+
+        return {
+            "type": task_instance.group,
+            "status": task_instance.task_status,
+            "percentage": task_instance.progress_fraction,
+            "progress": progress_data,
+            "id": task_instance.id,
+        }
