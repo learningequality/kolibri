@@ -1,8 +1,10 @@
 <template>
 
-  <button class="icon-button-scope" :class="{'primary' : this.primary}">
-    <slot></slot>
-    <span v-if="text" :class="bottomtext ? 'btn-bottom-text' : 'btn-text'">{{ text }}</span>
+  <button class="icon-button-scope" :class="{'primary' : primary}">
+    <slot v-el:icon></slot>
+    <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : bottomtext, 'icon-padding' : !bottomtext && hasIcon}">
+      {{ text }}
+    </span>
   </button>
 
 </template>
@@ -22,6 +24,12 @@
       bottomtext: {
         type: Boolean,
         default: false,
+      },
+    },
+    computed: {
+      hasIcon() {
+        // something of a hack but seems to work fine
+        return this.$el.querySelector('svg');
       },
     },
   };
@@ -84,13 +92,15 @@
       color: $core-bg-canvas
       background-color: $core-text-annotation
 
+  /* displayed to visually balance an icon */
+  .icon-padding
+    margin-right: 2px
+
   .btn-text
     vertical-align: middle
-    margin-right: 2px
 
   .btn-bottom-text
     display: block
     margin-top: 0.4em
-    vertical-align: middle
 
 </style>
