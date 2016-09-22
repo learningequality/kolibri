@@ -55,9 +55,9 @@
       fill: $core-bg-canvas
       transition: fill $core-time ease-out
     &:hover svg
-      fill: $core-action-light
+      fill: $core-bg-canvas
     &:disabled svg
-      fill: $core-text-annotation
+      fill: $core-bg-canvas
 
 </style>
 
@@ -75,8 +75,11 @@
     border: none
     color: $core-bg-canvas
     background-color: $core-action-normal
+    transition: background-color $core-time ease-out
+
     &:hover
-      color: $core-action-light
+      color: $core-bg-canvas
+      background-color: $core-action-dark
     &:disabled
       color: $core-bg-canvas
       background-color: $core-text-annotation
