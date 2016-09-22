@@ -14,9 +14,10 @@
           <svg height="50" width="50" src="./storage.svg"></svg>
         </icon-button>
       </div>
-      <button class="cancel-btn" @click="cancelImportExportWizard">
-        Cancel
-      </button>
+      <icon-button
+        @click="cancelImportExportWizard"
+        text="Cancel">
+      </icon-button>
     </div>
   </core-modal>
 

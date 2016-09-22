@@ -169,10 +169,10 @@
     position: absolute
 
   .btn-back
-    left: -25px
+    left: -10px
 
   .btn-close
-    right: -25px
+    right: -10px
 
   .title
     text-align: center

@@ -1,6 +1,6 @@
 <template>
 
-  <button :class="[this.primary ? 'primary' : 'secondary', 'icon-button']">
+  <button :class="this.primary ? 'primary' : 'secondary'">
     <slot></slot>
     <span v-if="text" :class="bottomtext ? 'btn-bottom-text' : 'btn-text'">{{ text }}</span>
   </button>
@@ -81,8 +81,10 @@
 
   @require '~kolibri/styles/coreTheme'
 
-  .icon-button
+  button
+    padding: 0.2em 2em
     height: 36px
+    line-height: inherit
 
   .btn-text
     vertical-align: middle
