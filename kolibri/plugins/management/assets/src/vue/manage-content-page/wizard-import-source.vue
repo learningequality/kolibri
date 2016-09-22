@@ -7,10 +7,10 @@
   >
     <div class="main">
       <div class="lg-button-wrapper">
-        <icon-button class="large-icon-button" text="Internet" :bottomtext="true" @click="showImportNetworkWizard">
+        <icon-button class="large-icon-button" text="Internet" :textbelow="true" @click="showImportNetworkWizard">
           <svg height="50" width="50" src="./world.svg"></svg>
         </icon-button>
-        <icon-button class="large-icon-button" text="Local Drives" :bottomtext="true" @click="showImportLocalWizard">
+        <icon-button class="large-icon-button" text="Local Drives" :textbelow="true" @click="showImportLocalWizard">
           <svg height="50" width="50" src="./storage.svg"></svg>
         </icon-button>
       </div>

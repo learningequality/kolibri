@@ -1,8 +1,8 @@
 <template>
 
-  <button class="icon-button-scope" :class="{'primary' : primary}">
+  <button class="icon-button-scope" :class="{'primary' : primary, 'single-line': !textbelow}">
     <slot v-el:icon></slot>
-    <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : bottomtext, 'icon-padding' : !bottomtext && hasIcon}">
+    <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : textbelow, 'icon-padding' : !textbelow && hasIcon}">
       {{ text }}
     </span>
   </button>
@@ -21,7 +21,7 @@
         type: Boolean,
         default: false,
       },
-      bottomtext: {
+      textbelow: {
         type: Boolean,
         default: false,
       },
@@ -76,8 +76,10 @@
 
   button
     padding: 0.2em 2em
-    height: 36px
     line-height: inherit
+
+  button.single-line
+    height: 36px
 
   .primary
     border: none
