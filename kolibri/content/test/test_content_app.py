@@ -12,7 +12,7 @@ from django.db import connections
 from django.test.utils import override_settings
 from kolibri.content import models as content
 from django.conf import settings
-from ..constants import content_kinds
+from fle_utils.constants import CK_TOPIC
 from ..content_db_router import set_active_content_database, using_content_database
 from ..errors import ContentModelUsedOutsideDBContext
 from rest_framework.test import APITestCase
@@ -115,14 +115,14 @@ class ContentNodeTestCase(TestCase):
 
         p = content.ContentNode.objects.get(title="root")
         expected_output = content.ContentNode.objects.filter(title__in=["c2"])
-        actual_output = p.get_descendants(include_self=False).filter(kind=content_kinds.TOPIC)
+        actual_output = p.get_descendants(include_self=False).filter(kind=CK_TOPIC)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_top_level_topics(self):
 
         p = content.ContentNode.objects.get(title="root")
-        expected_output = content.ContentNode.objects.filter(parent=p, kind=content_kinds.TOPIC)
-        actual_output = content.ContentNode.objects.get(parent__isnull=True).get_children().filter(kind=content_kinds.TOPIC)
+        expected_output = content.ContentNode.objects.filter(parent=p, kind=CK_TOPIC)
+        actual_output = content.ContentNode.objects.get(parent__isnull=True).get_children().filter(kind=CK_TOPIC)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_all_str(self):
@@ -290,7 +290,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_file_retrieve(self):
         response = self.client.get(self._reverse_channel_url("file-detail", {'pk': "9f9438fe6b0d42dd8e913d7d04cfb2b1"}))
-        self.assertEqual(response.data['preset'], 'high_res_video')
+        self.assertEqual(response.data['preset'], 'High resolution video')
 
     def test_contentnode_progress(self):
 
