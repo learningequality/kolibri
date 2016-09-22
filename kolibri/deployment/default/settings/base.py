@@ -12,11 +12,10 @@ from __future__ import absolute_import, print_function, unicode_literals
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
-# This is essential! We load the kolibri conf INSIDE the Django conf
-from kolibri.utils import conf
-
 # import kolibri, so we can get the path to the module.
 import kolibri
+# This is essential! We load the kolibri conf INSIDE the Django conf
+from kolibri.utils import conf
 
 KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
 
@@ -294,5 +293,3 @@ JS_REVERSE_JS_VAR_NAME = 'urls'
 JS_REVERSE_JS_GLOBAL_OBJECT_NAME = KOLIBRI_CORE_JS_NAME
 
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
-
-DEBUG = True
