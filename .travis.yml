@@ -52,6 +52,7 @@ matrix:
         - TRAVIS_NODE_VERSION="0.12"
 
 before_install:
+  - pip install -U pip
   - pip install codecov
   - pip install tox
   - . $HOME/.nvm/nvm.sh
