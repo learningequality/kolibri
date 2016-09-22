@@ -55,7 +55,7 @@
     &:hover svg
       fill: $core-action-dark
     &:disabled svg
-      fill: $core-text-annotation
+      fill: $core-text-disabled
 
     // styles specific to primary button
   .icon-button-scope.primary
@@ -90,7 +90,7 @@
       background-color: $core-action-dark
     &:disabled
       color: $core-bg-canvas
-      background-color: $core-text-annotation
+      background-color: $core-text-disabled
 
   /* displayed to visually balance an icon */
   .icon-padding
