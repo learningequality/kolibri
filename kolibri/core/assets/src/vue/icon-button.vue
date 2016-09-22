@@ -2,7 +2,7 @@
 
   <button :class="[this.primary ? 'primary' : 'secondary', 'icon-button']">
     <slot></slot>
-    <span v-if="text" class="btn-text">{{ text }}</span>
+    <span v-if="text" :class="bottomtext ? 'btn-bottom-text' : 'btn-text'">{{ text }}</span>
   </button>
 
 </template>
@@ -12,10 +12,14 @@
 
   module.exports = {
     props: {
+      // text display next to icon
       text: {
         type: String,
-        // why did we want this to be required?
-        required: false,
+      },
+      // display text underneath the icon
+      bottomtext: {
+        type: Boolean,
+        default: false,
       },
       // primary is true by default, will be primary unless specified
       primary: {
@@ -78,11 +82,15 @@
   @require '~kolibri/styles/coreTheme'
 
   .icon-button
-    padding-right: 8px
     height: 36px
 
   .btn-text
     vertical-align: middle
     margin-right: 2px
+
+  .btn-bottom-text
+    display: block
+    margin-top: 0.4em
+    vertical-align: middle
 
 </style>

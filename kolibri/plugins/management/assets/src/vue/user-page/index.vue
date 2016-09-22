@@ -56,7 +56,7 @@
       <caption class="visuallyhidden">Users</caption>
 
       <!-- Table Headers -->
-      <thead>
+      <thead v-if="usersMatchFilter">
         <tr>
           <th class="col-header" scope="col"> Full Name </th>
           <th class="col-header" scope="col">

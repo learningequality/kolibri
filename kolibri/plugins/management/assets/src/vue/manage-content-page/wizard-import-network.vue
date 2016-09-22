@@ -1,7 +1,7 @@
 <template>
 
   <core-modal
-    title="Import Channel from the Internet"
+    title="Import from the Internet"
     :error="wizardState.error"
     :enablebgclickcancel="false"
     :disableclose="wizardState.busy"
@@ -10,17 +10,25 @@
     @enter="submit"
     @back="startImportWizard"
   >
-    <div>
-      <p>Please enter a content channel ID:</p>
+    <div class="main">
+      <h2 class="label">Please enter a content channel ID:</h2>
       <div>
         <input v-model="contentId" :disabled="wizardState.busy">
       </div>
+    </div>
+    <div class="core-text-alert">
+      {{ wizardState.error }}
+    </div>
+    <div class="button-wrapper">
       <button @click="cancel" :disabled="wizardState.busy">
         Cancel
       </button>
-      <button @click="submit" :disabled="!canSubmit">
-        Import
-      </button>
+      <icon-button
+        text="Import"
+        @click="submit"
+        :disabled="!canSubmit"
+        :primary="false" >
+      </icon-button>
     </div>
   </core-modal>
 
@@ -49,7 +57,9 @@
     },
     methods: {
       submit() {
-        this.triggerRemoteContentImportTask(this.contentId);
+        if (this.canSubmit) {
+          this.triggerRemoteContentImportTask(this.contentId);
+        }
       },
       cancel() {
         this.cancelImportExportWizard();
@@ -70,4 +80,31 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~kolibri/styles/coreTheme'
+
+  .main
+    text-align: center
+    margin: 3em 0
+
+  h2
+    font-size: 1em
+
+  input
+    margin: 1em 0
+    padding: 0.6em 0.8em
+    border: 2px solid $core-action-normal
+    border-radius: 4px
+
+  .button-wrapper
+    margin: 1em 0
+    text-align: center
+
+  button
+    margin: 0.4em
+
+  .core-text-alert
+    text-align: center
+
+</style>

@@ -5,20 +5,18 @@
     :enablebgclickcancel="false"
     @cancel="cancelImportExportWizard"
   >
-    <div>
-      <div class="main">
-        <icon-button text="Internet" @click="showImportNetworkWizard">
-          <svg src="./world.svg"></svg>
+    <div class="main">
+      <div class="lg-button-wrapper">
+        <icon-button class="large-icon-button" text="Internet" :bottomtext="true" @click="showImportNetworkWizard">
+          <svg height="50" width="50" src="./world.svg"></svg>
         </icon-button>
-        <icon-button text="Local Drives" @click="showImportLocalWizard">
-          <svg src="./storage.svg"></svg>
+        <icon-button class="large-icon-button" text="Local Drives" :bottomtext="true" @click="showImportLocalWizard">
+          <svg height="50" width="50" src="./storage.svg"></svg>
         </icon-button>
       </div>
-      <div class="buttons">
-        <button @click="cancelImportExportWizard">
-          Cancel
-        </button>
-      </div>
+      <button class="cancel-btn" @click="cancelImportExportWizard">
+        Cancel
+      </button>
     </div>
   </core-modal>
 
@@ -48,11 +46,29 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri/styles/coreTheme'
+
   .main
     text-align: center
+    margin-bottom: 4em 0
 
-  .buttons
-    margin-top: 1em
-    text-align: center
+  .large-icon-button
+    width: 140px
+    height: 120px
+    margin: 0.6em
+
+  .lg-button-wrapper
+    margin: 4em 0
+
+  .cancel-btn
+    margin-bottom: 2em
+
+  .text-only-buttons
+    height: 36px
+    padding-right: 2em
+    padding-left: 2em
+    margin: 1em
+    color: $core-text-annotation
+    border: 1px $core-text-annotation solid
 
 </style>
