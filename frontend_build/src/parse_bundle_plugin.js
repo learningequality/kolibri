@@ -101,13 +101,13 @@ var parseBundlePlugin = function(data, base_dir) {
   var publicPath, outputPath;
 
   if (process.env.DEV_SERVER) {
+    var devServerConfig = require('./webpackdevserverconfig');
     // If running webpack dev server point to that endpoint.
-    publicPath = "http://localhost:3000/";
+    publicPath = devServerConfig.publicPath;
     // Set output path to base dir, as no files will be written - all built files are cached in memory.
-    outputPath = path.resolve(base_dir);
+    outputPath = devServerConfig.basePath ? path.resolve(path.join(base_dir, devServerConfig.basePath)) : path.resolve(base_dir);
   } else {
     publicPath = path.join("/", data.static_url_root, data.name, "/");
-
     outputPath = path.join(data.static_dir, data.name);
   }
 

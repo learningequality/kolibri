@@ -2,6 +2,7 @@ process.env.DEV_SERVER = true;
 
 var WebpackDevServer = require("webpack-dev-server");
 var webpack = require("webpack");
+var devServerConfig = require('./webpackdevserverconfig');
 
 var bundles = require('./webpack.config.dev');
 var compiler = webpack(bundles);
@@ -26,10 +27,10 @@ var server = new WebpackDevServer(compiler, {
     poll: 1000
   },
   // It's a required option.
-  publicPath: "http://localhost:3000/",
+  publicPath: devServerConfig.publicPath,
   stats: {
     colors: true,
     chunks: false
   }
 });
-server.listen(3000, "localhost", function() {});
+server.listen(devServerConfig.port, devServerConfig.address, function() {});

@@ -66,6 +66,7 @@ coverage
 # webpack built files
 kolibri/**/build/*
 kolibri/**/static/*
+js-dist
 
 # swap files
 *.swp
