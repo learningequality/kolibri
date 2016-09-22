@@ -66,12 +66,12 @@ Run the following commands:
 
 .. code-block:: bash
 
-  # Node.js dependencies
-  npm install
-
   # Python requirements
   pip install -r requirements.txt
   pip install -r requirements/dev.txt
+
+  # Node.js dependencies
+  npm install
 
   # Kolibri Python package in 'editable' mode
   pip install -e .
