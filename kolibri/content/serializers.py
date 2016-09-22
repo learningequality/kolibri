@@ -29,7 +29,8 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = File
-        fields = ('storage_url', 'id', 'priority', 'checksum', 'available', 'file_size', 'extension', 'preset', 'lang', 'supplementary', 'thumbnail', 'download_url')
+        fields = ('storage_url', 'id', 'priority', 'checksum', 'available', 'file_size', 'extension', 'preset', 'lang',
+                  'supplementary', 'thumbnail', 'download_url')
 
 
 class ContentNodeSerializer(serializers.ModelSerializer):
