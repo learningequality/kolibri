@@ -1,6 +1,6 @@
 <template>
 
-  <button :class="this.primary ? 'primary' : 'secondary'">
+  <button class="icon-button-scope" :class="{'primary' : this.primary}">
     <slot></slot>
     <span v-if="text" :class="bottomtext ? 'btn-bottom-text' : 'btn-text'">{{ text }}</span>
   </button>
@@ -12,19 +12,16 @@
 
   module.exports = {
     props: {
-      // text display next to icon
       text: {
         type: String,
       },
-      // display text underneath the icon
-      bottomtext: {
+      primary: {
         type: Boolean,
         default: false,
       },
-      // primary is true by default, will be primary unless specified
-      primary: {
+      bottomtext: {
         type: Boolean,
-        default: true,
+        default: false,
       },
     },
   };
@@ -36,43 +33,31 @@
 
   @require '~kolibri/styles/coreTheme'
 
-  svg
-    vertical-align: middle
+  /*
+    WARNING -- these styles are unscoped.
+    ONLY include styles that need to apply to SVGs inserted into the slot.
+    Make sure everything here is scoped under the .icon-button-scope class.
+  */
 
-  // styles specific to primary button
-  .primary
+  .icon-button-scope
     svg
+      vertical-align: middle
       fill: $core-action-normal
       transition: fill $core-time ease-out
-
     &:hover svg
       fill: $core-action-dark
-
     &:disabled svg
       fill: $core-text-annotation
 
-  // styles specific to secondary button
-  .secondary
-    background-color: $core-action-normal
-    border: none
-    color: $core-bg-canvas
-
-    // fighting button styling in core global. Need refactor
-    &:hover
-      color: $core-action-light
-      border: none
-      svg
-        fill: $core-action-light
-
-    &:disabled
-      color: $core-text-annotation
-      border: none
-      svg
-        fill: $core-text-annotation
-
+    // styles specific to primary button
+  .icon-button-scope.primary
     svg
       fill: $core-bg-canvas
       transition: fill $core-time ease-out
+    &:hover svg
+      fill: $core-action-light
+    &:disabled svg
+      fill: $core-text-annotation
 
 </style>
 
@@ -85,6 +70,16 @@
     padding: 0.2em 2em
     height: 36px
     line-height: inherit
+
+  .primary
+    border: none
+    color: $core-bg-canvas
+    background-color: $core-action-normal
+    &:hover
+      color: $core-action-light
+    &:disabled
+      color: $core-bg-canvas
+      background-color: $core-text-annotation
 
   .btn-text
     vertical-align: middle

@@ -65,28 +65,46 @@
 
       <!-- Button Section TODO: cleaunup -->
       <section @keydown.enter.stop>
-        <button v-if="!usr_delete && !pw_reset" class="undo-btn" type="button" @click="close">
-          Cancel
-        </button>
 
-        <button v-else class="undo-btn" type="button" @click="clear">
-          <!-- For reset option -->
-          <template v-if="pw_reset"> Back </template>
-          <!-- For delete option -->
-          <template v-if="usr_delete"> No </template>
-        </button>
+        <icon-button
+          v-if="!usr_delete && !pw_reset"
+          text="Cancel"
+          class="undo-btn"
+          @click="close">
+        </icon-button>
 
-        <button v-if="!usr_delete && !pw_reset" class="confirm-btn" type="button" @click="editUser">
-          Confirm
-        </button>
+        <!-- 'Back' for reset, 'No' for delete -->
+        <icon-button
+          v-else
+          :text="pw_reset ? 'Back' : 'No'"
+          class="undo-btn"
+          @click="clear">
+        </icon-button>
 
-        <button v-if="pw_reset" class="confirm-btn" type="button" @click="changePassword">
-          Save
-        </button>
+        <icon-button
+          v-if="!usr_delete && !pw_reset"
+          text="Confirm"
+          class="confirm-btn"
+          :primary="true"
+          @click="editUser">
+        </icon-button>
 
-        <button v-if="usr_delete" class="confirm-btn" type="button" @click="delete">
-          Yes
-        </button>
+        <icon-button
+          v-if="pw_reset"
+          text="Save"
+          class="confirm-btn"
+          :primary="true"
+          @click="changePassword">
+        </icon-button>
+
+        <icon-button
+          v-if="usr_delete"
+          text="Yes"
+          class="confirm-btn"
+          :primary="true"
+          @click="delete">
+        </icon-button>
+
       </section>
     </div>
   </core-modal>
@@ -101,7 +119,9 @@
   const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
 
   module.exports = {
-    components: {},
+    components: {
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
+    },
     props: [
       'userid', 'username', 'fullname', 'roles', // TODO - validation
     ],
@@ -214,10 +234,6 @@
 
   .confirm-btn
     float: right
-    background-color: $core-action-normal
-    color: white
-    &:hover
-      border-color: $core-action-normal
 
   .cancel-btn
     float:left

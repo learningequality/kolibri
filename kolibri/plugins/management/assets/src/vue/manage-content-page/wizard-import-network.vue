@@ -29,7 +29,7 @@
         text="Import"
         @click="submit"
         :disabled="!canSubmit"
-        :primary="false" >
+        :primary="true" >
       </icon-button>
     </div>
   </core-modal>
