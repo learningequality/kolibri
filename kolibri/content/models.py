@@ -15,7 +15,7 @@ from django.utils.text import get_valid_filename
 
 from mptt.models import MPTTModel, TreeForeignKey
 
-from fle_utils.constants import kind_choices, format_choices, preset_choices
+from le_utils.constants import kind_choices, format_choices, preset_choices
 from .content_db_router import get_active_content_database
 from .utils import paths
 from gettext import gettext as _

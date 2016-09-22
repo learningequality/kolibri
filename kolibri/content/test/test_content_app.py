@@ -12,7 +12,7 @@ from django.db import connections
 from django.test.utils import override_settings
 from kolibri.content import models as content
 from django.conf import settings
-from fle_utils.constants import CK_TOPIC
+from le_utils.constants import CK_TOPIC
 from ..content_db_router import set_active_content_database, using_content_database
 from ..errors import ContentModelUsedOutsideDBContext
 from rest_framework.test import APITestCase

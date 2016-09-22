@@ -7,7 +7,7 @@ from django.test.utils import override_settings
 from kolibri.auth.models import DeviceOwner
 from kolibri.content.models import File, ContentNode
 from kolibri.content.utils.paths import get_content_storage_file_path
-from fle_utils import constants
+from le_utils import constants
 
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
 
