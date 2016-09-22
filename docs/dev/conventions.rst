@@ -69,7 +69,7 @@ JavaScript Code
 
 .. code-block:: javascript
 
-  const logging = require('logging').getLogger(__filename);
+  const logging = require('kolibri/lib/logging').getLogger(__filename);
 
 
 Stylus and CSS
