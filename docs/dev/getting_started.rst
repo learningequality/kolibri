@@ -84,7 +84,7 @@ Then, start up the development server and build the client-side dependencies:
 
 .. code-block:: bash
 
-  kolibri manage devserver --debug -- --webpack
+  kolibri manage devserver --debug -- --webpack --qcluster
 
 Wait for the build process to complete. This takes a while the first time, will complete faster as you make edits and the assets are automatically re-built.
 
