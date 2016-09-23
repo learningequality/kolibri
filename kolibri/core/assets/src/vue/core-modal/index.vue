@@ -154,6 +154,10 @@
     transition: all 0.3s ease
     margin: 0 auto
     padding: 15px 30px
+
+    &:focus
+      outline: none
+
     @media (max-width: $portrait-breakpoint)
       width: 85%
       top: 45%
