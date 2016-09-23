@@ -4,6 +4,7 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 var path = require('path');
 
+
 function extract$trs(messageDir, messagesName) {
   this.messageDir = messageDir;
   this.messagesName = messagesName;
@@ -79,6 +80,9 @@ extract$trs.prototype.apply = function(compiler) {
     if (Object.keys(messageExport).length) {
       // If we've got any messages to write out, write them out. Otherwise, don't bother.
       self.writeOutput(messageExport);
+      compilation.bundleHasMessages = true;
+    } else {
+      compilation.bundleHasMessages = false;
     }
     callback();
   });

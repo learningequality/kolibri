@@ -7,6 +7,9 @@
 var readWebpackJson = require('./read_webpack_json');
 var logging = require('./logging');
 var _ = require("lodash");
+var path = require('path');
+var fs = require('fs');
+var mkdirp = require('mkdirp');
 
 var parseBundlePlugin = require('./parse_bundle_plugin');
 
@@ -76,6 +79,25 @@ var readBundlePlugin = function(base_dir) {
       bundle.externals = externals;
     }
   });
+
+  // Create name to path mapping to allow translated json files to be copied into
+  // the correct static directory.
+
+  var namePathMapping = {};
+
+  bundles.forEach(function (bundle) {
+    namePathMapping[bundle.name] = path.resolve(path.dirname(bundle.output.path));
+  });
+
+  var locale_dir = path.join(base_dir, 'kolibri', 'locale')
+
+  mkdirp.sync(locale_dir);
+
+  // This will output a file mapping from the bundle name to the static directory where
+  // the built files for this mapping are put. This is used for redistributing translated message files
+  // back to their plugins.
+
+  fs.writeFileSync(path.join(locale_dir, 'pathMapping.json'), JSON.stringify(namePathMapping));
 
   return bundles;
 

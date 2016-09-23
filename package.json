@@ -36,7 +36,7 @@
     "vue": "1.0.26",
     "vue-focus": "0.1.1",
     "vue-scroll": "1.0.3",
-    "vue-intl": "0.4.0",
+    "vue-intl": "0.5.0",
     "vue-router": "0.7.13",
     "vuex": "0.6.3"
   },
@@ -105,7 +105,7 @@
     "vue-style-loader": "1.0.0",
     "webpack": "1.13.1",
     "webpack-bundle-size-analyzer": "2.0.2",
-    "webpack-bundle-tracker": "0.0.93",
+    "webpack-bundle-tracker": "https://github.com/learningequality/webpack-bundle-tracker",
     "webpack-dev-middleware": "1.6.1",
     "webpack-hot-middleware": "2.12.1",
     "webpack-merge": "0.14.1"

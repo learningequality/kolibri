@@ -19,6 +19,7 @@ Architecture
    building
    conventions
    frontend
+   i18n
 
 Themes
 ------
