@@ -45,7 +45,7 @@
           </icon-button>
         </div>
       </template>
-      <loading-spinner v-else :delay="0" class="spinner"></loading-spinner>
+      <loading-spinner v-else :delay="500" class="spinner"></loading-spinner>
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}
@@ -137,9 +137,12 @@
 
   @require '~kolibri/styles/coreTheme'
 
+  $min-height = 200px
+
   .main
     text-align: center
     margin: 3em 0
+    min-height: $min-height
 
   h2
     font-size: 1em
@@ -168,7 +171,7 @@
     text-align: center
 
   .spinner
-    height: 200px
+    height: $min-height
 
   .core-text-alert
     text-align: center
