@@ -28,7 +28,7 @@
           </select>
         </div>
 
-        <div class="advanced-options">
+        <div class="advanced-options" @keydown.enter.stop>
           <button @click="pw_reset=!pw_reset"> Reset Password </button>
           <button @click="usr_delete=!usr_delete"> Delete User</button>
         </div>
