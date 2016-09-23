@@ -3,8 +3,8 @@
   <core-modal
     title="Edit Account Info"
     :has-error="error_message ? true : false"
-    @enter="editUser"
-    @cancel="close"
+    @enter="submit"
+    @cancel="emitCloseSignal"
   >
     <!-- User Edit Normal -->
     <div>
@@ -70,7 +70,7 @@
           v-if="!usr_delete && !pw_reset"
           text="Cancel"
           class="undo-btn"
-          @click="close">
+          @click="emitCloseSignal">
         </icon-button>
 
         <!-- 'Back' for reset, 'No' for delete -->
@@ -86,7 +86,7 @@
           text="Confirm"
           class="confirm-btn"
           :primary="true"
-          @click="editUser">
+          @click="submit">
         </icon-button>
 
         <icon-button
@@ -94,7 +94,7 @@
           text="Save"
           class="confirm-btn"
           :primary="true"
-          @click="changePassword">
+          @click="submit">
         </icon-button>
 
         <icon-button
@@ -102,10 +102,11 @@
           text="Yes"
           class="confirm-btn"
           :primary="true"
-          @click="delete">
+          @click="submit">
         </icon-button>
 
       </section>
+
     </div>
   </core-modal>
 
@@ -146,7 +147,17 @@
       clear() {
         this.$data = this.$options.data();
       },
-      editUser() {
+      submit() {
+        // mirrors logic of how the 'confirm' buttons are displayed
+        if (this.pw_reset) {
+          this.changePasswordHandler();
+        } else if (this.usr_delete) {
+          this.deleteUserHandler();
+        } else {
+          this.editUserHandler();
+        }
+      },
+      editUserHandler() {
         const payload = {
           username: this.username_new,
           full_name: this.fullName_new,
@@ -159,18 +170,18 @@
             window.location.href = window.location.origin;
           }
         }
-
         // close the modal after successful submission
-        this.close();
+        this.emitCloseSignal();
       },
-      delete() {
+      deleteUserHandler() {
         // if logged in admin deleted their own account, log them out
         if (Number(this.userid) === this.session_user_id) {
           this.logout(this.Kolibri);
         }
         this.deleteUser(this.userid);
+        this.emitCloseSignal();
       },
-      changePassword() {
+      changePasswordHandler() {
         // checks to make sure there's a new password
         if (this.password_new) {
           this.clearErrorMessage();
@@ -197,7 +208,7 @@
           this.error_message = 'Please enter a new password.';
         }
       },
-      close() {
+      emitCloseSignal() {
         this.$emit('close'); // signal parent to close
       },
       clearErrorMessage() {
