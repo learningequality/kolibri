@@ -14,10 +14,11 @@
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <h2 class="core-text-alert" v-if="drivesWithData.length === 0">
-            <svg class="error-svg" src="../icons/error.svg"></svg>No drives with data were detected.
+            <svg class="error-svg" src="../icons/error.svg"></svg>
+            No drives with data were detected.
           </h2>
           <h2 v-if="drivesWithData.length === 1">
-            Drive detected with data: {{ drivesWithData[0].name }}
+            Drive detected with data:<br>{{ drivesWithData[0].name }}
           </h2>
           <template v-if="drivesWithData.length > 1">
             <h2>Drives detected with data:</h2>
@@ -147,7 +148,8 @@
     margin: 2em 0
 
   .error-svg
-    margin: 0 0.6em
+    margin-right: 0.2em
+    margin-bottom: -6px
 
   .drive-list
     margin: 2em
