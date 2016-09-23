@@ -98,8 +98,11 @@
         this.resizeVideo();
         this.videoPlayerIsReady();
         this.loading = false;
+        this.$els.videowrapper.childNodes[1]
+          .getElementsByClassName('vjs-control-bar')[0]
+          .getElementsByClassName('vjs-captions-button')[0]
+          .classList.remove('vjs-hidden');
       },
-
       resizeVideo() {
         const wrapperWrapperWidth = this.$els.videowrapperwrapper.clientWidth;
         const wrapperWrapperHeight = this.$els.videowrapperwrapper.clientHeight;
@@ -221,9 +224,10 @@
   // Default videojs stylesheet
   // Unable to reference the videojs using require since videojs doesn't have good webpack support
   @import '../../../node_modules/video.js/dist/video-js.css'
+  @require '~kolibri/styles/coreTheme'
 
   $video-player-color = black
-  $video-player-accent-color = indigo
+  $video-player-accent-color = #ffc107
 
   .videowrapperwrapper
     width: 100%
@@ -241,6 +245,7 @@
 
   .video-js
     font-size: 1em
+    font-family: $core-font
 
   .video-js
     .vjs-control-bar,
@@ -269,7 +274,15 @@
       line-height: 2.5em
       border-radius: 50%
       border: none
-      background-color: $video-player-color
+      background-color: $video-player-colo
+
+    .vjs-volume-menu-button,
+    .vjs-playback-rate-value,
+    .videoreplay,
+    .videoforward,
+    .vjs-captions,
+    .vjs-fullscreen-control
+      font-size: 0.75em
 
     .vjs-slider
       background-color: grey
@@ -311,13 +324,18 @@
       visibility: inherit
       opacity: inherit
       top: 0
-      height: 0.5em
+      font-size: 0.5em
+
+    .vjs-current-time-display,
+    .vjs-duration-display
+      font-size: 16px
 
     .vjs-current-time
       display: block
       left: 0
       width: 48px
       height: 48px
+      color: $video-player-accent-color
 
     .vjs-duration
       display: block
@@ -349,5 +367,19 @@
 
     .vjs-captions-button
       display: block
+
+    .vjs-control:before
+      line-height: 48px
+      font-size: 36px
+
+    .vjs-play-control:before
+      font-size: 48px
+
+    .vjs-play-progress:before
+      color: $video-player-accent-color
+
+    .vjs-menu li.vjs-selected
+      background-color: black
+      color: $video-player-accent-color
 
 </style>
