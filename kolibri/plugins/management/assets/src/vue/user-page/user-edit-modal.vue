@@ -167,7 +167,10 @@
         };
         this.updateUser(this.userid, payload, this.role_new);
         // if logged in admin updates role to learner, redirect to learn page
-        if (Number(this.userid) === this.session_user_id) {
+        // Do SUPERUSER check, as it is theoretically possible for a DeviceAdmin
+        // to have the same id as a regular user, as they are different models.
+        if ((this.session_user_kind !== UserKinds.SUPERUSER) &&
+          (Number(this.userid) === this.session_user_id)) {
           if (this.role_new === UserKinds.LEARNER.toLowerCase()) {
             window.location.href = window.location.origin;
           }
@@ -228,6 +231,7 @@
       },
       getters: {
         session_user_id: state => state.core.session.user_id,
+        session_user_kind: state => state.core.session.kind[0],
       },
     },
   };
