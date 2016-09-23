@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'kolibri.core.discovery',
     'rest_framework',
     'django_js_reverse',
+    'django_extensions',
 ] + conf.config['INSTALLED_APPS']
 
 MIDDLEWARE_CLASSES = (

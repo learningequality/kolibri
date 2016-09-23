@@ -62,6 +62,7 @@ Examples:
   kolibri url               Tell me the address of Kolibri
   kolibri shell             Display a Django shell
   kolibri manage help       Show the Django management usage dialogue
+  kolibri manage shell_plus Preload all models in Django shell
   kolibri manage runserver  Runs Django's development server
   kolibri diagnose          Show system information for debugging
 
