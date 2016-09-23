@@ -27,6 +27,33 @@ Within Kolibri, messages are defined on the body of the Vue component::
 
 User visible strings should be rendered directly in the template with ``{{ $tr('msgId') }}``. These strings are collected during the build process, and bundled into exported JSON files. These files are then uploaded to Crowdin for translation.
 
+An example Vue component would then look like this::
+
+  <template>
+
+    <div>
+      <p>{{ $tr('exampleMessage') }}</p>
+    </div>
+
+  </template>
+
+
+  <script>
+
+    module.exports = {
+
+      $trNameSpace: 'example',
+      $trs: {
+        exampleMessage: 'This message is just an example',
+      },
+    };
+
+  </script>
+
+
+  <style lang="stylus" scoped></style>
+
+
 Downloaded files from crowdin need to be copied into the relevant plugins from which they have come using the `distributefrontendmessages` make command.
 
 These messages will then be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the Frontend is based off the current Django language for the request.
