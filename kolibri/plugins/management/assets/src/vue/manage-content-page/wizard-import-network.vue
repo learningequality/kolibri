@@ -20,14 +20,16 @@
       {{ wizardState.error }}
     </div>
     <div class="button-wrapper">
-      <button @click="cancel" :disabled="wizardState.busy">
-        Cancel
-      </button>
+      <icon-button
+        @click="cancel"
+        text="Cancel"
+        :disabled="wizardState.busy">
+      </icon-button>
       <icon-button
         text="Import"
         @click="submit"
         :disabled="!canSubmit"
-        :primary="false" >
+        :primary="true" >
       </icon-button>
     </div>
   </core-modal>

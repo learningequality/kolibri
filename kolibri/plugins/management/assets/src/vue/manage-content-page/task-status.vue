@@ -4,9 +4,9 @@
     <h1>{{ title }}</h1>
     <progress max="1" :value="percentage"></progress>
     <h2>{{ subTitle }}</h2>
-    <button class="buttons" @click="clearTaskHandler">
+    <icon-button class="buttons" @click="clearTaskHandler">
       {{ buttonMessage }}
-    </button>
+    </icon-button>
   </div>
 
 </template>
@@ -31,6 +31,9 @@
       remoteImport: 'Importing from Curation Server',
       localImport: 'Importing from Local Drive',
       localExport: 'Exporting to Local Drive',
+    },
+    components: {
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
     },
     computed: {
       buttonMessage() {

@@ -21,14 +21,14 @@
             text="Import"
             class="button"
             @click="startImportWizard"
-            :primary="false"
+            :primary="true"
           >
             <svg src="../icons/add.svg"></svg>
           </icon-button>
           <icon-button
             text="Export"
             class="button"
-            :primary="false"
+            :primary="true"
             @click="startExportWizard">
             <svg src="../icons/export.svg"></svg>
           </icon-button>

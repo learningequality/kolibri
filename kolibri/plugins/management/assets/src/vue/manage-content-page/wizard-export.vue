@@ -13,10 +13,10 @@
         <div class="modal-message">
           <h2 class="core-text-alert" v-if="writableDrives.length === 0">
             <svg class="error-svg" src="../icons/error.svg"></svg>
-            No writable driveswere detected.
+            No writable drives were detected.
           </h2>
           <h2 v-if="writableDrives.length === 1">
-            Writable drive detected: {{ writableDrives[0].name }}
+            Writable drive detected:<br>{{ writableDrives[0].name }}
           </h2>
           <template v-if="writableDrives.length > 1">
             <h2>Writable drives detected:</h2>
@@ -47,14 +47,16 @@
       {{ wizardState.error }}
     </div>
     <div class="button-wrapper">
-      <button @click="cancel" :disabled="wizardState.busy">
-        Cancel
-      </button>
+      <icon-button
+        @click="cancel"
+        text="Cancel"
+        :disabled="wizardState.busy">
+      </icon-button>
       <icon-button
         text="Export"
         @click="submit"
         :disabled="!canSubmit"
-        :primary="false" >
+        :primary="true">
       </icon-button>
     </div>
   </core-modal>
@@ -144,7 +146,8 @@
     margin: 2em 0
 
   .error-svg
-    margin: 0 0.6em
+    margin-right: 0.2em
+    margin-bottom: -6px
 
   .drive-list
     margin: 2em

@@ -89,8 +89,6 @@ button
   border-width: 2px
   border-style: solid
   border-color: $core-action-normal
-  padding: 0.2em 2em
-  height: 36px
   transition: border-color $core-time ease-out, color $core-time ease-out
 
   &:hover
@@ -101,10 +99,9 @@ button
     outline: $core-action-light 2px solid
 
   &:disabled
-    color: $core-text-annotation
-    border-color: $core-bg-disabled
-    background-color: $core-bg-disabled
-    cursor: default
+    color: $core-text-disabled
+    border-color: $core-text-disabled
+    cursor: not-allowed
 
 
 // Firefox: Get rid of the inner focus border

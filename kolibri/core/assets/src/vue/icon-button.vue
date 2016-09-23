@@ -1,8 +1,10 @@
 <template>
 
-  <button :class="[this.primary ? 'primary' : 'secondary', 'icon-button']">
-    <slot></slot>
-    <span v-if="text" :class="bottomtext ? 'btn-bottom-text' : 'btn-text'">{{ text }}</span>
+  <button class="icon-button-scope" :class="{'primary' : primary, 'single-line': !textbelow}">
+    <slot v-el:icon></slot>
+    <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : textbelow, 'icon-padding' : !textbelow && hasIcon}">
+      {{ text }}
+    </span>
   </button>
 
 </template>
@@ -12,19 +14,22 @@
 
   module.exports = {
     props: {
-      // text display next to icon
       text: {
         type: String,
       },
-      // display text underneath the icon
-      bottomtext: {
+      primary: {
         type: Boolean,
         default: false,
       },
-      // primary is true by default, will be primary unless specified
-      primary: {
+      textbelow: {
         type: Boolean,
-        default: true,
+        default: false,
+      },
+    },
+    computed: {
+      hasIcon() {
+        // something of a hack but seems to work fine
+        return this.$el.querySelector('svg');
       },
     },
   };
@@ -36,43 +41,31 @@
 
   @require '~kolibri/styles/coreTheme'
 
-  svg
-    vertical-align: middle
+  /*
+    WARNING -- these styles are unscoped.
+    ONLY include styles that need to apply to SVGs inserted into the slot.
+    Make sure everything here is scoped under the .icon-button-scope class.
+  */
 
-  // styles specific to primary button
-  .primary
+  .icon-button-scope
     svg
+      vertical-align: middle
       fill: $core-action-normal
       transition: fill $core-time ease-out
-
     &:hover svg
       fill: $core-action-dark
-
     &:disabled svg
-      fill: $core-text-annotation
+      fill: $core-text-disabled
 
-  // styles specific to secondary button
-  .secondary
-    background-color: $core-action-normal
-    border: none
-    color: $core-bg-canvas
-
-    // fighting button styling in core global. Need refactor
-    &:hover
-      color: $core-action-light
-      border: none
-      svg
-        fill: $core-action-light
-
-    &:disabled
-      color: $core-text-annotation
-      border: none
-      svg
-        fill: $core-text-annotation
-
+    // styles specific to primary button
+  .icon-button-scope.primary
     svg
       fill: $core-bg-canvas
       transition: fill $core-time ease-out
+    &:hover svg
+      fill: $core-bg-canvas
+    &:disabled svg
+      fill: $core-bg-canvas
 
 </style>
 
@@ -81,16 +74,35 @@
 
   @require '~kolibri/styles/coreTheme'
 
-  .icon-button
+  button
+    padding: 0.2em 2em
+    line-height: inherit
+
+  button.single-line
     height: 36px
+
+  .primary
+    border: none
+    color: $core-bg-canvas
+    background-color: $core-action-normal
+    transition: background-color $core-time ease-out
+
+    &:hover
+      color: $core-bg-canvas
+      background-color: $core-action-dark
+    &:disabled
+      color: $core-bg-canvas
+      background-color: $core-text-disabled
+
+  /* displayed to visually balance an icon */
+  .icon-padding
+    margin-right: 2px
 
   .btn-text
     vertical-align: middle
-    margin-right: 2px
 
   .btn-bottom-text
     display: block
     margin-top: 0.4em
-    vertical-align: middle
 
 </style>
