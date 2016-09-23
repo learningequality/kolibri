@@ -3,6 +3,8 @@
  * Anything defined here is only applied during production building.
  */
 
+process.env.NODE_ENV = 'production';
+
 var webpack = require('webpack');
 var bundles = require('./webpack.config.js');
 

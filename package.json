@@ -10,6 +10,7 @@
     "test-mocha-cov": "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha frontend_build/test/*.js --report lcovonly -- -R spec",
     "test-karma-cov": "./node_modules/karma/bin/karma start ./karma_config/karma.conf.ci.js",
     "build": "webpack --config ./frontend_build/src/webpack.config.prod.js",
+    "test-build": "webpack --config ./frontend_build/src/webpack.config.prod.js --bail",
     "watch": "node ./frontend_build/src/webpackdevserver.js",
     "test-karma:watch": "./node_modules/karma/bin/karma start ./karma_config/karma.conf.js",
     "bundle-stats": "webpack --config ./frontend_build/src/webpack.config.prod.js --json | node ./node_modules/webpack-bundle-size-analyzer/webpack-bundle-size-analyzer",

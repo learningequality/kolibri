@@ -1,5 +1,11 @@
 process.env.DEV_SERVER = true;
 
+process.argv.forEach(function(val) {
+  if (val === "--lint") {
+    process.env.LINT = true;
+  }
+});
+
 var WebpackDevServer = require("webpack-dev-server");
 var webpack = require("webpack");
 var devServerConfig = require('./webpackdevserverconfig');
