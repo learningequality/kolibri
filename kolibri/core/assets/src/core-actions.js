@@ -349,6 +349,20 @@ function stopTrackingProgress(store, Kolibri) {
   updateTimeSpent(store, Kolibri, true);
 }
 
+
+/**
+ * Action inhibition check
+ *
+ * This generator function produces checks that help determine whether the
+ * asynchronous outcomes should still be run based on whether the user is
+ * still on the same page as when the action was first triggered.
+ */
+
+function samePageCheckGenerator(store) {
+  const pageId = store.state.core.pageSessionId;
+  return () => store.state.core.pageSessionId === pageId;
+}
+
 module.exports = {
   kolibriLogin,
   kolibriLogout,
@@ -361,4 +375,5 @@ module.exports = {
   updateTimeSpent,
   updateProgress,
   saveLogs,
+  samePageCheckGenerator,
 };
