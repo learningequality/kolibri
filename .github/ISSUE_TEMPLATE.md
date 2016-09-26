@@ -10,7 +10,7 @@
  - Operating system: ?
  - Browser: ?
 
-## Traceback or relevant snippet from server.log
+## Traceback or relevant snippet from server.log or browser console
 
 ```
 INSERT TRACEBACK, LOG MESSAGES ETC. HERE
@@ -26,6 +26,6 @@ INSERT TRACEBACK, LOG MESSAGES ETC. HERE
 
 *If applicable*
 
-## Real-life consequences (anything community should be aware, for instance how it affects your deployment)
+## Real-life consequences (anything community should be aware of, for instance how it affects your deployment)
 
 *If applicable*
