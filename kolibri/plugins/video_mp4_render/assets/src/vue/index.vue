@@ -221,13 +221,14 @@
 
 <style lang="stylus">
 
-  // Default videojs stylesheet
+  @require '~kolibri/styles/coreTheme'
   // Unable to reference the videojs using require since videojs doesn't have good webpack support
   @import '../../../node_modules/video.js/dist/video-js.css'
-  @require '~kolibri/styles/coreTheme'
+
 
   $video-player-color = black
   $video-player-accent-color = #ffc107
+
 
   .videowrapperwrapper
     width: 100%
@@ -246,35 +247,39 @@
   .video-js
     font-size: 1em
     font-family: $core-font
-
-  .video-js
-    .vjs-control-bar,
-    .vjs-menu-button .vjs-menu-content
-      font-size: 1em
-
-  .video-js
     color: white
-
-    .vjs-button
-      width: 48px
-      height: 48px
-
-    &:hover
-      .vjs-big-play-button
-        background-color: $video-player-color
 
     .vjs-big-play-button
       position: absolute
       top: 50%
       left: 50%
       transform: translate(-50%, -50%)
-      height: 2.5em
-      width: 2.5em
-      font-size: 2.5em
-      line-height: 2.5em
+      height: 2em
+      width: 2em
       border-radius: 50%
       border: none
-      background-color: $video-player-colo
+      background-color: $video-player-color
+
+
+
+    &:hover
+      .vjs-big-play-button
+        background-color: $video-player-color
+
+    .vjs-control-bar,
+    .vjs-menu-button .vjs-menu-content
+      font-size: 1em
+
+    .vjs-button
+      width: 48px
+      height: 48px
+
+
+
+
+
+    .vjs-slider
+      background-color: grey
 
     .vjs-volume-menu-button,
     .vjs-playback-rate-value,
@@ -282,10 +287,9 @@
     .videoforward,
     .vjs-captions,
     .vjs-fullscreen-control
-      font-size: 0.75em
+      font-size: 36px
 
-    .vjs-slider
-      background-color: grey
+
 
     .vjs-progress-control
       position: absolute
@@ -374,6 +378,7 @@
 
     .vjs-play-control:before
       font-size: 48px
+      color: $video-player-accent-color
 
     .vjs-play-progress:before
       color: $video-player-accent-color
