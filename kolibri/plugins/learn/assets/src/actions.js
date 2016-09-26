@@ -302,34 +302,36 @@ function showLearnChannel(store, channelId) {
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
   const sessionPromise = sessionModel.fetch();
-  sessionPromise.then((session) => {
-    const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
-    const popularPayload = { popular: session.user_id, channel: channelId };
-    const resumePayload = { resume: session.user_id, channel: channelId };
-    const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
-    const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
-    const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
-    _updateChannelList(store);
-    ConditionalPromise.all([nextStepsPromise, popularPromise, resumePromise]).only(
-      samePageCheckGenerator(store),
-      ([nextSteps, popular, resume]) => {
-        const pageState = { recommendations: { nextSteps: nextSteps.map(_contentState),
-                                               popular: popular.map(_contentState),
-                                               resume: resume.map(_contentState) } };
-        store.dispatch('SET_PAGE_STATE', pageState);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-        store.dispatch('CORE_SET_ERROR', null);
-      },
-      (error) => {
-        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-      }
-    );
-  })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-  });
+  sessionPromise.then(
+    (session) => {
+      const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
+      const popularPayload = { popular: session.user_id, channel: channelId };
+      const resumePayload = { resume: session.user_id, channel: channelId };
+      const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
+      const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
+      const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
+      _updateChannelList(store);
+      ConditionalPromise.all([nextStepsPromise, popularPromise, resumePromise]).only(
+        samePageCheckGenerator(store),
+        ([nextSteps, popular, resume]) => {
+          const pageState = { recommendations: { nextSteps: nextSteps.map(_contentState),
+                                                 popular: popular.map(_contentState),
+                                                 resume: resume.map(_contentState) } };
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.dispatch('CORE_SET_ERROR', null);
+        },
+        (error) => {
+          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+        }
+      );
+    },
+    (error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    }
+  );
 }
 
 

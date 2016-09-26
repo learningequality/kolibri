@@ -220,8 +220,8 @@ function showUserPage(store) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
     },
-    (rejects) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(rejects, null, '\t'));
+    (error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     }
   );
@@ -330,15 +330,11 @@ function cancelImportExportWizard(store) {
 function pollTasksAndChannels(store) {
   const samePageCheck = samePageCheckGenerator(store);
   TaskResource.getCollection().fetch({}, true).only(
-    () => {
-      // don't handle response if we've switched pages
-      if (!samePageCheck()) {
-        return false;
-      }
-      // don't handle response if we're in the middle of another operation
-      return !store.state.pageState.wizardState.busy;
-    },
+    // don't handle response if we've switched pages or if we're in the middle of another operation
+    () => samePageCheck() && !store.state.pageState.wizardState.busy,
     (taskList) => {
+      // Perform channel poll AFTER task poll to ensure UI is always in a consistent state.
+      // I.e. channel list always reflects the current state of ongoing task(s).
       ChannelResource.getCollection({}).fetch({}, true).only(
         samePageCheckGenerator(store),
         (channelList) => {
