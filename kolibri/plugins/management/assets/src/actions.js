@@ -6,10 +6,12 @@ const ChannelResource = Kolibri.resources.ChannelResource;
 const TaskResource = Kolibri.resources.TaskResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
+const ConditionalPromise = require('kolibri/lib/conditionalPromise');
 const constants = require('./state/constants');
 const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
 const PageNames = constants.PageNames;
 const ContentWizardPages = constants.ContentWizardPages;
+const samePageCheckGenerator = require('kolibri/coreVue/vuex/actions').samePageCheckGenerator;
 
 
 // ================================
@@ -205,21 +207,24 @@ function showUserPage(store) {
 
   const promises = [facilityIdPromise, userPromise];
 
-  Promise.all(promises).then(([facilityId, users]) => {
-    store.dispatch('SET_FACILITY', facilityId[0]); // for mvp, we assume only one facility exists
+  ConditionalPromise.all(promises).only(
+    samePageCheckGenerator(store),
+    ([facilityId, users]) => {
+      store.dispatch('SET_FACILITY', facilityId[0]); // for mvp, we assume only one facility exists
 
-    const pageState = {
-      users: users.map(_userState),
-    };
+      const pageState = {
+        users: users.map(_userState),
+      };
 
-    store.dispatch('SET_PAGE_STATE', pageState);
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('CORE_SET_ERROR', null);
-  },
-  rejects => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(rejects, null, '\t'));
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-  });
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+    },
+    (error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    }
+  );
 }
 
 
@@ -231,22 +236,25 @@ function showContentPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
   const taskCollectionPromise = TaskResource.getCollection().fetch();
-  taskCollectionPromise.then((taskList) => {
-    const pageState = {
-      taskList: taskList.map(_taskState),
-      wizardState: { shown: false },
-    };
-    const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
-    channelCollectionPromise.then((channelList) => {
-      pageState.channelList = channelList;
-      store.dispatch('SET_PAGE_STATE', pageState);
+  taskCollectionPromise.only(
+    samePageCheckGenerator(store),
+    (taskList) => {
+      const pageState = {
+        taskList: taskList.map(_taskState),
+        wizardState: { shown: false },
+      };
+      const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
+      channelCollectionPromise.then((channelList) => {
+        pageState.channelList = channelList;
+        store.dispatch('SET_PAGE_STATE', pageState);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      });
+    },
+    (error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
-  })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-  });
+    }
+  );
 }
 
 function updateWizardLocalDriveList(store) {
@@ -320,19 +328,27 @@ function cancelImportExportWizard(store) {
 
 // called from a timer to continually update UI
 function pollTasksAndChannels(store) {
-  TaskResource.getCollection().fetch({}, true).then(
+  const samePageCheck = samePageCheckGenerator(store);
+  TaskResource.getCollection().fetch({}, true).only(
+    // don't handle response if we've switched pages or if we're in the middle of another operation
+    () => samePageCheck() && !store.state.pageState.wizardState.busy,
     (taskList) => {
-      ChannelResource.getCollection({}).fetch({}, true).then((channelList) => {
-        store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
-        store.dispatch('SET_CONTENT_PAGE_CHANNELS', channelList);
+      // Perform channel poll AFTER task poll to ensure UI is always in a consistent state.
+      // I.e. channel list always reflects the current state of ongoing task(s).
+      ChannelResource.getCollection({}).fetch({}, true).only(
+        samePageCheckGenerator(store),
+        (channelList) => {
+          store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
+          store.dispatch('SET_CONTENT_PAGE_CHANNELS', channelList);
 
-        // Close the wizard if there's an outstanding task.
-        // (this can be removed when we support more than one
-        // concurrent task.)
-        if (taskList.length && store.state.pageState.wizardState.shown) {
-          cancelImportExportWizard(store);
+          // Close the wizard if there's an outstanding task.
+          // (this can be removed when we support more than one
+          // concurrent task.)
+          if (taskList.length && store.state.pageState.wizardState.shown) {
+            cancelImportExportWizard(store);
+          }
         }
-      });
+      );
     },
     (error) => {
       logging.error(`poll error: ${error}`);
