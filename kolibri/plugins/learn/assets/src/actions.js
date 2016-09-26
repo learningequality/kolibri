@@ -151,8 +151,8 @@ function redirectToExploreChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
-  _getCurrentChannelId()
-    .then((currentChannelId) => {
+  _getCurrentChannelId().then(
+    (currentChannelId) => {
       store.dispatch('CORE_SET_ERROR', null);
       if (currentChannelId) {
         store.dispatch('SET_CURRENT_CHANNEL', currentChannelId);
@@ -166,19 +166,21 @@ function redirectToExploreChannel(store) {
       } else {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
-    })
-    .catch((error) => {
+    },
+    (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+    }
+  );
 }
+
 
 function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
 
-  _getCurrentChannelId()
-    .then((currentChannelId) => {
+  _getCurrentChannelId().then(
+    (currentChannelId) => {
       store.dispatch('CORE_SET_ERROR', null);
       if (currentChannelId) {
         store.dispatch('SET_CURRENT_CHANNEL', currentChannelId);
@@ -192,11 +194,12 @@ function redirectToLearnChannel(store) {
       } else {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
-    })
-    .catch((error) => {
+    },
+    (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+    }
+  );
 }
 
 function showExploreChannel(store, channelId) {
@@ -206,8 +209,8 @@ function showExploreChannel(store, channelId) {
   cookiejs.set('currentChannel', channelId);
   ContentNodeResource.setChannel(channelId);
 
-  _getCurrentChannelRootTopicId()
-    .then((rootTopicId) => {
+  _getCurrentChannelRootTopicId().then(
+    (rootTopicId) => {
       store.dispatch('SET_ROOT_TOPIC_ID', rootTopicId);
       const attributesPromise = ContentNodeResource.getModel(rootTopicId).fetch();
       const childrenPromise = ContentNodeResource.getCollection({ parent: rootTopicId }).fetch();
@@ -234,7 +237,8 @@ function showExploreChannel(store, channelId) {
     (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+    }
+  );
 }
 
 
