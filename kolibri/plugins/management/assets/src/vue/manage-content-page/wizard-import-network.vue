@@ -4,7 +4,6 @@
     title="Import from the Internet"
     :error="wizardState.error"
     :enablebgclickcancel="false"
-    :disableclose="wizardState.busy"
     :enablebackbtn="true"
     @cancel="cancel"
     @enter="submit"

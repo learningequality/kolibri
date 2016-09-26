@@ -3,7 +3,6 @@
   <core-modal
     title="Export to a Local Drive"
     :error="wizardState.error ? true : false"
-    :disableclose="wizardState.busy"
     :enablebgclickcancel="false"
     @cancel="cancel"
     @enter="submit"
@@ -49,8 +48,7 @@
     <div class="button-wrapper">
       <icon-button
         @click="cancel"
-        text="Cancel"
-        :disabled="wizardState.busy">
+        text="Cancel">
       </icon-button>
       <icon-button
         text="Export"

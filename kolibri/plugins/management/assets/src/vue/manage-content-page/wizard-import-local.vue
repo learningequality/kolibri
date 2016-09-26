@@ -4,7 +4,6 @@
     title="Import from a Local Drive"
     :error="wizardState.error"
     :enablebgclickcancel="false"
-    :disableclose="wizardState.busy"
     :enablebackbtn="true"
     @cancel="cancel"
     @enter="submit"
@@ -53,8 +52,7 @@
     <div class="button-wrapper">
       <icon-button
         @click="cancel"
-        text="Cancel"
-        :disabled="wizardState.busy">
+        text="Cancel">
       </icon-button>
       <icon-button
         text="Import"
