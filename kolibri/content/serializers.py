@@ -15,13 +15,22 @@ class ChannelMetadataCacheSerializer(serializers.ModelSerializer):
 
 class FileSerializer(serializers.ModelSerializer):
     storage_url = serializers.SerializerMethodField()
+    preset = serializers.SerializerMethodField()
+    download_url = serializers.SerializerMethodField()
 
     def get_storage_url(self, target_node):
         return target_node.get_storage_url()
 
+    def get_preset(self, target_node):
+        return target_node.get_preset()
+
+    def get_download_url(self, target_node):
+        return target_node.get_download_url()
+
     class Meta:
         model = File
-        fields = ('storage_url', 'id', 'priority', 'checksum', 'available', 'file_size', 'extension', 'preset', 'lang', 'supplementary', 'thumbnail')
+        fields = ('storage_url', 'id', 'priority', 'checksum', 'available', 'file_size', 'extension', 'preset', 'lang',
+                  'supplementary', 'thumbnail', 'download_url')
 
 
 class ContentNodeSerializer(serializers.ModelSerializer):
