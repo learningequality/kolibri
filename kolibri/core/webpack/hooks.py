@@ -92,23 +92,26 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: A dict of the data contained in the JSON files which are
           written by Webpack.
         """
-        with open(self.stats_file) as f:
-            stats = json.load(f)
-        if django_settings.DEBUG:
-            timeout = 0
-            while stats['status'] == 'compiling':
-                time.sleep(getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1))
-                timeout += getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1)
-                with open(self.stats_file) as f:
-                    stats = json.load(f)
-                if timeout >= getattr(settings, 'WEBPACK_POLL_INTERVAL', 1.0):
-                    raise WebpackError('Webpack compilation still in progress')
-            if stats['status'] == 'error':
-                raise WebpackError('Webpack compilation has errored')
-        return {
-            "files": stats.get("chunks", {}).get(self.unique_slug, []),
-            "hasMessages": stats.get("messages", False),
-        }
+        try:
+            with open(self.stats_file) as f:
+                stats = json.load(f)
+            if django_settings.DEBUG:
+                timeout = 0
+                while stats['status'] == 'compiling':
+                    time.sleep(getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1))
+                    timeout += getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1)
+                    with open(self.stats_file) as f:
+                        stats = json.load(f)
+                    if timeout >= getattr(settings, 'WEBPACK_POLL_INTERVAL', 1.0):
+                        raise WebpackError('Webpack compilation still in progress')
+                if stats['status'] == 'error':
+                    raise WebpackError('Webpack compilation has errored')
+            return {
+                "files": stats.get("chunks", {}).get(self.unique_slug, []),
+                "hasMessages": stats.get("messages", False),
+            }
+        except IOError:
+            raise WebpackError('Webpack build file missing, front-end assets cannot be loaded')
 
     @property
     @hooks.registered_method
