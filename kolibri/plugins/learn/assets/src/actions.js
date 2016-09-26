@@ -209,14 +209,14 @@ function showExploreTopic(store, channelId, id) {
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
   cookiejs.set('currentChannel', channelId);
 
-  const attributesPromise = ContentNodeResource.getModel(id).fetch();
+  const topicPromise = ContentNodeResource.getModel(id).fetch();
   const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
   _updateChannelList(store);
-  ConditionalPromise.all([attributesPromise, childrenPromise]).only(
+  ConditionalPromise.all([topicPromise, childrenPromise]).only(
     samePageCheckGenerator(store),
-    ([attributes, children]) => {
+    ([topic, children]) => {
       const pageState = { id };
-      pageState.topic = _topicState(attributes);
+      pageState.topic = _topicState(topic);
       const collection = _collectionState(children);
       pageState.subtopics = collection.topics;
       pageState.contents = collection.contents;
@@ -258,13 +258,13 @@ function showExploreContent(store, channelId, id) {
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
   cookiejs.set('currentChannel', channelId);
 
-  const attributesPromise = ContentNodeResource.getModel(id).fetch();
+  const contentPromise = ContentNodeResource.getModel(id).fetch();
   _updateChannelList(store);
 
-  attributesPromise.only(
+  contentPromise.only(
     samePageCheckGenerator(store),
-    (attributes) => {
-      const pageState = { content: _contentState(attributes) };
+    (content) => {
+      const pageState = { content: _contentState(content) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
@@ -325,15 +325,15 @@ function showLearnContent(store, channelId, id) {
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
   cookiejs.set('currentChannel', channelId);
-  const attributesPromise = ContentNodeResource.getModel(id).fetch();
+  const contentPromise = ContentNodeResource.getModel(id).fetch();
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
   _updateChannelList(store);
 
-  attributesPromise.only(
+  contentPromise.only(
     samePageCheckGenerator(store),
-    (attributes) => {
+    (content) => {
       const pageState = {
-        content: _contentState(attributes),
+        content: _contentState(content),
         recommended: store.state.pageState.recommended,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
