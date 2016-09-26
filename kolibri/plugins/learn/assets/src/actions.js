@@ -202,45 +202,6 @@ function redirectToLearnChannel(store) {
   );
 }
 
-function showExploreChannel(store, channelId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
-  store.dispatch('SET_CURRENT_CHANNEL', channelId);
-  cookiejs.set('currentChannel', channelId);
-  ContentNodeResource.setChannel(channelId);
-
-  _getCurrentChannelRootTopicId().then(
-    (rootTopicId) => {
-      store.dispatch('SET_ROOT_TOPIC_ID', rootTopicId);
-      const attributesPromise = ContentNodeResource.getModel(rootTopicId).fetch();
-      const childrenPromise = ContentNodeResource.getCollection({ parent: rootTopicId }).fetch();
-      _updateChannelList(store);
-
-      ConditionalPromise.all([attributesPromise, childrenPromise]).only(
-        samePageCheckGenerator(store),
-        ([attributes, children]) => {
-          const pageState = { rootTopicId };
-          pageState.topic = _topicState(attributes);
-          const collection = _collectionState(children);
-          pageState.subtopics = collection.topics;
-          pageState.contents = collection.contents;
-          store.dispatch('SET_PAGE_STATE', pageState);
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-          store.dispatch('CORE_SET_ERROR', null);
-        },
-        (error) => {
-          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-        }
-      );
-    },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    }
-  );
-}
-
 
 function showExploreTopic(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -262,6 +223,26 @@ function showExploreTopic(store, channelId, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
+    },
+    (error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    }
+  );
+}
+
+
+function showExploreChannel(store, channelId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+  store.dispatch('SET_CURRENT_CHANNEL', channelId);
+  cookiejs.set('currentChannel', channelId);
+  ContentNodeResource.setChannel(channelId);
+
+  _getCurrentChannelRootTopicId().then(
+    (rootTopicId) => {
+      store.dispatch('SET_ROOT_TOPIC_ID', rootTopicId);
+      showExploreTopic(store, channelId, rootTopicId);
     },
     (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
