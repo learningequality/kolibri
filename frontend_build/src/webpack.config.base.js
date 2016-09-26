@@ -32,6 +32,7 @@ var fs = require('fs');
 var webpack = require('webpack');
 var jeet = require('jeet');
 var autoprefixer = require('autoprefixer');
+var merge = require('webpack-merge');
 
 var aliases = require('./apiSpecExportTools').coreAliases();
 
@@ -42,18 +43,6 @@ require('./htmlhint_custom'); // adds custom rules
 
 var config = {
   module: {
-    preLoaders: [
-      {
-        test: /\.(vue|js)$/,
-        loader: 'eslint',
-        exclude: /node_modules/
-      },
-      {
-        test: /\.(vue|html)/,
-        loader: 'htmlhint',
-        exclude: /node_modules/
-      }
-    ],
     loaders: [
       {
         test: /\.vue$/,
@@ -83,7 +72,7 @@ var config = {
       },
       {
         test: /\.styl$/,
-        loader: 'style-loader!css-loader?sourceMap!postcss-loader!stylus-loader!stylint'
+        loader: 'style-loader!css-loader?sourceMap!postcss-loader!stylus-loader'
       },
       // moved from parse_bundle_plugin.js
       {
@@ -127,7 +116,7 @@ var config = {
   },
   vue: {
     loaders: {
-      stylus: 'vue-style-loader!css-loader?sourceMap!stylus-loader!stylint',
+      stylus: 'vue-style-loader!css-loader?sourceMap!stylus-loader',
       html: 'vue-html-loader!svg-inline', // inlines SVGs
     }
   },
@@ -141,5 +130,37 @@ var config = {
     __filename: true
   }
 };
+
+if (process.env.LINT || process.env.NODE_ENV === 'production') {
+  // Only lint in dev mode if LINT env is set. Always lint in production.
+  var lintConfig = {
+    module: {
+      preLoaders: [
+        {
+          test: /\.(vue|js)$/,
+          loader: 'eslint',
+          exclude: /node_modules/
+        },
+        {
+          test: /\.(vue|html)/,
+          loader: 'htmlhint',
+          exclude: /node_modules/
+        }
+      ],
+      loaders: [
+        {
+          test: /\.styl$/,
+          loader: 'style-loader!css-loader?sourceMap!postcss-loader!stylus-loader!stylint'
+        }
+      ],
+    },
+    vue: {
+      loaders: {
+        stylus: 'vue-style-loader!css-loader?sourceMap!stylus-loader!stylint'
+      }
+    },
+  };
+  config = merge.smart(config, lintConfig);
+}
 
 module.exports = config;

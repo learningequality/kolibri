@@ -50,6 +50,10 @@ matrix:
       env:
         - TOX_ENV=postgres
         - TRAVIS_NODE_VERSION="0.12"
+    - python: "2.7"
+      env:
+        - TOX_ENV=npmbuild
+        - TRAVIS_NODE_VERSION="4"
 
 before_install:
   - pip install codecov

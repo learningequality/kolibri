@@ -1,140 +1,105 @@
 var assert = require('assert');
 var rewire = require('rewire');
+var _ = require('lodash');
 
 var parseBundlePlugin = require('../src/parse_bundle_plugin');
 var readBundlePlugins = rewire('../src/read_bundle_plugins');
 
+var baseData = {
+  name: "kolibri.plugin.test.test_plugin",
+  src_file: "src/file.js",
+  stats_file: "output.json",
+  static_url_root: "static",
+  static_dir: "kolibri/plugin/test",
+  locale_data_folder: "kolibri/locale/test",
+  version: "test",
+  plugin_path: "kolibri/plugin"
+};
+
+var baseData1 = {
+  name: "kolibri.plugin.test.test_plugin1",
+  src_file: "src/file1.js",
+  stats_file: "output1.json",
+  static_url_root: "static1",
+  static_dir: "kolibri/plugin/test1",
+  locale_data_folder: "kolibri/locale/test1",
+  version: "test",
+  plugin_path: "kolibri/plugin1"
+};
+
 describe('parseBundlePlugin', function() {
+  var data;
+  beforeEach(function() {
+    data = _.clone(baseData);
+  });
   describe('input is valid, bundles output', function() {
     it('should have one entry', function (done) {
-      var data = {
-        name: "kolibri.plugin.test.test_plugin",
-        src_file: "src/file.js",
-        stats_file: "output.json",
-        static_url_root: "static",
-        static_dir: "kolibri/plugin/test",
-        locale_data_folder: "kolibri/locale/test",
-        plugin_path: "kolibri/plugin"
-      };
       assert(typeof parseBundlePlugin(data, "/")[0] !== "undefined");
       done();
     });
   });
   describe('input is missing name, bundles output', function() {
     it('should be undefined', function (done) {
-      var data = {
-        src_file: "src/file.js",
-        stats_file: "output.json",
-        static_url_root: "static",
-        static_dir: "kolibri/plugin/test",
-        locale_data_folder: "kolibri/locale/test",
-        plugin_path: "kolibri/plugin"
-      };
+      delete data.name
       assert(typeof parseBundlePlugin(data, "/") === "undefined");
       done();
     });
   });
   describe('input is missing src_file, bundles output', function() {
     it('should be undefined', function (done) {
-      var data = {
-        name: "kolibri.plugin.test.test_plugin",
-        stats_file: "output.json",
-        static_url_root: "static",
-        static_dir: "kolibri/plugin/test",
-        locale_data_folder: "kolibri/locale/test",
-        plugin_path: "kolibri/plugin"
-      };
+      delete data.src_file
       assert(typeof parseBundlePlugin(data, "/") === "undefined");
       done();
     });
   });
   describe('input is missing stats_file, bundles output', function() {
     it('should be undefined', function (done) {
-      var data = {
-        name: "kolibri.plugin.test.test_plugin",
-        src_file: "src/file.js",
-        static_url_root: "static",
-        static_dir: "kolibri/plugin/test",
-        locale_data_folder: "kolibri/locale/test",
-        plugin_path: "kolibri/plugin"
-      };
+      delete data.stats_file
       assert(typeof parseBundlePlugin(data, "/") === "undefined");
       done();
     });
   });
   describe('input is missing static_dir, bundles output', function() {
     it('should be undefined', function (done) {
-      var data = {
-        name: "kolibri.plugin.test.test_plugin",
-        src_file: "src/file.js",
-        static_url_root: "static",
-        stats_file: "output.json",
-        locale_data_folder: "kolibri/locale/test",
-        plugin_path: "kolibri/plugin"
-      };
+      delete data.static_dir
       assert(typeof parseBundlePlugin(data, "/") === "undefined");
       done();
     });
   });
   describe('input is missing locale_data_folder, bundles output', function() {
     it('should be undefined', function (done) {
-      var data = {
-        name: "kolibri.plugin.test.test_plugin",
-        src_file: "src/file.js",
-        static_url_root: "static",
-        stats_file: "output.json",
-        static_dir: "kolibri/plugin/test",
-        plugin_path: "kolibri/plugin"
-      };
+      delete data.locale_data_folder
       assert(typeof parseBundlePlugin(data, "/") === "undefined");
       done();
     });
   });
   describe('input is missing plugin_path, bundles output', function() {
     it('should be undefined', function (done) {
-      var data = {
-        name: "kolibri.plugin.test.test_plugin",
-        src_file: "src/file.js",
-        static_url_root: "static",
-        stats_file: "output.json",
-        static_dir: "kolibri/plugin/test",
-        locale_data_folder: "kolibri/locale/test"
-      };
+      delete data.plugin_path;
+      assert(typeof parseBundlePlugin(data, "/") === "undefined");
+      done();
+    });
+  });
+  describe('input is missing version, bundles output', function() {
+    it('should be undefined', function (done) {
+      delete data.version
       assert(typeof parseBundlePlugin(data, "/") === "undefined");
       done();
     });
   });
   describe('input is valid, has externals flag and core_name value, externals output', function() {
     it('should have one entry', function (done) {
-      var data = {
-        name: "kolibri.plugin.test.test_plugin",
-        src_file: "src/file.js",
-        external: true,
-        stats_file: "output.json",
-        static_dir: "kolibri/plugin/test",
-        static_url_root: "static",
-        core_name: "test_core",
-        locale_data_folder: "kolibri/locale/test",
-        plugin_path: "kolibri/plugin"
-      };
+      data.external = true;
+      data.core_name = "test_core";
       assert(typeof parseBundlePlugin(data, "/")[1] !== "undefined");
       done();
     });
   });
   describe('input is valid, has core flag', function() {
     it('should have its name set to kolibriGlobal', function (done) {
-      var data = {
-        name: "kolibri.plugin.test.test_plugin",
-        src_file: "src/file.js",
-        external: true,
-        core_name: "kolibriGlobal",
-        stats_file: "output.json",
-        static_url_root: "static",
-        static_dir: "kolibri/plugin/test",
-        locale_data_folder: "kolibri/locale/test",
-        plugin_path: "kolibri/plugin"
-      };
-      assert.equal(parseBundlePlugin(data, "/")[0].output.library, "kolibriGlobal");
+      data.external = true;
+      data.core_name = "kolibriGlobal";
+      assert.equal(parseBundlePlugin(data, "/")[0].output.library, data.core_name);
       done();
     });
   });
@@ -152,24 +117,8 @@ describe('readBundlePlugins', function() {
   describe('two valid inputs, output', function() {
     it('should have two entries', function (done) {
       data = [
-        {
-          name: "kolibri.plugin.test.test_plugin",
-          src_file: "src/file.js",
-          stats_file: "output.json",
-          static_url_root: "static",
-          static_dir: "kolibri/plugin/test",
-          locale_data_folder: "kolibri/locale/test",
-          plugin_path: "kolibri/plugin"
-        },
-        {
-          name: "kolibri.plugin.test.test_plugin1",
-          src_file: "src/file1.js",
-          stats_file: "output1.json",
-          static_url_root: "static",
-          static_dir: "kolibri/plugin/test",
-          locale_data_folder: "kolibri/locale/test",
-          plugin_path: "kolibri/plugin"
-        }
+        baseData,
+        baseData1
       ];
       assert(readBundlePlugins("", "").length === 2);
       done();
@@ -177,24 +126,11 @@ describe('readBundlePlugins', function() {
   });
   describe('one valid input out of two, output', function() {
     it('should have one entry', function (done) {
+      var badData = _.clone(baseData);
+      delete badData.src_file;
       data = [
-        {
-          name: "kolibri.plugin.test.test_plugin",
-          stats_file: "output.json",
-          static_url_root: "static",
-          static_dir: "kolibri/plugin/test",
-          locale_data_folder: "kolibri/locale/test",
-          plugin_path: "kolibri/plugin"
-        },
-        {
-          name: "kolibri.plugin.test.test_plugin1",
-          src_file: "src/file1.js",
-          stats_file: "output1.json",
-          static_url_root: "static",
-          static_dir: "kolibri/plugin/test",
-          locale_data_folder: "kolibri/locale/test",
-          plugin_path: "kolibri/plugin"
-        }
+        badData,
+        baseData1
       ];
       assert(readBundlePlugins("", "").length === 1);
       done();
@@ -202,23 +138,13 @@ describe('readBundlePlugins', function() {
   });
   describe('no valid input, output', function() {
     it('should have no entries', function (done) {
+      var badData = _.clone(baseData);
+      delete badData.src_file;
+      var badData1 = _.clone(baseData1);
+      delete badData1.src_file;
       data = [
-        {
-          name: "kolibri.plugin.test.test_plugin",
-          stats_file: "output.json",
-          static_url_root: "static",
-          static_dir: "kolibri/plugin/test",
-          locale_data_folder: "kolibri/locale/test",
-          plugin_path: "kolibri/plugin"
-        },
-        {
-          name: "kolibri.plugin.test.test_plugin1",
-          stats_file: "output1.json",
-          static_url_root: "static",
-          static_dir: "kolibri/plugin/test",
-          locale_data_folder: "kolibri/locale/test",
-          plugin_path: "kolibri/plugin"
-        }
+        badData,
+        badData1
       ];
       assert(readBundlePlugins("", "").length === 0);
       done();
@@ -226,28 +152,14 @@ describe('readBundlePlugins', function() {
   });
   describe('two external flags on inputs, one with core_name value, externals output', function() {
     it('should have one entry', function (done) {
+      var coreData = _.clone(baseData);
+      coreData.external = true;
+      coreData.core_name = "test_global";
+      var coreData1 = _.clone(baseData1);
+      coreData1.external = true;
       data = [
-        {
-          name: "kolibri.plugin.test.test_plugin",
-          src_file: "src/file.js",
-          stats_file: "output.json",
-          external: true,
-          static_dir: "kolibri/plugin/test",
-          static_url_root: "static",
-          core_name: "test_global",
-          locale_data_folder: "kolibri/locale/test",
-          plugin_path: "kolibri/plugin"
-        },
-        {
-          name: "kolibri.plugin.test.test_plugin1",
-          src_file: "src/file1.js",
-          stats_file: "output1.json",
-          external: true,
-          static_url_root: "static",
-          static_dir: "kolibri/plugin/test",
-          locale_data_folder: "kolibri/locale/test",
-          plugin_path: "kolibri/plugin"
-        }
+        coreData,
+        coreData1
       ];
       assert(Object.keys(readBundlePlugins("", function(){return {};})[0].externals).length === 1);
       done();
@@ -255,29 +167,16 @@ describe('readBundlePlugins', function() {
   });
   describe('two identically named external flags on inputs, externals output', function() {
     it('should have one entry', function (done) {
+      var coreData = _.clone(baseData);
+      coreData.external = true;
+      coreData.core_name = "test_global";
+      var coreData1 = _.clone(baseData1);
+      coreData1.name = coreData.name;
+      coreData1.external = true;
+      coreData1.core_name = "test_global";
       data = [
-        {
-          name: "kolibri.plugin.test.test_plugin",
-          src_file: "src/file.js",
-          stats_file: "output.json",
-          external: true,
-          static_dir: "kolibri/plugin/test",
-          static_url_root: "static",
-          core_name: "test_global",
-          locale_data_folder: "kolibri/locale/test",
-          plugin_path: "kolibri/plugin"
-        },
-        {
-          name: "kolibri.plugin.test.test_plugin",
-          src_file: "src/file1.js",
-          stats_file: "output1.json",
-          external: true,
-          static_dir: "kolibri/plugin/test",
-          static_url_root: "static",
-          core_name: "test_global",
-          locale_data_folder: "kolibri/locale/test",
-          plugin_path: "kolibri/plugin"
-        }
+        coreData,
+        coreData1
       ];
       assert(Object.keys(readBundlePlugins("", function(){return {};})[0].externals).length === 1);
       done();

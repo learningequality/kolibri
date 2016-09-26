@@ -37,7 +37,8 @@ var parseBundlePlugin = function(data, base_dir) {
       (typeof data.static_url_root === "undefined") ||
       (typeof data.stats_file === "undefined") ||
       (typeof data.locale_data_folder === "undefined") ||
-      (typeof data.plugin_path === "undefined")) {
+      (typeof data.plugin_path === "undefined") ||
+      (typeof data.version === "undefined")) {
     logging.error(data.name + ' plugin is misconfigured, missing parameter(s)');
     return;
   }
@@ -97,13 +98,26 @@ var parseBundlePlugin = function(data, base_dir) {
     new extract$trs(data.locale_data_folder, data.name)
   ]);
 
+  var publicPath, outputPath;
+
+  if (process.env.DEV_SERVER) {
+    var devServerConfig = require('./webpackdevserverconfig');
+    // If running webpack dev server point to that endpoint.
+    publicPath = devServerConfig.publicPath;
+    // Set output path to base dir, as no files will be written - all built files are cached in memory.
+    outputPath = devServerConfig.basePath ? path.resolve(path.join(base_dir, devServerConfig.basePath)) : path.resolve(base_dir);
+  } else {
+    publicPath = path.join("/", data.static_url_root, data.name, "/");
+    outputPath = path.join(data.static_dir, data.name);
+  }
+
   bundle.core_name = data.core_name;
   bundle.name = data.name;
   bundle.context = base_dir;
   bundle.output = {
-    path: path.join(data.static_dir, data.name),
-    filename: "[name]-[hash].js",
-    publicPath: path.join("/", data.static_url_root, data.name, "/"),
+    path: outputPath,
+    filename: "[name]-" + data.version + ".js",
+    publicPath: publicPath,
     library: library
   };
 

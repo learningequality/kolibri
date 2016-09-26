@@ -39,6 +39,10 @@ class Command(RunserverCommand):
             help='Tells Django runserver to spawn a webpack watch subprocess.',
         )
         parser.add_argument(
+            '--lint', action='store_true', dest='lint', default=False,
+            help='Tells Django runserver to run the linting option on webpack subprocess.',
+        )
+        parser.add_argument(
             '--karma', action='store_true', dest='karma', default=False,
             help='Tells Django runserver to spawn a karma test watch subprocess.',
         )
@@ -51,7 +55,7 @@ class Command(RunserverCommand):
     def handle(self, *args, **options):
 
         if options["webpack"]:
-            self.spawn_webpack()
+            self.spawn_webpack(lint=options["lint"])
 
         if options["karma"]:
             self.spawn_karma()
@@ -63,8 +67,8 @@ class Command(RunserverCommand):
 
         return super(Command, self).handle(*args, **options)
 
-    def spawn_webpack(self):
-        self.spawn_subprocess("webpack_process", self.start_webpack, self.kill_webpack_process)
+    def spawn_webpack(self, lint):
+        self.spawn_subprocess("webpack_process", self.start_webpack, self.kill_webpack_process, lint=lint)
 
     def spawn_karma(self):
         self.spawn_subprocess("karma_process", self.start_karma, self.kill_karma_process)
@@ -72,12 +76,12 @@ class Command(RunserverCommand):
     def spawn_qcluster(self):
         self.spawn_subprocess("qcluster_process", self.start_qcluster, self.kill_qcluster_process)
 
-    def spawn_subprocess(self, process_name, process_start, process_kill):
+    def spawn_subprocess(self, process_name, process_start, process_kill, **kwargs):
         # We're subclassing runserver, which spawns threads for its
         # autoreloader with RUN_MAIN set to true, we have to check for
         # this to avoid running browserify twice.
         if not os.getenv('RUN_MAIN', False) and not getattr(self, process_name):
-            subprocess_thread = Thread(target=process_start)
+            subprocess_thread = Thread(target=process_start, kwargs=kwargs)
             subprocess_thread.daemon = True
             subprocess_thread.start()
             atexit.register(process_kill)
@@ -93,12 +97,17 @@ class Command(RunserverCommand):
 
         self.webpack_process.terminate()
 
-    def start_webpack(self):
+    def start_webpack(self, lint=False):
 
-        logger.info('Starting webpack process from Django runserver command')
+        if lint:
+            cli_command = 'npm run watch -- --lint'
+            logger.info('Starting webpack process with linting from Django runserver command')
+        else:
+            cli_command = 'npm run watch'
+            logger.info('Starting webpack process from Django runserver command')
 
         self.webpack_process = subprocess.Popen(
-            'npm run watch',
+            cli_command,
             shell=True,
             stdin=subprocess.PIPE,
             stdout=sys.stdout,
