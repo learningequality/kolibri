@@ -124,7 +124,7 @@ class ContentNodeFilter(filters.FilterSet):
 
         if self.data['channel']:  # filter by channel if available
             session_logs = ContentSessionLog.objects.filter(channel_id=self.data['channel'])
-            cache_key = 'popular_for_{}'.format(self.data['channel_id'])
+            cache_key = 'popular_for_{}'.format(self.data['channel'])
             if cache.get(cache_key):
                 return cache.get(cache_key)
         else:
