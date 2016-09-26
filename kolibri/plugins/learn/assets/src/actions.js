@@ -215,7 +215,7 @@ function showExploreTopic(store, channelId, id) {
   ConditionalPromise.all([topicPromise, childrenPromise]).only(
     samePageCheckGenerator(store),
     ([topic, children]) => {
-      const pageState = { id };
+      const pageState = {};
       pageState.topic = _topicState(topic);
       const collection = _collectionState(children);
       pageState.subtopics = collection.topics;
