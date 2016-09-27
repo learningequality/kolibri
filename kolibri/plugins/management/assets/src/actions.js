@@ -54,6 +54,25 @@ function _taskState(data) {
 
 
 /**
+ * Title Helpers
+ */
+
+function _managePageTitle(title) {
+  if (title) {
+    return `Manage - ${title}`;
+  }
+  return 'Manage';
+}
+
+function _errorTitle(title) {
+  if (title) {
+    return `Error - ${title}`;
+  }
+  return 'Error';
+}
+
+
+/**
  * Actions
  *
  * These methods are used to update client-side state
@@ -219,10 +238,12 @@ function showUserPage(store) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
+      document.title = _managePageTitle('Users');
     },
     (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      document.title = _errorTitle();
     }
   );
 }
@@ -248,11 +269,13 @@ function showContentPage(store) {
         pageState.channelList = channelList;
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
+        document.title = _managePageTitle('Content');
       });
     },
     (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      document.title = _errorTitle();
     }
   );
 }
@@ -419,6 +442,7 @@ function showDataPage(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
+  document.title = _managePageTitle('Data');
 }
 
 function showScratchpad(store) {
@@ -426,6 +450,7 @@ function showScratchpad(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
+  document.title = _managePageTitle('Scratchpad');
 }
 
 module.exports = {
