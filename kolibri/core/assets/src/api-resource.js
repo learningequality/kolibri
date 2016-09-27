@@ -322,6 +322,7 @@ class Collection {
 
   set synced(value) {
     this._synced = value;
+    this.models.forEach((model) => { model.synced = true; });
   }
 
   static key(params) {
