@@ -3,7 +3,6 @@
   <core-modal
     title="Export to a Local Drive"
     :error="wizardState.error ? true : false"
-    :disableclose="wizardState.busy"
     :enablebgclickcancel="false"
     @cancel="cancel"
     @enter="submit"
@@ -41,7 +40,7 @@
           </icon-button>
         </div>
       </template>
-      <loading-spinner v-else :delay="0" class="spinner"></loading-spinner>
+      <loading-spinner v-else :delay="500" class="spinner"></loading-spinner>
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}
@@ -49,8 +48,7 @@
     <div class="button-wrapper">
       <icon-button
         @click="cancel"
-        text="Cancel"
-        :disabled="wizardState.busy">
+        text="Cancel">
       </icon-button>
       <icon-button
         text="Export"
@@ -135,9 +133,12 @@
 
   @require '~kolibri/styles/coreTheme'
 
+  $min-height = 200px
+
   .main
     text-align: center
     margin: 3em 0
+    min-height: $min-height
 
   h2
     font-size: 1em
@@ -166,6 +167,6 @@
     text-align: center
 
   .spinner
-    height: 200px
+    height: $min-height
 
 </style>
