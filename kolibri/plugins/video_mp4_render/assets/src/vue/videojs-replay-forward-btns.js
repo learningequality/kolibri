@@ -3,7 +3,7 @@ const videojsButton = videojs.getComponent('Button');
 
 class ReplayButton extends videojsButton {
   buildCSSClass() {
-    return 'vjs-control vjs-button videoreplay';
+    return `vjs-icon-replay_10 ${super.buildCSSClass()}`;
   }
   handleClick() {
     const player = this.player();
@@ -13,7 +13,7 @@ class ReplayButton extends videojsButton {
 
 class ForwardButton extends videojsButton {
   buildCSSClass() {
-    return 'vjs-control vjs-button videoforward';
+    return `vjs-icon-forward_10 ${super.buildCSSClass()}`;
   }
   handleClick() {
     const player = this.player();

@@ -29,8 +29,8 @@
     $trNameSpace: 'videoRender',
 
     $trs: {
-      replay: 'Replay',
-      forward: 'Forward',
+      replay: 'Skip back 10 seconds.',
+      forward: 'Skip forward 10 seconds.',
     },
 
     props: ['files'],
@@ -79,7 +79,7 @@
     methods: {
       getLangName(langCode) {
         return langcodes.filter(
-            (lang) => lang.code === langCode
+          (lang) => lang.code === langCode
         )[0].lang;
       },
 
@@ -224,12 +224,13 @@
   @require '~kolibri/styles/coreTheme'
   // Unable to reference the videojs using require since videojs doesn't have good webpack support
   @import '../../../node_modules/video.js/dist/video-js.css'
-
+  // Custom build icons.
+  @import '../videojs-font/css/videojs-icons.css'
 
   $video-player-color = black
-  $video-player-accent-color = #ffc107
+  $video-player-accent-color = $core-action-dark
 
-
+  // Containers
   .videowrapperwrapper
     width: 100%
     height: 100%
@@ -244,11 +245,13 @@
     height: 100%
     background-color: black
 
+  // Video Player
   .video-js
     font-size: 1em
     font-family: $core-font
     color: white
 
+    /// Big Play Button
     .vjs-big-play-button
       position: absolute
       top: 50%
@@ -260,49 +263,33 @@
       border: none
       background-color: $video-player-color
 
-
+    .vjs-big-play-button:before
+      font-size: 2em
+      line-height: 1em
 
     &:hover
       .vjs-big-play-button
         background-color: $video-player-color
 
-    .vjs-control-bar,
-    .vjs-menu-button .vjs-menu-content
-      font-size: 1em
-
-    .vjs-button
-      width: 48px
-      height: 48px
-
-
-
-
-
+    // Sliders
     .vjs-slider
       background-color: grey
 
-    .vjs-volume-menu-button,
-    .vjs-playback-rate-value,
-    .videoreplay,
-    .videoforward,
-    .vjs-captions,
-    .vjs-fullscreen-control
-      font-size: 36px
-
-
-
+    // Seek Bar
     .vjs-progress-control
       position: absolute
       left: 0
       right: 0
       width: auto
-      height: 2em
-      top: -1em
+      top: -28px
       visibility: inherit
       opacity: inherit
+      &:hover
+        .vjs-progress-holder
+          font-size: 1em
 
     .vjs-progress-holder
-      margin: 0
+      margin: 7px
 
     .vjs-load-progress
       background: darkgrey
@@ -310,81 +297,56 @@
     .vjs-play-progress
       background-color: $video-player-accent-color
 
-    .vjs-progress-control
-      &:hover
-        .vjs-progress-holder
-          font-size: 1em
+    .vjs-play-progress:before
+      color: $video-player-accent-color
 
+    // Control Bar
     .vjs-control-bar,
-    .vjs-menu-button .vjs-menu-content
+    .vjs-menu-button, .vjs-menu-content
       background-color: $video-player-color
 
     .vjs-control-bar
       justify-content: center
+      padding-top: 10px
+      height: 60px
 
-    .vjs-current-time,
-    .vjs-duration
-      position: absolute
-      visibility: inherit
-      opacity: inherit
-      top: 0
-      font-size: 0.5em
-
-    .vjs-current-time-display,
-    .vjs-duration-display
-      font-size: 16px
-
-    .vjs-current-time
-      display: block
-      left: 0
-      width: 48px
-      height: 48px
-      color: $video-player-accent-color
-
-    .vjs-duration
-      display: block
-      right: 0
 
     .vjs-menu
       li
-        &:focus,
-        &:hover
+        &:focus, &:hover
           background-color: grey
 
-    .vjs-volume-menu-button
-      .vjs-slider
-        background-color: grey
+        .vjs-selected
+          background-color: black
+          color: $video-player-accent-color
 
-    .videoreplay
-      background: url('../icons/replay.svg')
-      background-repeat: no-repeat
-      background-position: center
-      background-size: 45%
-      bottom: 0
+    .vjs-menu-button-popup .vjs-menu .vjs-menu-content
+      background-color: black
 
-    .videoforward
-      background: url('../icons/forward.svg')
-      background-repeat: no-repeat
-      background-position: center
-      background-size: 45%
-      bottom: 0
-
-    .vjs-captions-button
-      display: block
+    // Buttons
+    .vjs-button
+      width: 48px
+      height: 48px
 
     .vjs-control:before
+      font-size: 24px
       line-height: 48px
-      font-size: 36px
 
     .vjs-play-control:before
       font-size: 48px
-      color: $video-player-accent-color
 
-    .vjs-play-progress:before
-      color: $video-player-accent-color
+    // Time
+    .vjs-current-time,
+    .vjs-duration
+      display: block
+      position: absolute
+      visibility: inherit
+      opacity: inherit
 
-    .vjs-menu li.vjs-selected
-      background-color: black
-      color: $video-player-accent-color
+    .vjs-current-time
+      left: 0
+
+    .vjs-duration
+      right: 0
 
 </style>
