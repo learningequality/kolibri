@@ -350,8 +350,8 @@ class FrontEndCoreAssetHook(WebpackBundleHook):
 
         :return: HTML of script tags for insertion into a page.
         """
-        tags = ['<script>var coreLanguageMessages = {messages};</script>'.format(
-            messages=self.frontend_messages)] + list(self.js_and_css_tags())
+        tags = (['<script>var coreLanguageMessages = {messages};</script>'.format(
+            messages=self.frontend_messages)] if self.frontend_messages else []) + list(self.js_and_css_tags())
 
         return mark_safe('\n'.join(tags))
 
