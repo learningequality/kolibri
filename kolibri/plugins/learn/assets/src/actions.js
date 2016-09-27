@@ -72,8 +72,9 @@ function _collectionState(data) {
 
 /*
  * Returns the promise that fetches the channel list.
+ * Also updates the store with that information.
  */
-function _getChannelList() {
+function _updateChannelList(store) {
   let returnChannelList = null;
   return new Promise((resolve, reject) => {
     ChannelResource.getCollection({}).fetch()
@@ -81,6 +82,7 @@ function _getChannelList() {
         if (channelList.length) {
           returnChannelList = channelList;
         }
+        store.dispatch('SET_CHANNEL_LIST', returnChannelList);
         resolve(returnChannelList);
       });
   });
@@ -90,10 +92,10 @@ function _getChannelList() {
 /*
  * Returns a promise that fetches the current channel id.
  */
-function _getCurrentChannelId() {
+function _getCurrentChannelId(store) {
   let currentChannelId = null;
   return new Promise((resolve, reject) => {
-    _getChannelList()
+    _updateChannelList(store)
       .then((channelList) => {
         if (channelList && channelList.length) {
           const cookieCurrentChannelId = cookiejs.get('currentChannel');
@@ -112,11 +114,11 @@ function _getCurrentChannelId() {
 /*
  * Returns a promise that fetches the the root topic id of the current channel.
  */
-function _getCurrentChannelRootTopicId() {
+function _getCurrentChannelRootTopicId(store) {
   let currentChannelRootTopicId = null;
   return new ConditionalPromise((resolve, reject) => {
-    const currentChannelIdPromise = _getCurrentChannelId();
-    const channelListPromise = _getChannelList();
+    const currentChannelIdPromise = _getCurrentChannelId(store);
+    const channelListPromise = _updateChannelList(store);
     Promise.all([currentChannelIdPromise, channelListPromise])
     .then(([currentChannelId, channelList]) => {
       if (currentChannelId && channelList) {
@@ -132,14 +134,6 @@ function _getCurrentChannelRootTopicId() {
   });
 }
 
-function _updateChannelList(store) {
-  const channelPromise = _getChannelList();
-  channelPromise.then((channelList) => {
-    store.dispatch('SET_CHANNEL_LIST', channelList);
-  });
-  return channelPromise;
-}
-
 
 /**
  * Actions
@@ -151,7 +145,7 @@ function redirectToExploreChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
-  _getCurrentChannelId().then(
+  _getCurrentChannelId(store).then(
     (currentChannelId) => {
       store.dispatch('CORE_SET_ERROR', null);
       if (currentChannelId) {
@@ -179,7 +173,7 @@ function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
 
-  _getCurrentChannelId().then(
+  _getCurrentChannelId(store).then(
     (currentChannelId) => {
       store.dispatch('CORE_SET_ERROR', null);
       if (currentChannelId) {
@@ -239,7 +233,7 @@ function showExploreChannel(store, channelId) {
   cookiejs.set('currentChannel', channelId);
   ContentNodeResource.setChannel(channelId);
 
-  _getCurrentChannelRootTopicId().then(
+  _getCurrentChannelRootTopicId(store).then(
     (rootTopicId) => {
       store.dispatch('SET_ROOT_TOPIC_ID', rootTopicId);
       showExploreTopic(store, channelId, rootTopicId);
