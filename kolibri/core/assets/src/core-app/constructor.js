@@ -81,7 +81,8 @@ module.exports = class CoreApp {
        * Use the vue-intl plugin.
        **/
       const VueIntl = require('vue-intl');
-      vue.use(VueIntl);
+      vue.use(VueIntl, { defaultLocale: 'en-us' });
+
       vue.prototype.$tr = function $tr(messageId, ...args) {
         const defaultMessageText = this.$options.$trs[messageId];
         const message = {
