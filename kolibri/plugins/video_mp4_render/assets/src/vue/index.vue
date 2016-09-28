@@ -165,6 +165,86 @@
           Math.floor(this.videoPlayer.duration())));
         this.progressStartingPoint = this.videoPlayer.currentTime();
       },
+
+      handleHotkey(e) {
+        const keyCode = e.keyCode;
+
+        switch (keyCode) {
+          case 32: // space = toggle play
+            this.togglePlay();
+            break;
+
+          case 37: // left = replay
+            this.replay();
+            break;
+
+          case 39: // right = forward
+            this.forward();
+            break;
+
+          case 38: // up = increase volume
+            this.increaseVolume();
+            break;
+
+          case 40: // decrease volume
+            this.decreaseVolume();
+            break;
+
+          case 77: // m = toggle mute
+            this.toggleMute();
+            break;
+
+          case 70: // f = toggle full screen
+            this.toggleFullScreen();
+            break;
+
+          default:
+            break;
+
+          // TODO: Other possible hotkeys to handle.
+          // < = decrease video speed
+          // > increase video speed
+          // c closed captions
+          // 1 - 9  seek
+        }
+      },
+
+      togglePlay() {
+        if (this.videoPlayer.paused()) {
+          this.videoPlayer.play();
+        } else {
+          this.videoPlayer.pause();
+        }
+      },
+
+      replay() {
+        this.videoPlayer.currentTime(Math.max(0, (this.videoPlayer.currentTime() - 10)));
+      },
+
+      forward() {
+        this.videoPlayer.currentTime(Math.min(this.videoPlayer.duration(),
+          (this.videoPlayer.currentTime() + 10)));
+      },
+
+      increaseVolume() {
+        this.videoPlayer.volume(this.videoPlayer.volume() + 0.1);
+      },
+
+      decreaseVolume() {
+        this.videoPlayer.volume(this.videoPlayer.volume() - 0.1);
+      },
+
+      toggleMute() {
+        this.videoPlayer.muted(!this.videoPlayer.muted());
+      },
+
+      toggleFullScreen() {
+        if (this.videoPlayer.isFullscreen()) {
+          this.videoPlayer.exitFullscreen();
+        } else {
+          this.videoPlayer.requestFullscreen();
+        }
+      },
     },
 
     created() {
@@ -207,11 +287,13 @@
 
       this.videoPlayer.on('loadedmetadata', this.loadedMetaData);
       global.addEventListener('resize', this.debouncedResizeVideo);
+      global.addEventListener('keyup', this.handleHotkey);
     },
     beforeDestroy() {
       this.recordProgress();
       this.$emit('stopTracking');
       global.removeEventListener('resize', this.debouncedResizeVideo);
+      global.removeEventListener('keyup', this.handleHotkey);
       this.videoPlayer.dispose();
     },
   };
@@ -334,6 +416,14 @@
 
     .vjs-play-control:before
       font-size: 48px
+
+    // Replay and Forward Buttons
+    .vjs-icon-replay_10
+      margin-left: 50px
+
+    .vjs-icon-forward_10
+      margin-right: 50px
+
 
     // Time
     .vjs-current-time,
