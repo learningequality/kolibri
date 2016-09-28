@@ -311,6 +311,8 @@
 
   $video-player-color = black
   $video-player-accent-color = #e91e63
+  $button-size = 48px
+  $font-size = 48px
 
   // Containers
   .videowrapperwrapper
@@ -329,9 +331,11 @@
 
   // Video Player
   .video-js
-    font-size: 1em
-    font-family: $core-font
     color: white
+    font-family: $core-font
+    font-size: 1em
+    @media screen and (max-width: 840px)
+      font-size: 0.75em
 
     /// Big Play Button
     .vjs-big-play-button
@@ -407,15 +411,23 @@
 
     // Buttons
     .vjs-button
-      width: 48px
-      height: 48px
+      width: $font-size
+      height: $font-size
+      @media screen and (max-width: 840px)
+        width: $font-size * 0.66
+        height: $font-size * 0.66
 
     .vjs-control:before
-      font-size: 24px
-      line-height: 48px
+      font-size: $font-size * 0.66
+      line-height: $font-size
+      @media screen and (max-width: 840px)
+        font-size: $font-size * 0.33
+        line-height: $font-size * 0.66
 
     .vjs-play-control:before
-      font-size: 48px
+      font-size: $font-size
+      @media screen and (max-width: 840px)
+        font-size: $font-size * 0.66
 
     // Replay and Forward Buttons
     .vjs-icon-replay_10
