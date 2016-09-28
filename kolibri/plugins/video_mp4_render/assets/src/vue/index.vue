@@ -335,9 +335,7 @@
     font-family: $core-font
     font-size: 1em
     @media screen and (max-width: 840px)
-      font-size: 0.75em
-
-    /// Big Play Button
+      font-size: 0.75em /// Big Play Button
     .vjs-big-play-button
       position: absolute
       top: 50%
@@ -396,7 +394,6 @@
       padding-top: 10px
       height: 60px
 
-
     .vjs-menu
       li
         &:focus, &:hover
@@ -436,7 +433,6 @@
     .vjs-icon-forward_10
       margin-right: 50px
 
-
     // Time
     .vjs-current-time,
     .vjs-duration
@@ -451,7 +447,7 @@
     .vjs-duration
       right: 0
 
-   // No Flex Zone
+  // No Flex Zone
   .vjs-no-flex .vjs-duration
     position: relative
     left: 40px
