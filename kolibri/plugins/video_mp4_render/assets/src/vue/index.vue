@@ -310,7 +310,7 @@
   @import '../videojs-font/css/videojs-icons.css'
 
   $video-player-color = black
-  $video-player-accent-color = $core-action-dark
+  $video-player-accent-color = #e91e63
 
   // Containers
   .videowrapperwrapper
