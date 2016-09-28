@@ -206,9 +206,13 @@ function redirectToLearnChannel(store) {
 }
 
 
-function showExploreTopic(store, channelId, id, customTitle) {
+function showExploreTopic(store, channelId, id, isRoot = false) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_TOPIC);
+  if (isRoot) {
+    store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+  } else {
+    store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_TOPIC);
+  }
 
   const topicPromise = ContentNodeResource.getModel(id).fetch();
   const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
@@ -227,8 +231,9 @@ function showExploreTopic(store, channelId, id, customTitle) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      if (customTitle) {
-        document.title = _explorePageTitle(customTitle);
+      if (isRoot) {
+        const currentChannel = getters.currentChannel(store.state);
+        document.title = _explorePageTitle(currentChannel.title);
       } else {
         document.title = _explorePageTitle(pageState.topic.title);
       }
@@ -253,7 +258,7 @@ function showExploreChannel(store, channelId) {
       }
       const currentChannel = getters.currentChannel(store.state);
       store.dispatch('SET_ROOT_TOPIC_ID', currentChannel.root_id);
-      showExploreTopic(store, channelId, currentChannel.root_id, currentChannel.title);
+      showExploreTopic(store, channelId, currentChannel.root_id, true);
     }
   );
 }
