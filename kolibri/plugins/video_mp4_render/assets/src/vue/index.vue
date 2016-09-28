@@ -440,7 +440,7 @@
     // Time
     .vjs-current-time,
     .vjs-duration
-      display: block
+      display: inline-block
       position: absolute
       visibility: inherit
       opacity: inherit
@@ -450,5 +450,10 @@
 
     .vjs-duration
       right: 0
+
+   // No Flex Zone
+  .vjs-no-flex .vjs-duration
+    position: relative
+    left: 40px
 
 </style>
