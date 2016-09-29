@@ -1,11 +1,17 @@
 import logging as logger
 
+from django.apps.registry import AppRegistryNotReady
+try:
+    from django.apps import apps
+    apps.check_apps_ready()
+except AppRegistryNotReady:
+    import django; django.setup()
+
 import requests
 from django.core.management import call_command
 from django.http import Http404
 from django.utils.translation import ugettext as _
-from django_q.models import OrmQ, Task
-from django_q.tasks import async
+from django_q.humanhash import uuid
 from kolibri.content.models import ChannelMetadataCache
 from kolibri.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.content.utils.paths import get_content_database_file_url
@@ -13,12 +19,20 @@ from rest_framework import serializers, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
+from multiprocessing import Process
+
 logging = logger.getLogger(__name__)
+
+def start_process_windows(channel_id, TASKTYPE, task_id):
+
+    from django_q.tasks import async
+    async(_networkimport, channel_id, sync=True, group=TASKTYPE, progress_updates=True, uuid=task_id)
 
 
 class TasksViewSet(viewsets.ViewSet):
 
     def list(self, request):
+        import django; django.setup()
         from django_q.models import Task
         tasks_response = [_task_to_response(t) for t in Task.objects.all()]
         return Response(tasks_response)
@@ -28,6 +42,7 @@ class TasksViewSet(viewsets.ViewSet):
         pass
 
     def retrieve(self, request, pk=None):
+        import django; django.setup()
         from django_q.models import Task
 
         task = _task_to_response(Task.get_task(pk))
@@ -43,6 +58,9 @@ class TasksViewSet(viewsets.ViewSet):
         download its content.
 
         '''
+        # Importing django/running setup because Windows...
+        import django; django.setup()
+        from django_q.models import Task
         TASKTYPE = "remoteimport"
 
         if "channel_id" not in request.data:
@@ -55,10 +73,13 @@ class TasksViewSet(viewsets.ViewSet):
         if status == 404:
             raise Http404(_("The requested channel does not exist on the content server."))
 
-        task_id = async(_networkimport, channel_id, group=TASKTYPE, sync=True, progress_updates=True)
+        task_id = uuid()
+
+        task_process = Process(target=start_process_windows, args=(channel_id, TASKTYPE, task_id))
+        task_process.start()
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id)
+        resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id[1])
 
         return Response(resp)
 
@@ -68,7 +89,10 @@ class TasksViewSet(viewsets.ViewSet):
         Import a channel from a local drive, and copy content to the local machine.
 
         '''
+        # Importing django/running setup because Windows...
         TASKTYPE = "localimport"
+        import django; django.setup()
+        from django_q.models import Task
 
         if "drive_id" not in request.data:
             raise serializers.ValidationError("The 'drive_id' field is required.")
@@ -87,6 +111,8 @@ class TasksViewSet(viewsets.ViewSet):
 
         '''
         TASKTYPE = "localexport"
+        import django; django.setup()
+        from django_q.models import Task
 
         if "drive_id" not in request.data:
             raise serializers.ValidationError("The 'drive_id' field is required.")
@@ -103,6 +129,8 @@ class TasksViewSet(viewsets.ViewSet):
         '''
         Clears a task with its task id given in the task_id parameter.
         '''
+        import django; django.setup()
+        from django_q.models import Task, OrmQ
 
         if 'task_id' not in request.data:
             raise serializers.ValidationError("The 'task_id' field is required.")
