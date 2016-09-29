@@ -105,7 +105,7 @@
         this.$els.modal.focus();
       },
       focusElementTest(event) {
-        // FocusOut happens when the element is about to be blurred
+        // if the focus moved outside the modal, put it back
         if (this.$els.modal && !this.$els.modal.contains(event.target)) {
           this.focusModal();
         }
