@@ -7,7 +7,7 @@ from django.test.utils import override_settings
 from kolibri.auth.models import DeviceOwner
 from kolibri.content.models import File, ContentNode
 from kolibri.content.utils.paths import get_content_storage_file_path
-from le_utils import constants
+from le_utils.constants import file_formats, format_presets
 
 CONTENT_STORAGE_DIR_TEMP = tempfile.mkdtemp()
 
@@ -26,12 +26,12 @@ class DownloadContentTestCase(TestCase):
 
         self.client = Client()
         self.hash = hashlib.md5("DUMMYDATA".encode()).hexdigest()
-        self.extension = dict(constants.format_choices).get("pdf")
+        self.extension = dict(file_formats.choices).get("pdf")
         self.filename = "{}.{}".format(self.hash, self.extension)
         self.title = "abc123!@#$%^&*();'[],./?><"
         self.contentnode = ContentNode(title=self.title)
         self.available = True
-        self.preset = constants.FP_DOCUMENT
+        self.preset = format_presets.DOCUMENT
         self.file = File(checksum=self.hash, extension=self.extension, available=self.available,
                          contentnode=self.contentnode, preset=self.preset)
 

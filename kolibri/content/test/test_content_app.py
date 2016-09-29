@@ -12,7 +12,7 @@ from django.db import connections
 from django.test.utils import override_settings
 from kolibri.content import models as content
 from django.conf import settings
-from le_utils.constants import CK_TOPIC
+from le_utils.constants import content_kinds
 from ..content_db_router import set_active_content_database, using_content_database
 from ..errors import ContentModelUsedOutsideDBContext
 from rest_framework.test import APITestCase
@@ -115,14 +115,14 @@ class ContentNodeTestCase(TestCase):
 
         p = content.ContentNode.objects.get(title="root")
         expected_output = content.ContentNode.objects.filter(title__in=["c2"])
-        actual_output = p.get_descendants(include_self=False).filter(kind=CK_TOPIC)
+        actual_output = p.get_descendants(include_self=False).filter(kind=content_kinds.TOPIC)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_top_level_topics(self):
 
         p = content.ContentNode.objects.get(title="root")
-        expected_output = content.ContentNode.objects.filter(parent=p, kind=CK_TOPIC)
-        actual_output = content.ContentNode.objects.get(parent__isnull=True).get_children().filter(kind=CK_TOPIC)
+        expected_output = content.ContentNode.objects.filter(parent=p, kind=content_kinds.TOPIC)
+        actual_output = content.ContentNode.objects.get(parent__isnull=True).get_children().filter(kind=content_kinds.TOPIC)
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_all_str(self):
