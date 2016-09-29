@@ -55,7 +55,7 @@ class TasksViewSet(viewsets.ViewSet):
         if status == 404:
             raise Http404(_("The requested channel does not exist on the content server."))
 
-        task_id = async(_networkimport, channel_id, group=TASKTYPE, progress_updates=True)
+        task_id = async(_networkimport, channel_id, group=TASKTYPE, sync=True, progress_updates=True)
 
         # attempt to get the created Task, otherwise return pending status
         resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id)
