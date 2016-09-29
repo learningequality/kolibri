@@ -117,7 +117,7 @@ describe('Resource', function () {
       const Rest = function () { return this; };
       Rest.prototype.wrap = function () { return this; };
       const testClient = new Rest();
-      Resources.__set__('rest', testClient);
+      this.resource.kolibri.client = testClient;
       assert.equal(this.resource.client, testClient);
     });
   });
@@ -151,6 +151,60 @@ describe('Resource', function () {
       const spy = sinon.spy(this.resource, 'addModel');
       this.resource.createModel({});
       assert.ok(spy.calledOnce);
+    });
+  });
+  describe('addModel method', function () {
+    it('should return a model instance', function () {
+      assert.ok(this.resource.addModel({}) instanceof Resources.Model);
+    });
+    it('should call createModel if passed an object', function () {
+      const spy = sinon.spy(this.resource, 'createModel');
+      this.resource.addModel({});
+      assert.ok(spy.calledOnce);
+    });
+    it('should not call createModel if passed a Model', function () {
+      const spy = sinon.spy(this.resource, 'createModel');
+      this.resource.addModel(new Resources.Model({}, this.resource));
+      assert.ok(!spy.called);
+    });
+    it('should not add a model to the cache if no id', function () {
+      this.resource.addModel(new Resources.Model({}, this.resource));
+      assert.deepEqual({}, this.resource.models);
+    });
+    it('should add a model to the cache if it has an id', function () {
+      const model = this.resource.addModel(new Resources.Model({ id: 'test' }, this.resource));
+      assert.deepEqual({ test: model }, this.resource.models);
+    });
+    it('should update the model in the cache if a model with matching id is found', function () {
+      const model = new Resources.Model({ id: 'test' }, this.resource);
+      this.resource.models.test = model;
+      this.resource.addModel(new Resources.Model({ id: 'test', example: 'prop' }, this.resource));
+      assert.deepEqual({ test: model }, this.resource.models);
+      assert.equal(model.attributes.example, 'prop');
+    });
+  });
+  describe('getCollection method', function () {
+    it('should return a collection instance', function () {
+      assert.ok(this.resource.getCollection({}) instanceof Resources.Collection);
+    });
+    it('should return an existing collection from the cache', function () {
+      const testCollection = new Resources.Collection({}, [], this.resource);
+      this.resource.collections['{}'] = testCollection;
+      assert.equal(this.resource.getCollection({}), testCollection);
+    });
+    it('should call create collection if the collection is not in the cache', function () {
+      const spy = sinon.spy(this.resource, 'createCollection');
+      this.resource.getCollection({});
+      assert.ok(spy.calledOnce);
+    });
+  });
+  describe('createCollection method', function () {
+    it('should return a collection instance', function () {
+      assert.ok(this.resource.createCollection({}) instanceof Resources.Collection);
+    });
+    it('should add the collection to the cache', function () {
+      const collection = this.resource.createCollection({});
+      assert.equal(this.resource.collections[collection.key], collection);
     });
   });
 });
