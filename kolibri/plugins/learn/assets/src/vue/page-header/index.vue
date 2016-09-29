@@ -1,14 +1,11 @@
 <template>
 
-  <div class='header-wrapper'>
-    <div class='extra-nav'>
-      <slot name='extra-nav'></slot>
+  <div class="header-wrapper">
+    <div class="extra-nav">
+      <slot name="extra-nav"></slot>
     </div>
-    <h1 class='header'>
-      <div class='icon-wrapper'>
-        <slot name='icon'></slot>
-      </div>
-      <div class='text'>
+    <h1 class="header">
+      <div class="text">
         {{ title }}
       </div>
     </h1>
@@ -35,7 +32,7 @@
   /** WARNING - unscoped styles for children                  */
   /* use very precise selectors to minimize risk of collision */
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .header-wrapper .extra-nav a
     color: $core-text-annotation
@@ -61,15 +58,8 @@
 
   .header
     position: relative
-    margin-top: 0.3em
-
-  .icon-wrapper
-    display: block
-    position: absolute
-    top: -1px
 
   .text
     display: block
-    margin-left: 45px
 
 </style>

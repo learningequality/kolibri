@@ -1,10 +1,12 @@
 const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
 const ChannelResource = require('kolibri').resources.ChannelResource;
+const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('./state/constants');
 const PageNames = constants.PageNames;
 const cookiejs = require('js-cookie');
-const router = require('router');
-
+const router = require('kolibri/coreVue/router');
+const ConditionalPromise = require('kolibri/lib/conditionalPromise');
+const samePageCheckGenerator = require('kolibri/coreVue/vuex/actions').samePageCheckGenerator;
 
 /**
  * Vuex State Mappers
@@ -35,11 +37,11 @@ function _topicState(data) {
 function _contentState(data) {
   let progress;
   if (!data.progress_fraction) {
-    progress = 'unstarted';
-  } else if (data.progress_fraction < 1) {
-    progress = 'partial';
+    progress = 0.0;
+  } else if (data.progress_fraction > 1.0) {
+    progress = 1.0;
   } else {
-    progress = 'complete';
+    progress = data.progress_fraction;
   }
   const state = {
     id: data.pk,
@@ -112,7 +114,7 @@ function _getCurrentChannelId() {
  */
 function _getCurrentChannelRootTopicId() {
   let currentChannelRootTopicId = null;
-  return new Promise((resolve, reject) => {
+  return new ConditionalPromise((resolve, reject) => {
     const currentChannelIdPromise = _getCurrentChannelId();
     const channelListPromise = _getChannelList();
     Promise.all([currentChannelIdPromise, channelListPromise])
@@ -130,13 +132,20 @@ function _getCurrentChannelRootTopicId() {
   });
 }
 
+function _updateChannelList(store) {
+  const channelPromise = _getChannelList();
+  channelPromise.then((channelList) => {
+    store.dispatch('SET_CHANNEL_LIST', channelList);
+  });
+  return channelPromise;
+}
+
 
 /**
  * Actions
  *
  * These methods are used to update client-side state
  */
-
 
 function redirectToExploreChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -148,14 +157,14 @@ function redirectToExploreChannel(store) {
       if (currentChannelId) {
         store.dispatch('SET_CURRENT_CHANNEL', currentChannelId);
         cookiejs.set('currentChannel', currentChannelId);
-        router.go({
+        router.replace({
           name: constants.PageNames.EXPLORE_CHANNEL,
           params: {
             channel_id: currentChannelId,
           },
         });
       } else {
-        router.go({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     })
     .catch((error) => {
@@ -163,7 +172,6 @@ function redirectToExploreChannel(store) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
-
 
 function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -175,14 +183,14 @@ function redirectToLearnChannel(store) {
       if (currentChannelId) {
         store.dispatch('SET_CURRENT_CHANNEL', currentChannelId);
         cookiejs.set('currentChannel', currentChannelId);
-        router.go({
+        router.replace({
           name: constants.PageNames.LEARN_CHANNEL,
           params: {
             channel_id: currentChannelId,
           },
         });
       } else {
-        router.go({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     })
     .catch((error) => {
@@ -203,9 +211,11 @@ function showExploreChannel(store, channelId) {
       store.dispatch('SET_ROOT_TOPIC_ID', rootTopicId);
       const attributesPromise = ContentNodeResource.getModel(rootTopicId).fetch();
       const childrenPromise = ContentNodeResource.getCollection({ parent: rootTopicId }).fetch();
-      const channelPromise = ChannelResource.getCollection({}).fetch();
-      Promise.all([attributesPromise, childrenPromise, channelPromise])
-        .then(([attributes, children, channelList]) => {
+      _updateChannelList(store);
+
+      ConditionalPromise.all([attributesPromise, childrenPromise]).only(
+        samePageCheckGenerator(store),
+        ([attributes, children]) => {
           const pageState = { rootTopicId };
           pageState.topic = _topicState(attributes);
           const collection = _collectionState(children);
@@ -214,10 +224,14 @@ function showExploreChannel(store, channelId) {
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
-          store.dispatch('SET_CHANNEL_LIST', channelList);
-        });
-    })
-    .catch((error) => {
+        },
+        (error) => {
+          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+        }
+      );
+    },
+    (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
@@ -232,9 +246,10 @@ function showExploreTopic(store, channelId, id) {
 
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
-  const channelPromise = ChannelResource.getCollection({}).fetch();
-  Promise.all([attributesPromise, childrenPromise, channelPromise])
-    .then(([attributes, children, channelList]) => {
+  _updateChannelList(store);
+  ConditionalPromise.all([attributesPromise, childrenPromise]).only(
+    samePageCheckGenerator(store),
+    ([attributes, children]) => {
       const pageState = { id };
       pageState.topic = _topicState(attributes);
       const collection = _collectionState(children);
@@ -243,12 +258,12 @@ function showExploreTopic(store, channelId, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_CHANNEL_LIST', channelList);
-    })
-    .catch((error) => {
+    },
+    (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+    }
+  );
 }
 
 
@@ -259,20 +274,21 @@ function showExploreContent(store, channelId, id) {
   cookiejs.set('currentChannel', channelId);
 
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
-  const channelPromise = ChannelResource.getCollection({}).fetch();
+  _updateChannelList(store);
 
-  Promise.all([attributesPromise, channelPromise])
-    .then(([attributes, channelList]) => {
+  attributesPromise.only(
+    samePageCheckGenerator(store),
+    (attributes) => {
       const pageState = { content: _contentState(attributes) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_CHANNEL_LIST', channelList);
-    })
-    .catch((error) => {
+    },
+    (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+    }
+  );
 }
 
 
@@ -283,21 +299,39 @@ function showLearnChannel(store, channelId) {
   cookiejs.set('currentChannel', channelId);
   ContentNodeResource.setChannel(channelId);
 
-  const recommendedPromise =
-    ContentNodeResource.getCollection({ recommendations: '' }).fetch({}, true);
-  const channelPromise = ChannelResource.getCollection({}).fetch();
-  Promise.all([recommendedPromise, channelPromise])
-    .then(([recommendations, channelList]) => {
-      const pageState = { recommendations: recommendations.map(_contentState) };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_CHANNEL_LIST', channelList);
-    })
-    .catch((error) => {
+  const id = 'current';
+  const sessionModel = SessionResource.getModel(id);
+  const sessionPromise = sessionModel.fetch();
+  sessionPromise.then(
+    (session) => {
+      const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
+      const popularPayload = { popular: session.user_id, channel: channelId };
+      const resumePayload = { resume: session.user_id, channel: channelId };
+      const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
+      const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
+      const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
+      _updateChannelList(store);
+      ConditionalPromise.all([nextStepsPromise, popularPromise, resumePromise]).only(
+        samePageCheckGenerator(store),
+        ([nextSteps, popular, resume]) => {
+          const pageState = { recommendations: { nextSteps: nextSteps.map(_contentState),
+                                                 popular: popular.map(_contentState),
+                                                 resume: resume.map(_contentState) } };
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.dispatch('CORE_SET_ERROR', null);
+        },
+        (error) => {
+          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+        }
+      );
+    },
+    (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+    }
+  );
 }
 
 
@@ -306,26 +340,42 @@ function showLearnContent(store, channelId, id) {
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
   cookiejs.set('currentChannel', channelId);
-
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
-  const channelPromise = ChannelResource.getCollection({}).fetch();
+  _updateChannelList(store);
 
-  Promise.all([attributesPromise, recommendedPromise, channelPromise])
-    .then(([attributes, recommended, channelList]) => {
+  attributesPromise.only(
+    samePageCheckGenerator(store),
+    (attributes) => {
       const pageState = {
         content: _contentState(attributes),
+        recommended: store.state.pageState.recommended,
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+    },
+    (error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    }
+  );
+  recommendedPromise.only(
+    samePageCheckGenerator(store),
+    (recommended) => {
+      const pageState = {
+        content: store.state.pageState.content,
         recommended: recommended.map(_contentState),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_CHANNEL_LIST', channelList);
-    })
-    .catch((error) => {
+    },
+    (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+    }
+  );
 }
 
 
@@ -358,6 +408,13 @@ function triggerSearch(store, searchTerm) {
     });
 }
 
+function clearSearch(store) {
+  store.dispatch('SET_SEARCH_STATE', {
+    topics: [],
+    contents: [],
+    searchTerm: '',
+  });
+}
 
 function toggleSearch(store) {
   store.dispatch('TOGGLE_SEARCH');
@@ -392,4 +449,5 @@ module.exports = {
   showContentUnavailable,
   triggerSearch,
   toggleSearch,
+  clearSearch,
 };

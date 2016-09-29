@@ -19,6 +19,7 @@ Architecture
    building
    conventions
    frontend
+   i18n
 
 Themes
 ------
@@ -26,6 +27,7 @@ Themes
 .. toctree::
    :maxdepth: 1
 
+   content
    uap
    user_management
    asset_loading

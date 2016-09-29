@@ -1,12 +1,14 @@
 <template>
 
-  <div class="user-creation-modal">
-    <modal v-ref:modal btntext="Add New">
-
-      <h1 slot="header" class="header">Add New Account</h1>
-
-      <div @keyup.enter="createNewUser" slot="body">
-
+  <core-modal
+    title="Add New Account"
+    :has-error="errorMessage ? true : false"
+    @enter="createNewUser"
+    @cancel="close"
+  >
+    <div>
+      <!-- Fields for the user to fill out -->
+      <section class="user-fields">
         <div class="user-field">
           <label for="name">Name</label>
           <input @focus="clearErrorMessage" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
@@ -34,19 +36,20 @@
           <option value="admin"> Admin </option>
           </select>
         </div>
+      </section>
 
-      </div>
-
-      <div class="footer" slot="footer">
-        <p class="error-message" v-if="errorMessage">{{errorMessage}}</p>
-        <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
-      </div>
-
-      <icon-button class="add-user-button" text="Add New" :primary="false" slot="openbtn">
-        <svg class="add-user" src="../icons/add_new_user.svg"></svg>
-      </icon-button>
-    </modal>
-  </div>
+      <!-- Button Options at footer of modal -->
+      <section class="footer">
+        <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
+        <icon-button
+          class="create-btn"
+          text="Create Account"
+          @keydown.enter.stop
+          @click="createNewUser">
+        </icon-button>
+      </section>
+    </div>
+  </core-modal>
 
 </template>
 
@@ -57,8 +60,7 @@
 
   module.exports = {
     components: {
-      'icon-button': require('icon-button'),
-      'modal': require('../modal'),
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
     },
     data() {
       return {
@@ -69,6 +71,10 @@
         role: 'learner',
         errorMessage: '',
       };
+    },
+    attached() {
+      // clear form on load
+      this.$data = this.$options.data();
     },
     methods: {
       createNewUser() {
@@ -87,18 +93,17 @@
         // create user
         } else {
           newUser.password = this.password;
+
+          // loading message
+          this.confirmation_message = 'Loading...';
           // using promise to ensure that the user is created before closing
           this.createUser(newUser, this.role).then(
             () => {
-              this.full_name = '';
-              this.username = '';
-              this.password = '';
-              this.passwordConfirm = '';
-              this.clearErrorMessage();
-              this.$refs.modal.closeModal();
+              this.close();
             }).catch((error) => {
-              if (error.status.code === 409) {
-                this.errorMessage = error.entity;
+              if (error.status.code === 400) {
+                // access the first error message
+                this.errorMessage = error.entity[Object.keys(error.entity)[0]];
               } else if (error.status.code === 403) {
                 this.errorMessage = error.entity;
               } else {
@@ -109,6 +114,9 @@
       },
       clearErrorMessage() {
         this.errorMessage = '';
+      },
+      close() {
+        this.$emit('close'); // signal parent to close
       },
     },
     vuex: {
@@ -126,7 +134,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme'
+  @require '~kolibri/styles/coreTheme'
 
   $button-content-size = 1em
 
@@ -172,10 +180,7 @@
       border-color: transparent
       color: $core-action-light
 
-  .add-user-button
-    width: 100%
-
-  .error-message
+  .error
     color: $core-text-alert
 
   .secondary

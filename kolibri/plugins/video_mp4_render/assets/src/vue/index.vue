@@ -1,19 +1,17 @@
 <template>
 
-  <div>
-    <div v-el:videowrapperwrapper class="videowrapperwrapper">
-      <div v-el:videowrapper class="videowrapper">
-        <video v-el:video class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
-          <template v-for="video in videoSources">
-            <source :src="video.storage_url" :type='"video/" + video.extension'>
-          </template>
-          <template v-for="track in trackSources">
-            <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
-          </template>
-        </video>
-      </div>
+  <div v-el:videowrapperwrapper class="videowrapperwrapper">
+    <loading-spinner v-if="loading"></loading-spinner>
+    <div v-el:videowrapper v-show="!loading" class="videowrapper">
+      <video v-el:video class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
+        <template v-for="video in videoSources">
+          <source :src="video.storage_url" :type="'video/' + video.extension">
+        </template>
+        <template v-for="track in trackSources">
+          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
+        </template>
+      </video>
     </div>
-
   </div>
 
 </template>
@@ -36,6 +34,7 @@
       dummyTime: 0,
       progressStartingPoint: 0,
       lastUpdateTime: 0,
+      loading: true,
     }),
 
     computed: {
@@ -96,6 +95,8 @@
         this.videoWidth = this.videoPlayer.videoWidth();
         this.videoHeight = this.videoPlayer.videoHeight();
         this.resizeVideo();
+        this.videoPlayerIsReady();
+        this.loading = false;
       },
 
       resizeVideo() {
@@ -123,62 +124,11 @@
         return debounce(this.resizeVideo, 300);
       },
 
-      updateTime() {
-        this.dummyTime = this.videoPlayer.currentTime();
-        if (this.dummyTime - this.lastUpdateTime >= 5) {
-          this.recordProgress();
-          this.lastUpdateTime = this.dummyTime;
-        }
-      },
-      /* Catches when a user jumps around/skips while playing the video */
-      handleSeek() {
-        /* Record any progress up to this point */
-        this.recordProgress();
-        /* Set last check to be where player is at now */
-        this.dummyTime = this.videoPlayer.currentTime();
-        this.lastUpdateTime = this.dummyTime;
-      },
+      videoPlayerIsReady() {
+        this.videoPlayer.addChild('ReplayButton');
+        this.videoPlayer.addChild('ForwardButton');
+        this.videoPlayer.addChild('TogglePlayButton');
 
-      recordProgress() {
-        this.$emit('progressUpdate', Math.max(0,
-          (this.dummyTime - this.progressStartingPoint) /
-          Math.floor(this.videoPlayer.duration())));
-        this.progressStartingPoint = this.videoPlayer.currentTime();
-      },
-    },
-
-    ready() {
-      this.videoPlayer = videojs(this.$els.video, {
-        fluid: true,
-        inactivityTimeout: 1000,
-        controls: true,
-        autoplay: false,
-        preload: 'auto',
-        poster: this.posterSource,
-        playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
-        textTrackDisplay: true,
-        ReplayButton: true,
-        ForwardButton: true,
-        TogglePlayButton: true,
-        bigPlayButton: false,
-        controlBar: {
-          children: [
-            { name: 'currentTimeDisplay' },
-            { name: 'timeDivider' },
-            { name: 'progressControl' },
-            { name: 'durationDisplay' },
-            { name: 'remainingTimeDisplay' },
-            { name: 'muteToggle' },
-            { name: 'VolumeBar' },
-            { name: 'playbackRateMenuButton' },
-            { name: 'captionsButton' },
-            { name: 'fullscreenToggle' },
-          ],
-        },
-      },
-
-
-      () => {
         const centerButtons = this.$els.videowrapper.childNodes[1];
         const toggleButton = centerButtons
           .getElementsByClassName('videotoggle')[0];
@@ -210,16 +160,67 @@
         videojs(this.$els.video).on('ended', () => {
           this.setPlayState(false);
         });
+      },
+
+      updateTime() {
+        this.dummyTime = this.videoPlayer.currentTime();
+        if (this.dummyTime - this.lastUpdateTime >= 5) {
+          this.recordProgress();
+          this.lastUpdateTime = this.dummyTime;
+        }
+      },
+      /* Catches when a user jumps around/skips while playing the video */
+      handleSeek() {
+        /* Record any progress up to this point */
+        this.recordProgress();
+        /* Set last check to be where player is at now */
+        this.dummyTime = this.videoPlayer.currentTime();
+        this.lastUpdateTime = this.dummyTime;
+      },
+
+      recordProgress() {
+        this.$emit('progressUpdate', Math.max(0,
+          (this.dummyTime - this.progressStartingPoint) /
+          Math.floor(this.videoPlayer.duration())));
+        this.progressStartingPoint = this.videoPlayer.currentTime();
+      },
+    },
+
+    ready() {
+      this.videoPlayer = videojs(this.$els.video, {
+        fluid: true,
+        autoplay: false,
+        controls: true,
+        textTrackDisplay: true,
+        bigPlayButton: false,
+        inactivityTimeout: 1000,
+        preload: 'metadata',
+        // poster: this.posterSource,
+        playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
+        controlBar: {
+          children: [
+            { name: 'currentTimeDisplay' },
+            { name: 'timeDivider' },
+            { name: 'progressControl' },
+            { name: 'durationDisplay' },
+            { name: 'remainingTimeDisplay' },
+            { name: 'muteToggle' },
+            { name: 'VolumeBar' },
+            { name: 'playbackRateMenuButton' },
+            { name: 'captionsButton' },
+            { name: 'fullscreenToggle' },
+          ],
+        },
       });
 
       this.videoPlayer.on('loadedmetadata', this.loadedMetaData);
-
       global.addEventListener('resize', this.debouncedResizeVideo);
     },
     beforeDestroy() {
       this.recordProgress();
       this.$emit('stopTracking');
       global.removeEventListener('resize', this.debouncedResizeVideo);
+      this.videoPlayer.dispose();
     },
   };
 
@@ -230,7 +231,7 @@
 
   // Default videojs stylesheet
   // Unable to reference the videojs using require since videojs doesn't have good webpack support
-  @import '../../../../../../node_modules/video.js/dist/video-js.css'
+  @import '../../../node_modules/video.js/dist/video-js.css'
 
   // Videojs skin customization
   .video-js
@@ -254,6 +255,12 @@
     background-color: rgba(0, 0, 0, 0.7)
 
    // Custom style
+  .videowrapperwrapper
+    width: 100%
+    height: 100%
+    background-color: rgba(0, 0, 0, 0)
+    position: relative
+
   .videowrapper
     top: 50%
     left: 50%
@@ -261,12 +268,6 @@
     position: relative
     height: 100%
     background-color: #000
-
-  .videowrapperwrapper
-    width: 100%
-    height: 100%
-    background-color: rgba(0, 0, 0, 0)
-    position: relative
 
   .video-js .vjs-menu
     font-family: 'NotoSans', 'sans-serif'
@@ -327,7 +328,6 @@
     background-size: contain
     background-color: rgba(0, 0, 0, 0.3)
 
-  .video-js .display,
   .video-js .display
     display: block
 

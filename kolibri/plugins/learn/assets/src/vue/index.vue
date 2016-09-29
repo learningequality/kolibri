@@ -1,15 +1,11 @@
 <template>
 
-  <core-base>
+  <core-base @scroll="handleScroll">
     <main-nav slot="nav"></main-nav>
-    <toolbar slot="above"></toolbar>
+    <toolbar slot="above" :shown="showToolbar"></toolbar>
     <component slot="content" :is="currentPage"></component>
-    <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
-      <div class='search-shadow'>
-        <search-widget
-          :show-topics="exploreMode">
-        </search-widget>
-      </div>
+    <div slot="below" class="search-pane" v-show="searchOpen" transition="search-slide">
+      <search-widget :show-topics="exploreMode"></search-widget>
     </div>
 
     <!-- this is not used, but necessary for vue-router to function -->
@@ -30,16 +26,32 @@
 
   module.exports = {
     components: {
-      'core-base': require('core-base'),
       'toolbar': require('./toolbar'),
       'main-nav': require('./main-nav'),
       'search-widget': require('./search-widget'),
-      'search-button': require('./search-widget/search-button'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
       'scratchpad-page': require('./scratchpad-page'),
       'content-unavailable-page': require('./content-unavailable-page'),
+    },
+    data: () => ({
+      currScrollTop: 0,
+      lastScrollTop: 0,
+      delta: 5,
+      showToolbar: true,
+    }),
+    methods: {
+      // hide and show the toolbar based on scrolling
+      handleScroll(position) {
+        this.position = position;
+        this.currScrollTop = position.scrollTop;
+        if (Math.abs(this.lastScrollTop - this.currScrollTop) <= this.delta) {
+          return;
+        }
+        this.showToolbar = this.currScrollTop < this.lastScrollTop;
+        this.lastScrollTop = this.currScrollTop;
+      },
     },
     computed: {
       currentPage() {
@@ -81,7 +93,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
   @require 'learn.styl'
 
   .search-pane
@@ -92,14 +104,8 @@
     left: 0
     height: 100%
     width: 100%
-    padding-left: $left-margin
-    @media screen and (max-width: $portrait-breakpoint)
-      padding-left: 0
-      margin-left: $card-gutter
-
-  .search-shadow
-    padding-right: $right-margin
-    min-height: 100%
+    @media screen and (min-width: $portrait-breakpoint + 1)
+      padding-left: $nav-width
 
   .search-slide-transition
     transition: transform $core-time ease-out

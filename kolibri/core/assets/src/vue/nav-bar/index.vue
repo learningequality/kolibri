@@ -1,7 +1,7 @@
 <template>
 
-  <div class='nav-wrapper'>
-    <nav class='nav-main' role="navigation" :aria-label="ariaLabel">
+  <div class="nav-wrapper">
+    <nav class="nav-main" role="navigation" :aria-label="ariaLabel">
       <slot></slot>
       <session-nav-widget></session-nav-widget>
     </nav>
@@ -37,7 +37,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .nav-wrapper
     display: table
@@ -48,6 +48,7 @@
     @media screen and (min-width: $portrait-breakpoint + 1)
       font-size: 1em
       height: 100%
+      width: $nav-width
     @media screen and (max-width: $portrait-breakpoint)
       font-size: 0.8em
       bottom: 0

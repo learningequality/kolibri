@@ -20,16 +20,15 @@
 
   const store = require('../state/store');
   const PageNames = require('../state/constants').PageNames;
-  const UserKinds = require('core-constants').UserKinds;
+  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
 
   module.exports = {
     components: {
-      'core-base': require('core-base'),
       'top-nav': require('./top-nav'),
       'main-nav': require('./main-nav'),
       'user-page': require('./user-page'),
       'data-page': require('./data-page'),
-      'content-page': require('./content-page'),
+      'manage-content-page': require('./manage-content-page'),
       'scratchpad-page': require('./scratchpad-page'),
     },
     computed: {
@@ -41,7 +40,7 @@
           return 'data-page';
         }
         if (this.pageName === PageNames.CONTENT_MGMT_PAGE) {
-          return 'content-page';
+          return 'manage-content-page';
         }
         if (this.pageName === PageNames.SCRATCHPAD) {
           return 'scratchpad-page';
@@ -69,7 +68,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .page
     padding: 1em 2em

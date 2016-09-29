@@ -37,4 +37,4 @@ Added
 Changed
 ^^^^^^^
 
- - Nothing so far
+ - Webpack build process now compatible with plugins housed outside the kolibri directory.

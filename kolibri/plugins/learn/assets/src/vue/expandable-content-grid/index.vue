@@ -12,11 +12,11 @@
       </content-grid-item>
     </card-grid>
 
-    <div class='button-wrapper' v-if="contents.length > nCollapsed">
-      <icon-button @click='toggle()' :text="less" v-if='expanded'>
+    <div class="button-wrapper" v-if="contents.length > nCollapsed">
+      <icon-button @click="toggle()" :text="less" v-if="expanded">
         <svg src="show-less.svg"></svg>
       </icon-button>
-      <icon-button @click='toggle()' :text="more" v-else>
+      <icon-button @click="toggle()" :text="more" v-else>
         <svg src="show-more.svg"></svg>
       </icon-button>
     </div>
@@ -41,19 +41,19 @@
       },
       contents: {
         type: Array,
-        default: [],
+        default: () => [],
       },
       nCollapsed: {
         type: Number,
-        default: 6,
+        default: 3,
       },
       nExpanded: {
         type: Number,
-        default: 12,
+        default: 9,
       },
     },
     components: {
-      'icon-button': require('icon-button'),
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
       'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
     },
@@ -89,7 +89,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .button-wrapper
     text-align: center

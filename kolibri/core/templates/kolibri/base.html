@@ -1,5 +1,6 @@
 {% load i18n kolibri_tags webpack_tags js_reverse cache %}
 {% load staticfiles %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,11 +10,46 @@
   <link rel="shortcut icon" href="{% static 'images/logo.ico' %}">
   <title>{% trans "Kolibri" %}</title>
 </head>
-
 <body>
+<rootvue>
+  <style>
+    .loading-spinner-wrapper-base{
+      width: 97vw;
+      height: 97vh;
+      position: relative;
+      display: none;
+    }
 
-<rootvue></rootvue>
+    .loading-spinner-base {
+      width: 125px;
+      height: 125px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: url("{% static 'images/loading-spinner.gif' %}") no-repeat center;
+      background-size: contain;
+    }
+  </style>
+  <div class="loading-spinner-wrapper-base" id="loading-spinner-wrapper-base">
+    <div class="loading-spinner-base"></div>
+  </div>
+  <script>
+    var timeoutId = window.setTimeout(showLoadingSpinner, 2500);
+    function showLoadingSpinner() {
+      var elem = document.getElementById("loading-spinner-wrapper-base");
+      if (elem) {
+        elem.style.display = 'block';
+        window.clearTimeout(timeoutId);
+      }
+    }
+  </script>
+</rootvue>
 {% block frontend_assets %}
+<script>
+  // Set global language variable.
+  var languageCode = "{{ LANGUAGE_CODE }}";
+</script>
 {% webpack_asset 'default_frontend' %}
 <script type="text/javascript">
   {% cache 5000 js_urls %}

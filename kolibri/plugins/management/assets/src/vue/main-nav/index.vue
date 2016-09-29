@@ -26,7 +26,7 @@
 
   module.exports = {
     components: {
-      'nav-bar-item': require('nav-bar-item'),
+      'nav-bar-item': require('kolibri/coreVue/components/navBarItem'),
     },
   };
 
@@ -35,7 +35,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~nav-bar-item.styl'
+  @require '~kolibri/styles/navBarItem'
 
   a.active:focus svg
     fill: $core-bg-light

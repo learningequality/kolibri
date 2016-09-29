@@ -2,40 +2,26 @@
 
   <div>
 
-    <page-header :title='title'>
-      <content-icon
-        slot='icon'
-        :ispageicon="true"
-        :size="25"
-        :kind="kind"
-        :progress="progress">
-      </content-icon>
-    </page-header>
+    <page-header :title="title"></page-header>
 
-    <div class="content-container" v-show='!searchOpen'>
-      <content-render
-        :id="id"
-        :kind="kind"
-        :files="files"
-        :content-id="contentId"
-        :channel-id="channelId"
-        :available="available"
-        :extra-fields="extraFields">
-      </content-render>
-    </div>
-
-    <p class="page-description">
-      {{ description }}
-    </p>
-
-    <download-button
+    <content-render
+      v-show="!searchOpen"
+      class="content-renderer"
+      :id="id"
       :kind="kind"
       :files="files"
+      :content-id="contentId"
+      :channel-id="channelId"
       :available="available"
-      :title="title">
-    </download-button>
+      :extra-fields="extraFields">
+    </content-render>
 
-    <expandable-content-grid class="recommendation-section"
+    <p class="page-description">{{ description }}</p>
+
+    <download-button :files="files"></download-button>
+
+    <expandable-content-grid
+      class="recommendation-section"
       v-if="pageMode === $options.PageModes.LEARN"
       :title="recommendedText"
       :contents="recommended">
@@ -63,10 +49,7 @@
     },
     mixins: [constants], // makes constants available in $options
     components: {
-      'content-icon': require('../content-icon'),
       'page-header': require('../page-header'),
-      'content-render': require('content-renderer'),
-      'download-button': require('content-renderer/download-button'),
       'expandable-content-grid': require('../expandable-content-grid'),
     },
     vuex: {
@@ -102,15 +85,10 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
-  .content-container
+  .content-renderer
     height: 60vh
-    margin-bottom: 1em
-
-  #little-arrow
-    font-size: 28px
-    font-weight: 900
 
   .recommendation-section
     margin-top: 4em

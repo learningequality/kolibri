@@ -34,6 +34,7 @@ kolibrihome_test/
 
 # Translations
 *.mo
+kolibri/locale/
 
 # Mr Developer
 .mr.developer.cfg
@@ -65,6 +66,7 @@ coverage
 # webpack built files
 kolibri/**/build/*
 kolibri/**/static/*
+js-dist
 
 # swap files
 *.swp
@@ -89,3 +91,4 @@ Icon
 
 #ignore added files with DS_Store
 .DS_Store
+/crowdin.yaml

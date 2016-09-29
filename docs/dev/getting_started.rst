@@ -66,12 +66,12 @@ Run the following commands:
 
 .. code-block:: bash
 
-  # Node.js dependencies
-  npm install
-
   # Python requirements
   pip install -r requirements.txt
   pip install -r requirements/dev.txt
+
+  # Node.js dependencies
+  npm install
 
   # Kolibri Python package in 'editable' mode
   pip install -e .
@@ -84,7 +84,7 @@ Then, start up the development server and build the client-side dependencies:
 
 .. code-block:: bash
 
-  kolibri manage devserver --debug -- --webpack
+  kolibri manage devserver --debug -- --webpack --qcluster
 
 Wait for the build process to complete. This takes a while the first time, will complete faster as you make edits and the assets are automatically re-built.
 
@@ -137,6 +137,16 @@ We use `pre-commit <http://pre-commit.com/>`_ to help ensure consistent, clean c
 .. code-block:: bash
 
   pre-commit install
+
+
+Linting
+~~~~~~~
+
+To improve build times, and facilitate rapid development, Javascript linting is turned off by default when you run the dev server. However, all frontend assets that are bundled will be linted by our Travis CI builds. It is a good idea, therefore, to test your linting before submitting code for PR. To run the devserver in this mode you can run the following command.
+
+.. code-block:: bash
+
+  kolibri manage devserver --debug -- --webpack --qcluster --lint
 
 
 Code Testing

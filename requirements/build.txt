@@ -2,5 +2,7 @@
 # This does not depend on runtime stuff so we do not
 # include base.txt
 sphinx
+sphinx-intl
 sphinx-rtd-theme
 pex
+wheel

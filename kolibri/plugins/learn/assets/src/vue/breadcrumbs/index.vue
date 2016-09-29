@@ -2,24 +2,45 @@
 
   <div>
     <nav class="nav" role="navigation" :aria-label="$tr('youAreHere')">
-      <span class="learn-bread" v-if="pageName === PageNames.LEARN_CONTENT">
-        <breadcrumb :linkobject="learnRootLink" :text="$tr('learn')"></breadcrumb>
+
+      <span v-if="pageName === PageNames.LEARN_CONTENT">
+        <a v-link="learnRootLink">
+          <span class="visuallyhidden">{{ $tr('back') }}</span>
+          <svg role="presentation" src="../icons/folder_back.svg"></svg>
+          {{ text }}
+        </a>
       </span>
 
-      <template v-if="pageName === PageNames.EXPLORE_TOPIC">
-        <span class="landscape">
-          <breadcrumb :showarrow='false' :linkobject="exploreRootLink" :text="$tr('explore')"></breadcrumb>
+      <span v-if="pageName === PageNames.EXPLORE_CONTENT">
+        <a v-link="parentExploreLink">
+          <span class="visuallyhidden">{{ $tr('back') }}</span>
+          <svg role="presentation" src="../icons/folder_back.svg"></svg>
+          {{ text }}
+        </a>
+      </span>
+
+      <span v-if="pageName === PageNames.EXPLORE_TOPIC">
+
+        <span class="first-breadcrumb landscape">
+          <a v-link="exploreRootLink">{{ $tr('explore') }}</a>
         </span>
+
         <span class="portrait">
-          <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
+          <a v-link="parentExploreLink">
+            <span class="visuallyhidden">{{ $tr('back') }}</span>
+            <svg role="presentation" src="../icons/folder_back.svg"></svg>
+            {{ text }}
+          </a>
         </span>
+
         <span class="middle-breadcrumb landscape" v-for="crumb in topicCrumbs">
           <a v-link="topicLink(crumb.id)">{{ crumb.title }}</a>
         </span>
-      </template>
 
-      <span v-if="pageName === PageNames.EXPLORE_CONTENT">
-        <breadcrumb :linkobject="parentExploreLink"></breadcrumb>
+        <span class="middle-breadcrumb landscape">
+          {{ title }}
+        </span>
+
       </span>
 
     </nav>
@@ -37,12 +58,9 @@
   module.exports = {
     $trNameSpace: 'learn',
     $trs: {
-      learn: 'Learn',
       explore: 'Explore',
       youAreHere: 'You are here:',
-    },
-    components: {
-      breadcrumb: require('./breadcrumb'),
+      back: 'Back to previous topic',
     },
     computed: {
       PageModes() {
@@ -95,6 +113,7 @@
         pageName: state => state.pageName,
         pageState: state => state.pageState,
         currentChannel: state => state.currentChannel,
+        title: state => state.pageState.topic.title,
       },
     },
   };
@@ -104,30 +123,30 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
   @require '../learn.styl'
 
   .nav
     margin-top: 2em
-    margin-bottom:1.4em
+    margin-bottom:1.5em
 
-  .middle-breadcrumb:before
+  .middle-breadcrumb::before
     content: '>'
     margin-left: 0.5em
     margin-right: 0.5em
     color: $core-text-annotation
 
-  a
-    display: inline-block
+  .middle-breadcrumb, .first-breadcrumb
     vertical-align: middle
-    margin-bottom: 2px
     font-size: 0.9em
     font-weight: 300
     max-width: 140px
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
-    color: $core-text-annotation
+    a
+      color: $core-text-annotation
+      display: inline-block
 
   .landscape
     @media screen and (max-width: $portrait-breakpoint)
@@ -137,5 +156,8 @@
     display: none
     @media screen and (max-width: $portrait-breakpoint)
       display: initial
+
+  svg
+    fill: $core-text-annotation
 
 </style>

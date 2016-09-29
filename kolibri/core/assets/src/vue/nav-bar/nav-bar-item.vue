@@ -1,13 +1,13 @@
 <template>
 
-  <div class='link-wrapper'>
-    <a v-if="vlink" v-link="vlink" :class="{active: active}" @click="blur" v-el:link class='link'>
-      <div class='content'>
+  <div class="link-wrapper">
+    <a v-if="vlink" v-link="vlink" :class="{active: active}" @click="blur" v-el:link class="link">
+      <div class="content">
         <slot></slot>
       </div>
     </a>
-    <a v-else :href="href" :class="{active: active}" @click="blur" v-el:link class='link'>
-      <div class='content'>
+    <a v-else :href="href" :class="{active: active}" @click="blur" v-el:link class="link">
+      <div class="content">
         <slot></slot>
       </div>
     </a>
@@ -44,7 +44,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .link-wrapper
     @media screen and (min-width: $portrait-breakpoint + 1)
@@ -54,6 +54,7 @@
       vertical-align: middle
 
   .link
+    width: $nav-width
     margin: 0
     padding: 6px
     text-align: center

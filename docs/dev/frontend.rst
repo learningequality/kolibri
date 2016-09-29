@@ -122,26 +122,60 @@ Kolibri provides a set of shared "core" functionality – including components, 
 JS Libraries
 ~~~~~~~~~~~~
 
-The following libraries are available globally, in all plugin code:
+The following libraries are available globally, in all module code:
 
 - ``vue`` - the Vue.js object
-- ``loglevel`` - the `loglevel logging module <https://github.com/pimterry/loglevel>`_
+- ``vuex`` - the Vuex object
+- ``logging`` - our wrapper around the `loglevel logging module <https://github.com/pimterry/loglevel>`_
 - ``core-base`` - a shared base Vue.js component (*core-base.vue*)
 
-These can be used in code with a standard CommonJS-style require statement - e.g.:
+And many others. The complete specification for commonly shared modules can be found in `kolibri/core/assets/src/core-app/apiSpec.js` - this object defines which modules are imported into the core object. If the module in question has the 'requireName' attribute set on the core specification, then it can be used in code with a standard CommonJS-style require statement - e.g.:
 
 .. code-block:: javascript
 
-  const vue = require('vue');
-  const coreBase = require('core-base');
+  const vue = require('kolibri/lib/vue');
+  const coreBase = require('kolibri/coreVue/components/coreBase');
 
 .. note::
 
-  Due to the mechanics of the `plugin and webpack build system <asset_loading>`_, adding additional globally-available objects is somewhat complicated.
+  Due to the mechanics of the `plugin and webpack build system <asset_loading>`_, adding additional globally-available objects is relatively straightforward.
 
-  References to the objects are attached to the ``kolibriGlobal`` object in *core-app/constructor.js*, and mapped to globally accessible names in *webpack.config.js*.
+  To expose something on the core app, add a key to the object in `apiSpec.js` which maps to an object with the following keys::
 
+.. code-block:: javascript
 
+  modulePath: {
+      module: require('module-name'),
+    }
+
+  This module would now be available for import anywhere with the following statement::
+
+.. code-block:: javascript
+
+  const MODULE = require('kolibri/modulePath');
+
+  For better organisation of the Core API specification, modules can also be attached at arbitrarily nested paths::
+
+.. code-block:: javascript
+
+  modulePath: {
+      nestedPath: {
+        module: require('module-name'),
+      }
+    }
+
+  This module would now be available for import anywhere with the following statement::
+
+.. code-block:: javascript
+
+    const MODULE = require('kolibri/modulePath/nestedPath');
+
+  For convenience (and to prevent accidental imports), 3rd party (NPM) modules installed in node_modules can be required
+  by their usual name also:
+
+  .. code-block:: javascript
+
+    const vue = require('vue');
 
 Bootstrapped Data
 ~~~~~~~~~~~~~~~~~
@@ -209,3 +243,7 @@ We distinguish development dependencies from runtime dependencies, and these sho
 Note that we currently don't have a way of mapping dependencies to plugins - dependencies are installed globally.
 
 To assist in tracking the source of bloat in our codebase, the command ``npm run bundle-stats`` is available to give a full readout of the size that uglified packages take up in the final Javascript code.
+
+Individual plugins can also have their own package.json for their own dependencies. Running ``npm install`` will also install all the dependencies for each activated plugin (inside a node_modules folder inside the plugin itself). These dependencies will only be available to that plugin at build time.
+
+In addition, a plugin can have its own webpack.config.js for plugin specific webpack configuration (loaders, plugins, etc.). These options will be merged with the base options using ``webpack-merge``.

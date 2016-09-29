@@ -4,8 +4,9 @@
     <nav-bar>
       <slot name="nav"></slot>
     </nav-bar>
-    <div class='main-wrapper' v-scroll='onScroll' v-if='!loading'>
-      <error-box v-if='error'></error-box>
+    <loading-spinner v-if="loading" class="loading-spinner-fixed"></loading-spinner>
+    <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
+      <error-box v-if="error"></error-box>
       <slot name="above"></slot>
       <main role="main" class="page-content">
         <slot name="content"></slot>
@@ -44,7 +45,7 @@
     ready() {
       setInterval(() => {
         if (this.scrolled) {
-          this.$broadcast('scrolling', this.position);
+          this.$emit('scroll', this.position);
           this.scrolled = false;
         }
       }, 75);
@@ -56,7 +57,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .main-wrapper
     position: fixed // must be fixed for ie10
@@ -67,15 +68,18 @@
     padding-right: $right-margin
     padding-bottom: 50px
     z-index: -2
-    @media (max-width: 620px)
+    @media (max-width: $medium-breakpoint + 1)
       padding-left: 69px
       padding-right: 0
     @media screen and (max-width: $portrait-breakpoint)
-      padding: 0
+      padding: 0 0.6em
       padding-bottom: 100px
 
   .page-content
     margin: auto
     width-auto-adjust()
+
+  .loading-spinner-fixed
+    position: fixed
 
 </style>

@@ -16,6 +16,26 @@ matrix:
   include:
     - python: "2.7"
       env:
+        - TOX_ENV=pythonbuild2.7
+        - TRAVIS_NODE_VERSION="0.12"
+    - python: "3.4"
+      env:
+        - TOX_ENV=pythonbuild3.4
+        - TRAVIS_NODE_VERSION="0.12"
+    - python: "3.5"
+      env:
+        - TOX_ENV=pythonbuild3.5
+        - TRAVIS_NODE_VERSION="0.12"
+    - python: "2.7"
+      env:
+        - TOX_ENV=pythonlint
+        - TRAVIS_NODE_VERSION="0.12"
+    - python: "2.7"
+      env:
+        - TOX_ENV=licenses
+        - TRAVIS_NODE_VERSION="0.12"
+    - python: "2.7"
+      env:
         - TOX_ENV=py2.7
         - TRAVIS_NODE_VERSION="0.12"
     - python: "2.7"
@@ -50,8 +70,13 @@ matrix:
       env:
         - TOX_ENV=postgres
         - TRAVIS_NODE_VERSION="0.12"
+    - python: "2.7"
+      env:
+        - TOX_ENV=npmbuild
+        - TRAVIS_NODE_VERSION="4"
 
 before_install:
+  - pip install -U pip
   - pip install codecov
   - pip install tox
   - . $HOME/.nvm/nvm.sh
@@ -59,13 +84,10 @@ before_install:
   - nvm use $TRAVIS_NODE_VERSION
 
 before_script:
-  - tox -e lint
   - psql -c 'create database travis_ci_test;' -U postgres
 
 # command to run tests, e.g. python setup.py test
 script:
-  - test/if.sh "setup_changed"
-  - test/if.sh "requirements_changed"
   - tox -e $TOX_ENV
 
 after_success:

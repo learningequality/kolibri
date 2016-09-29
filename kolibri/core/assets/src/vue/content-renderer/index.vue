@@ -1,11 +1,14 @@
 <template>
 
   <div>
-    <div v-if="available">
-        <h3 class="progress-percent" v-if="progress > 0">
-          {{ Math.floor(progress * 100) }}%
-        </h3>
-      <div v-el:container></div>
+    <div v-if="available" class="fill-height">
+      <div class="content-icon-wrapper">
+        <content-icon :progress="progress" :kind="kind"></content-icon>
+      </div>
+      <div class="content-wrapper">
+        <loading-spinner v-if="!currentViewClass"></loading-spinner>
+        <div v-el:container></div>
+      </div>
     </div>
     <div v-else>
       {{ $tr('msgNotAvailable') }}
@@ -17,8 +20,8 @@
 
 <script>
 
-  const logging = require('logging').getLogger(__filename);
-  const actions = require('../../core-actions');
+  const logging = require('kolibri/lib/logging').getLogger(__filename);
+  const actions = require('kolibri/coreVue/vuex/actions');
 
   module.exports = {
     $trNameSpace: 'contentRender',
@@ -72,6 +75,13 @@
         return this.files.filter(
           (file) => !file.thumbnail & !file.supplementary & file.available
         );
+      },
+      defaultFile() {
+        return this.availableFiles &&
+          this.availableFiles.length ? this.availableFiles[0] : undefined;
+      },
+      progressPercent() {
+        return Math.floor(this.progress * 100);
       },
     },
     init() {
@@ -167,7 +177,7 @@
             }
           }
           // Add a defaultFile to the propsData, which is the first file in the availableFiles.
-          propsData.defaultFile = this.availableFiles[0];
+          propsData.defaultFile = this.defaultFile;
           // Create an options object for the soon to be instantiated renderer component.
           const options = {
             // Set the parent so that it is in the Vue family.
@@ -182,6 +192,7 @@
           Object.assign(options, this.currentViewClass);
           // Instantiate the Vue instance directly using the Kolibri Vue constructor.
           this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
+
           this.contentView.$on('startTracking', this.wrappedStartTracking);
           this.contentView.$on('stopTracking', this.wrappedStopTracking);
           this.contentView.$on('progressUpdate', this.wrappedUpdateProgress);
@@ -189,6 +200,9 @@
         }
       },
       wrappedStartTracking() {
+        // Assume that as soon as we have started tracking data for this content item,
+        // our ContentNode cache is no longer valid.
+        this.Kolibri.resources.ContentNodeResource.unCacheModel(this.id);
         this.startTracking(this.Kolibri);
       },
       wrappedStopTracking() {
@@ -216,12 +230,16 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
-  div
-    height: inherit
+  .fill-height
+    height: 100%
 
-  .progress-percent
-    text-align:right
+  .content-icon-wrapper
+    width: 2em
+    height: 2em
+
+  .content-wrapper
+    height: calc(100% - 2em)
 
 </style>

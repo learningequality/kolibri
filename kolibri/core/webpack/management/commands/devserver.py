@@ -2,12 +2,14 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import atexit
 import logging
+import multiprocessing
 import os
 import subprocess
 import sys
 from threading import Thread
 
 from django.contrib.staticfiles.management.commands.runserver import Command as RunserverCommand
+from django.core.management import call_command
 from django.core.management.base import CommandError
 from kolibri.content.utils.annotation import update_channel_metadata_cache
 
@@ -26,43 +28,60 @@ class Command(RunserverCommand):
         self.karma_cleanup_closing = False
         self.karma_process = None
 
+        self.qcluster_cleanup_closing = False
+        self.qcluster_process = None
+
         super(Command, self).__init__(*args, **kwargs)
 
     def add_arguments(self, parser):
         parser.add_argument(
             '--webpack', action='store_true', dest='webpack', default=False,
-            help='Tells Django to runserver to spawn a webpack watch subprocess.',
+            help='Tells Django runserver to spawn a webpack watch subprocess.',
+        )
+        parser.add_argument(
+            '--lint', action='store_true', dest='lint', default=False,
+            help='Tells Django runserver to run the linting option on webpack subprocess.',
         )
         parser.add_argument(
             '--karma', action='store_true', dest='karma', default=False,
-            help='Tells Django to runserver to spawn a karma test watch subprocess.',
+            help='Tells Django runserver to spawn a karma test watch subprocess.',
+        )
+        parser.add_argument(
+            '--qcluster', action='store_true', dest='qcluster', default=False,
+            help='Tells Django runserver to spawn a qcluster subprocess to handle tasks.',
         )
         super(Command, self).add_arguments(parser)
 
     def handle(self, *args, **options):
 
         if options["webpack"]:
-            self.spawn_webpack()
+            self.spawn_webpack(lint=options["lint"])
 
         if options["karma"]:
             self.spawn_karma()
+
+        if options["qcluster"]:
+            self.spawn_qcluster()
 
         update_channel_metadata_cache()
 
         return super(Command, self).handle(*args, **options)
 
-    def spawn_webpack(self):
-        self.spawn_subprocess("webpack_process", self.start_webpack, self.kill_webpack_process)
+    def spawn_webpack(self, lint):
+        self.spawn_subprocess("webpack_process", self.start_webpack, self.kill_webpack_process, lint=lint)
 
     def spawn_karma(self):
         self.spawn_subprocess("karma_process", self.start_karma, self.kill_karma_process)
 
-    def spawn_subprocess(self, process_name, process_start, process_kill):
+    def spawn_qcluster(self):
+        self.spawn_subprocess("qcluster_process", self.start_qcluster, self.kill_qcluster_process)
+
+    def spawn_subprocess(self, process_name, process_start, process_kill, **kwargs):
         # We're subclassing runserver, which spawns threads for its
         # autoreloader with RUN_MAIN set to true, we have to check for
         # this to avoid running browserify twice.
         if not os.getenv('RUN_MAIN', False) and not getattr(self, process_name):
-            subprocess_thread = Thread(target=process_start)
+            subprocess_thread = Thread(target=process_start, kwargs=kwargs)
             subprocess_thread.daemon = True
             subprocess_thread.start()
             atexit.register(process_kill)
@@ -78,12 +97,17 @@ class Command(RunserverCommand):
 
         self.webpack_process.terminate()
 
-    def start_webpack(self):
+    def start_webpack(self, lint=False):
 
-        logger.info('Starting webpack process from Django runserver command')
+        if lint:
+            cli_command = 'npm run watch -- --lint'
+            logger.info('Starting webpack process with linting from Django runserver command')
+        else:
+            cli_command = 'npm run watch'
+            logger.info('Starting webpack process from Django runserver command')
 
         self.webpack_process = subprocess.Popen(
-            'npm run watch',
+            cli_command,
             shell=True,
             stdin=subprocess.PIPE,
             stdout=sys.stdout,
@@ -134,3 +158,31 @@ class Command(RunserverCommand):
 
         if self.karma_process.returncode != 0 and not self.karma_cleanup_closing:
             logger.error("Karma process exited unexpectedly.")
+
+    def kill_qcluster_process(self):
+
+        if self.qcluster_process and self.qcluster_process.returncode is not None:
+            return
+
+        logger.info('Closing qcluster process')
+
+        self.qcluster_cleanup_closing = True
+
+        self.qcluster_process.terminate()
+
+    def start_qcluster(self):
+
+        logger.info('Starting qcluster process from Django runserver command')
+
+        self.qcluster_process = multiprocessing.Process(target=call_command, args=("qcluster",))
+
+        self.qcluster_process.start()
+
+        logger.info(
+            'Django Runserver command has spawned a qcluster process on pid {0}'.format(
+                self.qcluster_process.pid))
+
+        self.qcluster_process.join()
+
+        if self.qcluster_process.exitcode != 0 and not self.qcluster_cleanup_closing:
+            logger.error("qcluster process exited unexpectedly.")

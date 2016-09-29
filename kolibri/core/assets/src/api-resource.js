@@ -1,30 +1,5 @@
-const logging = require('logging').getLogger(__filename);
-const rest = require('rest');
-const mime = require('rest/interceptor/mime');
-const csrf = require('rest/interceptor/csrf');
-const errorCode = require('rest/interceptor/errorCode');
-
-/**
- * A helping method to get specific cookie based on its name.
- * @param {string} name  - the name of the cookie.
- * @returns {string} - cookieValue
- * this function could probably find a better place to live..
- */
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      // Does this cookie string begin with the name we want?
-      if (cookie.substring(0, name.length + 1) === (name.concat('='))) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
+const logging = require('kolibri/lib/logging').getLogger(__filename);
+const ConditionalPromise = require('./conditionalPromise');
 
 
 /** Class representing a single API resource object */
@@ -61,7 +36,7 @@ class Model {
    * returns, otherwise reject is called with the response object.
    */
   fetch(params = {}, force = false) {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         if (!force && this.synced) {
           resolve(this.attributes);
@@ -100,7 +75,7 @@ class Model {
    * returns, otherwise reject is called with the response object.
    */
   save(attrs) {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         let payload = {};
         if (this.synced) {
@@ -124,13 +99,11 @@ class Model {
           if (this.id) {
             // If this Model has an id, then can do a PATCH against the Model
             url = this.url;
-            clientObj = { path: url, method: 'PATCH', entity: payload,
-              headers: { 'Content-Type': 'application/json' } };
+            clientObj = { path: url, method: 'PATCH', entity: payload };
           } else {
             // Otherwise, must POST to the Collection endpoint to create the Model
             url = this.resource.collectionUrl();
-            clientObj = { path: url, entity: payload,
-              headers: { 'Content-Type': 'application/json' } };
+            clientObj = { path: url, entity: payload };
           }
           // Do a save on the URL.
           this.resource.client(clientObj).then((response) => {
@@ -170,15 +143,14 @@ class Model {
    * returns, otherwise reject is called with the response object.
    */
   delete() {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         if (!this.id) {
           // Nothing to delete, so just resolve the promise now.
           reject('Can not delete model that we do not have an id for');
         } else {
           // Otherwise, DELETE the Model
-          const clientObj = { path: this.url, method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' } };
+          const clientObj = { path: this.url, method: 'DELETE' };
           this.resource.client(clientObj).then((response) => {
             // delete this instance
             this.resource.removeModel(this);
@@ -256,7 +228,7 @@ class Collection {
    */
   fetch(extraParams = {}, force = false) {
     const params = Object.assign({}, this.params, extraParams);
-    const promise = new Promise((resolve, reject) => {
+    const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         if (!force && this.synced) {
           resolve(this.data);
@@ -340,6 +312,16 @@ class Collection {
 
   get data() {
     return this.models.map((model) => model.attributes);
+  }
+
+  get synced() {
+    // We only say the Collection is synced if it, itself, is synced, and all its
+    // constituent models are also.
+    return this.models.reduce((synced, model) => synced && model.synced, this._synced);
+  }
+
+  set synced(value) {
+    this._synced = value;
   }
 }
 
@@ -457,6 +439,10 @@ class Resource {
     this.collections = {};
   }
 
+  unCacheModel(id) {
+    this.models[id].synced = false;
+  }
+
   removeModel(model) {
     delete this.models[model.id];
   }
@@ -480,7 +466,12 @@ class Resource {
   }
 
   get idKey() {
-    return this.constructor.idKey();
+    // In IE <= 10, static methods are not properly inherited
+    // Do this to still return a value.
+    // N.B. This will prevent a resource being subclassed from another
+    // resource, but then being able to reference its parent's
+    // idKey.
+    return this.constructor.idKey ? this.constructor.idKey() : 'id';
   }
 
   static resourceName() {
@@ -492,8 +483,7 @@ class Resource {
   }
 
   get client() {
-    return rest.wrap(mime).wrap(csrf, { name: 'X-CSRFToken',
-      token: getCookie('csrftoken') }).wrap(errorCode);
+    return this.kolibri.client;
   }
 }
 

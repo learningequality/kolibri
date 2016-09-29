@@ -1,40 +1,46 @@
 <template>
 
-  <div class="user-edit-modal">
-    <modal v-on:close="clear()" v-ref:modal btntext="Edit">
-
-      <h1 slot="header" class="header">Edit Account Info</h1>
-
-      <div @keyup.enter="editUser" v-if="!this.usr_delete && !this.pw_reset" slot="body">
+  <core-modal
+    title="Edit Account Info"
+    :has-error="error_message ? true : false"
+    :enablebackbtn="usr_delete || pw_reset"
+    @enter="submit"
+    @cancel="emitCloseSignal"
+    @back="clear"
+  >
+    <!-- User Edit Normal -->
+    <div>
+      <template v-if="!usr_delete && !pw_reset">
 
         <div class="user-field">
-          <label for="username">Full Name</label>:
-          <input type="text" class="edit-form edit-fullname" aria-label="fullname" id="name" v-model="fullName_new">
+          <label for="fullname">Full Name</label>:
+          <input type="text" class="edit-form edit-fullname" aria-label="fullname" id="fullname" v-model="fullName_new">
         </div>
 
         <div class="user-field">
-          <label for="name">Username</label>:
+          <label for="username">Username</label>:
           <input type="text" class="edit-form edit-username" aria-label="username" id="username" v-model="username_new">
         </div>
 
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
           <select v-model="role_new" id="user-role">
-            <option :selected="role_new == admin ? true : false" v-if="role_new" value="learner"> Learner </option>
-            <option :selected="role_new == admin ? true : false" value="admin"> Admin </option>
+            <option :selected="role_new == learner" v-if="role_new" value="learner"> Learner </option>
+            <option :selected="role_new == admin" value="admin"> Admin </option>
           </select>
         </div>
 
-          <div class="advanced-options" v-if="!this.usr_delete && !this.pw_reset">
+        <div class="advanced-options" @keydown.enter.stop>
           <button @click="pw_reset=!pw_reset"> Reset Password </button>
           <button @click="usr_delete=!usr_delete"> Delete User</button>
         </div>
 
         <hr class="end-modal">
 
-      </div>
+      </template>
 
-      <div @keyup.enter="changePassword" v-if="pw_reset" slot="body">
+      <!-- Password Reset Mode -->
+      <template v-if="pw_reset" >
         <p>Username: <b>{{username_new}}</b></p>
         <div class="user-field">
           <label for="password">Enter new password</label>:
@@ -45,56 +51,66 @@
           <label for="password-confirm">Confirm new password</label>:
           <input type="password" class="edit-form" id="password-confirm" required v-model="password_new_confirm">
         </div>
-      </div>
+      </template>
 
-      <div @keyup.enter="deleteUser" v-if="usr_delete" slot="body">
+      <!-- User Delete Mode -->
+      <template v-if="usr_delete">
         <div class="user-field">
-          <p> Are you sure you want to delete
-          <b>{{username_new}}</b>?
-          </p>
+          <p>Are you sure you want to delete <b>{{username_new}}</b>?</p>
         </div>
-      </div>
-
-      <div slot="footer">
-        <p class="error" v-if="error_message"> {{error_message}} </p>
-        <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
-
-        <button v-if="!this.usr_delete && !this.pw_reset" class="undo-btn" type="button" @click="close">
-          Cancel
-        </button>
-
-        <button v-else class="undo-btn" type="button" @click="clear">
-          <!-- For reset option -->
-          <template v-if="pw_reset"> Back </template>
-          <!-- For delete option -->
-          <template v-if="usr_delete"> No </template>
-          <!-- For main window -->
-        </button>
+      </template>
 
 
-        <button v-if="!this.usr_delete && !this.pw_reset" class="confirm-btn" type="button" @click="editUser">
-          Confirm
-        </button>
+      <!-- Error Messages -->
+      <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
+      <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
 
-        <button v-if="pw_reset" class="confirm-btn" type="button" @click="changePassword">
-          Save
-        </button>
+      <!-- Button Section TODO: cleaunup -->
+      <section @keydown.enter.stop>
 
-        <button v-if="usr_delete" class="confirm-btn" type="button" @click="delete">
-          Yes
-        </button>
-        <br>
+        <icon-button
+          v-if="!usr_delete && !pw_reset"
+          text="Cancel"
+          class="undo-btn"
+          @click="emitCloseSignal">
+        </icon-button>
 
-      </div>
+        <!-- 'Back' for reset, 'No' for delete -->
+        <icon-button
+          v-else
+          :text="pw_reset ? 'Back' : 'No'"
+          class="undo-btn"
+          @click="clear">
+        </icon-button>
 
-      <button class="no-border" slot="openbtn">
-        <span class="visuallyhidden">Edit Account Info</span>
-        <svg class="manage-edit" src="../icons/pencil.svg"></svg>
-      </button>
+        <icon-button
+          v-if="!usr_delete && !pw_reset"
+          text="Confirm"
+          class="confirm-btn"
+          :primary="true"
+          @click="submit">
+        </icon-button>
 
-    </modal>
+        <icon-button
+          v-if="pw_reset"
+          text="Save"
+          class="confirm-btn"
+          :primary="true"
+          @click="submit">
+        </icon-button>
 
-  </div>
+        <icon-button
+          v-if="usr_delete"
+          text="Yes"
+          class="confirm-btn"
+          :primary="true"
+          @click="submit">
+        </icon-button>
+
+      </section>
+
+    </div>
+  </core-modal>
 
 </template>
 
@@ -102,13 +118,15 @@
 <script>
 
   const actions = require('../../actions');
+  const coreActions = require('kolibri/coreVue/vuex/actions');
+  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
 
   module.exports = {
     components: {
-      modal: require('../modal'),
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
     },
     props: [
-      'userid', 'username', 'fullname', 'roles',
+      'userid', 'username', 'fullname', 'roles', // TODO - validation
     ],
     data() {
       return {
@@ -123,22 +141,52 @@
         confirmation_message: '',
       };
     },
+    attached() {
+      // clear form on load
+      this.clear();
+    },
     methods: {
-      editUser() {
+      clear() {
+        this.$data = this.$options.data();
+      },
+      submit() {
+        // mirrors logic of how the 'confirm' buttons are displayed
+        if (this.pw_reset) {
+          this.changePasswordHandler();
+        } else if (this.usr_delete) {
+          this.deleteUserHandler();
+        } else {
+          this.editUserHandler();
+        }
+      },
+      editUserHandler() {
         const payload = {
           username: this.username_new,
           full_name: this.fullName_new,
           facility: this.facility,
         };
         this.updateUser(this.userid, payload, this.role_new);
-
+        // if logged in admin updates role to learner, redirect to learn page
+        // Do SUPERUSER check, as it is theoretically possible for a DeviceAdmin
+        // to have the same id as a regular user, as they are different models.
+        if ((this.session_user_kind !== UserKinds.SUPERUSER) &&
+          (Number(this.userid) === this.session_user_id)) {
+          if (this.role_new === UserKinds.LEARNER.toLowerCase()) {
+            window.location.href = window.location.origin;
+          }
+        }
         // close the modal after successful submission
-        this.close();
+        this.emitCloseSignal();
       },
-      delete() {
+      deleteUserHandler() {
+        // if logged in admin deleted their own account, log them out
+        if (Number(this.userid) === this.session_user_id) {
+          this.logout(this.Kolibri);
+        }
         this.deleteUser(this.userid);
+        this.emitCloseSignal();
       },
-      changePassword() {
+      changePasswordHandler() {
         // checks to make sure there's a new password
         if (this.password_new) {
           this.clearErrorMessage();
@@ -165,11 +213,8 @@
           this.error_message = 'Please enter a new password.';
         }
       },
-      clear() {
-        this.$data = this.$options.data();
-      },
-      close() {
-        this.$refs.modal.closeModal();
+      emitCloseSignal() {
+        this.$emit('close'); // signal parent to close
       },
       clearErrorMessage() {
         this.error_message = '';
@@ -180,8 +225,13 @@
     },
     vuex: {
       actions: {
+        logout: coreActions.kolibriLogout,
         updateUser: actions.updateUser,
         deleteUser: actions.deleteUser,
+      },
+      getters: {
+        session_user_id: state => state.core.session.user_id,
+        session_user_kind: state => state.core.session.kind[0],
       },
     },
   };
@@ -191,23 +241,16 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   .title
     display: inline
-
-  .no-border
-    border: none
 
   .confirm-btn, .undo-btn
     width: 48%
 
   .confirm-btn
     float: right
-    background-color: $core-action-normal
-    color: white
-    &:hover
-      border-color: $core-action-normal
 
   .cancel-btn
     float:left
@@ -253,22 +296,11 @@
   .header
     text-align: center
 
-  .manage-edit
-    fill: $core-action-normal
-    cursor: pointer
-    &:hover
-      fill: $core-action-dark
-
   .advanced-options
     padding-bottom: 5%
     button
       display: block
       border: none
-
-  .end-modal
-    position: relative
-    width: 378px
-    left: -30px
 
   p
     word-break: keep-all

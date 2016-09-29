@@ -11,11 +11,15 @@
         {{ currentMinutes }} : {{ formattedCurrentSec }}
       </div>
       <input
+        v-if="notIE9"
         v-el:timebar
         class="timeline"
         type="range" min="0" value="0"
         :max="max"
         v-model="rawTime">
+      <!--[if lte IE 9]>
+      <span> / </span>
+      <![endif]-->
       <div id="total-time">
         {{ totalMinutes }} : {{ formattedTotalSec }}
       </div>
@@ -33,7 +37,7 @@
       @ended="endPlay"
       @seeking="handleSeek"
       :src="defaultFile.storage_url"
-    ></audio>
+    >Your browser cannot play this audio file correctly! Please consider updating your browser to the latest version.</audio>
   </div>
 
 </template>
@@ -84,6 +88,16 @@
       formattedTotalSec() {
         return this.formatTime(this.totalSeconds);
       },
+      notIE9() {
+      // For version of IE 9 and below, hides the seeker due to incompatibility.
+      // This is a short term MVP hack, longer term is to integrate video.js with audio tracks.
+        const ieVersion = parseFloat(navigator.appVersion.split('MSIE')[1]);
+        if (ieVersion === 9) {
+          return false;
+        }
+        return true;
+      },
+
       rawTime: {
         cache: false,
         get() {
@@ -197,7 +211,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri/styles/coreTheme'
 
   #audio-wrapper
     margin: 8% 5%
@@ -243,7 +257,7 @@
 
   input[type=range]
     -webkit-appearance: none
-    width: 60%
+    width: 55%
     -ms-transform: translateY(11px) // position: relative does not work on IE
 
   input[type=range]:focus, input[type=range]::-moz-focus-outer
@@ -302,5 +316,10 @@
   /* hides popup label on slider */
   input[type=range]::-ms-tooltip
     display: none
+
+  @media screen and (max-width: $medium-breakpoint + 1)
+    #play-and-time
+      input
+        width: 25%
 
 </style>

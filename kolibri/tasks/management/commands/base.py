@@ -1,27 +1,58 @@
-from tqdm import tqdm
 from collections import namedtuple
+
 from django.core.management.base import BaseCommand
+from tqdm import tqdm
 
-
-Progress = namedtuple('Progress', ['progress', 'total', 'message'])
+Progress = namedtuple(
+    'Progress',
+    [
+        'progress_fraction',
+        'message',
+        'extra_data',
+        'level',
+    ]
+)
 
 
 class ProgressTracker():
 
-    def __init__(self, total=100, update_func=None):
-        self.progressbar = tqdm(total=total)
-        self.total = total
+    def __init__(self, total=100, level=0, update_callback=None):
 
+        # set default values
         self.progress = 0
+        self.message = ""
+        self.extra_data = None
 
-        # custom progress bar provided by programmer
-        self.custom_update_progress_func = update_func or _nullop
+        # store provided arguments
+        self.total = total
+        self.level = level
+        self.update_callback = update_callback
 
-    def update_progress(self, increment=1, message=""):
+        # initialize the tqdm progress bar
+        self.progressbar = tqdm(total=total)
+
+    def update_progress(self, increment=1, message="", extra_data=None):
+
         self.progressbar.update(increment)
 
-        p = Progress(progress=self.progress, total=self.total, message=message)
-        self.custom_update_progress_func(increment, p)
+        self.progress += increment
+
+        self.message = message
+
+        self.extra_data = extra_data
+
+        if callable(self.update_callback):
+            p = self.get_progress()
+            self.update_callback(p.progress_fraction, p)
+
+    def get_progress(self):
+
+        return Progress(
+            progress_fraction=self.progress / float(self.total),
+            message=self.message,
+            extra_data=self.extra_data,
+            level=self.level,
+        )
 
     def __enter__(self):
         return self.update_progress
@@ -47,16 +78,20 @@ class AsyncCommand(BaseCommand):
 
     """
 
-    CELERY_PROGRESS_STATE_NAME = "PROGRESS"
+    def __init__(self, *args, **kwargs):
+        self.progresstrackers = []
+
+    def _update_all_progress(self, progress_fraction, progress):
+        if callable(self.update_progress):
+            progress_list = [p.get_progress() for p in self.progresstrackers]
+            self.update_progress(progress_list[0].progress_fraction, progress_list)
 
     def handle(self, *args, **options):
         self.update_progress = options.pop("update_state", None)
-
         return self.handle_async(*args, **options)
 
-    start_progress = ProgressTracker
-
-
-def _nullop(*args, **kwargs):
-    # heh, are all our actions just for naught?
-    pass
+    def start_progress(self, total=100):
+        level = len(self.progresstrackers)
+        tracker = ProgressTracker(total=total, level=level, update_callback=self._update_all_progress)
+        self.progresstrackers.append(tracker)
+        return tracker
