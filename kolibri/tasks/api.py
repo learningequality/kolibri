@@ -5,7 +5,8 @@ try:
     from django.apps import apps
     apps.check_apps_ready()
 except AppRegistryNotReady:
-    import django; django.setup()
+    import django
+    django.setup()
 
 import requests
 from django.core.management import call_command
@@ -24,7 +25,8 @@ from multiprocessing import Process
 logging = logger.getLogger(__name__)
 
 def start_process_windows(channel_id, TASKTYPE, task_id):
-
+    import django
+    django.setup()
     from django_q.tasks import async
     async(_networkimport, channel_id, sync=True, group=TASKTYPE, progress_updates=True, uuid=task_id)
 
@@ -32,7 +34,6 @@ def start_process_windows(channel_id, TASKTYPE, task_id):
 class TasksViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        import django; django.setup()
         from django_q.models import Task
         tasks_response = [_task_to_response(t) for t in Task.objects.all()]
         return Response(tasks_response)
@@ -42,9 +43,7 @@ class TasksViewSet(viewsets.ViewSet):
         pass
 
     def retrieve(self, request, pk=None):
-        import django; django.setup()
         from django_q.models import Task
-
         task = _task_to_response(Task.get_task(pk))
         return Response(task)
 
@@ -58,8 +57,6 @@ class TasksViewSet(viewsets.ViewSet):
         download its content.
 
         '''
-        # Importing django/running setup because Windows...
-        import django; django.setup()
         from django_q.models import Task
         TASKTYPE = "remoteimport"
 
@@ -91,7 +88,6 @@ class TasksViewSet(viewsets.ViewSet):
         '''
         # Importing django/running setup because Windows...
         TASKTYPE = "localimport"
-        import django; django.setup()
         from django_q.models import Task
 
         if "drive_id" not in request.data:
@@ -111,8 +107,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         '''
         TASKTYPE = "localexport"
-        import django; django.setup()
-        from django_q.models import Task
+        from django_q.models import Task, async
 
         if "drive_id" not in request.data:
             raise serializers.ValidationError("The 'drive_id' field is required.")
@@ -129,7 +124,6 @@ class TasksViewSet(viewsets.ViewSet):
         '''
         Clears a task with its task id given in the task_id parameter.
         '''
-        import django; django.setup()
         from django_q.models import Task, OrmQ
 
         if 'task_id' not in request.data:
