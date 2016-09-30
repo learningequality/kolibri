@@ -42,7 +42,7 @@ def make_async_call(target_func, *args, **kwargs):
         p.start()
         return task_uuid[1]
     else:
-        return async(target_func,*args, **kwargs)
+        return async(target_func, *args, **kwargs)
 
 
 class TasksViewSet(viewsets.ViewSet):
