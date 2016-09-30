@@ -9,6 +9,7 @@ except AppRegistryNotReady:
     django.setup()
 
 import requests
+import platform
 from django.core.management import call_command
 from django.http import Http404
 from django.utils.translation import ugettext as _
@@ -19,22 +20,34 @@ from kolibri.content.utils.paths import get_content_database_file_url
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
+from django_q.tasks import async
+from django_q.models import Task, OrmQ
 
 from multiprocessing import Process
 
 logging = logger.getLogger(__name__)
 
-def start_process_windows(channel_id, TASKTYPE, task_id):
+def windows_handle_async_call(target_func, *args, **kwargs):
     import django
     django.setup()
     from django_q.tasks import async
-    async(_networkimport, channel_id, sync=True, group=TASKTYPE, progress_updates=True, uuid=task_id)
+    async(target_func, *args, **kwargs)
+
+
+def make_async_call(target_func, *args, **kwargs):
+    if platform.system() == "Windows":
+        task_uuid = uuid()
+        kwargs['uuid'] = task_uuid
+        p = Process(target=windows_handle_async_call, args=(target_func,) + args, kwargs=kwargs)
+        p.start()
+        return task_uuid[1]
+    else:
+        return async(target_func,*args, **kwargs)
 
 
 class TasksViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        from django_q.models import Task
         tasks_response = [_task_to_response(t) for t in Task.objects.all()]
         return Response(tasks_response)
 
@@ -43,7 +56,6 @@ class TasksViewSet(viewsets.ViewSet):
         pass
 
     def retrieve(self, request, pk=None):
-        from django_q.models import Task
         task = _task_to_response(Task.get_task(pk))
         return Response(task)
 
@@ -57,7 +69,6 @@ class TasksViewSet(viewsets.ViewSet):
         download its content.
 
         '''
-        from django_q.models import Task
         TASKTYPE = "remoteimport"
 
         if "channel_id" not in request.data:
@@ -70,13 +81,10 @@ class TasksViewSet(viewsets.ViewSet):
         if status == 404:
             raise Http404(_("The requested channel does not exist on the content server."))
 
-        task_id = uuid()
-
-        task_process = Process(target=start_process_windows, args=(channel_id, TASKTYPE, task_id))
-        task_process.start()
+        task_id = make_async_call(_networkimport, channel_id, group=TASKTYPE, progress_updates=True)
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id[1])
+        resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id)
 
         return Response(resp)
 
@@ -88,12 +96,11 @@ class TasksViewSet(viewsets.ViewSet):
         '''
         # Importing django/running setup because Windows...
         TASKTYPE = "localimport"
-        from django_q.models import Task
 
         if "drive_id" not in request.data:
             raise serializers.ValidationError("The 'drive_id' field is required.")
 
-        task_id = async(_localimport, request.data['drive_id'], group=TASKTYPE, progress_updates=True)
+        task_id = make_async_call(_localimport, request.data['drive_id'], group=TASKTYPE, progress_updates=True)
 
         # attempt to get the created Task, otherwise return pending status
         resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id)
@@ -107,12 +114,11 @@ class TasksViewSet(viewsets.ViewSet):
 
         '''
         TASKTYPE = "localexport"
-        from django_q.models import Task, async
 
         if "drive_id" not in request.data:
             raise serializers.ValidationError("The 'drive_id' field is required.")
 
-        task_id = async(_localexport, request.data['drive_id'], group=TASKTYPE, progress_updates=True)
+        task_id = make_async_call(_localexport, request.data['drive_id'], group=TASKTYPE, progress_updates=True)
 
         # attempt to get the created Task, otherwise return pending status
         resp = _task_to_response(Task.get_task(task_id), task_type=TASKTYPE, task_id=task_id)
@@ -124,7 +130,6 @@ class TasksViewSet(viewsets.ViewSet):
         '''
         Clears a task with its task id given in the task_id parameter.
         '''
-        from django_q.models import Task, OrmQ
 
         if 'task_id' not in request.data:
             raise serializers.ValidationError("The 'task_id' field is required.")
