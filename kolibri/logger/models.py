@@ -106,7 +106,7 @@ class MasteryLog(BaseLogModel):
     This model provides a summary of a user's engagement with an assessment within a mastery level
     """
     # Every MasteryLog is related to the single summary log for the user/content pair
-    summarylog = models.ForeignKey(ContentSummaryLog)
+    summarylog = models.ForeignKey(ContentSummaryLog, related_name="masterylogs")
     # The MasteryLog records the mastery criterion that has been specified for the user.
     # It is recorded here to prevent this changing in the middle of a user's engagement
     # with an assessment.
@@ -136,7 +136,7 @@ class AttemptLog(BaseLogModel):
     end_timestamp = models.DateTimeField(blank=True, null=True)
     completion_timestamp = models.DateTimeField(blank=True, null=True)
     # Which mastery log was this attemptlog associated with?
-    masterylog = models.ForeignKey(MasteryLog)
+    masterylog = models.ForeignKey(MasteryLog, related_name="attemptlogs")
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     complete = models.BooleanField(default=False)
     # How correct was their answer? In simple cases, just 0 or 1.
