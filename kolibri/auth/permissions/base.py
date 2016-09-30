@@ -137,6 +137,9 @@ class RoleBasedPermissions(BasePermissions):
         from ..models import Collection
         from ..filters import HierarchyRelationsFilter
 
+        if user.is_anonymous:
+            return queryset.none()
+
         query = {
             "source_user": user,
             "role_kind": self.can_be_read_by,
