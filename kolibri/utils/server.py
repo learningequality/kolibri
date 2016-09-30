@@ -3,6 +3,7 @@ import os
 import atexit
 import multiprocessing
 import cherrypy
+import platform
 from django.conf import settings
 from django.core.management import call_command
 from kolibri.content.utils import paths
@@ -30,7 +31,9 @@ def start():
     call_command("migrate", interactive=False, database="ormq")
 
     # start the qcluster process
-    start_background_workers()
+    # don't run on windows; we don't run a full cluster there.
+    if platform.system() != "Windows":
+        start_background_workers()
 
     update_channel_metadata_cache()
 
