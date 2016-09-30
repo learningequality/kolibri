@@ -1,4 +1,4 @@
-from kolibri.logger.models import ContentRatingLog, ContentSessionLog, ContentSummaryLog, UserSessionLog
+from kolibri.logger.models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, MasteryLog, UserSessionLog
 from rest_framework import serializers
 
 
@@ -30,3 +30,18 @@ class UserSessionLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSessionLog
         fields = ('pk', 'user', 'channels', 'start_timestamp', 'completion_timestamp', 'pages')
+
+class MasteryLogSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MasteryLog
+        fields = ('pk', 'summarylog', 'start_timestamp',
+                  'end_timestamp', 'completion_timestamp', 'mastery_criterion', 'mastery_level', 'complete')
+
+class AttemptLogSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AttemptLog
+        fields = ('pk', 'masterylog', 'start_timestamp',
+                  'end_timestamp', 'completion_timestamp', 'item', 'time_spent',
+                  'complete', 'correct', 'answer', 'simple_answer', 'interaction_history')

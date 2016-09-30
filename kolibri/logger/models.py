@@ -21,11 +21,13 @@ from .permissions import AnyoneCanWriteAnonymousLogs
 
 class BaseLogModel(AbstractFacilityDataModel):
 
+    user_field = "user"
+
     permissions = (
         AnyoneCanWriteAnonymousLogs() |
         IsOwn() |
         RoleBasedPermissions(
-            target_field="user",
+            target_field=user_field,
             can_be_created_by=(role_kinds.ADMIN,),
             can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
             can_be_updated_by=(role_kinds.ADMIN,),
@@ -117,6 +119,11 @@ class MasteryLog(BaseLogModel):
     # Has this mastery level been completed?
     complete = models.BooleanField(default=False)
 
+    user_field = "summarylog__user"
+
+    def infer_dataset(self):
+        return self.summarylog.dataset
+
 class AttemptLog(BaseLogModel):
     """
     This model provides a summary of a user's engagement within a particular interaction with an
@@ -141,3 +148,8 @@ class AttemptLog(BaseLogModel):
     # A JSON Array with a sequence of JSON objects that describe the history of interaction of the user
     # with this assessment item in this attempt.
     interaction_history = models.TextField()
+
+    user_field = "masterylog__summarylog__user"
+
+    def infer_dataset(self):
+        return self.masterylog.dataset

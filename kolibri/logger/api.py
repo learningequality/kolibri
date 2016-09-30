@@ -2,8 +2,10 @@ from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilte
 from kolibri.content.api import OptionalPageNumberPagination
 from rest_framework import filters, viewsets
 
-from .models import ContentRatingLog, ContentSessionLog, ContentSummaryLog, UserSessionLog
-from .serializers import ContentRatingLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, UserSessionLogSerializer
+from .models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, MasteryLog, UserSessionLog
+from .serializers import (
+    AttemptLogSerializer, ContentRatingLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, MasteryLogSerializer, UserSessionLogSerializer
+)
 
 
 class ContentSessionLogFilter(filters.FilterSet):
@@ -50,4 +52,18 @@ class UserSessionLogViewSet(viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter,)
     queryset = UserSessionLog.objects.all()
     serializer_class = UserSessionLogSerializer
+    pagination_class = OptionalPageNumberPagination
+
+class MasteryLogViewSet(viewsets.ModelViewSet):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    queryset = MasteryLog.objects.all()
+    serializer_class = MasteryLogSerializer
+    pagination_class = OptionalPageNumberPagination
+
+class AttemptLogViewSet(viewsets.ModelViewSet):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    queryset = AttemptLog.objects.all()
+    serializer_class = AttemptLogSerializer
     pagination_class = OptionalPageNumberPagination
