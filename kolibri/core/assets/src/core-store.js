@@ -2,6 +2,13 @@
 
 const UserKinds = require('./constants').UserKinds;
 
+const baseLoggingState = {
+  summary: { progress: 0 },
+  session: {},
+  mastery: {},
+  attempt: {},
+};
+
 // core state is namespaced, and merged with a particular app's state
 const initialState = {
   core: {
@@ -19,10 +26,7 @@ const initialState = {
     loginModalVisible: false,
     loginError: null,
     fullname: '',
-    logging: {
-      summary: { progress: 0 },
-      session: {},
-    },
+    logging: baseLoggingState,
   },
 };
 
@@ -93,6 +97,15 @@ const mutations = {
   SET_LOGGING_THRESHOLD_CHECKS(state, progress, timeSpent) {
     state.core.logging.session.total_time_at_last_save = timeSpent;
     state.core.logging.session.progress_at_last_save = progress;
+  },
+  SET_LOGGING_MASTERY_STATE(state, masteryState) {
+    state.core.logging.mastery = masteryState;
+  },
+  SET_LOGGING_ATTEMPT_STATE(state, attemptState) {
+    state.core.logging.attempt = attemptState;
+  },
+  SET_EMPTY_LOGGING_STATE(state) {
+    state.core.logging = baseLoggingState;
   },
 };
 

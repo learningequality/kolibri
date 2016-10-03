@@ -1,12 +1,12 @@
 const Resource = require('../api-resource').Resource;
 
-class ContentSummaryLogResource extends Resource {
+class AttemptLogResource extends Resource {
   static resourceName() {
-    return 'contentsummarylog';
+    return 'attemptlog';
   }
   static idKey() {
     return 'pk';
   }
 }
 
-module.exports = ContentSummaryLogResource;
+module.exports = AttemptLogResource;
