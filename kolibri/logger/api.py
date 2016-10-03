@@ -54,16 +54,32 @@ class UserSessionLogViewSet(viewsets.ModelViewSet):
     serializer_class = UserSessionLogSerializer
     pagination_class = OptionalPageNumberPagination
 
+class MasteryFilter(filters.FilterSet):
+
+    class Meta:
+        model = MasteryLog
+        fields = ['summarylog']
+
 class MasteryLogViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
     queryset = MasteryLog.objects.all()
     serializer_class = MasteryLogSerializer
     pagination_class = OptionalPageNumberPagination
+    filter_class = MasteryFilter
+
+class AttemptFilter(filters.FilterSet):
+
+    class Meta:
+        model = AttemptLog
+        fields = ['masterylog', 'complete']
 
 class AttemptLogViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend, filters.OrderingFilter)
     queryset = AttemptLog.objects.all()
     serializer_class = AttemptLogSerializer
     pagination_class = OptionalPageNumberPagination
+    filter_class = AttemptFilter
+    ordering_fields = ('end_timestamp',)
+    ordering = ('end_timestamp',)

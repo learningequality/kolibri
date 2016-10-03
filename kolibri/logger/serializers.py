@@ -11,10 +11,23 @@ class ContentSessionLogSerializer(serializers.ModelSerializer):
 
 class MasteryLogSerializer(serializers.ModelSerializer):
 
+    responsehistory = serializers.SerializerMethodField()
+    totalattempts = serializers.SerializerMethodField()
+
     class Meta:
         model = MasteryLog
-        fields = ('pk', 'summarylog', 'start_timestamp',
+        fields = ('pk', 'summarylog', 'start_timestamp', 'responsehistory', 'totalattempts',
                   'end_timestamp', 'completion_timestamp', 'mastery_criterion', 'mastery_level', 'complete')
+
+    def get_responsehistory(self, obj):
+        try:
+            logs = obj.attemptlogs.order_by('completion_timestamp').values('correct')
+            return logs
+        except AttemptLog.DoesNotExist:
+            return []
+
+    def get_totalattempts(self, obj):
+        return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).count()
 
 class AttemptLogSerializer(serializers.ModelSerializer):
 
@@ -27,10 +40,9 @@ class AttemptLogSerializer(serializers.ModelSerializer):
 class NestedMasteryLogSerializer(MasteryLogSerializer):
 
     currentattemptlog = serializers.SerializerMethodField()
-    responsehistory = serializers.SerializerMethodField()
 
     class Meta(MasteryLogSerializer.Meta):
-        fields = MasteryLogSerializer.Meta.fields + ('currentattemptlog', 'responsehistory')
+        fields = MasteryLogSerializer.Meta.fields + ('currentattemptlog',)
 
     def get_currentattemptlog(self, obj):
         try:
@@ -38,13 +50,6 @@ class NestedMasteryLogSerializer(MasteryLogSerializer):
             return AttemptLogSerializer(current_log).data
         except AttemptLog.DoesNotExist:
             return None
-
-    def get_responsehistory(self, obj):
-        try:
-            logs = obj.attemptlogs.order_by('completion_timestamp').values('correct')
-            return logs
-        except AttemptLog.DoesNotExist:
-            return []
 
 class ContentSummaryLogSerializer(serializers.ModelSerializer):
 
@@ -57,7 +62,7 @@ class ContentSummaryLogSerializer(serializers.ModelSerializer):
 
     def get_currentmasterylog(self, obj):
         try:
-            current_log = obj.masterylogs.filter(complete=False).latest('end_timestamp')
+            current_log = obj.masterylogs.latest('end_timestamp')
             return NestedMasteryLogSerializer(current_log).data
         except MasteryLog.DoesNotExist:
             return None
