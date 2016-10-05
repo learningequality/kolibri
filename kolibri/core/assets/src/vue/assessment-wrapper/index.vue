@@ -33,11 +33,11 @@ oriented data synchronization.
       },
     },
     created() {
-      this.$parent.$once('assessmentDataLoaded', initMasteryLog);
+      this.$parent.$once('assessmentDataLoaded', this.initMasteryLog);
       // Once the data for the overall assessment is loaded in the renderer
       // we can initialize the mastery log, as the mastery model and spacing time
       // will be available.
-      this.$parent.$once('itemIdSet', initAttemptLog);
+      this.$parent.$once('itemIdSet', this.initAttemptLog);
     },
     methods: {
       initMasteryLog() {
@@ -68,7 +68,7 @@ oriented data synchronization.
           this.initAttemptLogAction(this.Kolibri, this.itemId);
         }
       }
-    }
+    },
     vuex: {
       actions: {
         initMasteryLogAction: actions.initMasteryLog,
