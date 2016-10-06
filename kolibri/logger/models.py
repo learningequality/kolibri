@@ -110,9 +110,9 @@ class MasteryLog(BaseLogModel):
     # The MasteryLog records the mastery criterion that has been specified for the user.
     # It is recorded here to prevent this changing in the middle of a user's engagement
     # with an assessment.
-    mastery_criterion = models.CharField(max_length=200)
+    mastery_criterion = models.TextField()
     start_timestamp = models.DateTimeField()
-    end_timestamp = models.DateTimeField(blank=True, null=True)
+    end_timestamp = models.DateTimeField(blank=True, null=True, required=True)
     completion_timestamp = models.DateTimeField(blank=True, null=True)
     # The integer mastery level that this log is tracking.
     mastery_level = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
@@ -133,7 +133,7 @@ class AttemptLog(BaseLogModel):
     # that this attemptlog is a record of an interaction with.
     item = models.CharField(max_length=200)
     start_timestamp = models.DateTimeField()
-    end_timestamp = models.DateTimeField(blank=True, null=True)
+    end_timestamp = models.DateTimeField(blank=True, null=True, required=True)
     completion_timestamp = models.DateTimeField(blank=True, null=True)
     # Which mastery log was this attemptlog associated with?
     masterylog = models.ForeignKey(MasteryLog, related_name="attemptlogs")
