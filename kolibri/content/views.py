@@ -18,6 +18,9 @@ class ZipContentView(View):
         Handles GET requests and serves a static file from within the zip file.
         """
 
+        # path placeholder
+        path_place_holder = "(${aronsface}"
+
         # calculate the local file path to the zip file
         zipped_path = get_content_storage_file_path(zipped_filename)
 
@@ -41,7 +44,9 @@ class ZipContentView(View):
             content_type = mimetypes.guess_type(embedded_filepath)[0] or 'application/octet-stream'
 
             # generate a streaming response object, pulling data from within the zip  file
-            response = FileResponse(zf.open(info), content_type=content_type)
+            content = zf.open(info).read()
+            content_with_path = content.replace(path_place_holder, "\\n\\n![](/zipcontent/6d6fcdfb5d80e839918a03fea8ca0c9d.perseus")
+            response = FileResponse(content_with_path, content_type=content_type)
 
         # set the last-modified header to the date marked on the embedded file
         if info.date_time:
@@ -52,7 +57,7 @@ class ZipContentView(View):
 
         # set the content-length header to the size of the embedded file
         if info.file_size:
-            response["Content-Length"] = info.file_size
+            response["Content-Length"] = len(content_with_path)
 
         # ensure the browser knows not to try byte-range requests, as we don't support them here
         response["Accept-Ranges"] = "none"
