@@ -107,7 +107,7 @@ function _masteryLogModel(store) {
   Object.keys(masteryLoggingMap).forEach((key) => {
     mapping[masteryLoggingMap[key]] = masteryLog[key];
   });
-  mapping.summarylog = store.state.core.logging.summary.id;
+  mapping['summarylog'] = store.state.core.logging.summary.id;
   return mapping;
 }
 
@@ -152,7 +152,7 @@ function _attemptLogModel(store) {
       mapping[attemptLoggingMap[key]] = attemptLog[key];
     }
   });
-  mapping.masterylog = store.state.core.logging.mastery.id;
+  mapping['masterylog'] = store.state.core.logging.mastery.id;
   return mapping;
 }
 
