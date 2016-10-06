@@ -3,6 +3,8 @@ const progressThreshold = 0.1; // Update logs if user has reached 20% more progr
 const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
 const intervalTimer = require('./timer');
 const UserKinds = require('./constants').UserKinds;
+const MasteryLoggingMap = require('./constants').MasteryLoggingMap;
+const AttemptLoggingMap = require('./constants').AttemptLoggingMap;
 
 /**
  * Vuex State Mappers
@@ -83,20 +85,10 @@ function _sessionState(data) {
   return state;
 }
 
-const masteryLoggingMap = {
-  id: 'pk',
-  start_timestamp: 'start_timestamp',
-  completion_timestamp: 'completion_timestamp',
-  end_timestamp: 'end_timestamp',
-  mastery_criterion: 'mastery_criterion',
-  complete: 'complete',
-  responsehistory: 'responsehistory',
-};
-
 function _masteryLoggingState(data) {
   const state = {};
-  Object.keys(masteryLoggingMap).forEach((key) => {
-    state[key] = data[masteryLoggingMap[key]];
+  Object.keys(MasteryLoggingMap).forEach((key) => {
+    state[key] = data[MasteryLoggingMap[key]];
   });
   return state;
 }
@@ -104,26 +96,12 @@ function _masteryLoggingState(data) {
 function _masteryLogModel(store) {
   const mapping = {};
   const masteryLog = store.state.core.logging.mastery;
-  Object.keys(masteryLoggingMap).forEach((key) => {
-    mapping[masteryLoggingMap[key]] = masteryLog[key];
+  Object.keys(MasteryLoggingMap).forEach((key) => {
+    mapping[MasteryLoggingMap[key]] = masteryLog[key];
   });
   mapping['summarylog'] = store.state.core.logging.summary.id;
   return mapping;
 }
-
-const attemptLoggingMap = {
-  id: 'pk',
-  item: 'item',
-  start_timestamp: 'start_timestamp',
-  completion_timestamp: 'completion_timestamp',
-  end_timestamp: 'end_timestamp',
-  time_spent: 'time_spent',
-  complete: 'complete',
-  correct: 'correct',
-  answer: 'answer',
-  simple_answer: 'simple_answer',
-  interaction_history: 'interaction_history',
-};
 
 const attemptLoggingJSONifyKeys = {
   answer: true,
