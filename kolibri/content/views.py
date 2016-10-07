@@ -45,7 +45,8 @@ class ZipContentView(View):
 
             # generate a streaming response object, pulling data from within the zip  file
             content = zf.open(info).read()
-            content_with_path = content.replace(path_place_holder, "\\n\\n![](/zipcontent/6d6fcdfb5d80e839918a03fea8ca0c9d.perseus")
+            str_to_be_replaced = str("\\n\\n![](/" + request.resolver_match.url_name + "/" + zipped_filename)
+            content_with_path = content.replace(path_place_holder, str_to_be_replaced)
             response = FileResponse(content_with_path, content_type=content_type)
 
         # set the last-modified header to the date marked on the embedded file
