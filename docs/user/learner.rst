@@ -83,6 +83,7 @@ To play videos in **Kolibri** you have several available control buttons at the 
 	:alt: video page
 
 (controls at the bottom of video player)
+
 * Play/Pause buttons
 * Rewind/Fast forward buttons by +/- 10 seconds
 * Time tracker indicator with scrollbar
