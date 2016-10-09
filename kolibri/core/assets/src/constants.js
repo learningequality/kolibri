@@ -10,6 +10,7 @@ const ContentKinds = {
   AUDIO: 'audio',
   DOCUMENT: 'document',
   VIDEO: 'video',
+  EXERCISE: 'exercise',
 };
 
 module.exports = {
