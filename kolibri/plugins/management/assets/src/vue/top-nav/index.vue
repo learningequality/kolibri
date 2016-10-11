@@ -66,13 +66,12 @@
   .top
     position: relative
     top: 1em
-    width: 100%
     padding: 1em 2em
     background: $core-bg-light
     border-radius: $radius
     @media screen and (max-width: $medium-breakpoint)
-      width: 90%
-      margin: 0 auto
+      margin-top: 0
+      margin-bottom: 0
       padding: 1em 0.2em
 
   .links
