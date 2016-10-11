@@ -13,11 +13,6 @@ const ContentKinds = {
   EXERCISE: 'exercise',
 };
 
-module.exports = {
-  UserKinds,
-  ContentKinds,
-};
-
 const MasteryLoggingMap = {
   id: 'pk',
   start_timestamp: 'start_timestamp',
@@ -40,4 +35,11 @@ const AttemptLoggingMap = {
   answer: 'answer',
   simple_answer: 'simple_answer',
   interaction_history: 'interaction_history',
+};
+
+module.exports = {
+  UserKinds,
+  ContentKinds,
+  MasteryLoggingMap,
+  AttemptLoggingMap,
 };
