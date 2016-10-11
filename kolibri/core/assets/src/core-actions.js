@@ -230,6 +230,7 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
           const masteryModel = Kolibri.resources.MasteryLogResource.createModel(
             summary[0].currentmasterylog);
           masteryModel.synced = true;
+
           store.dispatch('SET_LOGGING_MASTERY_STATE',
             _masteryLoggingState(summary[0].currentmasterylog));
           if (summary[0].currentmasterylog.currentattemptlog) {
@@ -422,11 +423,14 @@ function stopTrackingProgress(store, Kolibri) {
 }
 
 function saveMasteryLog(store, Kolibri) {
-  const masteryLogModel = Kolibri.resources.MasteryLog.getModel(store.core.logging.mastery.id);
-  masteryLogModel.save(_masteryLogModel(store)).then((newMasteryLog) => {
+  const masteryLogModel = Kolibri.resources.MasteryLog.getModel(store.state.core.logging.mastery.id);
+  masteryLogModel.save(_masteryLogModel(store)).only(
+    samePageCheckGenerator(store),
+    (newMasteryLog) => {
     // Update store in case an id has been set.
     store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
-  });
+    }
+  );
 }
 
 function createMasteryLog(store, Kolibri, masteryLevel) {
