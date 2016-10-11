@@ -497,7 +497,7 @@ function initAttemptLog(store, Kolibri, itemId) {
   if (!(store.core.logging.attempt.id || store.core.logging.attempt.id === null)) {
     // id has not been set on the attemptlog state, so this is undefined.
     // Either way, we need to create a new attemptlog!
-    createAttemptLog(store, itemId);
+    createAttemptLog(store, Kolibri, itemId);
   }
 }
 
