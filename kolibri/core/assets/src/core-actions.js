@@ -110,11 +110,11 @@ const attemptLoggingJSONifyKeys = {
 
 function _attemptLoggingState(data) {
   const state = {};
-  Object.keys(attemptLoggingMap).forEach((key) => {
+  Object.keys(AttemptLoggingMap).forEach((key) => {
     if (attemptLoggingJSONifyKeys[key]) {
-      state[key] = JSON.parse(data[attemptLoggingMap[key]]);
+      state[key] = JSON.parse(data[AttemptLoggingMap[key]]);
     } else {
-      state[key] = data[attemptLoggingMap[key]];
+      state[key] = data[AttemptLoggingMap[key]];
     }
   });
   return state;
@@ -123,11 +123,11 @@ function _attemptLoggingState(data) {
 function _attemptLogModel(store) {
   const mapping = {};
   const attemptLog = store.state.core.logging.attempt;
-  Object.keys(attemptLoggingMap).forEach((key) => {
+  Object.keys(AttemptLoggingMap).forEach((key) => {
     if (attemptLoggingJSONifyKeys[key]) {
-      mapping[attemptLoggingMap[key]] = JSON.stringify(attemptLog[key]);
+      mapping[AttemptLoggingMap[key]] = JSON.stringify(attemptLog[key]);
     } else {
-      mapping[attemptLoggingMap[key]] = attemptLog[key];
+      mapping[AttemptLoggingMap[key]] = attemptLog[key];
     }
   });
   mapping['masterylog'] = store.state.core.logging.mastery.id;
