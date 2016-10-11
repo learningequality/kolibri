@@ -19,7 +19,7 @@ class ZipContentView(View):
         """
 
         # path placeholder
-        path_place_holder = "(${aronsface}"
+        path_place_holder = "(${\xe2\x98\xa3 IMAGEREPLACE}"
 
         # calculate the local file path to the zip file
         zipped_path = get_content_storage_file_path(zipped_filename)
@@ -51,7 +51,7 @@ class ZipContentView(View):
                 response = FileResponse(zf.open(info), content_type=content_type)
                 file_size = info.file_size
             else:
-                # generate a streaming response object, pulling data from within the zip  file
+                # load the stream from json file into memory, replace the path_place_holder.
                 content = zf.open(info).read()
                 str_to_be_replaced = str("\\n\\n![](/" + request.resolver_match.url_name + "/" + zipped_filename)
                 content_with_path = content.replace(path_place_holder, str_to_be_replaced)
