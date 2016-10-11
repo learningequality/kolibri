@@ -430,16 +430,20 @@ function saveMasteryLog(store, Kolibri) {
 }
 
 function createMasteryLog(store, Kolibri, masteryLevel) {
+  let attempts = 0;
+  if (store.state.core.mastery) {
+    attempts = (store.state.core.mastery.totalattempts || -1) + 1;
+  }
   const masteryLogModel = Kolibri.resources.MasteryLog.createModel({
     pk: null,
-    summarylog: store.core.logging.summary.id,
+    summarylog: store.state.core.logging.summary.id,
     start_timestamp: new Date(),
     completion_timestamp: null,
     end_timestamp: null,
     mastery_level: masteryLevel,
     complete: false,
     responsehistory: [],
-    totalattempts: (store.core.mastery.totalattempts || -1) + 1,
+    totalattempts: attempts,
   });
   store.dispatch('SET_LOGGING_MASTERY_STATE', _masteryLoggingState(masteryLogModel.attributes));
 }
