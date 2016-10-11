@@ -36,7 +36,8 @@ var server = new WebpackDevServer(compiler, {
   publicPath: devServerConfig.publicPath,
   stats: {
     colors: true,
-    chunks: false
+    chunks: false,
+    errorDetails: true
   }
 });
 server.listen(devServerConfig.port, devServerConfig.address, function() {});
