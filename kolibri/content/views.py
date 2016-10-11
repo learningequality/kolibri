@@ -24,6 +24,9 @@ class ZipContentView(View):
         # calculate the local file path to the zip file
         zipped_path = get_content_storage_file_path(zipped_filename)
 
+        # file size
+        file_size = 0
+
         # if the zipfile does not exist on disk, return a 404
         if not os.path.exists(zipped_path):
             raise Http404('"%(filename)s" does not exist locally' % {'filename': zipped_filename})
@@ -43,11 +46,17 @@ class ZipContentView(View):
             # try to guess the MIME type of the embedded file being referenced
             content_type = mimetypes.guess_type(embedded_filepath)[0] or 'application/octet-stream'
 
-            # generate a streaming response object, pulling data from within the zip  file
-            content = zf.open(info).read()
-            str_to_be_replaced = str("\\n\\n![](/" + request.resolver_match.url_name + "/" + zipped_filename)
-            content_with_path = content.replace(path_place_holder, str_to_be_replaced)
-            response = FileResponse(content_with_path, content_type=content_type)
+            if not os.path.splitext(embedded_filepath)[1] == '.json':
+                # generate a streaming response object, pulling data from within the zip  file
+                response = FileResponse(zf.open(info), content_type=content_type)
+                file_size = info.file_size
+            else:
+                # generate a streaming response object, pulling data from within the zip  file
+                content = zf.open(info).read()
+                str_to_be_replaced = str("\\n\\n![](/" + request.resolver_match.url_name + "/" + zipped_filename)
+                content_with_path = content.replace(path_place_holder, str_to_be_replaced)
+                response = FileResponse(content_with_path, content_type=content_type)
+                file_size = len(content_with_path)
 
         # set the last-modified header to the date marked on the embedded file
         if info.date_time:
@@ -58,7 +67,7 @@ class ZipContentView(View):
 
         # set the content-length header to the size of the embedded file
         if info.file_size:
-            response["Content-Length"] = len(content_with_path)
+            response["Content-Length"] = file_size
 
         # ensure the browser knows not to try byte-range requests, as we don't support them here
         response["Accept-Ranges"] = "none"
