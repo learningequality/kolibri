@@ -5,6 +5,7 @@ Developer Guide
    :maxdepth: 1
 
    getting_started
+   manual_testing
 
 
 Architecture

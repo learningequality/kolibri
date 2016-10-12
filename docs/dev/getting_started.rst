@@ -211,8 +211,8 @@ To run specific tests only, you can add ``--``, followed by a label (consisting 
   kolibri manage test -- kolibri.auth.test.test_permissions.MembershipPermissionsTestCase.test_admin_can_delete_membership
 
 
-Documentation Editing
-~~~~~~~~~~~~~~~~~~~~~
+Updating Documentation
+~~~~~~~~~~~~~~~~~~~~~~
 
 To make changes to documentation, make an edit and then run:
 
@@ -226,5 +226,19 @@ You can also ``cd`` into the docs directory and run the auto-build for faster ed
 
   cd docs
   sphinx-autobuild . _build
+
+
+Manual Testing
+~~~~~~~~~~~~~~
+
+All changes should be thoroughly tested and vetted before being merged in. Our primary considerations are:
+
+ * Performance
+ * Accessibility
+ * Compatibility
+ * Localization
+ * Consistency
+
+For more information, see the next section on :doc:`manual_testing`.
 
 
