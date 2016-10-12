@@ -139,6 +139,9 @@ We use `pre-commit <http://pre-commit.com/>`_ to help ensure consistent, clean c
   pre-commit install
 
 
+Development
+----------
+
 Linting
 ~~~~~~~
 
@@ -226,6 +229,15 @@ You can also ``cd`` into the docs directory and run the auto-build for faster ed
 
   cd docs
   sphinx-autobuild . _build
+
+
+Branching and Release Process
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+At a high level, we follow the 'Gitflow' model. Some helpful references:
+
+ * http://nvie.com/posts/a-successful-git-branching-model/
+ * https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/
 
 
 Manual Testing
