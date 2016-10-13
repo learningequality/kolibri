@@ -6,44 +6,70 @@ Starting Kolibri
 
 Kolibri has two parts: **Kolibri launcher** and **Kolibri server**.
 
-**Kolibri launcher** is accessible through a small icon in the Windows task tray (usually at bottom right, near the clock), from where you can start and stop the **Kolibri server** and configure other settings.
+**Kolibri launcher** is located in the Windows taskbar (usually at bottom right, near the clock), and allows you to start and stop the **Kolibri server**, and configure other settings.
 
-* Use the Kolibri desktop shortcut to open **Kolibri launcher**.
-* Right click the task tray icon to open the Kolibri options menu.
+**Kolibri server** runs as a background process and displays (*serves*) learning content in the browser.
+
+* Double-click Kolibri desktop shortcut to start **Kolibri launcher**.
+* Right click the taskbar icon to open the **Kolibri launcher** menu.
 
 .. image:: img/task_tray_options.png
-  :alt: task tray icon options
+  :alt: kolibri taskbar menu options
 
 .. warning::
-  Opening **Kolibri launcher** does not open **Kolibri server** automatically, but you can configure in the launcher settings if it better suits your needs.
+  Starting **Kolibri launcher** will not start **Kolibri server** by default, but you can configure that setting in the launcher options if it suits your needs better.
 
 
-Kolibri Launcher Options and Settings
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Kolibri Launcher Menu Options
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Select **Start Server** to start the **Kolibri server**. 
 
-  #. You will see the notification message *Kolibri is starting, please wait...*. While server is starting, the options **Start/Stop/Load in browser** will be disabled.
+  #. You will see the notification message *Kolibri server is starting, please wait...*. While server is starting, the options **Start/Stop/Load in browser** will be disabled.
+  #. Once **Kolibri server** has started you will see the notification message *Kolibri server is running...*. The options **Stop Server** and **Load in browser** will now be available.
+* Select **Load in browser** to open the default browser at http://127.0.0.1:8080 displaying the Kolibri start page.
+* Select **Stop Server** when you want to stop the **Kolibri server**.
+* Select **Options** submenu for further configuration.
 
-  #. Once **Kolibri server** has started and ready you will see the notification message *Kolibri server has started, open the http://127.0.0.1:8008 or select the Load in browser option*.
-* Select **Stop Server** to stop the **Kolibri server**.
-* Select **Load in browser** to open the default browser on your system with **Kolibri server** opened at http://127.0.0.1:8008.
-* Open the **Settings** option for further configuration.
+  #. Activate **Run Kolibri when user logs in** option if you want **Kolibri launcher** to start automatically when you log into the system.
+  #. Activate **Auto-start server when Kolibri is run** option if you want the **Kolibri server** to start at the same time as the **Kolibri launcher**.
+  
+  .. note::
+    If you want **Kolibri server** to auto-start as soon as you log into the system, activate both of the above options. 
 
-  #. Select **Start the server when Kolibri is started** if you want **Kolibri server** to start automatically when you open **Kolibri launcher** with the desktop shortcut.
-  #. Select **Auto-start server when the user logs in** if you want **Kolibri server** to start automatically when you log into the system.
-
+  
 
 Manage Users
 ------------
-
-.. note::
-  To manage Kolibri users you must be logged-in as **Device Admin**. As **Device Admin** you can manage all users: *Learners* and other *Admins*.
 
 You can search for, filter, add, and edit user accounts in Kolibri from the **Users** tab in your **Manage** dashboard.
 
 .. image:: img/manage_users.png
   :alt: manage users
+
+Kolibri User Roles
+~~~~~~~~~~~~~~~~~~
+
+Kolibri users can have different roles with respective access to features:
+
+* **Learners** can:
+  
+  * View content and have their progress tracked
+* **Admins** can:
+
+  * View content
+  * Create/Edit/Delete other **Admins** and **Learners**
+  * Export *Detail* and *Summary* logs usage data
+* **Device Owners** can:
+
+  * View content
+  * Create/Edit/Delete other **Admins** and **Learners**
+  * Export *Detail* and *Summary* logs usage data
+  * Import/Export content
+
+
+.. note::
+  To manage Kolibri users you must be logged-in as **Device Owner** or **Admin**.
 
 
 Create a New User Account
@@ -108,7 +134,7 @@ Manage Data
 -----------
 
 .. note::
-  To manage Kolibri usage data you must be logged-in as **Device Admin**. 
+  To manage Kolibri usage data you must be logged-in as **Device Owner** or **Admin**. 
 
 You can download Kolibri *Detail* and *Summary* logs usage data and export in the CSV format from the **Data** tab in your **Manage** dashboard.
 
@@ -120,7 +146,7 @@ Manage Content
 --------------
 
 .. note::
-  To manage Kolibri content you must be logged-in as **Device Admin**. 
+  To manage Kolibri content you must be logged-in as **Device Owner**. 
 
 Kolibri **Content Channel** is a collection of educational resources (video, audio or document files) prepared and organized by the content curator for their use in Kolibri. Each Kolibri **Content Channel** has its own *Content Channel ID* on `Kolibri content curation server <https://contentworkshop.learningequality.org/accounts/login/>`_ database that you will receive from the content curator who assembled the channel.
 

@@ -7,7 +7,7 @@ Accessing Kolibri
 To log in to **Kolibri** follow these steps:
 
 #. Click the **Log In** icon in the main menu (left or bottom) to open the login window.
-#. Type the username and password provided by your **Coach** or **Admin**.
+#. Type the username and password provided by Kolibri **Administrator** (or your your teacher/coach).
 #. Click the **Log In** button in the login window.
 
 .. image:: img/login_modal.png
