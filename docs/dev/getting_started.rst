@@ -235,6 +235,12 @@ To run specific tests only, you can add ``--``, followed by a label (consisting 
 Updating Documentation
 ~~~~~~~~~~~~~~~~~~~~~~
 
+First, install some additional dependencies related to building documentation output:
+
+.. code-block:: bash
+
+  pip install -r requirements/docs.txt
+
 To make changes to documentation, make an edit and then run:
 
 .. code-block:: bash

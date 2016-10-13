@@ -28,10 +28,9 @@ Amazon's `AWS Workspaces <https://aws.amazon.com/workspaces/>`_ provides a faste
 
 **Local Virtual Machines**
 
-Workspaces is very useful, but it has limitations: only a small range of OSes are available, and connectivity and provisioning are required. An alternative is to run the guest operating system inside a virtual machine using e.g. `VirtualBox <https://www.virtualbox.org/wiki/Downloads>`_. This also gives more developer flexibility, including e.g. shared directories between the guest and host systems.
+Workspaces is very useful, but it has limitations: only a small range of OSes are available, and connectivity and provisioning are required.
 
-To "create and configure lightweight, reproducible, and portable development environments," using `Vagrant <https://www.vagrantup.com/>`_ as a command-line wrapper around VirtualBox is highly recommended.
-
+An alternative is to run the guest operating system inside a virtual machine using e.g. `VirtualBox <https://www.virtualbox.org/wiki/Downloads>`_. This also gives more developer flexibility, including e.g. shared directories between the guest and host systems. `This tutorial <https://docs.google.com/document/d/10LgeCJmqsweui0yTTCDf4DjY5aoNNpXG8hF_DGKUHAI/edit>`_ was written for KA Lite, but much of it still applies to Kolibri.
 
 **Hardware**
 
@@ -43,8 +42,7 @@ Responsiveness to Varying Screen Sizes
 
 We want to ensure that the app looks and behaves reasonably across a wide range of typical screen sizes, from small tablets to large, HD monitors. It is highly recommended to constantly be testing functionality at a range of sizes.
 
-Chrome's Developer Tools has some excellent functionality to simulate arbitrary screen resolutions.
-
+Chrome and Firefox's Developer Tools both have some excellent functionality to simulate arbitrary screen resolutions.
 
 
 Slow Network Connection Speeds
@@ -52,7 +50,7 @@ Slow Network Connection Speeds
 
 It's important to simulate end-users network conditions. This will help identify real-world performance issues that may not be apparent on local development machines.
 
-Chrome's Developer Tools has functionality to simulate a variety of network connections, including Edge, 3G, and even offline. An app can be loaded into multiple tabs, each with its own custom network connectivity profile. This will not affect traffic to other tabs.
+Chrome's Developer Tools have functionality to simulate a variety of network connections, including Edge, 3G, and even offline. An app can be loaded into multiple tabs, each with its own custom network connectivity profile. This will not affect traffic to other tabs.
 
 Within the Chrome Dev Tools, navigate to the Network panel. Select a connection from the drop-down to apply network throttling and latency manipulation. When a Throttle is enabled the panel indicator will show a warning icon. This is to remind you that throttling is enabled when you are in other panels.
 
