@@ -1,41 +1,37 @@
 Admin
 ===============
 
-Installing Kolibri
-------------------
+Starting Kolibri
+----------------
 
-Windows
-~~~~~~~~
+Kolibri has two parts: **Kolibri launcher** and **Kolibri server**.
 
-To install Kolibri on Windows follow these steps:
+**Kolibri launcher** is accessible through a small icon in the Windows task tray (usually at bottom right, near the clock), from where you can start and stop the **Kolibri server** and configure other settings.
 
-#. Download the Kolibri Windows installer. **(TODO - link)**
-#. Double-click the downloaded ``.exe`` file.
-#. Follow the instructions in the installation wizard window.
+* Use the Kolibri desktop shortcut to open **Kolibri launcher**.
+* Right click the task tray icon to open the Kolibri options menu.
 
+.. image:: img/task_tray_options.png
+  :alt: task tray icon options
 
-Creating a Device Owner Account
--------------------------------
-
-In order to manage Kolibri content channels, data and users, you must first create your own **Device Owner** account and **Facility**. The **Device Owner** account registration page appears when you open the browser at http://127.0.0.1:8000/ after the installation of Kolibri.
-
-.. image:: img/wizard.png
-  :alt: create device owner form
-
-#. Enter the required information for your **Device Owner** account (username, password, name of the facility). Fields marked with an asterisk (*) are required.
-#. Select **Create and get started**.
+.. warning::
+  Opening **Kolibri launcher** does not open **Kolibri server** automatically, but you can configure in the launcher settings if it better suits your needs.
 
 
-Adding a New Device Owner
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Kolibri Launcher Options and Settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Device Owner** is a “super-user” for your Kolibri installation. In case you need to create another user with this kind of permissions, run the following command in the ``cmd.exe`` (Windows command prompt) window:
+* Select **Start Server** to start the **Kolibri server**. 
 
-.. code-block:: bash
+  #. You will see the notification message *Kolibri is starting, please wait...*. While server is starting, the options **Start/Stop/Load in browser** will be disabled.
 
-  kolibri manage createsuperuser
+  #. Once **Kolibri server** has started and ready you will see the notification message *Kolibri server has started, open the http://127.0.0.1:8008 or select the Load in browser option*.
+* Select **Stop Server** to stop the **Kolibri server**.
+* Select **Load in browser** to open the default browser on your system with **Kolibri server** opened at http://127.0.0.1:8008.
+* Open the **Settings** option for further configuration.
 
-You will be prompted to input the **Username** and **Password** and the new **Device Owner** user account will be created.
+  #. Select **Start the server when Kolibri is started** if you want **Kolibri server** to start automatically when you open **Kolibri launcher** with the desktop shortcut.
+  #. Select **Auto-start server when the user logs in** if you want **Kolibri server** to start automatically when you log into the system.
 
 
 Manage Users
