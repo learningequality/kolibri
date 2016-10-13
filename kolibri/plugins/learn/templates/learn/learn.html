@@ -1,18 +1,19 @@
 {% extends "kolibri/base.html" %}
 {% load learn_tags %}
+{% load kolibri_tags %}
 
 {% block content %}
+{% kolibri_bootstrap_collection 'channel' 'ChannelResource' %}
   <script>
-    var channelCollection = {{kolibri}}.resources.ChannelResource.createCollection({}, JSON.parse("{{ channelList | escapejs }}"));
-    channelCollection.synced = true;
-    {{kolibri}}.resources.ContentNodeResource.setChannel("{{ channel_id }}");
+    {{kolibri}}.resources.ContentNodeResource.setChannel("{{ request.COOKIES.currentChannel }}");
     var root_node = JSON.parse("{{ rootnode|escapejs }}");
-    var root_node_pk = String(root_node.pk);
     var model = {{kolibri}}.resources.ContentNodeResource.createModel(root_node);
     model.synced = true;
-    var collection = {{kolibri}}.resources.ContentNodeResource.createCollection({parent: root_node_pk}, JSON.parse("{{ nodes|escapejs }}"));
-    collection.synced = true;
   </script>
+  {% kolibri_bootstrap_collection 'contentnode' 'ContentNodeResource' parent=rootnode_pk kwargs_channel_id=request.COOKIES.currentChannel %}
+  {% kolibri_bootstrap_collection 'contentnode' 'ContentNodeResource' popular=user.id channel=request.COOKIES.currentChannel kwargs_channel_id=request.COOKIES.currentChannel %}
+  {% kolibri_bootstrap_collection 'contentnode' 'ContentNodeResource' resume=user.id channel=request.COOKIES.currentChannel kwargs_channel_id=request.COOKIES.currentChannel %}
+  {% kolibri_bootstrap_collection 'contentnode' 'ContentNodeResource' next_steps=user.id channel=request.COOKIES.currentChannel kwargs_channel_id=request.COOKIES.currentChannel %}
   {% learn_async_assets %}
   {% learn_assets %}
 {% endblock %}

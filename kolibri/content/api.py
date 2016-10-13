@@ -25,7 +25,6 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
 class ContentNodeFilter(filters.FilterSet):
     search = filters.django_filters.MethodFilter(action='title_description_filter')
     recommendations_for = filters.django_filters.MethodFilter()
-    recommendations = filters.django_filters.MethodFilter()
     next_steps = filters.django_filters.MethodFilter()
     popular = filters.django_filters.MethodFilter()
     resume = filters.django_filters.MethodFilter()
@@ -33,7 +32,7 @@ class ContentNodeFilter(filters.FilterSet):
 
     class Meta:
         model = models.ContentNode
-        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'recommendations']
+        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for']
 
     def title_description_filter(self, queryset, value):
         """

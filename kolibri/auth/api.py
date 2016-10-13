@@ -151,7 +151,7 @@ class SessionViewSet(viewsets.ViewSet):
     def get_session(self, request):
         user = get_user(request)
         if isinstance(user, AnonymousUser):
-            return {'id': None,
+            return {'id': 'current',
                     'username': '',
                     'full_name': '',
                     'user_id': None,
