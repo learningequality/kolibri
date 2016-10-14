@@ -72,27 +72,36 @@ oriented data synchronization.
       initAttemptLog() {
         // Only initialize attemptLogs once the masteryLog is initialized.
         if (!(this.masteryLogId || this.masteryLogId === null)) {
+      initMasteryLog() {
+        // Only initialize masteryLogs once the summaryLog is initialized.
+        if (!this.summaryLogId) {
           let watchRevoke;
-          watchRevoke = this.$watch('masteryLogId', () => {
-            if ((this.masteryLogId || this.masteryLogId === null)) {
-              this.initAttemptLogAction(this.Kolibri, this.itemId);
+          watchRevoke = this.$watch('summaryLogId', () => {
+            if (this.summaryLogId) {
+              this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime, 'eli');
               watchRevoke();
             }
           });
         } else {
-          this.initAttemptLogAction(this.Kolibri, this.itemId);
+          this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime, 'eli');
         }
-      }
+      },
+      initAttemptLog() {
+        this.initAttemptLogAction(this.Kolibri, this.itemId);
+      },
     },
     vuex: {
       actions: {
         initMasteryLogAction: actions.initMasteryLog,
+        saveMasteryLogAction: actions.saveMasteryLog,
         initAttemptLogAction: actions.initAttemptLog,
+        saveAttemptLogAction: actions.saveAttemptLog,
+        updateMasteryAttemptStateAction: actions.updateMasteryAttemptState,
       },
       getters: {
         summaryLogId: (state) => state.core.logging.summary.id,
-        masteryLogId: (state) => state.core.logging.mastery.id,
-        totalattempts: (state) => state.core.logging.mastery.totalattempts,
+        masteryLogId: (state) => state.core.logging.mastery.pk,
+        pastattempts: (state) => state.core.logging.mastery.pastattempts,
       },
     },
   };
