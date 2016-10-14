@@ -66,6 +66,9 @@ class Command(RunserverCommand):
 
         update_channel_metadata_cache()
 
+        # migrate the ormq DB before starting.
+        call_command("migrate", interactive=False, database="ormq")
+
         return super(Command, self).handle(*args, **options)
 
     def spawn_webpack(self, lint):
