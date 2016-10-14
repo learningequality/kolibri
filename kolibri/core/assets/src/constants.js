@@ -15,12 +15,16 @@ const ContentKinds = {
 
 const MasteryLoggingMap = {
   id: 'pk',
+  summarylog: 'summarylog',
   start_timestamp: 'start_timestamp',
   completion_timestamp: 'completion_timestamp',
   end_timestamp: 'end_timestamp',
+  mastery_level: 'mastery_level',
   mastery_criterion: 'mastery_criterion',
   complete: 'complete',
   responsehistory: 'responsehistory',
+  user: 'user',
+  pastattempts: 'pastattempts',
 };
 
 const AttemptLoggingMap = {
@@ -35,6 +39,8 @@ const AttemptLoggingMap = {
   answer: 'answer',
   simple_answer: 'simple_answer',
   interaction_history: 'interaction_history',
+  masterylog: 'masterylog',
+  user: 'user',
 };
 
 module.exports = {
