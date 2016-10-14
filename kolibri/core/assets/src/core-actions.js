@@ -130,7 +130,7 @@ function _attemptLogModel(store) {
       mapping[AttemptLoggingMap[key]] = attemptLog[key];
     }
   });
-  mapping['masterylog'] = store.state.core.logging.mastery.id;
+  mapping['masterylog'] = store.state.core.logging.mastery.pk; //id is undefined, has to switch to pk!?
   return mapping;
 }
 
@@ -227,7 +227,7 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
         if (summary[0].currentmasterylog) {
           // If a mastery model has been sent along with the summary log payload,
           // then bootstrap that data into the MasteryLog resource. Cheeky!
-          const masteryModel = Kolibri.resources.MasteryLogResource.createModel(
+          const masteryModel = Kolibri.resources.MasteryLog.createModel(
             summary[0].currentmasterylog);
           masteryModel.synced = true;
 
@@ -236,7 +236,7 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
           if (summary[0].currentmasterylog.currentattemptlog) {
             // If an attempt model has been sent along with the mastery log payload,
             // then bootstrap that data into the AttemptLog resource. Cheekier and cheekier!
-            const attemptModel = Kolibri.resources.AttemptLogResource.createModel(
+            const attemptModel = Kolibri.resources.AttemptLog.createModel(
               summary[0].currentmasterylog.currentattemptlog);
             attemptModel.synced = true;
             store.dispatch('SET_LOGGING_ATTEMPT_STATE',
@@ -433,10 +433,10 @@ function saveMasteryLog(store, Kolibri) {
   );
 }
 
-function createMasteryLog(store, Kolibri, masteryLevel) {
-  let attempts = 0;
+function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
+  let pastattempts = [];
   if (store.state.core.mastery) {
-    attempts = (store.state.core.mastery.totalattempts || -1) + 1;
+    pastattempts = store.state.core.mastery.pastattempts;
   }
   const masteryLogModel = Kolibri.resources.MasteryLog.createModel({
     pk: null,
@@ -447,7 +447,9 @@ function createMasteryLog(store, Kolibri, masteryLevel) {
     mastery_level: masteryLevel,
     complete: false,
     responsehistory: [],
-    totalattempts: attempts,
+    pastattempts: pastattempts,
+    mastery_criterion: masteryCriterion,
+    user: store.state.core.session.user_id,
   });
   store.dispatch('SET_LOGGING_MASTERY_STATE', _masteryLoggingState(masteryLogModel.attributes));
 }
@@ -472,41 +474,43 @@ function createAttemptLog(store, Kolibri, itemId) {
     time_spent: 0,
     correct: 0,
     answer: '{}',
-    simple_answer: null,
+    simple_answer: '',
     interaction_history: '[]',
+    user: store.state.core.session.user_id,
   });
   store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(attemptLogModel.attributes));
-}
-
-function saveAssessmentLogs(store, Kolibri) {
-  saveAttemptLog(store, Kolibri);
-  saveMasteryLog(store, Kolibri);
 }
 
 /**
  * Initialize assessment mastery log
  */
-function initMasteryLog(store, Kolibri, masterySpacingTime) {
-  if (!(store.state.core.logging.mastery.id || store.state.core.logging.mastery.id === null)) {
+function initMasteryLog(store, Kolibri, masterySpacingTime, masteryCriterion) {
+  if (!store.state.core.logging.mastery.id) {
     // id has not been set on the masterylog state, so this is undefined.
     // Either way, we need to create a new masterylog, with a masterylevel of 1!
-    createMasteryLog(store, Kolibri, 1);
+    createMasteryLog(store, Kolibri, 1, masteryCriterion);
   } else if (store.state.core.logging.mastery.complete &&
     ((new Date() - new Date(store.state.core.logging.mastery.completion_timestamp)) >
       masterySpacingTime)) {
     // The most recent masterylog is complete, and they completed it more than
     // masterySpacingTime time ago!
     // This means we need to level the user up.
-    createMasteryLog(store, Kolibri, store.state.core.logging.mastery.mastery_level + 1);
+    createMasteryLog(store, Kolibri, store.state.core.logging.mastery.mastery_level + 1, masteryCriterion);
   }
 }
 
 function initAttemptLog(store, Kolibri, itemId) {
-  if (!(store.state.core.logging.attempt.id || store.state.core.logging.attempt.id === null)) {
+  if (!store.state.core.logging.attempt.id) {
     // id has not been set on the attemptlog state, so this is undefined.
     // Either way, we need to create a new attemptlog!
     createAttemptLog(store, Kolibri, itemId);
   }
+}
+
+function updateMasteryAttemptState(store, currentTime, answer) {
+  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, answer);
+  const correct = answer ? 1 : 0;
+  store.dispatch('UPDATE_LOGGING_ATTEMPT', currentTime, correct);
 }
 
 /**
@@ -537,5 +541,7 @@ module.exports = {
   samePageCheckGenerator,
   initMasteryLog,
   initAttemptLog,
-  saveAssessmentLogs,
+  saveMasteryLog,
+  saveAttemptLog,
+  updateMasteryAttemptState,
 };
