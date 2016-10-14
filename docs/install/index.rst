@@ -14,3 +14,13 @@ Kolibri Installation Guides
     Linux <linux>
     Advanced Installation <advanced>
     
+Once you have Kolibri installed on your system, follow these steps:
+
+``TODO - Update link for Start Kolibri topic once this PR is merged.``
+
+.. toctree::
+    :maxdepth: 1
+
+    Start Kolibri <system_requirements>
+    Create Device Owner <device_owner> 
+
