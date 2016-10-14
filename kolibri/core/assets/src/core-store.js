@@ -104,6 +104,24 @@ const mutations = {
   SET_LOGGING_ATTEMPT_STATE(state, attemptState) {
     state.core.logging.attempt = attemptState;
   },
+  UPDATE_LOGGING_MASTERY(state, currentTime, complete) {
+    if (complete) {
+      state.core.logging.mastery.completion_timestamp = currentTime;
+      state.core.logging.mastery.complete = complete;
+      state.core.logging.mastery.pastattempts.push(1);
+    }
+    state.core.logging.mastery.pastattempts.push(0);
+    state.core.logging.mastery.end_timestamp = currentTime;
+  },
+  UPDATE_LOGGING_ATTEMPT(state, currentTime, correct) {
+    if (correct) {
+      state.core.logging.attempt.completion_timestamp = currentTime;
+      state.core.logging.attempt.complete = true; //??what's complete??
+      state.core.logging.attempt.correct = correct;
+    }
+    state.core.logging.attempt.end_timestamp = currentTime;
+    state.core.logging.attempt.time_spent = 0.1; //??how time_spent??
+  },
   SET_EMPTY_LOGGING_STATE(state) {
     state.core.logging = baseLoggingState;
   },
