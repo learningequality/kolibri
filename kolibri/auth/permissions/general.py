@@ -104,7 +104,7 @@ class IsOwn(BasePermissions):
         return self._user_can_write_object(user, obj)
 
     def readable_by_user_filter(self, user, queryset):
-        if user.is_anonymous:
+        if user.is_anonymous():
             return queryset.none()
         return queryset.filter(**{self.field_name: user.id})
 
