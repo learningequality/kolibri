@@ -36,7 +36,8 @@ oriented data synchronization.
       },
     },
     created() {
-      // this.$parent.$once('assessmentDataLoaded', this.initMasteryLog);
+      this.$on('checkanswer', (answer) => { this.answerChecked(answer);});
+      this.$on('takehint', () => { this.hintTaken();});
       // Once the data for the overall assessment is loaded in the renderer
       // we can initialize the mastery log, as the mastery model and spacing time
       // will be available.
@@ -55,23 +56,25 @@ oriented data synchronization.
       }
     },
     methods: {
-      initMasteryLog() {
-        // Only initialize masteryLogs once the summaryLog is initialized.
-        if (!(this.summaryLogId || this.summaryLogId === null)) {
+      answerChecked(answer) {
+        this.updateMasteryAttemptStateAction(new Date(), answer);
+        if (this.masteryLogId) {
+          // this.saveMasteryLogAction(this.Kolibri);
+          this.saveAttemptLogAction(this.Kolibri);
+        } else {
           let watchRevoke;
-          watchRevoke = this.$watch('summaryLogId', () => {
-            if ((this.summaryLogId || this.summaryLogId === null)) {
-              this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime);
+          watchRevoke = this.$watch('masteryLogId', () => {
+            if (this.masteryLogId) {
+              this.saveAttemptLogAction(this.Kolibri);
               watchRevoke();
             }
           });
-        } else {
-          this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime);
+          this.saveMasteryLogAction(this.Kolibri);
         }
       },
-      initAttemptLog() {
-        // Only initialize attemptLogs once the masteryLog is initialized.
-        if (!(this.masteryLogId || this.masteryLogId === null)) {
+      hintTaken() {
+        console.log('hinhinhin');
+      },
       initMasteryLog() {
         // Only initialize masteryLogs once the summaryLog is initialized.
         if (!this.summaryLogId) {
