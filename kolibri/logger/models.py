@@ -105,6 +105,7 @@ class MasteryLog(BaseLogModel):
     """
     This model provides a summary of a user's engagement with an assessment within a mastery level
     """
+    user = models.ForeignKey(FacilityUser, blank=True, null=True)
     # Every MasteryLog is related to the single summary log for the user/content pair
     summarylog = models.ForeignKey(ContentSummaryLog, related_name="masterylogs")
     # The MasteryLog records the mastery criterion that has been specified for the user.
@@ -129,6 +130,7 @@ class AttemptLog(BaseLogModel):
     This model provides a summary of a user's engagement within a particular interaction with an
     item in an assessment
     """
+    user = models.ForeignKey(FacilityUser, blank=True, null=True)
     # Unique identifier within the relevant assessment for the particular question/item
     # that this attemptlog is a record of an interaction with.
     item = models.CharField(max_length=200)
