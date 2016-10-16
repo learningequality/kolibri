@@ -14,7 +14,7 @@ const ContentKinds = {
 };
 
 const MasteryLoggingMap = {
-  id: 'pk',
+  id: 'id',
   summarylog: 'summarylog',
   start_timestamp: 'start_timestamp',
   completion_timestamp: 'completion_timestamp',
@@ -28,7 +28,7 @@ const MasteryLoggingMap = {
 };
 
 const AttemptLoggingMap = {
-  id: 'pk',
+  id: 'id',
   item: 'item',
   start_timestamp: 'start_timestamp',
   completion_timestamp: 'completion_timestamp',

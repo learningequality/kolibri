@@ -16,7 +16,7 @@ class MasteryLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MasteryLog
-        fields = ('pk', 'summarylog', 'start_timestamp', 'responsehistory', 'pastattempts',
+        fields = ('id', 'summarylog', 'start_timestamp', 'pastattempts',
                   'end_timestamp', 'completion_timestamp', 'mastery_criterion', 'mastery_level', 'complete')
 
     def get_responsehistory(self, obj):
@@ -34,7 +34,7 @@ class AttemptLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AttemptLog
-        fields = ('pk', 'masterylog', 'start_timestamp',
+        fields = ('id', 'masterylog', 'start_timestamp',
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent',
                   'complete', 'correct', 'answer', 'simple_answer', 'interaction_history')
 

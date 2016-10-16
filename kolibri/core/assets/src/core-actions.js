@@ -130,7 +130,7 @@ function _attemptLogModel(store) {
       mapping[AttemptLoggingMap[key]] = attemptLog[key];
     }
   });
-  mapping['masterylog'] = store.state.core.logging.mastery.pk; //id is undefined, has to switch to pk!?
+  mapping['masterylog'] = store.state.core.logging.mastery.id;
   return mapping;
 }
 
@@ -439,7 +439,7 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
     pastattempts = store.state.core.mastery.pastattempts;
   }
   const masteryLogModel = Kolibri.resources.MasteryLog.createModel({
-    pk: null,
+    id: null,
     summarylog: store.state.core.logging.summary.id,
     start_timestamp: new Date(),
     completion_timestamp: null,
@@ -464,7 +464,7 @@ function saveAttemptLog(store, Kolibri) {
 
 function createAttemptLog(store, Kolibri, itemId) {
   const attemptLogModel = Kolibri.resources.AttemptLog.createModel({
-    pk: null,
+    id: null,
     masterylog: store.state.core.logging.mastery.id || null,
     start_timestamp: new Date(),
     completion_timestamp: null,

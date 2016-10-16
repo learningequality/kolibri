@@ -103,7 +103,7 @@ oriented data synchronization.
       },
       getters: {
         summaryLogId: (state) => state.core.logging.summary.id,
-        masteryLogId: (state) => state.core.logging.mastery.pk,
+        masteryLogId: (state) => state.core.logging.mastery.id,
         pastattempts: (state) => state.core.logging.mastery.pastattempts,
       },
     },
