@@ -113,7 +113,7 @@ class MasteryLog(BaseLogModel):
     # with an assessment.
     mastery_criterion = models.TextField()
     start_timestamp = models.DateTimeField()
-    end_timestamp = models.DateTimeField()
+    end_timestamp = models.DateTimeField(blank=True, null=True)
     completion_timestamp = models.DateTimeField(blank=True, null=True)
     # The integer mastery level that this log is tracking.
     mastery_level = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
