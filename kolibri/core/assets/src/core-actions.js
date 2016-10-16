@@ -85,14 +85,6 @@ function _sessionState(data) {
   return state;
 }
 
-function _masteryLoggingState(data) {
-  const state = {};
-  Object.keys(MasteryLoggingMap).forEach((key) => {
-    state[key] = data[MasteryLoggingMap[key]];
-  });
-  return state;
-}
-
 function _masteryLogModel(store) {
   const mapping = {};
   const masteryLog = store.state.core.logging.mastery;
@@ -103,32 +95,11 @@ function _masteryLogModel(store) {
   return mapping;
 }
 
-const attemptLoggingJSONifyKeys = {
-  answer: true,
-  interaction_history: true,
-};
-
-function _attemptLoggingState(data) {
-  const state = {};
-  Object.keys(AttemptLoggingMap).forEach((key) => {
-    if (attemptLoggingJSONifyKeys[key]) {
-      state[key] = JSON.parse(data[AttemptLoggingMap[key]]);
-    } else {
-      state[key] = data[AttemptLoggingMap[key]];
-    }
-  });
-  return state;
-}
-
 function _attemptLogModel(store) {
   const mapping = {};
   const attemptLog = store.state.core.logging.attempt;
   Object.keys(AttemptLoggingMap).forEach((key) => {
-    if (attemptLoggingJSONifyKeys[key]) {
-      mapping[AttemptLoggingMap[key]] = JSON.stringify(attemptLog[key]);
-    } else {
-      mapping[AttemptLoggingMap[key]] = attemptLog[key];
-    }
+    mapping[AttemptLoggingMap[key]] = attemptLog[key];
   });
   mapping['masterylog'] = store.state.core.logging.mastery.id;
   return mapping;
