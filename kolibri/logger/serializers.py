@@ -11,7 +11,6 @@ class ContentSessionLogSerializer(serializers.ModelSerializer):
 
 class MasteryLogSerializer(serializers.ModelSerializer):
 
-    responsehistory = serializers.SerializerMethodField()
     pastattempts = serializers.SerializerMethodField()
 
     class Meta:
@@ -19,15 +18,9 @@ class MasteryLogSerializer(serializers.ModelSerializer):
         fields = ('id', 'summarylog', 'start_timestamp', 'pastattempts',
                   'end_timestamp', 'completion_timestamp', 'mastery_criterion', 'mastery_level', 'complete')
 
-    def get_responsehistory(self, obj):
-        try:
-            logs = obj.attemptlogs.order_by('completion_timestamp').values('correct')
-            return logs
-        except AttemptLog.DoesNotExist:
-            return []
-
     def get_pastattempts(self, obj):
         # will return a list of correct field for each attempt.
+        # seems in chronological order, so not order_by end_time or complete_time
         return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).values_list('correct', flat=True)
 
 class AttemptLogSerializer(serializers.ModelSerializer):
