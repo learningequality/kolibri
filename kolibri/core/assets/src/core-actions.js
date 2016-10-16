@@ -203,16 +203,7 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
           masteryModel.synced = true;
 
           store.dispatch('SET_LOGGING_MASTERY_STATE',
-            _masteryLoggingState(summary[0].currentmasterylog));
-          if (summary[0].currentmasterylog.currentattemptlog) {
-            // If an attempt model has been sent along with the mastery log payload,
-            // then bootstrap that data into the AttemptLog resource. Cheekier and cheekier!
-            const attemptModel = Kolibri.resources.AttemptLog.createModel(
-              summary[0].currentmasterylog.currentattemptlog);
-            attemptModel.synced = true;
-            store.dispatch('SET_LOGGING_ATTEMPT_STATE',
-              _attemptLoggingState(summary[0].currentmasterylog.currentattemptlog));
-          }
+            summary[0].currentmasterylog);
         }
       } else {
         /* If a summary model does not exist, create default state */

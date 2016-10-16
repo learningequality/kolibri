@@ -38,19 +38,6 @@ class AttemptLogSerializer(serializers.ModelSerializer):
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent',
                   'complete', 'correct', 'answer', 'simple_answer', 'interaction_history')
 
-class NestedMasteryLogSerializer(MasteryLogSerializer):
-
-    currentattemptlog = serializers.SerializerMethodField()
-
-    class Meta(MasteryLogSerializer.Meta):
-        fields = MasteryLogSerializer.Meta.fields + ('currentattemptlog',)
-
-    def get_currentattemptlog(self, obj):
-        try:
-            current_log = obj.attemptlogs.filter(complete=False).latest('end_timestamp')
-            return AttemptLogSerializer(current_log).data
-        except AttemptLog.DoesNotExist:
-            return None
 
 class ContentSummaryLogSerializer(serializers.ModelSerializer):
 
@@ -64,7 +51,7 @@ class ContentSummaryLogSerializer(serializers.ModelSerializer):
     def get_currentmasterylog(self, obj):
         try:
             current_log = obj.masterylogs.latest('end_timestamp')
-            return NestedMasteryLogSerializer(current_log).data
+            return MasteryLogSerializer(current_log).data
         except MasteryLog.DoesNotExist:
             return None
 
