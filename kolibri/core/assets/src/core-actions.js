@@ -395,6 +395,10 @@ function saveMasteryLog(store, Kolibri) {
   );
 }
 
+function setMasteryLogComplete(store, complete) {
+  store.dispatch('SET_LOGGING_MASTERY_COMPLETE', complete);
+}
+
 function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
   let pastattempts = [];
   if (store.state.core.mastery) {
@@ -495,6 +499,7 @@ module.exports = {
   samePageCheckGenerator,
   initMasteryLog,
   saveMasteryLog,
+  setMasteryLogComplete,
   saveAttemptLog,
   updateMasteryAttemptState,
 };

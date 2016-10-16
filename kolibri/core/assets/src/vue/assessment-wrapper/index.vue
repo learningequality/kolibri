@@ -38,6 +38,7 @@ oriented data synchronization.
     created() {
       this.$on('checkanswer', (answer) => { this.answerChecked(answer);});
       this.$on('takehint', () => { this.hintTaken();});
+      this.$on('passexercise', () => { this.exercisePassed();});
       // Once the data for the overall assessment is loaded in the renderer
       // we can initialize the mastery log, as the mastery model and spacing time
       // will be available.
@@ -75,6 +76,11 @@ oriented data synchronization.
       hintTaken() {
         console.log('hinhinhin');
       },
+      exercisePassed() {
+        console.log('exercisePassedexercisePassed');
+        this.setMasteryLogCompleteAction(true);
+        this.saveMasteryLogAction(this.Kolibri);
+      },
       initMasteryLog() {
         // Only initialize masteryLogs once the summaryLog is initialized.
         if (!this.summaryLogId) {
@@ -107,6 +113,7 @@ oriented data synchronization.
       actions: {
         initMasteryLogAction: actions.initMasteryLog,
         saveMasteryLogAction: actions.saveMasteryLog,
+        setMasteryLogCompleteAction: actions.setMasteryLogComplete,
         createAttemptLogAction: actions.createAttemptLog,
         saveAttemptLogAction: actions.saveAttemptLog,
         updateMasteryAttemptStateAction: actions.updateMasteryAttemptState,
