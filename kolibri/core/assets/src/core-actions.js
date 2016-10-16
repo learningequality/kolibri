@@ -400,10 +400,6 @@ function setMasteryLogComplete(store, complete) {
 }
 
 function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
-  let pastattempts = [];
-  if (store.state.core.mastery) {
-    pastattempts = store.state.core.mastery.pastattempts;
-  }
   const masteryLogModel = Kolibri.resources.MasteryLog.createModel({
     id: null,
     summarylog: store.state.core.logging.summary.id,
@@ -413,11 +409,17 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
     mastery_level: masteryLevel,
     complete: false,
     responsehistory: [],
-    pastattempts: pastattempts,
+    pastattempts: [],
     mastery_criterion: masteryCriterion,
     user: store.state.core.session.user_id,
   });
-  store.dispatch('SET_LOGGING_MASTERY_STATE', _masteryLoggingState(masteryLogModel.attributes));
+  masteryLogModel.save(masteryLogModel.attributes).only(
+    samePageCheckGenerator(store),
+    (newMasteryLog) => {
+    // Update store in case an id has been set.
+    store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
+    }
+  );
 }
 
 function saveAttemptLog(store, Kolibri) {

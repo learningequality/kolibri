@@ -25,9 +25,6 @@ oriented data synchronization.
       itemId: {
         type: String,
       },
-      assessmentDataLoaded: {
-        type: Boolean,
-      },
       masteryModel: {
         type: String,
       },
@@ -42,25 +39,13 @@ oriented data synchronization.
       // Once the data for the overall assessment is loaded in the renderer
       // we can initialize the mastery log, as the mastery model and spacing time
       // will be available.
-      if (this.assessmentDataLoaded) {
-        this.initMasteryLog();
-        this.initAttemptLog();
-      } else {
-        let watchRevoke;
-        watchRevoke = this.$watch('assessmentDataLoaded', () => {
-          if (this.assessmentDataLoaded) {
-            this.initMasteryLog();
-            this.initAttemptLog();
-            watchRevoke();
-          }
-        });
-      }
+      this.initMasteryLog();
+      this.initNewAttemptLog();
     },
     methods: {
       answerChecked(answer) {
         this.updateMasteryAttemptStateAction(new Date(), answer);
         if (this.masteryLogId) {
-          // this.saveMasteryLogAction(this.Kolibri);
           this.saveAttemptLogAction(this.Kolibri);
         } else {
           let watchRevoke;
@@ -70,14 +55,12 @@ oriented data synchronization.
               watchRevoke();
             }
           });
-          this.saveMasteryLogAction(this.Kolibri);
         }
       },
       hintTaken() {
         console.log('hinhinhin');
       },
       exercisePassed() {
-        console.log('exercisePassedexercisePassed');
         this.setMasteryLogCompleteAction(true);
         this.saveMasteryLogAction(this.Kolibri);
       },
