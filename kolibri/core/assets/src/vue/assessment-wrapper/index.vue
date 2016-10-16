@@ -89,15 +89,25 @@ oriented data synchronization.
           this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime, 'eli');
         }
       },
-      initAttemptLog() {
-        this.initAttemptLogAction(this.Kolibri, this.itemId);
+      initNewAttemptLog() {
+        if (this.itemId) {
+          this.createAttemptLogAction(this.Kolibri, this.itemId);
+        } else {
+          let watchRevoke;
+          watchRevoke = this.$watch('itemId', () => {
+            if (this.itemId) {
+              this.createAttemptLogAction(this.Kolibri, this.itemId);
+              watchRevoke();
+            }
+          });
+        }
       },
     },
     vuex: {
       actions: {
         initMasteryLogAction: actions.initMasteryLog,
         saveMasteryLogAction: actions.saveMasteryLog,
-        initAttemptLogAction: actions.initAttemptLog,
+        createAttemptLogAction: actions.createAttemptLog,
         saveAttemptLogAction: actions.saveAttemptLog,
         updateMasteryAttemptStateAction: actions.updateMasteryAttemptState,
       },

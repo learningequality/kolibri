@@ -461,14 +461,6 @@ function initMasteryLog(store, Kolibri, masterySpacingTime, masteryCriterion) {
   }
 }
 
-function initAttemptLog(store, Kolibri, itemId) {
-  if (!store.state.core.logging.attempt.id) {
-    // id has not been set on the attemptlog state, so this is undefined.
-    // Either way, we need to create a new attemptlog!
-    createAttemptLog(store, Kolibri, itemId);
-  }
-}
-
 function updateMasteryAttemptState(store, currentTime, answer) {
   store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, answer);
   const correct = answer ? 1 : 0;
@@ -502,7 +494,6 @@ module.exports = {
   saveLogs,
   samePageCheckGenerator,
   initMasteryLog,
-  initAttemptLog,
   saveMasteryLog,
   saveAttemptLog,
   updateMasteryAttemptState,
