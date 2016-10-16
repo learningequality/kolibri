@@ -423,8 +423,8 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
 function saveAttemptLog(store, Kolibri) {
   const attemptLogModel = Kolibri.resources.AttemptLog.getModel(store.state.core.logging.attempt.id);
   attemptLogModel.save(_attemptLogModel(store)).then((newAttemptLog) => {
-    // Update store in case an id has been set.
-    store.dispatch('SET_LOGGING_ATTEMPT_STATE', newAttemptLog);
+      // don't see any use to have the state set to newly created attemptLog
+      // store.dispatch('SET_LOGGING_ATTEMPT_STATE', newAttemptLog);
   });
 }
 
@@ -444,7 +444,7 @@ function createAttemptLog(store, Kolibri, itemId) {
     interaction_history: '[]',
     user: store.state.core.session.user_id,
   });
-  store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(attemptLogModel.attributes));
+  store.dispatch('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
 }
 
 /**
@@ -500,6 +500,7 @@ module.exports = {
   initMasteryLog,
   saveMasteryLog,
   setMasteryLogComplete,
+  createAttemptLog,
   saveAttemptLog,
   updateMasteryAttemptState,
 };
