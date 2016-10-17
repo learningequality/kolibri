@@ -79,6 +79,10 @@ def get_content_storage_url(baseurl=None):
         "storage/",
     )
 
+def get_content_storage_remote_url(filename, baseurl=None):
+    return "{}{}/{}/{}".format(get_content_storage_url(baseurl), filename[0], filename[1], filename)
+
+
 def get_content_storage_file_url(filename, baseurl=None):
     """
     Return the URL at which the specified file can be accessed. For regular files, this is a link to the static
