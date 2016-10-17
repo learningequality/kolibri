@@ -136,7 +136,10 @@ class TasksViewSet(viewsets.ViewSet):
 
         task_id = request.data['task_id']
 
-        # we need to decrypt tasks first to get their real task_id. Hence why this python-side task_id retrieval and deletion.
+        # Attempt to kill running task.
+        Task.get_task(task_id).kill_running_task()
+
+        # we need to decrypt tasks first in the ORM queue to get their real task_id. Hence why this python-side task_id retrieval and deletion.
         [taskitem.delete() for taskitem in OrmQ.objects.all() if taskitem.task()["id"] == task_id]
 
         Task.objects.filter(pk=task_id).delete()

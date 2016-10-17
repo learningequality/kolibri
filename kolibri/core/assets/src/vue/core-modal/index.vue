@@ -76,11 +76,11 @@
     attached() {
       this.lastFocus = document.activeElement;
       this.focusModal();
-      window.addEventListener('blur', this.focusElementTest, true);
+      window.addEventListener('focus', this.focusElementTest, true);
       window.addEventListener('scroll', this.preventScroll, true);
     },
     detached() {
-      window.removeEventListener('blur', this.focusElementTest, true);
+      window.removeEventListener('focus', this.focusElementTest, true);
       window.removeEventListener('scroll', this.preventScroll, true);
       // Wait for events to finish propagating before changing the focus.
       // Otherwise the `lastFocus` item receives events such as 'enter'.
@@ -105,8 +105,8 @@
         this.$els.modal.focus();
       },
       focusElementTest(event) {
-        // FocusOut happens when the element is about to be blurred
-        if (this.$els.modal && !this.$els.modal.contains(event.relatedTarget)) {
+        // if the focus moved outside the modal, put it back
+        if (this.$els.modal && !this.$els.modal.contains(event.target)) {
           this.focusModal();
         }
       },
