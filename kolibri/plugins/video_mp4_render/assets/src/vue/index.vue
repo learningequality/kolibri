@@ -103,6 +103,7 @@
           .getElementsByClassName('vjs-captions-button')[0]
           .classList.remove('vjs-hidden');
       },
+
       resizeVideo() {
         const wrapperWrapperWidth = this.$els.videowrapperwrapper.clientWidth;
         const wrapperWrapperHeight = this.$els.videowrapperwrapper.clientHeight;
@@ -165,85 +166,6 @@
           Math.floor(this.videoPlayer.duration())));
         this.progressStartingPoint = this.videoPlayer.currentTime();
       },
-
-//      handleHotkey(e) {
-//        const keyCode = e.keyCode;
-//        switch (keyCode) {
-//          case 32: // space = toggle play
-//              this.togglePlay();
-//            break;
-//
-//          case 37: // left = replay
-//            this.replay();
-//            break;
-//
-//          case 39: // right = forward
-//            this.forward();
-//            break;
-//
-//          case 38: // up = increase volume
-//            this.increaseVolume();
-//            break;
-//
-//          case 40: // decrease volume
-//            this.decreaseVolume();
-//            break;
-//
-//          case 77: // m = toggle mute
-//            this.toggleMute();
-//            break;
-//
-//          case 70: // f = toggle full screen
-//            this.toggleFullScreen();
-//            break;
-//
-//          default:
-//            break;
-//
-//          // TODO: Other possible hotkeys to handle.
-//          // < = decrease video speed
-//          // > increase video speed
-//          // c closed captions
-//          // 1 - 9  seek
-//        }
-//      },
-//
-//      togglePlay() {
-//        if (this.videoPlayer.paused()) {
-//          this.videoPlayer.play();
-//        } else {
-//          this.videoPlayer.pause();
-//        }
-//      },
-//
-//      replay() {
-//        this.videoPlayer.currentTime(Math.max(0, (this.videoPlayer.currentTime() - 10)));
-//      },
-//
-//      forward() {
-//        this.videoPlayer.currentTime(Math.min(this.videoPlayer.duration(),
-//          (this.videoPlayer.currentTime() + 10)));
-//      },
-//
-//      increaseVolume() {
-//        this.videoPlayer.volume(this.videoPlayer.volume() + 0.1);
-//      },
-//
-//      decreaseVolume() {
-//        this.videoPlayer.volume(this.videoPlayer.volume() - 0.1);
-//      },
-//
-//      toggleMute() {
-//        this.videoPlayer.muted(!this.videoPlayer.muted());
-//      },
-//
-//      toggleFullScreen() {
-//        if (this.videoPlayer.isFullscreen()) {
-//          this.videoPlayer.exitFullscreen();
-//        } else {
-//          this.videoPlayer.requestFullscreen();
-//        }
-//      },
     },
 
     created() {
@@ -286,13 +208,11 @@
 
       this.videoPlayer.on('loadedmetadata', this.loadedMetaData);
       global.addEventListener('resize', this.debouncedResizeVideo);
-      // global.addEventListener('keyup', this.handleHotkey);
     },
     beforeDestroy() {
       this.recordProgress();
       this.$emit('stopTracking');
       global.removeEventListener('resize', this.debouncedResizeVideo);
-      // global.removeEventListener('keyup', this.handleHotkey);
       this.videoPlayer.dispose();
     },
   };
@@ -309,9 +229,10 @@
   @import '../videojs-font/css/videojs-icons.css'
 
   $video-player-color = black
-  $video-player-accent-color = #e91e63
-  $button-size = 48px
-  $font-size = 48px
+  $video-player-accent-color = #9c27b0
+  $control-bar-height = 60px
+  $button-size = $control-bar-height * 0.75
+  $font-size = $button-size
 
   // Containers
   .videowrapperwrapper
@@ -334,7 +255,9 @@
     font-family: $core-font
     font-size: 1em
     @media screen and (max-width: 840px)
-      font-size: 0.75em /// Big Play Button
+      font-size: 0.75em
+
+    // Big Play Button
     .vjs-big-play-button
       position: absolute
       top: 50%
@@ -391,7 +314,7 @@
     .vjs-control-bar
       justify-content: center
       padding-top: 10px
-      height: 60px
+      height: $control-bar-height
 
     .vjs-menu
       li
@@ -427,10 +350,10 @@
 
     // Replay and Forward Buttons
     .vjs-icon-replay_10
-      margin-left: 50px
+      margin-left: 1.5em
 
     .vjs-icon-forward_10
-      margin-right: 50px
+      margin-right: 1.5em
 
     // Time
     .vjs-current-time,
