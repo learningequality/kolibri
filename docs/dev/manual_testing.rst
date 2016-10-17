@@ -2,6 +2,30 @@
 Manual Testing & QA
 ===================
 
+Accessibility Testing
+---------------------
+
+Inclusive design benefits all users, and we strive to make Kolibri accessible for all. For some features and aspects testing for accessibility can be more demanding, but there are a couple of steps you must ensure before submitting your PR:
+
+* Working **keyboard navigation** - everything that user can do with mouse or by touch must also work with the `keyboard alone <http://webaim.org/techniques/keyboard/>`_.
+* Sufficient `color contrast <http://a11yproject.com/posts/what-is-color-contrast/>`_ between foreground text/elements and the background.
+* Meaningful **text alternative** for all non-decorative images, or an empty ``ALT`` attribute in case of decorative ones.
+* Meaningful **labels** on ALL `form or button elements <http://accessibility.psu.edu/forms/>`_.
+* Page has one main **heading** (H1) and `consecutive lower heading levels <http://accessiblehtmlheadings.com/>`_.
+
+
+Recommended A11y Testing Tools
+______________________________
+
+Here are a few tools that we use in testing for accessibility:
+
+* `WAVE Evaluation Tool <http://wave.webaim.org/extension/>`_ - Chrome extension.
+* `tota11y <http://khan.github.io/tota11y/>`_ accessibility visualization toolkit - bookmarklet for Firefox and Chrome. 
+* `Accessibility Developer Tools <https://chrome.google.com/webstore/detail/accessibility-developer-t/fpkknkljclfencbdbgkenhalefipecmb>`_ - Chrome extension.
+* aXe Accessibility Engine - `Firefox Addon <https://addons.mozilla.org/en-us/firefox/addon/axe-devtools/>`_ and `Chrome extension <https://chrome.google.com/webstore/detail/axe/lhdoppojpmngadmnindnejefpokejbdd>`_.
+
+There is a much longer list of tools (specially for color contrast checking) on our `KA Lite Wiki page <https://github.com/learningequality/ka-lite/wiki/Accessibility-Resources-(Tools)>`_ if you want to go deeper, but these four should be enough to help you avoid the most important accessibility pitfalls.
+
 
 Cross-browser and OS Testing
 ----------------------------
