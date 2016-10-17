@@ -98,10 +98,6 @@
         this.resizeVideo();
         this.videoPlayerIsReady();
         this.loading = false;
-        this.$els.videowrapper.childNodes[1]
-          .getElementsByClassName('vjs-control-bar')[0]
-          .getElementsByClassName('vjs-captions-button')[0]
-          .classList.remove('vjs-hidden');
       },
 
       resizeVideo() {
@@ -188,18 +184,19 @@
         playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
         controlBar: {
           children: [
-            { name: 'progressControl' },
+            { name: 'playToggle' },
+            { name: 'ReplayButton' },
+            { name: 'ForwardButton' },
             { name: 'currentTimeDisplay' },
+            { name: 'timeDivider' },
             { name: 'durationDisplay' },
+            { name: 'progressControl' },
             {
               name: 'VolumeMenuButton',
               inline: false,
               vertical: true,
             },
             { name: 'playbackRateMenuButton' },
-            { name: 'ReplayButton' },
-            { name: 'playToggle' },
-            { name: 'ForwardButton' },
             { name: 'captionsButton' },
             { name: 'fullscreenToggle' },
           ],
@@ -228,11 +225,15 @@
   // Custom build icons.
   @import '../videojs-font/css/videojs-icons.css'
 
-  $video-player-color = black
+  // Shades of Grey
+  $dark-grey = #212121
+  $grey = #303030
+  $light-grey = #424242
+
+  // Video player colors and sizing
+  $video-player-color = $dark-grey
   $video-player-accent-color = #9c27b0
-  $control-bar-height = 60px
-  $button-size = $control-bar-height * 0.75
-  $font-size = $button-size
+  $video-player-font-size = 14px
 
   // Containers
   .videowrapperwrapper
@@ -251,11 +252,16 @@
 
   // Video Player
   .video-js
-    color: white
+    font-size: $video-player-font-size
     font-family: $core-font
-    font-size: 1em
+    font-weight: bold
+    color: white
+
+    // Responsiveness
     @media screen and (max-width: 840px)
-      font-size: 0.75em
+      font-size: 13px
+    @media screen and (max-width: 620px)
+      font-size: 11px
 
     // Big Play Button
     .vjs-big-play-button
@@ -279,7 +285,7 @@
 
     // Sliders
     .vjs-slider
-      background-color: grey
+      background-color: $light-grey
 
     // Seek Bar
     .vjs-progress-control
@@ -287,18 +293,22 @@
       left: 0
       right: 0
       width: auto
-      top: -28px
+      top: calc(1em - 56px)
       visibility: inherit
       opacity: inherit
+
       &:hover
         .vjs-progress-holder
           font-size: 1em
 
     .vjs-progress-holder
-      margin: 7px
+      margin-left: 7px
+      margin-right: 7px
+      font-size: 1em
+      margin-top: auto
 
     .vjs-load-progress
-      background: darkgrey
+      background: $grey
 
     .vjs-play-progress
       background-color: $video-player-accent-color
@@ -312,66 +322,34 @@
       background-color: $video-player-color
 
     .vjs-control-bar
-      justify-content: center
-      padding-top: 10px
-      height: $control-bar-height
+      display: block
+      display: flex
 
+    // Menus
     .vjs-menu
       li
+        font-weight: bold
         &:focus, &:hover
-          background-color: grey
+          background-color: $grey
 
         .vjs-selected
-          background-color: black
+          background-color: $light-grey
           color: $video-player-accent-color
 
     .vjs-menu-button-popup .vjs-menu .vjs-menu-content
-      background-color: black
+      background-color: $video-player-color
 
-    // Buttons
-    .vjs-button
-      width: $font-size
-      height: $font-size
-      @media screen and (max-width: 840px)
-        width: $font-size * 0.66
-        height: $font-size * 0.66
-
-    .vjs-control:before
-      font-size: $font-size * 0.66
-      line-height: $font-size
-      @media screen and (max-width: 840px)
-        font-size: $font-size * 0.33
-        line-height: $font-size * 0.66
-
-    .vjs-play-control:before
-      font-size: $font-size
-      @media screen and (max-width: 840px)
-        font-size: $font-size * 0.66
-
-    // Replay and Forward Buttons
-    .vjs-icon-replay_10
-      margin-left: 1.5em
-
-    .vjs-icon-forward_10
-      margin-right: 1.5em
+    .vjs-menu li.vjs-selected
+      background-color: $video-player-color
+      color: $video-player-accent-color
 
     // Time
     .vjs-current-time,
-    .vjs-duration
+    .vjs-duration,
+    .vjs-time-divider
       display: inline-block
-      position: absolute
-      visibility: inherit
-      opacity: inherit
 
-    .vjs-current-time
-      left: 0
-
-    .vjs-duration
-      right: 0
-
-  // No Flex Zone
-  .vjs-no-flex .vjs-duration
-    position: relative
-    left: 40px
+    .vjs-volume-menu-button
+      margin-left: auto
 
 </style>
