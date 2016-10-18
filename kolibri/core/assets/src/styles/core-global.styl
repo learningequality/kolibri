@@ -89,7 +89,6 @@ button
   border-width: 2px
   border-style: solid
   border-color: $core-action-normal
-  padding: 0.2em 0.4em
   transition: border-color $core-time ease-out, color $core-time ease-out
 
   &:hover
@@ -100,9 +99,9 @@ button
     outline: $core-action-light 2px solid
 
   &:disabled
-    color: $core-text-annotation
-    border-color: $core-text-annotation
-    cursor: default
+    color: $core-text-disabled
+    border-color: $core-text-disabled
+    cursor: not-allowed
 
 
 // Firefox: Get rid of the inner focus border
@@ -110,7 +109,6 @@ button
 button::-moz-focus-inner
   padding: 0
   border: none
-
 
 .visuallyhidden
   border: none
@@ -121,3 +119,9 @@ button::-moz-focus-inner
   padding: 0
   position: absolute
   width: 1px
+
+.core-text-alert
+  color: $core-text-alert
+
+.core-text-annotation
+  color: $core-text-annotation

@@ -16,10 +16,10 @@
       aria-labelledby="modal-title">
 
       <div class="top-buttons">
-        <button aria-label="Go back" @click="emitBackEvent" class="btn-back" v-if="enablebackbtn">
+        <button aria-label="Go back" @click="emitBackEvent" class="header-btn btn-back" v-if="enablebackbtn">
           <svg src="./back.svg" role="presentation"></svg>
         </button>
-        <button aria-label="Close dialog window" @click="emitCancelEvent" class="btn-close">
+        <button aria-label="Close dialog window" @click="emitCancelEvent" class="header-btn btn-close">
           <svg src="./close.svg" role="presentation"></svg>
         </button>
       </div>
@@ -76,11 +76,11 @@
     attached() {
       this.lastFocus = document.activeElement;
       this.focusModal();
-      window.addEventListener('blur', this.focusElementTest, true);
+      window.addEventListener('focus', this.focusElementTest, true);
       window.addEventListener('scroll', this.preventScroll, true);
     },
     detached() {
-      window.removeEventListener('blur', this.focusElementTest, true);
+      window.removeEventListener('focus', this.focusElementTest, true);
       window.removeEventListener('scroll', this.preventScroll, true);
       // Wait for events to finish propagating before changing the focus.
       // Otherwise the `lastFocus` item receives events such as 'enter'.
@@ -105,8 +105,8 @@
         this.$els.modal.focus();
       },
       focusElementTest(event) {
-        // FocusOut happens when the element is about to be blurred
-        if (this.$els.modal && !this.$els.modal.contains(event.relatedTarget)) {
+        // if the focus moved outside the modal, put it back
+        if (this.$els.modal && !this.$els.modal.contains(event.target)) {
           this.focusModal();
         }
       },
@@ -154,6 +154,10 @@
     transition: all 0.3s ease
     margin: 0 auto
     padding: 15px 30px
+
+    &:focus
+      outline: none
+
     @media (max-width: $portrait-breakpoint)
       width: 85%
       top: 45%
@@ -161,18 +165,18 @@
   .top-buttons
     position: relative
     height: 20px
+    margin-bottom: 25px
+
+  .header-btn
+    color: $core-text-default
+    border: none
+    position: absolute
 
   .btn-back
-    color: $core-text-default
-    border: none
-    position: absolute
-    left: 0
+    left: -10px
 
   .btn-close
-    color: $core-text-default
-    border: none
-    position: absolute
-    right: 0
+    right: -10px
 
   .title
     text-align: center

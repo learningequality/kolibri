@@ -131,7 +131,7 @@ function currentLoggedInUser(store, Kolibri) {
   const SessionResource = Kolibri.resources.SessionResource;
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
-  const sessionPromise = sessionModel.fetch({}, true);
+  const sessionPromise = sessionModel.fetch({});
   sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
   }).catch((error) => {
@@ -349,6 +349,20 @@ function stopTrackingProgress(store, Kolibri) {
   updateTimeSpent(store, Kolibri, true);
 }
 
+
+/**
+ * Action inhibition check
+ *
+ * This generator function produces checks that help determine whether the
+ * asynchronous outcomes should still be run based on whether the user is
+ * still on the same page as when the action was first triggered.
+ */
+
+function samePageCheckGenerator(store) {
+  const pageId = store.state.core.pageSessionId;
+  return () => store.state.core.pageSessionId === pageId;
+}
+
 module.exports = {
   kolibriLogin,
   kolibriLogout,
@@ -361,4 +375,5 @@ module.exports = {
   updateTimeSpent,
   updateProgress,
   saveLogs,
+  samePageCheckGenerator,
 };

@@ -10,11 +10,18 @@ import uuid
 
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from django.core.urlresolvers import reverse
+from django.utils.text import get_valid_filename
+
 from mptt.models import MPTTModel, TreeForeignKey
 
-from .constants import content_kinds, extensions, presets
+from le_utils.constants import content_kinds, file_formats, format_presets
 from .content_db_router import get_active_content_database
 from .utils import paths
+from gettext import gettext as _
+
+
+PRESET_LOOKUP = dict(format_presets.choices)
 
 
 class UUIDField(models.CharField):
@@ -141,11 +148,11 @@ class File(ContentDatabaseModel):
     """
     id = UUIDField(primary_key=True)
     checksum = models.CharField(max_length=400, blank=True)
-    extension = models.CharField(max_length=40, choices=extensions.choices, blank=True)
+    extension = models.CharField(max_length=40, choices=file_formats.choices, blank=True)
     available = models.BooleanField(default=False)
     file_size = models.IntegerField(blank=True, null=True)
     contentnode = models.ForeignKey(ContentNode, related_name='files', blank=True, null=True)
-    preset = models.CharField(max_length=150, choices=presets.choices, blank=True)
+    preset = models.CharField(max_length=150, choices=format_presets.choices, blank=True)
     lang = models.ForeignKey(Language, blank=True, null=True)
     supplementary = models.BooleanField(default=False)
     thumbnail = models.BooleanField(default=False)
@@ -174,6 +181,28 @@ class File(ContentDatabaseModel):
             return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl="/")
         else:
             return None
+
+    def get_preset(self):
+        """
+        Return the preset.
+        """
+        return PRESET_LOOKUP.get(self.preset, _('Unknown Format'))
+
+    def get_download_filename(self):
+        """
+        Return a valid filename to be downloaded as.
+        """
+        title = self.contentnode.title
+        filename = "{} ({}).{}".format(title, self.get_preset(), self.extension)
+        valid_filename = get_valid_filename(filename)
+        return valid_filename
+
+    def get_download_url(self):
+        """
+        Return the download url.
+        """
+        new_filename = self.get_download_filename()
+        return reverse('downloadcontent', kwargs={'filename': self.get_filename(), 'new_filename': new_filename})
 
 
 @python_2_unicode_compatible

@@ -3,8 +3,10 @@
   <core-modal
     title="Edit Account Info"
     :has-error="error_message ? true : false"
-    @enter="editUser"
-    @cancel="close"
+    :enablebackbtn="usr_delete || pw_reset"
+    @enter="submit"
+    @cancel="emitCloseSignal"
+    @back="clear"
   >
     <!-- User Edit Normal -->
     <div>
@@ -28,7 +30,7 @@
           </select>
         </div>
 
-        <div class="advanced-options">
+        <div class="advanced-options" @keydown.enter.stop>
           <button @click="pw_reset=!pw_reset"> Reset Password </button>
           <button @click="usr_delete=!usr_delete"> Delete User</button>
         </div>
@@ -65,29 +67,48 @@
 
       <!-- Button Section TODO: cleaunup -->
       <section @keydown.enter.stop>
-        <button v-if="!usr_delete && !pw_reset" class="undo-btn" type="button" @click="close">
-          Cancel
-        </button>
 
-        <button v-else class="undo-btn" type="button" @click="clear">
-          <!-- For reset option -->
-          <template v-if="pw_reset"> Back </template>
-          <!-- For delete option -->
-          <template v-if="usr_delete"> No </template>
-        </button>
+        <icon-button
+          v-if="!usr_delete && !pw_reset"
+          text="Cancel"
+          class="undo-btn"
+          @click="emitCloseSignal">
+        </icon-button>
 
-        <button v-if="!usr_delete && !pw_reset" class="confirm-btn" type="button" @click="editUser">
-          Confirm
-        </button>
+        <!-- 'Back' for reset, 'No' for delete -->
+        <icon-button
+          v-else
+          :text="pw_reset ? 'Back' : 'No'"
+          class="undo-btn"
+          @click="clear">
+        </icon-button>
 
-        <button v-if="pw_reset" class="confirm-btn" type="button" @click="changePassword">
-          Save
-        </button>
+        <icon-button
+          v-if="!usr_delete && !pw_reset"
+          text="Confirm"
+          class="confirm-btn"
+          :primary="true"
+          @click="submit">
+        </icon-button>
 
-        <button v-if="usr_delete" class="confirm-btn" type="button" @click="delete">
-          Yes
-        </button>
+        <icon-button
+          v-if="pw_reset"
+          text="Save"
+          class="confirm-btn"
+          :primary="true"
+          @click="submit">
+        </icon-button>
+
+        <icon-button
+          v-if="usr_delete"
+          text="Yes"
+          class="confirm-btn"
+          :primary="true"
+          @click="submit">
+        </icon-button>
+
       </section>
+
     </div>
   </core-modal>
 
@@ -101,7 +122,9 @@
   const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
 
   module.exports = {
-    components: {},
+    components: {
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
+    },
     props: [
       'userid', 'username', 'fullname', 'roles', // TODO - validation
     ],
@@ -126,7 +149,17 @@
       clear() {
         this.$data = this.$options.data();
       },
-      editUser() {
+      submit() {
+        // mirrors logic of how the 'confirm' buttons are displayed
+        if (this.pw_reset) {
+          this.changePasswordHandler();
+        } else if (this.usr_delete) {
+          this.deleteUserHandler();
+        } else {
+          this.editUserHandler();
+        }
+      },
+      editUserHandler() {
         const payload = {
           username: this.username_new,
           full_name: this.fullName_new,
@@ -134,23 +167,26 @@
         };
         this.updateUser(this.userid, payload, this.role_new);
         // if logged in admin updates role to learner, redirect to learn page
-        if (Number(this.userid) === this.session_user_id) {
+        // Do SUPERUSER check, as it is theoretically possible for a DeviceAdmin
+        // to have the same id as a regular user, as they are different models.
+        if ((this.session_user_kind !== UserKinds.SUPERUSER) &&
+          (Number(this.userid) === this.session_user_id)) {
           if (this.role_new === UserKinds.LEARNER.toLowerCase()) {
             window.location.href = window.location.origin;
           }
         }
-
         // close the modal after successful submission
-        this.close();
+        this.emitCloseSignal();
       },
-      delete() {
+      deleteUserHandler() {
         // if logged in admin deleted their own account, log them out
         if (Number(this.userid) === this.session_user_id) {
           this.logout(this.Kolibri);
         }
         this.deleteUser(this.userid);
+        this.emitCloseSignal();
       },
-      changePassword() {
+      changePasswordHandler() {
         // checks to make sure there's a new password
         if (this.password_new) {
           this.clearErrorMessage();
@@ -177,7 +213,7 @@
           this.error_message = 'Please enter a new password.';
         }
       },
-      close() {
+      emitCloseSignal() {
         this.$emit('close'); // signal parent to close
       },
       clearErrorMessage() {
@@ -195,6 +231,7 @@
       },
       getters: {
         session_user_id: state => state.core.session.user_id,
+        session_user_kind: state => state.core.session.kind[0],
       },
     },
   };
@@ -214,10 +251,6 @@
 
   .confirm-btn
     float: right
-    background-color: $core-action-normal
-    color: white
-    &:hover
-      border-color: $core-action-normal
 
   .cancel-btn
     float:left

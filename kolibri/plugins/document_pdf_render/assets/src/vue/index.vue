@@ -1,9 +1,12 @@
 <template>
 
   <div v-el:container class="container" allowfullscreen>
-    <button class="btn" v-if="supportsPDFs" @click="togglefullscreen">
-      {{ inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen') }}
-    </button>
+    <icon-button
+      class="btn"
+      v-if="supportsPDFs"
+      :text="inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
+      @click="togglefullscreen">
+    </icon-button>
     <div v-el:pdfcontainer class="pdfcontainer"></div>
   </div>
 
@@ -15,6 +18,10 @@
   const PDFobject = require('pdfobject');
 
   module.exports = {
+
+    components: {
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
+    },
 
     props: ['defaultFile'],
 

@@ -6,6 +6,7 @@ const PageNames = constants.PageNames;
 const cookiejs = require('js-cookie');
 const router = require('kolibri/coreVue/router');
 const ConditionalPromise = require('kolibri/lib/conditionalPromise');
+const samePageCheckGenerator = require('kolibri/coreVue/vuex/actions').samePageCheckGenerator;
 
 /**
  * Vuex State Mappers
@@ -139,24 +140,12 @@ function _updateChannelList(store) {
   return channelPromise;
 }
 
-/**
- * Action inhibition checks
- *
- * These generator functions produce functions that help to determine whether the
- * asynchronous outcomes of certain actions should still be applied as mutations.
- */
-
-function checkSamePageId(store) {
-  const pageId = store.state.core.pageSessionId;
-  return () => store.state.core.pageSessionId === pageId;
-}
 
 /**
  * Actions
  *
  * These methods are used to update client-side state
  */
-
 
 function redirectToExploreChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -183,7 +172,6 @@ function redirectToExploreChannel(store) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
 }
-
 
 function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -225,8 +213,9 @@ function showExploreChannel(store, channelId) {
       const childrenPromise = ContentNodeResource.getCollection({ parent: rootTopicId }).fetch();
       _updateChannelList(store);
 
-      ConditionalPromise.all([attributesPromise, childrenPromise])
-        .only(checkSamePageId(store), ([attributes, children]) => {
+      ConditionalPromise.all([attributesPromise, childrenPromise]).only(
+        samePageCheckGenerator(store),
+        ([attributes, children]) => {
           const pageState = { rootTopicId };
           pageState.topic = _topicState(attributes);
           const collection = _collectionState(children);
@@ -235,11 +224,14 @@ function showExploreChannel(store, channelId) {
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
-        }).catch((error) => {
+        },
+        (error) => {
           store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
           store.dispatch('CORE_SET_PAGE_LOADING', false);
-        });
-    }, (error) => {
+        }
+      );
+    },
+    (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     });
@@ -255,8 +247,9 @@ function showExploreTopic(store, channelId, id) {
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
   _updateChannelList(store);
-  ConditionalPromise.all([attributesPromise, childrenPromise])
-    .only(checkSamePageId(store), ([attributes, children]) => {
+  ConditionalPromise.all([attributesPromise, childrenPromise]).only(
+    samePageCheckGenerator(store),
+    ([attributes, children]) => {
       const pageState = { id };
       pageState.topic = _topicState(attributes);
       const collection = _collectionState(children);
@@ -265,10 +258,12 @@ function showExploreTopic(store, channelId, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-    }, (error) => {
+    },
+    (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+    }
+  );
 }
 
 
@@ -281,15 +276,19 @@ function showExploreContent(store, channelId, id) {
   const attributesPromise = ContentNodeResource.getModel(id).fetch();
   _updateChannelList(store);
 
-  attributesPromise.only(checkSamePageId(store), (attributes) => {
-    const pageState = { content: _contentState(attributes) };
-    store.dispatch('SET_PAGE_STATE', pageState);
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('CORE_SET_ERROR', null);
-  }, (error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-  });
+  attributesPromise.only(
+    samePageCheckGenerator(store),
+    (attributes) => {
+      const pageState = { content: _contentState(attributes) };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+    },
+    (error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    }
+  );
 }
 
 
@@ -303,31 +302,36 @@ function showLearnChannel(store, channelId) {
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
   const sessionPromise = sessionModel.fetch();
-  sessionPromise.then((session) => {
-    const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
-    const popularPayload = { popular: session.user_id, channel: channelId };
-    const resumePayload = { resume: session.user_id, channel: channelId };
-    const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
-    const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
-    const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
-    _updateChannelList(store);
-    ConditionalPromise.all([nextStepsPromise, popularPromise, resumePromise])
-      .only(checkSamePageId(store), ([nextSteps, popular, resume]) => {
-        const pageState = { recommendations: { nextSteps: nextSteps.map(_contentState),
-                                               popular: popular.map(_contentState),
-                                               resume: resume.map(_contentState) } };
-        store.dispatch('SET_PAGE_STATE', pageState);
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-        store.dispatch('CORE_SET_ERROR', null);
-      }, (error) => {
-        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-      });
-  })
-    .catch((error) => {
+  sessionPromise.then(
+    (session) => {
+      const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
+      const popularPayload = { popular: session.user_id, channel: channelId };
+      const resumePayload = { resume: session.user_id, channel: channelId };
+      const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
+      const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
+      const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
+      _updateChannelList(store);
+      ConditionalPromise.all([nextStepsPromise, popularPromise, resumePromise]).only(
+        samePageCheckGenerator(store),
+        ([nextSteps, popular, resume]) => {
+          const pageState = { recommendations: { nextSteps: nextSteps.map(_contentState),
+                                                 popular: popular.map(_contentState),
+                                                 resume: resume.map(_contentState) } };
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.dispatch('CORE_SET_ERROR', null);
+        },
+        (error) => {
+          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+        }
+      );
+    },
+    (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+    }
+  );
 }
 
 
@@ -340,30 +344,38 @@ function showLearnContent(store, channelId, id) {
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
   _updateChannelList(store);
 
-  attributesPromise.only(checkSamePageId(store), (attributes) => {
-    const pageState = {
-      content: _contentState(attributes),
-      recommended: store.state.pageState.recommended,
-    };
-    store.dispatch('SET_PAGE_STATE', pageState);
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('CORE_SET_ERROR', null);
-  }, (error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-  });
-  recommendedPromise.only(checkSamePageId(store), (recommended) => {
-    const pageState = {
-      content: store.state.pageState.content,
-      recommended: recommended.map(_contentState),
-    };
-    store.dispatch('SET_PAGE_STATE', pageState);
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-    store.dispatch('CORE_SET_ERROR', null);
-  }, (error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    store.dispatch('CORE_SET_PAGE_LOADING', false);
-  });
+  attributesPromise.only(
+    samePageCheckGenerator(store),
+    (attributes) => {
+      const pageState = {
+        content: _contentState(attributes),
+        recommended: store.state.pageState.recommended,
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+    },
+    (error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    }
+  );
+  recommendedPromise.only(
+    samePageCheckGenerator(store),
+    (recommended) => {
+      const pageState = {
+        content: store.state.pageState.content,
+        recommended: recommended.map(_contentState),
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+    },
+    (error) => {
+      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    }
+  );
 }
 
 

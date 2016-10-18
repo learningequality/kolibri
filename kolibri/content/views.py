@@ -21,7 +21,7 @@ class ZipContentView(View):
         # calculate the local file path to the zip file
         zipped_path = get_content_storage_file_path(zipped_filename)
 
-        # if the zipfile doesn't not exist on disk, return a 404
+        # if the zipfile does not exist on disk, return a 404
         if not os.path.exists(zipped_path):
             raise Http404('"%(filename)s" does not exist locally' % {'filename': zipped_filename})
 
@@ -56,5 +56,34 @@ class ZipContentView(View):
 
         # ensure the browser knows not to try byte-range requests, as we don't support them here
         response["Accept-Ranges"] = "none"
+
+        return response
+
+
+class DownloadContentView(View):
+
+    def get(self, request, filename, new_filename):
+        """
+        Handles GET requests and serves a static file as an attachment.
+        """
+
+        # calculate the local file path of the file
+        path = get_content_storage_file_path(filename)
+
+        # if the file does not exist on disk, return a 404
+        if not os.path.exists(path):
+            raise Http404('"%(filename)s" does not exist locally' % {'filename': filename})
+
+        # generate a file response
+        response = FileResponse(open(path, 'rb'))
+
+        # set the content-type by guessing from the filename
+        response['Content-Type'] = mimetypes.guess_type(filename)[0]
+
+        # set the content-disposition as attachment to force download
+        response['Content-Disposition'] = 'attachment;'
+
+        # set the content-length to the file size
+        response['Content-Length'] = os.path.getsize(path)
 
         return response

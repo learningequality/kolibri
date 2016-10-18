@@ -12,7 +12,7 @@ from django.db import connections
 from django.test.utils import override_settings
 from kolibri.content import models as content
 from django.conf import settings
-from ..constants import content_kinds
+from le_utils.constants import content_kinds
 from ..content_db_router import set_active_content_database, using_content_database
 from ..errors import ContentModelUsedOutsideDBContext
 from rest_framework.test import APITestCase
@@ -290,7 +290,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_file_retrieve(self):
         response = self.client.get(self._reverse_channel_url("file-detail", {'pk': "9f9438fe6b0d42dd8e913d7d04cfb2b1"}))
-        self.assertEqual(response.data['preset'], 'high_res_video')
+        self.assertEqual(response.data['preset'], 'High resolution video')
 
     def test_contentnode_progress(self):
 

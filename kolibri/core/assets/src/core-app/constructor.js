@@ -29,6 +29,8 @@ const publicMethods = [
   'on',
   'once',
   'off',
+  'registerLanguageAssets',
+  'registerLanguageAssetsUrl',
 ];
 
 /**
@@ -79,7 +81,8 @@ module.exports = class CoreApp {
        * Use the vue-intl plugin.
        **/
       const VueIntl = require('vue-intl');
-      vue.use(VueIntl);
+      vue.use(VueIntl, { defaultLocale: 'en-us' });
+
       vue.prototype.$tr = function $tr(messageId, ...args) {
         const defaultMessageText = this.$options.$trs[messageId];
         const message = {
@@ -108,6 +111,14 @@ module.exports = class CoreApp {
         }
         return this.$formatHTMLMessage(message, ...args);
       };
+
+      if (global.languageCode) {
+        vue.setLocale(global.languageCode);
+        if (global.coreLanguageMessages) {
+          vue.registerMessages(global.languageCode, global.coreLanguageMessages);
+        }
+      }
+
       mediator.setReady();
     }
 

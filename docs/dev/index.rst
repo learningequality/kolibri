@@ -5,6 +5,7 @@ Developer Guide
    :maxdepth: 1
 
    getting_started
+   manual_testing
 
 
 Architecture
@@ -19,6 +20,7 @@ Architecture
    building
    conventions
    frontend
+   i18n
 
 Themes
 ------

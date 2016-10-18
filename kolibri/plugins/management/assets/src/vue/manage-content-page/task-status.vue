@@ -4,9 +4,9 @@
     <h1>{{ title }}</h1>
     <progress max="1" :value="percentage"></progress>
     <h2>{{ subTitle }}</h2>
-    <button class="buttons" @click="clearTask">
+    <icon-button class="buttons" @click="clearTaskHandler">
       {{ buttonMessage }}
-    </button>
+    </icon-button>
   </div>
 
 </template>
@@ -31,6 +31,9 @@
       remoteImport: 'Importing from Curation Server',
       localImport: 'Importing from Local Drive',
       localExport: 'Exporting to Local Drive',
+    },
+    components: {
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
     },
     computed: {
       buttonMessage() {
@@ -62,7 +65,7 @@
       },
     },
     methods: {
-      clearTask() {
+      clearTaskHandler() {
         this.clearTask(this.id);
       },
     },
@@ -96,6 +99,8 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri/styles/coreTheme'
+
   .buttons
     margin: 10px
     text-align: center
@@ -105,5 +110,18 @@
 
   progress
     width: 100%
+    height: 16px
+    -webkit-appearance: none
+    -moz-appearance: none
+    appearance: none
+    border: none
+    color: $core-action-normal
+
+  progress[value]::-webkit-progress-bar
+    border-radius: 50px
+
+  progress[value]::-webkit-progress-value
+    background-color: $core-action-normal
+    border-radius: 50px
 
 </style>

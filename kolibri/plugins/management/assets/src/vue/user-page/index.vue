@@ -28,7 +28,7 @@
       </div>
 
       <div class="create">
-        <icon-button @click="openCreateUserModal" class="create-user-button" text="Add New" :primary="false">
+        <icon-button @click="openCreateUserModal" class="create-user-button" text="Add New" :primary="true">
           <svg class="add-user" src="../icons/add_new_user.svg" role="presentation"></svg>
         </icon-button>
       </div>
@@ -56,7 +56,7 @@
       <caption class="visuallyhidden">Users</caption>
 
       <!-- Table Headers -->
-      <thead>
+      <thead v-if="usersMatchFilter">
         <tr>
           <th class="col-header" scope="col"> Full Name </th>
           <th class="col-header" scope="col">

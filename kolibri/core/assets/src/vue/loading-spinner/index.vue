@@ -10,6 +10,12 @@
 <script>
 
   module.exports = {
+    props: {
+      delay: {
+        type: Number,
+        default: 2500,
+      },
+    },
     data: () => ({
       timeoutId: undefined,
       isVisible: false,
@@ -21,7 +27,7 @@
     },
     attached() {
       this.isVisible = false;
-      this.timeoutId = window.setTimeout(this.show, 2500);
+      this.timeoutId = window.setTimeout(this.show, this.delay);
     },
     detached() {
       window.clearTimeout(this.timeoutId);
