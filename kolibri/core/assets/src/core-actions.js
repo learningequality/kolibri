@@ -395,8 +395,8 @@ function saveMasteryLog(store, Kolibri) {
   );
 }
 
-function setMasteryLogComplete(store, complete) {
-  store.dispatch('SET_LOGGING_MASTERY_COMPLETE', complete);
+function setMasteryLogComplete(store, completetime) {
+  store.dispatch('SET_LOGGING_MASTERY_COMPLETE', completetime);
 }
 
 function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
@@ -425,8 +425,8 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
 function saveAttemptLog(store, Kolibri) {
   const attemptLogModel = Kolibri.resources.AttemptLog.getModel(store.state.core.logging.attempt.id);
   attemptLogModel.save(_attemptLogModel(store)).then((newAttemptLog) => {
-      // don't see any use to have the state set to newly created attemptLog
-      // store.dispatch('SET_LOGGING_ATTEMPT_STATE', newAttemptLog);
+      // reset the start time on attemptlog for the next attempt.
+      // store.dispatch('SET_LOGGING_ATTEMPT_STARTTIME', new Date());
   });
 }
 
@@ -443,10 +443,14 @@ function createAttemptLog(store, Kolibri, itemId) {
     correct: 0,
     answer: '{}',
     simple_answer: '',
-    interaction_history: '[]',
+    interaction_history: [],
     user: store.state.core.session.user_id,
   });
   store.dispatch('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
+}
+
+function updateAttemptLogInteractionHistory(store, interaction) {
+  store.dispatch('UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY', interaction);
 }
 
 /**
@@ -467,9 +471,9 @@ function initMasteryLog(store, Kolibri, masterySpacingTime, masteryCriterion) {
   }
 }
 
-function updateMasteryAttemptState(store, currentTime, answer) {
-  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, answer);
-  const correct = answer ? 1 : 0;
+function updateMasteryAttemptState(store, currentTime, correct, complete) {
+  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, complete);
+  const correctInteger = correct ? 1 : 0;
   store.dispatch('UPDATE_LOGGING_ATTEMPT', currentTime, correct);
 }
 
@@ -505,4 +509,5 @@ module.exports = {
   createAttemptLog,
   saveAttemptLog,
   updateMasteryAttemptState,
+  updateAttemptLogInteractionHistory,
 };

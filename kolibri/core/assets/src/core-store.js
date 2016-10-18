@@ -101,19 +101,26 @@ const mutations = {
   SET_LOGGING_MASTERY_STATE(state, masteryState) {
     state.core.logging.mastery = masteryState;
   },
-  SET_LOGGING_MASTERY_COMPLETE(state, complete) {
-    state.core.logging.mastery.complete = complete;
+  SET_LOGGING_MASTERY_COMPLETE(state, completetime) {
+    state.core.logging.mastery.complete = true;
+    state.core.logging.mastery.completion_timestamp = completetime;
   },
   SET_LOGGING_ATTEMPT_STATE(state, attemptState) {
     state.core.logging.attempt = attemptState;
   },
-  UPDATE_LOGGING_MASTERY(state, currentTime, correct) {
-    if (correct) {
-      state.core.logging.mastery.completion_timestamp = currentTime;
-      // state.core.logging.mastery.complete = complete;
-      state.core.logging.mastery.pastattempts.push(1);
-    } else {
-      state.core.logging.mastery.pastattempts.push(0);
+  SET_LOGGING_ATTEMPT_STARTTIME(state, starttime) {
+    state.core.logging.attempt.start_timestamp = starttime;
+  },
+  UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY(state, hint) {
+    state.core.logging.attempt.interaction_history.push(hint);
+  },
+  UPDATE_LOGGING_MASTERY(state, currentTime, correct, complete) {
+    if (complete) {
+      if (correct) {
+        state.core.logging.mastery.pastattempts.push(1);
+      } else {
+        state.core.logging.mastery.pastattempts.push(0);
+      }
     }
     state.core.logging.mastery.end_timestamp = currentTime;
   },

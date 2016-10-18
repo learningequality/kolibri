@@ -17,8 +17,8 @@ oriented data synchronization.
 <script>
 
   const logging = require('kolibri/lib/logging').getLogger(__filename);
-
   const actions = require('kolibri/coreVue/vuex/actions');
+  const hint = require('../../constants').InteractionTypes.hint;
 
   module.exports = {
     props: {
@@ -31,9 +31,12 @@ oriented data synchronization.
       masterySpacingTime: {
         type: Number,
       },
+      masteryCriterion: {
+        type: String,
+      }
     },
     created() {
-      this.$on('checkanswer', (answer) => { this.answerChecked(answer);});
+      this.$on('checkanswer', (correct, complete) => { this.answerChecked(correct, complete);});
       this.$on('takehint', () => { this.hintTaken();});
       this.$on('passexercise', () => { this.exercisePassed();});
       // Once the data for the overall assessment is loaded in the renderer
@@ -43,25 +46,30 @@ oriented data synchronization.
       this.initNewAttemptLog();
     },
     methods: {
-      answerChecked(answer) {
-        this.updateMasteryAttemptStateAction(new Date(), answer);
-        if (this.masteryLogId) {
+      answerChecked(correct, complete) {
+        if (complete) {
+          // question passed
+          this.updateMasteryAttemptStateAction(new Date(), correct, complete);
+          if (this.masteryLogId) {
           this.saveAttemptLogAction(this.Kolibri);
+          } else {
+            let watchRevoke;
+            watchRevoke = this.$watch('masteryLogId', () => {
+              if (this.masteryLogId) {
+                this.saveAttemptLogAction(this.Kolibri);
+                watchRevoke();
+              }
+            });
+          }
         } else {
-          let watchRevoke;
-          watchRevoke = this.$watch('masteryLogId', () => {
-            if (this.masteryLogId) {
-              this.saveAttemptLogAction(this.Kolibri);
-              watchRevoke();
-            }
-          });
+          this.updateMasteryAttemptStateAction(new Date(), correct, complete);
         }
       },
       hintTaken() {
-        console.log('hinhinhin');
+        this.updateAttemptLogInteractionHistoryAction(hint);
       },
       exercisePassed() {
-        this.setMasteryLogCompleteAction(true);
+        this.setMasteryLogCompleteAction(new Date());
         this.saveMasteryLogAction(this.Kolibri);
       },
       initMasteryLog() {
@@ -70,26 +78,21 @@ oriented data synchronization.
           let watchRevoke;
           watchRevoke = this.$watch('summaryLogId', () => {
             if (this.summaryLogId) {
-              this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime, 'eli');
+              this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime, this.masteryCriterion);
               watchRevoke();
             }
           });
         } else {
-          this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime, 'eli');
+          this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime, this.masteryCriterion);
         }
       },
       initNewAttemptLog() {
-        if (this.itemId) {
-          this.createAttemptLogAction(this.Kolibri, this.itemId);
-        } else {
-          let watchRevoke;
-          watchRevoke = this.$watch('itemId', () => {
-            if (this.itemId) {
-              this.createAttemptLogAction(this.Kolibri, this.itemId);
-              watchRevoke();
-            }
-          });
-        }
+        // every new question has a new attemptlog with the question's itemId
+        this.$watch('itemId', () => {
+          if (this.itemId) {
+            this.createAttemptLogAction(this.Kolibri, this.itemId);
+          }
+        });
       },
     },
     vuex: {
@@ -100,11 +103,14 @@ oriented data synchronization.
         createAttemptLogAction: actions.createAttemptLog,
         saveAttemptLogAction: actions.saveAttemptLog,
         updateMasteryAttemptStateAction: actions.updateMasteryAttemptState,
+        updateAttemptLogInteractionHistoryAction: actions.updateAttemptLogInteractionHistory,
       },
       getters: {
         summaryLogId: (state) => state.core.logging.summary.id,
         masteryLogId: (state) => state.core.logging.mastery.id,
         pastattempts: (state) => state.core.logging.mastery.pastattempts,
+        attemptLogComplete: (state) => state.core.logging.attempt.complete,
+        attemptLogCorrect: (state) => state.core.logging.attempt.correct,
       },
     },
   };
