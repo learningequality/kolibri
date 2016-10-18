@@ -9,14 +9,12 @@ class CoachTools(KolibriPluginBase):
         return urls
 
     def url_slug(self):
-        return "^coach_tools"
+        return "^coach/"
 
 
 class CoachToolsAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "coach_tools_module"
-    src_file = "assets/src/module.js"
-    static_dir = "kolibri/plugins/coach_tools/static"
-
+    src_file = "assets/src/app.js"
 
 class CoachToolsInclusionHook(hooks.CoachToolsSyncHook):
     bundle_class = CoachToolsAsset

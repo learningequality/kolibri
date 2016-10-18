@@ -6,11 +6,11 @@
 
     TODO: would be best to refactor this.
   -->
-  <nav-bar-item :vlink="learnLink" :active="learnActive">
+  <nav-bar-item href="/learn">
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
     <div class="label">{{ $tr('learn') }}</div>
   </nav-bar-item>
-  <nav-bar-item :vlink="exploreLink" :active="exploreActive">
+  <nav-bar-item href="/explore">
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
     <div class="label">{{ $tr('explore') }}</div>
   </nav-bar-item>
@@ -18,7 +18,7 @@
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/manage.svg"></svg>
     <div class="label">{{ $tr('manage') }}</div>
   </nav-bar-item>
-  <nav-bar-item href="/coach">
+  <nav-bar-item href="/coach" :active="true">
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/coach.svg"></svg>
     <div class="label">Coach</div>
   </nav-bar-item>
@@ -28,12 +28,8 @@
 
 <script>
 
-  const pageMode = require('../../state/getters').pageMode;
-  const constants = require('../../state/constants');
-  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
-
   module.exports = {
-    $trNameSpace: 'learnNav',
+    $trNameSpace: 'coachNav',
     $trs: {
       learn: 'Learn',
       explore: 'Explore',
@@ -42,32 +38,7 @@
     components: {
       'nav-bar-item': require('kolibri/coreVue/components/navBarItem'),
     },
-    vuex: {
-      getters: {
-        kind: state => state.core.session.kind,
-        pageMode,
-      },
-    },
-    computed: {
-      learnLink() {
-        return { name: constants.PageNames.LEARN_ROOT };
-      },
-      learnActive() {
-        return this.pageMode === constants.PageModes.LEARN;
-      },
-      exploreLink() {
-        return { name: constants.PageNames.EXPLORE_ROOT };
-      },
-      exploreActive() {
-        return this.pageMode === constants.PageModes.EXPLORE;
-      },
-      isAdminOrSuperuser() {
-        if (this.kind[0] === UserKinds.SUPERUSER || this.kind[0] === UserKinds.ADMIN) {
-          return true;
-        }
-        return false;
-      },
-    },
+    vuex: {},
   };
 
 </script>
