@@ -132,7 +132,7 @@ if not os.path.exists(CONTENT_STORAGE_DIR):
     os.makedirs(CONTENT_STORAGE_DIR)
 
 # Base default URL for downloading content from an online server
-CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "https://unicefcontentcuration.learningequality.org"
+CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "https://contentworkshop.learningequality.org"
 
 
 # Internationalization

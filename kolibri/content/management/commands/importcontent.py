@@ -84,7 +84,7 @@ class Command(AsyncCommand):
 
                     # determine where we're downloading/copying from, and create appropriate transfer object
                     if method == DOWNLOAD_METHOD:
-                        url = paths.get_content_storage_file_url(filename)
+                        url = paths.get_content_storage_remote_url(filename)
                         filetransfer = transfer.FileDownload(url, dest)
                     elif method == COPY_METHOD:
                         srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
