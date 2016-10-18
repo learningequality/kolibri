@@ -2,11 +2,13 @@ Getting started
 ===============
 
 Basic Setup
--------------
+-----------
 
 This is how we typically set up a development environment.
 
 Note that most of the steps that follow require entering commands into your terminal, so you should be comfortable with that.
+
+We welcome contributions from both new coders and experienced developers. Checkout our :doc:`for_new_devs` should you need more detailed information on how to setup your development environment.
 
 
 Install Environment Dependencies

@@ -6,7 +6,10 @@ Developer Guide
 
    getting_started
    manual_testing
+   for_new_devs
 
+
+.. _architecture:
 
 Architecture
 ------------
@@ -21,6 +24,8 @@ Architecture
    conventions
    frontend
    i18n
+
+.. _themes:
 
 Themes
 ------
