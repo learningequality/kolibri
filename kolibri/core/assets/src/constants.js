@@ -43,9 +43,14 @@ const AttemptLoggingMap = {
   user: 'user',
 };
 
+const InteractionTypes = {
+  hint: 'hint',
+};
+
 module.exports = {
   UserKinds,
   ContentKinds,
   MasteryLoggingMap,
   AttemptLoggingMap,
+  InteractionTypes,
 };
