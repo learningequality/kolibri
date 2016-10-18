@@ -301,6 +301,11 @@
         .vjs-progress-holder
           font-size: 1em
 
+        .vjs-time-tooltip,
+        .vjs-mouse-display:after,
+        .vjs-play-progress:after
+          font-size: calc(1em - 2px)
+
     .vjs-progress-holder
       margin-left: 7px
       margin-right: 7px
