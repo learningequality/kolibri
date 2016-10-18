@@ -2,10 +2,10 @@
 Manual Testing & QA
 ===================
 
-Accessibility Testing
+Accessibility (A11Y) Testing
 ---------------------
 
-Inclusive design benefits all users, and we strive to make Kolibri accessible for all. For some features and aspects testing for accessibility can be more demanding, but there are a couple of steps you must ensure before submitting your PR:
+Inclusive design benefits all users, and we strive to make Kolibri accessible for all. Testing for accessibility can be challenging, but there are a few features you should check for before submitting your PR:
 
 * Working **keyboard navigation** - everything that user can do with mouse or by touch must also work with the `keyboard alone <http://webaim.org/techniques/keyboard/>`_.
 * Sufficient `color contrast <http://a11yproject.com/posts/what-is-color-contrast/>`_ between foreground text/elements and the background.
@@ -14,13 +14,10 @@ Inclusive design benefits all users, and we strive to make Kolibri accessible fo
 * Page has one main **heading** (H1) and `consecutive lower heading levels <http://accessiblehtmlheadings.com/>`_.
 
 
-Recommended A11y Testing Tools
-______________________________
-
 Here are a few tools that we use in testing for accessibility:
 
 * `WAVE Evaluation Tool <http://wave.webaim.org/extension/>`_ - Chrome extension.
-* `tota11y <http://khan.github.io/tota11y/>`_ accessibility visualization toolkit - bookmarklet for Firefox and Chrome. 
+* `tota11y <http://khan.github.io/tota11y/>`_ accessibility visualization toolkit - bookmarklet for Firefox and Chrome.
 * `Accessibility Developer Tools <https://chrome.google.com/webstore/detail/accessibility-developer-t/fpkknkljclfencbdbgkenhalefipecmb>`_ - Chrome extension.
 * aXe Accessibility Engine - `Firefox Addon <https://addons.mozilla.org/en-us/firefox/addon/axe-devtools/>`_ and `Chrome extension <https://chrome.google.com/webstore/detail/axe/lhdoppojpmngadmnindnejefpokejbdd>`_.
 
