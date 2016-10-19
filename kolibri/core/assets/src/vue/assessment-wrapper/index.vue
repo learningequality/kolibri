@@ -39,8 +39,8 @@ oriented data synchronization.
       ready: false,
     }),
     created() {
-      this.$on('checkanswer', (correct, complete, firstAttempt) => { this.updateMasetryLogSaveAttemptLog(correct, complete, firstAttempt);});
-      this.$on('takehint', (firstAttempt) => { this.hintTaken(firstAttempt);});
+      this.$on('checkanswer', (correct, complete, firstAttempt, hinted) => { this.updateMasetryLogSaveAttemptLog(correct, complete, firstAttempt, hinted);});
+      this.$on('takehint', (firstAttempt, hinted) => { this.hintTaken(firstAttempt, hinted);});
       this.$on('passexercise', () => { this.exercisePassed();});
       // Once the data for the overall assessment is loaded in the renderer
       // we can initialize the mastery log, as the mastery model and spacing time
@@ -49,8 +49,8 @@ oriented data synchronization.
       this.initNewAttemptLog();
     },
     methods: {
-      updateMasetryLogSaveAttemptLog(correct, complete, firstAttempt) {
-        this.updateMasteryAttemptStateAction(new Date(), correct, complete, firstAttempt);
+      updateMasetryLogSaveAttemptLog(correct, complete, firstAttempt, hinted) {
+        this.updateMasteryAttemptStateAction(new Date(), correct, complete, firstAttempt, hinted);
         if (this.masteryLogId) {
         this.saveAttemptLogAction(this.Kolibri);
         } else {
@@ -63,9 +63,9 @@ oriented data synchronization.
           });
         }
       },
-      hintTaken(firstAttempt) {
+      hintTaken(firstAttempt, hinted) {
         this.updateAttemptLogInteractionHistoryAction(hint);
-        this.updateMasetryLogSaveAttemptLog(null, false, firstAttempt);
+        this.updateMasetryLogSaveAttemptLog(0, false, firstAttempt, hinted);
       },
       exercisePassed() {
         this.setMasteryLogCompleteAction(new Date());

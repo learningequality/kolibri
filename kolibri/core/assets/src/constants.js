@@ -41,6 +41,7 @@ const AttemptLoggingMap = {
   interaction_history: 'interaction_history',
   masterylog: 'masterylog',
   user: 'user',
+  hinted: 'hinted',
 };
 
 const InteractionTypes = {

@@ -111,23 +111,16 @@ const mutations = {
   SET_LOGGING_ATTEMPT_STARTTIME(state, starttime) {
     state.core.logging.attempt.start_timestamp = starttime;
   },
-  UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY(state, hint) {
-    state.core.logging.attempt.interaction_history.push(hint);
+  UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY(state, action) {
+    state.core.logging.attempt.interaction_history.push(action);
   },
-  UPDATE_LOGGING_MASTERY(state, currentTime, correct, firstAttempt) {
-    console.log('FFFFFF::: ', firstAttempt);
+  UPDATE_LOGGING_MASTERY(state, currentTime, correct, firstAttempt, hinted) {
     if (firstAttempt) {
-      if (correct) {
-        state.core.logging.mastery.pastattempts.unshift(1);
-      } else if (correct === false) {
-        state.core.logging.mastery.pastattempts.unshift(0);
-      } else {
-        state.core.logging.mastery.pastattempts.unshift(null);
-      }
+      state.core.logging.mastery.pastattempts.unshift({correct: correct, hinted: hinted});
     }
     state.core.logging.mastery.end_timestamp = currentTime;
   },
-  UPDATE_LOGGING_ATTEMPT(state, currentTime, correct, complete) {
+  UPDATE_LOGGING_ATTEMPT(state, currentTime, correct, complete, hinted) {
     if (complete) {
       state.core.logging.attempt.completion_timestamp = currentTime;
       state.core.logging.attempt.complete = true;
@@ -136,6 +129,7 @@ const mutations = {
       state.core.logging.attempt.complete = false;
     }
     state.core.logging.attempt.correct = correct;
+    state.core.logging.attempt.hinted = hinted;
     state.core.logging.attempt.end_timestamp = currentTime;
     state.core.logging.attempt.time_spent = currentTime - state.core.logging.attempt.start_timestamp;
   },

@@ -446,7 +446,7 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
 function saveAttemptLog(store, Kolibri) {
   const attemptLogModel = Kolibri.resources.AttemptLog.getModel(store.state.core.logging.attempt.id);
   attemptLogModel.save(_attemptLogModel(store)).then((newAttemptLog) => {
-      // mainly we want to set the attemplot id
+      // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
       store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
   });
 }
@@ -466,6 +466,7 @@ function createAttemptLog(store, Kolibri, itemId, callback) {
     simple_answer: '',
     interaction_history: [],
     user: store.state.core.session.user_id,
+    hinted: false,
   });
   store.dispatch('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
   callback();
@@ -493,10 +494,9 @@ function initMasteryLog(store, Kolibri, masterySpacingTime, masteryCriterion) {
   }
 }
 
-function updateMasteryAttemptState(store, currentTime, correct, complete, firstAttempt) {
-  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt);
-  const correctInteger = correct ? 1 : 0;
-  store.dispatch('UPDATE_LOGGING_ATTEMPT', currentTime, correct, complete);
+function updateMasteryAttemptState(store, currentTime, correct, complete, firstAttempt, hinted) {
+  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt, hinted);
+  store.dispatch('UPDATE_LOGGING_ATTEMPT', currentTime, correct, complete, hinted);
 }
 
 /**

@@ -142,8 +142,8 @@ class AttemptLog(BaseLogModel):
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     complete = models.BooleanField(default=False)
     # How correct was their answer? In simple cases, just 0 or 1.
-    # Note! we use null for hint.
-    correct = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(1)], blank=True, null=True)
+    correct = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(1)])
+    hinted = models.BooleanField(default=False)
     # JSON blob that would allow the learner's answer to be rerendered in the frontend interface
     answer = models.TextField()
     # A human readable answer that could be rendered directly in coach reports, can be blank.
