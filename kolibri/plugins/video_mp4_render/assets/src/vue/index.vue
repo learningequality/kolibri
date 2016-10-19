@@ -36,8 +36,6 @@
     props: ['files'],
 
     data: () => ({
-      videoWidth: 0,
-      videoHeight: 0,
       dummyTime: 0,
       progressStartingPoint: 0,
       lastUpdateTime: 0,
@@ -69,11 +67,6 @@
           (file) => trackFileExtensions.some((ext) => ext === file.extension)
         );
       },
-
-      aspectRatio() {
-        return this.videoWidth / this.videoHeight;
-      },
-
     },
 
     methods: {
@@ -93,8 +86,6 @@
       },
 
       loadedMetaData() {
-        this.videoWidth = this.videoPlayer.videoWidth();
-        this.videoHeight = this.videoPlayer.videoHeight();
         this.resizeVideo();
         this.videoPlayerIsReady();
         this.loading = false;
@@ -105,8 +96,10 @@
         const wrapperWrapperWidth = this.$els.videowrapperwrapper.clientWidth;
         const wrapperWrapperHeight = this.$els.videowrapperwrapper.clientHeight;
 
-        const neededHeightGivenWidth = wrapperWrapperWidth * (1 / this.aspectRatio);
-        const neededWidthGivenHeight = wrapperWrapperHeight * this.aspectRatio;
+        const aspectRatio = 16/9;
+
+        const neededHeightGivenWidth = wrapperWrapperWidth * (1 / aspectRatio);
+        const neededWidthGivenHeight = wrapperWrapperHeight * aspectRatio;
 
         let newWidth = 0;
         let newHeight = 0;
@@ -180,6 +173,7 @@
     ready() {
       this.videoPlayer = videojs(this.$els.video, {
         fluid: true,
+        aspectRatio: '16:9',
         autoplay: false,
         controls: true,
         textTrackDisplay: true,
