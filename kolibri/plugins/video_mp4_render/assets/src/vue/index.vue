@@ -98,6 +98,7 @@
         this.resizeVideo();
         this.videoPlayerIsReady();
         this.loading = false;
+        this.$els.video.tabIndex = -1;
       },
 
       resizeVideo() {
