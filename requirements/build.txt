@@ -4,5 +4,6 @@
 sphinx
 sphinx-intl
 sphinx-rtd-theme
+sphinx-autobuild
 pex
 wheel
