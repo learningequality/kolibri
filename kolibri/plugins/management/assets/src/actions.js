@@ -238,12 +238,12 @@ function showUserPage(store) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      document.title = _managePageTitle('Users');
+      store.dispatch('CORE_SET_TITLE', _managePageTitle('Users'));
     },
     (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      document.title = _errorTitle();
+      store.dispatch('CORE_SET_TITLE', _errorTitle());
     }
   );
 }
@@ -269,13 +269,13 @@ function showContentPage(store) {
         pageState.channelList = channelList;
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
-        document.title = _managePageTitle('Content');
+        store.dispatch('CORE_SET_TITLE', _managePageTitle('Content'));
       });
     },
     (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      document.title = _errorTitle();
+      store.dispatch('CORE_SET_TITLE', _errorTitle());
     }
   );
 }
@@ -442,7 +442,7 @@ function showDataPage(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
-  document.title = _managePageTitle('Data');
+  store.dispatch('CORE_SET_TITLE', _managePageTitle('Data'));
 }
 
 function showScratchpad(store) {
@@ -450,7 +450,7 @@ function showScratchpad(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
-  document.title = _managePageTitle('Scratchpad');
+  store.dispatch('CORE_SET_TITLE', _managePageTitle('Scratchpad'));
 }
 
 module.exports = {

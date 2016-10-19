@@ -31,6 +31,12 @@
       getters: {
         loading: state => state.core.loading,
         error: state => state.core.error,
+        title: state => state.core.title,
+      },
+    },
+    watch: {
+      title(newVal, oldVal) {
+        document.title = newVal;
       },
     },
     data: () => ({

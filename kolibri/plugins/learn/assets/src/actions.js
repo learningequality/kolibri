@@ -139,7 +139,7 @@ function _handleChannels(store, currentChannelId, channelList) {
   if (!channelList.find(channel => channel.id === currentChannelId)) {
     store.dispatch('CORE_SET_ERROR', 'Channel not found');
     store.dispatch('CORE_SET_PAGE_LOADING', false);
-    document.title = _errorTitle();
+    store.dispatch('CORE_SET_TITLE', _errorTitle());
     return false;
   }
   return true;
@@ -173,7 +173,7 @@ function redirectToExploreChannel(store) {
     (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      document.title = _errorTitle();
+      store.dispatch('CORE_SET_TITLE', _errorTitle());
     }
   );
 }
@@ -200,7 +200,7 @@ function redirectToLearnChannel(store) {
     (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      document.title = _errorTitle();
+      store.dispatch('CORE_SET_TITLE', _errorTitle());
     }
   );
 }
@@ -233,15 +233,15 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
       store.dispatch('CORE_SET_ERROR', null);
       if (isRoot) {
         const currentChannel = getters.currentChannel(store.state);
-        document.title = _explorePageTitle(currentChannel.title);
+        store.dispatch('CORE_SET_TITLE', _explorePageTitle(currentChannel.title));
       } else {
-        document.title = _explorePageTitle(pageState.topic.title);
+        store.dispatch('CORE_SET_TITLE', _explorePageTitle(pageState.topic.title));
       }
     },
     (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      document.title = _errorTitle();
+      store.dispatch('CORE_SET_TITLE', _errorTitle());
     }
   );
 }
@@ -280,12 +280,12 @@ function showExploreContent(store, channelId, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      document.title = _explorePageTitle(pageState.content.title);
+      store.dispatch('CORE_SET_TITLE', _explorePageTitle(pageState.content.title));
     },
     (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      document.title = _errorTitle();
+      store.dispatch('CORE_SET_TITLE', _errorTitle());
     }
   );
 }
@@ -319,19 +319,19 @@ function showLearnChannel(store, channelId) {
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
           const currentChannel = getters.currentChannel(store.state);
-          document.title = _learnPageTitle(currentChannel.title);
+          store.dispatch('CORE_SET_TITLE', _learnPageTitle(currentChannel.title));
         },
         (error) => {
           store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
           store.dispatch('CORE_SET_PAGE_LOADING', false);
-          document.title = _errorTitle();
+          store.dispatch('CORE_SET_TITLE', _errorTitle());
         }
       );
     },
     (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      document.title = _errorTitle();
+      store.dispatch('CORE_SET_TITLE', _errorTitle());
     }
   );
 }
@@ -356,12 +356,12 @@ function showLearnContent(store, channelId, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      document.title = _learnPageTitle(pageState.content.title);
+      store.dispatch('CORE_SET_TITLE', _learnPageTitle(pageState.content.title));
     },
     (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      document.title = _errorTitle();
+      store.dispatch('CORE_SET_TITLE', _errorTitle());
     }
   );
   recommendedPromise.only(
@@ -378,7 +378,7 @@ function showLearnContent(store, channelId, id) {
     (error) => {
       store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      document.title = _errorTitle();
+      store.dispatch('CORE_SET_TITLE', _errorTitle());
     }
   );
 }
@@ -431,7 +431,7 @@ function showScratchpad(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
-  document.title = 'Scratchpad';
+  store.dispatch('CORE_SET_TITLE', 'Scratchpad');
 }
 
 
@@ -440,7 +440,7 @@ function showContentUnavailable(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
-  document.title = 'Content Unavailable';
+  store.dispatch('CORE_SET_TITLE', 'Content Unavailable');
 }
 
 
