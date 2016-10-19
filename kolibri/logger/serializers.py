@@ -19,9 +19,8 @@ class MasteryLogSerializer(serializers.ModelSerializer):
                   'end_timestamp', 'completion_timestamp', 'mastery_criterion', 'mastery_level', 'complete')
 
     def get_pastattempts(self, obj):
-        # will return a list of correct field for each attempt.
-        # seems in chronological order, so not order_by end_time or complete_time
-        return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).values_list('correct', flat=True)
+        # will return a list of the latest 10 correct field for each attempt.
+        return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).values_list('correct', flat=True).order_by('-start_timestamp')[:10]
 
 class AttemptLogSerializer(serializers.ModelSerializer):
 
