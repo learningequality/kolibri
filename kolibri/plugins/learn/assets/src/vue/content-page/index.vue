@@ -91,9 +91,6 @@
 
   @require '~kolibri/styles/coreTheme'
 
-  .content-renderer
-    height: 60vh
-
   .recommendation-section
     margin-top: 4em
 
