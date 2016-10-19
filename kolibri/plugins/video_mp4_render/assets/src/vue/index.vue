@@ -205,6 +205,7 @@
 
       this.videoPlayer.on('loadedmetadata', this.loadedMetaData);
       this.videoPlayer.on('play', this.focusOnPlayControl);
+      this.videoPlayer.on('pause', this.focusOnPlayControl);
       global.addEventListener('resize', this.debouncedResizeVideo);
     },
     beforeDestroy() {
