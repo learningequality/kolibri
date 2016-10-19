@@ -11,8 +11,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-# Determines which platform kolibri is running on
-import platform
 
 # import kolibri, so we can get the path to the module.
 import kolibri
@@ -171,9 +169,6 @@ Q_CLUSTER = {
     # # DB name to use for the task queue. Should be separate from the default DB.
     # "orm": "task_queue",
     "orm": "ormq",
-
-    # If this is true, make tasks synchronous (Windows can't handle multiprocessing very well)
-    "sync": platform.system() == "Windows",
 }
 
 
