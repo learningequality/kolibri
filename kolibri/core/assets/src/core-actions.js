@@ -95,11 +95,32 @@ function _masteryLogModel(store) {
   return mapping;
 }
 
+const attemptLoggingJSONifyKeys = {
+  answer: true,
+  interaction_history: true,
+};
+
+function _attemptLoggingState(data) {
+  const state = {};
+  Object.keys(AttemptLoggingMap).forEach((key) => {
+    if (attemptLoggingJSONifyKeys[key]) {
+      state[key] = JSON.parse(data[AttemptLoggingMap[key]]);
+    } else {
+      state[key] = data[AttemptLoggingMap[key]];
+    }
+  });
+  return state;
+}
+
 function _attemptLogModel(store) {
   const mapping = {};
   const attemptLog = store.state.core.logging.attempt;
   Object.keys(AttemptLoggingMap).forEach((key) => {
-    mapping[AttemptLoggingMap[key]] = attemptLog[key];
+    if (attemptLoggingJSONifyKeys[key]) {
+      mapping[AttemptLoggingMap[key]] = JSON.stringify(attemptLog[key]);
+    } else {
+      mapping[AttemptLoggingMap[key]] = attemptLog[key];
+    }
   });
   mapping['masterylog'] = store.state.core.logging.mastery.id;
   return mapping;
@@ -425,8 +446,8 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
 function saveAttemptLog(store, Kolibri) {
   const attemptLogModel = Kolibri.resources.AttemptLog.getModel(store.state.core.logging.attempt.id);
   attemptLogModel.save(_attemptLogModel(store)).then((newAttemptLog) => {
-      // reset the start time on attemptlog for the next attempt.
-      // store.dispatch('SET_LOGGING_ATTEMPT_STARTTIME', new Date());
+      // mainly we want to set the attemplot id
+      store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
   });
 }
 
