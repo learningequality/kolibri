@@ -493,10 +493,10 @@ function initMasteryLog(store, Kolibri, masterySpacingTime, masteryCriterion) {
   }
 }
 
-function updateMasteryAttemptState(store, currentTime, correct, complete) {
-  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, complete);
+function updateMasteryAttemptState(store, currentTime, correct, complete, firstAttempt) {
+  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt);
   const correctInteger = correct ? 1 : 0;
-  store.dispatch('UPDATE_LOGGING_ATTEMPT', currentTime, correct);
+  store.dispatch('UPDATE_LOGGING_ATTEMPT', currentTime, correct, complete);
 }
 
 /**

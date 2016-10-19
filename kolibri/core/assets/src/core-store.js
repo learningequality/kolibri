@@ -114,18 +114,21 @@ const mutations = {
   UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY(state, hint) {
     state.core.logging.attempt.interaction_history.push(hint);
   },
-  UPDATE_LOGGING_MASTERY(state, currentTime, correct, complete) {
-    if (complete) {
+  UPDATE_LOGGING_MASTERY(state, currentTime, correct, firstAttempt) {
+    console.log('FFFFFF::: ', firstAttempt);
+    if (firstAttempt) {
       if (correct) {
-        state.core.logging.mastery.pastattempts.push(1);
+        state.core.logging.mastery.pastattempts.unshift(1);
+      } else if (correct === false) {
+        state.core.logging.mastery.pastattempts.unshift(0);
       } else {
-        state.core.logging.mastery.pastattempts.push(0);
+        state.core.logging.mastery.pastattempts.unshift(null);
       }
     }
     state.core.logging.mastery.end_timestamp = currentTime;
   },
-  UPDATE_LOGGING_ATTEMPT(state, currentTime, correct) {
-    if (correct) {
+  UPDATE_LOGGING_ATTEMPT(state, currentTime, correct, complete) {
+    if (complete) {
       state.core.logging.attempt.completion_timestamp = currentTime;
       state.core.logging.attempt.complete = true; //??what's complete??
     } else {

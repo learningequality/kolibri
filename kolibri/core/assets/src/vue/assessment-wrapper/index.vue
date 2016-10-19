@@ -35,9 +35,12 @@ oriented data synchronization.
         type: String,
       }
     },
+    data: () => ({
+      ready: false,
+    }),
     created() {
-      this.$on('checkanswer', (correct, complete) => { this.answerChecked(correct, complete);});
-      this.$on('takehint', () => { this.hintTaken();});
+      this.$on('checkanswer', (correct, complete, firstAttempt) => { this.updateMasetryLogSaveAttemptLog(correct, complete, firstAttempt);});
+      this.$on('takehint', (firstAttempt) => { this.hintTaken(firstAttempt);});
       this.$on('passexercise', () => { this.exercisePassed();});
       // Once the data for the overall assessment is loaded in the renderer
       // we can initialize the mastery log, as the mastery model and spacing time
@@ -46,27 +49,23 @@ oriented data synchronization.
       this.initNewAttemptLog();
     },
     methods: {
-      answerChecked(correct, complete) {
-        if (complete) {
-          // question passed
-          this.updateMasteryAttemptStateAction(new Date(), correct, complete);
-          if (this.masteryLogId) {
-          this.saveAttemptLogAction(this.Kolibri);
-          } else {
-            let watchRevoke;
-            watchRevoke = this.$watch('masteryLogId', () => {
-              if (this.masteryLogId) {
-                this.saveAttemptLogAction(this.Kolibri);
-                watchRevoke();
-              }
-            });
-          }
+      updateMasetryLogSaveAttemptLog(correct, complete, firstAttempt) {
+        this.updateMasteryAttemptStateAction(new Date(), correct, complete, firstAttempt);
+        if (this.masteryLogId) {
+        this.saveAttemptLogAction(this.Kolibri);
         } else {
-          this.updateMasteryAttemptStateAction(new Date(), correct, complete);
+          let watchRevoke;
+          watchRevoke = this.$watch('masteryLogId', () => {
+            if (this.masteryLogId) {
+              this.saveAttemptLogAction(this.Kolibri);
+              watchRevoke();
+            }
+          });
         }
       },
-      hintTaken() {
+      hintTaken(firstAttempt) {
         this.updateAttemptLogInteractionHistoryAction(hint);
+        this.updateMasetryLogSaveAttemptLog(null, false, firstAttempt);
       },
       exercisePassed() {
         this.setMasteryLogCompleteAction(new Date());
@@ -117,7 +116,6 @@ oriented data synchronization.
       getters: {
         summaryLogId: (state) => state.core.logging.summary.id,
         masteryLogId: (state) => state.core.logging.mastery.id,
-        pastattempts: (state) => state.core.logging.mastery.pastattempts,
         attemptLogComplete: (state) => state.core.logging.attempt.complete,
         attemptLogCorrect: (state) => state.core.logging.attempt.correct,
       },
