@@ -131,7 +131,11 @@ const mutations = {
     state.core.logging.attempt.correct = correct;
     state.core.logging.attempt.hinted = hinted;
     state.core.logging.attempt.end_timestamp = currentTime;
-    state.core.logging.attempt.time_spent = currentTime - state.core.logging.attempt.start_timestamp;
+    let starttime = state.core.logging.attempt.start_timestamp;
+    if (typeof starttime === 'string') {
+      starttime = new Date(starttime);
+    }
+    state.core.logging.attempt.time_spent = currentTime - starttime;
   },
   SET_EMPTY_LOGGING_STATE(state) {
     state.core.logging = baseLoggingState;
