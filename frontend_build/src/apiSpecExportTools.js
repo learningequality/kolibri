@@ -25,7 +25,7 @@ var apiSpec = m.exports.apiSpec;
 var keys = m.exports.keys;
 
 function requireName(pathArray) {
-  return ['kolibri'].concat(pathArray.slice(1)).join('/')
+  return ['kolibri'].concat(pathArray.slice(1)).join('.')
 }
 
 function coreExternals(kolibri_name) {

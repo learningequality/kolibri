@@ -106,7 +106,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .device-owner-creation
     position: absolute

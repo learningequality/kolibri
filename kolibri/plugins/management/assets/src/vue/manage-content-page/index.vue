@@ -73,7 +73,7 @@
 
   module.exports = {
     components: {
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
       'task-status': require('./task-status'),
       'wizard-import-source': require('./wizard-import-source'),
       'wizard-import-network': require('./wizard-import-network'),
@@ -122,7 +122,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   // Padding height that separates rows from eachother
   $row-padding = 1.5em

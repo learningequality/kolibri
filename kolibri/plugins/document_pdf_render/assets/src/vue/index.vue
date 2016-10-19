@@ -20,7 +20,7 @@
   module.exports = {
 
     components: {
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
 
     props: ['defaultFile'],

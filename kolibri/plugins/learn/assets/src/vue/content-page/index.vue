@@ -36,7 +36,7 @@
 
   const constants = require('../../state/constants');
   const getters = require('../../state/getters');
-  const ContentKinds = require('kolibri/coreVue/vuex/constants').ContentKinds;
+  const ContentKinds = require('kolibri.coreVue.vuex.constants').ContentKinds;
 
   module.exports = {
     $trNameSpace: 'learnContent',
@@ -87,7 +87,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .recommendation-section
     margin-top: 4em

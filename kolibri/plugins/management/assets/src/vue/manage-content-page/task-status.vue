@@ -16,7 +16,7 @@
 <script>
 
   const actions = require('../../actions');
-  const logging = require('kolibri/lib/logging');
+  const logging = require('kolibri.lib.logging');
   const constants = require('../../state/constants');
   const TaskTypes = constants.TaskTypes;
   const TaskStatuses = constants.TaskStatuses;
@@ -35,7 +35,7 @@
       localExport: 'Exporting to Local Drive',
     },
     components: {
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     computed: {
       buttonMessage() {
@@ -107,7 +107,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .buttons
     margin: 10px

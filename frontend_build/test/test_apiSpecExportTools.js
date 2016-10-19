@@ -96,9 +96,9 @@ describe('coreAliases', function() {
       assert(Object.keys(apiSpecExportTools.coreAliases()).length === 1);
       done();
     });
-    it('should have a path of kolibri/test', function (done) {
+    it('should have a path of kolibri.test', function (done) {
       apiSpecExportTools.__set__("apiSpec", oneDeepLocal);
-      assert(Object.keys(apiSpecExportTools.coreAliases())[0] === "kolibri/test");
+      assert(Object.keys(apiSpecExportTools.coreAliases())[0] === "kolibri.test");
       done();
     });
   });
@@ -108,9 +108,9 @@ describe('coreAliases', function() {
       assert(Object.keys(apiSpecExportTools.coreAliases()).length === 1);
       done();
     });
-    it('should have a path of kolibri/test/test', function (done) {
+    it('should have a path of kolibri.test.test', function (done) {
       apiSpecExportTools.__set__("apiSpec", twoDeepLocal);
-      assert(Object.keys(apiSpecExportTools.coreAliases())[0] === "kolibri/test/test");
+      assert(Object.keys(apiSpecExportTools.coreAliases())[0] === "kolibri.test.test");
       done();
     });
   });

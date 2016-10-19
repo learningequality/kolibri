@@ -61,7 +61,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .main-wrapper
     position: fixed // must be fixed for ie10
