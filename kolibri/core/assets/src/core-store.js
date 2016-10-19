@@ -130,14 +130,14 @@ const mutations = {
   UPDATE_LOGGING_ATTEMPT(state, currentTime, correct, complete) {
     if (complete) {
       state.core.logging.attempt.completion_timestamp = currentTime;
-      state.core.logging.attempt.complete = true; //??what's complete??
+      state.core.logging.attempt.complete = true;
     } else {
       state.core.logging.attempt.completion_timestamp = null;
-      state.core.logging.attempt.complete = false; //??what's complete??
+      state.core.logging.attempt.complete = false;
     }
     state.core.logging.attempt.correct = correct;
     state.core.logging.attempt.end_timestamp = currentTime;
-    state.core.logging.attempt.time_spent = 0.1; //??how time_spent??
+    state.core.logging.attempt.time_spent = currentTime - state.core.logging.attempt.start_timestamp;
   },
   SET_EMPTY_LOGGING_STATE(state) {
     state.core.logging = baseLoggingState;
