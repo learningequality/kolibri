@@ -2,7 +2,7 @@
 
   <core-base>
     <main-nav slot="nav"></main-nav>
-    <div slot="content"> <h1> Who likes short shorts? </h1> </div>
+    <div v-if="!currentPage" slot="content"> <h1> Who likes short shorts? </h1> </div>
     <component slot="content" :is="currentPage" class="page"></component>
   </core-base>
 
