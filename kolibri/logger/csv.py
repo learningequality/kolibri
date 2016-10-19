@@ -13,6 +13,8 @@ class LogCSVSerializerBase(serializers.ModelSerializer):
     facility_name = serializers.SerializerMethodField()
     channel_name = serializers.SerializerMethodField()
     content_title = serializers.SerializerMethodField()
+    time_spent = serializers.SerializerMethodField()
+    progress = serializers.SerializerMethodField()
 
     def get_username(self, obj):
         if obj.user:
@@ -43,6 +45,12 @@ class LogCSVSerializerBase(serializers.ModelSerializer):
                     return ""
         except KeyError:  # content DB doesn't exist
             return ""
+
+    def get_time_spent(self, obj):
+        return round(obj.time_spent, 3)
+
+    def get_progress(self, obj):
+        return round(obj.progress, 1)
 
 
 class ContentSummaryLogCSVSerializer(LogCSVSerializerBase):
