@@ -162,6 +162,11 @@
           Math.floor(this.videoPlayer.duration())));
         this.progressStartingPoint = this.videoPlayer.currentTime();
       },
+
+      focusOnPlayControl() {
+        const videoWrapper = this.$els.videowrapper;
+        videoWrapper.getElementsByClassName('vjs-play-control')[0].focus();
+      },
     },
 
     created() {
@@ -176,7 +181,7 @@
         fluid: true,
         autoplay: false,
         controls: true,
-        textTrackDisplay: true,
+        textTrackDisplay: false,
         bigPlayButton: true,
         inactivityTimeout: 1000,
         preload: 'metadata',
@@ -204,6 +209,7 @@
       });
 
       this.videoPlayer.on('loadedmetadata', this.loadedMetaData);
+      this.videoPlayer.on('play', this.focusOnPlayControl);
       global.addEventListener('resize', this.debouncedResizeVideo);
     },
     beforeDestroy() {
