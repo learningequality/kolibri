@@ -182,7 +182,7 @@
         fluid: true,
         autoplay: false,
         controls: true,
-        textTrackDisplay: false,
+        textTrackDisplay: true,
         bigPlayButton: true,
         inactivityTimeout: 1000,
         preload: 'metadata',
