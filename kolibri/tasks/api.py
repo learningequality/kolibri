@@ -28,6 +28,9 @@ from multiprocessing import Process
 logging = logger.getLogger(__name__)
 
 def windows_handle_async_call(target_func, *args, **kwargs):
+    """ addresses Window's forking incompatibility
+        by deferring the target to a separate function call
+    """
     import django
     django.setup()
     from django_q.tasks import async
@@ -35,6 +38,10 @@ def windows_handle_async_call(target_func, *args, **kwargs):
 
 
 def make_async_call(target_func, *args, **kwargs):
+    """ provides a central function call
+        to handle Windows separately from other
+        async calls
+    """
     if platform.system() == "Windows":
         task_uuid = uuid()
         kwargs['uuid'] = task_uuid
