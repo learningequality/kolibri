@@ -430,7 +430,7 @@ function saveAttemptLog(store, Kolibri) {
   });
 }
 
-function createAttemptLog(store, Kolibri, itemId) {
+function createAttemptLog(store, Kolibri, itemId, callback) {
   const attemptLogModel = Kolibri.resources.AttemptLog.createModel({
     id: null,
     masterylog: store.state.core.logging.mastery.id || null,
@@ -441,12 +441,13 @@ function createAttemptLog(store, Kolibri, itemId) {
     complete: false,
     time_spent: 0,
     correct: 0,
-    answer: '{}',
+    answer: {},
     simple_answer: '',
     interaction_history: [],
     user: store.state.core.session.user_id,
   });
   store.dispatch('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
+  callback();
 }
 
 function updateAttemptLogInteractionHistory(store, interaction) {

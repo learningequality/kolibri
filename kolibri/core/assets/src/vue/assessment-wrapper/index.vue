@@ -8,7 +8,7 @@ oriented data synchronization.
 <template>
 
   <div>
-    <slot></slot>
+    <slot v-if="ready"></slot>
   </div>
 
 </template>
@@ -87,12 +87,21 @@ oriented data synchronization.
         }
       },
       initNewAttemptLog() {
-        // every new question has a new attemptlog with the question's itemId
+        if (this.itemId) {
+          // seems sometimes vue does not reset itemId on page reload, therefore the following watch doesn't get triggered and ready is not set properly.
+          this.ready = false;
+          this.createAttemptLogAction(this.Kolibri, this.itemId, this.newAttemptlogReady);
+        }
         this.$watch('itemId', () => {
+          // every new question has a new attemptlog with the question's itemId
           if (this.itemId) {
-            this.createAttemptLogAction(this.Kolibri, this.itemId);
+            this.ready = false;
+            this.createAttemptLogAction(this.Kolibri, this.itemId, this.newAttemptlogReady);
           }
         });
+      },
+      newAttemptlogReady() {
+        this.ready = true;
       },
     },
     vuex: {
