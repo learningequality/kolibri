@@ -300,7 +300,7 @@
       left: 0
       right: 0
       width: auto
-      top: calc(1em - 56px)
+      top: -3em
       visibility: inherit
       opacity: inherit
 
