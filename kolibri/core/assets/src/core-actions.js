@@ -89,6 +89,18 @@ function _sessionState(data) {
  *
  * These methods are used to update client-side state
  */
+
+
+function handleError(store, errorString) {
+  store.dispatch('CORE_SET_ERROR', errorString);
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_TITLE', 'Error');
+}
+
+function handleApiError(store, errorObject) {
+  handleError(JSON.stringify(errorObject, null, '\t'));
+}
+
 function kolibriLogin(store, Kolibri, sessionPayload) {
   const SessionResource = Kolibri.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
@@ -103,11 +115,11 @@ function kolibriLogin(store, Kolibri, sessionPayload) {
       Kolibri.emit('refresh');
     }
     Kolibri.resources.clearCaches();
-  }).catch((error) => {
+  }).catch(error => {
     if (error.status.code === 401) {
       store.dispatch('CORE_SET_LOGIN_ERROR', 401);
     } else {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+      handleApiError(store, error);
     }
   });
 }
@@ -122,9 +134,7 @@ function kolibriLogout(store, Kolibri) {
     /* Very hacky solution to redirect a user back to Learn tab on logout*/
     window.location.href = window.location.origin;
     Kolibri.resources.clearCaches();
-  }).catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
+  }).catch(error => { handleApiError(store, error); });
 }
 
 function currentLoggedInUser(store, Kolibri) {
@@ -134,9 +144,7 @@ function currentLoggedInUser(store, Kolibri) {
   const sessionPromise = sessionModel.fetch({});
   sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
-  }).catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
+  }).catch(error => { handleApiError(store, error); });
 }
 
 function showLoginModal(store, bool) {
@@ -242,9 +250,7 @@ function saveLogs(store, Kolibri) {
     const sessionModel = ContentSessionLogResource.getModel(sessionLog.id);
     sessionModel.save(_contentSessionModel(store)).then((data) => {
       /* PLACEHOLDER */
-    }).catch((error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    });
+    }).catch(error => { handleApiError(store, error); });
   }
 
   /* If a summary model exists, save it with updated values */
@@ -252,9 +258,7 @@ function saveLogs(store, Kolibri) {
     const summaryModel = ContentSummaryLogResource.getModel(summaryLog.id);
     summaryModel.save(_contentSummaryModel(store)).then((data) => {
       /* PLACEHOLDER */
-    }).catch((error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    });
+    }).catch(error => { handleApiError(store, error); });
   }
 }
 
@@ -364,6 +368,7 @@ function samePageCheckGenerator(store) {
 }
 
 module.exports = {
+  handleApiError,
   kolibriLogin,
   kolibriLogout,
   currentLoggedInUser,

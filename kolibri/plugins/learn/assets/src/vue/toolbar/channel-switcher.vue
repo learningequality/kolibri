@@ -7,7 +7,7 @@
       id="chan-select"
       class="chan-select"
       v-model="localCurrentChannel">
-      <option v-for="channel in channelList" :value="channel.id">{{ channel.name }}</option>
+      <option v-for="channel in channelList" :value="channel.id">{{ channel.title }}</option>
     </select>
   </div>
 
@@ -63,7 +63,7 @@
       getters: {
         isRoot: (state) => state.pageState.topic.id === state.rootTopicId,
         pageMode: getters.pageMode,
-        globalCurrentChannel: state => state.currentChannel,
+        globalCurrentChannel: state => state.currentChannelId,
         channelList: state => state.channelList,
       },
       actions: {
