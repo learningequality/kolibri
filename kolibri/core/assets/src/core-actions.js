@@ -89,6 +89,14 @@ function _sessionState(data) {
  *
  * These methods are used to update client-side state
  */
+
+
+function handleApiError(store, errorObject) {
+  store.dispatch('CORE_SET_ERROR', JSON.stringify(errorObject, null, '\t'));
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_TITLE', 'Error');
+}
+
 function kolibriLogin(store, Kolibri, sessionPayload) {
   const SessionResource = Kolibri.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
@@ -364,6 +372,7 @@ function samePageCheckGenerator(store) {
 }
 
 module.exports = {
+  handleApiError,
   kolibriLogin,
   kolibriLogout,
   currentLoggedInUser,

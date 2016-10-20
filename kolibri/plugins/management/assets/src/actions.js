@@ -6,6 +6,7 @@ const ChannelResource = Kolibri.resources.ChannelResource;
 const TaskResource = Kolibri.resources.TaskResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
+const coreActions = require('kolibri/coreVue/vuex/actions');
 const ConditionalPromise = require('kolibri/lib/conditionalPromise');
 const constants = require('./state/constants');
 const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
@@ -64,13 +65,6 @@ function _managePageTitle(title) {
   return 'Manage';
 }
 
-function _errorTitle(title) {
-  if (title) {
-    return `Error - ${title}`;
-  }
-  return 'Error';
-}
-
 
 /**
  * Actions
@@ -103,9 +97,7 @@ function createUser(store, payload, role) {
         FacilityUserModel.fetch({}, true).then(updatedModel => {
           store.dispatch('ADD_USER', _userState(updatedModel));
         });
-      }).catch((error) => {
-        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      });
+      }).catch(error => { coreActions.handleApiError(store, error); });
     }
   }).catch((error) => Promise.reject(error));
 }
@@ -163,14 +155,10 @@ function updateUser(store, id, payload, role) {
             responses.roles = [newRole];
             store.dispatch('UPDATE_USERS', [responses]);
           })
-          .catch((error) => {
-            store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-          });
+          .catch(error => { coreActions.handleApiError(store, error); });
         });
       })
-      .catch((error) => {
-        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      });
+      .catch(error => { coreActions.handleApiError(store, error); });
     } else {
     // role is learner and oldRole is admin or coach.
       const OldRoleModel = RoleResource.getModel(oldRoldID);
@@ -181,9 +169,7 @@ function updateUser(store, id, payload, role) {
           responses.roles = [];
           store.dispatch('UPDATE_USERS', [responses]);
         })
-        .catch((error) => {
-          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-        });
+        .catch(error => { coreActions.handleApiError(store, error); });
       });
     }
   } else {
@@ -191,9 +177,7 @@ function updateUser(store, id, payload, role) {
     FacilityUserModel.save(payload).then(responses => {
       store.dispatch('UPDATE_USERS', [responses]);
     })
-    .catch((error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    });
+    .catch(error => { coreActions.handleApiError(store, error); });
   }
 }
 
@@ -211,9 +195,7 @@ function deleteUser(store, id) {
   deleteUserPromise.then((user) => {
     store.dispatch('DELETE_USER', id);
   })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
+  .catch(error => { coreActions.handleApiError(store, error); });
 }
 
 // An action for setting up the initial state of the app by fetching data from the server
@@ -240,11 +222,7 @@ function showUserPage(store) {
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', _managePageTitle('Users'));
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_TITLE', _errorTitle());
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
@@ -272,11 +250,7 @@ function showContentPage(store) {
         store.dispatch('CORE_SET_TITLE', _managePageTitle('Content'));
       });
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_TITLE', _errorTitle());
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
@@ -289,7 +263,7 @@ function updateWizardLocalDriveList(store) {
   })
   .catch((error) => {
     store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    coreActions.handleApiError(store, error);
   });
 }
 
@@ -373,9 +347,7 @@ function pollTasksAndChannels(store) {
         }
       );
     },
-    (error) => {
-      logging.error(`poll error: ${error}`);
-    }
+    error => { logging.error(`poll error: ${error}`); }
   );
 }
 
@@ -384,9 +356,7 @@ function clearTask(store, taskId) {
   clearTaskPromise.then(() => {
     store.dispatch('SET_CONTENT_PAGE_TASKS', []);
   })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
+  .catch(error => { coreActions.handleApiError(store, error); });
 }
 
 function triggerLocalContentImportTask(store, driveId) {

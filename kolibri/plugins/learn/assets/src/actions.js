@@ -6,6 +6,7 @@ const getters = require('./state/getters');
 const PageNames = constants.PageNames;
 const cookiejs = require('js-cookie');
 const router = require('kolibri/coreVue/router');
+const coreActions = require('kolibri/coreVue/vuex/actions');
 const ConditionalPromise = require('kolibri/lib/conditionalPromise');
 const samePageCheckGenerator = require('kolibri/coreVue/vuex/actions').samePageCheckGenerator;
 
@@ -170,11 +171,7 @@ function redirectToExploreChannel(store) {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_TITLE', _errorTitle());
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
@@ -197,11 +194,7 @@ function redirectToLearnChannel(store) {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_TITLE', _errorTitle());
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
@@ -238,11 +231,7 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
         store.dispatch('CORE_SET_TITLE', _explorePageTitle(pageState.topic.title));
       }
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_TITLE', _errorTitle());
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
@@ -282,11 +271,7 @@ function showExploreContent(store, channelId, id) {
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', _explorePageTitle(pageState.content.title));
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_TITLE', _errorTitle());
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
@@ -321,18 +306,10 @@ function showLearnChannel(store, channelId) {
           const currentChannel = getters.currentChannel(store.state);
           store.dispatch('CORE_SET_TITLE', _learnPageTitle(currentChannel.title));
         },
-        (error) => {
-          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-          store.dispatch('CORE_SET_TITLE', _errorTitle());
-        }
+        error => { coreActions.handleApiError(store, error); }
       );
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_TITLE', _errorTitle());
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
@@ -358,11 +335,7 @@ function showLearnContent(store, channelId, id) {
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', _learnPageTitle(pageState.content.title));
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_TITLE', _errorTitle());
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
   recommendedPromise.only(
     samePageCheckGenerator(store),
@@ -375,11 +348,7 @@ function showLearnContent(store, channelId, id) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_TITLE', _errorTitle());
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
