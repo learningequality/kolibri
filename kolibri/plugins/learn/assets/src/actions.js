@@ -83,25 +83,6 @@ function _channelListState(data) {
 }
 
 
-/**
- * Title Helpers
- */
-
-function _explorePageTitle(title) {
-  if (title) {
-    return `Explore - ${title}`;
-  }
-  return 'Explore';
-}
-
-function _learnPageTitle(title) {
-  if (title) {
-    return `Learn - ${title}`;
-  }
-  return 'Learn';
-}
-
-
 /*
  * Returns the 'default' channel ID:
  * - if there are channels and they match the cookie, return that
@@ -212,11 +193,11 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
+      const currentChannel = getters.currentChannel(store.state);
       if (isRoot) {
-        const currentChannel = getters.currentChannel(store.state);
-        store.dispatch('CORE_SET_TITLE', _explorePageTitle(currentChannel.title));
+        store.dispatch('CORE_SET_TITLE', `Explore - ${currentChannel.title}`);
       } else {
-        store.dispatch('CORE_SET_TITLE', _explorePageTitle(pageState.topic.title));
+        store.dispatch('CORE_SET_TITLE', `${pageState.topic.title} - ${currentChannel.title}`);
       }
     },
     error => { coreActions.handleApiError(store, error); }
@@ -252,14 +233,15 @@ function showExploreContent(store, channelId, id) {
     samePageCheckGenerator(store),
     ([content, channelsData]) => {
       _setChannelState(store, channelId, _channelListState(channelsData));
-      if (!getters.currentChannel(store.state)) {
+      const currentChannel = getters.currentChannel(store.state);
+      if (!currentChannel) {
         return;
       }
       const pageState = { content: _contentState(content) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _explorePageTitle(pageState.content.title));
+      store.dispatch('CORE_SET_TITLE', `${pageState.content.title} - ${currentChannel.title}`);
     },
     error => { coreActions.handleApiError(store, error); }
   );
@@ -295,7 +277,7 @@ function showLearnChannel(store, channelId) {
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
           const currentChannel = getters.currentChannel(store.state);
-          store.dispatch('CORE_SET_TITLE', _learnPageTitle(currentChannel.title));
+          store.dispatch('CORE_SET_TITLE', `Learn - ${currentChannel.title}`);
         },
         error => { coreActions.handleApiError(store, error); }
       );
@@ -315,7 +297,8 @@ function showLearnContent(store, channelId, id) {
     samePageCheckGenerator(store),
     ([content, channelsData]) => {
       _setChannelState(store, channelId, _channelListState(channelsData));
-      if (!getters.currentChannel(store.state)) {
+      const currentChannel = getters.currentChannel(store.state);
+      if (!currentChannel) {
         return;
       }
       const pageState = {
@@ -325,7 +308,7 @@ function showLearnContent(store, channelId, id) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _learnPageTitle(pageState.content.title));
+      store.dispatch('CORE_SET_TITLE', `${pageState.content.title} - ${currentChannel.title}`);
     },
     error => { coreActions.handleApiError(store, error); }
   );

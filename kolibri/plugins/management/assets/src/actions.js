@@ -55,14 +55,11 @@ function _taskState(data) {
 
 
 /**
- * Title Helpers
+ * Title Helper
  */
 
 function _managePageTitle(title) {
-  if (title) {
-    return `Manage - ${title}`;
-  }
-  return 'Manage';
+  return `Manage ${title}`;
 }
 
 

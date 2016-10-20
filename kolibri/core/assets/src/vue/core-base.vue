@@ -36,7 +36,7 @@
     },
     watch: {
       title(newVal, oldVal) {
-        document.title = newVal;
+        document.title = `${newVal} - Kolibri`;
       },
     },
     data: () => ({
