@@ -8,9 +8,7 @@
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
       <error-box v-if="error"></error-box>
       <slot name="above"></slot>
-      <main role="main" class="page-content">
-        <slot name="content"></slot>
-      </main>
+      <slot name="content"></slot>
       <slot name="below"></slot>
     </div>
   </div>
@@ -80,10 +78,6 @@
     @media screen and (max-width: $portrait-breakpoint)
       padding: 0 0.6em
       padding-bottom: 100px
-
-  .page-content
-    margin: auto
-    width-auto-adjust()
 
   .loading-spinner-fixed
     position: fixed
