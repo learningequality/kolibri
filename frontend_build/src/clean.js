@@ -5,6 +5,7 @@ var logging = require('./logging');
 
 
 var deleteRecursive = function(p) {
+  logging.info("Scanning " + p);
   if (fs.existsSync(p)) {
     if (fs.lstatSync(p).isDirectory()) {
       fs.readdirSync(p).forEach(function(name) {
@@ -20,9 +21,8 @@ var deleteRecursive = function(p) {
 }
 
 var plugins = readWebpackJson();
-var cwd = path.resolve(process.cwd());
 
 plugins.forEach(function(plugin) {
-  deleteRecursive(path.join(cwd, plugin.static_dir, plugin.name));
-  deleteRecursive(path.join(cwd, plugin.stats_file));
+  deleteRecursive(path.resolve(plugin.static_dir, plugin.name));
+  deleteRecursive(path.resolve(plugin.stats_file));
 })
