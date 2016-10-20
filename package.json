@@ -42,7 +42,6 @@
     "vue-router": "0.7.13",
     "vue-scroll": "1.0.3",
     "vuex": "0.6.3",
-    "seededshuffle": "0.1.1"
   },
   "devDependencies": {
     "autoprefixer": "6.3.7",
