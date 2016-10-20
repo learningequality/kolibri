@@ -96,7 +96,7 @@
         const wrapperWrapperWidth = this.$els.videowrapperwrapper.clientWidth;
         const wrapperWrapperHeight = this.$els.videowrapperwrapper.clientHeight;
 
-        const aspectRatio = 16/9;
+        const aspectRatio = 16 / 9;
 
         const neededHeightGivenWidth = wrapperWrapperWidth * (1 / aspectRatio);
         const neededWidthGivenHeight = wrapperWrapperHeight * aspectRatio;
