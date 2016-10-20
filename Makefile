@@ -11,7 +11,10 @@ help:
 	@echo "release - package and upload a release"
 	@echo "sdist - package"
 
-clean: clean-build clean-pyc clean-docs
+clean: clean-build clean-pyc clean-docs clean-static
+
+clean-static:
+	npm run clean
 
 clean-build:
 	rm -fr build/
