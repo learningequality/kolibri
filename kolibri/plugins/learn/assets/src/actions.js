@@ -368,10 +368,7 @@ function triggerSearch(store, searchTerm) {
     searchState.contents = collection.contents;
     store.dispatch('SET_SEARCH_STATE', searchState);
   })
-    .catch((error) => {
-      // TODO - how to parse and format?
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    });
+  .catch(error => { coreActions.handleApiError(store, error); });
 }
 
 function clearSearch(store) {

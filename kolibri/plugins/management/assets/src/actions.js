@@ -132,9 +132,7 @@ function updateUser(store, id, payload, role) {
           responses.roles = [newRole];
           store.dispatch('UPDATE_USERS', [responses]);
         })
-        .catch((error) => {
-          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-        });
+        .catch(error => { coreActions.handleApiError(store, error); });
       });
     } else if (role !== 'learner') {
     // oldRole is admin and role is coach or oldRole is coach and role is admin.
