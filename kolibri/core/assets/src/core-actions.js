@@ -91,10 +91,14 @@ function _sessionState(data) {
  */
 
 
-function handleApiError(store, errorObject) {
-  store.dispatch('CORE_SET_ERROR', JSON.stringify(errorObject, null, '\t'));
+function handleError(store, errorString) {
+  store.dispatch('CORE_SET_ERROR', errorString);
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_TITLE', 'Error');
+}
+
+function handleApiError(store, errorObject) {
+  handleError(JSON.stringify(errorObject, null, '\t'));
 }
 
 function kolibriLogin(store, Kolibri, sessionPayload) {
