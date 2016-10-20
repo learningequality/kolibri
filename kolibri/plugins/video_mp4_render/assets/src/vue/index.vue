@@ -208,7 +208,7 @@
       this.videoPlayer.on('pause', this.focusOnPlayControl);
       global.addEventListener('resize', this.debouncedResizeVideo);
     },
-    
+
     beforeDestroy() {
       this.recordProgress();
       this.$emit('stopTracking');
