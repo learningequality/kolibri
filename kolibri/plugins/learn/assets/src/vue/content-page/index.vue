@@ -18,7 +18,7 @@
 
     <p class="page-description">{{ description }}</p>
 
-    <download-button v-if="isExercise" :files="files"></download-button>
+    <download-button v-if="canDownload" :files="files"></download-button>
 
     <expandable-content-grid
       class="recommendation-section"
@@ -40,7 +40,7 @@
 
   module.exports = {
     computed: {
-      isExercise() { return this.kind == ContentKinds.EXERCISE; },
+      canDownload() { return this.kind !== ContentKinds.EXERCISE; },
     },
     $trNameSpace: 'learnContent',
     $trs: {
