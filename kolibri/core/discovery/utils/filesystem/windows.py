@@ -27,14 +27,13 @@ def get_drive_list():
         # construct a path (including "\") from DeviceID, plus fallbacks in case it's not defined for some reason
         path = "{}\\".format(drive.get("DeviceID") or drive.get("Caption") or drive.get("Name"))
 
-        '''
-        # DISABLED - causes a hang on Windows XP.
-        # see https://trello.com/c/Ex03UItJ/615-fix-import-hang-related-to-disk-enumeration-on-windows-xp
+        # skip if there are indications that this is an empty CD-ROM
+        if not drive.get("Size") or not drive.get("FileSystem"):
+            continue
 
         # skip if we don't have read access to the drive
         if not os.access(path, os.R_OK):
             continue
-        '''
 
         # combine the metadata, using backup fields for missing pieces, and return
         drives.append({
