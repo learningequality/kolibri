@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.db.models.aggregates import Count
 from kolibri.content import models, serializers
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
+from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
 
 from .utils.search import fuzz
@@ -28,6 +29,7 @@ class ContentNodeFilter(filters.FilterSet):
     next_steps = filters.django_filters.MethodFilter()
     popular = filters.django_filters.MethodFilter()
     resume = filters.django_filters.MethodFilter()
+    kind = filters.django_filters.MethodFilter()
 
     class Meta:
         model = models.ContentNode
@@ -164,6 +166,18 @@ class ContentNodeFilter(filters.FilterSet):
         resume = queryset.filter(content_id__in=list(content_ids[:10]))
 
         return resume
+
+    def filter_kind(self, queryset, value):
+        """
+        Show only content of a given kind.
+
+        :param queryset: all content nodes for this channel
+        :param value: 'content' for everything except topics, or one of the content kind constants
+        :return: content nodes of the given kind
+        """
+        if value == 'content':
+            return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
+        return queryset.filter(kind=value).order_by("lft")
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
