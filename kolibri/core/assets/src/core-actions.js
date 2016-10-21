@@ -184,7 +184,7 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
           pk: null,
           start_timestamp: new Date(),
           completion_timestamp: null,
-          end_timestamp: null,
+          end_timestamp: new Date(),
           progress: 0,
           time_spent: 0,
           extra_fields: '{}',
@@ -211,7 +211,7 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
   store.dispatch('SET_LOGGING_SESSION_STATE', _contentSessionLoggingState({
     pk: null,
     start_timestamp: new Date(),
-    end_timestamp: null,
+    end_timestamp: new Date(),
     time_spent: 0,
     progress: 0,
     extra_fields: '{}',
