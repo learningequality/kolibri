@@ -18,7 +18,7 @@
 
     <p class="page-description">{{ description }}</p>
 
-    <download-button v-if="kind !== exercise" :files="files"></download-button>
+    <download-button v-if="isExercise" :files="files"></download-button>
 
     <expandable-content-grid
       class="recommendation-section"
@@ -36,12 +36,12 @@
 
   const constants = require('../../state/constants');
   const getters = require('../../state/getters');
-  const exercisekind = require('kolibri/coreVue/vuex/constants').ContentKinds.EXERCISE;
+  const ContentKinds = require('kolibri/coreVue/vuex/constants').ContentKinds;
 
   module.exports = {
-    data: () => ({
-      exercise: exercisekind,
-    }),
+    computed: {
+      isExercise() { return this.kind == ContentKinds.EXERCISE; },
+    },
     $trNameSpace: 'learnContent',
     $trs: {
       recommended: 'Recommended',
