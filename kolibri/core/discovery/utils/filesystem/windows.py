@@ -27,8 +27,8 @@ def get_drive_list():
         # construct a path (including "\") from DeviceID, plus fallbacks in case it's not defined for some reason
         path = "{}\\".format(drive.get("DeviceID") or drive.get("Caption") or drive.get("Name"))
 
-        # skip if there are indications that this is an empty CD-ROM
-        if not drive.get("Size") or not drive.get("FileSystem"):
+        # skip if there's an indication that this is an empty CD-ROM
+        if not drive.get("Size"):
             continue
 
         # skip if we don't have read access to the drive
