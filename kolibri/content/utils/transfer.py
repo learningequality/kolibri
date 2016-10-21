@@ -1,6 +1,7 @@
 import logging as logger
 import os
 import signal
+import shutil
 import requests
 from requests.adapters import HTTPAdapter
 from requests.exceptions import ConnectionError
@@ -86,11 +87,7 @@ class Transfer(object):
         return chunk
 
     def _move_tmp_to_dest(self):
-        try:
-            os.remove(self.dest)
-        except OSError:  # dest doesn't exist; no problem
-            pass
-        os.rename(self.dest_tmp, self.dest)
+        shutil.move(self.dest_tmp, self.dest)
 
     def __enter__(self):
         self.start()

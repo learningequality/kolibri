@@ -7,19 +7,17 @@ The ONLY public object is ContentNode
 from __future__ import print_function
 
 import uuid
-
-from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
-from django.core.urlresolvers import reverse
-from django.utils.text import get_valid_filename
-
-from mptt.models import MPTTModel, TreeForeignKey
-
-from le_utils.constants import content_kinds, file_formats, format_presets
-from .content_db_router import get_active_content_database
-from .utils import paths
 from gettext import gettext as _
 
+from django.core.urlresolvers import reverse
+from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils.text import get_valid_filename
+from le_utils.constants import content_kinds, file_formats, format_presets
+from mptt.models import MPTTModel, TreeForeignKey
+
+from .content_db_router import get_active_content_database
+from .utils import paths
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
@@ -124,6 +122,9 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
     stemmed_metaphone = models.CharField(max_length=1800, blank=True)  # for fuzzy search in title and description
 
     objects = ContentQuerySet.as_manager()
+
+    class Meta:
+        ordering = ('sort_order',)
 
     def __str__(self):
         return self.title
