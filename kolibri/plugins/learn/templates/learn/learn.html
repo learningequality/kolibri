@@ -3,14 +3,14 @@
 
 {% block content %}
   <script>
-    var channelCollection = {{kolibri}}.resources.ChannelResource.getCollection({}, JSON.parse("{{ channelList | escapejs }}"));
+    var channelCollection = {{kolibri}}.resources.ChannelResource.createCollection({}, JSON.parse("{{ channelList | escapejs }}"));
     channelCollection.synced = true;
     {{kolibri}}.resources.ContentNodeResource.setChannel("{{ channel_id }}");
     var root_node = JSON.parse("{{ rootnode|escapejs }}");
     var root_node_pk = String(root_node.pk);
     var model = {{kolibri}}.resources.ContentNodeResource.createModel(root_node);
     model.synced = true;
-    var collection = {{kolibri}}.resources.ContentNodeResource.getCollection({parent: root_node_pk}, JSON.parse("{{ nodes|escapejs }}"));
+    var collection = {{kolibri}}.resources.ContentNodeResource.createCollection({parent: root_node_pk}, JSON.parse("{{ nodes|escapejs }}"));
     collection.synced = true;
   </script>
   {% learn_async_assets %}

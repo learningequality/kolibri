@@ -1,10 +1,19 @@
 import logging as logger
 import os
 import signal
-
+import shutil
 import requests
+from requests.adapters import HTTPAdapter
+from requests.exceptions import ConnectionError
+from requests.packages.urllib3.util.retry import Retry
 
 logging = logger.getLogger(__name__)
+
+
+# policy for retrying downloads with exponential backoff delay
+retries = Retry(total=5,
+                backoff_factor=0.1,
+                status_forcelist=[500, 502, 503, 504])
 
 
 class ExistingTransferInProgress(Exception):
@@ -25,11 +34,12 @@ class TransferNotYetClosed(Exception):
 
 class Transfer(object):
 
-    def __init__(self, source, dest, block_size=2097152, remove_existing_temp_file=True):
+    def __init__(self, source, dest, block_size=2097152, remove_existing_temp_file=True, timeout=20):
         self.source = source
         self.dest = dest
         self.dest_tmp = dest + ".transfer"
         self.block_size = block_size
+        self.timeout = timeout
         self.started = False
         self.completed = False
         self.finalized = False
@@ -77,11 +87,7 @@ class Transfer(object):
         return chunk
 
     def _move_tmp_to_dest(self):
-        try:
-            os.remove(self.dest)
-        except OSError:  # dest doesn't exist; no problem
-            pass
-        os.rename(self.dest_tmp, self.dest)
+        shutil.move(self.dest_tmp, self.dest)
 
     def __enter__(self):
         self.start()
@@ -124,15 +130,30 @@ class FileDownload(Transfer):
 
     def start(self):
         assert not self.started, "File download has already been started, and cannot be started again"
+
+        # initialize the requests session, with backoff-retries enabled
+        self.session = requests.Session()
+        self.session.mount('http://', HTTPAdapter(max_retries=retries))
+        self.session.mount('https://', HTTPAdapter(max_retries=retries))
+
         # initiate the download, check for status errors, and calculate download size
-        self.response = requests.get(self.source, stream=True)
+        self.response = self.session.get(self.source, stream=True, timeout=self.timeout)
         self.response.raise_for_status()
         self.total_size = int(self.response.headers['content-length'])
+
         self.started = True
 
     def __iter__(self):
+        assert self.started, "File download must be started before it can be iterated."
         self._content_iterator = self.response.iter_content(self.block_size)
         return self
+
+    def next(self):
+        try:
+            return super(FileDownload, self).next()
+        except ConnectionError as e:
+            logging.error("Error reading download stream: {}".format(e))
+            raise
 
     def close(self):
         self.response.close()

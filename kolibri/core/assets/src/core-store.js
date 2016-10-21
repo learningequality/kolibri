@@ -14,6 +14,7 @@ const initialState = {
   core: {
     error: '',
     loading: true,
+    title: '',
     pageSessionId: 0,
     session: {
       id: undefined,
@@ -64,6 +65,9 @@ const mutations = {
   },
   CORE_SET_ERROR(state, error) {
     state.core.error = error;
+  },
+  CORE_SET_TITLE(state, title) {
+    state.core.title = title;
   },
   SET_LOGGING_SUMMARY_STATE(state, summaryState) {
     state.core.logging.summary = summaryState;

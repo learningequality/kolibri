@@ -11,7 +11,7 @@ except ImportError:
 
 
 # valid storage filenames consist of 32-char hex plus a file extension
-VALID_STORAGE_FILENAME = re.compile("[0-9a-f]{32}\.[0-9a-z]+")
+VALID_STORAGE_FILENAME = re.compile("[0-9a-f]{32}(-data)?\.[0-9a-z]+")
 
 # set of file extensions that should be considered zip files and allow access to internal files
 POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".perseus", ".zip", ".epub", ".epub3"])
@@ -78,6 +78,10 @@ def get_content_storage_url(baseurl=None):
         get_content_url(baseurl),
         "storage/",
     )
+
+def get_content_storage_remote_url(filename, baseurl=None):
+    return "{}{}/{}/{}".format(get_content_storage_url(baseurl), filename[0], filename[1], filename)
+
 
 def get_content_storage_file_url(filename, baseurl=None):
     """

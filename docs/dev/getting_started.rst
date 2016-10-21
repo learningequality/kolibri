@@ -77,26 +77,44 @@ Run the following commands:
   pip install -e .
 
 
-Run the Server
-~~~~~~~~~~~~~~
+Running the Development Server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Then, start up the development server and build the client-side dependencies:
+To start up the development server and build the client-side dependencies, the following commands are used:
+
+Linux and Mac:
 
 .. code-block:: bash
 
   kolibri manage devserver --debug -- --webpack --qcluster
 
+Windows:
+
+.. code-block:: bash
+
+  kolibri manage devserver --debug -- --webpack
+
+
 Wait for the build process to complete. This takes a while the first time, will complete faster as you make edits and the assets are automatically re-built.
 
-Now you should be able to access certain URLs, in particular:
+Now you should be able to access the server at ``http://127.0.0.1:8000/``.
 
-- ``http://127.0.0.1:8000/learn/``
-- ``http://127.0.0.1:8000/management/``
+.. note::
+
+  Most functionality works fine in the devserver, but some issues exist with streaming media such as videos and audio.
 
 
-.. warning ::
+Running the Production Server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  Currently no page is set up at the root URL (``http://127.0.0.1:8000/``), so don't be suprised if that returns a 404.
+In production, content is served through CherryPy. Static assets must be pre-built:
+
+.. code-block:: bash
+
+  npm run build
+  kolibri start
+
+Now you should be able to access the server at ``http://127.0.0.1:8080/``.
 
 
 Additional Recommended Setup
@@ -138,6 +156,9 @@ We use `pre-commit <http://pre-commit.com/>`_ to help ensure consistent, clean c
 
   pre-commit install
 
+
+Development
+----------
 
 Linting
 ~~~~~~~
@@ -211,8 +232,14 @@ To run specific tests only, you can add ``--``, followed by a label (consisting 
   kolibri manage test -- kolibri.auth.test.test_permissions.MembershipPermissionsTestCase.test_admin_can_delete_membership
 
 
-Documentation Editing
-~~~~~~~~~~~~~~~~~~~~~
+Updating Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+First, install some additional dependencies related to building documentation output:
+
+.. code-block:: bash
+
+  pip install -r requirements/docs.txt
 
 To make changes to documentation, make an edit and then run:
 
@@ -226,5 +253,28 @@ You can also ``cd`` into the docs directory and run the auto-build for faster ed
 
   cd docs
   sphinx-autobuild . _build
+
+
+Branching and Release Process
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+At a high level, we follow the 'Gitflow' model. Some helpful references:
+
+ * http://nvie.com/posts/a-successful-git-branching-model/
+ * https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/
+
+
+Manual Testing
+~~~~~~~~~~~~~~
+
+All changes should be thoroughly tested and vetted before being merged in. Our primary considerations are:
+
+ * Performance
+ * Accessibility
+ * Compatibility
+ * Localization
+ * Consistency
+
+For more information, see the next section on :doc:`manual_testing`.
 
 

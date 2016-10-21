@@ -22,6 +22,11 @@ from docopt import docopt  # noqa
 from logging import config as logging_config  # noqa
 from django.core.management import call_command  # noqa
 
+# Force python2 to interpret every string as unicode.
+if sys.version[0] == '2':
+    reload(sys)
+    sys.setdefaultencoding('utf8')
+
 
 USAGE = """
 Kolibri

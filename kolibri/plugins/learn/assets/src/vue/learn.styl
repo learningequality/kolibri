@@ -8,3 +8,39 @@
   margin-top: 2em
   margin-bottom: 1.4em
   line-height: 1.8em
+
+/*
+  TODO: this needs to be cleaned up and organized significantly.
+  At the very least these variables need to be namespaced.
+*/
+
+$thumbnail-height = 122px       // fixed thumbnail height
+
+$card-height = 200px            // fixed card height
+$card-width = 200px             // fixed card width
+$card-gutter = 20px             // spacing between columns
+$n-cols-array = 1 2 3 4 5 6     // possible numbers of columns
+
+$horizontal-card-width = 320px
+$horizontal-card-height = 100px
+
+$learn-toolbar-height = 42px
+
+// compute the target grid width based on the number of columns
+grid-width($n-cols)
+  ($card-width * $n-cols) + ($card-gutter * ($n-cols))
+
+
+// compute the media query breakpoint, based on the target grid width
+breakpoint($width)
+  $width + 180px // Hard-code # please revisit
+
+// generate a range of media query breakpoints
+width-auto-adjust()
+  width: grid-width(1)
+  for $n-cols in $n-cols-array
+    $grid-width = grid-width($n-cols)
+    @media (min-width: breakpoint($grid-width))
+      width: $grid-width
+    @media screen and (max-width: $medium-breakpoint + 1)
+      width: $horizontal-card-width // Hard-code media query, potential to revisit

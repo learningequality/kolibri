@@ -32,6 +32,10 @@ class Timer {
    * Get time that has elapsed since last time elapsed time was checked
    */
   getNewTimeElapsed() {
+    // Timer has not been started
+    if (!this.lastElapsedTimeCheck) {
+      return 0;
+    }
     const currentTime = new Date();
     const timeElapsed = (currentTime - this.lastElapsedTimeCheck) / 1000;
     this.lastElapsedTimeCheck = currentTime;
