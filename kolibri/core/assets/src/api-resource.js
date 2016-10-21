@@ -186,7 +186,7 @@ class Model {
   set(attributes) {
     // force IDs to always be strings - this should be changed on the server-side too
     if (attributes && this.resource.idKey in attributes) {
-      if(attributes[this.resource.idKey]) { // but null or undefined stays the same good old.
+      if (attributes[this.resource.idKey]) { // don't stringigy null or undefined.
         attributes[this.resource.idKey] = String(attributes[this.resource.idKey]);
       }
     }
