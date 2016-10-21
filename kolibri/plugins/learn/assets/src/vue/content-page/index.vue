@@ -39,14 +39,12 @@
   const ContentKinds = require('kolibri/coreVue/vuex/constants').ContentKinds;
 
   module.exports = {
-    computed: {
-      canDownload() { return this.kind !== ContentKinds.EXERCISE; },
-    },
     $trNameSpace: 'learnContent',
     $trs: {
       recommended: 'Recommended',
     },
     computed: {
+      canDownload() { return this.kind !== ContentKinds.EXERCISE; },
       recommendedText() {
         return this.$tr('recommended');
       },
