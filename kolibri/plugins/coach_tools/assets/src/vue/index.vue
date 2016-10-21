@@ -12,6 +12,8 @@
 <script>
 
   const store = require('../state/store');
+  const constants = require('../state/constants');
+
 
   module.exports = {
     components: {
@@ -20,7 +22,7 @@
     },
     computed: {
       currentPage() {
-        if (this.pageName === 'SCRATCHPAD') {
+        if (this.pageName === constants.PageNames.SCRATCHPAD) {
           return 'scratchpad-page';
         }
         return null;

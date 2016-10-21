@@ -6,11 +6,11 @@
 
     TODO: would be best to refactor this.
   -->
-  <nav-bar-item href="/learn">
+  <nav-bar-item href="/learn/#!/learn">
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/learn.svg"></svg>
     <div class="label">{{ $tr('learn') }}</div>
   </nav-bar-item>
-  <nav-bar-item href="/explore">
+  <nav-bar-item href="/learn/#!/explore">
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
     <div class="label">{{ $tr('explore') }}</div>
   </nav-bar-item>
@@ -20,7 +20,7 @@
   </nav-bar-item>
   <nav-bar-item href="/coach" :active="true">
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/coach.svg"></svg>
-    <div class="label">Coach</div>
+    <div class="label">{{ $tr('coach') }}</div>
   </nav-bar-item>
 
 </template>
@@ -34,11 +34,11 @@
       learn: 'Learn',
       explore: 'Explore',
       manage: 'Manage',
+      coach: 'Coach'
     },
     components: {
       'nav-bar-item': require('kolibri/coreVue/components/navBarItem'),
     },
-    vuex: {},
   };
 
 </script>

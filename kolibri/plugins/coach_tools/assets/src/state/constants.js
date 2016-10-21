@@ -1,1 +1,10 @@
-// for any strings we're going to be using across the app
+
+// a name for every URL pattern
+const PageNames = {
+  SCRATCHPAD: 'SCRATCHPAD',
+  COACH_ROOT: 'COACH_ROOT',
+};
+
+module.exports = {
+  PageNames,
+};

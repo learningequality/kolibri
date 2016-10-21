@@ -6,11 +6,12 @@ const coreActions = require('kolibri/coreVue/vuex/actions');
 const rootvue = require('./vue');
 const actions = require('./actions');
 const store = require('./state/store');
+const PageNames = require('./state/constants').PageNames;
 
 class CoachToolsModule extends KolibriModule {
   ready() {
     router.on(
-      'HOME',
+      PageNames.COACH_ROOT,
       '/',
       (toRoute, fromRoute) => {
         actions.initializePage(store);
@@ -18,7 +19,7 @@ class CoachToolsModule extends KolibriModule {
     );
 
     router.on(
-      'SCRATCHPAD',
+      PageNames.SCRATCHPAD,
       '/scratchpad',
       (toRoute, fromRoute) => {
         actions.showScratchpad(store);
