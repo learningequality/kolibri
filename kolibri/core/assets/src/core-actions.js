@@ -410,7 +410,8 @@ function stopTrackingProgress(store, Kolibri) {
 }
 
 function saveMasteryLog(store, Kolibri) {
-  const masteryLogModel = Kolibri.resources.MasteryLog.getModel(store.state.core.logging.mastery.id);
+  const masteryLogModel = Kolibri.resources.MasteryLog.getModel(
+    store.state.core.logging.mastery.id);
   masteryLogModel.save(_masteryLogModel(store)).only(
     samePageCheckGenerator(store),
     (newMasteryLog) => {
@@ -448,7 +449,8 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
 }
 
 function saveAttemptLog(store, Kolibri) {
-  const attemptLogModel = Kolibri.resources.AttemptLog.getModel(store.state.core.logging.attempt.id);
+  const attemptLogModel = Kolibri.resources.AttemptLog.getModel(
+    store.state.core.logging.attempt.id);
   attemptLogModel.save(_attemptLogModel(store)).then((newAttemptLog) => {
       // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
       store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
@@ -494,7 +496,8 @@ function initMasteryLog(store, Kolibri, masterySpacingTime, masteryCriterion) {
     // The most recent masterylog is complete, and they completed it more than
     // masterySpacingTime time ago!
     // This means we need to level the user up.
-    createMasteryLog(store, Kolibri, store.state.core.logging.mastery.mastery_level + 1, masteryCriterion);
+    createMasteryLog(
+      store, Kolibri, store.state.core.logging.mastery.mastery_level + 1, masteryCriterion);
   }
 }
 
