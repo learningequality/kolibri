@@ -428,8 +428,8 @@ function saveMasteryLog(store, Kolibri) {
   masteryLogModel.save(_masteryLogModel(store)).only(
     samePageCheckGenerator(store),
     (newMasteryLog) => {
-    // Update store in case an id has been set.
-    store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
+      // Update store in case an id has been set.
+      store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
     }
   );
 }
@@ -455,8 +455,8 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
   masteryLogModel.save(masteryLogModel.attributes).only(
     samePageCheckGenerator(store),
     (newMasteryLog) => {
-    // Update store in case an id has been set.
-    store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
+      // Update store in case an id has been set.
+      store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
     }
   );
 }
@@ -465,8 +465,8 @@ function saveAttemptLog(store, Kolibri) {
   const attemptLogModel = Kolibri.resources.AttemptLog.getModel(
     store.state.core.logging.attempt.id);
   attemptLogModel.save(_attemptLogModel(store)).then((newAttemptLog) => {
-      // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
-      store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
+    // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
+    store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
   });
 }
 
