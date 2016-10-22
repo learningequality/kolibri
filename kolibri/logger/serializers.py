@@ -12,16 +12,19 @@ class ContentSessionLogSerializer(serializers.ModelSerializer):
 class MasteryLogSerializer(serializers.ModelSerializer):
 
     pastattempts = serializers.SerializerMethodField()
+    totalattempts = serializers.SerializerMethodField()
 
     class Meta:
         model = MasteryLog
-        fields = ('id', 'summarylog', 'start_timestamp', 'pastattempts',
+        fields = ('id', 'summarylog', 'start_timestamp', 'pastattempts', 'totalattempts',
                   'end_timestamp', 'completion_timestamp', 'mastery_criterion', 'mastery_level', 'complete')
 
     def get_pastattempts(self, obj):
         # will return a list of the latest 10 correct and hint_taken fields for each attempt.
-        # import pdb; pdb.set_trace()
         return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).values('correct', 'hinted').order_by('-start_timestamp')[:10]
+
+    def get_totalattempts(self, obj):
+        return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).count()
 
 class AttemptLogSerializer(serializers.ModelSerializer):
 

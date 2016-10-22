@@ -25,6 +25,7 @@ const MasteryLoggingMap = {
   responsehistory: 'responsehistory',
   user: 'user',
   pastattempts: 'pastattempts',
+  totalattempts: 'totalattempts',
 };
 
 const AttemptLoggingMap = {
