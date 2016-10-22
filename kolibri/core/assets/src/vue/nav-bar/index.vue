@@ -59,6 +59,6 @@
     height: 100vh
     @media screen and (max-width: $portrait-breakpoint)
       display: table-row
-      height: auto
+      height: $nav-portrait-height
 
 </style>

@@ -3,6 +3,8 @@ const progressThreshold = 0.1; // Update logs if user has reached 20% more progr
 const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
 const intervalTimer = require('./timer');
 const UserKinds = require('./constants').UserKinds;
+const MasteryLoggingMap = require('./constants').MasteryLoggingMap;
+const AttemptLoggingMap = require('./constants').AttemptLoggingMap;
 
 /**
  * Vuex State Mappers
@@ -83,6 +85,46 @@ function _sessionState(data) {
   return state;
 }
 
+function _masteryLogModel(store) {
+  const mapping = {};
+  const masteryLog = store.state.core.logging.mastery;
+  Object.keys(MasteryLoggingMap).forEach((key) => {
+    mapping[MasteryLoggingMap[key]] = masteryLog[key];
+  });
+  mapping.summarylog = store.state.core.logging.summary.id;
+  return mapping;
+}
+
+const attemptLoggingJSONifyKeys = {
+  answer: true,
+  interaction_history: true,
+};
+
+function _attemptLoggingState(data) {
+  const state = {};
+  Object.keys(AttemptLoggingMap).forEach((key) => {
+    if (attemptLoggingJSONifyKeys[key]) {
+      state[key] = JSON.parse(data[AttemptLoggingMap[key]]);
+    } else {
+      state[key] = data[AttemptLoggingMap[key]];
+    }
+  });
+  return state;
+}
+
+function _attemptLogModel(store) {
+  const mapping = {};
+  const attemptLog = store.state.core.logging.attempt;
+  Object.keys(AttemptLoggingMap).forEach((key) => {
+    if (attemptLoggingJSONifyKeys[key]) {
+      mapping[AttemptLoggingMap[key]] = JSON.stringify(attemptLog[key]);
+    } else {
+      mapping[AttemptLoggingMap[key]] = attemptLog[key];
+    }
+  });
+  mapping.masterylog = store.state.core.logging.mastery.id;
+  return mapping;
+}
 
 /**
  * Actions
@@ -166,6 +208,10 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
   const ContentSessionLogResource = Kolibri.resources.ContentSessionLogResource;
   const ContentSummaryLogResource = Kolibri.resources.ContentSummaryLogResource;
 
+  // Always clear the logging state when we init the content session,
+  // to avoid state pollution.
+  store.dispatch('SET_EMPTY_LOGGING_STATE');
+
   /* Create summary log iff user exists */
   if (store.state.core.session.user_id &&
     store.state.core.session.kind[0] !== UserKinds.SUPERUSER) {
@@ -178,6 +224,16 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
       /* If a summary model exists, map that to the state */
       if (summary.length > 0) {
         store.dispatch('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState(summary[0]));
+        if (summary[0].currentmasterylog) {
+          // If a mastery model has been sent along with the summary log payload,
+          // then bootstrap that data into the MasteryLog resource. Cheeky!
+          const masteryModel = Kolibri.resources.MasteryLog.createModel(
+            summary[0].currentmasterylog);
+          masteryModel.synced = true;
+
+          store.dispatch('SET_LOGGING_MASTERY_STATE',
+            summary[0].currentmasterylog);
+        }
       } else {
         /* If a summary model does not exist, create default state */
         store.dispatch('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState({
@@ -345,6 +401,19 @@ function startTrackingProgress(store, Kolibri, interval = intervalTime) {
 
 
 /**
+ * Action inhibition check
+ *
+ * This generator function produces checks that help determine whether the
+ * asynchronous outcomes should still be run based on whether the user is
+ * still on the same page as when the action was first triggered.
+ */
+function samePageCheckGenerator(store) {
+  const pageId = store.state.core.pageSessionId;
+  return () => store.state.core.pageSessionId === pageId;
+}
+
+
+/**
  * Stop interval timer and update latest times
  * Must be called after startTrackingProgress
  */
@@ -353,19 +422,103 @@ function stopTrackingProgress(store, Kolibri) {
   updateTimeSpent(store, Kolibri, true);
 }
 
+function saveMasteryLog(store, Kolibri) {
+  const masteryLogModel = Kolibri.resources.MasteryLog.getModel(
+    store.state.core.logging.mastery.id);
+  masteryLogModel.save(_masteryLogModel(store)).only(
+    samePageCheckGenerator(store),
+    (newMasteryLog) => {
+      // Update store in case an id has been set.
+      store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
+    }
+  );
+}
+
+function setMasteryLogComplete(store, completetime) {
+  store.dispatch('SET_LOGGING_MASTERY_COMPLETE', completetime);
+}
+
+function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
+  const masteryLogModel = Kolibri.resources.MasteryLog.createModel({
+    id: null,
+    summarylog: store.state.core.logging.summary.id,
+    start_timestamp: new Date(),
+    completion_timestamp: null,
+    end_timestamp: null,
+    mastery_level: masteryLevel,
+    complete: false,
+    responsehistory: [],
+    pastattempts: [],
+    mastery_criterion: masteryCriterion,
+    user: store.state.core.session.user_id,
+  });
+  masteryLogModel.save(masteryLogModel.attributes).only(
+    samePageCheckGenerator(store),
+    (newMasteryLog) => {
+      // Update store in case an id has been set.
+      store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
+    }
+  );
+}
+
+function saveAttemptLog(store, Kolibri) {
+  const attemptLogModel = Kolibri.resources.AttemptLog.getModel(
+    store.state.core.logging.attempt.id);
+  attemptLogModel.save(_attemptLogModel(store)).then((newAttemptLog) => {
+    // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
+    store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
+  });
+}
+
+function createAttemptLog(store, Kolibri, itemId, callback) {
+  const attemptLogModel = Kolibri.resources.AttemptLog.createModel({
+    id: null,
+    masterylog: store.state.core.logging.mastery.id || null,
+    start_timestamp: new Date(),
+    completion_timestamp: null,
+    end_timestamp: null,
+    item: itemId,
+    complete: false,
+    time_spent: 0,
+    correct: 0,
+    answer: {},
+    simple_answer: '',
+    interaction_history: [],
+    user: store.state.core.session.user_id,
+    hinted: false,
+  });
+  store.dispatch('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
+  callback();
+}
+
+function updateAttemptLogInteractionHistory(store, interaction) {
+  store.dispatch('UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY', interaction);
+}
 
 /**
- * Action inhibition check
- *
- * This generator function produces checks that help determine whether the
- * asynchronous outcomes should still be run based on whether the user is
- * still on the same page as when the action was first triggered.
+ * Initialize assessment mastery log
  */
-
-function samePageCheckGenerator(store) {
-  const pageId = store.state.core.pageSessionId;
-  return () => store.state.core.pageSessionId === pageId;
+function initMasteryLog(store, Kolibri, masterySpacingTime, masteryCriterion) {
+  if (!store.state.core.logging.mastery.id) {
+    // id has not been set on the masterylog state, so this is undefined.
+    // Either way, we need to create a new masterylog, with a masterylevel of 1!
+    createMasteryLog(store, Kolibri, 1, masteryCriterion);
+  } else if (store.state.core.logging.mastery.complete &&
+    ((new Date() - new Date(store.state.core.logging.mastery.completion_timestamp)) >
+      masterySpacingTime)) {
+    // The most recent masterylog is complete, and they completed it more than
+    // masterySpacingTime time ago!
+    // This means we need to level the user up.
+    createMasteryLog(
+      store, Kolibri, store.state.core.logging.mastery.mastery_level + 1, masteryCriterion);
+  }
 }
+
+function updateMasteryAttemptState(store, currentTime, correct, complete, firstAttempt, hinted) {
+  store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt, hinted);
+  store.dispatch('UPDATE_LOGGING_ATTEMPT', currentTime, correct, complete, hinted);
+}
+
 
 module.exports = {
   handleApiError,
@@ -381,4 +534,11 @@ module.exports = {
   updateProgress,
   saveLogs,
   samePageCheckGenerator,
+  initMasteryLog,
+  saveMasteryLog,
+  setMasteryLogComplete,
+  createAttemptLog,
+  saveAttemptLog,
+  updateMasteryAttemptState,
+  updateAttemptLogInteractionHistory,
 };

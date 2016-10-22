@@ -2,6 +2,13 @@
 
 const UserKinds = require('./constants').UserKinds;
 
+const baseLoggingState = {
+  summary: { progress: 0 },
+  session: {},
+  mastery: {},
+  attempt: {},
+};
+
 // core state is namespaced, and merged with a particular app's state
 const initialState = {
   core: {
@@ -20,10 +27,7 @@ const initialState = {
     loginModalVisible: false,
     loginError: null,
     fullname: '',
-    logging: {
-      summary: { progress: 0 },
-      session: {},
-    },
+    logging: baseLoggingState,
   },
 };
 
@@ -97,6 +101,48 @@ const mutations = {
   SET_LOGGING_THRESHOLD_CHECKS(state, progress, timeSpent) {
     state.core.logging.session.total_time_at_last_save = timeSpent;
     state.core.logging.session.progress_at_last_save = progress;
+  },
+  SET_LOGGING_MASTERY_STATE(state, masteryState) {
+    state.core.logging.mastery = masteryState;
+  },
+  SET_LOGGING_MASTERY_COMPLETE(state, completetime) {
+    state.core.logging.mastery.complete = true;
+    state.core.logging.mastery.completion_timestamp = completetime;
+  },
+  SET_LOGGING_ATTEMPT_STATE(state, attemptState) {
+    state.core.logging.attempt = attemptState;
+  },
+  SET_LOGGING_ATTEMPT_STARTTIME(state, starttime) {
+    state.core.logging.attempt.start_timestamp = starttime;
+  },
+  UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY(state, action) {
+    state.core.logging.attempt.interaction_history.push(action);
+  },
+  UPDATE_LOGGING_MASTERY(state, currentTime, correct, firstAttempt, hinted) {
+    if (firstAttempt) {
+      state.core.logging.mastery.pastattempts.unshift({ correct, hinted });
+    }
+    state.core.logging.mastery.end_timestamp = currentTime;
+  },
+  UPDATE_LOGGING_ATTEMPT(state, currentTime, correct, complete, hinted) {
+    if (complete) {
+      state.core.logging.attempt.completion_timestamp = currentTime;
+      state.core.logging.attempt.complete = true;
+    } else {
+      state.core.logging.attempt.completion_timestamp = null;
+      state.core.logging.attempt.complete = false;
+    }
+    state.core.logging.attempt.correct = correct;
+    state.core.logging.attempt.hinted = hinted;
+    state.core.logging.attempt.end_timestamp = currentTime;
+    let starttime = state.core.logging.attempt.start_timestamp;
+    if (typeof starttime === 'string') {
+      starttime = new Date(starttime);
+    }
+    state.core.logging.attempt.time_spent = currentTime - starttime;
+  },
+  SET_EMPTY_LOGGING_STATE(state) {
+    state.core.logging = baseLoggingState;
   },
 };
 

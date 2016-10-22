@@ -18,7 +18,7 @@
 
     <p class="page-description">{{ description }}</p>
 
-    <download-button :files="files"></download-button>
+    <download-button v-if="canDownload" :files="files"></download-button>
 
     <expandable-content-grid
       class="recommendation-section"
@@ -36,6 +36,7 @@
 
   const constants = require('../../state/constants');
   const getters = require('../../state/getters');
+  const ContentKinds = require('kolibri/coreVue/vuex/constants').ContentKinds;
 
   module.exports = {
     $trNameSpace: 'learnContent',
@@ -43,6 +44,7 @@
       recommended: 'Recommended',
     },
     computed: {
+      canDownload() { return this.kind !== ContentKinds.EXERCISE; },
       recommendedText() {
         return this.$tr('recommended');
       },
@@ -86,9 +88,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri/styles/coreTheme'
-
-  .content-renderer
-    height: 60vh
 
   .recommendation-section
     margin-top: 4em
