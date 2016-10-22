@@ -8,14 +8,19 @@
         <h2 class="title">{{ $tr('deviceOwner') }}</h2>
         <div class="description">{{ $tr('deviceOwnerDescription') }}</div>
         <div class="creation-form">
-          <br><input :class="{ 'input-error': username_error }" type="text" v-model="username" :placeholder="$tr('username')" :aria-label="$tr('username')"><br>
-          <br><input :class="{ 'input-error': password_error }" type="password" v-model="password" :placeholder="$tr('password')" :aria-label="$tr('password')"><br>
-          <br><input :class="{ 'input-error': password_error }" type="password" v-model="confirm_password" :placeholder="$tr('confirmPassword')" :aria-label="$tr('confirmPassword')">
+          <h3>{{ $tr('username') }}:</h3>
+          <input :class="{ 'input-error': username_error }" type="text" v-model="username" :aria-label="$tr('username')">
+          <h3>{{ $tr('password') }}:</h3>
+          <input :class="{ 'input-error': password_error }" type="password" v-model="password" :aria-label="$tr('password')">
+          <h3>{{ $tr('confirmPassword') }}:</h3>
+          <input :class="{ 'input-error': password_error }" type="password" v-model="confirm_password" :aria-label="$tr('confirmPassword')">
           <p class="error-message">{{ errormessage }}</p>
         </div>
         <h2 class="title">{{ $tr('facility') }}</h2>
         <div class="description">{{ $tr('facilityDescription') }}</div>
-        <br><input :class="{ 'input-error': facility_error }" type="text" v-model="facility" :placeholder="$tr('facilityName')" :aria-label="$tr('facilityName')"><br>
+        <h3>{{ $tr('facilityName') }}:</h3>
+        <input :class="{ 'input-error': facility_error }" type="text" v-model="facility" :aria-label="$tr('facilityName')">
+        <br>
         <br>
         <br>
         <div class="btn-wrapper">
@@ -37,7 +42,7 @@
   module.exports = {
     $trNameSpace: 'setupWizard',
     $trs: {
-      header: 'Create Kolibri Device Owner and Facility',
+      header: 'Create Device Owner and Facility',
       deviceOwner: 'Recommended',
       deviceOwnerDescription: 'To use Kolibri, you first need to create a Device Owner account. This account will be used to configure high-level settings for this installation, and create other administrator accounts.', // eslint-disable-line max-len
       username: 'Username',
@@ -127,6 +132,9 @@
   h2.title
     font-size: 14px
     font-weight: bold
+  h3
+    font-size: 14px
+    color: $core-action-normal
   .description
     font-size: 12px
     color: $core-text-annotation
@@ -144,6 +152,9 @@
     border-radius: $radius
     padding: 6px
     background-color: $core-bg-canvas
+    border-color: $core-action-light
+  input:focus
+    background-color: #DAEFE5
   .input-error
     border-width: 2px
     border-color: $core-text-alert
