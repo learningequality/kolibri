@@ -302,21 +302,31 @@ function showLearnChannel(store, channelId) {
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
   const sessionPromise = sessionModel.fetch();
+
   sessionPromise.then(
     (session) => {
       const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
       const popularPayload = { popular: session.user_id, channel: channelId };
       const resumePayload = { resume: session.user_id, channel: channelId };
+      const allContentPayload = { kind: 'content', channel: channelId };
       const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
       const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
       const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
+      const allContentPromise = ContentNodeResource.getPagedCollection(allContentPayload, 3, 1).fetch();
       _updateChannelList(store);
-      ConditionalPromise.all([nextStepsPromise, popularPromise, resumePromise]).only(
+      ConditionalPromise.all(
+        [nextStepsPromise, popularPromise, resumePromise, allContentPromise]
+      ).only(
         samePageCheckGenerator(store),
-        ([nextSteps, popular, resume]) => {
-          const pageState = { recommendations: { nextSteps: nextSteps.map(_contentState),
-                                                 popular: popular.map(_contentState),
-                                                 resume: resume.map(_contentState) } };
+        ([nextSteps, popular, resume, allContent]) => {
+          const pageState = {
+            recommendations: {
+              nextSteps: nextSteps.map(_contentState),
+              popular: popular.map(_contentState),
+              resume: resume.map(_contentState)
+            },
+            allContent: allContent.map(_contentState),
+          };
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
