@@ -32,6 +32,7 @@ function _topicState(data) {
     title: data.title,
     description: data.description,
     breadcrumbs: _crumbState(data.ancestors),
+    next_content: data.next_content,
   };
   return state;
 }
@@ -57,6 +58,7 @@ function _contentState(data) {
     progress,
     content_id: data.content_id,
     breadcrumbs: _crumbState(data.ancestors),
+    next_content: data.next_content,
   };
   return state;
 }
