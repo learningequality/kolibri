@@ -292,7 +292,7 @@ function showExploreContent(store, channelId, id) {
 }
 
 
-function showLearnChannel(store, channelId) {
+function showLearnChannel(store, channelId, allContentPage) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
@@ -308,14 +308,16 @@ function showLearnChannel(store, channelId) {
       const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
       const popularPayload = { popular: session.user_id, channel: channelId };
       const resumePayload = { resume: session.user_id, channel: channelId };
-      const allContentPayload = { kind: 'content', channel: channelId };
+      const allPayload = { kind: 'content', channel: channelId };
       const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
       const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
       const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
-      const allContentPromise = ContentNodeResource.getPagedCollection(allContentPayload, 3, 1).fetch();
+
+      const page = allContentPage ? allContentPage : 1;
+      const allPromise = ContentNodeResource.getPagedCollection(allPayload, 3, page).fetch();
       _updateChannelList(store);
       ConditionalPromise.all(
-        [nextStepsPromise, popularPromise, resumePromise, allContentPromise]
+        [nextStepsPromise, popularPromise, resumePromise, allPromise]
       ).only(
         samePageCheckGenerator(store),
         ([nextSteps, popular, resume, allContent]) => {
