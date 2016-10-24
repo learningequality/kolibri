@@ -1,7 +1,10 @@
 <template>
 
   <div>
-    <h3 v-if="header" class="header">{{header}}</h3>
+    <div class="header">
+      <h3 v-if="header">{{header}}</h3>
+      <slot name="headerbox"></slot>
+    </div>
     <div class="card-grid">
       <slot></slot>
     </div>
@@ -63,6 +66,9 @@
   .header
     margin-top: 2em
     margin-bottom: 1.4em
+
+  .header h3
+    display: inline
 
   .card-grid
     cf()

@@ -292,7 +292,7 @@ function showExploreContent(store, channelId, id) {
 }
 
 
-function showLearnChannel(store, channelId, allContentPage) {
+function showLearnChannel(store, channelId, page = 1) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
@@ -303,6 +303,8 @@ function showLearnChannel(store, channelId, allContentPage) {
   const sessionModel = SessionResource.getModel(id);
   const sessionPromise = sessionModel.fetch();
 
+  const ALL_PAGE_SIZE = 3;
+
   sessionPromise.then(
     (session) => {
       const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
@@ -312,9 +314,12 @@ function showLearnChannel(store, channelId, allContentPage) {
       const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
       const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
       const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
-
-      const page = allContentPage ? allContentPage : 1;
-      const allPromise = ContentNodeResource.getPagedCollection(allPayload, 3, page).fetch();
+      const allContentResource = ContentNodeResource.getPagedCollection(
+        allPayload,
+        ALL_PAGE_SIZE,
+        page
+      );
+      const allPromise = allContentResource.fetch();
       _updateChannelList(store);
       ConditionalPromise.all(
         [nextStepsPromise, popularPromise, resumePromise, allPromise]
@@ -325,13 +330,22 @@ function showLearnChannel(store, channelId, allContentPage) {
             recommendations: {
               nextSteps: nextSteps.map(_contentState),
               popular: popular.map(_contentState),
-              resume: resume.map(_contentState)
+              resume: resume.map(_contentState),
             },
-            allContent: allContent.map(_contentState),
+            all: {
+              content: allContent.map(_contentState),
+              pageCount: allContentResource.pageCount,
+              page,
+            },
           };
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
+
+          // preload next page
+          if (allContentResource.hasNext) {
+            ContentNodeResource.getPagedCollection(allPayload, ALL_PAGE_SIZE, page + 1).fetch();
+          }
         },
         (error) => {
           store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
