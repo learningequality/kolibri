@@ -41,7 +41,7 @@ def _get_mocked_os_system(cmd_resp):
             raise Exception("os.system called for an unmocked command '{}'!".format(cmd))
 
         with open(output_path, 'w') as f:
-            f.write(cmd_resp[cmd])
+            f.write(cmd_resp[cmd].encode('utf-16'))
 
     return mock_os_system
 
