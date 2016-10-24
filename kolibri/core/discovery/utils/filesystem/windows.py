@@ -1,8 +1,9 @@
-import csv
 import logging
 import os
 import tempfile
 import uuid
+
+import unicodecsv as csv
 
 from .constants import drivetypes
 
