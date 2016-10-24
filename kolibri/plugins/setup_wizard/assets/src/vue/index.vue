@@ -8,17 +8,17 @@
         <h2 class="title">{{ $tr('deviceOwner') }}</h2>
         <div class="description">{{ $tr('deviceOwnerDescription') }}</div>
         <div class="creation-form">
-          <h3>{{ $tr('username') }}:</h3>
+          <label class="inputlable">{{ $tr('username') }}:</label>
           <input :class="{ 'input-error': username_error }" type="text" v-model="username" :aria-label="$tr('username')">
-          <h3>{{ $tr('password') }}:</h3>
+          <label class="inputlable">{{ $tr('password') }}:</label>
           <input :class="{ 'input-error': password_error }" type="password" v-model="password" :aria-label="$tr('password')">
-          <h3>{{ $tr('confirmPassword') }}:</h3>
+          <label class="inputlable">{{ $tr('confirmPassword') }}:</label>
           <input :class="{ 'input-error': password_error }" type="password" v-model="confirm_password" :aria-label="$tr('confirmPassword')">
           <p class="error-message">{{ errormessage }}</p>
         </div>
         <h2 class="title">{{ $tr('facility') }}</h2>
         <div class="description">{{ $tr('facilityDescription') }}</div>
-        <h3>{{ $tr('facilityName') }}:</h3>
+        <label class="inputlable">{{ $tr('facilityName') }}:</label>
         <input :class="{ 'input-error': facility_error }" type="text" v-model="facility" :aria-label="$tr('facilityName')">
         <br>
         <br>
@@ -43,7 +43,7 @@
     $trNameSpace: 'setupWizard',
     $trs: {
       header: 'Create Device Owner and Facility',
-      deviceOwner: 'Recommended',
+      deviceOwner: 'Device Owner',
       deviceOwnerDescription: 'To use Kolibri, you first need to create a Device Owner account. This account will be used to configure high-level settings for this installation, and create other administrator accounts.', // eslint-disable-line max-len
       username: 'Username',
       password: 'Password',
@@ -132,9 +132,12 @@
   h2.title
     font-size: 14px
     font-weight: bold
-  h3
+  .inputlable
     font-size: 14px
     color: $core-action-normal
+    margin-top: 8px
+    margin-bottom: 4px
+    display: inline-block
   .description
     font-size: 12px
     color: $core-text-annotation
