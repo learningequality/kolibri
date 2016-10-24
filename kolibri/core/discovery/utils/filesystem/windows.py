@@ -52,6 +52,12 @@ def get_drive_list():
 
     return drives
 
+def _output_path():
+    return os.path.join(
+        tempfile.gettempdir(),
+        "kolibri_disks-{}.txt".format(uuid.uuid4())
+    )
+
 def _wmic_output():
     """
     Returns the output from running the built-in `wmic` command.
@@ -62,10 +68,7 @@ def _wmic_output():
     happening because the script is not being run as a main process.)
     """
 
-    OUTPUT_PATH = os.path.join(
-        tempfile.gettempdir(),
-        "kolibri_disks-{}.txt".format(uuid.uuid4())
-    )
+    OUTPUT_PATH = _output_path()
 
     cmd = "wmic logicaldisk list full /format:csv > {}".format(OUTPUT_PATH)
     returnCode = os.system(cmd)

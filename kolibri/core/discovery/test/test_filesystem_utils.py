@@ -136,6 +136,10 @@ def patch_os_path_exists_for_kolibri_folder(folder_lookup):
     return wrapper
 
 
+def mocked_output_path():
+    return 'output.txt'
+
+
 class WindowsFilesystemTestCase(TestCase):
     """
     Test retrieval and parsing of disk info for Windows, using mocked command output.
@@ -146,6 +150,7 @@ class WindowsFilesystemTestCase(TestCase):
     @patch_os_path_exists_for_kolibri_folder(windows_data.has_kolibri_data_folder)
     @patch("sys.platform", "win32")
     @patch("os.path", ntpath)
+    @patch("kolibri.core.discovery.utils.filesystem.windows._output_path", mocked_output_path)
     def setUp(self):
         self.drives = enumerate_mounted_disk_partitions()
         self.c_drive = self.drives["3bd36621a8f83b8693a9443bca0f6249"]
