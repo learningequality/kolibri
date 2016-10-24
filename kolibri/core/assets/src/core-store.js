@@ -120,6 +120,7 @@ const mutations = {
   },
   UPDATE_LOGGING_MASTERY(state, currentTime, correct, firstAttempt, hinted) {
     if (firstAttempt) {
+      state.core.logging.mastery.totalattempts++;
       state.core.logging.mastery.pastattempts.unshift({ correct, hinted });
     }
     state.core.logging.mastery.end_timestamp = currentTime;
