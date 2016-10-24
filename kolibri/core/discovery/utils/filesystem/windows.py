@@ -1,3 +1,4 @@
+import io
 import logging
 import os
 import tempfile
@@ -71,7 +72,7 @@ def _wmic_output():
     if returnCode:
         raise Exception("Could not run command '{}'".format(cmd))
 
-    with open(OUTPUT_PATH, 'r', encoding='utf-16') as f:
+    with io.open(OUTPUT_PATH, 'r', encoding='utf-16') as f:
         output = f.read()
 
     os.remove(OUTPUT_PATH)
