@@ -34,7 +34,7 @@
       learn: 'Learn',
       explore: 'Explore',
       manage: 'Manage',
-      coach: 'Coach'
+      coach: 'Coach',
     },
     components: {
       'nav-bar-item': require('kolibri/coreVue/components/navBarItem'),
