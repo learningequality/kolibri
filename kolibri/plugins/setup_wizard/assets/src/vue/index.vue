@@ -8,18 +8,18 @@
         <h2 class="title">{{ $tr('deviceOwner') }}</h2>
         <div class="description">{{ $tr('deviceOwnerDescription') }}</div>
         <div class="creation-form">
-          <label class="inputlable">{{ $tr('username') }}:</label>
-          <input :class="{ 'input-error': username_error }" type="text" v-model="username" :aria-label="$tr('username')">
-          <label class="inputlable">{{ $tr('password') }}:</label>
-          <input :class="{ 'input-error': password_error }" type="password" v-model="password" :aria-label="$tr('password')">
-          <label class="inputlable">{{ $tr('confirmPassword') }}:</label>
-          <input :class="{ 'input-error': password_error }" type="password" v-model="confirm_password" :aria-label="$tr('confirmPassword')">
-          <p class="error-message">{{ errormessage }}</p>
+          <p class="error-message" role="alert" aria-atomic="true">{{ errormessage }}</p>
+          <label for="nameinput" class="inputlabel">{{ $tr('username') }}:</label>
+          <input id="nameinput" :class="{ 'input-error': username_error }" type="text" v-model="username">
+          <label for="passwordinput" class="inputlabel">{{ $tr('password') }}:</label>
+          <input id="passwordinput" :class="{ 'input-error': password_error }" type="password" v-model="password">
+          <label for="confirminput" class="inputlabel">{{ $tr('confirmPassword') }}:</label>
+          <input id="confirminput" :class="{ 'input-error': password_error }" type="password" v-model="confirm_password">
         </div>
         <h2 class="title">{{ $tr('facility') }}</h2>
         <div class="description">{{ $tr('facilityDescription') }}</div>
-        <label class="inputlable">{{ $tr('facilityName') }}:</label>
-        <input :class="{ 'input-error': facility_error }" type="text" v-model="facility" :aria-label="$tr('facilityName')">
+        <label for="facilityinput" class="inputlabel">{{ $tr('facilityName') }}:</label>
+        <input id="facilityinput" :class="{ 'input-error': facility_error }" type="text" v-model="facility">
         <br>
         <br>
         <br>
@@ -132,7 +132,7 @@
   h2.title
     font-size: 14px
     font-weight: bold
-  .inputlable
+  .inputlabel
     font-size: 14px
     color: $core-action-normal
     margin-top: 8px
