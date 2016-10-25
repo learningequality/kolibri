@@ -449,6 +449,7 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
     complete: false,
     responsehistory: [],
     pastattempts: [],
+    totalattempts: 0,
     mastery_criterion: masteryCriterion,
   });
   masteryLogModel.save(masteryLogModel.attributes).only(
