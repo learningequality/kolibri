@@ -1,9 +1,10 @@
 <template>
 
   <div>
-    <page-header :title="learnName">
+    <page-header :title="$tr('learnName')">
       <svg slot="icon" class="pageicon" src="../icons/learn.svg"></svg>
     </page-header>
+    <allcontent></allcontent>
     <expandable-content-grid
       :contents="recommendations.popular"
       :title="'Most Popular'">
@@ -25,17 +26,12 @@
 
   module.exports = {
     $trNameSpace: 'learnIndex',
-
     $trs: {
       learnName: 'Learn',
     },
-    computed: {
-      learnName() {
-        return this.$tr('learnName');
-      },
-    },
     components: {
       'page-header': require('../page-header'),
+      'allcontent': require('./allcontent'),
       'expandable-content-grid': require('../expandable-content-grid'),
     },
     vuex: {
