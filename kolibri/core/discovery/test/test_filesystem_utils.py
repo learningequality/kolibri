@@ -28,6 +28,7 @@ def _get_mocked_popen(cmd_resp):
 
     return MockedPopen
 
+
 def _get_mocked_disk_usage(disk_sizes):
 
     def mock_disk_usage(path):
@@ -49,6 +50,7 @@ def _get_mocked_disk_usage(disk_sizes):
 
     return mock_disk_usage
 
+
 class patch_popen(object):
 
     def __init__(self, cmd_resp):
@@ -56,8 +58,8 @@ class patch_popen(object):
 
     def __call__(self, f):
         f = patch("subprocess.Popen", self.mocked_popen)(f)
-        f = patch("os.popen", self.mocked_popen)(f)
         return f
+
 
 class patch_disk_usage(object):
 
@@ -111,16 +113,20 @@ def patch_os_path_exists_for_kolibri_folder(folder_lookup):
     return wrapper
 
 
+def mocked_wmic_output():
+    return windows_data.wmic_csv
+
+
 class WindowsFilesystemTestCase(TestCase):
     """
     Test retrieval and parsing of disk info for Windows, using mocked command output.
     """
 
-    @patch_popen(windows_data.popen_responses)
     @patch_os_access(windows_data.os_access_read, windows_data.os_access_write)
     @patch_os_path_exists_for_kolibri_folder(windows_data.has_kolibri_data_folder)
     @patch("sys.platform", "win32")
     @patch("os.path", ntpath)
+    @patch("kolibri.core.discovery.utils.filesystem.windows._wmic_output", mocked_wmic_output)
     def setUp(self):
         self.drives = enumerate_mounted_disk_partitions()
         self.c_drive = self.drives["3bd36621a8f83b8693a9443bca0f6249"]

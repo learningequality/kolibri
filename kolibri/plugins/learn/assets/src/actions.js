@@ -248,9 +248,16 @@ function showExploreContent(store, channelId, id) {
 }
 
 
-function showLearnChannel(store, channelId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+function showLearnChannel(store, channelId, page = 1) {
+  // Special case for when only the page number changes:
+  // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
+  const state = store.state;
+  if (state.pageName !== PageNames.LEARN_CHANNEL || state.currentChannel !== channelId) {
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+  }
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
+
+  const ALL_PAGE_SIZE = 3;
 
   const sessionPromise = SessionResource.getModel('current').fetch();
   const channelsPromise = ChannelResource.getCollection({}).fetch();
@@ -264,20 +271,44 @@ function showLearnChannel(store, channelId) {
       const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
       const popularPayload = { popular: session.user_id, channel: channelId };
       const resumePayload = { resume: session.user_id, channel: channelId };
+      const allPayload = { kind: 'content', channel: channelId };
       const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
       const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
       const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
-      ConditionalPromise.all([nextStepsPromise, popularPromise, resumePromise]).only(
+      const allContentResource = ContentNodeResource.getPagedCollection(
+        allPayload,
+        ALL_PAGE_SIZE,
+        page
+      );
+      const allPromise = allContentResource.fetch();
+      ConditionalPromise.all(
+        [nextStepsPromise, popularPromise, resumePromise, allPromise]
+      ).only(
         samePageCheckGenerator(store),
-        ([nextSteps, popular, resume, channelList]) => {
-          const pageState = { recommendations: { nextSteps: nextSteps.map(_contentState),
-                                                 popular: popular.map(_contentState),
-                                                 resume: resume.map(_contentState) } };
+        ([nextSteps, popular, resume, allContent]) => {
+          const pageState = {
+            recommendations: {
+              nextSteps: nextSteps.map(_contentState),
+              popular: popular.map(_contentState),
+              resume: resume.map(_contentState),
+            },
+            all: {
+              content: allContent.map(_contentState),
+              pageCount: allContentResource.pageCount,
+              page,
+            },
+          };
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
+
           const currentChannel = getters.currentChannel(store.state);
           store.dispatch('CORE_SET_TITLE', `Learn - ${currentChannel.title}`);
+
+          // preload next page
+          if (allContentResource.hasNext) {
+            ContentNodeResource.getPagedCollection(allPayload, ALL_PAGE_SIZE, page + 1).fetch();
+          }
         },
         error => { coreActions.handleApiError(store, error); }
       );
