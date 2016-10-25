@@ -141,7 +141,8 @@ class AttemptLog(AbstractFacilityDataModel):
     end_timestamp = models.DateTimeField()
     completion_timestamp = models.DateTimeField(blank=True, null=True)
     # Which mastery log was this attemptlog associated with?
-    masterylog = models.ForeignKey(MasteryLog, related_name="attemptlogs")
+    masterylog = models.ForeignKey(MasteryLog, related_name="attemptlogs", blank=True, null=True)
+    sessionlog = models.ForeignKey(ContentSessionLog, related_name="attemptlogs")
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     complete = models.BooleanField(default=False)
     # How correct was their answer? In simple cases, just 0 or 1.

@@ -473,6 +473,7 @@ function createAttemptLog(store, Kolibri, itemId, callback) {
   const attemptLogModel = Kolibri.resources.AttemptLog.createModel({
     id: null,
     masterylog: store.state.core.logging.mastery.id || null,
+    sessionlog: store.state.core.logging.session.id,
     start_timestamp: new Date(),
     completion_timestamp: null,
     end_timestamp: null,

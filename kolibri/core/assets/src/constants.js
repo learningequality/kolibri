@@ -29,6 +29,7 @@ const MasteryLoggingMap = {
 
 const AttemptLoggingMap = {
   id: 'id',
+  sessionlog: 'sessionlog',
   item: 'item',
   start_timestamp: 'start_timestamp',
   completion_timestamp: 'completion_timestamp',
