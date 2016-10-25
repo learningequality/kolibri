@@ -2,7 +2,7 @@
 
   <card-grid :header="'All Content'" v-if="all.content.length">
 
-    <div slot="headerbox" class="allnav">
+    <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 
       <a v-if="hasPrev" v-link="prevPageLink" class="allnav-item">{{ $tr('prev') }}</a>
       <span v-else class="allnav-item allnav-disabled">{{ $tr('prev') }}</span>
@@ -35,6 +35,7 @@
     $trs: {
       prev: 'Previous',
       next: 'Next',
+      pagesLabel: 'Browse all content',
     },
     computed: {
       hasNext() {
