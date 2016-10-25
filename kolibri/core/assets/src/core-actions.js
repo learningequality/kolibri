@@ -461,6 +461,27 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
   );
 }
 
+function createDummyMasteryLog(store, Kolibri) {
+  /*
+  Create a client side masterylog for anonymous user for tracking attempt-progress.
+  This masterylog will never be saved in the database.
+  */
+  const masteryLogModel = Kolibri.resources.MasteryLog.createModel({
+    id: null,
+    summarylog: null,
+    start_timestamp: null,
+    completion_timestamp: null,
+    end_timestamp: null,
+    mastery_level: null,
+    complete: false,
+    responsehistory: [],
+    pastattempts: [],
+    mastery_criterion: null,
+    totalattempts: 0,
+  });
+  store.dispatch('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
+}
+
 function saveAttemptLog(store, Kolibri) {
   const attemptLogModel = Kolibri.resources.AttemptLog.getModel(
     store.state.core.logging.attempt.id);
@@ -488,7 +509,7 @@ function createAttemptLog(store, Kolibri, itemId, callback) {
     hinted: false,
   });
   store.dispatch('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
-  callback();
+  callback(); // to signal that this attemptlog is created.
 }
 
 function updateAttemptLogInteractionHistory(store, interaction) {
@@ -537,6 +558,7 @@ module.exports = {
   initMasteryLog,
   saveMasteryLog,
   setMasteryLogComplete,
+  createDummyMasteryLog,
   createAttemptLog,
   saveAttemptLog,
   updateMasteryAttemptState,
