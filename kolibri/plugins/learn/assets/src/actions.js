@@ -293,7 +293,12 @@ function showExploreContent(store, channelId, id) {
 
 
 function showLearnChannel(store, channelId, page = 1) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  // Special case for when only the page number changes:
+  // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
+  const state = store.state;
+  if (state.pageName !== PageNames.LEARN_CHANNEL || state.currentChannel !== channelId) {
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+  }
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
   store.dispatch('SET_CURRENT_CHANNEL', channelId);
   cookiejs.set('currentChannel', channelId);
