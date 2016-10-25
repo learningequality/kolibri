@@ -450,7 +450,6 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
     responsehistory: [],
     pastattempts: [],
     mastery_criterion: masteryCriterion,
-    user: store.state.core.session.user_id,
   });
   masteryLogModel.save(masteryLogModel.attributes).only(
     samePageCheckGenerator(store),
@@ -484,7 +483,6 @@ function createAttemptLog(store, Kolibri, itemId, callback) {
     answer: {},
     simple_answer: '',
     interaction_history: [],
-    user: store.state.core.session.user_id,
     hinted: false,
   });
   store.dispatch('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);

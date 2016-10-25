@@ -19,13 +19,11 @@ from kolibri.content.models import UUIDField
 from .permissions import AnyoneCanWriteAnonymousLogs
 
 
-class BaseLogModel(AbstractFacilityDataModel):
+def log_permissions(user_field):
 
-    user_field = "user"
-
-    permissions = (
-        AnyoneCanWriteAnonymousLogs() |
-        IsOwn() |
+    return (
+        AnyoneCanWriteAnonymousLogs(field_name=user_field) |
+        IsOwn(field_name=user_field) |
         RoleBasedPermissions(
             target_field=user_field,
             can_be_created_by=(role_kinds.ADMIN,),
@@ -34,6 +32,11 @@ class BaseLogModel(AbstractFacilityDataModel):
             can_be_deleted_by=(role_kinds.ADMIN,),
         )
     )
+
+
+class BaseLogModel(AbstractFacilityDataModel):
+
+    permissions = log_permissions("user_id")
 
     class Meta:
         abstract = True
@@ -105,7 +108,8 @@ class MasteryLog(BaseLogModel):
     """
     This model provides a summary of a user's engagement with an assessment within a mastery level
     """
-    user = models.ForeignKey(FacilityUser, blank=True, null=True)
+    permissions = log_permissions("summarylog__user_id")
+
     # Every MasteryLog is related to the single summary log for the user/content pair
     summarylog = models.ForeignKey(ContentSummaryLog, related_name="masterylogs")
     # The MasteryLog records the mastery criterion that has been specified for the user.
@@ -120,17 +124,16 @@ class MasteryLog(BaseLogModel):
     # Has this mastery level been completed?
     complete = models.BooleanField(default=False)
 
-    user_field = "summarylog__user"
-
     def infer_dataset(self):
         return self.summarylog.dataset
 
-class AttemptLog(BaseLogModel):
+class AttemptLog(AbstractFacilityDataModel):
     """
     This model provides a summary of a user's engagement within a particular interaction with an
     item in an assessment
     """
-    user = models.ForeignKey(FacilityUser, blank=True, null=True)
+    permissions = log_permissions("sessionlog__user_id")
+
     # Unique identifier within the relevant assessment for the particular question/item
     # that this attemptlog is a record of an interaction with.
     item = models.CharField(max_length=200)
@@ -152,7 +155,5 @@ class AttemptLog(BaseLogModel):
     # with this assessment item in this attempt.
     interaction_history = models.TextField()
 
-    user_field = "masterylog__summarylog__user"
-
     def infer_dataset(self):
-        return self.masterylog.dataset
+        return self.sessionlog.dataset
