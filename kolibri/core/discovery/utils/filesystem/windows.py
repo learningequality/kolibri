@@ -1,10 +1,9 @@
+import csv
 import io
 import logging
 import os
 import tempfile
 import uuid
-
-import unicodecsv as csv
 
 from .constants import drivetypes
 
@@ -52,11 +51,6 @@ def get_drive_list():
 
     return drives
 
-def _output_path():
-    return os.path.join(
-        tempfile.gettempdir(),
-        "kolibri_disks-{}.txt".format(uuid.uuid4())
-    )
 
 def _wmic_output():
     """
@@ -68,7 +62,10 @@ def _wmic_output():
     happening because the script is not being run as a main process.)
     """
 
-    OUTPUT_PATH = _output_path()
+    OUTPUT_PATH = os.path.join(
+        tempfile.gettempdir(),
+        "kolibri_disks-{}.txt".format(uuid.uuid4())
+    )
 
     cmd = "wmic logicaldisk list full /format:csv > {}".format(OUTPUT_PATH)
     returnCode = os.system(cmd)

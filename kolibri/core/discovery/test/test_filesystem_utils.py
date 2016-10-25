@@ -28,22 +28,6 @@ def _get_mocked_popen(cmd_resp):
 
     return MockedPopen
 
-def _get_mocked_os_system(cmd_resp):
-
-    def mock_os_system(full_cmd):
-
-        if ' > ' not in full_cmd:
-            raise Exception("os.system run for '{}' without '>' output redirection".format(full_cmd))
-
-        cmd, output_path = full_cmd.split(' > ')
-
-        if cmd not in cmd_resp:
-            raise Exception("os.system called for an unmocked command '{}'!".format(cmd))
-
-        with open(output_path, 'w') as f:
-            f.write(cmd_resp[cmd].encode('utf-16'))
-
-    return mock_os_system
 
 def _get_mocked_disk_usage(disk_sizes):
 
@@ -66,6 +50,7 @@ def _get_mocked_disk_usage(disk_sizes):
 
     return mock_disk_usage
 
+
 class patch_popen(object):
 
     def __init__(self, cmd_resp):
@@ -75,14 +60,6 @@ class patch_popen(object):
         f = patch("subprocess.Popen", self.mocked_popen)(f)
         return f
 
-class patch_os_system(object):
-
-    def __init__(self, cmd_resp):
-        self.mocked_os_system = _get_mocked_os_system(cmd_resp)
-
-    def __call__(self, f):
-        f = patch("os.system", self.mocked_os_system)(f)
-        return f
 
 class patch_disk_usage(object):
 
@@ -136,8 +113,8 @@ def patch_os_path_exists_for_kolibri_folder(folder_lookup):
     return wrapper
 
 
-def mocked_output_path():
-    return 'output.txt'
+def mocked_wmic_output():
+    return windows_data.wmic_csv
 
 
 class WindowsFilesystemTestCase(TestCase):
@@ -145,12 +122,11 @@ class WindowsFilesystemTestCase(TestCase):
     Test retrieval and parsing of disk info for Windows, using mocked command output.
     """
 
-    @patch_os_system(windows_data.os_system_responses)
     @patch_os_access(windows_data.os_access_read, windows_data.os_access_write)
     @patch_os_path_exists_for_kolibri_folder(windows_data.has_kolibri_data_folder)
     @patch("sys.platform", "win32")
     @patch("os.path", ntpath)
-    @patch("kolibri.core.discovery.utils.filesystem.windows._output_path", mocked_output_path)
+    @patch("kolibri.core.discovery.utils.filesystem.windows._wmic_output", mocked_wmic_output)
     def setUp(self):
         self.drives = enumerate_mounted_disk_partitions()
         self.c_drive = self.drives["3bd36621a8f83b8693a9443bca0f6249"]
