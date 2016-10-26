@@ -19,7 +19,7 @@
 
 <script>
 
-  const constants = require('kolibri/coreVue/vuex/constants');
+  const constants = require('../../state/constants');
   const PageNames = constants.PageNames;
   const PageModes = constants.PageModes;
   const getters = require('../../state/getters');

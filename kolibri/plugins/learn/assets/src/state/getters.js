@@ -1,5 +1,5 @@
 
-const constants = require('kolibri/coreVue/vuex/constants');
+const constants = require('./constants');
 
 
 function pageMode(state) {

@@ -1,7 +1,3 @@
-/*
-this constants.js file should be deprecated!
-Use the `kolibri/coreVue/vuex/constants` instead.
-*/
 
 // a name for every URL pattern
 const PageNames = {
