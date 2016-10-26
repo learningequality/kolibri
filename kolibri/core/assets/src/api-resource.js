@@ -252,6 +252,8 @@ class Collection {
                 // such.
                 this.set(response.entity.results);
                 this.pageCount = Math.ceil(response.entity.count / this.pageSize);
+                this.hasNext = Boolean(response.entity.next);
+                this.hasPrev = Boolean(response.entity.previous);
               } else {
                 // It's all gone a bit Pete Tong.
                 logging.debug('Data appears to be malformed', response.entity);
@@ -397,11 +399,9 @@ class Resource {
    * @returns {Collection} - Returns an instantiated Collection object.
    */
   getPagedCollection(params = {}, pageSize = 20, page = 1) {
-    Object.assign(params, {
-      page,
-      page_size: pageSize,
-    });
-    const collection = this.getCollection(params);
+    const pagedParams = { page, page_size: pageSize };
+    Object.assign(pagedParams, params);
+    const collection = this.getCollection(pagedParams);
     collection.page = page;
     collection.pageSize = pageSize;
     return collection;
