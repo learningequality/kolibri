@@ -521,6 +521,7 @@ function updateMasteryAttemptState(store, currentTime, correct, complete, firstA
 
 
 module.exports = {
+  handleError,
   handleApiError,
   kolibriLogin,
   kolibriLogout,
