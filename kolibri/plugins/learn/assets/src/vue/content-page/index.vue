@@ -16,6 +16,8 @@
       :extra-fields="extraFields">
     </content-render>
 
+    <icon-button v-link="nextContent()" v-if="progress === 1" class="next-btn">{{ $tr("nextContent") }}<svg class="right-arrow" src="../icons/arrow_right.svg"></svg></icon-button>
+
     <p class="page-description">{{ description }}</p>
 
     <download-button v-if="canDownload" :files="files"></download-button>
@@ -42,6 +44,7 @@
     $trNameSpace: 'learnContent',
     $trs: {
       recommended: 'Recommended',
+      nextContent: 'Next Content',
     },
     computed: {
       canDownload() { return this.kind !== ContentKinds.EXERCISE; },
@@ -53,6 +56,21 @@
     components: {
       'page-header': require('../page-header'),
       'expandable-content-grid': require('../expandable-content-grid'),
+      'icon-button': require('kolibri/coreVue/components/iconButton'),
+    },
+    methods: {
+      nextContent() {
+        if (this.nextcontent.kind !== 'topic') {
+          return {
+            name: this.pagename,
+            params: { id: this.nextcontent.id },
+          };
+        }
+        return {
+          name: constants.PageNames.EXPLORE_TOPIC,
+          params: { id: this.nextcontent.id },
+        };
+      },
     },
     vuex: {
       getters: {
@@ -75,9 +93,14 @@
         channelId: (state) => state.currentChannelId,
         available: (state) => state.pageState.content.available,
         extraFields: (state) => state.pageState.content.extra_fields,
+        nextcontent: (state) => state.pageState.content.next_content,
+
+        pagename: (state) => state.pageName,
 
         // only used on learn page
         recommended: (state) => state.pageState.recommended,
+
+        progress: (state) => state.core.logging.summary.progress,
       },
     },
   };
@@ -91,6 +114,24 @@
 
   .recommendation-section
     margin-top: 4em
+
+  .next-btn
+    float: left
+    background-color: #4A8DDC
+    border-color: #4A8DDC
+    color: $core-bg-light
+    padding-left: 16px
+    padding-right: 6px
+    padding-bottom: 0
+
+  .next-btn:hover svg
+    fill: $core-bg-light
+
+  .right-arrow
+    fill: $core-bg-light
+
+  .right-arrow:hover
+    fill: $core-bg-light
 
 </style>
 
