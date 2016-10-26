@@ -140,7 +140,7 @@ function handleError(store, errorString) {
 }
 
 function handleApiError(store, errorObject) {
-  handleError(JSON.stringify(errorObject, null, '\t'));
+  handleError(store, JSON.stringify(errorObject, null, '\t'));
 }
 
 function kolibriLogin(store, Kolibri, sessionPayload) {
@@ -521,6 +521,7 @@ function updateMasteryAttemptState(store, currentTime, correct, complete, firstA
 
 
 module.exports = {
+  handleError,
   handleApiError,
   kolibriLogin,
   kolibriLogout,

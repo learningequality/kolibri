@@ -53,7 +53,8 @@ config['INSTALLED_APPS'] = [
     "kolibri.plugins.document_pdf_render",
     "kolibri.plugins.video_mp4_render",
     "kolibri.plugins.audio_mp3_render",
-    "kolibri.plugins.setup_wizard"
+    "kolibri.plugins.setup_wizard",
+    "kolibri.plugins.coach_tools"
 ]
 
 #: Well-known plugin names that are automatically searched for and enabled on

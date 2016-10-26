@@ -111,7 +111,9 @@
 
   .container
     text-align: center
-    height: 100%
+    height: 100vh
+    max-height: calc(100vh - 24em)
+    min-height: 400px
     &:fullscreen
       width: 100%
       height: 100%

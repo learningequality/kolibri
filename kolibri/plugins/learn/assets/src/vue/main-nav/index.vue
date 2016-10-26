@@ -18,6 +18,10 @@
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/manage.svg"></svg>
     <div class="label">{{ $tr('manage') }}</div>
   </nav-bar-item>
+  <nav-bar-item href="/coach">
+    <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/coach.svg"></svg>
+    <div class="label">Coach</div>
+  </nav-bar-item>
 
 </template>
 
