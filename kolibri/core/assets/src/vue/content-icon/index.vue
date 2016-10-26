@@ -41,6 +41,7 @@
       audio: 'audio',
       document: 'document',
       video: 'video',
+      exercise: 'exercise',
     },
     props: {
       ispageicon: {
