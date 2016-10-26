@@ -8,7 +8,7 @@ from .utils.version import get_version
 # building straight from a git repo-
 # Example:
 # 0.0.1.dev20160511132442
-VERSION = (0, 1, 0, 'rc', 0)
+VERSION = (0, 1, 0, 'rc', 1)
 
 __author__ = 'Learning Equality'
 __email__ = 'info@learningequality.org'
