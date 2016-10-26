@@ -16,7 +16,7 @@
       :extra-fields="extraFields">
     </content-render>
 
-    <icon-button v-link="nextContent()" v-if="progress === 1" class="next-btn">{{ $tr("nextContent") }}<svg class="right-arrow" src="../icons/arrow_right.svg"></svg></icon-button>
+    <icon-button v-link="nextContent()" v-if="progress === 1 && showNextBtn" class="next-btn">{{ $tr("nextContent") }}<svg class="right-arrow" src="../icons/arrow_right.svg"></svg></icon-button>
 
     <p class="page-description">{{ description }}</p>
 
@@ -48,6 +48,7 @@
     },
     computed: {
       canDownload() { return this.kind !== ContentKinds.EXERCISE; },
+      showNextBtn() { return this.kind === ContentKinds.EXERCISE; },
       recommendedText() {
         return this.$tr('recommended');
       },
