@@ -19,6 +19,7 @@ class ZipContentView(View):
         """
 
         # path placeholder
+        # path_place_holder = "${\xe2\x98\xa3 LOCALPATH}"
         path_place_holder = "(${\xe2\x98\xa3 IMAGEREPLACE}"
 
         # calculate the local file path to the zip file

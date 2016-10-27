@@ -454,9 +454,8 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
     complete: false,
     responsehistory: [],
     pastattempts: [],
-    mastery_criterion: masteryCriterion,
-    user: store.state.core.session.user_id,
     totalattempts: 0,
+    mastery_criterion: masteryCriterion,
   });
   masteryLogModel.save(masteryLogModel.attributes).only(
     samePageCheckGenerator(store),
@@ -465,6 +464,27 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
       store.dispatch('SET_LOGGING_MASTERY_STATE', newMasteryLog);
     }
   );
+}
+
+function createDummyMasteryLog(store, Kolibri) {
+  /*
+  Create a client side masterylog for anonymous user for tracking attempt-progress.
+  This masterylog will never be saved in the database.
+  */
+  const masteryLogModel = Kolibri.resources.MasteryLog.createModel({
+    id: null,
+    summarylog: null,
+    start_timestamp: null,
+    completion_timestamp: null,
+    end_timestamp: null,
+    mastery_level: null,
+    complete: false,
+    responsehistory: [],
+    pastattempts: [],
+    mastery_criterion: null,
+    totalattempts: 0,
+  });
+  store.dispatch('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
 }
 
 function saveAttemptLog(store, Kolibri) {
@@ -480,6 +500,7 @@ function createAttemptLog(store, Kolibri, itemId, callback) {
   const attemptLogModel = Kolibri.resources.AttemptLog.createModel({
     id: null,
     masterylog: store.state.core.logging.mastery.id || null,
+    sessionlog: store.state.core.logging.session.id,
     start_timestamp: new Date(),
     completion_timestamp: null,
     end_timestamp: null,
@@ -490,11 +511,10 @@ function createAttemptLog(store, Kolibri, itemId, callback) {
     answer: {},
     simple_answer: '',
     interaction_history: [],
-    user: store.state.core.session.user_id,
     hinted: false,
   });
   store.dispatch('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
-  callback();
+  callback(); // to signal that this attemptlog is created.
 }
 
 function updateAttemptLogInteractionHistory(store, interaction) {
@@ -544,6 +564,7 @@ module.exports = {
   initMasteryLog,
   saveMasteryLog,
   setMasteryLogComplete,
+  createDummyMasteryLog,
   createAttemptLog,
   saveAttemptLog,
   updateMasteryAttemptState,

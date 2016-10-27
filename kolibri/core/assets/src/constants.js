@@ -23,13 +23,13 @@ const MasteryLoggingMap = {
   mastery_criterion: 'mastery_criterion',
   complete: 'complete',
   responsehistory: 'responsehistory',
-  user: 'user',
   pastattempts: 'pastattempts',
   totalattempts: 'totalattempts',
 };
 
 const AttemptLoggingMap = {
   id: 'id',
+  sessionlog: 'sessionlog',
   item: 'item',
   start_timestamp: 'start_timestamp',
   completion_timestamp: 'completion_timestamp',
@@ -41,7 +41,6 @@ const AttemptLoggingMap = {
   simple_answer: 'simple_answer',
   interaction_history: 'interaction_history',
   masterylog: 'masterylog',
-  user: 'user',
   hinted: 'hinted',
 };
 

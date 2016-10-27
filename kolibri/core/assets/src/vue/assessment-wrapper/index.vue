@@ -19,6 +19,7 @@ oriented data synchronization.
   const logging = require('kolibri.lib.logging').getLogger(__filename);
   const actions = require('kolibri.coreVue.vuex.actions');
   const hint = require('../../constants').InteractionTypes.hint;
+  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
 
   module.exports = {
     props: {
@@ -45,14 +46,20 @@ oriented data synchronization.
       // Once the data for the overall assessment is loaded in the renderer
       // we can initialize the mastery log, as the mastery model and spacing time
       // will be available.
-      this.initMasteryLog();
+      console.log('eeeeellliiii:: ', this.isLearner);
+      if (this.isLearner) {
+        this.initMasteryLog();
+      } else {
+        // if userKind is anonymous user or deviceOwner.
+        this.createDummyMasteryLogAction(this.Kolibri);
+      }
       this.initNewAttemptLog();
     },
     methods: {
       updateMasetryLogSaveAttemptLog(correct, complete, firstAttempt, hinted) {
         this.updateMasteryAttemptStateAction(new Date(), correct, complete, firstAttempt, hinted);
-        if (this.masteryLogId) {
-        this.saveAttemptLogAction(this.Kolibri);
+        if (this.masteryLogId || !this.isLearner) {
+          this.saveAttemptLogAction(this.Kolibri);
         } else {
           let watchRevoke;
           watchRevoke = this.$watch('masteryLogId', () => {
@@ -68,8 +75,10 @@ oriented data synchronization.
         this.updateMasetryLogSaveAttemptLog(0, false, firstAttempt, hinted);
       },
       exercisePassed() {
-        this.setMasteryLogCompleteAction(new Date());
-        this.saveMasteryLogAction(this.Kolibri);
+        if (this.isLearner) {
+          this.setMasteryLogCompleteAction(new Date());
+          this.saveMasteryLogAction(this.Kolibri);
+        }
       },
       initMasteryLog() {
         // Only initialize masteryLogs once the summaryLog is initialized.
@@ -88,24 +97,45 @@ oriented data synchronization.
       initNewAttemptLog() {
         if (this.itemId) {
           // seems sometimes vue does not reset itemId on page reload, therefore the following watch doesn't get triggered and ready is not set properly.
-          this.ready = false;
-          this.createAttemptLogAction(this.Kolibri, this.itemId, this.newAttemptlogReady);
+          this.createAttemptLog()
         }
         this.$watch('itemId', () => {
           // every new question has a new attemptlog with the question's itemId
           if (this.itemId) {
-            this.ready = false;
-            this.createAttemptLogAction(this.Kolibri, this.itemId, this.newAttemptlogReady);
+            this.createAttemptLog()
           }
         });
+      },
+      createAttemptLog() {
+        this.ready = false;
+        if (!this.sessionLogId) {
+          let watchRevoke;
+          watchRevoke = this.$watch('sessionLogId', () => {
+            if (this.sessionLogId) {
+              this.createAttemptLogAction(this.Kolibri, this.itemId, this.newAttemptlogReady);
+              watchRevoke();
+            }
+          });
+        } else {
+          this.createAttemptLogAction(this.Kolibri, this.itemId, this.newAttemptlogReady);
+        }
       },
       newAttemptlogReady() {
         this.ready = true;
       },
     },
+    computed: {
+      isLearner() {
+        if (this.userkind.includes(UserKinds.LEARNER)) {
+          return true;
+        }
+        return false;
+      },
+    },
     vuex: {
       actions: {
         initMasteryLogAction: actions.initMasteryLog,
+        createDummyMasteryLogAction: actions.createDummyMasteryLog,
         saveMasteryLogAction: actions.saveMasteryLog,
         setMasteryLogCompleteAction: actions.setMasteryLogComplete,
         createAttemptLogAction: actions.createAttemptLog,
@@ -115,9 +145,11 @@ oriented data synchronization.
       },
       getters: {
         summaryLogId: (state) => state.core.logging.summary.id,
+        sessionLogId: (state) => state.core.logging.session.id,
         masteryLogId: (state) => state.core.logging.mastery.id,
         attemptLogComplete: (state) => state.core.logging.attempt.complete,
         attemptLogCorrect: (state) => state.core.logging.attempt.correct,
+        userkind: (state) => state.core.session.kind,
       },
     },
   };
