@@ -22,8 +22,8 @@ from .permissions import AnyoneCanWriteAnonymousLogs
 def log_permissions(user_field):
 
     return (
-        AnyoneCanWriteAnonymousLogs(field_name=user_field) |
-        IsOwn(field_name=user_field) |
+        AnyoneCanWriteAnonymousLogs(field_name=user_field + '_id') |
+        IsOwn(field_name=user_field + '_id') |
         RoleBasedPermissions(
             target_field=user_field,
             can_be_created_by=(role_kinds.ADMIN,),
@@ -36,7 +36,7 @@ def log_permissions(user_field):
 
 class BaseLogModel(AbstractFacilityDataModel):
 
-    permissions = log_permissions("user_id")
+    permissions = log_permissions("user")
 
     class Meta:
         abstract = True
@@ -108,7 +108,7 @@ class MasteryLog(BaseLogModel):
     """
     This model provides a summary of a user's engagement with an assessment within a mastery level
     """
-    permissions = log_permissions("summarylog__user_id")
+    permissions = log_permissions("summarylog__user")
 
     # Every MasteryLog is related to the single summary log for the user/content pair
     summarylog = models.ForeignKey(ContentSummaryLog, related_name="masterylogs")
@@ -132,7 +132,7 @@ class AttemptLog(AbstractFacilityDataModel):
     This model provides a summary of a user's engagement within a particular interaction with an
     item in an assessment
     """
-    permissions = log_permissions("sessionlog__user_id")
+    permissions = log_permissions("sessionlog__user")
 
     # Unique identifier within the relevant assessment for the particular question/item
     # that this attemptlog is a record of an interaction with.
