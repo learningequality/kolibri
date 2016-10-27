@@ -30,7 +30,7 @@ class AttemptLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AttemptLog
-        fields = ('id', 'masterylog', 'start_timestamp',
+        fields = ('id', 'masterylog', 'start_timestamp', 'sessionlog',
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent',
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
 
