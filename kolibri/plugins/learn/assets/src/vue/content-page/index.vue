@@ -4,7 +4,7 @@
 
     <page-header :title="title"></page-header>
 
-    <content-render
+    <content-renderer
       v-show="!searchOpen"
       class="content-renderer"
       :id="id"
@@ -14,7 +14,7 @@
       :channel-id="channelId"
       :available="available"
       :extra-fields="extraFields">
-    </content-render>
+    </content-renderer>
 
     <p class="page-description">{{ description }}</p>
 
