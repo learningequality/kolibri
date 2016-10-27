@@ -18,7 +18,6 @@ oriented data synchronization.
 
 <script>
 
-  const logging = require('kolibri.lib.logging').getLogger(__filename);
   const actions = require('kolibri.coreVue.vuex.actions');
   const InteractionTypes = require('kolibri.coreVue.vuex.constants').InteractionTypes;
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
@@ -64,8 +63,7 @@ oriented data synchronization.
         if (this.masteryLogId || !this.isLearner) {
           this.saveAttemptLogAction(this.Kolibri);
         } else {
-          const watchRevoke;
-          watchRevoke = this.$watch('masteryLogId', () => {
+          const watchRevoke = this.$watch('masteryLogId', () => {
             if (this.masteryLogId) {
               this.saveAttemptLogAction(this.Kolibri);
               watchRevoke();
@@ -86,8 +84,7 @@ oriented data synchronization.
       initMasteryLog() {
         // Only initialize masteryLogs once the summaryLog is initialized.
         if (!this.summaryLogId) {
-          const watchRevoke;
-          watchRevoke = this.$watch('summaryLogId', () => {
+          const watchRevoke = this.$watch('summaryLogId', () => {
             if (this.summaryLogId) {
               this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime, this.masteryCriterion);
               watchRevoke();
@@ -113,8 +110,7 @@ oriented data synchronization.
       createAttemptLog() {
         this.ready = false;
         if (!this.sessionLogId) {
-          const watchRevoke;
-          watchRevoke = this.$watch('sessionLogId', () => {
+          const watchRevoke = this.$watch('sessionLogId', () => {
             if (this.sessionLogId) {
               this.createAttemptLogAction(this.Kolibri, this.itemId, this.newAttemptlogReady);
               watchRevoke();
