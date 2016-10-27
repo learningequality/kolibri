@@ -5,6 +5,8 @@ plugins.
 As such, it provides display of current mastery progress, and manages all mastery/attempt log
 oriented data synchronization.
 -->
+
+
 <template>
 
   <div>
