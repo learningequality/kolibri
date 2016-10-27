@@ -18,8 +18,8 @@ oriented data synchronization.
 
   const logging = require('kolibri.lib.logging').getLogger(__filename);
   const actions = require('kolibri.coreVue.vuex.actions');
-  const hint = require('../../constants').InteractionTypes.hint;
-  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
+  const InteractionTypes = require('kolibri.coreVue.vuex.constants').InteractionTypes;
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
     props: {
@@ -46,7 +46,6 @@ oriented data synchronization.
       // Once the data for the overall assessment is loaded in the renderer
       // we can initialize the mastery log, as the mastery model and spacing time
       // will be available.
-      console.log('eeeeellliiii:: ', this.isLearner);
       if (this.isLearner) {
         this.initMasteryLog();
       } else {
@@ -71,7 +70,7 @@ oriented data synchronization.
         }
       },
       hintTaken(firstAttempt, hinted) {
-        this.updateAttemptLogInteractionHistoryAction(hint);
+        this.updateAttemptLogInteractionHistoryAction(InteractionTypes.hint);
         this.updateMasetryLogSaveAttemptLog(0, false, firstAttempt, hinted);
       },
       exercisePassed() {
