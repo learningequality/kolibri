@@ -53,7 +53,7 @@
   const Kolibri = require('kolibri');
   module.exports = {
     components: {
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     computed: {
       summarylogurl() {
@@ -71,7 +71,7 @@
 <style lang="stylus" scoped>
 
   @require 'jeet'
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   @media (min-width: $medium-breakpoint)
     .exportblock

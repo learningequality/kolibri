@@ -20,8 +20,8 @@
 
 <script>
 
-  const logging = require('kolibri/lib/logging').getLogger(__filename);
-  const actions = require('kolibri/coreVue/vuex/actions');
+  const logging = require('kolibri.lib.logging').getLogger(__filename);
+  const actions = require('kolibri.coreVue.vuex.actions');
 
   module.exports = {
     $trNameSpace: 'contentRender',
@@ -230,7 +230,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .fill-height
     height: 100%

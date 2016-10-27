@@ -7,7 +7,7 @@
 // By default any module specified will be aliased to allow for require statements
 // namespaced in a way analogous to the API spec below.
 //
-// These modules will now be referenceable as e.g.: require('kolibri/lib/logging');
+// These modules will now be referenceable as e.g.: require('kolibri.lib.logging');
 //
 // N.B. You cannot use keys that require quotation marks in this object.
 // e.g. 'content-icon' (although this can be used as a value in module).

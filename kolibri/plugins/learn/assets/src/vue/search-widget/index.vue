@@ -165,7 +165,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
   @require '../learn.styl'
 
   $top-offset = 60px
@@ -241,7 +241,7 @@
       fill: $core-text-annotation
       position: relative
       top: -2px
- 
+
     &:focus // Removing border in FF removes outline too (Normalize?)
       outline: 2px solid $core-action-light
 

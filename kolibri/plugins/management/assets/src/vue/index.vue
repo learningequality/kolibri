@@ -20,7 +20,7 @@
 
   const store = require('../state/store');
   const PageNames = require('../state/constants').PageNames;
-  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
     components: {
@@ -68,7 +68,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .manage-content
     width: 100%

@@ -1,18 +1,18 @@
 const Kolibri = require('kolibri');
-const logging = require('kolibri/lib/logging');
+const logging = require('kolibri.lib.logging');
 
 const FacilityUserResource = Kolibri.resources.FacilityUserResource;
 const ChannelResource = Kolibri.resources.ChannelResource;
 const TaskResource = Kolibri.resources.TaskResource;
 const RoleResource = Kolibri.resources.RoleResource;
 
-const coreActions = require('kolibri/coreVue/vuex/actions');
-const ConditionalPromise = require('kolibri/lib/conditionalPromise');
+const coreActions = require('kolibri.coreVue.vuex.actions');
+const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const constants = require('./state/constants');
-const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
+const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 const PageNames = constants.PageNames;
 const ContentWizardPages = constants.ContentWizardPages;
-const samePageCheckGenerator = require('kolibri/coreVue/vuex/actions').samePageCheckGenerator;
+const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 
 
 // ================================

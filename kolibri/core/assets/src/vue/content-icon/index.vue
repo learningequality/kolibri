@@ -30,7 +30,7 @@
 
 <script>
 
-  const ContentKinds = require('kolibri/coreVue/vuex/constants').ContentKinds;
+  const ContentKinds = require('kolibri.coreVue.vuex.constants').ContentKinds;
 
   module.exports = {
     $trNameSpace: 'learn',
@@ -97,7 +97,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .svg-wrapper
     width: 100%

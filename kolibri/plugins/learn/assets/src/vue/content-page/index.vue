@@ -4,7 +4,7 @@
 
     <page-header :title="title"></page-header>
 
-    <content-render
+    <content-renderer
       v-show="!searchOpen"
       class="content-renderer"
       :id="id"
@@ -14,7 +14,7 @@
       :channel-id="channelId"
       :available="available"
       :extra-fields="extraFields">
-    </content-render>
+    </content-renderer>
 
     <icon-button v-link="nextContent()" v-if="progress === 1 && showNextBtn" class="next-btn">{{ $tr("nextContent") }}<svg class="right-arrow" src="../icons/arrow_right.svg"></svg></icon-button>
 
@@ -38,7 +38,7 @@
 
   const constants = require('../../state/constants');
   const getters = require('../../state/getters');
-  const ContentKinds = require('kolibri/coreVue/vuex/constants').ContentKinds;
+  const ContentKinds = require('kolibri.coreVue.vuex.constants').ContentKinds;
 
   module.exports = {
     $trNameSpace: 'learnContent',
@@ -111,7 +111,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .recommendation-section
     margin-top: 4em

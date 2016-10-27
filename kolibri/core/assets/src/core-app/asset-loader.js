@@ -9,7 +9,7 @@
 const scriptjs = require('scriptjs');
 const loadcss = require('fg-loadcss').loadCSS;
 const onloadcss = require('fg-loadcss/src/onloadCSS');
-const logging = require('kolibri/lib/logging').getLogger(__filename);
+const logging = require('kolibri.lib.logging').getLogger(__filename);
 
 /**
  * Take an Array of frontend asset files and asynchronously load in order.

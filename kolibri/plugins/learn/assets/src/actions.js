@@ -5,10 +5,10 @@ const constants = require('./state/constants');
 const getters = require('./state/getters');
 const PageNames = constants.PageNames;
 const cookiejs = require('js-cookie');
-const router = require('kolibri/coreVue/router');
-const coreActions = require('kolibri/coreVue/vuex/actions');
-const ConditionalPromise = require('kolibri/lib/conditionalPromise');
-const samePageCheckGenerator = require('kolibri/coreVue/vuex/actions').samePageCheckGenerator;
+const router = require('kolibri.coreVue.router');
+const coreActions = require('kolibri.coreVue.vuex.actions');
+const ConditionalPromise = require('kolibri.lib.conditionalPromise');
+const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 
 /**
  * Vuex State Mappers

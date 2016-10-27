@@ -118,12 +118,12 @@
 <script>
 
   const actions = require('../../actions');
-  const coreActions = require('kolibri/coreVue/vuex/actions');
-  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
+  const coreActions = require('kolibri.coreVue.vuex.actions');
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
     components: {
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     props: [
       'userid', 'username', 'fullname', 'roles', // TODO - validation
@@ -241,7 +241,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .title
     display: inline

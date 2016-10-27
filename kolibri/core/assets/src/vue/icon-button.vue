@@ -39,7 +39,7 @@
 
 <style lang="stylus">
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   /*
     WARNING -- these styles are unscoped.
@@ -72,7 +72,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   button
     padding: 0.2em 2em
