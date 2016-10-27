@@ -56,7 +56,7 @@ module.exports = class CoreApp {
     vue.use(vuex);
 
     // Register global components
-    vue.component('content-render', require('../vue/content-renderer'));
+    vue.component('content-renderer', require('../vue/content-renderer'));
     vue.component('assessment-wrapper', require('../vue/assessment-wrapper'));
     vue.component('download-button', require('../vue/content-renderer/download-button'));
     vue.component('loading-spinner', require('../vue/loading-spinner'));

@@ -279,6 +279,11 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
     kind: contentKind,
   }, _contentSessionModel(store));
 
+  if (store.state.core.session.kind[0] === UserKinds.SUPERUSER) {
+    // treat deviceOwner as anonymous user.
+    sessionData.user = null;
+  }
+
   /* Save a new session model and set id on state */
   const sessionModel = ContentSessionLogResource.createModel(sessionData);
   sessionModel.save().then((newSession) => {
@@ -451,6 +456,7 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
     pastattempts: [],
     mastery_criterion: masteryCriterion,
     user: store.state.core.session.user_id,
+    totalattempts: 0,
   });
   masteryLogModel.save(masteryLogModel.attributes).only(
     samePageCheckGenerator(store),

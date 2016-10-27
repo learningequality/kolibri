@@ -16,7 +16,7 @@
       :extra-fields="extraFields">
     </content-renderer>
 
-    <icon-button v-link="nextContent()" v-if="progress === 1 && showNextBtn" class="next-btn">{{ $tr("nextContent") }}<svg class="right-arrow" src="../icons/arrow_right.svg"></svg></icon-button>
+    <icon-button v-link="nextContent()" v-if="progress >= 1 && showNextBtn" class="next-btn">{{ $tr("nextContent") }}<svg class="right-arrow" src="../icons/arrow_right.svg"></svg></icon-button>
 
     <p class="page-description">{{ description }}</p>
 
@@ -57,7 +57,6 @@
     components: {
       'page-header': require('../page-header'),
       'expandable-content-grid': require('../expandable-content-grid'),
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
     },
     methods: {
       nextContent() {
