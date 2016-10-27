@@ -36,13 +36,15 @@ oriented data synchronization.
       },
       masteryCriterion: {
         type: String,
-      }
+      },
     },
     data: () => ({
       ready: false,
     }),
     created() {
-      this.$on('checkanswer', (correct, complete, firstAttempt, hinted) => { this.updateMasetryLogSaveAttemptLog(correct, complete, firstAttempt, hinted);});
+      this.$on('checkanswer', (correct, complete, firstAttempt, hinted) => {
+        this.updateMasetryLogSaveAttemptLog(correct, complete, firstAttempt, hinted);
+      });
       this.$on('takehint', (firstAttempt, hinted) => { this.hintTaken(firstAttempt, hinted);});
       this.$on('passexercise', () => { this.exercisePassed();});
       // Once the data for the overall assessment is loaded in the renderer
@@ -62,7 +64,7 @@ oriented data synchronization.
         if (this.masteryLogId || !this.isLearner) {
           this.saveAttemptLogAction(this.Kolibri);
         } else {
-          let watchRevoke;
+          const watchRevoke;
           watchRevoke = this.$watch('masteryLogId', () => {
             if (this.masteryLogId) {
               this.saveAttemptLogAction(this.Kolibri);
@@ -84,7 +86,7 @@ oriented data synchronization.
       initMasteryLog() {
         // Only initialize masteryLogs once the summaryLog is initialized.
         if (!this.summaryLogId) {
-          let watchRevoke;
+          const watchRevoke;
           watchRevoke = this.$watch('summaryLogId', () => {
             if (this.summaryLogId) {
               this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime, this.masteryCriterion);
@@ -97,20 +99,21 @@ oriented data synchronization.
       },
       initNewAttemptLog() {
         if (this.itemId) {
-          // seems sometimes vue does not reset itemId on page reload, therefore the following watch doesn't get triggered and ready is not set properly.
-          this.createAttemptLog()
+          // seems sometimes vue does not reset itemId on page reload,
+          // therefore the following watch doesn't get triggered and ready is not set properly.
+          this.createAttemptLog();
         }
         this.$watch('itemId', () => {
           // every new question has a new attemptlog with the question's itemId
           if (this.itemId) {
-            this.createAttemptLog()
+            this.createAttemptLog();
           }
         });
       },
       createAttemptLog() {
         this.ready = false;
         if (!this.sessionLogId) {
-          let watchRevoke;
+          const watchRevoke;
           watchRevoke = this.$watch('sessionLogId', () => {
             if (this.sessionLogId) {
               this.createAttemptLogAction(this.Kolibri, this.itemId, this.newAttemptlogReady);
