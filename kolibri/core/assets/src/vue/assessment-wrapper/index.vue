@@ -27,9 +27,6 @@ oriented data synchronization.
       itemId: {
         type: String,
       },
-      masteryModel: {
-        type: String,
-      },
       masterySpacingTime: {
         type: Number,
       },
