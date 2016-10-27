@@ -1,4 +1,4 @@
-const logging = require('kolibri/lib/logging').getLogger(__filename);
+const logging = require('kolibri.lib.logging').getLogger(__filename);
 const ConditionalPromise = require('./conditionalPromise');
 
 

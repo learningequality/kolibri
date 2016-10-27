@@ -16,8 +16,8 @@ oriented data synchronization.
 
 <script>
 
-  const logging = require('kolibri/lib/logging').getLogger(__filename);
-  const actions = require('kolibri/coreVue/vuex/actions');
+  const logging = require('kolibri.lib.logging').getLogger(__filename);
+  const actions = require('kolibri.coreVue.vuex.actions');
   const hint = require('../../constants').InteractionTypes.hint;
 
   module.exports = {
@@ -127,6 +127,6 @@ oriented data synchronization.
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
 </style>

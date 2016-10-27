@@ -19,7 +19,7 @@
 
 <script>
 
-  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const constants = require('../../state/constants');
 
   module.exports = {
@@ -61,7 +61,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .top
     position: relative

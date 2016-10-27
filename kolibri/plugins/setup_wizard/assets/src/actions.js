@@ -2,7 +2,7 @@ const Kolibri = require('kolibri');
 
 const DeviceOwnerResource = Kolibri.resources.DeviceOwnerResource;
 const FacilityResource = Kolibri.resources.FacilityResource;
-const coreActions = require('kolibri/coreVue/vuex/actions');
+const coreActions = require('kolibri.coreVue.vuex.actions');
 
 function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload) {
   const DeviceOwnerModel = DeviceOwnerResource.createModel(deviceownerpayload);
