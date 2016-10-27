@@ -290,7 +290,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_file_retrieve(self):
         response = self.client.get(self._reverse_channel_url("file-detail", {'pk': "9f9438fe6b0d42dd8e913d7d04cfb2b1"}))
-        self.assertEqual(response.data['preset'], 'High resolution video')
+        self.assertEqual(response.data['preset'], 'High Resolution')
 
     def test_contentnode_progress(self):
 
