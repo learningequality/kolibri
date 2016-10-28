@@ -2,25 +2,27 @@
 
   <div>
 
-    <page-header :title="title"></page-header>
+    <page-header :title="content.title"></page-header>
 
     <content-renderer
       v-show="!searchOpen"
       class="content-renderer"
-      :id="id"
-      :kind="kind"
-      :files="files"
-      :content-id="contentId"
-      :channel-id="channelId"
-      :available="available"
-      :extra-fields="extraFields">
+      :id="content.id"
+      :kind="content.kind"
+      :files="content.files"
+      :content-id="content.contentId"
+      :channel-id="content.channelId"
+      :available="content.available"
+      :extra-fields="content.extraFields">
     </content-renderer>
 
-    <icon-button v-link="nextContent()" v-if="progress >= 1 && showNextBtn" class="next-btn">{{ $tr("nextContent") }}<svg class="right-arrow" src="../icons/arrow_right.svg"></svg></icon-button>
+    <icon-button v-link="MoveToNextContent()" v-if="progress >= 1 && showNextBtn" class="next-btn">
+    {{ $tr("nextContent") }}
+    <svg class="right-arrow" src="../icons/arrow_right.svg"></svg></icon-button>
 
-    <p class="page-description">{{ description }}</p>
+    <p class="page-description">{{ content.description }}</p>
 
-    <download-button v-if="canDownload" :files="files"></download-button>
+    <download-button v-if="canDownload" :files="content.files"></download-button>
 
     <expandable-content-grid
       class="recommendation-section"
@@ -47,8 +49,8 @@
       nextContent: 'Next Content',
     },
     computed: {
-      canDownload() { return this.kind !== ContentKinds.EXERCISE; },
-      showNextBtn() { return this.kind === ContentKinds.EXERCISE; },
+      canDownload() { return this.content.kind !== ContentKinds.EXERCISE; },
+      showNextBtn() { return this.content.kind === ContentKinds.EXERCISE; },
       recommendedText() {
         return this.$tr('recommended');
       },
@@ -59,16 +61,16 @@
       'expandable-content-grid': require('../expandable-content-grid'),
     },
     methods: {
-      nextContent() {
-        if (this.nextcontent.kind !== 'topic') {
+      MoveToNextContent() {
+        if (this.content.nextcontent.kind !== 'topic') {
           return {
             name: this.pagename,
-            params: { id: this.nextcontent.id },
+            params: { id: this.content.nextcontent.id },
           };
         }
         return {
           name: constants.PageNames.EXPLORE_TOPIC,
-          params: { id: this.nextcontent.id },
+          params: { id: this.content.nextcontent.id },
         };
       },
     },
@@ -84,16 +86,7 @@
         searchOpen: state => state.searchOpen,
 
         // attributes for this content item
-        id: (state) => state.pageState.content.id,
-        title: (state) => state.pageState.content.title,
-        description: (state) => state.pageState.content.description,
-        kind: (state) => state.pageState.content.kind,
-        files: (state) => state.pageState.content.files,
-        contentId: (state) => state.pageState.content.content_id,
-        channelId: (state) => state.currentChannelId,
-        available: (state) => state.pageState.content.available,
-        extraFields: (state) => state.pageState.content.extra_fields,
-        nextcontent: (state) => state.pageState.content.next_content,
+        content: (state) => state.pageState.content,
 
         pagename: (state) => state.pageName,
 
