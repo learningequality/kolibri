@@ -62,13 +62,15 @@ function _contentSummaryModel(store) {
 function _contentSessionModel(store) {
   const sessionLog = store.state.core.logging.session;
   const mapping = {
-    user: store.state.core.session.user_id,
     start_timestamp: sessionLog.start_timestamp,
     end_timestamp: sessionLog.end_timestamp,
     time_spent: sessionLog.time_spent,
     progress: sessionLog.progress,
     extra_fields: sessionLog.extra_fields,
   };
+  if (store.state.core.session.kind[0] !== UserKinds.SUPERUSER) {
+    mapping.user = store.state.core.session.user_id;
+  }
   return mapping;
 }
 
