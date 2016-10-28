@@ -10,10 +10,10 @@
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
-      :content-id="content.contentId"
-      :channel-id="content.channelId"
+      :content-id="content.content_id"
+      :channel-id="channelId"
       :available="content.available"
-      :extra-fields="content.extraFields">
+      :extra-fields="content.extra_fields">
     </content-renderer>
 
     <icon-button v-link="MoveToNextContent()" v-if="progress >= 1 && showNextBtn" class="next-btn">
@@ -62,15 +62,15 @@
     },
     methods: {
       MoveToNextContent() {
-        if (this.content.nextcontent.kind !== 'topic') {
+        if (this.content.next_content.kind !== 'topic') {
           return {
             name: this.pagename,
-            params: { id: this.content.nextcontent.id },
+            params: { id: this.content.next_content.id },
           };
         }
         return {
           name: constants.PageNames.EXPLORE_TOPIC,
-          params: { id: this.content.nextcontent.id },
+          params: { id: this.content.next_content.id },
         };
       },
     },
@@ -87,7 +87,7 @@
 
         // attributes for this content item
         content: (state) => state.pageState.content,
-
+        channelId: (state) => state.currentChannelId,
         pagename: (state) => state.pageName,
 
         // only used on learn page
