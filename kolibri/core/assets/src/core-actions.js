@@ -222,7 +222,7 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
       content_id: contentId,
       user: store.state.core.session.user_id,
     });
-    summaryCollection.fetch().then(summary => {
+    summaryCollection.fetch({}, true).then(summary => {
       /* If a summary model exists, map that to the state */
       if (summary.length > 0) {
         store.dispatch('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState(summary[0]));
