@@ -492,13 +492,15 @@ function createDummyMasteryLog(store, Kolibri) {
 function saveAttemptLog(store, Kolibri) {
   const attemptLogModel = Kolibri.resources.AttemptLog.getModel(
     store.state.core.logging.attempt.id);
-  attemptLogModel.save(_attemptLogModel(store)).then((newAttemptLog) => {
+  const promise = attemptLogModel.save(_attemptLogModel(store));
+  promise.then((newAttemptLog) => {
     // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
     store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
   });
+  return promise;
 }
 
-function createAttemptLog(store, Kolibri, itemId, callback) {
+function createAttemptLog(store, Kolibri, itemId) {
   const attemptLogModel = Kolibri.resources.AttemptLog.createModel({
     id: null,
     masterylog: store.state.core.logging.mastery.id || null,
@@ -516,7 +518,6 @@ function createAttemptLog(store, Kolibri, itemId, callback) {
     hinted: false,
   });
   store.dispatch('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
-  callback(); // to signal that this attemptlog is created.
 }
 
 function updateAttemptLogInteractionHistory(store, interaction) {
