@@ -16,7 +16,7 @@ from django.utils.text import get_valid_filename
 from le_utils.constants import content_kinds, file_formats, format_presets
 from mptt.models import MPTTModel, TreeForeignKey
 
-from .content_db_router import get_active_content_database
+from .content_db_router import get_active_content_database, get_content_database_connection
 from .utils import paths
 
 PRESET_LOOKUP = dict(format_presets.choices)
@@ -139,6 +139,19 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
             .exclude(kind=content_kinds.TOPIC) \
             .values_list("content_id", flat=True) \
             .distinct().order_by("content_id")
+
+    def get_descendant_kind_counts(self):
+        """ Return a dict mapping content kinds to counts, indicating how many descendant nodes there are of that kind.
+        (Note: descendant nodes with identical content_id's are only counted once)"""
+        # build a queryset of all non-topic descendant nodes
+        descendants = ContentNode.objects.filter(lft__gte=self.lft, lft__lte=self.rght).exclude(kind="'{}'".format(content_kinds.TOPIC))
+        # extract the unique pairs of content_id and kind, as a queryset
+        unique_content_id_kinds = descendants.values("content_id", "kind").order_by("content_id", "kind").distinct().values("kind")
+        # construct and execute a SQL query to count the number of nodes with unique content_ids for each kind
+        query = 'SELECT "kind", COUNT(kind) as count FROM ({}) GROUP BY kind'.format(str(unique_content_id_kinds.query))
+        conn = get_content_database_connection(self._state.db)
+        # turn the results into a dict, mapping kind into unique count
+        return dict(conn.execute(query))
 
 
 @python_2_unicode_compatible
