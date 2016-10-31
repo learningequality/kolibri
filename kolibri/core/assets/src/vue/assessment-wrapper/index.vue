@@ -73,7 +73,8 @@ oriented data synchronization.
       },
       hintTaken(firstAttempt, hinted) {
         this.updateAttemptLogInteractionHistoryAction(InteractionTypes.hint);
-        this.updateMasetryLogSaveAttemptLog(0, false, firstAttempt, hinted);
+        this.updateAttemptLogMasetryLog(0, false, firstAttempt, hinted);
+        this.saveAttemptLogMasterLog(false);
       },
       nextQuestion() {
         this.createAttemptLog().then(() => {
