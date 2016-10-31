@@ -2,11 +2,13 @@ const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
 const ChannelResource = require('kolibri').resources.ChannelResource;
 const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('./state/constants');
+const getters = require('./state/getters');
 const PageNames = constants.PageNames;
 const cookiejs = require('js-cookie');
-const router = require('kolibri/coreVue/router');
-const ConditionalPromise = require('kolibri/lib/conditionalPromise');
-const samePageCheckGenerator = require('kolibri/coreVue/vuex/actions').samePageCheckGenerator;
+const router = require('kolibri.coreVue.router');
+const coreActions = require('kolibri.coreVue.vuex.actions');
+const ConditionalPromise = require('kolibri.lib.conditionalPromise');
+const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 
 /**
  * Vuex State Mappers
@@ -33,6 +35,7 @@ function _topicState(data) {
   };
   return state;
 }
+
 
 function _contentState(data) {
   let progress;
@@ -70,74 +73,45 @@ function _collectionState(data) {
 }
 
 
-/*
- * Returns the promise that fetches the channel list.
- */
-function _getChannelList() {
-  let returnChannelList = null;
-  return new Promise((resolve, reject) => {
-    ChannelResource.getCollection({}).fetch()
-      .then((channelList) => {
-        if (channelList.length) {
-          returnChannelList = channelList;
-        }
-        resolve(returnChannelList);
-      });
-  });
+function _channelListState(data) {
+  return data.map(channel => ({
+    id: channel.id,
+    title: channel.name,
+    description: channel.description,
+    root_id: channel.root_pk,
+  }));
 }
 
 
 /*
- * Returns a promise that fetches the current channel id.
+ * Returns the 'default' channel ID:
+ * - if there are channels and they match the cookie, return that
+ * - else if there are channels, return the first one
+ * - else return null
  */
-function _getCurrentChannelId() {
-  let currentChannelId = null;
-  return new Promise((resolve, reject) => {
-    _getChannelList()
-      .then((channelList) => {
-        if (channelList && channelList.length) {
-          const cookieCurrentChannelId = cookiejs.get('currentChannel');
-          if (channelList.some((channel) => channel.id === cookieCurrentChannelId)) {
-            currentChannelId = cookieCurrentChannelId;
-          } else {
-            currentChannelId = channelList[0].id;
-          }
-        }
-        resolve(currentChannelId);
-      });
-  });
+function _getDefaultChannelId(store, channelList) {
+  if (channelList && channelList.length) {
+    const cookieVal = cookiejs.get('currentChannelId');
+    if (channelList.some((channel) => channel.id === cookieVal)) {
+      return cookieVal;
+    }
+    return channelList[0].id;
+  }
+  return null;
 }
 
 
 /*
- * Returns a promise that fetches the the root topic id of the current channel.
+ * Set channel state info.
  */
-function _getCurrentChannelRootTopicId() {
-  let currentChannelRootTopicId = null;
-  return new ConditionalPromise((resolve, reject) => {
-    const currentChannelIdPromise = _getCurrentChannelId();
-    const channelListPromise = _getChannelList();
-    Promise.all([currentChannelIdPromise, channelListPromise])
-    .then(([currentChannelId, channelList]) => {
-      if (currentChannelId && channelList) {
-        for (const channel in channelList) {
-          if (channelList[channel].id === currentChannelId) {
-            currentChannelRootTopicId = channelList[channel].root_pk;
-            break;
-          }
-        }
-      }
-      resolve(currentChannelRootTopicId);
-    });
-  });
-}
-
-function _updateChannelList(store) {
-  const channelPromise = _getChannelList();
-  channelPromise.then((channelList) => {
-    store.dispatch('SET_CHANNEL_LIST', channelList);
-  });
-  return channelPromise;
+function _setChannelState(store, currentChannelId, channelList) {
+  store.dispatch('SET_CHANNEL_LIST', channelList);
+  store.dispatch('SET_CURRENT_CHANNEL', currentChannelId);
+  ContentNodeResource.setChannel(currentChannelId);
+  cookiejs.set('currentChannelId', currentChannelId);
+  if (!getters.currentChannel(store.state)) {
+    coreActions.handleError(store, 'Channel not found');
+  }
 }
 
 
@@ -151,117 +125,99 @@ function redirectToExploreChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
-  _getCurrentChannelId()
-    .then((currentChannelId) => {
-      store.dispatch('CORE_SET_ERROR', null);
-      if (currentChannelId) {
-        store.dispatch('SET_CURRENT_CHANNEL', currentChannelId);
-        cookiejs.set('currentChannel', currentChannelId);
+  ChannelResource.getCollection({}).fetch().then(
+    (channelsData) => {
+      const channelList = _channelListState(channelsData);
+      const channelId = _getDefaultChannelId(store, channelList);
+      _setChannelState(store, channelId, channelList);
+      if (channelList.length) {
         router.replace({
           name: constants.PageNames.EXPLORE_CHANNEL,
-          params: {
-            channel_id: currentChannelId,
-          },
+          params: { channel_id: channelId },
         });
       } else {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
-    })
-    .catch((error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
 }
+
 
 function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
 
-  _getCurrentChannelId()
-    .then((currentChannelId) => {
-      store.dispatch('CORE_SET_ERROR', null);
-      if (currentChannelId) {
-        store.dispatch('SET_CURRENT_CHANNEL', currentChannelId);
-        cookiejs.set('currentChannel', currentChannelId);
+  ChannelResource.getCollection({}).fetch().then(
+    (channelsData) => {
+      const channelList = _channelListState(channelsData);
+      const channelId = _getDefaultChannelId(store, channelList);
+      _setChannelState(store, channelId, channelList);
+      if (channelList.length) {
         router.replace({
           name: constants.PageNames.LEARN_CHANNEL,
-          params: {
-            channel_id: currentChannelId,
-          },
+          params: { channel_id: channelId },
         });
       } else {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
-    })
-    .catch((error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
-}
-
-function showExploreChannel(store, channelId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
-  store.dispatch('SET_CURRENT_CHANNEL', channelId);
-  cookiejs.set('currentChannel', channelId);
-  ContentNodeResource.setChannel(channelId);
-
-  _getCurrentChannelRootTopicId()
-    .then((rootTopicId) => {
-      store.dispatch('SET_ROOT_TOPIC_ID', rootTopicId);
-      const attributesPromise = ContentNodeResource.getModel(rootTopicId).fetch();
-      const childrenPromise = ContentNodeResource.getCollection({ parent: rootTopicId }).fetch();
-      _updateChannelList(store);
-
-      ConditionalPromise.all([attributesPromise, childrenPromise]).only(
-        samePageCheckGenerator(store),
-        ([attributes, children]) => {
-          const pageState = { rootTopicId };
-          pageState.topic = _topicState(attributes);
-          const collection = _collectionState(children);
-          pageState.subtopics = collection.topics;
-          pageState.contents = collection.contents;
-          store.dispatch('SET_PAGE_STATE', pageState);
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-          store.dispatch('CORE_SET_ERROR', null);
-        },
-        (error) => {
-          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-        }
-      );
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+    error => { coreActions.handleApiError(store, error); }
+  );
 }
 
 
-function showExploreTopic(store, channelId, id) {
+function showExploreTopic(store, channelId, id, isRoot = false) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_TOPIC);
-  store.dispatch('SET_CURRENT_CHANNEL', channelId);
-  cookiejs.set('currentChannel', channelId);
+  if (isRoot) {
+    store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+  } else {
+    store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_TOPIC);
+  }
 
-  const attributesPromise = ContentNodeResource.getModel(id).fetch();
+  const topicPromise = ContentNodeResource.getModel(id).fetch();
   const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
-  _updateChannelList(store);
-  ConditionalPromise.all([attributesPromise, childrenPromise]).only(
+  const channelsPromise = ChannelResource.getCollection({}).fetch();
+  ConditionalPromise.all([topicPromise, childrenPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
-    ([attributes, children]) => {
-      const pageState = { id };
-      pageState.topic = _topicState(attributes);
+    ([topic, children, channelsData]) => {
+      _setChannelState(store, channelId, _channelListState(channelsData));
+      if (!getters.currentChannel(store.state)) {
+        return;
+      }
+      const pageState = {};
+      pageState.topic = _topicState(topic);
       const collection = _collectionState(children);
       pageState.subtopics = collection.topics;
       pageState.contents = collection.contents;
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
+      const currentChannel = getters.currentChannel(store.state);
+      if (isRoot) {
+        store.dispatch('CORE_SET_TITLE', `Explore - ${currentChannel.title}`);
+      } else {
+        store.dispatch('CORE_SET_TITLE', `${pageState.topic.title} - ${currentChannel.title}`);
+      }
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    error => { coreActions.handleApiError(store, error); }
+  );
+}
+
+
+function showExploreChannel(store, channelId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+
+  ChannelResource.getCollection({}).fetch().then(
+    (channelsData) => {
+      _setChannelState(store, channelId, _channelListState(channelsData));
+      if (!getters.currentChannel(store.state)) {
+        return;
+      }
+      const currentChannel = getters.currentChannel(store.state);
+      store.dispatch('SET_ROOT_TOPIC_ID', currentChannel.root_id);
+      showExploreTopic(store, channelId, currentChannel.root_id, true);
     }
   );
 }
@@ -270,67 +226,94 @@ function showExploreTopic(store, channelId, id) {
 function showExploreContent(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
-  store.dispatch('SET_CURRENT_CHANNEL', channelId);
-  cookiejs.set('currentChannel', channelId);
 
-  const attributesPromise = ContentNodeResource.getModel(id).fetch();
-  _updateChannelList(store);
-
-  attributesPromise.only(
+  const contentPromise = ContentNodeResource.getModel(id).fetch();
+  const channelsPromise = ChannelResource.getCollection({}).fetch();
+  ConditionalPromise.all([contentPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
-    (attributes) => {
-      const pageState = { content: _contentState(attributes) };
+    ([content, channelsData]) => {
+      _setChannelState(store, channelId, _channelListState(channelsData));
+      const currentChannel = getters.currentChannel(store.state);
+      if (!currentChannel) {
+        return;
+      }
+      const pageState = { content: _contentState(content) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_TITLE', `${pageState.content.title} - ${currentChannel.title}`);
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
 
-function showLearnChannel(store, channelId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+function showLearnChannel(store, channelId, page = 1) {
+  // Special case for when only the page number changes:
+  // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
+  const state = store.state;
+  if (state.pageName !== PageNames.LEARN_CHANNEL || state.currentChannel !== channelId) {
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+  }
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
-  store.dispatch('SET_CURRENT_CHANNEL', channelId);
-  cookiejs.set('currentChannel', channelId);
-  ContentNodeResource.setChannel(channelId);
 
-  const id = 'current';
-  const sessionModel = SessionResource.getModel(id);
-  const sessionPromise = sessionModel.fetch();
-  sessionPromise.then(
-    (session) => {
+  const ALL_PAGE_SIZE = 3;
+
+  const sessionPromise = SessionResource.getModel('current').fetch();
+  const channelsPromise = ChannelResource.getCollection({}).fetch();
+  ConditionalPromise.all([sessionPromise, channelsPromise]).only(
+    samePageCheckGenerator(store),
+    ([session, channelsData]) => {
+      _setChannelState(store, channelId, _channelListState(channelsData));
+      if (!getters.currentChannel(store.state)) {
+        return;
+      }
       const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
       const popularPayload = { popular: session.user_id, channel: channelId };
       const resumePayload = { resume: session.user_id, channel: channelId };
+      const allPayload = { kind: 'content', channel: channelId };
       const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
       const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
       const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
-      _updateChannelList(store);
-      ConditionalPromise.all([nextStepsPromise, popularPromise, resumePromise]).only(
+      const allContentResource = ContentNodeResource.getPagedCollection(
+        allPayload,
+        ALL_PAGE_SIZE,
+        page
+      );
+      const allPromise = allContentResource.fetch();
+      ConditionalPromise.all(
+        [nextStepsPromise, popularPromise, resumePromise, allPromise]
+      ).only(
         samePageCheckGenerator(store),
-        ([nextSteps, popular, resume]) => {
-          const pageState = { recommendations: { nextSteps: nextSteps.map(_contentState),
-                                                 popular: popular.map(_contentState),
-                                                 resume: resume.map(_contentState) } };
+        ([nextSteps, popular, resume, allContent]) => {
+          const pageState = {
+            recommendations: {
+              nextSteps: nextSteps.map(_contentState),
+              popular: popular.map(_contentState),
+              resume: resume.map(_contentState),
+            },
+            all: {
+              content: allContent.map(_contentState),
+              pageCount: allContentResource.pageCount,
+              page,
+            },
+          };
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
+
+          const currentChannel = getters.currentChannel(store.state);
+          store.dispatch('CORE_SET_TITLE', `Learn - ${currentChannel.title}`);
+
+          // preload next page
+          if (allContentResource.hasNext) {
+            ContentNodeResource.getPagedCollection(allPayload, ALL_PAGE_SIZE, page + 1).fetch();
+          }
         },
-        (error) => {
-          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-        }
+        error => { coreActions.handleApiError(store, error); }
       );
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
@@ -338,27 +321,27 @@ function showLearnChannel(store, channelId) {
 function showLearnContent(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
-  store.dispatch('SET_CURRENT_CHANNEL', channelId);
-  cookiejs.set('currentChannel', channelId);
-  const attributesPromise = ContentNodeResource.getModel(id).fetch();
+  const contentPromise = ContentNodeResource.getModel(id).fetch();
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
-  _updateChannelList(store);
-
-  attributesPromise.only(
+  const channelsPromise = ChannelResource.getCollection({}).fetch();
+  ConditionalPromise.all([contentPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
-    (attributes) => {
+    ([content, channelsData]) => {
+      _setChannelState(store, channelId, _channelListState(channelsData));
+      const currentChannel = getters.currentChannel(store.state);
+      if (!currentChannel) {
+        return;
+      }
       const pageState = {
-        content: _contentState(attributes),
+        content: _contentState(content),
         recommended: store.state.pageState.recommended,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_TITLE', `${pageState.content.title} - ${currentChannel.title}`);
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
   recommendedPromise.only(
     samePageCheckGenerator(store),
@@ -371,10 +354,7 @@ function showLearnContent(store, channelId, id) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
@@ -402,10 +382,7 @@ function triggerSearch(store, searchTerm) {
     searchState.contents = collection.contents;
     store.dispatch('SET_SEARCH_STATE', searchState);
   })
-    .catch((error) => {
-      // TODO - how to parse and format?
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    });
+  .catch(error => { coreActions.handleApiError(store, error); });
 }
 
 function clearSearch(store) {
@@ -426,6 +403,7 @@ function showScratchpad(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'Scratchpad');
 }
 
 
@@ -434,6 +412,7 @@ function showContentUnavailable(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'Content Unavailable');
 }
 
 

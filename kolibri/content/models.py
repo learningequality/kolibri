@@ -123,6 +123,9 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
 
     objects = ContentQuerySet.as_manager()
 
+    class Meta:
+        ordering = ('sort_order',)
+
     def __str__(self):
         return self.title
 

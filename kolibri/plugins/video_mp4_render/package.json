@@ -3,6 +3,6 @@
   "description": "Video/MP4 Render Plugin for Kolibri",
   "private": true,
   "dependencies": {
-    "video.js": "5.10.8"
+    "video.js": "5.11.6"
   }
 }

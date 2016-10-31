@@ -1,7 +1,7 @@
 
 const constants = require('./constants');
 const Vuex = require('vuex');
-const coreStore = require('kolibri/coreVue/vuex/store');
+const coreStore = require('kolibri.coreVue.vuex.store');
 
 const initialState = {
   pageName: constants.PageNames.EXPLORE_CHANNEL,
@@ -14,7 +14,7 @@ const initialState = {
     searchTerm: '',
   },
   channelList: {},
-  currentChannel: '',
+  currentChannelId: '',
   rootTopicId: '',
 };
 
@@ -37,7 +37,7 @@ const mutations = {
     state.searchOpen = !state.searchOpen;
   },
   SET_CURRENT_CHANNEL(state, channelId) {
-    state.currentChannel = channelId;
+    state.currentChannelId = channelId;
   },
   SET_CHANNEL_LIST(state, channelList) {
     state.channelList = channelList;

@@ -30,7 +30,7 @@
 
 <script>
 
-  const ContentKinds = require('kolibri/coreVue/vuex/constants').ContentKinds;
+  const ContentKinds = require('kolibri.coreVue.vuex.constants').ContentKinds;
 
   module.exports = {
     $trNameSpace: 'learn',
@@ -41,6 +41,7 @@
       audio: 'audio',
       document: 'document',
       video: 'video',
+      exercise: 'exercise',
     },
     props: {
       ispageicon: {
@@ -96,7 +97,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .svg-wrapper
     width: 100%

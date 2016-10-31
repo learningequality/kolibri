@@ -37,7 +37,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .nav-wrapper
     display: table
@@ -59,6 +59,6 @@
     height: 100vh
     @media screen and (max-width: $portrait-breakpoint)
       display: table-row
-      height: auto
+      height: $nav-portrait-height
 
 </style>

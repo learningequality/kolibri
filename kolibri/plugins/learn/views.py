@@ -29,7 +29,7 @@ class LearnView(TemplateView):
             channel_list = JSONRenderer().render(channel_serializer.data)
             context['channelList'] = channel_list
 
-            cookie_current_channel = self.request.COOKIES.get("currentChannel")
+            cookie_current_channel = self.request.COOKIES.get("currentChannelId")
             channelExists = False
             for channel in ChannelMetadataCache.objects.all():
                 if channel.id == cookie_current_channel:

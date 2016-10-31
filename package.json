@@ -14,7 +14,8 @@
     "watch": "node ./frontend_build/src/webpackdevserver.js",
     "test-karma:watch": "./node_modules/karma/bin/karma start ./karma_config/karma.conf.js",
     "bundle-stats": "webpack --config ./frontend_build/src/webpack.config.prod.js --json | node ./node_modules/webpack-bundle-size-analyzer/webpack-bundle-size-analyzer",
-    "install": "node ./frontend_build/src/install_dependencies.js"
+    "install": "node ./frontend_build/src/install_dependencies.js",
+    "clean": "node ./frontend_build/src/clean.js"
   },
   "repository": {
     "type": "git",

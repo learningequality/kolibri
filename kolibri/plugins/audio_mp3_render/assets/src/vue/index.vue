@@ -211,7 +211,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   #audio-wrapper
     margin: 8% 5%

@@ -22,6 +22,13 @@ function pageMode(state) {
   return undefined;
 }
 
+
+function currentChannel(state) {
+  return state.channelList.find(channel => channel.id === state.currentChannelId);
+}
+
+
 module.exports = {
   pageMode,
+  currentChannel,
 };

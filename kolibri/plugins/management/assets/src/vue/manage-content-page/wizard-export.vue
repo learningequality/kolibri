@@ -68,8 +68,8 @@
 
   module.exports = {
     components: {
-      'core-modal': require('kolibri/coreVue/components/coreModal'),
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     data: () => ({
       selectedDrive: undefined, // used when there's more than one option
@@ -131,7 +131,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   $min-height = 200px
 

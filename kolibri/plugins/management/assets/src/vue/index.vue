@@ -2,10 +2,10 @@
 
   <core-base>
     <main-nav slot="nav"></main-nav>
-    <div v-if="isAdminOrSuperuser" slot="above">
+    <div v-if="isAdminOrSuperuser" class="manage-content" slot="above">
       <top-nav></top-nav>
     </div>
-    <component v-if="isAdminOrSuperuser" slot="content" :is="currentPage" class="page"></component>
+    <component v-if="isAdminOrSuperuser" slot="content" :is="currentPage" class="manage-content page"></component>
     <div v-else slot="content" class="login-message">
       <h1>Did you forget to log in?</h1>
       <h3>You must be logged in as an Admin to view this page.</h3>
@@ -20,7 +20,7 @@
 
   const store = require('../state/store');
   const PageNames = require('../state/constants').PageNames;
-  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
     components: {
@@ -68,14 +68,20 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
+
+  .manage-content
+    width: 100%
+    @media screen and (max-width: $medium-breakpoint)
+        width: 90%
+        margin-left: auto
+        margin-right: auto
 
   .page
     padding: 1em 2em
     padding-bottom: 3em
     background-color: $core-bg-light
     margin-top: 2em
-    width: 100%
     border-radius: $radius
 
   .login-message h1, h3

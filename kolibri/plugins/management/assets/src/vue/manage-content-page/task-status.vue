@@ -4,6 +4,7 @@
     <h1>{{ title }}</h1>
     <progress max="1" :value="percentage"></progress>
     <h2>{{ subTitle }}</h2>
+    <p v-if="statusFailed">{{ $tr('failed_msg') }}</p>
     <icon-button class="buttons" @click="clearTaskHandler">
       {{ buttonMessage }}
     </icon-button>
@@ -15,7 +16,7 @@
 <script>
 
   const actions = require('../../actions');
-  const logging = require('kolibri/lib/logging');
+  const logging = require('kolibri.lib.logging');
   const constants = require('../../state/constants');
   const TaskTypes = constants.TaskTypes;
   const TaskStatuses = constants.TaskStatuses;
@@ -26,6 +27,7 @@
       buttonClose: 'Close',
       buttonCancel: 'Cancel',
       failed: 'Failed.',
+      failed_msg: 'The transfer did not succeed. If you restart, any progress will be retained.',
       completed: `Finished!`,
       loading: 'Please wait...',
       remoteImport: 'Importing from Curation Server',
@@ -33,7 +35,7 @@
       localExport: 'Exporting to Local Drive',
     },
     components: {
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     computed: {
       buttonMessage() {
@@ -41,6 +43,12 @@
           return this.$tr('buttonClose');
         }
         return this.$tr('buttonCancel');
+      },
+      statusFailed() {
+        return this.status === TaskStatuses.FAILED;
+      },
+      statusSuccess() {
+        return this.status === TaskStatuses.SUCCESS;
       },
       title() {
         switch (this.type) {
@@ -56,9 +64,9 @@
         }
       },
       subTitle() {
-        if (this.status === TaskStatuses.FAILED) {
+        if (this.statusFailed) {
           return this.$tr('failed');
-        } else if (this.status === TaskStatuses.SUCCESS) {
+        } else if (this.statusSuccess) {
           return this.$tr('completed');
         }
         return this.$tr('loading');
@@ -99,7 +107,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .buttons
     margin: 10px

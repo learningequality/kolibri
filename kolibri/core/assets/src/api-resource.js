@@ -1,4 +1,4 @@
-const logging = require('kolibri/lib/logging').getLogger(__filename);
+const logging = require('kolibri.lib.logging').getLogger(__filename);
 const ConditionalPromise = require('./conditionalPromise');
 
 
@@ -186,7 +186,9 @@ class Model {
   set(attributes) {
     // force IDs to always be strings - this should be changed on the server-side too
     if (attributes && this.resource.idKey in attributes) {
-      attributes[this.resource.idKey] = String(attributes[this.resource.idKey]);
+      if (attributes[this.resource.idKey]) { // don't stringigy null or undefined.
+        attributes[this.resource.idKey] = String(attributes[this.resource.idKey]);
+      }
     }
     Object.assign(this.attributes, attributes);
   }
@@ -250,6 +252,8 @@ class Collection {
                 // such.
                 this.set(response.entity.results);
                 this.pageCount = Math.ceil(response.entity.count / this.pageSize);
+                this.hasNext = Boolean(response.entity.next);
+                this.hasPrev = Boolean(response.entity.previous);
               } else {
                 // It's all gone a bit Pete Tong.
                 logging.debug('Data appears to be malformed', response.entity);
@@ -322,6 +326,23 @@ class Collection {
 
   set synced(value) {
     this._synced = value;
+    this.models.forEach((model) => { model.synced = true; });
+  }
+
+  static key(params) {
+    // Sort keys in order, then assign those keys to an empty object in that order.
+    // Then stringify to create a cache key.
+    return JSON.stringify(
+      Object.assign(
+        {}, ...Object.keys(params).sort().map(
+          (paramKey) => ({ [paramKey]: params[paramKey] })
+        )
+      )
+    );
+  }
+
+  get key() {
+    return this.constructor.key ? this.constructor.key(this.params) : Collection.key(this.params);
   }
 }
 
@@ -343,27 +364,30 @@ class Resource {
    * Optionally pass in data and instantiate a collection for saving that data or fetching
    * data from the resource.
    * @param {Object} params - default parameters to use for Collection fetching.
+   * @returns {Collection} - Returns an instantiated Collection object.
+   */
+  getCollection(params = {}) {
+    let collection;
+    const key = Collection.key(params);
+    if (!this.collections[key]) {
+      collection = this.createCollection(params);
+    } else {
+      collection = this.collections[key];
+    }
+    return collection;
+  }
+
+  /**
+   * Optionally pass in data and instantiate a collection for saving that data or fetching
+   * data from the resource.
+   * @param {Object} params - default parameters to use for Collection fetching.
    * @param {Object[]} data - Data to instantiate the Collection - see Model constructor for
    * details of data.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  getCollection(params = {}, data = []) {
-    let collection;
-    // Sort keys in order, then assign those keys to an empty object in that order.
-    // Then stringify to create a cache key.
-    const key = JSON.stringify(
-      Object.assign(
-        {}, ...Object.keys(params).sort().map(
-          (paramKey) => ({ [paramKey]: params[paramKey] })
-        )
-      )
-    );
-    if (!this.collections[key]) {
-      collection = new Collection(params, data, this);
-      this.collections[key] = collection;
-    } else {
-      collection = this.collections[key];
-    }
+  createCollection(params = {}, data = []) {
+    const collection = new Collection(params, data, this);
+    this.collections[collection.key] = collection;
     return collection;
   }
 
@@ -375,11 +399,9 @@ class Resource {
    * @returns {Collection} - Returns an instantiated Collection object.
    */
   getPagedCollection(params = {}, pageSize = 20, page = 1) {
-    Object.assign(params, {
-      page,
-      page_size: pageSize,
-    });
-    const collection = this.getCollection(params);
+    const pagedParams = { page, page_size: pageSize };
+    Object.assign(pagedParams, params);
+    const collection = this.getCollection(pagedParams);
     collection.page = page;
     collection.pageSize = pageSize;
     return collection;
@@ -545,4 +567,6 @@ class ResourceManager {
 module.exports = {
   ResourceManager,
   Resource,
+  Collection,
+  Model,
 };

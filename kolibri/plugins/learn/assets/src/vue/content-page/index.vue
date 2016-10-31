@@ -4,7 +4,7 @@
 
     <page-header :title="title"></page-header>
 
-    <content-render
+    <content-renderer
       v-show="!searchOpen"
       class="content-renderer"
       :id="id"
@@ -14,11 +14,11 @@
       :channel-id="channelId"
       :available="available"
       :extra-fields="extraFields">
-    </content-render>
+    </content-renderer>
 
     <p class="page-description">{{ description }}</p>
 
-    <download-button :files="files"></download-button>
+    <download-button v-if="canDownload" :files="files"></download-button>
 
     <expandable-content-grid
       class="recommendation-section"
@@ -36,6 +36,7 @@
 
   const constants = require('../../state/constants');
   const getters = require('../../state/getters');
+  const ContentKinds = require('kolibri.coreVue.vuex.constants').ContentKinds;
 
   module.exports = {
     $trNameSpace: 'learnContent',
@@ -43,6 +44,7 @@
       recommended: 'Recommended',
     },
     computed: {
+      canDownload() { return this.kind !== ContentKinds.EXERCISE; },
       recommendedText() {
         return this.$tr('recommended');
       },
@@ -70,7 +72,7 @@
         kind: (state) => state.pageState.content.kind,
         files: (state) => state.pageState.content.files,
         contentId: (state) => state.pageState.content.content_id,
-        channelId: (state) => state.currentChannel,
+        channelId: (state) => state.currentChannelId,
         available: (state) => state.pageState.content.available,
         extraFields: (state) => state.pageState.content.extra_fields,
 
@@ -85,10 +87,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
-
-  .content-renderer
-    height: 60vh
+  @require '~kolibri.styles.coreTheme'
 
   .recommendation-section
     margin-top: 4em

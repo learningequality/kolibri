@@ -3,7 +3,9 @@
   <core-base @scroll="handleScroll">
     <main-nav slot="nav"></main-nav>
     <toolbar slot="above" :shown="showToolbar"></toolbar>
-    <component slot="content" :is="currentPage"></component>
+
+    <component class="content" slot="content" :is="currentPage"></component>
+
     <div slot="below" class="search-pane" v-show="searchOpen" transition="search-slide">
       <search-widget :show-topics="exploreMode"></search-widget>
     </div>
@@ -93,7 +95,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
   @require 'learn.styl'
 
   .search-pane
@@ -106,6 +108,10 @@
     width: 100%
     @media screen and (min-width: $portrait-breakpoint + 1)
       padding-left: $nav-width
+
+  .content
+    width-auto-adjust()
+    margin: auto
 
   .search-slide-transition
     transition: transform $core-time ease-out

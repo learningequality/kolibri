@@ -12,4 +12,6 @@ module.exports = {
   FacilityResource: require('./facility'),
   TaskResource: require('./task'),
   ChannelResource: require('./channel'),
+  MasteryLog: require('./masteryLog'),
+  AttemptLog: require('./attemptLog'),
 };

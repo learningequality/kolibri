@@ -28,7 +28,7 @@
       },
     },
     components: {
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     methods: {
       /**
