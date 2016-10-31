@@ -214,6 +214,8 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
   // to avoid state pollution.
   store.dispatch('SET_EMPTY_LOGGING_STATE');
 
+  let promises = [];
+
   /* Create summary log iff user exists */
   if (store.state.core.session.user_id &&
     store.state.core.session.kind[0] !== UserKinds.SUPERUSER) {
@@ -222,7 +224,9 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
       content_id: contentId,
       user: store.state.core.session.user_id,
     });
-    summaryCollection.fetch({}, true).then(summary => {
+    const summaryCollectionPromise = summaryCollection.fetch({}, true);
+    promises.push(summaryCollectionPromise);
+    summaryCollectionPromise.then(summary => {
       /* If a summary model exists, map that to the state */
       if (summary.length > 0) {
         store.dispatch('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState(summary[0]));
@@ -258,7 +262,9 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
 
         /* Save a new summary model and set id on state */
         const summaryModel = ContentSummaryLogResource.createModel(summaryData);
-        summaryModel.save().then((newSummary) => {
+        const summaryModelPromise = summaryModel.save();
+        promises.push(summaryModelPromise);
+        summaryModelPromise.then((newSummary) => {
           store.dispatch('SET_LOGGING_SUMMARY_ID', newSummary.pk);
         });
       }
@@ -288,9 +294,13 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
 
   /* Save a new session model and set id on state */
   const sessionModel = ContentSessionLogResource.createModel(sessionData);
-  sessionModel.save().then((newSession) => {
+  const sessionModelPromise = sessionModel.save();
+  promises.push(sessionModelPromise);
+  sessionModelPromise.then((newSession) => {
     store.dispatch('SET_LOGGING_SESSION_ID', newSession.pk);
   });
+
+  return promises;
 }
 
 

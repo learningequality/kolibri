@@ -38,12 +38,6 @@ oriented data synchronization.
       ready: false,
     }),
     created() {
-      this.$on('updateAMLogs', (correct, complete, firstAttempt, hinted) => {
-        this.updateAttemptLogMasetryLog(correct, complete, firstAttempt, hinted);
-      });
-      this.$on('saveAMLogs', (exercisePassed) => { this.saveAttemptLogMasterLog(exercisePassed);});
-      this.$on('takehint', (firstAttempt, hinted) => { this.hintTaken(firstAttempt, hinted);});
-      this.$on('toNextQuestion', () => { this.nextQuestion();});
       // Once the data for the overall assessment is loaded in the renderer
       // we can initialize the mastery log, as the mastery model and spacing time
       // will be available.
@@ -53,6 +47,14 @@ oriented data synchronization.
         // if userKind is anonymous user or deviceOwner.
         this.createDummyMasteryLogAction(this.Kolibri);
       }
+
+      this.$on('updateAMLogs', (correct, complete, firstAttempt, hinted) => {
+        this.updateAttemptLogMasetryLog(correct, complete, firstAttempt, hinted);
+      });
+      this.$on('saveAMLogs', (exercisePassed) => { this.saveAttemptLogMasterLog(exercisePassed);});
+      this.$on('takehint', (firstAttempt, hinted) => { this.hintTaken(firstAttempt, hinted);});
+      this.$on('toNextQuestion', () => { this.nextQuestion();});
+
       this.createAttemptLog().then(() => {
         this.ready = true;
       });
@@ -62,26 +64,12 @@ oriented data synchronization.
         this.updateMasteryAttemptStateAction(new Date(), correct, complete, firstAttempt, hinted);
       },
       saveAttemptLogMasterLog(exercisePassed) {
-        if (this.masteryLogId || !this.isLearner) {
-          this.saveAttemptLogAction(this.Kolibri).then(() => {
-            if (this.isLearner && exercisePassed) {
-              this.setMasteryLogCompleteAction(new Date());
-              this.saveMasteryLogAction(this.Kolibri);
-            }
-          });
-        } else {
-          const watchRevoke = this.$watch('masteryLogId', () => {
-            if (this.masteryLogId) {
-              this.saveAttemptLogAction(this.Kolibri).then(() => {
-                if (this.isLearner && exercisePassed) {
-                  this.setMasteryLogCompleteAction(new Date());
-                  this.saveMasteryLogAction(this.Kolibri);
-                }
-              });
-              watchRevoke();
-            }
-          });
-        }
+        this.saveAttemptLogAction(this.Kolibri).then(() => {
+          if (this.isLearner && exercisePassed) {
+            this.setMasteryLogCompleteAction(new Date());
+            this.saveMasteryLogAction(this.Kolibri);
+          }
+        });
       },
       hintTaken(firstAttempt, hinted) {
         this.updateAttemptLogInteractionHistoryAction(InteractionTypes.hint);
@@ -94,17 +82,7 @@ oriented data synchronization.
         });
       },
       initMasteryLog() {
-        // Only initialize masteryLogs once the summaryLog is initialized.
-        if (!this.summaryLogId) {
-          const watchRevoke = this.$watch('summaryLogId', () => {
-            if (this.summaryLogId) {
-              this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime, this.masteryCriterion);
-              watchRevoke();
-            }
-          });
-        } else {
-          this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime, this.masteryCriterion);
-        }
+        this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime, this.masteryCriterion);
       },
       createAttemptLog() {
         return new Promise((resolve, reject) => {
@@ -141,8 +119,6 @@ oriented data synchronization.
         updateAttemptLogInteractionHistoryAction: actions.updateAttemptLogInteractionHistory,
       },
       getters: {
-        summaryLogId: (state) => state.core.logging.summary.id,
-        masteryLogId: (state) => state.core.logging.mastery.id,
         attemptLogComplete: (state) => state.core.logging.attempt.complete,
         attemptLogCorrect: (state) => state.core.logging.attempt.correct,
         userkind: (state) => state.core.session.kind,
