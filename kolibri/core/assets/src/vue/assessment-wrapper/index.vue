@@ -120,8 +120,6 @@ oriented data synchronization.
         updateAttemptLogInteractionHistoryAction: actions.updateAttemptLogInteractionHistory,
       },
       getters: {
-        attemptLogComplete: (state) => state.core.logging.attempt.complete,
-        attemptLogCorrect: (state) => state.core.logging.attempt.correct,
         userkind: (state) => state.core.session.kind,
       },
     },

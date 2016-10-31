@@ -337,6 +337,29 @@ function saveLogs(store, Kolibri) {
 
 
 /**
+summary and session log progress update for exercise
+**/
+function updateExerciseProgress(store, Kolibri, progressPercent, forceSave = false) {
+  /* Create aliases for logs */
+  const summaryLog = store.state.core.logging.summary;
+  const sessionLog = store.state.core.logging.session;
+
+  /* Update the logging state with new progress information */
+  store.dispatch('SET_LOGGING_PROGRESS', progressPercent, progressPercent);
+
+  /* Mark completion time if 100% progress reached */
+  if (progressPercent === 1) {
+    store.dispatch('SET_LOGGING_COMPLETION_TIME', new Date());
+  }
+
+  /* Save models if needed */
+  if (forceSave || progressPercent === 1) {
+    saveLogs(store, Kolibri);
+  }
+}
+
+
+/**
  * Update the progress percentage
  * To be called periodically by content renderers on interval or on pause
  * Must be called after initContentSession
@@ -572,6 +595,7 @@ module.exports = {
   stopTrackingProgress,
   updateTimeSpent,
   updateProgress,
+  updateExerciseProgress,
   saveLogs,
   samePageCheckGenerator,
   initMasteryLog,

@@ -41,6 +41,7 @@
   const constants = require('../../state/constants');
   const getters = require('../../state/getters');
   const ContentKinds = require('kolibri.coreVue.vuex.constants').ContentKinds;
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
     $trNameSpace: 'learnContent',
@@ -53,6 +54,10 @@
       showNextBtn() { return this.content.kind === ContentKinds.EXERCISE; },
       recommendedText() {
         return this.$tr('recommended');
+      },
+      progress() {
+        return this.userkind.includes(
+          UserKinds.LEARNER) ? this.summaryProgress : this.sessionProgress;
       },
     },
     mixins: [constants], // makes constants available in $options
@@ -93,7 +98,9 @@
         // only used on learn page
         recommended: (state) => state.pageState.recommended,
 
-        progress: (state) => state.core.logging.summary.progress,
+        summaryProgress: (state) => state.core.logging.summary.progress,
+        sessionProgress: (state) => state.core.logging.session.progress,
+        userkind: (state) => state.core.session.kind,
       },
     },
   };
