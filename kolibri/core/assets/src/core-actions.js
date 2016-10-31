@@ -214,7 +214,7 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
   // to avoid state pollution.
   store.dispatch('SET_EMPTY_LOGGING_STATE');
 
-  let promises = [];
+  const promises = [];
 
   /* Create summary log iff user exists */
   if (store.state.core.session.user_id &&
