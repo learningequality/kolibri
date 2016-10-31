@@ -1,9 +1,9 @@
-import os
-
 import atexit
 import multiprocessing
-import cherrypy
+import os
 import platform
+
+import cherrypy
 from django.conf import settings
 from django.core.management import call_command
 from kolibri.content.utils import paths
@@ -51,19 +51,18 @@ def run_server():
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()
 
-    cherrypy.config.update({'server.socket_host': "0.0.0.0",
-                            'server.socket_port': 8080,
-                            'server.thread_pool': 30,
-                            'log.screen': True})
-
     # Instantiate a new server object
     server = cherrypy._cpserver.Server()
+
+    # Configure the server settings
+    server.socket_host = "0.0.0.0"
+    server.socket_port = 8080
+    server.thread_pool = 30
 
     # Subscribe this server
     server.subscribe()
 
     # Start the server engine (Option 1 *and* 2)
-
     cherrypy.engine.start()
     cherrypy.engine.block()
 
