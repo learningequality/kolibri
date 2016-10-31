@@ -29,6 +29,13 @@ class BaseLogQuerySet(models.QuerySet):
 
         content_ids = topic.get_descendant_content_ids()
 
+        return self.filter_by_content_ids(content_ids)
+
+    def filter_by_content_ids(self, content_ids, content_id_lookup="content_id"):
+        """
+        Filter a set of logs by content_id, using content_ids from the provided list or queryset.
+        """
+
         if default_database_is_attached():
             # perform the query using an efficient cross-database join, if possible
             return self.using(get_active_content_database()).filter(**{content_id_lookup + "__in": content_ids})
