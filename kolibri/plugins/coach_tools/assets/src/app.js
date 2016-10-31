@@ -19,20 +19,20 @@ class CoachToolsModule extends KolibriModule {
     );
 
     router.on(
-      PageNames.SCRATCHPAD,
-      '/scratchpad',
-      (toRoute, fromRoute) => {
-        actions.showScratchpad(store);
-      }
-    );
-
-    router.on(
       PageNames.REPORTS,
-      '/reports/:channel_id/:content_scope/:content_scope_id/:user_scope/:user_scope_id/:all_or_recent/:view_by_content_or_learners',
+      '/reports',
       (toRoute, fromRoute) => {
         actions.showReports(store, toRoute.params);
       }
     );
+
+    /*    router.on(
+     PageNames.REPORTS,
+     '/reports/:channel_id/:content_scope/:content_scope_id/:user_scope/:user_scope_id/:all_or_recent/:view_by_content_or_learners',
+     (toRoute, fromRoute) => {
+     actions.showReports(store, toRoute.params);
+     }
+     );*/
 
     router.start(rootvue, 'rootvue');
     coreActions.currentLoggedInUser(store, kolibri);

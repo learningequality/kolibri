@@ -1,8 +1,7 @@
 <template>
 
   <div>
-    <h1>Coach Tools Scratchpad</h1>
-    <p>Use this page for in-progress component prototyping.</p>
+    <h1>summary-section</h1>
   </div>
 
 </template>

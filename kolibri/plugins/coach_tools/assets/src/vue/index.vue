@@ -18,12 +18,12 @@
   module.exports = {
     components: {
       'main-nav': require('./main-nav'),
-      'scratchpad-page': require('./scratchpad-page'),
+      'reports': require('./reports'),
     },
     computed: {
       currentPage() {
-        if (this.pageName === constants.PageNames.SCRATCHPAD) {
-          return 'scratchpad-page';
+        if (this.pageName === constants.PageNames.REPORTS) {
+          return 'reports';
         }
         return null;
       },

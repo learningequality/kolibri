@@ -1,18 +1,10 @@
-// ================================
-// COACH ACTIONS
-
 function initializePage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('SET_PAGE_NAME', 'HOME');
-}
-
-function showScratchpad(store) {
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('SET_PAGE_NAME', 'SCRATCHPAD');
+  store.dispatch('SET_PAGE_NAME', 'COACH_ROOT');
 }
 
 function showReports(store, params) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('SET_PAGE_NAME', 'REPORTS');
 
   // Get Params
@@ -45,6 +37,5 @@ function showReports(store, params) {
 
 module.exports = {
   initializePage,
-  showScratchpad,
   showReports,
 };
