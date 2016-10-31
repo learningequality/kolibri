@@ -7,19 +7,17 @@ The ONLY public object is ContentNode
 from __future__ import print_function
 
 import uuid
-
-from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
-from django.core.urlresolvers import reverse
-from django.utils.text import get_valid_filename
-
-from mptt.models import MPTTModel, TreeForeignKey
-
-from le_utils.constants import content_kinds, file_formats, format_presets
-from .content_db_router import get_active_content_database
-from .utils import paths
 from gettext import gettext as _
 
+from django.core.urlresolvers import reverse
+from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils.text import get_valid_filename
+from le_utils.constants import content_kinds, file_formats, format_presets
+from mptt.models import MPTTModel, TreeForeignKey
+
+from .content_db_router import get_active_content_database
+from .utils import paths
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
@@ -127,6 +125,17 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
 
     def __str__(self):
         return self.title
+
+    def get_descendant_content_ids(self):
+        """
+        Retrieve a queryset of unique content_ids for non-topic content nodes that are
+        descendants of this node.
+        """
+        return ContentNode.objects \
+            .filter(lft__gte=self.lft, lft__lte=self.rght) \
+            .exclude(kind=content_kinds.TOPIC) \
+            .values_list("content_id", flat=True) \
+            .distinct().order_by("content_id")
 
 
 @python_2_unicode_compatible
