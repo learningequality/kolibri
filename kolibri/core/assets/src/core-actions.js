@@ -340,10 +340,6 @@ function saveLogs(store, Kolibri) {
 summary and session log progress update for exercise
 **/
 function updateExerciseProgress(store, Kolibri, progressPercent, forceSave = false) {
-  /* Create aliases for logs */
-  const summaryLog = store.state.core.logging.summary;
-  const sessionLog = store.state.core.logging.session;
-
   /* Update the logging state with new progress information */
   store.dispatch('SET_LOGGING_PROGRESS', progressPercent, progressPercent);
 
