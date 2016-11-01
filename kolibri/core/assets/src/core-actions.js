@@ -300,7 +300,7 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
     store.dispatch('SET_LOGGING_SESSION_ID', newSession.pk);
   });
 
-  return promises;
+  return Promise.all(promises);
 }
 
 

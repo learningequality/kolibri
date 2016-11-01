@@ -16,7 +16,7 @@
       :extra-fields="content.extra_fields">
     </content-renderer>
 
-    <icon-button v-link="MoveToNextContent()" v-if="progress >= 1 && showNextBtn" class="next-btn">
+    <icon-button v-link="nextContentLink" v-if="progress >= 1 && showNextBtn" class="next-btn">
     {{ $tr("nextContent") }}
     <svg class="right-arrow" src="../icons/arrow_right.svg"></svg></icon-button>
 
@@ -56,17 +56,12 @@
         return this.$tr('recommended');
       },
       progress() {
-        return this.userkind.includes(
-          UserKinds.LEARNER) ? this.summaryProgress : this.sessionProgress;
+        if (this.userkind.includes(UserKinds.LEARNER)) {
+          return this.summaryProgress;
+        }
+        return this.sessionProgress;
       },
-    },
-    mixins: [constants], // makes constants available in $options
-    components: {
-      'page-header': require('../page-header'),
-      'expandable-content-grid': require('../expandable-content-grid'),
-    },
-    methods: {
-      MoveToNextContent() {
+      nextContentLink() {
         if (this.content.next_content.kind !== 'topic') {
           return {
             name: this.pagename,
@@ -78,6 +73,11 @@
           params: { id: this.content.next_content.id },
         };
       },
+    },
+    mixins: [constants], // makes constants available in $options
+    components: {
+      'page-header': require('../page-header'),
+      'expandable-content-grid': require('../expandable-content-grid'),
     },
     vuex: {
       getters: {

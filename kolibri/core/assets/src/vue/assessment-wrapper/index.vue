@@ -49,7 +49,7 @@ oriented data synchronization.
       }
 
       this.$on('updateAMLogs', (correct, complete, firstAttempt, hinted) => {
-        this.updateAttemptLogMasetryLog(correct, complete, firstAttempt, hinted);
+        this.updateAttemptLogMasteryLog(correct, complete, firstAttempt, hinted);
       });
       this.$on('saveAMLogs', (exercisePassed) => { this.saveAttemptLogMasterLog(exercisePassed);});
       this.$on('takehint', (firstAttempt, hinted) => { this.hintTaken(firstAttempt, hinted);});
@@ -60,7 +60,7 @@ oriented data synchronization.
       });
     },
     methods: {
-      updateAttemptLogMasetryLog(correct, complete, firstAttempt, hinted) {
+      updateAttemptLogMasteryLog(correct, complete, firstAttempt, hinted) {
         this.updateMasteryAttemptStateAction(new Date(), correct, complete, firstAttempt, hinted);
       },
       saveAttemptLogMasterLog(exercisePassed) {
@@ -73,7 +73,7 @@ oriented data synchronization.
       },
       hintTaken(firstAttempt, hinted) {
         this.updateAttemptLogInteractionHistoryAction(InteractionTypes.hint);
-        this.updateAttemptLogMasetryLog(0, false, firstAttempt, hinted);
+        this.updateAttemptLogMasteryLog(0, false, firstAttempt, hinted);
         this.saveAttemptLogMasterLog(false);
       },
       nextQuestion() {
