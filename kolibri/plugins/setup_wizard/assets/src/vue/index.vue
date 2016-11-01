@@ -36,7 +36,7 @@
 
 <script>
 
-      const actions = require('../actions');
+  const actions = require('../actions');
   const store = require('../state/store');
 
   module.exports = {
