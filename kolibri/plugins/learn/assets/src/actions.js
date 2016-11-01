@@ -308,7 +308,7 @@ function showLearnChannel(store, channelId, page = 1) {
   const sessionModel = SessionResource.getModel(id);
   const sessionPromise = sessionModel.fetch();
 
-  const ALL_PAGE_SIZE = 3;
+  const ALL_PAGE_SIZE = 6;
 
   sessionPromise.then(
     (session) => {
