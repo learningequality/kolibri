@@ -1,30 +1,103 @@
 <template>
 
   <div>
-    <button>Recent</button>
-    <button>Topics</button>
-    <breadcrumbs :list="contentBreadcrumbs">Content Breadcrumbs</breadcrumbs>
-    <h1>
+
+    <!--TABS-->
+    <button v-bind:class="{ active: !topic_view }">Recent</button>
+    <button v-bind:class="{ active: topic_view }">Topics</button>
+
+
+    <!--CONTENT BREADCRUMBS-->
+    <breadcrumbs :list="breadcrumbsList">Content Breadcrumbs</breadcrumbs>
+
+
+    <!--TITLE-->
+    <h2>
       <span v-if="user_name">{{ user_name }} - </span>
       <span>{{ kind_icon }}</span>
       {{ content_name }}
-    </h1>
-    <p v-if="topic">{{ excercise_count }} Excercise - {{ content_count }} Contents</p>
-    <div>Exercises
-      <progress-bar :progress-percent="50"></progress-bar>
-    </div>
-    <div>Content
-      <progress-bar :progress-percent="50"></progress-bar>
+    </h2>
+
+
+    <!--TOPIC/CHANNEL-->
+    <div v-if="kind == 'topic'">
+      <p>{{ exercise_count }} Exercises - {{ content_count }} Contents</p>
+      <p>Last Active: {{ last_active }}</p>
+
+      <div>
+        <p>Exercises</p>
+        <progress-bar :progress-percent="exercise_progress"></progress-bar>
+      </div>
+
+      <div>
+        <p>Content</p>
+        <progress-bar :progress-percent="content_progress"></progress-bar>
+      </div>
+
     </div>
 
+
+    <!--EXERCISE-->
+    <div v-if="kind == 'exercise'">
+      <p>{{ questions_count }} Questions - Mastery Model: {{ mastery_model }}</p>
+      <p>Last Active: {{ last_active }}</p>
+
+      <div v-if="user_name">
+        <p>{{ questions_answered }} Questions Answered - {{ attempts }} Attempts - {{ time_spent }} - {{ date_mastered
+          }}</p>
+      </div>
+
+      <div v-else>
+        <p>Mastered:</p>
+        <p>{{ exercise_mastered }} / {{ exercise_total }} Learners</p>
+      </div>
+
+    </div>
+
+
+    <!--VIDEO/AUDIO-->
+    <div v-if="kind == 'video' ">
+      <p>{{ duration }}</p>
+      <p>Last Active: {{ last_active }}</p>
+
+      <div v-if="user_name">
+        <p>{{ time_spent }}</p>
+        <progress-bar :progress-percent="video_progress"></progress-bar>
+      </div>
+
+      <div v-else>
+        <progress-bar :progress-percent="video_progress"></progress-bar>
+      </div>
+
+    </div>
+
+
+    <!--DOCUMENT-->
+    <div v-if="kind == 'document' || 'audio'">
+      <p>{{ pages }} Pages</p>
+      <p>Last Active: {{ last_active }}</p>
+
+      <div v-if="user_name">
+        <p>
+          <span v-if="document_progress == 1.000">Viewed - {{ time_spent }}</span>
+          <span v-else>Not Viewed</span>
+        </p>
+      </div>
+
+      <div v-else>
+        <progress-bar :progress-percent="document_progress"></progress-bar>
+      </div>
+
+    </div>
+
+
+    <!--VIEW BY TOGGLE-->
     <p v-if="topic_view">View by:
       <input type="radio" id="content" value="content" v-model="contentOrLearnersView">
       <label for="content">content</label>
       <input type="radio" id="learners" value="learners" v-model="contentOrLearnersView">
       <label for="learners">learners</label>
     </p>
-
-
   </div>
 
 </template>
@@ -32,31 +105,51 @@
 
 <script>
 
- module.exports = {
-  data: () => ({
-    user_name: 'Aaron Dude',
-    kind_icon: 'video_icon',
-    content_name: 'Content Name',
-    contentOrLearnersView: 'content',
-    topic_view: true,
-    ancestors: [
-    {name: 'Math Fundamentals', 'id': '1234'},
-    {name: 'Unicef Channel', 'id': '123'},
-    ]
-  }),
-  components: {
-    'breadcrumbs': require('../breadcrumbs'),
-  },
-  computed: {
-    contentBreadcrumbs() {
-      console.log('before', this.ancestors);
-      let ancestors = this.ancestors;
-      let list = ancestors.push({name: this.content_name, id: '1234545'});
-      console.log('after', list);
-      return this.ancestors;
-    }
-  }
-};
+  module.exports = {
+
+    components: {
+      'breadcrumbs': require('../breadcrumbs'),
+    },
+
+    data: () => ({
+      user_name: 'Aaron Dude',
+      content_name: 'Content Name',
+      ancestors: [
+        {name: 'Grandparent', 'id': '123'},
+        {name: 'Parent', 'id': '1234'},
+      ],
+      kind: 'document',
+      kind_icon: 'video_icon',
+      last_active: 'Nov 1 2016',
+      exercise_count: 50,
+      content_count: 20,
+      exercise_progress: 50,
+      content_progress: 20,
+      questions_count: 20,
+      mastery_model: '3 out of 5 correct',
+      questions_answered: 20,
+      attempts: 40,
+      time_spent: '3:40:32',
+      exercise_mastered: 20,
+      exercise_total: 100,
+      date_mastered: 'Oct 31 2016',
+      video_progress: 75,
+      pages: 300,
+      document_progress: 1.000,
+      topic_view: true,
+      contentOrLearnersView: 'content',
+    }),
+
+    computed: {
+      breadcrumbsList() {
+        let breadcrumbsList = this.ancestors;
+        breadcrumbsList.push({name: this.content_name});
+        return breadcrumbsList;
+      }
+    },
+
+  };
+
 
 </script>
 
