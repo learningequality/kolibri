@@ -6,88 +6,89 @@
     <button v-bind:class="{ active: !topic_view }">Recent</button>
     <button v-bind:class="{ active: topic_view }">Topics</button>
 
-
-    <!--CONTENT BREADCRUMBS-->
-    <breadcrumbs :list="breadcrumbsList">Content Breadcrumbs</breadcrumbs>
-
-
-    <!--TITLE-->
-    <h2>
-      <span v-if="user_name">{{ user_name }} - </span>
-      <span>{{ kind_icon }}</span>
-      {{ content_name }}
-    </h2>
+    <div class="summary-section">
+      <!--CONTENT BREADCRUMBS-->
+      <breadcrumbs :list="breadcrumbsList">Content Breadcrumbs</breadcrumbs>
 
 
-    <!--TOPIC/CHANNEL-->
-    <div v-if="kind == 'topic'">
-      <p>{{ exercise_count }} Exercises - {{ content_count }} Contents</p>
-      <p>Last Active: {{ last_active }}</p>
+      <!--TITLE-->
+      <h2>
+        <span v-if="user_name">{{ user_name }} - </span>
+        <span>{{ kind_icon }}</span>
+        {{ content_name }}
+      </h2>
 
-      <div>
-        <p>Exercises</p>
-        <progress-bar :progress-percent="exercise_progress"></progress-bar>
+
+      <!--TOPIC/CHANNEL-->
+      <div v-if="kind == 'topic'">
+        <p>{{ exercise_count }} Exercises - {{ content_count }} Contents</p>
+        <p>Last Active: {{ last_active }}</p>
+
+        <div>
+          <p>Exercises</p>
+          <progress-bar :progress-percent="exercise_progress"></progress-bar>
+        </div>
+
+        <div>
+          <p>Content</p>
+          <progress-bar :progress-percent="content_progress"></progress-bar>
+        </div>
+
       </div>
 
-      <div>
-        <p>Content</p>
-        <progress-bar :progress-percent="content_progress"></progress-bar>
+
+      <!--EXERCISE-->
+      <div v-if="kind == 'exercise'">
+        <p>{{ questions_count }} Questions - Mastery Model: {{ mastery_model }}</p>
+        <p>Last Active: {{ last_active }}</p>
+
+        <div v-if="user_name">
+          <p>{{ questions_answered }} Questions Answered - {{ attempts }} Attempts - {{ time_spent }} - {{ date_mastered
+            }}</p>
+        </div>
+
+        <div v-else>
+          <p>Mastered:</p>
+          <p>{{ exercise_mastered }} / {{ exercise_total }} Learners</p>
+        </div>
+
       </div>
 
-    </div>
 
+      <!--VIDEO/AUDIO-->
+      <div v-if="kind == 'video' ">
+        <p>{{ duration }}</p>
+        <p>Last Active: {{ last_active }}</p>
 
-    <!--EXERCISE-->
-    <div v-if="kind == 'exercise'">
-      <p>{{ questions_count }} Questions - Mastery Model: {{ mastery_model }}</p>
-      <p>Last Active: {{ last_active }}</p>
+        <div v-if="user_name">
+          <p>{{ time_spent }}</p>
+          <progress-bar :progress-percent="video_progress"></progress-bar>
+        </div>
 
-      <div v-if="user_name">
-        <p>{{ questions_answered }} Questions Answered - {{ attempts }} Attempts - {{ time_spent }} - {{ date_mastered
-          }}</p>
+        <div v-else>
+          <progress-bar :progress-percent="video_progress"></progress-bar>
+        </div>
+
       </div>
 
-      <div v-else>
-        <p>Mastered:</p>
-        <p>{{ exercise_mastered }} / {{ exercise_total }} Learners</p>
+
+      <!--DOCUMENT-->
+      <div v-if="kind == 'document' || 'audio'">
+        <p>{{ pages }} Pages</p>
+        <p>Last Active: {{ last_active }}</p>
+
+        <div v-if="user_name">
+          <p>
+            <span v-if="document_progress == 1.000">Viewed - {{ time_spent }}</span>
+            <span v-else>Not Viewed</span>
+          </p>
+        </div>
+
+        <div v-else>
+          <progress-bar :progress-percent="document_progress"></progress-bar>
+        </div>
+
       </div>
-
-    </div>
-
-
-    <!--VIDEO/AUDIO-->
-    <div v-if="kind == 'video' ">
-      <p>{{ duration }}</p>
-      <p>Last Active: {{ last_active }}</p>
-
-      <div v-if="user_name">
-        <p>{{ time_spent }}</p>
-        <progress-bar :progress-percent="video_progress"></progress-bar>
-      </div>
-
-      <div v-else>
-        <progress-bar :progress-percent="video_progress"></progress-bar>
-      </div>
-
-    </div>
-
-
-    <!--DOCUMENT-->
-    <div v-if="kind == 'document' || 'audio'">
-      <p>{{ pages }} Pages</p>
-      <p>Last Active: {{ last_active }}</p>
-
-      <div v-if="user_name">
-        <p>
-          <span v-if="document_progress == 1.000">Viewed - {{ time_spent }}</span>
-          <span v-else>Not Viewed</span>
-        </p>
-      </div>
-
-      <div v-else>
-        <progress-bar :progress-percent="document_progress"></progress-bar>
-      </div>
-
     </div>
 
 
@@ -157,5 +158,8 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.coreTheme'
+
+  .summary-section
+    background-color white
 
 </style>
