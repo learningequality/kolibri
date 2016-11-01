@@ -14,25 +14,25 @@ class CoachToolsModule extends KolibriModule {
       PageNames.COACH_ROOT,
       '/',
       (toRoute, fromRoute) => {
-        actions.initializePage(store);
+        actions.showCoachRoot(store);
       }
     );
 
     router.on(
-      PageNames.REPORTS,
+      PageNames.REPORTS_ROOT,
       '/reports',
       (toRoute, fromRoute) => {
-        actions.showReports(store, toRoute.params);
+        actions.redirectToReportsQuery(store, toRoute.params);
       }
     );
 
-    /*    router.on(
-     PageNames.REPORTS,
-     '/reports/:channel_id/:content_scope/:content_scope_id/:user_scope/:user_scope_id/:all_or_recent/:view_by_content_or_learners',
-     (toRoute, fromRoute) => {
-     actions.showReports(store, toRoute.params);
-     }
-     );*/
+    router.on(
+      PageNames.REPORTS_QUERY,
+      '/reports/:channel_id/:content_scope/:content_scope_id/:user_scope/:user_scope_id/:all_or_recent/:view_by_content_or_learners',
+      (toRoute, fromRoute) => {
+        actions.showReportsQuery(store, toRoute.params);
+      }
+    );
 
     router.start(rootvue, 'rootvue');
     coreActions.currentLoggedInUser(store, kolibri);

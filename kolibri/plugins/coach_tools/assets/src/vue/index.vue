@@ -2,7 +2,12 @@
 
   <core-base>
     <main-nav slot="nav"></main-nav>
-    <div v-if="!currentPage" slot="content"><h1>Root</h1></div>
+
+    <div v-if="!currentPage" slot="content">
+      <h1>Coach Root</h1>
+      <a href="/coach/#!/reports">Go to Reports.</a>
+    </div>
+
     <component slot="content" :is="currentPage" class="page"></component>
   </core-base>
 
@@ -23,7 +28,7 @@
     computed: {
 
       currentPage() {
-        if (this.pageName === constants.PageNames.REPORTS) {
+        if (this.pageName === constants.PageNames.REPORTS_QUERY) {
           return 'reports';
         }
         return null;
