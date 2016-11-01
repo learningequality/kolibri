@@ -2,7 +2,7 @@
 
   <div>
     <h1>Reports</h1>
-    <breadcrumbs></breadcrumbs>
+    <breadcrumbs :list="ancestors"></breadcrumbs>
     <summary-section></summary-section>
   </div>
 
@@ -12,10 +12,19 @@
 <script>
 
   module.exports = {
+
     components: {
       'breadcrumbs': require('./breadcrumbs'),
       'summary-section': require('./summary-section'),
     },
+
+    data: () => ({
+      ancestors: [
+        {name: 'ALL Learners', 'id': '123'},
+        {name: 'Aaron Dude'},
+      ],
+    }),
+
   };
 
 </script>
