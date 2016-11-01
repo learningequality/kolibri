@@ -91,14 +91,6 @@
       </div>
     </div>
 
-
-    <!--VIEW BY TOGGLE-->
-    <p v-if="topic_view">View by:
-      <input type="radio" id="content" value="content" v-model="contentOrLearnersView">
-      <label for="content">content</label>
-      <input type="radio" id="learners" value="learners" v-model="contentOrLearnersView">
-      <label for="learners">learners</label>
-    </p>
   </div>
 
 </template>
@@ -138,7 +130,6 @@
       pages: 300,
       document_progress: 1.000,
       topic_view: true,
-      contentOrLearnersView: 'content',
     }),
 
     computed: {
