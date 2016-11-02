@@ -22,6 +22,7 @@
     $trs: {
       errorHeader: 'Error',
       errorButtonLabel: 'Hide Error',
+      // eslint-disable-next-line
       explanation: `Sorry, we've encountered an issue. You may need to refresh the page or click one of the main navigation links.`,
       errorLabel: `Error details:`,
     },
