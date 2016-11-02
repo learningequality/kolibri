@@ -1,8 +1,7 @@
 <template>
 
   <div>
-    <h1>Coach Tools Scratchpad</h1>
-    <p>Use this page for in-progress component prototyping.</p>
+    list-section
   </div>
 
 </template>
@@ -10,8 +9,7 @@
 
 <script>
 
-  module.exports = {
-  };
+  module.exports = {};
 
 </script>
 
