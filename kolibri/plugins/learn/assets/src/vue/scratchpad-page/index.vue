@@ -47,13 +47,14 @@
 
 <script>
 
-  const AnswerTypes = require('./exercise-attempts/constants').AnswerTypes;
+  const AnswerTypes = {
+    HINT: -1,
+    WRONG: 0,
+    RIGHT: 1,
+  };
 
 
   module.exports = {
-    components: {
-      'exercise-attempts': require('./exercise-attempts'),
-    },
     methods: {
       clear() {
         // http://stackoverflow.com/a/1232046
