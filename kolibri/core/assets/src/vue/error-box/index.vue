@@ -1,7 +1,9 @@
 <template>
 
-  <div class="error-box-wrapper" v-bind:class="{ hidden: isHidden }">
-    <button class="close-button" v-on:click="hideErrorbox">X</button>
+  <div class="error-box-wrapper" :class="{ hidden: isHidden }">
+    <button class="close-button" @click="hideErrorbox" :aria-label="$tr('errorButtonLabel')">
+      <svg src="../icons/close.svg" role="presentation"></svg>
+    </button>
     <h1>{{ $tr('errorHeader') }}</h1>
     <label for="error-textbox" aria-live="polite">{{ $tr('errorPrefixText') }}</label><br>
     <div id="error-textbox">
@@ -55,7 +57,6 @@
     position: absolute
     right: 5px
     top: 5px
-    color: black
     border: none
 
   #error-textbox
