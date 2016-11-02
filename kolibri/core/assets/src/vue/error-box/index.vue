@@ -1,9 +1,12 @@
 <template>
 
-  <div class="error-box-wrapper" v-bind:class="{ hidden: isHidden }">
-    <button class="close-button" v-on:click="hideErrorbox">X</button>
+  <div class="error-box-wrapper" :class="{ hidden: isHidden }">
+    <button class="close-button" @click="hideErrorbox" :aria-label="$tr('errorButtonLabel')">
+      <svg src="../icons/close.svg" role="presentation"></svg>
+    </button>
     <h1>{{ $tr('errorHeader') }}</h1>
-    <label for="error-textbox" aria-live="polite">{{ $tr('errorPrefixText') }}</label><br>
+    <p>{{ $tr('explanation') }}</p>
+    <label for="error-textbox" aria-live="polite">{{ $tr('errorLabel') }}</label><br>
     <div id="error-textbox">
       {{ error }}
     </div>
@@ -18,7 +21,9 @@
     $trNameSpace: 'error',
     $trs: {
       errorHeader: 'Error',
-      errorPrefixText: 'We\'ve encountered an issue:',
+      errorButtonLabel: 'Hide Error',
+      explanation: `Sorry, we've encountered an issue. You may need to refresh the page or click one of the main navigation links.`,
+      errorLabel: `Error details:`,
     },
     vuex: {
       getters: {
@@ -55,7 +60,6 @@
     position: absolute
     right: 5px
     top: 5px
-    color: black
     border: none
 
   #error-textbox
