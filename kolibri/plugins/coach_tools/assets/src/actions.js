@@ -4,7 +4,7 @@ const PageNames = require('./state/constants').PageNames;
 
 // Valid options
 const CONTENT_SCOPE_OPTIONS = ['root', 'topic', 'content'];
-const USER_SCOPE_OPTIONS = ['facility', 'class', 'group', 'learner'];
+const USER_SCOPE_OPTIONS = ['facility', 'classroom', 'learnergroup', 'user'];
 const ALL_OR_RECENT_OPTIONS = ['all', 'recent'];
 const VIEW_BY_CONTENT_OR_LEARNERS_OPTIONS = ['content_view', 'user_view'];
 
