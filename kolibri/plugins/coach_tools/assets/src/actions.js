@@ -1,5 +1,6 @@
 const router = require('kolibri.coreVue.router');
 const PageNames = require('./state/constants').PageNames;
+const coreActions = require('kolibri.coreVue.vuex.actions');
 
 
 // Valid options
@@ -59,7 +60,8 @@ function showReports(store, params) {
     && ALL_OR_RECENT_OPTIONS.includes(allOrRecent)
     && VIEW_BY_CONTENT_OR_LEARNERS_OPTIONS.includes(viewByContentOrLearners))) {
     // If incorrect redirect to default reports.
-    alert('Invalid query!');
+    coreActions.handleError(store, 'Invalid query. Redirected to a valid query.');
+    console.log('Invalid query.');
     redirectToDefaultReports(store, params);
   } else {
     console.log('Valid query.');
