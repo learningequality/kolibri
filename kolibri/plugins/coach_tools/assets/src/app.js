@@ -19,18 +19,18 @@ class CoachToolsModule extends KolibriModule {
     );
 
     router.on(
-      PageNames.REPORTS_ROOT,
+      PageNames.REPORTS_NO_QUERY,
       '/reports',
       (toRoute, fromRoute) => {
-        actions.redirectToReportsQuery(store, toRoute.params);
+        actions.redirectToDefaultReports(store, toRoute.params);
       }
     );
 
     router.on(
-      PageNames.REPORTS_QUERY,
+      PageNames.REPORTS,
       '/reports/:channel_id/:content_scope/:content_scope_id/:user_scope/:user_scope_id/:all_or_recent/:view_by_content_or_learners',
       (toRoute, fromRoute) => {
-        actions.showReportsQuery(store, toRoute.params);
+        actions.showReports(store, toRoute.params);
       }
     );
 

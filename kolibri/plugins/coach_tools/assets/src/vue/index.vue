@@ -28,7 +28,7 @@
     computed: {
 
       currentPage() {
-        if (this.pageName === constants.PageNames.REPORTS_QUERY) {
+        if (this.pageName === constants.PageNames.REPORTS) {
           return 'reports';
         }
         return null;

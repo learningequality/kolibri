@@ -1,8 +1,7 @@
 const PageNames = {
   COACH_ROOT: 'COACH_ROOT',
-  REPORTS_ROOT: 'REPORTS_ROOT',
-  REPORTS_QUERY: 'REPORTS_QUERY',
-
+  REPORTS_NO_QUERY: 'REPORTS_NO_QUERY',
+  REPORTS: 'REPORTS',
 };
 
 module.exports = {
