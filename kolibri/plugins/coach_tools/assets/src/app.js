@@ -14,15 +14,24 @@ class CoachToolsModule extends KolibriModule {
       PageNames.COACH_ROOT,
       '/',
       (toRoute, fromRoute) => {
-        actions.initializePage(store);
+        actions.showCoachRoot(store);
       }
     );
 
     router.on(
-      PageNames.SCRATCHPAD,
-      '/scratchpad',
+      PageNames.REPORTS_NO_QUERY,
+      '/reports',
       (toRoute, fromRoute) => {
-        actions.showScratchpad(store);
+        actions.redirectToDefaultReports(store, toRoute.params);
+      }
+    );
+
+    router.on(
+      PageNames.REPORTS,
+      // eslint-disable-next-line
+      '/reports/:channel_id/:content_scope/:content_scope_id/:user_scope/:user_scope_id/:all_or_recent/:view_by_content_or_learners',
+      (toRoute, fromRoute) => {
+        actions.showReports(store, toRoute.params);
       }
     );
 

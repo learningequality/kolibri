@@ -1,9 +1,8 @@
 const Vuex = require('vuex');
 const coreStore = require('kolibri.coreVue.vuex.store');
-// const constants = require('./constants');
 
 const initialState = {
-  pageName: 'HOME',
+  pageName: 'COACH_ROOT',
 };
 
 const mutations = {
