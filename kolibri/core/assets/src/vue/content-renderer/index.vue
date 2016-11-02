@@ -190,13 +190,18 @@
           // Add the specified options for the Vue component that we received from the plugin
           // into the options object.
           Object.assign(options, this.currentViewClass);
-          // Instantiate the Vue instance directly using the Kolibri Vue constructor.
-          this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
 
-          this.contentView.$on('startTracking', this.wrappedStartTracking);
-          this.contentView.$on('stopTracking', this.wrappedStopTracking);
-          this.contentView.$on('progressUpdate', this.wrappedUpdateProgress);
-          this.initSession(this.Kolibri, this.channelId, this.contentId, this.kind);
+          // guarantee summarylog, sessionlog, and existing masterylog are synced and in store.
+          this.initSession(this.Kolibri, this.channelId, this.contentId, this.kind).then(() => {
+            // Instantiate the Vue instance directly using the Kolibri Vue constructor.
+            this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
+
+            this.contentView.$on('startTracking', this.wrappedStartTracking);
+            this.contentView.$on('stopTracking', this.wrappedStopTracking);
+            this.contentView.$on('progressUpdate', this.wrappedUpdateProgress);
+          }, (reason) => {
+            console.log('initContentSession failed: ', reason);
+          });
         }
       },
       wrappedStartTracking() {

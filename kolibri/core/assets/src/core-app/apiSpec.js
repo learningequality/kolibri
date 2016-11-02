@@ -51,6 +51,9 @@ module.exports = {
         contentRenderer: {
           module: require('../vue/content-renderer'),
         },
+        assessmentWrapper: {
+          module: require('../vue/assessment-wrapper'),
+        },
         downloadButton: {
           module: require('../vue/content-renderer/download-button'),
         },

@@ -7,6 +7,7 @@ from django.http import Http404
 from django.http.response import FileResponse, HttpResponseNotModified
 from django.utils.http import http_date
 from django.views.generic.base import View
+from le_utils.constants import exercises
 
 from .utils.paths import get_content_storage_file_path
 
@@ -17,10 +18,6 @@ class ZipContentView(View):
         """
         Handles GET requests and serves a static file from within the zip file.
         """
-
-        # path placeholder
-        # path_place_holder = "${\xe2\x98\xa3 LOCALPATH}"
-        path_place_holder = "(${\xe2\x98\xa3 IMAGEREPLACE}"
 
         # calculate the local file path to the zip file
         zipped_path = get_content_storage_file_path(zipped_filename)
@@ -54,8 +51,8 @@ class ZipContentView(View):
             else:
                 # load the stream from json file into memory, replace the path_place_holder.
                 content = zf.open(info).read()
-                str_to_be_replaced = str("\\n\\n![](/" + request.resolver_match.url_name + "/" + zipped_filename)
-                content_with_path = content.replace(path_place_holder, str_to_be_replaced)
+                str_to_be_replaced = str('/' + request.resolver_match.url_name + "/" + zipped_filename)
+                content_with_path = content.replace('$' + exercises.IMG_PLACEHOLDER, str_to_be_replaced)
                 response = FileResponse(content_with_path, content_type=content_type)
                 file_size = len(content_with_path)
 

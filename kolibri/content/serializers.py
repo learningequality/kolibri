@@ -39,6 +39,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     ancestors = serializers.SerializerMethodField()
     thumbnail = serializers.SerializerMethodField()
     progress_fraction = serializers.SerializerMethodField()
+    next_content = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
@@ -88,9 +89,14 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         thumbnail_model = target_node.files.filter(thumbnail=True, available=True).first()
         return thumbnail_model.get_storage_url() if thumbnail_model else None
 
+    def get_next_content(self, target_node):
+        next_content = target_node.get_next_sibling()
+        if hasattr(next_content, 'id'):
+            return {'kind': next_content.kind, 'id': next_content.id}
+
     class Meta:
         model = ContentNode
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'files', 'ancestors', 'parent', 'thumbnail', 'progress_fraction'
+            'license', 'files', 'ancestors', 'parent', 'thumbnail', 'progress_fraction', 'next_content'
         )

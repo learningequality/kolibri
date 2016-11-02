@@ -143,7 +143,10 @@ const mutations = {
     state.core.logging.attempt.time_spent = currentTime - starttime;
   },
   SET_EMPTY_LOGGING_STATE(state) {
-    state.core.logging = baseLoggingState;
+    state.core.logging.summary = { progress: 0 };
+    state.core.logging.session = {};
+    state.core.logging.mastery = {};
+    state.core.logging.attempt = {};
   },
 };
 

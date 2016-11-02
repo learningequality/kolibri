@@ -62,13 +62,15 @@ function _contentSummaryModel(store) {
 function _contentSessionModel(store) {
   const sessionLog = store.state.core.logging.session;
   const mapping = {
-    user: store.state.core.session.user_id,
     start_timestamp: sessionLog.start_timestamp,
     end_timestamp: sessionLog.end_timestamp,
     time_spent: sessionLog.time_spent,
     progress: sessionLog.progress,
     extra_fields: sessionLog.extra_fields,
   };
+  if (store.state.core.session.kind[0] !== UserKinds.SUPERUSER) {
+    mapping.user = store.state.core.session.user_id;
+  }
   return mapping;
 }
 
@@ -212,6 +214,8 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
   // to avoid state pollution.
   store.dispatch('SET_EMPTY_LOGGING_STATE');
 
+  const promises = [];
+
   /* Create summary log iff user exists */
   if (store.state.core.session.user_id &&
     store.state.core.session.kind[0] !== UserKinds.SUPERUSER) {
@@ -220,7 +224,9 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
       content_id: contentId,
       user: store.state.core.session.user_id,
     });
-    summaryCollection.fetch().then(summary => {
+    const summaryCollectionPromise = summaryCollection.fetch({}, true);
+    promises.push(summaryCollectionPromise);
+    summaryCollectionPromise.then(summary => {
       /* If a summary model exists, map that to the state */
       if (summary.length > 0) {
         store.dispatch('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState(summary[0]));
@@ -256,7 +262,9 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
 
         /* Save a new summary model and set id on state */
         const summaryModel = ContentSummaryLogResource.createModel(summaryData);
-        summaryModel.save().then((newSummary) => {
+        const summaryModelPromise = summaryModel.save();
+        promises.push(summaryModelPromise);
+        summaryModelPromise.then((newSummary) => {
           store.dispatch('SET_LOGGING_SUMMARY_ID', newSummary.pk);
         });
       }
@@ -279,11 +287,20 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
     kind: contentKind,
   }, _contentSessionModel(store));
 
+  if (store.state.core.session.kind[0] === UserKinds.SUPERUSER) {
+    // treat deviceOwner as anonymous user.
+    sessionData.user = null;
+  }
+
   /* Save a new session model and set id on state */
   const sessionModel = ContentSessionLogResource.createModel(sessionData);
-  sessionModel.save().then((newSession) => {
+  const sessionModelPromise = sessionModel.save();
+  promises.push(sessionModelPromise);
+  sessionModelPromise.then((newSession) => {
     store.dispatch('SET_LOGGING_SESSION_ID', newSession.pk);
   });
+
+  return Promise.all(promises);
 }
 
 
@@ -315,6 +332,25 @@ function saveLogs(store, Kolibri) {
     summaryModel.save(_contentSummaryModel(store)).then((data) => {
       /* PLACEHOLDER */
     }).catch(error => { handleApiError(store, error); });
+  }
+}
+
+
+/**
+summary and session log progress update for exercise
+**/
+function updateExerciseProgress(store, Kolibri, progressPercent, forceSave = false) {
+  /* Update the logging state with new progress information */
+  store.dispatch('SET_LOGGING_PROGRESS', progressPercent, progressPercent);
+
+  /* Mark completion time if 100% progress reached */
+  if (progressPercent === 1) {
+    store.dispatch('SET_LOGGING_COMPLETION_TIME', new Date());
+  }
+
+  /* Save models if needed */
+  if (forceSave || progressPercent === 1) {
+    saveLogs(store, Kolibri);
   }
 }
 
@@ -485,13 +521,15 @@ function createDummyMasteryLog(store, Kolibri) {
 function saveAttemptLog(store, Kolibri) {
   const attemptLogModel = Kolibri.resources.AttemptLog.getModel(
     store.state.core.logging.attempt.id);
-  attemptLogModel.save(_attemptLogModel(store)).then((newAttemptLog) => {
+  const promise = attemptLogModel.save(_attemptLogModel(store));
+  promise.then((newAttemptLog) => {
     // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
     store.dispatch('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
   });
+  return promise;
 }
 
-function createAttemptLog(store, Kolibri, itemId, callback) {
+function createAttemptLog(store, Kolibri, itemId) {
   const attemptLogModel = Kolibri.resources.AttemptLog.createModel({
     id: null,
     masterylog: store.state.core.logging.mastery.id || null,
@@ -509,7 +547,6 @@ function createAttemptLog(store, Kolibri, itemId, callback) {
     hinted: false,
   });
   store.dispatch('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
-  callback(); // to signal that this attemptlog is created.
 }
 
 function updateAttemptLogInteractionHistory(store, interaction) {
@@ -554,6 +591,7 @@ module.exports = {
   stopTrackingProgress,
   updateTimeSpent,
   updateProgress,
+  updateExerciseProgress,
   saveLogs,
   samePageCheckGenerator,
   initMasteryLog,
