@@ -23,11 +23,11 @@ const initialState = {
       summary: { progress: 0 },
       session: {},
     },
+    viewport: { width: 0, height: 0 },
   },
 };
 
 const mutations = {
-
   CORE_SET_SESSION(state, value) {
     state.core.session = value;
     state.core.loginModalVisible = false;
@@ -49,8 +49,6 @@ const mutations = {
   CORE_SET_LOGIN_MODAL_VISIBLE(state, value) {
     state.core.loginModalVisible = value;
   },
-
-
   CORE_SET_PAGE_LOADING(state, value) {
     const update = { loading: value };
     if (value) {
@@ -93,6 +91,10 @@ const mutations = {
   SET_LOGGING_THRESHOLD_CHECKS(state, progress, timeSpent) {
     state.core.logging.session.total_time_at_last_save = timeSpent;
     state.core.logging.session.progress_at_last_save = progress;
+  },
+  SET_VIEWPORT_SIZE(state, width, height) {
+    state.core.viewport.width = width;
+    state.core.viewport.height = height;
   },
 };
 

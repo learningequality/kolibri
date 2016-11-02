@@ -89,6 +89,22 @@ function _sessionState(data) {
  *
  * These methods are used to update client-side state
  */
+
+
+const debounce = require('vue').util.debounce;
+const debouncedSetWindowInfo = debounce((store) => {
+  // http://stackoverflow.com/a/8876069
+  const w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+  const h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+  store.dispatch('SET_VIEWPORT_SIZE', w, h);
+}, 33);
+
+
+function handleResize(store, event) {
+  debouncedSetWindowInfo(store);
+}
+
+
 function kolibriLogin(store, Kolibri, sessionPayload) {
   const SessionResource = Kolibri.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
@@ -364,6 +380,7 @@ function samePageCheckGenerator(store) {
 }
 
 module.exports = {
+  handleResize,
   kolibriLogin,
   kolibriLogout,
   currentLoggedInUser,
