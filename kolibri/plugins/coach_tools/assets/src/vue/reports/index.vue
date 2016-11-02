@@ -36,8 +36,8 @@
 
     data: () => ({
       ancestors: [
-        {name: 'ALL Learners', 'id': '123'},
-        {name: 'Aaron Dude'},
+        { name: 'ALL Learners', id: '123' },
+        { name: 'Aaron Dude' },
       ],
       topic_view: true,
       contentOrLearnersView: 'content',

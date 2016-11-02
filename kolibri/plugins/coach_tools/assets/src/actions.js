@@ -20,18 +20,18 @@ function redirectToDefaultReports(store, params) {
   store.dispatch('SET_PAGE_NAME', 'REPORTS_NO_QUERY');
 
   // TODO: Get channel id, root id, and facility id.
-  const channel_id = 'channel_id';
-  const content_scope_id = 'root_id';
-  const user_scope_id = 'facility_id';
+  const channelId = 'channel_id';
+  const contentScopeId = 'root_id';
+  const userScopeId = 'facility_id';
 
   router.replace({
     name: PageNames.REPORTS,
     params: {
-      channel_id: channel_id,
+      channel_id: channelId,
       content_scope: CONTENT_SCOPE_OPTIONS[0],
-      content_scope_id: content_scope_id,
+      content_scope_id: contentScopeId,
       user_scope: USER_SCOPE_OPTIONS[0],
-      user_scope_id: user_scope_id,
+      user_scope_id: userScopeId,
       all_or_recent: ALL_OR_RECENT_OPTIONS[0],
       view_by_content_or_learners: VIEW_BY_CONTENT_OR_LEARNERS_OPTIONS[0],
     },
@@ -44,14 +44,13 @@ function showReports(store, params) {
   store.dispatch('SET_PAGE_NAME', 'REPORTS');
 
   // Get params.
-  const channelId = params.channel_id;
+  // const channelId = params.channel_id;
   const contentScope = params.content_scope;
-  const contentScopeId = params.content_scope_id;
+  // const contentScopeId = params.content_scope_id;
   const userScope = params.user_scope;
-  const userScopeId = params.user_scope_id;
+  // const userScopeId = params.user_scope_id;
   const allOrRecent = params.all_or_recent;
   const viewByContentOrLearners = params.view_by_content_or_learners;
-
 
 
   // Check if params are valid.
@@ -63,8 +62,7 @@ function showReports(store, params) {
     alert('Invalid query!');
     redirectToDefaultReports(store, params);
   } else {
-    console.log('Valid query.')
-
+    console.log('Valid query.');
   }
 
   store.dispatch('CORE_SET_PAGE_LOADING', false);

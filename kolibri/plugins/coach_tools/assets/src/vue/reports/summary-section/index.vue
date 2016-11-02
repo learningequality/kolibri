@@ -101,15 +101,15 @@
   module.exports = {
 
     components: {
-      'breadcrumbs': require('../breadcrumbs'),
+      breadcrumbs: require('../breadcrumbs'),
     },
 
     data: () => ({
       user_name: 'Aaron Dude',
       content_name: 'Content Name',
       ancestors: [
-        {name: 'Grandparent', 'id': '123'},
-        {name: 'Parent', 'id': '1234'},
+        { name: 'Grandparent', id: '123' },
+        { name: 'Parent', id: '1234' },
       ],
       kind: 'topic',
       kind_icon: 'video_icon',
@@ -134,14 +134,13 @@
 
     computed: {
       breadcrumbsList() {
-        let breadcrumbsList = this.ancestors;
-        breadcrumbsList.push({name: this.content_name});
+        const breadcrumbsList = this.ancestors;
+        breadcrumbsList.push({ name: this.content_name });
         return breadcrumbsList;
-      }
+      },
     },
 
   };
-
 
 </script>
 
@@ -151,6 +150,6 @@
   @require '~kolibri.styles.coreTheme'
 
   .summary-section
-    background-color white
+    background-color: white
 
 </style>
