@@ -9,7 +9,7 @@
     <!--SUMMARY SECTION-->
     <summary-section></summary-section>
 
-    <!--VIEW BY TOGGLE-->
+    <!--VIEW BY RADIOS-->
     <p v-if="topic_view">View by:
       <input type="radio" id="content" value="content" v-model="contentOrLearnersView">
       <label for="content">content</label>

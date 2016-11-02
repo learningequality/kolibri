@@ -26,12 +26,12 @@
 
         <div>
           <p>Exercises</p>
-          <progress-bar :progress-percent="exercise_progress"></progress-bar>
+          <progress-bar :progress-percent="exercise_progress" color="#4CAF50"></progress-bar>
         </div>
 
         <div>
           <p>Content</p>
-          <progress-bar :progress-percent="content_progress"></progress-bar>
+          <progress-bar :progress-percent="content_progress" color="#4CAF50"></progress-bar>
         </div>
 
       </div>
@@ -111,7 +111,7 @@
         {name: 'Grandparent', 'id': '123'},
         {name: 'Parent', 'id': '1234'},
       ],
-      kind: 'document',
+      kind: 'topic',
       kind_icon: 'video_icon',
       last_active: 'Nov 1 2016',
       exercise_count: 50,
