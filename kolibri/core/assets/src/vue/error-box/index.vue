@@ -55,6 +55,8 @@
     position: absolute
     right: 5px
     top: 5px
+    color: black
+    border: none
 
   #error-textbox
     max-height: 300px
