@@ -28,11 +28,11 @@ const initialState = {
     loginError: null,
     fullname: '',
     logging: baseLoggingState,
+    viewport: { width: 0, height: 0 },
   },
 };
 
 const mutations = {
-
   CORE_SET_SESSION(state, value) {
     state.core.session = value;
     state.core.loginModalVisible = false;
@@ -54,8 +54,6 @@ const mutations = {
   CORE_SET_LOGIN_MODAL_VISIBLE(state, value) {
     state.core.loginModalVisible = value;
   },
-
-
   CORE_SET_PAGE_LOADING(state, value) {
     const update = { loading: value };
     if (value) {
@@ -147,6 +145,10 @@ const mutations = {
     state.core.logging.session = {};
     state.core.logging.mastery = {};
     state.core.logging.attempt = {};
+  },
+  SET_VIEWPORT_SIZE(state, width, height) {
+    state.core.viewport.width = width;
+    state.core.viewport.height = height;
   },
 };
 

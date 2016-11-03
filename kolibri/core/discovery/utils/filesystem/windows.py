@@ -1,5 +1,5 @@
+import codecs
 import csv
-import io
 import logging
 import os
 import tempfile
@@ -62,19 +62,32 @@ def _wmic_output():
     happening because the script is not being run as a main process.)
     """
 
+    # choose a unique file name (re-entrant/thread-safe/crash-safe)
     OUTPUT_PATH = os.path.join(
         tempfile.gettempdir(),
         "kolibri_disks-{}.txt".format(uuid.uuid4())
     )
 
+    # pipe output from the WMIC command to the temp file
     cmd = "wmic logicaldisk list full /format:csv > {}".format(OUTPUT_PATH)
     returnCode = os.system(cmd)
     if returnCode:
         raise Exception("Could not run command '{}'".format(cmd))
 
-    with io.open(OUTPUT_PATH, 'r', encoding='utf-16') as f:
-        output = f.read()
+    # output from WMIC is ostensibly UTF-16
+    with open(OUTPUT_PATH, 'rb') as f:
+        bin_output = f.read()
 
+    # The very first time WMIC is run on a windows machine, the output gets mangled.
+    # The BOM is replaced by WMIC's initialization message, so we need to put it back.
+    # (On all subsequent runs, these next lines do nothing.)
+    INIT_MSG = "Please wait while WMIC is being installed.".encode('ascii')  # Yes, ascii.
+    bin_output = bin_output.replace(INIT_MSG, codecs.BOM_UTF16)
+
+    # finally, decode the well-formatted UTF-16 byte string
+    output = bin_output.decode('utf-16')
+
+    # clean up temp file
     os.remove(OUTPUT_PATH)
 
     return output
