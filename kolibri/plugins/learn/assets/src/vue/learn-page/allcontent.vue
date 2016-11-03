@@ -1,6 +1,6 @@
 <template>
 
-  <card-grid :header="'All Content'" v-if="all.content.length">
+  <card-grid :header="'All Content'" v-if="all.content.length" v-el:grid>
 
     <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 
@@ -13,7 +13,7 @@
     </div>
 
     <content-grid-item
-      v-for="content in all.content"
+      v-for="content in contentToShow"
       :title="content.title"
       :thumbnail="content.thumbnail"
       :kind="content.kind"
@@ -37,7 +37,30 @@
       next: 'Next',
       pagesLabel: 'Browse all content',
     },
+    ready() {
+      /*
+        `this.gridWidth` is a quick hack to ensure that rows are completely filled.
+        The consequence is that some items are hidden if they spill over and don't
+        entirely fill up a line. We're also (ab)using a new viewport size watcher
+        and checking sizes that are usually handled with styles and media queries.
+      */
+      this.$watch('viewportWidth', () => {
+        this.gridWidth = this.$els.grid.offsetWidth;
+      });
+      this.gridWidth = this.$els.grid.offsetWidth;
+    },
+    data() {
+      return {
+        gridWidth: 0,
+      };
+    },
     computed: {
+      contentToShow() {
+        const CARD_WIDTH = 200;  // duplicate of $card-width
+        const CARD_GUTTER = 20;  // duplicate of $card-gutter
+        const nCols = Math.max(2, Math.floor(this.gridWidth / (CARD_WIDTH + CARD_GUTTER)));
+        return this.all.content.slice(0, nCols);
+      },
       hasNext() {
         return this.all.page < this.all.pageCount;
       },
@@ -68,6 +91,7 @@
     vuex: {
       getters: {
         all: state => state.pageState.all,
+        viewportWidth: state => state.core.viewport.width,
       },
     },
   };

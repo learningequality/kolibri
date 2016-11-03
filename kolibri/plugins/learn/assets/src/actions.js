@@ -259,7 +259,7 @@ function showLearnChannel(store, channelId, page = 1) {
   }
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
 
-  const ALL_PAGE_SIZE = 3;
+  const ALL_PAGE_SIZE = 6;
 
   const sessionPromise = SessionResource.getModel('current').fetch();
   const channelsPromise = ChannelResource.getCollection({}).fetch();
