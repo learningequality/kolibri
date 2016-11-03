@@ -78,7 +78,7 @@
       col(1/2)
 
   .infobox
-    background-color: $core-text-alert-bg
+    background-color: $core-bg-warning
     border-radius: $radius
     font-size: 0.8em
     padding: 8px
