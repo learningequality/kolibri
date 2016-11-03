@@ -151,7 +151,6 @@
     width: 100%
     border-width: 2px
     border-style: solid
-    border-color: $core-bg-canvas
     border-radius: $radius
     padding: 6px
     background-color: $core-bg-canvas
@@ -160,10 +159,10 @@
     background-color: #DAEFE5
   .input-error
     border-width: 2px
-    border-color: $core-text-alert
-    background-color: $core-text-alert-bg
+    border-color: $core-text-error
+    background-color: $core-bg-error
   .error-message
-    color: $core-text-alert
+    color: $core-text-error
   .logo
     height: 40%
     width: 40%

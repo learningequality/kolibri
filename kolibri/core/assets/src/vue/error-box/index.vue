@@ -46,13 +46,15 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.coreTheme'
+
   .error-box-wrapper
     padding: 10px
     margin-top: 50px
     position: relative
-    background-color: #FFF6F6
-    border: 2px solid #e0b4b4
-    color: #9F3A38
+    background-color: $core-bg-error
+    border: 1px solid $core-text-error
+    color: $core-text-error
 
   .hidden
     display: none

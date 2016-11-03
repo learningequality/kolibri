@@ -140,7 +140,7 @@
     background-color: $core-bg-light
 
   .alert-bg
-    background-color: $core-text-alert-bg
+    background-color: $core-bg-warning
 
   .table-title
     margin-top: 1em

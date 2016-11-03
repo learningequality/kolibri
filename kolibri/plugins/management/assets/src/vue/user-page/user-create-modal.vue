@@ -181,7 +181,7 @@
       color: $core-action-light
 
   .error
-    color: $core-text-alert
+    color: $core-text-error
 
   .secondary
     &:hover
