@@ -9,11 +9,14 @@
 
 
 <script>
-  module.exports = {
-  };
+
+  module.exports = {};
+
 </script>
 
 
 <style lang="stylus" scoped>
+
   @require '~kolibri.styles.coreTheme'
+
 </style>
