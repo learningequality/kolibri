@@ -3,12 +3,11 @@
   <div class="wrapper">
     <div
       class="answer"
-      v-for="item in itemsToRender"
+      v-for="item in log"
       transition="fade"
-      track-by="originalIndex"
-      :style="styleForIndex($index, item.originalIndex)"
+      :style="styleForIndex($index)"
     >
-      <answer-icon :answertype="item.answer" :success="success"></answer-icon>
+      <answer-icon :answertype="item" :success="success"></answer-icon>
     </div>
     <div
       class="placeholder"
@@ -21,8 +20,6 @@
 
 
 <script>
-
-  // const AnswerTypes = require('./constants').AnswerTypes;
 
   module.exports = {
     props: {
@@ -45,7 +42,6 @@
       // Ordered from first to most recent.
       log: {
         type: Array,
-        required: true,
       },
     },
     components: {
@@ -58,20 +54,11 @@
         }
         return this.numspaces + 1;
       },
-      // returns a list of items the items to be rendered in the DOM
-      itemsToRender() {
-        // save the original index of the item in the log and slice of the end
-        const visible = this.log
-          .map((answer, originalIndex) => ({ answer, originalIndex }))
-          .slice(-1 * this.numItemsToRender);
-        visible.reverse();
-        return visible;
-      },
     },
     methods: {
-      styleForIndex(visualIndex, originalIndex) {
+      styleForIndex(visualIndex) {
         const ANSWER_WIDTH = 4 + 30 + 4;  // margin + width + margin
-        let xPos = ANSWER_WIDTH * (this.log.length - 1 - originalIndex);
+        let xPos = ANSWER_WIDTH * visualIndex;
         if (this.waiting) {
           xPos += ANSWER_WIDTH;
         }

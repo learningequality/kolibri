@@ -1,8 +1,8 @@
 <template>
 
   <div>
-    <svg v-if="isRight" src="./icons/right.svg" class="yes" :class="{ yay: success }"></svg>
-    <svg v-if="isWrong" src="./icons/wrong.svg" class="no" :class="{ yay: success }"></svg>
+    <svg v-if="isRight && !isHint" src="./icons/right.svg" class="yes" :class="{ yay: success }"></svg>
+    <svg v-if="!isRight && !isHint" src="./icons/wrong.svg" class="no" :class="{ yay: success }"></svg>
     <svg v-if="isHint" src="./icons/hint.svg" class="no" :class="{ yay: success }"></svg>
   </div>
 
@@ -11,14 +11,11 @@
 
 <script>
 
-  const AnswerTypes = require('./constants').AnswerTypes;
-
   module.exports = {
     props: {
       // one of the AnswerTypes
       answertype: {
-        type: Number,
-        required: true,
+        type: Object,
       },
       // Visually indicate that the user has succeeded
       success: {
@@ -28,13 +25,10 @@
     },
     computed: {
       isRight() {
-        return this.answertype === AnswerTypes.RIGHT;
-      },
-      isWrong() {
-        return this.answertype === AnswerTypes.WRONG;
+        return this.answertype.correct;
       },
       isHint() {
-        return this.answertype === AnswerTypes.HINT;
+        return this.answertype.hinted;
       },
     },
   };
