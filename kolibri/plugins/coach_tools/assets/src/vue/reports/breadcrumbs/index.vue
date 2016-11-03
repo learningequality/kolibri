@@ -16,7 +16,7 @@
     props: {
       list: {
         type: Array,
-        // required: true,
+        required: true,
       },
     },
   };
