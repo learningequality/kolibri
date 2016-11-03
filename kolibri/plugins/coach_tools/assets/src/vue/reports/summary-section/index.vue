@@ -4,8 +4,8 @@
 
     <!--TABS-->
     <div class="tabs">
-      <button v-bind:class="{ active: !topic_view }">Recent</button>
-      <button v-bind:class="{ active: topic_view }">Topics</button>
+      <a href="/recent_view"><button v-bind:class="{ active: !topic_view }">Recent</button></a>
+      <a href="/topic_view"><button v-bind:class="{ active: topic_view }">Topics</button></a>
     </div>
 
 
@@ -46,8 +46,8 @@
         <p>Last Active: {{ last_active }}</p>
 
         <div v-if="user_name">
-          <p>{{ questions_answered }} Questions Answered - {{ attempts }} Attempts - {{ time_spent }} - {{ date_mastered
-            }}</p>
+          <p>{{ questions_answered }} Questions Answered - {{ attempts }} Attempts - {{ time_spent }} -
+            {{ date_mastered }}</p>
         </div>
 
         <div v-else>
@@ -154,7 +154,7 @@
 
   .summary-section
     padding: 20px
-    background-color: $core-action-light
+    background-color: #bfbfbf
 
   .tabs button
     background-color: white
@@ -165,7 +165,6 @@
     border-radius: 0
 
   .tabs button.active
-    background: $core-action-normal
-    color: white
+    border-bottom: solid 3px $core-action-normal
 
 </style>
