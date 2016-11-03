@@ -1,16 +1,8 @@
 <template>
 
   <div>
-    <grid-item v-link="link" :title="title">
-      <div class="thumbnail" :style="{ 'background-image': thumb }">
-        <content-icon
-          class="content-icon-center"
-          v-if="kind"
-          :size="60"
-          :kind="kind"
-          :progress="progress">
-        </content-icon>
-      </div>
+    <grid-item v-link="link" :title="title" :kind="kind">
+      <div class="thumbnail" :style="{ 'background-image': thumb }"></div>
     </grid-item>
   </div>
 
@@ -109,15 +101,5 @@
     display: inline-block
     vertical-align: middle
     height: 100%
-
-  .content-icon-center
-    display: inline-block
-    vertical-align: middle
-    position: absolute
-    top: 50%
-    left: 50%
-    transform: translate(-50%, -50%)
-    width: 60px
-    height: 60px
 
 </style>

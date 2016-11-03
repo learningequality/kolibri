@@ -4,6 +4,12 @@
     <div class="thumb-wrapper">
       <slot></slot>
     </div>
+    <div class="content-icon-wrapper">
+    <content-icon
+      v-if="kind"
+      :kind="kind">
+    </content-icon>
+      </div>
     <div class="text">
       {{ title }}
     </div>
@@ -19,6 +25,10 @@
       title: {
         type: String,
         required: true,
+      },
+      kind: {
+        type: String,
+        required: false,
       },
     },
   };
@@ -71,10 +81,17 @@
     color: $core-text-default
     overflow: hidden
     text-overflow: ellipsis
+    display: inline
     @media screen and (max-width: $medium-breakpoint)
       float: right
       max-height: 86px
       width: $horizontal-card-width - $thumb-width
       -webkit-line-clamp: 4 // Enhance Chrome, doesn't work on other browsers
+
+  .content-icon-wrapper
+    width: 2em
+    height: 100%
+    display: inline
+    padding: 0.6em
 
 </style>

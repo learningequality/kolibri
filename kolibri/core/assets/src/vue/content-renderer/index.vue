@@ -3,7 +3,7 @@
   <div>
     <div v-if="available" class="fill-height">
       <div class="content-icon-wrapper">
-        <content-icon :progress="progress" :kind="kind"></content-icon>
+        <content-icon :kind="kind"></content-icon>
       </div>
       <div class="content-wrapper">
         <loading-spinner v-if="!currentViewClass"></loading-spinner>
