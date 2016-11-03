@@ -7,7 +7,7 @@
       transition="fade"
       :style="styleForIndex($index)"
     >
-      <answer-icon :answertype="item" :success="success"></answer-icon>
+      <answer-icon :answer="item" :success="success"></answer-icon>
     </div>
     <div
       class="placeholder"

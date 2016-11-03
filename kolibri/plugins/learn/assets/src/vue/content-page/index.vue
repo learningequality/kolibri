@@ -52,6 +52,7 @@
     computed: {
       canDownload() {
         if (this.content) {
+          // computed property sometimes runs before the store is ready.
           return this.content.kind !== ContentKinds.EXERCISE;
         }
         return false;

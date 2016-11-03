@@ -13,8 +13,8 @@
 
   module.exports = {
     props: {
-      // one of the AnswerTypes
-      answertype: {
+      // answer is an object look like { correct: 1, hinted: 0 }
+      answer: {
         type: Object,
       },
       // Visually indicate that the user has succeeded
@@ -25,10 +25,10 @@
     },
     computed: {
       isRight() {
-        return this.answertype.correct;
+        return this.answer.correct;
       },
       isHint() {
-        return this.answertype.hinted;
+        return this.answer.hinted;
       },
     },
   };
