@@ -6,8 +6,8 @@
     </button>
     <h1>{{ $tr('errorHeader') }}</h1>
     <p>{{ $tr('explanation') }}</p>
-    <label for="error-textbox" aria-live="polite">{{ $tr('errorLabel') }}</label><br>
-    <div id="error-textbox">
+    <label for="error-box" aria-live="polite">{{ $tr('errorLabel') }}</label><br>
+    <div id="error-box" class="error-box">
       {{ error }}
     </div>
   </div>
@@ -65,7 +65,7 @@
     top: 5px
     border: none
 
-  #error-textbox
+  .error-box
     max-height: 300px
     padding: 5px
     margin-top: 10px
