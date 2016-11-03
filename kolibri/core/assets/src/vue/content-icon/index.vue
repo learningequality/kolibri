@@ -74,6 +74,8 @@
   @require '~kolibri.styles.coreTheme'
 
   .content-icon
+    width: 100%
+    height: 100%
     fill: $core-action-normal
 
 </style>

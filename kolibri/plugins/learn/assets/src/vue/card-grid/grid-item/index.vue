@@ -1,17 +1,21 @@
 <template>
 
-  <a class="root">
-    <div class="thumb-wrapper">
-      <slot></slot>
-    </div>
-    <div class="content-icon-wrapper">
-    <content-icon
-      v-if="kind"
-      :kind="kind">
-    </content-icon>
+  <a>
+    <div class="card">
+      <div class="card-thumbnail">
+        <slot></slot>
       </div>
-    <div class="text">
-      {{ title }}
+      <div class="card-content">
+        <div class="content-icon-wrapper">
+          <content-icon
+            v-if="kind"
+            :kind="kind">
+          </content-icon>
+        </div>
+        <div class="text">
+          {{ title }}
+        </div>
+      </div>
     </div>
   </a>
 
@@ -43,55 +47,40 @@
 
   $thumb-width = $horizontal-card-height
 
-  .root
-    display: block
+  .card
     width: $card-width
     height: $card-height
     background-color: $core-bg-light
     overflow: hidden
     border-radius: $radius
-    text-decoration: none
     @media screen and (max-width: $medium-breakpoint)
-      width: $horizontal-card-width
-      height: $horizontal-card-height
+      width: 100%
+      height: 175px
 
-  .thumb-wrapper
-    position: relative
-    display: block
-    width: 100%
+  .card-thumbnail
     height: $thumbnail-height
-    border-radius: $radius $radius 0 0
-    overflow: hidden
-    @media screen and (max-width: $medium-breakpoint)
-      float: left
-      width: $thumb-width
-      height: $horizontal-card-height
-      border-radius: $radius 0 0  $radius
 
   .text
-    display: block
-    display: -webkit-box
     -webkit-line-clamp: 3 // Enhance Chrome, doesn't work on other browsers
     -webkit-box-orient: vertical // Enhance Chrome, doesn't work on other browsers
-    width: 100%
     max-height: 68px
-    padding: 0.6em
     font-size: 0.9rem
     line-height: 1.2rem
     color: $core-text-default
     overflow: hidden
     text-overflow: ellipsis
-    display: inline
-    @media screen and (max-width: $medium-breakpoint)
-      float: right
-      max-height: 86px
-      width: $horizontal-card-width - $thumb-width
-      -webkit-line-clamp: 4 // Enhance Chrome, doesn't work on other browsers
+    margin-left: 20%
+    width: auto
 
   .content-icon-wrapper
-    width: 2em
+    width: 25px
     height: 100%
-    display: inline
-    padding: 0.6em
+    float: left
+
+  .card-content
+    padding: 10px
+
+  a
+    text-decoration: none
 
 </style>
