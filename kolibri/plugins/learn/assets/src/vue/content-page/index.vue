@@ -50,8 +50,18 @@
       nextContent: 'Next Content',
     },
     computed: {
-      canDownload() { return this.content.kind !== ContentKinds.EXERCISE; },
-      showNextBtn() { return this.content.kind === ContentKinds.EXERCISE; },
+      canDownload() {
+        if (this.content) {
+          return this.content.kind !== ContentKinds.EXERCISE;
+        }
+        return false;
+      },
+      showNextBtn() {
+        if (this.content) {
+          return this.content.kind === ContentKinds.EXERCISE;
+        }
+        return false;
+      },
       recommendedText() {
         return this.$tr('recommended');
       },
