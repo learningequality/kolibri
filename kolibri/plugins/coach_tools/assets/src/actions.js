@@ -77,6 +77,25 @@ function showReports(store, params) {
   // resource fetch to summary and list endpoints
   // on then:
   //   dispatch...
+
+
+  // possible new resources:
+  UserSummaryReport.getModel({
+  })
+
+  ContentSummaryReport.getModel({
+  })
+
+  ContentReport.getCollection({
+  })
+
+  UserReport.getCollection({
+  })
+
+
+
+
+
 }
 
 
