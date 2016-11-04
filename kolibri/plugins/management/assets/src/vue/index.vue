@@ -3,12 +3,15 @@
   <core-base>
     <main-nav slot="nav"></main-nav>
 
-    <template v-if="isAdminOrSuperuser">
-      <div class="manage-content" slot="above">
-        <top-nav></top-nav>
-      </div>
-      <component slot="content" :is="currentPage" class="manage-content page"></component>
-    </template>
+    <div v-if="isAdminOrSuperuser" slot="above" class="manage-content">
+      <top-nav></top-nav>
+    </div>
+    <component
+      v-if="isAdminOrSuperuser"
+      slot="content"
+      class="manage-content page"
+      :is="currentPage"
+    ></component>
     <div v-else slot="content" class="login-message">
       <h1>Did you forget to log in?</h1>
       <p>You must be logged in as an Admin to view this page.</p>

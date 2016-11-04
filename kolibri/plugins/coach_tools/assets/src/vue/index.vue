@@ -3,13 +3,11 @@
   <core-base>
     <main-nav slot="nav"></main-nav>
 
-    <template v-if="isAdminOrSuperuser">
-      <div v-if="!currentPage" slot="content">
-        <h1>Coach Root</h1>
-        <a href="/coach/#!/reports">Go to Reports.</a>
-      </div>
-      <component slot="content" :is="currentPage" class="page"></component>
-    </template>
+    <div v-if="!currentPage && isAdminOrSuperuser" slot="content">
+      <h1>Coach Root</h1>
+      <a href="/coach/#!/reports">Go to Reports.</a>
+    </div>
+    <component v-if="isAdminOrSuperuser" slot="content" :is="currentPage" class="page"></component>
 
     <div v-else slot="content" class="login-message">
       <h1>Did you forget to log in?</h1>
