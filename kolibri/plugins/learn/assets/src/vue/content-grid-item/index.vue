@@ -41,6 +41,7 @@
             'video',
             'document',
             'exercise',
+            'topic',
           ].some(elem => elem === value);
         },
       },

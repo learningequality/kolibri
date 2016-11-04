@@ -4,11 +4,12 @@
     <div class="extra-nav">
       <slot name="extra-nav"></slot>
     </div>
-    <h1 class="header">
-      <div class="text">
-        {{ title }}
+    <div class="header">
+      <div class="content-icon-wrapper">
+        <content-icon :kind="contentIconKind"></content-icon>
       </div>
-    </h1>
+      <div><h1 class="title">{{ title }}</h1></div>
+    </div>
   </div>
 
 </template>
@@ -16,10 +17,28 @@
 
 <script>
 
+  const getters = require('../../state/getters');
+
   module.exports = {
     props: {
       title: {
         type: String,
+      },
+    },
+    computed: {
+      contentIconKind() {
+        return this.contentKind ? this.contentKind : 'topic';
+      },
+    },
+    vuex: {
+      getters: {
+        pageMode: getters.pageMode,
+        contentKind: (state) => {
+          if (state.pageState.content) {
+            return state.pageState.content.kind;
+          }
+          return 'topic';
+        },
       },
     },
   };
@@ -40,7 +59,7 @@
 
   // @stylint off
   .header-wrapper .icon-wrapper > *
-  // @stylint on
+    // @stylint on
     width: 1em
     height: 1em
 
@@ -56,10 +75,11 @@
     font-size: 12px
     min-height: 16px
 
-  .header
-    position: relative
+  .content-icon-wrapper
+    height: 27px
+    float: left
 
-  .text
-    display: block
+  .title
+    margin-left: 35px
 
 </style>

@@ -23,23 +23,12 @@
       exercise: 'exercise',
     },
     props: {
-      size: {
-        type: Number,
-        default: 30,
-      },
-      progress: {
-        type: Number,
-        default: 0.0,
-        validator(value) {
-          return (value >= 0.0) && (value <= 1.0);
-        },
-      },
       kind: {
         type: String,
         required: true,
         validator(value) {
           for (const contentKind in ContentKinds) {
-            if (ContentKinds[contentKind] === value) {
+            if (value === ContentKinds[contentKind] || 'topic') {
               return true;
             }
           }
@@ -48,17 +37,6 @@
       },
     },
     computed: {
-      /*      altText() {
-       return `${this.progress} - ${this.$tr(this.kind)}`;
-       },
-       progressPercent() {
-       let progressPercent = Math.floor(this.progress * 100);
-       // Due to rounding error
-       if (progressPercent === 100) {
-       progressPercent = 101;
-       }
-       return progressPercent;
-       },*/
       source() {
         this.whatAmI();
         return `./content-icons/${this.kind}.svg`;
