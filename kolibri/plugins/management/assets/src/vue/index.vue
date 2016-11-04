@@ -2,13 +2,16 @@
 
   <core-base>
     <main-nav slot="nav"></main-nav>
-    <div v-if="isAdminOrSuperuser" class="manage-content" slot="above">
-      <top-nav></top-nav>
-    </div>
-    <component v-if="isAdminOrSuperuser" slot="content" :is="currentPage" class="manage-content page"></component>
+
+    <template v-if="isAdminOrSuperuser">
+      <div class="manage-content" slot="above">
+        <top-nav></top-nav>
+      </div>
+      <component slot="content" :is="currentPage" class="manage-content page"></component>
+    </template>
     <div v-else slot="content" class="login-message">
       <h1>Did you forget to log in?</h1>
-      <h3>You must be logged in as an Admin to view this page.</h3>
+      <p>You must be logged in as an Admin to view this page.</p>
     </div>
 
   </core-base>
@@ -78,9 +81,8 @@
     margin-top: 2em
     border-radius: $radius
 
-  .login-message h1, h3
+  .login-message
     text-align: center
-  .login-message h1
     margin-top: 200px
 
 </style>
