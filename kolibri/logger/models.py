@@ -14,9 +14,34 @@ from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import AbstractFacilityDataModel, Facility, FacilityUser
 from kolibri.auth.permissions.base import RoleBasedPermissions
 from kolibri.auth.permissions.general import IsOwn
+from kolibri.content.content_db_router import default_database_is_attached, get_active_content_database
 from kolibri.content.models import UUIDField
 
 from .permissions import AnyoneCanWriteAnonymousLogs
+
+
+class BaseLogQuerySet(models.QuerySet):
+
+    def filter_by_topic(self, topic, content_id_lookup="content_id"):
+        """
+        Filter a set of logs by content_id, using content_ids from all descendants of specified topic.
+        """
+
+        content_ids = topic.get_descendant_content_ids()
+
+        return self.filter_by_content_ids(content_ids)
+
+    def filter_by_content_ids(self, content_ids, content_id_lookup="content_id"):
+        """
+        Filter a set of logs by content_id, using content_ids from the provided list or queryset.
+        """
+
+        if default_database_is_attached():
+            # perform the query using an efficient cross-database join, if possible
+            return self.using(get_active_content_database()).filter(**{content_id_lookup + "__in": content_ids})
+        else:
+            # if the databases can't be joined, convert the content_ids into a list and pass in
+            return self.filter(**{content_id_lookup + "__in": list(content_ids)})
 
 
 def log_permissions(user_field):
@@ -48,6 +73,8 @@ class BaseLogModel(AbstractFacilityDataModel):
             facility = Facility.get_default_facility()
             assert facility, "Before you can save logs, you must have a facility"
             return facility.dataset
+
+    objects = BaseLogQuerySet.as_manager()
 
 
 class ContentSessionLog(BaseLogModel):

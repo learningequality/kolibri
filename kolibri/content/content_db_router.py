@@ -32,7 +32,10 @@ except ImportError:
     from sqlite3 import OperationalError
 
 def default_database_is_attached():
-    alias = get_active_content_database()
+    try:
+        alias = get_active_content_database()
+    except ContentModelUsedOutsideDBContext:
+        return False
     return alias in _content_databases_with_attached_default_db
 
 def get_active_content_database(return_none_if_not_set=False):
@@ -46,6 +49,16 @@ def get_active_content_database(return_none_if_not_set=False):
             return None
         else:
             raise ContentModelUsedOutsideDBContext()
+
+    # retrieve the database connection to make sure it's been properly initialized
+    get_content_database_connection(alias)
+
+    return alias
+
+def get_content_database_connection(alias=None):
+
+    if not alias:
+        alias = get_active_content_database()
 
     # try to connect to the content database, and if connection doesn't exist, create it
     try:
@@ -69,7 +82,7 @@ def get_active_content_database(return_none_if_not_set=False):
     # if possible, attach the default database to the content database connection to enable joins
     _attach_default_database(alias)
 
-    return alias
+    return connections[alias].connection
 
 def _attach_default_database(alias):
     """
@@ -106,7 +119,7 @@ class ContentDBRouter(object):
         from .models import ContentDatabaseModel
 
         # if the model does not inherit from ContentDatabaseModel, leave it for the default database
-        if not issubclass(model, ContentDatabaseModel):
+        if not issubclass(model, ContentDatabaseModel) and not default_database_is_attached():
             return None
 
         # if the model is already associated with a database, use that database
