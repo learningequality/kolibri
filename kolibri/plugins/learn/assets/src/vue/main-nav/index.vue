@@ -29,6 +29,7 @@
 <script>
 
   const pageMode = require('../../state/getters').pageMode;
+  const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
   const constants = require('../../state/constants');
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
@@ -45,6 +46,7 @@
     vuex: {
       getters: {
         kind: state => state.core.session.kind,
+        isAdminOrSuperuser,
         pageMode,
       },
     },
@@ -60,12 +62,6 @@
       },
       exploreActive() {
         return this.pageMode === constants.PageModes.EXPLORE;
-      },
-      isAdminOrSuperuser() {
-        if (this.kind[0] === UserKinds.SUPERUSER || this.kind[0] === UserKinds.ADMIN) {
-          return true;
-        }
-        return false;
       },
     },
   };

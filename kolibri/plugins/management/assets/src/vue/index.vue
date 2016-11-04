@@ -20,7 +20,7 @@
 
   const store = require('../state/store');
   const PageNames = require('../state/constants').PageNames;
-  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
+  const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
 
   module.exports = {
     components: {
@@ -47,17 +47,11 @@
         }
         return null;
       },
-      isAdminOrSuperuser() {
-        if (this.kind[0] === UserKinds.SUPERUSER || this.kind[0] === UserKinds.ADMIN) {
-          return true;
-        }
-        return false;
-      },
     },
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        kind: state => state.core.session.kind,
+        isAdminOrSuperuser,
       },
     },
     store, // make this and all child components aware of the store

@@ -40,6 +40,9 @@ module.exports = {
         constants: {
           module: require('../constants'),
         },
+        getters: {
+          module: require('../core-getters'),
+        },
         actions: {
           module: require('../core-actions'),
         },
