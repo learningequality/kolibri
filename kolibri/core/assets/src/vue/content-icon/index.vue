@@ -1,10 +1,12 @@
 <template>
 
-  <svg v-if="kind=='topic'" class="content-icon" src="./content-icons/topic.svg"></svg>
-  <svg v-if="kind=='video'" class="content-icon" src="./content-icons/video.svg"></svg>
-  <svg v-if="kind=='audio'" class="content-icon" src="./content-icons/audio.svg"></svg>
-  <svg v-if="kind=='document'" class="content-icon" src="./content-icons/document.svg"></svg>
-  <svg v-if="kind=='exercise'" class="content-icon" src="./content-icons/exercise.svg"></svg>
+  <div>
+    <svg v-if="kind=='topic'" class="content-icon" src="./content-icons/topic.svg"></svg>
+    <svg v-if="kind=='video'" class="content-icon" src="./content-icons/video.svg"></svg>
+    <svg v-if="kind=='audio'" class="content-icon" src="./content-icons/audio.svg"></svg>
+    <svg v-if="kind=='document'" class="content-icon" src="./content-icons/document.svg"></svg>
+    <svg v-if="kind=='exercise'" class="content-icon" src="./content-icons/exercise.svg"></svg>
+  </div>
 
 </template>
 
@@ -34,12 +36,6 @@
           }
           return false;
         },
-      },
-    },
-    computed: {
-      source() {
-        this.whatAmI();
-        return `./content-icons/${this.kind}.svg`;
       },
     },
   };

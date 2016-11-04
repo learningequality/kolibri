@@ -4,8 +4,8 @@
 
     <!--TABS-->
     <div class="tabs">
-      <a href="/recent_view"><button v-bind:class="{ active: !topic_view }">Recent</button></a>
-      <a href="/topic_view"><button v-bind:class="{ active: topic_view }">Topics</button></a>
+      <a href="/recent_view"><button :class="{ active: !topic_view }">Recent</button></a>
+      <a href="/topic_view"><button :class="{ active: topic_view }">Topics</button></a>
     </div>
 
 
@@ -29,12 +29,12 @@
 
         <div>
           <p>Exercises</p>
-          <progress-bar :progress-percent="exercise_progress" color="#4CAF50"></progress-bar>
+          <progress-bar :progress="exercise_progress" color="#4CAF50"></progress-bar>
         </div>
 
         <div>
           <p>Content</p>
-          <progress-bar :progress-percent="content_progress" color="#4CAF50"></progress-bar>
+          <progress-bar :progress="content_progress" color="#4CAF50"></progress-bar>
         </div>
 
       </div>
@@ -65,11 +65,11 @@
 
         <div v-if="user_name">
           <p>{{ time_spent }}</p>
-          <progress-bar :progress-percent="video_progress"></progress-bar>
+          <progress-bar :progress="video_progress"></progress-bar>
         </div>
 
         <div v-else>
-          <progress-bar :progress-percent="video_progress"></progress-bar>
+          <progress-bar :progress="video_progress"></progress-bar>
         </div>
 
       </div>
@@ -88,7 +88,7 @@
         </div>
 
         <div v-else>
-          <progress-bar :progress-percent="document_progress"></progress-bar>
+          <progress-bar :progress="document_progress"></progress-bar>
         </div>
 
       </div>
@@ -125,8 +125,8 @@
       last_active: 'Nov 1 2016',
       exercise_count: 50,
       content_count: 20,
-      exercise_progress: 50,
-      content_progress: 20,
+      exercise_progress: 0.5,
+      content_progress: 0.2,
       questions_count: 20,
       mastery_model: '3 out of 5 correct',
       questions_answered: 20,
@@ -135,9 +135,9 @@
       exercise_mastered: 20,
       exercise_total: 100,
       date_mastered: 'Oct 31 2016',
-      video_progress: 75,
+      video_progress: 0.75,
       pages: 300,
-      document_progress: 1.000,
+      document_progress: 1.0,
       topic_view: true,
     }),
 
