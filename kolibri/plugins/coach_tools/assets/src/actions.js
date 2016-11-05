@@ -25,6 +25,8 @@ function redirectToDefaultReports(store, params) {
   const contentScopeId = 'root_id';
   const userScopeId = 'facility_id';
 
+  // if necessary query server root topic PK
+
   router.replace({
     name: PageNames.REPORTS,
     params: {
@@ -68,7 +70,36 @@ function showReports(store, params) {
   }
 
   store.dispatch('CORE_SET_PAGE_LOADING', false);
+
+
+  // populate vuex already in URL
+  // dispatch ...
+
+
+  // resource fetch to summary and list endpoints
+  // on then:
+  //   dispatch...
+
+
+  // possible new resources:
+  UserSummaryReport.getModel({
+  })
+
+  ContentSummaryReport.getModel({
+  })
+
+  ContentReport.getCollection({
+  })
+
+  UserReport.getCollection({
+  })
+
+
+
+
+
 }
+
 
 module.exports = {
   showCoachRoot,
