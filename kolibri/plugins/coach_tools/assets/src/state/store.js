@@ -18,7 +18,8 @@ const initialState = {
     // API-generated
     content_scope_summary: '',
     user_scope_summary: '',
-    table_data: [{ list of objects from server }],
+    // list of objects from server
+    table_data: [{}],
   },
 };
 

@@ -82,22 +82,17 @@ function showReports(store, params) {
 
 
   // possible new resources:
-  UserSummaryReport.getModel({
-  })
+  /* UserSummaryReport.getModel({
+   })
 
-  ContentSummaryReport.getModel({
-  })
+   ContentSummaryReport.getModel({
+   })
 
-  ContentReport.getCollection({
-  })
+   ContentReport.getCollection({
+   })
 
-  UserReport.getCollection({
-  })
-
-
-
-
-
+   UserReport.getCollection({
+   })*/
 }
 
 
