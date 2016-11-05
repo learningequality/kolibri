@@ -17,8 +17,6 @@
 
 <script>
 
-  const getters = require('../../state/getters');
-
   module.exports = {
     props: {
       title: {
@@ -32,7 +30,6 @@
     },
     vuex: {
       getters: {
-        pageMode: getters.pageMode,
         contentKind: (state) => {
           if (state.pageState.content) {
             return state.pageState.content.kind;
