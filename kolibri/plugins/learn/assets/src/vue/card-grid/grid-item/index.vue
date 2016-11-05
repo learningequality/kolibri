@@ -50,8 +50,8 @@
   .card
     width: $card-width
     height: $card-height
-    background-color: $core-bg-light
     overflow: hidden
+    background-color: $core-bg-light
     border-radius: $radius
     @media screen and (max-width: $medium-breakpoint)
       width: 100%
@@ -63,22 +63,24 @@
   .text
     -webkit-line-clamp: 3 // Enhance Chrome, doesn't work on other browsers
     -webkit-box-orient: vertical // Enhance Chrome, doesn't work on other browsers
+    width: auto
     max-height: 68px
+    margin-left: 35px
+    overflow: hidden
     font-size: 0.9rem
     line-height: 1.2rem
-    color: $core-text-default
-    overflow: hidden
     text-overflow: ellipsis
-    margin-left: 20%
-    width: auto
+    color: $core-text-default
 
   .content-icon-wrapper
+    position: absolute
+    left: 5
     width: 25px
-    height: 100%
-    float: left
+    height: 25px
 
   .card-content
     padding: 10px
+    position: relative
 
   a
     text-decoration: none
