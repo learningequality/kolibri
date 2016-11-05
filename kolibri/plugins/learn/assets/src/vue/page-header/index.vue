@@ -8,7 +8,7 @@
       <div class="content-icon-wrapper">
         <content-icon :kind="contentIconKind"></content-icon>
       </div>
-      <div><h1 class="title">{{ title }}</h1></div>
+      <div class="title"><h1>{{ title }}</h1></div>
     </div>
   </div>
 
@@ -75,9 +75,15 @@
     font-size: 12px
     min-height: 16px
 
+  .header
+    position: relative
+    height: 3em
+
   .content-icon-wrapper
+    position: absolute
+    left: 0
     height: 27px
-    float: left
+    width: 27px
 
   .title
     margin-left: 35px
