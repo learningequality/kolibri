@@ -54,7 +54,6 @@
       vertical-align: middle
 
   .link
-    width: $nav-width
     margin: 0
     padding: 6px
     text-align: center
@@ -62,6 +61,7 @@
     @media screen and (min-width: $portrait-breakpoint + 1)
       display: table-cell
       vertical-align: middle
+      width: $nav-width
       height: 125px
     @media screen and (max-width: $portrait-breakpoint)
       display: block

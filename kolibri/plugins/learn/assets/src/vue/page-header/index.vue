@@ -4,11 +4,12 @@
     <div class="extra-nav">
       <slot name="extra-nav"></slot>
     </div>
-    <h1 class="header">
-      <div class="text">
-        {{ title }}
+    <div class="header">
+      <div class="content-icon-wrapper">
+        <content-icon :kind="contentIconKind"></content-icon>
       </div>
-    </h1>
+      <div class="title"><h1>{{ title }}</h1></div>
+    </div>
   </div>
 
 </template>
@@ -20,6 +21,21 @@
     props: {
       title: {
         type: String,
+      },
+    },
+    computed: {
+      contentIconKind() {
+        return this.contentKind ? this.contentKind : 'topic';
+      },
+    },
+    vuex: {
+      getters: {
+        contentKind: (state) => {
+          if (state.pageState.content) {
+            return state.pageState.content.kind;
+          }
+          return 'topic';
+        },
       },
     },
   };
@@ -40,7 +56,7 @@
 
   // @stylint off
   .header-wrapper .icon-wrapper > *
-  // @stylint on
+    // @stylint on
     width: 1em
     height: 1em
 
@@ -58,8 +74,15 @@
 
   .header
     position: relative
+    height: 3em
 
-  .text
-    display: block
+  .content-icon-wrapper
+    position: absolute
+    left: 0
+    height: 27px
+    width: 27px
+
+  .title
+    margin-left: 35px
 
 </style>

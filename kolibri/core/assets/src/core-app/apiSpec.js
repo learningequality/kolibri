@@ -40,6 +40,9 @@ module.exports = {
         constants: {
           module: require('../constants'),
         },
+        getters: {
+          module: require('../core-getters'),
+        },
         actions: {
           module: require('../core-actions'),
         },
@@ -53,6 +56,9 @@ module.exports = {
         },
         assessmentWrapper: {
           module: require('../vue/assessment-wrapper'),
+        },
+        exerciseAttempts: {
+          module: require('../vue/exercise-attempts'),
         },
         downloadButton: {
           module: require('../vue/content-renderer/download-button'),
