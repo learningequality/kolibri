@@ -2,13 +2,19 @@
 
   <core-base>
     <main-nav slot="nav"></main-nav>
-    <div v-if="isAdminOrSuperuser" class="manage-content" slot="above">
+
+    <div v-if="isAdminOrSuperuser" slot="above" class="manage-content">
       <top-nav></top-nav>
     </div>
-    <component v-if="isAdminOrSuperuser" slot="content" :is="currentPage" class="manage-content page"></component>
+    <component
+      v-if="isAdminOrSuperuser"
+      slot="content"
+      class="manage-content page"
+      :is="currentPage"
+    ></component>
     <div v-else slot="content" class="login-message">
-      <h1>Did you forget to log in?</h1>
-      <h3>You must be logged in as an Admin to view this page.</h3>
+      <h1>{{ $tr('logInPrompt') }}</h1>
+      <p>{{ $tr('logInCommand') }}</p>
     </div>
 
   </core-base>
@@ -20,9 +26,14 @@
 
   const store = require('../state/store');
   const PageNames = require('../state/constants').PageNames;
-  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
+  const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
 
   module.exports = {
+    $trNameSpace: 'management-root',
+    $trs: {
+      logInPrompt: 'Did you forget to log in?',
+      logInCommand: 'You must be logged in as an Admin to view this page.',
+    },
     components: {
       'top-nav': require('./top-nav'),
       'main-nav': require('./main-nav'),
@@ -47,17 +58,11 @@
         }
         return null;
       },
-      isAdminOrSuperuser() {
-        if (this.kind[0] === UserKinds.SUPERUSER || this.kind[0] === UserKinds.ADMIN) {
-          return true;
-        }
-        return false;
-      },
     },
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        kind: state => state.core.session.kind,
+        isAdminOrSuperuser,
       },
     },
     store, // make this and all child components aware of the store
@@ -84,9 +89,8 @@
     margin-top: 2em
     border-radius: $radius
 
-  .login-message h1, h3
+  .login-message
     text-align: center
-  .login-message h1
     margin-top: 200px
 
 </style>
