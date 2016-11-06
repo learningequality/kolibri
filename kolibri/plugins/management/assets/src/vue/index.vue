@@ -13,8 +13,8 @@
       :is="currentPage"
     ></component>
     <div v-else slot="content" class="login-message">
-      <h1>Did you forget to log in?</h1>
-      <p>You must be logged in as an Admin to view this page.</p>
+      <h1>{{ $tr('logInPrompt') }}</h1>
+      <p>{{ $tr('logInCommand') }}</p>
     </div>
 
   </core-base>
@@ -29,6 +29,11 @@
   const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
 
   module.exports = {
+    $trNameSpace: 'management-root',
+    $trs: {
+      logInPrompt: 'Did you forget to log in?',
+      logInCommand: 'You must be logged in as an Admin to view this page.',
+    },
     components: {
       'top-nav': require('./top-nav'),
       'main-nav': require('./main-nav'),
