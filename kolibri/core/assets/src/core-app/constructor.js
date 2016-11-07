@@ -98,7 +98,7 @@ module.exports = class CoreApp {
             return defaultMessageText.split('').reverse().join('');
           }
         }
-        return this.$formatMessage(message, ...args);
+        return this.$formatMessage(message, args);
       };
       vue.prototype.$trHtml = function $trHtml(messageId, ...args) {
         const defaultMessageText = this.$options.$trs[messageId];
@@ -112,7 +112,7 @@ module.exports = class CoreApp {
             return defaultMessageText.split('').reverse().join('');
           }
         }
-        return this.$formatHTMLMessage(message, ...args);
+        return this.$formatHTMLMessage(message, args);
       };
 
       if (global.languageCode) {
