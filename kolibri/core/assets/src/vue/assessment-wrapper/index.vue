@@ -77,7 +77,7 @@ oriented data synchronization.
           // mark the attemptlog as hinted only if the first attempt is taking the hint.
           this.updateAttemptLogMasteryLog(0, false, firstAttempt, hinted);
         }
-          this.saveAttemptLogMasterLog(false);
+        this.saveAttemptLogMasterLog(false);
       },
       nextQuestion() {
         this.createAttemptLog().then(() => {
