@@ -2,6 +2,11 @@ const router = require('kolibri.coreVue.router');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const PageNames = require('./state/constants').PageNames;
 const ReportsOptions = require('./state/constants').ReportsOptions;
+// const UserSummaryResource = require('kolibri').resources.UserSummaryResource;
+// const ContentSummaryResource = require('kolibri').resources.ContentSummaryResource;
+// const UserReportResource = require('kolibri').resources.UserReportResource;
+// const ContentReportResource = require('kolibri').resources.ContentReportResource;
+// const RecentReportResource = require('kolibri').resources.RecentReportResource;
 
 
 function showCoachRoot(store) {
@@ -14,10 +19,13 @@ function redirectToDefaultReports(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', 'REPORTS_NO_QUERY');
 
-  // if necessary query server root topic PK
-  // TODO: Get channel id, root id, and facility id.
+  // Get Channel ID
   const channelId = 'channel_id';
+
+  // Get Conente Scope ID
   const contentScopeId = 'root_id';
+
+  // Get User Scope ID
   const userScopeId = 'facility_id';
 
   router.replace({
@@ -38,15 +46,15 @@ function redirectToDefaultReports(store, params) {
 
 
 function showReports(store, params) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('CORE_SET_PAGE_LOADING', true); // does this even work?
   store.dispatch('SET_PAGE_NAME', 'REPORTS');
 
   // Get params.
-  // const channelId = params.channel_id;
+  const channelId = params.channel_id;
   const contentScope = params.content_scope;
-  // const contentScopeId = params.content_scope_id;
+  const contentScopeId = params.content_scope_id;
   const userScope = params.user_scope;
-  // const userScopeId = params.user_scope_id;
+  const userScopeId = params.user_scope_id;
   const allOrRecent = params.all_or_recent;
   const viewByContentOrLearners = params.view_by_content_or_learners;
   const sortColumn = params.sort_column;
@@ -63,7 +71,16 @@ function showReports(store, params) {
     // If invalid query, just throw error.
     coreActions.handleError(store, 'Invalid query. Redirected to a valid query.');
   } else {
-    console.log('Valid query.');
+    // All these are URL derived.
+    store.dispatch('SET_CHANNEL_ID', channelId);
+    store.dispatch('SET_CONTENT_SCOPE', contentScope);
+    store.dispatch('SET_CONTENT_SCOPE_ID', contentScopeId);
+    store.dispatch('SET_USER_SCOPE', userScope);
+    store.dispatch('SET_USER_SCOPE_ID', userScopeId);
+    store.dispatch('SET_ALL_OR_RECENT', allOrRecent);
+    store.dispatch('SET_VIEW_BY_CONTENT_OR_LEARNERS', viewByContentOrLearners);
+    store.dispatch('SET_SORT_COLUMN', sortColumn);
+    store.dispatch('SET_SORT_ORDER', sortOrder);
   }
 
   store.dispatch('CORE_SET_PAGE_LOADING', false);
