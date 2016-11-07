@@ -7,6 +7,11 @@ const ReportsOptions = require('./state/constants').ReportsOptions;
 // const UserReportResource = require('kolibri').resources.UserReportResource;
 // const ContentReportResource = require('kolibri').resources.ContentReportResource;
 // const RecentReportResource = require('kolibri').resources.RecentReportResource;
+const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
+const ChannelResource = require('kolibri').resources.ChannelResource;
+const FacilityUserResource = require('kolibri').resources.FacilityUserResource;
+const ConditionalPromise = require('kolibri.lib.conditionalPromise');
+const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 
 
 function showCoachRoot(store) {
@@ -19,31 +24,49 @@ function redirectToDefaultReports(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', 'REPORTS_NO_QUERY');
 
-  // Get Channel ID
-  const channelId = 'channel_id';
+  const channelListPromise = ChannelResource.getCollection({}).fetch();
+  const facilityIdPromise = FacilityUserResource.getCurrentFacility();
 
-  // Get Conente Scope ID
-  const contentScopeId = 'root_id';
+  ConditionalPromise.all([channelListPromise, facilityIdPromise]).only(
+    samePageCheckGenerator(store),
+    ([channelList, facilityId]) => {
+      // get channelId
+      const channelId = getDefaultChannelId(channelList);
 
-  // Get User Scope ID
-  const userScopeId = 'facility_id';
+      // get contentScopeId for root
+      let contentScopeId = null;
+      for (let x = 0; x < channelList.length; x++) {
+        if (channelList[x].id === channelId) {
+          contentScopeId = channelList[x].root_pk;
+        }
+      }
+      // get userScopeId for facility
+      const userScopeId = facilityId[0];
+      router.replace({
+        name: PageNames.REPORTS,
+        params: {
+          channel_id: channelId,
+          content_scope: ReportsOptions.CONTENT_SCOPE_OPTIONS[0],
+          content_scope_id: contentScopeId,
+          user_scope: ReportsOptions.USER_SCOPE_OPTIONS[0],
+          user_scope_id: userScopeId,
+          all_or_recent: ReportsOptions.ALL_OR_RECENT_OPTIONS[0],
+          view_by_content_or_learners: ReportsOptions.VIEW_BY_CONTENT_OR_LEARNERS_OPTIONS[0],
+          sort_column: ReportsOptions.SORT_COLUMN_OPTIONS[0],
+          sort_order: ReportsOptions.SORT_ORDER_OPTIONS[0],
+        },
+      });
 
-  router.replace({
-    name: PageNames.REPORTS,
-    params: {
-      channel_id: channelId,
-      content_scope: ReportsOptions.CONTENT_SCOPE_OPTIONS[0],
-      content_scope_id: contentScopeId,
-      user_scope: ReportsOptions.USER_SCOPE_OPTIONS[0],
-      user_scope_id: userScopeId,
-      all_or_recent: ReportsOptions.ALL_OR_RECENT_OPTIONS[0],
-      view_by_content_or_learners: ReportsOptions.VIEW_BY_CONTENT_OR_LEARNERS_OPTIONS[0],
-      sort_column: ReportsOptions.SORT_COLUMN_OPTIONS[0],
-      sort_order: ReportsOptions.SORT_ORDER_OPTIONS[0],
+      // store.dispatch('SET_PAGE_STATE', pageState);
+      // store.dispatch('CORE_SET_PAGE_LOADING', false);
+      // store.dispatch('CORE_SET_ERROR', null);
+      // store.dispatch('CORE_SET_TITLE', `${pageState.content.title} - ${currentChannel.title}`);
     },
-  });
+    error => {
+      coreActions.handleError(store, error);
+    }
+  );
 }
-
 
 function showReports(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true); // does this even work?
