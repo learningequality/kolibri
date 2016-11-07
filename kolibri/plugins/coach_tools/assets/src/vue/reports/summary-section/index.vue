@@ -3,8 +3,11 @@
   <div>
 
     <!--TABS-->
-    <button v-bind:class="{ active: !topic_view }">Recent</button>
-    <button v-bind:class="{ active: topic_view }">Topics</button>
+    <div class="tabs">
+      <a href="/recent_view"><button v-bind:class="{ active: !topic_view }">Recent</button></a>
+      <a href="/topic_view"><button v-bind:class="{ active: topic_view }">Topics</button></a>
+    </div>
+
 
     <div class="summary-section">
       <!--CONTENT BREADCRUMBS-->
@@ -43,8 +46,8 @@
         <p>Last Active: {{ last_active }}</p>
 
         <div v-if="user_name">
-          <p>{{ questions_answered }} Questions Answered - {{ attempts }} Attempts - {{ time_spent }} - {{ date_mastered
-            }}</p>
+          <p>{{ questions_answered }} Questions Answered - {{ attempts }} Attempts - {{ time_spent }} -
+            {{ date_mastered }}</p>
         </div>
 
         <div v-else>
@@ -150,6 +153,18 @@
   @require '~kolibri.styles.coreTheme'
 
   .summary-section
+    padding: 20px
+    background-color: #bfbfbf
+
+  .tabs button
     background-color: white
+    color: $core-action-normal
+    border: none
+    padding: 5px
+    font-size: 1em
+    border-radius: 0
+
+  .tabs button.active
+    border-bottom: solid 3px $core-action-normal
 
 </style>

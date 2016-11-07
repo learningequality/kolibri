@@ -29,7 +29,7 @@ class CoachToolsModule extends KolibriModule {
     router.on(
       PageNames.REPORTS,
       // eslint-disable-next-line
-      '/reports/:channel_id/:content_scope/:content_scope_id/:user_scope/:user_scope_id/:all_or_recent/:view_by_content_or_learners',
+      '/reports/:channel_id/:content_scope/:content_scope_id/:user_scope/:user_scope_id/:all_or_recent/:view_by_content_or_learners/:sort_column/:sort_order',
       (toRoute, fromRoute) => {
         actions.showReports(store, toRoute.params);
       }

@@ -2,7 +2,25 @@ const Vuex = require('vuex');
 const coreStore = require('kolibri.coreVue.vuex.store');
 
 const initialState = {
-  pageName: 'COACH_ROOT',
+  pageName: 'REPORTS',
+  pageState: {
+    // URL-input
+    channel_id: '',
+    content_scope: '',
+    content_scope_id: '',
+    user_scope: '',
+    user_scope_id: '',
+    all_or_recent: '',
+    view_by_content_or_learners: '',
+    sort_column: '',
+    sort_order: '',
+
+    // API-generated
+    content_scope_summary: '',
+    user_scope_summary: '',
+    // list of objects from server
+    table_data: [{}],
+  },
 };
 
 const mutations = {
