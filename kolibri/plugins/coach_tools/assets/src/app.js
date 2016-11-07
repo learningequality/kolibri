@@ -10,6 +10,7 @@ const PageNames = require('./state/constants').PageNames;
 
 class CoachToolsModule extends KolibriModule {
   ready() {
+    /*
     router.on(
       PageNames.COACH_ROOT,
       '/',
@@ -17,6 +18,11 @@ class CoachToolsModule extends KolibriModule {
         actions.showCoachRoot(store);
       }
     );
+    */
+
+    router.redirect({
+      '/': '/reports',
+    });
 
     router.on(
       PageNames.REPORTS_NO_QUERY,
