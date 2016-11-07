@@ -119,7 +119,7 @@ class ContentDBRouter(object):
         from .models import ContentDatabaseModel
 
         # if the model does not inherit from ContentDatabaseModel, leave it for the default database
-        if not issubclass(model, ContentDatabaseModel) and not default_database_is_attached():
+        if not issubclass(model, ContentDatabaseModel):
             return None
 
         # if the model is already associated with a database, use that database
