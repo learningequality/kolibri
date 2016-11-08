@@ -5,12 +5,12 @@ class ContentReportResource extends Resource {
     return 'contentreport';
   }
 
-  /*
-   get collectionUrl() {
-   // idk
-   return (...args) => this.urls[`kolibri:coachtools:${this.name}_list`](...args);
-   }
-   */
+
+  get collectionUrl() {
+    // idk
+    return (...args) => this.urls[`kolibri:coachtools:${this.name}_list`](...args);
+  }
+
 }
 
 module.exports = ContentReportResource;

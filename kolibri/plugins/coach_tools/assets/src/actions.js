@@ -1,17 +1,19 @@
 const router = require('kolibri.coreVue.router');
 const coreActions = require('kolibri.coreVue.vuex.actions');
-const PageNames = require('./state/constants').PageNames;
-const ReportsOptions = require('./state/constants').ReportsOptions;
-// const UserSummaryResource = require('kolibri').resources.UserSummaryResource;
-// const ContentSummaryResource = require('kolibri').resources.ContentSummaryResource;
-const UserReportResource = require('kolibri').resources.UserReportResource;
-const ContentReportResource = require('kolibri').resources.ContentReportResource;
-const RecentReportResource = require('kolibri').resources.RecentReportResource;
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
+const ConditionalPromise = require('kolibri.lib.conditionalPromise');
+
+const ContentSummaryResource = require('kolibri').resources.ContentSummaryResource;
+const UserSummaryResource = require('kolibri').resources.UserSummaryResource;
+const ContentReportResource = require('kolibri').resources.ContentReportResource;
+const UserReportResource = require('kolibri').resources.UserReportResource;
+const RecentReportResource = require('kolibri').resources.RecentReportResource;
+
 const ChannelResource = require('kolibri').resources.ChannelResource;
 const FacilityUserResource = require('kolibri').resources.FacilityUserResource;
-const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
+
+const PageNames = require('./state/constants').PageNames;
+const ReportsOptions = require('./state/constants').ReportsOptions;
 
 
 function showCoachRoot(store) {
@@ -28,7 +30,7 @@ function redirectToDefaultReports(store, params) {
   const facilityIdPromise = FacilityUserResource.getCurrentFacility();
 
   ConditionalPromise.all([channelListPromise, facilityIdPromise]).only(
-    samePageCheckGenerator(store),
+    coreActions.samePageCheckGenerator(store),
     ([channelList, facilityId]) => {
       /* get current channelId */
       const channelId = getDefaultChannelId(channelList);
@@ -69,7 +71,7 @@ function showReports(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true); // does this even work since I didn't implement it?
   store.dispatch('SET_PAGE_NAME', 'REPORTS');
 
-  // Get params.
+  /* get params from url. */
   const channelId = params.channel_id;
   const contentScope = params.content_scope;
   const contentScopeId = params.content_scope_id;
@@ -81,18 +83,20 @@ function showReports(store, params) {
   const sortOrder = params.sort_order;
 
 
-  /* Check if params are valid. */
+  /* check if params are semi-valid. */
   if (!(ReportsOptions.CONTENT_SCOPE_OPTIONS.includes(contentScope)
     && ReportsOptions.USER_SCOPE_OPTIONS.includes(userScope)
     && ReportsOptions.ALL_OR_RECENT_OPTIONS.includes(allOrRecent)
     && ReportsOptions.VIEW_BY_CONTENT_OR_LEARNERS_OPTIONS.includes(viewByContentOrLearners)
     && ReportsOptions.SORT_COLUMN_OPTIONS.includes(sortColumn)
     && ReportsOptions.SORT_ORDER_OPTIONS.includes(sortOrder))) {
-    /* If invalid params, just throw an error. */
+    /* if invalid params, just throw an error. */
     coreActions.handleError(store, 'Invalid report parameters.');
     return;
   }
-  /* All these are URL derived. */
+
+
+  /* save all params to store. */
   store.dispatch('SET_CHANNEL_ID', channelId);
   store.dispatch('SET_CONTENT_SCOPE', contentScope);
   store.dispatch('SET_CONTENT_SCOPE_ID', contentScopeId);
@@ -103,6 +107,8 @@ function showReports(store, params) {
   store.dispatch('SET_SORT_COLUMN', sortColumn);
   store.dispatch('SET_SORT_ORDER', sortOrder);
 
+
+  /* GET AND SET TABLE DATA */
   /* check what kind of report is required */
   let reportResourceType;
   if (allOrRecent === 'recent') {
@@ -112,6 +118,7 @@ function showReports(store, params) {
   } else {
     reportResourceType = UserReportResource;
   }
+
   /* get the report */
   const reportPromise = reportResourceType.getCollection({
     channel_id: channelId,
@@ -122,7 +129,7 @@ function showReports(store, params) {
 
   /* set the table data in the store */
   ConditionalPromise.all([reportPromise]).only(
-    samePageCheckGenerator(store),
+    coreActions.samePageCheckGenerator(store),
     ([report]) => {
       console.log(report);
       store.dispatch('SET_TABLE_DATA', report);
@@ -132,11 +139,36 @@ function showReports(store, params) {
     }
   );
 
-  /*
-   summary
-   UserSummaryResource.getModel({}).fetch();
-   ContentSummaryResource.getModel({}).fetch();
-   */
+
+  /* GET AND SET CONTENT SUMMARY */
+  /* get the content summary */
+  const contentSummaryPromise = ContentSummaryResource.getCollection({
+    channel_id: channelId,
+    collection_kind: userScope,
+    collection_pk: userScopeId,
+    topic_pk: contentScopeId,
+  }).fetch();
+
+  /* GET AND SET USER SUMMARY */
+  /* get the user summary */
+  const userSummaryPromise = UserSummaryResource.getCollection({
+    channel_id: channelId,
+    topic_id: contentScopeId,
+    user_pk: userScopeId,
+  }).fetch();
+
+  /* set the user and content summaries in the store */
+  ConditionalPromise.all([contentSummaryPromise, userSummaryPromise]).only(
+    coreActions.samePageCheckGenerator(store),
+    ([contentSummary, userSummary]) => {
+      console.log(contentSummary, userSummary);
+      store.dispatch('SET_CONTENT_SCOPE_SUMMARY', contentSummary);
+      store.dispatch('SET_USER_SCOPE_SUMMARY', userSummary);
+    },
+    error => {
+      coreActions.handleError(store, error);
+    }
+  );
 
   store.dispatch('CORE_SET_PAGE_LOADING', false);
 }
