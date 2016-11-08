@@ -1,8 +1,8 @@
 <template>
 
-  <div>
+  <div class="beadcrumbs">
     <span v-for="ancestor in list">
-      <span v-if="ancestor.id"><a :href="ancestor.id">{{ ancestor.name }}</a> &gt; </span>
+      <span v-if="ancestor.url"><a :href="ancestor.url">{{ ancestor.name }}</a> &gt; </span>
       <span v-else> {{ ancestor.name }}</span>
     </span>
   </div>
@@ -27,5 +27,10 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.coreTheme'
+
+  .beadcrumbs
+    background-color: white
+    padding: 0.5em
+    line-height: 2em
 
 </style>
