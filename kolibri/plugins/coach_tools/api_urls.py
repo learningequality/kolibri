@@ -17,7 +17,7 @@ user_summary_router.register(r'usersummary', UserSummaryViewSet, base_name='user
 
 
 urlpatterns = [
-    url(r'^(?P<channel_id>[^/.]+)/(?P<topic_id>[^/.]+)/(?P<collection_kind>[^/.]+)/(?P<collection_pk>[^/.]+)/', include(reports_router.urls)),
-    url(r'^(?P<channel_id>[^/.]+)/(?P<collection_kind>[^/.]+)/(?P<collection_pk>[^/.]+)/', include(content_summary_router.urls)),
-    url(r'^(?P<channel_id>[^/.]+)/(?P<topic_id>[^/.]+)/', include(user_summary_router.urls)),
+    url(r'^(?P<channel_id>[^/.]+)/(?P<content_node_id>[^/.]+)/(?P<collection_kind>[^/.]+)/(?P<collection_id>[^/.]+)/', include(reports_router.urls)),
+    url(r'^(?P<channel_id>[^/.]+)/(?P<collection_kind>[^/.]+)/(?P<collection_id>[^/.]+)/', include(content_summary_router.urls)),
+    url(r'^(?P<channel_id>[^/.]+)/(?P<content_node_id>[^/.]+)/', include(user_summary_router.urls)),
 ]

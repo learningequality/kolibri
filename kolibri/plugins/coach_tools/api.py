@@ -43,8 +43,8 @@ class ContentReportViewSet(viewsets.ModelViewSet):
     serializer_class = ContentReportSerializer
 
     def get_queryset(self):
-        topic_id = self.kwargs['topic_id']
-        return ContentNode.objects.filter(parent=topic_id)
+        content_node_id = self.kwargs['content_node_id']
+        return ContentNode.objects.filter(parent=content_node_id)
 
 
 class ContentSummaryViewSet(viewsets.ModelViewSet):
@@ -72,6 +72,6 @@ class RecentReportViewSet(viewsets.ModelViewSet):
     serializer_class = ContentReportSerializer
 
     def get_queryset(self):
-        query_node = ContentNode.objects.get(pk=self.kwargs['topic_id'])
+        query_node = ContentNode.objects.get(pk=self.kwargs['content_node_id'])
         recent_content_items = ContentSummaryLog.objects.filter_by_topic(query_node).order_by('end_timestamp').values_list('content_id')
         return ContentNode.objects.filter(content_id__in=recent_content_items)
