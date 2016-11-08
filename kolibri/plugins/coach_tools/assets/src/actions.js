@@ -139,8 +139,7 @@ function showReports(store, params) {
     }
   );
 
-
-  /* GET AND SET CONTENT SUMMARY */
+  /* GET AND SET SUMMARIES */
   /* get the content summary */
   const contentSummaryPromise = ContentSummaryResource.getCollection({
     channel_id: channelId,
@@ -149,26 +148,39 @@ function showReports(store, params) {
     topic_pk: contentScopeId,
   }).fetch();
 
-  /* GET AND SET USER SUMMARY */
-  /* get the user summary */
-  const userSummaryPromise = UserSummaryResource.getCollection({
-    channel_id: channelId,
-    topic_id: contentScopeId,
-    user_pk: userScopeId,
-  }).fetch();
-
-  /* set the user and content summaries in the store */
-  ConditionalPromise.all([contentSummaryPromise, userSummaryPromise]).only(
+  /* set the content summary in the store */
+  ConditionalPromise.all([contentSummaryPromise]).only(
     coreActions.samePageCheckGenerator(store),
-    ([contentSummary, userSummary]) => {
-      console.log(contentSummary, userSummary);
+    ([contentSummary]) => {
+      console.log(contentSummary);
       store.dispatch('SET_CONTENT_SCOPE_SUMMARY', contentSummary);
-      store.dispatch('SET_USER_SCOPE_SUMMARY', userSummary);
     },
     error => {
       coreActions.handleError(store, error);
     }
   );
+
+  /* check if a user summary is required */
+  if (userScope === 'user') {
+    /* get the user summary */
+    const userSummaryPromise = UserSummaryResource.getCollection({
+      channel_id: channelId,
+      topic_id: contentScopeId,
+      user_pk: userScopeId,
+    }).fetch();
+
+    /* set the user summary in the store */
+    ConditionalPromise.all([userSummaryPromise]).only(
+      coreActions.samePageCheckGenerator(store),
+      ([userSummary]) => {
+        console.log(userSummary);
+        store.dispatch('SET_USER_SCOPE_SUMMARY', userSummary);
+      },
+      error => {
+        coreActions.handleError(store, error);
+      }
+    );
+  }
 
   store.dispatch('CORE_SET_PAGE_LOADING', false);
 }
