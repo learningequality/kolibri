@@ -4,9 +4,9 @@ const PageNames = require('./state/constants').PageNames;
 const ReportsOptions = require('./state/constants').ReportsOptions;
 // const UserSummaryResource = require('kolibri').resources.UserSummaryResource;
 // const ContentSummaryResource = require('kolibri').resources.ContentSummaryResource;
-// const UserReportResource = require('kolibri').resources.UserReportResource;
+const UserReportResource = require('kolibri').resources.UserReportResource;
 const ContentReportResource = require('kolibri').resources.ContentReportResource;
-// const RecentReportResource = require('kolibri').resources.RecentReportResource;
+const RecentReportResource = require('kolibri').resources.RecentReportResource;
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 const ChannelResource = require('kolibri').resources.ChannelResource;
 const FacilityUserResource = require('kolibri').resources.FacilityUserResource;
@@ -30,17 +30,18 @@ function redirectToDefaultReports(store, params) {
   ConditionalPromise.all([channelListPromise, facilityIdPromise]).only(
     samePageCheckGenerator(store),
     ([channelList, facilityId]) => {
-      // get current channelId
+      /* get current channelId */
       const channelId = getDefaultChannelId(channelList);
 
-      // get contentScopeId for root
+      /* get contentScopeId for root */
       let contentScopeId = null;
       for (let x = 0; x < channelList.length; x++) {
         if (channelList[x].id === channelId) {
           contentScopeId = channelList[x].root_pk;
         }
       }
-      // get userScopeId for facility
+
+      /* get userScopeId for facility */
       const userScopeId = facilityId[0];
       router.replace({
         name: PageNames.REPORTS,
@@ -57,6 +58,7 @@ function redirectToDefaultReports(store, params) {
         },
       });
     },
+
     error => {
       coreActions.handleError(store, error);
     }
@@ -79,18 +81,18 @@ function showReports(store, params) {
   const sortOrder = params.sort_order;
 
 
-  // Check if params are valid.
+  /* Check if params are valid. */
   if (!(ReportsOptions.CONTENT_SCOPE_OPTIONS.includes(contentScope)
     && ReportsOptions.USER_SCOPE_OPTIONS.includes(userScope)
     && ReportsOptions.ALL_OR_RECENT_OPTIONS.includes(allOrRecent)
     && ReportsOptions.VIEW_BY_CONTENT_OR_LEARNERS_OPTIONS.includes(viewByContentOrLearners)
     && ReportsOptions.SORT_COLUMN_OPTIONS.includes(sortColumn)
     && ReportsOptions.SORT_ORDER_OPTIONS.includes(sortOrder))) {
-    // If invalid params, just throw an error.
+    /* If invalid params, just throw an error. */
     coreActions.handleError(store, 'Invalid report parameters.');
     return;
   }
-  // All these are URL derived.
+  /* All these are URL derived. */
   store.dispatch('SET_CHANNEL_ID', channelId);
   store.dispatch('SET_CONTENT_SCOPE', contentScope);
   store.dispatch('SET_CONTENT_SCOPE_ID', contentScopeId);
@@ -101,47 +103,40 @@ function showReports(store, params) {
   store.dispatch('SET_SORT_COLUMN', sortColumn);
   store.dispatch('SET_SORT_ORDER', sortOrder);
 
-  if (viewByContentOrLearners === 'content_view') {
-    // content report
-    const contentReportPromise = ContentReportResource.getCollection({
-      channel_id: channelId,
-      topic_id: contentScopeId,
-      collection_kind: userScope,
-      collection_pk: userScopeId,
-    }).fetch();
-    // const contentReportPromise = ContentReportResource.getCollection();
-    ConditionalPromise.all([contentReportPromise]).only(
-      samePageCheckGenerator(store),
-      ([contentReport]) => {
-        console.log(contentReport);
-      },
-      error => {
-        coreActions.handleError(store, error);
-      }
-    );
+  /* check what kind of report is required */
+  let reportResourceType;
+  if (allOrRecent === 'recent') {
+    reportResourceType = RecentReportResource;
+  } else if (viewByContentOrLearners === 'content_view') {
+    reportResourceType = ContentReportResource;
   } else {
-    // user report
-    // const userReportPromise = UserReportResource.getCollection({}).fetch();
-    console.log('user report promise needed');
+    reportResourceType = UserReportResource;
   }
-  // Figure out which 2 api endpoints to call
-  // resource fetch to summary and list endpoints
-  // on then:
-  //   dispatch...
+  /* get the report */
+  const reportPromise = reportResourceType.getCollection({
+    channel_id: channelId,
+    topic_id: contentScopeId,
+    collection_kind: userScope,
+    collection_pk: userScopeId,
+  }).fetch();
 
+  /* set the table data in the store */
+  ConditionalPromise.all([reportPromise]).only(
+    samePageCheckGenerator(store),
+    ([report]) => {
+      console.log(report);
+      store.dispatch('SET_TABLE_DATA', report);
+    },
+    error => {
+      coreActions.handleError(store, error);
+    }
+  );
 
-  // possible new resources:
-  /* UserSummaryReport.getModel({
-   })
-
-   ContentSummaryReport.getModel({
-   })
-
-   ContentReport.getCollection({
-   })
-
-   UserReport.getCollection({
-   })*/
+  /*
+   summary
+   UserSummaryResource.getModel({}).fetch();
+   ContentSummaryResource.getModel({}).fetch();
+   */
 
   store.dispatch('CORE_SET_PAGE_LOADING', false);
 }
