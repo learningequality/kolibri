@@ -9,8 +9,8 @@
   >
     <span class="block">{{ text }}</span>
     <span class="block icon-wrapper" v-if="sortable">
-      <svg class="icon" v-if="sort === 'down'" src="./down.svg"></svg>
-      <svg class="icon" v-if="sort === 'up'" src="./up.svg"></svg>
+      <svg class="icon" v-if="sort === 'desc'" src="./down.svg"></svg>
+      <svg class="icon" v-if="sort === 'asc'" src="./up.svg"></svg>
     </span>
   </th>
 
@@ -33,7 +33,7 @@
         type: String,
         default: null,
         validator(value) {
-          return value === 'up' || value === 'down' || value === null;
+          return value === 'asc' || value === 'desc' || value === null;
         },
       },
     },
