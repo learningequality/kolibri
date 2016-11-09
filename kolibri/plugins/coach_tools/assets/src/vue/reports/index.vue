@@ -27,13 +27,11 @@
 <script>
 
   module.exports = {
-
     components: {
       'breadcrumbs': require('./breadcrumbs'),
       'summary-section': require('./summary-section'),
       'list-section': require('./list-section'),
     },
-
     data: () => ({
       ancestors: [
         { name: 'ALL Learners', url: '123' },
@@ -41,7 +39,6 @@
       ],
       topic_view: true,
       contentOrLearnersView: 'content',
-
     }),
 
   };

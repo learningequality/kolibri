@@ -15,6 +15,8 @@ const FacilityUserResource = require('kolibri').resources.FacilityUserResource;
 const PageNames = require('./state/constants').PageNames;
 const ReportsOptions = require('./state/constants').ReportsOptions;
 
+const logging = require('kolibri.lib.logging');
+
 
 function showCoachRoot(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -67,8 +69,9 @@ function redirectToDefaultReports(store, params) {
   );
 }
 
+
 function showReports(store, params) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true); // does this even work since I didn't implement it?
+  store.dispatch('CORE_SET_PAGE_LOADING', false); // don't use for now
   store.dispatch('SET_PAGE_NAME', 'REPORTS');
 
   /* get params from url. */
@@ -107,6 +110,49 @@ function showReports(store, params) {
   store.dispatch('SET_SORT_COLUMN', sortColumn);
   store.dispatch('SET_SORT_ORDER', sortOrder);
 
+
+  /* resource-layer work-around below */
+
+  const resourcePromise = require('./resourcePromise');
+  const URL_ROOT = '/coach/api';
+
+  // REPORT
+  let reportUrl = `${URL_ROOT}/${channelId}/${contentScopeId}/${userScope}/${userScopeId}`;
+  if (allOrRecent === 'recent') {
+    reportUrl += '/recentreport/';
+  } else if (viewByContentOrLearners === 'content_view') {
+    reportUrl += '/contentreport/';
+  } else if (viewByContentOrLearners === 'user_view') {
+    reportUrl += '/userreport/';
+  } else {
+    logging.error('unhandled input parameters');
+  }
+  resourcePromise(reportUrl).then(response => {
+    store.dispatch('SET_TABLE_DATA', response);
+  });
+
+  // CONTENT SUMMARY
+  const contentSummaryUrl =
+    `${URL_ROOT}/${channelId}/${userScope}/${userScopeId}/contentsummary/${contentScopeId}/`;
+  resourcePromise(contentSummaryUrl).then(response => {
+    store.dispatch('SET_CONTENT_SCOPE_SUMMARY', response);
+  });
+
+  // USER SUMMARY
+  if (userScope === 'user') {
+    const userSummaryUrl
+      = `${URL_ROOT}/${channelId}/${contentScopeId}/usersummary/${userScopeId}/`;
+    resourcePromise(userSummaryUrl).then(response => {
+      store.dispatch('SET_USER_SCOPE_SUMMARY', response);
+    });
+  } else {
+    store.dispatch('SET_USER_SCOPE_SUMMARY', {});
+  }
+
+  return;
+  /* resource-layer work-around above */
+
+  /* eslint-disable */
 
   /* GET AND SET TABLE DATA */
   /* check what kind of report is required */
@@ -183,6 +229,7 @@ function showReports(store, params) {
   }
 
   store.dispatch('CORE_SET_PAGE_LOADING', false);
+  /* eslint-enable */
 }
 
 
