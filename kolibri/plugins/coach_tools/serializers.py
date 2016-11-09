@@ -1,9 +1,10 @@
-from django.db.models import BooleanField, Case, Count, Sum, When
+from django.db.models import Case, Count, IntegerField, Sum, When
 from kolibri.auth.models import FacilityUser
 from kolibri.content.models import ContentNode
 from kolibri.logger.models import ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import serializers
+
 from .utils.return_users import get_collection_or_user
 
 
@@ -18,7 +19,7 @@ class UserReportSerializer(serializers.ModelSerializer):
         )
 
     def get_details(self, target_user):
-        content_node = ContentNode.objects.get(pk=self.context['view'].kwargs['topic_id'])
+        content_node = ContentNode.objects.get(pk=self.context['view'].kwargs['content_node_id'])
         # progress details for a topic node and everything under it
         if content_node.kind == content_kinds.TOPIC:
             return ContentSummaryLog.objects \
@@ -27,16 +28,16 @@ class UserReportSerializer(serializers.ModelSerializer):
                 .values('kind') \
                 .annotate(total_progress=Sum('progress')) \
                 .annotate(log_count_total=Count('pk')) \
-                .annotate(log_count_complete=Sum(Case(When(progress=1, then=1), output_field=BooleanField())))
+                .annotate(log_count_complete=Sum(Case(When(progress=1, then=1), default=0, output_field=IntegerField())))
         else:
             # progress details for a leaf node (exercise, video, etc.)
             return ContentSummaryLog.objects \
                 .filter(user=target_user) \
                 .values('kind', 'time_spent', 'progress') \
-                .get(content_id=content_node.content_id)
+                .filter(content_id=content_node.content_id)
 
     def get_last_active(self, target_user):
-        content_node = ContentNode.objects.get(pk=self.context['view'].kwargs['topic_id'])
+        content_node = ContentNode.objects.get(pk=self.context['view'].kwargs['content_node_id'])
         try:
             if content_node.kind == content_kinds.TOPIC:
                 return ContentSummaryLog.objects \
@@ -54,6 +55,7 @@ class UserReportSerializer(serializers.ModelSerializer):
 class ContentReportSerializer(serializers.ModelSerializer):
     progress = serializers.SerializerMethodField()
     last_active = serializers.SerializerMethodField()
+    parent = serializers.SerializerMethodField()
 
     class Meta:
         model = ContentNode
@@ -82,7 +84,7 @@ class ContentReportSerializer(serializers.ModelSerializer):
                 .filter(user__in=get_collection_or_user(kwargs)) \
                 .annotate(total_progress=Sum('progress')) \
                 .annotate(log_count_total=Count('pk')) \
-                .annotate(log_count_complete=Sum(Case(When(progress=1, then=1), output_field=BooleanField()))) \
+                .annotate(log_count_complete=Sum(Case(When(progress=1, then=1), default=0, output_field=IntegerField()))) \
                 .values('total_progress', 'log_count_total', 'log_count_complete')
 
     def get_last_active(self, target_node):
@@ -97,3 +99,27 @@ class ContentReportSerializer(serializers.ModelSerializer):
                 return ContentSummaryLog.objects.get(content_id=target_node.content_id).end_timestamp
         except ContentSummaryLog.DoesNotExist:
             return None
+
+    def get_parent(self, target_node):
+        # returns immediate parent
+        return target_node.get_ancestors().values('pk', 'title').last()
+
+
+class ContentSummarySerializer(ContentReportSerializer):
+    ancestors = serializers.SerializerMethodField()
+    num_users = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ContentNode
+        fields = (
+            'pk', 'content_id', 'title', 'progress', 'kind', 'last_active', 'ancestors', 'num_users',
+        )
+
+    def get_ancestors(self, target_node):
+        """
+        in descending order (root ancestor first, immediate parent last)
+        """
+        return target_node.get_ancestors().values('pk', 'title')
+
+    def get_num_users(self, target_node):
+        return get_collection_or_user(self.context['view'].kwargs).count()
