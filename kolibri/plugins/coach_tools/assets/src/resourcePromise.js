@@ -1,0 +1,24 @@
+
+const rest = require('rest');
+const mime = require('rest/interceptor/mime');
+const cookiejs = require('js-cookie');
+const csrf = require('rest/interceptor/csrf');
+const errorCode = require('rest/interceptor/errorCode');
+
+
+const client = rest
+  .wrap(mime, { mime: 'application/json' })
+  .wrap(csrf, { name: 'X-CSRFToken', token: cookiejs.get('csrftoken') })
+  .wrap(errorCode);
+
+
+function resource(url) {
+  console.log(`localhost:8000${url}`);
+  return new Promise((resolve, reject) => {
+    client({ path: url })
+      .then(response => resolve(response.entity))
+      .catch(error => reject(error));
+  });
+}
+
+module.exports = resource;

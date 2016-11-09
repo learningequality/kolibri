@@ -1,99 +1,68 @@
 <template>
 
-  <div>
+  <div class="summary-section">
+    <!--TITLE-->
+    <h2>
+      <span v-if="user_name">{{ user_name }} - </span>
+      <span>{{ kind_icon }}</span>
+      {{ content_name }}
+    </h2>
 
-    <!--TABS-->
-    <div class="tabs">
-      <a href="/recent_view"><button v-bind:class="{ active: !topic_view }">Recent</button></a>
-      <a href="/topic_view"><button v-bind:class="{ active: topic_view }">Topics</button></a>
-    </div>
-
-
-    <div class="summary-section">
-      <!--CONTENT BREADCRUMBS-->
-      <breadcrumbs :list="breadcrumbsList">Content Breadcrumbs</breadcrumbs>
-
-
-      <!--TITLE-->
-      <h2>
-        <span v-if="user_name">{{ user_name }} - </span>
-        <span>{{ kind_icon }}</span>
-        {{ content_name }}
-      </h2>
-
-
-      <!--TOPIC/CHANNEL-->
-      <div v-if="kind == 'topic'">
-        <p>{{ exercise_count }} Exercises - {{ content_count }} Contents</p>
-        <p>Last Active: {{ last_active }}</p>
-
-        <div>
-          <p>Exercises</p>
-          <progress-bar :progress-percent="exercise_progress" color="#4CAF50"></progress-bar>
-        </div>
-
-        <div>
-          <p>Content</p>
-          <progress-bar :progress-percent="content_progress" color="#4CAF50"></progress-bar>
-        </div>
-
+    <!--TOPIC/CHANNEL-->
+    <div v-if="kind == 'topic'">
+      <p>{{ exercise_count }} Exercises - {{ content_count }} Contents</p>
+      <p>Last Active: {{ last_active }}</p>
+      <div>
+        <p>Exercises</p>
+        <progress-bar :progress="exercise_progress" color="#4CAF50"></progress-bar>
       </div>
-
-
-      <!--EXERCISE-->
-      <div v-if="kind == 'exercise'">
-        <p>{{ questions_count }} Questions - Mastery Model: {{ mastery_model }}</p>
-        <p>Last Active: {{ last_active }}</p>
-
-        <div v-if="user_name">
-          <p>{{ questions_answered }} Questions Answered - {{ attempts }} Attempts - {{ time_spent }} -
-            {{ date_mastered }}</p>
-        </div>
-
-        <div v-else>
-          <p>Mastered:</p>
-          <p>{{ exercise_mastered }} / {{ exercise_total }} Learners</p>
-        </div>
-
-      </div>
-
-
-      <!--VIDEO/AUDIO-->
-      <div v-if="kind == 'video' ">
-        <p>{{ duration }}</p>
-        <p>Last Active: {{ last_active }}</p>
-
-        <div v-if="user_name">
-          <p>{{ time_spent }}</p>
-          <progress-bar :progress-percent="video_progress"></progress-bar>
-        </div>
-
-        <div v-else>
-          <progress-bar :progress-percent="video_progress"></progress-bar>
-        </div>
-
-      </div>
-
-
-      <!--DOCUMENT-->
-      <div v-if="kind == 'document' || 'audio'">
-        <p>{{ pages }} Pages</p>
-        <p>Last Active: {{ last_active }}</p>
-
-        <div v-if="user_name">
-          <p>
-            <span v-if="document_progress == 1.000">Viewed - {{ time_spent }}</span>
-            <span v-else>Not Viewed</span>
-          </p>
-        </div>
-
-        <div v-else>
-          <progress-bar :progress-percent="document_progress"></progress-bar>
-        </div>
-
+      <div>
+        <p>Content</p>
+        <progress-bar :progress="content_progress" color="#4CAF50"></progress-bar>
       </div>
     </div>
 
+    <!--EXERCISE-->
+    <div v-if="kind == 'exercise'">
+      <p>{{ questions_count }} Questions - Mastery Model: {{ mastery_model }}</p>
+      <p>Last Active: {{ last_active }}</p>
+      <div v-if="user_name">
+        <p>{{ questions_answered }} Questions Answered - {{ attempts }} Attempts - {{ time_spent }} -
+          {{ date_mastered }}</p>
+      </div>
+      <div v-else>
+        <p>Mastered:</p>
+        <p>{{ exercise_mastered }} / {{ exercise_total }} Learners</p>
+      </div>
+    </div>
+
+    <!--VIDEO/AUDIO-->
+    <div v-if="kind == 'video' ">
+      <p>{{ duration }}</p>
+      <p>Last Active: {{ last_active }}</p>
+      <div v-if="user_name">
+        <p>{{ time_spent }}</p>
+        <progress-bar :progress="video_progress"></progress-bar>
+      </div>
+      <div v-else>
+        <progress-bar :progress="video_progress"></progress-bar>
+      </div>
+    </div>
+
+    <!--DOCUMENT-->
+    <div v-if="kind == 'document' || 'audio'">
+      <p>{{ pages }} Pages</p>
+      <p>Last Active: {{ last_active }}</p>
+      <div v-if="user_name">
+        <p>
+          <span v-if="document_progress == 1.000">Viewed - {{ time_spent }}</span>
+          <span v-else>Not Viewed</span>
+        </p>
+      </div>
+      <div v-else>
+        <progress-bar :progress="document_progress"></progress-bar>
+      </div>
+    </div>
   </div>
 
 </template>
@@ -102,11 +71,9 @@
 <script>
 
   module.exports = {
-
     components: {
       breadcrumbs: require('../breadcrumbs'),
     },
-
     data: () => ({
       user_name: 'Aaron Dude',
       content_name: 'Content Name',
@@ -125,8 +92,8 @@
       last_active: 'Nov 1 2016',
       exercise_count: 50,
       content_count: 20,
-      exercise_progress: 50,
-      content_progress: 20,
+      exercise_progress: 0.5,
+      content_progress: 0.2,
       questions_count: 20,
       mastery_model: '3 out of 5 correct',
       questions_answered: 20,
@@ -135,20 +102,10 @@
       exercise_mastered: 20,
       exercise_total: 100,
       date_mastered: 'Oct 31 2016',
-      video_progress: 75,
+      video_progress: 0.75,
       pages: 300,
-      document_progress: 1.000,
-      topic_view: true,
+      document_progress: 1.0,
     }),
-
-    computed: {
-      breadcrumbsList() {
-        const breadcrumbsList = this.ancestors;
-        breadcrumbsList.push({ name: this.content_name });
-        return breadcrumbsList;
-      },
-    },
-
   };
 
 </script>
@@ -161,18 +118,5 @@
   .summary-section
     padding: 20px
     background-color: white
-
-  .tabs button
-    background-color: white
-    color: $core-action-normal
-    border: none
-    padding: 5px
-    font-size: 1em
-    border-radius: 0
-    border-bottom: solid 3px white
-    margin-top: 5px
-
-  .tabs button.active
-    border-bottom: solid 3px $core-action-normal
 
 </style>

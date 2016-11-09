@@ -1,10 +1,12 @@
 <template>
 
-  <svg v-if="kind=='topic'" class="content-icon" src="./content-icons/topic.svg"></svg>
-  <svg v-if="kind=='video'" class="content-icon" src="./content-icons/video.svg"></svg>
-  <svg v-if="kind=='audio'" class="content-icon" src="./content-icons/audio.svg"></svg>
-  <svg v-if="kind=='document'" class="content-icon" src="./content-icons/document.svg"></svg>
-  <svg v-if="kind=='exercise'" class="content-icon" src="./content-icons/exercise.svg"></svg>
+  <div>
+    <svg v-if="kind=='topic'" :class="['content-icon', colorClass]" src="./content-icons/topic.svg"></svg>
+    <svg v-if="kind=='video'" :class="['content-icon', colorClass]" src="./content-icons/video.svg"></svg>
+    <svg v-if="kind=='audio'" :class="['content-icon', colorClass]" src="./content-icons/audio.svg"></svg>
+    <svg v-if="kind=='document'" :class="['content-icon', colorClass]" src="./content-icons/document.svg"></svg>
+    <svg v-if="kind=='exercise'" :class="['content-icon', colorClass]" src="./content-icons/exercise.svg"></svg>
+  </div>
 
 </template>
 
@@ -35,11 +37,14 @@
           return false;
         },
       },
+      colorstyle: {
+        type: String,
+        default: 'action',
+      },
     },
     computed: {
-      source() {
-        this.whatAmI();
-        return `./content-icons/${this.kind}.svg`;
+      colorClass() {
+        return `color-${this.colorStyle}`;
       },
     },
   };
@@ -54,6 +59,11 @@
   .content-icon
     width: 100%
     height: 100%
+
+  .color-action
     fill: $core-action-normal
+
+  .color-text-default
+    fill: $core-text-default
 
 </style>
