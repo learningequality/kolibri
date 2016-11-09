@@ -55,13 +55,12 @@ class UserReportSerializer(serializers.ModelSerializer):
 class ContentReportSerializer(serializers.ModelSerializer):
     progress = serializers.SerializerMethodField()
     last_active = serializers.SerializerMethodField()
-    ancestors = serializers.SerializerMethodField()
-    num_users = serializers.SerializerMethodField()
+    parent = serializers.SerializerMethodField()
 
     class Meta:
         model = ContentNode
         fields = (
-            'pk', 'content_id', 'title', 'progress', 'kind', 'last_active', 'ancestors', 'num_users',
+            'pk', 'content_id', 'title', 'progress', 'kind', 'last_active', 'parent',
         )
 
     def get_progress(self, target_node):
@@ -100,6 +99,21 @@ class ContentReportSerializer(serializers.ModelSerializer):
                 return ContentSummaryLog.objects.get(content_id=target_node.content_id).end_timestamp
         except ContentSummaryLog.DoesNotExist:
             return None
+
+    def get_parent(self, target_node):
+        # returns immediate parent
+        return target_node.get_ancestors().values('pk', 'title').last()
+
+
+class ContentSummarySerializer(ContentReportSerializer):
+    ancestors = serializers.SerializerMethodField()
+    num_users = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ContentNode
+        fields = (
+            'pk', 'content_id', 'title', 'progress', 'kind', 'last_active', 'ancestors', 'num_users',
+        )
 
     def get_ancestors(self, target_node):
         """

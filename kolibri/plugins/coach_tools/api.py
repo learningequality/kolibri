@@ -4,7 +4,7 @@ from kolibri.content.models import ContentNode
 from kolibri.logger.models import ContentSummaryLog
 from rest_framework import pagination, permissions, viewsets
 
-from .serializers import ContentReportSerializer, UserReportSerializer
+from .serializers import ContentReportSerializer, ContentSummarySerializer, UserReportSerializer
 from .utils.return_users import get_collection_or_user
 
 
@@ -50,7 +50,7 @@ class ContentReportViewSet(viewsets.ModelViewSet):
 class ContentSummaryViewSet(viewsets.ModelViewSet):
 
     permission_classes = (KolibriReportPermissions,)
-    serializer_class = ContentReportSerializer
+    serializer_class = ContentSummarySerializer
 
     def get_queryset(self):
         return ContentNode.objects.all()
