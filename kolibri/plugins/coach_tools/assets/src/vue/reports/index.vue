@@ -8,8 +8,8 @@
 
     <!--TABS-->
     <div class="tabs">
-      <a href="/recent_view"><button :class="{ active: !isRecentView }">Recent</button></a>
-      <a href="/topic_view"><button :class="{ active: isRecentView }">Topics</button></a>
+      <a href="/recent_view"><button :class="{ active: isRecentView }">Recent</button></a>
+      <a href="/topic_view"><button :class="{ active: !isRecentView }">Topics</button></a>
     </div>
 
     <div class="tabcontents">
@@ -76,7 +76,7 @@
         return list;
       },
       isRecentView() {
-        return this.pageState.all_or_recent === 'all';
+        return this.pageState.all_or_recent === 'recent';
       },
     },
     methods: {
