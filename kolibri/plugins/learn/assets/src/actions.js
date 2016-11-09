@@ -9,6 +9,8 @@ const router = require('kolibri.coreVue.router');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
+const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
+
 
 /**
  * Vuex State Mappers
@@ -86,24 +88,6 @@ function _channelListState(data) {
 
 
 /*
- * Returns the 'default' channel ID:
- * - if there are channels and they match the cookie, return that
- * - else if there are channels, return the first one
- * - else return null
- */
-function _getDefaultChannelId(store, channelList) {
-  if (channelList && channelList.length) {
-    const cookieVal = cookiejs.get('currentChannelId');
-    if (channelList.some((channel) => channel.id === cookieVal)) {
-      return cookieVal;
-    }
-    return channelList[0].id;
-  }
-  return null;
-}
-
-
-/*
  * Set channel state info.
  */
 function _setChannelState(store, currentChannelId, channelList) {
@@ -130,7 +114,7 @@ function redirectToExploreChannel(store) {
   ChannelResource.getCollection({}).fetch().then(
     (channelsData) => {
       const channelList = _channelListState(channelsData);
-      const channelId = _getDefaultChannelId(store, channelList);
+      const channelId = getDefaultChannelId(channelList);
       _setChannelState(store, channelId, channelList);
       if (channelList.length) {
         router.replace({
@@ -153,7 +137,7 @@ function redirectToLearnChannel(store) {
   ChannelResource.getCollection({}).fetch().then(
     (channelsData) => {
       const channelList = _channelListState(channelsData);
-      const channelId = _getDefaultChannelId(store, channelList);
+      const channelId = getDefaultChannelId(channelList);
       _setChannelState(store, channelId, channelList);
       if (channelList.length) {
         router.replace({

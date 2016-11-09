@@ -111,8 +111,14 @@
       user_name: 'Aaron Dude',
       content_name: 'Content Name',
       ancestors: [
-        { name: 'Grandparent', id: '123' },
-        { name: 'Parent', id: '1234' },
+        { name: 'Grandparent', url: '123' },
+        { name: 'Parent', url: '1234' },
+        { name: 'Grandparent', url: '123' },
+        { name: 'Parent', url: '1234' },
+        { name: 'Grandparent', url: '123' },
+        { name: 'Parent', url: '1234' },
+        { name: 'Grandparent', url: '123' },
+        { name: 'Parent', url: '1234' },
       ],
       kind: 'topic',
       kind_icon: 'video_icon',
@@ -154,7 +160,7 @@
 
   .summary-section
     padding: 20px
-    background-color: #bfbfbf
+    background-color: white
 
   .tabs button
     background-color: white
@@ -163,6 +169,8 @@
     padding: 5px
     font-size: 1em
     border-radius: 0
+    border-bottom: solid 3px white
+    margin-top: 5px
 
   .tabs button.active
     border-bottom: solid 3px $core-action-normal
