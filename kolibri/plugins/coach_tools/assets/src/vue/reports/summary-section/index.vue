@@ -160,7 +160,7 @@
 
   .summary-section
     padding: 20px
-    background-color: #bfbfbf
+    background-color: white
 
   .tabs button
     background-color: white
@@ -169,6 +169,8 @@
     padding: 5px
     font-size: 1em
     border-radius: 0
+    border-bottom: solid 3px white
+    margin-top: 5px
 
   .tabs button.active
     border-bottom: solid 3px $core-action-normal

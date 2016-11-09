@@ -122,9 +122,9 @@ function showReports(store, params) {
   /* get the report */
   const reportPromise = reportResourceType.getCollection({
     channel_id: channelId,
-    topic_id: contentScopeId,
+    content_node_id: contentScopeId,
     collection_kind: userScope,
-    collection_pk: userScopeId,
+    collection_id: userScopeId,
   }).fetch();
 
   /* set the table data in the store */
@@ -144,7 +144,7 @@ function showReports(store, params) {
   const contentSummaryPromise = ContentSummaryResource.getCollection({
     channel_id: channelId,
     collection_kind: userScope,
-    collection_pk: userScopeId,
+    collection_id: userScopeId,
     topic_pk: contentScopeId,
   }).fetch();
 
@@ -165,7 +165,7 @@ function showReports(store, params) {
     /* get the user summary */
     const userSummaryPromise = UserSummaryResource.getCollection({
       channel_id: channelId,
-      topic_id: contentScopeId,
+      content_node_id: contentScopeId,
       user_pk: userScopeId,
     }).fetch();
 
