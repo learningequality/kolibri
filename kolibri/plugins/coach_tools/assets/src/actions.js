@@ -71,7 +71,7 @@ function redirectToDefaultReports(store, params) {
 
 
 function showReports(store, params) {
-  store.dispatch('CORE_SET_PAGE_LOADING', false); // don't use for now
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', 'REPORTS');
 
   /* get params from url. */
@@ -112,9 +112,9 @@ function showReports(store, params) {
 
 
   /* resource-layer work-around below */
-
   const resourcePromise = require('./resourcePromise');
   const URL_ROOT = '/coach/api';
+  const promises = [];
 
   // REPORT
   let reportUrl = `${URL_ROOT}/${channelId}/${contentScopeId}/${userScope}/${userScopeId}`;
@@ -127,27 +127,29 @@ function showReports(store, params) {
   } else {
     logging.error('unhandled input parameters');
   }
-  resourcePromise(reportUrl).then(response => {
-    store.dispatch('SET_TABLE_DATA', response);
-  });
+  promises.push(resourcePromise(reportUrl));
 
   // CONTENT SUMMARY
   const contentSummaryUrl =
     `${URL_ROOT}/${channelId}/${userScope}/${userScopeId}/contentsummary/${contentScopeId}/`;
-  resourcePromise(contentSummaryUrl).then(response => {
-    store.dispatch('SET_CONTENT_SCOPE_SUMMARY', response);
-  });
+  promises.push(resourcePromise(contentSummaryUrl));
 
   // USER SUMMARY
   if (userScope === 'user') {
     const userSummaryUrl
       = `${URL_ROOT}/${channelId}/${contentScopeId}/usersummary/${userScopeId}/`;
-    resourcePromise(userSummaryUrl).then(response => {
-      store.dispatch('SET_USER_SCOPE_SUMMARY', response);
-    });
+    promises.push(resourcePromise(userSummaryUrl));
   } else {
-    store.dispatch('SET_USER_SCOPE_SUMMARY', {});
+    promises.push({});
   }
+
+  // API response handlers
+  Promise.all(promises).then(([report, contentSummary, userSummary]) => {
+    store.dispatch('SET_TABLE_DATA', report);
+    store.dispatch('SET_CONTENT_SCOPE_SUMMARY', contentSummary);
+    store.dispatch('SET_USER_SCOPE_SUMMARY', userSummary);
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  });
 
   return;
   /* resource-layer work-around above */
