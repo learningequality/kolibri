@@ -1,11 +1,11 @@
 from kolibri.auth.constants import collection_kinds
-from kolibri.auth.models import FacilityUser
+from kolibri.auth.models import Collection, FacilityUser
 from kolibri.content.models import ContentNode
 from kolibri.logger.models import ContentSummaryLog
 from rest_framework import pagination, permissions, viewsets
 
 from .serializers import ContentReportSerializer, ContentSummarySerializer, UserReportSerializer
-from .utils.return_users import get_collection_or_user
+from .utils.return_users import get_members_or_user
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
@@ -22,7 +22,18 @@ class KolibriReportPermissions(permissions.BasePermission):
 
     # check if requesting user has permission for collection or user
     def has_permission(self, request, view):
-        return request.user.can_read(get_collection_or_user(view.kwargs))
+        collection_kind = view.kwargs.get('collection_kind', None)
+        collection_id = view.kwargs.get('collection_id', None)
+        user_pk = view.kwargs.get('pk', None)
+
+        if any(collection_kind in kind for kind in collection_kinds.choices):
+            perm_check_obj = Collection.objects.get(pk=collection_id)
+        elif collection_id:
+            perm_check_obj = FacilityUser.objects.get(pk=collection_id)
+        else:  # check necessary for usersummary endpoint
+            perm_check_obj = FacilityUser.objects.get(pk=user_pk)
+
+        return request.user.can_read(perm_check_obj)
 
 
 class UserReportViewSet(viewsets.ModelViewSet):
@@ -32,8 +43,9 @@ class UserReportViewSet(viewsets.ModelViewSet):
     serializer_class = UserReportSerializer
 
     def get_queryset(self):
+        # only a collection should be passed to this endpoint
         assert any(self.kwargs['collection_kind'] in kind for kind in collection_kinds.choices)
-        return get_collection_or_user(self.kwargs)
+        return get_members_or_user(self.kwargs['collection_kind'], self.kwargs['collection_id'])
 
 
 class ContentReportViewSet(viewsets.ModelViewSet):
