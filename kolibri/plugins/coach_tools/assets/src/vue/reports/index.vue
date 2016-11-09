@@ -16,6 +16,13 @@
       <!--CONTENT BREADCRUMBS-->
       <breadcrumbs :list="contentBreadcrumbs"></breadcrumbs>
 
+      <!--HEADER SECTION-->
+      <report-header
+        :contentkind="pageState.content_scope_summary.kind"
+        :contenttitle="pageState.content_scope_summary.title"
+        :userfullname="pageState.user_scope_summary.full_name"
+      ></report-header>
+
       <!--SUMMARY SECTION-->
       <summary-section></summary-section>
 
@@ -43,6 +50,7 @@
   module.exports = {
     components: {
       'breadcrumbs': require('./breadcrumbs'),
+      'report-header': require('./report-header'),
       'summary-section': require('./summary-section'),
       'list-section': require('./list-section'),
     },
