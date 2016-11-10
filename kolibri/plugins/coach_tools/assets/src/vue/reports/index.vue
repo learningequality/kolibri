@@ -142,6 +142,8 @@
     border-radius: 0
     border-bottom: solid 3px white
     margin-top: 5px
+    &:hover
+      color:$core-action-dark
 
   .tabs button.active
     background-color: $core-bg-light
