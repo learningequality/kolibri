@@ -74,7 +74,7 @@
         return this.pageState.view_by_content_or_learners === Constants.ViewBy.CONTENT;
       },
       isSingleUser() {
-        return this.pageState.user_scope === Constants.UserScopes.FACILITY;
+        return this.pageState.user_scope === Constants.UserScopes.USER;
       },
       userBreadcrumbs() {
         if (this.pageState.user_scope === Constants.UserScopes.FACILITY) {
