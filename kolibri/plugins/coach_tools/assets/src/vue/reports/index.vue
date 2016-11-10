@@ -27,12 +27,11 @@
       <summary-section></summary-section>
 
       <!--VIEW BY RADIOS-->
-      <p v-if="!isRecentView">View by:
-        <input type="radio" id="content" value="content" v-model="contentOrLearnersView">
-        <label for="content">content</label>
-        <input type="radio" id="learners" value="learners" v-model="contentOrLearnersView">
-        <label for="learners">learners</label>
-      </p>
+      <view-by-switch
+        v-if="!isRecentView"
+        :value="pageState.view_by_content_or_learners"
+        @switch="switchView"
+      ></view-by-switch>
 
       <!--LIST SECTION-->
       <list-section></list-section>
@@ -52,6 +51,7 @@
       'breadcrumbs': require('./breadcrumbs'),
       'report-header': require('./report-header'),
       'summary-section': require('./summary-section'),
+      'view-by-switch': require('./view-by-switch'),
       'list-section': require('./list-section'),
     },
     computed: {
@@ -106,6 +106,9 @@
         };
         Object.assign(vlink.params, currentParams, newParams);
         return vlink;
+      },
+      switchView(newView) {
+        this.$router.go(this.genLink({ view_by_content_or_learners: newView }));
       },
     },
     vuex: {
