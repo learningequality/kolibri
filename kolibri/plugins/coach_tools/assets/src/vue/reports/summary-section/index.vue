@@ -1,32 +1,26 @@
 <template>
 
   <div class="summary-section">
-    <!--TITLE-->
-    <h2>
-      <span v-if="user_name">{{ user_name }} - </span>
-      <span>{{ kind_icon }}</span>
-      {{ content_name }}
-    </h2>
 
-    <!--TOPIC/CHANNEL-->
-    <div v-if="kind == 'topic'">
-      <p>{{ exercise_count }} Exercises - {{ content_count }} Contents</p>
-      <p>Last Active: {{ last_active }}</p>
+    <!--TOPICS-->
+    <div v-if="contentSummary.kind === 'topic'">
+      <p>{{ exerciseCount }} Exercises - {{ contentCount }} Content Items</p>
+      <p>Last Active: {{ lastActiveText }}</p>
       <div>
         <p>Exercises</p>
-        <progress-bar :progress="exercise_progress" color="#4CAF50"></progress-bar>
+        <progress-bar :progress="exerciseProgress"></progress-bar>
       </div>
       <div>
         <p>Content</p>
-        <progress-bar :progress="content_progress" color="#4CAF50"></progress-bar>
+        <progress-bar :progress="contentProgress"></progress-bar>
       </div>
     </div>
 
     <!--EXERCISE-->
-    <div v-if="kind == 'exercise'">
+    <div v-if="contentSummary.kind === 'exercise'">
       <p>{{ questions_count }} Questions - Mastery Model: {{ mastery_model }}</p>
       <p>Last Active: {{ last_active }}</p>
-      <div v-if="user_name">
+      <div v-if="userSummary.full_name">
         <p>{{ questions_answered }} Questions Answered - {{ attempts }} Attempts - {{ time_spent }} -
           {{ date_mastered }}</p>
       </div>
@@ -37,10 +31,10 @@
     </div>
 
     <!--VIDEO/AUDIO-->
-    <div v-if="kind == 'video' ">
+    <div v-if="contentSummary.kind === 'video' ">
       <p>{{ duration }}</p>
       <p>Last Active: {{ last_active }}</p>
-      <div v-if="user_name">
+      <div v-if="userSummary.full_name">
         <p>{{ time_spent }}</p>
         <progress-bar :progress="video_progress"></progress-bar>
       </div>
@@ -50,12 +44,12 @@
     </div>
 
     <!--DOCUMENT-->
-    <div v-if="kind == 'document' || 'audio'">
+    <div v-if="contentSummary.kind === ('document' || 'audio')">
       <p>{{ pages }} Pages</p>
       <p>Last Active: {{ last_active }}</p>
-      <div v-if="user_name">
+      <div v-if="userSummary.full_name">
         <p>
-          <span v-if="document_progress == 1.000">Viewed - {{ time_spent }}</span>
+          <span v-if="document_progress === 1.000">Viewed - {{ time_spent }}</span>
           <span v-else>Not Viewed</span>
         </p>
       </div>
@@ -70,30 +64,64 @@
 
 <script>
 
+  /* given an array of objects sum the keys on those that pass the filter */
+  function sumOfKeys(array, key, filter = () => true) {
+    return array
+      .filter(filter)
+      .reduce((prev, item) => prev + item[key], 0);
+  }
+
   module.exports = {
-    components: {
-      breadcrumbs: require('../breadcrumbs'),
+    $trNameSpace: 'report-summary',
+    $trs: {
+      lastActiveText: '{0, date, medium}',
+    },
+    computed: {
+      exerciseCount() {
+        return sumOfKeys(
+          this.contentSummary.progress,
+          'node_count',
+          item => item.kind === 'exercise'
+        );
+      },
+      exerciseProgress() {
+        const totalProgress = sumOfKeys(
+          this.contentSummary.progress,
+          'total_progress',
+          item => item.kind === 'exercise'
+        );
+        return totalProgress / this.exerciseCount;
+      },
+      contentCount() {
+        return sumOfKeys(
+          this.contentSummary.progress,
+          'node_count',
+          item => item.kind !== 'exercise'
+        );
+      },
+      contentProgress() {
+        const totalProgress = sumOfKeys(
+          this.contentSummary.progress,
+          'total_progress',
+          item => item.kind !== 'exercise'
+        );
+        return totalProgress / this.contentCount;
+      },
+      lastActiveText() {
+        if (this.contentSummary.last_active) {
+          return this.$tr('lastActiveText', new Date(this.contentSummary.last_active));
+        }
+        return '–';
+      },
+    },
+    vuex: {
+      getters: {
+        loading: state => state.core.loading,
+        contentSummary: state => state.pageState.content_scope_summary,
+        userSummary: state => state.pageState.user_scope_summary,
+      },
     },
     data: () => ({
-      user_name: 'Aaron Dude',
-      content_name: 'Content Name',
-      ancestors: [
-        { name: 'Grandparent', url: '123' },
-        { name: 'Parent', url: '1234' },
-        { name: 'Grandparent', url: '123' },
-        { name: 'Parent', url: '1234' },
-        { name: 'Grandparent', url: '123' },
-        { name: 'Parent', url: '1234' },
-        { name: 'Grandparent', url: '123' },
-        { name: 'Parent', url: '1234' },
-      ],
-      kind: 'topic',
-      kind_icon: 'video_icon',
-      last_active: 'Nov 1 2016',
-      exercise_count: 50,
-      content_count: 20,
-      exercise_progress: 0.5,
-      content_progress: 0.2,
       questions_count: 20,
       mastery_model: '3 out of 5 correct',
       questions_answered: 20,

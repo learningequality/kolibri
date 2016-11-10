@@ -3,7 +3,7 @@
   <div>
     <progress-bar :progress="num"></progress-bar>
     <div v-if="extraText" class="extra-text">
-      <svg src="./person.svg" class="person-icon"></svg>
+      <svg src="../../../icons/user.svg" class="person-icon"></svg>
       {{extraText}}
     </div>
   </div>
