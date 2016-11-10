@@ -8,8 +8,8 @@
 
     <!--TABS-->
     <div class="tabs">
-      <a href="/recent_view"><button :class="{ active: isRecentView }">Recent</button></a>
-      <a href="/topic_view"><button :class="{ active: !isRecentView }">Topics</button></a>
+      <button @click="switchToRecentView" :class="{ active: isRecentView }">Recent</button>
+      <button @click="switchToAllView" :class="{ active: !isRecentView }">Topics</button>
     </div>
 
     <div class="tabcontents">
@@ -117,6 +117,12 @@
         const newView = isContent ? Constants.ViewBy.CONTENT : Constants.ViewBy.LEARNERS;
         this.$router.go(this.genLink({ view_by_content_or_learners: newView }));
       },
+      switchToRecentView() {
+        this.$router.go(this.genLink({ all_or_recent: Constants.AllOrRecent.RECENT }));
+      },
+      switchToAllView() {
+        this.$router.go(this.genLink({ all_or_recent: Constants.AllOrRecent.ALL }));
+      },
     },
     vuex: {
       getters: {
@@ -143,7 +149,7 @@
     border-bottom: solid 3px white
     margin-top: 5px
     &:hover
-      color:$core-action-dark
+      color: $core-action-dark
 
   .tabs button.active
     background-color: $core-bg-light
