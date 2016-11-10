@@ -48,7 +48,7 @@ class ManagementModule extends KolibriModule {
     });
 
     router.start(rootvue, 'rootvue');
-    coreActions.currentLoggedInUser(store, kolibri);
+    coreActions.getCurrentSession(store, kolibri);
   }
 }
 

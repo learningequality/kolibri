@@ -24,7 +24,7 @@ function showCoachRoot(store) {
 }
 
 
-function redirectToDefaultReports(store, params) {
+function redirectToDefaultReport(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', 'REPORTS_NO_QUERY');
 
@@ -70,7 +70,7 @@ function redirectToDefaultReports(store, params) {
 }
 
 
-function showReports(store, params) {
+function showReport(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', 'REPORTS');
 
@@ -233,9 +233,8 @@ function showReports(store, params) {
   /* eslint-enable */
 }
 
-
 module.exports = {
   showCoachRoot,
-  redirectToDefaultReports,
-  showReports,
+  redirectToDefaultReport,
+  showReport,
 };
