@@ -29,8 +29,8 @@
       <!--VIEW BY RADIOS-->
       <view-by-switch
         v-if="!isRecentView"
-        :value="pageState.view_by_content_or_learners"
-        @switch="switchView"
+        :iscontent="isContent"
+        @toggled="switchView"
       ></view-by-switch>
 
       <!--LIST SECTION-->
@@ -43,7 +43,7 @@
 
 <script>
 
-  const PageNames = require('../../state/constants').PageNames;
+  const Constants = require('../../state/constants');
   const logging = require('kolibri.lib.logging');
 
   module.exports = {
@@ -55,15 +55,21 @@
       'list-section': require('./list-section'),
     },
     computed: {
+      isContent() {
+        return this.pageState.view_by_content_or_learners === Constants.ViewBy.CONTENT;
+      },
       userBreadcrumbs() {
-        if (this.pageState.user_scope === 'facility') {
+        if (this.pageState.user_scope === Constants.UserScopes.FACILITY) {
           return [{ title: 'All Learners' }];
-        } else if (this.pageState.user_scope === 'user') {
+        } else if (this.pageState.user_scope === Constants.UserScopes.USER) {
           const FACILITY_ID = '1'; // TODO - facility ID should not be hard-coded.
           return [
             {
               title: 'All Learners',
-              vlink: this.genLink({ user_scope: 'facility', user_scope_id: FACILITY_ID }),
+              vlink: this.genLink({
+                user_scope: Constants.UserScopes.FACILITY,
+                user_scope_id: FACILITY_ID,
+              }),
             },
             { title: this.pageState.user_scope_summary.full_name },
           ];
@@ -75,7 +81,7 @@
         const list = this.pageState.content_scope_summary.ancestors.map((item, index) => ({
           title: item.title,
           vlink: this.genLink({
-            content_scope: index ? 'topic' : 'root',
+            content_scope: index ? Constants.ContentScopes.TOPIC : Constants.ContentScopes.ROOT,
             content_scope_id: item.pk,
           }),
         }));
@@ -83,7 +89,7 @@
         return list;
       },
       isRecentView() {
-        return this.pageState.all_or_recent === 'recent';
+        return this.pageState.all_or_recent === Constants.AllOrRecent.RECENT;
       },
     },
     methods: {
@@ -101,13 +107,14 @@
           sort_order: this.pageState.sort_order,
         };
         const vlink = {
-          name: PageNames.REPORTS,
+          name: Constants.PageNames.REPORTS,
           params: {},
         };
         Object.assign(vlink.params, currentParams, newParams);
         return vlink;
       },
-      switchView(newView) {
+      switchView(isContent) {
+        const newView = isContent ? Constants.ViewBy.CONTENT : Constants.ViewBy.LEARNERS;
         this.$router.go(this.genLink({ view_by_content_or_learners: newView }));
       },
     },

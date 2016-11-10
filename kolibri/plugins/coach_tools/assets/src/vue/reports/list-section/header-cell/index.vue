@@ -9,8 +9,8 @@
   >
     <span class="block">{{ text }}</span>
     <span class="block icon-wrapper" v-if="sortable">
-      <svg class="icon" v-if="sort === 'desc'" src="./down.svg"></svg>
-      <svg class="icon" v-if="sort === 'asc'" src="./up.svg"></svg>
+      <svg class="icon" v-if="isDescending" src="./down.svg"></svg>
+      <svg class="icon" v-if="isAscending" src="./up.svg"></svg>
     </span>
   </th>
 
@@ -18,6 +18,8 @@
 
 
 <script>
+
+  const SortOrders = require('../../../../state/constants').SortOrders;
 
   module.exports = {
     props: {
@@ -33,7 +35,7 @@
         type: String,
         default: null,
         validator(value) {
-          return value === 'asc' || value === 'desc' || value === null;
+          return value === SortOrders.ASC || value === SortOrders.DESC || value === null;
         },
       },
     },
@@ -51,6 +53,12 @@
       },
       headerTabIndex() {
         return this.sortable ? 0 : -1;
+      },
+      isDescending() {
+        return this.sort === SortOrders.DESC;
+      },
+      isAscending() {
+        return this.sort === SortOrders.ASC;
       },
     },
   };
