@@ -24,7 +24,15 @@
       ></report-header>
 
       <!--SUMMARY SECTION-->
-      <summary-section></summary-section>
+      <summary-section
+        :kind="pageState.content_scope_summary.kind"
+        :exercisecount="exerciseCount"
+        :exerciseprogress="exerciseProgress"
+        :contentcount="contentCount"
+        :contentprogress="contentProgress"
+        :lastactive="pageState.content_scope_summary.last_active"
+        :singleuser="isSingleUser"
+      ></summary-section>
 
       <!--VIEW BY RADIOS-->
       <view-by-switch
@@ -46,6 +54,13 @@
   const Constants = require('../../state/constants');
   const logging = require('kolibri.lib.logging');
 
+  /* given an array of objects sum the keys on those that pass the filter */
+  function sumOfKeys(array, key, filter = () => true) {
+    return array
+      .filter(filter)
+      .reduce((prev, item) => prev + item[key], 0);
+  }
+
   module.exports = {
     components: {
       'breadcrumbs': require('./breadcrumbs'),
@@ -57,6 +72,9 @@
     computed: {
       isContent() {
         return this.pageState.view_by_content_or_learners === Constants.ViewBy.CONTENT;
+      },
+      isSingleUser() {
+        return this.pageState.user_scope === Constants.UserScopes.USER;
       },
       userBreadcrumbs() {
         if (this.pageState.user_scope === Constants.UserScopes.FACILITY) {
@@ -90,6 +108,36 @@
       },
       isRecentView() {
         return this.pageState.all_or_recent === Constants.AllOrRecent.RECENT;
+      },
+      exerciseCount() {
+        return sumOfKeys(
+          this.pageState.content_scope_summary.progress,
+          'node_count',
+          item => item.kind === 'exercise'
+        );
+      },
+      exerciseProgress() {
+        const totalProgress = sumOfKeys(
+          this.pageState.content_scope_summary.progress,
+          'total_progress',
+          item => item.kind === 'exercise'
+        );
+        return totalProgress / this.exerciseCount;
+      },
+      contentCount() {
+        return sumOfKeys(
+          this.pageState.content_scope_summary.progress,
+          'node_count',
+          item => item.kind !== 'exercise'
+        );
+      },
+      contentProgress() {
+        const totalProgress = sumOfKeys(
+          this.pageState.content_scope_summary.progress,
+          'total_progress',
+          item => item.kind !== 'exercise'
+        );
+        return totalProgress / this.contentCount;
       },
       recentViewLink() {
         return this.genLink({
