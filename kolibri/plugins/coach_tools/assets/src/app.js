@@ -39,7 +39,7 @@ class CoachToolsModule extends KolibriModule {
       PageNames.REPORTS,
       REPORT_URL_PATTERN,
       (toRoute, fromRoute) => {
-        actions.showReport(store, toRoute.params);
+        actions.showReport(store, toRoute.params, fromRoute.params);
       }
     );
     router.start(rootvue, 'rootvue');

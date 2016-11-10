@@ -16,9 +16,37 @@ const Constants = require('./state/constants');
 const logging = require('kolibri.lib.logging');
 
 
+/* returns an array of the values of an object */
 function _vals(obj) {
   return Object.entries(obj).map(([key, value]) => value);
 }
+
+
+/* Only certain types of parameter updates require the 'loading' flag to be set */
+function _useReportPageLoadingFlag(newParams, oldParams) {
+  if (!newParams || !oldParams) {
+    return true;
+  }
+  if (Object.entries(newParams).length !== Object.entries(newParams).length) {
+    return true;
+  }
+  const diffKeys = [];
+  Object.entries(newParams).forEach(([key, value]) => {
+    if (oldParams[key] !== value) {
+      diffKeys.push(key);
+    }
+  });
+  if (diffKeys.length > 1) {
+    return true;
+  }
+  const noLoadingParams = [
+    'view_by_content_or_learners',
+    'sort_column',
+    'sort_order',
+  ];
+  return !noLoadingParams.includes(diffKeys[0]);
+}
+
 
 function showCoachRoot(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -72,10 +100,7 @@ function redirectToDefaultReport(store, params) {
 }
 
 
-function showReport(store, params) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.REPORTS);
-
+function showReport(store, params, oldParams) {
   /* get params from url. */
   const channelId = params.channel_id;
   const contentScope = params.content_scope;
@@ -98,6 +123,12 @@ function showReport(store, params) {
     /* if invalid params, just throw an error. */
     coreActions.handleError(store, 'Invalid report parameters.');
     return;
+  }
+
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.REPORTS);
+
+  if (_useReportPageLoadingFlag(params, oldParams)) {
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
 
   /* save all params to store. */
