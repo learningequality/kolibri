@@ -120,7 +120,13 @@
       switchToRecentView() {
         this.$router.go(this.genLink({
           all_or_recent: Constants.AllOrRecent.RECENT,
-          content_scope: Constants.ContentScopes.ROOT,
+          content_scope: Constants.ContentScopes.ROOT, // recent view only applies to root
+          content_scope_id: 'root_id', // TODO: get root id
+          // recent view is only viewable by content
+          view_by_content_or_learners: Constants.ViewBy.CONTENT,
+          // These are not really taken into account in recent view but it doesn't hurt
+          sort_column: Constants.SortCols.DATE,
+          sort_order: Constants.SortOrders.DESC,
         }));
       },
       switchToAllView() {
