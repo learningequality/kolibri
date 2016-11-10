@@ -134,7 +134,7 @@
   @require '~kolibri.styles.coreTheme'
 
   .tabs button
-    background-color: $core-bg-light
+    background-color: $core-bg-canvas
     color: $core-action-normal
     border: none
     padding: 5px 15px
@@ -144,6 +144,7 @@
     margin-top: 5px
 
   .tabs button.active
+    background-color: $core-bg-light
     border-bottom: solid 3px $core-action-normal
 
   .tabcontents
