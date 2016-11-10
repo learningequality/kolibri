@@ -1,4 +1,4 @@
-from kolibri.auth.constants import collection_kinds
+from kolibri.auth.constants import collection_kinds, role_kinds
 from kolibri.auth.models import Collection, FacilityUser
 from kolibri.content.models import ContentNode
 from kolibri.logger.models import ContentSummaryLog
@@ -26,14 +26,13 @@ class KolibriReportPermissions(permissions.BasePermission):
         collection_id = view.kwargs.get('collection_id', None)
         user_pk = view.kwargs.get('pk', None)
 
+        roles = [role_kinds.ADMIN, role_kinds.COACH]
         if any(collection_kind in kind for kind in collection_kinds.choices):
-            perm_check_obj = Collection.objects.get(pk=collection_id)
-        elif collection_id:
-            perm_check_obj = FacilityUser.objects.get(pk=collection_id)
-        else:  # check necessary for usersummary endpoint
-            perm_check_obj = FacilityUser.objects.get(pk=user_pk)
-
-        return request.user.can_read(perm_check_obj)
+            return request.user.has_role_for_collection(roles, Collection.objects.get(pk=collection_id))
+        elif collection_id:  # if kind is not a collection, then we have to be querying for a single user
+            return request.user.has_role_for_user(roles, FacilityUser.objects.get(pk=collection_id))
+        else:  # if collection_kind, collection_id is not specified, we have to be querying for a single user
+            return request.user.has_role_for_user(roles, FacilityUser.objects.get(pk=user_pk))
 
 
 class UserReportViewSet(viewsets.ModelViewSet):
