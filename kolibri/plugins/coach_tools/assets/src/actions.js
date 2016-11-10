@@ -68,12 +68,7 @@ function redirectToDefaultReport(store, params) {
       const channelId = getDefaultChannelId(channelList);
 
       /* get contentScopeId for root */
-      let contentScopeId = null;
-      for (let x = 0; x < channelList.length; x++) {
-        if (channelList[x].id === channelId) {
-          contentScopeId = channelList[x].root_pk;
-        }
-      }
+      const contentScopeId = channelList.find((channel) => channel.id === channelId).root_pk;
 
       /* get userScopeId for facility */
       const userScopeId = facilityId[0];

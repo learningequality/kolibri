@@ -8,8 +8,8 @@
 
     <!--TABS-->
     <div class="tabs">
-      <a href="/recent_view"><button :class="{ active: isRecentView }">Recent</button></a>
-      <a href="/topic_view"><button :class="{ active: !isRecentView }">Topics</button></a>
+      <a v-link="recentViewLink" :class="{ active: isRecentView }">Recent</a>
+      <a v-link="allViewLink" :class="{ active: !isRecentView }">Topics</a>
     </div>
 
     <div class="tabcontents">
@@ -91,6 +91,21 @@
       isRecentView() {
         return this.pageState.all_or_recent === Constants.AllOrRecent.RECENT;
       },
+      recentViewLink() {
+        return this.genLink({
+          all_or_recent: Constants.AllOrRecent.RECENT,
+          content_scope: Constants.ContentScopes.ROOT, // recent view only applies to root
+          content_scope_id: 'root_id', // TODO: get root id
+          // recent view is only viewable by content
+          view_by_content_or_learners: Constants.ViewBy.CONTENT,
+          // These are not really taken into account in recent view but it doesn't hurt
+          sort_column: Constants.SortCols.DATE,
+          sort_order: Constants.SortOrders.DESC,
+        });
+      },
+      allViewLink() {
+        return this.genLink({ all_or_recent: Constants.AllOrRecent.ALL });
+      },
     },
     methods: {
       /* Generates a REPORTS link relative to the current page, with only newParams changed. */
@@ -133,8 +148,8 @@
 
   @require '~kolibri.styles.coreTheme'
 
-  .tabs button
-    background-color: $core-bg-light
+  .tabs a
+    background-color: $core-bg-canvas
     color: $core-action-normal
     border: none
     padding: 5px 15px
@@ -142,8 +157,11 @@
     border-radius: 0
     border-bottom: solid 3px white
     margin-top: 5px
+    &:hover
+      color: $core-action-dark
 
-  .tabs button.active
+  .tabs a.active
+    background-color: $core-bg-light
     border-bottom: solid 3px $core-action-normal
 
   .tabcontents
