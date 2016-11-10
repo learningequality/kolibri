@@ -118,7 +118,10 @@
         this.$router.go(this.genLink({ view_by_content_or_learners: newView }));
       },
       switchToRecentView() {
-        this.$router.go(this.genLink({ all_or_recent: Constants.AllOrRecent.RECENT }));
+        this.$router.go(this.genLink({
+          all_or_recent: Constants.AllOrRecent.RECENT,
+          content_scope: Constants.ContentScopes.ROOT,
+        }));
       },
       switchToAllView() {
         this.$router.go(this.genLink({ all_or_recent: Constants.AllOrRecent.ALL }));
