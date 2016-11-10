@@ -1,23 +1,29 @@
 <template>
 
   <div>
-    View by:
-    <input
-      :checked="iscontent"
-      @change="change"
-      type="radio"
-      name="viewby"
-      id="content"
-    >
-    <label for="content">Content</label>
-    <input
-      :checked="!iscontent"
-      @change="change"
-      type="radio"
-      name="viewby"
-      id="learners"
-    >
-    <label for="learners">Learners</label>
+    <div>
+      View by:
+    </div>
+    <label>
+      <input
+        :checked="iscontent"
+        @change="change"
+        type="radio"
+        name="viewby"
+        value="content"
+      >
+      Content
+    </label>
+    <label>
+      <input
+        :checked="!iscontent"
+        @change="change"
+        type="radio"
+        name="viewby"
+        value="learners"
+      >
+      Learners
+    </label>
   </div>
 
 </template>
@@ -34,7 +40,7 @@
     },
     methods: {
       change(event) {
-        if (event.target.id === 'content') {
+        if (event.target.value === 'content') {
           this.$emit('toggled', true);
         } else {
           this.$emit('toggled', false);
@@ -46,4 +52,9 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  label
+    display: block
+
+</style>
