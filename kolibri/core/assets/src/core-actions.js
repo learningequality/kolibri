@@ -193,7 +193,7 @@ function kolibriLogout(store, Kolibri) {
   }).catch(error => { handleApiError(store, error); });
 }
 
-function currentLoggedInUser(store, Kolibri) {
+function getCurrentSession(store, Kolibri) {
   const SessionResource = Kolibri.resources.SessionResource;
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
@@ -596,7 +596,7 @@ module.exports = {
   handleResize,
   kolibriLogin,
   kolibriLogout,
-  currentLoggedInUser,
+  getCurrentSession,
   showLoginModal,
   cancelLoginModal,
   initContentSession,

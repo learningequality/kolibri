@@ -8,41 +8,42 @@ const actions = require('./actions');
 const store = require('./state/store');
 const PageNames = require('./state/constants').PageNames;
 
+
+const REPORT_URL_PATTERN = [
+  '/reports',
+  ':channel_id',
+  ':content_scope',
+  ':content_scope_id',
+  ':user_scope',
+  ':user_scope_id',
+  ':all_or_recent',
+  ':view_by_content_or_learners',
+  ':sort_column',
+  ':sort_order',
+].join('/');
+
+
 class CoachToolsModule extends KolibriModule {
   ready() {
-    /*
-    router.on(
-      PageNames.COACH_ROOT,
-      '/',
-      (toRoute, fromRoute) => {
-        actions.showCoachRoot(store);
-      }
-    );
-    */
-
     router.redirect({
       '/': '/reports',
     });
-
     router.on(
       PageNames.REPORTS_NO_QUERY,
       '/reports',
       (toRoute, fromRoute) => {
-        actions.redirectToDefaultReports(store, toRoute.params);
+        actions.redirectToDefaultReport(store, toRoute.params);
       }
     );
-
     router.on(
       PageNames.REPORTS,
-      // eslint-disable-next-line
-      '/reports/:channel_id/:content_scope/:content_scope_id/:user_scope/:user_scope_id/:all_or_recent/:view_by_content_or_learners/:sort_column/:sort_order',
+      REPORT_URL_PATTERN,
       (toRoute, fromRoute) => {
-        actions.showReports(store, toRoute.params);
+        actions.showReport(store, toRoute.params, fromRoute.params);
       }
     );
-
     router.start(rootvue, 'rootvue');
-    coreActions.currentLoggedInUser(store, kolibri);
+    coreActions.getCurrentSession(store, kolibri);
   }
 }
 

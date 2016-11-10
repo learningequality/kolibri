@@ -4,17 +4,47 @@ const PageNames = {
   REPORTS: 'REPORTS',
 };
 
-const ReportsOptions = {
-  CONTENT_SCOPE_OPTIONS: ['root', 'topic', 'content'],
-  USER_SCOPE_OPTIONS: ['facility', 'classroom', 'learnergroup', 'user'],
-  ALL_OR_RECENT_OPTIONS: ['all', 'recent'],
-  VIEW_BY_CONTENT_OR_LEARNERS_OPTIONS: ['content_view', 'user_view'],
-  SORT_COLUMN_OPTIONS: ['name', 'exercise_progress', 'content_progress', 'date'],
-  SORT_ORDER_OPTIONS: ['asc', 'desc'],
+const ContentScopes = {
+  ROOT: 'root',
+  TOPIC: 'topic',
+  CONTENT: 'content',
 };
 
+const UserScopes = {
+  FACILITY: 'facility',
+  CLASSROOM: 'classroom',
+  LEARNERGROUP: 'learnergroup',
+  USER: 'user',
+};
+
+const AllOrRecent = {
+  ALL: 'all',
+  RECENT: 'recent',
+};
+
+const ViewBy = {
+  LEARNERS: 'user_view',
+  CONTENT: 'content_view',
+};
+
+const SortCols = {
+  NAME: 'name',
+  EXERCISE: 'exercise_progress',
+  CONTENT: 'content_progress',
+  DATE: 'date',
+};
+
+const SortOrders = {
+  ASC: 'asc',
+  DESC: 'desc',
+};
 
 module.exports = {
   PageNames,
-  ReportsOptions,
+  ContentScopes,
+  UserScopes,
+  AllOrRecent,
+  ViewBy,
+  SortCols,
+  SortOrders,
 };

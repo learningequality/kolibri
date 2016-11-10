@@ -88,7 +88,7 @@ class LearnModule extends KolibriModule {
     });
 
     router.start(rootvue, 'rootvue');
-    coreActions.currentLoggedInUser(store, kolibri);
+    coreActions.getCurrentSession(store, kolibri);
     // Wrap this to preserve 'this-ness' inside the router.
     kolibri.on('refresh', () => router.refresh());
   }

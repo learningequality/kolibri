@@ -27,12 +27,11 @@
       <summary-section></summary-section>
 
       <!--VIEW BY RADIOS-->
-      <p v-if="!isRecentView">View by:
-        <input type="radio" id="content" value="content" v-model="contentOrLearnersView">
-        <label for="content">content</label>
-        <input type="radio" id="learners" value="learners" v-model="contentOrLearnersView">
-        <label for="learners">learners</label>
-      </p>
+      <view-by-switch
+        v-if="!isRecentView"
+        :iscontent="isContent"
+        @toggled="switchView"
+      ></view-by-switch>
 
       <!--LIST SECTION-->
       <list-section></list-section>
@@ -44,7 +43,7 @@
 
 <script>
 
-  const PageNames = require('../../state/constants').PageNames;
+  const Constants = require('../../state/constants');
   const logging = require('kolibri.lib.logging');
 
   module.exports = {
@@ -52,18 +51,25 @@
       'breadcrumbs': require('./breadcrumbs'),
       'report-header': require('./report-header'),
       'summary-section': require('./summary-section'),
+      'view-by-switch': require('./view-by-switch'),
       'list-section': require('./list-section'),
     },
     computed: {
+      isContent() {
+        return this.pageState.view_by_content_or_learners === Constants.ViewBy.CONTENT;
+      },
       userBreadcrumbs() {
-        if (this.pageState.user_scope === 'facility') {
+        if (this.pageState.user_scope === Constants.UserScopes.FACILITY) {
           return [{ title: 'All Learners' }];
-        } else if (this.pageState.user_scope === 'user') {
+        } else if (this.pageState.user_scope === Constants.UserScopes.USER) {
           const FACILITY_ID = '1'; // TODO - facility ID should not be hard-coded.
           return [
             {
               title: 'All Learners',
-              vlink: this.genLink({ user_scope: 'facility', user_scope_id: FACILITY_ID }),
+              vlink: this.genLink({
+                user_scope: Constants.UserScopes.FACILITY,
+                user_scope_id: FACILITY_ID,
+              }),
             },
             { title: this.pageState.user_scope_summary.full_name },
           ];
@@ -75,16 +81,15 @@
         const list = this.pageState.content_scope_summary.ancestors.map((item, index) => ({
           title: item.title,
           vlink: this.genLink({
-            content_scope: index ? 'topic' : 'root',
+            content_scope: index ? Constants.ContentScopes.TOPIC : Constants.ContentScopes.ROOT,
             content_scope_id: item.pk,
           }),
         }));
-
         list.push({ title: this.pageState.content_scope_summary.title });
         return list;
       },
       isRecentView() {
-        return this.pageState.all_or_recent === 'recent';
+        return this.pageState.all_or_recent === Constants.AllOrRecent.RECENT;
       },
     },
     methods: {
@@ -102,11 +107,15 @@
           sort_order: this.pageState.sort_order,
         };
         const vlink = {
-          name: PageNames.REPORTS,
+          name: Constants.PageNames.REPORTS,
           params: {},
         };
         Object.assign(vlink.params, currentParams, newParams);
         return vlink;
+      },
+      switchView(isContent) {
+        const newView = isContent ? Constants.ViewBy.CONTENT : Constants.ViewBy.LEARNERS;
+        this.$router.go(this.genLink({ view_by_content_or_learners: newView }));
       },
     },
     vuex: {

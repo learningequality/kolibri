@@ -11,22 +11,52 @@ const RecentReportResource = require('kolibri').resources.RecentReportResource;
 
 const ChannelResource = require('kolibri').resources.ChannelResource;
 const FacilityUserResource = require('kolibri').resources.FacilityUserResource;
-
-const PageNames = require('./state/constants').PageNames;
-const ReportsOptions = require('./state/constants').ReportsOptions;
+const Constants = require('./state/constants');
 
 const logging = require('kolibri.lib.logging');
 
 
-function showCoachRoot(store) {
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('SET_PAGE_NAME', 'COACH_ROOT');
+/* returns an array of the values of an object */
+function _vals(obj) {
+  return Object.entries(obj).map(([key, value]) => value);
 }
 
 
-function redirectToDefaultReports(store, params) {
+/* Only certain types of parameter updates require the 'loading' flag to be set */
+function _useReportPageLoadingFlag(newParams, oldParams) {
+  if (!newParams || !oldParams) {
+    return true;
+  }
+  if (Object.entries(newParams).length !== Object.entries(newParams).length) {
+    return true;
+  }
+  const diffKeys = [];
+  Object.entries(newParams).forEach(([key, value]) => {
+    if (oldParams[key] !== value) {
+      diffKeys.push(key);
+    }
+  });
+  if (diffKeys.length > 1) {
+    return true;
+  }
+  const noLoadingParams = [
+    'view_by_content_or_learners',
+    'sort_column',
+    'sort_order',
+  ];
+  return !noLoadingParams.includes(diffKeys[0]);
+}
+
+
+function showCoachRoot(store) {
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_ROOT);
+}
+
+
+function redirectToDefaultReport(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', 'REPORTS_NO_QUERY');
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.REPORTS_NO_QUERY);
 
   const channelListPromise = ChannelResource.getCollection({}).fetch();
   const facilityIdPromise = FacilityUserResource.getCurrentFacility();
@@ -48,17 +78,17 @@ function redirectToDefaultReports(store, params) {
       /* get userScopeId for facility */
       const userScopeId = facilityId[0];
       router.replace({
-        name: PageNames.REPORTS,
+        name: Constants.PageNames.REPORTS,
         params: {
           channel_id: channelId,
-          content_scope: ReportsOptions.CONTENT_SCOPE_OPTIONS[0],
+          content_scope: Constants.ContentScopes.ROOT,
           content_scope_id: contentScopeId,
-          user_scope: ReportsOptions.USER_SCOPE_OPTIONS[0],
+          user_scope: Constants.UserScopes.FACILITY,
           user_scope_id: userScopeId,
-          all_or_recent: ReportsOptions.ALL_OR_RECENT_OPTIONS[0],
-          view_by_content_or_learners: ReportsOptions.VIEW_BY_CONTENT_OR_LEARNERS_OPTIONS[0],
-          sort_column: ReportsOptions.SORT_COLUMN_OPTIONS[0],
-          sort_order: ReportsOptions.SORT_ORDER_OPTIONS[0],
+          all_or_recent: Constants.AllOrRecent.ALL,
+          view_by_content_or_learners: Constants.ViewBy.CONTENT,
+          sort_column: Constants.SortCols.NAME,
+          sort_order: Constants.SortOrders.DESC,
         },
       });
     },
@@ -70,10 +100,7 @@ function redirectToDefaultReports(store, params) {
 }
 
 
-function showReports(store, params) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', 'REPORTS');
-
+function showReport(store, params, oldParams) {
   /* get params from url. */
   const channelId = params.channel_id;
   const contentScope = params.content_scope;
@@ -87,17 +114,22 @@ function showReports(store, params) {
 
 
   /* check if params are semi-valid. */
-  if (!(ReportsOptions.CONTENT_SCOPE_OPTIONS.includes(contentScope)
-    && ReportsOptions.USER_SCOPE_OPTIONS.includes(userScope)
-    && ReportsOptions.ALL_OR_RECENT_OPTIONS.includes(allOrRecent)
-    && ReportsOptions.VIEW_BY_CONTENT_OR_LEARNERS_OPTIONS.includes(viewByContentOrLearners)
-    && ReportsOptions.SORT_COLUMN_OPTIONS.includes(sortColumn)
-    && ReportsOptions.SORT_ORDER_OPTIONS.includes(sortOrder))) {
+  if (!(_vals(Constants.ContentScopes).includes(contentScope)
+    && _vals(Constants.UserScopes).includes(userScope)
+    && _vals(Constants.AllOrRecent).includes(allOrRecent)
+    && _vals(Constants.ViewBy).includes(viewByContentOrLearners)
+    && _vals(Constants.SortCols).includes(sortColumn)
+    && _vals(Constants.SortOrders).includes(sortOrder))) {
     /* if invalid params, just throw an error. */
     coreActions.handleError(store, 'Invalid report parameters.');
     return;
   }
 
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.REPORTS);
+
+  if (_useReportPageLoadingFlag(params, oldParams)) {
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+  }
 
   /* save all params to store. */
   store.dispatch('SET_CHANNEL_ID', channelId);
@@ -118,11 +150,11 @@ function showReports(store, params) {
 
   // REPORT
   let reportUrl = `${URL_ROOT}/${channelId}/${contentScopeId}/${userScope}/${userScopeId}`;
-  if (allOrRecent === 'recent') {
+  if (allOrRecent === Constants.AllOrRecent.RECENT) {
     reportUrl += '/recentreport/';
-  } else if (viewByContentOrLearners === 'content_view') {
+  } else if (viewByContentOrLearners === Constants.ViewBy.CONTENT) {
     reportUrl += '/contentreport/';
-  } else if (viewByContentOrLearners === 'user_view') {
+  } else if (viewByContentOrLearners === Constants.ViewBy.LEARNERS) {
     reportUrl += '/userreport/';
   } else {
     logging.error('unhandled input parameters');
@@ -135,7 +167,7 @@ function showReports(store, params) {
   promises.push(resourcePromise(contentSummaryUrl));
 
   // USER SUMMARY
-  if (userScope === 'user') {
+  if (userScope === Constants.UserScopes.USER) {
     const userSummaryUrl
       = `${URL_ROOT}/${channelId}/${contentScopeId}/usersummary/${userScopeId}/`;
     promises.push(resourcePromise(userSummaryUrl));
@@ -159,9 +191,9 @@ function showReports(store, params) {
   /* GET AND SET TABLE DATA */
   /* check what kind of report is required */
   let reportResourceType;
-  if (allOrRecent === 'recent') {
+  if (allOrRecent === Constants.AllOrRecent.RECENT) {
     reportResourceType = RecentReportResource;
-  } else if (viewByContentOrLearners === 'content_view') {
+  } else if (viewByContentOrLearners === Constants.ViewBy.CONTENT) {
     reportResourceType = ContentReportResource;
   } else {
     reportResourceType = UserReportResource;
@@ -209,7 +241,7 @@ function showReports(store, params) {
   );
 
   /* check if a user summary is required */
-  if (userScope === 'user') {
+  if (userScope === Constants.UserScopes.USER) {
     /* get the user summary */
     const userSummaryPromise = UserSummaryResource.getCollection({
       channel_id: channelId,
@@ -234,9 +266,8 @@ function showReports(store, params) {
   /* eslint-enable */
 }
 
-
 module.exports = {
   showCoachRoot,
-  redirectToDefaultReports,
-  showReports,
+  redirectToDefaultReport,
+  showReport,
 };

@@ -13,7 +13,6 @@ const client = rest
 
 
 function resource(url) {
-  console.log(`localhost:8000${url}`);
   return new Promise((resolve, reject) => {
     client({ path: url })
       .then(response => resolve(response.entity))
