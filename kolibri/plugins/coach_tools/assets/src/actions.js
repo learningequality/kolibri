@@ -98,7 +98,6 @@ function showReports(store, params) {
     return;
   }
 
-
   /* save all params to store. */
   store.dispatch('SET_CHANNEL_ID', channelId);
   store.dispatch('SET_CONTENT_SCOPE', contentScope);

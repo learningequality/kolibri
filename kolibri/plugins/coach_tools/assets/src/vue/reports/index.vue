@@ -79,7 +79,6 @@
             content_scope_id: item.pk,
           }),
         }));
-
         list.push({ title: this.pageState.content_scope_summary.title });
         return list;
       },
