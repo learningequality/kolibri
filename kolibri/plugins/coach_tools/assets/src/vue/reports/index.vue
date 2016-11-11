@@ -26,6 +26,7 @@
       ></report-header>
 
       <!--SUMMARY SECTION-->
+      <!--
       <summary-section
         :kind="pageState.content_scope_summary.kind"
         :exercisecount="exerciseCount"
@@ -35,6 +36,7 @@
         :lastactive="pageState.content_scope_summary.last_active"
         :singleuser="isSingleUser"
       ></summary-section>
+      -->
 
       <!--VIEW-BY SWITCH-->
       <view-by-switch
@@ -148,7 +150,7 @@
         return genLink(this.pageState, {
           all_or_recent: Constants.AllOrRecent.RECENT,
           content_scope: Constants.ContentScopes.ROOT, // recent view only applies to root
-          content_scope_id: 'root_id', // TODO: get root id
+          content_scope_id: '4c8abbdb27f94d568d32c402f0dd0fc2', // TODO: get root id
           // recent view is only viewable by content
           view_by_content_or_learners: Constants.ViewBy.CONTENT,
           // These are not really taken into account in recent view but it doesn't hurt
