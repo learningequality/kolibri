@@ -1,4 +1,4 @@
-from kolibri.auth.constants import collection_kinds, role_kinds
+from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import Collection, FacilityUser
 from kolibri.content.models import ContentNode
 from kolibri.logger.models import ContentSummaryLog
@@ -22,17 +22,14 @@ class KolibriReportPermissions(permissions.BasePermission):
 
     # check if requesting user has permission for collection or user
     def has_permission(self, request, view):
-        collection_kind = view.kwargs.get('collection_kind', None)
-        collection_id = view.kwargs.get('collection_id', None)
-        user_pk = view.kwargs.get('pk', None)
+        collection_kind = view.kwargs.get('collection_kind', 'user')
+        collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
 
-        roles = [role_kinds.ADMIN, role_kinds.COACH]
-        if any(collection_kind in kind for kind in collection_kinds.choices):
-            return request.user.has_role_for_collection(roles, Collection.objects.get(pk=collection_id))
-        elif collection_id:  # if kind is not a collection, then we have to be querying for a single user
-            return request.user.has_role_for_user(roles, FacilityUser.objects.get(pk=collection_id))
-        else:  # if collection_kind, collection_id is not specified, we have to be querying for a single user
-            return request.user.has_role_for_user(roles, FacilityUser.objects.get(pk=user_pk))
+        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+        if 'user' == collection_kind:
+            return request.user.has_role_for(allowed_roles, FacilityUser.objects.get(pk=collection_or_user_pk))
+        else:
+            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_or_user_pk))
 
 
 class UserReportViewSet(viewsets.ModelViewSet):
@@ -42,8 +39,7 @@ class UserReportViewSet(viewsets.ModelViewSet):
     serializer_class = UserReportSerializer
 
     def get_queryset(self):
-        # only a collection should be passed to this endpoint
-        assert any(self.kwargs['collection_kind'] in kind for kind in collection_kinds.choices)
+        assert 'user' != self.kwargs['collection_kind'], 'only a `collection` should be passed to this endpoint'
         return get_members_or_user(self.kwargs['collection_kind'], self.kwargs['collection_id'])
 
 
