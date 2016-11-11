@@ -1,11 +1,21 @@
-const intervalTime = 5000; // Frequency at which time logging is updated
-const progressThreshold = 0.1; // Update logs if user has reached 20% more progress
-const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
-const intervalTimer = require('./timer');
+
+
+const cookiejs = require('js-cookie');
 const UserKinds = require('./constants').UserKinds;
 const MasteryLoggingMap = require('./constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('./constants').AttemptLoggingMap;
 const debounce = require('vue').util.debounce;
+const ChannelResource = require('./api-resources').ContentNodeResource;
+const ContentNodeResource = require('./api-resources').ContentNodeResource;
+const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
+const coreGetters = require('kolibri.coreVue.vuex.getters');
+
+const intervalTimer = require('./timer');
+
+const intervalTime = 5000; // Frequency at which time logging is updated
+const progressThreshold = 0.1; // Update logs if user has reached 20% more progress
+const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
+
 
 /**
  * Vuex State Mappers
@@ -128,6 +138,16 @@ function _attemptLogModel(store) {
   mapping.masterylog = store.state.core.logging.mastery.id;
   return mapping;
 }
+
+function _channelListState(data) {
+  return data.map(channel => ({
+    id: channel.id,
+    title: channel.name,
+    description: channel.description,
+    root_id: channel.root_pk,
+  }));
+}
+
 
 /**
  * Actions
@@ -313,6 +333,35 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
   });
 
   return Promise.all(promises);
+}
+
+
+/*
+ * Set channel state info.
+ */
+function _setChannelState(store, currentChannelId, channelList) {
+  store.dispatch('SET_CORE_CHANNEL_LIST', channelList);
+  store.dispatch('SET_CORE_CURRENT_CHANNEL', currentChannelId);
+  ContentNodeResource.setChannel(currentChannelId);
+  cookiejs.set('currentChannelId', currentChannelId);
+  if (!coreGetters.getCurrentChannelObject(store.state)) {
+    handleError(store, 'Channel not found');
+  }
+}
+
+
+/*
+ * If channelId is null, choose it automatically
+ */
+function setChannelInfo(store, channelId = null) {
+  ChannelResource.getCollection({}).fetch().then(
+    channelsData => {
+      const channelList = _channelListState(channelsData);
+      const thisChannelId = channelId || getDefaultChannelId(channelList);
+      _setChannelState(store, thisChannelId, channelList);
+    },
+    error => { handleApiError(store, error); }
+  );
 }
 
 
@@ -600,6 +649,7 @@ module.exports = {
   showLoginModal,
   cancelLoginModal,
   initContentSession,
+  setChannelInfo,
   startTrackingProgress,
   stopTrackingProgress,
   updateTimeSpent,

@@ -103,7 +103,7 @@
 
         // attributes for this content item
         content: (state) => state.pageState.content,
-        channelId: (state) => state.currentChannelId,
+        channelId: (state) => state.core.channels.currentId,
         pagename: (state) => state.pageName,
 
         // only used on learn page

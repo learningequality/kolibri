@@ -29,6 +29,10 @@ const initialState = {
     fullname: '',
     logging: baseLoggingState,
     viewport: { width: 0, height: 0 },
+    channels: {
+      list: [],
+      currentId: null,
+    },
   },
 };
 
@@ -149,6 +153,12 @@ const mutations = {
   SET_VIEWPORT_SIZE(state, width, height) {
     state.core.viewport.width = width;
     state.core.viewport.height = height;
+  },
+  SET_CURRENT_CHANNEL(state, channelId) {
+    state.core.channels.currentId = channelId;
+  },
+  SET_CHANNEL_LIST(state, channelList) {
+    state.core.channels.list = channelList;
   },
 };
 
