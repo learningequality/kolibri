@@ -35,7 +35,7 @@
         </div>
       </div>
       <hr>
-      <p class="core-text-alert" v-if="!pageState.channelList.length">No channels installed</p>
+      <p class="core-text-alert" v-if="!channelList.length">No channels installed</p>
       <table>
       <!-- Table Headers -->
 <!--         <thead>
@@ -46,7 +46,7 @@
         </thead> -->
         <!-- Table body -->
         <tbody>
-          <tr v-for="channel in pageState.channelList">
+          <tr v-for="channel in channelList">
             <!-- Channel Name -->
             <th scope="row" class="table-cell" width="70%">
               <span class="channel-name">
@@ -107,6 +107,7 @@
     },
     vuex: {
       getters: {
+        channelList: state => state.core.channels.list,
         pageState: state => state.pageState,
       },
       actions: {

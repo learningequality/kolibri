@@ -4,7 +4,7 @@
  * @module kolibriModule
  */
 
-const Kolibri = require('kolibri');
+const coreApp = require('kolibri');
 
 module.exports = class KolibriModule {
   /**
@@ -43,12 +43,12 @@ module.exports = class KolibriModule {
   }
 
   /**
-   * Method to automatically register the kolibriModule with the Koliri core app once it has
+   * Method to automatically register the kolibriModule with the Kolibri core app once it has
    * initialized.
    * @private
    */
   _registerKolibriModule() {
-    Kolibri.registerKolibriModuleSync(this);
+    coreApp.registerKolibriModuleSync(this);
   }
 
   /**
@@ -73,7 +73,7 @@ module.exports = class KolibriModule {
    * @param {string} method - the name of the method to unbind
    */
   stopListening(event, method) {
-    Kolibri.stopListening(event, this, method);
+    coreApp.stopListening(event, this, method);
   }
 
   /**
@@ -82,6 +82,6 @@ module.exports = class KolibriModule {
    * @param {Array} args - additional arguments to the event handler.
    */
   emit(...args) {
-    Kolibri.emit.apply(Kolibri, args);
+    coreApp.emit.apply(coreApp, args);
   }
 };

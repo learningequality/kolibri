@@ -1,15 +1,13 @@
 const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
-const ChannelResource = require('kolibri').resources.ChannelResource;
 const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('./state/constants');
-const getters = require('./state/getters');
 const PageNames = constants.PageNames;
-const cookiejs = require('js-cookie');
 const router = require('kolibri.coreVue.router');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
-const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
+const coreGetters = require('kolibri.coreVue.vuex.getters');
+const coreApp = require('kolibri');
 
 
 /**
@@ -77,30 +75,6 @@ function _collectionState(data) {
 }
 
 
-function _channelListState(data) {
-  return data.map(channel => ({
-    id: channel.id,
-    title: channel.name,
-    description: channel.description,
-    root_id: channel.root_pk,
-  }));
-}
-
-
-/*
- * Set channel state info.
- */
-function _setChannelState(store, currentChannelId, channelList) {
-  store.dispatch('SET_CHANNEL_LIST', channelList);
-  store.dispatch('SET_CURRENT_CHANNEL', currentChannelId);
-  ContentNodeResource.setChannel(currentChannelId);
-  cookiejs.set('currentChannelId', currentChannelId);
-  if (!getters.currentChannel(store.state)) {
-    coreActions.handleError(store, 'Channel not found');
-  }
-}
-
-
 /**
  * Actions
  *
@@ -111,15 +85,12 @@ function redirectToExploreChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
-  ChannelResource.getCollection({}).fetch().then(
-    (channelsData) => {
-      const channelList = _channelListState(channelsData);
-      const channelId = getDefaultChannelId(channelList);
-      _setChannelState(store, channelId, channelList);
-      if (channelList.length) {
+  coreActions.setChannelInfo(store, coreApp).then(
+    () => {
+      if (store.state.core.channels.list.length) {
         router.replace({
           name: constants.PageNames.EXPLORE_CHANNEL,
-          params: { channel_id: channelId },
+          params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
         });
       } else {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
@@ -134,15 +105,12 @@ function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
 
-  ChannelResource.getCollection({}).fetch().then(
-    (channelsData) => {
-      const channelList = _channelListState(channelsData);
-      const channelId = getDefaultChannelId(channelList);
-      _setChannelState(store, channelId, channelList);
-      if (channelList.length) {
+  coreActions.setChannelInfo(store, coreApp).then(
+    () => {
+      if (store.state.core.channels.list.length) {
         router.replace({
           name: constants.PageNames.LEARN_CHANNEL,
-          params: { channel_id: channelId },
+          params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
         });
       } else {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
@@ -163,12 +131,12 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
 
   const topicPromise = ContentNodeResource.getModel(id).fetch();
   const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
-  const channelsPromise = ChannelResource.getCollection({}).fetch();
+  const channelsPromise = coreActions.setChannelInfo(store, coreApp, channelId);
   ConditionalPromise.all([topicPromise, childrenPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
-    ([topic, children, channelsData]) => {
-      _setChannelState(store, channelId, _channelListState(channelsData));
-      if (!getters.currentChannel(store.state)) {
+    ([topic, children]) => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (!currentChannel) {
         return;
       }
       const pageState = {};
@@ -179,7 +147,6 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      const currentChannel = getters.currentChannel(store.state);
       if (isRoot) {
         store.dispatch('CORE_SET_TITLE', `Explore - ${currentChannel.title}`);
       } else {
@@ -195,14 +162,12 @@ function showExploreChannel(store, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
 
-  ChannelResource.getCollection({}).fetch().then(
-    (channelsData) => {
-      _setChannelState(store, channelId, _channelListState(channelsData));
-      if (!getters.currentChannel(store.state)) {
+  coreActions.setChannelInfo(store, coreApp, channelId).then(
+    () => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (!currentChannel) {
         return;
       }
-      const currentChannel = getters.currentChannel(store.state);
-      store.dispatch('SET_ROOT_TOPIC_ID', currentChannel.root_id);
       showExploreTopic(store, channelId, currentChannel.root_id, true);
     }
   );
@@ -214,12 +179,11 @@ function showExploreContent(store, channelId, id) {
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
   const contentPromise = ContentNodeResource.getModel(id).fetch();
-  const channelsPromise = ChannelResource.getCollection({}).fetch();
+  const channelsPromise = coreActions.setChannelInfo(store, coreApp, channelId);
   ConditionalPromise.all([contentPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
-    ([content, channelsData]) => {
-      _setChannelState(store, channelId, _channelListState(channelsData));
-      const currentChannel = getters.currentChannel(store.state);
+    ([content]) => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
         return;
       }
@@ -246,12 +210,11 @@ function showLearnChannel(store, channelId, page = 1) {
   const ALL_PAGE_SIZE = 6;
 
   const sessionPromise = SessionResource.getModel('current').fetch();
-  const channelsPromise = ChannelResource.getCollection({}).fetch();
+  const channelsPromise = coreActions.setChannelInfo(store, coreApp, channelId);
   ConditionalPromise.all([sessionPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
-    ([session, channelsData]) => {
-      _setChannelState(store, channelId, _channelListState(channelsData));
-      if (!getters.currentChannel(store.state)) {
+    ([session]) => {
+      if (!coreGetters.getCurrentChannelObject(store.state)) {
         return;
       }
       const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
@@ -288,7 +251,7 @@ function showLearnChannel(store, channelId, page = 1) {
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
 
-          const currentChannel = getters.currentChannel(store.state);
+          const currentChannel = coreGetters.getCurrentChannelObject(store.state);
           store.dispatch('CORE_SET_TITLE', `Learn - ${currentChannel.title}`);
 
           // preload next page
@@ -309,12 +272,11 @@ function showLearnContent(store, channelId, id) {
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
   const contentPromise = ContentNodeResource.getModel(id).fetch();
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
-  const channelsPromise = ChannelResource.getCollection({}).fetch();
+  const channelsPromise = coreActions.setChannelInfo(store, coreApp, channelId);
   ConditionalPromise.all([contentPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
-    ([content, channelsData]) => {
-      _setChannelState(store, channelId, _channelListState(channelsData));
-      const currentChannel = getters.currentChannel(store.state);
+    ([content]) => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
         return;
       }

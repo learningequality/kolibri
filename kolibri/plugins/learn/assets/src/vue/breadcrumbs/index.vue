@@ -112,7 +112,7 @@
         contentCrumbs: state => state.pageState.content.breadcrumbs,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
-        currentChannelId: state => state.currentChannelId,
+        currentChannelId: state => state.core.channels.currentId,
         title: state => state.pageState.topic.title,
       },
     },

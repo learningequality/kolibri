@@ -16,9 +16,11 @@
 
 <script>
 
+  const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
   const constants = require('../../state/constants');
   const getters = require('../../state/getters');
   const PageModes = constants.PageModes;
+
 
   module.exports = {
     $trNameSpace: 'channelSwitcher',
@@ -61,10 +63,10 @@
     },
     vuex: {
       getters: {
-        isRoot: (state) => state.pageState.topic.id === state.rootTopicId,
+        isRoot: (state) => state.pageState.topic.id === getCurrentChannelObject(state).root_id,
         pageMode: getters.pageMode,
-        globalCurrentChannel: state => state.currentChannelId,
-        channelList: state => state.channelList,
+        globalCurrentChannel: state => state.core.channels.currentId,
+        channelList: state => state.core.channels.list,
       },
       actions: {
         clearSearch: require('../../actions').clearSearch,
