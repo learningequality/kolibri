@@ -26,7 +26,6 @@ const initialState = {
     },
     loginModalVisible: false,
     loginError: null,
-    fullname: '',
     logging: baseLoggingState,
     viewport: { width: 0, height: 0 },
     channels: {
