@@ -1,6 +1,6 @@
 const KolibriModule = require('kolibri_module');
+const coreApp = require('kolibri');
 const router = require('kolibri.coreVue.router');
-const kolibri = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 
 const rootvue = require('./vue');
@@ -43,7 +43,7 @@ class CoachToolsModule extends KolibriModule {
       }
     );
     router.start(rootvue, 'rootvue');
-    coreActions.getCurrentSession(store, kolibri);
+    coreActions.getCurrentSession(store, coreApp);
   }
 }
 

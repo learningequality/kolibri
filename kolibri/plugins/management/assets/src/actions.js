@@ -1,10 +1,10 @@
-const Kolibri = require('kolibri');
+const coreApp = require('kolibri');
 const logging = require('kolibri.lib.logging');
 
-const FacilityUserResource = Kolibri.resources.FacilityUserResource;
-const ChannelResource = Kolibri.resources.ChannelResource;
-const TaskResource = Kolibri.resources.TaskResource;
-const RoleResource = Kolibri.resources.RoleResource;
+const FacilityUserResource = coreApp.resources.FacilityUserResource;
+const ChannelResource = coreApp.resources.ChannelResource;
+const TaskResource = coreApp.resources.TaskResource;
+const RoleResource = coreApp.resources.RoleResource;
 
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');

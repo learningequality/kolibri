@@ -175,20 +175,20 @@ function handleResize(store, event) {
   debouncedSetWindowInfo(store);
 }
 
-function kolibriLogin(store, Kolibri, sessionPayload) {
-  const SessionResource = Kolibri.resources.SessionResource;
+function kolibriLogin(store, coreApp, sessionPayload) {
+  const SessionResource = coreApp.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
   sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
     /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
     if (session.kind[0] === UserKinds.SUPERUSER || session.kind[0] === UserKinds.ADMIN) {
-      const manageURL = Kolibri.urls['kolibri:managementplugin:management']();
+      const manageURL = coreApp.urls['kolibri:managementplugin:management']();
       window.location.href = window.location.origin + manageURL;
     } else {
-      Kolibri.emit('refresh');
+      coreApp.emit('refresh');
     }
-    Kolibri.resources.clearCaches();
+    coreApp.resources.clearCaches();
   }).catch(error => {
     if (error.status.code === 401) {
       store.dispatch('CORE_SET_LOGIN_ERROR', 401);
@@ -198,8 +198,8 @@ function kolibriLogin(store, Kolibri, sessionPayload) {
   });
 }
 
-function kolibriLogout(store, Kolibri) {
-  const SessionResource = Kolibri.resources.SessionResource;
+function kolibriLogout(store, coreApp) {
+  const SessionResource = coreApp.resources.SessionResource;
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
   const logoutPromise = sessionModel.delete();
@@ -207,12 +207,12 @@ function kolibriLogout(store, Kolibri) {
     store.dispatch('CORE_CLEAR_SESSION');
     /* Very hacky solution to redirect a user back to Learn tab on logout*/
     window.location.href = window.location.origin;
-    Kolibri.resources.clearCaches();
+    coreApp.resources.clearCaches();
   }).catch(error => { handleApiError(store, error); });
 }
 
-function getCurrentSession(store, Kolibri) {
-  const SessionResource = Kolibri.resources.SessionResource;
+function getCurrentSession(store, coreApp) {
+  const SessionResource = coreApp.resources.SessionResource;
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
   const sessionPromise = sessionModel.fetch({});
@@ -236,9 +236,9 @@ function cancelLoginModal(store, bool) {
  * Create models to store logging information
  * To be called on page load for content renderers
  */
-function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
-  const ContentSessionLogResource = Kolibri.resources.ContentSessionLogResource;
-  const ContentSummaryLogResource = Kolibri.resources.ContentSummaryLogResource;
+function initContentSession(store, coreApp, channelId, contentId, contentKind) {
+  const ContentSessionLogResource = coreApp.resources.ContentSessionLogResource;
+  const ContentSummaryLogResource = coreApp.resources.ContentSummaryLogResource;
 
   // Always clear the logging state when we init the content session,
   // to avoid state pollution.
@@ -263,7 +263,7 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
         if (summary[0].currentmasterylog) {
           // If a mastery model has been sent along with the summary log payload,
           // then bootstrap that data into the MasteryLog resource. Cheeky!
-          const masteryModel = Kolibri.resources.MasteryLog.createModel(
+          const masteryModel = coreApp.resources.MasteryLog.createModel(
             summary[0].currentmasterylog);
           masteryModel.synced = true;
 
@@ -337,10 +337,10 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
 /*
  * Set channel state info.
  */
-function _setChannelState(store, Kolibri, currentChannelId, channelList) {
+function _setChannelState(store, coreApp, currentChannelId, channelList) {
   store.dispatch('SET_CORE_CHANNEL_LIST', channelList);
   store.dispatch('SET_CORE_CURRENT_CHANNEL', currentChannelId);
-  Kolibri.resources.ContentNodeResource.setChannel(currentChannelId);
+  coreApp.resources.ContentNodeResource.setChannel(currentChannelId);
   cookiejs.set('currentChannelId', currentChannelId);
   if (!coreGetters.getCurrentChannelObject(store.state)) {
     handleError(store, 'Channel not found');
@@ -351,12 +351,12 @@ function _setChannelState(store, Kolibri, currentChannelId, channelList) {
 /*
  * If channelId is null, choose it automatically
  */
-function setChannelInfo(store, Kolibri, channelId = null) {
-  return Kolibri.resources.ChannelResource.getCollection({}).fetch().then(
+function setChannelInfo(store, coreApp, channelId = null) {
+  return coreApp.resources.ChannelResource.getCollection({}).fetch().then(
     channelsData => {
       const channelList = _channelListState(channelsData);
       const thisChannelId = channelId || getDefaultChannelId(channelList);
-      _setChannelState(store, Kolibri, thisChannelId, channelList);
+      _setChannelState(store, coreApp, thisChannelId, channelList);
     },
     error => { handleApiError(store, error); }
   );
@@ -367,9 +367,9 @@ function setChannelInfo(store, Kolibri, channelId = null) {
  * Do a PATCH to update existing logging models
  * Must be called after initContentSession
  */
-function saveLogs(store, Kolibri) {
-  const ContentSessionLogResource = Kolibri.resources.ContentSessionLogResource;
-  const ContentSummaryLogResource = Kolibri.resources.ContentSummaryLogResource;
+function saveLogs(store, coreApp) {
+  const ContentSessionLogResource = coreApp.resources.ContentSessionLogResource;
+  const ContentSummaryLogResource = coreApp.resources.ContentSummaryLogResource;
   /* Create aliases for logs */
   const summaryLog = store.state.core.logging.summary;
   const sessionLog = store.state.core.logging.session;
@@ -398,7 +398,7 @@ function saveLogs(store, Kolibri) {
 /**
 summary and session log progress update for exercise
 **/
-function updateExerciseProgress(store, Kolibri, progressPercent, forceSave = false) {
+function updateExerciseProgress(store, coreApp, progressPercent, forceSave = false) {
   /* Update the logging state with new progress information */
   store.dispatch('SET_LOGGING_PROGRESS', progressPercent, progressPercent);
 
@@ -409,7 +409,7 @@ function updateExerciseProgress(store, Kolibri, progressPercent, forceSave = fal
 
   /* Save models if needed */
   if (forceSave || progressPercent === 1) {
-    saveLogs(store, Kolibri);
+    saveLogs(store, coreApp);
   }
 }
 
@@ -421,7 +421,7 @@ function updateExerciseProgress(store, Kolibri, progressPercent, forceSave = fal
  * @param {float} progressPercent
  * @param {boolean} forceSave
  */
-function updateProgress(store, Kolibri, progressPercent, forceSave = false) {
+function updateProgress(store, coreApp, progressPercent, forceSave = false) {
   /* Create aliases for logs */
   const summaryLog = store.state.core.logging.summary;
   const sessionLog = store.state.core.logging.session;
@@ -449,7 +449,7 @@ function updateProgress(store, Kolibri, progressPercent, forceSave = false) {
 
   /* Save models if needed */
   if (forceSave || completedContent || progressThresholdMet) {
-    saveLogs(store, Kolibri);
+    saveLogs(store, coreApp);
   }
 }
 
@@ -460,7 +460,7 @@ function updateProgress(store, Kolibri, progressPercent, forceSave = false) {
  * Must be called after initContentSession
  * @param {boolean} forceSave
  */
-function updateTimeSpent(store, Kolibri, forceSave = false) {
+function updateTimeSpent(store, coreApp, forceSave = false) {
   /* Create aliases for logs */
   const summaryLog = store.state.core.logging.summary;
   const sessionLog = store.state.core.logging.session;
@@ -479,7 +479,7 @@ function updateTimeSpent(store, Kolibri, forceSave = false) {
 
   /* Save models if needed */
   if (forceSave || timeThresholdMet) {
-    saveLogs(store, Kolibri);
+    saveLogs(store, coreApp);
   }
 }
 
@@ -488,9 +488,9 @@ function updateTimeSpent(store, Kolibri, forceSave = false) {
  * Start interval timer and set start time
  * @param {int} interval
  */
-function startTrackingProgress(store, Kolibri, interval = intervalTime) {
+function startTrackingProgress(store, coreApp, interval = intervalTime) {
   intervalTimer.startTimer(interval, () => {
-    updateTimeSpent(store, Kolibri, false);
+    updateTimeSpent(store, coreApp, false);
   });
 }
 
@@ -512,13 +512,13 @@ function samePageCheckGenerator(store) {
  * Stop interval timer and update latest times
  * Must be called after startTrackingProgress
  */
-function stopTrackingProgress(store, Kolibri) {
+function stopTrackingProgress(store, coreApp) {
   intervalTimer.stopTimer();
-  updateTimeSpent(store, Kolibri, true);
+  updateTimeSpent(store, coreApp, true);
 }
 
-function saveMasteryLog(store, Kolibri) {
-  const masteryLogModel = Kolibri.resources.MasteryLog.getModel(
+function saveMasteryLog(store, coreApp) {
+  const masteryLogModel = coreApp.resources.MasteryLog.getModel(
     store.state.core.logging.mastery.id);
   masteryLogModel.save(_masteryLogModel(store)).only(
     samePageCheckGenerator(store),
@@ -533,8 +533,8 @@ function setMasteryLogComplete(store, completetime) {
   store.dispatch('SET_LOGGING_MASTERY_COMPLETE', completetime);
 }
 
-function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
-  const masteryLogModel = Kolibri.resources.MasteryLog.createModel({
+function createMasteryLog(store, coreApp, masteryLevel, masteryCriterion) {
+  const masteryLogModel = coreApp.resources.MasteryLog.createModel({
     id: null,
     summarylog: store.state.core.logging.summary.id,
     start_timestamp: new Date(),
@@ -556,12 +556,12 @@ function createMasteryLog(store, Kolibri, masteryLevel, masteryCriterion) {
   );
 }
 
-function createDummyMasteryLog(store, Kolibri) {
+function createDummyMasteryLog(store, coreApp) {
   /*
   Create a client side masterylog for anonymous user for tracking attempt-progress.
   This masterylog will never be saved in the database.
   */
-  const masteryLogModel = Kolibri.resources.MasteryLog.createModel({
+  const masteryLogModel = coreApp.resources.MasteryLog.createModel({
     id: null,
     summarylog: null,
     start_timestamp: null,
@@ -577,8 +577,8 @@ function createDummyMasteryLog(store, Kolibri) {
   store.dispatch('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
 }
 
-function saveAttemptLog(store, Kolibri) {
-  const attemptLogModel = Kolibri.resources.AttemptLog.getModel(
+function saveAttemptLog(store, coreApp) {
+  const attemptLogModel = coreApp.resources.AttemptLog.getModel(
     store.state.core.logging.attempt.id);
   const promise = attemptLogModel.save(_attemptLogModel(store));
   promise.then((newAttemptLog) => {
@@ -588,8 +588,8 @@ function saveAttemptLog(store, Kolibri) {
   return promise;
 }
 
-function createAttemptLog(store, Kolibri, itemId) {
-  const attemptLogModel = Kolibri.resources.AttemptLog.createModel({
+function createAttemptLog(store, coreApp, itemId) {
+  const attemptLogModel = coreApp.resources.AttemptLog.createModel({
     id: null,
     masterylog: store.state.core.logging.mastery.id || null,
     sessionlog: store.state.core.logging.session.id,
@@ -615,11 +615,11 @@ function updateAttemptLogInteractionHistory(store, interaction) {
 /**
  * Initialize assessment mastery log
  */
-function initMasteryLog(store, Kolibri, masterySpacingTime, masteryCriterion) {
+function initMasteryLog(store, coreApp, masterySpacingTime, masteryCriterion) {
   if (!store.state.core.logging.mastery.id) {
     // id has not been set on the masterylog state, so this is undefined.
     // Either way, we need to create a new masterylog, with a masterylevel of 1!
-    createMasteryLog(store, Kolibri, 1, masteryCriterion);
+    createMasteryLog(store, coreApp, 1, masteryCriterion);
   } else if (store.state.core.logging.mastery.complete &&
     ((new Date() - new Date(store.state.core.logging.mastery.completion_timestamp)) >
       masterySpacingTime)) {
@@ -627,7 +627,7 @@ function initMasteryLog(store, Kolibri, masterySpacingTime, masteryCriterion) {
     // masterySpacingTime time ago!
     // This means we need to level the user up.
     createMasteryLog(
-      store, Kolibri, store.state.core.logging.mastery.mastery_level + 1, masteryCriterion);
+      store, coreApp, store.state.core.logging.mastery.mastery_level + 1, masteryCriterion);
   }
 }
 
