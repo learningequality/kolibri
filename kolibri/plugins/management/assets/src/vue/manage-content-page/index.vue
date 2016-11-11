@@ -50,7 +50,7 @@
             <!-- Channel Name -->
             <th scope="row" class="table-cell" width="70%">
               <span class="channel-name">
-                {{ channel.name }}
+                {{ channel.title }}
               </span>
             </th>
             <!-- Export Button -->

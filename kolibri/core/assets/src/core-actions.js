@@ -352,7 +352,7 @@ function _setChannelState(store, coreApp, currentChannelId, channelList) {
  * If channelId is null, choose it automatically
  */
 function setChannelInfo(store, coreApp, channelId = null) {
-  return coreApp.resources.ChannelResource.getCollection({}).fetch().then(
+  return coreApp.resources.ChannelResource.getCollection({}, true).fetch().then(
     channelsData => {
       const channelList = _channelListState(channelsData);
       const thisChannelId = channelId || getDefaultChannelId(channelList);
