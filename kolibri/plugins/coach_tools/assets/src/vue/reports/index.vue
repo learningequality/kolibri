@@ -36,11 +36,11 @@
         :singleuser="isSingleUser"
       ></summary-section>
 
-      <!--VIEW BY RADIOS-->
+      <!--VIEW-BY SWITCH-->
       <view-by-switch
         v-if="!isRecentView"
         :iscontent="isViewByContent"
-        @toggled="switchView"
+        :vlink="viewByLink"
       ></view-by-switch>
 
       <!--LIST SECTION-->
@@ -159,11 +159,9 @@
       allViewLink() {
         return genLink(this.pageState, { all_or_recent: Constants.AllOrRecent.ALL });
       },
-    },
-    methods: {
-      switchView(isContent) {
-        const newView = isContent ? Constants.ViewBy.CONTENT : Constants.ViewBy.LEARNERS;
-        this.$router.go(genLink(this.pageState, { view_by_content_or_learners: newView }));
+      viewByLink() {
+        const view = this.isViewByContent ? Constants.ViewBy.LEARNERS : Constants.ViewBy.CONTENT;
+        return genLink(this.pageState, { view_by_content_or_learners: view });
       },
     },
     vuex: {

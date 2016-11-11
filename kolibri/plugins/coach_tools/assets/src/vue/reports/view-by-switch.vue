@@ -1,28 +1,14 @@
 <template>
 
   <div>
-    <div>
-      View by:
-    </div>
     <label>
-      <input
-        :checked="iscontent"
-        @change="change"
-        type="radio"
-        name="viewby"
-        value="content"
-      >
-      Content
-    </label>
-    <label>
-      <input
-        :checked="!iscontent"
-        @change="change"
-        type="radio"
-        name="viewby"
-        value="learners"
-      >
-      Learners
+      {{ $tr('viewbylabel') }}
+      <div v-if="iscontent" class="toggle-switch">
+        {{ $tr('contents') }} | <a v-link="vlink">{{ $tr('learners') }}</a>
+      </div>
+      <div v-else class="toggle-switch">
+        <a v-link="vlink">{{ $tr('contents') }}</a> | {{ $tr('learners') }}
+      </div>
     </label>
   </div>
 
@@ -32,19 +18,20 @@
 <script>
 
   module.exports = {
+    $trNameSpace: 'view-by-switch',
+    $trs: {
+      viewbylabel: 'View by:',
+      contents: 'Contents',
+      learners: 'Learners',
+    },
     props: {
       iscontent: {
         type: Boolean,
         required: true,
       },
-    },
-    methods: {
-      change(event) {
-        if (event.target.value === 'content') {
-          this.$emit('toggled', true);
-        } else {
-          this.$emit('toggled', false);
-        }
+      vlink: {
+        type: Object,
+        required: true,
       },
     },
   };
@@ -54,7 +41,13 @@
 
 <style lang="stylus" scoped>
 
-  label
-    display: block
+  @require '~kolibri.styles.coreTheme'
+
+  .toggle-switch
+    display: inline-block
+    border: 1px solid $core-text-annotation
+    border-radius: $radius
+    padding: 5px
+    margin: 5px
 
 </style>
