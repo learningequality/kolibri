@@ -39,7 +39,7 @@
       <!--VIEW BY RADIOS-->
       <view-by-switch
         v-if="!isRecentView"
-        :iscontent="isContent"
+        :iscontent="isViewByContent"
         @toggled="switchView"
       ></view-by-switch>
 
@@ -73,8 +73,11 @@
       'list-section': require('./list-section'),
     },
     computed: {
-      isContent() {
+      isViewByContent() {
         return this.pageState.view_by_content_or_learners === Constants.ViewBy.CONTENT;
+      },
+      isRecentView() {
+        return this.pageState.all_or_recent === Constants.AllOrRecent.RECENT;
       },
       isSingleUser() {
         return this.pageState.user_scope === Constants.UserScopes.USER;
@@ -108,9 +111,6 @@
         }));
         list.push({ title: this.pageState.content_scope_summary.title });
         return list;
-      },
-      isRecentView() {
-        return this.pageState.all_or_recent === Constants.AllOrRecent.RECENT;
       },
       exerciseCount() {
         return sumOfKeys(
@@ -186,7 +186,6 @@
     },
     vuex: {
       getters: {
-        loading: state => state.core.loading,
         pageState: state => state.pageState,
       },
     },
