@@ -5,8 +5,6 @@ const UserKinds = require('./constants').UserKinds;
 const MasteryLoggingMap = require('./constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('./constants').AttemptLoggingMap;
 const debounce = require('vue').util.debounce;
-const ChannelResource = require('./api-resources').ContentNodeResource;
-const ContentNodeResource = require('./api-resources').ContentNodeResource;
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 const coreGetters = require('kolibri.coreVue.vuex.getters');
 
@@ -339,10 +337,10 @@ function initContentSession(store, Kolibri, channelId, contentId, contentKind) {
 /*
  * Set channel state info.
  */
-function _setChannelState(store, currentChannelId, channelList) {
+function _setChannelState(store, Kolibri, currentChannelId, channelList) {
   store.dispatch('SET_CORE_CHANNEL_LIST', channelList);
   store.dispatch('SET_CORE_CURRENT_CHANNEL', currentChannelId);
-  ContentNodeResource.setChannel(currentChannelId);
+  Kolibri.resources.ContentNodeResource.setChannel(currentChannelId);
   cookiejs.set('currentChannelId', currentChannelId);
   if (!coreGetters.getCurrentChannelObject(store.state)) {
     handleError(store, 'Channel not found');
@@ -353,12 +351,12 @@ function _setChannelState(store, currentChannelId, channelList) {
 /*
  * If channelId is null, choose it automatically
  */
-function setChannelInfo(store, channelId = null) {
-  ChannelResource.getCollection({}).fetch().then(
+function setChannelInfo(store, Kolibri, channelId = null) {
+  Kolibri.resources.ChannelResource.getCollection({}).fetch().then(
     channelsData => {
       const channelList = _channelListState(channelsData);
       const thisChannelId = channelId || getDefaultChannelId(channelList);
-      _setChannelState(store, thisChannelId, channelList);
+      _setChannelState(store, Kolibri, thisChannelId, channelList);
     },
     error => { handleApiError(store, error); }
   );

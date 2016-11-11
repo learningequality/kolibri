@@ -7,6 +7,7 @@ const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 const coreGetters = require('kolibri.coreVue.vuex.getters');
+const KolibriModule = require('kolibri');
 
 
 /**
@@ -84,7 +85,7 @@ function redirectToExploreChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
 
-  coreActions.setChannelInfo(store).then(
+  coreActions.setChannelInfo(store, KolibriModule).then(
     () => {
       if (store.state.core.channels.list.length) {
         router.replace({
@@ -104,7 +105,7 @@ function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
 
-  coreActions.setChannelInfo(store).then(
+  coreActions.setChannelInfo(store, KolibriModule).then(
     () => {
       if (store.state.core.channels.list.length) {
         router.replace({
@@ -130,7 +131,7 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
 
   const topicPromise = ContentNodeResource.getModel(id).fetch();
   const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
-  const channelsPromise = coreActions.setChannelInfo(store, channelId);
+  const channelsPromise = coreActions.setChannelInfo(store, KolibriModule, channelId);
   ConditionalPromise.all([topicPromise, childrenPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
     ([topic, children]) => {
@@ -161,7 +162,7 @@ function showExploreChannel(store, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
 
-  coreActions.setChannelInfo(store, channelId).then(
+  coreActions.setChannelInfo(store, KolibriModule, channelId).then(
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
@@ -178,7 +179,7 @@ function showExploreContent(store, channelId, id) {
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
   const contentPromise = ContentNodeResource.getModel(id).fetch();
-  const channelsPromise = coreActions.setChannelInfo(store, channelId);
+  const channelsPromise = coreActions.setChannelInfo(store, KolibriModule, channelId);
   ConditionalPromise.all([contentPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
     ([content]) => {
@@ -209,7 +210,7 @@ function showLearnChannel(store, channelId, page = 1) {
   const ALL_PAGE_SIZE = 6;
 
   const sessionPromise = SessionResource.getModel('current').fetch();
-  const channelsPromise = coreActions.setChannelInfo(store, channelId);
+  const channelsPromise = coreActions.setChannelInfo(store, KolibriModule, channelId);
   ConditionalPromise.all([sessionPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
     ([session]) => {
@@ -271,7 +272,7 @@ function showLearnContent(store, channelId, id) {
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
   const contentPromise = ContentNodeResource.getModel(id).fetch();
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
-  const channelsPromise = coreActions.setChannelInfo(store, channelId);
+  const channelsPromise = coreActions.setChannelInfo(store, KolibriModule, channelId);
   ConditionalPromise.all([contentPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
     ([content]) => {
