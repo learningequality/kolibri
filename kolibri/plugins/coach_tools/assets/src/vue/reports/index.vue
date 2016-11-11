@@ -54,7 +54,9 @@
 <script>
 
   const Constants = require('../../state/constants');
+  const genLink = require('./genLink');
   const logging = require('kolibri.lib.logging');
+
 
   /* given an array of objects sum the keys on those that pass the filter */
   function sumOfKeys(array, key, filter = () => true) {
@@ -90,7 +92,7 @@
           return [
             {
               title: 'All Learners',
-              vlink: this.genLink({
+              vlink: genLink(this.pageState, {
                 user_scope: Constants.UserScopes.FACILITY,
                 user_scope_id: FACILITY_ID,
               }),
@@ -104,7 +106,7 @@
       contentBreadcrumbs() {
         const list = this.pageState.content_scope_summary.ancestors.map((item, index) => ({
           title: item.title,
-          vlink: this.genLink({
+          vlink: genLink(this.pageState, {
             content_scope: index ? Constants.ContentScopes.TOPIC : Constants.ContentScopes.ROOT,
             content_scope_id: item.pk,
           }),
@@ -143,7 +145,7 @@
         return totalProgress / this.contentCount;
       },
       recentViewLink() {
-        return this.genLink({
+        return genLink(this.pageState, {
           all_or_recent: Constants.AllOrRecent.RECENT,
           content_scope: Constants.ContentScopes.ROOT, // recent view only applies to root
           content_scope_id: 'root_id', // TODO: get root id
@@ -155,33 +157,13 @@
         });
       },
       allViewLink() {
-        return this.genLink({ all_or_recent: Constants.AllOrRecent.ALL });
+        return genLink(this.pageState, { all_or_recent: Constants.AllOrRecent.ALL });
       },
     },
     methods: {
-      /* Generates a REPORTS link relative to the current page, with only newParams changed. */
-      genLink(newParams) {
-        const currentParams = {
-          channel_id: this.pageState.channel_id,
-          content_scope: this.pageState.content_scope,
-          content_scope_id: this.pageState.content_scope_id,
-          user_scope: this.pageState.user_scope,
-          user_scope_id: this.pageState.user_scope_id,
-          all_or_recent: this.pageState.all_or_recent,
-          view_by_content_or_learners: this.pageState.view_by_content_or_learners,
-          sort_column: this.pageState.sort_column,
-          sort_order: this.pageState.sort_order,
-        };
-        const vlink = {
-          name: Constants.PageNames.REPORTS,
-          params: {},
-        };
-        Object.assign(vlink.params, currentParams, newParams);
-        return vlink;
-      },
       switchView(isContent) {
         const newView = isContent ? Constants.ViewBy.CONTENT : Constants.ViewBy.LEARNERS;
-        this.$router.go(this.genLink({ view_by_content_or_learners: newView }));
+        this.$router.go(genLink(this.pageState, { view_by_content_or_learners: newView }));
       },
     },
     vuex: {
