@@ -1,11 +1,11 @@
-from kolibri.auth.constants import collection_kinds
-from kolibri.auth.models import FacilityUser
+from kolibri.auth.constants import role_kinds
+from kolibri.auth.models import Collection, FacilityUser
 from kolibri.content.models import ContentNode
 from kolibri.logger.models import ContentSummaryLog
 from rest_framework import pagination, permissions, viewsets
 
 from .serializers import ContentReportSerializer, ContentSummarySerializer, UserReportSerializer
-from .utils.return_users import get_collection_or_user
+from .utils.return_users import get_members_or_user
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
@@ -22,7 +22,14 @@ class KolibriReportPermissions(permissions.BasePermission):
 
     # check if requesting user has permission for collection or user
     def has_permission(self, request, view):
-        return request.user.can_read(get_collection_or_user(view.kwargs))
+        collection_kind = view.kwargs.get('collection_kind', 'user')
+        collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
+
+        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+        if 'user' == collection_kind:
+            return request.user.has_role_for(allowed_roles, FacilityUser.objects.get(pk=collection_or_user_pk))
+        else:
+            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_or_user_pk))
 
 
 class UserReportViewSet(viewsets.ModelViewSet):
@@ -32,8 +39,8 @@ class UserReportViewSet(viewsets.ModelViewSet):
     serializer_class = UserReportSerializer
 
     def get_queryset(self):
-        assert any(self.kwargs['collection_kind'] in kind for kind in collection_kinds.choices)
-        return get_collection_or_user(self.kwargs)
+        assert 'user' != self.kwargs['collection_kind'], 'only a `collection` should be passed to this endpoint'
+        return get_members_or_user(self.kwargs['collection_kind'], self.kwargs['collection_id'])
 
 
 class ContentReportViewSet(viewsets.ModelViewSet):

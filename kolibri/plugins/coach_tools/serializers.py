@@ -5,7 +5,7 @@ from kolibri.logger.models import ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import serializers
 
-from .utils.return_users import get_collection_or_user
+from .utils.return_users import get_members_or_user
 
 
 class UserReportSerializer(serializers.ModelSerializer):
@@ -70,7 +70,7 @@ class ContentReportSerializer(serializers.ModelSerializer):
             # filter logs by each kind under target node, and sum progress over logs
             progress = ContentSummaryLog.objects \
                 .filter_by_topic(target_node) \
-                .filter(user__in=get_collection_or_user(kwargs)) \
+                .filter(user__in=get_members_or_user(kwargs['collection_kind'], kwargs['collection_id'])) \
                 .values('kind') \
                 .annotate(total_progress=Sum('progress'))
             # add kind counts under this node to progress dict
@@ -81,19 +81,19 @@ class ContentReportSerializer(serializers.ModelSerializer):
             # filter logs by a leaf node and annotate with specific stats
             return ContentSummaryLog.objects \
                 .filter(content_id=target_node.content_id) \
-                .filter(user__in=get_collection_or_user(kwargs)) \
+                .filter(user__in=get_members_or_user(kwargs['collection_kind'], kwargs['collection_id'])) \
                 .annotate(total_progress=Sum('progress')) \
                 .annotate(log_count_total=Count('pk')) \
                 .annotate(log_count_complete=Sum(Case(When(progress=1, then=1), default=0, output_field=IntegerField()))) \
                 .values('total_progress', 'log_count_total', 'log_count_complete')
 
     def get_last_active(self, target_node):
+        kwargs = self.context['view'].kwargs
         try:
-            kwargs = self.context['view'].kwargs
             if target_node.kind == content_kinds.TOPIC:
                 return ContentSummaryLog.objects \
                     .filter_by_topic(target_node) \
-                    .filter(user__in=get_collection_or_user(kwargs)) \
+                    .filter(user__in=get_members_or_user(kwargs['collection_kind'], kwargs['collection_id'])) \
                     .latest('end_timestamp').end_timestamp
             else:
                 return ContentSummaryLog.objects.get(content_id=target_node.content_id).end_timestamp
@@ -122,4 +122,5 @@ class ContentSummarySerializer(ContentReportSerializer):
         return target_node.get_ancestors().values('pk', 'title')
 
     def get_num_users(self, target_node):
-        return get_collection_or_user(self.context['view'].kwargs).count()
+        kwargs = self.context['view'].kwargs
+        return get_members_or_user(kwargs['collection_kind'], kwargs['collection_id']).count()
