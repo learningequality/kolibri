@@ -176,6 +176,22 @@ function showReport(store, params, oldParams) {
     store.dispatch('SET_CONTENT_SCOPE_SUMMARY', contentSummary);
     store.dispatch('SET_USER_SCOPE_SUMMARY', userSummary);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
+
+    const titleElems = ['Coach Reports'];
+    if (userScope === Constants.UserScopes.USER) {
+      titleElems.push(`${userSummary.full_name}`);
+    } else if (userScope === Constants.UserScopes.FACILITY) {
+      titleElems.push('All Learners');
+    }
+    titleElems.push(`${contentSummary.title}`);
+    if (allOrRecent === Constants.AllOrRecent.RECENT) {
+      titleElems.push('Recent');
+    } else if (viewByContentOrLearners === Constants.ViewBy.CONTENT) {
+      titleElems.push('Contents');
+    } else if (viewByContentOrLearners === Constants.ViewBy.LEARNERS) {
+      titleElems.push('Learners');
+    }
+    store.dispatch('CORE_SET_TITLE', titleElems.join(' - '));
   });
 
   return;
