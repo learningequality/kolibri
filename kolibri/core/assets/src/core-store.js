@@ -154,10 +154,10 @@ const mutations = {
     state.core.viewport.width = width;
     state.core.viewport.height = height;
   },
-  SET_CURRENT_CHANNEL(state, channelId) {
+  SET_CORE_CURRENT_CHANNEL(state, channelId) {
     state.core.channels.currentId = channelId;
   },
-  SET_CHANNEL_LIST(state, channelList) {
+  SET_CORE_CHANNEL_LIST(state, channelList) {
     state.core.channels.list = channelList;
   },
 };

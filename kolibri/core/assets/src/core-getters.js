@@ -32,7 +32,7 @@ function getDefaultChannelId(channelList) {
 
 /* return the current channel object, acording to vuex state */
 function getCurrentChannelObject(state) {
-  return state.core.channels.list.find(channel => channel.id === state.currentChannelId);
+  return state.core.channels.list.find(channel => channel.id === state.core.channels.currentId);
 }
 
 

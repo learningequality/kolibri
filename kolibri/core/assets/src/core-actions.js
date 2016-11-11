@@ -352,7 +352,7 @@ function _setChannelState(store, Kolibri, currentChannelId, channelList) {
  * If channelId is null, choose it automatically
  */
 function setChannelInfo(store, Kolibri, channelId = null) {
-  Kolibri.resources.ChannelResource.getCollection({}).fetch().then(
+  return Kolibri.resources.ChannelResource.getCollection({}).fetch().then(
     channelsData => {
       const channelList = _channelListState(channelsData);
       const thisChannelId = channelId || getDefaultChannelId(channelList);
