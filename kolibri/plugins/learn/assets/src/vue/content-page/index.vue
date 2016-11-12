@@ -26,7 +26,7 @@
 
     <expandable-content-grid
       class="recommendation-section"
-      v-if="pageMode === $options.PageModes.LEARN"
+      v-if="pageMode === Constants.PageModes.LEARN"
       :title="recommendedText"
       :contents="recommended">
     </expandable-content-grid>
@@ -38,7 +38,7 @@
 
 <script>
 
-  const constants = require('../../state/constants');
+  const Constants = require('../../state/constants');
   const getters = require('../../state/getters');
   const ContentKinds = require('kolibri.coreVue.vuex.constants').ContentKinds;
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
@@ -50,6 +50,9 @@
       nextContent: 'Next Content',
     },
     computed: {
+      Constants() {
+        return Constants; // allow constants to be accessed inside templates
+      },
       canDownload() {
         if (this.content) {
           // computed property sometimes runs before the store is ready.
@@ -80,12 +83,11 @@
           };
         }
         return {
-          name: constants.PageNames.EXPLORE_TOPIC,
+          name: Constants.PageNames.EXPLORE_TOPIC,
           params: { id: this.content.next_content.id },
         };
       },
     },
-    mixins: [constants], // makes constants available in $options
     components: {
       'page-header': require('../page-header'),
       'expandable-content-grid': require('../expandable-content-grid'),
