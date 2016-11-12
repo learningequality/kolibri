@@ -45,8 +45,51 @@
         :vlink="viewByLink"
       ></view-by-switch>
 
-      <!--LIST SECTION-->
-      <list-section></list-section>
+      <!--TABLE SECTION-->
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th is="header-cell"
+              text="Name"
+              :column="Constants.TableColumns.NAME"
+              class="name-col"
+            ></th>
+            <th is="header-cell"
+              text="Exercise Progress"
+              :column="Constants.TableColumns.EXERCISE"
+              class="progress-col"
+            ></th>
+            <th is="header-cell"
+              text="Content Progress"
+              :column="Constants.TableColumns.CONTENT"
+              class="progress-col"
+            ></th>
+            <th is="header-cell"
+              v-if="!isRecentView"
+              text="Last Activity"
+              :column="Constants.TableColumns.DATE"
+              class="date-col"
+            ></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="node in tableData">
+            <th scope="row" class="name-col">
+              <item-cell :kind="node.kind" :title="node.title"></item-cell>
+            </th>
+            <td class="progress-col">
+              <progress-cell :num="0.25" :isexercise="true"></progress-cell>
+            </td>
+            <td class="progress-col">
+              <progress-cell :num="0.25" :isexercise="false"></progress-cell>
+            </td>
+            <td class="date-col" v-if="!isRecentView">
+              <date-cell :date="node.last_active ? new Date(node.last_active) : null"></date-cell>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
     </div>
   </div>
 
@@ -74,9 +117,16 @@
       'report-header': require('./report-header'),
       'summary-section': require('./summary-section'),
       'view-by-switch': require('./view-by-switch'),
-      'list-section': require('./list-section'),
+      'header-cell': require('./header-cell'),
+      'user-cell': require('./data-cells/user-cell'),
+      'date-cell': require('./data-cells/date-cell'),
+      'progress-cell': require('./data-cells/progress-cell'),
+      'item-cell': require('./data-cells/item-cell'),
     },
     computed: {
+      Constants() {
+        return Constants; // allow constants to be accessed inside templates
+      },
       isViewByContent() {
         return this.pageState.view_by_content_or_learners === Constants.ViewBy.CONTENT;
       },
@@ -153,9 +203,6 @@
           content_scope_id: '4c8abbdb27f94d568d32c402f0dd0fc2', // TODO: get root id
           // recent view is only viewable by content
           view_by_content_or_learners: Constants.ViewBy.CONTENT,
-          // These are not really taken into account in recent view but it doesn't hurt
-          sort_column: Constants.SortCols.DATE,
-          sort_order: Constants.SortOrders.DESC,
         });
       },
       allViewLink() {
@@ -164,6 +211,9 @@
       viewByLink() {
         const view = this.isViewByContent ? Constants.ViewBy.LEARNERS : Constants.ViewBy.CONTENT;
         return genLink(this.pageState, { view_by_content_or_learners: view });
+      },
+      tableData() {
+        return this.pageState.table_data;
       },
     },
     vuex: {
@@ -179,5 +229,22 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.coreTheme'
+
+  .data-table
+    width: 100%
+
+    td, th
+      padding: 10px
+
+    .name-col
+      text-align: left
+
+    .progress-col
+      text-align: center
+      width: 20%
+
+    .date-col
+      text-align: center
+      width: 150px
 
 </style>

@@ -27,7 +27,7 @@ const ViewBy = {
   CONTENT: 'content_view',
 };
 
-const SortCols = {
+const TableColumns = {
   NAME: 'name',
   EXERCISE: 'exercise_progress',
   CONTENT: 'content_progress',
@@ -35,9 +35,17 @@ const SortCols = {
 };
 
 const SortOrders = {
-  ASC: 'asc',
-  DESC: 'desc',
+  ASCENDING: 'asc',
+  DESCENDING: 'desc',
+  NONE: 'none',
 };
+
+
+/* returns an array of the values of an object */
+function enumerate(obj) {
+  return Object.entries(obj).map(([key, value]) => value);
+}
+
 
 module.exports = {
   PageNames,
@@ -45,6 +53,7 @@ module.exports = {
   UserScopes,
   AllOrRecent,
   ViewBy,
-  SortCols,
+  TableColumns,
   SortOrders,
+  enumerate,
 };

@@ -16,12 +16,6 @@ const Constants = require('./state/constants');
 const logging = require('kolibri.lib.logging');
 
 
-/* returns an array of the values of an object */
-function _vals(obj) {
-  return Object.entries(obj).map(([key, value]) => value);
-}
-
-
 /* Only certain types of parameter updates require the 'loading' flag to be set */
 function _useReportPageLoadingFlag(newParams, oldParams) {
   if (!newParams || !oldParams) {
@@ -36,15 +30,12 @@ function _useReportPageLoadingFlag(newParams, oldParams) {
       diffKeys.push(key);
     }
   });
-  if (diffKeys.length > 1) {
-    return true;
-  }
   const noLoadingParams = [
     'view_by_content_or_learners',
     'sort_column',
     'sort_order',
   ];
-  return !noLoadingParams.includes(diffKeys[0]);
+  return !diffKeys.every(key => noLoadingParams.includes(key));
 }
 
 
@@ -82,8 +73,8 @@ function redirectToDefaultReport(store, params) {
           user_scope_id: userScopeId,
           all_or_recent: Constants.AllOrRecent.ALL,
           view_by_content_or_learners: Constants.ViewBy.CONTENT,
-          sort_column: Constants.SortCols.NAME,
-          sort_order: Constants.SortOrders.DESC,
+          sort_column: Constants.TableColumns.NAME,
+          sort_order: Constants.SortOrders.NONE,
         },
       });
     },
@@ -109,12 +100,12 @@ function showReport(store, params, oldParams) {
 
 
   /* check if params are semi-valid. */
-  if (!(_vals(Constants.ContentScopes).includes(contentScope)
-    && _vals(Constants.UserScopes).includes(userScope)
-    && _vals(Constants.AllOrRecent).includes(allOrRecent)
-    && _vals(Constants.ViewBy).includes(viewByContentOrLearners)
-    && _vals(Constants.SortCols).includes(sortColumn)
-    && _vals(Constants.SortOrders).includes(sortOrder))) {
+  if (!(Constants.enumerate(Constants.ContentScopes).includes(contentScope)
+    && Constants.enumerate(Constants.UserScopes).includes(userScope)
+    && Constants.enumerate(Constants.AllOrRecent).includes(allOrRecent)
+    && Constants.enumerate(Constants.ViewBy).includes(viewByContentOrLearners)
+    && Constants.enumerate(Constants.TableColumns).includes(sortColumn)
+    && Constants.enumerate(Constants.SortOrders).includes(sortOrder))) {
     /* if invalid params, just throw an error. */
     coreActions.handleError(store, 'Invalid report parameters.');
     return;
