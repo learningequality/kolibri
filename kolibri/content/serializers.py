@@ -89,10 +89,30 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         thumbnail_model = target_node.files.filter(thumbnail=True, available=True).first()
         return thumbnail_model.get_storage_url() if thumbnail_model else None
 
+    def _recursive_next_item(self, target_node):
+        if target_node.parent:
+            next_item = target_node.parent.get_next_sibling()
+            if (next_item):
+                return next_item
+            else:
+                if (target_node.parent == target_node.get_root()):
+                    return None
+                self._recursive_next_item(target_node.parent)
+        else:
+            return None
+
     def get_next_content(self, target_node):
         next_content = target_node.get_next_sibling()
         if hasattr(next_content, 'id'):
             return {'kind': next_content.kind, 'id': next_content.id}
+        # Has no next sibling meaning reach the end of this topic.
+        # Return next topic or content if there is any.
+        next_item = self._recursive_next_item(target_node)
+        if next_item:
+            return {'kind': next_item.kind, 'id': next_item.id}
+        # otherwise return root.
+        root = target_node.get_root()
+        return {'kind': root.kind, 'id': root.id}
 
     class Meta:
         model = ContentNode
