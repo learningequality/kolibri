@@ -94,7 +94,7 @@
 
   .header-text
     text-decoration: none
-    display: inline-block
+    display: block
     color: $core-text-default
 
   .sort-wrapper

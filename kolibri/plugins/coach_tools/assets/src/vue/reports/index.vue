@@ -201,6 +201,7 @@
 
   .data-table
     width: 100%
+    font-size: smaller
 
     td, th
       padding: 10px
