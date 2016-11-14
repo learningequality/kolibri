@@ -21,6 +21,7 @@ clean-build:
 	rm -fr dist/
 	rm -fr dist-packages-cache/
 	rm -fr dist-packages-temp/
+	rm -fr kolibri/plugins/*/static/*/*.js
 	rm -fr *.egg-info
 	rm -fr .eggs
 	rm -fr .cache
