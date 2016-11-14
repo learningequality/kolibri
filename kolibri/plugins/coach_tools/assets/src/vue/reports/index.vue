@@ -99,16 +99,9 @@
 <script>
 
   const Constants = require('../../state/constants');
+  const getters = require('../../state/getters');
   const genLink = require('./genLink');
   const logging = require('kolibri.lib.logging');
-
-
-  /* given an array of objects sum the keys on those that pass the filter */
-  function sumOfKeys(array, key, filter = () => true) {
-    return array
-      .filter(filter)
-      .reduce((prev, item) => prev + item[key], 0);
-  }
 
   module.exports = {
     components: {
@@ -166,36 +159,6 @@
         list.push({ title: this.pageState.content_scope_summary.title });
         return list;
       },
-      exerciseCount() {
-        return sumOfKeys(
-          this.pageState.content_scope_summary.progress,
-          'node_count',
-          item => item.kind === 'exercise'
-        );
-      },
-      exerciseProgress() {
-        const totalProgress = sumOfKeys(
-          this.pageState.content_scope_summary.progress,
-          'total_progress',
-          item => item.kind === 'exercise'
-        );
-        return totalProgress / this.exerciseCount;
-      },
-      contentCount() {
-        return sumOfKeys(
-          this.pageState.content_scope_summary.progress,
-          'node_count',
-          item => item.kind !== 'exercise'
-        );
-      },
-      contentProgress() {
-        const totalProgress = sumOfKeys(
-          this.pageState.content_scope_summary.progress,
-          'total_progress',
-          item => item.kind !== 'exercise'
-        );
-        return totalProgress / this.contentCount;
-      },
       recentViewLink() {
         return genLink(this.pageState, {
           all_or_recent: Constants.AllOrRecent.RECENT,
@@ -219,6 +182,10 @@
     vuex: {
       getters: {
         pageState: state => state.pageState,
+        exerciseCount: getters.exerciseCount,
+        exerciseProgress: getters.exerciseProgress,
+        contentCount: getters.contentCount,
+        contentProgress: getters.contentProgress,
       },
     },
   };

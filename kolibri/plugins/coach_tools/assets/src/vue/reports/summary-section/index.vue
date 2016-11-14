@@ -8,11 +8,19 @@
       <p>Last Active: {{ lastActiveText }}</p>
       <div>
         <p>Exercises</p>
-        <progress-bar :progress="exerciseprogress"></progress-bar>
+        <progress-bar
+          v-if="exerciseprogress !== undefined"
+          :progress="exerciseprogress"
+        ></progress-bar>
+        <span v-else>{{ $tr('na') }}</span>
       </div>
       <div>
         <p>Content</p>
-        <progress-bar :progress="contentprogress"></progress-bar>
+        <progress-bar
+          v-if="contentprogress !== undefined"
+          :progress="contentprogress"
+        ></progress-bar>
+        <span v-else>{{ $tr('na') }}</span>
       </div>
     </div>
 
@@ -68,6 +76,7 @@
     $trNameSpace: 'report-summary',
     $trs: {
       lastActiveText: '{0, date, medium}',
+      na: 'not applicable',
     },
     computed: {
       lastActiveText() {
@@ -88,7 +97,7 @@
       },
       exerciseprogress: {
         type: Number,
-        required: true,
+        required: false,
       },
       contentcount: {
         type: Number,
@@ -96,7 +105,7 @@
       },
       contentprogress: {
         type: Number,
-        required: true,
+        required: false,
       },
       lastactive: {
         type: String,
