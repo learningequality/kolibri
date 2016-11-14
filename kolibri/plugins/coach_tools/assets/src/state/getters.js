@@ -29,6 +29,25 @@ function onlyContent(item) {
   return item.kind !== 'exercise';
 }
 
+function genCompareFunc(sortColumn, sortOrder) {
+  const columnToKey = {};
+  columnToKey[Constants.TableColumns.NAME] = 'title';
+  columnToKey[Constants.TableColumns.EXERCISE] = 'exerciseProgress';
+  columnToKey[Constants.TableColumns.CONTENT] = 'contentProgress';
+  columnToKey[Constants.TableColumns.DATE] = 'lastActive';
+  const key = columnToKey[sortColumn];
+
+  // take into account sort order
+  const flipOrder = sortOrder === Constants.SortOrders.DESCENDING ? 1 : -1;
+  // default order of names is A-Z; everything else goes high-low
+  const flipNameCol = sortColumn !== Constants.TableColumns.NAME ? -1 : 1;
+  return (a, b) => {
+    if (a[key] > b[key]) { return 1 * flipOrder * flipNameCol; }
+    if (a[key] < b[key]) { return -1 * flipOrder * flipNameCol; }
+    return 0;
+  };
+}
+
 const getters = {
   exerciseCount(state) {
     return countNodes(state.pageState.content_scope_summary.progress, onlyExercises);
@@ -51,9 +70,11 @@ const getters = {
     );
   },
   dataTable(state) {
-    // content
+    let data = [];
+
+    // CONTENT or LEARNERS
     if (state.pageState.view_by_content_or_learners === Constants.ViewBy.CONTENT) {
-      return state.pageState.table_data.map(item => ({
+      data = state.pageState.table_data.map(item => ({
         kind: item.kind,
         id: item.pk,
         lastActive: item.last_active ? new Date(item.last_active) : null,
@@ -63,7 +84,7 @@ const getters = {
         contentProgress: calcProgress(item.progress, onlyContent, getters.contentCount(state)),
       }));
     } else if (state.pageState.view_by_content_or_learners === Constants.ViewBy.LEARNERS) {
-      return state.pageState.table_data.map(item => ({
+      data = state.pageState.table_data.map(item => ({
         kind: 'user',
         id: item.pk.toString(),
         lastActive: item.last_active ? new Date(item.last_active) : null,
@@ -71,9 +92,16 @@ const getters = {
         exerciseProgress: calcProgress(item.details, onlyExercises, getters.exerciseCount(state)),
         contentProgress: calcProgress(item.details, onlyContent, getters.contentCount(state)),
       }));
+    } else {
+      logging.error('Unknown view-by state', state.pageState.view_by_content_or_learners);
     }
-    logging.error('Unknown view-by state', state.pageState.view_by_content_or_learners);
-    return [];
+
+    // SORTING
+    if (state.pageState.sort_order !== Constants.SortOrders.NONE) {
+      data.sort(genCompareFunc(state.pageState.sort_column, state.pageState.sort_order));
+    }
+
+    return data;
   },
 };
 

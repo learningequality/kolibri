@@ -71,7 +71,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="node in dataTable">
+          <tr v-for="node in dataTable" track-by="id">
             <th scope="row" class="name-col">
               <item-cell
                 :kind="node.kind"
