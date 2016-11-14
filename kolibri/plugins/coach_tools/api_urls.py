@@ -19,6 +19,7 @@ user_summary_router.register(r'usersummary', UserSummaryViewSet, base_name='user
 def return_404(*args, **kwargs):
     raise Http404
 
+
 urlpatterns = [
     url(r'^(?P<channel_id>[^/.]+)/(?P<content_node_id>[^/.]+)/(?P<collection_kind>[^/.]+)/(?P<collection_id>[^/.]+)/', include(reports_router.urls)),
     url(r'^(?P<channel_id>[^/.]+)/(?P<collection_kind>[^/.]+)/(?P<collection_id>[^/.]+)/', include(content_summary_router.urls)),
