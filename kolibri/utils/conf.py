@@ -61,17 +61,16 @@ config['FIRST_RUN'] = True
 
 conf_file = os.path.join(KOLIBRI_HOME, "kolibri_settings.json")
 
-if not os.path.isfile(conf_file):
-    logger.info("Initialize kolibri_settings.json..")
-    with open(conf_file, 'w') as kolibri_conf_file:
-        json.dump(config, kolibri_conf_file)
-else:
-    # Open up the config file and overwrite defaults
-    with open(conf_file, 'r') as kolibri_conf_file:
-        config.update(json.load(kolibri_conf_file))
-
 def save(first_run=False):
     """Saves the current state of the configuration"""
     config['FIRST_RUN'] = first_run
     with open(conf_file, 'w') as kolibri_conf_file:
         json.dump(config, kolibri_conf_file)
+
+if not os.path.isfile(conf_file):
+    logger.info("Initialize kolibri_settings.json..")
+    save(True)
+else:
+    # Open up the config file and overwrite defaults
+    with open(conf_file, 'r') as kolibri_conf_file:
+        config.update(json.load(kolibri_conf_file))
