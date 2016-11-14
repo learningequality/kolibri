@@ -117,18 +117,6 @@ function showReport(store, params, oldParams) {
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
 
-  /* save all params to store. */
-  store.dispatch('SET_CHANNEL_ID', channelId);
-  store.dispatch('SET_CONTENT_SCOPE', contentScope);
-  store.dispatch('SET_CONTENT_SCOPE_ID', contentScopeId);
-  store.dispatch('SET_USER_SCOPE', userScope);
-  store.dispatch('SET_USER_SCOPE_ID', userScopeId);
-  store.dispatch('SET_ALL_OR_RECENT', allOrRecent);
-  store.dispatch('SET_VIEW_BY_CONTENT_OR_LEARNERS', viewByContentOrLearners);
-  store.dispatch('SET_SORT_COLUMN', sortColumn);
-  store.dispatch('SET_SORT_ORDER', sortOrder);
-
-
   /* resource-layer work-around below */
   const resourcePromise = require('./resourcePromise');
   const URL_ROOT = '/coach/api';
@@ -163,6 +151,18 @@ function showReport(store, params, oldParams) {
 
   // API response handlers
   Promise.all(promises).then(([report, contentSummary, userSummary]) => {
+    // save URL params to store
+    store.dispatch('SET_CHANNEL_ID', channelId);
+    store.dispatch('SET_CONTENT_SCOPE', contentScope);
+    store.dispatch('SET_CONTENT_SCOPE_ID', contentScopeId);
+    store.dispatch('SET_USER_SCOPE', userScope);
+    store.dispatch('SET_USER_SCOPE_ID', userScopeId);
+    store.dispatch('SET_ALL_OR_RECENT', allOrRecent);
+    store.dispatch('SET_VIEW_BY_CONTENT_OR_LEARNERS', viewByContentOrLearners);
+    store.dispatch('SET_SORT_COLUMN', sortColumn);
+    store.dispatch('SET_SORT_ORDER', sortOrder);
+
+    // save results of API request
     store.dispatch('SET_TABLE_DATA', report);
     store.dispatch('SET_CONTENT_SCOPE_SUMMARY', contentSummary);
     store.dispatch('SET_USER_SCOPE_SUMMARY', userSummary);
