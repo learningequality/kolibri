@@ -86,7 +86,7 @@ const getters = {
     } else if (state.pageState.view_by_content_or_learners === Constants.ViewBy.LEARNERS) {
       data = state.pageState.table_data.map(item => ({
         kind: 'user',
-        id: item.pk.toString(),
+        id: item.pk.toString(), // see https://github.com/learningequality/kolibri/issues/657
         lastActive: item.last_active ? new Date(item.last_active) : null,
         title: item.full_name,
         exerciseProgress: calcProgress(item.details, onlyExercises, getters.exerciseCount(state)),

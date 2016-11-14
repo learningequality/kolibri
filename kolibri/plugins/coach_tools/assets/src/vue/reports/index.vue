@@ -175,6 +175,7 @@
         return genLink(this.pageState, { all_or_recent: Constants.AllOrRecent.ALL });
       },
       viewByLink() {
+        // target of the link is the opposite of the current view
         const view = this.isViewByContent ? Constants.ViewBy.LEARNERS : Constants.ViewBy.CONTENT;
         return genLink(this.pageState, { view_by_content_or_learners: view });
       },
