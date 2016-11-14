@@ -192,7 +192,9 @@ function showReport(store, params, oldParams) {
       titleElems.push('Learners');
     }
     store.dispatch('CORE_SET_TITLE', titleElems.join(' - '));
-  });
+  },
+    error => { coreActions.handleError(store, error); }
+  );
 
   return;
   /* resource-layer work-around above */
