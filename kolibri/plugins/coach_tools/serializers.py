@@ -76,6 +76,11 @@ class ContentReportSerializer(serializers.ModelSerializer):
             # add kind counts under this node to progress dict
             for kind in progress:
                 kind['node_count'] = kind_counts[kind['kind']]
+                del kind_counts[kind['kind']]
+            # evaluate queryset so we can add data for kinds that do not have logs
+            progress = list(progress)
+            for key in kind_counts:
+                progress.append({'kind': key, 'node_count': kind_counts[key], 'total_progress': 0})
             return progress
         else:
             # filter logs by a leaf node and annotate with specific stats
