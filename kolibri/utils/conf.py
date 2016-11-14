@@ -67,6 +67,7 @@ def save(first_run=False):
     with open(conf_file, 'w') as kolibri_conf_file:
         json.dump(config, kolibri_conf_file)
 
+
 if not os.path.isfile(conf_file):
     logger.info("Initialize kolibri_settings.json..")
     save(True)
