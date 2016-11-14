@@ -2,6 +2,7 @@
 const UserKinds = {
   SUPERUSER: 'SUPERUSER',
   ADMIN: 'ADMIN',
+  COACH: 'COACH',
   LEARNER: 'LEARNER',
   ANONYMOUS: 'ANONYMOUS',
 };

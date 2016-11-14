@@ -12,9 +12,10 @@
     <div class="toolbar">
       <label for="type-filter" class="visuallyhidden">Filter User Type</label>
       <select v-model="roleFilter" id="type-filter" name="type-filter">
-        <option value="all"> All Users </option>
-        <option value="admin"> Admins </option>
-        <option value="learner"> Learners </option>
+        <option selected value="all"> All Users </option>
+        <option :value="userKinds.ADMIN"> Admins </option>
+        <option :value="userKinds.COACH"> Coaches </option>
+        <option :value="userKinds.LEARNER"> Learners </option>
       </select>
 
       <div class="searchbar" role="search">
@@ -129,6 +130,7 @@
       creatingUser: false,
       editingUser: false,
       currentUserEdit: null,
+      userKinds : require('kolibri.coreVue.vuex.constants').UserKinds,
     }),
     computed: {
       noUsersExist() {
@@ -156,19 +158,11 @@
 
           // check for filters
           if (roleFilter !== 'all') {
-            // check for learner
-            if (roleFilter === 'learner') {
-              hasRole = !(user.roles.length);
-            } else {
-              hasRole = false;
+            hasRole = false;
 
-              // actual check for roles
-              user.roles.forEach(roleObject => {
-                if (roleObject.kind === roleFilter) {
-                  hasRole = true;
-                }
-              });
-            }
+            // actual check for roles
+            if(user.kind == roleFilter)
+              hasRole = true;
           }
 
           // makes sure there's text in the search box

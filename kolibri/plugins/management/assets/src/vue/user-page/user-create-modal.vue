@@ -30,10 +30,11 @@
         </div>
 
         <div class="user-field">
-          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-          <select @focus="clearErrorMessage" v-model="role" id="user-role">
-            <option value="learner"> Learner </option>
-            <option value="admin"> Admin </option>
+          <label for="user-kind"><span class="visuallyhidden">User Kind</span></label>
+          <select @focus="clearErrorMessage" v-model="kind" id="user-kind">
+            <option :value="userKinds.LEARNER" selected> Learner </option>
+            <option :value="userKinds.COACH"> Coach </option>
+            <option :value="userKinds.ADMIN"> Admin </option>
           </select>
         </div>
       </section>
@@ -57,6 +58,7 @@
 <script>
 
   const actions = require('../../actions');
+  const userKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
     components: {
@@ -68,8 +70,9 @@
         password: '',
         passwordConfirm: '',
         full_name: '',
-        role: 'learner',
+        kind: userKinds.LEARNER,
         errorMessage: '',
+        userKinds : userKinds,
       };
     },
     mounted() {
@@ -82,10 +85,11 @@
           username: this.username,
           full_name: this.full_name,
           facility: this.facility,
+          kind: this.kind
         };
 
         // check for all fields populated
-        if (!(this.username && this.password && this.full_name && this.role)) {
+        if (!(this.username && this.password && this.full_name && this.kind)) {
           this.errorMessage = 'All fields are required';
         // check for password confirmation match
         } else if (!(this.password === this.passwordConfirm)) {
@@ -97,7 +101,7 @@
           // loading message
           this.confirmation_message = 'Loading...';
           // using promise to ensure that the user is created before closing
-          this.createUser(newUser, this.role).then(
+          this.createUser(newUser).then(
             () => {
               this.close();
             }).catch((error) => {

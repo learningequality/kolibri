@@ -134,7 +134,7 @@
         password_new: '',
         password_new_confirm: '',
         fullName_new: this.fullname,
-        role_new: this.roles.length ? this.roles[0].kind : 'learner',
+        role_new: this.role,
         usr_delete: false,
         pw_reset: false,
         error_message: '',

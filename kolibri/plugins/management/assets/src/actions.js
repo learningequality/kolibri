@@ -25,19 +25,48 @@ const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageC
  * the API to state in the Vuex store
  */
 
-function _userState(data) {
-  // assume just one role for now
+function _stateUser(apiUserData) {
+  // handle role representation
   let kind = UserKinds.LEARNER;
-  if (data.roles.length && data.roles[0].kind === 'admin') {
-    kind = UserKinds.ADMIN;
-  }
+
+  // look through all roles in array to make sure we get the one with the most power
+  // TODO ask if they're inside the array in order of heirarchy
+  apiUserData.roles.forEach(role => {
+    // using a switch statement. Checks all in order of heirarchy
+    switch(role){
+      // sets role to admin 
+      case UserKinds.ADMIN || UserKinds.SUPERUSER:
+        kind = UserKinds.ADMIN;
+        break;
+      case UserKinds.COACH:
+        if(kind != UserKinds.ADMIN) kind = UserKinds.COACH;
+        break;
+    }
+  });
+
   return {
-    id: data.id,
-    facility_id: data.facility,
-    username: data.username,
-    full_name: data.full_name,
-    roles: data.roles,
-    kind, // unused for now
+    id: apiUserData.id,
+    facility_id: apiUserData.facility,
+    username: apiUserData.username,
+    full_name: apiUserData.full_name,
+    kind: kind, 
+  };
+}
+/**
+ * User Resource Mappers
+ *
+ * The methods below help map data from
+ * the state in the Vuex store to the API
+ */
+function _resourceUser(stateUserData) {
+  console.log('Data being sent to server: ');
+  console.log(stateUserData);
+  return {
+    id: stateUserData.id,
+    facility: stateUserData.facility,
+    username: stateUserData.username,
+    full_name: stateUserData.full_name,
+    password: stateUserData.password,
   };
 }
 
@@ -51,7 +80,6 @@ function _taskState(data) {
   };
   return state;
 }
-
 
 /**
  * Title Helper
@@ -69,31 +97,40 @@ function _managePageTitle(title) {
  */
 
 /**
- * Do a POST to create new user
- * @param {object} payload
- * @param {string} role
+ * Does a POST request to assign a user role (only used in this file)
+ * MIGHT NOT NEED TO DO THIS. ASK SOMEONE AT WORK TOMORROW
  */
-function createUser(store, payload, role) {
-  const FacilityUserModel = FacilityUserResource.createModel(payload);
-  const newUserPromise = FacilityUserModel.save(payload);
-  // returns a promise so the result can be used by the caller
-  return newUserPromise.then((model) => {
-    // assign role to this new user if the role is not learner
-    if (role === 'learner' || !role) {
-      store.dispatch('ADD_USER', _userState(model));
-    } else {
-      const rolePayload = {
-        user: model.id,
-        collection: model.facility,
+function assignUserRole(user, role){
+  const rolePayload = {
+        user: user.id,
+        collection: user.facility,
         kind: role,
       };
-      const RoleModel = RoleResource.createModel(rolePayload);
-      const newRolePromise = RoleModel.save(rolePayload);
-      newRolePromise.then((results) => {
-        FacilityUserModel.fetch({}, true).then(updatedModel => {
-          store.dispatch('ADD_USER', _userState(updatedModel));
-        });
-      }).catch(error => { coreActions.handleApiError(store, error); });
+    
+  // creates the model, saves to server, returns the promise for the server save
+  // might need to return fetch instead, handle save here
+  return RoleResource.createModel(rolePayload).save(rolePayload);
+}
+
+/**
+ * Do a POST to create new user
+ * @param {object} userData
+ *  Needed: username, full_name, facility, role, password
+ * @param {string} role
+ */
+function createUser(store, stateUserData) {
+  const userData = _resourceUser(stateUserData);
+  const role = stateUserData.kind == UserKinds.LEARNER ? '' : stateUserData.kind;
+  FacilityUserResource.createModel(userData).save(userData).then((userModel) => {
+    // assign role to this new user if the role is not learner
+    if (role) {
+      assignUserRole(userModel, role).then(userModelWithRole => {
+        console.log('UserRoleSavePromise: ' + userModelWithRole);
+        // manipulate usermodel here
+        store.dispatch('ADD_USER', _stateUser(userModel));
+      }, error => { coreActions.handleApiError(store, error); });
+    } else{
+      store.dispatch('ADD_USER', _stateUser(userModel)); // update page state
     }
   }).catch((error) => Promise.reject(error));
 }
@@ -184,12 +221,9 @@ function deleteUser(store, id) {
     // if no id passed, abort the function
     return;
   }
-  const FacilityUserModel = FacilityUserResource.getModel(id);
-  const deleteUserPromise = FacilityUserModel.delete();
-  deleteUserPromise.then((user) => {
+  FacilityUserResource.getModel(id).delete().then(user => {
     store.dispatch('DELETE_USER', id);
-  })
-  .catch(error => { coreActions.handleApiError(store, error); });
+  }, error => { coreActions.handleApiError(store, error); });
 }
 
 // An action for setting up the initial state of the app by fetching data from the server
@@ -208,7 +242,7 @@ function showUserPage(store) {
       store.dispatch('SET_FACILITY', facilityId[0]); // for mvp, we assume only one facility exists
 
       const pageState = {
-        users: users.map(_userState),
+        users: users.map(_stateUser),
       };
 
       store.dispatch('SET_PAGE_STATE', pageState);
