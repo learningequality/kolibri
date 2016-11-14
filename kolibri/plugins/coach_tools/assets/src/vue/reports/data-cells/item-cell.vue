@@ -1,7 +1,7 @@
 <template>
 
-  <div class="wrapper">
-    <content-icon :kind="kind" class="icon"></content-icon>
+  <div class="wrapper" :class="{ hasicon: isContent }">
+    <content-icon v-if="isContent" :kind="kind" class="icon"></content-icon>
     <div class="title">{{ title }}</div>
   </div>
 
@@ -25,7 +25,11 @@
         required: true,
       },
     },
-    computed: {},
+    computed: {
+      isContent() {
+        return this.kind !== 'user';
+      },
+    },
   };
 
 </script>
@@ -35,8 +39,10 @@
 
   .wrapper
     position: relative
-    padding-left: 40px
     text-align: left
+
+  .hasicon
+    padding-left: 40px
 
   .icon
     position: absolute

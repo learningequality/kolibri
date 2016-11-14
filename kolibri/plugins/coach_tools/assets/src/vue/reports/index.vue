@@ -71,18 +71,22 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="node in tableData">
+          <tr v-for="node in dataTable">
             <th scope="row" class="name-col">
-              <item-cell :kind="node.kind" :title="node.title"></item-cell>
+              <item-cell
+                :kind="node.kind"
+                :title="node.title"
+                :parent="node.parent"
+              ></item-cell>
             </th>
             <td class="progress-col">
-              <progress-cell :num="0.25" :isexercise="true"></progress-cell>
+              <progress-cell :num="node.exerciseProgress" :isexercise="true"></progress-cell>
             </td>
             <td class="progress-col">
-              <progress-cell :num="0.25" :isexercise="false"></progress-cell>
+              <progress-cell :num="node.contentProgress" :isexercise="false"></progress-cell>
             </td>
             <td class="date-col" v-if="!isRecentView">
-              <date-cell :date="node.last_active ? new Date(node.last_active) : null"></date-cell>
+              <date-cell :date="node.lastActive"></date-cell>
             </td>
           </tr>
         </tbody>
@@ -173,9 +177,6 @@
         const view = this.isViewByContent ? Constants.ViewBy.LEARNERS : Constants.ViewBy.CONTENT;
         return genLink(this.pageState, { view_by_content_or_learners: view });
       },
-      tableData() {
-        return this.pageState.table_data;
-      },
     },
     vuex: {
       getters: {
@@ -184,6 +185,7 @@
         exerciseProgress: getters.exerciseProgress,
         contentCount: getters.contentCount,
         contentProgress: getters.contentProgress,
+        dataTable: getters.dataTable,
       },
     },
   };
