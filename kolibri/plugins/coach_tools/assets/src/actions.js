@@ -17,13 +17,10 @@ const Constants = require('./state/constants');
 const logging = require('kolibri.lib.logging');
 
 
-/* Only certain types of parameter updates require the 'loading' flag to be set */
-function _useReportPageLoadingFlag(newParams, oldParams) {
-  if (!newParams || !oldParams) {
-    return true;
-  }
-  if (Object.entries(newParams).length !== Object.entries(newParams).length) {
-    return true;
+/* find the keys that differ between the old and new params */
+function _diffKeys(newParams, oldParams) {
+  if (!oldParams) {
+    return Object.entries(newParams).map(([key, value]) => key);
   }
   const diffKeys = [];
   Object.entries(newParams).forEach(([key, value]) => {
@@ -31,12 +28,7 @@ function _useReportPageLoadingFlag(newParams, oldParams) {
       diffKeys.push(key);
     }
   });
-  const noLoadingParams = [
-    'view_by_content_or_learners',
-    'sort_column',
-    'sort_order',
-  ];
-  return !diffKeys.every(key => noLoadingParams.includes(key));
+  return diffKeys;
 }
 
 
@@ -112,9 +104,20 @@ function showReport(store, params, oldParams) {
     return;
   }
 
+  const diffKeys = _diffKeys(params, oldParams);
+
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.REPORTS);
 
-  if (_useReportPageLoadingFlag(params, oldParams)) {
+  // these don't require updates from the server
+  const localUpdateParams = ['sort_column', 'sort_order'];
+  if (diffKeys.every(key => localUpdateParams.includes(key))) {
+    store.dispatch('SET_SORT_COLUMN', sortColumn);
+    store.dispatch('SET_SORT_ORDER', sortOrder);
+    return;
+  }
+
+  // set loading true for all except 'view-by', which just affects table (not summary)
+  if (diffKeys.length === 1 && diffKeys[0] !== 'view_by_content_or_learners') {
     store.dispatch('CORE_SET_PAGE_LOADING', true);
   }
 
