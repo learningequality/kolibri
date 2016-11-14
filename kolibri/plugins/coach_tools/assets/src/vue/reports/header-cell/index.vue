@@ -109,7 +109,6 @@
     height: $size
     width: $size
     position: absolute
-    top: 2px
     left: 0
     transition: opacity $core-time ease
     opacity: 0
