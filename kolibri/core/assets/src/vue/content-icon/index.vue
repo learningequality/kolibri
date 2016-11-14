@@ -6,6 +6,7 @@
     <svg v-if="kind=='audio'" :class="['content-icon', colorClass]" src="./content-icons/audio.svg"></svg>
     <svg v-if="kind=='document'" :class="['content-icon', colorClass]" src="./content-icons/document.svg"></svg>
     <svg v-if="kind=='exercise'" :class="['content-icon', colorClass]" src="./content-icons/exercise.svg"></svg>
+    <svg v-if="kind=='user'" :class="['content-icon', colorClass]" src="./content-icons/user.svg"></svg>
   </div>
 
 </template>
@@ -23,6 +24,7 @@
       audio: 'audio',
       document: 'document',
       exercise: 'exercise',
+      user: 'user',
     },
     props: {
       kind: {
@@ -30,7 +32,7 @@
         required: true,
         validator(value) {
           for (const contentKind in ContentKinds) {
-            if (value === ContentKinds[contentKind] || 'topic') {
+            if (value === ContentKinds[contentKind] || 'topic' || 'user') {
               return true;
             }
           }

@@ -1,7 +1,7 @@
 <template>
 
-  <div class="wrapper" :class="{ hasicon: isTopic || isContent }">
-    <content-icon v-if="isTopic || isContent" :kind="kind" class="icon"></content-icon>
+  <div class="wrapper">
+    <content-icon :kind="kind" class="icon"></content-icon>
     <a v-if="isTopic" v-link="topicLink">{{ title }}</a>
     <span v-else>{{ title }}</span>
   </div>
@@ -67,6 +67,7 @@
     font-weight: normal
     position: relative
     text-align: left
+    padding-left: 20px
 
   .hasicon
     padding-left: 20px
