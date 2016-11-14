@@ -1,8 +1,9 @@
 <template>
 
-  <div class="wrapper" :class="{ hasicon: isContent }">
-    <content-icon v-if="isContent" :kind="kind" class="icon"></content-icon>
-    <div class="title">{{ title }}</div>
+  <div class="wrapper" :class="{ hasicon: isTopic || isContent }">
+    <content-icon v-if="isTopic || isContent" :kind="kind" class="icon"></content-icon>
+    <a v-if="isTopic" v-link="topicLink">{{ title }}</a>
+    <span v-else>{{ title }}</span>
   </div>
 
 </template>
@@ -10,7 +11,8 @@
 
 <script>
 
-  // const ContentKinds = require('kolibri.coreVue.vuex.constants').ContentKinds;
+  const genLink = require('../genLink');
+  const Constants = require('../../../state/constants');
 
   module.exports = {
     $trNameSpace: 'item-name',
@@ -24,10 +26,31 @@
         type: String,
         required: true,
       },
+      id: {
+        type: String,
+        required: true,
+      },
     },
     computed: {
+      isTopic() {
+        return this.kind === 'topic';
+      },
+      isUser() {
+        return this.kind === 'user';
+      },
       isContent() {
-        return this.kind !== 'user';
+        return !this.isTopic && !this.isUser;
+      },
+      topicLink() {
+        return genLink(this.pageState, {
+          content_scope: Constants.ContentScopes.TOPIC,
+          content_scope_id: this.id,
+        });
+      },
+    },
+    vuex: {
+      getters: {
+        pageState: state => state.pageState,
       },
     },
   };
@@ -37,18 +60,22 @@
 
 <style lang="stylus" scoped>
 
+  a
+    display: block
+
   .wrapper
+    font-weight: normal
     position: relative
     text-align: left
 
   .hasicon
-    padding-left: 40px
+    padding-left: 20px
 
   .icon
     position: absolute
     left: 0
-    top: -5px
-    width: 30px
-    height: 30px
+    top: 2px
+    width: 15px
+    height: 15px
 
 </style>

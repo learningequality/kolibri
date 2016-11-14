@@ -65,7 +65,7 @@ const getters = {
     } else if (state.pageState.view_by_content_or_learners === Constants.ViewBy.LEARNERS) {
       return state.pageState.table_data.map(item => ({
         kind: 'user',
-        id: item.pk,
+        id: item.pk.toString(),
         lastActive: item.last_active ? new Date(item.last_active) : null,
         title: item.full_name,
         exerciseProgress: calcProgress(item.details, onlyExercises, getters.exerciseCount(state)),

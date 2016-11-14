@@ -76,6 +76,7 @@
               <item-cell
                 :kind="node.kind"
                 :title="node.title"
+                :id="node.id"
                 :parent="node.parent"
               ></item-cell>
             </th>
