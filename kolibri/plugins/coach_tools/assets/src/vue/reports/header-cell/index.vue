@@ -66,10 +66,12 @@
         return Constants.SortOrders.NONE;
       },
       vLink() {
-        return genLink(this.pageState, {
+        const link = genLink(this.pageState, {
           sort_column: this.column,
           sort_order: this.nextSortState,
         });
+        link.replace = true; // browser history replace-state
+        return link;
       },
     },
     vuex: {
