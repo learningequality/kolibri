@@ -16,10 +16,6 @@
 
 <script>
 
-  const constants = require('../../state/constants');
-  const getters = require('../../state/getters');
-  const PageModes = constants.PageModes;
-
   module.exports = {
     $trNameSpace: 'channelSwitcher',
     $trs: {
@@ -42,32 +38,13 @@
     },
     methods: {
       switchChannel(channelId) {
-        let rootPage;
-        if (this.pageMode === PageModes.EXPLORE) {
-          rootPage = constants.PageNames.EXPLORE_CHANNEL;
-        } else {
-          rootPage = constants.PageNames.LEARN_CHANNEL;
-        }
-        this.clearSearch();
-        this.$router.go(
-          {
-            name: rootPage,
-            params: {
-              channel_id: channelId,
-            },
-          }
-        );
+        this.$emit('switch', channelId);
       },
     },
     vuex: {
       getters: {
-        isRoot: (state) => state.pageState.topic.id === state.rootTopicId,
-        pageMode: getters.pageMode,
-        globalCurrentChannel: state => state.currentChannelId,
-        channelList: state => state.channelList,
-      },
-      actions: {
-        clearSearch: require('../../actions').clearSearch,
+        globalCurrentChannel: state => state.core.channels.currentId,
+        channelList: state => state.core.channels.list,
       },
     },
   };
@@ -78,7 +55,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.coreTheme'
-  @require '../learn.styl'
 
   .chan-select
     color: $core-text-annotation

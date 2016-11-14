@@ -84,6 +84,9 @@ module.exports = {
         iconButton: {
           module: require('../vue/icon-button'),
         },
+        channelSwitcher: {
+          module: require('../vue/channel-switcher'),
+        },
       },
       router: {
         module: require('../router'),

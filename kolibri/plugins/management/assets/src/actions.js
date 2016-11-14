@@ -1,10 +1,9 @@
-const Kolibri = require('kolibri');
+const coreApp = require('kolibri');
 const logging = require('kolibri.lib.logging');
 
-const FacilityUserResource = Kolibri.resources.FacilityUserResource;
-const ChannelResource = Kolibri.resources.ChannelResource;
-const TaskResource = Kolibri.resources.TaskResource;
-const RoleResource = Kolibri.resources.RoleResource;
+const FacilityUserResource = coreApp.resources.FacilityUserResource;
+const TaskResource = coreApp.resources.TaskResource;
+const RoleResource = coreApp.resources.RoleResource;
 
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
@@ -237,9 +236,7 @@ function showContentPage(store) {
         taskList: taskList.map(_taskState),
         wizardState: { shown: false },
       };
-      const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
-      channelCollectionPromise.then((channelList) => {
-        pageState.channelList = channelList;
+      coreActions.setChannelInfo(store, coreApp).then(() => {
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
         store.dispatch('CORE_SET_TITLE', _managePageTitle('Content'));
@@ -327,12 +324,10 @@ function pollTasksAndChannels(store) {
     (taskList) => {
       // Perform channel poll AFTER task poll to ensure UI is always in a consistent state.
       // I.e. channel list always reflects the current state of ongoing task(s).
-      ChannelResource.getCollection({}).fetch({}, true).only(
+      coreActions.setChannelInfo(store, coreApp).only(
         samePageCheckGenerator(store),
-        (channelList) => {
+        () => {
           store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
-          store.dispatch('SET_CONTENT_PAGE_CHANNELS', channelList);
-
           // Close the wizard if there's an outstanding task.
           // (this can be removed when we support more than one
           // concurrent task.)

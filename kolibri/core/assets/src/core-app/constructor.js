@@ -64,6 +64,7 @@ module.exports = class CoreApp {
     vue.component('core-modal', require('../vue/core-modal'));
     vue.component('progress-bar', require('../vue/progress-bar'));
     vue.component('icon-button', require('../vue/icon-button'));
+    vue.component('channel-switcher', require('../vue/channel-switcher'));
     vue.component('content-icon', require('../vue/content-icon'));
     vue.component('core-base', require('../vue/core-base'));
 

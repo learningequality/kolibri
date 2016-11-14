@@ -50,17 +50,18 @@
 
 <script>
 
-  const Kolibri = require('kolibri');
+  const coreApp = require('kolibri');
+
   module.exports = {
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     computed: {
       summarylogurl() {
-        return Kolibri.urls['contentsummarylogcsv-list']();
+        return coreApp.urls['contentsummarylogcsv-list']();
       },
       sessionlogurl() {
-        return Kolibri.urls['contentsessionlogcsv-list']();
+        return coreApp.urls['contentsessionlogcsv-list']();
       },
     },
   };

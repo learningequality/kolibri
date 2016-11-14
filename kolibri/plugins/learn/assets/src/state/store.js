@@ -13,9 +13,6 @@ const initialState = {
     contents: [],
     searchTerm: '',
   },
-  channelList: {},
-  currentChannelId: '',
-  rootTopicId: '',
 };
 
 const mutations = {
@@ -35,15 +32,6 @@ const mutations = {
   },
   TOGGLE_SEARCH(state) {
     state.searchOpen = !state.searchOpen;
-  },
-  SET_CURRENT_CHANNEL(state, channelId) {
-    state.currentChannelId = channelId;
-  },
-  SET_CHANNEL_LIST(state, channelList) {
-    state.channelList = channelList;
-  },
-  SET_ROOT_TOPIC_ID(state, rootTopicId) {
-    state.rootTopicId = rootTopicId;
   },
 };
 
