@@ -26,7 +26,6 @@
       ></report-header>
 
       <!--SUMMARY SECTION-->
-      <!--
       <summary-section
         :kind="pageState.content_scope_summary.kind"
         :exercisecount="exerciseCount"
@@ -36,7 +35,6 @@
         :lastactive="pageState.content_scope_summary.last_active"
         :singleuser="isSingleUser"
       ></summary-section>
-      -->
 
       <!--VIEW-BY SWITCH-->
       <view-by-switch

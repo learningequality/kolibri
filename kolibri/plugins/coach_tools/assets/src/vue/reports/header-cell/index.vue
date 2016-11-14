@@ -66,7 +66,6 @@
         return Constants.SortOrders.NONE;
       },
       vLink() {
-        console.log(this.column, this.nextSortState);
         return genLink(this.pageState, {
           sort_column: this.column,
           sort_order: this.nextSortState,
