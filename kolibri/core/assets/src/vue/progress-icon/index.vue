@@ -1,9 +1,9 @@
 <template>
 
   <!--NOT STARTED-->
-  <span v-if="isNotStarted">
+  <span v-if="isNotStarted" class="wrapper">
     <svg src="./progress-icons/notstarted.svg"></svg>
-    <span v-if="showtext">
+    <span v-if="showtext" class="text">
       <span v-if="isExercise">Not Started</span>
       <span v-if="isVideo">Not Watched</span>
       <span v-if="isAudio">Not Listened</span>
@@ -12,17 +12,17 @@
   </span>
 
   <!--IN PROGRESS-->
-  <span v-if="isInProgress">
+  <span v-if="isInProgress" class="wrapper">
     <svg src="./progress-icons/inprogress.svg"></svg>
-    <span v-if="showtext">
+    <span v-if="showtext" class="text">
       <span>In Progress</span>
     </span>
   </span>
 
   <!--COMPLETE-->
-  <span v-if="isComplete">
+  <span v-if="isComplete" class="wrapper">
     <svg src="./progress-icons/complete.svg"></svg>
-    <span v-if="showtext">
+    <span v-if="showtext" class="text">
       <span v-if="isExercise">Mastered</span>
       <span v-if="isVideo">Watched</span>
       <span v-if="isAudio">Listened</span>
@@ -102,5 +102,17 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.coreTheme'
+
+  .wrapper
+    position: relative
+
+    svg
+      position: absolute
+      top: 50%
+      bottom: 50%
+      transform: translate(-50%, -50%)
+
+    .text
+      margin-left: 10px
 
 </style>
