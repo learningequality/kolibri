@@ -29,11 +29,11 @@
       <p>Last Active: {{ lastActiveText }}</p>
       <div v-if="singleuser">
         <!--TODO: Should just be one of the 3 progress states.-->
-        <progress-bar :progress="exerciseprogress"></progress-bar>
+        [Insert progress icon]
       </div>
       <div v-else>
+        [Insert progress icon]
         {{ userscompleted }} out of {{ numusers }} Mastered
-        <progress-bar :progress="exerciseprogress"></progress-bar>
       </div>
     </div>
 
@@ -42,11 +42,11 @@
       <p>Last Active: {{ lastActiveText }}</p>
       <div v-if="singleuser">
         <!--TODO: Should just be one of the 3 progress states.-->
-        <progress-bar :progress="contentprogress"></progress-bar>
+        [Insert progress icon]
       </div>
       <div v-else>
+        [Insert progress icon]
         {{ userscompleted }} out of {{ numusers }} Finished Watching/Listening
-        <progress-bar :progress="contentprogress"></progress-bar>
       </div>
     </div>
 
@@ -55,11 +55,11 @@
       <p>Last Active: {{ lastActiveText }}</p>
       <div v-if="singleuser">
         <!--TODO: Should just be one of the 2 progress states, viewed or not.-->
-        <progress-bar :progress="contentprogress"></progress-bar>
+        [Insert progress icon]
       </div>
       <div v-else>
+        [Insert progress icon]
         {{ userscompleted }} out of {{ numusers }} Viewed
-        <progress-bar :progress="contentprogress"></progress-bar>
       </div>
     </div>
   </div>
