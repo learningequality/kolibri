@@ -1,4 +1,3 @@
-
 const Constants = require('./constants');
 const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
 const logging = require('kolibri.lib.logging');
@@ -50,8 +49,20 @@ function genCompareFunc(sortColumn, sortOrder) {
 }
 
 const getters = {
+  usersCompleted(state) {
+    return state.pageState.content_scope_summary.progress[0].log_count_complete;
+  },
+  numUsers(state) {
+    return state.pageState.content_scope_summary.num_users;
+  },
   exerciseCount(state) {
-    return countNodes(state.pageState.content_scope_summary.progress, onlyExercises);
+    const summary = state.pageState.content_scope_summary;
+    if (summary.kind === ContentNodeKinds.TOPIC) {
+      return countNodes(summary.progress, onlyExercises);
+    } else if (summary.kind === ContentNodeKinds.EXERCISE) {
+      return 1;
+    }
+    return 0;
   },
   exerciseProgress(state) {
     return calcProgress(
@@ -61,7 +72,13 @@ const getters = {
     );
   },
   contentCount(state) {
-    return countNodes(state.pageState.content_scope_summary.progress, onlyContent);
+    const summary = state.pageState.content_scope_summary;
+    if (summary.kind === ContentNodeKinds.TOPIC) {
+      return countNodes(summary.progress, onlyContent);
+    } else if (summary.kind !== ContentNodeKinds.EXERCISE) {
+      return 1;
+    }
+    return 0;
   },
   contentProgress(state) {
     return calcProgress(
