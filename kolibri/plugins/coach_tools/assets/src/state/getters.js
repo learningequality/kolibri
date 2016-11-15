@@ -75,7 +75,7 @@ const getters = {
     const summary = state.pageState.content_scope_summary;
     if (summary.kind === ContentNodeKinds.TOPIC) {
       return countNodes(summary.progress, onlyContent);
-    } else if (summary.kind === ContentNodeKinds.CONTENT) {
+    } else if (summary.kind !== ContentNodeKinds.EXERCISE) {
       return 1;
     }
     return 0;
