@@ -122,7 +122,7 @@
       },
       userscompleted: {
         type: Number,
-        required: true,
+        required: false,
       },
     },
   };
