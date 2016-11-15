@@ -4,10 +4,10 @@
   <div v-if="isNotStarted">
     <svg src="./progress-icons/notstarted.svg" class="progress-icon"></svg>
     <span v-if="showtext">
-      <span v-if="is(Constants.ContentNodeKinds.EXERCISE)">Not Started</span>
-      <span v-if="is(Constants.ContentNodeKinds.VIDEO)">Not Watched</span>
-      <span v-if="is(Constants.ContentNodeKinds.AUDIO)">Not Listened</span>
-      <span v-if="is(Constants.ContentNodeKinds.DOCUMENT)">Not Viewed</span>
+      <span v-if="isExercise">Not Started</span>
+      <span v-if="isVideo">Not Watched</span>
+      <span v-if="isAudio">Not Listened</span>
+      <span v-if="isDocument">Not Viewed</span>
     </span>
   </div>
 
@@ -23,14 +23,14 @@
   <div v-if="isComplete">
     <svg src="./progress-icons/complete.svg" class="progress-icon"></svg>
     <span v-if="showtext">
-      <span v-if="is(Constants.ContentNodeKinds.EXERCISE)">Mastered</span>
-      <span v-if="is(Constants.ContentNodeKinds.VIDEO)">Watched</span>
-      <span v-if="is(Constants.ContentNodeKinds.AUDIO)">Listened</span>
-      <span v-if="is(Constants.ContentNodeKinds.DOCUMENT)">Viewed</span>
+      <span v-if="isExercise">Mastered</span>
+      <span v-if="isVideo">Watched</span>
+      <span v-if="isAudio">Listened</span>
+      <span v-if="isDocument">Viewed</span>
     </span>
   </div>
 
-  <!--TODO: ADD VIEWED AND NOT VIEWED-->
+  <!--TODO: ADD VIEWED AND NOT VIEWED ICONS?-->
 
 </template>
 
@@ -76,6 +76,18 @@
       isComplete() {
         return this.progress === 1;
       },
+      isExercise() {
+        return this.is(Constants.ContentNodeKinds.EXERCISE);
+      },
+      isVideo() {
+        return this.is(Constants.ContentNodeKinds.VIDEO);
+      },
+      isAudio() {
+        return this.is(Constants.ContentNodeKinds.AUDIO);
+      },
+      isDocument() {
+        return this.is(Constants.ContentNodeKinds.DOCUMENT);
+      },
     },
     methods: {
       is(kind) {
@@ -90,15 +102,5 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.coreTheme'
-
-  .content-icon
-    width: 100%
-    height: 100%
-
-  .color-action
-    fill: $core-action-normal
-
-  .color-text-default
-    fill: $core-text-default
 
 </style>
