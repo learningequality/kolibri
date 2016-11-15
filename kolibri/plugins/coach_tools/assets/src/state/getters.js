@@ -98,16 +98,22 @@ const getters = {
         row.title = item.title;
         row.parent = { id: item.parent.pk, title: item.parent.title };
 
-        // for content items, set exercise counts appropriately
+        // for content items, set exercise counts and progress appropriately
         if (item.kind === ContentNodeKinds.TOPIC) {
           row.exerciseCount = countNodes(item.progress, onlyExercises);
+          row.exerciseProgress = calcProgress(item.progress, onlyExercises, row.exerciseCount);
           row.contentCount = countNodes(item.progress, onlyContent);
+          row.contentProgress = calcProgress(item.progress, onlyContent, row.contentCount);
         } else if (onlyExercises(item)) {
           row.exerciseCount = 1;
+          row.exerciseProgress = item.progress[0].total_progress;
           row.contentCount = 0;
+          row.contentProgress = undefined;
         } else if (onlyContent(item)) {
           row.exerciseCount = 0;
+          row.exerciseProgress = undefined;
           row.contentCount = 1;
+          row.contentProgress = item.progress[0].total_progress;
         } else {
           logging.error(`Unhandled item kind: ${item.kind}`);
         }
@@ -127,8 +133,6 @@ const getters = {
         logging.error('Unknown view-by state', state.pageState.view_by_content_or_learners);
       }
 
-      row.exerciseProgress = calcProgress(item.progress, onlyExercises, row.exerciseCount);
-      row.contentProgress = calcProgress(item.progress, onlyContent, row.contentCount);
       row.lastActive = item.last_active ? new Date(item.last_active) : null;
 
       return row;
