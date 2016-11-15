@@ -1,4 +1,3 @@
-
 const Constants = require('./constants');
 const logging = require('kolibri.lib.logging');
 
@@ -60,6 +59,11 @@ const getters = {
     );
   },
   contentCount(state) {
+    if (state.pageState.content_scope === Constants.ContentScopes.CONTENT
+      && onlyContent(state.pageState.content_scope_summary.kind)
+    ) {
+      return 1;
+    }
     return countNodes(state.pageState.content_scope_summary.progress, onlyContent);
   },
   contentProgress(state) {
