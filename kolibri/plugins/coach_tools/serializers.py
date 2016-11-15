@@ -101,7 +101,9 @@ class ContentReportSerializer(serializers.ModelSerializer):
                     .filter(user__in=get_members_or_user(kwargs['collection_kind'], kwargs['collection_id'])) \
                     .latest('end_timestamp').end_timestamp
             else:
-                return ContentSummaryLog.objects.get(content_id=target_node.content_id).end_timestamp
+                return ContentSummaryLog.objects \
+                    .filter(content_id=target_node.content_id) \
+                    .latest('end_timestamp').end_timestamp
         except ContentSummaryLog.DoesNotExist:
             return None
 
