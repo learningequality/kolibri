@@ -56,13 +56,13 @@ const getters = {
     return state.pageState.content_scope_summary.num_users;
   },
   exerciseCount(state) {
-    if (state.pageState.content_scope_summary.kind !== ContentNodeKinds.EXERCISE) {
-      return 0;
-    }
-    if (state.pageState.content_scope === Constants.ContentScopes.CONTENT) {
+    const summary = state.pageState.content_scope_summary;
+    if (summary.kind === ContentNodeKinds.TOPIC) {
+      return countNodes(summary.progress, onlyExercises);
+    } else if (summary.kind === ContentNodeKinds.EXERCISE) {
       return 1;
     }
-    return countNodes(state.pageState.content_scope_summary.progress, onlyExercises);
+    return 0;
   },
   exerciseProgress(state) {
     return calcProgress(
@@ -72,14 +72,13 @@ const getters = {
     );
   },
   contentCount(state) {
-    if (state.pageState.content_scope_summary.kind === ContentNodeKinds.EXERCISE) {
-      return 0;
-    }
-    if (state.pageState.content_scope === Constants.ContentScopes.CONTENT
-      && onlyContent(state.pageState.content_scope_summary.kind)) {
+    const summary = state.pageState.content_scope_summary;
+    if (summary.kind === ContentNodeKinds.TOPIC) {
+      return countNodes(summary.progress, onlyContent);
+    } else if (summary.kind === ContentNodeKinds.CONTENT) {
       return 1;
     }
-    return countNodes(state.pageState.content_scope_summary.progress, onlyContent);
+    return 0;
   },
   contentProgress(state) {
     return calcProgress(
