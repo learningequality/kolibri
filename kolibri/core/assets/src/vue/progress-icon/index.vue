@@ -2,7 +2,7 @@
 
   <!--NOT STARTED-->
   <div v-if="isNotStarted">
-    <svg src="./progress-icons/notstarted.svg" class="progress-icon"></svg>
+    <svg src="./progress-icons/notstarted.svg"></svg>
     <span v-if="showtext">
       <span v-if="isExercise">Not Started</span>
       <span v-if="isVideo">Not Watched</span>
@@ -13,7 +13,7 @@
 
   <!--IN PROGRESS-->
   <div v-if="isInProgress">
-    <svg src="./progress-icons/inprogress.svg" class="progress-icon"></svg>
+    <svg src="./progress-icons/inprogress.svg"></svg>
     <span v-if="showtext">
       <span>In Progress</span>
     </span>
@@ -21,7 +21,7 @@
 
   <!--COMPLETE-->
   <div v-if="isComplete">
-    <svg src="./progress-icons/complete.svg" class="progress-icon"></svg>
+    <svg src="./progress-icons/complete.svg"></svg>
     <span v-if="showtext">
       <span v-if="isExercise">Mastered</span>
       <span v-if="isVideo">Watched</span>
