@@ -13,6 +13,7 @@
 
   const genLink = require('../genLink');
   const Constants = require('../../../state/constants');
+  const CoreConstants = require('kolibri.coreVue.vuex.constants');
 
   module.exports = {
     $trNameSpace: 'item-name',
@@ -33,10 +34,10 @@
     },
     computed: {
       isTopic() {
-        return this.kind === 'topic';
+        return this.kind === CoreConstants.ContentNodeKinds.TOPIC;
       },
       isUser() {
-        return this.kind === 'user';
+        return this.kind === CoreConstants.USER;
       },
       isContent() {
         return !this.isTopic && !this.isUser;

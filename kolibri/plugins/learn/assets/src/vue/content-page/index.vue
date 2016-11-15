@@ -40,7 +40,7 @@
 
   const constants = require('../../state/constants');
   const getters = require('../../state/getters');
-  const ContentKinds = require('kolibri.coreVue.vuex.constants').ContentKinds;
+  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
@@ -53,13 +53,13 @@
       canDownload() {
         if (this.content) {
           // computed property sometimes runs before the store is ready.
-          return this.content.kind !== ContentKinds.EXERCISE;
+          return this.content.kind !== ContentNodeKinds.EXERCISE;
         }
         return false;
       },
       showNextBtn() {
         if (this.content) {
-          return this.content.kind === ContentKinds.EXERCISE;
+          return this.content.kind === ContentNodeKinds.EXERCISE;
         }
         return false;
       },
@@ -73,7 +73,7 @@
         return this.sessionProgress;
       },
       nextContentLink() {
-        if (this.content.next_content.kind !== 'topic') {
+        if (this.content.next_content.kind !== ContentNodeKinds.TOPIC) {
           return {
             name: this.pagename,
             params: { id: this.content.next_content.id },

@@ -6,12 +6,16 @@ const UserKinds = {
   ANONYMOUS: 'ANONYMOUS',
 };
 
-const ContentKinds = {
+const ContentNodeKinds = {
   AUDIO: 'audio',
   DOCUMENT: 'document',
   VIDEO: 'video',
   EXERCISE: 'exercise',
+  TOPIC: 'topic',
 };
+
+// used internally on the client as a hack to allow content-icons to display users
+const USER = 'user';
 
 const MasteryLoggingMap = {
   id: 'id',
@@ -50,8 +54,9 @@ const InteractionTypes = {
 
 module.exports = {
   UserKinds,
-  ContentKinds,
+  ContentNodeKinds,
   MasteryLoggingMap,
   AttemptLoggingMap,
   InteractionTypes,
+  USER,
 };

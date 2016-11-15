@@ -3,7 +3,7 @@
   <div class="summary-section">
 
     <!--TOPICS-->
-    <div v-if="kind === 'topic'">
+    <div v-if="kind === Kinds.TOPIC">
       <p>{{ exercisecount }} Exercises - {{ contentcount }} Content Items</p>
       <p>Last Active: {{ lastActiveText }}</p>
       <div>
@@ -25,7 +25,7 @@
     </div>
 
     <!--EXERCISE-->
-    <div v-if="kind === 'exercise'">
+    <div v-if="kind === Kinds.EXERCISE">
       <p>{{ questions_count }} Questions - Mastery Model: {{ mastery_model }}</p>
       <p>Last Active: {{ last_active }}</p>
       <div v-if="singleuser">
@@ -38,8 +38,8 @@
       </div>
     </div>
 
-    <!--VIDEO/AUDIO-->
-    <div v-if="kind === 'video' ">
+    <!--VIDEO-->
+    <div v-if="kind === Kinds.VIDEO ">
       <p>{{ duration }}</p>
       <p>Last Active: {{ last_active }}</p>
       <div v-if="singleuser">
@@ -51,8 +51,8 @@
       </div>
     </div>
 
-    <!--DOCUMENT-->
-    <div v-if="kind === ('document' || 'audio')">
+    <!--DOCUMENT/AUDIO-->
+    <div v-if="kind === (Kinds.DOCUMENT || Kinds.AUDIO)">
       <p>{{ pages }} Pages</p>
       <p>Last Active: {{ last_active }}</p>
       <div v-if="singleuser">
@@ -72,6 +72,8 @@
 
 <script>
 
+  const CoreConstants = require('kolibri.coreVue.vuex.constants');
+
   module.exports = {
     $trNameSpace: 'report-summary',
     $trs: {
@@ -84,6 +86,9 @@
           return this.$tr('lastActiveText', new Date(this.lastactive));
         }
         return '–';
+      },
+      Kinds() {
+        return CoreConstants.ContentNodeKinds;
       },
     },
     props: {

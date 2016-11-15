@@ -8,6 +8,7 @@ const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 const coreGetters = require('kolibri.coreVue.vuex.getters');
 const coreApp = require('kolibri');
+const CoreConstants = require('kolibri.coreVue.vuex.constants');
 
 
 /**
@@ -66,10 +67,10 @@ function _contentState(data) {
 
 function _collectionState(data) {
   const topics = data
-    .filter((item) => item.kind === 'topic')
+    .filter((item) => item.kind === CoreConstants.ContentNodeKinds.TOPIC)
     .map((item) => _topicState(item));
   const contents = data
-    .filter((item) => item.kind !== 'topic')
+    .filter((item) => item.kind !== CoreConstants.ContentNodeKinds.TOPIC)
     .map((item) => _contentState(item));
   return { topics, contents };
 }

@@ -11,6 +11,8 @@
 
 <script>
 
+  const CoreConstants = require('kolibri.coreVue.vuex.constants');
+  const values = require('lodash.values');
   const constants = require('../../state/constants');
   const PageNames = constants.PageNames;
   const PageModes = constants.PageModes;
@@ -36,13 +38,7 @@
         type: String,
         required: true,
         validator(value) {
-          return [
-            'audio',
-            'video',
-            'document',
-            'exercise',
-            'topic',
-          ].some(elem => elem === value);
+          return values(CoreConstants.ContentNodeKinds).includes(value);
         },
       },
       progress: {
