@@ -49,8 +49,10 @@ function genCompareFunc(sortColumn, sortOrder) {
 
 const getters = {
   exerciseCount(state) {
-    if (state.pageState.content_scope === Constants.ContentScopes.CONTENT
-      && state.pageState.content_scope_summary.kind === 'exercise') {
+    if (state.pageState.content_scope_summary.kind !== 'exercise') {
+      return 0;
+    }
+    if (state.pageState.content_scope === Constants.ContentScopes.CONTENT) {
       return 1;
     }
     return countNodes(state.pageState.content_scope_summary.progress, onlyExercises);
@@ -63,9 +65,11 @@ const getters = {
     );
   },
   contentCount(state) {
+    if (state.pageState.content_scope_summary.kind === 'exercise') {
+      return 0;
+    }
     if (state.pageState.content_scope === Constants.ContentScopes.CONTENT
-      && onlyContent(state.pageState.content_scope_summary.kind)
-    ) {
+      && onlyContent(state.pageState.content_scope_summary.kind)) {
       return 1;
     }
     return countNodes(state.pageState.content_scope_summary.progress, onlyContent);

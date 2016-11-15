@@ -33,7 +33,12 @@
         <progress-bar :progress="exerciseprogress"></progress-bar>
       </div>
       <div v-else>
-        <p>Mastered: exerciseprogress {{ exerciseprogress }} / exerciseCount {{ exerciseCount }} Learners</p>
+        <p>
+          contentcount {{ contentcount }} |
+          contentprogress {{ contentprogress }} |
+          exerciseprogress {{ exerciseprogress }} |
+          exercisecount {{ exercisecount }}
+        </p>
       </div>
     </div>
 
@@ -45,6 +50,10 @@
         <progress-bar :progress="contentprogress"></progress-bar>
       </div>
       <div v-else>
+        contentcount {{ contentcount }} |
+        contentprogress {{ contentprogress }} |
+        exerciseprogress {{ exerciseprogress }} |
+        exercisecount {{ exercisecount }}
         <progress-bar :progress="contentprogress"></progress-bar>
       </div>
     </div>
