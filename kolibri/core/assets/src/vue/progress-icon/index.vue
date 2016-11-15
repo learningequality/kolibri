@@ -1,7 +1,7 @@
 <template>
 
   <!--NOT STARTED-->
-  <div v-if="isNotStarted">
+  <span v-if="isNotStarted">
     <svg src="./progress-icons/notstarted.svg"></svg>
     <span v-if="showtext">
       <span v-if="isExercise">Not Started</span>
@@ -9,18 +9,18 @@
       <span v-if="isAudio">Not Listened</span>
       <span v-if="isDocument">Not Viewed</span>
     </span>
-  </div>
+  </span>
 
   <!--IN PROGRESS-->
-  <div v-if="isInProgress">
+  <span v-if="isInProgress">
     <svg src="./progress-icons/inprogress.svg"></svg>
     <span v-if="showtext">
       <span>In Progress</span>
     </span>
-  </div>
+  </span>
 
   <!--COMPLETE-->
-  <div v-if="isComplete">
+  <span v-if="isComplete">
     <svg src="./progress-icons/complete.svg"></svg>
     <span v-if="showtext">
       <span v-if="isExercise">Mastered</span>
@@ -28,7 +28,7 @@
       <span v-if="isAudio">Listened</span>
       <span v-if="isDocument">Viewed</span>
     </span>
-  </div>
+  </span>
 
   <!--TODO: ADD VIEWED AND NOT VIEWED ICONS?-->
 
