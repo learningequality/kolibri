@@ -1,4 +1,5 @@
 const Constants = require('./constants');
+const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
 const logging = require('kolibri.lib.logging');
 
 /* given an array of objects sum the keys on those that pass the filter */
@@ -21,11 +22,11 @@ function calcProgress(progressArray, filter, count) {
 }
 
 function onlyExercises(item) {
-  return item.kind === 'exercise';
+  return item.kind === ContentNodeKinds.EXERCISE;
 }
 
 function onlyContent(item) {
-  return item.kind !== 'exercise';
+  return item.kind !== ContentNodeKinds.EXERCISE;
 }
 
 function genCompareFunc(sortColumn, sortOrder) {

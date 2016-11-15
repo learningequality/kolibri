@@ -15,12 +15,13 @@ const FacilityUserResource = require('kolibri').resources.FacilityUserResource;
 const Constants = require('./state/constants');
 
 const logging = require('kolibri.lib.logging');
+const values = require('lodash.values');
 
 
 /* find the keys that differ between the old and new params */
 function _diffKeys(newParams, oldParams) {
   if (!oldParams) {
-    return Object.entries(newParams).map(([key, value]) => key);
+    return Object.keys(newParams);
   }
   const diffKeys = [];
   Object.entries(newParams).forEach(([key, value]) => {
@@ -93,12 +94,12 @@ function showReport(store, params, oldParams) {
 
 
   /* check if params are semi-valid. */
-  if (!(Constants.enumerate(Constants.ContentScopes).includes(contentScope)
-    && Constants.enumerate(Constants.UserScopes).includes(userScope)
-    && Constants.enumerate(Constants.AllOrRecent).includes(allOrRecent)
-    && Constants.enumerate(Constants.ViewBy).includes(viewByContentOrLearners)
-    && Constants.enumerate(Constants.TableColumns).includes(sortColumn)
-    && Constants.enumerate(Constants.SortOrders).includes(sortOrder))) {
+  if (!(values(Constants.ContentScopes).includes(contentScope)
+    && values(Constants.UserScopes).includes(userScope)
+    && values(Constants.AllOrRecent).includes(allOrRecent)
+    && values(Constants.ViewBy).includes(viewByContentOrLearners)
+    && values(Constants.TableColumns).includes(sortColumn)
+    && values(Constants.SortOrders).includes(sortOrder))) {
     /* if invalid params, just throw an error. */
     coreActions.handleError(store, 'Invalid report parameters.');
     return;

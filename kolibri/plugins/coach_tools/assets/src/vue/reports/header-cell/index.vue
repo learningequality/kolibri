@@ -20,6 +20,7 @@
 
   const Constants = require('../../../state/constants');
   const genLink = require('../genLink');
+  const values = require('lodash.values');
 
   module.exports = {
     $trNameSpace: 'header-cell',
@@ -36,7 +37,7 @@
         type: String,
         required: true,
         validator(value) {
-          return Constants.enumerate(Constants.TableColumns).includes(value);
+          return values(Constants.TableColumns).includes(value);
         },
       },
     },

@@ -3,7 +3,7 @@
   <div class="summary-section">
 
     <!--TOPICS-->
-    <div v-if="kind === 'topic'">
+    <div v-if="kind === Kinds.TOPIC">
       <p>{{ exercisecount }} Exercises - {{ contentcount }} Content Items</p>
       <p>Last Active: {{ lastActiveText }}</p>
       <div>
@@ -25,15 +25,14 @@
     </div>
 
     <!--EXERCISE-->
-    <div v-if="kind === 'exercise'">
-      <!--<p>{{ questions_count }} Questions - Mastery Model: {{ mastery_model }}</p>-->
+    <div v-if="kind === Kinds.EXERCISE">
       <p>Last Active: {{ lastActiveText }}</p>
       <div v-if="singleuser">
         <!--TODO: Should just be one of the 3 progress states.-->
         <progress-bar :progress="exerciseprogress"></progress-bar>
       </div>
       <div v-else>
-        <p>
+        <p> huh
           contentcount {{ contentcount }} |
           contentprogress {{ contentprogress }} |
           exerciseprogress {{ exerciseprogress }} |
@@ -43,13 +42,14 @@
     </div>
 
     <!--VIDEO/AUDIO-->
-    <div v-if="kind === 'video' ">
+    <div v-if="kind === (Kinds.VIDEO || Kinds.AUDIO)">
       <p>Last Active: {{ lastActiveText }}</p>
       <div v-if="singleuser">
         <!--TODO: Should just be one of the 3 progress states.-->
         <progress-bar :progress="contentprogress"></progress-bar>
       </div>
       <div v-else>
+        wut
         contentcount {{ contentcount }} |
         contentprogress {{ contentprogress }} |
         exerciseprogress {{ exerciseprogress }} |
@@ -59,7 +59,7 @@
     </div>
 
     <!--DOCUMENT-->
-    <div v-if="kind === ('document' || 'audio')">
+    <div v-if="kind === Kinds.DOCUMENT">
       <p>Last Active: {{ lastActiveText }}</p>
       <div v-if="singleuser">
         <!--TODO: Should just be one of the 2 progress states, viewed or not.-->
@@ -76,6 +76,8 @@
 
 <script>
 
+  const CoreConstants = require('kolibri.coreVue.vuex.constants');
+
   module.exports = {
     $trNameSpace: 'report-summary',
     $trs: {
@@ -88,6 +90,9 @@
           return this.$tr('lastActiveText', new Date(this.lastactive));
         }
         return '–';
+      },
+      Kinds() {
+        return CoreConstants.ContentNodeKinds;
       },
     },
     props: {
