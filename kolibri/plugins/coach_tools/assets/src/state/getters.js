@@ -88,31 +88,30 @@ const getters = {
     );
   },
   dataTable(state) {
-    let data = [];
+    const data = state.pageState.table_data.map(item => {
+      const row = {};
 
-    // CONTENT or LEARNERS
-    if (state.pageState.view_by_content_or_learners === Constants.ViewBy.CONTENT) {
-      data = state.pageState.table_data.map(item => ({
-        kind: item.kind,
-        id: item.pk,
-        lastActive: item.last_active ? new Date(item.last_active) : null,
-        title: item.title,
-        parent: { id: item.parent.pk, title: item.parent.title },
-        exerciseProgress: calcProgress(item.progress, onlyExercises, getters.exerciseCount(state)),
-        contentProgress: calcProgress(item.progress, onlyContent, getters.contentCount(state)),
-      }));
-    } else if (state.pageState.view_by_content_or_learners === Constants.ViewBy.LEARNERS) {
-      data = state.pageState.table_data.map(item => ({
-        kind: 'user',
-        id: item.pk.toString(), // see https://github.com/learningequality/kolibri/issues/657
-        lastActive: item.last_active ? new Date(item.last_active) : null,
-        title: item.full_name,
-        exerciseProgress: calcProgress(item.details, onlyExercises, getters.exerciseCount(state)),
-        contentProgress: calcProgress(item.details, onlyContent, getters.contentCount(state)),
-      }));
-    } else {
-      logging.error('Unknown view-by state', state.pageState.view_by_content_or_learners);
-    }
+      // CONTENT or LEARNERS
+      if (state.pageState.view_by_content_or_learners === Constants.ViewBy.CONTENT) {
+        row.kind = item.kind;
+        row.id = item.pk;
+        row.title = item.title;
+        row.parent = { id: item.parent.pk, title: item.parent.title };
+      } else if (state.pageState.view_by_content_or_learners === Constants.ViewBy.LEARNERS) {
+        row.kind = 'user';
+        row.id = item.pk.toString(); // see https://github.com/learningequality/kolibri/issues/65;
+        row.title = item.full_name;
+      } else {
+        logging.error('Unknown view-by state', state.pageState.view_by_content_or_learners);
+      }
+      row.lastActive = item.last_active ? new Date(item.last_active) : null;
+      row.exerciseProgress
+        = calcProgress(item.progress, onlyExercises, getters.exerciseCount(state));
+      row.contentProgress
+        = calcProgress(item.progress, onlyContent, getters.contentCount(state));
+
+      return row;
+    });
 
     // SORTING
     if (state.pageState.sort_order !== Constants.SortOrders.NONE) {
