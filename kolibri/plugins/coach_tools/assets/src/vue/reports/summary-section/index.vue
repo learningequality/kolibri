@@ -32,12 +32,8 @@
         <progress-bar :progress="exerciseprogress"></progress-bar>
       </div>
       <div v-else>
-        <p> huh
-          contentcount {{ contentcount }} |
-          contentprogress {{ contentprogress }} |
-          exerciseprogress {{ exerciseprogress }} |
-          exercisecount {{ exercisecount }}
-        </p>
+        {{ userscompleted }} out of {{ numusers }} Mastered
+        <progress-bar :progress="exerciseprogress"></progress-bar>
       </div>
     </div>
 
@@ -49,11 +45,7 @@
         <progress-bar :progress="contentprogress"></progress-bar>
       </div>
       <div v-else>
-        wut
-        contentcount {{ contentcount }} |
-        contentprogress {{ contentprogress }} |
-        exerciseprogress {{ exerciseprogress }} |
-        exercisecount {{ exercisecount }}
+        {{ userscompleted }} out of {{ numusers }} Finished Watching/Listening
         <progress-bar :progress="contentprogress"></progress-bar>
       </div>
     </div>
@@ -63,6 +55,7 @@
       <p>Last Active: {{ lastActiveText }}</p>
       <div v-if="singleuser">
         <!--TODO: Should just be one of the 2 progress states, viewed or not.-->
+        {{ userscompleted }} out of {{ numusers }} Viewed
         <progress-bar :progress="contentprogress"></progress-bar>
       </div>
       <div v-else>
@@ -121,6 +114,14 @@
       },
       singleuser: {
         type: Boolean,
+        required: true,
+      },
+      numusers: {
+        type: Number,
+        required: true,
+      },
+      userscompleted: {
+        type: Number,
         required: true,
       },
     },

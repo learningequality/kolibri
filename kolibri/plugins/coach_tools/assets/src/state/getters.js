@@ -49,6 +49,12 @@ function genCompareFunc(sortColumn, sortOrder) {
 }
 
 const getters = {
+  usersCompleted(state) {
+    return state.pageState.content_scope_summary.progress[0].log_count_complete;
+  },
+  numUsers(state) {
+    return state.pageState.content_scope_summary.num_users;
+  },
   exerciseCount(state) {
     if (state.pageState.content_scope_summary.kind !== ContentNodeKinds.EXERCISE) {
       return 0;
