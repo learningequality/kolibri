@@ -4,10 +4,10 @@
   <span v-if="isNotStarted" class="wrapper">
     <svg src="./progress-icons/notstarted.svg"></svg>
     <span v-if="showtext" class="text">
-      <span v-if="isExercise">Not Started</span>
-      <span v-if="isVideo">Not Watched</span>
-      <span v-if="isAudio">Not Listened</span>
-      <span v-if="isDocument">Not Viewed</span>
+      <span v-if="isExercise">{{ $tr('not') }} {{ $tr('started') }}</span>
+      <span v-if="isVideo">{{ $tr('not') }} {{ $tr('watched') }}</span>
+      <span v-if="isAudio">{{ $tr('not') }} {{ $tr('listened') }}</span>
+      <span v-if="isDocument">{{ $tr('not') }} {{ $tr('viewed') }}</span>
     </span>
   </span>
 
@@ -15,7 +15,7 @@
   <span v-if="isInProgress" class="wrapper">
     <svg src="./progress-icons/inprogress.svg"></svg>
     <span v-if="showtext" class="text">
-      <span>In Progress</span>
+      <span>{{ $tr('inProgress') }}</span>
     </span>
   </span>
 
@@ -23,10 +23,10 @@
   <span v-if="isComplete" class="wrapper">
     <svg src="./progress-icons/complete.svg"></svg>
     <span v-if="showtext" class="text">
-      <span v-if="isExercise">Mastered</span>
-      <span v-if="isVideo">Watched</span>
-      <span v-if="isAudio">Listened</span>
-      <span v-if="isDocument">Viewed</span>
+      <span v-if="isExercise">{{ $tr('mastered') }}</span>
+      <span v-if="isVideo">{{ $tr('Watched') }}</span>
+      <span v-if="isAudio">{{ $tr('listened') }}</span>
+      <span v-if="isDocument">{{ $tr('viewed') }}</span>
     </span>
   </span>
 
@@ -41,6 +41,16 @@
   const values = require('lodash.values');
 
   module.exports = {
+    $trNameSpace: 'progress-icon',
+    $trs: {
+      started: 'Started',
+      mastered: 'Mastered',
+      watched: 'Watched',
+      listened: 'Listened',
+      viewed: 'Viewed',
+      not: 'Not',
+      inProgress: 'In Progress',
+    },
     props: {
       progress: {
         type: Number,
