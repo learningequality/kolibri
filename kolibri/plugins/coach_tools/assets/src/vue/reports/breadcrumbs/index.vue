@@ -31,5 +31,6 @@
   .beadcrumbs
     padding: 0.5em
     line-height: 2em
+    font-size: smaller
 
 </style>

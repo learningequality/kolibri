@@ -1,5 +1,6 @@
 const router = require('kolibri.coreVue.router');
 const coreActions = require('kolibri.coreVue.vuex.actions');
+const coreApp = require('kolibri');
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 
@@ -16,19 +17,10 @@ const Constants = require('./state/constants');
 const logging = require('kolibri.lib.logging');
 
 
-/* returns an array of the values of an object */
-function _vals(obj) {
-  return Object.entries(obj).map(([key, value]) => value);
-}
-
-
-/* Only certain types of parameter updates require the 'loading' flag to be set */
-function _useReportPageLoadingFlag(newParams, oldParams) {
-  if (!newParams || !oldParams) {
-    return true;
-  }
-  if (Object.entries(newParams).length !== Object.entries(newParams).length) {
-    return true;
+/* find the keys that differ between the old and new params */
+function _diffKeys(newParams, oldParams) {
+  if (!oldParams) {
+    return Object.entries(newParams).map(([key, value]) => key);
   }
   const diffKeys = [];
   Object.entries(newParams).forEach(([key, value]) => {
@@ -36,15 +28,7 @@ function _useReportPageLoadingFlag(newParams, oldParams) {
       diffKeys.push(key);
     }
   });
-  if (diffKeys.length > 1) {
-    return true;
-  }
-  const noLoadingParams = [
-    'view_by_content_or_learners',
-    'sort_column',
-    'sort_order',
-  ];
-  return !noLoadingParams.includes(diffKeys[0]);
+  return diffKeys;
 }
 
 
@@ -82,8 +66,8 @@ function redirectToDefaultReport(store, params) {
           user_scope_id: userScopeId,
           all_or_recent: Constants.AllOrRecent.ALL,
           view_by_content_or_learners: Constants.ViewBy.CONTENT,
-          sort_column: Constants.SortCols.NAME,
-          sort_order: Constants.SortOrders.DESC,
+          sort_column: Constants.TableColumns.NAME,
+          sort_order: Constants.SortOrders.NONE,
         },
       });
     },
@@ -109,34 +93,33 @@ function showReport(store, params, oldParams) {
 
 
   /* check if params are semi-valid. */
-  if (!(_vals(Constants.ContentScopes).includes(contentScope)
-    && _vals(Constants.UserScopes).includes(userScope)
-    && _vals(Constants.AllOrRecent).includes(allOrRecent)
-    && _vals(Constants.ViewBy).includes(viewByContentOrLearners)
-    && _vals(Constants.SortCols).includes(sortColumn)
-    && _vals(Constants.SortOrders).includes(sortOrder))) {
+  if (!(Constants.enumerate(Constants.ContentScopes).includes(contentScope)
+    && Constants.enumerate(Constants.UserScopes).includes(userScope)
+    && Constants.enumerate(Constants.AllOrRecent).includes(allOrRecent)
+    && Constants.enumerate(Constants.ViewBy).includes(viewByContentOrLearners)
+    && Constants.enumerate(Constants.TableColumns).includes(sortColumn)
+    && Constants.enumerate(Constants.SortOrders).includes(sortOrder))) {
     /* if invalid params, just throw an error. */
     coreActions.handleError(store, 'Invalid report parameters.');
     return;
   }
 
+  const diffKeys = _diffKeys(params, oldParams);
+
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.REPORTS);
 
-  if (_useReportPageLoadingFlag(params, oldParams)) {
-    store.dispatch('CORE_SET_PAGE_LOADING', true);
+  // these don't require updates from the server
+  const localUpdateParams = ['sort_column', 'sort_order'];
+  if (diffKeys.every(key => localUpdateParams.includes(key))) {
+    store.dispatch('SET_SORT_COLUMN', sortColumn);
+    store.dispatch('SET_SORT_ORDER', sortOrder);
+    return;
   }
 
-  /* save all params to store. */
-  store.dispatch('SET_CHANNEL_ID', channelId);
-  store.dispatch('SET_CONTENT_SCOPE', contentScope);
-  store.dispatch('SET_CONTENT_SCOPE_ID', contentScopeId);
-  store.dispatch('SET_USER_SCOPE', userScope);
-  store.dispatch('SET_USER_SCOPE_ID', userScopeId);
-  store.dispatch('SET_ALL_OR_RECENT', allOrRecent);
-  store.dispatch('SET_VIEW_BY_CONTENT_OR_LEARNERS', viewByContentOrLearners);
-  store.dispatch('SET_SORT_COLUMN', sortColumn);
-  store.dispatch('SET_SORT_ORDER', sortOrder);
-
+  // don't set loading if ONLY 'view-by' changed, which just affects table (not summary)
+  if (diffKeys.length === 1 && diffKeys[0] !== 'view_by_content_or_learners') {
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+  }
 
   /* resource-layer work-around below */
   const resourcePromise = require('./resourcePromise');
@@ -170,8 +153,24 @@ function showReport(store, params, oldParams) {
     promises.push({});
   }
 
+  // CHANNELS
+  const channelPromise = coreActions.setChannelInfo(store, coreApp);
+  promises.push(channelPromise);
+
   // API response handlers
   Promise.all(promises).then(([report, contentSummary, userSummary]) => {
+    // save URL params to store
+    store.dispatch('SET_CHANNEL_ID', channelId);
+    store.dispatch('SET_CONTENT_SCOPE', contentScope);
+    store.dispatch('SET_CONTENT_SCOPE_ID', contentScopeId);
+    store.dispatch('SET_USER_SCOPE', userScope);
+    store.dispatch('SET_USER_SCOPE_ID', userScopeId);
+    store.dispatch('SET_ALL_OR_RECENT', allOrRecent);
+    store.dispatch('SET_VIEW_BY_CONTENT_OR_LEARNERS', viewByContentOrLearners);
+    store.dispatch('SET_SORT_COLUMN', sortColumn);
+    store.dispatch('SET_SORT_ORDER', sortOrder);
+
+    // save results of API request
     store.dispatch('SET_TABLE_DATA', report);
     store.dispatch('SET_CONTENT_SCOPE_SUMMARY', contentSummary);
     store.dispatch('SET_USER_SCOPE_SUMMARY', userSummary);
