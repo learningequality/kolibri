@@ -80,7 +80,7 @@
     computed: {
       lastActiveText() {
         if (this.lastactive) {
-          return this.$tr('lastActiveText', new Date(this.lastactive));
+          return this.$tr('lastActiveText', [new Date(this.lastactive)]);
         }
         return '–';
       },

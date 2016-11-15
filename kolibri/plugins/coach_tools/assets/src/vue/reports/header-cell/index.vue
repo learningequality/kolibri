@@ -3,7 +3,7 @@
   <th scope="col">
     <a v-if="sortable" v-link="vLink" class="header-text">
       <span>{{ text }}</span>
-      <span class="sort-wrapper" v-if="sortable" role="presentation">
+      <span class="icon-wrapper" v-if="sortable" role="presentation">
         <svg class="icon" :class="{ sorted: isDescending }" src="./down.svg"></svg>
         <svg class="icon" :class="{ sorted: isAscending }" src="./up.svg"></svg>
       </span>
@@ -100,7 +100,7 @@
     display: block
     color: $core-text-default
 
-  .sort-wrapper
+  .icon-wrapper
     display: inline-block
     position: relative
     height: $size
@@ -111,6 +111,7 @@
     width: $size
     position: absolute
     left: 0
+    top: 2px
     transition: opacity $core-time ease
     opacity: 0
 

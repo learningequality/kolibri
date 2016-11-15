@@ -14,6 +14,7 @@ const csrf = require('rest/interceptor/csrf');
 const errorCode = require('rest/interceptor/errorCode');
 const cookiejs = require('js-cookie');
 const constructorExport = require('./constructorExport');
+const logging = require('../logging');
 
 
 /**
@@ -87,7 +88,14 @@ module.exports = class CoreApp {
       const VueIntl = require('vue-intl');
       vue.use(VueIntl, { defaultLocale: 'en-us' });
 
-      vue.prototype.$tr = function $tr(messageId, ...args) {
+      function $trWrapper(formatter, messageId, args) {
+        if (args) {
+          if (!Array.isArray(args) && typeof args !== 'object') {
+            console.log('typeof args', typeof args);
+            logging.error(`The $tr functions take either an array of positional
+                            arguments or an object of named options.`);
+          }
+        }
         const defaultMessageText = this.$options.$trs[messageId];
         const message = {
           id: `${this.$options.$trNameSpace}.${messageId}`,
@@ -99,21 +107,14 @@ module.exports = class CoreApp {
             return defaultMessageText.split('').reverse().join('');
           }
         }
-        return this.$formatMessage(message, args);
+        return formatter(message, args);
+      }
+
+      vue.prototype.$tr = function $tr(messageId, args) {
+        return $trWrapper.call(this, this.$formatMessage, messageId, args);
       };
-      vue.prototype.$trHtml = function $trHtml(messageId, ...args) {
-        const defaultMessageText = this.$options.$trs[messageId];
-        const message = {
-          id: `${this.$options.$trNameSpace}.${messageId}`,
-          defaultMessage: defaultMessageText,
-        };
-        // Allow string reversal in debug mode.
-        if (process.env.NODE_ENV === 'debug') {
-          if (self.i18n.reversed) {
-            return defaultMessageText.split('').reverse().join('');
-          }
-        }
-        return this.$formatHTMLMessage(message, args);
+      vue.prototype.$trHtml = function $trHtml(messageId, args) {
+        return $trWrapper.call(this, this.$formatHTMLMessage, messageId, args);
       };
 
       if (global.languageCode) {

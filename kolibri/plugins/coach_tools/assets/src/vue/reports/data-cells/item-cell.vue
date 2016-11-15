@@ -1,9 +1,14 @@
 <template>
 
-  <div class="wrapper">
-    <content-icon :kind="kind" class="icon"></content-icon>
-    <a v-if="isTopic" v-link="topicLink">{{ title }}</a>
-    <span v-else>{{ title }}</span>
+  <div>
+    <div class="wrapper">
+      <content-icon :kind="kind" class="icon"></content-icon>
+      <a v-if="isTopic" v-link="topicLink">{{ title }}</a>
+      <span v-else>{{ title }}</span>
+    </div>
+    <div class="wrapper" v-if="isTopic">
+      {{ $tr('exercises', {count: exercisecount}) }} ● {{ $tr('contents', {count: contentcount}) }}
+    </div>
   </div>
 
 </template>
@@ -17,7 +22,10 @@
 
   module.exports = {
     $trNameSpace: 'item-name',
-    $trs: {},
+    $trs: {
+      exercises: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
+      contents: '{count, number, integer} {count, plural, one {Content Item} other {Content Items}}',
+    },
     props: {
       kind: {
         type: String,
@@ -30,6 +38,12 @@
       id: {
         type: String,
         required: true,
+      },
+      exercisecount: {
+        type: Number,
+      },
+      contentcount: {
+        type: Number,
       },
     },
     computed: {

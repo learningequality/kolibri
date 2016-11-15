@@ -10,7 +10,7 @@
          aria-valuemax="100">
       <div class="progress-bar-complete" :style="{ width: percent + '%',  backgroundColor: color}"></div>
     </div>
-    <div class="progress-bar-text">{{ $tr('pct', progress) }}</div>
+    <div class="progress-bar-text">{{ $tr('pct', [progress]) }}</div>
   </div>
 
 </template>
@@ -28,9 +28,6 @@
       progress: {
         type: Number,
         required: true,
-        validator(value) {
-          return (value >= 0) && (value <= 1);
-        },
       },
       color: {
         type: String,
@@ -39,7 +36,7 @@
     },
     computed: {
       percent() {
-        return this.progress * 100;
+        return Math.min(this.progress * 100, 100);
       },
     },
   };

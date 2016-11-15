@@ -1,5 +1,6 @@
 const Constants = require('./constants');
-const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
+const CoreConstants = require('kolibri.coreVue.vuex.constants');
+const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 const logging = require('kolibri.lib.logging');
 
 /* given an array of objects sum the keys on those that pass the filter */
@@ -42,6 +43,8 @@ function genCompareFunc(sortColumn, sortOrder) {
   // default order of names is A-Z; everything else goes high-low
   const flipNameCol = sortColumn !== Constants.TableColumns.NAME ? -1 : 1;
   return (a, b) => {
+    if (a[key] !== undefined && b[key] === undefined) { return 1 * flipOrder * flipNameCol; }
+    if (a[key] === undefined && b[key] !== undefined) { return -1 * flipOrder * flipNameCol; }
     if (a[key] > b[key]) { return 1 * flipOrder * flipNameCol; }
     if (a[key] < b[key]) { return -1 * flipOrder * flipNameCol; }
     return 0;
@@ -51,9 +54,6 @@ function genCompareFunc(sortColumn, sortOrder) {
 const getters = {
   usersCompleted(state) {
     return state.pageState.content_scope_summary.progress[0].log_count_complete;
-  },
-  numUsers(state) {
-    return state.pageState.content_scope_summary.num_users;
   },
   exerciseCount(state) {
     const summary = state.pageState.content_scope_summary;
@@ -91,29 +91,49 @@ const getters = {
     const data = state.pageState.table_data.map(item => {
       const row = {};
 
-      // CONTENT or LEARNERS
+      // CONTENT NODES
       if (state.pageState.view_by_content_or_learners === Constants.ViewBy.CONTENT) {
         row.kind = item.kind;
         row.id = item.pk;
         row.title = item.title;
         row.parent = { id: item.parent.pk, title: item.parent.title };
+
+        // for content items, set exercise counts appropriately
+        if (item.kind === ContentNodeKinds.TOPIC) {
+          row.exerciseCount = countNodes(item.progress, onlyExercises);
+          row.contentCount = countNodes(item.progress, onlyContent);
+        } else if (onlyExercises(item)) {
+          row.exerciseCount = 1;
+          row.contentCount = 0;
+        } else if (onlyContent(item)) {
+          row.exerciseCount = 0;
+          row.contentCount = 1;
+        } else {
+          logging.error(`Unhandled item kind: ${item.kind}`);
+        }
+      // LEARNERS
       } else if (state.pageState.view_by_content_or_learners === Constants.ViewBy.LEARNERS) {
-        row.kind = 'user';
+        row.kind = CoreConstants.USER;
         row.id = item.pk.toString(); // see https://github.com/learningequality/kolibri/issues/65;
         row.title = item.full_name;
+        row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
+
+        // for learners, the exerise counts are the global values
+        row.exerciseProgress
+          = calcProgress(item.progress, onlyExercises, getters.exerciseCount(state));
+        row.contentProgress
+          = calcProgress(item.progress, onlyContent, getters.contentCount(state));
       } else {
         logging.error('Unknown view-by state', state.pageState.view_by_content_or_learners);
       }
+
+      row.exerciseProgress = calcProgress(item.progress, onlyExercises, row.exerciseCount);
+      row.contentProgress = calcProgress(item.progress, onlyContent, row.contentCount);
       row.lastActive = item.last_active ? new Date(item.last_active) : null;
-      row.exerciseProgress
-        = calcProgress(item.progress, onlyExercises, getters.exerciseCount(state));
-      row.contentProgress
-        = calcProgress(item.progress, onlyContent, getters.contentCount(state));
 
       return row;
     });
 
-    // SORTING
     if (state.pageState.sort_order !== Constants.SortOrders.NONE) {
       data.sort(genCompareFunc(state.pageState.sort_column, state.pageState.sort_order));
     }

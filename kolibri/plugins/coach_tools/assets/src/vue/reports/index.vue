@@ -34,7 +34,7 @@
         :contentprogress="contentProgress"
         :lastactive="pageState.content_scope_summary.last_active"
         :singleuser="isSingleUser"
-        :numusers="numUsers"
+        :numusers="pageState.content_scope_summary.num_users"
         :userscompleted="usersCompleted"
       ></summary-section>
 
@@ -80,6 +80,8 @@
                 :title="node.title"
                 :id="node.id"
                 :parent="node.parent"
+                :exercisecount="node.exerciseCount"
+                :contentcount="node.contentCount"
               ></item-cell>
             </th>
             <td class="progress-col">
@@ -190,7 +192,6 @@
         contentCount: getters.contentCount,
         contentProgress: getters.contentProgress,
         dataTable: getters.dataTable,
-        numUsers: getters.numUsers,
         usersCompleted: getters.usersCompleted,
         currentChannel: coreGetters.getCurrentChannelObject,
       },
