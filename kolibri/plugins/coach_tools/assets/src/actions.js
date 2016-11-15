@@ -4,12 +4,6 @@ const coreApp = require('kolibri');
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 
-const ContentSummaryResource = require('kolibri').resources.ContentSummaryResource;
-const UserSummaryResource = require('kolibri').resources.UserSummaryResource;
-const ContentReportResource = require('kolibri').resources.ContentReportResource;
-const UserReportResource = require('kolibri').resources.UserReportResource;
-const RecentReportResource = require('kolibri').resources.RecentReportResource;
-
 const ChannelResource = require('kolibri').resources.ChannelResource;
 const FacilityUserResource = require('kolibri').resources.FacilityUserResource;
 const Constants = require('./state/constants');
@@ -190,88 +184,6 @@ function showReport(store, params, oldParams) {
   },
     error => { coreActions.handleError(store, error); }
   );
-
-  return;
-  /* resource-layer work-around above */
-
-  /* eslint-disable */
-
-  /* GET AND SET TABLE DATA */
-  /* check what kind of report is required */
-  let reportResourceType;
-  if (allOrRecent === Constants.AllOrRecent.RECENT) {
-    reportResourceType = RecentReportResource;
-  } else if (viewByContentOrLearners === Constants.ViewBy.CONTENT) {
-    reportResourceType = ContentReportResource;
-  } else {
-    reportResourceType = UserReportResource;
-  }
-
-  /* get the report */
-  const reportPromise = reportResourceType.getCollection({
-    channel_id: channelId,
-    content_node_id: contentScopeId,
-    collection_kind: userScope,
-    collection_id: userScopeId,
-  }).fetch();
-
-  /* set the table data in the store */
-  ConditionalPromise.all([reportPromise]).only(
-    coreActions.samePageCheckGenerator(store),
-    ([report]) => {
-      console.log(report);
-      store.dispatch('SET_TABLE_DATA', report);
-    },
-    error => {
-      coreActions.handleError(store, error);
-    }
-  );
-
-  /* GET AND SET SUMMARIES */
-  /* get the content summary */
-  const contentSummaryPromise = ContentSummaryResource.getCollection({
-    channel_id: channelId,
-    collection_kind: userScope,
-    collection_id: userScopeId,
-    topic_pk: contentScopeId,
-  }).fetch();
-
-  /* set the content summary in the store */
-  ConditionalPromise.all([contentSummaryPromise]).only(
-    coreActions.samePageCheckGenerator(store),
-    ([contentSummary]) => {
-      console.log(contentSummary);
-      store.dispatch('SET_CONTENT_SCOPE_SUMMARY', contentSummary);
-    },
-    error => {
-      coreActions.handleError(store, error);
-    }
-  );
-
-  /* check if a user summary is required */
-  if (userScope === Constants.UserScopes.USER) {
-    /* get the user summary */
-    const userSummaryPromise = UserSummaryResource.getCollection({
-      channel_id: channelId,
-      content_node_id: contentScopeId,
-      user_pk: userScopeId,
-    }).fetch();
-
-    /* set the user summary in the store */
-    ConditionalPromise.all([userSummaryPromise]).only(
-      coreActions.samePageCheckGenerator(store),
-      ([userSummary]) => {
-        console.log(userSummary);
-        store.dispatch('SET_USER_SCOPE_SUMMARY', userSummary);
-      },
-      error => {
-        coreActions.handleError(store, error);
-      }
-    );
-  }
-
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  /* eslint-enable */
 }
 
 module.exports = {
