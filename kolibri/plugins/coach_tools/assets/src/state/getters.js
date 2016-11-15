@@ -49,7 +49,8 @@ function genCompareFunc(sortColumn, sortOrder) {
 
 const getters = {
   exerciseCount(state) {
-    if (state.pageState.content_scope === Constants.ContentScopes.CONTENT) {
+    if (state.pageState.content_scope === Constants.ContentScopes.CONTENT
+      && state.pageState.content_scope_summary.kind === 'exercise') {
       return 1;
     }
     return countNodes(state.pageState.content_scope_summary.progress, onlyExercises);
