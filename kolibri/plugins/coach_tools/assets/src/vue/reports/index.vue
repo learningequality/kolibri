@@ -55,12 +55,12 @@
               class="name-col"
             ></th>
             <th is="header-cell"
-              text="Exercise Progress"
+              text="Avg. Exercise Progress"
               :column="Constants.TableColumns.EXERCISE"
               class="progress-col"
             ></th>
             <th is="header-cell"
-              text="Content Progress"
+              text="Avg. Content Progress"
               :column="Constants.TableColumns.CONTENT"
               class="progress-col"
             ></th>

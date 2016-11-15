@@ -6,6 +6,7 @@
     <div v-if="kind === Kinds.TOPIC">
       <p>{{ exercisecount }} Exercises - {{ contentcount }} Content Items</p>
       <p>Last Active: {{ lastActiveText }}</p>
+      <p>{{ numusers }} Users</p>
       <div>
         <p>Exercises</p>
         <progress-bar
