@@ -1,14 +1,36 @@
 <template>
 
-  <div>
-    <!--NOT STARTED-->
-    <svg v-if="isNotStarted" src="./progress-icons/notstarted.svg" class="progress-icon"></svg>
-    <!--IN PROGRESS-->
-    <svg v-if="isInProgress" src="./progress-icons/inprogress.svg" class="progress-icon"></svg>
-    <!--COMPLETE-->
-    <svg v-if="isComplete" src="./progress-icons/complete.svg" class="progress-icon"></svg>
-    <!--TODO: ADD VIEWED AND NOT VIEWED-->
+  <!--NOT STARTED-->
+  <div v-if="isNotStarted">
+    <svg src="./progress-icons/notstarted.svg" class="progress-icon"></svg>
+    <span v-if="showtext">
+      <span v-if="is(Constants.ContentNodeKinds.EXERCISE)">Not Started</span>
+      <span v-if="is(Constants.ContentNodeKinds.VIDEO)">Not Watched</span>
+      <span v-if="is(Constants.ContentNodeKinds.AUDIO)">Not Listened</span>
+      <span v-if="is(Constants.ContentNodeKinds.DOCUMENT)">Not Viewed</span>
+    </span>
   </div>
+
+  <!--IN PROGRESS-->
+  <div v-if="isInProgress">
+    <svg src="./progress-icons/inprogress.svg" class="progress-icon"></svg>
+    <span v-if="showtext">
+      <span>In Progress</span>
+    </span>
+  </div>
+
+  <!--COMPLETE-->
+  <div v-if="isComplete">
+    <svg src="./progress-icons/complete.svg" class="progress-icon"></svg>
+    <span v-if="showtext">
+      <span v-if="is(Constants.ContentNodeKinds.EXERCISE)">Mastered</span>
+      <span v-if="is(Constants.ContentNodeKinds.VIDEO)">Watched</span>
+      <span v-if="is(Constants.ContentNodeKinds.AUDIO)">Listened</span>
+      <span v-if="is(Constants.ContentNodeKinds.DOCUMENT)">Viewed</span>
+    </span>
+  </div>
+
+  <!--TODO: ADD VIEWED AND NOT VIEWED-->
 
 </template>
 
@@ -36,6 +58,10 @@
           return validValues.includes(value);
         },
       },
+      showtext: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       Constants() {
@@ -52,7 +78,6 @@
       },
     },
     methods: {
-
       is(kind) {
         return this.kind === kind;
       },
