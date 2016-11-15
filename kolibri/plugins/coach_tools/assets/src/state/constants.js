@@ -40,13 +40,6 @@ const SortOrders = {
   NONE: 'none',
 };
 
-
-/* returns an array of the values of an object */
-function enumerate(obj) {
-  return Object.entries(obj).map(([key, value]) => value);
-}
-
-
 module.exports = {
   PageNames,
   ContentScopes,
@@ -55,5 +48,4 @@ module.exports = {
   ViewBy,
   TableColumns,
   SortOrders,
-  enumerate,
 };
