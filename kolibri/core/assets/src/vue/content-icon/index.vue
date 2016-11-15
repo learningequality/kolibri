@@ -1,11 +1,36 @@
 <template>
 
   <div>
-    <svg v-if="kind=='topic'" :class="['content-icon', colorClass]" src="./content-icons/topic.svg"></svg>
-    <svg v-if="kind=='video'" :class="['content-icon', colorClass]" src="./content-icons/video.svg"></svg>
-    <svg v-if="kind=='audio'" :class="['content-icon', colorClass]" src="./content-icons/audio.svg"></svg>
-    <svg v-if="kind=='document'" :class="['content-icon', colorClass]" src="./content-icons/document.svg"></svg>
-    <svg v-if="kind=='exercise'" :class="['content-icon', colorClass]" src="./content-icons/exercise.svg"></svg>
+    <svg
+      v-if="is(Constants.ContentNodeKinds.TOPIC)"
+      src="./content-icons/topic.svg"
+      :class="['content-icon', colorClass]"
+    ></svg>
+    <svg
+      v-if="is(Constants.ContentNodeKinds.VIDEO)"
+      src="./content-icons/video.svg"
+      :class="['content-icon', colorClass]"
+    ></svg>
+    <svg
+      v-if="is(Constants.ContentNodeKinds.AUDIO)"
+      src="./content-icons/audio.svg"
+      :class="['content-icon', colorClass]"
+    ></svg>
+    <svg
+      v-if="is(Constants.ContentNodeKinds.DOCUMENT)"
+      src="./content-icons/document.svg"
+      :class="['content-icon', colorClass]"
+    ></svg>
+    <svg
+      v-if="is(Constants.ContentNodeKinds.EXERCISE)"
+      src="./content-icons/exercise.svg"
+      :class="['content-icon', colorClass]"
+    ></svg>
+    <svg
+      v-if="is(Constants.USER)"
+      src="./content-icons/user.svg"
+      :class="['content-icon', colorClass]"
+    ></svg>
   </div>
 
 </template>
@@ -13,28 +38,18 @@
 
 <script>
 
-  const ContentKinds = require('kolibri.coreVue.vuex.constants').ContentKinds;
+  const Constants = require('kolibri.coreVue.vuex.constants');
+  const values = require('lodash.values');
 
   module.exports = {
-    $trNameSpace: 'learn',
-    $trs: {
-      topic: 'topic',
-      video: 'video',
-      audio: 'audio',
-      document: 'document',
-      exercise: 'exercise',
-    },
     props: {
       kind: {
         type: String,
         required: true,
         validator(value) {
-          for (const contentKind in ContentKinds) {
-            if (value === ContentKinds[contentKind] || 'topic') {
-              return true;
-            }
-          }
-          return false;
+          const validValues = values(Constants.ContentNodeKinds);
+          validValues.push(Constants.USER);
+          return validValues.includes(value);
         },
       },
       colorstyle: {
@@ -43,8 +58,16 @@
       },
     },
     computed: {
+      Constants() {
+        return Constants;
+      },
       colorClass() {
         return `color-${this.colorStyle}`;
+      },
+    },
+    methods: {
+      is(kind) {
+        return this.kind === kind;
       },
     },
   };

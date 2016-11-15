@@ -3,21 +3,29 @@
   <div class="summary-section">
 
     <!--TOPICS-->
-    <div v-if="kind === 'topic'">
+    <div v-if="kind === Kinds.TOPIC">
       <p>{{ exercisecount }} Exercises - {{ contentcount }} Content Items</p>
       <p>Last Active: {{ lastActiveText }}</p>
       <div>
         <p>Exercises</p>
-        <progress-bar :progress="exerciseprogress"></progress-bar>
+        <progress-bar
+          v-if="exerciseprogress !== undefined"
+          :progress="exerciseprogress"
+        ></progress-bar>
+        <span v-else>{{ $tr('na') }}</span>
       </div>
       <div>
         <p>Content</p>
-        <progress-bar :progress="contentprogress"></progress-bar>
+        <progress-bar
+          v-if="contentprogress !== undefined"
+          :progress="contentprogress"
+        ></progress-bar>
+        <span v-else>{{ $tr('na') }}</span>
       </div>
     </div>
 
     <!--EXERCISE-->
-    <div v-if="kind === 'exercise'">
+    <div v-if="kind === Kinds.EXERCISE">
       <p>{{ questions_count }} Questions - Mastery Model: {{ mastery_model }}</p>
       <p>Last Active: {{ last_active }}</p>
       <div v-if="singleuser">
@@ -30,8 +38,8 @@
       </div>
     </div>
 
-    <!--VIDEO/AUDIO-->
-    <div v-if="kind === 'video' ">
+    <!--VIDEO-->
+    <div v-if="kind === Kinds.VIDEO ">
       <p>{{ duration }}</p>
       <p>Last Active: {{ last_active }}</p>
       <div v-if="singleuser">
@@ -43,8 +51,8 @@
       </div>
     </div>
 
-    <!--DOCUMENT-->
-    <div v-if="kind === ('document' || 'audio')">
+    <!--DOCUMENT/AUDIO-->
+    <div v-if="kind === (Kinds.DOCUMENT || Kinds.AUDIO)">
       <p>{{ pages }} Pages</p>
       <p>Last Active: {{ last_active }}</p>
       <div v-if="singleuser">
@@ -64,10 +72,13 @@
 
 <script>
 
+  const CoreConstants = require('kolibri.coreVue.vuex.constants');
+
   module.exports = {
     $trNameSpace: 'report-summary',
     $trs: {
       lastActiveText: '{0, date, medium}',
+      na: 'not applicable',
     },
     computed: {
       lastActiveText() {
@@ -75,6 +86,9 @@
           return this.$tr('lastActiveText', new Date(this.lastactive));
         }
         return '–';
+      },
+      Kinds() {
+        return CoreConstants.ContentNodeKinds;
       },
     },
     props: {
@@ -88,7 +102,7 @@
       },
       exerciseprogress: {
         type: Number,
-        required: true,
+        required: false,
       },
       contentcount: {
         type: Number,
@@ -96,7 +110,7 @@
       },
       contentprogress: {
         type: Number,
-        required: true,
+        required: false,
       },
       lastactive: {
         type: String,

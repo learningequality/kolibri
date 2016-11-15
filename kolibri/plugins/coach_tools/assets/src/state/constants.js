@@ -27,7 +27,7 @@ const ViewBy = {
   CONTENT: 'content_view',
 };
 
-const SortCols = {
+const TableColumns = {
   NAME: 'name',
   EXERCISE: 'exercise_progress',
   CONTENT: 'content_progress',
@@ -35,8 +35,9 @@ const SortCols = {
 };
 
 const SortOrders = {
-  ASC: 'asc',
-  DESC: 'desc',
+  ASCENDING: 'asc',
+  DESCENDING: 'desc',
+  NONE: 'none',
 };
 
 module.exports = {
@@ -45,6 +46,6 @@ module.exports = {
   UserScopes,
   AllOrRecent,
   ViewBy,
-  SortCols,
+  TableColumns,
   SortOrders,
 };

@@ -6,7 +6,7 @@
     </div>
     <div class="header">
       <div class="content-icon-wrapper">
-        <content-icon :kind="contentIconKind"></content-icon>
+        <content-icon :kind="contentKind"></content-icon>
       </div>
       <div class="title"><h1>{{ title }}</h1></div>
     </div>
@@ -17,15 +17,12 @@
 
 <script>
 
+  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
+
   module.exports = {
     props: {
       title: {
         type: String,
-      },
-    },
-    computed: {
-      contentIconKind() {
-        return this.contentKind ? this.contentKind : 'topic';
       },
     },
     vuex: {
@@ -34,7 +31,7 @@
           if (state.pageState.content) {
             return state.pageState.content.kind;
           }
-          return 'topic';
+          return ContentNodeKinds.TOPIC;
         },
       },
     },
