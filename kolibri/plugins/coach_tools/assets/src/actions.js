@@ -117,11 +117,6 @@ function showReport(store, params, oldParams) {
     return;
   }
 
-  // don't set loading if ONLY 'view-by' changed, which just affects table (not summary)
-  if (diffKeys.length === 1 && diffKeys[0] !== 'view_by_content_or_learners') {
-    store.dispatch('CORE_SET_PAGE_LOADING', true);
-  }
-
   /* resource-layer work-around below */
   const resourcePromise = require('./resourcePromise');
   const URL_ROOT = '/coach/api';
