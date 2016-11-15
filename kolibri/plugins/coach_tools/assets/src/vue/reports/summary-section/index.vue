@@ -28,8 +28,7 @@
     <div v-if="kind === Kinds.EXERCISE">
       <p>Last Active: {{ lastActiveText }}</p>
       <div v-if="singleuser">
-        <!--TODO: Should just be one of the 3 progress states.-->
-        [Insert progress icon]
+        <progress-icon :progress="contentprogress" :kind="kind"></progress-icon>
       </div>
       <div v-else>
         [Insert progress icon]
@@ -41,8 +40,7 @@
     <div v-if="kind === (Kinds.VIDEO || Kinds.AUDIO)">
       <p>Last Active: {{ lastActiveText }}</p>
       <div v-if="singleuser">
-        <!--TODO: Should just be one of the 3 progress states.-->
-        [Insert progress icon]
+        <progress-icon :progress="contentprogress" :kind="kind"></progress-icon>
       </div>
       <div v-else>
         [Insert progress icon]
@@ -54,8 +52,7 @@
     <div v-if="kind === Kinds.DOCUMENT">
       <p>Last Active: {{ lastActiveText }}</p>
       <div v-if="singleuser">
-        <!--TODO: Should just be one of the 2 progress states, viewed or not.-->
-        [Insert progress icon]
+        <progress-icon :progress="contentprogress" :kind="kind"></progress-icon>
       </div>
       <div v-else>
         [Insert progress icon]

@@ -72,6 +72,9 @@ module.exports = {
         contentIcon: {
           module: require('../vue/content-icon'),
         },
+        progressIcon: {
+          module: require('../vue/progress-icon'),
+        },
         coreBase: {
           module: require('../vue/core-base'),
         },

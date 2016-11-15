@@ -66,6 +66,7 @@ module.exports = class CoreApp {
     vue.component('icon-button', require('../vue/icon-button'));
     vue.component('channel-switcher', require('../vue/channel-switcher'));
     vue.component('content-icon', require('../vue/content-icon'));
+    vue.component('progress-icon', require('../vue/progress-icon'));
     vue.component('core-base', require('../vue/core-base'));
 
     this.i18n = {
