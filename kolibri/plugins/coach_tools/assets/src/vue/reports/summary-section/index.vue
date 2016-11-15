@@ -55,10 +55,10 @@
       <p>Last Active: {{ lastActiveText }}</p>
       <div v-if="singleuser">
         <!--TODO: Should just be one of the 2 progress states, viewed or not.-->
-        {{ userscompleted }} out of {{ numusers }} Viewed
         <progress-bar :progress="contentprogress"></progress-bar>
       </div>
       <div v-else>
+        {{ userscompleted }} out of {{ numusers }} Viewed
         <progress-bar :progress="contentprogress"></progress-bar>
       </div>
     </div>
