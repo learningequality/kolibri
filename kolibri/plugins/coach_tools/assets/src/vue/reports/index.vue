@@ -34,7 +34,7 @@
         :contentprogress="contentProgress"
         :lastactive="pageState.content_scope_summary.last_active"
         :singleuser="isSingleUser"
-        :numusers="pageState.content_scope_summary.num_users"
+        :numusers="userCount"
         :userscompleted="usersCompleted"
       ></summary-section>
 
@@ -192,6 +192,7 @@
         contentCount: getters.contentCount,
         contentProgress: getters.contentProgress,
         dataTable: getters.dataTable,
+        userCount: getters.userCount,
         usersCompleted: getters.usersCompleted,
         currentChannel: coreGetters.getCurrentChannelObject,
       },

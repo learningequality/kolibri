@@ -14,10 +14,10 @@ function countNodes(progressArray, filter) {
   return sumOfKeys(progressArray, 'node_count', filter);
 }
 
-function calcProgress(progressArray, filter, count) {
+function calcProgress(progressArray, filter, itemCount, userCount) {
   const totalProgress = sumOfKeys(progressArray, 'total_progress', filter);
-  if (count) {
-    return totalProgress / count;
+  if (itemCount && userCount) {
+    return totalProgress / (itemCount * userCount);
   }
   return undefined;
 }
@@ -61,6 +61,9 @@ const getters = {
   usersCompleted(state) {
     return state.pageState.content_scope_summary.progress[0].log_count_complete;
   },
+  userCount(state) {
+    return state.pageState.content_scope_summary.num_users;
+  },
   exerciseCount(state) {
     const summary = state.pageState.content_scope_summary;
     if (summary.kind === ContentNodeKinds.TOPIC) {
@@ -74,7 +77,8 @@ const getters = {
     return calcProgress(
       state.pageState.content_scope_summary.progress,
       onlyExercises,
-      getters.exerciseCount(state)
+      getters.exerciseCount(state),
+      getters.userCount(state)
     );
   },
   contentCount(state) {
@@ -90,7 +94,8 @@ const getters = {
     return calcProgress(
       state.pageState.content_scope_summary.progress,
       onlyContent,
-      getters.contentCount(state)
+      getters.contentCount(state),
+      getters.userCount(state)
     );
   },
   dataTable(state) {
@@ -107,12 +112,22 @@ const getters = {
         // for content items, set exercise counts and progress appropriately
         if (item.kind === ContentNodeKinds.TOPIC) {
           row.exerciseCount = countNodes(item.progress, onlyExercises);
-          row.exerciseProgress = calcProgress(item.progress, onlyExercises, row.exerciseCount);
+          row.exerciseProgress = calcProgress(
+            item.progress,
+            onlyExercises,
+            row.exerciseCount,
+            getters.userCount(state)
+          );
           row.contentCount = countNodes(item.progress, onlyContent);
-          row.contentProgress = calcProgress(item.progress, onlyContent, row.contentCount);
+          row.contentProgress = calcProgress(
+            item.progress,
+            onlyContent,
+            row.contentCount,
+            getters.userCount(state)
+          );
         } else if (onlyExercises(item)) {
           row.exerciseCount = 1;
-          row.exerciseProgress = item.progress[0].total_progress;
+          row.exerciseProgress = item.progress[0].total_progress / getters.userCount(state);
           row.contentCount = 0;
           row.contentProgress = undefined;
         } else if (onlyContent(item)) {
@@ -132,9 +147,9 @@ const getters = {
 
         // for learners, the exerise counts are the global values
         row.exerciseProgress
-          = calcProgress(item.progress, onlyExercises, getters.exerciseCount(state));
+          = calcProgress(item.progress, onlyExercises, getters.exerciseCount(state), 1);
         row.contentProgress
-          = calcProgress(item.progress, onlyContent, getters.contentCount(state));
+          = calcProgress(item.progress, onlyContent, getters.contentCount(state), 1);
       } else {
         logging.error('Unknown view-by state', state.pageState.view_by_content_or_learners);
       }
