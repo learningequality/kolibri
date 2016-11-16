@@ -4,10 +4,10 @@
   <span v-if="isNotStarted" class="wrapper">
     <svg src="./progress-icons/notstarted.svg"></svg>
     <span v-if="showtext" class="text">
-      <span v-if="isExercise">{{ $tr('not') }} {{ $tr('started') }}</span>
-      <span v-if="isVideo">{{ $tr('not') }} {{ $tr('watched') }}</span>
-      <span v-if="isAudio">{{ $tr('not') }} {{ $tr('listened') }}</span>
-      <span v-if="isDocument">{{ $tr('not') }} {{ $tr('viewed') }}</span>
+      <span v-if="isExercise">{{ $tr('notStarted') }}</span>
+      <span v-if="isVideo">{{ $tr('notWatched') }}</span>
+      <span v-if="isAudio">{{ $tr('notListened') }}</span>
+      <span v-if="isDocument">{{ $tr('notViewed') }}</span>
     </span>
   </span>
 
@@ -24,7 +24,7 @@
     <svg src="./progress-icons/complete.svg"></svg>
     <span v-if="showtext" class="text">
       <span v-if="isExercise">{{ $tr('mastered') }}</span>
-      <span v-if="isVideo">{{ $tr('Watched') }}</span>
+      <span v-if="isVideo">{{ $tr('watched') }}</span>
       <span v-if="isAudio">{{ $tr('listened') }}</span>
       <span v-if="isDocument">{{ $tr('viewed') }}</span>
     </span>
@@ -43,14 +43,17 @@
   module.exports = {
     $trNameSpace: 'progress-icon',
     $trs: {
-      // TODO: Add these to Constants?
       started: 'Started',
-      inProgress: 'In Progress',
       mastered: 'Mastered',
       watched: 'Watched',
       listened: 'Listened',
       viewed: 'Viewed',
-      not: 'Not',
+      notStarted: 'Not Started',
+      notMastered: 'Not Mastered',
+      notWatched: 'Not Watched',
+      notListened: 'Not Listened',
+      notViewed: 'Not Viewed',
+      inProgress: 'In Progress',
     },
     props: {
       progress: {
