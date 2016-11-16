@@ -6,12 +6,11 @@
         <slot></slot>
       </div>
       <div class="card-content">
-        <div class="content-icon-wrapper">
-          <content-icon
-            v-if="kind"
-            :kind="kind">
-          </content-icon>
-        </div>
+        <content-icon
+          class="outer-content-icon"
+          v-if="kind"
+          :kind="kind">
+        </content-icon>
         <div class="text">
           {{ title }}
         </div>
@@ -72,11 +71,10 @@
     text-overflow: ellipsis
     color: $core-text-default
 
-  .content-icon-wrapper
+  .outer-content-icon
     position: absolute
-    left: 5
-    width: 25px
-    height: 25px
+    left: 10px
+    top: 10px
 
   .card-content
     padding: 10px
