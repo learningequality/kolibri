@@ -125,7 +125,7 @@ function genRow(state, item) {
 
 // public vuex getters
 Object.assign(getters, {
-  usersCompleted(state) {
+  completionCount(state) {
     const summary = state.pageState.content_scope_summary;
     if (summary.kind !== ContentNodeKinds.TOPIC) {
       return summary.progress[0].log_count_complete;
