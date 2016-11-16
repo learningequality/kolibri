@@ -39,14 +39,20 @@ function genCompareFunc(sortColumn, sortOrder) {
   const key = columnToKey[sortColumn];
 
   // take into account sort order
-  const flipOrder = sortOrder === Constants.SortOrders.DESCENDING ? 1 : -1;
+  const flipSortOrder = sortOrder === Constants.SortOrders.DESCENDING ? 1 : -1;
   // default order of names is A-Z; everything else goes high-low
   const flipNameCol = sortColumn !== Constants.TableColumns.NAME ? -1 : 1;
+  // helper to choose correct order
+  const flipped = direction => direction * flipSortOrder * flipNameCol;
+  // generate and return the actual comparator function
   return (a, b) => {
-    if (a[key] !== undefined && b[key] === undefined) { return 1 * flipOrder * flipNameCol; }
-    if (a[key] === undefined && b[key] !== undefined) { return -1 * flipOrder * flipNameCol; }
-    if (a[key] > b[key]) { return 1 * flipOrder * flipNameCol; }
-    if (a[key] < b[key]) { return -1 * flipOrder * flipNameCol; }
+    // make sure undefined values get sorted below defined values
+    if (a[key] !== undefined && b[key] === undefined) { return flipped(1); }
+    if (a[key] === undefined && b[key] !== undefined) { return flipped(-1); }
+    // standard comparisons
+    if (a[key] > b[key]) { return flipped(1); }
+    if (a[key] < b[key]) { return flipped(-1); }
+    // they must be equal
     return 0;
   };
 }
