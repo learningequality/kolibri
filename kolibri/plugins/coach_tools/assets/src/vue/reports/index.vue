@@ -73,7 +73,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="node in dataTable" track-by="id">
+          <tr v-for="node in dataTable" track-by="id" transition="item">
             <th scope="row" class="name-col">
               <item-cell
                 :kind="node.kind"
@@ -222,5 +222,8 @@
     .date-col
       text-align: center
       width: 150px
+
+  .item-move
+    transition: transform 0.5s cubic-bezier(0.55, 0, 0.1, 1)
 
 </style>

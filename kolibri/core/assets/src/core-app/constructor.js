@@ -56,6 +56,11 @@ module.exports = class CoreApp {
      */
     vue.use(vuex);
 
+    /**
+     * animated lists - TODO: remove in vue 2.0
+     */
+    vue.use(require('vue-animated-list'));
+
     // Register global components
     vue.component('content-renderer', require('../vue/content-renderer'));
     vue.component('assessment-wrapper', require('../vue/assessment-wrapper'));
