@@ -1,4 +1,5 @@
-from django.db.models import Case, Count, IntegerField, Sum, When
+from django.db.models import Case, Count, IntegerField, Sum, Value as V, When
+from django.db.models.functions import Coalesce
 from kolibri.auth.models import FacilityUser
 from kolibri.content.models import ContentNode
 from kolibri.logger.models import ContentSummaryLog
@@ -22,19 +23,28 @@ class UserReportSerializer(serializers.ModelSerializer):
         content_node = ContentNode.objects.get(pk=self.context['view'].kwargs['content_node_id'])
         # progress details for a topic node and everything under it
         if content_node.kind == content_kinds.TOPIC:
-            return ContentSummaryLog.objects \
+            kind_counts = content_node.get_descendant_kind_counts()
+            topic_details = ContentSummaryLog.objects \
                 .filter_by_topic(content_node) \
                 .filter(user=target_user) \
                 .values('kind') \
                 .annotate(total_progress=Sum('progress')) \
                 .annotate(log_count_total=Count('pk')) \
                 .annotate(log_count_complete=Sum(Case(When(progress=1, then=1), default=0, output_field=IntegerField())))
+            # evaluate queryset so we can add data for kinds that do not have logs
+            topic_details = list(topic_details)
+            for kind in topic_details:
+                del kind_counts[kind['kind']]
+            for key in kind_counts:
+                topic_details.append({'kind': key, 'total_progress': 0, 'log_count_total': 0, 'log_count_complete': 0})
+            return topic_details
         else:
             # progress details for a leaf node (exercise, video, etc.)
-            return ContentSummaryLog.objects \
+            leaf_details = ContentSummaryLog.objects \
                 .filter(user=target_user) \
-                .values('kind', 'time_spent', 'progress') \
-                .filter(content_id=content_node.content_id)
+                .filter(content_id=content_node.content_id) \
+                .values('kind', 'time_spent', 'progress')
+            return leaf_details if leaf_details else [{'kind': content_node.kind, 'time_spent': 0, 'progress': 0}]
 
     def get_last_active(self, target_user):
         content_node = ContentNode.objects.get(pk=self.context['view'].kwargs['content_node_id'])
@@ -83,14 +93,14 @@ class ContentReportSerializer(serializers.ModelSerializer):
                 progress.append({'kind': key, 'node_count': kind_counts[key], 'total_progress': 0})
             return progress
         else:
-            # filter logs by a leaf node and annotate with specific stats
-            return ContentSummaryLog.objects \
+            # filter logs by a specific leaf node and compute stats over queryset
+            leaf_node_stats = ContentSummaryLog.objects \
                 .filter(content_id=target_node.content_id) \
                 .filter(user__in=get_members_or_user(kwargs['collection_kind'], kwargs['collection_id'])) \
-                .annotate(total_progress=Sum('progress')) \
-                .annotate(log_count_total=Count('pk')) \
-                .annotate(log_count_complete=Sum(Case(When(progress=1, then=1), default=0, output_field=IntegerField()))) \
-                .values('total_progress', 'log_count_total', 'log_count_complete')
+                .aggregate(total_progress=Coalesce(Sum('progress'), V(0)),
+                           log_count_total=Coalesce(Count('pk'), V(0)),
+                           log_count_complete=Coalesce(Sum(Case(When(progress=1, then=1), default=0, output_field=IntegerField())), V(0)))
+            return [leaf_node_stats]  # return as array for consistency in api
 
     def get_last_active(self, target_node):
         kwargs = self.context['view'].kwargs
@@ -103,6 +113,7 @@ class ContentReportSerializer(serializers.ModelSerializer):
             else:
                 return ContentSummaryLog.objects \
                     .filter(content_id=target_node.content_id) \
+                    .filter(user__in=get_members_or_user(kwargs['collection_kind'], kwargs['collection_id'])) \
                     .latest('end_timestamp').end_timestamp
         except ContentSummaryLog.DoesNotExist:
             return None
