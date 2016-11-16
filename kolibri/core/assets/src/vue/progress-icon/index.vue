@@ -43,13 +43,14 @@
   module.exports = {
     $trNameSpace: 'progress-icon',
     $trs: {
+      // TODO: Add these to Constants?
       started: 'Started',
+      inProgress: 'In Progress',
       mastered: 'Mastered',
       watched: 'Watched',
       listened: 'Listened',
       viewed: 'Viewed',
       not: 'Not',
-      inProgress: 'In Progress',
     },
     props: {
       progress: {
