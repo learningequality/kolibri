@@ -43,6 +43,7 @@
         v-if="!isRecentView"
         :iscontent="isViewByContent"
         :vlink="viewByLink"
+        :disabled="disableViewBySwitch"
       ></view-by-switch>
 
       <!--TABLE SECTION-->
@@ -182,6 +183,9 @@
         // target of the link is the opposite of the current view
         const view = this.isViewByContent ? Constants.ViewBy.LEARNERS : Constants.ViewBy.CONTENT;
         return genLink(this.pageState, { view_by_content_or_learners: view });
+      },
+      disableViewBySwitch() {
+        return this.pageState.content_scope === Constants.ContentScopes.CONTENT;
       },
     },
     vuex: {

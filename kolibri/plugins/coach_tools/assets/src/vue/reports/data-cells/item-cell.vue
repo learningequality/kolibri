@@ -3,7 +3,7 @@
   <div>
     <div class="wrapper">
       <content-icon :kind="kind" class="icon"></content-icon>
-      <a v-if="isTopic" v-link="topicLink">{{ title }}</a>
+      <a v-if="isTopic || isContent" v-link="vLink">{{ title }}</a>
       <span v-else>{{ title }}</span>
     </div>
     <div class="wrapper" v-if="isTopic">
@@ -56,10 +56,24 @@
       isContent() {
         return !this.isTopic && !this.isUser;
       },
-      topicLink() {
+      vLink() {
+        if (this.isUser) {
+          return genLink(this.pageState, {
+            user_scope: Constants.UserScopes.USER,
+            user_scope_id: this.id,
+          });
+        } else if (this.isTopic) {
+          return genLink(this.pageState, {
+            content_scope: Constants.ContentScopes.TOPIC,
+            content_scope_id: this.id,
+          });
+        }
+        // assume it's a content link
         return genLink(this.pageState, {
-          content_scope: Constants.ContentScopes.TOPIC,
+          content_scope: Constants.ContentScopes.CONTENT,
           content_scope_id: this.id,
+          // currently, no table view here so go to the learners table
+          view_by_content_or_learners: Constants.ViewBy.LEARNERS,
         });
       },
     },
