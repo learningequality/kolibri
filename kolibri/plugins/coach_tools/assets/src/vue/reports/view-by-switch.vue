@@ -47,6 +47,7 @@
         } else if (this.disabled) {
           return 'disabled';
         }
+        return '';
       },
       userLinkTarget() {
         return this.iscontent ? this.vlink : undefined;
@@ -57,6 +58,7 @@
         } else if (this.disabled) {
           return 'disabled';
         }
+        return '';
       },
     },
   };
@@ -82,6 +84,5 @@
   .disabled
     color: $core-text-disabled
     cursor: not-allowed
-
 
 </style>
