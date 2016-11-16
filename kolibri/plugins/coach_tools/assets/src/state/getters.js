@@ -101,7 +101,7 @@ function genRow(state, item) {
     } else {
       logging.error(`Unhandled item kind: ${item.kind}`);
     }
-  // LEARNERS
+    // LEARNERS
   } else if (state.pageState.view_by_content_or_learners === Constants.ViewBy.LEARNERS) {
     row.kind = CoreConstants.USER;
     row.id = item.pk.toString(); // see https://github.com/learningequality/kolibri/issues/65;
@@ -126,7 +126,11 @@ function genRow(state, item) {
 // public vuex getters
 Object.assign(getters, {
   usersCompleted(state) {
-    return state.pageState.content_scope_summary.progress[0].log_count_complete;
+    const summary = state.pageState.content_scope_summary;
+    if (summary.kind !== ContentNodeKinds.TOPIC) {
+      return summary.progress[0].log_count_complete;
+    }
+    return undefined;
   },
   userCount(state) {
     return state.pageState.content_scope_summary.num_users;
