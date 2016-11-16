@@ -1,37 +1,35 @@
 <template>
 
-  <div>
-    <svg
-      v-if="is(Constants.ContentNodeKinds.TOPIC)"
-      src="./content-icons/topic.svg"
-      :class="['content-icon', colorClass]"
-    ></svg>
-    <svg
-      v-if="is(Constants.ContentNodeKinds.VIDEO)"
-      src="./content-icons/video.svg"
-      :class="['content-icon', colorClass]"
-    ></svg>
-    <svg
-      v-if="is(Constants.ContentNodeKinds.AUDIO)"
-      src="./content-icons/audio.svg"
-      :class="['content-icon', colorClass]"
-    ></svg>
-    <svg
-      v-if="is(Constants.ContentNodeKinds.DOCUMENT)"
-      src="./content-icons/document.svg"
-      :class="['content-icon', colorClass]"
-    ></svg>
-    <svg
-      v-if="is(Constants.ContentNodeKinds.EXERCISE)"
-      src="./content-icons/exercise.svg"
-      :class="['content-icon', colorClass]"
-    ></svg>
-    <svg
-      v-if="is(Constants.USER)"
-      src="./content-icons/user.svg"
-      :class="['content-icon', colorClass]"
-    ></svg>
-  </div>
+  <svg
+    v-if="is(Constants.ContentNodeKinds.TOPIC)"
+    src="./content-icons/topic.svg"
+    :class="['content-icon', colorClass]"
+  ></svg>
+  <svg
+    v-if="is(Constants.ContentNodeKinds.VIDEO)"
+    src="./content-icons/video.svg"
+    :class="['content-icon', colorClass]"
+  ></svg>
+  <svg
+    v-if="is(Constants.ContentNodeKinds.AUDIO)"
+    src="./content-icons/audio.svg"
+    :class="['content-icon', colorClass]"
+  ></svg>
+  <svg
+    v-if="is(Constants.ContentNodeKinds.DOCUMENT)"
+    src="./content-icons/document.svg"
+    :class="['content-icon', colorClass]"
+  ></svg>
+  <svg
+    v-if="is(Constants.ContentNodeKinds.EXERCISE)"
+    src="./content-icons/exercise.svg"
+    :class="['content-icon', colorClass]"
+  ></svg>
+  <svg
+    v-if="is(Constants.USER)"
+    src="./content-icons/user.svg"
+    :class="['content-icon', colorClass]"
+  ></svg>
 
 </template>
 
