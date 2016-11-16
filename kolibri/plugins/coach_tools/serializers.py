@@ -9,16 +9,16 @@ from .utils.return_users import get_members_or_user
 
 
 class UserReportSerializer(serializers.ModelSerializer):
-    details = serializers.SerializerMethodField()
+    progress = serializers.SerializerMethodField()
     last_active = serializers.SerializerMethodField()
 
     class Meta:
         model = FacilityUser
         fields = (
-            'pk', 'full_name', 'details', 'last_active',
+            'pk', 'full_name', 'progress', 'last_active',
         )
 
-    def get_details(self, target_user):
+    def get_progress(self, target_user):
         content_node = ContentNode.objects.get(pk=self.context['view'].kwargs['content_node_id'])
         # progress details for a topic node and everything under it
         if content_node.kind == content_kinds.TOPIC:

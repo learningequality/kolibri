@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <span v-if="date">{{ $tr('date', date) }}</span>
+    <span v-if="date">{{ $tr('date', [date]) }}</span>
     <span v-else>–</span>
   </div>
 

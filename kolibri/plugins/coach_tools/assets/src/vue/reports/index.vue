@@ -34,7 +34,7 @@
         :contentprogress="contentProgress"
         :lastactive="pageState.content_scope_summary.last_active"
         :singleuser="isSingleUser"
-        :numusers="numUsers"
+        :numusers="userCount"
         :userscompleted="usersCompleted"
       ></summary-section>
 
@@ -43,6 +43,7 @@
         v-if="!isRecentView"
         :iscontent="isViewByContent"
         :vlink="viewByLink"
+        :disabled="disableViewBySwitch"
       ></view-by-switch>
 
       <!--TABLE SECTION-->
@@ -55,12 +56,12 @@
               class="name-col"
             ></th>
             <th is="header-cell"
-              text="Exercise Progress"
+              text="Avg. Exercise Progress"
               :column="Constants.TableColumns.EXERCISE"
               class="progress-col"
             ></th>
             <th is="header-cell"
-              text="Content Progress"
+              text="Avg. Content Progress"
               :column="Constants.TableColumns.CONTENT"
               class="progress-col"
             ></th>
@@ -73,23 +74,25 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="node in dataTable" track-by="id">
+          <tr v-for="row in dataTable" track-by="id" transition="item">
             <th scope="row" class="name-col">
               <item-cell
-                :kind="node.kind"
-                :title="node.title"
-                :id="node.id"
-                :parent="node.parent"
+                :kind="row.kind"
+                :title="row.title"
+                :id="row.id"
+                :parent="row.parent"
+                :exercisecount="row.exerciseCount"
+                :contentcount="row.contentCount"
               ></item-cell>
             </th>
             <td class="progress-col">
-              <progress-cell :num="node.exerciseProgress" :isexercise="true"></progress-cell>
+              <progress-cell :num="row.exerciseProgress" :isexercise="true"></progress-cell>
             </td>
             <td class="progress-col">
-              <progress-cell :num="node.contentProgress" :isexercise="false"></progress-cell>
+              <progress-cell :num="row.contentProgress" :isexercise="false"></progress-cell>
             </td>
             <td class="date-col" v-if="!isRecentView">
-              <date-cell :date="node.lastActive"></date-cell>
+              <date-cell :date="row.lastActive"></date-cell>
             </td>
           </tr>
         </tbody>
@@ -181,6 +184,9 @@
         const view = this.isViewByContent ? Constants.ViewBy.LEARNERS : Constants.ViewBy.CONTENT;
         return genLink(this.pageState, { view_by_content_or_learners: view });
       },
+      disableViewBySwitch() {
+        return this.pageState.content_scope === Constants.ContentScopes.CONTENT;
+      },
     },
     vuex: {
       getters: {
@@ -190,7 +196,7 @@
         contentCount: getters.contentCount,
         contentProgress: getters.contentProgress,
         dataTable: getters.dataTable,
-        numUsers: getters.numUsers,
+        userCount: getters.userCount,
         usersCompleted: getters.usersCompleted,
         currentChannel: coreGetters.getCurrentChannelObject,
       },
@@ -221,5 +227,8 @@
     .date-col
       text-align: center
       width: 150px
+
+  .item-move
+    transition: transform 0.5s cubic-bezier(0.55, 0, 0.1, 1)
 
 </style>

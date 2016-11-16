@@ -26,9 +26,6 @@
     props: {
       num: {
         type: Number,
-        validator(value) {
-          return value >= 0 && value <= 1;
-        },
       },
       isexercise: {
         type: Boolean,

@@ -49,7 +49,6 @@
       listened: 'Listened',
       viewed: 'Viewed',
       notStarted: 'Not Started',
-      notMastered: 'Not Mastered',
       notWatched: 'Not Watched',
       notListened: 'Not Listened',
       notViewed: 'Not Viewed',

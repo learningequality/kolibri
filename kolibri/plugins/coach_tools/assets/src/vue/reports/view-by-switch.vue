@@ -3,11 +3,10 @@
   <div>
     <label>
       {{ $tr('viewbylabel') }}
-      <div v-if="iscontent" class="toggle-switch">
-        {{ $tr('contents') }} | <a v-link="vlink">{{ $tr('learners') }}</a>
-      </div>
-      <div v-else class="toggle-switch">
-        <a v-link="vlink">{{ $tr('contents') }}</a> | {{ $tr('learners') }}
+      <div class="toggle-switch">
+        <a v-link="contentLinkTarget" :class="contentLinkClass">{{ $tr('contents') }}</a>
+        |
+        <a v-link="userLinkTarget" :class="userLinkClass">{{ $tr('learners') }}</a>
       </div>
     </label>
   </div>
@@ -33,6 +32,34 @@
         type: Object,
         required: true,
       },
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    computed: {
+      contentLinkTarget() {
+        return this.iscontent ? undefined : this.vlink;
+      },
+      contentLinkClass() {
+        if (this.iscontent) {
+          return 'current';
+        } else if (this.disabled) {
+          return 'disabled';
+        }
+        return '';
+      },
+      userLinkTarget() {
+        return this.iscontent ? this.vlink : undefined;
+      },
+      userLinkClass() {
+        if (!this.iscontent) {
+          return 'current';
+        } else if (this.disabled) {
+          return 'disabled';
+        }
+        return '';
+      },
     },
   };
 
@@ -49,5 +76,13 @@
     border-radius: $radius
     padding: 5px
     margin: 5px
+
+  .current
+    color: $core-text-default
+    cursor: default
+
+  .disabled
+    color: $core-text-disabled
+    cursor: not-allowed
 
 </style>

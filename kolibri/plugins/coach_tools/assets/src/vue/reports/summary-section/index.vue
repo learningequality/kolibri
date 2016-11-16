@@ -6,7 +6,7 @@
     <div v-if="kind === Kinds.TOPIC">
       <p>{{ exercisecount }} {{ $tr('exercises') }} - {{ contentcount }} {{ $tr('content') }} {{ $tr('items') }}</p>
       <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
-
+      <p>{{ numusers }} Users</p>
       <div>
         <p>{{ $tr('exercises') }}</p>
         <progress-bar v-if="exerciseprogress !== undefined" :progress="exerciseprogress"></progress-bar>
@@ -77,7 +77,7 @@
     $trNameSpace: 'report-summary',
     $trs: {
       lastActive: 'Last Active',
-      lastActiveDate: '{0, date, medium}',
+      lastActiveText: '{0, date, medium}',
       na: 'not applicable',
       exercises: 'Exercises',
       content: 'Content',
@@ -90,7 +90,7 @@
     computed: {
       lastActiveDate() {
         if (this.lastactive) {
-          return this.$tr('lastActiveDate', new Date(this.lastactive));
+          return this.$tr('lastActiveText', [new Date(this.lastactive)]);
         }
         return '–';
       },
