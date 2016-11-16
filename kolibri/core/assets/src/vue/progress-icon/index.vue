@@ -4,10 +4,10 @@
   <span v-if="isNotStarted" class="wrapper">
     <svg src="./progress-icons/notstarted.svg"></svg>
     <span v-if="showtext" class="text">
-      <span v-if="isExercise">{{ $tr('not_started') }}</span>
-      <span v-if="isVideo">{{ $tr('not_watched') }}</span>
-      <span v-if="isAudio">{{ $tr('not_listened') }}</span>
-      <span v-if="isDocument">{{ $tr('not_viewed') }}</span>
+      <span v-if="isExercise">{{ $tr('notStarted') }}</span>
+      <span v-if="isVideo">{{ $tr('notWatched') }}</span>
+      <span v-if="isAudio">{{ $tr('notListened') }}</span>
+      <span v-if="isDocument">{{ $tr('notViewed') }}</span>
     </span>
   </span>
 
@@ -44,15 +44,15 @@
     $trNameSpace: 'progress-icon',
     $trs: {
       started: 'Started',
-      inProgress: 'In Progress',
       mastered: 'Mastered',
       watched: 'Watched',
       listened: 'Listened',
-      viewed: 'Not Viewed',
-      not_started: 'Not Started',
-      not_watched: 'Not Watched',
-      not_listened: 'Not Listened',
-      not_viewed: 'Not Viewed',
+      viewed: 'Viewed',
+      notStarted: 'Not Started',
+      notWatched: 'Not Watched',
+      notListened: 'Not Listened',
+      notViewed: 'Not Viewed',
+      inProgress: 'In Progress',
     },
     props: {
       progress: {
