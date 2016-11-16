@@ -101,14 +101,14 @@ function genRow(state, item) {
     } else {
       logging.error(`Unhandled item kind: ${item.kind}`);
     }
-  // LEARNERS
+    // LEARNERS
   } else if (state.pageState.view_by_content_or_learners === Constants.ViewBy.LEARNERS) {
     row.kind = CoreConstants.USER;
     row.id = item.pk.toString(); // see https://github.com/learningequality/kolibri/issues/65;
     row.title = item.full_name;
     row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
 
-    // for learners, the exerise counts are the global values
+    // for learners, the exercise counts are the global values
     row.exerciseProgress
       = calcProgress(item.progress, onlyExercises, getters.exerciseCount(state), 1);
     row.contentProgress
@@ -125,8 +125,12 @@ function genRow(state, item) {
 
 // public vuex getters
 Object.assign(getters, {
-  usersCompleted(state) {
-    return state.pageState.content_scope_summary.progress[0].log_count_complete;
+  completionCount(state) {
+    const summary = state.pageState.content_scope_summary;
+    if (summary.kind !== ContentNodeKinds.TOPIC) {
+      return summary.progress[0].log_count_complete;
+    }
+    return undefined;
   },
   userCount(state) {
     return state.pageState.content_scope_summary.num_users;

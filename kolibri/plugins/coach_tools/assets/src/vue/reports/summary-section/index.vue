@@ -30,7 +30,7 @@
       </div>
 
       <div v-else>
-        {{ userscompleted }}/{{ numusers }} {{ $tr('mastered') }}
+        {{ completioncount }}/{{ numusers }} {{ $tr('mastered') }}
       </div>
     </div>
 
@@ -44,7 +44,7 @@
       </div>
 
       <div v-else>
-        {{ userscompleted }}/{{ numusers }}
+        {{ completioncount }}/{{ numusers }}
         <span v-if="kind === Kinds.VIDEO">{{ $tr('watched') }}</span>
         <span v-else>{{ $tr('listened') }}</span>
       </div>
@@ -60,7 +60,7 @@
       </div>
 
       <div v-else>
-        {{ userscompleted }}/{{ numusers }} {{ $tr('viewed') }}
+        {{ completioncount }}/{{ numusers }} {{ $tr('viewed') }}
       </div>
     </div>
 
@@ -130,7 +130,7 @@
         type: Number,
         required: true,
       },
-      userscompleted: {
+      completioncount: {
         type: Number,
         required: false,
       },
