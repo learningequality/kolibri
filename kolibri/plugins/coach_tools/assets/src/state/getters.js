@@ -108,7 +108,7 @@ function genRow(state, item) {
     row.title = item.full_name;
     row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
 
-    // for learners, the exerise counts are the global values
+    // for learners, the exercise counts are the global values
     row.exerciseProgress
       = calcProgress(item.progress, onlyExercises, getters.exerciseCount(state), 1);
     row.contentProgress
