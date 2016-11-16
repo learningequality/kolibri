@@ -73,25 +73,25 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="node in dataTable" track-by="id" transition="item">
+          <tr v-for="row in dataTable" track-by="id" transition="item">
             <th scope="row" class="name-col">
               <item-cell
-                :kind="node.kind"
-                :title="node.title"
-                :id="node.id"
-                :parent="node.parent"
-                :exercisecount="node.exerciseCount"
-                :contentcount="node.contentCount"
+                :kind="row.kind"
+                :title="row.title"
+                :id="row.id"
+                :parent="row.parent"
+                :exercisecount="row.exerciseCount"
+                :contentcount="row.contentCount"
               ></item-cell>
             </th>
             <td class="progress-col">
-              <progress-cell :num="node.exerciseProgress" :isexercise="true"></progress-cell>
+              <progress-cell :num="row.exerciseProgress" :isexercise="true"></progress-cell>
             </td>
             <td class="progress-col">
-              <progress-cell :num="node.contentProgress" :isexercise="false"></progress-cell>
+              <progress-cell :num="row.contentProgress" :isexercise="false"></progress-cell>
             </td>
             <td class="date-col" v-if="!isRecentView">
-              <date-cell :date="node.lastActive"></date-cell>
+              <date-cell :date="row.lastActive"></date-cell>
             </td>
           </tr>
         </tbody>
