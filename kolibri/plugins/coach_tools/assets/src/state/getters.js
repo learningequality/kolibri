@@ -97,7 +97,7 @@ function genRow(state, item) {
       row.exerciseCount = 0;
       row.exerciseProgress = undefined;
       row.contentCount = 1;
-      row.contentProgress = item.progress[0].total_progress;
+      row.contentProgress = item.progress[0].total_progress / getters.userCount(state);
     } else {
       logging.error(`Unhandled item kind: ${item.kind}`);
     }
