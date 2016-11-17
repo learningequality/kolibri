@@ -5,25 +5,26 @@
     <!--TOPICS-->
     <div v-if="kind === Kinds.TOPIC" class="summary-section-row">
       <div class="summary-section-details">
-        <p>{{ $tr('exercises', {count: exercisecount}) }} ● {{ $tr('contents', {count: contentcount}) }}</p>
-        <p>{{ usercount }} Users</p>
+        {{ $tr('exerciseCountText', {count: exercisecount}) }} ● {{ $tr('contentCountText', {count: contentcount})
+        }}
       </div>
 
       <div class="summary-section-progress">
-        <p>{{ $tr('exercises', {count: exercisecount}) }}</p>
+        {{ $tr('exercises') }}
         <progress-bar v-if="exerciseprogress !== undefined" :progress="exerciseprogress"></progress-bar>
-        <span v-else><p>{{ $tr('na') }}</p></span>
+        <span v-else>{{ $tr('na') }}</span>
       </div>
 
       <div class="summary-section-progress">
-        <p>{{ $tr('contents', {count: contentcount}) }}</p>
+        {{ $tr('contentItems') }}
         <progress-bar v-if="contentprogress !== undefined" :progress="contentprogress"></progress-bar>
-        <span v-else><p>{{ $tr('na') }}</p></span>
+        <span v-else>{{ $tr('na') }}</span>
       </div>
 
       <div v-if="!isrecentview" class="summary-section-date">
-        <p>{{ $tr('lastActive') }}:</p>
-        <p> {{ lastActiveDate }}</p>
+        {{ $tr('lastActive') }}:
+        <br>
+        {{ lastActiveDate }}
       </div>
     </div>
 
@@ -39,12 +40,13 @@
       </div>
 
       <div v-else class="summary-section-progress">
-        <p>{{ completioncount }}/{{ usercount }} {{ $tr('mastered') }}</p>
+        {{ completioncount }}/{{ usercount }} {{ $tr('mastered') }}
       </div>
 
       <div class="summary-section-date">
-        <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
-
+        {{ $tr('lastActive') }}:
+        <br>
+        {{ lastActiveDate }}
       </div>
     </div>
 
@@ -61,15 +63,15 @@
 
 
       <div v-else class="summary-section-progress">
-        <p>
-          {{ completioncount }}/{{ usercount }}
-          <span v-if="kind === Kinds.VIDEO">{{ $tr('watched') }}</span>
-          <span v-else>{{ $tr('listened') }}</span>
-        </p>
+        {{ completioncount }}/{{ usercount }}
+        <span v-if="kind === Kinds.VIDEO">{{ $tr('watched') }}</span>
+        <span v-else>{{ $tr('listened') }}</span>
       </div>
 
       <div class="summary-section-date">
-        <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
+        {{ $tr('lastActive') }}:
+        <br>
+        {{ lastActiveDate }}
       </div>
     </div>
 
@@ -85,11 +87,13 @@
       </div>
 
       <div v-else class="summary-section-progress">
-        <p>{{ completioncount }}/{{ usercount }} {{ $tr('viewed') }}</p>
+        {{ completioncount }}/{{ usercount }} {{ $tr('viewed') }}
       </div>
 
       <div class="summary-section-date">
-        <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
+        {{ $tr('lastActive') }}:
+        <br>
+        {{ lastActiveDate }}
       </div>
     </div>
 
@@ -108,8 +112,11 @@
       lastActive: 'Last Active',
       lastActiveText: '{0, date, medium}',
       na: 'not applicable',
-      exercises: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
-      contents: '{count, number, integer} {count, plural, one {Content Item} other {Content Items}}',
+      exercises: 'Exercises',
+      contentItems: 'Content Items',
+      exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
+      contentCountText:
+        '{count, number, integer} {count, plural, one {Content Item} other {Content Items}}',
       mastered: 'Mastered',
       watched: 'Watched',
       listened: 'Listened',

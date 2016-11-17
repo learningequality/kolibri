@@ -13,7 +13,7 @@
 
   <!--IN PROGRESS-->
   <span v-if="isInProgress" class="wrapper">
-    <svg src="./progress-icons/inprogress.svg"></svg>
+    <svg src="./progress-icons/inprogress.svg" class="progress"></svg>
     <span v-if="showtext" class="text">
       <span>{{ $tr('inProgress') }}</span>
     </span>
@@ -21,7 +21,7 @@
 
   <!--COMPLETE-->
   <span v-if="isComplete" class="wrapper">
-    <svg src="./progress-icons/complete.svg"></svg>
+    <svg src="./progress-icons/complete.svg" class="complete"></svg>
     <span v-if="showtext" class="text">
       <span v-if="isExercise">{{ $tr('mastered') }}</span>
       <span v-if="isVideo">{{ $tr('watched') }}</span>
@@ -125,7 +125,13 @@
       bottom: 50%
       transform: translate(-50%, -50%)
 
+    .progress
+      fill: #ffc107
+
+    .complete
+      fill: #4caf50
+
     .text
-      margin-left: 10px
+      margin-left: 15px
 
 </style>
