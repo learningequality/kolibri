@@ -50,7 +50,7 @@
 
   .tab
     display: inline-block
-    padding: 0.5em
+    padding: 0.75em
     color: $core-text-default
     background-color: $core-bg-light
     border-bottom: solid 3px $core-bg-light
