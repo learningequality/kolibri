@@ -40,12 +40,13 @@
       </div>
 
       <div v-else class="summary-section-progress">
-        <p>{{ completioncount }}/{{ usercount }} {{ $tr('mastered') }}</p>
+        {{ completioncount }}/{{ usercount }} {{ $tr('mastered') }}
       </div>
 
       <div class="summary-section-date">
-        <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
-
+        {{ $tr('lastActive') }}:
+        <br>
+        {{ lastActiveDate }}
       </div>
     </div>
 
@@ -62,15 +63,15 @@
 
 
       <div v-else class="summary-section-progress">
-        <p>
-          {{ completioncount }}/{{ usercount }}
-          <span v-if="kind === Kinds.VIDEO">{{ $tr('watched') }}</span>
-          <span v-else>{{ $tr('listened') }}</span>
-        </p>
+        {{ completioncount }}/{{ usercount }}
+        <span v-if="kind === Kinds.VIDEO">{{ $tr('watched') }}</span>
+        <span v-else>{{ $tr('listened') }}</span>
       </div>
 
       <div class="summary-section-date">
-        <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
+        {{ $tr('lastActive') }}:
+        <br>
+        {{ lastActiveDate }}
       </div>
     </div>
 
@@ -86,11 +87,13 @@
       </div>
 
       <div v-else class="summary-section-progress">
-        <p>{{ completioncount }}/{{ usercount }} {{ $tr('viewed') }}</p>
+        {{ completioncount }}/{{ usercount }} {{ $tr('viewed') }}
       </div>
 
       <div class="summary-section-date">
-        <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
+        {{ $tr('lastActive') }}:
+        <br>
+        {{ lastActiveDate }}
       </div>
     </div>
 
