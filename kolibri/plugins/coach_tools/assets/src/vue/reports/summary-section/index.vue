@@ -175,8 +175,8 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.coreTheme'
+  @require '../reports.styl'
 
-  // TODO: DRY THIS UP
   .summary-section
     display: table
     width: 100%
@@ -189,13 +189,13 @@
   .summary-section-progress,
   .summary-section-date
     display: table-cell
-    padding: 10px
+    padding: $col-padding
     vertical-align: top
 
   .summary-section-progress
-    width: 20%
+    width: $progress-col-width
 
   .summary-section-date
-    width: 150px
+    width: $date-col-width
 
 </style>

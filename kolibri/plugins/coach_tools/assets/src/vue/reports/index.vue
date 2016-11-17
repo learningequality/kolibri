@@ -211,6 +211,7 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.coreTheme'
+  @require './reports.styl'
 
   .data-table
     width: 100%
@@ -225,11 +226,11 @@
 
     .progress-col
       text-align: center
-      width: 20%
+      width: $progress-col-width
 
     .date-col
       text-align: center
-      width: 150px
+      width: $date-col-width
 
   .item-move
     transition: transform 0.5s cubic-bezier(0.55, 0, 0.1, 1)
