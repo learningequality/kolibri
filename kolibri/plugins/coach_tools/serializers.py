@@ -1,4 +1,4 @@
-from django.db.models import Case, Count, IntegerField, Sum, Value as V, When
+from django.db.models import Case, Count, F, IntegerField, Sum, Value as V, When
 from django.db.models.functions import Coalesce
 from kolibri.auth.models import FacilityUser
 from kolibri.content.models import ContentNode
@@ -43,8 +43,9 @@ class UserReportSerializer(serializers.ModelSerializer):
             leaf_details = ContentSummaryLog.objects \
                 .filter(user=target_user) \
                 .filter(content_id=content_node.content_id) \
-                .values('kind', 'time_spent', 'progress')
-            return leaf_details if leaf_details else [{'kind': content_node.kind, 'time_spent': 0, 'progress': 0}]
+                .annotate(total_progress=F('progress')) \
+                .values('kind', 'time_spent', 'total_progress')
+            return leaf_details if leaf_details else [{'kind': content_node.kind, 'time_spent': 0, 'total_progress': 0}]
 
     def get_last_active(self, target_user):
         content_node = ContentNode.objects.get(pk=self.context['view'].kwargs['content_node_id'])
