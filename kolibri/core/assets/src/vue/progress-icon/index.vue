@@ -126,6 +126,6 @@
       transform: translate(-50%, -50%)
 
     .text
-      margin-left: 10px
+      margin-left: 15px
 
 </style>
