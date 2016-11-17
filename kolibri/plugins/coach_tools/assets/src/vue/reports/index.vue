@@ -53,23 +53,23 @@
           <thead>
             <tr>
               <th is="header-cell"
-                text="Name"
+                :text="$tr('name')"
                 :column="Constants.TableColumns.NAME"
                 class="name-col"
               ></th>
               <th is="header-cell"
-                text="Avg. Exercise Progress"
+                :text="$tr('avg-exercise-progress')"
                 :column="Constants.TableColumns.EXERCISE"
                 class="progress-col"
               ></th>
               <th is="header-cell"
-                text="Avg. Content Progress"
+                :text="$tr('avg-content-progress')"
                 :column="Constants.TableColumns.CONTENT"
                 class="progress-col"
               ></th>
               <th is="header-cell"
                 v-if="!isRecentView"
-                text="Last Activity"
+                :text="$tr('last-activity')"
                 :column="Constants.TableColumns.DATE"
                 class="date-col"
               ></th>
@@ -116,6 +116,13 @@
   const logging = require('kolibri.lib.logging');
 
   module.exports = {
+    $trNameSpace: 'report-page',
+    $trs: {
+      'name': 'Name',
+      'avg-exercise-progress': 'Avg. Exercise Progress',
+      'avg-content-progress': 'Avg. Content Progress',
+      'last-activity': 'Last Activity',
+    },
     components: {
       'breadcrumbs': require('./breadcrumbs'),
       'all-recent-tabs': require('./all-recent-tabs'),
