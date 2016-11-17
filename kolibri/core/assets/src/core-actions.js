@@ -252,7 +252,7 @@ function initContentSession(store, coreApp, channelId, contentId, contentKind) {
      /* Fetch collection matching content and user */
     const summaryCollection = ContentSummaryLogResource.getCollection({
       content_id: contentId,
-      user: store.state.core.session.user_id,
+      user_id: store.state.core.session.user_id,
     });
     const summaryCollectionPromise = summaryCollection.fetch({}, true);
 
