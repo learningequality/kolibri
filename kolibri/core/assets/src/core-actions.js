@@ -252,53 +252,58 @@ function initContentSession(store, coreApp, channelId, contentId, contentKind) {
      /* Fetch collection matching content and user */
     const summaryCollection = ContentSummaryLogResource.getCollection({
       content_id: contentId,
-      user: store.state.core.session.user_id,
+      user_id: store.state.core.session.user_id,
     });
     const summaryCollectionPromise = summaryCollection.fetch({}, true);
-    promises.push(summaryCollectionPromise);
-    summaryCollectionPromise.then(summary => {
-      /* If a summary model exists, map that to the state */
-      if (summary.length > 0) {
-        store.dispatch('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState(summary[0]));
-        if (summary[0].currentmasterylog) {
-          // If a mastery model has been sent along with the summary log payload,
-          // then bootstrap that data into the MasteryLog resource. Cheeky!
-          const masteryModel = coreApp.resources.MasteryLog.createModel(
-            summary[0].currentmasterylog);
-          masteryModel.synced = true;
 
-          store.dispatch('SET_LOGGING_MASTERY_STATE',
-            summary[0].currentmasterylog);
+    // ensure the store has finished update for summaryLog.
+    const summaryPromise = new Promise((resolve, reject) => {
+      summaryCollectionPromise.then(summary => {
+        /* If a summary model exists, map that to the state */
+        if (summary.length > 0) {
+          store.dispatch('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState(summary[0]));
+          if (summary[0].currentmasterylog) {
+            // If a mastery model has been sent along with the summary log payload,
+            // then bootstrap that data into the MasteryLog resource. Cheeky!
+            const masteryModel = coreApp.resources.MasteryLog.createModel(
+              summary[0].currentmasterylog);
+            masteryModel.synced = true;
+
+            store.dispatch('SET_LOGGING_MASTERY_STATE',
+              summary[0].currentmasterylog);
+          }
+          resolve();
+        } else {
+          /* If a summary model does not exist, create default state */
+          store.dispatch('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState({
+            pk: null,
+            start_timestamp: new Date(),
+            completion_timestamp: null,
+            end_timestamp: new Date(),
+            progress: 0,
+            time_spent: 0,
+            extra_fields: '{}',
+            time_spent_before_current_session: 0,
+            progress_before_current_session: 0,
+          }));
+
+          const summaryData = Object.assign({
+            channel_id: channelId,
+            content_id: contentId,
+            kind: contentKind,
+          }, _contentSummaryModel(store));
+
+          /* Save a new summary model and set id on state */
+          const summaryModel = ContentSummaryLogResource.createModel(summaryData);
+          const summaryModelPromise = summaryModel.save();
+          summaryModelPromise.then((newSummary) => {
+            store.dispatch('SET_LOGGING_SUMMARY_ID', newSummary.pk);
+            resolve();
+          });
         }
-      } else {
-        /* If a summary model does not exist, create default state */
-        store.dispatch('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState({
-          pk: null,
-          start_timestamp: new Date(),
-          completion_timestamp: null,
-          end_timestamp: new Date(),
-          progress: 0,
-          time_spent: 0,
-          extra_fields: '{}',
-          time_spent_before_current_session: 0,
-          progress_before_current_session: 0,
-        }));
-
-        const summaryData = Object.assign({
-          channel_id: channelId,
-          content_id: contentId,
-          kind: contentKind,
-        }, _contentSummaryModel(store));
-
-        /* Save a new summary model and set id on state */
-        const summaryModel = ContentSummaryLogResource.createModel(summaryData);
-        const summaryModelPromise = summaryModel.save();
-        promises.push(summaryModelPromise);
-        summaryModelPromise.then((newSummary) => {
-          store.dispatch('SET_LOGGING_SUMMARY_ID', newSummary.pk);
-        });
-      }
+      });
     });
+    promises.push(summaryPromise);
   }
 
   /* Set session log state to default */
@@ -325,10 +330,15 @@ function initContentSession(store, coreApp, channelId, contentId, contentKind) {
   /* Save a new session model and set id on state */
   const sessionModel = ContentSessionLogResource.createModel(sessionData);
   const sessionModelPromise = sessionModel.save();
-  promises.push(sessionModelPromise);
-  sessionModelPromise.then((newSession) => {
-    store.dispatch('SET_LOGGING_SESSION_ID', newSession.pk);
+
+  // ensure the store has finished update for sessionLog.
+  const sessionPromise = new Promise((resolve, reject) => {
+    sessionModelPromise.then((newSession) => {
+      store.dispatch('SET_LOGGING_SESSION_ID', newSession.pk);
+      resolve();
+    });
   });
+  promises.push(sessionPromise);
 
   return Promise.all(promises);
 }

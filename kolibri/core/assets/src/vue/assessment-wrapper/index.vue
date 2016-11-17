@@ -41,7 +41,7 @@ oriented data synchronization.
       // Once the data for the overall assessment is loaded in the renderer
       // we can initialize the mastery log, as the mastery model and spacing time
       // will be available.
-      if (this.notDeviceOwner) {
+      if (this.isFacilityUser) {
         this.initMasteryLog();
       } else {
         // if userKind is anonymous user or deviceOwner.
@@ -65,7 +65,7 @@ oriented data synchronization.
       },
       saveAttemptLogMasterLog(exercisePassed) {
         this.saveAttemptLogAction(this.Kolibri).then(() => {
-          if (this.notDeviceOwner && exercisePassed) {
+          if (this.isFacilityUser && exercisePassed) {
             this.setMasteryLogCompleteAction(new Date());
             this.saveMasteryLogAction(this.Kolibri);
           }
@@ -107,8 +107,9 @@ oriented data synchronization.
       },
     },
     computed: {
-      notDeviceOwner() {
-        return !this.userkind.includes(UserKinds.SUPERUSER);
+      isFacilityUser() {
+        return !(this.userkind.includes(UserKinds.SUPERUSER) ||
+          this.userkind.includes(UserKinds.ANONYMOUS));
       },
     },
     vuex: {
