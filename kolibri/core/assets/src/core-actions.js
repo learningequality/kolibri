@@ -332,13 +332,13 @@ function initContentSession(store, coreApp, channelId, contentId, contentKind) {
   const sessionModelPromise = sessionModel.save();
 
   // ensure the store has finished update for sessionLog.
-  const sesseionPromise = new Promise((resolve, reject) => {
+  const sessionPromise = new Promise((resolve, reject) => {
     sessionModelPromise.then((newSession) => {
       store.dispatch('SET_LOGGING_SESSION_ID', newSession.pk);
       resolve();
     });
   });
-  promises.push(sesseionPromise);
+  promises.push(sessionPromise);
 
   return Promise.all(promises);
 }
