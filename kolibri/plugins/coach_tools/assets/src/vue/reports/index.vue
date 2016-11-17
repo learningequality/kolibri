@@ -51,52 +51,52 @@
       <!--TABLE SECTION-->
       <table class="data-table">
         <thead>
-        <tr>
-          <th is="header-cell"
+          <tr>
+            <th is="header-cell"
               text="Name"
               :column="Constants.TableColumns.NAME"
               class="name-col"
-          ></th>
-          <th is="header-cell"
+            ></th>
+            <th is="header-cell"
               text="Avg. Exercise Progress"
               :column="Constants.TableColumns.EXERCISE"
               class="progress-col"
-          ></th>
-          <th is="header-cell"
+            ></th>
+            <th is="header-cell"
               text="Avg. Content Progress"
               :column="Constants.TableColumns.CONTENT"
               class="progress-col"
-          ></th>
-          <th is="header-cell"
+            ></th>
+            <th is="header-cell"
               v-if="!isRecentView"
               text="Last Activity"
               :column="Constants.TableColumns.DATE"
               class="date-col"
-          ></th>
-        </tr>
+            ></th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="row in dataTable" track-by="id" transition="item">
-          <th scope="row" class="name-col">
-            <item-cell
-              :kind="row.kind"
-              :title="row.title"
-              :id="row.id"
-              :parent="row.parent"
-              :exercisecount="row.exerciseCount"
-              :contentcount="row.contentCount"
-            ></item-cell>
-          </th>
-          <td class="progress-col">
-            <progress-cell :num="row.exerciseProgress" :isexercise="true"></progress-cell>
-          </td>
-          <td class="progress-col">
-            <progress-cell :num="row.contentProgress" :isexercise="false"></progress-cell>
-          </td>
-          <td class="date-col" v-if="!isRecentView">
-            <date-cell :date="row.lastActive"></date-cell>
-          </td>
-        </tr>
+          <tr v-for="row in dataTable" track-by="id" transition="item">
+            <th scope="row" class="name-col">
+              <item-cell
+                :kind="row.kind"
+                :title="row.title"
+                :id="row.id"
+                :parent="row.parent"
+                :exercisecount="row.exerciseCount"
+                :contentcount="row.contentCount"
+              ></item-cell>
+            </th>
+            <td class="progress-col">
+              <progress-cell :num="row.exerciseProgress" :isexercise="true"></progress-cell>
+            </td>
+            <td class="progress-col">
+              <progress-cell :num="row.contentProgress" :isexercise="false"></progress-cell>
+            </td>
+            <td class="date-col" v-if="!isRecentView">
+              <date-cell :date="row.lastActive"></date-cell>
+            </td>
+          </tr>
         </tbody>
       </table>
 
