@@ -22,7 +22,8 @@
       </div>
 
       <div v-if="!isrecentview" class="summary-section-date">
-        <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
+        <p>{{ $tr('lastActive') }}:</p>
+        <p> {{ lastActiveDate }}</p>
       </div>
     </div>
 
@@ -38,7 +39,7 @@
       </div>
 
       <div v-else class="summary-section-progress">
-        <p>{{ completioncount }}/{{ numusers }} {{ $tr('mastered') }}</p>
+        <p>{{ completioncount }}/{{ usercount }} {{ $tr('mastered') }}</p>
       </div>
 
       <div class="summary-section-date">
@@ -61,7 +62,7 @@
 
       <div v-else class="summary-section-progress">
         <p>
-          {{ completioncount }}/{{ numusers }}
+          {{ completioncount }}/{{ usercount }}
           <span v-if="kind === Kinds.VIDEO">{{ $tr('watched') }}</span>
           <span v-else>{{ $tr('listened') }}</span>
         </p>
@@ -84,7 +85,7 @@
       </div>
 
       <div v-else class="summary-section-progress">
-        <p>{{ completioncount }}/{{ numusers }} {{ $tr('viewed') }}</p>
+        <p>{{ completioncount }}/{{ usercount }} {{ $tr('viewed') }}</p>
       </div>
 
       <div class="summary-section-date">
@@ -153,7 +154,7 @@
         type: Boolean,
         required: true,
       },
-      numusers: {
+      usercount: {
         type: Number,
         required: true,
       },

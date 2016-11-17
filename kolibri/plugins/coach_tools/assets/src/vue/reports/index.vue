@@ -34,7 +34,7 @@
         :contentprogress="contentProgress"
         :lastactive="pageState.content_scope_summary.last_active"
         :singleuser="isSingleUser"
-        :numusers="userCount"
+        :usercount="userCount"
         :completioncount="completionCount"
         :userscompleted="usersCompleted"
         :isrecentview="isRecentView"
