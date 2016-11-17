@@ -1,8 +1,6 @@
 <template>
 
   <div>
-    <h1>Reports</h1>
-
     <!--USER BREADCRUMBS-->
     <breadcrumbs :list="userBreadcrumbs"></breadcrumbs>
 
