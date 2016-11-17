@@ -6,7 +6,7 @@
     <div v-if="kind === Kinds.TOPIC" class="summary-section-row">
       <div class="summary-section-details">
         <p>{{ $tr('exercises', {count: exercisecount}) }} ● {{ $tr('contents', {count: contentcount}) }}</p>
-        <p>{{ numusers }} Users</p>
+        <p>{{ usercount }} Users</p>
       </div>
 
       <div class="summary-section-progress">
