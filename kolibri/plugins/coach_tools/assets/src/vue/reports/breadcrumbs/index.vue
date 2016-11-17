@@ -32,7 +32,7 @@
     padding: 0.5em
     line-height: 2em
     font-size: smaller
-    background: white
+    background: $core-bg-light
     display: inline-block
 
 </style>
