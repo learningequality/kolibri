@@ -21,8 +21,7 @@
         <span v-else><p>{{ $tr('na') }}</p></span>
       </div>
 
-      <!-- TODO: WHY IS isRecentView INCORRECT?!-->
-      <div v-if="!isRecentView" class="summary-section-date">
+      <div v-if="!isrecentview" class="summary-section-date">
         <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
       </div>
     </div>
