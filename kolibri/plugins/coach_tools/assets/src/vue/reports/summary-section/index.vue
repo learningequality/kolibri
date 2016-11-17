@@ -3,64 +3,92 @@
   <div class="summary-section">
 
     <!--TOPICS-->
-    <div v-if="kind === Kinds.TOPIC">
-      <p>{{ exercisecount }} {{ $tr('exercises') }} - {{ contentcount }} {{ $tr('content') }} {{ $tr('items') }}</p>
-      <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
-      <p>{{ numusers }} Users</p>
-      <div>
-        <p>{{ $tr('exercises') }}</p>
-        <progress-bar v-if="exerciseprogress !== undefined" :progress="exerciseprogress"></progress-bar>
-        <span v-else>{{ $tr('na') }}</span>
+    <div v-if="kind === Kinds.TOPIC" class="summary-section-row">
+      <div class="summary-section-details">
+        <p>{{ exercisecount }} {{ $tr('exercises') }} - {{ contentcount }} {{ $tr('content') }} {{ $tr('items') }}</p>
+        <p>{{ numusers }} Users</p>
       </div>
 
-      <div>
+      <div class="summary-section-progress">
+        <p>{{ $tr('exercises') }}</p>
+        <progress-bar v-if="exerciseprogress !== undefined" :progress="exerciseprogress"></progress-bar>
+        <span v-else><p>{{ $tr('na') }}</p></span>
+      </div>
+
+      <div class="summary-section-progress">
         <p>{{ $tr('content') }}</p>
         <progress-bar v-if="contentprogress !== undefined" :progress="contentprogress"></progress-bar>
-        <span v-else>{{ $tr('na') }}</span>
+        <span v-else><p>{{ $tr('na') }}</p></span>
+      </div>
+
+      <div v-if="!isRecentView" class="summary-section-date">
+        <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
       </div>
     </div>
 
 
     <!--EXERCISES-->
-    <div v-if="kind === Kinds.EXERCISE">
-      <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
+    <div v-if="kind === Kinds.EXERCISE" class="summary-section-row">
+      <div class="summary-section-details">
 
-      <div v-if="singleuser">
+      </div>
+
+      <div v-if="singleuser" class="summary-section-progress">
         <progress-icon :progress="1" :kind="kind" :showtext="true"></progress-icon>
       </div>
 
-      <div v-else>
-        {{ completioncount }}/{{ numusers }} {{ $tr('mastered') }}
+      <div v-else class="summary-section-progress">
+        <p>{{ completioncount }}/{{ numusers }} {{ $tr('mastered') }}</p>
+      </div>
+
+      <div class="summary-section-date">
+        <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
+
       </div>
     </div>
 
 
     <!--VIDEO/AUDIO-->
-    <div v-if="kind === (Kinds.VIDEO || Kinds.AUDIO)">
-      <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
+    <div v-if="kind === (Kinds.VIDEO || Kinds.AUDIO)" class="summary-section-row">
+      <div class="summary-section-details">
 
-      <div v-if="singleuser">
+      </div>
+
+      <div v-if="singleuser" class="summary-section-progress">
         <progress-icon :progress="contentprogress" :kind="kind" :showtext="true"></progress-icon>
       </div>
 
-      <div v-else>
-        {{ completioncount }}/{{ numusers }}
-        <span v-if="kind === Kinds.VIDEO">{{ $tr('watched') }}</span>
-        <span v-else>{{ $tr('listened') }}</span>
+
+      <div v-else class="summary-section-progress">
+        <p>
+          {{ completioncount }}/{{ numusers }}
+          <span v-if="kind === Kinds.VIDEO">{{ $tr('watched') }}</span>
+          <span v-else>{{ $tr('listened') }}</span>
+        </p>
+      </div>
+
+      <div class="summary-section-date">
+        <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
       </div>
     </div>
 
 
     <!--DOCUMENTS-->
-    <div v-if="kind === Kinds.DOCUMENT">
-      <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
+    <div v-if="kind === Kinds.DOCUMENT" class="summary-section-row">
+      <div class="summary-section-details">
 
-      <div v-if="singleuser">
+      </div>
+
+      <div v-if="singleuser" class="summary-section-progress">
         <progress-icon :progress="contentprogress" :kind="kind" :showtext="true"></progress-icon>
       </div>
 
-      <div v-else>
-        {{ completioncount }}/{{ numusers }} {{ $tr('viewed') }}
+      <div v-else class="summary-section-progress">
+        <p>{{ completioncount }}/{{ numusers }} {{ $tr('viewed') }}</p>
+      </div>
+
+      <div class="summary-section-date">
+        <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
       </div>
     </div>
 
@@ -134,6 +162,10 @@
         type: Number,
         required: false,
       },
+      isrecentview: {
+        type: Boolean,
+        required: true,
+      },
     },
   };
 
@@ -145,7 +177,24 @@
   @require '~kolibri.styles.coreTheme'
 
   .summary-section
-    padding: 20px
+    display: table
+    width: 100%
     background-color: white
+
+  .summary-section-row
+    display: table-row
+
+  .summary-section-details,
+  .summary-section-progress,
+  .summary-section-date
+    display: table-cell
+    padding: 10px
+    vertical-align: top
+
+  .summary-section-progress
+    width: 20%
+
+  .summary-section-date
+    width: 150px
 
 </style>

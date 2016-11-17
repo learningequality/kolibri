@@ -36,6 +36,8 @@
         :singleuser="isSingleUser"
         :numusers="userCount"
         :completioncount="completionCount"
+        :userscompleted="usersCompleted"
+        :isrecentview="isRecentView"
       ></summary-section>
 
       <!--VIEW-BY SWITCH-->
@@ -213,6 +215,7 @@
   .data-table
     width: 100%
     font-size: smaller
+    border-spacing: 0
 
     td, th
       padding: 10px
