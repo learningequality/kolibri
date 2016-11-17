@@ -21,6 +21,7 @@
         <span v-else><p>{{ $tr('na') }}</p></span>
       </div>
 
+      <!-- TODO: WHY IS isRecentView INCORRECT?!-->
       <div v-if="!isRecentView" class="summary-section-date">
         <p>{{ $tr('lastActive') }}: {{ lastActiveDate }}</p>
       </div>
@@ -176,6 +177,7 @@
 
   @require '~kolibri.styles.coreTheme'
 
+  // TODO: DRY THIS UP
   .summary-section
     display: table
     width: 100%
