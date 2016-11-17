@@ -3,8 +3,7 @@
   <div>
     <div class="wrapper">
       <content-icon :kind="kind" class="icon"></content-icon>
-      <a v-if="isTopic || isContent" v-link="vLink">{{ title }}</a>
-      <span v-else>{{ title }}</span>
+      <a v-link="vLink">{{ title }}</a>
     </div>
     <div class="wrapper" v-if="isTopic">
       {{ $tr('exercises', {count: exercisecount}) }} ● {{ $tr('contents', {count: contentcount}) }}
@@ -61,6 +60,7 @@
           return genLink(this.pageState, {
             user_scope: Constants.UserScopes.USER,
             user_scope_id: this.id,
+            view_by_content_or_learners: Constants.ViewBy.CONTENT,
           });
         } else if (this.isTopic) {
           return genLink(this.pageState, {
@@ -88,9 +88,6 @@
 
 
 <style lang="stylus" scoped>
-
-  a
-    display: block
 
   .wrapper
     font-weight: normal

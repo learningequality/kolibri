@@ -111,23 +111,27 @@ function showReport(store, params, oldParams) {
     return;
   }
 
-  /* resource-layer work-around below */
   const resourcePromise = require('./resourcePromise');
   const URL_ROOT = '/coach/api';
   const promises = [];
 
   // REPORT
-  let reportUrl = `${URL_ROOT}/${channelId}/${contentScopeId}/${userScope}/${userScopeId}`;
-  if (allOrRecent === Constants.AllOrRecent.RECENT) {
-    reportUrl += '/recentreport/';
-  } else if (viewByContentOrLearners === Constants.ViewBy.CONTENT) {
-    reportUrl += '/contentreport/';
-  } else if (viewByContentOrLearners === Constants.ViewBy.LEARNERS) {
-    reportUrl += '/userreport/';
+  if (userScope === Constants.UserScopes.USER && contentScope === Constants.ContentScopes.CONTENT) {
+    promises.push([]); // don't retrieve a report for a single-user, single-item page
   } else {
-    logging.error('unhandled input parameters');
+    let reportUrl = `${URL_ROOT}/${channelId}/${contentScopeId}/${userScope}/${userScopeId}`;
+    if (allOrRecent === Constants.AllOrRecent.RECENT) {
+      reportUrl += '/recentreport/';
+    } else if (viewByContentOrLearners === Constants.ViewBy.CONTENT) {
+      reportUrl += '/contentreport/';
+    } else if (viewByContentOrLearners === Constants.ViewBy.LEARNERS) {
+      reportUrl += '/userreport/';
+    } else {
+      logging.error('unhandled input parameters');
+    }
+    promises.push(resourcePromise(reportUrl));
   }
-  promises.push(resourcePromise(reportUrl));
+
 
   // CONTENT SUMMARY
   const contentSummaryUrl =
@@ -140,7 +144,7 @@ function showReport(store, params, oldParams) {
       = `${URL_ROOT}/${channelId}/${contentScopeId}/usersummary/${userScopeId}/`;
     promises.push(resourcePromise(userSummaryUrl));
   } else {
-    promises.push({});
+    promises.push({}); // don't retrieve a summary for a group of users
   }
 
   // CHANNELS
