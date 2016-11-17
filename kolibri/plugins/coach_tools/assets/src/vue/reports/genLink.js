@@ -1,6 +1,29 @@
 
 const Constants = require('../../state/constants');
 
+
+/*
+ * This function automatically tweaks the 'view_by' parameter to avoid showing
+ * a learner list view for a single user or a content list view for a single item.
+ */
+function _tweakViewByParam(params) {
+  const singleUser = params.user_scope === Constants.UserScopes.USER;
+  const singleItem = params.content_scope === Constants.ContentScopes.CONTENT;
+
+  // no table is shown, so 'view_by' is ignored anyway
+  if (singleUser && singleItem) {
+    return;
+  }
+
+  // for 'single + multiple' cases, switch to the only compatible view
+  if (singleUser) {
+    params.view_by_content_or_learners = Constants.ViewBy.CONTENT;
+  } else if (singleItem) {
+    params.view_by_content_or_learners = Constants.ViewBy.LEARNERS;
+  }
+}
+
+
 /*
  * Generates a REPORTS v-link object relative to the
  * current page state, with only newParams changed.
@@ -22,6 +45,8 @@ function genLink(pageState, newParams) {
     params: {},
   };
   Object.assign(vlink.params, currentParams, newParams);
+
+  _tweakViewByParam(vlink.params);
   return vlink;
 }
 

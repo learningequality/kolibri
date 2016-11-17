@@ -60,7 +60,6 @@
           return genLink(this.pageState, {
             user_scope: Constants.UserScopes.USER,
             user_scope_id: this.id,
-            view_by_content_or_learners: Constants.ViewBy.CONTENT,
           });
         } else if (this.isTopic) {
           return genLink(this.pageState, {
@@ -72,8 +71,6 @@
         return genLink(this.pageState, {
           content_scope: Constants.ContentScopes.CONTENT,
           content_scope_id: this.id,
-          // currently, no table view here so go to the learners table
-          view_by_content_or_learners: Constants.ViewBy.LEARNERS,
         });
       },
     },
