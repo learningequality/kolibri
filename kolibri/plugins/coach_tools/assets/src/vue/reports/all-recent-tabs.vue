@@ -41,14 +41,17 @@
   .tabs
     margin-top: 0.5em
     margin-bottom: 0.5em
+    background-color: $core-bg-light
 
   a
     display: inline-block
     text-decoration: none
 
+
   .tab
     display: inline-block
-    padding: 0.25em
+    padding: 0.5em
+    color: $core-text-default
     background-color: $core-bg-light
     border-bottom: solid 3px $core-bg-light
 
