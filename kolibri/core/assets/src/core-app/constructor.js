@@ -97,7 +97,6 @@ module.exports = class CoreApp {
       function $trWrapper(formatter, messageId, args) {
         if (args) {
           if (!Array.isArray(args) && typeof args !== 'object') {
-            console.log('typeof args', typeof args);
             logging.error(`The $tr functions take either an array of positional
                             arguments or an object of named options.`);
           }

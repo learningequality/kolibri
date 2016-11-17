@@ -198,7 +198,7 @@
             this.contentView.$on('stopTracking', this.wrappedStopTracking);
             this.contentView.$on('progressUpdate', this.wrappedUpdateProgress);
           }, (reason) => {
-            console.log('initContentSession failed: ', reason);
+            logging.error('initContentSession failed: ', reason);
           });
         }
       },

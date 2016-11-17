@@ -3,8 +3,7 @@
   <div>
     <div class="wrapper">
       <content-icon :kind="kind" class="icon"></content-icon>
-      <a v-if="isTopic || isContent" v-link="vLink">{{ title }}</a>
-      <span v-else>{{ title }}</span>
+      <a v-link="vLink">{{ title }}</a>
     </div>
     <div class="wrapper" v-if="isTopic">
       {{ $tr('exercises', {count: exercisecount}) }} ● {{ $tr('contents', {count: contentcount}) }}
@@ -72,8 +71,6 @@
         return genLink(this.pageState, {
           content_scope: Constants.ContentScopes.CONTENT,
           content_scope_id: this.id,
-          // currently, no table view here so go to the learners table
-          view_by_content_or_learners: Constants.ViewBy.LEARNERS,
         });
       },
     },
@@ -88,9 +85,6 @@
 
 
 <style lang="stylus" scoped>
-
-  a
-    display: block
 
   .wrapper
     font-weight: normal

@@ -38,65 +38,68 @@
         :completioncount="completionCount"
       ></summary-section>
 
-      <!--VIEW-BY SWITCH-->
-      <view-by-switch
-        v-if="!isRecentView"
-        :iscontent="isViewByContent"
-        :vlink="viewByLink"
-        :disabled="disableViewBySwitch"
-      ></view-by-switch>
+      <!-- TABLE SECTION -->
+      <div v-if="!isSingleUser || !isSingleItem">
+        <!--VIEW-BY SWITCH-->
+        <view-by-switch
+          v-if="!isRecentView"
+          :iscontent="isViewByContent"
+          :vlink="viewByLink"
+          :disabled="isSingleUser || isSingleItem"
+        ></view-by-switch>
 
-      <!--TABLE SECTION-->
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th is="header-cell"
-              text="Name"
-              :column="Constants.TableColumns.NAME"
-              class="name-col"
-            ></th>
-            <th is="header-cell"
-              text="Avg. Exercise Progress"
-              :column="Constants.TableColumns.EXERCISE"
-              class="progress-col"
-            ></th>
-            <th is="header-cell"
-              text="Avg. Content Progress"
-              :column="Constants.TableColumns.CONTENT"
-              class="progress-col"
-            ></th>
-            <th is="header-cell"
-              v-if="!isRecentView"
-              text="Last Activity"
-              :column="Constants.TableColumns.DATE"
-              class="date-col"
-            ></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="row in dataTable" track-by="id" transition="item">
-            <th scope="row" class="name-col">
-              <item-cell
-                :kind="row.kind"
-                :title="row.title"
-                :id="row.id"
-                :parent="row.parent"
-                :exercisecount="row.exerciseCount"
-                :contentcount="row.contentCount"
-              ></item-cell>
-            </th>
-            <td class="progress-col">
-              <progress-cell :num="row.exerciseProgress" :isexercise="true"></progress-cell>
-            </td>
-            <td class="progress-col">
-              <progress-cell :num="row.contentProgress" :isexercise="false"></progress-cell>
-            </td>
-            <td class="date-col" v-if="!isRecentView">
-              <date-cell :date="row.lastActive"></date-cell>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        <!--TABLE SECTION-->
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th is="header-cell"
+                :text="$tr('name')"
+                :column="Constants.TableColumns.NAME"
+                class="name-col"
+              ></th>
+              <th is="header-cell"
+                :text="$tr('avg-exercise-progress')"
+                :column="Constants.TableColumns.EXERCISE"
+                class="progress-col"
+              ></th>
+              <th is="header-cell"
+                :text="$tr('avg-content-progress')"
+                :column="Constants.TableColumns.CONTENT"
+                class="progress-col"
+              ></th>
+              <th is="header-cell"
+                v-if="!isRecentView"
+                :text="$tr('last-activity')"
+                :column="Constants.TableColumns.DATE"
+                class="date-col"
+              ></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in dataTable" track-by="id" transition="item">
+              <th scope="row" class="name-col">
+                <item-cell
+                  :kind="row.kind"
+                  :title="row.title"
+                  :id="row.id"
+                  :parent="row.parent"
+                  :exercisecount="row.exerciseCount"
+                  :contentcount="row.contentCount"
+                ></item-cell>
+              </th>
+              <td class="progress-col">
+                <progress-cell :num="row.exerciseProgress" :isexercise="true"></progress-cell>
+              </td>
+              <td class="progress-col">
+                <progress-cell :num="row.contentProgress" :isexercise="false"></progress-cell>
+              </td>
+              <td class="date-col" v-if="!isRecentView">
+                <date-cell :date="row.lastActive"></date-cell>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
     </div>
   </div>
@@ -113,6 +116,13 @@
   const logging = require('kolibri.lib.logging');
 
   module.exports = {
+    $trNameSpace: 'report-page',
+    $trs: {
+      'name': 'Name',
+      'avg-exercise-progress': 'Avg. Exercise Progress',
+      'avg-content-progress': 'Avg. Content Progress',
+      'last-activity': 'Last Activity',
+    },
     components: {
       'breadcrumbs': require('./breadcrumbs'),
       'all-recent-tabs': require('./all-recent-tabs'),
@@ -137,6 +147,9 @@
       },
       isSingleUser() {
         return this.pageState.user_scope === Constants.UserScopes.USER;
+      },
+      isSingleItem() {
+        return this.pageState.content_scope === Constants.ContentScopes.CONTENT;
       },
       userBreadcrumbs() {
         if (this.pageState.user_scope === Constants.UserScopes.FACILITY) {
@@ -183,9 +196,6 @@
         // target of the link is the opposite of the current view
         const view = this.isViewByContent ? Constants.ViewBy.LEARNERS : Constants.ViewBy.CONTENT;
         return genLink(this.pageState, { view_by_content_or_learners: view });
-      },
-      disableViewBySwitch() {
-        return this.pageState.content_scope === Constants.ContentScopes.CONTENT;
       },
     },
     vuex: {
