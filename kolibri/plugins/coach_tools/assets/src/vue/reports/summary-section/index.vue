@@ -5,18 +5,18 @@
     <!--TOPICS-->
     <div v-if="kind === Kinds.TOPIC" class="summary-section-row">
       <div class="summary-section-details">
-        <p>{{ exercisecount }} {{ $tr('exercises') }} - {{ contentcount }} {{ $tr('content') }} {{ $tr('items') }}</p>
+        <p>{{ $tr('exercises', {count: exercisecount}) }} ● {{ $tr('contents', {count: contentcount}) }}</p>
         <p>{{ numusers }} Users</p>
       </div>
 
       <div class="summary-section-progress">
-        <p>{{ $tr('exercises') }}</p>
+        <p>{{ $tr('exercises', {count: exercisecount}) }}</p>
         <progress-bar v-if="exerciseprogress !== undefined" :progress="exerciseprogress"></progress-bar>
         <span v-else><p>{{ $tr('na') }}</p></span>
       </div>
 
       <div class="summary-section-progress">
-        <p>{{ $tr('content') }}</p>
+        <p>{{ $tr('contents', {count: contentcount}) }}</p>
         <progress-bar v-if="contentprogress !== undefined" :progress="contentprogress"></progress-bar>
         <span v-else><p>{{ $tr('na') }}</p></span>
       </div>
@@ -107,9 +107,8 @@
       lastActive: 'Last Active',
       lastActiveText: '{0, date, medium}',
       na: 'not applicable',
-      exercises: 'Exercises',
-      content: 'Content',
-      items: 'Items',
+      exercises: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
+      contents: '{count, number, integer} {count, plural, one {Content Item} other {Content Items}}',
       mastered: 'Mastered',
       watched: 'Watched',
       listened: 'Listened',
