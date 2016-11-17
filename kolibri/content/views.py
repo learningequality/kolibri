@@ -3,7 +3,7 @@ import mimetypes
 import os
 import zipfile
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.http.response import FileResponse, HttpResponseNotModified
 from django.utils.http import http_date
 from django.views.generic.base import View
@@ -51,9 +51,10 @@ class ZipContentView(View):
             else:
                 # load the stream from json file into memory, replace the path_place_holder.
                 content = zf.open(info).read()
-                str_to_be_replaced = str('/' + request.resolver_match.url_name + "/" + zipped_filename)
-                content_with_path = content.replace('$' + exercises.IMG_PLACEHOLDER, str_to_be_replaced)
-                response = FileResponse(content_with_path, content_type=content_type)
+                str_to_be_replaced = ('$' + exercises.IMG_PLACEHOLDER).encode()
+                zipcontent = ('/' + request.resolver_match.url_name + "/" + zipped_filename).encode()
+                content_with_path = content.replace(str_to_be_replaced, zipcontent)
+                response = HttpResponse(content_with_path, content_type=content_type)
                 file_size = len(content_with_path)
 
         # set the last-modified header to the date marked on the embedded file
