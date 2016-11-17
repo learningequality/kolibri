@@ -34,8 +34,10 @@
         :contentprogress="contentProgress"
         :lastactive="pageState.content_scope_summary.last_active"
         :singleuser="isSingleUser"
-        :numusers="userCount"
+        :usercount="userCount"
         :completioncount="completionCount"
+        :userscompleted="usersCompleted"
+        :isrecentview="isRecentView"
       ></summary-section>
 
       <!-- TABLE SECTION -->
@@ -219,24 +221,26 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.coreTheme'
+  @require './reports.styl'
 
   .data-table
     width: 100%
     font-size: smaller
+    border-spacing: 0
 
     td, th
-      padding: 10px
+      padding: $col-padding
 
     .name-col
       text-align: left
 
     .progress-col
       text-align: center
-      width: 20%
+      width: $progress-col-width
 
     .date-col
       text-align: center
-      width: 150px
+      width: $date-col-width
 
   .item-move
     transition: transform 0.5s cubic-bezier(0.55, 0, 0.1, 1)
