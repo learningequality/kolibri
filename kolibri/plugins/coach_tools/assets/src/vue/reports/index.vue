@@ -124,6 +124,7 @@
       'avg-exercise-progress': 'Avg. Exercise Progress',
       'avg-content-progress': 'Avg. Content Progress',
       'last-activity': 'Last Activity',
+      'all-learners': 'All Learners ({0, number, integer})',
     },
     components: {
       'breadcrumbs': require('./breadcrumbs'),
@@ -155,7 +156,7 @@
       },
       userBreadcrumbs() {
         if (this.pageState.user_scope === Constants.UserScopes.FACILITY) {
-          return [{ title: `All Learners (${this.userCount})` }];
+          return [{ title: this.$tr('all-learners', [this.userCount]) }];
         } else if (this.pageState.user_scope === Constants.UserScopes.USER) {
           const FACILITY_ID = '1'; // TODO - facility ID should not be hard-coded.
           return [
