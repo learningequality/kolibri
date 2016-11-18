@@ -79,6 +79,7 @@
     display: inline-table
     margin: 0.5em
     border: 3px solid $switch-background-color
+    background-color: $switch-background-color
 
   a
     display: inline-block
