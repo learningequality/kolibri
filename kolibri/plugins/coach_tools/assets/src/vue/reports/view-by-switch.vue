@@ -82,12 +82,13 @@
     text-decoration: none
 
   .toggle-switch-item
-    padding: 0.5em
+    padding: 0.4em
     background-color: white
     color: $core-action-normal
     border: 2px solid $core-action-normal
 
   .current
+    padding: 0.6em
     background-color: $core-action-normal
     color: white
     cursor: default

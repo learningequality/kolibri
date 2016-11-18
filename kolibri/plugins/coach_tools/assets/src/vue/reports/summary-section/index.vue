@@ -5,20 +5,19 @@
     <!--TOPICS-->
     <div v-if="kind === Kinds.TOPIC" class="summary-section-row">
       <div class="summary-section-details">
-        {{ $tr('exerciseCountText', {count: exercisecount}) }} ● {{ $tr('contentCountText', {count: contentcount})
-        }}
+        {{ $tr('exerciseCountText', {count: exercisecount}) }} ● {{ $tr('contentCountText', {count: contentcount}) }}
       </div>
 
       <div class="summary-section-progress">
-        {{ $tr('exercises') }}
+        {{ $tr('exerciseProgress') }}
         <progress-bar v-if="exerciseprogress !== undefined" :progress="exerciseprogress"></progress-bar>
-        <span v-else>{{ $tr('na') }}</span>
+        <div v-else>{{ $tr('na') }}</div>
       </div>
 
       <div class="summary-section-progress">
-        {{ $tr('contentItems') }}
+        {{ $tr('contentProgress') }}
         <progress-bar v-if="contentprogress !== undefined" :progress="contentprogress"></progress-bar>
-        <span v-else>{{ $tr('na') }}</span>
+        <div v-else>{{ $tr('na') }}</div>
       </div>
 
       <div v-if="!isrecentview" class="summary-section-date">
@@ -112,8 +111,8 @@
       lastActive: 'Last Active',
       lastActiveText: '{0, date, medium}',
       na: 'not applicable',
-      exercises: 'Exercises',
-      contentItems: 'Content Items',
+      exerciseProgress: 'Exercise Progress',
+      contentProgress: 'Content Progress',
       exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
       contentCountText:
         '{count, number, integer} {count, plural, one {Content Item} other {Content Items}}',
