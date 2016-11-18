@@ -73,29 +73,28 @@
 
   @require '~kolibri.styles.coreTheme'
 
+  $switch-background-color = #9e9e9e
+
   .toggle-switch
     display: inline-table
     margin: 0.5em
+    border: 3px solid $switch-background-color
 
   a
     display: inline-block
     text-decoration: none
 
   .toggle-switch-item
-    padding: 0.4em
-    background-color: white
-    color: $core-action-normal
-    border: 2px solid $core-action-normal
+    padding: 0.5em
+    background-color: $switch-background-color
+    color: white
 
   .current
-    padding: 0.6em
     background-color: $core-action-normal
-    color: white
-    cursor: default
+    cursor: pointer
 
   .disabled
     color: $core-text-disabled
-    border-color: $core-text-disabled
     cursor: not-allowed
 
 </style>

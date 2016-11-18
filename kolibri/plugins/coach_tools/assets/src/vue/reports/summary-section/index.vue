@@ -9,20 +9,19 @@
       </div>
 
       <div class="summary-section-progress">
-        {{ $tr('exerciseProgress') }}
+        <div class="summary-section-heading">{{ $tr('exerciseProgress') }}</div>
         <progress-bar v-if="exerciseprogress !== undefined" :progress="exerciseprogress"></progress-bar>
         <div v-else>{{ $tr('na') }}</div>
       </div>
 
       <div class="summary-section-progress">
-        {{ $tr('contentProgress') }}
+        <div class="summary-section-heading">{{ $tr('contentProgress') }}</div>
         <progress-bar v-if="contentprogress !== undefined" :progress="contentprogress"></progress-bar>
         <div v-else>{{ $tr('na') }}</div>
       </div>
 
       <div v-if="!isrecentview" class="summary-section-date">
-        {{ $tr('lastActive') }}:
-        <br>
+        <div class="summary-section-heading">{{ $tr('lastActive') }}:</div>
         {{ lastActiveDate }}
       </div>
     </div>
@@ -198,10 +197,19 @@
     padding: $col-padding
     vertical-align: top
 
+  .summary-section-progress,
+  .summary-section-date
+    text-align: center
+
   .summary-section-progress
     width: $progress-col-width
 
   .summary-section-date
     width: $date-col-width
+
+  .summary-section-heading
+    text-align: center
+    font-weight: bold
+    font-size: smaller
 
 </style>
