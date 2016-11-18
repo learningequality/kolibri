@@ -5,7 +5,7 @@
     <component v-if="pageState.wizardState.shown" :is="wizardComponent"></component>
 
     <div v-if="pageState.taskList.length" class="main alert-bg">
-      <task-status v-if="pageState.taskList.length"
+      <task-status
         :type="pageState.taskList[0].type"
         :status="pageState.taskList[0].status"
         :percentage="pageState.taskList[0].percentage"

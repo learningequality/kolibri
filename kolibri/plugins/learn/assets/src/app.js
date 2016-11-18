@@ -54,7 +54,8 @@ class LearnModule extends KolibriModule {
       PageNames.LEARN_CHANNEL,
       '/learn/:channel_id',
       (toRoute, fromRoute) => {
-        actions.showLearnChannel(store, toRoute.params.channel_id);
+        const page = toRoute.query.page ? Number(toRoute.query.page) : 1;
+        actions.showLearnChannel(store, toRoute.params.channel_id, page);
       }
     );
 

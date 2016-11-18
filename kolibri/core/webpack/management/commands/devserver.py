@@ -4,6 +4,7 @@ import atexit
 import logging
 import multiprocessing
 import os
+import platform
 import subprocess
 import sys
 from threading import Thread
@@ -60,10 +61,13 @@ class Command(RunserverCommand):
         if options["karma"]:
             self.spawn_karma()
 
-        if options["qcluster"]:
+        if options["qcluster"] and platform.system() != "Windows":
             self.spawn_qcluster()
 
         update_channel_metadata_cache()
+
+        # migrate the ormq DB before starting.
+        call_command("migrate", interactive=False, database="ormq")
 
         return super(Command, self).handle(*args, **options)
 

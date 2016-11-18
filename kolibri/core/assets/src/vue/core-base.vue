@@ -22,12 +22,17 @@
 
   require('vue-scroll');
 
+  const coreActions = require('kolibri/coreVue/vuex/actions');
+
   module.exports = {
     components: {
       'nav-bar': require('./nav-bar'),
       'error-box': require('./error-box'),
     },
     vuex: {
+      actions: {
+        handleResize: coreActions.handleResize,
+      },
       getters: {
         loading: state => state.core.loading,
         error: state => state.core.error,
@@ -49,6 +54,11 @@
           this.scrolled = false;
         }
       }, 75);
+      window.addEventListener('resize', this.handleResize);
+      this.handleResize();
+    },
+    beforeDestroy() {
+      window.removeEventListener('resize', this.handleResize);
     },
   };
 
