@@ -4,9 +4,12 @@
     <label>
       {{ $tr('viewbylabel') }}
       <div class="toggle-switch">
-        <a v-link="contentLinkTarget" :class="contentLinkClass">{{ $tr('contents') }}</a>
-        |
-        <a v-link="userLinkTarget" :class="userLinkClass">{{ $tr('learners') }}</a>
+        <a v-link="contentLinkTarget">
+          <div class="toggle-switch-item" :class="contentLinkClass">{{ $tr('contents') }}</div>
+        </a>
+        <a v-link="userLinkTarget">
+          <div class="toggle-switch-item" :class="userLinkClass">{{ $tr('learners') }}</div>
+        </a>
       </div>
     </label>
   </div>
@@ -71,18 +74,27 @@
   @require '~kolibri.styles.coreTheme'
 
   .toggle-switch
+    display: inline-table
+    margin: 0.5em
+
+  a
     display: inline-block
-    border: 1px solid $core-text-annotation
-    border-radius: $radius
-    padding: 5px
-    margin: 5px
+    text-decoration: none
+
+  .toggle-switch-item
+    padding: 0.5em
+    background-color: white
+    color: $core-action-normal
+    border: 2px solid $core-action-normal
 
   .current
-    color: $core-text-default
+    background-color: $core-action-normal
+    color: white
     cursor: default
 
   .disabled
     color: $core-text-disabled
+    border-color: $core-text-disabled
     cursor: not-allowed
 
 </style>
