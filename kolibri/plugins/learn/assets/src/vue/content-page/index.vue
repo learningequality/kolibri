@@ -129,13 +129,19 @@
     margin-top: 4em
 
   .next-btn
-    float: left
     background-color: #4A8DDC
     border-color: #4A8DDC
     color: $core-bg-light
     padding-left: 16px
     padding-right: 6px
     padding-bottom: 0
+    position: relative
+    top: -60px
+    left: 150px
+    z-index: 10
+    @media screen and (max-width: $medium-breakpoint)
+      top: 0
+      left: 0
 
   .next-btn:hover svg
     fill: $core-bg-light
