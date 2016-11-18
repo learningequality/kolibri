@@ -187,7 +187,7 @@
   .summary-section
     display: table
     width: 100%
-    background-color: white
+    background-color: $core-bg-light
 
   .summary-section-row
     display: table-row

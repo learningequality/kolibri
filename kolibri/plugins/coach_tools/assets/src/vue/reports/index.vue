@@ -1,8 +1,6 @@
 <template>
 
   <div>
-    <h1>Reports</h1>
-
     <!--USER BREADCRUMBS-->
     <breadcrumbs :list="userBreadcrumbs"></breadcrumbs>
 
@@ -15,33 +13,35 @@
 
 
     <div class="tabcontents">
-      <!--CONTENT BREADCRUMBS-->
-      <breadcrumbs :list="contentBreadcrumbs"></breadcrumbs>
+      <div class="top-section">
+        <!--CONTENT BREADCRUMBS-->
+        <breadcrumbs :list="contentBreadcrumbs"></breadcrumbs>
 
-      <!--HEADER SECTION-->
-      <report-header
-        :contentkind="pageState.content_scope_summary.kind"
-        :contenttitle="pageState.content_scope_summary.title"
-        :userfullname="pageState.user_scope_summary.full_name"
-      ></report-header>
+        <!--HEADER SECTION-->
+        <report-header
+          :contentkind="pageState.content_scope_summary.kind"
+          :contenttitle="pageState.content_scope_summary.title"
+          :userfullname="pageState.user_scope_summary.full_name"
+        ></report-header>
 
-      <!--SUMMARY SECTION-->
-      <summary-section
-        :kind="pageState.content_scope_summary.kind"
-        :exercisecount="exerciseCount"
-        :exerciseprogress="exerciseProgress"
-        :contentcount="contentCount"
-        :contentprogress="contentProgress"
-        :lastactive="pageState.content_scope_summary.last_active"
-        :singleuser="isSingleUser"
-        :usercount="userCount"
-        :completioncount="completionCount"
-        :userscompleted="usersCompleted"
-        :isrecentview="isRecentView"
-      ></summary-section>
+        <!--SUMMARY SECTION-->
+        <summary-section
+          :kind="pageState.content_scope_summary.kind"
+          :exercisecount="exerciseCount"
+          :exerciseprogress="exerciseProgress"
+          :contentcount="contentCount"
+          :contentprogress="contentProgress"
+          :lastactive="pageState.content_scope_summary.last_active"
+          :singleuser="isSingleUser"
+          :usercount="userCount"
+          :completioncount="completionCount"
+          :userscompleted="usersCompleted"
+          :isrecentview="isRecentView"
+        ></summary-section>
+      </div>
 
       <!-- TABLE SECTION -->
-      <div v-if="!isSingleUser || !isSingleItem">
+      <div v-if="!isSingleUser || !isSingleItem" class="table-section">
         <!--VIEW-BY SWITCH-->
         <view-by-switch
           v-if="!isRecentView"
@@ -124,6 +124,7 @@
       'avg-exercise-progress': 'Avg. Exercise Progress',
       'avg-content-progress': 'Avg. Content Progress',
       'last-activity': 'Last Activity',
+      'all-learners': 'All Learners ({0, number, integer})',
     },
     components: {
       'breadcrumbs': require('./breadcrumbs'),
@@ -155,7 +156,7 @@
       },
       userBreadcrumbs() {
         if (this.pageState.user_scope === Constants.UserScopes.FACILITY) {
-          return [{ title: 'All Learners' }];
+          return [{ title: this.$tr('all-learners', [this.userCount]) }];
         } else if (this.pageState.user_scope === Constants.UserScopes.USER) {
           const FACILITY_ID = '1'; // TODO - facility ID should not be hard-coded.
           return [
@@ -244,5 +245,12 @@
 
   .item-move
     transition: transform 0.5s cubic-bezier(0.55, 0, 0.1, 1)
+
+  .top-section,
+  .table-section
+    background-color: $core-bg-light
+    margin-top: 1em
+    margin-bottom: 1em
+    padding: 1em
 
 </style>

@@ -1,8 +1,12 @@
 <template>
 
   <div class="tabs">
-    <a v-link="recentviewlink" :class="{ active: isrecentview }">Recent</a>
-    <a v-link="allviewlink" :class="{ active: !isrecentview }">Topics</a>
+    <a v-link="recentviewlink">
+      <div class="tab" :class="{ active: isrecentview }">Recent</div>
+    </a>
+    <a v-link="allviewlink">
+      <div class="tab" :class="{ active: !isrecentview }">Topics</div>
+    </a>
   </div>
 
 </template>
@@ -34,23 +38,24 @@
 
   @require '~kolibri.styles.coreTheme'
 
-  .tabs a
-    background-color: $core-bg-canvas
-    color: $core-action-normal
-    border: none
-    padding: 5px 15px
-    font-size: 1em
-    border-radius: 0
-    border-bottom: solid 3px white
-    margin-top: 5px
-    &:hover
-      color: $core-action-dark
-
-  .tabs a.active
+  .tabs
+    margin-top: 0.5em
+    margin-bottom: 0.5em
     background-color: $core-bg-light
+
+  a
+    display: inline-block
+    text-decoration: none
+
+
+  .tab
+    display: inline-block
+    padding: 0.75em
+    color: $core-text-default
+    background-color: $core-bg-light
+    border-bottom: solid 3px $core-bg-light
+
+  .active
     border-bottom: solid 3px $core-action-normal
-
-  .tabcontents
-    background-color: $core-bg-light
 
 </style>
