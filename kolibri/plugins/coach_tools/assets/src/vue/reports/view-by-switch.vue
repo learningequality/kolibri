@@ -1,17 +1,21 @@
 <template>
 
   <div>
-    <label>
-      {{ $tr('viewbylabel') }}
-      <div class="toggle-switch">
-        <a v-link="contentLinkTarget">
-          <div class="toggle-switch-item" :class="contentLinkClass">{{ $tr('contents') }}</div>
-        </a>
-        <a v-link="userLinkTarget">
-          <div class="toggle-switch-item" :class="userLinkClass">{{ $tr('learners') }}</div>
-        </a>
-      </div>
-    </label>
+
+    <div class="label">{{ $tr('viewbylabel') }}</div>
+
+    <div class="left-text" :class="{ selected: iscontent }">{{ $tr('contents') }}</div>
+
+    <div class="toggle-switch-wrapper">
+      <a v-link="vlink">
+        <div class="toggle-switch" :class="{ disabled: disabled }">
+          <div class="toggle-switch-slider" :class="{ selected: iscontent }"></div>
+        </div>
+      </a>
+    </div>
+
+    <div class="right-text" :class="{ selected: !iscontent }">{{ $tr('learners') }}</div>
+
   </div>
 
 </template>
@@ -40,30 +44,6 @@
         default: false,
       },
     },
-    computed: {
-      contentLinkTarget() {
-        return this.iscontent ? undefined : this.vlink;
-      },
-      contentLinkClass() {
-        if (this.iscontent) {
-          return 'current';
-        } else if (this.disabled) {
-          return 'disabled';
-        }
-        return '';
-      },
-      userLinkTarget() {
-        return this.iscontent ? this.vlink : undefined;
-      },
-      userLinkClass() {
-        if (!this.iscontent) {
-          return 'current';
-        } else if (this.disabled) {
-          return 'disabled';
-        }
-        return '';
-      },
-    },
   };
 
 </script>
@@ -73,29 +53,43 @@
 
   @require '~kolibri.styles.coreTheme'
 
-  $switch-background-color = #9e9e9e
+  $switch-background-color = #e0e0e0
+
+  .left-text, .right-text
+    color: $core-text-annotation
+
+  .label, .left-text, .toggle-switch-wrapper, .right-text
+    display: inline-block
+    vertical-align: middle
+
+  .label
+    margin-right: 0.5em
 
   .toggle-switch
-    display: inline-table
-    margin: 0.5em
-    border: 3px solid $switch-background-color
+    width: 3em
+    height: 1.5em
+    border-radius: 1em
     background-color: $switch-background-color
+
+  .toggle-switch-slider
+    width: 1.5em
+    height: 1.5em
+    border-radius: 1em
+    margin-left: 1.5em
+    background-color: $core-action-normal
 
   a
     display: inline-block
     text-decoration: none
 
-  .toggle-switch-item
-    padding: 0.5em
-    background-color: $switch-background-color
-    color: white
-
-  .current
-    background-color: $core-action-normal
-    cursor: pointer
+  .selected
+    margin-left: 0
+    color: $core-text-default
 
   .disabled
-    color: $core-text-disabled
     cursor: not-allowed
+
+  .disabled > .toggle-switch-slider
+    background-color: $core-action-light
 
 </style>
