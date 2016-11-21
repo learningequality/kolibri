@@ -1,12 +1,30 @@
 <template>
 
   <div class="dropdown">
-    <button>{{ $tr('downloadContent') }} &#9660</button>
-    <div class="dropdown-items">
-      <a class="dropdown-item" v-for="file in files" href="{{ file.download_url }}">
-        {{ file.preset + ' (' + prettifyFileSize(file.file_size) + ')' }}
-      </a>
-    </div>
+    <button
+      class="dropdown-button"
+      @click="toggleDropdown"
+      aria-haspopup="true">
+      {{ $tr('downloadContent') }} &#9660
+    </button>
+    <ul
+      class="dropdown-items"
+      :class="{ dropdownopen: dropdownopen }"
+      :aria-hidden="dropDownOpenText"
+      role="menu">
+      <li
+        v-for="file in files"
+        class="dropdown-item"
+        role="presentation">
+        <a
+          class="dropdown-item-link"
+          @click="toggleDropdown"
+          href="{{ file.download_url }}"
+          role="menuitem">
+          {{ file.preset + ' (' + prettifyFileSize(file.file_size) + ')' }}
+        </a>
+      </li>
+    </ul>
   </div>
 
 </template>
@@ -17,7 +35,7 @@
   const filesize = require('filesize');
 
   module.exports = {
-    $trNameSpace: 'contentRender',
+    $trNameSpace: 'downloadButton',
     $trs: {
       downloadContent: 'Download Content',
     },
@@ -27,16 +45,36 @@
         default: () => [],
       },
     },
-    components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+    data() {
+      return {
+        dropdownopen: false,
+      };
+    },
+    computed: {
+      dropDownOpenText() {
+        return String(this.dropdownopen);
+      },
     },
     methods: {
-      /**
-       * Creates a human readable file size.
-       */
+      toggleDropdown() {
+        this.dropdownopen = !this.dropdownopen;
+      },
       prettifyFileSize(bytes) {
         return filesize(bytes);
       },
+      handleKeys(e) {
+        if (this.dropdownopen) {
+          if (e.keyCode === 27) {
+            this.toggleDropdown();
+          }
+        }
+      },
+    },
+    ready() {
+      document.addEventListener('keydown', this.handleKeys);
+    },
+    beforeDestroy() {
+      document.removeEventListener('keydown', this.handleKeys);
     },
   };
 
@@ -45,26 +83,41 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.coreTheme'
+
   .dropdown
-    position: relative
     display: inline-block
-    &:hover
-      .dropdown-items
-        display: block
+    position: relative
+
+  .dropdown-button
+    padding: 0.5em
+    font-size: smaller
 
   .dropdown-items
-    position: absolute
-    display: none
-    width: 100%
     background-color: white
-    box-shadow: 1px 1px 4px 0 #cccccc
+    list-style: none
+    padding: 0
+    margin: 0
+    margin-top: 1px
+    display: none
+    position: absolute
 
   .dropdown-item
+    padding: 0.5em
+    margin: 0
+    width: 100%
+    position: relative
     display: block
-    padding: 1em
-    text-decoration: none
-    color: #3a3a3a
     &:hover
-      background-color: #e2d1e0
+      background-color: $core-action-light
+
+  .dropdown-item-link
+    display: block
+    text-decoration: none
+    white-space: nowrap
+    font-size: smaller
+
+  .dropdownopen
+    display: block
 
 </style>
