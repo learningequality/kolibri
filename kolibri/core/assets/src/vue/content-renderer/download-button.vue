@@ -1,12 +1,16 @@
 <template>
 
   <div class="dropdown">
-    <button
+    <icon-button
+      :text="$tr('downloadContent')"
+      :primary="false"
+      :icononright="true"
       class="dropdown-button"
       @click="toggleDropdown"
-      aria-haspopup="true">
-      {{ $tr('downloadContent') }} &#9660
-    </button>
+      aria-haspopup="true"
+    >
+      <svg src="./expand.svg"></svg>
+    </icon-button>
     <ul
       class="dropdown-items"
       :class="{ dropdownopen: dropdownopen }"
@@ -35,6 +39,9 @@
   const filesize = require('filesize');
 
   module.exports = {
+    components: {
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
+    },
     $trNameSpace: 'downloadButton',
     $trs: {
       downloadContent: 'Download Content',
@@ -90,7 +97,8 @@
     position: relative
 
   .dropdown-button
-    padding: 0.5em
+    padding-right: 0.5em
+    padding-left: 0.5em
     font-size: smaller
 
   .dropdown-items

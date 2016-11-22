@@ -1,8 +1,13 @@
 <template>
 
   <button class="icon-button-scope" :class="{'primary' : primary, 'single-line': !textbelow}">
+    <span v-if="text && icononright" class="btn-text"
+          :class="{'btn-bottom-text' : textbelow, 'icon-padding' : !textbelow && hasIcon}">
+      {{ text }}
+    </span>
     <slot v-el:icon></slot>
-    <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : textbelow, 'icon-padding' : !textbelow && hasIcon}">
+    <span v-if="text && !icononright" class="btn-text"
+          :class="{'btn-bottom-text' : textbelow, 'icon-padding' : !textbelow && hasIcon}">
       {{ text }}
     </span>
   </button>
@@ -22,6 +27,10 @@
         default: false,
       },
       textbelow: {
+        type: Boolean,
+        default: false,
+      },
+      icononright: {
         type: Boolean,
         default: false,
       },
@@ -57,7 +66,7 @@
     &:disabled svg
       fill: $core-text-disabled
 
-    // styles specific to primary button
+  // styles specific to primary button
   .icon-button-scope.primary
     svg
       fill: $core-bg-canvas
