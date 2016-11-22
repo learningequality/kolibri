@@ -1,7 +1,7 @@
 <template>
 
   <!--NOT STARTED-->
-  <span v-if="isNotStarted" class="wrapper">
+  <span v-if="isNotStarted" class="wrapper notstarted">
     <svg src="./progress-icons/notstarted.svg"></svg>
     <span v-if="showtext" class="text">
       <span v-if="isExercise">{{ $tr('notStarted') }}</span>
@@ -12,16 +12,16 @@
   </span>
 
   <!--IN PROGRESS-->
-  <span v-if="isInProgress" class="wrapper">
-    <svg src="./progress-icons/inprogress.svg" class="progress"></svg>
+  <span v-if="isInProgress" class="wrapper inprogress">
+    <svg src="./progress-icons/inprogress.svg"></svg>
     <span v-if="showtext" class="text">
       <span>{{ $tr('inProgress') }}</span>
     </span>
   </span>
 
   <!--COMPLETE-->
-  <span v-if="isComplete" class="wrapper">
-    <svg src="./progress-icons/complete.svg" class="complete"></svg>
+  <span v-if="isComplete" class="wrapper complete">
+    <svg src="./progress-icons/complete.svg"></svg>
     <span v-if="showtext" class="text">
       <span v-if="isExercise">{{ $tr('mastered') }}</span>
       <span v-if="isVideo">{{ $tr('watched') }}</span>
@@ -118,20 +118,34 @@
 
   .wrapper
     position: relative
+    display: inline-block
+    width: inherit
+    height: inherit
+    border-radius: 1em
+    background-color: white
+    text-align: center
 
+  svg
+    vertical-align: middle
+    width: 75%
+    height: 75%
+
+  .notstarted
+    background-color: $core-text-annotation
     svg
-      position: absolute
-      top: 50%
-      bottom: 50%
-      transform: translate(-50%, -50%)
+      fill: white
 
-    .progress
-      fill: #ffc107
+  .inprogress
+    background-color: $core-text-warning
+    svg
+      fill: white
 
-    .complete
-      fill: #4caf50
+  .complete
+    background-color: $core-text-success
+    svg
+      fill: white
 
-    .text
-      margin-left: 15px
+  .text
+    margin-left: 15px
 
 </style>
