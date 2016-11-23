@@ -54,13 +54,29 @@
 
   $switch-background-color = #e0e0e0
 
-  .left-text, .right-text
-    color: $core-text-annotation
-
-  .right-text.disabled
+  .disabled
+    cursor: not-allowed
     color: $core-text-disabled
 
-  .label, .left-text, .toggle-switch-wrapper, .right-text
+  .selected
+    color: $core-text-default
+
+  .left-text,
+  .right-text
+    color: $core-text-annotation
+
+  .right-text.disabled,
+  .left-text.disabled
+    color: $core-text-disabled
+
+  .right-text.selected,
+  .left-text.selected
+    color: $core-text-default
+
+  .label,
+  .left-text,
+  .toggle-switch-wrapper,
+  .right-text
     display: inline-block
     vertical-align: middle
 
@@ -83,17 +99,10 @@
     border-radius: 1em
     background-color: $core-action-normal
 
-  .disabled
-    cursor: not-allowed
-    color: $core-text-disabled
+  .toggle-switch-slider.disabled
+    background-color: $core-action-light
 
   .rightside
     margin-left: 1.5em
-
-  .selected
-    color: $core-text-default
-
-  .toggle-switch-slider.disabled
-    background-color: $core-action-light
 
 </style>
