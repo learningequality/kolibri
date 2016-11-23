@@ -6,7 +6,9 @@
       class="dropdown-button"
       @click="toggleDropdown"
       aria-haspopup="true">
-      <span class="dropdown-button-text">{{ $tr('downloadContent') }}</span>
+      <span class="dropdown-button-text" :class="{uparrow: dropdownopen}">
+        {{ $tr('downloadContent') }}
+      </span>
     </button>
     <ul
       v-el:dropdownitems
@@ -154,8 +156,12 @@
 
   .dropdown-button-text
     &:after
-      content: '\25BC'
       padding-left: 0.5em
+      content: '\25BC'
+
+  .uparrow
+    &:after
+      content: '\25b2'
 
   .dropdown-items
     background-color: white
