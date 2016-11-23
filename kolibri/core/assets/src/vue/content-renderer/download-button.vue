@@ -1,12 +1,35 @@
 <template>
 
   <div class="dropdown">
-    <button>{{ $tr('downloadContent') }} &#9660</button>
-    <div class="dropdown-items">
-      <a class="dropdown-item" v-for="file in files" href="{{ file.download_url }}">
-        {{ file.preset + ' (' + prettifyFileSize(file.file_size) + ')' }}
-      </a>
-    </div>
+    <icon-button
+      v-el:dropdownbutton
+      :text="$tr('downloadContent')"
+      :primary="false"
+      :icononright="true"
+      class="dropdown-button"
+      @click="toggleDropdown"
+      aria-haspopup="true">
+      <svg src="./expand.svg"></svg>
+    </icon-button>
+    <ul
+      v-el:dropdownitems
+      class="dropdown-items"
+      :class="{ dropdownopen: dropdownopen }"
+      :aria-hidden="dropDownOpenText"
+      role="menu">
+      <li
+        v-for="file in files"
+        class="dropdown-item"
+        role="presentation">
+        <a
+          class="dropdown-item-link"
+          @click="toggleDropdown"
+          href="{{ file.download_url }}"
+          role="menuitem">
+          {{ file.preset + ' (' + prettifyFileSize(file.file_size) + ')' }}
+        </a>
+      </li>
+    </ul>
   </div>
 
 </template>
@@ -17,7 +40,10 @@
   const filesize = require('filesize');
 
   module.exports = {
-    $trNameSpace: 'contentRender',
+    components: {
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
+    },
+    $trNameSpace: 'downloadButton',
     $trs: {
       downloadContent: 'Download Content',
     },
@@ -27,16 +53,90 @@
         default: () => [],
       },
     },
-    components: {
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
+    data() {
+      return {
+        dropdownopen: false,
+        itemSelected: 0,
+      };
+    },
+    computed: {
+      dropDownOpenText() {
+        return String(this.dropdownopen);
+      },
+      dropDownItems() {
+        let listItems = this.$els.dropdownitems.children;
+        listItems = [...listItems];
+        const anchorItems = [];
+        listItems.forEach((li) => {
+          anchorItems.push(li.children[0]);
+        });
+        return anchorItems;
+      },
+      focusableItems() {
+        let focusableItems = [];
+        focusableItems.push(this.$els.dropdownbutton);
+        focusableItems = focusableItems.concat(this.dropDownItems);
+        return focusableItems;
+      },
     },
     methods: {
-      /**
-       * Creates a human readable file size.
-       */
       prettifyFileSize(bytes) {
         return filesize(bytes);
       },
+      toggleDropdown() {
+        this.dropdownopen = !this.dropdownopen;
+        this.itemSelected = 0;
+      },
+      handleKeys(e) {
+        if (this.dropdownopen) {
+          switch (e.keyCode) {
+            case 40: // down
+              e.stopPropagation();
+              e.preventDefault();
+              this.itemSelected++;
+              this.focusOnItem();
+              return;
+
+            case 38: // up
+              e.stopPropagation();
+              e.preventDefault();
+              this.itemSelected--;
+              this.focusOnItem();
+              return;
+
+            case 9: // tab
+              e.stopPropagation();
+              e.preventDefault();
+              if (this.itemSelected === (this.focusableItems.length - 1)) {
+                this.toggleDropdown();
+                return;
+              }
+              this.itemSelected++;
+              this.focusOnItem();
+              return;
+
+            case 27: // esc
+              e.stopPropagation();
+              e.preventDefault();
+              this.toggleDropdown();
+              return;
+
+            default:
+              return;
+          }
+        }
+      },
+      focusOnItem() {
+        this.itemSelected =
+          Math.min(Math.max(this.itemSelected, 0), (this.focusableItems.length - 1));
+        this.focusableItems[this.itemSelected].focus();
+      },
+    },
+    ready() {
+      document.addEventListener('keydown', this.handleKeys);
+    },
+    beforeDestroy() {
+      document.removeEventListener('keydown', this.handleKeys);
     },
   };
 
@@ -45,26 +145,48 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.coreTheme'
+
   .dropdown
-    position: relative
     display: inline-block
-    &:hover
-      .dropdown-items
-        display: block
+    position: relative
+
+  .dropdown-button
+    padding-right: 0.5em
+    padding-left: 0.5em
+    font-size: smaller
 
   .dropdown-items
-    position: absolute
-    display: none
-    width: 100%
     background-color: white
-    box-shadow: 1px 1px 4px 0 #cccccc
+    list-style: none
+    padding: 0
+    margin: 0
+    margin-top: 2px
+    display: none
+    position: absolute
 
   .dropdown-item
+    padding: 0
+    margin: 0
+    width: 100%
+    position: relative
     display: block
-    padding: 1em
+
+  .dropdown-item-link
+    padding: 0.5em
+    margin: 0
+    width: 100%
+    display: block
     text-decoration: none
-    color: #3a3a3a
+    white-space: nowrap
+    font-size: smaller
+    &:focus
+      background-color: $core-action-light
     &:hover
-      background-color: #e2d1e0
+      background-color: $core-action-light
+      outline: $core-action-light 2px solid
+
+  .dropdownopen
+    display: block
 
 </style>
