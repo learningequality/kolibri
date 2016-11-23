@@ -1,16 +1,13 @@
 <template>
 
   <div class="dropdown">
-    <icon-button
+    <button
       v-el:dropdownbutton
-      :text="$tr('downloadContent')"
-      :primary="false"
-      :icononright="true"
       class="dropdown-button"
       @click="toggleDropdown"
       aria-haspopup="true">
-      <svg src="./expand.svg"></svg>
-    </icon-button>
+      <span class="dropdown-button-text">{{ $tr('downloadContent') }}</span>
+    </button>
     <ul
       v-el:dropdownitems
       class="dropdown-items"
@@ -152,9 +149,13 @@
     position: relative
 
   .dropdown-button
-    padding-right: 0.5em
-    padding-left: 0.5em
+    padding: 0.5em
     font-size: smaller
+
+  .dropdown-button-text
+    &:after
+      content: '\25BC'
+      padding-left: 0.5em
 
   .dropdown-items
     background-color: white
