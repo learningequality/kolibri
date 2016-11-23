@@ -4,6 +4,9 @@
     <div class="card">
       <div class="card-thumbnail">
         <slot></slot>
+        <div class="progress-icon-wrapper">
+          <progress-icon :progress="progress" :kind="kind" :showtext="false"></progress-icon>
+        </div>
       </div>
       <div class="card-content">
         <content-icon
@@ -33,6 +36,10 @@
         type: String,
         required: false,
       },
+      progress: {
+        type: Number,
+        required: false,
+      },
     },
   };
 
@@ -58,6 +65,7 @@
 
   .card-thumbnail
     height: $thumbnail-height
+    position: relative
 
   .text
     -webkit-line-clamp: 3 // Enhance Chrome, doesn't work on other browsers
@@ -82,5 +90,12 @@
 
   a
     text-decoration: none
+
+  .progress-icon-wrapper
+    position: absolute
+    top: 0.25em
+    right: 0.25em
+    width: 1.5em
+    height: 1.5em
 
 </style>
