@@ -57,7 +57,7 @@
     &:disabled svg
       fill: $core-text-disabled
 
-    // styles specific to primary button
+  // styles specific to primary button
   .icon-button-scope.primary
     svg
       fill: $core-bg-canvas
