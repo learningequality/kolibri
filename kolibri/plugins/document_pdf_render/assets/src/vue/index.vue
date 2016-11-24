@@ -71,6 +71,7 @@
       },
     },
     ready() {
+
       PDFobject.embed(this.defaultFile.storage_url, this.$els.pdfcontainer);
       this.$emit('startTracking');
       const self = this;
@@ -117,6 +118,8 @@
     &:fullscreen
       width: 100%
       height: 100%
+      min-height: inherit
+      max-height: inherit
 
   .pdfcontainer
     /* Accounts for the button height. */
