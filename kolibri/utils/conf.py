@@ -45,6 +45,7 @@ config['INSTALLED_APPS'] = [
     "kolibri.plugins.management",
     "kolibri.plugins.learn",
     "kolibri.plugins.document_pdf_render",
+    "kolibri.plugins.html5_app_renderer",
     "kolibri.plugins.video_mp4_render",
     "kolibri.plugins.audio_mp3_render",
     "kolibri.plugins.setup_wizard",
