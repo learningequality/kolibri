@@ -71,6 +71,9 @@ class ZipContentView(View):
         # ensure the browser knows not to try byte-range requests, as we don't support them here
         response["Accept-Ranges"] = "none"
 
+        # allow all origins so that content can be read from within zips within sandboxed iframes
+        response["Access-Control-Allow-Origin"] = "*"
+
         return response
 
 
