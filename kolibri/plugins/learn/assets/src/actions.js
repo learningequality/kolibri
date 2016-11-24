@@ -218,10 +218,10 @@ function showLearnChannel(store, channelId, page = 1) {
       if (!coreGetters.getCurrentChannelObject(store.state)) {
         return;
       }
-      const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
-      const popularPayload = { popular: session.user_id, channel: channelId };
-      const resumePayload = { resume: session.user_id, channel: channelId };
-      const allPayload = { kind: 'content', channel: channelId };
+      const nextStepsPayload = { next_steps: session.user_id };
+      const popularPayload = { popular: session.user_id };
+      const resumePayload = { resume: session.user_id };
+      const allPayload = { kind: 'content' };
       const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
       const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
       const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();

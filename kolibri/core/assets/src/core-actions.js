@@ -350,8 +350,10 @@ function initContentSession(store, coreApp, channelId, contentId, contentKind) {
 function _setChannelState(store, coreApp, currentChannelId, channelList) {
   store.dispatch('SET_CORE_CHANNEL_LIST', channelList);
   store.dispatch('SET_CORE_CURRENT_CHANNEL', currentChannelId);
-  coreApp.resources.ContentNodeResource.setChannel(currentChannelId);
-  cookiejs.set('currentChannelId', currentChannelId);
+  if (currentChannelId !== null) {
+    coreApp.resources.ContentNodeResource.setChannel(currentChannelId);
+    cookiejs.set('currentChannelId', currentChannelId);
+  }
   if (!coreGetters.getCurrentChannelObject(store.state)) {
     handleError(store, 'Channel not found');
   }

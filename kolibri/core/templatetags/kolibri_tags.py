@@ -48,6 +48,10 @@ def kolibri_main_navigation():
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
+    # check necessary for when there is no initial content databases
+    if 'kwargs_channel_id' in kwargs:
+        if not context['currentChannel']:
+            return ''
     response, kwargs = _kolibri_bootstrap_helper(context, base_name, api_resource, 'detail', **kwargs)
     html = ("<script type='text/javascript'>"
             "var model = {0}.resources.{1}.createModel(JSON.parse({2}));"
@@ -57,6 +61,10 @@ def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
+    # check necessary for when there is no initial content databases
+    if 'kwargs_channel_id' in kwargs:
+        if not context['currentChannel']:
+            return ''
     response, kwargs = _kolibri_bootstrap_helper(context, base_name, api_resource, 'list', **kwargs)
     html = ("<script type='text/javascript'>"
             "var collection = {0}.resources.{1}.createCollection({2}, JSON.parse({3}));"
