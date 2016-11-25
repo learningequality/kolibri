@@ -29,7 +29,7 @@
     computed: {
       rooturl() {
         return this.defaultFile.storage_url;
-      }
+      },
     },
 
     methods: {
@@ -72,7 +72,6 @@
       },
     },
     ready() {
-      
       this.$emit('startTracking');
       const self = this;
       this.timeout = setTimeout(() => {
