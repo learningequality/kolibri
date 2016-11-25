@@ -6,7 +6,7 @@
       :text="inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="togglefullscreen">
     </icon-button>
-    <iframe v-el:sandbox class="sandbox" :src="indexpath" sandbox="allow-scripts"></iframe>
+    <iframe v-el:sandbox class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
   </div>
 
 </template>
@@ -27,8 +27,8 @@
     }),
 
     computed: {
-      indexpath() {
-        return this.defaultFile.storage_url + "index.html";
+      rooturl() {
+        return this.defaultFile.storage_url;
       }
     },
 
