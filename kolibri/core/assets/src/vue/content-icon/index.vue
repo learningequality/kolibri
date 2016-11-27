@@ -23,6 +23,7 @@
       <svg v-if="thisIs('exercise')" src="./content-icons/exercise.svg" class="content-type-icon"></svg>
       <svg v-if="thisIs('video')" src="./content-icons/video.svg" class="content-type-icon"></svg>
     </svg>
+    test
   </div>
 
 </template>
