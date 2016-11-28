@@ -170,7 +170,7 @@
       videojs.registerComponent('ForwardButton', customButtons.ForwardButton);
     },
 
-    ready() {
+    mounted() {
       this.videoPlayer = videojs(this.$els.video, {
         fluid: true,
         aspectRatio: '16:9',

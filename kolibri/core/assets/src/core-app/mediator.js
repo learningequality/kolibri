@@ -95,10 +95,10 @@ module.exports = class Mediator {
     this.emit('kolibri_register', kolibriModule);
     const ready = () => {
       if (this._ready) {
-        kolibriModule.ready();
+        kolibriModule.mounted();
       } else {
         this._eventDispatcher.$once('ready', () => {
-          kolibriModule.ready();
+          kolibriModule.mounted();
         });
       }
     };

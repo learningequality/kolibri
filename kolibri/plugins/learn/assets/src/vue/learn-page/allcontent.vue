@@ -37,7 +37,7 @@
       next: 'Next',
       pagesLabel: 'Browse all content',
     },
-    ready() {
+    mounted() {
       /*
         `this.gridWidth` is a quick hack to ensure that rows are completely filled.
         The consequence is that some items are hidden if they spill over and don't

@@ -24,7 +24,7 @@ const REPORT_URL_PATTERN = [
 
 
 class CoachToolsModule extends KolibriModule {
-  ready() {
+  mounted() {
     router.redirect({
       '/': '/reports',
     });

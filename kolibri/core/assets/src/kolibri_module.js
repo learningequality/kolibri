@@ -64,7 +64,7 @@ module.exports = class KolibriModule {
    * Useful for initiating behaviour of the kolibriModule after it is registered against the
    * Kolibri core app.
    */
-  ready() {
+  mounted() {
   }
 
   /**

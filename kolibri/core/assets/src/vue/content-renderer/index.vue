@@ -90,7 +90,7 @@
       // This means this component has to be torn down on channel switches.
       this.$watch('files', this.findRendererComponent);
     },
-    ready() {
+    mounted() {
       this.ready = true;
       this.renderContent();
     },
