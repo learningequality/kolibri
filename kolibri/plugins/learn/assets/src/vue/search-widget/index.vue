@@ -17,7 +17,7 @@
               v-model="localSearchTerm"
               id="search"
               name="search"
-              @keyup="search() | debounce 500"
+              @keyup="search()"
               @keydown.esc.prevent="clear()"
             >
             <button
@@ -84,6 +84,7 @@
 
   const focus = require('vue-focus').focus;
   const actions = require('../../actions');
+  const throttle = require('lodash.throttle');
 
 
   module.exports = {
@@ -136,7 +137,7 @@
         }
       },
       search() {
-        this.triggerSearch(this.localSearchTerm);
+        throttle(this.triggerSearch(this.localSearchTerm), 500);
       },
     },
     components: {
