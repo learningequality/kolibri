@@ -25,12 +25,16 @@
         this.isVisible = true;
       },
     },
-    attached() {
-      this.isVisible = false;
-      this.timeoutId = window.setTimeout(this.show, this.delay);
+    mounted() {
+      this.$nextTick(() => {
+        this.isVisible = false;
+        this.timeoutId = window.setTimeout(this.show, this.delay);
+      });
     },
-    detached() {
-      window.clearTimeout(this.timeoutId);
+    destroyed() {
+      this.$nextTick(() => {
+        window.clearTimeout(this.timeoutId);
+      });
     },
   };
 

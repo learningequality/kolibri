@@ -63,10 +63,12 @@
       username_entered: '',
       password_entered: '',
     }),
-    attached() {
-      this.$refs.usernamefield.focus();
-      this.username_entered = '';
-      this.password_entered = '';
+    mounted() {
+      this.$nextTick(() => {
+        this.$refs.usernamefield.focus();
+        this.username_entered = '';
+        this.password_entered = '';
+      });
     },
     methods: {
       userLogin() {

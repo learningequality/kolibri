@@ -141,9 +141,11 @@
         confirmation_message: '',
       };
     },
-    attached() {
-      // clear form on load
-      this.clear();
+    mounted() {
+      this.$nextTick(() => {
+        // clear form on load
+        this.clear();
+      });
     },
     methods: {
       clear() {

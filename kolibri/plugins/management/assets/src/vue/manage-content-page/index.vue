@@ -83,11 +83,15 @@
     data: () => ({
       intervalId: undefined,
     }),
-    attached() {
-      this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+    mounted() {
+      this.$nextTick(() => {
+        this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
+      });
     },
-    detached() {
-      clearInterval(this.intervalId);
+    destroyed() {
+      this.$nextTick(() => {
+        clearInterval(this.intervalId);
+      });
     },
     computed: {
       wizardComponent() {

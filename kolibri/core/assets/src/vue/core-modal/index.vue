@@ -73,18 +73,22 @@
         default: false,
       },
     },
-    attached() {
-      this.lastFocus = document.activeElement;
-      this.focusModal();
-      window.addEventListener('focus', this.focusElementTest, true);
-      window.addEventListener('scroll', this.preventScroll, true);
+    mounted() {
+      this.$nextTick(() => {
+        this.lastFocus = document.activeElement;
+        this.focusModal();
+        window.addEventListener('focus', this.focusElementTest, true);
+        window.addEventListener('scroll', this.preventScroll, true);
+      });
     },
-    detached() {
-      window.removeEventListener('focus', this.focusElementTest, true);
-      window.removeEventListener('scroll', this.preventScroll, true);
-      // Wait for events to finish propagating before changing the focus.
-      // Otherwise the `lastFocus` item receives events such as 'enter'.
-      window.setTimeout(() => this.lastFocus.focus());
+    destroyed() {
+      this.$nextTick(() => {
+        window.removeEventListener('focus', this.focusElementTest, true);
+        window.removeEventListener('scroll', this.preventScroll, true);
+        // Wait for events to finish propagating before changing the focus.
+        // Otherwise the `lastFocus` item receives events such as 'enter'.
+        window.setTimeout(() => this.lastFocus.focus());
+      });
     },
     data() {
       return {
