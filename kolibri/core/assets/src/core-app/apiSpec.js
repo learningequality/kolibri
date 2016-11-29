@@ -91,9 +91,6 @@ module.exports = {
           module: require('../vue/channel-switcher'),
         },
       },
-      router: {
-        module: require('../router'),
-      },
     },
     styles: {
       navBarItem: {
