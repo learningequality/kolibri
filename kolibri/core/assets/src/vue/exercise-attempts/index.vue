@@ -3,9 +3,9 @@
   <div class="wrapper">
     <div
       class="answer"
-      v-for="item in log"
+      v-for="(item, index) in log"
       transition="fade"
-      :style="styleForIndex($index)"
+      :style="styleForIndex(index)"
     >
       <answer-icon :answer="item" :success="success"></answer-icon>
     </div>
