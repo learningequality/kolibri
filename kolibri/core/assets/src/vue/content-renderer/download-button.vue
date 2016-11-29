@@ -131,7 +131,7 @@
         this.focusableItems[this.itemSelected].focus();
       },
     },
-    ready() {
+    mounted() {
       document.addEventListener('keydown', this.handleKeys);
     },
     beforeDestroy() {

@@ -105,7 +105,7 @@
         localSearchTerm: '',
       };
     },
-    ready() {
+    mounted() {
       this.localSearchTerm = this.searchTerm;
     },
     computed: {

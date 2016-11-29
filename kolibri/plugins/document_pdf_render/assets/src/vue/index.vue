@@ -70,7 +70,7 @@
         }
       },
     },
-    ready() {
+    mounted() {
       PDFobject.embed(this.defaultFile.storage_url, this.$els.pdfcontainer);
       this.$emit('startTracking');
       const self = this;
