@@ -24,7 +24,7 @@
         class="login-form login-username"
         autofocus
         v-model="username_entered"
-        v-el:usernamefield
+        ref="usernamefield"
         :placeholder="$tr('userName')"
         :aria-label="$tr('userName')"
       >
@@ -64,7 +64,7 @@
       password_entered: '',
     }),
     attached() {
-      this.$els.usernamefield.focus();
+      this.$refs.usernamefield.focus();
       this.username_entered = '';
       this.password_entered = '';
     },
@@ -75,7 +75,7 @@
           password: this.password_entered,
         };
         this.kolibriLogin(this.Kolibri, payload);
-        this.$els.usernamefield.focus();
+        this.$refs.usernamefield.focus();
       },
     },
     vuex: {

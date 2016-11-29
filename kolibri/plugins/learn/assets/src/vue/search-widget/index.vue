@@ -9,7 +9,7 @@
           <div class="input-table-cell">
             <input
               type="search"
-              v-el:search
+              ref="search"
               aria-label="Type to find content"
               placeholder="Find content..."
               autocomplete="off"
@@ -131,7 +131,7 @@
           this.toggleSearch();
         } else {
           this.localSearchTerm = '';
-          this.$els.search.focus();
+          this.$refs.search.focus();
           this.triggerSearch(this.localSearchTerm);
         }
       },

@@ -1,7 +1,7 @@
 <template>
 
   <button class="icon-button-scope" :class="{'primary' : primary, 'single-line': !textbelow}">
-    <slot v-el:icon></slot>
+    <slot ref="icon"></slot>
     <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : textbelow, 'icon-padding' : !textbelow && hasIcon}">
       {{ text }}
     </span>
