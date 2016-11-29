@@ -3,7 +3,7 @@ const Vue = require('vue');
 
 
 class SetupWizardModule extends KolibriModule {
-  mounted() {
+  ready() {
     this.vm = new Vue({
       el: 'body',
       components: {

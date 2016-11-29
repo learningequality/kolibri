@@ -10,7 +10,7 @@ const PageNames = require('./state/constants').PageNames;
 
 
 class ManagementModule extends KolibriModule {
-  mounted() {
+  ready() {
     router.on(
       PageNames.USER_MGMT_PAGE,
       '/users',

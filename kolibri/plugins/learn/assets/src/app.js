@@ -9,7 +9,7 @@ const store = require('./state/store');
 const PageNames = require('./state/constants').PageNames;
 
 class LearnModule extends KolibriModule {
-  mounted() {
+  ready() {
     router.on(
       PageNames.EXPLORE_ROOT,
       '/explore',
