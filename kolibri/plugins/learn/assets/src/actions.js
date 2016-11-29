@@ -2,7 +2,6 @@ const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
 const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('./state/constants');
 const PageNames = constants.PageNames;
-const router = require('kolibri.coreVue.router');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
@@ -89,12 +88,12 @@ function redirectToExploreChannel(store) {
   coreActions.setChannelInfo(store, coreApp).then(
     () => {
       if (store.state.core.channels.list.length) {
-        router.replace({
+        coreApp.rootview.$router.replace({
           name: constants.PageNames.EXPLORE_CHANNEL,
           params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
         });
       } else {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        coreApp.rootview.$router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
     error => { coreActions.handleApiError(store, error); }
@@ -109,12 +108,12 @@ function redirectToLearnChannel(store) {
   coreActions.setChannelInfo(store, coreApp).then(
     () => {
       if (store.state.core.channels.list.length) {
-        router.replace({
+        coreApp.rootview.$router.replace({
           name: constants.PageNames.LEARN_CHANNEL,
           params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
         });
       } else {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        coreApp.rootview.$router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
     error => { coreActions.handleApiError(store, error); }

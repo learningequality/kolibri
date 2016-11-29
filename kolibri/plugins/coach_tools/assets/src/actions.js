@@ -1,4 +1,3 @@
-const router = require('kolibri.coreVue.router');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const coreApp = require('kolibri');
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
@@ -51,7 +50,7 @@ function redirectToDefaultReport(store, params) {
 
       /* get userScopeId for facility */
       const userScopeId = facilityId[0];
-      router.replace({
+      coreApp.rootview.$router.replace({
         name: Constants.PageNames.REPORTS,
         params: {
           channel_id: channelId,
