@@ -20,7 +20,7 @@
           <template v-if="writableDrives.length > 1">
             <h2>Writable drives detected:</h2>
             <div class="drive-list">
-              <div class="drive-names" v-for="(index, drive) in writableDrives">
+              <div class="drive-names" v-for="(drive, index) in writableDrives">
                 <input
                   type="radio"
                   :id="'drive-'+index"

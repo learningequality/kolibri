@@ -82,7 +82,7 @@
         return Math.floor(this.progress * 100);
       },
     },
-    init() {
+    beforeCreate() {
       this._eventListeners = [];
     },
     created() {

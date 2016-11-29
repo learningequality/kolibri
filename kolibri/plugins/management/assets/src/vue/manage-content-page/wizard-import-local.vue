@@ -22,7 +22,7 @@
           <template v-if="drivesWithData.length > 1">
             <h2>Drives detected with data:</h2>
             <div class="drive-list">
-              <div class="drive-names" v-for="(index, drive) in drivesWithData">
+              <div class="drive-names" v-for="(drive, index) in drivesWithData">
                 <input
                   type="radio"
                   :id="'drive-'+index"
