@@ -4,7 +4,7 @@ const cookiejs = require('js-cookie');
 const UserKinds = require('./constants').UserKinds;
 const MasteryLoggingMap = require('./constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('./constants').AttemptLoggingMap;
-const debounce = require('vue').util.debounce;
+const throttle = require('lodash.throttle');
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 const coreGetters = require('kolibri.coreVue.vuex.getters');
 
@@ -164,7 +164,7 @@ function handleApiError(store, errorObject) {
   handleError(store, JSON.stringify(errorObject, null, '\t'));
 }
 
-const debouncedSetWindowInfo = debounce((store) => {
+const debouncedSetWindowInfo = throttle((store) => {
   // http://stackoverflow.com/a/8876069
   const w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
   const h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);

@@ -22,7 +22,7 @@
   const videojs = require('video.js');
   const langcodes = require('./langcodes.json');
   const customButtons = require('./videojs-replay-forward-btns');
-  const debounce = require('vue').util.debounce;
+  const throttle = require('lodash.throttle');
 
   module.exports = {
 
@@ -116,7 +116,7 @@
       },
 
       get debouncedResizeVideo() {
-        return debounce(this.resizeVideo, 300);
+        return throttle(this.resizeVideo, 300);
       },
 
       videoPlayerIsReady() {
