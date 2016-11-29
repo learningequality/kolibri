@@ -16,9 +16,10 @@
       :extra-fields="content.extra_fields">
     </content-renderer>
 
-    <icon-button v-link="nextContentLink" v-if="progress >= 1 && showNextBtn" class="next-btn">
-    {{ $tr("nextContent") }}
-    <svg class="right-arrow" src="../icons/arrow_right.svg"></svg></icon-button>
+    <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn">
+      {{ $tr("nextContent") }}
+      <svg class="right-arrow" src="../icons/arrow_right.svg"></svg>
+    </icon-button>
 
     <p class="page-description">{{ content.description }}</p>
 
@@ -91,6 +92,11 @@
     components: {
       'page-header': require('../page-header'),
       'expandable-content-grid': require('../expandable-content-grid'),
+    },
+    methods: {
+      nextContentClicked() {
+        this.$router.push(this.nextContentLink);
+      },
     },
     vuex: {
       getters: {

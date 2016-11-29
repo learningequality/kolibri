@@ -3,7 +3,7 @@
   <div>
     <div class="wrapper">
       <content-icon :kind="kind" class="icon"></content-icon>
-      <a v-link="vLink">{{ title }}</a>
+      <router-link :to="vLink">{{ title }}</router-link>
     </div>
     <div class="wrapper" v-if="isTopic">
       {{ $tr('exercises', {count: exercisecount}) }} ● {{ $tr('contents', {count: contentcount}) }}

@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <list-item v-link="link" :title="title">
+    <list-item :link="link" :title="title">
       <div class="thumbnail"></div>
     </list-item>
   </div>

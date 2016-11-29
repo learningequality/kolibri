@@ -1,11 +1,11 @@
 <template>
 
   <div class="link-wrapper">
-    <a v-if="vlink" v-link="vlink" :class="{active: active}" @click="blur" ref="link" class="link">
+    <router-link v-if="vlink" :to="vlink" :class="{active: active}" @click="blur" ref="link" class="link">
       <div class="content">
         <slot></slot>
       </div>
-    </a>
+    </router-link>
     <a v-else :href="href" :class="{active: active}" @click="blur" ref="link" class="link">
       <div class="content">
         <slot></slot>

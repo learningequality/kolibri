@@ -1,12 +1,12 @@
 <template>
 
   <div class="tabs">
-    <a v-link="recentviewlink">
+    <router-link :to="recentviewlink">
       <div class="tab" :class="{ active: isrecentview }">Recent</div>
-    </a>
-    <a v-link="allviewlink">
+    </router-link>
+    <router-link :to="allviewlink">
       <div class="tab" :class="{ active: !isrecentview }">Topics</div>
-    </a>
+    </router-link>
   </div>
 
 </template>

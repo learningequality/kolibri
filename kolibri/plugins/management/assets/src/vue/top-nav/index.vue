@@ -2,15 +2,15 @@
 
   <div class="top">
     <div class="links">
-      <a v-link="usersLink" :class="{active: usersActive}" @click="blur">
+      <router-link :to="usersLink" :class="{active: usersActive}" @click="blur">
         Users
-      </a>
-      <a v-link="dataLink" :class="{active: dataActive}" @click="blur">
+      </router-link>
+      <router-link :to="dataLink" :class="{active: dataActive}" @click="blur">
         Data
-      </a>
-      <a v-link="contentLink" :class="{active: contentActive}" @click="blur" v-if="isDeviceOwner">
+      </router-link>
+      <router-link :to="contentLink" :class="{active: contentActive}" @click="blur" v-if="isDeviceOwner">
         Content
-      </a>
+      </router-link>
     </div>
   </div>
 

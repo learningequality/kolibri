@@ -4,10 +4,10 @@
 
     <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 
-      <a v-if="hasPrev" v-link="prevPageLink" class="allnav-item">{{ $tr('prev') }}</a>
+      <router-link v-if="hasPrev" :to="prevPageLink" class="allnav-item">{{ $tr('prev') }}</router-link>
       <span v-else class="allnav-item allnav-disabled">{{ $tr('prev') }}</span>
 
-      <a v-if="hasNext" v-link="nextPageLink" class="allnav-item">{{ $tr('next') }}</a>
+      <router-link v-if="hasNext" :to="nextPageLink" class="allnav-item">{{ $tr('next') }}</router-link>
       <span v-else class="allnav-item allnav-disabled">{{ $tr('next') }}</span>
 
     </div>
