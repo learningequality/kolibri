@@ -12,7 +12,7 @@
       </div>
       <input
         v-if="notIE9"
-        v-el:timebar
+        ref="timebar"
         class="timeline"
         type="range" min="0" value="0"
         :max="max"
@@ -31,7 +31,7 @@
     </div>
     <audio
       id="audio"
-      v-el:audio
+      ref="audio"
       @timeupdate="updateDummyTime"
       @loadedmetadata="setTotalTime"
       @ended="endPlay"
@@ -56,7 +56,7 @@
       isPlay: true,
       isPause: false,
       max: 0,
-      // This data attribute is required, as we cannot use this.$els.audio in our getter for
+      // This data attribute is required, as we cannot use this.$refs.audio in our getter for
       // rawTime, because at the time of getter initialization for the computed property,
       // the DOM does not exist, so the above object path is undefined, which causes problems.
       dummyTime: 0,
@@ -106,7 +106,7 @@
         set(value) {
           // Set the actual time here and let the updateDummyTime method take care of updating
           // based on the change event happening here on the currentTime.
-          this.$els.audio.currentTime = value;
+          this.$refs.audio.currentTime = value;
         },
       },
     },
@@ -118,7 +118,7 @@
 
     methods: {
       play() {
-        this.$els.audio.play();
+        this.$refs.audio.play();
         this.isPlay = false;
         this.isPause = true;
         this.recordProgress();
@@ -126,7 +126,7 @@
       },
 
       pause() {
-        this.$els.audio.pause();
+        this.$refs.audio.pause();
         this.isPlay = true;
         this.isPause = false;
         this.recordProgress();
@@ -134,7 +134,7 @@
       },
 
       togglePlay() {
-        if (this.$els.audio.paused) {
+        if (this.$refs.audio.paused) {
           this.play();
         } else {
           this.pause();
@@ -146,7 +146,7 @@
       },
 
       updateDummyTime() {
-        this.dummyTime = this.$els.audio.currentTime;
+        this.dummyTime = this.$refs.audio.currentTime;
         if (this.dummyTime - this.lastUpdateTime >= 5) {
           this.recordProgress();
           this.lastUpdateTime = this.dummyTime;
@@ -154,7 +154,7 @@
       },
 
       setTotalTime() {
-        this.max = this.$els.audio.duration;
+        this.max = this.$refs.audio.duration;
       },
 
       /* Adds '0' before seconds (e.g. 1:05 instead of 1:5) */
@@ -173,8 +173,8 @@
       plus20() {
         const sum = this.rawTime + 20;
         /* Pauses audio at end if +20s goes over the audio duration */
-        if (sum > this.$els.audio.duration) {
-          this.rawTime = this.$els.audio.duration;
+        if (sum > this.$refs.audio.duration) {
+          this.rawTime = this.$refs.audio.duration;
           this.pause();
           return;
         }
@@ -194,14 +194,14 @@
         /* Record any progress up to this point */
         this.recordProgress();
         /* Set last check to be where player is at now */
-        this.dummyTime = this.$els.audio.currentTime;
+        this.dummyTime = this.$refs.audio.currentTime;
         this.lastUpdateTime = this.dummyTime;
       },
 
       recordProgress() {
         this.$emit('progressUpdate', Math.max((this.dummyTime
           - this.progressStartingPoint) / Math.floor(this.max), 0));
-        this.progressStartingPoint = this.$els.audio.currentTime;
+        this.progressStartingPoint = this.$refs.audio.currentTime;
       },
     },
   };

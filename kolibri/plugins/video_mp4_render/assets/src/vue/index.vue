@@ -1,9 +1,9 @@
 <template>
 
-  <div v-el:videowrapperwrapper class="videowrapperwrapper">
+  <div ref="videowrapperwrapper" class="videowrapperwrapper">
     <loading-spinner v-if="loading"></loading-spinner>
-    <div v-el:videowrapper v-show="!loading" class="videowrapper">
-      <video v-el:video class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
+    <div ref="videowrapper" v-show="!loading" class="videowrapper">
+      <video ref="video" class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type="'video/' + video.extension">
         </template>
@@ -89,12 +89,12 @@
         this.resizeVideo();
         this.videoPlayerIsReady();
         this.loading = false;
-        this.$els.video.tabIndex = -1;
+        this.$refs.video.tabIndex = -1;
       },
 
       resizeVideo() {
-        const wrapperWrapperWidth = this.$els.videowrapperwrapper.clientWidth;
-        const wrapperWrapperHeight = this.$els.videowrapperwrapper.clientHeight;
+        const wrapperWrapperWidth = this.$refs.videowrapperwrapper.clientWidth;
+        const wrapperWrapperHeight = this.$refs.videowrapperwrapper.clientHeight;
 
         const aspectRatio = 16 / 9;
 
@@ -112,7 +112,7 @@
           newHeight = wrapperWrapperHeight;
         }
 
-        this.$els.videowrapper.setAttribute('style', `width:${newWidth}px;height:${newHeight}px`);
+        this.$refs.videowrapper.setAttribute('style', `width:${newWidth}px;height:${newHeight}px`);
       },
 
       get debouncedResizeVideo() {
@@ -120,15 +120,15 @@
       },
 
       videoPlayerIsReady() {
-        videojs(this.$els.video).on('play', () => {
+        videojs(this.$refs.video).on('play', () => {
           this.setPlayState(true);
         });
 
-        videojs(this.$els.video).on('pause', () => {
+        videojs(this.$refs.video).on('pause', () => {
           this.setPlayState(false);
         });
 
-        videojs(this.$els.video).on('ended', () => {
+        videojs(this.$refs.video).on('ended', () => {
           this.setPlayState(false);
         });
       },
@@ -158,7 +158,7 @@
       },
 
       focusOnPlayControl() {
-        const videoWrapper = this.$els.videowrapper;
+        const videoWrapper = this.$refs.videowrapper;
         videoWrapper.getElementsByClassName('vjs-play-control')[0].focus();
       },
     },
@@ -171,7 +171,7 @@
     },
 
     mounted() {
-      this.videoPlayer = videojs(this.$els.video, {
+      this.videoPlayer = videojs(this.$refs.video, {
         fluid: true,
         aspectRatio: '16:9',
         autoplay: false,

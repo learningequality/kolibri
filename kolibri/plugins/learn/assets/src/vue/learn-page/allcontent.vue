@@ -1,6 +1,6 @@
 <template>
 
-  <card-grid :header="'All Content'" v-if="all.content.length" v-el:grid>
+  <card-grid :header="'All Content'" v-if="all.content.length" ref="grid">
 
     <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 
@@ -45,9 +45,9 @@
         and checking sizes that are usually handled with styles and media queries.
       */
       this.$watch('viewportWidth', () => {
-        this.gridWidth = this.$els.grid.offsetWidth;
+        this.gridWidth = this.$refs.grid.offsetWidth;
       });
-      this.gridWidth = this.$els.grid.offsetWidth;
+      this.gridWidth = this.$refs.grid.offsetWidth;
     },
     data() {
       return {

@@ -5,7 +5,7 @@
       <div class="content-wrapper">
         {{ progressPercent }}%
         <loading-spinner v-if="!currentViewClass"></loading-spinner>
-        <div v-el:container></div>
+        <div ref="container"></div>
       </div>
     </div>
     <div v-else>
@@ -181,7 +181,7 @@
             // Set the parent so that it is in the Vue family.
             parent: this,
             // Let it mount on the DOM in the container div set up in the template.
-            el: this.$els.container,
+            el: this.$refs.container,
             // Pass in the propsData!
             propsData,
           };
