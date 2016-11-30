@@ -14,7 +14,7 @@
         v-if="notIE9"
         ref="timebar"
         class="timeline"
-        type="range" min="0" value="0"
+        type="range" min="0"
         :max="max"
         v-model="rawTime">
       <!--[if lte IE 9]>
