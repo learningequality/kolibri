@@ -73,10 +73,8 @@
       };
     },
     mounted() {
-      this.$nextTick(() => {
-        // clear form on load
-        this.$data = this.$options.data();
-      });
+      // clear form on load
+      this.$data = this.$options.data();
     },
     methods: {
       createNewUser() {

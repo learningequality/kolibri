@@ -2,18 +2,18 @@
 
   <!-- Accessibility properties for the overlay -->
   <div class="modal-overlay"
-    @keydown.esc="emitCancelEvent"
-    @keydown.enter="emitEnterEvent"
-    @click="bgClick($event)"
-    ref="modal-overlay"
-    id="modal-window">
+       @keydown.esc="emitCancelEvent"
+       @keydown.enter="emitEnterEvent"
+       @click="bgClick($event)"
+       ref="modal-overlay"
+       id="modal-window">
 
     <div class="modal"
-      ref="modal"
-      :tabindex="0"
-      transition="modal"
-      role="dialog"
-      aria-labelledby="modal-title">
+         ref="modal"
+         :tabindex="0"
+         transition="modal"
+         role="dialog"
+         aria-labelledby="modal-title">
 
       <div class="top-buttons">
         <button aria-label="Go back" @click="emitBackEvent" class="header-btn btn-back" v-if="enablebackbtn">
@@ -74,17 +74,17 @@
       },
     },
     mounted() {
+      this.lastFocus = document.activeElement;
       this.$nextTick(() => {
-        this.lastFocus = document.activeElement;
         this.focusModal();
-        window.addEventListener('focus', this.focusElementTest, true);
-        window.addEventListener('scroll', this.preventScroll, true);
       });
+      window.addEventListener('focus', this.focusElementTest, true);
+      window.addEventListener('scroll', this.preventScroll, true);
     },
     destroyed() {
+      window.removeEventListener('focus', this.focusElementTest, true);
+      window.removeEventListener('scroll', this.preventScroll, true);
       this.$nextTick(() => {
-        window.removeEventListener('focus', this.focusElementTest, true);
-        window.removeEventListener('scroll', this.preventScroll, true);
         // Wait for events to finish propagating before changing the focus.
         // Otherwise the `lastFocus` item receives events such as 'enter'.
         window.setTimeout(() => this.lastFocus.focus());

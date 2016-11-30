@@ -84,14 +84,10 @@
       intervalId: undefined,
     }),
     mounted() {
-      this.$nextTick(() => {
-        this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
-      });
+      this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
     },
     destroyed() {
-      this.$nextTick(() => {
-        clearInterval(this.intervalId);
-      });
+      clearInterval(this.intervalId);
     },
     computed: {
       wizardComponent() {

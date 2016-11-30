@@ -26,15 +26,11 @@
       },
     },
     mounted() {
-      this.$nextTick(() => {
-        this.isVisible = false;
-        this.timeoutId = window.setTimeout(this.show, this.delay);
-      });
+      this.isVisible = false;
+      this.timeoutId = window.setTimeout(this.show, this.delay);
     },
     destroyed() {
-      this.$nextTick(() => {
-        window.clearTimeout(this.timeoutId);
-      });
+      window.clearTimeout(this.timeoutId);
     },
   };
 
