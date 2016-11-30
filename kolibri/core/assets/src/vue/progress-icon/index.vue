@@ -5,14 +5,14 @@
     <svg src="./progress-icons/notstarted.svg"></svg>
     <span v-if="showtext" class="text">
       <span v-if="isExercise">{{ $tr('notStarted') }}</span>
-      <span v-if="isVideo">{{ $tr('notWatched') }}</span>
-      <span v-if="isAudio">{{ $tr('notListened') }}</span>
-      <span v-if="isDocument">{{ $tr('notViewed') }}</span>
+      <span v-else-if="isVideo">{{ $tr('notWatched') }}</span>
+      <span v-else-if="isAudio">{{ $tr('notListened') }}</span>
+      <span v-else-if="isDocument">{{ $tr('notViewed') }}</span>
     </span>
   </span>
 
   <!--IN PROGRESS-->
-  <span v-if="isInProgress" class="wrapper inprogress">
+  <span v-else-if="isInProgress" class="wrapper inprogress">
     <svg src="./progress-icons/inprogress.svg"></svg>
     <span v-if="showtext" class="text">
       <span>{{ $tr('inProgress') }}</span>
@@ -20,13 +20,13 @@
   </span>
 
   <!--COMPLETE-->
-  <span v-if="isComplete" class="wrapper complete">
+  <span v-else-if="isComplete" class="wrapper complete">
     <svg src="./progress-icons/complete.svg"></svg>
     <span v-if="showtext" class="text">
       <span v-if="isExercise">{{ $tr('mastered') }}</span>
-      <span v-if="isVideo">{{ $tr('watched') }}</span>
-      <span v-if="isAudio">{{ $tr('listened') }}</span>
-      <span v-if="isDocument">{{ $tr('viewed') }}</span>
+      <span v-else-if="isVideo">{{ $tr('watched') }}</span>
+      <span v-else-if="isAudio">{{ $tr('listened') }}</span>
+      <span v-else-if="isDocument">{{ $tr('viewed') }}</span>
     </span>
   </span>
 
