@@ -63,8 +63,10 @@
       username_entered: '',
       password_entered: '',
     }),
-    attached() {
-      this.$refs.usernamefield.focus();
+    mounted() {
+      this.$nextTick(() => {
+        this.$refs.usernamefield.focus();
+      });
       this.username_entered = '';
       this.password_entered = '';
     },

@@ -73,13 +73,15 @@
         default: false,
       },
     },
-    attached() {
+    mounted() {
       this.lastFocus = document.activeElement;
-      this.focusModal();
+      this.$nextTick(() => {
+        this.focusModal();
+      });
       window.addEventListener('focus', this.focusElementTest, true);
       window.addEventListener('scroll', this.preventScroll, true);
     },
-    detached() {
+    destroyed() {
       window.removeEventListener('focus', this.focusElementTest, true);
       window.removeEventListener('scroll', this.preventScroll, true);
       // Wait for events to finish propagating before changing the focus.

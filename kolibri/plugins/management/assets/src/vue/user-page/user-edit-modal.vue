@@ -141,7 +141,7 @@
         confirmation_message: '',
       };
     },
-    attached() {
+    mounted() {
       // clear form on load
       this.clear();
     },

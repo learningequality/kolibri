@@ -72,7 +72,7 @@
         errorMessage: '',
       };
     },
-    attached() {
+    mounted() {
       // clear form on load
       this.$data = this.$options.data();
     },
