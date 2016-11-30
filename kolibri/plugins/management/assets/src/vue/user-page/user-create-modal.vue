@@ -32,8 +32,8 @@
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
           <select @focus="clearErrorMessage" v-model="role" id="user-role">
-          <option value="learner" selected> Learner </option>
-          <option value="admin"> Admin </option>
+            <option value="learner"> Learner </option>
+            <option value="admin"> Admin </option>
           </select>
         </div>
       </section>

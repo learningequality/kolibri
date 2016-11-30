@@ -23,7 +23,7 @@
         <a
           class="dropdown-item-link"
           @click="toggleDropdown"
-          href="{{ file.download_url }}"
+          :href="file.download_url"
           role="menuitem">
           {{ file.preset + ' (' + prettifyFileSize(file.file_size) + ')' }}
         </a>

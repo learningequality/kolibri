@@ -2,7 +2,7 @@
 
   <div>
     <h1>{{ $tr('header') }}</h1>
-    <p v-if="isAdminOrSuperuser">{{{ $trHtml('adminLink') }}}</p>
+    <p v-if="isAdminOrSuperuser" v-html="$trHtml('adminLink')"></p>
     <p v-else>{{ $tr('notAdmin') }}</p>
   </div>
 
