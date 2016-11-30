@@ -77,17 +77,15 @@
       this.lastFocus = document.activeElement;
       this.$nextTick(() => {
         this.focusModal();
+        window.addEventListener('focus', this.focusElementTest, true);
       });
-      window.addEventListener('focus', this.focusElementTest, true);
       window.addEventListener('scroll', this.preventScroll, true);
     },
     destroyed() {
       window.removeEventListener('focus', this.focusElementTest, true);
       window.removeEventListener('scroll', this.preventScroll, true);
-      this.$nextTick(() => {
-        // Wait for events to finish propagating before changing the focus.
-        // Otherwise the `lastFocus` item receives events such as 'enter'.
-      });
+      // Wait for events to finish propagating before changing the focus.
+      // Otherwise the `lastFocus` item receives events such as 'enter'.
       window.setTimeout(() => this.lastFocus.focus());
     },
     data() {
