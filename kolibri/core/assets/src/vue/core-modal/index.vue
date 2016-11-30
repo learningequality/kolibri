@@ -2,18 +2,18 @@
 
   <!-- Accessibility properties for the overlay -->
   <div class="modal-overlay"
-       @keydown.esc="emitCancelEvent"
-       @keydown.enter="emitEnterEvent"
-       @click="bgClick($event)"
-       ref="modal-overlay"
-       id="modal-window">
+    @keydown.esc="emitCancelEvent"
+    @keydown.enter="emitEnterEvent"
+    @click="bgClick($event)"
+    ref="modal-overlay"
+    id="modal-window">
 
     <div class="modal"
-         ref="modal"
-         :tabindex="0"
-         transition="modal"
-         role="dialog"
-         aria-labelledby="modal-title">
+      ref="modal"
+      :tabindex="0"
+      transition="modal"
+      role="dialog"
+      aria-labelledby="modal-title">
 
       <div class="top-buttons">
         <button aria-label="Go back" @click="emitBackEvent" class="header-btn btn-back" v-if="enablebackbtn">
@@ -87,8 +87,8 @@
       this.$nextTick(() => {
         // Wait for events to finish propagating before changing the focus.
         // Otherwise the `lastFocus` item receives events such as 'enter'.
-        window.setTimeout(() => this.lastFocus.focus());
       });
+      window.setTimeout(() => this.lastFocus.focus());
     },
     data() {
       return {
