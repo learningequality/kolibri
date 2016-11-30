@@ -77,8 +77,8 @@
       this.lastFocus = document.activeElement;
       this.$nextTick(() => {
         this.focusModal();
-        window.addEventListener('focus', this.focusElementTest, true);
       });
+      window.addEventListener('focus', this.focusElementTest, true);
       window.addEventListener('scroll', this.preventScroll, true);
     },
     destroyed() {
