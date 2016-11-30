@@ -3,6 +3,7 @@ const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 
 const VueRouter = require('vue-router');
+const Vue = require('vue');
 
 const RootVue = require('./vue');
 const actions = require('./actions');
@@ -82,8 +83,9 @@ class LearnModule extends KolibriModule {
       },
     ];
 
-    this.rootvue = new RootVue({
+    this.rootvue = new Vue({
       el: 'rootvue',
+      render: h => h(RootVue),
       router: new VueRouter({ routes }),
     });
 

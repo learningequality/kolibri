@@ -2,6 +2,7 @@ const KolibriModule = require('kolibri_module');
 const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 
+const Vue = require('vue');
 const VueRouter = require('vue-router');
 
 const RootVue = require('./vue');
@@ -47,8 +48,9 @@ class CoachToolsModule extends KolibriModule {
       },
     ];
 
-    this.rootvue = new RootVue({
+    this.rootvue = new Vue({
       el: 'rootvue',
+      render: h => h(RootVue),
       router: new VueRouter({ routes }),
     });
 
