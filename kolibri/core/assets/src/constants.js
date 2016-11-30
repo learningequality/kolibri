@@ -1,10 +1,10 @@
 
 const UserKinds = {
-  SUPERUSER: 'SUPERUSER',
-  ADMIN: 'ADMIN',
-  COACH: 'COACH',
-  LEARNER: 'LEARNER',
-  ANONYMOUS: 'ANONYMOUS',
+  SUPERUSER: 'superuser',
+  ADMIN: 'admin',
+  COACH: 'coach',
+  LEARNER: 'learner',
+  ANONYMOUS: 'anonymous',
 };
 
 const ContentNodeKinds = {

@@ -52,23 +52,6 @@ function _stateUser(apiUserData) {
     kind: kind, 
   };
 }
-/**
- * User Resource Mappers
- *
- * The methods below help map data from
- * the state in the Vuex store to the API
- */
-function _resourceUser(stateUserData) {
-  console.log('Data being sent to server: ');
-  console.log(stateUserData);
-  return {
-    id: stateUserData.id,
-    facility: stateUserData.facility,
-    username: stateUserData.username,
-    full_name: stateUserData.full_name,
-    password: stateUserData.password,
-  };
-}
 
 function _taskState(data) {
   const state = {
@@ -119,7 +102,13 @@ function assignUserRole(user, role){
  * @param {string} role
  */
 function createUser(store, stateUserData) {
-  const userData = _resourceUser(stateUserData);
+  const userData = {
+    id: stateUserData.id,
+    facility: stateUserData.facility,
+    username: stateUserData.username,
+    full_name: stateUserData.full_name,
+    password: stateUserData.password,
+  }
   const role = stateUserData.kind == UserKinds.LEARNER ? '' : stateUserData.kind;
   FacilityUserResource.createModel(userData).save(userData).then((userModel) => {
     // assign role to this new user if the role is not learner
