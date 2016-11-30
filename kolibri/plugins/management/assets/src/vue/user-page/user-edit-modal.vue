@@ -147,7 +147,7 @@
     },
     methods: {
       clear() {
-        this.$data = this.$options.data();
+        Object.assign(this.$data, this.$options.data());
       },
       submit() {
         // mirrors logic of how the 'confirm' buttons are displayed
