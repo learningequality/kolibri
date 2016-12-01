@@ -1,6 +1,6 @@
 <template>
 
-  <a>
+  <router-link :to="link">
     <div class="card">
       <div class="card-thumbnail">
         <slot></slot>
@@ -19,7 +19,7 @@
         </div>
       </div>
     </div>
-  </a>
+  </router-link>
 
 </template>
 
@@ -39,6 +39,10 @@
       progress: {
         type: Number,
         required: false,
+      },
+      link: {
+        type: Object,
+        required: true,
       },
     },
   };

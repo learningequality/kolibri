@@ -25,7 +25,7 @@ function _tweakViewByParam(params) {
 
 
 /*
- * Generates a REPORTS v-link object relative to the
+ * Generates a REPORTS location object relative to the
  * current page state, with only newParams changed.
  */
 function genLink(pageState, newParams) {

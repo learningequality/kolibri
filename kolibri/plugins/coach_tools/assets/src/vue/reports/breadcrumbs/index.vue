@@ -2,7 +2,7 @@
 
   <div class="breadcrumb-wrapper-div">
     <span v-for="ancestor in list">
-      <span v-if="ancestor.vlink"><a v-link="ancestor.vlink">{{ ancestor.title }}</a> &gt; </span>
+      <span v-if="ancestor.vlink"><router-link :to="ancestor.vlink">{{ ancestor.title }}</router-link> &gt; </span>
       <span v-else> {{ ancestor.title }}</span>
     </span>
   </div>

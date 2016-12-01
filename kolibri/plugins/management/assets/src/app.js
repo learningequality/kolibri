@@ -1,9 +1,11 @@
 const KolibriModule = require('kolibri_module');
-const router = require('kolibri.coreVue.router');
 const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
+const router = require('kolibri.coreVue.router');
 
-const rootvue = require('./vue');
+const Vue = require('kolibri.lib.vue');
+
+const RootVue = require('./vue');
 const actions = require('./actions');
 const store = require('./state/store');
 const PageNames = require('./state/constants').PageNames;
@@ -11,43 +13,47 @@ const PageNames = require('./state/constants').PageNames;
 
 class ManagementModule extends KolibriModule {
   ready() {
-    router.on(
-      PageNames.USER_MGMT_PAGE,
-      '/users',
-      (toRoute, fromRoute) => {
-        actions.showUserPage(store);
-      }
-    );
+    const routes = [
+      {
+        name: PageNames.USER_MGMT_PAGE,
+        path: '/users',
+        handler: (toRoute, fromRoute) => {
+          actions.showUserPage(store);
+        },
+      },
+      {
+        name: PageNames.CONTENT_MGMT_PAGE,
+        path: '/content',
+        handler: (toRoute, fromRoute) => {
+          actions.showContentPage(store);
+        },
+      },
+      {
+        name: PageNames.DATA_EXPORT_PAGE,
+        path: '/data',
+        handler: (toRoute, fromRoute) => {
+          actions.showDataPage(store);
+        },
+      },
+      {
+        name: PageNames.SCRATCHPAD,
+        path: '/scratchpad',
+        handler: (toRoute, fromRoute) => {
+          actions.showScratchpad(store);
+        },
+      },
+      {
+        path: '/',
+        redirect: '/users',
+      },
+    ];
 
-    router.on(
-      PageNames.CONTENT_MGMT_PAGE,
-      '/content',
-      (toRoute, fromRoute) => {
-        actions.showContentPage(store);
-      }
-    );
-
-    router.on(
-      PageNames.DATA_EXPORT_PAGE,
-      '/data',
-      (toRoute, fromRoute) => {
-        actions.showDataPage(store);
-      }
-    );
-
-    router.on(
-      PageNames.SCRATCHPAD,
-      '/scratchpad',
-      (toRoute, fromRoute) => {
-        actions.showScratchpad(store);
-      }
-    );
-
-    router.redirect({
-      '/': '/users',
+    this.rootvue = new Vue({
+      el: 'rootvue',
+      render: createElement => createElement(RootVue),
+      router: router.init(routes),
     });
 
-    router.start(rootvue, 'rootvue');
     coreActions.getCurrentSession(store, coreApp);
   }
 }

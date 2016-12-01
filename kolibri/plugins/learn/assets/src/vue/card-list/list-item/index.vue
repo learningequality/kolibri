@@ -1,13 +1,13 @@
 <template>
 
-  <a class="root">
+  <router-link class="root" :to="link">
     <div class="thumb-wrapper">
       <slot></slot>
     </div>
     <div class="text">
       <span class="title">{{ title }}</span>
     </div>
-  </a>
+  </router-link>
 
 </template>
 
@@ -18,6 +18,10 @@
     props: {
       title: {
         type: String,
+        required: true,
+      },
+      link: {
+        type: Object,
         required: true,
       },
     },

@@ -186,9 +186,8 @@ function kolibriLogin(store, coreApp, sessionPayload) {
       const manageURL = coreApp.urls['kolibri:managementplugin:management']();
       window.location.href = window.location.origin + manageURL;
     } else {
-      coreApp.emit('refresh');
+      location.reload(true);
     }
-    coreApp.resources.clearCaches();
   }).catch(error => {
     if (error.status.code === 401) {
       store.dispatch('CORE_SET_LOGIN_ERROR', 401);

@@ -1,96 +1,96 @@
 const KolibriModule = require('kolibri_module');
-const router = require('kolibri.coreVue.router');
 const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
+const router = require('kolibri.coreVue.router');
 
-const rootvue = require('./vue');
+const Vue = require('kolibri.lib.vue');
+
+const RootVue = require('./vue');
 const actions = require('./actions');
 const store = require('./state/store');
 const PageNames = require('./state/constants').PageNames;
 
 class LearnModule extends KolibriModule {
   ready() {
-    router.on(
-      PageNames.EXPLORE_ROOT,
-      '/explore',
-      (toRoute, fromRoute) => {
-        actions.redirectToExploreChannel(store);
-      }
-    );
 
-    router.on(
-      PageNames.EXPLORE_CHANNEL,
-      '/explore/:channel_id',
-      (toRoute, fromRoute) => {
-        actions.showExploreChannel(store, toRoute.params.channel_id);
-      }
-    );
+    const routes = [
+      {
+        name: PageNames.EXPLORE_ROOT,
+        path: '/explore',
+        handler: (toRoute, fromRoute) => {
+          actions.redirectToExploreChannel(store);
+        },
+      },
+      {
+        name: PageNames.EXPLORE_CHANNEL,
+        path: '/explore/:channel_id',
+        handler: (toRoute, fromRoute) => {
+          actions.showExploreChannel(store, toRoute.params.channel_id);
+        },
+      },
+      {
+        name: PageNames.EXPLORE_TOPIC,
+        path: '/explore/:channel_id/topic/:id',
+        handler: (toRoute, fromRoute) => {
+          actions.showExploreTopic(store, toRoute.params.channel_id, toRoute.params.id);
+        },
+      },
+      {
+        name: PageNames.EXPLORE_CONTENT,
+        path: '/explore/:channel_id/content/:id',
+        handler: (toRoute, fromRoute) => {
+          actions.showExploreContent(store, toRoute.params.channel_id, toRoute.params.id);
+        },
+      },
+      {
+        name: PageNames.LEARN_ROOT,
+        path: '/learn',
+        handler: (toRoute, fromRoute) => {
+          actions.redirectToLearnChannel(store);
+        },
+      },
+      {
+        name: PageNames.LEARN_CHANNEL,
+        path: '/learn/:channel_id',
+        handler: (toRoute, fromRoute) => {
+          const page = toRoute.query.page ? Number(toRoute.query.page) : 1;
+          actions.showLearnChannel(store, toRoute.params.channel_id, page);
+        },
+      },
+      {
+        name: PageNames.LEARN_CONTENT,
+        path: '/learn/:channel_id/content/:id',
+        handler: (toRoute, fromRoute) => {
+          actions.showLearnContent(store, toRoute.params.channel_id, toRoute.params.id);
+        },
+      },
+      {
+        name: PageNames.SCRATCHPAD,
+        path: '/scratchpad',
+        handler: (toRoute, fromRoute) => {
+          actions.showScratchpad(store);
+        },
+      },
+      {
+        name: PageNames.CONTENT_UNAVAILABLE,
+        path: '/content-unavailable',
+        handler: (toRoute, fromRoute) => {
+          actions.showContentUnavailable(store);
+        },
+      },
+      {
+        path: '/',
+        redirect: '/explore',
+      },
+    ];
 
-    router.on(
-      PageNames.EXPLORE_TOPIC,
-      '/explore/:channel_id/topic/:id',
-      (toRoute, fromRoute) => {
-        actions.showExploreTopic(store, toRoute.params.channel_id, toRoute.params.id);
-      }
-    );
-
-    router.on(
-      PageNames.EXPLORE_CONTENT,
-      '/explore/:channel_id/content/:id',
-      (toRoute, fromRoute) => {
-        actions.showExploreContent(store, toRoute.params.channel_id, toRoute.params.id);
-      }
-    );
-
-    router.on(
-      PageNames.LEARN_ROOT,
-      '/learn',
-      (toRoute, fromRoute) => {
-        actions.redirectToLearnChannel(store);
-      }
-    );
-
-    router.on(
-      PageNames.LEARN_CHANNEL,
-      '/learn/:channel_id',
-      (toRoute, fromRoute) => {
-        const page = toRoute.query.page ? Number(toRoute.query.page) : 1;
-        actions.showLearnChannel(store, toRoute.params.channel_id, page);
-      }
-    );
-
-    router.on(
-      PageNames.LEARN_CONTENT,
-      '/learn/:channel_id/content/:id',
-      (toRoute, fromRoute) => {
-        actions.showLearnContent(store, toRoute.params.channel_id, toRoute.params.id);
-      }
-    );
-
-    router.on(
-      PageNames.SCRATCHPAD,
-      '/scratchpad',
-      (toRoute, fromRoute) => {
-        actions.showScratchpad(store);
-      }
-    );
-
-    router.on(
-      PageNames.CONTENT_UNAVAILABLE,
-      '/content-unavailable',
-      (toRoute, fromRoute) => {
-        actions.showContentUnavailable(store);
-      }
-    );
-
-    router.redirect({
-      '/': '/explore',
+    this.rootvue = new Vue({
+      el: 'rootvue',
+      render: createElement => createElement(RootVue),
+      router: router.init(routes),
     });
 
-    router.start(rootvue, 'rootvue');
     coreActions.getCurrentSession(store, coreApp);
-    // Wrap this to preserve 'this-ness' inside the router.
-    coreApp.on('refresh', () => router.refresh());
   }
 }
 

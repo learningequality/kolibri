@@ -1,7 +1,7 @@
 
 const rest = require('rest');
 const mime = require('rest/interceptor/mime');
-const cookiejs = require('js-cookie');
+const cookiejs = require('kolibri.lib.jscookie');
 const csrf = require('rest/interceptor/csrf');
 const errorCode = require('rest/interceptor/errorCode');
 
