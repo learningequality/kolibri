@@ -88,12 +88,13 @@ function redirectToExploreChannel(store) {
   coreActions.setChannelInfo(store, coreApp).then(
     () => {
       if (store.state.core.channels.list.length) {
-        coreApp.rootview.$router.replace({
+        require('./router').replace({ // `require` hack tp avoid circular import
           name: constants.PageNames.EXPLORE_CHANNEL,
           params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
         });
       } else {
-        coreApp.rootview.$router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+         // `require` hack tp avoid circular import
+        require('./router').replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
     error => { coreActions.handleApiError(store, error); }
@@ -108,12 +109,13 @@ function redirectToLearnChannel(store) {
   coreActions.setChannelInfo(store, coreApp).then(
     () => {
       if (store.state.core.channels.list.length) {
-        coreApp.rootview.$router.replace({
+        require('./router').replace({ // `require` hack tp avoid circular import
           name: constants.PageNames.LEARN_CHANNEL,
           params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
         });
       } else {
-        coreApp.rootview.$router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        // `require` hack tp avoid circular import
+        require('./router').replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
     error => { coreActions.handleApiError(store, error); }

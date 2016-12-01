@@ -67,7 +67,7 @@
       nextPageLink() {
         return {
           name: PageNames.LEARN_CHANNEL,
-          channel: this.currentChannel,
+          channel_id: this.currentChannel,
           query: { page: this.all.page + 1 },
           replace: true,
         };
@@ -78,7 +78,7 @@
       prevPageLink() {
         return {
           name: PageNames.LEARN_CHANNEL,
-          channel: this.currentChannel,
+          channel_id: this.currentChannel,
           query: { page: this.all.page - 1 },
           replace: true,
         };

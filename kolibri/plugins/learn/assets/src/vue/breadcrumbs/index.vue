@@ -72,13 +72,13 @@
       learnRootLink() {
         return {
           name: PageNames.LEARN_CHANNEL,
-          channel: this.currentChannelId,
+          channel_id: this.currentChannelId,
         };
       },
       exploreRootLink() {
         return {
           name: PageNames.EXPLORE_CHANNEL,
-          channel: this.currentChannelId,
+          channel_id: this.currentChannelId,
         };
       },
       parentExploreLink() {
@@ -99,7 +99,7 @@
         return {
           name: PageNames.EXPLORE_TOPIC,
           params: {
-            channel: this.currentChannelId,
+            channel_id: this.currentChannelId,
             id: topicId,
           },
         };
