@@ -22,6 +22,10 @@
         type: String,
         required: true,
       },
+      channelid: {
+        type: String,
+        required: true,
+      },
       title: {
         type: String,
         required: true,
@@ -31,7 +35,7 @@
       link() {
         return {
           name: constants.PageNames.EXPLORE_TOPIC,
-          params: { id: this.id },
+          params: { channel_id: this.channel_id, id: this.id },
         };
       },
     },
