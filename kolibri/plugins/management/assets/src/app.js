@@ -50,7 +50,7 @@ class ManagementModule extends KolibriModule {
 
     this.rootvue = new Vue({
       el: 'rootvue',
-      render: h => h(RootVue),
+      render: createElement => createElement(RootVue),
       router: router.init(routes),
     });
 
