@@ -2,8 +2,8 @@ const KolibriModule = require('kolibri_module');
 const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 
-const VueRouter = require('vue-router');
-const Vue = require('vue');
+const Vue = require('kolibri.lib.vue');
+const VueRouter = require('kolibri.lib.vueRouter');
 
 const RootVue = require('./vue');
 const actions = require('./actions');
