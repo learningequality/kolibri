@@ -117,7 +117,7 @@ var config = {
   vue: {
     loaders: {
       stylus: 'vue-style-loader!css-loader?sourceMap!stylus-loader',
-      html: 'vue-html-loader!svg-inline', // inlines SVGs
+      html: 'vue-loader/lib/template-compiler!svg-inline', // inlines SVGs
     }
   },
   stylus: {

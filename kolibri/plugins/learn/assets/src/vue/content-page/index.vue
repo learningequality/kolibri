@@ -80,12 +80,12 @@
         if (this.content.next_content.kind !== ContentNodeKinds.TOPIC) {
           return {
             name: this.pagename,
-            params: { channel_id: channelId, id: this.content.next_content.id },
+            params: { channel_id: this.channelId, id: this.content.next_content.id },
           };
         }
         return {
           name: Constants.PageNames.EXPLORE_TOPIC,
-          params: { channel_id: channelId, id: this.content.next_content.id },
+          params: { channel_id: this.channelId, id: this.content.next_content.id },
         };
       },
     },

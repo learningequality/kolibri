@@ -12,7 +12,6 @@ const PageNames = require('./state/constants').PageNames;
 
 class LearnModule extends KolibriModule {
   ready() {
-
     const routes = [
       {
         name: PageNames.EXPLORE_ROOT,
