@@ -96,6 +96,7 @@ function redirectToExploreChannel(store) {
          // `require` hack tp avoid circular import
         router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
+      console.log('end of explore channel promise');
     },
     error => { coreActions.handleApiError(store, error); }
   );
@@ -124,6 +125,7 @@ function redirectToLearnChannel(store) {
 
 
 function showExploreTopic(store, channelId, id, isRoot = false) {
+  console.log('beginning of explore topic');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   if (isRoot) {
     store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
@@ -154,13 +156,16 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
       } else {
         store.dispatch('CORE_SET_TITLE', `${pageState.topic.title} - ${currentChannel.title}`);
       }
+      console.log('end of explore topic promise');
     },
     error => { coreActions.handleApiError(store, error); }
   );
+  console.log('end of explore topic');
 }
 
 
 function showExploreChannel(store, channelId) {
+  console.log('beginning of explore channel');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
 
@@ -173,6 +178,7 @@ function showExploreChannel(store, channelId) {
       showExploreTopic(store, channelId, currentChannel.root_id, true);
     }
   );
+  console.log('end of explore channel');
 }
 
 
