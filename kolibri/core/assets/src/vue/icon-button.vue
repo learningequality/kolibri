@@ -29,7 +29,9 @@
     computed: {
       hasIcon() {
         // something of a hack but seems to work fine
-        return this.$el.querySelector('svg');
+        return this.$nextTick(() => {
+          this.$el.querySelector('svg');
+        });
       },
     },
   };
