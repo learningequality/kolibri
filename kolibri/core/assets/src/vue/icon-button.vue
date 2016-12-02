@@ -1,7 +1,7 @@
 <template>
 
   <button class="icon-button-scope" :class="{'primary' : primary, 'single-line': !textbelow}">
-    <slot ref="icon"></slot>
+    <slot></slot>
     <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : textbelow, 'icon-padding' : !textbelow && hasIcon}">
       {{ text }}
     </span>
@@ -28,8 +28,9 @@
     },
     computed: {
       hasIcon() {
-        // something of a hack but seems to work fine
-        return this.$el.querySelector('svg');
+        // check if the parent passed anything into the slot
+        // $slots returns an empty object if nothing is passed in.
+        return !(Object.keys(this.$slots).length === 0 && this.$slots.constructor === Object);
       },
     },
   };
