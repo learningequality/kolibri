@@ -34,7 +34,7 @@ class Router {
         delete route.handler;
       }
     }
-    this._vueRouter = new VueRouter({ routes })
+    this._vueRouter = new VueRouter({ routes });
     this._vueRouter.beforeEach(this._hook.bind(this));
     return this.getInstance();
   }
