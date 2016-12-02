@@ -82,8 +82,8 @@
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
-            <span class="user-role" v-for="role in user.roles">
-              {{role.kind}}
+            <span class="user-role">
+              {{user.kind | capitalize}}
             </span>
           </td>
 
@@ -153,16 +153,16 @@
           // fullname created using es6 templates
           const names = [user.full_name, user.username];
 
-          let hasRole = true;
+          let isKind = true;
           let hasName = true;
 
           // check for filters
           if (roleFilter !== 'all') {
-            hasRole = false;
+            isKind = false;
 
             // actual check for roles
             if(user.kind == roleFilter)
-              hasRole = true;
+              isKind = true;
           }
 
           // makes sure there's text in the search box
@@ -179,7 +179,7 @@
           }
 
           // determines whether name should be on list
-          return hasRole && hasName;
+          return isKind && hasName;
 
           // aphabetize based on username
         }).sort((user1, user2) => {

@@ -32,8 +32,9 @@ function _stateUser(apiUserData) {
   // look through all roles in array to make sure we get the one with the most power
   // TODO ask if they're inside the array in order of heirarchy
   apiUserData.roles.forEach(role => {
+    console.log("Role to be assigned " + role.kind);
     // using a switch statement. Checks all in order of heirarchy
-    switch(role){
+    switch(role.kind){
       // sets role to admin 
       case UserKinds.ADMIN || UserKinds.SUPERUSER:
         kind = UserKinds.ADMIN;
@@ -92,7 +93,8 @@ function assignUserRole(user, role){
     
   // creates the model, saves to server, returns the promise for the server save
   // might need to return fetch instead, handle save here
-  return RoleResource.createModel(rolePayload).save(rolePayload);
+  return Promise.all([RoleResource.createModel(rolePayload).save(), 
+  FacilityUserResource.getModel(user.id).save()]);
 }
 
 /**
@@ -103,24 +105,29 @@ function assignUserRole(user, role){
  */
 function createUser(store, stateUserData) {
   const userData = {
-    id: stateUserData.id,
     facility: stateUserData.facility,
     username: stateUserData.username,
     full_name: stateUserData.full_name,
     password: stateUserData.password,
   }
-  const role = stateUserData.kind == UserKinds.LEARNER ? '' : stateUserData.kind;
-  FacilityUserResource.createModel(userData).save(userData).then((userModel) => {
+  // console.log('Creating user, data: ' + stateUserData  );
+  FacilityUserResource.createModel(userData).save().then((userModel) => {
     // assign role to this new user if the role is not learner
-    if (role) {
-      assignUserRole(userModel, role).then(userModelWithRole => {
-        console.log('UserRoleSavePromise: ' + userModelWithRole);
+    if (stateUserData.kind != UserKinds.LEARNER) {
+      assignUserRole(userModel, stateUserData.kind).then(userModelWithRole => {
+
+        console.log('returned from assignUserRole Promise: ');
+        console.log(userModelWithRole);
+        
         // manipulate usermodel here
         store.dispatch('ADD_USER', _stateUser(userModel));
+
       }, error => { coreActions.handleApiError(store, error); });
-    } else{
-      store.dispatch('ADD_USER', _stateUser(userModel)); // update page state
-    }
+
+    } 
+    
+    // store.dispatch('ADD_USER', _stateUser(userModel)); // update page state
+
   }).catch((error) => Promise.reject(error));
 }
 
