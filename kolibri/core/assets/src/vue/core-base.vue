@@ -18,9 +18,11 @@
 
 <script>
 
-  require('vue-scroll');
-
+  const Vue = require('vue');
   const coreActions = require('kolibri.coreVue.vuex.actions');
+  const vueScroll = require('vue-scroll');
+
+  Vue.use(vueScroll);
 
   module.exports = {
     components: {
