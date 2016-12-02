@@ -19,6 +19,7 @@
       <topic-list-item
         v-for="topic in subtopics"
         :id="topic.id"
+        :channelid="channelId"
         :title="topic.title"
         :ntotal="topic.n_total"
         :ncomplete="topic.n_complete">
@@ -70,6 +71,7 @@
         subtopics: state => state.pageState.subtopics,
         contents: state => state.pageState.contents,
         isRoot: (state) => state.pageState.topic.id === getCurrentChannelObject(state).root_id,
+        channelId: (state) => getCurrentChannelObject(state).id,
       },
     },
   };

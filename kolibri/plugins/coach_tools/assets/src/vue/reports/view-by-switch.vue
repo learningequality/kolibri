@@ -4,7 +4,7 @@
 
     <div class="label">{{ $tr('viewbylabel') }}</div>
 
-    <a v-link="vlink" :class="{ disabled: disabled }">
+    <router-link :to="vlink" :class="{ disabled: disabled }">
       <div class="left-text" :class="{ selected: iscontent, disabled: disabled }">{{ $tr('contents') }}</div>
 
       <div class="toggle-switch-wrapper">
@@ -14,7 +14,7 @@
       </div>
 
       <div class="right-text" :class="{ selected: !iscontent, disabled: disabled }">{{ $tr('learners') }}</div>
-    </a>
+    </router-link>
   </div>
 
 </template>

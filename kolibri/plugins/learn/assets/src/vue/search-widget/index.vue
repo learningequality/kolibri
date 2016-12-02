@@ -9,7 +9,7 @@
           <div class="input-table-cell">
             <input
               type="search"
-              v-el:search
+              ref="search"
               aria-label="Type to find content"
               placeholder="Find content..."
               autocomplete="off"
@@ -17,7 +17,7 @@
               v-model="localSearchTerm"
               id="search"
               name="search"
-              @keyup="search() | debounce 500"
+              @keyup="search()"
               @keydown.esc.prevent="clear()"
             >
             <button
@@ -84,6 +84,7 @@
 
   const focus = require('vue-focus').focus;
   const actions = require('../../actions');
+  const throttle = require('lodash.throttle');
 
 
   module.exports = {
@@ -105,7 +106,7 @@
         localSearchTerm: '',
       };
     },
-    ready() {
+    mounted() {
       this.localSearchTerm = this.searchTerm;
     },
     computed: {
@@ -131,12 +132,12 @@
           this.toggleSearch();
         } else {
           this.localSearchTerm = '';
-          this.$els.search.focus();
+          this.$refs.search.focus();
           this.triggerSearch(this.localSearchTerm);
         }
       },
       search() {
-        this.triggerSearch(this.localSearchTerm);
+        throttle(this.triggerSearch(this.localSearchTerm), 500);
       },
     },
     components: {

@@ -2,14 +2,13 @@ const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
 const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('./state/constants');
 const PageNames = constants.PageNames;
-const router = require('kolibri.coreVue.router');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 const coreGetters = require('kolibri.coreVue.vuex.getters');
 const coreApp = require('kolibri');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
-
+const router = require('kolibri.coreVue.router');
 
 /**
  * Vuex State Mappers
@@ -89,12 +88,13 @@ function redirectToExploreChannel(store) {
   coreActions.setChannelInfo(store, coreApp).then(
     () => {
       if (store.state.core.channels.list.length) {
-        router.replace({
+        router.getInstance().replace({ // `require` hack tp avoid circular import
           name: constants.PageNames.EXPLORE_CHANNEL,
           params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
         });
       } else {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+         // `require` hack tp avoid circular import
+        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
     error => { coreActions.handleApiError(store, error); }
@@ -109,12 +109,13 @@ function redirectToLearnChannel(store) {
   coreActions.setChannelInfo(store, coreApp).then(
     () => {
       if (store.state.core.channels.list.length) {
-        router.replace({
+        router.getInstance().replace({ // `require` hack tp avoid circular import
           name: constants.PageNames.LEARN_CHANNEL,
           params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
         });
       } else {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        // `require` hack tp avoid circular import
+        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
     error => { coreActions.handleApiError(store, error); }

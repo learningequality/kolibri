@@ -83,10 +83,10 @@
     data: () => ({
       intervalId: undefined,
     }),
-    attached() {
+    mounted() {
       this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
     },
-    detached() {
+    destroyed() {
       clearInterval(this.intervalId);
     },
     computed: {

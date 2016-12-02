@@ -4,37 +4,37 @@
     <nav class="nav" role="navigation" :aria-label="$tr('youAreHere')">
 
       <span v-if="pageName === PageNames.LEARN_CONTENT">
-        <a v-link="learnRootLink">
+        <router-link :to="learnRootLink">
           <span class="visuallyhidden">{{ $tr('back') }}</span>
           <svg role="presentation" src="../icons/folder_back.svg"></svg>
           {{ text }}
-        </a>
+        </router-link>
       </span>
 
       <span v-if="pageName === PageNames.EXPLORE_CONTENT">
-        <a v-link="parentExploreLink">
+        <router-link :to="parentExploreLink">
           <span class="visuallyhidden">{{ $tr('back') }}</span>
           <svg role="presentation" src="../icons/folder_back.svg"></svg>
           {{ text }}
-        </a>
+        </router-link>
       </span>
 
       <span v-if="pageName === PageNames.EXPLORE_TOPIC">
 
         <span class="first-breadcrumb landscape">
-          <a v-link="exploreRootLink">{{ $tr('explore') }}</a>
+          <router-link :to="exploreRootLink">{{ $tr('explore') }}</router-link>
         </span>
 
         <span class="portrait">
-          <a v-link="parentExploreLink">
+          <router-link :to="parentExploreLink">
             <span class="visuallyhidden">{{ $tr('back') }}</span>
             <svg role="presentation" src="../icons/folder_back.svg"></svg>
             {{ text }}
-          </a>
+          </router-link>
         </span>
 
         <span class="middle-breadcrumb landscape" v-for="crumb in topicCrumbs">
-          <a v-link="topicLink(crumb.id)">{{ crumb.title }}</a>
+          <router-link :to="topicLink(crumb.id)">{{ crumb.title }}</router-link>
         </span>
 
         <span class="middle-breadcrumb landscape">
@@ -72,13 +72,13 @@
       learnRootLink() {
         return {
           name: PageNames.LEARN_CHANNEL,
-          channel: this.currentChannelId,
+          channel_id: this.currentChannelId,
         };
       },
       exploreRootLink() {
         return {
           name: PageNames.EXPLORE_CHANNEL,
-          channel: this.currentChannelId,
+          channel_id: this.currentChannelId,
         };
       },
       parentExploreLink() {
@@ -99,7 +99,7 @@
         return {
           name: PageNames.EXPLORE_TOPIC,
           params: {
-            channel: this.currentChannelId,
+            channel_id: this.currentChannelId,
             id: topicId,
           },
         };

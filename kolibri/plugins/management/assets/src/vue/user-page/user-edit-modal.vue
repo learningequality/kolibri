@@ -141,13 +141,13 @@
         confirmation_message: '',
       };
     },
-    attached() {
+    mounted() {
       // clear form on load
       this.clear();
     },
     methods: {
       clear() {
-        this.$data = this.$options.data();
+        Object.assign(this.$data, this.$options.data());
       },
       submit() {
         // mirrors logic of how the 'confirm' buttons are displayed

@@ -12,7 +12,7 @@
     <div class="toolbar">
       <label for="type-filter" class="visuallyhidden">Filter User Type</label>
       <select v-model="roleFilter" id="type-filter" name="type-filter">
-        <option selected value="all"> All Users </option>
+        <option value="all"> All Users </option>
         <option value="admin"> Admins </option>
         <option value="learner"> Learners </option>
       </select>
@@ -124,7 +124,7 @@
     },
     // Has to be a funcion due to vue's treatment of data
     data: () => ({
-      roleFilter: '',
+      roleFilter: 'all',
       searchFilter: '',
       creatingUser: false,
       editingUser: false,

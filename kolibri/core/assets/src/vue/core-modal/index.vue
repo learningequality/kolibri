@@ -5,11 +5,11 @@
     @keydown.esc="emitCancelEvent"
     @keydown.enter="emitEnterEvent"
     @click="bgClick($event)"
-    v-el:modal-overlay
+    ref="modal-overlay"
     id="modal-window">
 
     <div class="modal"
-      v-el:modal
+      ref="modal"
       :tabindex="0"
       transition="modal"
       role="dialog"
@@ -73,13 +73,15 @@
         default: false,
       },
     },
-    attached() {
+    mounted() {
       this.lastFocus = document.activeElement;
-      this.focusModal();
+      this.$nextTick(() => {
+        this.focusModal();
+      });
       window.addEventListener('focus', this.focusElementTest, true);
       window.addEventListener('scroll', this.preventScroll, true);
     },
-    detached() {
+    destroyed() {
       window.removeEventListener('focus', this.focusElementTest, true);
       window.removeEventListener('scroll', this.preventScroll, true);
       // Wait for events to finish propagating before changing the focus.
@@ -102,11 +104,11 @@
         this.$emit('back');
       },
       focusModal() {
-        this.$els.modal.focus();
+        this.$refs.modal.focus();
       },
       focusElementTest(event) {
         // if the focus moved outside the modal, put it back
-        if (this.$els.modal && !this.$els.modal.contains(event.target)) {
+        if (this.$refs.modal && !this.$refs.modal.contains(event.target)) {
           this.focusModal();
         }
       },
@@ -115,7 +117,7 @@
       },
       bgClick(event) {
         // check to make sure the area being clicked is the overlay, not the modal
-        if (this.enablebgclickcancel && (event.target === this.$els.modalOverlay)) {
+        if (this.enablebgclickcancel && (event.target === this.$refs.modalOverlay)) {
           this.emitCancelEvent();
         }
       },

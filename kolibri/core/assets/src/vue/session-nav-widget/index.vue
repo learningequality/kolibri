@@ -1,37 +1,40 @@
 <template>
 
-  <nav-bar-item v-if="loggedIn" tabindex="0" @click="toggleDropdown" @keyup.enter="toggleDropdown">
-    <div class="wrapper">
-      <div class="user-icon" id="user-dropdown">{{ initial }}</div>
-    </div>
-  </nav-bar-item>
+  <!--TODO: VUE2 UNTESTED -->
+  <div>
+    <nav-bar-item v-if="loggedIn" tabindex="0" @click="toggleDropdown" @keyup.enter="toggleDropdown">
+      <div class="wrapper">
+        <div class="user-icon" id="user-dropdown">{{ initial }}</div>
+      </div>
+    </nav-bar-item>
 
-  <nav-bar-item v-else tabindex="0" @click="showLoginModal" @keyup.enter="showLoginModal">
-    <div class="wrapper">
-      <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
-      <div class="label">{{ $tr('logIn') }}</div>
-    </div>
-  </nav-bar-item>
+    <nav-bar-item v-else tabindex="0" @click="showLoginModal" @keyup.enter="showLoginModal">
+      <div class="wrapper">
+        <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
+        <div class="label">{{ $tr('logIn') }}</div>
+      </div>
+    </nav-bar-item>
 
-  <div id="dropdown-backdrop" @click="toggleDropdown" v-show="showDropdown"></div>
-  <div id="dropdown" v-show="showDropdown" transition="slide">
-    <div class="user-dropdown">
-      <ul class="dropdown-list">
-        <li>
-          <p class="dropdown-name">{{ name }}</p>
-          <p id="dropdown-username">{{ username }}</p>
-          <p id="dropdown-usertype">{{ userkind }}</p>
-        </li>
-        <li id="logout-tab">
-          <div tabindex="0" @keyup.enter="userLogout" @click="userLogout" :aria-label="logOutText">
-            <span>{{ $tr('logOut') }}</span>
-          </div>
-        </li>
-      </ul>
+    <div id="dropdown-backdrop" @click="toggleDropdown" v-show="showDropdown"></div>
+    <div id="dropdown" v-show="showDropdown" transition="slide">
+      <div class="user-dropdown">
+        <ul class="dropdown-list">
+          <li>
+            <p class="dropdown-name">{{ name }}</p>
+            <p id="dropdown-username">{{ username }}</p>
+            <p id="dropdown-usertype">{{ userkind }}</p>
+          </li>
+          <li id="logout-tab">
+            <div tabindex="0" @keyup.enter="userLogout" @click="userLogout" :aria-label="logOutText">
+              <span>{{ $tr('logOut') }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
     </div>
+
+    <login-modal v-if="loginModalVisible"></login-modal>
   </div>
-
-  <login-modal v-if="loginModalVisible"></login-modal>
 
 </template>
 

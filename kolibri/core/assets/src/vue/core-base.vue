@@ -51,7 +51,7 @@
         this.scrolled = true;
       },
     },
-    ready() {
+    mounted() {
       setInterval(() => {
         if (this.scrolled) {
           this.$emit('scroll', this.position);

@@ -2,7 +2,7 @@
 
   <div class="dropdown">
     <button
-      v-el:dropdownbutton
+      ref="dropdownbutton"
       class="dropdown-button"
       @click="toggleDropdown"
       aria-haspopup="true">
@@ -11,7 +11,7 @@
       </span>
     </button>
     <ul
-      v-el:dropdownitems
+      ref="dropdownitems"
       class="dropdown-items"
       :class="{ dropdownopen: dropdownopen }"
       :aria-hidden="dropDownOpenText"
@@ -23,7 +23,7 @@
         <a
           class="dropdown-item-link"
           @click="toggleDropdown"
-          href="{{ file.download_url }}"
+          :href="file.download_url"
           role="menuitem">
           {{ file.preset + ' (' + prettifyFileSize(file.file_size) + ')' }}
         </a>
@@ -63,7 +63,7 @@
         return String(this.dropdownopen);
       },
       dropDownItems() {
-        let listItems = this.$els.dropdownitems.children;
+        let listItems = this.$refs.dropdownitems.children;
         listItems = [...listItems];
         const anchorItems = [];
         listItems.forEach((li) => {
@@ -73,7 +73,7 @@
       },
       focusableItems() {
         let focusableItems = [];
-        focusableItems.push(this.$els.dropdownbutton);
+        focusableItems.push(this.$refs.dropdownbutton);
         focusableItems = focusableItems.concat(this.dropDownItems);
         return focusableItems;
       },
@@ -131,7 +131,7 @@
         this.focusableItems[this.itemSelected].focus();
       },
     },
-    ready() {
+    mounted() {
       document.addEventListener('keydown', this.handleKeys);
     },
     beforeDestroy() {

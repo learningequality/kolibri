@@ -5,7 +5,7 @@
       <div class="content-wrapper">
         {{ progressPercent }}%
         <loading-spinner v-if="!currentViewClass"></loading-spinner>
-        <div v-el:container></div>
+        <div ref="container"></div>
       </div>
     </div>
     <div v-else>
@@ -82,7 +82,7 @@
         return Math.floor(this.progress * 100);
       },
     },
-    init() {
+    beforeCreate() {
       this._eventListeners = [];
     },
     created() {
@@ -90,7 +90,7 @@
       // This means this component has to be torn down on channel switches.
       this.$watch('files', this.findRendererComponent);
     },
-    ready() {
+    mounted() {
       this.ready = true;
       this.renderContent();
     },
@@ -181,7 +181,7 @@
             // Set the parent so that it is in the Vue family.
             parent: this,
             // Let it mount on the DOM in the container div set up in the template.
-            el: this.$els.container,
+            el: this.$refs.container,
             // Pass in the propsData!
             propsData,
           };
