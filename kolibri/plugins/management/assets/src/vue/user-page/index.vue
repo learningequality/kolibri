@@ -18,7 +18,7 @@
       </select>
 
       <div class="searchbar" role="search">
-        <svg class="icon" src="../icons/search.svg" role="presentation" aria-hidden="true"></svg>
+        <svg class="icon" src="../icons/search.svg" aria-hidden="true"></svg>
         <input
           id="search-field"
           aria-label="Search for a user..."
@@ -29,7 +29,7 @@
 
       <div class="create">
         <icon-button @click="openCreateUserModal" class="create-user-button" text="Add New" :primary="true">
-          <svg class="add-user" src="../icons/add_new_user.svg" role="presentation"></svg>
+          <svg class="add-user" src="../icons/add_new_user.svg"></svg>
         </icon-button>
       </div>
 
