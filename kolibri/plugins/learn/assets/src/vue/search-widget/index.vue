@@ -136,8 +136,11 @@
           this.triggerSearch(this.localSearchTerm);
         }
       },
-      search() {
-        throttle(this.triggerSearch(this.localSearchTerm), 500);
+      get search() {
+        return throttle(this.triggerSearchAction, 500);
+      },
+      triggerSearchAction() {
+        this.triggerSearch(this.localSearchTerm);
       },
     },
     components: {
