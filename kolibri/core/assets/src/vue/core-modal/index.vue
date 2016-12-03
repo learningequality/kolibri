@@ -17,10 +17,10 @@
 
       <div class="top-buttons">
         <button aria-label="Go back" @click="emitBackEvent" class="header-btn btn-back" v-if="enablebackbtn">
-          <svg src="./back.svg" role="presentation"></svg>
+          <svg src="./back.svg"></svg>
         </button>
         <button aria-label="Close dialog window" @click="emitCancelEvent" class="header-btn btn-close">
-          <svg src="../icons/close.svg" role="presentation"></svg>
+          <svg src="../icons/close.svg"></svg>
         </button>
       </div>
 

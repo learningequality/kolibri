@@ -10,7 +10,7 @@
 
     <nav-bar-item v-else tabindex="0" @click="showLoginModal" @keyup.enter="showLoginModal">
       <div class="wrapper">
-        <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
+        <svg id="person" class="person-icon" src="./icons/person.svg"></svg>
         <div class="label">{{ $tr('logIn') }}</div>
       </div>
     </nav-bar-item>
@@ -271,5 +271,9 @@
     transition: all 0.2s ease
     &:hover
       fill: $core-action-dark
+
+  .person-icon
+    width: 40px
+    height: 40px
 
 </style>

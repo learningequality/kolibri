@@ -6,7 +6,7 @@
       <span v-if="pageName === PageNames.LEARN_CONTENT">
         <router-link :to="learnRootLink">
           <span class="visuallyhidden">{{ $tr('back') }}</span>
-          <svg role="presentation" src="../icons/folder_back.svg"></svg>
+          <svg src="../icons/folder_back.svg"></svg>
           {{ text }}
         </router-link>
       </span>
@@ -14,7 +14,7 @@
       <span v-if="pageName === PageNames.EXPLORE_CONTENT">
         <router-link :to="parentExploreLink">
           <span class="visuallyhidden">{{ $tr('back') }}</span>
-          <svg role="presentation" src="../icons/folder_back.svg"></svg>
+          <svg src="../icons/folder_back.svg"></svg>
           {{ text }}
         </router-link>
       </span>
@@ -28,7 +28,7 @@
         <span class="portrait">
           <router-link :to="parentExploreLink">
             <span class="visuallyhidden">{{ $tr('back') }}</span>
-            <svg role="presentation" src="../icons/folder_back.svg"></svg>
+            <svg src="../icons/folder_back.svg"></svg>
             {{ text }}
           </router-link>
         </span>

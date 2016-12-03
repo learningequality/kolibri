@@ -27,7 +27,7 @@
               @click="clear()"
               :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }"
             >
-              <svg src="./clear.svg" height="15" width="15" viewbox="0 0 24 24"></svg>
+              <svg class="clear-icon" src="./clear.svg"></svg>
             </button>
           </div>
           <div class="cancel-btn-table-cell">
@@ -264,5 +264,9 @@
   .results
     padding-top: $top-offset
     padding-bottom: 100px
+
+  .clear-icon
+    width: 15px
+    height: 15px
 
 </style>

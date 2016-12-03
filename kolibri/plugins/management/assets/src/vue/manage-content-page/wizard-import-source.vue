@@ -8,10 +8,10 @@
     <div class="main">
       <div class="lg-button-wrapper">
         <icon-button class="large-icon-button" text="Internet" :textbelow="true" @click="showImportNetworkWizard">
-          <svg height="50" width="50" src="./world.svg"></svg>
+          <svg class="icon" src="./world.svg"></svg>
         </icon-button>
         <icon-button class="large-icon-button" text="Local Drives" :textbelow="true" @click="showImportLocalWizard">
-          <svg height="50" width="50" src="./storage.svg"></svg>
+          <svg class="icon" src="./storage.svg"></svg>
         </icon-button>
       </div>
       <icon-button
@@ -71,5 +71,9 @@
     margin: 1em
     color: $core-text-annotation
     border: 1px $core-text-annotation solid
+
+  .icon
+    width: 50px
+    height: 50px
 
 </style>

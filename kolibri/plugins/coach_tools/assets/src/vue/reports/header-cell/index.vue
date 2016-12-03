@@ -3,7 +3,7 @@
   <th scope="col">
     <router-link v-if="sortable" :to="vLink" class="header-text">
       <span>{{ text }}</span>
-      <span class="icon-wrapper" v-if="sortable" role="presentation">
+      <span class="icon-wrapper" v-if="sortable">
         <svg class="icon" :class="{ sorted: isDescending }" src="./down.svg"></svg>
         <svg class="icon" :class="{ sorted: isAscending }" src="./up.svg"></svg>
       </span>
