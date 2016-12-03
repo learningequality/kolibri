@@ -7,7 +7,6 @@
         <router-link :to="learnRootLink">
           <span class="visuallyhidden">{{ $tr('back') }}</span>
           <svg src="../icons/folder_back.svg"></svg>
-          {{ text }}
         </router-link>
       </span>
 
@@ -15,7 +14,6 @@
         <router-link :to="parentExploreLink">
           <span class="visuallyhidden">{{ $tr('back') }}</span>
           <svg src="../icons/folder_back.svg"></svg>
-          {{ text }}
         </router-link>
       </span>
 
@@ -29,7 +27,6 @@
           <router-link :to="parentExploreLink">
             <span class="visuallyhidden">{{ $tr('back') }}</span>
             <svg src="../icons/folder_back.svg"></svg>
-            {{ text }}
           </router-link>
         </span>
 
