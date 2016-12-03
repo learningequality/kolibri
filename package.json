@@ -42,7 +42,7 @@
     "vue-focus": "2.1.0",
     "vue-intl": "https://github.com/learningequality/vue-intl.git#vue2",
     "vue-router": "2.0.3",
-    "vue-scroll": "https://github.com/christianmemije/vue-scroll#2.0-compatible",
+    "vue-scroll": "2.0.1",
     "vuex": "1.0.0"
   },
   "devDependencies": {
