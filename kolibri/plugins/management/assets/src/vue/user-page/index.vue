@@ -82,7 +82,7 @@
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
             <span class="user-role" v-for="role in user.roles">
-              {{role.kind | capitalize}}
+              {{role.kind}}
             </span>
           </td>
 
@@ -307,6 +307,7 @@
     border-radius: 40px
     font-size: 0.875em
     display: inline-block
+    text-transform: capitalize;
 
   .searchbar .icon
     display: inline-block
