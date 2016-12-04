@@ -52,6 +52,7 @@
           v-for="topic in topics"
           class="card"
           :id="topic.id"
+          :channelid="channelId"
           :title="topic.title"
           :ntotal="topic.n_total"
           :ncomplete="topic.n_complete">
@@ -156,6 +157,7 @@
         loading: state => state.searchLoading,
         searchTerm: state => state.searchState.searchTerm,
         searchOpen: state => state.searchOpen,
+        channelId: (state) => state.core.channels.currentId,
       },
       actions: {
         triggerSearch: actions.triggerSearch,
