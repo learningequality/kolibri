@@ -26,7 +26,6 @@
       },
     },
     components: {
-      'search-widget': require('../search-widget'),
       'search-button': require('./search-button'),
       'breadcrumbs': require('../breadcrumbs'),
     },
