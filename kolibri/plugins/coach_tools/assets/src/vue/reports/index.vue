@@ -35,7 +35,6 @@
           :singleuser="isSingleUser"
           :usercount="userCount"
           :completioncount="completionCount"
-          :userscompleted="usersCompleted"
           :isrecentview="isRecentView"
         ></summary-section>
       </div>
