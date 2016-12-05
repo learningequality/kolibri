@@ -45,9 +45,9 @@
         and checking sizes that are usually handled with styles and media queries.
       */
       this.$watch('viewportWidth', () => {
-        this.gridWidth = this.$refs.grid.offsetWidth;
+        this.gridWidth = this.$refs.grid.$el.offsetWidth;
       });
-      this.gridWidth = this.$refs.grid.offsetWidth;
+      this.gridWidth = this.$refs.grid.$el.offsetWidth;
     },
     data() {
       return {
