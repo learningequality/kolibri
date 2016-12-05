@@ -307,7 +307,7 @@
     border-radius: 40px
     font-size: 0.875em
     display: inline-block
-    text-transform: capitalize;
+    text-transform: capitalize
 
   .searchbar .icon
     display: inline-block
