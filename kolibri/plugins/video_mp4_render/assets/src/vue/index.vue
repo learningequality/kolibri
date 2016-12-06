@@ -115,9 +115,7 @@
         this.$refs.videowrapper.setAttribute('style', `width:${newWidth}px;height:${newHeight}px`);
       },
 
-      get debouncedResizeVideo() {
-        return throttle(this.resizeVideo, 300);
-      },
+      debouncedResizeVideo: throttle(function () { this.resizeVideo(); }, 300),
 
       videoPlayerIsReady() {
         videojs(this.$refs.video).on('play', () => {
