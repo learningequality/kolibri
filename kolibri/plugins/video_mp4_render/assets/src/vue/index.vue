@@ -115,7 +115,9 @@
         this.$refs.videowrapper.setAttribute('style', `width:${newWidth}px;height:${newHeight}px`);
       },
 
-      debouncedResizeVideo: throttle(function () { this.resizeVideo(); }, 300),
+      throttledResizeVideo: throttle(function () {
+        this.resizeVideo();
+      }, 300),
 
       videoPlayerIsReady() {
         videojs(this.$refs.video).on('play', () => {
@@ -204,13 +206,13 @@
       this.videoPlayer.on('loadedmetadata', this.loadedMetaData);
       this.videoPlayer.on('play', this.focusOnPlayControl);
       this.videoPlayer.on('pause', this.focusOnPlayControl);
-      global.addEventListener('resize', this.debouncedResizeVideo);
+      global.addEventListener('resize', this.throttledResizeVideo);
     },
 
     beforeDestroy() {
       this.recordProgress();
       this.$emit('stopTracking');
-      global.removeEventListener('resize', this.debouncedResizeVideo);
+      global.removeEventListener('resize', this.throttledResizeVideo);
       this.videoPlayer.dispose();
     },
   };

@@ -142,7 +142,9 @@
         this.triggerSearch(this.localSearchTerm);
       },
 
-      search: throttle(function () { this.triggerSearchAction(); }, 500),
+      search: throttle(function () {
+        this.triggerSearchAction();
+      }, 500),
     },
     components: {
       'topic-list-item': require('../topic-list-item'),
