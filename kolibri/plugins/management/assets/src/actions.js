@@ -31,8 +31,8 @@ function _stateUser(apiUserData) {
 
   // look through all roles in array to make sure we get the one with the most power
   // TODO ask if they're inside the array in order of heirarchy
+  console.log(apiUserData);
   apiUserData.roles.forEach(role => {
-    console.log("Role to be assigned " + role.kind);
     // using a switch statement. Checks all in order of heirarchy
     switch(role.kind){
       // sets role to admin 
@@ -84,17 +84,21 @@ function _managePageTitle(title) {
  * Does a POST request to assign a user role (only used in this file)
  * MIGHT NOT NEED TO DO THIS. ASK SOMEONE AT WORK TOMORROW
  */
-function assignUserRole(user, role){
+function assignUserRole(user, kind){
   const rolePayload = {
         user: user.id,
         collection: user.facility,
-        kind: role,
+        kind: kind,
       };
     
-  // creates the model, saves to server, returns the promise for the server save
-  // might need to return fetch instead, handle save here
-  return Promise.all([RoleResource.createModel(rolePayload).save(), 
-  FacilityUserResource.getModel(user.id).save()]);
+  return new Promise((resolve, reject) => {
+    RoleResource.createModel(rolePayload).save().then(()=>{
+      resolve(FacilityUserResource.getModel(user.id, true));
+    },(error)=>{
+      reject(error);
+    });
+  });
+    
 }
 
 /**
@@ -110,25 +114,38 @@ function createUser(store, stateUserData) {
     full_name: stateUserData.full_name,
     password: stateUserData.password,
   }
-  // console.log('Creating user, data: ' + stateUserData  );
-  FacilityUserResource.createModel(userData).save().then((userModel) => {
-    // assign role to this new user if the role is not learner
-    if (stateUserData.kind != UserKinds.LEARNER) {
-      assignUserRole(userModel, stateUserData.kind).then(userModelWithRole => {
 
-        console.log('returned from assignUserRole Promise: ');
-        console.log(userModelWithRole);
-        
-        // manipulate usermodel here
+  return new Promise((resolve, reject) => {
+    FacilityUserResource.createModel(userData).save().then((userModel) => {
+      if (stateUserData.kind != UserKinds.LEARNER) {
+        assignUserRole(userModel, stateUserData.kind).then((userWithRole)=>{
+          console.log(userWithRole);
+          // model was updated, need to send in updated version to store
+          store.dispatch('ADD_USER', _stateUser(userWithRole));
+          resolve();
+        }, error => reject(error));
+      }else{
+        // no 
         store.dispatch('ADD_USER', _stateUser(userModel));
+        resolve();
+      }
+    },(error) => {
+      // coreActions.handleApiError(store, error); 
+      reject(error);
+    });
+  });
 
-      }, error => { coreActions.handleApiError(store, error); });
+  // FacilityUserResource.createModel(userData).save().then((userModel) => {
+  //   // assign role to this new user if the role is not learner
+  //   if (stateUserData.kind != UserKinds.LEARNER) {
+  //     assignUserRole(userModel, stateUserData.kind).then(userModelWithRole => {
+  //       // retrieve new model with ID
+  //       userModel = FacilityUserResource.getModel(userModel.id);
+  //     }, error => { coreActions.handleApiError(store, error); });
 
-    } 
-    
-    // store.dispatch('ADD_USER', _stateUser(userModel)); // update page state
+  //   } 
 
-  }).catch((error) => Promise.reject(error));
+  // }).catch((error) => Promise.reject(error));
 }
 
 /**
