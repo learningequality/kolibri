@@ -101,6 +101,7 @@ var config = {
       }
     ]
   },
+  devtool: "source-map",
   plugins: [
   ],
   resolve: {

@@ -31,7 +31,7 @@ function _stateUser(apiUserData) {
 
   // look through all roles in array to make sure we get the one with the most power
   // TODO ask if they're inside the array in order of heirarchy
-  console.log(apiUserData);
+  // console.log(apiUserData);
   apiUserData.roles.forEach(role => {
     // using a switch statement. Checks all in order of heirarchy
     switch(role.kind){
@@ -92,8 +92,13 @@ function assignUserRole(user, kind){
       };
     
   return new Promise((resolve, reject) => {
-    RoleResource.createModel(rolePayload).save().then(()=>{
-      resolve(FacilityUserResource.getModel(user.id, true));
+    RoleResource.createModel(rolePayload).save().then((roleModel)=>{
+      console.log(roleModel);
+      user.roles.push(roleModel);
+      resolve(user);
+
+      // not working, despite the force flag. Might take a while to update the users?
+      // resolve(FacilityUserResource.getModel(user.id, true).attributes);
     },(error)=>{
       reject(error);
     });
@@ -117,15 +122,21 @@ function createUser(store, stateUserData) {
 
   return new Promise((resolve, reject) => {
     FacilityUserResource.createModel(userData).save().then((userModel) => {
+      
+      // only runs if there's a role to be assigned
       if (stateUserData.kind != UserKinds.LEARNER) {
         assignUserRole(userModel, stateUserData.kind).then((userWithRole)=>{
+          console.log('before assignuserrole is returned:');
+          console.log(userModel);
+          console.log('after assignuserrole is returned');
           console.log(userWithRole);
           // model was updated, need to send in updated version to store
           store.dispatch('ADD_USER', _stateUser(userWithRole));
           resolve();
         }, error => reject(error));
+      
+      // no role to assign
       }else{
-        // no 
         store.dispatch('ADD_USER', _stateUser(userModel));
         resolve();
       }
@@ -135,17 +146,6 @@ function createUser(store, stateUserData) {
     });
   });
 
-  // FacilityUserResource.createModel(userData).save().then((userModel) => {
-  //   // assign role to this new user if the role is not learner
-  //   if (stateUserData.kind != UserKinds.LEARNER) {
-  //     assignUserRole(userModel, stateUserData.kind).then(userModelWithRole => {
-  //       // retrieve new model with ID
-  //       userModel = FacilityUserResource.getModel(userModel.id);
-  //     }, error => { coreActions.handleApiError(store, error); });
-
-  //   } 
-
-  // }).catch((error) => Promise.reject(error));
 }
 
 /**
