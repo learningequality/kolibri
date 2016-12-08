@@ -28,6 +28,7 @@ const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageC
 function _stateUser(apiUserData) {
   // handle role representation
   let kind = UserKinds.LEARNER;
+  let kindID = 0;
 
   // look through all roles in array to make sure we get the one with the most power
   // TODO ask if they're inside the array in order of heirarchy
@@ -38,9 +39,11 @@ function _stateUser(apiUserData) {
       // sets role to admin 
       case UserKinds.ADMIN || UserKinds.SUPERUSER:
         kind = UserKinds.ADMIN;
+        kindID = role.id;
         break;
       case UserKinds.COACH:
         if(kind != UserKinds.ADMIN) kind = UserKinds.COACH;
+        kindID = role.id;
         break;
     }
   });
@@ -51,6 +54,7 @@ function _stateUser(apiUserData) {
     username: apiUserData.username,
     full_name: apiUserData.full_name,
     kind: kind, 
+    kindID: kindID,
   };
 }
 
@@ -90,23 +94,28 @@ function assignUserRole(user, kind){
         collection: user.facility,
         kind: kind,
       };
-    
+  
   return new Promise((resolve, reject) => {
     // just in case we pass in learner
-    if(kind === userKinds.LEARNER)
-      resolve(user)
-    RoleResource.createModel(rolePayload).save().then((roleModel)=>{
-      console.log(roleModel);
-      user.roles.push(roleModel);
+    if(kind === userKinds.LEARNER){
       resolve(user);
+      console.log('was learner');
+    }
+    else{
+      console.log('gonna create new role');
+      RoleResource.createModel(rolePayload).save().then((roleModel)=>{
+        console.log(roleModel);
+        user.roles.push(roleModel);
+        resolve(user);
 
-      // not working, despite the force flag. Might take a while to update the users?
-      // resolve(FacilityUserResource.getModel(user.id, true).attributes);
-    },(error)=>{
-      reject(error);
-    });
+        // not working, despite the force flag. Might take a while to update the users?
+        // resolve(FacilityUserResource.getModel(user.id, true).attributes);
+      },(error)=>{
+        coreActions.handleApiError(store, error); 
+        reject(error);
+      });
+    }
   });
-    
 }
 
 /**
@@ -148,6 +157,8 @@ function createUser(store, stateUserData) {
 function updateUser(store, stateUser) {
   //payload needs username, fullname, and facility
   const userID = stateUser.id;
+  console.log('kindID');
+  const kindID = stateUser.kindID;
   const savedUserModel = FacilityUserResource.getModel(userID);
 
   // used for comparisons
@@ -158,125 +169,52 @@ function updateUser(store, stateUser) {
   console.log(savedUser);
 
   let changedValues = {};
-  let changesMade = false;
 
   // explicit checks for the only values that should be changed
-  if(stateUser.full_name !== savedUser.full_name){
+  if(stateUser.full_name !== savedUser.full_name)
     changedValues.full_name = stateUser.full_name;
-    changesMade = true;
-  }
 
-  if(stateUser.username !== savedUser.username){
+  if(stateUser.username !== savedUser.username)
     changedValues.username = stateUser.username;
-    changesMade = true;
-  }
 
-  if(stateUser.password !== savedUser.password){
+  if(stateUser.password !== savedUser.password)
     changedValues.password = stateUser.password;
-    changesMade = true;
-  }
 
-  if(stateUser.facility !== savedUser.facility){
+  if(stateUser.facility !== savedUser.facility)
     changedValues.facility = stateUser.facility;
-    changesMade = true;
-  }
 
+  savedUserModel.save(changedValues).then((updatedUser)=>{
+    savedUser = updatedUser;
+  });
+  
   if(stateUser.kind !== savedUser.kind){
     console.log('kind was changed');
-    // first, delete old role model
-    RoleResource.getModel(userID).delete().then(() => {
-      // second, create and assign the new one
+    let canAddNewRole = false;
+  
+    // delete the old role Model if it existed
+    if(savedUser.kind != UserKinds.LEARNER){
+      console.log('going to have to wait for the old role to be deleted');
+      canAddNewRole = RoleResource.getModel(kindID).delete();
+    }else{
+      console.log('no need for delete');
+    }
+
+    // then assign the new role.
+    console.log(canAddNewRole);
+    Promise.resolve(canAddNewRole).then(() => {
+      console.log('assigning the new user role');
       assignUserRole(stateUser, stateUser.kind).then(() => {
-        changesMade = true;
+        console.log('assigned new role');
       },(error) => {
         // couldn't assign role
+        console.log('assign new role fail');
         coreActions.handleApiError(store, error); 
       });
+    }, (error) => {
+      console.log('delete old role fail');
+      coreActions.handleApiError(store, error); 
     });
   }
-
-  // make changes if they exist
-  Promise.resolve(changesMade).then(()=>{
-    savedUserModel.save(changedValues).then((updatedUser)=>{
-      store.dispatch('UPDATE_USERS', [updatedUser]);
-    });
-    console.log('Finished save');
-  });
-
-  // update an
-
-  // if role has changed
-
-  // delete old role model
-
-  // create new role model
-
-  // if user details have changed, pass in only changed details
-
-  // update details (or just passt them in?)
-
-  // if (oldRole !== role) {
-  // // the role changed
-  //   if (oldRole === 'learner') {
-  //   // role is admin or coach.
-  //     const rolePayload = {
-  //       user: id,
-  //       collection: FacilityUserModel.attributes.facility,
-  //       kind: role,
-  //     };
-  //     const RoleModel = RoleResource.createModel(rolePayload);
-  //     RoleModel.save(rolePayload).then((newRole) => {
-  //       FacilityUserModel.save(payload).then(responses => {
-  //         // force role change because if the role is the only changing attribute
-  //         // FacilityUserModel.save() will not send request to server.
-  //         responses.roles = [newRole];
-  //         store.dispatch('UPDATE_USERS', [responses]);
-  //       })
-  //       .catch(error => { coreActions.handleApiError(store, error); });
-  //     });
-  //   } else if (role !== 'learner') {
-  //   // oldRole is admin and role is coach or oldRole is coach and role is admin.
-  //     const OldRoleModel = RoleResource.getModel(oldRoldID);
-  //     OldRoleModel.delete().then(() => {
-  //     // create new role when old role is successfully deleted.
-  //       const rolePayload = {
-  //         user: id,
-  //         collection: FacilityUserModel.attributes.facility,
-  //         kind: role,
-  //       };
-  //       const RoleModel = RoleResource.createModel(rolePayload);
-  //       RoleModel.save(rolePayload).then((newRole) => {
-  //       // update the facilityUser when new role is successfully created.
-  //         FacilityUserModel.save(payload).then(responses => {
-  //           // force role change because if the role is the only changing attribute
-  //           // FacilityUserModel.save() will not send request to server.
-  //           responses.roles = [newRole];
-  //           store.dispatch('UPDATE_USERS', [responses]);
-  //         })
-  //         .catch(error => { coreActions.handleApiError(store, error); });
-  //       });
-  //     })
-  //     .catch(error => { coreActions.handleApiError(store, error); });
-  //   } else {
-  //   // role is learner and oldRole is admin or coach.
-  //     const OldRoleModel = RoleResource.getModel(oldRoldID);
-  //     OldRoleModel.delete().then(() => {
-  //       FacilityUserModel.save(payload).then(responses => {
-  //         // force role change because if the role is the only changing attribute
-  //         // FacilityUserModel.save() will not send request to server.
-  //         responses.roles = [];
-  //         store.dispatch('UPDATE_USERS', [responses]);
-  //       })
-  //       .catch(error => { coreActions.handleApiError(store, error); });
-  //     });
-  //   }
-  // } else {
-  // // the role is not changed
-  //   FacilityUserModel.save(payload).then(responses => {
-  //     store.dispatch('UPDATE_USERS', [responses]);
-  //   })
-  //   .catch(error => { coreActions.handleApiError(store, error); });
-  // }
 }
 
 /**

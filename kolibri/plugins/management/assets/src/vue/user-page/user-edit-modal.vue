@@ -24,10 +24,10 @@
 
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-          <select v-model="role_new" id="user-role">
-            <option :selected="role_new == learner" v-if="role_new" value="learner"> Learner </option>
-            <option :selected="role_new == admin" value="admin"> Admin </option>
-            <option :selected="role_new == coach" value="coach"> Coach </option>
+          <select v-model="kind_new" id="user-role">
+            <option :selected="kind_new == learner" v-if="kind_new" value="learner"> Learner </option>
+            <option :selected="kind_new == admin" value="admin"> Admin </option>
+            <option :selected="kind_new == coach" value="coach"> Coach </option>
           </select>
         </div>
 
@@ -135,7 +135,7 @@
         password_new: '',
         password_new_confirm: '',
         fullName_new: this.user.full_name,
-        role_new: this.user.kind,
+        kind_new: this.user.kind,
         usr_delete: false,
         pw_reset: false,
         error_message: '',
@@ -165,7 +165,8 @@
           id: this.user.id,
           username: this.username_new,
           full_name: this.fullName_new,
-          kind: this.role_new,
+          kind: this.kind_new,
+          kindID: this.user.kindID,
         };
         this.updateUser(payload);
         // if logged in admin updates role to learner, redirect to learn page
@@ -173,7 +174,7 @@
         // to have the same id as a regular user, as they are different models.
         if ((this.session_user_kind !== UserKinds.SUPERUSER) &&
           (Number(this.userid) === this.session_user_id)) {
-          if (this.role_new === UserKinds.LEARNER.toLowerCase()) {
+          if (this.kind_new === UserKinds.LEARNER.toLowerCase()) {
             window.location.href = window.location.origin;
           }
         }
@@ -185,7 +186,7 @@
         if (Number(this.userid) === this.session_user_id) {
           this.logout(this.Kolibri);
         }
-        this.deleteUser(this.userid);
+        this.deleteUser(this.user.id);
         this.emitCloseSignal();
       },
       changePasswordHandler() {
