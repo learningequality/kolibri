@@ -41,10 +41,7 @@
     <!-- Modals -->
     <user-edit-modal
       v-if="editingUser"
-      :userid="currentUserEdit.id"
-      :username="currentUserEdit.username"
-      :fullname="currentUserEdit.full_name"
-      :roles="currentUserEdit.roles"
+      :user="currentUserEdit"
       @close="closeEditUserModal">
     </user-edit-modal>
     <user-create-modal

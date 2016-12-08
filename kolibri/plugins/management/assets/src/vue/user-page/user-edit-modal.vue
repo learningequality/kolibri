@@ -27,6 +27,7 @@
           <select v-model="role_new" id="user-role">
             <option :selected="role_new == learner" v-if="role_new" value="learner"> Learner </option>
             <option :selected="role_new == admin" value="admin"> Admin </option>
+            <option :selected="role_new == coach" value="coach"> Coach </option>
           </select>
         </div>
 
@@ -126,15 +127,15 @@
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     props: [
-      'userid', 'username', 'fullname', 'roles', // TODO - validation
+      'user',
     ],
     data() {
       return {
-        username_new: this.username,
+        username_new: this.user.username,
         password_new: '',
         password_new_confirm: '',
-        fullName_new: this.fullname,
-        role_new: this.role,
+        fullName_new: this.user.full_name,
+        role_new: this.user.kind,
         usr_delete: false,
         pw_reset: false,
         error_message: '',
@@ -161,11 +162,12 @@
       },
       editUserHandler() {
         const payload = {
+          id: this.user.id,
           username: this.username_new,
           full_name: this.fullName_new,
-          facility: this.facility,
+          kind: this.role_new,
         };
-        this.updateUser(this.userid, payload, this.role_new);
+        this.updateUser(payload);
         // if logged in admin updates role to learner, redirect to learn page
         // Do SUPERUSER check, as it is theoretically possible for a DeviceAdmin
         // to have the same id as a regular user, as they are different models.
@@ -194,13 +196,7 @@
 
           // make sure passwords match
           if (this.password_new === this.password_new_confirm) {
-            const payload = {
-              username: this.username_new,
-              full_name: this.fullName_new,
-              facility: this.facility,
-              password: this.password_new,
-            };
-            this.updateUser(this.userid, payload, this.role_new);
+            this.updateUser(this.user);
             this.confirmation_message = 'Password change successful.';
 
           // passwords don't match
