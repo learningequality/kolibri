@@ -28,7 +28,6 @@ const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageC
 function _stateUser(apiUserData) {
   // handle role representation
   let kind = UserKinds.LEARNER;
-  let kindID = 0;
 
   // look through all roles in array to make sure we get the one with the most power
   // TODO ask if they're inside the array in order of heirarchy
@@ -39,22 +38,20 @@ function _stateUser(apiUserData) {
       // sets role to admin 
       case UserKinds.ADMIN || UserKinds.SUPERUSER:
         kind = UserKinds.ADMIN;
-        kindID = role.id;
         break;
       case UserKinds.COACH:
         if(kind != UserKinds.ADMIN) kind = UserKinds.COACH;
-        kindID = role.id;
         break;
     }
   });
 
   return {
     id: apiUserData.id,
-    facility_id: apiUserData.facility,
+    facility: apiUserData.facility,
     username: apiUserData.username,
     full_name: apiUserData.full_name,
     kind: kind, 
-    kindID: kindID,
+    roles: apiUserData.roles,
   };
 }
 
@@ -94,28 +91,20 @@ function assignUserRole(user, kind){
         collection: user.facility,
         kind: kind,
       };
-  
+    
   return new Promise((resolve, reject) => {
-    // just in case we pass in learner
-    if(kind === userKinds.LEARNER){
+    RoleResource.createModel(rolePayload).save().then((roleModel)=>{
+      console.log(roleModel);
+      user.roles.push(roleModel);
       resolve(user);
-      console.log('was learner');
-    }
-    else{
-      console.log('gonna create new role');
-      RoleResource.createModel(rolePayload).save().then((roleModel)=>{
-        console.log(roleModel);
-        user.roles.push(roleModel);
-        resolve(user);
 
-        // not working, despite the force flag. Might take a while to update the users?
-        // resolve(FacilityUserResource.getModel(user.id, true).attributes);
-      },(error)=>{
-        coreActions.handleApiError(store, error); 
-        reject(error);
-      });
-    }
+      // not working, despite the force flag. Might take a while to update the users?
+      // resolve(FacilityUserResource.getModel(user.id, true).attributes);
+    },(error)=>{
+      reject(error);
+    });
   });
+    
 }
 
 /**
@@ -135,11 +124,23 @@ function createUser(store, stateUserData) {
   return new Promise((resolve, reject) => {
     FacilityUserResource.createModel(userData).save().then((userModel) => {
       
-      assignUserRole(userModel, stateUserData.kind).then((userWithRole)=>{
-        store.dispatch('ADD_USER', _stateUser(userWithRole));
-        resolve();
-      }, error => reject(error));
+      // only runs if there's a role to be assigned
+      if (stateUserData.kind != UserKinds.LEARNER) {
+        assignUserRole(userModel, stateUserData.kind).then((userWithRole)=>{
+          console.log('before assignuserrole is returned:');
+          console.log(userModel);
+          console.log('after assignuserrole is returned');
+          console.log(userWithRole);
+          // model was updated, need to send in updated version to store
+          store.dispatch('ADD_USER', _stateUser(userWithRole));
+          resolve();
+        }, error => reject(error));
       
+      // no role to assign
+      }else{
+        store.dispatch('ADD_USER', _stateUser(userModel));
+        resolve();
+      }
     },(error) => {
       // coreActions.handleApiError(store, error); 
       reject(error);
@@ -162,7 +163,7 @@ function updateUser(store, stateUser) {
   const savedUserModel = FacilityUserResource.getModel(userID);
 
   // used for comparisons
-  let savedUser = _stateUser(savedUserModel.attributes);
+  let savedUser = savedUserModel.attributes;
   console.log('State user data:');
   console.log(stateUser);
   console.log('Saved user data:');
@@ -187,12 +188,12 @@ function updateUser(store, stateUser) {
     savedUser = updatedUser;
   });
   
-  if(stateUser.kind !== savedUser.kind){
+  if(stateUser.kind !== _stateUser(savedUser).kind){
     console.log('kind was changed');
     let canAddNewRole = false;
   
     // delete the old role Model if it existed
-    if(savedUser.kind != UserKinds.LEARNER){
+    if(savedUser.kind !== UserKinds.LEARNER){
       console.log('going to have to wait for the old role to be deleted');
       canAddNewRole = RoleResource.getModel(kindID).delete();
     }else{
@@ -203,7 +204,7 @@ function updateUser(store, stateUser) {
     console.log(canAddNewRole);
     Promise.resolve(canAddNewRole).then(() => {
       console.log('assigning the new user role');
-      assignUserRole(stateUser, stateUser.kind).then(() => {
+      assignUserRole(savedUser, stateUser.kind).then(() => {
         console.log('assigned new role');
       },(error) => {
         // couldn't assign role
