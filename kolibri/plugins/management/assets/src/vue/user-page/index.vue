@@ -79,7 +79,7 @@
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
-            <span class="user-role">
+            <span v-if="user.kind !== userKinds.LEARNER" class="user-role">
               {{user.kind | capitalize}}
             </span>
           </td>
