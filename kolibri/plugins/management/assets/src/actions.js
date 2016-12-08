@@ -154,12 +154,13 @@ function updateUser(store, stateUser) {
   //payload needs username, fullname, and facility
   const userID = stateUser.id;
   const kindID = stateUser.kindID;
-  const savedUserModel = FacilityUserResource.getModel(userID);
+  let savedUserModel = FacilityUserResource.getModel(userID);
+  let savedUser = savedUserModel.attributes;
+  let roleAssigned = Promise.resolve(savedUserModel.attributes);
+  let changedValues = {};
 
   // used for comparisons
-  let savedUser = savedUserModel.attributes;
 
-  let changedValues = {};
 
   // explicit checks for the only values that can be changed
   if(stateUser.full_name !== savedUser.full_name)
@@ -173,16 +174,11 @@ function updateUser(store, stateUser) {
 
   if(stateUser.facility !== savedUser.facility)
     changedValues.facility = stateUser.facility;
-
-  savedUserModel.save(changedValues).then((updatedUser)=>{
-    // work with new values for the rest of this function
-    savedUser = updatedUser;
-  });
   
   if(stateUser.kind !== _stateUser(savedUser).kind){
     let canAddNewRole = Promise.resolve();
   
-    // delete the old role model if going this was not a learner
+    // delete the old role models if this was not a learner
     if(savedUser.roles.length){
       let roleDeletes = [];
       savedUser.roles.forEach(role => {
@@ -192,27 +188,37 @@ function updateUser(store, stateUser) {
     }
 
     // then assign the new role
-    Promise.resolve(canAddNewRole).then(() => {
-      savedUser.roles = [];
+    roleAssigned = new Promise((resolve,reject) => {
+      canAddNewRole.then(() => {
+        savedUser.roles = [];
 
-      // only need to assign a new role if not a learner
-      if(stateUser.kind !== UserKinds.LEARNER){
-        assignUserRole(savedUser, stateUser.kind).then((updated) => {
-          store.dispatch('UPDATE_USERS', [_stateUser(updated)]);
-        },(error) => {
-          // couldn't assign role
-          coreActions.handleApiError(store, error); 
-        });
-      }else{
-        store.dispatch('UPDATE_USERS', [_stateUser(savedUser)]);
-        console.log(savedUser);
-      }
+        // only need to assign a new role if not a learner
+        if(stateUser.kind !== UserKinds.LEARNER){
+          assignUserRole(savedUser, stateUser.kind).then((updated) => {
+            resolve(updated);
+          },(error) => {
+            // couldn't assign role
+            coreActions.handleApiError(store, error); 
+          });
+        
+        // new role is learner - having deleted old roles is enough
+        }else{
+          resolve(savedUser);
+          console.log(savedUser);
+        }
 
-    }, (error) => {
-      coreActions.handleApiError(store, error); 
+      }, (error) => {
+        // could not delete all old roles
+        coreActions.handleApiError(store, error); 
+      });
     });
-  }else
-    store.dispatch('UPDATE_USERS', [_stateUser(savedUser)]); 
+  }
+
+  roleAssigned.then(userWithRole => {
+    savedUserModel.save(changedValues).then(userWithAttrs => {
+      store.dispatch('UPDATE_USERS', [_stateUser(userWithAttrs)]); 
+    });
+  });
 }
 
 /**
