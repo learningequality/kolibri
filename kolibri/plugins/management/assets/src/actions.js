@@ -82,7 +82,8 @@ function _managePageTitle(title) {
 
 /**
  * Does a POST request to assign a user role (only used in this file)
- * MIGHT NOT NEED TO DO THIS. ASK SOMEONE AT WORK TOMORROW
+ * @param {object} user
+ * Needed: id, facility, kind
  */
 function assignUserRole(user, kind){
   const rolePayload = {
@@ -93,23 +94,18 @@ function assignUserRole(user, kind){
     
   return new Promise((resolve, reject) => {
     RoleResource.createModel(rolePayload).save().then((roleModel)=>{
+      // add role to user's attribute here to limit API call
       user.roles.push(roleModel);
       resolve(user);
 
-      // not working, despite the force flag. Might take a while to update the users?
-      // resolve(FacilityUserResource.getModel(user.id, true).attributes);
-    },(error)=>{
-      reject(error);
-    });
+    },(error) => reject(error));
   });
-    
 }
 
 /**
  * Do a POST to create new user
- * @param {object} userData
+ * @param {object} stateUserData
  *  Needed: username, full_name, facility, role, password
- * @param {string} role
  */
 function createUser(store, stateUserData) {
   const userData = {
@@ -147,14 +143,13 @@ function createUser(store, stateUserData) {
 
 /**
  * Do a PATCH to update existing user
- * @param {string} id
- * @param {object} payload
- * @param {string} role
+ * @param {object} stateUser
+ * Needed: id
+ * Optional Changes: full_name, username, password, facility, kind(role)
  */
 function updateUser(store, stateUser) {
   //payload needs username, fullname, and facility
   const userID = stateUser.id;
-  const kindID = stateUser.kindID;
   const savedUserModel = FacilityUserResource.getModel(userID);
   let savedUser = savedUserModel.attributes;
   let roleAssigned = Promise.resolve(savedUserModel.attributes);
