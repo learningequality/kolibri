@@ -31,7 +31,6 @@ function _stateUser(apiUserData) {
 
   // look through all roles in array to make sure we get the one with the most power
   // TODO ask if they're inside the array in order of heirarchy
-  // console.log(apiUserData);
   apiUserData.roles.forEach(role => {
     // using a switch statement. Checks all in order of heirarchy
     switch(role.kind){
@@ -51,7 +50,6 @@ function _stateUser(apiUserData) {
     username: apiUserData.username,
     full_name: apiUserData.full_name,
     kind: kind, 
-    roles: apiUserData.roles,
   };
 }
 
@@ -94,7 +92,6 @@ function assignUserRole(user, kind){
     
   return new Promise((resolve, reject) => {
     RoleResource.createModel(rolePayload).save().then((roleModel)=>{
-      console.log(roleModel);
       user.roles.push(roleModel);
       resolve(user);
 
@@ -127,10 +124,6 @@ function createUser(store, stateUserData) {
       // only runs if there's a role to be assigned
       if (stateUserData.kind != UserKinds.LEARNER) {
         assignUserRole(userModel, stateUserData.kind).then((userWithRole)=>{
-          console.log('before assignuserrole is returned:');
-          console.log(userModel);
-          console.log('after assignuserrole is returned');
-          console.log(userWithRole);
           // model was updated, need to send in updated version to store
           store.dispatch('ADD_USER', _stateUser(userWithRole));
           resolve();
@@ -158,20 +151,15 @@ function createUser(store, stateUserData) {
 function updateUser(store, stateUser) {
   //payload needs username, fullname, and facility
   const userID = stateUser.id;
-  console.log('kindID');
   const kindID = stateUser.kindID;
   const savedUserModel = FacilityUserResource.getModel(userID);
 
   // used for comparisons
   let savedUser = savedUserModel.attributes;
-  console.log('State user data:');
-  console.log(stateUser);
-  console.log('Saved user data:');
-  console.log(savedUser);
 
   let changedValues = {};
 
-  // explicit checks for the only values that should be changed
+  // explicit checks for the only values that can be changed
   if(stateUser.full_name !== savedUser.full_name)
     changedValues.full_name = stateUser.full_name;
 
@@ -185,37 +173,42 @@ function updateUser(store, stateUser) {
     changedValues.facility = stateUser.facility;
 
   savedUserModel.save(changedValues).then((updatedUser)=>{
+    // work with new values for the rest of this function
     savedUser = updatedUser;
   });
   
   if(stateUser.kind !== _stateUser(savedUser).kind){
-    console.log('kind was changed');
-    let canAddNewRole = false;
+    let canAddNewRole = Promise.resolve();
   
-    // delete the old role Model if it existed
-    if(savedUser.kind !== UserKinds.LEARNER){
-      console.log('going to have to wait for the old role to be deleted');
-      canAddNewRole = RoleResource.getModel(kindID).delete();
-    }else{
-      console.log('no need for delete');
+    // delete the old role model if going this was not a learner
+    if(savedUser.roles.length){
+      let roleDeletes = [];
+      savedUser.roles.forEach(role => {
+        roleDeletes.push(RoleResource.getModel(role.id).delete());
+      });
+      canAddNewRole = Promise.all(roleDeletes);
     }
 
-    // then assign the new role.
-    console.log(canAddNewRole);
+    // then assign the new role
     Promise.resolve(canAddNewRole).then(() => {
-      console.log('assigning the new user role');
-      assignUserRole(savedUser, stateUser.kind).then(() => {
-        console.log('assigned new role');
-      },(error) => {
-        // couldn't assign role
-        console.log('assign new role fail');
-        coreActions.handleApiError(store, error); 
-      });
+      savedUser.roles = [];
+
+      // only need to assign a new role if not a learner
+      if(stateUser.kind !== UserKinds.LEARNER){
+        assignUserRole(savedUser, stateUser.kind).then((updated) => {
+          store.dispatch('UPDATE_USERS', [_stateUser(updated)]);
+        },(error) => {
+          // couldn't assign role
+          coreActions.handleApiError(store, error); 
+        });
+      }else
+        store.dispatch('UPDATE_USERS', [_stateUser(savedUser)]);
+
     }, (error) => {
-      console.log('delete old role fail');
       coreActions.handleApiError(store, error); 
     });
-  }
+  }else
+    store.dispatch('UPDATE_USERS', [_stateUser(savedUser)]); 
 }
 
 /**
