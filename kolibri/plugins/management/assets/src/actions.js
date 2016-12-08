@@ -44,6 +44,8 @@ function _stateUser(apiUserData) {
     }
   });
 
+  console.log(apiUserData);
+
   return {
     id: apiUserData.id,
     facility: apiUserData.facility,
@@ -201,8 +203,10 @@ function updateUser(store, stateUser) {
           // couldn't assign role
           coreActions.handleApiError(store, error); 
         });
-      }else
+      }else{
         store.dispatch('UPDATE_USERS', [_stateUser(savedUser)]);
+        console.log(savedUser);
+      }
 
     }, (error) => {
       coreActions.handleApiError(store, error); 

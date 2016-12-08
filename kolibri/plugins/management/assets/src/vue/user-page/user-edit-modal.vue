@@ -166,7 +166,6 @@
           username: this.username_new,
           full_name: this.fullName_new,
           kind: this.kind_new,
-          kindID: this.user.kindID,
         };
         this.updateUser(payload);
         // if logged in admin updates role to learner, redirect to learn page
