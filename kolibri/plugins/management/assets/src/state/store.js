@@ -35,7 +35,6 @@ const mutations = {
     state.pageState.users.push(user);
   },
   UPDATE_USERS(state, users) {
-    console.log(users);
     users.forEach(user => {
       state.pageState.users.forEach(existingUser => {
         if (existingUser.id === user.id.toString()) {

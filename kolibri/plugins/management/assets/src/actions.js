@@ -43,8 +43,6 @@ function _stateUser(apiUserData) {
     }
   });
 
-  console.log(apiUserData);
-
   return {
     id: apiUserData.id,
     facility: apiUserData.facility,
