@@ -12,5 +12,6 @@ requests==2.10.0
 https://github.com/cherrypy/cherrypy/archive/v6.2.0.zip#egg=cherrypy
 https://github.com/fle-internal/django-q/archive/934d557d77ded18c4a73a702905a6f8fe932f97b.zip#egg=django-q
 porter2stemmer==1.0
+unicodecsv==0.14.1
 metafone==0.5
 le-utils==0.0.8

@@ -14,5 +14,5 @@ class TestKolibriVersion(KolibriTestBase):
         """
         Test that the major version is set as expected
         """
-        major_version = ".".join(map(str, kolibri.VERSION[:3]))
+        major_version = ".".join(map(str, kolibri.VERSION[:2]))
         self.assertIn(major_version, kolibri.__version__)

@@ -1,6 +1,9 @@
+import codecs
 import csv
 import logging
 import os
+import tempfile
+import uuid
 
 from .constants import drivetypes
 
@@ -12,7 +15,7 @@ def get_drive_list():
 
     drives = []
 
-    drive_list = _parse_wmic_csv_output(os.popen('wmic logicaldisk list full /format:csv').read())
+    drive_list = _parse_wmic_csv_output(_wmic_output())
 
     for drive in drive_list:
 
@@ -26,6 +29,10 @@ def get_drive_list():
 
         # construct a path (including "\") from DeviceID, plus fallbacks in case it's not defined for some reason
         path = "{}\\".format(drive.get("DeviceID") or drive.get("Caption") or drive.get("Name"))
+
+        # skip if there's an indication that this is an empty CD-ROM
+        if not drive.get("Size"):
+            continue
 
         # skip if we don't have read access to the drive
         if not os.access(path, os.R_OK):
@@ -43,6 +50,47 @@ def get_drive_list():
         })
 
     return drives
+
+
+def _wmic_output():
+    """
+    Returns the output from running the built-in `wmic` command.
+
+    Redirects the output of `wmic` to a temporary file and then reads it back in.
+    This would be cleaner if done using subprocess, but attempting to capture
+    `stdout` internally led to freezing under Windows XP. (This may have been
+    happening because the script is not being run as a main process.)
+    """
+
+    # choose a unique file name (re-entrant/thread-safe/crash-safe)
+    OUTPUT_PATH = os.path.join(
+        tempfile.gettempdir(),
+        "kolibri_disks-{}.txt".format(uuid.uuid4())
+    )
+
+    # pipe output from the WMIC command to the temp file
+    cmd = "wmic logicaldisk list full /format:csv > {}".format(OUTPUT_PATH)
+    returnCode = os.system(cmd)
+    if returnCode:
+        raise Exception("Could not run command '{}'".format(cmd))
+
+    # output from WMIC is ostensibly UTF-16
+    with open(OUTPUT_PATH, 'rb') as f:
+        bin_output = f.read()
+
+    # The very first time WMIC is run on a windows machine, the output gets mangled.
+    # The BOM is replaced by WMIC's initialization message, so we need to put it back.
+    # (On all subsequent runs, these next lines do nothing.)
+    INIT_MSG = "Please wait while WMIC is being installed.".encode('ascii')  # Yes, ascii.
+    bin_output = bin_output.replace(INIT_MSG, codecs.BOM_UTF16)
+
+    # finally, decode the well-formatted UTF-16 byte string
+    output = bin_output.decode('utf-16')
+
+    # clean up temp file
+    os.remove(OUTPUT_PATH)
+
+    return output
 
 def _parse_wmic_csv_output(text):
     """
