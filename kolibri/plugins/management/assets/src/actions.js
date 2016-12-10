@@ -127,16 +127,13 @@ function createUser(store, stateUserData) {
       // no role to assign
       }else resolve(userModel);
 
-    },(error) => reject(error)).then(
-
+    },(error) => reject(error));
+  }).then(
       // dispatch newly created user
       newUser => store.dispatch('ADD_USER', _stateUser(newUser)),
       // send back error if necessary
       error => error
-
     );
-  });
-
 }
 
 /**
