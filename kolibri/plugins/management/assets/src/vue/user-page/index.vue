@@ -12,7 +12,7 @@
     <div class="toolbar">
       <label for="type-filter" class="visuallyhidden">Filter User Type</label>
       <select v-model="roleFilter" id="type-filter" name="type-filter">
-        <option selected value="all"> All Users </option>
+        <option value="all"> All Users </option>
         <option :value="userKinds.ADMIN"> Admins </option>
         <option :value="userKinds.COACH"> Coaches </option>
         <option :value="userKinds.LEARNER"> Learners </option>
@@ -80,7 +80,7 @@
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
             <span v-if="user.kind !== userKinds.LEARNER" class="user-role">
-              {{user.kind | capitalize}}
+              {{ user.kind }}
             </span>
           </td>
 

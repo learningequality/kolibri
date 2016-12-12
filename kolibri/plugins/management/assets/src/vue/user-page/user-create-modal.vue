@@ -32,7 +32,7 @@
         <div class="user-field">
           <label for="user-kind"><span class="visuallyhidden">User Kind</span></label>
           <select @focus="clearErrorMessage" v-model="kind" id="user-kind">
-            <option :value="userKinds.LEARNER" selected> Learner </option>
+            <option :value="userKinds.LEARNER"> Learner </option>
             <option :value="userKinds.COACH"> Coach </option>
             <option :value="userKinds.ADMIN"> Admin </option>
           </select>
