@@ -144,7 +144,10 @@
         // creates array of words in filter, removes empty strings
         const searchFilter = this.searchFilter.split(' ').filter(Boolean).map(
           // returns an array of search parameters, ignoring case
-          (query) => new RegExp(query, 'i'));
+          (query) => {
+            const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            return new RegExp(escapedQuery, 'i');
+          });
 
         return this.users.filter((user) => {
           // fullname created using es6 templates
