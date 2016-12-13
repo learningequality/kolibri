@@ -88,10 +88,11 @@ function redirectToExploreChannel(store) {
 
   coreActions.setChannelInfo(store, coreApp).then(
     () => {
-      if (store.state.core.channels.list.length) {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (currentChannel) {
         router.replace({
           name: constants.PageNames.EXPLORE_CHANNEL,
-          params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
+          params: { channel_id: currentChannel.id },
         });
       } else {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
@@ -108,10 +109,11 @@ function redirectToLearnChannel(store) {
 
   coreActions.setChannelInfo(store, coreApp).then(
     () => {
-      if (store.state.core.channels.list.length) {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (currentChannel) {
         router.replace({
           name: constants.PageNames.LEARN_CHANNEL,
-          params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
+          params: { channel_id: currentChannel.id },
         });
       } else {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
@@ -138,6 +140,7 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
     ([topic, children]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = {};
@@ -167,6 +170,7 @@ function showExploreChannel(store, channelId) {
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       showExploreTopic(store, channelId, currentChannel.root_id, true);
@@ -186,6 +190,7 @@ function showExploreContent(store, channelId, id) {
     ([content]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = { content: _contentState(content) };
@@ -216,6 +221,7 @@ function showLearnChannel(store, channelId, page = 1) {
     samePageCheckGenerator(store),
     ([session]) => {
       if (!coreGetters.getCurrentChannelObject(store.state)) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const nextStepsPayload = { next_steps: session.user_id };
@@ -279,6 +285,7 @@ function showLearnContent(store, channelId, id) {
     ([content]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = {
