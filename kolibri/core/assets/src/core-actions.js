@@ -6,7 +6,6 @@ const MasteryLoggingMap = require('./constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('./constants').AttemptLoggingMap;
 const debounce = require('vue').util.debounce;
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
-const coreGetters = require('kolibri.coreVue.vuex.getters');
 
 const intervalTimer = require('./timer');
 
@@ -351,9 +350,10 @@ function _setChannelState(store, coreApp, currentChannelId, channelList) {
   store.dispatch('SET_CORE_CHANNEL_LIST', channelList);
   store.dispatch('SET_CORE_CURRENT_CHANNEL', currentChannelId);
   coreApp.resources.ContentNodeResource.setChannel(currentChannelId);
-  cookiejs.set('currentChannelId', currentChannelId);
-  if (!coreGetters.getCurrentChannelObject(store.state)) {
-    handleError(store, 'Channel not found');
+  if (currentChannelId) {
+    cookiejs.set('currentChannelId', currentChannelId);
+  } else {
+    cookiejs.remove('currentChannelId');
   }
 }
 
