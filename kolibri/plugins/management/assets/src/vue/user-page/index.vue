@@ -28,7 +28,7 @@
       </div>
 
       <div class="create">
-        <icon-button @click="openCreateUserModal" class="create-user-button" text="Add New" :primary="true">
+        <icon-button @buttonclicked="openCreateUserModal" class="create-user-button" text="Add New" :primary="true">
           <svg class="add-user" src="../icons/add_new_user.svg"></svg>
         </icon-button>
       </div>
