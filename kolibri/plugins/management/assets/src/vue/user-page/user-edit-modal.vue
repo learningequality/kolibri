@@ -42,7 +42,7 @@
 
       <!-- Password Reset Mode -->
       <template v-if="pw_reset" >
-        <p>Username: <b>{{username_new}}</b></p>
+        <p>Username: <b>{{ user.username}}</b></p>
         <div class="user-field">
           <label for="password">Enter new password</label>:
           <input type="password" class="edit-form" id="password" required v-model="password_new">
@@ -57,7 +57,7 @@
       <!-- User Delete Mode -->
       <template v-if="usr_delete">
         <div class="user-field">
-          <p>Are you sure you want to delete <b>{{username_new}}</b>?</p>
+          <p>Are you sure you want to delete <b>{{ user.username}}</b>?</p>
         </div>
       </template>
 
@@ -142,13 +142,12 @@
         confirmation_message: '',
       };
     },
-    mounted() {
-      // clear form on load
-      this.clear();
-    },
     methods: {
       clear() {
-        Object.assign(this.$data, this.$options.data());
+        this.usr_delete = this.pw_reset = false;
+        this.username = this.user.username;
+        this.fullName_new = this.user.full_name;
+        this.kind = this.user.kind;
       },
       submit() {
         // mirrors logic of how the 'confirm' buttons are displayed
