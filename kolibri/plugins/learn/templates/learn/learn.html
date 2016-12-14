@@ -1,18 +1,23 @@
 {% extends "kolibri/base.html" %}
 {% load learn_tags %}
+{% load kolibri_tags %}
 
 {% block content %}
+<!-- Bootstrapping the initial information for all channels. -->
+{% kolibri_bootstrap_collection 'channel' 'ChannelResource' %}
   <script>
-    var channelCollection = {{kolibri}}.resources.ChannelResource.createCollection({}, JSON.parse("{{ channelList | escapejs }}"));
-    channelCollection.synced = true;
-    {{kolibri}}.resources.ContentNodeResource.setChannel("{{ channel_id }}");
-    var root_node = JSON.parse("{{ rootnode|escapejs }}");
-    var root_node_pk = String(root_node.pk);
-    var model = {{kolibri}}.resources.ContentNodeResource.createModel(root_node);
-    model.synced = true;
-    var collection = {{kolibri}}.resources.ContentNodeResource.createCollection({parent: root_node_pk}, JSON.parse("{{ nodes|escapejs }}"));
-    collection.synced = true;
+    {{kolibri}}.resources.ContentNodeResource.setChannel("{{ request.COOKIES.currentChannelId }}");
   </script>
+  <!-- Bootstrapping the root node for the current channel in Explore tab. -->
+  {% kolibri_bootstrap_model 'contentnode' 'ContentNodeResource' kwargs_channel_id=currentChannel.id kwargs_pk=currentChannel.root_pk %}
+  <!-- Bootstrapping the top level topics for current channel in Explore tab. -->
+  {% kolibri_bootstrap_collection 'contentnode' 'ContentNodeResource' parent=currentChannel.root_pk kwargs_channel_id=currentChannel.id %}
+  <!-- Bootstrapping the popular content recommendations for this user in Learn tab. -->
+  {% kolibri_bootstrap_collection 'contentnode' 'ContentNodeResource' popular=user.id kwargs_channel_id=currentChannel.id %}
+  <!-- Bootstrapping the resume content recommendations for this user in Learn tab. -->
+  {% kolibri_bootstrap_collection 'contentnode' 'ContentNodeResource' resume=user.id kwargs_channel_id=currentChannel.id %}
+  <!-- Bootstrapping the next steps content recommendations for this user in Learn tab. -->
+  {% kolibri_bootstrap_collection 'contentnode' 'ContentNodeResource' next_steps=user.id kwargs_channel_id=currentChannel.id %}
   {% learn_async_assets %}
   {% learn_assets %}
 {% endblock %}
