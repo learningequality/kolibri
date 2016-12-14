@@ -142,7 +142,7 @@
         this.triggerSearch(this.localSearchTerm);
       },
 
-      search: throttle(function () {
+      search: throttle(function search() {
         this.triggerSearchAction();
       }, 500),
     },

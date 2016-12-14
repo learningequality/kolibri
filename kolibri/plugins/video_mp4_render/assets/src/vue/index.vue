@@ -115,7 +115,7 @@
         this.$refs.videowrapper.setAttribute('style', `width:${newWidth}px;height:${newHeight}px`);
       },
 
-      throttledResizeVideo: throttle(function () {
+      throttledResizeVideo: throttle(function resizeVideo() {
         this.resizeVideo();
       }, 300),
 
