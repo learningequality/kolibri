@@ -45,7 +45,7 @@ function _stateUser(apiUserData) {
 
   return {
     id: apiUserData.id,
-    facility: apiUserData.facility,
+    facility_id: apiUserData.facility,
     username: apiUserData.username,
     full_name: apiUserData.full_name,
     kind: kind, 
@@ -107,7 +107,7 @@ function assignUserRole(user, kind){
  */
 function createUser(store, stateUserData) {
   const userData = {
-    facility: stateUserData.facility,
+    facility: stateUserData.facility_id,
     username: stateUserData.username,
     full_name: stateUserData.full_name,
     password: stateUserData.password,
@@ -132,7 +132,7 @@ function createUser(store, stateUserData) {
       // dispatch newly created user
       newUser => store.dispatch('ADD_USER', _stateUser(newUser)),
       // send back error if necessary
-      error => error
+      error => Promise.reject(error)
     );
 }
 

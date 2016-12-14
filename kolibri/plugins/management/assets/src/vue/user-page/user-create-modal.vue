@@ -84,7 +84,7 @@
         const newUser = {
           username: this.username,
           full_name: this.full_name,
-          facility: this.facility,
+          facility_id: this.facility,
           kind: this.kind
         };
 
