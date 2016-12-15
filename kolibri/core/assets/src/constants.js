@@ -12,6 +12,7 @@ const ContentNodeKinds = {
   VIDEO: 'video',
   EXERCISE: 'exercise',
   TOPIC: 'topic',
+  HTML5: 'html5',
 };
 
 // used internally on the client as a hack to allow content-icons to display users

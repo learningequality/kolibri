@@ -1,13 +1,12 @@
 <template>
 
-  <div ref="container" class="container" allowfullscreen>
+  <div v-el:container class="container" allowfullscreen>
     <icon-button
       class="btn"
-      v-if="supportsPDFs"
       :text="inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="togglefullscreen">
     </icon-button>
-    <div ref="pdfcontainer" class="pdfcontainer"></div>
+    <iframe v-el:sandbox class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
   </div>
 
 </template>
@@ -15,25 +14,27 @@
 
 <script>
 
-  const PDFobject = require('pdfobject');
-
   module.exports = {
-
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
-
-    props: ['defaultFile'],
-
+    props: {
+      defaultFile: {
+        type: Object,
+        required: true,
+      },
+    },
     data: () => ({
-      supportsPDFs: PDFobject.supportsPDFs,
-      timeout: null,
       inFullscreen: false,
     }),
-
+    computed: {
+      rooturl() {
+        return this.defaultFile.storage_url;
+      },
+    },
     methods: {
       togglefullscreen() {
-        const container = this.$refs.container;
+        const container = this.$els.container;
         if (!document.fullscreenElement
           && !document.webkitFullscreenElement
           && !document.mozFullScreenElement
@@ -70,8 +71,7 @@
         }
       },
     },
-    mounted() {
-      PDFobject.embed(this.defaultFile.storage_url, this.$refs.pdfcontainer);
+    ready() {
       this.$emit('startTracking');
       const self = this;
       this.timeout = setTimeout(() => {
@@ -94,7 +94,7 @@
       document.removeEventListener('mozfullscreenchange', this.updateFullscreenState, false);
       document.removeEventListener('MSFullscreenChange', this.updateFullscreenState, false);
     },
-    $trNameSpace: 'pdfRenderer',
+    $trNameSpace: 'html5Renderer',
     $trs: {
       exitFullscreen: 'Exit Fullscreen',
       enterFullscreen: 'Enter Fullscreen',
@@ -120,8 +120,9 @@
       min-height: inherit
       max-height: inherit
 
-  .pdfcontainer
+  .sandbox
     /* Accounts for the button height. */
     height: calc(100% - 4em)
+    width: 100%
 
 </style>
