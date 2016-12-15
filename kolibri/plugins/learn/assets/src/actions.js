@@ -87,13 +87,13 @@ function redirectToExploreChannel(store) {
 
   coreActions.setChannelInfo(store, coreApp).then(
     () => {
-      if (store.state.core.channels.list.length) {
-        router.getInstance().replace({ // `require` hack tp avoid circular import
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (currentChannel) {
+        router.getInstance().replace({
           name: constants.PageNames.EXPLORE_CHANNEL,
-          params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
+          params: { channel_id: currentChannel.id },
         });
       } else {
-         // `require` hack tp avoid circular import
         router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
@@ -108,13 +108,13 @@ function redirectToLearnChannel(store) {
 
   coreActions.setChannelInfo(store, coreApp).then(
     () => {
-      if (store.state.core.channels.list.length) {
-        router.getInstance().replace({ // `require` hack tp avoid circular import
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (currentChannel) {
+        router.getInstance().replace({
           name: constants.PageNames.LEARN_CHANNEL,
-          params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
+          params: { channel_id: currentChannel.id },
         });
       } else {
-        // `require` hack tp avoid circular import
         router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
@@ -139,6 +139,7 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
     ([topic, children]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = {};
@@ -168,6 +169,7 @@ function showExploreChannel(store, channelId) {
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       showExploreTopic(store, channelId, currentChannel.root_id, true);
@@ -187,6 +189,7 @@ function showExploreContent(store, channelId, id) {
     ([content]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = { content: _contentState(content) };
@@ -217,12 +220,13 @@ function showLearnChannel(store, channelId, page = 1) {
     samePageCheckGenerator(store),
     ([session]) => {
       if (!coreGetters.getCurrentChannelObject(store.state)) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
-      const popularPayload = { popular: session.user_id, channel: channelId };
-      const resumePayload = { resume: session.user_id, channel: channelId };
-      const allPayload = { kind: 'content', channel: channelId };
+      const nextStepsPayload = { next_steps: session.user_id };
+      const popularPayload = { popular: session.user_id };
+      const resumePayload = { resume: session.user_id };
+      const allPayload = { kind: 'content' };
       const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
       const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
       const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
@@ -280,6 +284,7 @@ function showLearnContent(store, channelId, id) {
     ([content]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = {
