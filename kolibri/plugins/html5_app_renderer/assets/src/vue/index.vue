@@ -18,7 +18,12 @@
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
-    props: ['defaultFile'],
+    props: {
+      defaultFile: {
+        type: Object,
+        required: true,
+      },
+    },
     data: () => ({
       inFullscreen: false,
     }),
