@@ -15,23 +15,18 @@
 <script>
 
   module.exports = {
-
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
-
     props: ['defaultFile'],
-
     data: () => ({
       inFullscreen: false,
     }),
-
     computed: {
       rooturl() {
         return this.defaultFile.storage_url;
       },
     },
-
     methods: {
       togglefullscreen() {
         const container = this.$els.container;
