@@ -3,7 +3,7 @@
   <core-modal
     title="Edit Account Info"
     :has-error="error_message ? true : false"
-    :enablebackbtn="usr_delete || pw_reset"
+    :enableBackBtn="usr_delete || pw_reset"
     @enter="submit"
     @cancel="emitCloseSignal"
     @back="clear"

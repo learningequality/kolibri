@@ -27,7 +27,7 @@
       num: {
         type: Number,
       },
-      isexercise: {
+      isExercise: {
         type: Boolean,
         default: false,
       },
@@ -40,7 +40,7 @@
         if (this.numusers === undefined) {
           return null;
         }
-        if (this.isexercise) {
+        if (this.isExercise) {
           return this.$tr('mastered', this.numusers);
         }
         return this.$tr('completed', this.numusers);

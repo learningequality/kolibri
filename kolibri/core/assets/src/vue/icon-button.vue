@@ -1,8 +1,8 @@
 <template>
 
-  <button @click="$emit('buttonclicked')" class="icon-button-scope" :class="{'primary' : primary, 'single-line': !textbelow}">
+  <button @click="$emit('buttonclicked')" class="icon-button-scope" :class="{'primary' : primary, 'single-line': !showTextBelowIcon}">
     <slot></slot>
-    <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : textbelow, 'icon-padding' : !textbelow && hasIcon}">
+    <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : showTextBelowIcon, 'icon-padding' : !showTextBelowIcon && hasIcon}">
       {{ text }}
     </span>
   </button>
@@ -21,7 +21,7 @@
         type: Boolean,
         default: false,
       },
-      textbelow: {
+      showTextBelowIcon: {
         type: Boolean,
         default: false,
       },

@@ -2,15 +2,15 @@
 
   <core-modal
     title="Please choose a source..."
-    :enablebgclickcancel="false"
+    :enableBgClickCancel="false"
     @cancel="cancelImportExportWizard"
   >
     <div class="main">
       <div class="lg-button-wrapper">
-        <icon-button class="large-icon-button" text="Internet" :textbelow="true" @click="showImportNetworkWizard">
+        <icon-button class="large-icon-button" text="Internet" :showTextBelowIcon="true" @click="showImportNetworkWizard">
           <svg class="icon" src="./world.svg"></svg>
         </icon-button>
-        <icon-button class="large-icon-button" text="Local Drives" :textbelow="true" @click="showImportLocalWizard">
+        <icon-button class="large-icon-button" text="Local Drives" :showTextBelowIcon="true" @click="showImportLocalWizard">
           <svg class="icon" src="./storage.svg"></svg>
         </icon-button>
       </div>
