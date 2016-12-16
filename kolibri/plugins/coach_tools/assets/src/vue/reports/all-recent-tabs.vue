@@ -1,11 +1,11 @@
 <template>
 
   <div class="tabs">
-    <router-link :to="recentviewlink">
-      <div class="tab" :class="{ active: isrecentview }">Recent</div>
+    <router-link :to="recentViewLink">
+      <div class="tab" :class="{ active: isRecentView }">Recent</div>
     </router-link>
-    <router-link :to="allviewlink">
-      <div class="tab" :class="{ active: !isrecentview }">Topics</div>
+    <router-link :to="allViewLink">
+      <div class="tab" :class="{ active: !isRecentView }">Topics</div>
     </router-link>
   </div>
 
@@ -16,15 +16,15 @@
 
   module.exports = {
     props: {
-      recentviewlink: {
+      recentViewLink: {
         type: Object,
         required: true,
       },
-      allviewlink: {
+      allViewLink: {
         type: Object,
         required: true,
       },
-      isrecentview: {
+      isRecentView: {
         type: Boolean,
         required: true,
       },

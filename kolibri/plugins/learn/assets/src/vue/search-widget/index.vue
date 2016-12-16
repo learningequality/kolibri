@@ -52,10 +52,9 @@
           v-for="topic in topics"
           class="card"
           :id="topic.id"
-          :channelid="channelId"
+          :channelId="channelId"
           :title="topic.title"
-          :ntotal="topic.n_total"
-          :ncomplete="topic.n_complete">
+        >
         </topic-list-item>
       </card-list>
 

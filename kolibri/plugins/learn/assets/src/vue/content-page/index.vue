@@ -10,10 +10,10 @@
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
-      :content-id="content.content_id"
-      :channel-id="channelId"
+      :contentId="content.content_id"
+      :channelId="channelId"
       :available="content.available"
-      :extra-fields="content.extra_fields">
+      :extraFields="content.extra_fields">
     </content-renderer>
 
     <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn">
