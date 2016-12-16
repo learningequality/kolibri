@@ -6,9 +6,9 @@
 
     <!--TABS-->
     <all-recent-tabs
-      :recentviewlink="recentViewLink"
-      :allviewlink="allViewLink"
-      :isrecentview="isRecentView"
+      :recentViewLink="recentViewLink"
+      :allViewLink="allViewLink"
+      :isRecentView="isRecentView"
     ></all-recent-tabs>
 
 
@@ -19,23 +19,23 @@
 
         <!--HEADER SECTION-->
         <report-header
-          :contentkind="pageState.content_scope_summary.kind"
-          :contenttitle="pageState.content_scope_summary.title"
-          :userfullname="pageState.user_scope_summary.full_name"
+          :contentKind="pageState.content_scope_summary.kind"
+          :contentTitle="pageState.content_scope_summary.title"
+          :userFullName="pageState.user_scope_summary.full_name"
         ></report-header>
 
         <!--SUMMARY SECTION-->
         <summary-section
           :kind="pageState.content_scope_summary.kind"
-          :exercisecount="exerciseCount"
-          :exerciseprogress="exerciseProgress"
-          :contentcount="contentCount"
-          :contentprogress="contentProgress"
-          :lastactive="pageState.content_scope_summary.last_active"
-          :singleuser="isSingleUser"
-          :usercount="userCount"
-          :completioncount="completionCount"
-          :isrecentview="isRecentView"
+          :exerciseCount="exerciseCount"
+          :exerciseProgress="exerciseProgress"
+          :contentCount="contentCount"
+          :contentProgress="contentProgress"
+          :lastActive="pageState.content_scope_summary.last_active"
+          :singleUser="isSingleUser"
+          :userCount="userCount"
+          :completionCount="completionCount"
+          :isRecentView="isRecentView"
         ></summary-section>
       </div>
 
@@ -44,7 +44,7 @@
         <!--VIEW-BY SWITCH-->
         <view-by-switch
           v-if="!isRecentView"
-          :iscontent="isViewByContent"
+          :isContent="isViewByContent"
           :vlink="viewByLink"
           :disabled="isSingleUser || isSingleItem"
         ></view-by-switch>
@@ -84,15 +84,15 @@
                   :title="row.title"
                   :id="row.id"
                   :parent="row.parent"
-                  :exercisecount="row.exerciseCount"
-                  :contentcount="row.contentCount"
+                  :exerciseCount="row.exerciseCount"
+                  :contentCount="row.contentCount"
                 ></item-cell>
               </th>
               <td class="progress-col">
-                <progress-cell :num="row.exerciseProgress" :isexercise="true"></progress-cell>
+                <progress-cell :num="row.exerciseProgress" :isExercise="true"></progress-cell>
               </td>
               <td class="progress-col">
-                <progress-cell :num="row.contentProgress" :isexercise="false"></progress-cell>
+                <progress-cell :num="row.contentProgress" :isExercise="false"></progress-cell>
               </td>
               <td class="date-col" v-if="!isRecentView">
                 <date-cell :date="row.lastActive"></date-cell>

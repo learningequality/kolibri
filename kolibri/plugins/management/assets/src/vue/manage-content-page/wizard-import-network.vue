@@ -3,8 +3,8 @@
   <core-modal
     title="Import from the Internet"
     :error="wizardState.error"
-    :enablebgclickcancel="false"
-    :enablebackbtn="true"
+    :enableBgClickCancel="false"
+    :enableBackBtn="true"
     @cancel="cancel"
     @enter="submit"
     @back="startImportWizard"

@@ -11,7 +11,7 @@
     </div>
     <div
       class="placeholder"
-      v-for="i in numspaces"
+      v-for="i in numSpaces"
       :class="{'placeholder-empty': i === 0 && waiting}"
     ></div>
   </div>
@@ -34,7 +34,7 @@
         required: true,
       },
       // Total number of answer spaces to show
-      numspaces: {
+      numSpaces: {
         type: Number,
         required: true,
       },
@@ -50,9 +50,9 @@
     computed: {
       numItemsToRender() {
         if (this.waiting) {
-          return this.numspaces;
+          return this.numSpaces;
         }
-        return this.numspaces + 1;
+        return this.numSpaces + 1;
       },
     },
     methods: {

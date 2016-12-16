@@ -16,7 +16,7 @@
       aria-labelledby="modal-title">
 
       <div class="top-buttons">
-        <button aria-label="Go back" @click="emitBackEvent" class="header-btn btn-back" v-if="enablebackbtn">
+        <button aria-label="Go back" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">
           <svg src="./back.svg"></svg>
         </button>
         <button aria-label="Close dialog window" @click="emitCancelEvent" class="header-btn btn-close">
@@ -25,9 +25,9 @@
       </div>
 
       <!-- Modal Title -->
-      <h1 v-show="!invisibletitle" class="title" id="modal-title">
+      <h1 v-show="!invisibleTitle" class="title" id="modal-title">
         <!-- Accessible error reporting per @radina -->
-        <span v-if="haserror" class="visuallyhidden">Error in:</span>
+        <span v-if="hasError" class="visuallyhidden">Error in:</span>
         {{title}}
       </h1>
 
@@ -50,7 +50,7 @@
         type: String,
         required: true,
       },
-      invisibletitle: {
+      invisibleTitle: {
         type: Boolean,
         default: false,
       },
@@ -59,16 +59,16 @@
         type: Boolean,
         default: false,
       },
-      enablebgclickcancel: {
+      enableBgClickCancel: {
         type: Boolean,
         default: true,
       },
-      enablebackbtn: {
+      enableBackBtn: {
         type: Boolean,
         default: false,
       },
       // toggles error message indicator in header
-      haserror: {
+      hasError: {
         type: Boolean,
         default: false,
       },
@@ -117,7 +117,7 @@
       },
       bgClick(event) {
         // check to make sure the area being clicked is the overlay, not the modal
-        if (this.enablebgclickcancel && (event.target === this.$refs.modalOverlay)) {
+        if (this.enableBgClickCancel && (event.target === this.$refs.modalOverlay)) {
           this.emitCancelEvent();
         }
       },

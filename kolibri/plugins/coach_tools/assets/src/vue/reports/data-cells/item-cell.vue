@@ -6,7 +6,7 @@
       <router-link :to="vLink">{{ title }}</router-link>
     </div>
     <div class="wrapper" v-if="isTopic">
-      {{ $tr('exercises', {count: exercisecount}) }} ● {{ $tr('contents', {count: contentcount}) }}
+      {{ $tr('exercises', {count: exerciseCount}) }} ● {{ $tr('contents', {count: contentCount}) }}
     </div>
   </div>
 
@@ -38,10 +38,10 @@
         type: String,
         required: true,
       },
-      exercisecount: {
+      exerciseCount: {
         type: Number,
       },
-      contentcount: {
+      contentCount: {
         type: Number,
       },
     },

@@ -1,17 +1,17 @@
 <template>
 
   <h1>
-    <span v-if="userfullname">
+    <span v-if="userFullName">
       <svg src="../icons/user.svg" class="icon"></svg>
-      {{ userfullname }} -
+      {{ userFullName }} -
     </span>
     <span>
       <content-icon
-        :kind="contentkind"
+        :kind="contentKind"
         colorstyle="text-default"
         class="icon"
       ></content-icon>
-      {{ contenttitle }}
+      {{ contentTitle }}
     </span>
   </h1>
 
@@ -22,15 +22,15 @@
 
   module.exports = {
     props: {
-      contentkind: {
+      contentKind: {
         type: String,
         required: true,
       },
-      contenttitle: {
+      contentTitle: {
         type: String,
         required: true,
       },
-      userfullname: {
+      userFullName: {
         type: String,
       },
     },

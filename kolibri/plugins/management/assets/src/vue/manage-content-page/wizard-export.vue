@@ -3,7 +3,7 @@
   <core-modal
     title="Export to a Local Drive"
     :error="wizardState.error ? true : false"
-    :enablebgclickcancel="false"
+    :enableBgClickCancel="false"
     @cancel="cancel"
     @enter="submit"
   >
