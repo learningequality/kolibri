@@ -5,7 +5,7 @@
 
     <div v-if="!currentPage && isAdminOrSuperuser" slot="content">
       <h1>Coach Root</h1>
-      <a href="/coach/#!/reports">Go to Reports.</a>
+      <a href="/coach/#/reports">Go to Reports.</a>
     </div>
     <component v-if="isAdminOrSuperuser" slot="content" :is="currentPage" class="page"></component>
 

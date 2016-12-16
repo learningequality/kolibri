@@ -8,11 +8,11 @@
 
       TODO: would be best to refactor this.
     -->
-    <nav-bar-item href="/learn/#!/learn">
+    <nav-bar-item href="/learn/#/learn">
       <svg class="nav-icon" src="../icons/learn.svg"></svg>
       <div class="label">Learn</div>
     </nav-bar-item>
-    <nav-bar-item href="/learn/#!/explore">
+    <nav-bar-item href="/learn/#/explore">
       <svg class="nav-icon" src="../icons/explore.svg"></svg>
       <div class="label">Explore</div>
     </nav-bar-item>
