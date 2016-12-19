@@ -24,33 +24,30 @@ const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageC
  * The methods below help map data from
  * the API to state in the Vuex store
  */
+function _topUserKind(rolesObjectArray) {
+  if (rolesObjectArray) {
+    // array of strings, where each string represents the role
+    const roleKinds = rolesObjectArray.map((roleObj) => roleObj.kind);
+
+    if (roleKinds.includes(UserKinds.ADMIN || UserKinds.SUPERUSER)) {
+      return UserKinds.ADMIN;
+    } else if (roleKinds.includes(UserKinds.COACH)) {
+      return UserKinds.COACH;
+    }
+  }
+  return UserKinds.LEARNER;
+}
 
 function _userState(apiUserData) {
-  // handle role representation
-  let kind = UserKinds.LEARNER;
-
-  // makes kind the highest ranking role
-  apiUserData.roles.forEach(role => {
-    // using a switch statement. Checks all in order of heirarchy
-    switch (role.kind) {
-      // sets role to admin
-      case UserKinds.ADMIN || UserKinds.SUPERUSER:
-        kind = UserKinds.ADMIN;
-        break;
-      case UserKinds.COACH:
-        if (kind !== UserKinds.ADMIN) kind = UserKinds.COACH;
-        break;
-    }
-  });
-
   return {
     id: apiUserData.id,
     facility_id: apiUserData.facility,
     username: apiUserData.username,
     full_name: apiUserData.full_name,
-    kind,
+    kind: _topUserKind(apiUserData.roles),
   };
 }
+
 
 function _taskState(data) {
   const state = {

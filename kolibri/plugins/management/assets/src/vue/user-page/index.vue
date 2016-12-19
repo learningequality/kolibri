@@ -127,7 +127,7 @@
       creatingUser: false,
       editingUser: false,
       currentUserEdit: null,
-      userKinds : require('kolibri.coreVue.vuex.constants').UserKinds,
+      userKinds: require('kolibri.coreVue.vuex.constants').UserKinds,
     }),
     computed: {
       noUsersExist() {
@@ -159,10 +159,10 @@
           // check for filters
           if (roleFilter !== 'all') {
             isKind = false;
-
-            // actual check for roles
-            if(user.kind == roleFilter)
-              isKind = true;
+          }
+          // actual check for roles
+          if (user.kind === roleFilter) {
+            isKind = true;
           }
 
           // makes sure there's text in the search box

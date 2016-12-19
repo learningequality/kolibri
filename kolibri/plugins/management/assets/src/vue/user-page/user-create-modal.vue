@@ -72,7 +72,7 @@
         full_name: '',
         kind: userKinds.LEARNER,
         errorMessage: '',
-        userKinds : userKinds,
+        userKinds,
       };
     },
     mounted() {
@@ -85,7 +85,7 @@
           username: this.username,
           full_name: this.full_name,
           facility_id: this.facility,
-          kind: this.kind
+          kind: this.kind,
         };
 
         // check for all fields populated

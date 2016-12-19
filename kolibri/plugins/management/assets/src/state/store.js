@@ -38,7 +38,6 @@ const mutations = {
     users.forEach(user => {
       state.pageState.users.forEach(existingUser => {
         if (existingUser.id === user.id.toString()) {
-          console.log(existingUser.username + ' changed to ' + user.username);
           existingUser.username = user.username;
           existingUser.full_name = user.full_name;
           existingUser.kind = user.kind;
