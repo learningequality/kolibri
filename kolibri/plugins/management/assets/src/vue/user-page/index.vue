@@ -44,12 +44,10 @@
       :username="currentUserEdit.username"
       :fullname="currentUserEdit.full_name"
       :roles="currentUserEdit.roles"
-      @close="closeEditUserModal">
-    </user-edit-modal>
+      @close="closeEditUserModal"/>
     <user-create-modal
       v-if="creatingUser"
-      @close="closeCreateUserModal">
-    </user-create-modal>
+      @close="closeCreateUserModal"/>
 
     <table class="roster">
 

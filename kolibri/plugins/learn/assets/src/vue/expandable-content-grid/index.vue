@@ -8,8 +8,7 @@
         :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
-        :id="content.id">
-      </content-grid-item>
+        :id="content.id"/>
     </card-grid>
 
     <div class="button-wrapper" v-if="contents.length > nCollapsed">

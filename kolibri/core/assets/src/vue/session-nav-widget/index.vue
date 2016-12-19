@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <login-modal v-if="loginModalVisible"></login-modal>
+    <login-modal v-if="loginModalVisible"/>
   </div>
 
 </template>

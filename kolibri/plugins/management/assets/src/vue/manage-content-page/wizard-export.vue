@@ -40,7 +40,7 @@
           </icon-button>
         </div>
       </template>
-      <loading-spinner v-else :delay="500" class="spinner"></loading-spinner>
+      <loading-spinner v-else :delay="500" class="spinner"/>
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}
@@ -48,14 +48,12 @@
     <div class="button-wrapper">
       <icon-button
         @click="cancel"
-        text="Cancel">
-      </icon-button>
+        text="Cancel"/>
       <icon-button
         text="Export"
         @click="submit"
         :disabled="!canSubmit"
-        :primary="true">
-      </icon-button>
+        :primary="true"/>
     </div>
   </core-modal>
 

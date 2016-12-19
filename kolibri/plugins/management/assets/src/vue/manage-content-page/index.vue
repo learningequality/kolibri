@@ -2,7 +2,7 @@
 
   <div>
 
-    <component v-if="pageState.wizardState.shown" :is="wizardComponent"></component>
+    <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
     <div v-if="pageState.taskList.length" class="main alert-bg">
       <task-status
@@ -10,7 +10,7 @@
         :status="pageState.taskList[0].status"
         :percentage="pageState.taskList[0].percentage"
         :id="pageState.taskList[0].id"
-      ></task-status>
+      />
     </div>
 
     <div class="main light-bg">
@@ -21,8 +21,7 @@
             text="Import"
             class="button"
             @click="startImportWizard"
-            :primary="true"
-          >
+            :primary="true">
             <svg src="../icons/add.svg"></svg>
           </icon-button>
           <icon-button

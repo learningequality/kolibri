@@ -5,15 +5,14 @@
       <div class="card-thumbnail">
         <slot></slot>
         <div class="progress-icon-wrapper">
-          <progress-icon :progress="progress" :kind="kind" :showtext="false"></progress-icon>
+          <progress-icon :progress="progress" :kind="kind" :showtext="false"/>
         </div>
       </div>
       <div class="card-content">
         <content-icon
           class="outer-content-icon"
           v-if="kind"
-          :kind="kind">
-        </content-icon>
+          :kind="kind"/>
         <div class="text">
           {{ title }}
         </div>

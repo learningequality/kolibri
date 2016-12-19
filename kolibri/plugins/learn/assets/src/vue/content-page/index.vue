@@ -2,7 +2,7 @@
 
   <div>
 
-    <page-header :title="content.title"></page-header>
+    <page-header :title="content.title"/>
 
     <content-renderer
       v-show="!searchOpen"
@@ -13,8 +13,7 @@
       :contentId="content.content_id"
       :channelId="channelId"
       :available="content.available"
-      :extraFields="content.extra_fields">
-    </content-renderer>
+      :extraFields="content.extra_fields"/>
 
     <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn">
       {{ $tr("nextContent") }}
@@ -23,14 +22,13 @@
 
     <p class="page-description">{{ content.description }}</p>
 
-    <download-button v-if="canDownload" :files="content.files"></download-button>
+    <download-button v-if="canDownload" :files="content.files"/>
 
     <expandable-content-grid
       class="recommendation-section"
       v-if="pageMode === Constants.PageModes.LEARN"
       :title="recommendedText"
-      :contents="recommended">
-    </expandable-content-grid>
+      :contents="recommended"/>
 
   </div>
 

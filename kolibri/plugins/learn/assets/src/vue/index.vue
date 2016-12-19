@@ -1,17 +1,17 @@
 <template>
 
   <core-base @scroll="handleScroll">
-    <main-nav slot="nav"></main-nav>
-    <toolbar slot="above" :shown="showToolbar"></toolbar>
+    <main-nav slot="nav"/>
+    <toolbar slot="above" :shown="showToolbar"/>
 
-    <component class="content" slot="content" :is="currentPage"></component>
+    <component class="content" slot="content" :is="currentPage"/>
 
     <div slot="below" class="search-pane" v-show="searchOpen" transition="search-slide">
-      <search-widget :showTopics="exploreMode"></search-widget>
+      <search-widget :showTopics="exploreMode"/>
     </div>
 
     <!-- this is not used, but necessary for vue-router to function -->
-    <router-view></router-view>
+    <router-view/>
 
   </core-base>
 

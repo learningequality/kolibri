@@ -20,9 +20,7 @@
         v-for="topic in subtopics"
         :id="topic.id"
         :channelId="channelId"
-        :title="topic.title"
-      >
-      </topic-list-item>
+        :title="topic.title"/>
     </card-list>
 
     <card-grid v-if="contents.length">
@@ -33,8 +31,7 @@
         :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
-        :id="content.id">
-      </content-grid-item>
+        :id="content.id"/>
     </card-grid>
 
   </div>

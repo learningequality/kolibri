@@ -5,8 +5,7 @@
       class="btn"
       v-if="supportsPDFs"
       :text="inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      @click="togglefullscreen">
-    </icon-button>
+      @click="togglefullscreen"/>
     <div ref="pdfcontainer" class="pdfcontainer"></div>
   </div>
 

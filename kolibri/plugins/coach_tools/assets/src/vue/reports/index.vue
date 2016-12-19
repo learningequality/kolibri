@@ -2,27 +2,25 @@
 
   <div>
     <!--USER BREADCRUMBS-->
-    <breadcrumbs :list="userBreadcrumbs"></breadcrumbs>
+    <breadcrumbs :list="userBreadcrumbs"/>
 
     <!--TABS-->
     <all-recent-tabs
       :recentViewLink="recentViewLink"
       :allViewLink="allViewLink"
-      :isRecentView="isRecentView"
-    ></all-recent-tabs>
+      :isRecentView="isRecentView"/>
 
 
     <div class="tabcontents">
       <div class="top-section">
         <!--CONTENT BREADCRUMBS-->
-        <breadcrumbs :list="contentBreadcrumbs"></breadcrumbs>
+        <breadcrumbs :list="contentBreadcrumbs"/>
 
         <!--HEADER SECTION-->
         <report-header
           :contentKind="pageState.content_scope_summary.kind"
           :contentTitle="pageState.content_scope_summary.title"
-          :userFullName="pageState.user_scope_summary.full_name"
-        ></report-header>
+          :userFullName="pageState.user_scope_summary.full_name"/>
 
         <!--SUMMARY SECTION-->
         <summary-section
@@ -35,8 +33,7 @@
           :singleUser="isSingleUser"
           :userCount="userCount"
           :completionCount="completionCount"
-          :isRecentView="isRecentView"
-        ></summary-section>
+          :isRecentView="isRecentView"/>
       </div>
 
       <!-- TABLE SECTION -->
@@ -46,8 +43,7 @@
           v-if="!isRecentView"
           :isContent="isViewByContent"
           :vlink="viewByLink"
-          :disabled="isSingleUser || isSingleItem"
-        ></view-by-switch>
+          :disabled="isSingleUser || isSingleItem"/>
 
         <!--TABLE SECTION-->
         <table class="data-table">
@@ -85,17 +81,16 @@
                   :id="row.id"
                   :parent="row.parent"
                   :exerciseCount="row.exerciseCount"
-                  :contentCount="row.contentCount"
-                ></item-cell>
+                  :contentCount="row.contentCount"/>
               </th>
               <td class="progress-col">
-                <progress-cell :num="row.exerciseProgress" :isExercise="true"></progress-cell>
+                <progress-cell :num="row.exerciseProgress" :isExercise="true"/>
               </td>
               <td class="progress-col">
-                <progress-cell :num="row.contentProgress" :isExercise="false"></progress-cell>
+                <progress-cell :num="row.contentProgress" :isExercise="false"/>
               </td>
               <td class="date-col" v-if="!isRecentView">
-                <date-cell :date="row.lastActive"></date-cell>
+                <date-cell :date="row.lastActive"/>
               </td>
             </tr>
           </tbody>

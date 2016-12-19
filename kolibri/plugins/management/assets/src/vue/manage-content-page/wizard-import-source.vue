@@ -16,8 +16,7 @@
       </div>
       <icon-button
         @click="cancelImportExportWizard"
-        text="Cancel">
-      </icon-button>
+        text="Cancel"/>
     </div>
   </core-modal>
 

@@ -6,7 +6,7 @@
     </div>
     <div class="header">
       <div class="content-icon-wrapper">
-        <content-icon :kind="contentKind"></content-icon>
+        <content-icon :kind="contentKind"/>
       </div>
       <div class="title"><h1>{{ title }}</h1></div>
     </div>

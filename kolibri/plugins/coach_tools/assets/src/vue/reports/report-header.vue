@@ -9,8 +9,7 @@
       <content-icon
         :kind="contentKind"
         colorstyle="text-default"
-        class="icon"
-      ></content-icon>
+        class="icon"/>
       {{ contentTitle }}
     </span>
   </h1>
