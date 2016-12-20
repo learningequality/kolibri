@@ -29,9 +29,10 @@
   @require '~kolibri.styles.coreTheme'
 
   .breadcrumb-wrapper-div
-    padding: 0.5em
+    padding-top: 0.5em
     line-height: 2em
     font-size: smaller
     display: inline-block
+    color: $core-text-annotation
 
 </style>
