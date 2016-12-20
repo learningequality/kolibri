@@ -32,9 +32,9 @@
         <div class="user-field">
           <label for="user-kind"><span class="visuallyhidden">User Kind</span></label>
           <select @focus="clearErrorMessage" v-model="kind" id="user-kind">
-            <option :value="userKinds.LEARNER"> Learner </option>
-            <option :value="userKinds.COACH"> Coach </option>
-            <option :value="userKinds.ADMIN"> Admin </option>
+            <option :value="LEARNER"> Learner </option>
+            <option :value="COACH"> Coach </option>
+            <option :value="ADMIN"> Admin </option>
           </select>
         </div>
       </section>
@@ -58,7 +58,7 @@
 <script>
 
   const actions = require('../../actions');
-  const userKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
     components: {
@@ -70,14 +70,24 @@
         password: '',
         passwordConfirm: '',
         full_name: '',
-        kind: userKinds.LEARNER,
+        kind: UserKinds.LEARNER,
         errorMessage: '',
-        userKinds,
       };
     },
     mounted() {
       // clear form on load
       Object.assign(this.$data, this.$options.data());
+    },
+    computed: {
+      LEARNER() {
+        return UserKinds.LEARNER;
+      },
+      COACH() {
+        return UserKinds.COACH;
+      },
+      ADMIN() {
+        return UserKinds.ADMIN;
+      },
     },
     methods: {
       createNewUser() {

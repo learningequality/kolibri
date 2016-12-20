@@ -13,9 +13,9 @@
       <label for="type-filter" class="visuallyhidden">Filter User Type</label>
       <select v-model="roleFilter" id="type-filter" name="type-filter">
         <option value="all"> All Users </option>
-        <option :value="userKinds.ADMIN"> Admins </option>
-        <option :value="userKinds.COACH"> Coaches </option>
-        <option :value="userKinds.LEARNER"> Learners </option>
+        <option :value="ADMIN"> Admins </option>
+        <option :value="COACH"> Coaches </option>
+        <option :value="LEARNER"> Learners </option>
       </select>
 
       <div class="searchbar" role="search">
@@ -79,7 +79,7 @@
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
-            <span v-if="user.kind !== userKinds.LEARNER" class="user-role">
+            <span v-if="user.kind !== LEARNER" class="user-role">
               {{ user.kind }}
             </span>
           </td>
@@ -113,6 +113,7 @@
 <script>
 
   const actions = require('../../actions');
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
     components: {
@@ -127,9 +128,17 @@
       creatingUser: false,
       editingUser: false,
       currentUserEdit: null,
-      userKinds: require('kolibri.coreVue.vuex.constants').UserKinds,
     }),
     computed: {
+      LEARNER() {
+        return UserKinds.LEARNER;
+      },
+      COACH() {
+        return UserKinds.COACH;
+      },
+      ADMIN() {
+        return UserKinds.ADMIN;
+      },
       noUsersExist() {
         return this.users.length === 0;
       },

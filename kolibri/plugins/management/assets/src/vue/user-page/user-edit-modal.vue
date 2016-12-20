@@ -25,9 +25,9 @@
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
           <select v-model="kind_new" id="user-role">
-            <option :selected="kind_new == learner" v-if="kind_new" value="learner"> Learner </option>
-            <option :selected="kind_new == admin" value="admin"> Admin </option>
-            <option :selected="kind_new == coach" value="coach"> Coach </option>
+            <option :value="LEARNER"> Learner </option>
+            <option :value="ADMIN"> Admin </option>
+            <option :value="COACH"> Coach </option>
           </select>
         </div>
 
@@ -141,6 +141,17 @@
         error_message: '',
         confirmation_message: '',
       };
+    },
+    computed: {
+      LEARNER() {
+        return UserKinds.LEARNER;
+      },
+      COACH() {
+        return UserKinds.COACH;
+      },
+      ADMIN() {
+        return UserKinds.ADMIN;
+      },
     },
     methods: {
       clear() {

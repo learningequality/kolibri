@@ -26,7 +26,7 @@ const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageC
  */
 function _topUserKind(rolesObjectArray) {
   if (rolesObjectArray) {
-    // array of strings, where each string represents the role
+    // array of strings, where each string represents a role object
     const roleKinds = rolesObjectArray.map((roleObj) => roleObj.kind);
 
     if (roleKinds.includes(UserKinds.ADMIN || UserKinds.SUPERUSER)) {
@@ -173,10 +173,9 @@ function updateUser(store, stateUser) {
 
       // delete the old role models if this was not a learner
       handlePreviousRoles = Promise.all(roleDeletes).then(responses => {
-        // to avoid having to make an API call, clear manually (used in assign)
+        // to avoid having to make an API call, clear manually
         savedUser.roles = [];
 
-        // gives access to delete responses if wanted
         return responses;
 
       // models could not be deleted
@@ -201,7 +200,7 @@ function updateUser(store, stateUser) {
   }
 
   roleAssigned.then(userWithRole => {
-    // update user attributes
+    // update user object with new values
     savedUserModel.save(changedValues).then(userWithAttrs => {
       // dispatch changes to store
       store.dispatch('UPDATE_USERS', [_userState(userWithAttrs)]);
