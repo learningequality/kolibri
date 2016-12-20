@@ -149,56 +149,9 @@
         return !this.noUsersExist && !this.allUsersFilteredOut;
       },
       visibleUsers() {
-        const roleFilter = this.roleFilter;
-        // creates array of words in filter, removes empty strings
-        const searchFilter = this.searchFilter.split(' ').filter(Boolean).map(
-          // returns an array of search parameters, ignoring case
-          (query) => {
-            const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-            return new RegExp(escapedQuery, 'i');
-          });
-
-        return this.users.filter((user) => {
-          // fullname created using es6 templates
-          const names = [user.full_name, user.username];
-
-          let isKind = true;
-          let hasName = true;
-
-          // check for filters
-          if (roleFilter !== 'all') {
-            isKind = false;
-          }
-          // actual check for roles
-          if (user.kind === roleFilter) {
-            isKind = true;
-          }
-
-          // makes sure there's text in the search box
-          if (searchFilter.length) {
-            hasName = false;
-
-            // check for searchFilter phrase in user's names
-            for (const name of names) {
-              // test name through all filters
-              if (searchFilter.every(nameFilter => nameFilter.test(name))) {
-                hasName = true;
-              }
-            }
-          }
-
-          // determines whether name should be on list
-          return isKind && hasName;
-
-          // aphabetize based on username
-        }).sort((user1, user2) => {
-          if (user1.username[0] > user2.username[0]) {
-            return 1;
-          } else if (user1.username[0] < user2.username[0]) {
-            return -1;
-          }
-          return 0;
-        });
+        return this.users
+          .filter(user => this.matchesText(user) && this.matchesRole(user))
+          .sort((user1, user2) => user1.username.localeCompare(user2.username));
       },
     },
     methods: {
@@ -215,6 +168,23 @@
       },
       closeCreateUserModal() {
         this.creatingUser = false;
+      },
+      matchesText(user) {
+        const searchTerms = this.searchFilter
+          .split(' ')
+          .filter(Boolean)
+          .map(val => val.toLowerCase());
+
+        const fullName = user.full_name.toLowerCase();
+        const username = user.username.toLowerCase();
+
+        return searchTerms.every(term => fullName.includes(term) || username.includes(term));
+      },
+      matchesRole(user) {
+        if (this.roleFilter === 'all') {
+          return true;
+        }
+        return user.kind === this.roleFilter;
       },
     },
     vuex: {
