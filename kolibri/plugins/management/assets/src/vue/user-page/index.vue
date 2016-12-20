@@ -82,7 +82,7 @@
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
             <span class="user-role" v-for="role in user.roles">
-              {{role.kind}}
+              {{role.kind === 'admin' ? $tr('admin') : $tr('coach')}}
             </span>
           </td>
 
@@ -226,6 +226,8 @@
     $trs: {
       noUsersExist: 'No Users Exist.',
       allUsersFilteredOut: 'No users match the filter.',
+      admin: 'Admin',
+      coach: 'Coach',
     },
   };
 
