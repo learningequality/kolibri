@@ -45,7 +45,8 @@
 
 <script>
 
-  require('html5media/dist/api/1.1.8/html5media');
+  require('imports?this=>window!html5media/dist/api/1.1.8/html5media');
+
   module.exports = {
 
     props: [
