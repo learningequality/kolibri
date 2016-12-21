@@ -42,7 +42,7 @@
 
       <!-- Password Reset Mode -->
       <template v-if="pw_reset" >
-        <p>Username: <b>{{ user.username}}</b></p>
+        <p>Username: <b>{{ username}}</b></p>
         <div class="user-field">
           <label for="password">Enter new password</label>:
           <input type="password" class="edit-form" id="password" required v-model="password_new">
@@ -57,7 +57,7 @@
       <!-- User Delete Mode -->
       <template v-if="usr_delete">
         <div class="user-field">
-          <p>Are you sure you want to delete <b>{{ user.username}}</b>?</p>
+          <p>Are you sure you want to delete <b>{{ username}}</b>?</p>
         </div>
       </template>
 
@@ -70,42 +70,17 @@
       <section @keydown.enter.stop>
 
         <icon-button
-          v-if="!usr_delete && !pw_reset"
-          text="Cancel"
+          :text="cancelText"
           class="undo-btn"
-          @click="emitCloseSignal">
-        </icon-button>
-
-        <!-- 'Back' for reset, 'No' for delete -->
-        <icon-button
-          v-else
-          :text="pw_reset ? 'Back' : 'No'"
-          class="undo-btn"
-          @click="clear">
+          @click="cancelClick">
         </icon-button>
 
         <icon-button
-          v-if="!usr_delete && !pw_reset"
-          text="Confirm"
+          :text="submitText"
           class="confirm-btn"
           :primary="true"
-          @click="submit">
-        </icon-button>
-
-        <icon-button
-          v-if="pw_reset"
-          text="Save"
-          class="confirm-btn"
-          :primary="true"
-          @click="submit">
-        </icon-button>
-
-        <icon-button
-          v-if="usr_delete"
-          text="Yes"
-          class="confirm-btn"
-          :primary="true"
-          @click="submit">
+          @click="submit"
+          @enter.prevent>
         </icon-button>
 
       </section>
@@ -126,16 +101,31 @@
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
-    props: [
-      'user',
-    ],
+    props: {
+      userid: {
+        type: String, // string is type returned from server
+        required: true,
+      },
+      fullname: {
+        type: String,
+        required: true,
+      },
+      username: {
+        type: String,
+        required: true,
+      },
+      userkind: {
+        type: String,
+        required: true,
+      },
+    },
     data() {
       return {
-        username_new: this.user.username,
+        username_new: this.username,
         password_new: '',
         password_new_confirm: '',
-        fullName_new: this.user.full_name,
-        kind_new: this.user.kind,
+        fullName_new: this.fullname,
+        kind_new: this.userkind,
         usr_delete: false,
         pw_reset: false,
         error_message: '',
@@ -152,13 +142,37 @@
       ADMIN() {
         return UserKinds.ADMIN;
       },
+      submitText() {
+        if (this.pw_reset) {
+          return 'Save';
+        } else if (this.usr_delete) {
+          return 'Yes';
+        }
+
+        return 'Confirm';
+      },
+      cancelText() {
+        if (this.pw_reset) {
+          return 'Back';
+        } else if (this.usr_delete) {
+          return 'No';
+        }
+
+        return 'Cancel';
+      },
+      cancelClick() {
+        if (this.pw_reset || this.usr_delete) {
+          return this.clear;
+        }
+        return this.emitCloseSignal;
+      },
     },
     methods: {
       clear() {
         this.usr_delete = this.pw_reset = false;
-        this.username = this.user.username;
-        this.fullName_new = this.user.full_name;
-        this.kind = this.user.kind;
+        this.username_new = this.username;
+        this.fullName_new = this.fullname;
+        this.kind = this.userkind;
       },
       submit() {
         // mirrors logic of how the 'confirm' buttons are displayed
@@ -172,7 +186,7 @@
       },
       editUserHandler() {
         const payload = {
-          id: this.user.id,
+          id: this.userid,
           username: this.username_new,
           full_name: this.fullName_new,
           kind: this.kind_new,
@@ -195,7 +209,7 @@
         if (Number(this.userid) === this.session_user_id) {
           this.logout(this.Kolibri);
         }
-        this.deleteUser(this.user.id);
+        this.deleteUser(this.userid);
         this.emitCloseSignal();
       },
       changePasswordHandler() {

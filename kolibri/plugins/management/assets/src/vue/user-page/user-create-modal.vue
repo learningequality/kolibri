@@ -45,7 +45,6 @@
         <icon-button
           class="create-btn"
           text="Create Account"
-          @keydown.enter.stop
           @click="createNewUser">
         </icon-button>
       </section>
@@ -114,7 +113,8 @@
           this.createUser(newUser).then(
             () => {
               this.close();
-            }).catch((error) => {
+            },
+            (error) => {
               if (error.status.code === 400) {
                 // access the first error message
                 this.errorMessage = error.entity[Object.keys(error.entity)[0]];
