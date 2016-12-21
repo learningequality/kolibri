@@ -152,8 +152,30 @@
         return !this.noUsersExist && !this.allUsersFilteredOut;
       },
       visibleUsers() {
+        const searchFilter = this.searchFilter;
+        const roleFilter = this.roleFilter;
+
+        function matchesText(user) {
+          const searchTerms = searchFilter
+            .split(' ')
+            .filter(Boolean)
+            .map(val => val.toLowerCase());
+
+          const fullName = user.full_name.toLowerCase();
+          const username = user.username.toLowerCase();
+
+          return searchTerms.every(term => fullName.includes(term) || username.includes(term));
+        }
+
+        function matchesRole(user) {
+          if (roleFilter === 'all') {
+            return true;
+          }
+          return user.kind === roleFilter;
+        }
+
         return this.users
-          .filter(user => this.matchesText(user) && this.matchesRole(user))
+          .filter(user => matchesText(user) && matchesRole(user))
           .sort((user1, user2) => user1.username.localeCompare(user2.username));
       },
     },
@@ -171,23 +193,6 @@
       },
       closeCreateUserModal() {
         this.creatingUser = false;
-      },
-      matchesText(user) {
-        const searchTerms = this.searchFilter
-          .split(' ')
-          .filter(Boolean)
-          .map(val => val.toLowerCase());
-
-        const fullName = user.full_name.toLowerCase();
-        const username = user.username.toLowerCase();
-
-        return searchTerms.every(term => fullName.includes(term) || username.includes(term));
-      },
-      matchesRole(user) {
-        if (this.roleFilter === 'all') {
-          return true;
-        }
-        return user.kind === this.roleFilter;
       },
     },
     vuex: {
