@@ -13,7 +13,7 @@
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <h2 class="core-text-alert" v-if="drivesWithData.length === 0">
-            <svg class="error-svg" src="../icons/error.svg"></svg>
+            <svg class="error-svg" src="../icons/error.svg"/>
             No drives with data were detected.
           </h2>
           <h2 v-if="drivesWithData.length === 1">
@@ -40,7 +40,7 @@
             text="Refresh"
             @click="updateWizardLocalDriveList"
             :disabled="wizardState.busy">
-            <svg src="../icons/refresh.svg"></svg>
+            <svg src="../icons/refresh.svg"/>
           </icon-button>
         </div>
       </template>

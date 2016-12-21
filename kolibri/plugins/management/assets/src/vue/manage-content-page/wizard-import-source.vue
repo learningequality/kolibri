@@ -8,10 +8,10 @@
     <div class="main">
       <div class="lg-button-wrapper">
         <icon-button class="large-icon-button" text="Internet" :showTextBelowIcon="true" @click="showImportNetworkWizard">
-          <svg class="icon" src="./world.svg"></svg>
+          <svg class="icon" src="./world.svg"/>
         </icon-button>
         <icon-button class="large-icon-button" text="Local Drives" :showTextBelowIcon="true" @click="showImportLocalWizard">
-          <svg class="icon" src="./storage.svg"></svg>
+          <svg class="icon" src="./storage.svg"/>
         </icon-button>
       </div>
       <icon-button

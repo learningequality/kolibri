@@ -4,8 +4,8 @@
 
     <page-header :title="title">
       <div slot="icon">
-        <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"></svg>
-        <svg v-else class="pageicon" src="../icons/folder.svg"></svg>
+        <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"/>
+        <svg v-else class="pageicon" src="../icons/folder.svg"/>
       </div>
     </page-header>
 

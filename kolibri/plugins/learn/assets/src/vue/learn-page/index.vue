@@ -2,7 +2,7 @@
 
   <div>
     <page-header :title="$tr('learnName')">
-      <svg slot="icon" class="pageicon" src="../icons/learn.svg"></svg>
+      <svg slot="icon" class="pageicon" src="../icons/learn.svg"/>
     </page-header>
     <allcontent/>
     <expandable-content-grid
