@@ -125,9 +125,24 @@
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
-    props: [
-      'userid', 'username', 'fullname', 'roles', // TODO - validation
-    ],
+    props: {
+      userid: {
+        type: String,
+        required: true,
+      },
+      username: {
+        type: String,
+        default: true,
+      },
+      fullname: {
+        type: String,
+        default: true,
+      },
+      roles: {
+        type: Array,
+        default: false,
+      },
+    },
     data() {
       return {
         username_new: this.username,
