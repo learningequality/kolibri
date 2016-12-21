@@ -134,12 +134,16 @@
         password_new: '',
         password_new_confirm: '',
         fullName_new: this.fullname,
-        role_new: this.roles.length ? this.roles[0].kind : 'learner',
         usr_delete: false,
         pw_reset: false,
         error_message: '',
         confirmation_message: '',
       };
+    },
+    computed: {
+      role_new() {
+        return this.roles.length ? this.roles[0].kind : 'learner';
+      },
     },
     mounted() {
       // clear form on load
