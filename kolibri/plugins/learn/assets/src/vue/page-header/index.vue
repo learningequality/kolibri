@@ -2,7 +2,7 @@
 
   <div class="header-wrapper">
     <div class="extra-nav">
-      <slot name="extra-nav"></slot>
+      <slot name="extra-nav"/>
     </div>
     <div class="header">
       <div class="content-icon-wrapper">

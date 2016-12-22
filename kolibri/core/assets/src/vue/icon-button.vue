@@ -1,7 +1,7 @@
 <template>
 
   <button @click="$emit('click')" class="icon-button-scope" :class="{'primary' : primary, 'single-line': !showTextBelowIcon}">
-    <slot></slot>
+    <slot/>
     <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : showTextBelowIcon, 'icon-padding' : !showTextBelowIcon && hasIcon}">
       {{ text }}
     </span>

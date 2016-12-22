@@ -3,7 +3,7 @@
   <router-link :to="link">
     <div class="card">
       <div class="card-thumbnail">
-        <slot></slot>
+        <slot/>
         <div class="progress-icon-wrapper">
           <progress-icon :progress="progress" :kind="kind" :showtext="false"/>
         </div>
