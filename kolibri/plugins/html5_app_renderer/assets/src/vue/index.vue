@@ -4,8 +4,7 @@
     <icon-button
       class="btn"
       :text="inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      @click="togglefullscreen">
-    </icon-button>
+      @click="togglefullscreen"/>
     <iframe v-el:sandbox class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
   </div>
 

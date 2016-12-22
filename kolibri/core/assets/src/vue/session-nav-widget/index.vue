@@ -10,7 +10,7 @@
 
     <nav-bar-item v-else tabindex="0" @click.native="showLoginModal" @keyup.enter="showLoginModal">
       <div class="wrapper">
-        <svg id="person" class="person-icon" src="./icons/person.svg"></svg>
+        <svg id="person" class="person-icon" src="./icons/person.svg"/>
         <div class="label">{{ $tr('logIn') }}</div>
       </div>
     </nav-bar-item>
@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <login-modal v-if="loginModalVisible"></login-modal>
+    <login-modal v-if="loginModalVisible"/>
   </div>
 
 </template>

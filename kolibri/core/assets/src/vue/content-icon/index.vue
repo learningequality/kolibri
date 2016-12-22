@@ -4,33 +4,27 @@
     <svg
       v-if="is(Constants.ContentNodeKinds.TOPIC)"
       src="./content-icons/topic.svg"
-      :class="[colorClass]"
-    ></svg>
+      :class="[colorClass]"/>
     <svg
       v-if="is(Constants.ContentNodeKinds.VIDEO)"
       src="./content-icons/video.svg"
-      :class="[colorClass]"
-    ></svg>
+      :class="[colorClass]"/>
     <svg
       v-if="is(Constants.ContentNodeKinds.AUDIO)"
       src="./content-icons/audio.svg"
-      :class="[colorClass]"
-    ></svg>
+      :class="[colorClass]"/>
     <svg
       v-if="is(Constants.ContentNodeKinds.DOCUMENT)"
       src="./content-icons/document.svg"
-      :class="[colorClass]"
-    ></svg>
+      :class="[colorClass]"/>
     <svg
       v-if="is(Constants.ContentNodeKinds.EXERCISE)"
       src="./content-icons/exercise.svg"
-      :class="[colorClass]"
-    ></svg>
+      :class="[colorClass]"/>
     <svg
       v-if="is(Constants.USER)"
       src="./content-icons/user.svg"
-      :class="[colorClass]"
-    ></svg>
+      :class="[colorClass]"/>
   </div>
 
 </template>

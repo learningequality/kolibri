@@ -45,8 +45,7 @@
           class="create-btn"
           text="Create Account"
           @keydown.enter.stop
-          @click="createNewUser">
-        </icon-button>
+          @click="createNewUser"/>
       </section>
     </div>
   </core-modal>

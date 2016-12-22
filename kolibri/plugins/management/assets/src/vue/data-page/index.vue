@@ -16,7 +16,7 @@
       </p>
       <a :href="sessionlogurl">
         <icon-button text="Download">
-          <svg src="../icons/download.svg"></svg>
+          <svg src="../icons/download.svg"/>
         </icon-button>
       </a>
       <p class="infobox">
@@ -33,7 +33,7 @@
       </p>
       <a :href="summarylogurl">
         <icon-button text="Download">
-          <svg src="../icons/download.svg"></svg>
+          <svg src="../icons/download.svg"/>
         </icon-button>
       </a>
       <p class="infobox">

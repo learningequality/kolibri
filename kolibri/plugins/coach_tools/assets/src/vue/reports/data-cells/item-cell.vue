@@ -2,7 +2,7 @@
 
   <div>
     <div class="wrapper">
-      <content-icon :kind="kind" class="icon"></content-icon>
+      <content-icon :kind="kind" class="icon"/>
       <router-link :to="vLink">{{ title }}</router-link>
     </div>
     <div class="wrapper" v-if="isTopic">

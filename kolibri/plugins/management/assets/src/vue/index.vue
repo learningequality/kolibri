@@ -1,17 +1,17 @@
 <template>
 
   <core-base>
-    <main-nav slot="nav"></main-nav>
+    <main-nav slot="nav"/>
 
     <div v-if="isAdminOrSuperuser" slot="above" class="manage-content">
-      <top-nav></top-nav>
+      <top-nav/>
     </div>
     <component
       v-if="isAdminOrSuperuser"
       slot="content"
       class="manage-content page"
       :is="currentPage"
-    ></component>
+    />
     <div v-else slot="content" class="login-message">
       <h1>{{ $tr('logInPrompt') }}</h1>
       <p>{{ $tr('logInCommand') }}</p>

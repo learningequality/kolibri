@@ -2,15 +2,14 @@
 
   <h1>
     <span v-if="userFullName">
-      <svg src="../icons/user.svg" class="icon"></svg>
+      <svg src="../icons/user.svg" class="icon"/>
       {{ userFullName }} -
     </span>
     <span>
       <content-icon
         :kind="contentKind"
         colorstyle="text-default"
-        class="icon"
-      ></content-icon>
+        class="icon"/>
       {{ contentTitle }}
     </span>
   </h1>

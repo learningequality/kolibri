@@ -8,6 +8,6 @@
   "inline-script-disabled": true,
   "space-tab-mixed-disabled": "space2",
   "attr-value-double-quotes": true,
-  "--no-tag-self-close": true,
+  "--no-self-close-common-html5-tags": true,
   "--vue-component-conventions": true
 }

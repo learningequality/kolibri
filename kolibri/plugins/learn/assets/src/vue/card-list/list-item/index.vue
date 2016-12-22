@@ -2,7 +2,7 @@
 
   <router-link class="root" :to="link">
     <div class="thumb-wrapper">
-      <slot></slot>
+      <slot/>
     </div>
     <div class="text">
       <span class="title">{{ title }}</span>

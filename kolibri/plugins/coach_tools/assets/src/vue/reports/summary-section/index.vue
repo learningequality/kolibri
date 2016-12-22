@@ -10,13 +10,13 @@
 
       <div class="summary-section-progress">
         <div class="summary-section-heading">{{ $tr('exerciseProgress') }}</div>
-        <progress-bar v-if="exerciseProgress !== undefined" :progress="exerciseProgress"></progress-bar>
+        <progress-bar v-if="exerciseProgress !== undefined" :progress="exerciseProgress"/>
         <div v-else>{{ $tr('na') }}</div>
       </div>
 
       <div class="summary-section-progress">
         <div class="summary-section-heading">{{ $tr('contentProgress') }}</div>
-        <progress-bar v-if="contentProgress !== undefined" :progress="contentProgress"></progress-bar>
+        <progress-bar v-if="contentProgress !== undefined" :progress="contentProgress"/>
         <div v-else>{{ $tr('na') }}</div>
       </div>
 
@@ -34,7 +34,7 @@
       </div>
 
       <div v-if="singleUser" class="summary-section-progress">
-        <progress-icon :progress="1" :kind="kind" :showtext="true"></progress-icon>
+        <progress-icon :progress="1" :kind="kind" :showtext="true"/>
       </div>
 
       <div v-else class="summary-section-progress">
@@ -56,7 +56,7 @@
       </div>
 
       <div v-if="singleUser" class="summary-section-progress">
-        <progress-icon :progress="contentProgress" :kind="kind" :showtext="true"></progress-icon>
+        <progress-icon :progress="contentProgress" :kind="kind" :showtext="true"/>
       </div>
 
 
@@ -81,7 +81,7 @@
       </div>
 
       <div v-if="singleUser" class="summary-section-progress">
-        <progress-icon :progress="contentProgress" :kind="kind" :showtext="true"></progress-icon>
+        <progress-icon :progress="contentProgress" :kind="kind" :showtext="true"/>
       </div>
 
       <div v-else class="summary-section-progress">
