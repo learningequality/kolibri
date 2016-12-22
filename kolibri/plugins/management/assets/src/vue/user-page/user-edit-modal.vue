@@ -197,7 +197,7 @@
         // to have the same id as a regular user, as they are different models.
         if ((this.session_user_kind !== UserKinds.SUPERUSER) &&
           (Number(this.userid) === this.session_user_id)) {
-          if (this.kind_new === UserKinds.LEARNER.toLowerCase()) {
+          if (this.kind_new === UserKinds.LEARNER) {
             window.location.href = window.location.origin;
           }
         }
