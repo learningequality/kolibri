@@ -11,27 +11,27 @@
       <section class="user-fields">
         <div class="user-field">
           <label for="name">Name</label>
-          <input @focus="clearErrorMessage" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
+          <input @focus="clearStatus" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
         </div>
 
         <div class="user-field">
           <label for="username">Username</label>
-          <input @focus="clearErrorMessage" type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
+          <input @focus="clearStatus" type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
         </div>
 
         <div class="user-field">
           <label for="password">Password</label>
-          <input @focus="clearErrorMessage" type="password" class="add-form" id="password" required v-model="password">
+          <input @focus="clearStatus" type="password" class="add-form" id="password" required v-model="password">
         </div>
 
         <div class="user-field">
           <label for="confirm-password">Confirm Password</label>
-          <input @focus="clearErrorMessage" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
+          <input @focus="clearStatus" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
         </div>
 
         <div class="user-field">
           <label for="user-kind"><span class="visuallyhidden">User Kind</span></label>
-          <select @focus="clearErrorMessage" v-model="kind" id="user-kind">
+          <select @focus="clearStatus" v-model="kind" id="user-kind">
             <option :value="LEARNER"> Learner </option>
             <option :value="COACH"> Coach </option>
             <option :value="ADMIN"> Admin </option>
@@ -41,7 +41,7 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
+        <p :class="{error: errorMessage}" v-if="statusMessage" aria-live="polite">{{statusMessage}}</p>
         <icon-button
           class="create-btn"
           text="Create Account"
@@ -71,6 +71,7 @@
         full_name: '',
         kind: UserKinds.LEARNER,
         errorMessage: '',
+        confirmationMessage: '',
       };
     },
     mounted() {
@@ -86,6 +87,14 @@
       },
       ADMIN() {
         return UserKinds.ADMIN;
+      },
+      statusMessage() {
+        if (this.errorMessage) {
+          return this.errorMessage;
+        } else if (this.confirmationMessage) {
+          return this.confirmationMessage;
+        }
+        return false;
       },
     },
     methods: {
@@ -108,7 +117,7 @@
           newUser.password = this.password;
 
           // loading message
-          this.confirmation_message = 'Loading...';
+          this.confirmationMessage = 'Loading...';
           // using promise to ensure that the user is created before closing
           this.createUser(newUser).then(
             () => {
@@ -126,8 +135,8 @@
             });
         }
       },
-      clearErrorMessage() {
-        this.errorMessage = '';
+      clearStatus() {
+        this.errorMessage = this.confirmationMessage = '';
       },
       close() {
         this.$emit('close'); // signal parent to close
