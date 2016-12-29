@@ -283,3 +283,9 @@ def main(args=None):
         from . import server
         server.start()
         return
+
+    if arguments['stop']:
+        # import from server.py here to avoid circular imports caused by importing kolibri.deployment.default.wsgi
+        from . import server
+        server.stop()
+        return
