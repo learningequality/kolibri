@@ -25,8 +25,8 @@
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">User Role</span></label>
           <select v-model="role_new" id="user-role">
-            <option :selected="role_new == learner" v-if="role_new" value="learner"> Learner </option>
-            <option :selected="role_new == admin" value="admin"> Admin </option>
+            <option :selected="role_new == 'learner'" v-if="role_new" value="learner"> Learner </option>
+            <option :selected="role_new == 'admin'" value="admin"> Admin </option>
           </select>
         </div>
 
@@ -120,21 +120,40 @@
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
-    props: [
-      'userid', 'username', 'fullname', 'roles', // TODO - validation
-    ],
+    props: {
+      userid: {
+        type: String,
+        required: true,
+      },
+      username: {
+        type: String,
+        default: true,
+      },
+      fullname: {
+        type: String,
+        default: true,
+      },
+      roles: {
+        type: Array,
+        default: false,
+      },
+    },
     data() {
       return {
         username_new: this.username,
         password_new: '',
         password_new_confirm: '',
         fullName_new: this.fullname,
-        role_new: this.roles.length ? this.roles[0].kind : 'learner',
         usr_delete: false,
         pw_reset: false,
         error_message: '',
         confirmation_message: '',
       };
+    },
+    computed: {
+      role_new() {
+        return this.roles.length ? this.roles[0].kind : 'learner';
+      },
     },
     mounted() {
       // clear form on load
