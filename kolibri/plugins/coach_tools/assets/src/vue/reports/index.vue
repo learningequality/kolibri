@@ -77,27 +77,29 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in dataTable" track-by="id" transition="item">
-              <th scope="row" class="name-col">
-                <item-cell
-                  :kind="row.kind"
-                  :title="row.title"
-                  :id="row.id"
-                  :parent="row.parent"
-                  :exercisecount="row.exerciseCount"
-                  :contentcount="row.contentCount"
-                ></item-cell>
-              </th>
-              <td class="progress-col">
-                <progress-cell :num="row.exerciseProgress" :isexercise="true"></progress-cell>
-              </td>
-              <td class="progress-col">
-                <progress-cell :num="row.contentProgress" :isexercise="false"></progress-cell>
-              </td>
-              <td class="date-col" v-if="!isRecentView">
-                <date-cell :date="row.lastActive"></date-cell>
-              </td>
-            </tr>
+            <transition name="item">
+              <tr v-for="row in dataTable" track-by="id">
+                <th scope="row" class="name-col">
+                  <item-cell
+                    :kind="row.kind"
+                    :title="row.title"
+                    :id="row.id"
+                    :parent="row.parent"
+                    :exercisecount="row.exerciseCount"
+                    :contentcount="row.contentCount"
+                  ></item-cell>
+                </th>
+                <td class="progress-col">
+                  <progress-cell :num="row.exerciseProgress" :isexercise="true"></progress-cell>
+                </td>
+                <td class="progress-col">
+                  <progress-cell :num="row.contentProgress" :isexercise="false"></progress-cell>
+                </td>
+                <td class="date-col" v-if="!isRecentView">
+                  <date-cell :date="row.lastActive"></date-cell>
+                </td>
+              </tr>
+            </transition>
           </tbody>
         </table>
       </div>
