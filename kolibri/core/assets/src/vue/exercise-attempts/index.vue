@@ -1,17 +1,19 @@
 <template>
 
   <div class="wrapper">
-    <div
-      class="answer"
-      v-for="(item, index) in log"
-      transition="fade"
-      :style="styleForIndex(index)"
-    >
-      <answer-icon :answer="item" :success="success"></answer-icon>
-    </div>
+    <transition-group name="fade">
+      <div
+        class="answer"
+        v-for="(item, index) in log"
+        :style="styleForIndex(index)"
+        key="index"
+      >
+        <answer-icon :answer="item" :success="success"></answer-icon>
+      </div>
+    </transition-group>
     <div
       class="placeholder"
-      v-for="i in numspaces"
+      v-for="i in numSpaces"
       :class="{'placeholder-empty': i === 0 && waiting}"
     ></div>
   </div>
@@ -34,7 +36,7 @@
         required: true,
       },
       // Total number of answer spaces to show
-      numspaces: {
+      numSpaces: {
         type: Number,
         required: true,
       },
@@ -50,9 +52,9 @@
     computed: {
       numItemsToRender() {
         if (this.waiting) {
-          return this.numspaces;
+          return this.numSpaces;
         }
-        return this.numspaces + 1;
+        return this.numSpaces + 1;
       },
     },
     methods: {
@@ -101,7 +103,10 @@
     backface-visibility: hidden
     perspective: 1000
 
-  .fade-enter, .fade-leave
+  .fade-enter-active, .fade-leave-active
+    transition: all 0.3s ease
+
+  .fade-enter, .fade-leave-active
     opacity: 0
 
   .placeholder
