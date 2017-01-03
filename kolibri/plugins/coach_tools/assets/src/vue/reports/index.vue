@@ -82,16 +82,16 @@
                   :parent="row.parent"
                   :exerciseCount="row.exerciseCount"
                   :contentCount="row.contentCount"
-                ></item-cell>
+                />
               </th>
               <td class="progress-col">
-                <progress-cell :num="row.exerciseProgress" :isExercise="true"></progress-cell>
+                <progress-cell :num="row.exerciseProgress" :isExercise="true"/>
               </td>
               <td class="progress-col">
-                <progress-cell :num="row.contentProgress" :isExercise="false"></progress-cell>
+                <progress-cell :num="row.contentProgress" :isExercise="false"/>
               </td>
               <td class="date-col" v-if="!isRecentView">
-                <date-cell :date="row.lastActive"></date-cell>
+                <date-cell :date="row.lastActive"/>
               </td>
             </tr>
           </tbody>
