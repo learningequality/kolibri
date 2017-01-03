@@ -72,30 +72,28 @@
               ></th>
             </tr>
           </thead>
-          <tbody>
-            <transition name="item">
-              <tr v-for="row in dataTable" :key="id">
-                <th scope="row" class="name-col">
-                  <item-cell
-                    :kind="row.kind"
-                    :title="row.title"
-                    :id="row.id"
-                    :parent="row.parent"
-                    :exerciseCount="row.exerciseCount"
-                    :contentCount="row.contentCount"
-                  ></item-cell>
-                </th>
-                <td class="progress-col">
-                  <progress-cell :num="row.exerciseProgress" :isExercise="true"></progress-cell>
-                </td>
-                <td class="progress-col">
-                  <progress-cell :num="row.contentProgress" :isExercise="false"></progress-cell>
-                </td>
-                <td class="date-col" v-if="!isRecentView">
-                  <date-cell :date="row.lastActive"></date-cell>
-                </td>
-              </tr>
-            </transition>
+          <tbody is="transition-group" name="item">
+            <tr v-for="row in dataTable" :key="row.id">
+              <th scope="row" class="name-col">
+                <item-cell
+                  :kind="row.kind"
+                  :title="row.title"
+                  :id="row.id"
+                  :parent="row.parent"
+                  :exerciseCount="row.exerciseCount"
+                  :contentCount="row.contentCount"
+                ></item-cell>
+              </th>
+              <td class="progress-col">
+                <progress-cell :num="row.exerciseProgress" :isExercise="true"></progress-cell>
+              </td>
+              <td class="progress-col">
+                <progress-cell :num="row.contentProgress" :isExercise="false"></progress-cell>
+              </td>
+              <td class="date-col" v-if="!isRecentView">
+                <date-cell :date="row.lastActive"></date-cell>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
