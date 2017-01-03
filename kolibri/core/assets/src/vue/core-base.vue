@@ -85,7 +85,6 @@
     padding-bottom: 50px
     z-index: -2
     @media (max-width: $medium-breakpoint + 1)
-      padding-left: 69px
       padding-right: 0
     @media screen and (max-width: $portrait-breakpoint)
       padding: 0 0.6em

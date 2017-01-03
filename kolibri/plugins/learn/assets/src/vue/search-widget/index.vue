@@ -182,8 +182,7 @@
     margin-bottom: $card-gutter
 
   .main-wrapper
-    margin: auto
-    width-auto-adjust()
+    left: 0
 
   .top-floating-bar
     background-color: $core-bg-canvas
