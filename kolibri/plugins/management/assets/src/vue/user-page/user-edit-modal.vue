@@ -3,7 +3,7 @@
   <core-modal
     title="Edit Account Info"
     :has-error="error_message ? true : false"
-    :enablebackbtn="usr_delete || pw_reset"
+    :enableBackBtn="usr_delete || pw_reset"
     @enter="submit"
     @cancel="emitCloseSignal"
     @back="clear"
@@ -72,40 +72,35 @@
           v-if="!usr_delete && !pw_reset"
           text="Cancel"
           class="undo-btn"
-          @click="emitCloseSignal">
-        </icon-button>
+          @click="emitCloseSignal"/>
 
         <!-- 'Back' for reset, 'No' for delete -->
         <icon-button
           v-else
           :text="pw_reset ? 'Back' : 'No'"
           class="undo-btn"
-          @click="clear">
-        </icon-button>
+          @click="clear"/>
 
         <icon-button
           v-if="!usr_delete && !pw_reset"
           text="Confirm"
           class="confirm-btn"
           :primary="true"
-          @click="submit">
-        </icon-button>
+          @click="submit"/>
 
         <icon-button
           v-if="pw_reset"
           text="Save"
           class="confirm-btn"
           :primary="true"
-          @click="submit">
-        </icon-button>
+          @click="submit"/>
 
         <icon-button
           v-if="usr_delete"
           text="Yes"
           class="confirm-btn"
           :primary="true"
-          @click="submit">
-        </icon-button>
+          @click="submit"/>
 
       </section>
 

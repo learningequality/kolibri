@@ -5,15 +5,15 @@
     <div class="label">{{ $tr('viewbylabel') }}</div>
 
     <router-link :to="vlink" :class="{ disabled: disabled }">
-      <div class="left-text" :class="{ selected: iscontent, disabled: disabled }">{{ $tr('contents') }}</div>
+      <div class="left-text" :class="{ selected: isContent, disabled: disabled }">{{ $tr('contents') }}</div>
 
       <div class="toggle-switch-wrapper">
         <div class="toggle-switch">
-          <div class="toggle-switch-slider" :class="{ rightside: !iscontent, disabled: disabled }"></div>
+          <div class="toggle-switch-slider" :class="{ rightside: !isContent, disabled: disabled }"></div>
         </div>
       </div>
 
-      <div class="right-text" :class="{ selected: !iscontent, disabled: disabled }">{{ $tr('learners') }}</div>
+      <div class="right-text" :class="{ selected: !isContent, disabled: disabled }">{{ $tr('learners') }}</div>
     </router-link>
   </div>
 
@@ -30,7 +30,7 @@
       learners: 'Learners',
     },
     props: {
-      iscontent: {
+      isContent: {
         type: Boolean,
         required: true,
       },

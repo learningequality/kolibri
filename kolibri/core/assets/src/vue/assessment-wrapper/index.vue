@@ -10,7 +10,7 @@ oriented data synchronization.
 <template v-if="ready">
 
   <div>
-    <slot></slot>
+    <slot/>
   </div>
 
 </template>

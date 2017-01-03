@@ -43,20 +43,20 @@ describe('--attr-value-single-quotes', function() {
 });
 */
 
-describe('--no-tag-self-close', function() {
+describe('--no-self-close-common-html5-tags', function() {
   describe('input is valid', function() {
     it('should have no errors', function (done) {
-      var input = '<br>';
+      var input = '<div></div>';
       var output = HTMLHint.verify(input, ruleset);
       assert(output.length === 0);
       done();
     });
   });
   describe('input is invalid', function() {
-    it('should have one error with rule id: --no-tag-self-close', function (done) {
-      var input = '<br />';
+    it('should have one error with rule id: --no-self-close-common-html5-tags', function (done) {
+      var input = '<div />';
       var output = HTMLHint.verify(input, ruleset);
-      assert(output.length === 1 && output[0].rule.id === '--no-tag-self-close');
+      assert(output.length === 1 && output[0].rule.id === '--no-self-close-common-html5-tags');
       done();
     });
   });

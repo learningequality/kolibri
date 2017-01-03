@@ -8,7 +8,7 @@
         :style="styleForIndex(index)"
         key="index"
       >
-        <answer-icon :answer="item" :success="success"></answer-icon>
+        <answer-icon :answer="item" :success="success"/>
       </div>
     </transition-group>
     <div

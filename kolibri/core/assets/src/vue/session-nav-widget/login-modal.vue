@@ -2,9 +2,9 @@
 
   <core-modal
     :title="$tr('title')"
-    :invisibletitle="true"
-    :enablebgclickcancel="true"
-    :haserror="wrongCreds"
+    :invisibleTitle="true"
+    :enableBgClickCancel="true"
+    :hasError="wrongCreds"
     @enter="userLogin"
     @cancel="cancelLoginModal"
   >

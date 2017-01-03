@@ -2,21 +2,18 @@
 
   <div>
     <page-header :title="$tr('learnName')">
-      <svg slot="icon" class="pageicon" src="../icons/learn.svg"></svg>
+      <svg slot="icon" class="pageicon" src="../icons/learn.svg"/>
     </page-header>
-    <allcontent></allcontent>
+    <allcontent/>
     <expandable-content-grid
       :contents="recommendations.popular"
-      :title="'Most Popular'">
-    </expandable-content-grid>
+      :title="'Most Popular'"/>
     <expandable-content-grid
       :contents="recommendations.nextSteps"
-      :title="'Next Steps'">
-    </expandable-content-grid>
+      :title="'Next Steps'"/>
     <expandable-content-grid
       :contents="recommendations.resume"
-      :title="'Resume'">
-    </expandable-content-grid>
+      :title="'Resume'"/>
   </div>
 
 </template>

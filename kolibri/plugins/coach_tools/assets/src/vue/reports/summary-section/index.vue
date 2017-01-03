@@ -5,22 +5,22 @@
     <!--TOPICS-->
     <div v-if="kind === Kinds.TOPIC" class="summary-section-row">
       <div class="summary-section-details">
-        {{ $tr('exerciseCountText', {count: exercisecount}) }} ● {{ $tr('contentCountText', {count: contentcount}) }}
+        {{ $tr('exerciseCountText', {count: exerciseCount}) }} ● {{ $tr('contentCountText', {count: contentCount}) }}
       </div>
 
       <div class="summary-section-progress">
         <div class="summary-section-heading">{{ $tr('exerciseProgress') }}</div>
-        <progress-bar v-if="exerciseprogress !== undefined" :progress="exerciseprogress"></progress-bar>
+        <progress-bar v-if="exerciseProgress !== undefined" :progress="exerciseProgress"/>
         <div v-else>{{ $tr('na') }}</div>
       </div>
 
       <div class="summary-section-progress">
         <div class="summary-section-heading">{{ $tr('contentProgress') }}</div>
-        <progress-bar v-if="contentprogress !== undefined" :progress="contentprogress"></progress-bar>
+        <progress-bar v-if="contentProgress !== undefined" :progress="contentProgress"/>
         <div v-else>{{ $tr('na') }}</div>
       </div>
 
-      <div v-if="!isrecentview" class="summary-section-date">
+      <div v-if="!isRecentView" class="summary-section-date">
         <div class="summary-section-heading">{{ $tr('lastActive') }}:</div>
         {{ lastActiveDate }}
       </div>
@@ -33,12 +33,12 @@
 
       </div>
 
-      <div v-if="singleuser" class="summary-section-progress">
-        <progress-icon :progress="1" :kind="kind" :showtext="true"></progress-icon>
+      <div v-if="singleUser" class="summary-section-progress">
+        <progress-icon :progress="1" :kind="kind" :showtext="true"/>
       </div>
 
       <div v-else class="summary-section-progress">
-        {{ completioncount }}/{{ usercount }} {{ $tr('mastered') }}
+        {{ completionCount }}/{{ userCount }} {{ $tr('mastered') }}
       </div>
 
       <div class="summary-section-date">
@@ -55,13 +55,13 @@
 
       </div>
 
-      <div v-if="singleuser" class="summary-section-progress">
-        <progress-icon :progress="contentprogress" :kind="kind" :showtext="true"></progress-icon>
+      <div v-if="singleUser" class="summary-section-progress">
+        <progress-icon :progress="contentProgress" :kind="kind" :showtext="true"/>
       </div>
 
 
       <div v-else class="summary-section-progress">
-        {{ completioncount }}/{{ usercount }}
+        {{ completionCount }}/{{ userCount }}
         <span v-if="kind === Kinds.VIDEO">{{ $tr('watched') }}</span>
         <span v-else>{{ $tr('listened') }}</span>
       </div>
@@ -80,12 +80,12 @@
 
       </div>
 
-      <div v-if="singleuser" class="summary-section-progress">
-        <progress-icon :progress="contentprogress" :kind="kind" :showtext="true"></progress-icon>
+      <div v-if="singleUser" class="summary-section-progress">
+        <progress-icon :progress="contentProgress" :kind="kind" :showtext="true"/>
       </div>
 
       <div v-else class="summary-section-progress">
-        {{ completioncount }}/{{ usercount }} {{ $tr('viewed') }}
+        {{ completionCount }}/{{ userCount }} {{ $tr('viewed') }}
       </div>
 
       <div class="summary-section-date">
@@ -122,8 +122,8 @@
     },
     computed: {
       lastActiveDate() {
-        if (this.lastactive) {
-          return this.$tr('lastActiveText', [new Date(this.lastactive)]);
+        if (this.lastActive) {
+          return this.$tr('lastActiveText', [new Date(this.lastActive)]);
         }
         return '–';
       },
@@ -136,38 +136,38 @@
         type: String,
         required: true,
       },
-      exercisecount: {
+      exerciseCount: {
         type: Number,
         required: true,
       },
-      exerciseprogress: {
+      exerciseProgress: {
         type: Number,
         required: false,
       },
-      contentcount: {
+      contentCount: {
         type: Number,
         required: true,
       },
-      contentprogress: {
+      contentProgress: {
         type: Number,
         required: false,
       },
-      lastactive: {
+      lastActive: {
         type: String,
       },
-      singleuser: {
+      singleUser: {
         type: Boolean,
         required: true,
       },
-      usercount: {
+      userCount: {
         type: Number,
         required: true,
       },
-      completioncount: {
+      completionCount: {
         type: Number,
         required: false,
       },
-      isrecentview: {
+      isRecentView: {
         type: Boolean,
         required: true,
       },
