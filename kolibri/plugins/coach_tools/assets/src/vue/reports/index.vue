@@ -72,8 +72,8 @@
               ></th>
             </tr>
           </thead>
-          <tbody>
-            <tr v-for="row in dataTable" track-by="id" transition="item">
+          <tbody is="transition-group" name="item">
+            <tr v-for="row in dataTable" :key="row.id">
               <th scope="row" class="name-col">
                 <item-cell
                   :kind="row.kind"
@@ -81,7 +81,8 @@
                   :id="row.id"
                   :parent="row.parent"
                   :exerciseCount="row.exerciseCount"
-                  :contentCount="row.contentCount"/>
+                  :contentCount="row.contentCount"
+                />
               </th>
               <td class="progress-col">
                 <progress-cell :num="row.exerciseProgress" :isExercise="true"/>
