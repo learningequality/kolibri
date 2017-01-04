@@ -2,13 +2,13 @@
 
   <div class="top">
     <div class="links">
-      <router-link :to="usersLink" :class="{active: usersActive}" @click="blur">
+      <router-link :to="usersLink" :class="{active: usersActive}" @click.native="blur">
         Users
       </router-link>
-      <router-link :to="dataLink" :class="{active: dataActive}" @click="blur">
+      <router-link :to="dataLink" :class="{active: dataActive}" @click.native="blur">
         Data
       </router-link>
-      <router-link :to="contentLink" :class="{active: contentActive}" @click="blur" v-if="isDeviceOwner">
+      <router-link :to="contentLink" :class="{active: contentActive}" @click.native="blur" v-if="isDeviceOwner">
         Content
       </router-link>
     </div>

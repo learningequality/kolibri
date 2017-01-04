@@ -1,7 +1,7 @@
 <template>
 
   <div class="link-wrapper">
-    <router-link v-if="vlink" :to="vlink" :class="{active: active}" @click="blur" ref="link" class="link">
+    <router-link v-if="vlink" :to="vlink" :class="{active: active}" @click.native="blur" ref="link" class="link">
       <div class="content">
         <slot/>
       </div>
@@ -21,7 +21,11 @@
   module.exports = {
     methods: {
       blur() {
-        this.$refs.link.blur();
+        if (this.$refs.link.$el) {
+          this.$refs.link.$el.blur();
+        } else {
+          this.$refs.link.blur();
+        }
       },
     },
     props: {
