@@ -52,7 +52,7 @@ var parseBundlePlugin = function(data, base_dir) {
   var local_config;
 
   try {
-    local_config = require(path.join(data.plugin_path, 'webpack.config.js'));
+    local_config = require(path.resolve(path.join(data.plugin_path, 'webpack.config.js')));
   } catch (e) {
     local_config = {};
   }

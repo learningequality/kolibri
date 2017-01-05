@@ -5,7 +5,7 @@
     class="search-btn"
     @click="toggleSearch"
   >
-    <svg src="../search-widget/search.svg"></svg>
+    <svg src="../search-widget/search.svg"/>
   </button>
 
 </template>

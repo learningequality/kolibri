@@ -1,7 +1,7 @@
 <template>
 
   <div ref="videowrapperwrapper" class="videowrapperwrapper">
-    <loading-spinner v-if="loading"></loading-spinner>
+    <loading-spinner v-if="loading"/>
     <div ref="videowrapper" v-show="!loading" class="videowrapper">
       <video ref="video" class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
         <template v-for="video in videoSources">

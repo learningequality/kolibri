@@ -72,16 +72,16 @@
         <icon-button
           :text="cancelText"
           class="undo-btn"
-          @click="cancelClick">
-        </icon-button>
+          @click="cancelClick"
+        />
 
         <icon-button
           :text="submitText"
           class="confirm-btn"
           :primary="true"
           @click="submit"
-          @enter.prevent>
-        </icon-button>
+          @enter.prevent
+        />
 
       </section>
 
@@ -148,7 +148,6 @@
         } else if (this.usr_delete) {
           return 'Yes';
         }
-
         return 'Confirm';
       },
       cancelText() {
@@ -157,17 +156,16 @@
         } else if (this.usr_delete) {
           return 'No';
         }
-
         return 'Cancel';
-      },
-      cancelClick() {
-        if (this.pw_reset || this.usr_delete) {
-          return this.clear;
-        }
-        return this.emitCloseSignal;
       },
     },
     methods: {
+      cancelClick() {
+        if (this.pw_reset || this.usr_delete) {
+          this.clear();
+        }
+        this.emitCloseSignal();
+      },
       clear() {
         this.usr_delete = this.pw_reset = false;
         this.username_new = this.username;

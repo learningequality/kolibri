@@ -2,14 +2,14 @@
 
   <div>
     <nav-bar>
-      <slot name="nav"></slot>
+      <slot name="nav"/>
     </nav-bar>
-    <loading-spinner v-if="loading" class="loading-spinner-fixed"></loading-spinner>
+    <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
-      <error-box v-if="error"></error-box>
-      <slot name="above"></slot>
-      <slot name="content"></slot>
-      <slot name="below"></slot>
+      <error-box v-if="error"/>
+      <slot name="above"/>
+      <slot name="content"/>
+      <slot name="below"/>
     </div>
   </div>
 

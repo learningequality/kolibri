@@ -45,8 +45,8 @@
         <icon-button
           class="create-btn"
           text="Create Account"
-          @click="createNewUser">
-        </icon-button>
+          @click="createNewUser"
+        />
       </section>
     </div>
   </core-modal>

@@ -1,15 +1,13 @@
 <template>
 
-  <button 
-    type="button" 
+  <button
+    type="button"
     @click="$emit('click')"
     @keypress.enter.prevent = "$emit('enter')"
-    class="icon-button-scope" 
-    :class="{
-      'primary' : primary, 
-      'single-line': !showTextBelowIcon
-      }">
-    <slot></slot>
+    class="icon-button-scope"
+    :class="{'primary' : primary, 'single-line': !showTextBelowIcon}"
+  >
+    <slot/>
     <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : showTextBelowIcon, 'icon-padding' : !showTextBelowIcon && hasIcon}">
       {{ text }}
     </span>

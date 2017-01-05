@@ -19,7 +19,7 @@
       </select>
 
       <div class="searchbar" role="search">
-        <svg class="icon" src="../icons/search.svg" aria-hidden="true"></svg>
+        <svg class="icon" src="../icons/search.svg" aria-hidden="true"/>
         <input
           id="search-field"
           aria-label="Search for a user..."
@@ -30,7 +30,7 @@
 
       <div class="create">
         <icon-button @click="openCreateUserModal" class="create-user-button" text="Add New" :primary="true">
-          <svg class="add-user" src="../icons/add_new_user.svg"></svg>
+          <svg class="add-user" src="../icons/add_new_user.svg"/>
         </icon-button>
       </div>
 
@@ -45,12 +45,11 @@
       :fullname="currentUserEdit.full_name"
       :username="currentUserEdit.username"
       :userkind="currentUserEdit.kind"
-      @close="closeEditUserModal">
-    </user-edit-modal>
+      @close="closeEditUserModal"
+    />
     <user-create-modal
       v-if="creatingUser"
-      @close="closeCreateUserModal">
-    </user-create-modal>
+      @close="closeCreateUserModal"/>
 
     <table class="roster">
 
@@ -83,7 +82,7 @@
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
             <span v-if="user.kind !== LEARNER" class="user-role">
-              {{ user.kind }}
+              {{ user.kind === ADMIN ? $tr('admin') : $tr('coach') }}
             </span>
           </td>
 
@@ -96,7 +95,7 @@
           <td class="table-cell">
             <icon-button class="edit-user-button" @click="openEditUserModal(user)">
               <span class="visuallyhidden">Edit Account Info</span>
-              <svg src="../icons/pencil.svg"></svg>
+              <svg src="../icons/pencil.svg"/>
             </icon-button>
           </td>
 
@@ -207,6 +206,8 @@
     $trs: {
       noUsersExist: 'No Users Exist.',
       allUsersFilteredOut: 'No users match the filter.',
+      admin: 'Admin',
+      coach: 'Coach',
     },
   };
 

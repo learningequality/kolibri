@@ -1,13 +1,13 @@
 <template>
 
   <core-base>
-    <main-nav slot="nav"></main-nav>
+    <main-nav slot="nav"/>
 
     <div v-if="!currentPage && isAdminOrSuperuser" slot="content">
       <h1>Coach Root</h1>
       <a href="/coach/#/reports">Go to Reports.</a>
     </div>
-    <component v-if="isAdminOrSuperuser" slot="content" :is="currentPage" class="page"></component>
+    <component v-if="isAdminOrSuperuser" slot="content" :is="currentPage" class="page"/>
 
     <div v-else slot="content" class="login-message">
       <h1>{{ $tr('logInPrompt') }}</h1>

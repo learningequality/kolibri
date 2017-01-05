@@ -9,19 +9,19 @@
       TODO: would be best to refactor this.
     -->
     <nav-bar-item :vlink="learnLink" :active="learnActive">
-      <svg class="nav-icon" src="../icons/learn.svg"></svg>
+      <svg class="nav-icon" src="../icons/learn.svg"/>
       <div class="label">{{ $tr('learn') }}</div>
     </nav-bar-item>
     <nav-bar-item :vlink="exploreLink" :active="exploreActive">
-      <svg class="nav-icon" src="../icons/explore.svg"></svg>
+      <svg class="nav-icon" src="../icons/explore.svg"/>
       <div class="label">{{ $tr('explore') }}</div>
     </nav-bar-item>
     <nav-bar-item v-if="isAdminOrSuperuser" href="/coach">
-      <svg class="nav-icon" src="../icons/coach.svg"></svg>
+      <svg class="nav-icon" src="../icons/coach.svg"/>
       <div class="label">Coach</div>
     </nav-bar-item>
     <nav-bar-item v-if="isAdminOrSuperuser" href="/management">
-      <svg class="nav-icon" src="../icons/manage.svg"></svg>
+      <svg class="nav-icon" src="../icons/manage.svg"/>
       <div class="label">{{ $tr('manage') }}</div>
     </nav-bar-item>
   </div>

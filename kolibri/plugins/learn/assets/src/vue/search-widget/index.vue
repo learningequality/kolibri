@@ -27,7 +27,7 @@
               @click="clear()"
               :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }"
             >
-              <svg class="clear-icon" src="./clear.svg"></svg>
+              <svg class="clear-icon" src="./clear.svg"/>
             </button>
           </div>
           <div class="cancel-btn-table-cell">
@@ -53,9 +53,7 @@
           class="card"
           :id="topic.id"
           :channelId="channelId"
-          :title="topic.title"
-        >
-        </topic-list-item>
+          :title="topic.title"/>
       </card-list>
 
       <h2 v-if="contents.length">
@@ -70,8 +68,7 @@
           :thumbnail="content.thumbnail"
           :kind="content.kind"
           :progress="content.progress"
-          :id="content.id">
-        </content-grid-item>
+          :id="content.id"/>
       </card-grid>
     </div>
 

@@ -1,43 +1,44 @@
 <template>
 
   <!-- Accessibility properties for the overlay -->
-  <div class="modal-overlay"
-    @keydown.esc="emitCancelEvent"
-    @keydown.enter="emitEnterEvent"
-    @click="bgClick($event)"
-    ref="modal-overlay"
-    id="modal-window">
+  <transition name="fade">
+    <div class="modal-overlay"
+      @keydown.esc="emitCancelEvent"
+      @keydown.enter="emitEnterEvent"
+      @click="bgClick($event)"
+      ref="modal-overlay"
+      id="modal-window">
 
-    <div class="modal"
-      ref="modal"
-      :tabindex="0"
-      transition="modal"
-      role="dialog"
-      aria-labelledby="modal-title">
+      <div class="modal"
+        ref="modal"
+        :tabindex="0"
+        role="dialog"
+        aria-labelledby="modal-title">
 
-      <div class="top-buttons">
-        <button aria-label="Go back" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">
-          <svg src="./back.svg"></svg>
-        </button>
-        <button aria-label="Close dialog window" @click="emitCancelEvent" class="header-btn btn-close">
-          <svg src="../icons/close.svg"></svg>
-        </button>
+        <div class="top-buttons">
+          <button aria-label="Go back" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">
+            <svg src="./back.svg"/>
+          </button>
+          <button aria-label="Close dialog window" @click="emitCancelEvent" class="header-btn btn-close">
+            <svg src="../icons/close.svg"/>
+          </button>
+        </div>
+
+        <!-- Modal Title -->
+        <h1 v-show="!invisibleTitle" class="title" id="modal-title">
+          <!-- Accessible error reporting per @radina -->
+          <span v-if="hasError" class="visuallyhidden">Error in:</span>
+          {{title}}
+        </h1>
+
+        <!-- Modal Content -->
+        <slot>
+          <p>To populate, wrap your content in <code> with modal </code>.</p>
+        </slot>
+
       </div>
-
-      <!-- Modal Title -->
-      <h1 v-show="!invisibleTitle" class="title" id="modal-title">
-        <!-- Accessible error reporting per @radina -->
-        <span v-if="hasError" class="visuallyhidden">Error in:</span>
-        {{title}}
-      </h1>
-
-      <!-- Modal Content -->
-      <slot>
-        <p>To populate, wrap your content in <code> with modal </code>.</p>
-      </slot>
-
     </div>
-  </div>
+  </transition>
 
 </template>
 
@@ -153,7 +154,6 @@
     overflow-y: auto
     border-radius: $radius
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
-    transition: all 0.3s ease
     margin: 0 auto
     padding: 15px 30px
 
@@ -183,13 +183,11 @@
   .title
     text-align: center
 
-  // Animation Specs
-  .modal-enter, .modal-leave
-    opacity: 0
+  .fade-enter-active, .fade-leave-active
+    transition: all 0.3s ease
 
-  .modal-enter .modal-container,
-  .modal-leave .modal-container
-    -webkit-transform: scale(1.1)
+  .fade-enter, .fade-leave-active
+    opacity: 0
     transform: scale(1.1)
 
 </style>
