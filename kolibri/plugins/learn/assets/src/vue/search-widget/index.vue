@@ -243,7 +243,7 @@
     svg
       fill: $core-text-annotation
       position: relative
-      top: -2px
+      top: 2px
 
     &:focus // Removing border in FF removes outline too (Normalize?)
       outline: 2px solid $core-action-light
