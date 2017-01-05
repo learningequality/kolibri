@@ -106,6 +106,7 @@
     left: 0
     height: 100%
     width: 100%
+    z-index: 1
     @media screen and (min-width: $portrait-breakpoint + 1)
       padding-left: $nav-width
 
