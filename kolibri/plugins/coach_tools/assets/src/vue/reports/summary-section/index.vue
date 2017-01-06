@@ -4,24 +4,29 @@
 
     <!--TOPICS-->
     <div v-if="kind === Kinds.TOPIC" class="summary-section-row">
-      <div class="summary-section-details">
-        {{ $tr('exerciseCountText', {count: exercisecount}) }} ● {{ $tr('contentCountText', {count: contentcount}) }}
-      </div>
+
+      <div class="summary-section-details"></div>
 
       <div class="summary-section-progress">
+        <div class="summary-section-details">
+          {{ $tr('exerciseCountText', {count: exercisecount}) }}
+        </div>
         <div class="summary-section-heading">{{ $tr('exerciseProgress') }}</div>
         <progress-bar v-if="exerciseprogress !== undefined" :progress="exerciseprogress"></progress-bar>
         <div v-else>{{ $tr('na') }}</div>
       </div>
 
       <div class="summary-section-progress">
+        <div class="summary-section-details">
+          {{ $tr('contentCountText', {count: contentcount}) }}
+        </div>
         <div class="summary-section-heading">{{ $tr('contentProgress') }}</div>
         <progress-bar v-if="contentprogress !== undefined" :progress="contentprogress"></progress-bar>
         <div v-else>{{ $tr('na') }}</div>
       </div>
 
       <div v-if="!isrecentview" class="summary-section-date">
-        <div class="summary-section-heading">{{ $tr('lastActive') }}:</div>
+        <div class="summary-section-details">{{ $tr('lastActive') }}:</div>
         {{ lastActiveDate }}
       </div>
     </div>
@@ -109,12 +114,12 @@
     $trs: {
       lastActive: 'Last Active',
       lastActiveText: '{0, date, medium}',
-      na: 'not applicable',
-      exerciseProgress: 'Exercise Progress',
-      contentProgress: 'Content Progress',
+      na: '-',
+      exerciseProgress: 'Average Progress',
+      contentProgress: 'Average Progress',
       exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
       contentCountText:
-        '{count, number, integer} {count, plural, one {Content Item} other {Content Items}}',
+        '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
       mastered: 'Mastered',
       watched: 'Watched',
       listened: 'Listened',
@@ -194,12 +199,12 @@
   .summary-section-progress,
   .summary-section-date
     display: table-cell
-    padding: $col-padding
     vertical-align: top
+    padding-bottom: 4px
 
   .summary-section-progress,
   .summary-section-date
-    text-align: center
+    text-align: left
 
   .summary-section-progress
     width: $progress-col-width
@@ -208,8 +213,8 @@
     width: $date-col-width
 
   .summary-section-heading
-    text-align: center
-    font-weight: bold
+    text-align: left
     font-size: smaller
+    color: $core-text-annotation
 
 </style>

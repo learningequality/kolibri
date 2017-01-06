@@ -84,6 +84,7 @@
     height: 100%
     max-width: 24px
     max-height: 24px
+    fill: $core-text-default
 
   .color-action
     fill: $core-action-normal
