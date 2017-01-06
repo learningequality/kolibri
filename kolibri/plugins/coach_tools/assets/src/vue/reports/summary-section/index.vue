@@ -29,17 +29,20 @@
         <div class="summary-section-details">{{ $tr('lastActive') }}:</div>
         {{ lastActiveDate }}
       </div>
+
     </div>
 
 
     <!--EXERCISES-->
     <div v-if="kind === Kinds.EXERCISE" class="summary-section-row">
-      <div class="summary-section-details">
 
-      </div>
+      <div class="summary-section-details"></div>
 
       <div v-if="singleUser" class="summary-section-progress">
-        <progress-icon :progress="1" :kind="kind" :showtext="true"/>
+        <progress-icon :progress="contentProgress"/>
+        <span v-if="isCompleted">{{ $tr('mastered') }}</span>
+        <span v-else-if="isInProgress">{{ $tr('inProgress') }}</span>
+        <span v-else>{{ $tr('notStarted') }}</span>
       </div>
 
       <div v-else class="summary-section-progress">
@@ -51,17 +54,30 @@
         <br>
         {{ lastActiveDate }}
       </div>
+
     </div>
 
 
     <!--VIDEO/AUDIO-->
     <div v-if="kind === (Kinds.VIDEO || Kinds.AUDIO)" class="summary-section-row">
-      <div class="summary-section-details">
 
-      </div>
+      <div class="summary-section-details"></div>
 
       <div v-if="singleUser" class="summary-section-progress">
-        <progress-icon :progress="contentProgress" :kind="kind" :showtext="true"/>
+        <progress-icon :progress="contentProgress"/>
+
+        <span v-if="(kind === Kinds.VIDEO)">
+          <span v-if="isCompleted">{{ $tr('watched') }}</span>
+          <span v-else-if="isInProgress">{{ $tr('inProgress') }}</span>
+          <span v-else>{{ $tr('notWatched') }}</span>
+        </span>
+
+        <span v-if="(kind === Kinds.AUDIO)">
+          <span v-if="isCompleted">{{ $tr('listened') }}</span>
+          <span v-else-if="isInProgress">{{ $tr('inProgress') }}</span>
+          <span v-else>{{ $tr('notListened') }}</span>
+        </span>
+
       </div>
 
 
@@ -76,17 +92,20 @@
         <br>
         {{ lastActiveDate }}
       </div>
+
     </div>
 
 
     <!--DOCUMENTS-->
     <div v-if="kind === Kinds.DOCUMENT" class="summary-section-row">
-      <div class="summary-section-details">
 
-      </div>
+      <div class="summary-section-details"></div>
 
       <div v-if="singleUser" class="summary-section-progress">
-        <progress-icon :progress="contentProgress" :kind="kind" :showtext="true"/>
+        <progress-icon :progress="contentProgress"/>
+        <span v-if="isCompleted">{{ $tr('viewed') }}</span>
+        <span v-else-if="isInProgress">{{ $tr('inProgress') }}</span>
+        <span v-else>{{ $tr('notViewed') }}</span>
       </div>
 
       <div v-else class="summary-section-progress">
@@ -98,6 +117,7 @@
         <br>
         {{ lastActiveDate }}
       </div>
+
     </div>
 
   </div>
@@ -124,6 +144,11 @@
       watched: 'Watched',
       listened: 'Listened',
       viewed: 'Viewed',
+      inProgress: 'In Progress',
+      notStarted: 'Not Started',
+      notWatched: 'Not Watched',
+      notListened: 'Not Listened',
+      notViewed: 'Not Viewed',
     },
     computed: {
       lastActiveDate() {
@@ -134,6 +159,12 @@
       },
       Kinds() {
         return CoreConstants.ContentNodeKinds;
+      },
+      isInProgress() {
+        return (this.contentProgress > 0) && (this.contentProgress < 1);
+      },
+      isCompleted() {
+        return this.contentProgress === 1;
       },
     },
     props: {
