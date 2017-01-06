@@ -26,7 +26,7 @@
     $trNameSpace: 'view-by-switch',
     $trs: {
       viewbylabel: 'View by:',
-      contents: 'Contents',
+      contents: 'Channel',
       learners: 'Learners',
     },
     props: {

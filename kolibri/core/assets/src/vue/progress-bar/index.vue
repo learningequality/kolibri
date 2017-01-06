@@ -57,20 +57,25 @@
     display: inline-block
     position: relative
     width: 100%
-    height: 0.75em
+    max-width: 125px
+    height: 1.2em
     background-color: #E0E0E0
+    border-radius: 15px
+    float: left
+    margin-right: 5px
 
   .progress-bar-complete
     height: 100%
     width: 0
     background-color: $core-action-normal
     transition: width, $core-time, ease
+    border-radius: 15px
 
   .progress-bar-text
     display: inline-block
-    position: absolute
+    position: relative
     right: 0
     width: 30px
-    text-align: right
+    text-align: left
 
 </style>

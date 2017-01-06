@@ -94,11 +94,13 @@
   th
     white-space: nowrap
     vertical-align: center
+    border-bottom: 1px solid $core-text-annotation
+    font-weight: normal
 
   .header-text
     text-decoration: none
     display: block
-    color: $core-text-default
+    color: $core-text-annotation
 
   .icon-wrapper
     display: inline-block
@@ -111,7 +113,7 @@
     width: $size
     position: absolute
     left: 0
-    top: 2px
+    top: 4px
     transition: opacity $core-time ease
     opacity: 0
 

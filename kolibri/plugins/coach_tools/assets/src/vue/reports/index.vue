@@ -38,7 +38,8 @@
 
       <!-- TABLE SECTION -->
       <div v-if="!isSingleUser || !isSingleItem" class="table-section">
-        <!--VIEW-BY SWITCH-->
+
+      <!--VIEW-BY SWITCH-->
         <view-by-switch
           v-if="!isRecentView"
           :isContent="isViewByContent"
@@ -49,22 +50,22 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th is="header-cell"
+              <th class="coach-filter table-name" is="header-cell"
                 :text="$tr('name')"
                 :column="Constants.TableColumns.NAME"
                 class="name-col"
               ></th>
-              <th is="header-cell"
+              <th class="coach-filter" is="header-cell"
                 :text="$tr('avg-exercise-progress')"
                 :column="Constants.TableColumns.EXERCISE"
                 class="progress-col"
               ></th>
-              <th is="header-cell"
+              <th class="coach-filter" is="header-cell"
                 :text="$tr('avg-content-progress')"
                 :column="Constants.TableColumns.CONTENT"
                 class="progress-col"
               ></th>
-              <th is="header-cell"
+              <th class="coach-filter" is="header-cell"
                 v-if="!isRecentView"
                 :text="$tr('last-activity')"
                 :column="Constants.TableColumns.DATE"
@@ -117,7 +118,7 @@
     $trs: {
       'name': 'Name',
       'avg-exercise-progress': 'Avg. Exercise Progress',
-      'avg-content-progress': 'Avg. Content Progress',
+      'avg-content-progress': 'Avg. Resource Progress',
       'last-activity': 'Last Activity',
       'all-learners': 'All Learners ({0, number, integer})',
     },
@@ -226,6 +227,10 @@
 
     td, th
       padding: $col-padding
+      text-align: left
+      
+    .table-name
+      text-align: left
 
     .name-col
       text-align: left
@@ -235,7 +240,7 @@
       width: $progress-col-width
 
     .date-col
-      text-align: center
+      text-align: left
       width: $date-col-width
 
   .item-move

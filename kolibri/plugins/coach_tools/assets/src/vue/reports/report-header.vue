@@ -1,6 +1,6 @@
 <template>
 
-  <h1>
+  <h2>
     <span v-if="userFullName">
       <svg src="../icons/user.svg" class="icon"/>
       {{ userFullName }} -
@@ -12,7 +12,7 @@
         class="icon"/>
       {{ contentTitle }}
     </span>
-  </h1>
+  </h2>
 
 </template>
 
@@ -40,10 +40,14 @@
 
 <style lang="stylus" scoped>
 
+  h2
+    margin: 0 0 15px 0
+    font-size: 1.3em
+
   .icon
     display: inline-block
     position: relative
-    top: 5px
+    top: 3px
     width: 25px
     height: 25px
 
