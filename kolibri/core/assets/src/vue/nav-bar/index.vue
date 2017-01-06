@@ -91,7 +91,6 @@
 
   .nav-wrapper
     display: table
-    table-layout: fixed
     background: $core-bg-light
     font-weight: 300
     position: fixed
