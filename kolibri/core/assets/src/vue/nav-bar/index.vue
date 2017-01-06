@@ -27,13 +27,10 @@
 
 <script>
 
+  const values = require('lodash.values');
   const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
-  const learnAppConstants = require('../../../../../plugins/learn/assets/src/state/constants');
-  const pageMode = require('../../../../../plugins/learn/assets/src/state/getters').pageMode;
-  const activeCoach = require(
-    '../../../../../plugins/coach_tools/assets/src/state/getters').activeCoach;
-  const activeManage = require(
-    '../../../../../plugins/management/assets/src/state/getters').activeManage;
+  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
+
 
   module.exports = {
     $trNameSpace: 'navbar',
@@ -44,21 +41,32 @@
       manage: 'Manage',
       coach: 'Coach',
     },
+    props: {
+      topLevelPageName: {
+        type: String,
+        validator(value) {
+          if (!value) {
+            return true; // Okay if it's undefined
+          }
+          return values(TopLevelPageNames).includes(value);
+        },
+      },
+    },
     computed: {
       ariaLabel() {
         return this.$tr('navigationLabel');
       },
       learnActive() {
-        return this.pageMode === learnAppConstants.PageModes.LEARN;
+        return this.topLevelPageName === TopLevelPageNames.LEARN_LEARN;
       },
       exploreActive() {
-        return this.pageMode === learnAppConstants.PageModes.EXPLORE;
+        return this.topLevelPageName === TopLevelPageNames.LEARN_EXPLORE;
       },
       coachActive() {
-        return this.activeCoach;
+        return this.topLevelPageName === TopLevelPageNames.COACH;
       },
       manageActive() {
-        return this.activeManage;
+        return this.topLevelPageName === TopLevelPageNames.MANAGE;
       },
     },
     components: {
@@ -68,11 +76,7 @@
     vuex: {
       getters: {
         session: state => state.core.session,
-        kind: state => state.core.session.kind,
         isAdminOrSuperuser,
-        pageMode,
-        activeCoach,
-        activeManage,
       },
     },
   };

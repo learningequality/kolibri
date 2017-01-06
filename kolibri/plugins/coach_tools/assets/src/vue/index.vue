@@ -1,6 +1,6 @@
 <template>
 
-  <core-base>
+  <core-base :topLevelPageName="topLevelPageName">
     <div v-if="!currentPage && isAdminOrSuperuser" slot="content">
       <h1>Coach Root</h1>
       <a href="/coach/#/reports">Go to Reports.</a>
@@ -22,6 +22,7 @@
   const store = require('../state/store');
   const constants = require('../state/constants');
   const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
+  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
     $trNameSpace: 'coach-root',
@@ -33,6 +34,7 @@
       reports: require('./reports'),
     },
     computed: {
+      topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
         if (this.pageName === constants.PageNames.REPORTS) {
           return 'reports';

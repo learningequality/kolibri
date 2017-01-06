@@ -1,6 +1,6 @@
 <template>
 
-  <core-base>
+  <core-base :topLevelPageName="topLevelPageName">
     <div v-if="isAdminOrSuperuser" slot="above" class="manage-content">
       <top-nav/>
     </div>
@@ -25,6 +25,7 @@
   const store = require('../state/store');
   const PageNames = require('../state/constants').PageNames;
   const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
+  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
     $trNameSpace: 'management-root',
@@ -40,6 +41,7 @@
       'scratchpad-page': require('./scratchpad-page'),
     },
     computed: {
+      topLevelPageName: () => TopLevelPageNames.MANAGE,
       currentPage() {
         if (this.pageName === PageNames.USER_MGMT_PAGE) {
           return 'user-page';

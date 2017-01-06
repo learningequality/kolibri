@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <nav-bar/>
+    <nav-bar :topLevelPageName="topLevelPageName"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
       <error-box v-if="error"/>
@@ -18,11 +18,27 @@
 
   const Vue = require('vue');
   const coreActions = require('kolibri.coreVue.vuex.actions');
+  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
   const vueScroll = require('vue-scroll');
+  const values = require('lodash.values');
 
   Vue.use(vueScroll);
 
   module.exports = {
+    props: {
+      // This prop breaks the separation between core and plugins.
+      // It's being used as a work-around until plugins have a way
+      // of registering components to be added to the nav bar.
+      topLevelPageName: {
+        type: String,
+        validator(value) {
+          if (!value) {
+            return true; // Okay if it's undefined
+          }
+          return values(TopLevelPageNames).includes(value);
+        },
+      },
+    },
     components: {
       'nav-bar': require('./nav-bar'),
       'error-box': require('./error-box'),
