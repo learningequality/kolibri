@@ -2,13 +2,13 @@
 
   <!--TODO: VUE2 UNTESTED -->
   <div>
-    <nav-bar-item v-if="loggedIn" tabindex="0" @click.native="toggleDropdown" @keyup.enter="toggleDropdown">
+    <nav-bar-item class="logicon" v-if="loggedIn" tabindex="0" @click.native="toggleDropdown" @keyup.enter="toggleDropdown">
       <div class="wrapper">
         <div class="user-icon" id="user-dropdown">{{ initial }}</div>
       </div>
     </nav-bar-item>
 
-    <nav-bar-item v-else tabindex="0" @click.native="showLoginModal" @keyup.enter="showLoginModal">
+    <nav-bar-item class="logicon" v-else tabindex="0" @click.native="showLoginModal" @keyup.enter="showLoginModal">
       <div class="wrapper">
         <svg id="person" class="person-icon" src="./icons/person.svg"/>
         <div class="label">{{ $tr('logIn') }}</div>
@@ -118,6 +118,9 @@
   $size-lg = 40px
   $size-sm = 30px
   $border = 2px
+
+  .logicon
+    width: 500px // need to be bigger than actual width to center
 
   .wrapper
     min-width: $size-lg
