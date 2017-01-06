@@ -290,6 +290,7 @@
     font-size: 0.875em
     display: inline-block
     text-transform: capitalize
+    white-space: nowrap
 
   .searchbar .icon
     display: inline-block
