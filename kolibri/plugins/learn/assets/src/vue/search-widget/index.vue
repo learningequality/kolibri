@@ -192,7 +192,7 @@
     text-align: center
     position: fixed
     top: 0
-    left: 50%;
+    left: 50%
     transform: translate(-50%)
     margin-left: 37px  // half the $nav-width
     width-auto-adjust()
