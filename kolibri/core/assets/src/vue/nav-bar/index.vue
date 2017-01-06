@@ -91,6 +91,7 @@
 
   .nav-wrapper
     display: table
+    table-layout: fixed
     background: $core-bg-light
     font-weight: 300
     position: fixed
@@ -103,6 +104,7 @@
       font-size: 0.8em
       bottom: 0
       width: 100%
+      min-width: 300px
 
   .nav-main
     background: $core-bg-light
