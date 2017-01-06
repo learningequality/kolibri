@@ -157,8 +157,9 @@
       cancelClick() {
         if (this.pw_reset || this.usr_delete) {
           this.clear();
+        } else {
+          this.emitCloseSignal();
         }
-        this.emitCloseSignal();
       },
       clear() {
         this.usr_delete = this.pw_reset = false;
