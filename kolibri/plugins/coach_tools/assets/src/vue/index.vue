@@ -1,8 +1,6 @@
 <template>
 
   <core-base>
-    <main-nav slot="nav"/>
-
     <div v-if="!currentPage && isAdminOrSuperuser" slot="content">
       <h1>Coach Root</h1>
       <a href="/coach/#/reports">Go to Reports.</a>
@@ -32,8 +30,7 @@
       logInCommand: 'You must be logged in as an Admin to view this page.',
     },
     components: {
-      'main-nav': require('./main-nav'),
-      'reports': require('./reports'),
+      reports: require('./reports'),
     },
     computed: {
       currentPage() {

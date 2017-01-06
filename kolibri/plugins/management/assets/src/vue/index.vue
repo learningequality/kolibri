@@ -1,8 +1,6 @@
 <template>
 
   <core-base>
-    <main-nav slot="nav"/>
-
     <div v-if="isAdminOrSuperuser" slot="above" class="manage-content">
       <top-nav/>
     </div>
@@ -36,7 +34,6 @@
     },
     components: {
       'top-nav': require('./top-nav'),
-      'main-nav': require('./main-nav'),
       'user-page': require('./user-page'),
       'data-page': require('./data-page'),
       'manage-content-page': require('./manage-content-page'),

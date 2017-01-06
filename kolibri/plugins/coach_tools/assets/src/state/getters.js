@@ -176,6 +176,17 @@ Object.assign(getters, {
     }
     return data;
   },
+  activeCoach(state) {
+    const coachPages = [
+      Constants.PageNames.COACH_ROOT,
+      Constants.PageNames.REPORTS_NO_QUERY,
+      Constants.PageNames.REPORTS,
+    ];
+    if (coachPages.some(page => page === state.pageName)) {
+      return true;
+    }
+    return false;
+  },
 });
 
 

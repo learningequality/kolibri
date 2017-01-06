@@ -1,9 +1,7 @@
 <template>
 
   <div>
-    <nav-bar>
-      <slot name="nav"/>
-    </nav-bar>
+    <nav-bar/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
       <error-box v-if="error"/>

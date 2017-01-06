@@ -1,7 +1,6 @@
 <template>
 
   <core-base @scroll="handleScroll">
-    <main-nav slot="nav"/>
     <toolbar slot="above" :shown="showToolbar"/>
 
     <component class="content" slot="content" :is="currentPage"/>
@@ -29,7 +28,6 @@
   module.exports = {
     components: {
       'toolbar': require('./toolbar'),
-      'main-nav': require('./main-nav'),
       'search-widget': require('./search-widget'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
