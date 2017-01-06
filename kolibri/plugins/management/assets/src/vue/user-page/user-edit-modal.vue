@@ -133,15 +133,9 @@
       };
     },
     computed: {
-      LEARNER() {
-        return UserKinds.LEARNER;
-      },
-      COACH() {
-        return UserKinds.COACH;
-      },
-      ADMIN() {
-        return UserKinds.ADMIN;
-      },
+      LEARNER: () => UserKinds.LEARNER,
+      COACH: () => UserKinds.COACH,
+      ADMIN: () => UserKinds.ADMIN,
       submitText() {
         if (this.pw_reset) {
           return 'Save';
@@ -215,19 +209,16 @@
         if (this.password_new) {
           this.clearErrorMessage();
           this.clearConfirmationMessage();
-
-          // make sure passwords match
           if (this.password_new === this.password_new_confirm) {
+            // make sure passwords match
             this.updateUser({ id: this.userid, password: this.password_new });
             this.confirmation_message = 'Password change successful.';
-
-          // passwords don't match
           } else {
+            // passwords don't match
             this.error_message = 'Passwords must match.';
           }
-
-        // if user didn't populate the password fields
         } else {
+          // if user didn't populate the password fields
           this.error_message = 'Please enter a new password.';
         }
       },

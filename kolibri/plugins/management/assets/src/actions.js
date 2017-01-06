@@ -88,11 +88,14 @@ function assignUserRole(user, kind) {
   };
 
   return new Promise((resolve, reject) => {
-    RoleResource.createModel(rolePayload).save().then(roleModel => {
-      // add role to user's attribute here to limit API call
-      user.roles.push(roleModel);
-      resolve(user);
-    }, error => reject(error));
+    RoleResource.createModel(rolePayload).save().then(
+      roleModel => {
+        // add role to user's attribute here to limit API call
+        user.roles.push(roleModel);
+        resolve(user);
+      },
+      error => reject(error)
+    );
   });
 }
 
@@ -110,23 +113,27 @@ function createUser(store, stateUserData) {
   };
 
   return new Promise((resolve, reject) => {
-    FacilityUserResource.createModel(userData).save().then((userModel) => {
-      // only runs if there's a role to be assigned
-      if (stateUserData.kind !== UserKinds.LEARNER) {
-        assignUserRole(userModel, stateUserData.kind).then(
-          userWithRole => resolve(userWithRole),
-          error => reject(error)
-        );
-
-      // no role to assign
-      } else resolve(userModel);
-    }, (error) => reject(error));
-  }).then(
-      // dispatch newly created user
-      newUser => store.dispatch('ADD_USER', _userState(newUser)),
-      // send back error if necessary
-      error => Promise.reject(error)
+    FacilityUserResource.createModel(userData).save().then(
+      (userModel) => {
+        // only runs if there's a role to be assigned
+        if (stateUserData.kind !== UserKinds.LEARNER) {
+          assignUserRole(userModel, stateUserData.kind).then(
+            userWithRole => resolve(userWithRole),
+            error => reject(error)
+          );
+        } else {
+          // no role to assigned
+          resolve(userModel);
+        }
+      },
+      (error) => reject(error)
     );
+  }).then(
+    // dispatch newly created user
+    newUser => store.dispatch('ADD_USER', _userState(newUser)),
+    // send back error if necessary
+    error => Promise.reject(error)
+  );
 }
 
 /**
@@ -147,15 +154,12 @@ function updateUser(store, stateUser) {
   if (stateUser.full_name && stateUser.full_name !== savedUser.full_name) {
     changedValues.full_name = stateUser.full_name;
   }
-
   if (stateUser.username && stateUser.username !== savedUser.username) {
     changedValues.username = stateUser.username;
   }
-
   if (stateUser.password && stateUser.password !== savedUser.password) {
     changedValues.password = stateUser.password;
   }
-
   if (stateUser.facility && stateUser.facility !== savedUser.facility) {
     changedValues.facility = stateUser.facility;
   }
@@ -170,16 +174,16 @@ function updateUser(store, stateUser) {
         roleDeletes.push(RoleResource.getModel(role.id).delete());
       });
 
-
       // delete the old role models if this was not a learner
-      handlePreviousRoles = Promise.all(roleDeletes).then(responses => {
-        // to avoid having to make an API call, clear manually
-        savedUser.roles = [];
-
-        return responses;
-
-      // models could not be deleted
-      }, error => error);
+      handlePreviousRoles = Promise.all(roleDeletes).then(
+        responses => {
+          // to avoid having to make an API call, clear manually
+          savedUser.roles = [];
+          return responses;
+        },
+        // models could not be deleted
+        error => error
+      );
     }
 
     // then assign the new role
@@ -193,9 +197,10 @@ function updateUser(store, stateUser) {
           (updated) => resolve(updated),
           (error) => coreActions.handleApiError(store, error)
         );
-
-      // new role is learner - having deleted old roles is enough
-      } else resolve(savedUser);
+      } else {
+        // new role is learner - having deleted old roles is enough
+        resolve(savedUser);
+      }
     });
   }
 
@@ -217,9 +222,10 @@ function deleteUser(store, id) {
     // if no id passed, abort the function
     return;
   }
-  FacilityUserResource.getModel(id).delete().then(user => {
-    store.dispatch('DELETE_USER', id);
-  }, error => { coreActions.handleApiError(store, error); });
+  FacilityUserResource.getModel(id).delete().then(
+    user => { store.dispatch('DELETE_USER', id); },
+    error => { coreActions.handleApiError(store, error); }
+  );
 }
 
 // An action for setting up the initial state of the app by fetching data from the server
