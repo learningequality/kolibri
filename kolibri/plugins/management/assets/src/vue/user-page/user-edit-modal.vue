@@ -218,7 +218,7 @@
 
           // make sure passwords match
           if (this.password_new === this.password_new_confirm) {
-            this.updateUser(this.user);
+            this.updateUser({ id: this.userid, password: this.password_new });
             this.confirmation_message = 'Password change successful.';
 
           // passwords don't match

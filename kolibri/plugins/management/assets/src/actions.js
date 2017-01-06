@@ -144,23 +144,23 @@ function updateUser(store, stateUser) {
   let roleAssigned = Promise.resolve(savedUserModel.attributes);
 
   // explicit checks for the only values that can be changed
-  if (stateUser.full_name !== savedUser.full_name) {
+  if (stateUser.full_name && stateUser.full_name !== savedUser.full_name) {
     changedValues.full_name = stateUser.full_name;
   }
 
-  if (stateUser.username !== savedUser.username) {
+  if (stateUser.username && stateUser.username !== savedUser.username) {
     changedValues.username = stateUser.username;
   }
 
-  if (stateUser.password !== savedUser.password) {
+  if (stateUser.password && stateUser.password !== savedUser.password) {
     changedValues.password = stateUser.password;
   }
 
-  if (stateUser.facility !== savedUser.facility) {
+  if (stateUser.facility && stateUser.facility !== savedUser.facility) {
     changedValues.facility = stateUser.facility;
   }
 
-  if (stateUser.kind !== _userState(savedUser).kind) {
+  if (stateUser.kind && stateUser.kind !== _userState(savedUser).kind) {
     // assumes there's no previous roles to delete at first
     let handlePreviousRoles = Promise.resolve();
 
