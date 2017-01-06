@@ -3,8 +3,8 @@ const UserKinds = {
   ADMIN: 'admin',
   COACH: 'coach',
   LEARNER: 'learner',
-  SUPERUSER: 'SUPERUSER',
-  ANONYMOUS: 'ANONYMOUS',
+  SUPERUSER: 'superuser',
+  ANONYMOUS: 'anonymous',
 };
 
 const ContentNodeKinds = {
