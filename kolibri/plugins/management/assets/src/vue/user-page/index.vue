@@ -13,8 +13,9 @@
       <label for="type-filter" class="visuallyhidden">Filter User Type</label>
       <select v-model="roleFilter" id="type-filter" name="type-filter">
         <option value="all"> All Users </option>
-        <option value="admin"> Admins </option>
-        <option value="learner"> Learners </option>
+        <option :value="ADMIN"> Admins </option>
+        <option :value="COACH"> Coaches </option>
+        <option :value="LEARNER"> Learners </option>
       </select>
 
       <div class="searchbar" role="search">
@@ -41,10 +42,11 @@
     <user-edit-modal
       v-if="editingUser"
       :userid="currentUserEdit.id"
-      :username="currentUserEdit.username"
       :fullname="currentUserEdit.full_name"
-      :roles="currentUserEdit.roles"
-      @close="closeEditUserModal"/>
+      :username="currentUserEdit.username"
+      :userkind="currentUserEdit.kind"
+      @close="closeEditUserModal"
+    />
     <user-create-modal
       v-if="creatingUser"
       @close="closeCreateUserModal"/>
@@ -79,8 +81,8 @@
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
-            <span class="user-role" v-for="role in user.roles">
-              {{role.kind === 'admin' ? $tr('admin') : $tr('coach')}}
+            <span v-if="user.kind !== LEARNER" class="user-role">
+              {{ user.kind === ADMIN ? $tr('admin') : $tr('coach') }}
             </span>
           </td>
 
@@ -113,6 +115,7 @@
 <script>
 
   const actions = require('../../actions');
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
     components: {
@@ -129,6 +132,9 @@
       currentUserEdit: null,
     }),
     computed: {
+      LEARNER: () => UserKinds.LEARNER,
+      COACH: () => UserKinds.COACH,
+      ADMIN: () => UserKinds.ADMIN,
       noUsersExist() {
         return this.users.length === 0;
       },
@@ -139,61 +145,31 @@
         return !this.noUsersExist && !this.allUsersFilteredOut;
       },
       visibleUsers() {
+        const searchFilter = this.searchFilter;
         const roleFilter = this.roleFilter;
-        // creates array of words in filter, removes empty strings
-        const searchFilter = this.searchFilter.split(' ').filter(Boolean).map(
-          // returns an array of search parameters, ignoring case
-          (query) => new RegExp(query, 'i'));
 
-        return this.users.filter((user) => {
-          // fullname created using es6 templates
-          const names = [user.full_name, user.username];
+        function matchesText(user) {
+          const searchTerms = searchFilter
+            .split(' ')
+            .filter(Boolean)
+            .map(val => val.toLowerCase());
 
-          let hasRole = true;
-          let hasName = true;
+          const fullName = user.full_name.toLowerCase();
+          const username = user.username.toLowerCase();
 
-          // check for filters
-          if (roleFilter !== 'all') {
-            // check for learner
-            if (roleFilter === 'learner') {
-              hasRole = !(user.roles.length);
-            } else {
-              hasRole = false;
+          return searchTerms.every(term => fullName.includes(term) || username.includes(term));
+        }
 
-              // actual check for roles
-              user.roles.forEach(roleObject => {
-                if (roleObject.kind === roleFilter) {
-                  hasRole = true;
-                }
-              });
-            }
+        function matchesRole(user) {
+          if (roleFilter === 'all') {
+            return true;
           }
+          return user.kind === roleFilter;
+        }
 
-          // makes sure there's text in the search box
-          if (searchFilter.length) {
-            hasName = false;
-
-            // check for searchFilter phrase in user's names
-            for (const name of names) {
-              // test name through all filters
-              if (searchFilter.every(nameFilter => nameFilter.test(name))) {
-                hasName = true;
-              }
-            }
-          }
-
-          // determines whether name should be on list
-          return hasRole && hasName;
-
-          // aphabetize based on username
-        }).sort((user1, user2) => {
-          if (user1.username[0] > user2.username[0]) {
-            return 1;
-          } else if (user1.username[0] < user2.username[0]) {
-            return -1;
-          }
-          return 0;
-        });
+        return this.users
+          .filter(user => matchesText(user) && matchesRole(user))
+          .sort((user1, user2) => user1.username.localeCompare(user2.username));
       },
     },
     methods: {
@@ -308,6 +284,7 @@
     font-size: 0.875em
     display: inline-block
     text-transform: capitalize
+    white-space: nowrap
 
   .searchbar .icon
     display: inline-block

@@ -15,7 +15,7 @@
         role="dialog"
         aria-labelledby="modal-title">
 
-        <div class="top-buttons">
+        <div class="top-buttons" @keydown.enter.stop>
           <button aria-label="Go back" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">
             <svg src="./back.svg"/>
           </button>

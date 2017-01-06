@@ -69,21 +69,11 @@
     padding: 1em 2em
     background: $core-bg-light
     border-radius: $radius
-    @media screen and (max-width: $medium-breakpoint)
-      margin-top: 0
-      margin-bottom: 0
-      padding: 1em 0.2em
-
-  .links
-    @media screen and (max-width: $medium-breakpoint)
-      text-align: center
 
   .top a
     padding: 0.6em 2em
     text-decoration: none
     color: $core-text-annotation
-    @media screen and (max-width: $medium-breakpoint)
-      padding: 0.6em 1em
 
   .top .active
     color: $core-text-default
