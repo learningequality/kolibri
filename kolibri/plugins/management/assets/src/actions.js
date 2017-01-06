@@ -24,27 +24,26 @@ const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageC
  * The methods below help map data from
  * the API to state in the Vuex store
  */
-function _topUserKind(rolesObjectArray) {
-  if (rolesObjectArray) {
-    // array of strings, where each string represents a role object
-    const roleKinds = rolesObjectArray.map((roleObj) => roleObj.kind);
-
-    if (roleKinds.includes(UserKinds.ADMIN || UserKinds.SUPERUSER)) {
-      return UserKinds.ADMIN;
-    } else if (roleKinds.includes(UserKinds.COACH)) {
-      return UserKinds.COACH;
-    }
-  }
-  return UserKinds.LEARNER;
-}
-
 function _userState(apiUserData) {
+  function calcUserKind() {
+    if (apiUserData.roles) {
+      // array of strings, where each string represents a role object
+      const roleKinds = apiUserData.roles.map((roleObj) => roleObj.kind);
+      if (roleKinds.includes(UserKinds.ADMIN || UserKinds.SUPERUSER)) {
+        return UserKinds.ADMIN;
+      } else if (roleKinds.includes(UserKinds.COACH)) {
+        return UserKinds.COACH;
+      }
+    }
+    return UserKinds.LEARNER;
+  }
+
   return {
     id: apiUserData.id,
     facility_id: apiUserData.facility,
     username: apiUserData.username,
     full_name: apiUserData.full_name,
-    kind: _topUserKind(apiUserData.roles),
+    kind: calcUserKind(apiUserData.roles),
   };
 }
 
