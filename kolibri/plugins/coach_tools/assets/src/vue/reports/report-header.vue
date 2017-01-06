@@ -41,7 +41,8 @@
 <style lang="stylus" scoped>
 
   h2
-    margin: 0 0 15px 0
+    margin: 0
+    margin-bottom: 15px
     font-size: 1.3em
 
   .icon

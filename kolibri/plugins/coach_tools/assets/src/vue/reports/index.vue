@@ -50,26 +50,26 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th class="coach-filter table-name" is="header-cell"
+              <th is="header-cell"
                 :text="$tr('name')"
                 :column="Constants.TableColumns.NAME"
-                class="name-col"
+                class="name-col coach-filter table-name"
               ></th>
-              <th class="coach-filter" is="header-cell"
+              <th is="header-cell"
                 :text="$tr('avg-exercise-progress')"
                 :column="Constants.TableColumns.EXERCISE"
-                class="progress-col"
+                class="progress-col coach-filter"
               ></th>
-              <th class="coach-filter" is="header-cell"
+              <th is="header-cell"
                 :text="$tr('avg-content-progress')"
                 :column="Constants.TableColumns.CONTENT"
-                class="progress-col"
+                class="progress-col coach-filter"
               ></th>
-              <th class="coach-filter" is="header-cell"
+              <th is="header-cell"
                 v-if="!isRecentView"
                 :text="$tr('last-activity')"
                 :column="Constants.TableColumns.DATE"
-                class="date-col"
+                class="date-col coach-filter"
               ></th>
             </tr>
           </thead>
@@ -228,7 +228,7 @@
     td, th
       padding: $col-padding
       text-align: left
-      
+
     .table-name
       text-align: left
 

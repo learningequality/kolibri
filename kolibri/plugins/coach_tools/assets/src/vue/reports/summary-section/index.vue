@@ -5,9 +5,11 @@
     <!--TOPICS-->
     <div v-if="kind === Kinds.TOPIC" class="summary-section-row">
 
+      <div class="summary-section-details"></div>
+
       <div class="summary-section-progress">
         <div class="summary-section-details">
-          {{ $tr('exerciseCountText', {count: exercisecount}) }}
+          {{ $tr('exerciseCountText', {count: exerciseCount}) }}
         </div>
         <div class="summary-section-heading">{{ $tr('exerciseProgress') }}</div>
         <progress-bar v-if="exerciseProgress !== undefined" :progress="exerciseProgress"/>
@@ -16,7 +18,7 @@
 
       <div class="summary-section-progress">
         <div class="summary-section-details">
-          {{ $tr('contentCountText', {count: contentcount}) }}
+          {{ $tr('contentCountText', {count: contentCount}) }}
         </div>
         <div class="summary-section-heading">{{ $tr('contentProgress') }}</div>
         <progress-bar v-if="contentProgress !== undefined" :progress="contentProgress"/>
