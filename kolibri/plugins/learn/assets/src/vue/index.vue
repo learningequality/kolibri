@@ -1,12 +1,11 @@
 <template>
 
-  <core-base @scroll="handleScroll">
-    <main-nav slot="nav"/>
+  <core-base :topLevelPageName="topLevelPageName" @scroll="handleScroll">
     <toolbar slot="above" :shown="showToolbar"/>
 
     <component class="content" slot="content" :is="currentPage"/>
 
-    <div slot="below" class="search-pane" v-show="searchOpen" transition="search-slide">
+    <div slot="below" class="search-pane" v-show="searchOpen">
       <search-widget :showTopics="exploreMode"/>
     </div>
 
@@ -25,11 +24,11 @@
   const PageModes = constants.PageModes;
   const getters = require('../state/getters');
   const store = require('../state/store');
+  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
     components: {
       'toolbar': require('./toolbar'),
-      'main-nav': require('./main-nav'),
       'search-widget': require('./search-widget'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
@@ -56,6 +55,12 @@
       },
     },
     computed: {
+      topLevelPageName() {
+        if (this.exploreMode) {
+          return TopLevelPageNames.LEARN_EXPLORE;
+        }
+        return TopLevelPageNames.LEARN_LEARN;
+      },
       currentPage() {
         if (this.pageName === PageNames.EXPLORE_CHANNEL ||
           this.pageName === PageNames.EXPLORE_TOPIC) {
@@ -113,11 +118,5 @@
   .content
     width-auto-adjust()
     margin: auto
-
-  .search-slide-transition
-    transition: transform $core-time ease-out
-
-  .search-slide-enter, .search-slide-leave
-    transform: translateX(100vw)
 
 </style>
