@@ -104,6 +104,7 @@
       font-size: 0.8em
       bottom: 0
       width: 100%
+      min-width: 300px
 
   .nav-main
     background: $core-bg-light

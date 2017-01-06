@@ -192,10 +192,14 @@
     text-align: center
     position: fixed
     top: 0
+    left: 50%
+    transform: translate(-50%)
+    margin-left: 37px  // half the $nav-width
     width-auto-adjust()
     @media screen and (max-width: $portrait-breakpoint)
       padding: 0.5em 0
       text-align: center
+      margin-left: 0
 
   .table-wrapper
     margin: auto
