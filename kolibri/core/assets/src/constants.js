@@ -3,8 +3,8 @@ const UserKinds = {
   ADMIN: 'admin',
   COACH: 'coach',
   LEARNER: 'learner',
-  SUPERUSER: 'SUPERUSER',
-  ANONYMOUS: 'ANONYMOUS',
+  SUPERUSER: 'superuser',
+  ANONYMOUS: 'anonymous',
 };
 
 const ContentNodeKinds = {
@@ -54,6 +54,22 @@ const InteractionTypes = {
   hint: 'hint',
 };
 
+
+/* HACK HACK
+
+The core application should not have this knowledge
+about the available plugins. However, until we have
+a way for plugins to properly indicate what nav bar
+widgets they supply to core and in what order, this
+is a work-around.
+*/
+const TopLevelPageNames = {
+  LEARN_LEARN: 'LEARN_LEARN',
+  LEARN_EXPLORE: 'LEARN_EXPLORE',
+  COACH: 'COACH',
+  MANAGE: 'MANAGE',
+};
+
 module.exports = {
   UserKinds,
   ContentNodeKinds,
@@ -61,4 +77,5 @@ module.exports = {
   AttemptLoggingMap,
   InteractionTypes,
   USER,
+  TopLevelPageNames,
 };

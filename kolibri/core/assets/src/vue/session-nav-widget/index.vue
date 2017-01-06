@@ -1,21 +1,23 @@
 <template>
 
-  <!--TODO: VUE2 UNTESTED -->
-  <div>
-    <nav-bar-item v-if="loggedIn" tabindex="0" @click.native="toggleDropdown" @keyup.enter="toggleDropdown">
-      <div class="wrapper">
-        <div class="user-icon" id="user-dropdown">{{ initial }}</div>
-      </div>
-    </nav-bar-item>
+  <nav-bar-item
+    tabindex="0"
+    @click.native="navBarClicked"
+    @keyup.native.enter="navBarClicked"
+  >
+    <!-- Logged-in state -->
+    <div class="wrapper" v-if="loggedIn">
+      <div class="user-icon" id="user-dropdown">{{ initial }}</div>
+    </div>
 
-    <nav-bar-item v-else tabindex="0" @click.native="showLoginModal" @keyup.enter="showLoginModal">
-      <div class="wrapper">
-        <svg id="person" class="person-icon" src="./icons/person.svg"/>
-        <div class="label">{{ $tr('logIn') }}</div>
-      </div>
-    </nav-bar-item>
+    <!-- Logged-out state -->
+    <div class="wrapper" v-else>
+      <svg id="person" class="person-icon" src="./icons/person.svg"/>
+      <div class="label">{{ $tr('logIn') }}</div>
+    </div>
 
-    <div id="dropdown-backdrop" @click="toggleDropdown" v-show="showDropdown"></div>
+    <!-- backdrop and user pop-up -->
+    <div id="dropdown-backdrop" @click.stop="hideDropdown" v-show="showDropdown"></div>
     <transition name="fade">
       <div id="dropdown" v-show="showDropdown">
         <div class="user-dropdown">
@@ -35,8 +37,9 @@
       </div>
     </transition>
 
+    <!-- log-in modal -->
     <login-modal v-if="loginModalVisible"/>
-  </div>
+  </nav-bar-item>
 
 </template>
 
@@ -86,12 +89,18 @@
       },
     },
     methods: {
-      toggleDropdown() {
-        this.showDropdown = !this.showDropdown;
+      navBarClicked() {
+        if (this.loggedIn) {
+          this.showDropdown = !this.showDropdown;
+        } else {
+          this.showLoginModal();
+        }
+      },
+      hideDropdown() {
+        this.showDropdown = false;
       },
       userLogout() {
         this.logout(this.Kolibri);
-        this.showDropdown = false;
       },
     },
     vuex: {
