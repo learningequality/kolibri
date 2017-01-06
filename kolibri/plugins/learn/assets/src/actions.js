@@ -306,7 +306,6 @@ function showLearnContent(store, channelId, id) {
         recommended: recommended.map(_contentState),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
     },
     error => { coreActions.handleApiError(store, error); }
