@@ -132,15 +132,9 @@
       currentUserEdit: null,
     }),
     computed: {
-      LEARNER() {
-        return UserKinds.LEARNER;
-      },
-      COACH() {
-        return UserKinds.COACH;
-      },
-      ADMIN() {
-        return UserKinds.ADMIN;
-      },
+      LEARNER: () => UserKinds.LEARNER,
+      COACH: () => UserKinds.COACH,
+      ADMIN: () => UserKinds.ADMIN,
       noUsersExist() {
         return this.users.length === 0;
       },
