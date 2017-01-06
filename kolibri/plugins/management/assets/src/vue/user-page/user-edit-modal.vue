@@ -64,7 +64,6 @@
 
       <!-- Error Messages -->
       <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
-      <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
 
       <!-- Button Section TODO: cleaunup -->
       <section @keydown.enter.stop>
@@ -129,7 +128,6 @@
         usr_delete: false,
         pw_reset: false,
         error_message: '',
-        confirmation_message: '',
       };
     },
     computed: {
@@ -209,11 +207,10 @@
         // checks to make sure there's a new password
         if (this.password_new) {
           this.clearErrorMessage();
-          this.clearConfirmationMessage();
           if (this.password_new === this.password_new_confirm) {
             // make sure passwords match
             this.updateUser({ id: this.userid, password: this.password_new });
-            this.confirmation_message = 'Password change successful.';
+            this.emitCloseSignal();
           } else {
             // passwords don't match
             this.error_message = 'Passwords must match.';
@@ -228,9 +225,6 @@
       },
       clearErrorMessage() {
         this.error_message = '';
-      },
-      clearConfirmationMessage() {
-        this.confirmation_message = '';
       },
     },
     vuex: {
@@ -317,7 +311,5 @@
 
   .error
     color: red
-  .confirm
-    color: green
 
 </style>
