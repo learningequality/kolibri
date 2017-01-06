@@ -5,7 +5,7 @@
 
     <component class="content" slot="content" :is="currentPage"/>
 
-    <div slot="below" class="search-pane" v-show="searchOpen" transition="search-slide">
+    <div slot="below" class="search-pane" v-show="searchOpen">
       <search-widget :showTopics="exploreMode"/>
     </div>
 
@@ -117,11 +117,5 @@
   .content
     width-auto-adjust()
     margin: auto
-
-  .search-slide-transition
-    transition: transform $core-time ease-out
-
-  .search-slide-enter, .search-slide-leave
-    transform: translateX(100vw)
 
 </style>

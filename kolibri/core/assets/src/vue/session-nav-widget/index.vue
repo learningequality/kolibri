@@ -18,22 +18,24 @@
 
     <!-- backdrop and user pop-up -->
     <div id="dropdown-backdrop" @click.stop="hideDropdown" v-show="showDropdown"></div>
-    <div id="dropdown" v-show="showDropdown" transition="slide">
-      <div class="user-dropdown">
-        <ul class="dropdown-list">
-          <li>
-            <p class="dropdown-name">{{ name }}</p>
-            <p id="dropdown-username">{{ username }}</p>
-            <p id="dropdown-usertype">{{ userkind }}</p>
-          </li>
-          <li id="logout-tab">
-            <div tabindex="0" @keyup.enter="userLogout" @click="userLogout" :aria-label="logOutText">
-              <span>{{ $tr('logOut') }}</span>
-            </div>
-          </li>
-        </ul>
+    <transition name="fade">
+      <div id="dropdown" v-show="showDropdown">
+        <div class="user-dropdown">
+          <ul class="dropdown-list">
+            <li>
+              <p class="dropdown-name">{{ name }}</p>
+              <p id="dropdown-username">{{ username }}</p>
+              <p id="dropdown-usertype">{{ userkind }}</p>
+            </li>
+            <li id="logout-tab">
+              <div tabindex="0" @keyup.enter="userLogout" @click="userLogout" :aria-label="logOutText">
+                <span>{{ $tr('logOut') }}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </transition>
 
     <!-- log-in modal -->
     <login-modal v-if="loginModalVisible"/>
@@ -150,7 +152,6 @@
 
   #dropdown
     position: absolute
-    z-index: 1
 
   #dropdown-backdrop
     position: fixed
@@ -158,14 +159,12 @@
     left: 0
     width: 100%
     height: 100%
-    z-index: 0
 
-  .slide-transition
-    transition: all 0.25s ease
-    left: 0
+  .fade-enter-active, .fade-leave-active
+    transition: opacity 0.5s
 
-  .slide-enter, .slide-leave
-    left: -300px
+  .fade-enter, .fade-leave-active
+    opacity: 0
 
   .user-dropdown
     box-shadow: 1px 1px 4px #e3e3e3
@@ -176,7 +175,6 @@
     width: 250px
     background: $core-bg-light
     text-align: left
-    z-index: -1
 
   .dropdown-list
     list-style: none
@@ -254,13 +252,8 @@
       right: 0
       text-align: right
 
-    .slide-transition
-      top: 0
-
-    .slide-enter, .slide-leave
-      top: 300px
-
     #dropdown
+      top: 0
       right: 0
 
     .dropdown-name
