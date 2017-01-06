@@ -79,7 +79,6 @@
           class="confirm-btn"
           :primary="true"
           @click="submit"
-          @enter.prevent
         />
 
       </section>

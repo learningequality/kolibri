@@ -3,7 +3,6 @@
   <button
     type="button"
     @click="$emit('click')"
-    @keypress.enter.prevent = "$emit('enter')"
     class="icon-button-scope"
     :class="{'primary' : primary, 'single-line': !showTextBelowIcon}"
   >
