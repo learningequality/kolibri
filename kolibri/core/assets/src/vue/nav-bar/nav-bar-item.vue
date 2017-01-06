@@ -6,7 +6,7 @@
         <slot/>
       </div>
     </router-link>
-    <a v-else :href="href" :class="{active: active}" @click="blur" ref="link" class="link">
+    <a v-else :href="href" :class="{active: active}" ref="link" class="link">
       <div class="content">
         <slot/>
       </div>
@@ -21,11 +21,7 @@
   module.exports = {
     methods: {
       blur() {
-        if (this.$refs.link.$el) {
-          this.$refs.link.$el.blur();
-        } else {
-          this.$refs.link.blur();
-        }
+        this.$refs.link.$el.blur();
       },
     },
     props: {
