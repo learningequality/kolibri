@@ -5,7 +5,7 @@
       <svg src="./progress-icons/inprogress.svg"/>
     </div>
 
-    <div v-else-if="isCompleted" class="progress-icon  completed">
+    <div v-else-if="isCompleted" class="progress-icon completed">
       <svg src="./progress-icons/completed.svg"/>
     </div>
   </div>
