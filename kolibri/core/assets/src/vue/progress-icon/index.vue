@@ -50,7 +50,7 @@
     text-align: center
 
   svg
-    vertical-align: middle
+    display: block
     fill: black
 
   .inprogress

@@ -3,7 +3,6 @@
   <div>
     <div v-if="available" class="fill-height">
       <div class="content-wrapper">
-        {{ progressPercent }}%
         <loading-spinner v-if="!currentViewClass"/>
         <div ref="container"></div>
       </div>
