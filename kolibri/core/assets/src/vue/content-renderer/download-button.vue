@@ -21,6 +21,7 @@
         class="dropdown-item"
         role="presentation">
         <a
+          download
           class="dropdown-item-link"
           @click="toggleDropdown"
           :href="file.download_url"
