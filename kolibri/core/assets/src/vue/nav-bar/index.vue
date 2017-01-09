@@ -18,7 +18,14 @@
         <svg class="nav-icon" src="../icons/manage.svg"/>
         <div class="label">{{ $tr('manage') }}</div>
       </nav-bar-item>
-      <session-nav-widget/>
+      <session-nav-widget
+        :loggedIn="loggedIn"
+        :deviceOwner="deviceOwner"
+        :fullname="fullname"
+        :username="username"
+        :kind="kind"
+        :loginModalVisible="loginModalVisible"
+      />
     </nav>
   </div>
 
@@ -29,6 +36,7 @@
 
   const values = require('lodash.values');
   const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
 
@@ -75,7 +83,13 @@
     },
     vuex: {
       getters: {
-        session: state => state.core.session,
+        // session: state => state.core.session,
+        loggedIn: state => state.core.session.kind[0] !== UserKinds.ANONYMOUS,
+        deviceOwner: state => state.core.session.kind[0] === UserKinds.SUPERUSER,
+        fullname: state => state.core.session.full_name,
+        username: state => state.core.session.username,
+        kind: state => state.core.session.kind,
+        loginModalVisible: state => state.core.loginModalVisible,
         isAdminOrSuperuser,
       },
     },

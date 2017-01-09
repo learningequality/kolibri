@@ -46,7 +46,6 @@
 
 <script>
 
-  const UserKinds = require('../../constants').UserKinds;
   const actions = require('kolibri.coreVue.vuex.actions');
 
   module.exports = {
@@ -59,6 +58,7 @@
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
       'login-modal': require('./login-modal'),
     },
+    props: ['loggedIn', 'deviceOwner', 'fullname', 'username', 'kind'],
     data: () => ({
       showDropdown: false,
     }),
@@ -79,10 +79,7 @@
         return this.fullname;
       },
       userkind() {
-        if (this.deviceOwner) {
-          return '';
-        }
-        return this.kind;
+        return this.kind[0];
       },
       logOutText() {
         return this.$tr('logOut');
@@ -107,14 +104,6 @@
       actions: {
         logout: actions.kolibriLogout,
         showLoginModal: actions.showLoginModal,
-      },
-      getters: {
-        loggedIn: state => state.core.session.kind[0] !== UserKinds.ANONYMOUS,
-        deviceOwner: state => state.core.session.kind[0] === UserKinds.SUPERUSER,
-        fullname: state => state.core.session.full_name,
-        username: state => state.core.session.username,
-        kind: state => state.core.session.kind,
-        loginModalVisible: state => state.core.loginModalVisible,
       },
     },
   };
