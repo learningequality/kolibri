@@ -77,9 +77,6 @@
         return this.availableFiles &&
           this.availableFiles.length ? this.availableFiles[0] : undefined;
       },
-      progressPercent() {
-        return Math.floor(this.progress * 100);
-      },
     },
     beforeCreate() {
       this._eventListeners = [];
@@ -220,9 +217,6 @@
         updateProgress: actions.updateProgress,
         startTracking: actions.startTrackingProgress,
         stopTracking: actions.stopTrackingProgress,
-      },
-      getters: {
-        progress: (state) => state.core.logging.summary.progress,
       },
     },
   };
