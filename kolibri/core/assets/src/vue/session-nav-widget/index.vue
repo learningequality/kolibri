@@ -58,7 +58,32 @@
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
       'login-modal': require('./login-modal'),
     },
-    props: ['loggedIn', 'deviceOwner', 'fullname', 'username', 'kind'],
+    props: {
+      loggedIn: {
+        type: Boolean,
+        required: true,
+      },
+      deviceOwner: {
+        type: Boolean,
+        required: true,
+      },
+      fullname: {
+        type: String,
+        required: true,
+      },
+      username: {
+        type: String,
+        required: true,
+      },
+      kind: {
+        type: Array,
+        required: true,
+      },
+      loginModalVisible: {
+        type: Boolean,
+        required: true,
+      },
+    },
     data: () => ({
       showDropdown: false,
     }),
