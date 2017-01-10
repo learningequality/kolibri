@@ -8,9 +8,7 @@
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
       <error-box v-if="error"></error-box>
       <slot name="above"></slot>
-      <main role="main" class="page-content">
-        <slot name="content"></slot>
-      </main>
+      <slot name="content"></slot>
       <slot name="below"></slot>
     </div>
   </div>
@@ -22,7 +20,7 @@
 
   require('vue-scroll');
 
-  const coreActions = require('kolibri/coreVue/vuex/actions');
+  const coreActions = require('kolibri.coreVue.vuex.actions');
 
   module.exports = {
     components: {
@@ -36,6 +34,12 @@
       getters: {
         loading: state => state.core.loading,
         error: state => state.core.error,
+        title: state => state.core.title,
+      },
+    },
+    watch: {
+      title(newVal, oldVal) {
+        document.title = `${newVal} - Kolibri`;
       },
     },
     data: () => ({
@@ -67,7 +71,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .main-wrapper
     position: fixed // must be fixed for ie10
@@ -84,10 +88,6 @@
     @media screen and (max-width: $portrait-breakpoint)
       padding: 0 0.6em
       padding-bottom: 100px
-
-  .page-content
-    margin: auto
-    width-auto-adjust()
 
   .loading-spinner-fixed
     position: fixed

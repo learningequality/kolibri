@@ -1,7 +1,7 @@
 <template>
 
   <!--
-    In order to get the nev to work right, it seemed necessary to
+    In order to get the nav to work right, it seemed necessary to
     have multiple root nodes in this template.
 
     TODO: would be best to refactor this.
@@ -14,7 +14,11 @@
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/explore.svg"></svg>
     <div class="label">Explore</div>
   </nav-bar-item>
-  <nav-bar-item href="/management" :active="true">
+  <nav-bar-item v-if="isAdminOrSuperuser" href="/coach">
+    <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/coach.svg"></svg>
+    <div class="label">Coach</div>
+  </nav-bar-item>
+  <nav-bar-item v-if="isAdminOrSuperuser" href="/management" :active="true">
     <svg role="presentation" height="40" width="40" viewbox="0 0 24 24" src="../icons/manage.svg"></svg>
     <div class="label">Manage</div>
   </nav-bar-item>
@@ -24,9 +28,16 @@
 
 <script>
 
+  const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
+
   module.exports = {
     components: {
-      'nav-bar-item': require('kolibri/coreVue/components/navBarItem'),
+      'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
+    },
+    vuex: {
+      getters: {
+        isAdminOrSuperuser,
+      },
     },
   };
 
@@ -35,7 +46,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/navBarItem'
+  @require '~kolibri.styles.navBarItem'
 
   a.active:focus svg
     fill: $core-bg-light

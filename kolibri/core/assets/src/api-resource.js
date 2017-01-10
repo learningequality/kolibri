@@ -1,4 +1,4 @@
-const logging = require('kolibri/lib/logging').getLogger(__filename);
+const logging = require('kolibri.lib.logging').getLogger(__filename);
 const ConditionalPromise = require('./conditionalPromise');
 
 
@@ -186,7 +186,9 @@ class Model {
   set(attributes) {
     // force IDs to always be strings - this should be changed on the server-side too
     if (attributes && this.resource.idKey in attributes) {
-      attributes[this.resource.idKey] = String(attributes[this.resource.idKey]);
+      if (attributes[this.resource.idKey]) { // don't stringigy null or undefined.
+        attributes[this.resource.idKey] = String(attributes[this.resource.idKey]);
+      }
     }
     Object.assign(this.attributes, attributes);
   }

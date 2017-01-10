@@ -120,7 +120,7 @@
     components: {
       'user-create-modal': require('./user-create-modal'),
       'user-edit-modal': require('./user-edit-modal'),
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     // Has to be a funcion due to vue's treatment of data
     data: () => ({
@@ -234,7 +234,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   // Padding height that separates rows from eachother
   $row-padding = 1.5em

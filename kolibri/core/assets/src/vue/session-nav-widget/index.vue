@@ -39,7 +39,7 @@
 <script>
 
   const UserKinds = require('../../constants').UserKinds;
-  const actions = require('kolibri/coreVue/vuex/actions');
+  const actions = require('kolibri.coreVue.vuex.actions');
 
   module.exports = {
     $trNameSpace: 'sessionWidget',
@@ -48,7 +48,7 @@
       logIn: 'Log In',
     },
     components: {
-      'nav-bar-item': require('kolibri/coreVue/components/navBarItem'),
+      'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
       'login-modal': require('./login-modal'),
     },
     data: () => ({
@@ -110,7 +110,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/navBarItem'
+  @require '~kolibri.styles.navBarItem'
 
   $size-lg = 40px
   $size-sm = 30px

@@ -4,11 +4,12 @@
     <div class="extra-nav">
       <slot name="extra-nav"></slot>
     </div>
-    <h1 class="header">
-      <div class="text">
-        {{ title }}
+    <div class="header">
+      <div class="content-icon-wrapper">
+        <content-icon :kind="contentKind"></content-icon>
       </div>
-    </h1>
+      <div class="title"><h1>{{ title }}</h1></div>
+    </div>
   </div>
 
 </template>
@@ -16,10 +17,22 @@
 
 <script>
 
+  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
+
   module.exports = {
     props: {
       title: {
         type: String,
+      },
+    },
+    vuex: {
+      getters: {
+        contentKind: (state) => {
+          if (state.pageState.content) {
+            return state.pageState.content.kind;
+          }
+          return ContentNodeKinds.TOPIC;
+        },
       },
     },
   };
@@ -32,7 +45,7 @@
   /** WARNING - unscoped styles for children                  */
   /* use very precise selectors to minimize risk of collision */
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .header-wrapper .extra-nav a
     color: $core-text-annotation
@@ -40,7 +53,7 @@
 
   // @stylint off
   .header-wrapper .icon-wrapper > *
-  // @stylint on
+    // @stylint on
     width: 1em
     height: 1em
 
@@ -58,8 +71,15 @@
 
   .header
     position: relative
+    height: 3em
 
-  .text
-    display: block
+  .content-icon-wrapper
+    position: absolute
+    left: 0
+    height: 27px
+    width: 27px
+
+  .title
+    margin-left: 35px
 
 </style>

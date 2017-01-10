@@ -50,17 +50,18 @@
 
 <script>
 
-  const Kolibri = require('kolibri');
+  const coreApp = require('kolibri');
+
   module.exports = {
     components: {
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     computed: {
       summarylogurl() {
-        return Kolibri.urls['contentsummarylogcsv-list']();
+        return coreApp.urls['contentsummarylogcsv-list']();
       },
       sessionlogurl() {
-        return Kolibri.urls['contentsessionlogcsv-list']();
+        return coreApp.urls['contentsessionlogcsv-list']();
       },
     },
   };
@@ -71,14 +72,14 @@
 <style lang="stylus" scoped>
 
   @require 'jeet'
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   @media (min-width: $medium-breakpoint)
     .exportblock
       col(1/2)
 
   .infobox
-    background-color: $core-text-alert-bg
+    background-color: $core-bg-warning
     border-radius: $radius
     font-size: 0.8em
     padding: 8px

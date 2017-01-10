@@ -4,7 +4,7 @@
     <breadcrumbs class="breadcrumbs"></breadcrumbs>
     <div class="table-wrapper">
       <div class="row-wrapper">
-        <channel-switcher class="switcher"></channel-switcher>
+        <channel-switcher class="switcher" @switch="switchChannel"></channel-switcher>
       </div>
     </div>
     <search-button class="search-btn"></search-button>
@@ -14,6 +14,9 @@
 
 
 <script>
+
+  const getters = require('../../state/getters');
+  const constants = require('../../state/constants');
 
   module.exports = {
     props: {
@@ -26,11 +29,29 @@
       'search-widget': require('../search-widget'),
       'search-button': require('./search-button'),
       'breadcrumbs': require('../breadcrumbs'),
-      'channel-switcher': require('./channel-switcher'),
+    },
+    methods: {
+      switchChannel(channelId) {
+        let rootPage;
+        if (this.pageMode === constants.PageModes.EXPLORE) {
+          rootPage = constants.PageNames.EXPLORE_CHANNEL;
+        } else {
+          rootPage = constants.PageNames.LEARN_CHANNEL;
+        }
+        this.clearSearch();
+        this.$router.go({
+          name: rootPage,
+          params: { channel_id: channelId },
+        });
+      },
     },
     vuex: {
       getters: {
+        pageMode: getters.pageMode,
         searchOpen: state => state.searchOpen,
+      },
+      actions: {
+        clearSearch: require('../../actions').clearSearch,
       },
     },
   };
@@ -40,7 +61,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
   @require '../learn.styl'
 
   $avoid-scrollbar = -25px

@@ -5,7 +5,7 @@
   definitions, including inside Vue components. To reference these
   variables, add the following line:
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
 */
 
@@ -23,56 +23,30 @@ $core-bg-canvas = #F9F9F9
 $core-text-default = #3A3A3A
 $core-text-annotation = #686868
 $core-text-disabled = #DFDFDF
-$core-text-alert = #DF0F0F
-$core-text-alert-bg = #FDFADF
+
+
+// ALERT COLORS
+$core-text-success = #0b8210
+$core-bg-success = #eaf6ea
+
+$core-text-info = #11568e
+$core-bg-info = #e4f3fe
+
+$core-text-warning = #ff9800
+$core-bg-warning = #fff3e1
+
+$core-text-error = #b93329
+$core-bg-error = #fee9e7
+
 
 $radius = 4px
 $core-time = 0.25s
-
-
-/*
-  Styles below were moved from a Learn-specific style-sheet to here.
-  It was difficult to separate them because the $portrait-breakpoint
-  is defined in terms of the card width.
-
-  TODO: this needs to be cleaned up and organized significantly.
-  At the very least these variables need to be namespaced.
-*/
-
-$thumbnail-height = 122px     // fixed thumbnail height
-
-$card-height = 200px         // fixed card height
-$card-width = 200px         // fixed card width
-$card-gutter = 20px         // spacing between columns
-$n-cols-array = 1 2 3 4 5 6    // possible numbers of columns
+$letter-spacing = 0.01em
 
 $nav-width = 75px
 $left-margin = 100px
 $right-margin = 25px
+$nav-portrait-height = 56px
 
-$horizontal-card-width = 320px
-$horizontal-card-height = 100px
-
-$learn-toolbar-height = 42px
-
-// compute the target grid width based on the number of columns
-grid-width($n-cols)
-  ($card-width * $n-cols) + ($card-gutter * ($n-cols))
-
-$portrait-breakpoint = $left-margin * 2 + grid-width(1) + $right-margin
+$portrait-breakpoint = 520px // TODO - compute this based on variables
 $medium-breakpoint = 619px // TODO - compute this based on variables
-
-// compute the media query breakpoint, based on the target grid width
-breakpoint($width)
-  $width + 180px // Hard-code # please revisit
-
-// generate a range of media query breakpoints
-width-auto-adjust()
-  width: grid-width(1)
-  for $n-cols in $n-cols-array
-    $grid-width = grid-width($n-cols)
-    @media (min-width: breakpoint($grid-width))
-      width: $grid-width
-    @media screen and (max-width: $medium-breakpoint + 1)
-      width: $horizontal-card-width // Hard-code media query, potential to revisit
-

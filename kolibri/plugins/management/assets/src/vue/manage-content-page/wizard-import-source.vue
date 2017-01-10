@@ -30,8 +30,8 @@
 
   module.exports = {
     components: {
-      'core-modal': require('kolibri/coreVue/components/coreModal'),
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     vuex: {
       actions: {
@@ -47,7 +47,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .main
     text-align: center
