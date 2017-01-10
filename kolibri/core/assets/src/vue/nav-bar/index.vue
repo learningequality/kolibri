@@ -10,7 +10,7 @@
         <svg class="nav-icon" src="../icons/explore.svg"/>
         <div class="label">{{ $tr('explore') }}</div>
       </nav-bar-item>
-      <nav-bar-item v-if="isAdminOrSuperuser" href="/coach" :active="coachActive">
+      <nav-bar-item v-if="isCoachAdminOrSuperuser" href="/coach" :active="coachActive">
         <svg class="nav-icon" src="../icons/coach.svg"/>
         <div class="label">{{ $tr('coach') }}</div>
       </nav-bar-item>
@@ -28,7 +28,7 @@
 <script>
 
   const values = require('lodash.values');
-  const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
+  const getters = require('kolibri.coreVue.vuex.getters');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
 
@@ -76,7 +76,8 @@
     vuex: {
       getters: {
         session: state => state.core.session,
-        isAdminOrSuperuser,
+        isAdminOrSuperuser: getters.isAdminOrSuperuser,
+        isCoachAdminOrSuperuser: getters.isCoachAdminOrSuperuser,
       },
     },
   };
