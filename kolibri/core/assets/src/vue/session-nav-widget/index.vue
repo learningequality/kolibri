@@ -79,10 +79,7 @@
         return this.fullname;
       },
       userkind() {
-        if (this.deviceOwner) {
-          return '';
-        }
-        return this.kind;
+        return this.kind[0];
       },
       logOutText() {
         return this.$tr('logOut');
