@@ -5,7 +5,9 @@ require('../styles/font-NotoSans.css');
 require('../styles/core-global.styl');
 
 // polyfill for older browsers
-require('babel-polyfill');
+require('core-js/es6/object');
+require('core-js/es6/symbol');
+require('core-js/es6/promise');
 
 // set up logging
 const logging = require('kolibri.lib.logging');
