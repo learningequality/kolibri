@@ -50,16 +50,8 @@ var config = {
       },
       {
         test: /\.js$/,
-        loader: 'babel',
-        exclude: /node_modules/,
-        query: {
-          // Babel loader ignores Webpack config options
-          // So we pass a module reference rather than a path here
-          // to ensure that they get properly resolved when building happens
-          // outside of the kolibri base path.
-          presets: [require.resolve('babel-preset-es2015-ie')],
-          plugins: [require.resolve('babel-plugin-transform-runtime')]
-        },
+        loader: 'buble',
+        exclude: /node_modules/
       },
       {
         test: /\.json$/,
@@ -116,6 +108,7 @@ var config = {
   },
   vue: {
     loaders: {
+      js: 'buble-loader',
       stylus: 'vue-style-loader!css-loader?sourceMap!stylus-loader',
       html: 'vue-html-loader!svg-inline', // inlines SVGs
     }

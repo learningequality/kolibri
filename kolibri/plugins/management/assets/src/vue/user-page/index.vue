@@ -176,7 +176,8 @@
             hasName = false;
 
             // check for searchFilter phrase in user's names
-            for (const name of names) {
+            for (let i = 0; i < names.length; i++) {
+              const name = names[i];
               // test name through all filters
               if (searchFilter.every(nameFilter => nameFilter.test(name))) {
                 hasName = true;
