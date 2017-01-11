@@ -129,7 +129,7 @@ module.exports = class Mediator {
       events = kolibriModule[eventsKey];
     }
     for (let i = 0; i < Object.getOwnPropertyNames(events).length; i++) {
-      let key = Object.getOwnPropertyNames(events)[i];
+      const key = Object.getOwnPropertyNames(events)[i];
       boundEventListenerMethod(key, kolibriModule, events[key]);
     }
   }
@@ -256,11 +256,11 @@ module.exports = class Mediator {
     // Look at all events, whether listened to once or multiple times.
     const eventArray = [];
     for (let i = 0; i < Object.getOwnPropertyNames(events).length; i++) {
-      let key = Object.getOwnPropertyNames(events)[i];
+      const key = Object.getOwnPropertyNames(events)[i];
       eventArray.push([key, events[key]]);
     }
     for (let i = 0; i < Object.getOwnPropertyNames(once).length; i++) {
-      let key = Object.getOwnPropertyNames(once)[i];
+      const key = Object.getOwnPropertyNames(once)[i];
       eventArray.push([key, once[key]]);
     }
     if (typeof this._asyncCallbackRegistry[kolibriModuleName] === 'undefined') {
