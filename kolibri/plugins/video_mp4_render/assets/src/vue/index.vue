@@ -1,15 +1,19 @@
 <template>
 
   <div ref="wrapper" class="wrapper">
-    <loading-spinner v-if="loading"/>
-    <video ref="video" class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
-      <template v-for="video in videoSources">
-        <source :src="video.storage_url" :type="'video/' + video.extension">
-      </template>
-      <template v-for="track in trackSources">
-        <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
-      </template>
-    </video>
+    <div v-show="loading" class="fill-space">
+      <loading-spinner/>
+    </div>
+    <div v-show="!loading" class="fill-space">
+      <video ref="video" class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
+        <template v-for="video in videoSources">
+          <source :src="video.storage_url" :type="'video/' + video.extension">
+        </template>
+        <template v-for="track in trackSources">
+          <track kind="captions" :src="track.storage_url" :srclang="track.lang" :label="getLangName(track.lang)">
+        </template>
+      </video>
+    </div>
   </div>
 
 </template>
@@ -217,6 +221,10 @@
     height: 480px
     max-width: 100%
     max-height: 480px
+
+  .fill-space
+    width: 100%
+    height: 100%
 
 </style>
 
