@@ -128,6 +128,13 @@ describe('Resource', function () {
       assert.equal(this.resource.urls, urls);
     });
   });
+  describe('name property', function () {
+    it('should return the resourceName static method of the Resource class', function () {
+      const testName = 'test';
+      Resources.Resource.resourceName = function () {return testName;};
+      assert.equal(this.resource.name, testName);
+    });
+  });
   describe('getModel method', function () {
     it('should return a model instance', function () {
       assert.ok(this.resource.getModel('test') instanceof Resources.Model);
@@ -181,6 +188,38 @@ describe('Resource', function () {
       this.resource.addModel(new Resources.Model({ id: 'test', example: 'prop' }, this.resource));
       assert.deepEqual({ test: model }, this.resource.models);
       assert.equal(model.attributes.example, 'prop');
+    });
+  });
+  describe('removeModel method', function () {
+    it('should remove model from model cache', function () {
+      const id = 'test';
+      this.resource.models[id] = 'test';
+      this.resource.removeModel({
+        id,
+      });
+      assert.equal(typeof this.resource.models[id], 'undefined');
+    });
+  });
+  describe('unCacheModel method', function () {
+    it('should set the synced property of the model to false', function () {
+      const id = 'test';
+      this.resource.models[id] = {};
+      this.resource.unCacheModel(id);
+      assert.equal(this.resource.models[id].synced, false);
+    });
+  });
+  describe('clearCache method', function () {
+    it('should set the models property of the Resource to an empty object', function () {
+      const id = 'test';
+      this.resource.models[id] = {};
+      this.resource.clearCache();
+      assert.deepEqual(this.resource.models, {});
+    });
+    it('should set the collections property of the Resource to an empty object', function () {
+      const id = 'test';
+      this.resource.collections[id] = {};
+      this.resource.clearCache();
+      assert.deepEqual(this.resource.collections, {});
     });
   });
   describe('getCollection method', function () {
