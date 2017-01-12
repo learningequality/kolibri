@@ -1,12 +1,7 @@
 <template>
 
   <div class="link-wrapper">
-    <router-link v-if="vlink" :to="vlink" :class="{active: active}" @click.native="blur" ref="link" class="link">
-      <div class="content">
-        <slot/>
-      </div>
-    </router-link>
-    <a v-else :href="href" :class="{active: active}" ref="link" class="link">
+    <a :href="href" :class="{active: active}" @click="blur" ref="link" class="link">
       <div class="content">
         <slot/>
       </div>
@@ -21,14 +16,10 @@
   module.exports = {
     methods: {
       blur() {
-        this.$refs.link.$el.blur();
+        this.$refs.link.blur();
       },
     },
     props: {
-      // Note - only pass in a vlink or an href, not both
-      vlink: {
-        type: Object,
-      },
       href: {
         type: String,
       },
