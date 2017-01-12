@@ -8,7 +8,7 @@
 
 const assetLoader = require('./asset-loader');
 const Vue = require('vue');
-const logging = require('kolibri/lib/logging').getLogger(__filename);
+const logging = require('kolibri.lib.logging').getLogger(__filename);
 const rest = require('rest');
 const mime = require('rest/interceptor/mime');
 const errorCode = require('rest/interceptor/errorCode');

@@ -1,17 +1,17 @@
-const Kolibri = require('kolibri');
-const logging = require('kolibri/lib/logging');
+const coreApp = require('kolibri');
+const logging = require('kolibri.lib.logging');
 
-const FacilityUserResource = Kolibri.resources.FacilityUserResource;
-const ChannelResource = Kolibri.resources.ChannelResource;
-const TaskResource = Kolibri.resources.TaskResource;
-const RoleResource = Kolibri.resources.RoleResource;
+const FacilityUserResource = coreApp.resources.FacilityUserResource;
+const TaskResource = coreApp.resources.TaskResource;
+const RoleResource = coreApp.resources.RoleResource;
 
-const ConditionalPromise = require('kolibri/lib/conditionalPromise');
+const coreActions = require('kolibri.coreVue.vuex.actions');
+const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const constants = require('./state/constants');
-const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
+const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 const PageNames = constants.PageNames;
 const ContentWizardPages = constants.ContentWizardPages;
-const samePageCheckGenerator = require('kolibri/coreVue/vuex/actions').samePageCheckGenerator;
+const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 
 
 // ================================
@@ -54,6 +54,15 @@ function _taskState(data) {
 
 
 /**
+ * Title Helper
+ */
+
+function _managePageTitle(title) {
+  return `Manage ${title}`;
+}
+
+
+/**
  * Actions
  *
  * These methods are used to update client-side state
@@ -84,9 +93,7 @@ function createUser(store, payload, role) {
         FacilityUserModel.fetch({}, true).then(updatedModel => {
           store.dispatch('ADD_USER', _userState(updatedModel));
         });
-      }).catch((error) => {
-        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      });
+      }).catch(error => { coreActions.handleApiError(store, error); });
     }
   }).catch((error) => Promise.reject(error));
 }
@@ -121,9 +128,7 @@ function updateUser(store, id, payload, role) {
           responses.roles = [newRole];
           store.dispatch('UPDATE_USERS', [responses]);
         })
-        .catch((error) => {
-          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-        });
+        .catch(error => { coreActions.handleApiError(store, error); });
       });
     } else if (role !== 'learner') {
     // oldRole is admin and role is coach or oldRole is coach and role is admin.
@@ -144,14 +149,10 @@ function updateUser(store, id, payload, role) {
             responses.roles = [newRole];
             store.dispatch('UPDATE_USERS', [responses]);
           })
-          .catch((error) => {
-            store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-          });
+          .catch(error => { coreActions.handleApiError(store, error); });
         });
       })
-      .catch((error) => {
-        store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      });
+      .catch(error => { coreActions.handleApiError(store, error); });
     } else {
     // role is learner and oldRole is admin or coach.
       const OldRoleModel = RoleResource.getModel(oldRoldID);
@@ -162,9 +163,7 @@ function updateUser(store, id, payload, role) {
           responses.roles = [];
           store.dispatch('UPDATE_USERS', [responses]);
         })
-        .catch((error) => {
-          store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-        });
+        .catch(error => { coreActions.handleApiError(store, error); });
       });
     }
   } else {
@@ -172,9 +171,7 @@ function updateUser(store, id, payload, role) {
     FacilityUserModel.save(payload).then(responses => {
       store.dispatch('UPDATE_USERS', [responses]);
     })
-    .catch((error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    });
+    .catch(error => { coreActions.handleApiError(store, error); });
   }
 }
 
@@ -192,9 +189,7 @@ function deleteUser(store, id) {
   deleteUserPromise.then((user) => {
     store.dispatch('DELETE_USER', id);
   })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
+  .catch(error => { coreActions.handleApiError(store, error); });
 }
 
 // An action for setting up the initial state of the app by fetching data from the server
@@ -219,11 +214,9 @@ function showUserPage(store) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_TITLE', _managePageTitle('Users'));
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
@@ -243,17 +236,13 @@ function showContentPage(store) {
         taskList: taskList.map(_taskState),
         wizardState: { shown: false },
       };
-      const channelCollectionPromise = ChannelResource.getCollection({}).fetch();
-      channelCollectionPromise.then((channelList) => {
-        pageState.channelList = channelList;
+      coreActions.setChannelInfo(store, coreApp).then(() => {
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
+        store.dispatch('CORE_SET_TITLE', _managePageTitle('Content'));
       });
     },
-    (error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
@@ -266,7 +255,7 @@ function updateWizardLocalDriveList(store) {
   })
   .catch((error) => {
     store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
+    coreActions.handleApiError(store, error);
   });
 }
 
@@ -335,12 +324,10 @@ function pollTasksAndChannels(store) {
     (taskList) => {
       // Perform channel poll AFTER task poll to ensure UI is always in a consistent state.
       // I.e. channel list always reflects the current state of ongoing task(s).
-      ChannelResource.getCollection({}).fetch({}, true).only(
+      coreActions.setChannelInfo(store, coreApp).only(
         samePageCheckGenerator(store),
-        (channelList) => {
+        () => {
           store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));
-          store.dispatch('SET_CONTENT_PAGE_CHANNELS', channelList);
-
           // Close the wizard if there's an outstanding task.
           // (this can be removed when we support more than one
           // concurrent task.)
@@ -350,9 +337,7 @@ function pollTasksAndChannels(store) {
         }
       );
     },
-    (error) => {
-      logging.error(`poll error: ${error}`);
-    }
+    error => { logging.error(`poll error: ${error}`); }
   );
 }
 
@@ -361,9 +346,7 @@ function clearTask(store, taskId) {
   clearTaskPromise.then(() => {
     store.dispatch('SET_CONTENT_PAGE_TASKS', []);
   })
-  .catch((error) => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-  });
+  .catch(error => { coreActions.handleApiError(store, error); });
 }
 
 function triggerLocalContentImportTask(store, driveId) {
@@ -419,6 +402,7 @@ function showDataPage(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', _managePageTitle('Data'));
 }
 
 function showScratchpad(store) {
@@ -426,6 +410,7 @@ function showScratchpad(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', _managePageTitle('Scratchpad'));
 }
 
 module.exports = {

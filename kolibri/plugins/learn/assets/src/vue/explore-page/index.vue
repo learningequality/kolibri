@@ -44,6 +44,8 @@
 
 <script>
 
+  const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
+
   module.exports = {
     $trNameSpace: 'learnExplore',
     $trs: {
@@ -67,7 +69,7 @@
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         contents: state => state.pageState.contents,
-        isRoot: (state) => state.pageState.topic.id === state.rootTopicId,
+        isRoot: (state) => state.pageState.topic.id === getCurrentChannelObject(state).root_id,
       },
     },
   };

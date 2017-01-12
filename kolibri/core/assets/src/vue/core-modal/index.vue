@@ -20,7 +20,7 @@
           <svg src="./back.svg" role="presentation"></svg>
         </button>
         <button aria-label="Close dialog window" @click="emitCancelEvent" class="header-btn btn-close">
-          <svg src="./close.svg" role="presentation"></svg>
+          <svg src="../icons/close.svg" role="presentation"></svg>
         </button>
       </div>
 
@@ -127,7 +127,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .modal-overlay
     position: fixed

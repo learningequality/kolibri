@@ -60,7 +60,7 @@
 
   module.exports = {
     components: {
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     data() {
       return {
@@ -134,7 +134,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   $button-content-size = 1em
 
@@ -181,7 +181,7 @@
       color: $core-action-light
 
   .error
-    color: $core-text-alert
+    color: $core-text-error
 
   .secondary
     &:hover

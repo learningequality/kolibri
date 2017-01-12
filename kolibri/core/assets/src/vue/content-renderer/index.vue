@@ -2,10 +2,8 @@
 
   <div>
     <div v-if="available" class="fill-height">
-      <div class="content-icon-wrapper">
-        <content-icon :progress="progress" :kind="kind"></content-icon>
-      </div>
       <div class="content-wrapper">
+        {{ progressPercent }}%
         <loading-spinner v-if="!currentViewClass"></loading-spinner>
         <div v-el:container></div>
       </div>
@@ -20,8 +18,8 @@
 
 <script>
 
-  const logging = require('kolibri/lib/logging').getLogger(__filename);
-  const actions = require('kolibri/coreVue/vuex/actions');
+  const logging = require('kolibri.lib.logging').getLogger(__filename);
+  const actions = require('kolibri.coreVue.vuex.actions');
 
   module.exports = {
     $trNameSpace: 'contentRender',
@@ -190,13 +188,18 @@
           // Add the specified options for the Vue component that we received from the plugin
           // into the options object.
           Object.assign(options, this.currentViewClass);
-          // Instantiate the Vue instance directly using the Kolibri Vue constructor.
-          this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
 
-          this.contentView.$on('startTracking', this.wrappedStartTracking);
-          this.contentView.$on('stopTracking', this.wrappedStopTracking);
-          this.contentView.$on('progressUpdate', this.wrappedUpdateProgress);
-          this.initSession(this.Kolibri, this.channelId, this.contentId, this.kind);
+          // guarantee summarylog, sessionlog, and existing masterylog are synced and in store.
+          this.initSession(this.Kolibri, this.channelId, this.contentId, this.kind).then(() => {
+            // Instantiate the Vue instance directly using the Kolibri Vue constructor.
+            this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
+
+            this.contentView.$on('startTracking', this.wrappedStartTracking);
+            this.contentView.$on('stopTracking', this.wrappedStopTracking);
+            this.contentView.$on('progressUpdate', this.wrappedUpdateProgress);
+          }, (reason) => {
+            logging.error('initContentSession failed: ', reason);
+          });
         }
       },
       wrappedStartTracking() {
@@ -230,16 +233,12 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .fill-height
     height: 100%
 
-  .content-icon-wrapper
-    width: 2em
-    height: 2em
-
   .content-wrapper
-    height: calc(100% - 2em)
+    height: 100%
 
 </style>

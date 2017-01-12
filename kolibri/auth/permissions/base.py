@@ -137,6 +137,9 @@ class RoleBasedPermissions(BasePermissions):
         from ..models import Collection
         from ..filters import HierarchyRelationsFilter
 
+        if user.is_anonymous():
+            return queryset.none()
+
         query = {
             "source_user": user,
             "role_kind": self.can_be_read_by,
@@ -250,3 +253,10 @@ class PermissionsFromAll(BasePermissions):
         for perm in self.perms:
             queryset = perm.readable_by_user_filter(user, queryset)
         return queryset
+
+
+# helper functions
+def lookup_field_with_fks(field_ref, obj):
+    for key in field_ref.split("__"):
+        obj = getattr(obj, key)
+    return obj

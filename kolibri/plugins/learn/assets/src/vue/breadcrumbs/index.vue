@@ -72,13 +72,13 @@
       learnRootLink() {
         return {
           name: PageNames.LEARN_CHANNEL,
-          channel: this.currentChannel,
+          channel: this.currentChannelId,
         };
       },
       exploreRootLink() {
         return {
           name: PageNames.EXPLORE_CHANNEL,
-          channel: this.currentChannel,
+          channel: this.currentChannelId,
         };
       },
       parentExploreLink() {
@@ -99,7 +99,7 @@
         return {
           name: PageNames.EXPLORE_TOPIC,
           params: {
-            channel: this.currentChannel,
+            channel: this.currentChannelId,
             id: topicId,
           },
         };
@@ -112,7 +112,7 @@
         contentCrumbs: state => state.pageState.content.breadcrumbs,
         pageName: state => state.pageName,
         pageState: state => state.pageState,
-        currentChannel: state => state.currentChannel,
+        currentChannelId: state => state.core.channels.currentId,
         title: state => state.pageState.topic.title,
       },
     },
@@ -123,7 +123,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
   @require '../learn.styl'
 
   .nav

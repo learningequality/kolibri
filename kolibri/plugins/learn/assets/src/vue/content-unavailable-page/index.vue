@@ -11,37 +11,27 @@
 
 <script>
 
-  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
+  const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
 
   module.exports = {
-
     $trNameSpace: 'learnContentUnavailable',
     $trs: {
       header: 'No Content Channels Available',
       adminLink: 'Download content channels from the <a href="/management/#!/content">Content Management</a> page', // eslint-disable-line max-len
       notAdmin: 'You need to log in as an administrator to manage your content channels.',
     },
-
-    computed: {
-      isAdminOrSuperuser() {
-        if (this.kind[0] === UserKinds.SUPERUSER || this.kind[0] === UserKinds.ADMIN) {
-          return true;
-        }
-        return false;
-      },
-    },
     vuex: {
       getters: {
-        kind: state => state.core.session.kind,
+        isAdminOrSuperuser,
       },
     },
-};
+  };
 
 </script>
 
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
 </style>

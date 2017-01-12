@@ -1,4 +1,4 @@
-from kolibri.auth.permissions.base import BasePermissions
+from kolibri.auth.permissions.base import BasePermissions, lookup_field_with_fks
 
 
 class AnyoneCanWriteAnonymousLogs(BasePermissions):
@@ -6,8 +6,11 @@ class AnyoneCanWriteAnonymousLogs(BasePermissions):
     Permissions class that allows anonymous users to create logs with no associated user.
     """
 
+    def __init__(self, field_name="user_id"):
+        self.field_name = field_name
+
     def user_can_create_object(self, user, obj):
-        return obj.user is None
+        return lookup_field_with_fks(self.field_name, obj) is None
 
     def user_can_read_object(self, user, obj):
         return False
@@ -16,7 +19,7 @@ class AnyoneCanWriteAnonymousLogs(BasePermissions):
         # this one is a bit worrying, since anybody could update anonymous logs, but at least only if they have the ID
         # (and this is needed, in order to allow a ContentSessionLog to be updated within a session -- in theory,
         # we could add date checking in here to not allow further updating after a couple of days)
-        return obj.user is None
+        return lookup_field_with_fks(self.field_name, obj) is None
 
     def user_can_delete_object(self, user, obj):
         return False
