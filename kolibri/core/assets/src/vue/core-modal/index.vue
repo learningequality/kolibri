@@ -108,8 +108,12 @@
         this.$refs.modal.focus();
       },
       focusElementTest(event) {
-        // if the focus moved outside the modal, put it back
-        if (this.$refs.modal && !this.$refs.modal.contains(event.target)) {
+        // switching apps - not relevant
+        if (event.target === window) { return; }
+        // not sure when this would be true
+        if (!this.$refs.modal) { return; }
+        // focus has escaped the modal - put it back!
+        if (!this.$refs.modal.contains(event.target)) {
           this.focusModal();
         }
       },
