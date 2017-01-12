@@ -1,9 +1,11 @@
 const KolibriModule = require('kolibri_module');
 const coreApp = require('kolibri');
-const router = require('kolibri.coreVue.router');
 const coreActions = require('kolibri.coreVue.vuex.actions');
+const router = require('kolibri.coreVue.router');
 
-const rootvue = require('./vue');
+const Vue = require('kolibri.lib.vue');
+
+const RootVue = require('./vue');
 const actions = require('./actions');
 const store = require('./state/store');
 const PageNames = require('./state/constants').PageNames;
@@ -25,24 +27,33 @@ const REPORT_URL_PATTERN = [
 
 class CoachToolsModule extends KolibriModule {
   ready() {
-    router.redirect({
-      '/': '/reports',
+    const routes = [
+      {
+        name: PageNames.REPORTS_NO_QUERY,
+        path: '/reports',
+        handler: (toRoute, fromRoute) => {
+          actions.redirectToDefaultReport(store, toRoute.params);
+        },
+      },
+      {
+        name: PageNames.REPORTS,
+        path: REPORT_URL_PATTERN,
+        handler: (toRoute, fromRoute) => {
+          actions.showReport(store, toRoute.params, fromRoute.params);
+        },
+      },
+      {
+        path: '/',
+        redirect: '/reports',
+      },
+    ];
+
+    this.rootvue = new Vue({
+      el: 'rootvue',
+      render: createElement => createElement(RootVue),
+      router: router.init(routes),
     });
-    router.on(
-      PageNames.REPORTS_NO_QUERY,
-      '/reports',
-      (toRoute, fromRoute) => {
-        actions.redirectToDefaultReport(store, toRoute.params);
-      }
-    );
-    router.on(
-      PageNames.REPORTS,
-      REPORT_URL_PATTERN,
-      (toRoute, fromRoute) => {
-        actions.showReport(store, toRoute.params, fromRoute.params);
-      }
-    );
-    router.start(rootvue, 'rootvue');
+
     coreActions.getCurrentSession(store, coreApp);
   }
 }

@@ -2,42 +2,38 @@
 
   <div>
     <!--USER BREADCRUMBS-->
-    <breadcrumbs :list="userBreadcrumbs"></breadcrumbs>
+    <breadcrumbs :list="userBreadcrumbs"/>
 
     <!--TABS-->
     <all-recent-tabs
-      :recentviewlink="recentViewLink"
-      :allviewlink="allViewLink"
-      :isrecentview="isRecentView"
-    ></all-recent-tabs>
+      :recentViewLink="recentViewLink"
+      :allViewLink="allViewLink"
+      :isRecentView="isRecentView"/>
 
 
     <div class="tabcontents">
       <div class="top-section">
         <!--CONTENT BREADCRUMBS-->
-        <breadcrumbs :list="contentBreadcrumbs"></breadcrumbs>
+        <breadcrumbs :list="contentBreadcrumbs"/>
 
         <!--HEADER SECTION-->
         <report-header
-          :contentkind="pageState.content_scope_summary.kind"
-          :contenttitle="pageState.content_scope_summary.title"
-          :userfullname="pageState.user_scope_summary.full_name"
-        ></report-header>
+          :contentKind="pageState.content_scope_summary.kind"
+          :contentTitle="pageState.content_scope_summary.title"
+          :userFullName="pageState.user_scope_summary.full_name"/>
 
         <!--SUMMARY SECTION-->
         <summary-section
           :kind="pageState.content_scope_summary.kind"
-          :exercisecount="exerciseCount"
-          :exerciseprogress="exerciseProgress"
-          :contentcount="contentCount"
-          :contentprogress="contentProgress"
-          :lastactive="pageState.content_scope_summary.last_active"
-          :singleuser="isSingleUser"
-          :usercount="userCount"
-          :completioncount="completionCount"
-          :userscompleted="usersCompleted"
-          :isrecentview="isRecentView"
-        ></summary-section>
+          :exerciseCount="exerciseCount"
+          :exerciseProgress="exerciseProgress"
+          :contentCount="contentCount"
+          :contentProgress="contentProgress"
+          :lastActive="pageState.content_scope_summary.last_active"
+          :singleUser="isSingleUser"
+          :userCount="userCount"
+          :completionCount="completionCount"
+          :isRecentView="isRecentView"/>
       </div>
 
       <!-- TABLE SECTION -->
@@ -46,58 +42,57 @@
       <!--VIEW-BY SWITCH-->
         <view-by-switch
           v-if="!isRecentView"
-          :iscontent="isViewByContent"
+          :isContent="isViewByContent"
           :vlink="viewByLink"
-          :disabled="isSingleUser || isSingleItem"
-        ></view-by-switch>
+          :disabled="isSingleUser || isSingleItem"/>
 
         <!--TABLE SECTION-->
         <table class="data-table">
           <thead>
             <tr>
-              <th class="coach-filter table-name" is="header-cell"
+              <th is="header-cell"
                 :text="$tr('name')"
                 :column="Constants.TableColumns.NAME"
-                class="name-col"
+                class="name-col coach-filter table-name"
               ></th>
-              <th class="coach-filter" is="header-cell"
+              <th is="header-cell"
                 :text="$tr('avg-exercise-progress')"
                 :column="Constants.TableColumns.EXERCISE"
-                class="progress-col"
+                class="progress-col coach-filter"
               ></th>
-              <th class="coach-filter" is="header-cell"
+              <th is="header-cell"
                 :text="$tr('avg-content-progress')"
                 :column="Constants.TableColumns.CONTENT"
-                class="progress-col"
+                class="progress-col coach-filter"
               ></th>
-              <th class="coach-filter" is="header-cell"
+              <th is="header-cell"
                 v-if="!isRecentView"
                 :text="$tr('last-activity')"
                 :column="Constants.TableColumns.DATE"
-                class="date-col"
+                class="date-col coach-filter"
               ></th>
             </tr>
           </thead>
-          <tbody>
-            <tr v-for="row in dataTable" track-by="id" transition="item">
+          <tbody is="transition-group" name="item">
+            <tr v-for="row in dataTable" :key="row.id">
               <th scope="row" class="name-col">
                 <item-cell
                   :kind="row.kind"
                   :title="row.title"
                   :id="row.id"
                   :parent="row.parent"
-                  :exercisecount="row.exerciseCount"
-                  :contentcount="row.contentCount"
-                ></item-cell>
+                  :exerciseCount="row.exerciseCount"
+                  :contentCount="row.contentCount"
+                />
               </th>
               <td class="progress-col">
-                <progress-cell :num="row.exerciseProgress" :isexercise="true"></progress-cell>
+                <progress-cell :num="row.exerciseProgress" :isExercise="true"/>
               </td>
               <td class="progress-col">
-                <progress-cell :num="row.contentProgress" :isexercise="false"></progress-cell>
+                <progress-cell :num="row.contentProgress" :isExercise="false"/>
               </td>
               <td class="date-col" v-if="!isRecentView">
-                <date-cell :date="row.lastActive"></date-cell>
+                <date-cell :date="row.lastActive"/>
               </td>
             </tr>
           </tbody>
@@ -233,7 +228,7 @@
     td, th
       padding: $col-padding
       text-align: left
-      
+
     .table-name
       text-align: left
 

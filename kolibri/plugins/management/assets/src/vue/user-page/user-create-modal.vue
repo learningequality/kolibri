@@ -11,42 +11,42 @@
       <section class="user-fields">
         <div class="user-field">
           <label for="name">Name</label>
-          <input @focus="clearErrorMessage" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
+          <input @focus="clearStatus" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
         </div>
 
         <div class="user-field">
           <label for="username">Username</label>
-          <input @focus="clearErrorMessage" type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
+          <input @focus="clearStatus" type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
         </div>
 
         <div class="user-field">
           <label for="password">Password</label>
-          <input @focus="clearErrorMessage" type="password" class="add-form" id="password" required v-model="password">
+          <input @focus="clearStatus" type="password" class="add-form" id="password" required v-model="password">
         </div>
 
         <div class="user-field">
           <label for="confirm-password">Confirm Password</label>
-          <input @focus="clearErrorMessage" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
+          <input @focus="clearStatus" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
         </div>
 
         <div class="user-field">
-          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-          <select @focus="clearErrorMessage" v-model="role" id="user-role">
-          <option value="learner" selected> Learner </option>
-          <option value="admin"> Admin </option>
+          <label for="user-kind"><span class="visuallyhidden">User Kind</span></label>
+          <select @focus="clearStatus" v-model="kind" id="user-kind">
+            <option :value="LEARNER"> Learner </option>
+            <option :value="COACH"> Coach </option>
+            <option :value="ADMIN"> Admin </option>
           </select>
         </div>
       </section>
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
-        <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
+        <p :class="{error: errorMessage}" v-if="statusMessage" aria-live="polite">{{statusMessage}}</p>
         <icon-button
           class="create-btn"
           text="Create Account"
-          @keydown.enter.stop
-          @click="createNewUser">
-        </icon-button>
+          @click="createNewUser"
+        />
       </section>
     </div>
   </core-modal>
@@ -57,6 +57,7 @@
 <script>
 
   const actions = require('../../actions');
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
     components: {
@@ -68,24 +69,39 @@
         password: '',
         passwordConfirm: '',
         full_name: '',
-        role: 'learner',
+        kind: UserKinds.LEARNER,
         errorMessage: '',
+        confirmationMessage: '',
       };
     },
-    attached() {
+    mounted() {
       // clear form on load
-      this.$data = this.$options.data();
+      Object.assign(this.$data, this.$options.data());
+    },
+    computed: {
+      LEARNER: () => UserKinds.LEARNER,
+      COACH: () => UserKinds.COACH,
+      ADMIN: () => UserKinds.ADMIN,
+      statusMessage() {
+        if (this.errorMessage) {
+          return this.errorMessage;
+        } else if (this.confirmationMessage) {
+          return this.confirmationMessage;
+        }
+        return false;
+      },
     },
     methods: {
       createNewUser() {
         const newUser = {
           username: this.username,
           full_name: this.full_name,
-          facility: this.facility,
+          facility_id: this.facility,
+          kind: this.kind,
         };
 
         // check for all fields populated
-        if (!(this.username && this.password && this.full_name && this.role)) {
+        if (!(this.username && this.password && this.full_name && this.kind)) {
           this.errorMessage = 'All fields are required';
         // check for password confirmation match
         } else if (!(this.password === this.passwordConfirm)) {
@@ -95,12 +111,13 @@
           newUser.password = this.password;
 
           // loading message
-          this.confirmation_message = 'Loading...';
+          this.confirmationMessage = 'Loading...';
           // using promise to ensure that the user is created before closing
-          this.createUser(newUser, this.role).then(
+          this.createUser(newUser).then(
             () => {
               this.close();
-            }).catch((error) => {
+            },
+            (error) => {
               if (error.status.code === 400) {
                 // access the first error message
                 this.errorMessage = error.entity[Object.keys(error.entity)[0]];
@@ -112,8 +129,8 @@
             });
         }
       },
-      clearErrorMessage() {
-        this.errorMessage = '';
+      clearStatus() {
+        this.errorMessage = this.confirmationMessage = '';
       },
       close() {
         this.$emit('close'); // signal parent to close

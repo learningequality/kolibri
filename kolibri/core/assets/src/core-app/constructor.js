@@ -5,6 +5,7 @@
 
 const vue = require('vue');
 const vuex = require('vuex');
+const router = require('vue-router');
 const Mediator = require('./mediator');
 const ResourceManager = require('../api-resource').ResourceManager;
 const Resources = require('../api-resources');
@@ -52,14 +53,10 @@ module.exports = class CoreApp {
 
     vue.prototype.Kolibri = this;
     /**
-     * Use vuex for state management.
+     * Use vuex and vue-router.
      */
     vue.use(vuex);
-
-    /**
-     * animated lists - TODO: remove in vue 2.0
-     */
-    vue.use(require('vue-animated-list'));
+    vue.use(router);
 
     // Register global components
     vue.component('content-renderer', require('../vue/content-renderer'));

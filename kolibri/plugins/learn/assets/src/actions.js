@@ -2,14 +2,13 @@ const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
 const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('./state/constants');
 const PageNames = constants.PageNames;
-const router = require('kolibri.coreVue.router');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 const coreGetters = require('kolibri.coreVue.vuex.getters');
 const coreApp = require('kolibri');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
-
+const router = require('kolibri.coreVue.router');
 
 /**
  * Vuex State Mappers
@@ -90,12 +89,12 @@ function redirectToExploreChannel(store) {
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (currentChannel) {
-        router.replace({
+        router.getInstance().replace({
           name: constants.PageNames.EXPLORE_CHANNEL,
           params: { channel_id: currentChannel.id },
         });
       } else {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
     error => { coreActions.handleApiError(store, error); }
@@ -111,12 +110,12 @@ function redirectToLearnChannel(store) {
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (currentChannel) {
-        router.replace({
+        router.getInstance().replace({
           name: constants.PageNames.LEARN_CHANNEL,
           params: { channel_id: currentChannel.id },
         });
       } else {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
     error => { coreActions.handleApiError(store, error); }
@@ -307,7 +306,6 @@ function showLearnContent(store, channelId, id) {
         recommended: recommended.map(_contentState),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
     },
     error => { coreActions.handleApiError(store, error); }

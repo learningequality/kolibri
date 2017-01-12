@@ -1,6 +1,6 @@
 
 const constants = require('./constants');
-const Vuex = require('vuex');
+const Vuex = require('kolibri.lib.vuex');
 const coreStore = require('kolibri.coreVue.vuex.store');
 
 const initialState = {

@@ -3,9 +3,8 @@
   <div>
     <div v-if="available" class="fill-height">
       <div class="content-wrapper">
-        {{ progressPercent }}%
-        <loading-spinner v-if="!currentViewClass"></loading-spinner>
-        <div v-el:container></div>
+        <loading-spinner v-if="!currentViewClass"/>
+        <div ref="container"></div>
       </div>
     </div>
     <div v-else>
@@ -78,11 +77,8 @@
         return this.availableFiles &&
           this.availableFiles.length ? this.availableFiles[0] : undefined;
       },
-      progressPercent() {
-        return Math.floor(this.progress * 100);
-      },
     },
-    init() {
+    beforeCreate() {
       this._eventListeners = [];
     },
     created() {
@@ -90,7 +86,7 @@
       // This means this component has to be torn down on channel switches.
       this.$watch('files', this.findRendererComponent);
     },
-    ready() {
+    mounted() {
       this.ready = true;
       this.renderContent();
     },
@@ -164,7 +160,8 @@
             // Only use non-enumerable, non-inherited properties of the props object.
             (name) => enumerables.indexOf(name) > -1
           );
-          for (const key of properties) {
+          for (let i = 0; i < properties.length; i++) {
+            const key = properties[i];
             // Loop through all the properties, see if one of them is extraFields.
             if (key !== 'extraFields') {
               // If it isn't just put it directly into the data.
@@ -181,7 +178,7 @@
             // Set the parent so that it is in the Vue family.
             parent: this,
             // Let it mount on the DOM in the container div set up in the template.
-            el: this.$els.container,
+            el: this.$refs.container,
             // Pass in the propsData!
             propsData,
           };
@@ -221,9 +218,6 @@
         updateProgress: actions.updateProgress,
         startTracking: actions.startTrackingProgress,
         stopTracking: actions.stopTrackingProgress,
-      },
-      getters: {
-        progress: (state) => state.core.logging.summary.progress,
       },
     },
   };

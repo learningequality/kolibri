@@ -1,37 +1,45 @@
 <template>
 
-  <nav-bar-item v-if="loggedIn" tabindex="0" @click="toggleDropdown" @keyup.enter="toggleDropdown">
-    <div class="wrapper">
+  <nav-bar-item
+    tabindex="0"
+    @click.native="navBarClicked"
+    @keyup.native.enter="navBarClicked"
+  >
+    <!-- Logged-in state -->
+    <div class="wrapper" v-if="loggedIn">
       <div class="user-icon" id="user-dropdown">{{ initial }}</div>
     </div>
-  </nav-bar-item>
 
-  <nav-bar-item v-else tabindex="0" @click="showLoginModal" @keyup.enter="showLoginModal">
-    <div class="wrapper">
-      <svg id="person" role="presentation" height="40" width="40" viewbox="0 0 24 24" src="./icons/person.svg"></svg>
+    <!-- Logged-out state -->
+    <div class="wrapper" v-else>
+      <svg id="person" class="person-icon" src="./icons/person.svg"/>
       <div class="label">{{ $tr('logIn') }}</div>
     </div>
+
+    <!-- backdrop and user pop-up -->
+    <div id="dropdown-backdrop" @click.stop="hideDropdown" v-show="showDropdown"></div>
+    <transition name="fade">
+      <div id="dropdown" v-show="showDropdown">
+        <div class="user-dropdown">
+          <ul class="dropdown-list">
+            <li>
+              <p class="dropdown-name">{{ name }}</p>
+              <p id="dropdown-username">{{ username }}</p>
+              <p id="dropdown-usertype">{{ userkind }}</p>
+            </li>
+            <li id="logout-tab">
+              <div tabindex="0" @keyup.enter="userLogout" @click="userLogout" :aria-label="logOutText">
+                <span>{{ $tr('logOut') }}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </transition>
+
+    <!-- log-in modal -->
+    <login-modal v-if="loginModalVisible"/>
   </nav-bar-item>
-
-  <div id="dropdown-backdrop" @click="toggleDropdown" v-show="showDropdown"></div>
-  <div id="dropdown" v-show="showDropdown" transition="slide">
-    <div class="user-dropdown">
-      <ul class="dropdown-list">
-        <li>
-          <p class="dropdown-name">{{ name }}</p>
-          <p id="dropdown-username">{{ username }}</p>
-          <p id="dropdown-usertype">{{ userkind }}</p>
-        </li>
-        <li id="logout-tab">
-          <div tabindex="0" @keyup.enter="userLogout" @click="userLogout" :aria-label="logOutText">
-            <span>{{ $tr('logOut') }}</span>
-          </div>
-        </li>
-      </ul>
-    </div>
-  </div>
-
-  <login-modal v-if="loginModalVisible"></login-modal>
 
 </template>
 
@@ -71,22 +79,25 @@
         return this.fullname;
       },
       userkind() {
-        if (this.deviceOwner) {
-          return '';
-        }
-        return this.kind;
+        return this.kind[0];
       },
       logOutText() {
         return this.$tr('logOut');
       },
     },
     methods: {
-      toggleDropdown() {
-        this.showDropdown = !this.showDropdown;
+      navBarClicked() {
+        if (this.loggedIn) {
+          this.showDropdown = !this.showDropdown;
+        } else {
+          this.showLoginModal();
+        }
+      },
+      hideDropdown() {
+        this.showDropdown = false;
       },
       userLogout() {
         this.logout(this.Kolibri);
-        this.showDropdown = false;
       },
     },
     vuex: {
@@ -138,7 +149,6 @@
 
   #dropdown
     position: absolute
-    z-index: 1
 
   #dropdown-backdrop
     position: fixed
@@ -146,14 +156,12 @@
     left: 0
     width: 100%
     height: 100%
-    z-index: 0
 
-  .slide-transition
-    transition: all 0.25s ease
-    left: 0
+  .fade-enter-active, .fade-leave-active
+    transition: opacity 0.5s
 
-  .slide-enter, .slide-leave
-    left: -300px
+  .fade-enter, .fade-leave-active
+    opacity: 0
 
   .user-dropdown
     box-shadow: 1px 1px 4px #e3e3e3
@@ -164,7 +172,6 @@
     width: 250px
     background: $core-bg-light
     text-align: left
-    z-index: -1
 
   .dropdown-list
     list-style: none
@@ -242,13 +249,8 @@
       right: 0
       text-align: right
 
-    .slide-transition
-      top: 0
-
-    .slide-enter, .slide-leave
-      top: 300px
-
     #dropdown
+      top: 0
       right: 0
 
     .dropdown-name
@@ -268,5 +270,9 @@
     transition: all 0.2s ease
     &:hover
       fill: $core-action-dark
+
+  .person-icon
+    width: 40px
+    height: 40px
 
 </style>

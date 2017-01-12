@@ -1,17 +1,16 @@
 <template>
 
   <h2>
-    <span v-if="userfullname">
-      <svg src="../icons/user.svg" class="icon"></svg>
-      {{ userfullname }} -
+    <span v-if="userFullName">
+      <svg src="../icons/user.svg" class="icon"/>
+      {{ userFullName }} -
     </span>
     <span>
       <content-icon
-        :kind="contentkind"
+        :kind="contentKind"
         colorstyle="text-default"
-        class="icon"
-      ></content-icon>
-      {{ contenttitle }}
+        class="icon"/>
+      {{ contentTitle }}
     </span>
   </h2>
 
@@ -22,15 +21,15 @@
 
   module.exports = {
     props: {
-      contentkind: {
+      contentKind: {
         type: String,
         required: true,
       },
-      contenttitle: {
+      contentTitle: {
         type: String,
         required: true,
       },
-      userfullname: {
+      userFullName: {
         type: String,
       },
     },
@@ -42,7 +41,8 @@
 <style lang="stylus" scoped>
 
   h2
-    margin: 0 0 15px 0
+    margin: 0
+    margin-bottom: 15px
     font-size: 1.3em
 
   .icon

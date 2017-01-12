@@ -2,7 +2,7 @@
 
   <div>
 
-    <component v-if="pageState.wizardState.shown" :is="wizardComponent"></component>
+    <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
     <div v-if="pageState.taskList.length" class="main alert-bg">
       <task-status
@@ -10,7 +10,7 @@
         :status="pageState.taskList[0].status"
         :percentage="pageState.taskList[0].percentage"
         :id="pageState.taskList[0].id"
-      ></task-status>
+      />
     </div>
 
     <div class="main light-bg">
@@ -21,16 +21,15 @@
             text="Import"
             class="button"
             @click="startImportWizard"
-            :primary="true"
-          >
-            <svg src="../icons/add.svg"></svg>
+            :primary="true">
+            <svg src="../icons/add.svg"/>
           </icon-button>
           <icon-button
             text="Export"
             class="button"
             :primary="true"
             @click="startExportWizard">
-            <svg src="../icons/export.svg"></svg>
+            <svg src="../icons/export.svg"/>
           </icon-button>
         </div>
       </div>
@@ -83,10 +82,10 @@
     data: () => ({
       intervalId: undefined,
     }),
-    attached() {
+    mounted() {
       this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
     },
-    detached() {
+    destroyed() {
       clearInterval(this.intervalId);
     },
     computed: {

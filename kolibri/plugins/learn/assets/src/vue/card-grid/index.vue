@@ -3,10 +3,10 @@
   <div>
     <div class="header">
       <h3 v-if="header">{{header}}</h3>
-      <slot name="headerbox"></slot>
+      <slot name="headerbox"/>
     </div>
     <div class="card-grid">
-      <slot></slot>
+      <slot/>
     </div>
   </div>
 

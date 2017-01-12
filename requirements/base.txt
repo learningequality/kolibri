@@ -15,4 +15,4 @@ porter2stemmer==1.0
 unicodecsv==0.14.1
 metafone==0.5
 le-utils==0.0.9rc11
-kolibri-exercise-perseus-renderer==0.0.2
+kolibri-exercise-perseus-renderer==0.2.6
