@@ -27,13 +27,13 @@ class Router {
   }
 
   init(routes) {
-    for (const route of routes) {
+    routes.forEach((route) => {
       if (route.handler) {
         // route.component = {};
         this._actions[route.name] = route.handler;
         delete route.handler;
       }
-    }
+    });
     this._vueRouter = new VueRouter({ routes });
     this._vueRouter.beforeEach(this._hook.bind(this));
     return this.getInstance();
