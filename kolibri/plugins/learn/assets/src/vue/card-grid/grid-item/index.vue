@@ -5,7 +5,7 @@
       <div class="card-thumbnail">
         <slot/>
         <div class="progress-icon-wrapper">
-          <progress-icon :progress="progress" :kind="kind" :showtext="false"/>
+          <progress-icon :progress="progress"/>
         </div>
       </div>
       <div class="card-content">
