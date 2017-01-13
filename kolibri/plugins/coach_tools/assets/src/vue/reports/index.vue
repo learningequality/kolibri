@@ -174,6 +174,7 @@
         const list = this.pageState.content_scope_summary.ancestors.map((item, index) => ({
           title: item.title,
           vlink: genLink(this.pageState, {
+            view_by_content_or_learners: Constants.ViewBy.CONTENT,
             content_scope: index ? Constants.ContentScopes.TOPIC : Constants.ContentScopes.ROOT,
             content_scope_id: item.pk,
           }),
