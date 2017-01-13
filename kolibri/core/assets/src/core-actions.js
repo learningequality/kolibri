@@ -1,5 +1,4 @@
 
-
 const cookiejs = require('js-cookie');
 const UserKinds = require('./constants').UserKinds;
 const MasteryLoggingMap = require('./constants').MasteryLoggingMap;
@@ -12,6 +11,7 @@ const intervalTimer = require('./timer');
 const intervalTime = 5000; // Frequency at which time logging is updated
 const progressThreshold = 0.1; // Update logs if user has reached 20% more progress
 const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
+
 
 
 /**
@@ -174,7 +174,8 @@ function handleResize(store, event) {
   debouncedSetWindowInfo(store);
 }
 
-function kolibriLogin(store, coreApp, sessionPayload) {
+function kolibriLogin(store, sessionPayload) {
+  const coreApp = require('kolibri');
   const SessionResource = coreApp.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
@@ -196,7 +197,8 @@ function kolibriLogin(store, coreApp, sessionPayload) {
   });
 }
 
-function kolibriLogout(store, coreApp) {
+function kolibriLogout(store) {
+  const coreApp = require('kolibri');
   const SessionResource = coreApp.resources.SessionResource;
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
@@ -209,7 +211,8 @@ function kolibriLogout(store, coreApp) {
   }).catch(error => { handleApiError(store, error); });
 }
 
-function getCurrentSession(store, coreApp) {
+function getCurrentSession(store) {
+  const coreApp = require('kolibri');
   const SessionResource = coreApp.resources.SessionResource;
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
@@ -234,7 +237,8 @@ function cancelLoginModal(store, bool) {
  * Create models to store logging information
  * To be called on page load for content renderers
  */
-function initContentSession(store, coreApp, channelId, contentId, contentKind) {
+function initContentSession(store, channelId, contentId, contentKind) {
+  const coreApp = require('kolibri');
   const ContentSessionLogResource = coreApp.resources.ContentSessionLogResource;
   const ContentSummaryLogResource = coreApp.resources.ContentSummaryLogResource;
 
@@ -345,7 +349,8 @@ function initContentSession(store, coreApp, channelId, contentId, contentKind) {
 /*
  * Set channel state info.
  */
-function _setChannelState(store, coreApp, currentChannelId, channelList) {
+function _setChannelState(store, currentChannelId, channelList) {
+  const coreApp = require('kolibri');
   store.dispatch('SET_CORE_CHANNEL_LIST', channelList);
   store.dispatch('SET_CORE_CURRENT_CHANNEL', currentChannelId);
   coreApp.resources.ContentNodeResource.setChannel(currentChannelId);
@@ -360,12 +365,13 @@ function _setChannelState(store, coreApp, currentChannelId, channelList) {
 /*
  * If channelId is null, choose it automatically
  */
-function setChannelInfo(store, coreApp, channelId = null) {
+function setChannelInfo(store, channelId = null) {
+  const coreApp = require('kolibri');
   return coreApp.resources.ChannelResource.getCollection({}, true).fetch().then(
     channelsData => {
       const channelList = _channelListState(channelsData);
       const thisChannelId = channelId || getDefaultChannelId(channelList);
-      _setChannelState(store, coreApp, thisChannelId, channelList);
+      _setChannelState(store, thisChannelId, channelList);
     },
     error => { handleApiError(store, error); }
   );
@@ -376,7 +382,8 @@ function setChannelInfo(store, coreApp, channelId = null) {
  * Do a PATCH to update existing logging models
  * Must be called after initContentSession
  */
-function saveLogs(store, coreApp) {
+function saveLogs(store) {
+  const coreApp = require('kolibri');
   const ContentSessionLogResource = coreApp.resources.ContentSessionLogResource;
   const ContentSummaryLogResource = coreApp.resources.ContentSummaryLogResource;
   /* Create aliases for logs */
@@ -407,7 +414,7 @@ function saveLogs(store, coreApp) {
 /**
 summary and session log progress update for exercise
 **/
-function updateExerciseProgress(store, coreApp, progressPercent, forceSave = false) {
+function updateExerciseProgress(store, progressPercent, forceSave = false) {
   /* Update the logging state with new progress information */
   store.dispatch('SET_LOGGING_PROGRESS', progressPercent, progressPercent);
 
@@ -418,7 +425,7 @@ function updateExerciseProgress(store, coreApp, progressPercent, forceSave = fal
 
   /* Save models if needed */
   if (forceSave || progressPercent === 1) {
-    saveLogs(store, coreApp);
+    saveLogs(store);
   }
 }
 
@@ -430,7 +437,7 @@ function updateExerciseProgress(store, coreApp, progressPercent, forceSave = fal
  * @param {float} progressPercent
  * @param {boolean} forceSave
  */
-function updateProgress(store, coreApp, progressPercent, forceSave = false) {
+function updateProgress(store, progressPercent, forceSave = false) {
   /* Create aliases for logs */
   const summaryLog = store.state.core.logging.summary;
   const sessionLog = store.state.core.logging.session;
@@ -458,7 +465,7 @@ function updateProgress(store, coreApp, progressPercent, forceSave = false) {
 
   /* Save models if needed */
   if (forceSave || completedContent || progressThresholdMet) {
-    saveLogs(store, coreApp);
+    saveLogs(store);
   }
 }
 
@@ -469,7 +476,7 @@ function updateProgress(store, coreApp, progressPercent, forceSave = false) {
  * Must be called after initContentSession
  * @param {boolean} forceSave
  */
-function updateTimeSpent(store, coreApp, forceSave = false) {
+function updateTimeSpent(store, forceSave = false) {
   /* Create aliases for logs */
   const summaryLog = store.state.core.logging.summary;
   const sessionLog = store.state.core.logging.session;
@@ -488,7 +495,7 @@ function updateTimeSpent(store, coreApp, forceSave = false) {
 
   /* Save models if needed */
   if (forceSave || timeThresholdMet) {
-    saveLogs(store, coreApp);
+    saveLogs(store);
   }
 }
 
@@ -497,9 +504,9 @@ function updateTimeSpent(store, coreApp, forceSave = false) {
  * Start interval timer and set start time
  * @param {int} interval
  */
-function startTrackingProgress(store, coreApp, interval = intervalTime) {
+function startTrackingProgress(store, interval = intervalTime) {
   intervalTimer.startTimer(interval, () => {
-    updateTimeSpent(store, coreApp, false);
+    updateTimeSpent(store, false);
   });
 }
 
@@ -521,12 +528,13 @@ function samePageCheckGenerator(store) {
  * Stop interval timer and update latest times
  * Must be called after startTrackingProgress
  */
-function stopTrackingProgress(store, coreApp) {
+function stopTrackingProgress(store) {
   intervalTimer.stopTimer();
   updateTimeSpent(store, coreApp, true);
 }
 
-function saveMasteryLog(store, coreApp) {
+function saveMasteryLog(store) {
+  const coreApp = require('kolibri');
   const masteryLogModel = coreApp.resources.MasteryLog.getModel(
     store.state.core.logging.mastery.id);
   masteryLogModel.save(_masteryLogModel(store)).only(
@@ -542,7 +550,8 @@ function setMasteryLogComplete(store, completetime) {
   store.dispatch('SET_LOGGING_MASTERY_COMPLETE', completetime);
 }
 
-function createMasteryLog(store, coreApp, masteryLevel, masteryCriterion) {
+function createMasteryLog(store, masteryLevel, masteryCriterion) {
+  const coreApp = require('kolibri');
   const masteryLogModel = coreApp.resources.MasteryLog.createModel({
     id: null,
     summarylog: store.state.core.logging.summary.id,
@@ -565,11 +574,12 @@ function createMasteryLog(store, coreApp, masteryLevel, masteryCriterion) {
   );
 }
 
-function createDummyMasteryLog(store, coreApp) {
+function createDummyMasteryLog(store) {
   /*
   Create a client side masterylog for anonymous user for tracking attempt-progress.
   This masterylog will never be saved in the database.
   */
+  const coreApp = require('kolibri');
   const masteryLogModel = coreApp.resources.MasteryLog.createModel({
     id: null,
     summarylog: null,
@@ -586,7 +596,8 @@ function createDummyMasteryLog(store, coreApp) {
   store.dispatch('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
 }
 
-function saveAttemptLog(store, coreApp) {
+function saveAttemptLog(store) {
+  const coreApp = require('kolibri');
   const attemptLogModel = coreApp.resources.AttemptLog.getModel(
     store.state.core.logging.attempt.id);
   const promise = attemptLogModel.save(_attemptLogModel(store));
@@ -597,7 +608,8 @@ function saveAttemptLog(store, coreApp) {
   return promise;
 }
 
-function createAttemptLog(store, coreApp, itemId) {
+function createAttemptLog(store, itemId) {
+  const coreApp = require('kolibri');
   const attemptLogModel = coreApp.resources.AttemptLog.createModel({
     id: null,
     masterylog: store.state.core.logging.mastery.id || null,
@@ -624,7 +636,7 @@ function updateAttemptLogInteractionHistory(store, interaction) {
 /**
  * Initialize assessment mastery log
  */
-function initMasteryLog(store, coreApp, masterySpacingTime, masteryCriterion) {
+function initMasteryLog(store, masterySpacingTime, masteryCriterion) {
   if (!store.state.core.logging.mastery.id) {
     // id has not been set on the masterylog state, so this is undefined.
     // Either way, we need to create a new masterylog, with a masterylevel of 1!
@@ -636,7 +648,7 @@ function initMasteryLog(store, coreApp, masterySpacingTime, masteryCriterion) {
     // masterySpacingTime time ago!
     // This means we need to level the user up.
     createMasteryLog(
-      store, coreApp, store.state.core.logging.mastery.mastery_level + 1, masteryCriterion);
+      store, store.state.core.logging.mastery.mastery_level + 1, masteryCriterion);
   }
 }
 
@@ -644,7 +656,6 @@ function updateMasteryAttemptState(store, currentTime, correct, complete, firstA
   store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt, hinted);
   store.dispatch('UPDATE_LOGGING_ATTEMPT', currentTime, correct, complete, hinted);
 }
-
 
 module.exports = {
   handleError,

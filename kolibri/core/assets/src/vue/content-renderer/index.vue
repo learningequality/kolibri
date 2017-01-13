@@ -204,13 +204,13 @@
         // Assume that as soon as we have started tracking data for this content item,
         // our ContentNode cache is no longer valid.
         this.Kolibri.resources.ContentNodeResource.unCacheModel(this.id);
-        this.startTracking(this.Kolibri);
+        this.startTracking();
       },
       wrappedStopTracking() {
-        this.stopTracking(this.Kolibri);
+        this.stopTracking();
       },
       wrappedUpdateProgress(progress) {
-        this.updateProgress(this.Kolibri, progress);
+        this.updateProgress(progress);
       },
     },
     vuex: {
