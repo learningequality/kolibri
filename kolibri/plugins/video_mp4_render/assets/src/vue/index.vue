@@ -1,8 +1,10 @@
 <template>
 
-  <div ref="videowrapperwrapper" class="videowrapperwrapper">
-    <loading-spinner v-if="loading"/>
-    <div ref="videowrapper" v-show="!loading" class="videowrapper">
+  <div ref="wrapper" class="wrapper">
+    <div v-show="loading" class="fill-space">
+      <loading-spinner/>
+    </div>
+    <div v-show="!loading" class="fill-space">
       <video ref="video" class="video-js vjs-default-skin" @seeking="handleSeek" @timeupdate="updateTime">
         <template v-for="video in videoSources">
           <source :src="video.storage_url" :type="'video/' + video.extension">
@@ -93,26 +95,10 @@
       },
 
       resizeVideo() {
-        const wrapperWrapperWidth = this.$refs.videowrapperwrapper.clientWidth;
-        const wrapperWrapperHeight = this.$refs.videowrapperwrapper.clientHeight;
-
+        const wrapperWidth = this.$refs.wrapper.clientWidth;
         const aspectRatio = 16 / 9;
-
-        const neededHeightGivenWidth = wrapperWrapperWidth * (1 / aspectRatio);
-        const neededWidthGivenHeight = wrapperWrapperHeight * aspectRatio;
-
-        let newWidth = 0;
-        let newHeight = 0;
-
-        if (neededHeightGivenWidth <= wrapperWrapperHeight) {
-          newWidth = wrapperWrapperWidth;
-          newHeight = neededHeightGivenWidth;
-        } else {
-          newWidth = neededWidthGivenHeight;
-          newHeight = wrapperWrapperHeight;
-        }
-
-        this.$refs.videowrapper.setAttribute('style', `width:${newWidth}px;height:${newHeight}px`);
+        const adjustedHeight = wrapperWidth * (1 / aspectRatio);
+        this.$refs.wrapper.setAttribute('style', `height:${adjustedHeight}px`);
       },
 
       throttledResizeVideo: throttle(function resizeVideo() {
@@ -158,8 +144,8 @@
       },
 
       focusOnPlayControl() {
-        const videoWrapper = this.$refs.videowrapper;
-        videoWrapper.getElementsByClassName('vjs-play-control')[0].focus();
+        const wrapper = this.$refs.wrapper;
+        wrapper.getElementsByClassName('vjs-play-control')[0].focus();
       },
     },
 
@@ -171,42 +157,44 @@
     },
 
     mounted() {
-      this.videoPlayer = videojs(this.$refs.video, {
-        fluid: true,
-        aspectRatio: '16:9',
-        autoplay: false,
-        controls: true,
-        textTrackDisplay: true,
-        bigPlayButton: true,
-        inactivityTimeout: 1000,
-        preload: 'metadata',
-        // poster: this.posterSource,
-        playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
-        controlBar: {
-          children: [
-            { name: 'playToggle' },
-            { name: 'ReplayButton' },
-            { name: 'ForwardButton' },
-            { name: 'currentTimeDisplay' },
-            { name: 'timeDivider' },
-            { name: 'durationDisplay' },
-            { name: 'progressControl' },
-            {
-              name: 'VolumeMenuButton',
-              inline: false,
-              vertical: true,
-            },
-            { name: 'playbackRateMenuButton' },
-            { name: 'captionsButton' },
-            { name: 'fullscreenToggle' },
-          ],
-        },
-      });
+      this.$nextTick(() => {
+        this.videoPlayer = videojs(this.$refs.video, {
+          fluid: true,
+          aspectRatio: '16:9',
+          autoplay: false,
+          controls: true,
+          textTrackDisplay: true,
+          bigPlayButton: true,
+          inactivityTimeout: 1000,
+          preload: 'metadata',
+          // poster: this.posterSource,
+          playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
+          controlBar: {
+            children: [
+              { name: 'playToggle' },
+              { name: 'ReplayButton' },
+              { name: 'ForwardButton' },
+              { name: 'currentTimeDisplay' },
+              { name: 'timeDivider' },
+              { name: 'durationDisplay' },
+              { name: 'progressControl' },
+              {
+                name: 'VolumeMenuButton',
+                inline: false,
+                vertical: true,
+              },
+              { name: 'playbackRateMenuButton' },
+              { name: 'captionsButton' },
+              { name: 'fullscreenToggle' },
+            ],
+          },
+        });
 
-      this.videoPlayer.on('loadedmetadata', this.loadedMetaData);
-      this.videoPlayer.on('play', this.focusOnPlayControl);
-      this.videoPlayer.on('pause', this.focusOnPlayControl);
-      global.addEventListener('resize', this.throttledResizeVideo);
+        this.videoPlayer.on('loadedmetadata', this.loadedMetaData);
+        this.videoPlayer.on('play', this.focusOnPlayControl);
+        this.videoPlayer.on('pause', this.focusOnPlayControl);
+        global.addEventListener('resize', this.throttledResizeVideo);
+      });
     },
 
     beforeDestroy() {
@@ -220,13 +208,32 @@
 </script>
 
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
   // Unable to reference the videojs using require since videojs doesn't have good webpack support
   @import '../../../node_modules/video.js/dist/video-js.css'
   // Custom build icons.
   @import '../videojs-font/css/videojs-icons.css'
+
+  // Containers
+  .wrapper
+    width: 854px
+    height: 480px
+    max-width: 100%
+    max-height: 480px
+
+  .fill-space
+    width: 100%
+    height: 100%
+
+</style>
+
+
+<style lang="stylus">
+
+  // UNSCOPED
+
+  @require '~kolibri.styles.coreTheme'
 
   // Shades of Grey
   $dark-grey = #212121
@@ -237,21 +244,6 @@
   $video-player-color = $dark-grey
   $video-player-accent-color = #9c27b0
   $video-player-font-size = 14px
-
-  // Containers
-  .videowrapperwrapper
-    width: 100%
-    height: 480px
-    background-color: rgba(0, 0, 0, 0)
-    position: relative
-
-  .videowrapper
-    top: 50%
-    left: 50%
-    transform: translate(-50%, -50%)
-    position: relative
-    height: 100%
-    background-color: black
 
   // Video Player
   .video-js
@@ -330,7 +322,6 @@
       background-color: $video-player-color
 
     .vjs-control-bar
-      display: block
       display: flex
 
     // Menus
@@ -356,6 +347,16 @@
     .vjs-duration,
     .vjs-time-divider
       display: inline-block
+
+    .vjs-current-time
+      padding-right: 0
+
+    .vjs-time-divider
+      padding: 0
+      text-align: center
+
+    .vjs-duration
+      padding-left: 0
 
     .vjs-volume-menu-button
       margin-left: auto
