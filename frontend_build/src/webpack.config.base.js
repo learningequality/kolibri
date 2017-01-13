@@ -149,7 +149,7 @@ if (process.env.LINT || process.env.NODE_ENV === 'production') {
     },
     vue: {
       loaders: {
-        stylus: 'vue-style-loader!css-loader?sourceMap!stylus-loader!stylint'
+        stylus: 'vue-style-loader!css-loader?sourceMap!postcss-loader!stylus-loader!stylint'
       }
     },
   };
