@@ -66,6 +66,11 @@ var readBundlePlugin = function(base_dir) {
   // One bundle is special - that is the one for the core bundle.
   var core_bundle = _.find(bundles, function(bundle) {return bundle.core_name && bundle.core_name !== null;});
 
+  // Check that there is only one core bundle and throw an error if there is more than one.
+  if (_.filter(bundles, function(bundle) {return bundle.core_name && bundle.core_name !== null;}).length > 1) {
+    throw new RangeError('You have more than one core bundle specified.');
+  }
+
   // For that bundle, we replace all references to library modules (like Backbone) that we bundle into the core app
   // with references to the core app itself, so if someone does `var Backbone = require('backbone');` webpack
   // will replace it with a reference to Bacbkone bundled into the core Kolibri app.

@@ -151,7 +151,7 @@ describe('readBundlePlugins', function() {
     });
   });
   describe('two external flags on inputs, one with core_name value, externals output', function() {
-    it('should have one entry', function (done) {
+    it('should have two entries', function (done) {
       var coreData = _.clone(baseData);
       coreData.external = true;
       coreData.core_name = "test_global";
@@ -161,12 +161,12 @@ describe('readBundlePlugins', function() {
         coreData,
         coreData1
       ];
-      assert(Object.keys(readBundlePlugins("", function(){return {};})[0].externals).length === 1);
+      assert(Object.keys(readBundlePlugins("", function(){return {};})[0].externals).length === 2);
       done();
     });
   });
-  describe('two identically named external flags on inputs, externals output', function() {
-    it('should have one entry', function (done) {
+  describe('two core bundles specified', function() {
+    it('should throw an error', function (done) {
       var coreData = _.clone(baseData);
       coreData.external = true;
       coreData.core_name = "test_global";
@@ -178,7 +178,7 @@ describe('readBundlePlugins', function() {
         coreData,
         coreData1
       ];
-      assert(Object.keys(readBundlePlugins("", function(){return {};})[0].externals).length === 1);
+      assert.throws(function() {readBundlePlugins("", function(){return {};});});
       done();
     });
   });
