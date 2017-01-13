@@ -37,8 +37,6 @@
       </div>
     </transition>
 
-    <!-- log-in modal -->
-    <login-modal v-if="loginModalVisible"/>
   </nav-bar-item>
 
 </template>
@@ -57,7 +55,6 @@
     },
     components: {
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
-      'login-modal': require('./login-modal'),
     },
     data: () => ({
       showDropdown: false,
@@ -111,7 +108,6 @@
         fullname: state => state.core.session.full_name,
         username: state => state.core.session.username,
         kind: state => state.core.session.kind,
-        loginModalVisible: state => state.core.loginModalVisible,
       },
     },
   };
