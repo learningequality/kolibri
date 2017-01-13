@@ -14,7 +14,10 @@
     <div class="tabcontents">
       <div class="top-section">
         <!--CONTENT BREADCRUMBS-->
-        <breadcrumbs :list="contentBreadcrumbs"/>
+        <breadcrumbs
+          v-if="!isRecentView && contentBreadcrumbs.length > 1"
+          :list="contentBreadcrumbs"
+        />
 
         <!--HEADER SECTION-->
         <report-header
