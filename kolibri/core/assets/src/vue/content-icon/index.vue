@@ -22,6 +22,10 @@
       src="./content-icons/exercise.svg"
       :class="[colorClass]"/>
     <svg
+      v-if="is(Constants.ContentNodeKinds.HTML5)"
+      src="./content-icons/widget.svg"
+      :class="[colorClass]"/>
+    <svg
       v-if="is(Constants.USER)"
       src="./content-icons/user.svg"
       :class="[colorClass]"/>
