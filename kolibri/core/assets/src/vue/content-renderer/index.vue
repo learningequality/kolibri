@@ -175,6 +175,7 @@
           propsData.defaultFile = this.defaultFile;
           // Create an options object for the soon to be instantiated renderer component.
           const options = {
+            name: 'content-renderer-child',
             // Set the parent so that it is in the Vue family.
             parent: this,
             // Let it mount on the DOM in the container div set up in the template.
