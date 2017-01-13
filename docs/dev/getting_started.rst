@@ -103,6 +103,17 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
 
   Most functionality works fine in the devserver, but some issues exist with streaming media such as videos and audio.
 
+.. tip::
+
+  If you need to make the development server available through the LAN, you must leave out the ``--webpack`` flag, and use the following command:
+
+  .. code-block:: bash
+
+    npm run build
+    kolibri manage devserver --debug -- 0.0.0.0:8000 --qcluster
+
+  Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
+
 
 Running the Production Server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
