@@ -192,6 +192,5 @@
 
   .fade-enter, .fade-leave-active
     opacity: 0
-    transform: scale(1.1)
 
 </style>
