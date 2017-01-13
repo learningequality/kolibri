@@ -530,7 +530,7 @@ function samePageCheckGenerator(store) {
  */
 function stopTrackingProgress(store) {
   intervalTimer.stopTimer();
-  updateTimeSpent(store, coreApp, true);
+  updateTimeSpent(store, true);
 }
 
 function saveMasteryLog(store) {
@@ -640,7 +640,7 @@ function initMasteryLog(store, masterySpacingTime, masteryCriterion) {
   if (!store.state.core.logging.mastery.id) {
     // id has not been set on the masterylog state, so this is undefined.
     // Either way, we need to create a new masterylog, with a masterylevel of 1!
-    createMasteryLog(store, coreApp, 1, masteryCriterion);
+    createMasteryLog(store, 1, masteryCriterion);
   } else if (store.state.core.logging.mastery.complete &&
     ((new Date() - new Date(store.state.core.logging.mastery.completion_timestamp)) >
       masterySpacingTime)) {
