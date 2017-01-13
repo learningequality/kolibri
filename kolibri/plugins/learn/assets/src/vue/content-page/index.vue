@@ -2,7 +2,7 @@
 
   <div>
 
-    <page-header :title="content.title"></page-header>
+    <page-header :title="content.title"/>
 
     <content-renderer
       v-show="!searchOpen"
@@ -10,26 +10,25 @@
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
-      :content-id="content.content_id"
-      :channel-id="channelId"
+      :contentId="content.content_id"
+      :channelId="channelId"
       :available="content.available"
-      :extra-fields="content.extra_fields">
-    </content-renderer>
+      :extraFields="content.extra_fields"/>
 
-    <icon-button v-link="nextContentLink" v-if="progress >= 1 && showNextBtn" class="next-btn">
-    {{ $tr("nextContent") }}
-    <svg class="right-arrow" src="../icons/arrow_right.svg"></svg></icon-button>
+    <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn">
+      {{ $tr("nextContent") }}
+      <svg class="right-arrow" src="../icons/arrow_right.svg"/>
+    </icon-button>
 
     <p class="page-description">{{ content.description }}</p>
 
-    <download-button v-if="canDownload" :files="content.files"></download-button>
+    <download-button v-if="canDownload" :files="content.files"/>
 
     <expandable-content-grid
       class="recommendation-section"
       v-if="pageMode === Constants.PageModes.LEARN"
       :title="recommendedText"
-      :contents="recommended">
-    </expandable-content-grid>
+      :contents="recommended"/>
 
   </div>
 
@@ -79,18 +78,23 @@
         if (this.content.next_content.kind !== ContentNodeKinds.TOPIC) {
           return {
             name: this.pagename,
-            params: { id: this.content.next_content.id },
+            params: { channel_id: this.channelId, id: this.content.next_content.id },
           };
         }
         return {
           name: Constants.PageNames.EXPLORE_TOPIC,
-          params: { id: this.content.next_content.id },
+          params: { channel_id: this.channelId, id: this.content.next_content.id },
         };
       },
     },
     components: {
       'page-header': require('../page-header'),
       'expandable-content-grid': require('../expandable-content-grid'),
+    },
+    methods: {
+      nextContentClicked() {
+        this.$router.push(this.nextContentLink);
+      },
     },
     vuex: {
       getters: {

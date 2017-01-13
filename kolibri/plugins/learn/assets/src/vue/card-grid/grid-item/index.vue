@@ -1,25 +1,24 @@
 <template>
 
-  <a>
+  <router-link :to="link">
     <div class="card">
       <div class="card-thumbnail">
-        <slot></slot>
+        <slot/>
         <div class="progress-icon-wrapper">
-          <progress-icon :progress="progress" :kind="kind" :showtext="false"></progress-icon>
+          <progress-icon :progress="progress"/>
         </div>
       </div>
       <div class="card-content">
         <content-icon
           class="outer-content-icon"
           v-if="kind"
-          :kind="kind">
-        </content-icon>
+          :kind="kind"/>
         <div class="text">
           {{ title }}
         </div>
       </div>
     </div>
-  </a>
+  </router-link>
 
 </template>
 
@@ -39,6 +38,10 @@
       progress: {
         type: Number,
         required: false,
+      },
+      link: {
+        type: Object,
+        required: true,
       },
     },
   };

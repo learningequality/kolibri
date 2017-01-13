@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <list-item v-link="link" :title="title">
+    <list-item :link="link" :title="title">
       <div class="thumbnail"></div>
     </list-item>
   </div>
@@ -22,6 +22,10 @@
         type: String,
         required: true,
       },
+      channelId: {
+        type: String,
+        required: true,
+      },
       title: {
         type: String,
         required: true,
@@ -31,7 +35,7 @@
       link() {
         return {
           name: constants.PageNames.EXPLORE_TOPIC,
-          params: { id: this.id },
+          params: { channel_id: this.channelId, id: this.id },
         };
       },
     },

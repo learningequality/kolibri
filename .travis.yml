@@ -17,47 +17,43 @@ matrix:
     - python: "2.7"
       env:
         - TOX_ENV=pythonbuild2.7
-        - TRAVIS_NODE_VERSION="0.12"
+        - TRAVIS_NODE_VERSION="4"
     - python: "3.4"
       env:
         - TOX_ENV=pythonbuild3.4
-        - TRAVIS_NODE_VERSION="0.12"
+        - TRAVIS_NODE_VERSION="4"
     - python: "3.5"
       env:
         - TOX_ENV=pythonbuild3.5
-        - TRAVIS_NODE_VERSION="0.12"
+        - TRAVIS_NODE_VERSION="4"
     - python: "2.7"
       env:
         - TOX_ENV=pythonlint
-        - TRAVIS_NODE_VERSION="0.12"
+        - TRAVIS_NODE_VERSION="4"
     - python: "2.7"
       env:
         - TOX_ENV=licenses
-        - TRAVIS_NODE_VERSION="0.12"
+        - TRAVIS_NODE_VERSION="4"
     - python: "2.7"
       env:
         - TOX_ENV=py2.7
-        - TRAVIS_NODE_VERSION="0.12"
+        - TRAVIS_NODE_VERSION="4"
     - python: "2.7"
       env:
         - TOX_ENV=docs
-        - TRAVIS_NODE_VERSION="0.12"
+        - TRAVIS_NODE_VERSION="4"
     - python: "2.7"
       env:
         - TOX_ENV=bdd
-        - TRAVIS_NODE_VERSION="0.12"
+        - TRAVIS_NODE_VERSION="4"
     - python: "3.4"
       env:
         - TOX_ENV=py3.4
-        - TRAVIS_NODE_VERSION="0.12"
+        - TRAVIS_NODE_VERSION="4"
     - python: "3.5"
       env:
         - TOX_ENV=py3.5
-        - TRAVIS_NODE_VERSION="0.12"
-    - python: "2.7"
-      env:
-        - TOX_ENV=node0.12.x
-        - TRAVIS_NODE_VERSION="0.12"
+        - TRAVIS_NODE_VERSION="4"
     - python: "2.7"
       env:
         - TOX_ENV=node4.x
@@ -69,7 +65,7 @@ matrix:
     - python: "2.7"
       env:
         - TOX_ENV=postgres
-        - TRAVIS_NODE_VERSION="0.12"
+        - TRAVIS_NODE_VERSION="4"
     - python: "2.7"
       env:
         - TOX_ENV=npmbuild

@@ -35,6 +35,10 @@ class ZipContentView(View):
 
         with zipfile.ZipFile(zipped_path) as zf:
 
+            # if no path, or a directory, is being referenced, look for an index.html file
+            if not embedded_filepath or embedded_filepath.endswith("/"):
+                embedded_filepath += "index.html"
+
             # get the details about the embedded file, and ensure it exists
             try:
                 info = zf.getinfo(embedded_filepath)
@@ -70,6 +74,9 @@ class ZipContentView(View):
 
         # ensure the browser knows not to try byte-range requests, as we don't support them here
         response["Accept-Ranges"] = "none"
+
+        # allow all origins so that content can be read from within zips within sandboxed iframes
+        response["Access-Control-Allow-Origin"] = "*"
 
         return response
 

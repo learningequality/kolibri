@@ -4,41 +4,49 @@
 
     <!--TOPICS-->
     <div v-if="kind === Kinds.TOPIC" class="summary-section-row">
-      <div class="summary-section-details">
-        {{ $tr('exerciseCountText', {count: exercisecount}) }} ● {{ $tr('contentCountText', {count: contentcount}) }}
-      </div>
+
+      <div class="summary-section-details"></div>
 
       <div class="summary-section-progress">
+        <div class="summary-section-details">
+          {{ $tr('exerciseCountText', {count: exerciseCount}) }}
+        </div>
         <div class="summary-section-heading">{{ $tr('exerciseProgress') }}</div>
-        <progress-bar v-if="exerciseprogress !== undefined" :progress="exerciseprogress"></progress-bar>
+        <progress-bar v-if="exerciseProgress !== undefined" :progress="exerciseProgress"/>
         <div v-else>{{ $tr('na') }}</div>
       </div>
 
       <div class="summary-section-progress">
+        <div class="summary-section-details">
+          {{ $tr('contentCountText', {count: contentCount}) }}
+        </div>
         <div class="summary-section-heading">{{ $tr('contentProgress') }}</div>
-        <progress-bar v-if="contentprogress !== undefined" :progress="contentprogress"></progress-bar>
+        <progress-bar v-if="contentProgress !== undefined" :progress="contentProgress"/>
         <div v-else>{{ $tr('na') }}</div>
       </div>
 
-      <div v-if="!isrecentview" class="summary-section-date">
-        <div class="summary-section-heading">{{ $tr('lastActive') }}:</div>
+      <div v-if="!isRecentView" class="summary-section-date">
+        <div class="summary-section-details">{{ $tr('lastActive') }}:</div>
         {{ lastActiveDate }}
       </div>
+
     </div>
 
 
     <!--EXERCISES-->
     <div v-if="kind === Kinds.EXERCISE" class="summary-section-row">
-      <div class="summary-section-details">
 
-      </div>
+      <div class="summary-section-details"></div>
 
-      <div v-if="singleuser" class="summary-section-progress">
-        <progress-icon :progress="1" :kind="kind" :showtext="true"></progress-icon>
+      <div v-if="singleUser" class="summary-section-progress">
+        <progress-icon :progress="contentProgress"/>
+        <span v-if="isCompleted">{{ $tr('mastered') }}</span>
+        <span v-else-if="isInProgress">{{ $tr('inProgress') }}</span>
+        <span v-else>{{ $tr('notStarted') }}</span>
       </div>
 
       <div v-else class="summary-section-progress">
-        {{ completioncount }}/{{ usercount }} {{ $tr('mastered') }}
+        {{ completionCount }}/{{ userCount }} {{ $tr('mastered') }}
       </div>
 
       <div class="summary-section-date">
@@ -46,22 +54,35 @@
         <br>
         {{ lastActiveDate }}
       </div>
+
     </div>
 
 
     <!--VIDEO/AUDIO-->
     <div v-if="kind === (Kinds.VIDEO || Kinds.AUDIO)" class="summary-section-row">
-      <div class="summary-section-details">
 
-      </div>
+      <div class="summary-section-details"></div>
 
-      <div v-if="singleuser" class="summary-section-progress">
-        <progress-icon :progress="contentprogress" :kind="kind" :showtext="true"></progress-icon>
+      <div v-if="singleUser" class="summary-section-progress">
+        <progress-icon :progress="contentProgress"/>
+
+        <span v-if="(kind === Kinds.VIDEO)">
+          <span v-if="isCompleted">{{ $tr('watched') }}</span>
+          <span v-else-if="isInProgress">{{ $tr('inProgress') }}</span>
+          <span v-else>{{ $tr('notWatched') }}</span>
+        </span>
+
+        <span v-if="(kind === Kinds.AUDIO)">
+          <span v-if="isCompleted">{{ $tr('listened') }}</span>
+          <span v-else-if="isInProgress">{{ $tr('inProgress') }}</span>
+          <span v-else>{{ $tr('notListened') }}</span>
+        </span>
+
       </div>
 
 
       <div v-else class="summary-section-progress">
-        {{ completioncount }}/{{ usercount }}
+        {{ completionCount }}/{{ userCount }}
         <span v-if="kind === Kinds.VIDEO">{{ $tr('watched') }}</span>
         <span v-else>{{ $tr('listened') }}</span>
       </div>
@@ -71,21 +92,24 @@
         <br>
         {{ lastActiveDate }}
       </div>
+
     </div>
 
 
     <!--DOCUMENTS-->
     <div v-if="kind === Kinds.DOCUMENT" class="summary-section-row">
-      <div class="summary-section-details">
 
-      </div>
+      <div class="summary-section-details"></div>
 
-      <div v-if="singleuser" class="summary-section-progress">
-        <progress-icon :progress="contentprogress" :kind="kind" :showtext="true"></progress-icon>
+      <div v-if="singleUser" class="summary-section-progress">
+        <progress-icon :progress="contentProgress"/>
+        <span v-if="isCompleted">{{ $tr('viewed') }}</span>
+        <span v-else-if="isInProgress">{{ $tr('inProgress') }}</span>
+        <span v-else>{{ $tr('notViewed') }}</span>
       </div>
 
       <div v-else class="summary-section-progress">
-        {{ completioncount }}/{{ usercount }} {{ $tr('viewed') }}
+        {{ completionCount }}/{{ userCount }} {{ $tr('viewed') }}
       </div>
 
       <div class="summary-section-date">
@@ -93,6 +117,7 @@
         <br>
         {{ lastActiveDate }}
       </div>
+
     </div>
 
   </div>
@@ -109,26 +134,37 @@
     $trs: {
       lastActive: 'Last Active',
       lastActiveText: '{0, date, medium}',
-      na: 'not applicable',
-      exerciseProgress: 'Exercise Progress',
-      contentProgress: 'Content Progress',
+      na: '-',
+      exerciseProgress: 'Average Progress',
+      contentProgress: 'Average Progress',
       exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
       contentCountText:
-        '{count, number, integer} {count, plural, one {Content Item} other {Content Items}}',
+        '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
       mastered: 'Mastered',
       watched: 'Watched',
       listened: 'Listened',
       viewed: 'Viewed',
+      inProgress: 'In Progress',
+      notStarted: 'Not Started',
+      notWatched: 'Not Watched',
+      notListened: 'Not Listened',
+      notViewed: 'Not Viewed',
     },
     computed: {
       lastActiveDate() {
-        if (this.lastactive) {
-          return this.$tr('lastActiveText', [new Date(this.lastactive)]);
+        if (this.lastActive) {
+          return this.$tr('lastActiveText', [new Date(this.lastActive)]);
         }
         return '–';
       },
       Kinds() {
         return CoreConstants.ContentNodeKinds;
+      },
+      isInProgress() {
+        return (this.contentProgress > 0) && (this.contentProgress < 1);
+      },
+      isCompleted() {
+        return this.contentProgress === 1;
       },
     },
     props: {
@@ -136,38 +172,38 @@
         type: String,
         required: true,
       },
-      exercisecount: {
+      exerciseCount: {
         type: Number,
         required: true,
       },
-      exerciseprogress: {
+      exerciseProgress: {
         type: Number,
         required: false,
       },
-      contentcount: {
+      contentCount: {
         type: Number,
         required: true,
       },
-      contentprogress: {
+      contentProgress: {
         type: Number,
         required: false,
       },
-      lastactive: {
+      lastActive: {
         type: String,
       },
-      singleuser: {
+      singleUser: {
         type: Boolean,
         required: true,
       },
-      usercount: {
+      userCount: {
         type: Number,
         required: true,
       },
-      completioncount: {
+      completionCount: {
         type: Number,
         required: false,
       },
-      isrecentview: {
+      isRecentView: {
         type: Boolean,
         required: true,
       },
@@ -194,12 +230,12 @@
   .summary-section-progress,
   .summary-section-date
     display: table-cell
-    padding: $col-padding
     vertical-align: top
+    padding-bottom: 4px
 
   .summary-section-progress,
   .summary-section-date
-    text-align: center
+    text-align: left
 
   .summary-section-progress
     width: $progress-col-width
@@ -208,8 +244,8 @@
     width: $date-col-width
 
   .summary-section-heading
-    text-align: center
-    font-weight: bold
+    text-align: left
     font-size: smaller
+    color: $core-text-annotation
 
 </style>

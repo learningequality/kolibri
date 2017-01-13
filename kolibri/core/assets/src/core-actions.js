@@ -4,9 +4,8 @@ const cookiejs = require('js-cookie');
 const UserKinds = require('./constants').UserKinds;
 const MasteryLoggingMap = require('./constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('./constants').AttemptLoggingMap;
-const debounce = require('vue').util.debounce;
+const throttle = require('lodash.throttle');
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
-const coreGetters = require('kolibri.coreVue.vuex.getters');
 
 const intervalTimer = require('./timer');
 
@@ -164,7 +163,7 @@ function handleApiError(store, errorObject) {
   handleError(store, JSON.stringify(errorObject, null, '\t'));
 }
 
-const debouncedSetWindowInfo = debounce((store) => {
+const debouncedSetWindowInfo = throttle((store) => {
   // http://stackoverflow.com/a/8876069
   const w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
   const h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
@@ -186,9 +185,8 @@ function kolibriLogin(store, coreApp, sessionPayload) {
       const manageURL = coreApp.urls['kolibri:managementplugin:management']();
       window.location.href = window.location.origin + manageURL;
     } else {
-      coreApp.emit('refresh');
+      location.reload(true);
     }
-    coreApp.resources.clearCaches();
   }).catch(error => {
     if (error.status.code === 401) {
       store.dispatch('CORE_SET_LOGIN_ERROR', 401);
@@ -351,9 +349,10 @@ function _setChannelState(store, coreApp, currentChannelId, channelList) {
   store.dispatch('SET_CORE_CHANNEL_LIST', channelList);
   store.dispatch('SET_CORE_CURRENT_CHANNEL', currentChannelId);
   coreApp.resources.ContentNodeResource.setChannel(currentChannelId);
-  cookiejs.set('currentChannelId', currentChannelId);
-  if (!coreGetters.getCurrentChannelObject(store.state)) {
-    handleError(store, 'Channel not found');
+  if (currentChannelId) {
+    cookiejs.set('currentChannelId', currentChannelId);
+  } else {
+    cookiejs.remove('currentChannelId');
   }
 }
 

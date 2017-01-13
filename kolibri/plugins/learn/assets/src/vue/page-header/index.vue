@@ -2,13 +2,16 @@
 
   <div class="header-wrapper">
     <div class="extra-nav">
-      <slot name="extra-nav"></slot>
+      <slot name="extra-nav"/>
     </div>
     <div class="header">
       <div class="content-icon-wrapper">
-        <content-icon :kind="contentKind"></content-icon>
+        <content-icon :kind="contentKind"/>
       </div>
-      <div class="title"><h1>{{ title }}</h1></div>
+      <h1 class="title">{{ title }}</h1>
+      <div class="progress-icon-wrapper">
+        <progress-icon :progress="progress"/>
+      </div>
     </div>
   </div>
 
@@ -32,6 +35,12 @@
             return state.pageState.content.kind;
           }
           return ContentNodeKinds.TOPIC;
+        },
+        progress: (state) => {
+          if (state.pageState.content) {
+            return state.core.logging.summary.progress;
+          }
+          return null;
         },
       },
     },
@@ -73,13 +82,13 @@
     position: relative
     height: 3em
 
-  .content-icon-wrapper
-    position: absolute
-    left: 0
+  .content-icon-wrapper,
+  .progress-icon-wrapper
+    display: inline-block
     height: 27px
     width: 27px
 
   .title
-    margin-left: 35px
+    display: inline-block
 
 </style>

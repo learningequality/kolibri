@@ -151,12 +151,12 @@ class SessionViewSet(viewsets.ViewSet):
     def get_session(self, request):
         user = get_user(request)
         if isinstance(user, AnonymousUser):
-            return {'id': None,
+            return {'id': 'current',
                     'username': '',
                     'full_name': '',
                     'user_id': None,
                     'facility_id': None,
-                    'kind': ['ANONYMOUS'],
+                    'kind': ['anonymous'],
                     'error': '200'}
 
         session = {'id': 'current',
@@ -165,7 +165,7 @@ class SessionViewSet(viewsets.ViewSet):
                    'user_id': user.id}
         if isinstance(user, DeviceOwner):
             session.update({'facility_id': None,
-                            'kind': ['SUPERUSER'],
+                            'kind': ['superuser'],
                             'error': '200'})
             return session
         else:
@@ -176,11 +176,11 @@ class SessionViewSet(viewsets.ViewSet):
                                 'error': '200'})
                 for role in roles:
                     if role.kind == 'admin':
-                        session['kind'].append('ADMIN')
+                        session['kind'].append('admin')
                     else:
-                        session['kind'].append('COACH')
+                        session['kind'].append('coach')
             else:
                 session.update({'facility_id': user.facility_id,
-                                'kind': ['LEARNER'],
+                                'kind': ['learner'],
                                 'error': '200'})
             return session

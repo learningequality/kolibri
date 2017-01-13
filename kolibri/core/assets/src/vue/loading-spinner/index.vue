@@ -25,11 +25,11 @@
         this.isVisible = true;
       },
     },
-    attached() {
+    mounted() {
       this.isVisible = false;
       this.timeoutId = window.setTimeout(this.show, this.delay);
     },
-    detached() {
+    destroyed() {
       window.clearTimeout(this.timeoutId);
     },
   };

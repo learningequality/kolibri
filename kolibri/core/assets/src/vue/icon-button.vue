@@ -1,13 +1,13 @@
 <template>
 
-  <button class="icon-button-scope" :class="{'primary' : primary, 'single-line': !textbelow}">
-    <span v-if="text && icononright" class="btn-text"
-          :class="{'btn-bottom-text' : textbelow, 'icon-padding' : !textbelow && hasIcon}">
-      {{ text }}
-    </span>
-    <slot v-el:icon></slot>
-    <span v-if="text && !icononright" class="btn-text"
-          :class="{'btn-bottom-text' : textbelow, 'icon-padding' : !textbelow && hasIcon}">
+  <button
+    type="button"
+    @click="$emit('click')"
+    class="icon-button-scope"
+    :class="{'primary' : primary, 'single-line': !showTextBelowIcon}"
+  >
+    <slot/>
+    <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : showTextBelowIcon, 'icon-padding' : !showTextBelowIcon && hasIcon}">
       {{ text }}
     </span>
   </button>
@@ -26,19 +26,16 @@
         type: Boolean,
         default: false,
       },
-      textbelow: {
-        type: Boolean,
-        default: false,
-      },
-      icononright: {
+      showTextBelowIcon: {
         type: Boolean,
         default: false,
       },
     },
     computed: {
       hasIcon() {
-        // something of a hack but seems to work fine
-        return this.$el.querySelector('svg');
+        // check if the parent passed anything into the slot
+        // $slots returns an empty object if nothing is passed in.
+        return !(Object.keys(this.$slots).length === 0 && this.$slots.constructor === Object);
       },
     },
   };

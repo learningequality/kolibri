@@ -2,11 +2,11 @@
 
   <div>
     <div class="wrapper">
-      <content-icon :kind="kind" class="icon"></content-icon>
-      <a v-link="vLink">{{ title }}</a>
+      <content-icon :kind="kind" class="icon"/>
+      <router-link :to="vLink">{{ title }}</router-link>
     </div>
     <div class="wrapper" v-if="isTopic">
-      {{ $tr('exercises', {count: exercisecount}) }} ● {{ $tr('contents', {count: contentcount}) }}
+      {{ $tr('exercises', {count: exerciseCount}) }} • {{ $tr('contents', {count: contentCount}) }}
     </div>
   </div>
 
@@ -23,7 +23,7 @@
     $trNameSpace: 'item-name',
     $trs: {
       exercises: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
-      contents: '{count, number, integer} {count, plural, one {Content Item} other {Content Items}}',
+      contents: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
     },
     props: {
       kind: {
@@ -38,10 +38,10 @@
         type: String,
         required: true,
       },
-      exercisecount: {
+      exerciseCount: {
         type: Number,
       },
-      contentcount: {
+      contentCount: {
         type: Number,
       },
     },
@@ -86,11 +86,18 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.coreTheme'
+
+  a
+    font-size: 1.15em
+    font-weight: bold
+
   .wrapper
     font-weight: normal
     position: relative
     text-align: left
-    padding-left: 20px
+    padding: 2px 0 0 25px
+    color: $core-text-annotation
 
   .hasicon
     padding-left: 20px
@@ -98,8 +105,9 @@
   .icon
     position: absolute
     left: 0
-    top: 2px
+    top: 3px
     width: 15px
     height: 15px
+    fill: $core-text-default
 
 </style>

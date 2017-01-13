@@ -2,9 +2,9 @@
 
   <div>
     <template v-if="num !== undefined">
-      <progress-bar :progress="num"></progress-bar>
+      <progress-bar :progress="num"/>
       <div v-if="extraText" class="extra-text">
-        <svg src="../../icons/user.svg" class="person-icon"></svg>
+        <svg src="../../icons/user.svg" class="person-icon"/>
         {{extraText}}
       </div>
     </template>
@@ -27,7 +27,7 @@
       num: {
         type: Number,
       },
-      isexercise: {
+      isExercise: {
         type: Boolean,
         default: false,
       },
@@ -40,7 +40,7 @@
         if (this.numusers === undefined) {
           return null;
         }
-        if (this.isexercise) {
+        if (this.isExercise) {
           return this.$tr('mastered', this.numusers);
         }
         return this.$tr('completed', this.numusers);

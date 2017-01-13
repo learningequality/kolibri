@@ -1,17 +1,15 @@
 <template>
 
-  <core-base>
-    <main-nav slot="nav"></main-nav>
-
+  <core-base :topLevelPageName="topLevelPageName">
     <div v-if="isAdminOrSuperuser" slot="above" class="manage-content">
-      <top-nav></top-nav>
+      <top-nav/>
     </div>
     <component
       v-if="isAdminOrSuperuser"
       slot="content"
       class="manage-content page"
       :is="currentPage"
-    ></component>
+    />
     <div v-else slot="content" class="login-message">
       <h1>{{ $tr('logInPrompt') }}</h1>
       <p>{{ $tr('logInCommand') }}</p>
@@ -27,6 +25,7 @@
   const store = require('../state/store');
   const PageNames = require('../state/constants').PageNames;
   const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
+  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
     $trNameSpace: 'management-root',
@@ -36,13 +35,13 @@
     },
     components: {
       'top-nav': require('./top-nav'),
-      'main-nav': require('./main-nav'),
       'user-page': require('./user-page'),
       'data-page': require('./data-page'),
       'manage-content-page': require('./manage-content-page'),
       'scratchpad-page': require('./scratchpad-page'),
     },
     computed: {
+      topLevelPageName: () => TopLevelPageNames.MANAGE,
       currentPage() {
         if (this.pageName === PageNames.USER_MGMT_PAGE) {
           return 'user-page';

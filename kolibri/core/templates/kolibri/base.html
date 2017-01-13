@@ -55,10 +55,9 @@
   {% cache 5000 js_urls %}
     {% js_reverse_inline %}
   {% endcache %}
-  var session = JSON.parse('{{ session | escapejs }}');
-  sessionModel = {{kolibri}}.resources.SessionResource.createModel(session);
-  sessionModel.synced = true;
 </script>
+<!-- Bootstrapping the currently logged in user's session object into the page. -->
+{% kolibri_bootstrap_model 'session' 'SessionResource' kwargs_pk='current'%}
 {% webpack_base_assets %}
 {% webpack_base_async_assets %}
 {% endblock %}

@@ -58,7 +58,7 @@ class ProgressTracker():
         return self.update_progress
 
     def __exit__(self, *exc_details):
-        if self.progressbar:
+        if self.progressbar is not None:
             self.progressbar.close()
 
 

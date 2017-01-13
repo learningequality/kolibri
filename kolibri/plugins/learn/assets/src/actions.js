@@ -2,14 +2,13 @@ const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
 const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('./state/constants');
 const PageNames = constants.PageNames;
-const router = require('kolibri.coreVue.router');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 const coreGetters = require('kolibri.coreVue.vuex.getters');
 const coreApp = require('kolibri');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
-
+const router = require('kolibri.coreVue.router');
 
 /**
  * Vuex State Mappers
@@ -88,13 +87,14 @@ function redirectToExploreChannel(store) {
 
   coreActions.setChannelInfo(store, coreApp).then(
     () => {
-      if (store.state.core.channels.list.length) {
-        router.replace({
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (currentChannel) {
+        router.getInstance().replace({
           name: constants.PageNames.EXPLORE_CHANNEL,
-          params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
+          params: { channel_id: currentChannel.id },
         });
       } else {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
     error => { coreActions.handleApiError(store, error); }
@@ -108,13 +108,14 @@ function redirectToLearnChannel(store) {
 
   coreActions.setChannelInfo(store, coreApp).then(
     () => {
-      if (store.state.core.channels.list.length) {
-        router.replace({
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (currentChannel) {
+        router.getInstance().replace({
           name: constants.PageNames.LEARN_CHANNEL,
-          params: { channel_id: coreGetters.getCurrentChannelObject(store.state).id },
+          params: { channel_id: currentChannel.id },
         });
       } else {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
     },
     error => { coreActions.handleApiError(store, error); }
@@ -138,6 +139,7 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
     ([topic, children]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = {};
@@ -167,6 +169,7 @@ function showExploreChannel(store, channelId) {
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       showExploreTopic(store, channelId, currentChannel.root_id, true);
@@ -186,6 +189,7 @@ function showExploreContent(store, channelId, id) {
     ([content]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = { content: _contentState(content) };
@@ -216,12 +220,13 @@ function showLearnChannel(store, channelId, page = 1) {
     samePageCheckGenerator(store),
     ([session]) => {
       if (!coreGetters.getCurrentChannelObject(store.state)) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      const nextStepsPayload = { next_steps: session.user_id, channel: channelId };
-      const popularPayload = { popular: session.user_id, channel: channelId };
-      const resumePayload = { resume: session.user_id, channel: channelId };
-      const allPayload = { kind: 'content', channel: channelId };
+      const nextStepsPayload = { next_steps: session.user_id };
+      const popularPayload = { popular: session.user_id };
+      const resumePayload = { resume: session.user_id };
+      const allPayload = { kind: 'content' };
       const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
       const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
       const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
@@ -279,6 +284,7 @@ function showLearnContent(store, channelId, id) {
     ([content]) => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       const pageState = {
@@ -300,7 +306,6 @@ function showLearnContent(store, channelId, id) {
         recommended: recommended.map(_contentState),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
     },
     error => { coreActions.handleApiError(store, error); }

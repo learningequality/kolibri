@@ -12,11 +12,13 @@
       </div>
       <input
         v-if="notIE9"
-        v-el:timebar
+        ref="timebar"
         class="timeline"
-        type="range" min="0" value="0"
+        type="range"
+        min="0"
         :max="max"
-        v-model="rawTime">
+        :value="displayTime"
+        @change="seekAudio">
       <!--[if lte IE 9]>
       <span> / </span>
       <![endif]-->
@@ -31,11 +33,10 @@
     </div>
     <audio
       id="audio"
-      v-el:audio
-      @timeupdate="updateDummyTime"
+      ref="audio"
+      @timeupdate="updateTime"
       @loadedmetadata="setTotalTime"
       @ended="endPlay"
-      @seeking="handleSeek"
       :src="defaultFile.storage_url"
     >Your browser cannot play this audio file correctly! Please consider updating your browser to the latest version.</audio>
   </div>
@@ -46,6 +47,7 @@
 <script>
 
   require('html5media/dist/api/1.1.8/html5media');
+
   module.exports = {
 
     props: [
@@ -56,10 +58,7 @@
       isPlay: true,
       isPause: false,
       max: 0,
-      // This data attribute is required, as we cannot use this.$els.audio in our getter for
-      // rawTime, because at the time of getter initialization for the computed property,
-      // the DOM does not exist, so the above object path is undefined, which causes problems.
-      dummyTime: 0,
+      displayTime: 0,
       progressStartingPoint: 0,
       lastUpdateTime: 0,
     }),
@@ -74,11 +73,11 @@
       },
 
       currentSeconds() {
-        return Math.floor(this.rawTime % 60);
+        return Math.floor(this.displayTime % 60);
       },
 
       currentMinutes() {
-        return Math.floor(this.rawTime / 60);
+        return Math.floor(this.displayTime / 60);
       },
 
       formattedCurrentSec() {
@@ -97,18 +96,6 @@
         }
         return true;
       },
-
-      rawTime: {
-        cache: false,
-        get() {
-          return this.dummyTime;
-        },
-        set(value) {
-          // Set the actual time here and let the updateDummyTime method take care of updating
-          // based on the change event happening here on the currentTime.
-          this.$els.audio.currentTime = value;
-        },
-      },
     },
 
     beforeDestroy() {
@@ -118,7 +105,7 @@
 
     methods: {
       play() {
-        this.$els.audio.play();
+        this.$refs.audio.play();
         this.isPlay = false;
         this.isPause = true;
         this.recordProgress();
@@ -126,7 +113,7 @@
       },
 
       pause() {
-        this.$els.audio.pause();
+        this.$refs.audio.pause();
         this.isPlay = true;
         this.isPause = false;
         this.recordProgress();
@@ -134,7 +121,7 @@
       },
 
       togglePlay() {
-        if (this.$els.audio.paused) {
+        if (this.$refs.audio.paused) {
           this.play();
         } else {
           this.pause();
@@ -145,16 +132,8 @@
         this.pause();
       },
 
-      updateDummyTime() {
-        this.dummyTime = this.$els.audio.currentTime;
-        if (this.dummyTime - this.lastUpdateTime >= 5) {
-          this.recordProgress();
-          this.lastUpdateTime = this.dummyTime;
-        }
-      },
-
       setTotalTime() {
-        this.max = this.$els.audio.duration;
+        this.max = this.$refs.audio.duration;
       },
 
       /* Adds '0' before seconds (e.g. 1:05 instead of 1:5) */
@@ -166,42 +145,47 @@
       },
 
       replay() {
-        this.rawTime = 0;
+        this.pause();
+        this.$refs.audio.currentTime = 0;
         this.play();
       },
 
       plus20() {
-        const sum = this.rawTime + 20;
+        const sum = this.displayTime + 20;
         /* Pauses audio at end if +20s goes over the audio duration */
-        if (sum > this.$els.audio.duration) {
-          this.rawTime = this.$els.audio.duration;
-          this.pause();
+        if (sum > this.max) {
+          this.$refs.audio.currentTime = this.max;
           return;
         }
-        this.rawTime = sum;
+        this.$refs.audio.currentTime = sum;
       },
 
       minus20() {
-        let sum = this.rawTime - 20;
+        let sum = this.displayTime - 20;
         /* Makes sure minimum time is 0 after -20s */
         if (sum < 0) {
           sum = 0;
         }
-        this.rawTime = sum;
+        this.$refs.audio.currentTime = sum;
       },
-      /* Catches when a user jumps around/skips while listening */
-      handleSeek() {
-        /* Record any progress up to this point */
-        this.recordProgress();
-        /* Set last check to be where player is at now */
-        this.dummyTime = this.$els.audio.currentTime;
-        this.lastUpdateTime = this.dummyTime;
+
+      updateTime() {
+        this.displayTime = this.$refs.audio.currentTime;
+        if (this.displayTime - this.lastUpdateTime >= 5) {
+          this.recordProgress();
+          this.lastUpdateTime = this.displayTime;
+        }
+      },
+
+      seekAudio(e) {
+        this.displayTime = e.target.value;
+        this.$refs.audio.currentTime = this.displayTime;
       },
 
       recordProgress() {
-        this.$emit('progressUpdate', Math.max((this.dummyTime
+        this.$emit('progressUpdate', Math.max((this.displayTime
           - this.progressStartingPoint) / Math.floor(this.max), 0));
-        this.progressStartingPoint = this.$els.audio.currentTime;
+        this.progressStartingPoint = this.$refs.audio.currentTime;
       },
     },
   };

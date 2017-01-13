@@ -1,18 +1,17 @@
 <template>
 
   <div class="dropdown">
-    <icon-button
-      v-el:dropdownbutton
-      :text="$tr('downloadContent')"
-      :primary="false"
-      :icononright="true"
+    <button
+      ref="dropdownbutton"
       class="dropdown-button"
       @click="toggleDropdown"
       aria-haspopup="true">
-      <svg src="./expand.svg"></svg>
-    </icon-button>
+      <span class="dropdown-button-text" :class="{uparrow: dropdownopen}">
+        {{ $tr('downloadContent') }}
+      </span>
+    </button>
     <ul
-      v-el:dropdownitems
+      ref="dropdownitems"
       class="dropdown-items"
       :class="{ dropdownopen: dropdownopen }"
       :aria-hidden="dropDownOpenText"
@@ -22,9 +21,10 @@
         class="dropdown-item"
         role="presentation">
         <a
+          download
           class="dropdown-item-link"
           @click="toggleDropdown"
-          href="{{ file.download_url }}"
+          :href="file.download_url"
           role="menuitem">
           {{ file.preset + ' (' + prettifyFileSize(file.file_size) + ')' }}
         </a>
@@ -64,7 +64,7 @@
         return String(this.dropdownopen);
       },
       dropDownItems() {
-        let listItems = this.$els.dropdownitems.children;
+        let listItems = this.$refs.dropdownitems.children;
         listItems = [...listItems];
         const anchorItems = [];
         listItems.forEach((li) => {
@@ -74,7 +74,7 @@
       },
       focusableItems() {
         let focusableItems = [];
-        focusableItems.push(this.$els.dropdownbutton);
+        focusableItems.push(this.$refs.dropdownbutton);
         focusableItems = focusableItems.concat(this.dropDownItems);
         return focusableItems;
       },
@@ -132,7 +132,7 @@
         this.focusableItems[this.itemSelected].focus();
       },
     },
-    ready() {
+    mounted() {
       document.addEventListener('keydown', this.handleKeys);
     },
     beforeDestroy() {
@@ -152,9 +152,17 @@
     position: relative
 
   .dropdown-button
-    padding-right: 0.5em
-    padding-left: 0.5em
+    padding: 0.5em
     font-size: smaller
+
+  .dropdown-button-text
+    &:after
+      padding-left: 0.5em
+      content: '\25BC'
+
+  .uparrow
+    &:after
+      content: '\25b2'
 
   .dropdown-items
     background-color: white

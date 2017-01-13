@@ -1,12 +1,12 @@
 <template>
 
   <div class="tabs">
-    <a v-link="recentviewlink">
-      <div class="tab" :class="{ active: isrecentview }">Recent</div>
-    </a>
-    <a v-link="allviewlink">
-      <div class="tab" :class="{ active: !isrecentview }">Topics</div>
-    </a>
+    <router-link :to="recentViewLink">
+      <div class="tab" :class="{ active: isRecentView }">Recent</div>
+    </router-link>
+    <router-link :to="allViewLink">
+      <div class="tab" :class="{ active: !isRecentView }">Topics</div>
+    </router-link>
   </div>
 
 </template>
@@ -16,15 +16,15 @@
 
   module.exports = {
     props: {
-      recentviewlink: {
+      recentViewLink: {
         type: Object,
         required: true,
       },
-      allviewlink: {
+      allViewLink: {
         type: Object,
         required: true,
       },
-      isrecentview: {
+      isRecentView: {
         type: Boolean,
         required: true,
       },
@@ -50,7 +50,7 @@
 
   .tab
     display: inline-block
-    padding: 0.75em
+    padding: 1em
     color: $core-text-default
     background-color: $core-bg-light
     border-bottom: solid 3px $core-bg-light

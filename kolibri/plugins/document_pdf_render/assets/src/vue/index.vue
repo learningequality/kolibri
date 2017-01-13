@@ -1,13 +1,12 @@
 <template>
 
-  <div v-el:container class="container" allowfullscreen>
+  <div ref="container" class="container" allowfullscreen>
     <icon-button
       class="btn"
       v-if="supportsPDFs"
       :text="inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      @click="togglefullscreen">
-    </icon-button>
-    <div v-el:pdfcontainer class="pdfcontainer"></div>
+      @click="togglefullscreen"/>
+    <div ref="pdfcontainer" class="pdfcontainer"></div>
   </div>
 
 </template>
@@ -33,7 +32,7 @@
 
     methods: {
       togglefullscreen() {
-        const container = this.$els.container;
+        const container = this.$refs.container;
         if (!document.fullscreenElement
           && !document.webkitFullscreenElement
           && !document.mozFullScreenElement
@@ -70,8 +69,8 @@
         }
       },
     },
-    ready() {
-      PDFobject.embed(this.defaultFile.storage_url, this.$els.pdfcontainer);
+    mounted() {
+      PDFobject.embed(this.defaultFile.storage_url, this.$refs.pdfcontainer);
       this.$emit('startTracking');
       const self = this;
       this.timeout = setTimeout(() => {
@@ -117,6 +116,8 @@
     &:fullscreen
       width: 100%
       height: 100%
+      min-height: inherit
+      max-height: inherit
 
   .pdfcontainer
     /* Accounts for the button height. */

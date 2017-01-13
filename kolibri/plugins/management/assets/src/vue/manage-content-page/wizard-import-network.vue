@@ -3,8 +3,8 @@
   <core-modal
     title="Import from the Internet"
     :error="wizardState.error"
-    :enablebgclickcancel="false"
-    :enablebackbtn="true"
+    :enableBgClickCancel="false"
+    :enableBackBtn="true"
     @cancel="cancel"
     @enter="submit"
     @back="startImportWizard"
@@ -22,14 +22,12 @@
       <icon-button
         @click="cancel"
         text="Cancel"
-        :disabled="wizardState.busy">
-      </icon-button>
+        :disabled="wizardState.busy"/>
       <icon-button
         text="Import"
         @click="submit"
         :disabled="!canSubmit"
-        :primary="true" >
-      </icon-button>
+        :primary="true"/>
     </div>
   </core-modal>
 

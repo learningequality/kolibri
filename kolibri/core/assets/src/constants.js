@@ -1,9 +1,10 @@
 
 const UserKinds = {
-  SUPERUSER: 'SUPERUSER',
-  ADMIN: 'ADMIN',
-  LEARNER: 'LEARNER',
-  ANONYMOUS: 'ANONYMOUS',
+  ADMIN: 'admin',
+  COACH: 'coach',
+  LEARNER: 'learner',
+  SUPERUSER: 'superuser',
+  ANONYMOUS: 'anonymous',
 };
 
 const ContentNodeKinds = {
@@ -12,6 +13,7 @@ const ContentNodeKinds = {
   VIDEO: 'video',
   EXERCISE: 'exercise',
   TOPIC: 'topic',
+  HTML5: 'html5',
 };
 
 // used internally on the client as a hack to allow content-icons to display users
@@ -52,6 +54,22 @@ const InteractionTypes = {
   hint: 'hint',
 };
 
+
+/* HACK HACK
+
+The core application should not have this knowledge
+about the available plugins. However, until we have
+a way for plugins to properly indicate what nav bar
+widgets they supply to core and in what order, this
+is a work-around.
+*/
+const TopLevelPageNames = {
+  LEARN_LEARN: 'LEARN_LEARN',
+  LEARN_EXPLORE: 'LEARN_EXPLORE',
+  COACH: 'COACH',
+  MANAGE: 'MANAGE',
+};
+
 module.exports = {
   UserKinds,
   ContentNodeKinds,
@@ -59,4 +77,5 @@ module.exports = {
   AttemptLoggingMap,
   InteractionTypes,
   USER,
+  TopLevelPageNames,
 };
