@@ -159,6 +159,7 @@
             {
               title: 'All Learners',
               vlink: genLink(this.pageState, {
+                view_by_content_or_learners: Constants.ViewBy.LEARNERS,
                 user_scope: Constants.UserScopes.FACILITY,
                 user_scope_id: FACILITY_ID,
               }),
