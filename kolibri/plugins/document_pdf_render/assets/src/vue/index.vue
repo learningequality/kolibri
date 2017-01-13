@@ -4,8 +4,8 @@
     <icon-button
       class="btn"
       v-if="supportsPDFs"
-      :text="inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      @click="togglefullscreen"/>
+      :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
+      @click="toggleFullScreen"/>
     <div ref="pdfcontainer" class="pdfcontainer"></div>
   </div>
 
@@ -15,6 +15,7 @@
 <script>
 
   const PDFobject = require('pdfobject');
+  const ScreenFull = require('screenfull');
 
   module.exports = {
 
@@ -27,46 +28,13 @@
     data: () => ({
       supportsPDFs: PDFobject.supportsPDFs,
       timeout: null,
-      inFullscreen: false,
+      isFullScreen: false,
     }),
 
     methods: {
-      togglefullscreen() {
-        const container = this.$refs.container;
-        if (!document.fullscreenElement
-          && !document.webkitFullscreenElement
-          && !document.mozFullScreenElement
-          && !document.msFullscreenElement) {
-          if (container.requestFullscreen) {
-            container.requestFullscreen();
-          } else if (container.webkitRequestFullscreen) {
-            container.webkitRequestFullscreen();
-          } else if (container.mozRequestFullScreen) {
-            container.mozRequestFullScreen();
-          } else if (container.msRequestFullscreen) {
-            container.msRequestFullscreen();
-          }
-          this.inFullscreen = true;
-        } else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen();
-          } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-          } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-          } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-          }
-          this.inFullscreen = false;
-        }
-      },
-      updateFullscreenState() {
-        if (!document.fullscreenElement
-          && !document.webkitFullscreenElement
-          && !document.mozFullScreenElement
-          && !document.msFullscreenElement) {
-          this.inFullscreen = false;
-        }
+      toggleFullScreen() {
+        ScreenFull.toggle(this.$refs.container);
+        this.isFullScreen = ScreenFull.isFullscreen;
       },
     },
     mounted() {
@@ -76,22 +44,12 @@
       this.timeout = setTimeout(() => {
         self.$emit('progressUpdate', 1);
       }, 15000);
-
-      document.addEventListener('fullscreenchange', this.updateFullscreenState, false);
-      document.addEventListener('webkitfullscreenchange', this.updateFullscreenState, false);
-      document.addEventListener('mozfullscreenchange', this.updateFullscreenState, false);
-      document.addEventListener('MSFullscreenChange', this.updateFullscreenState, false);
     },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
       this.$emit('stopTracking');
-
-      document.removeEventListener('fullscreenchange', this.updateFullscreenState, false);
-      document.removeEventListener('webkitfullscreenchange', this.updateFullscreenState, false);
-      document.removeEventListener('mozfullscreenchange', this.updateFullscreenState, false);
-      document.removeEventListener('MSFullscreenChange', this.updateFullscreenState, false);
     },
     $trNameSpace: 'pdfRenderer',
     $trs: {
