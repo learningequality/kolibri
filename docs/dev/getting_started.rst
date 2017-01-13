@@ -17,6 +17,7 @@ You'll need to install the following dependencies:
 - Python (including pip) - recommended version 2.7+ or 3.4+
 - Node.js - recommended version 4+
 - git
+- `yarn <https://yarnpkg.com/>`_ - recommended version 0.18.1+
 
 The process for installing these depends on your operating system.
 
@@ -71,7 +72,7 @@ Run the following commands:
   pip install -r requirements/dev.txt
 
   # Node.js dependencies
-  npm install
+  npm run yarn
 
   # Kolibri Python package in 'editable' mode
   pip install -e .

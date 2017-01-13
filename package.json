@@ -14,7 +14,7 @@
     "watch": "node ./frontend_build/src/webpackdevserver.js",
     "test-karma:watch": "./node_modules/karma/bin/karma start ./karma_config/karma.conf.js",
     "bundle-stats": "webpack --config ./frontend_build/src/webpack.config.prod.js --json | node ./node_modules/webpack-bundle-size-analyzer/webpack-bundle-size-analyzer",
-    "install": "node ./frontend_build/src/install_dependencies.js",
+    "yarn": "node ./frontend_build/src/install_dependencies.js",
     "clean": "node ./frontend_build/src/clean.js"
   },
   "repository": {
@@ -86,7 +86,6 @@
     "phantomjs-polyfill-find": "ptim/phantomjs-polyfill-find",
     "phantomjs-prebuilt": "2.1.7",
     "postcss-loader": "0.9.1",
-    "recursive-install": "1.2.0",
     "rewire": "2.5.2",
     "rewire-webpack": "1.0.1",
     "shelljs": "0.7.4",
@@ -116,15 +115,5 @@
   },
   "optionalDependencies": {
     "fsevents": "*"
-  },
-  "babel": {
-    "presets": [
-      "es2015-ie"
-    ],
-    "plugins": [
-      "transform-runtime",
-      "transform-strict-mode"
-    ],
-    "comments": false
   }
 }
