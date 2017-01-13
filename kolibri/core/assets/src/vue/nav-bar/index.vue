@@ -20,6 +20,9 @@
       </nav-bar-item>
       <session-nav-widget/>
     </nav>
+
+    <!-- log-in modal -->
+    <login-modal v-if="loginModalVisible"/>
   </div>
 
 </template>
@@ -72,12 +75,14 @@
     components: {
       'session-nav-widget': require('../session-nav-widget'),
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
+      'login-modal': require('../login-modal'),
     },
     vuex: {
       getters: {
         session: state => state.core.session,
         isAdminOrSuperuser: getters.isAdminOrSuperuser,
         isCoachAdminOrSuperuser: getters.isCoachAdminOrSuperuser,
+        loginModalVisible: state => state.core.loginModalVisible,
       },
     },
   };
