@@ -18,8 +18,6 @@ function yarnInstall (dir) {
   }
 }
 
-yarnInstall(cwd);
-
 plugins.map(function(plugin) {
   shell.cd(cwd); // make sure to reset current working directory
   var packageJson = path.join(plugin.plugin_path, 'package.json');
