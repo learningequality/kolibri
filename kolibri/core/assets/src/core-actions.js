@@ -13,7 +13,6 @@ const progressThreshold = 0.1; // Update logs if user has reached 20% more progr
 const timeThreshold = 30; // Update logs if 30 seconds have passed since last update
 
 
-
 /**
  * Vuex State Mappers
  *
