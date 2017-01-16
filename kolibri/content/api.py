@@ -5,6 +5,7 @@ from django.core.cache import cache
 from django.db.models import Q
 from django.db.models.aggregates import Count
 from kolibri.content import models, serializers
+from kolibri.content.content_db_router import get_active_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
@@ -25,7 +26,6 @@ class ChannelMetadataCacheViewSet(viewsets.ModelViewSet):
 class ContentNodeFilter(filters.FilterSet):
     search = filters.django_filters.MethodFilter(action='title_description_filter')
     recommendations_for = filters.django_filters.MethodFilter()
-    recommendations = filters.django_filters.MethodFilter()
     next_steps = filters.django_filters.MethodFilter()
     popular = filters.django_filters.MethodFilter()
     resume = filters.django_filters.MethodFilter()
@@ -33,7 +33,7 @@ class ContentNodeFilter(filters.FilterSet):
 
     class Meta:
         model = models.ContentNode
-        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'recommendations']
+        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for']
 
     def title_description_filter(self, queryset, value):
         """
@@ -72,42 +72,31 @@ class ContentNodeFilter(filters.FilterSet):
         if not value:
             return queryset.none()
 
-        if self.data['channel']:
-            from kolibri.content.content_db_router import using_content_database
-            from kolibri.content.models import ContentNode
-            with using_content_database(self.data['channel']):
-                tables = [
-                    '"{summarylog_table}" AS "complete_log"',
-                    '"{summarylog_table}" AS "incomplete_log"',
-                    '"{content_table}" AS "complete_node"',
-                    '"{content_table}" AS "incomplete_node"',
-                ]
-                table_names = {
-                    "summarylog_table": ContentSummaryLog._meta.db_table,
-                    "content_table": ContentNode._meta.db_table,
-                }
-                # aliases for sql table names
-                sql_tables_and_aliases = [table.format(**table_names) for table in tables]
-                # where conditions joined by ANDs
-                where_statements = ["NOT (incomplete_log.progress < 1 AND incomplete_log.content_id = incomplete_node.content_id)",
-                                    "complete_log.user_id = {user_id}".format(user_id=value),
-                                    "incomplete_log.user_id = {user_id}".format(user_id=value),
-                                    "complete_log.progress = 1",
-                                    "complete_node.rght = incomplete_node.lft - 1",
-                                    "complete_log.content_id = complete_node.content_id"]
-                # custom SQL query to get uncompleted content based on mptt algorithm
-                next_steps_recommendations = "SELECT incomplete_node.* FROM {tables} WHERE {where}".format(
-                    tables=", ".join(sql_tables_and_aliases),
-                    where=_join_with_logical_operator(where_statements, "AND")
-                )
-                return ContentNode.objects.raw(next_steps_recommendations)
-        else:
-            summary_logs = ContentSummaryLog.objects.filter(user=value).exclude(progress=1)
-
-        content_ids = summary_logs.values_list('content_id', flat=True)
-        unfinished_nodes = queryset.filter(content_id__in=list(content_ids[:10]))
-
-        return unfinished_nodes
+        tables = [
+            '"{summarylog_table}" AS "complete_log"',
+            '"{summarylog_table}" AS "incomplete_log"',
+            '"{content_table}" AS "complete_node"',
+            '"{content_table}" AS "incomplete_node"',
+        ]
+        table_names = {
+            "summarylog_table": ContentSummaryLog._meta.db_table,
+            "content_table": models.ContentNode._meta.db_table,
+        }
+        # aliases for sql table names
+        sql_tables_and_aliases = [table.format(**table_names) for table in tables]
+        # where conditions joined by ANDs
+        where_statements = ["NOT (incomplete_log.progress < 1 AND incomplete_log.content_id = incomplete_node.content_id)",
+                            "complete_log.user_id = {user_id}".format(user_id=value),
+                            "incomplete_log.user_id = {user_id}".format(user_id=value),
+                            "complete_log.progress = 1",
+                            "complete_node.rght = incomplete_node.lft - 1",
+                            "complete_log.content_id = complete_node.content_id"]
+        # custom SQL query to get uncompleted content based on mptt algorithm
+        next_steps_recommendations = "SELECT incomplete_node.* FROM {tables} WHERE {where}".format(
+            tables=", ".join(sql_tables_and_aliases),
+            where=_join_with_logical_operator(where_statements, "AND")
+        )
+        return models.ContentNode.objects.raw(next_steps_recommendations)
 
     def filter_popular(self, queryset, value):
         """
@@ -117,26 +106,23 @@ class ContentNodeFilter(filters.FilterSet):
         :param value: id of currently logged in user, or none if user is anonymous
         :return: 10 most popular content nodes
         """
-
         if ContentSessionLog.objects.count() < 50:
             # return 25 random content nodes if not enough session logs
             pks = queryset.values_list('pk', flat=True).exclude(kind__in=['topic', ''])
             count = min(pks.count(), 25)
             return queryset.filter(pk__in=sample(list(pks), count))
 
-        if self.data['channel']:  # filter by channel if available
-            session_logs = ContentSessionLog.objects.filter(channel_id=self.data['channel'])
-            cache_key = 'popular_for_{}'.format(self.data['channel'])
-            if cache.get(cache_key):
-                return cache.get(cache_key)
-        else:
-            session_logs = ContentSessionLog.objects.all()
-            cache_key = 'popular'
-            if cache.get(cache_key):
-                return cache.get(cache_key)
+        cache_key = 'popular_for_{}'.format(get_active_content_database())
+        if cache.get(cache_key):
+            return cache.get(cache_key)
 
         # get the most accessed content nodes
-        content_counts_sorted = session_logs.values_list('content_id', flat=True).annotate(Count('content_id')).order_by('-content_id__count')
+        content_counts_sorted = ContentSessionLog.objects \
+            .filter(channel_id=get_active_content_database()) \
+            .values_list('content_id', flat=True) \
+            .annotate(Count('content_id')) \
+            .order_by('-content_id__count')
+
         most_popular = queryset.filter(content_id__in=list(content_counts_sorted[:10]))
 
         # cache the popular results queryset for 10 minutes, for efficiency
@@ -156,13 +142,14 @@ class ContentNodeFilter(filters.FilterSet):
         if not value:
             return queryset.none()
 
-        if self.data['channel']:  # filter by channel if available
-            user_summary_logs = ContentSummaryLog.objects.filter(user=value, channel_id=self.data['channel'])
-        else:
-            user_summary_logs = ContentSummaryLog.objects.filter(user=value)
-
         # get the most recently viewed, but not finished, content nodes
-        content_ids = user_summary_logs.exclude(progress=1).order_by('end_timestamp').values_list('content_id', flat=True).distinct()
+        content_ids = ContentSummaryLog.objects \
+            .filter(user=value, channel_id=get_active_content_database()) \
+            .exclude(progress=1) \
+            .order_by('end_timestamp') \
+            .values_list('content_id', flat=True) \
+            .distinct()
+
         resume = queryset.filter(content_id__in=list(content_ids[:10]))
 
         return resume

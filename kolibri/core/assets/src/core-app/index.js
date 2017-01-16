@@ -5,10 +5,11 @@ require('../styles/font-NotoSans.css');
 require('../styles/core-global.styl');
 
 // polyfill for older browsers
-require('babel-polyfill');
+// TODO: rtibbles whittle down these polyfills to only what is needed for the application
+require('core-js');
 
 // set up logging
-const logging = require('kolibri/lib/logging');
+const logging = require('kolibri.lib.logging');
 logging.setDefaultLevel(process.env.NODE_ENV === 'production' ? 2 : 0);
 
 // Create an instance of the global app object.

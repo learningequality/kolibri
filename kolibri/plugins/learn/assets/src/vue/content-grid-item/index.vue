@@ -1,16 +1,8 @@
 <template>
 
   <div>
-    <grid-item v-link="link" :title="title">
-      <div class="thumbnail" :style="{ 'background-image': thumb }">
-        <content-icon
-          class="content-icon-center"
-          v-if="kind"
-          :size="60"
-          :kind="kind"
-          :progress="progress">
-        </content-icon>
-      </div>
+    <grid-item :link="link" :title="title" :kind="kind" :progress="progress">
+      <div class="thumbnail" :style="{ 'background-image': thumb }"></div>
     </grid-item>
   </div>
 
@@ -19,6 +11,8 @@
 
 <script>
 
+  const CoreConstants = require('kolibri.coreVue.vuex.constants');
+  const values = require('lodash.values');
   const constants = require('../../state/constants');
   const PageNames = constants.PageNames;
   const PageModes = constants.PageModes;
@@ -44,12 +38,7 @@
         type: String,
         required: true,
         validator(value) {
-          return [
-            'audio',
-            'video',
-            'document',
-            'exercise',
-          ].some(elem => elem === value);
+          return values(CoreConstants.ContentNodeKinds).includes(value);
         },
       },
       progress: {
@@ -93,7 +82,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .thumbnail
     width: 100%
@@ -109,15 +98,5 @@
     display: inline-block
     vertical-align: middle
     height: 100%
-
-  .content-icon-center
-    display: inline-block
-    vertical-align: middle
-    position: absolute
-    top: 50%
-    left: 50%
-    transform: translate(-50%, -50%)
-    width: 60px
-    height: 60px
 
 </style>

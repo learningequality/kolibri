@@ -1,16 +1,16 @@
 <template>
 
-  <div>
-    <div class="visuallyhidden" id="progress-bar-label">{{ $tr('yourProgressIs') }}</div>
+  <div class="wrapper">
+    <div class="visuallyhidden" id="progress-bar-label">{{ $tr('label') }}</div>
     <div class="progress-bar-wrapper"
-      role="progressbar"
-      aria-labelledby="progress-bar-label"
-      :aria-valuenow="progressPercent"
-      aria-valuemin="0"
-      aria-valuemax="100">
-      <div class="progress-bar-complete" v-bind:style="{ width: progressPercent + '%' }"></div>
+         role="progressbar"
+         aria-labelledby="progress-bar-label"
+         :aria-valuenow="percent"
+         aria-valuemin="0"
+         aria-valuemax="100">
+      <div class="progress-bar-complete" :style="{ width: percent + '%',  backgroundColor: color}"></div>
     </div>
-    <p class="progress-bar-text">{{ progressPercent + '% ' + $tr('complete') }}</p>
+    <div class="progress-bar-text">{{ $tr('pct', [progress]) }}</div>
   </div>
 
 </template>
@@ -21,16 +21,22 @@
   module.exports = {
     $trNameSpace: 'progressBar',
     $trs: {
-      yourProgressIs: 'Your progress is:',
-      complete: 'Complete',
+      label: 'Progress:',
+      pct: '{0, number, percent}',
     },
     props: {
-      progressPercent: {
+      progress: {
         type: Number,
         required: true,
-        validator(value) {
-          return (value >= 0) && (value <= 100);
-        },
+      },
+      color: {
+        type: String,
+        required: false,
+      },
+    },
+    computed: {
+      percent() {
+        return Math.min(this.progress * 100, 100);
       },
     },
   };
@@ -40,22 +46,36 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
+
+  .wrapper
+    position: relative
+    white-space: nowrap
+    padding-right: 40px
 
   .progress-bar-wrapper
     display: inline-block
     position: relative
-    width: 200px
-    height: 0.75em
-    background-color: $core-action-light
+    width: 100%
+    max-width: 125px
+    height: 1.2em
+    background-color: #E0E0E0
+    border-radius: 15px
+    float: left
+    margin-right: 5px
+    overflow: hidden
 
   .progress-bar-complete
     height: 100%
     width: 0
     background-color: $core-action-normal
-    transition: width, 0.25s, ease
+    transition: width, $core-time, ease
 
   .progress-bar-text
-    margin: 0
+    display: inline-block
+    position: relative
+    right: 0
+    width: 30px
+    text-align: left
 
 </style>

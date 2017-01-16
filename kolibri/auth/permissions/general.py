@@ -4,7 +4,7 @@ in their own "permissions.py" module, extend or remix them, and then apply them 
 """
 
 from ..constants import role_kinds
-from .base import BasePermissions
+from .base import BasePermissions, lookup_field_with_fks
 
 
 class DenyAll(BasePermissions):
@@ -89,13 +89,13 @@ class IsOwn(BasePermissions):
         self.field_name = field_name
 
     def _user_can_write_object(self, user, obj):
-        return (not self.read_only) and (user.id == getattr(obj, self.field_name))
+        return (not self.read_only) and (user.id == lookup_field_with_fks(self.field_name, obj))
 
     def user_can_create_object(self, user, obj):
         return self._user_can_write_object(user, obj)
 
     def user_can_read_object(self, user, obj):
-        return user.id == getattr(obj, self.field_name)
+        return user.id == lookup_field_with_fks(self.field_name, obj)
 
     def user_can_update_object(self, user, obj):
         return self._user_can_write_object(user, obj)
@@ -104,6 +104,8 @@ class IsOwn(BasePermissions):
         return self._user_can_write_object(user, obj)
 
     def readable_by_user_filter(self, user, queryset):
+        if user.is_anonymous():
+            return queryset.none()
         return queryset.filter(**{self.field_name: user.id})
 
 

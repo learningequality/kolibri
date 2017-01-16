@@ -22,6 +22,7 @@ function pageMode(state) {
   return undefined;
 }
 
+
 module.exports = {
   pageMode,
 };

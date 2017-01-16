@@ -1,28 +1,30 @@
 <template>
 
-  <div class="svg-wrapper">
+  <div>
     <svg
-      viewbox="0 0 32 32"
-      class="content-icon"
-      :title="altText">
-      <circle
-        cy="16"
-        cx="16"
-        r="16"
-        class="progress-circle"
-        :style="{ 'stroke-dasharray': progressPercent + ' 100' }">
-      </circle>
-      <circle
-        cy="16"
-        cx="16"
-        r="13.5"
-        class="inner-circle">
-      </circle>
-      <svg v-if="thisIs('audio')" src="./content-icons/audio.svg" class="content-type-icon"></svg>
-      <svg v-if="thisIs('document')" src="./content-icons/document.svg" class="content-type-icon"></svg>
-      <svg v-if="thisIs('exercise')" src="./content-icons/exercise.svg" class="content-type-icon"></svg>
-      <svg v-if="thisIs('video')" src="./content-icons/video.svg" class="content-type-icon"></svg>
-    </svg>
+      v-if="is(Constants.ContentNodeKinds.TOPIC)"
+      src="./content-icons/topic.svg"
+      :class="[colorClass]"/>
+    <svg
+      v-if="is(Constants.ContentNodeKinds.VIDEO)"
+      src="./content-icons/video.svg"
+      :class="[colorClass]"/>
+    <svg
+      v-if="is(Constants.ContentNodeKinds.AUDIO)"
+      src="./content-icons/audio.svg"
+      :class="[colorClass]"/>
+    <svg
+      v-if="is(Constants.ContentNodeKinds.DOCUMENT)"
+      src="./content-icons/document.svg"
+      :class="[colorClass]"/>
+    <svg
+      v-if="is(Constants.ContentNodeKinds.EXERCISE)"
+      src="./content-icons/exercise.svg"
+      :class="[colorClass]"/>
+    <svg
+      v-if="is(Constants.USER)"
+      src="./content-icons/user.svg"
+      :class="[colorClass]"/>
   </div>
 
 </template>
@@ -30,62 +32,35 @@
 
 <script>
 
-  const ContentKinds = require('kolibri/coreVue/vuex/constants').ContentKinds;
+  const Constants = require('kolibri.coreVue.vuex.constants');
+  const values = require('lodash.values');
 
   module.exports = {
-    $trNameSpace: 'learn',
-    $trs: {
-      complete: 'complete',
-      partial: 'partial',
-      unstarted: 'unstarted',
-      audio: 'audio',
-      document: 'document',
-      video: 'video',
-    },
     props: {
-      ispageicon: {
-        type: Boolean,
-        default: false,
-      },
-      size: {
-        type: Number,
-        default: 30,
-      },
-      progress: {
-        type: Number,
-        default: 0.0,
-        validator(value) {
-          return (value >= 0.0) && (value <= 1.0);
-        },
-      },
       kind: {
         type: String,
         required: true,
         validator(value) {
-          for (const contentKind in ContentKinds) {
-            if (ContentKinds[contentKind] === value) {
-              return true;
-            }
-          }
-          return false;
+          const validValues = values(Constants.ContentNodeKinds);
+          validValues.push(Constants.USER);
+          return validValues.includes(value);
         },
+      },
+      colorstyle: {
+        type: String,
+        default: 'action',
       },
     },
     computed: {
-      altText() {
-        return `${this.progress} - ${this.$tr(this.kind)}`;
+      Constants() {
+        return Constants;
       },
-      progressPercent() {
-        let progressPercent = Math.floor(this.progress * 100);
-        // Due to rounding error
-        if (progressPercent === 100) {
-          progressPercent = 101;
-        }
-        return progressPercent;
+      colorClass() {
+        return `color-${this.colorStyle}`;
       },
     },
     methods: {
-      thisIs(kind) {
+      is(kind) {
         return this.kind === kind;
       },
     },
@@ -96,28 +71,19 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
-  .svg-wrapper
+  svg
     width: 100%
     height: 100%
+    max-width: 24px
+    max-height: 24px
+    fill: $core-text-default
 
-  .content-icon
-    width: 100%
-    height: 100%
-    transform: rotate(-90deg)
-    border-radius: 50%
-
-  .progress-circle
-    fill: #d5d5d5
-    stroke: $core-action-normal
-    stroke-width: 32
-    stroke-dasharray: 0 100 // 0 = 0 % full
-
-  .inner-circle
-    fill: white
-
-  .content-type-icon
+  .color-action
     fill: $core-action-normal
+
+  .color-text-default
+    fill: $core-text-default
 
 </style>

@@ -8,7 +8,7 @@ Components
 
 We leverage `Vue.js components <https://vuejs.org/guide/components.html>`_ as the primary building blocks for our UI. For general UI development work, this is the most common tool a developer will use. It would be prudent to read through the `Vue.js guide <https://vuejs.org/guide/>`_ thoroughly.
 
-Each component contains HTML with dynamic Vue.js directives, styling which is scoped to that component (written using `Stylus <http://stylus-lang.com/>`_), and logic which is also scoped to that component (written using `ES6 JavaScript <https://babeljs.io/docs/plugins/preset-es2015/>`_). Non-scoped styles can also be added, but these should be carefully namespaced.
+Each component contains HTML with dynamic Vue.js directives, styling which is scoped to that component (written using `Stylus <http://stylus-lang.com/>`_), and logic which is also scoped to that component (all code, including that in Vue components should be written using `Bublé compatible ES2015 JavaScript <https://buble.surge.sh/guide/#supported-features>`_). Non-scoped styles can also be added, but these should be carefully namespaced.
 
 Components allow us to define new custom tags that encapsulate a piece of self-contained, re-usable UI functionality. When composed together, they form a tree structure of parents and children. Each component has a well-defined interface used by its parent component, made up of `input properties <https://vuejs.org/guide/components.html#Props>`_, `events <https://vuejs.org/guide/components.html#Custom-Events>`_ and `content slots <https://vuejs.org/guide/components.html#Content-Distribution-with-Slots>`_. Components should never reference their parent.
 
@@ -133,14 +133,12 @@ And many others. The complete specification for commonly shared modules can be f
 
 .. code-block:: javascript
 
-  const vue = require('kolibri/lib/vue');
-  const coreBase = require('kolibri/coreVue/components/coreBase');
+  const vue = require('kolibri.lib.vue');
+  const coreBase = require('kolibri.coreVue.components.coreBase');
 
-.. note::
+Adding additional globally-available objects is relatively straightforward due to the `plugin and webpack build system <asset_loading>`_.
 
-  Due to the mechanics of the `plugin and webpack build system <asset_loading>`_, adding additional globally-available objects is relatively straightforward.
-
-  To expose something on the core app, add a key to the object in `apiSpec.js` which maps to an object with the following keys::
+To expose something on the core app, add a key to the object in `apiSpec.js` which maps to an object with the following keys:
 
 .. code-block:: javascript
 
@@ -148,13 +146,13 @@ And many others. The complete specification for commonly shared modules can be f
       module: require('module-name'),
     }
 
-  This module would now be available for import anywhere with the following statement::
+This module would now be available for import anywhere with the following statement:
 
 .. code-block:: javascript
 
-  const MODULE = require('kolibri/modulePath');
+  const MODULE = require('kolibri.modulePath');
 
-  For better organisation of the Core API specification, modules can also be attached at arbitrarily nested paths::
+For better organisation of the Core API specification, modules can also be attached at arbitrarily nested paths:
 
 .. code-block:: javascript
 
@@ -164,14 +162,13 @@ And many others. The complete specification for commonly shared modules can be f
       }
     }
 
-  This module would now be available for import anywhere with the following statement::
+This module would now be available for import anywhere with the following statement:
 
 .. code-block:: javascript
 
-    const MODULE = require('kolibri/modulePath/nestedPath');
+    const MODULE = require('kolibri.modulePath.nestedPath');
 
-  For convenience (and to prevent accidental imports), 3rd party (NPM) modules installed in node_modules can be required
-  by their usual name also:
+For convenience (and to prevent accidental imports), 3rd party (NPM) modules installed in node_modules can be required by their usual name also:
 
   .. code-block:: javascript
 

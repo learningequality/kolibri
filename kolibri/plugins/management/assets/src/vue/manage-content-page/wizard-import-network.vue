@@ -3,8 +3,8 @@
   <core-modal
     title="Import from the Internet"
     :error="wizardState.error"
-    :enablebgclickcancel="false"
-    :enablebackbtn="true"
+    :enableBgClickCancel="false"
+    :enableBackBtn="true"
     @cancel="cancel"
     @enter="submit"
     @back="startImportWizard"
@@ -22,14 +22,12 @@
       <icon-button
         @click="cancel"
         text="Cancel"
-        :disabled="wizardState.busy">
-      </icon-button>
+        :disabled="wizardState.busy"/>
       <icon-button
         text="Import"
         @click="submit"
         :disabled="!canSubmit"
-        :primary="true" >
-      </icon-button>
+        :primary="true"/>
     </div>
   </core-modal>
 
@@ -42,8 +40,8 @@
 
   module.exports = {
     components: {
-      'core-modal': require('kolibri/coreVue/components/coreModal'),
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     data: () => ({
       contentId: '',
@@ -83,7 +81,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .main
     text-align: center

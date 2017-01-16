@@ -9,7 +9,7 @@
           <div class="input-table-cell">
             <input
               type="search"
-              v-el:search
+              ref="search"
               aria-label="Type to find content"
               placeholder="Find content..."
               autocomplete="off"
@@ -17,7 +17,7 @@
               v-model="localSearchTerm"
               id="search"
               name="search"
-              @keyup="search() | debounce 500"
+              @keyup="search()"
               @keydown.esc.prevent="clear()"
             >
             <button
@@ -27,7 +27,7 @@
               @click="clear()"
               :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }"
             >
-              <svg src="./clear.svg" height="15" width="15" viewbox="0 0 24 24"></svg>
+              <svg class="clear-icon" src="./clear.svg"/>
             </button>
           </div>
           <div class="cancel-btn-table-cell">
@@ -52,10 +52,8 @@
           v-for="topic in topics"
           class="card"
           :id="topic.id"
-          :title="topic.title"
-          :ntotal="topic.n_total"
-          :ncomplete="topic.n_complete">
-        </topic-list-item>
+          :channelId="channelId"
+          :title="topic.title"/>
       </card-list>
 
       <h2 v-if="contents.length">
@@ -70,8 +68,7 @@
           :thumbnail="content.thumbnail"
           :kind="content.kind"
           :progress="content.progress"
-          :id="content.id">
-        </content-grid-item>
+          :id="content.id"/>
       </card-grid>
     </div>
 
@@ -84,6 +81,7 @@
 
   const focus = require('vue-focus').focus;
   const actions = require('../../actions');
+  const throttle = require('lodash.throttle');
 
 
   module.exports = {
@@ -105,7 +103,7 @@
         localSearchTerm: '',
       };
     },
-    ready() {
+    mounted() {
       this.localSearchTerm = this.searchTerm;
     },
     computed: {
@@ -131,13 +129,18 @@
           this.toggleSearch();
         } else {
           this.localSearchTerm = '';
-          this.$els.search.focus();
+          this.$refs.search.focus();
           this.triggerSearch(this.localSearchTerm);
         }
       },
-      search() {
+
+      triggerSearchAction() {
         this.triggerSearch(this.localSearchTerm);
       },
+
+      search: throttle(function search() {
+        this.triggerSearchAction();
+      }, 500),
     },
     components: {
       'topic-list-item': require('../topic-list-item'),
@@ -152,6 +155,7 @@
         loading: state => state.searchLoading,
         searchTerm: state => state.searchState.searchTerm,
         searchOpen: state => state.searchOpen,
+        channelId: (state) => state.core.channels.currentId,
       },
       actions: {
         triggerSearch: actions.triggerSearch,
@@ -165,7 +169,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
   @require '../learn.styl'
 
   $top-offset = 60px
@@ -178,8 +182,7 @@
     margin-bottom: $card-gutter
 
   .main-wrapper
-    margin: auto
-    width-auto-adjust()
+    left: 0
 
   .top-floating-bar
     background-color: $core-bg-canvas
@@ -189,10 +192,14 @@
     text-align: center
     position: fixed
     top: 0
+    left: 50%
+    transform: translate(-50%)
+    margin-left: 37px  // half the $nav-width
     width-auto-adjust()
     @media screen and (max-width: $portrait-breakpoint)
       padding: 0.5em 0
       text-align: center
+      margin-left: 0
 
   .table-wrapper
     margin: auto
@@ -240,8 +247,8 @@
     svg
       fill: $core-text-annotation
       position: relative
-      top: -2px
- 
+      top: 2px
+
     &:focus // Removing border in FF removes outline too (Normalize?)
       outline: 2px solid $core-action-light
 
@@ -263,5 +270,9 @@
   .results
     padding-top: $top-offset
     padding-bottom: 100px
+
+  .clear-icon
+    width: 15px
+    height: 15px
 
 </style>

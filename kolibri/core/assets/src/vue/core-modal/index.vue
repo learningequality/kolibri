@@ -1,43 +1,44 @@
 <template>
 
   <!-- Accessibility properties for the overlay -->
-  <div class="modal-overlay"
-    @keydown.esc="emitCancelEvent"
-    @keydown.enter="emitEnterEvent"
-    @click="bgClick($event)"
-    v-el:modal-overlay
-    id="modal-window">
+  <transition name="fade">
+    <div class="modal-overlay"
+      @keydown.esc="emitCancelEvent"
+      @keydown.enter="emitEnterEvent"
+      @click="bgClick($event)"
+      ref="modal-overlay"
+      id="modal-window">
 
-    <div class="modal"
-      v-el:modal
-      :tabindex="0"
-      transition="modal"
-      role="dialog"
-      aria-labelledby="modal-title">
+      <div class="modal"
+        ref="modal"
+        :tabindex="0"
+        role="dialog"
+        aria-labelledby="modal-title">
 
-      <div class="top-buttons">
-        <button aria-label="Go back" @click="emitBackEvent" class="header-btn btn-back" v-if="enablebackbtn">
-          <svg src="./back.svg" role="presentation"></svg>
-        </button>
-        <button aria-label="Close dialog window" @click="emitCancelEvent" class="header-btn btn-close">
-          <svg src="./close.svg" role="presentation"></svg>
-        </button>
+        <div class="top-buttons" @keydown.enter.stop>
+          <button aria-label="Go back" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">
+            <svg src="./back.svg"/>
+          </button>
+          <button aria-label="Close dialog window" @click="emitCancelEvent" class="header-btn btn-close">
+            <svg src="../icons/close.svg"/>
+          </button>
+        </div>
+
+        <!-- Modal Title -->
+        <h1 v-show="!invisibleTitle" class="title" id="modal-title">
+          <!-- Accessible error reporting per @radina -->
+          <span v-if="hasError" class="visuallyhidden">Error in:</span>
+          {{title}}
+        </h1>
+
+        <!-- Modal Content -->
+        <slot>
+          <p>To populate, wrap your content in <code> with modal </code>.</p>
+        </slot>
+
       </div>
-
-      <!-- Modal Title -->
-      <h1 v-show="!invisibletitle" class="title" id="modal-title">
-        <!-- Accessible error reporting per @radina -->
-        <span v-if="haserror" class="visuallyhidden">Error in:</span>
-        {{title}}
-      </h1>
-
-      <!-- Modal Content -->
-      <slot>
-        <p>To populate, wrap your content in <code> with modal </code>.</p>
-      </slot>
-
     </div>
-  </div>
+  </transition>
 
 </template>
 
@@ -50,7 +51,7 @@
         type: String,
         required: true,
       },
-      invisibletitle: {
+      invisibleTitle: {
         type: Boolean,
         default: false,
       },
@@ -59,27 +60,29 @@
         type: Boolean,
         default: false,
       },
-      enablebgclickcancel: {
+      enableBgClickCancel: {
         type: Boolean,
         default: true,
       },
-      enablebackbtn: {
+      enableBackBtn: {
         type: Boolean,
         default: false,
       },
       // toggles error message indicator in header
-      haserror: {
+      hasError: {
         type: Boolean,
         default: false,
       },
     },
-    attached() {
+    mounted() {
       this.lastFocus = document.activeElement;
-      this.focusModal();
+      this.$nextTick(() => {
+        this.focusModal();
+      });
       window.addEventListener('focus', this.focusElementTest, true);
       window.addEventListener('scroll', this.preventScroll, true);
     },
-    detached() {
+    destroyed() {
       window.removeEventListener('focus', this.focusElementTest, true);
       window.removeEventListener('scroll', this.preventScroll, true);
       // Wait for events to finish propagating before changing the focus.
@@ -102,11 +105,15 @@
         this.$emit('back');
       },
       focusModal() {
-        this.$els.modal.focus();
+        this.$refs.modal.focus();
       },
       focusElementTest(event) {
-        // if the focus moved outside the modal, put it back
-        if (this.$els.modal && !this.$els.modal.contains(event.target)) {
+        // switching apps - not relevant
+        if (event.target === window) { return; }
+        // not sure when this would be true
+        if (!this.$refs.modal) { return; }
+        // focus has escaped the modal - put it back!
+        if (!this.$refs.modal.contains(event.target)) {
           this.focusModal();
         }
       },
@@ -115,7 +122,7 @@
       },
       bgClick(event) {
         // check to make sure the area being clicked is the overlay, not the modal
-        if (this.enablebgclickcancel && (event.target === this.$els.modalOverlay)) {
+        if (this.enableBgClickCancel && (event.target === this.$refs.modalOverlay)) {
           this.emitCancelEvent();
         }
       },
@@ -127,7 +134,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .modal-overlay
     position: fixed
@@ -151,7 +158,6 @@
     overflow-y: auto
     border-radius: $radius
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
-    transition: all 0.3s ease
     margin: 0 auto
     padding: 15px 30px
 
@@ -181,13 +187,10 @@
   .title
     text-align: center
 
-  // Animation Specs
-  .modal-enter, .modal-leave
-    opacity: 0
+  .fade-enter-active, .fade-leave-active
+    transition: all 0.3s ease
 
-  .modal-enter .modal-container,
-  .modal-leave .modal-container
-    -webkit-transform: scale(1.1)
-    transform: scale(1.1)
+  .fade-enter, .fade-leave-active
+    opacity: 0
 
 </style>

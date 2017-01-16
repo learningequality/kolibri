@@ -1,6 +1,6 @@
 
-const Vuex = require('vuex');
-const coreStore = require('kolibri/coreVue/vuex/store');
+const Vuex = require('kolibri.lib.vuex');
+const coreStore = require('kolibri.coreVue.vuex.store');
 const constants = require('./constants');
 
 /**
@@ -40,7 +40,7 @@ const mutations = {
         if (existingUser.id === user.id.toString()) {
           existingUser.username = user.username;
           existingUser.full_name = user.full_name;
-          existingUser.roles = user.roles;
+          existingUser.kind = user.kind;
         }
       });
     });

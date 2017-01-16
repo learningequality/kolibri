@@ -5,7 +5,7 @@
     class="search-btn"
     @click="toggleSearch"
   >
-    <svg src="../search-widget/search.svg"></svg>
+    <svg src="../search-widget/search.svg"/>
   </button>
 
 </template>
@@ -28,7 +28,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   button
     border: none

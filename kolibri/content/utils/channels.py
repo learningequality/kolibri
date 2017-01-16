@@ -74,3 +74,22 @@ def get_mounted_drives_with_channel_info():
     for drive in drives.values():
         drive.metadata["channels"] = get_channels_for_data_folder(drive.datafolder) if drive.datafolder else []
     return drives
+
+def get_current_or_first_channel(request):
+    # import here to avoid circular imports whenever kolibri.content.models imports utils too
+    from kolibri.content.models import ChannelMetadataCache
+
+    currentChannelId = request.COOKIES.get('currentChannelId')
+    firstChannel = ChannelMetadataCache.objects.first()
+    # try to get channel from cookie
+    if currentChannelId:
+        try:
+            return ChannelMetadataCache.objects.get(pk=currentChannelId)
+        except ChannelMetadataCache.DoesNotExist:
+            return None
+    # if no id from cookie, grab first channel from list of channels
+    elif firstChannel:
+        return firstChannel
+    # if no cookie and no content databases, return None
+    else:
+        return None

@@ -2,7 +2,7 @@
 
   <div>
 
-    <component v-if="pageState.wizardState.shown" :is="wizardComponent"></component>
+    <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
     <div v-if="pageState.taskList.length" class="main alert-bg">
       <task-status
@@ -10,7 +10,7 @@
         :status="pageState.taskList[0].status"
         :percentage="pageState.taskList[0].percentage"
         :id="pageState.taskList[0].id"
-      ></task-status>
+      />
     </div>
 
     <div class="main light-bg">
@@ -21,21 +21,20 @@
             text="Import"
             class="button"
             @click="startImportWizard"
-            :primary="true"
-          >
-            <svg src="../icons/add.svg"></svg>
+            :primary="true">
+            <svg src="../icons/add.svg"/>
           </icon-button>
           <icon-button
             text="Export"
             class="button"
             :primary="true"
             @click="startExportWizard">
-            <svg src="../icons/export.svg"></svg>
+            <svg src="../icons/export.svg"/>
           </icon-button>
         </div>
       </div>
       <hr>
-      <p class="core-text-alert" v-if="!pageState.channelList.length">No channels installed</p>
+      <p class="core-text-alert" v-if="!channelList.length">No channels installed</p>
       <table>
       <!-- Table Headers -->
 <!--         <thead>
@@ -46,11 +45,11 @@
         </thead> -->
         <!-- Table body -->
         <tbody>
-          <tr v-for="channel in pageState.channelList">
+          <tr v-for="channel in channelList">
             <!-- Channel Name -->
             <th scope="row" class="table-cell" width="70%">
               <span class="channel-name">
-                {{ channel.name }}
+                {{ channel.title }}
               </span>
             </th>
             <!-- Export Button -->
@@ -73,7 +72,7 @@
 
   module.exports = {
     components: {
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
       'task-status': require('./task-status'),
       'wizard-import-source': require('./wizard-import-source'),
       'wizard-import-network': require('./wizard-import-network'),
@@ -83,10 +82,10 @@
     data: () => ({
       intervalId: undefined,
     }),
-    attached() {
+    mounted() {
       this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
     },
-    detached() {
+    destroyed() {
       clearInterval(this.intervalId);
     },
     computed: {
@@ -107,6 +106,7 @@
     },
     vuex: {
       getters: {
+        channelList: state => state.core.channels.list,
         pageState: state => state.pageState,
       },
       actions: {
@@ -122,7 +122,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   // Padding height that separates rows from eachother
   $row-padding = 1.5em
@@ -140,7 +140,7 @@
     background-color: $core-bg-light
 
   .alert-bg
-    background-color: $core-text-alert-bg
+    background-color: $core-bg-warning
 
   .table-title
     margin-top: 1em

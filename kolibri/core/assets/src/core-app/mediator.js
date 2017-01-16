@@ -8,7 +8,7 @@
 
 const assetLoader = require('./asset-loader');
 const Vue = require('vue');
-const logging = require('kolibri/lib/logging').getLogger(__filename);
+const logging = require('kolibri.lib.logging').getLogger(__filename);
 const rest = require('rest');
 const mime = require('rest/interceptor/mime');
 const errorCode = require('rest/interceptor/errorCode');
@@ -128,7 +128,8 @@ module.exports = class Mediator {
     } else {
       events = kolibriModule[eventsKey];
     }
-    for (const key of Object.getOwnPropertyNames(events)) {
+    for (let i = 0; i < Object.getOwnPropertyNames(events).length; i++) {
+      const key = Object.getOwnPropertyNames(events)[i];
       boundEventListenerMethod(key, kolibriModule, events[key]);
     }
   }
@@ -254,10 +255,12 @@ module.exports = class Mediator {
     const callbackBuffer = this._callbackBuffer[kolibriModuleName] = [];
     // Look at all events, whether listened to once or multiple times.
     const eventArray = [];
-    for (const key of Object.getOwnPropertyNames(events)) {
+    for (let i = 0; i < Object.getOwnPropertyNames(events).length; i++) {
+      const key = Object.getOwnPropertyNames(events)[i];
       eventArray.push([key, events[key]]);
     }
-    for (const key of Object.getOwnPropertyNames(once)) {
+    for (let i = 0; i < Object.getOwnPropertyNames(once).length; i++) {
+      const key = Object.getOwnPropertyNames(once)[i];
       eventArray.push([key, once[key]]);
     }
     if (typeof this._asyncCallbackRegistry[kolibriModuleName] === 'undefined') {

@@ -2,9 +2,9 @@
 
   <core-modal
     :title="$tr('title')"
-    :invisibletitle="true"
-    :enablebgclickcancel="true"
-    :haserror="wrongCreds"
+    :invisibleTitle="true"
+    :enableBgClickCancel="true"
+    :hasError="wrongCreds"
     @enter="userLogin"
     @cancel="cancelLoginModal"
   >
@@ -24,7 +24,7 @@
         class="login-form login-username"
         autofocus
         v-model="username_entered"
-        v-el:usernamefield
+        ref="usernamefield"
         :placeholder="$tr('userName')"
         :aria-label="$tr('userName')"
       >
@@ -44,7 +44,7 @@
 
 <script>
 
-  const actions = require('kolibri/coreVue/vuex/actions');
+  const actions = require('kolibri.coreVue.vuex.actions');
 
   module.exports = {
     $trNameSpace: 'loginModal',
@@ -63,8 +63,10 @@
       username_entered: '',
       password_entered: '',
     }),
-    attached() {
-      this.$els.usernamefield.focus();
+    mounted() {
+      this.$nextTick(() => {
+        this.$refs.usernamefield.focus();
+      });
       this.username_entered = '';
       this.password_entered = '';
     },
@@ -75,7 +77,7 @@
           password: this.password_entered,
         };
         this.kolibriLogin(this.Kolibri, payload);
-        this.$els.usernamefield.focus();
+        this.$refs.usernamefield.focus();
       },
     },
     vuex: {
@@ -94,8 +96,8 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
-  @require '~kolibri/styles/navBarItem'
+  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.navBarItem'
 
   h1
     font-size: 1.1em

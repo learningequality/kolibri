@@ -2,15 +2,15 @@
 
   <div class="top">
     <div class="links">
-      <a v-link="usersLink" :class="{active: usersActive}" @click="blur">
+      <router-link :to="usersLink" :class="{active: usersActive}" @click.native="blur">
         Users
-      </a>
-      <a v-link="dataLink" :class="{active: dataActive}" @click="blur">
+      </router-link>
+      <router-link :to="dataLink" :class="{active: dataActive}" @click.native="blur">
         Data
-      </a>
-      <a v-link="contentLink" :class="{active: contentActive}" @click="blur" v-if="isDeviceOwner">
+      </router-link>
+      <router-link :to="contentLink" :class="{active: contentActive}" @click.native="blur" v-if="isDeviceOwner">
         Content
-      </a>
+      </router-link>
     </div>
   </div>
 
@@ -19,7 +19,7 @@
 
 <script>
 
-  const UserKinds = require('kolibri/coreVue/vuex/constants').UserKinds;
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const constants = require('../../state/constants');
 
   module.exports = {
@@ -61,30 +61,19 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .top
     position: relative
     top: 1em
-    width: 100%
     padding: 1em 2em
     background: $core-bg-light
     border-radius: $radius
-    @media screen and (max-width: $medium-breakpoint)
-      width: 90%
-      margin: 0 auto
-      padding: 1em 0.2em
-
-  .links
-    @media screen and (max-width: $medium-breakpoint)
-      text-align: center
 
   .top a
     padding: 0.6em 2em
     text-decoration: none
     color: $core-text-annotation
-    @media screen and (max-width: $medium-breakpoint)
-      padding: 0.6em 1em
 
   .top .active
     color: $core-text-default

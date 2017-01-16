@@ -8,16 +8,15 @@
         :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
-        :id="content.id">
-      </content-grid-item>
+        :id="content.id"/>
     </card-grid>
 
     <div class="button-wrapper" v-if="contents.length > nCollapsed">
       <icon-button @click="toggle()" :text="less" v-if="expanded">
-        <svg src="show-less.svg"></svg>
+        <svg src="show-less.svg"/>
       </icon-button>
       <icon-button @click="toggle()" :text="more" v-else>
-        <svg src="show-more.svg"></svg>
+        <svg src="show-more.svg"/>
       </icon-button>
     </div>
   </div>
@@ -53,7 +52,7 @@
       },
     },
     components: {
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
       'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
     },
@@ -89,7 +88,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .button-wrapper
     text-align: center

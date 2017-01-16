@@ -1,14 +1,9 @@
 <template>
 
   <div class="link-wrapper">
-    <a v-if="vlink" v-link="vlink" :class="{active: active}" @click="blur" v-el:link class="link">
+    <a :href="href" :class="{active: active}" @click="blur" ref="link" class="link">
       <div class="content">
-        <slot></slot>
-      </div>
-    </a>
-    <a v-else :href="href" :class="{active: active}" @click="blur" v-el:link class="link">
-      <div class="content">
-        <slot></slot>
+        <slot/>
       </div>
     </a>
   </div>
@@ -21,14 +16,10 @@
   module.exports = {
     methods: {
       blur() {
-        this.$els.link.blur();
+        this.$refs.link.blur();
       },
     },
     props: {
-      // Note - only pass in a vlink or an href, not both
-      vlink: {
-        type: Object,
-      },
       href: {
         type: String,
       },
@@ -44,7 +35,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .link-wrapper
     @media screen and (min-width: $portrait-breakpoint + 1)
@@ -54,7 +45,6 @@
       vertical-align: middle
 
   .link
-    width: $nav-width
     margin: 0
     padding: 6px
     text-align: center
@@ -62,6 +52,7 @@
     @media screen and (min-width: $portrait-breakpoint + 1)
       display: table-cell
       vertical-align: middle
+      width: $nav-width
       height: 125px
     @media screen and (max-width: $portrait-breakpoint)
       display: block

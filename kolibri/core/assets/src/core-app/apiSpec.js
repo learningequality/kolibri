@@ -7,7 +7,7 @@
 // By default any module specified will be aliased to allow for require statements
 // namespaced in a way analogous to the API spec below.
 //
-// These modules will now be referenceable as e.g.: require('kolibri/lib/logging');
+// These modules will now be referenceable as e.g.: require('kolibri.lib.logging');
 //
 // N.B. You cannot use keys that require quotation marks in this object.
 // e.g. 'content-icon' (although this can be used as a value in module).
@@ -28,6 +28,9 @@ module.exports = {
       vuex: {
         module: require('vuex'),
       },
+      vueRouter: {
+        module: require('vue-router'),
+      },
       jscookie: {
         module: require('js-cookie'),
       },
@@ -40,6 +43,9 @@ module.exports = {
         constants: {
           module: require('../constants'),
         },
+        getters: {
+          module: require('../core-getters'),
+        },
         actions: {
           module: require('../core-actions'),
         },
@@ -50,6 +56,12 @@ module.exports = {
       components: {
         contentRenderer: {
           module: require('../vue/content-renderer'),
+        },
+        assessmentWrapper: {
+          module: require('../vue/assessment-wrapper'),
+        },
+        exerciseAttempts: {
+          module: require('../vue/exercise-attempts'),
         },
         downloadButton: {
           module: require('../vue/content-renderer/download-button'),
@@ -63,6 +75,9 @@ module.exports = {
         contentIcon: {
           module: require('../vue/content-icon'),
         },
+        progressIcon: {
+          module: require('../vue/progress-icon'),
+        },
         coreBase: {
           module: require('../vue/core-base'),
         },
@@ -74,6 +89,9 @@ module.exports = {
         },
         iconButton: {
           module: require('../vue/icon-button'),
+        },
+        channelSwitcher: {
+          module: require('../vue/channel-switcher'),
         },
       },
       router: {

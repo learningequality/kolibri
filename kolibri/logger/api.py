@@ -2,8 +2,10 @@ from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilte
 from kolibri.content.api import OptionalPageNumberPagination
 from rest_framework import filters, viewsets
 
-from .models import ContentRatingLog, ContentSessionLog, ContentSummaryLog, UserSessionLog
-from .serializers import ContentRatingLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, UserSessionLogSerializer
+from .models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, MasteryLog, UserSessionLog
+from .serializers import (
+    AttemptLogSerializer, ContentRatingLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, MasteryLogSerializer, UserSessionLogSerializer
+)
 
 
 class ContentSessionLogFilter(filters.FilterSet):
@@ -51,3 +53,33 @@ class UserSessionLogViewSet(viewsets.ModelViewSet):
     queryset = UserSessionLog.objects.all()
     serializer_class = UserSessionLogSerializer
     pagination_class = OptionalPageNumberPagination
+
+class MasteryFilter(filters.FilterSet):
+
+    class Meta:
+        model = MasteryLog
+        fields = ['summarylog']
+
+class MasteryLogViewSet(viewsets.ModelViewSet):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    queryset = MasteryLog.objects.all()
+    serializer_class = MasteryLogSerializer
+    pagination_class = OptionalPageNumberPagination
+    filter_class = MasteryFilter
+
+class AttemptFilter(filters.FilterSet):
+
+    class Meta:
+        model = AttemptLog
+        fields = ['masterylog', 'complete']
+
+class AttemptLogViewSet(viewsets.ModelViewSet):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend, filters.OrderingFilter)
+    queryset = AttemptLog.objects.all()
+    serializer_class = AttemptLogSerializer
+    pagination_class = OptionalPageNumberPagination
+    filter_class = AttemptFilter
+    ordering_fields = ('end_timestamp',)
+    ordering = ('end_timestamp',)

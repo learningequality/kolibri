@@ -1,13 +1,13 @@
 <template>
 
-  <a class="root">
+  <router-link class="root" :to="link">
     <div class="thumb-wrapper">
-      <slot></slot>
+      <slot/>
     </div>
     <div class="text">
       <span class="title">{{ title }}</span>
     </div>
-  </a>
+  </router-link>
 
 </template>
 
@@ -20,6 +20,10 @@
         type: String,
         required: true,
       },
+      link: {
+        type: Object,
+        required: true,
+      },
     },
   };
 
@@ -28,7 +32,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
   @require '../../learn.styl'
   @require 'jeet'
 

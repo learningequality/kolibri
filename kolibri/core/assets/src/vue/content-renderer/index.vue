@@ -2,12 +2,9 @@
 
   <div>
     <div v-if="available" class="fill-height">
-      <div class="content-icon-wrapper">
-        <content-icon :progress="progress" :kind="kind"></content-icon>
-      </div>
       <div class="content-wrapper">
-        <loading-spinner v-if="!currentViewClass"></loading-spinner>
-        <div v-el:container></div>
+        <loading-spinner v-if="!currentViewClass"/>
+        <div ref="container"></div>
       </div>
     </div>
     <div v-else>
@@ -20,8 +17,8 @@
 
 <script>
 
-  const logging = require('kolibri/lib/logging').getLogger(__filename);
-  const actions = require('kolibri/coreVue/vuex/actions');
+  const logging = require('kolibri.lib.logging').getLogger(__filename);
+  const actions = require('kolibri.coreVue.vuex.actions');
 
   module.exports = {
     $trNameSpace: 'contentRender',
@@ -80,11 +77,8 @@
         return this.availableFiles &&
           this.availableFiles.length ? this.availableFiles[0] : undefined;
       },
-      progressPercent() {
-        return Math.floor(this.progress * 100);
-      },
     },
-    init() {
+    beforeCreate() {
       this._eventListeners = [];
     },
     created() {
@@ -92,7 +86,7 @@
       // This means this component has to be torn down on channel switches.
       this.$watch('files', this.findRendererComponent);
     },
-    ready() {
+    mounted() {
       this.ready = true;
       this.renderContent();
     },
@@ -166,7 +160,8 @@
             // Only use non-enumerable, non-inherited properties of the props object.
             (name) => enumerables.indexOf(name) > -1
           );
-          for (const key of properties) {
+          for (let i = 0; i < properties.length; i++) {
+            const key = properties[i];
             // Loop through all the properties, see if one of them is extraFields.
             if (key !== 'extraFields') {
               // If it isn't just put it directly into the data.
@@ -180,23 +175,29 @@
           propsData.defaultFile = this.defaultFile;
           // Create an options object for the soon to be instantiated renderer component.
           const options = {
+            name: 'content-renderer-child',
             // Set the parent so that it is in the Vue family.
             parent: this,
             // Let it mount on the DOM in the container div set up in the template.
-            el: this.$els.container,
+            el: this.$refs.container,
             // Pass in the propsData!
             propsData,
           };
           // Add the specified options for the Vue component that we received from the plugin
           // into the options object.
           Object.assign(options, this.currentViewClass);
-          // Instantiate the Vue instance directly using the Kolibri Vue constructor.
-          this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
 
-          this.contentView.$on('startTracking', this.wrappedStartTracking);
-          this.contentView.$on('stopTracking', this.wrappedStopTracking);
-          this.contentView.$on('progressUpdate', this.wrappedUpdateProgress);
-          this.initSession(this.Kolibri, this.channelId, this.contentId, this.kind);
+          // guarantee summarylog, sessionlog, and existing masterylog are synced and in store.
+          this.initSession(this.Kolibri, this.channelId, this.contentId, this.kind).then(() => {
+            // Instantiate the Vue instance directly using the Kolibri Vue constructor.
+            this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
+
+            this.contentView.$on('startTracking', this.wrappedStartTracking);
+            this.contentView.$on('stopTracking', this.wrappedStopTracking);
+            this.contentView.$on('progressUpdate', this.wrappedUpdateProgress);
+          }, (reason) => {
+            logging.error('initContentSession failed: ', reason);
+          });
         }
       },
       wrappedStartTracking() {
@@ -219,9 +220,6 @@
         startTracking: actions.startTrackingProgress,
         stopTracking: actions.stopTrackingProgress,
       },
-      getters: {
-        progress: (state) => state.core.logging.summary.progress,
-      },
     },
   };
 
@@ -230,16 +228,12 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   .fill-height
     height: 100%
 
-  .content-icon-wrapper
-    width: 2em
-    height: 2em
-
   .content-wrapper
-    height: calc(100% - 2em)
+    height: 100%
 
 </style>

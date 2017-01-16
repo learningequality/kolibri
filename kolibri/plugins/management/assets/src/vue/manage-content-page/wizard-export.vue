@@ -3,7 +3,7 @@
   <core-modal
     title="Export to a Local Drive"
     :error="wizardState.error ? true : false"
-    :enablebgclickcancel="false"
+    :enableBgClickCancel="false"
     @cancel="cancel"
     @enter="submit"
   >
@@ -11,7 +11,7 @@
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <h2 class="core-text-alert" v-if="writableDrives.length === 0">
-            <svg class="error-svg" src="../icons/error.svg"></svg>
+            <svg class="error-svg" src="../icons/error.svg"/>
             No writable drives were detected.
           </h2>
           <h2 v-if="writableDrives.length === 1">
@@ -20,7 +20,7 @@
           <template v-if="writableDrives.length > 1">
             <h2>Writable drives detected:</h2>
             <div class="drive-list">
-              <div class="drive-names" v-for="(index, drive) in writableDrives">
+              <div class="drive-names" v-for="(drive, index) in writableDrives">
                 <input
                   type="radio"
                   :id="'drive-'+index"
@@ -36,11 +36,11 @@
         </div>
         <div class="refresh-btn-wrapper">
           <icon-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" text="Refresh">
-            <svg src="../icons/refresh.svg"></svg>
+            <svg src="../icons/refresh.svg"/>
           </icon-button>
         </div>
       </template>
-      <loading-spinner v-else :delay="500" class="spinner"></loading-spinner>
+      <loading-spinner v-else :delay="500" class="spinner"/>
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}
@@ -48,14 +48,12 @@
     <div class="button-wrapper">
       <icon-button
         @click="cancel"
-        text="Cancel">
-      </icon-button>
+        text="Cancel"/>
       <icon-button
         text="Export"
         @click="submit"
         :disabled="!canSubmit"
-        :primary="true">
-      </icon-button>
+        :primary="true"/>
     </div>
   </core-modal>
 
@@ -68,8 +66,8 @@
 
   module.exports = {
     components: {
-      'core-modal': require('kolibri/coreVue/components/coreModal'),
-      'icon-button': require('kolibri/coreVue/components/iconButton'),
+      'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     data: () => ({
       selectedDrive: undefined, // used when there's more than one option
@@ -131,7 +129,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri/styles/coreTheme'
+  @require '~kolibri.styles.coreTheme'
 
   $min-height = 200px
 

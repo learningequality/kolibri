@@ -1,6 +1,6 @@
 
-const Vuex = require('vuex');
-const coreStore = require('kolibri/coreVue/vuex/store');
+const Vuex = require('kolibri.lib.vuex');
+const coreStore = require('kolibri.coreVue.vuex.store');
 
 const initialState = {};
 const mutations = {};

@@ -1,7 +1,8 @@
-const Kolibri = require('kolibri');
+const coreApp = require('kolibri');
 
-const DeviceOwnerResource = Kolibri.resources.DeviceOwnerResource;
-const FacilityResource = Kolibri.resources.FacilityResource;
+const DeviceOwnerResource = coreApp.resources.DeviceOwnerResource;
+const FacilityResource = coreApp.resources.FacilityResource;
+const coreActions = require('kolibri.coreVue.vuex.actions');
 
 function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload) {
   const DeviceOwnerModel = DeviceOwnerResource.createModel(deviceownerpayload);
@@ -9,13 +10,13 @@ function createDeviceOwnerAndFacility(store, deviceownerpayload, facilitypayload
   const FacilityModel = FacilityResource.createModel(facilitypayload);
   const facilityPromise = FacilityModel.save();
   const promises = [deviceOwnerPromise, facilityPromise];
-  Promise.all(promises).then(responses => {
-    // redirect to learn page after successfully created the DeviceOwner and Facility.
-    window.location = Kolibri.urls['kolibri:learnplugin:learn']();
-  },
-  rejects => {
-    store.dispatch('CORE_SET_ERROR', JSON.stringify(rejects, null, '\t'));
-  });
+  Promise.all(promises).then(
+    responses => {
+      // redirect to learn page after successfully created the DeviceOwner and Facility.
+      window.location = coreApp.urls['kolibri:learnplugin:learn']();
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
 }
 
 
