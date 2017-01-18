@@ -197,7 +197,7 @@
       deleteUserHandler() {
         // if logged in admin deleted their own account, log them out
         if (Number(this.userid) === this.session_user_id) {
-          this.logout(this.Kolibri);
+          this.logout();
         }
         this.deleteUser(this.userid);
         this.emitCloseSignal();

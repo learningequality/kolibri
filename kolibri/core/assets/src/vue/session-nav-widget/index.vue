@@ -28,7 +28,7 @@
               <p id="dropdown-usertype">{{ userkind }}</p>
             </li>
             <li id="logout-tab">
-              <div tabindex="0" @keyup.enter="userLogout" @click="userLogout" :aria-label="logOutText">
+              <div tabindex="0" @keyup.enter="userLogout" @click="logout" :aria-label="logOutText">
                 <span>{{ $tr('logOut') }}</span>
               </div>
             </li>
@@ -92,9 +92,6 @@
       },
       hideDropdown() {
         this.showDropdown = false;
-      },
-      userLogout() {
-        this.logout(this.Kolibri);
       },
     },
     vuex: {

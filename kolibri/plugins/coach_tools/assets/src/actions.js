@@ -1,5 +1,4 @@
 const coreActions = require('kolibri.coreVue.vuex.actions');
-const coreApp = require('kolibri');
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const router = require('kolibri.coreVue.router');
@@ -148,7 +147,7 @@ function showReport(store, params, oldParams) {
   }
 
   // CHANNELS
-  const channelPromise = coreActions.setChannelInfo(store, coreApp);
+  const channelPromise = coreActions.setChannelInfo(store);
   promises.push(channelPromise);
 
   // API response handlers
