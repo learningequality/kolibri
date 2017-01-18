@@ -72,7 +72,7 @@
 <style lang="stylus" scoped>
 
   .header-wrapper
-    margin-top: 1em
+    margin-top: 42px // height of toolbar
 
   .extra-nav
     font-size: 12px
@@ -80,7 +80,6 @@
 
   .header
     position: relative
-    height: 3em
 
   .content-icon-wrapper,
   .progress-icon-wrapper
