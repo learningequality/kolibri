@@ -66,14 +66,20 @@ Kolibri users can have different roles with respective access to features:
 * **Learners** can:
   
   * View content and have their progress tracked
+* **Coaches** can:
+  
+  * View content and have their progress tracked
+  * View *Coach Reports* to track progress of the **Learner** users and usage stats for individual exercises
 * **Admins** can:
 
-  * View content
+  * View content and have their progress tracked
+  * View *Coach Reports* to track progress of the **Learner** users and usage stats for individual exercises
   * Create/Edit/Delete other **Admins** and **Learners**
   * Export *Detail* and *Summary* logs usage data
 * **Device Owners** can:
 
   * View content
+  * View *Coach Reports* to track progress of the **Learner** users and usage stats for individual exercises
   * Create/Edit/Delete other **Admins** and **Learners**
   * Export *Detail* and *Summary* logs usage data
   * Import/Export content
@@ -90,7 +96,7 @@ To create a new user account, follow these steps.
 
 #. Click **Add New** button.
 #. Fill in the required information (name, username, password).
-#. Select user profile (*Admin* or *Learner*). 
+#. Select user profile (*Admin*, *Coach* or *Learner*). 
 #. Click **Create Account** to add the new user.
 
 .. image:: img/add_new_account.png
