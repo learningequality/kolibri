@@ -16,10 +16,10 @@
         aria-labelledby="modal-title">
 
         <div class="top-buttons" @keydown.enter.stop>
-          <button aria-label="Go back" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">
+          <button :aria-label="$tr('goBack')" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">
             <svg src="./back.svg"/>
           </button>
-          <button aria-label="Close dialog window" @click="emitCancelEvent" class="header-btn btn-close">
+          <button :aria-label="$tr('closeWindow')" @click="emitCancelEvent" class="header-btn btn-close">
             <svg src="../icons/close.svg"/>
           </button>
         </div>
@@ -27,13 +27,13 @@
         <!-- Modal Title -->
         <h1 v-show="!invisibleTitle" class="title" id="modal-title">
           <!-- Accessible error reporting per @radina -->
-          <span v-if="hasError" class="visuallyhidden">Error in:</span>
+          <span v-if="hasError" class="visuallyhidden">{{$tr('errorAlert')}}</span>
           {{title}}
         </h1>
 
         <!-- Modal Content -->
         <slot>
-          <p>To populate, wrap your content in <code> with modal </code>.</p>
+          <p>To populate, wrap your content with <code> modal </code>.</p>
         </slot>
 
       </div>
@@ -46,6 +46,14 @@
 <script>
 
   module.exports = {
+    $trNameSpace: 'coreModal',
+    $trs: {
+      // error alerts
+      errorAlert: 'Error in:',
+      // aria labels
+      goBack: 'Go Back',
+      closeWindow: 'Close Window',
+    },
     props: {
       title: {
         type: String,
