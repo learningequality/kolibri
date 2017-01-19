@@ -67,7 +67,7 @@
     margin-top: 2em
     margin-bottom: 1.4em
 
-  .header h3
+  .header h2
     display: inline
 
   .card-grid
