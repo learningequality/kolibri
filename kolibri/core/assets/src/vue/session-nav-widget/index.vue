@@ -55,6 +55,8 @@
       admin: 'Admin',
       coach: 'Coach',
       learner: 'Learner',
+      superuser: 'Superuser',
+      deviceOwner: 'Device Owner',
     },
     components: {
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
@@ -74,16 +76,19 @@
       },
       name() {
         if (this.deviceOwner) {
-          return 'Device Owner';
+          return this.$tr('deviceOwner');
         }
         return this.fullname;
       },
       userkind() {
+        console.log(this.kind[0]);
         if (this.kind[0]) {
           if (this.kind[0] === UserKinds.ADMIN) {
             return this.$tr('admin');
           } else if (this.kind[0] === UserKinds.COACH) {
             return this.$tr('coach');
+          } else if (this.kind[0] === UserKinds.SUPERUSER) {
+            return this.$tr('superuser');
           }
         }
         return this.$tr('learner');
