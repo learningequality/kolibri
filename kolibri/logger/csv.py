@@ -47,10 +47,10 @@ class LogCSVSerializerBase(serializers.ModelSerializer):
             return ""
 
     def get_time_spent(self, obj):
-        return round(obj.time_spent, 5)
+        return int(round(obj.time_spent))
 
     def get_progress(self, obj):
-        return round(obj.progress, 1)
+        return round(obj.progress, 4)
 
 
 class ContentSummaryLogCSVSerializer(LogCSVSerializerBase):
