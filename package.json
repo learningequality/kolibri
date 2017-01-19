@@ -84,7 +84,7 @@
     "mkdirp": "0.5.1",
     "mocha": "2.5.3",
     "phantomjs-polyfill-find": "ptim/phantomjs-polyfill-find",
-    "phantomjs-prebuilt": "2.1.7",
+    "phantomjs-prebuilt": "^2.1.14",
     "postcss-loader": "0.9.1",
     "recursive-install": "1.2.0",
     "rewire": "2.5.2",
