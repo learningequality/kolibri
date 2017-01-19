@@ -86,7 +86,7 @@
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
             <span v-if="user.kind !== LEARNER" class="user-role">
-              {{ user.kind === ADMIN ? $tr('admin', {count: 1}) : $tr('coach') }}
+              {{ user.kind === ADMIN ? $tr('admin') : $tr('coach') }}
             </span>
           </td>
 
