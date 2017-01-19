@@ -4,32 +4,36 @@
 
     <div class="header">
       <h1>
-        All Users
+        {{$tr('allUsers')}}
       </h1>
       <span> ( {{ visibleUsers.length }} )</span>
     </div>
 
     <div class="toolbar">
-      <label for="type-filter" class="visuallyhidden">Filter User Type</label>
+      <label for="type-filter" class="visuallyhidden">{{$tr('filterUserType')}}</label>
       <select v-model="roleFilter" id="type-filter" name="type-filter">
-        <option value="all"> All Users </option>
-        <option :value="ADMIN"> Admins </option>
-        <option :value="COACH"> Coaches </option>
-        <option :value="LEARNER"> Learners </option>
+        <option value="all"> {{$tr('allUsers')}} </option>
+        <option :value="ADMIN"> {{$tr('admins')}}</option>
+        <option :value="COACH"> {{$tr('coaches')}} </option>
+        <option :value="LEARNER"> {{$tr('learners')}} </option>
       </select>
 
       <div class="searchbar" role="search">
         <svg class="icon" src="../icons/search.svg" aria-hidden="true"/>
         <input
           id="search-field"
-          aria-label="Search for a user..."
+          :aria-label="$tr('searchText')"
           type="search"
           v-model="searchFilter"
-          placeholder="Search for a user...">
+          :placeholder="$tr('searchText')">
       </div>
 
       <div class="create">
-        <icon-button @click="openCreateUserModal" class="create-user-button" text="Add New" :primary="true">
+        <icon-button 
+          @click="openCreateUserModal" 
+          class="create-user-button" 
+          :text="$tr('addNew')" 
+          :primary="true">
           <svg class="add-user" src="../icons/add_new_user.svg"/>
         </icon-button>
       </div>
@@ -53,19 +57,19 @@
 
     <table class="roster">
 
-      <caption class="visuallyhidden">Users</caption>
+      <caption class="visuallyhidden">{{$tr('users')}}</caption>
 
       <!-- Table Headers -->
       <thead v-if="usersMatchFilter">
         <tr>
-          <th class="col-header" scope="col"> Full Name </th>
+          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
           <th class="col-header" scope="col">
             <span class="role-header" aria-hidden="true">
-              Role
+              {{$tr('kind')}}
             </span>
           </th>
-          <th class="col-header table-username" scope="col"> Username </th>
-          <th class="col-header" scope="col"> Edit </th>
+          <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
+          <th class="col-header" scope="col"> {{$tr('edit')}} </th>
         </tr>
       </thead>
 
@@ -82,7 +86,7 @@
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
             <span v-if="user.kind !== LEARNER" class="user-role">
-              {{ user.kind === ADMIN ? $tr('admin') : $tr('coach') }}
+              {{ user.kind === ADMIN ? $tr('admin', {count: 1}) : $tr('coach') }}
             </span>
           </td>
 
@@ -94,7 +98,7 @@
           <!-- Edit field -->
           <td class="table-cell">
             <icon-button class="edit-user-button" @click="openEditUserModal(user)">
-              <span class="visuallyhidden">Edit Account Info</span>
+              <span class="visuallyhidden">$tr('editAccountInfo')</span>
               <svg src="../icons/pencil.svg"/>
             </icon-button>
           </td>
@@ -198,10 +202,29 @@
     },
     $trNameSpace: 'userPage',
     $trs: {
-      noUsersExist: 'No Users Exist.',
-      allUsersFilteredOut: 'No users match the filter.',
+      // input & accessibility labels
+      filterUserType: 'Filter User Type',
+      editAccountInfo: 'Edit Account Information',
+      searchText: 'Search for a user...',
+      // filter select entries
+      allUsers: 'All Users',
+      admins: 'Admins',
+      coaches: 'Coaches',
+      learners: 'Learners',
+      // edit button text
+      addNew: 'Add New',
+      // user tags
       admin: 'Admin',
       coach: 'Coach',
+      // table info
+      fullName: 'Full Name',
+      users: 'Users',
+      kind: 'Kind',
+      username: 'Username',
+      edit: 'Edit',
+      // search-related error messages
+      noUsersExist: 'No Users Exist.',
+      allUsersFilteredOut: 'No users match the filter.',
     },
   };
 
