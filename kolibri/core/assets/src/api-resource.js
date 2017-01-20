@@ -237,17 +237,16 @@ class Collection {
         } else {
           this.synced = false;
           this.resource.client({ path: this.url, params }).then((response) => {
-            // Reset current models to only include ones from this fetch.
-            this.models = [];
-            this._model_map = {};
             // Set response object - an Array - on the Collection to record the data.
             // First check that the response *is* an Array
             if (Array.isArray(response.entity)) {
+              this.clearCache();
               this.set(response.entity);
             } else {
               // If it's not, there are two possibilities - something is awry, or we have received
               // paginated data! Check to see if it is paginated.
-              if (typeof response.entity.results !== 'undefined') {
+              if (typeof (response.entity || {}).results !== 'undefined') {
+                this.clearCache();
                 // Paginated objects have 'results' as their results object so interpret this as
                 // such.
                 this.set(response.entity.results);
@@ -289,6 +288,15 @@ class Collection {
   }
 
   /**
+   * Clear this Collection's cache of models.
+   */
+  clearCache() {
+    // Reset current models.
+    this.models = [];
+    this._model_map = {};
+  }
+
+  /**
    * Make a model a member of the collection - record in the models Array, and in the mapping
    * from id to model. Will automatically instantiate Models for data passed in as objects, and
    * deduplicate within the collection.
@@ -324,9 +332,16 @@ class Collection {
     return this.models.reduce((synced, model) => synced && model.synced, this._synced);
   }
 
+  /**
+   * Set this Collection as synced or not, for true, will also set all models cached in it
+   * as synced.
+   * @param  {Boolean} value Is this Collection synced or not?
+   */
   set synced(value) {
     this._synced = value;
-    this.models.forEach((model) => { model.synced = true; });
+    if (value) {
+      this.models.forEach((model) => { model.synced = true; });
+    }
   }
 
   static key(params) {
