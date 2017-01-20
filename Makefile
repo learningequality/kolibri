@@ -14,7 +14,7 @@ help:
 clean: clean-build clean-pyc clean-docs clean-static
 
 clean-static:
-	npm run clean
+	yarn run clean
 
 clean-build:
 	rm -fr build/
@@ -48,7 +48,7 @@ test-all:
 	tox
 
 assets: staticdeps
-	npm run build
+	yarn run build
 
 coverage:
 	coverage run --source kolibri setup.py test

@@ -42,6 +42,13 @@ class CoachToolsModule extends KolibriModule {
         },
       },
       {
+        name: PageNames.CONTENT_UNAVAILABLE,
+        path: '/content-unavailable',
+        handler: (toRoute, fromRoute) => {
+          actions.showContentUnavailable(store);
+        },
+      },
+      {
         path: '/',
         redirect: '/reports',
       },

@@ -15,7 +15,8 @@
     "test-karma:watch": "./node_modules/karma/bin/karma start ./karma_config/karma.conf.js",
     "bundle-stats": "webpack --config ./frontend_build/src/webpack.config.prod.js --json | node ./node_modules/webpack-bundle-size-analyzer/webpack-bundle-size-analyzer",
     "install": "node ./frontend_build/src/install_dependencies.js",
-    "clean": "node ./frontend_build/src/clean.js"
+    "clean": "node ./frontend_build/src/clean.js",
+    "preinstall": "node ./frontend_build/src/npm_deprecation_warning.js"
   },
   "repository": {
     "type": "git",
@@ -84,7 +85,7 @@
     "mkdirp": "0.5.1",
     "mocha": "2.5.3",
     "phantomjs-polyfill-find": "ptim/phantomjs-polyfill-find",
-    "phantomjs-prebuilt": "2.1.7",
+    "phantomjs-prebuilt": "^2.1.14",
     "postcss-loader": "0.9.1",
     "recursive-install": "1.2.0",
     "rewire": "2.5.2",

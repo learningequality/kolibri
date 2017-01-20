@@ -58,17 +58,20 @@
       vLink() {
         if (this.isUser) {
           return genLink(this.pageState, {
+            all_or_recent: Constants.AllOrRecent.ALL,
             user_scope: Constants.UserScopes.USER,
             user_scope_id: this.id,
           });
         } else if (this.isTopic) {
           return genLink(this.pageState, {
+            all_or_recent: Constants.AllOrRecent.ALL,
             content_scope: Constants.ContentScopes.TOPIC,
             content_scope_id: this.id,
           });
         }
         // assume it's a content link
         return genLink(this.pageState, {
+          all_or_recent: Constants.AllOrRecent.ALL,
           content_scope: Constants.ContentScopes.CONTENT,
           content_scope_id: this.id,
         });

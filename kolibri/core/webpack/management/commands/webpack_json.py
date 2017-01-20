@@ -4,9 +4,7 @@ import json
 import logging
 
 from django.core.management.base import BaseCommand
-
 from kolibri.core.webpack.hooks import WebpackBundleHook
-
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +19,7 @@ class Command(BaseCommand):
 
         logging.debug(args)
 
-        result = [hook.webpack_bundle_data for hook in WebpackBundleHook().registered_hooks]
+        result = [hook.webpack_bundle_data for hook in WebpackBundleHook().registered_hooks if hook.webpack_bundle_data]
 
         if options["output_file"]:
             logger.info("Writing webpack_json output to {}".format(options["output_file"]))
