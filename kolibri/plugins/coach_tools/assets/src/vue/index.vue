@@ -31,13 +31,17 @@
       logInCommand: 'You must be logged in as an Admin to view this page.',
     },
     components: {
-      reports: require('./reports'),
+      'reports': require('./reports'),
+      'content-unavailable-page': require('./content-unavailable-page'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
         if (this.pageName === constants.PageNames.REPORTS) {
           return 'reports';
+        }
+        if (this.pageName === constants.PageNames.CONTENT_UNAVAILABLE) {
+          return 'content-unavailable-page';
         }
         return null;
       },
