@@ -1,7 +1,7 @@
 <template>
 
   <core-modal
-    title="Edit Account Info"
+    :title="$tr('modalTitle')"
     :has-error="error_message ? true : false"
     :enableBackBtn="usr_delete || pw_reset"
     @enter="submit"
@@ -13,27 +13,27 @@
       <template v-if="!usr_delete && !pw_reset">
 
         <div class="user-field">
-          <label for="fullname">Full Name</label>:
-          <input type="text" class="edit-form edit-fullname" aria-label="fullname" id="fullname" v-model="fullName_new">
+          <label for="fullname">{{$tr('fullName')}}</label>:
+          <input type="text" class="edit-form edit-fullname" :aria-label="$tr('fullName')" id="fullname" v-model="fullName_new">
         </div>
 
         <div class="user-field">
-          <label for="username">Username</label>:
-          <input type="text" class="edit-form edit-username" aria-label="username" id="username" v-model="username_new">
+          <label for="username">{{$tr('username')}}</label>:
+          <input type="text" class="edit-form edit-username" :aria-label="$tr('username')" id="username" v-model="username_new">
         </div>
 
         <div class="user-field">
-          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
+          <label for="user-role"><span class="visuallyhidden">{{$tr('userKind')}}</span></label>
           <select v-model="kind_new" id="user-role">
-            <option :value="LEARNER"> Learner </option>
-            <option :value="ADMIN"> Admin </option>
-            <option :value="COACH"> Coach </option>
+            <option :value="LEARNER"> {{$tr('learner')}} </option>
+            <option :value="ADMIN"> {{$tr('admin')}} </option>
+            <option :value="COACH"> {{$tr('coach')}} </option>
           </select>
         </div>
 
         <div class="advanced-options" @keydown.enter.stop>
-          <button @click="pw_reset=!pw_reset"> Reset Password </button>
-          <button @click="usr_delete=!usr_delete"> Delete User</button>
+          <button @click="pw_reset=!pw_reset"> {{$tr('resetPw')}} </button>
+          <button @click="usr_delete=!usr_delete"> {{$tr('deleteUsr')}}</button>
         </div>
 
         <hr class="end-modal">
@@ -42,14 +42,14 @@
 
       <!-- Password Reset Mode -->
       <template v-if="pw_reset" >
-        <p>Username: <b>{{ username}}</b></p>
+        <p>{{$tr('username')}}: <b>{{ username}}</b></p>
         <div class="user-field">
-          <label for="password">Enter new password</label>:
+          <label for="password">{{$tr('enterNewPw')}}</label>:
           <input type="password" class="edit-form" id="password" required v-model="password_new">
         </div>
 
         <div class="user-field">
-          <label for="password-confirm">Confirm new password</label>:
+          <label for="password-confirm">{{$tr('confirmNewPw')}}</label>:
           <input type="password" class="edit-form" id="password-confirm" required v-model="password_new_confirm">
         </div>
       </template>
@@ -57,7 +57,7 @@
       <!-- User Delete Mode -->
       <template v-if="usr_delete">
         <div class="user-field">
-          <p>Are you sure you want to delete <b>{{ username}}</b>?</p>
+          {{$trHtml('deleteConfirmation', {user:username})}}
         </div>
       </template>
 
@@ -96,6 +96,35 @@
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
+    $trNameSpace: 'user-edit-modal',
+    $trs: {
+      modalTitle: 'Edit Account Info',
+      // input labels
+      fullName: 'Full Name',
+      username: 'Username',
+      userKind: 'User Kind',
+      enterNewPw: 'Enter new password',
+      confirmNewPw: 'Confirm new password',
+      // kind select
+      learner: 'Learner',
+      admin: 'Admin',
+      coach: 'Coach',
+      // buttons and links
+      resetPw: 'Reset Password',
+      deleteUsr: 'Delete User',
+      save: 'Save',
+      back: 'Back',
+      yes: 'Yes',
+      no: 'No',
+      confirm: 'Confirm',
+      cancel: 'Cancel',
+      // confirmation messages
+      // this one is going to get a little complicated
+      deleteConfirmation: 'Are you sure you want to delete {user}?',
+      // errors
+      pwMismatch: 'Passwords must match',
+      noNewPw: 'Please enter a new password',
+    },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
@@ -135,19 +164,19 @@
       ADMIN: () => UserKinds.ADMIN,
       submitText() {
         if (this.pw_reset) {
-          return 'Save';
+          return this.$tr('save');
         } else if (this.usr_delete) {
-          return 'Yes';
+          return this.$tr('yes');
         }
-        return 'Confirm';
+        return this.$tr('confirm');
       },
       cancelText() {
         if (this.pw_reset) {
-          return 'Back';
+          return this.$tr('back');
         } else if (this.usr_delete) {
-          return 'No';
+          return this.$tr('no');
         }
-        return 'Cancel';
+        return this.$tr('cancel');
       },
     },
     methods: {
@@ -212,11 +241,11 @@
             this.emitCloseSignal();
           } else {
             // passwords don't match
-            this.error_message = 'Passwords must match.';
+            this.error_message = this.$tr('pwMismatch');
           }
         } else {
           // if user didn't populate the password fields
-          this.error_message = 'Please enter a new password.';
+          this.error_message = this.$tr('noNewPw');
         }
       },
       emitCloseSignal() {
