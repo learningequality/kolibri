@@ -7,7 +7,7 @@ var path = require('path');
 
 webpack_config.plugins.push(new RewirePlugin());
 webpack_config.devtool = '#inline-source-map';
-webpack_config.resolve.alias['kolibri'] = path.resolve('kolibri/core/assets/src/core_app_instance');
+webpack_config.resolve.alias['kolibri'] = path.resolve(__dirname, './kolibriGlobalMock');
 
 module.exports = function(config) {
   config.set({
