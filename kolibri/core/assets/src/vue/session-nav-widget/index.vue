@@ -28,7 +28,7 @@
               <p id="dropdown-usertype">{{ userkind }}</p>
             </li>
             <li id="logout-tab">
-              <div tabindex="0" @keyup.enter="userLogout" @click="logout" :aria-label="logOutText">
+              <div tabindex="0" @keyup.enter="userLogout" @click="logout" :aria-label="$tr('logOut')">
                 <span>{{ $tr('logOut') }}</span>
               </div>
             </li>
@@ -52,6 +52,11 @@
     $trs: {
       logOut: 'Log Out',
       logIn: 'Log In',
+      admin: 'Admin',
+      coach: 'Coach',
+      learner: 'Learner',
+      superuser: 'Superuser',
+      deviceOwner: 'Device Owner',
     },
     components: {
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
@@ -71,12 +76,22 @@
       },
       name() {
         if (this.deviceOwner) {
-          return 'Device Owner';
+          return this.$tr('deviceOwner');
         }
         return this.fullname;
       },
       userkind() {
-        return this.kind[0];
+        console.log(this.kind[0]);
+        if (this.kind[0]) {
+          if (this.kind[0] === UserKinds.ADMIN) {
+            return this.$tr('admin');
+          } else if (this.kind[0] === UserKinds.COACH) {
+            return this.$tr('coach');
+          } else if (this.kind[0] === UserKinds.SUPERUSER) {
+            return this.$tr('superuser');
+          }
+        }
+        return this.$tr('learner');
       },
       logOutText() {
         return this.$tr('logOut');
