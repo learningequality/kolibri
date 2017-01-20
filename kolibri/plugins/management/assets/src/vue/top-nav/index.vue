@@ -3,13 +3,13 @@
   <div class="top">
     <div class="links">
       <router-link :to="usersLink" :class="{active: usersActive}" @click.native="blur">
-        Users
+        {{$tr('users')}}
       </router-link>
       <router-link :to="dataLink" :class="{active: dataActive}" @click.native="blur">
-        Data
+        {{$tr('data')}}
       </router-link>
       <router-link :to="contentLink" :class="{active: contentActive}" @click.native="blur" v-if="isDeviceOwner">
-        Content
+        {{$tr('content')}}
       </router-link>
     </div>
   </div>
@@ -23,6 +23,12 @@
   const constants = require('../../state/constants');
 
   module.exports = {
+    $trNameSpace: 'top-nav',
+    $trs: {
+      users: 'Users',
+      content: 'Content',
+      data: 'Data',
+    },
     methods: {
       blur(evt) {
         evt.target.blur();
