@@ -188,7 +188,7 @@
           Object.assign(options, this.currentViewClass);
 
           // guarantee summarylog, sessionlog, and existing masterylog are synced and in store.
-          this.initSession(this.Kolibri, this.channelId, this.contentId, this.kind).then(() => {
+          this.initSession(this.channelId, this.contentId, this.kind).then(() => {
             // Instantiate the Vue instance directly using the Kolibri Vue constructor.
             this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
 
