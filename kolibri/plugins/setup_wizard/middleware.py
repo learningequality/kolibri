@@ -10,6 +10,7 @@ ALLOWED_PATH_LIST = [
     "task-localdrive",
     "task-startremoteimport",
     "task-list",
+    "session-list"
 ]
 
 
@@ -29,9 +30,6 @@ class SetupWizardMiddleware():
 
         # Don't redirect for URLs that are required for the setup wizard
         allowed_paths = [reverse(name) for name in ALLOWED_PATH_LIST]
-
-        # manually add session bootstrapping api call to allowed path list
-        allowed_paths.append(reverse('session-detail', kwargs={'pk': 'current'}))
         if any(request.path.startswith(path_prefix) for path_prefix in allowed_paths):
             return
 
