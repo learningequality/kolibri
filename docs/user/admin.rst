@@ -69,17 +69,17 @@ Kolibri users can have different roles with respective access to features:
 * **Coaches** can:
   
   * View content and have their progress tracked
-  * View *Coach Reports* to track progress of the **Learner** users and usage stats for individual exercises
+  * View *Coach Reports* to track progress of other users and usage stats for individual exercises
 * **Admins** can:
 
   * View content and have their progress tracked
-  * View *Coach Reports* to track progress of the **Learner** users and usage stats for individual exercises
+  * View *Coach Reports* to track progress of other users and usage stats for individual exercises
   * Create/Edit/Delete other **Admins** and **Learners**
   * Export *Detail* and *Summary* logs usage data
 * **Device Owners** can:
 
   * View content
-  * View *Coach Reports* to track progress of the **Learner** users and usage stats for individual exercises
+  * View *Coach Reports* to track progress of other users and usage stats for individual exercises
   * Create/Edit/Delete other **Admins** and **Learners**
   * Export *Detail* and *Summary* logs usage data
   * Import/Export content
