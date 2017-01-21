@@ -78,6 +78,7 @@ describe('Resource', function () {
   beforeEach(function () {
     this.kolibri = {};
     this.resource = new Resources.Resource(this.kolibri);
+    this.modelData = { id: 'test' };
   });
   afterEach(function () {
     delete this.resource;
@@ -140,7 +141,7 @@ describe('Resource', function () {
       assert.ok(this.resource.getModel('test') instanceof Resources.Model);
     });
     it('should return an existing model from the cache', function () {
-      const testModel = new Resources.Model({}, this.resource);
+      const testModel = new Resources.Model(this.modelData, this.resource);
       this.resource.models.test = testModel;
       assert.equal(this.resource.getModel('test'), testModel);
     });
@@ -152,30 +153,30 @@ describe('Resource', function () {
   });
   describe('createModel method', function () {
     it('should return a model instance', function () {
-      assert.ok(this.resource.createModel({}) instanceof Resources.Model);
+      assert.ok(this.resource.createModel(this.modelData) instanceof Resources.Model);
     });
     it('should call add model', function () {
       const spy = sinon.spy(this.resource, 'addModel');
-      this.resource.createModel({});
+      this.resource.createModel(this.modelData);
       assert.ok(spy.calledOnce);
     });
   });
   describe('addModel method', function () {
     it('should return a model instance', function () {
-      assert.ok(this.resource.addModel({}) instanceof Resources.Model);
+      assert.ok(this.resource.addModel(this.modelData) instanceof Resources.Model);
     });
     it('should call createModel if passed an object', function () {
       const spy = sinon.spy(this.resource, 'createModel');
-      this.resource.addModel({});
+      this.resource.addModel(this.modelData);
       assert.ok(spy.calledOnce);
     });
     it('should not call createModel if passed a Model', function () {
       const spy = sinon.spy(this.resource, 'createModel');
-      this.resource.addModel(new Resources.Model({}, this.resource));
+      this.resource.addModel(new Resources.Model(this.modelData, this.resource));
       assert.ok(!spy.called);
     });
     it('should not add a model to the cache if no id', function () {
-      this.resource.addModel(new Resources.Model({}, this.resource));
+      this.resource.addModel(new Resources.Model({ data: 'data' }, this.resource));
       assert.deepEqual({}, this.resource.models);
     });
     it('should add a model to the cache if it has an id', function () {
@@ -639,6 +640,501 @@ describe('Collection', function () {
         this.collection.set([this.model, this.model]);
         assert.deepEqual(this.collection._model_map, { [this.model.id]: this.model });
       });
+    });
+  });
+});
+
+describe('Model', function () {
+  beforeEach(function () {
+    this.resource = {
+      modelUrl: () => '',
+      idKey: 'id',
+    };
+    this.data = { test: 'test', id: 'testing' };
+    this.model = new Resources.Model(this.data, this.resource);
+  });
+  afterEach(function () {
+    delete this.resource;
+    delete this.model;
+  });
+  describe('constructor set properties:', function () {
+    describe('resource property', function () {
+      it('should be the passed in resource', function () {
+        assert.equal(this.resource, this.model.resource);
+      });
+    });
+    describe('attributes property', function () {
+      it('should be the data', function () {
+        assert.deepEqual(this.model.attributes, this.data);
+      });
+    });
+    describe('synced property', function () {
+      it('should be false', function () {
+        assert.equal(this.model.synced, false);
+      });
+    });
+    describe('promises property', function () {
+      it('should be an empty array', function () {
+        assert.deepEqual(this.model.promises, []);
+      });
+    });
+  });
+  describe('constructor method', function () {
+    describe('if resource is undefined', function () {
+      it('should throw a TypeError', function () {
+        assert.throws(() => new Resources.Model(this.data), TypeError);
+      });
+    });
+    describe('if data is passed in', function () {
+      it('should call the set method once', function () {
+        const spy = sinon.spy(Resources.Model.prototype, 'set');
+        const testModel = new Resources.Model(this.data, this.resource);
+        assert.ok(testModel);
+        assert.ok(spy.calledOnce);
+        Resources.Model.prototype.set.restore();
+      });
+      it('should call the set method with the data', function () {
+        const spy = sinon.spy(Resources.Model.prototype, 'set');
+        const testModel = new Resources.Model(this.data, this.resource);
+        assert.ok(testModel);
+        assert.ok(spy.calledWithExactly(this.data));
+        Resources.Model.prototype.set.restore();
+      });
+    });
+    describe('if undefined data is passed in', function () {
+      it('should throw a TypeError', function () {
+        assert.throws(() => new Resources.Model(undefined, this.resource), TypeError);
+      });
+    });
+    describe('if null data is passed in', function () {
+      it('should throw a TypeError', function () {
+        assert.throws(() => new Resources.Model(null, this.resource), TypeError);
+      });
+    });
+    describe('if no data is passed in', function () {
+      it('should throw a TypeError', function () {
+        assert.throws(() => new Resources.Model({}, this.resource), TypeError);
+      });
+    });
+  });
+  describe('fetch method', function () {
+    describe('if called when Model.synced = true and force is false', function () {
+      it('should return current data immediately', function () {
+        this.model.synced = true;
+        const promise = this.model.fetch();
+        promise.then((result) => {
+          assert.equal(result, this.data);
+        });
+      });
+    });
+    describe('if called when Model.synced = false', function () {
+      describe('and the fetch is successful', function () {
+        beforeEach(function () {
+          this.setSpy = sinon.stub(this.model, 'set');
+          this.response = { entity: { testing: 'testing' } };
+          this.client = sinon.stub();
+          this.client.returns(Promise.resolve(this.response));
+          this.resource.client = this.client;
+        });
+        afterEach(function () {
+          this.model.set.restore();
+        });
+        it('should call the client once', function (done) {
+          this.model.synced = false;
+          this.model.fetch().then(() => {
+            assert.ok(this.client.calledOnce);
+            done();
+          });
+        });
+        it('should call set once', function (done) {
+          this.model.synced = false;
+          this.model.fetch().then(() => {
+            assert.ok(this.setSpy.calledOnce);
+            done();
+          });
+        });
+        it('should call set with the response entity', function (done) {
+          this.model.synced = false;
+          this.model.fetch().then(() => {
+            assert.ok(this.setSpy.calledWithExactly(this.response.entity));
+            done();
+          });
+        });
+        it('should set synced to true', function (done) {
+          this.model.synced = false;
+          this.model.fetch().then(() => {
+            assert.ok(this.model.synced);
+            done();
+          });
+        });
+        it('should leave no promises in promises property', function (done) {
+          this.model.synced = false;
+          this.model.fetch().then(() => {
+            assert.deepEqual(this.model.promises, []);
+            done();
+          });
+        });
+      });
+      describe('and the fetch is not successful', function () {
+        beforeEach(function () {
+          this.response = 'Error';
+          this.client = sinon.stub();
+          this.client.returns(Promise.reject(this.response));
+          this.resource.client = this.client;
+          this.logstub = sinon.spy();
+          this.restore = Resources.__set__('logging.error', (message) => this.logstub(message));
+        });
+        it('should call logging.error once', function (done) {
+          this.model.synced = false;
+          this.model.fetch().catch(() => {
+            assert.ok(this.logstub.calledOnce);
+            done();
+          });
+        });
+        it('should return the error', function (done) {
+          this.model.synced = false;
+          this.model.fetch().catch((error) => {
+            assert.equal(error, this.response);
+            done();
+          });
+        });
+        it('should leave no promises in promises property', function (done) {
+          this.model.synced = false;
+          this.model.fetch().catch(() => {
+            assert.deepEqual(this.model.promises, []);
+            done();
+          });
+        });
+      });
+    });
+    describe('if called with force true and synced is true', function () {
+      it('should call the client once', function (done) {
+        this.response = { entity: [{ testing: 'testing' }] };
+        this.client = sinon.stub();
+        this.client.returns(Promise.resolve(this.response));
+        this.resource.client = this.client;
+        this.model.synced = true;
+        this.model.fetch({}, true).then(() => {
+          assert.ok(this.client.calledOnce);
+          done();
+        });
+      });
+    });
+    describe('if called once', function () {
+      it('should add a promise to the promises property', function () {
+        this.response = { entity: [{ testing: 'testing' }] };
+        this.client = sinon.stub();
+        this.client.returns(new Promise(() => {}));
+        this.model.synced = false;
+        const promise = this.model.fetch();
+        assert.deepEqual(this.model.promises, [promise]);
+      });
+    });
+    describe('if called twice', function () {
+      it('should add two promises to the promises property', function () {
+        this.response = { entity: [{ testing: 'testing' }] };
+        this.client = sinon.stub();
+        this.client.returns(new Promise(() => {}));
+        this.model.synced = false;
+        const promise1 = this.model.fetch();
+        const promise2 = this.model.fetch();
+        assert.deepEqual(this.model.promises, [promise1, promise2]);
+      });
+    });
+  });
+  describe('save method', function () {
+    describe('if called when Model.synced = true and no attrs are different', function () {
+      it('should return current data immediately', function () {
+        this.model.synced = true;
+        const promise = this.model.save(this.model.attributes);
+        promise.then((result) => {
+          assert.equal(result, this.data);
+        });
+      });
+    });
+    describe('if called when Model.synced = true and attrs are different', function () {
+      it('should should call the client once', function (done) {
+        this.model.synced = true;
+        const payload = { somethingNew: 'new' };
+        const entity = {};
+        Object.assign(entity, this.model.attributes, payload);
+        this.response = { entity };
+        this.client = sinon.stub();
+        this.client.returns(Promise.resolve(this.response));
+        this.resource.client = this.client;
+        this.model.save(payload).then(() => {
+          assert.ok(this.client.calledOnce);
+          done();
+        });
+      });
+    });
+    describe('if called when Model.synced = false', function () {
+      describe('and the save is successful', function () {
+        beforeEach(function () {
+          this.setSpy = sinon.stub(this.model, 'set');
+          this.payload = { somethingNew: 'new' };
+          this.response = { entity: this.payload };
+          this.client = sinon.stub();
+          this.client.returns(Promise.resolve(this.response));
+          this.resource.client = this.client;
+        });
+        afterEach(function () {
+          this.model.set.restore();
+        });
+        it('should call the client once', function (done) {
+          this.model.synced = false;
+          this.model.save(this.payload).then(() => {
+            assert.ok(this.client.calledOnce);
+            done();
+          });
+        });
+        it('should call set twice', function (done) {
+          this.model.synced = false;
+          this.model.save(this.payload).then(() => {
+            assert.ok(this.setSpy.calledTwice);
+            done();
+          });
+        });
+        it('should call set with the response entity', function (done) {
+          this.model.synced = false;
+          this.model.save(this.payload).then(() => {
+            assert.ok(this.setSpy.calledWithExactly(this.response.entity));
+            done();
+          });
+        });
+        it('should set synced to true', function (done) {
+          this.model.synced = false;
+          this.model.save(this.payload).then(() => {
+            assert.ok(this.model.synced);
+            done();
+          });
+        });
+        it('should leave no promises in promises property', function (done) {
+          this.model.synced = false;
+          this.model.save(this.payload).then(() => {
+            assert.deepEqual(this.model.promises, []);
+            done();
+          });
+        });
+      });
+      describe('and the save is not successful', function () {
+        beforeEach(function () {
+          this.response = 'Error';
+          this.client = sinon.stub();
+          this.client.returns(Promise.reject(this.response));
+          this.resource.client = this.client;
+          this.logstub = sinon.spy();
+          this.restore = Resources.__set__('logging.error', (message) => this.logstub(message));
+        });
+        it('should call logging.error once', function (done) {
+          this.model.synced = false;
+          this.model.save().catch(() => {
+            assert.ok(this.logstub.calledOnce);
+            done();
+          });
+        });
+        it('should return the error', function (done) {
+          this.model.synced = false;
+          this.model.save().catch((error) => {
+            assert.equal(error, this.response);
+            done();
+          });
+        });
+        it('should leave no promises in promises property', function (done) {
+          this.model.synced = false;
+          this.model.save().catch(() => {
+            assert.deepEqual(this.model.promises, []);
+            done();
+          });
+        });
+      });
+      describe('and model has no id', function () {
+        it('should call the client with no explicit method', function (done) {
+          this.payload = { somethingNew: 'new' };
+          this.response = { entity: this.payload };
+          this.client = sinon.stub();
+          this.client.returns(Promise.resolve(this.response));
+          this.resource.client = this.client;
+          this.resource.collectionUrl = () => '';
+          this.model = new Resources.Model(this.payload, this.resource);
+          this.model.synced = false;
+          this.model.save(this.payload).then(() => {
+            assert.equal(typeof this.client.args[0].method, 'undefined');
+            done();
+          });
+        });
+        describe('but returns with an id', function () {
+          it('should call the resource addModel method', function (done) {
+            this.payload = { somethingNew: 'new' };
+            this.response = { entity: { id: 'test' } };
+            this.client = sinon.stub();
+            this.client.returns(Promise.resolve(this.response));
+            this.resource.client = this.client;
+            this.resource.collectionUrl = () => '';
+            this.model = new Resources.Model(this.payload, this.resource);
+            this.model.synced = false;
+            this.resource.addModel = sinon.spy();
+            this.model.save(this.payload).then(() => {
+              assert.ok(this.resource.addModel.calledWithExactly(this.model));
+              done();
+            });
+          });
+        });
+      });
+      describe('and model has an id', function () {
+        it('should call the client with a PATCH method', function (done) {
+          this.payload = { somethingNew: 'new' };
+          this.response = { entity: this.payload };
+          this.client = sinon.stub();
+          this.client.returns(Promise.resolve(this.response));
+          this.resource.client = this.client;
+          this.model.synced = false;
+          this.model.save(this.payload).then(() => {
+            assert.equal(this.client.args[0][0].method, 'PATCH');
+            done();
+          });
+        });
+      });
+    });
+    describe('if called once', function () {
+      it('should add a promise to the promises property', function () {
+        this.response = { entity: [{ testing: 'testing' }] };
+        this.client = sinon.stub();
+        this.client.returns(new Promise(() => {}));
+        this.model.synced = false;
+        const promise = this.model.save();
+        assert.deepEqual(this.model.promises, [promise]);
+      });
+    });
+    describe('if called twice', function () {
+      it('should add two promises to the promises property', function () {
+        this.response = { entity: [{ testing: 'testing' }] };
+        this.client = sinon.stub();
+        this.client.returns(new Promise(() => {}));
+        this.model.synced = false;
+        const promise1 = this.model.save();
+        const promise2 = this.model.save();
+        assert.deepEqual(this.model.promises, [promise1, promise2]);
+      });
+    });
+  });
+  describe('delete method', function () {
+    describe('if called when it has an id', function () {
+      describe('and the delete is successful', function () {
+        beforeEach(function () {
+          this.resource.removeModel = sinon.spy();
+          this.response = { entity: { testing: 'testing' } };
+          this.client = sinon.stub();
+          this.client.returns(Promise.resolve(this.response));
+          this.resource.client = this.client;
+        });
+        it('should call the client once', function (done) {
+          this.model.delete().then(() => {
+            assert.ok(this.client.calledOnce);
+            done();
+          });
+        });
+        it('should call the client with the DELETE method', function (done) {
+          this.model.delete().then(() => {
+            assert.equal(this.client.args[0][0].method, 'DELETE');
+            done();
+          });
+        });
+        it('should call removeModel on the resource', function (done) {
+          this.model.delete().then(() => {
+            assert.ok(this.resource.removeModel.calledWithExactly(this.model));
+            done();
+          });
+        });
+        it('should resolve the id of the model', function (done) {
+          this.model.delete().then((id) => {
+            assert.equal(this.model.id, id);
+            done();
+          });
+        });
+        it('should leave no promises in promises property', function (done) {
+          this.model.delete().then(() => {
+            assert.deepEqual(this.model.promises, []);
+            done();
+          });
+        });
+      });
+      describe('and the delete is not successful', function () {
+        beforeEach(function () {
+          this.response = 'Error';
+          this.client = sinon.stub();
+          this.client.returns(Promise.reject(this.response));
+          this.resource.client = this.client;
+          this.logstub = sinon.spy();
+          this.restore = Resources.__set__('logging.error', (message) => this.logstub(message));
+        });
+        it('should call logging.error once', function (done) {
+          this.model.delete().catch(() => {
+            assert.ok(this.logstub.calledOnce);
+            done();
+          });
+        });
+        it('should return the error', function (done) {
+          this.model.delete().catch((error) => {
+            assert.equal(error, this.response);
+            done();
+          });
+        });
+        it('should leave no promises in promises property', function (done) {
+          this.model.delete().catch(() => {
+            assert.deepEqual(this.model.promises, []);
+            done();
+          });
+        });
+      });
+    });
+    describe('if called when model has no id', function () {
+      it('should reject the deletion', function (done) {
+        this.payload = { somethingNew: 'new' };
+        this.response = {};
+        this.client = sinon.stub();
+        this.client.returns(Promise.resolve(this.response));
+        this.resource.client = this.client;
+        this.model = new Resources.Model(this.payload, this.resource);
+        this.model.delete().catch((error) => {
+          assert.ok(error);
+          done();
+        });
+      });
+    });
+    describe('if called once', function () {
+      it('should add a promise to the promises property', function () {
+        this.response = { entity: [{ testing: 'testing' }] };
+        this.client = sinon.stub();
+        this.client.returns(new Promise(() => {}));
+        const promise = this.model.delete();
+        assert.deepEqual(this.model.promises, [promise]);
+      });
+    });
+    describe('if called twice', function () {
+      it('should add two promises to the promises property', function () {
+        this.response = { entity: [{ testing: 'testing' }] };
+        this.client = sinon.stub();
+        this.client.returns(new Promise(() => {}));
+        const promise1 = this.model.delete();
+        const promise2 = this.model.delete();
+        assert.deepEqual(this.model.promises, [promise1, promise2]);
+      });
+    });
+  });
+  describe('set method', function () {
+    it('should add new attributes', function () {
+      this.model.set({ new: 'new' });
+      assert.equal(this.model.attributes.new, 'new');
+    });
+    it('should overwrite previous attributes', function () {
+      this.model.attributes.new = 'old';
+      this.model.set({ new: 'new' });
+      assert.equal(this.model.attributes.new, 'new');
+    });
+    it('should coerce and id to a string', function () {
+      this.model.set({ id: 123 });
+      assert.equal(this.model.attributes.id, '123');
     });
   });
 });

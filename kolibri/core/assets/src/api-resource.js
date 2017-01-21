@@ -17,6 +17,18 @@ class Model {
       throw new TypeError('resource must be defined');
     }
 
+    if (!data) {
+      throw new TypeError('data must be defined');
+    }
+
+    if (typeof data !== 'object') {
+      throw new TypeError('data must be an object');
+    }
+
+    if (Object.keys(data).length === 0) {
+      throw new TypeError('data must be instantiated with some data');
+    }
+
     // Assign any data to the attributes property of the Model.
     this.attributes = {};
     this.set(data);
