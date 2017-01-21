@@ -47,13 +47,7 @@ class LogCSVSerializerBase(serializers.ModelSerializer):
             return ""
 
     def get_time_spent(self, obj):
-        seconds_float = float(str("{:.1f}".format(round(obj.time_spent, 1))))  # e.g. 30.2
-        seconds_int = int(seconds_float)  # e.g. 30
-        seconds_decimal = str(seconds_float)[-1:]   # e.g. 2
-        minutes, seconds = divmod(seconds_int, 60)
-        hours, minutes = divmod(minutes, 60)
-        days, hours = divmod(hours, 24)
-        return "%d:%02d:%02d:%02d.%s" % (days, hours, minutes, seconds, seconds_decimal)
+        return str("{:.1f}".format(round(obj.time_spent, 1)))
 
     def get_progress(self, obj):
         return str("{:.4f}".format(round(obj.progress, 4)))
@@ -69,7 +63,7 @@ class ContentSummaryLogCSVSerializer(LogCSVSerializerBase):
             "start_timestamp": "Time of first interaction",
             "end_timestamp": "Time of last interaction",
             "completion_timestamp": "Time of completion",
-            "time_spent": "Time Spent (D:HH:MM:SS.d)",
+            "time_spent": "Time Spent (sec)",
             "progress": "Progress (0-1)",
         }
 
@@ -83,7 +77,7 @@ class ContentSessionLogCSVSerializer(LogCSVSerializerBase):
         labels = {
             "start_timestamp": "Time of first interaction",
             "end_timestamp": "Time of last interaction",
-            "time_spent": "Time Spent (D:HH:MM:SS.d)",
+            "time_spent": "Time Spent (sec)",
             "progress": "Progress (0-1)",
         }
 
