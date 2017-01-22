@@ -5,7 +5,11 @@
       class="btn"
       v-if="supportsPDFs"
       :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      @click="toggleFullScreen"/>
+      @click="toggleFullScreen"
+      :primary="true">
+      <svg v-if="isFullScreen" class="icon" src="icons/fullscreenexit.svg"/>
+      <svg v-else class="icon" src="icons/fullscreenenter.svg"/>
+    </icon-button>
     <div ref="pdfcontainer" class="pdfcontainer"></div>
   </div>
 
@@ -64,10 +68,12 @@
 <style lang="stylus" scoped>
 
   .btn
-    margin-bottom: 1em
+    position: fixed
+    left: 50%
+    transform: translateX(-50%)
 
   .container
-    text-align: center
+    position: relative
     height: 100vh
     max-height: calc(100vh - 24em)
     min-height: 400px

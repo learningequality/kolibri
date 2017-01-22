@@ -45,7 +45,7 @@ oriented data synchronization.
         this.initMasteryLog();
       } else {
         // if userKind is anonymous user or deviceOwner.
-        this.createDummyMasteryLogAction(this.Kolibri);
+        this.createDummyMasteryLogAction();
       }
 
       this.$on('updateAMLogs', (correct, complete, firstAttempt, hinted) => {
@@ -64,10 +64,10 @@ oriented data synchronization.
         this.updateMasteryAttemptStateAction(new Date(), correct, complete, firstAttempt, hinted);
       },
       saveAttemptLogMasterLog(exercisePassed) {
-        this.saveAttemptLogAction(this.Kolibri).then(() => {
+        this.saveAttemptLogAction().then(() => {
           if (this.isFacilityUser && exercisePassed) {
             this.setMasteryLogCompleteAction(new Date());
-            this.saveMasteryLogAction(this.Kolibri);
+            this.saveMasteryLogAction();
           }
         });
       },
@@ -86,7 +86,7 @@ oriented data synchronization.
         });
       },
       initMasteryLog() {
-        this.initMasteryLogAction(this.Kolibri, this.masterySpacingTime, this.masteryCriterion);
+        this.initMasteryLogAction(this.masterySpacingTime, this.masteryCriterion);
       },
       createAttemptLog() {
         return new Promise((resolve, reject) => {
@@ -94,13 +94,13 @@ oriented data synchronization.
           if (!this.itemId) {
             const watchRevoke = this.$watch('itemId', () => {
               if (this.itemId) {
-                this.createAttemptLogAction(this.Kolibri, this.itemId, this.newAttemptlogReady);
+                this.createAttemptLogAction(this.itemId, this.newAttemptlogReady);
                 resolve();
                 watchRevoke();
               }
             });
           } else {
-            this.createAttemptLogAction(this.Kolibri, this.itemId, this.newAttemptlogReady);
+            this.createAttemptLogAction(this.itemId, this.newAttemptlogReady);
             resolve();
           }
         });

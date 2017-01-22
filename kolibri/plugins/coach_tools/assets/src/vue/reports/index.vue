@@ -14,7 +14,10 @@
     <div class="tabcontents">
       <div class="top-section">
         <!--CONTENT BREADCRUMBS-->
-        <breadcrumbs :list="contentBreadcrumbs"/>
+        <breadcrumbs
+          v-if="!isRecentView && contentBreadcrumbs.length > 1"
+          :list="contentBreadcrumbs"
+        />
 
         <!--HEADER SECTION-->
         <report-header
@@ -159,6 +162,8 @@
             {
               title: 'All Learners',
               vlink: genLink(this.pageState, {
+                view_by_content_or_learners:
+                  this.isRecentView ? Constants.ViewBy.CONTENT : Constants.ViewBy.LEARNERS,
                 user_scope: Constants.UserScopes.FACILITY,
                 user_scope_id: FACILITY_ID,
               }),
@@ -173,6 +178,7 @@
         const list = this.pageState.content_scope_summary.ancestors.map((item, index) => ({
           title: item.title,
           vlink: genLink(this.pageState, {
+            view_by_content_or_learners: Constants.ViewBy.CONTENT,
             content_scope: index ? Constants.ContentScopes.TOPIC : Constants.ContentScopes.ROOT,
             content_scope_id: item.pk,
           }),

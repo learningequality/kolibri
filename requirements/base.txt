@@ -14,5 +14,5 @@ https://github.com/fle-internal/django-q/archive/934d557d77ded18c4a73a702905a6f8
 porter2stemmer==1.0
 unicodecsv==0.14.1
 metafone==0.5
-le-utils==0.0.9rc11
-kolibri-exercise-perseus-renderer==0.2.8
+le-utils==0.0.9rc14
+kolibri-exercise-perseus-plugin==0.3.0

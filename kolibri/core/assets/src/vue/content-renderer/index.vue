@@ -188,7 +188,7 @@
           Object.assign(options, this.currentViewClass);
 
           // guarantee summarylog, sessionlog, and existing masterylog are synced and in store.
-          this.initSession(this.Kolibri, this.channelId, this.contentId, this.kind).then(() => {
+          this.initSession(this.channelId, this.contentId, this.kind).then(() => {
             // Instantiate the Vue instance directly using the Kolibri Vue constructor.
             this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
 
@@ -204,13 +204,13 @@
         // Assume that as soon as we have started tracking data for this content item,
         // our ContentNode cache is no longer valid.
         this.Kolibri.resources.ContentNodeResource.unCacheModel(this.id);
-        this.startTracking(this.Kolibri);
+        this.startTracking();
       },
       wrappedStopTracking() {
-        this.stopTracking(this.Kolibri);
+        this.stopTracking();
       },
       wrappedUpdateProgress(progress) {
-        this.updateProgress(this.Kolibri, progress);
+        this.updateProgress(progress);
       },
     },
     vuex: {

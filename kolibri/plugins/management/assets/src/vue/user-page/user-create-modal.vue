@@ -1,7 +1,7 @@
 <template>
 
   <core-modal
-    title="Add New Account"
+    :title="$tr('addNewAccountTitle')"
     :has-error="errorMessage ? true : false"
     @enter="createNewUser"
     @cancel="close"
@@ -10,31 +10,31 @@
       <!-- Fields for the user to fill out -->
       <section class="user-fields">
         <div class="user-field">
-          <label for="name">Name</label>
+          <label for="name">{{$tr('name')}}</label>
           <input @focus="clearStatus" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
         </div>
 
         <div class="user-field">
-          <label for="username">Username</label>
+          <label for="username">{{$tr('username')}}</label>
           <input @focus="clearStatus" type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
         </div>
 
         <div class="user-field">
-          <label for="password">Password</label>
+          <label for="password">{{$tr('password')}}</label>
           <input @focus="clearStatus" type="password" class="add-form" id="password" required v-model="password">
         </div>
 
         <div class="user-field">
-          <label for="confirm-password">Confirm Password</label>
+          <label for="confirm-password">{{$tr('confirmPassword')}}</label>
           <input @focus="clearStatus" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
         </div>
 
         <div class="user-field">
-          <label for="user-kind"><span class="visuallyhidden">User Kind</span></label>
+          <label for="user-kind"><span class="visuallyhidden">{{$tr('userKind')}}</span></label>
           <select @focus="clearStatus" v-model="kind" id="user-kind">
-            <option :value="LEARNER"> Learner </option>
-            <option :value="COACH"> Coach </option>
-            <option :value="ADMIN"> Admin </option>
+            <option :value="LEARNER"> {{$tr('learner')}} </option>
+            <option :value="COACH"> {{$tr('coach')}} </option>
+            <option :value="ADMIN"> {{$tr('admin')}} </option>
           </select>
         </div>
       </section>
@@ -44,7 +44,7 @@
         <p :class="{error: errorMessage}" v-if="statusMessage" aria-live="polite">{{statusMessage}}</p>
         <icon-button
           class="create-btn"
-          text="Create Account"
+          :text="$tr('createAccount')"
           @click="createNewUser"
         />
       </section>
@@ -60,6 +60,28 @@
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
+    $trNameSpace: 'userCreateModal',
+    $trs: {
+      // Modal title
+      addNewAccountTitle: 'Add New Account',
+      // Labels
+      name: 'Name',
+      username: 'Username',
+      password: 'Password',
+      confirmPassword: 'Confirm Password',
+      userKind: 'User Kind',
+      // Button Labels
+      createAccount: 'Create Account',
+      // Select inputs
+      learner: 'Learner',
+      coach: 'Coach',
+      admin: 'Admin',
+      // Status Messages
+      emptyFieldError: 'All fields are required',
+      pwMismatchError: 'Passwords do not match',
+      unknownError: 'Whoops! Something went wrong!',
+      loadingConfirmation: 'Loading...',
+    },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
@@ -102,16 +124,16 @@
 
         // check for all fields populated
         if (!(this.username && this.password && this.full_name && this.kind)) {
-          this.errorMessage = 'All fields are required';
+          this.errorMessage = this.$tr('emptyFieldError');
         // check for password confirmation match
         } else if (!(this.password === this.passwordConfirm)) {
-          this.errorMessage = 'Passwords do not match.';
+          this.errorMessage = this.$tr('pwMismatchError');
         // create user
         } else {
           newUser.password = this.password;
 
           // loading message
-          this.confirmationMessage = 'Loading...';
+          this.confirmationMessage = this.$tr('loadingConfirmation');
           // using promise to ensure that the user is created before closing
           this.createUser(newUser).then(
             () => {
@@ -124,7 +146,7 @@
               } else if (error.status.code === 403) {
                 this.errorMessage = error.entity;
               } else {
-                this.errorMessage = `Whoops! Something went wrong.`;
+                this.errorMessage = this.$tr('unknownError');
               }
             });
         }

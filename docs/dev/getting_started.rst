@@ -59,7 +59,7 @@ Install project-specific development dependencies.
 
   If you're *not* using a Python virtual environment, you may need to use ``sudo`` with the ``pip install`` commands below.
 
-  (``npm install`` automatically isolates project dependencies and works without ``sudo``.)
+  (``yarn install`` automatically isolates project dependencies and works without ``sudo``.)
 
 
 Run the following commands:
@@ -71,7 +71,7 @@ Run the following commands:
   pip install -r requirements/dev.txt
 
   # Node.js dependencies
-  npm install
+  yarn install
 
   # Kolibri Python package in 'editable' mode
   pip install -e .
@@ -122,7 +122,7 @@ In production, content is served through CherryPy. Static assets must be pre-bui
 
 .. code-block:: bash
 
-  npm run build
+  yarn run build
   kolibri start
 
 Now you should be able to access the server at ``http://127.0.0.1:8080/``.
@@ -216,13 +216,13 @@ Kolibri comes with a Javascript test suite based on ``mocha``. To run all tests:
 
 .. code-block:: bash
 
-  npm test
+  yarn test
 
 This includes tests of the bundling functions that are used in creating front end assets. To do continuous unit testing for code, and jshint running:
 
 .. code-block:: bash
 
-  npm run test-karma:watch
+  yarn run test-karma:watch
 
 Alternatively, this can be run as a subprocess in the development server with the following flag:
 
