@@ -48,7 +48,7 @@ Note that the top-level tags of `Vue.js components <https://vuejs.org/guide/comp
 
 - Put child components inside the directory of a parent component if they are *only* used by the parent. Otherwise, put shared child components in the *vue* director.
 
-- Any user visisble interface text should be rendered translatable, see :doc:`/i18n` for details.
+- Any user visisble interface text should be rendered translatable, see :doc:`i18n` for details.
 
 
 JavaScript Code
