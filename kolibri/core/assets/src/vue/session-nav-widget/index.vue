@@ -81,7 +81,6 @@
         return this.fullname;
       },
       userkind() {
-        console.log(this.kind[0]);
         if (this.kind[0]) {
           if (this.kind[0] === UserKinds.ADMIN) {
             return this.$tr('admin');
