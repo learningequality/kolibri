@@ -1166,10 +1166,6 @@ es5-ext@^0.10.7, es5-ext@^0.10.8, es5-ext@~0.10.11, es5-ext@~0.10.2, es5-ext@~0.
     es6-iterator "2"
     es6-symbol "~3.1"
 
-es5-shim@~4.5.8:
-  version "4.5.9"
-  resolved "https://registry.yarnpkg.com/es5-shim/-/es5-shim-4.5.9.tgz#2a1e2b9e583ff5fed0c20a3ee2cbf3f75230a5c0"
-
 es6-iterator@2:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/es6-iterator/-/es6-iterator-2.0.0.tgz#bd968567d61635e33c0b80727613c9cb4b096bac"
@@ -1202,10 +1198,6 @@ es6-set@~0.1.3:
     es6-iterator "2"
     es6-symbol "3"
     event-emitter "~0.3.4"
-
-es6-shim@~0.35.0:
-  version "0.35.2"
-  resolved "https://registry.yarnpkg.com/es6-shim/-/es6-shim-0.35.2.tgz#45c5b3eb2f792ed28f130d826239be50affb897f"
 
 es6-symbol@3, es6-symbol@~3.1, es6-symbol@~3.1.0:
   version "3.1.0"
@@ -2503,13 +2495,6 @@ karma-coverage@0.5.5:
     istanbul "^0.4.0"
     minimatch "^3.0.0"
     source-map "^0.5.1"
-
-karma-es6-shim@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/karma-es6-shim/-/karma-es6-shim-1.0.0.tgz#aaeb530862bcf79340ebd588f4f9e57de842b479"
-  dependencies:
-    es5-shim "~4.5.8"
-    es6-shim "~0.35.0"
 
 karma-eslint@2.1.0:
   version "2.1.0"
@@ -4152,6 +4137,10 @@ sax@~1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.1.tgz#7b8e656190b228e81a66aea748480d828cd2d37a"
 
+screenfull@3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/screenfull/-/screenfull-3.0.2.tgz#9fbcce07bad4c680a8f90f2bfc9c41788af55d0c"
+
 scriptjs@2.5.8:
   version "2.5.8"
   resolved "https://registry.yarnpkg.com/scriptjs/-/scriptjs-2.5.8.tgz#d0c43955c2e6bad33b6e4edf7b53b8965aa7ca5f"
@@ -4896,9 +4885,9 @@ vue-html-loader@1.2.3:
     loader-utils "^0.2.15"
     object-assign "^4.1.0"
 
-"vue-intl@https://github.com/learningequality/vue-intl.git#vue2":
+vue-intl@2.0.0:
   version "2.0.0"
-  resolved "https://github.com/learningequality/vue-intl.git#c2eae3ab67e7d4dd26fbc07ecd1260d16ded6145"
+  resolved "https://registry.yarnpkg.com/vue-intl/-/vue-intl-2.0.0.tgz#7e2ab07c78ec20a61d783a6e628c65b7c9ee33af"
   dependencies:
     intl-format-cache "^2.0.5"
     intl-messageformat "^1.3.0"
