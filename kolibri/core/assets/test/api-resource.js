@@ -522,14 +522,14 @@ describe('Collection', function () {
           });
           it('should call the client once', function (done) {
             this.collection.synced = false;
-            this.collection.fetch().then(() => {
+            this.collection.fetch().catch(() => {
               assert.ok(this.client.calledOnce);
               done();
             });
           });
           it('should call logging.debug once', function (done) {
             this.collection.synced = false;
-            this.collection.fetch().then(() => {
+            this.collection.fetch().catch(() => {
               assert.ok(this.logstub.calledOnce);
               done();
             });

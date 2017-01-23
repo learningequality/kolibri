@@ -254,6 +254,8 @@ class Collection {
             if (Array.isArray(response.entity)) {
               this.clearCache();
               this.set(response.entity);
+              // Mark that the fetch has completed.
+              this.synced = true;
             } else {
               // If it's not, there are two possibilities - something is awry, or we have received
               // paginated data! Check to see if it is paginated.
@@ -265,16 +267,14 @@ class Collection {
                 this.pageCount = Math.ceil(response.entity.count / this.pageSize);
                 this.hasNext = Boolean(response.entity.next);
                 this.hasPrev = Boolean(response.entity.previous);
+                // Mark that the fetch has completed.
+                this.synced = true;
               } else {
                 // It's all gone a bit Pete Tong.
                 logging.debug('Data appears to be malformed', response.entity);
+                reject(response);
               }
             }
-            // Mark that the fetch has completed.
-            this.synced = true;
-            this.models.forEach((model) => {
-              model.synced = true; // eslint-disable-line no-param-reassign
-            });
             // Return the data from the models, not the models themselves.
             resolve(this.data);
             // Clean up the reference to this promise
