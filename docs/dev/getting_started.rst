@@ -1,107 +1,136 @@
 Getting started
 ===============
 
-Basic Setup
--------------
+First of all, thank you for your interest in contributing to Kolibri! The project was founded by volunteers dedicated to helping make educational materials more accessible to those in need, and every contribution makes a difference. The instructions below should get you up and running the code in no time! 
 
-This is how we typically set up a development environment.
+Setting up Kolibri for development
+----------------------------------
 
-Note that most of the steps that follow require entering commands into your terminal, so you should be comfortable with that.
+Most of the steps below require entering commands into your Terminal (Linux, Mac) or command prompt (``cmd.exe`` on Windows) that you will learn how to use and become more comfortable with. 
+
+.. tip::
+  In case you run into any problems during these steps, searching online is usually the fastest way out: whatever error you are seeing, chances are good that somebody alredy had it in the past and posted a solution somewhere... ;)
+
+Git & GitHub
+~~~~~~~~~~~~
+
+#. Install and set-up `Git <https://help.github.com/articles/set-up-git/>`_ on your computer. Try this `tutorial <http://learngitbranching.js.org/>`_ if you need more practice with Git!
+#. `Sign up and configure your GitHub account <https://github.com/join>`_ if you don't have one already.
+#. `Fork the main Kolibri repository <https://github.com/learningequality/kolibri>`_. This will make it easier to `submit pull requests <https://help.github.com/articles/using-pull-requests/>`_. Read more details `about forking <https://help.github.com/articles/fork-a-repo/>`_ from GitHub.
 
 
 Install Environment Dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You'll need to install the following dependencies:
+#. Install `Python <https://www.python.org/downloads/windows/>`_ if you are on Windows, on Linux and OSX Python is preinstalled (recommended versions 2.7+ or 3.4+).
+#. Install `pip <https://pypi.python.org/pypi/pip>`_ package installer.
+#. Install `Node <https://nodejs.org/en/>`_ (recommended version 4+).
+   
+   .. note::
+     * On Ubuntu install Node.js via `nvm <https://github.com/creationix/nvm>`_ to avoid build issues.
+     * On a Mac, you may want to consider using the `Homebrew <http://brew.sh/>`_ package manager.
 
-- Python (including pip) - recommended version 2.7+ or 3.4+
-- Node.js - recommended version 4+
-- git
-
-The process for installing these depends on your operating system.
-
-.. note::
-
-  - On Ubuntu, it is recommended to install Node.js via `nvm <https://github.com/creationix/nvm>`_ to avoid build issues.
-  - On a Mac, you may want to consider using the `Homebrew <http://brew.sh/>`_ package manager.
+Ready for the fun part in the Terminal? Here we go!
 
 
+Checking out the code
+~~~~~~~~~~~~~~~~~~~~~
 
-Clone the Repository
-~~~~~~~~~~~~~~~~~~~~
+#. Make sure you `registered your SSH keys on GitHub <https://help.github.com/articles/generating-ssh-keys>`_.
+#. **Clone** your Kolibri fork to your local computer. In the following commands replace ``$USERNAME`` with your own GitHub username:
 
-First clone the repo:
+   .. code-block:: bash
+
+      # using SSH
+      git clone git@github.com:$USERNAME/kolibri.git
+      # using HTTPS
+      git clone https://github.com/$USERNAME/kolibri.git
+
+#. Enable syncing your local repository with **upstream**,  which refers to the Kolibri source from where you cloned your fork. That way you can keep it updated with the changes from the rest of Kolibri team contributors:
+
+  .. code-block:: bash
+
+    cd kolibri  # Change into the newly cloned directory
+    git remote add upstream git@github.com:learningequality/kolibri.git  # Add the upstream
+    git fetch  # Check if there are changes upstream
+    git checkout develop
+
+.. warning::
+  ``develop`` is the active development branch - do not target the ``master`` branch.
+
+
+Virtual environment
+~~~~~~~~~~~~~~~~~~~
+
+It's generally good practice to use `Python virtual environment <https://virtualenv.pypa.io/en/latest/>`_ to isolate your project(s) and allow you to install different packages, even with different versions. This also allows you to avoid using ``sudo`` with the ``pip`` commands below, which is not recommended.
+
+Follow these `instructions to create a new virtual environment and activate it <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_. You may also want to consider using `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/en/latest/index.html>`_.
 
 .. code-block:: bash
 
-  git clone git@github.com:learningequality/kolibri.git
-
-Then, ``cd`` into the new directory:
-
-.. code-block:: bash
-
-  cd kolibri
-
+  $ sudo pip install virtualenv
+  ...
+  $ pip install virtualenvwrapper
+  ...
+  $ export WORKON_HOME=~/Envs
+  $ mkdir -p $WORKON_HOME
+  $ source /usr/local/bin/virtualenvwrapper.sh
+  $ mkvirtualenv --python=python3 kolibri
+  $ workon kolibri 
+  (kolibri)$ 
 
 .. note::
-
-  If you plan on contributing code, you may want to `fork our github repo <https://github.com/learningequality/kolibri>`_ and clone from your repo, rather than cloning from the learningequality repo. That will make it easier to `submit pull requests <https://help.github.com/articles/using-pull-requests/>`_.
+  In this document we use the name ``kolibri``, but you can name the virtual environment however you wish.
 
 
 Install Project Dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Install project-specific development dependencies.
-
 .. note::
 
-  It is considered best-practice to use a `Python virtual environment <https://virtualenv.pypa.io/en/stable/>`_ to isolate your Python dependencies during development. You may also want to consider using `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/en/latest/index.html>`_.
+  If you're *not* using a Python virtual environment, you may need to use ``sudo`` with the ``pip install`` commands below. ``yarn install`` automatically isolates project dependencies and works without ``sudo``.
 
-  If you're *not* using a Python virtual environment, you may need to use ``sudo`` with the ``pip install`` commands below.
+#. Install ``yarn`` according the `instructions specific for your OS <https://yarnpkg.com/en/docs/install/>`_.
 
-  (``yarn install`` automatically isolates project dependencies and works without ``sudo``.)
+#. To install Kolibri project-specific dependencies make sure you're in the ``kolibri`` directory and run:
 
+  .. code-block:: bash
 
-Run the following commands:
+    # Python requirements
+    (kolibri)$ pip install -r requirements.txt
+    (kolibri)$ pip install -r requirements/dev.txt
 
-.. code-block:: bash
+    # Node.js dependencies
+    (kolibri)$ yarn install
 
-  # Python requirements
-  pip install -r requirements.txt
-  pip install -r requirements/dev.txt
-
-  # Node.js dependencies
-  yarn install
-
-  # Kolibri Python package in 'editable' mode
-  pip install -e .
+    # Kolibri Python package in 'editable' mode, so your installation points to your git checkout:
+    (kolibri)$ pip install -e .
 
 
-Running the Development Server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Running Kolibri server
+----------------------
 
-To start up the development server and build the client-side dependencies, the following commands are used:
+Development server
+~~~~~~~~~~~~~~~~~~
+
+To start up the development server and build the client-side dependencies, use the following commands:
 
 Linux and Mac:
 
 .. code-block:: bash
 
-  kolibri manage devserver --debug -- --webpack --qcluster
+  (kolibri)$ kolibri manage devserver --debug -- --webpack --qcluster
 
 Windows:
 
 .. code-block:: bash
 
-  kolibri manage devserver --debug -- --webpack
+  (kolibri)$ kolibri manage devserver --debug -- --webpack
 
 
 Wait for the build process to complete. This takes a while the first time, will complete faster as you make edits and the assets are automatically re-built.
 
 Now you should be able to access the server at ``http://127.0.0.1:8000/``.
-
-.. note::
-
-  Most functionality works fine in the devserver, but some issues exist with streaming media such as videos and audio.
 
 .. tip::
 
@@ -109,8 +138,8 @@ Now you should be able to access the server at ``http://127.0.0.1:8000/``.
 
   .. code-block:: bash
 
-    npm run build
-    kolibri manage devserver --debug -- 0.0.0.0:8000 --qcluster
+    (kolibri)$ yarn run build
+    (kolibri)$ kolibri manage devserver --debug -- 0.0.0.0:8000 --qcluster
 
   Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
 
@@ -126,6 +155,47 @@ In production, content is served through CherryPy. Static assets must be pre-bui
   kolibri start
 
 Now you should be able to access the server at ``http://127.0.0.1:8080/``.
+
+
+Contributing code to Kolibri
+----------------------------
+
+* Once you've toyed around with things, read through the rest of the :doc:`index`, especially topics in :ref:`architecture` and :ref:`themes` to understand more about the Kolibri structure. 
+* When you're up to speed with that, you're probably itching to make some contributions! Head over to the `issues page on GitHub <https://github.com/learningequality/kolibri/issues>`_ and take a look at the current project priorities. Try filtering by milestone. If you find a bug in your testing, please `submit your own issue <https://github.com/learningequality/kolibri/issues/new>`_
+* Once you've identified an issue and you're ready to start hacking on a solution, get ready to :ref:`pull_request`!
+
+Branching and Release Process
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``develop`` branch is reserved for active development. When we get close to releasing a new stable version/release of Kolibri, we generally fork the develop branch into a new branch (like ``release-0.1.x``). If you're working on an issue tagged for example with the ``release-0.1.x`` milestone, then you should target changes to that branch. Changes to those branches will later be pulled into ``develop`` again. If you're not sure which branch to target, ask the dev team!
+
+
+.. note::
+  At a high level, we follow the 'Gitflow' model. Some helpful references:
+  * http://nvie.com/posts/a-successful-git-branching-model/
+  * https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/
+
+.. _pull_request:
+
+Submit Pull Requests
+~~~~~~~~~~~~~~~~~~~~~
+
+The most common situation is working off of ``develop`` branch so we'll take it as an example:
+
+.. code-block:: bash
+
+  $ git checkout upstream/develop
+  $ git checkout -b name-of-your-bugfix-or-feature
+
+After making changes to the code, commit and push them to a branch on your fork:
+
+.. code-block:: bash
+
+  $ git add -A  # Add all changed and new files to the commit  
+  $ git commit -m "Write here the commit message"
+  $ git push origin name-of-your-bugfix-or-feature
+
+Go to `Kolibri GitHub page <https://github.com/learningequality/kolibri>`_, and if you are logged-in you will see the link to compare your branch and and create the new pull request. **Please fill in all the aplicable sections in the PR template and DELETE unecessary headings**. Another member of the team will review your code, and either ask for updates on your part or merge your PR to Kolibri codebase. Until the PR is merged you can push new commits to your branch and add updates to it.
 
 
 Additional Recommended Setup
@@ -251,28 +321,20 @@ First, install some additional dependencies related to building documentation ou
 .. code-block:: bash
 
   pip install -r requirements/docs.txt
+  pip install -r requirements/build.txt
 
-To make changes to documentation, make an edit and then run:
+To make changes to documentation, edit the ``rst`` files in the ``kolibri/docs`` directory and then run:
 
 .. code-block:: bash
 
   make docs
 
-You can also ``cd`` into the docs directory and run the auto-build for faster editing:
+You can also run the auto-build for faster editing from the ``docs`` directory:
 
 .. code-block:: bash
 
   cd docs
   sphinx-autobuild . _build
-
-
-Branching and Release Process
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-At a high level, we follow the 'Gitflow' model. Some helpful references:
-
- * http://nvie.com/posts/a-successful-git-branching-model/
- * https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/
 
 
 Manual Testing
@@ -287,5 +349,3 @@ All changes should be thoroughly tested and vetted before being merged in. Our p
  * Consistency
 
 For more information, see the next section on :doc:`manual_testing`.
-
-
