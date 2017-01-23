@@ -69,7 +69,7 @@
 <style lang="stylus" scoped>
 
   .btn
-    position: fixed
+    position: absolute
     left: 50%
     transform: translateX(-50%)
 
@@ -86,8 +86,7 @@
       max-height: inherit
 
   .sandbox
-    /* Accounts for the button height. */
-    height: calc(100% - 4em)
+    height: 100%
     width: 100%
 
 </style>
