@@ -32,6 +32,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  h1
+    margin-top: 42px // height of toolbar
 
 </style>
