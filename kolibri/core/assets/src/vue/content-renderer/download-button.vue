@@ -153,6 +153,8 @@
 
   .dropdown-button
     padding: 0.5em
+    margin-top: 1em
+    margin-bottom: 1em
     font-size: smaller
 
   .dropdown-button-text

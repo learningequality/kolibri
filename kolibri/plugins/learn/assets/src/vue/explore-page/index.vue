@@ -4,8 +4,8 @@
 
     <page-header :title="title">
       <div slot="icon">
-        <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"/>
-        <svg v-else class="pageicon" src="../icons/folder.svg"/>
+        <svg v-if="isRoot" src="../icons/explore.svg"/>
+        <svg v-else src="../icons/folder.svg"/>
       </div>
     </page-header>
 
@@ -75,4 +75,11 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .page-description
+    margin-top: 1em
+    margin-bottom: 1em
+    line-height: 1.5em
+
+</style>

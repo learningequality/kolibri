@@ -34,7 +34,7 @@
         <span v-else>-</span>
       </p>
       <p>
-        <strong>{{ $tr("licenseOwner") }}: </strong>
+        <strong>{{ $tr("copyrightHolder") }}: </strong>
         <span v-if="content.license_owner">{{ content.license_owner }}</span>
         <span v-else>-</span>
       </p>
@@ -67,7 +67,7 @@
       nextContent: 'Next Content',
       author: 'Author',
       license: 'License',
-      licenseOwner: 'License Owner',
+      copyrightHolder: 'Copyright Holder',
     },
     computed: {
       Constants() {
@@ -179,6 +179,11 @@
 
   .metadata p
     font-size: small
+
+  .page-description
+    margin-top: 1em
+    margin-bottom: 1em
+    line-height: 1.5em
 
 </style>
 
