@@ -428,7 +428,7 @@ describe('contentRenderer Component', function () {
         });
       });
       describe('if it has no component', function () {
-        it('should return undefined', function () {
+        it('should return null', function () {
           this.vm = new ContentRendererComponent({
             propsData: {
               id: this.id,
@@ -439,11 +439,11 @@ describe('contentRenderer Component', function () {
           this.vm.currentViewClass = null;
           this.vm.available = true;
           this.vm.rendered = false;
-          assert.equal(typeof this.vm.renderContent(), 'undefined');
+          assert.equal(this.vm.renderContent(), null);
         });
       });
       describe('if it is not available', function () {
-        it('should return undefined', function () {
+        it('should return null', function () {
           this.vm = new ContentRendererComponent({
             propsData: {
               id: this.id,
@@ -454,11 +454,11 @@ describe('contentRenderer Component', function () {
           this.vm.currentViewClass = {};
           this.vm.available = false;
           this.vm.rendered = false;
-          assert.equal(typeof this.vm.renderContent(), 'undefined');
+          assert.equal(this.vm.renderContent(), null);
         });
       });
       describe('if it is rendered', function () {
-        it('should return undefined', function () {
+        it('should return null', function () {
           this.vm = new ContentRendererComponent({
             propsData: {
               id: this.id,
@@ -469,7 +469,7 @@ describe('contentRenderer Component', function () {
           this.vm.currentViewClass = {};
           this.vm.available = true;
           this.vm.rendered = true;
-          assert.equal(typeof this.vm.renderContent(), 'undefined');
+          assert.equal(this.vm.renderContent(), null);
         });
       });
     });

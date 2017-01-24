@@ -199,6 +199,7 @@
             logging.error('initContentSession failed: ', reason);
           });
         }
+        return null;
       },
       wrappedStartTracking() {
         // Assume that as soon as we have started tracking data for this content item,
