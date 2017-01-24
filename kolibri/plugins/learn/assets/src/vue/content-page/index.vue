@@ -22,6 +22,8 @@
 
     <p class="page-description">{{ content.description }}</p>
 
+    <download-button v-if="canDownload" :files="content.files" class="download-button-left-align"/>
+
     <div class="metadata">
       <p>
         <strong>{{ $tr("author") }}: </strong>
@@ -39,8 +41,6 @@
         <span v-else>-</span>
       </p>
     </div>
-
-    <download-button v-if="canDownload" :files="content.files"/>
 
     <expandable-content-grid
       class="recommendation-section"
@@ -177,6 +177,9 @@
   .right-arrow:hover
     fill: $core-bg-light
 
+  .metadata
+    display: inline-block
+
   .metadata p
     font-size: small
 
@@ -184,6 +187,10 @@
     margin-top: 1em
     margin-bottom: 1em
     line-height: 1.5em
+
+  .download-button-left-align
+    vertical-align: top
+    margin-right: 1.5em
 
 </style>
 
