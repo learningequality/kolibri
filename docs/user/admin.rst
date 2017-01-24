@@ -147,6 +147,42 @@ Delete User’s Account
   :alt: confirm delete account
 
 
+Manage Classes
+--------------
+
+You can view, create and delete classes and learner groups, as well as search, filter and enroll Kolibri users from the **Classes** tab in your **Manage** dashboard.
+
+.. image:: img/manage_classes.png
+  :alt: manage classes and groups
+
+Classes
+~~~~~~~
+
+.. image:: img/classes.png
+  :alt: manage classes
+
+Add New Class
+*************
+
+Edit Class
+**********
+
+Delete Class
+************
+
+Groups
+~~~~~~
+
+View all users
+**************
+
+Enroll Users
+************ 
+
+Remove User from Class
+**********************
+
+
 Manage Data
 -----------
 
