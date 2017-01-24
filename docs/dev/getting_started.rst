@@ -62,25 +62,21 @@ Checking out the code
 Virtual environment
 ~~~~~~~~~~~~~~~~~~~
 
-It's generally good practice to use `Python virtual environment <https://virtualenv.pypa.io/en/latest/>`_ to isolate your project(s) and allow you to install different packages, even with different versions. This also allows you to avoid using ``sudo`` with the ``pip`` commands below, which is not recommended.
-
-Follow these `instructions to create a new virtual environment and activate it <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_. You may also want to consider using `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/en/latest/index.html>`_.
+It's generally good practice to use `Python virtual environment <https://virtualenv.pypa.io/en/latest/>`_ to isolate your project(s) and allow you to install different packages, even with different versions. This also allows you to avoid using ``sudo`` with the ``pip`` commands below, which is not recommended. Follow these `instructions to create a new virtual environment and activate it <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_. 
 
 .. code-block:: bash
 
   $ sudo pip install virtualenv
-  ...
-  $ pip install virtualenvwrapper
-  ...
-  $ export WORKON_HOME=~/Envs
-  $ mkdir -p $WORKON_HOME
-  $ source /usr/local/bin/virtualenvwrapper.sh
-  $ mkvirtualenv --python=python3 kolibri
+  $ cd my_kolibri_project_folder
+  $ mkvirtualenv kolibri
   $ workon kolibri 
   (kolibri)$ 
 
 .. note::
   In this document we use the name ``kolibri``, but you can name the virtual environment however you wish.
+
+.. tip::
+  Linux users might also consider using `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/en/latest/index.html>`_.
 
 
 Install Project Dependencies
