@@ -3,7 +3,7 @@
   <div class="nav-wrapper">
     <nav class="nav-main" role="navigation" :aria-label="ariaLabel">
       <nav-bar-item href="/learn/#/learn" :active="learnActive">
-        <svg class="nav-icon" src="../icons/learn.svg"/>
+        <icon name="material-home" :size="44"></icon>
         <div class="label">{{ $tr('learn') }}</div>
       </nav-bar-item>
       <nav-bar-item href="/learn/#/explore" :active="exploreActive">
@@ -76,6 +76,7 @@
       'session-nav-widget': require('../session-nav-widget'),
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
       'login-modal': require('../login-modal'),
+      'icon': require('vue-icons/icon'),
     },
     vuex: {
       getters: {

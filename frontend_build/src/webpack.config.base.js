@@ -41,6 +41,9 @@ aliases['content_renderer_module'] = path.resolve('kolibri/core/assets/src/conte
 
 require('./htmlhint_custom'); // adds custom rules
 
+var iconLoader = require("vue-icons/icon-loader");
+var iconList = require('./iconList.js');
+
 var config = {
   module: {
     loaders: [
@@ -91,6 +94,12 @@ var config = {
         test: /fg-loadcss\/src\/onloadCSS/,
         loader: 'exports?onloadCSS'
       }
+    ],
+    postLoaders: [
+      {
+        test: /vue-icons/,
+        loader: "callback-loader"
+      }
     ]
   },
   plugins: [
@@ -121,7 +130,8 @@ var config = {
   },
   node: {
     __filename: true
-  }
+  },
+  callbackLoader: iconLoader(iconList)
 };
 
 if (process.env.LINT || process.env.NODE_ENV === 'production') {
