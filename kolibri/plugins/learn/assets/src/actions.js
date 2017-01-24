@@ -58,6 +58,9 @@ function _contentState(data) {
     content_id: data.content_id,
     breadcrumbs: _crumbState(data.ancestors),
     next_content: data.next_content,
+    author: data.author,
+    license: data.license,
+    license_owner: data.license_owner,
   };
   return state;
 }
