@@ -129,12 +129,12 @@
           logging.debug(`Looking for content renderer for ${this.contentType}`);
         }
       },
-    /**
-     * Method that is invoked by a callback from an event listener. Accepts a Vue component
-     * options object as an argument. This is then set as the current renderer for the node,
-     * and is used later in rendering.
-     * @param {Object} component - an options object for a Vue component.
-     */
+      /**
+       * Method that is invoked by a callback from an event listener. Accepts a Vue component
+       * options object as an argument. This is then set as the current renderer for the node,
+       * and is used later in rendering.
+       * @param {Object} component - an options object for a Vue component.
+       */
       setRendererComponent(component) {
         // Keep track of the current renderer.
         this.currentViewClass = component;
