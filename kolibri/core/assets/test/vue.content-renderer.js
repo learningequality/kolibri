@@ -24,7 +24,7 @@ describe('contentRenderer Component', function () {
   });
   describe('computed properties: ', function () {
     describe('availableFiles', function () {
-      it('should be the 1 when there is one available file', function () {
+      it('should be 1 when there is one available file', function () {
         this.vm = new ContentRendererComponent({
           propsData: {
             id: this.id,
@@ -34,7 +34,7 @@ describe('contentRenderer Component', function () {
         }).$mount();
         assert.equal(this.vm.availableFiles.length, 1);
       });
-      it('should be the 1 when there is one available file and a supplementary file', function () {
+      it('should be 1 when there is one available file and a supplementary file', function () {
         this.files.push({
           available: true,
           supplementary: true,
@@ -49,7 +49,7 @@ describe('contentRenderer Component', function () {
         }).$mount();
         assert.equal(this.vm.availableFiles.length, 1);
       });
-      it('should be the 1 when there is one available file and a thumbnail file', function () {
+      it('should be 1 when there is one available file and a thumbnail file', function () {
         this.files.push({
           available: true,
           thumbnail: true,
@@ -64,7 +64,7 @@ describe('contentRenderer Component', function () {
         }).$mount();
         assert.equal(this.vm.availableFiles.length, 1);
       });
-      it('should be the 2 when there are two available files', function () {
+      it('should be 2 when there are two available files', function () {
         this.files.push({
           available: true,
           extension: 'vtt',
