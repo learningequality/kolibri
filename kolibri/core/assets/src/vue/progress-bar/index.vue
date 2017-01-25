@@ -36,7 +36,7 @@
     },
     computed: {
       percent() {
-        return Math.min(this.progress * 100, 100);
+        return Math.max(Math.min(this.progress * 100, 100), 0);
       },
     },
   };

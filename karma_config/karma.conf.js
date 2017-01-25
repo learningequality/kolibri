@@ -8,6 +8,7 @@ var path = require('path');
 webpack_config.plugins.push(new RewirePlugin());
 webpack_config.devtool = '#inline-source-map';
 webpack_config.resolve.alias['kolibri'] = path.resolve(__dirname, './kolibriGlobalMock');
+webpack_config.resolve.alias['vue-test'] = path.resolve(__dirname, './vueLocal');
 
 module.exports = function(config) {
   config.set({
@@ -18,11 +19,13 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['mocha', 'es6-shim'],
+    frameworks: ['mocha'],
 
 
     // list of files / patterns to load
     files: [
+      // Detailed pattern to include a file. Similarly other options can be used
+      { pattern: './node_modules/core-js/client/core.js', watched: false },
       './node_modules/phantomjs-polyfill-find/find-polyfill.js',
       'kolibri/**/assets/test/*.js',
       {pattern: 'kolibri/**/assets/src/**/*.js', included: false} // load these, but not in the browser, just for linting
