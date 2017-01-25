@@ -16,7 +16,7 @@
       :extraFields="content.extra_fields"/>
 
     <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn">
-      {{ $tr("nextContent") }}
+      {{ $tr('nextContent') }}
       <svg class="right-arrow" src="../icons/arrow_right.svg"/>
     </icon-button>
 
