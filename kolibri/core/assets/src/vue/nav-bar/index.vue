@@ -7,15 +7,15 @@
         <div class="label">{{ $tr('learn') }}</div>
       </nav-bar-item>
       <nav-bar-item href="/learn/#/explore" :active="exploreActive">
-        <svg class="nav-icon" src="../icons/explore.svg"/>
+        <icon name="material-explore" :size="44"></icon>
         <div class="label">{{ $tr('explore') }}</div>
       </nav-bar-item>
       <nav-bar-item v-if="isCoachAdminOrSuperuser" href="/coach" :active="coachActive">
-        <svg class="nav-icon" src="../icons/coach.svg"/>
+        <icon name="material-insert_chart" :size="44"></icon>
         <div class="label">{{ $tr('coach') }}</div>
       </nav-bar-item>
       <nav-bar-item v-if="isAdminOrSuperuser" href="/management" :active="manageActive">
-        <svg class="nav-icon" src="../icons/manage.svg"/>
+        <icon name="material-people" :size="44"></icon>
         <div class="label">{{ $tr('manage') }}</div>
       </nav-bar-item>
       <session-nav-widget/>
@@ -76,7 +76,6 @@
       'session-nav-widget': require('../session-nav-widget'),
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
       'login-modal': require('../login-modal'),
-      'icon': require('vue-icons/icon'),
     },
     vuex: {
       getters: {
@@ -122,9 +121,5 @@
 
   a.active:focus svg
     fill: $core-bg-light
-
-  .nav-icon
-    width: 40px
-    height: 40px
 
 </style>
