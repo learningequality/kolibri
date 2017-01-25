@@ -26,17 +26,17 @@
 
     <div class="metadata">
       <p>
-        <strong>{{ $tr("author") }}: </strong>
+        <strong>{{ $tr('author') }}: </strong>
         <span v-if="content.author">{{ content.author }}</span>
         <span v-else>-</span>
       </p>
       <p>
-        <strong>{{ $tr("license") }}: </strong>
+        <strong>{{ $tr('license') }}: </strong>
         <span v-if="content.license">{{ content.license }}</span>
         <span v-else>-</span>
       </p>
       <p>
-        <strong>{{ $tr("copyrightHolder") }}: </strong>
+        <strong>{{ $tr('copyrightHolder') }}: </strong>
         <span v-if="content.license_owner">{{ content.license_owner }}</span>
         <span v-else>-</span>
       </p>
