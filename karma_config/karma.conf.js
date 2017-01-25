@@ -1,5 +1,4 @@
 // Karma configuration
-// Generated on Thu Feb 11 2016 12:59:11 GMT-0800 (PST)
 var RewirePlugin = require("rewire-webpack");
 var _ = require("lodash");
 var webpack_config = _.clone(require("../frontend_build/src/webpack.config.base"));
