@@ -129,12 +129,12 @@
           logging.debug(`Looking for content renderer for ${this.contentType}`);
         }
       },
-    /**
-     * Method that is invoked by a callback from an event listener. Accepts a Vue component
-     * options object as an argument. This is then set as the current renderer for the node,
-     * and is used later in rendering.
-     * @param {Object} component - an options object for a Vue component.
-     */
+      /**
+       * Method that is invoked by a callback from an event listener. Accepts a Vue component
+       * options object as an argument. This is then set as the current renderer for the node,
+       * and is used later in rendering.
+       * @param {Object} component - an options object for a Vue component.
+       */
       setRendererComponent(component) {
         // Keep track of the current renderer.
         this.currentViewClass = component;
@@ -188,29 +188,24 @@
           Object.assign(options, this.currentViewClass);
 
           // guarantee summarylog, sessionlog, and existing masterylog are synced and in store.
-          this.initSession(this.channelId, this.contentId, this.kind).then(() => {
+          return this.initSession(this.channelId, this.contentId, this.kind).then(() => {
             // Instantiate the Vue instance directly using the Kolibri Vue constructor.
             this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
 
             this.contentView.$on('startTracking', this.wrappedStartTracking);
-            this.contentView.$on('stopTracking', this.wrappedStopTracking);
-            this.contentView.$on('progressUpdate', this.wrappedUpdateProgress);
+            this.contentView.$on('stopTracking', this.stopTracking);
+            this.contentView.$on('progressUpdate', this.updateProgress);
           }, (reason) => {
             logging.error('initContentSession failed: ', reason);
           });
         }
+        return null;
       },
       wrappedStartTracking() {
         // Assume that as soon as we have started tracking data for this content item,
         // our ContentNode cache is no longer valid.
         this.Kolibri.resources.ContentNodeResource.unCacheModel(this.id);
         this.startTracking();
-      },
-      wrappedStopTracking() {
-        this.stopTracking();
-      },
-      wrappedUpdateProgress(progress) {
-        this.updateProgress(progress);
       },
     },
     vuex: {
