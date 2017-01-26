@@ -10,29 +10,33 @@
     <div class="main">
       <template v-if="!drivesLoading">
         <div class="modal-message">
-          <h2 class="core-text-alert" v-if="writableDrives.length === 0">
-            <svg class="error-svg" src="../icons/error.svg"/>
-            No writable drives were detected.
-          </h2>
-          <h2 v-if="writableDrives.length === 1">
-            Writable drive detected:<br>{{ writableDrives[0].name }}
-          </h2>
-          <template v-if="writableDrives.length > 1">
-            <h2>Writable drives detected:</h2>
-            <div class="drive-list">
-              <div class="drive-names" v-for="(drive, index) in writableDrives">
-                <input
-                  type="radio"
-                  :id="'drive-'+index"
-                  :value="drive.id"
-                  v-model="selectedDrive"
-                >
-                <label :for="'drive-'+index">{{drive.name}} {{index}}</label>
-              </div>
+          <h2>Writable drives detected:</h2>
+          <div class="drive-list">
+            <div class="drive-names" v-for="(drive, index) in writableDrives">
+              <input
+                type="radio"
+                :id="'drive-'+index"
+                :value="drive.id"
+                v-model="selectedDrive"
+              >
+              <label :for="'drive-'+index">
+                {{drive.name}}
+                {{megabyteCalc(drive.freespace)}} MB Free
+              </label>
             </div>
-          </template>
-
-          <p class="core-text-annotation" v-if="unwritableDrives.length"><strong>Note:</strong> {{unwritableDrives.length}} additional drives were detected, but don't appear to be writable.</p>
+            <div class="disabled drive-names" v-for="(drive, index) in unwritableDrives">
+              <input
+                type="radio"
+                disabled
+                :id="'-disabled-drive-'+index"
+              >
+              <label :for="'disabled-drive-'+index">
+                {{drive.name}}
+                <br>
+                Unwritable
+              </label>
+            </div>
+          </div>
         </div>
         <div class="refresh-btn-wrapper">
           <icon-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" text="Refresh">
@@ -110,6 +114,9 @@
           this.cancelImportExportWizard();
         }
       },
+      megabyteCalc(byteCount) {
+        return Math.floor((byteCount) / 2048);
+      },
     },
     vuex: {
       getters: {
@@ -134,7 +141,7 @@
   $min-height = 200px
 
   .main
-    text-align: center
+    text-align: left
     margin: 3em 0
     min-height: $min-height
 
@@ -152,7 +159,12 @@
     margin: 2em
 
   .drive-names
-    margin: 0.6em 0
+    padding: 0.6em
+    border: 1px grey solid
+    border-top: none
+
+  .drive-names:first-child
+    border-top: 1px grey solid
 
   .button-wrapper
     margin: 1em 0
