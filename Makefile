@@ -24,6 +24,7 @@ clean-build:
 	rm -fr *.egg-info
 	rm -fr .eggs
 	rm -fr .cache
+	rm -r kolibri/dist/exercise_perseus_renderer || true
 	git clean -X -d -f kolibri/dist
 
 clean-pyc:
@@ -63,9 +64,12 @@ release: clean assets
 	python setup.py bdist_wheel upload
 
 staticdeps: clean
-	DISABLE_SQLALCHEMY_CEXT=1 pip install -t kolibri/dist/ -r requirements.txt
+	pip install -t kolibri/dist -r requirements.txt
 
-dist: staticdeps assets compilemessages
+writeversion:
+	git describe --tags > kolibri/VERSION
+
+dist: writeversion staticdeps assets compilemessages
 	pip install -r requirements/build.txt
 	python setup.py sdist --format=gztar,zip --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static
