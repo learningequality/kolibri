@@ -16,13 +16,31 @@
       :extraFields="content.extra_fields"/>
 
     <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn">
-      {{ $tr("nextContent") }}
+      {{ $tr('nextContent') }}
       <svg class="right-arrow" src="../icons/arrow_right.svg"/>
     </icon-button>
 
     <p class="page-description">{{ content.description }}</p>
 
-    <download-button v-if="canDownload" :files="content.files"/>
+    <download-button v-if="canDownload" :files="content.files" class="download-button-left-align"/>
+
+    <div class="metadata">
+      <p>
+        <strong>{{ $tr('author') }}: </strong>
+        <span v-if="content.author">{{ content.author }}</span>
+        <span v-else>-</span>
+      </p>
+      <p>
+        <strong>{{ $tr('license') }}: </strong>
+        <span v-if="content.license">{{ content.license }}</span>
+        <span v-else>-</span>
+      </p>
+      <p>
+        <strong>{{ $tr('copyrightHolder') }}: </strong>
+        <span v-if="content.license_owner">{{ content.license_owner }}</span>
+        <span v-else>-</span>
+      </p>
+    </div>
 
     <expandable-content-grid
       class="recommendation-section"
@@ -47,6 +65,9 @@
     $trs: {
       recommended: 'Recommended',
       nextContent: 'Next Content',
+      author: 'Author',
+      license: 'License',
+      copyrightHolder: 'Copyright Holder',
     },
     computed: {
       Constants() {
@@ -155,6 +176,21 @@
 
   .right-arrow:hover
     fill: $core-bg-light
+
+  .metadata
+    display: inline-block
+
+  .metadata p
+    font-size: small
+
+  .page-description
+    margin-top: 1em
+    margin-bottom: 1em
+    line-height: 1.5em
+
+  .download-button-left-align
+    vertical-align: top
+    margin-right: 1.5em
 
 </style>
 

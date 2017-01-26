@@ -153,6 +153,8 @@
 
   .dropdown-button
     padding: 0.5em
+    margin-top: 1em
+    margin-bottom: 1em
     font-size: smaller
 
   .dropdown-button-text
@@ -169,7 +171,7 @@
     list-style: none
     padding: 0
     margin: 0
-    margin-top: 2px
+    margin-top: -0.8em
     display: none
     position: absolute
 
