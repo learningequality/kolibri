@@ -66,7 +66,7 @@ def save(first_run=False):
     """Saves the current state of the configuration"""
     config['FIRST_RUN'] = first_run
     with open(conf_file, 'w') as kolibri_conf_file:
-        json.dump(config, kolibri_conf_file)
+        json.dump(config, kolibri_conf_file, indent=2, sort_keys=True)
 
 
 if not os.path.isfile(conf_file):
