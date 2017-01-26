@@ -22,7 +22,7 @@ describe('contentRenderer Component', function () {
     ];
     this.id = 'testing';
   });
-  describe('computed properties: ', function () {
+  describe('computed property', function () {
     describe('availableFiles', function () {
       it('should be 1 when there is one available file', function () {
         this.vm = new ContentRendererComponent({
@@ -159,7 +159,7 @@ describe('contentRenderer Component', function () {
       });
     });
   });
-  describe('methods: ', function () {
+  describe('method', function () {
     describe('clearListeners', function () {
       describe('when there are two listeners active', function () {
         beforeEach(function () {
