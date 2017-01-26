@@ -85,7 +85,6 @@
     "mocha": "2.5.3",
     "phantomjs-polyfill-find": "ptim/phantomjs-polyfill-find",
     "postcss-loader": "0.9.1",
-    "recursive-install": "1.2.0",
     "rewire": "2.5.2",
     "rewire-webpack": "1.0.1",
     "shelljs": "0.7.4",
