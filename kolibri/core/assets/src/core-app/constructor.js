@@ -71,6 +71,7 @@ module.exports = class CoreApp {
     vue.component('content-icon', require('../vue/content-icon'));
     vue.component('progress-icon', require('../vue/progress-icon'));
     vue.component('core-base', require('../vue/core-base'));
+    vue.component('icon', require('vue-icons/icon'));
 
     this.i18n = {
       reversed: false,

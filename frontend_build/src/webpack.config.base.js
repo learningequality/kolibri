@@ -91,6 +91,12 @@ var config = {
         test: /fg-loadcss\/src\/onloadCSS/,
         loader: 'exports?onloadCSS'
       }
+    ],
+    postLoaders: [
+      {
+        test: /vue-icons/,
+        loader: "callback-loader"
+      }
     ]
   },
   plugins: [
@@ -121,7 +127,7 @@ var config = {
   },
   node: {
     __filename: true
-  }
+  },
 };
 
 if (process.env.LINT || process.env.NODE_ENV === 'production') {
