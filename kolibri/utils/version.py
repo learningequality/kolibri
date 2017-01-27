@@ -58,7 +58,10 @@ def derive_version_from_git_tag():
                                     ).rstrip()  # strip newlines
             .decode('utf-8')
         )  # cast from a byte to a string
-    except subprocess.CalledProcessError:  # Not a git repo
+    except (
+        subprocess.CalledProcessError,  # not a git repo
+        OSError  # git executable doesn't exist
+    ):
         return None
 
     return parse_git_tag_version_string(git_describe_string)
