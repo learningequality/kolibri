@@ -21,9 +21,10 @@ def read_file(fname):
     """
     Read file and decode in py2k
     """
-    if sys.version_info < (3,):
+    if sys.version_info < (3, ):
         return open(fname).read().decode("utf-8")
     return open(fname).read()
+
 
 dist_name = 'kolibri'
 
@@ -35,38 +36,32 @@ Documentation
 The full documentation is at `http://kolibri.rtfd.org <http://kolibri.rtfd.org>`_."""
 
 # Default description of the distributed package
-description = (
-    """Kolibri education platform for offline environments"""
-)
+description = ("""Kolibri education platform for offline environments""")
 
 # Decide if the invoked command is a request to do building
-is_building_dist = any(
-    [x in sys.argv for x in (
-        "bdist",
-        "sdist",
-        "bdist_wheel",
-        "bdist_deb",
-        "sdist_dsc"
-    )]
-)
+is_building_dist = any([
+    x in sys.argv
+    for x in ("bdist", "sdist", "bdist_wheel", "bdist_deb", "sdist_dsc")
+])
 
 static_dir = os.path.dirname(os.path.realpath(kolibri_dist.__file__))
 
 # Check if user supplied the special '--static' option
 if '--static' in sys.argv:
     sys.argv.remove('--static')
-    dist_name = 'kolibri-static'
+    dist_name = 'kolibri'
     description += " This static version bundles all dependencies."
     install_requires, static_requirements = [], []
     dependency_links = []
     static_build = True
 else:
-    req_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "requirements.txt")
+    req_file = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "requirements.txt"
+    )
     reqs = parse_requirements(req_file, session=False)
     install_requires = [str(ir.req) for ir in reqs]
     static_requirements = []
     dependency_links = []
-
 
 ################
 # Windows code #
@@ -102,8 +97,9 @@ class bat_install_scripts(install_scripts):
             # file, make .bat wrapper for script.
             with open(filepath, 'rt') as fobj:
                 first_line = fobj.readline()
-            if not (first_line.startswith('#!') and
-                    'python' in first_line.lower()):
+            if not (
+                first_line.startswith('#!') and 'python' in first_line.lower()
+            ):
                 continue
             pth, fname = os.path.split(filepath)
             froot, ___ = os.path.splitext(fname)
@@ -121,10 +117,10 @@ class bat_install_scripts(install_scripts):
 # END: Windows code #
 #####################
 
-
 ######################################
 # STATIC AND DYNAMIC BUILD SPECIFICS #
 ######################################
+
 
 def enable_log_to_stdout(logname):
     """Given a log name, outputs > INFO to stdout."""
@@ -133,19 +129,21 @@ def enable_log_to_stdout(logname):
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
     # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     # add formatter to ch
     ch.setFormatter(formatter)
     # add ch to logger
     log.addHandler(ch)
+
 
 setup(
     name=dist_name,
     version=kolibri.__version__,
     description=description,
     long_description="{readme}\n\n{doclink}".format(
-        readme=readme,
-        doclink=doclink
+        readme=readme, doclink=doclink
     ),
     author='Learning Equality',
     author_email='info@learningequality.org',
@@ -153,11 +151,7 @@ setup(
     packages=[
         str('kolibri'),  # https://github.com/pypa/setuptools/pull/597
     ],
-    entry_points={
-        'console_scripts': [
-            'kolibri = kolibri.utils.cli:main'
-        ]
-    },
+    entry_points={'console_scripts': ['kolibri = kolibri.utils.cli:main']},
     package_dir={'kolibri': 'kolibri'},
     include_package_data=True,
     install_requires=install_requires,
