@@ -32,4 +32,6 @@ vue.prototype.$trHtml = function $trHtml(messageId, args) {
   return $trWrapper.call(this, this.$formatHTMLMessage, messageId, args);
 };
 
+vue.config.silent = true;
+
 module.exports = vue;
