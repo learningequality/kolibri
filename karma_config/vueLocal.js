@@ -4,11 +4,16 @@ const router = require('vue-router');
 const vueintl = require('vue-intl');
 
 vue.prototype.Kolibri = require('kolibri');
+vue.config.silent = true;
 vue.use(vuex);
 vue.use(router);
 require('intl');
 require('intl/locale-data/jsonp/en.js');
 vue.use(vueintl, { defaultLocale: 'en-us' });
+
+vue.mixin({
+  store: new vuex.Store({}),
+});
 
 function $trWrapper(formatter, messageId, args) {
   if (args) {
@@ -31,7 +36,5 @@ vue.prototype.$tr = function $tr(messageId, args) {
 vue.prototype.$trHtml = function $trHtml(messageId, args) {
   return $trWrapper.call(this, this.$formatHTMLMessage, messageId, args);
 };
-
-vue.config.silent = true;
 
 module.exports = vue;
