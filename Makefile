@@ -65,6 +65,7 @@ release: clean assets
 
 staticdeps: clean
 	pip install -t kolibri/dist -r requirements.txt
+	rm -r kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 
 writeversion:
 	git describe --tags > kolibri/VERSION
