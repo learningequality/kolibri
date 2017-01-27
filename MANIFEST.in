@@ -2,7 +2,6 @@ include AUTHORS.rst
 include CONTRIBUTING.rst
 include CHANGELOG.rst
 include LICENSE
-include VERSION
 include README.rst
 include requirements.txt
 include kolibri/VERSION
