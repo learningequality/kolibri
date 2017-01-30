@@ -76,7 +76,7 @@
           username: this.username_entered,
           password: this.password_entered,
         };
-        this.kolibriLogin(this.Kolibri, payload);
+        this.kolibriLogin(payload);
         this.$refs.usernamefield.focus();
       },
     },

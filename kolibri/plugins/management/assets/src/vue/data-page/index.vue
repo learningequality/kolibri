@@ -2,44 +2,39 @@
 
   <div class="wrapper">
 
-    <h1>Export Usage Data</h1>
+    <h1>{{$tr('pageHeading')}}</h1>
 
     <p>
-      Download CSV (comma-separated value) files containing information about users and
-      their interactions with the content on this device.
+      {{$tr('pageSubHeading')}}
     </p>
 
     <div class="exportblock">
-      <h2>Detail Logs</h2>
+      <h2>{{$tr('detailsHeading')}}</h2>
       <p>
-        Individual visits to each piece of content.
+        {{$tr('detailsSubHeading')}}
       </p>
       <a :href="sessionlogurl">
-        <icon-button text="Download">
+        <icon-button :text="$tr('download')">
           <svg src="../icons/download.svg"/>
         </icon-button>
       </a>
       <p class="infobox">
-        <b>Note</b>: When a user views a piece of content, we record how long they spend and the progress they make.
-        Each row in this file records a single visit a user made to a specific piece of content.
-        This includes anonymous usage, when no user is logged in.
+        <b>{{$tr('note')}}</b>: {{$tr('detailsInfo')}}.
       </p>
     </div>
 
     <div class="exportblock">
-      <h2>Summary Logs</h2>
+      <h2>{{$tr('summaryHeading')}}</h2>
       <p>
-        Total time/progress for each piece of content.
+        {{$tr('summarySubHeading')}}
       </p>
       <a :href="summarylogurl">
-        <icon-button text="Download">
+        <icon-button :text="$tr('download')">
           <svg src="../icons/download.svg"/>
         </icon-button>
       </a>
       <p class="infobox">
-        <b>Note</b>: A user may visit the same piece of content multiple times. This file records the total time and
-        progress each user has achieved for each piece of content, summarized across possibly more than
-        one visit. Anonymous usage is not included.
+        <b>{{$tr('note')}}</b>: {{$tr('summaryInfo')}}
       </p>
     </div>
 
@@ -53,6 +48,28 @@
   const coreApp = require('kolibri');
 
   module.exports = {
+    $trNameSpace: 'manageData',
+    $trs: {
+      // Headings/subHeadings
+      pageHeading: 'Export Usage Data',
+      pageSubHeading: 'Download CSV (comma-separated value) files containing information about' +
+        ' users and their interactions with the content on this device.',
+      detailsHeading: 'Detail Logs',
+      detailsSubHeading: 'Individual visits to each piece of content.',
+      summaryHeading: 'Summary Logs',
+      summarySubHeading: 'Total time/progress for each piece of content.',
+      // info boxes
+      detailsInfo: 'When a user views a piece of content, we record how long they spend and the' +
+        ' progress they make. Each row in this file records a single visit a user made to a ' +
+        'specific piece of content. This includes anonymous usage, when no user is logged in.',
+      summaryInfo: 'A user may visit the same piece of content multiple times. This file records' +
+        ' the total time and progress each user has achieved for each piece of content, ' +
+        'summarized across possibly more than one visit. Anonymous usage is not included.',
+      // button
+      download: 'Download',
+      // section indicator
+      note: 'Note',
+    },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },

@@ -10,8 +10,8 @@
             <input
               type="search"
               ref="search"
-              aria-label="Type to find content"
-              placeholder="Find content..."
+              :aria-label="$tr('ariaLabel')"
+              :placeholder="$tr('placeHolder')"
               autocomplete="off"
               v-focus="searchOpen"
               v-model="localSearchTerm"
@@ -31,7 +31,7 @@
             </button>
           </div>
           <div class="cancel-btn-table-cell">
-            <button @click="toggleSearch" class="search-btn">Cancel</button>
+            <button @click="toggleSearch" class="search-btn">{{$tr('cancel')}}</button>
           </div>
         </div>
       </div>
@@ -90,6 +90,9 @@
     $trs: {
       ariaLabel: 'Type to find content',
       placeHolder: 'Find content...',
+      searchResults: 'Search results:',
+      noMatches: 'Could not find any matches.',
+      cancel: 'Cancel',
     },
     directives: { focus },
     props: {
@@ -109,10 +112,10 @@
     computed: {
       message() {
         if ((this.showTopics && this.topics.length) || this.contents.length) {
-          return 'Search results:';
+          return this.$tr('searchResults');
         } else if (!(this.showTopics && this.topics.length) &&
           !this.contents.length) {
-          return 'Could not find any matches.';
+          return this.$tr('noMatches');
         }
         return '';
       },

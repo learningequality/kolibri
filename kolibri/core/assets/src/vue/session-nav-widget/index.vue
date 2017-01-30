@@ -28,7 +28,7 @@
               <p id="dropdown-usertype">{{ userkind }}</p>
             </li>
             <li id="logout-tab">
-              <div tabindex="0" @keyup.enter="userLogout" @click="userLogout" :aria-label="logOutText">
+              <div tabindex="0" @keyup.enter="userLogout" @click="logout" :aria-label="$tr('logOut')">
                 <span>{{ $tr('logOut') }}</span>
               </div>
             </li>
@@ -37,8 +37,6 @@
       </div>
     </transition>
 
-    <!-- log-in modal -->
-    <login-modal v-if="loginModalVisible"/>
   </nav-bar-item>
 
 </template>
@@ -54,10 +52,14 @@
     $trs: {
       logOut: 'Log Out',
       logIn: 'Log In',
+      admin: 'Admin',
+      coach: 'Coach',
+      learner: 'Learner',
+      superuser: 'Superuser',
+      deviceOwner: 'Device Owner',
     },
     components: {
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
-      'login-modal': require('./login-modal'),
     },
     data: () => ({
       showDropdown: false,
@@ -74,12 +76,21 @@
       },
       name() {
         if (this.deviceOwner) {
-          return 'Device Owner';
+          return this.$tr('deviceOwner');
         }
         return this.fullname;
       },
       userkind() {
-        return this.kind[0];
+        if (this.kind[0]) {
+          if (this.kind[0] === UserKinds.ADMIN) {
+            return this.$tr('admin');
+          } else if (this.kind[0] === UserKinds.COACH) {
+            return this.$tr('coach');
+          } else if (this.kind[0] === UserKinds.SUPERUSER) {
+            return this.$tr('superuser');
+          }
+        }
+        return this.$tr('learner');
       },
       logOutText() {
         return this.$tr('logOut');
@@ -96,9 +107,6 @@
       hideDropdown() {
         this.showDropdown = false;
       },
-      userLogout() {
-        this.logout(this.Kolibri);
-      },
     },
     vuex: {
       actions: {
@@ -111,7 +119,6 @@
         fullname: state => state.core.session.full_name,
         username: state => state.core.session.username,
         kind: state => state.core.session.kind,
-        loginModalVisible: state => state.core.loginModalVisible,
       },
     },
   };

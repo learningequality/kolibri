@@ -2,7 +2,7 @@
 
   <div>
     <div class="header">
-      <h3 v-if="header">{{header}}</h3>
+      <h2 v-if="header">{{header}}</h2>
       <slot name="headerbox"/>
     </div>
     <div class="card-grid">
@@ -67,7 +67,7 @@
     margin-top: 2em
     margin-bottom: 1.4em
 
-  .header h3
+  .header h2
     display: inline
 
   .card-grid
