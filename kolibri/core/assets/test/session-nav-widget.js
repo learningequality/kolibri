@@ -83,5 +83,28 @@ describe('session-nav-widget component', function () {
         assert.equal(this.vm.name, this.vm.$tr('deviceOwner'));
       });
     });
+    describe('userkind', function () {
+      it('should be Admin if the string is \'Admin\'', function () {
+        if (this.vm.userkind === this.vm.$tr('admin')) {
+          assert.equal(this.vm.kind[0], UserKinds.ADMIN);
+        }
+      });
+      it('should be Coach if the string is \'Coach\'', function () {
+        if (this.vm.userkind === this.vm.$tr('coach')) {
+          assert.equal(this.vm.kind[0], UserKinds.COACH);
+        }
+      });
+      it('should be Superuser if the string is \'Superuser\'', function () {
+        if (this.vm.userkind === this.vm.$tr('superuser')) {
+          assert.equal(this.vm.kind[0], UserKinds.SUPERUSER);
+        }
+      });
+      it('Should be Learner if the string is \'Learner\'', function () {
+        if (this.vm.userkind === this.vm.$tr('learner')) {
+          assert.equal(this.vm.kind.length, 0);
+        }
+      });
+    });
+    describe('logoutText', function () {});
   });
 });
