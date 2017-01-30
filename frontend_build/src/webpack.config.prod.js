@@ -21,9 +21,7 @@ for (var i=0; i < bundles.length; i++) {
       compress: {
         warnings: false
       }
-    }),
-    // optimize module ids by occurence count
-    new webpack.optimize.OccurenceOrderPlugin()
+    })
   ]);
 }
 

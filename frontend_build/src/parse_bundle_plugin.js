@@ -72,11 +72,11 @@ var parseBundlePlugin = function(data, base_dir) {
   }
 
   // Add local resolution paths
-  bundle.resolve.root = [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')];
+  bundle.resolve.modules = [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')];
   // Add local and global resolution paths for loaders to allow any plugin to
   // access kolibri/node_modules loaders during bundling.
   bundle["resolveLoader"] = {
-    root: [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')]
+    modules: [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')]
   };
 
   bundle.plugins = bundle.plugins.concat([
@@ -120,8 +120,6 @@ var parseBundlePlugin = function(data, base_dir) {
     publicPath: publicPath,
     library: library
   };
-
-  bundle.async_file = data.async_file;
 
   return [bundle, external];
 };
