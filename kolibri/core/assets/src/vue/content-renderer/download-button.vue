@@ -6,15 +6,15 @@
       class="dropdown-button"
       @click="toggleDropdown"
       aria-haspopup="true">
-      <span class="dropdown-button-text" :class="{uparrow: dropdownopen}">
+      <span class="dropdown-button-text" :class="{'dropdown-button-text-open': dropdownOpen}">
         {{ $tr('downloadContent') }}
       </span>
     </button>
     <ul
       ref="dropdownitems"
       class="dropdown-items"
-      :class="{ dropdownopen: dropdownopen }"
-      :aria-hidden="dropDownOpenText"
+      :class="{ 'dropdown-open': dropdownOpen }"
+      :aria-hidden="dropdownOpenText"
       role="menu">
       <li
         v-for="file in files"
@@ -55,17 +55,16 @@
     },
     data() {
       return {
-        dropdownopen: false,
-        itemSelected: 0,
+        dropdownOpen: false,
+        focusedItemIndex: 0,
       };
     },
     computed: {
-      dropDownOpenText() {
-        return String(this.dropdownopen);
+      dropdownOpenText() {
+        return String(this.dropdownOpen);
       },
-      dropDownItems() {
-        let listItems = this.$refs.dropdownitems.children;
-        listItems = [...listItems];
+      dropdownItems() {
+        const listItems = Array.from(this.$refs.dropdownitems.children);
         const anchorItems = [];
         listItems.forEach((li) => {
           anchorItems.push(li.children[0]);
@@ -75,7 +74,7 @@
       focusableItems() {
         let focusableItems = [];
         focusableItems.push(this.$refs.dropdownbutton);
-        focusableItems = focusableItems.concat(this.dropDownItems);
+        focusableItems = focusableItems.concat(this.dropdownItems);
         return focusableItems;
       },
     },
@@ -84,35 +83,33 @@
         return filesize(bytes);
       },
       toggleDropdown() {
-        this.dropdownopen = !this.dropdownopen;
-        this.itemSelected = 0;
+        this.dropdownOpen = !this.dropdownOpen;
+        this.focusedItemIndex = 0;
       },
       handleKeys(e) {
-        if (this.dropdownopen) {
+        // TODO: More robust way of handling keyboard input.
+        if (this.dropdownOpen) {
           switch (e.keyCode) {
             case 40: // down
               e.stopPropagation();
               e.preventDefault();
-              this.itemSelected++;
-              this.focusOnItem();
+              this.focusOnItem(this.focusedItemIndex + 1);
               return;
 
             case 38: // up
               e.stopPropagation();
               e.preventDefault();
-              this.itemSelected--;
-              this.focusOnItem();
+              this.focusOnItem(this.focusedItemIndex - 1);
               return;
 
             case 9: // tab
               e.stopPropagation();
               e.preventDefault();
-              if (this.itemSelected === (this.focusableItems.length - 1)) {
+              if (this.focusedItemIndex === (this.focusableItems.length - 1)) {
                 this.toggleDropdown();
                 return;
               }
-              this.itemSelected++;
-              this.focusOnItem();
+              this.focusOnItem(this.focusedItemIndex + 1);
               return;
 
             case 27: // esc
@@ -126,10 +123,10 @@
           }
         }
       },
-      focusOnItem() {
-        this.itemSelected =
-          Math.min(Math.max(this.itemSelected, 0), (this.focusableItems.length - 1));
-        this.focusableItems[this.itemSelected].focus();
+      focusOnItem(index) {
+        this.focusedItemIndex =
+          Math.min(Math.max(index, 0), (this.focusableItems.length - 1));
+        this.focusableItems[this.focusedItemIndex].focus();
       },
     },
     mounted() {
@@ -162,7 +159,7 @@
       padding-left: 0.5em
       content: '\25BC'
 
-  .uparrow
+  .dropdown-button-text-open
     &:after
       content: '\25b2'
 
@@ -196,7 +193,7 @@
       background-color: $core-action-light
       outline: $core-action-light 2px solid
 
-  .dropdownopen
+  .dropdown-open
     display: block
 
 </style>
