@@ -2,87 +2,111 @@
 Do not import anything from the rest of Kolibri in this module, it's crucial
 that it can be loaded without the settings/configuration/django stack!
 """
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import datetime
-import os
+import pkgutil
+import re
 import subprocess
+from collections import namedtuple
 
-from .lru_cache import lru_cache
-
-
-def get_version(version=None):
-    "Returns a PEP 386-compliant version number from VERSION."
-    version = get_complete_version(version)
-
-    # Now build the two parts of the version number:
-    # main = X.Y[.Z]
-    # sub = .devN - for pre-alpha releases
-    #     | {a|b|c}N - for alpha, beta and rc releases
-
-    main = get_main_version(version)
-
-    sub = ''
-    if version[3] == 'alpha' and version[4] == 0:
-        git_changeset = get_git_changeset()
-        if git_changeset:
-            sub = '.dev%s' % git_changeset
-
-    elif version[3] != 'final':
-        mapping = {'alpha': 'a', 'beta': 'b', 'rc': 'c'}
-        sub = mapping[version[3]] + str(version[4])
-
-    return str(main + sub)
+_BaseVersion = namedtuple(
+    "_BaseVersion", [
+        "major_version", "minor_version", "patch_version", "release_number",
+        "build_number", "build_hash"
+    ]
+)
 
 
-def get_main_version(version=None):
-    "Returns main version (X.Y[.Z]) from VERSION."
-    version = get_complete_version(version)
-    parts = 2 if version[2] == 0 else 3
-    return '.'.join(str(x) for x in version[:parts])
+class Version(_BaseVersion):
+
+    def __str__(self):
+        version = "{major}.{minor}.{patch}".format(
+            major=self.major_version,
+            minor=self.minor_version,
+            patch=self.patch_version
+        )
+
+        if self.release_number:
+            version = "{version}{release}".format(
+                version=version, release=self.release_number
+            )
+
+        if self.build_number:
+            version = "{version}.dev{build}".format(
+                version=version, build=self.build_number
+            )
+
+        return version
+
+    def fullversion(self):
+        """Return both the main version, and the git hash if available."""
+
+        mainver = str(self)
+
+        if self.build_hash:
+            mainver = "{mainver}-{build_hash}".format(
+                mainver=mainver, build_hash=self.build_hash
+            )
+
+        return mainver
 
 
-def get_complete_version(version=None):
-    """Returns a tuple of the django version. If version argument is non-empty,
-    then checks for correctness of the tuple provided.
-    """
-    if version is None:
-        from django import VERSION as version
-    else:
-        assert len(version) == 5
-        assert version[3] in ('alpha', 'beta', 'rc', 'final')
-
-    return version
-
-
-def get_docs_version(version=None):
-    version = get_complete_version(version)
-    if version[3] != 'final':
-        return 'dev'
-    else:
-        return '%d.%d' % version[:2]
-
-
-@lru_cache()
-def get_git_changeset():
-    """Returns a numeric identifier of the latest git changeset.
-
-    The result is the UTC timestamp of the changeset in YYYYMMDDHHMMSS format.
-    This value isn't guaranteed to be unique, but collisions are very unlikely,
-    so it's sufficient for generating the development version numbers.
-    """
-    repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    git_log = subprocess.Popen(
-        'git log --pretty=format:%ct --quiet -1 HEAD',
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        shell=True,
-        cwd=repo_dir,
-        universal_newlines=True
-    )
-    timestamp = git_log.communicate()[0]
+def derive_version_from_git_tag():
     try:
-        timestamp = datetime.datetime.utcfromtimestamp(int(timestamp))
-    except ValueError:
+        git_describe_string = (
+            subprocess.check_output(['git', 'describe', '--tags']
+                                    ).rstrip()  # strip newlines
+            .decode('utf-8')
+        )  # cast from a byte to a string
+    except (
+        subprocess.CalledProcessError,  # not a git repo
+        OSError  # git executable doesn't exist
+    ):
         return None
-    return timestamp.strftime('%Y%m%d%H%M%S')
+
+    return parse_git_tag_version_string(git_describe_string)
+
+
+def derive_version_from_version_file():
+    string = pkgutil.get_data('kolibri', 'VERSION').decode('utf-8')
+    return parse_git_tag_version_string(string)
+
+
+def parse_git_tag_version_string(version_string):
+    git_tag_validity_check = re.compile('v\d+\.\d+\.\d+.*')
+    if not git_tag_validity_check.match(version_string):
+        return None  # Maybe raising an error is better?
+
+    # distutils doesn't like any leading v's too.
+    version_string = version_string.lstrip('v')
+    version_split = version_string.split('-', 3)
+
+    major = minor = patch = release = build = build_hash = None
+
+    if len(version_split) >= 1:  # has the base version numbers we need.
+        major, minor, patch = version_split[0].split('.')
+
+    if len(version_split) >= 2:  # includes a release number (rc, beta, etc.)
+        release = version_split[1]
+
+    if len(version_split) >= 3:  # includes a build number and hash
+        build = version_split[2]
+        build_hash = version_split[3]
+
+    return Version(
+        major_version=major,
+        minor_version=minor,
+        patch_version=patch,
+        release_number=release,
+        build_number=build,
+        build_hash=build_hash,
+    )
+
+
+def get_version(version_fallback=None):
+    '''
+    '''
+    return (
+        derive_version_from_git_tag() or read_from_version_file() or
+        version_fallback
+    )
