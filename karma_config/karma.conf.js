@@ -3,8 +3,14 @@ var RewirePlugin = require("rewire-webpack");
 var _ = require("lodash");
 var webpack_config = _.clone(require("../frontend_build/src/webpack.config.base"));
 var path = require('path');
+var webpack = require('webpack');
 
 webpack_config.plugins.push(new RewirePlugin());
+webpack_config.plugins.push(
+  new webpack.DefinePlugin({
+    __coreAPISpec: "{}"
+  })
+);
 webpack_config.devtool = '#inline-source-map';
 webpack_config.resolve.alias['kolibri'] = path.resolve(__dirname, './kolibriGlobalMock');
 webpack_config.resolve.alias['vue-test'] = path.resolve(__dirname, './vueLocal');
