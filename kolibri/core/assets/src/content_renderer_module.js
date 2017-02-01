@@ -1,8 +1,14 @@
 const KolibriModule = require('kolibri_module');
 
 module.exports = class ContentRenderer extends KolibriModule {
-  render() {
-    this.emit(`component_render:${this.contentType}`, this.rendererComponent);
+  render(contentType) {
+    if ((Array.isArray(this.contentType) && this.contentType.includes(contentType)) ||
+      this.contentType === contentType) {
+      this.broadcastComponent(contentType);
+    }
+  }
+  broadcastComponent(contentType) {
+    this.emit(`component_render:${contentType}`, this.rendererComponent);
   }
   get rendererComponent() {
     return null;

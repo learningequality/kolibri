@@ -128,7 +128,7 @@
           // Keep a track of this listener so that we can unbind it later if needed.
           this._eventListeners.push({ event, callback });
           // This is the event that is broadcast out to the content renderers.
-          this.Kolibri.emit(`content_render:${this.contentType}`);
+          this.Kolibri.emit(`content_render:${this.contentType}`, this.contentType);
           logging.debug(`Looking for content renderer for ${this.contentType}`);
         }
       },
