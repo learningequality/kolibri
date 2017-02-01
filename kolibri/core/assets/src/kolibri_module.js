@@ -4,8 +4,6 @@
  * @module kolibriModule
  */
 
-const coreApp = require('kolibri');
-
 module.exports = class KolibriModule {
   /**
    * An array of options to select from the options object passed into the constructor.
@@ -29,6 +27,7 @@ module.exports = class KolibriModule {
     this.events = __events;
     this.once = __once;
     /* eslint-enable no-undef */
+    this.coreApp = require('kolibri');
     const safeOptions = {};
     this.kolibriModuleOptions.forEach((option) => {
       if (options[option]) {
@@ -48,7 +47,7 @@ module.exports = class KolibriModule {
    * @private
    */
   _registerKolibriModule() {
-    coreApp.registerKolibriModuleSync(this);
+    this.coreApp.registerKolibriModuleSync(this);
   }
 
   /**
@@ -73,7 +72,7 @@ module.exports = class KolibriModule {
    * @param {string} method - the name of the method to unbind
    */
   stopListening(event, method) {
-    coreApp.stopListening(event, this, method);
+    this.coreApp.stopListening(event, this, method);
   }
 
   /**
@@ -82,6 +81,6 @@ module.exports = class KolibriModule {
    * @param {Array} args - additional arguments to the event handler.
    */
   emit(...args) {
-    coreApp.emit.apply(coreApp, args);
+    this.coreApp.emit.apply(coreApp, args);
   }
 };

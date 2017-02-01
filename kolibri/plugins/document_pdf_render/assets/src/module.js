@@ -1,5 +1,5 @@
 
-const ContentRendererModule = require('content_renderer_module');
+const ContentRendererModule = require('kolibri.coreModules.contentRenderer');
 const PDFComponent = require('./vue/index');
 
 class DocumentPDFModule extends ContentRendererModule {

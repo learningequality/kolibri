@@ -1,4 +1,4 @@
-const KolibriModule = require('kolibri_module');
+const KolibriModule = require('kolibri.coreModules.kolibriModule');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const router = require('kolibri.coreVue.router');
 

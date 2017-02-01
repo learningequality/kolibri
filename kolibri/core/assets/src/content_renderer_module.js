@@ -1,4 +1,4 @@
-const KolibriModule = require('kolibri_module');
+const KolibriModule = require('kolibri.coreModules.kolibriModule');
 
 module.exports = class ContentRenderer extends KolibriModule {
   render() {
