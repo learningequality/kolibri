@@ -33,7 +33,7 @@ const constructorExport = () => {
     }
   };
   recurseObjectKeysAndImport(apiSpec);
-  recurseObjectKeysAndImport(__coreAPISpec);
+  recurseObjectKeysAndImport(__coreAPISpec); // eslint-disable-line no-undef
   return exportObj;
 };
 
