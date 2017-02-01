@@ -1,12 +1,12 @@
 Getting started
 ===============
 
-First of all, thank you for your interest in contributing to Kolibri! The project was founded by volunteers dedicated to helping make educational materials more accessible to those in need, and every contribution makes a difference. The instructions below should get you up and running the code in no time! 
+First of all, thank you for your interest in contributing to Kolibri! The project was founded by volunteers dedicated to helping make educational materials more accessible to those in need, and every contribution makes a difference. The instructions below should get you up and running the code in no time!
 
 Setting up Kolibri for development
 ----------------------------------
 
-Most of the steps below require entering commands into your Terminal (Linux, Mac) or command prompt (``cmd.exe`` on Windows) that you will learn how to use and become more comfortable with. 
+Most of the steps below require entering commands into your Terminal (Linux, Mac) or command prompt (``cmd.exe`` on Windows) that you will learn how to use and become more comfortable with.
 
 .. tip::
   In case you run into any problems during these steps, searching online is usually the fastest way out: whatever error you are seeing, chances are good that somebody alredy had it in the past and posted a solution somewhere... ;)
@@ -25,7 +25,8 @@ Install Environment Dependencies
 #. Install `Python <https://www.python.org/downloads/windows/>`_ if you are on Windows, on Linux and OSX Python is preinstalled (recommended versions 2.7+ or 3.4+).
 #. Install `pip <https://pypi.python.org/pypi/pip>`_ package installer.
 #. Install `Node <https://nodejs.org/en/>`_ (recommended version 4+).
-   
+#. Install Yarn according the `instructions specific for your OS <https://yarnpkg.com/en/docs/install/>`_.
+
    .. note::
      * On Ubuntu install Node.js via `nvm <https://github.com/creationix/nvm>`_ to avoid build issues.
      * On a Mac, you may want to consider using the `Homebrew <http://brew.sh/>`_ package manager.
@@ -62,21 +63,44 @@ Checking out the code
 Virtual environment
 ~~~~~~~~~~~~~~~~~~~
 
-It's generally good practice to use `Python virtual environment <https://virtualenv.pypa.io/en/latest/>`_ to isolate your project(s) and allow you to install different packages, even with different versions. This also allows you to avoid using ``sudo`` with the ``pip`` commands below, which is not recommended. Follow these `instructions to create a new virtual environment and activate it <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_. 
+It is best practice to use `Python virtual environment <https://virtualenv.pypa.io/en/latest/>`_ to isolate the dependencies of your Python projects from each other. This also allows you to avoid using ``sudo`` with ``pip``, which is not recommended.
+
+You can learn more about using `virtualenv <https://virtualenv.pypa.io/en/stable/userguide/>`_, or follow these basic instructions:
+
+Initial setup, performed once:
 
 .. code-block:: bash
 
-  $ sudo pip install virtualenv
-  $ cd my_kolibri_project_folder
-  $ mkvirtualenv kolibri
-  $ workon kolibri 
-  (kolibri)$ 
+  $ sudo pip install virtualenv  # install virtualenv globally
+  $ mkdir ~/.venvs               # create a common directory for multiple virtual environments
+  $ virtualenv ~/.venvs/kolibri  # create a new virtualenv for Kolibri dependencies
+
 
 .. note::
-  In this document we use the name ``kolibri``, but you can name the virtual environment however you wish.
+
+  We create the virtualenv `outside` of the Kolibri project folder. You can choose another location than ``~/.venvs/kolibri`` if desired.
+
+To activate the virtualenv in a standard Bash shell:
+
+.. code-block:: bash
+
+  $ source ~/.venvs/kolibri/bin/activate  # activate the venv
+
+Now, any commands run with ``pip`` will target your virtualenv rather than the global Python installation.
+
+To deactivate the virualenv, run the command below. Note, you'll want to leave it activated for the remainder of project setup!
+
+.. code-block:: bash
+
+  $ deactivate
+
 
 .. tip::
-  Linux users might also consider using `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/en/latest/index.html>`_.
+
+  * Users of Windows and other shells such as Fish should read the `guide <https://virtualenv.pypa.io/en/stable/userguide/>`_ for instructions on activating.
+  * If you set the ``PIP_REQUIRE_VIRTUALENV`` environment variable to ``true``, pip will only install packages when a virtualenv is active. This can help prevent mistakes.
+  * Bash users might also consider using `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/en/latest/index.html>`_, which simplifies the process somewhat.
+
 
 
 Install Project Dependencies
@@ -84,11 +108,9 @@ Install Project Dependencies
 
 .. note::
 
-  If you're *not* using a Python virtual environment, you may need to use ``sudo`` with the ``pip install`` commands below. ``yarn install`` automatically isolates project dependencies and works without ``sudo``.
+  Make sure your virtualenv is active!
 
-#. Install ``yarn`` according the `instructions specific for your OS <https://yarnpkg.com/en/docs/install/>`_.
-
-#. To install Kolibri project-specific dependencies make sure you're in the ``kolibri`` directory and run:
+To install Kolibri project-specific dependencies make sure you're in the ``kolibri`` directory and run:
 
   .. code-block:: bash
 
@@ -96,11 +118,12 @@ Install Project Dependencies
     (kolibri)$ pip install -r requirements.txt
     (kolibri)$ pip install -r requirements/dev.txt
 
-    # Node.js dependencies
-    (kolibri)$ yarn install
-
     # Kolibri Python package in 'editable' mode, so your installation points to your git checkout:
     (kolibri)$ pip install -e .
+
+    # Javascript dependencies
+    (kolibri)$ yarn install
+
 
 
 Running Kolibri server
@@ -156,7 +179,7 @@ Now you should be able to access the server at ``http://127.0.0.1:8080/``.
 Contributing code to Kolibri
 ----------------------------
 
-* Once you've toyed around with things, read through the rest of the :doc:`index`, especially topics in :ref:`architecture` and :ref:`themes` to understand more about the Kolibri structure. 
+* Once you've toyed around with things, read through the rest of the :doc:`index`, especially topics in :ref:`architecture` and :ref:`themes` to understand more about the Kolibri structure.
 * When you're up to speed with that, you're probably itching to make some contributions! Head over to the `issues page on GitHub <https://github.com/learningequality/kolibri/issues>`_ and take a look at the current project priorities. Try filtering by milestone. If you find a bug in your testing, please `submit your own issue <https://github.com/learningequality/kolibri/issues/new>`_
 * Once you've identified an issue and you're ready to start hacking on a solution, get ready to :ref:`pull_request`!
 
@@ -187,7 +210,7 @@ After making changes to the code, commit and push them to a branch on your fork:
 
 .. code-block:: bash
 
-  $ git add -A  # Add all changed and new files to the commit  
+  $ git add -A  # Add all changed and new files to the commit
   $ git commit -m "Write here the commit message"
   $ git push origin name-of-your-bugfix-or-feature
 
