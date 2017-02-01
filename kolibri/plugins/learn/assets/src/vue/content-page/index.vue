@@ -17,7 +17,7 @@
 
     <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn">
       {{ $tr('nextContent') }}
-      <svg class="right-arrow" src="../icons/arrow_right.svg"/>
+      <svg class="right-arrow" icon-name="material-navigation-chevron_right"/>
     </icon-button>
 
     <p class="page-description">{{ content.description }}</p>

@@ -3,15 +3,15 @@
   <div>
     <svg
       v-if="is(Constants.ContentNodeKinds.TOPIC)"
-      src="./content-icons/topic.svg"
+      icon-name="material-file-folder"
       :class="[colorClass]"/>
     <svg
       v-if="is(Constants.ContentNodeKinds.VIDEO)"
-      src="./content-icons/video.svg"
+      icon-name="material-notification-ondemand_video"
       :class="[colorClass]"/>
     <svg
       v-if="is(Constants.ContentNodeKinds.AUDIO)"
-      src="./content-icons/audio.svg"
+      icon-name="material-image-audiotrack"
       :class="[colorClass]"/>
     <svg
       v-if="is(Constants.ContentNodeKinds.DOCUMENT)"
@@ -19,15 +19,15 @@
       :class="[colorClass]"/>
     <svg
       v-if="is(Constants.ContentNodeKinds.EXERCISE)"
-      src="./content-icons/exercise.svg"
+      icon-name="material-toggle-star"
       :class="[colorClass]"/>
     <svg
       v-if="is(Constants.ContentNodeKinds.HTML5)"
-      src="./content-icons/widget.svg"
+      icon-name="material-device-widgets"
       :class="[colorClass]"/>
     <svg
       v-if="is(Constants.USER)"
-      src="./content-icons/user.svg"
+      icon-name="material-social-person"
       :class="[colorClass]"/>
   </div>
 

@@ -7,8 +7,8 @@
       :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullScreen"
       :primary="true">
-      <svg v-if="isFullScreen" class="icon" src="icons/fullscreenexit.svg"/>
-      <svg v-else class="icon" src="icons/fullscreenenter.svg"/>
+      <svg v-if="isFullScreen" class="icon" icon-name="material-navigation-fullscreen_exit"/>
+      <svg v-else class="icon" icon-name="material-navigation-fullscreen"/>
     </icon-button>
     <div ref="pdfcontainer" class="pdfcontainer"></div>
   </div>

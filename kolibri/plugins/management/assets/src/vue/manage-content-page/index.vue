@@ -22,7 +22,7 @@
             class="button"
             @click="startImportWizard"
             :primary="true">
-            <svg src="../icons/add.svg"/>
+            <svg icon-name="material-content-add"/>
           </icon-button>
           <icon-button
             text="Export"

@@ -2,11 +2,11 @@
 
   <div class="wrapper">
     <div v-if="isInProgress" class="progress-icon inprogress">
-      <svg src="./progress-icons/inprogress.svg"/>
+      <svg icon-name="material-action-hourglass_empty"/>
     </div>
 
     <div v-else-if="isCompleted" class="progress-icon completed">
-      <svg src="./progress-icons/completed.svg"/>
+      <svg icon-name="material-navigation-check"/>
     </div>
   </div>
 

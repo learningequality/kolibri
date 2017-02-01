@@ -12,7 +12,7 @@
 
     <!-- Logged-out state -->
     <div class="wrapper" v-else>
-      <svg id="person" class="person-icon" src="./icons/person.svg"/>
+      <svg id="person" class="person-icon" icon-name="material-social-person"/>
       <div class="label">{{ $tr('logIn') }}</div>
     </div>
 

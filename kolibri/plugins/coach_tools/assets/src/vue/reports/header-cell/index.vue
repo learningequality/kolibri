@@ -4,8 +4,8 @@
     <router-link v-if="sortable" :to="vLink" class="header-text">
       <span>{{ text }}</span>
       <span class="icon-wrapper" v-if="sortable">
-        <svg class="icon" :class="{ sorted: isDescending }" src="./down.svg"/>
-        <svg class="icon" :class="{ sorted: isAscending }" src="./up.svg"/>
+        <svg class="icon" :class="{ sorted: isDescending }" icon-name="material-hardware-keyboard_arrow_down"/>
+        <svg class="icon" :class="{ sorted: isAscending }" icon-name="material-hardware-keyboard_arrow_up"/>
       </span>
       <span class="visuallyhidden" v-if="isAscending">{{ $tr('ascending') }}</span>
       <span class="visuallyhidden" v-if="isDescending">{{ $tr('descending') }}</span>

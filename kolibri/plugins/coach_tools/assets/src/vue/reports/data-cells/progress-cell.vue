@@ -4,7 +4,7 @@
     <template v-if="num !== undefined">
       <progress-bar :progress="num"/>
       <div v-if="extraText" class="extra-text">
-        <svg src="../../icons/user.svg" class="person-icon"/>
+        <svg icon-name="material-social-person" class="person-icon"/>
         {{extraText}}
       </div>
     </template>
