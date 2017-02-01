@@ -1,7 +1,7 @@
 <template>
 
   <core-modal
-    title="Export to a Local Drive"
+    :title="$tr('title')"
     :error="wizardState.error ? true : false"
     :enableBgClickCancel="false"
     @cancel="cancel"
@@ -10,40 +10,46 @@
     <div class="main">
       <template v-if="!drivesLoading">
         <div class="modal-message">
-          <h2>Writable drives detected:</h2>
-          <div class="drive-list">
-            <div class="drive-names" v-for="(drive, index) in writableDrives">
-              <input
-                type="radio"
-                :id="'drive-'+index"
-                :value="drive.id"
-                v-model="selectedDrive"
-                name="drive-select"
-              >
-              <label :for="'drive-'+index">
-                {{drive.name}}
-                <br>
-                <span class="drive-detail">
-                  {{$tr('available')}}: {{bytesForHumans(drive.freespace)}}
-                </span>
-              </label>
+          <h2 class="core-text-alert" v-if="!wizardState.driveList">
+            <svg class="error-svg" src="../icons/error.svg"/>
+            {{$tr('noDrivesDetected')}}
+          </h2>
+          <template v-else>
+            <h2>{{$tr('drivesFound')}}</h2>
+            <div class="drive-list">
+              <div class="drive-names" v-for="(drive, index) in writableDrives">
+                <input
+                  type="radio"
+                  :id="'drive-'+index"
+                  :value="drive.id"
+                  v-model="selectedDrive"
+                  name="drive-select"
+                >
+                <label :for="'drive-'+index">
+                  {{drive.name}}
+                  <br>
+                  <span class="drive-detail">
+                    {{$tr('available')}} {{bytesForHumans(drive.freespace)}}
+                  </span>
+                </label>
+              </div>
+              <div class="disabled drive-names" v-for="(drive, index) in unwritableDrives">
+                <input
+                  type="radio"
+                  disabled
+                  :id="'disabled-drive-'+index"
+                >
+                <label :for="'disabled-drive-'+index">
+                  {{drive.name}} 
+                  <br>
+                  <span class="drive-detail">{{$tr('incompatible')}}</span>
+                </label>
+              </div>
             </div>
-            <div class="disabled drive-names" v-for="(drive, index) in unwritableDrives">
-              <input
-                type="radio"
-                disabled
-                :id="'disabled-drive-'+index"
-              >
-              <label :for="'disabled-drive-'+index">
-                {{drive.name}} 
-                <br>
-                <span class="drive-detail">Incompatible</span>
-              </label>
-            </div>
-          </div>
+          </template>
         </div>
         <div class="refresh-btn-wrapper">
-          <icon-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" text="Refresh">
+          <icon-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" :text="$tr('refresh')">
             <svg src="../icons/refresh.svg"/>
           </icon-button>
         </div>
@@ -56,9 +62,9 @@
     <div class="button-wrapper">
       <icon-button
         @click="cancel"
-        text="Cancel"/>
+        :text="$tr('cancel')"/>
       <icon-button
-        text="Export"
+        :text="$tr('export')"
         @click="submit"
         :disabled="!canSubmit"
         :primary="true"/>
@@ -75,8 +81,14 @@
   module.exports = {
     $trNamespace: 'wizard-export',
     $trs: {
-      available: 'Available',
-      availableAfterExport: 'Available after export',
+      title: 'Export to a Local Drive',
+      available: 'Available:',
+      noDrivesDetected: 'No drives were detected:',
+      drivesFound: 'Writable drives detected',
+      incompatible: 'Incompatible',
+      cancel: 'Cancel',
+      export: 'Export',
+      refresh: 'Refresh',
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
@@ -195,11 +207,8 @@
   .drive-names
     padding: 0.6em
     border: 1px $core-bg-canvas solid
-    display:inline-block
-    width: 100%
-    .drive-detail
-      color: $core-text-annotation
-      /*background-color: $core-bg-info*/
+    &.disabled
+      color: $core-text-disabled
     label
       display: inline-table
       font-size: 0.9em
@@ -208,13 +217,8 @@
     border-top: none
 
   .drive-detail
+    color: $core-text-annotation
     font-size: 0.7em
-
-  .disabled
-    color: $core-text-disabled
-
-  .incompatible
-    text-align: right
 
   .button-wrapper
     margin: 1em 0
