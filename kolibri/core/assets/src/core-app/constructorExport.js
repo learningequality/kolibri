@@ -5,7 +5,6 @@
 const apiSpec = require('./apiSpec').apiSpec;
 const keys = require('./apiSpec').keys;
 
-
 const constructorExport = () => {
   /*
    * Function for building the object that populates the kolibri global object API.
@@ -34,6 +33,7 @@ const constructorExport = () => {
     }
   };
   recurseObjectKeysAndImport(apiSpec);
+  recurseObjectKeysAndImport(__coreAPISpec);
   return exportObj;
 };
 

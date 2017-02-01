@@ -10,10 +10,13 @@ var _ = require("lodash");
 var path = require('path');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
+var webpack = require('webpack');
 
 var parseBundlePlugin = require('./parse_bundle_plugin');
 
 var coreExternals = require('./apiSpecExportTools').coreExternals;
+
+var coreAliases = require('./apiSpecExportTools').coreAliases;
 
 /**
  * Take a Python plugin file name as input, and extract the information regarding front end plugin configuration from it
@@ -63,6 +66,14 @@ var readBundlePlugin = function(base_dir) {
     }
   }
 
+  // A bundle can specify a modification to the coreAPI.
+  var coreAPISpec = (_.find(bundles, function(bundle) {return bundle.coreAPISpec;}) || {}).coreAPISpec;
+
+  // Check that there is only one bundle modifying the coreAPI spec.
+  if (_.filter(bundles, function(bundle) {return bundle.coreAPISpec;}).length > 1) {
+    throw new RangeError('You have more than one coreAPISpec modification specified.');
+  }
+
   // One bundle is special - that is the one for the core bundle.
   var core_bundle = _.find(bundles, function(bundle) {return bundle.core_name && bundle.core_name !== null;});
 
@@ -82,6 +93,21 @@ var readBundlePlugin = function(base_dir) {
       bundle.externals = _.extend({}, externals, core_externals);
     } else {
       bundle.externals = _.extend({kolibri: core_bundle.output.library}, externals);
+      if (coreAPISpec) {
+        bundle.resolve.alias = coreAliases(coreAPISpec);
+        bundle.plugins.push(
+          new webpack.ProvidePlugin({
+            __coreAPISpec: coreAPISpec
+          })
+        );
+      } else {
+        bundle.plugins.push(
+          new webpack.DefinePlugin({
+            __coreAPISpec: "{}"
+          })
+        );
+      }
+
     }
   });
 

@@ -57,6 +57,11 @@ var parseBundlePlugin = function(data, base_dir) {
     local_config = {};
   }
 
+  if (local_config.coreAPISpec) {
+    // Resolve this path now so that it can be unproblematically resolved later.
+    local_config.coreAPISpec = path.resolve(path.join(data.plugin_path, local_config.coreAPISpec));
+  }
+
   bundle = merge.smart(bundle, local_config);
 
   // This might be non-standard use of the entry option? It seems to
