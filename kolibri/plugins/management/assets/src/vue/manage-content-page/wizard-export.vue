@@ -18,22 +18,26 @@
                 :id="'drive-'+index"
                 :value="drive.id"
                 v-model="selectedDrive"
+                name="drive-select"
               >
               <label :for="'drive-'+index">
                 {{drive.name}}
-                {{megabyteCalc(drive.freespace)}} MB Free
+                <br>
+                <span class="drive-detail">
+                  {{$tr('available')}}: {{bytesForHumans(drive.freespace)}}
+                </span>
               </label>
             </div>
             <div class="disabled drive-names" v-for="(drive, index) in unwritableDrives">
               <input
                 type="radio"
                 disabled
-                :id="'-disabled-drive-'+index"
+                :id="'disabled-drive-'+index"
               >
               <label :for="'disabled-drive-'+index">
-                {{drive.name}}
+                {{drive.name}} 
                 <br>
-                Unwritable
+                <span class="drive-detail">Incompatible</span>
               </label>
             </div>
           </div>
@@ -69,6 +73,11 @@
   const actions = require('../../actions');
 
   module.exports = {
+    $trNamespace: 'wizard-export',
+    $trs: {
+      available: 'Available',
+      availableAfterExport: 'Available after export',
+    },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -114,8 +123,36 @@
           this.cancelImportExportWizard();
         }
       },
-      megabyteCalc(byteCount) {
-        return Math.floor((byteCount) / 2048);
+      bytesForHumans(bytes) {
+        // breaking down byte counts in terms of larger sizes
+        const kilobyte = 1024;
+        const megabyte = Math.pow(kilobyte, 2);
+        const gigabyte = Math.pow(kilobyte, 3);
+
+        function kilobyteCalc(byteCount) {
+          const kilos = Math.floor(byteCount / kilobyte);
+          return `${kilos} KB`;
+        }
+        function megabyteCalc(byteCount) {
+          const megs = Math.floor(byteCount / megabyte);
+          return `${megs} MB`;
+        }
+        function gigabyteCalc(byteCount) {
+          const gigs = Math.floor(byteCount / gigabyte);
+          return `${gigs} GB`;
+        }
+        function chooseSize(byteCount) {
+          if (byteCount > gigabyte) {
+            return gigabyteCalc(byteCount);
+          } else if (byteCount > megabyte) {
+            return megabyteCalc(byteCount);
+          } else if (byteCount > kilobyte) {
+            return kilobyteCalc(byteCount);
+          }
+          return `${bytes} B`;
+        }
+
+        return chooseSize(bytes);
       },
     },
     vuex: {
@@ -155,16 +192,29 @@
     margin-right: 0.2em
     margin-bottom: -6px
 
-  .drive-list
-    margin: 2em
-
   .drive-names
     padding: 0.6em
-    border: 1px grey solid
+    border: 1px $core-bg-canvas solid
+    display:inline-block
+    width: 100%
+    .drive-detail
+      color: $core-text-annotation
+      /*background-color: $core-bg-info*/
+    label
+      display: inline-table
+      font-size: 0.9em
+
+  .drive-list:not(first-child)
     border-top: none
 
-  .drive-names:first-child
-    border-top: 1px grey solid
+  .drive-detail
+    font-size: 0.7em
+
+  .disabled
+    color: $core-text-disabled
+
+  .incompatible
+    text-align: right
 
   .button-wrapper
     margin: 1em 0

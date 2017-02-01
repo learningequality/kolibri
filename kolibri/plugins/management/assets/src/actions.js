@@ -286,7 +286,6 @@ function updateWizardLocalDriveList(store) {
   store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', true);
   localDrivesPromise.then((response) => {
     store.dispatch('SET_CONTENT_PAGE_WIZARD_BUSY', false);
-    console.log(response.entity);
     store.dispatch('SET_CONTENT_PAGE_WIZARD_DRIVES', response.entity);
   })
   .catch((error) => {
