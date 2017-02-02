@@ -29,6 +29,7 @@
             </li>
             <li id="logout-tab">
               <div tabindex="0" @keyup.enter="userLogout" @click="logout" :aria-label="$tr('logOut')">
+                <svg icon-name="material-action-power_settings_new"/>
                 <span>{{ $tr('logOut') }}</span>
               </div>
             </li>
@@ -226,13 +227,15 @@
     div
       color: $core-action-normal
       transition: all 0.2s
-      background: url('./icons/active-logout.svg') no-repeat
+      svg
+        fill: $core-action-normal
+        display: inline-block
       &:hover
-        background: url('./icons/logout-hover.svg') no-repeat
+        svg
+          fill: $core-action-dark
       span
         position: relative
         bottom: 2px
-        margin-left: 25px
         &:hover
           cursor: pointer
           color: $core-action-dark

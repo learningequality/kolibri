@@ -19,22 +19,28 @@
         <h1>{{ $tr('logInError') }}</h1>
         <span aria-live="polite">{{ $tr('validationError') }}<br>{{ $tr('tryAgain') }}</span>
       </div>
-      <input
-        type="text"
-        class="login-form login-username"
-        autofocus
-        v-model="username_entered"
-        ref="usernamefield"
-        :placeholder="$tr('userName')"
-        :aria-label="$tr('userName')"
-      >
-      <input
-        type="password"
-        class="login-form login-password"
-        v-model="password_entered"
-        :placeholder="$tr('password')"
-        :aria-label="$tr('password')"
-      >
+      <div>
+        <svg icon-name="material-social-person"/>
+        <input
+          type="text"
+          class="login-form login-username"
+          autofocus
+          v-model="username_entered"
+          ref="usernamefield"
+          :placeholder="$tr('userName')"
+          :aria-label="$tr('userName')"
+        >
+      </div>
+      <div>
+        <svg icon-name="material-action-lock"/>
+        <input
+          type="password"
+          class="login-form login-password"
+          v-model="password_entered"
+          :placeholder="$tr('password')"
+          :aria-label="$tr('password')"
+        >
+      </div>
       <button class="login-button" @click="userLogin">{{ $tr('logIn') }}</button>
     </div>
   </core-modal>
@@ -135,10 +141,11 @@
     margin-bottom: 15px
 
   .login-form
-    width: 300px
+    width: 275px
     margin: 0 auto
-    display: block
-    padding: 5px 30px
+    display: inline-block
+    padding-top: 5px
+    padding-bottom: 5px
     letter-spacing: 0.08em
     border: none
     border-bottom: 1px solid $core-text-default
@@ -149,18 +156,15 @@
 
   .login-username
     margin: 30px auto
-    background: url('./icons/user.svg') no-repeat 8px 6px
     transition: all 0.15s
-    &:focus
-      background: url('./icons/user-active.svg') no-repeat 8px 6px
 
   .login-password
-    background: url('./icons/password.svg') no-repeat 7px 3px
     transition: all 0.15s
-    &:focus
-      background: url('./icons/password-active.svg') no-repeat 7px 3px
 
   .error-wrapper
     text-align: center
+
+  svg
+    vertical-align: middle
 
 </style>
