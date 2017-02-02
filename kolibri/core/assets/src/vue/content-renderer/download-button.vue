@@ -13,9 +13,9 @@
     <ul
       ref="dropdownitems"
       class="dropdown-items"
-      :class="{ 'dropdown-open': dropdownOpen }"
-      :aria-hidden="dropdownOpenText"
-      role="menu">
+      role="menu"
+      :hidden="!dropdownOpen"
+    >
       <li
         v-for="file in files"
         class="dropdown-item"
@@ -60,9 +60,6 @@
       };
     },
     computed: {
-      dropdownOpenText() {
-        return String(this.dropdownOpen);
-      },
       dropdownItems() {
         const listItems = Array.from(this.$refs.dropdownitems.children);
         const anchorItems = [];
@@ -169,7 +166,6 @@
     padding: 0
     margin: 0
     margin-top: -0.8em
-    display: none
     position: absolute
 
   .dropdown-item
@@ -192,8 +188,5 @@
     &:hover
       background-color: $core-action-light
       outline: $core-action-light 2px solid
-
-  .dropdown-open
-    display: block
 
 </style>
