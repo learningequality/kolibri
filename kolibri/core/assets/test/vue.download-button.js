@@ -24,7 +24,7 @@ describe('download-button Component', function () {
 
 
   describe('computed property', function () {
-    describe('dropDownItems', function () {
+    describe('dropdownItems', function () {
       beforeEach(function () {
         this.vm = new DownloadButtonComponent({
           propsData: {
@@ -32,17 +32,8 @@ describe('download-button Component', function () {
           },
         }).$mount();
       });
-      it('should return false if menu has never been opened', function () {
-        assert.equal(this.vm.dropdownOpenText, 'false');
-      });
-      it('should return true after opening menu', function () {
-        this.vm.toggleDropdown();
-        assert.equal(this.vm.dropdownOpenText, 'true');
-      });
-      it('should return false after closing menu', function () {
-        this.vm.toggleDropdown();
-        this.vm.toggleDropdown();
-        assert.equal(this.vm.dropdownOpenText, 'false');
+      it('should return an array of length equal to number of files', function () {
+        assert.equal(this.vm.dropdownItems.length, samplesFiles.length);
       });
     });
 
@@ -54,7 +45,7 @@ describe('download-button Component', function () {
           },
         }).$mount();
       });
-      it('should return an array of length', function () {
+      it('should return an array of length equal to number of files + 1', function () {
         assert.equal(this.vm.focusableItems.length, this.vm.dropdownItems.length + 1);
       });
     });
@@ -69,12 +60,12 @@ describe('download-button Component', function () {
           },
         }).$mount();
       });
-      it('should mark menu as open', function () {
+      it('should mark menu as open if called once', function () {
         this.vm.toggleDropdown();
         assert.equal(this.vm.dropdownOpen, true);
         assert.equal(this.vm.focusedItemIndex, 0);
       });
-      it('should mark menu as closed', function () {
+      it('should mark menu as closed if called twice', function () {
         this.vm.toggleDropdown();
         this.vm.toggleDropdown();
         assert.equal(this.vm.dropdownOpen, false);
