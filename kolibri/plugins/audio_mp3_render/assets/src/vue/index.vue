@@ -6,7 +6,9 @@
         @click="togglePlay"
         class="play-button"
         :class="{ 'is-play': isPlay, 'is-pause': isPause }"
-      ></button>
+      >
+        <svg icon-name="material-av-play_arrow"/>
+      </button>
       <div id="current-time">
         {{ currentMinutes }} : {{ formattedCurrentSec }}
       </div>
