@@ -12,7 +12,7 @@
     <div class="main">
       <template v-if="!drivesLoading">
         <div class="modal-message">
-          <h2 class="core-text-alert" v-if="!wizardState.driveList">
+          <h2 class="core-text-alert" v-if="noDrives">
             <svg class="error-svg" src="../icons/error.svg"/>
             {{$tr('noDrivesDetected')}}
           </h2>
@@ -39,7 +39,7 @@
                   :id="'disabled-drive-'+index"
                 >
                 <label :for="'disabled-drive-'+index">
-                  {{drive.name}} 
+                  {{drive.name}}
                   <br>
                   <span class="drive-detail">{{$tr('incompatible')}}</span>
                 </label>
@@ -85,8 +85,8 @@
     $trs: {
       title: 'Import from a Local Drive',
       noDrivesDetected: 'No drives were detected',
-      drivesFound: 'Drives with data detected:',
-      incompatible: 'Incompatible',
+      drivesFound: 'Drives detected:',
+      incompatible: 'No content available',
       refresh: 'Refresh',
       cancel: 'Cancel',
       import: 'Import',
@@ -99,6 +99,9 @@
       selectedDrive: undefined, // used when there's more than one option
     }),
     computed: {
+      noDrives() {
+        return !Array.isArray(this.wizardState.driveList);
+      },
       driveToUse() {
         if (this.drivesWithData.length === 1) {
           return this.drivesWithData[0].id;

@@ -59,7 +59,7 @@
         </tbody>
       </table>
     </div>
-  
+
   </div>
 
 </template>
@@ -71,7 +71,7 @@
   const ContentWizardPages = require('../../state/constants').ContentWizardPages;
 
   module.exports = {
-    $trNameSpace: '',
+    $trNameSpace: 'manage-content-state',
     $trs: {
       title: 'My Channels',
       import: 'Import',
