@@ -9,6 +9,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import json
 import logging
+import os
 
 from django.utils.functional import cached_property
 from kolibri.core.webpack.hooks import WebpackBundleHook, WebpackInclusionHook
@@ -23,16 +24,16 @@ class ContentRendererHook(WebpackBundleHook):
 
     Reads a JSON file of this format:
     {
-        'kind': [
-            'file_extension'
+        "kind": [
+            "file_extension"
         ]
     }
     e.g.
     {
-        'video': [
-            'mp4',
-            'ogg',
-            'wmv'
+        "video": [
+            "mp4",
+            "ogg",
+            "wmv"
         ]
     }
     Detailing the kinds and file extensions that the renderer can handle.
@@ -52,13 +53,14 @@ class ContentRendererHook(WebpackBundleHook):
     def content_types(self):
         return [
             "{kind}/{extension}".format(kind=kind, extension=extension)
-            for kind, extensions in self.content_type_json.iteritems() for extension in extensions
+            for kind, extensions in self.content_type_json.items() for extension in extensions
         ]
 
     @cached_property
     def content_type_json(self):
         try:
-            with open(self.content_types_file) as f:
+            file_path = os.path.join(self._module_file_path, self.content_types_file)
+            with open(file_path) as f:
                 content_types = json.load(f)
                 for kind in content_types.keys():
                     if kind not in dict(content_kinds.choices):

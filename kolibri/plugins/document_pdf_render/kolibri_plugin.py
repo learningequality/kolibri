@@ -1,21 +1,18 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-from kolibri.core.webpack import hooks as webpack_hooks
+from kolibri.content import hooks as content_hooks
 from kolibri.plugins.base import KolibriPluginBase
-from kolibri.plugins.learn import hooks
 
 
 class DocumentPDFRenderPlugin(KolibriPluginBase):
     pass
 
 
-class DocumentPDFRenderAsset(webpack_hooks.WebpackBundleHook):
+class DocumentPDFRenderAsset(content_hooks.WebpackBundleHook):
     unique_slug = "document_pdf_render_module"
     src_file = "assets/src/module.js"
-    events = {
-        "content_render:document/pdf": "render"
-    }
+    content_types_file = "assets/src/content_types.json"
 
 
-class DocumentPDFRenderInclusionHook(hooks.LearnAsyncHook):
+class DocumentPDFRenderInclusionHook(content_hooks.ContentRendererInclusionHook):
     bundle_class = DocumentPDFRenderAsset

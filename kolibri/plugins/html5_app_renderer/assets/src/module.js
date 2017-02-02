@@ -7,7 +7,7 @@ class HTML5AppModule extends ContentRendererModule {
     return HTML5AppComponent;
   }
   get contentType() {
-    return 'html5/zip';
+    return require('./content_types.json');
   }
 }
 

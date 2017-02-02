@@ -7,7 +7,7 @@ class DocumentPDFModule extends ContentRendererModule {
     return PDFComponent;
   }
   get contentType() {
-    return 'document/pdf';
+    return require('./content_types.json');
   }
 }
 
