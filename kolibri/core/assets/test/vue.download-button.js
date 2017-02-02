@@ -15,11 +15,11 @@ describe('download-button Component', function () {
   const samplesFiles = [{
     file_size: 100000,
     preset: 'High Resolution',
-    download_url: '/downloadcontent/3893fd801427402ad07487c5d2d35119.mp4/Fractions_High_Resolution.mp4',
+    download_url: '/downloadcontent/3893fd801427402ad07487c5d2d35119.mp4/Math_Low_Resolution.mp4',
   }, {
     file_size: 500,
     preset: 'Thumbnail',
-    download_url: '/downloadcontent/187598e1f4596bf4492f5a205922b633.jpg/Fractions_Thumbnail.jpg',
+    download_url: '/downloadcontent/187598e1f4596bf4492f5a205922b633.jpg/Math_Thumbnail.jpg',
   }];
 
 
