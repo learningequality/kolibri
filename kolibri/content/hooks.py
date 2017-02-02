@@ -11,7 +11,7 @@ import json
 import logging
 
 from django.utils.functional import cached_property
-from kolibri.core.webpack.hooks import WebpackBundleHook
+from kolibri.core.webpack.hooks import WebpackBundleHook, WebpackInclusionHook
 from le_utils.constants import content_kinds
 
 logger = logging.getLogger(__name__)
@@ -67,3 +67,12 @@ class ContentRendererHook(WebpackBundleHook):
                 return content_types
         except IOError:
             raise IOError("Content types file not found at {}".format(self.content_types_file))
+
+
+class ContentRendererInclusionHook(WebpackInclusionHook):
+    """
+    Inherit a hook defining assets to be loaded wherever content needs to be loaded.
+    """
+
+    class Meta:
+        abstract = True
