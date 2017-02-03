@@ -8,8 +8,12 @@ feedback on the content and the software.
 
 from __future__ import unicode_literals
 
+from datetime import timedelta
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import AbstractFacilityDataModel, Facility, FacilityUser
 from kolibri.auth.permissions.base import RoleBasedPermissions
@@ -128,8 +132,22 @@ class UserSessionLog(BaseLogModel):
     user = models.ForeignKey(FacilityUser)
     channels = models.TextField(blank=True)
     start_timestamp = models.DateTimeField(auto_now_add=True)
-    completion_timestamp = models.DateTimeField(blank=True, null=True)
+    last_interaction_timestamp = models.DateTimeField(auto_now=True, null=True)
     pages = models.TextField(blank=True)
+
+    @classmethod
+    def update_log(cls, user):
+        try:
+            user_session_log = cls.objects.filter(user=user).latest('last_interaction_timestamp')
+        except ObjectDoesNotExist:
+            user_session_log = None
+
+        if not user_session_log or timezone.now() - user_session_log.last_interaction_timestamp > timedelta(minutes=5):
+            user_session_log = cls(user=user)
+            user_session_log.save()
+        else:
+            user_session_log.save()
+
 
 class MasteryLog(BaseLogModel):
     """
