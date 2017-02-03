@@ -10,7 +10,7 @@
     <div class="main">
       <template v-if="!drivesLoading">
         <div class="modal-message">
-          <h2 class="core-text-alert" v-if="!wizardState.driveList">
+          <h2 class="core-text-alert" v-if="noDrives">
             <svg class="error-svg" src="../icons/error.svg"/>
             {{$tr('noDrivesDetected')}}
           </h2>
@@ -43,7 +43,7 @@
                 <label :for="'disabled-drive-'+index">
                   {{drive.name}}
                   <br>
-                  <span class="drive-detail">{{$tr('incompatible')}}</span>
+                  <span class="drive-detail">{{$tr('notWritable')}}</span>
                 </label>
               </div>
             </div>
@@ -83,10 +83,10 @@
     $trNamespace: 'wizard-export',
     $trs: {
       title: 'Export to a Local Drive',
-      available: 'Available:',
+      available: 'Available Storage:',
       noDrivesDetected: 'No drives were detected:',
-      drivesFound: 'Writable drives detected',
-      incompatible: 'Incompatible',
+      drivesFound: 'Drives detected:',
+      notWritable: 'Not Writable',
       cancel: 'Cancel',
       export: 'Export',
       refresh: 'Refresh',
@@ -99,6 +99,9 @@
       selectedDrive: undefined, // used when there's more than one option
     }),
     computed: {
+      noDrives() {
+        return !Array.isArray(this.wizardState.driveList);
+      },
       driveToUse() {
         if (this.writableDrives.length === 1) {
           return this.writableDrives[0].id;
