@@ -9,5 +9,6 @@ class KolibriLoggerConfig(AppConfig):
     verbose_name = 'Kolibri Logger'
 
     def ready(self):
-        from .signals import create_user_session
-        assert create_user_session
+        from .signals import login_session_receiver, content_session_receiver
+        assert login_session_receiver
+        assert content_session_receiver
