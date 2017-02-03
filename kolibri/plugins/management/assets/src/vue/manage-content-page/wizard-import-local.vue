@@ -13,7 +13,7 @@
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <h2 class="core-text-alert" v-if="drivesWithData.length === 0">
-            <mat-svg class="error-svg" category="hardware" name="error_outline"/>
+            <mat-svg class="error-svg" category="alert" name="error_outline"/>
             No drives with data were detected.
           </h2>
           <h2 v-if="drivesWithData.length === 1">

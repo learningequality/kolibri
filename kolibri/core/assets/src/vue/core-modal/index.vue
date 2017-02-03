@@ -20,7 +20,7 @@
             <mat-svg category="navigation" name="arrow_back"/>
           </button>
           <button :aria-label="$tr('closeWindow')" @click="emitCancelEvent" class="header-btn btn-close">
-            <mat-svg category="hardware" name="close"/>
+            <mat-svg category="navigation" name="close"/>
           </button>
         </div>
 
