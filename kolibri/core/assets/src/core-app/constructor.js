@@ -16,6 +16,7 @@ const errorCode = require('rest/interceptor/errorCode');
 const cookiejs = require('js-cookie');
 const constructorExport = require('./constructorExport');
 const logging = require('../logging');
+const HeartBeat = require('../heartbeat');
 
 
 /**
@@ -156,6 +157,7 @@ module.exports = class CoreApp {
     publicMethods.forEach((method) => {
       this[method] = mediator[method].bind(mediator);
     });
+    new HeartBeat(this);
   }
 
   get client() {
