@@ -19,7 +19,8 @@
           <template v-else>
             <h2>{{$tr('drivesFound')}}</h2>
             <div class="drive-list">
-              <div class="drive-names" v-for="(drive, index) in drivesWithData">
+              <div class="enabled drive-names" v-for="(drive, index) in drivesWithData"
+                @click="selectDriveByID(drive.id)">
                 <input
                   type="radio"
                   :id="'drive-'+index"
@@ -137,6 +138,9 @@
           this.cancelImportExportWizard();
         }
       },
+      selectDriveByID(driveID) {
+        this.selectedDrive = driveID;
+      },
     },
     vuex: {
       getters: {
@@ -178,11 +182,14 @@
   .drive-names
     padding: 0.6em
     border: 1px $core-bg-canvas solid
-    &.disabled
-      color: $core-text-disabled
     label
       display: inline-table
       font-size: 0.9em
+    &.disabled
+      color: $core-text-disabled
+    &.enabled
+      &:hover
+        background-color: $core-bg-canvas
 
   .drive-list:not(first-child)
     border-top: none
