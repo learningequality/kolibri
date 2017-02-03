@@ -222,6 +222,8 @@
     &.enabled
       &:hover
         background-color: $core-bg-canvas
+      &, label
+        cursor: pointer
 
   .drive-list:not(first-child)
     border-top: none
