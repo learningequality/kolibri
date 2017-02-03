@@ -4,8 +4,8 @@
 
     <page-header :title="title">
       <div slot="icon">
-        <svg v-if="isRoot" icon-name="material-action-explore"/>
-        <svg v-else icon-name="material-file-folder"/>
+        <mat-svg v-if="isRoot" category="action" name="explore"/>
+        <mat-svg v-else category="file" name="folder"/>
       </div>
     </page-header>
 

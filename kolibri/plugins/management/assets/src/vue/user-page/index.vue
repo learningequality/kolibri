@@ -19,7 +19,7 @@
       </select>
 
       <div class="searchbar" role="search">
-        <svg class="icon" icon-name="material-action-search" aria-hidden="true"/>
+        <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
         <input
           id="search-field"
           :aria-label="$tr('searchText')"
@@ -34,7 +34,7 @@
           class="create-user-button"
           :text="$tr('addNew')"
           :primary="true">
-          <svg class="add-user" icon-name="material-social-person_add"/>
+          <mat-svg class="add-user" category="social" name="person_add"/>
         </icon-button>
       </div>
 
@@ -99,7 +99,7 @@
           <td class="table-cell">
             <icon-button class="edit-user-button" @click="openEditUserModal(user)">
               <span class="visuallyhidden">$tr('editAccountInfo')</span>
-              <svg icon-name="material-editor-mode_edit"/>
+              <mat-svg category="editor" name="mode_edit"/>
             </icon-button>
           </td>
 

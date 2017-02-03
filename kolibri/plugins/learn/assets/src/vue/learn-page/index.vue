@@ -2,7 +2,7 @@
 
   <div>
     <page-header :title="$tr('learnName')">
-      <svg slot="icon" icon-name="material-action-home"/>
+      <mat-svg slot="icon" category="action" name="home"/>
     </page-header>
     <allcontent/>
     <expandable-content-grid

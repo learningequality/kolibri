@@ -15,7 +15,7 @@
       </p>
       <a :href="sessionlogurl">
         <icon-button :text="$tr('download')">
-          <svg icon-name="material-file-file_download"/>
+          <mat-svg category="file" name="file_download"/>
         </icon-button>
       </a>
       <p class="infobox">
@@ -30,7 +30,7 @@
       </p>
       <a :href="summarylogurl">
         <icon-button :text="$tr('download')">
-          <svg icon-name="material-file-file_download"/>
+          <mat-svg category="file" name="file_download"/>
         </icon-button>
       </a>
       <p class="infobox">

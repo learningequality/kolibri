@@ -22,14 +22,14 @@
             class="button"
             @click="startImportWizard"
             :primary="true">
-            <svg icon-name="material-content-add"/>
+            <mat-svg category="content" name="add"/>
           </icon-button>
           <icon-button
             text="Export"
             class="button"
             :primary="true"
             @click="startExportWizard">
-            <svg src="../icons/export.svg"/>
+            <ion-svg name="ios-upload-outline"/>
           </icon-button>
         </div>
       </div>

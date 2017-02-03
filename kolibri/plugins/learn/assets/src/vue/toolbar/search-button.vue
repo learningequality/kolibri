@@ -5,7 +5,7 @@
     class="search-btn"
     @click="toggleSearch"
   >
-    <svg icon-name="material-action-search"/>
+    <mat-svg category="action" name="search"/>
   </button>
 
 </template>

@@ -2,7 +2,7 @@
 
   <div class="error-box-wrapper" :class="{ hidden: isHidden }">
     <button class="close-button" @click="hideErrorbox" :aria-label="$tr('errorButtonLabel')">
-      <svg icon-name="material-navigation-close"/>
+      <mat-svg category="navigation" name="close"/>
     </button>
     <h1>{{ $tr('errorHeader') }}</h1>
     <p>{{ $tr('explanation') }}</p>

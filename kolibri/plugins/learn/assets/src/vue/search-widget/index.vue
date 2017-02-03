@@ -27,7 +27,7 @@
               @click="clear()"
               :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }"
             >
-              <svg class="clear-icon" icon-name="material-content-clear"/>
+              <mat-svg class="clear-icon" category="content" name="clear"/>
             </button>
           </div>
           <div class="cancel-btn-table-cell">

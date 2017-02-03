@@ -2127,6 +2127,10 @@ invert-kv@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
 
+ionicons-npm@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/ionicons-npm/-/ionicons-npm-2.0.1.tgz#ecd0be94944d9ca69f5bb4912edf84d2ec702e15"
+
 ipaddr.js@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ipaddr.js/-/ipaddr.js-1.1.1.tgz#c791d95f52b29c1247d5df80ada39b8a73647230"
@@ -2937,7 +2941,7 @@ map-obj@^1.0.0, map-obj@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/map-obj/-/map-obj-1.0.1.tgz#d933ceb9205d82bdcf4886f6742bdc2b4dea146d"
 
-material-design-icons@3.0.1:
+material-design-icons@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/material-design-icons/-/material-design-icons-3.0.1.tgz#9a71c48747218ebca51e51a66da682038cdcb7bf"
 
@@ -4562,10 +4566,12 @@ supports-color@^3.1.0, supports-color@^3.1.1, supports-color@^3.1.2:
   dependencies:
     has-flag "^1.0.0"
 
-"svg-inline-loader@https://github.com/christianmemije/svg-inline-loader":
+"svg-icon-inline-loader@https://github.com/learningequality/svg-icon-inline-loader#cb8d25078a280025d3f69bececb538d1bdc9cc65":
   version "3.0.0"
-  resolved "https://github.com/christianmemije/svg-inline-loader#eb47f54bebfef5b3a00cf93477e27843b6dd0c28"
+  resolved "https://github.com/learningequality/svg-icon-inline-loader#cb8d25078a280025d3f69bececb538d1bdc9cc65"
   dependencies:
+    ionicons-npm "^2.0.1"
+    material-design-icons "^3.0.1"
     simple-html-tokenizer "^0.4.0"
     svgo "^0.7.2"
 

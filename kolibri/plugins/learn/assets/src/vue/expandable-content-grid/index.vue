@@ -13,10 +13,10 @@
 
     <div class="button-wrapper" v-if="contents.length > nCollapsed">
       <icon-button @click="toggle()" :text="less" v-if="expanded">
-        <svg icon-name="material-hardware-keyboard_arrow_up"/>
+        <mat-svg category="hardware" name="keyboard_arrow_up"/>
       </icon-button>
       <icon-button @click="toggle()" :text="more" v-else>
-        <svg icon-name="material-hardware-keyboard_arrow_down"/>
+        <mat-svg category="hardware" name="keyboard_arrow_down"/>
       </icon-button>
     </div>
   </div>

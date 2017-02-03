@@ -6,8 +6,8 @@
       :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullScreen"
       :primary="true">
-      <svg v-if="isFullScreen" class="icon" icon-name="material-navigation-fullscreen_exit"/>
-      <svg v-else class="icon"  icon-name="material-navigation-fullscreen"/>
+      <mat-svg v-if="isFullScreen" class="icon" category="navigation" name="fullscreen_exit"/>
+      <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
     </icon-button>
     <iframe ref="sandbox" class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
   </div>

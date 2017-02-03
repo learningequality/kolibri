@@ -6,8 +6,8 @@
         @click="togglePlay"
         class="play-button"
       >
-        <svg v-if="isPlaying" class="play-icon" icon-name="material-av-pause"/>
-        <svg v-else class="play-icon" icon-name="material-av-play_arrow"/>
+        <mat-svg v-if="isPlaying" class="play-icon" category="av" name="pause"/>
+        <mat-svg v-else class="play-icon" category="av" name="play_arrow"/>
       </button>
       <div id="current-time">
         {{ currentMinutes }} : {{ formattedCurrentSec }}

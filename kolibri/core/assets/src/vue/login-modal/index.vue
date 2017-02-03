@@ -20,7 +20,7 @@
         <span aria-live="polite">{{ $tr('validationError') }}<br>{{ $tr('tryAgain') }}</span>
       </div>
       <div>
-        <svg icon-name="material-social-person"/>
+        <mat-svg category="social" name="person"/>
         <input
           type="text"
           class="login-form login-username"
@@ -32,7 +32,7 @@
         >
       </div>
       <div>
-        <svg icon-name="material-action-lock"/>
+        <mat-svg category="action" name="lock"/>
         <input
           type="password"
           class="login-form login-password"
