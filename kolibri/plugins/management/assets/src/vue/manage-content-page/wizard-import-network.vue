@@ -39,7 +39,7 @@
   const actions = require('../../actions');
 
   module.exports = {
-    $trNamespace: 'wizard-import-network',
+    $trNameSpace: 'wizard-import-network',
     $trs: {
       title: 'Please choose a source...',
       enterContentChannel: 'Please enter a content channel ID:',

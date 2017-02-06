@@ -27,7 +27,7 @@
   const actions = require('../../actions');
 
   module.exports = {
-    $trNamespace: 'wizard-import-source',
+    $trNameSpace: 'wizard-import-source',
     $trs: {
       title: 'Please choose a source...',
       internet: 'Internet',
