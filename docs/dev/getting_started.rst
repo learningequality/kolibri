@@ -88,7 +88,7 @@ To activate the virtualenv in a standard Bash shell:
 
 Now, any commands run with ``pip`` will target your virtualenv rather than the global Python installation.
 
-To deactivate the virualenv, run the command below. Note, you'll want to leave it activated for the remainder of project setup!
+To deactivate the virtualenv, run the command below. Note, you'll want to leave it activated for the remainder of project setup!
 
 .. code-block:: bash
 
