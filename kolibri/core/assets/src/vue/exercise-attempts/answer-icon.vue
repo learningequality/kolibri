@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <svg      v-if="answer === 'right'" src="./icons/right.svg" class="yes" :class="{ yay: success }"/>
-    <svg v-else-if="answer === 'wrong'" src="./icons/wrong.svg" class="no"  :class="{ yay: success }"/>
-    <svg v-else-if="answer === 'hint'"  src="./icons/hint.svg"  class="no"  :class="{ yay: success }"/>
+    <mat-svg v-if="answer === 'right'" category="navigation" name="check" class="yes" :class="{ yay: success }"/>
+    <mat-svg v-else-if="answer === 'wrong'" category="navigation" name="close" class="no"  :class="{ yay: success }"/>
+    <mat-svg v-else-if="answer === 'hint'"  category="action" name="lightbulb_outline"  class="no"  :class="{ yay: success }"/>
   </div>
 
 </template>

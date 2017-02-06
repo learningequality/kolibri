@@ -2,7 +2,7 @@
 
   <h2>
     <span v-if="userFullName">
-      <svg src="../icons/user.svg" class="icon"/>
+      <mat-svg category="social" name="person" class="icon"/>
       {{ userFullName }} -
     </span>
     <span>

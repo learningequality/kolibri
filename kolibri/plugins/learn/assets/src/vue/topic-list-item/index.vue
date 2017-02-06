@@ -2,7 +2,9 @@
 
   <div>
     <list-item :link="link" :title="title">
-      <div class="thumbnail"></div>
+      <div class="thumbnail">
+        <content-icon kind="topic"/>
+      </div>
     </list-item>
   </div>
 
@@ -50,11 +52,6 @@
     position: relative
     width: 60%
     height: 100%
-    background-position: center
-    background-image: url(../icons/folder.svg)
-    background-repeat: no-repeat
-    // chosen to approximage ~0.5em - the card's internal padding
-    background-size: 78%
     margin-left: 10%
 
 </style>

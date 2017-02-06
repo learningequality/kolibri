@@ -5,8 +5,10 @@
       <button
         @click="togglePlay"
         class="play-button"
-        :class="{ 'is-play': isPlay, 'is-pause': isPause }"
-      ></button>
+      >
+        <mat-svg v-if="isPlaying" class="play-icon" category="av" name="pause"/>
+        <mat-svg v-else class="play-icon" category="av" name="play_arrow"/>
+      </button>
       <div id="current-time">
         {{ currentMinutes }} : {{ formattedCurrentSec }}
       </div>
@@ -55,8 +57,7 @@
     ],
 
     data: () => ({
-      isPlay: true,
-      isPause: false,
+      isPlaying: false,
       max: 0,
       displayTime: 0,
       progressStartingPoint: 0,
@@ -106,16 +107,14 @@
     methods: {
       play() {
         this.$refs.audio.play();
-        this.isPlay = false;
-        this.isPause = true;
+        this.isPlaying = true;
         this.recordProgress();
         this.$emit('startTracking');
       },
 
       pause() {
         this.$refs.audio.pause();
-        this.isPlay = true;
-        this.isPause = false;
+        this.isPlaying = false;
         this.recordProgress();
         this.$emit('stopTracking');
       },
@@ -230,12 +229,6 @@
     #current-time, #total-time
       top: 0
 
-  .is-play
-    background: url('./play.svg') no-repeat
-
-  .is-pause
-    background: url('./pause.svg') no-repeat
-
   .timeline
     background: transparent
 
@@ -305,5 +298,9 @@
     #play-and-time
       input
         width: 25%
+
+  .play-icon
+    fill: $core-action-normal
+    transform: scale(3.5)
 
 </style>

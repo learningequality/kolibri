@@ -1,33 +1,39 @@
 <template>
 
   <div>
-    <svg
+    <mat-svg
       v-if="is(Constants.ContentNodeKinds.TOPIC)"
-      src="./content-icons/topic.svg"
+      category="file"
+      name="folder"
       :class="[colorClass]"/>
-    <svg
+    <mat-svg
       v-if="is(Constants.ContentNodeKinds.VIDEO)"
-      src="./content-icons/video.svg"
+      category="notification"
+      name="ondemand_video"
       :class="[colorClass]"/>
-    <svg
+    <mat-svg
       v-if="is(Constants.ContentNodeKinds.AUDIO)"
-      src="./content-icons/audio.svg"
+      category="image"
+      name="audiotrack"
       :class="[colorClass]"/>
-    <svg
+    <ion-svg
       v-if="is(Constants.ContentNodeKinds.DOCUMENT)"
-      src="./content-icons/document.svg"
+      name="document"
       :class="[colorClass]"/>
-    <svg
+    <mat-svg
       v-if="is(Constants.ContentNodeKinds.EXERCISE)"
-      src="./content-icons/exercise.svg"
+      category="toggle"
+      name="star"
       :class="[colorClass]"/>
-    <svg
+    <mat-svg
       v-if="is(Constants.ContentNodeKinds.HTML5)"
-      src="./content-icons/widget.svg"
+      category="device"
+      name="widgets"
       :class="[colorClass]"/>
-    <svg
+    <mat-svg
       v-if="is(Constants.USER)"
-      src="./content-icons/user.svg"
+      category="social"
+      name="person"
       :class="[colorClass]"/>
   </div>
 

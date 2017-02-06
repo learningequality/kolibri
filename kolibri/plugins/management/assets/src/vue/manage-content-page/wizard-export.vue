@@ -11,7 +11,7 @@
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <h2 class="core-text-alert" v-if="writableDrives.length === 0">
-            <svg class="error-svg" src="../icons/error.svg"/>
+            <mat-svg class="error-svg" category="alert" name="error_outline"/>
             No writable drives were detected.
           </h2>
           <h2 v-if="writableDrives.length === 1">
@@ -36,7 +36,7 @@
         </div>
         <div class="refresh-btn-wrapper">
           <icon-button @click="updateWizardLocalDriveList" :disabled="wizardState.busy" text="Refresh">
-            <svg src="../icons/refresh.svg"/>
+            <mat-svg category="navigation" name="refresh"/>
           </icon-button>
         </div>
       </template>

@@ -110,7 +110,7 @@ var config = {
     loaders: {
       js: 'buble-loader',
       stylus: 'vue-style-loader!css-loader?sourceMap!postcss-loader!stylus-loader',
-      html: 'vue-loader/lib/template-compiler!svg-inline', // inlines SVGs
+      html: 'vue-loader/lib/template-compiler!svg-icon-inline', // inlines SVGs
     }
   },
   stylus: {
