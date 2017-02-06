@@ -65,6 +65,7 @@ Weather you are exploring progress for a single user or specific topic, you clic
   :alt: use column headers to sort the user activity
 
 
+
 Filter Users (WIP)
 ******************
 
@@ -74,3 +75,11 @@ Filter Users (WIP)
 .. image:: img/coach_reports_recent_filters2.png
   :alt: selectors to filter user activity in topic view
 
+
+
+Animated GIF Screencast Test (WIP)
+**********************************
+
+
+.. image:: img/open-coach2.gif
+  :alt: just testing a gif
