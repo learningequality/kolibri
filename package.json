@@ -96,7 +96,7 @@
     "stylint-stylish": "1.3.2",
     "stylus": "0.54.5",
     "stylus-loader": "2.1.1",
-    "svg-icon-inline-loader": "https://github.com/learningequality/svg-icon-inline-loader#7ebc0af437ba9ccd8755724efb63c72270e61622",
+    "svg-icon-inline-loader": "3.0.0",
     "temp": "0.8.3",
     "url-loader": "0.5.7",
     "vue-hot-reload-api": "2.0.6",
