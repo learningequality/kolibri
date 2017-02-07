@@ -2,11 +2,11 @@
 
   <div class="wrapper">
     <div v-if="isInProgress" class="progress-icon inprogress">
-      <mat-svg category="action" name="hourglass_empty"/>
+      <ui-icon><mat-svg category="action" name="hourglass_empty"/></ui-icon>
     </div>
 
     <div v-else-if="isCompleted" class="progress-icon completed">
-      <mat-svg category="navigation" name="check"/>
+      <ui-icon><mat-svg category="navigation" name="check"/></ui-icon>
     </div>
   </div>
 
@@ -40,14 +40,14 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  .ui-icon
+    font-size: 1em
 
   .wrapper
     display: inline-block
 
   .progress-icon
     border-radius: 50%
-    text-align: center
 
   svg
     display: block
