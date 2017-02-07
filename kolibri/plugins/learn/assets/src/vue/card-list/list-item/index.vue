@@ -1,12 +1,10 @@
 <template>
 
   <router-link class="root" :to="link">
-    <div class="thumb-wrapper">
-      <slot/>
-    </div>
-    <div class="text">
-      <span class="title">{{ title }}</span>
-    </div>
+    <h2>
+      <content-icon :kind="kind"/>
+      {{ title }}
+    </h2>
   </router-link>
 
 </template>
@@ -22,6 +20,10 @@
       },
       link: {
         type: Object,
+        required: true,
+      },
+      kind: {
+        type: String,
         required: true,
       },
     },

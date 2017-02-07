@@ -2,7 +2,8 @@
 
   <ui-button
     @click="$emit('click')"
-    :color="primary ? 'primary' : 'default'">
+    :color="primary ? 'primary' : 'default'"
+    class="koli-icon-button">
     <slot/>
     {{ text }}
   </ui-button>
@@ -46,7 +47,7 @@
 
 <style lang="stylus">
 
-  .ui-button__content svg
+  .koli-icon-button svg
     max-width: 24px
     max-height: 24px
 
