@@ -46,3 +46,12 @@
   @import '~keen-ui/dist/keen-ui.css'
 
 </style>
+
+
+<style lang="stylus">
+
+  .ui-button__content svg
+    max-width: 24px
+    max-height: 24px
+
+</style>
