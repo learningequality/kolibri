@@ -41,11 +41,7 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @import '~keen-ui/dist/keen-ui.css'
-
-</style>
+<style lang="stylus" scoped></style>
 
 
 <style lang="stylus">

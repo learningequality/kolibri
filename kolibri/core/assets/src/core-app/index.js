@@ -2,6 +2,7 @@
 // include global styles
 require('normalize.css');
 require('../styles/font-NotoSans.css');
+require('keen-ui/dist/keen-ui.css');
 require('../styles/core-global.styl');
 
 // polyfill for older browsers
