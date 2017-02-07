@@ -38,3 +38,4 @@ Changed
 ^^^^^^^
 
  - Webpack build process now compatible with plugins housed outside the kolibri directory.
+ - ES2015 transpilation now uses Bublé instead of Babel.

@@ -1,15 +1,15 @@
 <template>
 
   <th scope="col">
-    <a v-if="sortable" v-link="vLink" class="header-text">
+    <router-link v-if="sortable" :to="vLink" class="header-text">
       <span>{{ text }}</span>
-      <span class="icon-wrapper" v-if="sortable" role="presentation">
-        <svg class="icon" :class="{ sorted: isDescending }" src="./down.svg"></svg>
-        <svg class="icon" :class="{ sorted: isAscending }" src="./up.svg"></svg>
+      <span class="icon-wrapper" v-if="sortable">
+        <svg class="icon" :class="{ sorted: isDescending }" src="./down.svg"/>
+        <svg class="icon" :class="{ sorted: isAscending }" src="./up.svg"/>
       </span>
       <span class="visuallyhidden" v-if="isAscending">{{ $tr('ascending') }}</span>
       <span class="visuallyhidden" v-if="isDescending">{{ $tr('descending') }}</span>
-    </a>
+    </router-link>
     <div v-else class="header-text">{{ text }}</div>
   </th>
 

@@ -1,12 +1,11 @@
 <template>
 
-  <div v-el:container class="container" allowfullscreen>
+  <div ref="container" class="container" allowfullscreen>
     <icon-button
       class="btn"
       :text="inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      @click="togglefullscreen">
-    </icon-button>
-    <iframe v-el:sandbox class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
+      @click="togglefullscreen"/>
+    <iframe ref="sandbox" class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
   </div>
 
 </template>
@@ -34,7 +33,7 @@
     },
     methods: {
       togglefullscreen() {
-        const container = this.$els.container;
+        const container = this.$refs.container;
         if (!document.fullscreenElement
           && !document.webkitFullscreenElement
           && !document.mozFullScreenElement

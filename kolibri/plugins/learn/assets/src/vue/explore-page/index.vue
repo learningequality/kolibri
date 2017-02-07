@@ -4,8 +4,8 @@
 
     <page-header :title="title">
       <div slot="icon">
-        <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"></svg>
-        <svg v-else class="pageicon" src="../icons/folder.svg"></svg>
+        <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"/>
+        <svg v-else class="pageicon" src="../icons/folder.svg"/>
       </div>
     </page-header>
 
@@ -19,10 +19,8 @@
       <topic-list-item
         v-for="topic in subtopics"
         :id="topic.id"
-        :title="topic.title"
-        :ntotal="topic.n_total"
-        :ncomplete="topic.n_complete">
-      </topic-list-item>
+        :channelId="channelId"
+        :title="topic.title"/>
     </card-list>
 
     <card-grid v-if="contents.length">
@@ -33,8 +31,7 @@
         :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
-        :id="content.id">
-      </content-grid-item>
+        :id="content.id"/>
     </card-grid>
 
   </div>
@@ -70,6 +67,7 @@
         subtopics: state => state.pageState.subtopics,
         contents: state => state.pageState.contents,
         isRoot: (state) => state.pageState.topic.id === getCurrentChannelObject(state).root_id,
+        channelId: (state) => getCurrentChannelObject(state).id,
       },
     },
   };

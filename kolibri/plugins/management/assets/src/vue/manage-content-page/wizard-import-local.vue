@@ -3,8 +3,8 @@
   <core-modal
     title="Import from a Local Drive"
     :error="wizardState.error"
-    :enablebgclickcancel="false"
-    :enablebackbtn="true"
+    :enableBgClickCancel="false"
+    :enableBackBtn="true"
     @cancel="cancel"
     @enter="submit"
     @back="startImportWizard"
@@ -13,7 +13,7 @@
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <h2 class="core-text-alert" v-if="drivesWithData.length === 0">
-            <svg class="error-svg" src="../icons/error.svg"></svg>
+            <svg class="error-svg" src="../icons/error.svg"/>
             No drives with data were detected.
           </h2>
           <h2 v-if="drivesWithData.length === 1">
@@ -22,7 +22,7 @@
           <template v-if="drivesWithData.length > 1">
             <h2>Drives detected with data:</h2>
             <div class="drive-list">
-              <div class="drive-names" v-for="(index, drive) in drivesWithData">
+              <div class="drive-names" v-for="(drive, index) in drivesWithData">
                 <input
                   type="radio"
                   :id="'drive-'+index"
@@ -40,11 +40,11 @@
             text="Refresh"
             @click="updateWizardLocalDriveList"
             :disabled="wizardState.busy">
-            <svg src="../icons/refresh.svg"></svg>
+            <svg src="../icons/refresh.svg"/>
           </icon-button>
         </div>
       </template>
-      <loading-spinner v-else :delay="500" class="spinner"></loading-spinner>
+      <loading-spinner v-else :delay="500" class="spinner"/>
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}
@@ -52,14 +52,12 @@
     <div class="button-wrapper">
       <icon-button
         @click="cancel"
-        text="Cancel">
-      </icon-button>
+        text="Cancel"/>
       <icon-button
         text="Import"
         @click="submit"
         :disabled="!canSubmit"
-        :primary="true" >
-      </icon-button>
+        :primary="true"/>
     </div>
   </core-modal>
 

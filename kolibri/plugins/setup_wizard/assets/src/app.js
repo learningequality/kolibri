@@ -1,5 +1,6 @@
 const KolibriModule = require('kolibri_module');
-const Vue = require('vue');
+
+const Vue = require('kolibri.lib.vue');
 
 
 class SetupWizardModule extends KolibriModule {

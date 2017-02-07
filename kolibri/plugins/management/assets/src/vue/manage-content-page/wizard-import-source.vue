@@ -2,22 +2,21 @@
 
   <core-modal
     title="Please choose a source..."
-    :enablebgclickcancel="false"
+    :enableBgClickCancel="false"
     @cancel="cancelImportExportWizard"
   >
     <div class="main">
       <div class="lg-button-wrapper">
-        <icon-button class="large-icon-button" text="Internet" :textbelow="true" @click="showImportNetworkWizard">
-          <svg height="50" width="50" src="./world.svg"></svg>
+        <icon-button class="large-icon-button" text="Internet" :showTextBelowIcon="true" @click="showImportNetworkWizard">
+          <svg class="icon" src="./world.svg"/>
         </icon-button>
-        <icon-button class="large-icon-button" text="Local Drives" :textbelow="true" @click="showImportLocalWizard">
-          <svg height="50" width="50" src="./storage.svg"></svg>
+        <icon-button class="large-icon-button" text="Local Drives" :showTextBelowIcon="true" @click="showImportLocalWizard">
+          <svg class="icon" src="./storage.svg"/>
         </icon-button>
       </div>
       <icon-button
         @click="cancelImportExportWizard"
-        text="Cancel">
-      </icon-button>
+        text="Cancel"/>
     </div>
   </core-modal>
 
@@ -71,5 +70,9 @@
     margin: 1em
     color: $core-text-annotation
     border: 1px $core-text-annotation solid
+
+  .icon
+    width: 50px
+    height: 50px
 
 </style>

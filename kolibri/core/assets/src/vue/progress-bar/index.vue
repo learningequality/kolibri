@@ -63,13 +63,13 @@
     border-radius: 15px
     float: left
     margin-right: 5px
+    overflow: hidden
 
   .progress-bar-complete
     height: 100%
     width: 0
     background-color: $core-action-normal
     transition: width, $core-time, ease
-    border-radius: 15px
 
   .progress-bar-text
     display: inline-block

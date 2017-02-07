@@ -2,11 +2,11 @@
 
   <div>
     <div class="wrapper">
-      <content-icon :kind="kind" class="icon"></content-icon>
-      <a v-link="vLink">{{ title }}</a>
+      <content-icon :kind="kind" class="icon"/>
+      <router-link :to="vLink">{{ title }}</router-link>
     </div>
     <div class="wrapper" v-if="isTopic">
-      {{ $tr('exercises', {count: exercisecount}) }} • {{ $tr('contents', {count: contentcount}) }}
+      {{ $tr('exercises', {count: exerciseCount}) }} • {{ $tr('contents', {count: contentCount}) }}
     </div>
   </div>
 
@@ -38,10 +38,10 @@
         type: String,
         required: true,
       },
-      exercisecount: {
+      exerciseCount: {
         type: Number,
       },
-      contentcount: {
+      contentCount: {
         type: Number,
       },
     },
@@ -58,17 +58,20 @@
       vLink() {
         if (this.isUser) {
           return genLink(this.pageState, {
+            all_or_recent: Constants.AllOrRecent.ALL,
             user_scope: Constants.UserScopes.USER,
             user_scope_id: this.id,
           });
         } else if (this.isTopic) {
           return genLink(this.pageState, {
+            all_or_recent: Constants.AllOrRecent.ALL,
             content_scope: Constants.ContentScopes.TOPIC,
             content_scope_id: this.id,
           });
         }
         // assume it's a content link
         return genLink(this.pageState, {
+          all_or_recent: Constants.AllOrRecent.ALL,
           content_scope: Constants.ContentScopes.CONTENT,
           content_scope_id: this.id,
         });

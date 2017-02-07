@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <grid-item v-link="link" :title="title" :kind="kind" :progress="progress">
+    <grid-item :link="link" :title="title" :kind="kind" :progress="progress">
       <div class="thumbnail" :style="{ 'background-image': thumb }"></div>
     </grid-item>
   </div>

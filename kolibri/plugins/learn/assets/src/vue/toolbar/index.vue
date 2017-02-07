@@ -1,13 +1,13 @@
 <template>
 
   <div class="toolbar" :class="{ 'toolbar-hide': !shown }" v-show="!searchOpen">
-    <breadcrumbs class="breadcrumbs"></breadcrumbs>
+    <breadcrumbs class="breadcrumbs"/>
     <div class="table-wrapper">
       <div class="row-wrapper">
-        <channel-switcher class="switcher" @switch="switchChannel"></channel-switcher>
+        <channel-switcher class="switcher" @switch="switchChannel"/>
       </div>
     </div>
-    <search-button class="search-btn"></search-button>
+    <search-button class="search-btn"/>
   </div>
 
 </template>
@@ -26,7 +26,6 @@
       },
     },
     components: {
-      'search-widget': require('../search-widget'),
       'search-button': require('./search-button'),
       'breadcrumbs': require('../breadcrumbs'),
     },
@@ -39,7 +38,7 @@
           rootPage = constants.PageNames.LEARN_CHANNEL;
         }
         this.clearSearch();
-        this.$router.go({
+        this.$router.push({
           name: rootPage,
           params: { channel_id: channelId },
         });

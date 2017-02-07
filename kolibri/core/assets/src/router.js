@@ -1,9 +1,9 @@
 
-const Vue = require('vue');
 const VueRouter = require('vue-router');
 
-Vue.use(VueRouter);
+const Vue = require('vue');
 
+Vue.use(VueRouter);
 
 /** Wrapper around Vue Router.
  *  Implements URL mapping to functions rather than Vue components.
@@ -13,63 +13,34 @@ class Router {
    * Create a Router instance.
    */
   constructor() {
-    this._vueRouter = new VueRouter({
-      history: false, // do not use the HTML5 history API
-    });
-
-    // registry of actions
+    this._vueRouter = undefined;
     this._actions = {};
-
-    // hack: _hook seems to get unbound without `.bind(this)`
-    this._vueRouter.beforeEach(this._hook.bind(this));
   }
 
-  _hook(transitionObject) {
-    this._actions[transitionObject.to.name](
-      transitionObject.to,
-      transitionObject.from
-    );
-    if (transitionObject.next) {
-      transitionObject.next();
+  _hook(toRoute, fromRoute, next) {
+    if (this._actions[toRoute.name]) {
+      this._actions[toRoute.name](toRoute, fromRoute);
+    }
+    if (next) {
+      next();
     }
   }
 
-  /**
-   * Set up a route
-   * @param name - http://router.vuejs.org/en/named.html
-   * @param path - http://router.vuejs.org/en/route.html#route-matching
-   * @param action - function to call. Passed parameters will be:
-   *  - 'to' route
-   *  - 'from' route
-   */
-  on(name, path, action) {
-    // Hook up a route with an empty component - actual switching
-    // happens in the actions and resulting view updates.
-    this._vueRouter.on(path, { name, component: {} });
-    this._actions[name] = action;
+  init(routes) {
+    routes.forEach((route) => {
+      if (route.handler) {
+        // route.component = {};
+        this._actions[route.name] = route.handler;
+        delete route.handler;
+      }
+    });
+    this._vueRouter = new VueRouter({ routes });
+    this._vueRouter.beforeEach(this._hook.bind(this));
+    return this.getInstance();
   }
 
-  go(options) {
-    this._vueRouter.go(options);
-  }
-
-  redirect(options) {
-    this._vueRouter.redirect(options);
-  }
-
-  start(vm, selector) {
-    this._vueRouter.start(vm, selector);
-  }
-
-  replace(options) {
-    this._vueRouter.replace(options);
-  }
-
-  /**
-   * Make the router reexecute actions for its current location.
-   */
-  refresh() {
-    this._hook(this._vueRouter._currentTransition);
+  getInstance(options) {
+    return this._vueRouter;
   }
 }
 
