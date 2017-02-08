@@ -101,3 +101,21 @@ downloadmessages:
 
 distributefrontendmessages:
 	python ./utils/distribute_frontend_messages.py
+
+BUMPVERSION_CMD = bumpversion --current-version `python -m kolibri --version` $(PART_INCREMENT) --allow-dirty -m "new version" --no-commit --list
+
+minor_increment:
+	$(eval PART_INCREMENT = minor)
+	$(BUMPVERSION_CMD)
+
+patch_increment:
+	$(eval PART_INCREMENT = patch)
+	$(BUMPVERSION_CMD)
+
+release_phase_increment:
+	$(eval PART_INCREMENT = release_phase)
+	$(BUMPVERSION_CMD)
+
+release_number_increment:
+	$(eval PART_INCREMENT = release_number)
+	$(BUMPVERSION_CMD)

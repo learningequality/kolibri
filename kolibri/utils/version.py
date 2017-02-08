@@ -107,6 +107,6 @@ def get_version(version_fallback=None):
     '''
     '''
     return (
-        derive_version_from_git_tag() or read_from_version_file() or
+        derive_version_from_git_tag() or derive_version_from_version_file() or
         version_fallback
     )
