@@ -157,7 +157,7 @@ module.exports = class CoreApp {
     publicMethods.forEach((method) => {
       this[method] = mediator[method].bind(mediator);
     });
-    new HeartBeat(this);
+    this.heartBeat = new HeartBeat(this);
   }
 
   get client() {

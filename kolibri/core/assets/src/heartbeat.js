@@ -1,11 +1,19 @@
 const logging = require('kolibri.lib.logging').getLogger(__filename);
 
 class HeartBeat {
-  constructor(kolibri) {
+  constructor(kolibri, delay = 60000) {
+    if (!kolibri) {
+      throw new ReferenceError('A kolibri instance must be passed into the constructor');
+    }
     this.kolibri = kolibri;
+    if (typeof delay !== 'number') {
+      throw new ReferenceError('The delay must be a number in milliseconds');
+    }
+    this.delay = delay;
     // Do this to have a consistent callback that has 'this' properly bound
     // but can be repeatedly referenced to add and remove listeners.
-    this.setActiveCallback = this.setActive.bind(this);
+    this.setActive = this.setActive.bind(this);
+    this.beat = this.beat.bind(this);
     this.setInactive();
     this.start();
   }
@@ -16,12 +24,12 @@ class HeartBeat {
   }
   setActivityListeners() {
     this.events.forEach((event) => {
-      document.addEventListener(event, this.setActiveCallback, true);
+      document.addEventListener(event, this.setActive, true);
     });
   }
   clearActivityListeners() {
     this.events.forEach((event) => {
-      document.removeEventListener(event, this.setActiveCallback, true);
+      document.removeEventListener(event, this.setActive, true);
     });
   }
   setActive() {
@@ -40,17 +48,18 @@ class HeartBeat {
       this.setActivityListeners();
     }
     this.setInactive();
-    setTimeout(this.beat.bind(this), 60000);
+    this.timerId = setTimeout(this.beat, this.delay);
+    return this.timerId;
   }
   get events() {
     return [
-      "mousemove",
-      "mousedown",
-      "keypress",
-      "DOMMouseScroll",
-      "mousewheel",
-      "touchmove",
-      "MSPointerMove",
+      'mousemove',
+      'mousedown',
+      'keypress',
+      'DOMMouseScroll',
+      'mousewheel',
+      'touchmove',
+      'MSPointerMove',
     ];
   }
 }
