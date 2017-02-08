@@ -91,7 +91,4 @@
   .ui-icon
     font-size: 1em
 
-  svg
-    fill: $core-text-default
-
 </style>

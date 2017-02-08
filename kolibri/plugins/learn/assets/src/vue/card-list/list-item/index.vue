@@ -1,10 +1,8 @@
 <template>
 
   <router-link class="list-item" :to="link">
-    <h2>
-      <content-icon :kind="kind"/>
-      {{ title }}
-    </h2>
+    <content-icon :kind="kind" class="topic-icon"/>
+    <h2>{{ title }}</h2>
   </router-link>
 
 </template>
@@ -48,7 +46,11 @@
     padding-bottom: 0.25em
 
   h2
-    font-size: 1.1em
+    display: inline-block
+    font-size: 0.9em
     color: $core-text-default
+
+  .topic-icon
+    font-size: 1.5em
 
 </style>
