@@ -33,6 +33,9 @@
         return this.progress >= 1;
       },
     },
+    components: {
+      UiIcon: require('keen-ui').UiIcon,
+    },
   };
 
 </script>
