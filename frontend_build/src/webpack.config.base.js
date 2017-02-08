@@ -59,7 +59,7 @@ var config = {
               loaders: {
                 js: 'buble-loader',
                 stylus: 'vue-style-loader!css-loader' + (production ? '' : '?sourceMap') + '!postcss-loader!stylus-loader' + (lint ? '!stylint' : ''),
-                html: 'vue-loader/lib/template-compiler!svg-icon-inline', // inlines SVGs
+                html: 'vue-loader/lib/template-compiler!svg-icon-inline-loader', // inlines SVGs
               }
             }
           }
@@ -122,6 +122,18 @@ var config = {
             loader: 'url-loader',
             options: {
               limit: 10000,
+              name: '[name].[ext]?[hash]'
+            }
+          }
+        ]
+      },
+      // Use file loader to load font files.
+      {
+        test: /\.(eot|woff|ttf|woff2)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
               name: '[name].[ext]?[hash]'
             }
           }
