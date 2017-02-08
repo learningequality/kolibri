@@ -4,6 +4,7 @@ require('normalize.css');
 require('../styles/font-NotoSans.css');
 require('keen-ui/dist/keen-ui.css');
 require('../styles/core-global.styl');
+require('../styles/keen-variables.scss');
 
 // polyfill for older browsers
 // TODO: rtibbles whittle down these polyfills to only what is needed for the application

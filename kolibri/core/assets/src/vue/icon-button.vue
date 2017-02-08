@@ -13,6 +13,8 @@
 
 <script>
 
+  import UiButton from 'keen-ui/src/UiButton';
+
   module.exports = {
     props: {
       text: {
@@ -34,9 +36,7 @@
         return !(Object.keys(this.$slots).length === 0 && this.$slots.constructor === Object);
       },
     },
-    components: {
-      UiButton: require('keen-ui').UiButton,
-    },
+    components: { UiButton },
   };
 
 </script>

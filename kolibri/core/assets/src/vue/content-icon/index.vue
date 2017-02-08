@@ -47,6 +47,8 @@
   const Constants = require('kolibri.coreVue.vuex.constants');
   const values = require('lodash.values');
 
+  import UiIcon from 'keen-ui/src/UiIcon';
+
   module.exports = {
     props: {
       kind: {
@@ -71,9 +73,7 @@
         return `color-${this.colorStyle}`;
       },
     },
-    components: {
-      UiIcon: require('keen-ui').UiIcon,
-    },
+    components: { UiIcon },
     methods: {
       is(kind) {
         return this.kind === kind;

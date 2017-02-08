@@ -66,7 +66,10 @@ var config = {
         test: /\.styl$/,
         loader: 'style-loader!css-loader?sourceMap!postcss-loader!stylus-loader'
       },
-      // moved from parse_bundle_plugin.js
+      {
+        test: /\.s[a|c]ss$/,
+        loader: 'style-loader!css-loader?sourceMap!postcss-loader!sass-loader'
+      },
       {
         test: /\.(png|jpe?g|gif|svg)$/,
         loader: 'url',
@@ -149,7 +152,8 @@ if (process.env.LINT || process.env.NODE_ENV === 'production') {
     },
     vue: {
       loaders: {
-        stylus: 'vue-style-loader!css-loader?sourceMap!postcss-loader!stylus-loader!stylint'
+        stylus: 'vue-style-loader!css-loader?sourceMap!postcss-loader!stylus-loader!stylint',
+        scss:   'vue-style-loader!css-loader?sourceMap!postcss-loader!sass-loader',
       }
     },
   };
