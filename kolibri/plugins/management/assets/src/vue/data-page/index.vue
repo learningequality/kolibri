@@ -13,11 +13,11 @@
       <p>
         {{$tr('detailsSubHeading')}}
       </p>
-      <a :href="sessionlogurl">
+      <form :action="sessionlogurl" method="get">
         <icon-button :text="$tr('download')">
           <mat-svg category="file" name="file_download"/>
         </icon-button>
-      </a>
+      </form>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('detailsInfo')}}.
       </p>
@@ -28,11 +28,11 @@
       <p>
         {{$tr('summarySubHeading')}}
       </p>
-      <a :href="summarylogurl">
+      <form :action="summarylogurl" method="get">
         <icon-button :text="$tr('download')">
           <mat-svg category="file" name="file_download"/>
         </icon-button>
-      </a>
+      </form>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('summaryInfo')}}
       </p>
@@ -105,5 +105,8 @@
 
   .wrapper
     cf()
+
+  form
+    display: inline
 
 </style>
