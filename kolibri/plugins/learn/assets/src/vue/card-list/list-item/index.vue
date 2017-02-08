@@ -42,8 +42,8 @@
     text-decoration: none
     padding-right: 0.5em
     padding-left: 0.5em
-    padding-top: 0.25em
-    padding-bottom: 0.25em
+    padding-top: 0.5em
+    padding-bottom: 0.5em
 
   h2
     display: inline-block
@@ -52,5 +52,7 @@
 
   .topic-icon
     font-size: 1.5em
+    padding-right: 0.25em
+    padding-left: 0.25em
 
 </style>
