@@ -4,12 +4,15 @@
     @click="$emit('click')"
     :color="primary ? 'primary' : 'default'"
     class="koli-icon-button">
-    <span v-if="text">
+    <span v-if="hasIcon && text">
       <ui-icon class="icon-margin"><slot/></ui-icon>
       {{ text }}
     </span>
+    <span v-else-if="hasIcon">
+      <ui-icon class="icon-margin"><slot/></ui-icon>
+    </span>
     <span v-else>
-      <ui-icon><slot/></ui-icon>
+      {{ text }}
     </span>
   </ui-button>
 
