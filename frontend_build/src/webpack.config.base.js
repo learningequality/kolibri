@@ -58,7 +58,7 @@ var config = {
             options: {
               loaders: {
                 js: 'buble-loader',
-                stylus: 'vue-style-loader!css-loader' + (production ? '' : '?sourceMap') + '!postcss-loader!stylus-loader' + (lint ? '!stylint' : ''),
+                stylus: 'vue-style-loader!css-loader' + (production ? '' : '?sourceMap') + '!postcss-loader!stylus-loader' + (lint ? '!stylint-loader' : ''),
                 html: 'vue-loader/lib/template-compiler!svg-icon-inline-loader', // inlines SVGs
               }
             }
@@ -169,7 +169,7 @@ if (lint) {
           enforce: 'pre',
           use: [
             {
-              loader: 'eslint',
+              loader: 'eslint-loader',
               options: {
                 failOnError: true
               }
@@ -182,7 +182,7 @@ if (lint) {
           enforce: 'pre',
           use: [
             {
-              loader: 'htmlhint',
+              loader: 'htmlhint-loader',
               options: {
                 failOnError: true,
                 emitAs: "error"
@@ -191,19 +191,13 @@ if (lint) {
           ],
           exclude: /node_modules/
         },
-      ],
-      loaders: [
         {
           test: /\.styl$/,
-          loader: 'style-loader!css-loader?sourceMap!postcss-loader!stylus-loader!stylint'
+          enforce: 'pre',
+          loader: 'stylint-loader'
         }
-      ],
-    },
-    vue: {
-      loaders: {
-        stylus: 'vue-style-loader!css-loader?sourceMap!postcss-loader!stylus-loader!stylint'
-      }
-    },
+      ]
+    }
   };
   config = merge.smart(config, lintConfig);
 }
