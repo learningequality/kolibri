@@ -46,6 +46,7 @@
           class="create-btn"
           :text="$tr('createAccount')"
           @click="createNewUser"
+          :primary="true"
         />
       </section>
     </div>
@@ -213,11 +214,6 @@
 
   .create-btn
     width: 200px
-    background-color: $core-action-normal
-    color: $core-bg-canvas
-    &:hover
-      border-color: transparent
-      color: $core-action-light
 
   .error
     color: $core-text-error
