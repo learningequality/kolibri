@@ -4,8 +4,13 @@
     @click="$emit('click')"
     :color="primary ? 'primary' : 'default'"
     class="koli-icon-button">
-    <slot/>
-    {{ text }}
+    <span v-if="text">
+      <ui-icon class="icon-margin"><slot/></ui-icon>
+      {{ text }}
+    </span>
+    <span v-else>
+      <ui-icon><slot/></ui-icon>
+    </span>
   </ui-button>
 
 </template>
@@ -36,13 +41,21 @@
     },
     components: {
       UiButton: require('keen-ui').UiButton,
+      UiIcon: require('keen-ui').UiIcon,
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .icon-margin
+    margin-left: -0.25rem
+    margin-right: 0.375rem
+    margin-top: -0.125rem
+
+</style>
 
 
 <style lang="stylus">

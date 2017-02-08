@@ -33,6 +33,9 @@
         return this.progress >= 1;
       },
     },
+    components: {
+      UiIcon: require('keen-ui').UiIcon,
+    },
   };
 
 </script>
@@ -48,6 +51,7 @@
 
   .progress-icon
     border-radius: 50%
+    line-height: 1em
 
   svg
     display: block
