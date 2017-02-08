@@ -1,22 +1,21 @@
 <template>
 
   <core-modal
-    title="Please choose a source..."
-    :enableBgClickCancel="false"
+    :title="$tr('title')"
     @cancel="cancelImportExportWizard"
   >
     <div class="main">
       <div class="lg-button-wrapper">
-        <icon-button class="large-icon-button" text="Internet" :showTextBelowIcon="true" @click="showImportNetworkWizard">
+        <icon-button class="large-icon-button" :text="$tr('internet')" :showTextBelowIcon="true" @click="showImportNetworkWizard">
           <mat-svg class="icon" category="action" name="language"/>
         </icon-button>
-        <icon-button class="large-icon-button" text="Local Drives" :showTextBelowIcon="true" @click="showImportLocalWizard">
+        <icon-button class="large-icon-button" :text="$tr('localDrives')" :showTextBelowIcon="true" @click="showImportLocalWizard">
           <mat-svg class="icon" category="device" name="storage"/>
         </icon-button>
       </div>
       <icon-button
         @click="cancelImportExportWizard"
-        text="Cancel"/>
+        :text="$tr('cancel')"/>
     </div>
   </core-modal>
 
@@ -28,6 +27,13 @@
   const actions = require('../../actions');
 
   module.exports = {
+    $trNameSpace: 'wizard-import-source',
+    $trs: {
+      title: 'Please choose a source...',
+      internet: 'Internet',
+      localDrives: 'Local Drives',
+      cancel: 'Cancel',
+    },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),

@@ -4289,6 +4289,10 @@ simple-html-tokenizer@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/simple-html-tokenizer/-/simple-html-tokenizer-0.4.0.tgz#ee41cff5bae6a4333f747e77360e26202fb8313d"
 
+simulant@0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/simulant/-/simulant-0.2.2.tgz#f1bce52712b6a7a0da38ddfdda7e83b20b1da01e"
+
 sinon@2.0.0-pre.2:
   version "2.0.0-pre.2"
   resolved "https://registry.yarnpkg.com/sinon/-/sinon-2.0.0-pre.2.tgz#b11fc5a1fb092d64a228c782e516e7e85eede0af"
