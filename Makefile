@@ -24,9 +24,8 @@ clean-build:
 	rm -fr *.egg-info
 	rm -fr .eggs
 	rm -fr .cache
-	# HACK: somehow git-clean expects exercise_perseus_renderer to be a git repo. Manually rm it so git-clean doesn't error out.
-	rm -r kolibri/dist/exercise_perseus_renderer || true 
-	git clean -X -d -f kolibri/dist
+	rm -r kolibri/dist/* || true # remove everything
+	git checkout -- kolibri/dist # restore __init__.py
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
