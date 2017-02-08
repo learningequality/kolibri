@@ -66,7 +66,12 @@ class FacilityDataset(models.Model):
     description = models.TextField(blank=True)
     location = models.CharField(max_length=200, blank=True)
 
-    allow_signups = models.BooleanField(default=True)
+    # Facility specific configuration settings
+    learner_can_edit_username = models.BooleanField(default=False)
+    learner_can_edit_name = models.BooleanField(default=False)
+    learner_can_edit_password = models.BooleanField(default=False)
+    learner_can_sign_up = models.BooleanField(default=False)
+    learner_can_delete_account = models.BooleanField(default=False)
 
     def __str__(self):
         facilities = self.collection_set.filter(kind=collection_kinds.FACILITY)
