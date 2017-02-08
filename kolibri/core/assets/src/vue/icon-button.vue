@@ -9,7 +9,7 @@
       {{ text }}
     </span>
     <span v-else-if="hasIcon">
-      <ui-icon class="icon-margin"><slot/></ui-icon>
+      <ui-icon><slot/></ui-icon>
     </span>
     <span v-else>
       {{ text }}
