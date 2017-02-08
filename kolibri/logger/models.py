@@ -137,16 +137,20 @@ class UserSessionLog(BaseLogModel):
 
     @classmethod
     def update_log(cls, user):
-        try:
-            user_session_log = cls.objects.filter(user=user).latest('last_interaction_timestamp')
-        except ObjectDoesNotExist:
-            user_session_log = None
+        """
+        Update the current UserSessionLog for a particular user.
+        """
+        if user and isinstance(user, FacilityUser):
+            try:
+                user_session_log = cls.objects.filter(user=user).latest('last_interaction_timestamp')
+            except ObjectDoesNotExist:
+                user_session_log = None
 
-        if not user_session_log or timezone.now() - user_session_log.last_interaction_timestamp > timedelta(minutes=5):
-            user_session_log = cls(user=user)
-            user_session_log.save()
-        else:
-            user_session_log.save()
+            if not user_session_log or timezone.now() - user_session_log.last_interaction_timestamp > timedelta(minutes=5):
+                user_session_log = cls(user=user)
+                user_session_log.save()
+            else:
+                user_session_log.save()
 
 
 class MasteryLog(BaseLogModel):

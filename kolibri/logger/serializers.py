@@ -63,4 +63,4 @@ class UserSessionLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserSessionLog
-        fields = ('pk', 'user', 'channels', 'start_timestamp', 'completion_timestamp', 'pages')
+        fields = ('pk', 'user', 'channels', 'start_timestamp', 'last_interaction_timestamp', 'pages')
