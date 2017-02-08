@@ -2,16 +2,13 @@
 
   <h2>
     <span v-if="userFullName">
-      <mat-svg category="social" name="person" class="icon"/>
+      <mat-svg category="social" name="person"/>
       {{ userFullName }} -
     </span>
-    <span>
-      <content-icon
-        :kind="contentKind"
-        colorstyle="text-default"
-        class="icon"/>
-      {{ contentTitle }}
-    </span>
+    <content-icon
+      :kind="contentKind"
+      colorstyle="text-default"/>
+    {{ contentTitle }}
   </h2>
 
 </template>
@@ -44,12 +41,5 @@
     margin: 0
     margin-bottom: 15px
     font-size: 1.3em
-
-  .icon
-    display: inline-block
-    position: relative
-    top: 3px
-    width: 25px
-    height: 25px
 
 </style>

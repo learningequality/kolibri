@@ -1,11 +1,7 @@
 <template>
 
   <div>
-    <list-item :link="link" :title="title">
-      <div class="thumbnail">
-        <content-icon kind="topic"/>
-      </div>
-    </list-item>
+    <list-item :link="link" :title="title" kind="topic"/>
   </div>
 
 </template>
@@ -46,12 +42,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .thumbnail
-    position: relative
-    width: 60%
-    height: 100%
-    margin-left: 10%
-
-</style>
+<style lang="stylus" scoped></style>

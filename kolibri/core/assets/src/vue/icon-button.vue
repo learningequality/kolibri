@@ -1,16 +1,12 @@
 <template>
 
-  <button
-    type="button"
+  <ui-button
     @click="$emit('click')"
-    class="icon-button-scope"
-    :class="{'primary' : primary, 'single-line': !showTextBelowIcon}"
-  >
+    :color="primary ? 'primary' : 'default'"
+    class="koli-icon-button">
     <slot/>
-    <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : showTextBelowIcon, 'icon-padding' : !showTextBelowIcon && hasIcon}">
-      {{ text }}
-    </span>
-  </button>
+    {{ text }}
+  </ui-button>
 
 </template>
 
@@ -38,77 +34,21 @@
         return !(Object.keys(this.$slots).length === 0 && this.$slots.constructor === Object);
       },
     },
+    components: {
+      UiButton: require('keen-ui').UiButton,
+    },
   };
 
 </script>
 
 
+<style lang="stylus" scoped></style>
+
+
 <style lang="stylus">
 
-  @require '~kolibri.styles.coreTheme'
-
-  /*
-    WARNING -- these styles are unscoped.
-    ONLY include styles that need to apply to SVGs inserted into the slot.
-    Make sure everything here is scoped under the .icon-button-scope class.
-  */
-
-  .icon-button-scope
-    svg
-      vertical-align: middle
-      fill: $core-action-normal
-      transition: fill $core-time ease-out
-    &:hover svg
-      fill: $core-action-dark
-    &:disabled svg
-      fill: $core-text-disabled
-
-  // styles specific to primary button
-  .icon-button-scope.primary
-    svg
-      fill: $core-bg-canvas
-      transition: fill $core-time ease-out
-    &:hover svg
-      fill: $core-bg-canvas
-    &:disabled svg
-      fill: $core-bg-canvas
-
-</style>
-
-
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.coreTheme'
-
-  button
-    padding: 0.2em 2em
-    line-height: inherit
-
-  button.single-line
-    height: 36px
-
-  .primary
-    border: none
-    color: $core-bg-canvas
-    background-color: $core-action-normal
-    transition: background-color $core-time ease-out
-
-    &:hover
-      color: $core-bg-canvas
-      background-color: $core-action-dark
-    &:disabled
-      color: $core-bg-canvas
-      background-color: $core-text-disabled
-
-  /* displayed to visually balance an icon */
-  .icon-padding
-    margin-right: 2px
-
-  .btn-text
-    vertical-align: middle
-
-  .btn-bottom-text
-    display: block
-    margin-top: 0.4em
+  .koli-icon-button svg
+    max-width: 24px
+    max-height: 24px
 
 </style>

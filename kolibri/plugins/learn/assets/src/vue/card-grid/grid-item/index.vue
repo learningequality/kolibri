@@ -9,11 +9,11 @@
         </div>
       </div>
       <div class="card-content">
-        <content-icon
-          class="outer-content-icon"
+        <div class="text">
+          <content-icon
+          class="content-icon"
           v-if="kind"
           :kind="kind"/>
-        <div class="text">
           {{ title }}
         </div>
       </div>
@@ -82,10 +82,11 @@
     text-overflow: ellipsis
     color: $core-text-default
 
-  .outer-content-icon
+  .content-icon
     position: absolute
     left: 10px
     top: 10px
+    font-size: 1.5em
 
   .card-content
     padding: 10px
