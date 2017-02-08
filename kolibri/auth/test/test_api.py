@@ -342,3 +342,8 @@ class VodafoneSignUpTestCase(APITestCase):
         response = self.client.post(reverse('signup-list'), data={"username": "(***)", "password": DUMMY_PASSWORD})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(models.FacilityUser.objects.all())
+
+    def test_sign_up_also_logs_in_user(self):
+        self.assertFalse(Session.objects.all())
+        self.client.post(reverse('signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
+        self.assertTrue(Session.objects.all())
