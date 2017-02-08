@@ -3,6 +3,7 @@
   <ui-button
     @click="$emit('click')"
     :color="primary ? 'primary' : 'default'"
+    :disabled="disabled"
     class="koli-icon-button">
     <span v-if="hasIcon && text">
       <ui-icon class="icon-margin"><slot/></ui-icon>
@@ -27,6 +28,10 @@
         type: String,
       },
       primary: {
+        type: Boolean,
+        default: false,
+      },
+      disabled: {
         type: Boolean,
         default: false,
       },
