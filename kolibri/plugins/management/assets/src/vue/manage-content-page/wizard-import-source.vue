@@ -59,9 +59,9 @@
     margin-bottom: 4em 0
 
   .large-icon-button
-    width: 140px
+    width: 150px
     height: 120px
-    margin: 0.6em
+    margin: 3px
 
   .lg-button-wrapper
     margin: 4em 0
