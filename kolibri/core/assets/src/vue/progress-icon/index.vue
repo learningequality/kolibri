@@ -51,6 +51,7 @@
 
   .progress-icon
     border-radius: 50%
+    line-height: 1em
 
   svg
     display: block
