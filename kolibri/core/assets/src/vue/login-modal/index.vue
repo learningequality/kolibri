@@ -58,7 +58,9 @@
       userName: 'Username',
       password: 'Password',
     },
-    components: {},
+    components: {
+      'core-modal': require('kolibri.coreVue.components.coreModal'),
+    },
     data: () => ({
       username_entered: '',
       password_entered: '',

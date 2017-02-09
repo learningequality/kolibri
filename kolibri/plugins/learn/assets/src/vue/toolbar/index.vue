@@ -28,6 +28,7 @@
     components: {
       'search-button': require('./search-button'),
       'breadcrumbs': require('../breadcrumbs'),
+      'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
     },
     methods: {
       switchChannel(channelId) {

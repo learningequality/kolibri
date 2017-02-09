@@ -84,6 +84,7 @@
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'core-modal': require('kolibri.coreVue.components.coreModal'),
     },
     data() {
       return {

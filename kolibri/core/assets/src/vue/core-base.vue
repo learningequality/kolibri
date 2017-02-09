@@ -42,6 +42,7 @@
     components: {
       'nav-bar': require('./nav-bar'),
       'error-box': require('./error-box'),
+      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
     },
     vuex: {
       actions: {
