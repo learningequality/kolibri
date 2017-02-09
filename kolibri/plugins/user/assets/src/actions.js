@@ -21,6 +21,27 @@ const PageNames = constants.PageNames;
  * These methods are used to update client-side state
  */
 
+function showSignIn(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.SIGN_IN);
+  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'User Sign In');
+}
+function showSignUp(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.SIGN_UP);
+  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'User Sign Up');
+}
+function showProfile(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.PROFILE);
+  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'User Profile');
+}
 function showScratchpad(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
   store.dispatch('SET_PAGE_STATE', {});
@@ -30,5 +51,8 @@ function showScratchpad(store) {
 }
 
 module.exports = {
+  showSignIn,
+  showSignUp,
+  showProfile,
   showScratchpad,
 };

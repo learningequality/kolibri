@@ -14,6 +14,27 @@ class UserModule extends KolibriModule {
   ready() {
     const routes = [
       {
+        name: PageNames.SIGN_IN,
+        path: '/signin',
+        handler: (toRoute, fromRoute) => {
+          actions.showSignIn(store);
+        },
+      },
+      {
+        name: PageNames.SIGN_UP,
+        path: '/signup',
+        handler: (toRoute, fromRoute) => {
+          actions.showSignUp(store);
+        },
+      },
+      {
+        name: PageNames.PROFILE,
+        path: '/profile',
+        handler: (toRoute, fromRoute) => {
+          actions.showProfile(store);
+        },
+      },
+      {
         name: PageNames.SCRATCHPAD,
         path: '/scratchpad',
         handler: (toRoute, fromRoute) => {
@@ -22,7 +43,7 @@ class UserModule extends KolibriModule {
       },
       {
         path: '/',
-        redirect: '/scratchpad',
+        redirect: '/signin',
       },
     ];
 
