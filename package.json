@@ -6,7 +6,7 @@
     "test": "npm run test-mocha && npm run test-karma",
     "test-karma": "node ./node_modules/karma/bin/karma start ./karma_config/karma.conf.js --single-run",
     "test-mocha": "node ./node_modules/mocha/bin/mocha ./frontend_build/test/*.js",
-    "coverage": "npm run test-mocha-cov && npm run test-karma-cov",
+    "coverage": "npm run test-mocha-cov && npm run test-karma",
     "test-mocha-cov": "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha frontend_build/test/*.js --report lcovonly -- -R spec",
     "test-karma-cov": "./node_modules/karma/bin/karma start ./karma_config/karma.conf.ci.js",
     "build": "webpack --config ./frontend_build/src/webpack.config.prod.js",
