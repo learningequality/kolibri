@@ -88,9 +88,9 @@
       },
     },
     components: {
-      'session-nav-widget': require('../session-nav-widget'),
+      'session-nav-widget': require('kolibri.coreVue.components.sessionNavWidget'),
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
-      'login-modal': require('../login-modal'),
+      'login-modal': require('kolibri.coreVue.components.loginModal'),
     },
     vuex: {
       getters: {

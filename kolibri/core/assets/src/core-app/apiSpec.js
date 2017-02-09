@@ -101,6 +101,12 @@ module.exports = {
         channelSwitcher: {
           module: require('../vue/channel-switcher'),
         },
+        loginModal: {
+          module: require('../vue/login-modal'),
+        },
+        sessionNavWidget: {
+          module: require('../vue/session-nav-widget'),
+        },
       },
       router: {
         module: require('../router'),
