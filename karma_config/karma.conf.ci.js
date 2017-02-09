@@ -9,6 +9,16 @@ module.exports = function(config) {
 
   reporters.push('coverage');
 
+  config.webpack.module.rules.forEach(function(rule) {
+    if (rule.test.test('test.js')) {
+      rule.use = [
+          {
+            loader: 'babel-loader'
+          }
+        ]
+    }
+  });
+
   config.webpack = merge.smart(config.webpack, {
     module: {
       rules: [
