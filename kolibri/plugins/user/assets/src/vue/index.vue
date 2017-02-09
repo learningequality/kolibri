@@ -18,6 +18,7 @@
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
+    name: 'User-Plugin',
     components: {
       'scratchpad-page': require('./scratchpad-page'),
     },
