@@ -68,6 +68,7 @@ const TopLevelPageNames = {
   LEARN_EXPLORE: 'LEARN_EXPLORE',
   COACH: 'COACH',
   MANAGE: 'MANAGE',
+  USER: 'USER',
 };
 
 module.exports = {
