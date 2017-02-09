@@ -59,6 +59,7 @@ var config = {
               loaders: {
                 js: 'buble-loader',
                 stylus: 'vue-style-loader!css-loader' + (production ? '' : '?sourceMap') + '!postcss-loader!stylus-loader' + (lint ? '!stylint-loader' : ''),
+                scss: 'vue-style-loader!css-loader' + (production ? '' : '?sourceMap') + '!postcss-loader!sass-loader',
                 html: 'vue-loader/lib/template-compiler!svg-icon-inline-loader', // inlines SVGs
               }
             }
@@ -112,6 +113,27 @@ var config = {
             options: {
               use: [jeet()]
             }
+          }
+        ]
+      },
+      {
+        test: /\.s[a|c]ss$/,
+        use: [
+          {
+            loader: 'style-loader'
+          },
+          {
+            loader: 'css-loader',
+            options: production ? { minimize: true } : { sourceMaps: true }
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              plugins: postCSSPlugins
+            }
+          },
+          {
+            loader: 'sass-loader'
           }
         ]
       },
