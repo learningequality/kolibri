@@ -104,6 +104,12 @@ var readBundlePlugin = function(base_dir) {
 
   fs.writeFileSync(path.join(locale_dir, 'pathMapping.json'), JSON.stringify(namePathMapping));
 
+  // We add some custom configuration options to the bundles that webpack 2 dislikes, clean them up here.
+  bundles.forEach(function (bundle) {
+    delete bundle.core_name;
+    delete bundle.coreAPISpec;
+  });
+
   return bundles;
 
 };

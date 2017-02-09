@@ -27,7 +27,7 @@ var server = new WebpackDevServer(compiler, {
 
   // webpack-dev-middleware options
   quiet: false,
-  noInfo: true,
+  noInfo: false,
   watchOptions: {
     aggregateTimeout: 300,
     poll: 1000

@@ -88,7 +88,7 @@
 
 <style lang="stylus" scoped>
 
-  @require 'jeet'
+  // @require 'jeet'
   @require '~kolibri.styles.coreTheme'
 
   @media (min-width: $medium-breakpoint)
