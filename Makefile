@@ -102,3 +102,13 @@ downloadmessages:
 
 distributefrontendmessages:
 	python ./utils/distribute_frontend_messages.py
+
+dockerenvclean:
+	docker container prune -f
+	docker image prune -f
+
+dockerenvbuild:
+	docker image build -t aronleq/kolibri:$$(cat kolibri/VERSION) .
+
+dockerenvdist: writeversion clean
+	docker run -v $$PWD/dist:/kolibridist aronleq/kolibri:$$(cat kolibri/VERSION)
