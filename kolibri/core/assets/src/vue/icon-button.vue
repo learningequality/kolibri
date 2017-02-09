@@ -48,8 +48,8 @@
       },
     },
     components: {
-      UiButton: require('keen-ui').UiButton,
-      UiIcon: require('keen-ui').UiIcon,
+      'ui-button': require('keen-ui/src/UiButton'),
+      'ui-icon': require('keen-ui/src/UiIcon'),
     },
   };
 
