@@ -1,6 +1,6 @@
 // Karma CI configuration
 var base_config = require('./karma.conf.js');
-
+var merge = require('webpack-merge');
 
 module.exports = function(config) {
   base_config(config);
@@ -9,13 +9,25 @@ module.exports = function(config) {
 
   reporters.push('coverage');
 
-  var webpack = config.webpack;
-
-  webpack.module.postLoaders = [{
-          test: /\.js/,
+  config.webpack = merge.smart(config.webpack, {
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          enforce: 'post',
           exclude: /(test|node_modules)/,
-          loader: 'istanbul-instrumenter'
-  }];
+          use: [
+            {
+              loader: 'istanbul-instrumenter-loader',
+              options: {
+                debug: true
+              }
+            }
+          ]
+        }
+      ]
+    }
+  });
 
   config.set({
 
