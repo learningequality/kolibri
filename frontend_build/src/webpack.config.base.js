@@ -73,7 +73,6 @@ var config = {
             loader: 'buble-loader'
           }
         ],
-        exclude: /node_modules/
       },
       {
         test: /\.css$/,
