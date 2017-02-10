@@ -5,7 +5,7 @@ steps:
   - wait
 
   - label: Build the python packages
-    command: make dockerenvdist
+    command: mkdir -p dist && make dockerenvdist
 
   - wait
 
