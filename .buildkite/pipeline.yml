@@ -10,4 +10,4 @@ steps:
   - wait
 
   - label: Upload the python packages as artifacts
-    command: ls 'dist/*.{whl,tar.gz}' | xargs buildkite-agent artifact upload
+    command: xargs buildkite-agent artifact upload 'dist/*.{whl,tar.gz}'
