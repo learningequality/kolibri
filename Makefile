@@ -107,8 +107,8 @@ dockerenvclean:
 	docker container prune -f
 	docker image prune -f
 
-dockerenvbuild:
+dockerenvbuild: writeversion
 	docker image build -t aronleq/kolibri:$$(cat kolibri/VERSION) .
 
-dockerenvdist: writeversion clean
+dockerenvdist: clean writeversion
 	docker run -v $$PWD/dist:/kolibridist aronleq/kolibri:$$(cat kolibri/VERSION)
