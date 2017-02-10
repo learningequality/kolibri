@@ -32,6 +32,16 @@ const initialState = {
       list: [],
       currentId: null,
     },
+    // Hardcoded for now. Priviliges set according to Zero Rating conf
+    learnerPrivileges: {
+      username: true,
+      name: true,
+      password: true,
+      signup: true,
+      delete: false,
+      // classActivation: false,
+      loginRequired: false,
+    },
   },
 };
 
