@@ -42,17 +42,9 @@ function showProfile(store) {
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', 'User Profile');
 }
-function showScratchpad(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
-  store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'User Scratchpad');
-}
 
 module.exports = {
   showSignIn,
   showSignUp,
   showProfile,
-  showScratchpad,
 };

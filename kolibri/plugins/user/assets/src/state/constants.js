@@ -4,7 +4,6 @@ const PageNames = {
   SIGN_IN: 'SIGN_IN',
   SIGN_UP: 'SIGN_UP',
   PROFILE: 'PROFILE',
-  SCRATCHPAD: 'SCRATCHPAD',
 };
 
 module.exports = {
