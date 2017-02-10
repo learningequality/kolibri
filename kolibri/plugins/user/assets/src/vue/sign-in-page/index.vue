@@ -2,38 +2,42 @@
 
   <div>
     <img class="logo" alt="logo">
-    <h1>Sign in to Instant Schools</h1>
+    <h1>{{ $tr('signInInstantSchools') }}</h1>
 
-    <form ref="form">
-      <label for="username">Username</label>
+    <form ref="form" @submit.prevent="signIn">
+      <label for="username">{{ $tr('username') }}</label>
       <input
         id="username"
         type="text"
-        placeholder="Enter Username"
+        :placeholder="$tr('enterUsername')"
+        :aria-label="$tr('username')"
         v-model="username"
         autocomplete="username"
         required
         autofocus>
-      <label for="password">Password</label>
+      <label for="password">{{ $tr('password') }}</label>
       <input
         id="password"
         type="password"
-        placeholder="Enter Password"
+        :placeholder="$tr('enterPassword')"
+        :aria-label="$tr('password')"
         v-model="password"
         autocomplete="current-password"
         required>
-      <icon-button text="Sign In" :primary="true" @click="signIn" type="submit"></icon-button>
+      <icon-button :text="$tr('signIn')" :primary="true" type="submit"></icon-button>
+
+      <p v-if="loginError" class="sign-in-error">{{ $tr('signInError') }}</p>
     </form>
 
     <hr>
 
-    <p>Don't have an account?</p>
+    <p>{{ $tr('noAccount') }}</p>
     <router-link :to="signUp">
-      <icon-button text="Create Account" :primary="true"></icon-button>
+      <icon-button :text="$tr('createAccount')" :primary="true"></icon-button>
     </router-link>
 
     <router-link :to="learn">
-      <icon-button text="Access as Guest" :primary="false"></icon-button>
+      <icon-button :text="$tr('accessAsGuest')" :primary="false"></icon-button>
     </router-link>
   </div>
 
@@ -42,7 +46,22 @@
 
 <script>
 
+  const actions = require('kolibri.coreVue.vuex.actions');
+
   module.exports = {
+    $trNameSpace: 'signInPage',
+    $trs: {
+      signInInstantSchools: 'Sign In to Instant Schools',
+      username: 'Username',
+      enterUsername: 'Enter Username',
+      password: 'Password',
+      enterPassword: 'Enter Password',
+      signIn: 'Sign In',
+      noAccount: 'Don\'t have an account?',
+      createAccount: 'Create Account',
+      accessAsGuest: 'Access as Guest',
+      signInError: 'Incorrect username or password',
+    },
     data: () => ({
       username: '',
       password: '',
@@ -58,9 +77,19 @@
     methods: {
       signIn() {
         if (this.$refs.form.checkValidity()) {
-          // call sign in action
-          console.log('sign in');
+          this.kolibriLogin({
+            username: this.username,
+            password: this.password,
+          });
         }
+      },
+    },
+    vuex: {
+      getters: {
+        loginError: state => state.core.loginError === 401,
+      },
+      actions: {
+        kolibriLogin: actions.kolibriLogin,
       },
     },
   };
@@ -74,5 +103,8 @@
 
   input
     display: block
+
+  .sign-in-error
+    color: red
 
 </style>
