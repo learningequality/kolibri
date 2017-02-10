@@ -1,0 +1,13 @@
+steps:
+  - label: Build the docker environment
+    command: make dockerenvbuild
+
+  - wait
+
+  - label: Build the python packages
+    command: make dockerenvdist
+
+  - wait
+
+  - label: Upload the python packages as artifacts
+    command: buildkite-agent artifact upload dist/*{whl,tar.gz}
