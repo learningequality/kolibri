@@ -110,5 +110,5 @@ dockerenvclean:
 dockerenvbuild: writeversion
 	docker image build -t aronleq/kolibri:$$(cat kolibri/VERSION) .
 
-dockerenvdist: clean writeversion
+dockerenvdist: writeversion
 	docker run -v $$PWD/dist:/kolibridist aronleq/kolibri:$$(cat kolibri/VERSION)
