@@ -5,20 +5,35 @@
     <h1>Sign in to Instant Schools</h1>
 
     <form ref="form">
-      <label>Username<input type="text" placeholder="Enter Username" required v-model="username"></label>
-      <label>Password <input type="password" placeholder="Enter Password" required v-model="password"></label>
-      <icon-button :primary="true" text="Sign In" type="submit" @click="signIn"></icon-button>
+      <label for="username">Username</label>
+      <input
+        id="username"
+        type="text"
+        placeholder="Enter Username"
+        v-model="username"
+        autocomplete="username"
+        required
+        autofocus>
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        placeholder="Enter Password"
+        v-model="password"
+        autocomplete="current-password"
+        required>
+      <icon-button text="Sign In" :primary="true" @click="signIn" type="submit"></icon-button>
     </form>
 
     <hr>
 
     <p>Don't have an account?</p>
     <router-link :to="signUp">
-      <icon-button :primary="true" text="Create Account"></icon-button>
+      <icon-button text="Create Account" :primary="true"></icon-button>
     </router-link>
 
     <router-link :to="learn">
-      <icon-button :primary="false" text="Access as Guest"></icon-button>
+      <icon-button text="Access as Guest" :primary="false"></icon-button>
     </router-link>
   </div>
 
@@ -57,10 +72,7 @@
 
   @require '~kolibri.styles.coreTheme'
 
-  label
+  input
     display: block
-
-  form
-    display: inline
 
 </style>

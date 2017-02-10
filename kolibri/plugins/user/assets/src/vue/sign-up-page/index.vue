@@ -4,10 +4,37 @@
     <h1>Create an Account</h1>
 
     <form ref="form">
-      <label>Name <input type="text" placeholder="Enter Name" required v-model="name"></label>
-      <label>Username <input type="text" placeholder="Enter A Username" required v-model="username"></label>
-      <label>Password <input type="password" placeholder="Enter A Password" required v-model="password"></label>
-      <label>Confirm Password <input type="password" placeholder="Confirm Password" required v-model="confirmed_password"></label>
+      <label for="name">Name</label>
+      <input
+        id="name"
+        type="text"
+        placeholder="Enter Name"
+        v-model="name"
+        autocomplete="name"
+        required
+        autofocus>
+      <label for="username">Username</label>
+      <input
+        id="username"
+        type="text"
+        placeholder="Enter A Username"
+        v-model="username"
+        required>
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        placeholder="Enter A Password"
+        v-model="password"
+        autocomplete="new-password"
+        required>
+      <label for="confirmed-password">Confirm Password</label>
+      <input
+        id="confirmed-password"
+        type="password"
+        placeholder="Confirm Password"
+        v-model="confirmed_password"
+        required>
       <icon-button :primary="true" text="Finish" type="submit" @click="signUp"></icon-button>
     </form>
 
@@ -42,7 +69,7 @@
 
   @require '~kolibri.styles.coreTheme'
 
-  label
+  input
     display: block
 
 </style>
