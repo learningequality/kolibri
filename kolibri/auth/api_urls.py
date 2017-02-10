@@ -2,7 +2,7 @@ from rest_framework import routers
 
 from .api import (
     ClassroomViewSet, CurrentFacilityViewSet, DeviceOwnerViewSet, FacilityUserViewSet, FacilityViewSet, LearnerGroupViewSet, MembershipViewSet, RoleViewSet,
-    SessionViewSet
+    SessionViewSet, SignUpViewSet
 )
 
 router = routers.SimpleRouter()
@@ -16,5 +16,6 @@ router.register(r'currentfacility', CurrentFacilityViewSet, base_name='currentfa
 router.register(r'session', SessionViewSet, base_name='session')
 router.register(r'classroom', ClassroomViewSet)
 router.register(r'learnergroup', LearnerGroupViewSet)
+router.register(r'signup', SignUpViewSet, base_name='signup')
 
 urlpatterns = router.urls
