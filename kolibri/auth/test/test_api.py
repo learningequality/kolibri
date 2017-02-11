@@ -321,7 +321,7 @@ class LoginLogoutTestCase(APITestCase):
         self.assertTrue(response.data['kind'][0], 'anonymous')
 
 
-class VodafoneSignUpTestCase(APITestCase):
+class SignUpTestCase(APITestCase):
 
     def setUp(self):
         self.device_owner = DeviceOwnerFactory.create()
