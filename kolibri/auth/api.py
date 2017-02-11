@@ -125,6 +125,28 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
     filter_fields = ('parent',)
 
 
+class SignUpViewSet(viewsets.ViewSet):
+
+    def create(self, request):
+        kwargs = {}
+        kwargs['username'] = request.data.get('username', '')
+        kwargs['full_name'] = request.data.get('full_name', '')
+        kwargs['password'] = request.data.get('password', '')
+        kwargs['facility'] = Facility.get_default_facility().id
+
+        # we validate the user's input, and if valid, login as user
+        serialized_user = FacilityUserSerializer(data=kwargs)
+        if serialized_user.is_valid():
+            serialized_user.save()
+            authenticated_user = authenticate(username=kwargs['username'], password=kwargs['password'], facility=kwargs['facility'])
+            login(request, authenticated_user)
+            return Response(status=status.HTTP_201_CREATED)
+        else:
+            # grab error if related to username
+            error = serialized_user.errors.get('username', None)
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+
 class SessionViewSet(viewsets.ViewSet):
 
     def create(self, request):

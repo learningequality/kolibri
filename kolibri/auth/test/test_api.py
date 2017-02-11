@@ -319,3 +319,31 @@ class LoginLogoutTestCase(APITestCase):
     def test_session_return_anon_kind(self):
         response = self.client.get(reverse('session-detail', kwargs={'pk': 'current'}))
         self.assertTrue(response.data['kind'][0], 'anonymous')
+
+
+class SignUpTestCase(APITestCase):
+
+    def setUp(self):
+        self.device_owner = DeviceOwnerFactory.create()
+        self.facility = FacilityFactory.create()
+
+    def test_anon_sign_up_creates_user(self):
+        response = self.client.post(reverse('signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(models.FacilityUser.objects.all())
+
+    def test_create_user_with_same_username_fails(self):
+        FacilityUserFactory.create(username='bob')
+        response = self.client.post(reverse('signup-list'), data={"username": "bob", "password": DUMMY_PASSWORD})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(models.FacilityUser.objects.all()), 1)
+
+    def test_create_bad_username_fails(self):
+        response = self.client.post(reverse('signup-list'), data={"username": "(***)", "password": DUMMY_PASSWORD})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(models.FacilityUser.objects.all())
+
+    def test_sign_up_also_logs_in_user(self):
+        self.assertFalse(Session.objects.all())
+        self.client.post(reverse('signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
+        self.assertTrue(Session.objects.all())
