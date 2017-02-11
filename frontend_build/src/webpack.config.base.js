@@ -60,7 +60,10 @@ var config = {
                 js: 'buble-loader',
                 stylus: 'vue-style-loader!css-loader' + (production ? '' : '?sourceMap') + '!postcss-loader!stylus-loader' + (lint ? '!stylint-loader' : ''),
                 scss: 'vue-style-loader!css-loader' + (production ? '' : '?sourceMap') + '!postcss-loader!sass-loader',
-                html: 'vue-loader/lib/template-compiler!svg-icon-inline-loader', // inlines SVGs
+              },
+              preLoaders: {
+                // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
+                html: 'svg-icon-inline-loader',
               }
             }
           }
