@@ -110,6 +110,7 @@
     "webpack": "2.2.1",
     "webpack-bundle-size-analyzer": "2.0.2",
     "webpack-bundle-tracker": "https://github.com/learningequality/webpack-bundle-tracker",
+    "webpack-combine-loaders": "^2.0.3",
     "webpack-dev-middleware": "^1.9.0",
     "webpack-dev-server": "2.3.0",
     "webpack-hot-middleware": "2.12.1",

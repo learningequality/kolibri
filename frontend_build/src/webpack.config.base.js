@@ -30,14 +30,9 @@ require('module').Module._initPaths();
 
 var fs = require('fs');
 var webpack = require('webpack');
-var jeet = require('jeet');
 var merge = require('webpack-merge');
 
 var aliases = require('./apiSpecExportTools').coreAliases();
-
-var postCSSPlugins = function () {
-  return [require('autoprefixer')];
-};
 
 var production = process.env.NODE_ENV === 'production';
 var lint = (process.env.LINT || production);
@@ -45,98 +40,93 @@ var lint = (process.env.LINT || production);
 aliases['kolibri_module']= path.resolve('kolibri/core/assets/src/kolibri_module');
 aliases['content_renderer_module'] = path.resolve('kolibri/core/assets/src/content_renderer_module');
 
-require('./htmlhint_custom'); // adds custom rules
 
+// helps convert to older string syntax for vue-loader
+var combineLoaders = require('webpack-combine-loaders');
+
+// for stylus blocks in vue files
+const vueStylusLoaders = [
+  'vue-style-loader', // includes postcss processing
+  {
+    loader: 'css-loader',
+    options: { minimize: production, sourceMap: !production }
+  },
+  'stylus-loader'
+];
+
+if (lint) {
+  vueStylusLoaders.push('stylint-loader')
+}
+
+// for scss blocks in vue files (e.g. Keen-UI files)
+const vueSassLoaders = [
+  'vue-style-loader', // includes postcss processing
+  {
+    loader: 'css-loader',
+    options: {
+      minimize: production,
+      sourceMap: !production,
+    }
+  },
+  'sass-loader'
+];
+
+// primary webpack config
 var config = {
   module: {
     rules: [
       {
         test: /\.vue$/,
-        use: [
-          {
-            loader: 'vue-loader',
-            options: {
-              loaders: {
-                js: 'buble-loader',
-                stylus: 'vue-style-loader!css-loader' + (production ? '' : '?sourceMap') + '!postcss-loader!stylus-loader' + (lint ? '!stylint-loader' : ''),
-                scss: 'vue-style-loader!css-loader' + (production ? '' : '?sourceMap') + '!postcss-loader!sass-loader',
-              },
-              preLoaders: {
-                // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
-                html: 'svg-icon-inline-loader',
-              }
-            }
+        loader: 'vue-loader',
+        options: {
+          loaders: {
+            js: 'buble-loader',
+            stylus: combineLoaders(vueStylusLoaders),
+            scss: combineLoaders(vueSassLoaders),
+          },
+          preLoaders: {
+            // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
+            html: 'svg-icon-inline-loader',
           }
-        ]
+        }
       },
       {
         test: /\.js$/,
-        use: [
-          {
-            loader: 'buble-loader'
-          }
-        ],
+        loader: 'buble-loader'
       },
       {
         test: /\.css$/,
         use: [
+          'style-loader',
           {
-            loader: 'style-loader'
+            loader: 'css-loader',
+            options: { minimize: production, sourceMap: !production }
           },
-          {
-            loader: 'css-loader'
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: postCSSPlugins
-            }
-          }
+          'postcss-loader'
         ]
       },
       {
         test: /\.styl$/,
         use: [
-          {
-            loader: 'style-loader'
-          },
+          'style-loader',
           {
             loader: 'css-loader',
-            options: production ? { minimize: true } : { sourceMaps: true }
+            options: { minimize: production, sourceMap: !production }
           },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: postCSSPlugins
-            }
-          },
-          {
-            loader: 'stylus-loader',
-            options: {
-              use: [jeet()]
-            }
-          }
+          'postcss-loader',
+          'stylus-loader',
         ]
       },
       {
         test: /\.s[a|c]ss$/,
         use: [
-          {
-            loader: 'style-loader'
-          },
+          'style-loader',
           {
             loader: 'css-loader',
-            options: production ? { minimize: true } : { sourceMaps: true }
+            options: { minimize: production, sourceMap: !production }
           },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: postCSSPlugins
-            }
-          },
-          {
-            loader: 'sass-loader'
-          }
+          'postcss-loader',
+          'sass-loader',
         ]
       },
       {
@@ -183,8 +173,13 @@ var config = {
   }
 };
 
+
+// Only lint in dev mode if LINT env is set. Always lint in production.
 if (lint) {
-  // Only lint in dev mode if LINT env is set. Always lint in production.
+
+  // adds custom rules
+  require('./htmlhint_custom');
+
   var lintConfig = {
     module: {
       rules: [
