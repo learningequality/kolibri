@@ -14,9 +14,17 @@
         <mat-svg class="nav-icon" category="action" name="assessment"/>
         <div class="label">{{ $tr('coach') }}</div>
       </nav-bar-item>
-      <nav-bar-item v-if="isAdminOrSuperuser" href="/management" :active="manageActive">
+      <nav-bar-item v-if="loggedIn" href="/management" :active="profileActive">
         <mat-svg class="nav-icon" category="social" name="people"/>
-        <div class="label">{{ $tr('manage') }}</div>
+        <div class="label">{{ $tr('profile') }}</div>
+      </nav-bar-item>
+      <nav-bar-item v-if="loggedIn">
+        <mat-svg class="nav-icon" category="social" name="people"/>
+        <div class="label">{{ $tr('logOut') }}</div>
+      </nav-bar-item>
+      <nav-bar-item v-else href="/signin">
+        <mat-svg class="nav-icon" category="social" name="people"/>
+        <div class="label">{{ $tr('signIn') }}</div>
       </nav-bar-item>
       <session-nav-widget/>
     </nav>
@@ -33,6 +41,7 @@
   const values = require('lodash.values');
   const getters = require('kolibri.coreVue.vuex.getters');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
 
   module.exports = {
@@ -43,6 +52,9 @@
       explore: 'Explore',
       manage: 'Manage',
       coach: 'Coach',
+      signIn: 'Sign in',
+      profile: 'Profile',
+      logOut: 'Log out',
     },
     props: {
       topLevelPageName: {
@@ -71,6 +83,9 @@
       manageActive() {
         return this.topLevelPageName === TopLevelPageNames.MANAGE;
       },
+      profileActive() {
+        return this.topLevelPageName === TopLevelPageNames.PROFILE;
+      },
     },
     components: {
       'session-nav-widget': require('../session-nav-widget'),
@@ -80,6 +95,7 @@
     vuex: {
       getters: {
         session: state => state.core.session,
+        loggedIn: state => state.core.session.kind[0] !== UserKinds.ANONYMOUS,
         isAdminOrSuperuser: getters.isAdminOrSuperuser,
         isCoachAdminOrSuperuser: getters.isCoachAdminOrSuperuser,
         loginModalVisible: state => state.core.loginModalVisible,
