@@ -9,7 +9,7 @@ require('keen-ui/src/bootstrap');
 
 // configure Keen
 const KeenUiConfig = require('keen-ui/src/config').default;
-KeenUiConfig.set({ disableRipple: true });
+KeenUiConfig.set(require('../keen-config/options.json'));
 
 
 // polyfill for older browsers
