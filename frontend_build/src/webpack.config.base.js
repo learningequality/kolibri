@@ -32,12 +32,11 @@ var fs = require('fs');
 var webpack = require('webpack');
 var merge = require('webpack-merge');
 
-var aliases = require('./apiSpecExportTools').coreAliases();
-
 var production = process.env.NODE_ENV === 'production';
 var lint = (process.env.LINT || production);
 
-aliases['kolibri_module']= path.resolve('kolibri/core/assets/src/kolibri_module');
+var aliases = require('./apiSpecExportTools').coreAliases();
+aliases['kolibri_module'] = path.resolve('kolibri/core/assets/src/kolibri_module');
 aliases['content_renderer_module'] = path.resolve('kolibri/core/assets/src/content_renderer_module');
 
 
