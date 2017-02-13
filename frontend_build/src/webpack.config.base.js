@@ -29,6 +29,7 @@ process.env.NODE_PATH = path.resolve(path.join(__dirname, '..', '..', 'node_modu
 require('module').Module._initPaths();
 
 var fs = require('fs');
+var path = require('path');
 var webpack = require('webpack');
 var merge = require('webpack-merge');
 
@@ -44,8 +45,15 @@ aliases['keen_ui_variables'] = path.resolve('kolibri/core/assets/src/keen-config
 // helps convert to older string syntax for vue-loader
 var combineLoaders = require('webpack-combine-loaders');
 
+var postCSSLoader = {
+  loader: 'postcss-loader',
+  options: {
+    config: path.resolve(__dirname, '../../postcss.config.js')
+  }
+};
+
 // for stylus blocks in vue files
-const vueStylusLoaders = [
+var vueStylusLoaders = [
   'vue-style-loader', // includes postcss processing
   {
     loader: 'css-loader',
@@ -59,7 +67,7 @@ if (lint) {
 }
 
 // for scss blocks in vue files (e.g. Keen-UI files)
-const vueSassLoaders = [
+var vueSassLoaders = [
   'vue-style-loader', // includes postcss processing
   {
     loader: 'css-loader',
@@ -95,7 +103,8 @@ var config = {
       },
       {
         test: /\.js$/,
-        loader: 'buble-loader'
+        loader: 'buble-loader',
+        exclude: /node_modules\/(?!(keen-ui)\/).*/
       },
       {
         test: /\.css$/,
@@ -116,7 +125,7 @@ var config = {
             loader: 'css-loader',
             options: { minimize: production, sourceMap: !production }
           },
-          'postcss-loader',
+          postCSSLoader,
           'stylus-loader',
         ]
       },
@@ -128,7 +137,7 @@ var config = {
             loader: 'css-loader',
             options: { minimize: production, sourceMap: !production }
           },
-          'postcss-loader',
+          postCSSLoader,
           'sass-loader',
         ]
       },
