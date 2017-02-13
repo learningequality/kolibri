@@ -11,10 +11,15 @@ const PageNames = constants.PageNames;
 // const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 const SignUpResource = require('kolibri').resources.SignUpResource;
 const coreActions = require('kolibri.coreVue.vuex.actions');
+const coreGetters = require('kolibri.coreVue.vuex.getters');
 
 // ================================
 // USER ACTIONS
 
+
+function redirectToHome() {
+  window.location = '/';
+}
 
 /**
  * Actions
@@ -23,6 +28,11 @@ const coreActions = require('kolibri.coreVue.vuex.actions');
  */
 
 function showSignIn(store) {
+  console.log(coreGetters.isUserLoggedIn(store.state));
+  if (coreGetters.isUserLoggedIn(store.state)) {
+    redirectToHome();
+    return;
+  }
   store.dispatch('SET_PAGE_NAME', PageNames.SIGN_IN);
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -30,6 +40,10 @@ function showSignIn(store) {
   store.dispatch('CORE_SET_TITLE', 'User Sign In');
 }
 function showSignUp(store) {
+  if (coreGetters.isUserLoggedIn(store.state)) {
+    redirectToHome();
+    return;
+  }
   store.dispatch('SET_PAGE_NAME', PageNames.SIGN_UP);
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -37,6 +51,10 @@ function showSignUp(store) {
   store.dispatch('CORE_SET_TITLE', 'User Sign Up');
 }
 function showProfile(store) {
+  if (!coreGetters.isUserLoggedIn(store.state)) {
+    redirectToHome();
+    return;
+  }
   store.dispatch('SET_PAGE_NAME', PageNames.PROFILE);
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -46,12 +64,16 @@ function showProfile(store) {
 
 
 function signUp(store, signUpCreds) {
+  if (coreGetters.isUserLoggedIn(store.state)) {
+    redirectToHome();
+    return;
+  }
   const signUpModel = SignUpResource.createModel(signUpCreds);
   const signUpPromise = signUpModel.save(signUpCreds);
   signUpPromise.then(() => {
     store.dispatch('CORE_SET_SIGN_UP_ERROR', null);
     // TODO: Better solution?
-    window.location = '/';
+    redirectToHome();
   }).catch(error => {
     if (error.status.code === 400) {
       store.dispatch('CORE_SET_SIGN_UP_ERROR', 400);

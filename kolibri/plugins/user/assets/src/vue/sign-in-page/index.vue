@@ -58,7 +58,7 @@
       password: 'Password',
       enterPassword: 'Enter Password',
       signIn: 'Sign In',
-      noAccount: 'Don\'t have an account?',
+      noAccount: `Don't have an account?`,
       createAccount: 'Create Account',
       accessAsGuest: 'Access as Guest',
       signInError: 'Incorrect username or password',
