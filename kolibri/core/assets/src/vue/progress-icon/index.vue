@@ -34,7 +34,7 @@
       },
     },
     components: {
-      UiIcon: require('keen-ui').UiIcon,
+      'ui-icon': require('keen-ui/src/UiIcon'),
     },
   };
 
