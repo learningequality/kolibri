@@ -24,7 +24,8 @@ clean-build:
 	rm -fr *.egg-info
 	rm -fr .eggs
 	rm -fr .cache
-	git clean -X -d -f kolibri/dist
+	rm -r kolibri/dist/* || true # remove everything
+	git checkout -- kolibri/dist # restore __init__.py
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -63,9 +64,13 @@ release: clean assets
 	python setup.py bdist_wheel upload
 
 staticdeps: clean
-	DISABLE_SQLALCHEMY_CEXT=1 pip install -t kolibri/dist/ -r requirements.txt
+	pip install -t kolibri/dist -r requirements.txt
+	rm -r kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 
-dist: staticdeps assets compilemessages
+writeversion:
+	git describe --tags > kolibri/VERSION
+
+dist: writeversion staticdeps assets compilemessages
 	pip install -r requirements/build.txt
 	python setup.py sdist --format=gztar,zip --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static
@@ -95,3 +100,21 @@ downloadmessages:
 
 distributefrontendmessages:
 	python ./utils/distribute_frontend_messages.py
+
+BUMPVERSION_CMD = bumpversion --current-version `python -m kolibri --version` $(PART_INCREMENT) --allow-dirty -m "new version" --no-commit --list
+
+minor_increment:
+	$(eval PART_INCREMENT = minor)
+	$(BUMPVERSION_CMD)
+
+patch_increment:
+	$(eval PART_INCREMENT = patch)
+	$(BUMPVERSION_CMD)
+
+release_phase_increment:
+	$(eval PART_INCREMENT = release_phase)
+	$(BUMPVERSION_CMD)
+
+release_number_increment:
+	$(eval PART_INCREMENT = release_number)
+	$(BUMPVERSION_CMD)
