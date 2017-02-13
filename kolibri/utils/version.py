@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import pkgutil
 import re
 import subprocess
+import tempfile
 from collections import namedtuple
 
 _BaseVersion = namedtuple(
@@ -53,11 +54,12 @@ class Version(_BaseVersion):
 
 def derive_version_from_git_tag():
     try:
-        git_describe_string = (
-            subprocess.check_output(['git', 'describe', '--tags']
-                                    ).rstrip()  # strip newlines
-            .decode('utf-8')
-        )  # cast from a byte to a string
+        with tempfile.TemporaryFile() as discarded_stderr_f:
+            git_describe_string = (
+                subprocess.check_output(['git', 'describe', '--tags'],
+                                        stderr=discarded_stderr_f
+                                        ).rstrip().decode('utf-8')
+            )  # cast from a byte to a string
     except (
         subprocess.CalledProcessError,  # not a git repo
         OSError  # git executable doesn't exist
