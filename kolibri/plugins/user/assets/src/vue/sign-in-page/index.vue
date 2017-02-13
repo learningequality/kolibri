@@ -36,9 +36,9 @@
       <icon-button :text="$tr('createAccount')" :primary="true"></icon-button>
     </router-link>
 
-    <router-link :to="learn">
+    <a href="/">
       <icon-button :text="$tr('accessAsGuest')" :primary="false"></icon-button>
-    </router-link>
+    </a>
   </div>
 
 </template>
@@ -70,10 +70,6 @@
     computed: {
       signUp() {
         return { name: PageNames.SIGN_UP };
-      },
-      learn() {
-        // TODO: Replace using router
-        return '/learn';
       },
     },
     methods: {
