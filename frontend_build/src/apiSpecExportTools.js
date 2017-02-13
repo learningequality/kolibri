@@ -11,10 +11,15 @@ var path = require("path");
 var specFilePath = path.resolve(path.join(__dirname, '../../kolibri/core/assets/src/core-app/apiSpec.js'))
 
 function specModule(filePath) {
+  var rootPath = path.dirname(filePath);
+  function newPath(match, p1) {
+    return "'" + path.join(rootPath, p1) + "'";
+  }
+
   // Read the spec file and do a regex replace to change all instances of 'require('...')'
   // to just be the string of the require path.
   // Our strict linting rules should ensure that this regex suffices.
-  var apiSpecFile = fs.readFileSync(filePath, 'utf-8').replace(/require\(('\S+')\)/g, '$1');
+  var apiSpecFile = fs.readFileSync(filePath, 'utf-8').replace(/require\('(\S+)'\)/g, newPath);
 
   // Invoke the module constructor to compile a module from this altered representation.
   var Module = module.constructor;

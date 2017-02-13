@@ -114,10 +114,10 @@ module.exports = {
     },
     styles: {
       navBarItem: {
-        module: require('../vue/nav-bar/nav-bar-item.styl'),
+        module: require('../vue/nav-bar/nav-bar-item'),
       },
       coreTheme: {
-        module: require('../styles/core-theme.styl'),
+        module: require('../styles/core-theme'),
       },
     },
   },
