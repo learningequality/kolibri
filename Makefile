@@ -112,3 +112,6 @@ dockerenvbuild: writeversion
 
 dockerenvdist: writeversion
 	docker run -v $$PWD/dist:/kolibridist learningequality/kolibri:$$(cat kolibri/VERSION)
+
+buildkitebuild: dockerenvdist
+	buildkite-agent artifact upload 'dist/*.whl'
