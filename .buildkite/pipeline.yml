@@ -5,9 +5,4 @@ steps:
   - wait
 
   - label: Build the python packages
-    command: mkdir -p dist && make dockerenvdist
-
-  - wait
-
-  - label: Upload the python packages as artifacts
-    command: buildkite-agent artifact upload $PWD/dist/`python setup.py --fullname`-py2.py3-none-any.whl
+    command: mkdir -p dist && make buildkitebuild
