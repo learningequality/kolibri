@@ -93,7 +93,8 @@ var parseBundlePlugin = function(data, base_dir) {
     new webpack.DefinePlugin({
       __kolibriModuleName: JSON.stringify(data.name),
       __events: JSON.stringify(data.events || {}),
-      __once: JSON.stringify(data.once || {})
+      __once: JSON.stringify(data.once || {}),
+      __version: JSON.stringify(data.version)
     }),
     new extract$trs(data.locale_data_folder, data.name)
   ]);
