@@ -52,7 +52,7 @@ function signUp(store, signUpCreds) {
   signUpPromise.then(() => {
     store.dispatch('CORE_SET_SIGN_UP_ERROR', null);
     // TODO: Use router.
-    window.location.href = 'http://127.0.0.1:8000';
+    // window.location = coreApp.urls['kolibri:learnplugin:learn']();
   }).catch(error => {
     if (error.status.code === 400) {
       store.dispatch('CORE_SET_SIGN_UP_ERROR', 400);
