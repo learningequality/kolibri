@@ -47,6 +47,7 @@
 <script>
 
   const actions = require('kolibri.coreVue.vuex.actions');
+  const PageNames = require('../../state/constants').PageNames;
 
   module.exports = {
     $trNameSpace: 'signInPage',
@@ -68,20 +69,19 @@
     }),
     computed: {
       signUp() {
-        return '/signup';
+        return { name: PageNames.SIGN_UP };
       },
       learn() {
+        // TODO: Replace using router
         return '/learn';
       },
     },
     methods: {
       signIn() {
-        if (this.$refs.form.checkValidity()) {
-          this.kolibriLogin({
-            username: this.username,
-            password: this.password,
-          });
-        }
+        this.kolibriLogin({
+          username: this.username,
+          password: this.password,
+        });
       },
     },
     vuex: {

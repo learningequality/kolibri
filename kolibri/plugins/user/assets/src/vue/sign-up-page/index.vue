@@ -40,6 +40,8 @@
         v-model="confirmed_password"
         required>
       <icon-button :primary="true" text="Finish" type="submit"></icon-button>
+
+      <p v-if="signUpError" class="sign-up-error">{{ $tr('signUpError') }}</p>
     </form>
 
   </div>
@@ -48,6 +50,8 @@
 
 
 <script>
+
+  const actions = require('../../actions');
 
   module.exports = {
     $trNameSpace: 'signUpPage',
@@ -60,6 +64,7 @@
       password: 'Password',
       enterPassword: 'Enter Password',
       confirmPassword: 'Confirm Password',
+      signUpError: 'That username already exists. Try a different username.',
     },
     data: () => ({
       name: '',
@@ -69,10 +74,19 @@
     }),
     methods: {
       signUp() {
-        if (this.$refs.form.checkValidity()) {
-          // call sign up action
-          console.log('sign up');
-        }
+        this.signUpAction({
+          full_name: this.name,
+          username: this.username,
+          password: this.password,
+        });
+      },
+    },
+    vuex: {
+      getters: {
+        signUpError: state => state.core.signUpError === 400,
+      },
+      actions: {
+        signUpAction: actions.signUp,
       },
     },
   };
@@ -86,5 +100,8 @@
 
   input
     display: block
+
+  .sign-up-error
+    color: red
 
 </style>

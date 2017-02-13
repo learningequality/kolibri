@@ -26,6 +26,7 @@ const initialState = {
     },
     loginModalVisible: false,
     loginError: null,
+    signUpError: null,
     logging: baseLoggingState,
     viewport: { width: 0, height: 0 },
     channels: {
@@ -53,6 +54,9 @@ const mutations = {
   // Makes settings for wrong credentials 401 error
   CORE_SET_LOGIN_ERROR(state, value) {
     state.core.loginError = value;
+  },
+  CORE_SET_SIGN_UP_ERROR(state, value) {
+    state.core.signUpError = value;
   },
   CORE_CLEAR_SESSION(state) {
     state.core.session = {
