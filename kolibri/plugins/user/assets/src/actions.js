@@ -1,8 +1,7 @@
-// const coreApp = require('kolibri');
+const coreApp = require('kolibri');
 // const logging = require('kolibri.lib.logging');
 
-// const FacilityUserResource = coreApp.resources.FacilityUserResource;
-// const TaskResource = coreApp.resources.TaskResource;
+const FacilityUserResource = coreApp.resources.FacilityUserResource;
 
 // const coreActions = require('kolibri.coreVue.vuex.actions');
 // const ConditionalPromise = require('kolibri.lib.conditionalPromise');
@@ -21,6 +20,30 @@ const PageNames = constants.PageNames;
  * These methods are used to update client-side state
  */
 
+function editProfile(store, username, fullname, facility, profileEdits) {
+  // payload needs username, fullname, and facility
+  const userID = profileEdits.id;
+  const savedUserModel = FacilityUserResource.getModel(userID);
+  const savedUser = savedUserModel.attributes;
+  const changedValues = {};
+
+  // explicit checks for the only values that can be changed
+  if (profileEdits.full_name && profileEdits.full_name !== savedUser.full_name) {
+    changedValues.full_name = profileEdits.full_name;
+  }
+  if (profileEdits.username && profileEdits.username !== savedUser.username) {
+    changedValues.username = profileEdits.username;
+  }
+  if (profileEdits.password && profileEdits.password !== savedUser.password) {
+    changedValues.password = profileEdits.password;
+  }
+  if (profileEdits.facility && profileEdits.facility !== savedUser.facility) {
+    changedValues.facility = profileEdits.facility;
+  }
+
+  // update user object with new values
+  savedUserModel.save(changedValues);
+}
 function showSignIn(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.SIGN_IN);
   store.dispatch('SET_PAGE_STATE', {});
@@ -54,5 +77,6 @@ module.exports = {
   showSignIn,
   showSignUp,
   showProfile,
+  editProfile,
   showScratchpad,
 };
