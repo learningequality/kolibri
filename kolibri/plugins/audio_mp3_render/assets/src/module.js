@@ -1,5 +1,5 @@
 
-const ContentRendererModule = require('kolibri.coreModules.contentRenderer');
+const ContentRendererModule = require('content_renderer_module');
 const AudioComponent = require('./vue/index');
 
 class AudioMP3Module extends ContentRendererModule {

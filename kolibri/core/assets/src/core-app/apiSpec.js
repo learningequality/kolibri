@@ -38,14 +38,6 @@ module.exports = {
         module: require('../conditionalPromise'),
       },
     },
-    coreModules: {
-      kolibriModule: {
-        module: require('../kolibri_module'),
-      },
-      contentRenderer: {
-        module: require('../content_renderer_module'),
-      },
-    },
     coreVue: {
       vuex: {
         constants: {

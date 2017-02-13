@@ -1,4 +1,4 @@
-const KolibriModule = require('kolibri.coreModules.kolibriModule');
+const KolibriModule = require('kolibri_module');
 
 const Vue = require('kolibri.lib.vue');
 

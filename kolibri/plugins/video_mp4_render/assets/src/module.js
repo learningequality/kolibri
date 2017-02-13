@@ -1,5 +1,5 @@
 
-const ContentRendererModule = require('kolibri.coreModules.contentRenderer');
+const ContentRendererModule = require('content_renderer_module');
 const VideoComponent = require('./vue/index');
 
 class VideoMP4Module extends ContentRendererModule {
