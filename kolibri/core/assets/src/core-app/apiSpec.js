@@ -85,7 +85,7 @@ module.exports = {
           module: require('../vue/core-modal'),
         },
         navBarItem: {
-          module: require('../vue/nav-bar/nav-bar-item'),
+          module: require('../vue/nav-bar/nav-bar-item.vue'),
         },
         iconButton: {
           module: require('../vue/icon-button'),
@@ -106,7 +106,7 @@ module.exports = {
     },
     styles: {
       navBarItem: {
-        module: require('../vue/nav-bar/nav-bar-item'),
+        module: require('../vue/nav-bar/nav-bar-item.styl'),
       },
       coreTheme: {
         module: require('../styles/core-theme'),

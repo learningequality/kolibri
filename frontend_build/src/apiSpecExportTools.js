@@ -55,7 +55,7 @@ function coreExternals(kolibri_name) {
     // the top namespace, as, logically, that would overwrite the global object.
     if (pathArray.length > 1 && obj.module) {
       // Check if this is a global import (i.e. from node_modules)
-      if (obj.module.indexOf('.') !== 0) {
+      if (!obj.module.startsWith('.')) {
         externalsObj[obj.module] = pathArray.join('.');
       }
       externalsObj[requireName(pathArray)] = pathArray.join('.');
@@ -80,10 +80,10 @@ function coreAliases(localAPISpec) {
     // the top namespace, as, logically, that would overwrite the global object.
     // We only want to include modules that are using relative imports, so as to exclude
     // modules that are already in node_modules.
-    if (pathArray.length > 1 && obj.module && obj.module.indexOf('.') === 0) {
+    if (pathArray.length > 1 && obj.module && obj.module.startsWith('.')) {
       // Map from the requireName to a resolved path (relative to the apiSpecFile) to the module in question.
       aliasesObj[requireName(pathArray)] = path.resolve(path.join(path.dirname(specFilePath), obj.module));
-    } else if (pathArray.length > 1 && obj.module && obj.module.indexOf('.') < 0) {
+    } else if (pathArray.length > 1 && obj.module && !obj.module.startsWith('.')) {
       aliasesObj[requireName(pathArray)] = obj.module;
     }
   };
