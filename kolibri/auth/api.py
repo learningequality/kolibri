@@ -134,16 +134,14 @@ class SignUpViewSet(viewsets.ViewSet):
         kwargs['password'] = request.data.get('password', '')
         kwargs['facility'] = Facility.get_default_facility().id
 
-        # we validate the user's input, and if valid, login as user
-        serialized_user = FacilityUserSerializer(data=kwargs)
-        if serialized_user.is_valid():
-            serialized_user.save()
-            authenticated_user = authenticate(username=kwargs['username'], password=kwargs['password'], facility=kwargs['facility'])
-            login(request, authenticated_user)
+        # we validate the user's input
+        user = FacilityUserSerializer(data=kwargs)
+        if user.is_valid():
+            user.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
             # grab error if related to username
-            error = serialized_user.errors.get('username', None)
+            error = user.errors.get('username', None)
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
