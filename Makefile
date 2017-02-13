@@ -108,7 +108,7 @@ dockerenvclean:
 	docker image prune -f
 
 dockerenvbuild: writeversion
-	docker image build -t aronleq/kolibri:$$(cat kolibri/VERSION) .
+	docker image build -t learningequality/kolibri:$$(cat kolibri/VERSION) -t learningequality/kolibri:latest .
 
 dockerenvdist: writeversion
-	docker run -v $$PWD/dist:/kolibridist aronleq/kolibri:$$(cat kolibri/VERSION)
+	docker run -v $$PWD/dist:/kolibridist learningequality/kolibri:$$(cat kolibri/VERSION)
