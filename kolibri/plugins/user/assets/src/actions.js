@@ -11,7 +11,6 @@ const PageNames = constants.PageNames;
 // const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 const SignUpResource = require('kolibri').resources.SignUpResource;
 const coreActions = require('kolibri.coreVue.vuex.actions');
-// const router = require('kolibri.coreVue.router');
 
 // ================================
 // USER ACTIONS
@@ -51,8 +50,8 @@ function signUp(store, signUpCreds) {
   const signUpPromise = signUpModel.save(signUpCreds);
   signUpPromise.then(() => {
     store.dispatch('CORE_SET_SIGN_UP_ERROR', null);
-    // TODO: Use router.
-    // window.location = coreApp.urls['kolibri:learnplugin:learn']();
+    // TODO: Better solution?
+    window.location = '/';
   }).catch(error => {
     if (error.status.code === 400) {
       store.dispatch('CORE_SET_SIGN_UP_ERROR', 400);
