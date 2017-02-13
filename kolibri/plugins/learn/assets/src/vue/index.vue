@@ -35,6 +35,7 @@
       'learn-page': require('./learn-page'),
       'scratchpad-page': require('./scratchpad-page'),
       'content-unavailable-page': require('./content-unavailable-page'),
+      'core-base': require('kolibri.coreVue.components.coreBase'),
     },
     data: () => ({
       currScrollTop: 0,

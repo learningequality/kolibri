@@ -33,6 +33,7 @@
     components: {
       'reports': require('./reports'),
       'content-unavailable-page': require('./content-unavailable-page'),
+      'core-base': require('kolibri.coreVue.components.coreBase'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,

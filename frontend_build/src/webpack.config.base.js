@@ -97,7 +97,7 @@ var config = {
   ],
   resolve: {
     alias: aliases,
-    extensions: ["", ".vue", ".js"],
+    extensions: ["", ".styl", ".vue", ".js"],
   },
   eslint: {
     failOnError: true

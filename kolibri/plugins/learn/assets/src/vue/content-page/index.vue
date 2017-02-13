@@ -111,6 +111,9 @@
     components: {
       'page-header': require('../page-header'),
       'expandable-content-grid': require('../expandable-content-grid'),
+      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
+      'download-button': require('kolibri.coreVue.components.downloadButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     methods: {
       nextContentClicked() {

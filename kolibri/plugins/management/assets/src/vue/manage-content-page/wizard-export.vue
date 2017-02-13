@@ -94,6 +94,7 @@
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
     },
     data: () => ({
       selectedDrive: undefined, // used when there's more than one option

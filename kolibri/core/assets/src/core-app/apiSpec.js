@@ -85,13 +85,19 @@ module.exports = {
           module: require('../vue/core-modal'),
         },
         navBarItem: {
-          module: require('../vue/nav-bar/nav-bar-item'),
+          module: require('../vue/nav-bar/nav-bar-item.vue'),
         },
         iconButton: {
           module: require('../vue/icon-button'),
         },
         channelSwitcher: {
           module: require('../vue/channel-switcher'),
+        },
+        loginModal: {
+          module: require('../vue/login-modal'),
+        },
+        sessionNavWidget: {
+          module: require('../vue/session-nav-widget'),
         },
       },
       router: {
@@ -103,7 +109,7 @@ module.exports = {
         module: require('../vue/nav-bar/nav-bar-item.styl'),
       },
       coreTheme: {
-        module: require('../styles/core-theme.styl'),
+        module: require('../styles/core-theme'),
       },
     },
   },

@@ -23,6 +23,9 @@
       completed: 'completed by {0, number, integer} learners',
       pct: '{0, number, percent}',
     },
+    components: {
+      'progress-bar': require('kolibri.coreVue.components.progressBar'),
+    },
     props: {
       num: {
         type: Number,

@@ -26,6 +26,10 @@
 <script>
 
   module.exports = {
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
+    },
     props: {
       title: {
         type: String,

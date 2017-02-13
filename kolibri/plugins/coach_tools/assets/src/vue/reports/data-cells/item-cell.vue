@@ -25,6 +25,9 @@
       exercises: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
       contents: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
     },
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+    },
     props: {
       kind: {
         type: String,

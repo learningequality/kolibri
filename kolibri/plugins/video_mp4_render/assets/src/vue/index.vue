@@ -35,6 +35,10 @@
       forward: 'Skip forward 10 seconds.',
     },
 
+    components: {
+      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
+    },
+
     props: ['files'],
 
     data: () => ({
