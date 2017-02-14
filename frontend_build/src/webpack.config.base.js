@@ -51,27 +51,26 @@ var postCSSLoader = {
   }
 };
 
+var cssLoader = {
+  loader: 'css-loader',
+  options: { minimize: production, sourceMap: !production }
+};
+
 // for stylus blocks in vue files
 var vueStylusLoaders = [
-  'vue-style-loader', // includes postcss processing
-  {
-    loader: 'css-loader',
-    options: { minimize: production, sourceMap: !production }
-  },
-  'stylus-loader'
+  { loader: 'vue-style-loader' }, // includes postcss processing
+  cssLoader,
+  { loader: 'stylus-loader' }
 ];
 
 if (lint) {
-  vueStylusLoaders.push('stylint-loader')
+  vueStylusLoaders.push({ loader: 'stylint-loader' })
 }
 
 // for scss blocks in vue files (e.g. Keen-UI files)
 var vueSassLoaders = [
-  'vue-style-loader', // includes postcss processing
-  {
-    loader: 'css-loader',
-    options: { minimize: production, sourceMap: !production }
-  },
+  { loader: 'vue-style-loader' }, // includes postcss processing
+  cssLoader,
   {
     loader: 'sass-loader',
     // prepends these variable override values to every parsed vue SASS block
@@ -107,10 +106,7 @@ var config = {
         test: /\.css$/,
         use: [
           { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: { minimize: production, sourceMap: !production }
-          },
+          cssLoader,
           postCSSLoader,
         ]
       },
@@ -118,10 +114,7 @@ var config = {
         test: /\.styl$/,
         use: [
           { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: { minimize: production, sourceMap: !production }
-          },
+          cssLoader,
           postCSSLoader,
           { loader: 'stylus-loader' },
         ]
@@ -130,10 +123,7 @@ var config = {
         test: /\.s[a|c]ss$/,
         use: [
           { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: { minimize: production, sourceMap: !production }
-          },
+          cssLoader,
           postCSSLoader,
           { loader: 'sass-loader' },
         ]
@@ -171,8 +161,7 @@ var config = {
       }
     ]
   },
-  plugins: [
-  ],
+  plugins: [],
   resolve: {
     alias: aliases,
     extensions: [".js", ".vue", ".styl"],
