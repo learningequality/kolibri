@@ -185,7 +185,7 @@ function kolibriLogin(store, sessionPayload) {
       const manageURL = coreApp.urls['kolibri:managementplugin:management']();
       window.location.href = window.location.origin + manageURL;
     } else {
-      location.reload(true);
+      window.location.href = window.location.origin;
     }
   }).catch(error => {
     if (error.status.code === 401) {
@@ -216,7 +216,7 @@ function getCurrentSession(store) {
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
   const sessionPromise = sessionModel.fetch({});
-  sessionPromise.then((session) => {
+  return sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
   }).catch(error => { handleApiError(store, error); });
 }
