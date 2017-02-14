@@ -4,11 +4,16 @@ const router = require('vue-router');
 const vueintl = require('vue-intl');
 
 vue.prototype.Kolibri = require('kolibri');
+vue.config.silent = true;
 vue.use(vuex);
 vue.use(router);
 require('intl');
 require('intl/locale-data/jsonp/en.js');
 vue.use(vueintl, { defaultLocale: 'en-us' });
+
+vue.mixin({
+  store: new vuex.Store({}),
+});
 
 function $trWrapper(formatter, messageId, args) {
   if (args) {
