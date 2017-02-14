@@ -1,13 +1,13 @@
 <template>
 
-  <card-grid :header="'All Content'" v-if="all.content.length" v-el:grid>
+  <card-grid :header="'All Content'" v-if="all.content.length" ref="grid">
 
     <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 
-      <a v-if="hasPrev" v-link="prevPageLink" class="allnav-item">{{ $tr('prev') }}</a>
+      <router-link v-if="hasPrev" :to="prevPageLink" class="allnav-item">{{ $tr('prev') }}</router-link>
       <span v-else class="allnav-item allnav-disabled">{{ $tr('prev') }}</span>
 
-      <a v-if="hasNext" v-link="nextPageLink" class="allnav-item">{{ $tr('next') }}</a>
+      <router-link v-if="hasNext" :to="nextPageLink" class="allnav-item">{{ $tr('next') }}</router-link>
       <span v-else class="allnav-item allnav-disabled">{{ $tr('next') }}</span>
 
     </div>
@@ -18,8 +18,7 @@
       :thumbnail="content.thumbnail"
       :kind="content.kind"
       :progress="content.progress"
-      :id="content.id">
-    </content-grid-item>
+      :id="content.id"/>
 
   </card-grid>
 
@@ -37,7 +36,7 @@
       next: 'Next',
       pagesLabel: 'Browse all content',
     },
-    ready() {
+    mounted() {
       /*
         `this.gridWidth` is a quick hack to ensure that rows are completely filled.
         The consequence is that some items are hidden if they spill over and don't
@@ -45,9 +44,9 @@
         and checking sizes that are usually handled with styles and media queries.
       */
       this.$watch('viewportWidth', () => {
-        this.gridWidth = this.$els.grid.offsetWidth;
+        this.gridWidth = this.$refs.grid.$el.offsetWidth;
       });
-      this.gridWidth = this.$els.grid.offsetWidth;
+      this.gridWidth = this.$refs.grid.$el.offsetWidth;
     },
     data() {
       return {
@@ -67,7 +66,7 @@
       nextPageLink() {
         return {
           name: PageNames.LEARN_CHANNEL,
-          channel: this.currentChannel,
+          channel_id: this.currentChannel,
           query: { page: this.all.page + 1 },
           replace: true,
         };
@@ -78,7 +77,7 @@
       prevPageLink() {
         return {
           name: PageNames.LEARN_CHANNEL,
-          channel: this.currentChannel,
+          channel_id: this.currentChannel,
           query: { page: this.all.page - 1 },
           replace: true,
         };

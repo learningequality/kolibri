@@ -1,25 +1,24 @@
 <template>
 
-  <a>
+  <router-link :to="link">
     <div class="card">
       <div class="card-thumbnail">
-        <slot></slot>
+        <slot/>
         <div class="progress-icon-wrapper">
-          <progress-icon :progress="progress" :kind="kind" :showtext="false"></progress-icon>
+          <progress-icon :progress="progress"/>
         </div>
       </div>
       <div class="card-content">
-        <content-icon
-          class="outer-content-icon"
-          v-if="kind"
-          :kind="kind">
-        </content-icon>
         <div class="text">
+          <content-icon
+          class="content-icon"
+          v-if="kind"
+          :kind="kind"/>
           {{ title }}
         </div>
       </div>
     </div>
-  </a>
+  </router-link>
 
 </template>
 
@@ -27,6 +26,10 @@
 <script>
 
   module.exports = {
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
+    },
     props: {
       title: {
         type: String,
@@ -39,6 +42,10 @@
       progress: {
         type: Number,
         required: false,
+      },
+      link: {
+        type: Object,
+        required: true,
       },
     },
   };
@@ -79,10 +86,11 @@
     text-overflow: ellipsis
     color: $core-text-default
 
-  .outer-content-icon
+  .content-icon
     position: absolute
     left: 10px
     top: 10px
+    font-size: 1.5em
 
   .card-content
     padding: 10px

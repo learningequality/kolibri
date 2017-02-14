@@ -2,13 +2,14 @@
 
   <div class="header-wrapper">
     <div class="extra-nav">
-      <slot name="extra-nav"></slot>
+      <slot name="extra-nav"/>
     </div>
     <div class="header">
-      <div class="content-icon-wrapper">
-        <content-icon :kind="contentKind"></content-icon>
-      </div>
-      <div class="title"><h1>{{ title }}</h1></div>
+      <h1 class="title">
+        <content-icon :kind="contentKind"/>
+        {{ title }}
+        <progress-icon :progress="progress"/>
+      </h1>
     </div>
   </div>
 
@@ -20,6 +21,10 @@
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
 
   module.exports = {
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
+    },
     props: {
       title: {
         type: String,
@@ -32,6 +37,12 @@
             return state.pageState.content.kind;
           }
           return ContentNodeKinds.TOPIC;
+        },
+        progress: (state) => {
+          if (state.pageState.content) {
+            return state.core.logging.summary.progress;
+          }
+          return null;
         },
       },
     },
@@ -51,35 +62,19 @@
     color: $core-text-annotation
     font-weight: 300
 
-  // @stylint off
-  .header-wrapper .icon-wrapper > *
-    // @stylint on
-    width: 1em
-    height: 1em
-
 </style>
 
 
 <style lang="stylus" scoped>
 
   .header-wrapper
-    margin-top: 1em
+    margin-top: 42px // height of toolbar
 
   .extra-nav
     font-size: 12px
     min-height: 16px
 
-  .header
-    position: relative
-    height: 3em
-
-  .content-icon-wrapper
-    position: absolute
-    left: 0
-    height: 27px
-    width: 27px
-
   .title
-    margin-left: 35px
+    display: inline-block
 
 </style>

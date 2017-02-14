@@ -52,12 +52,15 @@ var parseBundlePlugin = function(data, base_dir) {
   var local_config;
 
   try {
-    local_config = require(path.join(data.plugin_path, 'webpack.config.js'));
+    local_config = require(path.resolve(path.join(data.plugin_path, 'webpack.config.js')));
   } catch (e) {
     local_config = {};
   }
 
-  bundle = merge.smart(bundle, local_config);
+  if (local_config.coreAPISpec) {
+    // Resolve this path now so that it can be unproblematically resolved later.
+    local_config.coreAPISpec = path.resolve(path.join(data.plugin_path, local_config.coreAPISpec));
+  }
 
   // This might be non-standard use of the entry option? It seems to
   // interact with read_bundle_plugins.js
@@ -72,11 +75,11 @@ var parseBundlePlugin = function(data, base_dir) {
   }
 
   // Add local resolution paths
-  bundle.resolve.root = [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')];
+  bundle.resolve.modules = [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')];
   // Add local and global resolution paths for loaders to allow any plugin to
   // access kolibri/node_modules loaders during bundling.
   bundle["resolveLoader"] = {
-    root: [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')]
+    modules: [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')]
   };
 
   bundle.plugins = bundle.plugins.concat([
@@ -93,10 +96,13 @@ var parseBundlePlugin = function(data, base_dir) {
     new webpack.DefinePlugin({
       __kolibriModuleName: JSON.stringify(data.name),
       __events: JSON.stringify(data.events || {}),
-      __once: JSON.stringify(data.once || {})
+      __once: JSON.stringify(data.once || {}),
+      __version: JSON.stringify(data.version)
     }),
     new extract$trs(data.locale_data_folder, data.name)
   ]);
+
+  bundle = merge.smart(bundle, local_config);
 
   var publicPath, outputPath;
 
@@ -120,8 +126,6 @@ var parseBundlePlugin = function(data, base_dir) {
     publicPath: publicPath,
     library: library
   };
-
-  bundle.async_file = data.async_file;
 
   return [bundle, external];
 };

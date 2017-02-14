@@ -1,18 +1,23 @@
 <template>
 
-  <div v-el:container class="container" allowfullscreen>
+  <div ref="container" class="container" allowfullscreen>
     <icon-button
       class="btn"
-      :text="inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      @click="togglefullscreen">
+      :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
+      @click="toggleFullScreen"
+      :primary="true">
+      <mat-svg v-if="isFullScreen" class="icon" category="navigation" name="fullscreen_exit"/>
+      <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
     </icon-button>
-    <iframe v-el:sandbox class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
+    <iframe ref="sandbox" class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
   </div>
 
 </template>
 
 
 <script>
+
+  const ScreenFull = require('screenfull');
 
   module.exports = {
     components: {
@@ -25,7 +30,7 @@
       },
     },
     data: () => ({
-      inFullscreen: false,
+      isFullScreen: false,
     }),
     computed: {
       rooturl() {
@@ -33,42 +38,9 @@
       },
     },
     methods: {
-      togglefullscreen() {
-        const container = this.$els.container;
-        if (!document.fullscreenElement
-          && !document.webkitFullscreenElement
-          && !document.mozFullScreenElement
-          && !document.msFullscreenElement) {
-          if (container.requestFullscreen) {
-            container.requestFullscreen();
-          } else if (container.webkitRequestFullscreen) {
-            container.webkitRequestFullscreen();
-          } else if (container.mozRequestFullScreen) {
-            container.mozRequestFullScreen();
-          } else if (container.msRequestFullscreen) {
-            container.msRequestFullscreen();
-          }
-          this.inFullscreen = true;
-        } else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen();
-          } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-          } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-          } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-          }
-          this.inFullscreen = false;
-        }
-      },
-      updateFullscreenState() {
-        if (!document.fullscreenElement
-          && !document.webkitFullscreenElement
-          && !document.mozFullScreenElement
-          && !document.msFullscreenElement) {
-          this.inFullscreen = false;
-        }
+      toggleFullScreen() {
+        ScreenFull.toggle(this.$refs.container);
+        this.isFullScreen = ScreenFull.isFullscreen;
       },
     },
     ready() {
@@ -77,22 +49,12 @@
       this.timeout = setTimeout(() => {
         self.$emit('progressUpdate', 1);
       }, 15000);
-
-      document.addEventListener('fullscreenchange', this.updateFullscreenState, false);
-      document.addEventListener('webkitfullscreenchange', this.updateFullscreenState, false);
-      document.addEventListener('mozfullscreenchange', this.updateFullscreenState, false);
-      document.addEventListener('MSFullscreenChange', this.updateFullscreenState, false);
     },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
       this.$emit('stopTracking');
-
-      document.removeEventListener('fullscreenchange', this.updateFullscreenState, false);
-      document.removeEventListener('webkitfullscreenchange', this.updateFullscreenState, false);
-      document.removeEventListener('mozfullscreenchange', this.updateFullscreenState, false);
-      document.removeEventListener('MSFullscreenChange', this.updateFullscreenState, false);
     },
     $trNameSpace: 'html5Renderer',
     $trs: {
@@ -107,9 +69,12 @@
 <style lang="stylus" scoped>
 
   .btn
-    margin-bottom: 1em
+    position: absolute
+    left: 50%
+    transform: translateX(-50%)
 
   .container
+    position: relative
     text-align: center
     height: 100vh
     max-height: calc(100vh - 24em)
@@ -121,8 +86,7 @@
       max-height: inherit
 
   .sandbox
-    /* Accounts for the button height. */
-    height: calc(100% - 4em)
+    height: 100%
     width: 100%
 
 </style>

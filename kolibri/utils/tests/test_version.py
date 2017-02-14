@@ -4,6 +4,7 @@ Tests for `kolibri` module.
 from __future__ import absolute_import, print_function, unicode_literals
 
 import kolibri
+from kolibri.utils.version import get_version
 
 from .base import KolibriTestBase
 
@@ -14,5 +15,5 @@ class TestKolibriVersion(KolibriTestBase):
         """
         Test that the major version is set as expected
         """
-        major_version = ".".join(map(str, kolibri.VERSION[:2]))
-        self.assertIn(major_version, kolibri.__version__)
+        version_instance = get_version()
+        self.assertIn(version_instance.major_version, kolibri.__version__)

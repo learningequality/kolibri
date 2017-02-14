@@ -1,16 +1,16 @@
 <template>
 
   <core-modal
-    title="Import from the Internet"
+    :title="$tr('title')"
     :error="wizardState.error"
-    :enablebgclickcancel="false"
-    :enablebackbtn="true"
+    :enableBgClickCancel="false"
+    :enableBackBtn="true"
     @cancel="cancel"
     @enter="submit"
     @back="startImportWizard"
   >
     <div class="main">
-      <h2 class="label">Please enter a content channel ID:</h2>
+      <h2 class="label">{{$tr('enterContentChannel')}}</h2>
       <div>
         <input v-model="contentId" :disabled="wizardState.busy">
       </div>
@@ -21,15 +21,13 @@
     <div class="button-wrapper">
       <icon-button
         @click="cancel"
-        text="Cancel"
-        :disabled="wizardState.busy">
-      </icon-button>
+        :text="$tr('cancel')"
+        :disabled="wizardState.busy"/>
       <icon-button
-        text="Import"
+        :text="$tr('import')"
         @click="submit"
         :disabled="!canSubmit"
-        :primary="true" >
-      </icon-button>
+        :primary="true"/>
     </div>
   </core-modal>
 
@@ -41,6 +39,13 @@
   const actions = require('../../actions');
 
   module.exports = {
+    $trNameSpace: 'wizard-import-network',
+    $trs: {
+      title: 'Please choose a source...',
+      enterContentChannel: 'Please enter a content channel ID:',
+      cancel: 'Cancel',
+      import: 'Import',
+    },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),

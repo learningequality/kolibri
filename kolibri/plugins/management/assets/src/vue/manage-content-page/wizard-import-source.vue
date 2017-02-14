@@ -1,23 +1,21 @@
 <template>
 
   <core-modal
-    title="Please choose a source..."
-    :enablebgclickcancel="false"
+    :title="$tr('title')"
     @cancel="cancelImportExportWizard"
   >
     <div class="main">
       <div class="lg-button-wrapper">
-        <icon-button class="large-icon-button" text="Internet" :textbelow="true" @click="showImportNetworkWizard">
-          <svg height="50" width="50" src="./world.svg"></svg>
+        <icon-button class="large-icon-button" :text="$tr('internet')" :showTextBelowIcon="true" @click="showImportNetworkWizard">
+          <mat-svg class="icon" category="action" name="language"/>
         </icon-button>
-        <icon-button class="large-icon-button" text="Local Drives" :textbelow="true" @click="showImportLocalWizard">
-          <svg height="50" width="50" src="./storage.svg"></svg>
+        <icon-button class="large-icon-button" :text="$tr('localDrives')" :showTextBelowIcon="true" @click="showImportLocalWizard">
+          <mat-svg class="icon" category="device" name="storage"/>
         </icon-button>
       </div>
       <icon-button
         @click="cancelImportExportWizard"
-        text="Cancel">
-      </icon-button>
+        :text="$tr('cancel')"/>
     </div>
   </core-modal>
 
@@ -29,6 +27,13 @@
   const actions = require('../../actions');
 
   module.exports = {
+    $trNameSpace: 'wizard-import-source',
+    $trs: {
+      title: 'Please choose a source...',
+      internet: 'Internet',
+      localDrives: 'Local Drives',
+      cancel: 'Cancel',
+    },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -54,9 +59,9 @@
     margin-bottom: 4em 0
 
   .large-icon-button
-    width: 140px
+    width: 150px
     height: 120px
-    margin: 0.6em
+    margin: 3px
 
   .lg-button-wrapper
     margin: 4em 0
@@ -71,5 +76,9 @@
     margin: 1em
     color: $core-text-annotation
     border: 1px $core-text-annotation solid
+
+  .icon
+    width: 50px
+    height: 50px
 
 </style>

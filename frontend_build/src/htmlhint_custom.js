@@ -16,12 +16,16 @@ function clean(val) {
   Based on the existing `tag-self-close` rule
 */
 HTMLHint.addRule({
-  id: '--no-tag-self-close',
-  description: 'Self-closing tags are not valid HTML5.',
+  id: '--no-self-close-common-html5-tags',
+  description: 'Self-closing HTML5 tags are not valid.',
   init: function(parser, reporter) {
     var self = this;
+    var commonTags = parser.makeMap(`a,audio,b,body,button,canvas,caption,center,dir,div,dl,em,font,footer,
+      form,h1,h2,h3,h4,h5,h6,head,header,html,iframe,label,li,main,map,menu,nav,object,option,output,p,progress,
+      q,script,section,select,span,strong,style,sub,table,tbody,td,textarea,th,thead,time,title,tr,u,ul,var,video`);
     parser.addListener('tagstart', function(event) {
-      if (event.close) {
+      var tagName = event.tagName.toLowerCase();
+      if (event.close && commonTags[tagName]) {
         reporter.error('In : [ '+event.tagName+' ] self-closing tags are not valid HTML5.', event.line, event.col, self, event.raw);
       }
     });

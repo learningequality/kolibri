@@ -139,20 +139,34 @@ class WebpackBundleHook(hooks.KolibriHook):
         used by the webpack_json management command. Inheritors may wish to
         customize this.
 
-        :returns: A dict with information expected by webpack parsing process.
+        :returns: A dict with information expected by webpack parsing process,
+        or None if the src_file does not exist.
         """
-        return {
-            "name": self.unique_slug,
-            "src_file": self.src_file,
-            "static_dir": self.static_dir,
-            "plugin_path": os.path.dirname(self.build_path),
-            "stats_file": self.stats_file,
-            "events": self.events,
-            "once": self.once,
-            "static_url_root": getattr(django_settings, 'STATIC_URL'),
-            "locale_data_folder": os.path.join(getattr(django_settings, 'LOCALE_PATHS')[0], 'en', 'LC_FRONTEND_MESSAGES'),
-            "version": self.version,
-        }
+        if os.path.exists(os.path.join(os.path.dirname(self.build_path), self.src_file)):
+            return {
+                "name": self.unique_slug,
+                "src_file": self.src_file,
+                "static_dir": self.static_dir,
+                "plugin_path": os.path.dirname(self.build_path),
+                "stats_file": self.stats_file,
+                "events": self.events,
+                "once": self.once,
+                "static_url_root": getattr(django_settings, 'STATIC_URL'),
+                "locale_data_folder": self.locale_data_folder,
+                "version": self.version,
+            }
+        else:
+            logger.warn("{src_file} not found for plugin {name}.".format(src_file=self.src_file, name=self.unique_slug))
+
+    @property
+    def locale_data_folder(self):
+        if self.module_path.startswith('kolibri.'):
+            return os.path.join(getattr(django_settings, 'LOCALE_PATHS')[0], 'en', 'LC_FRONTEND_MESSAGES')
+        # Is an external plugin, do otherwise!
+        else:
+            return os.path.join(
+                os.path.dirname(self.build_path),
+                getattr(self, 'locale_path', 'locale'), 'en', 'LC_FRONTEND_MESSAGES')
 
     @property
     def module_path(self):

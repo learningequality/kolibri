@@ -2,11 +2,11 @@
 
   <div>
     <div class="wrapper">
-      <content-icon :kind="kind" class="icon"></content-icon>
-      <a v-link="vLink">{{ title }}</a>
+      <content-icon :kind="kind" class="icon"/>
+      <router-link :to="vLink">{{ title }}</router-link>
     </div>
     <div class="wrapper" v-if="isTopic">
-      {{ $tr('exercises', {count: exercisecount}) }} ● {{ $tr('contents', {count: contentcount}) }}
+      {{ $tr('exercises', {count: exerciseCount}) }} • {{ $tr('contents', {count: contentCount}) }}
     </div>
   </div>
 
@@ -23,7 +23,10 @@
     $trNameSpace: 'item-name',
     $trs: {
       exercises: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
-      contents: '{count, number, integer} {count, plural, one {Content Item} other {Content Items}}',
+      contents: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
+    },
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
     },
     props: {
       kind: {
@@ -38,10 +41,10 @@
         type: String,
         required: true,
       },
-      exercisecount: {
+      exerciseCount: {
         type: Number,
       },
-      contentcount: {
+      contentCount: {
         type: Number,
       },
     },
@@ -58,17 +61,20 @@
       vLink() {
         if (this.isUser) {
           return genLink(this.pageState, {
+            all_or_recent: Constants.AllOrRecent.ALL,
             user_scope: Constants.UserScopes.USER,
             user_scope_id: this.id,
           });
         } else if (this.isTopic) {
           return genLink(this.pageState, {
+            all_or_recent: Constants.AllOrRecent.ALL,
             content_scope: Constants.ContentScopes.TOPIC,
             content_scope_id: this.id,
           });
         }
         // assume it's a content link
         return genLink(this.pageState, {
+          all_or_recent: Constants.AllOrRecent.ALL,
           content_scope: Constants.ContentScopes.CONTENT,
           content_scope_id: this.id,
         });
@@ -86,11 +92,18 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.coreTheme'
+
+  a
+    font-size: 1.15em
+    font-weight: bold
+
   .wrapper
     font-weight: normal
     position: relative
     text-align: left
-    padding-left: 20px
+    padding: 2px 0 0 25px
+    color: $core-text-annotation
 
   .hasicon
     padding-left: 20px
@@ -98,8 +111,7 @@
   .icon
     position: absolute
     left: 0
-    top: 2px
-    width: 15px
-    height: 15px
+    fill: $core-text-default
+    font-size: 1.25em
 
 </style>

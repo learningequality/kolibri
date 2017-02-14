@@ -8,16 +8,15 @@
         :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
-        :id="content.id">
-      </content-grid-item>
+        :id="content.id"/>
     </card-grid>
 
     <div class="button-wrapper" v-if="contents.length > nCollapsed">
       <icon-button @click="toggle()" :text="less" v-if="expanded">
-        <svg src="show-less.svg"></svg>
+        <mat-svg category="hardware" name="keyboard_arrow_up"/>
       </icon-button>
       <icon-button @click="toggle()" :text="more" v-else>
-        <svg src="show-more.svg"></svg>
+        <mat-svg category="hardware" name="keyboard_arrow_down"/>
       </icon-button>
     </div>
   </div>

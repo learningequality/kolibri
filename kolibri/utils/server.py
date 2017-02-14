@@ -8,10 +8,6 @@ from cherrypy.process.plugins import Daemonizer, PIDFile
 from django.conf import settings
 from django.core.management import call_command
 from kolibri.content.utils import paths
-from kolibri.content.utils.annotation import update_channel_metadata_cache
-from kolibri.deployment.default.wsgi import application
-
-PID_FILE = os.path.join(os.environ['KOLIBRI_HOME'], 'kolibri.pid')
 
 
 def start_background_workers():
@@ -82,6 +78,8 @@ def read_pid_file(filename):
 
 
 def stop():
+    # notice KOLIBRI_HOME is set after server.py module is imported
+    PID_FILE = os.path.join(os.environ['KOLIBRI_HOME'], 'kolibri.pid')
     pid = read_pid_file(PID_FILE)
     kill_pid(pid)
 
@@ -102,15 +100,19 @@ def start():
     call_command("migrate", interactive=False, database="default")
     call_command("migrate", interactive=False, database="ormq")
 
+    from kolibri.content.utils.annotation import update_channel_metadata_cache
     update_channel_metadata_cache()
 
 
 def run_server():
+    # notice KOLIBRI_HOME is set after server.py module is imported
+    PID_FILE = os.path.join(os.environ['KOLIBRI_HOME'], 'kolibri.pid')
     # Daemonizer engine plugin is only available on Unix and similar systems which provide fork().
     Daemonizer(cherrypy.engine).subscribe()
     PIDFile(cherrypy.engine, PID_FILE).subscribe()
 
     # Mount the application
+    from kolibri.deployment.default.wsgi import application
     cherrypy.tree.graft(application, "/")
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)

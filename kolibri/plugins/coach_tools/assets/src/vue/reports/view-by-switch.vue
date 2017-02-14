@@ -4,17 +4,17 @@
 
     <div class="label">{{ $tr('viewbylabel') }}</div>
 
-    <a v-link="vlink" :class="{ disabled: disabled }">
-      <div class="left-text" :class="{ selected: iscontent, disabled: disabled }">{{ $tr('contents') }}</div>
+    <router-link :to="vlink" :class="{ disabled: disabled }">
+      <div class="left-text" :class="{ selected: isContent, disabled: disabled }">{{ $tr('contents') }}</div>
 
       <div class="toggle-switch-wrapper">
         <div class="toggle-switch">
-          <div class="toggle-switch-slider" :class="{ rightside: !iscontent, disabled: disabled }"></div>
+          <div class="toggle-switch-slider" :class="{ rightside: !isContent, disabled: disabled }"></div>
         </div>
       </div>
 
-      <div class="right-text" :class="{ selected: !iscontent, disabled: disabled }">{{ $tr('learners') }}</div>
-    </a>
+      <div class="right-text" :class="{ selected: !isContent, disabled: disabled }">{{ $tr('learners') }}</div>
+    </router-link>
   </div>
 
 </template>
@@ -26,11 +26,11 @@
     $trNameSpace: 'view-by-switch',
     $trs: {
       viewbylabel: 'View by:',
-      contents: 'Contents',
+      contents: 'Channel',
       learners: 'Learners',
     },
     props: {
-      iscontent: {
+      isContent: {
         type: Boolean,
         required: true,
       },

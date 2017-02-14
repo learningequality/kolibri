@@ -2,11 +2,11 @@
 
   <div>
     <div class="header">
-      <h3 v-if="header">{{header}}</h3>
-      <slot name="headerbox"></slot>
+      <h2 v-if="header">{{header}}</h2>
+      <slot name="headerbox"/>
     </div>
     <div class="card-grid">
-      <slot></slot>
+      <slot/>
     </div>
   </div>
 
@@ -27,7 +27,7 @@
 <style lang="stylus">
 
   @require '../learn.styl'
-  @require 'jeet'
+  // @require 'jeet'
 
   // Disable styling to make this a more generic container
 
@@ -61,13 +61,13 @@
 
 <style lang="stylus" scoped>
 
-  @require 'jeet'
+  // @require 'jeet'
 
   .header
     margin-top: 2em
     margin-bottom: 1.4em
 
-  .header h3
+  .header h2
     display: inline
 
   .card-grid

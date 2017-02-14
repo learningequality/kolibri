@@ -1,19 +1,15 @@
 <template>
 
-  <h1>
-    <span v-if="userfullname">
-      <svg src="../icons/user.svg" class="icon"></svg>
-      {{ userfullname }} -
+  <h2>
+    <span v-if="userFullName">
+      <mat-svg category="social" name="person"/>
+      {{ userFullName }} -
     </span>
-    <span>
-      <content-icon
-        :kind="contentkind"
-        colorstyle="text-default"
-        class="icon"
-      ></content-icon>
-      {{ contenttitle }}
-    </span>
-  </h1>
+    <content-icon
+      :kind="contentKind"
+      colorstyle="text-default"/>
+    {{ contentTitle }}
+  </h2>
 
 </template>
 
@@ -21,16 +17,19 @@
 <script>
 
   module.exports = {
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+    },
     props: {
-      contentkind: {
+      contentKind: {
         type: String,
         required: true,
       },
-      contenttitle: {
+      contentTitle: {
         type: String,
         required: true,
       },
-      userfullname: {
+      userFullName: {
         type: String,
       },
     },
@@ -41,11 +40,9 @@
 
 <style lang="stylus" scoped>
 
-  .icon
-    display: inline-block
-    position: relative
-    top: 5px
-    width: 25px
-    height: 25px
+  h2
+    margin: 0
+    margin-bottom: 15px
+    font-size: 1.3em
 
 </style>

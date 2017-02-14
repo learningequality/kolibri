@@ -4,32 +4,37 @@
 
     <div class="header">
       <h1>
-        All Users
+        {{$tr('allUsers')}}
       </h1>
       <span> ( {{ visibleUsers.length }} )</span>
     </div>
 
     <div class="toolbar">
-      <label for="type-filter" class="visuallyhidden">Filter User Type</label>
+      <label for="type-filter" class="visuallyhidden">{{$tr('filterUserType')}}</label>
       <select v-model="roleFilter" id="type-filter" name="type-filter">
-        <option selected value="all"> All Users </option>
-        <option value="admin"> Admins </option>
-        <option value="learner"> Learners </option>
+        <option value="all"> {{$tr('allUsers')}} </option>
+        <option :value="ADMIN"> {{$tr('admins')}}</option>
+        <option :value="COACH"> {{$tr('coaches')}} </option>
+        <option :value="LEARNER"> {{$tr('learners')}} </option>
       </select>
 
       <div class="searchbar" role="search">
-        <svg class="icon" src="../icons/search.svg" role="presentation" aria-hidden="true"></svg>
+        <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
         <input
           id="search-field"
-          aria-label="Search for a user..."
+          :aria-label="$tr('searchText')"
           type="search"
           v-model="searchFilter"
-          placeholder="Search for a user...">
+          :placeholder="$tr('searchText')">
       </div>
 
       <div class="create">
-        <icon-button @click="openCreateUserModal" class="create-user-button" text="Add New" :primary="true">
-          <svg class="add-user" src="../icons/add_new_user.svg" role="presentation"></svg>
+        <icon-button
+          @click="openCreateUserModal"
+          class="create-user-button"
+          :text="$tr('addNew')"
+          :primary="true">
+          <mat-svg class="add-user" category="social" name="person_add"/>
         </icon-button>
       </div>
 
@@ -41,31 +46,30 @@
     <user-edit-modal
       v-if="editingUser"
       :userid="currentUserEdit.id"
-      :username="currentUserEdit.username"
       :fullname="currentUserEdit.full_name"
-      :roles="currentUserEdit.roles"
-      @close="closeEditUserModal">
-    </user-edit-modal>
+      :username="currentUserEdit.username"
+      :userkind="currentUserEdit.kind"
+      @close="closeEditUserModal"
+    />
     <user-create-modal
       v-if="creatingUser"
-      @close="closeCreateUserModal">
-    </user-create-modal>
+      @close="closeCreateUserModal"/>
 
     <table class="roster">
 
-      <caption class="visuallyhidden">Users</caption>
+      <caption class="visuallyhidden">{{$tr('users')}}</caption>
 
       <!-- Table Headers -->
       <thead v-if="usersMatchFilter">
         <tr>
-          <th class="col-header" scope="col"> Full Name </th>
+          <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
           <th class="col-header" scope="col">
             <span class="role-header" aria-hidden="true">
-              Role
+              {{$tr('kind')}}
             </span>
           </th>
-          <th class="col-header table-username" scope="col"> Username </th>
-          <th class="col-header" scope="col"> Edit </th>
+          <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
+          <th class="col-header" scope="col"> {{$tr('edit')}} </th>
         </tr>
       </thead>
 
@@ -81,8 +85,8 @@
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
-            <span class="user-role" v-for="role in user.roles">
-              {{role.kind | capitalize}}
+            <span v-if="user.kind !== LEARNER" class="user-role">
+              {{ user.kind === ADMIN ? $tr('admin') : $tr('coach') }}
             </span>
           </td>
 
@@ -94,8 +98,8 @@
           <!-- Edit field -->
           <td class="table-cell">
             <icon-button class="edit-user-button" @click="openEditUserModal(user)">
-              <span class="visuallyhidden">Edit Account Info</span>
-              <svg src="../icons/pencil.svg"></svg>
+              <span class="visuallyhidden">$tr('editAccountInfo')</span>
+              <mat-svg category="editor" name="mode_edit"/>
             </icon-button>
           </td>
 
@@ -115,6 +119,7 @@
 <script>
 
   const actions = require('../../actions');
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
     components: {
@@ -124,13 +129,16 @@
     },
     // Has to be a funcion due to vue's treatment of data
     data: () => ({
-      roleFilter: '',
+      roleFilter: 'all',
       searchFilter: '',
       creatingUser: false,
       editingUser: false,
       currentUserEdit: null,
     }),
     computed: {
+      LEARNER: () => UserKinds.LEARNER,
+      COACH: () => UserKinds.COACH,
+      ADMIN: () => UserKinds.ADMIN,
       noUsersExist() {
         return this.users.length === 0;
       },
@@ -141,61 +149,31 @@
         return !this.noUsersExist && !this.allUsersFilteredOut;
       },
       visibleUsers() {
+        const searchFilter = this.searchFilter;
         const roleFilter = this.roleFilter;
-        // creates array of words in filter, removes empty strings
-        const searchFilter = this.searchFilter.split(' ').filter(Boolean).map(
-          // returns an array of search parameters, ignoring case
-          (query) => new RegExp(query, 'i'));
 
-        return this.users.filter((user) => {
-          // fullname created using es6 templates
-          const names = [user.full_name, user.username];
+        function matchesText(user) {
+          const searchTerms = searchFilter
+            .split(' ')
+            .filter(Boolean)
+            .map(val => val.toLowerCase());
 
-          let hasRole = true;
-          let hasName = true;
+          const fullName = user.full_name.toLowerCase();
+          const username = user.username.toLowerCase();
 
-          // check for filters
-          if (roleFilter !== 'all') {
-            // check for learner
-            if (roleFilter === 'learner') {
-              hasRole = !(user.roles.length);
-            } else {
-              hasRole = false;
+          return searchTerms.every(term => fullName.includes(term) || username.includes(term));
+        }
 
-              // actual check for roles
-              user.roles.forEach(roleObject => {
-                if (roleObject.kind === roleFilter) {
-                  hasRole = true;
-                }
-              });
-            }
+        function matchesRole(user) {
+          if (roleFilter === 'all') {
+            return true;
           }
+          return user.kind === roleFilter;
+        }
 
-          // makes sure there's text in the search box
-          if (searchFilter.length) {
-            hasName = false;
-
-            // check for searchFilter phrase in user's names
-            for (const name of names) {
-              // test name through all filters
-              if (searchFilter.every(nameFilter => nameFilter.test(name))) {
-                hasName = true;
-              }
-            }
-          }
-
-          // determines whether name should be on list
-          return hasRole && hasName;
-
-          // aphabetize based on username
-        }).sort((user1, user2) => {
-          if (user1.username[0] > user2.username[0]) {
-            return 1;
-          } else if (user1.username[0] < user2.username[0]) {
-            return -1;
-          }
-          return 0;
-        });
+        return this.users
+          .filter(user => matchesText(user) && matchesRole(user))
+          .sort((user1, user2) => user1.username.localeCompare(user2.username));
       },
     },
     methods: {
@@ -224,6 +202,27 @@
     },
     $trNameSpace: 'userPage',
     $trs: {
+      // input & accessibility labels
+      filterUserType: 'Filter User Type',
+      editAccountInfo: 'Edit Account Information',
+      searchText: 'Search for a user...',
+      // filter select entries
+      allUsers: 'All Users',
+      admins: 'Admins',
+      coaches: 'Coaches',
+      learners: 'Learners',
+      // edit button text
+      addNew: 'Add New',
+      // user tags
+      admin: 'Admin',
+      coach: 'Coach',
+      // table info
+      fullName: 'Full Name',
+      users: 'Users',
+      kind: 'Kind',
+      username: 'Username',
+      edit: 'Edit',
+      // search-related error messages
       noUsersExist: 'No Users Exist.',
       allUsersFilteredOut: 'No users match the filter.',
     },
@@ -307,6 +306,8 @@
     border-radius: 40px
     font-size: 0.875em
     display: inline-block
+    text-transform: capitalize
+    white-space: nowrap
 
   .searchbar .icon
     display: inline-block

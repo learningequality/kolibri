@@ -11,6 +11,12 @@ function isAdminOrSuperuser(state) {
 }
 
 
+function isCoachAdminOrSuperuser(state) {
+  const kind = state.core.session.kind;
+  return [UserKinds.SUPERUSER, UserKinds.ADMIN, UserKinds.COACH].includes(kind[0]);
+}
+
+
 /*
  * Returns the 'default' channel ID:
  * - if there are channels and they match the cookie, return that
@@ -38,6 +44,7 @@ function getCurrentChannelObject(state) {
 
 module.exports = {
   isAdminOrSuperuser,
+  isCoachAdminOrSuperuser,
   getDefaultChannelId,
   getCurrentChannelObject,
 };

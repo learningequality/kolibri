@@ -35,7 +35,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             return super(FacilityUserSerializer, self).update(instance, validated_data)
 
     def validate_username(self, value):
-        if FacilityUser.objects.filter(username__iexact=value).exists():
+        if FacilityUser.objects.filter(username__iexact=value).exists() | DeviceOwner.objects.filter(username__iexact=value).exists():
             raise serializers.ValidationError('An account with that username already exists.')
         return value
 
@@ -63,7 +63,7 @@ class DeviceOwnerSerializer(serializers.ModelSerializer):
             return super(DeviceOwnerSerializer, self).update(instance, validated_data)
 
     def validate_username(self, value):
-        if DeviceOwner.objects.filter(username__iexact=value).exists():
+        if FacilityUser.objects.filter(username__iexact=value).exists() | DeviceOwner.objects.filter(username__iexact=value).exists():
             raise serializers.ValidationError('An account with that username already exists.')
         return value
 

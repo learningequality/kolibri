@@ -36,7 +36,7 @@
     },
     computed: {
       percent() {
-        return Math.min(this.progress * 100, 100);
+        return Math.max(Math.min(this.progress * 100, 100), 0);
       },
     },
   };
@@ -57,8 +57,13 @@
     display: inline-block
     position: relative
     width: 100%
-    height: 0.75em
+    max-width: 125px
+    height: 1.2em
     background-color: #E0E0E0
+    border-radius: 15px
+    float: left
+    margin-right: 5px
+    overflow: hidden
 
   .progress-bar-complete
     height: 100%
@@ -68,9 +73,9 @@
 
   .progress-bar-text
     display: inline-block
-    position: absolute
+    position: relative
     right: 0
     width: 30px
-    text-align: right
+    text-align: left
 
 </style>

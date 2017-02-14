@@ -1,9 +1,9 @@
 <template>
 
   <core-modal
-    title="Edit Account Info"
+    :title="$tr('modalTitle')"
     :has-error="error_message ? true : false"
-    :enablebackbtn="usr_delete || pw_reset"
+    :enableBackBtn="usr_delete || pw_reset"
     @enter="submit"
     @cancel="emitCloseSignal"
     @back="clear"
@@ -13,26 +13,27 @@
       <template v-if="!usr_delete && !pw_reset">
 
         <div class="user-field">
-          <label for="fullname">Full Name</label>:
-          <input type="text" class="edit-form edit-fullname" aria-label="fullname" id="fullname" v-model="fullName_new">
+          <label for="fullname">{{$tr('fullName')}}</label>:
+          <input type="text" class="edit-form edit-fullname" :aria-label="$tr('fullName')" id="fullname" v-model="fullName_new">
         </div>
 
         <div class="user-field">
-          <label for="username">Username</label>:
-          <input type="text" class="edit-form edit-username" aria-label="username" id="username" v-model="username_new">
+          <label for="username">{{$tr('username')}}</label>:
+          <input type="text" class="edit-form edit-username" :aria-label="$tr('username')" id="username" v-model="username_new">
         </div>
 
         <div class="user-field">
-          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-          <select v-model="role_new" id="user-role">
-            <option :selected="role_new == learner" v-if="role_new" value="learner"> Learner </option>
-            <option :selected="role_new == admin" value="admin"> Admin </option>
+          <label for="user-role"><span class="visuallyhidden">{{$tr('userKind')}}</span></label>
+          <select v-model="kind_new" id="user-role">
+            <option :value="LEARNER"> {{$tr('learner')}} </option>
+            <option :value="ADMIN"> {{$tr('admin')}} </option>
+            <option :value="COACH"> {{$tr('coach')}} </option>
           </select>
         </div>
 
         <div class="advanced-options" @keydown.enter.stop>
-          <button @click="pw_reset=!pw_reset"> Reset Password </button>
-          <button @click="usr_delete=!usr_delete"> Delete User</button>
+          <button @click="pw_reset=!pw_reset"> {{$tr('resetPw')}} </button>
+          <button @click="usr_delete=!usr_delete"> {{$tr('deleteUsr')}}</button>
         </div>
 
         <hr class="end-modal">
@@ -41,14 +42,14 @@
 
       <!-- Password Reset Mode -->
       <template v-if="pw_reset" >
-        <p>Username: <b>{{username_new}}</b></p>
+        <p>{{$tr('username')}}: <b>{{ username}}</b></p>
         <div class="user-field">
-          <label for="password">Enter new password</label>:
+          <label for="password">{{$tr('enterNewPw')}}</label>:
           <input type="password" class="edit-form" id="password" required v-model="password_new">
         </div>
 
         <div class="user-field">
-          <label for="password-confirm">Confirm new password</label>:
+          <label for="password-confirm">{{$tr('confirmNewPw')}}</label>:
           <input type="password" class="edit-form" id="password-confirm" required v-model="password_new_confirm">
         </div>
       </template>
@@ -56,56 +57,29 @@
       <!-- User Delete Mode -->
       <template v-if="usr_delete">
         <div class="user-field">
-          <p>Are you sure you want to delete <b>{{username_new}}</b>?</p>
+          {{$trHtml('deleteConfirmation', {user:username})}}
         </div>
       </template>
 
 
       <!-- Error Messages -->
       <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
-      <p class="confirm" v-if="confirmation_message"> {{confirmation_message}} </p>
 
       <!-- Button Section TODO: cleaunup -->
       <section @keydown.enter.stop>
 
         <icon-button
-          v-if="!usr_delete && !pw_reset"
-          text="Cancel"
+          :text="cancelText"
           class="undo-btn"
-          @click="emitCloseSignal">
-        </icon-button>
-
-        <!-- 'Back' for reset, 'No' for delete -->
-        <icon-button
-          v-else
-          :text="pw_reset ? 'Back' : 'No'"
-          class="undo-btn"
-          @click="clear">
-        </icon-button>
+          @click="cancelClick"
+        />
 
         <icon-button
-          v-if="!usr_delete && !pw_reset"
-          text="Confirm"
+          :text="submitText"
           class="confirm-btn"
           :primary="true"
-          @click="submit">
-        </icon-button>
-
-        <icon-button
-          v-if="pw_reset"
-          text="Save"
-          class="confirm-btn"
-          :primary="true"
-          @click="submit">
-        </icon-button>
-
-        <icon-button
-          v-if="usr_delete"
-          text="Yes"
-          class="confirm-btn"
-          :primary="true"
-          @click="submit">
-        </icon-button>
+          @click="submit"
+        />
 
       </section>
 
@@ -122,32 +96,103 @@
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
+    $trNameSpace: 'user-edit-modal',
+    $trs: {
+      modalTitle: 'Edit Account Info',
+      // input labels
+      fullName: 'Full Name',
+      username: 'Username',
+      userKind: 'User Kind',
+      enterNewPw: 'Enter new password',
+      confirmNewPw: 'Confirm new password',
+      // kind select
+      learner: 'Learner',
+      admin: 'Admin',
+      coach: 'Coach',
+      // buttons and links
+      resetPw: 'Reset Password',
+      deleteUsr: 'Delete User',
+      save: 'Save',
+      back: 'Back',
+      yes: 'Yes',
+      no: 'No',
+      confirm: 'Confirm',
+      cancel: 'Cancel',
+      // confirmation messages
+      // this one is going to get a little complicated
+      deleteConfirmation: 'Are you sure you want to delete {user}?',
+      // errors
+      pwMismatch: 'Passwords must match',
+      noNewPw: 'Please enter a new password',
+    },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'core-modal': require('kolibri.coreVue.components.coreModal'),
     },
-    props: [
-      'userid', 'username', 'fullname', 'roles', // TODO - validation
-    ],
+    props: {
+      userid: {
+        type: String, // string is type returned from server
+        required: true,
+      },
+      fullname: {
+        type: String,
+        required: true,
+      },
+      username: {
+        type: String,
+        required: true,
+      },
+      userkind: {
+        type: String,
+        required: true,
+      },
+    },
     data() {
       return {
         username_new: this.username,
         password_new: '',
         password_new_confirm: '',
         fullName_new: this.fullname,
-        role_new: this.roles.length ? this.roles[0].kind : 'learner',
+        kind_new: this.userkind,
         usr_delete: false,
         pw_reset: false,
         error_message: '',
-        confirmation_message: '',
       };
     },
-    attached() {
-      // clear form on load
-      this.clear();
+    computed: {
+      LEARNER: () => UserKinds.LEARNER,
+      COACH: () => UserKinds.COACH,
+      ADMIN: () => UserKinds.ADMIN,
+      submitText() {
+        if (this.pw_reset) {
+          return this.$tr('save');
+        } else if (this.usr_delete) {
+          return this.$tr('yes');
+        }
+        return this.$tr('confirm');
+      },
+      cancelText() {
+        if (this.pw_reset) {
+          return this.$tr('back');
+        } else if (this.usr_delete) {
+          return this.$tr('no');
+        }
+        return this.$tr('cancel');
+      },
     },
     methods: {
+      cancelClick() {
+        if (this.pw_reset || this.usr_delete) {
+          this.clear();
+        } else {
+          this.emitCloseSignal();
+        }
+      },
       clear() {
-        this.$data = this.$options.data();
+        this.usr_delete = this.pw_reset = false;
+        this.username_new = this.username;
+        this.fullName_new = this.fullname;
+        this.kind = this.userkind;
       },
       submit() {
         // mirrors logic of how the 'confirm' buttons are displayed
@@ -161,17 +206,18 @@
       },
       editUserHandler() {
         const payload = {
+          id: this.userid,
           username: this.username_new,
           full_name: this.fullName_new,
-          facility: this.facility,
+          kind: this.kind_new,
         };
-        this.updateUser(this.userid, payload, this.role_new);
+        this.updateUser(payload);
         // if logged in admin updates role to learner, redirect to learn page
         // Do SUPERUSER check, as it is theoretically possible for a DeviceAdmin
         // to have the same id as a regular user, as they are different models.
         if ((this.session_user_kind !== UserKinds.SUPERUSER) &&
           (Number(this.userid) === this.session_user_id)) {
-          if (this.role_new === UserKinds.LEARNER.toLowerCase()) {
+          if (this.kind_new === UserKinds.LEARNER) {
             window.location.href = window.location.origin;
           }
         }
@@ -181,7 +227,7 @@
       deleteUserHandler() {
         // if logged in admin deleted their own account, log them out
         if (Number(this.userid) === this.session_user_id) {
-          this.logout(this.Kolibri);
+          this.logout();
         }
         this.deleteUser(this.userid);
         this.emitCloseSignal();
@@ -190,27 +236,17 @@
         // checks to make sure there's a new password
         if (this.password_new) {
           this.clearErrorMessage();
-          this.clearConfirmationMessage();
-
-          // make sure passwords match
           if (this.password_new === this.password_new_confirm) {
-            const payload = {
-              username: this.username_new,
-              full_name: this.fullName_new,
-              facility: this.facility,
-              password: this.password_new,
-            };
-            this.updateUser(this.userid, payload, this.role_new);
-            this.confirmation_message = 'Password change successful.';
-
-          // passwords don't match
+            // make sure passwords match
+            this.updateUser({ id: this.userid, password: this.password_new });
+            this.emitCloseSignal();
           } else {
-            this.error_message = 'Passwords must match.';
+            // passwords don't match
+            this.error_message = this.$tr('pwMismatch');
           }
-
-        // if user didn't populate the password fields
         } else {
-          this.error_message = 'Please enter a new password.';
+          // if user didn't populate the password fields
+          this.error_message = this.$tr('noNewPw');
         }
       },
       emitCloseSignal() {
@@ -218,9 +254,6 @@
       },
       clearErrorMessage() {
         this.error_message = '';
-      },
-      clearConfirmationMessage() {
-        this.confirmation_message = '';
       },
     },
     vuex: {
@@ -307,7 +340,5 @@
 
   .error
     color: red
-  .confirm
-    color: green
 
 </style>

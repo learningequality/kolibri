@@ -2,7 +2,7 @@
 
   <div>
 
-    <component v-if="pageState.wizardState.shown" :is="wizardComponent"></component>
+    <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
     <div v-if="pageState.taskList.length" class="main alert-bg">
       <task-status
@@ -10,32 +10,31 @@
         :status="pageState.taskList[0].status"
         :percentage="pageState.taskList[0].percentage"
         :id="pageState.taskList[0].id"
-      ></task-status>
+      />
     </div>
 
     <div class="main light-bg">
       <div class="table-title">
-        <h1 class="page-title">My Channels</h1>
+        <h1 class="page-title">{{$tr('title')}}</h1>
         <div class="button-wrapper" v-if="!pageState.taskList.length">
           <icon-button
-            text="Import"
+            :text="$tr('import')"
             class="button"
             @click="startImportWizard"
-            :primary="true"
-          >
-            <svg src="../icons/add.svg"></svg>
+            :primary="true">
+            <mat-svg category="content" name="add"/>
           </icon-button>
           <icon-button
-            text="Export"
+            :text="$tr('export')"
             class="button"
             :primary="true"
             @click="startExportWizard">
-            <svg src="../icons/export.svg"></svg>
+            <ion-svg name="ios-upload-outline"/>
           </icon-button>
         </div>
       </div>
       <hr>
-      <p class="core-text-alert" v-if="!channelList.length">No channels installed</p>
+      <p class="core-text-alert" v-if="!channelList.length">{{$tr('noChannels')}}</p>
       <table>
       <!-- Table Headers -->
 <!--         <thead>
@@ -72,6 +71,13 @@
   const ContentWizardPages = require('../../state/constants').ContentWizardPages;
 
   module.exports = {
+    $trNameSpace: 'manage-content-state',
+    $trs: {
+      title: 'My Channels',
+      import: 'Import',
+      export: 'Export',
+      noChannels: 'No channels installed',
+    },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'task-status': require('./task-status'),
@@ -83,10 +89,10 @@
     data: () => ({
       intervalId: undefined,
     }),
-    attached() {
+    mounted() {
       this.intervalId = setInterval(this.pollTasksAndChannels, 1000);
     },
-    detached() {
+    destroyed() {
       clearInterval(this.intervalId);
     },
     computed: {

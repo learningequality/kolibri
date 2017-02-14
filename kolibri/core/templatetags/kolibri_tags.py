@@ -14,6 +14,7 @@ from django.utils.html import mark_safe
 from kolibri.core.hooks import NavigationHook, UserNavigationHook
 from rest_framework.renderers import JSONRenderer
 from rest_framework.test import APIClient
+from six import iteritems
 
 register = template.Library()
 
@@ -56,7 +57,9 @@ def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
     html = ("<script type='text/javascript'>"
             "var model = {0}.resources.{1}.createModel(JSON.parse({2}));"
             "model.synced = true;"
-            "</script>".format(settings.KOLIBRI_CORE_JS_NAME, api_resource, JSONRenderer().render(response.content)))
+            "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
+                               api_resource,
+                               JSONRenderer().render(response.content.decode('utf-8')).decode('utf-8')))
     return mark_safe(html)
 
 @register.simple_tag(takes_context=True)
@@ -69,11 +72,14 @@ def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
     html = ("<script type='text/javascript'>"
             "var collection = {0}.resources.{1}.createCollection({2}, JSON.parse({3}));"
             "collection.synced = true;"
-            "</script>".format(settings.KOLIBRI_CORE_JS_NAME, api_resource, json.dumps(kwargs), JSONRenderer().render(response.content)))
+            "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
+                               api_resource,
+                               json.dumps(kwargs),
+                               JSONRenderer().render(response.content.decode('utf-8')).decode('utf-8')))
     return mark_safe(html)
 
 def _replace_dict_values(check, replace, dict):
-    for (key, value) in dict.iteritems():
+    for (key, value) in iteritems(dict):
         if dict[key] is check:
             dict[key] = replace
 
@@ -85,7 +91,7 @@ def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs)
     reversal = dict()
     kwargs_check = 'kwargs_'
     # remove prepended string and matching items from kwargs
-    for key in kwargs.keys():
+    for key in list(kwargs.keys()):
         if kwargs_check in key:
             item = kwargs.pop(key)
             key = re.sub(kwargs_check, '', key)

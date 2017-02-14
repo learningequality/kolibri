@@ -2,7 +2,7 @@
 
   <div>
 
-    <page-header :title="content.title"></page-header>
+    <page-header :title="content.title"/>
 
     <content-renderer
       v-show="!searchOpen"
@@ -10,26 +10,43 @@
       :id="content.id"
       :kind="content.kind"
       :files="content.files"
-      :content-id="content.content_id"
-      :channel-id="channelId"
+      :contentId="content.content_id"
+      :channelId="channelId"
       :available="content.available"
-      :extra-fields="content.extra_fields">
-    </content-renderer>
+      :extraFields="content.extra_fields"/>
 
-    <icon-button v-link="nextContentLink" v-if="progress >= 1 && showNextBtn" class="next-btn">
-    {{ $tr("nextContent") }}
-    <svg class="right-arrow" src="../icons/arrow_right.svg"></svg></icon-button>
+    <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn">
+      {{ $tr('nextContent') }}
+      <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
+    </icon-button>
 
     <p class="page-description">{{ content.description }}</p>
 
-    <download-button v-if="canDownload" :files="content.files"></download-button>
+    <download-button v-if="canDownload" :files="content.files" class="download-button-left-align"/>
+
+    <div class="metadata">
+      <p>
+        <strong>{{ $tr('author') }}: </strong>
+        <span v-if="content.author">{{ content.author }}</span>
+        <span v-else>-</span>
+      </p>
+      <p>
+        <strong>{{ $tr('license') }}: </strong>
+        <span v-if="content.license">{{ content.license }}</span>
+        <span v-else>-</span>
+      </p>
+      <p>
+        <strong>{{ $tr('copyrightHolder') }}: </strong>
+        <span v-if="content.license_owner">{{ content.license_owner }}</span>
+        <span v-else>-</span>
+      </p>
+    </div>
 
     <expandable-content-grid
       class="recommendation-section"
       v-if="pageMode === Constants.PageModes.LEARN"
       :title="recommendedText"
-      :contents="recommended">
-    </expandable-content-grid>
+      :contents="recommended"/>
 
   </div>
 
@@ -48,6 +65,9 @@
     $trs: {
       recommended: 'Recommended',
       nextContent: 'Next Content',
+      author: 'Author',
+      license: 'License',
+      copyrightHolder: 'Copyright Holder',
     },
     computed: {
       Constants() {
@@ -79,18 +99,26 @@
         if (this.content.next_content.kind !== ContentNodeKinds.TOPIC) {
           return {
             name: this.pagename,
-            params: { id: this.content.next_content.id },
+            params: { channel_id: this.channelId, id: this.content.next_content.id },
           };
         }
         return {
           name: Constants.PageNames.EXPLORE_TOPIC,
-          params: { id: this.content.next_content.id },
+          params: { channel_id: this.channelId, id: this.content.next_content.id },
         };
       },
     },
     components: {
       'page-header': require('../page-header'),
       'expandable-content-grid': require('../expandable-content-grid'),
+      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
+      'download-button': require('kolibri.coreVue.components.downloadButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
+    },
+    methods: {
+      nextContentClicked() {
+        this.$router.push(this.nextContentLink);
+      },
     },
     vuex: {
       getters: {
@@ -151,6 +179,21 @@
 
   .right-arrow:hover
     fill: $core-bg-light
+
+  .metadata
+    display: inline-block
+
+  .metadata p
+    font-size: small
+
+  .page-description
+    margin-top: 1em
+    margin-bottom: 1em
+    line-height: 1.5em
+
+  .download-button-left-align
+    vertical-align: top
+    margin-right: 1.5em
 
 </style>
 

@@ -1,13 +1,16 @@
 <template>
 
-  <div v-el:container class="container" allowfullscreen>
+  <div ref="container" class="container" allowfullscreen>
     <icon-button
       class="btn"
       v-if="supportsPDFs"
-      :text="inFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      @click="togglefullscreen">
+      :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
+      @click="toggleFullScreen"
+      :primary="true">
+      <mat-svg v-if="isFullScreen" class="icon" category="navigation" name="fullscreen_exit"/>
+      <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
     </icon-button>
-    <div v-el:pdfcontainer class="pdfcontainer"></div>
+    <div ref="pdfcontainer" class="pdfcontainer"></div>
   </div>
 
 </template>
@@ -16,6 +19,7 @@
 <script>
 
   const PDFobject = require('pdfobject');
+  const ScreenFull = require('screenfull');
 
   module.exports = {
 
@@ -28,71 +32,28 @@
     data: () => ({
       supportsPDFs: PDFobject.supportsPDFs,
       timeout: null,
-      inFullscreen: false,
+      isFullScreen: false,
     }),
 
     methods: {
-      togglefullscreen() {
-        const container = this.$els.container;
-        if (!document.fullscreenElement
-          && !document.webkitFullscreenElement
-          && !document.mozFullScreenElement
-          && !document.msFullscreenElement) {
-          if (container.requestFullscreen) {
-            container.requestFullscreen();
-          } else if (container.webkitRequestFullscreen) {
-            container.webkitRequestFullscreen();
-          } else if (container.mozRequestFullScreen) {
-            container.mozRequestFullScreen();
-          } else if (container.msRequestFullscreen) {
-            container.msRequestFullscreen();
-          }
-          this.inFullscreen = true;
-        } else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen();
-          } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-          } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-          } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-          }
-          this.inFullscreen = false;
-        }
-      },
-      updateFullscreenState() {
-        if (!document.fullscreenElement
-          && !document.webkitFullscreenElement
-          && !document.mozFullScreenElement
-          && !document.msFullscreenElement) {
-          this.inFullscreen = false;
-        }
+      toggleFullScreen() {
+        ScreenFull.toggle(this.$refs.container);
+        this.isFullScreen = ScreenFull.isFullscreen;
       },
     },
-    ready() {
-      PDFobject.embed(this.defaultFile.storage_url, this.$els.pdfcontainer);
+    mounted() {
+      PDFobject.embed(this.defaultFile.storage_url, this.$refs.pdfcontainer);
       this.$emit('startTracking');
       const self = this;
       this.timeout = setTimeout(() => {
         self.$emit('progressUpdate', 1);
       }, 15000);
-
-      document.addEventListener('fullscreenchange', this.updateFullscreenState, false);
-      document.addEventListener('webkitfullscreenchange', this.updateFullscreenState, false);
-      document.addEventListener('mozfullscreenchange', this.updateFullscreenState, false);
-      document.addEventListener('MSFullscreenChange', this.updateFullscreenState, false);
     },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
       this.$emit('stopTracking');
-
-      document.removeEventListener('fullscreenchange', this.updateFullscreenState, false);
-      document.removeEventListener('webkitfullscreenchange', this.updateFullscreenState, false);
-      document.removeEventListener('mozfullscreenchange', this.updateFullscreenState, false);
-      document.removeEventListener('MSFullscreenChange', this.updateFullscreenState, false);
     },
     $trNameSpace: 'pdfRenderer',
     $trs: {
@@ -107,10 +68,12 @@
 <style lang="stylus" scoped>
 
   .btn
-    margin-bottom: 1em
+    position: absolute
+    left: 50%
+    transform: translateX(-50%)
 
   .container
-    text-align: center
+    position: relative
     height: 100vh
     max-height: calc(100vh - 24em)
     min-height: 400px
@@ -121,7 +84,6 @@
       max-height: inherit
 
   .pdfcontainer
-    /* Accounts for the button height. */
-    height: calc(100% - 4em)
+    height: 100%
 
 </style>

@@ -3,9 +3,8 @@
   <div>
     <div v-if="available" class="fill-height">
       <div class="content-wrapper">
-        {{ progressPercent }}%
-        <loading-spinner v-if="!currentViewClass"></loading-spinner>
-        <div v-el:container></div>
+        <loading-spinner v-if="!currentViewClass"/>
+        <div ref="container"></div>
       </div>
     </div>
     <div v-else>
@@ -56,6 +55,9 @@
         default: '{}',
       },
     },
+    components: {
+      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
+    },
     computed: {
       contentType() {
         if (typeof this.kind !== 'undefined' & typeof this.extension !== 'undefined') {
@@ -78,11 +80,8 @@
         return this.availableFiles &&
           this.availableFiles.length ? this.availableFiles[0] : undefined;
       },
-      progressPercent() {
-        return Math.floor(this.progress * 100);
-      },
     },
-    init() {
+    beforeCreate() {
       this._eventListeners = [];
     },
     created() {
@@ -90,7 +89,7 @@
       // This means this component has to be torn down on channel switches.
       this.$watch('files', this.findRendererComponent);
     },
-    ready() {
+    mounted() {
       this.ready = true;
       this.renderContent();
     },
@@ -133,12 +132,12 @@
           logging.debug(`Looking for content renderer for ${this.contentType}`);
         }
       },
-    /**
-     * Method that is invoked by a callback from an event listener. Accepts a Vue component
-     * options object as an argument. This is then set as the current renderer for the node,
-     * and is used later in rendering.
-     * @param {Object} component - an options object for a Vue component.
-     */
+      /**
+       * Method that is invoked by a callback from an event listener. Accepts a Vue component
+       * options object as an argument. This is then set as the current renderer for the node,
+       * and is used later in rendering.
+       * @param {Object} component - an options object for a Vue component.
+       */
       setRendererComponent(component) {
         // Keep track of the current renderer.
         this.currentViewClass = component;
@@ -164,7 +163,8 @@
             // Only use non-enumerable, non-inherited properties of the props object.
             (name) => enumerables.indexOf(name) > -1
           );
-          for (const key of properties) {
+          for (let i = 0; i < properties.length; i++) {
+            const key = properties[i];
             // Loop through all the properties, see if one of them is extraFields.
             if (key !== 'extraFields') {
               // If it isn't just put it directly into the data.
@@ -178,10 +178,11 @@
           propsData.defaultFile = this.defaultFile;
           // Create an options object for the soon to be instantiated renderer component.
           const options = {
+            name: 'content-renderer-child',
             // Set the parent so that it is in the Vue family.
             parent: this,
             // Let it mount on the DOM in the container div set up in the template.
-            el: this.$els.container,
+            el: this.$refs.container,
             // Pass in the propsData!
             propsData,
           };
@@ -190,29 +191,24 @@
           Object.assign(options, this.currentViewClass);
 
           // guarantee summarylog, sessionlog, and existing masterylog are synced and in store.
-          this.initSession(this.Kolibri, this.channelId, this.contentId, this.kind).then(() => {
+          return this.initSession(this.channelId, this.contentId, this.kind).then(() => {
             // Instantiate the Vue instance directly using the Kolibri Vue constructor.
             this.contentView = new this.Kolibri.lib.vue(options); // eslint-disable-line new-cap
 
             this.contentView.$on('startTracking', this.wrappedStartTracking);
-            this.contentView.$on('stopTracking', this.wrappedStopTracking);
-            this.contentView.$on('progressUpdate', this.wrappedUpdateProgress);
+            this.contentView.$on('stopTracking', this.stopTracking);
+            this.contentView.$on('progressUpdate', this.updateProgress);
           }, (reason) => {
             logging.error('initContentSession failed: ', reason);
           });
         }
+        return null;
       },
       wrappedStartTracking() {
         // Assume that as soon as we have started tracking data for this content item,
         // our ContentNode cache is no longer valid.
         this.Kolibri.resources.ContentNodeResource.unCacheModel(this.id);
-        this.startTracking(this.Kolibri);
-      },
-      wrappedStopTracking() {
-        this.stopTracking(this.Kolibri);
-      },
-      wrappedUpdateProgress(progress) {
-        this.updateProgress(this.Kolibri, progress);
+        this.startTracking();
       },
     },
     vuex: {
@@ -221,9 +217,6 @@
         updateProgress: actions.updateProgress,
         startTracking: actions.startTrackingProgress,
         stopTracking: actions.stopTrackingProgress,
-      },
-      getters: {
-        progress: (state) => state.core.logging.summary.progress,
       },
     },
   };

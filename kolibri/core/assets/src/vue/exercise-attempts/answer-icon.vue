@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <svg v-if="isRight && !isHint" src="./icons/right.svg" class="yes" :class="{ yay: success }"></svg>
-    <svg v-if="!isRight && !isHint" src="./icons/wrong.svg" class="no" :class="{ yay: success }"></svg>
-    <svg v-if="isHint" src="./icons/hint.svg" class="no" :class="{ yay: success }"></svg>
+    <mat-svg v-if="answer === 'right'" category="navigation" name="check" class="yes" :class="{ yay: success }"/>
+    <mat-svg v-else-if="answer === 'wrong'" category="navigation" name="close" class="no"  :class="{ yay: success }"/>
+    <mat-svg v-else-if="answer === 'hint'"  category="action" name="lightbulb_outline"  class="no"  :class="{ yay: success }"/>
   </div>
 
 </template>
@@ -13,22 +13,17 @@
 
   module.exports = {
     props: {
-      // answer is an object look like { correct: 1, hinted: 0 }
       answer: {
-        type: Object,
+        type: String,
+        required: true,
+        validator(val) {
+          return ['right', 'wrong', 'hint'].includes(val);
+        },
       },
       // Visually indicate that the user has succeeded
       success: {
         type: Boolean,
         required: true,
-      },
-    },
-    computed: {
-      isRight() {
-        return this.answer.correct;
-      },
-      isHint() {
-        return this.answer.hinted;
       },
     },
   };
