@@ -20,6 +20,16 @@ const mutations = {
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
+  // Profile Page Mutations
+  SET_PROFILE_BUSY(state, isBusy) {
+    state.pageState.busy = isBusy;
+  },
+  SET_PROFILE_EROR(state, isError) {
+    state.pageState.error = isError;
+  },
+  SET_PROFILE_STATUS_MESSAGE(state, message) {
+    state.pageState.status = message;
+  },
 };
 
 

@@ -20,12 +20,14 @@ const PageNames = constants.PageNames;
  * These methods are used to update client-side state
  */
 
-function editProfile(store, username, fullname, facility, profileEdits) {
+function editProfile(store, profileEdits, session) {
   // payload needs username, fullname, and facility
   const userID = profileEdits.id;
   const savedUserModel = FacilityUserResource.getModel(userID);
   const savedUser = savedUserModel.attributes;
   const changedValues = {};
+
+  // TODO set up core session updates
 
   // explicit checks for the only values that can be changed
   if (profileEdits.full_name && profileEdits.full_name !== savedUser.full_name) {
@@ -42,7 +44,17 @@ function editProfile(store, username, fullname, facility, profileEdits) {
   }
 
   // update user object with new values
-  savedUserModel.save(changedValues);
+  store.dispatch('SET_PROFILE_BUSY', true);
+
+  savedUserModel.save(changedValues).then(userWithAttrs => {
+    // dispatch changes to store
+    store.dispatch('SET_PROFILE_STATUS', 'Successful');
+    store.dispatch('SET_PROFILE_BUSY', false);
+  }, error => {
+    store.dispatch('SET_PROFILE_EROR', true);
+    // error.message doesn't exist. TODO
+    store.dispatch('SET_PROFILE_STATUS', error.message);
+  });
 }
 function showSignIn(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.SIGN_IN);
@@ -59,8 +71,13 @@ function showSignUp(store) {
   store.dispatch('CORE_SET_TITLE', 'User Sign Up');
 }
 function showProfile(store) {
+  const pageState = {
+    busy: false,
+    statusMessage: '',
+    error: false,
+  };
   store.dispatch('SET_PAGE_NAME', PageNames.PROFILE);
-  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('SET_PAGE_STATE', pageState);
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', 'User Profile');

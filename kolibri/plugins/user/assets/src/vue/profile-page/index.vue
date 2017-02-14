@@ -46,6 +46,9 @@
       getters: {
         privileges: state => state.core.learnerPrivileges,
       },
+      actions: {
+        editProfile: state => state.core.learnerPrivileges,
+      },
     },
   };
 
