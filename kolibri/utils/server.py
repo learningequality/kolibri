@@ -7,8 +7,6 @@ import cherrypy
 from django.conf import settings
 from django.core.management import call_command
 from kolibri.content.utils import paths
-from kolibri.content.utils.annotation import update_channel_metadata_cache
-from kolibri.deployment.default.wsgi import application
 
 
 def start_background_workers():
@@ -35,6 +33,7 @@ def start():
     if platform.system() != "Windows":
         start_background_workers()
 
+    from kolibri.content.utils.annotation import update_channel_metadata_cache
     update_channel_metadata_cache()
 
     run_server()
@@ -42,6 +41,7 @@ def start():
 def run_server():
 
     # Mount the application
+    from kolibri.deployment.default.wsgi import application
     cherrypy.tree.graft(application, "/")
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
