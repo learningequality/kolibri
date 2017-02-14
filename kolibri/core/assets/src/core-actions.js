@@ -185,7 +185,7 @@ function kolibriLogin(store, sessionPayload) {
       const manageURL = coreApp.urls['kolibri:managementplugin:management']();
       window.location.href = window.location.origin + manageURL;
     } else {
-      location.reload(true);
+      window.location.href = window.location.origin;
     }
   }).catch(error => {
     if (error.status.code === 401) {
