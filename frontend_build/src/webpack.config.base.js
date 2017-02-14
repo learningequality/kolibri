@@ -70,10 +70,7 @@ var vueSassLoaders = [
   'vue-style-loader', // includes postcss processing
   {
     loader: 'css-loader',
-    options: {
-      minimize: production,
-      sourceMap: !production,
-    }
+    options: { minimize: production, sourceMap: !production }
   },
   {
     loader: 'sass-loader',
@@ -90,14 +87,14 @@ var config = {
         test: /\.vue$/,
         loader: 'vue-loader',
         options: {
+          preLoaders: {
+            // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
+            html: 'svg-icon-inline-loader',
+          },
           loaders: {
             js: 'buble-loader',
             stylus: combineLoaders(vueStylusLoaders),
             scss: combineLoaders(vueSassLoaders),
-          },
-          preLoaders: {
-            // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
-            html: 'svg-icon-inline-loader',
           }
         }
       },
@@ -109,36 +106,36 @@ var config = {
       {
         test: /\.css$/,
         use: [
-          'style-loader',
+          { loader: 'style-loader' },
           {
             loader: 'css-loader',
             options: { minimize: production, sourceMap: !production }
           },
-          'postcss-loader'
+          { loader: 'postcss-loader }'
         ]
       },
       {
         test: /\.styl$/,
         use: [
-          'style-loader',
+          { loader: 'style-loader' },
           {
             loader: 'css-loader',
             options: { minimize: production, sourceMap: !production }
           },
           postCSSLoader,
-          'stylus-loader',
+          { loader: 'stylus-loader' },
         ]
       },
       {
         test: /\.s[a|c]ss$/,
         use: [
-          'style-loader',
+          { loader: 'style-loader' },
           {
             loader: 'css-loader',
             options: { minimize: production, sourceMap: !production }
           },
           postCSSLoader,
-          'sass-loader',
+          { loader: 'sass-loader' },
         ]
       },
       {
