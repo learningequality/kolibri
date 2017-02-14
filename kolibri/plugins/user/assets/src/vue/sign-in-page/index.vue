@@ -2,7 +2,7 @@
 
   <div>
     <img class="logo" alt="logo">
-    <h1>{{ $tr('signInInstantSchools') }}</h1>
+    <h1>{{ $tr('signIn') }}</h1>
 
     <form ref="form" @submit.prevent="signIn">
       <label for="username">{{ $tr('username') }}</label>
@@ -52,12 +52,11 @@
   module.exports = {
     $trNameSpace: 'signInPage',
     $trs: {
-      signInInstantSchools: 'Sign In to Instant Schools',
+      signIn: 'Sign In',
       username: 'Username',
       enterUsername: 'Enter Username',
       password: 'Password',
       enterPassword: 'Enter Password',
-      signIn: 'Sign In',
       noAccount: `Don't have an account?`,
       createAccount: 'Create Account',
       accessAsGuest: 'Access as Guest',
