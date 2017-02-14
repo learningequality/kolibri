@@ -111,7 +111,7 @@ var config = {
             loader: 'css-loader',
             options: { minimize: production, sourceMap: !production }
           },
-          { loader: 'postcss-loader }'
+          postCSSLoader,
         ]
       },
       {
