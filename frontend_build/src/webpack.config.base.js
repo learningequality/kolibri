@@ -58,18 +58,18 @@ var cssLoader = {
 
 // for stylus blocks in vue files
 var vueStylusLoaders = [
-  { loader: 'vue-style-loader' }, // includes postcss processing
+  'vue-style-loader', // includes postcss processing
   cssLoader,
-  { loader: 'stylus-loader' }
+  'stylus-loader'
 ];
 
 if (lint) {
-  vueStylusLoaders.push({ loader: 'stylint-loader' })
+  vueStylusLoaders.push('stylint-loader')
 }
 
 // for scss blocks in vue files (e.g. Keen-UI files)
 var vueSassLoaders = [
-  { loader: 'vue-style-loader' }, // includes postcss processing
+  'vue-style-loader', // includes postcss processing
   cssLoader,
   {
     loader: 'sass-loader',
@@ -105,7 +105,7 @@ var config = {
       {
         test: /\.css$/,
         use: [
-          { loader: 'style-loader' },
+          'style-loader',
           cssLoader,
           postCSSLoader,
         ]
@@ -113,19 +113,19 @@ var config = {
       {
         test: /\.styl$/,
         use: [
-          { loader: 'style-loader' },
+          'style-loader',
           cssLoader,
           postCSSLoader,
-          { loader: 'stylus-loader' },
+          'stylus-loader',
         ]
       },
       {
         test: /\.s[a|c]ss$/,
         use: [
-          { loader: 'style-loader' },
+          'style-loader',
           cssLoader,
           postCSSLoader,
-          { loader: 'sass-loader' },
+          'sass-loader',
         ]
       },
       {
