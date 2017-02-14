@@ -24,8 +24,8 @@ clean-build:
 	rm -fr *.egg-info
 	rm -fr .eggs
 	rm -fr .cache
-	rm -r kolibri/dist/exercise_perseus_renderer || true
-	git clean -X -d -f kolibri/dist
+	rm -r kolibri/dist/* || true # remove everything
+	git checkout -- kolibri/dist # restore __init__.py
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -112,3 +112,21 @@ dockerenvbuild: writeversion
 
 dockerenvdist: writeversion
 	docker run -v $$PWD/dist:/kolibridist learningequality/kolibri:$$(cat kolibri/VERSION)
+  
+BUMPVERSION_CMD = bumpversion --current-version `python -m kolibri --version` $(PART_INCREMENT) --allow-dirty -m "new version" --no-commit --list
+
+minor_increment:
+	$(eval PART_INCREMENT = minor)
+	$(BUMPVERSION_CMD)
+
+patch_increment:
+	$(eval PART_INCREMENT = patch)
+	$(BUMPVERSION_CMD)
+
+release_phase_increment:
+	$(eval PART_INCREMENT = release_phase)
+	$(BUMPVERSION_CMD)
+
+release_number_increment:
+	$(eval PART_INCREMENT = release_number)
+	$(BUMPVERSION_CMD)
