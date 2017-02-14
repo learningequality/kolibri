@@ -1,4 +1,5 @@
 <template>
+  <div v-show="navShown">
     <div
       class='nav-wrapper'
       v-bind:style="{minHeight: (menuOptions.length - 1)*50 + 173 + 'px'}">
@@ -15,8 +16,19 @@
         role="navigation"
         :aria-label="ariaLabel">
       </ui-menu>
+      <div class='footer'>
+        <img class='logo' src="../login-modal/icons/kolibri-logo.svg" alt="">
+        <div class='message-container'>
+          <p class='message'>{{ footerMsg }}</p>
+          <p class='message'><ui-icon icon='copyright'/> 2017 Learning Equality</p>
+        </div>
+      </div>
       <!-- log-in modal -->
       <login-modal v-if="loginModalVisible"/>
+    </div>
+    <div v-if="mobile" class="modal-overlay"
+      @keydown.esc="toggleNav"
+      @click="toggleNav">
     </div>
 </template>
 
@@ -42,6 +54,8 @@
       logOut: 'Log out',
       settings: 'Settings',
       about: 'About',
+      closeNav: 'Close navigation',
+      poweredBy: 'Powered by Kolibri {version}',
     },
     props: {
       topLevelPageName: {
@@ -55,9 +69,29 @@
       },
     },
     data: () => ({
-      version: __version, // eslint-disable-line no-undef
+      shown: true,
     }),
+    methods: {
+      navigate(option) {
+        window.location.href = option.href;
+      },
+      toggleNav() {
+        this.shown = !this.shown;
+      },
+    },
     computed: {
+      navShown() {
+        return this.shown || !this.mobile;
+      },
+      mobile() {
+        return true;
+      },
+      footerMsg() {
+        return this.$tr('poweredBy', { version: __version }); // eslint-disable-line no-undef
+      },
+      closeNav() {
+        return this.$tr('closeNav');
+      },
       ariaLabel() {
         return this.$tr('navigationLabel');
       },
