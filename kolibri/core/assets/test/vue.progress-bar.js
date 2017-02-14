@@ -11,7 +11,7 @@ const ProgressBarComponent = Vue.extend(progressBar);
 const assert = require('assert');
 
 describe('progressBar Component', function () {
-  describe('computed properties', function () {
+  describe('computed property', function () {
     describe('percent', function () {
       beforeEach(function () {
         this.vm = new ProgressBarComponent({
