@@ -75,7 +75,6 @@ dist: writeversion staticdeps assets compilemessages
 	python setup.py sdist --format=gztar,zip --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static
 	ls -l dist
-	- $(MAKE) pex
 
 pex:
 	pex dist/`python setup.py --fullname`*.whl --disable-cache -o dist/`python setup.py --fullname`.pex -m kolibri --python-shebang=/usr/bin/python
