@@ -5,4 +5,4 @@ steps:
   - wait
 
   - label: Build the python packages
-    command: mkdir -p dist && make buildkitebuild
+    command: mkdir -p dist && .buildkite/build_whl.sh

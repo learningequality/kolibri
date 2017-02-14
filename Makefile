@@ -75,9 +75,10 @@ dist: writeversion staticdeps assets compilemessages
 	python setup.py sdist --format=gztar,zip --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static
 	ls -l dist
+	- $(MAKE) pex
 
 pex:
-	pex . --disable-cache -o dist/`python setup.py --fullname`.pex -m kolibri --python-shebang=/usr/bin/python
+	pex dist/`python setup.py --fullname`*.whl --disable-cache -o dist/`python setup.py --fullname`.pex -m kolibri --python-shebang=/usr/bin/python
 
 makedocsmessages:
 	make -C docs/ gettext
@@ -112,6 +113,3 @@ dockerenvbuild: writeversion
 
 dockerenvdist: writeversion
 	docker run -v $$PWD/dist:/kolibridist learningequality/kolibri:$$(cat kolibri/VERSION)
-
-buildkitebuild: dockerenvdist
-	buildkite-agent artifact upload 'dist/*.whl'
