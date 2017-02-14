@@ -12,41 +12,48 @@ const PageNames = require('./state/constants').PageNames;
 
 class UserModule extends KolibriModule {
   ready() {
-    const routes = [
-      {
-        name: PageNames.SIGN_IN,
-        path: '/signin',
-        handler: (toRoute, fromRoute) => {
-          actions.showSignIn(store);
+    coreActions.getCurrentSession(store).then(() => {
+      const routes = [
+        {
+          name: PageNames.ROOT,
+          path: '/',
+          handler: (toRoute, fromRoute) => {
+            actions.showRoot(store);
+          },
         },
-      },
-      {
-        name: PageNames.SIGN_UP,
-        path: '/signup',
-        handler: (toRoute, fromRoute) => {
-          actions.showSignUp(store);
+        {
+          name: PageNames.SIGN_IN,
+          path: '/signin',
+          handler: (toRoute, fromRoute) => {
+            actions.showSignIn(store);
+          },
         },
-      },
-      {
-        name: PageNames.PROFILE,
-        path: '/profile',
-        handler: (toRoute, fromRoute) => {
-          actions.showProfile(store);
+        {
+          name: PageNames.SIGN_UP,
+          path: '/signup',
+          handler: (toRoute, fromRoute) => {
+            actions.showSignUp(store);
+          },
         },
-      },
-      {
-        path: '/',
-        redirect: '/signin',
-      },
-    ];
+        {
+          name: PageNames.PROFILE,
+          path: '/profile',
+          handler: (toRoute, fromRoute) => {
+            actions.showProfile(store);
+          },
+        },
+        {
+          path: '*',
+          redirect: '/',
+        },
+      ];
 
-    this.rootvue = new Vue({
-      el: 'rootvue',
-      render: createElement => createElement(RootVue),
-      router: router.init(routes),
+      this.rootvue = new Vue({
+        el: 'rootvue',
+        render: createElement => createElement(RootVue),
+        router: router.init(routes),
+      });
     });
-
-    coreActions.getCurrentSession(store);
   }
 }
 

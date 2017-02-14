@@ -216,7 +216,7 @@ function getCurrentSession(store) {
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
   const sessionPromise = sessionModel.fetch({});
-  sessionPromise.then((session) => {
+  return sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
   }).catch(error => { handleApiError(store, error); });
 }
