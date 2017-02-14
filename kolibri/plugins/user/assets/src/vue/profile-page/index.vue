@@ -1,27 +1,33 @@
 <template>
 
   <div class="profile-page">
-    <div v-if="hasPrivilege('username')" class="input-field">
-      <label>Username</label>
-      <input autocomplete="username" id="username" type="text"/>
-    </div>
-    <div v-if="hasPrivilege('name')" class="input-field">
-      <label>Name</label>
-      <input autocomplete="name" id="name" type="text"/>
-    </div>
-    <div v-if="hasPrivilege('password')"  class="input-field">
-      <label>Password</label>
-      <input autocomplete="new-password" id="password" type="password"/>
-    </div>
-    <div v-if="hasPrivilege('password')"  class="input-field">
-      <label>Confirm Password</label>
-      <input autocomplete="new-password" id="confirm-password" type="password"/>
-    </div>
-    <div v-if="hasPrivilege('delete')"  class="input-field">
-      <span class="advanced-option">Delete Account</span>
-    </div>
-    <div class="input-field">
-      <button>Update Profile</button>
+    <section v-if="session.id">
+      <div v-if="hasPrivilege('username')" class="input-field">
+        <label>Username</label>
+        <input autocomplete="username" id="username" type="text"/>
+      </div>
+      <div v-if="hasPrivilege('name')" class="input-field">
+        <label>Name</label>
+        <input autocomplete="name" id="name" type="text"/>
+      </div>
+      <div v-if="hasPrivilege('password')"  class="input-field">
+        <label>Password</label>
+        <input autocomplete="new-password" id="password" type="password"/>
+      </div>
+      <div v-if="hasPrivilege('password')"  class="input-field">
+        <label>Confirm Password</label>
+        <input autocomplete="new-password" id="confirm-password" type="password"/>
+      </div>
+      <div v-if="hasPrivilege('delete')"  class="input-field">
+        <span class="advanced-option">Delete Account</span>
+      </div>
+      <div class="input-field">
+        <button>Update Profile</button>
+      </div>
+    </section>
+
+    <div v-else>
+      Please sign in to view this page
     </div>
   </div>
 
@@ -32,11 +38,14 @@
 
   module.exports = {
     name: 'profile-page',
-    data: () => ({
-      username: '',
-      name: '',
-      password: '',
-    }),
+    data() {
+      return {
+        username: this.session.username,
+        name: this.session.full_name,
+        password: '',
+        cofirm_password: '',
+      };
+    },
     methods: {
       hasPrivilege(privilege) {
         return this.privileges[privilege];
@@ -45,6 +54,7 @@
     vuex: {
       getters: {
         privileges: state => state.core.learnerPrivileges,
+        session: state => state.core.session,
       },
       actions: {
         editProfile: state => state.core.learnerPrivileges,
