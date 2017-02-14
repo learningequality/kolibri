@@ -27,6 +27,9 @@
         <div class="label">{{ $tr('signIn') }}</div>
       </nav-bar-item>
       <session-nav-widget/>
+      <div>
+        Kolibri Version: {{ version }}
+      </div>
     </nav>
 
     <!-- log-in modal -->
@@ -67,6 +70,9 @@
         },
       },
     },
+    data: () => ({
+      version: __version, // eslint-disable-line no-undef
+    }),
     computed: {
       ariaLabel() {
         return this.$tr('navigationLabel');
