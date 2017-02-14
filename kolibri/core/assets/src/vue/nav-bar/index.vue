@@ -161,35 +161,112 @@
   @require '~kolibri.styles.definitions'
   @require '~kolibri.styles.navBarItem'
 
+  $headerheight = 60px
+  $footerheight = 100px
+
   .nav-wrapper
-    display: table
-    table-layout: fixed
     background: $core-bg-light
     font-weight: 300
     position: fixed
-    z-index: auto
-    @media screen and (min-width: $portrait-breakpoint + 1)
-      font-size: 1em
-      height: 100%
-      width: $nav-width
-    @media screen and (max-width: $portrait-breakpoint)
-      font-size: 0.8em
-      bottom: 0
-      width: 100%
-      min-width: 300px
+    z-index: 100
+    font-size: 1em
+    height: 100vh
+    width: $nav-width
+    overflow: auto
+    -webkit-overflow-scrolling: touch
 
   .nav-main
     background: $core-bg-light
-    height: 100vh
-    @media screen and (max-width: $portrait-breakpoint)
-      display: table-row
-      height: 56px
+    max-width: $nav-width
 
   a.active:focus svg
     fill: $core-bg-light
 
-  .nav-icon
-    width: 40px
-    height: 40px
+  .header
+    overflow: auto
+    overflow-y: hidden
+    background-color: $core-text-default
+    height: $headerheight
+    .logo, .title, .close
+      float: left
+    .title, .close
+      color: $core-bg-light
+    .close
+      font-size: ($headerheight / 2)
+      top: 50%
+      transform: translateY(-50%)
+      position: relative
+      margin-right: ($nav-width/20)
+      margin-left: ($nav-width/20)
+      border: none
+    .title
+      font-size: ($headerheight / 3)
+      font-weight: bold
+    .logo
+      width: $headerheight
+      height: @width
+      margin-right: ($nav-width/20)
 
+  .footer
+    bottom: 0
+    position: absolute
+    overflow: auto
+    overflow-y: hidden
+    background-color: $core-text-default
+    height: $footerheight
+    width: $nav-width
+    .logo, .message-container
+      top: 50%
+      transform: translateY(-50%)
+      position: relative
+    .logo
+      float: left
+      width: ($footerheight/2)
+      height: @width
+      margin-right: ($nav-width/20)
+      margin-left: ($nav-width/20)
+    .message-container
+      .message
+        color: $core-bg-light
+        font-size: ($footerheight/10)
+
+  .modal-overlay
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    background: rgba(0, 0, 0, 0.7)
+    transition: opacity 0.3s ease
+    background-attachment: fixed
+    z-index: 10
+
+</style>
+
+<style lang="stylus">
+
+  @require '~kolibri.styles.coreTheme'
+
+  // Customize Keen UI Menu option
+  .nav-main
+    .ui-menu-option
+      margin: 5px 0px
+      &:not(.is-divider)
+        font-size: 1.2em
+        &.is-disabled
+          .ui-menu-option__icon
+            color: $core-action-normal
+            font-weight: bold
+          color: $core-action-normal
+          cursor: default
+          font-weight: bold
+          opacity: 1
+        .ui-menu-option__text
+          overflow: visible
+        .ui-menu-option__icon
+          font-size: 1.2em
+      &.is_divider
+        background-color: $core-text-annotation
+    &.ui-menu
+      border: none
 </style>
