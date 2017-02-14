@@ -9,7 +9,8 @@
 const constants = require('./state/constants');
 const PageNames = constants.PageNames;
 // const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
-
+const SignUpResource = require('kolibri').resources.SignUpResource;
+const coreActions = require('kolibri.coreVue.vuex.actions');
 
 // ================================
 // USER ACTIONS
@@ -42,17 +43,27 @@ function showProfile(store) {
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', 'User Profile');
 }
-function showScratchpad(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
-  store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'User Scratchpad');
+
+
+function signUp(store, signUpCreds) {
+  const signUpModel = SignUpResource.createModel(signUpCreds);
+  const signUpPromise = signUpModel.save(signUpCreds);
+  signUpPromise.then(() => {
+    store.dispatch('CORE_SET_SIGN_UP_ERROR', null);
+    // TODO: Better solution?
+    window.location = '/';
+  }).catch(error => {
+    if (error.status.code === 400) {
+      store.dispatch('CORE_SET_SIGN_UP_ERROR', 400);
+    } else {
+      coreActions.handleApiError(store, error);
+    }
+  });
 }
 
 module.exports = {
   showSignIn,
   showSignUp,
   showProfile,
-  showScratchpad,
+  signUp,
 };

@@ -14,4 +14,5 @@ module.exports = {
   ChannelResource: require('./channel'),
   MasteryLog: require('./masteryLog'),
   AttemptLog: require('./attemptLog'),
+  SignUpResource: require('./signUp'),
 };
