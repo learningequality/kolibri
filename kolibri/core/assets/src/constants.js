@@ -69,6 +69,9 @@ const TopLevelPageNames = {
   COACH: 'COACH',
   MANAGE: 'MANAGE',
   USER: 'USER',
+  ABOUT: 'ABOUT',
+  PROFILE: 'PROFILE',
+  SETTINGS: 'SETTINGS',
 };
 
 module.exports = {
