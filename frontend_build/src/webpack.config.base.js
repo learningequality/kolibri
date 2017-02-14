@@ -39,7 +39,6 @@ var lint = (process.env.LINT || production);
 var aliases = require('./apiSpecExportTools').coreAliases();
 aliases['kolibri_module'] = path.resolve('kolibri/core/assets/src/kolibri_module');
 aliases['content_renderer_module'] = path.resolve('kolibri/core/assets/src/content_renderer_module');
-aliases['keen_ui_variables'] = path.resolve('kolibri/core/assets/src/keen-config/variables.scss');
 
 
 // helps convert to older string syntax for vue-loader
@@ -78,7 +77,8 @@ var vueSassLoaders = [
   },
   {
     loader: 'sass-loader',
-    options: { data: '@import "~keen_ui_variables";' }
+    // prepends these variable override values to every parsed vue SASS block
+    options: { data: '@import "~kolibri.styles.keenVars";' }
   }
 ];
 
