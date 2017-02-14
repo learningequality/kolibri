@@ -92,3 +92,6 @@ Icon
 #ignore added files with DS_Store
 .DS_Store
 /crowdin.yaml
+
+# ignore the VERSION file we use to track the version for whl files
+VERSION

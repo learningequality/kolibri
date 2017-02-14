@@ -169,7 +169,7 @@ var config = {
   ],
   resolve: {
     alias: aliases,
-    extensions: [".js", ".vue"],
+    extensions: [".js", ".vue", ".styl"],
   },
   node: {
     __filename: true

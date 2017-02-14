@@ -17,6 +17,9 @@
 <script>
 
   module.exports = {
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+    },
     props: {
       contentKind: {
         type: String,
