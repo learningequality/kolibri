@@ -62,8 +62,6 @@ var parseBundlePlugin = function(data, base_dir) {
     local_config.coreAPISpec = path.resolve(path.join(data.plugin_path, local_config.coreAPISpec));
   }
 
-  bundle = merge.smart(bundle, local_config);
-
   // This might be non-standard use of the entry option? It seems to
   // interact with read_bundle_plugins.js
   bundle.entry = {}
@@ -77,11 +75,11 @@ var parseBundlePlugin = function(data, base_dir) {
   }
 
   // Add local resolution paths
-  bundle.resolve.root = [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')];
+  bundle.resolve.modules = [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')];
   // Add local and global resolution paths for loaders to allow any plugin to
   // access kolibri/node_modules loaders during bundling.
   bundle["resolveLoader"] = {
-    root: [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')]
+    modules: [path.join(data.plugin_path, 'node_modules'), base_dir, path.join(base_dir, 'node_modules')]
   };
 
   bundle.plugins = bundle.plugins.concat([
@@ -103,6 +101,8 @@ var parseBundlePlugin = function(data, base_dir) {
     }),
     new extract$trs(data.locale_data_folder, data.name)
   ]);
+
+  bundle = merge.smart(bundle, local_config);
 
   var publicPath, outputPath;
 
@@ -126,8 +126,6 @@ var parseBundlePlugin = function(data, base_dir) {
     publicPath: publicPath,
     library: library
   };
-
-  bundle.async_file = data.async_file;
 
   return [bundle, external];
 };

@@ -13,7 +13,7 @@
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <h2 class="core-text-alert" v-if="noDrives">
-            <svg class="error-svg" src="../icons/error.svg"/>
+            <mat-svg class="error-svg" category="alert" name="error_outline"/>
             {{$tr('noDrivesDetected')}}
           </h2>
           <template v-else>
@@ -53,7 +53,7 @@
             :text="$tr('refresh')"
             @click="updateWizardLocalDriveList"
             :disabled="wizardState.busy">
-            <svg src="../icons/refresh.svg"/>
+            <mat-svg category="navigation" name="refresh"/>
           </icon-button>
         </div>
       </template>

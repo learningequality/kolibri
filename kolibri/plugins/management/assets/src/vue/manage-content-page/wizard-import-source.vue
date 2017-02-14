@@ -7,10 +7,10 @@
     <div class="main">
       <div class="lg-button-wrapper">
         <icon-button class="large-icon-button" :text="$tr('internet')" :showTextBelowIcon="true" @click="showImportNetworkWizard">
-          <svg class="icon" src="./world.svg"/>
+          <mat-svg class="icon" category="action" name="language"/>
         </icon-button>
         <icon-button class="large-icon-button" :text="$tr('localDrives')" :showTextBelowIcon="true" @click="showImportLocalWizard">
-          <svg class="icon" src="./storage.svg"/>
+          <mat-svg class="icon" category="device" name="storage"/>
         </icon-button>
       </div>
       <icon-button
@@ -59,9 +59,9 @@
     margin-bottom: 4em 0
 
   .large-icon-button
-    width: 140px
+    width: 150px
     height: 120px
-    margin: 0.6em
+    margin: 3px
 
   .lg-button-wrapper
     margin: 4em 0

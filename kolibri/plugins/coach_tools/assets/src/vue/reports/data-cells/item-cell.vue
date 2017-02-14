@@ -111,9 +111,7 @@
   .icon
     position: absolute
     left: 0
-    top: 3px
-    width: 15px
-    height: 15px
     fill: $core-text-default
+    font-size: 1.25em
 
 </style>

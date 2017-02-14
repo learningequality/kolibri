@@ -3,27 +3,27 @@
   <div class="nav-wrapper">
     <nav class="nav-main" role="navigation" :aria-label="ariaLabel">
       <nav-bar-item href="/learn/#/learn" :active="learnActive">
-        <svg class="nav-icon" src="../icons/learn.svg"/>
+        <mat-svg class="nav-icon" category="action" name="home"/>
         <div class="label">{{ $tr('learn') }}</div>
       </nav-bar-item>
       <nav-bar-item href="/learn/#/explore" :active="exploreActive">
-        <svg class="nav-icon" src="../icons/explore.svg"/>
+        <mat-svg class="nav-icon" category="action" name="explore"/>
         <div class="label">{{ $tr('explore') }}</div>
       </nav-bar-item>
       <nav-bar-item v-if="isCoachAdminOrSuperuser" href="/coach" :active="coachActive">
-        <svg class="nav-icon" src="../icons/coach.svg"/>
+        <mat-svg class="nav-icon" category="action" name="assessment"/>
         <div class="label">{{ $tr('coach') }}</div>
       </nav-bar-item>
       <nav-bar-item v-if="loggedIn" href="/management" :active="profileActive">
-        <svg class="nav-icon" src="../icons/manage.svg"/>
+        <mat-svg class="nav-icon" category="social" name="people"/>
         <div class="label">{{ $tr('profile') }}</div>
       </nav-bar-item>
       <nav-bar-item v-if="loggedIn">
-        <svg class="nav-icon" src="../icons/manage.svg"/>
+        <mat-svg class="nav-icon" category="social" name="people"/>
         <div class="label">{{ $tr('logOut') }}</div>
       </nav-bar-item>
       <nav-bar-item v-else href="/signin">
-        <svg class="nav-icon" src="../icons/manage.svg"/>
+        <mat-svg class="nav-icon" category="social" name="people"/>
         <div class="label">{{ $tr('signIn') }}</div>
       </nav-bar-item>
       <session-nav-widget/>

@@ -1,12 +1,8 @@
 <template>
 
-  <router-link class="root" :to="link">
-    <div class="thumb-wrapper">
-      <slot/>
-    </div>
-    <div class="text">
-      <span class="title">{{ title }}</span>
-    </div>
+  <router-link class="list-item" :to="link">
+    <content-icon :kind="kind" class="topic-icon"/>
+    <h2>{{ title }}</h2>
   </router-link>
 
 </template>
@@ -24,6 +20,10 @@
         type: Object,
         required: true,
       },
+      kind: {
+        type: String,
+        required: true,
+      },
     },
   };
 
@@ -34,41 +34,25 @@
 
   @require '~kolibri.styles.coreTheme'
   @require '../../learn.styl'
-  @require 'jeet'
 
-  $min-height = 60px         // min card height
-
-  .root
-    position: relative
-    display: block
-    min-height: 60px
+  .list-item
     background-color: $core-bg-light
     border-radius: $radius
-    display: table
-    width: 100%
+    display: block
     text-decoration: none
+    padding-right: 0.5em
+    padding-left: 0.5em
+    padding-top: 0.5em
+    padding-bottom: 0.5em
 
-  .thumb-wrapper
-    position: absolute
-    left: 0.4em
-    width: $min-height
-    height: $min-height
-    border-radius: $radius 0 0 $radius
-
-  .text
-    position: relative
-    width: 100%
-    font-size: 0.9rem
-    font-weight: bold
+  h2
+    display: inline-block
+    font-size: 0.9em
     color: $core-text-default
-    display: table-row
 
-  .title
-    display: table-cell
-    width: 100%
-    height: $min-height
-    padding: 0.8em
-    padding-left: $min-height
-    vertical-align: middle
+  .topic-icon
+    font-size: 1.5em
+    padding-right: 0.25em
+    padding-left: 0.25em
 
 </style>

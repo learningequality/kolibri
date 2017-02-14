@@ -27,7 +27,7 @@
 <style lang="stylus">
 
   @require '../learn.styl'
-  @require 'jeet'
+  // @require 'jeet'
 
   // Disable styling to make this a more generic container
 
@@ -61,7 +61,7 @@
 
 <style lang="stylus" scoped>
 
-  @require 'jeet'
+  // @require 'jeet'
 
   .header
     margin-top: 2em
