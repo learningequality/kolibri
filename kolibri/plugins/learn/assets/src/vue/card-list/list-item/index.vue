@@ -25,6 +25,9 @@
         required: true,
       },
     },
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+    },
   };
 
 </script>
