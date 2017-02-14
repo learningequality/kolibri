@@ -39,7 +39,6 @@ var lint = (process.env.LINT || production);
 var aliases = require('./apiSpecExportTools').coreAliases();
 aliases['kolibri_module'] = path.resolve('kolibri/core/assets/src/kolibri_module');
 aliases['content_renderer_module'] = path.resolve('kolibri/core/assets/src/content_renderer_module');
-aliases['keen_ui_variables'] = path.resolve('kolibri/core/assets/src/keen-config/variables.scss');
 
 
 // helps convert to older string syntax for vue-loader
@@ -47,21 +46,17 @@ var combineLoaders = require('webpack-combine-loaders');
 
 var postCSSLoader = {
   loader: 'postcss-loader',
-  options: {
-    config: path.resolve(__dirname, '../../postcss.config.js')
-  }
+  options: { config: path.resolve(__dirname, '../../postcss.config.js') }
 };
 
-// for stylus blocks in vue files
-var vueStylusLoaders = [
-  'vue-style-loader', // includes postcss processing
-  {
-    loader: 'css-loader',
-    options: { minimize: production, sourceMap: !production }
-  },
-  'stylus-loader'
-];
+var cssLoader = {
+  loader: 'css-loader',
+  options: { minimize: production, sourceMap: !production }
+};
 
+// for stylus blocks in vue files.
+// note: vue-style-loader includes postcss processing
+var vueStylusLoaders = [ 'vue-style-loader',  cssLoader, 'stylus-loader' ];
 if (lint) {
   vueStylusLoaders.push('stylint-loader')
 }
@@ -69,16 +64,11 @@ if (lint) {
 // for scss blocks in vue files (e.g. Keen-UI files)
 var vueSassLoaders = [
   'vue-style-loader', // includes postcss processing
-  {
-    loader: 'css-loader',
-    options: {
-      minimize: production,
-      sourceMap: !production,
-    }
-  },
+  cssLoader,
   {
     loader: 'sass-loader',
-    options: { data: '@import "~keen_ui_variables";' }
+    // prepends these variable override values to every parsed vue SASS block
+    options: { data: '@import "~kolibri.styles.keenVars";' }
   }
 ];
 
@@ -95,10 +85,8 @@ var config = {
             stylus: combineLoaders(vueStylusLoaders),
             scss: combineLoaders(vueSassLoaders),
           },
-          preLoaders: {
-            // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
-            html: 'svg-icon-inline-loader',
-          }
+          // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
+          preLoaders: { html: 'svg-icon-inline-loader' }
         }
       },
       {
@@ -108,62 +96,30 @@ var config = {
       },
       {
         test: /\.css$/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: { minimize: production, sourceMap: !production }
-          },
-          'postcss-loader'
-        ]
+        use: [ 'style-loader', cssLoader, postCSSLoader ]
       },
       {
         test: /\.styl$/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: { minimize: production, sourceMap: !production }
-          },
-          postCSSLoader,
-          'stylus-loader',
-        ]
+        use: [ 'style-loader', cssLoader, postCSSLoader, 'stylus-loader' ]
       },
       {
         test: /\.s[a|c]ss$/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: { minimize: production, sourceMap: !production }
-          },
-          postCSSLoader,
-          'sass-loader',
-        ]
+        use: [ 'style-loader', cssLoader, postCSSLoader, 'sass-loader' ]
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/,
-        use: [
-          {
-            loader: 'url-loader',
-            options: {
-              limit: 10000,
-              name: '[name].[ext]?[hash]'
-            }
-          }
-        ]
+        use: {
+          loader: 'url-loader',
+          options: { limit: 10000, name: '[name].[ext]?[hash]' }
+        }
       },
       // Use file loader to load font files.
       {
         test: /\.(eot|woff|ttf|woff2)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[name].[ext]?[hash]'
-            }
-          }
-        ]
+        use: {
+          loader: 'file-loader',
+          options: { name: '[name].[ext]?[hash]' }
+        }
       },
       // Hack to make the onloadCSS node module properly export-able.
       // Not currently used - we may be able to delete this if we
@@ -174,11 +130,10 @@ var config = {
       }
     ]
   },
-  plugins: [
-  ],
+  plugins: [],
   resolve: {
     alias: aliases,
-    extensions: [".js", ".vue", ".styl"],
+    extensions: [ ".js", ".vue", ".styl" ],
   },
   node: {
     __filename: true
@@ -198,28 +153,19 @@ if (lint) {
         {
           test: /\.(vue|js)$/,
           enforce: 'pre',
-          use: [
-            {
-              loader: 'eslint-loader',
-              options: {
-                failOnError: true
-              }
-            }
-          ],
+          use: {
+            loader: 'eslint-loader',
+            options: { failOnError: true }
+          },
           exclude: /node_modules/
         },
         {
           test: /\.(vue|html)/,
           enforce: 'pre',
-          use: [
-            {
-              loader: 'htmlhint-loader',
-              options: {
-                failOnError: true,
-                emitAs: "error"
-              }
-            }
-          ],
+          use: {
+            loader: 'htmlhint-loader',
+            options: { failOnError: true, emitAs: "error" }
+          },
           exclude: /node_modules/
         },
         {

@@ -111,6 +111,9 @@ module.exports = {
       coreTheme: {
         module: require('../styles/core-theme'),
       },
+      keenVars: {
+        module: require('../keen-config/variables.scss'),
+      },
     },
   },
 };
