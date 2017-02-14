@@ -6,3 +6,8 @@ steps:
 
   - label: Build the python packages
     command: mkdir -p dist && .buildkite/build_whl.sh
+
+  - wait
+
+  - label: Build the pex file
+    command: mkdir -p dist && .buildkite/build_pex.sh
