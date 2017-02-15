@@ -9,18 +9,36 @@
       @nav-icon-click="toggleDrawer">
       <div slot="actions">
         <ui-icon-button
+          icon="person"
+          type="secondary"
+          color="white"
+          size="large"
+          :ariaLabel="$tr('account')"
+          ref="dropdownButton">
+          <ui-menu
+            contain-focus
+            has-icons
+            slot="dropdown"
+            :options="accountMenuOptions"
+            @close="$refs.dropdownButton.closeDropdown()"
+          ></ui-menu>
+        </ui-icon-button>
+        <ui-icon-button
           icon="search"
           type="secondary"
           color="white"
           size="large"
-          :ariaLabel="$tr('search')"/>
+          :ariaLabel="$tr('search')"
+          @click="openSearch"/>
 
         <ui-icon-button
           icon="widgets"
           type="secondary"
           color="white"
           size="large"
-          :ariaLabel="$tr('channelSwitcher')"/>
+          :ariaLabel="$tr('channelSwitcher')"
+          @click="openChannelSwitcher"/>
+
       </div>
     </ui-toolbar>
   </div>
@@ -33,6 +51,7 @@
   module.exports = {
     $trNameSpace: 'app-bar',
     $trs: {
+      account: 'account',
       search: 'search',
       channelSwitcher: 'Channel Switcher',
     },
@@ -42,14 +61,35 @@
         required: true,
       },
     },
+    data: () => ({
+      accountMenuOptions: [
+        {
+          id: 'editProfile',
+          label: 'Edit Profile',
+          icon: 'edit',
+        },
+        {
+          id: 'signOut',
+          label: 'Sign Out',
+          icon: 'content_copy',
+        },
+      ],
+    }),
     methods: {
       toggleDrawer() {
         console.log('toggleDrawer');
+      },
+      openSearch() {
+        console.log('openSearch');
+      },
+      openChannelSwitcher() {
+        console.log('openChannelSwitcher');
       },
     },
     components: {
       'ui-toolbar': require('keen-ui/src/UiToolbar'),
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
+      'ui-menu': require('keen-ui/src/UiMenu'),
     },
   };
 
