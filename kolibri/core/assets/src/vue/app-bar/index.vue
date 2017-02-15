@@ -1,47 +1,46 @@
 <template>
 
-  <div>
-    <ui-toolbar
-      :title="title"
-      type="colored"
-      textColor="white"
-      class="app-bar"
-      @nav-icon-click="toggleDrawer">
-      <div slot="actions">
-        <ui-icon-button
-          icon="person"
-          type="secondary"
-          color="white"
-          size="large"
-          :ariaLabel="$tr('account')"
-          ref="dropdownButton">
-          <ui-menu
-            contain-focus
-            has-icons
-            slot="dropdown"
-            :options="accountMenuOptions"
-            @close="$refs.dropdownButton.closeDropdown()"
-          ></ui-menu>
-        </ui-icon-button>
-        <ui-icon-button
-          icon="search"
-          type="secondary"
-          color="white"
-          size="large"
-          :ariaLabel="$tr('search')"
-          @click="openSearch"/>
+  <ui-toolbar
+    :title="title"
+    type="colored"
+    textColor="white"
+    class="app-bar"
+    @nav-icon-click="toggleDrawer">
+    <div slot="actions">
 
-        <ui-icon-button
-          icon="widgets"
-          type="secondary"
-          color="white"
-          size="large"
-          :ariaLabel="$tr('channelSwitcher')"
-          @click="openChannelSwitcher"/>
+      <ui-icon-button
+        icon="person"
+        type="secondary"
+        color="white"
+        size="large"
+        :ariaLabel="$tr('account')"
+        has-dropdown
+        ref="accountButton">
+        <ui-menu
+          contain-focus
+          contains-icons
+          slot="dropdown"
+          :options="accountMenuOptions"
+          @close="$refs.accountButton.closeDropdown()"/>
+      </ui-icon-button>
 
-      </div>
-    </ui-toolbar>
-  </div>
+      <ui-icon-button
+        icon="search"
+        type="secondary"
+        color="white"
+        size="large"
+        :ariaLabel="$tr('search')"
+        @click="openSearch"/>
+
+      <ui-icon-button
+        icon="widgets"
+        type="secondary"
+        color="white"
+        size="large"
+        :ariaLabel="$tr('channelSwitcher')"
+        @click="openChannelSwitcher"/>
+    </div>
+  </ui-toolbar>
 
 </template>
 
@@ -54,6 +53,8 @@
       account: 'account',
       search: 'search',
       channelSwitcher: 'Channel Switcher',
+      editProfile: 'Edit Profile',
+      signOut: 'Sign Out',
     },
     props: {
       title: {
@@ -61,20 +62,20 @@
         required: true,
       },
     },
-    data: () => ({
-      accountMenuOptions: [
-        {
-          id: 'editProfile',
-          label: 'Edit Profile',
-          icon: 'edit',
-        },
-        {
-          id: 'signOut',
-          label: 'Sign Out',
-          icon: 'content_copy',
-        },
-      ],
-    }),
+    computed: {
+      accountMenuOptions() {
+        return [
+          {
+            id: 'editProfile',
+            label: this.$tr('editProfile'),
+          },
+          {
+            id: 'signOut',
+            label: this.$tr('signOut'),
+          },
+        ];
+      },
+    },
     methods: {
       toggleDrawer() {
         console.log('toggleDrawer');
@@ -96,10 +97,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .app-bar
-    // TODO: remove this
-    z-index: 1000
-
-</style>
+<style lang="stylus" scoped></style>
