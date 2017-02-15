@@ -103,6 +103,11 @@ module.exports = {
       router: {
         module: require('../router'),
       },
+      mixins: {
+        responsive: {
+          module: require('../responsive-mixin'),
+        },
+      },
     },
     styles: {
       navBarItem: {
