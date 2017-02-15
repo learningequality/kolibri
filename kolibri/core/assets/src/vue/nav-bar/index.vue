@@ -67,21 +67,22 @@
           return values(TopLevelPageNames).includes(value);
         },
       },
+      navShownMobile: {
+        type: Boolean,
+        required: true,
+      }
     },
-    data: () => ({
-      shown: true,
-    }),
     methods: {
       navigate(option) {
         window.location.href = option.href;
       },
       toggleNav() {
-        this.shown = !this.shown;
+        this.$emit('toggleSideNav');
       },
     },
     computed: {
       navShown() {
-        return this.shown || !this.mobile;
+        return this.navShownMobile || !this.mobile;
       },
       mobile() {
         return true;

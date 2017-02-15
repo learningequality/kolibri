@@ -1,8 +1,8 @@
 <template>
 
   <div>
-    <app-bar :title="topLevelPageName"/>
-    <nav-bar :topLevelPageName="topLevelPageName"/>
+    <app-bar @toggleSideNav="navShownMobile=!navShownMobile" :title="topLevelPageName"/>
+    <nav-bar @toggleSideNav="navShownMobile=!navShownMobile" :topLevelPageName="topLevelPageName" :navShownMobile="navShownMobile"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
       <error-box v-if="error"/>
@@ -59,6 +59,7 @@
     },
     data: () => ({
       scrolled: false,
+      navShownMobile: false,
     }),
     methods: {
       onScroll(e, position) {

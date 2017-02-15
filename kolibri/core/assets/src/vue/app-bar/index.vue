@@ -6,7 +6,7 @@
       type="colored"
       textColor="white"
       class="app-bar"
-      @nav-icon-click="toggleDrawer">
+      @nav-icon-click="$emit('toggleSideNav')">
       <div slot="actions">
         <ui-icon-button
           icon="search"
@@ -40,11 +40,6 @@
       title: {
         type: String,
         required: true,
-      },
-    },
-    methods: {
-      toggleDrawer() {
-        console.log('toggleDrawer');
       },
     },
     components: {
