@@ -16,20 +16,8 @@
 // Also include values defined in the theme. These can be overridden.
 @require '~kolibri.styles.theme'
 
-
 $radius = 4px
 $core-time = 0.25s
-$letter-spacing = 0.01em
-
-$nav-width = 75px
-$left-margin = 100px
-$right-margin = 25px
-
-$nav-portrait-height = 56px
-
-$portrait-breakpoint = 520px // TODO - compute this based on variables
-$medium-breakpoint = 619px // TODO - compute this based on variables
-
 
 // from http://nicolasgallagher.com/micro-clearfix-hack/
 clearfix()
@@ -40,4 +28,11 @@ clearfix()
     display table
   &:after
     clear both
+
+
+// need factor these variables out
+$nav-width = 75px
+$portrait-breakpoint = 520px
+$medium-breakpoint = 619px
+
 
