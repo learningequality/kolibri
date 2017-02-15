@@ -27,6 +27,7 @@
   module.exports = {
     name: 'User-Plugin',
     components: {
+      'core-base': require('kolibri.coreVue.components.coreBase'),
       'sign-in-page': require('./sign-in-page'),
       'sign-up-page': require('./sign-up-page'),
       'profile-page': require('./profile-page'),
