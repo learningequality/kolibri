@@ -62,6 +62,9 @@
       accessAsGuest: 'Access as Guest',
       signInError: 'Incorrect username or password',
     },
+    components: {
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
+    },
     data: () => ({
       username: '',
       password: '',

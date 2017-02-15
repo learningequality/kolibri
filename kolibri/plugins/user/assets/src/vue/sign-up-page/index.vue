@@ -66,6 +66,9 @@
       confirmPassword: 'Confirm Password',
       signUpError: 'That username already exists. Try a different username.',
     },
+    components: {
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
+    },
     data: () => ({
       name: '',
       username: '',
