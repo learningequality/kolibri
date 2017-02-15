@@ -1,32 +1,35 @@
 <template>
-  <div v-show="navShown">
+
+  <div>
     <div
-      class='nav-wrapper'
+      v-show="navShown"
+      class="nav-wrapper"
       :style="wrapperStyle">
-      <div class='header' :style="{ height: headerHeight + 'px', textAlign: !(mobile | tablet) ? 'center' : 'inherit' }">
+      <div class="header"
+           :style="{ height: headerHeight + 'px', textAlign: !(mobile | tablet) ? 'center' : 'inherit' }">
         <button
           v-if="mobile | tablet"
           :aria-label="closeNav"
-          class='close' @click="toggleNav"
+          class="close" @click="toggleNav"
           :style="{ fontSize: headerHeight/2 + 'px' }">
           <ui-icon :icon="mobile ? 'arrow_back' : 'menu'"/>
         </button>
         <img
-          class='logo'
-          v-if="mobile"
+          class="logo"
+          v-else-if="mobile"
           src="../login-modal/icons/kolibri-logo.svg"
           alt=""
           :style="{ width: headerHeight + 'px', height: headerHeight + 'px', marginRight: width/20 + 'px' }">
-        <p class='title' :style="{ fontSize: headerHeight/3 + 'px' }">Kolibri</p>
+        <p class="title" :style="{ fontSize: headerHeight/3 + 'px' }">Kolibri</p>
       </div>
       <img
-        class='logo'
+        class="logo"
         v-if="!mobile"
         src="../login-modal/icons/kolibri-logo.svg"
         alt=""
         :style="{ height: width/2.5 + 'px', width: width/2.5 + 'px' }">
       <ui-menu
-        class='nav-main'
+        class="nav-main"
         :options="menuOptions"
         hasIcons
         @select="navigate"
@@ -34,24 +37,32 @@
         :aria-label="ariaLabel"
         :style="{ maxWidth: width + 'px' }">
       </ui-menu>
-      <div class='footer' :style="{ width: width + 'px' }">
+      <div class="footer" :style="{ width: width + 'px' }">
         <img
-          class='logo'
+          class="logo"
           src="../login-modal/icons/kolibri-logo.svg"
           alt=""
           :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }">
-        <div class='message-container'>
-          <p class='message'>{{ footerMsg }}</p>
-          <p class='message'><ui-icon icon='copyright'/> 2017 Learning Equality</p>
+        <div class="message-container">
+          <p class="message">{{ footerMsg }}</p>
+          <p class="message">
+            <ui-icon icon="copyright"/>
+            2017 Learning Equality
+          </p>
         </div>
       </div>
-      <!-- log-in modal -->
-      <login-modal v-if="loginModalVisible"/>
+
     </div>
+
+    <!-- log-in modal -->
+    <login-modal v-if="loginModalVisible"/>
+
     <div v-if="mobile" class="modal-overlay"
-      @keydown.esc="toggleNav"
-      @click="toggleNav">
+         @keydown.esc="toggleNav"
+         @click="toggleNav">
     </div>
+  </div>
+
 </template>
 
 
@@ -125,9 +136,9 @@
     computed: {
       closeStyle() {
         return {
-          fontSize: headerHeight/2 + 'px',
-          marginLeft: this.width/20 + 'px',
-          marginRight: this.width/20 + 'px',
+          fontSize: `${this.headerHeight / 2}px`,
+          marginLeft: `${this.width / 20}px`,
+          marginRight: `${this.width / 20}px`,
 
         };
       },
@@ -136,8 +147,9 @@
           // Calculate min-height property by taking the number of options (minus the divider)
           // multipying by 50 for each option, adding 173 for the divider and the footer,
           // and finally adding this.width/2.5 for the non-mobile logo if needed.
-          minHeight: (this.menuOptions.length - 1)*50 + 173 + (!this.mobile ? this.width/2.5 : 0) + 'px',
-          width: this.width + 'px',
+          minHeight: `${(this.menuOptions.length - 1) * 50 + 173 +
+          (!this.mobile ? this.width / 2.5 : 0)}px`,
+          width: `${this.width}px`,
         };
       },
       mobile() {
@@ -171,7 +183,7 @@
         return this.topLevelPageName === TopLevelPageNames.ABOUT;
       },
       menuOptions() {
-        let options = [
+        const options = [
           {
             label: this.$tr('learn'),
             disabled: this.learnActive,
@@ -196,7 +208,7 @@
           });
         }
         options.push({
-            type: 'divider',
+          type: 'divider',
         });
         if (this.loggedIn & !this.isAdminOrSuperuser) {
           options.push({
@@ -255,7 +267,7 @@
   $footerheight = 100px
 
   .nav-wrapper
-    top: 0px
+    top: 0
     background: $core-bg-light
     font-weight: 300
     position: fixed
@@ -264,7 +276,7 @@
     height: 100vh
     overflow: auto
     -webkit-overflow-scrolling: touch
-    box-shadow: 2px 0 0px 0px rgba(0, 0, 0, 0.12)
+    box-shadow: 2px 0 0 0 rgba(0, 0, 0, 0.12)
     .logo
       margin: auto
       display: block
@@ -323,6 +335,7 @@
 
 </style>
 
+
 <style lang="stylus">
 
   @require '~kolibri.styles.definitions'
@@ -330,7 +343,7 @@
   // Customize Keen UI Menu option
   .nav-main
     .ui-menu-option
-      margin: 5px 0px
+      margin: 5px 0
       &:not(.is-divider)
         font-size: 1.2em
         &.is-disabled
@@ -349,4 +362,5 @@
         background-color: $core-text-annotation
     &.ui-menu
       border: none
+
 </style>
