@@ -6,7 +6,9 @@
       type="colored"
       textColor="white"
       class="app-bar"
-      @nav-icon-click="$emit('toggleSideNav')">
+      :removeNavIcon="navShown"
+      @nav-icon-click="$emit('toggleSideNav')"
+      v-bind:style="{ height: height + 'px' }">
       <div slot="actions">
         <ui-icon-button
           icon="search"
@@ -39,6 +41,14 @@
     props: {
       title: {
         type: String,
+        required: true,
+      },
+      navShown: {
+        type: Boolean,
+        required: true,
+      },
+      height: {
+        type: Number,
         required: true,
       },
     },

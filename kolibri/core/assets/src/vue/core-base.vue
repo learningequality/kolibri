@@ -1,10 +1,20 @@
 <template>
 
   <div>
-    <app-bar class="app-bar" @toggleSideNav="navShownMobile=!navShownMobile" :title="topLevelPageName"/>
-    <nav-bar @toggleSideNav="navShownMobile=!navShownMobile" :topLevelPageName="topLevelPageName" :navShownMobile="navShownMobile"/>
+    <app-bar
+    v-bind:style="{ paddingLeft: paddingForNav + 'px' }"
+    @toggleSideNav="navShown=!navShown"
+    :title="topLevelPageName"
+    :navShown="navShown"
+    :height="baseMaterialIncrement"/>
+    <nav-bar
+    @toggleSideNav="navShown=!navShown"
+    :topLevelPageName="topLevelPageName"
+    :navShown="navShown"
+    :headerHeight="baseMaterialIncrement"
+    :width="navWidth"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
-    <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
+    <div class="main-wrapper" v-scroll="onScroll" v-if="!loading" v-bind:style="{ paddingLeft: paddingForNav + 'px' }">
       <error-box v-if="error"/>
       <slot name="above"/>
       <slot name="content"/>
@@ -21,10 +31,12 @@
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
   const vueScroll = require('vue-scroll');
   const values = require('lodash.values');
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   Vue.use(vueScroll);
 
   module.exports = {
+    mixins: [responsiveWindow],
     props: {
       // This prop breaks the separation between core and plugins.
       // It's being used as a work-around until plugins have a way
@@ -56,11 +68,37 @@
       title(newVal, oldVal) {
         document.title = `${newVal} - Kolibri`;
       },
+      'windowSize.breakpoint': function (newVal, oldVal) {
+        // Pop out the nav if transitioning from smaller viewport.
+        if (oldVal < 5 & newVal > 4) {
+          this.navShown = true;
+        }
+      },
     },
     data: () => ({
       scrolled: false,
-      navShownMobile: false,
+      navShown: true,
     }),
+    computed: {
+      mobile() {
+        return this.windowSize.breakpoint < 2;
+      },
+      baseMaterialIncrement() {
+        return this.mobile ? 56 : 64;
+      },
+      navWidth() {
+        return this.baseMaterialIncrement * 5;
+      },
+      tablet() {
+        return (this.windowSize.breakpoint > 1) & (this.windowSize.breakpoint < 5);
+      },
+      paddingForNav() {
+        if (this.mobile | (this.tablet & !this.navShown)) {
+          return 0;
+        }
+        return this.navWidth;
+      },
+    },
     methods: {
       onScroll(e, position) {
         this.position = position;
@@ -74,6 +112,9 @@
           this.scrolled = false;
         }
       }, 75);
+      if (this.mobile) {
+        this.navShown = false;
+      }
     },
   };
 
@@ -92,18 +133,7 @@
     padding-bottom: 50px
     z-index: -2
   .main-wrapper
-    padding-left: $nav-width + 25px
     padding-right: 25px
-    @media (max-width: $medium-breakpoint + 1)
-      padding-left: 69px
-      padding-right: 0
-    @media screen and (max-width: $portrait-breakpoint)
-      padding: 0 0.6em
-      padding-bottom: 100px
-  .app-bar
-    padding-left: $nav-width
-    @media screen and (max-width: $portrait-breakpoint)
-      padding: 0
   .loading-spinner-fixed
     position: fixed
 

@@ -3,22 +3,43 @@
     <div
       class='nav-wrapper'
       v-bind:style="wrapperStyle">
-      <div class='header'>
-        <button v-if="mobile" :aria-label="closeNav" class='close' @click="toggleNav"><ui-icon icon='arrow_back'/></button>
-        <img class='logo' v-if="mobile" src="../login-modal/icons/kolibri-logo.svg" alt="">
-        <p class='title'>Kolibri</p>
+      <div class='header' v-bind:style="{ height: headerHeight + 'px', textAlign: !(mobile | tablet) ? 'center' : 'inherit' }">
+        <button
+          v-if="mobile | tablet"
+          :aria-label="closeNav"
+          class='close' @click="toggleNav"
+          v-bind:style="{ fontSize: headerHeight/2 + 'px' }">
+          <ui-icon :icon="mobile ? 'arrow_back' : 'menu'"/>
+        </button>
+        <img
+          class='logo'
+          v-if="mobile"
+          src="../login-modal/icons/kolibri-logo.svg"
+          alt=""
+          v-bind:style="{ width: headerHeight + 'px', height: headerHeight + 'px', marginRight: width/20 + 'px' }">
+        <p class='title' v-bind:style="{ fontSize: headerHeight/3 + 'px' }">Kolibri</p>
       </div>
-      <img class='logo' v-if="!mobile" src="../login-modal/icons/kolibri-logo.svg" alt="">
+      <img
+        class='logo'
+        v-if="!mobile"
+        src="../login-modal/icons/kolibri-logo.svg"
+        alt=""
+        v-bind:style="{ height: width/2.5 + 'px', width: width/2.5 + 'px' }">
       <ui-menu
         class='nav-main'
         :options="menuOptions"
         hasIcons
         @select="navigate"
         role="navigation"
-        :aria-label="ariaLabel">
+        :aria-label="ariaLabel"
+        v-bind:style="{ maxWidth: width + 'px' }">
       </ui-menu>
-      <div class='footer'>
-        <img class='logo' src="../login-modal/icons/kolibri-logo.svg" alt="">
+      <div class='footer' v-bind:style="{ width: width + 'px' }">
+        <img
+          class='logo'
+          src="../login-modal/icons/kolibri-logo.svg"
+          alt=""
+          v-bind:style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }">
         <div class='message-container'>
           <p class='message'>{{ footerMsg }}</p>
           <p class='message'><ui-icon icon='copyright'/> 2017 Learning Equality</p>
@@ -40,9 +61,14 @@
   const getters = require('kolibri.coreVue.vuex.getters');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
-
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
+  const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
 
   module.exports = {
+    mixins: [
+      responsiveWindow,
+      responsiveElement,
+    ],
     $trNameSpace: 'navbar',
     $trs: {
       navigationLabel: 'Main user navigation',
@@ -68,31 +94,52 @@
           return values(TopLevelPageNames).includes(value);
         },
       },
-      navShownMobile: {
+      navShown: {
         type: Boolean,
         required: true,
-      }
+      },
+      headerHeight: {
+        type: Number,
+        required: true,
+      },
+      width: {
+        type: Number,
+        required: true,
+      },
     },
     methods: {
       navigate(option) {
         window.location.href = option.href;
       },
       toggleNav() {
-        this.$emit('toggleSideNav');
+        if (this.mobile | this.tablet) {
+          this.$emit('toggleSideNav');
+        }
       },
     },
     computed: {
-      wrapperStyle() {
-        let styles = {
-          minHeight: (this.menuOptions.length - 1)*50 + 173 + 'px',
+      closeStyle() {
+        return {
+          fontSize: headerHeight/2 + 'px',
+          marginLeft: this.width/20 + 'px',
+          marginRight: this.width/20 + 'px',
+
         };
-        return styles;
       },
-      navShown() {
-        return this.navShownMobile || !this.mobile;
+      wrapperStyle() {
+        return {
+          // Calculate min-height property by taking the number of options (minus the divider)
+          // multipying by 50 for each option, adding 173 for the divider and the footer,
+          // and finally adding this.width/2.5 for the non-mobile logo if needed.
+          minHeight: (this.menuOptions.length - 1)*50 + 173 + (!this.mobile ? this.width/2.5 : 0) + 'px',
+          width: this.width + 'px',
+        };
       },
       mobile() {
-        return false;
+        return this.windowSize.breakpoint < 2;
+      },
+      tablet() {
+        return (this.windowSize.breakpoint > 1) & (this.windowSize.breakpoint < 5);
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version }); // eslint-disable-line no-undef
@@ -203,7 +250,6 @@
   @require '~kolibri.styles.definitions'
   @require '~kolibri.styles.navBarItem'
 
-  $headerheight = 57px
   $footerheight = 100px
 
   .nav-wrapper
@@ -214,18 +260,15 @@
     z-index: 1001
     font-size: 1em
     height: 100vh
-    width: $nav-width
     overflow: auto
     -webkit-overflow-scrolling: touch
+    box-shadow: 2px 0 0px 0px rgba(0, 0, 0, 0.12)
     .logo
       margin: auto
       display: block
-      height: 125px
-      width: @height
 
   .nav-main
     background: $core-bg-light
-    max-width: $nav-width
 
   a.active:focus svg
     fill: $core-bg-light
@@ -234,26 +277,18 @@
     overflow: auto
     overflow-y: hidden
     background-color: $core-text-default
-    height: $headerheight
-    .logo, .title, .close
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2)
+    .logo, .close
       float: left
     .title, .close
       color: $core-bg-light
     .close
-      font-size: ($headerheight / 2)
       top: 50%
       transform: translateY(-50%)
       position: relative
-      margin-right: ($nav-width/20)
-      margin-left: ($nav-width/20)
       border: none
     .title
-      font-size: ($headerheight / 3)
       font-weight: bold
-    .logo
-      width: $headerheight
-      height: @width
-      margin-right: ($nav-width/20)
 
   .footer
     bottom: 0
@@ -262,17 +297,12 @@
     overflow-y: hidden
     background-color: $core-text-default
     height: $footerheight
-    width: $nav-width
     .logo, .message-container
       top: 50%
       transform: translateY(-50%)
       position: relative
     .logo
       float: left
-      width: ($footerheight/2)
-      height: @width
-      margin-right: ($nav-width/20)
-      margin-left: ($nav-width/20)
     .message-container
       .message
         color: $core-bg-light
