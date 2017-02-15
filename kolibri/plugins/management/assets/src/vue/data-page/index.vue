@@ -89,7 +89,7 @@
 <style lang="stylus" scoped>
 
   // @require 'jeet'
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   @media (min-width: $medium-breakpoint)
     .exportblock
@@ -104,7 +104,7 @@
     margin-right: 8px
 
   .wrapper
-    cf()
+    clearfix()
 
   form
     display: inline

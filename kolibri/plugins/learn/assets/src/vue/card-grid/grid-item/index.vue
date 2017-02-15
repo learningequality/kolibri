@@ -55,7 +55,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
   @require '../../learn.styl'
 
   $thumb-width = $horizontal-card-height

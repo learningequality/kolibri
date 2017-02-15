@@ -81,15 +81,15 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .main-wrapper
     position: fixed // must be fixed for ie10
     overflow-y: scroll
     height: 100%
     width: 100%
-    padding-left: $left-margin
-    padding-right: $right-margin
+    padding-left: 100px
+    padding-right: 25px
     padding-bottom: 50px
     z-index: -2
     @media (max-width: $medium-breakpoint + 1)

@@ -116,8 +116,14 @@ module.exports = {
       navBarItem: {
         module: require('../vue/nav-bar/nav-bar-item.styl'),
       },
-      coreTheme: {
-        module: require('../styles/core-theme'),
+      theme: {
+        module: require('../styles/core-theme.styl'),
+      },
+      definitions: {
+        module: require('../styles/definitions.styl'),
+      },
+      keenVars: {
+        module: require('../keen-config/variables.scss'),
       },
       keenVars: {
         module: require('../keen-config/variables.scss'),

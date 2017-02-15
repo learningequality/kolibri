@@ -114,7 +114,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
   @require '~kolibri.styles.navBarItem'
 
   .nav-wrapper
@@ -139,7 +139,7 @@
     height: 100vh
     @media screen and (max-width: $portrait-breakpoint)
       display: table-row
-      height: $nav-portrait-height
+      height: 56px
 
   a.active:focus svg
     fill: $core-bg-light

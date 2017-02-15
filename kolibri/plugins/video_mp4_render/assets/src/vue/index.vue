@@ -237,7 +237,7 @@
 
   // UNSCOPED
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   // Shades of Grey
   $dark-grey = #212121

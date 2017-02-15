@@ -96,7 +96,13 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
+
+  input
+    display: block
+
+  .sign-up-error
+    color: red
 
   input
     display: block

@@ -56,7 +56,7 @@
   /** WARNING - unscoped styles for children                  */
   /* use very precise selectors to minimize risk of collision */
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .header-wrapper .extra-nav a
     color: $core-text-annotation
