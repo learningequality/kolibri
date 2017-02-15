@@ -162,17 +162,6 @@ function handleApiError(store, errorObject) {
   handleError(store, JSON.stringify(errorObject, null, '\t'));
 }
 
-const debouncedSetWindowInfo = throttle((store) => {
-  // http://stackoverflow.com/a/8876069
-  const w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-  const h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-  store.dispatch('SET_VIEWPORT_SIZE', w, h);
-}, 33);
-
-function handleResize(store, event) {
-  debouncedSetWindowInfo(store);
-}
-
 function kolibriLogin(store, sessionPayload) {
   const coreApp = require('kolibri');
   const SessionResource = coreApp.resources.SessionResource;
@@ -659,7 +648,6 @@ function updateMasteryAttemptState(store, currentTime, correct, complete, firstA
 module.exports = {
   handleError,
   handleApiError,
-  handleResize,
   kolibriLogin,
   kolibriLogout,
   getCurrentSession,
