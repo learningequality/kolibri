@@ -194,8 +194,8 @@
     z-index: 10000
     text-align: center
     position: fixed
-    top: 60px
-    left: 50% // TODO: temp fix
+    top: 60px // TODO: temp fix
+    left: 50%
     transform: translate(-50%)
     margin-left: 37px  // half the $nav-width
     width-auto-adjust()
