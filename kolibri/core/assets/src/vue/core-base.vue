@@ -17,7 +17,6 @@
 <script>
 
   const Vue = require('vue');
-  const coreActions = require('kolibri.coreVue.vuex.actions');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
   const vueScroll = require('vue-scroll');
   const values = require('lodash.values');

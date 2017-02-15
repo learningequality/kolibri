@@ -1,6 +1,5 @@
 
 const ResizeSensor = require('css-element-queries/src/ResizeSensor');
-const Vue = require('Vue');
 const throttle = require('frame-throttle').throttle;
 
 /*
@@ -76,14 +75,12 @@ const throttle = require('frame-throttle').throttle;
 */
 
 
-//////////////////
-// module internal state
+/* module internal state */
 
 const windowListeners = [];
 
 
-//////////////////
-// methods
+/* methods */
 
 function getBreakpoint(width) {
   const SCROLL_BAR = 16;
@@ -107,7 +104,7 @@ function windowMetrics() {
 
 const windowResizeHandler = throttle((e) => {
   const metrics = windowMetrics();
-  windowListeners.forEach(cb => cb(metrics))
+  windowListeners.forEach(cb => cb(metrics));
 });
 
 function addWindowListener(cb) {
@@ -120,8 +117,7 @@ function removeWindowListener(cb) {
 }
 
 
-//////////////////
-// setup
+/* setup */
 
 if (window.addEventListener) {
   window.addEventListener('resize', windowResizeHandler, true);
@@ -132,11 +128,10 @@ if (window.addEventListener) {
 windowResizeHandler(); // call it once initially
 
 
-//////////////////
-// export mixin
+/* export mixin */
 
-module.exports =  {
-  data () {
+module.exports = {
+  data() {
     return {
       // becomes available for use
       responsive: {
@@ -154,7 +149,7 @@ module.exports =  {
       this.responsive.window.width = metrics.width;
       this.responsive.window.height = metrics.height;
       this.responsive.window.breakpoint = metrics.breakpoint;
-    }
+    },
   },
   mounted() {
     this._updateEl();

@@ -3,7 +3,6 @@ const cookiejs = require('js-cookie');
 const UserKinds = require('./constants').UserKinds;
 const MasteryLoggingMap = require('./constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('./constants').AttemptLoggingMap;
-const throttle = require('lodash.throttle');
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 
 const intervalTimer = require('./timer');
