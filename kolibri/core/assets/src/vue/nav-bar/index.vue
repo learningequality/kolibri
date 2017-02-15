@@ -293,7 +293,7 @@
 
 <style lang="stylus">
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   // Customize Keen UI Menu option
   .nav-main

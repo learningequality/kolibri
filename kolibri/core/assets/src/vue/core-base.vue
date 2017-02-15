@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <app-bar class='app-bar' @toggleSideNav="navShownMobile=!navShownMobile" :title="topLevelPageName"/>
+    <app-bar class="app-bar" @toggleSideNav="navShownMobile=!navShownMobile" :title="topLevelPageName"/>
     <nav-bar @toggleSideNav="navShownMobile=!navShownMobile" :topLevelPageName="topLevelPageName" :navShownMobile="navShownMobile"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
