@@ -1,7 +1,9 @@
 <template>
 
   <div>
-    <app-bar :title="topLevelPageName"/>
+    <app-bar :title="topLevelPageName">
+      <slot name="app-bar-actions"/>
+    </app-bar>
     <nav-bar :topLevelPageName="topLevelPageName"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">

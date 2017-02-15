@@ -2,7 +2,39 @@
 
   <core-base :topLevelPageName="topLevelPageName" @scroll="handleScroll">
     <toolbar slot="above" :shown="showToolbar"/>
+    <div slot="app-bar-actions">
+      <ui-icon-button
+        icon="person"
+        type="secondary"
+        color="white"
+        size="large"
+        :ariaLabel="$tr('account')"
+        has-dropdown
+        ref="accountButton">
+        <ui-menu
+          contain-focus
+          contains-icons
+          slot="dropdown"
+          :options="accountMenuOptions"
+          @close="$refs.accountButton.closeDropdown()"/>
+      </ui-icon-button>
 
+      <ui-icon-button
+        icon="search"
+        type="secondary"
+        color="white"
+        size="large"
+        :ariaLabel="$tr('search')"
+        @click="openSearch"/>
+
+      <ui-icon-button
+        icon="widgets"
+        type="secondary"
+        color="white"
+        size="large"
+        :ariaLabel="$tr('channelSwitcher')"
+        @click="openChannelSwitcher"/>
+    </div>
     <component class="content" slot="content" :is="currentPage"/>
 
     <div slot="below" class="search-pane" v-show="searchOpen">
@@ -27,6 +59,14 @@
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
+    $trNameSpace: 'learn',
+    $trs: {
+      account: 'account',
+      search: 'search',
+      channelSwitcher: 'Channel Switcher',
+      editProfile: 'Edit Profile',
+      signOut: 'Sign Out',
+    },
     components: {
       'toolbar': require('./toolbar'),
       'search-widget': require('./search-widget'),
@@ -36,6 +76,8 @@
       'scratchpad-page': require('./scratchpad-page'),
       'content-unavailable-page': require('./content-unavailable-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
+      'ui-icon-button': require('keen-ui/src/UiIconButton'),
+      'ui-menu': require('keen-ui/src/UiMenu'),
     },
     data: () => ({
       currScrollTop: 0,
@@ -53,6 +95,12 @@
         }
         this.showToolbar = this.currScrollTop < this.lastScrollTop;
         this.lastScrollTop = this.currScrollTop;
+      },
+      openSearch() {
+        console.log('openSearch');
+      },
+      openChannelSwitcher() {
+        console.log('openChannelSwitcher');
       },
     },
     computed: {
@@ -84,6 +132,18 @@
       },
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
+      },
+      accountMenuOptions() {
+        return [
+          {
+            id: 'editProfile',
+            label: this.$tr('editProfile'),
+          },
+          {
+            id: 'signOut',
+            label: this.$tr('signOut'),
+          },
+        ];
       },
     },
     vuex: {
