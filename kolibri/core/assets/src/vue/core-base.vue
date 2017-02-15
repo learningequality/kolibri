@@ -2,17 +2,21 @@
 
   <div>
     <app-bar
-    v-bind:style="{ paddingLeft: paddingForNav + 'px' }"
-    @toggleSideNav="navShown=!navShown"
-    :title="topLevelPageName"
-    :navShown="navShown"
-    :height="baseMaterialIncrement"/>
+      v-bind:style="{ paddingLeft: paddingForNav + 'px' }"
+      @toggleSideNav="navShown=!navShown"
+      :title="topLevelPageName"
+      :navShown="navShown"
+      :height="baseMaterialIncrement">
+      <div slot="app-bar-actions">
+        <slot name="app-bar-actions"/>
+      </div>
+    </app-bar>
     <nav-bar
-    @toggleSideNav="navShown=!navShown"
-    :topLevelPageName="topLevelPageName"
-    :navShown="navShown"
-    :headerHeight="baseMaterialIncrement"
-    :width="navWidth"/>
+      @toggleSideNav="navShown=!navShown"
+      :topLevelPageName="topLevelPageName"
+      :navShown="navShown"
+      :headerHeight="baseMaterialIncrement"
+      :width="navWidth"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading" v-bind:style="{ paddingLeft: paddingForNav + 'px' }">
       <error-box v-if="error"/>
