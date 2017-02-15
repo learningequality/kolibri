@@ -128,7 +128,7 @@ module.exports = {
   data() {
     return {
       // becomes available for use
-      window: { width: 0, height: 0, breakpoint: 0 },
+      windowSize: { width: 0, height: 0, breakpoint: 0 },
     };
   },
   methods: {
