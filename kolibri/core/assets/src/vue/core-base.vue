@@ -2,7 +2,7 @@
 
   <div>
     <app-bar
-      v-bind:style="{ paddingLeft: paddingForNav + 'px' }"
+      :style="{ paddingLeft: paddingForNav + 'px' }"
       @toggleSideNav="navShown=!navShown"
       :title="topLevelPageName"
       :navShown="navShown"
@@ -18,7 +18,7 @@
       :headerHeight="baseMaterialIncrement"
       :width="navWidth"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
-    <div class="main-wrapper" v-scroll="onScroll" v-if="!loading" v-bind:style="{ paddingLeft: paddingForNav + 'px' }">
+    <div class="main-wrapper" v-scroll="onScroll" v-if="!loading" :style="{ paddingLeft: paddingForNav + 'px' }">
       <error-box v-if="error"/>
       <slot name="above"/>
       <slot name="content"/>
@@ -72,7 +72,7 @@
       title(newVal, oldVal) {
         document.title = `${newVal} - Kolibri`;
       },
-      'windowSize.breakpoint': function (newVal, oldVal) {
+      'windowSize.breakpoint': function (newVal, oldVal) { // eslint-disable-line object-shorthand
         // Pop out the nav if transitioning from smaller viewport.
         if (oldVal < 5 & newVal > 4) {
           this.navShown = true;

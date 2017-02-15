@@ -2,13 +2,13 @@
   <div v-show="navShown">
     <div
       class='nav-wrapper'
-      v-bind:style="wrapperStyle">
-      <div class='header' v-bind:style="{ height: headerHeight + 'px', textAlign: !(mobile | tablet) ? 'center' : 'inherit' }">
+      :style="wrapperStyle">
+      <div class='header' :style="{ height: headerHeight + 'px', textAlign: !(mobile | tablet) ? 'center' : 'inherit' }">
         <button
           v-if="mobile | tablet"
           :aria-label="closeNav"
           class='close' @click="toggleNav"
-          v-bind:style="{ fontSize: headerHeight/2 + 'px' }">
+          :style="{ fontSize: headerHeight/2 + 'px' }">
           <ui-icon :icon="mobile ? 'arrow_back' : 'menu'"/>
         </button>
         <img
@@ -16,15 +16,15 @@
           v-if="mobile"
           src="../login-modal/icons/kolibri-logo.svg"
           alt=""
-          v-bind:style="{ width: headerHeight + 'px', height: headerHeight + 'px', marginRight: width/20 + 'px' }">
-        <p class='title' v-bind:style="{ fontSize: headerHeight/3 + 'px' }">Kolibri</p>
+          :style="{ width: headerHeight + 'px', height: headerHeight + 'px', marginRight: width/20 + 'px' }">
+        <p class='title' :style="{ fontSize: headerHeight/3 + 'px' }">Kolibri</p>
       </div>
       <img
         class='logo'
         v-if="!mobile"
         src="../login-modal/icons/kolibri-logo.svg"
         alt=""
-        v-bind:style="{ height: width/2.5 + 'px', width: width/2.5 + 'px' }">
+        :style="{ height: width/2.5 + 'px', width: width/2.5 + 'px' }">
       <ui-menu
         class='nav-main'
         :options="menuOptions"
@@ -32,14 +32,14 @@
         @select="navigate"
         role="navigation"
         :aria-label="ariaLabel"
-        v-bind:style="{ maxWidth: width + 'px' }">
+        :style="{ maxWidth: width + 'px' }">
       </ui-menu>
-      <div class='footer' v-bind:style="{ width: width + 'px' }">
+      <div class='footer' :style="{ width: width + 'px' }">
         <img
           class='logo'
           src="../login-modal/icons/kolibri-logo.svg"
           alt=""
-          v-bind:style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }">
+          :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }">
         <div class='message-container'>
           <p class='message'>{{ footerMsg }}</p>
           <p class='message'><ui-icon icon='copyright'/> 2017 Learning Equality</p>

@@ -7,7 +7,7 @@
     class="app-bar"
     :removeNavIcon="navShown"
     @nav-icon-click="$emit('toggleSideNav')"
-    v-bind:style="{ height: height + 'px' }">
+    :style="{ height: height + 'px' }">
     <div slot="actions">
       <slot name="app-bar-actions"/>
     </div>
