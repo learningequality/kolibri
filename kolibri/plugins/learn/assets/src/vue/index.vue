@@ -25,7 +25,7 @@
         color="white"
         size="large"
         :ariaLabel="$tr('search')"
-        @click="openSearch"/>
+        @click="toggleSearch"/>
 
       <ui-icon-button
         icon="widgets"
@@ -55,6 +55,7 @@
   const PageNames = constants.PageNames;
   const PageModes = constants.PageModes;
   const getters = require('../state/getters');
+  const actions = require('../actions');
   const store = require('../state/store');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
@@ -96,8 +97,8 @@
         this.showToolbar = this.currScrollTop < this.lastScrollTop;
         this.lastScrollTop = this.currScrollTop;
       },
-      openSearch() {
-        console.log('openSearch');
+      toggleSearch() {
+        this.toggleSearch();
       },
       openChannelSwitcher() {
         console.log('openChannelSwitcher');
@@ -151,6 +152,9 @@
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchOpen: state => state.searchOpen,
+      },
+      actions: {
+        toggleSearch: actions.toggleSearch,
       },
     },
     store, // make this and all child components aware of the store
