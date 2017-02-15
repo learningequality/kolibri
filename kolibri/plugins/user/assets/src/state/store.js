@@ -1,16 +1,17 @@
-
 const Vuex = require('kolibri.lib.vuex');
 const coreStore = require('kolibri.coreVue.vuex.store');
 const constants = require('./constants');
 
 /**
  ** pageState schemas
-**/
+ **/
 
 
 const initialState = {
   pageName: constants.PageNames.SCRATCHPAD,
-  pageState: {},
+  pageState: {
+    signUpError: null,
+  },
   facility: undefined,
 };
 
@@ -20,6 +21,9 @@ const mutations = {
   },
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
+  },
+  SET_SIGN_UP_ERROR(state, error) {
+    state.pageState.signUpError = error;
   },
 };
 

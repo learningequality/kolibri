@@ -122,6 +122,9 @@ module.exports = {
       definitions: {
         module: require('../styles/definitions.styl'),
       },
+      keenVars: {
+        module: require('../keen-config/variables.scss'),
+      },
     },
   },
 };

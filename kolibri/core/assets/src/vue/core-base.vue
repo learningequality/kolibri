@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <app-bar :title="topLevelPageName"/>
     <nav-bar :topLevelPageName="topLevelPageName"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
@@ -39,6 +40,7 @@
       },
     },
     components: {
+      'app-bar': require('./app-bar'),
       'nav-bar': require('./nav-bar'),
       'error-box': require('./error-box'),
       'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
