@@ -125,9 +125,6 @@ module.exports = {
       keenVars: {
         module: require('../keen-config/variables.scss'),
       },
-      keenVars: {
-        module: require('../keen-config/variables.scss'),
-      },
     },
   },
 };
