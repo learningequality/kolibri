@@ -2,7 +2,9 @@
 
   <div>
     <app-bar :title="topLevelPageName">
-      <slot name="app-bar-actions"/>
+      <div slot="app-bar-actions">
+        <slot name="app-bar-actions"/>
+      </div>
     </app-bar>
     <nav-bar :topLevelPageName="topLevelPageName"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
