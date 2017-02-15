@@ -57,7 +57,7 @@
     <!-- log-in modal -->
     <login-modal v-if="loginModalVisible"/>
 
-    <div v-if="mobile" class="modal-overlay"
+    <div v-if="navShown && mobile" class="modal-overlay"
          @keydown.esc="toggleNav"
          @click="toggleNav">
     </div>
