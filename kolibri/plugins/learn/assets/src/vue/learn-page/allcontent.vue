@@ -28,7 +28,7 @@
 <script>
 
   const PageNames = require('../../state/constants').PageNames;
-  const responsiveMixin = require('kolibri.coreVue.mixins.responsive');
+  const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
 
   module.exports = {
     $trNameSpace: 'allContent',
@@ -37,12 +37,12 @@
       next: 'Next',
       pagesLabel: 'Browse all content',
     },
-    mixins: [responsiveMixin],
+    mixins: [responsiveElement],
     computed: {
       contentToShow() {
         const CARD_WIDTH = 200;  // duplicate of $card-width
         const CARD_GUTTER = 20;  // duplicate of $card-gutter
-        const nCols = Math.max(2, Math.floor(this.responsive.el.width / (CARD_WIDTH + CARD_GUTTER)));
+        const nCols = Math.max(2, Math.floor(this.elSize.width / (CARD_WIDTH + CARD_GUTTER)));
         return this.all.content.slice(0, nCols);
       },
       hasNext() {

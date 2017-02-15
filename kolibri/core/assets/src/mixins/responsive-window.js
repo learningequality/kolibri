@@ -1,31 +1,24 @@
 
-const ResizeSensor = require('css-element-queries/src/ResizeSensor');
-const throttle = require('frame-throttle').throttle;
-
 /*
-  Apply this mixin to your vue components to get reactive information about
-  the component and window sizes.
+  Apply this mixin to your vue components to get reactive information about window sizes.
 
   For example:
 
     <script>
 
-      const responsive = require('./responsive-media.js')
+      const responsiveWindow = require('./responsive-window-mixin.js')
 
       export default {
-        mixins: [responsive],
+        mixins: [responsiveWindow],
         props: {
     ...
 
-  This adds a new reactive property called `responsive` to your vue model:
+  This adds a new reactive property called `windowSize` to your vue model:
 
-    responsive: {
-      el: { width: 0, height: 0 },  // component's $el width and height (px)
-      window: {
-        width: 0,                   // window width (px)
-        height: 0,                  // window height (px)
-        breakpoint: 0,              // breakpoint constants
-      },
+    windowSize: {
+      width: 0,                   // window width (px)
+      height: 0,                  // window height (px)
+      breakpoint: 0,              // breakpoint constants
     }
 
   The breakpoint constants are numbers following Material guidelinse:
@@ -102,6 +95,7 @@ function windowMetrics() {
   };
 }
 
+const throttle = require('frame-throttle').throttle;
 const windowResizeHandler = throttle((e) => {
   const metrics = windowMetrics();
   windowListeners.forEach(cb => cb(metrics));
@@ -134,30 +128,20 @@ module.exports = {
   data() {
     return {
       // becomes available for use
-      responsive: {
-        el: { width: 0, height: 0 },
-        window: { width: 0, height: 0, breakpoint: 0 },
-      },
+      window: { width: 0, height: 0, breakpoint: 0 },
     };
   },
   methods: {
-    _updateEl() {
-      this.responsive.el.width = this.$el.clientWidth;
-      this.responsive.el.height = this.$el.clientHeight;
-    },
     _updateWindow(metrics) {
-      this.responsive.window.width = metrics.width;
-      this.responsive.window.height = metrics.height;
-      this.responsive.window.breakpoint = metrics.breakpoint;
+      this.windowSize.width = metrics.width;
+      this.windowSize.height = metrics.height;
+      this.windowSize.breakpoint = metrics.breakpoint;
     },
   },
   mounted() {
-    this._updateEl();
-    this.$options._resizeSensor = new ResizeSensor(this.$el, this._updateEl);
     addWindowListener(this._updateWindow);
   },
   beforeDestroy() {
-    this.$options._resizeSensor.detach(this.$el, this.update);
     removeWindowListener(this._updateWindow);
   },
 };

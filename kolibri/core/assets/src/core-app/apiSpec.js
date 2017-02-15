@@ -104,8 +104,11 @@ module.exports = {
         module: require('../router'),
       },
       mixins: {
-        responsive: {
-          module: require('../responsive-mixin'),
+        responsiveWindow: {
+          module: require('../mixins/responsive-window'),
+        },
+        responsiveElement: {
+          module: require('../mixins/responsive-element'),
         },
       },
     },
