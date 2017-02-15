@@ -71,7 +71,6 @@ const TopLevelPageNames = {
   USER: 'USER',
   ABOUT: 'ABOUT',
   PROFILE: 'PROFILE',
-  SETTINGS: 'SETTINGS',
 };
 
 module.exports = {

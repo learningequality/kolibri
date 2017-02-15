@@ -59,6 +59,7 @@
 
   const values = require('lodash.values');
   const getters = require('kolibri.coreVue.vuex.getters');
+  const actions = require('kolibri.coreVue.vuex.actions');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
@@ -109,7 +110,11 @@
     },
     methods: {
       navigate(option) {
-        window.location.href = option.href;
+        if (option.href) {
+          window.location.href = option.href;
+        } else if (option.action) {
+          option.action();
+        }
       },
       toggleNav() {
         if (this.mobile | this.tablet) {
@@ -162,9 +167,6 @@
       profileActive() {
         return this.topLevelPageName === TopLevelPageNames.PROFILE;
       },
-      settingsActive() {
-        return this.topLevelPageName === TopLevelPageNames.SETTINGS;
-      },
       aboutActive() {
         return this.topLevelPageName === TopLevelPageNames.ABOUT;
       },
@@ -196,7 +198,7 @@
         options.push({
             type: 'divider',
         });
-        if (!this.isAdminOrSuperuser) {
+        if (this.loggedIn & !this.isAdminOrSuperuser) {
           options.push({
             label: this.$tr('profile'),
             disabled: this.profileActive,
@@ -206,11 +208,6 @@
         }
         options.push(...[
           {
-            label: this.$tr('settings'),
-            disabled: this.settingsActive,
-            icon: 'settings',
-          },
-          {
             label: this.$tr('about'),
             disabled: this.aboutActive,
             icon: 'error_outline',
@@ -218,6 +215,7 @@
           {
             label: this.loggedIn ? this.$tr('logOut') : this.$tr('signIn'),
             icon: 'exit_to_app',
+            action: this.loggedIn ? this.logout : this.showLoginModal,
           },
         ]);
 
@@ -232,6 +230,10 @@
       'ui-icon': require('keen-ui/src/UiIcon'),
     },
     vuex: {
+      actions: {
+        logout: actions.kolibriLogout,
+        showLoginModal: actions.showLoginModal,
+      },
       getters: {
         session: state => state.core.session,
         loggedIn: state => state.core.session.kind[0] !== UserKinds.ANONYMOUS,
