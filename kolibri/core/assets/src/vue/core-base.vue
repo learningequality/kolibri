@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <app-bar @toggleSideNav="navShownMobile=!navShownMobile" :title="topLevelPageName"/>
+    <app-bar class='app-bar' @toggleSideNav="navShownMobile=!navShownMobile" :title="topLevelPageName"/>
     <nav-bar @toggleSideNav="navShownMobile=!navShownMobile" :topLevelPageName="topLevelPageName" :navShownMobile="navShownMobile"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
@@ -89,17 +89,21 @@
     overflow-y: scroll
     height: 100%
     width: 100%
-    padding-left: 100px
-    padding-right: 25px
     padding-bottom: 50px
     z-index: -2
+  .main-wrapper
+    padding-left: $nav-width + 25px
+    padding-right: 25px
     @media (max-width: $medium-breakpoint + 1)
       padding-left: 69px
       padding-right: 0
     @media screen and (max-width: $portrait-breakpoint)
       padding: 0 0.6em
       padding-bottom: 100px
-
+  .app-bar
+    padding-left: $nav-width
+    @media screen and (max-width: $portrait-breakpoint)
+      padding: 0
   .loading-spinner-fixed
     position: fixed
 

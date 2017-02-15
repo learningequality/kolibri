@@ -4,10 +4,11 @@
       class='nav-wrapper'
       v-bind:style="wrapperStyle">
       <div class='header'>
-        <button :aria-label="closeNav" class='close' @click="toggleNav"><ui-icon icon='arrow_back'/></button>
-        <img class='logo' src="../login-modal/icons/kolibri-logo.svg" alt="">
+        <button v-if="mobile" :aria-label="closeNav" class='close' @click="toggleNav"><ui-icon icon='arrow_back'/></button>
+        <img class='logo' v-if="mobile" src="../login-modal/icons/kolibri-logo.svg" alt="">
         <p class='title'>Kolibri</p>
       </div>
+      <img class='logo' v-if="!mobile" src="../login-modal/icons/kolibri-logo.svg" alt="">
       <ui-menu
         class='nav-main'
         :options="menuOptions"
@@ -85,16 +86,13 @@
         let styles = {
           minHeight: (this.menuOptions.length - 1)*50 + 173 + 'px',
         };
-        if (this.mobile) {
-          styles['top'] = '0px';
-        }
         return styles;
       },
       navShown() {
         return this.navShownMobile || !this.mobile;
       },
       mobile() {
-        return true;
+        return false;
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version }); // eslint-disable-line no-undef
@@ -205,10 +203,11 @@
   @require '~kolibri.styles.definitions'
   @require '~kolibri.styles.navBarItem'
 
-  $headerheight = 60px
+  $headerheight = 57px
   $footerheight = 100px
 
   .nav-wrapper
+    top: 0px
     background: $core-bg-light
     font-weight: 300
     position: fixed
@@ -218,6 +217,11 @@
     width: $nav-width
     overflow: auto
     -webkit-overflow-scrolling: touch
+    .logo
+      margin: auto
+      display: block
+      height: 125px
+      width: @height
 
   .nav-main
     background: $core-bg-light
