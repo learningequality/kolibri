@@ -2,7 +2,7 @@
 // include global styles
 require('normalize.css');
 require('../styles/font-NotoSans.css');
-require('../styles/core-global.styl');
+require('../styles/main.styl');
 
 // Required to setup Keen UI, should be imported only once in your project
 require('keen-ui/src/bootstrap');

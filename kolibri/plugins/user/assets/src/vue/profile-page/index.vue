@@ -54,7 +54,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   $input-width = 20em
   $input-vertical-spacing = 1rem

@@ -114,7 +114,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
   @require '~kolibri.styles.navBarItem'
 
   .nav-wrapper
