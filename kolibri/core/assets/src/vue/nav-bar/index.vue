@@ -2,7 +2,7 @@
   <div v-show="navShown">
     <div
       class='nav-wrapper'
-      v-bind:style="{minHeight: (menuOptions.length - 1)*50 + 173 + 'px'}">
+      v-bind:style="wrapperStyle">
       <div class='header'>
         <button :aria-label="closeNav" class='close' @click="toggleNav"><ui-icon icon='arrow_back'/></button>
         <img class='logo' src="../login-modal/icons/kolibri-logo.svg" alt="">
@@ -81,6 +81,15 @@
       },
     },
     computed: {
+      wrapperStyle() {
+        let styles = {
+          minHeight: (this.menuOptions.length - 1)*50 + 173 + 'px',
+        };
+        if (this.mobile) {
+          styles['top'] = '0px';
+        }
+        return styles;
+      },
       navShown() {
         return this.navShownMobile || !this.mobile;
       },
@@ -203,7 +212,7 @@
     background: $core-bg-light
     font-weight: 300
     position: fixed
-    z-index: 100
+    z-index: 1001
     font-size: 1em
     height: 100vh
     width: $nav-width
