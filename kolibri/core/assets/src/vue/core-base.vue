@@ -18,7 +18,6 @@
 <script>
 
   const Vue = require('vue');
-  const coreActions = require('kolibri.coreVue.vuex.actions');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
   const vueScroll = require('vue-scroll');
   const values = require('lodash.values');
@@ -47,9 +46,6 @@
       'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
     },
     vuex: {
-      actions: {
-        handleResize: coreActions.handleResize,
-      },
       getters: {
         loading: state => state.core.loading,
         error: state => state.core.error,
@@ -77,11 +73,6 @@
           this.scrolled = false;
         }
       }, 75);
-      window.addEventListener('resize', this.handleResize);
-      this.handleResize();
-    },
-    beforeDestroy() {
-      window.removeEventListener('resize', this.handleResize);
     },
   };
 
