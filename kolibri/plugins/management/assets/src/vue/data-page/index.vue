@@ -104,7 +104,7 @@
     margin-right: 8px
 
   .wrapper
-    cf()
+    clearfix()
 
   form
     display: inline

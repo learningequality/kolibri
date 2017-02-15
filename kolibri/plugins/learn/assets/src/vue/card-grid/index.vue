@@ -71,6 +71,6 @@
     display: inline
 
   .card-grid
-    cf()
+    clearfix()
 
 </style>

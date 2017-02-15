@@ -129,3 +129,16 @@ button::-moz-focus-inner
 
 .core-text-annotation
   color: $core-text-annotation
+
+
+// from http://nicolasgallagher.com/micro-clearfix-hack/
+clearfix()
+  zoom 1
+  &:after
+  &:before
+    content ""
+    display table
+  &:after
+    clear both
+
+
