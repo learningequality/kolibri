@@ -194,7 +194,7 @@
     z-index: 10000
     text-align: center
     position: fixed
-    top: 0
+    top: 60px // TODO: temp fix
     left: 50%
     transform: translate(-50%)
     margin-left: 37px  // half the $nav-width
