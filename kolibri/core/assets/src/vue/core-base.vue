@@ -130,7 +130,6 @@
   @require '~kolibri.styles.definitions'
 
   .main-wrapper
-    position: fixed // must be fixed for ie10
     overflow-y: scroll
     height: 100%
     width: 100%
