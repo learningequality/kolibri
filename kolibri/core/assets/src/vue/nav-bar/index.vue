@@ -85,13 +85,11 @@
     $trs: {
       navigationLabel: 'Main user navigation',
       learn: 'Learn',
-      explore: 'Explore',
       manage: 'Manage',
       coach: 'Coach',
       signIn: 'Sign in',
       profile: 'Profile',
       logOut: 'Log out',
-      settings: 'Settings',
       about: 'About',
       closeNav: 'Close navigation',
       poweredBy: 'Powered by Kolibri {version}',
@@ -156,7 +154,7 @@
         return this.windowSize.breakpoint < 2;
       },
       tablet() {
-        return (this.windowSize.breakpoint > 1) & (this.windowSize.breakpoint < 5);
+        return (this.windowSize.breakpoint > 1) && (this.windowSize.breakpoint < 5);
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version }); // eslint-disable-line no-undef
@@ -168,7 +166,8 @@
         return this.$tr('navigationLabel');
       },
       learnActive() {
-        return this.topLevelPageName === TopLevelPageNames.LEARN_LEARN;
+        return (this.topLevelPageName === TopLevelPageNames.LEARN_LEARN) ||
+        (this.topLevelPageName === TopLevelPageNames.LEARN_EXPLORE);
       },
       coachActive() {
         return this.topLevelPageName === TopLevelPageNames.COACH;
@@ -188,7 +187,7 @@
             label: this.$tr('learn'),
             disabled: this.learnActive,
             icon: 'school',
-            href: '/learn/#/learn',
+            href: '/learn',
           },
         ];
         if (this.isCoachAdminOrSuperuser) {

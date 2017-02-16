@@ -46,7 +46,7 @@
   module.exports = {
     $trNameSpace: 'learnExplore',
     $trs: {
-      explore: 'Explore',
+      explore: 'Topics',
       navigate: 'You can navigate groups of content through headings.',
     },
     components: {

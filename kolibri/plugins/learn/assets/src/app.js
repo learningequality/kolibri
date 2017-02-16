@@ -15,42 +15,42 @@ class LearnModule extends KolibriModule {
       const routes = [
         {
           name: PageNames.EXPLORE_ROOT,
-          path: '/explore',
+          path: '/topics',
           handler: (toRoute, fromRoute) => {
             actions.redirectToExploreChannel(store);
           },
         },
         {
           name: PageNames.EXPLORE_CHANNEL,
-          path: '/explore/:channel_id',
+          path: '/topics/:channel_id',
           handler: (toRoute, fromRoute) => {
             actions.showExploreChannel(store, toRoute.params.channel_id);
           },
         },
         {
           name: PageNames.EXPLORE_TOPIC,
-          path: '/explore/:channel_id/topic/:id',
+          path: '/topics/:channel_id/topic/:id',
           handler: (toRoute, fromRoute) => {
             actions.showExploreTopic(store, toRoute.params.channel_id, toRoute.params.id);
           },
         },
         {
           name: PageNames.EXPLORE_CONTENT,
-          path: '/explore/:channel_id/content/:id',
+          path: '/topics/:channel_id/content/:id',
           handler: (toRoute, fromRoute) => {
             actions.showExploreContent(store, toRoute.params.channel_id, toRoute.params.id);
           },
         },
         {
           name: PageNames.LEARN_ROOT,
-          path: '/learn',
+          path: '/recommended',
           handler: (toRoute, fromRoute) => {
             actions.redirectToLearnChannel(store);
           },
         },
         {
           name: PageNames.LEARN_CHANNEL,
-          path: '/learn/:channel_id',
+          path: '/recommended/:channel_id',
           handler: (toRoute, fromRoute) => {
             const page = toRoute.query.page ? Number(toRoute.query.page) : 1;
             actions.showLearnChannel(store, toRoute.params.channel_id, page);
@@ -58,7 +58,7 @@ class LearnModule extends KolibriModule {
         },
         {
           name: PageNames.LEARN_CONTENT,
-          path: '/learn/:channel_id/content/:id',
+          path: '/recommended/:channel_id/content/:id',
           handler: (toRoute, fromRoute) => {
             actions.showLearnContent(store, toRoute.params.channel_id, toRoute.params.id);
           },
@@ -79,7 +79,7 @@ class LearnModule extends KolibriModule {
         },
         {
           path: '/',
-          redirect: '/explore',
+          redirect: '/recommended',
         },
       ];
 
