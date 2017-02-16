@@ -55,7 +55,7 @@
   module.exports = {
     $trNameSpace: 'learn',
     $trs: {
-      explore: 'Explore',
+      explore: 'Topics',
       youAreHere: 'You are here:',
       back: 'Back to previous topic',
     },

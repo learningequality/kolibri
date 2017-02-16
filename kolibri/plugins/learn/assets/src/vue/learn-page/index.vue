@@ -24,7 +24,7 @@
   module.exports = {
     $trNameSpace: 'learnIndex',
     $trs: {
-      learnName: 'Learn',
+      learnName: 'Recommended',
     },
     components: {
       'page-header': require('../page-header'),
