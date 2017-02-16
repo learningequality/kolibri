@@ -57,7 +57,6 @@
   @require '~kolibri.styles.definitions'
 
   .chan-select
-    display: inline-block
     color: $core-text-annotation
     font-size: 0.9rem
 
