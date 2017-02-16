@@ -67,9 +67,6 @@
 
 <style lang="stylus" scoped>
 
-  .header-wrapper
-    margin-top: 42px // height of toolbar
-
   .extra-nav
     font-size: 12px
     min-height: 16px

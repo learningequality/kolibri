@@ -12,7 +12,7 @@
         :ariaLabel="$tr('search')"
         @click="toggleSearch"/>
     </div>
-
+    <breadcrumbs slot="above" class="breadcrumbs"/>
     <component class="content" slot="content" :is="currentPage"/>
 
     <div slot="below" class="search-pane" v-show="searchOpen">
@@ -52,6 +52,7 @@
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
       'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
+      'breadcrumbs': require('./breadcrumbs'),
     },
     data: () => ({
       currScrollTop: 0,

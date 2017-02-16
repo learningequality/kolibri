@@ -129,14 +129,6 @@
 
   @require '~kolibri.styles.definitions'
 
-  .main-wrapper
-    overflow-y: scroll
-    height: 100%
-    width: 100%
-    padding-bottom: 50px
-    z-index: -2
-  .main-wrapper
-    padding-right: 25px
   .loading-spinner-fixed
     position: fixed
 
