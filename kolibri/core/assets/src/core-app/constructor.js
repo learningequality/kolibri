@@ -145,7 +145,16 @@ module.exports = class CoreApp {
   }
 
   get client() {
-    return rest.wrap(mime, { mime: 'application/json' }).wrap(csrf, { name: 'X-CSRFToken',
-        token: cookiejs.get('csrftoken') }).wrap(errorCode);
+    return (options) => {
+      if (!options.method || options.method === 'GET') {
+        if (!options.params) {
+          options.params = {};
+        }
+        const cacheBust = new Date().getTime();
+        options.params[cacheBust] = cacheBust;
+      }
+      return rest.wrap(mime, { mime: 'application/json' }).wrap(csrf, { name: 'X-CSRFToken',
+        token: cookiejs.get('csrftoken') }).wrap(errorCode)(options);
+    };
   }
 };
