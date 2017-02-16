@@ -1,7 +1,7 @@
 'use strict';
 /**
  * Bundle plugin Python config reader module.
- * @module readBundlePlugin
+ * @module readBundlePlugins
  */
 
 var readWebpackJson = require('./read_webpack_json');
@@ -25,7 +25,7 @@ var coreAliases = require('./apiSpecExportTools').coreAliases;
  * module names to the global namespace at which those modules can be accessed.
  * @returns {Array} bundles - An array containing webpack config objects.
  */
-var readBundlePlugin = function(base_dir) {
+var readBundlePlugins = function(base_dir) {
 
   // Takes a module file path and turns it into a Python module path.
   var bundles = [];
@@ -140,4 +140,4 @@ var readBundlePlugin = function(base_dir) {
 
 };
 
-module.exports = readBundlePlugin;
+module.exports = readBundlePlugins;
