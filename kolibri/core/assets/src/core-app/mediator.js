@@ -6,7 +6,6 @@
  */
 
 
-const assetLoader = require('./asset-loader');
 const Vue = require('vue');
 const logging = require('kolibri.lib.logging').getLogger(__filename);
 const rest = require('rest');
@@ -307,13 +306,9 @@ module.exports = class Mediator {
             args,
             method: value,
           });
-          // Call the asset loader to load all the kolibriModule files.
-          assetLoader(kolibriModuleUrls, (err, notFound) => {
-            if (err) {
-              notFound.forEach((file) => {
-                logging.error(`${file} failed to load`);
-              });
-            }
+          // Load all the kolibriModule files.
+          Promise.all(kolibriModuleUrls.map(this._scriptLoader)).catch((error) => {
+            logging.error(`${kolibriModuleName} failed to load`);
           });
           // Start fetching any language assets that this module might need also.
           this._fetchLanguageAssets(kolibriModuleName, Vue.locale);
