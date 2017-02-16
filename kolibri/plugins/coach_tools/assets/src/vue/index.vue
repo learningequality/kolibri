@@ -1,6 +1,10 @@
 <template>
 
   <core-base :topLevelPageName="topLevelPageName">
+    <div slot="app-bar-actions">
+      <channel-switcher @switch="switchChannel"/>
+    </div>
+
     <div v-if="!currentPage && isCoachAdminOrSuperuser" slot="content">
       <h1>Coach Root</h1>
       <a href="/coach/#/reports">Go to Reports.</a>
@@ -34,6 +38,7 @@
       'reports': require('./reports'),
       'content-unavailable-page': require('./content-unavailable-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
+      'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -45,6 +50,18 @@
           return 'content-unavailable-page';
         }
         return null;
+      },
+    },
+    methods: {
+      switchChannel(channelId) {
+        this.$router.push({
+          name: constants.PageNames.REPORTS,
+          params: {
+            channel_id: channelId,
+            content_scope_id: null,
+            user_scope_id: null,
+          },
+        });
       },
     },
     vuex: {

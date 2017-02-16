@@ -7,7 +7,7 @@
       :title="topLevelPageName"
       :navShown="navShown"
       :height="baseMaterialIncrement">
-      <div slot="app-bar-actions">
+      <div slot="app-bar-actions" class="app-bar-actions">
         <slot name="app-bar-actions"/>
       </div>
     </app-bar>
@@ -140,5 +140,8 @@
     padding-right: 25px
   .loading-spinner-fixed
     position: fixed
+
+  .app-bar-actions
+    display: inline-block
 
 </style>

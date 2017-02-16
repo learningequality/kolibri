@@ -9,6 +9,22 @@
     @nav-icon-click="$emit('toggleSideNav')"
     :style="{ height: height + 'px' }">
     <div slot="actions">
+      <ui-icon-button
+        icon="person"
+        type="secondary"
+        color="white"
+        size="large"
+        :ariaLabel="$tr('account')"
+        has-dropdown
+        ref="accountButton">
+        <ui-menu
+          contain-focus
+          contains-icons
+          slot="dropdown"
+          :options="accountMenuOptions"
+          @close="$refs.accountButton.closeDropdown()"/>
+      </ui-icon-button>
+
       <slot name="app-bar-actions"/>
     </div>
   </ui-toolbar>
@@ -19,6 +35,12 @@
 <script>
 
   module.exports = {
+    $trNameSpace: 'app-bar',
+    $trs: {
+      account: 'Account',
+      editProfile: 'Edit Profile',
+      signOut: 'Sign Out',
+    },
     props: {
       title: {
         type: String,
@@ -35,6 +57,22 @@
     },
     components: {
       'ui-toolbar': require('keen-ui/src/UiToolbar'),
+      'ui-icon-button': require('keen-ui/src/UiIconButton'),
+      'ui-menu': require('keen-ui/src/UiMenu'),
+    },
+    computed: {
+      accountMenuOptions() {
+        return [
+          {
+            id: 'editProfile',
+            label: this.$tr('editProfile'),
+          },
+          {
+            id: 'signOut',
+            label: this.$tr('signOut'),
+          },
+        ];
+      },
     },
   };
 
