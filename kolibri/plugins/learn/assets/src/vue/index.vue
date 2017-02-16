@@ -1,8 +1,6 @@
 <template>
 
   <core-base :topLevelPageName="topLevelPageName" @scroll="handleScroll">
-    <toolbar slot="above" :shown="showToolbar"/>
-
     <div slot="app-bar-actions">
       <channel-switcher @switch="switchChannel"/>
 
@@ -45,7 +43,6 @@
       search: 'search',
     },
     components: {
-      'toolbar': require('./toolbar'),
       'search-widget': require('./search-widget'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
