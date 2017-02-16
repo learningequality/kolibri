@@ -8,7 +8,6 @@
         icon="search"
         type="secondary"
         color="white"
-        size="large"
         :ariaLabel="$tr('search')"
         @click="toggleSearch"/>
     </div>

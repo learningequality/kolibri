@@ -10,7 +10,7 @@ function redirectToHome() {
 }
 
 function showRoot(store) {
-  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  const userSignedIn = coreGetters.isUserSignedIn(store.state);
   if (userSignedIn) {
     router.getInstance().replace({
       name: PageNames.PROFILE,
@@ -23,7 +23,7 @@ function showRoot(store) {
 }
 
 function showSignIn(store) {
-  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  const userSignedIn = coreGetters.isUserSignedIn(store.state);
   if (userSignedIn) {
     router.getInstance().replace({
       name: PageNames.PROFILE,
@@ -39,7 +39,7 @@ function showSignIn(store) {
 
 
 function showSignUp(store) {
-  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  const userSignedIn = coreGetters.isUserSignedIn(store.state);
   if (userSignedIn) {
     router.getInstance().replace({
       name: PageNames.PROFILE,
@@ -55,7 +55,7 @@ function showSignUp(store) {
 
 
 function showProfile(store) {
-  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  const userSignedIn = coreGetters.isUserSignedIn(store.state);
   if (!userSignedIn) {
     router.getInstance().replace({
       name: PageNames.SIGN_IN,

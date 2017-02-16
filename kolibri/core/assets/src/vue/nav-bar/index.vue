@@ -72,7 +72,6 @@
   const getters = require('kolibri.coreVue.vuex.getters');
   const actions = require('kolibri.coreVue.vuex.actions');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
-  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
   const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
 
@@ -209,7 +208,7 @@
         options.push({
           type: 'divider',
         });
-        if (this.loggedIn & !this.isAdminOrSuperuser) {
+        if (this.isUserSignedIn & !this.isAdminOrSuperuser) {
           options.push({
             label: this.$tr('profile'),
             disabled: this.profileActive,
@@ -224,9 +223,9 @@
             icon: 'error_outline',
           },
           {
-            label: this.loggedIn ? this.$tr('logOut') : this.$tr('signIn'),
+            label: this.isUserSignedIn ? this.$tr('logOut') : this.$tr('signIn'),
             icon: 'exit_to_app',
-            action: this.loggedIn ? this.logout : this.showLoginModal,
+            action: this.isUserSignedIn ? this.logout : this.showLoginModal,
           },
         ]);
 
@@ -247,7 +246,7 @@
       },
       getters: {
         session: state => state.core.session,
-        loggedIn: state => state.core.session.kind[0] !== UserKinds.ANONYMOUS,
+        isUserSignedIn: getters.isUserSignedIn,
         isAdminOrSuperuser: getters.isAdminOrSuperuser,
         isCoachAdminOrSuperuser: getters.isCoachAdminOrSuperuser,
         loginModalVisible: state => state.core.loginModalVisible,
