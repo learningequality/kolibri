@@ -1,15 +1,20 @@
 <template>
 
-  <div class="channel-switcher">
-    <label for="chan-select" class="visuallyhidden">{{ $tr('switchChannels') }}</label>
-    <select
-      name="chan-select"
-      id="chan-select"
-      class="chan-select"
-      v-model="localCurrentChannel">
-      <option v-for="channel in channelList" :value="channel.id">{{ channel.title }}</option>
-    </select>
-  </div>
+  <ui-icon-button
+    icon="view_module"
+    type="secondary"
+    color="white"
+    :ariaLabel="$tr('switchChannels')"
+    has-dropdown
+    ref="button">
+    <ui-menu
+      contain-focus
+      contains-icons
+      slot="dropdown"
+      :options="channelOptions"
+      @close="$refs.button.closeDropdown()"
+      @select="channelSelected"/>
+  </ui-icon-button>
 
 </template>
 
@@ -21,22 +26,25 @@
     $trs: {
       switchChannels: 'Switch Channels',
     },
+    components: {
+      'ui-icon-button': require('keen-ui/src/UiIconButton'),
+      'ui-menu': require('keen-ui/src/UiMenu'),
+    },
     computed: {
-      /*
-      * Get and set the current channel ID.
-      */
-      localCurrentChannel: {
-        get() {
-          return this.globalCurrentChannel;
-        },
-        set(newChannelId, oldChannelId) {
-          if (newChannelId !== oldChannelId) {
-            this.switchChannel(newChannelId);
-          }
-        },
+      channelOptions() {
+        const channelOptions = this.channelList.map(channel => ({
+          id: channel.id,
+          label: channel.title,
+        }));
+        return channelOptions;
       },
     },
     methods: {
+      channelSelected(channel) {
+        if (channel.id !== this.globalCurrentChannel) {
+          this.switchChannel(channel.id);
+        }
+      },
       switchChannel(channelId) {
         this.$emit('switch', channelId);
       },
@@ -52,15 +60,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-  .chan-select
-    color: $core-text-annotation
-    font-size: 0.9rem
-
-  .channel-switcher
-    display: inline-block
-
-</style>
+<style lang="stylus" scoped></style>

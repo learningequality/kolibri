@@ -1,7 +1,7 @@
 const UserKinds = require('./constants').UserKinds;
 const cookiejs = require('js-cookie');
 
-function isUserSignedIn(state) {
+function isUserLoggedIn(state) {
   return state.core.session.kind[0] !== UserKinds.ANONYMOUS;
 }
 
@@ -46,7 +46,7 @@ function getCurrentChannelObject(state) {
 
 
 module.exports = {
-  isUserSignedIn,
+  isUserLoggedIn,
   isAdminOrSuperuser,
   isCoachAdminOrSuperuser,
   getDefaultChannelId,

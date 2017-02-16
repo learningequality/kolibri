@@ -11,7 +11,7 @@
     <div slot="actions">
       <slot name="app-bar-actions"/>
       <ui-icon-button
-        v-if="isUserSignedIn"
+        v-if="isUserLoggedIn"
         icon="person"
         type="secondary"
         color="white"
@@ -43,7 +43,7 @@
 <script>
 
   const kolibriLogout = require('kolibri.coreVue.vuex.actions').kolibriLogout;
-  const isUserSignedIn = require('kolibri.coreVue.vuex.getters').isUserSignedIn;
+  const isUserLoggedIn = require('kolibri.coreVue.vuex.getters').isUserLoggedIn;
 
   module.exports = {
     $trNameSpace: 'app-bar',
@@ -106,7 +106,7 @@
         kolibriLogout,
       },
       getters: {
-        isUserSignedIn,
+        isUserLoggedIn,
       },
     },
   };

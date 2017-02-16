@@ -205,7 +205,7 @@
         options.push({
           type: 'divider',
         });
-        if (this.isUserSignedIn & !this.isAdminOrSuperuser) {
+        if (this.isUserLoggedIn & !this.isAdminOrSuperuser) {
           options.push({
             label: this.$tr('profile'),
             disabled: this.profileActive,
@@ -218,7 +218,7 @@
           disabled: this.aboutActive,
           icon: 'error_outline',
         });
-        if (this.isUserSignedIn) {
+        if (this.isUserLoggedIn) {
           options.push({
             label: this.$tr('signOut'),
             icon: 'exit_to_app',
@@ -246,7 +246,7 @@
       },
       getters: {
         session: state => state.core.session,
-        isUserSignedIn: getters.isUserSignedIn,
+        isUserLoggedIn: getters.isUserLoggedIn,
         isAdminOrSuperuser: getters.isAdminOrSuperuser,
         isCoachAdminOrSuperuser: getters.isCoachAdminOrSuperuser,
       },
