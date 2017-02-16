@@ -54,9 +54,6 @@
 
     </div>
 
-    <!-- log-in modal -->
-    <login-modal v-if="loginModalVisible"/>
-
     <div v-if="navShown && mobile" class="modal-overlay"
          @keydown.esc="toggleNav"
          @click="toggleNav">
@@ -88,7 +85,7 @@
       coach: 'Coach',
       signIn: 'Sign in',
       profile: 'Profile',
-      logOut: 'Log out',
+      signOut: 'Sign out',
       about: 'About',
       closeNav: 'Close navigation',
       poweredBy: 'Powered by Kolibri {version}',
@@ -216,40 +213,42 @@
             href: '/management',
           });
         }
-        options.push(...[
-          {
-            label: this.$tr('about'),
-            disabled: this.aboutActive,
-            icon: 'error_outline',
-          },
-          {
-            label: this.isUserSignedIn ? this.$tr('logOut') : this.$tr('signIn'),
+        options.push({
+          label: this.$tr('about'),
+          disabled: this.aboutActive,
+          icon: 'error_outline',
+        });
+        if (this.isUserSignedIn) {
+          options.push({
+            label: this.$tr('signOut'),
             icon: 'exit_to_app',
-            action: this.isUserSignedIn ? this.logout : this.showLoginModal,
-          },
-        ]);
-
+            action: this.signOut,
+          });
+        } else {
+          options.push({
+            label: this.$tr('signIn'),
+            icon: 'exit_to_app',
+            href: '/user',
+          });
+        }
         return options;
       },
     },
     components: {
       'session-nav-widget': require('kolibri.coreVue.components.sessionNavWidget'),
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
-      'login-modal': require('kolibri.coreVue.components.loginModal'),
       'ui-menu': require('keen-ui/src/UiMenu'),
       'ui-icon': require('keen-ui/src/UiIcon'),
     },
     vuex: {
       actions: {
-        logout: actions.kolibriLogout,
-        showLoginModal: actions.showLoginModal,
+        signOut: actions.kolibriLogout,
       },
       getters: {
         session: state => state.core.session,
         isUserSignedIn: getters.isUserSignedIn,
         isAdminOrSuperuser: getters.isAdminOrSuperuser,
         isCoachAdminOrSuperuser: getters.isCoachAdminOrSuperuser,
-        loginModalVisible: state => state.core.loginModalVisible,
       },
     },
   };
