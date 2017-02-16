@@ -2,7 +2,7 @@
 
   <div class="error-box-wrapper" :class="{ hidden: isHidden }">
     <button class="close-button" @click="hideErrorbox" :aria-label="$tr('errorButtonLabel')">
-      <svg src="../icons/close.svg"/>
+      <mat-svg category="navigation" name="close"/>
     </button>
     <h1>{{ $tr('errorHeader') }}</h1>
     <p>{{ $tr('explanation') }}</p>
@@ -46,7 +46,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .error-box-wrapper
     padding: 10px

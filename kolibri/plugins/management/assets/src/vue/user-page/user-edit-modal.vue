@@ -127,6 +127,7 @@
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'core-modal': require('kolibri.coreVue.components.coreModal'),
     },
     props: {
       userid: {
@@ -273,7 +274,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .title
     display: inline

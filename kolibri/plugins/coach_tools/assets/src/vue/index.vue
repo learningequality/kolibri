@@ -33,6 +33,7 @@
     components: {
       'reports': require('./reports'),
       'content-unavailable-page': require('./content-unavailable-page'),
+      'core-base': require('kolibri.coreVue.components.coreBase'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -60,7 +61,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .login-message
     text-align: center

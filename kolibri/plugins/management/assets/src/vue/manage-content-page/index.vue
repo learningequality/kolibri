@@ -22,14 +22,14 @@
             class="button"
             @click="startImportWizard"
             :primary="true">
-            <svg src="../icons/add.svg"/>
+            <mat-svg category="content" name="add"/>
           </icon-button>
           <icon-button
             :text="$tr('export')"
             class="button"
             :primary="true"
             @click="startExportWizard">
-            <svg src="../icons/export.svg"/>
+            <ion-svg name="ios-upload-outline"/>
           </icon-button>
         </div>
       </div>
@@ -129,7 +129,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   // Padding height that separates rows from eachother
   $row-padding = 1.5em

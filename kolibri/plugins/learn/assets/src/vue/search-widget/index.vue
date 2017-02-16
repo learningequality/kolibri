@@ -27,7 +27,7 @@
               @click="clear()"
               :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }"
             >
-              <svg class="clear-icon" src="./clear.svg"/>
+              <mat-svg class="clear-icon" category="content" name="clear"/>
             </button>
           </div>
           <div class="cancel-btn-table-cell">
@@ -172,7 +172,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
   @require '../learn.styl'
 
   $top-offset = 60px
@@ -194,7 +194,7 @@
     z-index: 10000
     text-align: center
     position: fixed
-    top: 0
+    top: 60px // TODO: temp fix
     left: 50%
     transform: translate(-50%)
     margin-left: 37px  // half the $nav-width

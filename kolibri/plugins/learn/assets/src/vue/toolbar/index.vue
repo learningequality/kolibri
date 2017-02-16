@@ -28,6 +28,7 @@
     components: {
       'search-button': require('./search-button'),
       'breadcrumbs': require('../breadcrumbs'),
+      'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
     },
     methods: {
       switchChannel(channelId) {
@@ -60,7 +61,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
   @require '../learn.styl'
 
   $avoid-scrollbar = -25px

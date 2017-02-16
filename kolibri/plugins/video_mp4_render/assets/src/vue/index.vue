@@ -35,6 +35,10 @@
       forward: 'Skip forward 10 seconds.',
     },
 
+    components: {
+      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
+    },
+
     props: ['files'],
 
     data: () => ({
@@ -233,7 +237,7 @@
 
   // UNSCOPED
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   // Shades of Grey
   $dark-grey = #212121

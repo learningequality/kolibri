@@ -76,17 +76,17 @@ describe('coreAliases', function() {
       done();
     });
   });
-  describe('1 nested valid spec no local import', function() {
-    it('should have no entries', function (done) {
+  describe('1 deep nested valid spec no local import', function() {
+    it('should have 1 entry', function (done) {
       apiSpecExportTools.__set__("apiSpec", oneDeepSpec);
-      assert(Object.keys(apiSpecExportTools.coreAliases()).length === 0);
+      assert(Object.keys(apiSpecExportTools.coreAliases()).length === 1);
       done();
     });
   });
-  describe('2 nested valid spec no local import', function() {
-    it('should have no entries', function (done) {
+  describe('2 deep nested valid spec no local import', function() {
+    it('should have 1 entry', function (done) {
       apiSpecExportTools.__set__("apiSpec", twoDeepSpec);
-      assert(Object.keys(apiSpecExportTools.coreAliases()).length === 0);
+      assert(Object.keys(apiSpecExportTools.coreAliases()).length === 1);
       done();
     });
   });

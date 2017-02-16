@@ -1,4 +1,5 @@
 from __future__ import absolute_import, print_function, unicode_literals
+from . import server
 
 # Do this before importing anything else, we need to add bundled requirements
 # from the distributed version in case it exists before importing anything
@@ -279,7 +280,5 @@ def main(args=None):
         return
 
     if arguments['start']:
-        # import from server.py here to avoid circular imports caused by importing kolibri.deployment.default.wsgi
-        from . import server
         server.start()
         return

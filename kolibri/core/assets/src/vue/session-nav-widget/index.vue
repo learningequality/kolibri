@@ -12,7 +12,7 @@
 
     <!-- Logged-out state -->
     <div class="wrapper" v-else>
-      <svg id="person" class="person-icon" src="./icons/person.svg"/>
+      <mat-svg id="person" class="person-icon" category="social" name="person"/>
       <div class="label">{{ $tr('logIn') }}</div>
     </div>
 
@@ -29,6 +29,7 @@
             </li>
             <li id="logout-tab">
               <div tabindex="0" @keyup.enter="userLogout" @click="logout" :aria-label="$tr('logOut')">
+                <mat-svg category="action" name="power_settings_new"/>
                 <span>{{ $tr('logOut') }}</span>
               </div>
             </li>
@@ -226,13 +227,15 @@
     div
       color: $core-action-normal
       transition: all 0.2s
-      background: url('./icons/active-logout.svg') no-repeat
+      svg
+        fill: $core-action-normal
+        display: inline-block
       &:hover
-        background: url('./icons/logout-hover.svg') no-repeat
+        svg
+          fill: $core-action-dark
       span
         position: relative
         bottom: 2px
-        margin-left: 25px
         &:hover
           cursor: pointer
           color: $core-action-dark

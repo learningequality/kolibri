@@ -4,7 +4,7 @@ const constants = require('./constants');
 
 /**
  ** pageState schemas
-**/
+ **/
 
 
 const initialState = {
@@ -24,11 +24,15 @@ const mutations = {
   SET_PROFILE_BUSY(state, isBusy) {
     state.pageState.busy = isBusy;
   },
-  SET_PROFILE_EROR(state, isError) {
-    state.pageState.error = isError;
+  SET_PROFILE_SUCCESS(state, isSuccessful) {
+    state.pageState.success = isSuccessful;
   },
-  SET_PROFILE_STATUS_MESSAGE(state, message) {
-    state.pageState.status = message;
+  SET_PROFILE_EROR(state, isError, errorMessage) {
+    state.pageState.error = isError;
+    state.pageState.errorMessage = errorMessage;
+  },
+  SET_SIGN_UP_ERROR(state, error) {
+    state.pageState.signUpError = error;
   },
 };
 

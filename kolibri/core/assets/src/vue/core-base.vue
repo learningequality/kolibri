@@ -1,6 +1,11 @@
 <template>
 
   <div>
+    <app-bar :title="topLevelPageName">
+      <div slot="app-bar-actions">
+        <slot name="app-bar-actions"/>
+      </div>
+    </app-bar>
     <nav-bar :topLevelPageName="topLevelPageName"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
     <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
@@ -17,7 +22,6 @@
 <script>
 
   const Vue = require('vue');
-  const coreActions = require('kolibri.coreVue.vuex.actions');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
   const vueScroll = require('vue-scroll');
   const values = require('lodash.values');
@@ -40,13 +44,12 @@
       },
     },
     components: {
+      'app-bar': require('./app-bar'),
       'nav-bar': require('./nav-bar'),
       'error-box': require('./error-box'),
+      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
     },
     vuex: {
-      actions: {
-        handleResize: coreActions.handleResize,
-      },
       getters: {
         loading: state => state.core.loading,
         error: state => state.core.error,
@@ -74,11 +77,6 @@
           this.scrolled = false;
         }
       }, 75);
-      window.addEventListener('resize', this.handleResize);
-      this.handleResize();
-    },
-    beforeDestroy() {
-      window.removeEventListener('resize', this.handleResize);
     },
   };
 
@@ -87,15 +85,15 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .main-wrapper
     position: fixed // must be fixed for ie10
     overflow-y: scroll
     height: 100%
     width: 100%
-    padding-left: $left-margin
-    padding-right: $right-margin
+    padding-left: 100px
+    padding-right: 25px
     padding-bottom: 50px
     z-index: -2
     @media (max-width: $medium-breakpoint + 1)

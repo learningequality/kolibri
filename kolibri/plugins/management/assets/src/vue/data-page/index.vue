@@ -13,11 +13,11 @@
       <p>
         {{$tr('detailsSubHeading')}}
       </p>
-      <a :href="sessionlogurl">
+      <form :action="sessionlogurl" method="get">
         <icon-button :text="$tr('download')">
-          <svg src="../icons/download.svg"/>
+          <mat-svg category="file" name="file_download"/>
         </icon-button>
-      </a>
+      </form>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('detailsInfo')}}.
       </p>
@@ -28,11 +28,11 @@
       <p>
         {{$tr('summarySubHeading')}}
       </p>
-      <a :href="summarylogurl">
+      <form :action="summarylogurl" method="get">
         <icon-button :text="$tr('download')">
-          <svg src="../icons/download.svg"/>
+          <mat-svg category="file" name="file_download"/>
         </icon-button>
-      </a>
+      </form>
       <p class="infobox">
         <b>{{$tr('note')}}</b>: {{$tr('summaryInfo')}}
       </p>
@@ -88,8 +88,8 @@
 
 <style lang="stylus" scoped>
 
-  @require 'jeet'
-  @require '~kolibri.styles.coreTheme'
+  // @require 'jeet'
+  @require '~kolibri.styles.definitions'
 
   @media (min-width: $medium-breakpoint)
     .exportblock
@@ -104,6 +104,9 @@
     margin-right: 8px
 
   .wrapper
-    cf()
+    clearfix()
+
+  form
+    display: inline
 
 </style>

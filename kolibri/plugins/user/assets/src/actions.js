@@ -1,46 +1,52 @@
 const coreApp = require('kolibri');
-// const logging = require('kolibri.lib.logging');
-
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
+const PageNames = require('./state/constants').PageNames;
+const SignUpResource = require('kolibri').resources.SignUpResource;
+const coreActions = require('kolibri.coreVue.vuex.actions');
+const coreGetters = require('kolibri.coreVue.vuex.getters');
+const router = require('kolibri.coreVue.router');
 
-// const coreActions = require('kolibri.coreVue.vuex.actions');
-// const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const constants = require('./state/constants');
-const PageNames = constants.PageNames;
-// const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
+function redirectToHome() {
+  window.location = '/';
+}
 
+function showRoot(store) {
+  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  if (userSignedIn) {
+    router.getInstance().replace({
+      name: PageNames.PROFILE,
+    });
+    return;
+  }
+  router.getInstance().replace({
+    name: PageNames.SIGN_IN,
+  });
+}
 
-// ================================
-// USER ACTIONS
-
-
-/**
- * Actions
- *
- * These methods are used to update client-side state
- */
-
-function editProfile(store, profileEdits, session) {
+function editProfile(store, edits, session) {
   // payload needs username, fullname, and facility
-  const userID = profileEdits.id;
-  const savedUserModel = FacilityUserResource.getModel(userID);
-  const savedUser = savedUserModel.attributes;
+  // used to save changes to API
+  const savedUserModel = FacilityUserResource.getModel(session.user_id);
   const changedValues = {};
 
   // TODO set up core session updates
 
   // explicit checks for the only values that can be changed
-  if (profileEdits.full_name && profileEdits.full_name !== savedUser.full_name) {
-    changedValues.full_name = profileEdits.full_name;
+  if (edits.full_name && edits.full_name !== session.full_name) {
+    changedValues.full_name = edits.full_name;
   }
-  if (profileEdits.username && profileEdits.username !== savedUser.username) {
-    changedValues.username = profileEdits.username;
+  if (edits.username && edits.username !== session.username) {
+    changedValues.username = edits.username;
   }
-  if (profileEdits.password && profileEdits.password !== savedUser.password) {
-    changedValues.password = profileEdits.password;
+  if (edits.password && edits.password !== session.password) {
+    changedValues.password = edits.password;
   }
-  if (profileEdits.facility && profileEdits.facility !== savedUser.facility) {
-    changedValues.facility = profileEdits.facility;
+
+  // check to see if anything's changed and conditionally add last requirement
+  if (Object.keys(changedValues).length) {
+    changedValues.facility = session.facility_id;
+  } else {
+    return;
   }
 
   // update user object with new values
@@ -48,33 +54,74 @@ function editProfile(store, profileEdits, session) {
 
   savedUserModel.save(changedValues).then(userWithAttrs => {
     // dispatch changes to store
-    store.dispatch('SET_PROFILE_STATUS', 'Successful');
+    coreActions.getCurrentSession(store);
+    store.dispatch('SET_PROFILE_SUCCESS', true);
     store.dispatch('SET_PROFILE_BUSY', false);
+    store.dispatch('SET_PROFILE_EROR', false, '');
+
+  // error handling
   }, error => {
-    store.dispatch('SET_PROFILE_EROR', true);
-    // error.message doesn't exist. TODO
-    store.dispatch('SET_PROFILE_STATUS', error.message);
+    // copying logic from user-create-modal
+    function errorMessage(apiError) {
+      if (apiError.status.code === 400) {
+        // access the first apiError message
+        return Object.values(apiError.entity)[0][0];
+      } else if (apiError.status.code === 403) {
+        return apiError.entity[0];
+      }
+      return '';
+    }
+    store.dispatch('SET_PROFILE_SUCCESS', false);
+    store.dispatch('SET_PROFILE_EROR', true, errorMessage(error));
+    store.dispatch('SET_PROFILE_BUSY', false);
   });
 }
+
 function showSignIn(store) {
+  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  if (userSignedIn) {
+    router.getInstance().replace({
+      name: PageNames.PROFILE,
+    });
+    return;
+  }
   store.dispatch('SET_PAGE_NAME', PageNames.SIGN_IN);
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', 'User Sign In');
 }
+
+
 function showSignUp(store) {
+  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  if (userSignedIn) {
+    router.getInstance().replace({
+      name: PageNames.PROFILE,
+    });
+    return;
+  }
   store.dispatch('SET_PAGE_NAME', PageNames.SIGN_UP);
-  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('SET_PAGE_STATE', { signUpError: null });
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', 'User Sign Up');
 }
+
+
 function showProfile(store) {
+  const userSignedIn = coreGetters.isUserLoggedIn(store.state);
+  if (!userSignedIn) {
+    router.getInstance().replace({
+      name: PageNames.SIGN_IN,
+    });
+    return;
+  }
   const pageState = {
     busy: false,
-    statusMessage: '',
+    success: false,
     error: false,
+    errorMessage: '',
   };
   store.dispatch('SET_PAGE_NAME', PageNames.PROFILE);
   store.dispatch('SET_PAGE_STATE', pageState);
@@ -82,18 +129,30 @@ function showProfile(store) {
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', 'User Profile');
 }
-function showScratchpad(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
-  store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'User Scratchpad');
+
+
+function signUp(store, signUpCreds) {
+  const signUpModel = SignUpResource.createModel(signUpCreds);
+  const signUpPromise = signUpModel.save(signUpCreds);
+  signUpPromise.then(() => {
+    store.dispatch('SET_SIGN_UP_ERROR', null);
+    // TODO: Better solution?
+    redirectToHome();
+  }).catch(error => {
+    if (error.status.code === 400) {
+      store.dispatch('SET_SIGN_UP_ERROR', 400);
+    } else {
+      coreActions.handleApiError(store, error);
+    }
+  });
 }
 
+
 module.exports = {
+  showRoot,
   showSignIn,
   showSignUp,
+  signUp,
   showProfile,
   editProfile,
-  showScratchpad,
 };

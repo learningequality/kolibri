@@ -23,7 +23,7 @@ for (var i=0; i < bundles.length; i++) {
       }
     }),
     // optimize module ids by occurence count
-    new webpack.optimize.OccurenceOrderPlugin()
+    new webpack.optimize.OccurrenceOrderPlugin()
   ]);
 }
 

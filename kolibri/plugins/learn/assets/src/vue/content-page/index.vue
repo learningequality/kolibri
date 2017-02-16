@@ -17,7 +17,7 @@
 
     <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn">
       {{ $tr('nextContent') }}
-      <svg class="right-arrow" src="../icons/arrow_right.svg"/>
+      <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
     </icon-button>
 
     <p class="page-description">{{ content.description }}</p>
@@ -111,6 +111,9 @@
     components: {
       'page-header': require('../page-header'),
       'expandable-content-grid': require('../expandable-content-grid'),
+      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
+      'download-button': require('kolibri.coreVue.components.downloadButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     methods: {
       nextContentClicked() {
@@ -148,7 +151,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .recommendation-section
     margin-top: 4em

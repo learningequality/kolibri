@@ -150,6 +150,10 @@
       notListened: 'Not Listened',
       notViewed: 'Not Viewed',
     },
+    components: {
+      'progress-bar': require('kolibri.coreVue.components.progressBar'),
+      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
+    },
     computed: {
       lastActiveDate() {
         if (this.lastActive) {
@@ -215,7 +219,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
   @require '../reports.styl'
 
   .summary-section

@@ -3,7 +3,6 @@ const cookiejs = require('js-cookie');
 const UserKinds = require('./constants').UserKinds;
 const MasteryLoggingMap = require('./constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('./constants').AttemptLoggingMap;
-const throttle = require('lodash.throttle');
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 
 const intervalTimer = require('./timer');
@@ -162,17 +161,6 @@ function handleApiError(store, errorObject) {
   handleError(store, JSON.stringify(errorObject, null, '\t'));
 }
 
-const debouncedSetWindowInfo = throttle((store) => {
-  // http://stackoverflow.com/a/8876069
-  const w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-  const h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-  store.dispatch('SET_VIEWPORT_SIZE', w, h);
-}, 33);
-
-function handleResize(store, event) {
-  debouncedSetWindowInfo(store);
-}
-
 function kolibriLogin(store, sessionPayload) {
   const coreApp = require('kolibri');
   const SessionResource = coreApp.resources.SessionResource;
@@ -185,7 +173,7 @@ function kolibriLogin(store, sessionPayload) {
       const manageURL = coreApp.urls['kolibri:managementplugin:management']();
       window.location.href = window.location.origin + manageURL;
     } else {
-      location.reload(true);
+      window.location.href = window.location.origin;
     }
   }).catch(error => {
     if (error.status.code === 401) {
@@ -216,7 +204,7 @@ function getCurrentSession(store) {
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
   const sessionPromise = sessionModel.fetch({});
-  sessionPromise.then((session) => {
+  return sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
   }).catch(error => { handleApiError(store, error); });
 }
@@ -659,7 +647,6 @@ function updateMasteryAttemptState(store, currentTime, correct, complete, firstA
 module.exports = {
   handleError,
   handleApiError,
-  handleResize,
   kolibriLogin,
   kolibriLogout,
   getCurrentSession,

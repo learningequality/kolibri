@@ -28,6 +28,7 @@
 <script>
 
   const PageNames = require('../../state/constants').PageNames;
+  const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
 
   module.exports = {
     $trNameSpace: 'allContent',
@@ -36,28 +37,12 @@
       next: 'Next',
       pagesLabel: 'Browse all content',
     },
-    mounted() {
-      /*
-        `this.gridWidth` is a quick hack to ensure that rows are completely filled.
-        The consequence is that some items are hidden if they spill over and don't
-        entirely fill up a line. We're also (ab)using a new viewport size watcher
-        and checking sizes that are usually handled with styles and media queries.
-      */
-      this.$watch('viewportWidth', () => {
-        this.gridWidth = this.$refs.grid.$el.offsetWidth;
-      });
-      this.gridWidth = this.$refs.grid.$el.offsetWidth;
-    },
-    data() {
-      return {
-        gridWidth: 0,
-      };
-    },
+    mixins: [responsiveElement],
     computed: {
       contentToShow() {
         const CARD_WIDTH = 200;  // duplicate of $card-width
         const CARD_GUTTER = 20;  // duplicate of $card-gutter
-        const nCols = Math.max(2, Math.floor(this.gridWidth / (CARD_WIDTH + CARD_GUTTER)));
+        const nCols = Math.max(2, Math.floor(this.elSize.width / (CARD_WIDTH + CARD_GUTTER)));
         return this.all.content.slice(0, nCols);
       },
       hasNext() {
@@ -100,7 +85,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .allnav
     display: inline

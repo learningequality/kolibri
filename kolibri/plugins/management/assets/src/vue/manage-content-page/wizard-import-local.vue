@@ -13,7 +13,7 @@
       <template v-if="!drivesLoading">
         <div class="modal-message">
           <h2 class="core-text-alert" v-if="noDrives">
-            <svg class="error-svg" src="../icons/error.svg"/>
+            <mat-svg class="error-svg" category="alert" name="error_outline"/>
             {{$tr('noDrivesDetected')}}
           </h2>
           <template v-else>
@@ -53,7 +53,7 @@
             :text="$tr('refresh')"
             @click="updateWizardLocalDriveList"
             :disabled="wizardState.busy">
-            <svg src="../icons/refresh.svg"/>
+            <mat-svg category="navigation" name="refresh"/>
           </icon-button>
         </div>
       </template>
@@ -95,6 +95,7 @@
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
     },
     data: () => ({
       selectedDrive: undefined, // used when there's more than one option
@@ -160,7 +161,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   $min-height = 200px
 

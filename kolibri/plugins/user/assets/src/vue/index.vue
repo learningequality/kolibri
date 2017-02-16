@@ -27,10 +27,10 @@
   module.exports = {
     name: 'User-Plugin',
     components: {
+      'core-base': require('kolibri.coreVue.components.coreBase'),
       'sign-in-page': require('./sign-in-page'),
       'sign-up-page': require('./sign-up-page'),
       'profile-page': require('./profile-page'),
-      'scratchpad-page': require('./scratchpad-page'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.USER,
@@ -43,9 +43,6 @@
         }
         if (this.pageName === PageNames.PROFILE) {
           return 'profile-page';
-        }
-        if (this.pageName === PageNames.SCRATCHPAD) {
-          return 'scratchpad-page';
         }
         return null;
       },
@@ -72,6 +69,6 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
 </style>

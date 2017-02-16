@@ -39,6 +39,7 @@
       'data-page': require('./data-page'),
       'manage-content-page': require('./manage-content-page'),
       'scratchpad-page': require('./scratchpad-page'),
+      'core-base': require('kolibri.coreVue.components.coreBase'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.MANAGE,
@@ -72,7 +73,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .manage-content
     width: 100%

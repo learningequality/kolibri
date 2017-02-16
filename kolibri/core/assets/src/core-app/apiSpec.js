@@ -85,7 +85,7 @@ module.exports = {
           module: require('../vue/core-modal'),
         },
         navBarItem: {
-          module: require('../vue/nav-bar/nav-bar-item'),
+          module: require('../vue/nav-bar/nav-bar-item.vue'),
         },
         iconButton: {
           module: require('../vue/icon-button'),
@@ -93,17 +93,37 @@ module.exports = {
         channelSwitcher: {
           module: require('../vue/channel-switcher'),
         },
+        loginModal: {
+          module: require('../vue/login-modal'),
+        },
+        sessionNavWidget: {
+          module: require('../vue/session-nav-widget'),
+        },
       },
       router: {
         module: require('../router'),
+      },
+      mixins: {
+        responsiveWindow: {
+          module: require('../mixins/responsive-window'),
+        },
+        responsiveElement: {
+          module: require('../mixins/responsive-element'),
+        },
       },
     },
     styles: {
       navBarItem: {
         module: require('../vue/nav-bar/nav-bar-item.styl'),
       },
-      coreTheme: {
+      theme: {
         module: require('../styles/core-theme.styl'),
+      },
+      definitions: {
+        module: require('../styles/definitions.styl'),
+      },
+      keenVars: {
+        module: require('../keen-config/variables.scss'),
       },
     },
   },

@@ -9,11 +9,11 @@
         </div>
       </div>
       <div class="card-content">
-        <content-icon
-          class="outer-content-icon"
+        <div class="text">
+          <content-icon
+          class="content-icon"
           v-if="kind"
           :kind="kind"/>
-        <div class="text">
           {{ title }}
         </div>
       </div>
@@ -26,6 +26,10 @@
 <script>
 
   module.exports = {
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
+    },
     props: {
       title: {
         type: String,
@@ -51,7 +55,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
   @require '../../learn.styl'
 
   $thumb-width = $horizontal-card-height
@@ -82,10 +86,11 @@
     text-overflow: ellipsis
     color: $core-text-default
 
-  .outer-content-icon
+  .content-icon
     position: absolute
     left: 10px
     top: 10px
+    font-size: 1.5em
 
   .card-content
     padding: 10px

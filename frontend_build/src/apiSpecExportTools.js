@@ -10,15 +10,25 @@ var path = require("path");
 // Find the API specification file relative to this file.
 var specFilePath = path.resolve(path.join(__dirname, '../../kolibri/core/assets/src/core-app/apiSpec.js'))
 
-// Read the spec file and do a regex replace to change all instances of 'require('...')'
-// to just be the string of the require path.
-// Our strict linting rules should ensure that this regex suffices.
-var apiSpecFile = fs.readFileSync(specFilePath, 'utf-8').replace(/require\(('\S+')\)/g, '$1');
+function specModule(filePath) {
+  var rootPath = path.dirname(filePath);
+  function newPath(match, p1) {
+    return "'" + path.join(rootPath, p1) + "'";
+  }
 
-// Invoke the module constructor to compile a module from this altered representation.
-var Module = module.constructor;
-var m = new Module(specFilePath, module.parent);
-m._compile(apiSpecFile, specFilePath);
+  // Read the spec file and do a regex replace to change all instances of 'require('...')'
+  // to just be the string of the require path.
+  // Our strict linting rules should ensure that this regex suffices.
+  var apiSpecFile = fs.readFileSync(filePath, 'utf-8').replace(/require\('(\S+)'\)/g, newPath);
+
+  // Invoke the module constructor to compile a module from this altered representation.
+  var Module = module.constructor;
+  var mod = new Module(filePath, module.parent);
+  mod._compile(apiSpecFile, filePath);
+  return mod;
+}
+
+var m = specModule(specFilePath);
 
 // Tada! The apiSpec object is now exported without doing any of the internal requires.
 var apiSpec = m.exports.apiSpec;
@@ -45,7 +55,7 @@ function coreExternals(kolibri_name) {
     // the top namespace, as, logically, that would overwrite the global object.
     if (pathArray.length > 1 && obj.module) {
       // Check if this is a global import (i.e. from node_modules)
-      if (obj.module.indexOf('.') !== 0) {
+      if (!obj.module.startsWith('.')) {
         externalsObj[obj.module] = pathArray.join('.');
       }
       externalsObj[requireName(pathArray)] = pathArray.join('.');
@@ -55,7 +65,7 @@ function coreExternals(kolibri_name) {
   return externalsObj;
 }
 
-function coreAliases() {
+function coreAliases(localAPISpec) {
   /*
    * Function for creating a hash of aliases for modules that are exposed on the core kolibri object.
    */
@@ -70,12 +80,19 @@ function coreAliases() {
     // the top namespace, as, logically, that would overwrite the global object.
     // We only want to include modules that are using relative imports, so as to exclude
     // modules that are already in node_modules.
-    if (pathArray.length > 1 && obj.module && obj.module.indexOf('.') === 0) {
+    if (pathArray.length > 1 && obj.module && obj.module.startsWith('.')) {
       // Map from the requireName to a resolved path (relative to the apiSpecFile) to the module in question.
       aliasesObj[requireName(pathArray)] = path.resolve(path.join(path.dirname(specFilePath), obj.module));
+    } else if (pathArray.length > 1 && obj.module && !obj.module.startsWith('.')) {
+      aliasesObj[requireName(pathArray)] = obj.module;
     }
   };
   recurseObjectKeysAndAlias(apiSpec, ['kolibri']);
+  if (localAPISpec) {
+    // If there is a local API spec being injected, just overwrite previous aliases.
+    var localSpec = specModule(localAPISpec).exports;
+    recurseObjectKeysAndAlias(localSpec, ['kolibri']);
+  }
   return aliasesObj;
 }
 

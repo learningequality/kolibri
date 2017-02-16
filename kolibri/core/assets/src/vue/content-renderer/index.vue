@@ -55,6 +55,9 @@
         default: '{}',
       },
     },
+    components: {
+      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
+    },
     computed: {
       contentType() {
         if (typeof this.kind !== 'undefined' & typeof this.extension !== 'undefined') {
@@ -223,7 +226,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .fill-height
     height: 100%
