@@ -1,7 +1,10 @@
 <template>
 
   <div>
-    <div v-if="available" class="fill-height">
+    <div v-if="noRendererAvailable">
+      {{ $tr('contentNotAvailable') }}
+    </div>
+    <div v-else-if="available" class="fill-height">
       <div class="content-wrapper">
         <loading-spinner id="spinner" v-if="!currentViewClass"/>
         <div ref="container"></div>
@@ -24,6 +27,7 @@
     $trNameSpace: 'contentRender',
     $trs: {
       msgNotAvailable: 'This content is not available',
+      contentNotAvailable: 'Kolibri is unable to render this content',
     },
     props: {
       id: {
@@ -59,12 +63,6 @@
       'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
     },
     computed: {
-      contentType() {
-        if (typeof this.kind !== 'undefined' & typeof this.extension !== 'undefined') {
-          return `${this.kind}/${this.extension}`;
-        }
-        return undefined;
-      },
       extension() {
         if (this.availableFiles.length > 0) {
           return this.availableFiles[0].extension;
@@ -81,13 +79,10 @@
           this.availableFiles.length ? this.availableFiles[0] : undefined;
       },
     },
-    beforeCreate() {
-      this._eventListeners = [];
-    },
     created() {
-      this.findRendererComponent();
+      this.getRendererComponent();
       // This means this component has to be torn down on channel switches.
-      this.$watch('files', this.findRendererComponent);
+      this.$watch('files', this.getRendererComponent);
     },
     mounted() {
       this.ready = true;
@@ -95,41 +90,28 @@
     },
     data: () => ({
       currentViewClass: null,
+      noRendererAvailable: false,
     }),
     methods: {
       /**
-       * Clear any active listeners - this ensures that if the current content node changes,
-       * but the previous one has not received its renderer callback, no shenanigans will occur.
-       */
-      clearListeners() {
-        this._eventListeners.forEach((listener) => {
-          this.Kolibri.off(listener.event, listener.callback);
-        });
-        this._eventListeners = [];
-      },
-      /**
-       * Broadcast through the Kolibri core app for a content renderer module that is able to
+       * Check the Kolibri core app for a content renderer module that is able to
        * handle the rendering of the current content node. This is the entrance point for changes
        * in the props,so any change in the props will trigger this function first.
        */
-      findRendererComponent() {
-        // Clear any existing listeners so that two renderings do not collide in this component.
-        this.clearListeners();
-        // Only bother to do this is if the node is available. Otherwise the template can handle it.
-        if (this.available) {
+      getRendererComponent() {
+        // Assume we will find a renderer until we find out otherwise.
+        this.noRendererAvailable = false;
+        // Only bother to do this is if the node is available, and the kind and extension are defined.
+        // Otherwise the template can handle it.
+        if (this.available && this.kind && this.extension) {
           // The internal content rendering component is currently unrendered.
           this.rendered = false;
-          // This is the event that content renderers will broadcast in response to our call.
-          const event = `component_render:${this.contentType}`;
-          // This is the method that will accept the component passed by the content renderer.
-          const callback = this.setRendererComponent;
-          // Set up listening for the response.
-          this.Kolibri.once(event, callback);
-          // Keep a track of this listener so that we can unbind it later if needed.
-          this._eventListeners.push({ event, callback });
-          // This is the event that is broadcast out to the content renderers.
-          this.Kolibri.emit(`content_render:${this.contentType}`, this.contentType);
-          logging.debug(`Looking for content renderer for ${this.contentType}`);
+          this.Kolibri.retrieveContentRenderer(this.kind, this.extension).then((component) => {
+            this.setRendererComponent(component);
+          }).catch((error) => {
+            logging.error(error);
+            this.noRendererAvailable = true;
+          });
         }
       },
       /**

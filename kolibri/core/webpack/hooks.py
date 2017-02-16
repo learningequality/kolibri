@@ -286,14 +286,18 @@ class WebpackBundleHook(hooks.KolibriHook):
             events=json.dumps(self.events),
             once=json.dumps(self.once),
         )
+        js += self.frontend_message_file_script_tag()
+        return mark_safe('<script>{js}</script>'.format(js=js))
+
+    def frontend_message_file_script_tag(self):
         if self.frontend_message_file_url:
-            js += '{kolibri_name}.registerLanguageAssetsUrl("{bundle}", "{lang_code}", "{message_url}");'.format(
+            return '{kolibri_name}.registerLanguageAssetsUrl("{bundle}", "{lang_code}", "{message_url}");'.format(
                 kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
                 bundle=self.unique_slug,
                 lang_code=get_language(),
                 message_url=self.frontend_message_file_url
             )
-        return mark_safe('<script>{js}</script>'.format(js=js))
+        return ''
 
     class Meta:
         abstract = True
