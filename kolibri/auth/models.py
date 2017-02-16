@@ -46,7 +46,7 @@ from .errors import (
 from .filters import HierarchyRelationsFilter
 from .permissions.auth import (
     AnybodyCanCreateIfNoDeviceOwner, AnybodyCanCreateIfNoFacility, CollectionSpecificRoleBasedPermissions,
-    AnonUserCanReadFacilitiesThatAllowSignUps
+    AnonUserCanReadFacilitiesThatAllowSignUps, IsAdminForOwnFacilityDataset
 )
 from .permissions.base import BasePermissions, RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
@@ -66,6 +66,8 @@ class FacilityDataset(models.Model):
     from ``AbstractFacilityDataModel``) foreign key onto, to indicate that they belong to this particular ``Facility``.
     """
 
+    permissions = IsAdminForOwnFacilityDataset()
+
     description = models.TextField(blank=True)
     location = models.CharField(max_length=200, blank=True)
 
@@ -82,6 +84,7 @@ class FacilityDataset(models.Model):
             return "FacilityDataset for {}".format(Facility.objects.get(id=facilities[0].id))
         else:
             return "FacilityDataset (no associated Facility)"
+
 
 class AbstractFacilityDataModel(models.Model):
     """

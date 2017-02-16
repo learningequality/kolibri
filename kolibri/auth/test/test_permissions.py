@@ -54,6 +54,71 @@ class ImproperUsageIsProperlyHandledTestCase(TestCase):
             HierarchyRelationsFilter(Facility).filter_by_hierarchy(target_user=["test"])
 
 
+class FacilityDatasetPermissionsTestCase(TestCase):
+    """
+    Tests of permissions for reading/modifying FacilityData instances
+    """
+
+    def setUp(self):
+        self.data1 = create_dummy_facility_data()
+        self.data2 = create_dummy_facility_data()
+        self.device_owner = DeviceOwner.objects.create(username="boss")
+        self.anon_user = KolibriAnonymousUser()
+
+    def test_facility_users_and_anon_users_cannot_create_facility_dataset(self):
+        """ FacilityUsers can't create new Facilities, regardless of their roles """
+        new_facility_dataset = {}
+        self.assertFalse(self.data1["facility_admin"].can_create(FacilityDataset, new_facility_dataset))
+        self.assertFalse(self.data1["classroom_coaches"][0].can_create(FacilityDataset, new_facility_dataset))
+        self.assertFalse(self.data1["learners_one_group"][0][0].can_create(FacilityDataset, new_facility_dataset))
+        self.assertFalse(self.data1["unattached_users"][0].can_create(FacilityDataset, new_facility_dataset))
+        self.assertFalse(self.data1["unattached_users"][0].can_create(FacilityDataset, new_facility_dataset))
+
+    def test_anon_users_cannot_read_facility_dataset(self):
+        """ KolibriAnonymousUser cannot read Facility objects """
+        self.assertFalse(self.anon_user.can_read(self.data1["dataset"]))
+        self.assertNotIn(self.data1["dataset"], self.anon_user.filter_readable(FacilityDataset.objects.all()))
+
+    def test_only_facility_admins_can_update_own_facility_dataset(self):
+        """ The only FacilityUser who can update a FacilityDataset is a facility admin for that FacilityDataset """
+        own_dataset = self.data1["dataset"]
+        self.assertTrue(self.data1["facility_admin"].can_update(own_dataset))
+        self.assertFalse(self.data1["classroom_coaches"][0].can_update(own_dataset))
+        self.assertFalse(self.data1["learners_one_group"][0][0].can_update(own_dataset))
+        self.assertFalse(self.data1["unattached_users"][0].can_update(own_dataset))
+        self.assertFalse(self.anon_user.can_update(own_dataset))
+
+    def test_facility_users_and_anon_users_cannot_delete_own_facility_dataset(self):
+        """ FacilityUsers can't delete own FacilityDataset, regardless of their roles """
+        own_dataset = self.data1["dataset"]
+        self.assertFalse(self.data1["facility_admin"].can_delete(own_dataset))
+        self.assertFalse(self.data1["classroom_coaches"][0].can_delete(own_dataset))
+        self.assertFalse(self.data1["learners_one_group"][0][0].can_delete(own_dataset))
+        self.assertFalse(self.data1["unattached_users"][0].can_delete(own_dataset))
+        self.assertFalse(self.anon_user.can_delete(own_dataset))
+
+    def test_facility_users_cannot_delete_other_facility_dataset(self):
+        """ FacilityUsers can't delete other FacilityDataset, regardless of their roles """
+        other_facility_dataset = self.data2["dataset"]
+        self.assertFalse(self.data1["facility_admin"].can_delete(other_facility_dataset))
+        self.assertFalse(self.data1["classroom_coaches"][0].can_delete(other_facility_dataset))
+        self.assertFalse(self.data1["learners_one_group"][0][0].can_delete(other_facility_dataset))
+        self.assertFalse(self.data1["unattached_users"][0].can_delete(other_facility_dataset))
+
+    def test_device_owner_can_do_anything_to_a_facility_dataset(self):
+        """ DeviceOwner can do anything to a FacilityDataset """
+
+        new_facility_data = {}
+        self.assertTrue(self.device_owner.can_create(FacilityDataset, new_facility_data))
+
+        facility_dataset = self.data1["dataset"]
+        self.assertTrue(self.device_owner.can_read(facility_dataset))
+        self.assertTrue(self.device_owner.can_update(facility_dataset))
+        self.assertTrue(self.device_owner.can_delete(facility_dataset))
+
+        self.assertSetEqual(set(FacilityDataset.objects.all()), set(self.device_owner.filter_readable(FacilityDataset.objects.all())))
+
+
 class FacilityPermissionsTestCase(TestCase):
     """
     Tests of permissions for reading/modifying Facility instances

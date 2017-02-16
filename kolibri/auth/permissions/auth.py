@@ -6,7 +6,7 @@ from django.contrib.auth.models import AnonymousUser
 
 from ..constants.collection_kinds import FACILITY
 from ..constants.role_kinds import ADMIN, COACH
-from .base import RoleBasedPermissions
+from .base import BasePermissions, RoleBasedPermissions
 from .general import DenyAll
 
 
@@ -86,3 +86,45 @@ class AnonUserCanReadFacilitiesThatAllowSignUps(DenyAll):
                 if obj.kind == FACILITY:
                     return queryset.filter(dataset__learner_can_sign_up=True)
         return queryset.none()
+
+
+class IsAdminForOwnFacilityDataset(BasePermissions):
+    """
+    Permission class that allows access to dataset settings if they are admin for facility.
+    """
+
+    def _user_is_admin_for_related_facility(self, user, obj=None):
+
+        # import here to avoid circular imports
+        from ..models import FacilityDataset
+
+        if not hasattr(user, "dataset"):
+            return False
+
+        # if we've been given an object, make sure it too is from the same dataset (facility)
+        if obj:
+            if not user.dataset_id == obj.id:
+                return False
+        else:
+            obj = FacilityDataset.objects.get(id=user.dataset_id)
+
+        facility = obj.collection_set.first()
+        return user.has_role_for_collection(ADMIN, facility)
+
+    def user_can_create_object(self, user, obj):
+        return self._user_is_admin_for_related_facility(user, obj)
+
+    def user_can_read_object(self, user, obj):
+        return self._user_is_admin_for_related_facility(user, obj)
+
+    def user_can_update_object(self, user, obj):
+        return self._user_is_admin_for_related_facility(user, obj)
+
+    def user_can_delete_object(self, user, obj):
+        return False
+
+    def readable_by_user_filter(self, user, queryset):
+        if self._user_is_admin_for_related_facility(user):
+            return queryset.filter(id=user.dataset_id)
+        else:
+            return queryset.none()
