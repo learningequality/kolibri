@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from .models import Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership, Role
@@ -36,7 +37,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if FacilityUser.objects.filter(username__iexact=value).exists() | DeviceOwner.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError('An account with that username already exists.')
+            raise serializers.ValidationError(_('An account with that username already exists.'))
         return value
 
 
@@ -64,7 +65,7 @@ class DeviceOwnerSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if FacilityUser.objects.filter(username__iexact=value).exists() | DeviceOwner.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError('An account with that username already exists.')
+            raise serializers.ValidationError(_('An account with that username already exists.'))
         return value
 
 

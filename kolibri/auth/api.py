@@ -140,7 +140,7 @@ class SignUpViewSet(viewsets.ViewSet):
             serialized_user.save()
             authenticated_user = authenticate(username=kwargs['username'], password=kwargs['password'], facility=kwargs['facility'])
             login(request, authenticated_user)
-            return Response(status=status.HTTP_201_CREATED)
+            return Response(serialized_user.data, status=status.HTTP_201_CREATED)
         else:
             # grab error if related to username
             error = serialized_user.errors.get('username', None)

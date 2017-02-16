@@ -321,7 +321,7 @@ class LoginLogoutTestCase(APITestCase):
         self.assertTrue(response.data['kind'][0], 'anonymous')
 
 
-class SignUpTestCase(APITestCase):
+class AnonSignUpTestCase(APITestCase):
 
     def setUp(self):
         self.device_owner = DeviceOwnerFactory.create()
@@ -331,6 +331,12 @@ class SignUpTestCase(APITestCase):
         response = self.client.post(reverse('signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(models.FacilityUser.objects.all())
+
+    def test_anon_sign_up_returns_user(self):
+        full_name = "Bob Lee"
+        response = self.client.post(reverse('signup-list'), data={"full_name": full_name, "username": "user", "password": DUMMY_PASSWORD})
+        self.assertEqual(response.data['username'], 'user')
+        self.assertEqual(response.data['full_name'], full_name)
 
     def test_create_user_with_same_username_fails(self):
         FacilityUserFactory.create(username='bob')
