@@ -55,11 +55,9 @@
     methods: {
       switchChannel(channelId) {
         this.$router.push({
-          name: constants.PageNames.REPORTS,
+          name: constants.PageNames.REPORTS_CHANNEL,
           params: {
             channel_id: channelId,
-            content_scope_id: null,
-            user_scope_id: null,
           },
         });
       },

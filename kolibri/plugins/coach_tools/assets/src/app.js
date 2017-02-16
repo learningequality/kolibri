@@ -36,6 +36,13 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
+          name: PageNames.REPORTS_CHANNEL,
+          path: '/reports/:channel_id',
+          handler: (toRoute, fromRoute) => {
+            actions.redirectToChannelReport(store, toRoute.params);
+          },
+        },
+        {
           name: PageNames.REPORTS,
           path: REPORT_URL_PATTERN,
           handler: (toRoute, fromRoute) => {
@@ -52,6 +59,10 @@ class CoachToolsModule extends KolibriModule {
         {
           path: '/',
           redirect: '/reports',
+        },
+        {
+          path: '*',
+          redirect: '/',
         },
       ];
 
