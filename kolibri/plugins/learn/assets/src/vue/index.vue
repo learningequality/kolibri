@@ -3,6 +3,7 @@
   <core-base :topLevelPageName="topLevelPageName" @scroll="handleScroll">
     <toolbar slot="above" :shown="showToolbar"/>
     <div slot="app-bar-actions">
+      <channel-switcher @switch="switchChannel"/>
       <ui-icon-button
         icon="person"
         type="secondary"
@@ -79,6 +80,7 @@
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
       'ui-menu': require('keen-ui/src/UiMenu'),
+      'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
     },
     data: () => ({
       currScrollTop: 0,
@@ -102,6 +104,19 @@
       },
       openChannelSwitcher() {
         console.log('openChannelSwitcher');
+      },
+      switchChannel(channelId) {
+        let rootPage;
+        if (this.pageMode === constants.PageModes.EXPLORE) {
+          rootPage = constants.PageNames.EXPLORE_CHANNEL;
+        } else {
+          rootPage = constants.PageNames.LEARN_CHANNEL;
+        }
+        this.clearSearch();
+        this.$router.push({
+          name: rootPage,
+          params: { channel_id: channelId },
+        });
       },
     },
     computed: {
@@ -155,6 +170,7 @@
       },
       actions: {
         toggleSearch: actions.toggleSearch,
+        clearSearch: actions.clearSearch,
       },
     },
     store, // make this and all child components aware of the store
