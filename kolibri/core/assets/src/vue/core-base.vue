@@ -7,7 +7,7 @@
       :title="topLevelPageName"
       :navShown="navShown"
       :height="baseMaterialIncrement">
-      <div slot="app-bar-actions">
+      <div slot="app-bar-actions" class="app-bar-actions">
         <slot name="app-bar-actions"/>
       </div>
     </app-bar>
@@ -129,16 +129,10 @@
 
   @require '~kolibri.styles.definitions'
 
-  .main-wrapper
-    position: fixed // must be fixed for ie10
-    overflow-y: scroll
-    height: 100%
-    width: 100%
-    padding-bottom: 50px
-    z-index: -2
-  .main-wrapper
-    padding-right: 25px
   .loading-spinner-fixed
     position: fixed
+
+  .app-bar-actions
+    display: inline-block
 
 </style>

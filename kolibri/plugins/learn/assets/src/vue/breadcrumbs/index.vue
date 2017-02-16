@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <nav class="nav" role="navigation" :aria-label="$tr('youAreHere')">
+    <nav class="breadcrumbs" role="navigation" :aria-label="$tr('youAreHere')">
 
       <span v-if="pageName === PageNames.LEARN_CONTENT">
         <router-link :to="learnRootLink">
@@ -123,9 +123,8 @@
   @require '~kolibri.styles.definitions'
   @require '../learn.styl'
 
-  .nav
-    margin-top: 2em
-    margin-bottom:1.5em
+  .breadcrumbs
+    margin: 1em
 
   .middle-breadcrumb::before
     content: '>'

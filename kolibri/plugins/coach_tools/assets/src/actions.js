@@ -32,6 +32,30 @@ function showCoachRoot(store) {
 }
 
 
+function redirectToChannelReport(store, params) {
+  const channelId = params.channel_id;
+  const channelListPromise = ChannelResource.getCollection({}).fetch();
+
+  ConditionalPromise.all([channelListPromise]).only(
+    coreActions.samePageCheckGenerator(store),
+    ([channelList]) => {
+      if (!(channelList.some((channel) => channel.id === channelId))) {
+        router.getInstance().replace({ name: Constants.PageNames.CONTENT_UNAVAILABLE });
+        return;
+      }
+      coreActions.setChannelInfo(store, channelId).then(
+        () => {
+          router.getInstance().replace({ name: Constants.PageNames.REPORTS_NO_QUERY });
+        }
+      );
+    },
+    error => {
+      coreActions.handleError(store, error);
+    }
+  );
+}
+
+
 function redirectToDefaultReport(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.REPORTS_NO_QUERY);
@@ -202,6 +226,7 @@ function showContentUnavailable(store) {
 
 module.exports = {
   showCoachRoot,
+  redirectToChannelReport,
   redirectToDefaultReport,
   showReport,
   showContentUnavailable,

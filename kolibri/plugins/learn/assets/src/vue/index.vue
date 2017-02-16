@@ -1,24 +1,8 @@
 <template>
 
   <core-base :topLevelPageName="topLevelPageName" @scroll="handleScroll">
-    <toolbar slot="above" :shown="showToolbar"/>
     <div slot="app-bar-actions">
       <channel-switcher @switch="switchChannel"/>
-      <ui-icon-button
-        icon="person"
-        type="secondary"
-        color="white"
-        size="large"
-        :ariaLabel="$tr('account')"
-        has-dropdown
-        ref="accountButton">
-        <ui-menu
-          contain-focus
-          contains-icons
-          slot="dropdown"
-          :options="accountMenuOptions"
-          @close="$refs.accountButton.closeDropdown()"/>
-      </ui-icon-button>
 
       <ui-icon-button
         icon="search"
@@ -27,15 +11,8 @@
         size="large"
         :ariaLabel="$tr('search')"
         @click="toggleSearch"/>
-
-      <ui-icon-button
-        icon="widgets"
-        type="secondary"
-        color="white"
-        size="large"
-        :ariaLabel="$tr('channelSwitcher')"
-        @click="openChannelSwitcher"/>
     </div>
+    <breadcrumbs slot="above" class="breadcrumbs"/>
     <component class="content" slot="content" :is="currentPage"/>
 
     <div slot="below" class="search-pane" v-show="searchOpen">
@@ -63,14 +40,9 @@
   module.exports = {
     $trNameSpace: 'learn',
     $trs: {
-      account: 'account',
       search: 'search',
-      channelSwitcher: 'Channel Switcher',
-      editProfile: 'Edit Profile',
-      signOut: 'Sign Out',
     },
     components: {
-      'toolbar': require('./toolbar'),
       'search-widget': require('./search-widget'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
@@ -79,8 +51,8 @@
       'content-unavailable-page': require('./content-unavailable-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'ui-menu': require('keen-ui/src/UiMenu'),
       'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
+      'breadcrumbs': require('./breadcrumbs'),
     },
     data: () => ({
       currScrollTop: 0,
@@ -101,9 +73,6 @@
       },
       toggleSearch() {
         this.toggleSearch();
-      },
-      openChannelSwitcher() {
-        console.log('openChannelSwitcher');
       },
       switchChannel(channelId) {
         let rootPage;
@@ -148,18 +117,6 @@
       },
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
-      },
-      accountMenuOptions() {
-        return [
-          {
-            id: 'editProfile',
-            label: this.$tr('editProfile'),
-          },
-          {
-            id: 'signOut',
-            label: this.$tr('signOut'),
-          },
-        ];
       },
     },
     vuex: {
