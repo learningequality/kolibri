@@ -1,9 +1,10 @@
+const coreApp = require('kolibri');
+const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const PageNames = require('./state/constants').PageNames;
 const SignUpResource = require('kolibri').resources.SignUpResource;
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const coreGetters = require('kolibri.coreVue.vuex.getters');
 const router = require('kolibri.coreVue.router');
-
 
 function redirectToHome() {
   window.location = '/';
@@ -19,6 +20,60 @@ function showRoot(store) {
   }
   router.getInstance().replace({
     name: PageNames.SIGN_IN,
+  });
+}
+
+function editProfile(store, edits, session) {
+  // payload needs username, fullname, and facility
+  // used to save changes to API
+  const savedUserModel = FacilityUserResource.getModel(session.user_id);
+  const changedValues = {};
+
+  // TODO set up core session updates
+
+  // explicit checks for the only values that can be changed
+  if (edits.full_name && edits.full_name !== session.full_name) {
+    changedValues.full_name = edits.full_name;
+  }
+  if (edits.username && edits.username !== session.username) {
+    changedValues.username = edits.username;
+  }
+  if (edits.password && edits.password !== session.password) {
+    changedValues.password = edits.password;
+  }
+
+  // check to see if anything's changed and conditionally add last requirement
+  if (Object.keys(changedValues).length) {
+    changedValues.facility = session.facility_id;
+  } else {
+    return;
+  }
+
+  // update user object with new values
+  store.dispatch('SET_PROFILE_BUSY', true);
+
+  savedUserModel.save(changedValues).then(userWithAttrs => {
+    // dispatch changes to store
+    coreActions.getCurrentSession(store);
+    store.dispatch('SET_PROFILE_SUCCESS', true);
+    store.dispatch('SET_PROFILE_BUSY', false);
+    store.dispatch('SET_PROFILE_EROR', false, '');
+
+  // error handling
+  }, error => {
+    // copying logic from user-create-modal
+    function errorMessage(apiError) {
+      if (apiError.status.code === 400) {
+        // access the first apiError message
+        return Object.values(apiError.entity)[0][0];
+      } else if (apiError.status.code === 403) {
+        return apiError.entity[0];
+      }
+      return '';
+    }
+    store.dispatch('SET_PROFILE_SUCCESS', false);
+    store.dispatch('SET_PROFILE_EROR', true, errorMessage(error));
+    store.dispatch('SET_PROFILE_BUSY', false);
   });
 }
 
@@ -62,8 +117,14 @@ function showProfile(store) {
     });
     return;
   }
+  const pageState = {
+    busy: false,
+    success: false,
+    error: false,
+    errorMessage: '',
+  };
   store.dispatch('SET_PAGE_NAME', PageNames.PROFILE);
-  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('SET_PAGE_STATE', pageState);
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', 'User Profile');
@@ -91,6 +152,7 @@ module.exports = {
   showRoot,
   showSignIn,
   showSignUp,
-  showProfile,
   signUp,
+  showProfile,
+  editProfile,
 };

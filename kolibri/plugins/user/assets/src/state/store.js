@@ -9,9 +9,7 @@ const constants = require('./constants');
 
 const initialState = {
   pageName: constants.PageNames.SCRATCHPAD,
-  pageState: {
-    signUpError: null,
-  },
+  pageState: {},
   facility: undefined,
 };
 
@@ -21,6 +19,17 @@ const mutations = {
   },
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
+  },
+  // Profile Page Mutations
+  SET_PROFILE_BUSY(state, isBusy) {
+    state.pageState.busy = isBusy;
+  },
+  SET_PROFILE_SUCCESS(state, isSuccessful) {
+    state.pageState.success = isSuccessful;
+  },
+  SET_PROFILE_EROR(state, isError, errorMessage) {
+    state.pageState.error = isError;
+    state.pageState.errorMessage = errorMessage;
   },
   SET_SIGN_UP_ERROR(state, error) {
     state.pageState.signUpError = error;

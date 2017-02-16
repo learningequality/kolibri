@@ -50,6 +50,7 @@ class UserModule extends KolibriModule {
 
       this.rootvue = new Vue({
         el: 'rootvue',
+        name: 'UserRoot',
         render: createElement => createElement(RootVue),
         router: router.init(routes),
       });
