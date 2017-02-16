@@ -54,9 +54,6 @@
 
     </div>
 
-    <!-- log-in modal -->
-    <login-modal v-if="loginModalVisible"/>
-
     <div v-if="navShown && mobile" class="modal-overlay"
          @keydown.esc="toggleNav"
          @click="toggleNav">
@@ -72,7 +69,6 @@
   const getters = require('kolibri.coreVue.vuex.getters');
   const actions = require('kolibri.coreVue.vuex.actions');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
-  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
   const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
 
@@ -89,7 +85,7 @@
       coach: 'Coach',
       signIn: 'Sign in',
       profile: 'Profile',
-      logOut: 'Log out',
+      signOut: 'Sign out',
       about: 'About',
       closeNav: 'Close navigation',
       poweredBy: 'Powered by Kolibri {version}',
@@ -209,7 +205,7 @@
         options.push({
           type: 'divider',
         });
-        if (this.loggedIn & !this.isAdminOrSuperuser) {
+        if (this.isUserLoggedIn & !this.isAdminOrSuperuser) {
           options.push({
             label: this.$tr('profile'),
             disabled: this.profileActive,
@@ -217,40 +213,42 @@
             href: '/management',
           });
         }
-        options.push(...[
-          {
-            label: this.$tr('about'),
-            disabled: this.aboutActive,
-            icon: 'error_outline',
-          },
-          {
-            label: this.loggedIn ? this.$tr('logOut') : this.$tr('signIn'),
+        options.push({
+          label: this.$tr('about'),
+          disabled: this.aboutActive,
+          icon: 'error_outline',
+        });
+        if (this.isUserLoggedIn) {
+          options.push({
+            label: this.$tr('signOut'),
             icon: 'exit_to_app',
-            action: this.loggedIn ? this.logout : this.showLoginModal,
-          },
-        ]);
-
+            action: this.signOut,
+          });
+        } else {
+          options.push({
+            label: this.$tr('signIn'),
+            icon: 'exit_to_app',
+            href: '/user',
+          });
+        }
         return options;
       },
     },
     components: {
       'session-nav-widget': require('kolibri.coreVue.components.sessionNavWidget'),
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
-      'login-modal': require('kolibri.coreVue.components.loginModal'),
       'ui-menu': require('keen-ui/src/UiMenu'),
       'ui-icon': require('keen-ui/src/UiIcon'),
     },
     vuex: {
       actions: {
-        logout: actions.kolibriLogout,
-        showLoginModal: actions.showLoginModal,
+        signOut: actions.kolibriLogout,
       },
       getters: {
         session: state => state.core.session,
-        loggedIn: state => state.core.session.kind[0] !== UserKinds.ANONYMOUS,
+        isUserLoggedIn: getters.isUserLoggedIn,
         isAdminOrSuperuser: getters.isAdminOrSuperuser,
         isCoachAdminOrSuperuser: getters.isCoachAdminOrSuperuser,
-        loginModalVisible: state => state.core.loginModalVisible,
       },
     },
   };
