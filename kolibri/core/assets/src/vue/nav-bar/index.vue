@@ -16,7 +16,7 @@
         </button>
         <img
           class="logo"
-          v-else-if="mobile"
+          v-if="mobile"
           src="../login-modal/icons/kolibri-logo.svg"
           alt=""
           :style="{ width: headerHeight + 'px', height: headerHeight + 'px', marginRight: width/20 + 'px' }">
