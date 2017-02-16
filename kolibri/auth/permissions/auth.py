@@ -2,6 +2,8 @@
 The permissions classes in this module define the specific permissions that govern access to the models in the auth app.
 """
 
+from django.contrib.auth.models import AnonymousUser
+
 from ..constants.collection_kinds import FACILITY
 from ..constants.role_kinds import ADMIN, COACH
 from .base import RoleBasedPermissions
@@ -45,12 +47,42 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             # for non-Facility Collections, defer to the roles to determine delete permissions
             return super(CollectionSpecificRoleBasedPermissions, self).user_can_update_object(user, obj.parent)
 
+
 class AnybodyCanCreateIfNoDeviceOwner(DenyAll):
+    """
+    Permissions class that allows anyone to create a DeviceOwner if one does not already exist.
+    """
+
     def user_can_create_object(self, user, obj):
         from ..models import DeviceOwner
         return DeviceOwner.objects.count() < 1
 
+
 class AnybodyCanCreateIfNoFacility(DenyAll):
+    """
+    Permissions class that allows anyone to create a Facility if one does not already exist.
+    """
+
     def user_can_create_object(self, user, obj):
         from ..models import Facility
         return Facility.objects.count() < 1
+
+
+class AnonUserCanReadFacilitiesThatAllowSignUps(DenyAll):
+    """
+    Permissions class that allows reading the object if user is anonymous and facility settings allows learner sign ups.
+    """
+
+    def user_can_read_object(self, user, obj):
+        if obj.kind == FACILITY:
+            return isinstance(user, AnonymousUser) and obj.dataset.learner_can_sign_up
+        else:
+            return False
+
+    def readable_by_user_filter(self, user, queryset):
+        if isinstance(user, AnonymousUser):
+            obj = queryset.first()
+            if hasattr(obj, 'kind'):
+                if obj.kind == FACILITY:
+                    return queryset.filter(dataset__learner_can_sign_up=True)
+        return queryset.none()

@@ -7,11 +7,13 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.test import TestCase
 
 from .helpers import create_dummy_facility_data
+from .test_api import FacilityFactory
 
 from ..constants import role_kinds
 from ..errors import InvalidHierarchyRelationsArgument
 from ..filters import HierarchyRelationsFilter
-from ..models import DeviceOwner, Facility, Classroom, LearnerGroup, Role, Membership, FacilityUser, KolibriAnonymousUser
+from ..models import DeviceOwner, Facility, FacilityDataset, Classroom, LearnerGroup, Role, Membership, FacilityUser, KolibriAnonymousUser
+
 
 class ImproperUsageIsProperlyHandledTestCase(TestCase):
     """
@@ -139,6 +141,22 @@ class FacilityPermissionsTestCase(TestCase):
         self.assertTrue(self.device_owner.can_delete(facility))
 
         self.assertSetEqual(set(Facility.objects.all()), set(self.device_owner.filter_readable(Facility.objects.all())))
+
+    def test_anon_user_can_read_facilities_that_allow_sign_ups(self):
+        can_sign_up_dataset = FacilityDataset.objects.create(learner_can_sign_up=True)
+        can_not_sign_up_dataset = FacilityDataset.objects.create()
+        can_sign_up_facility = Facility.objects.create(name='skool', dataset=can_sign_up_dataset)
+        can_not_sign_up_facility = Facility.objects.create(name='skool', dataset=can_not_sign_up_dataset)
+        self.assertTrue(self.anon_user.can_read(can_sign_up_facility))
+        self.assertFalse(self.anon_user.can_read(can_not_sign_up_facility))
+
+    def test_anon_user_filters_facility_datasets_that_allow_sign_ups(self):
+        sign_ups = [FacilityDataset.objects.create(learner_can_sign_up=True) for _ in range(6)]
+        not_sign_ups = [FacilityDataset.objects.create(learner_can_sign_up=False) for _ in range(4)]
+        datasets = sign_ups + not_sign_ups
+        [FacilityFactory(dataset=d) for d in datasets]
+        filtered = self.anon_user.filter_readable(Facility.objects.all())
+        self.assertEqual(len(sign_ups), len(filtered))
 
 
 class ClassroomPermissionsTestCase(TestCase):
