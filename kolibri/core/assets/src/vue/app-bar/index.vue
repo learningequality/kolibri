@@ -5,7 +5,9 @@
     type="colored"
     textColor="white"
     class="app-bar"
-    @nav-icon-click="toggleDrawer">
+    :removeNavIcon="navShown"
+    @nav-icon-click="$emit('toggleSideNav')"
+    :style="{ height: height + 'px' }">
     <div slot="actions">
       <slot name="app-bar-actions"/>
     </div>
@@ -22,10 +24,13 @@
         type: String,
         required: true,
       },
-    },
-    methods: {
-      toggleDrawer() {
-        console.log('toggleDrawer');
+      navShown: {
+        type: Boolean,
+        required: true,
+      },
+      height: {
+        type: Number,
+        required: true,
       },
     },
     components: {

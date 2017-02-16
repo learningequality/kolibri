@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="channel-switcher">
     <label for="chan-select" class="visuallyhidden">{{ $tr('switchChannels') }}</label>
     <select
       name="chan-select"
@@ -59,5 +59,8 @@
   .chan-select
     color: $core-text-annotation
     font-size: 0.9rem
+
+  .channel-switcher
+    display: inline-block
 
 </style>

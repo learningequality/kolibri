@@ -3,7 +3,7 @@
   <div>
     <div v-if="available" class="fill-height">
       <div class="content-wrapper">
-        <loading-spinner v-if="!currentViewClass"/>
+        <loading-spinner id="spinner" v-if="!currentViewClass"/>
         <div ref="container"></div>
       </div>
     </div>
@@ -233,5 +233,8 @@
 
   .content-wrapper
     height: 100%
+
+  #spinner
+    height: 160px
 
 </style>
