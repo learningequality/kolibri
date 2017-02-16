@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="channel-switcher">
     <label for="chan-select" class="visuallyhidden">{{ $tr('switchChannels') }}</label>
     <select
       name="chan-select"
@@ -57,7 +57,11 @@
   @require '~kolibri.styles.definitions'
 
   .chan-select
+    display: inline-block
     color: $core-text-annotation
     font-size: 0.9rem
+
+  .channel-switcher
+    display: inline-block
 
 </style>
