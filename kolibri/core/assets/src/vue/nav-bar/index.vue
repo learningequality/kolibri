@@ -6,28 +6,27 @@
       class="nav-wrapper"
       :style="wrapperStyle">
       <div class="header"
-           :style="{ height: headerHeight + 'px', textAlign: !(mobile | tablet) ? 'center' : 'inherit' }">
-        <button
-          v-if="mobile | tablet"
-          :aria-label="closeNav"
-          class="close" @click="toggleNav"
-          :style="{ fontSize: headerHeight/2 + 'px' }">
-          <ui-icon :icon="mobile ? 'arrow_back' : 'menu'"/>
-        </button>
+           :style="{ height: headerHeight + 'px', paddingTop: mobile ? '4px' : '8px' }">
+        <ui-icon-button
+          @click="toggleNav"
+          type="secondary"
+          color="white"
+          size="large"
+          icon="keyboard_arrow_left"
+          :aria-label="closeNav"/>
         <img
-          class="logo"
+          class="header-logo"
           v-if="mobile"
           src="../login-modal/icons/kolibri-logo.svg"
-          alt=""
-          :style="{ width: headerHeight + 'px', height: headerHeight + 'px', marginRight: width/20 + 'px' }">
-        <p class="title" :style="{ fontSize: headerHeight/3 + 'px' }">Kolibri</p>
+          alt="kolibri-logo">
+        <span class="title" >Kolibri</span>
       </div>
-      <img
-        class="logo"
-        v-if="!mobile"
-        src="../login-modal/icons/kolibri-logo.svg"
-        alt=""
-        :style="{ height: width/2.5 + 'px', width: width/2.5 + 'px' }">
+      <div class="logo-large-wrapper">
+        <file-svg
+          src="../login-modal/icons/kolibri-logo.svg"
+          v-if="!mobile"
+          class="logo-large"/>
+      </div>
       <ui-menu
         class="nav-main"
         :options="menuOptions"
@@ -122,9 +121,7 @@
         }
       },
       toggleNav() {
-        if (this.mobile | this.tablet) {
-          this.$emit('toggleSideNav');
-        }
+        this.$emit('toggleSideNav');
       },
     },
     computed: {
@@ -239,6 +236,7 @@
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
       'ui-menu': require('keen-ui/src/UiMenu'),
       'ui-icon': require('keen-ui/src/UiIcon'),
+      'ui-icon-button': require('keen-ui/src/UiIconButton'),
     },
     vuex: {
       actions: {
@@ -274,9 +272,22 @@
     overflow: auto
     -webkit-overflow-scrolling: touch
     box-shadow: 2px 0 0 0 rgba(0, 0, 0, 0.12)
+    .header-logo
+      display: inline-block
+      vertical-align: middle
+      height: 1.5em
+      margin-right: 0.5em
     .logo
       margin: auto
-      display: block
+      display: inline-block
+
+  .logo-large-wrapper
+    text-align: center
+
+  .logo-large
+    width: 50%
+    margin-top: 2em
+    margin-bottom: 2em
 
   .nav-main
     background: $core-bg-light
@@ -285,11 +296,13 @@
     fill: $core-bg-light
 
   .header
+    font-size: 18px
+    text-transform: uppercase
     overflow: auto
     overflow-y: hidden
     background-color: $core-text-default
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2)
-    .logo, .close
+    .close
       float: left
     .title, .close
       color: $core-bg-light
@@ -300,6 +313,7 @@
       border: none
     .title
       font-weight: bold
+      vertical-align: middle
 
   .footer
     bottom: 0
