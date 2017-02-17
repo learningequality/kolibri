@@ -1,14 +1,14 @@
 <template>
 
-  <div class="wrapper">
+  <div class="pure-g">
 
-    <h1>{{$tr('pageHeading')}}</h1>
+    <h1 class="pure-u-1-1">{{$tr('pageHeading')}}</h1>
 
-    <p>
+    <p class="pure-u-1-1">
       {{$tr('pageSubHeading')}}
     </p>
 
-    <div class="exportblock">
+    <div :class="columnSize">
       <h2>{{$tr('detailsHeading')}}</h2>
       <p>
         {{$tr('detailsSubHeading')}}
@@ -23,7 +23,7 @@
       </p>
     </div>
 
-    <div class="exportblock">
+    <div :class="columnSize">
       <h2>{{$tr('summaryHeading')}}</h2>
       <p>
         {{$tr('summarySubHeading')}}
@@ -46,8 +46,10 @@
 <script>
 
   const coreApp = require('kolibri');
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {
+    mixins: [responsiveWindow],
     $trNameSpace: 'manageData',
     $trs: {
       // Headings/subHeadings
@@ -74,6 +76,9 @@
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     computed: {
+      columnSize() {
+        return this.windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1';
+      },
       summarylogurl() {
         return coreApp.urls['contentsummarylogcsv-list']();
       },
@@ -88,12 +93,7 @@
 
 <style lang="stylus" scoped>
 
-  // @require 'jeet'
   @require '~kolibri.styles.definitions'
-
-  @media (min-width: $medium-breakpoint)
-    .exportblock
-      col(1/2)
 
   .infobox
     background-color: $core-bg-warning
@@ -102,9 +102,6 @@
     padding: 8px
     margin-left: -8px
     margin-right: 8px
-
-  .wrapper
-    clearfix()
 
   form
     display: inline
