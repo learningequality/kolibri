@@ -18,7 +18,7 @@
       :headerHeight="baseMaterialIncrement"
       :width="navWidth"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
-    <div class="main-wrapper" v-scroll="onScroll" v-if="!loading" :style="navOpenStyle">
+    <div v-if="!loading" :style="navOpenStyle">
       <error-box v-if="error"/>
       <slot name="above"/>
       <slot name="content"/>
@@ -31,13 +31,9 @@
 
 <script>
 
-  const Vue = require('vue');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
-  const vueScroll = require('vue-scroll');
   const values = require('lodash.values');
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-
-  Vue.use(vueScroll);
 
   module.exports = {
     mixins: [responsiveWindow],
@@ -83,8 +79,7 @@
       },
     },
     data: () => ({
-      scrolled: false,
-      navShown: false,
+      navShown: true,
     }),
     computed: {
       mobile() {
@@ -112,21 +107,9 @@
         return '';
       },
     },
-    methods: {
-      onScroll(e, position) {
-        this.position = position;
-        this.scrolled = true;
-      },
-    },
     mounted() {
-      setInterval(() => {
-        if (this.scrolled) {
-          this.$emit('scroll', this.position);
-          this.scrolled = false;
-        }
-      }, 75);
-      if (this.windowSize.breakpoint >= 5) {
-        this.navShown = true;
+      if (this.mobile) {
+        this.navShown = false;
       }
     },
   };
