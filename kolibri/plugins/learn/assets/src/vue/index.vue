@@ -11,7 +11,7 @@
         @click="toggleSearch"/>
     </div>
     <div slot="content">
-      <section-nav />
+      <section-nav/>
       <breadcrumbs class="breadcrumbs"/>
       <component class="content" :is="currentPage"/>
     </div>
