@@ -72,16 +72,19 @@
       title(newVal, oldVal) {
         document.title = `${newVal} - Kolibri`;
       },
-      'windowSize.breakpoint': function (newVal, oldVal) { // eslint-disable-line object-shorthand
-        // Pop out the nav if transitioning from smaller viewport.
-        if (oldVal < 5 & newVal > 4) {
+      'windowSize.breakpoint': function updateNav(newVal, oldVal) {
+        if (oldVal === 4 & newVal === 5) {
+          // Pop out the nav if transitioning from 4 to 5
           this.navShown = true;
+        } else if (oldVal === 2 & newVal === 1) {
+          // Pop in the nav if transitioning from 2 to 1
+          this.navShown = false;
         }
       },
     },
     data: () => ({
       scrolled: false,
-      navShown: true,
+      navShown: false,
     }),
     computed: {
       mobile() {
@@ -122,8 +125,8 @@
           this.scrolled = false;
         }
       }, 75);
-      if (this.mobile) {
-        this.navShown = false;
+      if (this.windowSize.breakpoint >= 5) {
+        this.navShown = true;
       }
     },
   };
