@@ -104,9 +104,7 @@
       },
       navOpenStyle() {
         if (this.navShown) {
-          return {
-            marginLeft: `${this.paddingForNav}px`,
-          };
+          return { marginLeft: `${this.paddingForNav}px` };
         }
         return '';
       },
