@@ -8,6 +8,7 @@
     has-dropdown
     ref="button">
     <ui-menu
+      class="channel-switcher-menu"
       contain-focus
       contains-icons
       slot="dropdown"
@@ -32,21 +33,20 @@
     },
     computed: {
       channelOptions() {
-        const channelOptions = this.channelList.map(channel => ({
-          id: channel.id,
-          label: channel.title,
-        }));
-        return channelOptions;
+        return this.channelList.map(channel => {
+          const channelOption = {};
+          channelOption.id = channel.id;
+          channelOption.label = channel.title;
+          if (channelOption.id === this.globalCurrentChannel) {
+            channelOption.disabled = true;
+          }
+          return channelOption;
+        });
       },
     },
     methods: {
       channelSelected(channel) {
-        if (channel.id !== this.globalCurrentChannel) {
-          this.switchChannel(channel.id);
-        }
-      },
-      switchChannel(channelId) {
-        this.$emit('switch', channelId);
+        this.$emit('switch', channel.id);
       },
     },
     vuex: {
@@ -60,4 +60,16 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus">
+
+  @require '~kolibri.styles.definitions'
+
+  .channel-switcher-menu
+    .ui-menu-option
+        &.is-disabled
+          color: $core-action-normal
+          font-weight: bold
+          opacity: 1
+          background-color: rgba(0, 0, 0, 0.05)
+
+</style>
