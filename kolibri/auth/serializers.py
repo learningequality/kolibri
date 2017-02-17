@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
-from .models import Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership, Role
+from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 
 class RoleSerializer(serializers.ModelSerializer):
 
@@ -74,6 +74,14 @@ class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membership
         exclude = ("dataset",)
+
+
+class FacilityDatasetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = FacilityDataset
+        fields = ('id', 'learner_can_edit_username', 'learner_can_edit_name', 'learner_can_edit_password',
+                  'learner_can_sign_up', 'learner_can_delete_account', 'description', 'location')
 
 
 class FacilitySerializer(serializers.ModelSerializer):

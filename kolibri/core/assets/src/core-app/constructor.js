@@ -146,7 +146,8 @@ module.exports = class CoreApp {
 
   get client() {
     return (options) => {
-      if (!options.method || options.method === 'GET') {
+      if ((options && typeof options === 'object' && !Array.isArray(options)) &&
+        (!options.method || options.method === 'GET')) {
         if (!options.params) {
           options.params = {};
         }
