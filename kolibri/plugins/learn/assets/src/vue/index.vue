@@ -1,6 +1,6 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName" @scroll="handleScroll">
+  <core-base :topLevelPageName="topLevelPageName">
     <div slot="app-bar-actions">
       <channel-switcher @switch="switchChannel"/>
 
@@ -53,23 +53,7 @@
       'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
       'breadcrumbs': require('./breadcrumbs'),
     },
-    data: () => ({
-      currScrollTop: 0,
-      lastScrollTop: 0,
-      delta: 5,
-      showToolbar: true,
-    }),
     methods: {
-      // hide and show the toolbar based on scrolling
-      handleScroll(position) {
-        this.position = position;
-        this.currScrollTop = position.scrollTop;
-        if (Math.abs(this.lastScrollTop - this.currScrollTop) <= this.delta) {
-          return;
-        }
-        this.showToolbar = this.currScrollTop < this.lastScrollTop;
-        this.lastScrollTop = this.currScrollTop;
-      },
       toggleSearch() {
         this.toggleSearch();
       },

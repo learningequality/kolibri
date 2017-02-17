@@ -1,6 +1,7 @@
 
 // include global styles
-require('normalize.css');
+require('purecss/build/base-min.css');
+require('purecss/build/grids-min.css');
 require('../styles/font-NotoSans.css');
 require('../styles/main.styl');
 
