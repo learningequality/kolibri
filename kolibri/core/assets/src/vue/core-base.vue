@@ -97,11 +97,10 @@
         return (this.windowSize.breakpoint > 1) & (this.windowSize.breakpoint < 5);
       },
       paddingForNav() {
-        const appBarPadding = 16;
         if (this.mobile | (this.tablet & !this.navShown)) {
-          return appBarPadding;
+          return 0;
         }
-        return this.navWidth + appBarPadding;
+        return this.navWidth;
       },
     },
     methods: {
