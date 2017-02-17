@@ -1,5 +1,14 @@
 <template>
 
+  <h1>Temporarily disabled</h1>
+  <p>
+    Please develop on the
+    <a href="https://github.com/fle-internal/kolibri-instant-schools-plugin">
+      external plugin
+    </a>
+  </p>
+
+  <!--
   <core-base v-if="navBarNeeded" :topLevelPageName="topLevelPageName">
     <component
       slot="content"
@@ -14,6 +23,7 @@
     class="user page"
     :is="currentPage"
     />
+  -->
 
 </template>
 
