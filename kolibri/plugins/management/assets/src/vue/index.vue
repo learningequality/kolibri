@@ -89,7 +89,7 @@
     padding: 1em 2em
     padding-bottom: 3em
     background-color: $core-bg-light
-    margin-top: 2em
+    margin-top: 1em
     border-radius: $radius
 
   .login-message

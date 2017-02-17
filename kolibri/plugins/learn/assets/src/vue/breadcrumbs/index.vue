@@ -123,9 +123,6 @@
   @require '~kolibri.styles.definitions'
   @require '../learn.styl'
 
-  .breadcrumbs
-    margin: 1em
-
   .middle-breadcrumb::before
     content: '>'
     margin-left: 0.5em

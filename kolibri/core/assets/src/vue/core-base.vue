@@ -2,6 +2,7 @@
 
   <div :class="`gutter-${windowSize.gutterWidth}`">
     <app-bar
+      class="app-bar"
       :style="navOpenStyle"
       @toggleSideNav="navShown=!navShown"
       :title="topLevelPageName"
@@ -18,9 +19,10 @@
       :headerHeight="baseMaterialIncrement"
       :width="navWidth"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
-    <div v-if="!loading" :style="navOpenStyle">
+    <div v-if="!loading" :style="{paddingLeft: `${this.paddingForNav}px`, marginTop: `${this.baseMaterialIncrement + 32}px`}" class="content">
       <error-box v-if="error"/>
       <slot name="content"/>
+      <div class="horrible-hack"></div>
     </div>
     <slot name="extra"/>
   </div>
@@ -88,20 +90,21 @@
         return this.mobile ? 56 : 64;
       },
       navWidth() {
-        return this.baseMaterialIncrement * 5;
+        return 270; // wasn't expanding all the way
+        // return this.baseMaterialIncrement * 5;
       },
       tablet() {
         return (this.windowSize.breakpoint > 1) & (this.windowSize.breakpoint < 5);
       },
       paddingForNav() {
         if (this.mobile | (this.tablet & !this.navShown)) {
-          return 0;
+          return 32;
         }
-        return this.navWidth;
+        return this.navWidth + 32;
       },
       navOpenStyle() {
         if (this.navShown) {
-          return { marginLeft: `${this.paddingForNav}px` };
+          return { paddingLeft: `${this.paddingForNav}px` };
         }
         return '';
       },
@@ -123,7 +126,24 @@
   .loading-spinner-fixed
     position: fixed
 
+  .app-bar
+    height: 64px
+    z-index: 50
+    width: 100%
+    position: absolute
+    top: 0
+    left: 0
+
   .app-bar-actions
     display: inline-block
+
+  .content
+    width: 100%
+    height: 100vh
+    position: relative
+    overflow: auto
+
+  .horrible-hack
+    height: 32px
 
 </style>

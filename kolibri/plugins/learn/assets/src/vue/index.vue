@@ -12,10 +12,9 @@
     </div>
     <div slot="content">
       <section-nav />
-      <breadcrumbs class="breadcrumbs"/>
+      <breadcrumbs />
       <component class="content" :is="currentPage"/>
     </div>
-
     <div slot="extra" class="search-pane" v-show="searchOpen">
       <search-widget :showTopics="exploreMode"/>
     </div>
@@ -137,7 +136,6 @@
       padding-left: $nav-width
 
   .content
-    width-auto-adjust()
     margin: auto
 
 </style>
