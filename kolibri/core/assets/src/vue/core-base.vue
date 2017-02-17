@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div :class="`gutter-${windowSize.gutterWidth}`">
     <app-bar
       :style="navOpenStyle"
       @toggleSideNav="navShown=!navShown"
