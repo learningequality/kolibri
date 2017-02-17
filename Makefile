@@ -77,7 +77,7 @@ dist: writeversion staticdeps assets compilemessages
 	ls -l dist
 
 pex:
-	pex dist/*.whl --disable-cache -o dist/`python setup.py --fullname`.pex -m kolibri --python-shebang=/usr/bin/python
+	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`unzip -p $$whlfile kolibri/VERSION`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
 makedocsmessages:
 	make -C docs/ gettext
