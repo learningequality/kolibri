@@ -7,7 +7,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.test import TestCase
 
 from .helpers import create_dummy_facility_data
-from .test_api import FacilityFactory
 
 from ..constants import role_kinds
 from ..errors import InvalidHierarchyRelationsArgument
@@ -126,7 +125,7 @@ class FacilityPermissionsTestCase(TestCase):
 
     def setUp(self):
         self.data1 = create_dummy_facility_data()
-        self.data2 = create_dummy_facility_data()
+        self.data2 = create_dummy_facility_data(allow_sign_ups=True)
         self.device_owner = DeviceOwner.objects.create(username="boss")
         self.anon_user = KolibriAnonymousUser()
 
@@ -208,20 +207,20 @@ class FacilityPermissionsTestCase(TestCase):
         self.assertSetEqual(set(Facility.objects.all()), set(self.device_owner.filter_readable(Facility.objects.all())))
 
     def test_anon_user_can_read_facilities_that_allow_sign_ups(self):
-        can_sign_up_dataset = FacilityDataset.objects.create(learner_can_sign_up=True)
-        can_not_sign_up_dataset = FacilityDataset.objects.create()
-        can_sign_up_facility = Facility.objects.create(name='skool', dataset=can_sign_up_dataset)
-        can_not_sign_up_facility = Facility.objects.create(name='skool', dataset=can_not_sign_up_dataset)
-        self.assertTrue(self.anon_user.can_read(can_sign_up_facility))
+        can_not_sign_up_facility = self.data1['facility']
+        can_sign_up_facility = self.data2['facility']
+
         self.assertFalse(self.anon_user.can_read(can_not_sign_up_facility))
+        self.assertTrue(self.anon_user.can_read(can_sign_up_facility))
 
     def test_anon_user_filters_facility_datasets_that_allow_sign_ups(self):
-        sign_ups = [FacilityDataset.objects.create(learner_can_sign_up=True) for _ in range(6)]
-        not_sign_ups = [FacilityDataset.objects.create(learner_can_sign_up=False) for _ in range(4)]
-        datasets = sign_ups + not_sign_ups
-        [FacilityFactory(dataset=d) for d in datasets]
+        sign_ups = Facility.objects.filter(dataset__learner_can_sign_up=True)
         filtered = self.anon_user.filter_readable(Facility.objects.all())
-        self.assertEqual(len(sign_ups), len(filtered))
+        self.assertEqual(set(sign_ups), set(filtered))
+
+    def test_anon_user_can_only_read_facilities_that_allow_sign_ups(self):
+        self.assertFalse(self.anon_user.can_read(self.data2['classrooms'][0]))
+        self.assertFalse(self.anon_user.can_read(self.data2['learnergroups'][0][0]))
 
 
 class ClassroomPermissionsTestCase(TestCase):

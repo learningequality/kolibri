@@ -81,10 +81,7 @@ class AnonUserCanReadFacilitiesThatAllowSignUps(DenyAll):
 
     def readable_by_user_filter(self, user, queryset):
         if isinstance(user, AnonymousUser):
-            obj = queryset.first()
-            if hasattr(obj, 'kind'):
-                if obj.kind == FACILITY:
-                    return queryset.filter(dataset__learner_can_sign_up=True)
+            return queryset.filter(dataset__learner_can_sign_up=True, kind=FACILITY)
         return queryset.none()
 
 

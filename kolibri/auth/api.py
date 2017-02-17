@@ -5,9 +5,10 @@ from django.contrib.auth.models import AnonymousUser
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
 
-from .models import Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership, Role
+from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 from .serializers import (
-    ClassroomSerializer, DeviceOwnerSerializer, FacilitySerializer, FacilityUserSerializer, LearnerGroupSerializer, MembershipSerializer, RoleSerializer
+    ClassroomSerializer, DeviceOwnerSerializer, FacilitySerializer, FacilityDatasetSerializer,
+    FacilityUserSerializer, LearnerGroupSerializer, MembershipSerializer, RoleSerializer
 )
 
 
@@ -61,6 +62,13 @@ class KolibriAuthPermissions(permissions.BasePermission):
             return request.user.can_delete(obj)
         else:
             return False
+
+
+class FacilityDatasetViewSet(viewsets.ModelViewSet):
+    permissions_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter,)
+    queryset = FacilityDataset.objects.all()
+    serializer_class = FacilityDatasetSerializer
 
 
 class FacilityUserViewSet(viewsets.ModelViewSet):
