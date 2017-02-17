@@ -114,11 +114,13 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 
-  .app-bar-button
+  .app-bar .app-bar-button
     color: white
     &:hover
+      background-color: rgba(0, 0, 0, 0.1)
+    &.has-dropdown-open
       background-color: rgba(0, 0, 0, 0.1)
 
 </style>
