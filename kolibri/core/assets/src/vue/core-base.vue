@@ -20,10 +20,9 @@
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
     <div v-if="!loading" :style="navOpenStyle">
       <error-box v-if="error"/>
-      <slot name="above"/>
       <slot name="content"/>
-      <slot name="below"/>
     </div>
+    <slot name="extra"/>
   </div>
 
 </template>

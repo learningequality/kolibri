@@ -1,15 +1,18 @@
 <template>
 
   <core-base :topLevelPageName="topLevelPageName">
-    <div v-if="isAdminOrSuperuser" slot="above" class="manage-content">
-      <top-nav/>
+
+    <div v-if="isAdminOrSuperuser" slot="content">
+      <div class="manage-content">
+        <top-nav/>
+      </div>
+      <component
+        v-if="isAdminOrSuperuser"
+        class="manage-content page"
+        :is="currentPage"
+      />
     </div>
-    <component
-      v-if="isAdminOrSuperuser"
-      slot="content"
-      class="manage-content page"
-      :is="currentPage"
-    />
+
     <div v-else slot="content" class="login-message">
       <h1>{{ $tr('logInPrompt') }}</h1>
       <p>{{ $tr('logInCommand') }}</p>
