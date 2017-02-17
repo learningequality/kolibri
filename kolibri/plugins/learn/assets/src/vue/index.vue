@@ -12,7 +12,7 @@
     </div>
     <div slot="content">
       <section-nav/>
-      <breadcrumbs class="breadcrumbs"/>
+      <breadcrumbs/>
       <component class="content" :is="currentPage"/>
     </div>
 
