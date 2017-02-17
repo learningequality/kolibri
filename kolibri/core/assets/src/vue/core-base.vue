@@ -2,7 +2,7 @@
 
   <div>
     <app-bar
-      :style="{ paddingLeft: paddingForNav + 'px' }"
+      :style="navOpenStyle"
       @toggleSideNav="navShown=!navShown"
       :title="topLevelPageName"
       :navShown="navShown"
@@ -18,7 +18,7 @@
       :headerHeight="baseMaterialIncrement"
       :width="navWidth"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
-    <div class="main-wrapper" v-scroll="onScroll" v-if="!loading" :style="{ paddingLeft: paddingForNav + 'px' }">
+    <div class="main-wrapper" v-scroll="onScroll" v-if="!loading" :style="navOpenStyle">
       <error-box v-if="error"/>
       <slot name="above"/>
       <slot name="content"/>
@@ -101,6 +101,12 @@
           return 0;
         }
         return this.navWidth;
+      },
+      navOpenStyle() {
+        if (this.navShown) {
+          return { marginLeft: `${this.paddingForNav}px` };
+        }
+        return '';
       },
     },
     methods: {
