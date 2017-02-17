@@ -95,7 +95,7 @@
         return (this.windowSize.breakpoint > 1) && (this.windowSize.breakpoint < 5);
       },
       paddingForNav() {
-        if (this.mobile | (this.tablet && !this.navShown)) {
+        if (this.mobile || (this.tablet && !this.navShown)) {
           return 0;
         }
         return this.navWidth;
