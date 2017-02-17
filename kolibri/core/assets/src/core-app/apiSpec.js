@@ -117,13 +117,13 @@ module.exports = {
         module: require('../vue/nav-bar/nav-bar-item.styl'),
       },
       theme: {
-        module: require('../styles/core-theme.styl'),
+        module: require('../styles/vf-theme.styl'),
       },
       definitions: {
         module: require('../styles/definitions.styl'),
       },
       keenVars: {
-        module: require('../keen-config/variables.scss'),
+        module: require('../keen-config/vf-variables.scss'),
       },
     },
   },
