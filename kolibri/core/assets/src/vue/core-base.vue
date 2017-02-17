@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div :class="`gutter-${windowSize.gutterWidth}`">
     <app-bar
       :style="navOpenStyle"
       @toggleSideNav="navShown=!navShown"
@@ -18,7 +18,7 @@
       :headerHeight="baseMaterialIncrement"
       :width="navWidth"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
-    <div class="main-wrapper" v-scroll="onScroll" v-if="!loading" :style="navOpenStyle">
+    <div v-if="!loading" :style="navOpenStyle">
       <error-box v-if="error"/>
       <slot name="above"/>
       <slot name="content"/>
@@ -31,13 +31,9 @@
 
 <script>
 
-  const Vue = require('vue');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
-  const vueScroll = require('vue-scroll');
   const values = require('lodash.values');
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
-
-  Vue.use(vueScroll);
 
   module.exports = {
     mixins: [responsiveWindow],
@@ -72,15 +68,17 @@
       title(newVal, oldVal) {
         document.title = `${newVal} - Kolibri`;
       },
-      'windowSize.breakpoint': function (newVal, oldVal) { // eslint-disable-line object-shorthand
-        // Pop out the nav if transitioning from smaller viewport.
-        if (oldVal < 5 & newVal > 4) {
+      'windowSize.breakpoint': function updateNav(newVal, oldVal) {
+        if (oldVal === 4 & newVal === 5) {
+          // Pop out the nav if transitioning from 4 to 5
           this.navShown = true;
+        } else if (oldVal === 2 & newVal === 1) {
+          // Pop in the nav if transitioning from 2 to 1
+          this.navShown = false;
         }
       },
     },
     data: () => ({
-      scrolled: false,
       navShown: true,
     }),
     computed: {
@@ -109,19 +107,7 @@
         return '';
       },
     },
-    methods: {
-      onScroll(e, position) {
-        this.position = position;
-        this.scrolled = true;
-      },
-    },
     mounted() {
-      setInterval(() => {
-        if (this.scrolled) {
-          this.$emit('scroll', this.position);
-          this.scrolled = false;
-        }
-      }, 75);
       if (this.mobile) {
         this.navShown = false;
       }
