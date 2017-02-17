@@ -68,10 +68,10 @@
         document.title = `${newVal} - Kolibri`;
       },
       'windowSize.breakpoint': function updateNav(newVal, oldVal) {
-        if (oldVal === 4 & newVal === 5) {
+        if (oldVal === 4 && newVal === 5) {
           // Pop out the nav if transitioning from 4 to 5
           this.navShown = true;
-        } else if (oldVal === 2 & newVal === 1) {
+        } else if (oldVal === 2 && newVal === 1) {
           // Pop in the nav if transitioning from 2 to 1
           this.navShown = false;
         }
@@ -91,10 +91,10 @@
         return this.baseMaterialIncrement * 5;
       },
       tablet() {
-        return (this.windowSize.breakpoint > 1) & (this.windowSize.breakpoint < 5);
+        return (this.windowSize.breakpoint > 1) && (this.windowSize.breakpoint < 5);
       },
       paddingForNav() {
-        if (this.mobile | (this.tablet & !this.navShown)) {
+        if (this.mobile || (this.tablet && !this.navShown)) {
           return 0;
         }
         return this.navWidth;
