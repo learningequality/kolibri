@@ -6,11 +6,12 @@ import platform
 import cherrypy
 from django.conf import settings
 from django.core.management import call_command
+
 from kolibri.content.utils import paths
 
 
 def start_background_workers():
-    p = multiprocessing.Process(target=call_command, args=("qcluster",))
+    p = multiprocessing.Process(target=call_command, args=("qcluster", ))
 
     # note: atexit normally only runs when python exits normally, aka doesn't
     # exit through a signal. However, this function gets run because cherrypy
