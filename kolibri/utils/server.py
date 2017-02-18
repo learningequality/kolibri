@@ -21,7 +21,9 @@ def start_background_workers():
     p.start()
 
 
-def start():
+def start(port=None):
+
+    server_port = port or 8080
 
     # TODO(aronasorman): move to install/plugin-enabling scripts, and remove from here
     call_command("collectstatic", interactive=False)
@@ -37,17 +39,22 @@ def start():
     from kolibri.content.utils.annotation import update_channel_metadata_cache
     update_channel_metadata_cache()
 
-    run_server()
+    run_server(port=server_port)
 
-def run_server():
+
+def run_server(port):
 
     # Mount the application
     from kolibri.deployment.default.wsgi import application
     cherrypy.tree.graft(application, "/")
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
-    serve_static_dir(settings.CONTENT_DATABASE_DIR, paths.get_content_database_url("/"))
-    serve_static_dir(settings.CONTENT_STORAGE_DIR, paths.get_content_storage_url("/"))
+    serve_static_dir(
+        settings.CONTENT_DATABASE_DIR, paths.get_content_database_url("/")
+    )
+    serve_static_dir(
+        settings.CONTENT_STORAGE_DIR, paths.get_content_storage_url("/")
+    )
 
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()
@@ -55,9 +62,9 @@ def run_server():
     # Instantiate a new server object
     server = cherrypy._cpserver.Server()
 
-    # Configure the server settings
+    # Configure the server
     server.socket_host = "0.0.0.0"
-    server.socket_port = 8080
+    server.socket_port = port
     server.thread_pool = 30
 
     # Subscribe this server
@@ -66,6 +73,7 @@ def run_server():
     # Start the server engine (Option 1 *and* 2)
     cherrypy.engine.start()
     cherrypy.engine.block()
+
 
 def serve_static_dir(root, url):
 

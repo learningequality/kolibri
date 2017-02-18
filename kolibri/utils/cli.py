@@ -37,7 +37,7 @@ Supported by Foundation for Learning Equality
 www.learningequality.org
 
 Usage:
-  kolibri start [--foreground --watch] [options] [-- DJANGO_OPTIONS ...]
+  kolibri start [--foreground --watch] [--port=<port>] [options] [-- DJANGO_OPTIONS ...]
   kolibri stop [options] [-- DJANGO_OPTIONS ...]
   kolibri restart [options] [-- DJANGO_OPTIONS ...]
   kolibri status [options]
@@ -293,5 +293,6 @@ def main(args=None):
         return
 
     if arguments['start']:
-        server.start()
+        port = int(arguments['--port'] or 8080)
+        server.start(port=port)
         return
