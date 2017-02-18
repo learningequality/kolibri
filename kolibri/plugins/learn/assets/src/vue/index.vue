@@ -75,10 +75,7 @@
     },
     computed: {
       topLevelPageName() {
-        if (this.exploreMode) {
-          return TopLevelPageNames.LEARN_EXPLORE;
-        }
-        return TopLevelPageNames.LEARN_LEARN;
+        return TopLevelPageNames.LEARN;
       },
       currentPage() {
         if (this.pageName === PageNames.EXPLORE_CHANNEL ||
