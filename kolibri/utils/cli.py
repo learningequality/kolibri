@@ -1,33 +1,34 @@
 from __future__ import absolute_import, print_function, unicode_literals
-from . import server
 
+import importlib  # noqa
+import logging  # noqa
 # Do this before importing anything else, we need to add bundled requirements
 # from the distributed version in case it exists before importing anything
 # else.
 # TODO: Do we want to manage the path at an even more fundametal place like
 # kolibri.__init__ !? Load order will still matter...
 import os  # noqa
+import signal  # noqa
 import sys  # noqa
+from logging import config as logging_config  # noqa
+
+import django  # noqa
+from django.core.management import call_command  # noqa
+from docopt import docopt  # noqa
+
 import kolibri  # noqa
 from kolibri import dist as kolibri_dist  # noqa
 
+from . import server
+
 # Setup path in case we are running with dependencies bundled into Kolibri
-sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
-
-import django  # noqa
-import importlib  # noqa
-import logging  # noqa
-import signal  # noqa
-
-from docopt import docopt  # noqa
-from logging import config as logging_config  # noqa
-from django.core.management import call_command  # noqa
+sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))
+            ] + sys.path
 
 # Force python2 to interpret every string as unicode.
 if sys.version[0] == '2':
     reload(sys)
     sys.setdefaultencoding('utf8')
-
 
 USAGE = """
 Kolibri
@@ -36,7 +37,7 @@ Supported by Foundation for Learning Equality
 www.learningequality.org
 
 Usage:
-  kolibri start [--foreground --watch] [options] [-- DJANGO_OPTIONS ...]
+  kolibri start [--foreground --watch] [--port=<port>] [options] [-- DJANGO_OPTIONS ...]
   kolibri stop [options] [-- DJANGO_OPTIONS ...]
   kolibri restart [options] [-- DJANGO_OPTIONS ...]
   kolibri status [options]
@@ -96,12 +97,14 @@ Auto-generated usage instructions from ``kolibri -h``::
 
 """.format(usage="\n".join(map(lambda x: "    " + x, USAGE.split("\n"))))
 
-
 # Set default env
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base")
-os.environ.setdefault("KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri"))
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
+)
+os.environ.setdefault(
+    "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
+)
 os.environ.setdefault("KOLIBRI_LISTEN_PORT", "8008")
-
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +126,9 @@ def _first_run():
     found.
     """
     if os.path.exists(VERSION_FILE):
-        logger.error("_first_run() called, but Kolibri is already initialized.")
+        logger.error(
+            "_first_run() called, but Kolibri is already initialized."
+        )
         return
     logger.info("Kolibri running for the first time.")
     logger.info(
@@ -194,6 +199,15 @@ def manage(cmd, args=[]):
     execute_from_command_line(argv=argv)
 
 
+def _is_plugin(obj):
+    from kolibri.plugins.base import KolibriPluginBase  # NOQA
+
+    return (
+        isinstance(obj, type) and obj is not KolibriPluginBase and
+        issubclass(obj, KolibriPluginBase)
+    )
+
+
 def plugin(plugin_name, **args):
     """
     Receives a plugin identifier and tries to load its main class. Calls class
@@ -202,17 +216,20 @@ def plugin(plugin_name, **args):
     from kolibri.utils import conf
     plugin_classes = []
 
-    from kolibri.plugins.base import KolibriPluginBase  # NOQA
-
     # Try to load kolibri_plugin from given plugin module identifier
     try:
-        plugin_module = importlib.import_module(plugin_name + ".kolibri_plugin")
+        plugin_module = importlib.import_module(
+            plugin_name + ".kolibri_plugin"
+        )
         for obj in plugin_module.__dict__.values():
-            if type(obj) == type and obj is not KolibriPluginBase and issubclass(obj, KolibriPluginBase):
+            if _is_plugin(obj):
                 plugin_classes.append(obj)
     except ImportError as e:
         if e.message.startswith("No module named"):
-            raise PluginDoesNotExist("Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?".format(plugin_name))
+            raise PluginDoesNotExist(
+                "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?".
+                format(plugin_name)
+            )
         else:
             raise
 
@@ -280,5 +297,6 @@ def main(args=None):
         return
 
     if arguments['start']:
-        server.start()
+        port = int(arguments['--port'] or 8080)
+        server.start(port=port)
         return
