@@ -14,19 +14,33 @@
           size="large"
           icon="keyboard_arrow_left"
           :aria-label="closeNav"/>
+        <!--
         <img
           class="header-logo"
           v-if="mobile"
           src="../login-modal/icons/kolibri-logo.svg"
           alt="kolibri-logo">
         <span class="title" >Kolibri</span>
+        -->
+        <img
+          class="header-logo"
+          v-if="mobile"
+          src="./instant.png"
+          alt="instant-schools-logo">
+        <span class="title">{{ $tr('instant') }}</span>
       </div>
       <div class="scrollable-nav" :style="{ width: width + 'px', paddingTop: `${headerHeight + 16}px` }">
         <div class="logo-large-wrapper">
+          <img
+            src="./instant.png"
+            v-if="!mobile && !tablet"
+            class="logo-large">
+          <!--
           <file-svg
             src="../login-modal/icons/kolibri-logo.svg"
             v-if="!mobile"
             class="logo-large"/>
+          -->
         </div>
         <ui-menu
           class="nav-main"
@@ -39,20 +53,35 @@
         </ui-menu>
       </div>
       <div class="footer" :style="{ width: width + 'px' }">
-        <img
-          class="logo"
-          src="../login-modal/icons/kolibri-logo.svg"
-          alt=""
-          :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }">
-        <div class="message-container">
-          <p class="message">{{ footerMsg }}</p>
-          <p class="message">
-            <ui-icon icon="copyright"/>
-            2017 Learning Equality
-          </p>
+        <div>
+          <img
+            class="logo"
+            src="./instant.png"
+            alt=""
+            :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }">
+          <div class="message-container">
+            <p class="message">{{ $tr('instant') }}</p>
+            <p class="message">
+              <ui-icon icon="copyright"/>
+              {{ $tr('vodafoneCopyright') }}
+            </p>
+          </div>
+        </div>
+        <div>
+          <img
+            class="logo"
+            src="../login-modal/icons/kolibri-logo.svg"
+            alt=""
+            :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }">
+          <div class="message-container">
+            <p class="message">{{ footerMsg }}</p>
+            <p class="message">
+              <ui-icon icon="copyright"/>
+              {{ $tr('learningEqualityCopyright') }}
+            </p>
+          </div>
         </div>
       </div>
-
     </div>
 
     <div v-if="navShown && mobile" class="modal-overlay"
@@ -90,6 +119,9 @@
       about: 'About',
       closeNav: 'Close navigation',
       poweredBy: 'Powered by Kolibri {version}',
+      instant: 'Instant Schools',
+      vodafoneCopyright: '2017 Vodafone Foundation',
+      learningEqualityCopyright: '2017 Learning Equality',
     },
     props: {
       topLevelPageName: {
@@ -211,11 +243,13 @@
             href: '/user',
           });
         }
-        options.push({
-          label: this.$tr('about'),
-          disabled: this.aboutActive,
-          icon: 'error_outline',
-        });
+        /*
+         options.push({
+         label: this.$tr('about'),
+         disabled: this.aboutActive,
+         icon: 'error_outline',
+         });
+         */
         if (this.isUserLoggedIn) {
           options.push({
             label: this.$tr('signOut'),
@@ -260,7 +294,7 @@
   @require '~kolibri.styles.definitions'
   @require '~kolibri.styles.navBarItem'
 
-  $footerheight = 100px
+  $footerheight = 152px
 
   .nav-wrapper
     top: 0
@@ -277,7 +311,7 @@
       display: inline-block
       vertical-align: middle
       height: 1.5em
-      margin-right: 0.5em
+      margin-right: 0.25em
     .logo
       margin: auto
       display: inline-block
@@ -287,8 +321,8 @@
 
   .logo-large
     width: 50%
-    margin-top: 2em
-    margin-bottom: 2em
+    margin-top: 1em
+    margin-bottom: 1em
 
   .nav-main
     background: $core-bg-light
@@ -336,17 +370,14 @@
     left: 0
     overflow: hidden
     background-color: $core-text-default
-    height: $footerheight
-    .logo, .message-container
-      top: 50%
-      transform: translateY(-50%)
-      position: relative
+    padding-top: 1em
+    padding-bottom: 1em
     .logo
       float: left
     .message-container
       .message
         color: $core-bg-light
-        font-size: ($footerheight/10)
+        font-size: x-small
 
   .modal-overlay
     position: fixed
