@@ -1,7 +1,7 @@
 <template>
 
   <router-link :to="link">
-    <div class="card">
+    <div>
       <div class="card-thumbnail">
         <slot/>
         <div class="progress-icon-wrapper">
@@ -66,9 +66,6 @@
     overflow: hidden
     background-color: $core-bg-light
     border-radius: $radius
-    @media screen and (max-width: $medium-breakpoint)
-      width: 100%
-      height: 175px
 
   .card-thumbnail
     height: $thumbnail-height

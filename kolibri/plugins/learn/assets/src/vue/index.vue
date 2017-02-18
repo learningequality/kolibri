@@ -13,7 +13,7 @@
     <div slot="content">
       <section-nav/>
       <breadcrumbs/>
-      <component class="content" :is="currentPage"/>
+      <component :is="currentPage"/>
     </div>
 
     <div slot="extra" class="search-pane" v-show="searchOpen">
@@ -135,9 +135,5 @@
     z-index: 1
     @media screen and (min-width: $portrait-breakpoint + 1)
       padding-left: $nav-width
-
-  .content
-    width-auto-adjust()
-    margin: auto
 
 </style>

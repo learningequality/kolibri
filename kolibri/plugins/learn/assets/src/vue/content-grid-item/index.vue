@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="pure-u-1-4">
     <grid-item :link="link" :title="title" :kind="kind" :progress="progress">
       <div class="thumbnail" :style="{ 'background-image': thumb }"></div>
     </grid-item>
