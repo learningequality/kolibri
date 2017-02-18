@@ -19,10 +19,9 @@
       :headerHeight="baseMaterialIncrement"
       :width="navWidth"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
-    <div v-if="!loading" :style="{paddingLeft: `${this.paddingForNav}px`, marginTop: `${this.baseMaterialIncrement + 32}px`}" class="content">
+    <div v-if="!loading" :style="{left: `${this.paddingForNav}px`, top: `${this.baseMaterialIncrement}px`}" class="content-container">
       <error-box v-if="error"/>
       <slot name="content"/>
-      <div class="horrible-hack"></div>
     </div>
     <slot name="extra"/>
   </div>
@@ -137,13 +136,12 @@
   .app-bar-actions
     display: inline-block
 
-  .content
-    width: 100%
-    height: 100vh
-    position: relative
-    overflow: auto
-
-  .horrible-hack
-    height: 32px
+  .content-container
+    position: absolute
+    overflow-y: auto
+    overflow-x: hidden
+    right: 0
+    bottom: 0
+    padding-bottom: 40px
 
 </style>
