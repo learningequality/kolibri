@@ -63,7 +63,7 @@
             <p class="message">{{ $tr('instant') }}</p>
             <p class="message">
               <ui-icon icon="copyright"/>
-              2017 Vodafone Foundation
+              {{ $tr('vodafoneCopyright') }}
             </p>
           </div>
         </div>
@@ -77,7 +77,7 @@
             <p class="message">{{ footerMsg }}</p>
             <p class="message">
               <ui-icon icon="copyright"/>
-              2017 Learning Equality
+              {{ $tr('learningEqualityCopyright') }}
             </p>
           </div>
         </div>
@@ -120,6 +120,8 @@
       closeNav: 'Close navigation',
       poweredBy: 'Powered by Kolibri {version}',
       instant: 'Instant Schools',
+      vodafoneCopyright: '2017 Vodafone Foundation',
+      learningEqualityCopyright: '2017 Learning Equality',
     },
     props: {
       topLevelPageName: {
@@ -182,9 +184,6 @@
         return (this.windowSize.breakpoint > 1) && (this.windowSize.breakpoint < 5);
       },
       footerMsg() {
-        return this.$tr('poweredBy', { version: __version }); // eslint-disable-line no-undef
-      },
-      footerMsg2() {
         return this.$tr('poweredBy', { version: __version }); // eslint-disable-line no-undef
       },
       closeNav() {
