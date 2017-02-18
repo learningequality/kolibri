@@ -208,7 +208,7 @@
             label: this.$tr('profile'),
             disabled: this.profileActive,
             icon: 'account_circle',
-            href: '/management',
+            href: '/user',
           });
         }
         options.push({
