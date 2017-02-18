@@ -22,10 +22,16 @@
         <span class="title" >Kolibri</span>
       </div>
       <div class="logo-large-wrapper">
+        <img
+          src="./instant.png"
+          v-if="!mobile && !tablet"
+          class="logo-large">
+        <!--
         <file-svg
           src="../login-modal/icons/kolibri-logo.svg"
           v-if="!mobile"
           class="logo-large"/>
+        -->
       </div>
       <ui-menu
         class="nav-main"
@@ -36,6 +42,19 @@
         :aria-label="ariaLabel"
         :style="{ maxWidth: width + 'px' }">
       </ui-menu>
+      <div class="footer footer2" :style="{ width: width + 'px' }">
+        <img
+          src="./instant.png"
+          alt=""
+          :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }">
+        <div class="message-container">
+          <p class="message">{{ $tr('instant') }}</p>
+          <p class="message">
+            <ui-icon icon="copyright"/>
+            2017 Vodafone Foundation
+          </p>
+        </div>
+      </div>
       <div class="footer" :style="{ width: width + 'px' }">
         <img
           class="logo"
@@ -88,6 +107,7 @@
       about: 'About',
       closeNav: 'Close navigation',
       poweredBy: 'Powered by Kolibri {version}',
+      instant: 'Instant Schools',
     },
     props: {
       topLevelPageName: {
@@ -150,6 +170,9 @@
         return (this.windowSize.breakpoint > 1) && (this.windowSize.breakpoint < 5);
       },
       footerMsg() {
+        return this.$tr('poweredBy', { version: __version }); // eslint-disable-line no-undef
+      },
+      footerMsg2() {
         return this.$tr('poweredBy', { version: __version }); // eslint-disable-line no-undef
       },
       closeNav() {
@@ -286,8 +309,8 @@
 
   .logo-large
     width: 50%
-    margin-top: 2em
-    margin-bottom: 2em
+    margin-top: 1em
+    margin-bottom: 1em
 
   .nav-main
     background: $core-bg-light
@@ -314,6 +337,9 @@
     .title
       font-weight: bold
       vertical-align: middle
+
+  .footer2
+    bottom: $footerheight
 
   .footer
     bottom: 0
