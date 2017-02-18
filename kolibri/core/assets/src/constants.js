@@ -64,8 +64,7 @@ widgets they supply to core and in what order, this
 is a work-around.
 */
 const TopLevelPageNames = {
-  LEARN_LEARN: 'LEARN_LEARN',
-  LEARN_EXPLORE: 'LEARN_EXPLORE',
+  LEARN: 'LEARN',
   COACH: 'COACH',
   MANAGE: 'MANAGE',
   USER: 'USER',
