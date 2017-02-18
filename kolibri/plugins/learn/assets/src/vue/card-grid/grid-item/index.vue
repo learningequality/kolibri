@@ -1,7 +1,7 @@
 <template>
 
   <router-link :to="link">
-    <div>
+    <div class="wrapper">
       <div class="card-thumbnail">
         <slot/>
         <div class="progress-icon-wrapper">
@@ -102,5 +102,8 @@
     right: 0.25em
     width: 1.5em
     height: 1.5em
+
+  .wrapper
+    background-color: $core-bg-light
 
 </style>
