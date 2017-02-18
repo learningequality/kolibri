@@ -161,8 +161,7 @@
         return this.$tr('navigationLabel');
       },
       learnActive() {
-        return (this.topLevelPageName === TopLevelPageNames.LEARN_LEARN) ||
-        (this.topLevelPageName === TopLevelPageNames.LEARN_EXPLORE);
+        return (this.topLevelPageName === TopLevelPageNames.LEARN);
       },
       coachActive() {
         return this.topLevelPageName === TopLevelPageNames.COACH;

@@ -189,7 +189,7 @@
 
   .top-floating-bar
     background-color: $core-bg-canvas
-    height: $learn-toolbar-height
+    height: 42px
     padding-top: 0.5em
     z-index: 10000
     text-align: center
@@ -211,7 +211,7 @@
     @media screen and (max-width: $medium-breakpoint)
       width: 100%
     @media screen and (max-width: $portrait-breakpoint)
-      width: $horizontal-card-width
+      width: 320px
 
 
   .table-row

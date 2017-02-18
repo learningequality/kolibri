@@ -1,7 +1,7 @@
 <template>
 
   <router-link :to="link">
-    <div class="card">
+    <div class="wrapper">
       <div class="card-thumbnail">
         <slot/>
         <div class="progress-icon-wrapper">
@@ -58,7 +58,7 @@
   @require '~kolibri.styles.definitions'
   @require '../../learn.styl'
 
-  $thumb-width = $horizontal-card-height
+  $thumb-width = 100px
 
   .card
     width: $card-width
@@ -66,12 +66,9 @@
     overflow: hidden
     background-color: $core-bg-light
     border-radius: $radius
-    @media screen and (max-width: $medium-breakpoint)
-      width: 100%
-      height: 175px
 
   .card-thumbnail
-    height: $thumbnail-height
+    height: 122px
     position: relative
 
   .text
@@ -105,5 +102,8 @@
     right: 0.25em
     width: 1.5em
     height: 1.5em
+
+  .wrapper
+    background-color: $core-bg-light
 
 </style>

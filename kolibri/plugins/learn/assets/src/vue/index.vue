@@ -15,7 +15,7 @@
     <div slot="content">
       <section-nav/>
       <breadcrumbs/>
-      <component class="content" :is="currentPage"/>
+      <component :is="currentPage"/>
     </div>
     <div slot="extra" class="search-pane" v-show="searchOpen">
       <search-widget :showTopics="exploreMode"/>
@@ -74,10 +74,7 @@
     },
     computed: {
       topLevelPageName() {
-        if (this.exploreMode) {
-          return TopLevelPageNames.LEARN_EXPLORE;
-        }
-        return TopLevelPageNames.LEARN_LEARN;
+        return TopLevelPageNames.LEARN;
       },
       currentPage() {
         if (this.pageName === PageNames.EXPLORE_CHANNEL ||
