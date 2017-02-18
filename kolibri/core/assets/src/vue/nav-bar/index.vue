@@ -293,7 +293,7 @@
   @require '~kolibri.styles.definitions'
   @require '~kolibri.styles.navBarItem'
 
-  $footerheight = 250px
+  $footerheight = 152px
 
   .nav-wrapper
     top: 0
