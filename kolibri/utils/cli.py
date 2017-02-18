@@ -12,18 +12,19 @@ import signal  # noqa
 import sys  # noqa
 from logging import config as logging_config  # noqa
 
+import kolibri  # noqa
+from kolibri import dist as kolibri_dist  # noqa
+
+# Setup path in case we are running with dependencies bundled into Kolibri
+# (NOTE: This *must* come before imports below, of django etc, or whl/pex will fail)
+sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))
+            ] + sys.path
+
 import django  # noqa
 from django.core.management import call_command  # noqa
 from docopt import docopt  # noqa
 
-import kolibri  # noqa
-from kolibri import dist as kolibri_dist  # noqa
-
-from . import server
-
-# Setup path in case we are running with dependencies bundled into Kolibri
-sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))
-            ] + sys.path
+from . import server  # noqa
 
 # Force python2 to interpret every string as unicode.
 if sys.version[0] == '2':
