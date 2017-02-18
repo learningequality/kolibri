@@ -199,6 +199,15 @@ def manage(cmd, args=[]):
     execute_from_command_line(argv=argv)
 
 
+def _is_plugin(obj):
+    from kolibri.plugins.base import KolibriPluginBase  # NOQA
+
+    return (
+        isinstance(obj, type) and obj is not KolibriPluginBase and
+        issubclass(obj, KolibriPluginBase)
+    )
+
+
 def plugin(plugin_name, **args):
     """
     Receives a plugin identifier and tries to load its main class. Calls class
@@ -207,18 +216,13 @@ def plugin(plugin_name, **args):
     from kolibri.utils import conf
     plugin_classes = []
 
-    from kolibri.plugins.base import KolibriPluginBase  # NOQA
-
     # Try to load kolibri_plugin from given plugin module identifier
     try:
         plugin_module = importlib.import_module(
             plugin_name + ".kolibri_plugin"
         )
         for obj in plugin_module.__dict__.values():
-            if type(obj
-                    ) == type and obj is not KolibriPluginBase and issubclass(
-                        obj, KolibriPluginBase
-                    ):
+            if _is_plugin(obj):
                 plugin_classes.append(obj)
     except ImportError as e:
         if e.message.startswith("No module named"):
