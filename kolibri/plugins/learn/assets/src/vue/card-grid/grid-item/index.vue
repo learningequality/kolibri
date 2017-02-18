@@ -58,7 +58,7 @@
   @require '~kolibri.styles.definitions'
   @require '../../learn.styl'
 
-  $thumb-width = $horizontal-card-height
+  $thumb-width = 100px
 
   .card
     width: $card-width
@@ -68,7 +68,7 @@
     border-radius: $radius
 
   .card-thumbnail
-    height: $thumbnail-height
+    height: 122px
     position: relative
 
   .text
