@@ -6,7 +6,7 @@
       class="nav-wrapper"
       :style="wrapperStyle">
       <div class="header"
-           :style="{ height: headerHeight + 'px', paddingTop: mobile ? '4px' : '8px' }">
+           :style="{ height: headerHeight + 'px', paddingTop: mobile ? '4px' : '8px', width: width + 'px' }">
         <ui-icon-button
           @click="toggleNav"
           type="secondary"
@@ -21,21 +21,23 @@
           alt="kolibri-logo">
         <span class="title" >Kolibri</span>
       </div>
-      <div class="logo-large-wrapper">
-        <file-svg
-          src="../login-modal/icons/kolibri-logo.svg"
-          v-if="!mobile"
-          class="logo-large"/>
+      <div class="scrollable-nav" :style="{ width: width + 'px', paddingTop: `${headerHeight + 16}px` }">
+        <div class="logo-large-wrapper">
+          <file-svg
+            src="../login-modal/icons/kolibri-logo.svg"
+            v-if="!mobile"
+            class="logo-large"/>
+        </div>
+        <ui-menu
+          class="nav-main"
+          :options="menuOptions"
+          hasIcons
+          @select="navigate"
+          role="navigation"
+          :aria-label="ariaLabel"
+          :style="{ width: width + 'px' }">
+        </ui-menu>
       </div>
-      <ui-menu
-        class="nav-main"
-        :options="menuOptions"
-        hasIcons
-        @select="navigate"
-        role="navigation"
-        :aria-label="ariaLabel"
-        :style="{ maxWidth: width + 'px' }">
-      </ui-menu>
       <div class="footer" :style="{ width: width + 'px' }">
         <img
           class="logo"
@@ -295,6 +297,10 @@
     fill: $core-bg-light
 
   .header
+    position: absolute
+    z-index: 1003
+    top: 0
+    left: 0
     font-size: 18px
     text-transform: uppercase
     overflow: auto
@@ -314,11 +320,21 @@
       font-weight: bold
       vertical-align: middle
 
-  .footer
-    bottom: 0
+  .scrollable-nav
     position: absolute
+    z-index: 1002
+    top: 0
+    left: 0
+    padding-bottom: $footerheight + 16
+    height: 100%
     overflow: auto
-    overflow-y: hidden
+
+  .footer
+    position: absolute
+    z-index: 1003
+    bottom: 0
+    left: 0
+    overflow: hidden
     background-color: $core-text-default
     height: $footerheight
     .logo, .message-container

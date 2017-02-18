@@ -17,7 +17,6 @@
       <breadcrumbs/>
       <component :is="currentPage"/>
     </div>
-
     <div slot="extra" class="search-pane" v-show="searchOpen">
       <search-widget :showTopics="exploreMode"/>
     </div>
@@ -134,5 +133,8 @@
     z-index: 1
     @media screen and (min-width: $portrait-breakpoint + 1)
       padding-left: $nav-width
+
+  .content
+    margin: auto
 
 </style>
