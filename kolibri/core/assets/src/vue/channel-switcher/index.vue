@@ -100,7 +100,7 @@
   .channel-switcher-menu
     .ui-menu-option
         &.is-disabled
-          color: $core-action-normal
+          color: $core-accent-color
           font-weight: bold
           opacity: 1
           background-color: rgba(0, 0, 0, 0.05)

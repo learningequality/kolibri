@@ -359,9 +359,9 @@
         font-size: 1.2em
         &.is-disabled
           .ui-menu-option__icon
-            color: $core-action-normal
+            color: $core-accent-color
             font-weight: bold
-          color: $core-action-normal
+          color: $core-accent-color
           cursor: default
           font-weight: bold
           opacity: 1
