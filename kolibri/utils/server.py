@@ -4,6 +4,7 @@ import os
 import platform
 
 import cherrypy
+from cherrypy.process.plugins import Daemonizer, PIDFile
 from django.conf import settings
 from django.core.management import call_command
 from kolibri.content.utils import paths
@@ -20,7 +21,78 @@ def start_background_workers():
     p.start()
 
 
+# Utility functions for reading or killing PIDs
+def pid_exists(pid):
+    if os.name == 'posix':
+        """Check whether PID exists in the current process table."""
+        import errno
+        if pid < 0:
+            return False
+        try:
+            # Send signal 0, this is harmless
+            os.kill(pid, 0)
+        except OSError as e:
+            return e.errno == errno.EPERM
+        else:
+            return True
+    else:
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        SYNCHRONIZE = 0x100000
+
+        process = kernel32.OpenProcess(SYNCHRONIZE, 0, pid)
+        if process != 0:
+            kernel32.CloseHandle(process)
+            return True
+        else:
+            return False
+
+
+def kill_pid(pid):
+    if os.name == 'posix':
+        """Kill a PID by sending a posix signal"""
+        import signal
+        try:
+            os.kill(pid, signal.SIGTERM)
+        # process does not exist
+        except OSError:
+            return
+        # process didn't exit cleanly, make one last effort to kill it
+        if pid_exists(pid):
+            os.kill(pid, signal.SIGKILL)
+    else:
+        """Kill the proces using pywin32 and pid"""
+        import ctypes
+        PROCESS_TERMINATE = 1
+        handle = ctypes.windll.kernel32.OpenProcess(PROCESS_TERMINATE, False, pid)  # @UndefinedVariable
+        ctypes.windll.kernel32.TerminateProcess(handle, -1)  # @UndefinedVariable
+        ctypes.windll.kernel32.CloseHandle(handle)  # @UndefinedVariable
+
+
+def read_pid_file(filename):
+    try:
+        pid = int(open(filename, "r").read())
+    except ValueError:
+        pid = None
+    return pid
+
+
+def stop():
+    # notice KOLIBRI_HOME is set after server.py module is imported
+    PID_FILE = os.path.join(os.environ['KOLIBRI_HOME'], 'kolibri.pid')
+    pid = read_pid_file(PID_FILE)
+    kill_pid(pid)
+
+
 def start():
+    # start the qcluster process
+    # don't run on windows; we don't run a full cluster there.
+    if platform.system() != "Windows":
+        start_background_workers()
+
+    # Due to the way how Daemonizer works
+    # You should be careful to not start any threads before this function runs.
+    run_server()
 
     # TODO(aronasorman): move to install/plugin-enabling scripts, and remove from here
     call_command("collectstatic", interactive=False)
@@ -28,17 +100,16 @@ def start():
     call_command("migrate", interactive=False, database="default")
     call_command("migrate", interactive=False, database="ormq")
 
-    # start the qcluster process
-    # don't run on windows; we don't run a full cluster there.
-    if platform.system() != "Windows":
-        start_background_workers()
-
     from kolibri.content.utils.annotation import update_channel_metadata_cache
     update_channel_metadata_cache()
 
-    run_server()
 
 def run_server():
+    # notice KOLIBRI_HOME is set after server.py module is imported
+    PID_FILE = os.path.join(os.environ['KOLIBRI_HOME'], 'kolibri.pid')
+    # Daemonizer engine plugin is only available on Unix and similar systems which provide fork().
+    Daemonizer(cherrypy.engine).subscribe()
+    PIDFile(cherrypy.engine, PID_FILE).subscribe()
 
     # Mount the application
     from kolibri.deployment.default.wsgi import application

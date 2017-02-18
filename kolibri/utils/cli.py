@@ -282,3 +282,7 @@ def main(args=None):
     if arguments['start']:
         server.start()
         return
+
+    if arguments['stop']:
+        server.stop()
+        return
