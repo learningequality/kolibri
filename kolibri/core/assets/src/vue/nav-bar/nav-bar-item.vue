@@ -59,7 +59,7 @@
 
   .link.active
     color: $core-bg-light
-    background: $core-action-normal
+    background: $core-accent-color
 
   .content
     display: inline-block

@@ -6,11 +6,7 @@
       <div class="manage-content">
         <top-nav/>
       </div>
-      <component
-        v-if="isAdminOrSuperuser"
-        class="manage-content page"
-        :is="currentPage"
-      />
+      <component class="manage-content page" :is="currentPage"/>
     </div>
 
     <div v-else slot="content" class="login-message">

@@ -101,13 +101,9 @@ function getGutterWidth(breakpoint) {
   const width = window.innerWidth;
   const height = window.innerHeight;
   if (breakpoint <= 1) { return 16; }
-  if (breakpoint <= 3) {
-    // 16px when the smallest width of the device is <600
-    // otherwise 24 px
-    if (Math.min(width, height) < 600) {
-      return 16;
-    }
-    return 24;
+  // 16px when the smallest width of the device is <600
+  if (breakpoint <= 3 && Math.min(width, height) < 600) {
+    return 16;
   }
   return 24;
 }
@@ -190,4 +186,3 @@ module.exports = {
     removeWindowListener(this._updateWindow);
   },
 };
-

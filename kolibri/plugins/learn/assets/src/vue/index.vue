@@ -3,16 +3,18 @@
   <core-base :topLevelPageName="topLevelPageName">
     <div slot="app-bar-actions">
       <channel-switcher @switch="switchChannel"/>
+      <!--
       <ui-icon-button
         icon="search"
         type="secondary"
         color="white"
         :ariaLabel="$tr('search')"
         @click="toggleSearch"/>
+        -->
     </div>
     <div slot="content">
-      <section-nav />
-      <breadcrumbs />
+      <section-nav/>
+      <breadcrumbs/>
       <component class="content" :is="currentPage"/>
     </div>
     <div slot="extra" class="search-pane" v-show="searchOpen">
