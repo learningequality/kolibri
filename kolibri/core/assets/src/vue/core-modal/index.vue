@@ -51,8 +51,8 @@
       // error alerts
       errorAlert: 'Error in:',
       // aria labels
-      goBack: 'Go Back',
-      closeWindow: 'Close Window',
+      goBack: 'Go back',
+      closeWindow: 'Close window',
     },
     props: {
       title: {

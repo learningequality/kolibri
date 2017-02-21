@@ -23,7 +23,7 @@
   module.exports = {
     $trNameSpace: 'contentRender',
     $trs: {
-      msgNotAvailable: 'This content is not available.',
+      msgNotAvailable: 'This content is not available',
     },
     props: {
       id: {

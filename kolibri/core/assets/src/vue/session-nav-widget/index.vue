@@ -51,13 +51,13 @@
   module.exports = {
     $trNameSpace: 'sessionWidget',
     $trs: {
-      logOut: 'Log Out',
-      logIn: 'Log In',
+      logOut: 'Log out',
+      logIn: 'Log in',
       admin: 'Admin',
       coach: 'Coach',
       learner: 'Learner',
       superuser: 'Superuser',
-      deviceOwner: 'Device Owner',
+      deviceOwner: 'Device owner',
     },
     components: {
       'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
