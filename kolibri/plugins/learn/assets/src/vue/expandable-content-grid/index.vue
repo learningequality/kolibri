@@ -29,8 +29,8 @@
   module.exports = {
     $trNameSpace: 'learnExpandable',
     $trs: {
-      less: 'Show Less',
-      more: 'Show More',
+      less: 'Show less',
+      more: 'Show more',
       defaultTitle: 'Contents',
     },
     props: {

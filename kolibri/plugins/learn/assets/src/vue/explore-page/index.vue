@@ -47,7 +47,7 @@
     $trNameSpace: 'learnExplore',
     $trs: {
       explore: 'Topics',
-      navigate: 'You can navigate groups of content through headings.',
+      navigate: 'Navigate content using headings',
     },
     components: {
       'page-header': require('../page-header'),

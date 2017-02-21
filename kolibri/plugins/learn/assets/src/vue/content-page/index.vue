@@ -64,10 +64,10 @@
     $trNameSpace: 'learnContent',
     $trs: {
       recommended: 'Recommended',
-      nextContent: 'Next Content',
+      nextContent: 'Next item',
       author: 'Author',
       license: 'License',
-      copyrightHolder: 'Copyright Holder',
+      copyrightHolder: 'Copyright holder',
     },
     computed: {
       Constants() {

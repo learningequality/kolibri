@@ -31,8 +31,8 @@
     $trNameSpace: 'videoRender',
 
     $trs: {
-      replay: 'Skip back 10 seconds.',
-      forward: 'Skip forward 10 seconds.',
+      replay: 'Go back 10 seconds',
+      forward: 'Go forward 10 seconds',
     },
 
     components: {

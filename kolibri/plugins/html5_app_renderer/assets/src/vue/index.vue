@@ -58,8 +58,8 @@
     },
     $trNameSpace: 'html5Renderer',
     $trs: {
-      exitFullscreen: 'Exit Fullscreen',
-      enterFullscreen: 'Enter Fullscreen',
+      exitFullscreen: 'Exit fullscreen',
+      enterFullscreen: 'Enter fullscreen',
     },
   };
 
