@@ -5,7 +5,7 @@
       class="app-bar"
       :style="navOpenStyle"
       @toggleSideNav="navShown=!navShown"
-      :title="topLevelPageName"
+      :title="appBarTitle"
       :navShown="navShown"
       :height="baseMaterialIncrement">
       <div slot="app-bar-actions" class="app-bar-actions">
@@ -49,6 +49,10 @@
           }
           return values(TopLevelPageNames).includes(value);
         },
+      },
+      appBarTitle: {
+        type: String,
+        required: false,
       },
     },
     components: {
