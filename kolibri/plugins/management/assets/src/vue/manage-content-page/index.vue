@@ -73,7 +73,7 @@
   module.exports = {
     $trNameSpace: 'manage-content-state',
     $trs: {
-      title: 'My Channels',
+      title: 'My channels',
       import: 'Import',
       export: 'Export',
       noChannels: 'No channels installed',
