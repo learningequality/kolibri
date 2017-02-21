@@ -92,12 +92,9 @@
         return 270; // wasn't expanding all the way
         // return this.baseMaterialIncrement * 5;
       },
-      tablet() {
-        return (this.windowSize.breakpoint > 1) && (this.windowSize.breakpoint < 5);
-      },
       paddingForNav() {
-        if (this.mobile || (this.tablet && !this.navShown)) {
           return 32;
+        if (this.mobile || !this.navShown) {
         }
         return this.navWidth + 32;
       },
