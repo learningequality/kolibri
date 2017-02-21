@@ -1,6 +1,6 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName">
+  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
     <div slot="app-bar-actions">
       <channel-switcher @switch="switchChannel"/>
       <!--
@@ -39,6 +39,7 @@
   module.exports = {
     $trNameSpace: 'learn',
     $trs: {
+      learnTitle: 'Learn',
       search: 'search',
     },
     components: {
