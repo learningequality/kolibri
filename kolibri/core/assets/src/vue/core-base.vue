@@ -95,7 +95,7 @@
         return this.mobile ? 56 : 64;
       },
       navWidth() {
-        return this.navShown ? this.headerHeight * 5 : 0;
+        return this.navShown ? this.headerHeight * 4 : 0;
       },
       appBarStyle() {
         return { paddingLeft: `${this.navWidth + PADDING}px` };

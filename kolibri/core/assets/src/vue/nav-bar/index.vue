@@ -24,7 +24,7 @@
         -->
         <img
           class="header-logo"
-          v-if="mobile"
+          v-if="mobile || tablet"
           src="./instant.png"
           alt="instant-schools-logo">
         <span class="title">{{ $tr('instant') }}</span>
@@ -335,7 +335,7 @@
     z-index: 1003
     top: 0
     left: 0
-    font-size: 18px
+    font-size: 14px
     text-transform: uppercase
     overflow: auto
     overflow-y: hidden
@@ -402,11 +402,10 @@
     .ui-menu-option
       margin: 5px 0
       &:not(.is-divider)
-        font-size: 1.2em
+        font-size: 14px
         &.is-disabled
           .ui-menu-option__icon
             color: $core-accent-color
-            font-weight: bold
           color: $core-accent-color
           cursor: default
           font-weight: bold
