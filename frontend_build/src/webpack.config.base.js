@@ -36,11 +36,6 @@ var merge = require('webpack-merge');
 var production = process.env.NODE_ENV === 'production';
 var lint = (process.env.LINT || production);
 
-var aliases = require('./apiSpecExportTools').coreAliases();
-aliases['kolibri_module'] = path.resolve('kolibri/core/assets/src/kolibri_module');
-aliases['content_renderer_module'] = path.resolve('kolibri/core/assets/src/content_renderer_module');
-
-
 // helps convert to older string syntax for vue-loader
 var combineLoaders = require('webpack-combine-loaders');
 
@@ -132,7 +127,6 @@ var config = {
   },
   plugins: [],
   resolve: {
-    alias: aliases,
     extensions: [ ".js", ".vue", ".styl" ],
   },
   node: {
