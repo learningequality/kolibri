@@ -419,5 +419,6 @@
         background-color: $core-text-annotation
     &.ui-menu
       border: none
+      max-width: 320px
 
 </style>
