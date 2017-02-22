@@ -51,7 +51,7 @@
   module.exports = {
     $trNameSpace: 'channelSwitcher',
     $trs: {
-      switchChannels: 'Switch Channels',
+      switchChannels: 'Switch channels',
     },
     components: {
       'ui-button': require('keen-ui/src/UiButton'),

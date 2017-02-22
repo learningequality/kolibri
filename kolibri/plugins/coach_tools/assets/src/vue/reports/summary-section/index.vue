@@ -132,11 +132,11 @@
   module.exports = {
     $trNameSpace: 'report-summary',
     $trs: {
-      lastActive: 'Last Active',
+      lastActive: 'Last active',
       lastActiveText: '{0, date, medium}',
       na: '-',
-      exerciseProgress: 'Average Progress',
-      contentProgress: 'Average Progress',
+      exerciseProgress: 'Average progress',
+      contentProgress: 'Average progress',
       exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
       contentCountText:
         '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
@@ -144,11 +144,11 @@
       watched: 'Watched',
       listened: 'Listened',
       viewed: 'Viewed',
-      inProgress: 'In Progress',
-      notStarted: 'Not Started',
-      notWatched: 'Not Watched',
-      notListened: 'Not Listened',
-      notViewed: 'Not Viewed',
+      inProgress: 'In progress',
+      notStarted: 'Not started',
+      notWatched: 'Not watched',
+      notListened: 'Not listened',
+      notViewed: 'Not viewed',
     },
     components: {
       'progress-bar': require('kolibri.coreVue.components.progressBar'),

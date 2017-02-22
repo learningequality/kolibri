@@ -86,7 +86,7 @@
       available: 'Available Storage:',
       noDrivesDetected: 'No drives were detected:',
       drivesFound: 'Drives detected:',
-      notWritable: 'Not Writable',
+      notWritable: 'Not writable',
       cancel: 'Cancel',
       export: 'Export',
       refresh: 'Refresh',

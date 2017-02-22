@@ -156,7 +156,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     username = models.CharField(
         _('username'),
         max_length=30,
-        help_text=_('Required. 30 characters or fewer. Letters and digits only.'),
+        help_text=_('Required. 30 characters or fewer. Letters and digits only'),
         validators=[
             validators.RegexValidator(
                 r'^\w+$',

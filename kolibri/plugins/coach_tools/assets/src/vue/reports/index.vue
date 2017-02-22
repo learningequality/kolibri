@@ -120,10 +120,10 @@
     $trNameSpace: 'report-page',
     $trs: {
       'name': 'Name',
-      'avg-exercise-progress': 'Avg. Exercise Progress',
-      'avg-content-progress': 'Avg. Resource Progress',
-      'last-activity': 'Last Activity',
-      'all-learners': 'All Learners ({0, number, integer})',
+      'avg-exercise-progress': 'Avg. exercise progress',
+      'avg-content-progress': 'Avg. resource progress',
+      'last-activity': 'Last activity',
+      'all-learners': 'All learners ({0, number, integer})',
     },
     components: {
       'breadcrumbs': require('./breadcrumbs'),

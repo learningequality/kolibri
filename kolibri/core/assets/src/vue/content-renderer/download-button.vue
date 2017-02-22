@@ -45,7 +45,7 @@
     },
     $trNameSpace: 'downloadButton',
     $trs: {
-      downloadContent: 'Download Content',
+      downloadContent: 'Download content',
     },
     props: {
       files: {

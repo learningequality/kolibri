@@ -202,7 +202,7 @@ function showReport(store, params, oldParams) {
     if (userScope === Constants.UserScopes.USER) {
       titleElems.push(`${userSummary.full_name}`);
     } else if (userScope === Constants.UserScopes.FACILITY) {
-      titleElems.push('All Learners');
+      titleElems.push('All learners');
     }
     titleElems.push(`${contentSummary.title}`);
     if (allOrRecent === Constants.AllOrRecent.RECENT) {

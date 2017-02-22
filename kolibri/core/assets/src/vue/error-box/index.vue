@@ -21,9 +21,8 @@
     $trNameSpace: 'error',
     $trs: {
       errorHeader: 'Error',
-      errorButtonLabel: 'Hide Error',
-      // eslint-disable-next-line
-      explanation: `Sorry, we've encountered an issue. You may need to refresh the page or click one of the main navigation links.`,
+      errorButtonLabel: 'Hide error',
+      explanation: `Sorry, something went wrong. Please try refreshing the page`,
       errorLabel: `Error details:`,
     },
     vuex: {

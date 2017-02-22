@@ -89,9 +89,9 @@
 
     $trs: {
       ariaLabel: 'Type to find content',
-      placeHolder: 'Find content...',
+      placeHolder: 'Find content…',
       searchResults: 'Search results:',
-      noMatches: 'Could not find any matches.',
+      noMatches: 'Could not find any matches',
       cancel: 'Cancel',
     },
     directives: { focus },
