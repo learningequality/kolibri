@@ -1,24 +1,26 @@
 <template>
 
-  <div>
-    <div class="link-block">
-      <router-link v-if="!isLearn" :to="learnRootLink">{{ $tr('learnName') }}</router-link>
-      <span v-else>{{ $tr('learnName') }}</span>
-    </div>
-    <div class="link-block">
-      <router-link v-if="isLearn" :to="exploreRootLink">{{ $tr('exploreName') }}</router-link>
-      <span v-else>{{ $tr('exploreName') }}</span>
-    </div>
-  </div>
+  <ui-tabs
+    ref="tabs"
+    class="learn-tabs"
+    type="icon-and-text"
+    :disableRipple="true">
+    <ui-tab
+      icon="forum"
+      :title="$tr('learnName')"
+      :selected="isRecommended"/>
+    <ui-tab
+      icon="folder"
+      :title="$tr('exploreName')"
+      :selected="!isRecommended"/>
+  </ui-tabs>
 
 </template>
 
 
 <script>
 
-  const PageNames = require('../../state/constants').PageNames;
-  const PageModes = require('../../state/constants').PageModes;
-  const getters = require('../../state/getters');
+  const Constants = require('../../state/constants');
 
   module.exports = {
     $trNameSpace: 'sectionNav',
@@ -26,27 +28,49 @@
       learnName: 'Recommended',
       exploreName: 'Topics',
     },
+    components: {
+      'ui-tabs': require('keen-ui/src/UiTabs'),
+      'ui-tab': require('keen-ui/src/UiTab'),
+    },
     computed: {
-      learnRootLink() {
-        return {
-          name: PageNames.LEARN_CHANNEL,
-          channel_id: this.currentChannelId,
-        };
+      isRecommended() {
+        return this.pageName === Constants.PageNames.LEARN_CHANNEL;
       },
-      exploreRootLink() {
-        return {
-          name: PageNames.EXPLORE_CHANNEL,
-          channel_id: this.currentChannelId,
-        };
+    },
+    methods: {
+      navigateToTab(tab) {
+        switch (tab) {
+          case 'Recommended':
+            this.$router.push({ name: Constants.PageNames.LEARN_ROOT });
+            return;
+
+          case 'Topics':
+            this.$router.push({ name: Constants.PageNames.EXPLORE_ROOT });
+            return;
+
+          default:
+            return;
+        }
       },
-      isLearn() {
-        return this.pageMode === PageModes.LEARN;
+      addTabListeners() {
+        const tabs = this.$refs.tabs.$el.querySelectorAll('.ui-tab-header-item');
+        tabs.forEach((tab) => {
+          tab.addEventListener('click', () => {
+            const tabClicked = tab.querySelectorAll('.ui-tab-header-item__text')[0].innerHTML;
+            this.navigateToTab(tabClicked);
+          }, false);
+        });
       },
+    },
+    mounted() {
+      this.$nextTick(this.addTabListeners);
+    },
+    beforeDestroy() {
+      // TODO: Remove event listeners
     },
     vuex: {
       getters: {
-        pageMode: getters.pageMode,
-        currentChannelId: state => state.core.channels.currentId,
+        pageName: state => state.pageName,
       },
     },
   };
@@ -54,10 +78,13 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="stylus" scoped></style>
 
-  .link-block
-    display: inline-block
-    padding: 16px
+
+<style lang="stylus">
+
+  // hide body od tabs
+  .learn-tabs > .ui-tabs__body
+    display: none
 
 </style>
