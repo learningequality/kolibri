@@ -212,7 +212,7 @@ class File(ContentDatabaseModel):
         """
         Return the preset.
         """
-        return PRESET_LOOKUP.get(self.preset, _('Unknown Format'))
+        return PRESET_LOOKUP.get(self.preset, _('Unknown format'))
 
     def get_download_filename(self):
         """

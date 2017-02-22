@@ -26,5 +26,5 @@ class ManagementInclusionHook(hooks.ManagementSyncHook):
 
 
 class ManagementNavItem(UserNavigationHook):
-    label = _("Management!")
+    label = _("Management")
     url = '#'

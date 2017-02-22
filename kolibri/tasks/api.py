@@ -79,7 +79,7 @@ class TasksViewSet(viewsets.ViewSet):
         # ensure the requested channel_id can be found on the central server, otherwise error
         status = requests.head(get_content_database_file_url(channel_id)).status_code
         if status == 404:
-            raise Http404(_("The requested channel does not exist on the content server."))
+            raise Http404(_("The requested channel does not exist on the content server"))
 
         task_id = make_async_call(_networkimport, channel_id, group=TASKTYPE, progress_updates=True)
 
