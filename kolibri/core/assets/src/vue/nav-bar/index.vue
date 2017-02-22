@@ -302,14 +302,6 @@
       margin: auto
       display: inline-block
 
-  .logo-large-wrapper
-    text-align: center
-
-  .logo-large
-    width: 50%
-    margin-top: 1em
-    margin-bottom: 1em
-
   .nav-main
     background: $core-bg-light
 
