@@ -35,7 +35,7 @@
   const values = require('lodash.values');
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
-  const PADDING = 32;
+  const PADDING = 16;
 
   module.exports = {
     mixins: [responsiveWindow],
