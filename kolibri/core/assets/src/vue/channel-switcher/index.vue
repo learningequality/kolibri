@@ -1,7 +1,7 @@
 <template>
 
   <span>
-    <span v-if="windowSize.breakpoint > 2">
+    <span v-if="windowSize.breakpoint > 0">
       <ui-button
         class="app-bar-button"
         icon="view_module"

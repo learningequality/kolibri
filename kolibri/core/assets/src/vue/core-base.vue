@@ -3,7 +3,7 @@
   <div :class="`gutter-${windowSize.gutterWidth}`">
     <app-bar
       class="app-bar"
-      :style="navStyle"
+      :style="appBarStyle"
       @toggleSideNav="navShown=!navShown"
       :title="appBarTitle"
       :navShown="navShown"
@@ -34,6 +34,8 @@
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
   const values = require('lodash.values');
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
+
+  const PADDING = 16;
 
   module.exports = {
     mixins: [responsiveWindow],
@@ -93,23 +95,13 @@
         return this.mobile ? 56 : 64;
       },
       navWidth() {
-        return 270;
+        return this.navShown ? this.headerHeight * 4 : 0;
       },
-      navPadding() {
-        const PADDING = 32;
-        if (this.mobile || !this.navShown) {
-          return PADDING;
-        }
-        return this.navWidth + PADDING;
-      },
-      navStyle() {
-        if (this.navShown) {
-          return { paddingLeft: `${this.navPadding}px` };
-        }
-        return '';
+      appBarStyle() {
+        return { paddingLeft: `${this.navWidth + PADDING}px` };
       },
       contentStyle() {
-        return { left: `${this.navPadding}px`, top: `${this.headerHeight}px` };
+        return { left: `${this.navWidth}px`, top: `${this.headerHeight}px` };
       },
     },
     mounted() {
@@ -147,6 +139,6 @@
     right: 0
     bottom: 0
     padding-bottom: 40px
-    padding-right: 32px
+    padding: 32px
 
 </style>
