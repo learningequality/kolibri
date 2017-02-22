@@ -99,6 +99,9 @@ module.exports = {
         sessionNavWidget: {
           module: require('../vue/session-nav-widget'),
         },
+        tabs: {
+          module: require('../vue/tabs'),
+        },
       },
       router: {
         module: require('../router'),
