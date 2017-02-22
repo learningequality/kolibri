@@ -303,7 +303,7 @@
     position: fixed
     z-index: 1001
     font-size: 1em
-    height: 100vh
+    height: 100%
     overflow: auto
     -webkit-overflow-scrolling: touch
     box-shadow: 2px 0 0 0 rgba(0, 0, 0, 0.12)

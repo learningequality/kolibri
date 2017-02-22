@@ -3,11 +3,11 @@
   <div :class="`gutter-${windowSize.gutterWidth}`">
     <app-bar
       class="app-bar"
-      :style="navOpenStyle"
+      :style="navStyle"
       @toggleSideNav="navShown=!navShown"
-      :title="topLevelPageName"
+      :title="appBarTitle"
       :navShown="navShown"
-      :height="baseMaterialIncrement">
+      :height="headerHeight">
       <div slot="app-bar-actions" class="app-bar-actions">
         <slot name="app-bar-actions"/>
       </div>
@@ -16,10 +16,10 @@
       @toggleSideNav="navShown=!navShown"
       :topLevelPageName="topLevelPageName"
       :navShown="navShown"
-      :headerHeight="baseMaterialIncrement"
+      :headerHeight="headerHeight"
       :width="navWidth"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
-    <div v-if="!loading" :style="{left: `${this.paddingForNav}px`, top: `${this.baseMaterialIncrement}px`}" class="content-container">
+    <div v-if="!loading" :style="contentStyle" class="content-container">
       <error-box v-if="error"/>
       <slot name="content"/>
     </div>
@@ -49,6 +49,10 @@
           }
           return values(TopLevelPageNames).includes(value);
         },
+      },
+      appBarTitle: {
+        type: String,
+        required: false,
       },
     },
     components: {
@@ -85,27 +89,27 @@
       mobile() {
         return this.windowSize.breakpoint < 2;
       },
-      baseMaterialIncrement() {
+      headerHeight() {
         return this.mobile ? 56 : 64;
       },
       navWidth() {
-        return 270; // wasn't expanding all the way
-        // return this.baseMaterialIncrement * 5;
+        return 270;
       },
-      tablet() {
-        return (this.windowSize.breakpoint > 1) && (this.windowSize.breakpoint < 5);
-      },
-      paddingForNav() {
-        if (this.mobile || (this.tablet && !this.navShown)) {
-          return 32;
+      navPadding() {
+        const PADDING = 32;
+        if (this.mobile || !this.navShown) {
+          return PADDING;
         }
-        return this.navWidth + 32;
+        return this.navWidth + PADDING;
       },
-      navOpenStyle() {
+      navStyle() {
         if (this.navShown) {
-          return { paddingLeft: `${this.paddingForNav}px` };
+          return { paddingLeft: `${this.navPadding}px` };
         }
         return '';
+      },
+      contentStyle() {
+        return { left: `${this.navPadding}px`, top: `${this.headerHeight}px` };
       },
     },
     mounted() {
@@ -143,5 +147,6 @@
     right: 0
     bottom: 0
     padding-bottom: 40px
+    padding-right: 32px
 
 </style>

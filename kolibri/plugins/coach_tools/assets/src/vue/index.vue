@@ -1,6 +1,6 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName">
+  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('coachTitle')">
     <div slot="app-bar-actions">
       <channel-switcher @switch="switchChannel"/>
     </div>
@@ -31,6 +31,7 @@
   module.exports = {
     $trNameSpace: 'coach-root',
     $trs: {
+      coachTitle: 'Coach',
       logInPrompt: 'Did you forget to log in?',
       logInCommand: 'You must be logged in as an Admin to view this page.',
     },
