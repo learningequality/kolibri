@@ -26,7 +26,7 @@
     $trs: {
       buttonClose: 'Close',
       buttonCancel: 'Cancel',
-      failed: 'Try again',
+      failed: 'Please try again',
       failed_msg: 'The transfer did not succeed.' +
         ' Restart it to resume transferring the remaining content',
       completed: `Finished!`,

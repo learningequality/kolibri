@@ -22,8 +22,7 @@
     $trs: {
       errorHeader: 'Error',
       errorButtonLabel: 'Hide error',
-      // eslint-disable-next-line
-      explanation: `Unknown issue. You may need to refresh`,
+      explanation: `Sorry, something went wrong. Please try refreshing the page`,
       errorLabel: `Error details:`,
     },
     vuex: {
