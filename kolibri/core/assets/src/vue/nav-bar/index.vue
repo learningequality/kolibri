@@ -14,18 +14,9 @@
           size="large"
           icon="keyboard_arrow_left"
           :aria-label="closeNav"/>
-        <!--
-        <img
-          class="header-logo"
-          src="../login-modal/icons/kolibri-logo.svg"
-          alt="kolibri-logo">
-        <span class="title" >Kolibri</span>
-        -->
-        <img
-          class="header-logo"
-          src="./instant.png"
-          alt="instant-schools-logo">
-        <span class="title">{{ $tr('instant') }}</span>
+        <logo
+          class="header-logo"/>
+        <span class="title">Kolibri</span>
       </div>
       <div class="scrollable-nav" :style="{ width: width + 'px', paddingTop: `${headerHeight + 16}px` }">
         <ui-menu
@@ -54,11 +45,9 @@
           </div>
         </div>
         <div>
-          <img
+          <logo
             class="logo"
-            src="../login-modal/icons/kolibri-logo.svg"
-            alt=""
-            :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }">
+            :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }"/>
           <div class="message-container">
             <p class="message">{{ footerMsg }}</p>
             <p class="message">
@@ -258,6 +247,7 @@
       'ui-menu': require('keen-ui/src/UiMenu'),
       'ui-icon': require('keen-ui/src/UiIcon'),
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
+      'logo': require('kolibri.coreVue.components.logo'),
     },
     vuex: {
       actions: {

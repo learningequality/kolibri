@@ -102,6 +102,9 @@ module.exports = {
         tabs: {
           module: require('../vue/tabs'),
         },
+        logo: {
+          module: require('../vue/logo'),
+        },
       },
       router: {
         module: require('../router'),

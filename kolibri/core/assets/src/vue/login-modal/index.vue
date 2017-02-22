@@ -10,7 +10,7 @@
   >
     <div class="title">
       <div class="login-brand-box">
-        <img src="./icons/kolibri-logo.svg" alt="">
+        <logo/>
         <p id="login-brand">{{ $tr('kolibri') }}</p>
       </div>
     </div>
@@ -66,6 +66,7 @@
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'logo': require('kolibri.coreVue.components.logo'),
     },
     data: () => ({
       username_entered: '',
@@ -126,8 +127,6 @@
   .login-brand-box
     text-align: center
     margin: 15px 5px auto
-    img, p
-      display: inline-block
     img
       max-width: 100px
       height: auto
