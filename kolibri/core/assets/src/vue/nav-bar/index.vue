@@ -388,7 +388,7 @@
     background: rgba(0, 0, 0, 0.7)
     transition: opacity 0.3s ease
     background-attachment: fixed
-    z-index: 10
+    z-index: 60
 
 </style>
 
