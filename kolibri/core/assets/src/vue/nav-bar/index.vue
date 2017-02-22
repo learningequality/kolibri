@@ -17,31 +17,17 @@
         <!--
         <img
           class="header-logo"
-          v-if="mobile"
           src="../login-modal/icons/kolibri-logo.svg"
           alt="kolibri-logo">
         <span class="title" >Kolibri</span>
         -->
         <img
           class="header-logo"
-          v-if="mobile || tablet"
           src="./instant.png"
           alt="instant-schools-logo">
         <span class="title">{{ $tr('instant') }}</span>
       </div>
       <div class="scrollable-nav" :style="{ width: width + 'px', paddingTop: `${headerHeight + 16}px` }">
-        <div class="logo-large-wrapper">
-          <img
-            src="./instant.png"
-            v-if="!mobile && !tablet"
-            class="logo-large">
-          <!--
-          <file-svg
-            src="../login-modal/icons/kolibri-logo.svg"
-            v-if="!mobile"
-            class="logo-large"/>
-          -->
-        </div>
         <ui-menu
           class="nav-main"
           :options="menuOptions"
