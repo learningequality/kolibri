@@ -19,10 +19,10 @@
   module.exports = {
     $trNameSpace: 'learnContentUnavailable',
     $trs: {
-      header: 'Coach Reports Unavailable',
-      description: 'No channels exist.',
-      adminInstructions: 'Download channels from the <a href="/management/#/content">Content Management page</a>.', // eslint-disable-line max-len
-      nonAdminInstructions: 'You need to log in as an administrator to download channels.',
+      header: 'Coach reports unavailable',
+      description: 'No channels exist',
+      adminInstructions: 'Download channels from the <a href="/management/#/content">content management page</a>', // eslint-disable-line max-len
+      nonAdminInstructions: 'You need to log in as an administrator to download channels',
     },
     vuex: {
       getters: {
