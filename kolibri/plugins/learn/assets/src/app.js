@@ -78,6 +78,13 @@ class LearnModule extends KolibriModule {
           },
         },
         {
+          name: PageNames.SEARCH,
+          path: '/search',
+          handler: (toRoute, fromRoute) => {
+            actions.showSearch(store);
+          },
+        },
+        {
           path: '/',
           redirect: '/recommended',
         },

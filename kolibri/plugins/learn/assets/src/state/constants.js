@@ -10,6 +10,7 @@ const PageNames = {
   LEARN_CONTENT: 'LEARN_CONTENT',
   SCRATCHPAD: 'SCRATCHPAD',
   CONTENT_UNAVAILABLE: 'CONTENT_UNAVAILABLE',
+  SEARCH: 'SEARCH',
 };
 
 // switch between modes

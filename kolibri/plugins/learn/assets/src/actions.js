@@ -371,6 +371,13 @@ function showContentUnavailable(store) {
   store.dispatch('CORE_SET_TITLE', 'Content Unavailable');
 }
 
+function showSearch(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.SEARCH);
+  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'Search');
+}
 
 module.exports = {
   redirectToExploreChannel,
@@ -385,4 +392,5 @@ module.exports = {
   triggerSearch,
   toggleSearch,
   clearSearch,
+  showSearch,
 };

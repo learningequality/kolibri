@@ -54,6 +54,7 @@
       'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
       'breadcrumbs': require('./breadcrumbs'),
       'section-nav': require('./section-nav'),
+      'search-page': require('./search-page'),
     },
     methods: {
       toggleSearch() {
@@ -94,6 +95,9 @@
         }
         if (this.pageName === PageNames.CONTENT_UNAVAILABLE) {
           return 'content-unavailable-page';
+        }
+        if (this.pageName === PageNames.SEARCH) {
+          return 'search-page';
         }
         return null;
       },
