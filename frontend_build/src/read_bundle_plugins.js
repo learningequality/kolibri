@@ -88,13 +88,13 @@ var readBundlePlugins = function(base_dir) {
   var core_externals = core_bundle ? coreExternals(core_bundle.output.library) : {};
 
   bundles.forEach(function(bundle) {
+    bundle.resolve.alias = coreAliases(coreAPISpec);
     if (bundle.core_name === null || typeof bundle.core_name === "undefined") {
       // If this is not the core bundle, then we need to add the external library mappings.
       bundle.externals = _.extend({}, externals, core_externals);
     } else {
       bundle.externals = _.extend({kolibri: core_bundle.output.library}, externals);
       if (coreAPISpec) {
-        bundle.resolve.alias = coreAliases(coreAPISpec);
         bundle.plugins.push(
           new webpack.ProvidePlugin({
             __coreAPISpec: coreAPISpec

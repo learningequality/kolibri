@@ -14,18 +14,9 @@
           size="large"
           icon="keyboard_arrow_left"
           :aria-label="closeNav"/>
-        <!--
-        <img
-          class="header-logo"
-          src="../login-modal/icons/kolibri-logo.svg"
-          alt="kolibri-logo">
-        <span class="title" >Kolibri</span>
-        -->
-        <img
-          class="header-logo"
-          src="./instant.png"
-          alt="instant-schools-logo">
-        <span class="title">{{ $tr('instant') }}</span>
+        <logo
+          class="header-logo"/>
+        <span class="title">Kolibri</span>
       </div>
       <div class="scrollable-nav" :style="{ width: width + 'px', paddingTop: `${headerHeight + 16}px` }">
         <ui-menu
@@ -39,33 +30,15 @@
         </ui-menu>
       </div>
       <div class="footer" :style="{ width: width + 'px' }">
-        <div>
-          <img
-            class="logo"
-            src="./instant.png"
-            alt=""
-            :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }">
-          <div class="message-container">
-            <p class="message">{{ $tr('instant') }}</p>
-            <p class="message">
-              <ui-icon icon="copyright"/>
-              {{ $tr('vodafoneCopyright') }}
-            </p>
-          </div>
-        </div>
-        <div>
-          <img
-            class="logo"
-            src="../login-modal/icons/kolibri-logo.svg"
-            alt=""
-            :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }">
-          <div class="message-container">
-            <p class="message">{{ footerMsg }}</p>
-            <p class="message">
-              <ui-icon icon="copyright"/>
-              {{ $tr('learningEqualityCopyright') }}
-            </p>
-          </div>
+        <logo
+          class="logo"
+          :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }"/>
+        <div class="message-container">
+          <p class="message">{{ footerMsg }}</p>
+          <p class="message">
+            <ui-icon icon="copyright"/>
+            {{ $tr('learningEqualityCopyright') }}
+          </p>
         </div>
       </div>
     </div>
@@ -104,9 +77,7 @@
       signOut: 'Sign out',
       about: 'About',
       closeNav: 'Close navigation',
-      poweredBy: 'Powered by Kolibri {version}',
-      instant: 'Instant Schools',
-      vodafoneCopyright: '2017 Vodafone Foundation',
+      poweredBy: 'Kolibri {version}',
       learningEqualityCopyright: '2017 Learning Equality',
     },
     props: {
@@ -253,11 +224,10 @@
       },
     },
     components: {
-      'session-nav-widget': require('kolibri.coreVue.components.sessionNavWidget'),
-      'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
       'ui-menu': require('keen-ui/src/UiMenu'),
       'ui-icon': require('keen-ui/src/UiIcon'),
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
+      'logo': require('kolibri.coreVue.components.logo'),
     },
     vuex: {
       actions: {
@@ -278,7 +248,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-  @require '~kolibri.styles.navBarItem'
 
   $footerheight = 152px
 

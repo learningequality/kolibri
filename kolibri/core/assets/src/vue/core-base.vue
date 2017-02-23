@@ -59,7 +59,7 @@
     },
     components: {
       'app-bar': require('./app-bar'),
-      'nav-bar': require('./nav-bar'),
+      'nav-bar': require('kolibri.coreVue.components.navBar'),
       'error-box': require('./error-box'),
       'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
     },
