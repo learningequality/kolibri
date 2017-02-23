@@ -3,22 +3,19 @@
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
     <div slot="app-bar-actions">
       <channel-switcher @switch="switchChannel"/>
-      <!--
       <ui-icon-button
         icon="search"
         type="secondary"
         color="white"
         :ariaLabel="$tr('search')"
-        @click="toggleSearch"/>
-        -->
+        @click="routeToSearchPage"/>
+    </div>
+    <div slot="tabs" v-if="!isSearchPage">
+      <section-nav/>
     </div>
     <div slot="content">
-      <section-nav/>
       <breadcrumbs/>
       <component :is="currentPage"/>
-    </div>
-    <div slot="extra" class="search-pane" v-show="searchOpen">
-      <search-widget :showTopics="exploreMode"/>
     </div>
 
   </core-base>
@@ -32,7 +29,6 @@
   const PageNames = constants.PageNames;
   const PageModes = constants.PageModes;
   const getters = require('../state/getters');
-  const actions = require('../actions');
   const store = require('../state/store');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
@@ -43,7 +39,6 @@
       search: 'search',
     },
     components: {
-      'search-widget': require('./search-widget'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
@@ -57,8 +52,11 @@
       'search-page': require('./search-page'),
     },
     methods: {
-      toggleSearch() {
-        this.toggleSearch();
+      routeToSearchPage() {
+        this.$router.replace({
+          name: constants.PageNames.SEARCH,
+          params: { channel_id: this.currentChannelId },
+        });
       },
       switchChannel(channelId) {
         let rootPage;
@@ -101,6 +99,9 @@
         }
         return null;
       },
+      isSearchPage() {
+        return this.pageName === PageNames.SEARCH;
+      },
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
       },
@@ -109,11 +110,7 @@
       getters: {
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
-        searchOpen: state => state.searchOpen,
-      },
-      actions: {
-        toggleSearch: actions.toggleSearch,
-        clearSearch: actions.clearSearch,
+        currentChannelId: state => state.core.channels.currentId,
       },
     },
     store, // make this and all child components aware of the store
@@ -124,20 +121,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
   @require 'learn.styl'
-
-  .search-pane
-    background-color: $core-bg-canvas
-    overflow-y: scroll
-    position: fixed
-    top: 0
-    left: 0
-    height: 100%
-    width: 100%
-    z-index: 1
-    @media screen and (min-width: $portrait-breakpoint + 1)
-      padding-left: $nav-width
 
   .content
     margin: auto

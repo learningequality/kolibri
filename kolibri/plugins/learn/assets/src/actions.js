@@ -371,12 +371,16 @@ function showContentUnavailable(store) {
   store.dispatch('CORE_SET_TITLE', 'Content Unavailable');
 }
 
-function showSearch(store) {
+function showSearch(store, channelId, query) {
   store.dispatch('SET_PAGE_NAME', PageNames.SEARCH);
   store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', 'Search');
+  coreActions.setChannelInfo(store, channelId).then(
+    () => {
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_TITLE', 'Search');
+    }
+  );
 }
 
 module.exports = {

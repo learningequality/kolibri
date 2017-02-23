@@ -357,7 +357,12 @@ function setChannelInfo(store, channelId = null) {
   return coreApp.resources.ChannelResource.getCollection({}, true).fetch().then(
     channelsData => {
       const channelList = _channelListState(channelsData);
-      const thisChannelId = channelId || getDefaultChannelId(channelList);
+      let thisChannelId;
+      if (channelList.some((channel) => channel.id === channelId)) {
+        thisChannelId = channelId;
+      } else {
+        thisChannelId = getDefaultChannelId(channelList);
+      }
       _setChannelState(store, thisChannelId, channelList);
     },
     error => { handleApiError(store, error); }

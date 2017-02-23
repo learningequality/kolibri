@@ -21,6 +21,7 @@
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
     <div v-if="!loading" :style="contentStyle" class="content-container">
       <error-box v-if="error"/>
+      <slot name="tabs"/>
       <slot name="content"/>
     </div>
     <slot name="extra"/>

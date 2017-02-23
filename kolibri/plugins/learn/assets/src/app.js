@@ -79,9 +79,9 @@ class LearnModule extends KolibriModule {
         },
         {
           name: PageNames.SEARCH,
-          path: '/search',
+          path: '/search/:channel_id/',
           handler: (toRoute, fromRoute) => {
-            actions.showSearch(store);
+            actions.showSearch(store, toRoute.params.channel_id, toRoute.query.query);
           },
         },
         {
