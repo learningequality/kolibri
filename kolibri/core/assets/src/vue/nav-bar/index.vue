@@ -30,31 +30,15 @@
         </ui-menu>
       </div>
       <div class="footer" :style="{ width: width + 'px' }">
-        <div>
-          <img
-            class="logo"
-            src="./instant.png"
-            alt=""
-            :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }">
-          <div class="message-container">
-            <p class="message">{{ $tr('instant') }}</p>
-            <p class="message">
-              <ui-icon icon="copyright"/>
-              {{ $tr('vodafoneCopyright') }}
-            </p>
-          </div>
-        </div>
-        <div>
-          <logo
-            class="logo"
-            :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }"/>
-          <div class="message-container">
-            <p class="message">{{ footerMsg }}</p>
-            <p class="message">
-              <ui-icon icon="copyright"/>
-              {{ $tr('learningEqualityCopyright') }}
-            </p>
-          </div>
+        <logo
+          class="logo"
+          :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }"/>
+        <div class="message-container">
+          <p class="message">{{ footerMsg }}</p>
+          <p class="message">
+            <ui-icon icon="copyright"/>
+            {{ $tr('learningEqualityCopyright') }}
+          </p>
         </div>
       </div>
     </div>
@@ -93,9 +77,7 @@
       signOut: 'Sign out',
       about: 'About',
       closeNav: 'Close navigation',
-      poweredBy: 'Powered by Kolibri {version}',
-      instant: 'Instant Schools',
-      vodafoneCopyright: '2017 Vodafone Foundation',
+      poweredBy: 'Kolibri {version}',
       learningEqualityCopyright: '2017 Learning Equality',
     },
     props: {
