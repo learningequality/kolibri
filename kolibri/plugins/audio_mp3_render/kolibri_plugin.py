@@ -12,7 +12,3 @@ class AudioMP3RenderAsset(content_hooks.WebpackBundleHook):
     unique_slug = "audio_mp3_render_module"
     src_file = "assets/src/module.js"
     content_types_file = "assets/src/content_types.json"
-
-
-class AudioMP3RenderInclusionHook(content_hooks.ContentRendererInclusionHook):
-    bundle_class = AudioMP3RenderAsset

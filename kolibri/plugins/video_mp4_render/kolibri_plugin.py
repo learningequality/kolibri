@@ -12,7 +12,3 @@ class VideoMP4RenderAsset(content_hooks.ContentRendererHook):
     unique_slug = "video_mp4_render_module"
     src_file = "assets/src/module.js"
     content_types_file = "assets/src/content_types.json"
-
-
-class VideoMP4RenderInclusionHook(content_hooks.ContentRendererInclusionHook):
-    bundle_class = VideoMP4RenderAsset

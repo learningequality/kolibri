@@ -12,7 +12,3 @@ class HTML5AppAsset(content_hooks.WebpackBundleHook):
     unique_slug = "html5_app_renderer_module"
     src_file = "assets/src/module.js"
     content_types_file = "assets/src/content_types.json"
-
-
-class HTML5AppInclusionHook(content_hooks.ContentRendererInclusionHook):
-    bundle_class = HTML5AppAsset

@@ -14,7 +14,7 @@ import os
 from django.conf import settings as django_settings
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
-from kolibri.core.webpack.hooks import WebpackBundleHook, WebpackInclusionHook
+from kolibri.core.webpack.hooks import WebpackBundleHook
 from le_utils.constants import content_kinds
 
 logger = logging.getLogger(__name__)
@@ -76,11 +76,3 @@ class ContentRendererHook(WebpackBundleHook):
         )
         js += self.frontend_message_file_script_tag()
         return mark_safe('<script>{js}</script>'.format(js=js))
-
-class ContentRendererInclusionHook(WebpackInclusionHook):
-    """
-    Inherit a hook defining assets to be loaded wherever content needs to be loaded.
-    """
-
-    class Meta:
-        abstract = True

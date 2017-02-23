@@ -31,4 +31,4 @@ def content_renderer_assets():
 
     :return: HTML of script tags to insert into template
     """
-    return webpack_asset_render(hooks.ContentRendererInclusionHook, async=True)
+    return webpack_asset_render(hooks.ContentRendererHook, async=True)
