@@ -224,8 +224,6 @@
       },
     },
     components: {
-      'session-nav-widget': require('kolibri.coreVue.components.sessionNavWidget'),
-      'nav-bar-item': require('kolibri.coreVue.components.navBarItem'),
       'ui-menu': require('keen-ui/src/UiMenu'),
       'ui-icon': require('keen-ui/src/UiIcon'),
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
@@ -250,7 +248,6 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-  @require '~kolibri.styles.navBarItem'
 
   $footerheight = 152px
 

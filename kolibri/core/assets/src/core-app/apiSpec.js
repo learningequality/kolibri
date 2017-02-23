@@ -86,20 +86,12 @@ module.exports = {
         },
         navBar: {
           module: require('../vue/nav-bar'),
-        navBarItem: {
-          module: require('../vue/nav-bar/nav-bar-item.vue'),
         },
         iconButton: {
           module: require('../vue/icon-button'),
         },
         channelSwitcher: {
           module: require('../vue/channel-switcher'),
-        },
-        loginModal: {
-          module: require('../vue/login-modal'),
-        },
-        sessionNavWidget: {
-          module: require('../vue/session-nav-widget'),
         },
         tabs: {
           module: require('../vue/tabs'),
@@ -121,9 +113,6 @@ module.exports = {
       },
     },
     styles: {
-      navBarItem: {
-        module: require('../vue/nav-bar/nav-bar-item.styl'),
-      },
       theme: {
         module: require('../styles/core-theme.styl'),
       },
