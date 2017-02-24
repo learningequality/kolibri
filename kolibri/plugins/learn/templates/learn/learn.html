@@ -1,7 +1,6 @@
 {% extends "kolibri/base.html" %}
 {% load learn_tags %}
 {% load kolibri_tags %}
-{% load content_tags %}
 
 {% block content %}
 <!-- Bootstrapping the initial information for all channels. -->
@@ -20,6 +19,5 @@
   <!-- Bootstrapping the next steps content recommendations for this user in Learn tab. -->
   {% kolibri_bootstrap_collection 'contentnode' 'ContentNodeResource' next_steps=user.id kwargs_channel_id=currentChannel.id %}
   {% learn_async_assets %}
-  {% content_renderer_assets %}
   {% learn_assets %}
 {% endblock %}
