@@ -12,7 +12,7 @@
       </router-link>
     </div>
     <div slot="tabs" v-if="!isSearchPage">
-      <section-nav/>
+      <tabs :items="learnTabs" type="icon-and-text" @tabclicked="handleTabClick"/>
     </div>
     <div slot="content">
       <breadcrumbs/>
@@ -35,6 +35,8 @@
     $trNameSpace: 'learn',
     $trs: {
       learnTitle: 'Learn',
+      recommended: 'Recommended',
+      topics: 'Topics',
       search: 'search',
     },
     components: {
@@ -47,8 +49,8 @@
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
       'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
       'breadcrumbs': require('./breadcrumbs'),
-      'section-nav': require('./section-nav'),
       'search-page': require('./search-page'),
+      'tabs': require('kolibri.coreVue.components.tabs'),
     },
     methods: {
       switchChannel(channelId) {
@@ -68,6 +70,20 @@
             name: constants.PageNames.EXPLORE_CHANNEL,
             params: { channel_id: channelId },
           });
+        }
+      },
+      handleTabClick(tabIndex) {
+        switch (tabIndex) {
+          case 0:
+            this.$router.push({ name: constants.PageNames.LEARN_ROOT });
+            return;
+
+          case 1:
+            this.$router.push({ name: constants.PageNames.EXPLORE_ROOT });
+            return;
+
+          default:
+            return;
         }
       },
     },
@@ -103,6 +119,20 @@
       },
       isSearchPage() {
         return this.pageName === PageNames.SEARCH;
+      },
+      learnTabs() {
+        const isRecommended = this.pageName === constants.PageNames.LEARN_CHANNEL;
+        return [{
+          title: this.$tr('recommended'),
+          icon: 'forum',
+          selected: isRecommended,
+          disabled: false,
+        }, {
+          title: this.$tr('topics'),
+          icon: 'folder',
+          selected: !isRecommended,
+          disabled: false,
+        }];
       },
     },
     vuex: {

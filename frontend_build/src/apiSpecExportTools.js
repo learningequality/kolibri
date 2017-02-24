@@ -69,7 +69,10 @@ function coreAliases(localAPISpec) {
   /*
    * Function for creating a hash of aliases for modules that are exposed on the core kolibri object.
    */
-  var aliasesObj = {};
+  var aliasesObj = {
+    kolibri_module: path.resolve(__dirname, '../../kolibri/core/assets/src/kolibri_module'),
+    content_renderer_module: path.resolve(__dirname, '../../kolibri/core/assets/src/content_renderer_module'),
+  };
   function recurseObjectKeysAndAlias (obj, pathArray) {
     Object.keys(obj).forEach(function (key) {
       if (keys.indexOf(key) === -1 && obj[key] && typeof obj[key] === 'object') {
