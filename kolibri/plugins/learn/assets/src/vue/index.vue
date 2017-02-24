@@ -28,8 +28,6 @@
 
   const constants = require('../state/constants');
   const PageNames = constants.PageNames;
-  const PageModes = constants.PageModes;
-  const getters = require('../state/getters');
   const store = require('../state/store');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
@@ -54,16 +52,23 @@
     },
     methods: {
       switchChannel(channelId) {
-        let rootPage;
-        if (this.pageMode === constants.PageModes.EXPLORE) {
-          rootPage = constants.PageNames.EXPLORE_CHANNEL;
+        if (this.pageName === constants.PageNames.SEARCH) {
+          this.$router.replace({
+            name: constants.PageNames.SEARCH,
+            params: { channel_id: channelId },
+            query: { query: this.searchTerm },
+          });
+        } else if (this.pageName === constants.PageNames.LEARN_CHANNEL) {
+          this.$router.push({
+            name: constants.PageNames.LEARN_CHANNEL,
+            params: { channel_id: channelId },
+          });
         } else {
-          rootPage = constants.PageNames.LEARN_CHANNEL;
+          this.$router.push({
+            name: constants.PageNames.EXPLORE_CHANNEL,
+            params: { channel_id: channelId },
+          });
         }
-        this.$router.push({
-          name: rootPage,
-          params: { channel_id: channelId },
-        });
       },
     },
     computed: {
@@ -99,15 +104,11 @@
       isSearchPage() {
         return this.pageName === PageNames.SEARCH;
       },
-      exploreMode() {
-        return this.pageMode === PageModes.EXPLORE;
-      },
     },
     vuex: {
       getters: {
-        pageMode: getters.pageMode,
         pageName: state => state.pageName,
-        currentChannelId: state => state.core.channels.currentId,
+        searchTerm: state => state.pageState.searchState.searchTerm,
       },
     },
     store, // make this and all child components aware of the store

@@ -378,14 +378,10 @@ function redirectToChannelSearch(store) {
   coreActions.setChannelInfo(store).then(
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
-      if (currentChannel) {
-        router.getInstance().replace({
-          name: constants.PageNames.SEARCH,
-          params: { channel_id: currentChannel.id },
-        });
-      } else {
-        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
-      }
+      router.getInstance().replace({
+        name: constants.PageNames.SEARCH,
+        params: { channel_id: currentChannel.id },
+      });
     },
     error => {
       coreActions.handleApiError(store, error);

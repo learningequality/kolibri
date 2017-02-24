@@ -7,9 +7,9 @@
         :label="$tr('search')"
         :placeholder="`${$tr('searchWithin')} ${channelName}`"
         type="search"
-        icon="search"
         :autofocus="true"
-        v-model="searchInput"/>
+        v-model="searchInput"
+        class="search-input"/>
       <ui-icon-button
         primary="true"
         buttonType="submit"
@@ -17,17 +17,17 @@
         :ariaLabel="$tr('submitSearch')">
       </ui-icon-button>
     </form>
-    <!-- results -->
-    <div class="results" v-if="!loading">
-      <div v-if="!searchTerm">There's nothing here! Search by typing something above!</div>
+
+    <div v-if="!loading">
+      <div v-if="!searchTerm">{{ $tr('noSearch') }}</div>
 
       <div v-else>
-        <h1>Showing results for <strong>"{{ searchTerm }}"</strong></h1>
+        <h1>{{ $tr('showingResultsFor') }} "{{ searchTerm }}"</h1>
 
-        <div v-if="noResults">No results.</div>
+        <div v-if="noResults">{{ $tr('noResults') }}</div>
 
         <div v-else>
-          <p>{{ numResults }} Results</p>
+          <p>{{ $tr('results', {count: numResults}) }}</p>
 
           <div v-if="topics.length">
             <h2>Topics</h2>
@@ -41,7 +41,7 @@
             </card-list>
           </div>
 
-          <div v-if="topics.length">
+          <div v-if="contents.length">
             <h2>Content</h2>
             <card-grid>
               <content-grid-item
@@ -74,10 +74,11 @@
     $trs: {
       search: 'Search',
       searchWithin: 'Search within',
-      searchResults: 'Search results:',
-      noMatches: 'Could not find any matches',
-      cancel: 'Cancel',
+      noSearch: 'Search by typing something above.',
+      noResults: 'No results.',
       submitSearch: 'Submit Search',
+      showingResultsFor: 'Showing results for',
+      results: '{count, number, integer} {count, plural, one {Result} other {Results}}',
     },
     data: () => ({
       searchInput: '',
@@ -110,7 +111,9 @@
         }
       },
     },
-
+    mounted() {
+      this.searchInput = this.searchTerm;
+    },
     vuex: {
       getters: {
         contents: state => state.pageState.searchState.contents,
@@ -129,4 +132,10 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .search-input
+    display: inline-block
+    width: calc(100% - 41px)
+
+</style>
