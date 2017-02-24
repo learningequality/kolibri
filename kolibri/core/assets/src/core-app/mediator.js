@@ -251,15 +251,15 @@ module.exports = class Mediator {
    * @private
    */
   _scriptLoader(url) {
-      return new Promise(function (resolve, reject) {
-          const script = document.createElement("script");
-          script.type = "text/javascript";
-          script.src = url;
-          script.async = true;
-          script.addEventListener("load", resolve)
-          script.addEventListener("error", reject)
-          document.body.appendChild(script);
-      });
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = url;
+      script.async = true;
+      script.addEventListener('load', resolve);
+      script.addEventListener('error', reject);
+      global.document.body.appendChild(script);
+    });
   }
 
   /**
@@ -492,19 +492,20 @@ module.exports = class Mediator {
       } else if (this._kolibriModuleRegistry[kolibriModuleName]) {
         resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
       } else {
-        Promise.all(this._contentRendererUrls[kolibriModuleName].map(this._scriptLoader)).then(() => {
-          if (this._kolibriModuleRegistry[kolibriModuleName]) {
-            resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
-          } else {
-            this.on('kolibri_register', (moduleName) => {
-              if (moduleName === kolibriModuleName) {
-                resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
-              }
-            });
-          }
-        }).catch((error) => {
-          reject('Content renderer failed to load properly');
-        });
+        Promise.all(this._contentRendererUrls[kolibriModuleName].map(this._scriptLoader)).then(
+          () => {
+            if (this._kolibriModuleRegistry[kolibriModuleName]) {
+              resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
+            } else {
+              this.on('kolibri_register', (moduleName) => {
+                if (moduleName === kolibriModuleName) {
+                  resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
+                }
+              });
+            }
+          }).catch((error) => {
+            reject('Content renderer failed to load properly');
+          });
       }
     });
   }
