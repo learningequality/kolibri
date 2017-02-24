@@ -55,11 +55,18 @@
     methods: {
       switchChannel(channelId) {
         if (this.pageName === constants.PageNames.SEARCH) {
-          this.$router.replace({
-            name: constants.PageNames.SEARCH,
-            params: { channel_id: channelId },
-            query: { query: this.searchTerm },
-          });
+          if (this.searchTerm) {
+            this.$router.replace({
+              name: constants.PageNames.SEARCH,
+              params: { channel_id: channelId },
+              query: { query: this.searchTerm },
+            });
+          } else {
+            this.$router.replace({
+              name: constants.PageNames.SEARCH,
+              params: { channel_id: channelId },
+            });
+          }
         } else if (this.pageName === constants.PageNames.LEARN_CHANNEL) {
           this.$router.push({
             name: constants.PageNames.LEARN_CHANNEL,

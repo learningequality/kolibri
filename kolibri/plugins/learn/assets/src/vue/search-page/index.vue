@@ -12,6 +12,7 @@
         class="search-input"/>
       <ui-icon-button
         primary="true"
+        color="primary"
         buttonType="submit"
         icon="search"
         :ariaLabel="$tr('submitSearch')">
