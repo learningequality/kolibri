@@ -44,6 +44,8 @@ class ContentNodeFilter(filters.FilterSet):
             return exact_match
         # if no exact match, fuzzy search using the stemmed_metaphone field in ContentNode that covers the title and description
         fuzzed_tokens = [fuzz(word) for word in value.split()]
+        if not fuzzed_tokens[0]:
+            return []
         token_queries = [reduce(lambda x, y: x | y, [Q(stemmed_metaphone__contains=token) for token in tokens]) for tokens in fuzzed_tokens]
         return queryset.filter(
             Q(parent__isnull=False),
