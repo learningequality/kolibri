@@ -17,7 +17,6 @@
         :ariaLabel="$tr('submitSearch')">
       </ui-icon-button>
     </form>
-
     <!-- results -->
     <div class="results" v-if="!loading">
       <div v-if="!searchTerm">There's nothing here! Search by typing something above!</div>
@@ -101,12 +100,12 @@
     },
     methods: {
       submitSearch() {
-        const searchTerm = this.searchInput.trim();
-        if (searchTerm) {
+        const searchInput = this.searchInput.trim();
+        if (searchInput) {
           this.$router.push({
             name: constants.PageNames.SEARCH,
             params: { channel_id: this.channelId },
-            query: { query: searchTerm },
+            query: { query: searchInput },
           });
         }
       },
@@ -114,17 +113,15 @@
 
     vuex: {
       getters: {
-        contents: state => state.searchState.contents,
-        topics: state => state.searchState.topics,
-        loading: state => state.searchLoading,
-        searchTerm: state => state.searchState.searchTerm,
-        searchOpen: state => state.searchOpen,
+        contents: state => state.pageState.searchState.contents,
+        topics: state => state.pageState.searchState.topics,
+        searchTerm: state => state.pageState.searchState.searchTerm,
+        loading: state => state.pageState.searchLoading,
         channelId: (state) => state.core.channels.currentId,
         channelName: state => getCurrentChannelObject(state).title,
       },
       actions: {
         triggerSearch: actions.triggerSearch,
-        toggleSearch: actions.toggleSearch,
       },
     },
   };

@@ -337,6 +337,7 @@ function triggerSearch(store, searchTerm) {
     searchState.topics = collection.topics;
     searchState.contents = collection.contents;
     store.dispatch('SET_SEARCH_STATE', searchState);
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
   })
   .catch(error => { coreActions.handleApiError(store, error); });
 }
@@ -347,10 +348,6 @@ function clearSearch(store) {
     contents: [],
     searchTerm: '',
   });
-}
-
-function toggleSearch(store) {
-  store.dispatch('TOGGLE_SEARCH');
 }
 
 
@@ -377,6 +374,7 @@ function redirectToChannelSearch(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', 'Search');
+  clearSearch(store);
   coreActions.setChannelInfo(store).then(
     () => {
       const currentChannel = coreGetters.getCurrentChannelObject(store.state);
@@ -401,12 +399,14 @@ function showSearch(store, channelId, searchTerm) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', 'Search');
+  clearSearch(store);
   coreActions.setChannelInfo(store, channelId).then(
     () => {
       if (searchTerm) {
         triggerSearch(store, searchTerm);
+      } else {
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
       }
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
     }
   );
 }
@@ -422,7 +422,6 @@ module.exports = {
   showScratchpad,
   showContentUnavailable,
   triggerSearch,
-  toggleSearch,
   clearSearch,
   redirectToChannelSearch,
   showSearch,

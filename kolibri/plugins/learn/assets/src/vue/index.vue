@@ -3,12 +3,13 @@
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
     <div slot="app-bar-actions">
       <channel-switcher @switch="switchChannel"/>
-      <ui-icon-button
-        icon="search"
-        type="secondary"
-        color="white"
-        :ariaLabel="$tr('search')"
-        @click="routeToSearchPage"/>
+      <router-link :to="searchPage">
+        <ui-icon-button
+          icon="search"
+          type="secondary"
+          color="white"
+          :ariaLabel="$tr('search')"/>
+      </router-link>
     </div>
     <div slot="tabs" v-if="!isSearchPage">
       <section-nav/>
@@ -52,12 +53,6 @@
       'search-page': require('./search-page'),
     },
     methods: {
-      routeToSearchPage() {
-        this.$router.replace({
-          name: constants.PageNames.SEARCH,
-          params: { channel_id: this.currentChannelId },
-        });
-      },
       switchChannel(channelId) {
         let rootPage;
         if (this.pageMode === constants.PageModes.EXPLORE) {
@@ -97,6 +92,9 @@
           return 'search-page';
         }
         return null;
+      },
+      searchPage() {
+        return { name: PageNames.SEARCH_ROOT };
       },
       isSearchPage() {
         return this.pageName === PageNames.SEARCH;
