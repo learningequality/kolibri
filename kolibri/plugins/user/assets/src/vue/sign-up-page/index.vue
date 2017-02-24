@@ -4,7 +4,7 @@
 
     <ui-toolbar type="colored" textColor="white">
       <template slot="icon">
-        <img id="logo" src="../img/instant-school-logo.png" />
+        <logo/>
       </template>
       <template slot="brand">
         {{ $tr('kolibri') }}
@@ -104,6 +104,7 @@
       'ui-textbox': require('keen-ui/src/UiTextbox'),
       'ui-toolbar': require('keen-ui/src/UiToolbar'),
       'ui-checkbox': require('keen-ui/src/UiCheckbox'),
+      'logo': require('kolibri.coreVue.components.logo'),
     },
     data: () => ({
       name: '',

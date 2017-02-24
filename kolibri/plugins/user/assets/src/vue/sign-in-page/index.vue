@@ -2,7 +2,7 @@
 
   <div class="login">
     <div id="login-container">
-      <logo/>
+      <logo class="logo"/>
       <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
       <form id="login-form" ref="form" @submit.prevent="signIn">
         <ui-textbox
@@ -103,8 +103,9 @@
 
 <style lang="stylus">
 
+  @require '~kolibri.styles.definitions'
+
   $login-text = #D8D8D8
-  $login-red = #f44336
 
   #login-container
     .ui-
@@ -122,7 +123,7 @@
         &#guest-access-button
           background-color: transparent
           color: $login-text
-          border: 2px solid $login-red
+          border: 2px solid $core-action-normal
 
 </style>
 
@@ -135,7 +136,9 @@
   .login
     background-color: $login-overlay
     height: 100%
-    background: url(../img/instant-background.jpg) no-repeat center center fixed
+    // Fallback for older browers.
+    background: $core-bg-canvas
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center fixed
     background-size: cover
     overflow-y: auto
     overflow-x: hidden
