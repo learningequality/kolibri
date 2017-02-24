@@ -65,7 +65,6 @@
         } else {
           rootPage = constants.PageNames.LEARN_CHANNEL;
         }
-        this.clearSearch();
         this.$router.push({
           name: rootPage,
           params: { channel_id: channelId },

@@ -20,37 +20,43 @@
 
     <!-- results -->
     <div class="results" v-if="!loading">
-      <h1 v-if="searchTerm">
-        {{ message }}
-      </h1>
+      <div v-if="!searchTerm">There's nothing here! Search by typing something above!</div>
 
-      <h2 v-if="topics.length">
-        Topic
-      </h2>
+      <div v-else>
+        <h1>Showing results for <strong>"{{ searchTerm }}"</strong></h1>
 
-      <card-list class="card-list" v-if="topics.length">
-        <topic-list-item
-          v-for="topic in topics"
-          class="card"
-          :id="topic.id"
-          :channelId="channelId"
-          :title="topic.title"/>
-      </card-list>
+        <div v-if="noResults">No results.</div>
 
-      <h2 v-if="contents.length">
-        Content
-      </h2>
+        <div v-else>
+          <p>{{ numResults }} Results</p>
 
-      <card-grid v-if="contents.length">
-        <content-grid-item
-          v-for="content in contents"
-          class="card"
-          :title="content.title"
-          :thumbnail="content.thumbnail"
-          :kind="content.kind"
-          :progress="content.progress"
-          :id="content.id"/>
-      </card-grid>
+          <div v-if="topics.length">
+            <h2>Topics</h2>
+            <card-list class="card-list">
+              <topic-list-item
+                v-for="topic in topics"
+                class="card"
+                :id="topic.id"
+                :channelId="channelId"
+                :title="topic.title"/>
+            </card-list>
+          </div>
+
+          <div v-if="topics.length">
+            <h2>Content</h2>
+            <card-grid>
+              <content-grid-item
+                v-for="content in contents"
+                class="card"
+                :title="content.title"
+                :thumbnail="content.thumbnail"
+                :kind="content.kind"
+                :progress="content.progress"
+                :id="content.id"/>
+            </card-grid>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -86,26 +92,23 @@
       'card-list': require('../card-list'),
     },
     computed: {
-      message() {
-        if (this.topics.length || this.contents.length) {
-          return this.$tr('searchResults');
-        } else if (!this.topics.length && !this.contents.length) {
-          return this.$tr('noMatches');
-        }
-        return '';
+      noResults() {
+        return !this.topics.length && !this.contents.length;
+      },
+      numResults() {
+        return this.topics.length + this.contents.length;
       },
     },
     methods: {
       submitSearch() {
-        this.$router.push({
-          name: constants.PageNames.SEARCH,
-          params: { channel_id: this.channelId },
-          query: { query: this.searchInput },
-        });
-        this.triggerSearchAction();
-      },
-      triggerSearchAction() {
-        this.triggerSearch(this.searchInput);
+        const searchTerm = this.searchInput.trim();
+        if (searchTerm) {
+          this.$router.push({
+            name: constants.PageNames.SEARCH,
+            params: { channel_id: this.channelId },
+            query: { query: searchTerm },
+          });
+        }
       },
     },
 

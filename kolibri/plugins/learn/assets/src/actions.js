@@ -371,14 +371,42 @@ function showContentUnavailable(store) {
   store.dispatch('CORE_SET_TITLE', 'Content Unavailable');
 }
 
-function showSearch(store, channelId, query) {
+function redirectToChannelSearch(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.SEARCH_ROOT);
+  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'Search');
+  coreActions.setChannelInfo(store).then(
+    () => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (currentChannel) {
+        router.getInstance().replace({
+          name: constants.PageNames.SEARCH,
+          params: { channel_id: currentChannel.id },
+        });
+      } else {
+        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+      }
+    },
+    error => {
+      coreActions.handleApiError(store, error);
+    }
+  );
+}
+
+function showSearch(store, channelId, searchTerm) {
   store.dispatch('SET_PAGE_NAME', PageNames.SEARCH);
   store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'Search');
   coreActions.setChannelInfo(store, channelId).then(
     () => {
+      if (searchTerm) {
+        triggerSearch(store, searchTerm);
+      }
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', 'Search');
     }
   );
 }
@@ -396,5 +424,6 @@ module.exports = {
   triggerSearch,
   toggleSearch,
   clearSearch,
+  redirectToChannelSearch,
   showSearch,
 };
