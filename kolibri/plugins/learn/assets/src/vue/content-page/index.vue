@@ -15,8 +15,7 @@
       :available="content.available"
       :extraFields="content.extra_fields"/>
 
-    <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn">
-      {{ $tr('nextContent') }}
+    <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')">
       <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
     </icon-button>
 
@@ -160,15 +159,12 @@
     background-color: #4A8DDC
     border-color: #4A8DDC
     color: $core-bg-light
-    padding-left: 16px
-    padding-right: 6px
-    padding-bottom: 0
     position: relative
-    top: -60px
+    top: -62px
     left: 150px
     z-index: 10
     @media screen and (max-width: $medium-breakpoint)
-      top: 0
+      top: -10px
       left: 0
 
   .next-btn:hover svg
