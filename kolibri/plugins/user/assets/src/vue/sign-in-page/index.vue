@@ -2,8 +2,8 @@
 
   <div class="login">
     <div id="login-container">
-      <img class="logo" src="../img/instant-school-logo.png" alt="logo">
-      <h1 class="login-text title">{{ $tr('instantSchool') }}</h1>
+      <logo class="logo"/>
+      <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
       <form id="login-form" ref="form" @submit.prevent="signIn">
         <ui-textbox
           :label="$tr('username')"
@@ -54,21 +54,22 @@
   module.exports = {
     $trNameSpace: 'signInPage',
     $trs: {
-      instantSchool: 'INSTANT SCHOOLS',
-      signIn: 'Log In',
-      username: 'Phone Number',
-      enterUsername: 'Enter phone number',
+      kolibri: 'Kolibri',
+      signIn: 'Log in',
+      username: 'Username',
+      enterUsername: 'Enter username',
       password: 'Password',
-      enterPassword: 'Enter Password',
+      enterPassword: 'Enter password',
       noAccount: `Don't have an account?`,
-      createAccount: 'Create Account',
-      accessAsGuest: 'Access as Guest',
+      createAccount: 'Create account',
+      accessAsGuest: 'Access as guest',
       signInError: 'Incorrect username or password',
       resetPassword: 'Reset your password',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'ui-textbox': require('keen-ui/src/UiTextbox'),
+      'logo': require('kolibri.coreVue.components.logo'),
     },
     data: () => ({
       username: '',
@@ -102,8 +103,9 @@
 
 <style lang="stylus">
 
+  @require '~kolibri.styles.definitions'
+
   $login-text = #D8D8D8
-  $login-red = #f44336
 
   #login-container
     .ui-
@@ -121,7 +123,7 @@
         &#guest-access-button
           background-color: transparent
           color: $login-text
-          border: 2px solid $login-red
+          border: 2px solid $core-action-normal
 
 </style>
 
@@ -134,7 +136,9 @@
   .login
     background-color: $login-overlay
     height: 100%
-    background: url(../img/instant-background.jpg) no-repeat center center fixed
+    // Fallback for older browers.
+    background: $core-bg-canvas
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center fixed
     background-size: cover
     overflow-y: auto
     overflow-x: hidden

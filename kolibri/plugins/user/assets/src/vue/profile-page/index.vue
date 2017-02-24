@@ -53,7 +53,7 @@
       success: 'Profile details updated!',
       username: 'Username',
       name: 'Name',
-      updateProfile: 'Update Profile',
+      updateProfile: 'Update',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),

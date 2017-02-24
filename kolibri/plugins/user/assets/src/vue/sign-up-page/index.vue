@@ -4,14 +4,14 @@
 
     <ui-toolbar type="colored" textColor="white">
       <template slot="icon">
-        <img id="logo" src="../img/instant-school-logo.png" />
+        <logo/>
       </template>
       <template slot="brand">
-        Instant Schools
+        {{ $tr('kolibri') }}
       </template>
       <div slot="actions">
         <router-link id="login" :to="signInPage">
-          <span>Log In</span>
+          <span>{{ $tr('logIn') }}</span>
         </router-link>
       </div>
     </ui-toolbar>
@@ -67,35 +67,6 @@
         autocomplete="new-password"
         required />
 
-
-      <div class="terms">
-        <small>
-          <p>
-            1. Terms of Service: By accessing the application Kolibri you are
-            agreeing to be bound by these terms of service, all applicable laws and
-            regulations, and agree that you are responsible for compliance with any
-            applicable local laws.
-            <br>
-            <em>
-              Note: Complete Terms to follow preliminary testing period.
-            </em>
-          </p>
-          <p>
-            2. Privacy policy: By accessing the application Kolibri you acknowledge
-            the use of this platform and how data are collected, used, and shared
-            between Learning Equality and Vodafone Foundation.
-            <br>
-            <em>
-              Note: Complete Privacy Notice to follow preliminary testing period.
-            </em>
-          </p>
-        </small>
-      </div>
-
-      <ui-checkbox v-model="termsAgreement" required>
-        {{$tr('termsAgreement')}}
-      </ui-checkbox>
-
       <icon-button :disabled="canSubmit" id="submit" :primary="true" text="Finish" type="submit" />
 
     </form>
@@ -114,17 +85,18 @@
     name: 'Sign-Up-Page',
     $trNameSpace: 'signUpPage',
     $trs: {
-      createAccount: 'Create an Account',
+      createAccount: 'Create an account',
       name: 'Name',
-      enterName: 'Enter Name',
-      username: 'Phone Number',
-      enterUsername: 'Enter Phone Number',
+      enterName: 'Enter name',
+      username: 'Username',
+      enterUsername: 'Enter username',
       password: 'Password',
-      enterPassword: 'Enter Password',
-      confirmPassword: 'Confirm Password',
+      enterPassword: 'Enter password',
+      confirmPassword: 'Confirm password',
       passwordMatchError: 'Passwords do not match',
       genericError: 'Something went wrong during sign up!',
-      termsAgreement: 'I agree to the terms of service & privacy policy',
+      logIn: 'Log in',
+      kolibri: 'Kolibri',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -132,6 +104,7 @@
       'ui-textbox': require('keen-ui/src/UiTextbox'),
       'ui-toolbar': require('keen-ui/src/UiToolbar'),
       'ui-checkbox': require('keen-ui/src/UiCheckbox'),
+      'logo': require('kolibri.coreVue.components.logo'),
     },
     data: () => ({
       name: '',
