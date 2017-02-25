@@ -54,30 +54,32 @@
     },
     methods: {
       switchChannel(channelId) {
-        if (this.pageName === constants.PageNames.SEARCH) {
-          if (this.searchTerm) {
-            this.$router.replace({
-              name: constants.PageNames.SEARCH,
-              params: { channel_id: channelId },
-              query: { query: this.searchTerm },
-            });
-          } else {
-            this.$router.replace({
-              name: constants.PageNames.SEARCH,
-              params: { channel_id: channelId },
-            });
-          }
-        } else if (this.pageName === constants.PageNames.LEARN_CHANNEL) {
-          this.$router.push({
-            name: constants.PageNames.LEARN_CHANNEL,
-            params: { channel_id: channelId },
-          });
-        } else {
-          this.$router.push({
-            name: constants.PageNames.EXPLORE_CHANNEL,
-            params: { channel_id: channelId },
-          });
+        let page;
+        switch (this.pageName) {
+          case constants.PageNames.SEARCH:
+            page = constants.PageNames.SEARCH;
+            if (this.searchTerm) {
+              this.$router.push({
+                name: page,
+                params: { channel_id: channelId },
+                query: { query: this.searchTerm },
+              });
+              return;
+            }
+            break;
+
+          case constants.PageNames.LEARN_CHANNEL:
+            page = constants.PageNames.LEARN_CHANNEL;
+            break;
+
+          default:
+            page = constants.PageNames.EXPLORE_CHANNEL;
         }
+
+        this.$router.push({
+          name: page,
+          params: { channel_id: channelId },
+        });
       },
       handleTabClick(tabIndex) {
         switch (tabIndex) {
