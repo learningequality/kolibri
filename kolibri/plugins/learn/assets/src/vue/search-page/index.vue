@@ -31,7 +31,7 @@
           <p>{{ $tr('results', {count: numResults}) }}</p>
 
           <div v-if="topics.length">
-            <h2>Topics</h2>
+            <h2>{{ $tr('topics') }}</h2>
             <card-list class="card-list">
               <topic-list-item
                 v-for="topic in topics"
@@ -43,7 +43,7 @@
           </div>
 
           <div v-if="contents.length">
-            <h2>Content</h2>
+            <h2>{{ $tr('content') }}</h2>
             <card-grid>
               <content-grid-item
                 v-for="content in contents"
@@ -80,6 +80,8 @@
       submitSearch: 'Submit Search',
       showingResultsFor: 'Showing results for',
       results: '{count, number, integer} {count, plural, one {Result} other {Results}}',
+      topics: 'Topics',
+      content: 'Content',
     },
     data: () => ({
       searchInput: '',
