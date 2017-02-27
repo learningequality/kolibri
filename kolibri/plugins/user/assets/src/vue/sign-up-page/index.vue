@@ -23,7 +23,7 @@
 
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
 
-      <ui-textbox
+      <core-textbox
         :placeholder="$tr('enterName')"
         :label="$tr('name')"
         :aria-label="$tr('name')"
@@ -34,7 +34,7 @@
         id="name"
         type="text" />
 
-      <ui-textbox
+      <core-textbox
         :placeholder="$tr('enterUsername')"
         :label="$tr('username')"
         :aria-label="$tr('username')"
@@ -45,7 +45,7 @@
         id="username"
         type="text" />
 
-      <ui-textbox
+      <core-textbox
         id="password"
         type="password"
         :placeholder="$tr('enterPassword')"
@@ -55,7 +55,7 @@
         autocomplete="new-password"
         required />
 
-      <ui-textbox
+      <core-textbox
         id="confirmed-password"
         type="password"
         :placeholder="$tr('confirmPassword')"
@@ -101,7 +101,7 @@
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'ui-alert': require('keen-ui/src/UiAlert'),
-      'ui-textbox': require('keen-ui/src/UiTextbox'),
+      'core-textbox': require('kolibri.coreVue.components.textbox'),
       'ui-toolbar': require('keen-ui/src/UiToolbar'),
       'ui-checkbox': require('keen-ui/src/UiCheckbox'),
       'logo': require('kolibri.coreVue.components.logo'),

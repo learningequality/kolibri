@@ -5,7 +5,7 @@
       <logo class="logo"/>
       <h1 class="login-text title">{{ $tr('kolibri') }}</h1>
       <form id="login-form" ref="form" @submit.prevent="signIn">
-        <ui-textbox
+        <core-textbox
           :label="$tr('username')"
           id="username"
           type="tel"
@@ -15,7 +15,7 @@
           autocomplete="tel"
           required
           autofocus/>
-        <ui-textbox
+        <core-textbox
           :label="$tr('password')"
           id="password"
           type="password"
@@ -68,7 +68,7 @@
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'ui-textbox': require('keen-ui/src/UiTextbox'),
+      'core-textbox': require('kolibri.coreVue.components.textbox'),
       'logo': require('kolibri.coreVue.components.logo'),
     },
     data: () => ({

@@ -90,6 +90,9 @@ module.exports = {
         iconButton: {
           module: require('../vue/icon-button'),
         },
+        textbox: {
+          module: require('../vue/textbox'),
+        },
         channelSwitcher: {
           module: require('../vue/channel-switcher'),
         },
