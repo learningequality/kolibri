@@ -4,7 +4,7 @@ module.exports = class ContentRenderer extends KolibriModule {
   get rendererComponent() {
     return null;
   }
-  get contentType() {
+  get contentTypes() {
     return null;
   }
 };

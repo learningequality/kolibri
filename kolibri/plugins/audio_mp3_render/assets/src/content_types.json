@@ -1,5 +1,10 @@
 {
-  "audio": [
-    "mp3"
+  "kinds": [
+    {
+    "name": "audio",
+    "extensions": [
+        "mp3"
+      ]
+    }
   ]
 }

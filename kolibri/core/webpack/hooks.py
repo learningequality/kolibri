@@ -83,7 +83,7 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     @cached_property
     @hooks.registered_method
-    def stats_file_content(self):
+    def _stats_file_content(self):
         """
         TODO: This property is only cached on the instance, maybe it should be
         cached in a static module property instead so we can cache the JSON data
@@ -93,14 +93,14 @@ class WebpackBundleHook(hooks.KolibriHook):
           written by Webpack.
         """
         try:
-            with open(self.stats_file) as f:
+            with open(self._stats_file) as f:
                 stats = json.load(f)
             if django_settings.DEBUG:
                 timeout = 0
                 while stats['status'] == 'compiling':
                     time.sleep(getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1))
                     timeout += getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1)
-                    with open(self.stats_file) as f:
+                    with open(self._stats_file) as f:
                         stats = json.load(f)
                     if timeout >= getattr(settings, 'WEBPACK_POLL_INTERVAL', 1.0):
                         raise WebpackError('Webpack compilation still in progress')
@@ -120,7 +120,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: a generator yielding dict objects with properties of the built
           asset, most notably its URL.
         """
-        for f in self.stats_file_content["files"]:
+        for f in self._stats_file_content["files"]:
             filename = f['name']
             if any(regex.match(filename) for regex in settings.IGNORE_PATTERNS):
                 continue
@@ -142,13 +142,13 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: A dict with information expected by webpack parsing process,
         or None if the src_file does not exist.
         """
-        if os.path.exists(os.path.join(os.path.dirname(self.build_path), self.src_file)):
+        if os.path.exists(os.path.join(os.path.dirname(self._build_path), self.src_file)):
             return {
                 "name": self.unique_slug,
                 "src_file": self.src_file,
-                "static_dir": self.static_dir,
-                "plugin_path": os.path.dirname(self.build_path),
-                "stats_file": self.stats_file,
+                "static_dir": self._static_dir,
+                "plugin_path": os.path.dirname(self._build_path),
+                "stats_file": self._stats_file,
                 "events": self.events,
                 "once": self.once,
                 "static_url_root": getattr(django_settings, 'STATIC_URL'),
@@ -160,38 +160,38 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     @property
     def locale_data_folder(self):
-        if self.module_path.startswith('kolibri.'):
+        if self._module_path.startswith('kolibri.'):
             return os.path.join(getattr(django_settings, 'LOCALE_PATHS')[0], 'en', 'LC_FRONTEND_MESSAGES')
         # Is an external plugin, do otherwise!
         else:
             return os.path.join(
-                os.path.dirname(self.build_path),
+                os.path.dirname(self._build_path),
                 getattr(self, 'locale_path', 'locale'), 'en', 'LC_FRONTEND_MESSAGES')
 
     @property
-    def module_path(self):
+    def _module_path(self):
         return '.'.join(self.__module__.split('.')[:-1])
 
     @property
-    def build_path(self):
+    def _build_path(self):
         """
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """
-        return resource_filename(self.module_path, 'build')
+        return resource_filename(self._module_path, 'build')
 
     @property
-    def static_dir(self):
-        return resource_filename(self.module_path, 'static')
+    def _static_dir(self):
+        return resource_filename(self._module_path, 'static')
 
     @property
-    def stats_file(self):
+    def _stats_file(self):
         """
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """
         return os.path.join(
-            self.build_path,
+            self._build_path,
             '{plugin}_stats.json'.format(plugin=self.unique_slug)
         )
 
@@ -206,7 +206,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     def frontend_message_file(self):
         lang_code = get_language()
         if django_settings.DEBUG:
-            static_root = self.static_dir
+            static_root = self._static_dir
         else:
             static_root = getattr(django_settings, 'STATIC_ROOT')
         message_file_name = "{name}-messages.json".format(name=self.unique_slug)
@@ -233,12 +233,9 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     def js_and_css_tags(self):
         js_tag = '<script type="text/javascript" src="{url}"></script>'
-        css_tag = '<link type="text/css" href="{url}" rel="stylesheet"/>'
         for chunk in self.bundle:
             if chunk['name'].endswith('.js'):
                 yield js_tag.format(url=chunk['url'])
-            elif chunk['name'].endswith('.css'):
-                yield css_tag.format(url=chunk['url'])
 
     def frontend_message_tag(self):
         if self.frontend_messages:

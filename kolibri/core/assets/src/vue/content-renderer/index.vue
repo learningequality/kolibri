@@ -80,9 +80,9 @@
       },
     },
     created() {
-      this.getRendererComponent();
+      this.updateRendererComponent();
       // This means this component has to be torn down on channel switches.
-      this.$watch('files', this.getRendererComponent);
+      this.$watch('files', this.updateRendererComponent);
     },
     mounted() {
       this.ready = true;
@@ -98,7 +98,7 @@
        * handle the rendering of the current content node. This is the entrance point for changes
        * in the props,so any change in the props will trigger this function first.
        */
-      getRendererComponent() {
+      updateRendererComponent() {
         // Assume we will find a renderer until we find out otherwise.
         this.noRendererAvailable = false;
         // Only bother to do this is if the node is available, and the kind and extension are defined.
@@ -107,25 +107,15 @@
           // The internal content rendering component is currently unrendered.
           this.rendered = false;
           this.Kolibri.retrieveContentRenderer(this.kind, this.extension).then((component) => {
-            this.setRendererComponent(component);
+            this.currentViewClass = component;
+            // If the Vue component is attached to the DOM, and it is unrendered, then render now!
+            if (this.ready && !this.rendered) {
+              this.renderContent();
+            }
           }).catch((error) => {
             logging.error(error);
             this.noRendererAvailable = true;
           });
-        }
-      },
-      /**
-       * Method that is invoked by a callback from an event listener. Accepts a Vue component
-       * options object as an argument. This is then set as the current renderer for the node,
-       * and is used later in rendering.
-       * @param {Object} component - an options object for a Vue component.
-       */
-      setRendererComponent(component) {
-        // Keep track of the current renderer.
-        this.currentViewClass = component;
-        // If the Vue component is attached to the DOM, and it is unrendered, then render now!
-        if (this.ready && !this.rendered) {
-          this.renderContent();
         }
       },
       /**

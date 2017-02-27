@@ -6,7 +6,7 @@ class DocumentPDFModule extends ContentRendererModule {
   get rendererComponent() {
     return PDFComponent;
   }
-  get contentType() {
+  get contentTypes() {
     return require('./content_types.json');
   }
 }

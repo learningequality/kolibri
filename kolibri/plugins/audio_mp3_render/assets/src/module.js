@@ -6,7 +6,7 @@ class AudioMP3Module extends ContentRendererModule {
   get rendererComponent() {
     return AudioComponent;
   }
-  get contentType() {
+  get contentTypes() {
     return require('./content_types.json');
   }
 }

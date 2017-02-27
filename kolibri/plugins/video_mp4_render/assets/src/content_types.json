@@ -1,5 +1,10 @@
 {
-  "video": [
-    "mp4"
+  "kinds": [
+    {
+    "name": "video",
+    "extensions": [
+        "mp4"
+      ]
+    }
   ]
 }

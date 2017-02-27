@@ -26,16 +26,26 @@ class ContentRendererHook(WebpackBundleHook):
 
     Reads a JSON file of this format:
     {
-        "kind": [
-            "file_extension"
+        "kinds": [
+            {
+                "name": "kind_name",
+                "extensions": [
+                    "file_extension"
+                ]
+            }
         ]
     }
     e.g.
     {
-        "video": [
-            "mp4",
-            "ogg",
-            "wmv"
+        "kinds": [
+            {
+                "name": "video",
+                "extensions": [
+                    "mp4",
+                    "ogg",
+                    "wmv"
+                ]
+            }
         ]
     }
     Detailing the kinds and file extensions that the renderer can handle.
@@ -48,15 +58,15 @@ class ContentRendererHook(WebpackBundleHook):
         abstract = True
 
     @cached_property
-    def content_type_json(self):
+    def _content_type_json(self):
         try:
             file_path = os.path.join(self._module_file_path, self.content_types_file)
             with open(file_path) as f:
                 content_types = json.load(f)
-                for kind in content_types.keys():
-                    if kind not in dict(content_kinds.choices):
+                for kind_data in content_types.get('kinds', []):
+                    if kind_data.get("name") not in dict(content_kinds.choices):
                         logger.debug("{kind} not found in valid content kinds for plugin {name}".format(
-                            kind=kind, name=self.unique_slug))
+                            kind=kind_data.get("name"), name=self.unique_slug))
                 return content_types
         except IOError:
             raise IOError("Content types file not found at {}".format(self.content_types_file))
@@ -72,7 +82,7 @@ class ContentRendererHook(WebpackBundleHook):
             kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
             bundle=self.unique_slug,
             urls='","'.join(urls),
-            content_types=json.dumps(self.content_type_json),
+            content_types=json.dumps(self._content_type_json),
         )
         js += self.frontend_message_file_script_tag()
         return mark_safe('<script>{js}</script>'.format(js=js))

@@ -465,11 +465,12 @@ module.exports = class Mediator {
    */
   registerContentRenderer(kolibriModuleName, kolibriModuleUrls, contentTypes) {
     this._contentRendererUrls[kolibriModuleName] = kolibriModuleUrls;
-    Object.keys(contentTypes).forEach((kind) => {
+    contentTypes.forEach((kindData) => {
+      const kind = kindData.name;
       if (!this._contentRendererRegistry[kind]) {
         this._contentRendererRegistry[kind] = {};
       }
-      contentTypes[kind].forEach((extension) => {
+      kindData.extensions.forEach((extension) => {
         if (this._contentRendererRegistry[kind][extension]) {
           logging.warn(`Two content renderers are registering for ${kind}/${extension}`);
         } else {
@@ -482,16 +483,20 @@ module.exports = class Mediator {
    * A method to retrieve a content renderer component.
    * @param  {String} kind      content kind
    * @param  {String} extension content extension
-   * @return {Promise}          Promise that resolves with loaded content renderer
+   * @return {Promise}          Promise that resolves with loaded content renderer Vue component
    */
   retrieveContentRenderer(kind, extension) {
     return new Promise((resolve, reject) => {
       const kolibriModuleName = (this._contentRendererRegistry[kind] || {})[extension];
       if (!kolibriModuleName) {
+        // Our content renderer registry does not have a renderer for this content kind/extension.
         reject('No registered content renderer available');
       } else if (this._kolibriModuleRegistry[kolibriModuleName]) {
+        // There is a named renderer for this kind/extension combination, and it is already loaded.
         resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
       } else {
+        // We have a content renderer for this, but it has not been loaded, so load it, and then
+        // resolve the promise when it has been loaded.
         Promise.all(this._contentRendererUrls[kolibriModuleName].map(this._scriptLoader)).then(
           () => {
             if (this._kolibriModuleRegistry[kolibriModuleName]) {

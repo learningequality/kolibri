@@ -6,7 +6,7 @@ class VideoMP4Module extends ContentRendererModule {
   get rendererComponent() {
     return VideoComponent;
   }
-  get contentType() {
+  get contentTypes() {
     return require('./content_types.json');
   }
 }
