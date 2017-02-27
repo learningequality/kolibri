@@ -185,9 +185,14 @@ describe('contentRenderer Component', function () {
             },
           }).$mount();
         });
-        it('should return undefined', function () {
+        it('should return null', function () {
           this.vm.available = false;
-          assert(!this.vm.updateRendererComponent());
+          return new Promise((resolve) => {
+            this.vm.updateRendererComponent().then((component) => {
+              assert.equal(component, null);
+              resolve();
+            });
+          });
         });
       });
     });
