@@ -31,8 +31,13 @@ const mutations = {
     state.pageState.error = isError;
     state.pageState.errorMessage = errorMessage;
   },
-  SET_SIGN_UP_ERROR(state, error) {
-    state.pageState.signUpError = error;
+  // Sign Up Page Mutations
+  SET_SIGN_UP_BUSY(state, isBusy) {
+    state.pageState.busy = isBusy;
+  },
+  SET_SIGN_UP_ERROR(state, errorCode, errorMessage) {
+    state.pageState.errorCode = errorCode;
+    state.pageState.errorMessage = errorMessage;
   },
 };
 
