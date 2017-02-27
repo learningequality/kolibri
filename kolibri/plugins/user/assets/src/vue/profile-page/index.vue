@@ -6,7 +6,7 @@
     </ui-alert>
     <form @submit.prevent="submitEdits">
 
-      <ui-textbox
+      <core-textbox
         v-if="hasPrivilege('username')"
         class="input-field"
         :invalid="error"
@@ -18,7 +18,7 @@
         id="username"
         type="text" />
 
-      <ui-textbox
+      <core-textbox
         v-if="hasPrivilege('name')"
         class="input-field"
         :disabled="busy"
@@ -57,7 +57,7 @@
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
-      'ui-textbox': require('keen-ui/src/UiTextbox'),
+      'core-textbox': require('kolibri.coreVue.components.textbox'),
       'ui-alert': require('keen-ui/src/UiAlert'),
     },
     data() {

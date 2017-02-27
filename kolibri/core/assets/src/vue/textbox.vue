@@ -3,17 +3,16 @@
   <ui-textbox
     @focus="$emit('focus')"
     @input="updateText()"
-    v-model = "currentText"
+    v-model="currentText"
     :disabled="disabled"
-    :placeholder = "placeholder"
-    :label = "label"
-    :aria-label = "ariaLabel"
-    :autocomplete = "autocomplete"
-    :autofocus = "autofocus"
-    :required = "required"
-    :type = "type"
-    :invalid="invalid"
-    class="koli-textbox">
+    :placeholder="placeholder"
+    :label="label"
+    :aria-label="ariaLabel"
+    :autocomplete="autocomplete"
+    :autofocus="autofocus"
+    :required="required"
+    :type="type"
+    :invalid="invalid">
   </ui-textbox>
 
 </template>
@@ -74,9 +73,6 @@
   };
 
 </script>
-
-
-<style lang="stylus" scoped></style>
 
 
 <style lang="stylus"></style>
