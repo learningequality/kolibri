@@ -53,7 +53,7 @@
         }
       },
       addTabListeners() {
-        const tabs = this.$refs.tabs.$el.querySelectorAll('.ui-tab-header-item');
+        const tabs = Array.from(this.$refs.tabs.$el.querySelectorAll('.ui-tab-header-item'));
         tabs.forEach((tab) => {
           tab.addEventListener('click', () => {
             const tabClicked = tab.querySelectorAll('.ui-tab-header-item__text')[0].innerHTML;
