@@ -118,6 +118,7 @@
             this.noRendererAvailable = true;
           });
         }
+        return;
       },
       /**
        * Method that renders the dynamically retrieved component into the wrapper component.
