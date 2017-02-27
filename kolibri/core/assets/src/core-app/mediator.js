@@ -299,20 +299,27 @@ module.exports = class Mediator {
       // and also cause loading of the the frontend assets that the kolibriModule
       // needs, should an event it is listening for be emitted.
       const callback = (...args) => {
-        // First check that the kolibriModule hasn't already been loaded.
-        if (typeof self._kolibriModuleRegistry[kolibriModuleName] === 'undefined') {
-          // Add the details about the event callback to the buffer.
-          callbackBuffer.push({
-            args,
-            method: value,
-          });
-          // Load all the kolibriModule files.
-          Promise.all(kolibriModuleUrls.map(this._scriptLoader)).catch((error) => {
-            logging.error(`${kolibriModuleName} failed to load`);
-          });
-          // Start fetching any language assets that this module might need also.
-          this._fetchLanguageAssets(kolibriModuleName, Vue.locale);
-        }
+        const promise = new Promise((resolve, reject) => {
+          // First check that the kolibriModule hasn't already been loaded.
+          if (typeof self._kolibriModuleRegistry[kolibriModuleName] === 'undefined') {
+            // Add the details about the event callback to the buffer.
+            callbackBuffer.push({
+              args,
+              method: value,
+            });
+            // Load all the kolibriModule files.
+            Promise.all(kolibriModuleUrls.map(this._scriptLoader)).then(() => {
+              resolve();
+            }).catch((error) => {
+              const errorText = `${kolibriModuleName} failed to load`;
+              logging.error(errorText);
+              reject(errorText);
+            });
+            // Start fetching any language assets that this module might need also.
+            this._fetchLanguageAssets(kolibriModuleName, Vue.locale);
+          }
+        });
+        return promise;
       };
       // Listen to the event and call the above function
       self._eventDispatcher.$on(key, callback);

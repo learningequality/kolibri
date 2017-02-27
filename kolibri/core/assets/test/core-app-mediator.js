@@ -417,7 +417,7 @@ describe('Mediator', function () {
   describe('registerKolibriModuleAsync method', function () {
     beforeEach(function () {
       this.kolibriModuleName = 'test';
-      this.kolibriModuleUrls = ['test.js', 'test.css'];
+      this.kolibriModuleUrls = ['test.js', 'test1.js'];
       this.events = {
         event: 'method',
       };
@@ -460,25 +460,6 @@ describe('Mediator', function () {
       });
       it('should add args in the callback buffer when called', function () {
         assert.deepEqual(this.mediator._callbackBuffer[this.kolibriModuleName].args, this.arg);
-      });
-    });
-    describe('async callbacks with error on script load', function () {
-      beforeEach(function () {
-        const self = this;
-        this.args = ['this', 'that'];
-        Mediator.__set__('assetLoader', function (files, callback) {
-          callback('error!', self.kolibriModuleUrls);
-        });
-        this.spy = sinon.spy();
-        Mediator.__set__('logging', { error: this.spy });
-        this.mediator._asyncCallbackRegistry[this.kolibriModuleName][0].callback(this.args);
-      });
-      it('should call logging.error twice', function () {
-        assert(this.spy.calledTwice);
-      });
-      it('should call logging.error with each of the args', function () {
-        assert(this.spy.calledWith(`${this.kolibriModuleUrls[0]} failed to load`));
-        assert(this.spy.calledWith(`${this.kolibriModuleUrls[1]} failed to load`));
       });
     });
   });

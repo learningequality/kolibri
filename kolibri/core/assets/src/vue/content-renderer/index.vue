@@ -106,12 +106,13 @@
         if (this.available && this.kind && this.extension) {
           // The internal content rendering component is currently unrendered.
           this.rendered = false;
-          this.Kolibri.retrieveContentRenderer(this.kind, this.extension).then((component) => {
+          return this.Kolibri.retrieveContentRenderer(this.kind, this.extension).then((component) => {
             this.currentViewClass = component;
             // If the Vue component is attached to the DOM, and it is unrendered, then render now!
             if (this.ready && !this.rendered) {
               this.renderContent();
             }
+            return this.currentViewClass;
           }).catch((error) => {
             logging.error(error);
             this.noRendererAvailable = true;

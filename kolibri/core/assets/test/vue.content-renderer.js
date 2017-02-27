@@ -125,100 +125,9 @@ describe('contentRenderer Component', function () {
         assert.equal(typeof this.vm.extension, 'undefined');
       });
     });
-    describe('contentType', function () {
-      it('should be kind/extension when both are defined', function () {
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(this.vm.contentType, `${this.kind}/${this.files[0].extension}`);
-      });
-      it('should be undefined when kind is undefined', function () {
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: undefined,
-            files: this.files,
-          },
-        }).$mount();
-        assert.equal(typeof this.vm.contentType, 'undefined');
-      });
-      it('should be undefined when extension is undefined', function () {
-        delete this.extension;
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: [],
-          },
-        }).$mount();
-        assert.equal(typeof this.vm.contentType, 'undefined');
-      });
-    });
   });
   describe('method', function () {
-    describe('clearListeners', function () {
-      describe('when there are two listeners active', function () {
-        beforeEach(function () {
-          this.vm = new ContentRendererComponent({
-            propsData: {
-              id: this.id,
-              kind: this.kind,
-              files: this.files,
-            },
-          }).$mount();
-          this.eventListeners = [
-            {
-              event: 'test1',
-              callback: 'testing1',
-            },
-            {
-              event: 'test2',
-              callback: 'testing2',
-            },
-          ];
-          this.vm._eventListeners = this.eventListeners;
-          this.spy = sinon.spy();
-          this.vm.Kolibri = {
-            off: this.spy,
-          };
-        });
-        it('should invoke this.Kolibri.off twice', function () {
-          this.vm.clearListeners();
-          assert.ok(this.spy.calledTwice);
-        });
-        it('should invoke this.Kolibri.off with the first event first', function () {
-          this.vm.clearListeners();
-          assert.ok(this.spy.firstCall.calledWithExactly(
-            this.eventListeners[0].event, this.eventListeners[0].callback));
-        });
-        it('should invoke this.Kolibri.off with the second event second', function () {
-          this.vm.clearListeners();
-          assert.ok(this.spy.secondCall.calledWithExactly(
-            this.eventListeners[1].event, this.eventListeners[1].callback));
-        });
-        it('should _eventListeners to an empty array', function () {
-          this.vm.clearListeners();
-          assert.deepEqual(this.vm._eventListeners, []);
-        });
-      });
-    });
-    describe('findRendererComponent', function () {
-      it('should invoke clearListeners', function () {
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        const spy = sinon.stub(this.vm, 'clearListeners');
-        this.vm.findRendererComponent();
-        assert.ok(spy.calledOnce);
-      });
+    describe('updateRendererComponent', function () {
       describe('when content is available', function () {
         beforeEach(function () {
           this.vm = new ContentRendererComponent({
@@ -228,37 +137,42 @@ describe('contentRenderer Component', function () {
               files: this.files,
             },
           }).$mount();
+          this.vm.available = true;
+          this.spy = sinon.spy(this.vm, 'renderContent');
+          this.component = { test: 'testing' };
           this.vm.Kolibri = {
-            once: () => {},
-            emit: () => {},
+            retrieveContentRenderer: () => Promise.resolve(this.component),
           };
-          this.setRenderComponent = () => {};
-          this.vm.setRenderComponent = this.setRenderComponent;
         });
         it('should set rendered to false', function () {
-          this.vm.available = true;
-          this.vm.findRendererComponent();
+          this.vm.updateRendererComponent();
           assert.equal(this.vm.rendered, false);
         });
-        it('should invoke this.Kolibri.once with event argument', function () {
-          this.vm.available = true;
-          const spy = sinon.spy(this.vm.Kolibri, 'once');
-          this.vm.findRendererComponent();
-          assert.ok(spy.calledWith(`component_render:${this.kind}/${this.files[0].extension}`));
+        it('should set currentViewClass to returned component', function () {
+          return new Promise((resolve) => {
+            this.vm.updateRendererComponent().then(() => {
+              assert.equal(this.vm.currentViewClass, this.component);
+              resolve();
+            });
+          });
         });
-        it('should add an object to _eventListeners', function () {
-          this.vm.available = true;
-          this.vm._eventListeners = [];
-          this.vm.findRendererComponent();
-          assert.equal(this.vm._eventListeners[0].event,
-            `component_render:${this.kind}/${this.files[0].extension}`);
+        it('should call renderContent if ready', function () {
+          this.vm.ready = true;
+          return new Promise((resolve) => {
+            this.vm.updateRendererComponent().then(() => {
+              assert.ok(this.spy.calledOnce);
+              resolve();
+            });
+          });
         });
-        it('should invoke this.Kolibri.emit with event argument', function () {
-          this.vm.available = true;
-          const spy = sinon.spy(this.vm.Kolibri, 'emit');
-          this.vm.findRendererComponent();
-          assert.ok(spy.calledWithExactly(
-            `content_render:${this.kind}/${this.files[0].extension}`));
+        it('should not call renderContent if not ready', function () {
+          this.vm.ready = false;
+          return new Promise((resolve) => {
+            this.vm.updateRendererComponent().then(() => {
+              assert.ok(!this.spy.called);
+              resolve();
+            });
+          });
         });
       });
       describe('when content is not available', function () {
@@ -270,85 +184,11 @@ describe('contentRenderer Component', function () {
               files: this.files,
             },
           }).$mount();
-          this.vm.Kolibri = {
-            once: () => {},
-            emit: () => {},
-          };
-          this.setRenderComponent = () => {};
-          this.vm.setRenderComponent = this.setRenderComponent;
         });
-        it('should not invoke this.Kolibri.once', function () {
-          const spy = sinon.spy(this.vm.Kolibri, 'once');
-          this.vm.findRendererComponent();
-          assert.ok(!spy.called);
+        it('should return undefined', function () {
+          this.vm.available = false;
+          assert(!this.vm.updateRendererComponent());
         });
-        it('should not add an object to _eventListeners', function () {
-          this.vm._eventListeners = [];
-          this.vm.findRendererComponent();
-          assert.deepEqual(this.vm._eventListeners, []);
-        });
-        it('should not invoke this.Kolibri.emit', function () {
-          const spy = sinon.spy(this.vm.Kolibri, 'emit');
-          this.vm.findRendererComponent();
-          assert.ok(!spy.called);
-        });
-      });
-    });
-    describe('setRendererComponent', function () {
-      it('should set currentViewClass to passed in component', function () {
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        const component = { test: 'testing' };
-        this.vm.setRendererComponent(component);
-        assert.equal(this.vm.currentViewClass, component);
-      });
-      it('should call renderContent if ready and not rendered', function () {
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        this.vm.ready = true;
-        this.vm.rendered = false;
-        const component = { test: 'testing' };
-        const spy = sinon.spy(this.vm, 'renderContent');
-        this.vm.setRendererComponent(component);
-        assert.ok(spy.calledOnce);
-      });
-      it('should call not call renderContent if not ready', function () {
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        this.vm.ready = false;
-        const component = { test: 'testing' };
-        const spy = sinon.spy(this.vm, 'renderContent');
-        this.vm.setRendererComponent(component);
-        assert.ok(!spy.called);
-      });
-      it('should call not call renderContent if rendered', function () {
-        this.vm = new ContentRendererComponent({
-          propsData: {
-            id: this.id,
-            kind: this.kind,
-            files: this.files,
-          },
-        }).$mount();
-        this.vm.rendered = true;
-        const component = { test: 'testing' };
-        const spy = sinon.spy(this.vm, 'renderContent');
-        this.vm.setRendererComponent(component);
-        assert.ok(!spy.called);
       });
     });
     describe('renderContent', function () {
