@@ -1,0 +1,3 @@
+-r requirements/base.txt
+
+./kolibri-instant-schools-plugin-master.zip
