@@ -15,6 +15,13 @@ class ManagementModule extends KolibriModule {
     coreActions.getCurrentSession(store).then(() => {
       const routes = [
         {
+          name: PageNames.CLASS_MGMT_PAGE,
+          path: '/classes',
+          handler: (toRoute, fromRoute) => {
+            actions.showClassesPage(store);
+          },
+        },
+        {
           name: PageNames.USER_MGMT_PAGE,
           path: '/users',
           handler: (toRoute, fromRoute) => {
@@ -44,7 +51,7 @@ class ManagementModule extends KolibriModule {
         },
         {
           path: '/',
-          redirect: '/users',
+          redirect: '/classes',
         },
       ];
 

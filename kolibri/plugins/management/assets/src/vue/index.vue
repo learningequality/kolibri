@@ -35,6 +35,7 @@
     },
     components: {
       'top-nav': require('./top-nav'),
+      'manage-class-page': require('./manage-class-page'),
       'user-page': require('./user-page'),
       'data-page': require('./data-page'),
       'manage-content-page': require('./manage-content-page'),
@@ -44,6 +45,9 @@
     computed: {
       topLevelPageName: () => TopLevelPageNames.MANAGE,
       currentPage() {
+        if (this.pageName === PageNames.CLASS_MGMT_PAGE) {
+          return 'manage-class-page';
+        }
         if (this.pageName === PageNames.USER_MGMT_PAGE) {
           return 'user-page';
         }
