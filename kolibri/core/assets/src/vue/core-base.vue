@@ -101,7 +101,11 @@
         return { paddingLeft: `${this.navWidth + PADDING}px` };
       },
       contentStyle() {
-        return { left: `${this.navWidth}px`, top: `${this.headerHeight}px` };
+        const style = { top: `${this.headerHeight}px` };
+        if (!this.mobile) {
+          style.left = `${this.navWidth}px`;
+        }
+        return style;
       },
     },
     mounted() {
