@@ -12,7 +12,7 @@
         <div class="class-field">
           <core-textbox
             :label="$tr('classname')"
-            :aria-label="$tr('name')"
+            :aria-label="$tr('classname')"
             v-model="name"
             autocomplete="name"
             autofocus
