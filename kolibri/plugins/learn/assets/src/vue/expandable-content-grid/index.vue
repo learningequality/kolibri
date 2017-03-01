@@ -8,7 +8,7 @@
         :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
-        :id="content.id"/>
+        :link="genContentLink(content.id)"/>
     </card-grid>
 
     <div class="button-wrapper" v-if="contents.length > nCollapsed">
@@ -25,6 +25,8 @@
 
 
 <script>
+
+  const PageNames = require('../../state/constants').PageNames;
 
   module.exports = {
     $trNameSpace: 'learnExpandable',
@@ -79,6 +81,19 @@
     methods: {
       toggle() {
         this.expanded = !this.expanded;
+      },
+      genContentLink(id) {
+        return {
+          name: PageNames.LEARN_CONTENT,
+          params: { channel_id: this.channelId, id },
+        };
+      },
+    },
+    vuex: {
+      getters: {
+        all: state => state.pageState.all,
+        viewportWidth: state => state.core.viewport.width,
+        channelId: (state) => state.core.channels.currentId,
       },
     },
   };
