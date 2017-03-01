@@ -2,18 +2,13 @@
 
   <core-modal
     :title="$tr('modalTitle')"
-    :has-error="error_message ? true : false"
-    :enableBackBtn="usr_delete || pw_reset"
+    :has-error="false"
     @cancel="emitCloseSignal"
   >
     <div>
-      <div class="user-field">
-        {{$trHtml('deleteConfirmation', {name:classname})}}
-      </div>
-      <p>Users will only be removed from the class and are still accessible from the "Users" tab.</p>
+      {{$tr('deleteConfirmation')}} <strong>{{classname}}</strong>
 
-      <!-- Error Messages -->
-      <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
+      <p>Users will only be removed from the class and are still accessible from the "Users" tab.</p>
 
       <!-- Button Section TODO: cleaunup -->
       <section>
@@ -28,7 +23,7 @@
           :text="$tr('delete')"
           class="confirm-btn"
           :primary="true"
-          @click="submit"
+          @click="classDelete"
         />
 
       </section>
@@ -50,8 +45,7 @@
       delete: 'Delete Class',
       cancel: 'Cancel',
       // confirmation messages
-      // this one is going to get a little complicated
-      deleteConfirmation: 'Are you sure you want to delete {name}?',
+      deleteConfirmation: 'Are you sure you want to delete ',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -68,14 +62,10 @@
         required: true,
       },
     },
-    data() {
-      return {
-        error_message: '',
-      };
-    },
     methods: {
-      submit() {
-        // need delete logic here.
+      classDelete() {
+        this.deleteClass(this.classid);
+        this.$emit('close');
       },
       emitCloseSignal() {
         this.$emit('close'); // signal parent to close
@@ -101,32 +91,10 @@
   .confirm-btn
     float: right
 
-  .user-field
-    padding-bottom: 5%
-    input
-      width: 100%
-      height: 40px
-      font-weight: bold
-      border: none
-      border-bottom: 1px solid #3a3a3a
-    label
-      position: relative
-    select
-      -webkit-appearance: menulist-button
-      width: 100%
-      height: 40px
-      font-weight: bold
-      background-color: transparent
-    p
-      text-align: center
-
   .header
     text-align: center
 
   p
     word-break: keep-all
-
-  .error
-    color: red
 
 </style>
