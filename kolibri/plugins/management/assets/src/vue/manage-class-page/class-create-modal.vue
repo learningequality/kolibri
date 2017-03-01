@@ -70,6 +70,7 @@
       createNewClass() {
         const newClass = {
           name: this.name,
+          facilityId: this.facility,
         };
         this.createClass(newClass).then(
           () => {
@@ -85,6 +86,9 @@
       },
     },
     vuex: {
+      getters: {
+        facility: state => state.facility,
+      },
       actions: {
         createClass: actions.createClass,
       },
