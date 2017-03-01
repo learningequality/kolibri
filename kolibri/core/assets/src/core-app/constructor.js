@@ -33,7 +33,6 @@ const publicMethods = [
   'once',
   'off',
   'registerLanguageAssets',
-  'registerLanguageAssetsUrl',
   'registerContentRenderer',
   'retrieveContentRenderer',
 ];
