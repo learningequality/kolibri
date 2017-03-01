@@ -66,11 +66,6 @@
         return '';
       },
     },
-    vuex: {
-      getters: {
-        pageMode: getters.pageMode,
-      },
-    },
   };
 
 </script>
