@@ -13,7 +13,6 @@
 
   const CoreConstants = require('kolibri.coreVue.vuex.constants');
   const values = require('lodash.values');
-  const getters = require('../../state/getters');
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {
