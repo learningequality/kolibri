@@ -56,8 +56,8 @@
     methods: {
       switchChannel(channelId) {
         let page;
-        switch (this.pageName) {
-          case PageNames.SEARCH:
+        switch (this.pageMode) {
+          case PageModes.SEARCH:
             page = PageNames.SEARCH;
             if (this.searchTerm) {
               this.$router.push({
@@ -69,7 +69,7 @@
             }
             break;
 
-          case PageNames.LEARN_CHANNEL:
+          case PageModes.LEARN:
             page = PageNames.LEARN_CHANNEL;
             break;
 
