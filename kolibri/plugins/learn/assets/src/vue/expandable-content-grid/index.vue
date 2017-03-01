@@ -91,8 +91,6 @@
     },
     vuex: {
       getters: {
-        all: state => state.pageState.all,
-        viewportWidth: state => state.core.viewport.width,
         channelId: (state) => state.core.channels.currentId,
       },
     },
