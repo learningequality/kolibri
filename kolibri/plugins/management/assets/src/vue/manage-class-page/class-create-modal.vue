@@ -24,6 +24,8 @@
 
       <!-- Button Options at footer of modal -->
       <section class="footer">
+        <p class="error" v-if="errorMessage" aria-live="polite">{{errorMessage}}</p>
+
         <icon-button
           :text="$tr('cancel')"
           class="undo-btn"
@@ -57,6 +59,8 @@
       // Button Labels
       cancel: 'Cancel',
       create: 'Create',
+      // error message
+      unknownError: 'Whoops! Something went wrong!',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -75,18 +79,29 @@
     },
     methods: {
       createNewClass() {
-        const newClass = {
-          name: this.name,
-          facilityId: this.facility,
-        };
-        this.createClass(newClass).then(
-          () => {
-            this.close();
-          },
-          (error) => {
-            // need to display the error message
-          }
-        );
+        if (!this.name) {
+          this.errorMessage = 'Must provide class name to create new class!';
+        } else {
+          const newClass = {
+            name: this.name,
+            facilityId: this.facility,
+          };
+          this.createClass(newClass).then(
+            () => {
+              this.close();
+            },
+            (error) => {
+              if (error.status.code === 400) {
+                // access the first error message
+                this.errorMessage = error.entity[Object.keys(error.entity)[0]];
+              } else if (error.status.code === 403) {
+                this.errorMessage = error.entity;
+              } else {
+                this.errorMessage = this.$tr('unknownError');
+              }
+            }
+          );
+        }
       },
       close() {
         this.$emit('close'); // signal parent to close
@@ -142,5 +157,8 @@
 
   .create-btn, .undo-btn
     width: 48%
+
+  .error
+    color: $core-text-error
 
 </style>
