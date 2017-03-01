@@ -43,9 +43,11 @@
         return { name: constants.PageNames.CLASS_MGMT_PAGE };
       },
       classesActive() {
-        return this.pageName === constants.PageNames.CLASS_MGMT_PAGE ||
-          this.pageName === constants.PageNames.CLASS_EDIT_MGMT_PAGE ||
-          this.pageName === constants.PageNames.CLASS_ENROLL_MGMT_PAGE;
+        return [
+          constants.PageNames.CLASS_MGMT_PAGE,
+          constants.PageNames.CLASS_EDIT_MGMT_PAGE,
+          constants.PageNames.CLASS_ENROLL_MGMT_PAGE,
+        ].includes(this.pageName);
       },
       usersLink() {
         return { name: constants.PageNames.USER_MGMT_PAGE };
