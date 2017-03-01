@@ -25,6 +25,12 @@
       <!-- Button Options at footer of modal -->
       <section class="footer">
         <icon-button
+          :text="$tr('cancel')"
+          class="undo-btn"
+          @click="close"
+        />
+
+        <icon-button
           class="create-btn"
           :text="$tr('create')"
           @click="createNewClass"
@@ -49,6 +55,7 @@
       // Labels
       classname: 'Class Name',
       // Button Labels
+      cancel: 'Cancel',
       create: 'Create',
     },
     components: {
@@ -133,7 +140,7 @@
   .footer
     text-align: center
 
-  .create-btn
-    width: 200px
+  .create-btn, .undo-btn
+    width: 48%
 
 </style>
