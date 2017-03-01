@@ -42,14 +42,14 @@
   module.exports = {
     $trNameSpace: 'setupWizard',
     $trs: {
-      header: 'Create Device Owner and Facility',
-      deviceOwner: 'Device Owner',
-      deviceOwnerDescription: 'To use Kolibri, you first need to create a Device Owner account. This account will be used to configure high-level settings for this installation, and create other administrator accounts.', // eslint-disable-line max-len
+      header: 'Create device owner and facility',
+      deviceOwner: 'Device owner',
+      deviceOwnerDescription: 'To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts', // eslint-disable-line max-len
       username: 'Username',
       password: 'Password',
       confirmPassword: 'Confirm password',
       facility: 'Facility',
-      facilityDescription: 'You also need to create a Facility, which represents your school, training center, or other location where this installation will be used.', // eslint-disable-line max-len
+      facilityDescription: 'You also need to create a Facility. This represents your school, training center, or other installation location', // eslint-disable-line max-len
       facilityName: 'Facility name',
       getStarted: 'Create and get started',
     },
@@ -106,7 +106,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .device-owner-creation
     position: absolute

@@ -4,7 +4,7 @@ Helper functions for use across the user/auth/permission-related tests.
 
 from ..models import FacilityUser, Facility, Classroom, LearnerGroup, FacilityDataset
 
-def create_dummy_facility_data(classroom_count=2, learnergroup_count=2):
+def create_dummy_facility_data(allow_sign_ups=False, classroom_count=2, learnergroup_count=2):
     """
     Helper to bootstrap facility data for use in role/permission scenarios (collections, users, and roles).
     This can be called multiple times to create parallel facilities/datasets in the same database, to test
@@ -19,7 +19,7 @@ def create_dummy_facility_data(classroom_count=2, learnergroup_count=2):
     data = {}
 
     # create the dataset object with which this data will be associated
-    dataset = data["dataset"] = FacilityDataset.objects.create()
+    dataset = data["dataset"] = FacilityDataset.objects.create(learner_can_sign_up=allow_sign_ups)
 
     # create the Collection hierarchy
     facility = data["facility"] = Facility.objects.create(dataset=dataset)

@@ -27,10 +27,19 @@ const initialState = {
     loginModalVisible: false,
     loginError: null,
     logging: baseLoggingState,
-    viewport: { width: 0, height: 0 },
     channels: {
       list: [],
       currentId: null,
+    },
+    // Hardcoded for now. Privileges set according to Zero Rating conf
+    learnerPrivileges: {
+      username: true,
+      name: true,
+      password: true,
+      signup: true,
+      delete: false,
+      // classActivation: false,
+      loginRequired: false,
     },
   },
 };
@@ -148,10 +157,6 @@ const mutations = {
     state.core.logging.session = {};
     state.core.logging.mastery = {};
     state.core.logging.attempt = {};
-  },
-  SET_VIEWPORT_SIZE(state, width, height) {
-    state.core.viewport.width = width;
-    state.core.viewport.height = height;
   },
   SET_CORE_CURRENT_CHANNEL(state, channelId) {
     state.core.channels.currentId = channelId;

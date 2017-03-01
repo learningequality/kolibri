@@ -15,9 +15,8 @@
       :available="content.available"
       :extraFields="content.extra_fields"/>
 
-    <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn">
-      {{ $tr('nextContent') }}
-      <svg class="right-arrow" src="../icons/arrow_right.svg"/>
+    <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')">
+      <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
     </icon-button>
 
     <p class="page-description">{{ content.description }}</p>
@@ -64,10 +63,10 @@
     $trNameSpace: 'learnContent',
     $trs: {
       recommended: 'Recommended',
-      nextContent: 'Next Content',
+      nextContent: 'Next item',
       author: 'Author',
       license: 'License',
-      copyrightHolder: 'Copyright Holder',
+      copyrightHolder: 'Copyright holder',
     },
     computed: {
       Constants() {
@@ -111,6 +110,9 @@
     components: {
       'page-header': require('../page-header'),
       'expandable-content-grid': require('../expandable-content-grid'),
+      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
+      'download-button': require('kolibri.coreVue.components.downloadButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     methods: {
       nextContentClicked() {
@@ -148,7 +150,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .recommendation-section
     margin-top: 4em
@@ -157,15 +159,12 @@
     background-color: #4A8DDC
     border-color: #4A8DDC
     color: $core-bg-light
-    padding-left: 16px
-    padding-right: 6px
-    padding-bottom: 0
     position: relative
-    top: -60px
+    top: -62px
     left: 150px
     z-index: 10
     @media screen and (max-width: $medium-breakpoint)
-      top: 0
+      top: -10px
       left: 0
 
   .next-btn:hover svg

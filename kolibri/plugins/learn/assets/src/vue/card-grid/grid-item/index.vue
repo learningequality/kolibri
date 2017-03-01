@@ -1,7 +1,7 @@
 <template>
 
   <router-link :to="link">
-    <div class="card">
+    <div class="wrapper">
       <div class="card-thumbnail">
         <slot/>
         <div class="progress-icon-wrapper">
@@ -9,11 +9,11 @@
         </div>
       </div>
       <div class="card-content">
-        <content-icon
-          class="outer-content-icon"
+        <div class="text">
+          <content-icon
+          class="content-icon"
           v-if="kind"
           :kind="kind"/>
-        <div class="text">
           {{ title }}
         </div>
       </div>
@@ -26,6 +26,10 @@
 <script>
 
   module.exports = {
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
+    },
     props: {
       title: {
         type: String,
@@ -51,10 +55,10 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
   @require '../../learn.styl'
 
-  $thumb-width = $horizontal-card-height
+  $thumb-width = 100px
 
   .card
     width: $card-width
@@ -62,12 +66,9 @@
     overflow: hidden
     background-color: $core-bg-light
     border-radius: $radius
-    @media screen and (max-width: $medium-breakpoint)
-      width: 100%
-      height: 175px
 
   .card-thumbnail
-    height: $thumbnail-height
+    height: 122px
     position: relative
 
   .text
@@ -82,10 +83,11 @@
     text-overflow: ellipsis
     color: $core-text-default
 
-  .outer-content-icon
+  .content-icon
     position: absolute
     left: 10px
     top: 10px
+    font-size: 1.5em
 
   .card-content
     padding: 10px
@@ -100,5 +102,8 @@
     right: 0.25em
     width: 1.5em
     height: 1.5em
+
+  .wrapper
+    background-color: $core-bg-light
 
 </style>

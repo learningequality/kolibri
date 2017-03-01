@@ -36,7 +36,7 @@
     },
     computed: {
       percent() {
-        return Math.min(this.progress * 100, 100);
+        return Math.max(Math.min(this.progress * 100, 100), 0);
       },
     },
   };
@@ -46,7 +46,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .wrapper
     position: relative

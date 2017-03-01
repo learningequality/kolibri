@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div :class="sizeClass">
     <grid-item :link="link" :title="title" :kind="kind" :progress="progress">
       <div class="thumbnail" :style="{ 'background-image': thumb }"></div>
     </grid-item>
@@ -17,8 +17,10 @@
   const PageNames = constants.PageNames;
   const PageModes = constants.PageModes;
   const getters = require('../../state/getters');
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {
+    mixins: [responsiveWindow],
     components: {
       'grid-item': require('../card-grid/grid-item'),
     },
@@ -51,6 +53,15 @@
       },
     },
     computed: {
+      sizeClass() {
+        if (this.windowSize.breakpoint === 0) { return 'pure-u-1-1'; }
+        if (this.windowSize.breakpoint === 1) { return 'pure-u-1-2'; }
+        if (this.windowSize.breakpoint === 2) { return 'pure-u-1-2'; }
+        if (this.windowSize.breakpoint === 3) { return 'pure-u-1-3'; }
+        if (this.windowSize.breakpoint === 4) { return 'pure-u-1-3'; }
+        if (this.windowSize.breakpoint === 5) { return 'pure-u-1-4'; }
+        return 'pure-u-1-6';
+      },
       link() {
         if (this.pageMode === PageModes.EXPLORE) {
           return {
@@ -82,7 +93,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .thumbnail
     width: 100%

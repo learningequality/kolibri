@@ -1,0 +1,6 @@
+{% extends "kolibri/base.html" %}
+{% load user_tags %}
+{% block content %}
+  {% user_async_assets %}
+  {% user_assets %}
+{% endblock %}

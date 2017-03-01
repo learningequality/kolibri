@@ -1,14 +1,30 @@
 <template>
 
-  <div>
-    <nav-bar :topLevelPageName="topLevelPageName"/>
+  <div :class="`gutter-${windowSize.gutterWidth}`">
+    <app-bar
+      class="app-bar"
+      :style="appBarStyle"
+      @toggleSideNav="navShown=!navShown"
+      :title="appBarTitle"
+      :navShown="navShown"
+      :height="headerHeight">
+      <div slot="app-bar-actions" class="app-bar-actions">
+        <slot name="app-bar-actions"/>
+      </div>
+    </app-bar>
+    <nav-bar
+      @toggleSideNav="navShown=!navShown"
+      :topLevelPageName="topLevelPageName"
+      :navShown="navShown"
+      :headerHeight="headerHeight"
+      :width="navWidth"/>
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
-    <div class="main-wrapper" v-scroll="onScroll" v-if="!loading">
+    <div v-if="!loading" :style="contentStyle" class="content-container">
       <error-box v-if="error"/>
-      <slot name="above"/>
+      <slot name="tabs"/>
       <slot name="content"/>
-      <slot name="below"/>
     </div>
+    <slot name="extra"/>
   </div>
 
 </template>
@@ -16,15 +32,14 @@
 
 <script>
 
-  const Vue = require('vue');
-  const coreActions = require('kolibri.coreVue.vuex.actions');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
-  const vueScroll = require('vue-scroll');
   const values = require('lodash.values');
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
-  Vue.use(vueScroll);
+  const PADDING = 16;
 
   module.exports = {
+    mixins: [responsiveWindow],
     props: {
       // This prop breaks the separation between core and plugins.
       // It's being used as a work-around until plugins have a way
@@ -38,15 +53,18 @@
           return values(TopLevelPageNames).includes(value);
         },
       },
+      appBarTitle: {
+        type: String,
+        required: false,
+      },
     },
     components: {
-      'nav-bar': require('./nav-bar'),
+      'app-bar': require('./app-bar'),
+      'nav-bar': require('kolibri.coreVue.components.navBar'),
       'error-box': require('./error-box'),
+      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
     },
     vuex: {
-      actions: {
-        handleResize: coreActions.handleResize,
-      },
       getters: {
         loading: state => state.core.loading,
         error: state => state.core.error,
@@ -57,28 +75,44 @@
       title(newVal, oldVal) {
         document.title = `${newVal} - Kolibri`;
       },
+      'windowSize.breakpoint': function updateNav(newVal, oldVal) {
+        if (oldVal === 4 && newVal === 5) {
+          // Pop out the nav if transitioning from 4 to 5
+          this.navShown = true;
+        } else if (oldVal === 2 && newVal === 1) {
+          // Pop in the nav if transitioning from 2 to 1
+          this.navShown = false;
+        }
+      },
     },
     data: () => ({
-      scrolled: false,
+      navShown: true,
     }),
-    methods: {
-      onScroll(e, position) {
-        this.position = position;
-        this.scrolled = true;
+    computed: {
+      mobile() {
+        return this.windowSize.breakpoint < 2;
+      },
+      headerHeight() {
+        return this.mobile ? 56 : 64;
+      },
+      navWidth() {
+        return this.navShown ? this.headerHeight * 4 : 0;
+      },
+      appBarStyle() {
+        return { paddingLeft: `${this.navWidth + PADDING}px` };
+      },
+      contentStyle() {
+        const style = { top: `${this.headerHeight}px` };
+        if (!this.mobile) {
+          style.left = `${this.navWidth}px`;
+        }
+        return style;
       },
     },
     mounted() {
-      setInterval(() => {
-        if (this.scrolled) {
-          this.$emit('scroll', this.position);
-          this.scrolled = false;
-        }
-      }, 75);
-      window.addEventListener('resize', this.handleResize);
-      this.handleResize();
-    },
-    beforeDestroy() {
-      window.removeEventListener('resize', this.handleResize);
+      if (this.mobile) {
+        this.navShown = false;
+      }
     },
   };
 
@@ -87,25 +121,29 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
-
-  .main-wrapper
-    position: fixed // must be fixed for ie10
-    overflow-y: scroll
-    height: 100%
-    width: 100%
-    padding-left: $left-margin
-    padding-right: $right-margin
-    padding-bottom: 50px
-    z-index: -2
-    @media (max-width: $medium-breakpoint + 1)
-      padding-left: 69px
-      padding-right: 0
-    @media screen and (max-width: $portrait-breakpoint)
-      padding: 0 0.6em
-      padding-bottom: 100px
+  @require '~kolibri.styles.definitions'
 
   .loading-spinner-fixed
     position: fixed
+
+  .app-bar
+    height: 64px
+    z-index: 50
+    width: 100%
+    position: absolute
+    top: 0
+    left: 0
+
+  .app-bar-actions
+    display: inline-block
+
+  .content-container
+    position: absolute
+    overflow-y: auto
+    overflow-x: hidden
+    right: 0
+    bottom: 0
+    padding-bottom: 40px
+    padding: 32px
 
 </style>

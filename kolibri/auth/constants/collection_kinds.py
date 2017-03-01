@@ -11,5 +11,5 @@ LEARNERGROUP = "learnergroup"
 choices = (
     (FACILITY, _("Facility")),
     (CLASSROOM, _("Classroom")),
-    (LEARNERGROUP, _("LearnerGroup")),
+    (LEARNERGROUP, _("Learner group")),
 )

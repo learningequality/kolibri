@@ -46,6 +46,7 @@
           class="create-btn"
           :text="$tr('createAccount')"
           @click="createNewUser"
+          :primary="true"
         />
       </section>
     </div>
@@ -84,6 +85,7 @@
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'core-modal': require('kolibri.coreVue.components.coreModal'),
     },
     data() {
       return {
@@ -173,7 +175,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   $button-content-size = 1em
 
@@ -213,11 +215,6 @@
 
   .create-btn
     width: 200px
-    background-color: $core-action-normal
-    color: $core-bg-canvas
-    &:hover
-      border-color: transparent
-      color: $core-action-light
 
   .error
     color: $core-text-error

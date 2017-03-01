@@ -27,7 +27,7 @@
               @click="clear()"
               :style="{ visibility: localSearchTerm ? 'inherit' : 'hidden' }"
             >
-              <svg class="clear-icon" src="./clear.svg"/>
+              <mat-svg class="clear-icon" category="content" name="clear"/>
             </button>
           </div>
           <div class="cancel-btn-table-cell">
@@ -89,9 +89,9 @@
 
     $trs: {
       ariaLabel: 'Type to find content',
-      placeHolder: 'Find content...',
+      placeHolder: 'Find content…',
       searchResults: 'Search results:',
-      noMatches: 'Could not find any matches.',
+      noMatches: 'Could not find any matches',
       cancel: 'Cancel',
     },
     directives: { focus },
@@ -172,7 +172,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
   @require '../learn.styl'
 
   $top-offset = 60px
@@ -189,16 +189,15 @@
 
   .top-floating-bar
     background-color: $core-bg-canvas
-    height: $learn-toolbar-height
+    height: 42px
     padding-top: 0.5em
     z-index: 10000
     text-align: center
     position: fixed
-    top: 0
+    top: 60px // TODO: temp fix
     left: 50%
     transform: translate(-50%)
     margin-left: 37px  // half the $nav-width
-    width-auto-adjust()
     @media screen and (max-width: $portrait-breakpoint)
       padding: 0.5em 0
       text-align: center
@@ -212,7 +211,7 @@
     @media screen and (max-width: $medium-breakpoint)
       width: 100%
     @media screen and (max-width: $portrait-breakpoint)
-      width: $horizontal-card-width
+      width: 320px
 
 
   .table-row

@@ -1,44 +1,85 @@
 <template>
 
-  <div>
-    <label for="chan-select" class="visuallyhidden">{{ $tr('switchChannels') }}</label>
-    <select
-      name="chan-select"
-      id="chan-select"
-      class="chan-select"
-      v-model="localCurrentChannel">
-      <option v-for="channel in channelList" :value="channel.id">{{ channel.title }}</option>
-    </select>
-  </div>
+  <span>
+    <span v-if="windowSize.breakpoint > 0">
+      <ui-button
+        class="app-bar-button"
+        icon="view_module"
+        type="secondary"
+        color="white"
+        :ariaLabel="$tr('switchChannels')"
+        has-dropdown
+        ref="buttonLarge">
+        {{ currentChannelName }}
+        <ui-menu
+          class="channel-switcher-menu"
+          contain-focus
+          contains-icons
+          slot="dropdown"
+          :options="channelOptions"
+          @close="$refs.buttonLarge.closeDropdown()"
+          @select="channelSelected"/>
+      </ui-button>
+    </span>
+    <span v-else>
+      <ui-icon-button
+        icon="view_module"
+        type="secondary"
+        color="white"
+        :ariaLabel="$tr('switchChannels')"
+        has-dropdown
+        ref="button">
+        <ui-menu
+          class="channel-switcher-menu"
+          contain-focus
+          contains-icons
+          slot="dropdown"
+          :options="channelOptions"
+          @close="$refs.button.closeDropdown()"
+          @select="channelSelected"/>
+      </ui-icon-button>
+    </span>
+  </span>
 
 </template>
 
 
 <script>
 
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
+
   module.exports = {
     $trNameSpace: 'channelSwitcher',
     $trs: {
-      switchChannels: 'Switch Channels',
+      switchChannels: 'Switch channels',
     },
+    components: {
+      'ui-button': require('keen-ui/src/UiButton'),
+      'ui-icon-button': require('keen-ui/src/UiIconButton'),
+      'ui-menu': require('keen-ui/src/UiMenu'),
+    },
+    mixins: [responsiveWindow],
     computed: {
-      /*
-      * Get and set the current channel ID.
-      */
-      localCurrentChannel: {
-        get() {
-          return this.globalCurrentChannel;
-        },
-        set(newChannelId, oldChannelId) {
-          if (newChannelId !== oldChannelId) {
-            this.switchChannel(newChannelId);
+      channelOptions() {
+        return this.channelList.map(channel => {
+          const channelOption = {};
+          channelOption.id = channel.id;
+          channelOption.label = channel.title;
+          if (channelOption.id === this.globalCurrentChannel) {
+            channelOption.disabled = true;
           }
-        },
+          return channelOption;
+        });
+      },
+      currentChannelName() {
+        return (Object(this.channelList.find(channel =>
+          channel.id === this.globalCurrentChannel
+        ))).title;
       },
     },
     methods: {
-      switchChannel(channelId) {
-        this.$emit('switch', channelId);
+      channelSelected(channel) {
+        this.$emit('switch', channel.id);
       },
     },
     vuex: {
@@ -52,12 +93,16 @@
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
-  .chan-select
-    color: $core-text-annotation
-    font-size: 0.9rem
+  .channel-switcher-menu
+    .ui-menu-option
+        &.is-disabled
+          color: $core-accent-color
+          font-weight: bold
+          opacity: 1
+          background-color: rgba(0, 0, 0, 0.05)
 
 </style>

@@ -84,26 +84,46 @@ module.exports = {
         coreModal: {
           module: require('../vue/core-modal'),
         },
-        navBarItem: {
-          module: require('../vue/nav-bar/nav-bar-item'),
+        navBar: {
+          module: require('../vue/nav-bar'),
         },
         iconButton: {
           module: require('../vue/icon-button'),
         },
+        textbox: {
+          module: require('../vue/textbox'),
+        },
         channelSwitcher: {
           module: require('../vue/channel-switcher'),
+        },
+        tabs: {
+          module: require('../vue/tabs'),
+        },
+        logo: {
+          module: require('../vue/logo'),
         },
       },
       router: {
         module: require('../router'),
       },
+      mixins: {
+        responsiveWindow: {
+          module: require('../mixins/responsive-window'),
+        },
+        responsiveElement: {
+          module: require('../mixins/responsive-element'),
+        },
+      },
     },
     styles: {
-      navBarItem: {
-        module: require('../vue/nav-bar/nav-bar-item.styl'),
-      },
-      coreTheme: {
+      theme: {
         module: require('../styles/core-theme.styl'),
+      },
+      definitions: {
+        module: require('../styles/definitions.styl'),
+      },
+      keenVars: {
+        module: require('../keen-config/variables.scss'),
       },
     },
   },

@@ -39,7 +39,7 @@ def _get_mocked_disk_usage(disk_sizes):
         sizes = disk_sizes[path]
 
         class MockDiskSizes(object):
-            f_bsize = 2
+            f_frsize = 2
             f_blocks = sizes["total"] / 2
             f_bavail = sizes["free"] / 2
             total = sizes["total"]

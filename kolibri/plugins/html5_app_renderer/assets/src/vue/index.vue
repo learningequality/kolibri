@@ -6,8 +6,8 @@
       :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullScreen"
       :primary="true">
-      <svg v-if="isFullScreen" class="icon" src="icons/fullscreenexit.svg"/>
-      <svg v-else class="icon" src="icons/fullscreenenter.svg"/>
+      <mat-svg v-if="isFullScreen" class="icon" category="navigation" name="fullscreen_exit"/>
+      <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
     </icon-button>
     <iframe ref="sandbox" class="sandbox" :src="rooturl" sandbox="allow-scripts"></iframe>
   </div>
@@ -58,8 +58,8 @@
     },
     $trNameSpace: 'html5Renderer',
     $trs: {
-      exitFullscreen: 'Exit Fullscreen',
-      enterFullscreen: 'Enter Fullscreen',
+      exitFullscreen: 'Exit fullscreen',
+      enterFullscreen: 'Enter fullscreen',
     },
   };
 

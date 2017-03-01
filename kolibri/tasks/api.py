@@ -25,6 +25,8 @@ from django_q.models import Task, OrmQ
 
 from multiprocessing import Process
 
+from .permissions import IsDeviceOwnerOnly
+
 logging = logger.getLogger(__name__)
 
 def windows_handle_async_call(target_func, *args, **kwargs):
@@ -46,6 +48,8 @@ def make_async_call(target_func, *args, **kwargs):
 
 
 class TasksViewSet(viewsets.ViewSet):
+
+    permission_classes = (IsDeviceOwnerOnly, )
 
     def list(self, request):
         tasks_response = [_task_to_response(t) for t in Task.objects.all()]
@@ -79,7 +83,7 @@ class TasksViewSet(viewsets.ViewSet):
         # ensure the requested channel_id can be found on the central server, otherwise error
         status = requests.head(get_content_database_file_url(channel_id)).status_code
         if status == 404:
-            raise Http404(_("The requested channel does not exist on the content server."))
+            raise Http404(_("The requested channel does not exist on the content server"))
 
         task_id = make_async_call(_networkimport, channel_id, group=TASKTYPE, progress_updates=True)
 
