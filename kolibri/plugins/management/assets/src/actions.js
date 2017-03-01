@@ -334,7 +334,7 @@ function showUserPage(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.USER_MGMT_PAGE);
   const userCollection = FacilityUserResource.getCollection();
   const facilityIdPromise = FacilityUserResource.getCurrentFacility();
-  const userPromise = userCollection.fetch();
+  const userPromise = userCollection.fetch({}, true);
 
   const promises = [facilityIdPromise, userPromise];
 
