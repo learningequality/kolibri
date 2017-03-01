@@ -1,7 +1,6 @@
 module.exports = {
   ClassroomResource: require('./classroom'),
   ContentNodeResource: require('./contentNode'),
-  FacilityClassResource: require('./facilityClass'),
   FacilityUserResource: require('./facilityUser'),
   LearnerGroupResource: require('./learnerGroup'),
   MembershipResource: require('./membership'),

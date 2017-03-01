@@ -1,7 +1,7 @@
 const coreApp = require('kolibri');
 const logging = require('kolibri.lib.logging');
 
-const FacilityClassResource = coreApp.resources.FacilityClassResource;
+const ClassroomResource = coreApp.resources.ClassroomResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const TaskResource = coreApp.resources.TaskResource;
 const RoleResource = coreApp.resources.RoleResource;
@@ -95,7 +95,7 @@ function createClass(store, stateClassData) {
   };
 
   return new Promise((resolve, reject) => {
-    FacilityClassResource.createModel(classData).save().then(
+    ClassroomResource.createModel(classData).save().then(
       (classModel) => {
         resolve(classModel);
       },
@@ -118,7 +118,7 @@ function deleteClass(store, id) {
     // if no id passed, abort the function
     return;
   }
-  FacilityClassResource.getModel(id).delete().then(
+  ClassroomResource.getModel(id).delete().then(
     cl => { store.dispatch('DELETE_CLASS', id); },
     error => { coreActions.handleApiError(store, error); }
   );
