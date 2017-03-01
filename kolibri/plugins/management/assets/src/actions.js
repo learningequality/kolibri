@@ -1,6 +1,7 @@
 const coreApp = require('kolibri');
 const logging = require('kolibri.lib.logging');
 
+const ClassroomResource = coreApp.resources.ClassroomResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const TaskResource = coreApp.resources.TaskResource;
 const RoleResource = coreApp.resources.RoleResource;
@@ -14,16 +15,21 @@ const ContentWizardPages = constants.ContentWizardPages;
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 
 
-// ================================
-// USER MANAGEMENT ACTIONS
-
-
 /**
  * Vuex State Mappers
  *
  * The methods below help map data from
  * the API to state in the Vuex store
  */
+function _classState(data) {
+  const state = {
+    id: data.id,
+    name: data.name,
+  };
+  return state;
+}
+
+
 function _userState(apiUserData) {
   function calcUserKind() {
     if (apiUserData.roles) {
@@ -73,6 +79,87 @@ function _managePageTitle(title) {
  *
  * These methods are used to update client-side state
  */
+
+
+// ================================
+// CLASSES MANAGEMENT ACTIONS
+
+/**
+ * Do a POST to create new class
+ * @param {object} stateClassData
+ *  Needed: name
+ */
+function createClass(store, stateClassData) {
+  const classData = {
+    name: stateClassData.name,
+  };
+
+  return new Promise((resolve, reject) => {
+    ClassroomResource.createModel(classData).save().then(
+      (classModel) => {
+        resolve(classModel);
+      },
+      (error) => reject(error)
+    );
+  }).then(
+    // dispatch newly created class
+    newClass => store.dispatch('ADD_CLASS', _classState(newClass)),
+    // send back error if necessary
+    error => Promise.reject(error)
+  );
+}
+
+/**
+ * Do a DELETE to delete the class.
+ * @param {string or Integer} id
+ */
+function deleteClass(store, id) {
+  if (!id) {
+    // if no id passed, abort the function
+    return;
+  }
+  ClassroomResource.getModel(id).delete().then(
+    cl => { store.dispatch('DELETE_CLASS', id); },
+    error => { coreActions.handleApiError(store, error); }
+  );
+}
+
+function showClassesPage(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.CLASS_MGMT_PAGE);
+  // need to replace the following with real logic for grabbing data from server-side.
+  store.dispatch('SET_PAGE_STATE', { classes: [{
+    name: 'lalaland',
+    id: 1323,
+    learners: 33,
+    coaches: 4,
+    admins: 0,
+  }] });
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
+}
+
+function showClassEditPage(store, classId) {
+  store.dispatch('SET_PAGE_NAME', PageNames.CLASS_EDIT_MGMT_PAGE);
+  // need to replace the following with real logic for grabbing data from server-side.
+  store.dispatch('SET_PAGE_STATE', { classId });
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
+}
+
+function showClassEnrollPage(store, classId) {
+  store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ENROLL_MGMT_PAGE);
+  // need to replace the following with real logic for grabbing data from server-side.
+  store.dispatch('SET_PAGE_STATE', { classId });
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
+}
+
+
+// ================================
+// USERS MANAGEMENT ACTIONS
 
 /**
  * Does a POST request to assign a user role (only used in this file)
@@ -226,6 +313,7 @@ function deleteUser(store, id) {
     error => { coreActions.handleApiError(store, error); }
   );
 }
+
 
 // An action for setting up the initial state of the app by fetching data from the server
 function showUserPage(store) {
@@ -449,6 +537,12 @@ function showScratchpad(store) {
 }
 
 module.exports = {
+  createClass,
+  deleteClass,
+  showClassesPage,
+  showClassEditPage,
+  showClassEnrollPage,
+
   createUser,
   updateUser,
   deleteUser,

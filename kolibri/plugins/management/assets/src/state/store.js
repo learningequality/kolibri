@@ -25,12 +25,21 @@ Content import/export page:
 
 
 const initialState = {
-  pageName: constants.PageNames.USER_MGMT_PAGE,
+  pageName: constants.PageNames.CLASS_MGMT_PAGE,
   pageState: {},
   facility: undefined,
 };
 
 const mutations = {
+  // class mutations
+  ADD_CLASS(state, cl) {
+    state.pageState.classes.push(cl);
+  },
+  DELETE_CLASS(state, id) {
+    state.pageState.classes = state.pageState.classes.filter(cl => cl.id !== id);
+  },
+
+  // user mutations
   ADD_USER(state, user) {
     state.pageState.users.push(user);
   },
