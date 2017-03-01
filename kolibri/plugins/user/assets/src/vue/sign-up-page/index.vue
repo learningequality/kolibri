@@ -4,7 +4,7 @@
 
     <ui-toolbar type="colored" textColor="white">
       <template slot="icon">
-        <logo/>
+        <ui-icon class="app-bar-icon"><logo/></ui-icon>
       </template>
       <template slot="brand">
         {{ $tr('kolibri') }}
@@ -105,6 +105,7 @@
       'ui-toolbar': require('keen-ui/src/UiToolbar'),
       'ui-checkbox': require('keen-ui/src/UiCheckbox'),
       'logo': require('kolibri.coreVue.components.logo'),
+      'ui-icon': require('keen-ui/src/UiIcon'),
     },
     data: () => ({
       name: '',
@@ -223,5 +224,9 @@
 
     margin-top: $vertical-page-margin
     margin-bottom: $vertical-page-margin
+
+  .app-bar-icon
+    font-size: 2.5em
+    margin-left: 0.25em
 
 </style>

@@ -14,8 +14,7 @@
           size="large"
           icon="keyboard_arrow_left"
           :aria-label="closeNav"/>
-        <logo
-          class="header-logo"/>
+        <ui-icon class="header-logo"><logo/></ui-icon>
         <span class="title">Kolibri</span>
       </div>
       <div class="scrollable-nav" :style="{ width: width + 'px', paddingTop: `${headerHeight + 16}px` }">
@@ -263,9 +262,7 @@
     -webkit-overflow-scrolling: touch
     box-shadow: 2px 0 0 0 rgba(0, 0, 0, 0.12)
     .header-logo
-      display: inline-block
-      vertical-align: middle
-      height: 1.5em
+      font-size: 3em
       margin-right: 0.25em
     .logo
       margin: auto
