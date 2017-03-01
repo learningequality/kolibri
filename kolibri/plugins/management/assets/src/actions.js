@@ -92,6 +92,7 @@ function _managePageTitle(title) {
 function createClass(store, stateClassData) {
   const classData = {
     name: stateClassData.name,
+    parent: stateClassData.facilityId,
   };
 
   return new Promise((resolve, reject) => {
@@ -125,18 +126,30 @@ function deleteClass(store, id) {
 }
 
 function showClassesPage(store) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CLASS_MGMT_PAGE);
-  // need to replace the following with real logic for grabbing data from server-side.
-  store.dispatch('SET_PAGE_STATE', { classes: [{
-    name: 'lalaland',
-    id: 1323,
-    learners: 33,
-    coaches: 4,
-    admins: 0,
-  }] });
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
+  const classCollection = ClassroomResource.getCollection();
+  const facilityIdPromise = FacilityUserResource.getCurrentFacility();
+  const classPromise = classCollection.fetch({}, true);
+
+  const promises = [facilityIdPromise, classPromise];
+
+  ConditionalPromise.all(promises).only(
+    samePageCheckGenerator(store),
+    ([facilityId, classes]) => {
+      store.dispatch('SET_FACILITY', facilityId[0]); // for mvp, we assume only one facility exists
+
+      const pageState = {
+        classes: classes.map(_classState),
+      };
+
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
 }
 
 function showClassEditPage(store, classId) {
