@@ -322,11 +322,9 @@ function triggerSearch(store, searchTerm) {
       topics: [],
       contents: [],
     };
-    store.dispatch('SET_SEARCH_STATE', searchState);
+    store.dispatch('SET_PAGE_STATE', searchState);
     return;
   }
-
-  store.dispatch('SET_SEARCH_LOADING');
 
   const contentCollection = ContentNodeResource.getPagedCollection({ search: searchTerm });
   const searchResultsPromise = contentCollection.fetch();
@@ -336,14 +334,14 @@ function triggerSearch(store, searchTerm) {
     const collection = _collectionState(results);
     searchState.topics = collection.topics;
     searchState.contents = collection.contents;
-    store.dispatch('SET_SEARCH_STATE', searchState);
+    store.dispatch('SET_PAGE_STATE', searchState);
     store.dispatch('CORE_SET_PAGE_LOADING', false);
   })
   .catch(error => { coreActions.handleApiError(store, error); });
 }
 
 function clearSearch(store) {
-  store.dispatch('SET_SEARCH_STATE', {
+  store.dispatch('SET_PAGE_STATE', {
     topics: [],
     contents: [],
     searchTerm: '',

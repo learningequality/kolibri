@@ -6,12 +6,9 @@ const coreStore = require('kolibri.coreVue.vuex.store');
 const initialState = {
   pageName: constants.PageNames.EXPLORE_CHANNEL,
   pageState: {
-    searchLoading: false,
-    searchState: {
-      topics: [],
-      contents: [],
-      searchTerm: '',
-    },
+    topics: [],
+    contents: [],
+    searchTerm: '',
   },
 };
 
@@ -21,13 +18,6 @@ const mutations = {
   },
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
-  },
-  SET_SEARCH_LOADING(state) {
-    state.pageState.searchLoading = true;
-  },
-  SET_SEARCH_STATE(state, searchState) {
-    state.pageState.searchState = searchState;
-    state.pageState.searchLoading = false;
   },
 };
 

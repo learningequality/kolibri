@@ -15,11 +15,10 @@
         color="primary"
         buttonType="submit"
         icon="search"
-        :ariaLabel="$tr('submitSearch')">
-      </ui-icon-button>
+        :ariaLabel="$tr('submitSearch')"/>
     </form>
 
-    <div v-if="!loading">
+    <div>
       <div v-if="!searchTerm">{{ $tr('noSearch') }}</div>
 
       <div v-else>
@@ -75,11 +74,11 @@
     $trs: {
       search: 'Search',
       searchWithin: 'Search within',
-      noSearch: 'Search by typing something above.',
-      noResults: 'No results.',
-      submitSearch: 'Submit Search',
+      noSearch: 'Search by typing something above',
+      noResults: 'No results',
+      submitSearch: 'Submit search',
       showingResultsFor: 'Showing results for',
-      results: '{count, number, integer} {count, plural, one {Result} other {Results}}',
+      results: '{count, number, integer} {count, plural, one {result} other {results}}',
       topics: 'Topics',
       content: 'Content',
     },
@@ -119,10 +118,9 @@
     },
     vuex: {
       getters: {
-        contents: state => state.pageState.searchState.contents,
-        topics: state => state.pageState.searchState.topics,
-        searchTerm: state => state.pageState.searchState.searchTerm,
-        loading: state => state.pageState.searchLoading,
+        contents: state => state.pageState.contents,
+        topics: state => state.pageState.topics,
+        searchTerm: state => state.pageState.searchTerm,
         channelId: (state) => state.core.channels.currentId,
         channelName: state => getCurrentChannelObject(state).title,
       },

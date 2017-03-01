@@ -147,7 +147,7 @@
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        searchTerm: state => state.pageState.searchState.searchTerm,
+        searchTerm: state => state.pageState.searchTerm,
       },
     },
     store, // make this and all child components aware of the store
