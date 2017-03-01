@@ -3,22 +3,20 @@
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
     <div slot="app-bar-actions">
       <channel-switcher @switch="switchChannel"/>
-      <!--
-      <ui-icon-button
-        icon="search"
-        type="secondary"
-        color="white"
-        :ariaLabel="$tr('search')"
-        @click="toggleSearch"/>
-        -->
+      <router-link :to="searchPage">
+        <ui-icon-button
+          icon="search"
+          type="secondary"
+          color="white"
+          :ariaLabel="$tr('search')"/>
+      </router-link>
+    </div>
+    <div slot="tabs" v-if="!isSearchPage">
+      <tabs :items="learnTabs" type="icon-and-text" @tabclicked="handleTabClick"/>
     </div>
     <div slot="content">
-      <tabs :items="learnTabs" type="icon-and-text" @tabclicked="handleTabClick"/>
       <breadcrumbs/>
       <component :is="currentPage"/>
-    </div>
-    <div slot="extra" class="search-pane" v-show="searchOpen">
-      <search-widget :showTopics="exploreMode"/>
     </div>
 
   </core-base>
@@ -30,9 +28,6 @@
 
   const constants = require('../state/constants');
   const PageNames = constants.PageNames;
-  const PageModes = constants.PageModes;
-  const getters = require('../state/getters');
-  const actions = require('../actions');
   const store = require('../state/store');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
@@ -45,7 +40,6 @@
       search: 'search',
     },
     components: {
-      'search-widget': require('./search-widget'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
@@ -55,22 +49,35 @@
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
       'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
       'breadcrumbs': require('./breadcrumbs'),
+      'search-page': require('./search-page'),
       'tabs': require('kolibri.coreVue.components.tabs'),
     },
     methods: {
-      toggleSearch() {
-        this.toggleSearch();
-      },
       switchChannel(channelId) {
-        let rootPage;
-        if (this.pageMode === constants.PageModes.EXPLORE) {
-          rootPage = constants.PageNames.EXPLORE_CHANNEL;
-        } else {
-          rootPage = constants.PageNames.LEARN_CHANNEL;
+        let page;
+        switch (this.pageName) {
+          case constants.PageNames.SEARCH:
+            page = constants.PageNames.SEARCH;
+            if (this.searchTerm) {
+              this.$router.push({
+                name: page,
+                params: { channel_id: channelId },
+                query: { query: this.searchTerm },
+              });
+              return;
+            }
+            break;
+
+          case constants.PageNames.LEARN_CHANNEL:
+            page = constants.PageNames.LEARN_CHANNEL;
+            break;
+
+          default:
+            page = constants.PageNames.EXPLORE_CHANNEL;
         }
-        this.clearSearch();
+
         this.$router.push({
-          name: rootPage,
+          name: page,
           params: { channel_id: channelId },
         });
       },
@@ -111,10 +118,16 @@
         if (this.pageName === PageNames.CONTENT_UNAVAILABLE) {
           return 'content-unavailable-page';
         }
+        if (this.pageName === PageNames.SEARCH) {
+          return 'search-page';
+        }
         return null;
       },
-      exploreMode() {
-        return this.pageMode === PageModes.EXPLORE;
+      searchPage() {
+        return { name: PageNames.SEARCH_ROOT };
+      },
+      isSearchPage() {
+        return this.pageName === PageNames.SEARCH;
       },
       learnTabs() {
         const isRecommended = this.pageName === constants.PageNames.LEARN_CHANNEL;
@@ -133,13 +146,8 @@
     },
     vuex: {
       getters: {
-        pageMode: getters.pageMode,
         pageName: state => state.pageName,
-        searchOpen: state => state.searchOpen,
-      },
-      actions: {
-        toggleSearch: actions.toggleSearch,
-        clearSearch: actions.clearSearch,
+        searchTerm: state => state.pageState.searchTerm,
       },
     },
     store, // make this and all child components aware of the store
@@ -150,20 +158,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.definitions'
   @require 'learn.styl'
-
-  .search-pane
-    background-color: $core-bg-canvas
-    overflow-y: scroll
-    position: fixed
-    top: 0
-    left: 0
-    height: 100%
-    width: 100%
-    z-index: 1
-    @media screen and (min-width: $portrait-breakpoint + 1)
-      padding-left: $nav-width
 
   .content
     margin: auto
