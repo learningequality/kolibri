@@ -25,6 +25,14 @@ from kolibri.plugins import hooks
 
 from . import settings
 
+# We load quite a few JSON files from disk, as cached properties of
+# the WebpackBundleHook - but these are only cached per instance
+# whereas we want them cached on a per class basis.
+# Use this global to cache the results of JSON file loads and reduce
+# disk access.
+_JSON_STATS_FILE_CACHE = {}
+_JSON_MESSAGES_FILE_CACHE = {}
+
 
 class BundleNotFound(Exception):
     pass
@@ -85,31 +93,30 @@ class WebpackBundleHook(hooks.KolibriHook):
     @hooks.registered_method
     def _stats_file_content(self):
         """
-        TODO: This property is only cached on the instance, maybe it should be
-        cached in a static module property instead so we can cache the JSON data
-        across the whole app?
-
         :returns: A dict of the data contained in the JSON files which are
           written by Webpack.
         """
+        global _JSON_STATS_FILE_CACHE
         try:
-            with open(self._stats_file) as f:
-                stats = json.load(f)
-            if django_settings.DEBUG:
-                timeout = 0
-                while stats['status'] == 'compiling':
-                    time.sleep(getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1))
-                    timeout += getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1)
-                    with open(self._stats_file) as f:
-                        stats = json.load(f)
-                    if timeout >= getattr(settings, 'WEBPACK_POLL_INTERVAL', 1.0):
-                        raise WebpackError('Webpack compilation still in progress')
-                if stats['status'] == 'error':
-                    raise WebpackError('Webpack compilation has errored')
-            return {
-                "files": stats.get("chunks", {}).get(self.unique_slug, []),
-                "hasMessages": stats.get("messages", False),
-            }
+            if not _JSON_STATS_FILE_CACHE.get(self.unique_slug) or django_settings.DEBUG:
+                with open(self._stats_file) as f:
+                    stats = json.load(f)
+                if django_settings.DEBUG:
+                    timeout = 0
+                    while stats['status'] == 'compiling':
+                        time.sleep(getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1))
+                        timeout += getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1)
+                        with open(self._stats_file) as f:
+                            stats = json.load(f)
+                        if timeout >= getattr(settings, 'WEBPACK_POLL_INTERVAL', 1.0):
+                            raise WebpackError('Webpack compilation still in progress')
+                    if stats['status'] == 'error':
+                        raise WebpackError('Webpack compilation has errored')
+                _JSON_STATS_FILE_CACHE[self.unique_slug] = {
+                    "files": stats.get("chunks", {}).get(self.unique_slug, []),
+                    "hasMessages": stats.get("messages", False),
+                }
+            return _JSON_STATS_FILE_CACHE[self.unique_slug]
         except IOError:
             raise WebpackError('Webpack build file missing, front-end assets cannot be loaded')
 
@@ -202,34 +209,30 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         return os.path.join(*self.__module__.split(".")[:-1])
 
-    @cached_property
-    def frontend_message_file(self):
-        lang_code = get_language()
-        if django_settings.DEBUG:
-            static_root = self._static_dir
-        else:
-            static_root = getattr(django_settings, 'STATIC_ROOT')
+    def frontend_message_file(self, lang_code):
         message_file_name = "{name}-messages.json".format(name=self.unique_slug)
-        file_path = os.path.join(static_root, lang_code, message_file_name)
-        if os.path.exists(file_path):
-            return file_path
+        for path in getattr(django_settings, 'LOCALE_PATHS', []):
+            file_path = os.path.join(
+                path,
+                lang_code,
+                "LC_FRONTEND_MESSAGES",
+                message_file_name)
+            if os.path.exists(file_path):
+                return file_path
 
-    @cached_property
     def frontend_messages(self):
-        if self.frontend_message_file:
-            with open(self.frontend_message_file) as f:
-                return f.read()
-
-    @cached_property
-    def frontend_message_file_url(self):
+        global _JSON_MESSAGES_FILE_CACHE
         lang_code = get_language()
-        message_file_name = "{name}-messages.json".format(name=self.unique_slug)
-        if self.frontend_message_file:
-            return "{static}{lang_code}/{file_name}".format(
-                static=getattr(django_settings, 'STATIC_URL'),
-                file_name=message_file_name,
-                lang_code=lang_code,
-            )
+        if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code):
+            frontend_message_file = self.frontend_message_file(lang_code)
+            if frontend_message_file:
+                with open(frontend_message_file) as f:
+                    if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug):
+                        _JSON_MESSAGES_FILE_CACHE[self.unique_slug] = {}
+                    # Load JSON file, then immediately convert it to a string in minified form.
+                    _JSON_MESSAGES_FILE_CACHE[self.unique_slug][lang_code] = json.dumps(
+                        json.load(f), separators=(',', ':'))
+        return _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code)
 
     def js_and_css_tags(self):
         js_tag = '<script type="text/javascript" src="{url}"></script>'
@@ -238,12 +241,12 @@ class WebpackBundleHook(hooks.KolibriHook):
                 yield js_tag.format(url=chunk['url'])
 
     def frontend_message_tag(self):
-        if self.frontend_messages:
+        if self.frontend_messages():
             return ['<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", {messages});</script>'.format(
                 kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
                 bundle=self.unique_slug,
                 lang_code=get_language(),
-                messages=self.frontend_messages,
+                messages=self.frontend_messages(),
             )]
         else:
             return []
@@ -276,25 +279,15 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: HTML of a script tag to insert into a page.
         """
         urls = [chunk['url'] for chunk in self.bundle]
-        js = '{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"], {events}, {once});'.format(
+        tags = ['<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"], {events}, {once});</script>'.format(
             kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
             bundle=self.unique_slug,
             urls='","'.join(urls),
             events=json.dumps(self.events),
             once=json.dumps(self.once),
-        )
-        js += self.frontend_message_file_script_tag()
-        return mark_safe('<script>{js}</script>'.format(js=js))
-
-    def frontend_message_file_script_tag(self):
-        if self.frontend_message_file_url:
-            return '{kolibri_name}.registerLanguageAssetsUrl("{bundle}", "{lang_code}", "{message_url}");'.format(
-                kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
-                bundle=self.unique_slug,
-                lang_code=get_language(),
-                message_url=self.frontend_message_file_url
-            )
-        return ''
+        )]
+        tags += self.frontend_message_tag()
+        return mark_safe('\n'.join(tags))
 
     class Meta:
         abstract = True
@@ -366,7 +359,7 @@ class FrontEndCoreAssetHook(WebpackBundleHook):
         :return: HTML of script tags for insertion into a page.
         """
         tags = (['<script>var coreLanguageMessages = {messages};</script>'.format(
-            messages=self.frontend_messages)] if self.frontend_messages else []) + list(self.js_and_css_tags())
+            messages=self.frontend_messages())] if self.frontend_messages() else []) + list(self.js_and_css_tags())
 
         return mark_safe('\n'.join(tags))
 
