@@ -3,7 +3,7 @@
   <div>
     <div v-if="available" class="fill-height">
       <div class="content-wrapper">
-        <loading-spinner v-if="!currentViewClass"/>
+        <loading-spinner id="spinner" v-if="!currentViewClass"/>
         <div ref="container"></div>
       </div>
     </div>
@@ -23,7 +23,7 @@
   module.exports = {
     $trNameSpace: 'contentRender',
     $trs: {
-      msgNotAvailable: 'This content is not available.',
+      msgNotAvailable: 'This content is not available',
     },
     props: {
       id: {
@@ -54,6 +54,9 @@
         type: String,
         default: '{}',
       },
+    },
+    components: {
+      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
     },
     computed: {
       contentType() {
@@ -223,12 +226,15 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .fill-height
     height: 100%
 
   .content-wrapper
     height: 100%
+
+  #spinner
+    height: 160px
 
 </style>

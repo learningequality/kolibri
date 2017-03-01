@@ -5,9 +5,10 @@ from django.contrib.auth.models import AnonymousUser
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
 
-from .models import Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership, Role
+from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 from .serializers import (
-    ClassroomSerializer, DeviceOwnerSerializer, FacilitySerializer, FacilityUserSerializer, LearnerGroupSerializer, MembershipSerializer, RoleSerializer
+    ClassroomSerializer, DeviceOwnerSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUserSerializer, LearnerGroupSerializer,
+    MembershipSerializer, RoleSerializer
 )
 
 
@@ -61,6 +62,13 @@ class KolibriAuthPermissions(permissions.BasePermission):
             return request.user.can_delete(obj)
         else:
             return False
+
+
+class FacilityDatasetViewSet(viewsets.ModelViewSet):
+    permissions_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter,)
+    queryset = FacilityDataset.objects.all()
+    serializer_class = FacilityDatasetSerializer
 
 
 class FacilityUserViewSet(viewsets.ModelViewSet):
@@ -123,6 +131,33 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
     serializer_class = LearnerGroupSerializer
 
     filter_fields = ('parent',)
+
+
+class SignUpViewSet(viewsets.ViewSet):
+
+    def extract_request_data(self, request):
+        return {
+            "username": request.data.get('username', ''),
+            "full_name": request.data.get('full_name', ''),
+            "password": request.data.get('password', ''),
+            "facility": Facility.get_default_facility().id,
+        }
+
+    def create(self, request):
+
+        data = self.extract_request_data(request)
+
+        # we validate the user's input, and if valid, login as user
+        serialized_user = FacilityUserSerializer(data=data)
+        if serialized_user.is_valid():
+            serialized_user.save()
+            authenticated_user = authenticate(username=data['username'], password=data['password'], facility=data['facility'])
+            login(request, authenticated_user)
+            return Response(serialized_user.data, status=status.HTTP_201_CREATED)
+        else:
+            # grab error if related to username
+            error = serialized_user.errors.get('username', None)
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SessionViewSet(viewsets.ViewSet):

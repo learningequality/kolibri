@@ -26,10 +26,9 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .breadcrumb-wrapper-div
-    padding-top: 0.5em
     line-height: 2em
     font-size: smaller
     display: inline-block

@@ -40,6 +40,9 @@ Kolibri is under active development and is not yet ready to be used. In the mean
 How can I contribute?
 ---------------------
 
- * `Documentation <http://kolibri.readthedocs.org/en/latest/>`_ is available online, and in the ``docs/`` directory.
- * Mailing list: `Google groups <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_.
- * IRC: #kolibri on Freenode
+.. warning::
+  We welcome new contributors but since **Kolibri** is still in development, the API is not yet completely ready to integrate external plugins. Please start by:
+
+* Reading our `Developer Documentation <http://kolibri.readthedocs.io/en/develop/dev/getting_started.html>`_ available online, and in the ``docs/`` directory.
+* Contacting us on the Mailing list: `Google groups <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`_.
+* or via IRC: #kolibri on Freenode.

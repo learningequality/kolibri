@@ -2,11 +2,11 @@
 
   <div class="wrapper">
     <div v-if="isInProgress" class="progress-icon inprogress">
-      <svg src="./progress-icons/inprogress.svg"/>
+      <ui-icon><mat-svg category="action" name="hourglass_empty"/></ui-icon>
     </div>
 
     <div v-else-if="isCompleted" class="progress-icon completed">
-      <svg src="./progress-icons/completed.svg"/>
+      <ui-icon><mat-svg category="navigation" name="check"/></ui-icon>
     </div>
   </div>
 
@@ -33,6 +33,9 @@
         return this.progress >= 1;
       },
     },
+    components: {
+      'ui-icon': require('keen-ui/src/UiIcon'),
+    },
   };
 
 </script>
@@ -40,14 +43,15 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  .ui-icon
+    font-size: 1em
 
   .wrapper
     display: inline-block
 
   .progress-icon
     border-radius: 50%
-    text-align: center
+    line-height: 1em
 
   svg
     display: block

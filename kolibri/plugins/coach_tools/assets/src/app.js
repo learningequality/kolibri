@@ -26,41 +26,52 @@ const REPORT_URL_PATTERN = [
 
 class CoachToolsModule extends KolibriModule {
   ready() {
-    const routes = [
-      {
-        name: PageNames.REPORTS_NO_QUERY,
-        path: '/reports',
-        handler: (toRoute, fromRoute) => {
-          actions.redirectToDefaultReport(store, toRoute.params);
+    coreActions.getCurrentSession(store).then(() => {
+      const routes = [
+        {
+          name: PageNames.REPORTS_NO_QUERY,
+          path: '/reports',
+          handler: (toRoute, fromRoute) => {
+            actions.redirectToDefaultReport(store, toRoute.params);
+          },
         },
-      },
-      {
-        name: PageNames.REPORTS,
-        path: REPORT_URL_PATTERN,
-        handler: (toRoute, fromRoute) => {
-          actions.showReport(store, toRoute.params, fromRoute.params);
+        {
+          name: PageNames.REPORTS_CHANNEL,
+          path: '/reports/:channel_id',
+          handler: (toRoute, fromRoute) => {
+            actions.redirectToChannelReport(store, toRoute.params);
+          },
         },
-      },
-      {
-        name: PageNames.CONTENT_UNAVAILABLE,
-        path: '/content-unavailable',
-        handler: (toRoute, fromRoute) => {
-          actions.showContentUnavailable(store);
+        {
+          name: PageNames.REPORTS,
+          path: REPORT_URL_PATTERN,
+          handler: (toRoute, fromRoute) => {
+            actions.showReport(store, toRoute.params, fromRoute.params);
+          },
         },
-      },
-      {
-        path: '/',
-        redirect: '/reports',
-      },
-    ];
+        {
+          name: PageNames.CONTENT_UNAVAILABLE,
+          path: '/content-unavailable',
+          handler: (toRoute, fromRoute) => {
+            actions.showContentUnavailable(store);
+          },
+        },
+        {
+          path: '/',
+          redirect: '/reports',
+        },
+        {
+          path: '*',
+          redirect: '/',
+        },
+      ];
 
-    this.rootvue = new Vue({
-      el: 'rootvue',
-      render: createElement => createElement(RootVue),
-      router: router.init(routes),
+      this.rootvue = new Vue({
+        el: 'rootvue',
+        render: createElement => createElement(RootVue),
+        router: router.init(routes),
+      });
     });
-
-    coreActions.getCurrentSession(store);
   }
 }
 

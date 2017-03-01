@@ -2,7 +2,7 @@
 
   <div class="error-box-wrapper" :class="{ hidden: isHidden }">
     <button class="close-button" @click="hideErrorbox" :aria-label="$tr('errorButtonLabel')">
-      <svg src="../icons/close.svg"/>
+      <mat-svg category="navigation" name="close"/>
     </button>
     <h1>{{ $tr('errorHeader') }}</h1>
     <p>{{ $tr('explanation') }}</p>
@@ -21,9 +21,8 @@
     $trNameSpace: 'error',
     $trs: {
       errorHeader: 'Error',
-      errorButtonLabel: 'Hide Error',
-      // eslint-disable-next-line
-      explanation: `Sorry, we've encountered an issue. You may need to refresh the page or click one of the main navigation links.`,
+      errorButtonLabel: 'Hide error',
+      explanation: `Sorry, something went wrong. Please try refreshing the page`,
       errorLabel: `Error details:`,
     },
     vuex: {
@@ -46,7 +45,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .error-box-wrapper
     padding: 10px

@@ -1,4 +1,6 @@
-l#!/usr/bin/env bash
+#!/usr/bin/env bash
+
+set -euo pipefail
 
 make dockerenvdist
 buildkite-agent artifact upload 'dist/*.whl'

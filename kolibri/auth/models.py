@@ -44,7 +44,10 @@ from .errors import (
     UserIsNotFacilityUser, UserIsNotMemberError
 )
 from .filters import HierarchyRelationsFilter
-from .permissions.auth import AnybodyCanCreateIfNoDeviceOwner, AnybodyCanCreateIfNoFacility, CollectionSpecificRoleBasedPermissions
+from .permissions.auth import (
+    AnybodyCanCreateIfNoDeviceOwner, AnybodyCanCreateIfNoFacility, CollectionSpecificRoleBasedPermissions,
+    AnonUserCanReadFacilitiesThatAllowSignUps, IsAdminForOwnFacilityDataset
+)
 from .permissions.base import BasePermissions, RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
 
@@ -63,10 +66,17 @@ class FacilityDataset(models.Model):
     from ``AbstractFacilityDataModel``) foreign key onto, to indicate that they belong to this particular ``Facility``.
     """
 
+    permissions = IsAdminForOwnFacilityDataset()
+
     description = models.TextField(blank=True)
     location = models.CharField(max_length=200, blank=True)
 
-    allow_signups = models.BooleanField(default=True)
+    # Facility specific configuration settings
+    learner_can_edit_username = models.BooleanField(default=False)
+    learner_can_edit_name = models.BooleanField(default=False)
+    learner_can_edit_password = models.BooleanField(default=False)
+    learner_can_sign_up = models.BooleanField(default=False)
+    learner_can_delete_account = models.BooleanField(default=False)
 
     def __str__(self):
         facilities = self.collection_set.filter(kind=collection_kinds.FACILITY)
@@ -74,6 +84,7 @@ class FacilityDataset(models.Model):
             return "FacilityDataset for {}".format(Facility.objects.get(id=facilities[0].id))
         else:
             return "FacilityDataset (no associated Facility)"
+
 
 class AbstractFacilityDataModel(models.Model):
     """
@@ -145,7 +156,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     username = models.CharField(
         _('username'),
         max_length=30,
-        help_text=_('Required. 30 characters or fewer. Letters and digits only.'),
+        help_text=_('Required. 30 characters or fewer. Letters and digits only'),
         validators=[
             validators.RegexValidator(
                 r'^\w+$',
@@ -599,7 +610,12 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
     # Collection can be read by anybody from the facility; writing is only allowed by an admin for the collection.
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
     # by roles in relation to the new collection's parent collection (see CollectionSpecificRoleBasedPermissions).
-    permissions = IsFromSameFacility(read_only=True) | CollectionSpecificRoleBasedPermissions() | AnybodyCanCreateIfNoFacility()
+    permissions = (
+        IsFromSameFacility(read_only=True) |
+        CollectionSpecificRoleBasedPermissions() |
+        AnybodyCanCreateIfNoFacility() |
+        AnonUserCanReadFacilitiesThatAllowSignUps()
+    )
 
     _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
 

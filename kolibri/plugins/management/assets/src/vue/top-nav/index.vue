@@ -67,11 +67,10 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .top
     position: relative
-    top: 1em
     padding: 1em 2em
     background: $core-bg-light
     border-radius: $radius

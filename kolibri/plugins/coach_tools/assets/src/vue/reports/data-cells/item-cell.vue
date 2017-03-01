@@ -25,6 +25,9 @@
       exercises: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
       contents: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
     },
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+    },
     props: {
       kind: {
         type: String,
@@ -89,7 +92,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   a
     font-size: 1.15em
@@ -108,9 +111,7 @@
   .icon
     position: absolute
     left: 0
-    top: 3px
-    width: 15px
-    height: 15px
     fill: $core-text-default
+    font-size: 1.25em
 
 </style>

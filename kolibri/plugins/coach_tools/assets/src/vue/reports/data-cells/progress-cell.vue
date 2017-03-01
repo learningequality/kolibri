@@ -4,7 +4,7 @@
     <template v-if="num !== undefined">
       <progress-bar :progress="num"/>
       <div v-if="extraText" class="extra-text">
-        <svg src="../../icons/user.svg" class="person-icon"/>
+        <mat-svg category="social" name="person" class="person-icon"/>
         {{extraText}}
       </div>
     </template>
@@ -22,6 +22,9 @@
       mastered: 'mastered by {0, number, integer} learners',
       completed: 'completed by {0, number, integer} learners',
       pct: '{0, number, percent}',
+    },
+    components: {
+      'progress-bar': require('kolibri.coreVue.components.progressBar'),
     },
     props: {
       num: {

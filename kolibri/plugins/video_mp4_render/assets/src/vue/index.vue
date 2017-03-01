@@ -31,8 +31,12 @@
     $trNameSpace: 'videoRender',
 
     $trs: {
-      replay: 'Skip back 10 seconds.',
-      forward: 'Skip forward 10 seconds.',
+      replay: 'Go back 10 seconds',
+      forward: 'Go forward 10 seconds',
+    },
+
+    components: {
+      'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
     },
 
     props: ['files'],
@@ -233,7 +237,7 @@
 
   // UNSCOPED
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   // Shades of Grey
   $dark-grey = #212121

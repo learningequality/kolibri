@@ -26,13 +26,14 @@
     $trs: {
       buttonClose: 'Close',
       buttonCancel: 'Cancel',
-      failed: 'Failed.',
-      failed_msg: 'The transfer did not succeed. If you restart, any progress will be retained.',
+      failed: 'Please try again',
+      failed_msg: 'The transfer did not succeed.' +
+        ' Restart it to resume transferring the remaining content',
       completed: `Finished!`,
-      loading: 'Please wait...',
-      remoteImport: 'Importing from Curation Server',
-      localImport: 'Importing from Local Drive',
-      localExport: 'Exporting to Local Drive',
+      loading: 'Please wait…',
+      remoteImport: 'Importing from curation server',
+      localImport: 'Importing from local drive',
+      localExport: 'Exporting to local drive',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -107,7 +108,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .buttons
     margin: 10px

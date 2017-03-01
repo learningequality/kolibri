@@ -251,13 +251,14 @@ describe('Resource', function () {
 
 describe('Collection', function () {
   beforeEach(function () {
-    this.addModelStub = sinon.spy((model) => model);
+    this.addModelStub = sinon.spy((model) => ({ id: model.id, attributes: model }));
     this.resource = {
       addModel: this.addModelStub,
       collectionUrl: () => '',
+      client: () => Promise.resolve({ entity: [] }),
     };
     this.params = {};
-    this.data = [{ test: 'test' }];
+    this.data = [{ test: 'test', id: 'testing' }];
     this.collection = new Resources.Collection(this.params, this.data, this.resource);
   });
   afterEach(function () {
@@ -353,11 +354,12 @@ describe('Collection', function () {
   });
   describe('fetch method', function () {
     describe('if called when Collection.synced = true and force is false', function () {
-      it('should return current data immediately', function () {
+      it('should return current data immediately', function (done) {
         this.collection.synced = true;
         const promise = this.collection.fetch();
         promise.then((result) => {
-          assert.equal(result, this.data);
+          assert.deepEqual(result, this.data);
+          done();
         });
       });
     });
@@ -366,6 +368,9 @@ describe('Collection', function () {
         beforeEach(function () {
           this.setSpy = sinon.stub(this.collection, 'set');
           this.clearCacheSpy = sinon.stub(this.collection, 'clearCache');
+          this.client = sinon.stub();
+          this.resource.client = this.client;
+          this.client.returns(Promise.resolve());
         });
         afterEach(function () {
           this.collection.set.restore();
@@ -373,9 +378,7 @@ describe('Collection', function () {
         describe('and the returned data is an array', function () {
           beforeEach(function () {
             this.response = { entity: [{ testing: 'testing' }] };
-            this.client = sinon.stub();
             this.client.returns(Promise.resolve(this.response));
-            this.resource.client = this.client;
           });
           it('should call the client once', function (done) {
             this.collection.synced = false;
@@ -606,39 +609,40 @@ describe('Collection', function () {
   describe('set method', function () {
     beforeEach(function () {
       this.model = { id: 'test' };
+      this.setModel = { id: this.model.id, attributes: this.model };
     });
     describe('for a single model', function () {
       it('should add an entry to the models property', function () {
         this.collection.models = [];
         this.collection.set(this.model);
-        assert.deepEqual(this.collection.models, [this.model]);
+        assert.deepEqual(this.collection.models, [this.setModel]);
       });
       it('should add an entry to the _model_map property', function () {
         this.collection._model_map = {};
         this.collection.set(this.model);
-        assert.deepEqual(this.collection._model_map, { [this.model.id]: this.model });
+        assert.deepEqual(this.collection._model_map, { [this.model.id]: this.setModel });
       });
     });
     describe('for an array of models', function () {
       it('should add them to the models property', function () {
         this.collection.models = [];
         this.collection.set([this.model]);
-        assert.deepEqual(this.collection.models, [this.model]);
+        assert.deepEqual(this.collection.models, [this.setModel]);
       });
       it('should add them to the _model_map property', function () {
         this.collection._model_map = {};
         this.collection.set([this.model]);
-        assert.deepEqual(this.collection._model_map, { [this.model.id]: this.model });
+        assert.deepEqual(this.collection._model_map, { [this.model.id]: this.setModel });
       });
       it('should add only one entry per id to the models property', function () {
         this.collection.models = [];
         this.collection.set([this.model, this.model]);
-        assert.deepEqual(this.collection.models, [this.model]);
+        assert.deepEqual(this.collection.models, [this.setModel]);
       });
       it('should add only one entry per id to the _model_map property', function () {
         this.collection._model_map = {};
         this.collection.set([this.model, this.model]);
-        assert.deepEqual(this.collection._model_map, { [this.model.id]: this.model });
+        assert.deepEqual(this.collection._model_map, { [this.model.id]: this.setModel });
       });
     });
   });
@@ -649,6 +653,8 @@ describe('Model', function () {
     this.resource = {
       modelUrl: () => '',
       idKey: 'id',
+      client: () => Promise.resolve({ entity: {} }),
+      removeModel: () => {},
     };
     this.data = { test: 'test', id: 'testing' };
     this.model = new Resources.Model(this.data, this.resource);
@@ -719,11 +725,12 @@ describe('Model', function () {
   });
   describe('fetch method', function () {
     describe('if called when Model.synced = true and force is false', function () {
-      it('should return current data immediately', function () {
+      it('should return current data immediately', function (done) {
         this.model.synced = true;
         const promise = this.model.fetch();
         promise.then((result) => {
-          assert.equal(result, this.data);
+          assert.deepEqual(result, this.data);
+          done();
         });
       });
     });
@@ -825,6 +832,7 @@ describe('Model', function () {
         this.response = { entity: [{ testing: 'testing' }] };
         this.client = sinon.stub();
         this.client.returns(new Promise(() => {}));
+        this.resource.client = this.client;
         this.model.synced = false;
         const promise = this.model.fetch();
         assert.deepEqual(this.model.promises, [promise]);
@@ -835,6 +843,7 @@ describe('Model', function () {
         this.response = { entity: [{ testing: 'testing' }] };
         this.client = sinon.stub();
         this.client.returns(new Promise(() => {}));
+        this.resource.client = this.client;
         this.model.synced = false;
         const promise1 = this.model.fetch();
         const promise2 = this.model.fetch();
@@ -844,11 +853,12 @@ describe('Model', function () {
   });
   describe('save method', function () {
     describe('if called when Model.synced = true and no attrs are different', function () {
-      it('should return current data immediately', function () {
+      it('should return current data immediately', function (done) {
         this.model.synced = true;
         const promise = this.model.save(this.model.attributes);
         promise.then((result) => {
-          assert.equal(result, this.data);
+          assert.deepEqual(result, this.data);
+          done();
         });
       });
     });
@@ -1002,7 +1012,7 @@ describe('Model', function () {
         this.client = sinon.stub();
         this.client.returns(new Promise(() => {}));
         this.model.synced = false;
-        const promise = this.model.save();
+        const promise = this.model.save({});
         assert.deepEqual(this.model.promises, [promise]);
       });
     });
@@ -1012,8 +1022,8 @@ describe('Model', function () {
         this.client = sinon.stub();
         this.client.returns(new Promise(() => {}));
         this.model.synced = false;
-        const promise1 = this.model.save();
-        const promise2 = this.model.save();
+        const promise1 = this.model.save({});
+        const promise2 = this.model.save({});
         assert.deepEqual(this.model.promises, [promise1, promise2]);
       });
     });

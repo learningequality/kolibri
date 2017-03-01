@@ -1,16 +1,21 @@
 <template>
 
-  <button
-    type="button"
+  <ui-button
     @click="$emit('click')"
-    class="icon-button-scope"
-    :class="{'primary' : primary, 'single-line': !showTextBelowIcon}"
-  >
-    <slot/>
-    <span v-if="text" class="btn-text" :class="{'btn-bottom-text' : showTextBelowIcon, 'icon-padding' : !showTextBelowIcon && hasIcon}">
+    :color="primary ? 'primary' : 'default'"
+    :disabled="disabled"
+    class="koli-icon-button">
+    <span v-if="hasIcon && text">
+      <ui-icon class="icon-margin"><slot/></ui-icon>
       {{ text }}
     </span>
-  </button>
+    <span v-else-if="hasIcon">
+      <ui-icon><slot/></ui-icon>
+    </span>
+    <span v-else>
+      {{ text }}
+    </span>
+  </ui-button>
 
 </template>
 
@@ -26,6 +31,10 @@
         type: Boolean,
         default: false,
       },
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
       showTextBelowIcon: {
         type: Boolean,
         default: false,
@@ -38,77 +47,29 @@
         return !(Object.keys(this.$slots).length === 0 && this.$slots.constructor === Object);
       },
     },
+    components: {
+      'ui-button': require('keen-ui/src/UiButton'),
+      'ui-icon': require('keen-ui/src/UiIcon'),
+    },
   };
 
 </script>
 
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
-
-  /*
-    WARNING -- these styles are unscoped.
-    ONLY include styles that need to apply to SVGs inserted into the slot.
-    Make sure everything here is scoped under the .icon-button-scope class.
-  */
-
-  .icon-button-scope
-    svg
-      vertical-align: middle
-      fill: $core-action-normal
-      transition: fill $core-time ease-out
-    &:hover svg
-      fill: $core-action-dark
-    &:disabled svg
-      fill: $core-text-disabled
-
-  // styles specific to primary button
-  .icon-button-scope.primary
-    svg
-      fill: $core-bg-canvas
-      transition: fill $core-time ease-out
-    &:hover svg
-      fill: $core-bg-canvas
-    &:disabled svg
-      fill: $core-bg-canvas
+  .icon-margin
+    margin-left: -0.25rem
+    margin-right: 0.375rem
+    margin-top: -0.125rem
 
 </style>
 
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 
-  @require '~kolibri.styles.coreTheme'
-
-  button
-    padding: 0.2em 2em
-    line-height: inherit
-
-  button.single-line
-    height: 36px
-
-  .primary
-    border: none
-    color: $core-bg-canvas
-    background-color: $core-action-normal
-    transition: background-color $core-time ease-out
-
-    &:hover
-      color: $core-bg-canvas
-      background-color: $core-action-dark
-    &:disabled
-      color: $core-bg-canvas
-      background-color: $core-text-disabled
-
-  /* displayed to visually balance an icon */
-  .icon-padding
-    margin-right: 2px
-
-  .btn-text
-    vertical-align: middle
-
-  .btn-bottom-text
-    display: block
-    margin-top: 0.4em
+  .koli-icon-button svg
+    max-width: 24px
+    max-height: 24px
 
 </style>

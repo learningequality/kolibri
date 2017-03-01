@@ -87,8 +87,8 @@ def _get_drive_usage(path):
     else:
         # with os.statvfs, we need to multiple block sizes by block counts to get bytes
         stats = os.statvfs(path)
-        total = stats.f_bsize * stats.f_blocks
-        free = stats.f_bsize * stats.f_bavail
+        total = stats.f_frsize * stats.f_blocks
+        free = stats.f_frsize * stats.f_bavail
         return {
             "total": total,
             "free": free,

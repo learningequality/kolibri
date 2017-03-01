@@ -361,9 +361,9 @@ describe('contentRenderer Component', function () {
               files: this.files,
             },
           }).$mount();
-          this.constructorSpy = sinon.spy(() => {
-            this.instanceSpy = sinon.createStubInstance(Vue);
-          });
+          this.instanceSpy = sinon.createStubInstance(Vue);
+          this.constructorSpy = sinon.stub();
+          this.constructorSpy.returns(this.instanceSpy);
           this.vm.Kolibri = {
             lib: {
               vue: this.constructorSpy,
@@ -382,47 +382,56 @@ describe('contentRenderer Component', function () {
           assert.ok(this.vm.rendered);
         });
         describe('when initSession completes', function () {
-          it('should create a new component', function () {
+          it('should create a new component', function (done) {
             this.vm.renderContent().then(() => {
               assert.ok(this.constructorSpy.calledWithNew());
+              done();
             });
           });
-          it('should create a new component with parent option', function () {
+          it('should create a new component with parent option', function (done) {
             this.vm.renderContent().then(() => {
               assert.equal(this.constructorSpy.args[0][0].parent, this.vm);
+              done();
             });
           });
-          it('should create a new component with el option', function () {
+          it('should create a new component with el option', function (done) {
+            this.testContainer = { test: 'test' };
+            this.vm.$refs.container = this.testContainer;
             this.vm.renderContent().then(() => {
-              assert.equal(this.constructorSpy.args[0][0].el, this.vm.$refs.container);
+              assert.equal(this.constructorSpy.args[0][0].el, this.testContainer);
+              done();
             });
           });
-          it('should create a new component with propsData option', function () {
+          it('should create a new component with propsData option', function (done) {
             this.vm.renderContent().then(() => {
               assert.deepEqual(this.constructorSpy.args[0][0].propsData, {
                 id: this.id,
                 kind: this.kind,
                 files: this.files,
                 defaultFile: this.files[0],
+                contentId: '',
+                channelId: '',
+                available: true,
               });
+              done();
             });
           });
-          it('should call $on for startTracking', function () {
+          it('should call $on for startTracking', function (done) {
             this.vm.renderContent().then(() => {
-              assert.ok(this.instanceSpy.firstCall.calledWithExactly(
-                'startTracking', this.vm.wrappedStartTracking));
+              assert.ok(this.instanceSpy.$on.firstCall.calledWith('startTracking'));
+              done();
             });
           });
-          it('should call $on for stopTracking', function () {
+          it('should call $on for stopTracking', function (done) {
             this.vm.renderContent().then(() => {
-              assert.ok(this.instanceSpy.firstCall.calledWithExactly(
-                'stopTracking', this.vm.stopTracking));
+              assert.ok(this.instanceSpy.$on.secondCall.calledWith('stopTracking'));
+              done();
             });
           });
-          it('should call $on for progressUpdate', function () {
+          it('should call $on for progressUpdate', function (done) {
             this.vm.renderContent().then(() => {
-              assert.ok(this.instanceSpy.firstCall.calledWithExactly(
-                'progressUpdate', this.vm.progressUpdate));
+              assert.ok(this.instanceSpy.$on.thirdCall.calledWith('progressUpdate'));
+              done();
             });
           });
         });

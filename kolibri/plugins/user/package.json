@@ -1,0 +1,7 @@
+{
+  "name": "user",
+  "description": "user, a plugin for Kolibri.",
+  "private": true,
+  "dependencies": {
+  }
+}
