@@ -22,6 +22,20 @@ class ManagementModule extends KolibriModule {
           },
         },
         {
+          name: PageNames.CLASS_EDIT_MGMT_PAGE,
+          path: '/classes/:id',
+          handler: (toRoute, fromRoute) => {
+            actions.showClassEditPage(store, toRoute.params.id);
+          },
+        },
+        {
+          name: PageNames.CLASS_ENROLL_MGMT_PAGE,
+          path: '/classes/:id/enroll',
+          handler: (toRoute, fromRoute) => {
+            actions.showClassEnrollPage(store, toRoute.params.id);
+          },
+        },
+        {
           name: PageNames.USER_MGMT_PAGE,
           path: '/users',
           handler: (toRoute, fromRoute) => {

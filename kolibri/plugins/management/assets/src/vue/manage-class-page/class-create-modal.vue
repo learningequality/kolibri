@@ -10,8 +10,15 @@
       <!-- Fields for the user to fill out -->
       <section class="class-fields">
         <div class="class-field">
-          <label for="name">{{$tr('classname')}}</label>
-          <input type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="name">
+          <core-textbox
+            :label="$tr('classname')"
+            :aria-label="$tr('name')"
+            v-model="name"
+            autocomplete="name"
+            autofocus
+            required
+            id="name"
+            type="text" />
         </div>
       </section>
 
@@ -47,6 +54,7 @@
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'core-textbox': require('kolibri.coreVue.components.textbox'),
     },
     data() {
       return {

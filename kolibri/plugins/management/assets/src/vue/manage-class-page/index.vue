@@ -13,8 +13,7 @@
         @click="openCreateClassModal"
         class="create-class-button"
         :text="$tr('addNew')"
-        :primary="true">
-      </icon-button>
+        :primary="true"/>
     </div>
 
     <hr>
@@ -30,12 +29,12 @@
       v-if="creatingClass"
       @close="closeCreateUserModal"/>
 
-    <table class="roster">
+    <table class="roster" v-if="!noClassesExist">
 
       <caption class="visuallyhidden">{{$tr('classes')}}</caption>
 
       <!-- Table Headers -->
-      <thead v-if="!noClassesExist">
+      <thead>
         <tr>
           <th class="col-header" scope="col"> {{$tr('className')}} </th>
           <th class="col-header hide-on-mobile" scope="col"> {{$tr('learners')}} </th>
@@ -45,13 +44,13 @@
       </thead>
 
       <!-- Table body -->
-      <tbody v-if="!noClassesExist">
+      <tbody>
         <tr v-for="cl in classes">
           <!-- Class Name field -->
           <th scope="row" class="table-cell">
-            <span class="table-name">
+            <router-link :to="classEditLink(cl.id)" class="table-name">
               {{cl.name}}
-            </span>
+            </router-link>
           </th>
 
           <!-- Learners field -->
@@ -83,7 +82,7 @@
 
     </table>
 
-    <p v-if="noClassesExist">{{ $tr('noClassesExist') }}</p>
+    <p v-else>{{ $tr('noClassesExist') }}</p>
 
   </div>
 
@@ -91,6 +90,8 @@
 
 
 <script>
+
+  const constants = require('../../state/constants');
 
   module.exports = {
     components: {
@@ -110,6 +111,12 @@
       },
     },
     methods: {
+      classEditLink(id) {
+        return {
+          name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
+          params: { id },
+        };
+      },
       openDeleteClassModal(cl) {
         this.currentClassDelete = cl;
         this.deletingClass = true;

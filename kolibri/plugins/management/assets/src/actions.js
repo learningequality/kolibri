@@ -15,10 +15,6 @@ const ContentWizardPages = constants.ContentWizardPages;
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 
 
-// ================================
-// USER MANAGEMENT ACTIONS
-
-
 /**
  * Vuex State Mappers
  *
@@ -86,7 +82,7 @@ function _managePageTitle(title) {
 
 
 // ================================
-// Class ACTIONS
+// CLASSES MANAGEMENT ACTIONS
 
 /**
  * Do a POST to create new class
@@ -143,9 +139,27 @@ function showClassesPage(store) {
   store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
 }
 
+function showClassEditPage(store, classId) {
+  store.dispatch('SET_PAGE_NAME', PageNames.CLASS_EDIT_MGMT_PAGE);
+  // need to replace the following with real logic for grabbing data from server-side.
+  store.dispatch('SET_PAGE_STATE', { classId });
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
+}
+
+function showClassEnrollPage(store, classId) {
+  store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ENROLL_MGMT_PAGE);
+  // need to replace the following with real logic for grabbing data from server-side.
+  store.dispatch('SET_PAGE_STATE', { classId });
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
+}
+
 
 // ================================
-// User ACTIONS
+// USERS MANAGEMENT ACTIONS
 
 /**
  * Does a POST request to assign a user role (only used in this file)
@@ -523,9 +537,11 @@ function showScratchpad(store) {
 }
 
 module.exports = {
-  showClassesPage,
   createClass,
   deleteClass,
+  showClassesPage,
+  showClassEditPage,
+  showClassEnrollPage,
 
   createUser,
   updateUser,
