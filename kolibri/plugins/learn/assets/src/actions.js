@@ -1,10 +1,13 @@
 const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
-const ChannelResource = require('kolibri').resources.ChannelResource;
+const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('./state/constants');
 const PageNames = constants.PageNames;
-const cookiejs = require('js-cookie');
-const router = require('router');
-
+const coreActions = require('kolibri.coreVue.vuex.actions');
+const ConditionalPromise = require('kolibri.lib.conditionalPromise');
+const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
+const coreGetters = require('kolibri.coreVue.vuex.getters');
+const CoreConstants = require('kolibri.coreVue.vuex.constants');
+const router = require('kolibri.coreVue.router');
 
 /**
  * Vuex State Mappers
@@ -28,18 +31,20 @@ function _topicState(data) {
     title: data.title,
     description: data.description,
     breadcrumbs: _crumbState(data.ancestors),
+    next_content: data.next_content,
   };
   return state;
 }
 
+
 function _contentState(data) {
   let progress;
   if (!data.progress_fraction) {
-    progress = 'unstarted';
-  } else if (data.progress_fraction < 1) {
-    progress = 'partial';
+    progress = 0.0;
+  } else if (data.progress_fraction > 1.0) {
+    progress = 1.0;
   } else {
-    progress = 'complete';
+    progress = data.progress_fraction;
   }
   const state = {
     id: data.pk,
@@ -52,6 +57,10 @@ function _contentState(data) {
     progress,
     content_id: data.content_id,
     breadcrumbs: _crumbState(data.ancestors),
+    next_content: data.next_content,
+    author: data.author,
+    license: data.license,
+    license_owner: data.license_owner,
   };
   return state;
 }
@@ -59,34 +68,12 @@ function _contentState(data) {
 
 function _collectionState(data) {
   const topics = data
-    .filter((item) => item.kind === 'topic')
+    .filter((item) => item.kind === CoreConstants.ContentNodeKinds.TOPIC)
     .map((item) => _topicState(item));
   const contents = data
-    .filter((item) => item.kind !== 'topic')
+    .filter((item) => item.kind !== CoreConstants.ContentNodeKinds.TOPIC)
     .map((item) => _contentState(item));
   return { topics, contents };
-}
-
-
-/*
- * Returns a promise that gets current channel.
- */
-function _getCurrentChannel() {
-  let currentChannelId = null;
-  return new Promise((resolve, reject) => {
-    ChannelResource.getCollection({}).fetch()
-      .then((channelList) => {
-        if (channelList.length) {
-          const cookieCurrentChannelId = cookiejs.get('currentChannel');
-          if (channelList.some((channel) => channel.id === cookieCurrentChannelId)) {
-            currentChannelId = cookieCurrentChannelId;
-          } else {
-            currentChannelId = channelList[0].id;
-          }
-        }
-        resolve(currentChannelId);
-      });
-  });
 }
 
 
@@ -99,155 +86,232 @@ function _getCurrentChannel() {
 function redirectToExploreChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_ROOT);
-  _getCurrentChannel()
-    .then((currentChannel) => {
-      store.dispatch('CORE_SET_ERROR', null);
+
+  coreActions.setChannelInfo(store).then(
+    () => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (currentChannel) {
-        store.dispatch('SET_CURRENT_CHANNEL', currentChannel);
-        cookiejs.set('currentChannel', currentChannel);
-        router.go({
+        router.getInstance().replace({
           name: constants.PageNames.EXPLORE_CHANNEL,
-          params: {
-            channel_id: currentChannel,
-          },
+          params: { channel_id: currentChannel.id },
         });
       } else {
-        router.go({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
-    })
-    .catch((error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
 }
 
 
 function redirectToLearnChannel(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_ROOT);
-  _getCurrentChannel()
-    .then((currentChannel) => {
-      store.dispatch('CORE_SET_ERROR', null);
+
+  coreActions.setChannelInfo(store).then(
+    () => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
       if (currentChannel) {
-        store.dispatch('SET_CURRENT_CHANNEL', currentChannel);
-        cookiejs.set('currentChannel', currentChannel);
-        router.go({
+        router.getInstance().replace({
           name: constants.PageNames.LEARN_CHANNEL,
-          params: {
-            channel_id: currentChannel,
-          },
+          params: { channel_id: currentChannel.id },
         });
       } else {
-        router.go({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        router.getInstance().replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
       }
-    })
-    .catch((error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
 }
 
-function showExploreTopic(store, channelId, id) {
+
+function showExploreTopic(store, channelId, id, isRoot = false) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
-  store.dispatch('SET_CURRENT_CHANNEL', channelId);
-  cookiejs.set('currentChannel', channelId);
+  if (isRoot) {
+    store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+  } else {
+    store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_TOPIC);
+  }
 
-  const attributesPromise = ContentNodeResource.getModel(id).fetch();
+  const topicPromise = ContentNodeResource.getModel(id).fetch();
   const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
-  const channelPromise = ChannelResource.getCollection({}).fetch();
-
-  Promise.all([attributesPromise, childrenPromise, channelPromise])
-    .then(([attributes, children, channelList]) => {
-      const pageState = { id };
-      pageState.topic = _topicState(attributes);
+  const channelsPromise = coreActions.setChannelInfo(store, channelId);
+  ConditionalPromise.all([topicPromise, childrenPromise, channelsPromise]).only(
+    samePageCheckGenerator(store),
+    ([topic, children]) => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        return;
+      }
+      const pageState = {};
+      pageState.topic = _topicState(topic);
       const collection = _collectionState(children);
       pageState.subtopics = collection.topics;
       pageState.contents = collection.contents;
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_CHANNEL_LIST', channelList);
-    })
-    .catch((error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+      if (isRoot) {
+        store.dispatch('CORE_SET_TITLE', `Explore - ${currentChannel.title}`);
+      } else {
+        store.dispatch('CORE_SET_TITLE', `${pageState.topic.title} - ${currentChannel.title}`);
+      }
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
+}
+
+
+function showExploreChannel(store, channelId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CHANNEL);
+
+  coreActions.setChannelInfo(store, channelId).then(
+    () => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        return;
+      }
+      showExploreTopic(store, channelId, currentChannel.root_id, true);
+    }
+  );
 }
 
 
 function showExploreContent(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
-  store.dispatch('SET_CURRENT_CHANNEL', channelId);
-  cookiejs.set('currentChannel', channelId);
 
-  const attributesPromise = ContentNodeResource.getModel(id).fetch();
-  const channelPromise = ChannelResource.getCollection({}).fetch();
-
-  Promise.all([attributesPromise, channelPromise])
-    .then(([attributes, channelList]) => {
-      const pageState = { content: _contentState(attributes) };
+  const contentPromise = ContentNodeResource.getModel(id).fetch();
+  const channelsPromise = coreActions.setChannelInfo(store, channelId);
+  ConditionalPromise.all([contentPromise, channelsPromise]).only(
+    samePageCheckGenerator(store),
+    ([content]) => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        return;
+      }
+      const pageState = { content: _contentState(content) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_CHANNEL_LIST', channelList);
-    })
-    .catch((error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+      store.dispatch('CORE_SET_TITLE', `${pageState.content.title} - ${currentChannel.title}`);
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
 }
 
 
-function showLearnChannel(store, channelId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+function showLearnChannel(store, channelId, page = 1) {
+  // Special case for when only the page number changes:
+  // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
+  const state = store.state;
+  if (state.pageName !== PageNames.LEARN_CHANNEL || state.currentChannel !== channelId) {
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+  }
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CHANNEL);
-  store.dispatch('SET_CURRENT_CHANNEL', channelId);
-  cookiejs.set('currentChannel', channelId);
 
-  const recommendedPromise = ContentNodeResource.getCollection({ recommendations: '' }).fetch();
-  const channelPromise = ChannelResource.getCollection({}).fetch();
-  Promise.all([recommendedPromise, channelPromise])
-    .then(([recommendations, channelList]) => {
-      const pageState = { recommendations: recommendations.map(_contentState) };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_CHANNEL_LIST', channelList);
-    })
-    .catch((error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+  const ALL_PAGE_SIZE = 6;
+
+  const sessionPromise = SessionResource.getModel('current').fetch();
+  const channelsPromise = coreActions.setChannelInfo(store, channelId);
+  ConditionalPromise.all([sessionPromise, channelsPromise]).only(
+    samePageCheckGenerator(store),
+    ([session]) => {
+      if (!coreGetters.getCurrentChannelObject(store.state)) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        return;
+      }
+      const nextStepsPayload = { next_steps: session.user_id };
+      const popularPayload = { popular: session.user_id };
+      const resumePayload = { resume: session.user_id };
+      const allPayload = { kind: 'content' };
+      const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
+      const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
+      const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
+      const allContentResource = ContentNodeResource.getPagedCollection(
+        allPayload,
+        ALL_PAGE_SIZE,
+        page
+      );
+      const allPromise = allContentResource.fetch();
+      ConditionalPromise.all(
+        [nextStepsPromise, popularPromise, resumePromise, allPromise]
+      ).only(
+        samePageCheckGenerator(store),
+        ([nextSteps, popular, resume, allContent]) => {
+          const pageState = {
+            recommendations: {
+              nextSteps: nextSteps.map(_contentState),
+              popular: popular.map(_contentState),
+              resume: resume.map(_contentState),
+            },
+            all: {
+              content: allContent.map(_contentState),
+              pageCount: allContentResource.pageCount,
+              page,
+            },
+          };
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.dispatch('CORE_SET_ERROR', null);
+
+          const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+          store.dispatch('CORE_SET_TITLE', `Learn - ${currentChannel.title}`);
+
+          // preload next page
+          if (allContentResource.hasNext) {
+            ContentNodeResource.getPagedCollection(allPayload, ALL_PAGE_SIZE, page + 1).fetch();
+          }
+        },
+        error => { coreActions.handleApiError(store, error); }
+      );
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
 }
 
 
 function showLearnContent(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
-  store.dispatch('SET_CURRENT_CHANNEL', channelId);
-  cookiejs.set('currentChannel', channelId);
-
-  const attributesPromise = ContentNodeResource.getModel(id).fetch();
+  const contentPromise = ContentNodeResource.getModel(id).fetch();
   const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
-  const channelPromise = ChannelResource.getCollection({}).fetch();
-
-  Promise.all([attributesPromise, recommendedPromise, channelPromise])
-    .then(([attributes, recommended, channelList]) => {
+  const channelsPromise = coreActions.setChannelInfo(store, channelId);
+  ConditionalPromise.all([contentPromise, channelsPromise]).only(
+    samePageCheckGenerator(store),
+    ([content]) => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        return;
+      }
       const pageState = {
-        content: _contentState(attributes),
-        recommended: recommended.map(_contentState),
+        content: _contentState(content),
+        recommended: store.state.pageState.recommended,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('SET_CHANNEL_LIST', channelList);
-    })
-    .catch((error) => {
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    });
+      store.dispatch('CORE_SET_TITLE', `${pageState.content.title} - ${currentChannel.title}`);
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
+  recommendedPromise.only(
+    samePageCheckGenerator(store),
+    (recommended) => {
+      const pageState = {
+        content: store.state.pageState.content,
+        recommended: recommended.map(_contentState),
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_ERROR', null);
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
 }
 
 
@@ -258,11 +322,9 @@ function triggerSearch(store, searchTerm) {
       topics: [],
       contents: [],
     };
-    store.dispatch('SET_SEARCH_STATE', searchState);
+    store.dispatch('SET_PAGE_STATE', searchState);
     return;
   }
-
-  store.dispatch('SET_SEARCH_LOADING');
 
   const contentCollection = ContentNodeResource.getPagedCollection({ search: searchTerm });
   const searchResultsPromise = contentCollection.fetch();
@@ -272,17 +334,18 @@ function triggerSearch(store, searchTerm) {
     const collection = _collectionState(results);
     searchState.topics = collection.topics;
     searchState.contents = collection.contents;
-    store.dispatch('SET_SEARCH_STATE', searchState);
+    store.dispatch('SET_PAGE_STATE', searchState);
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
   })
-    .catch((error) => {
-      // TODO - how to parse and format?
-      store.dispatch('CORE_SET_ERROR', JSON.stringify(error, null, '\t'));
-    });
+  .catch(error => { coreActions.handleApiError(store, error); });
 }
 
-
-function toggleSearch(store) {
-  store.dispatch('TOGGLE_SEARCH');
+function clearSearch(store) {
+  store.dispatch('SET_PAGE_STATE', {
+    topics: [],
+    contents: [],
+    searchTerm: '',
+  });
 }
 
 
@@ -291,19 +354,61 @@ function showScratchpad(store) {
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'Scratchpad');
 }
+
 
 function showContentUnavailable(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
   store.dispatch('SET_PAGE_STATE', {});
   store.dispatch('CORE_SET_PAGE_LOADING', false);
   store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'Content Unavailable');
 }
 
+function redirectToChannelSearch(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.SEARCH_ROOT);
+  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'Search');
+  clearSearch(store);
+  coreActions.setChannelInfo(store).then(
+    () => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      router.getInstance().replace({
+        name: constants.PageNames.SEARCH,
+        params: { channel_id: currentChannel.id },
+      });
+    },
+    error => {
+      coreActions.handleApiError(store, error);
+    }
+  );
+}
+
+function showSearch(store, channelId, searchTerm) {
+  store.dispatch('SET_PAGE_NAME', PageNames.SEARCH);
+  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'Search');
+  clearSearch(store);
+  coreActions.setChannelInfo(store, channelId).then(
+    () => {
+      if (searchTerm) {
+        triggerSearch(store, searchTerm);
+      } else {
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      }
+    }
+  );
+}
 
 module.exports = {
   redirectToExploreChannel,
   redirectToLearnChannel,
+  showExploreChannel,
   showExploreTopic,
   showExploreContent,
   showLearnChannel,
@@ -311,5 +416,7 @@ module.exports = {
   showScratchpad,
   showContentUnavailable,
   triggerSearch,
-  toggleSearch,
+  clearSearch,
+  redirectToChannelSearch,
+  showSearch,
 };

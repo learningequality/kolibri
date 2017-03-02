@@ -12,11 +12,10 @@ class KolibriCore(KolibriPluginBase):
     pass
 
 
-class FrontEndCoreAssetHook(FrontEndCoreAssetHook):
+class FrontEndCoreAppAssetHook(FrontEndCoreAssetHook):
     unique_slug = "default_frontend"
-    src_file = "kolibri/core/assets/src/core-app"
-    static_dir = "kolibri/core/static"
+    src_file = "assets/src/core-app"
 
 
 class FrontEndCoreInclusionHook(FrontEndCoreHook):
-    bundle_class = FrontEndCoreAssetHook
+    bundle_class = FrontEndCoreAppAssetHook

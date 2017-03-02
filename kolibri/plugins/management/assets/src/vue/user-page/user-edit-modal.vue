@@ -1,49 +1,90 @@
 <template>
 
-  <div class="user-edit-modal">
-    <modal btntext="Edit">
-
-      <h1 slot="header" class="header">Edit Account Info</h1>
-
-      <div slot="body">
+  <core-modal
+    :title="$tr('modalTitle')"
+    :has-error="error_message ? true : false"
+    :enableBackBtn="usr_delete || pw_reset"
+    @enter="submit"
+    @cancel="emitCloseSignal"
+    @back="clear"
+  >
+    <!-- User Edit Normal -->
+    <div>
+      <template v-if="!usr_delete && !pw_reset">
 
         <div class="user-field">
-          <label for="username">Full Name</label>:
-          <input type="text" class="edit-form edit-fullname" aria-label="fullname" id="name" v-model="fullName_new">
+          <label for="fullname">{{$tr('fullName')}}</label>:
+          <input type="text" class="edit-form edit-fullname" :aria-label="$tr('fullName')" id="fullname" v-model="fullName_new">
         </div>
 
         <div class="user-field">
-          <label for="name">Username</label>:
-          <input type="text" class="edit-form edit-username" aria-label="username" id="username" v-model="username_new">
+          <label for="username">{{$tr('username')}}</label>:
+          <input type="text" class="edit-form edit-username" :aria-label="$tr('username')" id="username" v-model="username_new">
         </div>
 
         <div class="user-field">
-          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-          <select v-model="role_new" id="user-role">
-            <option value="learner" selected> Learner </option>
-            <option value="admin"> Admin </option>
+          <label for="user-role"><span class="visuallyhidden">{{$tr('userKind')}}</span></label>
+          <select v-model="kind_new" id="user-role">
+            <option :value="LEARNER"> {{$tr('learner')}} </option>
+            <option :value="ADMIN"> {{$tr('admin')}} </option>
+            <option :value="COACH"> {{$tr('coach')}} </option>
           </select>
         </div>
 
-        <div class="user-field">
-          <label for="password">Password</label>:
-          <input type="password" class="edit-form" id="password" required v-model="password_new" placeholder="Please type in your password.">
+        <div class="advanced-options" @keydown.enter.stop>
+          <button @click="pw_reset=!pw_reset"> {{$tr('resetPw')}} </button>
+          <button @click="usr_delete=!usr_delete"> {{$tr('deleteUsr')}}</button>
         </div>
 
-      </div>
+        <hr class="end-modal">
 
-      <div slot="footer">
-        <button class="confirm-btn" type="button" @click="editUser">Confirm</button>
-      </div>
+      </template>
 
-      <button class="no-border" slot="openbtn">
-        <span class="visuallyhidden">Edit Account Info</span>
-        <svg class="manage-edit" src="../icons/pencil.svg"></svg>
-      </button>
+      <!-- Password Reset Mode -->
+      <template v-if="pw_reset" >
+        <p>{{$tr('username')}}: <b>{{ username}}</b></p>
+        <div class="user-field">
+          <label for="password">{{$tr('enterNewPw')}}</label>:
+          <input type="password" class="edit-form" id="password" required v-model="password_new">
+        </div>
 
-    </modal>
+        <div class="user-field">
+          <label for="password-confirm">{{$tr('confirmNewPw')}}</label>:
+          <input type="password" class="edit-form" id="password-confirm" required v-model="password_new_confirm">
+        </div>
+      </template>
 
-  </div>
+      <!-- User Delete Mode -->
+      <template v-if="usr_delete">
+        <div class="user-field">
+          {{$trHtml('deleteConfirmation', {user:username})}}
+        </div>
+      </template>
+
+
+      <!-- Error Messages -->
+      <p class="error" v-if="error_message" aria-live="polite"> {{error_message}} </p>
+
+      <!-- Button Section TODO: cleaunup -->
+      <section @keydown.enter.stop>
+
+        <icon-button
+          :text="cancelText"
+          class="undo-btn"
+          @click="cancelClick"
+        />
+
+        <icon-button
+          :text="submitText"
+          class="confirm-btn"
+          :primary="true"
+          @click="submit"
+        />
+
+      </section>
+
+    </div>
+  </core-modal>
 
 </template>
 
@@ -51,37 +92,179 @@
 <script>
 
   const actions = require('../../actions');
+  const coreActions = require('kolibri.coreVue.vuex.actions');
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
-    components: {
-      modal: require('../modal'),
+    $trNameSpace: 'user-edit-modal',
+    $trs: {
+      modalTitle: 'Edit Account Info',
+      // input labels
+      fullName: 'Full Name',
+      username: 'Username',
+      userKind: 'User Kind',
+      enterNewPw: 'Enter new password',
+      confirmNewPw: 'Confirm new password',
+      // kind select
+      learner: 'Learner',
+      admin: 'Admin',
+      coach: 'Coach',
+      // buttons and links
+      resetPw: 'Reset Password',
+      deleteUsr: 'Delete User',
+      save: 'Save',
+      back: 'Back',
+      yes: 'Yes',
+      no: 'No',
+      confirm: 'Confirm',
+      cancel: 'Cancel',
+      // confirmation messages
+      // this one is going to get a little complicated
+      deleteConfirmation: 'Are you sure you want to delete {user}?',
+      // errors
+      pwMismatch: 'Passwords must match',
+      noNewPw: 'Please enter a new password',
     },
-    props: [
-      'userid', 'username', 'fullname', 'roles',
-    ],
+    components: {
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'core-modal': require('kolibri.coreVue.components.coreModal'),
+    },
+    props: {
+      userid: {
+        type: String, // string is type returned from server
+        required: true,
+      },
+      fullname: {
+        type: String,
+        required: true,
+      },
+      username: {
+        type: String,
+        required: true,
+      },
+      userkind: {
+        type: String,
+        required: true,
+      },
+    },
     data() {
       return {
         username_new: this.username,
         password_new: '',
+        password_new_confirm: '',
         fullName_new: this.fullname,
-        role_new: this.roles.length ? this.roles[0].kind : 'learner',
+        kind_new: this.userkind,
+        usr_delete: false,
+        pw_reset: false,
+        error_message: '',
       };
     },
+    computed: {
+      LEARNER: () => UserKinds.LEARNER,
+      COACH: () => UserKinds.COACH,
+      ADMIN: () => UserKinds.ADMIN,
+      submitText() {
+        if (this.pw_reset) {
+          return this.$tr('save');
+        } else if (this.usr_delete) {
+          return this.$tr('yes');
+        }
+        return this.$tr('confirm');
+      },
+      cancelText() {
+        if (this.pw_reset) {
+          return this.$tr('back');
+        } else if (this.usr_delete) {
+          return this.$tr('no');
+        }
+        return this.$tr('cancel');
+      },
+    },
     methods: {
-      editUser() {
+      cancelClick() {
+        if (this.pw_reset || this.usr_delete) {
+          this.clear();
+        } else {
+          this.emitCloseSignal();
+        }
+      },
+      clear() {
+        this.usr_delete = this.pw_reset = false;
+        this.username_new = this.username;
+        this.fullName_new = this.fullname;
+        this.kind = this.userkind;
+      },
+      submit() {
+        // mirrors logic of how the 'confirm' buttons are displayed
+        if (this.pw_reset) {
+          this.changePasswordHandler();
+        } else if (this.usr_delete) {
+          this.deleteUserHandler();
+        } else {
+          this.editUserHandler();
+        }
+      },
+      editUserHandler() {
         const payload = {
+          id: this.userid,
           username: this.username_new,
           full_name: this.fullName_new,
+          kind: this.kind_new,
         };
-        if (this.password_new) {
-          payload.password = this.password_new;
+        this.updateUser(payload);
+        // if logged in admin updates role to learner, redirect to learn page
+        // Do SUPERUSER check, as it is theoretically possible for a DeviceAdmin
+        // to have the same id as a regular user, as they are different models.
+        if ((this.session_user_kind !== UserKinds.SUPERUSER) &&
+          (Number(this.userid) === this.session_user_id)) {
+          if (this.kind_new === UserKinds.LEARNER) {
+            window.location.href = window.location.origin;
+          }
         }
-        this.updateUser(this.userid, payload, this.role_new);
+        // close the modal after successful submission
+        this.emitCloseSignal();
+      },
+      deleteUserHandler() {
+        // if logged in admin deleted their own account, log them out
+        if (Number(this.userid) === this.session_user_id) {
+          this.logout();
+        }
+        this.deleteUser(this.userid);
+        this.emitCloseSignal();
+      },
+      changePasswordHandler() {
+        // checks to make sure there's a new password
+        if (this.password_new) {
+          this.clearErrorMessage();
+          if (this.password_new === this.password_new_confirm) {
+            // make sure passwords match
+            this.updateUser({ id: this.userid, password: this.password_new });
+            this.emitCloseSignal();
+          } else {
+            // passwords don't match
+            this.error_message = this.$tr('pwMismatch');
+          }
+        } else {
+          // if user didn't populate the password fields
+          this.error_message = this.$tr('noNewPw');
+        }
+      },
+      emitCloseSignal() {
+        this.$emit('close'); // signal parent to close
+      },
+      clearErrorMessage() {
+        this.error_message = '';
       },
     },
     vuex: {
       actions: {
+        logout: coreActions.kolibriLogout,
         updateUser: actions.updateUser,
+        deleteUser: actions.deleteUser,
+      },
+      getters: {
+        session_user_id: state => state.core.session.user_id,
+        session_user_kind: state => state.core.session.kind[0],
       },
     },
   };
@@ -91,16 +274,22 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri.styles.definitions'
 
   .title
     display: inline
 
-  .no-border
-    border: none
+  .confirm-btn, .undo-btn
+    width: 48%
 
   .confirm-btn
     float: right
+
+  .cancel-btn
+    float:left
+
+  .delete-btn
+    width: 100%
 
   .open-btn
     background-color: $core-bg-light
@@ -121,6 +310,8 @@
       height: 40px
       font-weight: bold
       background-color: transparent
+    p
+      text-align: center
 
   .edit-form
     width: 200px
@@ -135,21 +326,19 @@
       outline: none
       border-bottom: 3px solid $core-action-normal
 
-  .edit-username
-    background: url('../icons/pencil.svg') no-repeat 280px 6px
-    fill: $core-action-light
-    transition: all 0.15s
-
-  .edit-fullname
-    background: url('../icons/pencil.svg') no-repeat 280px 6px
-    fill: $core-action-light
-    transition: all 0.15s
-
   .header
     text-align: center
 
-  .manage-edit
-    fill: $core-action-normal
-    cursor: pointer
+  .advanced-options
+    padding-bottom: 5%
+    button
+      display: block
+      border: none
+
+  p
+    word-break: keep-all
+
+  .error
+    color: red
 
 </style>

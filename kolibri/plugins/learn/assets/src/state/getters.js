@@ -18,9 +18,12 @@ function pageMode(state) {
     return constants.PageModes.EXPLORE;
   } else if (learnPages.some(page => page === state.pageName)) {
     return constants.PageModes.LEARN;
+  } else if (constants.PageNames.SEARCH === state.pageName) {
+    return constants.PageModes.SEARCH;
   }
   return undefined;
 }
+
 
 module.exports = {
   pageMode,

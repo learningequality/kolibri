@@ -1,30 +1,5 @@
-const logging = require('logging').getLogger(__filename);
-const rest = require('rest');
-const mime = require('rest/interceptor/mime');
-const csrf = require('rest/interceptor/csrf');
-const errorCode = require('rest/interceptor/errorCode');
-
-/**
- * A helping method to get specific cookie based on its name.
- * @param {string} name  - the name of the cookie.
- * @returns {string} - cookieValue
- * this function could probably find a better place to live..
- */
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      // Does this cookie string begin with the name we want?
-      if (cookie.substring(0, name.length + 1) === (name.concat('='))) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
+const logging = require('kolibri.lib.logging').getLogger(__filename);
+const ConditionalPromise = require('./conditionalPromise');
 
 
 /** Class representing a single API resource object */
@@ -40,6 +15,18 @@ class Model {
     this.resource = resource;
     if (!this.resource) {
       throw new TypeError('resource must be defined');
+    }
+
+    if (!data) {
+      throw new TypeError('data must be defined');
+    }
+
+    if (typeof data !== 'object') {
+      throw new TypeError('data must be an object');
+    }
+
+    if (Object.keys(data).length === 0) {
+      throw new TypeError('data must be instantiated with some data');
     }
 
     // Assign any data to the attributes property of the Model.
@@ -61,7 +48,7 @@ class Model {
    * returns, otherwise reject is called with the response object.
    */
   fetch(params = {}, force = false) {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         if (!force && this.synced) {
           resolve(this.attributes);
@@ -100,7 +87,7 @@ class Model {
    * returns, otherwise reject is called with the response object.
    */
   save(attrs) {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         let payload = {};
         if (this.synced) {
@@ -124,13 +111,11 @@ class Model {
           if (this.id) {
             // If this Model has an id, then can do a PATCH against the Model
             url = this.url;
-            clientObj = { path: url, method: 'PATCH', entity: payload,
-              headers: { 'Content-Type': 'application/json' } };
+            clientObj = { path: url, method: 'PATCH', entity: payload };
           } else {
             // Otherwise, must POST to the Collection endpoint to create the Model
             url = this.resource.collectionUrl();
-            clientObj = { path: url, entity: payload,
-              headers: { 'Content-Type': 'application/json' } };
+            clientObj = { path: url, entity: payload };
           }
           // Do a save on the URL.
           this.resource.client(clientObj).then((response) => {
@@ -170,15 +155,14 @@ class Model {
    * returns, otherwise reject is called with the response object.
    */
   delete() {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         if (!this.id) {
           // Nothing to delete, so just resolve the promise now.
           reject('Can not delete model that we do not have an id for');
         } else {
           // Otherwise, DELETE the Model
-          const clientObj = { path: this.url, method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' } };
+          const clientObj = { path: this.url, method: 'DELETE' };
           this.resource.client(clientObj).then((response) => {
             // delete this instance
             this.resource.removeModel(this);
@@ -214,7 +198,9 @@ class Model {
   set(attributes) {
     // force IDs to always be strings - this should be changed on the server-side too
     if (attributes && this.resource.idKey in attributes) {
-      attributes[this.resource.idKey] = String(attributes[this.resource.idKey]);
+      if (attributes[this.resource.idKey]) { // don't stringigy null or undefined.
+        attributes[this.resource.idKey] = String(attributes[this.resource.idKey]);
+      }
     }
     Object.assign(this.attributes, attributes);
   }
@@ -256,38 +242,39 @@ class Collection {
    */
   fetch(extraParams = {}, force = false) {
     const params = Object.assign({}, this.params, extraParams);
-    const promise = new Promise((resolve, reject) => {
+    const promise = new ConditionalPromise((resolve, reject) => {
       Promise.all(this.promises).then(() => {
         if (!force && this.synced) {
           resolve(this.data);
         } else {
           this.synced = false;
           this.resource.client({ path: this.url, params }).then((response) => {
-            // Reset current models to only include ones from this fetch.
-            this.models = [];
-            this._model_map = {};
             // Set response object - an Array - on the Collection to record the data.
             // First check that the response *is* an Array
             if (Array.isArray(response.entity)) {
+              this.clearCache();
               this.set(response.entity);
+              // Mark that the fetch has completed.
+              this.synced = true;
             } else {
               // If it's not, there are two possibilities - something is awry, or we have received
               // paginated data! Check to see if it is paginated.
-              if (typeof response.entity.results !== 'undefined') {
+              if (typeof (response.entity || {}).results !== 'undefined') {
+                this.clearCache();
                 // Paginated objects have 'results' as their results object so interpret this as
                 // such.
                 this.set(response.entity.results);
                 this.pageCount = Math.ceil(response.entity.count / this.pageSize);
+                this.hasNext = Boolean(response.entity.next);
+                this.hasPrev = Boolean(response.entity.previous);
+                // Mark that the fetch has completed.
+                this.synced = true;
               } else {
                 // It's all gone a bit Pete Tong.
                 logging.debug('Data appears to be malformed', response.entity);
+                reject(response);
               }
             }
-            // Mark that the fetch has completed.
-            this.synced = true;
-            this.models.forEach((model) => {
-              model.synced = true; // eslint-disable-line no-param-reassign
-            });
             // Return the data from the models, not the models themselves.
             resolve(this.data);
             // Clean up the reference to this promise
@@ -310,6 +297,15 @@ class Collection {
 
   get url() {
     return this.resource.collectionUrl();
+  }
+
+  /**
+   * Clear this Collection's cache of models.
+   */
+  clearCache() {
+    // Reset current models.
+    this.models = [];
+    this._model_map = {};
   }
 
   /**
@@ -341,6 +337,40 @@ class Collection {
   get data() {
     return this.models.map((model) => model.attributes);
   }
+
+  get synced() {
+    // We only say the Collection is synced if it, itself, is synced, and all its
+    // constituent models are also.
+    return this.models.reduce((synced, model) => synced && model.synced, this._synced);
+  }
+
+  /**
+   * Set this Collection as synced or not, for true, will also set all models cached in it
+   * as synced.
+   * @param  {Boolean} value Is this Collection synced or not?
+   */
+  set synced(value) {
+    this._synced = value;
+    if (value) {
+      this.models.forEach((model) => { model.synced = true; });
+    }
+  }
+
+  static key(params) {
+    // Sort keys in order, then assign those keys to an empty object in that order.
+    // Then stringify to create a cache key.
+    return JSON.stringify(
+      Object.assign(
+        {}, ...Object.keys(params).sort().map(
+          (paramKey) => ({ [paramKey]: params[paramKey] })
+        )
+      )
+    );
+  }
+
+  get key() {
+    return this.constructor.key ? this.constructor.key(this.params) : Collection.key(this.params);
+  }
 }
 
 /** Class representing a single API resource.
@@ -361,27 +391,30 @@ class Resource {
    * Optionally pass in data and instantiate a collection for saving that data or fetching
    * data from the resource.
    * @param {Object} params - default parameters to use for Collection fetching.
+   * @returns {Collection} - Returns an instantiated Collection object.
+   */
+  getCollection(params = {}) {
+    let collection;
+    const key = Collection.key(params);
+    if (!this.collections[key]) {
+      collection = this.createCollection(params);
+    } else {
+      collection = this.collections[key];
+    }
+    return collection;
+  }
+
+  /**
+   * Optionally pass in data and instantiate a collection for saving that data or fetching
+   * data from the resource.
+   * @param {Object} params - default parameters to use for Collection fetching.
    * @param {Object[]} data - Data to instantiate the Collection - see Model constructor for
    * details of data.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  getCollection(params = {}, data = []) {
-    let collection;
-    // Sort keys in order, then assign those keys to an empty object in that order.
-    // Then stringify to create a cache key.
-    const key = JSON.stringify(
-      Object.assign(
-        {}, ...Object.keys(params).sort().map(
-          (paramKey) => ({ [paramKey]: params[paramKey] })
-        )
-      )
-    );
-    if (!this.collections[key]) {
-      collection = new Collection(params, data, this);
-      this.collections[key] = collection;
-    } else {
-      collection = this.collections[key];
-    }
+  createCollection(params = {}, data = []) {
+    const collection = new Collection(params, data, this);
+    this.collections[collection.key] = collection;
     return collection;
   }
 
@@ -393,11 +426,9 @@ class Resource {
    * @returns {Collection} - Returns an instantiated Collection object.
    */
   getPagedCollection(params = {}, pageSize = 20, page = 1) {
-    Object.assign(params, {
-      page,
-      page_size: pageSize,
-    });
-    const collection = this.getCollection(params);
+    const pagedParams = { page, page_size: pageSize };
+    Object.assign(pagedParams, params);
+    const collection = this.getCollection(pagedParams);
     collection.page = page;
     collection.pageSize = pageSize;
     return collection;
@@ -457,6 +488,10 @@ class Resource {
     this.collections = {};
   }
 
+  unCacheModel(id) {
+    this.models[id].synced = false;
+  }
+
   removeModel(model) {
     delete this.models[model.id];
   }
@@ -480,7 +515,12 @@ class Resource {
   }
 
   get idKey() {
-    return this.constructor.idKey();
+    // In IE <= 10, static methods are not properly inherited
+    // Do this to still return a value.
+    // N.B. This will prevent a resource being subclassed from another
+    // resource, but then being able to reference its parent's
+    // idKey.
+    return this.constructor.idKey ? this.constructor.idKey() : 'id';
   }
 
   static resourceName() {
@@ -492,8 +532,7 @@ class Resource {
   }
 
   get client() {
-    return rest.wrap(mime).wrap(csrf, { name: 'X-CSRFToken',
-      token: getCookie('csrftoken') }).wrap(errorCode);
+    return this.kolibri.client;
   }
 }
 
@@ -555,4 +594,6 @@ class ResourceManager {
 module.exports = {
   ResourceManager,
   Resource,
+  Collection,
+  Model,
 };

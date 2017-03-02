@@ -1,14 +1,24 @@
 
 // include global styles
-require('normalize.css');
+require('purecss/build/base-min.css');
+require('purecss/build/grids-min.css');
 require('../styles/font-NotoSans.css');
-require('../styles/core-global.styl');
+require('../styles/main.styl');
+
+// Required to setup Keen UI, should be imported only once in your project
+require('keen-ui/src/bootstrap');
+
+// configure Keen
+const KeenUiConfig = require('keen-ui/src/config').default;
+KeenUiConfig.set(require('../keen-config/options.json'));
+
 
 // polyfill for older browsers
-require('babel-polyfill');
+// TODO: rtibbles whittle down these polyfills to only what is needed for the application
+require('core-js');
 
 // set up logging
-const logging = require('logging');
+const logging = require('kolibri.lib.logging');
 logging.setDefaultLevel(process.env.NODE_ENV === 'production' ? 2 : 0);
 
 // Create an instance of the global app object.

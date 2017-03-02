@@ -12,72 +12,108 @@
  *  and used as a template, with additional plugin-specific
  *  modifications made on top.
  */
+var path = require('path');
+
+/*
+ * This is a filthy hack. Do as I say, not as I do.
+ * Taken from: https://gist.github.com/branneman/8048520#6-the-hack
+ * This forces the NODE_PATH environment variable to include the main
+ * kolibri node_modules folder, so that even plugins being built outside
+ * of the kolibri folder will have access to all installed loaders, etc.
+ * Doing it here, rather than at command invocation, allows us to do this
+ * in a cross platform way, and also to avoid having to prepend it to all
+ * our commands that end up invoking webpack.
+ */
+
+process.env.NODE_PATH = path.resolve(path.join(__dirname, '..', '..', 'node_modules'));
+require('module').Module._initPaths();
 
 var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
-var jeet = require('jeet');
-var autoprefixer = require('autoprefixer');
+var merge = require('webpack-merge');
 
-require('./htmlhint_custom'); // adds custom rules
+var production = process.env.NODE_ENV === 'production';
+var lint = (process.env.LINT || production);
 
+// helps convert to older string syntax for vue-loader
+var combineLoaders = require('webpack-combine-loaders');
+
+var postCSSLoader = {
+  loader: 'postcss-loader',
+  options: { config: path.resolve(__dirname, '../../postcss.config.js') }
+};
+
+var cssLoader = {
+  loader: 'css-loader',
+  options: { minimize: production, sourceMap: !production }
+};
+
+// for stylus blocks in vue files.
+// note: vue-style-loader includes postcss processing
+var vueStylusLoaders = [ 'vue-style-loader',  cssLoader, 'stylus-loader' ];
+if (lint) {
+  vueStylusLoaders.push('stylint-loader')
+}
+
+// for scss blocks in vue files (e.g. Keen-UI files)
+var vueSassLoaders = [
+  'vue-style-loader', // includes postcss processing
+  cssLoader,
+  {
+    loader: 'sass-loader',
+    // prepends these variable override values to every parsed vue SASS block
+    options: { data: '@import "~kolibri.styles.keenVars";' }
+  }
+];
+
+// primary webpack config
 var config = {
   module: {
-    preLoaders: [
-      {
-        test: /\.(vue|js)$/,
-        loader: 'eslint',
-        exclude: /node_modules/
-      },
-      {
-        test: /\.(vue|html)/,
-        loader: 'htmlhint',
-        exclude: /node_modules/
-      }
-    ],
-    loaders: [
+    rules: [
       {
         test: /\.vue$/,
-        loader: 'vue'
+        loader: 'vue-loader',
+        options: {
+          loaders: {
+            js: 'buble-loader',
+            stylus: combineLoaders(vueStylusLoaders),
+            scss: combineLoaders(vueSassLoaders),
+          },
+          // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
+          preLoaders: { html: 'svg-icon-inline-loader' }
+        }
       },
       {
         test: /\.js$/,
-        loader: 'babel',
-        exclude: /node_modules/,
-        query: {
-          presets: ['es2015-ie'],
-          plugins: ['transform-runtime']
-        },
-      },
-      {
-        test: /\.json$/,
-        loader: 'json',
-        exclude: /node_modules/
+        loader: 'buble-loader',
+        exclude: /node_modules\/(?!(keen-ui)\/).*/
       },
       {
         test: /\.css$/,
-        loader: 'style-loader!css-loader!postcss-loader'
+        use: [ 'style-loader', cssLoader, postCSSLoader ]
       },
       {
         test: /\.styl$/,
-        loader: 'style-loader!css-loader?sourceMap!postcss-loader!stylus-loader!stylint'
+        use: [ 'style-loader', cssLoader, postCSSLoader, 'stylus-loader' ]
       },
-      // moved from parse_bundle_plugin.js
+      {
+        test: /\.s[a|c]ss$/,
+        use: [ 'style-loader', cssLoader, postCSSLoader, 'sass-loader' ]
+      },
       {
         test: /\.(png|jpe?g|gif|svg)$/,
-        loader: 'url',
-        query: {
-          limit: 10000,
-          name: '[name].[ext]?[hash]'
+        use: {
+          loader: 'url-loader',
+          options: { limit: 10000, name: '[name].[ext]?[hash]' }
         }
       },
-      // Usage of file loader allows referencing a local vtt file without in-lining it.
-      // Can be removed once the local en.vtt test file is removed.
+      // Use file loader to load font files.
       {
-        test: /\.(vtt|eot|woff|ttf|woff2)$/,
-        loader: 'file',
-        query: {
-          name: '[name].[ext]?[hash]'
+        test: /\.(eot|woff|ttf|woff2)$/,
+        use: {
+          loader: 'file-loader',
+          options: { name: '[name].[ext]?[hash]' }
         }
       },
       // Hack to make the onloadCSS node module properly export-able.
@@ -85,59 +121,56 @@ var config = {
       // deprecate our custom KolibriModule async css loading functionality.
       {
         test: /fg-loadcss\/src\/onloadCSS/,
-        loader: 'exports?onloadCSS'
-      },
-      // Allows <video> and <audio> HTML5 tags work on all major browsers.
-      {
-        test: require.resolve('html5media/dist/api/1.1.8/html5media'),
-        loader: "imports?this=>window"
+        use: 'exports-loader?onloadCSS'
       }
     ]
   },
-  plugins: [
-  ],
+  plugins: [],
   resolve: {
-    alias: {
-      'kolibri_module': path.resolve('kolibri/core/assets/src/kolibri_module'),
-      'core-constants': path.resolve('kolibri/core/assets/src/constants'),
-      'core-base': path.resolve('kolibri/core/assets/src/vue/core-base'),
-      'core-actions': path.resolve('kolibri/core/assets/src/actions'),
-      'learn-actions': path.resolve('kolibri/plugins/learn/assets/src/actions'),
-      'nav-bar-item': path.resolve('kolibri/core/assets/src/vue/nav-bar/nav-bar-item'),
-      'nav-bar-item.styl': path.resolve('kolibri/core/assets/src/vue/nav-bar/nav-bar-item.styl'),
-      'icon-button': path.resolve('kolibri/core/assets/src/vue/icon-button'),
-      'core-theme.styl': path.resolve('kolibri/core/assets/src/styles/core-theme.styl'),
-      'content-renderer': path.resolve('kolibri/core/assets/src/vue/content-renderer'),
-      'content_renderer_module': path.resolve('kolibri/core/assets/src/content_renderer_module'),
-      'logging': path.resolve('kolibri/core/assets/src/logging'),
-      'router': path.resolve('kolibri/core/assets/src/router'),
-      'core-store': path.resolve('kolibri/core/assets/src/core-store'),
-      'core-timer': path.resolve('kolibri/core/assets/src/timer'),
-    },
-    extensions: ["", ".vue", ".js"],
-  },
-  eslint: {
-    failOnError: true
-  },
-  htmlhint: {
-    failOnError: true,
-    emitAs: "error"
-  },
-  vue: {
-    loaders: {
-      stylus: 'vue-style-loader!css-loader?sourceMap!stylus-loader!stylint',
-      html: 'vue-html-loader!markup-inline', // inlines SVGs
-    }
-  },
-  stylus: {
-    use: [jeet()]
-  },
-  postcss: function () {
-    return [autoprefixer];
+    extensions: [ ".js", ".vue", ".styl" ],
   },
   node: {
     __filename: true
   }
 };
+
+
+// Only lint in dev mode if LINT env is set. Always lint in production.
+if (lint) {
+
+  // adds custom rules
+  require('./htmlhint_custom');
+
+  var lintConfig = {
+    module: {
+      rules: [
+        {
+          test: /\.(vue|js)$/,
+          enforce: 'pre',
+          use: {
+            loader: 'eslint-loader',
+            options: { failOnError: true }
+          },
+          exclude: /node_modules/
+        },
+        {
+          test: /\.(vue|html)/,
+          enforce: 'pre',
+          use: {
+            loader: 'htmlhint-loader',
+            options: { failOnError: true, emitAs: "error" }
+          },
+          exclude: /node_modules/
+        },
+        {
+          test: /\.styl$/,
+          enforce: 'pre',
+          loader: 'stylint-loader'
+        }
+      ]
+    }
+  };
+  config = merge.smart(config, lintConfig);
+}
 
 module.exports = config;

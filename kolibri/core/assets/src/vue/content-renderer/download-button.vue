@@ -1,86 +1,192 @@
 <template>
 
-  <icon-button @click="downloadContent" text="Download Media">
-    <svg src="download.svg"></svg>
-  </icon-button>
+  <div class="dropdown">
+    <button
+      ref="dropdownbutton"
+      class="dropdown-button"
+      @click="toggleDropdown"
+      aria-haspopup="true">
+      <span class="dropdown-button-text" :class="{'dropdown-button-text-open': dropdownOpen}">
+        {{ $tr('downloadContent') }}
+      </span>
+    </button>
+    <ul
+      ref="dropdownitems"
+      class="dropdown-items"
+      role="menu"
+      :hidden="!dropdownOpen"
+    >
+      <li
+        v-for="file in files"
+        class="dropdown-item"
+        role="presentation">
+        <a
+          download
+          class="dropdown-item-link"
+          @click="toggleDropdown"
+          :href="file.download_url"
+          role="menuitem">
+          {{ file.preset + ' (' + prettifyFileSize(file.file_size) + ')' }}
+        </a>
+      </li>
+    </ul>
+  </div>
 
 </template>
 
 
 <script>
 
-  const downloadjs = require('./download.js');
+  const filesize = require('filesize');
 
   module.exports = {
+    components: {
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
+    },
+    $trNameSpace: 'downloadButton',
+    $trs: {
+      downloadContent: 'Download content',
+    },
     props: {
-      kind: {
-        type: String,
-        required: true,
-      },
       files: {
         type: Array,
         default: () => [],
       },
-      available: {
-        type: Boolean,
-        default: false,
-      },
-      title: {
-        type: String,
-        default: '',
-      },
     },
-    components: {
-      'icon-button': require('icon-button'),
+    data() {
+      return {
+        dropdownOpen: false,
+        focusedItemIndex: 0,
+      };
     },
     computed: {
-      contentType() {
-        if (typeof this.kind !== 'undefined' & typeof this.extension !== 'undefined') {
-          return `${this.kind}/${this.extension}`;
-        }
-        return undefined;
+      dropdownItems() {
+        const listItems = Array.from(this.$refs.dropdownitems.children);
+        const anchorItems = [];
+        listItems.forEach((li) => {
+          anchorItems.push(li.children[0]);
+        });
+        return anchorItems;
       },
-      extension() {
-        if (this.availableFiles.length > 0) {
-          return this.availableFiles[0].extension;
-        }
-        return undefined;
-      },
-      availableFiles() {
-        return this.files.filter(
-          (file) => !file.thumbnail & !file.supplementary & file.available
-        );
+      focusableItems() {
+        let focusableItems = [];
+        focusableItems.push(this.$refs.dropdownbutton);
+        focusableItems = focusableItems.concat(this.dropdownItems);
+        return focusableItems;
       },
     },
     methods: {
-      /**
-      * Method that downloads the content.
-      */
-      downloadContent() {
-        const sanitizedFilename = this.sanitizeFilename(this.title);
-        const x = new XMLHttpRequest();
-        x.open('GET', this.availableFiles[0].storage_url, true);
-        x.responseType = 'blob';
-        x.onload = (e) => downloadjs(e.target.response, sanitizedFilename, this.contentType);
-        x.send();
+      prettifyFileSize(bytes) {
+        return filesize(bytes);
       },
-      /**
-      * Method that returns a safe filename.
-      */
-      sanitizeFilename(filename) {
-        let sanitizedFilename = filename.replace(/[^a-z0-9+]+/gi, '_');
-        sanitizedFilename = sanitizedFilename.replace(/_$/, '');
-        sanitizedFilename = sanitizedFilename.toLowerCase();
-        sanitizedFilename = sanitizedFilename.substring(0, 50);
-        if (!sanitizedFilename.trim()) {
-          sanitizedFilename = 'download';
+      toggleDropdown() {
+        this.dropdownOpen = !this.dropdownOpen;
+        this.focusedItemIndex = 0;
+      },
+      handleKeys(e) {
+        // TODO: More robust way of handling keyboard input.
+        if (this.dropdownOpen) {
+          switch (e.keyCode) {
+            case 40: // down
+              e.stopPropagation();
+              e.preventDefault();
+              this.focusOnItem(this.focusedItemIndex + 1);
+              return;
+
+            case 38: // up
+              e.stopPropagation();
+              e.preventDefault();
+              this.focusOnItem(this.focusedItemIndex - 1);
+              return;
+
+            case 9: // tab
+              e.stopPropagation();
+              e.preventDefault();
+              if (this.focusedItemIndex === (this.focusableItems.length - 1)) {
+                this.toggleDropdown();
+                return;
+              }
+              this.focusOnItem(this.focusedItemIndex + 1);
+              return;
+
+            case 27: // esc
+              e.stopPropagation();
+              e.preventDefault();
+              this.toggleDropdown();
+              return;
+
+            default:
+              return;
+          }
         }
-        return `${sanitizedFilename}.${this.extension}`;
       },
+      focusOnItem(index) {
+        this.focusedItemIndex =
+          Math.min(Math.max(index, 0), (this.focusableItems.length - 1));
+        this.focusableItems[this.focusedItemIndex].focus();
+      },
+    },
+    mounted() {
+      document.addEventListener('keydown', this.handleKeys);
+    },
+    beforeDestroy() {
+      document.removeEventListener('keydown', this.handleKeys);
     },
   };
 
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~kolibri.styles.definitions'
+
+  .dropdown
+    display: inline-block
+    position: relative
+
+  .dropdown-button
+    padding: 0.5em
+    margin-top: 1em
+    margin-bottom: 1em
+    font-size: smaller
+
+  .dropdown-button-text
+    &:after
+      padding-left: 0.5em
+      content: '\25BC'
+
+  .dropdown-button-text-open
+    &:after
+      content: '\25b2'
+
+  .dropdown-items
+    background-color: white
+    list-style: none
+    padding: 0
+    margin: 0
+    margin-top: -0.8em
+    position: absolute
+
+  .dropdown-item
+    padding: 0
+    margin: 0
+    width: 100%
+    position: relative
+    display: block
+
+  .dropdown-item-link
+    padding: 0.5em
+    margin: 0
+    width: 100%
+    display: block
+    text-decoration: none
+    white-space: nowrap
+    font-size: smaller
+    &:focus
+      background-color: $core-action-light
+    &:hover
+      background-color: $core-action-light
+      outline: $core-action-light 2px solid
+
+</style>

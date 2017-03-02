@@ -1,10 +1,16 @@
 <template>
 
-  <div>
-    <div v-el:container class="container" allowfullscreen>
-      <button class='btn' v-if="supportsPDFs" v-on:click="togglefullscreen">Toggle Fullscreen</button>
-      <div v-el:pdfcontainer class="pdfcontainer"></div>
-    </div>
+  <div ref="container" class="container" allowfullscreen>
+    <icon-button
+      class="btn"
+      v-if="supportsPDFs"
+      :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
+      @click="toggleFullScreen"
+      :primary="true">
+      <mat-svg v-if="isFullScreen" class="icon" category="navigation" name="fullscreen_exit"/>
+      <mat-svg v-else class="icon" category="navigation" name="fullscreen"/>
+    </icon-button>
+    <div ref="pdfcontainer" class="pdfcontainer"></div>
   </div>
 
 </template>
@@ -13,47 +19,30 @@
 <script>
 
   const PDFobject = require('pdfobject');
+  const ScreenFull = require('screenfull');
 
   module.exports = {
+
+    components: {
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
+    },
 
     props: ['defaultFile'],
 
     data: () => ({
       supportsPDFs: PDFobject.supportsPDFs,
       timeout: null,
+      isFullScreen: false,
     }),
 
     methods: {
-      togglefullscreen() {
-        const container = this.$els.container;
-        if (!document.fullscreenElement
-          && !document.webkitFullscreenElement
-          && !document.mozFullScreenElement
-          && !document.msFullscreenElement) {
-          if (container.requestFullscreen) {
-            container.requestFullscreen();
-          } else if (container.webkitRequestFullscreen) {
-            container.webkitRequestFullscreen();
-          } else if (container.mozRequestFullScreen) {
-            container.mozRequestFullScreen();
-          } else if (container.msRequestFullscreen) {
-            container.msRequestFullscreen();
-          }
-        } else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen();
-          } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-          } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-          } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-          }
-        }
+      toggleFullScreen() {
+        ScreenFull.toggle(this.$refs.container);
+        this.isFullScreen = ScreenFull.isFullscreen;
       },
     },
-    ready() {
-      PDFobject.embed(this.defaultFile.storage_url, this.$els.pdfcontainer);
+    mounted() {
+      PDFobject.embed(this.defaultFile.storage_url, this.$refs.pdfcontainer);
       this.$emit('startTracking');
       const self = this;
       this.timeout = setTimeout(() => {
@@ -66,6 +55,11 @@
       }
       this.$emit('stopTracking');
     },
+    $trNameSpace: 'pdfRenderer',
+    $trs: {
+      exitFullscreen: 'Exit fullscreen',
+      enterFullscreen: 'Enter fullscreen',
+    },
   };
 
 </script>
@@ -74,17 +68,22 @@
 <style lang="stylus" scoped>
 
   .btn
-    margin-bottom: 1em
+    position: absolute
+    left: 50%
+    transform: translateX(-50%)
 
   .container
-    text-align: center
-    height: 100%
+    position: relative
+    height: 100vh
+    max-height: calc(100vh - 24em)
+    min-height: 400px
     &:fullscreen
       width: 100%
       height: 100%
+      min-height: inherit
+      max-height: inherit
 
   .pdfcontainer
-    /* Accounts for the button height. */
-    height: calc(100% - 4em)
+    height: 100%
 
 </style>

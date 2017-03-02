@@ -1,0 +1,8 @@
+{
+  "name": "kolibri-audio-mp3-render-plugin",
+  "description": "Audio/MP3 Render Plugin for Kolibri",
+  "private": true,
+  "dependencies": {
+    "html5media": "1.1.8"
+  }
+}

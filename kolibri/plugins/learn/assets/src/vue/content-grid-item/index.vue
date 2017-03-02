@@ -1,16 +1,8 @@
 <template>
 
-  <div>
-    <grid-item v-link="link" :title="title">
-      <div class="thumbnail" :style='{ "background-image": thumb }'>
-        <content-icon
-          class="content-icon-center"
-          v-if="kind"
-          :size="60"
-          :kind="kind"
-          :progress="progress">
-        </content-icon>
-      </div>
+  <div :class="sizeClass">
+    <grid-item :link="link" :title="title" :kind="kind" :progress="progress">
+      <div class="thumbnail" :style="{ 'background-image': thumb }"></div>
     </grid-item>
   </div>
 
@@ -19,21 +11,16 @@
 
 <script>
 
-  const constants = require('../../state/constants');
-  const PageNames = constants.PageNames;
-  const PageModes = constants.PageModes;
-  const getters = require('../../state/getters');
+  const CoreConstants = require('kolibri.coreVue.vuex.constants');
+  const values = require('lodash.values');
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {
+    mixins: [responsiveWindow],
     components: {
-      'content-icon': require('../content-icon'),
       'grid-item': require('../card-grid/grid-item'),
     },
     props: {
-      id: {
-        type: String,
-        required: true,
-      },
       title: {
         type: String,
         required: true,
@@ -45,49 +32,37 @@
         type: String,
         required: true,
         validator(value) {
-          return [
-            'audio',
-            'video',
-            'document',
-            'exercise',
-          ].some(elem => elem === value);
+          return values(CoreConstants.ContentNodeKinds).includes(value);
         },
       },
       progress: {
-        type: String,
+        type: Number,
         required: true,
+        default: 0.0,
         validator(value) {
-          return [
-            'complete',
-            'partial',
-            'unstarted',
-          ].some(elem => elem === value);
+          return (value >= 0.0) && (value <= 1.0);
         },
+      },
+      link: {
+        type: Object,
+        required: true,
       },
     },
     computed: {
-      link() {
-        if (this.pageMode === PageModes.EXPLORE) {
-          return {
-            name: PageNames.EXPLORE_CONTENT,
-            params: { id: this.id },
-          };
-        }
-        return {
-          name: PageNames.LEARN_CONTENT,
-          params: { id: this.id },
-        };
+      sizeClass() {
+        if (this.windowSize.breakpoint === 0) { return 'pure-u-1-1'; }
+        if (this.windowSize.breakpoint === 1) { return 'pure-u-1-2'; }
+        if (this.windowSize.breakpoint === 2) { return 'pure-u-1-2'; }
+        if (this.windowSize.breakpoint === 3) { return 'pure-u-1-3'; }
+        if (this.windowSize.breakpoint === 4) { return 'pure-u-1-3'; }
+        if (this.windowSize.breakpoint === 5) { return 'pure-u-1-4'; }
+        return 'pure-u-1-6';
       },
       thumb() {
         if (this.thumbnail) {
           return `url(${this.thumbnail})`;
         }
         return '';
-      },
-    },
-    vuex: {
-      getters: {
-        pageMode: getters.pageMode,
       },
     },
   };
@@ -97,7 +72,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri.styles.definitions'
 
   .thumbnail
     width: 100%
@@ -106,16 +81,12 @@
     background-position: center
     background-color: black
     text-align: center
+    position: relative
 
   .thumbnail:before
     content: ''
     display: inline-block
     vertical-align: middle
-    height:100%
-
-  .content-icon-center
-    width: 70%
-    display: inline-block
-    vertical-align: middle
+    height: 100%
 
 </style>

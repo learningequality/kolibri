@@ -1,9 +1,21 @@
 <template>
 
-  <button :class="[this.primary ? 'primary' : 'secondary', 'icon-button']">
-    <slot></slot>
-    <span class="btn-text">{{ text }}</span>
-  </button>
+  <ui-button
+    @click="$emit('click')"
+    :color="primary ? 'primary' : 'default'"
+    :disabled="disabled"
+    class="koli-icon-button">
+    <span v-if="hasIcon && text">
+      <ui-icon class="icon-margin"><slot/></ui-icon>
+      {{ text }}
+    </span>
+    <span v-else-if="hasIcon">
+      <ui-icon><slot/></ui-icon>
+    </span>
+    <span v-else>
+      {{ text }}
+    </span>
+  </ui-button>
 
 </template>
 
@@ -14,66 +26,50 @@
     props: {
       text: {
         type: String,
-        required: true,
       },
-      // primary is true by default, will be primary unless specified
       primary: {
         type: Boolean,
-        default: true,
+        default: false,
       },
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
+      showTextBelowIcon: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    computed: {
+      hasIcon() {
+        // check if the parent passed anything into the slot
+        // $slots returns an empty object if nothing is passed in.
+        return !(Object.keys(this.$slots).length === 0 && this.$slots.constructor === Object);
+      },
+    },
+    components: {
+      'ui-button': require('keen-ui/src/UiButton'),
+      'ui-icon': require('keen-ui/src/UiIcon'),
     },
   };
 
 </script>
 
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
-
-  svg
-    vertical-align: middle
-
-  // styles specific to primary button
-  .primary
-    svg
-      fill: $core-action-normal
-      transition: fill $core-time ease-out
-
-    &:hover svg
-      fill: $core-action-dark
-
-
-  // styles specific to secondary button
-  .secondary
-    background-color: $core-action-normal
-    border: none
-    color: $core-bg-canvas
-
-    // fighting button styling in core global. Need refactor
-    &:hover
-      color: $core-action-light
-      border: none
-      svg
-        fill: $core-action-light
-
-    svg
-      fill: $core-bg-canvas
-      transition: fill $core-time ease-out
+  .icon-margin
+    margin-left: -0.25rem
+    margin-right: 0.375rem
+    margin-top: -0.125rem
 
 </style>
 
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 
-  @require '~core-theme.styl'
-
-  .icon-button
-    padding-right: 8px
-    height: 36px
-
-  .btn-text
-    vertical-align: middle
-    margin-right: 2px
+  .koli-icon-button svg
+    max-width: 24px
+    max-height: 24px
 
 </style>

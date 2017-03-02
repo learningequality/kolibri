@@ -1,52 +1,56 @@
 <template>
 
-  <div class="user-creation-modal">
-    <modal v-ref:modal btntext="Add New">
-
-      <h1 slot="header" class="header">Add New Account</h1>
-
-      <div slot="body">
-
+  <core-modal
+    :title="$tr('addNewAccountTitle')"
+    :has-error="errorMessage ? true : false"
+    @enter="createNewUser"
+    @cancel="close"
+  >
+    <div>
+      <!-- Fields for the user to fill out -->
+      <section class="user-fields">
         <div class="user-field">
-          <label for="name">Name</label>
-          <input @focus="clearErrorMessage" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
+          <label for="name">{{$tr('name')}}</label>
+          <input @focus="clearStatus" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
         </div>
 
         <div class="user-field">
-          <label for="username">Username</label>
-          <input @focus="clearErrorMessage" type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
+          <label for="username">{{$tr('username')}}</label>
+          <input @focus="clearStatus" type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
         </div>
 
         <div class="user-field">
-          <label for="password">Password</label>
-          <input @focus="clearErrorMessage" type="password" class="add-form" id="password" required v-model="password">
+          <label for="password">{{$tr('password')}}</label>
+          <input @focus="clearStatus" type="password" class="add-form" id="password" required v-model="password">
         </div>
 
         <div class="user-field">
-          <label for="confirm-password">Confirm Password</label>
-          <input @focus="clearErrorMessage" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
+          <label for="confirm-password">{{$tr('confirmPassword')}}</label>
+          <input @focus="clearStatus" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
         </div>
 
         <div class="user-field">
-          <label for="user-role"><span class="visuallyhidden">User Role</span></label>
-          <select @focus="clearErrorMessage" v-model="role" id="user-role">
-          <option value="learner" selected> Learner </option>
-          <option value="admin"> Admin </option>
+          <label for="user-kind"><span class="visuallyhidden">{{$tr('userKind')}}</span></label>
+          <select @focus="clearStatus" v-model="kind" id="user-kind">
+            <option :value="LEARNER"> {{$tr('learner')}} </option>
+            <option :value="COACH"> {{$tr('coach')}} </option>
+            <option :value="ADMIN"> {{$tr('admin')}} </option>
           </select>
         </div>
+      </section>
 
-      </div>
-
-      <div class="footer" slot="footer">
-        <p class="error-message" v-if="errorMessage">{{errorMessage}}</p>
-        <button class="create-btn" type="button" @click="createNewUser">Create Account</button>
-      </div>
-
-      <icon-button class="add-user-button" text="Add New" :primary="false" slot="openbtn">
-        <svg class="add-user" src="../icons/add_new_user.svg"></svg>
-      </icon-button>
-    </modal>
-  </div>
+      <!-- Button Options at footer of modal -->
+      <section class="footer">
+        <p :class="{error: errorMessage}" v-if="statusMessage" aria-live="polite">{{statusMessage}}</p>
+        <icon-button
+          class="create-btn"
+          :text="$tr('createAccount')"
+          @click="createNewUser"
+          :primary="true"
+        />
+      </section>
+    </div>
+  </core-modal>
 
 </template>
 
@@ -54,11 +58,34 @@
 <script>
 
   const actions = require('../../actions');
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
+    $trNameSpace: 'userCreateModal',
+    $trs: {
+      // Modal title
+      addNewAccountTitle: 'Add New Account',
+      // Labels
+      name: 'Name',
+      username: 'Username',
+      password: 'Password',
+      confirmPassword: 'Confirm Password',
+      userKind: 'User Kind',
+      // Button Labels
+      createAccount: 'Create Account',
+      // Select inputs
+      learner: 'Learner',
+      coach: 'Coach',
+      admin: 'Admin',
+      // Status Messages
+      emptyFieldError: 'All fields are required',
+      pwMismatchError: 'Passwords do not match',
+      unknownError: 'Whoops! Something went wrong!',
+      loadingConfirmation: 'Loading...',
+    },
     components: {
-      'icon-button': require('icon-button'),
-      'modal': require('../modal'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'core-modal': require('kolibri.coreVue.components.coreModal'),
     },
     data() {
       return {
@@ -66,44 +93,71 @@
         password: '',
         passwordConfirm: '',
         full_name: '',
-        role: 'learner',
+        kind: UserKinds.LEARNER,
         errorMessage: '',
+        confirmationMessage: '',
       };
+    },
+    mounted() {
+      // clear form on load
+      Object.assign(this.$data, this.$options.data());
+    },
+    computed: {
+      LEARNER: () => UserKinds.LEARNER,
+      COACH: () => UserKinds.COACH,
+      ADMIN: () => UserKinds.ADMIN,
+      statusMessage() {
+        if (this.errorMessage) {
+          return this.errorMessage;
+        } else if (this.confirmationMessage) {
+          return this.confirmationMessage;
+        }
+        return false;
+      },
     },
     methods: {
       createNewUser() {
         const newUser = {
           username: this.username,
           full_name: this.full_name,
-          facility: this.facility,
+          facility_id: this.facility,
+          kind: this.kind,
         };
 
-        if (this.password === this.passwordConfirm) {
+        // check for all fields populated
+        if (!(this.username && this.password && this.full_name && this.kind)) {
+          this.errorMessage = this.$tr('emptyFieldError');
+        // check for password confirmation match
+        } else if (!(this.password === this.passwordConfirm)) {
+          this.errorMessage = this.$tr('pwMismatchError');
+        // create user
+        } else {
           newUser.password = this.password;
+
+          // loading message
+          this.confirmationMessage = this.$tr('loadingConfirmation');
           // using promise to ensure that the user is created before closing
-          this.createUser(newUser, this.role).then(
+          this.createUser(newUser).then(
             () => {
-              this.full_name = '';
-              this.username = '';
-              this.password = '';
-              this.passwordConfirm = '';
-              this.clearErrorMessage();
-              this.$refs.modal.closeModal();
-            }).catch((error) => {
-              if (error.status.code === 409) {
-                this.errorMessage = error.entity;
+              this.close();
+            },
+            (error) => {
+              if (error.status.code === 400) {
+                // access the first error message
+                this.errorMessage = error.entity[Object.keys(error.entity)[0]];
               } else if (error.status.code === 403) {
                 this.errorMessage = error.entity;
               } else {
-                this.errorMessage = `Whoops! Something went wrong.`;
+                this.errorMessage = this.$tr('unknownError');
               }
             });
-        } else {
-          this.errorMessage = 'Passwords do not match.';
         }
       },
-      clearErrorMessage() {
-        this.errorMessage = '';
+      clearStatus() {
+        this.errorMessage = this.confirmationMessage = '';
+      },
+      close() {
+        this.$emit('close'); // signal parent to close
       },
     },
     vuex: {
@@ -121,7 +175,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme'
+  @require '~kolibri.styles.definitions'
 
   $button-content-size = 1em
 
@@ -161,16 +215,15 @@
 
   .create-btn
     width: 200px
-    background-color: $core-action-normal
-    color: $core-bg-canvas
+
+  .error
+    color: $core-text-error
+
+  .secondary
     &:hover
-      border-color: transparent
-      color: $core-action-light
-
-  .add-user-button
-    width: 100%
-
-  .error-message
-    color: $core-text-alert
+      color: #ffffff
+      background-color: $core-action-dark
+      svg
+        fill: #ffffff
 
 </style>

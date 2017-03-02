@@ -4,24 +4,30 @@
     <div class="wrapper" role="main">
       <img class="logo" src="./icons/logo-min.png" alt="Kolibri logo">
       <div class="container">
-        <h1>Create Kolibri Device Owner and Facility</h1>
-        <h2 class="title">Device Owner</h2>
-        <div class="description">To use Kolibri, you first need to create a Device Owner account. This account will be used to configure high-level settings for this installation, and create other administrator accounts.</div>
+        <h1>{{ $tr('header') }}</h1>
+        <h2 class="title">{{ $tr('deviceOwner') }}</h2>
+        <div class="description">{{ $tr('deviceOwnerDescription') }}</div>
         <div class="creation-form">
-          <br><input :class="{ 'input-error': username_error }" type="text" v-model="username" placeholder="Username" aria-label="Username"><br>
-          <br><input :class="{ 'input-error': password_error }" type="password" v-model="password" placeholder="Password" aria-label="Password"><br>
-          <br><input :class="{ 'input-error': password_error }" type="password" v-model="confirm_password" placeholder="Confirm password" aria-label="Confirm password">
-          <p class="error-message">{{ errormessage }}</p>
+          <p class="error-message" role="alert" aria-atomic="true">{{ errormessage }}</p>
+          <label for="nameinput" class="inputlabel">{{ $tr('username') }}:</label>
+          <input id="nameinput" :class="{ 'input-error': username_error }" type="text" v-model="username">
+          <label for="passwordinput" class="inputlabel">{{ $tr('password') }}:</label>
+          <input id="passwordinput" :class="{ 'input-error': password_error }" type="password" v-model="password">
+          <label for="confirminput" class="inputlabel">{{ $tr('confirmPassword') }}:</label>
+          <input id="confirminput" :class="{ 'input-error': password_error }" type="password" v-model="confirm_password">
         </div>
-        <h2 class="title">Facility</h2>
-        <div class="description">You also need to create a Facility, which represents your school, training center, or other location where this installation will be used.</div>
-        <br><input :class="{ 'input-error': facility_error }" type="text" v-model="facility" placeholder="Facility name" aria-label="Facility name"><br>
+        <h2 class="title">{{ $tr('facility') }}</h2>
+        <div class="description">{{ $tr('facilityDescription') }}</div>
+        <label for="facilityinput" class="inputlabel">{{ $tr('facilityName') }}:</label>
+        <input id="facilityinput" :class="{ 'input-error': facility_error }" type="text" v-model="facility">
+        <br>
         <br>
         <br>
         <div class="btn-wrapper">
-          <button class="create-btn" type="button" @click="createBoth">Create and get started</button>
+          <button class="create-btn" type="button" @click="createBoth">{{ $tr('getStarted') }}</button>
         </div>
       </div>
+      <br>
     </div>
   </div>
 
@@ -34,6 +40,19 @@
   const store = require('../state/store');
 
   module.exports = {
+    $trNameSpace: 'setupWizard',
+    $trs: {
+      header: 'Create device owner and facility',
+      deviceOwner: 'Device owner',
+      deviceOwnerDescription: 'To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts', // eslint-disable-line max-len
+      username: 'Username',
+      password: 'Password',
+      confirmPassword: 'Confirm password',
+      facility: 'Facility',
+      facilityDescription: 'You also need to create a Facility. This represents your school, training center, or other installation location', // eslint-disable-line max-len
+      facilityName: 'Facility name',
+      getStarted: 'Create and get started',
+    },
     data() {
       return {
         username: '',
@@ -87,19 +106,19 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri.styles.definitions'
 
   .device-owner-creation
-    position: fixed
-    top: 0
-    left: 0
+    position: absolute
+    overflow-y: scroll
     width: 100%
     height: 100%
-    display: table
   .wrapper
-    overflow-y: scroll
-    display: table-cell
-    vertical-align: middle
+    position: absolute
+    max-height: 100%
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
   .container
     background: #fff
     width: 100%
@@ -113,6 +132,12 @@
   h2.title
     font-size: 14px
     font-weight: bold
+  .inputlabel
+    font-size: 14px
+    color: $core-action-normal
+    margin-top: 8px
+    margin-bottom: 4px
+    display: inline-block
   .description
     font-size: 12px
     color: $core-text-annotation
@@ -126,20 +151,25 @@
     width: 100%
     border-width: 2px
     border-style: solid
-    border-color: $core-bg-canvas
     border-radius: $radius
     padding: 6px
     background-color: $core-bg-canvas
+    border-color: $core-action-light
+  input:focus
+    background-color: #DAEFE5
   .input-error
     border-width: 2px
-    border-color: $core-text-alert
-    background-color: $core-text-alert-bg
+    border-color: $core-text-error
+    background-color: $core-bg-error
   .error-message
-    color: $core-text-alert
+    color: $core-text-error
   .logo
-    height: 20%
+    height: 40%
+    width: 40%
     max-height: 160px
     min-height: 100px
+    max-width: 160px
+    min-width: 100px
     display: block
     margin-left: auto
     margin-right: auto

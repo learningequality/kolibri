@@ -1,31 +1,23 @@
 <template>
 
-  <core-base>
-    <main-nav slot="nav"></main-nav>
-    <div slot="above" class="top-wrapper">
-      <search-button class='search-btn'></search-button>
-      <label for="chan-select" class="visuallyhidden">Filter User Type</label>
-      <select
-        class="chan-select"
-        id="chan-select"
-        name="chan-select"
-        v-model="getCurrentChannel"
-        @change="switchChannel($event)"
-      >
-        <option v-for="channel in getChannels" :value="channel.id">{{ channel.name }}</option>
-      </select>
+  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
+    <div slot="app-bar-actions">
+      <channel-switcher @switch="switchChannel"/>
+      <router-link :to="searchPage">
+        <ui-icon-button
+          icon="search"
+          type="secondary"
+          color="white"
+          :ariaLabel="$tr('search')"/>
+      </router-link>
     </div>
-    <component slot="content" :is="currentPage"></component>
-    <div slot="below" class='search-pane' v-show='searchOpen' transition='search-slide'>
-      <div class='search-shadow'>
-        <search-widget
-          :show-topics="exploreMode">
-        </search-widget>
-      </div>
+    <div slot="tabs" v-if="!isSearchPage">
+      <tabs :items="learnTabs" type="icon-and-text" @tabclicked="handleTabClick"/>
     </div>
-
-    <!-- this is not used, but necessary for vue-router to function -->
-    <router-view></router-view>
+    <div slot="content">
+      <breadcrumbs/>
+      <component :is="currentPage"/>
+    </div>
 
   </core-base>
 
@@ -34,25 +26,81 @@
 
 <script>
 
-  const constants = require('../state/constants');
-  const PageNames = constants.PageNames;
-  const PageModes = constants.PageModes;
+  const PageNames = require('../state/constants').PageNames;
+  const PageModes = require('../state/constants').PageModes;
   const getters = require('../state/getters');
   const store = require('../state/store');
+  const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
+    $trNameSpace: 'learn',
+    $trs: {
+      learnTitle: 'Learn',
+      recommended: 'Recommended',
+      topics: 'Topics',
+      search: 'search',
+    },
     components: {
-      'core-base': require('core-base'),
-      'main-nav': require('./main-nav'),
-      'search-widget': require('./search-widget'),
-      'search-button': require('./search-widget/search-button'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
       'scratchpad-page': require('./scratchpad-page'),
       'content-unavailable-page': require('./content-unavailable-page'),
+      'core-base': require('kolibri.coreVue.components.coreBase'),
+      'ui-icon-button': require('keen-ui/src/UiIconButton'),
+      'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
+      'breadcrumbs': require('./breadcrumbs'),
+      'search-page': require('./search-page'),
+      'tabs': require('kolibri.coreVue.components.tabs'),
+    },
+    methods: {
+      switchChannel(channelId) {
+        let page;
+        switch (this.pageMode) {
+          case PageModes.SEARCH:
+            page = PageNames.SEARCH;
+            if (this.searchTerm) {
+              this.$router.push({
+                name: page,
+                params: { channel_id: channelId },
+                query: { query: this.searchTerm },
+              });
+              return;
+            }
+            break;
+
+          case PageModes.LEARN:
+            page = PageNames.LEARN_CHANNEL;
+            break;
+
+          default:
+            page = PageNames.EXPLORE_CHANNEL;
+        }
+
+        this.$router.push({
+          name: page,
+          params: { channel_id: channelId },
+        });
+      },
+      handleTabClick(tabIndex) {
+        switch (tabIndex) {
+          case 0:
+            this.$router.push({ name: PageNames.LEARN_ROOT });
+            return;
+
+          case 1:
+            this.$router.push({ name: PageNames.EXPLORE_ROOT });
+            return;
+
+          default:
+            return;
+        }
+      },
     },
     computed: {
+      topLevelPageName() {
+        return TopLevelPageNames.LEARN;
+      },
       currentPage() {
         if (this.pageName === PageNames.EXPLORE_CHANNEL ||
           this.pageName === PageNames.EXPLORE_TOPIC) {
@@ -71,52 +119,39 @@
         if (this.pageName === PageNames.CONTENT_UNAVAILABLE) {
           return 'content-unavailable-page';
         }
+        if (this.pageName === PageNames.SEARCH) {
+          return 'search-page';
+        }
         return null;
       },
-      exploreMode() {
-        return this.pageMode === PageModes.EXPLORE;
+      searchPage() {
+        return { name: PageNames.SEARCH_ROOT };
       },
-      /*
-      * Get a list of channels.
-      */
-      getChannels() {
-        return this.channelList;
+      isSearchPage() {
+        return this.pageName === PageNames.SEARCH;
       },
-      /*
-      * Get the current channel ID.
-      */
-      getCurrentChannel() {
-        return this.currentChannel;
-      },
-    },
-    methods: {
-      /*
-      * Route to selected channel.
-      */
-      switchChannel(event) {
-        let rootPage;
-        if (this.exploreMode) {
-          rootPage = constants.PageNames.EXPLORE_CHANNEL;
-        } else {
-          rootPage = constants.PageNames.LEARN_CHANNEL;
-        }
-        this.$router.go(
-          {
-            name: rootPage,
-            params: {
-              channel_id: event.target.value,
-            },
-          }
-        );
+      learnTabs() {
+        const isRecommended = (this.pageMode === PageModes.LEARN);
+        const isTopics = (this.pageMode === PageModes.EXPLORE);
+
+        return [{
+          title: this.$tr('recommended'),
+          icon: 'forum',
+          selected: isRecommended,
+          disabled: false,
+        }, {
+          title: this.$tr('topics'),
+          icon: 'folder',
+          selected: isTopics,
+          disabled: false,
+        }];
       },
     },
     vuex: {
       getters: {
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
-        searchOpen: state => state.searchOpen,
-        currentChannel: state => state.currentChannel,
-        channelList: state => state.channelList,
+        searchTerm: state => state.pageState.searchTerm,
       },
     },
     store, // make this and all child components aware of the store
@@ -127,55 +162,9 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
   @require 'learn.styl'
 
-  .search-btn
-    position: fixed
-    top: 1rem
-    right: 2rem
-    z-index: 1
-    @media screen and (max-width: $portrait-breakpoint)
-      right: 1rem
-
-  .top-wrapper
-    text-align: right
-    padding-top: 22px
-    padding-right: $right-margin * 2
-
-  .chan-select
-    width: 11em
-    padding: 0.2em 0.8em
-    color: $core-text-annotation
-    font-size: 0.9rem
-    border: 1px solid $core-text-annotation
-    border-radius: 50px
-    background: url(./icons/arrowdown.svg) no-repeat right
-    -webkit-appearance: none
-    -moz-appearance: none
-    outline: none
-
-  .search-pane
-    background-color: $core-bg-canvas
-    overflow-y: scroll
-    position: fixed
-    top: 0
-    left: 0
-    height: 100%
-    width: 100%
-    padding-left: $left-margin
-    @media screen and (max-width: $portrait-breakpoint)
-      padding-left: 0
-      margin-left: $card-gutter
-
-  .search-shadow
-    padding-right: $right-margin
-    min-height: 100%
-
-  .search-slide-transition
-    transition: transform $core-time ease-out
-
-  .search-slide-enter, .search-slide-leave
-    transform: translateX(100vw)
+  .content
+    margin: auto
 
 </style>

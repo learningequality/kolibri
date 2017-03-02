@@ -1,0 +1,179 @@
+
+/*
+  Styles defined in this file are attached to the document head, and
+  apply globally to everything in the document. They are added after
+  normalize.css.
+
+  Concrete styles defined here affect everything on the page.
+
+  Abstract stylus variables and functions defined here are
+  not available to vue components. Those should be added to
+  definitions.styl.
+*/
+
+
+@require 'definitions.styl'
+
+
+// http://www.paulirish.com/2012/box-sizing-border-box-ftw/
+// @stylint off
+// Stylint disapproves of * selectors, as it should, but we use them
+// here to enforce global behaviour.
+*, *:before, *:after
+  // @stylint on
+  box-sizing: inherit
+
+
+html
+  // https://davidwalsh.name/html5-boilerplate
+  font-size: 100%
+  text-size-adjust: 100%
+  overflow: hidden
+  box-sizing: border-box
+
+  // from normalize v5
+  line-height: 1.15
+
+html, body
+  height:100%
+  color: $core-text-default
+  background-color: $core-bg-canvas
+  letter-spacing: 0.01em
+
+// https://purecss.io/grids/#using-grids-with-custom-fonts
+html, button, input, select, textarea, .pure-g [class *= 'pure-u']
+  font-family: $core-font
+
+h1
+  font-size: 1.5em
+
+h2
+  font-size: 1.17em
+
+h3, h4, h5, h6
+  font-size: 1em
+
+a
+  color: $core-action-normal
+  transition: color $core-time ease-out
+
+  &:hover
+    color: $core-action-dark
+
+  &:hover:focus
+    outline: $core-action-light 2px solid
+
+:focus
+  outline: $core-action-light 2px solid
+
+// https://davidwalsh.name/html5-boilerplate
+img
+  -ms-interpolation-mode: bicubic
+
+
+// https://davidwalsh.name/html5-boilerplate
+svg:not(:root)
+  overflow: hidden
+
+button
+  // structure (from https://github.com/yahoo/pure/blob/master/src/buttons/css/buttons-core.css)
+  display: inline-block
+  zoom: 1
+  line-height: normal
+  white-space: nowrap
+  vertical-align: middle
+  text-align: center
+  cursor: pointer
+  user-select: none
+
+  // style
+  font-size: 0.9em
+  color: $core-action-normal
+  background-color: transparent
+  border-radius: 4px
+  border-width: 2px
+  border-style: solid
+  border-color: $core-action-normal
+  transition: border-color $core-time ease-out, color $core-time ease-out
+
+  &:hover
+    color: $core-action-dark
+    border-color: $core-action-dark
+
+  &:focus
+    outline: $core-action-light 2px solid
+
+  &:disabled
+    color: $core-text-disabled
+    border-color: $core-text-disabled
+    cursor: not-allowed
+
+
+// Firefox: Get rid of the inner focus border
+// (from https://github.com/yahoo/pure/blob/master/src/buttons/css/buttons-core.css)
+button::-moz-focus-inner
+  padding: 0
+  border: none
+
+.visuallyhidden
+  border: none
+  clip: rect(0 0 0 0)
+  height: 1px
+  margin: -1px
+  overflow: hidden
+  padding: 0
+  position: absolute
+  width: 1px
+
+.core-text-alert
+  color: $core-text-error
+
+.core-text-annotation
+  color: $core-text-annotation
+
+// Definitions for Google Material Design Icons
+// from http://google.github.io/material-design-icons/
+
+@font-face
+  font-family: 'Material Icons'
+  font-style: normal
+  font-weight: 400
+  src: local('Material Icons'),
+local('MaterialIcons-Regular'),
+url('../../../../../node_modules/material-design-icons/iconfont/MaterialIcons-Regular.woff2') format('woff2'),
+url('../../../../../node_modules/material-design-icons/iconfont/MaterialIcons-Regular.woff') format('woff'),
+url('../../../../../node_modules/material-design-icons/iconfont/MaterialIcons-Regular.ttf') format('truetype')
+
+.material-icons
+  font-family: 'Material Icons'
+  font-weight: normal
+  font-style: normal
+  font-size: 24px /* Preferred icon size */
+  display: inline-block
+  line-height: 1
+  text-transform: none
+  letter-spacing: normal
+  word-wrap: normal
+  white-space: nowrap
+  direction: ltr
+
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility
+
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale
+
+  /* Support for IE. */
+  font-feature-settings: 'liga'
+
+/*
+  helper classes to add padding to grid elements
+  (set globally in core-base.vue)
+*/
+.gutter-16 [class *= 'pure-u']
+  padding: 8px
+.gutter-24 [class *= 'pure-u']
+  padding: 12px
+

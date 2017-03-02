@@ -10,14 +10,13 @@
 
 <script>
 
-  module.exports = {
-  };
+  module.exports = {};
 
 </script>
 
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri.styles.definitions'
 
 </style>

@@ -3,12 +3,12 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.auth.models import AnonymousUser
 from rest_framework import filters, permissions, status, viewsets
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-from .models import Classroom, DeviceOwner, Facility, FacilityUser, LearnerGroup, Membership, Role
+from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 from .serializers import (
-    ClassroomSerializer, DeviceOwnerSerializer, FacilitySerializer, FacilityUserSerializer, LearnerGroupSerializer, MembershipSerializer, RoleSerializer
+    ClassroomSerializer, DeviceOwnerSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUserSerializer, LearnerGroupSerializer,
+    MembershipSerializer, RoleSerializer
 )
 
 
@@ -64,17 +64,18 @@ class KolibriAuthPermissions(permissions.BasePermission):
             return False
 
 
+class FacilityDatasetViewSet(viewsets.ModelViewSet):
+    permissions_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter,)
+    queryset = FacilityDataset.objects.all()
+    serializer_class = FacilityDatasetSerializer
+
+
 class FacilityUserViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
-
-    def create(self, request, *args, **kwargs):
-        try:
-            return super(viewsets.ModelViewSet, self).create(request, *args, **kwargs)
-        except ValidationError:
-            return Response("An account with that username already exists.", status=status.HTTP_409_CONFLICT)
 
 
 class DeviceOwnerViewSet(viewsets.ModelViewSet):
@@ -113,7 +114,7 @@ class CurrentFacilityViewSet(viewsets.ViewSet):
         elif type(logged_in_user) is AnonymousUser:
             return Response(Facility.objects.all().values_list('id', flat=True))
         else:
-            return Response(logged_in_user.facility_id)
+            return Response([logged_in_user.facility_id])
 
 
 class ClassroomViewSet(viewsets.ModelViewSet):
@@ -130,6 +131,33 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
     serializer_class = LearnerGroupSerializer
 
     filter_fields = ('parent',)
+
+
+class SignUpViewSet(viewsets.ViewSet):
+
+    def extract_request_data(self, request):
+        return {
+            "username": request.data.get('username', ''),
+            "full_name": request.data.get('full_name', ''),
+            "password": request.data.get('password', ''),
+            "facility": Facility.get_default_facility().id,
+        }
+
+    def create(self, request):
+
+        data = self.extract_request_data(request)
+
+        # we validate the user's input, and if valid, login as user
+        serialized_user = FacilityUserSerializer(data=data)
+        if serialized_user.is_valid():
+            serialized_user.save()
+            authenticated_user = authenticate(username=data['username'], password=data['password'], facility=data['facility'])
+            login(request, authenticated_user)
+            return Response(serialized_user.data, status=status.HTTP_201_CREATED)
+        else:
+            # grab error if related to username
+            error = serialized_user.errors.get('username', None)
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SessionViewSet(viewsets.ViewSet):
@@ -158,23 +186,36 @@ class SessionViewSet(viewsets.ViewSet):
     def get_session(self, request):
         user = get_user(request)
         if isinstance(user, AnonymousUser):
-            return {'id': None, 'username': '', 'full_name': '', 'user_id': None, 'facility_id': None, 'kind': ['ANONYMOUS'], 'error': '200'}
+            return {'id': 'current',
+                    'username': '',
+                    'full_name': '',
+                    'user_id': None,
+                    'facility_id': None,
+                    'kind': ['anonymous'],
+                    'error': '200'}
 
-        session = {'id': 'current', 'username': user.username,
+        session = {'id': 'current',
+                   'username': user.username,
                    'full_name': user.full_name,
                    'user_id': user.id}
         if isinstance(user, DeviceOwner):
-            session.update({'facility_id': None, 'kind': ['SUPERUSER'], 'error': '200'})
+            session.update({'facility_id': None,
+                            'kind': ['superuser'],
+                            'error': '200'})
             return session
         else:
             roles = Role.objects.filter(user_id=user.id)
             if len(roles) is not 0:
-                session.update({'facility_id': user.facility_id, 'kind': [], 'error': '200'})
+                session.update({'facility_id': user.facility_id,
+                                'kind': [],
+                                'error': '200'})
                 for role in roles:
                     if role.kind == 'admin':
-                        session['kind'].append('ADMIN')
+                        session['kind'].append('admin')
                     else:
-                        session['kind'].append('COACH')
+                        session['kind'].append('coach')
             else:
-                session.update({'facility_id': user.facility_id, 'kind': ['LEARNER'], 'error': '200'})
+                session.update({'facility_id': user.facility_id,
+                                'kind': ['learner'],
+                                'error': '200'})
             return session

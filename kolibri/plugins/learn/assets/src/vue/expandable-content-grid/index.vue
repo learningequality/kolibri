@@ -1,23 +1,22 @@
 <template>
 
   <div>
-    <card-grid :header="title" v-if="slicedContents.length">
+    <card-grid :header="computedTitle" v-if="slicedContents.length">
       <content-grid-item
         v-for="content in slicedContents"
         :title="content.title"
         :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
-        :id="content.id">
-      </content-grid-item>
+        :link="genContentLink(content.id)"/>
     </card-grid>
 
-    <div class='button-wrapper' v-if="contents.length > nCollapsed">
-      <icon-button @click='toggle()' text="Show Less" v-if='expanded'>
-        <svg src="show-less.svg"></svg>
+    <div class="button-wrapper" v-if="contents.length > nCollapsed">
+      <icon-button @click="toggle()" :text="less" v-if="expanded">
+        <mat-svg category="hardware" name="keyboard_arrow_up"/>
       </icon-button>
-      <icon-button @click='toggle()' text="Show More" v-else>
-        <svg src="show-more.svg"></svg>
+      <icon-button @click="toggle()" :text="more" v-else>
+        <mat-svg category="hardware" name="keyboard_arrow_down"/>
       </icon-button>
     </div>
   </div>
@@ -27,27 +26,35 @@
 
 <script>
 
+  const PageNames = require('../../state/constants').PageNames;
+
   module.exports = {
+    $trNameSpace: 'learnExpandable',
+    $trs: {
+      less: 'Show less',
+      more: 'Show more',
+      defaultTitle: 'Contents',
+    },
     props: {
       title: {
         type: String,
-        default: 'Contents',
+        default: '',
       },
       contents: {
         type: Array,
-        default: [],
+        default: () => [],
       },
       nCollapsed: {
         type: Number,
-        default: 6,
+        default: 3,
       },
       nExpanded: {
         type: Number,
-        default: 12,
+        default: 9,
       },
     },
     components: {
-      'icon-button': require('icon-button'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
       'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
     },
@@ -61,10 +68,30 @@
         const num = this.expanded ? this.nExpanded : this.nCollapsed;
         return this.contents.slice(0, num);
       },
+      less() {
+        return this.$tr('less');
+      },
+      more() {
+        return this.$tr('more');
+      },
+      computedTitle() {
+        return this.title.length ? this.title : this.$tr('defaultTitle');
+      },
     },
     methods: {
       toggle() {
         this.expanded = !this.expanded;
+      },
+      genContentLink(id) {
+        return {
+          name: PageNames.LEARN_CONTENT,
+          params: { channel_id: this.channelId, id },
+        };
+      },
+    },
+    vuex: {
+      getters: {
+        channelId: (state) => state.core.channels.currentId,
       },
     },
   };
@@ -74,7 +101,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  @require '~kolibri.styles.definitions'
 
   .button-wrapper
     text-align: center

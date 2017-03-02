@@ -5,7 +5,9 @@ Developer Guide
    :maxdepth: 1
 
    getting_started
+   manual_testing
 
+.. _architecture:
 
 Architecture
 ------------
@@ -19,6 +21,9 @@ Architecture
    building
    conventions
    frontend
+   i18n
+
+.. _themes:
 
 Themes
 ------
@@ -26,6 +31,7 @@ Themes
 .. toctree::
    :maxdepth: 1
 
+   content
    uap
    user_management
    asset_loading

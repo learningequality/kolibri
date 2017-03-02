@@ -50,6 +50,11 @@ describe('Mediator', function () {
       assert(this.mediator._eventDispatcher.$off instanceof Function);
     });
   });
+  describe('language asset registry', function () {
+    it('should be empty', function () {
+      assert.deepEqual(this.mediator._languageAssetRegistry, {});
+    });
+  });
   describe('registerKolibriModuleSync method', function () {
     beforeEach(function () {
       this._registerMultipleEvents = sinon.stub(this.mediator, '_registerMultipleEvents');
@@ -521,6 +526,194 @@ describe('Mediator', function () {
       const arg3 = ['four'];
       this.mediator.emit(arg1, arg2, arg3);
       assert(this.stub.alwaysCalledWith(arg1, arg2, arg3));
+    });
+  });
+  describe('registerLanguageAssets method', function () {
+    const moduleName = 'test';
+    const language = 'test_lang';
+    const messageMap = {
+      test: 'test message',
+    };
+    beforeEach(function () {
+      this.spy = sinon.spy();
+      this.vueRewireReset = Mediator.__set__('Vue', { registerMessages: this.spy });
+    });
+    afterEach(function () {
+      this.vueRewireReset();
+    });
+    it('should add an object keyed as moduleName under the language asset registry', function () {
+      const self = this;
+      self.mediator.registerLanguageAssets(moduleName, language, messageMap);
+      assert(self.mediator._languageAssetRegistry[moduleName]);
+    });
+    it('should add an object keyed as moduleName.language under the language asset registry', function () { // eslint-disable-line max-len
+      const self = this;
+      self.mediator.registerLanguageAssets(moduleName, language, messageMap);
+      assert(self.mediator._languageAssetRegistry[moduleName][language]);
+    });
+    it('should set loaded true for moduleName/language in language asset registry', function () {
+      const self = this;
+      self.mediator.registerLanguageAssets(moduleName, language, messageMap);
+      assert.strictEqual(self.mediator._languageAssetRegistry[moduleName][language].loaded, true);
+    });
+    it('should call Vue.registerMessages once', function () {
+      const self = this;
+      self.mediator.registerLanguageAssets(moduleName, language, messageMap);
+      assert(this.spy.calledOnce);
+    });
+    it('should call Vue.registerMessages with arguments language and messageMap', function () {
+      const self = this;
+      self.mediator.registerLanguageAssets(moduleName, language, messageMap);
+      assert(this.spy.calledWithExactly(language, messageMap));
+    });
+  });
+  describe('registerLanguageAssetsUrl method', function () {
+    const moduleName = 'test';
+    const language = 'test_lang';
+    const messageUrl = 'http://here.com';
+    it('should add an object keyed as moduleName under the language asset registry', function () {
+      this.mediator.registerLanguageAssetsUrl(moduleName, language, messageUrl);
+      assert(this.mediator._languageAssetRegistry[moduleName]);
+    });
+    it('should add an object keyed as moduleName.language under the language asset registry', function () { // eslint-disable-line max-len
+      this.mediator.registerLanguageAssetsUrl(moduleName, language, messageUrl);
+      assert(this.mediator._languageAssetRegistry[moduleName][language]);
+    });
+    it('should set loaded false for moduleName/language in language asset registry', function () {
+      this.mediator.registerLanguageAssetsUrl(moduleName, language, messageUrl);
+      assert.strictEqual(this.mediator._languageAssetRegistry[moduleName][language].loaded, false);
+    });
+    it('should set url to messageUrl for moduleName/language in language asset registry', function () { // eslint-disable-line max-len
+      this.mediator.registerLanguageAssetsUrl(moduleName, language, messageUrl);
+      assert.strictEqual(this.mediator._languageAssetRegistry[moduleName][language].url, messageUrl); // eslint-disable-line max-len
+    });
+  });
+  describe('_fetchLanguageAssets method', function () {
+    const moduleName = 'test';
+    const language = 'test_lang';
+    const messageUrl = 'http://here.com';
+    const messageMap = {
+      test: 'test message',
+    };
+    beforeEach(function () {
+      this.spy = sinon.spy();
+      const self = this;
+      this.clientRewireReset = Mediator.__set__('client', function (...args) {
+        self.spy(...args);
+        return new Promise(function (resolve, reject) {
+          if (self.resolve) {
+            resolve({
+              entity: messageMap,
+            });
+          } else {
+            reject();
+          }
+        });
+      });
+    });
+    afterEach(function () {
+      this.clientRewireReset();
+    });
+    it('should not call the client when no language assets are registered', function () {
+      this.mediator._fetchLanguageAssets(moduleName, language);
+      assert(!this.spy.called);
+    });
+    it('should not call the client when the particular language assets are not registered', function () { // eslint-disable-line max-len
+      this.mediator._languageAssetRegistry[moduleName] = {};
+      this.mediator._fetchLanguageAssets(moduleName, language);
+      assert(!this.spy.called);
+    });
+    it('should not call the client when the particular language assets are registered but have been loaded', function () { // eslint-disable-line max-len
+      this.mediator._languageAssetRegistry[moduleName] = {};
+      this.mediator._languageAssetRegistry[moduleName][language] = {
+        loaded: true,
+      };
+      this.mediator._fetchLanguageAssets(moduleName, language);
+      assert(!this.spy.called);
+    });
+    it('should not call the client when the particular language assets are registered but have an existing loading promise', function () { // eslint-disable-line max-len
+      this.mediator._languageAssetRegistry[moduleName] = {};
+      this.mediator._languageAssetRegistry[moduleName][language] = {
+        promise: new Promise(function (resolve, reject) {
+          resolve();
+        }),
+      };
+      this.mediator._fetchLanguageAssets(moduleName, language);
+      assert(!this.spy.called);
+    });
+    it('should call the client once when the particular language assets are registered but have not been loaded/loading', function () { // eslint-disable-line max-len
+      this.mediator._languageAssetRegistry[moduleName] = {};
+      this.mediator._languageAssetRegistry[moduleName][language] = {
+        loaded: false,
+        url: messageUrl,
+      };
+      this.mediator._fetchLanguageAssets(moduleName, language).then(function () {}, function () {});
+      assert(this.spy.calledOnce);
+    });
+    it('should call the client with the argument path: messageUrl when the particular language assets are registered but have not been loaded/loading', function () { // eslint-disable-line max-len
+      this.mediator._languageAssetRegistry[moduleName] = {};
+      this.mediator._languageAssetRegistry[moduleName][language] = {
+        loaded: false,
+        url: messageUrl,
+      };
+      this.mediator._fetchLanguageAssets(moduleName, language).then(function () {}, function () {});
+      assert(this.spy.calledWithExactly({ path: messageUrl }));
+    });
+    it('should set a promise on the language registry when the particular language assets are registered but have not been loaded/loading', function () { // eslint-disable-line max-len
+      this.mediator._languageAssetRegistry[moduleName] = {};
+      this.mediator._languageAssetRegistry[moduleName][language] = {
+        loaded: false,
+        url: messageUrl,
+      };
+      this.mediator._fetchLanguageAssets(moduleName, language).then(function () {}, function () {});
+      assert(
+        this.mediator._languageAssetRegistry[moduleName][language].promise instanceof Promise);
+    });
+    it('should call registerLanguageAssets once when the particular language assets are loaded successfully', function (done) { // eslint-disable-line max-len
+      this.mediator._languageAssetRegistry[moduleName] = {};
+      this.mediator._languageAssetRegistry[moduleName][language] = {
+        loaded: false,
+        url: messageUrl,
+      };
+      const spy = sinon.stub(this.mediator, 'registerLanguageAssets');
+      this.resolve = true;
+      this.mediator._fetchLanguageAssets(moduleName, language).then(function () {
+        assert(spy.calledOnce);
+        done();
+      });
+    });
+    it('should call registerLanguageAssets with args moduleName, language, and messageMap when the particular language assets are loaded successfully', function (done) { // eslint-disable-line max-len
+      this.mediator._languageAssetRegistry[moduleName] = {};
+      this.mediator._languageAssetRegistry[moduleName][language] = {
+        loaded: false,
+        url: messageUrl,
+      };
+      const spy = sinon.stub(this.mediator, 'registerLanguageAssets');
+      this.resolve = true;
+      this.mediator._fetchLanguageAssets(moduleName, language).then(function () {
+        assert(spy.calledWithExactly(moduleName, language, messageMap));
+        done();
+      });
+    });
+    it('should call logging.error when the particular language assets are not loaded successfully', function (done) { // eslint-disable-line max-len
+      this.mediator._languageAssetRegistry[moduleName] = {};
+      this.mediator._languageAssetRegistry[moduleName][language] = {
+        loaded: false,
+        url: messageUrl,
+      };
+      const self = this;
+      this.loggingSpy = sinon.spy();
+      const resetRewire = Mediator.__set__('logging', {
+        error() {
+          self.loggingSpy();
+        },
+      });
+      this.resolve = false;
+      this.mediator._fetchLanguageAssets(moduleName, language).then(function () {}, function () {
+        assert(self.loggingSpy.calledOnce);
+        resetRewire();
+        done();
+      });
     });
   });
 });

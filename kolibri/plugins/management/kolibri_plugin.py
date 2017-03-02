@@ -18,8 +18,7 @@ class ManagementPlugin(KolibriPluginBase):
 
 class ManagementAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "management_module"
-    src_file = "kolibri/plugins/management/assets/src/app.js"
-    static_dir = "kolibri/plugins/management/static"
+    src_file = "assets/src/app.js"
 
 
 class ManagementInclusionHook(hooks.ManagementSyncHook):
@@ -27,5 +26,5 @@ class ManagementInclusionHook(hooks.ManagementSyncHook):
 
 
 class ManagementNavItem(UserNavigationHook):
-    label = _("Management!")
+    label = _("Management")
     url = '#'

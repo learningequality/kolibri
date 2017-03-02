@@ -1,0 +1,6 @@
+{
+  "name": "kolibri-html5-app-renderer-plugin",
+  "description": "HTML5 App Renderer Plugin for Kolibri",
+  "private": true,
+  "dependencies": {}
+}

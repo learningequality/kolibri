@@ -1,17 +1,16 @@
 <template>
 
-  <div class='header-wrapper'>
-    <div class='extra-nav'>
-      <slot name='extra-nav'></slot>
+  <div class="header-wrapper">
+    <div class="extra-nav">
+      <slot name="extra-nav"/>
     </div>
-    <h1 class='header'>
-      <div class='icon-wrapper'>
-        <slot name='icon'></slot>
-      </div>
-      <div class='text'>
+    <div class="header">
+      <h1 class="title">
+        <content-icon :kind="contentKind"/>
         {{ title }}
-      </div>
-    </h1>
+        <progress-icon :progress="progress"/>
+      </h1>
+    </div>
   </div>
 
 </template>
@@ -19,10 +18,32 @@
 
 <script>
 
+  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
+
   module.exports = {
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+      'progress-icon': require('kolibri.coreVue.components.progressIcon'),
+    },
     props: {
       title: {
         type: String,
+      },
+    },
+    vuex: {
+      getters: {
+        contentKind: (state) => {
+          if (state.pageState.content) {
+            return state.pageState.content.kind;
+          }
+          return ContentNodeKinds.TOPIC;
+        },
+        progress: (state) => {
+          if (state.pageState.content) {
+            return state.core.logging.summary.progress;
+          }
+          return null;
+        },
       },
     },
   };
@@ -35,41 +56,22 @@
   /** WARNING - unscoped styles for children                  */
   /* use very precise selectors to minimize risk of collision */
 
-  @require '~core-theme.styl'
+  @require '~kolibri.styles.definitions'
 
   .header-wrapper .extra-nav a
     color: $core-text-annotation
     font-weight: 300
-
-  // @stylint off
-  .header-wrapper .icon-wrapper > *
-  // @stylint on
-    width: 1em
-    height: 1em
 
 </style>
 
 
 <style lang="stylus" scoped>
 
-  .header-wrapper
-    margin-top: 1em
-
   .extra-nav
     font-size: 12px
     min-height: 16px
 
-  .header
-    position: relative
-    margin-top: 0.3em
-
-  .icon-wrapper
-    display: block
-    position: absolute
-    top: -1px
-
-  .text
-    display: block
-    margin-left: 45px
+  .title
+    display: inline-block
 
 </style>

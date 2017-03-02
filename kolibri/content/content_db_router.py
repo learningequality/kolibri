@@ -11,7 +11,6 @@ Thanks to https://github.com/ambitioninc/django-dynamic-db-router for inspiratio
 """
 
 import os
-import sqlite3
 import threading
 from functools import wraps
 
@@ -26,8 +25,17 @@ THREAD_LOCAL = threading.local()
 
 _content_databases_with_attached_default_db = set()
 
+# since Django uses pysqlite2 if available, we need to catch its OperationalError instead
+try:
+    from pysqlite2.dbapi2 import OperationalError
+except ImportError:
+    from sqlite3 import OperationalError
+
 def default_database_is_attached():
-    alias = get_active_content_database()
+    try:
+        alias = get_active_content_database()
+    except ContentModelUsedOutsideDBContext:
+        return False
     return alias in _content_databases_with_attached_default_db
 
 def get_active_content_database(return_none_if_not_set=False):
@@ -41,6 +49,16 @@ def get_active_content_database(return_none_if_not_set=False):
             return None
         else:
             raise ContentModelUsedOutsideDBContext()
+
+    # retrieve the database connection to make sure it's been properly initialized
+    get_content_database_connection(alias)
+
+    return alias
+
+def get_content_database_connection(alias=None):
+
+    if not alias:
+        alias = get_active_content_database()
 
     # try to connect to the content database, and if connection doesn't exist, create it
     try:
@@ -64,7 +82,7 @@ def get_active_content_database(return_none_if_not_set=False):
     # if possible, attach the default database to the content database connection to enable joins
     _attach_default_database(alias)
 
-    return alias
+    return connections[alias].connection
 
 def _attach_default_database(alias):
     """
@@ -85,7 +103,7 @@ def _attach_default_database(alias):
             connections[alias].connection.execute("ATTACH DATABASE '{}' AS defaultdb;".format(default_db_path))
             # record the fact that the default database has been attached to this content database
             _content_databases_with_attached_default_db.add(alias)
-        except sqlite3.OperationalError:
+        except OperationalError:
             # this will happen if the database is already attached; we can safely ignore
             pass
 

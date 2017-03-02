@@ -2,56 +2,50 @@
 
   <div>
 
-    <page-header>
-      <breadcrumbs
-        v-if="pageMode === $options.PageModes.EXPLORE"
-        slot='extra-nav'
-        :rootid='rootTopicId'
-        :crumbs='breadcrumbs'>
-      </breadcrumbs>
-      <a v-else slot='extra-nav' v-link="{ name: $options.PageNames.LEARN_CHANNEL }">
-        <span id="little-arrow">←</span> Learn
-      </a>
-    </page-header>
+    <page-header :title="content.title"/>
 
-    <div class="content-container" v-show='!searchOpen'>
-      <content-render
-        :id="id"
-        :kind="kind"
-        :files="files"
-        :content-id="contentId"
-        :channel-id="channelId"
-        :available="available"
-        :extra-fields="extraFields">
-      </content-render>
+    <content-renderer
+      v-show="!searchOpen"
+      class="content-renderer"
+      :id="content.id"
+      :kind="content.kind"
+      :files="content.files"
+      :contentId="content.content_id"
+      :channelId="channelId"
+      :available="content.available"
+      :extraFields="content.extra_fields"/>
+
+    <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')">
+      <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
+    </icon-button>
+
+    <p class="page-description">{{ content.description }}</p>
+
+    <download-button v-if="canDownload" :files="content.files" class="download-button-left-align"/>
+
+    <div class="metadata">
+      <p>
+        <strong>{{ $tr('author') }}: </strong>
+        <span v-if="content.author">{{ content.author }}</span>
+        <span v-else>-</span>
+      </p>
+      <p>
+        <strong>{{ $tr('license') }}: </strong>
+        <span v-if="content.license">{{ content.license }}</span>
+        <span v-else>-</span>
+      </p>
+      <p>
+        <strong>{{ $tr('copyrightHolder') }}: </strong>
+        <span v-if="content.license_owner">{{ content.license_owner }}</span>
+        <span v-else>-</span>
+      </p>
     </div>
 
-    <page-header :title='title'>
-      <content-icon
-        slot='icon'
-        :ispageicon="true"
-        :size="25"
-        :kind="kind"
-        :progress="progress">
-      </content-icon>
-    </page-header>
-
-    <download-button
-      :kind="kind"
-      :files="files"
-      :available="available"
-      :title="title">
-    </download-button>
-
-    <p class="page-description">
-      {{ description }}
-    </p>
-
-    <expandable-content-grid class="recommendation-section"
-      v-if="pageMode === $options.PageModes.LEARN"
-      title="Recommended"
-      :contents="recommended">
-    </expandable-content-grid>
+    <expandable-content-grid
+      class="recommendation-section"
+      v-if="pageMode === Constants.PageModes.LEARN"
+      :title="recommendedText"
+      :contents="recommended"/>
 
   </div>
 
@@ -60,24 +54,75 @@
 
 <script>
 
-  const constants = require('../../state/constants');
+  const Constants = require('../../state/constants');
   const getters = require('../../state/getters');
+  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
+  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
-    mixins: [constants], // makes constants available in $options
+    $trNameSpace: 'learnContent',
+    $trs: {
+      recommended: 'Recommended',
+      nextContent: 'Next item',
+      author: 'Author',
+      license: 'License',
+      copyrightHolder: 'Copyright holder',
+    },
+    computed: {
+      Constants() {
+        return Constants; // allow constants to be accessed inside templates
+      },
+      canDownload() {
+        if (this.content) {
+          // computed property sometimes runs before the store is ready.
+          return this.content.kind !== ContentNodeKinds.EXERCISE;
+        }
+        return false;
+      },
+      showNextBtn() {
+        if (this.content) {
+          return this.content.kind === ContentNodeKinds.EXERCISE;
+        }
+        return false;
+      },
+      recommendedText() {
+        return this.$tr('recommended');
+      },
+      progress() {
+        if (this.userkind.includes(UserKinds.LEARNER)) {
+          return this.summaryProgress;
+        }
+        return this.sessionProgress;
+      },
+      nextContentLink() {
+        if (this.content.next_content.kind !== ContentNodeKinds.TOPIC) {
+          return {
+            name: this.pagename,
+            params: { channel_id: this.channelId, id: this.content.next_content.id },
+          };
+        }
+        return {
+          name: Constants.PageNames.EXPLORE_TOPIC,
+          params: { channel_id: this.channelId, id: this.content.next_content.id },
+        };
+      },
+    },
     components: {
-      'breadcrumbs': require('../breadcrumbs'),
-      'content-icon': require('../content-icon'),
       'page-header': require('../page-header'),
-      'content-render': require('content-renderer'),
-      'download-button': require('content-renderer/download-button'),
       'expandable-content-grid': require('../expandable-content-grid'),
+      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
+      'download-button': require('kolibri.coreVue.components.downloadButton'),
+      'icon-button': require('kolibri.coreVue.components.iconButton'),
+    },
+    methods: {
+      nextContentClicked() {
+        this.$router.push(this.nextContentLink);
+      },
     },
     vuex: {
       getters: {
         // general state
         pageMode: getters.pageMode,
-        rootTopicId: state => state.rootTopicId,
 
         // TODO - remove hack
         // temporarily using this to address an IE10 bug where the PDF
@@ -86,19 +131,16 @@
         searchOpen: state => state.searchOpen,
 
         // attributes for this content item
-        id: (state) => state.pageState.content.id,
-        title: (state) => state.pageState.content.title,
-        description: (state) => state.pageState.content.description,
-        kind: (state) => state.pageState.content.kind,
-        files: (state) => state.pageState.content.files,
-        contentId: (state) => state.pageState.content.content_id,
-        channelId: (state) => state.currentChannel,
-        available: (state) => state.pageState.content.available,
-        extraFields: (state) => state.pageState.content.extra_fields,
-        breadcrumbs: (state) => state.pageState.content.breadcrumbs,
+        content: (state) => state.pageState.content,
+        channelId: (state) => state.core.channels.currentId,
+        pagename: (state) => state.pageName,
 
         // only used on learn page
         recommended: (state) => state.pageState.recommended,
+
+        summaryProgress: (state) => state.core.logging.summary.progress,
+        sessionProgress: (state) => state.core.logging.session.progress,
+        userkind: (state) => state.core.session.kind,
       },
     },
   };
@@ -108,18 +150,46 @@
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
-
-  .content-container
-    height: 60vh
-    margin-bottom: 1em
-
-  #little-arrow
-    font-size: 28px
-    font-weight: 900
+  @require '~kolibri.styles.definitions'
 
   .recommendation-section
     margin-top: 4em
+
+  .next-btn
+    background-color: #4A8DDC
+    border-color: #4A8DDC
+    color: $core-bg-light
+    position: relative
+    top: -62px
+    left: 150px
+    z-index: 10
+    @media screen and (max-width: $medium-breakpoint)
+      top: -10px
+      left: 0
+
+  .next-btn:hover svg
+    fill: $core-bg-light
+
+  .right-arrow
+    fill: $core-bg-light
+
+  .right-arrow:hover
+    fill: $core-bg-light
+
+  .metadata
+    display: inline-block
+
+  .metadata p
+    font-size: small
+
+  .page-description
+    margin-top: 1em
+    margin-bottom: 1em
+    line-height: 1.5em
+
+  .download-button-left-align
+    vertical-align: top
+    margin-right: 1.5em
 
 </style>
 

@@ -4,6 +4,7 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 var path = require('path');
 
+
 function extract$trs(messageDir, messagesName) {
   this.messageDir = messageDir;
   this.messagesName = messagesName;
@@ -24,7 +25,7 @@ extract$trs.prototype.apply = function(compiler) {
           var messageNameSpace;
           var messages = {};
           // Parse the AST for the Vue file.
-          var ast = esprima.parse(module._source.source());
+          var ast = esprima.parse(module._source.source(), { sourceType: 'module'} );
           ast.body.forEach(function (node) {
             // Look through each top level node until we find the module.exports
             // N.B. this relies on our convention of directly exporting the Vue component
@@ -79,6 +80,9 @@ extract$trs.prototype.apply = function(compiler) {
     if (Object.keys(messageExport).length) {
       // If we've got any messages to write out, write them out. Otherwise, don't bother.
       self.writeOutput(messageExport);
+      compilation.bundleHasMessages = true;
+    } else {
+      compilation.bundleHasMessages = false;
     }
     callback();
   });

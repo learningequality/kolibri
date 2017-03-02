@@ -9,7 +9,7 @@ var webpack = require('webpack');
 var bundles = require('./webpack.config.js');
 
 for (var i=0; i < bundles.length; i++) {
-  bundles[i].devtool = '#inline-source-map';
+  bundles[i].devtool = '#cheap-module-eval-source-map';
   bundles[i].plugins = bundles[i].plugins.concat([
     new webpack.DefinePlugin({
       'process.env': {

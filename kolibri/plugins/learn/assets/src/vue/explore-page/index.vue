@@ -2,33 +2,24 @@
 
   <div>
 
-    <page-header :title='title'>
-      <breadcrumbs
-        v-if='!isRoot'
-        slot='extra-nav'
-        :rootid='rootTopicId'
-        :crumbs='topic.breadcrumbs'>
-      </breadcrumbs>
-      <div slot='icon'>
-        <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"></svg>
-        <svg v-else class="pageicon" src="../icons/folder.svg"></svg>
+    <page-header :title="title">
+      <div slot="icon">
+        <mat-svg v-if="isRoot" category="action" name="explore"/>
+        <mat-svg v-else category="file" name="folder"/>
       </div>
     </page-header>
 
-    <p class="page-description" v-if='topic.description'>
+    <p class="page-description" v-if="topic.description">
       {{ topic.description }}
     </p>
 
-    <span class="visuallyhidden" v-if="subtopics.length">You can navigate groups of content through headings.</span>
+    <span class="visuallyhidden" v-if="subtopics.length">{{ $tr('navigate') }}</span>
 
     <card-list v-if="subtopics.length">
       <topic-list-item
         v-for="topic in subtopics"
-        :id="topic.id"
         :title="topic.title"
-        :ntotal="topic.n_total"
-        :ncomplete="topic.n_complete">
-      </topic-list-item>
+        :link="genTopicLink(topic.id)"/>
     </card-list>
 
     <card-grid v-if="contents.length">
@@ -39,8 +30,7 @@
         :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
-        :id="content.id">
-      </content-grid-item>
+        :link="genContentLink(content.id)"/>
     </card-grid>
 
   </div>
@@ -50,9 +40,16 @@
 
 <script>
 
+  const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
+  const PageNames = require('../../state/constants').PageNames;
+
   module.exports = {
+    $trNameSpace: 'learnExplore',
+    $trs: {
+      explore: 'Topics',
+      navigate: 'Navigate content using headings',
+    },
     components: {
-      'breadcrumbs': require('../breadcrumbs'),
       'page-header': require('../page-header'),
       'topic-list-item': require('../topic-list-item'),
       'content-grid-item': require('../content-grid-item'),
@@ -61,17 +58,30 @@
     },
     computed: {
       title() {
-        // TODO - i18n
-        return this.isRoot ? 'Explore' : this.topic.title;
+        return this.isRoot ? this.$tr('explore') : this.topic.title;
+      },
+    },
+    methods: {
+      genTopicLink(id) {
+        return {
+          name: PageNames.EXPLORE_TOPIC,
+          params: { channel_id: this.channelId, id },
+        };
+      },
+      genContentLink(id) {
+        return {
+          name: PageNames.EXPLORE_CONTENT,
+          params: { channel_id: this.channelId, id },
+        };
       },
     },
     vuex: {
       getters: {
-        rootTopicId: state => state.rootTopicId,
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         contents: state => state.pageState.contents,
-        isRoot: (state) => state.pageState.topic.id === state.rootTopicId,
+        isRoot: (state) => state.pageState.topic.id === getCurrentChannelObject(state).root_id,
+        channelId: (state) => getCurrentChannelObject(state).id,
       },
     },
   };
@@ -79,4 +89,11 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .page-description
+    margin-top: 1em
+    margin-bottom: 1em
+    line-height: 1.5em
+
+</style>

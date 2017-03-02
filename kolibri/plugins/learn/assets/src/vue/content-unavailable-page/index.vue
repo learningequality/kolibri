@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <h1>No Content Channels Available</h1>
-    <p v-if="isAdminOrSuperuser">Download content channels from the <a href="/management/#!/content">Content Management</a> page</p>
-    <p v-else>You need to log in as an administrator to manage your content channels.</p>
+    <h1>{{ $tr('header') }}</h1>
+    <p v-if="isAdminOrSuperuser" v-html="$trHtml('adminLink')"></p>
+    <p v-else>{{ $tr('notAdmin') }}</p>
   </div>
 
 </template>
@@ -11,30 +11,28 @@
 
 <script>
 
-  const UserKinds = require('core-constants').UserKinds;
+  const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
 
   module.exports = {
-
-    computed: {
-      isAdminOrSuperuser() {
-        if (this.kind[0] === UserKinds.SUPERUSER || this.kind[0] === UserKinds.ADMIN) {
-          return true;
-        }
-        return false;
-      },
+    $trNameSpace: 'learnContentUnavailable',
+    $trs: {
+      header: 'No content channels available',
+      adminLink: 'Download content channels from the <a href="/management/#/content">Content Management</a> page', // eslint-disable-line max-len
+      notAdmin: 'You need to log in as an administrator to manage content',
     },
     vuex: {
       getters: {
-        kind: state => state.core.session.kind,
+        isAdminOrSuperuser,
       },
     },
-};
+  };
 
 </script>
 
 
 <style lang="stylus" scoped>
 
-  @require '~core-theme.styl'
+  h1
+    margin-top: 42px // height of toolbar
 
 </style>
