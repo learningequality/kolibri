@@ -2,6 +2,7 @@
 
   <ui-textbox
     @focus="$emit('focus')"
+    @blur="$emit('blur')"
     @input="updateText()"
     v-model="currentText"
     :disabled="disabled"
@@ -12,6 +13,7 @@
     :autofocus="autofocus"
     :required="required"
     :type="type"
+    :error="error"
     :invalid="invalid">
   </ui-textbox>
 
@@ -36,6 +38,9 @@
         type: Boolean,
       },
       value: {
+        type: String,
+      },
+      error: {
         type: String,
       },
       placeholder: {
