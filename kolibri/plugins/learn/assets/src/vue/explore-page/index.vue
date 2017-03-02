@@ -18,9 +18,8 @@
     <card-list v-if="subtopics.length">
       <topic-list-item
         v-for="topic in subtopics"
-        :id="topic.id"
-        :channelId="channelId"
-        :title="topic.title"/>
+        :title="topic.title"
+        :link="genTopicLink(topic.id)"/>
     </card-list>
 
     <card-grid v-if="contents.length">
@@ -31,7 +30,7 @@
         :thumbnail="content.thumbnail"
         :kind="content.kind"
         :progress="content.progress"
-        :id="content.id"/>
+        :link="genContentLink(content.id)"/>
     </card-grid>
 
   </div>
@@ -42,6 +41,7 @@
 <script>
 
   const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
+  const PageNames = require('../../state/constants').PageNames;
 
   module.exports = {
     $trNameSpace: 'learnExplore',
@@ -59,6 +59,20 @@
     computed: {
       title() {
         return this.isRoot ? this.$tr('explore') : this.topic.title;
+      },
+    },
+    methods: {
+      genTopicLink(id) {
+        return {
+          name: PageNames.EXPLORE_TOPIC,
+          params: { channel_id: this.channelId, id },
+        };
+      },
+      genContentLink(id) {
+        return {
+          name: PageNames.EXPLORE_CONTENT,
+          params: { channel_id: this.channelId, id },
+        };
       },
     },
     vuex: {
