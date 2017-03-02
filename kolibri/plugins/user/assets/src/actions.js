@@ -42,9 +42,7 @@ function editProfile(store, edits, session) {
   // }
 
   // check to see if anything's changed and conditionally add last requirement
-  if (Object.keys(changedValues).length) {
-    changedValues.facility = session.facility_id;
-  } else {
+  if (!Object.keys(changedValues).length) {
     return;
   }
 
