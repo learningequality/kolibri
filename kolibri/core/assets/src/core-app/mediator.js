@@ -401,7 +401,7 @@ module.exports = class Mediator {
    */
   registerContentRenderer(kolibriModuleName, kolibriModuleUrls, contentTypes) {
     this._contentRendererUrls[kolibriModuleName] = kolibriModuleUrls;
-    contentTypes.forEach((kindData) => {
+    contentTypes.kinds.forEach((kindData) => {
       const kind = kindData.name;
       if (!this._contentRendererRegistry[kind]) {
         this._contentRendererRegistry[kind] = {};
