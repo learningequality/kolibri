@@ -2,9 +2,11 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.auth.models import AnonymousUser
+from django.db.models.query import F
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
 
+from .filters import HierarchyRelationsFilter
 from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 from .serializers import (
     ClassroomSerializer, DeviceOwnerSerializer, FacilityDatasetSerializer, FacilitySerializer, FacilityUserSerializer, LearnerGroupSerializer,
@@ -71,11 +73,26 @@ class FacilityDatasetViewSet(viewsets.ModelViewSet):
     serializer_class = FacilityDatasetSerializer
 
 
+class FacilityUserFilter(filters.FilterSet):
+
+    member_of = filters.django_filters.MethodFilter()
+
+    def filter_member_of(self, queryset, value):
+        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+            target_user=F("id"),
+            ancestor_collection=value,
+        )
+
+    class Meta:
+        model = FacilityUser
+
+
 class FacilityUserViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
+    filter_class = FacilityUserFilter
 
 
 class DeviceOwnerViewSet(viewsets.ModelViewSet):
