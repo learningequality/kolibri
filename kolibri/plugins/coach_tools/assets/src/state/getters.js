@@ -1,7 +1,8 @@
 const Constants = require('./constants');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
-const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 const logging = require('kolibri.lib.logging');
+
+const ContentNodeKinds = CoreConstants.ContentNodeKinds;
 
 
 // Object to be exported by this module.

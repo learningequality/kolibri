@@ -9,6 +9,7 @@ const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const constants = require('./state/constants');
 const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
+
 const PageNames = constants.PageNames;
 const ContentWizardPages = constants.ContentWizardPages;
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;

@@ -3,13 +3,11 @@
 // This allows the test instance to be properly referenced with `this`
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
-'use strict';
-
 const assert = require('assert');
 const sinon = require('sinon');
 const rewire = require('rewire');
 
-if (!global.hasOwnProperty('Intl')) {
+if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
   global.Intl = require('intl');
 }
 
@@ -132,7 +130,7 @@ describe('Resource', function () {
   describe('name property', function () {
     it('should return the resourceName static method of the Resource class', function () {
       const testName = 'test';
-      Resources.Resource.resourceName = function () {return testName;};
+      Resources.Resource.resourceName = function () { return testName; };
       assert.equal(this.resource.name, testName);
     });
   });

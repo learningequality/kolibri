@@ -71,7 +71,7 @@
       },
       availableFiles() {
         return this.files.filter(
-          (file) => !file.thumbnail & !file.supplementary & file.available
+          (file) => !file.thumbnail && !file.supplementary && file.available
         );
       },
       defaultFile() {
@@ -125,7 +125,7 @@
        */
       renderContent() {
         // Only render if we have a component type to render and the content is available.
-        if (this.currentViewClass !== null & this.available & !this.rendered) {
+        if (this.currentViewClass !== null && this.available && !this.rendered) {
           // We are rendering, so don't let setRendererComponent call this again.
           this.rendered = true;
           // Start building up an object of all props that the content renderers might get passed.
@@ -137,7 +137,7 @@
             // Only use non-enumerable, non-inherited properties of the props object.
             (name) => enumerables.indexOf(name) > -1
           );
-          for (let i = 0; i < properties.length; i++) {
+          for (let i = 0; i < properties.length; i += 1) {
             const key = properties[i];
             // Loop through all the properties, see if one of them is extraFields.
             if (key !== 'extraFields') {
