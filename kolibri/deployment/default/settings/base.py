@@ -138,6 +138,12 @@ CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "https://contentworkshop.learningequality.or
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
+LANGUAGES = [
+    ('en', 'English'),
+    ('sw-tz', 'Kiswahili'),
+    ('es-es', 'Español'),
+]
+
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'

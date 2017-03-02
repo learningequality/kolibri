@@ -20,7 +20,7 @@ from django.conf import settings as django_settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
-from django.utils.translation import get_language
+from django.utils.translation import get_language, to_locale
 from kolibri.plugins import hooks
 
 from . import settings
@@ -214,7 +214,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         for path in getattr(django_settings, 'LOCALE_PATHS', []):
             file_path = os.path.join(
                 path,
-                lang_code,
+                to_locale(lang_code),
                 "LC_FRONTEND_MESSAGES",
                 message_file_name)
             if os.path.exists(file_path):
