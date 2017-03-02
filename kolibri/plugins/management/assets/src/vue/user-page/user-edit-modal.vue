@@ -107,12 +107,12 @@
     $trNameSpace: 'user-edit-modal',
     $trs: {
       editTitle: 'Edit account info',
-      passwordTitle: 'Change account password',
+      passwordTitle: 'Reset account password',
       deleteTitle: 'Delete account',
       // input labels
-      fullName: 'Full Name',
+      fullName: 'Full name',
       username: 'Username',
-      userKind: 'User Kind',
+      userKind: 'User kind',
       enterNewPw: 'Enter new password',
       confirmNewPw: 'Confirm new password',
       // kind select
@@ -120,8 +120,8 @@
       admin: 'Admin',
       coach: 'Coach',
       // buttons and links
-      resetPw: 'Reset Password',
-      deleteUsr: 'Delete User',
+      resetPw: 'Reset password',
+      deleteUsr: 'Delete user',
       save: 'Save',
       back: 'Back',
       yes: 'Yes',
