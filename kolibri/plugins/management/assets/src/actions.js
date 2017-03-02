@@ -34,13 +34,13 @@ function _classState(data) {
   return state;
 }
 
-// function _facilityState(data) {
-//   const state = {
-//     id: data.id,
-//     name: data.name,
-//   };
-//   return state;
-// }
+function _facilityState(data) {
+  const state = {
+    id: data.id,
+    name: data.name,
+  };
+  return state;
+}
 
 
 function _userState(apiUserData) {
@@ -152,7 +152,7 @@ function showClassesPage(store) {
     samePageCheckGenerator(store),
     ([facility, classes]) => {
       const pageState = {
-        facility: facility[0], // for mvp, we assume only one facility exists
+        facility: _facilityState(facility[0]), // for mvp, we assume only one facility exists
         classes: classes.map(_classState),
       };
 
