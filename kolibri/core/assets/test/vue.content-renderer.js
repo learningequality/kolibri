@@ -3,10 +3,9 @@
 // This allows the test instance to be properly referenced with `this`
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
-'use strict';
-
 const Vue = require('vue-test');
 const contentRenderer = require('../src/vue/content-renderer');
+
 const ContentRendererComponent = Vue.extend(contentRenderer);
 const assert = require('assert');
 const sinon = require('sinon');
