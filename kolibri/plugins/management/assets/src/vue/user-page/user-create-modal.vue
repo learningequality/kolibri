@@ -154,7 +154,8 @@
         }
       },
       clearStatus() {
-        this.errorMessage = this.confirmationMessage = '';
+        this.errorMessage = '';
+        this.confirmationMessage = '';
       },
       close() {
         this.$emit('close'); // signal parent to close

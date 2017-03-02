@@ -28,6 +28,7 @@
 
   const PageNames = require('../state/constants').PageNames;
   const PageModes = require('../state/constants').PageModes;
+
   const getters = require('../state/getters');
   const store = require('../state/store');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
@@ -86,14 +87,14 @@
         switch (tabIndex) {
           case 0:
             this.$router.push({ name: PageNames.LEARN_ROOT });
-            return;
+            break;
 
           case 1:
             this.$router.push({ name: PageNames.EXPLORE_ROOT });
-            return;
+            break;
 
           default:
-            return;
+            break;
         }
       },
     },

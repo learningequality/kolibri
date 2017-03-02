@@ -4,6 +4,7 @@
  */
 
 const logging = require('loglevel');
+
 const console = global.console;
 
 class Logger {

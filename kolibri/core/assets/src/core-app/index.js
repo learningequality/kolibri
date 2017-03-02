@@ -19,6 +19,7 @@ require('core-js');
 
 // set up logging
 const logging = require('kolibri.lib.logging');
+
 logging.setDefaultLevel(process.env.NODE_ENV === 'production' ? 2 : 0);
 
 // Create an instance of the global app object.
