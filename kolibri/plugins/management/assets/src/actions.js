@@ -247,12 +247,26 @@ function showClassEditPage(store, classId) {
 }
 
 function showClassEnrollPage(store, classId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ENROLL_MGMT_PAGE);
-  // need to replace the following with real logic for grabbing data from server-side.
-  store.dispatch('SET_PAGE_STATE', { classId });
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
+  store.dispatch('CORE_SET_ERROR', null);
+  const facilityIdPromise = FacilityUserResource.getCurrentFacility();
+  const userPromise = FacilityUserResource.getCollection().fetch();
+  const classPromise = ClassroomResource.getCollection().fetch({}, true);
+
+  ConditionalPromise.all([facilityIdPromise, userPromise, classPromise]).only(
+    samePageCheckGenerator(store),
+    ([facilityId, users, usersInClass]) => {
+      store.dispatch('SET_FACILITY', facilityId[0]); // for mvp, we assume only one facility exists
+      const pageState = { classId, users: users.map(_userState) };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
+    error => {
+      coreActions.handleApiError(store, error);
+    }
+  );
 }
 
 
