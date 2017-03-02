@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
+from .constants import role_kinds
 from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -92,10 +93,22 @@ class FacilitySerializer(serializers.ModelSerializer):
 
 
 class ClassroomSerializer(serializers.ModelSerializer):
+    learner_count = serializers.SerializerMethodField()
+    coache_count = serializers.SerializerMethodField()
+    admin_count = serializers.SerializerMethodField()
+
+    def get_learner_count(self, target_node):
+        return target_node.get_members().count()
+
+    def get_coache_count(self, target_node):
+        return Role.objects.filter(collection=target_node, kind=role_kinds.COACH).count()
+
+    def get_admin_count(self, target_node):
+        return Role.objects.filter(collection=target_node, kind=role_kinds.ADMIN).count()
 
     class Meta:
         model = Classroom
-        fields = ('id', 'name', 'parent')
+        fields = ('id', 'name', 'parent', 'learner_count', 'coache_count', 'admin_count')
 
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
