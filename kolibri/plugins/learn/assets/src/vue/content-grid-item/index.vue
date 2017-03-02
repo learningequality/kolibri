@@ -13,10 +13,6 @@
 
   const CoreConstants = require('kolibri.coreVue.vuex.constants');
   const values = require('lodash.values');
-  const constants = require('../../state/constants');
-  const PageNames = constants.PageNames;
-  const PageModes = constants.PageModes;
-  const getters = require('../../state/getters');
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {
@@ -25,10 +21,6 @@
       'grid-item': require('../card-grid/grid-item'),
     },
     props: {
-      id: {
-        type: String,
-        required: true,
-      },
       title: {
         type: String,
         required: true,
@@ -51,6 +43,10 @@
           return (value >= 0.0) && (value <= 1.0);
         },
       },
+      link: {
+        type: Object,
+        required: true,
+      },
     },
     computed: {
       sizeClass() {
@@ -62,28 +58,11 @@
         if (this.windowSize.breakpoint === 5) { return 'pure-u-1-4'; }
         return 'pure-u-1-6';
       },
-      link() {
-        if (this.pageMode === PageModes.EXPLORE) {
-          return {
-            name: PageNames.EXPLORE_CONTENT,
-            params: { id: this.id },
-          };
-        }
-        return {
-          name: PageNames.LEARN_CONTENT,
-          params: { id: this.id },
-        };
-      },
       thumb() {
         if (this.thumbnail) {
           return `url(${this.thumbnail})`;
         }
         return '';
-      },
-    },
-    vuex: {
-      getters: {
-        pageMode: getters.pageMode,
       },
     },
   };

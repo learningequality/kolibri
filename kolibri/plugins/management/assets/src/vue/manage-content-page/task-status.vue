@@ -5,9 +5,7 @@
     <progress max="1" :value="percentage"></progress>
     <h2>{{ subTitle }}</h2>
     <p v-if="statusFailed">{{ $tr('failed_msg') }}</p>
-    <icon-button class="buttons" @click="clearTaskHandler">
-      {{ buttonMessage }}
-    </icon-button>
+    <icon-button class="buttons" @click="clearTaskHandler" :text="buttonMessage"/>
   </div>
 
 </template>

@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.contrib.auth import authenticate, get_user, login, logout
 from django.contrib.auth.models import AnonymousUser
 from django.db.models.query import F
+from kolibri.logger.models import UserSessionLog
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
 
@@ -235,4 +236,7 @@ class SessionViewSet(viewsets.ViewSet):
                 session.update({'facility_id': user.facility_id,
                                 'kind': ['learner'],
                                 'error': '200'})
+
+            UserSessionLog.update_log(user)
+
             return session
