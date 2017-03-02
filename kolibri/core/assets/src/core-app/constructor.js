@@ -115,6 +115,7 @@ module.exports = class CoreApp {
         }
       }
 
+      mediator.registerMessages();
       mediator.setReady();
     }
 

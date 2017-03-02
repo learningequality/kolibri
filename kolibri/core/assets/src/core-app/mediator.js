@@ -370,16 +370,26 @@ module.exports = class Mediator {
    * @param  {Object} messageMap an object with message id to message mappings.
    */
   registerLanguageAssets(moduleName, language, messageMap) {
-    // Create empty entry in the language asset registry for this module if needed
-    this._languageAssetRegistry[moduleName] = this._languageAssetRegistry[moduleName] || {};
-    // Create empty entry in the language asset registry for this module/language if needed.
-    this._languageAssetRegistry[moduleName][language] =
-      this._languageAssetRegistry[moduleName][language] || {};
-    // Set this asset as loaded in the registry so any future async loading will be resolved
-    // without needing a server request.
-    this._languageAssetRegistry[moduleName][language].loaded = true;
-    // Register the message object on the Vue intl translation layer.
-    Vue.registerMessages(language, messageMap);
+    if (!Vue.registerMessages) {
+      // Set this messageMap so that we can register it later when VueIntl
+      // has finished loading.
+      // Create empty entry in the language asset registry for this module if needed
+      this._languageAssetRegistry[moduleName] = this._languageAssetRegistry[moduleName] || {};
+      this._languageAssetRegistry[moduleName][language] = messageMap;
+    } else {
+      Vue.registerMessages(language, messageMap);
+    }
+  }
+  /**
+   * A method for taking all registered language assets and registering them against Vue Intl.
+   */
+  registerMessages() {
+    Object.keys(this._languageAssetRegistry).forEach((moduleName) => {
+      Object.keys(this._languageAssetRegistry[moduleName]).forEach((language) => {
+        Vue.registerMessages(language, this._languageAssetRegistry[moduleName][language]);
+      });
+    });
+    delete this._languageAssetRegistry;
   }
   /**
    * A method for registering content renderers for asynchronous loading and track
