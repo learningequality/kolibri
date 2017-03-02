@@ -95,7 +95,7 @@ class UserSessionLogViewSet(viewsets.ModelViewSet):
     pagination_class = OptionalPageNumberPagination
     filter_class = UserSessionLogFilter
 
-  
+
 class MasteryFilter(filters.FilterSet):
 
     class Meta:
@@ -125,4 +125,3 @@ class AttemptLogViewSet(viewsets.ModelViewSet):
     filter_class = AttemptFilter
     ordering_fields = ('end_timestamp',)
     ordering = ('end_timestamp',)
-    
