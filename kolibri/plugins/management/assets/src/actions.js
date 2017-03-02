@@ -25,6 +25,10 @@ function _classState(data) {
   const state = {
     id: data.id,
     name: data.name,
+    parent: data.parent,
+    learner_count: data.learner_count,
+    coache_count: data.coache_count,
+    admin_count: data.admin_count,
   };
   return state;
 }

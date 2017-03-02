@@ -55,17 +55,17 @@
 
           <!-- Learners field -->
           <td class="table-cell hide-on-mobile">
-            {{cl.learners}}
+            {{cl.learner_count}}
           </td>
 
           <!-- Coaches field -->
           <td class="table-cell hide-on-mobile">
-            {{cl.coaches}}
+            {{cl.coache_count}}
           </td>
 
           <!-- Admins field -->
           <td class="table-cell hide-on-mobile">
-            {{cl.admins}}
+            {{cl.admin_count}}
           </td>
 
           <!-- delete field -->
