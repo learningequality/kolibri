@@ -30,7 +30,7 @@ class TestHookMixin(object):
     src_file = "assets/src/kolibri_core_app.js"
 
     @property
-    def stats_file(self):
+    def _stats_file(self):
         self.TEST_STATS_FILE = tempfile.NamedTemporaryFile(mode='w+', delete=False)
         self.TEST_STATS_FILE_DATA = copy.deepcopy(TEST_STATS_FILE_DATA)
         self.TEST_STATS_FILE_DATA['chunks'][self.unique_slug] = self.TEST_STATS_FILE_DATA['chunks'].pop('untitled')

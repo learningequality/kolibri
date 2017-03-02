@@ -34,6 +34,8 @@ const publicMethods = [
   'off',
   'registerLanguageAssets',
   'registerLanguageAssetsUrl',
+  'registerContentRenderer',
+  'retrieveContentRenderer',
 ];
 
 /**

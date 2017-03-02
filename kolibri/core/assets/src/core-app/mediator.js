@@ -6,7 +6,6 @@
  */
 
 
-const assetLoader = require('./asset-loader');
 const Vue = require('vue');
 const logging = require('kolibri.lib.logging').getLogger(__filename);
 const rest = require('rest');
@@ -59,6 +58,15 @@ module.exports = class Mediator {
      * kolibriModuleName: {object} - with keys for different languages.
      **/
     this._languageAssetRegistry = {};
+
+    /**
+     * Keep track of all registered content renderers.
+     */
+    this._contentRendererRegistry = {};
+    /**
+     * Keep track of urls for content renderers.
+     */
+    this._contentRendererUrls = {};
   }
 
   /**
@@ -237,6 +245,24 @@ module.exports = class Mediator {
   }
 
   /**
+   * Loads a Javascript file and executes it.
+   * @param  {String} url URL for the script
+   * @return {Promise}     Promise that resolves when the script has loaded
+   * @private
+   */
+  _scriptLoader(url) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = url;
+      script.async = true;
+      script.addEventListener('load', resolve);
+      script.addEventListener('error', reject);
+      global.document.body.appendChild(script);
+    });
+  }
+
+  /**
    * Registers a kolibriModule before it has been loaded into the page. Buffers
    * any events that are fired, causing the
    * arguments to be saved in the callback buffer array for this kolibriModule.
@@ -273,24 +299,27 @@ module.exports = class Mediator {
       // and also cause loading of the the frontend assets that the kolibriModule
       // needs, should an event it is listening for be emitted.
       const callback = (...args) => {
-        // First check that the kolibriModule hasn't already been loaded.
-        if (typeof self._kolibriModuleRegistry[kolibriModuleName] === 'undefined') {
-          // Add the details about the event callback to the buffer.
-          callbackBuffer.push({
-            args,
-            method: value,
-          });
-          // Call the asset loader to load all the kolibriModule files.
-          assetLoader(kolibriModuleUrls, (err, notFound) => {
-            if (err) {
-              notFound.forEach((file) => {
-                logging.error(`${file} failed to load`);
-              });
-            }
-          });
-          // Start fetching any language assets that this module might need also.
-          this._fetchLanguageAssets(kolibriModuleName, Vue.locale);
-        }
+        const promise = new Promise((resolve, reject) => {
+          // First check that the kolibriModule hasn't already been loaded.
+          if (typeof self._kolibriModuleRegistry[kolibriModuleName] === 'undefined') {
+            // Add the details about the event callback to the buffer.
+            callbackBuffer.push({
+              args,
+              method: value,
+            });
+            // Load all the kolibriModule files.
+            Promise.all(kolibriModuleUrls.map(this._scriptLoader)).then(() => {
+              resolve();
+            }).catch((error) => {
+              const errorText = `${kolibriModuleName} failed to load`;
+              logging.error(errorText);
+              reject(errorText);
+            });
+            // Start fetching any language assets that this module might need also.
+            this._fetchLanguageAssets(kolibriModuleName, Vue.locale);
+          }
+        });
+        return promise;
       };
       // Listen to the event and call the above function
       self._eventDispatcher.$on(key, callback);
@@ -432,5 +461,64 @@ module.exports = class Mediator {
       loaded: false,
       url: messageMapUrl,
     };
+  }
+  /**
+   * A method for registering content renderers for asynchronous loading and track
+   * which file types we have registered renderers for.
+   * @param  {String} kolibriModuleName name of the module.
+   * @param  {String[]} kolibriModuleUrls the URLs of the Javascript
+   * files that constitute the kolibriModule
+   * @param  {Object} contentTypes      Object of kind, array of extension mappings
+   */
+  registerContentRenderer(kolibriModuleName, kolibriModuleUrls, contentTypes) {
+    this._contentRendererUrls[kolibriModuleName] = kolibriModuleUrls;
+    contentTypes.forEach((kindData) => {
+      const kind = kindData.name;
+      if (!this._contentRendererRegistry[kind]) {
+        this._contentRendererRegistry[kind] = {};
+      }
+      kindData.extensions.forEach((extension) => {
+        if (this._contentRendererRegistry[kind][extension]) {
+          logging.warn(`Two content renderers are registering for ${kind}/${extension}`);
+        } else {
+          this._contentRendererRegistry[kind][extension] = kolibriModuleName;
+        }
+      });
+    });
+  }
+  /**
+   * A method to retrieve a content renderer component.
+   * @param  {String} kind      content kind
+   * @param  {String} extension content extension
+   * @return {Promise}          Promise that resolves with loaded content renderer Vue component
+   */
+  retrieveContentRenderer(kind, extension) {
+    return new Promise((resolve, reject) => {
+      const kolibriModuleName = (this._contentRendererRegistry[kind] || {})[extension];
+      if (!kolibriModuleName) {
+        // Our content renderer registry does not have a renderer for this content kind/extension.
+        reject('No registered content renderer available');
+      } else if (this._kolibriModuleRegistry[kolibriModuleName]) {
+        // There is a named renderer for this kind/extension combination, and it is already loaded.
+        resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
+      } else {
+        // We have a content renderer for this, but it has not been loaded, so load it, and then
+        // resolve the promise when it has been loaded.
+        Promise.all(this._contentRendererUrls[kolibriModuleName].map(this._scriptLoader)).then(
+          () => {
+            if (this._kolibriModuleRegistry[kolibriModuleName]) {
+              resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
+            } else {
+              this.on('kolibri_register', (moduleName) => {
+                if (moduleName === kolibriModuleName) {
+                  resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
+                }
+              });
+            }
+          }).catch((error) => {
+            reject('Content renderer failed to load properly');
+          });
+      }
+    });
   }
 };
