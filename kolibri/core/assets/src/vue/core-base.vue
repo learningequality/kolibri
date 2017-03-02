@@ -21,6 +21,7 @@
     <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
     <div v-if="!loading" :style="contentStyle" class="content-container">
       <error-box v-if="error"/>
+      <slot name="tabs"/>
       <slot name="content"/>
     </div>
     <slot name="extra"/>
@@ -101,7 +102,11 @@
         return { paddingLeft: `${this.navWidth + PADDING}px` };
       },
       contentStyle() {
-        return { left: `${this.navWidth}px`, top: `${this.headerHeight}px` };
+        const style = { top: `${this.headerHeight}px` };
+        if (!this.mobile) {
+          style.left = `${this.navWidth}px`;
+        }
+        return style;
       },
     },
     mounted() {

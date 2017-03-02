@@ -75,12 +75,14 @@ Kolibri users can have different roles with respective access to features:
   * View content and have their progress tracked
   * View *Coach Reports* to track progress of other users and usage stats for individual exercises
   * Create/Edit/Delete other **Admins** and **Learners**
+  * Create/Edit/Delete *Classes* and *Groups* and enroll users in them
   * Export *Detail* and *Summary* logs usage data
 * **Device Owners** can:
 
   * View content
   * View *Coach Reports* to track progress of other users and usage stats for individual exercises
   * Create/Edit/Delete other **Admins** and **Learners**
+  * Create/Edit/Delete *Classes* and *Groups* and enroll users in them
   * Export *Detail* and *Summary* logs usage data
   * Import/Export content
 
@@ -145,6 +147,124 @@ Delete User’s Account
 
 .. image:: img/delete_account_confirm.png
   :alt: confirm delete account
+
+
+Manage Classes
+--------------
+
+.. note::
+  To manage Kolibri classes and groups you must be logged-in as **Device Owner** or **Admin**.
+
+You can view, create and delete classes and learner groups, as well as search, filter and enroll Kolibri users in them, using the **Classes** tab in your **Manage** dashboard. Default view displays the list of all classes in your facility, with the number of enrolled users and assigned coaches for each class. 
+
+.. image:: img/classes.png
+  :alt: manage classes
+
+
+Add New Class
+~~~~~~~~~~~~~
+
+To add a new class, follow these steps.
+
+#. Click **Add New Class** button.
+#. Fill in the class name. 
+#. Click **Create** to add the new class or **Cancel** to exit.
+#. Click **Add Users to Class** to :ref:`select_users_class` or **Not now** to simply create the new class. 
+
+
+Delete Class
+~~~~~~~~~~~~
+
+#. Click **Delete Class** button for the chosen class.
+#. Click **Delete** to confirm or **Cancel** to exit without deleting the class. 
+
+.. image:: img/delete_class.png
+  :alt: delete class
+
+.. note::
+  Users enrolled in the class you are deleting will not be removed from the database.
+
+
+Edit Class
+~~~~~~~~~~
+
+To edit a class select it from the default view in the **Classes** tab. In this vew you can organize users in groups, assign roles, add and remove the users from the class. 
+
+
+Add Learner Group
+~~~~~~~~~~~~~~~~~
+
+.. image:: img/learner_groups.png
+  :alt: learner groups list
+
+To add a new learner group, follow these steps.
+
+#. Click **+ New Learner Group** button.
+#. Fill in the group name in the text field. 
+#. Click **Create New Learner Group** button or **Cancel** to exit.
+
+.. image:: img/create_learner_group.png
+  :alt: create learner group
+
+
+Delete Learner Group
+~~~~~~~~~~~~~~~~~~~~
+
+#. Click **Delete Group** button for the chosen group.
+#. Click **Yes** to confirm or **No** to exit without deleting the group.
+
+.. image:: img/delete_learner_group.png
+  :alt: delete learner group
+
+.. note::
+  Users enrolled in the group you are deleting will be assigned the status *Ungrouped*, but will not be removed from the database.
+
+
+View and edit class users
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Below the **Learner Groups** you can view the list of all the users, both learners and coaches, see their roles and groups they are assigned to.
+
+.. image:: img/learners_coaches.png
+  :alt: list view of class users 
+
+* Use the search field on top to quickly find a specific user.
+* You can sort users using arrow selectors in each column header.
+* Change the user role from **Learner** to **Coach** with the *Role* selector.
+* Select and assign the group to each user from the *Group* dropdown selector.
+
+.. note::
+  Roles are *class-specific*, not *user-specific*: user can be a **Coach** in Class 1, and a **Learner** in Class 2
+
+.. _select_users_class:
+
+Select users to enroll to class
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: img/add_users_to_class.png
+  :alt: add users to the newly created class
+
+* List contains all the users currently not enrolled for the given class.
+* You can sort user list alphabetically and/or search for a specific user by name.
+* Use the checkbox to select all the users you want to assign to class.
+* Use the option *Create & Enroll a brand new user* for users who were not created previously.
+* Click **Review & Save** button to finish enrolling users or **Cancel** to go back to user list.
+
+.. image:: img/create_enroll.png
+  :alt: create and enroll a brand new user
+
+
+Remove users from class
+~~~~~~~~~~~~~~~~~~~~~~~
+
+#. Click **Remove** button for the chosen user.
+#. Click **Remove** to confirm or **Cancel** to exit without removing the user.
+
+.. image:: img/remove_user_from_class.png
+  :alt: remove user from class
+
+.. note::
+  Users removed from the class will not be deleted from the database, and you can still access their account from the **Users** tab in the **Manage** dashboard.
 
 
 Manage Data

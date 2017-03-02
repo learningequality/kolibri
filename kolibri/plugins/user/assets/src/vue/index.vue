@@ -1,6 +1,6 @@
 <template>
 
-  <core-base v-if="navBarNeeded" :topLevelPageName="topLevelPageName">
+  <core-base v-if="navBarNeeded" :topLevelPageName="topLevelPageName" :appBarTitle="appBarTitle">
     <component
       slot="content"
       class="user page"
@@ -25,6 +25,10 @@
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
+    $trNameSpace: 'user-root',
+    $trs: {
+      userProfileTitle: 'Profile',
+    },
     name: 'User-Plugin',
     components: {
       'core-base': require('kolibri.coreVue.components.coreBase'),
@@ -33,6 +37,12 @@
       'profile-page': require('./profile-page'),
     },
     computed: {
+      appBarTitle() {
+        if (this.pageName === PageNames.PROFILE) {
+          return this.$tr('userProfileTitle');
+        }
+        return null;
+      },
       topLevelPageName: () => TopLevelPageNames.USER,
       currentPage() {
         if (this.pageName === PageNames.SIGN_IN) {

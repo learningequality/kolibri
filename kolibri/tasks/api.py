@@ -25,6 +25,8 @@ from django_q.models import Task, OrmQ
 
 from multiprocessing import Process
 
+from .permissions import IsDeviceOwnerOnly
+
 logging = logger.getLogger(__name__)
 
 def windows_handle_async_call(target_func, *args, **kwargs):
@@ -46,6 +48,8 @@ def make_async_call(target_func, *args, **kwargs):
 
 
 class TasksViewSet(viewsets.ViewSet):
+
+    permission_classes = (IsDeviceOwnerOnly, )
 
     def list(self, request):
         tasks_response = [_task_to_response(t) for t in Task.objects.all()]
