@@ -522,21 +522,6 @@ describe('Mediator', function () {
     afterEach(function () {
       this.vueRewireReset();
     });
-    it('should add an object keyed as moduleName under the language asset registry', function () {
-      const self = this;
-      self.mediator.registerLanguageAssets(moduleName, language, messageMap);
-      assert(self.mediator._languageAssetRegistry[moduleName]);
-    });
-    it('should add an object keyed as moduleName.language under the language asset registry', function () { // eslint-disable-line max-len
-      const self = this;
-      self.mediator.registerLanguageAssets(moduleName, language, messageMap);
-      assert(self.mediator._languageAssetRegistry[moduleName][language]);
-    });
-    it('should set loaded true for moduleName/language in language asset registry', function () {
-      const self = this;
-      self.mediator.registerLanguageAssets(moduleName, language, messageMap);
-      assert.strictEqual(self.mediator._languageAssetRegistry[moduleName][language].loaded, true);
-    });
     it('should call Vue.registerMessages once', function () {
       const self = this;
       self.mediator.registerLanguageAssets(moduleName, language, messageMap);
