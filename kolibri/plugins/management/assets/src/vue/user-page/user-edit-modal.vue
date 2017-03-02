@@ -1,7 +1,7 @@
 <template>
 
   <core-modal
-    :title="$tr('modalTitle')"
+    :title="titleText"
     :has-error="error_message ? true : false"
     :enableBackBtn="usr_delete || pw_reset"
     @enter="submit"
@@ -12,15 +12,19 @@
     <div>
       <template v-if="!usr_delete && !pw_reset">
 
-        <div class="user-field">
-          <label for="fullname">{{$tr('fullName')}}</label>:
-          <input type="text" class="edit-form edit-fullname" :aria-label="$tr('fullName')" id="fullname" v-model="fullName_new">
-        </div>
+        <core-textbox
+          :label="$tr('fullName')"
+          type="text"
+          class="user-field"
+          :aria-label="$tr('fullName')"
+          v-model="fullName_new"/>
 
-        <div class="user-field">
-          <label for="username">{{$tr('username')}}</label>:
-          <input type="text" class="edit-form edit-username" :aria-label="$tr('username')" id="username" v-model="username_new">
-        </div>
+        <core-textbox
+          :label="$tr('username')"
+          type="text"
+          class="user-field"
+          :aria-label="$tr('username')"
+          v-model="username_new"/>
 
         <div class="user-field">
           <label for="user-role"><span class="visuallyhidden">{{$tr('userKind')}}</span></label>
@@ -43,15 +47,19 @@
       <!-- Password Reset Mode -->
       <template v-if="pw_reset" >
         <p>{{$tr('username')}}: <b>{{ username}}</b></p>
-        <div class="user-field">
-          <label for="password">{{$tr('enterNewPw')}}</label>:
-          <input type="password" class="edit-form" id="password" required v-model="password_new">
-        </div>
 
-        <div class="user-field">
-          <label for="password-confirm">{{$tr('confirmNewPw')}}</label>:
-          <input type="password" class="edit-form" id="password-confirm" required v-model="password_new_confirm">
-        </div>
+        <core-textbox
+          :label="$tr('enterNewPw')"
+          type="password"
+          class="user-field"
+          :aria-label="$tr('enterNewPw')"
+          v-model="password_new"/>
+        <core-textbox
+          :label="$tr('confirmNewPw')"
+          type="password"
+          class="user-field"
+          :aria-label="$tr('confirmNewPw')"
+          v-model="password_new_confirm"/>
       </template>
 
       <!-- User Delete Mode -->
@@ -98,7 +106,9 @@
   module.exports = {
     $trNameSpace: 'user-edit-modal',
     $trs: {
-      modalTitle: 'Edit Account Info',
+      editTitle: 'Edit account info',
+      passwordTitle: 'Change account password',
+      deleteTitle: 'Delete account',
       // input labels
       fullName: 'Full Name',
       username: 'Username',
@@ -128,6 +138,7 @@
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'core-textbox': require('kolibri.coreVue.components.textbox'),
     },
     props: {
       userid: {
@@ -163,6 +174,14 @@
       LEARNER: () => UserKinds.LEARNER,
       COACH: () => UserKinds.COACH,
       ADMIN: () => UserKinds.ADMIN,
+      titleText() {
+        if (this.pw_reset) {
+          return this.$tr('passwordTitle');
+        } else if (this.usr_delete) {
+          return this.$tr('deleteTitle');
+        }
+        return this.$tr('editTitle');
+      },
       submitText() {
         if (this.pw_reset) {
           return this.$tr('save');
@@ -296,15 +315,7 @@
     background-color: $core-bg-light
 
   .user-field
-    padding-bottom: 5%
-    input
-      width: 100%
-      height: 40px
-      font-weight: bold
-      border: none
-      border-bottom: 1px solid #3a3a3a
-    label
-      position: relative
+    margin-bottom: 5%
     select
       -webkit-appearance: menulist-button
       width: 100%
@@ -313,19 +324,6 @@
       background-color: transparent
     p
       text-align: center
-
-  .edit-form
-    width: 200px
-    margin: 0 auto
-    display: block
-    padding: 5px 10px
-    letter-spacing: 0.08em
-    border: none
-    border-bottom: 1px solid $core-text-default
-    height: 30px
-    &:focus
-      outline: none
-      border-bottom: 3px solid $core-action-normal
 
   .header
     text-align: center
