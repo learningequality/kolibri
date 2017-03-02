@@ -2,7 +2,7 @@
 
   <div>
     <div>
-      <router-link :to="editClassPage">
+      <router-link :to="editClassLink">
         <icon-button
           :text="$tr('backToClassDetails')"
           :primary="false"
@@ -27,7 +27,7 @@
     </div>
     <div>
       <p>{{ $tr('showing') }} <strong>{{ startRange }} - {{ endRange }}</strong> {{ $tr('of') }} {{ $tr('numLearners',
-        {count: totalLearners}) }}</p>
+        {count: totalItems}) }}</p>
       <table>
         <thead>
         <tr>
@@ -38,7 +38,7 @@
         </thead>
 
         <tbody>
-        <tr v-for="learner in filteredLearnerList">
+        <tr v-for="learner in paginatedLearnerList">
           <td>
             <input type="checkbox" :id="learner.id" :value="learner.id" v-model="selectedLearners">
           </td>
@@ -48,7 +48,29 @@
         </tbody>
       </table>
       <hr>
-      <div>pagination</div>
+      <div>
+        <ui-icon-button
+          type="secondary"
+          color="default"
+          icon="chevron_left"
+          ariaLabel="Previous results"
+          :disabled="pageNum === 1"
+        />
+        <icon-button
+          v-for="page in totalPages"
+          :text="String(page)"
+          :primary="false"
+          :disabled="pageNum === page"
+          @click="goTo(page)"
+        />
+        <ui-icon-button
+          type="secondary"
+          color="default"
+          icon="chevron_right"
+          ariaLabel="Next results"
+          :disabled="pageNum === totalPages"
+        />
+      </div>
 
     </div>
     <div>
@@ -96,42 +118,46 @@
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'ui-checkbox': require('keen-ui/src/UiCheckbox'),
+      'ui-icon-button': require('keen-ui/src/UiIconButton'),
       'textbox': require('kolibri.coreVue.components.textbox'),
       'user-create-modal': require('../user-page/user-create-modal'),
     },
     data: () => ({
       filterInput: '',
       perPage: 10,
-      currentPage: 1,
+      pageNum: 1,
+      totalItems: 0,
+      totalPages: 0,
+      startRange: 0,
+      endRange: 0,
       selectedLearners: [],
       createUserModalOpen: false,
     }),
     computed: {
-      editClassPage() {
+      editClassLink() {
         return {
           name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
           id: this.classId,
         };
       },
       filteredLearnerList() {
+        // apply filter
         return this.learnerList;
       },
-
-      totalLearners() {
-        return this.filteredLearnerList.length;
-      },
-
-      startRange() {
-        return Math.min((1 + ((this.currentPage - 1) * this.perPage)), this.totalLearners);
-      },
-
-      endRange() {
-        return Math.min((this.currentPage * this.perPage), this.totalLearners);
+      paginatedLearnerList() {
+        const paginatedObj =
+          this.getPaginatedItems(this.filteredLearnerList, this.pageNum, this.perPage);
+        this.totalItems = paginatedObj.totalItems;
+        this.totalPages = paginatedObj.totalPages;
+        this.startRange = paginatedObj.startRange;
+        this.endRange = paginatedObj.endRange;
+        return paginatedObj.paginatedItems;
       },
     },
     methods: {
       openCreateUserModal() {
         this.createUserModalOpen = true;
+        // console.log(this.getPaginatedItems(this.learnerList, 4, 10));
       },
       closeCreateUserModal() {
         this.createUserModalOpen = false;
@@ -143,6 +169,8 @@
         const end = pageNum * perPage;
         const paginatedItems = items.slice(start, end);
         const totalPaginatedItems = paginatedItems.length;
+        const startRange = Math.min(start + 1, totalItems);
+        const endRange = Math.min(end, totalItems);
         return {
           pageNum,
           perPage,
@@ -150,7 +178,12 @@
           totalPages,
           paginatedItems,
           totalPaginatedItems,
+          startRange,
+          endRange,
         };
+      },
+      goTo(page) {
+        this.pageNum = page;
       },
     },
     vuex: {
