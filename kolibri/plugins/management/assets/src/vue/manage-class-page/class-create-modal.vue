@@ -84,7 +84,7 @@
         } else {
           const newClass = {
             name: this.name,
-            facilityId: this.facility,
+            facilityId: this.facilityId,
           };
           this.createClass(newClass).then(
             () => {
@@ -109,7 +109,7 @@
     },
     vuex: {
       getters: {
-        facility: state => state.facility,
+        facilityId: state => state.pageState.facility.id,
       },
       actions: {
         createClass: actions.createClass,

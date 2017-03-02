@@ -4,7 +4,7 @@
 
     <div class="header">
       <h1>
-        {{$tr('allClasses')}}
+        {{$tr('allClasses')}} {{facilityName}}
       </h1>
     </div>
 
@@ -135,11 +135,13 @@
     vuex: {
       getters: {
         classes: state => state.pageState.classes,
+        facilityName: state => state.pageState.facility.name,
+      },
       },
     },
     $trNameSpace: 'classPage',
     $trs: {
-      allClasses: 'All Classes in',
+      allClasses: 'All Classes in ',
       // button text
       addNew: 'Add New Class',
       deleteClass: 'Delete Class',
@@ -165,6 +167,7 @@
 
   .create
     float: right
+    margin-top: -48px
 
   input[type='search']
     display: inline-block
@@ -201,7 +204,7 @@
     color: $core-text-annotation
     font-weight: normal
     font-size: 80%
-    width: 30%
+    width: 28%
 
   .table-cell
     font-weight: normal // compensates for <th> cells

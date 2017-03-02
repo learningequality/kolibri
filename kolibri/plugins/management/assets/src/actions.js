@@ -2,6 +2,7 @@ const coreApp = require('kolibri');
 const logging = require('kolibri.lib.logging');
 
 const ClassroomResource = coreApp.resources.ClassroomResource;
+const FacilityResource = coreApp.resources.FacilityResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const TaskResource = coreApp.resources.TaskResource;
 const RoleResource = coreApp.resources.RoleResource;
@@ -32,6 +33,14 @@ function _classState(data) {
   };
   return state;
 }
+
+// function _facilityState(data) {
+//   const state = {
+//     id: data.id,
+//     name: data.name,
+//   };
+//   return state;
+// }
 
 
 function _userState(apiUserData) {
@@ -133,17 +142,17 @@ function showClassesPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CLASS_MGMT_PAGE);
   const classCollection = ClassroomResource.getCollection();
-  const facilityIdPromise = FacilityUserResource.getCurrentFacility();
   const classPromise = classCollection.fetch({}, true);
+  const facilityCollection = FacilityResource.getCollection();
+  const facilityPromise = facilityCollection.fetch();
 
-  const promises = [facilityIdPromise, classPromise];
+  const promises = [facilityPromise, classPromise];
 
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([facilityId, classes]) => {
-      store.dispatch('SET_FACILITY', facilityId[0]); // for mvp, we assume only one facility exists
-
+    ([facility, classes]) => {
       const pageState = {
+        facility: facility[0], // for mvp, we assume only one facility exists
         classes: classes.map(_classState),
       };
 
