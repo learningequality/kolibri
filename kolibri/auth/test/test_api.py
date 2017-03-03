@@ -124,9 +124,9 @@ class ClassroomAPITestCase(APITestCase):
             ('id', classroom.id),
             ('name', classroom.name),
             ('parent', classroom.parent.id),
-            ('admin_count', classroom.admin_count),
-            ('learner_count', classroom.learner_count),
-            ('coach_count', classroom.coach_count),
+            ('learner_count', 0),
+            ('coach_count', 0),
+            ('admin_count', 0),
         )) for classroom in self.classrooms]
         self.assertItemsEqual(response.data, expected)
 
@@ -136,9 +136,9 @@ class ClassroomAPITestCase(APITestCase):
             'id': self.classrooms[0].id,
             'name': self.classrooms[0].name,
             'parent': self.classrooms[0].parent.id,
-            'admin_count': self.classrooms[0].admin_count,
-            'learner_count': self.classrooms[0].learner_count,
-            'coach_count': self.classrooms[0].coach_count,
+            'learner_count': 0,
+            'coach_count': 0,
+            'admin_count': 0,
         }
         self.assertDictEqual(response.data, expected)
 
