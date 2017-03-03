@@ -246,19 +246,31 @@ function showClassEditPage(store, classId) {
   );
 }
 
+
 function showClassEnrollPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ENROLL_MGMT_PAGE);
   store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
   store.dispatch('CORE_SET_ERROR', null);
+
+  // current facility
+  const facilityPromise = FacilityResource.getCollection().fetch();
+  // all users in facility
   const userPromise = FacilityUserResource.getCollection().fetch({}, true);
+  // current class
+  const classPromise = ClassroomResource.getModel(classId).fetch();
+  // users in current class
   const classUsersPromise = FacilityUserResource.getCollection({ member_of: classId }).fetch();
 
-  ConditionalPromise.all([userPromise, classUsersPromise]).only(
+  ConditionalPromise.all([facilityPromise, userPromise, classPromise, classUsersPromise]).only(
     samePageCheckGenerator(store),
-    ([users, usersInClass]) => {
-      console.log(users, usersInClass);
-      const pageState = { classId, users: users.map(_userState) };
+    ([facility, facilityUsers, classroom, clasroomUsers]) => {
+      const pageState = {
+        facility: _facilityState(facility[0]),
+        facilityUsers: facilityUsers.map(_userState),
+        clasroomUsers: clasroomUsers.map(_userState),
+        classroom,
+      };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
@@ -268,6 +280,21 @@ function showClassEnrollPage(store, classId) {
   );
 }
 
+
+function enrollUsersInClass(store, classId, users) {
+  return new Promise((resolve, reject) => {
+    users.forEach((userId) => {
+      MembershipResource.createModel({ collection: classId, user: userId }).save().then(
+        membershipModel => {
+          resolve(userId);
+        },
+        error => {
+          reject(error);
+        }
+      );
+    });
+  });
+}
 
 // ================================
 // USERS MANAGEMENT ACTIONS
@@ -652,6 +679,7 @@ module.exports = {
   showClassesPage,
   showClassEditPage,
   showClassEnrollPage,
+  enrollUsersInClass,
 
   createUser,
   updateUser,

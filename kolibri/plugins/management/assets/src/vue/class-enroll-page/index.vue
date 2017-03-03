@@ -14,10 +14,12 @@
         :text="$tr('reviewAndSave')"
         :primary="true"
         @click="$refs.confirmation.open()"
+        :disabled="selectedLearners.length === 0"
       />
       <ui-confirm
         ref="confirmation"
         @confirm="enrollLearners"
+        :closeOnConfirm="false"
         title="Confirm Enrollment of Selected Students"
       >
         Are you sure you want to enroll the following students into Math 20A?
@@ -111,6 +113,7 @@
 <script>
 
   const constants = require('../../state/constants');
+  const actions = require('../../actions');
 
   module.exports = {
     $trNameSpace: 'management-class-enroll',
@@ -209,13 +212,23 @@
         return learnerList.find(learner => learner.username === username).id;
       },
       enrollLearners() {
-        console.log('enroll students', this.selectedLearners);
+        this.enrollUsersInClass(this.classId, this.selectedLearners).then(
+          () => {
+            this.$refs.confirmation.close();
+            this.$router.push(this.editClassLink);
+          },
+          (error) => {
+            console.log(error);
+          });
       },
     },
     vuex: {
       getters: {
-        classId: state => state.pageState.classId,
-        learnerList: state => state.pageState.users,
+        classId: state => state.pageState.classroom.id,
+        learnerList: state => state.pageState.facilityUsers,
+      },
+      actions: {
+        enrollUsersInClass: actions.enrollUsersInClass,
       },
     },
   };
