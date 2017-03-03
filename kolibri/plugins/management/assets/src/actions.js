@@ -138,6 +138,10 @@ function deleteClass(store, id) {
   );
 }
 
+function removeClassUser(store, classId, userId) {
+  return;
+}
+
 function showClassesPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CLASS_MGMT_PAGE);
@@ -585,6 +589,7 @@ function showScratchpad(store) {
 module.exports = {
   createClass,
   deleteClass,
+  removeClassUser,
   showClassesPage,
   showClassEditPage,
   showClassEnrollPage,
