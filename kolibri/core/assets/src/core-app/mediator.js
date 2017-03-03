@@ -427,7 +427,8 @@ module.exports = class Mediator {
       if (!kolibriModuleName) {
         // Our content renderer registry does not have a renderer for this content kind/extension.
         reject(
-          `No registered content renderer available for kind: ${kind} with file extension: ${extension}`);
+          `No registered content renderer available for kind: ${kind} with file extension: ${extension}`
+        );
       } else if (this._kolibriModuleRegistry[kolibriModuleName]) {
         // There is a named renderer for this kind/extension combination, and it is already loaded.
         resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
