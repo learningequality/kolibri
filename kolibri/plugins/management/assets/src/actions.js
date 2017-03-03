@@ -251,14 +251,13 @@ function showClassEnrollPage(store, classId) {
   store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ENROLL_MGMT_PAGE);
   store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
   store.dispatch('CORE_SET_ERROR', null);
-  const facilityIdPromise = FacilityUserResource.getCurrentFacility();
-  const userPromise = FacilityUserResource.getCollection().fetch();
-  const classPromise = ClassroomResource.getCollection().fetch({}, true);
+  const userPromise = FacilityUserResource.getCollection().fetch({}, true);
+  const classUsersPromise = FacilityUserResource.getCollection({ member_of: classId }).fetch();
 
-  ConditionalPromise.all([facilityIdPromise, userPromise, classPromise]).only(
+  ConditionalPromise.all([userPromise, classUsersPromise]).only(
     samePageCheckGenerator(store),
-    ([facilityId, users, usersInClass]) => {
-      store.dispatch('SET_FACILITY', facilityId[0]); // for mvp, we assume only one facility exists
+    ([users, usersInClass]) => {
+      console.log(users, usersInClass);
       const pageState = { classId, users: users.map(_userState) };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
