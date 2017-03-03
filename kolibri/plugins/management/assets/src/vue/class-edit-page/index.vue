@@ -2,6 +2,21 @@
 
   <div class="user-roster">
 
+    <!-- Modals -->
+    <class-rename-modal
+      v-if="editClassName"
+      :classname="currClass.name"
+      :classid="currClass.id"
+      @close="closeEditNameModal"
+    />
+
+    <div id="name-edit-box" @click="openEditNameModal">
+      <div id="edit-name" class="name-edit">{{currClass.name}}</div>
+      <mat-svg id="edit-icon" class="name-edit" category="image" name="edit" aria-hidden="true"/>
+    </div>
+
+    <hr>
+
     <div class="header">
       <h1>
         {{$tr('tableTitle')}}
@@ -124,11 +139,13 @@
       allUsersFilteredOut: 'No users match the filter.',
     },
     components: {
+      'class-rename-modal': require('./class-rename-modal'),
       'user-remove-modal': require('./user-remove-modal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     data: () => ({
       searchFilter: '',
+      editClassName: false,
       removeUser: false,
       currentUserRemove: null,
     }),
@@ -171,6 +188,12 @@
       },
     },
     methods: {
+      openEditNameModal() {
+        this.editClassName = true;
+      },
+      closeEditNameModal() {
+        this.editClassName = false;
+      },
       openRemoveUserModal(user) {
         this.currentUserRemove = user;
         this.removeUser = true;
@@ -199,6 +222,20 @@
   $row-padding = 1.5em
   // height of elements in toolbar,  based off of icon-button height
   $toolbar-height = 36px
+
+  #name-edit-box
+    display: inline-block
+    cursor: pointer
+
+  .name-edit
+    float: left
+
+  #edit-name
+    font-size: 1.4em
+
+  #edit-icon
+    fill: $core-action-normal
+    margin-left: 5px
 
   .toolbar:after
     content: ''
