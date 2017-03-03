@@ -104,9 +104,10 @@ class DeviceOwnerViewSet(viewsets.ModelViewSet):
 
 class MembershipViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
+    filter_fields = ('user_id', 'collection_id')
 
 
 class RoleViewSet(viewsets.ModelViewSet):

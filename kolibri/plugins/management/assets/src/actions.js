@@ -3,6 +3,7 @@ const logging = require('kolibri.lib.logging');
 
 const ClassroomResource = coreApp.resources.ClassroomResource;
 const FacilityResource = coreApp.resources.FacilityResource;
+const MembershipResource = coreApp.resources.MembershipResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const TaskResource = coreApp.resources.TaskResource;
 const RoleResource = coreApp.resources.RoleResource;
@@ -139,7 +140,27 @@ function deleteClass(store, id) {
 }
 
 function removeClassUser(store, classId, userId) {
-  return;
+  if (!classId || !userId) {
+    // if no id passed, abort the function
+    return;
+  }
+  // fetch the membership model with this classId and userId.
+  const MembershipCollection = MembershipResource.getCollection({
+    user_id: userId,
+    collection_id: classId,
+  });
+
+  MembershipCollection.fetch().then(
+    (membership) => {
+      const membershipId = membership[0].id; // will always only have one item in the array.
+      MembershipResource.getModel(membershipId).delete().then(
+        response => {
+          store.dispatch('DELETE_USER', userId);
+        },
+        error => { coreActions.handleApiError(store, error); }
+      );
+    }
+  );
 }
 
 function showClassesPage(store) {
