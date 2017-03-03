@@ -120,7 +120,6 @@
         const newUser = {
           username: this.username,
           full_name: this.full_name,
-          facility_id: this.facility,
           kind: this.kind,
         };
 
@@ -162,9 +161,6 @@
       },
     },
     vuex: {
-      getters: {
-        facility: state => state.facility,
-      },
       actions: {
         createUser: actions.createUser,
       },
