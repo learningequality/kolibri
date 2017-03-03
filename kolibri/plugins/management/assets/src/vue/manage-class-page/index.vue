@@ -60,7 +60,7 @@
 
           <!-- Coaches field -->
           <td class="table-cell hide-on-mobile">
-            {{cl.coache_count}}
+            {{cl.coach_count}}
           </td>
 
           <!-- Admins field -->

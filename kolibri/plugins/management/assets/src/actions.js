@@ -29,7 +29,7 @@ function _classState(data) {
     name: data.name,
     parent: data.parent,
     learner_count: data.learner_count,
-    coache_count: data.coache_count,
+    coach_count: data.coach_count,
     admin_count: data.admin_count,
   };
   return state;
