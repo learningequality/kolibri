@@ -152,7 +152,6 @@
       },
       visibleUsers() {
         const searchFilter = this.searchFilter;
-        const roleFilter = this.roleFilter;
 
         function matchesText(user) {
           const searchTerms = searchFilter
@@ -166,15 +165,8 @@
           return searchTerms.every(term => fullName.includes(term) || username.includes(term));
         }
 
-        function matchesRole(user) {
-          if (roleFilter === 'all') {
-            return true;
-          }
-          return user.kind === roleFilter;
-        }
-
         return this.users
-          .filter(user => matchesText(user) && matchesRole(user))
+          .filter(user => matchesText(user))
           .sort((user1, user2) => user1.username.localeCompare(user2.username));
       },
     },
