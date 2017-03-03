@@ -137,7 +137,6 @@
         classes: state => state.pageState.classes,
         facilityName: state => state.pageState.facility.name,
       },
-      },
     },
     $trNameSpace: 'classPage',
     $trs: {
