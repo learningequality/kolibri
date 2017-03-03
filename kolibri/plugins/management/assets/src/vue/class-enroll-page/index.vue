@@ -13,7 +13,17 @@
       <icon-button
         :text="$tr('reviewAndSave')"
         :primary="true"
+        @click="$refs.confirmation.open()"
       />
+      <ui-confirm
+        ref="confirmation"
+        @confirm="enrollLearners"
+        title="Confirm Enrollment of Selected Students"
+      >
+        Are you sure you want to enroll the following students into Math 20A?
+        <p v-for="learner in selectedLearners">{{ learner }}</p>
+
+      </ui-confirm>
     </div>
     <div>
       <h1>{{ $tr('selectUsers') }}</h1>
@@ -125,6 +135,7 @@
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
       'textbox': require('kolibri.coreVue.components.textbox'),
       'user-create-modal': require('../user-page/user-create-modal'),
+      'ui-confirm': require('keen-ui/src/UiConfirm'),
     },
     data: () => ({
       filterInput: '',
@@ -189,10 +200,16 @@
       },
       closeCreateUserModal(username) {
         this.createUserModalOpen = false;
-        this.selectedLearners.push(this.getUserId(this.learnerList, username));
+        if (username) {
+          console.log(username);
+          this.selectedLearners.push(this.getUserId(this.learnerList, username));
+        }
       },
       getUserId(learnerList, username) {
         return learnerList.find(learner => learner.username === username).id;
+      },
+      enrollLearners() {
+        console.log('enroll students', this.selectedLearners);
       },
     },
     vuex: {
