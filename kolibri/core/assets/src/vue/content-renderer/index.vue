@@ -2,7 +2,7 @@
 
   <div>
     <ui-alert v-if="noRendererAvailable" :dismissible="false" type="error">
-        {{ $tr('rendererNotAvailable') }}
+      {{ $tr('rendererNotAvailable') }}
     </ui-alert>
     <div v-else-if="available" class="fill-height">
       <div class="content-wrapper">
