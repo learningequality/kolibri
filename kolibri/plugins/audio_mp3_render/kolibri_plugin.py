@@ -8,7 +8,7 @@ class AudioMP3RenderPlugin(KolibriPluginBase):
     pass
 
 
-class AudioMP3RenderAsset(content_hooks.WebpackBundleHook):
+class AudioMP3RenderAsset(content_hooks.ContentRendererHook):
     unique_slug = "audio_mp3_render_module"
     src_file = "assets/src/module.js"
     content_types_file = "assets/src/content_types.json"
