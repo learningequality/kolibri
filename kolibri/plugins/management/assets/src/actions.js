@@ -139,6 +139,24 @@ function deleteClass(store, id) {
   );
 }
 
+/**
+ * Do a PATCH to update the class.
+ * @param {string} id - class id.
+ * @param {object} updateData.
+ */
+function updateClass(store, id, updateData) {
+  if (!id || Object.keys(updateData).length === 0) {
+    // if no id or empty updateData passed, abort the function
+    return;
+  }
+  const classModel = ClassroomResource.getModel(id);
+
+  classModel.save(updateData).then(
+    response => { store.dispatch('UPDATE_CLASS', id, response); },
+    error => { coreActions.handleApiError(store, error); }
+  );
+}
+
 function removeClassUser(store, classId, userId) {
   if (!classId || !userId) {
     // if no id passed, abort the function
@@ -610,6 +628,7 @@ function showScratchpad(store) {
 module.exports = {
   createClass,
   deleteClass,
+  updateClass,
   removeClassUser,
   showClassesPage,
   showClassEditPage,

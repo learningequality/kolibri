@@ -38,6 +38,13 @@ const mutations = {
   DELETE_CLASS(state, id) {
     state.pageState.classes = state.pageState.classes.filter(cl => cl.id !== id);
   },
+  UPDATE_CLASS(state, id, updatedClass) {
+    state.pageState.classes.forEach((cl, index, arr) => {
+      if (cl.id === id) {
+        arr[index] = updatedClass;
+      }
+    });
+  },
 
   // user mutations
   ADD_USER(state, user) {
