@@ -35,8 +35,8 @@
     <!-- Modals -->
     <user-remove-modal
       v-if="removeUser"
-      :classname="className"
-      :classid="classId"
+      :classname="currClass.name"
+      :classid="currClass.id"
       :username="currentUserRemove.username"
       :userid="currentUserRemove.id"
       @close="closeRemoveUserModal"
@@ -138,7 +138,7 @@
       classEnrollLink() {
         return {
           name: constants.PageNames.CLASS_ENROLL_MGMT_PAGE,
-          params: { classId: this.classId },
+          params: { classId: this.currClass.id },
         };
       },
       noUsersExist() {
@@ -183,8 +183,7 @@
     vuex: {
       getters: {
         users: state => state.pageState.users,
-        classId: state => state.pageState.classId,
-        className: state => state.pageState.className,
+        currClass: state => state.pageState.classes[0], // alway only one item in this array.
       },
     },
   };

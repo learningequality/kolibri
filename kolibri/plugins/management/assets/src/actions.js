@@ -224,8 +224,9 @@ function showClassEditPage(store, classId) {
     samePageCheckGenerator(store),
     ([users, cl]) => {
       const pageState = {
-        classId,
-        className: cl.name,
+        // classId,
+        // className: cl.name,
+        classes: [cl],
         users: users.map(_userState),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
