@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <div v-if="noRendererAvailable">
-      {{ $tr('contentNotAvailable') }}
-    </div>
+    <ui-alert v-if="noRendererAvailable" :dismissible="false" type="error">
+        {{ $tr('rendererNotAvailable') }}
+    </ui-alert>
     <div v-else-if="available" class="fill-height">
       <div class="content-wrapper">
         <loading-spinner id="spinner" v-if="!currentViewClass"/>
@@ -27,7 +27,7 @@
     $trNameSpace: 'contentRender',
     $trs: {
       msgNotAvailable: 'This content is not available',
-      contentNotAvailable: 'Kolibri is unable to render this content',
+      rendererNotAvailable: 'Kolibri is unable to render this content',
     },
     props: {
       id: {
@@ -61,6 +61,7 @@
     },
     components: {
       'loading-spinner': require('kolibri.coreVue.components.loadingSpinner'),
+      'ui-alert': require('keen-ui/src/UiAlert'),
     },
     computed: {
       extension() {
