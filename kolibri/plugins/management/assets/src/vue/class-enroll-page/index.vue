@@ -114,6 +114,7 @@
 
   const constants = require('../../state/constants');
   const actions = require('../../actions');
+  const differenceWith = require('lodash.differencewith');
 
   module.exports = {
     $trNameSpace: 'management-class-enroll',
@@ -150,9 +151,12 @@
       sortAscending: true,
     }),
     computed: {
+      itemsNotInCLass() {
+        return differenceWith(this.learnerList, this.classroomUsers, (a, b) => a.id === b.id);
+      },
       filteredItems() {
         // apply filter
-        return this.learnerList;
+        return this.itemsNotInCLass;
       },
       sortedFilteredItems() {
         return this.filteredItems.sort((a, b) => {
@@ -226,6 +230,7 @@
       getters: {
         classId: state => state.pageState.classroom.id,
         learnerList: state => state.pageState.facilityUsers,
+        classroomUsers: state => state.pageState.clasroomUsers,
       },
       actions: {
         enrollUsersInClass: actions.enrollUsersInClass,
