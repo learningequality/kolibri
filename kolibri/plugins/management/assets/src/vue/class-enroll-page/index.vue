@@ -26,8 +26,9 @@
       />
     </div>
     <div>
-      <p>{{ $tr('showing') }} <strong>{{ startRange }} - {{ endRange }}</strong> {{ $tr('of') }} {{ $tr('numLearners',
-        {count: totalItems}) }}</p>
+      <p>{{ $tr('showing') }} <strong>{{ visibleStartRange }} - {{ visibleEndRange }}</strong> {{ $tr('of') }} {{
+        $tr('numLearners',
+        {count: numFilteredItems}) }}</p>
       <table>
         <thead>
         <tr>
@@ -38,7 +39,7 @@
         </thead>
 
         <tbody>
-        <tr v-for="learner in paginatedLearnerList">
+        <tr v-for="learner in visibleFilteredItems">
           <td>
             <input type="checkbox" :id="learner.id" :value="learner.id" v-model="selectedLearners">
           </td>
@@ -48,6 +49,7 @@
         </tbody>
       </table>
       <hr>
+
       <div>
         <ui-icon-button
           type="secondary"
@@ -55,24 +57,26 @@
           icon="chevron_left"
           ariaLabel="Previous results"
           :disabled="pageNum === 1"
+          @click="goToPage(pageNum - 1)"
         />
         <icon-button
-          v-for="page in totalPages"
+          v-for="page in numPages"
           :text="String(page)"
           :primary="false"
           :disabled="pageNum === page"
-          @click="goTo(page)"
+          @click="goToPage(page)"
         />
         <ui-icon-button
           type="secondary"
           color="default"
           icon="chevron_right"
           ariaLabel="Next results"
-          :disabled="pageNum === totalPages"
+          :disabled="pageNum === numPages"
+          @click="goToPage(pageNum + 1)"
         />
       </div>
-
     </div>
+
     <div>
       <h2>{{ $tr('createAndEnroll') }}</h2>
       <p>{{ $tr('enrollSomeone') }}</p>
@@ -126,64 +130,69 @@
       filterInput: '',
       perPage: 10,
       pageNum: 1,
-      totalItems: 0,
-      totalPages: 0,
-      startRange: 0,
-      endRange: 0,
       selectedLearners: [],
       createUserModalOpen: false,
+      sortByName: true,
+      sortAscending: true,
     }),
     computed: {
+      filteredItems() {
+        // apply filter
+        return this.learnerList;
+      },
+      sortedFilteredItems() {
+        return this.filteredItems.sort((a, b) => {
+          if (this.sortAscending && this.sortByName) {
+            return a.full_name.localeCompare(b.full_name);
+          } else if (this.sortAscending && !this.sortByName) {
+            return a.username.localeCompare(b.username);
+          } else if (!this.sortAscending && this.sortByName) {
+            return b.full_name.localeCompare(a.full_name);
+          }
+          return b.username.localeCompare(a.username);
+        });
+      },
+      numFilteredItems() {
+        return this.sortedFilteredItems.length;
+      },
+      numPages() {
+        return Math.ceil(this.numFilteredItems / this.perPage);
+      },
+      startRange() {
+        return (this.pageNum - 1) * this.perPage;
+      },
+      visibleStartRange() {
+        return Math.min(this.startRange + 1, this.numFilteredItems);
+      },
+      endRange() {
+        return this.pageNum * this.perPage;
+      },
+      visibleEndRange() {
+        return Math.min(this.endRange, this.numFilteredItems);
+      },
+      visibleFilteredItems() {
+        return this.sortedFilteredItems.slice(this.startRange, this.endRange);
+      },
       editClassLink() {
         return {
           name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
           id: this.classId,
         };
       },
-      filteredLearnerList() {
-        // apply filter
-        return this.learnerList;
-      },
-      paginatedLearnerList() {
-        const paginatedObj =
-          this.getPaginatedItems(this.filteredLearnerList, this.pageNum, this.perPage);
-        this.totalItems = paginatedObj.totalItems;
-        this.totalPages = paginatedObj.totalPages;
-        this.startRange = paginatedObj.startRange;
-        this.endRange = paginatedObj.endRange;
-        return paginatedObj.paginatedItems;
-      },
     },
     methods: {
+      goToPage(page) {
+        this.pageNum = page;
+      },
       openCreateUserModal() {
         this.createUserModalOpen = true;
-        // console.log(this.getPaginatedItems(this.learnerList, 4, 10));
       },
-      closeCreateUserModal() {
+      closeCreateUserModal(username) {
         this.createUserModalOpen = false;
+        this.selectedLearners.push(this.getUserId(this.learnerList, username));
       },
-      getPaginatedItems(items, pageNum, perPage) {
-        const totalItems = items.length;
-        const totalPages = Math.ceil(totalItems / perPage);
-        const start = (pageNum - 1) * perPage;
-        const end = pageNum * perPage;
-        const paginatedItems = items.slice(start, end);
-        const totalPaginatedItems = paginatedItems.length;
-        const startRange = Math.min(start + 1, totalItems);
-        const endRange = Math.min(end, totalItems);
-        return {
-          pageNum,
-          perPage,
-          totalItems,
-          totalPages,
-          paginatedItems,
-          totalPaginatedItems,
-          startRange,
-          endRange,
-        };
-      },
-      goTo(page) {
-        this.pageNum = page;
+      getUserId(learnerList, username) {
+        return learnerList.find(learner => learner.username === username).id;
       },
     },
     vuex: {

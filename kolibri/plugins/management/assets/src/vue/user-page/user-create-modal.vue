@@ -157,7 +157,7 @@
         this.confirmationMessage = '';
       },
       close() {
-        this.$emit('close'); // signal parent to close
+        this.$emit('close', this.username); // signal parent to close
       },
     },
     vuex: {
