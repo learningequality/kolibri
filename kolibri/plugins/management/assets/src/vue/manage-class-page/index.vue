@@ -37,9 +37,11 @@
       <thead>
         <tr>
           <th class="col-header" scope="col"> {{$tr('className')}} </th>
-          <th class="col-header hide-on-mobile" scope="col"> {{$tr('learners')}} </th>
-          <th class="col-header hide-on-mobile" scope="col"> {{$tr('coaches')}} </th>
-          <th class="col-header hide-on-mobile" scope="col"> {{$tr('admins')}} </th>
+          <div class="status-group">
+            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('learners')}} </th>
+            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('coaches')}} </th>
+            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('admins')}} </th>
+          </div>
         </tr>
       </thead>
 
@@ -53,28 +55,28 @@
             </router-link>
           </th>
 
-          <!-- Learners field -->
-          <td class="table-cell hide-on-mobile">
-            {{cl.learner_count}}
-          </td>
+          <div class="status-group">
+            <!-- Learners field -->
+            <td class="table-cell hide-on-mobile status-body">
+              {{cl.learner_count}}
+            </td>
 
-          <!-- Coaches field -->
-          <td class="table-cell hide-on-mobile">
-            {{cl.coach_count}}
-          </td>
+            <!-- Coaches field -->
+            <td class="table-cell hide-on-mobile status-body">
+              {{cl.coach_count}}
+            </td>
 
-          <!-- Admins field -->
-          <td class="table-cell hide-on-mobile">
-            {{cl.admin_count}}
-          </td>
+            <!-- Admins field -->
+            <td class="table-cell hide-on-mobile status-body">
+              {{cl.admin_count}}
+            </td>
+          </div>
 
           <!-- delete field -->
           <td class="table-cell">
-            <icon-button
-              class="delete-class-button"
-              @click="openDeleteClassModal(cl)"
-              :text="$tr('deleteClass')"
-            />
+            <div class="delete-class-button" @click="openDeleteClassModal(cl)">
+              {{$tr('deleteClass')}}
+            </div>
           </td>
 
         </tr>
@@ -164,6 +166,18 @@
   // Padding height that separates rows from eachother
   $row-padding = 1.5em
 
+  .status-group
+    display: inline-table
+    width: 100%
+    text-align: center
+    margin-left: 30px
+
+  .status-header
+    vertical-align: middle
+
+  .status-body
+    padding-top: 0.5em
+
   .create
     float: right
     margin-top: -48px
@@ -211,7 +225,12 @@
     color: $core-text-default
 
   .delete-class-button
-    border: none
+    color: red
+    width: 110px
+    padding: 8px
+    cursor: pointer
+    margin-right: 4px
+    float: right
 
   .create-class-button
     width: 100%
@@ -222,6 +241,7 @@
     max-height: ($line-height * 2)
     display: inline-block
     padding-right: 1em
+    font-weight: bold
 
   .role-header
     display: none
