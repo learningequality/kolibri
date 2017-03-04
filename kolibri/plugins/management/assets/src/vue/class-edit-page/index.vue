@@ -75,7 +75,7 @@
       <tbody v-if="usersMatchFilter">
         <tr v-for="user in visibleUsers">
           <!-- Full Name field -->
-          <th scope="row" class="table-cell">
+          <th scope="row" class="table-cell full-name">
             <span class="table-name">
               {{user.full_name}}
             </span>
@@ -95,11 +95,9 @@
 
           <!-- Edit field -->
           <td class="table-cell">
-            <icon-button
-              :text="$tr('remove')"
-              class="remove-user-btn"
-              @click="openRemoveUserModal(user)">
-            </icon-button>
+            <div class="remove-user-btn" @click="openRemoveUserModal(user)">
+              {{$tr('remove')}}
+            </div>
           </td>
 
         </tr>
@@ -271,12 +269,29 @@
   tr
     text-align: left
 
+  tbody tr:nth-child(odd)
+    background-color: $core-bg-canvas
+
+  .full-name
+    padding-left: 5px
+
   .roster
     width: 100%
     word-break: break-all
 
   th
     text-align: inherit
+
+  th, td
+    vertical-align: middle
+
+  .remove-user-btn
+    color: $core-action-normal
+    font-weight: bold
+    width: 90px
+    padding: 8px
+    cursor: pointer
+    margin-right: 4px
 
   .col-header
     padding-bottom: (1.2 * $row-padding)
@@ -286,8 +301,6 @@
     width: 30%
 
   .table-cell
-    font-weight: normal // compensates for <th> cells
-    padding-bottom: $row-padding
     color: $core-text-default
 
   .user-role
