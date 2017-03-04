@@ -4,6 +4,7 @@ that it can be loaded without the settings/configuration/django stack!
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import os
 import pkgutil
 import re
 import subprocess
@@ -52,7 +53,12 @@ class Version(_BaseVersion):
         return mainver
 
 
-def derive_version_from_git_tag():
+def derive_version_from_git_tag(directory):
+    version_string = None
+
+    current_dir = os.getcwd()
+    os.chdir(directory)
+
     try:
         with tempfile.TemporaryFile() as discarded_stderr_f:
             git_describe_string = (
@@ -64,13 +70,16 @@ def derive_version_from_git_tag():
         subprocess.CalledProcessError,  # not a git repo
         OSError  # git executable doesn't exist
     ):
-        return None
+        pass
+    else:
+        version_string = parse_git_tag_version_string(git_describe_string)
 
-    return parse_git_tag_version_string(git_describe_string)
+    os.chdir(current_dir)
+    return version_string
 
 
-def derive_version_from_version_file():
-    string = pkgutil.get_data('kolibri', 'VERSION').decode('utf-8')
+def derive_version_from_version_file(package):
+    string = pkgutil.get_data(package, 'VERSION').decode('utf-8')
     return parse_git_tag_version_string(string)
 
 
@@ -91,7 +100,12 @@ def parse_git_tag_version_string(version_string):
     if len(version_split) >= 2:  # includes a release number (rc, beta, etc.)
         release = version_split[1]
 
-    if len(version_split) >= 3:  # includes a build number and hash
+    if len(version_split) == 3:  # is a full release, includes no release number.
+        release = None
+        build = version_split[1]
+        build_hash = version_split[2]
+
+    if len(version_split) >= 4:  # includes a build number and hash
         build = version_split[2]
         build_hash = version_split[3]
 
@@ -105,10 +119,11 @@ def parse_git_tag_version_string(version_string):
     )
 
 
-def get_version(version_fallback=None):
+def get_version(package, calling_file, version_fallback=None):
     '''
     '''
+    calling_dir = os.path.dirname(calling_file)
     return (
-        derive_version_from_git_tag() or derive_version_from_version_file() or
+        derive_version_from_git_tag(calling_dir) or derive_version_from_version_file(package) or
         version_fallback
     )

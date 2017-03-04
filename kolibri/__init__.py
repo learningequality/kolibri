@@ -6,4 +6,4 @@ from .utils.version import get_version
 
 __author__ = 'Learning Equality'
 __email__ = 'info@learningequality.org'
-__version__ = str(get_version())
+__version__ = str(get_version('kolibri', __file__))
