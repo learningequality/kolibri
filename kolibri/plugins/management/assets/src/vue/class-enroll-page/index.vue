@@ -21,15 +21,25 @@
         @confirm="enrollLearners"
         :closeOnConfirm="false"
         title="Confirm Enrollment of Selected Students"
+        confirmButtonText="Yes, Enroll Users"
+        denyButtonText="No, Go Back"
       >
-        Are you sure you want to enroll the following students into Math 20A?
-        <p v-for="learner in selectedLearners">{{ learner }}</p>
-
+        {{ $tr('areYouSure') }} <strong>{{ className }}</strong>?
+        <ul>
+          <li v-for="userId in selectedLearners"><strong>{{ getUsername(userId) }}</strong></li>
+        </ul>
       </ui-confirm>
     </div>
     <div>
       <h1>{{ $tr('selectUsers') }}</h1>
       <p>{{ $tr('showingAllUnassigned') }}</p>
+
+      <ui-switch
+      name="showSelectedUsers"
+      :label="$tr('selectedUsers')"
+      v-model="showSelectedUsers"
+      />
+
       <textbox
         :placeholder="$tr('searchByName')"
         :aria-label="$tr('searchByName')"
@@ -40,7 +50,7 @@
     <div>
       <p>{{ $tr('showing') }} <strong>{{ visibleStartRange }} - {{ visibleEndRange }}</strong> {{ $tr('of') }} {{
         $tr('numLearners',
-        {count: numFilteredItems}) }}</p>
+        {count: numFilteredUsers}) }}</p>
       <table>
         <thead>
         <tr>
@@ -51,7 +61,7 @@
         </thead>
 
         <tbody>
-        <tr v-for="learner in visibleFilteredItems">
+        <tr v-for="learner in visibleFilteredUsers">
           <td>
             <input type="checkbox" :id="learner.id" :value="learner.id" v-model="selectedLearners">
           </td>
@@ -62,7 +72,7 @@
       </table>
       <hr>
 
-      <div>
+      <div v-if="numPages > 1">
         <ui-icon-button
           type="secondary"
           color="default"
@@ -132,6 +142,9 @@
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       name: 'Name',
       username: 'Username',
+      allUsers: 'All Users',
+      selectedUsers: 'Selected Users',
+      areYouSure: 'Are you sure you want to enroll the following students into',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -140,6 +153,7 @@
       'textbox': require('kolibri.coreVue.components.textbox'),
       'user-create-modal': require('../user-page/user-create-modal'),
       'ui-confirm': require('keen-ui/src/UiConfirm'),
+      'ui-switch': require('keen-ui/src/UiSwitch'),
     },
     data: () => ({
       filterInput: '',
@@ -149,17 +163,24 @@
       createUserModalOpen: false,
       sortByName: true,
       sortAscending: true,
+      showSelectedUsers: false,
     }),
     computed: {
-      itemsNotInCLass() {
-        return differenceWith(this.learnerList, this.classroomUsers, (a, b) => a.id === b.id);
+      usersNotInClass() {
+        return differenceWith(this.facilityUsers, this.classroomUsers, (a, b) => a.id === b.id);
       },
-      filteredItems() {
+      usersNotInClassSelected() {
+        return this.usersNotInClass.filter(user => this.selectedLearners.includes(user.id));
+      },
+      filteredUsers() {
         // apply filter
-        return this.itemsNotInCLass;
+        if (this.showSelectedUsers) {
+          return this.usersNotInClassSelected;
+        }
+        return this.usersNotInClass;
       },
-      sortedFilteredItems() {
-        return this.filteredItems.sort((a, b) => {
+      sortedFilteredUsers() {
+        return this.filteredUsers.sort((a, b) => {
           if (this.sortAscending && this.sortByName) {
             return a.full_name.localeCompare(b.full_name);
           } else if (this.sortAscending && !this.sortByName) {
@@ -170,26 +191,26 @@
           return b.username.localeCompare(a.username);
         });
       },
-      numFilteredItems() {
-        return this.sortedFilteredItems.length;
+      numFilteredUsers() {
+        return this.sortedFilteredUsers.length;
       },
       numPages() {
-        return Math.ceil(this.numFilteredItems / this.perPage);
+        return Math.ceil(this.numFilteredUsers / this.perPage);
       },
       startRange() {
         return (this.pageNum - 1) * this.perPage;
       },
       visibleStartRange() {
-        return Math.min(this.startRange + 1, this.numFilteredItems);
+        return Math.min(this.startRange + 1, this.numFilteredUsers);
       },
       endRange() {
         return this.pageNum * this.perPage;
       },
       visibleEndRange() {
-        return Math.min(this.endRange, this.numFilteredItems);
+        return Math.min(this.endRange, this.numFilteredUsers);
       },
-      visibleFilteredItems() {
-        return this.sortedFilteredItems.slice(this.startRange, this.endRange);
+      visibleFilteredUsers() {
+        return this.sortedFilteredUsers.slice(this.startRange, this.endRange);
       },
       editClassLink() {
         return {
@@ -208,12 +229,8 @@
       closeCreateUserModal(username) {
         this.createUserModalOpen = false;
         if (username) {
-          console.log(username);
-          this.selectedLearners.push(this.getUserId(this.learnerList, username));
+          this.selectedLearners.push(this.getUserId(username));
         }
-      },
-      getUserId(learnerList, username) {
-        return learnerList.find(learner => learner.username === username).id;
       },
       enrollLearners() {
         this.enrollUsersInClass(this.classId, this.selectedLearners).then(
@@ -225,11 +242,18 @@
             console.log(error);
           });
       },
+      getUserId(username) {
+        return this.facilityUsers.find(learner => learner.username === username).id;
+      },
+      getUsername(userId) {
+        return this.facilityUsers.find(user => user.id === userId).username;
+      },
     },
     vuex: {
       getters: {
         classId: state => state.pageState.classroom.id,
-        learnerList: state => state.pageState.facilityUsers,
+        className: state => state.pageState.classroom.name,
+        facilityUsers: state => state.pageState.facilityUsers,
         classroomUsers: state => state.pageState.clasroomUsers,
       },
       actions: {
@@ -241,8 +265,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-
-</style>
+<style lang="stylus" scoped></style>
