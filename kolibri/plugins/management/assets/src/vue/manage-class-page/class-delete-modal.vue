@@ -3,7 +3,7 @@
   <core-modal
     :title="$tr('modalTitle')"
     :has-error="false"
-    @cancel="emitCloseSignal"
+    @cancel="close"
   >
     <div>
       {{$tr('deleteConfirmation')}} <strong>{{classname}}</strong>
@@ -16,7 +16,7 @@
         <icon-button
           :text="$tr('cancel')"
           class="undo-btn"
-          @click="emitCloseSignal"
+          @click="close"
         />
 
         <icon-button
@@ -65,15 +65,15 @@
     methods: {
       classDelete() {
         this.deleteClass(this.classid);
-        this.$emit('close');
       },
-      emitCloseSignal() {
-        this.$emit('close'); // signal parent to close
+      close() {
+        this.displayModal(false);
       },
     },
     vuex: {
       actions: {
         deleteClass: actions.deleteClass,
+        displayModal: actions.displayModal,
       },
     },
   };

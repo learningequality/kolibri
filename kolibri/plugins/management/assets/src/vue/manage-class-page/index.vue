@@ -20,14 +20,13 @@
 
     <!-- Modals -->
     <class-delete-modal
-      v-if="deletingClass"
+      v-if="showDeleteClassModal"
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
-      @close="closeDeleteClassModal"
     />
     <class-create-modal
-      v-if="creatingClass"
-      @close="closeCreateUserModal"/>
+      v-if="showCreateClassModal"
+    />
 
     <table class="roster" v-if="!noClassesExist">
 
@@ -94,6 +93,7 @@
 <script>
 
   const constants = require('../../state/constants');
+  const actions = require('../../actions');
 
   module.exports = {
     components: {
@@ -103,11 +103,15 @@
     },
     // Has to be a funcion due to vue's treatment of data
     data: () => ({
-      creatingClass: false,
-      deletingClass: false,
       currentClassDelete: null,
     }),
     computed: {
+      showDeleteClassModal() {
+        return this.modalShown === constants.ModalNames.DELETE_CLASS_MODAL;
+      },
+      showCreateClassModal() {
+        return this.modalShown === constants.ModalNames.CREATE_CLASS_MODAL;
+      },
       noClassesExist() {
         return this.classes.length === 0;
       },
@@ -121,23 +125,20 @@
       },
       openDeleteClassModal(cl) {
         this.currentClassDelete = cl;
-        this.deletingClass = true;
-      },
-      closeDeleteClassModal() {
-        this.deletingClass = false;
-        this.currentClassDelete = {};
+        this.displayModal(constants.ModalNames.DELETE_CLASS_MODAL);
       },
       openCreateClassModal() {
-        this.creatingClass = true;
-      },
-      closeCreateUserModal() {
-        this.creatingClass = false;
+        this.displayModal(constants.ModalNames.CREATE_CLASS_MODAL);
       },
     },
     vuex: {
       getters: {
+        modalShown: state => state.pageState.modalShown,
         classes: state => state.pageState.classes,
         facilityName: state => state.pageState.facility.name,
+      },
+      actions: {
+        displayModal: actions.displayModal,
       },
     },
     $trNameSpace: 'classPage',

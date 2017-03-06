@@ -95,6 +95,11 @@ function _managePageTitle(title) {
  */
 
 
+function displayModal(store, modalName) {
+  store.dispatch('SET_MODAL', modalName);
+}
+
+
 // ================================
 // CLASSES MANAGEMENT ACTIONS
 
@@ -109,18 +114,13 @@ function createClass(store, stateClassData) {
     parent: stateClassData.facilityId,
   };
 
-  return new Promise((resolve, reject) => {
-    ClassroomResource.createModel(classData).save().then(
-      (classModel) => {
-        resolve(classModel);
-      },
-      (error) => reject(error)
-    );
-  }).then(
-    // dispatch newly created class
-    newClass => store.dispatch('ADD_CLASS', _classState(newClass)),
-    // send back error if necessary
-    error => Promise.reject(error)
+  ClassroomResource.createModel(classData).save().then(
+    cl => {
+      // dispatch newly created class
+      store.dispatch('ADD_CLASS', _classState(cl));
+      displayModal(store, false);
+    },
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
@@ -134,7 +134,10 @@ function deleteClass(store, id) {
     return;
   }
   ClassroomResource.getModel(id).delete().then(
-    cl => { store.dispatch('DELETE_CLASS', id); },
+    cl => {
+      store.dispatch('DELETE_CLASS', id);
+      displayModal(store, false);
+    },
     error => { coreActions.handleApiError(store, error); }
   );
 }
@@ -152,7 +155,10 @@ function updateClass(store, id, updateData) {
   const classModel = ClassroomResource.getModel(id);
 
   classModel.save(updateData).then(
-    response => { store.dispatch('UPDATE_CLASS', id, response); },
+    response => {
+      store.dispatch('UPDATE_CLASS', id, response);
+      displayModal(store, false);
+    },
     error => { coreActions.handleApiError(store, error); }
   );
 }
@@ -174,6 +180,7 @@ function removeClassUser(store, classId, userId) {
       MembershipResource.getModel(membershipId).delete().then(
         response => {
           store.dispatch('DELETE_USER', userId);
+          displayModal(store, false);
         },
         error => { coreActions.handleApiError(store, error); }
       );
@@ -195,6 +202,7 @@ function showClassesPage(store) {
     samePageCheckGenerator(store),
     ([facility, classes]) => {
       const pageState = {
+        modalShown: null,
         facility: _facilityState(facility[0]), // for mvp, we assume only one facility exists
         classes: classes.map(_classState),
       };
@@ -224,6 +232,7 @@ function showClassEditPage(store, classId) {
     samePageCheckGenerator(store),
     ([users, cl]) => {
       const pageState = {
+        modalShown: null,
         classes: [cl],
         users: users.map(_userState),
       };
@@ -625,6 +634,8 @@ function showScratchpad(store) {
 }
 
 module.exports = {
+  displayModal,
+
   createClass,
   deleteClass,
   updateClass,

@@ -4,10 +4,9 @@
 
     <!-- Modals -->
     <class-rename-modal
-      v-if="editClassName"
+      v-if="showEditNameModal"
       :classname="currClass.name"
       :classid="currClass.id"
-      @close="closeEditNameModal"
     />
 
     <div id="name-edit-box" @click="openEditNameModal">
@@ -49,12 +48,11 @@
 
     <!-- Modals -->
     <user-remove-modal
-      v-if="removeUser"
+      v-if="showRemoveUserModal"
       :classname="currClass.name"
       :classid="currClass.id"
       :username="currentUserRemove.username"
       :userid="currentUserRemove.id"
-      @close="closeRemoveUserModal"
     />
 
     <table class="roster">
@@ -117,6 +115,7 @@
 
   const constants = require('../../state/constants');
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
+  const actions = require('../../actions');
 
   module.exports = {
     $trNameSpace: 'classEnrollPage',
@@ -143,8 +142,6 @@
     },
     data: () => ({
       searchFilter: '',
-      editClassName: false,
-      removeUser: false,
       currentUserRemove: null,
     }),
     computed: {
@@ -184,27 +181,30 @@
           .filter(user => matchesText(user))
           .sort((user1, user2) => user1.username.localeCompare(user2.username));
       },
+      showEditNameModal() {
+        return this.modalShown === constants.ModalNames.EDIT_CLASS_NAME_MODAL;
+      },
+      showRemoveUserModal() {
+        return this.modalShown === constants.ModalNames.REMOVE_USER_MODAL;
+      },
     },
     methods: {
       openEditNameModal() {
-        this.editClassName = true;
-      },
-      closeEditNameModal() {
-        this.editClassName = false;
+        this.displayModal(constants.ModalNames.EDIT_CLASS_NAME_MODAL);
       },
       openRemoveUserModal(user) {
         this.currentUserRemove = user;
-        this.removeUser = true;
-      },
-      closeRemoveUserModal() {
-        this.removeUser = false;
-        this.currentUserRemove = {};
+        this.displayModal(constants.ModalNames.REMOVE_USER_MODAL);
       },
     },
     vuex: {
       getters: {
+        modalShown: state => state.pageState.modalShown,
         users: state => state.pageState.users,
         currClass: state => state.pageState.classes[0], // alway only one item in this array.
+      },
+      actions: {
+        displayModal: actions.displayModal,
       },
     },
   };

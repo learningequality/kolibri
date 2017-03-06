@@ -31,6 +31,11 @@ const initialState = {
 };
 
 const mutations = {
+  // modal mutation
+  SET_MODAL(state, modalName) {
+    state.pageState.modalShown = modalName;
+  },
+
   // class mutations
   ADD_CLASS(state, cl) {
     state.pageState.classes.push(cl);

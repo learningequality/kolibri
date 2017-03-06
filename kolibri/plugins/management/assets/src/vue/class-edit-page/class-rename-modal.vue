@@ -94,16 +94,16 @@
           this.errorMessage = 'New class name cannot be empty!';
         } else {
           this.updateClass(this.classid, { name: this.name });
-          this.$emit('close'); // signal parent to close
         }
       },
       close() {
-        this.$emit('close'); // signal parent to close
+        this.displayModal(false);
       },
     },
     vuex: {
       actions: {
         updateClass: actions.updateClass,
+        displayModal: actions.displayModal,
       },
     },
   };

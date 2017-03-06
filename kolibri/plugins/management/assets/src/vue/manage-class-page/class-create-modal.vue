@@ -86,25 +86,11 @@
             name: this.name,
             facilityId: this.facilityId,
           };
-          this.createClass(newClass).then(
-            () => {
-              this.close();
-            },
-            (error) => {
-              if (error.status.code === 400) {
-                // access the first error message
-                this.errorMessage = error.entity[Object.keys(error.entity)[0]];
-              } else if (error.status.code === 403) {
-                this.errorMessage = error.entity;
-              } else {
-                this.errorMessage = this.$tr('unknownError');
-              }
-            }
-          );
+          this.createClass(newClass);
         }
       },
       close() {
-        this.$emit('close'); // signal parent to close
+        this.displayModal(false);
       },
     },
     vuex: {
@@ -113,6 +99,7 @@
       },
       actions: {
         createClass: actions.createClass,
+        displayModal: actions.displayModal,
       },
     },
   };
