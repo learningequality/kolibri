@@ -17,7 +17,7 @@
           class="user-field"
           autocomplete="name"
           required
-          v-model="full_name"/>
+          v-model="fullName"/>
         <core-textbox
           :label="$tr('username')"
           @focus="clearStatus"
@@ -106,7 +106,7 @@
         username: '',
         password: '',
         passwordConfirm: '',
-        full_name: '',
+        fullName: '',
         kind: UserKinds.LEARNER,
         errorMessage: '',
         confirmationMessage: '',
@@ -133,12 +133,12 @@
       createNewUser() {
         const newUser = {
           username: this.username,
-          full_name: this.full_name,
+          full_name: this.fullName,
           kind: this.kind,
         };
 
         // check for all fields populated
-        if (!(this.username && this.password && this.full_name && this.kind)) {
+        if (!(this.username && this.password && this.fullName && this.kind)) {
           this.errorMessage = this.$tr('emptyFieldError');
         // check for password confirmation match
         } else if (!(this.password === this.passwordConfirm)) {
