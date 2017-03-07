@@ -3,4 +3,4 @@ from django.views.generic.base import TemplateView
 
 
 class CoachToolsView(TemplateView):
-    template_name = "coach/coach.html"
+    template_name = "coach_tools/coach_tools.html"

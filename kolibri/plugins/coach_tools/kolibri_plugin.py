@@ -13,7 +13,7 @@ class CoachTools(KolibriPluginBase):
 
 
 class CoachToolsAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "coach_module"
+    unique_slug = "coach_tools_module"
     src_file = "assets/src/app.js"
 
 class CoachToolsInclusionHook(hooks.CoachToolsSyncHook):
