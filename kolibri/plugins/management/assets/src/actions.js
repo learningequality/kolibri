@@ -225,7 +225,7 @@ function showClassEditPage(store, classId) {
   const classPromise = classModel.fetch();
   // fetch the users under this class.
   const classUsersCollection = FacilityUserResource.getCollection({ member_of: classId });
-  const classUsersPromise = classUsersCollection.fetch();
+  const classUsersPromise = classUsersCollection.fetch({}, true);
 
   const promises = [classUsersPromise, classPromise];
 
@@ -260,7 +260,8 @@ function showClassEnrollPage(store, classId) {
   // current class
   const classPromise = ClassroomResource.getModel(classId).fetch();
   // users in current class
-  const classUsersPromise = FacilityUserResource.getCollection({ member_of: classId }).fetch();
+  const classUsersPromise =
+    FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
 
   ConditionalPromise.all([facilityPromise, userPromise, classPromise, classUsersPromise]).only(
     samePageCheckGenerator(store),
