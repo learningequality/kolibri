@@ -143,8 +143,8 @@
       bytesForHumans(bytes) {
         // breaking down byte counts in terms of larger sizes
         const kilobyte = 1024;
-        const megabyte = Math.pow(kilobyte, 2);
-        const gigabyte = Math.pow(kilobyte, 3);
+        const megabyte = kilobyte ** 2;
+        const gigabyte = kilobyte ** 3;
 
         function kilobyteCalc(byteCount) {
           const kilos = Math.floor(byteCount / kilobyte);

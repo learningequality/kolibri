@@ -197,14 +197,14 @@
         this.videoPlayer.on('loadedmetadata', this.loadedMetaData);
         this.videoPlayer.on('play', this.focusOnPlayControl);
         this.videoPlayer.on('pause', this.focusOnPlayControl);
-        global.addEventListener('resize', this.throttledResizeVideo);
+        window.addEventListener('resize', this.throttledResizeVideo);
       });
     },
 
     beforeDestroy() {
       this.recordProgress();
       this.$emit('stopTracking');
-      global.removeEventListener('resize', this.throttledResizeVideo);
+      window.removeEventListener('resize', this.throttledResizeVideo);
       this.videoPlayer.dispose();
     },
   };

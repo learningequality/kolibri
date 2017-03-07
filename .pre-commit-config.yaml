@@ -1,15 +1,20 @@
-- repo: git://github.com/pre-commit/pre-commit-hooks
-  sha: 97b88d9610bcc03982ddac33caba98bb2b751f5f
-  hooks:
-  - id: trailing-whitespace
-  - id: flake8
-  - id: check-yaml
-  - id: check-added-large-files
-  - id: debug-statements
-  - id: end-of-file-fixer
-- repo: git://github.com/FalconSocial/pre-commit-python-sorter
-  sha: d044ff27300a6dc8b1a56cd22552e3a810dc6f49
-  hooks:
-  - id: python-import-sorter
-    args:
-    - --silent-overwrite
+-   repo: git://github.com/pre-commit/pre-commit-hooks
+    sha: a11d9314b22d8f8c7556443875b731ef05965464
+    hooks:
+    -   id: trailing-whitespace
+    -   id: flake8
+    -   id: check-yaml
+    -   id: check-added-large-files
+    -   id: debug-statements
+    -   id: end-of-file-fixer
+-   repo: git://github.com/FalconSocial/pre-commit-python-sorter
+    sha: 5991d2aea26858d3c3538e0b4e09255b6b99413e
+    hooks:
+    -   id: python-import-sorter
+        args:
+        - --silent-overwrite
+-   repo: git://github.com/pre-commit/mirrors-eslint
+    sha: v3.14.0
+    hooks:
+    -   id: eslint
+        additional_dependencies: [ 'eslint', 'eslint-plugin-html', 'eslint-config-airbnb', 'eslint-plugin-import', 'eslint-plugin-jsx-a11y']

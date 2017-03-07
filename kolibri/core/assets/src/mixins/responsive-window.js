@@ -127,6 +127,7 @@ function windowMetrics() {
 }
 
 const throttle = require('frame-throttle').throttle;
+
 const windowResizeHandler = throttle((e) => {
   const metrics = windowMetrics();
   windowListeners.forEach(cb => cb(metrics));
