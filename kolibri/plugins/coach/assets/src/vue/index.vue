@@ -5,11 +5,12 @@
       <channel-switcher @switch="switchChannel"/>
     </div>
 
-    <div v-if="!currentPage && isCoachAdminOrSuperuser" slot="content">
-      <h1>Coach Root</h1>
-      <a href="/coach/#/reports">Go to Reports.</a>
+    <div v-if="isCoachAdminOrSuperuser" slot="content">
+      <div v-if="notRootPage" class="page">
+        <top-nav/>
+      </div>
+      <component class="page" :is="currentPage"/>
     </div>
-    <component v-if="isCoachAdminOrSuperuser" slot="content" :is="currentPage" class="page"/>
 
     <div v-else slot="content" class="login-message">
       <h1>{{ $tr('logInPrompt') }}</h1>
@@ -36,21 +37,41 @@
       logInCommand: 'You must be logged in as an Admin to view this page.',
     },
     components: {
-      'reports': require('./reports'),
-      'content-unavailable-page': require('./content-unavailable-page'),
+      'top-nav': require('./top-nav'),
+      'class-list-page': require('./class-list-page'),
+      'recent-page': require('./recent-page'),
+      'topics-page': require('./topics-page'),
+      'exams-page': require('./exams-page'),
+      'learners-page': require('./learners-page'),
+      'groups-page': require('./groups-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
-        if (this.pageName === constants.PageNames.REPORTS) {
-          return 'reports';
+        if (this.pageName === constants.PageNames.COACH_CLASS_LIST_PAGE) {
+          return 'class-list-page';
         }
-        if (this.pageName === constants.PageNames.CONTENT_UNAVAILABLE) {
-          return 'content-unavailable-page';
+        if (this.pageName === constants.PageNames.COACH_RECENT_PAGE) {
+          return 'recent-page';
+        }
+        if (this.pageName === constants.PageNames.COACH_TOPICS_PAGE) {
+          return 'topics-page';
+        }
+        if (this.pageName === constants.PageNames.COACH_EXAMS_PAGE) {
+          return 'exams-page';
+        }
+        if (this.pageName === constants.PageNames.COACH_LEARNERS_PAGE) {
+          return 'learners-page';
+        }
+        if (this.pageName === constants.PageNames.COACH_GROUPS_PAGE) {
+          return 'groups-page';
         }
         return null;
+      },
+      notRootPage() {
+        return this.pageName !== constants.PageNames.COACH_CLASS_LIST_PAGE;
       },
     },
     methods: {
