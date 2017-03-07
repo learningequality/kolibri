@@ -31,13 +31,14 @@
       </ui-confirm>
     </div>
     <div>
-      <h1>{{ $tr('selectUsers') }}</h1>
+      <h1>{{ $tr('selectLearners') }}</h1>
       <p>{{ $tr('showingAllUnassigned') }}</p>
 
       <ui-switch
       name="showSelectedUsers"
       :label="$tr('selectedUsers')"
       v-model="showSelectedUsers"
+      class="switch"
       />
 
       <textbox
@@ -48,9 +49,11 @@
       />
     </div>
     <div>
-      <p>{{ $tr('showing') }} <strong>{{ visibleStartRange }} - {{ visibleEndRange }}</strong> {{ $tr('of') }} {{
-        $tr('numLearners',
-        {count: numFilteredUsers}) }}</p>
+      <p>
+        {{ $tr('showing') }} <strong>{{ visibleStartRange }} - {{ visibleEndRange }}</strong>
+        {{ $tr('of') }} {{$tr('numLearners', {count: numFilteredUsers}) }}
+        <span v-if="filterInput">for <strong>"{{ filterInput }}"</strong></span>
+      </p>
       <table>
         <thead>
         <tr>
@@ -131,8 +134,8 @@
     $trs: {
       backToClassDetails: 'Back to class details',
       reviewAndSave: 'Review & Save',
-      selectUsers: 'Select users to become learners',
-      showingAllUnassigned: 'Showing all unassigned users from your user list',
+      selectLearners: 'Select users to enroll',
+      showingAllUnassigned: 'Showing all unassigned users',
       searchByName: 'Search by name',
       createAndEnroll: 'Optional: Create & enroll a brand new user',
       enrollSomeone: `Enroll someone who isn't on your user list`,
@@ -173,11 +176,14 @@
         return this.usersNotInClass.filter(user => this.selectedLearners.includes(user.id));
       },
       filteredUsers() {
-        // apply filter
-        if (this.showSelectedUsers) {
-          return this.usersNotInClassSelected;
-        }
-        return this.usersNotInClass;
+        const users = this.showSelectedUsers ? this.usersNotInClassSelected : this.usersNotInClass;
+        return users.filter(user => {
+          const searchTerms =
+            this.filterInput.split(' ').filter(Boolean).map(term => term.toLowerCase());
+          const fullName = user.full_name.toLowerCase();
+          const username = user.username.toLowerCase();
+          return searchTerms.every(term => fullName.includes(term) || username.includes(term));
+        });
       },
       sortedFilteredUsers() {
         return this.filteredUsers.sort((a, b) => {
@@ -265,4 +271,13 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus">
+
+  .switch
+    .ui-switch__track
+      z-index: 0
+
+    .ui-switch__thumb
+      z-index: 1
+
+</style>
