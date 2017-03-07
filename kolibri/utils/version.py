@@ -101,6 +101,8 @@ def parse_git_tag_version_string(version_string):
         release = version_split[1]
 
     if len(version_split) == 3:  # is a full release, includes no release number.
+        # A full release only has '<version_number>-<build_number>-<build_hash>'
+        # rather than '<version_number>-<release_number>-<build_number>-<build_hash>'
         release = None
         build = version_split[1]
         build_hash = version_split[2]
