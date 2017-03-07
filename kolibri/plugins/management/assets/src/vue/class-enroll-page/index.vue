@@ -1,122 +1,130 @@
 <template>
 
   <div>
-    <div>
-      <div class="top-buttons">
-        <div class="pure-u-1-2">
+    <div class="top-buttons pure-g">
+
+      <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1 align-center'">
         <router-link :to="editClassLink">
           <icon-button
             :text="$tr('backToClassDetails')"
-            :primary="false"
-          >
+            :primary="false">
             <mat-svg category="navigation" name="arrow_back"/>
           </icon-button>
         </router-link>
-        </div>
-        <div class="pure-u-1-2">
-          <icon-button
-            :text="$tr('reviewAndSave')"
-            :primary="true"
-            @click="$refs.confirmation.open()"
-            :disabled="selectedLearners.length === 0"
-          />
-          <ui-confirm
-            ref="confirmation"
-            @confirm="enrollLearners"
-            :closeOnConfirm="false"
-            title="Confirm Enrollment of Selected Students"
-            confirmButtonText="Yes, Enroll Users"
-            denyButtonText="No, Go Back"
-          >
-            {{ $tr('areYouSure') }} <strong>{{ className }}</strong>?
-            <ul>
-              <li v-for="userId in selectedLearners"><strong>{{ getUsername(userId) }}</strong></li>
-            </ul>
-          </ui-confirm>
-        </div>
       </div>
-    </div>
-    <div>
-      <h1>{{ $tr('selectLearners') }} {{ className }}</h1>
-      <p>{{ $tr('showingAllUnassigned') }}</p>
 
-      <ui-switch
+      <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2 align-right' : 'pure-u-1-1 align-center'">
+        <icon-button
+          :text="$tr('enrollSelectedUsers')"
+          :primary="true"
+          @click="$refs.confirmation.open()"
+          :disabled="selectedUsers.length === 0">
+          <mat-svg category="navigation" name="check"/>
+        </icon-button>
+      </div>
+
+    </div>
+
+    <ui-confirm
+      ref="confirmation"
+      @confirm="enrollLearners"
+      :closeOnConfirm="false"
+      :title="$tr('confirmEnrollment')"
+      :confirmButtonText="$tr('yesEnrollUsers')"
+      :denyButtonText="$tr('noGoBack')">
+      {{ $tr('areYouSure') }} <strong>{{ className }}</strong>?
+      <ul>
+        <li v-for="userId in selectedUsers"><strong>{{ getUsername(userId) }}</strong></li>
+      </ul>
+    </ui-confirm>
+
+
+    <h1>{{ $tr('selectLearners') }} {{ className }}</h1>
+    <p>{{ $tr('showingAllUnassigned') }}</p>
+
+    <textbox
+      :placeholder="$tr('searchForUser')"
+      :aria-label="$tr('searchForUser')"
+      v-model="filterInput"
+      type="search"
+      @input="pageNum = 1"
+      class="search-box"/>
+
+    <ui-switch
       name="showSelectedUsers"
       :label="$tr('selectedUsers')"
       v-model="showSelectedUsers"
-      class="switch"
-      />
+      class="switch"/>
 
-      <textbox
-        :placeholder="$tr('searchByName')"
-        :aria-label="$tr('searchByName')"
-        v-model="filterInput"
-        type="search"
-      />
-    </div>
-    <div>
+    <hr>
+
+
+    <p v-if="usersNotInClass.length === 0">{{ $tr('noUsersExist') }}</p>
+    <p v-else-if="showSelectedUsers && filteredUsers.length === 0">{{ $tr('noUsersSelected') }}</p>
+    <p v-else-if="filteredUsers.length === 0">{{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong></p>
+
+    <div v-else>
       <p>
         {{ $tr('showing') }} <strong>{{ visibleStartRange }} - {{ visibleEndRange }}</strong>
         {{ $tr('of') }} {{$tr('numLearners', {count: numFilteredUsers}) }}
-        <span v-if="filterInput">for <strong>"{{ filterInput }}"</strong></span>
+        <span v-if="filterInput">{{ $tr('thatMatch') }} <strong>"{{ filterInput }}"</strong></span>
       </p>
+
       <table>
         <thead>
         <tr>
           <th></th>
-          <th>{{$tr('name')}}</th>
-          <th>{{$tr('username')}}</th>
+          <th>{{ $tr('name') }}</th>
+          <th>{{ $tr('username') }}</th>
         </tr>
         </thead>
 
         <tbody>
-        <tr v-for="learner in visibleFilteredUsers">
-          <td>
-            <input type="checkbox" :id="learner.id" :value="learner.id" v-model="selectedLearners">
-          </td>
-          <td><strong>{{learner.full_name}}</strong></td>
-          <td>{{learner.username}}</td>
+        <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
+            @click="toggleSelection(learner.id)">
+          <td><input type="checkbox" :id="learner.id" :value="learner.id" v-model="selectedUsers"></td>
+          <td><strong>{{ learner.full_name }}</strong></td>
+          <td>{{ learner.username }}</td>
         </tr>
         </tbody>
       </table>
-      <hr>
-
-      <div v-if="numPages > 1">
-        <ui-icon-button
-          type="secondary"
-          color="default"
-          icon="chevron_left"
-          ariaLabel="Previous results"
-          :disabled="pageNum === 1"
-          @click="goToPage(pageNum - 1)"
-        />
-        <icon-button
-          v-for="page in numPages"
-          :text="String(page)"
-          :primary="false"
-          :disabled="pageNum === page"
-          @click="goToPage(page)"
-        />
-        <ui-icon-button
-          type="secondary"
-          color="default"
-          icon="chevron_right"
-          ariaLabel="Next results"
-          :disabled="pageNum === numPages"
-          @click="goToPage(pageNum + 1)"
-        />
-      </div>
     </div>
+
+
+    <div v-if="numPages > 1" class="pagination">
+      <ui-icon-button
+        type="secondary"
+        color="default"
+        icon="chevron_left"
+        :ariaLabel="$tr('previousResults')"
+        :disabled="pageNum === 1"
+        @click="goToPage(pageNum - 1)"/>
+      <icon-button
+        v-for="page in numPages"
+        :text="String(page)"
+        :primary="false"
+        :ariaLabel="`${$tr('goToPage')} ${page}`"
+        :disabled="pageNum === page"
+        @click="goToPage(page)"/>
+      <ui-icon-button
+        type="secondary"
+        color="default"
+        icon="chevron_right"
+        :ariaLabel="$tr('nextResults')"
+        :disabled="pageNum === numPages"
+        @click="goToPage(pageNum + 1)"/>
+    </div>
+
+    <hr>
 
     <div>
       <h2>{{ $tr('createAndEnroll') }}</h2>
       <p>{{ $tr('enrollSomeone') }}</p>
-      <hr>
+
       <icon-button
         :text="$tr('createNewUser')"
         :primary="false"
-        @click="openCreateUserModal"
-      >
+        @click="openCreateUserModal">
         <mat-svg category="content" name="add"/>
       </icon-button>
 
@@ -134,26 +142,37 @@
   const constants = require('../../state/constants');
   const actions = require('../../actions');
   const differenceWith = require('lodash.differencewith');
+  const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {
+    mixins: [responsiveWindow],
     $trNameSpace: 'management-class-enroll',
     $trs: {
       backToClassDetails: 'Back to class details',
-      reviewAndSave: 'Review & Save',
+      enrollSelectedUsers: 'Enroll selected users',
       selectLearners: 'Select users to enroll in',
       showingAllUnassigned: 'Showing all users not assigned to this class',
-      searchByName: 'Search for a user',
-      createAndEnroll: 'Optional: Create & enroll a brand new user',
-      enrollSomeone: `Enroll someone who isn't on your user list`,
-      createNewUser: 'Create a New User Account',
+      searchForUser: 'Search for a user',
+      createAndEnroll: 'Or: Create & enroll a brand new user',
+      enrollSomeone: `Enroll someone who isn't already a user`,
+      createNewUser: 'Create a new user account',
       showing: 'Showing',
       of: 'of',
-      numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
+      numLearners: '{count, number, integer} {count, plural, one {User} other {Users}}',
       name: 'Name',
       username: 'Username',
-      allUsers: 'All Users',
-      selectedUsers: 'Show Selected Users',
-      areYouSure: 'Are you sure you want to enroll the following students into',
+      selectedUsers: 'Only show selected users',
+      areYouSure: 'Are you sure you want to enroll the following users into',
+      confirmEnrollment: 'Confirm Enrollment of Selected Users',
+      noUsersExist: 'No users exist',
+      noUsersSelected: 'No users are selected',
+      noUsersMatch: 'No users match',
+      thatMatch: 'that match',
+      yesEnrollUsers: 'Yes, enroll students',
+      noGoBack: 'No, go back',
+      previousResults: 'Previous results',
+      goToPage: 'Go to page',
+      nextResults: 'Next results',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -168,7 +187,7 @@
       filterInput: '',
       perPage: 10,
       pageNum: 1,
-      selectedLearners: [],
+      selectedUsers: [],
       createUserModalOpen: false,
       sortByName: true,
       sortAscending: true,
@@ -179,7 +198,7 @@
         return differenceWith(this.facilityUsers, this.classroomUsers, (a, b) => a.id === b.id);
       },
       usersNotInClassSelected() {
-        return this.usersNotInClass.filter(user => this.selectedLearners.includes(user.id));
+        return this.usersNotInClass.filter(user => this.selectedUsers.includes(user.id));
       },
       filteredUsers() {
         const users = this.showSelectedUsers ? this.usersNotInClassSelected : this.usersNotInClass;
@@ -241,11 +260,11 @@
       closeCreateUserModal(username) {
         this.createUserModalOpen = false;
         if (username) {
-          this.selectedLearners.push(this.getUserId(username));
+          this.selectedUsers.push(this.getUserId(username));
         }
       },
       enrollLearners() {
-        this.enrollUsersInClass(this.classId, this.selectedLearners).then(
+        this.enrollUsersInClass(this.classId, this.selectedUsers).then(
           () => {
             this.$refs.confirmation.close();
             this.$router.push(this.editClassLink);
@@ -259,6 +278,17 @@
       },
       getUsername(userId) {
         return this.facilityUsers.find(user => user.id === userId).username;
+      },
+      isSelected(userId) {
+        return this.selectedUsers.includes(userId);
+      },
+      toggleSelection(userId) {
+        const index = this.selectedUsers.indexOf(userId);
+        if (index === -1) {
+          this.selectedUsers.push(userId);
+        } else {
+          this.selectedUsers.splice(index, 1);
+        }
       },
     },
     vuex: {
@@ -291,15 +321,40 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
+  .align-right
+    text-align: right
+
+  .align-center
+    text-align: center
+
+  .top-buttons
+    position: relative
+
+  .pagination
+    text-align:center
+    padding: 2em
+
+  .search-box
+    max-width: 400px
+
   table
     width: 100%
     word-break: break-all
 
-
   th
     text-align: left
 
-  .top-buttons
-    position: relative
+  td, th
+    padding: 0.5em
+
+
+  thead
+    color: #686868
+    font-size: small
+
+  .selectedrow
+    background-color: $core-bg-canvas
 
 </style>
