@@ -98,6 +98,7 @@
         icon="chevron_left"
         :ariaLabel="$tr('previousResults')"
         :disabled="pageNum === 1"
+        size="small"
         @click="goToPage(pageNum - 1)"/>
       <icon-button
         v-for="page in numPages"
@@ -105,6 +106,7 @@
         :primary="false"
         :ariaLabel="`${$tr('goToPage')} ${page}`"
         :disabled="pageNum === page"
+        size="small"
         @click="goToPage(page)"
         v-if="windowSize.breakpoint > 2 && pageWithinRange(page)"/>
       <ui-icon-button
@@ -113,6 +115,7 @@
         icon="chevron_right"
         :ariaLabel="$tr('nextResults')"
         :disabled="pageNum === numPages"
+        size="small"
         @click="goToPage(pageNum + 1)"/>
     </nav>
 
@@ -270,9 +273,7 @@
             this.$refs.confirmation.close();
             this.$router.push(this.editClassLink);
           },
-          (error) => {
-            console.log(error);
-          });
+          (error) => {});
       },
       getUserId(username) {
         return this.facilityUsers.find(learner => learner.username === username).id;
