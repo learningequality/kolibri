@@ -4,7 +4,7 @@ from kolibri.core.webpack import hooks as webpack_hooks
 
 class CoachToolsSyncHook(webpack_hooks.WebpackInclusionHook):
     """
-    Inherit a hook defining assets to be loaded synchronously in coach/coach.html
+    Inherit a hook defining assets to be loaded synchronously in coach_tools/coach_tools.html
     """
 
     class Meta:
@@ -13,7 +13,7 @@ class CoachToolsSyncHook(webpack_hooks.WebpackInclusionHook):
 
 class CoachToolsAsyncHook(webpack_hooks.WebpackInclusionHook):
     """
-    Inherit a hook defining assets to be loaded asynchronously in coach/coach.html
+    Inherit a hook defining assets to be loaded asynchronously in coach_tools/coach_tools.html
     """
 
     class Meta:
