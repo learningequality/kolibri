@@ -2,36 +2,42 @@
 
   <div>
     <div>
-      <router-link :to="editClassLink">
-        <icon-button
-          :text="$tr('backToClassDetails')"
-          :primary="false"
-        >
-          <mat-svg category="navigation" name="arrow_back"/>
-        </icon-button>
-      </router-link>
-      <icon-button
-        :text="$tr('reviewAndSave')"
-        :primary="true"
-        @click="$refs.confirmation.open()"
-        :disabled="selectedLearners.length === 0"
-      />
-      <ui-confirm
-        ref="confirmation"
-        @confirm="enrollLearners"
-        :closeOnConfirm="false"
-        title="Confirm Enrollment of Selected Students"
-        confirmButtonText="Yes, Enroll Users"
-        denyButtonText="No, Go Back"
-      >
-        {{ $tr('areYouSure') }} <strong>{{ className }}</strong>?
-        <ul>
-          <li v-for="userId in selectedLearners"><strong>{{ getUsername(userId) }}</strong></li>
-        </ul>
-      </ui-confirm>
+      <div class="top-buttons">
+        <div class="pure-u-1-2">
+        <router-link :to="editClassLink">
+          <icon-button
+            :text="$tr('backToClassDetails')"
+            :primary="false"
+          >
+            <mat-svg category="navigation" name="arrow_back"/>
+          </icon-button>
+        </router-link>
+        </div>
+        <div class="pure-u-1-2">
+          <icon-button
+            :text="$tr('reviewAndSave')"
+            :primary="true"
+            @click="$refs.confirmation.open()"
+            :disabled="selectedLearners.length === 0"
+          />
+          <ui-confirm
+            ref="confirmation"
+            @confirm="enrollLearners"
+            :closeOnConfirm="false"
+            title="Confirm Enrollment of Selected Students"
+            confirmButtonText="Yes, Enroll Users"
+            denyButtonText="No, Go Back"
+          >
+            {{ $tr('areYouSure') }} <strong>{{ className }}</strong>?
+            <ul>
+              <li v-for="userId in selectedLearners"><strong>{{ getUsername(userId) }}</strong></li>
+            </ul>
+          </ui-confirm>
+        </div>
+      </div>
     </div>
     <div>
-      <h1>{{ $tr('selectLearners') }}</h1>
+      <h1>{{ $tr('selectLearners') }} {{ className }}</h1>
       <p>{{ $tr('showingAllUnassigned') }}</p>
 
       <ui-switch
@@ -68,7 +74,7 @@
           <td>
             <input type="checkbox" :id="learner.id" :value="learner.id" v-model="selectedLearners">
           </td>
-          <td>{{learner.full_name}}</td>
+          <td><strong>{{learner.full_name}}</strong></td>
           <td>{{learner.username}}</td>
         </tr>
         </tbody>
@@ -134,9 +140,9 @@
     $trs: {
       backToClassDetails: 'Back to class details',
       reviewAndSave: 'Review & Save',
-      selectLearners: 'Select users to enroll',
-      showingAllUnassigned: 'Showing all unassigned users',
-      searchByName: 'Search by name',
+      selectLearners: 'Select users to enroll in',
+      showingAllUnassigned: 'Showing all users not assigned to this class',
+      searchByName: 'Search for a user',
       createAndEnroll: 'Optional: Create & enroll a brand new user',
       enrollSomeone: `Enroll someone who isn't on your user list`,
       createNewUser: 'Create a New User Account',
@@ -146,7 +152,7 @@
       name: 'Name',
       username: 'Username',
       allUsers: 'All Users',
-      selectedUsers: 'Selected Users',
+      selectedUsers: 'Show Selected Users',
       areYouSure: 'Are you sure you want to enroll the following students into',
     },
     components: {
@@ -279,5 +285,21 @@
 
     .ui-switch__thumb
       z-index: 1
+
+</style>
+
+
+<style lang="stylus" scoped>
+
+  table
+    width: 100%
+    word-break: break-all
+
+
+  th
+    text-align: left
+
+  .top-buttons
+    position: relative
 
 </style>
