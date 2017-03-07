@@ -3,6 +3,12 @@
 Release Notes
 =============
 
+DEVELOP
+-------
+
+ - Content Renderers use explicit new API rather than event-based loading
+
+
 0.2.0
 -----
 
@@ -25,7 +31,6 @@ Release Notes
  - Add JS-based 'responsive mixin' as alternative to media queries
  - Rename 'Learn/Explore' to 'Recommended/Topics'
  - Temporarily remove 'search' functionality
- - Content Renderers use explicit new API rather than event-based loading
  - Add authentication for tasks API
 
 
