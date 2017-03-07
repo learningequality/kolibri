@@ -49,7 +49,7 @@ config['INSTALLED_APPS'] = [
     "kolibri.plugins.video_mp4_render",
     "kolibri.plugins.audio_mp3_render",
     "kolibri.plugins.setup_wizard",
-    "kolibri.plugins.coach_tools",
+    "kolibri.plugins.coach",
     "kolibri.plugins.user",
     "exercise_perseus_renderer"
 ]
