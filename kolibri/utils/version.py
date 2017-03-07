@@ -52,30 +52,44 @@ class Version(_BaseVersion):
 
         return mainver
 
+class ChDir(object):
+    """
+    Step into a directory temporarily.
+    Taken from:
+    https://pythonadventures.wordpress.com/2013/12/15/chdir-a-context-manager-for-switching-working-directories/
+    """
+    def __init__(self, path):
+        self.old_dir = os.getcwd()
+        self.new_dir = path
+
+    def __enter__(self):
+        os.chdir(self.new_dir)
+
+    def __exit__(self, *args):
+        os.chdir(self.old_dir)
+
 
 def derive_version_from_git_tag(directory):
     version_string = None
 
-    current_dir = os.getcwd()
-    os.chdir(directory)
+    with ChDir(directory):
 
-    try:
-        with tempfile.TemporaryFile() as discarded_stderr_f:
-            git_describe_string = (
-                subprocess.check_output(['git', 'describe', '--tags'],
-                                        stderr=discarded_stderr_f
-                                        ).rstrip().decode('utf-8')
-            )  # cast from a byte to a string
-    except (
-        subprocess.CalledProcessError,  # not a git repo
-        OSError  # git executable doesn't exist
-    ):
-        pass
-    else:
-        version_string = parse_git_tag_version_string(git_describe_string)
+        try:
+            with tempfile.TemporaryFile() as discarded_stderr_f:
+                git_describe_string = (
+                    subprocess.check_output(['git', 'describe', '--tags'],
+                                            stderr=discarded_stderr_f
+                                            ).rstrip().decode('utf-8')
+                )  # cast from a byte to a string
+        except (
+            subprocess.CalledProcessError,  # not a git repo
+            OSError  # git executable doesn't exist
+        ):
+            pass
+        else:
+            version_string = parse_git_tag_version_string(git_describe_string)
 
-    os.chdir(current_dir)
-    return version_string
+        return version_string
 
 
 def derive_version_from_version_file(package):
