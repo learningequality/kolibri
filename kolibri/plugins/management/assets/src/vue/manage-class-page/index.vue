@@ -4,7 +4,7 @@
 
     <div class="header">
       <h1>
-        {{$tr('allClasses')}}
+        {{$tr('allClasses')}} {{facilityName}}
       </h1>
     </div>
 
@@ -20,14 +20,13 @@
 
     <!-- Modals -->
     <class-delete-modal
-      v-if="deletingClass"
+      v-if="showDeleteClassModal"
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
-      @close="closeDeleteClassModal"
     />
     <class-create-modal
-      v-if="creatingClass"
-      @close="closeCreateUserModal"/>
+      v-if="showCreateClassModal"
+    />
 
     <table class="roster" v-if="!noClassesExist">
 
@@ -37,9 +36,11 @@
       <thead>
         <tr>
           <th class="col-header" scope="col"> {{$tr('className')}} </th>
-          <th class="col-header hide-on-mobile" scope="col"> {{$tr('learners')}} </th>
-          <th class="col-header hide-on-mobile" scope="col"> {{$tr('coaches')}} </th>
-          <th class="col-header hide-on-mobile" scope="col"> {{$tr('admins')}} </th>
+          <div class="status-group">
+            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('learners')}} </th>
+            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('coaches')}} </th>
+            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('admins')}} </th>
+          </div>
         </tr>
       </thead>
 
@@ -53,28 +54,28 @@
             </router-link>
           </th>
 
-          <!-- Learners field -->
-          <td class="table-cell hide-on-mobile">
-            {{cl.learners}}
-          </td>
+          <div class="status-group">
+            <!-- Learners field -->
+            <td class="table-cell hide-on-mobile status-body">
+              {{cl.learner_count}}
+            </td>
 
-          <!-- Coaches field -->
-          <td class="table-cell hide-on-mobile">
-            {{cl.coaches}}
-          </td>
+            <!-- Coaches field -->
+            <td class="table-cell hide-on-mobile status-body">
+              {{cl.coach_count}}
+            </td>
 
-          <!-- Admins field -->
-          <td class="table-cell hide-on-mobile">
-            {{cl.admins}}
-          </td>
+            <!-- Admins field -->
+            <td class="table-cell hide-on-mobile status-body">
+              {{cl.admin_count}}
+            </td>
+          </div>
 
           <!-- delete field -->
           <td class="table-cell">
-            <icon-button
-              class="delete-class-button"
-              @click="openDeleteClassModal(cl)"
-              :text="$tr('deleteClass')"
-            />
+            <div class="delete-class-button" @click="openDeleteClassModal(cl)">
+              {{$tr('deleteClass')}}
+            </div>
           </td>
 
         </tr>
@@ -92,6 +93,7 @@
 <script>
 
   const constants = require('../../state/constants');
+  const actions = require('../../actions');
 
   module.exports = {
     components: {
@@ -101,11 +103,15 @@
     },
     // Has to be a funcion due to vue's treatment of data
     data: () => ({
-      creatingClass: false,
-      deletingClass: false,
       currentClassDelete: null,
     }),
     computed: {
+      showDeleteClassModal() {
+        return this.modalShown === constants.ModalNames.DELETE_CLASS_MODAL;
+      },
+      showCreateClassModal() {
+        return this.modalShown === constants.ModalNames.CREATE_CLASS_MODAL;
+      },
       noClassesExist() {
         return this.classes.length === 0;
       },
@@ -119,27 +125,25 @@
       },
       openDeleteClassModal(cl) {
         this.currentClassDelete = cl;
-        this.deletingClass = true;
-      },
-      closeDeleteClassModal() {
-        this.deletingClass = false;
-        this.currentClassDelete = {};
+        this.displayModal(constants.ModalNames.DELETE_CLASS_MODAL);
       },
       openCreateClassModal() {
-        this.creatingClass = true;
-      },
-      closeCreateUserModal() {
-        this.creatingClass = false;
+        this.displayModal(constants.ModalNames.CREATE_CLASS_MODAL);
       },
     },
     vuex: {
       getters: {
+        modalShown: state => state.pageState.modalShown,
         classes: state => state.pageState.classes,
+        facilityName: state => state.pageState.facility.name,
+      },
+      actions: {
+        displayModal: actions.displayModal,
       },
     },
     $trNameSpace: 'classPage',
     $trs: {
-      allClasses: 'All Classes in',
+      allClasses: 'All Classes in ',
       // button text
       addNew: 'Add New Class',
       deleteClass: 'Delete Class',
@@ -163,8 +167,21 @@
   // Padding height that separates rows from eachother
   $row-padding = 1.5em
 
+  .status-group
+    display: inline-table
+    width: 100%
+    text-align: center
+    margin-left: 30px
+
+  .status-header
+    vertical-align: middle
+
+  .status-body
+    padding-top: 0.5em
+
   .create
     float: right
+    margin-top: -48px
 
   input[type='search']
     display: inline-block
@@ -201,7 +218,7 @@
     color: $core-text-annotation
     font-weight: normal
     font-size: 80%
-    width: 30%
+    width: 28%
 
   .table-cell
     font-weight: normal // compensates for <th> cells
@@ -209,7 +226,12 @@
     color: $core-text-default
 
   .delete-class-button
-    border: none
+    color: red
+    width: 110px
+    padding: 8px
+    cursor: pointer
+    margin-right: 4px
+    float: right
 
   .create-class-button
     width: 100%
@@ -220,6 +242,7 @@
     max-height: ($line-height * 2)
     display: inline-block
     padding-right: 1em
+    font-weight: bold
 
   .role-header
     display: none

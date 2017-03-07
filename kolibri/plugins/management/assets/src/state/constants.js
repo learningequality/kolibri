@@ -10,6 +10,13 @@ const PageNames = {
   SCRATCHPAD: 'SCRATCHPAD',
 };
 
+// modal names
+const ModalNames = {
+  EDIT_CLASS_NAME_MODAL: 'EDIT_CLASS_NAME_MODAL',
+  REMOVE_USER_MODAL: 'REMOVE_USER_MODAL',
+  DELETE_CLASS_MODAL: 'DELETE_CLASS_MODAL',
+  CREATE_CLASS_MODAL: 'CREATE_CLASS_MODAL',
+};
 
 // content import/export wizard pages
 const ContentWizardPages = {
@@ -34,6 +41,7 @@ const TaskStatuses = {
 
 module.exports = {
   PageNames,
+  ModalNames,
   ContentWizardPages,
   TaskTypes,
   TaskStatuses,

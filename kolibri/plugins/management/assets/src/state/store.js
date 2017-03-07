@@ -31,12 +31,24 @@ const initialState = {
 };
 
 const mutations = {
+  // modal mutation
+  SET_MODAL(state, modalName) {
+    state.pageState.modalShown = modalName;
+  },
+
   // class mutations
   ADD_CLASS(state, cl) {
     state.pageState.classes.push(cl);
   },
   DELETE_CLASS(state, id) {
     state.pageState.classes = state.pageState.classes.filter(cl => cl.id !== id);
+  },
+  UPDATE_CLASS(state, id, updatedClass) {
+    state.pageState.classes.forEach((cl, index, arr) => {
+      if (cl.id === id) {
+        arr[index] = updatedClass;
+      }
+    });
   },
 
   // user mutations

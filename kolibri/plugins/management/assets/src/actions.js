@@ -2,6 +2,8 @@ const coreApp = require('kolibri');
 const logging = require('kolibri.lib.logging');
 
 const ClassroomResource = coreApp.resources.ClassroomResource;
+const FacilityResource = coreApp.resources.FacilityResource;
+const MembershipResource = coreApp.resources.MembershipResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const TaskResource = coreApp.resources.TaskResource;
 const RoleResource = coreApp.resources.RoleResource;
@@ -22,6 +24,18 @@ const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageC
  * the API to state in the Vuex store
  */
 function _classState(data) {
+  const state = {
+    id: data.id,
+    name: data.name,
+    parent: data.parent,
+    learner_count: data.learner_count,
+    coach_count: data.coach_count,
+    admin_count: data.admin_count,
+  };
+  return state;
+}
+
+function _facilityState(data) {
   const state = {
     id: data.id,
     name: data.name,
@@ -81,6 +95,11 @@ function _managePageTitle(title) {
  */
 
 
+function displayModal(store, modalName) {
+  store.dispatch('SET_MODAL', modalName);
+}
+
+
 // ================================
 // CLASSES MANAGEMENT ACTIONS
 
@@ -92,20 +111,16 @@ function _managePageTitle(title) {
 function createClass(store, stateClassData) {
   const classData = {
     name: stateClassData.name,
+    parent: stateClassData.facilityId,
   };
 
-  return new Promise((resolve, reject) => {
-    ClassroomResource.createModel(classData).save().then(
-      (classModel) => {
-        resolve(classModel);
-      },
-      (error) => reject(error)
-    );
-  }).then(
-    // dispatch newly created class
-    newClass => store.dispatch('ADD_CLASS', _classState(newClass)),
-    // send back error if necessary
-    error => Promise.reject(error)
+  ClassroomResource.createModel(classData).save().then(
+    cl => {
+      // dispatch newly created class
+      store.dispatch('ADD_CLASS', _classState(cl));
+      displayModal(store, false);
+    },
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
@@ -119,33 +134,115 @@ function deleteClass(store, id) {
     return;
   }
   ClassroomResource.getModel(id).delete().then(
-    cl => { store.dispatch('DELETE_CLASS', id); },
+    cl => {
+      store.dispatch('DELETE_CLASS', id);
+      displayModal(store, false);
+    },
     error => { coreActions.handleApiError(store, error); }
   );
 }
 
+/**
+ * Do a PATCH to update the class.
+ * @param {string} id - class id.
+ * @param {object} updateData.
+ */
+function updateClass(store, id, updateData) {
+  if (!id || Object.keys(updateData).length === 0) {
+    // if no id or empty updateData passed, abort the function
+    return;
+  }
+  const classModel = ClassroomResource.getModel(id);
+
+  classModel.save(updateData).then(
+    response => {
+      store.dispatch('UPDATE_CLASS', id, response);
+      displayModal(store, false);
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
+}
+
+function removeClassUser(store, classId, userId) {
+  if (!classId || !userId) {
+    // if no id passed, abort the function
+    return;
+  }
+  // fetch the membership model with this classId and userId.
+  const MembershipCollection = MembershipResource.getCollection({
+    user_id: userId,
+    collection_id: classId,
+  });
+
+  MembershipCollection.fetch().then(
+    (membership) => {
+      const membershipId = membership[0].id; // will always only have one item in the array.
+      MembershipResource.getModel(membershipId).delete().then(
+        response => {
+          store.dispatch('DELETE_USER', userId);
+          displayModal(store, false);
+        },
+        error => { coreActions.handleApiError(store, error); }
+      );
+    }
+  );
+}
+
 function showClassesPage(store) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CLASS_MGMT_PAGE);
-  // need to replace the following with real logic for grabbing data from server-side.
-  store.dispatch('SET_PAGE_STATE', { classes: [{
-    name: 'lalaland',
-    id: 1323,
-    learners: 33,
-    coaches: 4,
-    admins: 0,
-  }] });
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
+  const classCollection = ClassroomResource.getCollection();
+  const classPromise = classCollection.fetch({}, true);
+  const facilityCollection = FacilityResource.getCollection();
+  const facilityPromise = facilityCollection.fetch();
+
+  const promises = [facilityPromise, classPromise];
+
+  ConditionalPromise.all(promises).only(
+    samePageCheckGenerator(store),
+    ([facility, classes]) => {
+      const pageState = {
+        modalShown: null,
+        facility: _facilityState(facility[0]), // for mvp, we assume only one facility exists
+        classes: classes.map(_classState),
+      };
+
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
 }
 
 function showClassEditPage(store, classId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.CLASS_EDIT_MGMT_PAGE);
-  // need to replace the following with real logic for grabbing data from server-side.
-  store.dispatch('SET_PAGE_STATE', { classId });
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
+
+  const classModel = ClassroomResource.getModel(classId);
+  const classPromise = classModel.fetch();
+  // fetch the users under this class.
+  const classUsersCollection = FacilityUserResource.getCollection({ member_of: classId });
+  const classUsersPromise = classUsersCollection.fetch();
+
+  const promises = [classUsersPromise, classPromise];
+
+  ConditionalPromise.all(promises).only(
+    samePageCheckGenerator(store),
+    ([users, cl]) => {
+      const pageState = {
+        modalShown: null,
+        classes: [cl],
+        users: users.map(_userState),
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
 }
 
 function showClassEnrollPage(store, classId) {
@@ -321,7 +418,7 @@ function showUserPage(store) {
   store.dispatch('SET_PAGE_NAME', PageNames.USER_MGMT_PAGE);
   const userCollection = FacilityUserResource.getCollection();
   const facilityIdPromise = FacilityUserResource.getCurrentFacility();
-  const userPromise = userCollection.fetch();
+  const userPromise = userCollection.fetch({}, true);
 
   const promises = [facilityIdPromise, userPromise];
 
@@ -537,8 +634,12 @@ function showScratchpad(store) {
 }
 
 module.exports = {
+  displayModal,
+
   createClass,
   deleteClass,
+  updateClass,
+  removeClassUser,
   showClassesPage,
   showClassEditPage,
   showClassEnrollPage,

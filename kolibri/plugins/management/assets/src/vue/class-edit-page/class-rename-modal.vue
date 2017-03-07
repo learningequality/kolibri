@@ -1,9 +1,9 @@
 <template>
 
   <core-modal
-    :title="$tr('addNewClassTitle')"
+    :title="$tr('modalTitle')"
     :has-error="errorMessage ? true : false"
-    @enter="createNewClass"
+    @enter="updateName"
     @cancel="close"
   >
     <div>
@@ -13,6 +13,7 @@
           <core-textbox
             :label="$tr('classname')"
             :aria-label="$tr('classname')"
+            :placeholder="classname"
             v-model="name"
             autocomplete="name"
             autofocus
@@ -33,9 +34,9 @@
         />
 
         <icon-button
-          class="create-btn"
-          :text="$tr('create')"
-          @click="createNewClass"
+          class="update-btn"
+          :text="$tr('update')"
+          @click="updateName"
           :primary="true"
         />
       </section>
@@ -50,15 +51,15 @@
   const actions = require('../../actions');
 
   module.exports = {
-    $trNameSpace: 'classCreateModal',
+    $trNameSpace: 'classnameEditModal',
     $trs: {
       // Modal title
-      addNewClassTitle: 'Add New Class',
+      modalTitle: 'Change Class Name',
       // Labels
       classname: 'Class Name',
       // Button Labels
       cancel: 'Cancel',
-      create: 'Create',
+      update: 'Update',
       // error message
       unknownError: 'Whoops! Something went wrong!',
     },
@@ -66,6 +67,16 @@
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'core-textbox': require('kolibri.coreVue.components.textbox'),
+    },
+    props: {
+      classname: {
+        type: String,
+        required: true,
+      },
+      classid: {
+        type: String,
+        required: true,
+      },
     },
     data() {
       return {
@@ -78,15 +89,11 @@
       Object.assign(this.$data, this.$options.data());
     },
     methods: {
-      createNewClass() {
+      updateName() {
         if (!this.name) {
-          this.errorMessage = 'Must provide class name to create new class!';
+          this.errorMessage = 'New class name cannot be empty!';
         } else {
-          const newClass = {
-            name: this.name,
-            facilityId: this.facilityId,
-          };
-          this.createClass(newClass);
+          this.updateClass(this.classid, { name: this.name });
         }
       },
       close() {
@@ -94,11 +101,8 @@
       },
     },
     vuex: {
-      getters: {
-        facilityId: state => state.pageState.facility.id,
-      },
       actions: {
-        createClass: actions.createClass,
+        updateClass: actions.updateClass,
         displayModal: actions.displayModal,
       },
     },
@@ -142,7 +146,7 @@
   .footer
     text-align: center
 
-  .create-btn, .undo-btn
+  .update-btn, .undo-btn
     width: 48%
 
   .error

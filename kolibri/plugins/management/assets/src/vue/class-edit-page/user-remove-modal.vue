@@ -6,9 +6,9 @@
     @cancel="close"
   >
     <div>
-      {{$tr('deleteConfirmation')}} <strong>{{classname}}</strong>
+      {{$tr('deleteConfirmation')}} <strong>{{username}}</strong> {{$tr('from')}} <strong>{{classname}}</strong>
 
-      <p>Users will only be removed from the class and are still accessible from the "Users" tab.</p>
+      <p>{{$tr('still')}} <strong>{{$tr('users')}}</strong>.</p>
 
       <!-- Button Section TODO: cleaunup -->
       <section>
@@ -20,10 +20,10 @@
         />
 
         <icon-button
-          :text="$tr('delete')"
+          :text="$tr('remove')"
           class="confirm-btn"
           :primary="true"
-          @click="classDelete"
+          @click="userRemove"
         />
 
       </section>
@@ -41,19 +41,25 @@
   module.exports = {
     $trNameSpace: 'class-delete-modal',
     $trs: {
-      modalTitle: 'Delete Class',
-      delete: 'Delete Class',
+      modalTitle: 'Remove User from Class',
+      remove: 'Remove from Class',
       cancel: 'Cancel',
       // confirmation messages
-      deleteConfirmation: 'Are you sure you want to delete ',
+      deleteConfirmation: 'Are you sure you want to remove ',
+      from: ' from ',
+      still: 'You can still access this account from ',
+      users: 'Users',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'core-modal': require('kolibri.coreVue.components.coreModal'),
     },
     props: {
-      // delete below
       classname: {
+        type: String,
+        required: true,
+      },
+      username: {
         type: String,
         required: true,
       },
@@ -61,10 +67,14 @@
         type: String,
         required: true,
       },
+      userid: {
+        type: String,
+        required: true,
+      },
     },
     methods: {
-      classDelete() {
-        this.deleteClass(this.classid);
+      userRemove() {
+        this.removeClassUser(this.classid, this.userid);
       },
       close() {
         this.displayModal(false);
@@ -72,7 +82,7 @@
     },
     vuex: {
       actions: {
-        deleteClass: actions.deleteClass,
+        removeClassUser: actions.removeClassUser,
         displayModal: actions.displayModal,
       },
     },
