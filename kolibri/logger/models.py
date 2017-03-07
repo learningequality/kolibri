@@ -19,7 +19,7 @@ from kolibri.auth.models import AbstractFacilityDataModel, Facility, FacilityUse
 from kolibri.auth.permissions.base import RoleBasedPermissions
 from kolibri.auth.permissions.general import IsOwn
 from kolibri.content.content_db_router import default_database_is_attached, get_active_content_database
-from kolibri.content.models import UUIDField
+from kolibri.content.models import Exam, UUIDField
 
 from .permissions import AnyoneCanWriteAnonymousLogs
 
@@ -176,10 +176,10 @@ class MasteryLog(BaseLogModel):
     def infer_dataset(self):
         return self.summarylog.dataset
 
-class AttemptLog(AbstractFacilityDataModel):
+class BaseAttemptLog(AbstractFacilityDataModel):
     """
-    This model provides a summary of a user's engagement within a particular interaction with an
-    item in an assessment
+    This is an abstract model that provides a summary of a user's engagement within a particular
+    interaction with an item/question in an assessment
     """
     permissions = log_permissions("sessionlog__user")
 
@@ -189,9 +189,6 @@ class AttemptLog(AbstractFacilityDataModel):
     start_timestamp = models.DateTimeField()
     end_timestamp = models.DateTimeField()
     completion_timestamp = models.DateTimeField(blank=True, null=True)
-    # Which mastery log was this attemptlog associated with?
-    masterylog = models.ForeignKey(MasteryLog, related_name="attemptlogs", blank=True, null=True)
-    sessionlog = models.ForeignKey(ContentSessionLog, related_name="attemptlogs")
     time_spent = models.FloatField(help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)])
     complete = models.BooleanField(default=False)
     # How correct was their answer? In simple cases, just 0 or 1.
@@ -205,5 +202,40 @@ class AttemptLog(AbstractFacilityDataModel):
     # with this assessment item in this attempt.
     interaction_history = models.TextField()
 
+    class Meta:
+        abstract = True
+
+
+class AttemptLog(BaseAttemptLog):
+    """
+    This model provides a summary of a user's engagement within a particular interaction with an
+    item/question in an assessment
+    """
+    # Which mastery log was this attemptlog associated with?
+    masterylog = models.ForeignKey(MasteryLog, related_name="attemptlogs", blank=True, null=True)
+    sessionlog = models.ForeignKey(ContentSessionLog, related_name="attemptlogs")
+
     def infer_dataset(self):
         return self.sessionlog.dataset
+
+
+class ExamLog(AbstractFacilityDataModel):
+    """
+    This model provides a summary of a user's interaction with a particular exam, and serves as
+    an aggregation point for individual attempts on that exam.
+    """
+    # Identifies the exam that this is for.
+    exam = models.ForeignKey(Exam, related_name="examlogs", blank=False, null=False)
+    # Identifies which user this log summarizes interactions for.
+    user = models.ForeignKey(FacilityUser)
+    # Is this exam open for engagement, or is it closed?
+    # Used to end user engagement with an exam when it has been deactivated.
+    closed = models.BooleanField(default=False)
+
+
+class ExamAttemptLog(BaseAttemptLog):
+    """
+    This model provides a summary of a user's engagement within a particular interaction with an
+    item/question in an exam
+    """
+    examlog = models.ForeignKey(ExamLog, related_name="attemptlogs", blank=False, null=False)
