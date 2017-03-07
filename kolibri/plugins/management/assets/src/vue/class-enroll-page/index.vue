@@ -82,16 +82,16 @@
         <tbody>
         <tr v-for="learner in visibleFilteredUsers" :class="isSelected(learner.id) ? 'selectedrow' : ''"
             @click="toggleSelection(learner.id)">
-          <td><input type="checkbox" :id="learner.id" :value="learner.id" v-model="selectedUsers"></td>
-          <td><strong>{{ learner.full_name }}</strong></td>
-          <td>{{ learner.username }}</td>
+          <td class="col-checkbox"><input type="checkbox" :id="learner.id" :value="learner.id" v-model="selectedUsers"></td>
+          <td class="col-name"><strong>{{ learner.full_name }}</strong></td>
+          <td class="col-username">{{ learner.username }}</td>
         </tr>
         </tbody>
       </table>
     </div>
 
 
-    <div v-if="numPages > 1" class="pagination">
+    <nav v-if="numPages > 1" class="pagination">
       <ui-icon-button
         type="secondary"
         color="default"
@@ -105,7 +105,8 @@
         :primary="false"
         :ariaLabel="`${$tr('goToPage')} ${page}`"
         :disabled="pageNum === page"
-        @click="goToPage(page)"/>
+        @click="goToPage(page)"
+        v-if="windowSize.breakpoint > 2 && pageWithinRange(page)"/>
       <ui-icon-button
         type="secondary"
         color="default"
@@ -113,7 +114,7 @@
         :ariaLabel="$tr('nextResults')"
         :disabled="pageNum === numPages"
         @click="goToPage(pageNum + 1)"/>
-    </div>
+    </nav>
 
     <hr>
 
@@ -290,6 +291,13 @@
           this.selectedUsers.splice(index, 1);
         }
       },
+      pageWithinRange(page) {
+        const maxOnEachSide = 1;
+        if (this.pageNum === 1 || this.pageNum === this.numPages) {
+          return Math.abs(this.pageNum - page) <= (maxOnEachSide + 1);
+        }
+        return Math.abs(this.pageNum - page) <= maxOnEachSide;
+      },
     },
     vuex: {
       getters: {
@@ -356,5 +364,11 @@
 
   .selectedrow
     background-color: $core-bg-canvas
+
+  .col-checkbox
+    width: 10%
+
+  .col-name, .col-username
+    width: 45%
 
 </style>
