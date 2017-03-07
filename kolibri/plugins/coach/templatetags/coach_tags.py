@@ -1,6 +1,6 @@
 # coding=utf-8
 """
-coach_tools template tags
+coach template tags
 ========================
 Tags for including plugin javascript assets into a template.
 """
@@ -14,20 +14,20 @@ register = template.Library()
 
 
 @register.simple_tag()
-def coach_tools_assets():
+def coach_assets():
     """
     Using in a template will inject script tags that include the javascript assets defined
     by any concrete hook that subclasses CoachToolsSyncHook.
-    :return: HTML of script tags to insert into coach_tools/coach_tools.html
+    :return: HTML of script tags to insert into coach/coach.html
     """
     return webpack_asset_render(hooks.CoachToolsSyncHook, async=False)
 
 
 @register.simple_tag()
-def coach_tools_async_assets():
+def coach_async_assets():
     """
     Using in a template will inject script tags that include the javascript assets defined
     by any concrete hook that subclasses CoachToolsSyncHook.
-    :return: HTML of script tags to insert into coach_tools/coach_tools.html
+    :return: HTML of script tags to insert into coach/coach.html
     """
     return webpack_asset_render(hooks.CoachToolsAsyncHook, async=True)
