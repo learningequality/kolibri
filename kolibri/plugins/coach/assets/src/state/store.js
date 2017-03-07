@@ -3,28 +3,14 @@ const coreStore = require('kolibri.coreVue.vuex.store');
 const constants = require('./constants');
 
 const initialState = {
-  pageName: constants.PageNames.REPORTS,
-  pageState: {
-    // URL-input
-    channel_id: '',
-    content_scope: '',
-    content_scope_id: '',
-    user_scope: '',
-    user_scope_id: '',
-    all_or_recent: '',
-    view_by_content_or_learners: '',
-    sort_column: '',
-    sort_order: '',
-
-    // API-generated
-    content_scope_summary: {},
-    user_scope_summary: {},
-    // list of objects from server
-    table_data: [{}],
-  },
+  pageName: constants.PageNames.COACH_CLASS_LIST_PAGE,
+  pageState: {},
 };
 
 const mutations = {
+  SET_PAGE_STATE(state, pageState) {
+    state.pageState = pageState;
+  },
   SET_PAGE_NAME(state, pageName) {
     state.pageName = pageName;
   },
