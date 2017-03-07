@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
+from kolibri.auth.models import Collection, FacilityUser
 from le_utils.constants import content_kinds, file_formats, format_presets
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -244,6 +245,25 @@ class License(ContentDatabaseModel):
         return self.license_name
 
 
+class AssessmentMetaData(ContentDatabaseModel):
+    """
+    A model to describe additional metadata that characterizes assessment behaviour in Kolibri.
+    This model contains additional fields that are only revelant to content nodes that probe a
+    user's state of knowledge and allow them to practice to Mastery.
+    ContentNodes with this metadata may also be able to be used within quizzes and exams.
+    """
+    id = UUIDField(primary_key=True)
+    contentnode = models.ForeignKey(ContentNode, related_name='assessmentmetadata', blank=False, null=False)
+    # A JSON blob containing a serialized list of ids for questions that the assessment can present.
+    assessment_item_ids = models.TextField()
+    # Length of the above assessment_item_ids for a convenience lookup.
+    number_of_assessments = models.IntegerField()
+    # A JSON blob describing the mastery model that is used to set this assessment as mastered.
+    mastery_model = models.CharField(max_length=200)
+    # Should the questions listed in assessment_item_ids be presented in a random order?
+    randomize = models.BooleanField(default=False)
+
+
 @python_2_unicode_compatible
 class ChannelMetadataAbstractBase(models.Model):
     """
@@ -279,3 +299,40 @@ class ChannelMetadataCache(ChannelMetadataAbstractBase):
 
     class Admin:
         pass
+
+
+class Exam(models.Model):
+    """
+    This class stores metadata about teacher created exams to test current student knowledge.
+    """
+    id = UUIDField(primary_key=True)
+    title = models.CharField(max_length=200)
+    # Number of total questions this exam has
+    question_count = models.IntegerField()
+    """
+    JSON blob describing content ids for the assessments this exam draws from, and how many
+    questions each assessment contributes to the exam. e.g.:
+
+    [
+        {"exercise_id": <content_id1>, "number_of_questions": 6},
+        {"exercise_id": <content_id2>, "number_of_questions": 5}
+    ]
+    """
+    question_sources = models.TextField()
+    # Is this exam currently active and visible to students to whom it is assigned?
+    active = models.BooleanField(default=False)
+    # Exams are scoped to a particular class (usually) as they are associated with a Coach
+    # who creates them in the context of their class, this stores that relationship but does
+    # not assign exam itself to the class - for that see the ExamAssignment model.
+    collection = models.ForeignKey(Collection, related_name='exams', blank=False, null=False)
+    creator = models.ForeignKey(FacilityUser, related_name='exams', blank=False, null=False)
+    deleted = models.BooleanField(default=False)
+
+class ExamAssignment(models.Model):
+    """
+    This class acts as an intermediary to handle assignment of an exam to particular collections
+    classes, groups, etc.
+    """
+    exam = models.ForeignKey(Exam, related_name='assignments', blank=False, null=False)
+    collection = models.ForeignKey(Collection, related_name='assigned_exams', blank=False, null=False)
+    assigned_by = models.ForeignKey(FacilityUser, related_name='assigned_exams', blank=False, null=False)
