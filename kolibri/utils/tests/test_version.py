@@ -15,5 +15,5 @@ class TestKolibriVersion(KolibriTestBase):
         """
         Test that the major version is set as expected
         """
-        version_instance = get_version()
+        version_instance = get_version('kolibri', __file__)
         self.assertIn(version_instance.major_version, kolibri.__version__)
