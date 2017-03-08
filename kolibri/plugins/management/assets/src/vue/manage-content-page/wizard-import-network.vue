@@ -10,7 +10,7 @@
     @back="startImportWizard"
   >
     <div class="main">
-      <core-textbox :label="$tr('enterContentChannel')" v-model="contentID" :disabled="wizardState.busy"/>
+      <core-textbox :label="$tr('enterContentChannel')" v-model="contentId" :disabled="wizardState.busy"/>
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}
