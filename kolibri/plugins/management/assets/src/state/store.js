@@ -27,7 +27,6 @@ Content import/export page:
 const initialState = {
   pageName: constants.PageNames.CLASS_MGMT_PAGE,
   pageState: {},
-  facility: undefined,
 };
 
 const mutations = {
@@ -68,9 +67,6 @@ const mutations = {
   },
   DELETE_USER(state, id) {
     state.pageState.users = state.pageState.users.filter(user => user.id !== id);
-  },
-  SET_FACILITY(state, id) {
-    state.facility = id;
   },
   SET_PAGE_NAME(state, name) {
     state.pageName = name;

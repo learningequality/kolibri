@@ -3,8 +3,6 @@
 // This allows the test instance to be properly referenced with `this`
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
-'use strict';
-
 const assert = require('assert');
 const rewire = require('rewire');
 const sinon = require('sinon');

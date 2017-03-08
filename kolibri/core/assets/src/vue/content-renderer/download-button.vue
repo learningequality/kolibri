@@ -91,32 +91,32 @@
               e.stopPropagation();
               e.preventDefault();
               this.focusOnItem(this.focusedItemIndex + 1);
-              return;
+              break;
 
             case 38: // up
               e.stopPropagation();
               e.preventDefault();
               this.focusOnItem(this.focusedItemIndex - 1);
-              return;
+              break;
 
             case 9: // tab
               e.stopPropagation();
               e.preventDefault();
               if (this.focusedItemIndex === (this.focusableItems.length - 1)) {
                 this.toggleDropdown();
-                return;
+                break;
               }
               this.focusOnItem(this.focusedItemIndex + 1);
-              return;
+              break;
 
             case 27: // esc
               e.stopPropagation();
               e.preventDefault();
               this.toggleDropdown();
-              return;
+              break;
 
             default:
-              return;
+              break;
           }
         }
       },

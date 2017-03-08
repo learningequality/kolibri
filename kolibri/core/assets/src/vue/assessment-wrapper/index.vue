@@ -51,9 +51,9 @@ oriented data synchronization.
       this.$on('updateAMLogs', (correct, complete, firstAttempt, hinted) => {
         this.updateAttemptLogMasteryLog(correct, complete, firstAttempt, hinted);
       });
-      this.$on('saveAMLogs', (exercisePassed) => { this.saveAttemptLogMasterLog(exercisePassed);});
-      this.$on('takehint', (firstAttempt, hinted) => { this.hintTaken(firstAttempt, hinted);});
-      this.$on('toNextQuestion', () => { this.nextQuestion();});
+      this.$on('saveAMLogs', (exercisePassed) => { this.saveAttemptLogMasterLog(exercisePassed); });
+      this.$on('takehint', (firstAttempt, hinted) => { this.hintTaken(firstAttempt, hinted); });
+      this.$on('toNextQuestion', () => { this.nextQuestion(); });
 
       this.createAttemptLog().then(() => {
         this.ready = true;

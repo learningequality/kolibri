@@ -1,4 +1,3 @@
-'use strict';
 /**
  * Mediator module.
  * Provides the main controller and event dispatcher for the Kolibri FrontEnd core app.
@@ -126,7 +125,7 @@ module.exports = class Mediator {
     } else {
       events = kolibriModule[eventsKey];
     }
-    for (let i = 0; i < Object.getOwnPropertyNames(events).length; i++) {
+    for (let i = 0; i < Object.getOwnPropertyNames(events).length; i += 1) {
       const key = Object.getOwnPropertyNames(events)[i];
       boundEventListenerMethod(key, kolibriModule, events[key]);
     }
@@ -228,7 +227,7 @@ module.exports = class Mediator {
     if (typeof this._callbackBuffer[kolibriModule.name] !== 'undefined') {
       this._callbackBuffer[kolibriModule.name].forEach((buffer) => {
         // Do this to ensure proper 'this'ness.
-        kolibriModule[buffer.method].apply(kolibriModule, buffer.args);
+        kolibriModule[buffer.method](...buffer.args);
       });
       delete this._callbackBuffer[kolibriModule.name];
     }
@@ -268,14 +267,15 @@ module.exports = class Mediator {
     const self = this;
     // Create a buffer for events that are fired before a kolibriModule has
     // loaded. Keep track of the method and the arguments passed to the callback.
-    const callbackBuffer = this._callbackBuffer[kolibriModuleName] = [];
+    this._callbackBuffer[kolibriModuleName] = [];
+    const callbackBuffer = this._callbackBuffer[kolibriModuleName];
     // Look at all events, whether listened to once or multiple times.
     const eventArray = [];
-    for (let i = 0; i < Object.getOwnPropertyNames(events).length; i++) {
+    for (let i = 0; i < Object.getOwnPropertyNames(events).length; i += 1) {
       const key = Object.getOwnPropertyNames(events)[i];
       eventArray.push([key, events[key]]);
     }
-    for (let i = 0; i < Object.getOwnPropertyNames(once).length; i++) {
+    for (let i = 0; i < Object.getOwnPropertyNames(once).length; i += 1) {
       const key = Object.getOwnPropertyNames(once)[i];
       eventArray.push([key, once[key]]);
     }
@@ -401,7 +401,7 @@ module.exports = class Mediator {
    */
   registerContentRenderer(kolibriModuleName, kolibriModuleUrls, contentTypes) {
     this._contentRendererUrls[kolibriModuleName] = kolibriModuleUrls;
-    contentTypes.forEach((kindData) => {
+    contentTypes.kinds.forEach((kindData) => {
       const kind = kindData.name;
       if (!this._contentRendererRegistry[kind]) {
         this._contentRendererRegistry[kind] = {};
@@ -426,7 +426,9 @@ module.exports = class Mediator {
       const kolibriModuleName = (this._contentRendererRegistry[kind] || {})[extension];
       if (!kolibriModuleName) {
         // Our content renderer registry does not have a renderer for this content kind/extension.
-        reject('No registered content renderer available');
+        reject(
+          `No registered content renderer available for kind: ${kind} with file extension: ${extension}`
+        );
       } else if (this._kolibriModuleRegistry[kolibriModuleName]) {
         // There is a named renderer for this kind/extension combination, and it is already loaded.
         resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
