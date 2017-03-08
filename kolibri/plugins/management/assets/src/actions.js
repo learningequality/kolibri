@@ -290,7 +290,7 @@ function assignUserRole(user, kind) {
  */
 function createUser(store, stateUserData) {
   const userData = {
-    facility: store.pageState.facility_id,
+    facility: store.state.pageState.facility_id,
     username: stateUserData.username,
     full_name: stateUserData.full_name,
     password: stateUserData.password,
