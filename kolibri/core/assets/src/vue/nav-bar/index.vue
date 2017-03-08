@@ -255,7 +255,7 @@
     background: $core-bg-light
     font-weight: 300
     position: fixed
-    z-index: 1001
+    z-index: 60
     font-size: 1em
     height: 100%
     overflow: auto
