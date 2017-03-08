@@ -180,7 +180,7 @@ function removeClassUser(store, classId, userId) {
       const membershipId = membership[0].id; // will always only have one item in the array.
       MembershipResource.getModel(membershipId).delete().then(
         response => {
-          store.dispatch('DELETE_CLASSROOM_USER', userId);
+          store.dispatch('DELETE_CLASS_USER', userId);
           displayModal(store, false);
         },
         error => { coreActions.handleApiError(store, error); }
@@ -205,7 +205,7 @@ function showClassesPage(store) {
       const pageState = {
         modalShown: false,
         facility: _facilityState(facility[0]), // for mvp, we assume only one facility exists
-        classrooms: classes.map(_classState),
+        classes: classes.map(_classState),
       };
 
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -234,8 +234,8 @@ function showClassEditPage(store, classId) {
     ([users, cl]) => {
       const pageState = {
         modalShown: false,
-        classrooms: [cl],
-        classroomUsers: users.map(_userState),
+        classes: [cl],
+        classUsers: users.map(_userState),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -265,12 +265,12 @@ function showClassEnrollPage(store, classId) {
 
   ConditionalPromise.all([facilityPromise, userPromise, classPromise, classUsersPromise]).only(
     samePageCheckGenerator(store),
-    ([facility, facilityUsers, classroom, clasroomUsers]) => {
+    ([facility, facilityUsers, classroom, classUsers]) => {
       const pageState = {
         facility: _facilityState(facility[0]),
         facilityUsers: facilityUsers.map(_userState),
-        clasroomUsers: clasroomUsers.map(_userState),
-        classroom,
+        classUsers: classUsers.map(_userState),
+        class: classroom,
         modalShown: false,
         userJustCreated: null,
       };

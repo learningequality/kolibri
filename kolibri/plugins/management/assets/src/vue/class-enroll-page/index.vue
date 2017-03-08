@@ -198,7 +198,7 @@
     }),
     computed: {
       usersNotInClass() {
-        return differenceWith(this.facilityUsers, this.classroomUsers, (a, b) => a.id === b.id);
+        return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
       },
       usersNotInClassSelected() {
         return this.usersNotInClass.filter(user => this.selectedUsers.includes(user.id));
@@ -300,10 +300,10 @@
     },
     vuex: {
       getters: {
-        classId: state => state.pageState.classroom.id,
-        className: state => state.pageState.classroom.name,
+        classId: state => state.pageState.class.id,
+        className: state => state.pageState.class.name,
         facilityUsers: state => state.pageState.facilityUsers,
-        classroomUsers: state => state.pageState.clasroomUsers,
+        classUsers: state => state.pageState.classUsers,
         modalShown: state => state.pageState.modalShown,
         userJustCreated: state => state.pageState.userJustCreated,
       },

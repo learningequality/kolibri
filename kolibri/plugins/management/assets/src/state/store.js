@@ -43,11 +43,11 @@ const mutations = {
 
   // class mutations
   ADD_CLASS(state, cl) {
-    state.pageState.classrooms.push(cl);
+    state.pageState.classes.push(cl);
   },
 
   UPDATE_CLASS(state, id, updatedClass) {
-    state.pageState.classrooms.forEach((cl, index, arr) => {
+    state.pageState.classes.forEach((cl, index, arr) => {
       if (cl.id === id) {
         arr[index] = updatedClass;
       }
@@ -55,11 +55,11 @@ const mutations = {
   },
 
   DELETE_CLASS(state, id) {
-    state.pageState.classrooms = state.pageState.classrooms.filter(cl => cl.id !== id);
+    state.pageState.classes = state.pageState.classes.filter(cl => cl.id !== id);
   },
 
-  DELETE_CLASSROOM_USER(state, id) {
-    state.pageState.classroomUsers = state.pageState.classroomUsers.filter(user => user.id !== id);
+  DELETE_CLASS_USER(state, id) {
+    state.pageState.classUsers = state.pageState.classUsers.filter(user => user.id !== id);
   },
 
   // user mutations
