@@ -262,7 +262,9 @@ class AssessmentMetaData(ContentDatabaseModel):
     mastery_model = models.CharField(max_length=200)
     # Should the questions listed in assessment_item_ids be presented in a random order?
     randomize = models.BooleanField(default=False)
-
+    # Is this assessment compatible with being previewed and answer filled for display in coach reports
+    # and use in summative and formative tests?
+    is_manipulable = models.BooleanField(default=False)
 
 @python_2_unicode_compatible
 class ChannelMetadataAbstractBase(models.Model):
