@@ -3,10 +3,9 @@
 // This allows the test instance to be properly referenced with `this`
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
-'use strict';
-
 const Vue = require('vue-test');
 const downloadButton = require('../src/vue/content-renderer/download-button.vue');
+
 const DownloadButtonComponent = Vue.extend(downloadButton);
 const assert = require('assert');
 const simulant = require('simulant');
@@ -140,4 +139,3 @@ describe('download-button Component', function () {
     });
   });
 });
-

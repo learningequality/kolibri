@@ -1,4 +1,4 @@
-{% load i18n kolibri_tags webpack_tags js_reverse cache %}
+{% load i18n kolibri_tags webpack_tags content_tags js_reverse cache %}
 {% load staticfiles %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
@@ -60,6 +60,7 @@
 {% kolibri_bootstrap_model 'session' 'SessionResource' kwargs_pk='current'%}
 {% webpack_base_assets %}
 {% webpack_base_async_assets %}
+{% content_renderer_assets %}
 {% endblock %}
 
 {% block content %}

@@ -1,4 +1,5 @@
 const videojs = require('video.js');
+
 const videojsButton = videojs.getComponent('Button');
 
 class ReplayButton extends videojsButton {

@@ -3,10 +3,9 @@
 // This allows the test instance to be properly referenced with `this`
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
-'use strict';
-
 const Vue = require('vue-test');
 const progressBar = require('../src/vue/progress-bar');
+
 const ProgressBarComponent = Vue.extend(progressBar);
 const assert = require('assert');
 

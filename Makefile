@@ -100,9 +100,6 @@ uploadmessages:
 downloadmessages:
 	java -jar crowdin-cli.jar download -b `git symbolic-ref HEAD | xargs basename`
 
-distributefrontendmessages:
-	python ./utils/distribute_frontend_messages.py
-
 dockerenvclean:
 	docker container prune -f
 	docker image prune -f
