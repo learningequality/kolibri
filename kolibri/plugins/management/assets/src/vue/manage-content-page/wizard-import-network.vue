@@ -10,10 +10,7 @@
     @back="startImportWizard"
   >
     <div class="main">
-      <h2 class="label">{{$tr('enterContentChannel')}}</h2>
-      <div>
-        <input v-model="contentId" :disabled="wizardState.busy">
-      </div>
+      <core-textbox :label="$tr('enterContentChannel')" v-model="contentId" :disabled="wizardState.busy"/>
     </div>
     <div class="core-text-alert">
       {{ wizardState.error }}
@@ -49,6 +46,7 @@
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'core-textbox': require('kolibri.coreVue.components.textbox'),
     },
     data: () => ({
       contentId: '',
@@ -91,7 +89,6 @@
   @require '~kolibri.styles.definitions'
 
   .main
-    text-align: center
     margin: 3em 0
 
   h2
