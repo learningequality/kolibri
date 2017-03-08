@@ -7,6 +7,9 @@ DEVELOP
 -------
 
  - Content Renderers use explicit new API rather than event-based loading
+ - Add search back in
+ - Improve pipeline for translating plugins
+ - Add Spanish and Swahili translations
 
 
 0.2.0
