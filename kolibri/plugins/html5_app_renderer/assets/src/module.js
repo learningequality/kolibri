@@ -6,9 +6,6 @@ class HTML5AppModule extends ContentRendererModule {
   get rendererComponent() {
     return HTML5AppComponent;
   }
-  get contentTypes() {
-    return require('./content_types.json');
-  }
 }
 
 module.exports = new HTML5AppModule();
