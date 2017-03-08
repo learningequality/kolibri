@@ -233,14 +233,12 @@ Vue.js components can also be tested. The management plugin contains an example 
 Adding Dependencies
 -------------------
 
-Dependencies are tracked using ``npm shrinkwrap`` - `see the docs here <https://docs.npmjs.com/cli/shrinkwrap>`_.
+Dependencies are tracked using ``yarn`` - `see the docs here <https://yarnpkg.com/en/docs/>`_.
 
-We distinguish development dependencies from runtime dependencies, and these should be installed as such using ``npm install --save-dev [dep]`` or ``npm install --save [dep]``, respectively. Then you'll need to run ``npm shrinkwrap``. Your new dependency should now be recorded in *package.json*, and all of its dependencies should be recorded in *npm-shrinkwrap.json*.
+We distinguish development dependencies from runtime dependencies, and these should be installed as such using ``yarn add --dev [dep]`` or ``yarn add [dep]``, respectively. Your new dependency should now be recorded in *package.json*, and all of its dependencies should be recorded in *yarn.lock*.
 
-Note that we currently don't have a way of mapping dependencies to plugins - dependencies are installed globally.
+Individual plugins can also have their own package.json and yarn.lock for their own dependencies. Running ``yarn install`` will also install all the dependencies for each activated plugin (inside a node_modules folder inside the plugin itself). These dependencies will only be available to that plugin at build time. Dependencies for individual plugins should be added from within the root directory of that particular plugin.
 
-To assist in tracking the source of bloat in our codebase, the command ``npm run bundle-stats`` is available to give a full readout of the size that uglified packages take up in the final Javascript code.
-
-Individual plugins can also have their own package.json for their own dependencies. Running ``npm install`` will also install all the dependencies for each activated plugin (inside a node_modules folder inside the plugin itself). These dependencies will only be available to that plugin at build time.
+To assist in tracking the source of bloat in our codebase, the command ``yarn run bundle-stats`` is available to give a full readout of the size that uglified packages take up in the final Javascript code.
 
 In addition, a plugin can have its own webpack.config.js for plugin specific webpack configuration (loaders, plugins, etc.). These options will be merged with the base options using ``webpack-merge``.

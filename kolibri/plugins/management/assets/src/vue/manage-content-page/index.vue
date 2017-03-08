@@ -15,26 +15,26 @@
 
     <div class="main light-bg">
       <div class="table-title">
-        <h1 class="page-title">My Channels</h1>
+        <h1 class="page-title">{{$tr('title')}}</h1>
         <div class="button-wrapper" v-if="!pageState.taskList.length">
           <icon-button
-            text="Import"
+            :text="$tr('import')"
             class="button"
             @click="startImportWizard"
             :primary="true">
-            <svg src="../icons/add.svg"/>
+            <mat-svg category="content" name="add"/>
           </icon-button>
           <icon-button
-            text="Export"
+            :text="$tr('export')"
             class="button"
             :primary="true"
             @click="startExportWizard">
-            <svg src="../icons/export.svg"/>
+            <ion-svg name="ios-upload-outline"/>
           </icon-button>
         </div>
       </div>
       <hr>
-      <p class="core-text-alert" v-if="!channelList.length">No channels installed</p>
+      <p class="core-text-alert" v-if="!channelList.length">{{$tr('noChannels')}}</p>
       <table>
       <!-- Table Headers -->
 <!--         <thead>
@@ -71,6 +71,13 @@
   const ContentWizardPages = require('../../state/constants').ContentWizardPages;
 
   module.exports = {
+    $trNameSpace: 'manage-content-state',
+    $trs: {
+      title: 'My channels',
+      import: 'Import',
+      export: 'Export',
+      noChannels: 'No channels installed',
+    },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'task-status': require('./task-status'),
@@ -122,7 +129,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   // Padding height that separates rows from eachother
   $row-padding = 1.5em

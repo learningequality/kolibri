@@ -47,10 +47,10 @@ class LogCSVSerializerBase(serializers.ModelSerializer):
             return ""
 
     def get_time_spent(self, obj):
-        return round(obj.time_spent, 3)
+        return str("{:.1f}".format(round(obj.time_spent, 1)))
 
     def get_progress(self, obj):
-        return round(obj.progress, 1)
+        return str("{:.4f}".format(round(obj.progress, 4)))
 
 
 class ContentSummaryLogCSVSerializer(LogCSVSerializerBase):
@@ -63,6 +63,8 @@ class ContentSummaryLogCSVSerializer(LogCSVSerializerBase):
             "start_timestamp": "Time of first interaction",
             "end_timestamp": "Time of last interaction",
             "completion_timestamp": "Time of completion",
+            "time_spent": "Time Spent (sec)",
+            "progress": "Progress (0-1)",
         }
 
 
@@ -75,6 +77,8 @@ class ContentSessionLogCSVSerializer(LogCSVSerializerBase):
         labels = {
             "start_timestamp": "Time of first interaction",
             "end_timestamp": "Time of last interaction",
+            "time_spent": "Time Spent (sec)",
+            "progress": "Progress (0-1)",
         }
 
 

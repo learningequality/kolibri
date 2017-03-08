@@ -1,19 +1,19 @@
 <template>
 
   <div>
-    <nav class="nav" role="navigation" :aria-label="$tr('youAreHere')">
+    <nav class="breadcrumbs" role="navigation" :aria-label="$tr('youAreHere')">
 
       <span v-if="pageName === PageNames.LEARN_CONTENT">
         <router-link :to="learnRootLink">
           <span class="visuallyhidden">{{ $tr('back') }}</span>
-          <svg src="../icons/folder_back.svg"/>
+          <mat-svg category="navigation" name="arrow_back"/>
         </router-link>
       </span>
 
       <span v-if="pageName === PageNames.EXPLORE_CONTENT">
         <router-link :to="parentExploreLink">
           <span class="visuallyhidden">{{ $tr('back') }}</span>
-          <svg src="../icons/folder_back.svg"/>
+          <mat-svg category="navigation" name="arrow_back"/>
         </router-link>
       </span>
 
@@ -26,7 +26,7 @@
         <span class="portrait">
           <router-link :to="parentExploreLink">
             <span class="visuallyhidden">{{ $tr('back') }}</span>
-            <svg src="../icons/folder_back.svg"/>
+            <mat-svg category="navigation" name="arrow_back"/>
           </router-link>
         </span>
 
@@ -55,7 +55,7 @@
   module.exports = {
     $trNameSpace: 'learn',
     $trs: {
-      explore: 'Explore',
+      explore: 'Topics',
       youAreHere: 'You are here:',
       back: 'Back to previous topic',
     },
@@ -120,12 +120,8 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
   @require '../learn.styl'
-
-  .nav
-    margin-top: 2em
-    margin-bottom:1.5em
 
   .middle-breadcrumb::before
     content: '>'

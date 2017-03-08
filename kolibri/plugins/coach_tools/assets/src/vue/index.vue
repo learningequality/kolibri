@@ -1,6 +1,10 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName">
+  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('coachTitle')">
+    <div slot="app-bar-actions">
+      <channel-switcher @switch="switchChannel"/>
+    </div>
+
     <div v-if="!currentPage && isCoachAdminOrSuperuser" slot="content">
       <h1>Coach Root</h1>
       <a href="/coach/#/reports">Go to Reports.</a>
@@ -27,11 +31,15 @@
   module.exports = {
     $trNameSpace: 'coach-root',
     $trs: {
+      coachTitle: 'Coach',
       logInPrompt: 'Did you forget to log in?',
       logInCommand: 'You must be logged in as an Admin to view this page.',
     },
     components: {
-      reports: require('./reports'),
+      'reports': require('./reports'),
+      'content-unavailable-page': require('./content-unavailable-page'),
+      'core-base': require('kolibri.coreVue.components.coreBase'),
+      'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -39,7 +47,20 @@
         if (this.pageName === constants.PageNames.REPORTS) {
           return 'reports';
         }
+        if (this.pageName === constants.PageNames.CONTENT_UNAVAILABLE) {
+          return 'content-unavailable-page';
+        }
         return null;
+      },
+    },
+    methods: {
+      switchChannel(channelId) {
+        this.$router.push({
+          name: constants.PageNames.REPORTS_CHANNEL,
+          params: {
+            channel_id: channelId,
+          },
+        });
       },
     },
     vuex: {
@@ -56,7 +77,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .login-message
     text-align: center

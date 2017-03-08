@@ -1,15 +1,14 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName">
-    <div v-if="isAdminOrSuperuser" slot="above" class="manage-content">
-      <top-nav/>
+  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('managementTitle')">
+
+    <div v-if="isAdminOrSuperuser" slot="content">
+      <div class="manage-content">
+        <top-nav/>
+      </div>
+      <component class="manage-content page" :is="currentPage"/>
     </div>
-    <component
-      v-if="isAdminOrSuperuser"
-      slot="content"
-      class="manage-content page"
-      :is="currentPage"
-    />
+
     <div v-else slot="content" class="login-message">
       <h1>{{ $tr('logInPrompt') }}</h1>
       <p>{{ $tr('logInCommand') }}</p>
@@ -30,6 +29,7 @@
   module.exports = {
     $trNameSpace: 'management-root',
     $trs: {
+      managementTitle: 'Management',
       logInPrompt: 'Did you forget to log in?',
       logInCommand: 'You must be logged in as an Admin to view this page.',
     },
@@ -39,6 +39,7 @@
       'data-page': require('./data-page'),
       'manage-content-page': require('./manage-content-page'),
       'scratchpad-page': require('./scratchpad-page'),
+      'core-base': require('kolibri.coreVue.components.coreBase'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.MANAGE,
@@ -72,7 +73,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .manage-content
     width: 100%
@@ -85,7 +86,7 @@
     padding: 1em 2em
     padding-bottom: 3em
     background-color: $core-bg-light
-    margin-top: 2em
+    margin-top: 1em
     border-radius: $radius
 
   .login-message

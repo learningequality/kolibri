@@ -271,7 +271,7 @@ function showContentPage(store) {
         taskList: taskList.map(_taskState),
         wizardState: { shown: false },
       };
-      coreActions.setChannelInfo(store, coreApp).then(() => {
+      coreActions.setChannelInfo(store).then(() => {
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
         store.dispatch('CORE_SET_TITLE', _managePageTitle('Content'));
@@ -359,7 +359,7 @@ function pollTasksAndChannels(store) {
     (taskList) => {
       // Perform channel poll AFTER task poll to ensure UI is always in a consistent state.
       // I.e. channel list always reflects the current state of ongoing task(s).
-      coreActions.setChannelInfo(store, coreApp).only(
+      coreActions.setChannelInfo(store).only(
         samePageCheckGenerator(store),
         () => {
           store.dispatch('SET_CONTENT_PAGE_TASKS', taskList.map(_taskState));

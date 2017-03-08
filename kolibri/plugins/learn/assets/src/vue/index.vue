@@ -1,16 +1,25 @@
 <template>
 
-  <core-base :topLevelPageName="topLevelPageName" @scroll="handleScroll">
-    <toolbar slot="above" :shown="showToolbar"/>
-
-    <component class="content" slot="content" :is="currentPage"/>
-
-    <div slot="below" class="search-pane" v-show="searchOpen">
+  <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('learnTitle')">
+    <div slot="app-bar-actions">
+      <channel-switcher @switch="switchChannel"/>
+      <!--
+      <ui-icon-button
+        icon="search"
+        type="secondary"
+        color="white"
+        :ariaLabel="$tr('search')"
+        @click="toggleSearch"/>
+        -->
+    </div>
+    <div slot="content">
+      <tabs :items="learnTabs" type="icon-and-text" @tabclicked="handleTabClick"/>
+      <breadcrumbs/>
+      <component :is="currentPage"/>
+    </div>
+    <div slot="extra" class="search-pane" v-show="searchOpen">
       <search-widget :showTopics="exploreMode"/>
     </div>
-
-    <!-- this is not used, but necessary for vue-router to function -->
-    <router-view/>
 
   </core-base>
 
@@ -23,43 +32,66 @@
   const PageNames = constants.PageNames;
   const PageModes = constants.PageModes;
   const getters = require('../state/getters');
+  const actions = require('../actions');
   const store = require('../state/store');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
+    $trNameSpace: 'learn',
+    $trs: {
+      learnTitle: 'Learn',
+      recommended: 'Recommended',
+      topics: 'Topics',
+      search: 'search',
+    },
     components: {
-      'toolbar': require('./toolbar'),
       'search-widget': require('./search-widget'),
       'explore-page': require('./explore-page'),
       'content-page': require('./content-page'),
       'learn-page': require('./learn-page'),
       'scratchpad-page': require('./scratchpad-page'),
       'content-unavailable-page': require('./content-unavailable-page'),
+      'core-base': require('kolibri.coreVue.components.coreBase'),
+      'ui-icon-button': require('keen-ui/src/UiIconButton'),
+      'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
+      'breadcrumbs': require('./breadcrumbs'),
+      'tabs': require('kolibri.coreVue.components.tabs'),
     },
-    data: () => ({
-      currScrollTop: 0,
-      lastScrollTop: 0,
-      delta: 5,
-      showToolbar: true,
-    }),
     methods: {
-      // hide and show the toolbar based on scrolling
-      handleScroll(position) {
-        this.position = position;
-        this.currScrollTop = position.scrollTop;
-        if (Math.abs(this.lastScrollTop - this.currScrollTop) <= this.delta) {
-          return;
+      toggleSearch() {
+        this.toggleSearch();
+      },
+      switchChannel(channelId) {
+        let rootPage;
+        if (this.pageMode === constants.PageModes.EXPLORE) {
+          rootPage = constants.PageNames.EXPLORE_CHANNEL;
+        } else {
+          rootPage = constants.PageNames.LEARN_CHANNEL;
         }
-        this.showToolbar = this.currScrollTop < this.lastScrollTop;
-        this.lastScrollTop = this.currScrollTop;
+        this.clearSearch();
+        this.$router.push({
+          name: rootPage,
+          params: { channel_id: channelId },
+        });
+      },
+      handleTabClick(tabIndex) {
+        switch (tabIndex) {
+          case 0:
+            this.$router.push({ name: constants.PageNames.LEARN_ROOT });
+            return;
+
+          case 1:
+            this.$router.push({ name: constants.PageNames.EXPLORE_ROOT });
+            return;
+
+          default:
+            return;
+        }
       },
     },
     computed: {
       topLevelPageName() {
-        if (this.exploreMode) {
-          return TopLevelPageNames.LEARN_EXPLORE;
-        }
-        return TopLevelPageNames.LEARN_LEARN;
+        return TopLevelPageNames.LEARN;
       },
       currentPage() {
         if (this.pageName === PageNames.EXPLORE_CHANNEL ||
@@ -84,12 +116,30 @@
       exploreMode() {
         return this.pageMode === PageModes.EXPLORE;
       },
+      learnTabs() {
+        const isRecommended = this.pageName === constants.PageNames.LEARN_CHANNEL;
+        return [{
+          title: this.$tr('recommended'),
+          icon: 'forum',
+          selected: isRecommended,
+          disabled: false,
+        }, {
+          title: this.$tr('topics'),
+          icon: 'folder',
+          selected: !isRecommended,
+          disabled: false,
+        }];
+      },
     },
     vuex: {
       getters: {
         pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchOpen: state => state.searchOpen,
+      },
+      actions: {
+        toggleSearch: actions.toggleSearch,
+        clearSearch: actions.clearSearch,
       },
     },
     store, // make this and all child components aware of the store
@@ -100,7 +150,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
   @require 'learn.styl'
 
   .search-pane
@@ -116,7 +166,6 @@
       padding-left: $nav-width
 
   .content
-    width-auto-adjust()
     margin: auto
 
 </style>

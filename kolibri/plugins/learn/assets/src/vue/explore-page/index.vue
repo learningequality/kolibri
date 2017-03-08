@@ -4,8 +4,8 @@
 
     <page-header :title="title">
       <div slot="icon">
-        <svg v-if="isRoot" class="pageicon" src="../icons/explore.svg"/>
-        <svg v-else class="pageicon" src="../icons/folder.svg"/>
+        <mat-svg v-if="isRoot" category="action" name="explore"/>
+        <mat-svg v-else category="file" name="folder"/>
       </div>
     </page-header>
 
@@ -46,8 +46,8 @@
   module.exports = {
     $trNameSpace: 'learnExplore',
     $trs: {
-      explore: 'Explore',
-      navigate: 'You can navigate groups of content through headings.',
+      explore: 'Topics',
+      navigate: 'Navigate content using headings',
     },
     components: {
       'page-header': require('../page-header'),
@@ -75,4 +75,11 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .page-description
+    margin-top: 1em
+    margin-bottom: 1em
+    line-height: 1.5em
+
+</style>

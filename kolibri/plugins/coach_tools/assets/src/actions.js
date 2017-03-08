@@ -1,5 +1,4 @@
 const coreActions = require('kolibri.coreVue.vuex.actions');
-const coreApp = require('kolibri');
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const router = require('kolibri.coreVue.router');
@@ -33,6 +32,30 @@ function showCoachRoot(store) {
 }
 
 
+function redirectToChannelReport(store, params) {
+  const channelId = params.channel_id;
+  const channelListPromise = ChannelResource.getCollection({}).fetch();
+
+  ConditionalPromise.all([channelListPromise]).only(
+    coreActions.samePageCheckGenerator(store),
+    ([channelList]) => {
+      if (!(channelList.some((channel) => channel.id === channelId))) {
+        router.getInstance().replace({ name: Constants.PageNames.CONTENT_UNAVAILABLE });
+        return;
+      }
+      coreActions.setChannelInfo(store, channelId).then(
+        () => {
+          router.getInstance().replace({ name: Constants.PageNames.REPORTS_NO_QUERY });
+        }
+      );
+    },
+    error => {
+      coreActions.handleError(store, error);
+    }
+  );
+}
+
+
 function redirectToDefaultReport(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.REPORTS_NO_QUERY);
@@ -43,6 +66,11 @@ function redirectToDefaultReport(store, params) {
   ConditionalPromise.all([channelListPromise, facilityIdPromise]).only(
     coreActions.samePageCheckGenerator(store),
     ([channelList, facilityId]) => {
+      // If no channels exist
+      if (channelList.length === 0) {
+        router.getInstance().replace({ name: Constants.PageNames.CONTENT_UNAVAILABLE });
+        return;
+      }
       /* get current channelId */
       const channelId = getDefaultChannelId(channelList);
 
@@ -148,7 +176,7 @@ function showReport(store, params, oldParams) {
   }
 
   // CHANNELS
-  const channelPromise = coreActions.setChannelInfo(store, coreApp);
+  const channelPromise = coreActions.setChannelInfo(store);
   promises.push(channelPromise);
 
   // API response handlers
@@ -174,7 +202,7 @@ function showReport(store, params, oldParams) {
     if (userScope === Constants.UserScopes.USER) {
       titleElems.push(`${userSummary.full_name}`);
     } else if (userScope === Constants.UserScopes.FACILITY) {
-      titleElems.push('All Learners');
+      titleElems.push('All learners');
     }
     titleElems.push(`${contentSummary.title}`);
     if (allOrRecent === Constants.AllOrRecent.RECENT) {
@@ -190,8 +218,16 @@ function showReport(store, params, oldParams) {
   );
 }
 
+function showContentUnavailable(store) {
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.CONTENT_UNAVAILABLE);
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_TITLE', 'Content Unavailable');
+}
+
 module.exports = {
   showCoachRoot,
+  redirectToChannelReport,
   redirectToDefaultReport,
   showReport,
+  showContentUnavailable,
 };

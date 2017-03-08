@@ -104,10 +104,10 @@ class Command(RunserverCommand):
     def start_webpack(self, lint=False):
 
         if lint:
-            cli_command = 'npm run watch -- --lint'
+            cli_command = 'yarn run watch -- --lint'
             logger.info('Starting webpack process with linting from Django runserver command')
         else:
-            cli_command = 'npm run watch'
+            cli_command = 'yarn run watch'
             logger.info('Starting webpack process from Django runserver command')
 
         self.webpack_process = subprocess.Popen(
@@ -145,7 +145,7 @@ class Command(RunserverCommand):
         logger.info('Starting karma test watcher process from Django runserver command')
 
         self.karma_process = subprocess.Popen(
-            'npm run test-karma:watch',
+            'yarn run test-karma:watch',
             shell=True,
             stdin=subprocess.PIPE,
             stdout=sys.stdout,

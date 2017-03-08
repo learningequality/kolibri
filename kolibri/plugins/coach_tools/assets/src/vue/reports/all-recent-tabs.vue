@@ -2,10 +2,10 @@
 
   <div class="tabs">
     <router-link :to="recentViewLink">
-      <div class="tab" :class="{ active: isRecentView }">Recent</div>
+      <div class="tab" :class="{ active: isRecentView }">{{$tr('recent')}}</div>
     </router-link>
     <router-link :to="allViewLink">
-      <div class="tab" :class="{ active: !isRecentView }">Topics</div>
+      <div class="tab" :class="{ active: !isRecentView }">{{$tr('topics')}}</div>
     </router-link>
   </div>
 
@@ -15,6 +15,11 @@
 <script>
 
   module.exports = {
+    $trNameSpace: 'allRecentTabs',
+    $trs: {
+      recent: 'Recent',
+      topics: 'Topics',
+    },
     props: {
       recentViewLink: {
         type: Object,
@@ -36,7 +41,7 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
   .tabs
     margin-top: 0.5em

@@ -156,8 +156,9 @@ class ContentNode(MPTTModel, ContentDatabaseModel):
 
 @python_2_unicode_compatible
 class Language(ContentDatabaseModel):
-    lang_code = models.CharField(max_length=2, db_index=True)
-    lang_subcode = models.CharField(max_length=2, db_index=True)
+    id = models.CharField(max_length=7, primary_key=True)
+    lang_code = models.CharField(max_length=3, db_index=True)
+    lang_subcode = models.CharField(max_length=3, db_index=True, blank=True, null=True)
 
     objects = ContentQuerySet.as_manager()
 
@@ -211,7 +212,7 @@ class File(ContentDatabaseModel):
         """
         Return the preset.
         """
-        return PRESET_LOOKUP.get(self.preset, _('Unknown Format'))
+        return PRESET_LOOKUP.get(self.preset, _('Unknown format'))
 
     def get_download_filename(self):
         """

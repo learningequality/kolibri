@@ -319,3 +319,64 @@ class LoginLogoutTestCase(APITestCase):
     def test_session_return_anon_kind(self):
         response = self.client.get(reverse('session-detail', kwargs={'pk': 'current'}))
         self.assertTrue(response.data['kind'][0], 'anonymous')
+
+
+class AnonSignUpTestCase(APITestCase):
+
+    def setUp(self):
+        self.device_owner = DeviceOwnerFactory.create()
+        self.facility = FacilityFactory.create()
+
+    def test_anon_sign_up_creates_user(self):
+        response = self.client.post(reverse('signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(models.FacilityUser.objects.all())
+
+    def test_anon_sign_up_returns_user(self):
+        full_name = "Bob Lee"
+        response = self.client.post(reverse('signup-list'), data={"full_name": full_name, "username": "user", "password": DUMMY_PASSWORD})
+        self.assertEqual(response.data['username'], 'user')
+        self.assertEqual(response.data['full_name'], full_name)
+
+    def test_create_user_with_same_username_fails(self):
+        FacilityUserFactory.create(username='bob')
+        response = self.client.post(reverse('signup-list'), data={"username": "bob", "password": DUMMY_PASSWORD})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(models.FacilityUser.objects.all()), 1)
+
+    def test_create_bad_username_fails(self):
+        response = self.client.post(reverse('signup-list'), data={"username": "(***)", "password": DUMMY_PASSWORD})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(models.FacilityUser.objects.all())
+
+    def test_sign_up_also_logs_in_user(self):
+        self.assertFalse(Session.objects.all())
+        self.client.post(reverse('signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
+        self.assertTrue(Session.objects.all())
+
+
+class FacilityDatasetAPITestCase(APITestCase):
+
+    def setUp(self):
+        self.device_owner = DeviceOwnerFactory.create()
+        self.facility = FacilityFactory.create()
+        FacilityFactory.create(name='extra')
+        self.admin = FacilityUserFactory.create(facility=self.facility)
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.facility.add_admin(self.admin)
+
+    def test_return_dataset_that_user_is_an_admin_for(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('facilitydataset-list'))
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(self.admin.dataset_id, response.data[0]['id'])
+
+    def test_return_all_datasets_for_device_owner(self):
+        self.client.login(username=self.device_owner.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('facilitydataset-list'))
+        self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
+
+    def test_return_nothing_for_facility_user(self):
+        self.client.login(username=self.user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('facilitydataset-list'))
+        self.assertEqual(len(response.data), 0)

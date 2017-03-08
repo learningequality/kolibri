@@ -1,31 +1,43 @@
 <template>
 
-  <div>
-    <svg
-      v-if="is(Constants.ContentNodeKinds.TOPIC)"
-      src="./content-icons/topic.svg"
-      :class="[colorClass]"/>
-    <svg
-      v-if="is(Constants.ContentNodeKinds.VIDEO)"
-      src="./content-icons/video.svg"
-      :class="[colorClass]"/>
-    <svg
-      v-if="is(Constants.ContentNodeKinds.AUDIO)"
-      src="./content-icons/audio.svg"
-      :class="[colorClass]"/>
-    <svg
-      v-if="is(Constants.ContentNodeKinds.DOCUMENT)"
-      src="./content-icons/document.svg"
-      :class="[colorClass]"/>
-    <svg
-      v-if="is(Constants.ContentNodeKinds.EXERCISE)"
-      src="./content-icons/exercise.svg"
-      :class="[colorClass]"/>
-    <svg
-      v-if="is(Constants.USER)"
-      src="./content-icons/user.svg"
-      :class="[colorClass]"/>
-  </div>
+  <span>
+    <ui-icon>
+      <mat-svg
+        v-if="is(Constants.ContentNodeKinds.TOPIC)"
+        category="file"
+        name="folder"
+        :class="[colorClass]"/>
+      <mat-svg
+        v-if="is(Constants.ContentNodeKinds.VIDEO)"
+        category="notification"
+        name="ondemand_video"
+        :class="[colorClass]"/>
+      <mat-svg
+        v-if="is(Constants.ContentNodeKinds.AUDIO)"
+        category="image"
+        name="audiotrack"
+        :class="[colorClass]"/>
+      <ion-svg
+        v-if="is(Constants.ContentNodeKinds.DOCUMENT)"
+        name="document"
+        :class="[colorClass]"/>
+      <mat-svg
+        v-if="is(Constants.ContentNodeKinds.EXERCISE)"
+        category="toggle"
+        name="star"
+        :class="[colorClass]"/>
+      <mat-svg
+        v-if="is(Constants.ContentNodeKinds.HTML5)"
+        category="device"
+        name="widgets"
+        :class="[colorClass]"/>
+      <mat-svg
+        v-if="is(Constants.USER)"
+        category="social"
+        name="person"
+        :class="[colorClass]"/>
+    </ui-icon>
+  </span>
 
 </template>
 
@@ -59,6 +71,9 @@
         return `color-${this.colorStyle}`;
       },
     },
+    components: {
+      'ui-icon': require('keen-ui/src/UiIcon'),
+    },
     methods: {
       is(kind) {
         return this.kind === kind;
@@ -71,19 +86,9 @@
 
 <style lang="stylus" scoped>
 
-  @require '~kolibri.styles.coreTheme'
+  @require '~kolibri.styles.definitions'
 
-  svg
-    width: 100%
-    height: 100%
-    max-width: 24px
-    max-height: 24px
-    fill: $core-text-default
-
-  .color-action
-    fill: $core-action-normal
-
-  .color-text-default
-    fill: $core-text-default
+  .ui-icon
+    font-size: 1em
 
 </style>

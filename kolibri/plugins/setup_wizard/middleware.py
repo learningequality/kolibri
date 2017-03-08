@@ -10,6 +10,7 @@ ALLOWED_PATH_LIST = [
     "task-localdrive",
     "task-startremoteimport",
     "task-list",
+    "session-list"
 ]
 
 

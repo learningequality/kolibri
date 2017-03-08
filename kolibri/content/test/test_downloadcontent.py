@@ -26,7 +26,7 @@ class DownloadContentTestCase(TestCase):
 
         self.client = Client()
         self.hash = hashlib.md5("DUMMYDATA".encode()).hexdigest()
-        self.extension = dict(file_formats.choices).get("pdf")
+        self.extension = file_formats.PDF
         self.filename = "{}.{}".format(self.hash, self.extension)
         self.title = "abc123!@#$%^&*();'[],./?><"
         self.contentnode = ContentNode(title=self.title)
