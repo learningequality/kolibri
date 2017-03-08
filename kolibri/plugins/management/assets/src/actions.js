@@ -115,7 +115,7 @@ function createClass(store, stateClassData) {
   ClassroomResource.createModel(classData).save().then(
     classModel => {
       // dispatch newly created class
-      store.dispatch('ADD_CLASS', _classState(cl));
+      store.dispatch('ADD_CLASS', _classState(classModel));
       displayModal(store, false);
     },
     error => { coreActions.handleApiError(store, error); }
@@ -228,10 +228,10 @@ function showClassEditPage(store, classId) {
 
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([users, cl]) => {
+    ([users, classModel]) => {
       const pageState = {
         modalShown: null,
-        classes: [cl],
+        classes: [classModel],
         users: users.map(_userState),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
