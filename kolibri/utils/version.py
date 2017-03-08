@@ -4,6 +4,7 @@ that it can be loaded without the settings/configuration/django stack!
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import os
 import pkgutil
 import re
 import subprocess
@@ -51,26 +52,48 @@ class Version(_BaseVersion):
 
         return mainver
 
+class ChDir(object):
+    """
+    Step into a directory temporarily.
+    Taken from:
+    https://pythonadventures.wordpress.com/2013/12/15/chdir-a-context-manager-for-switching-working-directories/
+    """
+    def __init__(self, path):
+        self.old_dir = os.getcwd()
+        self.new_dir = path
 
-def derive_version_from_git_tag():
-    try:
-        with tempfile.TemporaryFile() as discarded_stderr_f:
-            git_describe_string = (
-                subprocess.check_output(['git', 'describe', '--tags'],
-                                        stderr=discarded_stderr_f
-                                        ).rstrip().decode('utf-8')
-            )  # cast from a byte to a string
-    except (
-        subprocess.CalledProcessError,  # not a git repo
-        OSError  # git executable doesn't exist
-    ):
-        return None
+    def __enter__(self):
+        os.chdir(self.new_dir)
 
-    return parse_git_tag_version_string(git_describe_string)
+    def __exit__(self, *args):
+        os.chdir(self.old_dir)
 
 
-def derive_version_from_version_file():
-    string = pkgutil.get_data('kolibri', 'VERSION').decode('utf-8')
+def derive_version_from_git_tag(directory):
+    version_string = None
+
+    with ChDir(directory):
+
+        try:
+            with tempfile.TemporaryFile() as discarded_stderr_f:
+                git_describe_string = (
+                    subprocess.check_output(['git', 'describe', '--tags'],
+                                            stderr=discarded_stderr_f
+                                            ).rstrip().decode('utf-8')
+                )  # cast from a byte to a string
+        except (
+            subprocess.CalledProcessError,  # not a git repo
+            OSError  # git executable doesn't exist
+        ):
+            pass
+        else:
+            version_string = parse_git_tag_version_string(git_describe_string)
+
+        return version_string
+
+
+def derive_version_from_version_file(package):
+    string = pkgutil.get_data(package, 'VERSION').decode('utf-8')
     return parse_git_tag_version_string(string)
 
 
@@ -91,7 +114,14 @@ def parse_git_tag_version_string(version_string):
     if len(version_split) >= 2:  # includes a release number (rc, beta, etc.)
         release = version_split[1]
 
-    if len(version_split) >= 3:  # includes a build number and hash
+    if len(version_split) == 3:  # is a full release, includes no release number.
+        # A full release only has '<version_number>-<build_number>-<build_hash>'
+        # rather than '<version_number>-<release_number>-<build_number>-<build_hash>'
+        release = None
+        build = version_split[1]
+        build_hash = version_split[2]
+
+    if len(version_split) >= 4:  # includes a build number and hash
         build = version_split[2]
         build_hash = version_split[3]
 
@@ -105,10 +135,11 @@ def parse_git_tag_version_string(version_string):
     )
 
 
-def get_version(version_fallback=None):
+def get_version(package, calling_file, version_fallback=None):
     '''
     '''
+    calling_dir = os.path.dirname(calling_file)
     return (
-        derive_version_from_git_tag() or derive_version_from_version_file() or
+        derive_version_from_git_tag(calling_dir) or derive_version_from_version_file(package) or
         version_fallback
     )
