@@ -8,7 +8,7 @@
     <div>
       {{$tr('deleteConfirmation')}} <strong>{{classname}}</strong>
 
-      <p>Users will only be removed from the class and are still accessible from the "Users" tab.</p>
+      <p>{{$tr('description')}}</p>
 
       <!-- Button Section TODO: cleaunup -->
       <section>
@@ -44,6 +44,7 @@
       modalTitle: 'Delete Class',
       delete: 'Delete Class',
       cancel: 'Cancel',
+      description: 'Users will only be removed from the class and are still accessible from the "Users" tab.',
       // confirmation messages
       deleteConfirmation: 'Are you sure you want to delete ',
     },
