@@ -66,6 +66,11 @@ const mutations = {
   ADD_USER(state, user) {
     state.pageState.facilityUsers.push(user);
   },
+
+  SET_USER_JUST_CREATED(state, user) {
+    state.pageState.userJustCreated = user;
+  },
+
   UPDATE_USERS(state, users) {
     users.forEach(user => {
       state.pageState.facilityUsers.forEach(existingUser => {

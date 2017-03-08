@@ -203,7 +203,7 @@ function showClassesPage(store) {
     samePageCheckGenerator(store),
     ([facility, classes]) => {
       const pageState = {
-        modalShown: null,
+        modalShown: false,
         facility: _facilityState(facility[0]), // for mvp, we assume only one facility exists
         classrooms: classes.map(_classState),
       };
@@ -233,7 +233,7 @@ function showClassEditPage(store, classId) {
     samePageCheckGenerator(store),
     ([users, cl]) => {
       const pageState = {
-        modalShown: null,
+        modalShown: false,
         classrooms: [cl],
         classroomUsers: users.map(_userState),
       };
@@ -271,6 +271,8 @@ function showClassEnrollPage(store, classId) {
         facilityUsers: facilityUsers.map(_userState),
         clasroomUsers: clasroomUsers.map(_userState),
         classroom,
+        modalShown: false,
+        userJustCreated: null,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -355,7 +357,12 @@ function createUser(store, stateUserData) {
     );
   }).then(
     // dispatch newly created user
-    newUser => store.dispatch('ADD_USER', _userState(newUser)),
+    newUser => {
+      const userState = _userState(newUser);
+      store.dispatch('ADD_USER', _userState(userState));
+      store.dispatch('SET_USER_JUST_CREATED', userState);
+      displayModal(store, false);
+    },
     // send back error if necessary
     error => Promise.reject(error)
   );
@@ -467,6 +474,7 @@ function showUserPage(store) {
       const pageState = {
         facility: _facilityState(facility[0]),
         facilityUsers: users.map(_userState),
+        modalShown: false,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -669,6 +677,7 @@ function showScratchpad(store) {
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', _managePageTitle('Scratchpad'));
 }
+
 
 module.exports = {
   displayModal,

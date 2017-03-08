@@ -182,19 +182,19 @@
           .sort((user1, user2) => user1.username.localeCompare(user2.username));
       },
       showEditNameModal() {
-        return this.modalShown === constants.ModalNames.EDIT_CLASS_NAME_MODAL;
+        return this.modalShown === constants.Modals.EDIT_CLASS_NAME;
       },
       showRemoveUserModal() {
-        return this.modalShown === constants.ModalNames.REMOVE_USER_MODAL;
+        return this.modalShown === constants.Modals.REMOVE_USER;
       },
     },
     methods: {
       openEditNameModal() {
-        this.displayModal(constants.ModalNames.EDIT_CLASS_NAME_MODAL);
+        this.displayModal(constants.Modals.EDIT_CLASS_NAME);
       },
       openRemoveUserModal(user) {
         this.currentUserRemove = user;
-        this.displayModal(constants.ModalNames.REMOVE_USER_MODAL);
+        this.displayModal(constants.Modals.REMOVE_USER);
       },
     },
     vuex: {

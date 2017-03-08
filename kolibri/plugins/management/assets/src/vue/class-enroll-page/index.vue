@@ -133,8 +133,7 @@
       </icon-button>
 
       <user-create-modal
-        v-if="createUserModalOpen"
-        @close="closeCreateUserModal"/>
+        v-if="showCreateUserModal"/>
     </div>
   </div>
 
@@ -253,19 +252,16 @@
           id: this.classId,
         };
       },
+      showCreateUserModal() {
+        return this.modalShown === constants.Modals.CREATE_USER;
+      },
     },
     methods: {
       goToPage(page) {
         this.pageNum = page;
       },
       openCreateUserModal() {
-        this.createUserModalOpen = true;
-      },
-      closeCreateUserModal(username) {
-        this.createUserModalOpen = false;
-        if (username) {
-          this.selectedUsers.push(this.getUserId(username));
-        }
+        this.displayModal(constants.Modals.CREATE_USER);
       },
       enrollLearners() {
         this.enrollUsersInClass(this.classId, this.selectedUsers).then(
@@ -274,9 +270,6 @@
             this.$router.push(this.editClassLink);
           },
           (error) => {});
-      },
-      getUserId(username) {
-        return this.facilityUsers.find(learner => learner.username === username).id;
       },
       getUsername(userId) {
         return this.facilityUsers.find(user => user.id === userId).username;
@@ -300,15 +293,23 @@
         return Math.abs(this.pageNum - page) <= maxOnEachSide;
       },
     },
+    watch: {
+      userJustCreated(user) {
+        this.selectedUsers.push(user.id);
+      },
+    },
     vuex: {
       getters: {
         classId: state => state.pageState.classroom.id,
         className: state => state.pageState.classroom.name,
         facilityUsers: state => state.pageState.facilityUsers,
         classroomUsers: state => state.pageState.clasroomUsers,
+        modalShown: state => state.pageState.modalShown,
+        userJustCreated: state => state.pageState.userJustCreated,
       },
       actions: {
         enrollUsersInClass: actions.enrollUsersInClass,
+        displayModal: actions.displayModal,
       },
     },
   };

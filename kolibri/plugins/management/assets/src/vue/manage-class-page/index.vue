@@ -107,10 +107,10 @@
     }),
     computed: {
       showDeleteClassModal() {
-        return this.modalShown === constants.ModalNames.DELETE_CLASS_MODAL;
+        return this.modalShown === constants.Modals.DELETE_CLASS;
       },
       showCreateClassModal() {
-        return this.modalShown === constants.ModalNames.CREATE_CLASS_MODAL;
+        return this.modalShown === constants.Modals.CREATE_CLASS;
       },
       noClassesExist() {
         return this.classes.length === 0;
@@ -125,10 +125,10 @@
       },
       openDeleteClassModal(cl) {
         this.currentClassDelete = cl;
-        this.displayModal(constants.ModalNames.DELETE_CLASS_MODAL);
+        this.displayModal(constants.Modals.DELETE_CLASS);
       },
       openCreateClassModal() {
-        this.displayModal(constants.ModalNames.CREATE_CLASS_MODAL);
+        this.displayModal(constants.Modals.CREATE_CLASS);
       },
     },
     vuex: {

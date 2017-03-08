@@ -4,7 +4,7 @@
     :title="$tr('addNewAccountTitle')"
     :has-error="errorMessage ? true : false"
     @enter="createNewUser"
-    @cancel="$emit('close')"
+    @cancel="close"
   >
     <div>
       <!-- Fields for the user to fill out -->
@@ -138,7 +138,7 @@
           // using promise to ensure that the user is created before closing
           this.createUser(newUser).then(
             () => {
-              this.$emit('close', this.username);
+              this.close();
             },
             (error) => {
               if (error.status.code === 400) {
@@ -156,10 +156,14 @@
         this.errorMessage = '';
         this.confirmationMessage = '';
       },
+      close() {
+        this.displayModal(false);
+      },
     },
     vuex: {
       actions: {
         createUser: actions.createUser,
+        displayModal: actions.displayModal,
       },
     },
   };
