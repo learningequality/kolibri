@@ -11,7 +11,7 @@ class Model {
    * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
    * behaviour for the model.
    */
-  constructor(data, resource) {
+  constructor(data, resource, urlParams = {}) {
     this.resource = resource;
     if (!this.resource) {
       throw new TypeError('resource must be defined');
@@ -28,6 +28,9 @@ class Model {
     if (Object.keys(data).length === 0) {
       throw new TypeError('data must be instantiated with some data');
     }
+
+    this.resource.checkUrlParams(urlParams);
+    this.urlParams = urlParams;
 
     // Assign any data to the attributes property of the Model.
     this.attributes = {};
@@ -187,8 +190,12 @@ class Model {
     return promise;
   }
 
+  get orderedUrlParams() {
+    return this.resource.urlParams.map((key) => this.urlParams[key]);
+  }
+
   get url() {
-    return this.resource.modelUrl(this.id);
+    return this.resource.modelUrl(...this.orderedUrlParams, this.id);
   }
 
   get id() {
@@ -218,9 +225,11 @@ class Collection {
    * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
    * behaviour for the collection.
    */
-  constructor(params = {}, data = [], resource) {
+  constructor(params = {}, data = [], resource, urlParams = {}) {
     this.resource = resource;
     this.params = params;
+    this.resource.checkUrlParams(urlParams);
+    this.urlParams = urlParams;
     if (!this.resource) {
       throw new TypeError('resource must be defined');
     }
@@ -293,8 +302,12 @@ class Collection {
     return promise;
   }
 
+  get orderedUrlParams() {
+    return this.resource.urlParams.map((key) => this.urlParams[key]);
+  }
+
   get url() {
-    return this.resource.collectionUrl();
+    return this.resource.collectionUrl(...this.orderedUrlParams);
   }
 
   /**
@@ -324,7 +337,7 @@ class Collection {
     modelsToSet.forEach((model) => {
       // Note: this method ensures instantiation deduplication of models within the collection
       //  and across collections.
-      const setModel = this.resource.addModel(model);
+      const setModel = this.resource.addModel(model, this.urlParams);
       if (!this._model_map[setModel.id]) {
         this._model_map[setModel.id] = setModel;
         this.models.push(setModel);
@@ -353,22 +366,6 @@ class Collection {
       this.models.forEach((model) => { model.synced = true; });
     }
   }
-
-  static key(params) {
-    // Sort keys in order, then assign those keys to an empty object in that order.
-    // Then stringify to create a cache key.
-    return JSON.stringify(
-      Object.assign(
-        {}, ...Object.keys(params).sort().map(
-          (paramKey) => ({ [paramKey]: params[paramKey] })
-        )
-      )
-    );
-  }
-
-  get key() {
-    return this.constructor.key ? this.constructor.key(this.params) : Collection.key(this.params);
-  }
 }
 
 /** Class representing a single API resource.
@@ -385,17 +382,31 @@ class Resource {
     this.kolibri = kolibri;
   }
 
+  cacheKey(...params) {
+    const allParams = Object.assign({}, ...params);
+    // Sort keys in order, then assign those keys to an empty object in that order.
+    // Then stringify to create a cache key.
+    return JSON.stringify(
+      Object.assign(
+        {}, ...Object.keys(allParams).sort().map(
+          (paramKey) => ({ [paramKey]: allParams[paramKey] })
+        )
+      )
+    );
+  }
+
   /**
    * Optionally pass in data and instantiate a collection for saving that data or fetching
    * data from the resource.
    * @param {Object} params - default parameters to use for Collection fetching.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  getCollection(params = {}) {
+  getCollection(params = {}, urlParams = {}) {
+    this.checkUrlParams(urlParams);
     let collection;
-    const key = Collection.key(params);
+    const key = this.cacheKey(params, urlParams);
     if (!this.collections[key]) {
-      collection = this.createCollection(params);
+      collection = this.createCollection(params, [], urlParams);
     } else {
       collection = this.collections[key];
     }
@@ -410,8 +421,9 @@ class Resource {
    * details of data.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  createCollection(params = {}, data = []) {
-    const collection = new Collection(params, data, this);
+  createCollection(params = {}, data = [], urlParams = {}) {
+    this.checkUrlParams(urlParams);
+    const collection = new Collection(params, data, this, urlParams);
     this.collections[collection.key] = collection;
     return collection;
   }
@@ -423,10 +435,11 @@ class Resource {
    * @param {Number} [page=1] - Which page to return.
    * @returns {Collection} - Returns an instantiated Collection object.
    */
-  getPagedCollection(params = {}, pageSize = 20, page = 1) {
+  getPagedCollection(params = {}, pageSize = 20, page = 1, urlParams = {}) {
+    this.checkUrlParams(urlParams);
     const pagedParams = { page, page_size: pageSize };
     Object.assign(pagedParams, params);
-    const collection = this.getCollection(pagedParams);
+    const collection = this.getCollection(pagedParams, urlParams);
     collection.page = page;
     collection.pageSize = pageSize;
     return collection;
@@ -437,12 +450,14 @@ class Resource {
    * @param {String} id - The primary key of the Model instance.
    * @returns {Model} - Returns a Model instance.
    */
-  getModel(id) {
+  getModel(id, urlParams = {}) {
+    this.checkUrlParams(urlParams);
     let model;
-    if (!this.models[id]) {
-      model = this.createModel({ [this.idKey]: id });
+    const cacheKey = this.cacheKey({ [this.idKey]: id }, urlParams);
+    if (!this.models[cacheKey]) {
+      model = this.createModel({ [this.idKey]: id }, urlParams);
     } else {
-      model = this.models[id];
+      model = this.models[cacheKey];
     }
     return model;
   }
@@ -452,9 +467,10 @@ class Resource {
    * @param {Object} data - The data for the model to add.
    * @returns {Model} - Returns the instantiated Model.
    */
-  createModel(data) {
-    const model = new Model(data, this);
-    return this.addModel(model);
+  createModel(data, urlParams = {}) {
+    this.checkUrlParams(urlParams);
+    const model = new Model(data, this, urlParams);
+    return this.addModel(model, urlParams);
   }
 
   /**
@@ -462,18 +478,20 @@ class Resource {
    * @param {Object|Model} model - Either the data for the model to add, or the Model itself.
    * @returns {Model} - Returns the instantiated Model.
    */
-  addModel(model) {
+  addModel(model, urlParams = {}) {
+    this.checkUrlParams(urlParams);
     if (!(model instanceof Model)) {
-      return this.createModel(model);
+      return this.createModel(model, urlParams);
     }
     // Don't add to the model cache if the id is not defined.
     if (model.id) {
-      if (!this.models[model.id]) {
-        this.models[model.id] = model;
+      const cacheKey = this.cacheKey({ [this.idKey]: model.id }, urlParams);
+      if (!this.models[cacheKey]) {
+        this.models[cacheKey] = model;
       } else {
-        this.models[model.id].set(model.attributes);
+        this.models[cacheKey].set(model.attributes);
       }
-      return this.models[model.id];
+      return this.models[cacheKey];
     }
     return model;
   }
@@ -492,6 +510,24 @@ class Resource {
 
   removeModel(model) {
     delete this.models[model.id];
+  }
+
+  /**
+   * Check url parameters against those set on resource to ensure that
+   * a properly keyed object has been passed.
+   * @param  {Object} params an object of the parameters for the URL.
+   */
+  checkUrlParams(params) {
+    const missingParams = [];
+    this.urlParams.forEach((key) => {
+      if (!params[key]) {
+        missingParams.push(key);
+      }
+    });
+    if (missingParams.length > 0) {
+      throw TypeError('Missing required URL parameters for: ', missingParams);
+    }
+    return true;
   }
 
   get urls() {
@@ -531,6 +567,14 @@ class Resource {
 
   get client() {
     return this.kolibri.client;
+  }
+
+  get urlParams() {
+    return this.constructor.urlParameters();
+  }
+
+  static urlParameters() {
+    return [];
   }
 }
 

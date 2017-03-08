@@ -7,6 +7,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 import json
 import re
 
+from six import iteritems
+
 from django import template
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -14,7 +16,6 @@ from django.utils.html import mark_safe
 from kolibri.core.hooks import NavigationHook, UserNavigationHook
 from rest_framework.renderers import JSONRenderer
 from rest_framework.test import APIClient
-from six import iteritems
 
 register = template.Library()
 
@@ -53,13 +54,14 @@ def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
     if 'kwargs_channel_id' in kwargs:
         if not context['currentChannel']:
             return ''
-    response, kwargs = _kolibri_bootstrap_helper(context, base_name, api_resource, 'detail', **kwargs)
+    response, kwargs, url_params = _kolibri_bootstrap_helper(context, base_name, api_resource, 'detail', **kwargs)
     html = ("<script type='text/javascript'>"
-            "var model = {0}.resources.{1}.createModel(JSON.parse({2}));"
+            "var model = {0}.resources.{1}.createModel(JSON.parse({2}), {3});"
             "model.synced = true;"
             "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
                                api_resource,
-                               JSONRenderer().render(response.content.decode('utf-8')).decode('utf-8')))
+                               JSONRenderer().render(response.content.decode('utf-8')).decode('utf-8'),
+                               json.dumps(url_params)))
     return mark_safe(html)
 
 @register.simple_tag(takes_context=True)
@@ -68,14 +70,15 @@ def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
     if 'kwargs_channel_id' in kwargs:
         if not context['currentChannel']:
             return ''
-    response, kwargs = _kolibri_bootstrap_helper(context, base_name, api_resource, 'list', **kwargs)
+    response, kwargs, url_params = _kolibri_bootstrap_helper(context, base_name, api_resource, 'list', **kwargs)
     html = ("<script type='text/javascript'>"
-            "var collection = {0}.resources.{1}.createCollection({2}, JSON.parse({3}));"
+            "var collection = {0}.resources.{1}.createCollection({2}, JSON.parse({3}), {4});"
             "collection.synced = true;"
             "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
                                api_resource,
                                json.dumps(kwargs),
-                               JSONRenderer().render(response.content.decode('utf-8')).decode('utf-8')))
+                               JSONRenderer().render(response.content.decode('utf-8')).decode('utf-8'),
+                               json.dumps(url_params)))
     return mark_safe(html)
 
 def _replace_dict_values(check, replace, dict):
@@ -101,4 +104,4 @@ def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs)
     _replace_dict_values(None, str(''), kwargs)
     response = client.get(url, data=kwargs)
     _replace_dict_values(str(''), None, kwargs)
-    return response, kwargs
+    return response, kwargs, reversal

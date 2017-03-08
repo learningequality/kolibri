@@ -230,13 +230,18 @@ function showLearnChannel(store, channelId, page = 1) {
       const popularPayload = { popular: session.user_id };
       const resumePayload = { resume: session.user_id };
       const allPayload = { kind: 'content' };
-      const nextStepsPromise = ContentNodeResource.getCollection(nextStepsPayload).fetch();
-      const popularPromise = ContentNodeResource.getCollection(popularPayload).fetch();
-      const resumePromise = ContentNodeResource.getCollection(resumePayload).fetch();
+      const channelPayload = { channel_id: channelId };
+      const nextStepsPromise = ContentNodeResource.getCollection(
+        nextStepsPayload, channelPayload).fetch();
+      const popularPromise = ContentNodeResource.getCollection(
+        popularPayload, channelPayload).fetch();
+      const resumePromise = ContentNodeResource.getCollection(
+        resumePayload, channelPayload).fetch();
       const allContentResource = ContentNodeResource.getPagedCollection(
         allPayload,
         ALL_PAGE_SIZE,
-        page
+        page,
+        channelPayload
       );
       const allPromise = allContentResource.fetch();
       ConditionalPromise.all(
@@ -265,7 +270,8 @@ function showLearnChannel(store, channelId, page = 1) {
 
           // preload next page
           if (allContentResource.hasNext) {
-            ContentNodeResource.getPagedCollection(allPayload, ALL_PAGE_SIZE, page + 1).fetch();
+            ContentNodeResource.getPagedCollection(
+              allPayload, ALL_PAGE_SIZE, page + 1, channelPayload).fetch();
           }
         },
         error => { coreActions.handleApiError(store, error); }
