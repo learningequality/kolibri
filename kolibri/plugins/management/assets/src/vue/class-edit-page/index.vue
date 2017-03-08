@@ -200,8 +200,8 @@
     vuex: {
       getters: {
         modalShown: state => state.pageState.modalShown,
-        users: state => state.pageState.users,
-        currClass: state => state.pageState.classes[0], // alway only one item in this array.
+        users: state => state.pageState.classroomUsers,
+        currClass: state => state.pageState.classrooms[0], // alway only one item in this array.
       },
       actions: {
         displayModal: actions.displayModal,

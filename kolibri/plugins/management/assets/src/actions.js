@@ -180,7 +180,7 @@ function removeClassUser(store, classId, userId) {
       const membershipId = membership[0].id; // will always only have one item in the array.
       MembershipResource.getModel(membershipId).delete().then(
         response => {
-          store.dispatch('DELETE_USER', userId);
+          store.dispatch('DELETE_CLASSROOM_USER', userId);
           displayModal(store, false);
         },
         error => { coreActions.handleApiError(store, error); }
@@ -205,7 +205,7 @@ function showClassesPage(store) {
       const pageState = {
         modalShown: null,
         facility: _facilityState(facility[0]), // for mvp, we assume only one facility exists
-        classes: classes.map(_classState),
+        classrooms: classes.map(_classState),
       };
 
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -234,8 +234,8 @@ function showClassEditPage(store, classId) {
     ([users, cl]) => {
       const pageState = {
         modalShown: null,
-        classes: [cl],
-        users: users.map(_userState),
+        classrooms: [cl],
+        classroomUsers: users.map(_userState),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -331,7 +331,7 @@ function assignUserRole(user, kind) {
  */
 function createUser(store, stateUserData) {
   const userData = {
-    facility: store.state.pageState.facility_id,
+    facility: store.state.pageState.facility.id,
     username: stateUserData.username,
     full_name: stateUserData.full_name,
     password: stateUserData.password,
@@ -456,17 +456,17 @@ function showUserPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.USER_MGMT_PAGE);
   const userCollection = FacilityUserResource.getCollection();
-  const facilityIdPromise = FacilityUserResource.getCurrentFacility();
+  const facilityPromise = FacilityResource.getCollection().fetch();
   const userPromise = userCollection.fetch({}, true);
 
-  const promises = [facilityIdPromise, userPromise];
+  const promises = [facilityPromise, userPromise];
 
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([facilityId, users]) => {
+    ([facility, users]) => {
       const pageState = {
-        users: users.map(_userState),
-        facility_id: facilityId[0],
+        facility: _facilityState(facility[0]),
+        facilityUsers: users.map(_userState),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);

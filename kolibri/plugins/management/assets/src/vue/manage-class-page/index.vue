@@ -134,7 +134,7 @@
     vuex: {
       getters: {
         modalShown: state => state.pageState.modalShown,
-        classes: state => state.pageState.classes,
+        classes: state => state.pageState.classrooms,
         facilityName: state => state.pageState.facility.name,
       },
       actions: {

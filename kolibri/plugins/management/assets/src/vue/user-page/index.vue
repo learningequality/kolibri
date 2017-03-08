@@ -194,7 +194,7 @@
     },
     vuex: {
       getters: {
-        users: state => state.pageState.users,
+        users: state => state.pageState.facilityUsers,
       },
       actions: {
         deleteUser: actions.deleteUser,
