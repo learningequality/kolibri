@@ -25,7 +25,7 @@ const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageC
  * the API to state in the Vuex store
  */
 function _classState(data) {
-  const state = {
+  return {
     id: data.id,
     name: data.name,
     parent: data.parent,
@@ -33,15 +33,13 @@ function _classState(data) {
     coach_count: data.coach_count,
     admin_count: data.admin_count,
   };
-  return state;
 }
 
 function _facilityState(data) {
-  const state = {
+  return {
     id: data.id,
     name: data.name,
   };
-  return state;
 }
 
 
@@ -116,9 +114,9 @@ function createClass(store, stateClassData) {
   };
 
   ClassroomResource.createModel(classData).save().then(
-    cl => {
+    classModel => {
       // dispatch newly created class
-      store.dispatch('ADD_CLASS', _classState(cl));
+      store.dispatch('ADD_CLASS', _classState(classModel));
       displayModal(store, false);
     },
     error => { coreActions.handleApiError(store, error); }
@@ -135,7 +133,7 @@ function deleteClass(store, id) {
     return;
   }
   ClassroomResource.getModel(id).delete().then(
-    cl => {
+    classModel => {
       store.dispatch('DELETE_CLASS', id);
       displayModal(store, false);
     },
@@ -231,16 +229,16 @@ function showClassEditPage(store, classId) {
 
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([users, cl]) => {
+    ([users, singleClass]) => {
       const pageState = {
         modalShown: false,
-        classes: [cl],
+        classes: [singleClass],
         classUsers: users.map(_userState),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
+      store.dispatch('CORE_SET_TITLE', _managePageTitle('Edit Class'));
     },
     error => { coreActions.handleApiError(store, error); }
   );

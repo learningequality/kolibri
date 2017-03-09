@@ -4,7 +4,7 @@
 
     <div class="header">
       <h1>
-        {{$tr('allClasses')}} {{facilityName}}
+        {{ $tr('allClasses', { name: facilityName }) }}
       </h1>
     </div>
 
@@ -46,34 +46,34 @@
 
       <!-- Table body -->
       <tbody>
-        <tr v-for="cl in classes">
+        <tr v-for="classModel in classes">
           <!-- Class Name field -->
           <th scope="row" class="table-cell">
-            <router-link :to="classEditLink(cl.id)" class="table-name">
-              {{cl.name}}
+            <router-link :to="classEditLink(classModel.id)" class="table-name">
+              {{classModel.name}}
             </router-link>
           </th>
 
           <div class="status-group">
             <!-- Learners field -->
             <td class="table-cell hide-on-mobile status-body">
-              {{cl.learner_count}}
+              {{classModel.learner_count}}
             </td>
 
             <!-- Coaches field -->
             <td class="table-cell hide-on-mobile status-body">
-              {{cl.coach_count}}
+              {{classModel.coach_count}}
             </td>
 
             <!-- Admins field -->
             <td class="table-cell hide-on-mobile status-body">
-              {{cl.admin_count}}
+              {{classModel.admin_count}}
             </td>
           </div>
 
           <!-- delete field -->
           <td class="table-cell">
-            <div class="delete-class-button" @click="openDeleteClassModal(cl)">
+            <div class="delete-class-button" @click="openDeleteClassModal(classModel)">
               {{$tr('deleteClass')}}
             </div>
           </td>
@@ -123,9 +123,9 @@
           params: { id },
         };
       },
-      openDeleteClassModal(cl) {
-        this.currentClassDelete = cl;
-        this.displayModal(constants.Modals.DELETE_CLASS);
+      openDeleteClassModal(classModel) {
+        this.currentClassDelete = classModel;
+        this.displayModal(constants.ModalNames.DELETE_CLASS);
       },
       openCreateClassModal() {
         this.displayModal(constants.Modals.CREATE_CLASS);
@@ -143,7 +143,7 @@
     },
     $trNameSpace: 'classPage',
     $trs: {
-      allClasses: 'All Classes in ',
+      allClasses: 'All Classes in {name}',
       // button text
       addNew: 'Add New Class',
       deleteClass: 'Delete Class',

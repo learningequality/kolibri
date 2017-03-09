@@ -42,20 +42,20 @@ const mutations = {
   },
 
   // class mutations
-  ADD_CLASS(state, cl) {
-    state.pageState.classes.push(cl);
+  ADD_CLASS(state, classModel) {
+    state.pageState.classes.push(classModel);
   },
 
   UPDATE_CLASS(state, id, updatedClass) {
-    state.pageState.classes.forEach((cl, index, arr) => {
-      if (cl.id === id) {
+    state.pageState.classes.forEach((classModel, index, arr) => {
+      if (classModel.id === id) {
         arr[index] = updatedClass;
       }
     });
   },
 
   DELETE_CLASS(state, id) {
-    state.pageState.classes = state.pageState.classes.filter(cl => cl.id !== id);
+    state.pageState.classes = state.pageState.classes.filter(classModel => classModel.id !== id);
   },
 
   DELETE_CLASS_USER(state, id) {
