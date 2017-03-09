@@ -45,9 +45,6 @@
       showCreateGroupModal() {
         return this.modalShown === constants.Modals.CREATE_GROUP;
       },
-      usersNotInGroup() {
-        
-      }
     },
     methods: {
       openCreateGroupModal() {

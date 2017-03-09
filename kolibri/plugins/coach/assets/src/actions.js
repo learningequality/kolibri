@@ -114,11 +114,13 @@ function showGroupsPage(store, classId) {
 
   const facilityPromise = FacilityUserResource.getCurrentFacility();
   const classPromise = ClassroomResource.getModel(classId).fetch();
-  const classUsersPromise = FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
+  const classUsersPromise =
+  FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
   const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch();
   const groupUsersPromise = FacilityUserResource.getCollection({ member_of: 13 }).fetch({}, true);
 
-  ConditionalPromise.all([facilityPromise, classPromise, classUsersPromise, groupPromise, groupUsersPromise]).only(
+  ConditionalPromise.all(
+    [facilityPromise, classPromise, classUsersPromise, groupPromise, groupUsersPromise]).only(
     coreActions.samePageCheckGenerator(store),
     ([facility, classModel, classUsers, groups, groupUsers]) => {
       const pageState = {

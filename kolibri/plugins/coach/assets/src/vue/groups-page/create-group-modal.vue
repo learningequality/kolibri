@@ -5,7 +5,7 @@
     <div>
       <form @submit.prevent="callCreateGroup">
         <textbox type="text"
-        :label="$tr('learnerGroupName')"
+          :label="$tr('learnerGroupName')"
           :aria-label="$tr('learnerGroupName')"
           :autofocus="true"
           :required="true"
@@ -20,21 +20,19 @@
           type="submit" />
       </form>
     </div>
-    </div>
   </core-modal>
 
 </template>
 
 
 <script>
+
   const actions = require('../../actions');
-  const constants = require('../../state/constants');
 
   module.exports = {
     $trNameSpace: 'confirm-enrollment-modal',
     $trs: {
       newLearnerGroup: 'New Learner Group',
-      learnerGroupName: 'Learner Group Name',
       learnerGroupName: 'Learner Group Name',
       cancel: 'Cancel',
       save: 'Save',
@@ -80,4 +78,5 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus"
+  scoped></style>
