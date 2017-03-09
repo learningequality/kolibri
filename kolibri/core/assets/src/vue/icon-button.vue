@@ -4,6 +4,7 @@
     @click="$emit('click')"
     :color="primary ? 'primary' : 'default'"
     :disabled="disabled"
+    :size="size"
     class="koli-icon-button">
     <span v-if="hasIcon && text">
       <ui-icon class="icon-margin"><slot/></ui-icon>
@@ -38,6 +39,10 @@
       showTextBelowIcon: {
         type: Boolean,
         default: false,
+      },
+      size: {
+        type: String,
+        default: 'normal',
       },
     },
     computed: {

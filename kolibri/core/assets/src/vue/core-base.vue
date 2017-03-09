@@ -103,9 +103,7 @@
       },
       contentStyle() {
         const style = { top: `${this.headerHeight}px` };
-        if (!this.mobile) {
-          style.left = `${this.navWidth}px`;
-        }
+        style.left = this.mobile ? 0 : `${this.navWidth}px`;
         return style;
       },
     },

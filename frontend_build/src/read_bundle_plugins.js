@@ -111,24 +111,9 @@ var readBundlePlugins = function(base_dir) {
     }
   });
 
-  // Create name to path mapping to allow translated json files to be copied into
-  // the correct static directory.
-
-  var namePathMapping = {};
-
-  bundles.forEach(function (bundle) {
-    namePathMapping[bundle.name] = path.resolve(path.dirname(bundle.output.path));
-  });
-
   var locale_dir = path.join(base_dir, 'kolibri', 'locale')
 
   mkdirp.sync(locale_dir);
-
-  // This will output a file mapping from the bundle name to the static directory where
-  // the built files for this mapping are put. This is used for redistributing translated message files
-  // back to their plugins.
-
-  fs.writeFileSync(path.join(locale_dir, 'pathMapping.json'), JSON.stringify(namePathMapping));
 
   // We add some custom configuration options to the bundles that webpack 2 dislikes, clean them up here.
   bundles.forEach(function (bundle) {

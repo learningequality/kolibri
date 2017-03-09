@@ -92,12 +92,12 @@
         switch (option.id) {
           case 'editProfile':
             window.location = `/user`;
-            return;
+            break;
           case 'signOut':
             this.kolibriLogout();
-            return;
+            break;
           default:
-            return;
+            break;
         }
       },
     },

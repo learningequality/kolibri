@@ -18,7 +18,7 @@
       :thumbnail="content.thumbnail"
       :kind="content.kind"
       :progress="content.progress"
-      :id="content.id"/>
+      :link="genContentLink(content.id)"/>
 
   </card-grid>
 
@@ -68,6 +68,14 @@
         };
       },
     },
+    methods: {
+      genContentLink(id) {
+        return {
+          name: PageNames.LEARN_CONTENT,
+          params: { channel_id: this.channelId, id },
+        };
+      },
+    },
     components: {
       'content-grid-item': require('../content-grid-item'),
       'card-grid': require('../card-grid'),
@@ -76,6 +84,7 @@
       getters: {
         all: state => state.pageState.all,
         viewportWidth: state => state.core.viewport.width,
+        channelId: (state) => state.core.channels.currentId,
       },
     },
   };

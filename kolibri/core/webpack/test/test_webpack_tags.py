@@ -27,7 +27,7 @@ class KolibriTagNavigationTestCase(TestCase):
         t = Template(
             """{% load webpack_tags %}\n{% webpack_asset 'non_default_frontend' %}""")
         c = Context({})
-        self.test_hook.stats_file
+        self.test_hook._stats_file
         self.assertIn(
             self.test_hook.TEST_STATS_FILE_DATA['chunks'][TestHook.unique_slug][0]['name'],
             t.render(c)
