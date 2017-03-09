@@ -228,10 +228,10 @@ function showClassEditPage(store, classId) {
 
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([users, classModel]) => {
+    ([users, singleClass]) => {
       const pageState = {
         modalShown: null,
-        classes: [classModel],
+        classes: [singleClass],
         users: users.map(_userState),
       };
       store.dispatch('SET_PAGE_STATE', pageState);

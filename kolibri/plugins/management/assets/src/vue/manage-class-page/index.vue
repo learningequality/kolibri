@@ -4,7 +4,7 @@
 
     <div class="header">
       <h1>
-        {{ $tr('allClasses' ${facilityName}) }}
+        {{ $tr('allClasses', { name: facilityName }) }}
       </h1>
     </div>
 
@@ -143,7 +143,7 @@
     },
     $trNameSpace: 'classPage',
     $trs: {
-      allClasses: 'All Classes in',
+      allClasses: 'All Classes in {name}',
       // button text
       addNew: 'Add New Class',
       deleteClass: 'Delete Class',
