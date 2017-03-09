@@ -6,6 +6,7 @@ const router = require('kolibri.coreVue.router');
 
 const ClassroomResource = coreApp.resources.ClassroomResource;
 const LearnerGroupResource = coreApp.resources.LearnerGroupResource;
+const MembershipResource = coreApp.resources.MembershipResource;
 
 const ChannelResource = coreApp.resources.ChannelResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
@@ -162,15 +163,19 @@ function showGroupsPage(store, classId) {
 
   const facilityPromise = FacilityUserResource.getCurrentFacility();
   const classPromise = ClassroomResource.getModel(classId).fetch();
-  const groupPromise = LearnerGroupResource.getCollection({ member_of: classId }).fetch();
+  const classUsersPromise = FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
+  const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch();
+  const groupUsersPromise = FacilityUserResource.getCollection({ member_of: 13 }).fetch({}, true);
 
-  ConditionalPromise.all([facilityPromise, classPromise, groupPromise]).only(
+  ConditionalPromise.all([facilityPromise, classPromise, classUsersPromise, groupPromise, groupUsersPromise]).only(
     coreActions.samePageCheckGenerator(store),
-    ([facility, classModel, groups]) => {
+    ([facility, classModel, classUsers, groups, groupUsers]) => {
       const pageState = {
         facilityId: facility[0],
         class: classModel,
+        classUsers,
         groups,
+        groupUsers,
         modalShown: false,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -199,6 +204,67 @@ function createGroup(store, classId, groupName) {
   });
 }
 
+function renameGroup(store, classId, groupId, newGroupName) {
+  const groupPayload = {
+    name: newGroupName,
+  };
+  return new Promise((resolve, reject) => {
+    LearnerGroupResource.getModel(groupId).save(groupPayload).then(
+      updatedGroup => {
+        store.dispatch('UPDATE_GROUP', groupId, updatedGroup);
+      },
+      error => reject(error)
+    );
+  });
+}
+
+function deleteGroup(store, classId, groupId) {
+  // remove all users from that group
+  // remove group from class
+  // then dispatch
+  const groupPayload = {
+    parent: classId,
+    id: groupId,
+  };
+  return new Promise((resolve, reject) => {
+    LearnerGroupResource.createModel(groupPayload).save().then(
+      group => {
+        store.dispatch('DELETE_GROUP', group);
+      },
+      error => reject(error)
+    );
+  });
+}
+
+function addUserToGroup(store, groupId, userId) {
+  const membershipPayload = {
+    collection: groupId,
+    user: userId,
+  };
+  return new Promise((resolve, reject) => {
+    MembershipResource.createModel(membershipPayload).save().then(
+      groupUser => {
+        console.log(groupUser);
+      },
+      error => reject(error)
+    );
+  });
+}
+
+function removeUserfromGroup(store, groupId, userId) {
+  const membershipPayload = {
+    collection: groupId,
+    user: userId,
+  };
+  return new Promise((resolve, reject) => {
+    MembershipResource.getModel(membershipPayload).delete().then(
+      user => {
+        store.dispatch('REMOVE_USER_FROM_CLASS', userId);
+      },
+      error => reject(error)
+    );
+  });
+}
 
 function showCoachRoot(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -411,6 +477,10 @@ module.exports = {
   showLearnersPage,
   showGroupsPage,
   createGroup,
+  renameGroup,
+  deleteGroup,
+  addUserToGroup,
+  removeUserfromGroup,
   displayModal,
   showCoachRoot,
   redirectToChannelReport,

@@ -57,6 +57,13 @@ const mutations = {
   ADD_GROUP(state, group) {
     state.pageState.groups.push(group);
   },
+  UPDATE_GROUP(state, groupId, updatedGroup) {
+    state.pageState.groups.forEach((group, index, arr) => {
+      if (group.id === groupId) {
+        arr[index] = updatedGroup;
+      }
+    });
+  },
 };
 
 // assigns core state and mutations

@@ -14,6 +14,11 @@
       v-if="showCreateGroupModal"
       :className="className"
       :classId="classId"/>
+
+    <div v-for="group in groups">
+      <h2>{{ group.name }}</h2>
+      <!--{{ $tr('numLearners', {count: group.users.length}) }} -->
+    </div>
   </div>
 
 </template>
@@ -29,7 +34,8 @@
     $trNameSpace: 'coachGroupsPage',
     $trs: {
       groups: 'Groups',
-      newGroup: 'New group'
+      newGroup: 'New group',
+      numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}'
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -39,6 +45,9 @@
       showCreateGroupModal() {
         return this.modalShown === constants.Modals.CREATE_GROUP;
       },
+      usersNotInGroup() {
+        
+      }
     },
     methods: {
       openCreateGroupModal() {
@@ -49,7 +58,9 @@
       getters: {
         className: state => state.pageState.class.name,
         classId: state => state.pageState.class.id,
+        classUsers: state => state.pageState.classUsers,
         modalShown: state => state.pageState.modalShown,
+        groups: state => state.pageState.groups,
       },
       actions: {
         displayModal: actions.displayModal,
