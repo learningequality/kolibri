@@ -434,6 +434,17 @@ function displayModal(store, modalName) {
   store.dispatch('SET_MODAL', modalName);
 }
 
+
+// - - - - - Action for Coach Exercise Render Page - - - - - -
+
+function showCoachExerciseRenderPage(store) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_EXERCISE_RENDER_PAGE);
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_TITLE', 'Coach Exercise Render');
+}
+
+
 module.exports = {
   showClassListPage,
   showRecentPage,
@@ -450,4 +461,5 @@ module.exports = {
   redirectToDefaultReport,
   showReport,
   showContentUnavailable,
+  showCoachExerciseRenderPage,
 };

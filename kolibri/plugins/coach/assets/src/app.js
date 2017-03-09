@@ -66,6 +66,15 @@ class CoachToolsModule extends KolibriModule {
           handler: (toRoute, fromRoute) => {
             actions.showReport(store, toRoute.params);
           },
+          name: PageNames.COACH_EXERCISE_RENDER_PAGE,
+          path: '/exercise-render',
+          handler: (toRoute, fromRoute) => {
+            actions.showCoachExerciseRenderPage(store);
+          },
+        },
+        {
+          path: '/',
+          redirect: '/reports',
         },
         {
           name: PageNames.COACH_GROUPS_PAGE,
