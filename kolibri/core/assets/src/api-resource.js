@@ -11,7 +11,7 @@ class Model {
    * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
    * behaviour for the model.
    */
-  constructor(data, resource, resourceIds = {}) {
+  constructor(data, resourceIds = {}, resource) {
     this.resource = resource;
     if (!this.resource) {
       throw new TypeError('resource must be defined');
@@ -488,7 +488,7 @@ class Resource {
    */
   createModel(data, resourceIds = {}) {
     const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
-    const model = new Model(data, this, filteredResourceIds);
+    const model = new Model(data, filteredResourceIds, this);
     return this.addModel(model, filteredResourceIds);
   }
 
