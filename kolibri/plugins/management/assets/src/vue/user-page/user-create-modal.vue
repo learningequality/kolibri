@@ -3,7 +3,6 @@
   <core-modal
     :title="$tr('addNewAccountTitle')"
     :has-error="errorMessage ? true : false"
-    @enter="createNewUser"
     @cancel="close"
   >
     <form @submit.prevent="createNewUser">
