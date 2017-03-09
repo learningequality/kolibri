@@ -35,9 +35,8 @@
               <topic-list-item
                 v-for="topic in topics"
                 class="card"
-                :id="topic.id"
-                :channelId="channelId"
-                :title="topic.title"/>
+                :title="topic.title"
+                :link="genTopicLink(topic.id)"/>
             </card-list>
           </div>
 
@@ -51,7 +50,7 @@
                 :thumbnail="content.thumbnail"
                 :kind="content.kind"
                 :progress="content.progress"
-                :id="content.id"/>
+                :link="genContentLink(content.id)"/>
             </card-grid>
           </div>
         </div>
@@ -111,6 +110,18 @@
             query: { query: searchInput },
           });
         }
+      },
+      genTopicLink(id) {
+        return {
+          name: constants.PageNames.EXPLORE_TOPIC,
+          params: { channel_id: this.channelId, id },
+        };
+      },
+      genContentLink(id) {
+        return {
+          name: constants.PageNames.EXPLORE_CONTENT,
+          params: { channel_id: this.channelId, id },
+        };
       },
     },
     mounted() {

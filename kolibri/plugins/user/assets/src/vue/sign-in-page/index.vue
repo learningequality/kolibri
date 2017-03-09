@@ -24,7 +24,7 @@
           v-model="password"
           autocomplete="current-password"
           required/>
-        <icon-button id="login-btn" :text="$tr('signIn')" :primary="true" type="submit"></icon-button>
+        <icon-button id="login-btn" :text="$tr('signIn')" :primary="true" type="submit"/>
 
         <p v-if="loginError" class="sign-in-error">{{ $tr('signInError') }}</p>
       </form>
@@ -34,10 +34,10 @@
       <p class="login-text no-account">{{ $tr('noAccount') }}</p>
       <div id="btn-group">
         <router-link class="group-btn" :to="signUp">
-          <icon-button id="signup-button" :text="$tr('createAccount')" :primary="true"></icon-button>
+          <icon-button id="signup-button" :text="$tr('createAccount')" :primary="true"/>
         </router-link>
         <a class="group-btn" href="/learn">
-          <icon-button id="guest-access-button" :text="$tr('accessAsGuest')" :primary="false"></icon-button>
+          <icon-button id="guest-access-button" :text="$tr('accessAsGuest')" :primary="false"/>
         </a>
       </div>
     </div>

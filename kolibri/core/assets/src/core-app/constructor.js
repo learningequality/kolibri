@@ -16,6 +16,8 @@ const errorCode = require('rest/interceptor/errorCode');
 const cookiejs = require('js-cookie');
 const constructorExport = require('./constructorExport');
 const logging = require('../logging');
+const HeartBeat = require('../heartbeat');
+const importIntlLocale = require('./import-intl-locale');
 
 
 /**
@@ -32,7 +34,8 @@ const publicMethods = [
   'once',
   'off',
   'registerLanguageAssets',
-  'registerLanguageAssetsUrl',
+  'registerContentRenderer',
+  'retrieveContentRenderer',
 ];
 
 /**
@@ -112,6 +115,7 @@ module.exports = class CoreApp {
         }
       }
 
+      mediator.registerMessages();
       mediator.setReady();
     }
 
@@ -119,20 +123,23 @@ module.exports = class CoreApp {
      * If the browser doesn't support the Intl polyfill, we retrieve that and
      * the modules need to wait until that happens.
      **/
-    if (!global.hasOwnProperty('Intl')) {
-      require.ensure(
-        [
-          'intl',
-          'intl/locale-data/jsonp/en.js',
-          // add more locales here
-        ],
-        (require) => {
-          require('intl');
-          require('intl/locale-data/jsonp/en.js');
-
+    if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
+      Promise.all([(new Promise((resolve) => {
+        require.ensure([], (require) => {
+          resolve(() => require('intl'));
+        });
+      })), importIntlLocale(global.languageCode)]).then( // eslint-disable-line
+        (requires) => {
+          // Executes function that requires 'intl'
+          requires[0]();
+          // Executes function that requires intl locale data - needs intl to have run
+          requires[1]();
           setUpVueIntl();
-        }
-      );
+        },
+        (error) => {
+          logging.error(error);
+          logging.error('An error occurred trying to setup Internationalization', error);
+        });
     } else {
       setUpVueIntl();
     }
@@ -142,6 +149,7 @@ module.exports = class CoreApp {
     publicMethods.forEach((method) => {
       this[method] = mediator[method].bind(mediator);
     });
+    this.heartBeat = new HeartBeat(this);
   }
 
   get client() {

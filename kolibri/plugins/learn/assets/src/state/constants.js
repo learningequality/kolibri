@@ -18,6 +18,7 @@ const PageNames = {
 const PageModes = {
   EXPLORE: 'EXPLORE',
   LEARN: 'LEARN',
+  SEARCH: 'SEARCH',
 };
 
 module.exports = {

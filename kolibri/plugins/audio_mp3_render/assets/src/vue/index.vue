@@ -91,7 +91,7 @@
       notIE9() {
       // For version of IE 9 and below, hides the seeker due to incompatibility.
       // This is a short term MVP hack, longer term is to integrate video.js with audio tracks.
-        const ieVersion = parseFloat(navigator.appVersion.split('MSIE')[1]);
+        const ieVersion = parseFloat(window.navigator.appVersion.split('MSIE')[1]);
         if (ieVersion === 9) {
           return false;
         }

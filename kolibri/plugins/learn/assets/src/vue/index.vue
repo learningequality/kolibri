@@ -26,8 +26,10 @@
 
 <script>
 
-  const constants = require('../state/constants');
-  const PageNames = constants.PageNames;
+  const PageNames = require('../state/constants').PageNames;
+  const PageModes = require('../state/constants').PageModes;
+
+  const getters = require('../state/getters');
   const store = require('../state/store');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
@@ -55,9 +57,9 @@
     methods: {
       switchChannel(channelId) {
         let page;
-        switch (this.pageName) {
-          case constants.PageNames.SEARCH:
-            page = constants.PageNames.SEARCH;
+        switch (this.pageMode) {
+          case PageModes.SEARCH:
+            page = PageNames.SEARCH;
             if (this.searchTerm) {
               this.$router.push({
                 name: page,
@@ -68,12 +70,12 @@
             }
             break;
 
-          case constants.PageNames.LEARN_CHANNEL:
-            page = constants.PageNames.LEARN_CHANNEL;
+          case PageModes.LEARN:
+            page = PageNames.LEARN_CHANNEL;
             break;
 
           default:
-            page = constants.PageNames.EXPLORE_CHANNEL;
+            page = PageNames.EXPLORE_CHANNEL;
         }
 
         this.$router.push({
@@ -84,15 +86,15 @@
       handleTabClick(tabIndex) {
         switch (tabIndex) {
           case 0:
-            this.$router.push({ name: constants.PageNames.LEARN_ROOT });
-            return;
+            this.$router.push({ name: PageNames.LEARN_ROOT });
+            break;
 
           case 1:
-            this.$router.push({ name: constants.PageNames.EXPLORE_ROOT });
-            return;
+            this.$router.push({ name: PageNames.EXPLORE_ROOT });
+            break;
 
           default:
-            return;
+            break;
         }
       },
     },
@@ -130,7 +132,9 @@
         return this.pageName === PageNames.SEARCH;
       },
       learnTabs() {
-        const isRecommended = this.pageName === constants.PageNames.LEARN_CHANNEL;
+        const isRecommended = (this.pageMode === PageModes.LEARN);
+        const isTopics = (this.pageMode === PageModes.EXPLORE);
+
         return [{
           title: this.$tr('recommended'),
           icon: 'forum',
@@ -139,13 +143,14 @@
         }, {
           title: this.$tr('topics'),
           icon: 'folder',
-          selected: !isRecommended,
+          selected: isTopics,
           disabled: false,
         }];
       },
     },
     vuex: {
       getters: {
+        pageMode: getters.pageMode,
         pageName: state => state.pageName,
         searchTerm: state => state.pageState.searchTerm,
       },

@@ -1,4 +1,3 @@
-
 // a name for every URL pattern
 const PageNames = {
   CLASS_MGMT_PAGE: 'CLASS_MGMT_PAGE',
@@ -11,11 +10,15 @@ const PageNames = {
 };
 
 // modal names
-const ModalNames = {
-  EDIT_CLASS_NAME_MODAL: 'EDIT_CLASS_NAME_MODAL',
-  REMOVE_USER_MODAL: 'REMOVE_USER_MODAL',
-  DELETE_CLASS_MODAL: 'DELETE_CLASS_MODAL',
-  CREATE_CLASS_MODAL: 'CREATE_CLASS_MODAL',
+const Modals = {
+  CREATE_CLASS: 'CREATE_CLASS',
+  DELETE_CLASS: 'DELETE_CLASS',
+  EDIT_CLASS_NAME: 'EDIT_CLASS_NAME',
+  REMOVE_USER: 'REMOVE_USER',
+  CONFIRM_ENROLLMENT: 'CONFIRM_ENROLLMENT',
+
+  CREATE_USER: 'CREATE_USER',
+  EDIT_USER: 'EDIT_USER',
 };
 
 // content import/export wizard pages
@@ -41,7 +44,7 @@ const TaskStatuses = {
 
 module.exports = {
   PageNames,
-  ModalNames,
+  Modals,
   ContentWizardPages,
   TaskTypes,
   TaskStatuses,

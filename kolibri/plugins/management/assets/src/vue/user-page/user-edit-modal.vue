@@ -5,7 +5,7 @@
     :has-error="error_message ? true : false"
     :enableBackBtn="usr_delete || pw_reset"
     @enter="submit"
-    @cancel="emitCloseSignal"
+    @cancel="close"
     @back="clear"
   >
     <!-- User Edit Normal -->
@@ -185,11 +185,12 @@
         if (this.pw_reset || this.usr_delete) {
           this.clear();
         } else {
-          this.emitCloseSignal();
+          this.close();
         }
       },
       clear() {
-        this.usr_delete = this.pw_reset = false;
+        this.usr_delete = false;
+        this.pw_reset = false;
         this.username_new = this.username;
         this.fullName_new = this.fullname;
         this.kind = this.userkind;
@@ -222,7 +223,7 @@
           }
         }
         // close the modal after successful submission
-        this.emitCloseSignal();
+        this.close();
       },
       deleteUserHandler() {
         // if logged in admin deleted their own account, log them out
@@ -230,7 +231,7 @@
           this.logout();
         }
         this.deleteUser(this.userid);
-        this.emitCloseSignal();
+        this.close();
       },
       changePasswordHandler() {
         // checks to make sure there's a new password
@@ -239,7 +240,7 @@
           if (this.password_new === this.password_new_confirm) {
             // make sure passwords match
             this.updateUser({ id: this.userid, password: this.password_new });
-            this.emitCloseSignal();
+            this.close();
           } else {
             // passwords don't match
             this.error_message = this.$tr('pwMismatch');
@@ -249,8 +250,8 @@
           this.error_message = this.$tr('noNewPw');
         }
       },
-      emitCloseSignal() {
-        this.$emit('close'); // signal parent to close
+      close() {
+        this.displayModal(false);
       },
       clearErrorMessage() {
         this.error_message = '';
@@ -261,6 +262,7 @@
         logout: coreActions.kolibriLogout,
         updateUser: actions.updateUser,
         deleteUser: actions.deleteUser,
+        displayModal: actions.displayModal,
       },
       getters: {
         session_user_id: state => state.core.session.user_id,

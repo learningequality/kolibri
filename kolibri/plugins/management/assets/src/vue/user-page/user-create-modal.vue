@@ -120,7 +120,6 @@
         const newUser = {
           username: this.username,
           full_name: this.full_name,
-          facility_id: this.facility,
           kind: this.kind,
         };
 
@@ -154,18 +153,17 @@
         }
       },
       clearStatus() {
-        this.errorMessage = this.confirmationMessage = '';
+        this.errorMessage = '';
+        this.confirmationMessage = '';
       },
       close() {
-        this.$emit('close'); // signal parent to close
+        this.displayModal(false);
       },
     },
     vuex: {
-      getters: {
-        facility: state => state.facility,
-      },
       actions: {
         createUser: actions.createUser,
+        displayModal: actions.displayModal,
       },
     },
   };
