@@ -20,6 +20,7 @@ recursive-include kolibri/tasks *
 recursive-include kolibri/*/static *.*
 recursive-include kolibri/*/build/ *.json
 recursive-include kolibri/plugins/*/build *.json
+include kolibri/plugins/*/content_types.json
 
 recursive-exclude kolibri/* *pyc
 recursive-exclude kolibri/core/assets *

@@ -11,4 +11,4 @@ class VideoMP4RenderPlugin(KolibriPluginBase):
 class VideoMP4RenderAsset(content_hooks.ContentRendererHook):
     unique_slug = "video_mp4_render_module"
     src_file = "assets/src/module.js"
-    content_types_file = "assets/src/content_types.json"
+    content_types_file = "content_types.json"
