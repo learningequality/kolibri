@@ -17,7 +17,7 @@
         <icon-button
           :text="$tr('enrollSelectedUsers')"
           :primary="true"
-          @click="$refs.confirmation.open()"
+          @click="openConfirmEnrollmentModal"
           :disabled="selectedUsers.length === 0">
           <mat-svg category="navigation" name="check"/>
         </icon-button>
@@ -25,19 +25,11 @@
 
     </div>
 
-    <ui-confirm
-      ref="confirmation"
-      @confirm="enrollLearners"
-      :closeOnConfirm="false"
-      :title="$tr('confirmEnrollment')"
-      :confirmButtonText="$tr('yesEnrollUsers')"
-      :denyButtonText="$tr('noGoBack')">
-      {{ $tr('areYouSure') }} <strong>{{ className }}</strong>?
-      <ul>
-        <li v-for="userId in selectedUsers"><strong>{{ getUsername(userId) }}</strong></li>
-      </ul>
-    </ui-confirm>
-
+    <confirm-enrollment-modal
+      v-if="showConfirmEnrollmentModal"
+      :className="className"
+      :classId="classId"
+      :selectedUsers="selectedUsers"/>
 
     <h1>{{ $tr('selectLearners') }} {{ className }}</h1>
     <p>{{ $tr('showingAllUnassigned') }}</p>
@@ -165,14 +157,10 @@
       name: 'Name',
       username: 'Username',
       selectedUsers: 'Only show selected users',
-      areYouSure: 'Are you sure you want to enroll the following users into',
-      confirmEnrollment: 'Confirm Enrollment of Selected Users',
       noUsersExist: 'No users exist',
       noUsersSelected: 'No users are selected',
       noUsersMatch: 'No users match',
       thatMatch: 'that match',
-      yesEnrollUsers: 'Yes, enroll students',
-      noGoBack: 'No, go back',
       previousResults: 'Previous results',
       goToPage: 'Go to page',
       nextResults: 'Next results',
@@ -183,7 +171,7 @@
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
       'textbox': require('kolibri.coreVue.components.textbox'),
       'user-create-modal': require('../user-page/user-create-modal'),
-      'ui-confirm': require('keen-ui/src/UiConfirm'),
+      'confirm-enrollment-modal': require('./confirm-enrollment-modal'),
       'ui-switch': require('keen-ui/src/UiSwitch'),
     },
     data: () => ({
@@ -191,7 +179,6 @@
       perPage: 10,
       pageNum: 1,
       selectedUsers: [],
-      createUserModalOpen: false,
       sortByName: true,
       sortAscending: true,
       showSelectedUsers: false,
@@ -255,24 +242,13 @@
       showCreateUserModal() {
         return this.modalShown === constants.Modals.CREATE_USER;
       },
+      showConfirmEnrollmentModal() {
+        return this.modalShown === constants.Modals.CONFIRM_ENROLLMENT;
+      },
     },
     methods: {
       goToPage(page) {
         this.pageNum = page;
-      },
-      openCreateUserModal() {
-        this.displayModal(constants.Modals.CREATE_USER);
-      },
-      enrollLearners() {
-        this.enrollUsersInClass(this.classId, this.selectedUsers).then(
-          () => {
-            this.$refs.confirmation.close();
-            this.$router.push(this.editClassLink);
-          },
-          (error) => {});
-      },
-      getUsername(userId) {
-        return this.facilityUsers.find(user => user.id === userId).username;
       },
       isSelected(userId) {
         return this.selectedUsers.includes(userId);
@@ -292,6 +268,12 @@
         }
         return Math.abs(this.pageNum - page) <= maxOnEachSide;
       },
+      openCreateUserModal() {
+        this.displayModal(constants.Modals.CREATE_USER);
+      },
+      openConfirmEnrollmentModal() {
+        this.displayModal(constants.Modals.CONFIRM_ENROLLMENT);
+      },
     },
     watch: {
       userJustCreated(user) {
@@ -308,7 +290,6 @@
         userJustCreated: state => state.pageState.userJustCreated,
       },
       actions: {
-        enrollUsersInClass: actions.enrollUsersInClass,
         displayModal: actions.displayModal,
       },
     },
