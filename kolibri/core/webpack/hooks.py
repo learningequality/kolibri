@@ -154,7 +154,7 @@ class WebpackBundleHook(hooks.KolibriHook):
                 "name": self.unique_slug,
                 "src_file": self.src_file,
                 "static_dir": self._static_dir,
-                "plugin_path": os.path.dirname(self._build_path),
+                "plugin_path": self._module_file_path,
                 "stats_file": self._stats_file,
                 "events": self.events,
                 "once": self.once,
@@ -207,7 +207,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         Returns the path of the class inheriting this classmethod.
         """
-        return os.path.join(*self.__module__.split(".")[:-1])
+        return os.path.dirname(self._build_path)
 
     def frontend_message_file(self, lang_code):
         message_file_name = "{name}-messages.json".format(name=self.unique_slug)
