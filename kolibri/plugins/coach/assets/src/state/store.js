@@ -50,6 +50,13 @@ const mutations = {
   SET_TABLE_DATA(state, tableData) {
     state.pageState.table_data = tableData;
   },
+
+  SET_MODAL(state, modalName) {
+    state.pageState.modalShown = modalName;
+  },
+  ADD_GROUP(state, group) {
+    state.pageState.groups.push(group);
+  },
 };
 
 // assigns core state and mutations

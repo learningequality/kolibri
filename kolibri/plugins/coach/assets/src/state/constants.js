@@ -44,6 +44,10 @@ const SortOrders = {
   NONE: 'none',
 };
 
+const Modals = {
+  CREATE_GROUP: 'CREATE_GROUP',
+};
+
 module.exports = {
   PageNames,
   ContentScopes,
@@ -52,4 +56,5 @@ module.exports = {
   ViewBy,
   TableColumns,
   SortOrders,
+  Modals,
 };

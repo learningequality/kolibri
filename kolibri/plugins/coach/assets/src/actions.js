@@ -5,6 +5,8 @@ const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const router = require('kolibri.coreVue.router');
 
 const ClassroomResource = coreApp.resources.ClassroomResource;
+const LearnerGroupResource = coreApp.resources.LearnerGroupResource;
+
 const ChannelResource = coreApp.resources.ChannelResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const Constants = require('./state/constants');
@@ -154,34 +156,48 @@ function showLearnersPage(store, params) {
 // ================================
 // GROUPS ACTIONS
 
-function showGroupsPage(store, params) {
+function showGroupsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_GROUPS_PAGE);
-  const classCollection = ClassroomResource.getCollection();
-  classCollection.fetch().then(
-    (classes) => {
+
+  const facilityPromise = FacilityUserResource.getCurrentFacility();
+  const classPromise = ClassroomResource.getModel(classId).fetch();
+  const groupPromise = LearnerGroupResource.getCollection({ member_of: classId }).fetch();
+
+  ConditionalPromise.all([facilityPromise, classPromise, groupPromise]).only(
+    coreActions.samePageCheckGenerator(store),
+    ([facility, classModel, groups]) => {
       const pageState = {
-        // classes: classes.map(_classState),
-        classes,
+        facilityId: facility[0],
+        class: classModel,
+        groups,
+        modalShown: false,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', _managePageTitle('Coach'));
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => {
+      coreActions.handleError(store, error);
+    }
   );
 }
 
-
-
-
-
-
-
-
-
-// - - - -  - - - - - legacy code, try to reuse - - - - - - - - -  -
+function createGroup(store, classId, groupName) {
+  const groupPayload = {
+    parent: classId,
+    name: groupName,
+  };
+  return new Promise((resolve, reject) => {
+    LearnerGroupResource.createModel(groupPayload).save().then(
+      group => {
+        store.dispatch('ADD_GROUP', group);
+      },
+      error => reject(error)
+    );
+  });
+}
 
 
 function showCoachRoot(store) {
@@ -382,6 +398,11 @@ function showContentUnavailable(store) {
   store.dispatch('CORE_SET_TITLE', 'Content Unavailable');
 }
 
+function displayModal(store, modalName) {
+  store.dispatch('SET_MODAL', modalName);
+}
+
+
 module.exports = {
   showClassListPage,
   showRecentPage,
@@ -389,9 +410,8 @@ module.exports = {
   showExamsPage,
   showLearnersPage,
   showGroupsPage,
-
-
-
+  createGroup,
+  displayModal,
   showCoachRoot,
   redirectToChannelReport,
   redirectToDefaultReport,
