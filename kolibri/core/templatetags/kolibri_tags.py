@@ -72,13 +72,14 @@ def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
             return ''
     response, kwargs, url_params = _kolibri_bootstrap_helper(context, base_name, api_resource, 'list', **kwargs)
     html = ("<script type='text/javascript'>"
-            "var collection = {0}.resources.{1}.createCollection({2}, JSON.parse({3}), {4});"
+            "var collection = {0}.resources.{1}.createCollection({2}, {3}, JSON.parse({4}));"
             "collection.synced = true;"
             "</script>".format(settings.KOLIBRI_CORE_JS_NAME,
                                api_resource,
+                               json.dumps(url_params),
                                json.dumps(kwargs),
                                JSONRenderer().render(response.content.decode('utf-8')).decode('utf-8'),
-                               json.dumps(url_params)))
+                               ))
     return mark_safe(html)
 
 def _replace_dict_values(check, replace, dict):

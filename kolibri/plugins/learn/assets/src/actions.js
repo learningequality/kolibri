@@ -134,8 +134,10 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
     store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_TOPIC);
   }
 
-  const topicPromise = ContentNodeResource.getModel(id).fetch();
-  const childrenPromise = ContentNodeResource.getCollection({ parent: id }).fetch();
+  const channelPayload = { channel_id: channelId };
+  const topicPromise = ContentNodeResource.getModel(id, channelPayload).fetch();
+  const childrenPromise = ContentNodeResource.getCollection(
+    channelPayload, { parent: id }).fetch();
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
   ConditionalPromise.all([topicPromise, childrenPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
@@ -232,16 +234,16 @@ function showLearnChannel(store, channelId, page = 1) {
       const allPayload = { kind: 'content' };
       const channelPayload = { channel_id: channelId };
       const nextStepsPromise = ContentNodeResource.getCollection(
-        nextStepsPayload, channelPayload).fetch();
+        channelPayload, nextStepsPayload).fetch();
       const popularPromise = ContentNodeResource.getCollection(
-        popularPayload, channelPayload).fetch();
+        channelPayload, popularPayload).fetch();
       const resumePromise = ContentNodeResource.getCollection(
-        resumePayload, channelPayload).fetch();
+        channelPayload, resumePayload).fetch();
       const allContentResource = ContentNodeResource.getPagedCollection(
+        channelPayload,
         allPayload,
         ALL_PAGE_SIZE,
-        page,
-        channelPayload
+        page
       );
       const allPromise = allContentResource.fetch();
       ConditionalPromise.all(
@@ -271,7 +273,7 @@ function showLearnChannel(store, channelId, page = 1) {
           // preload next page
           if (allContentResource.hasNext) {
             ContentNodeResource.getPagedCollection(
-              allPayload, ALL_PAGE_SIZE, page + 1, channelPayload).fetch();
+              channelPayload, allPayload, ALL_PAGE_SIZE, page + 1).fetch();
           }
         },
         error => { coreActions.handleApiError(store, error); }
@@ -285,8 +287,10 @@ function showLearnChannel(store, channelId, page = 1) {
 function showLearnContent(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.LEARN_CONTENT);
-  const contentPromise = ContentNodeResource.getModel(id).fetch();
-  const recommendedPromise = ContentNodeResource.getCollection({ recommendations_for: id }).fetch();
+  const channelPayload = { channel_id: channelId };
+  const contentPromise = ContentNodeResource.getModel(id, channelPayload).fetch();
+  const recommendedPromise = ContentNodeResource.getCollection(
+    channelPayload, { recommendations_for: id }).fetch();
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
   ConditionalPromise.all([contentPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
@@ -322,7 +326,7 @@ function showLearnContent(store, channelId, id) {
 }
 
 
-function triggerSearch(store, searchTerm) {
+function triggerSearch(store, channelId, searchTerm) {
   if (!searchTerm) {
     const searchState = {
       searchTerm,
@@ -333,7 +337,8 @@ function triggerSearch(store, searchTerm) {
     return;
   }
 
-  const contentCollection = ContentNodeResource.getPagedCollection({ search: searchTerm });
+  const contentCollection = ContentNodeResource.getPagedCollection(
+    { channel_id: channelId }, { search: searchTerm });
   const searchResultsPromise = contentCollection.fetch();
 
   searchResultsPromise.then((results) => {
@@ -404,7 +409,7 @@ function showSearch(store, channelId, searchTerm) {
   coreActions.setChannelInfo(store, channelId).then(
     () => {
       if (searchTerm) {
-        triggerSearch(store, searchTerm);
+        triggerSearch(store, channelId, searchTerm);
       } else {
         store.dispatch('CORE_SET_PAGE_LOADING', false);
       }

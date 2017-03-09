@@ -7,7 +7,7 @@ class ContentNodeResource extends Resource {
   static idKey() {
     return 'pk';
   }
-  static urlParameters() {
+  static resourceIdentifiers() {
     return [
       'channel_id',
     ];

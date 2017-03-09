@@ -63,7 +63,6 @@
 
 <script>
 
-  const actions = require('../../actions');
   const constants = require('../../state/constants');
   const getCurrentChannelObject = require('kolibri.coreVue.vuex.getters').getCurrentChannelObject;
 
@@ -134,9 +133,6 @@
         searchTerm: state => state.pageState.searchTerm,
         channelId: (state) => state.core.channels.currentId,
         channelName: state => getCurrentChannelObject(state).title,
-      },
-      actions: {
-        triggerSearch: actions.triggerSearch,
       },
     },
   };
