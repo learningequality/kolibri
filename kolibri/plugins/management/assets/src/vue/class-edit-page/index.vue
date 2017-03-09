@@ -2,22 +2,27 @@
 
   <div class="user-roster">
 
+    <!-- Modals -->
+    <class-rename-modal
+      v-if="showEditNameModal"
+      :classname="currClass.name"
+      :classid="currClass.id"
+    />
+
+    <div id="name-edit-box" @click="openEditNameModal">
+      <div id="edit-name" class="name-edit">{{currClass.name}}</div>
+      <mat-svg id="edit-icon" class="name-edit" category="image" name="edit" aria-hidden="true"/>
+    </div>
+
+    <hr>
+
     <div class="header">
       <h1>
-        {{$tr('allUsers')}}
+        {{$tr('tableTitle')}}
       </h1>
-      <span> ( {{ visibleUsers.length }} )</span>
     </div>
 
     <div class="toolbar">
-      <label for="type-filter" class="visuallyhidden">{{$tr('filterUserType')}}</label>
-      <select v-model="roleFilter" id="type-filter" name="type-filter">
-        <option value="all"> {{$tr('allUsers')}} </option>
-        <option :value="ADMIN"> {{$tr('admins')}}</option>
-        <option :value="COACH"> {{$tr('coaches')}} </option>
-        <option :value="LEARNER"> {{$tr('learners')}} </option>
-      </select>
-
       <div class="searchbar" role="search">
         <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
         <input
@@ -28,14 +33,13 @@
           :placeholder="$tr('searchText')">
       </div>
 
-      <div class="create">
-        <icon-button
-          @click="openCreateUserModal"
-          class="create-user-button"
-          :text="$tr('addNew')"
-          :primary="true">
-          <mat-svg class="add-user" category="social" name="person_add"/>
-        </icon-button>
+      <div class="enroll">
+        <router-link :to="classEnrollLink" class="table-name">
+          <icon-button
+          class="enroll-user-button"
+          :text="$tr('enrollUsers')"
+          :primary="true"/>
+        </router-link>
       </div>
 
     </div>
@@ -43,15 +47,13 @@
     <hr>
 
     <!-- Modals -->
-    <user-edit-modal
-      v-if="showEditUserModal"
-      :userid="currentUserEdit.id"
-      :fullname="currentUserEdit.full_name"
-      :username="currentUserEdit.username"
-      :userkind="currentUserEdit.kind"
+    <user-remove-modal
+      v-if="showRemoveUserModal"
+      :classname="currClass.name"
+      :classid="currClass.id"
+      :username="currentUserRemove.username"
+      :userid="currentUserRemove.id"
     />
-    <user-create-modal
-      v-if="showCreateUserModal"/>
 
     <table class="roster">
 
@@ -61,13 +63,9 @@
       <thead v-if="usersMatchFilter">
         <tr>
           <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
-          <th class="col-header" scope="col">
-            <span class="role-header" aria-hidden="true">
-              {{$tr('kind')}}
-            </span>
-          </th>
           <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
-          <th class="col-header" scope="col"> {{$tr('edit')}} </th>
+          <th class="col-header" scope="col"> {{$tr('role')}} </th>
+          <th class="col-header" scope="col"></th>
         </tr>
       </thead>
 
@@ -75,30 +73,29 @@
       <tbody v-if="usersMatchFilter">
         <tr v-for="user in visibleUsers">
           <!-- Full Name field -->
-          <th scope="row" class="table-cell">
+          <th scope="row" class="table-cell full-name">
             <span class="table-name">
               {{user.full_name}}
             </span>
           </th>
-
-          <!-- Logic for role tags -->
-          <td class="table-cell table-role">
-            <span v-if="user.kind !== LEARNER" class="user-role">
-              {{ user.kind === ADMIN ? $tr('admin') : $tr('coach') }}
-            </span>
-          </td>
 
           <!-- Username field -->
           <td class="table-cell table-username">
             {{user.username}}
           </td>
 
+          <!-- Logic for role tags -->
+          <td class="table-cell table-role">
+            <span class="user-role">
+              {{ user.kind === LEARNER ? $tr('learner') : $tr('coach') }}
+            </span>
+          </td>
+
           <!-- Edit field -->
           <td class="table-cell">
-            <icon-button class="edit-user-button" @click="openEditUserModal(user)">
-              <span class="visuallyhidden">$tr('editAccountInfo')</span>
-              <mat-svg category="editor" name="mode_edit"/>
-            </icon-button>
+            <div class="remove-user-btn" @click="openRemoveUserModal(user)">
+              {{$tr('remove')}}
+            </div>
           </td>
 
         </tr>
@@ -117,25 +114,45 @@
 <script>
 
   const constants = require('../../state/constants');
-  const actions = require('../../actions');
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
+  const actions = require('../../actions');
 
   module.exports = {
+    $trNameSpace: 'classEnrollPage',
+    $trs: {
+      enrollUsers: 'Enroll Users',
+      tableTitle: 'Manage Learners and Coaches',
+      searchText: 'Find a learner or coach...',
+      users: 'Users',
+      // table info
+      fullName: 'Full Name',
+      username: 'Username',
+      role: 'Role',
+      learner: 'Learner',
+      coach: 'Coach',
+      remove: 'Remove',
+      // search-related error messages
+      noUsersExist: 'No Users Exist.',
+      allUsersFilteredOut: 'No users match the filter.',
+    },
     components: {
-      'user-create-modal': require('./user-create-modal'),
-      'user-edit-modal': require('./user-edit-modal'),
+      'class-rename-modal': require('./class-rename-modal'),
+      'user-remove-modal': require('./user-remove-modal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
-    // Has to be a funcion due to vue's treatment of data
     data: () => ({
-      roleFilter: 'all',
       searchFilter: '',
-      currentUserEdit: null,
+      currentUserRemove: null,
     }),
     computed: {
       LEARNER: () => UserKinds.LEARNER,
       COACH: () => UserKinds.COACH,
-      ADMIN: () => UserKinds.ADMIN,
+      classEnrollLink() {
+        return {
+          name: constants.PageNames.CLASS_ENROLL_MGMT_PAGE,
+          params: { classId: this.currClass.id },
+        };
+      },
       noUsersExist() {
         return this.users.length === 0;
       },
@@ -147,7 +164,6 @@
       },
       visibleUsers() {
         const searchFilter = this.searchFilter;
-        const roleFilter = this.roleFilter;
 
         function matchesText(user) {
           const searchTerms = searchFilter
@@ -161,68 +177,35 @@
           return searchTerms.every(term => fullName.includes(term) || username.includes(term));
         }
 
-        function matchesRole(user) {
-          if (roleFilter === 'all') {
-            return true;
-          }
-          return user.kind === roleFilter;
-        }
-
         return this.users
-          .filter(user => matchesText(user) && matchesRole(user))
+          .filter(user => matchesText(user))
           .sort((user1, user2) => user1.username.localeCompare(user2.username));
       },
-      showEditUserModal() {
-        return this.modalShown === constants.Modals.EDIT_USER;
+      showEditNameModal() {
+        return this.modalShown === constants.Modals.EDIT_CLASS_NAME;
       },
-      showCreateUserModal() {
-        return this.modalShown === constants.Modals.CREATE_USER;
+      showRemoveUserModal() {
+        return this.modalShown === constants.Modals.REMOVE_USER;
       },
     },
     methods: {
-      openEditUserModal(user) {
-        this.currentUserEdit = user;
-        this.displayModal(constants.Modals.EDIT_USER);
+      openEditNameModal() {
+        this.displayModal(constants.Modals.EDIT_CLASS_NAME);
       },
-      openCreateUserModal() {
-        this.displayModal(constants.Modals.CREATE_USER);
+      openRemoveUserModal(user) {
+        this.currentUserRemove = user;
+        this.displayModal(constants.Modals.REMOVE_USER);
       },
     },
     vuex: {
       getters: {
-        users: state => state.pageState.facilityUsers,
         modalShown: state => state.pageState.modalShown,
+        users: state => state.pageState.classUsers,
+        currClass: state => state.pageState.classes[0], // alway only one item in this array.
       },
       actions: {
-        deleteUser: actions.deleteUser,
         displayModal: actions.displayModal,
       },
-    },
-    $trNameSpace: 'userPage',
-    $trs: {
-      // input & accessibility labels
-      filterUserType: 'Filter User Type',
-      editAccountInfo: 'Edit Account Information',
-      searchText: 'Search for a user...',
-      // filter select entries
-      allUsers: 'All Users',
-      admins: 'Admins',
-      coaches: 'Coaches',
-      learners: 'Learners',
-      // edit button text
-      addNew: 'Add New',
-      // user tags
-      admin: 'Admin',
-      coach: 'Coach',
-      // table info
-      fullName: 'Full Name',
-      users: 'Users',
-      kind: 'Kind',
-      username: 'Username',
-      edit: 'Edit',
-      // search-related error messages
-      noUsersExist: 'No Users Exist.',
-      allUsersFilteredOut: 'No users match the filter.',
     },
   };
 
@@ -238,13 +221,29 @@
   // height of elements in toolbar,  based off of icon-button height
   $toolbar-height = 36px
 
+  #name-edit-box
+    display: inline-block
+    cursor: pointer
+
+  .name-edit
+    float: left
+
+  #edit-name
+    font-size: 1.4em
+
+  #edit-icon
+    fill: $core-action-normal
+    margin-left: 5px
+
   .toolbar:after
     content: ''
     display: table
     clear: both
 
-  // Toolbar Styling
-  .create
+  .enroll-user-button
+    width: 100%
+
+  .enroll
     float: right
 
   input[type='search']
@@ -259,13 +258,6 @@
     background-color: transparent
     clear: both
 
-  #type-filter
-    float: left
-    background-color: $core-bg-light
-    border-color: $core-action-light
-    height: $toolbar-height
-    cursor: pointer
-
   .header h1
     display: inline-block
 
@@ -277,12 +269,29 @@
   tr
     text-align: left
 
+  tbody tr:nth-child(odd)
+    background-color: $core-bg-canvas
+
+  .full-name
+    padding-left: 5px
+
   .roster
     width: 100%
     word-break: break-all
 
   th
     text-align: inherit
+
+  th, td
+    vertical-align: middle
+
+  .remove-user-btn
+    color: $core-action-normal
+    font-weight: bold
+    width: 90px
+    padding: 8px
+    cursor: pointer
+    margin-right: 4px
 
   .col-header
     padding-bottom: (1.2 * $row-padding)
@@ -292,8 +301,6 @@
     width: 30%
 
   .table-cell
-    font-weight: normal // compensates for <th> cells
-    padding-bottom: $row-padding
     color: $core-text-default
 
   .user-role
@@ -324,18 +331,6 @@
     float: left
     margin-left: 5px
 
-  .edit-user-button
-    border: none
-    svg
-      fill: $core-action-normal
-      cursor: pointer
-      &:hover
-        fill: $core-action-dark
-
-  .create-user-button
-    width: 100%
-
-
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar
       font-size: 0.9em
@@ -351,9 +346,6 @@
     display: inline-block
     padding-right: 1em
 
-  .role-header
-    display: none
-
   @media print
     .toolbar
       display: none
@@ -362,7 +354,7 @@
 
   // TODO temporary fix until remove width calculation from learn
   @media screen and (max-width: 840px)
-    .create, #type-filter
+    .create
       box-sizing: border-box
       width: 49%
     .create

@@ -170,12 +170,13 @@
         this.confirmationMessage = '';
       },
       close() {
-        this.$emit('close'); // signal parent to close
+        this.displayModal(false);
       },
     },
     vuex: {
       actions: {
         createUser: actions.createUser,
+        displayModal: actions.displayModal,
       },
     },
   };

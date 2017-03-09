@@ -35,6 +35,9 @@
     },
     components: {
       'top-nav': require('./top-nav'),
+      'manage-class-page': require('./manage-class-page'),
+      'class-edit-page': require('./class-edit-page'),
+      'class-enroll-page': require('./class-enroll-page'),
       'user-page': require('./user-page'),
       'data-page': require('./data-page'),
       'manage-content-page': require('./manage-content-page'),
@@ -44,6 +47,15 @@
     computed: {
       topLevelPageName: () => TopLevelPageNames.MANAGE,
       currentPage() {
+        if (this.pageName === PageNames.CLASS_MGMT_PAGE) {
+          return 'manage-class-page';
+        }
+        if (this.pageName === PageNames.CLASS_EDIT_MGMT_PAGE) {
+          return 'class-edit-page';
+        }
+        if (this.pageName === PageNames.CLASS_ENROLL_MGMT_PAGE) {
+          return 'class-enroll-page';
+        }
         if (this.pageName === PageNames.USER_MGMT_PAGE) {
           return 'user-page';
         }

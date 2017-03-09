@@ -2,6 +2,9 @@
 
   <div class="top">
     <div class="links">
+      <router-link :to="classesLink" :class="{active: classesActive}" @click.native="blur">
+        {{$tr('classes')}}
+      </router-link>
       <router-link :to="usersLink" :class="{active: usersActive}" @click.native="blur">
         {{$tr('users')}}
       </router-link>
@@ -25,6 +28,7 @@
   module.exports = {
     $trNameSpace: 'top-nav',
     $trs: {
+      classes: 'Classes',
       users: 'Users',
       content: 'Content',
       data: 'Data',
@@ -35,6 +39,16 @@
       },
     },
     computed: {
+      classesLink() {
+        return { name: constants.PageNames.CLASS_MGMT_PAGE };
+      },
+      classesActive() {
+        return [
+          constants.PageNames.CLASS_MGMT_PAGE,
+          constants.PageNames.CLASS_EDIT_MGMT_PAGE,
+          constants.PageNames.CLASS_ENROLL_MGMT_PAGE,
+        ].includes(this.pageName);
+      },
       usersLink() {
         return { name: constants.PageNames.USER_MGMT_PAGE };
       },
