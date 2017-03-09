@@ -49,7 +49,6 @@ function showClassListPage(store) {
   classCollection.fetch().then(
     (classes) => {
       const pageState = {
-        // classes: classes.map(_classState),
         classes,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -72,30 +71,6 @@ function showRecentPage(store, params) {
   classCollection.fetch().then(
     (classes) => {
       const pageState = {
-        // classes: classes.map(_classState),
-        classes,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Coach'));
-    },
-    error => { coreActions.handleApiError(store, error); }
-  );
-}
-
-
-// ================================
-// TOPICS ACTIONS
-
-function showTopicsPage(store, params) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_TOPICS_PAGE);
-  const classCollection = ClassroomResource.getCollection();
-  classCollection.fetch().then(
-    (classes) => {
-      const pageState = {
-        // classes: classes.map(_classState),
         classes,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -118,30 +93,6 @@ function showExamsPage(store, params) {
   classCollection.fetch().then(
     (classes) => {
       const pageState = {
-        // classes: classes.map(_classState),
-        classes,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Coach'));
-    },
-    error => { coreActions.handleApiError(store, error); }
-  );
-}
-
-
-// ================================
-// LEARNERS ACTIONS
-
-function showLearnersPage(store, params) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_LEARNERS_PAGE);
-  const classCollection = ClassroomResource.getCollection();
-  classCollection.fetch().then(
-    (classes) => {
-      const pageState = {
-        // classes: classes.map(_classState),
         classes,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -468,13 +419,10 @@ function displayModal(store, modalName) {
   store.dispatch('SET_MODAL', modalName);
 }
 
-
 module.exports = {
   showClassListPage,
   showRecentPage,
-  showTopicsPage,
   showExamsPage,
-  showLearnersPage,
   showGroupsPage,
   createGroup,
   renameGroup,

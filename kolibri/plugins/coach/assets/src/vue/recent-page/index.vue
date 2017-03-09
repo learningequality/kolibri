@@ -51,6 +51,8 @@
 
 <script>
 
+  const Constants = require('../../state/constants');
+
   module.exports = {
     $trNameSpace: 'coachRecentPage',
     $trs: {
@@ -69,8 +71,8 @@
     methods: {
       contentLearnersPageLink(id) {
         return {
-          name: constants.PageNames.COACH_CONTENT_LEARNERS_PAGE,
-          params: { id },
+          name: Constants.PageNames.COACH_LEARNERS_PAGE,
+          params: { id }, //WIP
         };
       },
     },
