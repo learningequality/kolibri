@@ -44,16 +44,14 @@
 
     <!-- Modals -->
     <user-edit-modal
-      v-if="editingUser"
+      v-if="showEditUserModal"
       :userid="currentUserEdit.id"
       :fullname="currentUserEdit.full_name"
       :username="currentUserEdit.username"
       :userkind="currentUserEdit.kind"
-      @close="closeEditUserModal"
     />
     <user-create-modal
-      v-if="creatingUser"
-      @close="closeCreateUserModal"/>
+      v-if="showCreateUserModal"/>
 
     <table class="roster">
 
@@ -118,6 +116,7 @@
 
 <script>
 
+  const constants = require('../../state/constants');
   const actions = require('../../actions');
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
@@ -131,8 +130,6 @@
     data: () => ({
       roleFilter: 'all',
       searchFilter: '',
-      creatingUser: false,
-      editingUser: false,
       currentUserEdit: null,
     }),
     computed: {
@@ -175,29 +172,30 @@
           .filter(user => matchesText(user) && matchesRole(user))
           .sort((user1, user2) => user1.username.localeCompare(user2.username));
       },
+      showEditUserModal() {
+        return this.modalShown === constants.Modals.EDIT_USER;
+      },
+      showCreateUserModal() {
+        return this.modalShown === constants.Modals.CREATE_USER;
+      },
     },
     methods: {
       openEditUserModal(user) {
         this.currentUserEdit = user;
-        this.editingUser = true;
-      },
-      closeEditUserModal() {
-        this.editingUser = false;
-        this.currentUserEdit = {};
+        this.displayModal(constants.Modals.EDIT_USER);
       },
       openCreateUserModal() {
-        this.creatingUser = true;
-      },
-      closeCreateUserModal() {
-        this.creatingUser = false;
+        this.displayModal(constants.Modals.CREATE_USER);
       },
     },
     vuex: {
       getters: {
-        users: state => state.pageState.users,
+        users: state => state.pageState.facilityUsers,
+        modalShown: state => state.pageState.modalShown,
       },
       actions: {
         deleteUser: actions.deleteUser,
+        displayModal: actions.displayModal,
       },
     },
     $trNameSpace: 'userPage',
