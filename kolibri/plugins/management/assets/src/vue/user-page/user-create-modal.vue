@@ -6,28 +6,42 @@
     @enter="createNewUser"
     @cancel="close"
   >
-    <div>
+    <form @submit.prevent="createNewUser">
       <!-- Fields for the user to fill out -->
       <section class="user-fields">
-        <div class="user-field">
-          <label for="name">{{$tr('name')}}</label>
-          <input @focus="clearStatus" type="text" class="add-form" id="name" autocomplete="name"  autofocus="true" required v-model="full_name">
-        </div>
-
-        <div class="user-field">
-          <label for="username">{{$tr('username')}}</label>
-          <input @focus="clearStatus" type="text" class="add-form" autocomplete="username" id="username" required v-model="username">
-        </div>
-
-        <div class="user-field">
-          <label for="password">{{$tr('password')}}</label>
-          <input @focus="clearStatus" type="password" class="add-form" id="password" required v-model="password">
-        </div>
-
-        <div class="user-field">
-          <label for="confirm-password">{{$tr('confirmPassword')}}</label>
-          <input @focus="clearStatus" type="password" class="add-form" id="confirm-password" required v-model="passwordConfirm">
-        </div>
+        <core-textbox
+          :label="$tr('name')"
+          :autofocus="true"
+          @focus="clearStatus"
+          type="text"
+          class="user-field"
+          autocomplete="name"
+          required
+          v-model="fullName"/>
+        <core-textbox
+          :label="$tr('username')"
+          @focus="clearStatus"
+          type="text"
+          class="user-field"
+          autocomplete="username"
+          required
+          v-model="username"/>
+        <core-textbox
+          :label="$tr('password')"
+          @focus="clearStatus"
+          type="password"
+          class="user-field"
+          autocomplete="password"
+          required
+          v-model="password"/>
+        <core-textbox
+          :label="$tr('confirmPassword')"
+          @focus="clearStatus"
+          type="password"
+          class="user-field"
+          autocomplete="password"
+          required
+          v-model="passwordConfirm"/>
 
         <div class="user-field">
           <label for="user-kind"><span class="visuallyhidden">{{$tr('userKind')}}</span></label>
@@ -45,11 +59,10 @@
         <icon-button
           class="create-btn"
           :text="$tr('createAccount')"
-          @click="createNewUser"
           :primary="true"
         />
       </section>
-    </div>
+    </form>
   </core-modal>
 
 </template>
@@ -86,13 +99,14 @@
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'core-textbox': require('kolibri.coreVue.components.textbox'),
     },
     data() {
       return {
         username: '',
         password: '',
         passwordConfirm: '',
-        full_name: '',
+        fullName: '',
         kind: UserKinds.LEARNER,
         errorMessage: '',
         confirmationMessage: '',
@@ -119,12 +133,12 @@
       createNewUser() {
         const newUser = {
           username: this.username,
-          full_name: this.full_name,
+          full_name: this.fullName,
           kind: this.kind,
         };
 
         // check for all fields populated
-        if (!(this.username && this.password && this.full_name && this.kind)) {
+        if (!(this.username && this.password && this.fullName && this.kind)) {
           this.errorMessage = this.$tr('emptyFieldError');
         // check for password confirmation match
         } else if (!(this.password === this.passwordConfirm)) {
@@ -178,32 +192,12 @@
   $button-content-size = 1em
 
   .user-field
-    padding-bottom: 5%
-    input
-      width: 100%
-      height: 40px
-      font-weight: bold
-    label
-      position: relative
-      cursor: pointer
+    margin-bottom: 5%
     select
       width: 100%
       height: 40px
       font-weight: bold
       background-color: transparent
-
-  .add-form
-    width: 300px
-    margin: 0 auto
-    display: block
-    padding: 5px 10px
-    letter-spacing: 0.08em
-    border: none
-    border-bottom: 1px solid $core-text-default
-    height: 30px
-    &:focus
-      outline: none
-      border-bottom: 3px solid $core-action-normal
 
   .header
     text-align: center
