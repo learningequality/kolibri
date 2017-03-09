@@ -35,11 +35,11 @@
       <!-- Table Headers -->
       <thead>
         <tr>
-          <th class="col-header" scope="col"> {{$tr('className')}} </th>
+          <th class="col-header" :class="{'col-header-mobile': elSize.width > 800}" scope="col"> {{$tr('className')}} </th>
           <div class="status-group">
-            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('learners')}} </th>
-            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('coaches')}} </th>
-            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('admins')}} </th>
+            <th v-if="elSize.width > 600" class="col-header status-header" scope="col"> {{$tr('learners')}} </th>
+            <th v-if="elSize.width > 600" class="col-header status-header" scope="col"> {{$tr('coaches')}} </th>
+            <th v-if="elSize.width > 600" class="col-header status-header" scope="col"> {{$tr('admins')}} </th>
           </div>
         </tr>
       </thead>
@@ -49,24 +49,24 @@
         <tr v-for="classModel in classes">
           <!-- Class Name field -->
           <th scope="row" class="table-cell">
-            <router-link :to="classEditLink(classModel.id)" class="table-name">
+            <router-link :to="classEditLink(classModel.id)" class="table-name" :class="{'table-name-mobile': elSize.width < 600}">
               {{classModel.name}}
             </router-link>
           </th>
 
-          <div class="status-group">
+          <div v-if="elSize.width > 600" class="status-group">
             <!-- Learners field -->
-            <td class="table-cell hide-on-mobile status-body">
+            <td class="table-cell status-body">
               {{classModel.learner_count}}
             </td>
 
             <!-- Coaches field -->
-            <td class="table-cell hide-on-mobile status-body">
+            <td class="table-cell status-body">
               {{classModel.coach_count}}
             </td>
 
             <!-- Admins field -->
-            <td class="table-cell hide-on-mobile status-body">
+            <td class="table-cell status-body">
               {{classModel.admin_count}}
             </td>
           </div>
@@ -94,6 +94,7 @@
 
   const constants = require('../../state/constants');
   const actions = require('../../actions');
+  const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
 
   module.exports = {
     components: {
@@ -101,6 +102,7 @@
       'class-delete-modal': require('./class-delete-modal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
+    mixins: [responsiveElement],
     // Has to be a funcion due to vue's treatment of data
     data: () => ({
       currentClassDelete: null,
@@ -178,6 +180,7 @@
 
   .status-body
     padding-top: 0.5em
+    width: 50px
 
   .create
     float: right
@@ -220,6 +223,9 @@
     font-size: 80%
     width: 28%
 
+  .col-header-mobile
+    width: 50%
+
   .table-cell
     font-weight: normal // compensates for <th> cells
     padding-bottom: $row-padding
@@ -244,28 +250,17 @@
     padding-right: 1em
     font-weight: bold
 
+  .table-name-mobile
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+    width: 100px
+
   .role-header
     display: none
 
   @media print
     .class-roster
       width: 500px
-
-  // TODO temporary fix until remove width calculation from learn
-  @media screen and (max-width: 840px)
-    .create
-      box-sizing: border-box
-      width: 49%
-    .create
-      margin-top: -78px
-    .hide-on-mobile
-      display: none
-    .table-name
-      overflow: hidden
-      text-overflow: ellipsis
-      white-space: nowrap
-      width: 100px
-    .col-header
-      width: 50%
 
 </style>
