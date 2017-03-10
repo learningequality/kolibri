@@ -37,6 +37,9 @@ module.exports = {
       conditionalPromise: {
         module: require('../conditionalPromise'),
       },
+      apiResource: {
+        module: require('../api-resource'),
+      },
     },
     coreVue: {
       vuex: {

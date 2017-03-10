@@ -139,8 +139,8 @@ describe('Resource', function () {
       assert.ok(this.resource.getModel('test') instanceof Resources.Model);
     });
     it('should return an existing model from the cache', function () {
-      const testModel = new Resources.Model(this.modelData, this.resource);
-      this.resource.models.test = testModel;
+      const testModel = new Resources.Model(this.modelData, {}, this.resource);
+      this.resource.addModel(testModel);
       assert.equal(this.resource.getModel('test'), testModel);
     });
     it('should call create model if the model is not in the cache', function () {
@@ -170,22 +170,22 @@ describe('Resource', function () {
     });
     it('should not call createModel if passed a Model', function () {
       const spy = sinon.spy(this.resource, 'createModel');
-      this.resource.addModel(new Resources.Model(this.modelData, this.resource));
+      this.resource.addModel(new Resources.Model(this.modelData, {}, this.resource));
       assert.ok(!spy.called);
     });
     it('should not add a model to the cache if no id', function () {
-      this.resource.addModel(new Resources.Model({ data: 'data' }, this.resource));
+      this.resource.addModel(new Resources.Model({ data: 'data' }, {}, this.resource));
       assert.deepEqual({}, this.resource.models);
     });
     it('should add a model to the cache if it has an id', function () {
-      const model = this.resource.addModel(new Resources.Model({ id: 'test' }, this.resource));
-      assert.deepEqual({ test: model }, this.resource.models);
+      const model = this.resource.addModel(new Resources.Model({ id: 'test' }, {}, this.resource));
+      assert.equal(model, this.resource.models[Object.keys(this.resource.models)[0]]);
     });
     it('should update the model in the cache if a model with matching id is found', function () {
-      const model = new Resources.Model({ id: 'test' }, this.resource);
-      this.resource.models.test = model;
-      this.resource.addModel(new Resources.Model({ id: 'test', example: 'prop' }, this.resource));
-      assert.deepEqual({ test: model }, this.resource.models);
+      const model = new Resources.Model({ id: 'test' }, {}, this.resource);
+      this.resource.addModel(model);
+      this.resource.addModel(new Resources.Model({ id: 'test', example: 'prop' }, {}, this.resource));
+      assert.equal(1, Object.keys(this.resource.models).length);
       assert.equal(model.attributes.example, 'prop');
     });
   });
@@ -226,7 +226,7 @@ describe('Resource', function () {
       assert.ok(this.resource.getCollection({}) instanceof Resources.Collection);
     });
     it('should return an existing collection from the cache', function () {
-      const testCollection = new Resources.Collection({}, [], this.resource);
+      const testCollection = new Resources.Collection({}, {}, [], this.resource);
       this.resource.collections['{}'] = testCollection;
       assert.equal(this.resource.getCollection({}), testCollection);
     });
@@ -241,8 +241,28 @@ describe('Resource', function () {
       assert.ok(this.resource.createCollection({}) instanceof Resources.Collection);
     });
     it('should add the collection to the cache', function () {
-      const collection = this.resource.createCollection({});
-      assert.equal(this.resource.collections[collection.key], collection);
+      this.resource.createCollection({});
+      assert.equal(Object.keys(this.resource.collections).length, 1);
+    });
+  });
+  describe('filterAndCheckResourceIds method', function () {
+    it('should return an empty object when there are no resourceIds', function () {
+      assert.deepEqual(this.resource.filterAndCheckResourceIds({ test: 'test' }), {});
+    });
+    it('should throw a TypeError when resourceIds are missing', function () {
+      const stub = sinon.stub(Resources.Resource, 'resourceIdentifiers');
+      stub.returns(['thisisatest']);
+      assert.throws(() => this.resource.filterAndCheckResourceIds({ test: 'test' }));
+      stub.restore();
+    });
+    it('should return an object with only resourceIds', function () {
+      const stub = sinon.stub(Resources.Resource, 'resourceIdentifiers');
+      stub.returns(['thisisatest']);
+      const filtered = this.resource.filterAndCheckResourceIds(
+        { test: 'test', thisisatest: 'testtest' });
+      assert.equal(Object.keys(filtered).length, 1);
+      assert.equal(filtered.thisisatest, 'testtest');
+      stub.restore();
     });
   });
 });
@@ -254,10 +274,14 @@ describe('Collection', function () {
       addModel: this.addModelStub,
       collectionUrl: () => '',
       client: () => Promise.resolve({ entity: [] }),
+      filterAndCheckResourceIds: (params) => params,
+      resourceIds: [],
     };
+    this.resourceIds = {};
     this.params = {};
     this.data = [{ test: 'test', id: 'testing' }];
-    this.collection = new Resources.Collection(this.params, this.data, this.resource);
+    this.collection = new Resources.Collection(
+      this.resourceIds, this.params, this.data, this.resource);
   });
   afterEach(function () {
     delete this.resource;
@@ -269,9 +293,9 @@ describe('Collection', function () {
         assert.equal(this.resource, this.collection.resource);
       });
     });
-    describe('params property', function () {
+    describe('getParams property', function () {
       it('should be the passed in params', function () {
-        assert.equal(this.params, this.collection.params);
+        assert.equal(this.params, this.collection.getParams);
       });
     });
     describe('models property', function () {
@@ -303,20 +327,23 @@ describe('Collection', function () {
   describe('constructor method', function () {
     describe('if resource is undefined', function () {
       it('should throw a TypeError', function () {
-        assert.throws(() => new Resources.Collection(this.params, this.data), TypeError);
+        assert.throws(() => new Resources.Collection(
+          this.resourceIds, this.params, this.data), TypeError);
       });
     });
     describe('if data is passed in', function () {
       it('should call the set method once', function () {
         const spy = sinon.spy(Resources.Collection.prototype, 'set');
-        const testCollection = new Resources.Collection(this.params, this.data, this.resource);
+        const testCollection = new Resources.Collection(
+          this.resourceIds, this.params, this.data, this.resource);
         assert.ok(testCollection);
         assert.ok(spy.calledOnce);
         Resources.Collection.prototype.set.restore();
       });
       it('should call the set method with the data', function () {
         const spy = sinon.spy(Resources.Collection.prototype, 'set');
-        const testCollection = new Resources.Collection(this.params, this.data, this.resource);
+        const testCollection = new Resources.Collection(
+          this.resourceIds, this.params, this.data, this.resource);
         assert.ok(testCollection);
         assert.ok(spy.calledWithExactly(this.data));
         Resources.Collection.prototype.set.restore();
@@ -325,14 +352,16 @@ describe('Collection', function () {
     describe('if no data is passed in', function () {
       it('should call the set method once', function () {
         const spy = sinon.spy(Resources.Collection.prototype, 'set');
-        const testCollection = new Resources.Collection(this.params, undefined, this.resource);
+        const testCollection = new Resources.Collection(
+          this.resourceIds, this.params, undefined, this.resource);
         assert.ok(testCollection);
         assert.ok(spy.calledOnce);
         Resources.Collection.prototype.set.restore();
       });
       it('should call the set method with an empty array', function () {
         const spy = sinon.spy(Resources.Collection.prototype, 'set');
-        const testCollection = new Resources.Collection(this.params, undefined, this.resource);
+        const testCollection = new Resources.Collection(
+          this.resourceIds, this.params, undefined, this.resource);
         assert.ok(testCollection);
         assert.ok(spy.calledWithExactly([]));
         Resources.Collection.prototype.set.restore();
@@ -653,9 +682,12 @@ describe('Model', function () {
       idKey: 'id',
       client: () => Promise.resolve({ entity: {} }),
       removeModel: () => {},
+      filterAndCheckResourceIds: (params) => params,
+      resourceIds: [],
     };
+    this.resourceIds = {};
     this.data = { test: 'test', id: 'testing' };
-    this.model = new Resources.Model(this.data, this.resource);
+    this.model = new Resources.Model(this.data, this.resourceIds, this.resource);
   });
   afterEach(function () {
     delete this.resource;
@@ -686,20 +718,20 @@ describe('Model', function () {
   describe('constructor method', function () {
     describe('if resource is undefined', function () {
       it('should throw a TypeError', function () {
-        assert.throws(() => new Resources.Model(this.data), TypeError);
+        assert.throws(() => new Resources.Model(this.data, {}), TypeError);
       });
     });
     describe('if data is passed in', function () {
       it('should call the set method once', function () {
         const spy = sinon.spy(Resources.Model.prototype, 'set');
-        const testModel = new Resources.Model(this.data, this.resource);
+        const testModel = new Resources.Model(this.data, {}, this.resource);
         assert.ok(testModel);
         assert.ok(spy.calledOnce);
         Resources.Model.prototype.set.restore();
       });
       it('should call the set method with the data', function () {
         const spy = sinon.spy(Resources.Model.prototype, 'set');
-        const testModel = new Resources.Model(this.data, this.resource);
+        const testModel = new Resources.Model(this.data, {}, this.resource);
         assert.ok(testModel);
         assert.ok(spy.calledWithExactly(this.data));
         Resources.Model.prototype.set.restore();
@@ -707,17 +739,17 @@ describe('Model', function () {
     });
     describe('if undefined data is passed in', function () {
       it('should throw a TypeError', function () {
-        assert.throws(() => new Resources.Model(undefined, this.resource), TypeError);
+        assert.throws(() => new Resources.Model(undefined, {}, this.resource), TypeError);
       });
     });
     describe('if null data is passed in', function () {
       it('should throw a TypeError', function () {
-        assert.throws(() => new Resources.Model(null, this.resource), TypeError);
+        assert.throws(() => new Resources.Model(null, {}, this.resource), TypeError);
       });
     });
     describe('if no data is passed in', function () {
       it('should throw a TypeError', function () {
-        assert.throws(() => new Resources.Model({}, this.resource), TypeError);
+        assert.throws(() => new Resources.Model({}, {}, this.resource), TypeError);
       });
     });
   });
@@ -964,7 +996,7 @@ describe('Model', function () {
           this.client.returns(Promise.resolve(this.response));
           this.resource.client = this.client;
           this.resource.collectionUrl = () => '';
-          this.model = new Resources.Model(this.payload, this.resource);
+          this.model = new Resources.Model(this.payload, {}, this.resource);
           this.model.synced = false;
           this.model.save(this.payload).then(() => {
             assert.equal(typeof this.client.args[0].method, 'undefined');
@@ -979,7 +1011,7 @@ describe('Model', function () {
             this.client.returns(Promise.resolve(this.response));
             this.resource.client = this.client;
             this.resource.collectionUrl = () => '';
-            this.model = new Resources.Model(this.payload, this.resource);
+            this.model = new Resources.Model(this.payload, {}, this.resource);
             this.model.synced = false;
             this.resource.addModel = sinon.spy();
             this.model.save(this.payload).then(() => {
@@ -1103,7 +1135,7 @@ describe('Model', function () {
         this.client = sinon.stub();
         this.client.returns(Promise.resolve(this.response));
         this.resource.client = this.client;
-        this.model = new Resources.Model(this.payload, this.resource);
+        this.model = new Resources.Model(this.payload, {}, this.resource);
         this.model.delete().catch((error) => {
           assert.ok(error);
           done();

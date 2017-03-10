@@ -10,6 +10,7 @@ DEVELOP
  - Add search back in
  - Improve pipeline for translating plugins
  - Add Spanish and Swahili translations
+ - Add support for nested URL structures in API Resource layer
 
 
 0.2.0

@@ -5,9 +5,6 @@
 {% block content %}
 <!-- Bootstrapping the initial information for all channels. -->
 {% kolibri_bootstrap_collection 'channel' 'ChannelResource' %}
-  <script>
-    {{kolibri}}.resources.ContentNodeResource.setChannel("{{ request.COOKIES.currentChannelId }}");
-  </script>
   <!-- Bootstrapping the root node for the current channel in Explore tab. -->
   {% kolibri_bootstrap_model 'contentnode' 'ContentNodeResource' kwargs_channel_id=currentChannel.id kwargs_pk=currentChannel.root_pk %}
   <!-- Bootstrapping the top level topics for current channel in Explore tab. -->

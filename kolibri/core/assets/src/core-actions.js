@@ -337,10 +337,8 @@ function initContentSession(store, channelId, contentId, contentKind) {
  * Set channel state info.
  */
 function _setChannelState(store, currentChannelId, channelList) {
-  const coreApp = require('kolibri');
   store.dispatch('SET_CORE_CHANNEL_LIST', channelList);
   store.dispatch('SET_CORE_CURRENT_CHANNEL', currentChannelId);
-  coreApp.resources.ContentNodeResource.setChannel(currentChannelId);
   if (currentChannelId) {
     cookiejs.set('currentChannelId', currentChannelId);
   } else {
@@ -354,7 +352,7 @@ function _setChannelState(store, currentChannelId, channelList) {
  */
 function setChannelInfo(store, channelId = null) {
   const coreApp = require('kolibri');
-  return coreApp.resources.ChannelResource.getCollection({}, true).fetch().then(
+  return coreApp.resources.ChannelResource.getCollection().fetch().then(
     channelsData => {
       const channelList = _channelListState(channelsData);
       let thisChannelId;
