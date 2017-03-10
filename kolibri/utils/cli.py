@@ -253,9 +253,19 @@ def set_default_language(lang):
     """
 
     from kolibri.utils import conf
+    from django.conf import settings
 
-    conf.config['LANGUAGE_CODE'] = lang
-    conf.save()
+    valid_languages = [l[0] for l in settings.LANGUAGES]
+
+    if lang in valid_languages:
+        conf.config['LANGUAGE_CODE'] = lang
+        conf.save()
+    else:
+        msg = "Invalid language code {langcode}. Must be one of: {validlangs}".format(
+            langcode=lang, validlangs=valid_languages
+        )
+
+        logging.warning(msg)
 
 
 def main(args=None):
