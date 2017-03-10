@@ -46,6 +46,7 @@ Usage:
   kolibri manage [options] COMMAND [-- DJANGO_OPTIONS ...]
   kolibri diagnose [options]
   kolibri plugin [options] PLUGIN (enable | disable)
+  kolibri language setdefault <langcode>
   kolibri plugin --list
   kolibri -h | --help
   kolibri --version
@@ -245,6 +246,18 @@ def plugin(plugin_name, **args):
     conf.save()
 
 
+def set_default_language(lang):
+    """
+    Set the default language for this installation of Kolibri. Any running
+    instance of Kolibri needs to be restarted in order for this change to work.
+    """
+
+    from kolibri.utils import conf
+
+    conf.config['LANGUAGE_CODE'] = lang
+    conf.save()
+
+
 def main(args=None):
     """
     Kolibri's main function. Parses arguments and calls utility functions.
@@ -301,3 +314,6 @@ def main(args=None):
         port = int(arguments['--port'] or 8080)
         server.start(port=port)
         return
+
+    if arguments['language'] and arguments['setdefault']:
+        set_default_language(arguments['<langcode>'])
