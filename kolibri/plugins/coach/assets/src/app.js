@@ -28,20 +28,6 @@ const REPORTS_URL_PATTERN = [
   ':sort_order',
 ].join('/');
 
-// const REPORT_URL_PATTERN = [
-//   '/reports',
-//   ':channel_id',
-//   ':content_scope',
-//   ':content_scope_id',
-//   ':user_scope',
-//   ':user_scope_id',
-//   ':all_or_recent',
-//   ':view_by_content_or_learners',
-//   ':sort_column',
-//   ':sort_order',
-// ].join('/');
-
-
 class CoachToolsModule extends KolibriModule {
   ready() {
     coreActions.getCurrentSession(store).then(() => {
@@ -69,7 +55,7 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.COACH_EXAMS_PAGE,
-          path: '/classes/:id/exams',
+          path: '/:class_id/exams',
           handler: (toRoute, fromRoute) => {
             actions.showExamsPage(store, toRoute.params);
           },
@@ -83,7 +69,7 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.COACH_GROUPS_PAGE,
-          path: '/classes/:id/groups',
+          path: '/:class_id/groups',
           handler: (toRoute, fromRoute) => {
             actions.showGroupsPage(store, toRoute.params.id);
           },
