@@ -43,7 +43,6 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -135,7 +134,6 @@ if not os.path.exists(CONTENT_STORAGE_DIR):
 # Base default URL for downloading content from an online server
 CENTRAL_CONTENT_DOWNLOAD_BASE_URL = "https://contentworkshop.learningequality.org"
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
@@ -145,7 +143,7 @@ LANGUAGES = [
     ('es-es', 'Español'),
 ]
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en-us"
 
 TIME_ZONE = 'UTC'
 
@@ -183,13 +181,11 @@ Q_CLUSTER = {
     "sync": platform.system() == "Windows",
 }
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(KOLIBRI_HOME, "static")
-
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
@@ -291,11 +287,9 @@ REST_FRAMEWORK = {
     ),
 }
 
-
 # System warnings to disable
 # see https://docs.djangoproject.com/en/1.9/ref/settings/#silenced-system-checks
 SILENCED_SYSTEM_CHECKS = ["auth.W004"]
-
 
 # Configuration for Django JS Reverse
 # https://github.com/ierror/django-js-reverse#options
