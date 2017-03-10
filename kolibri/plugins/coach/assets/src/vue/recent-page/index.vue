@@ -72,7 +72,7 @@
       contentLearnersPageLink(id) {
         return {
           name: Constants.PageNames.COACH_LEARNERS_PAGE,
-          params: { id }, //WIP
+          params: { class_id: id }, // WIP
         };
       },
     },
