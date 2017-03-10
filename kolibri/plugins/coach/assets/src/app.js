@@ -10,59 +10,55 @@ const store = require('./state/store');
 const PageNames = require('./state/constants').PageNames;
 
 
-const REPORT_URL_PATTERN = [
-  '/reports',
-  ':channel_id',
-  ':content_scope',
-  ':content_scope_id',
-  ':user_scope',
-  ':user_scope_id',
-  ':all_or_recent',
-  ':view_by_content_or_learners',
-  ':sort_column',
-  ':sort_order',
-].join('/');
-
-
 class CoachToolsModule extends KolibriModule {
   ready() {
     coreActions.getCurrentSession(store).then(() => {
       const routes = [
         {
-          name: PageNames.REPORTS_NO_QUERY,
-          path: '/reports',
+          name: PageNames.COACH_CLASS_LIST_PAGE,
+          path: '/classes',
           handler: (toRoute, fromRoute) => {
-            actions.redirectToDefaultReport(store, toRoute.params);
+            actions.showClassListPage(store);
           },
         },
         {
-          name: PageNames.REPORTS_CHANNEL,
-          path: '/reports/:channel_id',
+          name: PageNames.COACH_RECENT_PAGE,
+          path: '/classes/:id/recent',
           handler: (toRoute, fromRoute) => {
-            actions.redirectToChannelReport(store, toRoute.params);
+            actions.showRecentPage(store, toRoute.params);
           },
         },
         {
-          name: PageNames.REPORTS,
-          path: REPORT_URL_PATTERN,
+          name: PageNames.COACH_TOPICS_PAGE,
+          path: '/classes/:id/topics',
           handler: (toRoute, fromRoute) => {
-            actions.showReport(store, toRoute.params, fromRoute.params);
+            actions.showTopicsPage(store, toRoute.params);
           },
         },
         {
-          name: PageNames.CONTENT_UNAVAILABLE,
-          path: '/content-unavailable',
+          name: PageNames.COACH_EXAMS_PAGE,
+          path: '/classes/:id/exams',
           handler: (toRoute, fromRoute) => {
-            actions.showContentUnavailable(store);
+            actions.showExamsPage(store, toRoute.params);
+          },
+        },
+        {
+          name: PageNames.COACH_LEARNERS_PAGE,
+          path: '/classes/:id/learners',
+          handler: (toRoute, fromRoute) => {
+            actions.showLearnersPage(store, toRoute.params);
+          },
+        },
+        {
+          name: PageNames.COACH_GROUPS_PAGE,
+          path: '/classes/:id/groups',
+          handler: (toRoute, fromRoute) => {
+            actions.showGroupsPage(store, toRoute.params);
           },
         },
         {
           path: '/',
-          redirect: '/reports',
-        },
-        {
-          path: '*',
-          redirect: '/',
+          redirect: '/classes',
         },
       ];
 
