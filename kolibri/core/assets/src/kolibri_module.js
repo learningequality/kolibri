@@ -82,6 +82,6 @@ module.exports = class KolibriModule {
    * @param {Array} args - additional arguments to the event handler.
    */
   emit(...args) {
-    coreApp.emit.apply(coreApp, args);
+    coreApp.emit(...args);
   }
 };
