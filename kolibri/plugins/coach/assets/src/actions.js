@@ -1,20 +1,31 @@
-const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const router = require('kolibri.coreVue.router');
 
-const ClassroomResource = coreApp.resources.ClassroomResource;
-const LearnerGroupResource = coreApp.resources.LearnerGroupResource;
-const MembershipResource = coreApp.resources.MembershipResource;
-
-const ChannelResource = coreApp.resources.ChannelResource;
-const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const Constants = require('./state/constants');
+
+const RecentReportResourceConstructor = require('./apiResources/recentReport');
+const UserReportResourceConstructor = require('./apiResources/userReport');
+const ContentReportResourceConstructor = require('./apiResources/contentReport');
+const UserSummaryResourceConstructor = require('./apiResources/userSummary');
+const ContentSummaryResourceConstructor = require('./apiResources/contentSummary');
 
 const logging = require('kolibri.lib.logging');
 const values = require('lodash.values');
 
+const coreApp = require('kolibri');
+
+const ClassroomResource = coreApp.resources.ClassroomResource;
+const LearnerGroupResource = coreApp.resources.LearnerGroupResource;
+const MembershipResource = coreApp.resources.MembershipResource;
+const ChannelResource = coreApp.resources.ChannelResource;
+const FacilityUserResource = coreApp.resources.FacilityUserResource;
+const RecentReportResource = new RecentReportResourceConstructor(coreApp);
+const UserReportResource = new UserReportResourceConstructor(coreApp);
+const ContentReportResource = new ContentReportResourceConstructor(coreApp);
+const UserSummaryResource = new UserSummaryResourceConstructor(coreApp);
+const ContentSummaryResource = new ContentSummaryResourceConstructor(coreApp);
 
 /* find the keys that differ between the old and new params */
 function _diffKeys(newParams, oldParams) {
@@ -227,7 +238,7 @@ function showCoachRoot(store) {
 
 function redirectToChannelReport(store, params) {
   const channelId = params.channel_id;
-  const channelListPromise = ChannelResource.getCollection({}).fetch();
+  const channelListPromise = ChannelResource.getCollection().fetch();
 
   ConditionalPromise.all([channelListPromise]).only(
     coreActions.samePageCheckGenerator(store),
@@ -253,7 +264,7 @@ function redirectToDefaultReport(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.REPORTS_NO_QUERY);
 
-  const channelListPromise = ChannelResource.getCollection({}).fetch();
+  const channelListPromise = ChannelResource.getCollection().fetch();
   const facilityIdPromise = FacilityUserResource.getCurrentFacility();
 
   ConditionalPromise.all([channelListPromise, facilityIdPromise]).only(
@@ -332,41 +343,43 @@ function showReport(store, params, oldParams) {
     return;
   }
 
-  const resourcePromise = require('./resourcePromise');
-  const URL_ROOT = '/coach/api';
   const promises = [];
 
+  const reportPayload = {
+    channel_id: channelId,
+    content_node_id: contentScopeId,
+    collection_kind: userScope,
+    collection_id: userScopeId,
+  };
+
   // REPORT
-  if (userScope === Constants.UserScopes.USER && contentScope === Constants.ContentScopes.CONTENT) {
-    promises.push([]); // don't retrieve a report for a single-user, single-item page
-  } else {
-    let reportUrl = `${URL_ROOT}/${channelId}/${contentScopeId}/${userScope}/${userScopeId}`;
+  let reportPromise;
+  if (!(userScope === Constants.UserScopes.USER &&
+    contentScope === Constants.ContentScopes.CONTENT)) {
     if (allOrRecent === Constants.AllOrRecent.RECENT) {
-      reportUrl += '/recentreport/';
+      reportPromise = RecentReportResource.getCollection(reportPayload).fetch();
     } else if (viewByContentOrLearners === Constants.ViewBy.CONTENT) {
-      reportUrl += '/contentreport/';
+      reportPromise = ContentReportResource.getCollection(reportPayload).fetch();
     } else if (viewByContentOrLearners === Constants.ViewBy.LEARNERS) {
-      reportUrl += '/userreport/';
+      reportPromise = UserReportResource.getCollection(reportPayload).fetch();
     } else {
       logging.error('unhandled input parameters');
     }
-    promises.push(resourcePromise(reportUrl));
   }
+
+  promises.push(reportPromise);
 
 
   // CONTENT SUMMARY
-  const contentSummaryUrl =
-    `${URL_ROOT}/${channelId}/${userScope}/${userScopeId}/contentsummary/${contentScopeId}/`;
-  promises.push(resourcePromise(contentSummaryUrl));
+  const contentPromise = ContentSummaryResource.getModel(contentScopeId, reportPayload).fetch();
+  promises.push(contentPromise);
 
   // USER SUMMARY
+  let userPromise;
   if (userScope === Constants.UserScopes.USER) {
-    const userSummaryUrl
-      = `${URL_ROOT}/${channelId}/${contentScopeId}/usersummary/${userScopeId}/`;
-    promises.push(resourcePromise(userSummaryUrl));
-  } else {
-    promises.push({}); // don't retrieve a summary for a group of users
+    userPromise = UserSummaryResource.getModel(userScopeId, reportPayload).fetch();
   }
+  promises.push(userPromise);
 
   // CHANNELS
   const channelPromise = coreActions.setChannelInfo(store);
@@ -386,9 +399,9 @@ function showReport(store, params, oldParams) {
     store.dispatch('SET_SORT_ORDER', sortOrder);
 
     // save results of API request
-    store.dispatch('SET_TABLE_DATA', report);
+    store.dispatch('SET_TABLE_DATA', report || {});
     store.dispatch('SET_CONTENT_SCOPE_SUMMARY', contentSummary);
-    store.dispatch('SET_USER_SCOPE_SUMMARY', userSummary);
+    store.dispatch('SET_USER_SCOPE_SUMMARY', userSummary || {});
     store.dispatch('CORE_SET_PAGE_LOADING', false);
 
     const titleElems = ['Coach Reports'];
