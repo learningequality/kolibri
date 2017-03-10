@@ -1,7 +1,13 @@
 <template>
 
   <div>
-    <page-status class="pure-u-1"/>
+    <page-status
+      class="pure-u-1"
+      :className="className"
+      :userName="userName"
+      :progress="progress"
+      :assessment="assessment"
+      :date="date"/>
     <answer-history class="column pure-u-1-4"/>
     <div class="column pure-u-3-4">
       <question-attempt class="lol"/>
@@ -64,6 +70,11 @@
     vuex: {
       getters: {
         pageState: state => state.pageState,
+        className: () => 'Adding Fractions',
+        userName: () => 'James Howard',
+        progress: () => 1,
+        assessment: () => '4 of 5',
+        date: () => '18 Nov 2016',
       },
     },
   };
