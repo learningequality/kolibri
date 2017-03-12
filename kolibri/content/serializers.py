@@ -1,6 +1,6 @@
 from django.db.models import Sum
 from kolibri.auth.models import FacilityUser
-from kolibri.content.models import ChannelMetadataCache, ContentNode, File
+from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, File
 from rest_framework import serializers
 
 from .content_db_router import default_database_is_attached, get_active_content_database
@@ -33,6 +33,13 @@ class FileSerializer(serializers.ModelSerializer):
                   'supplementary', 'thumbnail', 'download_url')
 
 
+class AssessmentMetaDataSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AssessmentMetaData
+        fields = ('assessment_item_ids', 'number_of_assessments', 'mastery_model', 'randomize', 'is_manipulable', )
+
+
 class ContentNodeSerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
@@ -40,6 +47,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     thumbnail = serializers.SerializerMethodField()
     progress_fraction = serializers.SerializerMethodField()
     next_content = serializers.SerializerMethodField()
+    assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True)
 
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
@@ -118,5 +126,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
         model = ContentNode
         fields = (
             'pk', 'content_id', 'title', 'description', 'kind', 'available', 'tags', 'sort_order', 'license_owner',
-            'license', 'files', 'ancestors', 'parent', 'thumbnail', 'progress_fraction', 'next_content', 'author'
+            'license', 'files', 'ancestors', 'parent', 'thumbnail', 'progress_fraction', 'next_content', 'author',
+            'assessmentmetadata',
         )
