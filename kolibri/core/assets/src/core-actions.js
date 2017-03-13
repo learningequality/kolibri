@@ -3,6 +3,7 @@ const cookiejs = require('js-cookie');
 const UserKinds = require('./constants').UserKinds;
 const MasteryLoggingMap = require('./constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('./constants').AttemptLoggingMap;
+const InteractionTypes = require('./constants').InteractionTypes;
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 
 const intervalTimer = require('./timer');
@@ -621,7 +622,21 @@ function createAttemptLog(store, itemId) {
   store.dispatch('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
 }
 
+const interactionHistoryProperties = [
+  'type',
+  'correct',
+  'answer',
+];
+
 function updateAttemptLogInteractionHistory(store, interaction) {
+  Object.keys(interaction).forEach((key) => {
+    if (interactionHistoryProperties.index(key) === -1) {
+      throw new TypeError(`${key} not allowed for interaction log`);
+    }
+  });
+  if (!interaction.type || !InteractionTypes[interaction.type]) {
+    throw new TypeError('No interaction type, or invalid interaction type specified');
+  }
   store.dispatch('UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY', interaction);
   // Also update end timestamp on Mastery model.
   store.dispatch('UPDATE_LOGGING_MASTERY', new Date());
