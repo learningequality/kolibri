@@ -71,7 +71,7 @@ class CoachToolsModule extends KolibriModule {
           name: PageNames.COACH_GROUPS_PAGE,
           path: '/:class_id/groups',
           handler: (toRoute, fromRoute) => {
-            actions.showGroupsPage(store, toRoute.params.id);
+            actions.showGroupsPage(store, toRoute.params.class_id);
           },
         },
       ];

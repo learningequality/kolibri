@@ -45,6 +45,8 @@ const SortOrders = {
 
 const Modals = {
   CREATE_GROUP: 'CREATE_GROUP',
+  RENAME_GROUP: 'RENAME_GROUP',
+  DELETE_GROUP: 'DELETE_GROUP',
 };
 
 module.exports = {

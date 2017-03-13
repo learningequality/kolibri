@@ -49,6 +49,9 @@ function _managePageTitle(title) {
   return `Manage ${title}`;
 }
 
+function displayModal(store, modalName) {
+  store.dispatch('SET_MODAL', modalName);
+}
 
 // ================================
 // CLASS LIST ACTIONS
@@ -128,18 +131,16 @@ function showGroupsPage(store, classId) {
   const classUsersPromise =
   FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
   const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch();
-  const groupUsersPromise = FacilityUserResource.getCollection({ member_of: 13 }).fetch({}, true);
-
+  // const groupUsersPromise = FacilityUserResource.getCollection({ member_of: 1 }).fetch({}, true);
   ConditionalPromise.all(
-    [facilityPromise, classPromise, classUsersPromise, groupPromise, groupUsersPromise]).only(
+    [facilityPromise, classPromise, classUsersPromise, groupPromise]).only(
     coreActions.samePageCheckGenerator(store),
-    ([facility, classModel, classUsers, groups, groupUsers]) => {
+    ([facility, classModel, classUsers, groups]) => {
       const pageState = {
         facilityId: facility[0],
         class: classModel,
         classUsers,
         groups,
-        groupUsers,
         modalShown: false,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -162,6 +163,7 @@ function createGroup(store, classId, groupName) {
     LearnerGroupResource.createModel(groupPayload).save().then(
       group => {
         store.dispatch('ADD_GROUP', group);
+        displayModal(store, false);
       },
       error => reject(error)
     );
@@ -430,9 +432,6 @@ function showContentUnavailable(store) {
   store.dispatch('CORE_SET_TITLE', 'Content Unavailable');
 }
 
-function displayModal(store, modalName) {
-  store.dispatch('SET_MODAL', modalName);
-}
 
 module.exports = {
   showClassListPage,

@@ -64,6 +64,9 @@ const mutations = {
       }
     });
   },
+  DELETE_GROUP(state, group) {
+    // state.pageState.groups.push(group);
+  },
 };
 
 // assigns core state and mutations
