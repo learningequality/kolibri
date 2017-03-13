@@ -167,6 +167,7 @@ oriented data synchronization.
         this.updateAttemptLogInteractionHistoryAction({
           type: InteractionTypes.answer,
           answer: answerState,
+          correct,
         });
         this.complete = correct;
         if (this.firstAttempt) {
@@ -185,8 +186,11 @@ oriented data synchronization.
         }
         this.saveAttemptLogMasterLog();
       },
-      hintTaken() {
-        this.updateAttemptLogInteractionHistoryAction({ type: InteractionTypes.hint });
+      hintTaken({ answerState }) {
+        this.updateAttemptLogInteractionHistoryAction({
+          type: InteractionTypes.hint,
+          answer: answerState,
+        });
         if (this.firstAttempt) {
           // mark the attemptlog as hinted only if the first attempt is taking the hint.
           this.updateAttemptLogMasteryLog({
