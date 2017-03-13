@@ -120,7 +120,7 @@
         // Only bother to do this is if the node is available, and the kind and extension are defined.
         // Otherwise the template can handle it.
         if (this.available && this.kind && this.extension) {
-          Promise.all([
+          return Promise.all([
             this.initSession(this.channelId, this.contentId, this.kind),
             this.Kolibri.retrieveContentRenderer(this.kind, this.extension)
           ]).then(([session, component]) => {
