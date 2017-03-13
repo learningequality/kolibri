@@ -253,7 +253,9 @@ class AssessmentMetaData(ContentDatabaseModel):
     ContentNodes with this metadata may also be able to be used within quizzes and exams.
     """
     id = UUIDField(primary_key=True)
-    contentnode = models.ForeignKey(ContentNode, related_name='assessmentmetadata', blank=False, null=False)
+    contentnode = models.ForeignKey(
+        ContentNode, related_name='assessmentmetadata', blank=True, null=True
+    )
     # A JSON blob containing a serialized list of ids for questions that the assessment can present.
     assessment_item_ids = models.TextField()
     # Length of the above assessment_item_ids for a convenience lookup.
