@@ -9,25 +9,11 @@
         name="add" />
     </icon-button>
 
-    <create-group-modal v-if="showCreateGroupModal"
-      :className="className"
-      :classId="classId" />
-
-    <rename-group-modal v-if="showRenameGroupModal"
-      :className="className"
-      :classId="classId"
-      :groupName="selectedGroup.name"
-      :groupId="selectedGroup.id" />
-
-    <delete-group-modal v-if="showDeleteGroupModal"
-      :className="className"
-      :classId="classId"
-      :groupName="selectedGroup.name"
-      :groupId="selectedGroup.id" />
-
     <div v-for="group in groups">
       <h2>{{ group.name }}</h2>
-      <!--{{ $tr('numLearners', {count: group.users.length}) }} -->
+      <!--TODO: Fix this-->
+      <span v-if="group.users">{{ $tr('numLearners', {count: group.users.length }) }}</span>
+      <span v-else>{{ $tr('numLearners', {count: 0 }) }}</span>
       <!--0 selected-->
       <icon-button :text="$tr('moveLearners')"
         :primary="true"
@@ -45,6 +31,22 @@
           @close="closeGroupDropdowns"/>
       </ui-button>
     </div>
+
+    <create-group-modal v-if="showCreateGroupModal"
+      :className="className"
+      :classId="classId" />
+
+    <rename-group-modal v-if="showRenameGroupModal"
+      :className="className"
+      :classId="classId"
+      :groupName="selectedGroup.name"
+      :groupId="selectedGroup.id" />
+
+    <delete-group-modal v-if="showDeleteGroupModal"
+      :className="className"
+      :classId="classId"
+      :groupName="selectedGroup.name"
+      :groupId="selectedGroup.id" />
   </div>
 
 </template>

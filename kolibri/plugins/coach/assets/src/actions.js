@@ -129,29 +129,42 @@ function showGroupsPage(store, classId) {
   const facilityPromise = FacilityUserResource.getCurrentFacility();
   const classPromise = ClassroomResource.getModel(classId).fetch();
   const classUsersPromise =
-  FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
+    FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
   const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch();
-  // const groupUsersPromise = FacilityUserResource.getCollection({ member_of: 1 }).fetch({}, true);
+
   ConditionalPromise.all(
     [facilityPromise, classPromise, classUsersPromise, groupPromise]).only(
     coreActions.samePageCheckGenerator(store),
     ([facility, classModel, classUsers, groups]) => {
-      const pageState = {
-        facilityId: facility[0],
-        class: classModel,
-        classUsers,
-        groups,
-        modalShown: false,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Coach'));
+      const groupUsersPromises = groups.map(group =>
+        FacilityUserResource.getCollection({ member_of: group.id }).fetch({}, true));
+      ConditionalPromise.all(groupUsersPromises).only(
+        coreActions.samePageCheckGenerator(store),
+        (groupsUsers) => {
+          groups.forEach((group, index) => {
+            groups[index].users = groupsUsers[index];
+          });
+          const pageState = {
+            facilityId: facility[0],
+            class: classModel,
+            classUsers,
+            groups,
+            modalShown: false,
+          };
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.dispatch('CORE_SET_ERROR', null);
+          store.dispatch('CORE_SET_TITLE', _managePageTitle('Coach'));
+        },
+        error => {
+          coreActions.handleError(store, error);
+        }
+      );
     },
     error => {
       coreActions.handleError(store, error);
     }
-  );
+    );
 }
 
 function createGroup(store, classId, groupName) {
@@ -184,25 +197,6 @@ function renameGroup(store, classId, groupId, newGroupName) {
     );
   });
 }
-
-function deleteGroup(store, classId, groupId) {
-  // remove all users from that group
-  // remove group from class
-  // then dispatch
-  const groupPayload = {
-    parent: classId,
-    id: groupId,
-  };
-  return new Promise((resolve, reject) => {
-    LearnerGroupResource.createModel(groupPayload).save().then(
-      group => {
-        store.dispatch('DELETE_GROUP', group);
-      },
-      error => reject(error)
-    );
-  });
-}
-
 function addUserToGroup(store, groupId, userId) {
   const membershipPayload = {
     collection: groupId,
@@ -210,8 +204,8 @@ function addUserToGroup(store, groupId, userId) {
   };
   return new Promise((resolve, reject) => {
     MembershipResource.createModel(membershipPayload).save().then(
-      groupUser => {
-        console.log(groupUser);
+      user => {
+        store.dispatch('ADD_USER_TO_GROUP', groupId, user);
       },
       error => reject(error)
     );
@@ -226,7 +220,19 @@ function removeUserfromGroup(store, groupId, userId) {
   return new Promise((resolve, reject) => {
     MembershipResource.getModel(membershipPayload).delete().then(
       user => {
-        store.dispatch('REMOVE_USER_FROM_CLASS', userId);
+        store.dispatch('REMOVE_USER_FROM_GROUP', groupId, userId);
+      },
+      error => reject(error)
+    );
+  });
+}
+
+function deleteGroup(store, classId, groupId) {
+  return new Promise((resolve, reject) => {
+    LearnerGroupResource.getModel(groupId).delete().then(
+      deletetedGroup => {
+        store.dispatch('DELETE_GROUP', groupId);
+        this.displayModal(false);
       },
       error => reject(error)
     );

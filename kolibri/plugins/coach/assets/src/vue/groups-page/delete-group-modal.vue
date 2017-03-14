@@ -50,8 +50,7 @@
     },
     methods: {
       callDeleteGroup() {
-        // this.deleteGroup(this.classId, this.groupId);
-        console.log('delete group');
+        this.deleteGroup(this.classId, this.groupId);
       },
       close() {
         this.displayModal(false);

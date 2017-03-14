@@ -64,8 +64,14 @@ const mutations = {
       }
     });
   },
-  DELETE_GROUP(state, group) {
-    // state.pageState.groups.push(group);
+  DELETE_GROUP(state, groupId) {
+    state.pageState.groups = state.pageState.groups.filter(group => group.id !== groupId);
+  },
+  ADD_USER_TO_GROUP(state, groupId, user) {
+    // add user to group
+  },
+  REMOVE_USER_FROM_GROUP(state, groupId, userId) {
+    // remove user from group
   },
 };
 
