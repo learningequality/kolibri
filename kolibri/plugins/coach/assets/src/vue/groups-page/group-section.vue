@@ -9,7 +9,8 @@
     <icon-button :text="$tr('moveLearners')"
       :primary="true"
       size="small"
-      @click="moveUsers" />
+      @click="moveUsers"
+      :disabled="selectedUsers.length === 0" />
     <ui-button v-if="showMenu"
       color="primary"
       :has-dropdown="true"
@@ -20,6 +21,35 @@
         @select="handleSelection"
         @close="close" />
     </ui-button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>
+            <input type="checkbox"
+              :checked="allUsersAreSelected"
+              @change="toggleSelectAll">
+          </th>
+          <th>{{ $tr('name') }}</th>
+          <th>{{ $tr('username') }}</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr v-for="user in group.users"
+          :class="isSelected(user.id) ? 'selectedrow' : ''"
+          @click="toggleSelection(user.id)">
+          <td class="col-checkbox">
+            <input type="checkbox"
+              :id="user.id"
+              :value="user.id"
+              v-model="selectedUsers">
+          </td>
+          <td class="col-name"><strong>{{ user.full_name }}</strong></td>
+          <td class="col-username">{{ user.username }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
 </template>
@@ -36,6 +66,8 @@
       moveLearners: 'Move Learners',
       renameGroup: 'Rename Group',
       deleteGroup: 'Delete Group',
+      name: 'Name',
+      username: 'Username',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -60,11 +92,19 @@
         default: true,
       },
     },
+    data() {
+      return {
+        selectedUsers: [],
+      };
+    },
     computed: {
       menuOptions() {
         return [{ label: this.$tr('renameGroup') }, { label: this.$tr('deleteGroup') }];
       },
-
+      allUsersAreSelected() {
+        return (this.group.users.length === this.selectedUsers.length)
+          && (this.selectedUsers.length !== 0);
+      },
     },
     methods: {
       handleSelection(selectedOption) {
@@ -84,6 +124,24 @@
       },
       close() {
         this.$refs.dropdownButton.closeDropdown();
+      },
+      isSelected(userId) {
+        return this.selectedUsers.includes(userId);
+      },
+      toggleSelection(userId) {
+        const index = this.selectedUsers.indexOf(userId);
+        if (index === -1) {
+          this.selectedUsers.push(userId);
+        } else {
+          this.selectedUsers.splice(index, 1);
+        }
+      },
+      toggleSelectAll() {
+        if (this.allUsersAreSelected) {
+          this.selectedUsers = [];
+        } else {
+          this.selectedUsers = this.group.users.map((user) => user.id);
+        }
       },
     },
     vuex: {
