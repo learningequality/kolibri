@@ -1,23 +1,11 @@
 <template>
 
-  <core-modal :title="$tr('renameLearnerGroup')"
+  <core-modal :title="$tr('deleteLearnerGroup')"
     @cancel="close">
-    <div>
-      <form @submit.prevent="callRenameGroup">
-        <textbox type="text"
-          :label="$tr('learnerGroupName')"
-          :aria-label="$tr('learnerGroupName')"
-          :autofocus="true"
-          :required="true"
-          :invalid="invalid"
-          v-model.trim="groupNameInput" />
-        <icon-button :text="$tr('cancel')"
-          @click="close" />
-        <icon-button :text="$tr('save')"
-          :primary="true"
-          type="submit" />
-      </form>
-    </div>
+    <p>{{ $tr('areYouSure') }} <strong>{{ groupName}}</strong>?</p>
+    <p>{{ $tr('learnersWillBecome') }} <strong>{{ $tr('ungrouped') }}</strong>.</p>
+    <icon-button :text="$tr('cancel')" @click="close" />
+    <icon-button :text="$tr('deleteGroup')" :primary="true" @click="callDeleteGroup"/>
   </core-modal>
 
 </template>
@@ -30,16 +18,12 @@
   module.exports = {
     $trNameSpace: 'confirm-enrollment-modal',
     $trs: {
-      renameLearnerGroup: 'Rename Learner Group',
-      learnerGroupName: 'Learner Group Name',
+      deleteLearnerGroup: 'Delete Learner Group',
+      areYouSure: 'Are you sure you want to delete',
+      learnersWillBecome: 'Learners within this group will become',
+      ungrouped: 'Ungrouped',
       cancel: 'Cancel',
-      save: 'Save',
-    },
-    data() {
-      return {
-        groupNameInput: this.groupName,
-        invalid: false,
-      };
+      deleteGroup: 'Delete Group',
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
@@ -65,8 +49,9 @@
       },
     },
     methods: {
-      callRenameGroup() {
-        this.renameGroup(this.classId, this.groupId, this.groupNameInput);
+      callDeleteGroup() {
+        // this.deleteGroup(this.classId, this.groupId);
+        console.log('delete group');
       },
       close() {
         this.displayModal(false);
@@ -74,7 +59,7 @@
     },
     vuex: {
       actions: {
-        renameGroup: actions.renameGroup,
+        deleteGroup: actions.deleteGroup,
         displayModal: actions.displayModal,
       },
     },

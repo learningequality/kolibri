@@ -178,6 +178,7 @@ function renameGroup(store, classId, groupId, newGroupName) {
     LearnerGroupResource.getModel(groupId).save(groupPayload).then(
       updatedGroup => {
         store.dispatch('UPDATE_GROUP', groupId, updatedGroup);
+        this.displayModal(false);
       },
       error => reject(error)
     );

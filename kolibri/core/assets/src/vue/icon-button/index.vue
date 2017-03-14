@@ -4,6 +4,7 @@
     @click="$emit('click')"
     :color="primary ? 'primary' : 'default'"
     :disabled="disabled"
+    :buttonType="type"
     :size="size"
     class="koli-icon-button">
     <span v-if="hasIcon && text">
@@ -43,6 +44,10 @@
       size: {
         type: String,
         default: 'normal',
+      },
+      type: {
+        type: String,
+        default: 'button',
       },
     },
     computed: {

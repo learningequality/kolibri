@@ -15,22 +15,33 @@
 
     <rename-group-modal v-if="showRenameGroupModal"
       :className="className"
-      :classId="classId" />
+      :classId="classId"
+      :groupName="selectedGroup.name"
+      :groupId="selectedGroup.id" />
+
+    <delete-group-modal v-if="showDeleteGroupModal"
+      :className="className"
+      :classId="classId"
+      :groupName="selectedGroup.name"
+      :groupId="selectedGroup.id" />
 
     <div v-for="group in groups">
       <h2>{{ group.name }}</h2>
       <!--{{ $tr('numLearners', {count: group.users.length}) }} -->
       <!--0 selected-->
       <icon-button :text="$tr('moveLearners')"
-      :primary="true"
-      @click="moveUsers"/>
+        :primary="true"
+        size="small"
+        @click="moveUsers" />
       <ui-button color="primary"
         :has-dropdown="true"
         ref="groupDropdownButton"
         size="small">
-        <ui-menu slot="dropdown"
+        <group-options-menu slot="dropdown"
+          :groupName="group.name"
+          :groupId="group.id"
           :options="menuOptions"
-          @select="renameOrDelete"
+          @selected="handleSelection"
           @close="closeGroupDropdowns"/>
       </ui-button>
     </div>
@@ -51,24 +62,35 @@
       groups: 'Groups',
       newGroup: 'New group',
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
-      moveLearners: 'Move Learners'
+      moveLearners: 'Move Learners',
+      renameGroup: 'Rename Group',
+      deleteGroup: 'Delete Group',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'create-group-modal': require('./create-group-modal'),
       'rename-group-modal': require('./rename-group-modal'),
+      'delete-group-modal': require('./delete-group-modal'),
+      'group-options-menu': require('./group-options-menu'),
       'ui-button': require('keen-ui/src/UiButton'),
-      'ui-menu': require('keen-ui/src/UiMenu'),
+    },
+    data() {
+      return {
+        selectedGroup: { name: null, id: null },
+      };
     },
     computed: {
+      menuOptions() {
+        return [{ label: this.$tr('renameGroup') }, { label: this.$tr('deleteGroup') }];
+      },
       showCreateGroupModal() {
         return this.modalShown === constants.Modals.CREATE_GROUP;
       },
       showRenameGroupModal() {
         return this.modalShown === constants.Modals.RENAME_GROUP;
       },
-      menuOptions() {
-        return [{ label: 'Rename Group' }, { label: 'Delete Group' }];
+      showDeleteGroupModal() {
+        return this.modalShown === constants.Modals.DELETE_GROUP;
       },
     },
     methods: {
@@ -81,12 +103,13 @@
       openDeleteGroupModal() {
         this.displayModal(constants.Modals.DELETE_GROUP);
       },
-      renameOrDelete(option) {
-        switch (option.label) {
-          case 'Rename Group':
+      handleSelection(selectedOption, groupName, groupId) {
+        this.selectedGroup = { name: groupName, id: groupId };
+        switch (selectedOption) {
+          case (this.$tr('renameGroup')):
             this.openRenameGroupModal();
             break;
-          case 'Delete Group':
+          case (this.$tr('deleteGroup')):
             this.openDeleteGroupModal();
             break;
           default:
