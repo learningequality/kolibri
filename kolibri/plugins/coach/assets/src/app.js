@@ -11,8 +11,8 @@ const PageNames = require('./state/constants').PageNames;
 
 const RECENT_URL_PATTERN = [
   ':class_id',
-  '/recent',
-  // ':channel_id'
+  'recent',
+  //':channel_id'
 ].join('/');
 
 

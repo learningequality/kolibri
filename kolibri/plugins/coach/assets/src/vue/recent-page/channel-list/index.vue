@@ -1,50 +1,26 @@
 <template>
 
   <div class="class-roster">
+      <caption class="visuallyhidden">{{$tr('channelList')}}</caption>
 
-    <div class="header">
-      <h1>{{ $tr('header') }}</h1>
-      <p id="description">{{$tr('pageDescription')}}</p>
-    </div>
-
-    <table class="roster" v-if="classId">
-
-      <caption class="visuallyhidden">{{$tr('recentPage')}}</caption>
-
+      <table>
       <!-- Table Headers -->
       <thead>
         <tr>
-          <th class="col-header" scope="col"> {{$tr('name')}} </th>
-          <div class="status-group">
-            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('progress')}} </th>
-          </div>
+          <th class="col-header" scope="col"> test </th>
         </tr>
       </thead>
 
       <!-- Table body -->
       <tbody>
-        <tr v-for="content in attemptedContents">
+        <tr>
           <!-- Content Name field -->
           <th scope="row" class="table-cell">
-            <router-link :to="contentLearnersPageLink(content.id)" class="table-name">
-              {{content.name}}
-            </router-link>
           </th>
-
-          <div class="status-group">
-            <!-- Content Progress field -->
-            <td class="table-cell hide-on-mobile status-body">
-              {{content.progress}}
-            </td>
-          </div>
         </tr>
       </tbody>
 
     </table>
-
-    <!-- <p v-if="noProgressExist">{{ $tr('noRecentProgressExist') }}</p> -->
-
-    <channel-list v-else />
 
   </div>
 
@@ -53,39 +29,18 @@
 
 <script>
 
-  const Constants = require('../../state/constants');
+  // const Constants = require('../../state/constants');
 
   module.exports = {
+    name: 'channelList',
     $trNameSpace: 'coachRecentPage',
     $trs: {
-      recentPage: 'Recent Page',
-      header: 'Recent Activity - ',
-      pageDescription: 'Content your Learners have recently completed or mastered',
-      name: 'Name',
-      progress: 'Progress',
-      noRecentProgressExist: 'No recent progress.'
-    },
-    components: {
-      'channel-list': require('./channel-list'),
-    },
-    data() {
-      return {
-        classId: '',
-      };
-    },
-    computed: {
+      channelList: 'Channel List',
     },
     methods: {
-      contentLearnersPageLink(id) {
-        return {
-          name: Constants.PageNames.COACH_LEARNERS_PAGE,
-          params: { class_id: id }, // WIP
-        };
-      },
     },
     vuex: {
       getters: {
-        attemptedContents: state => state.pageState.attemptedContents,
       },
     },
   };
