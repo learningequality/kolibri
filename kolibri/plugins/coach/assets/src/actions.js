@@ -55,7 +55,7 @@ function _managePageTitle(title) {
 
 function showClassListPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_CLASS_LIST_PAGE);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.CLASS_LIST);
   const classCollection = ClassroomResource.getCollection();
   classCollection.fetch().then(
     (classes) => {
@@ -77,7 +77,7 @@ function showClassListPage(store) {
 
 function showRecentPage(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_RECENT_PAGE);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
   const classCollection = ClassroomResource.getCollection();
   classCollection.fetch().then(
     (classes) => {
@@ -99,7 +99,7 @@ function showRecentPage(store, params) {
 
 function showExamsPage(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_EXAMS_PAGE);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAMS);
   const classCollection = ClassroomResource.getCollection();
   classCollection.fetch().then(
     (classes) => {
@@ -121,7 +121,7 @@ function showExamsPage(store, params) {
 
 function showGroupsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_GROUPS_PAGE);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.GROUPS);
 
   const facilityPromise = FacilityUserResource.getCurrentFacility();
   const classPromise = ClassroomResource.getModel(classId).fetch();
@@ -232,7 +232,7 @@ function removeUserfromGroup(store, groupId, userId) {
 
 function showCoachRoot(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_ROOT);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.ROOT);
 }
 
 

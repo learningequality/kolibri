@@ -7,7 +7,7 @@
       <p id="description">{{$tr('pageDescription')}}</p>
     </div>
 
-    <table class="roster" v-if="classId">
+    <table class="roster" v-if="noProgressExist">
 
       <caption class="visuallyhidden">{{$tr('recentPage')}}</caption>
 
@@ -42,9 +42,7 @@
 
     </table>
 
-    <!-- <p v-if="noProgressExist">{{ $tr('noRecentProgressExist') }}</p> -->
-
-    <channel-list v-else />
+    <p v-else>{{ $tr('noRecentProgressExist') }}</p>
 
   </div>
 
@@ -65,15 +63,10 @@
       progress: 'Progress',
       noRecentProgressExist: 'No recent progress.'
     },
-    components: {
-      'channel-list': require('./channel-list'),
-    },
-    data() {
-      return {
-        classId: '',
-      };
-    },
     computed: {
+      noProgressExist() {
+        return this.attemptedContents ? this.attemptedContents.length === 0 : false;
+      },
     },
     methods: {
       contentLearnersPageLink(id) {

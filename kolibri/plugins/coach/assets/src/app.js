@@ -33,42 +33,42 @@ class CoachToolsModule extends KolibriModule {
     coreActions.getCurrentSession(store).then(() => {
       const routes = [
         {
-          name: PageNames.COACH_CLASS_LIST_PAGE,
+          name: PageNames.CLASS_LIST,
           path: '/',
           handler: (toRoute, fromRoute) => {
             actions.showClassListPage(store);
           },
         },
         {
-          name: PageNames.COACH_RECENT_PAGE,
+          name: PageNames.RECENT,
           path: RECENT_URL_PATTERN,
           handler: (toRoute, fromRoute) => {
             actions.showRecentPage(store, toRoute.params);
           },
         },
         {
-          name: PageNames.COACH_TOPICS_PAGE,
+          name: PageNames.TOPICS,
           path: REPORTS_URL_PATTERN,
           handler: (toRoute, fromRoute) => {
             actions.showReport(store, toRoute.params);
           },
         },
         {
-          name: PageNames.COACH_EXAMS_PAGE,
+          name: PageNames.EXAMS,
           path: '/:class_id/exams',
           handler: (toRoute, fromRoute) => {
             actions.showExamsPage(store, toRoute.params);
           },
         },
         {
-          name: PageNames.COACH_LEARNERS_PAGE,
+          name: PageNames.LEARNERS,
           path: REPORTS_URL_PATTERN,
           handler: (toRoute, fromRoute) => {
             actions.showReport(store, toRoute.params);
           },
         },
         {
-          name: PageNames.COACH_GROUPS_PAGE,
+          name: PageNames.GROUPS,
           path: '/:class_id/groups',
           handler: (toRoute, fromRoute) => {
             actions.showGroupsPage(store, toRoute.params.id);

@@ -3,7 +3,7 @@ const coreStore = require('kolibri.coreVue.vuex.store');
 const constants = require('./constants');
 
 const initialState = {
-  pageName: constants.PageNames.COACH_CLASS_LIST_PAGE,
+  pageName: constants.PageNames.CLASS_LIST,
   pageState: {},
 };
 
