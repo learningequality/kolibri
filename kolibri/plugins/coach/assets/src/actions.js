@@ -26,6 +26,7 @@ const UserReportResource = new UserReportResourceConstructor(coreApp);
 const ContentReportResource = new ContentReportResourceConstructor(coreApp);
 const UserSummaryResource = new UserSummaryResourceConstructor(coreApp);
 const ContentSummaryResource = new ContentSummaryResourceConstructor(coreApp);
+const AttemptLogResource = coreApp.resources.AttemptLog;
 
 /* find the keys that differ between the old and new params */
 function _diffKeys(newParams, oldParams) {
@@ -437,11 +438,22 @@ function displayModal(store, modalName) {
 
 // - - - - - Action for Coach Exercise Render Page - - - - - -
 
-function showCoachExerciseRenderPage(store) {
+function showCoachExerciseRenderPage(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_EXERCISE_RENDER_PAGE);
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_TITLE', 'Coach Exercise Render');
+  AttemptLogResource.getCollection({ user: params.user_id, content: params.content_id }).fetch().then(
+    attemptLogs => {
+      const pageState = {
+        attemptLogs: attemptLogs.reverse(), // is there a better solution?
+        selectedAttemptLog: attemptLogs[0],
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_TITLE', _coachPageTitle('Coach Exercise Render'));
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
+}
 }
 
 
