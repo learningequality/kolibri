@@ -11,12 +11,15 @@
       {{ group.name }}
     </label>
 
-    <label v-if="!isUngrouped">
-    <input type="radio"
-      value="ungrouped"
-      v-model="groupSelected">
-      Ungrouped
-    </label>
+    <div v-if="!isUngrouped">
+      <hr>
+      <label>
+      <input type="radio"
+        value="ungrouped"
+        v-model="groupSelected">
+        Ungrouped
+      </label>
+    </div>
 
     <icon-button :text="$tr('cancel')"
       @click="close" />

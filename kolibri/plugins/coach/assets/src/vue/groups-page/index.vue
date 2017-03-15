@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('groups') }} - {{ className }}</h1>
+    <h1>{{ className }} - {{ $tr('groups') }}</h1>
     <icon-button :text="$tr('newGroup')"
       :primary="true"
       @click="openCreateGroupModal">
@@ -40,15 +40,13 @@
       :classId="classId"
       @rename="openRenameGroupModal"
       @delete="openDeleteGroupModal"
-      @move="openMoveLearnersModal"
-      v-if="!loading"/>
+      @move="openMoveLearnersModal" />
 
     <group-section :group="ungroupedUsersObject"
       :className="className"
       :classId="classId"
       :isUngrouped="true"
-      @move="openMoveLearnersModal"
-      v-if="!loading" />
+      @move="openMoveLearnersModal" />
   </div>
 
 </template>
@@ -108,7 +106,7 @@
         return differenceWith(this.classUsers, this.groupedUsers, (a, b) => a.id === b.id);
       },
       ungroupedUsersObject() {
-        return { users: this.ungroupedUsers };
+        return { name: this.$tr('ungrouped'), users: this.ungroupedUsers };
       },
     },
     methods: {
@@ -137,7 +135,6 @@
         classUsers: state => state.pageState.classUsers,
         groups: state => state.pageState.groups,
         modalShown: state => state.pageState.modalShown,
-        loading: state => state.pageState.loading,
       },
       actions: {
         displayModal: actions.displayModal,

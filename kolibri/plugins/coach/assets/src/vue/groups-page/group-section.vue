@@ -2,10 +2,8 @@
 
   <div>
     <h2>{{ group.name }}</h2>
-    <!--TODO: Fix this-->
-    <span v-if="group.users">{{ $tr('numLearners', {count: group.users.length }) }}</span>
-    <span v-else>{{ $tr('numLearners', {count: 0 }) }}</span>
-    <!--0 selected-->
+    <span>{{ $tr('numLearners', {count: group.users.length }) }}</span>
+    <span>{{ `${selectedUsers.length} ${$tr('selected')}` }}</span>
     <icon-button :text="$tr('moveLearners')"
       :primary="true"
       size="small"
@@ -67,6 +65,7 @@
       deleteGroup: 'Delete Group',
       name: 'Name',
       username: 'Username',
+      selected: 'Selected',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
