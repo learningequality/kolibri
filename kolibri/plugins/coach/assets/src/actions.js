@@ -454,6 +454,9 @@ function showCoachExerciseRenderPage(store, params) {
     error => { coreActions.handleApiError(store, error); }
   );
 }
+
+function setSelectedAttemptLog(store, attemptLog) {
+  store.dispatch('SET_SELETED_ATTEMPTLOG', attemptLog);
 }
 
 
@@ -474,4 +477,5 @@ module.exports = {
   showReport,
   showContentUnavailable,
   showCoachExerciseRenderPage,
+  setSelectedAttemptLog,
 };
