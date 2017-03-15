@@ -128,7 +128,7 @@
           // Calculate min-height property by taking the number of options (minus the divider)
           // multipying by 50 for each option, adding 173 for the divider and the footer,
           // and finally adding this.width/2.5 for the non-mobile logo if needed.
-          minHeight: `${(this.menuOptions.length - 1) * 50 + 173 +
+          minHeight: `${((this.menuOptions.length - 1) * 50) + 173 +
           (!this.mobile ? this.width / 2.5 : 0)}px`,
           width: `${this.width}px`,
         };
@@ -191,7 +191,7 @@
         options.push({
           type: 'divider',
         });
-        if (this.isUserLoggedIn & !this.isAdminOrSuperuser) {
+        if (this.isUserLoggedIn && !this.isAdminOrSuperuser) {
           options.push({
             label: this.$tr('profile'),
             disabled: this.profileActive,
@@ -255,7 +255,7 @@
     background: $core-bg-light
     font-weight: 300
     position: fixed
-    z-index: 1001
+    z-index: 60
     font-size: 1em
     height: 100%
     overflow: auto

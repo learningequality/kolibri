@@ -256,24 +256,22 @@ class Collection {
               this.set(response.entity);
               // Mark that the fetch has completed.
               this.synced = true;
+            } else if (typeof (response.entity || {}).results !== 'undefined') {
+            // If it's not, there are two possibilities - something is awry, or we have received
+            // paginated data! Check to see if it is paginated.
+              this.clearCache();
+              // Paginated objects have 'results' as their results object so interpret this as
+              // such.
+              this.set(response.entity.results);
+              this.pageCount = Math.ceil(response.entity.count / this.pageSize);
+              this.hasNext = Boolean(response.entity.next);
+              this.hasPrev = Boolean(response.entity.previous);
+              // Mark that the fetch has completed.
+              this.synced = true;
             } else {
-              // If it's not, there are two possibilities - something is awry, or we have received
-              // paginated data! Check to see if it is paginated.
-              if (typeof (response.entity || {}).results !== 'undefined') {
-                this.clearCache();
-                // Paginated objects have 'results' as their results object so interpret this as
-                // such.
-                this.set(response.entity.results);
-                this.pageCount = Math.ceil(response.entity.count / this.pageSize);
-                this.hasNext = Boolean(response.entity.next);
-                this.hasPrev = Boolean(response.entity.previous);
-                // Mark that the fetch has completed.
-                this.synced = true;
-              } else {
-                // It's all gone a bit Pete Tong.
-                logging.debug('Data appears to be malformed', response.entity);
-                reject(response);
-              }
+              // It's all gone a bit Pete Tong.
+              logging.debug('Data appears to be malformed', response.entity);
+              reject(response);
             }
             // Return the data from the models, not the models themselves.
             resolve(this.data);

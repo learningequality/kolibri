@@ -1,6 +1,7 @@
 const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
 const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('./state/constants');
+
 const PageNames = constants.PageNames;
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
@@ -322,11 +323,9 @@ function triggerSearch(store, searchTerm) {
       topics: [],
       contents: [],
     };
-    store.dispatch('SET_SEARCH_STATE', searchState);
+    store.dispatch('SET_PAGE_STATE', searchState);
     return;
   }
-
-  store.dispatch('SET_SEARCH_LOADING');
 
   const contentCollection = ContentNodeResource.getPagedCollection({ search: searchTerm });
   const searchResultsPromise = contentCollection.fetch();
@@ -336,21 +335,18 @@ function triggerSearch(store, searchTerm) {
     const collection = _collectionState(results);
     searchState.topics = collection.topics;
     searchState.contents = collection.contents;
-    store.dispatch('SET_SEARCH_STATE', searchState);
+    store.dispatch('SET_PAGE_STATE', searchState);
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
   })
   .catch(error => { coreActions.handleApiError(store, error); });
 }
 
 function clearSearch(store) {
-  store.dispatch('SET_SEARCH_STATE', {
+  store.dispatch('SET_PAGE_STATE', {
     topics: [],
     contents: [],
     searchTerm: '',
   });
-}
-
-function toggleSearch(store) {
-  store.dispatch('TOGGLE_SEARCH');
 }
 
 
@@ -371,6 +367,44 @@ function showContentUnavailable(store) {
   store.dispatch('CORE_SET_TITLE', 'Content Unavailable');
 }
 
+function redirectToChannelSearch(store) {
+  store.dispatch('SET_PAGE_NAME', PageNames.SEARCH_ROOT);
+  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'Search');
+  clearSearch(store);
+  coreActions.setChannelInfo(store).then(
+    () => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      router.getInstance().replace({
+        name: constants.PageNames.SEARCH,
+        params: { channel_id: currentChannel.id },
+      });
+    },
+    error => {
+      coreActions.handleApiError(store, error);
+    }
+  );
+}
+
+function showSearch(store, channelId, searchTerm) {
+  store.dispatch('SET_PAGE_NAME', PageNames.SEARCH);
+  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'Search');
+  clearSearch(store);
+  coreActions.setChannelInfo(store, channelId).then(
+    () => {
+      if (searchTerm) {
+        triggerSearch(store, searchTerm);
+      } else {
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+      }
+    }
+  );
+}
 
 module.exports = {
   redirectToExploreChannel,
@@ -383,6 +417,7 @@ module.exports = {
   showScratchpad,
   showContentUnavailable,
   triggerSearch,
-  toggleSearch,
   clearSearch,
+  redirectToChannelSearch,
+  showSearch,
 };

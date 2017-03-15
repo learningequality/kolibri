@@ -9,6 +9,7 @@ const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const constants = require('./state/constants');
 const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
+
 const PageNames = constants.PageNames;
 const ContentWizardPages = constants.ContentWizardPages;
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
@@ -105,7 +106,7 @@ function assignUserRole(user, kind) {
  */
 function createUser(store, stateUserData) {
   const userData = {
-    facility: stateUserData.facility_id,
+    facility: store.state.pageState.facility_id,
     username: stateUserData.username,
     full_name: stateUserData.full_name,
     password: stateUserData.password,
@@ -158,9 +159,6 @@ function updateUser(store, stateUser) {
   }
   if (stateUser.password && stateUser.password !== savedUser.password) {
     changedValues.password = stateUser.password;
-  }
-  if (stateUser.facility && stateUser.facility !== savedUser.facility) {
-    changedValues.facility = stateUser.facility;
   }
 
   if (stateUser.kind && stateUser.kind !== _userState(savedUser).kind) {
@@ -240,12 +238,10 @@ function showUserPage(store) {
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([facilityId, users]) => {
-      store.dispatch('SET_FACILITY', facilityId[0]); // for mvp, we assume only one facility exists
-
       const pageState = {
         users: users.map(_userState),
+        facility_id: facilityId[0],
       };
-
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);

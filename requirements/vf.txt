@@ -1,3 +1,3 @@
 -r base.txt
 
-https://github.com/fle-internal/kolibri-instant-schools-plugin/archive/2c505d3206f477e9fa7da6570021134bd92047b5.zip#egg=kolibri_instant_schools_plugin
+https://github.com/fle-internal/kolibri-instant-schools-plugin/archive/22f3f94ae5b14e08ced07f62b2068b3d2bf05f4f.zip#egg=kolibri_instant_schools_plugin

@@ -10,12 +10,15 @@ const PageNames = {
   LEARN_CONTENT: 'LEARN_CONTENT',
   SCRATCHPAD: 'SCRATCHPAD',
   CONTENT_UNAVAILABLE: 'CONTENT_UNAVAILABLE',
+  SEARCH_ROOT: 'SEARCH_ROOT',
+  SEARCH: 'SEARCH',
 };
 
 // switch between modes
 const PageModes = {
   EXPLORE: 'EXPLORE',
   LEARN: 'LEARN',
+  SEARCH: 'SEARCH',
 };
 
 module.exports = {

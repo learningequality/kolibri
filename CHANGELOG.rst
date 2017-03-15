@@ -3,6 +3,15 @@
 Release Notes
 =============
 
+0.3.0
+-----
+
+ - Content Renderers use explicit new API rather than event-based loading
+ - Add search back in
+ - Improve pipeline for translating plugins
+ - Add Spanish and Swahili translations
+
+
 0.2.0
 -----
 
@@ -25,7 +34,6 @@ Release Notes
  - Add JS-based 'responsive mixin' as alternative to media queries
  - Rename 'Learn/Explore' to 'Recommended/Topics'
  - Temporarily remove 'search' functionality
- - Refactor content renderer API interface
  - Add authentication for tasks API
 
 
