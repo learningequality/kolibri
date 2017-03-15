@@ -1,8 +1,8 @@
 <template>
 
-  <core-modal :title="`${$tr('move')} ${$tr('learners', {count: usersToMove.length })}`"
+  <core-modal :title="$tr('moveLearners')"
     @cancel="close">
-
+    <p>Select the group you want to move the <strong>{{ $tr('learners', {count: usersToMove.length }) }}</strong> to.</p>
     <label v-for="group in groupsExcludingCurrent">
     <input
       type="radio"
@@ -21,11 +21,13 @@
       </label>
     </div>
 
-    <icon-button :text="$tr('cancel')"
-      @click="close" />
-    <icon-button :text="$tr('save')"
-      :primary="true"
-      @click="moveUsers" />
+    <div class="button-section">
+      <icon-button :text="$tr('cancel')"
+        @click="close" />
+      <icon-button :text="$tr('save')"
+        :primary="true"
+        @click="moveUsers" />
+    </div>
   </core-modal>
 
 </template>
@@ -38,7 +40,7 @@
   module.exports = {
     $trNameSpace: 'confirm-enrollment-modal',
     $trs: {
-      move: 'move',
+      moveLearners: 'Move Learners',
       learners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       ungrouped: 'Ungrouped',
       cancel: 'Cancel',
@@ -122,5 +124,10 @@
 
   label
     display: block
+    padding-bottom: 0.5em
+    padding-top: 0.5em
+
+  .button-section
+    margin-top: 1em
 
 </style>

@@ -1,9 +1,9 @@
 <template>
 
-  <div>
+  <div class="group-section">
     <h2>{{ group.name }}</h2>
     <span>{{ $tr('numLearners', {count: group.users.length }) }}</span>
-    <span>{{ `${selectedUsers.length} ${$tr('selected')}` }}</span>
+    <span v-if="group.users.length">{{ `${selectedUsers.length} ${$tr('selected')}` }}</span>
     <icon-button :text="$tr('moveLearners')"
       :primary="true"
       size="small"
@@ -20,16 +20,16 @@
         @close="close" />
     </ui-button>
 
-    <table>
+    <table v-if="group.users.length">
       <thead>
         <tr>
-          <th>
+          <th class="col-checkbox">
             <input type="checkbox"
               :checked="allUsersAreSelected"
               @change="toggleSelectAll">
           </th>
-          <th>{{ $tr('name') }}</th>
-          <th>{{ $tr('username') }}</th>
+          <th class="col-name">{{ $tr('name') }}</th>
+          <th class="col-username">{{ $tr('username') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -47,6 +47,7 @@
         </tr>
       </tbody>
     </table>
+    <p v-else>No Learners in this Group</p>
   </div>
 
 </template>
@@ -155,5 +156,44 @@
 </script>
 
 
-<style lang="stylus"
-  scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~kolibri.styles.definitions'
+
+  .group-section
+    padding-bottom: 2em
+
+  h2
+    display: inline-block
+
+  table
+    width: 100%
+    word-break: break-all
+
+  th
+    text-align: left
+
+  td, th
+    padding: 0.5em
+
+  tbody
+    tr
+      cursor: pointer
+      &:hover
+        background-color: #f1f1f1
+
+  thead
+    .col-name, .col-username
+      color: #686868
+      font-size: small
+
+  .selectedrow
+    background-color: $core-bg-canvas
+
+  .col-checkbox
+    width: 4%
+
+  .col-name, .col-username
+    width: 48%
+
+</style>

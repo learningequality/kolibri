@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="wrapper">
     <h1>{{ className }} - {{ $tr('groups') }}</h1>
     <icon-button :text="$tr('newGroup')"
       :primary="true"
@@ -146,4 +146,15 @@
 
 
 <style lang="stylus"
-  scoped></style>
+  scoped>
+
+  @require '~kolibri.styles.definitions'
+
+  .wrapper
+    background-color: $core-bg-light
+    padding: 2em
+
+  h1
+    display: inline-block
+
+</style>
