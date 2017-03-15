@@ -46,8 +46,8 @@ function _diffKeys(newParams, oldParams) {
  * Title Helper
  */
 
-function _managePageTitle(title) {
-  return `Manage ${title}`;
+function _coachPageTitle(title) {
+  return `Coach ${title}`;
 }
 
 
@@ -66,7 +66,7 @@ function showClassListPage(store) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Coach'));
+      store.dispatch('CORE_SET_TITLE', _coachPageTitle('Coach'));
     },
     error => { coreActions.handleApiError(store, error); }
   );
@@ -88,7 +88,7 @@ function showRecentPage(store, params) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Coach'));
+      store.dispatch('CORE_SET_TITLE', _coachPageTitle('Coach'));
     },
     error => { coreActions.handleApiError(store, error); }
   );
@@ -110,7 +110,7 @@ function showExamsPage(store, params) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Coach'));
+      store.dispatch('CORE_SET_TITLE', _coachPageTitle('Coach'));
     },
     error => { coreActions.handleApiError(store, error); }
   );
@@ -146,7 +146,7 @@ function showGroupsPage(store, classId) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Coach'));
+      store.dispatch('CORE_SET_TITLE', _coachPageTitle('Coach'));
     },
     error => {
       coreActions.handleError(store, error);
