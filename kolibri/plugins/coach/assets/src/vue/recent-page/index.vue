@@ -33,7 +33,7 @@
 
 <script>
 
-  const Constants = require('../../state/constants');
+  const PageNames = require('../../state/constants').PageNames;
 
   module.exports = {
     $trNameSpace: 'coachRecentPage',
@@ -48,14 +48,9 @@
     components: {
       'channel-list': require('./channel-list'),
     },
-    data() {
-      return {
-        classId: '',
-      };
-    },
     computed: {
       channelNotSelected() {
-        return this.subPageName === Constants.PageNames.COACH_RECENT_PAGE_CHANNEL_SELECT;
+        return this.subPageName === PageNames.COACH_RECENT_PAGE_CHANNEL_SELECT;
       },
     },
     methods: {
@@ -63,6 +58,7 @@
     vuex: {
       getters: {
         subPageName: state => state.pageState.subPageName,
+        reports: state => state.pageState.reports,
       },
     },
   };
