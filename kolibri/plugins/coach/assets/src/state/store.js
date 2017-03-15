@@ -65,9 +65,10 @@ const mutations = {
   DELETE_GROUP(state, groupId) {
     state.pageState.groups = state.pageState.groups.filter(group => group.id !== groupId);
   },
-  ADD_USER_TO_GROUP(state, groupId, user) {
+  ADD_USER_TO_GROUP(state, groupId, userId) {
     const groupIndex = state.pageState.groups.findIndex(group => group.id === groupId);
-    state.pageState.groups[groupIndex].users.push(user);
+    const userObject = state.pageState.classUsers.find(user => user.id === userId);
+    state.pageState.groups[groupIndex].users.push(userObject);
   },
   REMOVE_USER_FROM_GROUP(state, groupId, userId) {
     const groupIndex = state.pageState.groups.findIndex(group => group.id === groupId);

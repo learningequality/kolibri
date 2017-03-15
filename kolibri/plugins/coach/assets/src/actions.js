@@ -219,8 +219,8 @@ function _addUserToGroup(store, groupId, userId) {
   };
   return new Promise((resolve, reject) => {
     MembershipResource.createModel(membershipPayload).save().then(
-      user => {
-        store.dispatch('ADD_USER_TO_GROUP', groupId, user);
+      () => {
+        store.dispatch('ADD_USER_TO_GROUP', groupId, userId);
         resolve();
       },
       error => reject(error)
