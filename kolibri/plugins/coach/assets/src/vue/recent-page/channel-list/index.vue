@@ -7,7 +7,9 @@
       <!-- Table Headers -->
       <thead>
         <tr>
-          <th class="col-header" scope="col"> test </th>
+          <th class="col-header" scope="col">
+            Channels
+          </th>
         </tr>
       </thead>
 
@@ -15,7 +17,8 @@
       <tbody>
         <tr>
           <!-- Content Name field -->
-          <th scope="row" class="table-cell">
+          <th v-for="channel in channels" scope="row" class="table-cell">
+            {{channel.name}}
           </th>
         </tr>
       </tbody>
@@ -41,6 +44,7 @@
     },
     vuex: {
       getters: {
+        channels: state => state.pageState.channels,
       },
     },
   };
