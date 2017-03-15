@@ -449,7 +449,7 @@ function showCoachExerciseRenderPage(store, params) {
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_TITLE', _coachPageTitle('Coach Exercise Render'));
+      store.dispatch('CORE_SET_TITLE', _coachPageTitle('Exercise Detail View'));
     },
     error => { coreActions.handleApiError(store, error); }
   );
