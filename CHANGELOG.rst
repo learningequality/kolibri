@@ -3,8 +3,8 @@
 Release Notes
 =============
 
-DEVELOP
--------
+0.3.0
+-----
 
  - Content Renderers use explicit new API rather than event-based loading
  - Add search back in
