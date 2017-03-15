@@ -22,7 +22,7 @@
       @click="close" />
     <icon-button :text="$tr('save')"
       :primary="true"
-      @click="callMoveUsers" />
+      @click="moveUsers" />
   </core-modal>
 
 </template>
@@ -86,10 +86,9 @@
       },
     },
     methods: {
-      callMoveUsers() {
+      moveUsers() {
         if (this.groupId) {
           if (this.groupSelected === 'ungrouped') {
-            // remove users from group
             this.removeMultipleUsersFromGroup(this.groupId, this.usersToMove).then(
               group => {
                 this.displayModal(false);
@@ -97,13 +96,18 @@
               error => error(error)
             );
           } else {
-            // remove users from group
-            // add users to new group
-            this.removeMultipleUsersFromGroup(this.groupSelected, this.usersToMove);
-            this.addMultipleUsersToGroup(this.groupSelected, this.usersToMove);
+            const removeUsersPromise =
+              this.removeMultipleUsersFromGroup(this.groupId, this.usersToMove);
+            const addUsersPromise =
+              this.addMultipleUsersToGroup(this.groupSelected, this.usersToMove);
+            Promise.all([removeUsersPromise, addUsersPromise]).then(
+              () => {
+                this.displayModal(false);
+              },
+              error => error(error)
+            );
           }
         } else {
-          // add users to group
           this.addMultipleUsersToGroup(this.groupSelected, this.usersToMove).then(
               group => {
                 this.displayModal(false);

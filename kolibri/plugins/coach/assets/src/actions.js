@@ -253,7 +253,7 @@ function removeUserfromGroup(store, groupId, userId) {
         const membershipId = membership[0].id; // will always only have one item in the array.
         MembershipResource.getModel(membershipId).delete().then(
           response => {
-            // store.dispatch('DELETE_CLASS_USER', userId);
+            store.dispatch('REMOVE_USER_FROM_GROUP', groupId, userId);
           },
           error => { coreActions.handleApiError(store, error); }
         );
@@ -264,13 +264,11 @@ function removeUserfromGroup(store, groupId, userId) {
 
 function removeMultipleUsersFromGroup(store, groupId, userIds) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('here');
   return new Promise((resolve, reject) => {
     const removePromises = userIds.map(userId => removeUserfromGroup(store, groupId, userId));
     ConditionalPromise.all(removePromises).only(
       coreActions.samePageCheckGenerator(store),
       user => {
-        console.log('here');
         store.dispatch('CORE_SET_PAGE_LOADING', false);
         resolve(user);
       },

@@ -58,20 +58,35 @@ const mutations = {
     state.pageState.groups.push(group);
   },
   RENAME_GROUP(state, groupId, newGroupName) {
-    state.pageState.groups.forEach((group, index, arr) => {
+    const groupIndex = state.pageState.groups.findIndex((group, index) => {
       if (group.id === groupId) {
-        arr[index].name = newGroupName;
+        return true;
       }
+      return false;
     });
+    state.pageState.groups[groupIndex].name = newGroupName;
   },
   DELETE_GROUP(state, groupId) {
     state.pageState.groups = state.pageState.groups.filter(group => group.id !== groupId);
   },
   ADD_USER_TO_GROUP(state, groupId, user) {
-    // add user to group
+    const groupIndex = state.pageState.groups.findIndex((group, index) => {
+      if (group.id === groupId) {
+        return true;
+      }
+      return false;
+    });
+    state.pageState.groups[groupIndex].users.push(user);
   },
   REMOVE_USER_FROM_GROUP(state, groupId, userId) {
-    // remove user from group
+    const groupIndex = state.pageState.groups.findIndex((group, index) => {
+      if (group.id === groupId) {
+        return true;
+      }
+      return false;
+    });
+    state.pageState.groups[groupIndex].users =
+      state.pageState.groups[groupIndex].users.filter(user => user.id !== userId);
   },
 };
 
