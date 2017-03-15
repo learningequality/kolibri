@@ -100,6 +100,7 @@
               this.removeMultipleUsersFromGroup(this.groupId, this.usersToMove);
             const addUsersPromise =
               this.addMultipleUsersToGroup(this.groupSelected, this.usersToMove);
+
             Promise.all([removeUsersPromise, addUsersPromise]).then(
               () => {
                 this.displayModal(false);

@@ -191,7 +191,7 @@ function renameGroup(store, classId, groupId, newGroupName) {
     name: newGroupName,
   };
   LearnerGroupResource.getModel(groupId).save(groupPayload).then(
-    group => {
+    () => {
       store.dispatch('RENAME_GROUP', groupId, newGroupName);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
@@ -203,7 +203,7 @@ function renameGroup(store, classId, groupId, newGroupName) {
 function deleteGroup(store, classId, groupId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   LearnerGroupResource.getModel(groupId).delete().then(
-    group => {
+    () => {
       store.dispatch('DELETE_GROUP', groupId);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
@@ -221,6 +221,7 @@ function addUserToGroup(store, groupId, userId) {
     MembershipResource.createModel(membershipPayload).save().then(
       user => {
         store.dispatch('ADD_USER_TO_GROUP', groupId, user);
+        resolve();
       },
       error => reject(error)
     );
@@ -228,16 +229,15 @@ function addUserToGroup(store, groupId, userId) {
 }
 
 function addMultipleUsersToGroup(store, groupId, userIds) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  // store.dispatch('CORE_SET_PAGE_LOADING', true);
+  const addPromises = userIds.map(userId => addUserToGroup(store, groupId, userId));
+
   return new Promise((resolve, reject) => {
-    const addPromises = userIds.map(userId => addUserToGroup(store, groupId, userId));
-    ConditionalPromise.all(addPromises).only(
-      coreActions.samePageCheckGenerator(store),
-      user => {
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-        resolve(user);
+    Promise.all(addPromises).then(
+      () => {
+        resolve();
       },
-      error => coreActions.handleError(store, error)
+      error => reject(error)
     );
   });
 }
@@ -252,10 +252,11 @@ function removeUserfromGroup(store, groupId, userId) {
       membership => {
         const membershipId = membership[0].id; // will always only have one item in the array.
         MembershipResource.getModel(membershipId).delete().then(
-          response => {
+          () => {
             store.dispatch('REMOVE_USER_FROM_GROUP', groupId, userId);
+            resolve();
           },
-          error => { coreActions.handleApiError(store, error); }
+          error => reject(error)
         );
       }
     );
@@ -263,16 +264,15 @@ function removeUserfromGroup(store, groupId, userId) {
 }
 
 function removeMultipleUsersFromGroup(store, groupId, userIds) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  // store.dispatch('CORE_SET_PAGE_LOADING', true);
+  const removePromises = userIds.map(userId => removeUserfromGroup(store, groupId, userId));
+
   return new Promise((resolve, reject) => {
-    const removePromises = userIds.map(userId => removeUserfromGroup(store, groupId, userId));
-    ConditionalPromise.all(removePromises).only(
-      coreActions.samePageCheckGenerator(store),
-      user => {
-        store.dispatch('CORE_SET_PAGE_LOADING', false);
-        resolve(user);
+    Promise.all(removePromises).then(
+      () => {
+        resolve();
       },
-      error => coreActions.handleError(store, error)
+      error => reject(error)
     );
   });
 }
