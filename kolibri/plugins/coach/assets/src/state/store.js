@@ -57,10 +57,10 @@ const mutations = {
   ADD_GROUP(state, group) {
     state.pageState.groups.push(group);
   },
-  UPDATE_GROUP(state, groupId, updatedGroup) {
+  RENAME_GROUP(state, groupId, newGroupName) {
     state.pageState.groups.forEach((group, index, arr) => {
       if (group.id === groupId) {
-        arr[index] = updatedGroup;
+        arr[index].name = newGroupName;
       }
     });
   },

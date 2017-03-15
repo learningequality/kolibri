@@ -140,7 +140,7 @@ function showGroupsPage(store, classId) {
         FacilityUserResource.getCollection({ member_of: group.id }).fetch({}, true));
       ConditionalPromise.all(groupUsersPromises).only(
         coreActions.samePageCheckGenerator(store),
-        (groupsUsers) => {
+        groupsUsers => {
           groups.forEach((group, index) => {
             groups[index].users = groupsUsers[index];
           });
@@ -150,6 +150,7 @@ function showGroupsPage(store, classId) {
             classUsers,
             groups,
             modalShown: false,
+            loading: false,
           };
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -168,35 +169,49 @@ function showGroupsPage(store, classId) {
 }
 
 function createGroup(store, classId, groupName) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   const groupPayload = {
     parent: classId,
     name: groupName,
   };
-  return new Promise((resolve, reject) => {
-    LearnerGroupResource.createModel(groupPayload).save().then(
-      group => {
-        store.dispatch('ADD_GROUP', group);
-        displayModal(store, false);
-      },
-      error => reject(error)
-    );
-  });
+  LearnerGroupResource.createModel(groupPayload).save().then(
+    group => {
+      group.users = []; // pass in an empty array
+      store.dispatch('ADD_GROUP', group);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      displayModal(store, false);
+    },
+    error => coreActions.handleError(store, error)
+  );
 }
 
 function renameGroup(store, classId, groupId, newGroupName) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   const groupPayload = {
     name: newGroupName,
   };
-  return new Promise((resolve, reject) => {
-    LearnerGroupResource.getModel(groupId).save(groupPayload).then(
-      updatedGroup => {
-        store.dispatch('UPDATE_GROUP', groupId, updatedGroup);
-        this.displayModal(false);
-      },
-      error => reject(error)
-    );
-  });
+  LearnerGroupResource.getModel(groupId).save(groupPayload).then(
+    group => {
+      store.dispatch('RENAME_GROUP', groupId, newGroupName);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      this.displayModal(false);
+    },
+    error => coreActions.handleError(store, error)
+  );
 }
+
+function deleteGroup(store, classId, groupId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  LearnerGroupResource.getModel(groupId).delete().then(
+    group => {
+      store.dispatch('DELETE_GROUP', groupId);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      this.displayModal(false);
+    },
+    error => coreActions.handleError(store, error)
+  );
+}
+
 function addUserToGroup(store, groupId, userId) {
   const membershipPayload = {
     collection: groupId,
@@ -212,32 +227,58 @@ function addUserToGroup(store, groupId, userId) {
   });
 }
 
-function removeUserfromGroup(store, groupId, userId) {
-  const membershipPayload = {
-    collection: groupId,
-    user: userId,
-  };
+function addMultipleUsersToGroup(store, groupId, userIds) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   return new Promise((resolve, reject) => {
-    MembershipResource.getModel(membershipPayload).delete().then(
+    const addPromises = userIds.map(userId => addUserToGroup(store, groupId, userId));
+    ConditionalPromise.all(addPromises).only(
+      coreActions.samePageCheckGenerator(store),
       user => {
-        store.dispatch('REMOVE_USER_FROM_GROUP', groupId, userId);
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        resolve(user);
       },
-      error => reject(error)
+      error => coreActions.handleError(store, error)
     );
   });
 }
 
-function deleteGroup(store, classId, groupId) {
+function removeUserfromGroup(store, groupId, userId) {
+  const membershipPayload = {
+    collection_id: groupId,
+    user_id: userId,
+  };
   return new Promise((resolve, reject) => {
-    LearnerGroupResource.getModel(groupId).delete().then(
-      deletetedGroup => {
-        store.dispatch('DELETE_GROUP', groupId);
-        this.displayModal(false);
-      },
-      error => reject(error)
+    MembershipResource.getCollection(membershipPayload).fetch().then(
+      membership => {
+        const membershipId = membership[0].id; // will always only have one item in the array.
+        MembershipResource.getModel(membershipId).delete().then(
+          response => {
+            // store.dispatch('DELETE_CLASS_USER', userId);
+          },
+          error => { coreActions.handleApiError(store, error); }
+        );
+      }
     );
   });
 }
+
+function removeMultipleUsersFromGroup(store, groupId, userIds) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  console.log('here');
+  return new Promise((resolve, reject) => {
+    const removePromises = userIds.map(userId => removeUserfromGroup(store, groupId, userId));
+    ConditionalPromise.all(removePromises).only(
+      coreActions.samePageCheckGenerator(store),
+      user => {
+        console.log('here');
+        store.dispatch('CORE_SET_PAGE_LOADING', false);
+        resolve(user);
+      },
+      error => coreActions.handleError(store, error)
+    );
+  });
+}
+
 
 function showCoachRoot(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -448,8 +489,8 @@ module.exports = {
   createGroup,
   renameGroup,
   deleteGroup,
-  addUserToGroup,
-  removeUserfromGroup,
+  addMultipleUsersToGroup,
+  removeMultipleUsersFromGroup,
   displayModal,
   showCoachRoot,
   redirectToChannelReport,

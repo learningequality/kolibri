@@ -25,17 +25,30 @@
       :groupName="selectedGroup.name"
       :groupId="selectedGroup.id" />
 
+    <move-learners-modal v-if="showMoveLearnersModal"
+      :className="className"
+      :classId="classId"
+      :groupName="selectedGroup.name"
+      :groupId="selectedGroup.id"
+      :groups="groups"
+      :usersToMove="usersToMove"
+      :isUngrouped="isUngrouped" />
+
     <group-section v-for="group in groups"
       :group="group"
       :className="className"
       :classId="classId"
       @rename="openRenameGroupModal"
-      @delete="openDeleteGroupModal" />
+      @delete="openDeleteGroupModal"
+      @move="openMoveLearnersModal"
+      v-if="!loading"/>
 
     <group-section :group="ungroupedUsersObject"
       :className="className"
       :classId="classId"
-      :showMenu="false" />
+      :isUngrouped="true"
+      @move="openMoveLearnersModal"
+      v-if="!loading" />
   </div>
 
 </template>
@@ -60,10 +73,13 @@
       'group-section': require('./group-section'),
       'rename-group-modal': require('./rename-group-modal'),
       'delete-group-modal': require('./delete-group-modal'),
+      'move-learners-modal': require('./move-learners-modal'),
     },
     data() {
       return {
         selectedGroup: { name: '', id: '' },
+        usersToMove: [],
+        isUngrouped: false,
       };
     },
     computed: {
@@ -76,10 +92,15 @@
       showDeleteGroupModal() {
         return this.modalShown === constants.Modals.DELETE_GROUP;
       },
+      showMoveLearnersModal() {
+        return this.modalShown === constants.Modals.MOVE_LEARNERS;
+      },
       groupedUsers() {
         const groupedUsers = [];
         this.groups.forEach(group => {
-          groupedUsers.push(group.users);
+          group.users.forEach(user => {
+            groupedUsers.push(user);
+          });
         });
         return groupedUsers;
       },
@@ -102,6 +123,12 @@
         this.selectedGroup = { name: groupName, id: groupId };
         this.displayModal(constants.Modals.DELETE_GROUP);
       },
+      openMoveLearnersModal(groupName, groupId, usersToMove, isUngrouped) {
+        this.selectedGroup = { name: groupName, id: groupId };
+        this.usersToMove = usersToMove;
+        this.isUngrouped = isUngrouped;
+        this.displayModal(constants.Modals.MOVE_LEARNERS);
+      },
     },
     vuex: {
       getters: {
@@ -110,6 +137,7 @@
         classUsers: state => state.pageState.classUsers,
         groups: state => state.pageState.groups,
         modalShown: state => state.pageState.modalShown,
+        loading: state => state.pageState.loading,
       },
       actions: {
         displayModal: actions.displayModal,

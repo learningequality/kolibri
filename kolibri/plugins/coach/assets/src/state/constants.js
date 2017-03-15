@@ -47,6 +47,7 @@ const Modals = {
   CREATE_GROUP: 'CREATE_GROUP',
   RENAME_GROUP: 'RENAME_GROUP',
   DELETE_GROUP: 'DELETE_GROUP',
+  MOVE_LEARNERS: 'MOVE_LEARNERS',
 };
 
 module.exports = {

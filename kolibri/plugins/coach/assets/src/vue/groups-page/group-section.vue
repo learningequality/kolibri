@@ -9,9 +9,9 @@
     <icon-button :text="$tr('moveLearners')"
       :primary="true"
       size="small"
-      @click="moveUsers"
+      @click="emitMove"
       :disabled="selectedUsers.length === 0" />
-    <ui-button v-if="showMenu"
+    <ui-button v-if="!isUngrouped"
       color="primary"
       :has-dropdown="true"
       ref="dropdownButton"
@@ -34,7 +34,6 @@
           <th>{{ $tr('username') }}</th>
         </tr>
       </thead>
-
       <tbody>
         <tr v-for="user in group.users"
           :class="isSelected(user.id) ? 'selectedrow' : ''"
@@ -87,9 +86,9 @@
         type: String,
         required: true,
       },
-      showMenu: {
+      isUngrouped: {
         type: Boolean,
-        default: true,
+        default: false,
       },
     },
     data() {
@@ -119,9 +118,6 @@
             break;
         }
       },
-      moveUsers() {
-        console.log('move users');
-      },
       close() {
         this.$refs.dropdownButton.closeDropdown();
       },
@@ -140,8 +136,11 @@
         if (this.allUsersAreSelected) {
           this.selectedUsers = [];
         } else {
-          this.selectedUsers = this.group.users.map((user) => user.id);
+          this.selectedUsers = this.group.users.map(user => user.id);
         }
+      },
+      emitMove() {
+        this.$emit('move', this.group.name, this.group.id, this.selectedUsers, this.isUngrouped);
       },
     },
     vuex: {
