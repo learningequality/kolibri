@@ -2,7 +2,7 @@
 
   <core-modal :title="$tr('moveLearners')"
     @cancel="close">
-    <p>Select the group you want to move the <strong>{{ $tr('learners', {count: usersToMove.length }) }}</strong> to.</p>
+    <p>{{ $tr('moveThe') }} <strong>{{ $tr('learners', {count: usersToMove.length }) }}</strong> {{ $tr('to') }}:</p>
     <label v-for="group in groupsExcludingCurrent">
     <input
       type="radio"
@@ -41,6 +41,8 @@
     $trNameSpace: 'confirm-enrollment-modal',
     $trs: {
       moveLearners: 'Move Learners',
+      moveThe: 'Move the',
+      to: 'to',
       learners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       ungrouped: 'Ungrouped',
       cancel: 'Cancel',
