@@ -441,7 +441,9 @@ function displayModal(store, modalName) {
 function showCoachExerciseRenderPage(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_EXERCISE_RENDER_PAGE);
-  AttemptLogResource.getCollection({ user: params.user_id, content: params.content_id }).fetch().then(
+  AttemptLogResource.getCollection({
+    user: params.user_id, content: params.content_id
+  }).fetch().then(
     attemptLogs => {
       const pageState = {
         attemptLogs: attemptLogs.reverse(), // is there a better solution?

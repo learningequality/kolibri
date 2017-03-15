@@ -37,7 +37,7 @@
             />
             <h3 class="item">
               {{ $tr('question') }} {{index+1}}
-            <h3>
+            </h3>
           </div>
         </li>
       </template>
@@ -73,8 +73,7 @@
 
         if (elapse > 1) {
           return elapse + this.$tr('daysAgo');
-        }
-        else if(elapse === 1) {
+        } else if (elapse === 1) {
           return this.$tr('yesterday');
         }
         return this.$tr('today');
@@ -84,9 +83,10 @@
         this.setSelectedAttemptLog(this.attemptLogs[index]);
       },
       isSeleteced(index) {
-        if(this.selectedIndex === index) {
+        if (this.selectedIndex === index) {
           return 'selected';
         }
+        return null;
       },
     },
     vuex: {
