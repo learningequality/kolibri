@@ -77,7 +77,7 @@
       recentPageLink(id) {
         return {
           name: constants.PageNames.COACH_RECENT_PAGE_CHANNEL_SELECT,
-          params: { class_id: id },
+          params: { classID: id },
         };
       },
     },

@@ -35,14 +35,14 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.COACH_RECENT_PAGE_CHANNEL_SELECT,
-          path: '/:class_id',
+          path: '/:classID',
           handler: (toRoute, fromRoute) => {
             recentActions.showChannelSelect(store, toRoute.params);
           },
         },
         {
           name: PageNames.COACH_RECENT_PAGE,
-          path: '/:class_id/:channel_id',
+          path: '/:classID/:channelID',
           handler: (toRoute, fromRoute) => {
             recentActions.showReports(store, toRoute.params);
           },
