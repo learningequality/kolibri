@@ -89,34 +89,15 @@
       moveUsers() {
         if (this.groupId) {
           if (this.groupSelected === 'ungrouped') {
-            this.removeMultipleUsersFromGroup(this.groupId, this.usersToMove).then(
-              group => {
-                this.displayModal(false);
-              },
-              error => error(error)
-            );
+            this.removeUsersFromGroup(this.groupId, this.usersToMove);
           } else {
-            const removeUsersPromise =
-              this.removeMultipleUsersFromGroup(this.groupId, this.usersToMove);
-            const addUsersPromise =
-              this.addMultipleUsersToGroup(this.groupSelected, this.usersToMove);
-
-            Promise.all([removeUsersPromise, addUsersPromise]).then(
-              () => {
-                this.displayModal(false);
-              },
-              error => error(error)
-            );
+            this.moveUsersBetweenGroups(this.groupId, this.groupSelected, this.usersToMove);
           }
         } else {
-          this.addMultipleUsersToGroup(this.groupSelected, this.usersToMove).then(
-              group => {
-                this.displayModal(false);
-              },
-              error => error(error)
-            );
+          this.addUsersToGroup(this.groupSelected, this.usersToMove);
         }
       },
+
       close() {
         this.displayModal(false);
       },
@@ -124,8 +105,9 @@
     vuex: {
       actions: {
         displayModal: actions.displayModal,
-        addMultipleUsersToGroup: actions.addMultipleUsersToGroup,
-        removeMultipleUsersFromGroup: actions.removeMultipleUsersFromGroup,
+        addUsersToGroup: actions.addUsersToGroup,
+        removeUsersFromGroup: actions.removeUsersFromGroup,
+        moveUsersBetweenGroups: actions.moveUsersBetweenGroups,
       },
     },
   };

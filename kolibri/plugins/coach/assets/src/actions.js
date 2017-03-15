@@ -212,7 +212,7 @@ function deleteGroup(store, classId, groupId) {
   );
 }
 
-function addUserToGroup(store, groupId, userId) {
+function _addUserToGroup(store, groupId, userId) {
   const membershipPayload = {
     collection: groupId,
     user: userId,
@@ -228,21 +228,18 @@ function addUserToGroup(store, groupId, userId) {
   });
 }
 
-function addMultipleUsersToGroup(store, groupId, userIds) {
-  // store.dispatch('CORE_SET_PAGE_LOADING', true);
-  const addPromises = userIds.map(userId => addUserToGroup(store, groupId, userId));
+function _addMultipleUsersToGroup(store, groupId, userIds) {
+  const addPromises = userIds.map(userId => _addUserToGroup(store, groupId, userId));
 
   return new Promise((resolve, reject) => {
     Promise.all(addPromises).then(
-      () => {
-        resolve();
-      },
+      () => resolve(),
       error => reject(error)
     );
   });
 }
 
-function removeUserfromGroup(store, groupId, userId) {
+function _removeUserfromGroup(store, groupId, userId) {
   const membershipPayload = {
     collection_id: groupId,
     user_id: userId,
@@ -263,18 +260,50 @@ function removeUserfromGroup(store, groupId, userId) {
   });
 }
 
-function removeMultipleUsersFromGroup(store, groupId, userIds) {
-  // store.dispatch('CORE_SET_PAGE_LOADING', true);
-  const removePromises = userIds.map(userId => removeUserfromGroup(store, groupId, userId));
+function _removeMultipleUsersFromGroup(store, groupId, userIds) {
+  const removePromises = userIds.map(userId => _removeUserfromGroup(store, groupId, userId));
 
   return new Promise((resolve, reject) => {
     Promise.all(removePromises).then(
-      () => {
-        resolve();
-      },
+      () => resolve(),
       error => reject(error)
     );
   });
+}
+
+function addUsersToGroup(store, groupId, userIds) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  _addMultipleUsersToGroup(store, groupId, userIds).then(
+    () => {
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      this.displayModal(false);
+    },
+    error => error(error)
+  );
+}
+
+function removeUsersFromGroup(store, groupId, userIds) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  _removeMultipleUsersFromGroup(store, groupId, userIds).then(
+    () => {
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      this.displayModal(false);
+    },
+    error => error(error)
+  );
+}
+
+function moveUsersBetweenGroups(store, currentGroupId, newGroupId, userIds) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  const removeUsersPromise = _removeMultipleUsersFromGroup(store, currentGroupId, userIds);
+  const addUsersPromise = _addMultipleUsersToGroup(store, newGroupId, userIds);
+  Promise.all([removeUsersPromise, addUsersPromise]).then(
+    () => {
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      this.displayModal(false);
+    },
+    error => error(error)
+  );
 }
 
 
@@ -483,12 +512,15 @@ module.exports = {
   showClassListPage,
   showRecentPage,
   showExamsPage,
+
   showGroupsPage,
   createGroup,
   renameGroup,
   deleteGroup,
-  addMultipleUsersToGroup,
-  removeMultipleUsersFromGroup,
+  addUsersToGroup,
+  removeUsersFromGroup,
+  moveUsersBetweenGroups,
+
   displayModal,
   showCoachRoot,
   redirectToChannelReport,
