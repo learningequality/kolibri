@@ -99,6 +99,20 @@ class LearnModule extends KolibriModule {
           path: '*',
           redirect: '/',
         },
+        {
+          name: PageNames.EXAM_LIST,
+          path: '/:channel_id/exams',
+          handler: (toRoute, fromRoute) => {
+            actions.showExamList(store, toRoute.params.channel_id);
+          },
+        },
+        {
+          name: PageNames.EXAM,
+          path: '/:channel_id/exams/:id',
+          handler: (toRoute, fromRoute) => {
+            actions.showExam(store, toRoute.params.channel_id, toRoute.params.id);
+          },
+        },
       ];
 
       this.rootvue = new Vue({

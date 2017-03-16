@@ -1,6 +1,7 @@
 const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
 const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('../constants');
+const UserExamResource = require('kolibri').resource.UserExamResource;
 
 const PageNames = constants.PageNames;
 const coreActions = require('kolibri.coreVue.vuex.actions');
@@ -98,6 +99,23 @@ function _collectionState(data) {
     .filter((item) => item.kind !== CoreConstants.ContentNodeKinds.TOPIC)
     .map((item) => _contentState(item));
   return { topics, contents };
+}
+
+function _examState(data) {
+  const state = {
+    id: data.pk,
+    title: data.title,
+    channel_id: data.channel_id,
+    active: data.active,
+    archived: data.archived,
+    closed: data.closed,
+    answer_count: data.answer_count,
+    question_count: data.question_count,
+    score: data.score,
+    question_sources: JSON.parse(data.question_sources),
+    seed: data.seed,
+  };
+  return state;
 }
 
 
@@ -440,6 +458,58 @@ function showSearch(store, channelId, searchTerm) {
   );
 }
 
+function showExamList(store, channelId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', PageNames.EXAM_LIST);
+
+  coreActions.setChannelInfo(store, channelId).then(
+    () => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        return;
+      }
+      UserExamResource.getCollection().fetch().only(
+        samePageCheckGenerator(store),
+        (exams) => {
+          const pageState = {};
+          pageState.exams = exams.map(_examState);
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.dispatch('CORE_SET_ERROR', null);
+          store.dispatch('CORE_SET_TITLE', `Exams - ${currentChannel.title}`);
+        },
+        error => { coreActions.handleApiError(store, error); }
+      );
+    }
+  );
+}
+
+
+function showExam(store, channelId, id) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', PageNames.EXAM);
+
+  const examPromise = UserExamResource.getModel(id).fetch();
+  const channelsPromise = coreActions.setChannelInfo(store, channelId);
+  ConditionalPromise.all([examPromise, channelsPromise]).only(
+    samePageCheckGenerator(store),
+    ([exam, channel]) => {
+      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+      if (!currentChannel) {
+        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+        return;
+      }
+      const pageState = { exam: _examState(exam) };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_TITLE', `${pageState.exam.title} - ${currentChannel.title}`);
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
+}
+
 module.exports = {
   redirectToExploreChannel,
   redirectToLearnChannel,
@@ -454,4 +524,6 @@ module.exports = {
   clearSearch,
   redirectToChannelSearch,
   showSearch,
+  showExam,
+  showExamList,
 };
