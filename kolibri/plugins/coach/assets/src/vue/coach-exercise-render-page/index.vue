@@ -1,27 +1,33 @@
 <template>
 
-  <div>
-    <page-status
-      class="pure-u-1"
-      :className="className"
-      :userName="userName"
-      :progress="progress"
-      :assessment="assessment"
-      :date="date"/>
-    <answer-history class="column pure-u-1-4"/>
-    <div class="column pure-u-3-4">
-      <question-attempt class="lol"/>
-      <content-renderer
-        class="content-renderer"
-        :id="content.id"
-        :kind="content.kind"
-        :files="content.files"
-        :contentId="content.content_id"
-        :channelId="channelId"
-        :available="content.available"
-        :extraFields="content.extra_fields"/>
-    </div>
-  </div>
+  <exercise-detail-view>
+    <template slot="text"> {{ $tr('backto') }} {{contentName}} </template>
+    <template slot="body">
+      <page-status
+        class="pure-u-1"
+        :contentName="contentName"
+        :userName="userName"
+        :progress="progress"
+        :assessment="assessment"
+        :date="date"/>
+      <answer-history
+        class="column pure-u-1-4"
+        :questionHistory="questionHistory"
+      />
+      <div class="column pure-u-3-4">
+        <question-attempt class="lol"/>
+        <content-renderer
+          class="content-renderer"
+          :id="content.id"
+          :kind="content.kind"
+          :files="content.files"
+          :contentId="content.content_id"
+          :channelId="channelId"
+          :available="content.available"
+          :extraFields="content.extra_fields"/>
+      </div>
+    </template>
+  </exercise-detail-view>
 
 </template>
 
@@ -31,9 +37,10 @@
   module.exports = {
     $trNameSpace: 'CoachExerciseRenderPage',
     $trs: {
-      header: 'LOL..',
+      backto: 'Back to',
     },
     components: {
+      'exercise-detail-view': require('./../exercise-detail-view'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'page-status': require('./page-status'),
       'answer-history': require('./answer-history'),
@@ -70,11 +77,15 @@
     vuex: {
       getters: {
         pageState: state => state.pageState,
-        className: () => 'Adding Fractions',
+        // fake date for page-status
+        contentName: () => 'Adding Fractions',
         userName: () => 'James Howard',
         progress: () => 1,
         assessment: () => '4 of 5',
         date: () => '18 Nov 2016',
+        // fake date for answer-history
+        questionHistory: () => [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+        // fake date for question-attempts
       },
     },
   };
@@ -86,5 +97,6 @@
 
   .column
     float: left
+    max-height: 400px
 
 </style>

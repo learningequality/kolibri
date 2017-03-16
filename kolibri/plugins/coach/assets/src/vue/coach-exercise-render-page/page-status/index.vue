@@ -2,11 +2,18 @@
 
   <div id="page-status">
     <div class="column pure-u-3-4">
-      <h1>{{ userName }}</h1>
+      <div id="user-name-container">
+        <mat-svg
+          id="svg-item"
+          category="action"
+          name="face"
+        />
+        <h1 id="user-name">{{ userName }}</h1>
+      </div>
       <div id="class-name">
         <content-icon :kind="exerciseKind"/>
       </div>
-      {{ className }}
+      {{ contentName }}
       <div id="assessment">
         <progress-icon :progress="progress"/>
         {{ assessment }} {{ $tr('assessment') }}
@@ -40,7 +47,7 @@
       'progress-icon': require('kolibri.coreVue.components.progressIcon'),
     },
     props: {
-      className: {
+      contentName: {
         type: String,
         required: true,
       },
@@ -85,6 +92,17 @@
 
   #page-status
     background-color: $core-bg-light
+
+  #user-name-container
+    display: block
+
+  #svg-item
+    display: inline-block
+    vertical-align: middle
+
+  #user-name
+    display: inline-block
+    vertical-align: middle
 
   .column
     float: left

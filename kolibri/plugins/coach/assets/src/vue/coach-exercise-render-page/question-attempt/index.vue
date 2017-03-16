@@ -1,7 +1,7 @@
 <template>
 
   <div id="question-attempt">
-    <h1>{{ $tr('header') }}</h1>
+    <h3>{{ $tr('header') }}</h3>
   </div>
 
 </template>
