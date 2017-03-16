@@ -4,6 +4,7 @@ from random import sample
 from django.core.cache import cache
 from django.db.models import Q
 from django.db.models.aggregates import Count
+from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
 from kolibri.content import models, serializers
 from kolibri.content.content_db_router import get_active_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
@@ -195,3 +196,33 @@ class FileViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.File.objects.all()
+
+
+class ExamViewset(viewsets.ModelViewSet):
+    serializer_class = serializers.ExamSerializer
+    pagination_class = OptionalPageNumberPagination
+    permissions_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter,)
+
+    def get_queryset(self):
+        return models.Exam.objects.all()
+
+
+class ExamAssignmentViewset(viewsets.ModelViewSet):
+    serializer_class = serializers.ExamAssignmentSerializer
+    pagination_class = OptionalPageNumberPagination
+    permissions_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter,)
+
+    def get_queryset(self):
+        return models.Exam.objects.all()
+
+
+class UserExamViewset(viewsets.ModelViewSet):
+    serializer_class = serializers.UserExamSerializer
+    pagination_class = OptionalPageNumberPagination
+    permissions_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter,)
+
+    def get_queryset(self):
+        return models.ExamAssignment.objects.all()
