@@ -16,8 +16,6 @@ const values = require('lodash.values');
 const coreApp = require('kolibri');
 
 const ClassroomResource = coreApp.resources.ClassroomResource;
-const LearnerGroupResource = coreApp.resources.LearnerGroupResource;
-const MembershipResource = coreApp.resources.MembershipResource;
 const ChannelResource = coreApp.resources.ChannelResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const RecentReportResource = new RecentReportResourceConstructor(coreApp);
