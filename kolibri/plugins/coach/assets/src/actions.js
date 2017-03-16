@@ -446,7 +446,7 @@ function showCoachExerciseRenderPage(store, params) {
   }).fetch().then(
     attemptLogs => {
       const pageState = {
-        attemptLogs: attemptLogs.reverse(), // is there a better solution?
+        attemptLogs,
         selectedAttemptLog: attemptLogs[0],
       };
       store.dispatch('SET_PAGE_STATE', pageState);

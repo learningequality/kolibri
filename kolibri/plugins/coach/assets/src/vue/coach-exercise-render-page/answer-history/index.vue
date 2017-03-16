@@ -4,15 +4,15 @@
     <h3>{{ $tr('header') }}</h3>
 
     <ul id="history-list">
-      <template v-for="(attemptLog, index) in attemptLogs">
+      <template v-for="(attemptLog, index) in reformatedAttemptLogs">
         <li v-if="index == 0">
           <p class="item">
-            {{dayElapse(attemptLog.end_timestamp)}}
+            {{attemptLog.elapse}}
           </p>
         </li>
-        <li v-else-if="dayElapse(attemptLogs[index -1].end_timestamp) != dayElapse(attemptLog.end_timestamp)">
+        <li v-else-if="reformatedAttemptLogs[index -1].elapse != attemptLog.elapse">
           <p class="item">
-            {{dayElapse(attemptLog.end_timestamp)}}
+            {{attemptLog.elapse}}
           </p>
         </li>
         <li @click="setSelected(index)" :class="isSeleteced(index)" class="clickable">
@@ -63,7 +63,15 @@
     },
     data: () => ({
       selectedIndex: 0,
+      reformatedAttemptLogs: [],
     }),
+    created() {
+      this.attemptLogs.forEach((attemptLog) => {
+        attemptLog.elapse = this.dayElapse(attemptLog.end_timestamp);
+        // use unshift because the original array is in reversed order.
+        this.reformatedAttemptLogs.unshift(attemptLog);
+      });
+    },
     methods: {
       dayElapse(time) {
         const logDay = new Date(time);
@@ -80,7 +88,7 @@
       },
       setSelected(index) {
         this.selectedIndex = index;
-        this.setSelectedAttemptLog(this.attemptLogs[index]);
+        this.setSelectedAttemptLog(this.reformatedAttemptLogs[index]);
       },
       isSeleteced(index) {
         if (this.selectedIndex === index) {
