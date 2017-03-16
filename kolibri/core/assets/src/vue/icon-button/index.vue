@@ -47,7 +47,6 @@
       },
       type: {
         type: String,
-        default: 'button',
       },
     },
     computed: {
