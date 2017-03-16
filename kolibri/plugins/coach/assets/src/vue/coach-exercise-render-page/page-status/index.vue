@@ -11,20 +11,21 @@
         <h1 id="user-name">{{ userName }}</h1>
       </div>
       <div id="class-name">
-        <content-icon :kind="exerciseKind"/>
+        <content-icon class="svg-icon" :kind="exerciseKind"/>
+        {{ contentName }}
       </div>
-      {{ contentName }}
       <div id="assessment">
-        <progress-icon :progress="progress"/>
-        {{ assessment }} {{ $tr('assessment') }}
+        <progress-icon class="svg-icon" :progress="progress"/>
+        {{ $tr('mastered') }} : {{ assessment }} {{ $tr('assessment') }}
       </div>
     </div>
     <div class="column pure-u-1-4">
       <div id="inner-column">
-        <progress-icon :progress="progress"/>
+        <progress-icon class="svg-icon" :progress="progress"/>
         <strong> {{ $tr('mastered') }} </strong>
         <br>
-        {{ date }}
+        <br>
+        {{ $tr('on') }} {{ date }}
       </div>
     </div>
   </div>
@@ -41,6 +42,7 @@
     $trs: {
       assessment: 'questions in a row correct - Today',
       mastered: 'Mastered',
+      on: 'on',
     },
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
@@ -96,6 +98,16 @@
   #user-name-container
     display: block
 
+  .svg-icon
+    font-size: 1.3em
+
+  #class-name
+    margin-top: 10px
+    font-weight: bold
+
+  #assessment
+    margin-top: 10px
+
   #svg-item
     display: inline-block
     vertical-align: middle
@@ -103,14 +115,12 @@
   #user-name
     display: inline-block
     vertical-align: middle
+    margin: 0
 
   .column
     float: left
 
   #inner-column
     float: right
-
-  #class-name
-    float: left
 
 </style>
