@@ -24,7 +24,7 @@
     <div class="button-section">
       <icon-button :text="$tr('cancel')"
         @click="close" />
-      <icon-button :text="$tr('save')"
+      <icon-button :text="$tr('move')"
         :primary="true"
         @click="moveUsers" />
     </div>
@@ -46,7 +46,7 @@
       learners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       ungrouped: 'Ungrouped',
       cancel: 'Cancel',
-      save: 'Save',
+      move: 'Move',
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
