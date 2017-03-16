@@ -89,7 +89,7 @@ makemessages: assets makedocsmessages
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*' --ignore 'docs/conf.py'
 
 compilemessages:
-	python -m kolibri manage compilemessages -- -l en > /dev/null
+	python -m kolibri manage compilemessages
 
 syncmessages: ensurecrowdinclient uploadmessages downloadmessages distributefrontendmessages
 
