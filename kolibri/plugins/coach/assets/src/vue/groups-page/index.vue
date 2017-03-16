@@ -54,7 +54,7 @@
 
 <script>
 
-  const actions = require('../../actions');
+  const groupActions = require('../../group-actions');
   const constants = require('../../state/constants');
   const differenceWith = require('lodash.differencewith');
 
@@ -137,7 +137,7 @@
         modalShown: state => state.pageState.modalShown,
       },
       actions: {
-        displayModal: actions.displayModal,
+        displayModal: groupActions.displayModal,
       },
     },
   };

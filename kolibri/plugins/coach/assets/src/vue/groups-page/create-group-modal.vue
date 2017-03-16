@@ -27,7 +27,7 @@
 
 <script>
 
-  const actions = require('../../actions');
+  const groupActions = require('../../group-actions');
 
   module.exports = {
     $trNameSpace: 'confirm-enrollment-modal',
@@ -69,8 +69,8 @@
     },
     vuex: {
       actions: {
-        createGroup: actions.createGroup,
-        displayModal: actions.displayModal,
+        displayModal: groupActions.displayModal,
+        createGroup: groupActions.createGroup,
       },
     },
   };

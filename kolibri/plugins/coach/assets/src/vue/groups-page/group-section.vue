@@ -55,7 +55,7 @@
 
 <script>
 
-  const actions = require('../../actions');
+  const groupActions = require('../../group-actions');
 
   module.exports = {
     $trNameSpace: 'coachGroupsTable',
@@ -148,7 +148,7 @@
         modalShown: state => state.pageState.modalShown,
       },
       actions: {
-        displayModal: actions.displayModal,
+        displayModal: groupActions.displayModal,
       },
     },
   };
