@@ -1,6 +1,6 @@
 <template>
 
-  <exercise-detail-view>
+  <exercise-detail-view :backPageName="backPageName">
     <template slot="text"> {{ $tr('backto') }} {{contentName}} </template>
     <template slot="body">
       <page-status
@@ -34,6 +34,8 @@
 
 <script>
 
+  const constants = require('../../state/constants');
+
   module.exports = {
     $trNameSpace: 'CoachExerciseRenderPage',
     $trs: {
@@ -47,6 +49,9 @@
       'question-attempt': require('./question-attempt'),
     },
     computed: {
+      backPageName() {
+        return constants.PageNames.COACH_CLASS_LIST_PAGE;
+      },
       content() {
         return {
           id: '84658d43b99f5824bc1aa5e3eb6b3578',

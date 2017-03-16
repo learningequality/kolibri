@@ -2,7 +2,7 @@
 
   <div id="whole-page">
     <div id="top-bar">
-      <div id="back-btn">
+      <router-link id="back-btn" :to="pageLink">
         <mat-svg
           class="back svg-back"
           category="navigation"
@@ -11,7 +11,7 @@
         <p class="back">
           <slot name="text"/>
         </p>
-      </div>
+      </router-link>
     </div>
     <div id="page-body">
       <slot name="body"/>
@@ -19,6 +19,32 @@
   </div>
 
 </template>
+
+
+<script>
+
+  module.exports = {
+    props: {
+      backPageName: {
+        type: String,
+        required: true,
+      },
+      backPageParams: {
+        type: Object,
+        required: false,
+      },
+    },
+    computed: {
+      pageLink() {
+        return {
+          name: this.backPageName,
+          params: this.backPageParams,
+        };
+      },
+    },
+  };
+
+</script>
 
 
 <style lang="stylus" scoped>
@@ -35,12 +61,12 @@
     background-color: $core-bg-canvas
 
   #top-bar
-    height: 80px
+    height: 60px
     background-color: $core-text-default
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
 
   #back-btn
-    top: 18px
+    top: 8px
     left: 28px
     position: relative
     cursor: pointer
