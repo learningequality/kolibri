@@ -9,6 +9,38 @@ const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const ClassroomResource = coreApp.resources.ClassroomResource;
 
 
+function _classState(classModel) {
+  return {
+    id: classModel.id,
+    name: classModel.name,
+  };
+}
+
+function _userState(user) {
+  return {
+    id: user.id,
+    username: user.username,
+    full_name: user.full_name,
+  };
+}
+
+function _usersState(users) {
+  return users.map(user => _userState(user));
+}
+
+function _groupState(group) {
+  return {
+    id: group.id,
+    name: group.name,
+    users: [],
+  };
+}
+
+function _groupsState(groups) {
+  return groups.map(group => _groupState(group));
+}
+
+
 function displayModal(store, modalName) {
   store.dispatch('SET_MODAL', modalName);
 }
@@ -25,22 +57,26 @@ function showGroupsPage(store, classId) {
 
   ConditionalPromise.all([facilityPromise, classPromise, classUsersPromise, groupPromise]).only(
     coreActions.samePageCheckGenerator(store),
-    ([facility, classModel, classUsers, groups]) => {
+    ([facility, classModel, classUsers, groupsCollection]) => {
+      const groups = _groupsState(groupsCollection);
       const groupUsersPromises = groups.map(group =>
         FacilityUserResource.getCollection({ member_of: group.id }).fetch({}, true));
+
       ConditionalPromise.all(groupUsersPromises).only(
         coreActions.samePageCheckGenerator(store),
-        groupsUsers => {
-          groups.forEach((group, index) => {
-            groups[index].users = groupsUsers[index];
+        groupsUsersCollection => {
+          groupsUsersCollection.forEach((groupUsers, index) => {
+            groups[index].users = _usersState(groupUsers);
           });
+
           const pageState = {
             facilityId: facility[0],
-            class: classModel,
-            classUsers,
+            class: _classState(classModel),
+            classUsers: _usersState(classUsers),
             groups,
             modalShown: false,
           };
+
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           store.dispatch('CORE_SET_ERROR', null);
@@ -61,8 +97,7 @@ function createGroup(store, classId, groupName) {
   };
   LearnerGroupResource.createModel(groupPayload).save().then(
     group => {
-      group.users = []; // pass in an empty array
-      store.dispatch('ADD_GROUP', group);
+      store.dispatch('ADD_GROUP', _groupState(group));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       displayModal(store, false);
     },
