@@ -81,6 +81,13 @@ class CoachToolsModule extends KolibriModule {
             actions.showGroupsPage(store, toRoute.params.id);
           },
         },
+        {
+          name: PageNames.COACH_EXERCISE_RENDER_PAGE,
+          path: '/:user_id/:content_id/exercise-render',
+          handler: (toRoute, fromRoute) => {
+            actions.showCoachExerciseRenderPage(store, toRoute.params);
+          },
+        },
       ];
 
       this.rootvue = new Vue({
