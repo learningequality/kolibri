@@ -2,7 +2,7 @@
 
   <core-modal :title="$tr('deleteLearnerGroup')"
     @cancel="close">
-    <p>{{ $tr('areYouSure') }} <strong>{{ groupName}}</strong>?</p>
+    <p v-html="$trHtml('areYouSure', { groupName: groupName })"></p>
     <p>{{ $tr('learnersWillBecome') }} <strong>{{ $tr('ungrouped') }}</strong>.</p>
     <icon-button :text="$tr('cancel')"
       @click="close" />
@@ -22,7 +22,7 @@
     $trNameSpace: 'confirm-enrollment-modal',
     $trs: {
       deleteLearnerGroup: 'Delete Learner Group',
-      areYouSure: 'Are you sure you want to delete',
+      areYouSure: 'Are you sure you want to delete <strong>{ groupName }</strong>?',
       learnersWillBecome: 'Learners within this group will become',
       ungrouped: 'Ungrouped',
       cancel: 'Cancel',
