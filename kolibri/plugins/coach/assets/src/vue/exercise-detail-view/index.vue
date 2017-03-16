@@ -1,0 +1,66 @@
+<template>
+
+  <div id="whole-page">
+    <div id="top-bar">
+      <div id="back-btn">
+        <mat-svg
+          class="back svg-back"
+          category="navigation"
+          name="arrow_back"
+        />
+        <p class="back">
+          <slot name="text"/>
+        </p>
+      </div>
+    </div>
+    <div id="page-body">
+      <slot name="body"/>
+    </div>
+  </div>
+
+</template>
+
+
+<style lang="stylus" scoped>
+
+  @require '~kolibri.styles.definitions'
+
+  #whole-page
+    left: 0
+    top: 0
+    z-index: $core-z-index-top
+    width: 100vw
+    height: 100vh
+    position: fixed
+    background-color: $core-bg-canvas
+
+  #top-bar
+    height: 80px
+    background-color: $core-text-default
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
+
+  #back-btn
+    top: 18px
+    left: 28px
+    position: relative
+    cursor: pointer
+    display: inline-block
+    padding: 10px
+
+  .svg-back
+    fill: $core-bg-light
+    margin-right: 10px
+
+  .back
+    color: $core-bg-light
+    float: left
+    font-weight: bold
+    font-size: 1.3em
+
+  p
+    margin: 0
+
+  #page-body
+    padding: 20px
+
+</style>
