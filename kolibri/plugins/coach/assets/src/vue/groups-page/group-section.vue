@@ -79,14 +79,6 @@
         type: Object,
         required: true,
       },
-      className: {
-        type: String,
-        required: true,
-      },
-      classId: {
-        type: String,
-        required: true,
-      },
       isUngrouped: {
         type: Boolean,
         default: false,

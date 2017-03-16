@@ -53,18 +53,6 @@
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     props: {
-      className: {
-        type: String,
-        required: true,
-      },
-      classId: {
-        type: String,
-        required: true,
-      },
-      groupName: {
-        type: String,
-        required: false,
-      },
       groupId: {
         type: String,
         required: false,

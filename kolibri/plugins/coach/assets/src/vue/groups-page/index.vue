@@ -10,25 +10,19 @@
     </icon-button>
 
     <create-group-modal v-if="showCreateGroupModal"
-      :className="className"
       :classId="classId" />
 
     <rename-group-modal v-if="showRenameGroupModal"
-      :className="className"
       :classId="classId"
       :groupName="selectedGroup.name"
       :groupId="selectedGroup.id" />
 
     <delete-group-modal v-if="showDeleteGroupModal"
-      :className="className"
       :classId="classId"
       :groupName="selectedGroup.name"
       :groupId="selectedGroup.id" />
 
     <move-learners-modal v-if="showMoveLearnersModal"
-      :className="className"
-      :classId="classId"
-      :groupName="selectedGroup.name"
       :groupId="selectedGroup.id"
       :groups="groups"
       :usersToMove="usersToMove"
@@ -36,15 +30,11 @@
 
     <group-section v-for="group in groups"
       :group="group"
-      :className="className"
-      :classId="classId"
       @rename="openRenameGroupModal"
       @delete="openDeleteGroupModal"
       @move="openMoveLearnersModal" />
 
     <group-section :group="ungroupedUsersObject"
-      :className="className"
-      :classId="classId"
       :isUngrouped="true"
       @move="openMoveLearnersModal" />
   </div>
