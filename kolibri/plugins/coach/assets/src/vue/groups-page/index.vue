@@ -145,8 +145,7 @@
 </script>
 
 
-<style lang="stylus"
-  scoped>
+<style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
 
