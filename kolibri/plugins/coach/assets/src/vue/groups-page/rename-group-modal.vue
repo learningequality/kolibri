@@ -12,6 +12,7 @@
           :invalid="invalid"
           v-model.trim="groupNameInput" />
         <icon-button :text="$tr('cancel')"
+          type="button"
           @click="close" />
         <icon-button :text="$tr('save')"
           :primary="true"

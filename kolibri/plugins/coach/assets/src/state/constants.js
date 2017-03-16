@@ -43,7 +43,7 @@ const SortOrders = {
   NONE: 'none',
 };
 
-const Modals = {
+const GroupModals = {
   CREATE_GROUP: 'CREATE_GROUP',
   RENAME_GROUP: 'RENAME_GROUP',
   DELETE_GROUP: 'DELETE_GROUP',
@@ -58,5 +58,5 @@ module.exports = {
   ViewBy,
   TableColumns,
   SortOrders,
-  Modals,
+  GroupModals,
 };

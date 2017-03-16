@@ -55,7 +55,7 @@
 <script>
 
   const groupActions = require('../../group-actions');
-  const constants = require('../../state/constants');
+  const GroupModals = require('../../state/constants').GroupModals;
   const differenceWith = require('lodash.differencewith');
 
   module.exports = {
@@ -82,16 +82,16 @@
     },
     computed: {
       showCreateGroupModal() {
-        return this.modalShown === constants.Modals.CREATE_GROUP;
+        return this.modalShown === GroupModals.CREATE_GROUP;
       },
       showRenameGroupModal() {
-        return this.modalShown === constants.Modals.RENAME_GROUP;
+        return this.modalShown === GroupModals.RENAME_GROUP;
       },
       showDeleteGroupModal() {
-        return this.modalShown === constants.Modals.DELETE_GROUP;
+        return this.modalShown === GroupModals.DELETE_GROUP;
       },
       showMoveLearnersModal() {
-        return this.modalShown === constants.Modals.MOVE_LEARNERS;
+        return this.modalShown === GroupModals.MOVE_LEARNERS;
       },
       groupedUsers() {
         const groupedUsers = [];
@@ -111,21 +111,21 @@
     },
     methods: {
       openCreateGroupModal() {
-        this.displayModal(constants.Modals.CREATE_GROUP);
+        this.displayModal(GroupModals.CREATE_GROUP);
       },
       openRenameGroupModal(groupName, groupId) {
         this.selectedGroup = { name: groupName, id: groupId };
-        this.displayModal(constants.Modals.RENAME_GROUP);
+        this.displayModal(GroupModals.RENAME_GROUP);
       },
       openDeleteGroupModal(groupName, groupId) {
         this.selectedGroup = { name: groupName, id: groupId };
-        this.displayModal(constants.Modals.DELETE_GROUP);
+        this.displayModal(GroupModals.DELETE_GROUP);
       },
       openMoveLearnersModal(groupName, groupId, usersToMove, isUngrouped) {
         this.selectedGroup = { name: groupName, id: groupId };
         this.usersToMove = usersToMove;
         this.isUngrouped = isUngrouped;
-        this.displayModal(constants.Modals.MOVE_LEARNERS);
+        this.displayModal(GroupModals.MOVE_LEARNERS);
       },
     },
     vuex: {
