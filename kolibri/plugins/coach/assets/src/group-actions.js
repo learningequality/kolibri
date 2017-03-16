@@ -23,8 +23,7 @@ function showGroupsPage(store, classId) {
     FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
   const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch();
 
-  ConditionalPromise.all(
-    [facilityPromise, classPromise, classUsersPromise, groupPromise]).only(
+  ConditionalPromise.all([facilityPromise, classPromise, classUsersPromise, groupPromise]).only(
     coreActions.samePageCheckGenerator(store),
     ([facility, classModel, classUsers, groups]) => {
       const groupUsersPromises = groups.map(group =>
@@ -47,15 +46,11 @@ function showGroupsPage(store, classId) {
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', 'Groups');
         },
-        error => {
-          coreActions.handleError(store, error);
-        }
+        error => coreActions.handleError(store, error)
       );
     },
-    error => {
-      coreActions.handleError(store, error);
-    }
-    );
+    error => coreActions.handleError(store, error)
+  );
 }
 
 function createGroup(store, classId, groupName) {
