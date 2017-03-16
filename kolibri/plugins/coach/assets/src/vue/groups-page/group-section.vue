@@ -47,7 +47,7 @@
         </tr>
       </tbody>
     </table>
-    <p v-else>No Learners in this Group</p>
+    <p v-else>{{ $tr('noLearners') }}</p>
   </div>
 
 </template>
@@ -67,6 +67,7 @@
       name: 'Name',
       username: 'Username',
       selected: 'Selected',
+      noLearners: 'No Learners in this group',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -98,7 +99,7 @@
     },
     computed: {
       menuOptions() {
-        return [{ label: this.$tr('renameGroup') }, { label: this.$tr('deleteGroup') }];
+        return [this.$tr('renameGroup'), this.$tr('deleteGroup')];
       },
       allUsersAreSelected() {
         return (this.group.users.length === this.selectedUsers.length)
@@ -107,15 +108,10 @@
     },
     methods: {
       handleSelection(selectedOption) {
-        switch (selectedOption.label) {
-          case (this.$tr('renameGroup')):
-            this.$emit('rename', this.group.name, this.group.id);
-            break;
-          case (this.$tr('deleteGroup')):
-            this.$emit('delete', this.group.name, this.group.id);
-            break;
-          default:
-            break;
+        if (selectedOption === this.$tr('renameGroup')) {
+          this.$emit('rename', this.group.name, this.group.id);
+        } else if (selectedOption === this.$tr('deleteGroup')) {
+          this.$emit('delete', this.group.name, this.group.id);
         }
       },
       close() {

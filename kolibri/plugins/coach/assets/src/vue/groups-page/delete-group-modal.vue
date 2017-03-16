@@ -4,8 +4,11 @@
     @cancel="close">
     <p>{{ $tr('areYouSure') }} <strong>{{ groupName}}</strong>?</p>
     <p>{{ $tr('learnersWillBecome') }} <strong>{{ $tr('ungrouped') }}</strong>.</p>
-    <icon-button :text="$tr('cancel')" @click="close" />
-    <icon-button :text="$tr('deleteGroup')" :primary="true" @click="callDeleteGroup"/>
+    <icon-button :text="$tr('cancel')"
+      @click="close" />
+    <icon-button :text="$tr('deleteGroup')"
+      :primary="true"
+      @click="callDeleteGroup" />
   </core-modal>
 
 </template>
