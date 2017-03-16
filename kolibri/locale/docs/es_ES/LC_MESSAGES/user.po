@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-02-02 00:07+0000\n"
-"PO-Revision-Date: 2017-02-28 20:07-0500\n"
+"PO-Revision-Date: 2017-03-16 17:16-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -14,12 +14,12 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: es-ES\n"
-"X-Crowdin-File: /develop/docs/en/LC_MESSAGES/user.po\n"
+"X-Crowdin-File: /release/docs/en/LC_MESSAGES/user.po\n"
 "Language: es_ES\n"
 
 #: ../../user/admin.rst:2
 msgid "Admin"
-msgstr ""
+msgstr "Administrador"
 
 #: ../../user/admin.rst:5
 msgid "Starting Kolibri"
@@ -371,31 +371,31 @@ msgstr ""
 
 #: ../../user/cli.rst:2
 msgid "The ``kolibri`` command"
-msgstr ""
+msgstr "El comando ``kolibri``"
 
 #: ../../user/cli.rst:4
 msgid "In addition to the docs displayed below, there are some special forms of the ``kolibri`` command:"
-msgstr ""
+msgstr "Además de la documentación mostrada en la parte de abajo, hay formas especiales de usar el comando ``kolibri``:"
 
 #: ../../user/cli.rst:23
 msgid "The commands above reload the Python code on changes, but they do *not* run python tests."
-msgstr ""
+msgstr "Los comandos de arriba cargan Python de nuevo cuando se realizan cambios, pero *no* ejecutan los test de python."
 
 #: kolibri.utils.cli:2 of
 msgid "Kolibri Command Line Interface (CLI)"
-msgstr ""
+msgstr "Kolibri Command Line Interface (CLI)"
 
 #: kolibri.utils.cli:4 of
 msgid "Auto-generated usage instructions from ``kolibri -h``::"
-msgstr ""
+msgstr "Instrucciones de uso autogeneradas con ``kolibri -h``::"
 
 #: ../../user/index.rst:2
 msgid "User Guide"
-msgstr ""
+msgstr "Manual de usuario"
 
 #: ../../user/learner.rst:2
 msgid "Learner"
-msgstr ""
+msgstr "Estudiante"
 
 #: ../../user/learner.rst:5
 msgid "Accessing Kolibri"
@@ -451,7 +451,7 @@ msgstr ""
 
 #: ../../user/learner.rst:40
 msgid "Learn"
-msgstr ""
+msgstr "Aprender"
 
 #: ../../user/learner.rst:42
 msgid "Each time you login into **Kolibri**, the first thing you will see is the **Learn** page. Here you will find learning topics and materials related to what you were doing the last time you used Kolibri, or those recommended by your teachers and coaches."
@@ -459,7 +459,7 @@ msgstr ""
 
 #: ../../user/learner.rst:48
 msgid "Explore"
-msgstr ""
+msgstr "Explorar"
 
 #: ../../user/learner.rst:50
 msgid "**Explore** page offers you the option to navigate through the complete set of learning topics and materials available in **Kolibri**. Use it as you wish, or according to indications from your teachers and coaches."

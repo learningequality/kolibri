@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-13 18:32+0000\n"
-"PO-Revision-Date: 2017-02-28 20:07-0500\n"
+"POT-Creation-Date: 2017-03-08 17:35+0000\n"
+"PO-Revision-Date: 2017-03-16 17:16-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -14,60 +14,60 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: es-ES\n"
-"X-Crowdin-File: /develop/docs/en/LC_MESSAGES/dev.po\n"
+"X-Crowdin-File: /release/docs/en/LC_MESSAGES/dev.po\n"
 "Language: es_ES\n"
 
 #: ../../dev/asset_loading.rst:2
 msgid "Front-end Asset Loading"
-msgstr ""
+msgstr "Front-end de Activos Cargando"
 
 #: ../../dev/asset_loading.rst:4
 msgid "Asset pipelining is done using Webpack - this allows the use of require to import modules - as such all written code should be highly modular, individual files should be responsible for exporting a single function or object."
-msgstr ""
+msgstr "Canalización de activos se realiza utilizando Webpack - esto permite el uso que se necesita para importar módulos - como tal el código escrito debe ser altamente modular, archivos individuales deben ser responsables de exportación de un objeto o función."
 
 #: ../../dev/asset_loading.rst:6
 msgid "There are two distinct entities that control this behaviour - a Kolibri Hook on the Python side, which manages the registration of the frontend code within Django (and also facilitates building of that code into compiled assets with Webpack) and a Kolibri Module (a subclass of ``KolibriModule``) on the JavaScript side (see :doc:`frontend`)."
-msgstr ""
+msgstr "Hay dos entidades distintas que controlan este comportamiento- un Kolibri Hook en el lado de Pynthon, el cual maneja el registro de el código de interfaz con Django ( Y también facilita la construcción de dicho código en activos compilados con Webpack) y un modulo Kolibri (una subclase de ``KolibriModule``) en el lado de JavaScript (ver:doc:`frontend`)."
 
 #: ../../dev/asset_loading.rst:8
 msgid "Kolibri has a system for synchronously and asynchronously loading these bundled JavaScript modules which is mediated by a small core JavaScript app, ``kolibriGlobal``. Kolibri Modules define to which events they subscribe, and asynchronously registered Kolibri Modules are loaded by ``kolibriGlobal`` only when those events are triggered. For example if the Video Viewer's Kolibri Module subscribes to the *content_loaded:video* event, then when that event is triggered on ``kolibriGlobal`` it will asynchronously load the Video Viewer module and re-trigger the *content_loaded:video* event on the object the module returns."
-msgstr ""
+msgstr "Kolibri tiene un sistema para cargar los módulos empacados de JavaScript de forma sincrónica y asincrónica, que es mediado por una pequeña aplicación núcleo de JavaScript, ``kolibriGlobal``. Los módulos Kolibri definen qué eventos van a escuchar, y los módulos registrados de forma asincrónica son cargador por ``kolibriGlobal`` sólo cuando esos eventos son activados. Por ejemplo, si el Módulo del Visor de Videos de Kolibri atiende el evento *content_loaded:video*, cuando ese evento sea activado después en ``kolibriGlobal``, este cargará el Módulo del Visor de Video de forma asincrónica y volverá a activar el evento *content_loaded:video* en el objeto que retorna el módulo."
 
 #: ../../dev/asset_loading.rst:10
 msgid "Synchronous and asynchronous loading is defined by the template tag used to import the JavaScript for the Kolibri Module into the Django template. Synchronous loading merely inserts the JavaScript and CSS for the Kolibri Module directly into the Django template, meaning it is executed at page load."
-msgstr ""
+msgstr "Carga sincrónica y asincronica de define por la etiqueta de la plantilla utilizada para importar el JavaScript para el Modulo Kolibri en la plantilla de Django. La carga sincrónica simplemente inserta el JavaScript y el CSS para el modulo Kolibri directamente en la plantilla de Django lo que significa que es ejecutado en la carga de la pagina."
 
 #: ../../dev/asset_loading.rst:12
 msgid "This can be achieved in two ways using tags defined in *kolibri/core/webpack/templatetags/webpack_tags.py*."
-msgstr ""
+msgstr "Puede ser alcanzado de dos formas usando las etiquetas definidas en *kolibri/core/webpack/templatetags/webpack_tags.py*."
 
 #: ../../dev/asset_loading.rst:14
 msgid "The first way is simply by using the ``webpack_asset`` template tag."
-msgstr ""
+msgstr "La primer forma es simplemente usando la plantilla de etiqueta ``webpack_asset``."
 
 #: ../../dev/asset_loading.rst:16
 msgid "The second way is if a Kolibri Module needs to load in the template defined by another plugin or a core part of Kolibri, a template tag and hook can be defined to register that Kolibri Module's assets to be loaded on that page. An example of this is found in the ``base.html`` template using the ``webpack_base_assets`` tag."
-msgstr ""
+msgstr "La segunda forma es que si Módulo Kolibri necesita cargarse en la plantilla definida por otro plugin o una parte principal de Kolibri, una etiqueta de plantilla y un gancho pueden usarse para registrar que los componentes del Módulo Kolibri son cargados. Un ejemplo de esto se encuentra en la plantilla ``base.html`` usando la etiqueta ``webpack_base_assets``."
 
 #: ../../dev/asset_loading.rst:18
 msgid "This relies on the following function to collect all registered Kolibri Modules and load them synchronously: ``kolibri.core.webpack.utils.webpack_asset_render``"
-msgstr ""
+msgstr "Esto se basa en la siguiente función para colectar todos los registros en los Módulos Kolibri y cargarlos sincronicamente:``kolibri.core.webpack.utils.webpack_asset_render``"
 
 #: ../../dev/asset_loading.rst:20
 msgid "Asynchronous loading can also, analogously, be done in two ways. Asynchronous loading registers a Kolibri Module against ``kolibriGlobal`` on the frontend at page load, but does not load, or execute any of the code until the events that the Kolibri Module specifies are triggered. When these are triggered, the ``kolibriGlobal`` will load the Kolibri Module and pass on any callbacks once it has initialized. Asynchronous loading can be done either explicitly with a template tag that directly imports a single Kolibri Module using ``webpack_base_async_assets``."
-msgstr ""
+msgstr "La carga asincronica puede también, de forma análoga, ser realizada de dos maneras. Los registros de la carga asincronica del modulo Kolibri contra``kolibriGlobal`` en el interfaz de la carga de la pagina, pero esto no carga, o ejecuta ningún código hasta que los eventos que el Modulo Kolibri especifique sean activadas. Cuando estos sean activados el``kolibriGlobal`` cargara el modulo Kolibri y transmitir cualquier devolución de llamada una vez que se ha inicializado. La carga asíncrona puede hacerse ya sea de forma explícita con una etiqueta de plantilla que importa directamente un solo modulo Kolibri usando ``webpack_base_async_assets``."
 
 #: ../../dev/building.rst:2
 msgid "Distribution and installers"
-msgstr ""
+msgstr "Distribución e instaladores"
 
 #: ../../dev/building.rst:4
 msgid "The Kolibri Package build pipeline looks like this::"
-msgstr ""
+msgstr "La construcción del conducto de el paquete Kolibri luce así::"
 
 #: ../../dev/building.rst:28
 msgid "Make targets"
-msgstr ""
+msgstr "Hacer objetivos"
 
 #: ../../dev/building.rst:30
 msgid "To build both the slim Kolibri and the one with bundled dependencies, simply run `make dist`. The `.whl` files will now be available in `dist/*whl` and you can install them with `pip install dist/filename.whl`."
@@ -75,39 +75,39 @@ msgstr ""
 
 #: ../../dev/building.rst:35
 msgid "Automated CI tests"
-msgstr ""
+msgstr "Test CI automatizados"
 
 #: ../../dev/building.rst:37
 msgid "If you add `[ setup ]` to your commit message, our CI will automatically test that builds work."
-msgstr ""
+msgstr "Si añades `[ setup ]` al mensaje de tu commit, nuestro CI probará automáticamente que todo funcione."
 
 #: ../../dev/building.rst:40
 msgid "Otherwise, changes to certain files like `requirements/*` and `setup.py` will automatically prompt test builds to fire."
-msgstr ""
+msgstr "De otra forma, los cambios a ciertos archivos como `requirements/*` y `setup.py` activarán automáticamente las pruebas."
 
 #: ../../dev/content.rst:2
 msgid "Content"
-msgstr ""
+msgstr "Contenido"
 
 #: ../../dev/content.rst:4
 msgid "This is a core module found in ``kolibri/Content``."
-msgstr ""
+msgstr "Este es un modulo de la base hallado en ``kolibri/Content``."
 
 #: ../../dev/content.rst:16 ../../dev/logger.rst:14 ../../dev/uap.rst:14
 msgid "Models"
-msgstr ""
+msgstr "Modelos"
 
 #: kolibri.content.models:1 of
 msgid "This is one of the Kolibri core components, the abstract layer of all contents. To access it, please use the public APIs in api.py"
-msgstr ""
+msgstr "Esta es uno de los componentes clave de Kolibri, la capa de abstracción de todos los contenidos. Para acceder a ella, por favor usar las APIs públicas en api.py"
 
 #: kolibri.content.models:4 of
 msgid "The ONLY public object is ContentNode"
-msgstr ""
+msgstr "El ÚNICO objecto público es ContentNode"
 
 #: kolibri.content.models.ChannelMetadata:1 of
 msgid "This class stores the channel metadata within the content database itself."
-msgstr ""
+msgstr "Esta clase almacena la metadata del canal entre el contenido de la base misma."
 
 #: kolibri.auth.models.Classroom:1 kolibri.auth.models.Collection:6
 #: kolibri.auth.models.DeviceOwner:11 kolibri.auth.models.Facility:1
@@ -124,7 +124,7 @@ msgstr ""
 #: kolibri.logger.models.ContentSummaryLog:3 kolibri.logger.models.MasteryLog:3
 #: kolibri.logger.models.UserSessionLog:3 of
 msgid "Id"
-msgstr ""
+msgstr "Id"
 
 #: kolibri.auth.models.Classroom:5 kolibri.auth.models.Collection:10
 #: kolibri.auth.models.Facility:5 kolibri.auth.models.LearnerGroup:5
@@ -132,7 +132,7 @@ msgstr ""
 #: kolibri.content.models.ChannelMetadataAbstractBase:5
 #: kolibri.content.models.ChannelMetadataCache:5 of
 msgid "Name"
-msgstr ""
+msgstr "Nombre"
 
 #: kolibri.auth.models.FacilityDataset:7
 #: kolibri.content.models.ChannelMetadata:7
@@ -140,27 +140,27 @@ msgstr ""
 #: kolibri.content.models.ChannelMetadataCache:7
 #: kolibri.content.models.ContentNode:14 of
 msgid "Description"
-msgstr ""
+msgstr "Descripción"
 
 #: kolibri.content.models.ChannelMetadata:9
 #: kolibri.content.models.ChannelMetadataAbstractBase:9
 #: kolibri.content.models.ChannelMetadataCache:9
 #: kolibri.content.models.ContentNode:20 of
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: kolibri.content.models.ChannelMetadata:11
 #: kolibri.content.models.ChannelMetadataAbstractBase:11
 #: kolibri.content.models.ChannelMetadataCache:11 of
 msgid "Version"
-msgstr ""
+msgstr "Versión"
 
 #: kolibri.content.models.ChannelMetadata:13
 #: kolibri.content.models.ChannelMetadataAbstractBase:13
 #: kolibri.content.models.ChannelMetadataCache:13
 #: kolibri.content.models.File:22 of
 msgid "Thumbnail"
-msgstr ""
+msgstr "Miniatura"
 
 #: kolibri.content.models.ChannelMetadata:15
 #: kolibri.content.models.ChannelMetadataAbstractBase:15
@@ -170,48 +170,48 @@ msgstr ""
 
 #: kolibri.content.models.ChannelMetadataAbstractBase:1 of
 msgid "Holds metadata about all existing content databases that exist locally."
-msgstr ""
+msgstr "Sostiene metadatos sobre todas las bases de datos de contenido existentes que existen a nivel local."
 
 #: kolibri.content.models.ChannelMetadataCache:1 of
 msgid "This class stores the channel metadata cached/denormed into the primary database."
-msgstr ""
+msgstr "Esta clase almacena el caché de metadatos del canal en la base de datos primaria."
 
 #: kolibri.content.models.ContentDatabaseModel:1 of
 msgid "All models that exist in content databases (rather than in the default database) should inherit from this class."
-msgstr ""
+msgstr "Todos los modelos que existen en la base de datos de contenido (pero no en la base de datos por defecto) deben ser heredadas de esta clase."
 
 #: kolibri.content.models.ContentNode:1 of
 msgid "The top layer of the contentDB schema, defines the most common properties that are shared across all different contents. Things it can represent are, for example, video, exercise, audio or document..."
-msgstr ""
+msgstr "La capa superior del esquema contenidoDb, define las propiedades mas comunes que son compartidas a través de los diferentes contenidos. Por ejemplo las cosas que pueden representar son; vídeos, ejercicios, audios o documentos..."
 
 #: kolibri.auth.models.Classroom:7 kolibri.auth.models.Collection:12
 #: kolibri.auth.models.Facility:7 kolibri.auth.models.LearnerGroup:7
 #: kolibri.content.models.ContentNode:6 of
 msgid "Parent"
-msgstr ""
+msgstr "Padre"
 
 #: kolibri.content.models.ContentNode:8 of
 msgid "License"
-msgstr ""
+msgstr "Licencia"
 
 #: kolibri.content.models.ContentNode:10 of
 msgid "Title"
-msgstr ""
+msgstr "Título"
 
 #: kolibri.content.models.ContentNode:12
 #: kolibri.logger.models.ContentRatingLog:9
 #: kolibri.logger.models.ContentSessionLog:9
 #: kolibri.logger.models.ContentSummaryLog:9 of
 msgid "Content id"
-msgstr ""
+msgstr "Id de contenido"
 
 #: kolibri.content.models.ContentNode:16 of
 msgid "Sort order"
-msgstr ""
+msgstr "Orden de clasificación"
 
 #: kolibri.content.models.ContentNode:18 of
 msgid "License owner"
-msgstr ""
+msgstr "Propietario de la licencia"
 
 #: kolibri.auth.models.Classroom:9 kolibri.auth.models.Collection:14
 #: kolibri.auth.models.Facility:9 kolibri.auth.models.LearnerGroup:9
@@ -219,11 +219,11 @@ msgstr ""
 #: kolibri.logger.models.ContentSessionLog:21
 #: kolibri.logger.models.ContentSummaryLog:23 of
 msgid "Kind"
-msgstr ""
+msgstr "Tipo"
 
 #: kolibri.content.models.ContentNode:24 kolibri.content.models.File:10 of
 msgid "Available"
-msgstr ""
+msgstr "Disponible"
 
 #: kolibri.content.models.ContentNode:26 of
 msgid "Stemmed metaphone"
@@ -233,7 +233,7 @@ msgstr ""
 #: kolibri.auth.models.Facility:11 kolibri.auth.models.LearnerGroup:11
 #: kolibri.content.models.ContentNode:28 of
 msgid "Lft"
-msgstr ""
+msgstr "Lft"
 
 #: kolibri.auth.models.Classroom:13 kolibri.auth.models.Collection:18
 #: kolibri.auth.models.Facility:13 kolibri.auth.models.LearnerGroup:13
@@ -245,25 +245,25 @@ msgstr ""
 #: kolibri.auth.models.Facility:15 kolibri.auth.models.LearnerGroup:15
 #: kolibri.content.models.ContentNode:32 of
 msgid "Tree id"
-msgstr ""
+msgstr "Id arbol"
 
 #: kolibri.auth.models.Classroom:17 kolibri.auth.models.Collection:22
 #: kolibri.auth.models.Facility:17 kolibri.auth.models.LearnerGroup:17
 #: kolibri.content.models.ContentNode:34 of
 msgid "Level"
-msgstr ""
+msgstr "Nivel"
 
 #: kolibri.content.models.ContentNode:36 of
 msgid "Has prerequisite"
-msgstr ""
+msgstr "Tiene prerrequisito"
 
 #: kolibri.content.models.ContentNode:38 of
 msgid "Related"
-msgstr ""
+msgstr "Relacionado"
 
 #: kolibri.content.models.ContentNode:40 of
 msgid "Tags"
-msgstr ""
+msgstr "Etiquetas"
 
 #: kolibri.content.models.ContentNode.get_descendant_content_ids:1 of
 msgid "Retrieve a queryset of unique content_ids for non-topic content nodes that are descendants of this node."
@@ -275,47 +275,47 @@ msgstr ""
 
 #: kolibri.content.models.ContentQuerySet:1 of
 msgid "Ensure proper database routing happens even when queryset is evaluated lazily outside of `using_content_database`."
-msgstr ""
+msgstr "Asegurar la correcta base de datos de enrutamiento suceda hasta cuando el queryset sea evaluado perezosamente fuera de `using_content_database`."
 
 #: kolibri.content.models.ContentTag:3 of
 msgid "Tag name"
-msgstr ""
+msgstr "Nombre de la etiqueta"
 
 #: kolibri.content.models.File:1 of
 msgid "The bottom layer of the contentDB schema, defines the basic building brick for content. Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3..."
-msgstr ""
+msgstr "La capa inferior del contenidoDB esquema, define el bloque de construcción básico para el contenido. Las cosas que puede representar son, por ejemplo, mp4, avi, mov, html, css, jpeg, pdf, mp3..."
 
 #: kolibri.content.models.File:6 of
 msgid "Checksum"
-msgstr ""
+msgstr "Suma de verificacion"
 
 #: kolibri.content.models.File:8 of
 msgid "Extension"
-msgstr ""
+msgstr "Extensión"
 
 #: kolibri.content.models.File:12 of
 msgid "File size"
-msgstr ""
+msgstr "Tamaño del archivo"
 
 #: kolibri.content.models.File:14 of
 msgid "Contentnode"
-msgstr ""
+msgstr "ContentNode"
 
 #: kolibri.content.models.File:16 of
 msgid "Preset"
-msgstr ""
+msgstr "Predefinido"
 
 #: kolibri.content.models.File:18 of
 msgid "Lang"
-msgstr ""
+msgstr "Lang"
 
 #: kolibri.content.models.File:20 of
 msgid "Supplementary"
-msgstr ""
+msgstr "Suplementarios"
 
 #: kolibri.content.models.File:24 of
 msgid "Priority"
-msgstr ""
+msgstr "Prioridad"
 
 #: kolibri.content.models.File.get_download_filename:1 of
 msgid "Return a valid filename to be downloaded as."
@@ -331,27 +331,27 @@ msgstr ""
 
 #: kolibri.content.models.File.get_storage_url:1 of
 msgid "Return a url for the client side to retrieve the content file. The same url will also be exposed by the file serializer."
-msgstr ""
+msgstr "Devolver un url para el lado del cliente para recuperar el archivo de contenido. El mismo url también será expuesto por el serializador archivo."
 
 #: kolibri.content.models.Language:3 of
 msgid "Lang code"
-msgstr ""
+msgstr "Código lang"
 
 #: kolibri.content.models.Language:5 of
 msgid "Lang subcode"
-msgstr ""
+msgstr "Subcódigo de Lang"
 
 #: kolibri.content.models.License:1 of
 msgid "Normalize the license of ContentNode model"
-msgstr ""
+msgstr "Normalizar la licencia del modelo ContentNode"
 
 #: kolibri.content.models.License:5 of
 msgid "License name"
-msgstr ""
+msgstr "Nombre de la licencia"
 
 #: kolibri.content.models.UUIDField:1 of
 msgid "Adaptation of Django's UUIDField, but with 32-char hex representation as Python representation rather than a UUID instance."
-msgstr ""
+msgstr "Adaptación de Django's UUIDField, pero con representación duodecimal 32-char como representación de Python en lugar de una instancia UUID."
 
 #: ../../dev/content/api_endpoints.rst:2
 msgid "API endpoints"
@@ -359,59 +359,59 @@ msgstr ""
 
 #: ../../dev/content/api_endpoints.rst:4
 msgid "request specific content:"
-msgstr ""
+msgstr "solicitar contenido especifico:"
 
 #: ../../dev/content/api_endpoints.rst:8
 msgid "search content:"
-msgstr ""
+msgstr "buscar contenido:"
 
 #: ../../dev/content/api_endpoints.rst:12
 msgid "request specific content with specified fields:"
-msgstr ""
+msgstr "solicitar contenido especifico con campos específicos:"
 
 #: ../../dev/content/api_endpoints.rst:16
 msgid "request paginated contents"
-msgstr ""
+msgstr "solicitar contenido paginado"
 
 #: ../../dev/content/api_endpoints.rst:20
 msgid "request combines different usages"
-msgstr ""
+msgstr "solicitud combina diferentes usos"
 
 #: ../../dev/content/api_methods.rst:2
 msgid "API Methods"
-msgstr ""
+msgstr "Métodos API"
 
 #: kolibri.content.api.OptionalPageNumberPagination:1 of
 msgid "Pagination class that allows for page number-style pagination, when requested. To activate, the `page_size` argument must be set. For example, to request the first 20 records: `?page_size=20&page=1`"
-msgstr ""
+msgstr "Clase de paginacion que permite para paginacion estilo de numero de pagina, cuando sea solicitado. Para activar el `page_size` el argumento debe ser definido. Por ejemplo, para solicitar los primeros 20 registros: `?page_size=20&page=1`"
 
 #: ../../dev/content/concepts_and_definitions.rst:2
 #: ../../dev/logger/concepts_and_definitions.rst:2
 #: ../../dev/uap/concepts_and_definitions.rst:2
 msgid "Concepts and Definitions"
-msgstr ""
+msgstr "Conceptos y definiciones"
 
 #: ../../dev/content/concepts_and_definitions.rst:5
 #: ../../dev/content/implementation.rst:63
 msgid "ContentNode"
-msgstr ""
+msgstr "ContentNode"
 
 #: ../../dev/content/concepts_and_definitions.rst:7
 msgid "High level abstraction for prepresenting different content kinds, such as Topic, Video, Audio, Exercise, Document, and can be easily extended to support new content kinds. With multiple ContentNode objects, it supports grouping, arranging them in tree structure, and symmetric and asymmetric relationship between two ContentNode objects."
-msgstr ""
+msgstr "Alto nivel de abstracción de pre presentación diferentes tipos de contenidos, como temas, vídeo. audio, ejercicios, documentos y puede ser fácilmente extendido para apoyar nuevos tipos de contenidos. Con múltiples objetos ContentNode, esto admite la agrupacion, organización en la estructura simétrica y asimétrica de árbol relacionada entre dos ContentNode."
 
 #: ../../dev/content/concepts_and_definitions.rst:10
 #: ../../dev/content/implementation.rst:73
 msgid "File"
-msgstr ""
+msgstr "Archivo"
 
 #: ../../dev/content/concepts_and_definitions.rst:12
 msgid "A Django model that is used to store details about the source file, such as what language it supports, how big is the size, which format the file is and where to find the source file."
-msgstr ""
+msgstr "Un modelo de Django que es usado para almacenar detalles acerca del archivo fuente tal como que lenguaje admite, que tan grande es la talla, cual es el formato del archivo y donde encontrar el archivo fuente."
 
 #: ../../dev/content/concepts_and_definitions.rst:15
 msgid "ContentDB Diagram"
-msgstr ""
+msgstr "Diagrama de ContentDB"
 
 #: ../../dev/content/concepts_and_definitions.rst:19
 msgid "**PK = Primary Key **FK = Foreign Key **M2M = ManyToManyField"
@@ -423,7 +423,7 @@ msgstr ""
 
 #: ../../dev/content/concepts_and_definitions.rst:26
 msgid "This model is used to establish a filtering system for all ContentNode objects."
-msgstr ""
+msgstr "Este modelo es utilizado para establecer un sistema de filtrado para todos los objetos de ContentNode."
 
 #: ../../dev/content/concepts_and_definitions.rst:30
 msgid "ChannelMetadata"
@@ -435,7 +435,7 @@ msgstr ""
 
 #: ../../dev/content/concepts_and_definitions.rst:35
 msgid "ChannelMetadataCache"
-msgstr ""
+msgstr "ChannelMetadataCache"
 
 #: ../../dev/content/concepts_and_definitions.rst:36
 msgid "This class stores the channel metadata cached/denormed into the default database."
@@ -443,15 +443,15 @@ msgstr ""
 
 #: ../../dev/content/implementation.rst:2
 msgid "Implementation Details and Workflows"
-msgstr ""
+msgstr "Detalles de implementación y flujos de trabajo"
 
 #: ../../dev/content/implementation.rst:4
 msgid "To achieve using separate databases for each channel and being able to switch channels dynamically, the following data structure and utility functions have been implemented."
-msgstr ""
+msgstr "Para lograr usar bases de datos separadas de cada canal y ser capaz de cambiar canales diatónicamente, se han implementado las siguientes estructuras de datos y funciones de estructura y utilidad de datos."
 
 #: ../../dev/content/implementation.rst:7
 msgid "ContentDBRoutingMiddleware"
-msgstr ""
+msgstr "ContentDBRoutingMiddleware"
 
 #: ../../dev/content/implementation.rst:9
 msgid "This middleware will be applied to every request, and will dynamically select a database based on the channel_id. If a channel ID was included in the URL, it will ensure the appropriate content DB is used for the duration of the request. (Note: `set_active_content_database` is thread-local, so this shouldn't interfere with other parallel requests.)"
@@ -459,11 +459,11 @@ msgstr ""
 
 #: ../../dev/content/implementation.rst:12
 msgid "For example, this is how the client side dynamically requests data from a specific channel:"
-msgstr ""
+msgstr "Por ejemplo, así es como el lado cliente dinamicamente solicita datos de un canal en especifico"
 
 #: ../../dev/content/implementation.rst:16
 msgid "this will respond with all the contentnode data stored in database <channel_1_id>.sqlite3"
-msgstr ""
+msgstr "esto responderá todos los datos ContentNode almacenados en la base de datos <channel_1_id>.sqlite3"
 
 #: ../../dev/content/implementation.rst:20
 msgid "this will respond with all the contentnode data stored in database <channel_2_id>.sqlite3"
@@ -495,19 +495,19 @@ msgstr ""
 
 #: ../../dev/content/implementation.rst:37
 msgid "Usage as a context manager:"
-msgstr ""
+msgstr "Uso como un gestor de contexto:"
 
 #: ../../dev/content/implementation.rst:47
 msgid "Usage as a decorator:"
-msgstr ""
+msgstr "Uso como decorador:"
 
 #: ../../dev/content/implementation.rst:58
 msgid "ContentDBRouter"
-msgstr ""
+msgstr "ContentDBRouter"
 
 #: ../../dev/content/implementation.rst:60
 msgid "A router that decides what content database to read from based on a thread-local variable."
-msgstr ""
+msgstr "Un enrutador que decide qué base de datos de contenido leer, basándose en una variable del hilo local."
 
 #: ../../dev/content/implementation.rst:65
 msgid "``ContentNode`` is implemented as a Django model that inherits from two abstract classes, MPTTModel and ContentDatabaseModel. `django-mptt's MPTTModel <http://django-mptt.github.io/django-mptt/>`_, which allows for efficient traversal and querying of the ContentNode tree. ``ContentDatabaseModel`` is used as a marker so that the content_db_router knows to query against the content database only if the model inherits from ContentDatabaseModel."
@@ -515,7 +515,7 @@ msgstr ""
 
 #: ../../dev/content/implementation.rst:70
 msgid "The tree structure is established by the ``parent`` field that is a foreign key pointing to another ContentNode object. You can also create a symmetric relationship using the ``related`` field, or an asymmetric field using the ``is_prerequisite`` field."
-msgstr ""
+msgstr "La estructura de arbol es establecido por el campo ``parent`` que es una llave exterior señalando a otro objeto ContentNode. Vosotros podéis cambien crear una relación simetrica usando el campo ``related`` o un campo asimétrico usando el campo ``is_prerequisite``."
 
 #: ../../dev/content/implementation.rst:75
 msgid "The ``File`` model also inherits from ``ContentDatabaseModel``."
@@ -523,7 +523,7 @@ msgstr ""
 
 #: ../../dev/content/implementation.rst:77
 msgid "To find where the source file is located, the class method ``get_url`` uses the ``checksum`` field and ``settings.CONTENT_STORAGE_DIR`` to calculate the file path. Every source file is named based on its MD5 hash value (this value is also stored in the ``checksum`` field) and stored in a namespaced folder under the directory specified in ``settings.CONTENT_STORAGE_DIR``. Because it's likely to have thousands of content files, and some filesystems cannot handle a flat folder with a large number of files very well, we create namespaced subfolders to improve the performance. So the eventual file path would look something like:"
-msgstr ""
+msgstr "Para encontrar donde el archivo fuentes esta localizado, el método de la clase ``get_url``usa el campo ``checksum``y ``settings.CONTENT_STORAGE_DIR`` para calcular la ruta de archivo. Cada archivo de fuente es nombrado en base a su valor MD5 (este valor es también almacenado en el campo ``checksum``) y archivado en una carpeta de espacio de nombres bajo el directorio especificado en ``settings.CONTENT_STORAGE_DIR``. Porque es probable tener miles de archivos de contenido y algunos archivos de sistema no pueden manejar una carpeta plana con un gran numero de archivos muy bien, nosotros creamos una subcarpeta para mejorar el rendimiento. Entonces eventualmente la ruta de archivo se vera algo asi:"
 
 #: ../../dev/content/implementation.rst:79
 msgid "``/home/user/.kolibri/content/storage/9/8/9808fa7c560b9801acccf0f6cf74c3ea.mp4``"
@@ -531,15 +531,15 @@ msgstr ""
 
 #: ../../dev/content/implementation.rst:81
 msgid "As you can see, it is fine to store your content files outside of the kolibri project folder as long as you set the ``settings.CONTENT_STORAGE_DIR`` accordingly."
-msgstr ""
+msgstr "Como podrais ver, esta bien almacenar tu contenido en archivos fuera de la carpeta del proyecto Kolibri siempre y cuando vosotros defináis el``settings.CONTENT_STORAGE_DIR``."
 
 #: ../../dev/content/implementation.rst:83
 msgid "The front-end will then use the ``extension`` field to decide which content player should be used. When the ``supplementary`` field's value is ``True``, that means this File object isn't necessary and can display the content without it. For example, we will mark caption (subtitle) file as supplementary."
-msgstr ""
+msgstr "El front-end utilizara el campo ``extension``para decidir que reproductor de contenido debe ser usado. Cuando el valor del campo ``supplementary``es``True``, eso significa que este objeto del archivo no es necesario y puede desplegar contenido sin eso. Por ejemplo, nosotros marcaremos subtitulos de archivos como complemento."
 
 #: ../../dev/content/implementation.rst:86
 msgid "Content Constants"
-msgstr ""
+msgstr "Constantes de contenido"
 
 #: ../../dev/content/implementation.rst:88
 msgid "A Python module that stores constants for the ``kind`` field in ContentNode model and the ``preset`` field and ``extension`` field in File model."
@@ -600,11 +600,11 @@ msgstr ""
 
 #: ../../dev/content/implementation.rst:115
 msgid "Play the content."
-msgstr ""
+msgstr "Reproducir el contenido."
 
 #: ../../dev/conventions.rst:2
 msgid "Project Conventions"
-msgstr ""
+msgstr "Convenios de proyectos"
 
 #: ../../dev/conventions.rst:4
 msgid "*TODO*"
@@ -612,7 +612,7 @@ msgstr ""
 
 #: ../../dev/conventions.rst:8
 msgid "Documentation"
-msgstr ""
+msgstr "Documentación"
 
 #: ../../dev/conventions.rst:10
 msgid "*reStructuredText, docstrings, requirements for PRs to master...*"
@@ -620,7 +620,7 @@ msgstr ""
 
 #: ../../dev/conventions.rst:14
 msgid "Git Workflow"
-msgstr ""
+msgstr "Flujo de trabajo de Git"
 
 #: ../../dev/conventions.rst:16
 msgid "*stable master, develop, feature branches, tags, releases, hot fixes, internal vs external repos...*"
@@ -628,7 +628,7 @@ msgstr ""
 
 #: ../../dev/conventions.rst:20
 msgid "Python Code"
-msgstr ""
+msgstr "Código Python"
 
 #: ../../dev/conventions.rst:22
 msgid "*PEP8, additional conventions and best practices...*"
@@ -644,7 +644,7 @@ msgstr ""
 
 #: ../../dev/conventions.rst:30
 msgid "Whitespace"
-msgstr ""
+msgstr "Espacio en blanco"
 
 #: ../../dev/conventions.rst:32
 msgid "an indent is 2 spaces"
@@ -652,7 +652,7 @@ msgstr ""
 
 #: ../../dev/conventions.rst:33
 msgid "two blank lines between top-level tags"
-msgstr ""
+msgstr "dos lineas vacías entre etiquetas de nivel superior"
 
 #: ../../dev/conventions.rst:34
 msgid "one blank line of padding within a top-level tag"
@@ -668,27 +668,27 @@ msgstr ""
 
 #: ../../dev/conventions.rst:39
 msgid "Avoid using Vue.js' camelCase-to-kebab-case mapping. Instead, use square brackets and strings to reference names."
-msgstr ""
+msgstr "Evitar el uso de mapeo de Vue.js' camelCase-to-kebab-case.En cambio use corchetes y cadenas para hacer referencia a nombres."
 
 #: ../../dev/conventions.rst:41
 msgid "Use ``scoped`` styles where ever possible"
-msgstr ""
+msgstr "Use estilos ``scoped`` donde siempre sea posible"
 
 #: ../../dev/conventions.rst:43
 msgid "Name custom tags using kebab-case"
-msgstr ""
+msgstr "Nombre las etiquetas personalizadas usando kebab-case"
 
 #: ../../dev/conventions.rst:45
 msgid "Components are placed in the *vue* directory. The root component file is called *vue/index.vue*, and is mounted on a tag called ``<rootvue>``."
-msgstr ""
+msgstr "Los componentes son colocados en el directorio *vue*. Se llama al archivo de componente de la raíz *vue/index.vue*, y esta montado en una etiqueta llamada ``<rootvue>``."
 
 #: ../../dev/conventions.rst:47
 msgid "Components are defined either as a file with a ``.vue`` extension (*my-component.vue*) or as a directory with an *index.vue* file (*my-component/index.vue*). Both forms can be used with ``require('my-component')``."
-msgstr ""
+msgstr "Los componentes son definidos ya sea como un archivo con una extensión ``.vue`` (*my-component.vue*) o como un directorio con un archivo *index.vue* file (*my-component/index.vue*). Ambas formas pueden ser usadas con``require('my-component')``."
 
 #: ../../dev/conventions.rst:49
 msgid "Put child components inside the directory of a parent component if they are *only* used by the parent. Otherwise, put shared child components in the *vue* director."
-msgstr ""
+msgstr "Poner los componentes infantiles dentro del directorio del componente del padre si ellos son solo usados por el padre. De lo contrario ponga los componentes infantiles compartidos en el directorio *vue*."
 
 #: ../../dev/conventions.rst:51
 msgid "Any user visisble interface text should be rendered translatable, see :doc:`i18n` for details."
@@ -696,7 +696,7 @@ msgstr ""
 
 #: ../../dev/conventions.rst:55
 msgid "JavaScript Code"
-msgstr ""
+msgstr "Código JavaScript"
 
 #: ../../dev/conventions.rst:57
 msgid "We use the `AirBnB Javascript Style guide <https://github.com/airbnb/javascript>`_ for client-side ES6 code in Vue components."
@@ -704,7 +704,7 @@ msgstr ""
 
 #: ../../dev/conventions.rst:58
 msgid "``use strict`` is automatically inserted."
-msgstr ""
+msgstr "``use strict`` es insertado automáticamente."
 
 #: ../../dev/conventions.rst:59
 msgid "Use CommonJS-style ``require`` and ``module.exports`` statements, not ES6 ``import``/``export`` statements."
@@ -712,35 +712,35 @@ msgstr ""
 
 #: ../../dev/conventions.rst:60
 msgid "For logging statements we use a thin wrapper around the ``log-level`` JS library, that prefixes the log statements with information about the logging level and current file. To access the logger, simply include the following code snippet:"
-msgstr ""
+msgstr "Para las declaraciones de registro utilizamos una envoltura delgada alrededor de la librería ``log-level`` JS, que prefija las declaraciones de registro con información acerca del nivel de registro y archivo presente. Para acceder a la bitácora, simplemente incluya el siguiente fragmento de código:"
 
 #: ../../dev/conventions.rst:68
 msgid "Stylus and CSS"
-msgstr ""
+msgstr "Stylus y CSS"
 
 #: ../../dev/conventions.rst:70
 msgid "clear out unused styles"
-msgstr ""
+msgstr "quitar estilos sin uso"
 
 #: ../../dev/conventions.rst:71
 msgid "avoid using classes as JS identifiers, and prefix with ``js-`` if necessary"
-msgstr ""
+msgstr "evitar usar clases como identificadores JS, y prefijos con ``js-`` si es necesario"
 
 #: ../../dev/conventions.rst:75
 msgid "HTML"
-msgstr ""
+msgstr "HTML"
 
 #: ../../dev/conventions.rst:77
 msgid "*attribute lists, semantic structure, accessibility...*"
-msgstr ""
+msgstr "*Listas de atributos, estructuras semánticas, accesibilidad...*"
 
 #: ../../dev/files.rst:2
 msgid "Files and Directories"
-msgstr ""
+msgstr "Archivos y Carpetas"
 
 #: ../../dev/files.rst:6
 msgid ".cache/..."
-msgstr ""
+msgstr ".cache/..."
 
 #: ../../dev/files.rst:6
 msgid "Testing-related, and ignored by git. *TODO - what does it contain?*"
@@ -788,7 +788,7 @@ msgstr ""
 
 #: ../../dev/files.rst:28
 msgid "docs/..."
-msgstr ""
+msgstr "docs/..."
 
 #: ../../dev/files.rst:28
 msgid "reStructuredText-based documentation, along with `Sphinx-based build code <http://www.sphinx-doc.org/en/stable/>`_"
@@ -888,7 +888,7 @@ msgstr ""
 
 #: ../../dev/files.rst:64
 msgid "configuration for `Travis <https://docs.travis-ci.com/user/customizing-the-build/>`_"
-msgstr ""
+msgstr "configuración para `Travis <https://docs.travis-ci.com/user/customizing-the-build/>`_"
 
 #: ../../dev/files.rst:67
 msgid "AUTHORS.rst, CHANGELOG.rst, CONTRIBUTING.rst"
@@ -1090,135 +1090,143 @@ msgstr ""
 msgid "The ``ready`` method will be automatically executed once the Module is loaded and registered with the Kolibri Core App. By convention, JavaScript is injected into the served HTML *after* the ``<rootvue>`` tag, meaning that this tag should be available when the ``ready`` method is called, and the root component (conventionally in *vue/index.vue*) can be mounted here."
 msgstr ""
 
-#: ../../dev/frontend.rst:117
-msgid "Shared Core Functionality"
+#: ../../dev/frontend.rst:116
+msgid "Content Renderers"
 msgstr ""
 
-#: ../../dev/frontend.rst:120
-msgid "Kolibri provides a set of shared \"core\" functionality – including components, styles, and helper logic, and libraries – which can be re-used across apps and plugins."
+#: ../../dev/frontend.rst:118
+msgid "A special kind of Kolibri Module is dedicated to rendering particular content types. All content renderers should extend the ``ContentRendererModule`` class found in `kolibri/core/assets/src/content_renderer_module.js`. In addition, rather than subclassing the ``WebpackBundleHook`` class, content renderers should be defined in the Python code using the ``ContentRendererHook`` class defined in ``kolibri.content.hooks``. In addition to the standard options for the ``WebpackBundleHook``, the ``ContentRendererHook`` also accepts a json file defining the content types that it renders::"
 msgstr ""
 
 #: ../../dev/frontend.rst:123
-msgid "JS Libraries"
+msgid "Shared Core Functionality"
 msgstr ""
 
-#: ../../dev/frontend.rst:125
-msgid "The following libraries are available globally, in all module code:"
-msgstr ""
-
-#: ../../dev/frontend.rst:127
-msgid "``vue`` - the Vue.js object"
-msgstr ""
-
-#: ../../dev/frontend.rst:128
-msgid "``vuex`` - the Vuex object"
+#: ../../dev/frontend.rst:126
+msgid "Kolibri provides a set of shared \"core\" functionality – including components, styles, and helper logic, and libraries – which can be re-used across apps and plugins."
 msgstr ""
 
 #: ../../dev/frontend.rst:129
+msgid "JS Libraries"
+msgstr ""
+
+#: ../../dev/frontend.rst:131
+msgid "The following libraries are available globally, in all module code:"
+msgstr ""
+
+#: ../../dev/frontend.rst:133
+msgid "``vue`` - the Vue.js object"
+msgstr ""
+
+#: ../../dev/frontend.rst:134
+msgid "``vuex`` - the Vuex object"
+msgstr ""
+
+#: ../../dev/frontend.rst:135
 msgid "``logging`` - our wrapper around the `loglevel logging module <https://github.com/pimterry/loglevel>`_"
 msgstr ""
 
-#: ../../dev/frontend.rst:130
+#: ../../dev/frontend.rst:136
 msgid "``core-base`` - a shared base Vue.js component (*core-base.vue*)"
 msgstr ""
 
-#: ../../dev/frontend.rst:132
+#: ../../dev/frontend.rst:138
 msgid "And many others. The complete specification for commonly shared modules can be found in `kolibri/core/assets/src/core-app/apiSpec.js` - this object defines which modules are imported into the core object. If the module in question has the 'requireName' attribute set on the core specification, then it can be used in code with a standard CommonJS-style require statement - e.g.:"
 msgstr ""
 
-#: ../../dev/frontend.rst:139
+#: ../../dev/frontend.rst:145
 msgid "Adding additional globally-available objects is relatively straightforward due to the `plugin and webpack build system <asset_loading>`_."
 msgstr ""
 
-#: ../../dev/frontend.rst:141
+#: ../../dev/frontend.rst:147
 msgid "To expose something on the core app, add a key to the object in `apiSpec.js` which maps to an object with the following keys:"
 msgstr ""
 
-#: ../../dev/frontend.rst:149 ../../dev/frontend.rst:165
+#: ../../dev/frontend.rst:155 ../../dev/frontend.rst:171
 msgid "This module would now be available for import anywhere with the following statement:"
 msgstr ""
 
-#: ../../dev/frontend.rst:155
+#: ../../dev/frontend.rst:161
 msgid "For better organisation of the Core API specification, modules can also be attached at arbitrarily nested paths:"
 msgstr ""
 
-#: ../../dev/frontend.rst:171
+#: ../../dev/frontend.rst:177
 msgid "For convenience (and to prevent accidental imports), 3rd party (NPM) modules installed in node_modules can be required by their usual name also:"
 msgstr ""
 
-#: ../../dev/frontend.rst:178
+#: ../../dev/frontend.rst:184
 msgid "Bootstrapped Data"
 msgstr ""
 
-#: ../../dev/frontend.rst:180
+#: ../../dev/frontend.rst:186
 msgid "The ``kolibriGlobal`` object is also used to bootstrap data into the JS app, rather than making unnecessary API requests."
 msgstr ""
 
-#: ../../dev/frontend.rst:182
+#: ../../dev/frontend.rst:188
 msgid "For example, we currently embellish the ``kolibriGlobal`` object with a ``urls`` object. This is defined by `Django JS Reverse <https://github.com/ierror/django-js-reverse>`_ and exposes Django URLs on the client side. This will primarily be used for accessing API Urls for synchronizing with the REST API. See the Django JS Reverse documentation for details on invoking the Url."
 msgstr ""
 
-#: ../../dev/frontend.rst:186
+#: ../../dev/frontend.rst:192
 msgid "Styling"
 msgstr ""
 
-#: ../../dev/frontend.rst:188
+#: ../../dev/frontend.rst:194
 msgid "For shared styles, two mechanisms are provided:"
 msgstr ""
 
-#: ../../dev/frontend.rst:190
+#: ../../dev/frontend.rst:196
 msgid "The *core-theme.styl* file provides values for some globally-relevant Stylus variables. These variables can be used in any component's ``<style>`` block by adding the line ``@require '~core-theme.styl'``."
 msgstr ""
 
-#: ../../dev/frontend.rst:191
+#: ../../dev/frontend.rst:197
 msgid "The *core-global.styl* file is always inserted into the ``<head>`` after normalize.css and provides some basic styling to global elements"
 msgstr ""
 
-#: ../../dev/frontend.rst:195
+#: ../../dev/frontend.rst:201
 msgid "Additional Functionality"
 msgstr ""
 
-#: ../../dev/frontend.rst:197
+#: ../../dev/frontend.rst:203
 msgid "These methods are also publicly exposed methods of the core app:"
 msgstr ""
 
-#: ../../dev/frontend.rst:208
+#: ../../dev/frontend.rst:214
 msgid "Unit Testing"
 msgstr ""
 
-#: ../../dev/frontend.rst:210
+#: ../../dev/frontend.rst:216
 msgid "Unit testing is carried out using `Mocha <https://mochajs.org/>`_. All JavaScript code should have unit tests for all object methods and functions."
 msgstr ""
 
-#: ../../dev/frontend.rst:212
+#: ../../dev/frontend.rst:218
 msgid "Tests are written in JavaScript, and placed in the 'assets/test' folder. An example test is shown below:"
 msgstr ""
 
-#: ../../dev/frontend.rst:230
+#: ../../dev/frontend.rst:236
 msgid "Vue.js components can also be tested. The management plugin contains an example (*kolibri/plugins/management/assets/test/management.js*) where the component is bound to a temporary DOM node, changes are made to the state, and assertions are made about the new component structure."
 msgstr ""
 
-#: ../../dev/frontend.rst:234
+#: ../../dev/frontend.rst:240
 msgid "Adding Dependencies"
 msgstr ""
 
-#: ../../dev/frontend.rst:236
+#: ../../dev/frontend.rst:242
 msgid "Dependencies are tracked using ``yarn`` - `see the docs here <https://yarnpkg.com/en/docs/>`_."
 msgstr ""
 
-#: ../../dev/frontend.rst:238
+#: ../../dev/frontend.rst:244
 msgid "We distinguish development dependencies from runtime dependencies, and these should be installed as such using ``yarn add --dev [dep]`` or ``yarn add [dep]``, respectively. Your new dependency should now be recorded in *package.json*, and all of its dependencies should be recorded in *yarn.lock*."
 msgstr ""
 
-#: ../../dev/frontend.rst:240
+#: ../../dev/frontend.rst:246
 msgid "Individual plugins can also have their own package.json and yarn.lock for their own dependencies. Running ``yarn install`` will also install all the dependencies for each activated plugin (inside a node_modules folder inside the plugin itself). These dependencies will only be available to that plugin at build time. Dependencies for individual plugins should be added from within the root directory of that particular plugin."
 msgstr ""
 
-#: ../../dev/frontend.rst:242
+#: ../../dev/frontend.rst:248
 msgid "To assist in tracking the source of bloat in our codebase, the command ``yarn run bundle-stats`` is available to give a full readout of the size that uglified packages take up in the final Javascript code."
 msgstr ""
 
-#: ../../dev/frontend.rst:244
+#: ../../dev/frontend.rst:250
 msgid "In addition, a plugin can have its own webpack.config.js for plugin specific webpack configuration (loaders, plugins, etc.). These options will be merged with the base options using ``webpack-merge``."
 msgstr ""
 
@@ -1796,8 +1804,7 @@ msgstr ""
 
 #: kolibri.logger.models.AttemptLog:14
 #: kolibri.logger.models.ContentSummaryLog:17
-#: kolibri.logger.models.MasteryLog:15 kolibri.logger.models.UserSessionLog:13
-#: of
+#: kolibri.logger.models.MasteryLog:15 of
 msgid "Completion timestamp"
 msgstr ""
 
@@ -1915,8 +1922,16 @@ msgstr ""
 msgid "Channels"
 msgstr ""
 
+#: kolibri.logger.models.UserSessionLog:13 of
+msgid "Last interaction timestamp"
+msgstr ""
+
 #: kolibri.logger.models.UserSessionLog:15 of
 msgid "Pages"
+msgstr ""
+
+#: kolibri.logger.models.UserSessionLog.update_log:1 of
+msgid "Update the current UserSessionLog for a particular user."
 msgstr ""
 
 #: ../../dev/logger/concepts_and_definitions.rst:5
@@ -2617,7 +2632,7 @@ msgstr ""
 
 #: ../../dev/tests.rst:26
 msgid "To run a subset of tests::"
-msgstr ""
+msgstr "Para ejecutar un subconjunto de pruebas::"
 
 #: ../../dev/tests.rst:32
 msgid "JS unit tests"
@@ -2787,7 +2802,7 @@ msgstr ""
 #: kolibri.auth.models.KolibriAbstractBaseUser:7
 #: kolibri.auth.models.KolibriAnonymousUser:3 of
 msgid "Password"
-msgstr ""
+msgstr "Contraseña"
 
 #: kolibri.auth.models.DeviceOwner:15 kolibri.auth.models.FacilityUser:8
 #: kolibri.auth.models.KolibriAbstractBaseUser:9
@@ -2798,7 +2813,7 @@ msgstr ""
 #: kolibri.auth.models.DeviceOwner:17 kolibri.auth.models.FacilityUser:12
 #: kolibri.auth.models.KolibriAbstractBaseUser:11
 #: kolibri.auth.models.KolibriAnonymousUser:7 of
-msgid "Required. 30 characters or fewer. Letters and digits only."
+msgid "Required. 30 characters or fewer. Letters and digits only"
 msgstr ""
 
 #: kolibri.auth.models.DeviceOwner:19 kolibri.auth.models.FacilityUser:14
@@ -2856,7 +2871,7 @@ msgstr ""
 #: ../../dev/uap/concepts_and_definitions.rst:5
 #: kolibri.auth.models.FacilityUser:18 of
 msgid "Facility"
-msgstr ""
+msgstr "Centro educativo"
 
 #: kolibri.auth.models.KolibriAbstractBaseUser:1 of
 msgid "Our custom user type, derived from ``AbstractBaseUser`` as described in the Django docs. Draws liberally from ``django.contrib.auth.AbstractUser``, except we exclude some fields we don't care about, like email."
@@ -3059,7 +3074,7 @@ msgstr ""
 
 #: ../../dev/uap/concepts_and_definitions.rst:15
 msgid "Users"
-msgstr ""
+msgstr "Usuarios"
 
 #: ../../dev/uap/concepts_and_definitions.rst:17
 msgid "There are two kinds of users: ``FacilityUser`` and ``DeviceOwner``. A ``FacilityUser`` is associated with a particular ``Facility``, and the user's account and data may be synchronized across multiple devices. A ``DeviceOwner`` account is not associated with a particular ``Facility``, but is specific to one device, and is never synchronized across multiple devices. A ``DeviceOwner`` is like a superuser, and has permissions to modify any data on her own device, whereas a ``FacilityUser`` only has permissions for some subset of data from their own Facility Dataset (as determined in part by the roles they possess; see below)."
@@ -3523,48 +3538,11 @@ msgid "**Roadmap:** Jessica has begun designing this. See `the invision prototyp
 msgstr ""
 
 #~ msgid ""
-#~ "It's generally good practice to use "
-#~ "`Python virtual environment "
-#~ "<https://virtualenv.pypa.io/en/latest/>`_ to isolate "
-#~ "your project(s) and allow you to "
-#~ "install different packages, even with "
-#~ "different versions. This also allows you"
-#~ " to avoid using ``sudo`` with the "
-#~ "``pip`` commands below, which is not "
-#~ "recommended."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Follow these `instructions to create a"
-#~ " new virtual environment and activate "
-#~ "it <http://docs.python-"
-#~ "guide.org/en/latest/dev/virtualenvs/>`_. You may "
-#~ "also want to consider using "
-#~ "`virtualenvwrapper "
-#~ "<http://virtualenvwrapper.readthedocs.io/en/latest/index.html>`_."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "In this document we use the name"
-#~ " ``kolibri``, but you can name the"
-#~ " virtual environment however you wish."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "If you're *not* using a Python "
-#~ "virtual environment, you may need to "
-#~ "use ``sudo`` with the ``pip install``"
-#~ " commands below. ``yarn install`` "
-#~ "automatically isolates project dependencies "
-#~ "and works without ``sudo``."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Install ``yarn`` according the `instructions"
-#~ " specific for your OS "
-#~ "<https://yarnpkg.com/en/docs/install/>`_."
 #~ msgstr ""
 
 #~ msgid "Allow signups"
+#~ msgstr ""
+
+#~ msgid "Required. 30 characters or fewer. Letters and digits only."
 #~ msgstr ""
 
