@@ -15,4 +15,7 @@ module.exports = {
   MasteryLog: require('./masteryLog'),
   AttemptLog: require('./attemptLog'),
   SignUpResource: require('./signUp'),
+  ExamResource: require('./exam'),
+  ExamAssignmentResource: require('./examassignment'),
+  UserExamResource: require('./userexam'),
 };
