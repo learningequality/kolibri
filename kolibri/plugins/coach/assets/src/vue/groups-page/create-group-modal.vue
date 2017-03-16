@@ -59,7 +59,6 @@
         required: true,
       },
     },
-    computed: {},
     methods: {
       callCreateGroup() {
         this.createGroup(this.classId, this.groupNameInput);
