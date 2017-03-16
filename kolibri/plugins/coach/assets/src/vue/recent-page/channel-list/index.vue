@@ -15,16 +15,14 @@
 
       <!-- Table body -->
       <tbody>
-        <template v-for="channel in channels">
-          <router-link :to="reportsForChannel(channel.id)">
-            <tr>
-              <!-- Content Name field -->
-              <td scope="row" class="table-cell">
-                {{channel.name}}
-              </td>
-            </tr>
-          </router-link>
-        </template>
+        <router-link v-for="channel in channels" :to="reportsForChannel(channel.id)">
+          <tr>
+            <!-- Content Name field -->
+            <td scope="row" class="table-cell">
+              {{channel.name}}
+            </td>
+          </tr>
+        </router-link>
       </tbody>
 
     </table>

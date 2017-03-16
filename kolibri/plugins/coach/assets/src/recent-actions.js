@@ -32,12 +32,8 @@ function showReports(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_RECENT_PAGE);
 
-  const channelPayload = {
-    channel_id: params.channelID,
-  };
-
   // should be cached if navigated to this point
-  const channelPromise = ChannelResource.getModel(channelPayload).fetch();
+  const channelPromise = ChannelResource.getModel(params.channelID).fetch();
 
   channelPromise.then(
     channelData => {
@@ -64,9 +60,7 @@ function showReports(store, params) {
         error => { coreActions.handleApiError(store, error); }
       );
     },
-    error => {
-
-    }
+  error => { coreActions.handleApiError(store, error); }
   );
 }
 
