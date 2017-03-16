@@ -78,6 +78,9 @@
       group: {
         type: Object,
         required: true,
+        validator(group) {
+          return group.name && group.users;
+        }
       },
       isUngrouped: {
         type: Boolean,

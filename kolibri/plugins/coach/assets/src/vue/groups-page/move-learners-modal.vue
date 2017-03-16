@@ -60,10 +60,16 @@
       groups: {
         type: Array,
         required: true,
+        validator(groups) {
+          return groups.every(group => group.id && group.name);
+        },
       },
       usersToMove: {
         type: Array,
         required: true,
+        validator(userIds) {
+          return userIds.every(userId => userId);
+        },
       },
       isUngrouped: {
         type: Boolean,
