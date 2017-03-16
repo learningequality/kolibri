@@ -11,7 +11,7 @@
         :assessment="assessment"
         :date="date"/>
       <answer-history
-        class="column pure-u-1-4"
+        class="answer-history column pure-u-1-4"
         :questionHistory="questionHistory"
       />
       <div class="column pure-u-3-4">
@@ -102,6 +102,9 @@
 
   .column
     float: left
+
+  .answer-history
     max-height: 400px
+    margin-top: 10px
 
 </style>

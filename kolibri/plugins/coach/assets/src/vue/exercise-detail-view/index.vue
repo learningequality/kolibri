@@ -88,5 +88,8 @@
 
   #page-body
     padding: 20px
+    padding-bottom: 40px
+    height: inherit
+    overflow-y: auto
 
 </style>

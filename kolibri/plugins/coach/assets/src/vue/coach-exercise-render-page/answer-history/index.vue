@@ -116,9 +116,10 @@
 
   #answer-history
     background-color: $core-bg-light
+    display: table
 
   #history-list
-    overflow-y: scroll
+    overflow-y: auto
     list-style-type: none
     max-height: inherit
 
