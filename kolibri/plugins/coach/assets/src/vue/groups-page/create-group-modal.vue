@@ -3,7 +3,7 @@
   <core-modal :title="$tr('newLearnerGroup')"
     @cancel="close">
     <div>
-      <form @submit.prevent="callCreateGroup">
+      <form @submit.prevent="createGroup(classId, groupNameInput)">
         <textbox type="text"
           :label="$tr('learnerGroupName')"
           :aria-label="$tr('learnerGroupName')"
@@ -56,9 +56,6 @@
       },
     },
     methods: {
-      callCreateGroup() {
-        this.createGroup(this.classId, this.groupNameInput);
-      },
       close() {
         this.displayModal(false);
       },

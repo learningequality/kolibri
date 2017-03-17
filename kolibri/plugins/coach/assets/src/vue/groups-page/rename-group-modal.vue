@@ -3,7 +3,7 @@
   <core-modal :title="$tr('renameLearnerGroup')"
     @cancel="close">
     <div>
-      <form @submit.prevent="callRenameGroup">
+      <form @submit.prevent="renameGroup(this.classId, groupId, groupNameInput)">
         <textbox type="text"
           :label="$tr('learnerGroupName')"
           :aria-label="$tr('learnerGroupName')"
@@ -62,9 +62,6 @@
       },
     },
     methods: {
-      callRenameGroup() {
-        this.renameGroup(this.classId, this.groupId, this.groupNameInput);
-      },
       close() {
         this.displayModal(false);
       },

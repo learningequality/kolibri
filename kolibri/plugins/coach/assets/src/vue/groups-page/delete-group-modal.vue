@@ -8,7 +8,7 @@
       @click="close" />
     <icon-button :text="$tr('deleteGroup')"
       :primary="true"
-      @click="callDeleteGroup" />
+      @click="deleteGroup(classId, groupId)" />
   </core-modal>
 
 </template>
@@ -48,9 +48,6 @@
       },
     },
     methods: {
-      callDeleteGroup() {
-        this.deleteGroup(this.classId, this.groupId);
-      },
       close() {
         this.displayModal(false);
       },
