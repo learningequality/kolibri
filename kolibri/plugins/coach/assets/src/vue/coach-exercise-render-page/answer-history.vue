@@ -1,9 +1,9 @@
 <template>
 
-  <div id="answer-history">
+  <div class="answer-history">
     <h3>{{ $tr('header') }}</h3>
 
-    <ul id="history-list">
+    <ul class="history-list">
       <template v-for="(attemptLog, index) in attemptLogs">
         <li v-if="index === 0">
           <p class="item">
@@ -103,11 +103,11 @@
 
   @require '~kolibri.styles.definitions'
 
-  #answer-history
+  .answer-history
     background-color: $core-bg-light
     display: table
 
-  #history-list
+  .history-list
     overflow-y: auto
     list-style-type: none
     max-height: inherit

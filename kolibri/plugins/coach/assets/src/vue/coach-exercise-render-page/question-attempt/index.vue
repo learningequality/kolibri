@@ -1,6 +1,6 @@
 <template>
 
-  <div id="question-attempt">
+  <div class="question-attempt">
     <h3>{{ $tr('header') }}</h3>
   </div>
 
@@ -37,7 +37,7 @@
 
 <style lang="stylus" scoped>
 
-  #question-attempt
+  .question-attempt
     background-color: yellow
 
 </style>

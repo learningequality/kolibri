@@ -1,26 +1,26 @@
 <template>
 
-  <div id="page-status">
+  <div class="page-status">
     <div class="column pure-u-3-4">
-      <div id="user-name-container">
+      <div class="user-name-container">
         <mat-svg
-          id="svg-item"
+          class="svg-item"
           category="action"
           name="face"
         />
-        <h1 id="user-name">{{ userName }}</h1>
+        <h1 class="user-name">{{ userName }}</h1>
       </div>
-      <div id="class-name">
+      <div class="class-name">
         <content-icon class="svg-icon" :kind="exerciseKind"/>
         {{ contentName }}
       </div>
-      <div id="assessment">
+      <div class="assessment">
         <progress-icon class="svg-icon" :progress="progress"/>
         {{ $tr('mastered') }} : {{ assessmentText(assessment) }}
       </div>
     </div>
     <div class="column pure-u-1-4">
-      <div id="inner-column">
+      <div class="inner-column">
         <progress-icon class="svg-icon" :progress="progress"/>
         <strong> {{ $tr('mastered') }} </strong>
         <br>
@@ -100,27 +100,27 @@
 
   @require '~kolibri.styles.definitions'
 
-  #page-status
+  .page-status
     background-color: $core-bg-light
 
-  #user-name-container
+  .user-name-container
     display: block
 
   .svg-icon
     font-size: 1.3em
 
-  #class-name
+  .class-name
     margin-top: 10px
     font-weight: bold
 
-  #assessment
+  .assessment
     margin-top: 10px
 
-  #svg-item
+  .svg-item
     display: inline-block
     vertical-align: middle
 
-  #user-name
+  .user-name
     display: inline-block
     vertical-align: middle
     margin: 0
@@ -128,7 +128,7 @@
   .column
     float: left
 
-  #inner-column
+  .inner-column
     float: right
 
 </style>
