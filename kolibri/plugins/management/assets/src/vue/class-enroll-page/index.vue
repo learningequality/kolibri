@@ -305,7 +305,7 @@
       z-index: 0
 
     .ui-switch__thumb
-      z-index: 1
+      z-index: 1 // @stylint ignore
 
 </style>
 

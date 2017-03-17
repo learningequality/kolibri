@@ -153,7 +153,7 @@
     background: rgba(0, 0, 0, 0.7)
     transition: opacity 0.3s ease
     background-attachment: fixed
-    z-index: 70
+    z-index: 40
 
   .modal
     position: absolute

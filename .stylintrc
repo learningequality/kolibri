@@ -108,5 +108,8 @@
     "expect": "never",
     "error": true
   },
-  "zIndexNormalize": false
+  "zIndexNormalize": {
+    "expect": 10,
+    "error": true
+  }
 }
