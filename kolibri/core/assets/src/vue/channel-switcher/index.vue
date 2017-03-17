@@ -98,6 +98,7 @@
   @require '~kolibri.styles.definitions'
 
   .channel-switcher-menu
+    max-width: 210px
     .ui-menu-option
         &.is-disabled
           color: $core-accent-color
