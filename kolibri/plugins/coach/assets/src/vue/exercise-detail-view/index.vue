@@ -54,7 +54,7 @@
   #whole-page
     left: 0
     top: 0
-    z-index: $core-z-index-top
+    z-index: 100
     width: 100vw
     height: 100vh
     position: fixed
