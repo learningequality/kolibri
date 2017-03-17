@@ -97,7 +97,10 @@ function createGroup(store, classId, groupName) {
   };
   LearnerGroupResource.createModel(groupPayload).save().then(
     group => {
-      store.dispatch('ADD_GROUP', _groupState(group));
+      const groups = store.state.pageState.groups;
+      groups.push(_groupState(group));
+
+      store.dispatch('SET_GROUPS', groups);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       displayModal(store, false);
     },
@@ -112,7 +115,11 @@ function renameGroup(store, classId, groupId, newGroupName) {
   };
   LearnerGroupResource.getModel(groupId).save(groupPayload).then(
     () => {
-      store.dispatch('RENAME_GROUP', groupId, newGroupName);
+      const groups = store.state.pageState.groups;
+      const groupIndex = groups.findIndex(group => group.id === groupId);
+      groups[groupIndex].name = newGroupName;
+
+      store.dispatch('SET_GROUPS', groups);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
     },
@@ -124,7 +131,10 @@ function deleteGroup(store, classId, groupId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   LearnerGroupResource.getModel(groupId).delete().then(
     () => {
-      store.dispatch('DELETE_GROUP', groupId);
+      const groups = store.state.pageState.groups;
+      const updatedGroups = groups.filter(group => group.id !== groupId);
+
+      store.dispatch('SET_GROUPS', updatedGroups);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
     },
@@ -140,7 +150,12 @@ function _addUserToGroup(store, groupId, userId) {
   return new Promise((resolve, reject) => {
     MembershipResource.createModel(membershipPayload).save().then(
       () => {
-        store.dispatch('ADD_USER_TO_GROUP', groupId, userId);
+        const groups = store.state.pageState.groups;
+        const groupIndex = groups.findIndex(group => group.id === groupId);
+        const userObject = store.state.pageState.classUsers.find(user => user.id === userId);
+        groups[groupIndex].users.push(userObject);
+
+        store.dispatch('SET_GROUPS', groups);
         resolve();
       },
       error => reject(error)
@@ -170,7 +185,11 @@ function _removeUserfromGroup(store, groupId, userId) {
         const membershipId = membership[0].id; // will always only have one item in the array.
         MembershipResource.getModel(membershipId).delete().then(
           () => {
-            store.dispatch('REMOVE_USER_FROM_GROUP', groupId, userId);
+            const groups = store.state.pageState.groups;
+            const groupIndex = groups.findIndex(group => group.id === groupId);
+            groups[groupIndex].users = groups[groupIndex].users.filter(user => user.id !== userId);
+
+            store.dispatch('SET_GROUPS', groups);
             resolve();
           },
           error => reject(error)

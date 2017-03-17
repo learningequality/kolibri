@@ -55,25 +55,8 @@ const mutations = {
     state.pageState.modalShown = modalName;
   },
 
-  ADD_GROUP(state, group) {
-    state.pageState.groups.push(group);
-  },
-  RENAME_GROUP(state, groupId, newGroupName) {
-    const groupIndex = state.pageState.groups.findIndex(group => group.id === groupId);
-    state.pageState.groups[groupIndex].name = newGroupName;
-  },
-  DELETE_GROUP(state, groupId) {
-    state.pageState.groups = state.pageState.groups.filter(group => group.id !== groupId);
-  },
-  ADD_USER_TO_GROUP(state, groupId, userId) {
-    const groupIndex = state.pageState.groups.findIndex(group => group.id === groupId);
-    const userObject = state.pageState.classUsers.find(user => user.id === userId);
-    state.pageState.groups[groupIndex].users.push(userObject);
-  },
-  REMOVE_USER_FROM_GROUP(state, groupId, userId) {
-    const groupIndex = state.pageState.groups.findIndex(group => group.id === groupId);
-    state.pageState.groups[groupIndex].users =
-      state.pageState.groups[groupIndex].users.filter(user => user.id !== userId);
+  SET_GROUPS(state, groups) {
+    state.pageState.groups = groups;
   },
 };
 
