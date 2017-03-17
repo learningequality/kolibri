@@ -5,7 +5,7 @@
 
     <ul id="history-list">
       <template v-for="(attemptLog, index) in reformatedAttemptLogs">
-        <li v-if="index == 0">
+        <li v-if="index === 0">
           <p class="item">
             {{attemptLog.elapse}}
           </p>
