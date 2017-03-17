@@ -2,7 +2,7 @@
 
   <div id="whole-page">
     <div id="top-bar">
-      <router-link id="back-btn" :to="pageLink">
+      <router-link id="back-btn" :to="backPageLink">
         <mat-svg
           class="back svg-back"
           category="navigation"
@@ -25,22 +25,10 @@
 
   module.exports = {
     props: {
-      backPageName: {
-        type: String,
-        required: true,
-      },
-      backPageParams: {
+      backPageLink: {
         type: Object,
-        required: false,
-      },
-    },
-    computed: {
-      pageLink() {
-        return {
-          name: this.backPageName,
-          params: this.backPageParams,
-        };
-      },
+        required: true,
+      }
     },
   };
 

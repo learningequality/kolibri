@@ -1,6 +1,6 @@
 <template>
 
-  <exercise-detail-view :backPageName="backPageName">
+  <exercise-detail-view :backPageLink="backPageLink">
     <template slot="text"> {{ backtoText(contentName) }} </template>
     <template slot="body">
       <page-status
@@ -49,8 +49,8 @@
       'question-attempt': require('./question-attempt'),
     },
     computed: {
-      backPageName() {
-        return constants.PageNames.COACH_CLASS_LIST_PAGE;
+      backPageLink() {
+        return { name: constants.PageNames.COACH_CLASS_LIST_PAGE };
       },
       content() {
         return {
