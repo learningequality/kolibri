@@ -68,13 +68,6 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.COACH_EXERCISE_RENDER_PAGE,
-          path: '/:user_id/:content_id/exercise-render',
-          handler: (toRoute, fromRoute) => {
-            actions.showCoachExerciseRenderPage(store, toRoute.params);
-          },
-        },
-        {
           name: PageNames.COACH_GROUPS_PAGE,
           path: '/:class_id/groups',
           handler: (toRoute, fromRoute) => {
@@ -85,7 +78,8 @@ class CoachToolsModule extends KolibriModule {
           name: PageNames.COACH_EXERCISE_RENDER_PAGE,
           path: '/:user_id/:content_id/exercise-render',
           handler: (toRoute, fromRoute) => {
-            actions.showCoachExerciseRenderPage(store, toRoute.params);
+            actions.showCoachExerciseRenderPage(store, toRoute.params.user_id,
+              toRoute.params.content_id);
           },
         },
       ];
