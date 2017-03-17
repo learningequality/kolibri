@@ -50,7 +50,7 @@
 <script>
 
   const today = new Date();
-  const actions = require('../../../actions');
+  const actions = require('../../actions');
 
   module.exports = {
     $trNameSpace: 'CoachExerciseAnswerHistory',
