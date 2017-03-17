@@ -15,7 +15,7 @@
         :questionHistory="questionHistory"
       />
       <div class="column pure-u-3-4">
-        <question-attempt class="lol"/>
+        <question-attempt/>
         <content-renderer
           class="content-renderer"
           :id="content.id"
