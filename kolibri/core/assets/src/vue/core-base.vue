@@ -99,7 +99,7 @@
         return this.navShown ? this.headerHeight * 4 : 0;
       },
       appBarStyle() {
-        return this.mobile ? '' : { paddingLeft: `${this.navWidth + PADDING}px` };
+        return this.mobile ? {} : { paddingLeft: `${this.navWidth + PADDING}px` };
       },
       contentStyle() {
         const style = { top: `${this.headerHeight}px` };
