@@ -4,15 +4,15 @@
     <h3>{{ $tr('header') }}</h3>
 
     <ul id="history-list">
-      <template v-for="(attemptLog, index) in reformatedAttemptLogs">
+      <template v-for="(attemptLog, index) in attemptLogs">
         <li v-if="index === 0">
           <p class="item">
-            {{attemptLog.elapse}}
+            {{ daysElapsedText(attemptLog.daysElapsed) }}
           </p>
         </li>
-        <li v-else-if="reformatedAttemptLogs[index -1].elapse != attemptLog.elapse">
+        <li v-else-if="attemptLogs[index -1].daysElapsed != attemptLog.daysElapsed">
           <p class="item">
-            {{attemptLog.elapse}}
+            {{ daysElapsedText(attemptLog.daysElapsed) }}
           </p>
         </li>
         <li @click="setSelected(index)" :class="isSeleteced(index)" class="clickable">
@@ -36,7 +36,7 @@
               name="check_circle"
             />
             <h3 class="item">
-              {{ $tr('question') }} {{index+1}}
+              {{ questionText(index+1) }}
             </h3>
           </div>
         </li>
@@ -49,7 +49,6 @@
 
 <script>
 
-  const today = new Date();
   const actions = require('../../actions');
 
   module.exports = {
@@ -58,37 +57,27 @@
       header: 'Answer History',
       today: 'Today',
       yesterday: 'Yesterday',
-      daysAgo: ' Days Ago',
-      question: 'Question',
+      daysAgo: ' { daysElapsed } Days Ago',
+      question: 'Question { number }',
     },
     data: () => ({
       selectedIndex: 0,
-      reformatedAttemptLogs: [],
     }),
-    created() {
-      this.attemptLogs.forEach((attemptLog) => {
-        attemptLog.elapse = this.dayElapse(attemptLog.end_timestamp);
-        // use unshift because the original array is in reversed order.
-        this.reformatedAttemptLogs.unshift(attemptLog);
-      });
-    },
     methods: {
-      dayElapse(time) {
-        const logDay = new Date(time);
-        // one day = 24*60*60*1000 = 86400000
-        const elapse = (Date.UTC(today.getYear(), today.getMonth(), today.getDate()) -
-          Date.UTC(logDay.getYear(), logDay.getMonth(), logDay.getDate())) / 86400000;
-
-        if (elapse > 1) {
-          return elapse + this.$tr('daysAgo');
-        } else if (elapse === 1) {
+      daysElapsedText(daysElapsed) {
+        if (daysElapsed > 1) {
+          return this.$tr('daysAgo', { daysElapsed });
+        } else if (daysElapsed === 1) {
           return this.$tr('yesterday');
         }
         return this.$tr('today');
       },
+      questionText(number) {
+        return this.$tr('question', { number });
+      },
       setSelected(index) {
         this.selectedIndex = index;
-        this.setSelectedAttemptLog(this.reformatedAttemptLogs[index]);
+        this.setSelectedAttemptLog(this.attemptLogs[index]);
       },
       isSeleteced(index) {
         if (this.selectedIndex === index) {

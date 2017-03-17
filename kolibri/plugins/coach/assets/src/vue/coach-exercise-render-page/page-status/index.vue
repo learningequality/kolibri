@@ -16,7 +16,7 @@
       </div>
       <div id="assessment">
         <progress-icon class="svg-icon" :progress="progress"/>
-        {{ $tr('mastered') }} : {{ assessment }} {{ $tr('assessment') }}
+        {{ $tr('mastered') }} : {{ assessmentText(assessment) }}
       </div>
     </div>
     <div class="column pure-u-1-4">
@@ -25,7 +25,7 @@
         <strong> {{ $tr('mastered') }} </strong>
         <br>
         <br>
-        {{ $tr('on') }} {{ date }}
+        {{ dateText(date) }}
       </div>
     </div>
   </div>
@@ -40,9 +40,9 @@
   module.exports = {
     $trNameSpace: 'CoachExercisePageStatus',
     $trs: {
-      assessment: 'questions in a row correct - Today',
+      assessment: '{ text } questions in a row correct - Today',
       mastered: 'Mastered',
-      on: 'on',
+      date: 'on { date }',
     },
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
@@ -59,7 +59,7 @@
       },
       progress: {
         type: Number,
-        default: '',
+        default: 0,
       },
       assessment: {
         type: String,
@@ -76,6 +76,14 @@
       },
       exerciseKind() {
         return constants.ContentNodeKinds.EXERCISE;
+      }
+    },
+    methods: {
+      assessmentText(text) {
+        return this.$tr('assessment', { text });
+      },
+      dateText(date) {
+        return this.$tr('date', { date });
       }
     },
     vuex: {

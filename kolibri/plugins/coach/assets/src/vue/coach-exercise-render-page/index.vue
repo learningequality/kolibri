@@ -1,7 +1,7 @@
 <template>
 
   <exercise-detail-view :backPageName="backPageName">
-    <template slot="text"> {{ $tr('backto') }} {{contentName}} </template>
+    <template slot="text"> {{ backtoText(contentName) }} </template>
     <template slot="body">
       <page-status
         class="pure-u-1"
@@ -39,7 +39,7 @@
   module.exports = {
     $trNameSpace: 'CoachExerciseRenderPage',
     $trs: {
-      backto: 'Back to',
+      backto: 'Back to { text }',
     },
     components: {
       'exercise-detail-view': require('./../exercise-detail-view'),
@@ -77,6 +77,11 @@
       },
       channelId() {
         return '78eed5c0b59b30c0a40c94c17c849af6';
+      },
+    },
+    methods: {
+      backtoText(text) {
+        return this.$tr('backto', { text });
       },
     },
     vuex: {
