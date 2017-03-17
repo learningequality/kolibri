@@ -203,11 +203,11 @@
 
   .play-button
     margin-right: 2%
-    background: none
     width: 44px
     height: 50px
     border: none
     border-radius: 0
+    background: none
 
   .audio-button
     margin: 5% 2% 0 0
@@ -221,8 +221,8 @@
 
   #current-time, #total-time
     display: inline-block
-    font-size: 20px
     margin: 1%
+    font-size: 20px
 
   // hacky solution for CSS differences between Chrome and Firefox
   @-moz-document url-prefix()
@@ -244,46 +244,46 @@
   /* Chrome, Safari, Opera **********/
   input[type=range]::-webkit-slider-runnable-track
     display: inline-block
-    background: lightgray
-    border-radius: 15px
     height: 15px
+    border-radius: 15px
+    background: lightgray
     animate: 0.2s
 
   input[type=range]::-webkit-slider-thumb
+    position: relative
+    bottom: 12px
     -webkit-appearance: none
     width: 40px
     height: 40px
     border-radius: 50%
     background: $core-action-normal
-    position: relative
-    bottom: 12px
 
   /* Firefox ***********/
   input[type=range]::-moz-range-track
     display: inline-block
-    background: lightgray
-    border-radius: 15px
     height: 15px
+    border-radius: 15px
+    background: lightgray
     animate: 0.2s
 
   input[type=range]::-moz-range-thumb
     width: 40px
     height: 40px
+    border: none
     border-radius: 50%
     background: $core-action-normal
-    border: none
 
   /* IE/Edge **********/
   input[type=range]::-ms-track
+    height: 20px
     border: 8px solid transparent
     background: transparent
     color: transparent
-    height: 20px
 
   input[type=range]::-ms-thumb
-    border: none
-    height: 25px
     width: 25px
+    height: 25px
+    border: none
     border-radius: 50%
     background: $core-action-normal
 

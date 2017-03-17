@@ -166,9 +166,9 @@
   $min-height = 200px
 
   .main
-    text-align: left
     margin: 3em 0
     min-height: $min-height
+    text-align: left
 
   h2
     font-size: 1em

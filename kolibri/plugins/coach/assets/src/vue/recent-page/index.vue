@@ -93,9 +93,9 @@
     $row-padding = 1.5em
   .status-group
     display: inline-table
+    margin-left: 30px
     width: 100%
     text-align: center
-    margin-left: 30px
   .status-header
     vertical-align: middle
   .status-body
@@ -104,25 +104,27 @@
     float: right
     margin-top: -48px
   input[type='search']
-    display: inline-block
-    box-sizing: border-box
     position: relative
     top: 0
     left: 10px
-    height: 100%
+    display: inline-block
+    clear: both
     width: 85%
+    height: 100%
     border-color: transparent
     background-color: transparent
-    clear: both
+
+    box-sizing: border-box
   .header h1
     display: inline-block
     margin-bottom: 0
   #description
     margin-bottom: 40px
   hr
-    background-color: $core-text-annotation
     height: 1px
     border: none
+    background-color: $core-text-annotation
+
   tr
     text-align: left
   .roster
@@ -132,30 +134,30 @@
     text-align: inherit
   .col-header
     padding-bottom: (1.2 * $row-padding)
+    width: 28%
     color: $core-text-annotation
     font-weight: normal
     font-size: 80%
-    width: 28%
   .table-cell
-    font-weight: normal // compensates for <th> cells
     padding-bottom: $row-padding
     color: $core-text-default
+    font-weight: normal // compensates for <th> cells
   .delete-class-button
-    color: red
-    width: 110px
-    padding: 8px
-    cursor: pointer
-    margin-right: 4px
     float: right
+    margin-right: 4px
+    padding: 8px
+    width: 110px
+    color: red
+    cursor: pointer
   .create-class-button
     width: 100%
   .table-name
-    $line-height = 1em
-    line-height: $line-height
-    max-height: ($line-height * 2)
     display: inline-block
     padding-right: 1em
+    $line-height = 1em
+    max-height: ($line-height * 2)
     font-weight: bold
+    line-height: $line-height
   .role-header
     display: none
   @media print
@@ -172,9 +174,9 @@
       display: none
     .table-name
       overflow: hidden
+      width: 100px
       text-overflow: ellipsis
       white-space: nowrap
-      width: 100px
     .col-header
       width: 50%
 

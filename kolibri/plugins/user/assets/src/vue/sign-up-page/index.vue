@@ -180,16 +180,16 @@
 
   // component, highest level
   #signup-page
+    overflow-y: auto
     width: 100%
     height: 100%
-    overflow-y: auto
 
   // Action Bar
   #logo
-    // 1.63 * font height
-    height: $logo-size
     display: inline-block
     margin-left: $logo-margin
+    // 1.63 * font height
+    height: $logo-size
 
   #login
     margin-right: 1em
@@ -202,31 +202,30 @@
 
   .signup-form
     margin-top: $vertical-page-margin
-    margin-left: auto
     margin-right: auto
+    margin-left: auto
     width: ($iphone-5-width - 20)px
 
   .terms
+    overflow-y: scroll
+    margin-bottom: 1em
+    padding: 0.5em
+    height: 6em
     background-color: $core-bg-light
     color: $core-text-annotation
-    height: 6em
-    overflow-y: scroll
-    padding: 0.5em
-    margin-bottom: 1em
     p
       margin-top: 0
 
   #submit
-    width: 90%
     display: block
-    margin-left: auto
-    margin-right: auto
-
     margin-top: $vertical-page-margin
+    margin-right: auto
     margin-bottom: $vertical-page-margin
+    margin-left: auto
+    width: 90%
 
   .app-bar-icon
-    font-size: 2.5em
     margin-left: 0.25em
+    font-size: 2.5em
 
 </style>

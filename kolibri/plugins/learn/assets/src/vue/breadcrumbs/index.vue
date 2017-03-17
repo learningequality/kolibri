@@ -124,22 +124,22 @@
   @require '../learn.styl'
 
   .middle-breadcrumb::before
-    content: '>'
-    margin-left: 0.5em
     margin-right: 0.5em
+    margin-left: 0.5em
     color: $core-text-annotation
+    content: '>'
 
   .middle-breadcrumb, .first-breadcrumb
-    vertical-align: middle
-    font-size: 0.9em
-    font-weight: 300
-    max-width: 140px
-    white-space: nowrap
     overflow: hidden
+    max-width: 140px
+    vertical-align: middle
     text-overflow: ellipsis
+    white-space: nowrap
+    font-weight: 300
+    font-size: 0.9em
     a
-      color: $core-text-annotation
       display: inline-block
+      color: $core-text-annotation
 
   .landscape
     @media screen and (max-width: $portrait-breakpoint)

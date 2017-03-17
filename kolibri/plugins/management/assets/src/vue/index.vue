@@ -90,19 +90,19 @@
   .manage-content
     width: 100%
     @media screen and (max-width: $medium-breakpoint)
-        width: 90%
-        margin-left: auto
         margin-right: auto
+        margin-left: auto
+        width: 90%
 
   .page
+    margin-top: 1em
     padding: 1em 2em
     padding-bottom: 3em
-    background-color: $core-bg-light
-    margin-top: 1em
     border-radius: $radius
+    background-color: $core-bg-light
 
   .login-message
-    text-align: center
     margin-top: 200px
+    text-align: center
 
 </style>

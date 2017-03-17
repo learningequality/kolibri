@@ -75,18 +75,18 @@
 
   .container
     position: relative
-    text-align: center
-    height: 100vh
-    max-height: calc(100vh - 24em)
     min-height: 400px
+    max-height: calc(100vh - 24em)
+    height: 100vh
+    text-align: center
     &:fullscreen
-      width: 100%
-      height: 100%
       min-height: inherit
       max-height: inherit
+      width: 100%
+      height: 100%
 
   .sandbox
-    height: 100%
     width: 100%
+    height: 100%
 
 </style>

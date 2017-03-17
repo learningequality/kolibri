@@ -64,9 +64,9 @@
 <style lang="stylus" scoped>
 
   .icon-margin
-    margin-left: -0.25rem
-    margin-right: 0.375rem
     margin-top: -0.125rem
+    margin-right: 0.375rem
+    margin-left: -0.25rem
 
 </style>
 

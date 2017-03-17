@@ -39,24 +39,24 @@
   @require '../../learn.styl'
 
   .list-item
-    background-color: $core-bg-light
-    border-radius: $radius
     display: block
-    text-decoration: none
-    padding-right: 0.5em
-    padding-left: 0.5em
-    padding-top: 0.5em
-    padding-bottom: 0.5em
     margin-bottom: 1em
+    padding-top: 0.5em
+    padding-right: 0.5em
+    padding-bottom: 0.5em
+    padding-left: 0.5em
+    border-radius: $radius
+    background-color: $core-bg-light
+    text-decoration: none
 
   h2
     display: inline-block
-    font-size: 0.9em
     color: $core-text-default
+    font-size: 0.9em
 
   .topic-icon
-    font-size: 1.5em
     padding-right: 0.25em
     padding-left: 0.25em
+    font-size: 1.5em
 
 </style>

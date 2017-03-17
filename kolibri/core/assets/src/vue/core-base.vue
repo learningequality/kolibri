@@ -125,23 +125,22 @@
     position: fixed
 
   .app-bar
-    height: 64px
-    z-index: 50
-    width: 100%
     position: absolute
     top: 0
     left: 0
+    z-index: 50
+    width: 100%
+    height: 64px
 
   .app-bar-actions
     display: inline-block
 
   .content-container
     position: absolute
-    overflow-y: auto
-    overflow-x: hidden
     right: 0
     bottom: 0
-    padding-bottom: 40px
+    overflow-x: hidden
+    overflow-y: auto
     padding: 32px
 
 </style>

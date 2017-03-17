@@ -137,9 +137,9 @@
   $toolbar-height = 36px
 
   .main
+    margin-top: 2em
     padding: 1em 2em
     padding-bottom: 3em
-    margin-top: 2em
     width: 100%
     border-radius: 4px
 
@@ -153,9 +153,9 @@
     margin-top: 1em
 
   .table-title:after
-    content: ''
     display: table
     clear: both
+    content: ''
 
   .page-title
     float: left
@@ -168,9 +168,9 @@
     width: 100%
 
   hr
-    background-color: $core-text-annotation
     height: 1px
     border: none
+    background-color: $core-text-annotation
 
   tr
     text-align: left
@@ -195,9 +195,9 @@
     width: 10%
 
   .table-cell
-    font-weight: normal // compensates for <th> cells
     padding-bottom: $row-padding
     color: $core-text-default
+    font-weight: normal // compensates for <th> cells
 
   .channel-name
     font-weight: 700

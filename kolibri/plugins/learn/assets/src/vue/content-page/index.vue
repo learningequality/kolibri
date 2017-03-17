@@ -156,13 +156,13 @@
     margin-top: 4em
 
   .next-btn
-    background-color: #4A8DDC
-    border-color: #4A8DDC
-    color: $core-bg-light
     position: relative
     top: -62px
     left: 150px
     z-index: 10
+    border-color: #4A8DDC
+    background-color: #4A8DDC
+    color: $core-bg-light
     @media screen and (max-width: $medium-breakpoint)
       top: -10px
       left: 0
@@ -188,8 +188,8 @@
     line-height: 1.5em
 
   .download-button-left-align
-    vertical-align: top
     margin-right: 1.5em
+    vertical-align: top
 
 </style>
 

@@ -55,13 +55,13 @@
   @require '~kolibri.styles.definitions'
 
   .main
-    text-align: center
     margin-bottom: 4em 0
+    text-align: center
 
   .large-icon-button
+    margin: 3px
     width: 150px
     height: 120px
-    margin: 3px
 
   .lg-button-wrapper
     margin: 4em 0
@@ -70,12 +70,12 @@
     margin-bottom: 2em
 
   .text-only-buttons
-    height: 36px
+    margin: 1em
     padding-right: 2em
     padding-left: 2em
-    margin: 1em
-    color: $core-text-annotation
+    height: 36px
     border: 1px $core-text-annotation solid
+    color: $core-text-annotation
 
   .icon
     width: 50px

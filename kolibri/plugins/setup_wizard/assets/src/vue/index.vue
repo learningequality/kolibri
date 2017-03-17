@@ -115,32 +115,32 @@
     height: 100%
   .wrapper
     position: absolute
-    max-height: 100%
     top: 50%
     left: 50%
     transform: translate(-50%, -50%)
+    max-height: 100%
   .container
-    background: #fff
-    width: 100%
-    max-width: 430px
-    min-width: 320px
-    border-radius: $radius
     margin: 0 auto
     padding: 20px 30px
+    min-width: 320px
+    max-width: 430px
+    width: 100%
+    border-radius: $radius
+    background: #fff
   h1
     font-size: 18px
   h2.title
-    font-size: 14px
     font-weight: bold
-  .inputlabel
     font-size: 14px
-    color: $core-action-normal
+  .inputlabel
+    display: inline-block
     margin-top: 8px
     margin-bottom: 4px
-    display: inline-block
+    color: $core-action-normal
+    font-size: 14px
   .description
-    font-size: 12px
     color: $core-text-annotation
+    font-size: 12px
   .btn-wrapper
     width: 100%
     text-align: center
@@ -148,13 +148,13 @@
     background-color: $core-action-normal
     color: white
   input
+    padding: 6px
     width: 100%
     border-width: 2px
     border-style: solid
-    border-radius: $radius
-    padding: 6px
-    background-color: $core-bg-canvas
     border-color: $core-action-light
+    border-radius: $radius
+    background-color: $core-bg-canvas
   input:focus
     background-color: #DAEFE5
   .input-error
@@ -164,14 +164,14 @@
   .error-message
     color: $core-text-error
   .logo
-    height: 40%
-    width: 40%
-    max-height: 160px
+    display: block
+    margin-right: auto
+    margin-left: auto
+    min-width: 100px
     min-height: 100px
     max-width: 160px
-    min-width: 100px
-    display: block
-    margin-left: auto
-    margin-right: auto
+    max-height: 160px
+    width: 40%
+    height: 40%
 
 </style>

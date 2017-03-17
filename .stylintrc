@@ -90,7 +90,10 @@
     "expect": "never",
     "error": true
   },
-  "sortOrder": false,
+  "sortOrder": {
+    "expect": "grouped",
+    "error": true
+  },
   "stackedProperties": {
     "expect": "never",
     "error": true

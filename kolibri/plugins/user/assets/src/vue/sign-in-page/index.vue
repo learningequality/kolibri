@@ -121,9 +121,9 @@
         background-color: $login-red
 
         &#guest-access-button
+          border: 2px solid $core-action-normal
           background-color: transparent
           color: $login-text
-          border: 2px solid $core-action-normal
 
 </style>
 
@@ -134,14 +134,14 @@
   $login-text = #D8D8D8
 
   .login
-    background-color: $login-overlay
+    overflow-x: hidden
+    overflow-y: auto
     height: 100%
-    // Fallback for older browers.
     background: $core-bg-canvas
     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(./background.png) no-repeat center center fixed
+    background-color: $login-overlay
+    // Fallback for older browers.
     background-size: cover
-    overflow-y: auto
-    overflow-x: hidden
 
   #login-container
     display: block
@@ -152,25 +152,25 @@
     display: block
     margin: auto
     margin-top: 34px
+    min-width: 60px
+    max-width: 120px
     width: 30%
     height: auto
-    max-width: 120px
-    min-width: 60px
 
   .login-text
     color: $login-text
 
   .title
+    text-align: center
+    letter-spacing: 0.1em
     font-weight: 100
     font-size: 1.3em
-    letter-spacing: 0.1em
-    text-align: center
 
   #login-form
-    width: 70%
-    max-width: 300px
     margin: auto
     margin-top: 30px
+    max-width: 300px
+    width: 70%
 
   #password
     margin-top: 30px
@@ -189,26 +189,26 @@
     text-align: center
 
   .group-btn
-    padding: 5px
     display: inline-block
+    padding: 5px
     text-decoration: none
 
   #password-reset
     display: block
-    text-align: center
     margin: auto
     margin-top: 26px
-    font-size: 0.8em
     color: $login-text
+    text-align: center
     text-decoration: underline
+    font-size: 0.8em
 
   #divid-line
+    margin: auto
+    margin-top: 16px
     width: 412px
     height: 1px
     background-color: $core-text-annotation
     background-color: $login-text
-    margin: auto
-    margin-top: 16px
 
   .no-account
     text-align: center

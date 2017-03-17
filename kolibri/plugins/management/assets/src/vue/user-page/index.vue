@@ -239,40 +239,40 @@
   $toolbar-height = 36px
 
   .toolbar:after
-    content: ''
     display: table
     clear: both
+    content: ''
 
   // Toolbar Styling
   .create
     float: right
 
   input[type='search']
-    display: inline-block
-    box-sizing: border-box
     position: relative
     top: 0
     left: 10px
-    height: 100%
+    display: inline-block
+    clear: both
+    box-sizing: border-box
     width: 85%
+    height: 100%
     border-color: transparent
     background-color: transparent
-    clear: both
 
   #type-filter
     float: left
-    background-color: $core-bg-light
-    border-color: $core-action-light
     height: $toolbar-height
+    border-color: $core-action-light
+    background-color: $core-bg-light
     cursor: pointer
 
   .header h1
     display: inline-block
 
   hr
-    background-color: $core-text-annotation
     height: 1px
     border: none
+    background-color: $core-text-annotation
 
   tr
     text-align: left
@@ -286,43 +286,43 @@
 
   .col-header
     padding-bottom: (1.2 * $row-padding)
+    width: 30%
     color: $core-text-annotation
     font-weight: normal
     font-size: 80%
-    width: 30%
 
   .table-cell
-    font-weight: normal // compensates for <th> cells
     padding-bottom: $row-padding
     color: $core-text-default
+    font-weight: normal // compensates for <th> cells
 
   .user-role
+    display: inline-block
+    padding-right: 1em
+    padding-left: 1em
+    border-radius: 40px
     background-color: $core-text-annotation
     color: $core-bg-light
-    padding-left: 1em
-    padding-right: 1em
-    border-radius: 40px
-    font-size: 0.875em
-    display: inline-block
     text-transform: capitalize
     white-space: nowrap
+    font-size: 0.875em
 
   .searchbar .icon
+    position: relative
+    top: 5px
+    left: 5px
     display: inline-block
     float: left
-    position: relative
     fill: $core-text-annotation
-    left: 5px
-    top: 5px
 
   .searchbar
-    border-radius: 5px
-    padding: inherit
-    border: 1px solid #c0c0c0
-    width: 300px
-    height: $toolbar-height
     float: left
     margin-left: 5px
+    padding: inherit
+    width: 300px
+    height: $toolbar-height
+    border: 1px solid #c0c0c0
+    border-radius: 5px
 
   .edit-user-button
     border: none
@@ -338,18 +338,18 @@
 
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar
-      font-size: 0.9em
       min-width: 170px
       width: 45%
+      font-size: 0.9em
     #search-field
       width: 80%
 
   .table-name
-    $line-height = 1em
-    line-height: $line-height
-    max-height: ($line-height * 2)
     display: inline-block
     padding-right: 1em
+    $line-height = 1em
+    max-height: ($line-height * 2)
+    line-height: $line-height
 
   .role-header
     display: none
@@ -368,17 +368,17 @@
     .create
       margin-top: -78px
     .searchbar
-      font-size: 0.9em
-      width: 100%
-      margin-top: 5px
       float: right
+      margin-top: 5px
+      width: 100%
+      font-size: 0.9em
     .table-username
       display: none
     .table-name
       overflow: hidden
+      width: 100px
       text-overflow: ellipsis
       white-space: nowrap
-      width: 100px
     .col-header
       width: 50%
 

@@ -221,10 +221,10 @@
 
   // Containers
   .wrapper
-    width: 854px
-    height: 480px
     max-width: 100%
     max-height: 480px
+    width: 854px
+    height: 480px
 
   .fill-space
     width: 100%
@@ -251,10 +251,10 @@
 
   // Video Player
   .video-js
+    color: white
+    font-weight: bold
     font-size: $video-player-font-size
     font-family: $core-font
-    font-weight: bold
-    color: white
 
     // Responsiveness
     @media screen and (max-width: 840px)
@@ -268,10 +268,10 @@
       top: 50%
       left: 50%
       transform: translate(-50%, -50%)
-      height: 2em
       width: 2em
-      border-radius: 50%
+      height: 2em
       border: none
+      border-radius: 50%
       background-color: $video-player-color
 
     .vjs-big-play-button:before
@@ -289,11 +289,11 @@
     // Seek Bar
     .vjs-progress-control
       position: absolute
-      left: 0
-      right: 0
-      width: auto
       top: -3em
+      right: 0
+      left: 0
       visibility: inherit
+      width: auto
       opacity: inherit
 
       &:hover
@@ -306,10 +306,10 @@
           font-size: calc(1em - 2px)
 
     .vjs-progress-holder
-      margin-left: 7px
-      margin-right: 7px
-      font-size: 1em
       margin-top: auto
+      margin-right: 7px
+      margin-left: 7px
+      font-size: 1em
 
     .vjs-load-progress
       background: $grey
