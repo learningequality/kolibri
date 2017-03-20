@@ -126,7 +126,6 @@
 
   .app-bar
     height: 64px
-    z-index: 50
     width: 100%
     position: absolute
     top: 0
