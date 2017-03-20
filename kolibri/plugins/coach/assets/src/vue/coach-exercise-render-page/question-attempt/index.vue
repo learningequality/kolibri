@@ -12,7 +12,7 @@
   module.exports = {
     $trNameSpace: 'CoachExerciseQuestionAttempt',
     $trs: {
-      header: 'Question Attempt',
+      header: 'Question attempt',
     },
     // components: {
     //   'content-renderer': require('kolibri.coreVue.components.contentRenderer'),

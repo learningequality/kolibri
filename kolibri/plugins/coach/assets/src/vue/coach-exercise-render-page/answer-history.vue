@@ -54,10 +54,10 @@
   module.exports = {
     $trNameSpace: 'CoachExerciseAnswerHistory',
     $trs: {
-      header: 'Answer History',
+      header: 'Answer history',
       today: 'Today',
       yesterday: 'Yesterday',
-      daysAgo: ' { daysElapsed } Days Ago',
+      daysAgo: ' { daysElapsed } days ago',
       question: 'Question { number }',
     },
     data: () => ({
