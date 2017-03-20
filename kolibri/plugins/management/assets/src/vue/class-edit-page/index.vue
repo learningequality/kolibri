@@ -220,7 +220,7 @@
   #name-edit-box
     display: inline-block
     cursor: pointer
-    margin: 15px 0 5px 0
+    margin: 15px 0 5px
 
   .name-edit
     float: left
