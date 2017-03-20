@@ -3,6 +3,8 @@
 Release Notes
 =============
 
+Changes are ordered reverse-chronologically.
+
 
 DEVELOP
 -------
@@ -13,104 +15,104 @@ DEVELOP
 0.3.0
 -----
 
- - Content Renderers use explicit new API rather than event-based loading
- - Add search back in
- - Improve pipeline for translating plugins
- - Add Spanish and Swahili translations
  - Add support for nested URL structures in API Resource layer
+ - Add Spanish and Swahili translations
+ - Improve pipeline for translating plugins
+ - Add search back in
+ - Content Renderers use explicit new API rather than event-based loading
 
 
 0.2.0
 -----
 
- - HTML5 app renderer
- - Vue2 refactor
- - Webpack build process compatible with plugins outside the kolibri directory
- - ES2015 transpilation now Bublé instead of Babel
- - Pin dependencies with Yarn
- - Improved docs
- - Log filtering based on users and collections
- - Wrap all user-facing strings for I18N
- - Allow plugins to override core components
- - Client heartbeat for usage tracking
- - Versioning based on git tags
- - User sign-up and profile-editing functionality
- - New log-in page
- - Update primary layout and navigation
- - Begin using some keen-ui components
- - Replace jeet grids with pure.css grids
- - Add JS-based 'responsive mixin' as alternative to media queries
- - Rename 'Learn/Explore' to 'Recommended/Topics'
- - Temporarily remove 'search' functionality
  - Add authentication for tasks API
+ - Temporarily remove 'search' functionality
+ - Rename 'Learn/Explore' to 'Recommended/Topics'
+ - Add JS-based 'responsive mixin' as alternative to media queries
+ - Replace jeet grids with pure.css grids
+ - Begin using some keen-ui components
+ - Update primary layout and navigation
+ - New log-in page
+ - User sign-up and profile-editing functionality
+ - Versioning based on git tags
+ - Client heartbeat for usage tracking
+ - Allow plugins to override core components
+ - Wrap all user-facing strings for I18N
+ - Log filtering based on users and collections
+ - Improved docs
+ - Pin dependencies with Yarn
+ - ES2015 transpilation now Bublé instead of Babel
+ - Webpack build process compatible with plugins outside the kolibri directory
+ - Vue2 refactor
+ - HTML5 app renderer
 
 
 0.1.1
 -----
 
- - Coach reports
- - Perseus exercise renderer
- - Exercise mastery visualization
  - SVG inlining
+ - Exercise mastery visualization
+ - Perseus exercise renderer
+ - Coach reports
 
 
 0.1.0 - MVP
 -----------
 
- - Content downloading
- - Documentation updates
- - Setup wizard plugin
- - Channel switching
- - Session state and login widget
- - Content import/export
- - Task management
- - User management UI
- - Learn app styling changes
- - Tab focus highlights
- - A11Y updates
- - Modal popups
- - Channel switching bug fixes
- - I18N string extraction
- - Content interaction logging
- - Drive enumeration
- - Usage data export
- - Fuzzy searching
- - Make modals accessible
- - Loading 'spinner'
- - Resource layer smart cache busting
- - Client-side router bug fixes
- - Make plugins more self-contained
- - Case-insensitive usernames
- - Endpoint indexing into zip files
- - Asset bundling performance improvements
- - Conditional (cancelable) JS promises
  - Improved documentation
+ - Conditional (cancelable) JS promises
+ - Asset bundling performance improvements
+ - Endpoint indexing into zip files
+ - Case-insensitive usernames
+ - Make plugins more self-contained
+ - Client-side router bug fixes
+ - Resource layer smart cache busting
+ - Loading 'spinner'
+ - Make modals accessible
+ - Fuzzy searching
+ - Usage data export
+ - Drive enumeration
+ - Content interaction logging
+ - I18N string extraction
+ - Channel switching bug fixes
+ - Modal popups
+ - A11Y updates
+ - Tab focus highlights
+ - Learn app styling changes
+ - User management UI
+ - Task management
+ - Content import/export
+ - Session state and login widget
+ - Channel switching
+ - Setup wizard plugin
+ - Documentation updates
+ - Content downloading
 
 
 0.0.1 - MMVP
 ------------
 
- - Users, Collections, and Roles
- - Authentication, authorization, permissions
- - Webpack build pipeline, including linting
- - Python plugin API with hooks
- - Django JS Reverse with urls representation in kolibriGlobal object
- - Automatic inclusion of requirements in a static build
- - Content endpoints
- - Learn app and content browsing
- - Vue.js integration
- - User management API
- - Initial VueIntl integration
- - Video, Document, and MP3 content renderers
- - Content search
- - Client-side routing
- - Content recommendation endpoints
- - API resource retrieval and caching
- - Support for multiple content DBs
- - Stylus/Jeet-based grids
- - Vuex integration
- - Cherrypy server
- - A11Y updates
- - Responsiveness updates
- - Javascript logging module
  - Page titles
+ - Javascript logging module
+ - Responsiveness updates
+ - A11Y updates
+ - Cherrypy server
+ - Vuex integration
+ - Stylus/Jeet-based grids
+ - Support for multiple content DBs
+ - API resource retrieval and caching
+ - Content recommendation endpoints
+ - Client-side routing
+ - Content search
+ - Video, Document, and MP3 content renderers
+ - Initial VueIntl integration
+ - User management API
+ - Vue.js integration
+ - Learn app and content browsing
+ - Content endpoints
+ - Automatic inclusion of requirements in a static build
+ - Django JS Reverse with urls representation in kolibriGlobal object
+ - Python plugin API with hooks
+ - Webpack build pipeline, including linting
+ - Authentication, authorization, permissions
+ - Users, Collections, and Roles
