@@ -1,9 +1,9 @@
 <template>
 
-  <core-modal :title="$tr('newLearnerGroup')"
+  <core-modal :title="$tr('renameLearnerGroup')"
     @cancel="close">
     <div>
-      <form @submit.prevent="createGroup(classId, groupNameInput)">
+      <form @submit.prevent="renameGroup(this.classId, groupId, groupNameInput)">
         <textbox type="text"
           :label="$tr('learnerGroupName')"
           :aria-label="$tr('learnerGroupName')"
@@ -12,11 +12,9 @@
           :invalid="invalid"
           v-model.trim="groupNameInput" />
         <icon-button :text="$tr('cancel')"
-          class="cancel-btn"
-          @click="close"
-          type="button" />
+          type="button"
+          @click="close" />
         <icon-button :text="$tr('save')"
-          class="save-btn"
           :primary="true"
           type="submit" />
       </form>
@@ -33,14 +31,14 @@
   module.exports = {
     $trNameSpace: 'confirm-enrollment-modal',
     $trs: {
-      newLearnerGroup: 'New Learner Group',
+      renameLearnerGroup: 'Rename Learner Group',
       learnerGroupName: 'Learner Group Name',
       cancel: 'Cancel',
       save: 'Save',
     },
     data() {
       return {
-        groupNameInput: '',
+        groupNameInput: this.groupName,
         invalid: false,
       };
     },
@@ -54,6 +52,14 @@
         type: String,
         required: true,
       },
+      groupName: {
+        type: String,
+        required: true,
+      },
+      groupId: {
+        type: String,
+        required: true,
+      },
     },
     methods: {
       close() {
@@ -62,8 +68,8 @@
     },
     vuex: {
       actions: {
+        renameGroup: groupActions.renameGroup,
         displayModal: groupActions.displayModal,
-        createGroup: groupActions.createGroup,
       },
     },
   };

@@ -6,6 +6,7 @@ const Vue = require('kolibri.lib.vue');
 
 const RootVue = require('./vue');
 const actions = require('./actions');
+const groupActions = require('./group-actions');
 const store = require('./state/store');
 const PageNames = require('./state/constants').PageNames;
 
@@ -71,7 +72,7 @@ class CoachToolsModule extends KolibriModule {
           name: PageNames.COACH_GROUPS_PAGE,
           path: '/:class_id/groups',
           handler: (toRoute, fromRoute) => {
-            actions.showGroupsPage(store, toRoute.params.id);
+            groupActions.showGroupsPage(store, toRoute.params.class_id);
           },
         },
       ];
