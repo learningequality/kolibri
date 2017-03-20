@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-13 18:32+0000\n"
-"PO-Revision-Date: 2017-02-28 20:07-0500\n"
+"POT-Creation-Date: 2017-03-08 17:35+0000\n"
+"PO-Revision-Date: 2017-03-16 17:16-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Swahili, Tanzania\n"
 "MIME-Version: 1.0\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: sw-TZ\n"
-"X-Crowdin-File: /develop/docs/en/LC_MESSAGES/dev.po\n"
+"X-Crowdin-File: /release/docs/en/LC_MESSAGES/dev.po\n"
 "Language: sw_TZ\n"
 
 #: ../../dev/asset_loading.rst:2
@@ -188,7 +188,7 @@ msgstr ""
 #: kolibri.auth.models.Facility:7 kolibri.auth.models.LearnerGroup:7
 #: kolibri.content.models.ContentNode:6 of
 msgid "Parent"
-msgstr ""
+msgstr "Mzazi"
 
 #: kolibri.content.models.ContentNode:8 of
 msgid "License"
@@ -279,7 +279,7 @@ msgstr ""
 
 #: kolibri.content.models.ContentTag:3 of
 msgid "Tag name"
-msgstr ""
+msgstr "Jina la lebo"
 
 #: kolibri.content.models.File:1 of
 msgid "The bottom layer of the contentDB schema, defines the basic building brick for content. Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3..."
@@ -347,7 +347,7 @@ msgstr ""
 
 #: kolibri.content.models.License:5 of
 msgid "License name"
-msgstr ""
+msgstr "Jina la leseni"
 
 #: kolibri.content.models.UUIDField:1 of
 msgid "Adaptation of Django's UUIDField, but with 32-char hex representation as Python representation rather than a UUID instance."
@@ -1090,135 +1090,143 @@ msgstr ""
 msgid "The ``ready`` method will be automatically executed once the Module is loaded and registered with the Kolibri Core App. By convention, JavaScript is injected into the served HTML *after* the ``<rootvue>`` tag, meaning that this tag should be available when the ``ready`` method is called, and the root component (conventionally in *vue/index.vue*) can be mounted here."
 msgstr ""
 
-#: ../../dev/frontend.rst:117
-msgid "Shared Core Functionality"
+#: ../../dev/frontend.rst:116
+msgid "Content Renderers"
 msgstr ""
 
-#: ../../dev/frontend.rst:120
-msgid "Kolibri provides a set of shared \"core\" functionality – including components, styles, and helper logic, and libraries – which can be re-used across apps and plugins."
+#: ../../dev/frontend.rst:118
+msgid "A special kind of Kolibri Module is dedicated to rendering particular content types. All content renderers should extend the ``ContentRendererModule`` class found in `kolibri/core/assets/src/content_renderer_module.js`. In addition, rather than subclassing the ``WebpackBundleHook`` class, content renderers should be defined in the Python code using the ``ContentRendererHook`` class defined in ``kolibri.content.hooks``. In addition to the standard options for the ``WebpackBundleHook``, the ``ContentRendererHook`` also accepts a json file defining the content types that it renders::"
 msgstr ""
 
 #: ../../dev/frontend.rst:123
-msgid "JS Libraries"
+msgid "Shared Core Functionality"
 msgstr ""
 
-#: ../../dev/frontend.rst:125
-msgid "The following libraries are available globally, in all module code:"
-msgstr ""
-
-#: ../../dev/frontend.rst:127
-msgid "``vue`` - the Vue.js object"
-msgstr ""
-
-#: ../../dev/frontend.rst:128
-msgid "``vuex`` - the Vuex object"
+#: ../../dev/frontend.rst:126
+msgid "Kolibri provides a set of shared \"core\" functionality – including components, styles, and helper logic, and libraries – which can be re-used across apps and plugins."
 msgstr ""
 
 #: ../../dev/frontend.rst:129
+msgid "JS Libraries"
+msgstr ""
+
+#: ../../dev/frontend.rst:131
+msgid "The following libraries are available globally, in all module code:"
+msgstr ""
+
+#: ../../dev/frontend.rst:133
+msgid "``vue`` - the Vue.js object"
+msgstr ""
+
+#: ../../dev/frontend.rst:134
+msgid "``vuex`` - the Vuex object"
+msgstr ""
+
+#: ../../dev/frontend.rst:135
 msgid "``logging`` - our wrapper around the `loglevel logging module <https://github.com/pimterry/loglevel>`_"
 msgstr ""
 
-#: ../../dev/frontend.rst:130
+#: ../../dev/frontend.rst:136
 msgid "``core-base`` - a shared base Vue.js component (*core-base.vue*)"
 msgstr ""
 
-#: ../../dev/frontend.rst:132
+#: ../../dev/frontend.rst:138
 msgid "And many others. The complete specification for commonly shared modules can be found in `kolibri/core/assets/src/core-app/apiSpec.js` - this object defines which modules are imported into the core object. If the module in question has the 'requireName' attribute set on the core specification, then it can be used in code with a standard CommonJS-style require statement - e.g.:"
 msgstr ""
 
-#: ../../dev/frontend.rst:139
+#: ../../dev/frontend.rst:145
 msgid "Adding additional globally-available objects is relatively straightforward due to the `plugin and webpack build system <asset_loading>`_."
 msgstr ""
 
-#: ../../dev/frontend.rst:141
+#: ../../dev/frontend.rst:147
 msgid "To expose something on the core app, add a key to the object in `apiSpec.js` which maps to an object with the following keys:"
 msgstr ""
 
-#: ../../dev/frontend.rst:149 ../../dev/frontend.rst:165
+#: ../../dev/frontend.rst:155 ../../dev/frontend.rst:171
 msgid "This module would now be available for import anywhere with the following statement:"
 msgstr ""
 
-#: ../../dev/frontend.rst:155
+#: ../../dev/frontend.rst:161
 msgid "For better organisation of the Core API specification, modules can also be attached at arbitrarily nested paths:"
 msgstr ""
 
-#: ../../dev/frontend.rst:171
+#: ../../dev/frontend.rst:177
 msgid "For convenience (and to prevent accidental imports), 3rd party (NPM) modules installed in node_modules can be required by their usual name also:"
 msgstr ""
 
-#: ../../dev/frontend.rst:178
+#: ../../dev/frontend.rst:184
 msgid "Bootstrapped Data"
 msgstr ""
 
-#: ../../dev/frontend.rst:180
+#: ../../dev/frontend.rst:186
 msgid "The ``kolibriGlobal`` object is also used to bootstrap data into the JS app, rather than making unnecessary API requests."
 msgstr ""
 
-#: ../../dev/frontend.rst:182
+#: ../../dev/frontend.rst:188
 msgid "For example, we currently embellish the ``kolibriGlobal`` object with a ``urls`` object. This is defined by `Django JS Reverse <https://github.com/ierror/django-js-reverse>`_ and exposes Django URLs on the client side. This will primarily be used for accessing API Urls for synchronizing with the REST API. See the Django JS Reverse documentation for details on invoking the Url."
 msgstr ""
 
-#: ../../dev/frontend.rst:186
+#: ../../dev/frontend.rst:192
 msgid "Styling"
 msgstr ""
 
-#: ../../dev/frontend.rst:188
+#: ../../dev/frontend.rst:194
 msgid "For shared styles, two mechanisms are provided:"
 msgstr ""
 
-#: ../../dev/frontend.rst:190
+#: ../../dev/frontend.rst:196
 msgid "The *core-theme.styl* file provides values for some globally-relevant Stylus variables. These variables can be used in any component's ``<style>`` block by adding the line ``@require '~core-theme.styl'``."
 msgstr ""
 
-#: ../../dev/frontend.rst:191
+#: ../../dev/frontend.rst:197
 msgid "The *core-global.styl* file is always inserted into the ``<head>`` after normalize.css and provides some basic styling to global elements"
 msgstr ""
 
-#: ../../dev/frontend.rst:195
+#: ../../dev/frontend.rst:201
 msgid "Additional Functionality"
 msgstr ""
 
-#: ../../dev/frontend.rst:197
+#: ../../dev/frontend.rst:203
 msgid "These methods are also publicly exposed methods of the core app:"
 msgstr ""
 
-#: ../../dev/frontend.rst:208
+#: ../../dev/frontend.rst:214
 msgid "Unit Testing"
 msgstr ""
 
-#: ../../dev/frontend.rst:210
+#: ../../dev/frontend.rst:216
 msgid "Unit testing is carried out using `Mocha <https://mochajs.org/>`_. All JavaScript code should have unit tests for all object methods and functions."
 msgstr ""
 
-#: ../../dev/frontend.rst:212
+#: ../../dev/frontend.rst:218
 msgid "Tests are written in JavaScript, and placed in the 'assets/test' folder. An example test is shown below:"
 msgstr ""
 
-#: ../../dev/frontend.rst:230
+#: ../../dev/frontend.rst:236
 msgid "Vue.js components can also be tested. The management plugin contains an example (*kolibri/plugins/management/assets/test/management.js*) where the component is bound to a temporary DOM node, changes are made to the state, and assertions are made about the new component structure."
 msgstr ""
 
-#: ../../dev/frontend.rst:234
+#: ../../dev/frontend.rst:240
 msgid "Adding Dependencies"
 msgstr ""
 
-#: ../../dev/frontend.rst:236
+#: ../../dev/frontend.rst:242
 msgid "Dependencies are tracked using ``yarn`` - `see the docs here <https://yarnpkg.com/en/docs/>`_."
 msgstr ""
 
-#: ../../dev/frontend.rst:238
+#: ../../dev/frontend.rst:244
 msgid "We distinguish development dependencies from runtime dependencies, and these should be installed as such using ``yarn add --dev [dep]`` or ``yarn add [dep]``, respectively. Your new dependency should now be recorded in *package.json*, and all of its dependencies should be recorded in *yarn.lock*."
 msgstr ""
 
-#: ../../dev/frontend.rst:240
+#: ../../dev/frontend.rst:246
 msgid "Individual plugins can also have their own package.json and yarn.lock for their own dependencies. Running ``yarn install`` will also install all the dependencies for each activated plugin (inside a node_modules folder inside the plugin itself). These dependencies will only be available to that plugin at build time. Dependencies for individual plugins should be added from within the root directory of that particular plugin."
 msgstr ""
 
-#: ../../dev/frontend.rst:242
+#: ../../dev/frontend.rst:248
 msgid "To assist in tracking the source of bloat in our codebase, the command ``yarn run bundle-stats`` is available to give a full readout of the size that uglified packages take up in the final Javascript code."
 msgstr ""
 
-#: ../../dev/frontend.rst:244
+#: ../../dev/frontend.rst:250
 msgid "In addition, a plugin can have its own webpack.config.js for plugin specific webpack configuration (loaders, plugins, etc.). These options will be merged with the base options using ``webpack-merge``."
 msgstr ""
 
@@ -1796,8 +1804,7 @@ msgstr ""
 
 #: kolibri.logger.models.AttemptLog:14
 #: kolibri.logger.models.ContentSummaryLog:17
-#: kolibri.logger.models.MasteryLog:15 kolibri.logger.models.UserSessionLog:13
-#: of
+#: kolibri.logger.models.MasteryLog:15 of
 msgid "Completion timestamp"
 msgstr ""
 
@@ -1913,10 +1920,18 @@ msgstr ""
 
 #: kolibri.logger.models.UserSessionLog:9 of
 msgid "Channels"
+msgstr "Njia"
+
+#: kolibri.logger.models.UserSessionLog:13 of
+msgid "Last interaction timestamp"
 msgstr ""
 
 #: kolibri.logger.models.UserSessionLog:15 of
 msgid "Pages"
+msgstr ""
+
+#: kolibri.logger.models.UserSessionLog.update_log:1 of
+msgid "Update the current UserSessionLog for a particular user."
 msgstr ""
 
 #: ../../dev/logger/concepts_and_definitions.rst:5
@@ -2617,7 +2632,7 @@ msgstr ""
 
 #: ../../dev/tests.rst:26
 msgid "To run a subset of tests::"
-msgstr ""
+msgstr "Kubainisha sehemu ndogo ya majaribio::"
 
 #: ../../dev/tests.rst:32
 msgid "JS unit tests"
@@ -2787,7 +2802,7 @@ msgstr ""
 #: kolibri.auth.models.KolibriAbstractBaseUser:7
 #: kolibri.auth.models.KolibriAnonymousUser:3 of
 msgid "Password"
-msgstr ""
+msgstr "Nenosiri"
 
 #: kolibri.auth.models.DeviceOwner:15 kolibri.auth.models.FacilityUser:8
 #: kolibri.auth.models.KolibriAbstractBaseUser:9
@@ -2798,7 +2813,7 @@ msgstr ""
 #: kolibri.auth.models.DeviceOwner:17 kolibri.auth.models.FacilityUser:12
 #: kolibri.auth.models.KolibriAbstractBaseUser:11
 #: kolibri.auth.models.KolibriAnonymousUser:7 of
-msgid "Required. 30 characters or fewer. Letters and digits only."
+msgid "Required. 30 characters or fewer. Letters and digits only"
 msgstr ""
 
 #: kolibri.auth.models.DeviceOwner:19 kolibri.auth.models.FacilityUser:14
@@ -2856,7 +2871,7 @@ msgstr ""
 #: ../../dev/uap/concepts_and_definitions.rst:5
 #: kolibri.auth.models.FacilityUser:18 of
 msgid "Facility"
-msgstr ""
+msgstr "Kituo"
 
 #: kolibri.auth.models.KolibriAbstractBaseUser:1 of
 msgid "Our custom user type, derived from ``AbstractBaseUser`` as described in the Django docs. Draws liberally from ``django.contrib.auth.AbstractUser``, except we exclude some fields we don't care about, like email."
@@ -3059,7 +3074,7 @@ msgstr ""
 
 #: ../../dev/uap/concepts_and_definitions.rst:15
 msgid "Users"
-msgstr ""
+msgstr "Watumiaji"
 
 #: ../../dev/uap/concepts_and_definitions.rst:17
 msgid "There are two kinds of users: ``FacilityUser`` and ``DeviceOwner``. A ``FacilityUser`` is associated with a particular ``Facility``, and the user's account and data may be synchronized across multiple devices. A ``DeviceOwner`` account is not associated with a particular ``Facility``, but is specific to one device, and is never synchronized across multiple devices. A ``DeviceOwner`` is like a superuser, and has permissions to modify any data on her own device, whereas a ``FacilityUser`` only has permissions for some subset of data from their own Facility Dataset (as determined in part by the roles they possess; see below)."
@@ -3523,48 +3538,11 @@ msgid "**Roadmap:** Jessica has begun designing this. See `the invision prototyp
 msgstr ""
 
 #~ msgid ""
-#~ "It's generally good practice to use "
-#~ "`Python virtual environment "
-#~ "<https://virtualenv.pypa.io/en/latest/>`_ to isolate "
-#~ "your project(s) and allow you to "
-#~ "install different packages, even with "
-#~ "different versions. This also allows you"
-#~ " to avoid using ``sudo`` with the "
-#~ "``pip`` commands below, which is not "
-#~ "recommended."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Follow these `instructions to create a"
-#~ " new virtual environment and activate "
-#~ "it <http://docs.python-"
-#~ "guide.org/en/latest/dev/virtualenvs/>`_. You may "
-#~ "also want to consider using "
-#~ "`virtualenvwrapper "
-#~ "<http://virtualenvwrapper.readthedocs.io/en/latest/index.html>`_."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "In this document we use the name"
-#~ " ``kolibri``, but you can name the"
-#~ " virtual environment however you wish."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "If you're *not* using a Python "
-#~ "virtual environment, you may need to "
-#~ "use ``sudo`` with the ``pip install``"
-#~ " commands below. ``yarn install`` "
-#~ "automatically isolates project dependencies "
-#~ "and works without ``sudo``."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Install ``yarn`` according the `instructions"
-#~ " specific for your OS "
-#~ "<https://yarnpkg.com/en/docs/install/>`_."
 #~ msgstr ""
 
 #~ msgid "Allow signups"
+#~ msgstr ""
+
+#~ msgid "Required. 30 characters or fewer. Letters and digits only."
 #~ msgstr ""
 

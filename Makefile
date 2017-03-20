@@ -1,3 +1,5 @@
+REQUIREMENTS=requirements.txt
+
 .PHONY: help clean clean-pyc clean-build list test test-all coverage docs release sdist
 
 help:
@@ -64,7 +66,7 @@ release: clean assets
 	python setup.py bdist_wheel upload
 
 staticdeps: clean
-	pip install -t kolibri/dist -r requirements.txt
+	pip install -t kolibri/dist -r $(REQUIREMENTS)
 	rm -r kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 
 writeversion:
@@ -87,7 +89,7 @@ makemessages: assets makedocsmessages
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*' --ignore 'docs/conf.py'
 
 compilemessages:
-	python -m kolibri manage compilemessages -- -l en > /dev/null
+	python -m kolibri manage compilemessages
 
 syncmessages: ensurecrowdinclient uploadmessages downloadmessages distributefrontendmessages
 
