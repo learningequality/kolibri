@@ -1,12 +1,12 @@
 {
-  "setupWizard.header":"Unda mmilikikifaa na kituo",
-  "setupWizard.deviceOwner":"Mmiliki kifaa",
-  "setupWizard.deviceOwnerDescription":"Kutumia Kolibri, kwanza unahitaji kuunda akaunti ya mmiliki wa kifaa. Akaunti hii itatumika kusanidi vipimo vya ngazi ya juu kwa ajili ya ufungaji huu, na kuunda akaunti nyingine za msimamizi.",
+  "setupWizard.header":"Create device owner and facility",
+  "setupWizard.deviceOwner":"Device owner",
+  "setupWizard.deviceOwnerDescription":"To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts",
   "setupWizard.username":"Jina la mtumiaji",
   "setupWizard.password":"Nenosiri",
   "setupWizard.confirmPassword":"Thibitisha Nenosiri",
   "setupWizard.facility":"Kituo",
-  "setupWizard.facilityDescription":"Unahitaji kuunda kituo, ambacho kitawakilisha shule yako, kituo cha mafunzo, au mahali pengine ambapo usakinishaji huu utatumika.",
+  "setupWizard.facilityDescription":"You also need to create a Facility. This represents your school, training center, or other installation location",
   "setupWizard.facilityName":"Jina la kituo",
   "setupWizard.getStarted":"Unda na Anza"
 }
