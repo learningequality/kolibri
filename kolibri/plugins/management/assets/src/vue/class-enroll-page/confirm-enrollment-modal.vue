@@ -34,7 +34,7 @@
       confirmEnrollment: 'Confirm Enrollment of Selected Users',
       areYouSure: 'Are you sure you want to enroll the following users into',
       noGoBack: 'No, go back',
-      yesEnrollUsers: 'Yes, enroll students',
+      yesEnrollUsers: 'Yes, enroll users',
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
@@ -93,6 +93,12 @@
 
 
 <style lang="stylus" scoped>
+
+  ul
+    list-style: none
+    margin: 20px 0
+    li
+      line-height: 1.8em  
 
   .header
     text-align: center
