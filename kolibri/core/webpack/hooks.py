@@ -259,7 +259,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         :param bundle_data: The data returned from
         :return: HTML of script tags for insertion into a page.
         """
-        tags = list(self.js_and_css_tags()) + self.frontend_message_tag()
+        tags = self.frontend_message_tag() + list(self.js_and_css_tags())
 
         return mark_safe('\n'.join(tags))
 
@@ -279,14 +279,14 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: HTML of a script tag to insert into a page.
         """
         urls = [chunk['url'] for chunk in self.bundle]
-        tags = ['<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"], {events}, {once});</script>'.format(
-            kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
-            bundle=self.unique_slug,
-            urls='","'.join(urls),
-            events=json.dumps(self.events),
-            once=json.dumps(self.once),
-        )]
-        tags += self.frontend_message_tag()
+        tags = self.frontend_message_tag() +\
+            ['<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"], {events}, {once});</script>'.format(
+                kolibri_name=django_settings.KOLIBRI_CORE_JS_NAME,
+                bundle=self.unique_slug,
+                urls='","'.join(urls),
+                events=json.dumps(self.events),
+                once=json.dumps(self.once),
+            )]
         return mark_safe('\n'.join(tags))
 
     class Meta:
