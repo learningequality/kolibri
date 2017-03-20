@@ -1,10 +1,11 @@
 const coreApp = require('kolibri');
-const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const PageNames = require('./state/constants').PageNames;
 const SignUpResource = require('kolibri').resources.SignUpResource;
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const coreGetters = require('kolibri.coreVue.vuex.getters');
 const router = require('kolibri.coreVue.router');
+
+const FacilityUserResource = coreApp.resources.FacilityUserResource;
 
 function redirectToHome() {
   window.location = '/';
@@ -41,9 +42,7 @@ function editProfile(store, edits, session) {
   // }
 
   // check to see if anything's changed and conditionally add last requirement
-  if (Object.keys(changedValues).length) {
-    changedValues.facility = session.facility_id;
-  } else {
+  if (!Object.keys(changedValues).length) {
     return;
   }
 

@@ -7,6 +7,7 @@ include requirements.txt
 include kolibri/VERSION
 recursive-include requirements *.txt
 recursive-include kolibri/locale *.mo
+recursive-include kolibri/locale *.json
 recursive-include kolibri/auth *
 recursive-include kolibri/content *
 recursive-include kolibri/core *
@@ -20,6 +21,7 @@ recursive-include kolibri/tasks *
 recursive-include kolibri/*/static *.*
 recursive-include kolibri/*/build/ *.json
 recursive-include kolibri/plugins/*/build *.json
+include kolibri/plugins/*/content_types.json
 
 recursive-exclude kolibri/* *pyc
 recursive-exclude kolibri/core/assets *

@@ -54,7 +54,8 @@ class Timer {
     this.intervalTime = intervalTime;
     this.intervalAction = intervalAction;
     this.intervalTimer = setInterval(this.intervalAction, this.intervalTime);
-    this.startTime = this.lastElapsedTimeCheck = new Date();
+    this.lastElapsedTimeCheck = new Date();
+    this.startTime = this.lastElapsedTimeCheck;
     return this.startTime;
   }
 }

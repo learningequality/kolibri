@@ -189,7 +189,8 @@
         }
       },
       clear() {
-        this.usr_delete = this.pw_reset = false;
+        this.usr_delete = false;
+        this.pw_reset = false;
         this.username_new = this.username;
         this.fullName_new = this.fullname;
         this.kind = this.userkind;

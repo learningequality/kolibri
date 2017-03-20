@@ -1,0 +1,7 @@
+{
+  "name": "coach",
+  "description": "coach, a plugin for Kolibri.",
+  "private": true,
+  "dependencies": {
+  }
+}

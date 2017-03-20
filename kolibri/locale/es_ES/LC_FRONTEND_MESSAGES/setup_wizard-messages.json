@@ -1,0 +1,12 @@
+{
+  "setupWizard.header":"Create device owner and facility",
+  "setupWizard.deviceOwner":"Device owner",
+  "setupWizard.deviceOwnerDescription":"To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts",
+  "setupWizard.username":"Nombre de usuario",
+  "setupWizard.password":"Contraseña",
+  "setupWizard.confirmPassword":"Confirmar contraseña",
+  "setupWizard.facility":"Centro educativo",
+  "setupWizard.facilityDescription":"You also need to create a Facility. This represents your school, training center, or other installation location",
+  "setupWizard.facilityName":"Nombre del Centro educativo",
+  "setupWizard.getStarted":"Crear y empezar"
+}

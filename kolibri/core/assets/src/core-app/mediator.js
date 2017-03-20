@@ -1,4 +1,3 @@
-'use strict';
 /**
  * Mediator module.
  * Provides the main controller and event dispatcher for the Kolibri FrontEnd core app.
@@ -6,14 +5,8 @@
  */
 
 
-const assetLoader = require('./asset-loader');
 const Vue = require('vue');
 const logging = require('kolibri.lib.logging').getLogger(__filename);
-const rest = require('rest');
-const mime = require('rest/interceptor/mime');
-const errorCode = require('rest/interceptor/errorCode');
-
-const client = rest.wrap(mime, { mime: 'application/json' }).wrap(errorCode);
 
 /**
  * @constructor
@@ -59,6 +52,15 @@ module.exports = class Mediator {
      * kolibriModuleName: {object} - with keys for different languages.
      **/
     this._languageAssetRegistry = {};
+
+    /**
+     * Keep track of all registered content renderers.
+     */
+    this._contentRendererRegistry = {};
+    /**
+     * Keep track of urls for content renderers.
+     */
+    this._contentRendererUrls = {};
   }
 
   /**
@@ -93,18 +95,13 @@ module.exports = class Mediator {
     this._executeCallbackBuffer(kolibriModule);
     logging.info(`KolibriModule: ${kolibriModule.name} registered`);
     this.emit('kolibri_register', kolibriModule);
-    const ready = () => {
-      if (this._ready) {
+    if (this._ready) {
+      kolibriModule.ready();
+    } else {
+      this._eventDispatcher.$once('ready', () => {
         kolibriModule.ready();
-      } else {
-        this._eventDispatcher.$once('ready', () => {
-          kolibriModule.ready();
-        });
-      }
-    };
-    // Ensure all language assets that are needed for this module have been fetched
-    // before we declare this module ready!
-    this._fetchLanguageAssets(kolibriModule.name, Vue.locale).then(ready, ready);
+      });
+    }
   }
 
   /**
@@ -128,7 +125,7 @@ module.exports = class Mediator {
     } else {
       events = kolibriModule[eventsKey];
     }
-    for (let i = 0; i < Object.getOwnPropertyNames(events).length; i++) {
+    for (let i = 0; i < Object.getOwnPropertyNames(events).length; i += 1) {
       const key = Object.getOwnPropertyNames(events)[i];
       boundEventListenerMethod(key, kolibriModule, events[key]);
     }
@@ -230,10 +227,28 @@ module.exports = class Mediator {
     if (typeof this._callbackBuffer[kolibriModule.name] !== 'undefined') {
       this._callbackBuffer[kolibriModule.name].forEach((buffer) => {
         // Do this to ensure proper 'this'ness.
-        kolibriModule[buffer.method].apply(kolibriModule, buffer.args);
+        kolibriModule[buffer.method](...buffer.args);
       });
       delete this._callbackBuffer[kolibriModule.name];
     }
+  }
+
+  /**
+   * Loads a Javascript file and executes it.
+   * @param  {String} url URL for the script
+   * @return {Promise}     Promise that resolves when the script has loaded
+   * @private
+   */
+  _scriptLoader(url) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = url;
+      script.async = true;
+      script.addEventListener('load', resolve);
+      script.addEventListener('error', reject);
+      global.document.body.appendChild(script);
+    });
   }
 
   /**
@@ -252,14 +267,15 @@ module.exports = class Mediator {
     const self = this;
     // Create a buffer for events that are fired before a kolibriModule has
     // loaded. Keep track of the method and the arguments passed to the callback.
-    const callbackBuffer = this._callbackBuffer[kolibriModuleName] = [];
+    this._callbackBuffer[kolibriModuleName] = [];
+    const callbackBuffer = this._callbackBuffer[kolibriModuleName];
     // Look at all events, whether listened to once or multiple times.
     const eventArray = [];
-    for (let i = 0; i < Object.getOwnPropertyNames(events).length; i++) {
+    for (let i = 0; i < Object.getOwnPropertyNames(events).length; i += 1) {
       const key = Object.getOwnPropertyNames(events)[i];
       eventArray.push([key, events[key]]);
     }
-    for (let i = 0; i < Object.getOwnPropertyNames(once).length; i++) {
+    for (let i = 0; i < Object.getOwnPropertyNames(once).length; i += 1) {
       const key = Object.getOwnPropertyNames(once)[i];
       eventArray.push([key, once[key]]);
     }
@@ -273,24 +289,27 @@ module.exports = class Mediator {
       // and also cause loading of the the frontend assets that the kolibriModule
       // needs, should an event it is listening for be emitted.
       const callback = (...args) => {
-        // First check that the kolibriModule hasn't already been loaded.
-        if (typeof self._kolibriModuleRegistry[kolibriModuleName] === 'undefined') {
-          // Add the details about the event callback to the buffer.
-          callbackBuffer.push({
-            args,
-            method: value,
-          });
-          // Call the asset loader to load all the kolibriModule files.
-          assetLoader(kolibriModuleUrls, (err, notFound) => {
-            if (err) {
-              notFound.forEach((file) => {
-                logging.error(`${file} failed to load`);
-              });
-            }
-          });
-          // Start fetching any language assets that this module might need also.
-          this._fetchLanguageAssets(kolibriModuleName, Vue.locale);
-        }
+        const promise = new Promise((resolve, reject) => {
+          // First check that the kolibriModule hasn't already been loaded.
+          if (typeof self._kolibriModuleRegistry[kolibriModuleName] === 'undefined') {
+            // Add the details about the event callback to the buffer.
+            callbackBuffer.push({
+              args,
+              method: value,
+            });
+            // Load all the kolibriModule files.
+            Promise.all(kolibriModuleUrls.map(this._scriptLoader)).then(() => {
+              resolve();
+            }).catch((error) => {
+              const errorText = `${kolibriModuleName} failed to load`;
+              logging.error(errorText);
+              reject(errorText);
+            });
+            // Start fetching any language assets that this module might need also.
+            this._fetchLanguageAssets(kolibriModuleName, Vue.locale);
+          }
+        });
+        return promise;
       };
       // Listen to the event and call the above function
       self._eventDispatcher.$on(key, callback);
@@ -342,61 +361,6 @@ module.exports = class Mediator {
   off(...args) {
     this._eventDispatcher.$off(...args);
   }
-
-  /**
-   * Internal method for loading language assets from server when needed.
-   * @param  {String} moduleName name of the module.
-   * @param  {String} language   language code whose assets we are loading.
-   * @return {Promise}           a promise that resolves when the assets are loaded.
-   */
-  _fetchLanguageAssets(moduleName, language) {
-    // We either return a new promise, or a promise that has already been
-    // instantiated when this method was called previously.
-    let promise;
-    if (this._languageAssetRegistry[moduleName] &&
-      this._languageAssetRegistry[moduleName][language] &&
-      this._languageAssetRegistry[moduleName][language].promise) {
-      // We have previously instantiated a promise for fetching language assets,
-      // so return that and we're done!
-      promise = this._languageAssetRegistry[moduleName][language].promise;
-    } else {
-      // No promise has been defined and stored for this previously, so create a new one.
-      promise = new Promise((resolve, reject) => {
-        if (moduleName in this._languageAssetRegistry &&
-          this._languageAssetRegistry[moduleName][language]) {
-          // Check that we have information in the registry that we need to load language assets.
-          if (this._languageAssetRegistry[moduleName][language].loaded) {
-            // Language assets already loaded, just resolve the promise right away.
-            resolve();
-          } else {
-            // Fetch the language asset from the url stored in the registry.
-            client({ path: this._languageAssetRegistry[moduleName][language].url }).then(
-              (response) => {
-                // We are loading a JSON file so the response body will be the messages object
-                // for the language in question.
-                const messageMap = response.entity;
-                // Register this messages object for the language.
-                this.registerLanguageAssets(moduleName, language, messageMap);
-                // Resolve with no value, all relevant changes have been made already.
-                resolve();
-              }, (error) => {
-              logging.error(
-                `Message file for ${moduleName} for language: ${language} did not load`);
-              reject();
-            });
-          }
-        } else {
-          resolve();
-        }
-      });
-      if (moduleName in this._languageAssetRegistry &&
-        this._languageAssetRegistry[moduleName][language]) {
-        // Store the promise in the registry for later reference.
-        this._languageAssetRegistry[moduleName][language].promise = promise;
-      }
-    }
-    return promise;
-  }
   /**
    * A method for directly registering language assets on the mediator.
    * This is used to set language assets as loaded and register them to the Vue intl
@@ -406,31 +370,86 @@ module.exports = class Mediator {
    * @param  {Object} messageMap an object with message id to message mappings.
    */
   registerLanguageAssets(moduleName, language, messageMap) {
-    // Create empty entry in the language asset registry for this module if needed
-    this._languageAssetRegistry[moduleName] = this._languageAssetRegistry[moduleName] || {};
-    // Create empty entry in the language asset registry for this module/language if needed.
-    this._languageAssetRegistry[moduleName][language] =
-      this._languageAssetRegistry[moduleName][language] || {};
-    // Set this asset as loaded in the registry so any future async loading will be resolved
-    // without needing a server request.
-    this._languageAssetRegistry[moduleName][language].loaded = true;
-    // Register the message object on the Vue intl translation layer.
-    Vue.registerMessages(language, messageMap);
+    if (!Vue.registerMessages) {
+      // Set this messageMap so that we can register it later when VueIntl
+      // has finished loading.
+      // Create empty entry in the language asset registry for this module if needed
+      this._languageAssetRegistry[moduleName] = this._languageAssetRegistry[moduleName] || {};
+      this._languageAssetRegistry[moduleName][language] = messageMap;
+    } else {
+      Vue.registerMessages(language, messageMap);
+    }
   }
   /**
-   * A method for registering urls from which to fetch language assets.
-   * Mainly used for asynchronously loading modules.
-   * @param  {String} moduleName name of the module.
-   * @param  {String} language   language code whose messages we are registering.
-   * @param  {String} messageMapUrl The URL from which to fetch the message object.
+   * A method for taking all registered language assets and registering them against Vue Intl.
    */
-  registerLanguageAssetsUrl(moduleName, language, messageMapUrl) {
-    // Create empty entry in the language asset registry for this module if needed
-    this._languageAssetRegistry[moduleName] = this._languageAssetRegistry[moduleName] || {};
-    // Set loaded as false, and add url for later use.
-    this._languageAssetRegistry[moduleName][language] = {
-      loaded: false,
-      url: messageMapUrl,
-    };
+  registerMessages() {
+    Object.keys(this._languageAssetRegistry).forEach((moduleName) => {
+      Object.keys(this._languageAssetRegistry[moduleName]).forEach((language) => {
+        Vue.registerMessages(language, this._languageAssetRegistry[moduleName][language]);
+      });
+    });
+    delete this._languageAssetRegistry;
+  }
+  /**
+   * A method for registering content renderers for asynchronous loading and track
+   * which file types we have registered renderers for.
+   * @param  {String} kolibriModuleName name of the module.
+   * @param  {String[]} kolibriModuleUrls the URLs of the Javascript
+   * files that constitute the kolibriModule
+   * @param  {Object} contentTypes      Object of kind, array of extension mappings
+   */
+  registerContentRenderer(kolibriModuleName, kolibriModuleUrls, contentTypes) {
+    this._contentRendererUrls[kolibriModuleName] = kolibriModuleUrls;
+    contentTypes.kinds.forEach((kindData) => {
+      const kind = kindData.name;
+      if (!this._contentRendererRegistry[kind]) {
+        this._contentRendererRegistry[kind] = {};
+      }
+      kindData.extensions.forEach((extension) => {
+        if (this._contentRendererRegistry[kind][extension]) {
+          logging.warn(`Two content renderers are registering for ${kind}/${extension}`);
+        } else {
+          this._contentRendererRegistry[kind][extension] = kolibriModuleName;
+        }
+      });
+    });
+  }
+  /**
+   * A method to retrieve a content renderer component.
+   * @param  {String} kind      content kind
+   * @param  {String} extension content extension
+   * @return {Promise}          Promise that resolves with loaded content renderer Vue component
+   */
+  retrieveContentRenderer(kind, extension) {
+    return new Promise((resolve, reject) => {
+      const kolibriModuleName = (this._contentRendererRegistry[kind] || {})[extension];
+      if (!kolibriModuleName) {
+        // Our content renderer registry does not have a renderer for this content kind/extension.
+        reject(
+          `No registered content renderer available for kind: ${kind} with file extension: ${extension}`
+        );
+      } else if (this._kolibriModuleRegistry[kolibriModuleName]) {
+        // There is a named renderer for this kind/extension combination, and it is already loaded.
+        resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
+      } else {
+        // We have a content renderer for this, but it has not been loaded, so load it, and then
+        // resolve the promise when it has been loaded.
+        Promise.all(this._contentRendererUrls[kolibriModuleName].map(this._scriptLoader)).then(
+          () => {
+            if (this._kolibriModuleRegistry[kolibriModuleName]) {
+              resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
+            } else {
+              this.on('kolibri_register', (moduleName) => {
+                if (moduleName === kolibriModuleName) {
+                  resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
+                }
+              });
+            }
+          }).catch((error) => {
+            reject('Content renderer failed to load properly');
+          });
+      }
+    });
   }
 };
