@@ -7,8 +7,6 @@
         <thead>
           <tr>
             <th> Name </th>
-          </tr>
-          <tr>
             <th> Progress </th>
           </tr>
         </thead>
@@ -16,10 +14,10 @@
         <tbody>
           <tr v-for="report in reports">
             <td>
-              {{report.name}}
+              {{report.title}}
             </td>
             <td>
-              {{report.progress}}
+              {{report.progress[0].total_progress}}
             </td>
           </tr>
         </tbody>

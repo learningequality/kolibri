@@ -1,9 +1,8 @@
 <template>
 
   <div class="class-roster">
-      <caption class="visuallyhidden">{{$tr('channelList')}}</caption>
-
-      <table>
+    <caption class="visuallyhidden">{{$tr('channelList')}}</caption>
+    <table>
       <!-- Table Headers -->
       <thead>
         <tr>
@@ -12,19 +11,17 @@
           </th>
         </tr>
       </thead>
-
-      <!-- Table body -->
+    <!-- Table body -->
       <tbody>
-        <router-link v-for="channel in channels" :to="reportsForChannel(channel.id)">
-          <tr>
+          <tr v-for="channel in channels">
             <!-- Content Name field -->
-            <td scope="row" class="table-cell">
-              {{channel.name}}
-            </td>
+            <router-link :to="reportsForChannel(channel.id)">
+              <td>
+                {{channel.name}}
+              </td>
+            </router-link>
           </tr>
-        </router-link>
       </tbody>
-
     </table>
 
   </div>
