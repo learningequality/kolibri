@@ -38,40 +38,40 @@
     },
     components: {
       'top-nav': require('./top-nav'),
-      'class-list-page': require('./class-list-page'),
-      'recent-page': require('./recent-page'),
-      'topics-page': require('./topics-page'),
-      'exams-page': require('./exams-page'),
-      'learners-page': require('./learners-page'),
-      'groups-page': require('./groups-page'),
+      'class-list': require('./class-list'),
+      'recent': require('./recent'),
+      'topics': require('./topics'),
+      'exams': require('./exams'),
+      'learners': require('./learners'),
+      'groups': require('./groups'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
-        if (this.pageName === constants.PageNames.COACH_CLASS_LIST_PAGE) {
-          return 'class-list-page';
+        if (this.pageName === constants.PageNames.CLASS_LIST) {
+          return 'class-list';
         }
-        if (this.pageName === constants.PageNames.COACH_RECENT_PAGE) {
-          return 'recent-page';
+        if (this.pageName === constants.PageNames.RECENT) {
+          return 'recent';
         }
-        if (this.pageName === constants.PageNames.COACH_TOPICS_PAGE) {
-          return 'topics-page';
+        if (this.pageName === constants.PageNames.TOPICS) {
+          return 'topics';
         }
-        if (this.pageName === constants.PageNames.COACH_EXAMS_PAGE) {
-          return 'exams-page';
+        if (this.pageName === constants.PageNames.EXAMS) {
+          return 'exams';
         }
-        if (this.pageName === constants.PageNames.COACH_LEARNERS_PAGE) {
-          return 'learners-page';
+        if (this.pageName === constants.PageNames.LEARNERS) {
+          return 'learners';
         }
-        if (this.pageName === constants.PageNames.COACH_GROUPS_PAGE) {
-          return 'groups-page';
+        if (this.pageName === constants.PageNames.GROUPS) {
+          return 'groups';
         }
         return null;
       },
       notRootPage() {
-        return this.pageName !== constants.PageNames.COACH_CLASS_LIST_PAGE;
+        return this.pageName !== constants.PageNames.CLASS_LIST;
       },
     },
     methods: {
