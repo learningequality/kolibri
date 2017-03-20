@@ -3,6 +3,13 @@
 Release Notes
 =============
 
+
+DEVELOP
+-------
+
+ - Class and group management
+
+
 0.3.0
 -----
 
