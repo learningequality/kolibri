@@ -86,17 +86,17 @@
   .top
     position: relative
     padding: 1em 2em
-    background: $core-bg-light
     border-radius: $radius
+    background: $core-bg-light
 
   .top a
     padding: 0.6em 2em
-    text-decoration: none
     color: $core-text-annotation
+    text-decoration: none
 
   .top .active
+    border-bottom: 0.3em $core-action-normal solid
     color: $core-text-default
     cursor: default
-    border-bottom: 0.3em $core-action-normal solid
 
 </style>

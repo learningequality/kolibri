@@ -100,9 +100,9 @@
   .channel-switcher-menu
     .ui-menu-option
         &.is-disabled
+          background-color: rgba(0, 0, 0, 0.05)
           color: $core-accent-color
           font-weight: bold
           opacity: 1
-          background-color: rgba(0, 0, 0, 0.05)
 
 </style>

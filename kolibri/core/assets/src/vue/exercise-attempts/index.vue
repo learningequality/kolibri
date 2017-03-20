@@ -102,12 +102,12 @@
     white-space: nowrap
 
   .answer
-    width: $size
-    height: 20px
+    position: absolute
     display: inline-block
     margin: $margin
+    width: $size
+    height: 20px
     text-align: center
-    position: absolute
     transition: all 0.5s ease-in-out
 
     // try to improve performance - http://stackoverflow.com/a/10133679
@@ -119,9 +119,9 @@
 
   .placeholder
     display: inline-block
-    height: $size
-    width: $size
     margin: $margin
+    width: $size
+    height: $size
     border-bottom: 1px solid $core-text-annotation
     transition: border-bottom 0.1s linear
 

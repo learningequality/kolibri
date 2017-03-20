@@ -75,18 +75,18 @@
   @require '~kolibri.styles.definitions'
 
   .thumbnail
+    position: relative
     width: 100%
     height: 100%
-    background-size: cover
-    background-position: center
     background-color: black
+    background-position: center
+    background-size: cover
     text-align: center
-    position: relative
 
   .thumbnail:before
-    content: ''
     display: inline-block
-    vertical-align: middle
     height: 100%
+    content: ''
+    vertical-align: middle
 
 </style>

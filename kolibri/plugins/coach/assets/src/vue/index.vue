@@ -101,7 +101,7 @@
   @require '~kolibri.styles.definitions'
 
   .login-message
-    text-align: center
     margin-top: 200px
+    text-align: center
 
 </style>

@@ -96,12 +96,12 @@
   @require '~kolibri.styles.definitions'
 
   .infobox
-    background-color: $core-bg-warning
-    border-radius: $radius
-    font-size: 0.8em
-    padding: 8px
-    margin-left: -8px
     margin-right: 8px
+    margin-left: -8px
+    padding: 8px
+    border-radius: $radius
+    background-color: $core-bg-warning
+    font-size: 0.8em
 
   form
     display: inline

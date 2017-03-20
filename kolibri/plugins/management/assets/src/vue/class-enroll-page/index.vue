@@ -324,8 +324,8 @@
     position: relative
 
   .pagination
-    text-align:center
     padding: 2em
+    text-align:center
 
   .search-box
     max-width: 400px

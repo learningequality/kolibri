@@ -40,17 +40,17 @@
 <style lang="stylus" scoped>
 
   .loading-spinner-wrapper
+    position: relative
     width: 100%
     height: 100%
-    position: relative
 
   .loading-spinner
-    width: 125px
-    height: 125px
     position: absolute
     top: 50%
     left: 50%
     transform: translate(-50%, -50%)
+    width: 125px
+    height: 125px
     background: url('loading-spinner.gif') no-repeat center
     background-size: contain
 

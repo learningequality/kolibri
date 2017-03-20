@@ -148,44 +148,44 @@
     position: fixed
     top: 0
     left: 0
+    z-index: 70
     width: 100%
     height: 100%
     background: rgba(0, 0, 0, 0.7)
-    transition: opacity 0.3s ease
     background-attachment: fixed
-    z-index: 70
+    transition: opacity 0.3s ease
 
   .modal
     position: absolute
     top: 50%
     left: 50%
     transform: translate(-50%, -50%)
-    width: 60%
-    background: #fff
-    max-width: 380px
-    max-height: 80%
     overflow-y: auto
-    border-radius: $radius
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
     margin: 0 auto
     padding: 15px 30px
+    max-width: 380px
+    max-height: 80%
+    width: 60%
+    border-radius: $radius
+    background: #fff
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33)
 
     &:focus
       outline: none
 
     @media (max-width: $portrait-breakpoint)
-      width: 85%
       top: 45%
+      width: 85%
 
   .top-buttons
     position: relative
-    height: 20px
     margin-bottom: 25px
+    height: 20px
 
   .header-btn
-    color: $core-text-default
-    border: none
     position: absolute
+    border: none
+    color: $core-text-default
 
   .btn-back
     left: -10px

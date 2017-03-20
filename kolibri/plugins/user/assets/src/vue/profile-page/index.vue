@@ -118,23 +118,23 @@
   $iphone-width = 320
 
   .content
-    padding-top: $vertical-page-margin
-    margin-left: auto
-    margin-right: auto
     overflow-y: auto
+    margin-right: auto
+    margin-left: auto
+    padding-top: $vertical-page-margin
     width: ($iphone-width - 20)px
 
   #submit
-    margin-left: auto
-    margin-right: auto
     display: block
     margin-top: $vertical-page-margin
+    margin-right: auto
+    margin-left: auto
     width: 98%
 
   .advanced-option
-    color: $core-action-light
-    width: 100%
     display: inline-block
+    width: 100%
+    color: $core-action-light
     font-size: 0.9em
 
 </style>

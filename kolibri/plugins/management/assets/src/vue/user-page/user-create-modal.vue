@@ -195,8 +195,8 @@
     select
       width: 100%
       height: 40px
-      font-weight: bold
       background-color: transparent
+      font-weight: bold
 
   .header
     text-align: center
@@ -212,8 +212,8 @@
 
   .secondary
     &:hover
-      color: #ffffff
       background-color: $core-action-dark
+      color: #ffffff
       svg
         fill: #ffffff
 

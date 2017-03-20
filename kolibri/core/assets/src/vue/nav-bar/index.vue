@@ -251,22 +251,22 @@
   $footerheight = 152px
 
   .nav-wrapper
-    top: 0
-    background: $core-bg-light
-    font-weight: 300
     position: fixed
-    z-index: 70
-    font-size: 1em
-    height: 100%
+    top: 0
     overflow: auto
     -webkit-overflow-scrolling: touch
+    z-index: 70
+    height: 100%
+    background: $core-bg-light
     box-shadow: 2px 0 0 0 rgba(0, 0, 0, 0.12)
+    font-weight: 300
+    font-size: 1em
     .header-logo
-      font-size: 3em
       margin-right: 0.25em
+      font-size: 3em
     .logo
-      margin: auto
       display: inline-block
+      margin: auto
 
   .nav-main
     background: $core-bg-light
@@ -276,46 +276,46 @@
 
   .header
     position: absolute
-    z-index: 1003
     top: 0
     left: 0
-    font-size: 14px
-    text-transform: uppercase
+    z-index: 1003
     overflow: auto
     overflow-y: hidden
+    text-transform: uppercase
     background-color: $core-text-default
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2)
+    font-size: 14px
     .close
       float: left
     .title, .close
       color: $core-bg-light
     .close
+      position: relative
       top: 50%
       transform: translateY(-50%)
-      position: relative
       border: none
     .title
-      font-weight: bold
       vertical-align: middle
+      font-weight: bold
 
   .scrollable-nav
     position: absolute
-    z-index: 1002
     top: 0
     left: 0
+    z-index: 1002
+    overflow: auto
     padding-bottom: $footerheight + 16
     height: 100%
-    overflow: auto
 
   .footer
     position: absolute
-    z-index: 1003
     bottom: 0
     left: 0
+    z-index: 1003
     overflow: hidden
-    background-color: $core-text-default
     padding-top: 1em
     padding-bottom: 1em
+    background-color: $core-text-default
     .logo
       float: left
     .message-container
@@ -327,12 +327,12 @@
     position: fixed
     top: 0
     left: 0
+    z-index: 60
     width: 100%
     height: 100%
     background: rgba(0, 0, 0, 0.7)
-    transition: opacity 0.3s ease
     background-attachment: fixed
-    z-index: 60
+    transition: opacity 0.3s ease
 
 </style>
 
@@ -351,9 +351,9 @@
           .ui-menu-option__icon
             color: $core-accent-color
           color: $core-accent-color
-          cursor: default
           font-weight: bold
           opacity: 1
+          cursor: default
         .ui-menu-option__text
           overflow: visible
         .ui-menu-option__icon
@@ -361,7 +361,7 @@
       &.is_divider
         background-color: $core-text-annotation
     &.ui-menu
-      border: none
       max-width: 320px
+      border: none
 
 </style>

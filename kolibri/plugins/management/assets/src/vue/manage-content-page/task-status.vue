@@ -129,7 +129,7 @@
     border-radius: 50px
 
   progress[value]::-webkit-progress-value
-    background-color: $core-action-normal
     border-radius: 50px
+    background-color: $core-action-normal
 
 </style>

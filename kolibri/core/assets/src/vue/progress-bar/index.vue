@@ -50,31 +50,31 @@
 
   .wrapper
     position: relative
-    white-space: nowrap
     padding-right: 40px
+    white-space: nowrap
 
   .progress-bar-wrapper
-    display: inline-block
     position: relative
-    width: 100%
-    max-width: 125px
-    height: 1.2em
-    background-color: #E0E0E0
-    border-radius: 15px
+    display: inline-block
     float: left
-    margin-right: 5px
     overflow: hidden
+    margin-right: 5px
+    max-width: 125px
+    width: 100%
+    height: 1.2em
+    border-radius: 15px
+    background-color: #E0E0E0
 
   .progress-bar-complete
-    height: 100%
     width: 0
+    height: 100%
     background-color: $core-action-normal
     transition: width, $core-time, ease
 
   .progress-bar-text
-    display: inline-block
     position: relative
     right: 0
+    display: inline-block
     width: 30px
     text-align: left
 

@@ -48,11 +48,11 @@
   @require '~kolibri.styles.definitions'
 
   .error-box-wrapper
-    padding: 10px
-    margin-top: 50px
     position: relative
-    background-color: $core-bg-error
+    margin-top: 50px
+    padding: 10px
     border: 1px solid $core-text-error
+    background-color: $core-bg-error
     color: $core-text-error
 
   .hidden
@@ -60,19 +60,19 @@
 
   .close-button
     position: absolute
-    right: 5px
     top: 5px
+    right: 5px
     border: none
 
   .error-box
-    max-height: 300px
-    padding: 5px
-    margin-top: 10px
     overflow: auto
-    font-family: monospace
-    font-size: 10px
+    margin-top: 10px
+    padding: 5px
+    max-height: 300px
     border: 1px solid black
     background-color: white
     color: black
+    font-size: 10px
+    font-family: monospace
 
 </style>

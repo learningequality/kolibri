@@ -68,8 +68,8 @@
 <style lang="stylus" scoped>
 
   .extra-nav
-    font-size: 12px
     min-height: 16px
+    font-size: 12px
 
   .title
     display: inline-block

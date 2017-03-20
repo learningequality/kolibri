@@ -126,18 +126,18 @@
     select
       width: 100%
       height: 40px
-      font-weight: bold
       background-color: transparent
+      font-weight: bold
 
   .add-form
-    width: 300px
-    margin: 0 auto
     display: block
+    margin: 0 auto
     padding: 5px 10px
-    letter-spacing: 0.08em
+    width: 300px
+    height: 30px
     border: none
     border-bottom: 1px solid $core-text-default
-    height: 30px
+    letter-spacing: 0.08em
     &:focus
       outline: none
       border-bottom: 3px solid $core-action-normal

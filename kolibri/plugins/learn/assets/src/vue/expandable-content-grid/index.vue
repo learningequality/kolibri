@@ -104,7 +104,7 @@
   @require '~kolibri.styles.definitions'
 
   .button-wrapper
-    text-align: center
     margin-top: 1em
+    text-align: center
 
 </style>

@@ -142,13 +142,13 @@
   @require '~kolibri.styles.definitions'
 
   .dropdown
-    display: inline-block
     position: relative
+    display: inline-block
 
   .dropdown-button
-    padding: 0.5em
     margin-top: 1em
     margin-bottom: 1em
+    padding: 0.5em
     font-size: smaller
 
   .dropdown-button-text
@@ -161,32 +161,32 @@
       content: '\25b2'
 
   .dropdown-items
-    background-color: white
-    list-style: none
-    padding: 0
+    position: absolute
     margin: 0
     margin-top: -0.8em
-    position: absolute
+    padding: 0
+    background-color: white
+    list-style: none
 
   .dropdown-item
-    padding: 0
-    margin: 0
-    width: 100%
     position: relative
     display: block
+    margin: 0
+    padding: 0
+    width: 100%
 
   .dropdown-item-link
-    padding: 0.5em
-    margin: 0
-    width: 100%
     display: block
+    margin: 0
+    padding: 0.5em
+    width: 100%
     text-decoration: none
     white-space: nowrap
     font-size: smaller
     &:focus
       background-color: $core-action-light
     &:hover
-      background-color: $core-action-light
       outline: $core-action-light 2px solid
+      background-color: $core-action-light
 
 </style>
