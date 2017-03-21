@@ -7,15 +7,9 @@ const Vue = require('kolibri.lib.vue');
 const RootVue = require('./vue');
 const actions = require('./actions');
 const groupActions = require('./group-actions');
+const recentActions = require('./recent-actions');
 const store = require('./state/store');
 const PageNames = require('./state/constants').PageNames;
-
-const RECENT_URL_PATTERN = [
-  ':class_id',
-  '/recent',
-  // ':channel_id'
-].join('/');
-
 
 const REPORTS_URL_PATTERN = [
   ':class_id',
@@ -41,10 +35,17 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.COACH_RECENT_PAGE,
-          path: RECENT_URL_PATTERN,
+          name: PageNames.COACH_RECENT_PAGE_CHANNEL_SELECT,
+          path: '/:classID',
           handler: (toRoute, fromRoute) => {
-            actions.showRecentPage(store, toRoute.params);
+            recentActions.showChannelSelect(store, toRoute.params.classID);
+          },
+        },
+        {
+          name: PageNames.COACH_RECENT_PAGE,
+          path: '/:classID/:channelID',
+          handler: (toRoute, fromRoute) => {
+            recentActions.showReports(store, toRoute.classID, toRoute.channelID);
           },
         },
         {
