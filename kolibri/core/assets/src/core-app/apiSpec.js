@@ -60,9 +60,6 @@ module.exports = {
         contentRenderer: {
           module: require('../vue/content-renderer'),
         },
-        assessmentWrapper: {
-          module: require('../vue/assessment-wrapper'),
-        },
         exerciseAttempts: {
           module: require('../vue/exercise-attempts'),
         },

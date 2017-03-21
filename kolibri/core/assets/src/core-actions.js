@@ -3,6 +3,7 @@ const cookiejs = require('js-cookie');
 const UserKinds = require('./constants').UserKinds;
 const MasteryLoggingMap = require('./constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('./constants').AttemptLoggingMap;
+const InteractionTypes = require('./constants').InteractionTypes;
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 
 const intervalTimer = require('./timer');
@@ -555,7 +556,7 @@ function createMasteryLog(store, masteryLevel, masteryCriterion) {
     totalattempts: 0,
     mastery_criterion: masteryCriterion,
   });
-  masteryLogModel.save(masteryLogModel.attributes).only(
+  return masteryLogModel.save(masteryLogModel.attributes).only(
     samePageCheckGenerator(store),
     (newMasteryLog) => {
       // Update store in case an id has been set.
@@ -619,8 +620,24 @@ function createAttemptLog(store, itemId) {
   store.dispatch('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
 }
 
+const interactionHistoryProperties = [
+  'type',
+  'correct',
+  'answer',
+];
+
 function updateAttemptLogInteractionHistory(store, interaction) {
+  Object.keys(interaction).forEach((key) => {
+    if (interactionHistoryProperties.index(key) === -1) {
+      throw new TypeError(`${key} not allowed for interaction log`);
+    }
+  });
+  if (!interaction.type || !InteractionTypes[interaction.type]) {
+    throw new TypeError('No interaction type, or invalid interaction type specified');
+  }
   store.dispatch('UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY', interaction);
+  // Also update end timestamp on Mastery model.
+  store.dispatch('UPDATE_LOGGING_MASTERY', new Date());
 }
 
 /**
@@ -630,21 +647,39 @@ function initMasteryLog(store, masterySpacingTime, masteryCriterion) {
   if (!store.state.core.logging.mastery.id) {
     // id has not been set on the masterylog state, so this is undefined.
     // Either way, we need to create a new masterylog, with a masterylevel of 1!
-    createMasteryLog(store, 1, masteryCriterion);
+    return createMasteryLog(store, 1, masteryCriterion);
   } else if (store.state.core.logging.mastery.complete &&
     ((new Date() - new Date(store.state.core.logging.mastery.completion_timestamp)) >
       masterySpacingTime)) {
     // The most recent masterylog is complete, and they completed it more than
     // masterySpacingTime time ago!
     // This means we need to level the user up.
-    createMasteryLog(
+    return createMasteryLog(
       store, store.state.core.logging.mastery.mastery_level + 1, masteryCriterion);
   }
+  return Promise.resolve();
 }
 
-function updateMasteryAttemptState(store, currentTime, correct, complete, firstAttempt, hinted) {
+function updateMasteryAttemptState(store, {
+  currentTime,
+  correct,
+  complete,
+  firstAttempt,
+  hinted,
+  answerState,
+  simpleAnswer
+}) {
   store.dispatch('UPDATE_LOGGING_MASTERY', currentTime, correct, firstAttempt, hinted);
-  store.dispatch('UPDATE_LOGGING_ATTEMPT', currentTime, correct, complete, hinted);
+  store.dispatch(
+    'UPDATE_LOGGING_ATTEMPT', {
+      currentTime,
+      correct,
+      firstAttempt,
+      complete,
+      hinted,
+      answerState,
+      simpleAnswer,
+    });
 }
 
 module.exports = {

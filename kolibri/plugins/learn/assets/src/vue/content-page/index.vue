@@ -5,6 +5,7 @@
     <page-header :title="content.title"/>
 
     <content-renderer
+      v-if="!content.assessment"
       v-show="!searchOpen"
       class="content-renderer"
       :id="content.id"
@@ -13,11 +14,27 @@
       :contentId="content.content_id"
       :channelId="channelId"
       :available="content.available"
-      :extraFields="content.extra_fields"/>
+      :extraFields="content.extra_fields">
+      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')">
+        <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
+      </icon-button>
+    </content-renderer>
 
-    <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')">
-      <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
-    </icon-button>
+    <assessment-wrapper
+      v-else
+      v-show="!searchOpen"
+      class="content-renderer"
+      :id="content.id"
+      :kind="content.kind"
+      :files="content.files"
+      :contentId="content.content_id"
+      :channelId="channelId"
+      :available="content.available"
+      :extraFields="content.extra_fields">
+      <icon-button @click="nextContentClicked" v-if="progress >= 1 && showNextBtn" class="next-btn" :text="$tr('nextContent')">
+        <mat-svg class="right-arrow" category="navigation" name="chevron_right"/>
+      </icon-button>
+    </assessment-wrapper>
 
     <p class="page-description">{{ content.description }}</p>
 
@@ -113,6 +130,7 @@
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'download-button': require('kolibri.coreVue.components.downloadButton'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'assessment-wrapper': require('../assessment-wrapper'),
     },
     methods: {
       nextContentClicked() {
@@ -160,12 +178,6 @@
     border-color: #4A8DDC
     color: $core-bg-light
     position: relative
-    top: -62px
-    left: 150px
-    z-index: 10
-    @media screen and (max-width: $medium-breakpoint)
-      top: -10px
-      left: 0
 
   .next-btn:hover svg
     fill: $core-bg-light

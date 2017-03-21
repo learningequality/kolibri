@@ -119,6 +119,50 @@ A special kind of Kolibri Module is dedicated to rendering particular content ty
 
 .. automodule:: kolibri.content.hooks
 
+The ``ContentRendererModule`` class has one required property ``getRendererComponent`` which should return a Vue component that wraps the content rendering code. This component will be passed ``defaultFile`` and ``files`` props, defining the files associated with the piece of content.
+
+.. code-block:: javascript
+
+  {
+    props: [
+      'defaultFile',
+      'files',
+    ]
+  };
+
+In order to log data about users viewing content, the component should emit ``startTracking``, ``updateProgress``, and ``stopTracking`` events, using the Vue ``$emit`` method. ``startTracking`` and ``stopTracking`` are emitted without any arguments, whereas ``updateProgress`` should be emitted with a single value between 0 and 1 representing the current proportion of progress on the content.
+
+.. code-block:: javascript
+
+  this.$emit('startTracking');
+  this.$emit('stopTracking');
+  this.$emit('updateProgress', 0.25);
+
+For content that has assessment functionality two additional props will be passed: ``itemId`` and ``answerState``. ``itemId`` is a unique identifier for that content for a particular question in the assessment, ``answerState`` is passed to prefill an answer (one that has been previously given on an exam, or for a coach to preview a learner's given answers). The answer renderer should also define a ``checkAnswer`` method in its component methods, this method should return an object with the following keys: ``correct``, ``answerState``, and ``simpleAnswer`` - describing the correctness, an object describing the answer that can be used to reconstruct it within the renderer, and a simple, human readable answer. If no valid answer is given, ``null`` should be returned. In addition to the base content renderer events, assessment items can also emit a ``hintTaken`` event to indicate that the user has taken a hint in the assessment, and an ``itemError`` event to indicate that there has been an error in rendering the requested question corresponding to the ``itemId``.
+
+.. code-block:: javascript
+
+  {
+    props: [
+      'defaultFile',
+      'files',
+      'itemId',
+      'answerState',
+    ],
+    methods: {
+      checkAnswer() {
+        return {
+          correct: true,
+          answerState: {
+            answer: 81,
+            working: '3^2 = 3 * 3',
+          },
+          simpleAnswer: '81',
+        };
+      },
+    },
+  };
+
 Shared Core Functionality
 -------------------------
 
