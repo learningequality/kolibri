@@ -53,7 +53,7 @@
     vuex: {
       getters: {
         channels: state => state.pageState.channels,
-        classID: state => state.pageState.classID,
+        classID: state => state.pageState.class_id,
       },
     },
   };
