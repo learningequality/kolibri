@@ -116,20 +116,20 @@
   module.exports = {
     $trNameSpace: 'classEnrollPage',
     $trs: {
-      enrollUsers: 'Enroll Users',
+      enrollUsers: 'Enroll users',
       tableTitle: 'Manage Learners and Coaches in this Class',
       searchText: 'Find a learner or coach...',
       users: 'Users',
       // table info
-      fullName: 'Full Name',
+      fullName: 'Full name',
       username: 'Username',
       role: 'Role',
       learner: 'Learner',
       coach: 'Coach',
       remove: 'Remove',
       // search-related error messages
-      noUsersExist: 'No Users in this Class yet.',
-      allUsersFilteredOut: 'No users match the filter.',
+      noUsersExist: 'No users in this class',
+      allUsersFilteredOut: 'No matching users',
     },
     components: {
       'class-rename-modal': require('./class-rename-modal'),
@@ -220,7 +220,7 @@
   #name-edit-box
     display: inline-block
     cursor: pointer
-    margin: 15px 0 5px 0
+    margin: 15px 0 5px
 
   .name-edit
     float: left
