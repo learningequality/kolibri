@@ -1,8 +1,8 @@
 <template>
 
-  <div id="whole-page">
-    <div id="top-bar">
-      <router-link id="back-btn" :to="backPageLink">
+  <div class="whole-page">
+    <div class="top-bar">
+      <router-link class="back-btn" :to="backPageLink">
         <mat-svg
           class="back svg-back"
           category="navigation"
@@ -13,7 +13,7 @@
         </p>
       </router-link>
     </div>
-    <div id="page-body">
+    <div class="page-body">
       <slot name="body"/>
     </div>
   </div>
@@ -39,21 +39,21 @@
 
   @require '~kolibri.styles.definitions'
 
-  #whole-page
+  .whole-page
     left: 0
     top: 0
     z-index: 100
-    width: 100vw
-    height: 100vh
+    width: 100%
+    height: 100%
     position: fixed
     background-color: $core-bg-canvas
 
-  #top-bar
+  .top-bar
     height: 60px
     background-color: $core-text-default
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
 
-  #back-btn
+  .back-btn
     top: 8px
     left: 28px
     position: relative
@@ -74,10 +74,11 @@
   p
     margin: 0
 
-  #page-body
-    padding: 20px
-    padding-bottom: 40px
-    height: inherit
+  .page-body
+    position: absolute
+    margin-top:60px
+    top: 0
+    bottom: 0
     overflow-y: auto
 
 </style>

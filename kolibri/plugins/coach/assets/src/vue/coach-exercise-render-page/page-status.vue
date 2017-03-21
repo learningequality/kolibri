@@ -102,6 +102,7 @@
 
   .page-status
     background-color: $core-bg-light
+    height: 130px
 
   .user-name-container
     display: block

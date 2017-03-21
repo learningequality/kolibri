@@ -1,7 +1,7 @@
 <template>
 
   <div class="answer-history">
-    <h3>{{ $tr('header') }}</h3>
+    <h3 class="header">{{ $tr('header') }}</h3>
 
     <ul class="history-list">
       <template v-for="(attemptLog, index) in attemptLogs">
@@ -10,12 +10,12 @@
             {{ daysElapsedText(attemptLog.daysElapsed) }}
           </p>
         </li>
-        <li v-else-if="attemptLogs[index -1].daysElapsed != attemptLog.daysElapsed">
+        <li v-else-if="attemptLogs[index - 1].daysElapsed != attemptLog.daysElapsed">
           <p class="item">
             {{ daysElapsedText(attemptLog.daysElapsed) }}
           </p>
         </li>
-        <li @click="setSelected(index)" :class="isSeleteced(index)" class="clickable">
+        <li @click="setSelected(index)" :class="isSelected(index)" class="clickable">
           <div>
             <mat-svg
               v-if="attemptLog.hinted"
@@ -36,7 +36,7 @@
               name="check_circle"
             />
             <h3 class="item">
-              {{ questionText(index+1) }}
+              {{ questionText(index + 1) }}
             </h3>
           </div>
         </li>
@@ -77,9 +77,9 @@
       },
       setSelected(index) {
         this.selectedIndex = index;
-        this.setSelectedAttemptLog(this.attemptLogs[index]);
+        this.setSelectedAttemptLogIndex(index);
       },
-      isSeleteced(index) {
+      isSelected(index) {
         if (this.selectedIndex === index) {
           return 'selected';
         }
@@ -91,7 +91,7 @@
         attemptLogs: state => state.pageState.attemptLogs,
       },
       actions: {
-        setSelectedAttemptLog: actions.setSelectedAttemptLog,
+        setSelectedAttemptLogIndex: actions.setSelectedAttemptLogIndex,
       }
     },
   };
@@ -105,12 +105,18 @@
 
   .answer-history
     background-color: $core-bg-light
-    display: table
+
+  .header
+    margin: 0
+    padding-left: 20px
+    padding-top: 10px
 
   .history-list
     overflow-y: auto
     list-style-type: none
     max-height: inherit
+    margin: 0
+    padding-left: 0
 
   .item
     display: inline-block
@@ -128,13 +134,11 @@
   .svg-correct
     fill: green
 
-  ul
-    padding-left: 0
-
   li
     clear: both
     min-width: 120px
     border-bottom: 2px solid $core-text-disabled
+    padding-left: 20px
 
   .clickable
     cursor: pointer

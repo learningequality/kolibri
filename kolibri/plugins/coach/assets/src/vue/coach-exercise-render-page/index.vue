@@ -3,28 +3,33 @@
   <exercise-detail-view :backPageLink="backPageLink">
     <template slot="text"> {{ backtoText(contentName) }} </template>
     <template slot="body">
-      <page-status
-        class="pure-u-1"
-        :contentName="contentName"
-        :userName="userName"
-        :progress="progress"
-        :assessment="assessment"
-        :date="date"/>
-      <answer-history
-        class="answer-history column pure-u-1-4"
-        :questionHistory="questionHistory"
-      />
-      <div class="column pure-u-3-4">
-        <question-attempt/>
-        <content-renderer
-          class="content-renderer"
-          :id="content.id"
-          :kind="content.kind"
-          :files="content.files"
-          :contentId="content.content_id"
-          :channelId="channelId"
-          :available="content.available"
-          :extraFields="content.extra_fields"/>
+      <div class="page-status-container">
+        <page-status
+          :contentName="contentName"
+          :userName="userName"
+          :progress="progress"
+          :assessment="assessment"
+          :date="date"/>
+      </div>
+      <div class="outer-container">
+        <div class="answer-history-container column">
+          <answer-history
+            :questionHistory="questionHistory"
+          />
+        </div>
+        <div class="exercise-container column">
+          <question-attempt
+            :questionNumber="pageState.selectedAttemptLogIndex + 1"/>
+          <content-renderer
+            class="content-renderer"
+            :id="content.id"
+            :kind="content.kind"
+            :files="content.files"
+            :contentId="content.content_id"
+            :channelId="channelId"
+            :available="content.available"
+            :extraFields="content.extra_fields"/>
+        </div>
       </div>
     </template>
   </exercise-detail-view>
@@ -108,8 +113,22 @@
   .column
     float: left
 
-  .answer-history
-    max-height: 400px
-    margin-top: 10px
+  .page-status-container
+    padding-top: 20px
+    padding-left: 10px
+    padding-right: 10px
+
+  .outer-container
+    display: table-cell
+    height: 100%
+    padding: 10px
+
+  .answer-history-container
+    width: 30%
+    height: 100%
+    overflow-y: auto
+
+  .exercise-container
+    width: 70%
 
 </style>
