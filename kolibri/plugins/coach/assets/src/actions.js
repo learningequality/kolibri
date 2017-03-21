@@ -71,28 +71,6 @@ function showClassListPage(store) {
 
 
 // ================================
-// RECENT ACTIONS
-
-function showRecentPage(store, params) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_RECENT_PAGE);
-  const classCollection = ClassroomResource.getCollection();
-  classCollection.fetch().then(
-    (classes) => {
-      const pageState = {
-        classes,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _coachPageTitle('Coach'));
-    },
-    error => { coreActions.handleApiError(store, error); }
-  );
-}
-
-
-// ================================
 // EXAMS ACTIONS
 
 function showExamsPage(store, params) {
@@ -356,7 +334,6 @@ function setSelectedAttemptLogIndex(store, index) {
 
 module.exports = {
   showClassListPage,
-  showRecentPage,
   showExamsPage,
   showCoachRoot,
   redirectToChannelReport,

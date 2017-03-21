@@ -1,9 +1,8 @@
 const Vuex = require('kolibri.lib.vuex');
 const coreStore = require('kolibri.coreVue.vuex.store');
-const constants = require('./constants');
 
 const initialState = {
-  pageName: constants.PageNames.COACH_CLASS_LIST_PAGE,
+  pageName: '',
   pageState: {},
 };
 
@@ -16,6 +15,9 @@ const mutations = {
   },
   SET_PAGE_NAME(state, pageName) {
     state.pageName = pageName;
+  },
+  SET_CLASS_ID(state, classId) {
+    state.pageState.class_id = classId;
   },
   SET_CHANNEL_ID(state, channelId) {
     state.pageState.channel_id = channelId;
