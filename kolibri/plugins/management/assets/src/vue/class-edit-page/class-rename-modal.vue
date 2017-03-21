@@ -13,7 +13,6 @@
           <core-textbox
             :label="$tr('classname')"
             :aria-label="$tr('classname')"
-            :placeholder="classname"
             v-model="name"
             autocomplete="name"
             autofocus
@@ -80,7 +79,7 @@
     },
     data() {
       return {
-        name: '',
+        name: this.classname,
         errorMessage: '',
       };
     },

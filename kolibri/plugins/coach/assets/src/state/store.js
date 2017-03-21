@@ -1,9 +1,8 @@
 const Vuex = require('kolibri.lib.vuex');
 const coreStore = require('kolibri.coreVue.vuex.store');
-const constants = require('./constants');
 
 const initialState = {
-  pageName: constants.PageNames.COACH_CLASS_LIST_PAGE,
+  pageName: '',
   pageState: {},
 };
 
@@ -11,8 +10,14 @@ const mutations = {
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
+  SET_SELETED_ATTEMPTLOG_INDEX(state, attemptLog) {
+    state.pageState.selectedAttemptLogIndex = attemptLog;
+  },
   SET_PAGE_NAME(state, pageName) {
     state.pageName = pageName;
+  },
+  SET_CLASS_ID(state, classId) {
+    state.pageState.class_id = classId;
   },
   SET_CHANNEL_ID(state, channelId) {
     state.pageState.channel_id = channelId;
@@ -54,15 +59,9 @@ const mutations = {
   SET_MODAL(state, modalName) {
     state.pageState.modalShown = modalName;
   },
-  ADD_GROUP(state, group) {
-    state.pageState.groups.push(group);
-  },
-  UPDATE_GROUP(state, groupId, updatedGroup) {
-    state.pageState.groups.forEach((group, index, arr) => {
-      if (group.id === groupId) {
-        arr[index] = updatedGroup;
-      }
-    });
+
+  SET_GROUPS(state, groups) {
+    state.pageState.groups = groups;
   },
 };
 

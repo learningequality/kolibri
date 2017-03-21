@@ -46,6 +46,7 @@
       'groups-page': require('./groups-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
+      'coach-exercise-render-page': require('./coach-exercise-render-page'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -67,6 +68,9 @@
         }
         if (this.pageName === constants.PageNames.COACH_GROUPS_PAGE) {
           return 'groups-page';
+        }
+        if (this.pageName === constants.PageNames.COACH_EXERCISE_RENDER_PAGE) {
+          return 'coach-exercise-render-page';
         }
         return null;
       },

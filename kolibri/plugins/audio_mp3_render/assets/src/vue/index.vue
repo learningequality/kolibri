@@ -13,17 +13,13 @@
         {{ currentMinutes }} : {{ formattedCurrentSec }}
       </div>
       <input
-        v-if="notIE9"
         ref="timebar"
         class="timeline"
         type="range"
         min="0"
         :max="max"
         :value="displayTime"
-        @change="seekAudio">
-      <!--[if lte IE 9]>
-      <span> / </span>
-      <![endif]-->
+        @change="seekAudio"/>
       <div id="total-time">
         {{ totalMinutes }} : {{ formattedTotalSec }}
       </div>
@@ -87,15 +83,6 @@
 
       formattedTotalSec() {
         return this.formatTime(this.totalSeconds);
-      },
-      notIE9() {
-      // For version of IE 9 and below, hides the seeker due to incompatibility.
-      // This is a short term MVP hack, longer term is to integrate video.js with audio tracks.
-        const ieVersion = parseFloat(window.navigator.appVersion.split('MSIE')[1]);
-        if (ieVersion === 9) {
-          return false;
-        }
-        return true;
       },
     },
 

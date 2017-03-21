@@ -13,7 +13,7 @@ pip install -r requirements/build.txt
 pip install -r requirements/test.txt
 
 # Build .whl
-npm install
+yarn install
 make dist > /dev/null
 pip install dist/kolibri*.whl
 

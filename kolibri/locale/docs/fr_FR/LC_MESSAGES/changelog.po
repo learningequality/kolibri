@@ -1,0 +1,443 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-08 17:35+0000\n"
+"PO-Revision-Date: 2017-03-16 17:16-0400\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: French\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: fr\n"
+"X-Crowdin-File: /release/docs/en/LC_MESSAGES/changelog.po\n"
+"Language: fr_FR\n"
+
+#: ../../../CHANGELOG.rst:4
+msgid "Release Notes"
+msgstr "Notes de version"
+
+#: ../../../CHANGELOG.rst:7
+msgid "DEVELOP"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:9
+msgid "Content Renderers use explicit new API rather than event-based loading"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:10
+msgid "Add search back in"
+msgstr "Rajouter recherche dans"
+
+#: ../../../CHANGELOG.rst:11
+msgid "Improve pipeline for translating plugins"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:12
+msgid "Add Spanish and Swahili translations"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:16
+msgid "0.2.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:18
+msgid "HTML5 app renderer"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:19
+msgid "Vue2 refactor"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:20
+msgid "Webpack build process compatible with plugins outside the kolibri directory"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:21
+msgid "ES2015 transpilation now Bublé instead of Babel"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:22
+msgid "Pin dependencies with Yarn"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:23
+msgid "Improved docs"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:24
+msgid "Log filtering based on users and collections"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:25
+msgid "Wrap all user-facing strings for I18N"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:26
+msgid "Allow plugins to override core components"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:27
+msgid "Client heartbeat for usage tracking"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:28
+msgid "Versioning based on git tags"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:29
+msgid "User sign-up and profile-editing functionality"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:30
+msgid "New log-in page"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:31
+msgid "Update primary layout and navigation"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:32
+msgid "Begin using some keen-ui components"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:33
+msgid "Replace jeet grids with pure.css grids"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:34
+msgid "Add JS-based 'responsive mixin' as alternative to media queries"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:35
+msgid "Rename 'Learn/Explore' to 'Recommended/Topics'"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:36
+msgid "Temporarily remove 'search' functionality"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:37
+msgid "Add authentication for tasks API"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:41
+msgid "0.1.1"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:43
+msgid "Coach reports"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:44
+msgid "Perseus exercise renderer"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:45
+msgid "Exercise mastery visualization"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:46
+msgid "SVG inlining"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:50
+msgid "0.1.0 - MVP"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:52
+msgid "Content downloading"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:53
+msgid "Documentation updates"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:54
+msgid "Setup wizard plugin"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:55
+msgid "Channel switching"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:56
+msgid "Session state and login widget"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:57
+msgid "Content import/export"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:58
+msgid "Task management"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:59
+msgid "User management UI"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:60
+msgid "Learn app styling changes"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:61
+msgid "Tab focus highlights"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:62 ../../../CHANGELOG.rst:105
+msgid "A11Y updates"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:63
+msgid "Modal popups"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:64
+msgid "Channel switching bug fixes"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:65
+msgid "I18N string extraction"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:66
+msgid "Content interaction logging"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:67
+msgid "Drive enumeration"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:68
+msgid "Usage data export"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:69
+msgid "Fuzzy searching"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:70
+msgid "Make modals accessible"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:71
+msgid "Loading 'spinner'"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:72
+msgid "Resource layer smart cache busting"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:73
+msgid "Client-side router bug fixes"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:74
+msgid "Make plugins more self-contained"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:75
+msgid "Case-insensitive usernames"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:76
+msgid "Endpoint indexing into zip files"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:77
+msgid "Asset bundling performance improvements"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:78
+msgid "Conditional (cancelable) JS promises"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:79
+msgid "Improved documentation"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:83
+msgid "0.0.1 - MMVP"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:85
+msgid "Users, Collections, and Roles"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:86
+msgid "Authentication, authorization, permissions"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:87
+msgid "Webpack build pipeline, including linting"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:88
+msgid "Python plugin API with hooks"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:89
+msgid "Django JS Reverse with urls representation in kolibriGlobal object"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:90
+msgid "Automatic inclusion of requirements in a static build"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:91
+msgid "Content endpoints"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:92
+msgid "Learn app and content browsing"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:93
+msgid "Vue.js integration"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:94
+msgid "User management API"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:95
+msgid "Initial VueIntl integration"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:96
+msgid "Video, Document, and MP3 content renderers"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:97
+msgid "Content search"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:98
+msgid "Client-side routing"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:99
+msgid "Content recommendation endpoints"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:100
+msgid "API resource retrieval and caching"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:101
+msgid "Support for multiple content DBs"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:102
+msgid "Stylus/Jeet-based grids"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:103
+msgid "Vuex integration"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:104
+msgid "Cherrypy server"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:106
+msgid "Responsiveness updates"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:107
+msgid "Javascript logging module"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:108
+msgid "Page titles"
+msgstr ""
+
+#~ msgid ""
+#~ "All notable changes to this project "
+#~ "will be documented in this file. "
+#~ "This project adheres to `Semantic "
+#~ "Versioning <http://semver.org/>`_."
+#~ msgstr ""
+
+#~ msgid "*Don’t let your friends dump git logs into CHANGELOGs™*"
+#~ msgstr ""
+
+#~ msgid "`http://keepachangelog.com/ <http://keepachangelog.com/>`_"
+#~ msgstr ""
+
+#~ msgid "[0.0.1] - UNRELEASED"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Please add new stuff chronologically, we"
+#~ " should try chunking up the list "
+#~ "into components at some point"
+#~ msgstr ""
+
+#~ msgid "Added"
+#~ msgstr ""
+
+#~ msgid "Begin development of core auth app."
+#~ msgstr ""
+
+#~ msgid "Add core user types (BaseUser, FacilityUser, DeviceOwner)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Add Collections and Roles, implemented "
+#~ "using a special tree structure for "
+#~ "efficient querying"
+#~ msgstr ""
+
+#~ msgid "Add authentication & authorization backends"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Implement permissions for FacilityUsers by "
+#~ "checking hierarchy relationships"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Adds pipelining and integration for "
+#~ "building frontend assets with webpack "
+#~ "and dynamically serving them in Django."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Updates to  - Users, Collections, and"
+#~ " Roles, mostly to account for "
+#~ "multiple facilities in one database"
+#~ msgstr ""
+
+#~ msgid "Plugin API with hooks, documented and implemented"
+#~ msgstr ""
+
+#~ msgid "Adds Django JS Reverse and loads into kolibriGlobal object"
+#~ msgstr ""
+
+#~ msgid "Creates kolibri.auth API endpoint filtering"
+#~ msgstr ""
+
+#~ msgid "Adds management plugin for managing learners, classrooms, and groups"
+#~ msgstr ""
+
+#~ msgid "Linting of client-side assets during webpack build process"
+#~ msgstr ""
+
+#~ msgid "Changed"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Webpack build process now compatible "
+#~ "with plugins housed outside the kolibri"
+#~ " directory."
+#~ msgstr ""
+
+#~ msgid "ES2015 transpilation now uses Bublé instead of Babel."
+#~ msgstr ""
+

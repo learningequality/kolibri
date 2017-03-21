@@ -99,7 +99,7 @@
         return this.navShown ? this.headerHeight * 4 : 0;
       },
       appBarStyle() {
-        return { paddingLeft: `${this.navWidth + PADDING}px` };
+        return this.mobile ? {} : { paddingLeft: `${this.navWidth + PADDING}px` };
       },
       contentStyle() {
         const style = { top: `${this.headerHeight}px` };
@@ -126,7 +126,6 @@
 
   .app-bar
     height: 64px
-    z-index: 50
     width: 100%
     position: absolute
     top: 0

@@ -19,7 +19,6 @@
           :primary="true"
           @click="openConfirmEnrollmentModal"
           :disabled="selectedUsers.length === 0">
-          <mat-svg category="navigation" name="check"/>
         </icon-button>
       </div>
 
@@ -32,15 +31,19 @@
       :selectedUsers="selectedUsers"/>
 
     <h1>{{ $tr('selectLearners') }} {{ className }}</h1>
-    <p>{{ $tr('showingAllUnassigned') }}</p>
+    <h2 class="subheader-text">{{ $tr('showingAllUnassigned') }}</h2>
 
-    <textbox
-      :placeholder="$tr('searchForUser')"
-      :aria-label="$tr('searchForUser')"
-      v-model="filterInput"
-      type="search"
-      @input="pageNum = 1"
-      class="search-box"/>
+    <div class="toolbar">
+      <div class="search-box" role="search">
+        <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
+        <input
+          :aria-label="$tr('searchForUser')"
+          type="search"
+          v-model="filterInput"
+          :placeholder="$tr('searchForUser')"
+          @input="pageNum = 1">
+      </div>
+    </div>
 
     <ui-switch
       name="showSelectedUsers"
@@ -48,15 +51,13 @@
       v-model="showSelectedUsers"
       class="switch"/>
 
-    <hr>
-
 
     <p v-if="usersNotInClass.length === 0">{{ $tr('noUsersExist') }}</p>
     <p v-else-if="showSelectedUsers && filteredUsers.length === 0">{{ $tr('noUsersSelected') }}</p>
     <p v-else-if="filteredUsers.length === 0">{{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong></p>
 
     <div v-else>
-      <p>
+      <p class="results-text">
         {{ $tr('showing') }} <strong>{{ visibleStartRange }} - {{ visibleEndRange }}</strong>
         {{ $tr('of') }} {{$tr('numLearners', {count: numFilteredUsers}) }}
         <span v-if="filterInput">{{ $tr('thatMatch') }} <strong>"{{ filterInput }}"</strong></span>
@@ -144,11 +145,11 @@
     $trNameSpace: 'management-class-enroll',
     $trs: {
       backToClassDetails: 'Back to class details',
-      enrollSelectedUsers: 'Enroll selected users',
-      selectLearners: 'Select users to enroll in',
+      enrollSelectedUsers: 'Review selected users',
+      selectLearners: 'Choose users to enroll in',
       showingAllUnassigned: 'Showing all users not assigned to this class',
       searchForUser: 'Search for a user',
-      createAndEnroll: 'Or: Create & enroll a brand new user',
+      createAndEnroll: 'Or: create & enroll a brand new user',
       enrollSomeone: `Enroll someone who isn't already a user`,
       createNewUser: 'Create a new user account',
       showing: 'Showing',
@@ -301,6 +302,7 @@
 <style lang="stylus">
 
   .switch
+    margin-top: 20px
     .ui-switch__track
       z-index: 0
 
@@ -313,6 +315,8 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+  
+  $toolbar-height = 36px
 
   .align-right
     text-align: right
@@ -326,9 +330,9 @@
   .pagination
     text-align:center
     padding: 2em
-
-  .search-box
-    max-width: 400px
+    
+  .subheader-text
+    font-weight: normal
 
   table
     width: 100%
@@ -353,5 +357,66 @@
 
   .col-name, .col-username
     width: 45%
+    
+  .results-text
+    font-size: 0.9375rem
+    
+  // @jtamiace: All the following styles below apply to the search bar, and have been copied directly from user-page/index.vue
+  // Will need to be refactored later
+    
+  .toolbar
+    margin-top: 30px
+    
+  .toolbar:after
+    content: ''
+    display: table
+    clear: both
+    
+  input[type='search']
+    display: inline-block
+    box-sizing: border-box
+    position: relative
+    top: 0
+    left: 10px
+    height: 100%
+    width: 85%
+    border-color: transparent
+    background-color: transparent
+    clear: both
+    
+  .search-box .icon
+    display: inline-block
+    float: left
+    position: relative
+    fill: $core-text-annotation
+    left: 5px
+    top: 5px
+
+  .search-box
+    border-radius: 5px
+    padding: inherit
+    border: 1px solid #c0c0c0
+    max-width: 400px
+    height: $toolbar-height
+    float: left
+    
+  @media screen and (min-width: $portrait-breakpoint + 1)
+    .search-box
+      font-size: 0.9em
+      min-width: 170px
+      width: 45%
+    #search-field
+      width: 80%
+      
+  @media print
+    .toolbar
+      display: none
+      
+  @media screen and (max-width: 840px)
+    .search-box
+      font-size: 0.9em
+      width: 100%
+      margin-top: 5px
+      float: right
 
 </style>

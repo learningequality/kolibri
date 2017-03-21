@@ -1,10 +1,12 @@
 const PageNames = {
   COACH_CLASS_LIST_PAGE: 'COACH_CLASS_LIST_PAGE',
   COACH_RECENT_PAGE: 'COACH_RECENT_PAGE',
+  COACH_RECENT_PAGE_CHANNEL_SELECT: 'COACH_RECENT_PAGE_CHANNEL_SELECT',
   COACH_TOPICS_PAGE: 'COACH_TOPICS_PAGE',
   COACH_EXAMS_PAGE: 'COACH_EXAMS_PAGE',
   COACH_LEARNERS_PAGE: 'COACH_LEARNERS_PAGE',
   COACH_GROUPS_PAGE: 'COACH_GROUPS_PAGE',
+  COACH_EXERCISE_RENDER_PAGE: 'COACH_EXERCISE_RENDER_PAGE',
 };
 
 const ContentScopes = {
@@ -43,8 +45,11 @@ const SortOrders = {
   NONE: 'none',
 };
 
-const Modals = {
+const GroupModals = {
   CREATE_GROUP: 'CREATE_GROUP',
+  RENAME_GROUP: 'RENAME_GROUP',
+  DELETE_GROUP: 'DELETE_GROUP',
+  MOVE_LEARNERS: 'MOVE_LEARNERS',
 };
 
 module.exports = {
@@ -55,5 +60,5 @@ module.exports = {
   ViewBy,
   TableColumns,
   SortOrders,
-  Modals,
+  GroupModals,
 };

@@ -16,8 +16,6 @@
         :primary="true"/>
     </div>
 
-    <hr>
-
     <!-- Modals -->
     <class-delete-modal
       v-if="showDeleteClassModal"
@@ -214,7 +212,7 @@
     text-align: inherit
 
   .col-header
-    padding-bottom: (1.2 * $row-padding)
+    padding: (1.2 * $row-padding) 0
     color: $core-text-annotation
     font-weight: normal
     font-size: 80%
