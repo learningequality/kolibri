@@ -111,6 +111,14 @@ class MasteryLogViewSet(viewsets.ModelViewSet):
     filter_class = MasteryFilter
 
 class AttemptFilter(filters.FilterSet):
+    content = filters.django_filters.MethodFilter()
+    user = filters.django_filters.MethodFilter()
+
+    def filter_content(self, queryset, value):
+        return queryset.filter(masterylog__summarylog__content_id=value)
+
+    def filter_user(self, queryset, value):
+        return queryset.filter(masterylog__summarylog__user_id=value)
 
     class Meta:
         model = AttemptLog

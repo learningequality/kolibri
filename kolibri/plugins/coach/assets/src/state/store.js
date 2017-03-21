@@ -11,6 +11,9 @@ const mutations = {
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
   },
+  SET_SELETED_ATTEMPTLOG_INDEX(state, attemptLog) {
+    state.pageState.selectedAttemptLogIndex = attemptLog;
+  },
   SET_PAGE_NAME(state, pageName) {
     state.pageName = pageName;
   },

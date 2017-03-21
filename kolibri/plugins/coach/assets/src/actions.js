@@ -23,6 +23,7 @@ const UserReportResource = new UserReportResourceConstructor(coreApp);
 const ContentReportResource = new ContentReportResourceConstructor(coreApp);
 const UserSummaryResource = new UserSummaryResourceConstructor(coreApp);
 const ContentSummaryResource = new ContentSummaryResourceConstructor(coreApp);
+const AttemptLogResource = coreApp.resources.AttemptLog;
 
 /* find the keys that differ between the old and new params */
 function _diffKeys(newParams, oldParams) {
@@ -42,8 +43,8 @@ function _diffKeys(newParams, oldParams) {
  * Title Helper
  */
 
-function _managePageTitle(title) {
-  return `Manage ${title}`;
+function _coachPageTitle(title) {
+  return `Coach ${title}`;
 }
 
 
@@ -62,7 +63,7 @@ function showClassListPage(store) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Coach'));
+      store.dispatch('CORE_SET_TITLE', _coachPageTitle('Coach'));
     },
     error => { coreActions.handleApiError(store, error); }
   );
@@ -84,7 +85,7 @@ function showRecentPage(store, params) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Coach'));
+      store.dispatch('CORE_SET_TITLE', _coachPageTitle('Coach'));
     },
     error => { coreActions.handleApiError(store, error); }
   );
@@ -106,7 +107,7 @@ function showExamsPage(store, params) {
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Coach'));
+      store.dispatch('CORE_SET_TITLE', _coachPageTitle('Coach'));
     },
     error => { coreActions.handleApiError(store, error); }
   );
@@ -314,6 +315,45 @@ function showContentUnavailable(store) {
 }
 
 
+// - - - - - Action for Coach Exercise Render Page - - - - - -
+
+function _daysElapsed(startTime, endTime) {
+  // one day = 24*60*60*1000 = 86400000
+  return (Date.UTC(startTime.getYear(), startTime.getMonth(), startTime.getDate()) -
+    Date.UTC(endTime.getYear(), endTime.getMonth(), endTime.getDate())) / 86400000;
+}
+
+function showCoachExerciseRenderPage(store, userId, contentId) {
+  const reversedAttemptLogs = [];
+  const today = new Date();
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_EXERCISE_RENDER_PAGE);
+  AttemptLogResource.getCollection({
+    user: userId, content: contentId
+  }).fetch().then(
+    attemptLogs => {
+      attemptLogs.forEach((attemptLog) => {
+        attemptLog.daysElapsed = _daysElapsed(today, new Date(attemptLog.end_timestamp));
+        // use unshift because the original array is in reversed order.
+        reversedAttemptLogs.unshift(attemptLog);
+      });
+      const pageState = {
+        attemptLogs: reversedAttemptLogs,
+        selectedAttemptLogIndex: 0,
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_TITLE', _coachPageTitle('Exercise Detail View'));
+    },
+    error => { coreActions.handleApiError(store, error); }
+  );
+}
+
+function setSelectedAttemptLogIndex(store, index) {
+  store.dispatch('SET_SELETED_ATTEMPTLOG_INDEX', index);
+}
+
+
 module.exports = {
   showClassListPage,
   showRecentPage,
@@ -323,4 +363,6 @@ module.exports = {
   redirectToDefaultReport,
   showReport,
   showContentUnavailable,
+  showCoachExerciseRenderPage,
+  setSelectedAttemptLogIndex,
 };
