@@ -47,7 +47,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     thumbnail = serializers.SerializerMethodField()
     progress_fraction = serializers.SerializerMethodField()
     next_content = serializers.SerializerMethodField()
-    assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True)
+    assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
 
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
