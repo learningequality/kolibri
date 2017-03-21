@@ -19,7 +19,7 @@
   const groupActions = require('../../group-actions');
 
   module.exports = {
-    $trNameSpace: 'confirm-enrollment-modal',
+    $trNameSpace: 'delete-group-modal',
     $trs: {
       deleteLearnerGroup: 'Delete Learner Group',
       areYouSure: 'Are you sure you want to delete <strong>{ groupName }</strong>?',

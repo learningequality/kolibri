@@ -29,7 +29,7 @@
   const groupActions = require('../../group-actions');
 
   module.exports = {
-    $trNameSpace: 'confirm-enrollment-modal',
+    $trNameSpace: 'rename-group-modal',
     $trs: {
       renameLearnerGroup: 'Rename Learner Group',
       learnerGroupName: 'Learner Group Name',
