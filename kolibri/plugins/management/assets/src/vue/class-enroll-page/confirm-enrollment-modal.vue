@@ -97,9 +97,9 @@
   .review-enroll-ul
     list-style: none
     margin: 20px 0
-  
+
   .review-enroll-li
-    line-height: 1.8em  
+    line-height: 1.8em
 
   .header
     text-align: center
