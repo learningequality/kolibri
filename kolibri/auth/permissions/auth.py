@@ -125,3 +125,21 @@ class IsAdminForOwnFacilityDataset(BasePermissions):
             return queryset.filter(id=user.dataset_id)
         else:
             return queryset.none()
+
+class CoachesCanManageGroupsForTheirClasses(BasePermissions):
+    def user_can_create_object(self, user, obj):
+        if obj.kind != GROUP:
+            return False
+        return True
+        # classroom = obj.collection_set.parent()
+        # return self._user_is_admin_for_related_facility(COACH, classroom)
+
+
+    def user_can_read_object(self, user, obj):
+        return True
+
+    def user_can_update_object(self, user, obj):
+        return True
+
+    def user_can_delete_object(self, user, obj):
+        return True

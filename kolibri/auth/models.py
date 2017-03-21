@@ -46,7 +46,7 @@ from .errors import (
 from .filters import HierarchyRelationsFilter
 from .permissions.auth import (
     AnybodyCanCreateIfNoDeviceOwner, AnybodyCanCreateIfNoFacility, CollectionSpecificRoleBasedPermissions,
-    AnonUserCanReadFacilitiesThatAllowSignUps, IsAdminForOwnFacilityDataset
+    AnonUserCanReadFacilitiesThatAllowSignUps, IsAdminForOwnFacilityDataset, CoachesCanManageGroupsForTheirClasses
 )
 from .permissions.base import BasePermissions, RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
@@ -614,7 +614,8 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
         IsFromSameFacility(read_only=True) |
         CollectionSpecificRoleBasedPermissions() |
         AnybodyCanCreateIfNoFacility() |
-        AnonUserCanReadFacilitiesThatAllowSignUps()
+        AnonUserCanReadFacilitiesThatAllowSignUps() |
+        CoachesCanManageGroupsForTheirClasses()
     )
 
     _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
