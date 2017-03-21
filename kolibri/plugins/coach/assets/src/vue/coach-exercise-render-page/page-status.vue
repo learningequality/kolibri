@@ -21,11 +21,11 @@
     </div>
     <div class="column pure-u-1-4">
       <div class="inner-column">
-        <progress-icon class="svg-icon" :progress="progress"/>
-        <strong> {{ $tr('mastered') }} </strong>
-        <br>
-        <br>
-        {{ dateText(date) }}
+        <div>
+          <progress-icon class="svg-icon" :progress="progress"/>
+          <strong> {{ $tr('mastered') }} </strong>
+        </div>
+        <p>{{ dateText(date) }}</p>
       </div>
     </div>
   </div>

@@ -112,7 +112,6 @@
     padding-top: 10px
 
   .history-list
-    overflow-y: auto
     list-style-type: none
     max-height: inherit
     margin: 0

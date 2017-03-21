@@ -75,6 +75,7 @@
     margin: 0
 
   .page-body
+    width: 100%
     position: absolute
     margin-top:60px
     top: 0

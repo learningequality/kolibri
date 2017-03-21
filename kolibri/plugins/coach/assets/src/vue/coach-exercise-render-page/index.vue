@@ -121,6 +121,7 @@
   .outer-container
     display: table-cell
     height: 100%
+    width: 1%
     padding: 10px
 
   .answer-history-container
