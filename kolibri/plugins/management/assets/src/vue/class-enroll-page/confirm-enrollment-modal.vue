@@ -3,8 +3,8 @@
   <core-modal :title="$tr('confirmEnrollment')" @cancel="close" class="confirm-modal">
     <div>
       <p>{{ $tr('areYouSure') }} <strong>{{ className }}</strong>?</p>
-      <ul>
-        <li v-for="userId in selectedUsers"><strong>{{ getUsername(userId) }}</strong></li>
+      <ul class="review-enroll-ul">
+        <li class="review-enroll-li" v-for="userId in selectedUsers"><strong>{{ getUsername(userId) }}</strong></li>
       </ul>
       <div>
         <icon-button
@@ -94,11 +94,12 @@
 
 <style lang="stylus" scoped>
 
-  ul
+  .review-enroll-ul
     list-style: none
     margin: 20px 0
-    li
-      line-height: 1.8em  
+  
+  .review-enroll-li
+    line-height: 1.8em  
 
   .header
     text-align: center

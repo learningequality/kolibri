@@ -31,7 +31,7 @@
       :selectedUsers="selectedUsers"/>
 
     <h1>{{ $tr('selectLearners') }} {{ className }}</h1>
-    <p>{{ $tr('showingAllUnassigned') }}</p>
+    <h2 class="subheader-text">{{ $tr('showingAllUnassigned') }}</h2>
 
     <div class="toolbar">
       <div class="search-box" role="search">
@@ -146,8 +146,8 @@
     $trs: {
       backToClassDetails: 'Back to class details',
       enrollSelectedUsers: 'Review Selected Users',
-      selectLearners: 'Choose Users to enroll in',
-      showingAllUnassigned: 'Showing all Users not assigned to this class',
+      selectLearners: 'Choose users to enroll in',
+      showingAllUnassigned: 'Showing all users not assigned to this class',
       searchForUser: 'Search for a user',
       createAndEnroll: 'Or: Create & enroll a brand new user',
       enrollSomeone: `Enroll someone who isn't already a user`,
@@ -330,6 +330,9 @@
   .pagination
     text-align:center
     padding: 2em
+    
+  .subheader-text
+    font-weight: normal
 
   table
     width: 100%
@@ -357,6 +360,9 @@
     
   .results-text
     font-size: 0.9375rem
+    
+  // @jtamiace: All the following styles below apply to the search bar, and have been copied directly from user-page/index.vue
+  // Will need to be refactored later
     
   .toolbar
     margin-top: 30px
