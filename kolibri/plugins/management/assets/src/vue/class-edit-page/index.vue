@@ -14,12 +14,10 @@
       <mat-svg id="edit-icon" class="name-edit" category="image" name="edit" aria-hidden="true"/>
     </div>
 
-    <hr>
-
     <div class="header">
-      <h1>
+      <h2 class="table-title">
         {{$tr('tableTitle')}}
-      </h1>
+      </h2>
     </div>
 
     <div class="toolbar">
@@ -43,8 +41,6 @@
       </div>
 
     </div>
-
-    <hr>
 
     <!-- Modals -->
     <user-remove-modal
@@ -103,8 +99,8 @@
 
     </table>
 
-    <p v-if="noUsersExist">{{ $tr('noUsersExist') }}</p>
-    <p v-if="allUsersFilteredOut">{{ $tr('allUsersFilteredOut') }}</p>
+    <p class="empty-list" v-if="noUsersExist">{{ $tr('noUsersExist') }}</p>
+    <p class="empty-list" v-if="allUsersFilteredOut">{{ $tr('allUsersFilteredOut') }}</p>
 
   </div>
 
@@ -120,20 +116,20 @@
   module.exports = {
     $trNameSpace: 'classEnrollPage',
     $trs: {
-      enrollUsers: 'Enroll Users',
-      tableTitle: 'Manage Learners and Coaches',
+      enrollUsers: 'Enroll users',
+      tableTitle: 'Manage Learners and Coaches in this class',
       searchText: 'Find a learner or coach...',
       users: 'Users',
       // table info
-      fullName: 'Full Name',
+      fullName: 'Full name',
       username: 'Username',
       role: 'Role',
       learner: 'Learner',
       coach: 'Coach',
       remove: 'Remove',
       // search-related error messages
-      noUsersExist: 'No Users Exist.',
-      allUsersFilteredOut: 'No users match the filter.',
+      noUsersExist: 'No users in this class',
+      allUsersFilteredOut: 'No matching users',
     },
     components: {
       'class-rename-modal': require('./class-rename-modal'),
@@ -217,23 +213,25 @@
   @require '~kolibri.styles.definitions'
 
   // Padding height that separates rows from eachother
-  $row-padding = 1.5em
+  $row-padding = 1.8em
   // height of elements in toolbar,  based off of icon-button height
   $toolbar-height = 36px
 
   #name-edit-box
     display: inline-block
     cursor: pointer
+    margin: 15px 0 5px
 
   .name-edit
     float: left
 
   #edit-name
-    font-size: 1.4em
+    font-size: 1.5em
+    font-weight: bold
 
   #edit-icon
     fill: $core-action-normal
-    margin-left: 5px
+    margin: 2px 0 0 5px
 
   .toolbar:after
     content: ''
@@ -245,6 +243,10 @@
 
   .enroll
     float: right
+    
+  .empty-list
+    color: $core-text-annotation
+    margin-left: 10px
 
   input[type='search']
     display: inline-block
@@ -258,8 +260,9 @@
     background-color: transparent
     clear: both
 
-  .header h1
+  .header h2
     display: inline-block
+    font-weight: normal
 
   hr
     background-color: $core-text-annotation
@@ -278,6 +281,7 @@
   .roster
     width: 100%
     word-break: break-all
+    margin-top: 20px
 
   th
     text-align: inherit
@@ -294,7 +298,7 @@
     margin-right: 4px
 
   .col-header
-    padding-bottom: (1.2 * $row-padding)
+    padding-bottom: (0.7 * $row-padding)
     color: $core-text-annotation
     font-weight: normal
     font-size: 80%
@@ -304,14 +308,8 @@
     color: $core-text-default
 
   .user-role
-    background-color: $core-text-annotation
-    color: $core-bg-light
-    padding-left: 1em
-    padding-right: 1em
-    border-radius: 40px
-    font-size: 0.875em
+    color: $core-text-default
     display: inline-block
-    text-transform: capitalize
     white-space: nowrap
 
   .searchbar .icon
@@ -329,7 +327,6 @@
     width: 300px
     height: $toolbar-height
     float: left
-    margin-left: 5px
 
   @media screen and (min-width: $portrait-breakpoint + 1)
     .searchbar
