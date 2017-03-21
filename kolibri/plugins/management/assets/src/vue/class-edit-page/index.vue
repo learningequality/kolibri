@@ -117,7 +117,7 @@
     $trNameSpace: 'classEnrollPage',
     $trs: {
       enrollUsers: 'Enroll users',
-      tableTitle: 'Manage Learners and Coaches in this Class',
+      tableTitle: 'Manage Learners and Coaches in this class',
       searchText: 'Find a learner or coach...',
       users: 'Users',
       // table info
