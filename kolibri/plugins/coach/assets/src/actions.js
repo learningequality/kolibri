@@ -460,7 +460,7 @@ function showCoachExerciseRenderPage(store, userId, contentId) {
       });
       const pageState = {
         attemptLogs: reversedAttemptLogs,
-        selectedAttemptLog: reversedAttemptLogs[0],
+        selectedAttemptLogIndex: 0,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -470,8 +470,8 @@ function showCoachExerciseRenderPage(store, userId, contentId) {
   );
 }
 
-function setSelectedAttemptLog(store, attemptLog) {
-  store.dispatch('SET_SELETED_ATTEMPTLOG', attemptLog);
+function setSelectedAttemptLogIndex(store, index) {
+  store.dispatch('SET_SELETED_ATTEMPTLOG_INDEX', index);
 }
 
 
@@ -492,5 +492,5 @@ module.exports = {
   showReport,
   showContentUnavailable,
   showCoachExerciseRenderPage,
-  setSelectedAttemptLog,
+  setSelectedAttemptLogIndex,
 };

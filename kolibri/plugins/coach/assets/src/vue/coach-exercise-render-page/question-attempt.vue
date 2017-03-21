@@ -1,7 +1,17 @@
 <template>
 
   <div class="question-attempt">
-    <h3>{{ $tr('header') }}</h3>
+    <h3 class="header left-pad">{{ attemptsText(questionNumber) }}</h3>
+    <p class="left-pad">{{ currAnswerText(selectedIndex) }}</p>
+    <div class="box-container left-pad">
+      <template v-for="(interaction, index) in interaction_history">
+        <attempt-box
+          class="box"
+          @click.native="setSelected(index)"
+          :selected="isSelected(index)"
+          :interaction="interaction"/>
+      </template>
+    </div>
   </div>
 
 </template>
@@ -12,22 +22,52 @@
   module.exports = {
     $trNameSpace: 'CoachExerciseQuestionAttempt',
     $trs: {
-      header: 'Question attempt',
+      attempts: 'Question {number} attempts',
+      currAnswer: '{number} answer',
     },
-    // components: {
-    //   'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
-    //   'page-status': require('./page-status'),
-    //   'answer-history': require('./answer-history'),
-    //   'question-attempt': require('./question-attempt'),
-    // },
-    computed: {
-      channelId() {
-        return '78eed5c0b59b30c0a40c94c17c849af6';
+    components: {
+      'attempt-box': require('./attempt-box'),
+    },
+    props: {
+      questionNumber: {
+        type: Number,
+        required: true,
+      },
+    },
+    data: () => ({
+      selectedIndex: 0,
+    }),
+    methods: {
+      attemptsText(number) {
+        return this.$tr('attempts', { number });
+      },
+      currAnswerText(number) {
+        return this.$tr('currAnswer', { number });
+      },
+      setSelected(index) {
+        this.selectedIndex = index;
+      },
+      isSelected(index) {
+        return this.selectedIndex === index;
       },
     },
     vuex: {
       getters: {
-        pageState: state => state.pageState,
+        // fake data for testing
+        interaction_history: () => [
+          {
+            correct: 1,
+            hinted: false,
+          },
+          {
+            correct: 0,
+            hinted: false,
+          },
+          {
+            correct: 0,
+            hinted: true,
+          },
+        ],
       },
     },
   };
@@ -37,7 +77,26 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   .question-attempt
-    background-color: yellow
+    background-color: $core-bg-light
+    height: 150px
+
+  .header
+    margin-top: 0
+    padding-top: 10px
+
+  .box-container
+    margin-top: 4px
+    display: inline-block
+
+  .left-pad
+    padding-left: 20px
+
+  .box
+    float: left
+    margin-right: 10px
+    cursor: pointer
 
 </style>
