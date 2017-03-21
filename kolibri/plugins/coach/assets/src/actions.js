@@ -315,7 +315,6 @@ function showContentUnavailable(store) {
 }
 
 
-
 // - - - - - Action for Coach Exercise Render Page - - - - - -
 
 function _daysElapsed(startTime, endTime) {
