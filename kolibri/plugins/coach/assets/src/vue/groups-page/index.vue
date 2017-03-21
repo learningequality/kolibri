@@ -44,8 +44,8 @@
 
 <script>
 
-  const groupActions = require('../../group-actions');
-  const GroupModals = require('../../state/constants').GroupModals;
+  const groupActions = require('../../vuex/actions/group');
+  const GroupModals = require('../../constants').GroupModals;
   const differenceWith = require('lodash.differencewith');
 
   module.exports = {

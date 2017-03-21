@@ -49,7 +49,7 @@
 
 <script>
 
-  const actions = require('../../actions');
+  const actions = require('../../vuex/actions/main');
 
   module.exports = {
     $trNameSpace: 'CoachExerciseAnswerHistory',

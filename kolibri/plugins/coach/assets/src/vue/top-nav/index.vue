@@ -26,7 +26,7 @@
 <script>
 
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
-  const constants = require('../../state/constants');
+  const constants = require('../../constants');
 
   module.exports = {
     $trNameSpace: 'top-nav',

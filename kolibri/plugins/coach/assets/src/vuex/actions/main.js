@@ -2,13 +2,13 @@ const coreActions = require('kolibri.coreVue.vuex.actions');
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const router = require('kolibri.coreVue.router');
-const Constants = require('./state/constants');
+const Constants = require('../../constants');
 
-const RecentReportResourceConstructor = require('./apiResources/recentReport');
-const UserReportResourceConstructor = require('./apiResources/userReport');
-const ContentReportResourceConstructor = require('./apiResources/contentReport');
-const UserSummaryResourceConstructor = require('./apiResources/userSummary');
-const ContentSummaryResourceConstructor = require('./apiResources/contentSummary');
+const RecentReportResourceConstructor = require('../../apiResources/recentReport');
+const UserReportResourceConstructor = require('../../apiResources/userReport');
+const ContentReportResourceConstructor = require('../../apiResources/contentReport');
+const UserSummaryResourceConstructor = require('../../apiResources/userSummary');
+const ContentSummaryResourceConstructor = require('../../apiResources/contentSummary');
 
 const logging = require('kolibri.lib.logging');
 const values = require('lodash.values');

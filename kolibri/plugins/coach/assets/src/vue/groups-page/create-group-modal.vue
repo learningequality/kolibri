@@ -28,7 +28,7 @@
 
 <script>
 
-  const groupActions = require('../../group-actions');
+  const groupActions = require('../../vuex/actions/group');
 
   module.exports = {
     $trNameSpace: 'confirm-enrollment-modal',

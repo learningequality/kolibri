@@ -1,7 +1,7 @@
 const coreApp = require('kolibri');
-const RecentReportResourceConstructor = require('./apiResources/recentReport');
+const RecentReportResourceConstructor = require('../../apiResources/recentReport');
 const coreActions = require('kolibri.coreVue.vuex.actions');
-const Constants = require('./state/constants');
+const Constants = require('../../constants');
 
 const RecentReportResource = new RecentReportResourceConstructor(coreApp);
 const ChannelResource = coreApp.resources.ChannelResource;

@@ -1,7 +1,7 @@
 const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const Constants = require('./state/constants');
+const Constants = require('../../constants');
 
 const LearnerGroupResource = coreApp.resources.LearnerGroupResource;
 const MembershipResource = coreApp.resources.MembershipResource;

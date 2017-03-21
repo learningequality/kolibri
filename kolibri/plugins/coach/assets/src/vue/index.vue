@@ -24,8 +24,8 @@
 
 <script>
 
-  const store = require('../state/store');
-  const constants = require('../state/constants');
+  const store = require('../vuex/store');
+  const constants = require('../constants');
   const isCoachAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isCoachAdminOrSuperuser;
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 

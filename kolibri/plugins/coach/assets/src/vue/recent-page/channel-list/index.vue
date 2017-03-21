@@ -31,7 +31,7 @@
 
 <script>
 
-  const PageNames = require('../../../state/constants').PageNames;
+  const PageNames = require('../../../constants').PageNames;
 
   module.exports = {
     name: 'channelList',
