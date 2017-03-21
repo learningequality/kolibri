@@ -64,7 +64,7 @@ extract$trs.prototype.apply = function(compiler) {
               var msgId = messageNameSpace + '.' + key;
               if (messageExport[msgId]) {
                 // Warn about duplicate ids *within* a bundle (no way to warn across).
-                logging.warn('Duplicate translation id ' + msgId + ' found in ' + module.resource)
+                logging.error('Duplicate translation id ' + msgId + ' found in ' + module.resource)
               } else {
                 // If all is good, save it onto our export object for the whole bundle.
                 messageExport[msgId] = messages[key];
@@ -72,7 +72,7 @@ extract$trs.prototype.apply = function(compiler) {
             });
             // Someone defined a $trs object, but didn't namespace it - warn them about it here so they can fix their foolishness.
           } else if (Object.keys(messages).length) {
-            logging.warn('Translatable messages have been defined in ' + module.resource + ' but no messageNameSpace was specified.');
+            logging.error('Translatable messages have been defined in ' + module.resource + ' but no messageNameSpace was specified.');
           }
         }
       });
