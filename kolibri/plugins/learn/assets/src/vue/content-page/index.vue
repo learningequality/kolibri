@@ -162,7 +162,6 @@
     position: relative
     top: -62px
     left: 150px
-    z-index: 10
     @media screen and (max-width: $medium-breakpoint)
       top: -10px
       left: 0

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-02-13 18:32+0000\n"
-"PO-Revision-Date: 2017-02-28 20:07-0500\n"
+"PO-Revision-Date: 2017-03-16 17:16-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -14,44 +14,44 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: es-ES\n"
-"X-Crowdin-File: /develop/docs/en/LC_MESSAGES/index.po\n"
+"X-Crowdin-File: /release/docs/en/LC_MESSAGES/index.po\n"
 "Language: es_ES\n"
 
 #: ../../index.rst:2
 msgid "Getting Started"
-msgstr ""
+msgstr "Para empezar"
 
 #: ../../../README.rst:3
 msgid "Kolibri"
-msgstr ""
+msgstr "Kolibri"
 
 #: ../../../README.rst:16
 msgid "What is Kolibri?"
-msgstr ""
+msgstr "¿Qué es Kolibri?"
 
 #: ../../../README.rst:18
 msgid "Kolibri is a Learning Management System / Learning App designed to run on low-power devices, targeting the needs of learners and teachers in contexts with limited infrastructure. A user can install Kolibri and serve the app on a local network, without an internet connection. Kolibri installations can be linked to one another, so that user data and content can be shared. Users can create content for Kolibri and share it when there is network access to another Kolibri installation or the internet."
-msgstr ""
+msgstr "Kolibri es un Sistema de Gestión de Aprendizaje / Aplicación de Aprendizaje, desarrollada para funcionar en dispositivos con bajas especificaciones, apuntando a las necesidades de alumnos y maestros en contextos de infraestructura limitada. Un usuario puede instalar Kolibri y distribuir la aplicación en una red de área local, sin una conexión a internet. Las instalaciones de Kolibri pueden enlazarse a otras, para que los datos de usuarios y contenidos puedan ser compartidos. Los usuarios pueden crear contenido para Kolibri y compartirlo cuando haya acceso de red a otra instalación de Kolibri."
 
 #: ../../../README.rst:24
 msgid "At its core, Kolibri is about serving educational content. A typical user (called a Learner) will log in to Kolibri to consume educational content (videos, documents, other multimedia) and test their understanding of the content by completing exercises and quizzes, with immediate feedback. A user’s activity will be tracked to offer individualized insight (like \"next lesson\" recommendations), and to allow user data to be synced across different installations -- thus a Kolibri learner can use his or her credentials on any linked Kolibri installation, for instance on different devices at a school."
-msgstr ""
+msgstr "En esencia, Kolibri trata sobre distribuir contenido educativo. Un usuario típico (llamado Alumno) iniciará sesión para consumir ese contenido (videos, documentos, medios) y realizará pruebas sobre su aprendizaje del contenido al completar ejercicios y cuestionarios, con resultados inmediatos. La actividad del usuario puede ser monitoreada para ofrecer análisis individuales (como las recomendaciones de \"siguiente lección\"), y para que los datos del usuario se sincronicen a través de diferentes instalaciones -- por lo tanto, un alumno de Kolibri puede usar sus credenciales en cualquier instalación enlazada, por ejemplo, en diferentes dispositivos de una escuela."
 
 #: ../../../README.rst:31
 msgid "See https://learningequality.org/kolibri/ for more info."
-msgstr ""
+msgstr "Entra a https://learningequality.org/kolibri/ para más información."
 
 #: ../../../README.rst:35
 msgid "How can I use it?"
-msgstr ""
+msgstr "¿Cómo puedo usarlo?"
 
 #: ../../../README.rst:37
 msgid "Kolibri is under active development and is not yet ready to be used. In the meantime, take a look at `KA-Lite <https://learningequality.org/kolibri/>`_, Kolibri's predecessor which is already deployed around the world."
-msgstr ""
+msgstr "Actualmente, Kolibri se encuentra en desarrollo y aún no está listo para ser utilizado. Mientras tanto, echa un vistazo a `KA-Lite<https://learningequality.org/kolibri/>`_, el predecesor de Kolibri que ya fue implementado en todo el mundo."
 
 #: ../../../README.rst:41
 msgid "How can I contribute?"
-msgstr ""
+msgstr "¿Cómo puedo contribuir?"
 
 #: ../../../README.rst:44
 msgid "We welcome new contributors but since **Kolibri** is still in development, the API is not yet completely ready to integrate external plugins. Please start by:"

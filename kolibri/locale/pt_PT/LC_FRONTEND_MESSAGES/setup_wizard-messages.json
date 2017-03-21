@@ -1,0 +1,12 @@
+{
+  "setupWizard.header":"Criar proprietário e instalações do dispositivo",
+  "setupWizard.deviceOwner":"Proprietário do dispositivo",
+  "setupWizard.deviceOwnerDescription":"Antes de usar o Kolibri é necessário criar um Proprietário do dispositivo. Esta conta será usada para configurar definições de alto nível para estas instalações e para criar outras contas de administrador",
+  "setupWizard.username":"Nome de utilizador",
+  "setupWizard.password":"Palavra-passe",
+  "setupWizard.confirmPassword":"Confirmar palavra-passe",
+  "setupWizard.facility":"Instalações",
+  "setupWizard.facilityDescription":"É também necessário criar Instalações, ou seja, a sua escolha, centro de formação ou outra localização de instalação",
+  "setupWizard.facilityName":"Nome das instalações",
+  "setupWizard.getStarted":"Criar e começar"
+}

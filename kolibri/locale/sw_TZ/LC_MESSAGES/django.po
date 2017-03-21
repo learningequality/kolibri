@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-21 23:11+0000\n"
-"PO-Revision-Date: 2017-02-28 20:07-0500\n"
+"POT-Creation-Date: 2017-03-08 17:35+0000\n"
+"PO-Revision-Date: 2017-03-16 17:16-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Swahili, Tanzania\n"
 "Language: sw_TZ\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: sw-TZ\n"
-"X-Crowdin-File: /develop/en/LC_MESSAGES/django.po\n"
+"X-Crowdin-File: /release/en/LC_MESSAGES/django.po\n"
 
 #: kolibri/auth/constants/collection_kinds.py:12
 msgid "Facility"
@@ -25,8 +25,8 @@ msgid "Classroom"
 msgstr "Darasa"
 
 #: kolibri/auth/constants/collection_kinds.py:14
-msgid "LearnerGroup"
-msgstr "Kundi la wanafunzi"
+msgid "Learner group"
+msgstr ""
 
 #: kolibri/auth/constants/role_kinds.py:10
 msgid "Admin"
@@ -41,8 +41,8 @@ msgid "username"
 msgstr "jina la mtumiaji"
 
 #: kolibri/auth/models.py:159
-msgid "Required. 30 characters or fewer. Letters and digits only."
-msgstr "Inahitajika. Herufi 30 au pungufu. Herufi na tarakimu tu."
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr ""
 
 #: kolibri/auth/models.py:163
 msgid "Enter a valid username. This value may contain only letters and numbers."
@@ -56,23 +56,23 @@ msgstr "jina kamili"
 msgid "date joined"
 msgstr "tarehe ya kujiunga"
 
-#: kolibri/auth/serializers.py:40 kolibri/auth/serializers.py:68
-msgid "An account with that username already exists."
-msgstr "Akaunti na jina hilo la mtumiaji tayari ipo."
+#: kolibri/auth/serializers.py:27
+msgid "An account with that username already exists"
+msgstr ""
 
 #: kolibri/content/models.py:215
-msgid "Unknown Format"
-msgstr "Muundo halijulikani"
+msgid "Unknown format"
+msgstr ""
 
 #: kolibri/core/templates/kolibri/base.html:11
 msgid "Kolibri"
 msgstr "Kolibri"
 
 #: kolibri/plugins/management/kolibri_plugin.py:29
-msgid "Management!"
-msgstr "Usimamizi!"
+msgid "Management"
+msgstr "Usimamizi"
 
-#: kolibri/tasks/api.py:82
-msgid "The requested channel does not exist on the content server."
-msgstr "Channel ilioombwa haipo kwenye seva ya yaliyomo."
+#: kolibri/tasks/api.py:86
+msgid "The requested channel does not exist on the content server"
+msgstr ""
 

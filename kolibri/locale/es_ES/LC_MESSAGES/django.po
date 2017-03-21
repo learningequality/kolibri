@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-21 23:11+0000\n"
-"PO-Revision-Date: 2017-02-28 20:07-0500\n"
+"POT-Creation-Date: 2017-03-08 17:35+0000\n"
+"PO-Revision-Date: 2017-03-16 17:16-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: es-ES\n"
-"X-Crowdin-File: /develop/en/LC_MESSAGES/django.po\n"
+"X-Crowdin-File: /release/en/LC_MESSAGES/django.po\n"
 
 #: kolibri/auth/constants/collection_kinds.py:12
 msgid "Facility"
@@ -25,8 +25,8 @@ msgid "Classroom"
 msgstr "Clase"
 
 #: kolibri/auth/constants/collection_kinds.py:14
-msgid "LearnerGroup"
-msgstr "Grupo de Alumnos"
+msgid "Learner group"
+msgstr ""
 
 #: kolibri/auth/constants/role_kinds.py:10
 msgid "Admin"
@@ -41,8 +41,8 @@ msgid "username"
 msgstr "nombre de usuario"
 
 #: kolibri/auth/models.py:159
-msgid "Required. 30 characters or fewer. Letters and digits only."
-msgstr "Requerido. 30 caracteres o menos. Solamente letras y dígitos."
+msgid "Required. 30 characters or fewer. Letters and digits only"
+msgstr ""
 
 #: kolibri/auth/models.py:163
 msgid "Enter a valid username. This value may contain only letters and numbers."
@@ -56,23 +56,23 @@ msgstr "nombre completo"
 msgid "date joined"
 msgstr "fecha de registró"
 
-#: kolibri/auth/serializers.py:40 kolibri/auth/serializers.py:68
-msgid "An account with that username already exists."
-msgstr "Ya existe una cuenta con ese nombre."
+#: kolibri/auth/serializers.py:27
+msgid "An account with that username already exists"
+msgstr ""
 
 #: kolibri/content/models.py:215
-msgid "Unknown Format"
-msgstr "Formato desconocido"
+msgid "Unknown format"
+msgstr ""
 
 #: kolibri/core/templates/kolibri/base.html:11
 msgid "Kolibri"
 msgstr "Kolibri"
 
 #: kolibri/plugins/management/kolibri_plugin.py:29
-msgid "Management!"
+msgid "Management"
 msgstr "Gestión"
 
-#: kolibri/tasks/api.py:82
-msgid "The requested channel does not exist on the content server."
-msgstr "El canal solicitado no existe en el servidor de contenido."
+#: kolibri/tasks/api.py:86
+msgid "The requested channel does not exist on the content server"
+msgstr ""
 

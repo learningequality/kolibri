@@ -3,7 +3,7 @@
   <core-modal :title="$tr('newLearnerGroup')"
     @cancel="close">
     <div>
-      <form @submit.prevent="callCreateGroup">
+      <form @submit.prevent="createGroup(classId, groupNameInput)">
         <textbox type="text"
           :label="$tr('learnerGroupName')"
           :aria-label="$tr('learnerGroupName')"
@@ -13,7 +13,8 @@
           v-model.trim="groupNameInput" />
         <icon-button :text="$tr('cancel')"
           class="cancel-btn"
-          @click="close" />
+          @click="close"
+          type="button" />
         <icon-button :text="$tr('save')"
           class="save-btn"
           :primary="true"
@@ -27,7 +28,7 @@
 
 <script>
 
-  const actions = require('../../actions');
+  const groupActions = require('../../group-actions');
 
   module.exports = {
     $trNameSpace: 'confirm-enrollment-modal',
@@ -49,28 +50,20 @@
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     props: {
-      className: {
-        type: String,
-        required: true,
-      },
       classId: {
         type: String,
         required: true,
       },
     },
-    computed: {},
     methods: {
-      callCreateGroup() {
-        this.createGroup(this.classId, this.groupNameInput);
-      },
       close() {
         this.displayModal(false);
       },
     },
     vuex: {
       actions: {
-        createGroup: actions.createGroup,
-        displayModal: actions.displayModal,
+        displayModal: groupActions.displayModal,
+        createGroup: groupActions.createGroup,
       },
     },
   };
@@ -78,5 +71,4 @@
 </script>
 
 
-<style lang="stylus"
-  scoped></style>
+<style lang="stylus" scoped></style>

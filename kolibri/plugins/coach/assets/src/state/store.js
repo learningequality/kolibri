@@ -57,15 +57,9 @@ const mutations = {
   SET_MODAL(state, modalName) {
     state.pageState.modalShown = modalName;
   },
-  ADD_GROUP(state, group) {
-    state.pageState.groups.push(group);
-  },
-  UPDATE_GROUP(state, groupId, updatedGroup) {
-    state.pageState.groups.forEach((group, index, arr) => {
-      if (group.id === groupId) {
-        arr[index] = updatedGroup;
-      }
-    });
+
+  SET_GROUPS(state, groups) {
+    state.pageState.groups = groups;
   },
 };
 

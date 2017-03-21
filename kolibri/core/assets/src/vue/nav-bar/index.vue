@@ -255,7 +255,7 @@
     background: $core-bg-light
     font-weight: 300
     position: fixed
-    z-index: 60
+    z-index: 16
     font-size: 1em
     height: 100%
     overflow: auto
@@ -276,7 +276,7 @@
 
   .header
     position: absolute
-    z-index: 1003
+    z-index: 17
     top: 0
     left: 0
     font-size: 14px
@@ -300,7 +300,6 @@
 
   .scrollable-nav
     position: absolute
-    z-index: 1002
     top: 0
     left: 0
     padding-bottom: $footerheight + 16
@@ -309,7 +308,7 @@
 
   .footer
     position: absolute
-    z-index: 1003
+    z-index: 17
     bottom: 0
     left: 0
     overflow: hidden
@@ -332,7 +331,7 @@
     background: rgba(0, 0, 0, 0.7)
     transition: opacity 0.3s ease
     background-attachment: fixed
-    z-index: 60
+    z-index: 15
 
 </style>
 
