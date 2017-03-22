@@ -47,7 +47,7 @@ function displayModal(store, modalName) {
 
 function showGroupsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_GROUPS_PAGE);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.GROUPS);
 
   const facilityPromise = FacilityUserResource.getCurrentFacility();
   const classPromise = ClassroomResource.getModel(classId).fetch();

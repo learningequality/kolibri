@@ -45,35 +45,35 @@
     computed: {
       // active tabs
       recentPageActive() {
-        return this.pageName === constants.PageNames.COACH_RECENT_PAGE;
+        return this.pageName === constants.PageNames.RECENT;
       },
       topicsPageActive() {
-        return this.pageName === constants.PageNames.COACH_TOPICS_PAGE;
+        return this.pageName === constants.PageNames.TOPICS;
       },
       examsPageActive() {
-        return this.pageName === constants.PageNames.COACH_EXAMS_PAGE;
+        return this.pageName === constants.PageNames.EXAMS;
       },
       learnersPageActive() {
-        return this.pageName === constants.PageNames.COACH_LEARNERS_PAGE;
+        return this.pageName === constants.PageNames.LEARNERS;
       },
       groupsPageActive() {
-        return this.pageName === constants.PageNames.COACH_GROUPS_PAGE;
+        return this.pageName === constants.PageNames.GROUPS;
       },
       // page links
       resentPageLink() {
-        return { name: constants.PageNames.COACH_RECENT_PAGE };
+        return { name: constants.PageNames.RECENT };
       },
       topicsPageLink() {
-        return { name: constants.PageNames.COACH_TOPICS_PAGE };
+        return { name: constants.PageNames.TOPICS };
       },
       examsPageLink() {
-        return { name: constants.PageNames.COACH_EXAMS_PAGE };
+        return { name: constants.PageNames.EXAMS };
       },
       learnersPageLink() {
-        return { name: constants.PageNames.COACH_LEARNERS_PAGE };
+        return { name: constants.PageNames.LEARNERS };
       },
       groupsPageLink() {
-        return { name: constants.PageNames.COACH_GROUPS_PAGE };
+        return { name: constants.PageNames.GROUPS };
       },
     },
     vuex: {
