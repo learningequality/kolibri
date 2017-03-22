@@ -88,9 +88,9 @@
     },
     $trNameSpace: 'coachClassListPage',
     $trs: {
-      myClasses: 'My Classes',
-      pageDescription: 'View your Learner\'s progress and performance',
-      className: 'Class Name',
+      myClasses: 'My classes',
+      pageDescription: 'View learner progress and performance',
+      className: 'Class name',
       coach: 'Coach',
       learners: 'Learners',
       groups: 'Groups',
