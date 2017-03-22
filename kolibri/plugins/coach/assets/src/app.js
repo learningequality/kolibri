@@ -4,12 +4,12 @@ const router = require('kolibri.coreVue.router');
 
 const Vue = require('kolibri.lib.vue');
 
-const RootVue = require('./vue');
-const actions = require('./actions');
-const groupActions = require('./group-actions');
-const recentActions = require('./recent-actions');
+const RootVue = require('./views');
+const actions = require('./state/actions/main');
+const groupActions = require('./state/actions/group');
+const recentActions = require('./state/actions/recent');
 const store = require('./state/store');
-const PageNames = require('./state/constants').PageNames;
+const PageNames = require('./constants').PageNames;
 
 const REPORTS_URL_PATTERN = [
   ':class_id',
@@ -28,56 +28,56 @@ class CoachToolsModule extends KolibriModule {
     coreActions.getCurrentSession(store).then(() => {
       const routes = [
         {
-          name: PageNames.COACH_CLASS_LIST_PAGE,
+          name: PageNames.CLASS_LIST,
           path: '/',
           handler: (toRoute, fromRoute) => {
             actions.showClassListPage(store);
           },
         },
         {
-          name: PageNames.COACH_RECENT_PAGE_CHANNEL_SELECT,
+          name: PageNames.RECENT_CHANNEL_SELECT,
           path: '/:classID',
           handler: (toRoute, fromRoute) => {
             recentActions.showChannelSelect(store, toRoute.params.classID);
           },
         },
         {
-          name: PageNames.COACH_RECENT_PAGE,
+          name: PageNames.RECENT,
           path: '/:classID/:channelID',
           handler: (toRoute, fromRoute) => {
             recentActions.showReports(store, toRoute.classID, toRoute.channelID);
           },
         },
         {
-          name: PageNames.COACH_TOPICS_PAGE,
+          name: PageNames.TOPICS,
           path: REPORTS_URL_PATTERN,
           handler: (toRoute, fromRoute) => {
             actions.showReport(store, toRoute.params);
           },
         },
         {
-          name: PageNames.COACH_EXAMS_PAGE,
+          name: PageNames.EXAMS,
           path: '/:class_id/exams',
           handler: (toRoute, fromRoute) => {
             actions.showExamsPage(store, toRoute.params);
           },
         },
         {
-          name: PageNames.COACH_LEARNERS_PAGE,
+          name: PageNames.LEARNERS,
           path: REPORTS_URL_PATTERN,
           handler: (toRoute, fromRoute) => {
             actions.showReport(store, toRoute.params);
           },
         },
         {
-          name: PageNames.COACH_GROUPS_PAGE,
+          name: PageNames.GROUPS,
           path: '/:class_id/groups',
           handler: (toRoute, fromRoute) => {
             groupActions.showGroupsPage(store, toRoute.params.class_id);
           },
         },
         {
-          name: PageNames.COACH_EXERCISE_RENDER_PAGE,
+          name: PageNames.EXERCISE_RENDER,
           path: '/:user_id/:content_id/exercise-render',
           handler: (toRoute, fromRoute) => {
             actions.showCoachExerciseRenderPage(store, toRoute.params.user_id,

@@ -4,7 +4,7 @@
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
 const Vue = require('vue-test');
-const downloadButton = require('../src/vue/content-renderer/download-button.vue');
+const downloadButton = require('../src/views/content-renderer/download-button.vue');
 
 const DownloadButtonComponent = Vue.extend(downloadButton);
 const assert = require('assert');
