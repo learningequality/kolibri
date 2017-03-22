@@ -47,7 +47,7 @@ function _contentState(data) {
   } else {
     progress = data.progress_fraction;
   }
-  const assessmentMetaData = data.assessmentmetadata || {};
+  const assessmentMetaData = data.assessment_meta_data || {};
   const state = {
     id: data.pk,
     title: data.title,
@@ -63,7 +63,7 @@ function _contentState(data) {
     author: data.author,
     license: data.license,
     license_owner: data.license_owner,
-    assessment: Boolean(data.assessmentmetadata),
+    assessment: Boolean(data.assessment_meta_data),
     assessmentIds: JSON.parse(assessmentMetaData.assesment_item_ids || '[]'),
     masteryModel: JSON.parse(assessmentMetaData.mastery_model || '{}'),
     randomize: assessmentMetaData.randomize || false,
