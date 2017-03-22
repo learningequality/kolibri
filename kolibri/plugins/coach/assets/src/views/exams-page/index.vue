@@ -4,17 +4,18 @@
     <h1>{{ currentClass.name }} {{ $tr('exams') }}</h1>
     <ui-radio-group
       :name="$tr('examFilter')"
-      :label="$tr('examFilter')"
+      :label="$tr('show')"
       v-model="filterSelected"
       :options="filterOptions"
     />
-    <icon-button
-      :text="$tr('newExam')"
-      :primary="true"
+    <ui-button
+      type="primary"
+      color="primary"
+      :raised="true"
+      icon="add"
       @click="openCreateExamModal">
-      <mat-svg category="content" name="add"/>
-    </icon-button>
-
+      {{ $tr('newExam') }}
+    </ui-button>
     <table v-if="exams.length">
       <thead>
         <tr>
@@ -25,7 +26,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="exam in exams">
+        <tr v-for="exam in filteredExams">
           <td class="col-icon">
             <ui-icon
               icon="assignment"
@@ -35,20 +36,55 @@
           </td>
           <td class="col-title">
             <strong>{{ exam.title }}</strong>
-            <p>{{ `${exam.active} - ${$tr('createdOn')} ${exam.dateCreated}` }}</p>
-            </td>
-          <td class="col-visibility">{{ visibleToString(exam.visibleTo) }} |
-            <icon-button
-              :text="$tr('change')"
-              :primary="false"
-              @click="openChangeExamVisibilityModal"
-            />
+            <p>
+              <span v-if="exam.active">{{ $tr('active') }}</span>
+              <span v-else>{{ $tr('inactive') }}</span>
+              {{ ` - ${$tr('createdOn')} ${exam.dateCreated}` }}</p>
           </td>
-          <td class="col-action">temp</td>
+
+          <td class="col-visibility">{{ visibleToString(exam.visibleTo) }} |
+            <ui-button
+              type="secondary"
+              color="default"
+              @click="openChangeExamVisibilityModal">
+              {{ $tr('change') }}
+            </ui-button>
+          </td>
+
+          <td class="col-action">
+            <ui-button
+              v-if="exam.active"
+              type="secondary"
+              color="red"
+              @click="openDeactivateExamModal">
+              {{ $tr('deactivate') }}
+            </ui-button>
+            <ui-button
+              v-else
+              type="secondary"
+              color="primary"
+              @click="openActivateExamModal">
+              {{ $tr('activate') }}
+            </ui-button>
+
+            <ui-icon-button
+              type="secondary"
+              color="primary"
+              :has-dropdown="true"
+              ref="dropdown"
+              icon="arrow_drop_down">
+              <ui-menu
+                slot="dropdown"
+                :options="actionOptions"
+                @select="handleSelection"
+                @close="close"
+              />
+            </ui-icon-button>
+          </td>
         </tr>
       </tbody>
     </table>
-    <div v-else></div>
+    <p v-else class="center-text"><strong>{{ $tr('noExams') }}</strong></p>
   </div>
 
 </template>
@@ -71,11 +107,21 @@
       action: 'Action',
       createdOn: 'Created on',
       change: 'Change',
+      previewExam: 'Preview exam',
+      viewReport: 'View report',
+      rename: 'Rename',
+      delete: 'Delete',
+      activate: 'Activate',
+      deactivate: 'Deactivate',
+      noExams: `You do not have any exams. Start by creating a new exam above.`,
+
     },
     components: {
       'ui-icon': require('keen-ui/src/UiIcon'),
+      'ui-button': require('keen-ui/src/UiButton'),
+      'ui-icon-button': require('keen-ui/src/UiIconButton'),
+      'ui-menu': require('keen-ui/src/UiMenu'),
       'ui-radio-group': require('keen-ui/src/UiRadioGroup'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     data() {
       return {
@@ -85,12 +131,53 @@
           { label: this.$tr('active'), value: this.$tr('active') },
           { label: this.$tr('inactive'), value: this.$tr('inactive') }
         ],
+        actionOptions: [
+          { label: this.$tr('previewExam') },
+          { label: this.$tr('viewReport') },
+          { label: this.$tr('rename') },
+          { label: this.$tr('delete') },
+        ],
       };
+    },
+    computed: {
+      activeExams() {
+        return this.exams.filter(exam => exam.active === true);
+      },
+      inactiveExams() {
+        return this.exams.filter(exam => exam.active === false);
+      },
+      filteredExams() {
+        const filter = this.filterSelected;
+        if (filter === this.$tr('active')) {
+          return this.activeExams;
+        } else if (filter === this.$tr('inactive')) {
+          return this.inactiveExams;
+        }
+        return this.exams;
+      }
     },
     methods: {
       visibleToString(groups) {
         return 'TODO';
-      }
+      },
+      openCreateExamModal() {
+        console.log('openCreateExamModal');
+      },
+      openChangeExamVisibilityModal() {
+        console.log('openChangeExamVisibilityModal');
+      },
+      openActivateExamModal() {
+        console.log('openActivateExamModal');
+      },
+      openDeactivateExamModal() {
+        console.log('openDeactivateExamModal');
+      },
+      handleSelection(optionSelected) {
+        console.log(optionSelected);
+      },
+      close() {
+        console.log('close');
+      },
     },
     vuex: {
       getters: {
@@ -113,5 +200,8 @@
 
   .icon-inactive
     color: gray
+
+  .center-text
+    text-align: center
 
 </style>

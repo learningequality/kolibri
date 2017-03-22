@@ -32,6 +32,12 @@ function showExamsPage(store, classId) {
           active: true,
           dateCreated: 'March 21, 2017 03:24:00',
           visibleTo: ['groupB'],
+        },
+        {
+          title: 'Exam 3',
+          active: true,
+          dateCreated: 'March 22, 2017 03:24:00',
+          visibleTo: ['groupA', 'groupB'],
         }],
         currentChannel: GetDefaultChannelId(channelsCollection),
         channels: channelsCollection,
