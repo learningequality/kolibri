@@ -25,7 +25,7 @@
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
-    $trNameSpace: 'user-root',
+    $trNameSpace: 'userRoot',
     $trs: {
       userProfileTitle: 'Profile',
     },

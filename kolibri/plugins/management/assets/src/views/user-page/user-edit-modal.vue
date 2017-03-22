@@ -104,7 +104,7 @@
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 
   module.exports = {
-    $trNameSpace: 'user-edit-modal',
+    $trNameSpace: 'userEditModal',
     $trs: {
       editTitle: 'Edit account info',
       passwordTitle: 'Reset account password',
