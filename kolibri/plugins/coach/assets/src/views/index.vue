@@ -1,9 +1,6 @@
 <template>
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('coachTitle')">
-    <div slot="app-bar-actions">
-      <channel-switcher @switch="switchChannel"/>
-    </div>
 
     <div v-if="isCoachAdminOrSuperuser" slot="content">
       <div v-if="notRootPage" class="page">
@@ -45,7 +42,6 @@
       'learners-page': require('./learners-page'),
       'groups-page': require('./groups-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
-      'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
       'coach-exercise-render-page': require('./coach-exercise-render-page'),
     },
     computed: {
