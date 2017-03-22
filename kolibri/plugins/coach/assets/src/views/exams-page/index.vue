@@ -36,10 +36,9 @@
           </td>
           <td class="col-title">
             <strong>{{ exam.title }}</strong>
-            <p>
               <span v-if="exam.active">{{ $tr('active') }}</span>
               <span v-else>{{ $tr('inactive') }}</span>
-              {{ ` - ${$tr('createdOn')} ${exam.dateCreated}` }}</p>
+              {{ ` - ${$tr('createdOn')} ${exam.dateCreated}` }}
           </td>
 
           <td class="col-visibility">{{ visibleToString(exam.visibleTo) }} |
@@ -173,7 +172,28 @@
         console.log('openDeactivateExamModal');
       },
       handleSelection(optionSelected) {
-        console.log(optionSelected);
+        const action = optionSelected.label;
+        if (action === this.$tr('previewExam')) {
+          this.openExamPreviewModal();
+        } else if (action === this.$tr('viewReport')) {
+          this.openExamReportModal();
+        } else if (action === this.$tr('rename')) {
+          this.openRenameExamModal();
+        } else if (action === this.$tr('delete')) {
+          this.openDeleteExamModal();
+        }
+      },
+      openExamPreviewModal() {
+        console.log('openExamPreviewModal');
+      },
+      openExamReportModal() {
+        console.log('openExamReportModal');
+      },
+      openRenameExamModal() {
+        console.log('openRenameExamModal');
+      },
+      openDeleteExamModal() {
+        console.log('openDeleteExamModal');
       },
       close() {
         console.log('close');
@@ -196,10 +216,10 @@
 <style lang="stylus" scoped>
 
   .icon-active
-    color: green
+    color: #4caf50
 
   .icon-inactive
-    color: gray
+    color: #9e9e9e
 
   .center-text
     text-align: center
