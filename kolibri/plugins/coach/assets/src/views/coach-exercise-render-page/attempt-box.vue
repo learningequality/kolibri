@@ -63,6 +63,7 @@
     height: 38px
     width: auto
     border-bottom: 2px solid $core-text-default
+    padding: 2px
 
   .svg-hint
     fill: grey
