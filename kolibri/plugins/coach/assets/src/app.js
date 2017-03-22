@@ -4,11 +4,11 @@ const router = require('kolibri.coreVue.router');
 
 const Vue = require('kolibri.lib.vue');
 
-const RootVue = require('./vue');
-const actions = require('./vuex/actions/main');
-const groupActions = require('./vuex/actions/group');
-const recentActions = require('./vuex/actions/recent');
-const store = require('./vuex/store');
+const RootVue = require('./views');
+const actions = require('./state/actions/main');
+const groupActions = require('./state/actions/group');
+const recentActions = require('./state/actions/recent');
+const store = require('./state/store');
 const PageNames = require('./constants').PageNames;
 
 const REPORTS_URL_PATTERN = [
