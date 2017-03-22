@@ -66,7 +66,7 @@ function _contentState(data) {
     assessment: Boolean(data.assessment_meta_data),
     assessmentIds: JSON.parse(assessmentMetaData.assesment_item_ids || '[]'),
     masteryModel: JSON.parse(assessmentMetaData.mastery_model || '{}'),
-    randomize: assessmentMetaData.randomize || false,
+    randomize: assessmentMetaData.randomize,
   };
   return state;
 }
