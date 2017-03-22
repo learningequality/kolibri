@@ -4,7 +4,7 @@
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
 const Vue = require('vue-test');
-const progressIcon = require('../src/vue/progress-icon');
+const progressIcon = require('../src/views/progress-icon');
 
 const ProgressIconComponent = Vue.extend(progressIcon);
 const assert = require('assert');

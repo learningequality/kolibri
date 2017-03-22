@@ -4,7 +4,7 @@
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
 const Vue = require('vue-test');
-const contentRenderer = require('../src/vue/content-renderer');
+const contentRenderer = require('../src/views/content-renderer');
 
 const ContentRendererComponent = Vue.extend(contentRenderer);
 const assert = require('assert');

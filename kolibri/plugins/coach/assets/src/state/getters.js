@@ -1,4 +1,4 @@
-const Constants = require('./constants');
+const Constants = require('../constants');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const logging = require('kolibri.lib.logging');
 

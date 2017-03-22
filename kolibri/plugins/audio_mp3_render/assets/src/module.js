@@ -1,6 +1,6 @@
 
 const ContentRendererModule = require('content_renderer_module');
-const AudioComponent = require('./vue/index');
+const AudioComponent = require('./views/index');
 
 class AudioMP3Module extends ContentRendererModule {
   get rendererComponent() {

@@ -47,63 +47,63 @@ module.exports = {
           module: require('../constants'),
         },
         getters: {
-          module: require('../core-getters'),
+          module: require('../state/getters'),
         },
         actions: {
-          module: require('../core-actions'),
+          module: require('../state/actions'),
         },
         store: {
-          module: require('../core-store'),
+          module: require('../state/store'),
         },
       },
       components: {
         contentRenderer: {
-          module: require('../vue/content-renderer'),
+          module: require('../views/content-renderer'),
         },
         assessmentWrapper: {
-          module: require('../vue/assessment-wrapper'),
+          module: require('../views/assessment-wrapper'),
         },
         exerciseAttempts: {
-          module: require('../vue/exercise-attempts'),
+          module: require('../views/exercise-attempts'),
         },
         downloadButton: {
-          module: require('../vue/content-renderer/download-button'),
+          module: require('../views/content-renderer/download-button'),
         },
         loadingSpinner: {
-          module: require('../vue/loading-spinner'),
+          module: require('../views/loading-spinner'),
         },
         progressBar: {
-          module: require('../vue/progress-bar'),
+          module: require('../views/progress-bar'),
         },
         contentIcon: {
-          module: require('../vue/content-icon'),
+          module: require('../views/content-icon'),
         },
         progressIcon: {
-          module: require('../vue/progress-icon'),
+          module: require('../views/progress-icon'),
         },
         coreBase: {
-          module: require('../vue/core-base'),
+          module: require('../views/core-base'),
         },
         coreModal: {
-          module: require('../vue/core-modal'),
+          module: require('../views/core-modal'),
         },
         navBar: {
-          module: require('../vue/nav-bar'),
+          module: require('../views/nav-bar'),
         },
         iconButton: {
-          module: require('../vue/icon-button'),
+          module: require('../views/icon-button'),
         },
         textbox: {
-          module: require('../vue/textbox'),
+          module: require('../views/textbox'),
         },
         channelSwitcher: {
-          module: require('../vue/channel-switcher'),
+          module: require('../views/channel-switcher'),
         },
         tabs: {
-          module: require('../vue/tabs'),
+          module: require('../views/tabs'),
         },
         logo: {
-          module: require('../vue/logo'),
+          module: require('../views/logo'),
         },
       },
       router: {

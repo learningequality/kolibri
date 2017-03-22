@@ -4,7 +4,7 @@
 /* eslint prefer-arrow-callback: "off", func-names: "off" */
 
 const Vue = require('vue-test');
-const progressBar = require('../src/vue/progress-bar');
+const progressBar = require('../src/views/progress-bar');
 
 const ProgressBarComponent = Vue.extend(progressBar);
 const assert = require('assert');
