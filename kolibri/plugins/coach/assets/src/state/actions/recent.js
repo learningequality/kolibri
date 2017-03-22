@@ -11,12 +11,12 @@ const ChannelResource = coreApp.resources.ChannelResource;
 
 function showChannelSelect(store, classID) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_RECENT_PAGE);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
   const channelPromise = ChannelResource.getCollection();
   channelPromise.fetch().then(
     channels => {
       const pageState = {
-        subPageName: Constants.PageNames.COACH_RECENT_PAGE_CHANNEL_SELECT,
+        subPageName: Constants.PageNames.RECENT_CHANNEL_SELECT,
         channels,
         class_id: classID,
       };
@@ -30,7 +30,7 @@ function showChannelSelect(store, classID) {
 }
 function showReports(store, classID, channelID) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_RECENT_PAGE);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
 
   // should be cached if navigated to this point
   const channelPromise = ChannelResource.getModel(channelID).fetch();

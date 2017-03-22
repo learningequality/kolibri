@@ -42,7 +42,7 @@
     methods: {
       reportsForChannel(channelID) {
         return {
-          name: PageNames.COACH_RECENT_PAGE,
+          name: PageNames.RECENT,
           params: {
             classID: this.classID,
             channelID,

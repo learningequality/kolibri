@@ -53,7 +53,7 @@ function _coachPageTitle(title) {
 
 function showClassListPage(store) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_CLASS_LIST_PAGE);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.CLASS_LIST);
   const classCollection = ClassroomResource.getCollection();
   classCollection.fetch().then(
     (classes) => {
@@ -75,7 +75,7 @@ function showClassListPage(store) {
 
 function showExamsPage(store, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_EXAMS_PAGE);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAMS);
   const classCollection = ClassroomResource.getCollection();
   classCollection.fetch().then(
     (classes) => {
@@ -305,7 +305,7 @@ function showCoachExerciseRenderPage(store, userId, contentId) {
   const reversedAttemptLogs = [];
   const today = new Date();
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_EXERCISE_RENDER_PAGE);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXERCISE_RENDER);
   AttemptLogResource.getCollection({
     user: userId, content: contentId
   }).fetch().then(

@@ -55,7 +55,7 @@
     },
     computed: {
       backPageLink() {
-        return { name: constants.PageNames.COACH_CLASS_LIST_PAGE };
+        return { name: constants.PageNames.CLASS_LIST };
       },
       content() {
         return {

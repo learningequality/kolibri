@@ -51,31 +51,31 @@
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
-        if (this.pageName === constants.PageNames.COACH_CLASS_LIST_PAGE) {
+        if (this.pageName === constants.PageNames.CLASS_LIST) {
           return 'class-list-page';
         }
-        if (this.pageName === constants.PageNames.COACH_RECENT_PAGE) {
+        if (this.pageName === constants.PageNames.RECENT) {
           return 'recent-page';
         }
-        if (this.pageName === constants.PageNames.COACH_TOPICS_PAGE) {
+        if (this.pageName === constants.PageNames.TOPICS) {
           return 'topics-page';
         }
-        if (this.pageName === constants.PageNames.COACH_EXAMS_PAGE) {
+        if (this.pageName === constants.PageNames.EXAMS) {
           return 'exams-page';
         }
-        if (this.pageName === constants.PageNames.COACH_LEARNERS_PAGE) {
+        if (this.pageName === constants.PageNames.LEARNERS) {
           return 'learners-page';
         }
-        if (this.pageName === constants.PageNames.COACH_GROUPS_PAGE) {
+        if (this.pageName === constants.PageNames.GROUPS) {
           return 'groups-page';
         }
-        if (this.pageName === constants.PageNames.COACH_EXERCISE_RENDER_PAGE) {
+        if (this.pageName === constants.PageNames.EXERCISE_RENDER) {
           return 'coach-exercise-render-page';
         }
         return null;
       },
       notRootPage() {
-        return this.pageName !== constants.PageNames.COACH_CLASS_LIST_PAGE;
+        return this.pageName !== constants.PageNames.CLASS_LIST;
       },
     },
     methods: {

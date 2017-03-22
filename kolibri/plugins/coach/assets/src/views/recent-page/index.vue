@@ -48,7 +48,7 @@
     },
     computed: {
       channelNotSelected() {
-        return this.subPageName === PageNames.COACH_RECENT_PAGE_CHANNEL_SELECT;
+        return this.subPageName === PageNames.RECENT_CHANNEL_SELECT;
       },
     },
     methods: {
