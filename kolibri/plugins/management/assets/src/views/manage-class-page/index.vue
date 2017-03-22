@@ -2,12 +2,13 @@
 
   <div>
 
-    <h1 class="header">
-      {{ $tr('allClasses', { name: facilityName }) }}
-    </h1>
+    <div class="header">
+      <h1>
+        {{ $tr('allClasses', { name: facilityName }) }}
+      </h1>
 
-    <div class="create-btn">
       <icon-button
+        class="create-btn"
         @click="openCreateClassModal"
         :text="$tr('addNew')"
         :primary="true"
@@ -21,35 +22,37 @@
     />
     <class-create-modal v-if="showCreateClassModal"/>
 
-    <table class="roster" v-if="!noClassesExist">
-      <caption class="visuallyhidden">{{$tr('classes')}}</caption>
-      <thead>
-        <tr>
-          <th scope="col" class="table-text">{{ $tr('className') }}</th>
-          <th scope="col" class="table-data">{{ $tr('learners') }}</th>
-          <th scope="col" class="table-data">{{ $tr('coaches') }}</th>
-          <th scope="col" class="table-data">{{ $tr('admins') }}</th>
-          <th scope="col"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="classModel in classes">
-          <th scope="row" class="table-text">
-            <router-link :to="classEditLink(classModel.id)" class="table-name">
-              {{classModel.name}}
-            </router-link>
-          </th>
-          <td class="table-data">{{ classModel.learner_count }}</td>
-          <td class="table-data">{{ classModel.coach_count }}</td>
-          <td class="table-data">{{ classModel.admin_count }}</td>
-          <td>
-            <button class="delete-class-button" @click="openDeleteClassModal(classModel)">
-              {{ $tr('deleteClass') }}
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-wrapper" v-if="!noClassesExist">
+      <table class="roster">
+        <caption class="visuallyhidden">{{$tr('classes')}}</caption>
+        <thead class="table-header">
+          <tr>
+            <th scope="col" class="table-text">{{ $tr('className') }}</th>
+            <th scope="col" class="table-data">{{ $tr('learners') }}</th>
+            <th scope="col" class="table-data">{{ $tr('coaches') }}</th>
+            <th scope="col" class="table-data">{{ $tr('admins') }}</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="classModel in classes">
+            <th scope="row" class="table-text">
+              <router-link :to="classEditLink(classModel.id)" class="table-name">
+                {{classModel.name}}
+              </router-link>
+            </th>
+            <td class="table-data">{{ classModel.learner_count }}</td>
+            <td class="table-data">{{ classModel.coach_count }}</td>
+            <td class="table-data">{{ classModel.admin_count }}</td>
+            <td class="table-btn">
+              <button class="delete-class-button" @click="openDeleteClassModal(classModel)">
+                {{ $tr('deleteClass') }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <p v-else>{{ $tr('noClassesExist') }}</p>
 
@@ -134,27 +137,35 @@
 
   .roster
     width: 100%
-    word-break: break-all
+    border-spacing: 8px
+    border-collapse: separate
 
-    thead
-      color: $core-text-annotation
-      font-size: smaller
+  .table-wrapper
+    overflow-x: auto
 
-    th
-      vertical-align: middle
-      padding-bottom: 8px
+  thead th
+    color: $core-text-annotation
+    font-size: smaller
+    font-weight: normal
 
-    .table-text
-      text-align: left
+  .table-text
+    text-align: left
 
-    .table-data
-      text-align: center
+  .table-data
+    text-align: center
 
-  .create-btn
-    float: right
+  .table-btn
+    text-align: right
 
   .header
-    display: inline-block
+    position: relative
+    padding-right: 150px
+    margin-bottom: 16px
+
+  .create-btn
+    position: absolute
+    top: 0
+    right: 0
 
   .delete-class-button
     color: red
