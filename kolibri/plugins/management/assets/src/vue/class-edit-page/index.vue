@@ -21,18 +21,17 @@
     </div>
 
     <div class="toolbar">
-      <div class="searchbar" role="search">
+      <div class="searchbar" :class="{'searchbar-mobile': elSize.width < 600}" role="search">
         <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
         <input
-          id="search-field"
           :aria-label="$tr('searchText')"
           type="search"
           v-model="searchFilter"
           :placeholder="$tr('searchText')">
       </div>
 
-      <div class="enroll">
-        <router-link :to="classEnrollLink" class="table-name">
+      <div class="enroll" :class="{'enroll-mobile': elSize.width < 600}">
+        <router-link :to="classEnrollLink">
           <icon-button
           class="enroll-user-button"
           :text="$tr('enrollUsers')"
@@ -59,7 +58,7 @@
       <thead v-if="usersMatchFilter">
         <tr>
           <th class="col-header" scope="col"> {{$tr('fullName')}} </th>
-          <th class="col-header table-username" scope="col"> {{$tr('username')}} </th>
+          <th class="col-header" :class="{'table-username-mobile': elSize.width < 600}" scope="col"> {{$tr('username')}} </th>
           <th class="col-header" scope="col"> {{$tr('role')}} </th>
           <th class="col-header" scope="col"></th>
         </tr>
@@ -70,13 +69,13 @@
         <tr v-for="user in visibleUsers">
           <!-- Full Name field -->
           <th scope="row" class="table-cell full-name">
-            <span class="table-name">
+            <span class="table-name" :class="{'table-name-mobile': elSize.width < 600}">
               {{user.full_name}}
             </span>
           </th>
 
           <!-- Username field -->
-          <td class="table-cell table-username">
+          <td class="table-cell" :class="{'table-username-mobile': elSize.width < 600}">
             {{user.username}}
           </td>
 
@@ -112,6 +111,7 @@
   const constants = require('../../state/constants');
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const actions = require('../../actions');
+  const responsiveElement = require('kolibri.coreVue.mixins.responsiveElement');
 
   module.exports = {
     $trNameSpace: 'classEnrollPage',
@@ -136,6 +136,7 @@
       'user-remove-modal': require('./user-remove-modal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
+    mixins: [responsiveElement],
     data: () => ({
       searchFilter: '',
       currentUserRemove: null,
@@ -248,6 +249,10 @@
     color: $core-text-annotation
     margin-left: 10px
 
+  .enroll-mobile
+    width: 100%
+    margin-top: 10px
+
   input[type='search']
     display: inline-block
     box-sizing: border-box
@@ -324,17 +329,15 @@
     border-radius: 5px
     padding: inherit
     border: 1px solid #c0c0c0
-    width: 300px
+    width: 45%
     height: $toolbar-height
     float: left
 
-  @media screen and (min-width: $portrait-breakpoint + 1)
-    .searchbar
-      font-size: 0.9em
-      min-width: 170px
-      width: 45%
-    #search-field
-      width: 80%
+  .searchbar-mobile
+    font-size: 0.9em
+    width: 100%
+    margin-top: 5px
+    float: right
 
   .table-name
     $line-height = 1em
@@ -343,32 +346,19 @@
     display: inline-block
     padding-right: 1em
 
+  .table-name-mobile
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+    width: 100px
+
+  .table-username-mobile
+    display: none
+
   @media print
     .toolbar
       display: none
     .user-roster
       width: 500px
-
-  // TODO temporary fix until remove width calculation from learn
-  @media screen and (max-width: 840px)
-    .create
-      box-sizing: border-box
-      width: 49%
-    .create
-      margin-top: -78px
-    .searchbar
-      font-size: 0.9em
-      width: 100%
-      margin-top: 5px
-      float: right
-    .table-username
-      display: none
-    .table-name
-      overflow: hidden
-      text-overflow: ellipsis
-      white-space: nowrap
-      width: 100px
-    .col-header
-      width: 50%
 
 </style>
