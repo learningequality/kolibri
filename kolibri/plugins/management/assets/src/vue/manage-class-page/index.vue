@@ -1,84 +1,54 @@
 <template>
 
-  <div class="class-roster">
+  <div>
 
-    <div class="header">
-      <h1>
-        {{ $tr('allClasses', { name: facilityName }) }}
-      </h1>
-    </div>
+    <h1 class="header">
+      {{ $tr('allClasses', { name: facilityName }) }}
+    </h1>
 
-    <div class="create">
+    <div class="create-btn">
       <icon-button
         @click="openCreateClassModal"
-        class="create-class-button"
         :text="$tr('addNew')"
-        :primary="true"/>
+        :primary="true"
+      />
     </div>
 
-    <!-- Modals -->
     <class-delete-modal
       v-if="showDeleteClassModal"
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
     />
-    <class-create-modal
-      v-if="showCreateClassModal"
-    />
+    <class-create-modal v-if="showCreateClassModal"/>
 
     <table class="roster" v-if="!noClassesExist">
-
       <caption class="visuallyhidden">{{$tr('classes')}}</caption>
-
-      <!-- Table Headers -->
       <thead>
         <tr>
-          <th class="col-header" scope="col"> {{$tr('className')}} </th>
-          <div class="status-group">
-            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('learners')}} </th>
-            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('coaches')}} </th>
-            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('admins')}} </th>
-          </div>
+          <th scope="col" class="table-text">{{ $tr('className') }}</th>
+          <th scope="col" class="table-data">{{ $tr('learners') }}</th>
+          <th scope="col" class="table-data">{{ $tr('coaches') }}</th>
+          <th scope="col" class="table-data">{{ $tr('admins') }}</th>
+          <th scope="col"></th>
         </tr>
       </thead>
-
-      <!-- Table body -->
       <tbody>
         <tr v-for="classModel in classes">
-          <!-- Class Name field -->
-          <th scope="row" class="table-cell">
+          <th scope="row" class="table-text">
             <router-link :to="classEditLink(classModel.id)" class="table-name">
               {{classModel.name}}
             </router-link>
           </th>
-
-          <div class="status-group">
-            <!-- Learners field -->
-            <td class="table-cell hide-on-mobile status-body">
-              {{classModel.learner_count}}
-            </td>
-
-            <!-- Coaches field -->
-            <td class="table-cell hide-on-mobile status-body">
-              {{classModel.coach_count}}
-            </td>
-
-            <!-- Admins field -->
-            <td class="table-cell hide-on-mobile status-body">
-              {{classModel.admin_count}}
-            </td>
-          </div>
-
-          <!-- delete field -->
-          <td class="table-cell">
-            <div class="delete-class-button" @click="openDeleteClassModal(classModel)">
-              {{$tr('deleteClass')}}
-            </div>
+          <td class="table-data">{{ classModel.learner_count }}</td>
+          <td class="table-data">{{ classModel.coach_count }}</td>
+          <td class="table-data">{{ classModel.admin_count }}</td>
+          <td>
+            <button class="delete-class-button" @click="openDeleteClassModal(classModel)">
+              {{ $tr('deleteClass') }}
+            </button>
           </td>
-
         </tr>
       </tbody>
-
     </table>
 
     <p v-else>{{ $tr('noClassesExist') }}</p>
@@ -162,108 +132,32 @@
 
   @require '~kolibri.styles.definitions'
 
-  // Padding height that separates rows from eachother
-  $row-padding = 1.5em
-
-  .status-group
-    display: inline-table
-    width: 100%
-    text-align: center
-    margin-left: 30px
-
-  .status-header
-    vertical-align: middle
-
-  .status-body
-    padding-top: 0.5em
-
-  .create
-    float: right
-    margin-top: -48px
-
-  input[type='search']
-    display: inline-block
-    box-sizing: border-box
-    position: relative
-    top: 0
-    left: 10px
-    height: 100%
-    width: 85%
-    border-color: transparent
-    background-color: transparent
-    clear: both
-
-  .header h1
-    display: inline-block
-
-  hr
-    background-color: $core-text-annotation
-    height: 1px
-    border: none
-
-  tr
-    text-align: left
-
   .roster
     width: 100%
     word-break: break-all
 
-  th
-    text-align: inherit
+    thead
+      color: $core-text-annotation
+      font-size: smaller
 
-  .col-header
-    padding: (1.2 * $row-padding) 0
-    color: $core-text-annotation
-    font-weight: normal
-    font-size: 80%
-    width: 28%
+    th
+      vertical-align: middle
+      padding-bottom: 8px
 
-  .table-cell
-    font-weight: normal // compensates for <th> cells
-    padding-bottom: $row-padding
-    color: $core-text-default
+    .table-text
+      text-align: left
+
+    .table-data
+      text-align: center
+
+  .create-btn
+    float: right
+
+  .header
+    display: inline-block
 
   .delete-class-button
     color: red
-    width: 110px
-    padding: 8px
-    cursor: pointer
-    margin-right: 4px
-    float: right
-
-  .create-class-button
-    width: 100%
-
-  .table-name
-    $line-height = 1em
-    line-height: $line-height
-    max-height: ($line-height * 2)
-    display: inline-block
-    padding-right: 1em
-    font-weight: bold
-
-  .role-header
-    display: none
-
-  @media print
-    .class-roster
-      width: 500px
-
-  // TODO temporary fix until remove width calculation from learn
-  @media screen and (max-width: 840px)
-    .create
-      box-sizing: border-box
-      width: 49%
-    .create
-      margin-top: -78px
-    .hide-on-mobile
-      display: none
-    .table-name
-      overflow: hidden
-      text-overflow: ellipsis
-      white-space: nowrap
-      width: 100px
-    .col-header
-      width: 50%
+    border: none
 
 </style>
