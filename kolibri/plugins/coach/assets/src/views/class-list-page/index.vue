@@ -69,7 +69,6 @@
       myClasses: 'My classes',
       pageDescription: 'View learner progress and performance',
       className: 'Class name',
-      coach: 'Coach',
       tableCaption: 'List of classes',
       learners: 'Learners',
       groups: 'Groups',
