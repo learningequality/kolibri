@@ -2,7 +2,7 @@ const KolibriModule = require('kolibri_module');
 
 const Vue = require('kolibri.lib.vue');
 
-const RootVue = require('./vue');
+const RootVue = require('./views');
 
 
 class SetupWizardModule extends KolibriModule {

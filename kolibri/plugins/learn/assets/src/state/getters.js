@@ -1,5 +1,5 @@
 
-const constants = require('./constants');
+const constants = require('../constants');
 
 
 function pageMode(state) {
