@@ -31,7 +31,7 @@
   const groupActions = require('../../state/actions/group');
 
   module.exports = {
-    $trNameSpace: 'confirm-enrollment-modal',
+    $trNameSpace: 'create-group-modal',
     $trs: {
       newLearnerGroup: 'New Learner Group',
       learnerGroupName: 'Learner Group Name',

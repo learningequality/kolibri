@@ -136,7 +136,7 @@
 
   .content-container
     position: absolute
-    overflow-y: auto
+    overflow-y: scroll
     overflow-x: hidden
     right: 0
     bottom: 0
