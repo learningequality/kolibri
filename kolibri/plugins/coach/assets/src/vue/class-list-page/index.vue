@@ -1,52 +1,30 @@
 <template>
 
-  <div class="class-roster">
+  <div>
 
-    <div class="header">
-      <h1>
-        {{$tr('myClasses')}}
-      </h1>
-      <p id="description">{{$tr('pageDescription')}}</p>
-    </div>
+    <h1>{{ $tr('myClasses') }}</h1>
+    <p>{{ $tr('pageDescription') }}</p>
 
-    <table class="roster" v-if="!noClassesExist">
-
-      <caption class="visuallyhidden">{{$tr('coach')}}</caption>
-
-      <!-- Table Headers -->
+    <table class="main-table" v-if="!noClassesExist">
+      <caption class="visuallyhidden">{{ $tr('coach') }}</caption>
       <thead>
         <tr>
-          <th class="col-header" scope="col"> {{$tr('className')}} </th>
-          <div class="status-group">
-            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('learners')}} </th>
-            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('groups')}} </th>
-          </div>
+          <th scope="col" class="table-text">{{ $tr('className') }}</th>
+          <th scope="col" class="table-data">{{ $tr('learners') }}</th>
+          <th scope="col" class="table-data">{{ $tr('groups') }}</th>
         </tr>
       </thead>
-
-      <!-- Table body -->
       <tbody>
         <tr v-for="cl in classes">
-          <!-- Class Name field -->
-          <th scope="row" class="table-cell">
-            <router-link :to="recentPageLink(cl.id)" class="table-name">
-              {{cl.name}}
+          <th scope="row" class="table-text">
+            <router-link :to="recentPageLink(cl.id)">
+              {{ cl.name }}
             </router-link>
           </th>
-
-          <div class="status-group">
-            <!-- Learners field -->
-            <td class="table-cell hide-on-mobile status-body">
-              {{cl.learner_count}}
-            </td>
-            <!-- Groups field -->
-            <td class="table-cell hide-on-mobile status-body">
-              {{cl.admin_count}}
-            </td>
-          </div>
+          <td class="table-data">{{ cl.learner_count }}</td>
+          <td class="table-data">{{ cl.admin_count }}</td>
         </tr>
       </tbody>
-
     </table>
 
     <p v-else>{{ $tr('noClassesExist') }}</p>
@@ -104,93 +82,21 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
-  // Padding height that separates rows from eachother
-  $row-padding = 1.5em
-  .status-group
-    display: inline-table
+
+  .main-table
     width: 100%
-    text-align: center
-    margin-left: 30px
-  .status-header
-    vertical-align: middle
-  .status-body
-    padding-top: 0.5em
-  .create
-    float: right
-    margin-top: -48px
-  input[type='search']
-    display: inline-block
-    box-sizing: border-box
-    position: relative
-    top: 0
-    left: 10px
-    height: 100%
-    width: 85%
-    border-color: transparent
-    background-color: transparent
-    clear: both
-  .header h1
-    display: inline-block
-    margin-bottom: 0
-  #description
-    margin-bottom: 40px
-  hr
-    background-color: $core-text-annotation
-    height: 1px
-    border: none
-  tr
-    text-align: left
-  .roster
-    width: 100%
-    word-break: break-all
-  th
-    text-align: inherit
-  .col-header
-    padding-bottom: (1.2 * $row-padding)
-    color: $core-text-annotation
-    font-weight: normal
-    font-size: 80%
-    width: 28%
-  .table-cell
-    font-weight: normal // compensates for <th> cells
-    padding-bottom: $row-padding
-    color: $core-text-default
-  .delete-class-button
-    color: red
-    width: 110px
-    padding: 8px
-    cursor: pointer
-    margin-right: 4px
-    float: right
-  .create-class-button
-    width: 100%
-  .table-name
-    $line-height = 1em
-    line-height: $line-height
-    max-height: ($line-height * 2)
-    display: inline-block
-    padding-right: 1em
-    font-weight: bold
-  .role-header
-    display: none
-  @media print
-    .class-roster
-      width: 500px
-  // TODO temporary fix until remove width calculation from learn
-  @media screen and (max-width: 840px)
-    .create
-      box-sizing: border-box
-      width: 49%
-    .create
-      margin-top: -78px
-    .hide-on-mobile
-      display: none
-    .table-name
-      overflow: hidden
-      text-overflow: ellipsis
-      white-space: nowrap
-      width: 100px
-    .col-header
-      width: 50%
+
+    thead
+      color: $core-text-annotation
+      font-size: smaller
+
+    th
+      padding-bottom: 8px
+
+    .table-text
+      text-align: left
+
+    .table-data
+      text-align: center
 
 </style>
