@@ -6,7 +6,7 @@
     <p>{{ $tr('pageDescription') }}</p>
 
     <table class="main-table" v-if="!noClassesExist">
-      <caption class="visuallyhidden">{{ $tr('coach') }}</caption>
+      <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
       <thead>
         <tr>
           <th scope="col" class="table-text">{{ $tr('className') }}</th>
@@ -70,6 +70,7 @@
       pageDescription: 'View learner progress and performance',
       className: 'Class name',
       coach: 'Coach',
+      tableCaption: 'List of classes',
       learners: 'Learners',
       groups: 'Groups',
       noClassesExist: 'No Classes Exist.',
