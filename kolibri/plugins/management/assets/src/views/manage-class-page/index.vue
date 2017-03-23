@@ -1,85 +1,58 @@
 <template>
 
-  <div class="class-roster">
+  <div>
 
     <div class="header">
       <h1>
         {{ $tr('allClasses', { name: facilityName }) }}
       </h1>
-    </div>
 
-    <div class="create">
       <icon-button
+        class="create-btn"
         @click="openCreateClassModal"
-        class="create-class-button"
         :text="$tr('addNew')"
-        :primary="true"/>
+        :primary="true"
+      />
     </div>
 
-    <!-- Modals -->
     <class-delete-modal
       v-if="showDeleteClassModal"
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
     />
-    <class-create-modal
-      v-if="showCreateClassModal"
-    />
+    <class-create-modal v-if="showCreateClassModal"/>
 
-    <table class="roster" v-if="!noClassesExist">
-
-      <caption class="visuallyhidden">{{$tr('classes')}}</caption>
-
-      <!-- Table Headers -->
-      <thead>
-        <tr>
-          <th class="col-header" scope="col"> {{$tr('className')}} </th>
-          <div class="status-group">
-            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('learners')}} </th>
-            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('coaches')}} </th>
-            <th class="col-header hide-on-mobile status-header" scope="col"> {{$tr('admins')}} </th>
-          </div>
-        </tr>
-      </thead>
-
-      <!-- Table body -->
-      <tbody>
-        <tr v-for="classModel in classes">
-          <!-- Class Name field -->
-          <th scope="row" class="table-cell">
-            <router-link :to="classEditLink(classModel.id)" class="table-name">
-              {{classModel.name}}
-            </router-link>
-          </th>
-
-          <div class="status-group">
-            <!-- Learners field -->
-            <td class="table-cell hide-on-mobile status-body">
-              {{classModel.learner_count}}
+    <div class="table-wrapper" v-if="!noClassesExist">
+      <table class="roster">
+        <caption class="visuallyhidden">{{$tr('classes')}}</caption>
+        <thead class="table-header">
+          <tr>
+            <th scope="col" class="table-text">{{ $tr('className') }}</th>
+            <th scope="col" class="table-data">{{ $tr('learners') }}</th>
+            <th scope="col" class="table-data">{{ $tr('coaches') }}</th>
+            <th scope="col" class="table-data">{{ $tr('admins') }}</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="classModel in classes">
+            <th scope="row" class="table-text">
+              <router-link :to="classEditLink(classModel.id)" class="table-name">
+                {{classModel.name}}
+              </router-link>
+            </th>
+            <td class="table-data">{{ classModel.learner_count }}</td>
+            <td class="table-data">{{ classModel.coach_count }}</td>
+            <td class="table-data">{{ classModel.admin_count }}</td>
+            <td class="table-btn">
+              <button class="delete-class-button" @click="openDeleteClassModal(classModel)">
+                {{ $tr('deleteClass') }}
+              </button>
             </td>
-
-            <!-- Coaches field -->
-            <td class="table-cell hide-on-mobile status-body">
-              {{classModel.coach_count}}
-            </td>
-
-            <!-- Admins field -->
-            <td class="table-cell hide-on-mobile status-body">
-              {{classModel.admin_count}}
-            </td>
-          </div>
-
-          <!-- delete field -->
-          <td class="table-cell">
-            <div class="delete-class-button" @click="openDeleteClassModal(classModel)">
-              {{$tr('deleteClass')}}
-            </div>
-          </td>
-
-        </tr>
-      </tbody>
-
-    </table>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <p v-else>{{ $tr('noClassesExist') }}</p>
 
@@ -162,108 +135,40 @@
 
   @require '~kolibri.styles.definitions'
 
-  // Padding height that separates rows from eachother
-  $row-padding = 1.5em
-
-  .status-group
-    display: inline-table
-    width: 100%
-    text-align: center
-    margin-left: 30px
-
-  .status-header
-    vertical-align: middle
-
-  .status-body
-    padding-top: 0.5em
-
-  .create
-    float: right
-    margin-top: -48px
-
-  input[type='search']
-    display: inline-block
-    box-sizing: border-box
-    position: relative
-    top: 0
-    left: 10px
-    height: 100%
-    width: 85%
-    border-color: transparent
-    background-color: transparent
-    clear: both
-
-  .header h1
-    display: inline-block
-
-  hr
-    background-color: $core-text-annotation
-    height: 1px
-    border: none
-
-  tr
-    text-align: left
-
   .roster
     width: 100%
-    word-break: break-all
+    border-spacing: 8px
+    border-collapse: separate
 
-  th
-    text-align: inherit
+  .table-wrapper
+    overflow-x: auto
 
-  .col-header
-    padding: (1.2 * $row-padding) 0
+  thead th
     color: $core-text-annotation
+    font-size: smaller
     font-weight: normal
-    font-size: 80%
-    width: 28%
 
-  .table-cell
-    font-weight: normal // compensates for <th> cells
-    padding-bottom: $row-padding
-    color: $core-text-default
+  .table-text
+    text-align: left
+
+  .table-data
+    text-align: center
+
+  .table-btn
+    text-align: right
+
+  .header
+    position: relative
+    padding-right: 150px
+    margin-bottom: 16px
+
+  .create-btn
+    position: absolute
+    top: 0
+    right: 0
 
   .delete-class-button
     color: red
-    width: 110px
-    padding: 8px
-    cursor: pointer
-    margin-right: 4px
-    float: right
-
-  .create-class-button
-    width: 100%
-
-  .table-name
-    $line-height = 1em
-    line-height: $line-height
-    max-height: ($line-height * 2)
-    display: inline-block
-    padding-right: 1em
-    font-weight: bold
-
-  .role-header
-    display: none
-
-  @media print
-    .class-roster
-      width: 500px
-
-  // TODO temporary fix until remove width calculation from learn
-  @media screen and (max-width: 840px)
-    .create
-      box-sizing: border-box
-      width: 49%
-    .create
-      margin-top: -78px
-    .hide-on-mobile
-      display: none
-    .table-name
-      overflow: hidden
-      text-overflow: ellipsis
-      white-space: nowrap
-      width: 100px
-    .col-header
-      width: 50%
+    border: none
 
 </style>
