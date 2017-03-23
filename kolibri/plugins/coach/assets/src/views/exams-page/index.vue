@@ -26,61 +26,16 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="exam in filteredExams">
-          <td class="col-icon">
-            <ui-icon
-              icon="assignment"
-              :ariaLabel="String(exam.active)"
-              :class="exam.active ? 'icon-active' : 'icon-inactive'"
-            />
-          </td>
-          <td class="col-title">
-            <strong>{{ exam.title }}</strong>
-              <span v-if="exam.active">{{ $tr('active') }}</span>
-              <span v-else>{{ $tr('inactive') }}</span>
-              {{ ` - ${$tr('createdOn')} ${exam.dateCreated}` }}
-          </td>
-
-          <td class="col-visibility">{{ visibleToString(exam.visibleTo) }} |
-            <ui-button
-              type="secondary"
-              color="default"
-              @click="openChangeExamVisibilityModal">
-              {{ $tr('change') }}
-            </ui-button>
-          </td>
-
-          <td class="col-action">
-            <ui-button
-              v-if="exam.active"
-              type="secondary"
-              color="red"
-              @click="openDeactivateExamModal">
-              {{ $tr('deactivate') }}
-            </ui-button>
-            <ui-button
-              v-else
-              type="secondary"
-              color="primary"
-              @click="openActivateExamModal">
-              {{ $tr('activate') }}
-            </ui-button>
-
-            <ui-icon-button
-              type="secondary"
-              color="primary"
-              :has-dropdown="true"
-              ref="dropdown"
-              icon="arrow_drop_down">
-              <ui-menu
-                slot="dropdown"
-                :options="actionOptions"
-                @select="handleSelection"
-                @close="close"
-              />
-            </ui-icon-button>
-          </td>
-        </tr>
+        <exam-row
+          v-for="exam in filteredExams"
+          :active="exam.active"
+          :dateCreated="exam.dateCreated"
+          :title="exam.title"
+          :visibleTo="exam.visibleTo"
+          :className="currentClass.name"
+          :classId="currentClass.id"
+          :classGroups="[]"
+        />
       </tbody>
     </table>
     <p v-else class="center-text"><strong>{{ $tr('noExams') }}</strong></p>
@@ -96,31 +51,20 @@
     $trs: {
       exams: 'Exams',
       show: 'Show',
-      examFilter: 'Exam filter',
       all: 'All',
       active: 'Active',
       inactive: 'Inactive',
+      examFilter: 'Exam filter',
       newExam: 'New Exam',
       title: 'Title',
       visibleTo: 'Visible to',
       action: 'Action',
-      createdOn: 'Created on',
-      change: 'Change',
-      previewExam: 'Preview exam',
-      viewReport: 'View report',
-      rename: 'Rename',
-      delete: 'Delete',
-      activate: 'Activate',
-      deactivate: 'Deactivate',
       noExams: `You do not have any exams. Start by creating a new exam above.`,
-
     },
     components: {
-      'ui-icon': require('keen-ui/src/UiIcon'),
       'ui-button': require('keen-ui/src/UiButton'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'ui-menu': require('keen-ui/src/UiMenu'),
       'ui-radio-group': require('keen-ui/src/UiRadioGroup'),
+      'exam-row': require('./exam-row'),
     },
     data() {
       return {
@@ -129,12 +73,6 @@
           { label: this.$tr('all'), value: this.$tr('all') },
           { label: this.$tr('active'), value: this.$tr('active') },
           { label: this.$tr('inactive'), value: this.$tr('inactive') }
-        ],
-        actionOptions: [
-          { label: this.$tr('previewExam') },
-          { label: this.$tr('viewReport') },
-          { label: this.$tr('rename') },
-          { label: this.$tr('delete') },
         ],
       };
     },
@@ -156,47 +94,8 @@
       }
     },
     methods: {
-      visibleToString(groups) {
-        return 'TODO';
-      },
       openCreateExamModal() {
         console.log('openCreateExamModal');
-      },
-      openChangeExamVisibilityModal() {
-        console.log('openChangeExamVisibilityModal');
-      },
-      openActivateExamModal() {
-        console.log('openActivateExamModal');
-      },
-      openDeactivateExamModal() {
-        console.log('openDeactivateExamModal');
-      },
-      handleSelection(optionSelected) {
-        const action = optionSelected.label;
-        if (action === this.$tr('previewExam')) {
-          this.openExamPreviewModal();
-        } else if (action === this.$tr('viewReport')) {
-          this.openExamReportModal();
-        } else if (action === this.$tr('rename')) {
-          this.openRenameExamModal();
-        } else if (action === this.$tr('delete')) {
-          this.openDeleteExamModal();
-        }
-      },
-      openExamPreviewModal() {
-        console.log('openExamPreviewModal');
-      },
-      openExamReportModal() {
-        console.log('openExamReportModal');
-      },
-      openRenameExamModal() {
-        console.log('openRenameExamModal');
-      },
-      openDeleteExamModal() {
-        console.log('openDeleteExamModal');
-      },
-      close() {
-        console.log('close');
       },
     },
     vuex: {
@@ -214,12 +113,6 @@
 
 
 <style lang="stylus" scoped>
-
-  .icon-active
-    color: #4caf50
-
-  .icon-inactive
-    color: #9e9e9e
 
   .center-text
     text-align: center
