@@ -8,7 +8,7 @@ const RootVue = require('./views');
 const actions = require('./state/actions/main');
 const groupActions = require('./state/actions/group');
 const recentActions = require('./state/actions/recent');
-const examActions = require('./exam-actions');
+const examActions = require('./state/actions/exams');
 const store = require('./state/store');
 const PageNames = require('./constants').PageNames;
 
@@ -58,7 +58,7 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.EXAMS,
-          path: '/:classId/exam',
+          path: '/:classId/exams',
           handler: (toRoute, fromRoute) => {
             examActions.showExamsPage(store, toRoute.params.classId);
           },

@@ -2,7 +2,7 @@ const CoreApp = require('kolibri');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const CoreActions = require('kolibri.coreVue.vuex.actions');
 const GetDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
-const Constants = require('./state/constants');
+const Constants = require('../../constants');
 
 const ClassroomResource = CoreApp.resources.ClassroomResource;
 const ChannelResource = CoreApp.resources.ChannelResource;
@@ -10,7 +10,7 @@ const ChannelResource = CoreApp.resources.ChannelResource;
 
 function showExamsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.COACH_EXAMS_PAGE);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAMS);
   const classPromise = ClassroomResource.getCollection().fetch();
   const currentClassPromise = ClassroomResource.getModel(classId).fetch();
   const channelPromise = ChannelResource.getCollection().fetch();
@@ -42,7 +42,6 @@ function showExamsPage(store, classId) {
         currentChannel: GetDefaultChannelId(channelsCollection),
         channels: channelsCollection,
       };
-
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', ('Exams'));
