@@ -36,7 +36,7 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.RECENT,
-          path: '/:class_id/recent/:class_id?',
+          path: '/:class_id/recent/:channel_id?',
           handler: (toRoute, fromRoute) => {
             reportsActions.showRecent(
               store,
