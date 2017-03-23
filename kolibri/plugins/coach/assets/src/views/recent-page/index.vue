@@ -1,8 +1,14 @@
 <template>
 
-  <div id="recent">
-    <report-list v-if="pageState.channelId" :reports="pageState.reports" />
-    <channel-list v-else />
+  <div>
+    <h1>{{ $tr('title') }}</h1>
+    <div v-if="pageState.channelId">
+      <report-list :reports="pageState.reports" />
+    </div>
+    <div v-else>
+      <channel-list />
+    </div>
+
   </div>
 
 </template>
@@ -11,6 +17,10 @@
 <script>
 
   module.exports = {
+    $trNameSpace: 'coachRecentPage',
+    $trs: {
+      title: 'Recent Activity',
+    },
     components: {
       'channel-list': require('./channel-list'),
       'report-list': require('./report-list'),
