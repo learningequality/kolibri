@@ -1,26 +1,19 @@
 <template>
 
-  <div class="class-roster">
-    <caption class="visuallyhidden">{{$tr('channelList')}}</caption>
+  <div>
+    <caption class="visuallyhidden">{{ $tr('channelList') }}</caption>
     <table>
-      <!-- Table Headers -->
       <thead>
         <tr>
-          <th class="col-header" scope="col">
-            Channels
-          </th>
+          <th scope="col">{{ $tr('channels') }}</th>
         </tr>
       </thead>
-    <!-- Table body -->
       <tbody>
-          <tr v-for="channel in channels">
-            <!-- Content Name field -->
-            <router-link :to="reportLink(channel.id)">
-              <td>
-                {{channel.name}}
-              </td>
-            </router-link>
-          </tr>
+        <tr v-for="channel in channels">
+          <td>
+            <router-link :to="reportLink(channel.id)">{{ channel.name }}</router-link>
+          </td>
+        </tr>
       </tbody>
     </table>
 
@@ -37,15 +30,16 @@
     name: 'channelList',
     $trNameSpace: 'coachRecentPage',
     $trs: {
-      channelList: 'Channel List',
+      channels: 'Channels',
+      channelList: 'Channel list',
     },
     methods: {
       reportLink(channelID) {
         return {
           name: PageNames.RECENT,
           params: {
-            classID: this.classID,
-            channelID,
+            class_id: this.classID,
+            channel_id: channelID,
           },
         };
       },
@@ -61,4 +55,9 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  th
+    text-align: left
+
+</style>

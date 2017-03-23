@@ -7,17 +7,14 @@ const ReportConstants = require('../../reportConstants');
 const RecentReportResource = new RecentReportResourceConstructor(coreApp);
 const ChannelResource = coreApp.resources.ChannelResource;
 
-// ================================
-// RECENT ACTIONS
 
-function showChannelSelect(store, classID) {
+function _showChannels(store, classID) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
   const channelPromise = ChannelResource.getCollection();
   channelPromise.fetch().then(
     channels => {
       const pageState = {
-        subPageName: Constants.PageNames.RECENT_CHANNEL_SELECT,
         channels,
         class_id: classID,
       };
@@ -29,7 +26,8 @@ function showChannelSelect(store, classID) {
     error => { coreActions.handleApiError(store, error); }
   );
 }
-function showReports(store, classID, channelID) {
+
+function _showReports(store, classID, channelID) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
 
@@ -65,7 +63,14 @@ function showReports(store, classID, channelID) {
   );
 }
 
+function show(store, classID, channelID) {
+  if (channelID) {
+    _showReports(store, classID, channelID);
+  } else {
+    _showChannels(store, classID);
+  }
+}
+
 module.exports = {
-  showChannelSelect,
-  showReports,
+  show,
 };
