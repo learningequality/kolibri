@@ -55,23 +55,23 @@
             <tr>
               <th is="header-cell"
                 :text="$tr('name')"
-                :column="Constants.TableColumns.NAME"
+                :column="ReportConstants.TableColumns.NAME"
                 class="name-col coach-filter table-name"
               ></th>
               <th is="header-cell"
                 :text="$tr('avg-exercise-progress')"
-                :column="Constants.TableColumns.EXERCISE"
+                :column="ReportConstants.TableColumns.EXERCISE"
                 class="progress-col coach-filter"
               ></th>
               <th is="header-cell"
                 :text="$tr('avg-content-progress')"
-                :column="Constants.TableColumns.CONTENT"
+                :column="ReportConstants.TableColumns.CONTENT"
                 class="progress-col coach-filter"
               ></th>
               <th is="header-cell"
                 v-if="!isRecentView"
                 :text="$tr('last-activity')"
-                :column="Constants.TableColumns.DATE"
+                :column="ReportConstants.TableColumns.DATE"
                 class="date-col coach-filter"
               ></th>
             </tr>
@@ -110,7 +110,7 @@
 
 <script>
 
-  const Constants = require('../../constants');
+  const ReportConstants = require('../../reportConstants');
   const getters = require('../../state/getters');
   const coreGetters = require('kolibri.coreVue.vuex.getters');
   const genLink = require('./genLink');
@@ -138,33 +138,33 @@
       'item-cell': require('./data-cells/item-cell'),
     },
     computed: {
-      Constants() {
-        return Constants; // allow constants to be accessed inside templates
+      ReportConstants() {
+        return ReportConstants; // allow constants to be accessed inside templates
       },
       isViewByContent() {
-        return this.pageState.view_by_content_or_learners === Constants.ViewBy.CONTENT;
+        return this.pageState.view_by_content_or_learners === ReportConstants.ViewBy.CONTENT;
       },
       isRecentView() {
-        return this.pageState.all_or_recent === Constants.AllOrRecent.RECENT;
+        return this.pageState.all_or_recent === ReportConstants.AllOrRecent.RECENT;
       },
       isSingleUser() {
-        return this.pageState.user_scope === Constants.UserScopes.USER;
+        return this.pageState.user_scope === ReportConstants.UserScopes.USER;
       },
       isSingleItem() {
-        return this.pageState.content_scope === Constants.ContentScopes.CONTENT;
+        return this.pageState.content_scope === ReportConstants.ContentScopes.CONTENT;
       },
       userBreadcrumbs() {
-        if (this.pageState.user_scope === Constants.UserScopes.FACILITY) {
+        if (this.pageState.user_scope === ReportConstants.UserScopes.FACILITY) {
           return [{ title: this.$tr('all-learners', [this.userCount]) }];
-        } else if (this.pageState.user_scope === Constants.UserScopes.USER) {
+        } else if (this.pageState.user_scope === ReportConstants.UserScopes.USER) {
           const FACILITY_ID = '1'; // TODO - facility ID should not be hard-coded.
           return [
             {
               title: 'All Learners',
               vlink: genLink(this.pageState, {
                 view_by_content_or_learners:
-                  this.isRecentView ? Constants.ViewBy.CONTENT : Constants.ViewBy.LEARNERS,
-                user_scope: Constants.UserScopes.FACILITY,
+                  this.isRecentView ? ReportConstants.ViewBy.CONTENT : ReportConstants.ViewBy.LEARNERS,
+                user_scope: ReportConstants.UserScopes.FACILITY,
                 user_scope_id: FACILITY_ID,
               }),
             },
@@ -178,8 +178,8 @@
         const list = this.pageState.content_scope_summary.ancestors.map((item, index) => ({
           title: item.title,
           vlink: genLink(this.pageState, {
-            view_by_content_or_learners: Constants.ViewBy.CONTENT,
-            content_scope: index ? Constants.ContentScopes.TOPIC : Constants.ContentScopes.ROOT,
+            view_by_content_or_learners: ReportConstants.ViewBy.CONTENT,
+            content_scope: index ? ReportConstants.ContentScopes.TOPIC : ReportConstants.ContentScopes.ROOT,
             content_scope_id: item.pk,
           }),
         }));
@@ -188,18 +188,18 @@
       },
       recentViewLink() {
         return genLink(this.pageState, {
-          all_or_recent: Constants.AllOrRecent.RECENT,
-          content_scope: Constants.ContentScopes.ROOT, // recent view only applies to root
+          all_or_recent: ReportConstants.AllOrRecent.RECENT,
+          content_scope: ReportConstants.ContentScopes.ROOT, // recent view only applies to root
           content_scope_id: this.currentChannel.root_id,
-          view_by_content_or_learners: Constants.ViewBy.CONTENT,
+          view_by_content_or_learners: ReportConstants.ViewBy.CONTENT,
         });
       },
       allViewLink() {
-        return genLink(this.pageState, { all_or_recent: Constants.AllOrRecent.ALL });
+        return genLink(this.pageState, { all_or_recent: ReportConstants.AllOrRecent.ALL });
       },
       viewByLink() {
         // target of the link is the opposite of the current view
-        const view = this.isViewByContent ? Constants.ViewBy.LEARNERS : Constants.ViewBy.CONTENT;
+        const view = this.isViewByContent ? ReportConstants.ViewBy.LEARNERS : ReportConstants.ViewBy.CONTENT;
         return genLink(this.pageState, { view_by_content_or_learners: view });
       },
     },

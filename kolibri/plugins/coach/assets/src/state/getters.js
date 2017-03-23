@@ -1,4 +1,4 @@
-const Constants = require('../constants');
+const ReportConstants = require('../reportConstants');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const logging = require('kolibri.lib.logging');
 
@@ -38,16 +38,16 @@ function onlyContent(item) {
 
 function genCompareFunc(sortColumn, sortOrder) {
   const columnToKey = {};
-  columnToKey[Constants.TableColumns.NAME] = 'title';
-  columnToKey[Constants.TableColumns.EXERCISE] = 'exerciseProgress';
-  columnToKey[Constants.TableColumns.CONTENT] = 'contentProgress';
-  columnToKey[Constants.TableColumns.DATE] = 'lastActive';
+  columnToKey[ReportConstants.TableColumns.NAME] = 'title';
+  columnToKey[ReportConstants.TableColumns.EXERCISE] = 'exerciseProgress';
+  columnToKey[ReportConstants.TableColumns.CONTENT] = 'contentProgress';
+  columnToKey[ReportConstants.TableColumns.DATE] = 'lastActive';
   const key = columnToKey[sortColumn];
 
   // take into account sort order
-  const flipSortOrder = sortOrder === Constants.SortOrders.DESCENDING ? 1 : -1;
+  const flipSortOrder = sortOrder === ReportConstants.SortOrders.DESCENDING ? 1 : -1;
   // default order of names is A-Z; everything else goes high-low
-  const flipNameCol = sortColumn !== Constants.TableColumns.NAME ? -1 : 1;
+  const flipNameCol = sortColumn !== ReportConstants.TableColumns.NAME ? -1 : 1;
   // helper to choose correct order
   const flipped = direction => direction * flipSortOrder * flipNameCol;
   // generate and return the actual comparator function
@@ -67,7 +67,7 @@ function genRow(state, item) {
   const row = {};
 
   // CONTENT NODES
-  if (state.pageState.view_by_content_or_learners === Constants.ViewBy.CONTENT) {
+  if (state.pageState.view_by_content_or_learners === ReportConstants.ViewBy.CONTENT) {
     row.kind = item.kind;
     row.id = item.pk;
     row.title = item.title;
@@ -103,7 +103,7 @@ function genRow(state, item) {
       logging.error(`Unhandled item kind: ${item.kind}`);
     }
     // LEARNERS
-  } else if (state.pageState.view_by_content_or_learners === Constants.ViewBy.LEARNERS) {
+  } else if (state.pageState.view_by_content_or_learners === ReportConstants.ViewBy.LEARNERS) {
     row.kind = CoreConstants.USER;
     row.id = item.pk.toString(); // see https://github.com/learningequality/kolibri/issues/65;
     row.title = item.full_name;
@@ -172,7 +172,7 @@ Object.assign(getters, {
   },
   dataTable(state) {
     const data = state.pageState.table_data.map(item => genRow(state, item));
-    if (state.pageState.sort_order !== Constants.SortOrders.NONE) {
+    if (state.pageState.sort_order !== ReportConstants.SortOrders.NONE) {
       data.sort(genCompareFunc(state.pageState.sort_column, state.pageState.sort_order));
     }
     return data;

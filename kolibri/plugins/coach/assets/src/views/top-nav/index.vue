@@ -1,23 +1,31 @@
 <template>
 
   <div class="top">
-    <div class="links">
-      <router-link :to="resentPageLink" :class="{active: recentPageActive}" @click.native="blur">
-        {{$tr('recent')}}
-      </router-link>
-      <router-link :to="topicsPageLink" :class="{active: topicsPageActive}" @click.native="blur">
-        {{$tr('topics')}}
-      </router-link>
-      <router-link :to="examsPageLink" :class="{active: examsPageActive}" @click.native="blur">
-        {{$tr('exams')}}
-      </router-link>
-      <router-link :to="learnersPageLink" :class="{active: learnersPageActive}" @click.native="blur" v-if="isDeviceOwner">
-        {{$tr('learners')}}
-      </router-link>
-      <router-link :to="groupsPageLink" :class="{active: groupsPageActive}" @click.native="blur" v-if="isDeviceOwner">
-        {{$tr('groups')}}
-      </router-link>
-    </div>
+    <nav-link
+      :to="recentLink"
+      :active="isActive(Constants.PageNames.RECENT)"
+      :text="$tr('recent')"
+    />
+    <nav-link
+      :to="topicsLink"
+      :active="isActive(Constants.PageNames.TOPICS)"
+      :text="$tr('topics')"
+    />
+    <nav-link
+      :to="examsLink"
+      :active="isActive(Constants.PageNames.EXAMS)"
+      :text="$tr('exams')"
+    />
+    <nav-link
+      :to="learnersLink"
+      :active="isActive(Constants.PageNames.LEARNERS)"
+      :text="$tr('learners')"
+    />
+    <nav-link
+      :to="groupsLink"
+      :active="isActive(Constants.PageNames.GROUPS)"
+      :text="$tr('groups')"
+    />
   </div>
 
 </template>
@@ -25,8 +33,7 @@
 
 <script>
 
-  const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
-  const constants = require('../../constants');
+  const Constants = require('../../constants');
 
   module.exports = {
     $trNameSpace: 'topNav',
@@ -37,49 +44,53 @@
       learners: 'Learners',
       groups: 'Groups',
     },
-    methods: {
-      blur(evt) {
-        evt.target.blur();
-      },
+    components: {
+      'nav-link': require('./nav-link'),
     },
     computed: {
-      // active tabs
-      recentPageActive() {
-        return this.pageName === constants.PageNames.RECENT;
+      Constants() {
+        return Constants;
       },
-      topicsPageActive() {
-        return this.pageName === constants.PageNames.TOPICS;
+      recentLink() {
+        return {
+          name: Constants.PageNames.RECENT,
+          params: { class_id: this.classId },
+        };
       },
-      examsPageActive() {
-        return this.pageName === constants.PageNames.EXAMS;
+      topicsLink() {
+        return {
+          name: Constants.PageNames.TOPICS,
+          params: { class_id: this.classId },
+        };
       },
-      learnersPageActive() {
-        return this.pageName === constants.PageNames.LEARNERS;
+      examsLink() {
+        return {
+          name: Constants.PageNames.EXAMS,
+          params: { class_id: this.classId },
+        };
       },
-      groupsPageActive() {
-        return this.pageName === constants.PageNames.GROUPS;
+      learnersLink() {
+        return {
+          name: Constants.PageNames.LEARNERS,
+          params: { class_id: this.classId },
+        };
       },
-      // page links
-      resentPageLink() {
-        return { name: constants.PageNames.RECENT };
+      groupsLink() {
+        return {
+          name: Constants.PageNames.GROUPS,
+          params: { class_id: this.classId },
+        };
       },
-      topicsPageLink() {
-        return { name: constants.PageNames.TOPICS };
-      },
-      examsPageLink() {
-        return { name: constants.PageNames.EXAMS };
-      },
-      learnersPageLink() {
-        return { name: constants.PageNames.LEARNERS };
-      },
-      groupsPageLink() {
-        return { name: constants.PageNames.GROUPS };
+    },
+    methods: {
+      isActive(thatPageName) {
+        return this.pageName === thatPageName;
       },
     },
     vuex: {
       getters: {
-        isDeviceOwner: state => state.core.session.kind[0] === UserKinds.SUPERUSER,
         pageName: state => state.pageName,
+        classId: state => state.pageState.classId,
       },
     },
   };
@@ -90,18 +101,10 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
   .top
     position: relative
-    padding: 1em 2em
+    padding: 8px
     background: $core-bg-light
-    border-radius: $radius
-  .top a
-    padding: 0.6em 2em
-    text-decoration: none
-    color: $core-text-annotation
-  .top .active
-    color: $core-text-default
-    cursor: default
-    border-bottom: 0.3em $core-action-normal solid
 
 </style>
