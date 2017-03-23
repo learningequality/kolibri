@@ -52,7 +52,7 @@
   const actions = require('../../state/actions/main');
 
   module.exports = {
-    $trNameSpace: 'CoachExerciseAnswerHistory',
+    $trNameSpace: 'coachExerciseAnswerHistory',
     $trs: {
       header: 'Answer history',
       today: 'Today',

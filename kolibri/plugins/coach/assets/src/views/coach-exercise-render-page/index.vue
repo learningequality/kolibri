@@ -42,7 +42,7 @@
   const constants = require('../../constants');
 
   module.exports = {
-    $trNameSpace: 'CoachExerciseRenderPage',
+    $trNameSpace: 'coachExerciseRenderPage',
     $trs: {
       backto: 'Back to { text }',
     },

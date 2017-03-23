@@ -46,7 +46,7 @@
   const isUserLoggedIn = require('kolibri.coreVue.vuex.getters').isUserLoggedIn;
 
   module.exports = {
-    $trNameSpace: 'app-bar',
+    $trNameSpace: 'appBar',
     $trs: {
       account: 'Account',
       editProfile: 'Edit Profile',

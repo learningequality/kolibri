@@ -142,7 +142,7 @@
 
   module.exports = {
     mixins: [responsiveWindow],
-    $trNameSpace: 'management-class-enroll',
+    $trNameSpace: 'managementClassEnroll',
     $trs: {
       backToClassDetails: 'Back to class details',
       enrollSelectedUsers: 'Review selected users',

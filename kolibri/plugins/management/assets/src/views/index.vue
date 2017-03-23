@@ -27,7 +27,7 @@
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
-    $trNameSpace: 'management-root',
+    $trNameSpace: 'managementRoot',
     $trs: {
       managementTitle: 'Management',
       logInPrompt: 'Did you forget to log in?',

@@ -4,7 +4,7 @@
     <h1>{{ title }}</h1>
     <progress max="1" :value="percentage"></progress>
     <h2>{{ subTitle }}</h2>
-    <p v-if="statusFailed">{{ $tr('failed_msg') }}</p>
+    <p v-if="statusFailed">{{ $tr('failedMsg') }}</p>
     <icon-button class="buttons" @click="clearTaskHandler" :text="buttonMessage"/>
   </div>
 
@@ -26,7 +26,7 @@
       buttonClose: 'Close',
       buttonCancel: 'Cancel',
       failed: 'Please try again',
-      failed_msg: 'The transfer did not succeed.' +
+      failedMsg: 'The transfer did not succeed.' +
         ' Restart it to resume transferring the remaining content',
       completed: `Finished!`,
       loading: 'Please wait…',

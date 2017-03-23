@@ -26,7 +26,7 @@
   const constants = require('../../constants');
 
   module.exports = {
-    $trNameSpace: 'top-nav',
+    $trNameSpace: 'topNav',
     $trs: {
       classes: 'Classes',
       users: 'Users',

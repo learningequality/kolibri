@@ -80,7 +80,7 @@
   const actions = require('../../state/actions');
 
   module.exports = {
-    $trNameSpace: 'wizard-export',
+    $trNameSpace: 'wizardExport',
     $trs: {
       title: 'Export to a Local Drive',
       available: 'Available Storage:',
