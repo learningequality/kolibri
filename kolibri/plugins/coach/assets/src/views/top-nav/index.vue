@@ -3,27 +3,27 @@
   <div class="top">
     <nav-link
       :to="recentLink"
-      :active="pageName === Constants.PageNames.RECENT"
+      :active="isActive(Constants.PageNames.RECENT)"
       :text="$tr('recent')"
     />
     <nav-link
       :to="topicsLink"
-      :active="pageName === Constants.PageNames.TOPICS"
+      :active="isActive(Constants.PageNames.TOPICS)"
       :text="$tr('topics')"
     />
     <nav-link
       :to="examsLink"
-      :active="pageName === Constants.PageNames.EXAMS"
+      :active="isActive(Constants.PageNames.EXAMS)"
       :text="$tr('exams')"
     />
     <nav-link
       :to="learnersLink"
-      :active="pageName === Constants.PageNames.LEARNERS"
+      :active="isActive(Constants.PageNames.LEARNERS)"
       :text="$tr('learners')"
     />
     <nav-link
       :to="groupsLink"
-      :active="pageName === Constants.PageNames.GROUPS"
+      :active="isActive(Constants.PageNames.GROUPS)"
       :text="$tr('groups')"
     />
   </div>
@@ -80,6 +80,11 @@
           name: Constants.PageNames.GROUPS,
           params: { class_id: this.classId },
         };
+      },
+    },
+    methods: {
+      isActive(thatPageName) {
+        return this.pageName === thatPageName;
       },
     },
     vuex: {
