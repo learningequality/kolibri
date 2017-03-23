@@ -47,6 +47,11 @@ function _getCurrentChannelObject(currentChannelId, channels) {
   return channels.find(channel => channel.id === currentChannelId);
 }
 
+function displayModal(store, modalName) {
+  store.dispatch('SET_MODAL', modalName);
+}
+
+
 function showExamsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAMS);
@@ -67,30 +72,33 @@ function showExamsPage(store, classId) {
       const currentClassGroups = _groupsState(groupsCollection);
 
       const pageState = {
+        modalShown: false,
         channels,
         currentChannel,
         classes,
         currentClass,
         currentClassGroups,
         exams: [{
+          id: '1',
           title: 'Exam 1',
           active: false,
           dateCreated: 'March 15, 2017 03:24:00',
-          visibleTo: ['groupA', 'groupB'],
+          visibility: { class: false, groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }] },
         },
         {
+          id: '2',
           title: 'Exam 2',
           active: true,
           dateCreated: 'March 21, 2017 03:24:00',
-          visibleTo: ['groupB'],
+          visibility: { class: false, groups: [{ id: '1', name: 'groupA' }] },
         },
         {
+          id: '3',
           title: 'Exam 3',
           active: true,
           dateCreated: 'March 22, 2017 03:24:00',
-          visibleTo: ['groupA', 'groupB'],
+          visibility: { class: true, groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }] },
         }],
-
       };
 
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -105,5 +113,6 @@ function showExamsPage(store, classId) {
 }
 
 module.exports = {
+  displayModal,
   showExamsPage,
 };

@@ -52,6 +52,10 @@ const GroupModals = {
   MOVE_LEARNERS: 'MOVE_LEARNERS',
 };
 
+const ExamModals = {
+  ACTIVATE_EXAM: 'ACTIVATE_EXAM',
+};
+
 module.exports = {
   PageNames,
   ContentScopes,
@@ -61,4 +65,5 @@ module.exports = {
   TableColumns,
   SortOrders,
   GroupModals,
+  ExamModals,
 };

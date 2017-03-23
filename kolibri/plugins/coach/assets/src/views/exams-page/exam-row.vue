@@ -4,39 +4,40 @@
     <td class="col-icon">
       <ui-icon
         icon="assignment"
-        :ariaLabel="String(active)"
-        :class="active ? 'icon-active' : 'icon-inactive'"
+        :ariaLabel="String(examActive)"
+        :class="examActive ? 'icon-active' : 'icon-inactive'"
       />
     </td>
     <td class="col-title">
-      <strong>{{ title }}</strong>
-        <span v-if="active">{{ $tr('active') }}</span>
+      <strong>{{ examTitle }}</strong>
+        <span v-if="examActive">{{ $tr('active') }}</span>
         <span v-else>{{ $tr('inactive') }}</span>
-        {{ ` - ${$tr('createdOn')} ${dateCreated}` }}
+        {{ ` - ${$tr('createdOn')} ${examDate}` }}
     </td>
 
-    <td class="col-visibility">{{ visibleToString(visibleTo) }} |
+    <td class="col-visibility"><strong>{{ visibilityString }}</strong> |
       <ui-button
         type="secondary"
         color="default"
-        @click="openChangeExamVisibilityModal">
+        @click="emitChangeExamVisibility">
         {{ $tr('change') }}
       </ui-button>
     </td>
 
     <td class="col-action">
       <ui-button
-        v-if="active"
+        v-if="examActive"
         type="secondary"
         color="red"
-        @click="openDeactivateExamModal">
+        @click="emitDeactivateExam">
         {{ $tr('deactivate') }}
       </ui-button>
+
       <ui-button
         v-else
         type="secondary"
         color="primary"
-        @click="openActivateExamModal">
+        @click="emitActivateExam">
         {{ $tr('activate') }}
       </ui-button>
 
@@ -61,6 +62,8 @@
 
 <script>
 
+  const ExamActions = require('../../state/actions/exam');
+
   module.exports = {
     $trNameSpace: 'examRow',
     $trs: {
@@ -74,6 +77,8 @@
       viewReport: 'View report',
       rename: 'Rename',
       delete: 'Delete',
+      entireClass: 'Entire class',
+      groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
     },
     data() {
       return {
@@ -92,26 +97,31 @@
       'ui-menu': require('keen-ui/src/UiMenu'),
     },
     props: {
-      active: {
+      examId: {
+        type: String,
+        required: true,
+      },
+      examTitle: {
+        type: String,
+        required: true,
+      },
+      examActive: {
         type: Boolean,
         required: true,
       },
-      dateCreated: {
+      examDate: {
         type: String,
         required: true,
       },
-      title: {
-        type: String,
-        required: true,
-      },
-      visibleTo: {
-        required: true,
-      },
-      className: {
-        type: String,
+      examVisibility: {
+        type: Object,
         required: true,
       },
       classId: {
+        type: String,
+        required: true,
+      },
+      className: {
         type: String,
         required: true,
       },
@@ -120,42 +130,58 @@
         required: true,
       },
     },
+    computed: {
+      visibilityString() {
+        if (this.examVisibility.class === true) {
+          return this.$tr('entireClass');
+        } else if (this.examVisibility.groups.length) {
+          return this.$tr('groups', { count: this.examVisibility.groups.length });
+        }
+        return 'Something is not right';
+      },
+
+    },
     methods: {
-      visibleToString(groups) {
-        return 'TODO';
+      emitChangeExamVisibility() {
+        console.log('emitChangeExamVisibility');
       },
-      openChangeExamVisibilityModal() {
-        console.log('openChangeExamVisibilityModal');
+      emitActivateExam() {
+        this.$emit('activateExam', this.examId, this.examTitle, this.examVisibility);
       },
-      openActivateExamModal() {
-        console.log('openActivateExamModal');
+      emitDeactivateExam() {
+        console.log('deactivateExam');
       },
-      openDeactivateExamModal() {
-        console.log('openDeactivateExamModal');
+      emitPreviewExam() {
+        console.log('emitPreviewExam');
+      },
+      emitViewReport() {
+        console.log('emitViewReport');
+      },
+      emitRenameExam() {
+        console.log('emitRenameExam');
+      },
+      emitDeleteExam() {
+        console.log('emitDeleteExam');
       },
       handleSelection(optionSelected) {
         const action = optionSelected.label;
         if (action === this.$tr('previewExam')) {
-          this.openExamPreviewModal();
+          this.emitPreviewExam();
         } else if (action === this.$tr('viewReport')) {
-          this.openExamReportModal();
+          this.emitViewReport();
         } else if (action === this.$tr('rename')) {
-          this.openRenameExamModal();
+          this.emitRenameExam();
         } else if (action === this.$tr('delete')) {
-          this.openDeleteExamModal();
+          this.emitDeleteExam();
         }
       },
-      openExamPreviewModal() {
-        console.log('openExamPreviewModal');
+    },
+    vuex: {
+      getters: {
+        modalShown: state => state.pageState.modalShown,
       },
-      openExamReportModal() {
-        console.log('openExamReportModal');
-      },
-      openRenameExamModal() {
-        console.log('openRenameExamModal');
-      },
-      openDeleteExamModal() {
-        console.log('openDeleteExamModal');
+      actions: {
+        displayModal: ExamActions.displayModal,
       },
     },
   };

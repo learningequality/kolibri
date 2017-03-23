@@ -8,7 +8,7 @@ const RootVue = require('./views');
 const actions = require('./state/actions/main');
 const groupActions = require('./state/actions/group');
 const recentActions = require('./state/actions/recent');
-const examActions = require('./state/actions/exams');
+const examActions = require('./state/actions/exam');
 const store = require('./state/store');
 const PageNames = require('./constants').PageNames;
 
