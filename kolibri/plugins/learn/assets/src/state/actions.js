@@ -187,7 +187,7 @@ function showExploreContent(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXPLORE_CONTENT);
 
-  const contentPromise = ContentNodeResource.getModel(id).fetch();
+  const contentPromise = ContentNodeResource.getModel(id, { channel_id: channelId }).fetch();
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
   ConditionalPromise.all([contentPromise, channelsPromise]).only(
     samePageCheckGenerator(store),
