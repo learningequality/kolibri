@@ -20,7 +20,7 @@ const mutations = {
     state.pageState.classId = classId;
   },
   SET_CHANNEL_ID(state, channelId) {
-    state.pageState.channel_id = channelId;
+    state.pageState.channelId = channelId;
   },
   SET_CONTENT_SCOPE(state, contentScope) {
     state.pageState.content_scope = contentScope;

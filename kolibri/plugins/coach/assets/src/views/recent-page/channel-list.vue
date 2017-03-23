@@ -34,12 +34,12 @@
       channelList: 'Channel list',
     },
     methods: {
-      reportLink(channelID) {
+      reportLink(channelId) {
         return {
           name: PageNames.RECENT,
           params: {
             class_id: this.classId,
-            channel_id: channelID,
+            channel_id: channelId,
           },
         };
       },

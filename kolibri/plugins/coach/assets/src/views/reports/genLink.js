@@ -31,7 +31,7 @@ function _tweakViewByParam(params) {
  */
 function genLink(pageState, newParams) {
   const currentParams = {
-    channel_id: pageState.channel_id,
+    channel_id: pageState.channelId,
     content_scope: pageState.content_scope,
     content_scope_id: pageState.content_scope_id,
     user_scope: pageState.user_scope,

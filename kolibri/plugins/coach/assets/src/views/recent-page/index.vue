@@ -1,7 +1,7 @@
 <template>
 
   <div id="recent">
-    <report-list v-if="pageState.channel_id" :reports="pageState.reports" />
+    <report-list v-if="pageState.channelId" :reports="pageState.reports" />
     <channel-list v-else />
   </div>
 

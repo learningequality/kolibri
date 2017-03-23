@@ -27,17 +27,17 @@ function _showChannels(store, classId) {
   );
 }
 
-function _showReports(store, classId, channelID) {
+function _showReports(store, classId, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
 
   // should be cached if navigated to this point
-  const channelPromise = ChannelResource.getModel(channelID).fetch();
+  const channelPromise = ChannelResource.getModel(channelId).fetch();
 
   channelPromise.then(
     channelData => {
       const reportPayload = {
-        channel_id: channelID,
+        channel_id: channelId,
         content_node_id: channelData.root_pk,
         collection_kind: ReportConstants.UserScopes.CLASSROOM,
         collection_id: classId,
@@ -49,7 +49,7 @@ function _showReports(store, classId, channelID) {
           const pageState = {
             reports,
             classId,
-            channel_id: channelID,
+            channelId,
           };
           store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -63,9 +63,9 @@ function _showReports(store, classId, channelID) {
   );
 }
 
-function show(store, classId, channelID) {
-  if (channelID) {
-    _showReports(store, classId, channelID);
+function show(store, classId, channelId) {
+  if (channelId) {
+    _showReports(store, classId, channelId);
   } else {
     _showChannels(store, classId);
   }
