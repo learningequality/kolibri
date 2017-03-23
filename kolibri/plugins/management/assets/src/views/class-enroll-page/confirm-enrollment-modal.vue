@@ -29,7 +29,7 @@
   const constants = require('../../constants');
 
   module.exports = {
-    $trNameSpace: 'confirm-enrollment-modal',
+    $trNameSpace: 'confirmEnrollmentModal',
     $trs: {
       confirmEnrollment: 'Confirm Enrollment of Selected Users',
       areYouSure: 'Are you sure you want to enroll the following users into',

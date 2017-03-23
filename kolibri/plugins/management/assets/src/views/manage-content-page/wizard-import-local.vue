@@ -82,7 +82,7 @@
   const actions = require('../../state/actions');
 
   module.exports = {
-    $trNameSpace: 'wizard-local-import',
+    $trNameSpace: 'wizardLocalImport',
     $trs: {
       title: 'Import from a Local Drive',
       noDrivesDetected: 'No drives were detected',

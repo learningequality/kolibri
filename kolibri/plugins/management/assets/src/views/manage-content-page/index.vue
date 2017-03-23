@@ -71,7 +71,7 @@
   const ContentWizardPages = require('../../constants').ContentWizardPages;
 
   module.exports = {
-    $trNameSpace: 'manage-content-state',
+    $trNameSpace: 'manageContentState',
     $trs: {
       title: 'My channels',
       import: 'Import',

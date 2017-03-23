@@ -27,7 +27,7 @@
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
-    $trNameSpace: 'coach-root',
+    $trNameSpace: 'coachRoot',
     $trs: {
       coachTitle: 'Coach',
       logInPrompt: 'Did you forget to log in?',

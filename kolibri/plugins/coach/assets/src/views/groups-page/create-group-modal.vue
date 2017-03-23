@@ -31,7 +31,7 @@
   const groupActions = require('../../state/actions/group');
 
   module.exports = {
-    $trNameSpace: 'create-group-modal',
+    $trNameSpace: 'createGroupModal',
     $trs: {
       newLearnerGroup: 'New Learner Group',
       learnerGroupName: 'Learner Group Name',
