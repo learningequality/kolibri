@@ -15,7 +15,7 @@
       <tbody>
           <tr v-for="channel in channels">
             <!-- Content Name field -->
-            <router-link :to="reportsForChannel(channel.id)">
+            <router-link :to="reportLink(channel.id)">
               <td>
                 {{channel.name}}
               </td>
@@ -31,7 +31,7 @@
 
 <script>
 
-  const PageNames = require('../../../constants').PageNames;
+  const PageNames = require('../../constants').PageNames;
 
   module.exports = {
     name: 'channelList',
@@ -40,7 +40,7 @@
       channelList: 'Channel List',
     },
     methods: {
-      reportsForChannel(channelID) {
+      reportLink(channelID) {
         return {
           name: PageNames.RECENT,
           params: {

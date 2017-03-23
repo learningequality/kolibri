@@ -3,10 +3,8 @@
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('coachTitle')">
 
     <div v-if="isCoachAdminOrSuperuser" slot="content">
-      <div v-if="notRootPage" class="page">
-        <top-nav/>
-      </div>
-      <component class="page" :is="currentPage"/>
+      <top-nav v-if="showTopNav"/>
+      <component :is="currentPage"/>
     </div>
 
     <div v-else slot="content" class="login-message">
@@ -70,18 +68,8 @@
         }
         return null;
       },
-      notRootPage() {
+      showTopNav() {
         return this.pageName !== constants.PageNames.CLASS_LIST;
-      },
-    },
-    methods: {
-      switchChannel(channelId) {
-        this.$router.push({
-          name: constants.PageNames.REPORTS_CHANNEL,
-          params: {
-            channel_id: channelId,
-          },
-        });
       },
     },
     vuex: {
