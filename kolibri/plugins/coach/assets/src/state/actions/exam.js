@@ -122,7 +122,10 @@ function showCreateExamPage(store, classId) {
 }
 
 function activateExam() {
-  console.log('activate class');
+  this.displayModal(false);
+}
+
+function updateExamVisibility() {
   this.displayModal(false);
 }
 
@@ -131,4 +134,5 @@ module.exports = {
   showExamsPage,
   showCreateExamPage,
   activateExam,
+  updateExamVisibility,
 };

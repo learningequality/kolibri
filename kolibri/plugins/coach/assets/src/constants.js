@@ -19,6 +19,7 @@ const GroupModals = {
 
 const ExamModals = {
   ACTIVATE_EXAM: 'ACTIVATE_EXAM',
+  CHANGE_EXAM_VISIBILITY: 'CHANGE_EXAM_VISIBILITY',
 };
 
 module.exports = {

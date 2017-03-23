@@ -62,8 +62,6 @@
 
 <script>
 
-  const ExamActions = require('../../state/actions/exam');
-
   module.exports = {
     $trNameSpace: 'examRow',
     $trs: {
@@ -117,18 +115,6 @@
         type: Object,
         required: true,
       },
-      classId: {
-        type: String,
-        required: true,
-      },
-      className: {
-        type: String,
-        required: true,
-      },
-      classGroups: {
-        type: Array,
-        required: true,
-      },
     },
     computed: {
       visibilityString() {
@@ -143,25 +129,25 @@
     },
     methods: {
       emitChangeExamVisibility() {
-        console.log('emitChangeExamVisibility');
+        this.$emit('changeExamVisibility', this.examId);
       },
       emitActivateExam() {
-        this.$emit('activateExam', this.examId, this.examTitle, this.examVisibility);
+        this.$emit('activateExam', this.examId);
       },
       emitDeactivateExam() {
-        console.log('deactivateExam');
+        this.$emit('deactivateExam', this.examId);
       },
       emitPreviewExam() {
-        console.log('emitPreviewExam');
+        this.$emit('previewExam', this.examId);
       },
       emitViewReport() {
-        console.log('emitViewReport');
+        this.$emit('viewReport', this.examId);
       },
       emitRenameExam() {
-        console.log('emitRenameExam');
+        this.$emit('renameExam', this.examId);
       },
       emitDeleteExam() {
-        console.log('emitDeleteExam');
+        this.$emit('deleteExam', this.examId);
       },
       handleSelection(optionSelected) {
         const action = optionSelected.label;
@@ -174,14 +160,6 @@
         } else if (action === this.$tr('delete')) {
           this.emitDeleteExam();
         }
-      },
-    },
-    vuex: {
-      getters: {
-        modalShown: state => state.pageState.modalShown,
-      },
-      actions: {
-        displayModal: ExamActions.displayModal,
       },
     },
   };

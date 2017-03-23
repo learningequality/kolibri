@@ -54,6 +54,14 @@
       :examTitle="selectedExam.title"
       :examVisibility="selectedExam.visibility"
       :classId="currentClass.id"/>
+    <change-exam-visibility-modal
+      v-if="showChangeExamVisibilityModal"
+      :examId="selectedExam.id"
+      :examTitle="selectedExam.title"
+      :examVisibility="selectedExam.visibility"
+      :classId="currentClass.id"
+      :className="currentClass.name"
+      :classGroups="currentClassGroups"/>
   </div>
 
 </template>
@@ -85,6 +93,7 @@
       'ui-radio-group': require('keen-ui/src/UiRadioGroup'),
       'exam-row': require('./exam-row'),
       'activate-exam-modal': require('./activate-exam-modal'),
+      'change-exam-visibility-modal': require('./change-exam-visibility-modal'),
     },
     data() {
       return {
@@ -120,15 +129,17 @@
       showActivateExamModal() {
         return this.modalShown === ExamModals.ACTIVATE_EXAM;
       },
+      showChangeExamVisibilityModal() {
+        return this.modalShown === ExamModals.CHANGE_EXAM_VISIBILITY;
+      },
     },
     methods: {
-      openChangeExamVisibilityModal() {
-        console.log('openChangeExamVisibilityModal');
+      openChangeExamVisibilityModal(examId) {
+        this.selectedExam = this.exams.find(exam => exam.id === examId);
+        this.displayModal(ExamModals.CHANGE_EXAM_VISIBILITY);
       },
-      openActivateExamModal(examId, examTitle, examVisibility) {
-        this.selectedExam.id = examId;
-        this.selectedExam.title = examTitle;
-        this.selectedExam.visibility = examVisibility;
+      openActivateExamModal(examId) {
+        this.selectedExam = this.exams.find(exam => exam.id === examId);
         this.displayModal(ExamModals.ACTIVATE_EXAM);
       },
       openDeactivateExamModal() {
@@ -153,6 +164,7 @@
       },
       getters: {
         currentClass: state => state.pageState.currentClass,
+        currentClassGroups: state => state.pageState.currentClassGroups,
         classes: state => state.pageState.classes,
         currentChannel: state => state.pageState.currentChannel,
         channels: state => state.pageState.channels,
