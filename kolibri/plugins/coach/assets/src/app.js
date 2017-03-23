@@ -7,7 +7,6 @@ const Vue = require('kolibri.lib.vue');
 const RootVue = require('./views');
 const actions = require('./state/actions/main');
 const groupActions = require('./state/actions/group');
-const recentActions = require('./state/actions/recent');
 const examActions = require('./state/actions/exam');
 const reportsActions = require('./state/actions/reports');
 const store = require('./state/store');
