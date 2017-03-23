@@ -2,6 +2,7 @@ const coreApp = require('kolibri');
 const RecentReportResourceConstructor = require('../../apiResources/recentReport');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const Constants = require('../../constants');
+const ReportConstants = require('../../reportConstants');
 
 const RecentReportResource = new RecentReportResourceConstructor(coreApp);
 const ChannelResource = coreApp.resources.ChannelResource;
@@ -40,7 +41,7 @@ function showReports(store, classID, channelID) {
       const reportPayload = {
         channel_id: channelID,
         content_node_id: channelData.root_pk,
-        collection_kind: Constants.UserScopes.CLASSROOM,
+        collection_kind: ReportConstants.UserScopes.CLASSROOM,
         collection_id: classID,
       };
       const recentReportsPromise = RecentReportResource.getCollection(reportPayload).fetch();

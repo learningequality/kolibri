@@ -3,6 +3,7 @@ const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultCh
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const router = require('kolibri.coreVue.router');
 const Constants = require('../../constants');
+const ReportConstants = require('../../reportConstants');
 
 const RecentReportResourceConstructor = require('../../apiResources/recentReport');
 const UserReportResourceConstructor = require('../../apiResources/userReport');
@@ -149,14 +150,14 @@ function redirectToDefaultReport(store, params) {
         name: Constants.PageNames.REPORTS,
         params: {
           channel_id: channelId,
-          content_scope: Constants.ContentScopes.ROOT,
+          content_scope: ReportConstants.ContentScopes.ROOT,
           content_scope_id: contentScopeId,
-          user_scope: Constants.UserScopes.FACILITY,
+          user_scope: ReportConstants.UserScopes.FACILITY,
           user_scope_id: userScopeId,
-          all_or_recent: Constants.AllOrRecent.ALL,
-          view_by_content_or_learners: Constants.ViewBy.CONTENT,
-          sort_column: Constants.TableColumns.NAME,
-          sort_order: Constants.SortOrders.NONE,
+          all_or_recent: ReportConstants.AllOrRecent.ALL,
+          view_by_content_or_learners: ReportConstants.ViewBy.CONTENT,
+          sort_column: ReportConstants.TableColumns.NAME,
+          sort_order: ReportConstants.SortOrders.NONE,
         },
       });
     },
