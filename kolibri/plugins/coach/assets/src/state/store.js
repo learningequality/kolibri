@@ -17,7 +17,7 @@ const mutations = {
     state.pageName = pageName;
   },
   SET_CLASS_ID(state, classId) {
-    state.pageState.class_id = classId;
+    state.pageState.classId = classId;
   },
   SET_CHANNEL_ID(state, channelId) {
     state.pageState.channel_id = channelId;

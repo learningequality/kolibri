@@ -8,7 +8,7 @@ const RecentReportResource = new RecentReportResourceConstructor(coreApp);
 const ChannelResource = coreApp.resources.ChannelResource;
 
 
-function _showChannels(store, classID) {
+function _showChannels(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
   const channelPromise = ChannelResource.getCollection();
@@ -16,7 +16,7 @@ function _showChannels(store, classID) {
     channels => {
       const pageState = {
         channels,
-        class_id: classID,
+        classId,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -27,7 +27,7 @@ function _showChannels(store, classID) {
   );
 }
 
-function _showReports(store, classID, channelID) {
+function _showReports(store, classId, channelID) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
 
@@ -40,7 +40,7 @@ function _showReports(store, classID, channelID) {
         channel_id: channelID,
         content_node_id: channelData.root_pk,
         collection_kind: ReportConstants.UserScopes.CLASSROOM,
-        collection_id: classID,
+        collection_id: classId,
       };
       const recentReportsPromise = RecentReportResource.getCollection(reportPayload).fetch();
 
@@ -48,7 +48,7 @@ function _showReports(store, classID, channelID) {
         reports => {
           const pageState = {
             reports,
-            class_id: classID,
+            classId,
             channel_id: channelID,
           };
           store.dispatch('SET_PAGE_STATE', pageState);
@@ -63,11 +63,11 @@ function _showReports(store, classID, channelID) {
   );
 }
 
-function show(store, classID, channelID) {
+function show(store, classId, channelID) {
   if (channelID) {
-    _showReports(store, classID, channelID);
+    _showReports(store, classId, channelID);
   } else {
-    _showChannels(store, classID);
+    _showChannels(store, classId);
   }
 }
 

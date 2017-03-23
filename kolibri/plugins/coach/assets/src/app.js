@@ -12,7 +12,6 @@ const store = require('./state/store');
 const PageNames = require('./constants').PageNames;
 
 const REPORTS_URL_PATTERN = [
-  ':class_id',
   ':view_by_content_or_learners',
   ':channel_id',
   ':content_scope',
@@ -47,7 +46,7 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.TOPICS,
-          path: REPORTS_URL_PATTERN,
+          path: `/:class_id/topics/${REPORTS_URL_PATTERN}`,
           handler: (toRoute, fromRoute) => {
             actions.showReport(store, toRoute.params);
           },
@@ -56,12 +55,12 @@ class CoachToolsModule extends KolibriModule {
           name: PageNames.EXAMS,
           path: '/:class_id/exams',
           handler: (toRoute, fromRoute) => {
-            actions.showExamsPage(store, toRoute.params);
+            actions.showExamsPage(store, toRoute.params.class_id);
           },
         },
         {
           name: PageNames.LEARNERS,
-          path: REPORTS_URL_PATTERN,
+          path: `/:class_id/learners/${REPORTS_URL_PATTERN}`,
           handler: (toRoute, fromRoute) => {
             actions.showReport(store, toRoute.params);
           },

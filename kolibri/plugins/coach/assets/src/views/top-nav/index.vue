@@ -52,25 +52,40 @@
         return Constants;
       },
       recentLink() {
-        return { name: Constants.PageNames.RECENT };
+        return {
+          name: Constants.PageNames.RECENT,
+          params: { class_id: this.classId },
+        };
       },
       topicsLink() {
-        return { name: Constants.PageNames.TOPICS };
+        return {
+          name: Constants.PageNames.TOPICS,
+          params: { class_id: this.classId },
+        };
       },
       examsLink() {
-        return { name: Constants.PageNames.EXAMS };
+        return {
+          name: Constants.PageNames.EXAMS,
+          params: { class_id: this.classId },
+        };
       },
       learnersLink() {
-        return { name: Constants.PageNames.LEARNERS };
+        return {
+          name: Constants.PageNames.LEARNERS,
+          params: { class_id: this.classId },
+        };
       },
       groupsLink() {
-        return { name: Constants.PageNames.GROUPS };
+        return {
+          name: Constants.PageNames.GROUPS,
+          params: { class_id: this.classId },
+        };
       },
     },
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        classID: state => state.classID,
+        classId: state => state.pageState.classId,
       },
     },
   };

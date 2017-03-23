@@ -38,7 +38,7 @@
         return {
           name: PageNames.RECENT,
           params: {
-            class_id: this.classID,
+            class_id: this.classId,
             channel_id: channelID,
           },
         };
@@ -47,7 +47,7 @@
     vuex: {
       getters: {
         channels: state => state.pageState.channels,
-        classID: state => state.pageState.class_id,
+        classId: state => state.pageState.classId,
       },
     },
   };

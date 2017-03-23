@@ -75,6 +75,7 @@ function showGroupsPage(store, classId) {
             classUsers: _usersState(classUsers),
             groups,
             modalShown: false,
+            classId
           };
 
           store.dispatch('SET_PAGE_STATE', pageState);

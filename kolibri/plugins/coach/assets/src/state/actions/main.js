@@ -74,13 +74,14 @@ function showClassListPage(store) {
 // ================================
 // EXAMS ACTIONS
 
-function showExamsPage(store, params) {
+function showExamsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAMS);
   const classCollection = ClassroomResource.getCollection();
   classCollection.fetch().then(
     (classes) => {
       const pageState = {
+        classId,
         classes,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
