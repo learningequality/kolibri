@@ -9,12 +9,12 @@
       <span v-if="examVisibility.class"><strong>Entire class</strong></span>
       <span v-else>
         <ul>
-          <li v-for="group in examVisibility.class.groups"><strong>{{ group.name }}</strong></li>
+          <li v-for="group in examVisibility.groups"><strong>{{ group.name }}</strong></li>
         </ul>
       </span>
     </p>
     <icon-button :text="$tr('cancel')" @click="close"/>
-    <icon-button :text="$tr('activate')" :primary="true" @click="activateExam()"/>
+    <icon-button :text="$tr('activate')" :primary="true" @click="activateExam"/>
   </core-modal>
 
 </template>
@@ -25,7 +25,7 @@
   const examActions = require('../../state/actions/exam');
 
   module.exports = {
-    $trNameSpace: 'delete-group-modal',
+    $trNameSpace: 'activateExamModal',
     $trs: {
       activateExam: 'Activate exam',
       areYouSure: 'Are you sure you want to activate <strong>{ examTitle }</strong>?',
