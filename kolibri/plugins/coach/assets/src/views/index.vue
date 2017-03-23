@@ -39,6 +39,7 @@
       'recent-page': require('./recent-page'),
       'topics-page': require('./topics-page'),
       'exams-page': require('./exams-page'),
+      'create-exam-page': require('./create-exam-page'),
       'learners-page': require('./learners-page'),
       'groups-page': require('./groups-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
@@ -58,6 +59,9 @@
         }
         if (this.pageName === constants.PageNames.EXAMS) {
           return 'exams-page';
+        }
+        if (this.pageName === constants.PageNames.CREATE_EXAM) {
+          return 'create-exam-page';
         }
         if (this.pageName === constants.PageNames.LEARNERS) {
           return 'learners-page';

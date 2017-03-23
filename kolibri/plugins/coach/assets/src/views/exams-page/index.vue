@@ -8,14 +8,15 @@
       :options="filterOptions"
       v-model="filterSelected"
     />
-    <ui-button
-      type="primary"
-      color="primary"
-      :raised="true"
-      icon="add"
-      @click="openCreateExamModal">
-      {{ $tr('newExam') }}
-    </ui-button>
+    <router-link :to="createExamPage">
+      <ui-button
+        type="primary"
+        color="primary"
+        :raised="true"
+        icon="add">
+        {{ $tr('newExam') }}
+      </ui-button>
+    </router-link>
     <table v-if="exams.length">
       <thead>
         <tr>
@@ -62,6 +63,7 @@
 
   const ExamActions = require('../../state/actions/exam');
   const ExamModals = require('../../constants').ExamModals;
+  const PageNames = require('../../constants').PageNames;
 
   module.exports = {
     $trNameSpace: 'coachExamsPage',
@@ -93,6 +95,10 @@
           { label: this.$tr('inactive'), value: this.$tr('inactive') }
         ],
         selectedExam: { title: '', id: '', visibility: { class: true } },
+        createExamPage: {
+          name: PageNames.CREATE_EXAM,
+          params: { classId: this.currentClass.id },
+        },
       };
     },
     computed: {
@@ -116,9 +122,6 @@
       },
     },
     methods: {
-      openCreateExamModal() {
-        console.log('openCreateExamModal');
-      },
       openChangeExamVisibilityModal() {
         console.log('openChangeExamVisibilityModal');
       },
