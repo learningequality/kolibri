@@ -40,7 +40,7 @@
     $trNameSpace: 'CoachExerciseQuestionAttempt',
     $trs: {
       attempts: 'Question {number} attempts',
-      currAnswer: '{number} answer',
+      currAnswer: '{ordinal} answer',
     },
     components: {
       'attempt-box': require('./attempt-box'),
@@ -72,8 +72,23 @@
       attemptsText(number) {
         return this.$tr('attempts', { number });
       },
+      _ordinal_suffix_of(i) {
+        const j = i % 10;
+        const k = i % 100;
+        if (j === 1 && k !== 11) {
+          return `${i}st`;
+        }
+        if (j === 2 && k !== 12) {
+          return `${i}nd`;
+        }
+        if (j === 3 && k !== 13) {
+          return `${i}rd`;
+        }
+        return `${i}th`;
+      },
       currAnswerText(number) {
-        return this.$tr('currAnswer', { number });
+        const ordinal = this._ordinal_suffix_of(number);
+        return this.$tr('currAnswer', { ordinal });
       },
       setSelected(index) {
         this.selectedIndex = ((this.currPage - 1) * this.numAttemptsShown) + index;
