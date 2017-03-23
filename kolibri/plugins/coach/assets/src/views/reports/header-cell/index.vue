@@ -18,7 +18,7 @@
 
 <script>
 
-  const Constants = require('../../../constants');
+  const ReportConstants = require('../../../reportConstants');
   const genLink = require('../genLink');
   const values = require('lodash.values');
 
@@ -37,34 +37,31 @@
         type: String,
         required: true,
         validator(value) {
-          return values(Constants.TableColumns).includes(value);
+          return values(ReportConstants.TableColumns).includes(value);
         },
       },
     },
     computed: {
-      Constants() {
-        return Constants;
-      },
       sortable() {
-        return this.pageState.all_or_recent !== Constants.AllOrRecent.RECENT;
+        return this.pageState.all_or_recent !== ReportConstants.AllOrRecent.RECENT;
       },
       sorted() {
         return this.sortable && this.pageState.sort_column === this.column;
       },
       isDescending() {
-        return this.sorted && this.pageState.sort_order === Constants.SortOrders.DESCENDING;
+        return this.sorted && this.pageState.sort_order === ReportConstants.SortOrders.DESCENDING;
       },
       isAscending() {
-        return this.sorted && this.pageState.sort_order === Constants.SortOrders.ASCENDING;
+        return this.sorted && this.pageState.sort_order === ReportConstants.SortOrders.ASCENDING;
       },
       nextSortState() {
-        if (!this.sorted || this.pageState.sort_order === Constants.SortOrders.NONE) {
-          return Constants.SortOrders.DESCENDING;
+        if (!this.sorted || this.pageState.sort_order === ReportConstants.SortOrders.NONE) {
+          return ReportConstants.SortOrders.DESCENDING;
         }
-        if (this.pageState.sort_order === Constants.SortOrders.DESCENDING) {
-          return Constants.SortOrders.ASCENDING;
+        if (this.pageState.sort_order === ReportConstants.SortOrders.DESCENDING) {
+          return ReportConstants.SortOrders.ASCENDING;
         }
-        return Constants.SortOrders.NONE;
+        return ReportConstants.SortOrders.NONE;
       },
       vLink() {
         const link = genLink(this.pageState, {

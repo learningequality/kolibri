@@ -1,29 +1,14 @@
 <template>
 
-  <div id="recent">
-    <channel-list v-if="channelNotSelected" />
-    <div v-else>
-      <table>
-        <thead>
-          <tr>
-            <th> Name </th>
-            <th> Progress </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr v-for="report in reports">
-            <td>
-              {{report.title}}
-            </td>
-            <td>
-              {{report.progress[0].total_progress}}
-            </td>
-          </tr>
-        </tbody>
-
-      </table>
+  <div>
+    <h1>{{ $tr('title') }}</h1>
+    <div v-if="pageState.channelId">
+      <report-list :reports="pageState.reports" />
     </div>
+    <div v-else>
+      <channel-list />
+    </div>
+
   </div>
 
 </template>
@@ -31,32 +16,18 @@
 
 <script>
 
-  const PageNames = require('../../constants').PageNames;
-
   module.exports = {
     $trNameSpace: 'coachRecentPage',
     $trs: {
-      recentPage: 'Recent Page',
-      header: 'Recent Activity - ',
-      pageDescription: 'Content your Learners have recently completed or mastered',
-      name: 'Name',
-      progress: 'Progress',
-      noRecentProgressExist: 'No recent progress.'
+      title: 'Recent Activity',
     },
     components: {
       'channel-list': require('./channel-list'),
-    },
-    computed: {
-      channelNotSelected() {
-        return this.subPageName === PageNames.RECENT_CHANNEL_SELECT;
-      },
-    },
-    methods: {
+      'report-list': require('./report-list'),
     },
     vuex: {
       getters: {
-        subPageName: state => state.pageState.subPageName,
-        reports: state => state.pageState.reports,
+        pageState: state => state.pageState,
       },
     },
   };

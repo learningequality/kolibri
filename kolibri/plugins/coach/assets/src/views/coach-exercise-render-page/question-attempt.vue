@@ -20,7 +20,7 @@
 <script>
 
   module.exports = {
-    $trNameSpace: 'CoachExerciseQuestionAttempt',
+    $trNameSpace: 'coachExerciseQuestionAttempt',
     $trs: {
       attempts: 'Question {number} attempts',
       currAnswer: '{number} answer',

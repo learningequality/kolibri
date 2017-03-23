@@ -4,6 +4,9 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 var path = require('path');
 
+function isCamelCase(str) {
+  return /^[a-z][a-zA-Z0-9]*$/.test(str);
+}
 
 function extract$trs(messageDir, messagesName) {
   this.messageDir = messageDir;
@@ -48,10 +51,16 @@ extract$trs.prototype.apply = function(compiler) {
                 if (property.key.name === '$trs') {
                   // Grab every message in our $trs property and save it into our messages object.
                   property.value.properties.forEach(function(message) {
+                    if (!(isCamelCase(message.key.name))) {
+                      logging.error(`$trs id "${message.key.name}" should be in camelCase. Found in ${module.resource}`);
+                    }
                     messages[message.key.name] = message.value.value;
                   });
                   // We also want to take a note of the name space these messages have been put in too!
                 } else if (property.key.name === '$trNameSpace') {
+                  if (!(isCamelCase(property.value.value))) {
+                    logging.error(`$trNameSpace id "${property.value.value}" should be in camelCase. Found in ${module.resource}`);
+                  }
                   messageNameSpace = property.value.value;
                 }
               });

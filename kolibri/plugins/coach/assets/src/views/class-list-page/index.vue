@@ -5,27 +5,29 @@
     <h1>{{ $tr('myClasses') }}</h1>
     <p>{{ $tr('pageDescription') }}</p>
 
-    <table class="main-table" v-if="!noClassesExist">
-      <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
-      <thead>
-        <tr>
-          <th scope="col" class="table-text">{{ $tr('className') }}</th>
-          <th scope="col" class="table-data">{{ $tr('learners') }}</th>
-          <th scope="col" class="table-data">{{ $tr('groups') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="cl in classes">
-          <th scope="row" class="table-text">
-            <router-link :to="recentPageLink(cl.id)">
-              {{ cl.name }}
-            </router-link>
-          </th>
-          <td class="table-data">{{ cl.learner_count }}</td>
-          <td class="table-data">{{ cl.admin_count }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-wrapper" v-if="!noClassesExist">
+      <table class="main-table">
+        <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="table-text">{{ $tr('className') }}</th>
+            <th scope="col" class="table-data">{{ $tr('learners') }}</th>
+            <th scope="col" class="table-data">{{ $tr('groups') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="cl in classes">
+            <th scope="row" class="table-text">
+              <router-link :to="recentPageLink(cl.id)">
+                {{ cl.name }}
+              </router-link>
+            </th>
+            <td class="table-data">{{ cl.learner_count }}</td>
+            <td class="table-data">{{ cl.admin_count }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <p v-else>{{ $tr('noClassesExist') }}</p>
 
@@ -39,10 +41,6 @@
   const constants = require('../../constants');
 
   module.exports = {
-    components: {
-      // 'icon-button': require('kolibri.coreVue.components.iconButton'),
-    },
-    // Has to be a funcion due to vue's treatment of data
     data: () => ({
       currentClassDelete: null,
     }),
@@ -54,8 +52,8 @@
     methods: {
       recentPageLink(id) {
         return {
-          name: constants.PageNames.RECENT_CHANNEL_SELECT,
-          params: { classID: id },
+          name: constants.PageNames.RECENT,
+          params: { class_id: id },
         };
       },
     },
@@ -85,18 +83,21 @@
 
   .main-table
     width: 100%
+    border-spacing: 8px
+    border-collapse: separate
 
-    thead
-      color: $core-text-annotation
-      font-size: smaller
+  thead th
+    color: $core-text-annotation
+    font-size: smaller
+    font-weight: normal
 
-    th
-      padding-bottom: 8px
+  .table-text
+    text-align: left
 
-    .table-text
-      text-align: left
+  .table-data
+    text-align: center
 
-    .table-data
-      text-align: center
+  .table-wrapper
+    overflow-x: auto
 
 </style>

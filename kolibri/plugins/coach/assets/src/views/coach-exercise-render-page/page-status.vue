@@ -38,7 +38,7 @@
   const constants = require('kolibri.coreVue.vuex.constants');
 
   module.exports = {
-    $trNameSpace: 'CoachExercisePageStatus',
+    $trNameSpace: 'coachExercisePageStatus',
     $trs: {
       assessment: '{ text } questions in a row correct - Today',
       mastered: 'Mastered',

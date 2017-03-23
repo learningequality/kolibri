@@ -39,7 +39,7 @@
   const actions = require('../../state/actions');
 
   module.exports = {
-    $trNameSpace: 'class-delete-modal',
+    $trNameSpace: 'classDeleteModal',
     $trs: {
       modalTitle: 'Remove User from Class',
       remove: 'Remove from Class',
