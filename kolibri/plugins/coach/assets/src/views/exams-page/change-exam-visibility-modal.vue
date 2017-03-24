@@ -6,11 +6,17 @@
       <input type="radio" :value="true" v-model="classSelected" @change="deselectGroups">
       <span v-html="$trHtml('entireClass', { className })"></span>
     </label>
-    Specific Groups
-    <label v-for="group in classGroups">
-      <input type="checkbox" :value="group.id" v-model="groupsSelected" @change="deselectClass">
-      {{ group.name }}
-    </label>
+    <ui-select
+      :name="$tr('group')"
+      :label="$tr('specificGroups')"
+      :options="groupOptions"
+      v-model="groupsSelected"
+      :multiple="true"
+      :placeholder="$tr('selectGroups')"
+      :hasSearch="true"
+      :searchPlaceholder="$tr('searchForGroup')"
+      @change="deselectClass"
+    />
     <icon-button :text="$tr('cancel')" @click="close"/>
     <icon-button :text="$tr('update')" :primary="true" @click="updateExamVisibility"/>
   </core-modal>
@@ -27,6 +33,10 @@
     $trs: {
       examVisibility: 'Exam visibility',
       shouldBeVisible: '<strong>{ examTitle }</strong> should be visible to:',
+      group: 'group',
+      specificGroups: 'Specific groups',
+      selectGroups: 'Select groups',
+      searchForGroup: 'Search for a group',
       entireClass: 'Entire { className } class',
       cancel: 'Cancel',
       update: 'Update',
@@ -34,6 +44,7 @@
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
+      'ui-select': require('keen-ui/src/UiSelect'),
     },
     props: {
       examId: {
@@ -66,6 +77,11 @@
         classSelected: false,
         groupsSelected: [],
       };
+    },
+    computed: {
+      groupOptions() {
+        return this.classGroups.map(group => ({ label: group.name, value: group.id }));
+      },
     },
     methods: {
       deselectGroups() {
