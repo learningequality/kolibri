@@ -35,7 +35,7 @@
         <div class="message-container">
           <p class="message">{{ footerMsg }}</p>
           <p class="message">
-            <ui-icon icon="copyright"/>
+            ©
             {{ $tr('learningEqualityCopyright') }}
           </p>
         </div>
