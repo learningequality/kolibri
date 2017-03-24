@@ -12,7 +12,7 @@
           type="secondary"
           color="white"
           size="large"
-          icon="keyboard_arrow_left"
+          icon="menu"
           :aria-label="closeNav"/>
         <ui-icon class="header-logo"><logo/></ui-icon>
         <span class="title">Kolibri</span>
