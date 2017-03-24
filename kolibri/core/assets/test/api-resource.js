@@ -202,9 +202,9 @@ describe('Resource', function () {
   describe('unCacheModel method', function () {
     it('should set the synced property of the model to false', function () {
       const id = 'test';
-      this.resource.models[id] = {};
+      this.resource.addModel({ id });
       this.resource.unCacheModel(id);
-      assert.equal(this.resource.models[id].synced, false);
+      assert.equal(this.resource.getModel(id).synced, false);
     });
   });
   describe('clearCache method', function () {

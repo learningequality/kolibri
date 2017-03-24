@@ -135,7 +135,15 @@ const mutations = {
     }
     state.core.logging.mastery.end_timestamp = currentTime;
   },
-  UPDATE_LOGGING_ATTEMPT(state, currentTime, correct, complete, hinted) {
+  UPDATE_LOGGING_ATTEMPT(state, {
+    currentTime,
+    correct,
+    firstAttempt,
+    complete,
+    hinted,
+    answerState,
+    simpleAnswer,
+  }) {
     if (complete) {
       state.core.logging.attempt.completion_timestamp = currentTime;
       state.core.logging.attempt.complete = true;
@@ -151,6 +159,10 @@ const mutations = {
       starttime = new Date(starttime);
     }
     state.core.logging.attempt.time_spent = currentTime - starttime;
+    if (firstAttempt) {
+      state.core.logging.attempt.answer = JSON.stringify(answerState);
+      state.core.logging.attempt.simple_answer = simpleAnswer;
+    }
   },
   SET_EMPTY_LOGGING_STATE(state) {
     state.core.logging.summary = { progress: 0 };

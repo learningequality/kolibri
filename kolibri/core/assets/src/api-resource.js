@@ -523,8 +523,10 @@ class Resource {
     this.collections = {};
   }
 
-  unCacheModel(id) {
-    this.models[id].synced = false;
+  unCacheModel(id, resourceIds = {}) {
+    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
+    const cacheKey = this.cacheKey({ [this.idKey]: id }, filteredResourceIds);
+    this.models[cacheKey].synced = false;
   }
 
   removeModel(model) {

@@ -60,9 +60,6 @@ module.exports = {
         contentRenderer: {
           module: require('../views/content-renderer'),
         },
-        assessmentWrapper: {
-          module: require('../views/assessment-wrapper'),
-        },
         exerciseAttempts: {
           module: require('../views/exercise-attempts'),
         },
