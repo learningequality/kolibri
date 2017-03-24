@@ -1,6 +1,6 @@
 <template>
 
-  <router-link :to="link">
+  <router-link :to="link" class="link-block">
     <div class="wrapper">
       <div class="card-thumbnail">
         <slot/>
@@ -105,5 +105,8 @@
 
   .wrapper
     background-color: $core-bg-light
+
+  .link-block
+    display: block
 
 </style>
