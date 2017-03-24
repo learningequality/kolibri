@@ -37,6 +37,28 @@ function _topicState(data) {
   return state;
 }
 
+function _validateAssessmentMetaData(data) {
+  // Data is coming from a serializer for a one to many key, so at least will return an empty array.
+  const assessmentMetaData = data.assessmentmetadata[0];
+  if (!assessmentMetaData) {
+    return {
+      assessment: false,
+    };
+  }
+  const assessmentIds = JSON.parse(assessmentMetaData.assesment_item_ids || '[]');
+  const masteryModel = JSON.parse(assessmentMetaData.mastery_model || '{}');
+  if (!assessmentIds.length || !Object.keys(masteryModel).length) {
+    return {
+      assessment: false,
+    };
+  }
+  return {
+    assessment: true,
+    assessmentIds,
+    masteryModel,
+    randomize: assessmentMetaData.randomize,
+  };
+}
 
 function _contentState(data) {
   let progress;
@@ -47,7 +69,6 @@ function _contentState(data) {
   } else {
     progress = data.progress_fraction;
   }
-  const assessmentMetaData = data.assessment_meta_data || {};
   const state = {
     id: data.pk,
     title: data.title,
@@ -63,11 +84,8 @@ function _contentState(data) {
     author: data.author,
     license: data.license,
     license_owner: data.license_owner,
-    assessment: Boolean(data.assessment_meta_data),
-    assessmentIds: JSON.parse(assessmentMetaData.assesment_item_ids || '[]'),
-    masteryModel: JSON.parse(assessmentMetaData.mastery_model || '{}'),
-    randomize: assessmentMetaData.randomize,
   };
+  Object.assign(state, _validateAssessmentMetaData(data));
   return state;
 }
 
