@@ -7,19 +7,29 @@
     <div v-else-if="available" class="fill-height">
       <div class="content-wrapper">
         <loading-spinner id="spinner" v-if="!currentViewClass"/>
-        <component v-else :is="currentViewClass"
-        @startTracking="wrappedStartTracking"
-        @stopTracking="stopTracking"
-        @updateProgress="updateProgress"
-        @answerGiven="answerGiven"
-        @hintTaken="hintTaken"
-        @itemError="itemError"
-        :files="availableFiles"
-        :defaultFile="defaultFile"
-        :itemId="itemId"
-        :answerState="answerState"
-        ref="contentView"
-        />
+        <template v-else>
+          <component v-if="coachMode" :is="currentViewClass"
+          @itemError="itemError"
+          :files="availableFiles"
+          :defaultFile="defaultFile"
+          :itemId="itemId"
+          :answerState="answerState"
+          ref="contentView"
+          />
+          <component v-else :is="currentViewClass"
+          @startTracking="wrappedStartTracking"
+          @stopTracking="stopTracking"
+          @updateProgress="updateProgress"
+          @answerGiven="answerGiven"
+          @hintTaken="hintTaken"
+          @itemError="itemError"
+          :files="availableFiles"
+          :defaultFile="defaultFile"
+          :itemId="itemId"
+          :answerState="answerState"
+          ref="contentView"
+          />
+        </template>
       </div>
     </div>
     <div v-else>
@@ -43,6 +53,10 @@
       rendererNotAvailable: 'Kolibri is unable to render this content',
     },
     props: {
+      coachMode: {
+        type: Boolean,
+        default: false,
+      },
       id: {
         type: String,
         required: true,
