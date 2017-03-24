@@ -54,6 +54,12 @@
       :examTitle="selectedExam.title"
       :examVisibility="selectedExam.visibility"
       :classId="currentClass.id"/>
+    <deactivate-exam-modal
+      v-if="showDeactivateExamModal"
+      :examId="selectedExam.id"
+      :examTitle="selectedExam.title"
+      :examVisibility="selectedExam.visibility"
+      :classId="currentClass.id"/>
     <change-exam-visibility-modal
       v-if="showChangeExamVisibilityModal"
       :examId="selectedExam.id"
@@ -93,6 +99,7 @@
       'ui-radio-group': require('keen-ui/src/UiRadioGroup'),
       'exam-row': require('./exam-row'),
       'activate-exam-modal': require('./activate-exam-modal'),
+      'deactivate-exam-modal': require('./deactivate-exam-modal'),
       'change-exam-visibility-modal': require('./change-exam-visibility-modal'),
     },
     data() {
@@ -129,6 +136,9 @@
       showActivateExamModal() {
         return this.modalShown === ExamModals.ACTIVATE_EXAM;
       },
+      showDeactivateExamModal() {
+        return this.modalShown === ExamModals.DEACTIVATE_EXAM;
+      },
       showChangeExamVisibilityModal() {
         return this.modalShown === ExamModals.CHANGE_EXAM_VISIBILITY;
       },
@@ -142,8 +152,9 @@
         this.selectedExam = this.exams.find(exam => exam.id === examId);
         this.displayModal(ExamModals.ACTIVATE_EXAM);
       },
-      openDeactivateExamModal() {
-        console.log('openDeactivateExamModal');
+      openDeactivateExamModal(examId) {
+        this.selectedExam = this.exams.find(exam => exam.id === examId);
+        this.displayModal(ExamModals.DEACTIVATE_EXAM);
       },
       openPreviewExamModal() {
         console.log('openPreviewExamModal');

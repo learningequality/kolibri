@@ -125,6 +125,10 @@ function activateExam() {
   this.displayModal(false);
 }
 
+function deactivateExam() {
+  this.displayModal(false);
+}
+
 function updateExamVisibility() {
   this.displayModal(false);
 }
@@ -134,5 +138,6 @@ module.exports = {
   showExamsPage,
   showCreateExamPage,
   activateExam,
+  deactivateExam,
   updateExamVisibility,
 };
