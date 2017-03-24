@@ -133,7 +133,9 @@ function updateExamVisibility() {
   this.displayModal(false);
 }
 
-
+function renameExam() {
+  this.displayModal(false);
+}
 function deleteExam() {
   this.displayModal(false);
 }
@@ -144,6 +146,7 @@ module.exports = {
   showCreateExamPage,
   activateExam,
   deactivateExam,
+  renameExam,
   deleteExam,
   updateExamVisibility,
 };

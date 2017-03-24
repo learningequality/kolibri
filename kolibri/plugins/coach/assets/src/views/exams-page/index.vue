@@ -68,6 +68,11 @@
       :classId="currentClass.id"
       :className="currentClass.name"
       :classGroups="currentClassGroups"/>
+    <rename-exam-modal
+      v-if="showRenameExamModal"
+      :examId="selectedExam.id"
+      :examTitle="selectedExam.title"
+      :classId="currentClass.id"/>
     <delete-exam-modal
       v-if="showDeleteExamModal"
       :examId="selectedExam.id"
@@ -106,6 +111,7 @@
       'activate-exam-modal': require('./activate-exam-modal'),
       'deactivate-exam-modal': require('./deactivate-exam-modal'),
       'change-exam-visibility-modal': require('./change-exam-visibility-modal'),
+      'rename-exam-modal': require('./rename-exam-modal'),
       'delete-exam-modal': require('./delete-exam-modal'),
     },
     data() {
@@ -162,29 +168,35 @@
       },
     },
     methods: {
-      openChangeExamVisibilityModal(examId) {
+      setSelectedExam(examId) {
         this.selectedExam = this.exams.find(exam => exam.id === examId);
+      },
+      openChangeExamVisibilityModal(examId) {
+        this.setSelectedExam(examId);
         this.displayModal(ExamModals.CHANGE_EXAM_VISIBILITY);
       },
       openActivateExamModal(examId) {
-        this.selectedExam = this.exams.find(exam => exam.id === examId);
+        this.setSelectedExam(examId);
         this.displayModal(ExamModals.ACTIVATE_EXAM);
       },
       openDeactivateExamModal(examId) {
-        this.selectedExam = this.exams.find(exam => exam.id === examId);
+        this.setSelectedExam(examId);
         this.displayModal(ExamModals.DEACTIVATE_EXAM);
       },
-      openPreviewExamModal() {
-        console.log('openPreviewExamModal');
+      openPreviewExamModal(examId) {
+        this.setSelectedExam(examId);
+        this.displayModal(ExamModals.PREVIEW_EXAM);
       },
-      openViewReportModal() {
-        console.log('openViewReportModal');
+      openViewReportModal(examId) {
+        this.setSelectedExam(examId);
+        this.displayModal(ExamModals.VIEW_REPORT);
       },
-      openRenameExamModal() {
-        console.log('openRenameExamModal');
+      openRenameExamModal(examId) {
+        this.setSelectedExam(examId);
+        this.displayModal(ExamModals.RENAME_EXAM);
       },
       openDeleteExamModal(examId) {
-        this.selectedExam = this.exams.find(exam => exam.id === examId);
+        this.setSelectedExam(examId);
         this.displayModal(ExamModals.DELETE_EXAM);
       },
     },
