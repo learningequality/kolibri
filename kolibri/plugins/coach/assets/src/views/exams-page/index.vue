@@ -68,6 +68,11 @@
       :classId="currentClass.id"
       :className="currentClass.name"
       :classGroups="currentClassGroups"/>
+    <delete-exam-modal
+      v-if="showDeleteExamModal"
+      :examId="selectedExam.id"
+      :examTitle="selectedExam.title"
+      :classId="currentClass.id"/>
   </div>
 
 </template>
@@ -101,6 +106,7 @@
       'activate-exam-modal': require('./activate-exam-modal'),
       'deactivate-exam-modal': require('./deactivate-exam-modal'),
       'change-exam-visibility-modal': require('./change-exam-visibility-modal'),
+      'delete-exam-modal': require('./delete-exam-modal'),
     },
     data() {
       return {
@@ -142,6 +148,18 @@
       showChangeExamVisibilityModal() {
         return this.modalShown === ExamModals.CHANGE_EXAM_VISIBILITY;
       },
+      showPreviewExamModal() {
+        return this.modalShown === ExamModals.PREVIEW_EXAM;
+      },
+      showViewReportModal() {
+        return this.modalShown === ExamModals.VIEW_REPORT;
+      },
+      showRenameExamModal() {
+        return this.modalShown === ExamModals.RENAME_EXAM;
+      },
+      showDeleteExamModal() {
+        return this.modalShown === ExamModals.DELETE_EXAM;
+      },
     },
     methods: {
       openChangeExamVisibilityModal(examId) {
@@ -165,8 +183,9 @@
       openRenameExamModal() {
         console.log('openRenameExamModal');
       },
-      openDeleteExamModal() {
-        console.log('openDeleteExamModal');
+      openDeleteExamModal(examId) {
+        this.selectedExam = this.exams.find(exam => exam.id === examId);
+        this.displayModal(ExamModals.DELETE_EXAM);
       },
     },
     vuex: {

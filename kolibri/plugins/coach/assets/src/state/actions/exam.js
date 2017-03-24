@@ -133,11 +133,17 @@ function updateExamVisibility() {
   this.displayModal(false);
 }
 
+
+function deleteExam() {
+  this.displayModal(false);
+}
+
 module.exports = {
   displayModal,
   showExamsPage,
   showCreateExamPage,
   activateExam,
   deactivateExam,
+  deleteExam,
   updateExamVisibility,
 };
