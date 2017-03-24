@@ -41,7 +41,7 @@
           @activateExam="openActivateExamModal"
           @deactivateExam="openDeactivateExamModal"
           @previewExam="openPreviewExamModal"
-          @viewReport="openViewReportModal"
+          @viewReport="routeToExamReport"
           @renameExam="openRenameExamModal"
           @deleteExam="openDeleteExamModal"
         />
@@ -157,9 +157,6 @@
       showPreviewExamModal() {
         return this.modalShown === ExamModals.PREVIEW_EXAM;
       },
-      showViewReportModal() {
-        return this.modalShown === ExamModals.VIEW_REPORT;
-      },
       showRenameExamModal() {
         return this.modalShown === ExamModals.RENAME_EXAM;
       },
@@ -187,9 +184,11 @@
         this.setSelectedExam(examId);
         this.displayModal(ExamModals.PREVIEW_EXAM);
       },
-      openViewReportModal(examId) {
-        this.setSelectedExam(examId);
-        this.displayModal(ExamModals.VIEW_REPORT);
+      routeToExamReport(examId) {
+        this.$router.push({
+          name: PageNames.EXAM_REPORT,
+          params: { classId: this.currentClass.id, examId }
+        });
       },
       openRenameExamModal(examId) {
         this.setSelectedExam(examId);
