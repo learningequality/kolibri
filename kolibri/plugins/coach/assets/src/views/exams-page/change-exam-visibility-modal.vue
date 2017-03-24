@@ -9,12 +9,10 @@
     <ui-select
       :name="$tr('group')"
       :label="$tr('specificGroups')"
+      :placeholder="$tr('selectGroups')"
+      :multiple="true"
       :options="groupOptions"
       v-model="groupsSelected"
-      :multiple="true"
-      :placeholder="$tr('selectGroups')"
-      :hasSearch="true"
-      :searchPlaceholder="$tr('searchForGroup')"
       @change="deselectClass"
     />
     <icon-button :text="$tr('cancel')" @click="close"/>
@@ -36,7 +34,6 @@
       group: 'group',
       specificGroups: 'Specific groups',
       selectGroups: 'Select groups',
-      searchForGroup: 'Search for a group',
       entireClass: 'Entire { className } class',
       cancel: 'Cancel',
       update: 'Update',
