@@ -1,14 +1,16 @@
 <template>
 
   <core-modal :title="$tr('renameExam')" @cancel="close">
-    <core-textbox
-      :label="$tr('examName')"
-      :aria-label="$tr('examName')"
-      v-model="inputExamName"
-      :autofocus="true"
-      :required="true"/>
-    <icon-button :text="$tr('cancel')" @click="close"/>
-    <icon-button :text="$tr('rename')" :primary="true" @click="renameExam"/>
+    <form @submit.prevent="renameExam">
+      <core-textbox
+        :label="$tr('examName')"
+        :aria-label="$tr('examName')"
+        :autofocus="true"
+        :required="true"
+         v-model.trim="inputExamName"/>
+      <icon-button :text="$tr('cancel')" type="button" @click="close"/>
+      <icon-button :text="$tr('rename')" :primary="true" type="submit"/>
+    </form>
   </core-modal>
 
 </template>
