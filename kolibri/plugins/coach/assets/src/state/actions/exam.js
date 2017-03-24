@@ -141,7 +141,9 @@ function deactivateExam() {
 function updateExamVisibility() {
   this.displayModal(false);
 }
-
+function previewExam() {
+  this.displayModal(false);
+}
 function renameExam() {
   this.displayModal(false);
 }
@@ -156,6 +158,7 @@ module.exports = {
   showExamReportPage,
   activateExam,
   deactivateExam,
+  previewExam,
   renameExam,
   deleteExam,
   updateExamVisibility,

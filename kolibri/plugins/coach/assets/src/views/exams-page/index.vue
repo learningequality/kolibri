@@ -68,6 +68,11 @@
       :classId="currentClass.id"
       :className="currentClass.name"
       :classGroups="currentClassGroups"/>
+    <preview-exam-modal
+      v-if="showPreviewExamModal"
+      :examId="selectedExam.id"
+      :examTitle="selectedExam.title"
+      :classId="currentClass.id"/>
     <rename-exam-modal
       v-if="showRenameExamModal"
       :examId="selectedExam.id"
@@ -111,6 +116,7 @@
       'activate-exam-modal': require('./activate-exam-modal'),
       'deactivate-exam-modal': require('./deactivate-exam-modal'),
       'change-exam-visibility-modal': require('./change-exam-visibility-modal'),
+      'preview-exam-modal': require('./preview-exam-modal'),
       'rename-exam-modal': require('./rename-exam-modal'),
       'delete-exam-modal': require('./delete-exam-modal'),
     },
