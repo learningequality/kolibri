@@ -45,7 +45,7 @@ function _validateAssessmentMetaData(data) {
       assessment: false,
     };
   }
-  const assessmentIds = JSON.parse(assessmentMetaData.assesment_item_ids || '[]');
+  const assessmentIds = JSON.parse(assessmentMetaData.assessment_item_ids || '[]');
   const masteryModel = JSON.parse(assessmentMetaData.mastery_model || '{}');
   if (!assessmentIds.length || !Object.keys(masteryModel).length) {
     return {

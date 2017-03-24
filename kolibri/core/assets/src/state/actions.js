@@ -628,7 +628,7 @@ const interactionHistoryProperties = [
 
 function updateAttemptLogInteractionHistory(store, interaction) {
   Object.keys(interaction).forEach((key) => {
-    if (interactionHistoryProperties.index(key) === -1) {
+    if (interactionHistoryProperties.indexOf(key) === -1) {
       throw new TypeError(`${key} not allowed for interaction log`);
     }
   });
