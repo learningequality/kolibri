@@ -146,7 +146,9 @@
       wrappedStartTracking() {
         // Assume that as soon as we have started tracking data for this content item,
         // our ContentNode cache is no longer valid.
-        this.Kolibri.resources.ContentNodeResource.unCacheModel(this.id);
+        this.Kolibri.resources.ContentNodeResource.unCacheModel(this.id, {
+          channel_id: this.channelId
+        });
         this.startTracking();
       },
       checkAnswer() {
