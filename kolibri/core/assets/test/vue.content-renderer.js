@@ -198,11 +198,13 @@ describe('contentRenderer Component', function () {
     });
     describe('wrappedStartTracking', function () {
       beforeEach(function () {
+        this.channelId = 'test';
         this.vm = new ContentRendererComponent({
           propsData: {
             id: this.id,
             kind: this.kind,
             files: this.files,
+            channelId: this.channelId,
           },
         }).$mount();
         this.unCacheSpy = sinon.spy();
@@ -218,7 +220,7 @@ describe('contentRenderer Component', function () {
         this.vm.wrappedStartTracking();
       });
       it('should call contentNode resource uncache with the id', function () {
-        assert.ok(this.unCacheSpy.calledWithExactly(this.id));
+        assert.ok(this.unCacheSpy.calledWithExactly(this.id, { channel_id: this.channelId }));
       });
       it('should call startTracking once', function () {
         assert.ok(this.startTrackingSpy.calledOnce);
