@@ -78,16 +78,6 @@
       entireClass: 'Entire class',
       groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
     },
-    data() {
-      return {
-        actionOptions: [
-          { label: this.$tr('previewExam') },
-          { label: this.$tr('viewReport') },
-          { label: this.$tr('rename') },
-          { label: this.$tr('delete') },
-        ],
-      };
-    },
     components: {
       'ui-button': require('keen-ui/src/UiButton'),
       'ui-icon': require('keen-ui/src/UiIcon'),
@@ -125,7 +115,14 @@
         }
         return 'Something is not right';
       },
-
+      actionOptions() {
+        return [
+          { label: this.$tr('previewExam') },
+          { label: this.$tr('viewReport') },
+          { label: this.$tr('rename') },
+          { label: this.$tr('delete') },
+        ];
+      },
     },
     methods: {
       emitChangeExamVisibility() {

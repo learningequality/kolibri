@@ -123,19 +123,23 @@
     data() {
       return {
         filterSelected: this.$tr('all'),
-        filterOptions: [
-          { label: this.$tr('all'), value: this.$tr('all') },
-          { label: this.$tr('active'), value: this.$tr('active') },
-          { label: this.$tr('inactive'), value: this.$tr('inactive') }
-        ],
         selectedExam: { title: '', id: '', visibility: { class: true } },
-        createExamPage: {
-          name: PageNames.CREATE_EXAM,
-          params: { classId: this.currentClass.id },
-        },
       };
     },
     computed: {
+      filterOptions() {
+        return [
+          { label: this.$tr('all'), value: this.$tr('all') },
+          { label: this.$tr('active'), value: this.$tr('active') },
+          { label: this.$tr('inactive'), value: this.$tr('inactive') }
+        ];
+      },
+      createExamPage() {
+        return {
+          name: PageNames.CREATE_EXAM,
+          params: { classId: this.currentClass.id },
+        };
+      },
       activeExams() {
         return this.exams.filter(exam => exam.active === true);
       },
