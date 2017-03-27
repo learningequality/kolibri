@@ -48,18 +48,21 @@
       </tbody>
     </table>
     <p v-else class="center-text"><strong>{{ $tr('noExams') }}</strong></p>
+
     <activate-exam-modal
       v-if="showActivateExamModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
       :examVisibility="selectedExam.visibility"
-      :classId="currentClass.id"/>
+      :classId="currentClass.id"
+    />
     <deactivate-exam-modal
       v-if="showDeactivateExamModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
       :examVisibility="selectedExam.visibility"
-      :classId="currentClass.id"/>
+      :classId="currentClass.id"
+    />
     <change-exam-visibility-modal
       v-if="showChangeExamVisibilityModal"
       :examId="selectedExam.id"
@@ -67,22 +70,26 @@
       :examVisibility="selectedExam.visibility"
       :classId="currentClass.id"
       :className="currentClass.name"
-      :classGroups="currentClassGroups"/>
+      :classGroups="currentClassGroups"
+    />
     <preview-exam-modal
       v-if="showPreviewExamModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
-      :classId="currentClass.id"/>
+      :classId="currentClass.id"
+    />
     <rename-exam-modal
       v-if="showRenameExamModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
-      :classId="currentClass.id"/>
+      :classId="currentClass.id"
+    />
     <delete-exam-modal
       v-if="showDeleteExamModal"
       :examId="selectedExam.id"
       :examTitle="selectedExam.title"
-      :classId="currentClass.id"/>
+      :classId="currentClass.id"
+    />
   </div>
 
 </template>
