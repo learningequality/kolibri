@@ -73,6 +73,7 @@
         return this.$tr('attempts', { number });
       },
       _ordinal_suffix_of(i) {
+        // add the ordinal to the number passed in. e.g. 3 -> 3rd
         const j = i % 10;
         const k = i % 100;
         if (j === 1 && k !== 11) {
