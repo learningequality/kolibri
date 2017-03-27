@@ -31,12 +31,14 @@
       },
     },
     data: () => ({
-      fullscreenAllowed: ScreenFull.enabled,
       isFullScreen: false,
     }),
     computed: {
       rooturl() {
         return this.defaultFile.storage_url;
+      },
+      fullscreenAllowed() {
+        return ScreenFull.enabled;
       },
     },
     methods: {
