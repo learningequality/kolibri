@@ -1,7 +1,7 @@
 const ContentNodeResource = require('kolibri').resources.ContentNodeResource;
 const SessionResource = require('kolibri').resources.SessionResource;
 const constants = require('../constants');
-const UserExamResource = require('kolibri').resource.UserExamResource;
+const UserExamResource = require('kolibri').resources.UserExamResource;
 
 const PageNames = constants.PageNames;
 const coreActions = require('kolibri.coreVue.vuex.actions');
@@ -469,7 +469,7 @@ function showExamList(store, channelId) {
         router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      UserExamResource.getCollection().fetch().only(
+      UserExamResource.getCollection({ channel_id: channelId }).fetch().only(
         samePageCheckGenerator(store),
         (exams) => {
           const pageState = {};
@@ -490,7 +490,7 @@ function showExam(store, channelId, id) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXAM);
 
-  const examPromise = UserExamResource.getModel(id).fetch();
+  const examPromise = UserExamResource.getModel(id, { channel_id: channelId }).fetch();
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
   ConditionalPromise.all([examPromise, channelsPromise]).only(
     samePageCheckGenerator(store),

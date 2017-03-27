@@ -40,6 +40,7 @@
       recommended: 'Recommended',
       topics: 'Topics',
       search: 'search',
+      exams: 'Exams'
     },
     components: {
       'explore-page': require('./explore-page'),
@@ -53,6 +54,7 @@
       'breadcrumbs': require('./breadcrumbs'),
       'search-page': require('./search-page'),
       'tabs': require('kolibri.coreVue.components.tabs'),
+      'exam-page': require('./exam-page'),
     },
     methods: {
       switchChannel(channelId) {
@@ -74,6 +76,10 @@
             page = PageNames.LEARN_CHANNEL;
             break;
 
+          case PageModes.EXAM:
+            page = PageNames.EXAM_LIST;
+            break;
+
           default:
             page = PageNames.EXPLORE_CHANNEL;
         }
@@ -91,6 +97,10 @@
 
           case 1:
             this.$router.push({ name: PageNames.EXPLORE_ROOT });
+            break;
+
+          case 2:
+            this.$router.push({ name: PageNames.EXAM_LIST });
             break;
 
           default:
@@ -123,6 +133,10 @@
         if (this.pageName === PageNames.SEARCH) {
           return 'search-page';
         }
+        if (this.pageName === PageNames.EXAM_LIST ||
+          this.pageName === PageNames.EXAM) {
+          return 'exam-page';
+        }
         return null;
       },
       searchPage() {
@@ -134,6 +148,7 @@
       learnTabs() {
         const isRecommended = (this.pageMode === PageModes.LEARN);
         const isTopics = (this.pageMode === PageModes.EXPLORE);
+        const isExams = (this.pageMode === PageModes.EXAM);
 
         return [{
           title: this.$tr('recommended'),
@@ -144,6 +159,11 @@
           title: this.$tr('topics'),
           icon: 'folder',
           selected: isTopics,
+          disabled: false,
+        }, {
+          title: this.$tr('exams'),
+          icon: 'assignment',
+          selected: isExams,
           disabled: false,
         }];
       },

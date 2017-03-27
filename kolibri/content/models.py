@@ -360,7 +360,7 @@ class ExamAssignment(models.Model):
             can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
             can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
             can_be_deleted_by=(),
-        ) | UserCanReadExamAssignmentData
+        ) | UserCanReadExamAssignmentData()
     )
     exam = models.ForeignKey(Exam, related_name='assignments', blank=False, null=False)
     collection = models.ForeignKey(Collection, related_name='assigned_exams', blank=False, null=False)

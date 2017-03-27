@@ -21,6 +21,7 @@ const PageModes = {
   EXPLORE: 'EXPLORE',
   LEARN: 'LEARN',
   SEARCH: 'SEARCH',
+  EXAM: 'EXAM',
 };
 
 module.exports = {
