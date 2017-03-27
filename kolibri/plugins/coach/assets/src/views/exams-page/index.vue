@@ -98,7 +98,7 @@
 <script>
 
   const ExamActions = require('../../state/actions/exam');
-  const ExamModals = require('../../constants').ExamModals;
+  const ExamModals = require('../../examConstants').Modals;
   const PageNames = require('../../constants').PageNames;
 
   module.exports = {
