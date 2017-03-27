@@ -123,6 +123,8 @@
 
   .svg-item
     vertical-align: middle
+    height: auto
+    width: 32px
 
   .svg-hint
     fill: grey
