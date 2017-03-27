@@ -179,7 +179,7 @@ function showExploreTopic(store, channelId, id, isRoot = false) {
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       if (isRoot) {
-        store.dispatch('CORE_SET_TITLE', `Explore - ${currentChannel.title}`);
+        store.dispatch('CORE_SET_TITLE', `Topics - ${currentChannel.title}`);
       } else {
         store.dispatch('CORE_SET_TITLE', `${pageState.topic.title} - ${currentChannel.title}`);
       }
