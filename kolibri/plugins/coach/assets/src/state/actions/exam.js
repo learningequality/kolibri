@@ -70,7 +70,27 @@ function showExamsPage(store, classId) {
       const classes = _classesState(classesCollection);
       const currentClass = _classState(currentClassModel);
       const currentClassGroups = _groupsState(groupsCollection);
-
+      const dummyExams = [{
+        id: '1',
+        title: 'UNIT 1 Exam',
+        active: false,
+        dateCreated: 'March 15, 2017 03:24:00',
+        visibility: { class: false, groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }] },
+      },
+      {
+        id: '2',
+        title: 'UNIT 1 Quiz',
+        active: true,
+        dateCreated: 'March 21, 2017 03:24:00',
+        visibility: { class: false, groups: [{ id: '1', name: 'groupA' }] },
+      },
+      {
+        id: '3',
+        title: 'UNIT 2',
+        active: true,
+        dateCreated: 'March 22, 2017 03:24:00',
+        visibility: { class: true, groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }] },
+      }];
       const pageState = {
         modalShown: false,
         channels,
@@ -78,27 +98,7 @@ function showExamsPage(store, classId) {
         classes,
         currentClass,
         currentClassGroups,
-        exams: [{
-          id: '1',
-          title: 'UNIT 1 Exam',
-          active: false,
-          dateCreated: 'March 15, 2017 03:24:00',
-          visibility: { class: false, groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }] },
-        },
-        {
-          id: '2',
-          title: 'UNIT 1 Quiz',
-          active: true,
-          dateCreated: 'March 21, 2017 03:24:00',
-          visibility: { class: false, groups: [{ id: '1', name: 'groupA' }] },
-        },
-        {
-          id: '3',
-          title: 'UNIT 2',
-          active: true,
-          dateCreated: 'March 22, 2017 03:24:00',
-          visibility: { class: true, groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }] },
-        }],
+        exams: dummyExams,
       };
 
       store.dispatch('SET_PAGE_STATE', pageState);
