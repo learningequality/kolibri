@@ -32,9 +32,14 @@
     data: () => ({
       supportsPDFs: PDFobject.supportsPDFs,
       timeout: null,
-      fullscreenAllowed: ScreenFull.enabled,
       isFullScreen: false,
     }),
+
+    computed: {
+      fullscreenAllowed() {
+        return ScreenFull.enabled;
+      },
+    },
 
     methods: {
       toggleFullScreen() {
