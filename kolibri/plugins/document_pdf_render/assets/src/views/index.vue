@@ -3,7 +3,7 @@
   <div ref="container" class="container" allowfullscreen>
     <icon-button
       class="btn"
-      v-if="supportsPDFs"
+      v-if="fullscreenAllowed && supportsPDFs"
       :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullScreen"
       :primary="true">
@@ -32,6 +32,7 @@
     data: () => ({
       supportsPDFs: PDFobject.supportsPDFs,
       timeout: null,
+      fullscreenAllowed: ScreenFull.enabled,
       isFullScreen: false,
     }),
 

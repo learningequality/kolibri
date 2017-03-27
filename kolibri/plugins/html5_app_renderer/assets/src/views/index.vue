@@ -3,6 +3,7 @@
   <div ref="container" class="container" allowfullscreen>
     <icon-button
       class="btn"
+      v-if="fullscreenAllowed"
       :text="isFullScreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       @click="toggleFullScreen"
       :primary="true">
@@ -30,6 +31,7 @@
       },
     },
     data: () => ({
+      fullscreenAllowed: ScreenFull.enabled,
       isFullScreen: false,
     }),
     computed: {
