@@ -2,7 +2,7 @@
 
   <div class="question-attempt">
     <h3 class="header left-pad">{{ attemptsText(questionNumber) }}</h3>
-    <p class="left-pad">{{ currAnswerText(selectedIndex + 1) }}</p>
+    <p class="left-pad">{{ $tr('currAnswer', {ordinal: selectedIndex + 1 }) }}</p>
     <div class="box-container left-pad">
       <mat-svg
         class="pagination-btn"
@@ -40,7 +40,7 @@
     $trNameSpace: 'CoachExerciseQuestionAttempt',
     $trs: {
       attempts: 'Question {number} attempts',
-      currAnswer: '{ordinal} answer',
+      currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} answer',
     },
     components: {
       'attempt-box': require('./attempt-box'),
@@ -71,25 +71,6 @@
     methods: {
       attemptsText(number) {
         return this.$tr('attempts', { number });
-      },
-      _ordinal_suffix_of(i) {
-        // add the ordinal to the number passed in. e.g. 3 -> 3rd
-        const j = i % 10;
-        const k = i % 100;
-        if (j === 1 && k !== 11) {
-          return `${i}st`;
-        }
-        if (j === 2 && k !== 12) {
-          return `${i}nd`;
-        }
-        if (j === 3 && k !== 13) {
-          return `${i}rd`;
-        }
-        return `${i}th`;
-      },
-      currAnswerText(number) {
-        const ordinal = this._ordinal_suffix_of(number);
-        return this.$tr('currAnswer', { ordinal });
       },
       setSelected(index) {
         this.selectedIndex = ((this.currPage - 1) * this.numAttemptsShown) + index;
