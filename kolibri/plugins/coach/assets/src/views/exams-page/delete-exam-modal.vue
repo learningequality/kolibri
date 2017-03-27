@@ -1,10 +1,7 @@
 <template>
 
   <core-modal :title="$tr('deleteExam')" @cancel="close">
-    <p>
-      <span v-html="$trHtml('areYouSure', { examTitle })"></span>
-      {{ $tr('youWillLose') }}
-    </p>
+    <p v-html="$trHtml('areYouSure', { examTitle })"></p>
     <icon-button :text="$tr('cancel')" @click="close"/>
     <icon-button :text="$tr('delete')" :primary="true" @click="deleteExam"/>
   </core-modal>
@@ -20,8 +17,7 @@
     $trNameSpace: 'deleteExamModal',
     $trs: {
       deleteExam: 'Delete exam',
-      areYouSure: 'Are you sure you want to delete <strong>{ examTitle }</strong>?',
-      youWillLose: 'You will lose all data for this exam.',
+      areYouSure: 'Are you sure you want to delete <strong>{ examTitle }</strong>? You will lose all data for this exam.',
       cancel: 'Cancel',
       delete: 'Delete',
     },
