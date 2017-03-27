@@ -63,7 +63,7 @@ oriented data synchronization.
   const seededShuffle = require('seededshuffle');
 
   module.exports = {
-    $trNameSpace: 'assessment-wrapper',
+    $trNameSpace: 'assessmentWrapper',
     $trs: {
       goal: 'Try to get {count, number, integer} ' +
         '{count, plural, one {check mark} other {check marks}} to show up',
