@@ -14,31 +14,14 @@ class LearnModule extends KolibriModule {
     coreActions.getCurrentSession(store).then(() => {
       const routes = [
         {
+          path: '/',
+          redirect: '/recommended',
+        },
+        {
           name: PageNames.EXPLORE_ROOT,
           path: '/topics',
           handler: (toRoute, fromRoute) => {
             actions.redirectToExploreChannel(store);
-          },
-        },
-        {
-          name: PageNames.EXPLORE_CHANNEL,
-          path: '/topics/:channel_id',
-          handler: (toRoute, fromRoute) => {
-            actions.showExploreChannel(store, toRoute.params.channel_id);
-          },
-        },
-        {
-          name: PageNames.EXPLORE_TOPIC,
-          path: '/topics/:channel_id/topic/:id',
-          handler: (toRoute, fromRoute) => {
-            actions.showExploreTopic(store, toRoute.params.channel_id, toRoute.params.id);
-          },
-        },
-        {
-          name: PageNames.EXPLORE_CONTENT,
-          path: '/topics/:channel_id/content/:id',
-          handler: (toRoute, fromRoute) => {
-            actions.showExploreContent(store, toRoute.params.channel_id, toRoute.params.id);
           },
         },
         {
@@ -49,18 +32,10 @@ class LearnModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.LEARN_CHANNEL,
-          path: '/recommended/:channel_id',
+          name: PageNames.SEARCH_ROOT,
+          path: '/search',
           handler: (toRoute, fromRoute) => {
-            const page = toRoute.query.page ? Number(toRoute.query.page) : 1;
-            actions.showLearnChannel(store, toRoute.params.channel_id, page);
-          },
-        },
-        {
-          name: PageNames.LEARN_CONTENT,
-          path: '/recommended/:channel_id/content/:id',
-          handler: (toRoute, fromRoute) => {
-            actions.showLearnContent(store, toRoute.params.channel_id, toRoute.params.id);
+            actions.redirectToChannelSearch(store);
           },
         },
         {
@@ -78,22 +53,51 @@ class LearnModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.SEARCH_ROOT,
-          path: '/search',
+          name: PageNames.EXPLORE_CHANNEL,
+          path: '/:channel_id/topics',
           handler: (toRoute, fromRoute) => {
-            actions.redirectToChannelSearch(store);
+            actions.showExploreChannel(store, toRoute.params.channel_id);
+          },
+        },
+        {
+          name: PageNames.EXPLORE_TOPIC,
+          path: '/:channel_id/topics/t/:id',
+          handler: (toRoute, fromRoute) => {
+            actions.showExploreTopic(store, toRoute.params.channel_id, toRoute.params.id);
+          },
+        },
+        {
+          name: PageNames.EXPLORE_CONTENT,
+          path: '/:channel_id/topics/c/:id',
+          handler: (toRoute, fromRoute) => {
+            actions.showExploreContent(store, toRoute.params.channel_id, toRoute.params.id);
+          },
+        },
+        {
+          name: PageNames.LEARN_CHANNEL,
+          path: '/:channel_id/recommended',
+          handler: (toRoute, fromRoute) => {
+            const page = toRoute.query.page ? Number(toRoute.query.page) : 1;
+            actions.showLearnChannel(store, toRoute.params.channel_id, page);
+          },
+        },
+        {
+          name: PageNames.LEARN_CONTENT,
+          path: '/:channel_id/recommended/:id',
+          handler: (toRoute, fromRoute) => {
+            actions.showLearnContent(store, toRoute.params.channel_id, toRoute.params.id);
           },
         },
         {
           name: PageNames.SEARCH,
-          path: '/search/:channel_id',
+          path: '/:channel_id/search',
           handler: (toRoute, fromRoute) => {
             actions.showSearch(store, toRoute.params.channel_id, toRoute.query.query);
           },
         },
         {
-          path: '/',
-          redirect: '/recommended',
+          path: '*',
+          redirect: '/',
         },
       ];
 
