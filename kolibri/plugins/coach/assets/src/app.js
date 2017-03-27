@@ -7,6 +7,7 @@ const Vue = require('kolibri.lib.vue');
 const RootVue = require('./views');
 const actions = require('./state/actions/main');
 const groupActions = require('./state/actions/group');
+const examActions = require('./state/actions/exam');
 const reportsActions = require('./state/actions/reports');
 const store = require('./state/store');
 const PageNames = require('./constants').PageNames;
@@ -53,9 +54,23 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.EXAMS,
-          path: '/:class_id/exams',
+          path: '/:classId/exams',
           handler: (toRoute, fromRoute) => {
-            actions.showExamsPage(store, toRoute.params.class_id);
+            examActions.showExamsPage(store, toRoute.params.classId);
+          },
+        },
+        {
+          name: PageNames.CREATE_EXAM,
+          path: '/:classId/exams/new',
+          handler: (toRoute, fromRoute) => {
+            examActions.showCreateExamPage(store, toRoute.params.classId);
+          },
+        },
+        {
+          name: PageNames.EXAM_REPORT,
+          path: '/:classId/exams/:examId',
+          handler: (toRoute, fromRoute) => {
+            examActions.showExamReportPage(store, toRoute.params.classId, toRoute.params.examId);
           },
         },
         {
