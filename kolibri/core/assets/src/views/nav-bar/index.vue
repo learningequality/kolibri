@@ -34,10 +34,7 @@
           :style="{ width: width/6 + 'px', height: width/6 + 'px', marginLeft: width/20 + 'px', marginRight: width/20 + 'px' }"/>
         <div class="message-container">
           <p class="message">{{ footerMsg }}</p>
-          <p class="message">
-            ©
-            {{ $tr('learningEqualityCopyright') }}
-          </p>
+          <p class="message">{{ $tr('learningEqualityCopyright') }}</p>
         </div>
       </div>
     </div>
@@ -77,7 +74,7 @@
       about: 'About',
       closeNav: 'Close navigation',
       poweredBy: 'Kolibri {version}',
-      learningEqualityCopyright: '2017 Learning Equality',
+      learningEqualityCopyright: '© 2017 Learning Equality',
     },
     props: {
       topLevelPageName: {
