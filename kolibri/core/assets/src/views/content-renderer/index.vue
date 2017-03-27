@@ -186,6 +186,7 @@
 
   .content-wrapper
     height: 100%
+    overflow-x: scroll
 
   #spinner
     height: 160px
