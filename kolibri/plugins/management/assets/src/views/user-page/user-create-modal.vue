@@ -46,7 +46,6 @@
           <label for="user-kind"><span class="visuallyhidden">{{$tr('userKind')}}</span></label>
           <select @focus="clearStatus" v-model="kind" id="user-kind">
             <option :value="LEARNER"> {{$tr('learner')}} </option>
-            <option :value="COACH"> {{$tr('coach')}} </option>
             <option :value="ADMIN"> {{$tr('admin')}} </option>
           </select>
         </div>

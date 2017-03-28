@@ -31,7 +31,6 @@
           <select v-model="kind_new" id="user-role">
             <option :value="LEARNER"> {{$tr('learner')}} </option>
             <option :value="ADMIN"> {{$tr('admin')}} </option>
-            <option :value="COACH"> {{$tr('coach')}} </option>
           </select>
         </div>
 
