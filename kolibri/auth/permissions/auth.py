@@ -3,9 +3,11 @@ The permissions classes in this module define the specific permissions that gove
 """
 
 from django.contrib.auth.models import AnonymousUser
+from django.db.models.query import F
 
-from ..constants.collection_kinds import FACILITY
+from ..constants.collection_kinds import FACILITY, LEARNERGROUP
 from ..constants.role_kinds import ADMIN, COACH
+from ..filters import HierarchyRelationsFilter
 from .base import BasePermissions, RoleBasedPermissions
 from .general import DenyAll
 
@@ -126,20 +128,58 @@ class IsAdminForOwnFacilityDataset(BasePermissions):
         else:
             return queryset.none()
 
-class CoachesCanManageGroupsForTheirClasses(BasePermissions):
-    def user_can_create_object(self, user, obj):
-        if obj.kind != GROUP:
-            return False
-        return True
-        # classroom = obj.collection_set.parent()
-        # return self._user_is_admin_for_related_facility(COACH, classroom)
 
+class CoachesCanManageGroupsForTheirClasses(BasePermissions):
+    def _user_is_coach_for_classroom(self, user, obj):
+        # make sure the target object is a group and user is a coach for the group's classroom
+        return obj.kind == LEARNERGROUP and user.has_role_for_collection(COACH, obj.parent)
+
+    def user_can_create_object(self, user, obj):
+        return self._user_is_coach_for_classroom(user, obj)
 
     def user_can_read_object(self, user, obj):
-        return True
+        return self._user_is_coach_for_classroom(user, obj)
 
     def user_can_update_object(self, user, obj):
-        return True
+        return self._user_is_coach_for_classroom(user, obj)
 
     def user_can_delete_object(self, user, obj):
+        return self._user_is_coach_for_classroom(user, obj)
+
+    def readable_by_user_filter(self, user, queryset):
+        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+            source_user=user,
+            role_kind=COACH,
+            descendant_collection=F("parent"),
+        ).filter(kind=LEARNERGROUP)
+
+
+class CoachesCanManageMembershipsForTheirGroups(BasePermissions):
+
+    def _user_is_coach_for_group(self, user, group):
+        # make sure the target object is a group and user is a coach for the group
+        return group.kind == LEARNERGROUP and user.has_role_for_collection(COACH, group)
+
+    def _user_should_be_able_to_manage(self, user, obj):
+        # Requesting user must be a coach for the group
+        if not self._user_is_coach_for_group(user, obj.collection):
+            return False
+        # Membership user must already be a member of the collection
+        if not obj.user.is_member_of(obj.collection.parent):
+            return False
         return True
+
+    def user_can_create_object(self, user, obj):
+        return self._user_should_be_able_to_manage(user, obj)
+
+    def user_can_read_object(self, user, obj):
+        return False
+
+    def user_can_update_object(self, user, obj):
+        return self._user_should_be_able_to_manage(user, obj)
+
+    def user_can_delete_object(self, user, obj):
+        return self._user_should_be_able_to_manage(user, obj)
+
+    def readable_by_user_filter(self, user, queryset):
+        return queryset.none()

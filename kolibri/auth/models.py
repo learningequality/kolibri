@@ -46,7 +46,7 @@ from .errors import (
 from .filters import HierarchyRelationsFilter
 from .permissions.auth import (
     AnybodyCanCreateIfNoDeviceOwner, AnybodyCanCreateIfNoFacility, CollectionSpecificRoleBasedPermissions,
-    AnonUserCanReadFacilitiesThatAllowSignUps, IsAdminForOwnFacilityDataset, CoachesCanManageGroupsForTheirClasses
+    AnonUserCanReadFacilitiesThatAllowSignUps, IsAdminForOwnFacilityDataset, CoachesCanManageGroupsForTheirClasses, CoachesCanManageMembershipsForTheirGroups
 )
 from .permissions.base import BasePermissions, RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility, IsFromSameFacility, IsOwn, IsSelf
@@ -607,7 +607,7 @@ class Collection(MPTTModel, AbstractFacilityDataModel):
     ``Collections`` are subdivided into several pre-defined levels.
     """
 
-    # Collection can be read by anybody from the facility; writing is only allowed by an admin for the collection.
+    # Collection can be read by anybody from the facility; writing is only allowed by an admin or coach for the collection.
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
     # by roles in relation to the new collection's parent collection (see CollectionSpecificRoleBasedPermissions).
     permissions = (
@@ -762,13 +762,14 @@ class Membership(AbstractFacilityDataModel):
 
     permissions = (
         IsOwn(read_only=True) |  # users can read their own Memberships
-        RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the member user
+        RoleBasedPermissions(  # Memberships can be read and written by admins for the member user
             target_field="user",
-            can_be_created_by=(role_kinds.ADMIN,),
-            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_created_by=(role_kinds.ADMIN),
+            can_be_read_by=(role_kinds.ADMIN),
             can_be_updated_by=(),  # Membership objects shouldn't be updated; they should be deleted and recreated as needed
-            can_be_deleted_by=(role_kinds.ADMIN,),
-        )
+            can_be_deleted_by=(role_kinds.ADMIN),
+        ) |
+        CoachesCanManageMembershipsForTheirGroups()  # Membership can be written by coaches under the coaches' group
     )
 
     user = models.ForeignKey('FacilityUser', blank=False, null=False)

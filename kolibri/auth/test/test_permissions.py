@@ -314,16 +314,18 @@ class LearnerGroupPermissionsTestCase(TestCase):
         self.own_classroom_coach = self.data["classroom_coaches"][0]
         self.own_classroom_admin = self.data["classroom_admins"][0]
         self.other_classroom_admin = self.data["classroom_admins"][1]
+        self.other_classroom_coach = self.data["classroom_coaches"][1]
         self.device_owner = DeviceOwner.objects.create(username="boss")
         self.anon_user = KolibriAnonymousUser()
 
-    def test_facility_or_classroom_admins_can_create_learnergroup(self):
-        """ The only FacilityUser who can create a LearnerGroup is a facility admin for the Facility """
+    def test_facility_or_classroom_admins_or_classroom_coach_can_create_learnergroup(self):
+        """ The FacilityUser who can create a LearnerGroup is a facility admin for the Facility or coach for the classroom"""
         new_learnergroup_data = {"name": "Cool Group", "parent": self.own_classroom}
         self.assertTrue(self.data["facility_admin"].can_create(LearnerGroup, new_learnergroup_data))
         self.assertTrue(self.own_classroom_admin.can_create(LearnerGroup, new_learnergroup_data))
         self.assertFalse(self.other_classroom_admin.can_create(LearnerGroup, new_learnergroup_data))
-        self.assertFalse(self.own_classroom_coach.can_create(LearnerGroup, new_learnergroup_data))
+        self.assertTrue(self.own_classroom_coach.can_create(LearnerGroup, new_learnergroup_data))
+        self.assertFalse(self.other_classroom_coach.can_create(LearnerGroup, new_learnergroup_data))
         self.assertFalse(self.member.can_create(LearnerGroup, new_learnergroup_data))
         self.assertFalse(self.data["unattached_users"][0].can_create(LearnerGroup, new_learnergroup_data))
         self.assertFalse(self.anon_user.can_create(LearnerGroup, new_learnergroup_data))
@@ -335,11 +337,11 @@ class LearnerGroupPermissionsTestCase(TestCase):
             self.assertTrue(user.can_read(self.own_learnergroup))
             self.assertIn(self.own_learnergroup, user.filter_readable(LearnerGroup.objects.all()))
 
-    def test_only_admins_can_update_own_learnergroup(self):
+    def test_admins_or_coach_can_update_own_learnergroup(self):
         """ The only FacilityUsers who can update a LearnerGroup are admins for that LearnerGroup """
         self.assertTrue(self.data["facility_admin"].can_update(self.own_learnergroup))
         self.assertTrue(self.own_classroom_admin.can_update(self.own_learnergroup))
-        self.assertFalse(self.own_classroom_coach.can_update(self.own_learnergroup))
+        self.assertTrue(self.own_classroom_coach.can_update(self.own_learnergroup))
         self.assertFalse(self.member.can_update(self.own_learnergroup))
         self.assertFalse(self.anon_user.can_update(self.own_learnergroup))
 
@@ -349,11 +351,11 @@ class LearnerGroupPermissionsTestCase(TestCase):
         self.assertFalse(self.own_classroom_coach.can_update(self.other_learnergroup))
         self.assertFalse(self.member.can_update(self.other_learnergroup))
 
-    def test_only_admins_can_delete_own_learnergroup(self):
+    def test_admins_or_coach_can_delete_own_learnergroup(self):
         """ The only FacilityUsers who can delete a LearnerGroup are admins for that LearnerGroup """
         self.assertTrue(self.data["facility_admin"].can_delete(self.own_learnergroup))
         self.assertTrue(self.own_classroom_admin.can_delete(self.own_learnergroup))
-        self.assertFalse(self.own_classroom_coach.can_delete(self.own_learnergroup))
+        self.assertTrue(self.own_classroom_coach.can_delete(self.own_learnergroup))
         self.assertFalse(self.member.can_delete(self.own_learnergroup))
         self.assertFalse(self.anon_user.can_delete(self.own_learnergroup))
 
@@ -747,7 +749,7 @@ class MembershipPermissionsTestCase(TestCase):
         self.device_owner = DeviceOwner.objects.create(username="boss")
         self.anon_user = KolibriAnonymousUser()
 
-    def test_only_admin_for_user_can_create_membership(self):
+    def test_admin_or_coach_for_user_can_create_membership(self):
         # try adding member of own_classroom as a member of other_classroom
         new_membership_data = {"user": self.member, "collection": self.other_learnergroup}
         self.assertTrue(self.data["facility_admin"].can_create(Membership, new_membership_data))
@@ -762,10 +764,11 @@ class MembershipPermissionsTestCase(TestCase):
 
     def test_facility_or_classroom_admin_or_coach_or_member_can_read_membership(self):
         membership = Membership.objects.get(user=self.member, collection=self.own_learnergroup)
-        for user in [self.data["facility_admin"], self.data["facility_coach"], self.own_classroom_admin,
-                     self.own_classroom_coach, self.member, self.device_owner]:
+        for user in [self.data["facility_admin"], self.own_classroom_admin, self.member, self.device_owner]:
             self.assertTrue(user.can_read(membership))
             self.assertIn(membership, user.filter_readable(Membership.objects.all()))
+        for user in [self.data["facility_coach"], self.own_classroom_coach]:
+            self.assertFalse(user.can_read(membership))
         for user in [self.other_classroom_admin, self.other_classroom_coach, self.anon_user]:
             self.assertFalse(user.can_read(membership))
             self.assertNotIn(membership, user.filter_readable(Membership.objects.all()))
@@ -774,20 +777,20 @@ class MembershipPermissionsTestCase(TestCase):
         # None of the fields in a Membership are "mutable", so there's no reason to allow updates
         membership = Membership.objects.get(user=self.member, collection=self.own_learnergroup)
         self.assertFalse(self.data["facility_admin"].can_update(membership))
-        self.assertFalse(self.data["facility_coach"].can_update(membership))
+        self.assertTrue(self.data["facility_coach"].can_update(membership))
         self.assertFalse(self.own_classroom_admin.can_update(membership))
-        self.assertFalse(self.own_classroom_coach.can_update(membership))
+        self.assertTrue(self.own_classroom_coach.can_update(membership))
         self.assertFalse(self.other_classroom_admin.can_update(membership))
         self.assertFalse(self.other_classroom_coach.can_update(membership))
         self.assertFalse(self.member.can_update(membership))
         self.assertFalse(self.anon_user.can_update(membership))
 
-    def test_admin_can_delete_membership(self):
+    def test_admin_or_coach_can_delete_membership(self):
         membership = Membership.objects.get(user=self.member, collection=self.own_learnergroup)
         self.assertTrue(self.data["facility_admin"].can_delete(membership))
-        self.assertFalse(self.data["facility_coach"].can_delete(membership))
+        self.assertTrue(self.data["facility_coach"].can_delete(membership))
         self.assertTrue(self.own_classroom_admin.can_delete(membership))
-        self.assertFalse(self.own_classroom_coach.can_delete(membership))
+        self.assertTrue(self.own_classroom_coach.can_delete(membership))
         self.assertFalse(self.member.can_delete(membership))
         self.assertTrue(self.device_owner.can_delete(membership))
         self.assertFalse(self.anon_user.can_delete(membership))
