@@ -7,13 +7,13 @@
     <allcontent/>
     <expandable-content-grid
       :contents="recommendations.popular"
-      :title="'Most Popular'"/>
+      :title="$tr('mostPopular')"/>
     <expandable-content-grid
       :contents="recommendations.nextSteps"
-      :title="'Next Steps'"/>
+      :title="$tr('nextSteps')"/>
     <expandable-content-grid
       :contents="recommendations.resume"
-      :title="'Resume'"/>
+      :title="$tr('resume')"/>
   </div>
 
 </template>
@@ -25,6 +25,9 @@
     $trNameSpace: 'learnIndex',
     $trs: {
       learnName: 'Recommended',
+      mostPopular: 'Most popular',
+      nextSteps: 'Next steps',
+      resume: 'Resume',
     },
     components: {
       'page-header': require('../page-header'),
