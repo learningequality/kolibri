@@ -26,7 +26,11 @@ const REPORTS_URL_PATTERN = [
 
 class CoachToolsModule extends KolibriModule {
   ready() {
-    coreActions.getCurrentSession(store).then(() => {
+    const coreStoreUpdates = [
+      coreActions.getCurrentSession(store),
+      coreActions.setChannelInfo,
+    ];
+    Promise.all(coreStoreUpdates).then(() => {
       const routes = [
         {
           name: PageNames.CLASS_LIST,
