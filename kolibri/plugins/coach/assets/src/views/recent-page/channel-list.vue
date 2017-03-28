@@ -28,7 +28,7 @@
 
   module.exports = {
     name: 'channelList',
-    $trNameSpace: 'coachRecentPage',
+    $trNameSpace: 'channelList',
     $trs: {
       channels: 'Channels',
       channelList: 'Channel list',

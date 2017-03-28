@@ -23,7 +23,7 @@
   const values = require('lodash.values');
 
   module.exports = {
-    $trNameSpace: 'header-cell',
+    $trNameSpace: 'headerCell',
     $trs: {
       ascending: '(sorted ascending)',
       descending: '(sorted descending)',

@@ -17,7 +17,7 @@
 <script>
 
   module.exports = {
-    $trNameSpace: 'progress-indicator',
+    $trNameSpace: 'progressIndicator',
     $trs: {
       mastered: 'mastered by {0, number, integer} learners',
       completed: 'completed by {0, number, integer} learners',

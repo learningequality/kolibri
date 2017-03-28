@@ -19,6 +19,7 @@ extract$trs.prototype.apply = function(compiler) {
 
   compiler.plugin("emit", function(compilation, callback) {
     var messageExport = {};
+    var nameSpaces = [];
 
     compilation.chunks.forEach(function(chunk) {
       // Explore each module within the chunk (built inputs):
@@ -51,6 +52,7 @@ extract$trs.prototype.apply = function(compiler) {
                 if (property.key.name === '$trs') {
                   // Grab every message in our $trs property and save it into our messages object.
                   property.value.properties.forEach(function(message) {
+                    // Check that the trs id is camelCase.
                     if (!(isCamelCase(message.key.name))) {
                       logging.error(`$trs id "${message.key.name}" should be in camelCase. Found in ${module.resource}`);
                     }
@@ -58,6 +60,7 @@ extract$trs.prototype.apply = function(compiler) {
                   });
                   // We also want to take a note of the name space these messages have been put in too!
                 } else if (property.key.name === '$trNameSpace') {
+                  // Check that the trNameSpace id is camelCase.
                   if (!(isCamelCase(property.value.value))) {
                     logging.error(`$trNameSpace id "${property.value.value}" should be in camelCase. Found in ${module.resource}`);
                   }
@@ -67,18 +70,19 @@ extract$trs.prototype.apply = function(compiler) {
             }
           });
           if (messageNameSpace) {
-            // Every message needs to be namespaced - don't pollute our top level!
-            Object.keys(messages).forEach(function(key) {
-              // Create a new message id from the name space and the message id joined with '.'
-              var msgId = messageNameSpace + '.' + key;
-              if (messageExport[msgId]) {
-                // Warn about duplicate ids *within* a bundle (no way to warn across).
-                logging.error('Duplicate translation id ' + msgId + ' found in ' + module.resource)
-              } else {
-                // If all is good, save it onto our export object for the whole bundle.
+            // Warn about duplicate nameSpaces *within* a bundle (no way to warn across).
+            if (nameSpaces.indexOf(messageNameSpace) !== -1) {
+              logging.error('Duplicate namespace ' + messageNameSpace + ' found in ' + module.resource);
+            } else {
+              nameSpaces.push(messageNameSpace);
+              Object.keys(messages).forEach(function (key) {
+                // Every message needs to be namespaced - don't pollute our top level!
+                // Create a new message id from the name space and the message id joined with '.'
+                var msgId = messageNameSpace + '.' + key;
+                // Save it onto our export object for the whole bundle.
                 messageExport[msgId] = messages[key];
-              }
-            });
+              });
+            }
             // Someone defined a $trs object, but didn't namespace it - warn them about it here so they can fix their foolishness.
           } else if (Object.keys(messages).length) {
             logging.error('Translatable messages have been defined in ' + module.resource + ' but no messageNameSpace was specified.');
