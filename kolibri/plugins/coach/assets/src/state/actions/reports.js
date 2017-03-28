@@ -34,29 +34,43 @@ function _showRecentChannels(store, classId) {
 
   ChannelResource.getCollection().fetch().then(
     channels => {
+      const activityDataPromises = [];
+
       // gather the last_active property for every one of the channels
-      // TODO might not need to do this if channels are in the local store
       channels.forEach(channel => {
-        const channelSummaryPayload = {
+        const summaryPayload = {
           channel_id: channel.id,
           collection_kind: ReportConstants.UserScopes.FACILITY,
           collection_id: facilityId,
         };
-        ContentSummaryResource.getModel(channel.root_pk, channelSummaryPayload).fetch().then(
-          channelSummary => {
-            channel.lastActive = channelSummary.last_active;
-          },
-          error => { coreActions.handleApiError(store, error); }
+
+        const summaryPromise = ContentSummaryResource.getModel(channel.root_pk, summaryPayload);
+
+        // gather all promises into an array
+        activityDataPromises.push(
+          // thens return a promise
+          summaryPromise.fetch().then(
+            channelSummary => {
+              // add lastActive to channel object in pageState
+              channel.lastActive = channelSummary.last_active;
+            },
+            error => { coreActions.handleApiError(store, error); }
+          )
         );
       });
-      const pageState = {
-        channels,
-        classId,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', 'Recents');
+
+      Promise.all(activityDataPromises).then(
+        () => {
+          const pageState = {
+            channels,
+            classId,
+          };
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.dispatch('CORE_SET_ERROR', null);
+          store.dispatch('CORE_SET_TITLE', 'Recents');
+        }
+      );
     },
     error => { coreActions.handleApiError(store, error); }
   );

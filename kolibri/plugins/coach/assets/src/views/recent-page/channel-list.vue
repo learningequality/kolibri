@@ -16,7 +16,7 @@
             <router-link :to="reportLink(channel.id)">{{ channel.name }}</router-link>
           </td>
           <td>
-            {{ channel.name }}
+            {{ channel.lastActive }}
           </td>
         </tr>
       </tbody>
