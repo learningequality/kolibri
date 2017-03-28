@@ -128,6 +128,7 @@ class IsAdminForOwnFacilityDataset(BasePermissions):
         else:
             return queryset.none()
 
+
 class CoachesCanManageGroupsForTheirClasses(BasePermissions):
     def _user_is_coach_for_classroom(self, user, obj):
         # make sure the target object is a group and user is a coach for the group's classroom
@@ -151,3 +152,34 @@ class CoachesCanManageGroupsForTheirClasses(BasePermissions):
             role_kind=COACH,
             descendant_collection=F("parent"),
         ).filter(kind=LEARNERGROUP)
+
+
+class CoachesCanManageMembershipsForTheirGroups(BasePermissions):
+
+    def _user_is_coach_for_group(self, user, group):
+        # make sure the target object is a group and user is a coach for the group
+        return group.kind == LEARNERGROUP and user.has_role_for_collection(COACH, group)
+
+    def _user_should_be_able_to_manage(self, user, obj):
+        # Requesting user must be a coach for the group
+        if not self._user_is_coach_for_group(user, obj.collection):
+            return False
+        # Membership user must already be a member of the collection
+        if not obj.user.is_member_of(obj.collection.parent):
+            return False
+        return True
+
+    def user_can_create_object(self, user, obj):
+        return self._user_should_be_able_to_manage(user, obj)
+
+    def user_can_read_object(self, user, obj):
+        return False
+
+    def user_can_update_object(self, user, obj):
+        return self._user_should_be_able_to_manage(user, obj)
+
+    def user_can_delete_object(self, user, obj):
+        return self._user_should_be_able_to_manage(user, obj)
+
+    def readable_by_user_filter(self, user, queryset):
+        return queryset.none()
