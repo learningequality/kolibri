@@ -32,7 +32,7 @@ describe('ResourceManager', function () {
       assert.deepEqual(this.resourceManager._resources, {});
     });
   });
-  describe.only('registerResource method', function () {
+  describe('registerResource method', function () {
     it('should throw a TypeError if no className is passed', function () {
       assert.throws(this.resourceManager.registerResource, /className/);
     });
@@ -47,10 +47,9 @@ describe('ResourceManager', function () {
         /resource name/);
     });
     it('should throw a TypeError if the resource name is already registered', function () {
-      const mockClass = {
-        resourceName: sinon.stub().returns(this.mockClassName),
-      };
-      this.resourceManager._resources.test = {};
+      function mockClass() {}
+      mockClass.resourceName = () => this.mockClassName;
+      this.resourceManager._resources[this.mockClassName] = {};
       assert.throws(() => this.resourceManager.registerResource(this.mockName, mockClass),
         /been registered/);
     });
