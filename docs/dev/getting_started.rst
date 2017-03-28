@@ -9,7 +9,7 @@ Setting up Kolibri for development
 Most of the steps below require entering commands into your Terminal (Linux, Mac) or command prompt (``cmd.exe`` on Windows) that you will learn how to use and become more comfortable with.
 
 .. tip::
-  In case you run into any problems during these steps, searching online is usually the fastest way out: whatever error you are seeing, chances are good that somebody alredy had it in the past and posted a solution somewhere... ;)
+  In case you run into any problems during these steps, searching online is usually the fastest way out: whatever error you are seeing, chances are good that somebody already had it in the past and posted a solution somewhere... ;)
 
 Git & GitHub
 ~~~~~~~~~~~~
