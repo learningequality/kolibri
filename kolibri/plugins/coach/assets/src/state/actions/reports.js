@@ -53,45 +53,43 @@ function _showRecentChannels(store, classId) {
       }
       // and days otherwise
       return {
-        measure: 'day',
         amount: dayMeasure(millisecondsEllapsed),
+        measure: 'day',
       };
     }
 
     const summaryPayload = {
       channel_id: channel.id,
-      collection_kind: ReportConstants.UserScopes.CLASSROOM,
-      collection_id: classId,
+      collection_kind: ReportConstants.UserScopes.FACILITY,
+      collection_id: store.state.core.session.facility_id,
     };
 
-    ContentSummaryResource.getModel(channel.root_pk, summaryPayload).fetch().then(
+    ContentSummaryResource.getModel(channel.root_id, summaryPayload).fetch().then(
       channelSummary => {
-        channel.lastActive = timePassedSince(channelSummary.last_active);
+        // done this way because object needs to be reassigned for vue to detect change
+        const lastActive = Object.assign({}, store.state.pageState.lastActive);
+        lastActive[channel.id] = timePassedSince(channelSummary.last_active);
+        store.dispatch('SET_CHANNEL_LAST_ACTIVE', lastActive);
       },
       error => { coreActions.handleApiError(store, error); }
     );
   }
 
 
-  ChannelResource.getCollection().fetch().then(
-    channels => {
-      channels.forEach(
-        channel => {
-          setLastActive(channel);
-        }
-      );
-
-      const pageState = {
-        channels,
-        classId,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', 'Recents');
-    },
-    error => { coreActions.handleApiError(store, error); }
+  store.state.core.channels.list.forEach(
+    channel => {
+      setLastActive(channel);
+    }
   );
+
+  const pageState = {
+    lastActive: {},
+    classId,
+  };
+  store.dispatch('SET_PAGE_STATE', pageState);
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_ERROR', null);
+  store.dispatch('CORE_SET_TITLE', 'Recents');
 }
 
 

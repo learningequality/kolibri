@@ -13,10 +13,10 @@
         <tr v-for="channel in channels">
           <td>
             <mat-svg category="action" name="view_module" />
-            <router-link :to="reportLink(channel.id)">{{ channel.name }}</router-link>
+            <router-link :to="reportLink(channel.id)">{{ channel.title }}</router-link>
           </td>
           <td>
-            {{ channel.lastActive }}
+            {{ lastActiveText(channel.id) }}
           </td>
         </tr>
       </tbody>
@@ -49,10 +49,20 @@
           },
         };
       },
+      lastActiveText(channelId) {
+        if (this.lastActive[channelId]) {
+          const lastActiveMeasure = this.lastActive[channelId].measure;
+          const lastActiveAmount = this.lastActive[channelId].amount;
+          return `${lastActiveAmount} ${lastActiveMeasure} ago`;
+        }
+
+        return 'Loading..';
+      },
     },
     vuex: {
       getters: {
-        channels: state => state.pageState.channels,
+        channels: state => state.core.channels.list,
+        lastActive: state => state.pageState.lastActive,
         classId: state => state.pageState.classId,
       },
     },
