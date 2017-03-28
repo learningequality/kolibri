@@ -28,7 +28,7 @@ class CoachToolsModule extends KolibriModule {
   ready() {
     const coreStoreUpdates = [
       coreActions.getCurrentSession(store),
-      coreActions.setChannelInfo,
+      coreActions.setChannelInfo(store),
     ];
     Promise.all(coreStoreUpdates).then(() => {
       const routes = [
