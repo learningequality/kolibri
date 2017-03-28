@@ -17,8 +17,9 @@ import platform
 
 # import kolibri, so we can get the path to the module.
 import kolibri
+# we load other utilities related to i18n
 # This is essential! We load the kolibri conf INSIDE the Django conf
-from kolibri.utils import conf
+from kolibri.utils import conf, i18n
 
 KOLIBRI_MODULE_PATH = os.path.dirname(kolibri.__file__)
 
@@ -63,6 +64,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_js_reverse',
 ] + conf.config['INSTALLED_APPS']
+
+# Add in the external plugins' locale paths. Our frontend messages depends
+# specifically on the value of LOCALE_PATHS to find its catalog files.
+LOCALE_PATHS += [
+    i18n.get_installed_app_locale_path(app) for app in INSTALLED_APPS
+    if i18n.is_external_plugin(app)
+]
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
