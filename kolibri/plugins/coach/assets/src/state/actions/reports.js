@@ -26,51 +26,69 @@ const ChannelResource = coreApp.resources.ChannelResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 
 
+// helper function for showRecent, provides list of channels with recent activity
 function _showRecentChannels(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
 
-  const facilityId = store.state.core.session.facility_id;
+  // helper function for _showRecentChannels, assigns lastActive for channel
+  function setLastActive(channel) {
+    // helper function for setLastActive, calculates time elapsed
+    function timePassedSince(lastActiveTime) {
+      const dayMeasure = (ms) => Math.round(ms / (8.64e+7));
+      const monthMeasure = (ms) => Math.round(ms / (2.628e+9));
+
+      const currentDate = new Date();
+      const lastActiveDate = new Date(lastActiveTime);
+      // subtracting dates returns time interval in milliseconds
+      const millisecondsEllapsed = currentDate - lastActiveDate;
+
+      const monthsAgo = monthMeasure(millisecondsEllapsed);
+      // returns months amount of days has surpassed a month
+      if (monthsAgo) {
+        return {
+          measure: 'month',
+          amount: monthsAgo,
+        };
+      }
+      // and days otherwise
+      return {
+        measure: 'day',
+        amount: dayMeasure(millisecondsEllapsed),
+      };
+    }
+
+    const summaryPayload = {
+      channel_id: channel.id,
+      collection_kind: ReportConstants.UserScopes.CLASSROOM,
+      collection_id: classId,
+    };
+
+    ContentSummaryResource.getModel(channel.root_pk, summaryPayload).fetch().then(
+      channelSummary => {
+        channel.lastActive = timePassedSince(channelSummary.last_active);
+      },
+      error => { coreActions.handleApiError(store, error); }
+    );
+  }
+
 
   ChannelResource.getCollection().fetch().then(
     channels => {
-      const activityDataPromises = [];
-
-      // gather the last_active property for every one of the channels
-      channels.forEach(channel => {
-        const summaryPayload = {
-          channel_id: channel.id,
-          collection_kind: ReportConstants.UserScopes.FACILITY,
-          collection_id: facilityId,
-        };
-
-        const summaryPromise = ContentSummaryResource.getModel(channel.root_pk, summaryPayload);
-
-        // gather all promises into an array
-        activityDataPromises.push(
-          // thens return a promise
-          summaryPromise.fetch().then(
-            channelSummary => {
-              // add lastActive to channel object in pageState
-              channel.lastActive = channelSummary.last_active;
-            },
-            error => { coreActions.handleApiError(store, error); }
-          )
-        );
-      });
-
-      Promise.all(activityDataPromises).then(
-        () => {
-          const pageState = {
-            channels,
-            classId,
-          };
-          store.dispatch('SET_PAGE_STATE', pageState);
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-          store.dispatch('CORE_SET_ERROR', null);
-          store.dispatch('CORE_SET_TITLE', 'Recents');
+      channels.forEach(
+        channel => {
+          setLastActive(channel);
         }
       );
+
+      const pageState = {
+        channels,
+        classId,
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_TITLE', 'Recents');
     },
     error => { coreActions.handleApiError(store, error); }
   );
