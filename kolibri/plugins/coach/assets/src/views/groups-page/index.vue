@@ -2,12 +2,15 @@
 
   <div>
     <h1>{{ className }} - {{ $tr('groups') }}</h1>
-    <icon-button :text="$tr('newGroup')"
-      :primary="true"
-      @click="openCreateGroupModal">
-      <mat-svg category="content"
-        name="add" />
-    </icon-button>
+    <div class="btn">
+      <icon-button
+        :text="$tr('newGroup')"
+        :primary="true"
+        @click="openCreateGroupModal"
+      >
+        <mat-svg category="content" name="add" />
+      </icon-button>
+    </div>
 
     <create-group-modal v-if="showCreateGroupModal"
       :classId="classId" />
@@ -143,7 +146,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  h1
-    display: inline-block
+  .btn
+    text-align: right
 
 </style>
