@@ -2,7 +2,7 @@
 
   <div :class="`gutter-${windowSize.gutterWidth}`">
     <app-bar
-      class="app-bar"
+      class="app-bar align-to-parent"
       :style="appBarStyle"
       @toggleSideNav="navShown=!navShown"
       :title="appBarTitle"
@@ -18,11 +18,13 @@
       :navShown="navShown"
       :headerHeight="headerHeight"
       :width="navWidth"/>
-    <loading-spinner v-if="loading" class="loading-spinner-fixed"/>
-    <div v-if="!loading" :style="contentStyle" class="content-container">
-      <error-box v-if="error"/>
-      <slot name="tabs"/>
-      <slot name="content"/>
+    <div :style="contentStyle" class="content-container">
+      <loading-spinner v-if="loading" class="align-to-parent"/>
+      <template v-else>
+        <error-box v-if="error"/>
+        <slot name="tabs"/>
+        <slot name="content"/>
+      </template>
     </div>
     <slot name="extra"/>
   </div>
@@ -121,15 +123,14 @@
 
   @require '~kolibri.styles.definitions'
 
-  .loading-spinner-fixed
-    position: fixed
+  .align-to-parent
+    position: absolute
+    top: 0
+    left: 0
 
   .app-bar
     height: 64px
     width: 100%
-    position: absolute
-    top: 0
-    left: 0
 
   .app-bar-actions
     display: inline-block
