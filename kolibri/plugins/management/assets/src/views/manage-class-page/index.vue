@@ -96,7 +96,7 @@
       },
       openDeleteClassModal(classModel) {
         this.currentClassDelete = classModel;
-        this.displayModal(constants.ModalNames.DELETE_CLASS);
+        this.displayModal(constants.Modals.DELETE_CLASS);
       },
       openCreateClassModal() {
         this.displayModal(constants.Modals.CREATE_CLASS);
