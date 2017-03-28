@@ -2,16 +2,21 @@
 
   <div>
     <caption class="visuallyhidden">{{ $tr('channelList') }}</caption>
-    <table>
+    <table class="channel-list">
       <thead>
         <tr>
           <th scope="col">{{ $tr('channels') }}</th>
+          <th scope="col">{{ $tr('lastActive') }}</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="channel in channels">
           <td>
+            <mat-svg category="action" name="view_module" />
             <router-link :to="reportLink(channel.id)">{{ channel.name }}</router-link>
+          </td>
+          <td>
+            {{ channel.name }}
           </td>
         </tr>
       </tbody>
@@ -32,6 +37,7 @@
     $trs: {
       channels: 'Channels',
       channelList: 'Channel list',
+      lastActive: 'Last active',
     },
     methods: {
       reportLink(channelId) {
@@ -59,5 +65,8 @@
 
   th
     text-align: left
+
+  .channel-list
+    width:100%
 
 </style>

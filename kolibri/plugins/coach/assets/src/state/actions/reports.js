@@ -29,9 +29,26 @@ const FacilityUserResource = coreApp.resources.FacilityUserResource;
 function _showRecentChannels(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
-  const channelPromise = ChannelResource.getCollection();
-  channelPromise.fetch().then(
+
+  const facilityId = store.state.core.session.facility_id;
+
+  ChannelResource.getCollection().fetch().then(
     channels => {
+      // gather the last_active property for every one of the channels
+      // TODO might not need to do this if channels are in the local store
+      channels.forEach(channel => {
+        const channelSummaryPayload = {
+          channel_id: channel.id,
+          collection_kind: ReportConstants.UserScopes.FACILITY,
+          collection_id: facilityId,
+        };
+        ContentSummaryResource.getModel(channel.root_pk, channelSummaryPayload).fetch().then(
+          channelSummary => {
+            channel.lastActive = channelSummary.last_active;
+          },
+          error => { coreActions.handleApiError(store, error); }
+        );
+      });
       const pageState = {
         channels,
         classId,
