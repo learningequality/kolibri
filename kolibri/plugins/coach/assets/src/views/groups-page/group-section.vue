@@ -4,7 +4,9 @@
     <h2>{{ group.name }}</h2>
     <span>{{ $tr('numLearners', {count: group.users.length }) }}</span>
     <span v-if="group.users.length">{{ `${selectedUsers.length} ${$tr('selected')}` }}</span>
-    <icon-button :text="$tr('moveLearners')"
+    <icon-button
+      v-if="canMove"
+      :text="$tr('moveLearners')"
       :primary="true"
       size="small"
       @click="emitMove"
@@ -85,6 +87,10 @@
       isUngrouped: {
         type: Boolean,
         default: false,
+      },
+      canMove: {
+        type: Boolean,
+        default: true,
       },
     },
     data() {

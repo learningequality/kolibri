@@ -28,13 +28,17 @@
       :usersToMove="usersToMove"
       :isUngrouped="isUngrouped" />
 
-    <group-section v-for="group in groups"
+    <group-section
+      v-for="group in groups"
+      :canMove="Boolean(groups.length)"
       :group="group"
       @rename="openRenameGroupModal"
       @delete="openDeleteGroupModal"
       @move="openMoveLearnersModal" />
 
-    <group-section :group="ungroupedUsersObject"
+    <group-section
+      :canMove="Boolean(groups.length)"
+      :group="ungroupedUsersObject"
       :isUngrouped="true"
       @move="openMoveLearnersModal" />
   </div>
