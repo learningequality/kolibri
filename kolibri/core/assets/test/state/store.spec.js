@@ -21,21 +21,23 @@ function createStore() {
 }
 
 describe('Vuex store/actions for core module', () => {
-  it('handleError action updates core state', () => {
-    const store = createStore();
-    coreActions.handleError(store, 'catastrophic failure');
-    assert.equal(store.state.core.error, 'catastrophic failure');
-    assert.equal(store.state.core.loading, false);
-    assert.equal(store.state.core.title, 'Error');
-  });
+  describe('error handling', () => {
+    it('handleError action updates core state', () => {
+      const store = createStore();
+      coreActions.handleError(store, 'catastrophic failure');
+      assert.equal(store.state.core.error, 'catastrophic failure');
+      assert.equal(store.state.core.loading, false);
+      assert.equal(store.state.core.title, 'Error');
+    });
 
-  it('handleApiError action updates core state', () => {
-    const store = createStore();
-    const apiError = { message: 'Too Bad' };
-    coreActions.handleApiError(store, apiError);
-    assert(store.state.core.error.match(/Too Bad/));
-    assert.equal(store.state.core.loading, false);
-    assert.equal(store.state.core.title, 'Error');
+    it('handleApiError action updates core state', () => {
+      const store = createStore();
+      const apiError = { message: 'Too Bad' };
+      coreActions.handleApiError(store, apiError);
+      assert(store.state.core.error.match(/Too Bad/));
+      assert.equal(store.state.core.loading, false);
+      assert.equal(store.state.core.title, 'Error');
+    });
   });
 
   describe('kolibriLogin', () => {
