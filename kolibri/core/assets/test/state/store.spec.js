@@ -7,6 +7,7 @@ const s = require('../../src/state/store');
 const getters = require('../../src/state/getters');
 const coreActions = require('../../src/state/actions');
 const kolibri = require('kolibri');
+const sinon = require('sinon');
 
 Vue.use(Vuex);
 
@@ -90,6 +91,31 @@ describe('Vuex store for core module', () => {
       coreActions.kolibriLogin(store, {})
         .then(() => {
           assert.equal(store.state.core.loginError, 401);
+        })
+        .then(done, done);
+    });
+
+    it('successful logout', (done) => {
+      const clearCachesSpy = sinon.spy();
+      const getModelStub = sinon.stub().returns({
+        delete: () => Promise.resolve('goodbye'),
+      });
+      kolibri.resources = {
+        SessionResource: {
+          getModel: getModelStub,
+        },
+        clearCaches: clearCachesSpy,
+      };
+      // fake a session
+      store.state.core.session.id = '123';
+      store.state.core.session.username = 'l_organa';
+
+      coreActions.kolibriLogout(store)
+        .then(() => {
+          assert.equal(store.state.core.session.id, undefined);
+          assert.equal(store.state.core.session.username, '');
+          sinon.assert.calledWith(getModelStub, 'current');
+          sinon.assert.calledOnce(clearCachesSpy);
         })
         .then(done, done);
     });

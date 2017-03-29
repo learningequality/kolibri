@@ -191,7 +191,7 @@ function kolibriLogout(store) {
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
   const logoutPromise = sessionModel.delete();
-  logoutPromise.then((response) => {
+  return logoutPromise.then((response) => {
     store.dispatch('CORE_CLEAR_SESSION');
     /* Very hacky solution to redirect a user back to Learn tab on logout*/
     window.location.href = window.location.origin;
