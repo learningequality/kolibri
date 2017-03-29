@@ -167,7 +167,7 @@ function kolibriLogin(store, sessionPayload) {
   const SessionResource = coreApp.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
-  sessionPromise.then((session) => {
+  return sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
     /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
     if (session.kind[0] === UserKinds.SUPERUSER || session.kind[0] === UserKinds.ADMIN) {
