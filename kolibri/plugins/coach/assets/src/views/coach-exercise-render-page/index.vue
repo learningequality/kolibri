@@ -47,7 +47,7 @@
       backto: 'Back to { text }',
     },
     components: {
-      'exercise-detail-view': require('./../exercise-detail-view'),
+      'exercise-detail-view': require('./../content-detail-view'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'page-status': require('./page-status'),
       'answer-history': require('./answer-history'),
