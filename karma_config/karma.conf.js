@@ -33,7 +33,7 @@ module.exports = function(config) {
       // Detailed pattern to include a file. Similarly other options can be used
       { pattern: './node_modules/core-js/client/core.js', watched: false },
       './node_modules/phantomjs-polyfill-find/find-polyfill.js',
-      'kolibri/**/assets/test/*.js',
+      'kolibri/**/assets/test/**/*.js',
       {pattern: 'kolibri/**/assets/src/**/*.js', included: false} // load these, but not in the browser, just for linting
     ],
 
@@ -43,7 +43,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'kolibri/**/assets/test/*.js': ['eslint', 'webpack', 'sourcemap'],
+      'kolibri/**/assets/test/**/*.js': ['eslint', 'webpack', 'sourcemap'],
       '*.js': ['eslint'],
       'kolibri/**/assets/src/**/*.js': ['eslint']
     },
