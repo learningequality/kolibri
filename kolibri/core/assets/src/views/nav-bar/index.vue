@@ -213,7 +213,7 @@
       },
     },
     components: {
-      'ui-menu': require('keen-ui/src/UiMenu'),
+      'ui-menu': require('./keen-menu-port'),
       'ui-icon': require('keen-ui/src/UiIcon'),
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
       'logo': require('kolibri.coreVue.components.logo'),
@@ -337,15 +337,15 @@
       &:not(.is-divider)
         font-size: 14px
         &.is-disabled
-          .ui-menu-option__icon
+          .ui-menu-option-icon
             color: $core-accent-color
           color: $core-accent-color
           cursor: default
           font-weight: bold
           opacity: 1
-        .ui-menu-option__text
+        .ui-menu-option-text
           overflow: visible
-        .ui-menu-option__icon
+        .ui-menu-option-icon
           font-size: 1.2em
       &.is_divider
         background-color: $core-text-annotation
