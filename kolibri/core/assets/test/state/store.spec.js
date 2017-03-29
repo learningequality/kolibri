@@ -20,7 +20,7 @@ function createStore() {
   });
 }
 
-describe('Vuex store for core module', () => {
+describe('Vuex store/actions for core module', () => {
   it('handleError action updates core state', () => {
     const store = createStore();
     coreActions.handleError(store, 'catastrophic failure');
