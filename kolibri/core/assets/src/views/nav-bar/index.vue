@@ -196,13 +196,6 @@
             href: '/user',
           });
         }
-        /*
-         options.push({
-         label: this.$tr('about'),
-         disabled: this.aboutActive,
-         icon: 'error_outline',
-         });
-         */
         if (this.isUserLoggedIn) {
           options.push({
             label: this.$tr('signOut'),
