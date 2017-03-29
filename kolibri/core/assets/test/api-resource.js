@@ -49,9 +49,10 @@ describe('ResourceManager', function () {
     it('should throw a TypeError if the resource name is already registered', function () {
       function mockClass() {}
       mockClass.resourceName = () => this.mockClassName;
-      this.resourceManager._resources[this.mockClassName] = {};
-      assert.throws(() => this.resourceManager.registerResource(this.mockName, mockClass),
-        /been registered/);
+      // try to register the resource twice
+      const register = () => this.resourceManager.registerResource(this.mockName, mockClass);
+      register();
+      assert.throws(register, /been registered/);
     });
     describe('when successfully registering', function () {
       beforeEach(function () {
