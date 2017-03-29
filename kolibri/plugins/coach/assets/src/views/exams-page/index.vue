@@ -224,8 +224,6 @@
         currentClass: state => state.pageState.currentClass,
         currentClassGroups: state => state.pageState.currentClassGroups,
         classes: state => state.pageState.classes,
-        currentChannel: state => state.pageState.currentChannel,
-        channels: state => state.pageState.channels,
         exams: state => state.pageState.exams,
         modalShown: state => state.pageState.modalShown,
       },
