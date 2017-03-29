@@ -1,13 +1,16 @@
 <template>
 
-  <div class="wrapper">
+  <div>
     <h1>{{ className }} - {{ $tr('groups') }}</h1>
-    <icon-button :text="$tr('newGroup')"
-      :primary="true"
-      @click="openCreateGroupModal">
-      <mat-svg category="content"
-        name="add" />
-    </icon-button>
+    <div class="btn">
+      <icon-button
+        :text="$tr('newGroup')"
+        :primary="true"
+        @click="openCreateGroupModal"
+      >
+        <mat-svg category="content" name="add" />
+      </icon-button>
+    </div>
 
     <create-group-modal v-if="showCreateGroupModal"
       :classId="classId" />
@@ -28,13 +31,17 @@
       :usersToMove="usersToMove"
       :isUngrouped="isUngrouped" />
 
-    <group-section v-for="group in groups"
+    <group-section
+      v-for="group in groups"
+      :canMove="Boolean(groups.length)"
       :group="group"
       @rename="openRenameGroupModal"
       @delete="openDeleteGroupModal"
       @move="openMoveLearnersModal" />
 
-    <group-section :group="ungroupedUsersObject"
+    <group-section
+      :canMove="Boolean(groups.length)"
+      :group="ungroupedUsersObject"
       :isUngrouped="true"
       @move="openMoveLearnersModal" />
   </div>
@@ -139,11 +146,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  .wrapper
-    background-color: $core-bg-light
-    padding: 2em
-
-  h1
-    display: inline-block
+  .btn
+    text-align: right
 
 </style>

@@ -2,23 +2,33 @@
 
   <div class="group-section">
     <h2>{{ group.name }}</h2>
-    <span>{{ $tr('numLearners', {count: group.users.length }) }}</span>
-    <span v-if="group.users.length">{{ `${selectedUsers.length} ${$tr('selected')}` }}</span>
-    <icon-button :text="$tr('moveLearners')"
-      :primary="true"
-      size="small"
-      @click="emitMove"
-      :disabled="selectedUsers.length === 0" />
-    <ui-button v-if="!isUngrouped"
-      color="primary"
-      :has-dropdown="true"
-      ref="dropdownButton"
-      size="small">
-      <ui-menu slot="dropdown"
-        :options="menuOptions"
-        @select="handleSelection"
-        @close="close" />
-    </ui-button>
+    <div>
+      <div class="meta">
+        <span>{{ $tr('numLearners', {count: group.users.length }) }}</span>
+        <span v-if="group.users.length">{{ `${selectedUsers.length} ${$tr('selected')}` }}</span>
+      </div>
+      <div class="buttons">
+        <ui-button v-if="!isUngrouped"
+          color="primary"
+          :has-dropdown="true"
+          ref="dropdownButton"
+          size="small">
+          <ui-menu slot="dropdown"
+            :options="menuOptions"
+            @select="handleSelection"
+            @close="close"
+          />
+          {{ $tr('actions') }}
+        </ui-button>
+        <icon-button
+          v-if="canMove"
+          :text="$tr('moveLearners')"
+          :primary="true"
+          size="small"
+          @click="emitMove"
+          :disabled="selectedUsers.length === 0" />
+      </div>
+    </div>
 
     <table v-if="group.users.length">
       <thead>
@@ -62,6 +72,7 @@
     $trs: {
       numLearners: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       moveLearners: 'Move Learners',
+      actions: 'Actions',
       renameGroup: 'Rename Group',
       deleteGroup: 'Delete Group',
       name: 'Name',
@@ -85,6 +96,10 @@
       isUngrouped: {
         type: Boolean,
         default: false,
+      },
+      canMove: {
+        type: Boolean,
+        default: true,
       },
     },
     data() {
@@ -154,8 +169,11 @@
   .group-section
     padding-bottom: 2em
 
-  h2
+  .meta
     display: inline-block
+
+  .buttons
+    float: right
 
   table
     width: 100%
