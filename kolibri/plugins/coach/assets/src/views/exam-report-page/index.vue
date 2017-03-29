@@ -25,7 +25,7 @@
         <tbody>
           <tr class="table-row" v-for="examTaker in examTakers">
             <th scope="row" class="table-text">
-              <router-link :to="learnerExamLink(examTaker.id)" class="table-name">
+              <router-link :to="examDetailPageLink(examTaker.id)" class="table-name">
                 {{examTaker.name}}
               </router-link>
             </th>
@@ -60,10 +60,10 @@
       },
     },
     methods: {
-      learnerExamLink(id) {
+      examDetailPageLink(id) {
         return {
-          name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
-          params: { id },
+          name: constants.PageNames.EXAM_REPORT_DETAIL,
+          params: { classId: 2, examId: 1, userId: id },
         };
       },
     },
