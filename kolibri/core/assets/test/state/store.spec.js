@@ -38,8 +38,18 @@ describe.only('Vuex store for core module', () => {
     assert.equal(store.state.core.title, 'Error');
   });
 
-  describe('kolibriLogin', (done) => {
-    it('happy path', () => {
+  describe('kolibriLogin', () => {
+    // this prevents kolibriLogin from refreshing page
+    const oldHandler = window.onbeforeunload;
+
+    before(() => {
+      window.onbeforeunload = () => true;
+    });
+
+    after(() => {
+      window.onbeforeunload = oldHandler;
+    });
+
       kolibri.resources = {
         SessionResource: {
           createModel: () => ({
