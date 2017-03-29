@@ -7,15 +7,9 @@
         {{ $tr('examTakenby', { number: 40 }) }}
       </h1>
       <h1>
-        {{ $tr('averageScore') }} {{ averageScore }}%
+        {{ $tr('averageScore', { number: averageScore }) }}
       </h1>
     </div>
-
-    <!-- <class-delete-modal
-      v-if="showDeleteClassModal"
-      :classid="currentClassDelete.id"
-      :classname="currentClassDelete.name"
-    /> -->
 
     <div class="table-wrapper" v-if="!noExamData">
       <table class="roster">
@@ -29,14 +23,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="examTaker in examTakers">
+          <tr class="table-row" v-for="examTaker in examTakers">
             <th scope="row" class="table-text">
               <router-link :to="learnerExamLink(examTaker.id)" class="table-name">
                 {{examTaker.name}}
               </router-link>
             </th>
-            <td class="table-data">{{ examTaker.progress }}</td>
-            <td class="table-data">{{ examTaker.score }}%</td>
+            <td class="table-data">{{ $tr('completion', { number: examTaker.progress }) }}</td>
+            <td class="table-data">{{ $tr('scorePercentage', { number: examTaker.score }) }}</td>
             <td class="table-data">{{ examTaker.group }}</td>
           </tr>
         </tbody>
@@ -56,17 +50,7 @@
   const actions = require('../../state/actions/main');
 
   module.exports = {
-    // components: {
-    //   'class-delete-modal': require('./class-delete-modal'),
-    // },
-    // Has to be a funcion due to vue's treatment of data
-    // data: () => ({
-    //   currentClassDelete: null,
-    // }),
     computed: {
-      // showDeleteClassModal() {
-      //   return this.modalShown === constants.Modals.DELETE_CLASS;
-      // },
       noExamData() {
         return this.examTakers.length === 0;
       },
@@ -116,11 +100,13 @@
     $trNameSpace: 'examReportPage',
     $trs: {
       examTakenby: 'Exam taken by: {number} Learners',
-      averageScore: 'Average Score: ',
+      averageScore: 'Average Score: {number}%',
       examReport: 'Exam report',
+      completion: '{number, select, 0 {Incomplete} other {Completed}}',
       name: 'Name',
       status: 'Status',
       score: 'Score',
+      scorePercentage: '{number}%',
       group: 'Group',
       noExamData: 'No data to show.',
     },
@@ -136,7 +122,7 @@
   .roster
     width: 100%
     border-spacing: 8px
-    border-collapse: separate
+    border-collapse: collapse
 
   .table-wrapper
     overflow-x: auto
@@ -145,6 +131,10 @@
     color: $core-text-annotation
     font-size: smaller
     font-weight: normal
+
+  .table-row
+    height: 40px
+    border-bottom: 2px solid $core-text-disabled
 
   .table-text
     text-align: left
