@@ -4,6 +4,7 @@
     <menu-option
       :disable-ripple="disableRipple"
       :disabled="option[keys.disabled]"
+      :active="Boolean(option.active)"
       :icon-props="iconProps || option[keys.iconProps]"
       :icon="hasIcons ? option[keys.icon] : null"
       :label="option[keys.type] === 'divider' ? null : option[keys.label] || option"

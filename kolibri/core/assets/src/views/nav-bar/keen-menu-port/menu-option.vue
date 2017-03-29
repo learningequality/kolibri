@@ -66,14 +66,19 @@
       disabled: {
         type: Boolean,
         default: false
-      }
+      },
+      active: {
+        type: Boolean,
+        default: false,
+      },
     },
 
     computed: {
       classes() {
         return {
           'is-divider': this.isDivider,
-          'is-disabled': this.disabled
+          'is-disabled': this.disabled,
+          'is-active': this.active
         };
       },
 
