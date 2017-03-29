@@ -1,4 +1,4 @@
-from kolibri.logger.models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, MasteryLog, UserSessionLog
+from kolibri.logger.models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
 from rest_framework import serializers
 
 
@@ -8,6 +8,15 @@ class ContentSessionLogSerializer(serializers.ModelSerializer):
         model = ContentSessionLog
         fields = ('pk', 'user', 'content_id', 'channel_id', 'start_timestamp',
                   'end_timestamp', 'time_spent', 'kind', 'extra_fields', 'progress')
+
+class ExamLogSerializer(serializers.ModelSerializer):
+
+    pastattempts = serializers.SerializerMethodField()
+    totalattempts = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ExamLog
+        fields = ('id', 'exam', 'user', 'closed',)
 
 class MasteryLogSerializer(serializers.ModelSerializer):
 
@@ -31,6 +40,14 @@ class AttemptLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = AttemptLog
         fields = ('id', 'masterylog', 'start_timestamp', 'sessionlog',
+                  'end_timestamp', 'completion_timestamp', 'item', 'time_spent',
+                  'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
+
+class ExamAttemptLogSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ExamAttemptLog
+        fields = ('id', 'examlog', 'start_timestamp',
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent',
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
 

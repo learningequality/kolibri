@@ -239,3 +239,6 @@ class ExamAttemptLog(BaseAttemptLog):
     item/question in an exam
     """
     examlog = models.ForeignKey(ExamLog, related_name="attemptlogs", blank=False, null=False)
+
+    def infer_dataset(self):
+        return self.examlog.dataset

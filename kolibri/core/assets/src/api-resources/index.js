@@ -18,4 +18,6 @@ module.exports = {
   ExamResource: require('./exam'),
   ExamAssignmentResource: require('./examassignment'),
   UserExamResource: require('./userexam'),
+  ExamLogResource: require('./examLog'),
+  ExamAttemptLogResource: require('./examAttemptLog'),
 };

@@ -1,8 +1,7 @@
 <template>
 
   <div>
-    <page-header :title="$tr('examName')">
-      <mat-svg slot="icon" category="action" name="home"/>
+    <page-header :title="examTitle">
     </page-header>
   </div>
 
@@ -12,15 +11,16 @@
 <script>
 
   module.exports = {
-    $trNameSpace: 'examIndex',
+    $trNameSpace: 'examPage',
     $trs: {
-      examName: 'Exams',
-    },
-    components: {
-      'page-header': require('../page-header'),
+      submitExam: 'Submit exam',
+      backToExamList: 'Back to exam list',
+      questionsAnswered: '{numRemain, number} of {numTotal, number}' +
+        '{numTotal, plural, one {question} other {questions}} remaining',
     },
     vuex: {
       getters: {
+        examTitle: state => state.pageState.examTitle,
       },
     },
   };

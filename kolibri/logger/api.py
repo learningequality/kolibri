@@ -4,9 +4,10 @@ from kolibri.auth.filters import HierarchyRelationsFilter
 from kolibri.content.api import OptionalPageNumberPagination
 from rest_framework import filters, viewsets
 
-from .models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, MasteryLog, UserSessionLog
+from .models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
 from .serializers import (
-    AttemptLogSerializer, ContentRatingLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, MasteryLogSerializer, UserSessionLogSerializer
+    AttemptLogSerializer, ContentRatingLogSerializer, ContentSessionLogSerializer, ContentSummaryLogSerializer, ExamAttemptLogSerializer,
+    ExamLogSerializer, MasteryLogSerializer, UserSessionLogSerializer
 )
 
 
@@ -133,3 +134,40 @@ class AttemptLogViewSet(viewsets.ModelViewSet):
     filter_class = AttemptFilter
     ordering_fields = ('end_timestamp',)
     ordering = ('end_timestamp',)
+
+
+class ExamAttemptFilter(filters.FilterSet):
+    exam = filters.django_filters.MethodFilter()
+    user = filters.django_filters.MethodFilter()
+
+    def filter_exam(self, queryset, value):
+        return queryset.filter(examlog__exam=value)
+
+    def filter_user(self, queryset, value):
+        return queryset.filter(examlog__user=value)
+
+    class Meta:
+        model = ExamAttemptLog
+        fields = ['examlog', 'exam', 'user']
+
+class ExamAttemptLogViewSet(viewsets.ModelViewSet):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend, filters.OrderingFilter)
+    queryset = ExamAttemptLog.objects.all()
+    serializer_class = ExamAttemptLogSerializer
+    pagination_class = OptionalPageNumberPagination
+    filter_class = ExamAttemptFilter
+
+class ExamLogFilter(BaseLogFilter):
+
+    class Meta:
+        model = ExamLog
+        fields = ['user', 'exam']
+
+class ExamLogViewSet(viewsets.ModelViewSet):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    queryset = ExamLog.objects.all()
+    serializer_class = ExamLogSerializer
+    pagination_class = OptionalPageNumberPagination
+    filter_class = ExamLogFilter
