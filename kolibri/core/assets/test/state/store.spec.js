@@ -38,33 +38,35 @@ describe('Vuex store for core module', () => {
   });
 
   describe('kolibriLogin', () => {
-    // this prevents kolibriLogin from refreshing page
+    let store;
     const oldHandler = window.onbeforeunload;
 
     before(() => {
+      // this prevents kolibriLogin from refreshing page
       window.onbeforeunload = () => true;
     });
 
     after(() => {
       window.onbeforeunload = oldHandler;
+      delete kolibri.resources;
     });
 
-    it('happy path', (done) => {
-      // mock the SessionResource
-      kolibri.resources = {
-        SessionResource: {
-          createModel: () => ({
-            save: () => Promise.resolve({
-              // just sending subset of sessionPayload
-              id: '123',
-              username: 'e_fermi',
-              kind: ['cool-guy-user'],
-            })
-          })
-        }
-      };
+    beforeEach(() => {
+      store = createStore();
+      kolibri.resources = {};
+    });
 
-      const store = createStore();
+    it('successful login', (done) => {
+      kolibri.resources.SessionResource = {
+        createModel: () => ({
+          save: () => Promise.resolve({
+            // just sending subset of sessionPayload
+            id: '123',
+            username: 'e_fermi',
+            kind: ['cool-guy-user'],
+          }),
+        }),
+      };
 
       function runAssertions() {
         const { session } = store.state.core;
@@ -73,13 +75,22 @@ describe('Vuex store for core module', () => {
         assert.deepEqual(session.kind, ['cool-guy-user']);
       }
 
-      function cleanup() {
-        delete kolibri.resources;
-      }
-
       coreActions.kolibriLogin(store, {})
         .then(runAssertions)
-        .then(cleanup)
+        .then(done, done);
+    });
+
+    it('failed login (401)', (done) => {
+      kolibri.resources.SessionResource = {
+        createModel: () => ({
+          save: () => Promise.reject({ status: { code: 401 } }),
+        }),
+      };
+
+      coreActions.kolibriLogin(store, {})
+        .then(() => {
+          assert.equal(store.state.core.loginError, 401);
+        })
         .then(done, done);
     });
   });
