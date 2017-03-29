@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('header') }}</h1>
+    <work-in-progress />
   </div>
 
 </template>
@@ -11,9 +11,10 @@
 
   module.exports = {
     $trNameSpace: 'coachExamsPage',
-    $trs: {
-      header: 'This is the Exams Page!',
-    },
+    $trs: {},
+    components: {
+      'work-in-progress': require('../work-in-progress'),
+    }
   };
 
 </script>
