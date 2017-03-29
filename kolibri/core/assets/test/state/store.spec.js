@@ -19,9 +19,8 @@ function createStore() {
   });
 }
 
-
-describe.only('Vuex store for core module', () => {
-  it('handleError action works', () => {
+describe('Vuex store for core module', () => {
+  it('handleError action updates core state', () => {
     const store = createStore();
     coreActions.handleError(store, 'catastrophic failure');
     assert.equal(store.state.core.error, 'catastrophic failure');
@@ -29,7 +28,7 @@ describe.only('Vuex store for core module', () => {
     assert.equal(store.state.core.title, 'Error');
   });
 
-  it('handleApiError action works', () => {
+  it('handleApiError action updates core state', () => {
     const store = createStore();
     const apiError = { message: 'Too Bad' };
     coreActions.handleApiError(store, apiError);
@@ -50,6 +49,8 @@ describe.only('Vuex store for core module', () => {
       window.onbeforeunload = oldHandler;
     });
 
+    it('happy path', (done) => {
+      // mock the SessionResource
       kolibri.resources = {
         SessionResource: {
           createModel: () => ({
@@ -57,20 +58,29 @@ describe.only('Vuex store for core module', () => {
               // just sending subset of sessionPayload
               id: '123',
               username: 'e_fermi',
-              kind: ['cool-guy-user'], // will fall into normal user branch
+              kind: ['cool-guy-user'],
             })
           })
         }
       };
+
       const store = createStore();
-      const promise = coreActions.kolibriLogin(store, {}); // sessionPromise is mocked
-      promise.then(() => {
-        assert.equal(store.state.core.session.id, '123');
-        assert.equal(store.state.core.session.username, 'e_fermi');
-        assert.equal(store.state.core.session.kind, ['cool-guy-user']);
+
+      function runAssertions() {
+        const { session } = store.state.core;
+        assert.equal(session.id, '123');
+        assert.equal(session.username, 'e_fermi');
+        assert.deepEqual(session.kind, ['cool-guy-user']);
+      }
+
+      function cleanup() {
         delete kolibri.resources;
-        done();
-      });
+      }
+
+      coreActions.kolibriLogin(store, {})
+        .then(runAssertions)
+        .then(cleanup)
+        .then(done, done);
     });
   });
 });
