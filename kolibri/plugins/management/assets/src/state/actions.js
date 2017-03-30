@@ -189,10 +189,11 @@ function removeClassUser(store, classId, userId) {
   );
 }
 
-function preparePage(dispatch, { pageName, pageTitle }) {
-  dispatch('CORE_SET_PAGE_LOADING', true);
-  dispatch('SET_PAGE_NAME', pageName);
-  dispatch('CORE_SET_TITLE', pageTitle);
+// on-load mutations common to all the show-page actions
+function preparePage(dispatch, { name, title, isAsync = true }) {
+  dispatch('CORE_SET_PAGE_LOADING', isAsync);
+  dispatch('SET_PAGE_NAME', name);
+  dispatch('CORE_SET_TITLE', title);
   dispatch('CORE_SET_ERROR', null);
 }
 
@@ -468,8 +469,8 @@ function deleteUser(store, id) {
 
 // An action for setting up the initial state of the app by fetching data from the server
 function showUserPage(store) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.USER_MGMT_PAGE);
+  preparePage(store.dispatch, { name: PageNames.USER_MGMT_PAGE, title: _managePageTitle('Users') });
+
   const userCollection = FacilityUserResource.getCollection();
   const facilityPromise = FacilityResource.getCollection().fetch();
   const userPromise = userCollection.fetch({}, true);
@@ -486,8 +487,6 @@ function showUserPage(store) {
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Users'));
     },
     error => { coreActions.handleApiError(store, error); }
   );
@@ -499,8 +498,7 @@ function showUserPage(store) {
 
 
 function showContentPage(store) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
+  preparePage(store.dispatch, { name: PageNames.CONTENT_MGMT_PAGE, title: _managePageTitle('Content') });
   const taskCollectionPromise = TaskResource.getCollection().fetch();
   taskCollectionPromise.only(
     samePageCheckGenerator(store),
@@ -512,7 +510,6 @@ function showContentPage(store) {
       coreActions.setChannelInfo(store).then(() => {
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
-        store.dispatch('CORE_SET_TITLE', _managePageTitle('Content'));
       });
     },
     error => { coreActions.handleApiError(store, error); }
@@ -671,19 +668,21 @@ function triggerRemoteContentImportTask(store, channelId) {
 
 
 function showDataPage(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.DATA_EXPORT_PAGE);
+  preparePage(store.dispatch, {
+    name: PageNames.DATA_EXPORT_PAGE,
+    title: _managePageTitle('Data'),
+    isAsync: false,
+  });
   store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', _managePageTitle('Data'));
 }
 
 function showScratchpad(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
+  preparePage(store.dispatch, {
+    name: PageNames.DATA_EXPORT_PAGE,
+    title: _managePageTitle('Scratchpad'),
+    isAsync: false,
+  });
   store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', _managePageTitle('Scratchpad'));
 }
 
 
