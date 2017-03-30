@@ -104,7 +104,9 @@ function displayModal(store, modalName) {
 
 /**
  * Do a POST to create new class
- * @param {object} stateClassData
+ * @param {Object} stateClassData
+ * @param {string} stateClassData.name
+ * @param {string} stateClassData.facilityId
  *  Needed: name
  */
 function createClass(store, stateClassData) {
