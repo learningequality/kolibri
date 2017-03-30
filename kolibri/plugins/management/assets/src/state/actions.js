@@ -285,6 +285,7 @@ function showClassEnrollPage(store, classId) {
 
 
 function enrollUsersInClass(store, classId, users) {
+  // TODO no error handling
   return Promise.all(
     users.map((userId) =>
       MembershipResource.createModel({ collection: classId, user: userId }).save())
@@ -295,8 +296,27 @@ function enrollUsersInClass(store, classId, users) {
 // USERS MANAGEMENT ACTIONS
 
 /**
+ * Assigns a Role to a FacilityUser in the context of a Collection.
+ * @param {Object} payload
+ * @param {string} payload.userId
+ * @param {string} payload.collectionId
+ * @param {string} payload.userRole - maps to `kind`
+ * @returns {Promise}
+ */
+function assignRoleToUserInCollection(store, payload) {
+  return RoleResource.createModel({
+    user: payload.userId,
+    collection: payload.collectionId,
+    kind: payload.userRole,
+  }).save();
+}
+
+/**
  * Does a POST request to assign a user role (only used in this file)
- * @param {object} user
+ * @param {Object} user
+ * @param {string} user.id
+ * @param {string} user.facility
+ * @param {string} user.kind
  * Needed: id, facility, kind
  */
 function assignUserRole(user, kind) {
@@ -682,6 +702,7 @@ module.exports = {
   showClassEditPage,
   showClassEnrollPage,
   enrollUsersInClass,
+  assignRoleToUserInCollection,
 
   createUser,
   updateUser,
