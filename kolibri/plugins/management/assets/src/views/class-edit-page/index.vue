@@ -84,7 +84,7 @@
           <td class="table-cell table-role">
             <span class="user-role">
               {{ user.kind === LEARNER ? $tr('learner') : $tr('coach') }}
-              <role-switcher />
+              <role-switcher :currentRole="user.kind" />
             </span>
           </td>
 
