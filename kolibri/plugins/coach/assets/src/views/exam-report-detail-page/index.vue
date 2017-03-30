@@ -12,9 +12,7 @@
       </div>
       <div class="outer-container">
         <div class="answer-history-container column">
-          <answer-history
-            :questionHistory="questionHistory"
-          />
+          <answer-history/>
         </div>
         <div class="exercise-container column">
           <div class="fake" style="height:600px;background-color:pink;"></div>
@@ -85,9 +83,6 @@
         score: () => 72,
         questions: () => [{ correct: 0 }, { correct: 1 }],
         date: () => '18 Nov 2016',
-        // fake date for answer-history
-        questionHistory: () => [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-        // fake date for question-attempts
       },
     },
   };
