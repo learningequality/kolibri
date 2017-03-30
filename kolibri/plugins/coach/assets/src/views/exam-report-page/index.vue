@@ -29,7 +29,8 @@
                 {{examTaker.name}}
               </router-link>
             </th>
-            <td class="table-data">{{ $tr('completion', { number: examTaker.progress }) }}</td>
+            <td class="table-data" v-if="examTaker.progress">{{ $tr('completed') }}</td>
+            <td class="table-data incomplete" v-else>{{ $tr('Incomplete') }}</td>
             <td class="table-data">{{ $tr('scorePercentage', { number: examTaker.score }) }}</td>
             <td class="table-data">{{ examTaker.group }}</td>
           </tr>
@@ -74,7 +75,7 @@
             id: 1,
             name: 'LearnerName 111',
             progress: 0,
-            score: 99,
+            score: null,
             group: 'Group A',
           },
           {
@@ -88,7 +89,7 @@
             id: 3,
             name: 'LearnerName 333',
             progress: 0,
-            score: 77,
+            score: null,
             group: 'Group B',
           }
         ],
@@ -102,11 +103,12 @@
       examTakenby: 'Exam taken by: {number} Learners',
       averageScore: 'Average Score: {number}%',
       examReport: 'Exam report',
-      completion: '{number, select, 0 {Incomplete} other {Completed}}',
+      completed: 'Completed',
+      Incomplete: 'Incomplete',
       name: 'Name',
       status: 'Status',
       score: 'Score',
-      scorePercentage: '{number}%',
+      scorePercentage: '{number, select, null {-} other {{number}%}}',
       group: 'Group',
       noExamData: 'No data to show.',
     },
@@ -141,6 +143,9 @@
 
   .table-data
     text-align: center
+
+  .incomplete
+    color: red
 
   .header
     position: relative
