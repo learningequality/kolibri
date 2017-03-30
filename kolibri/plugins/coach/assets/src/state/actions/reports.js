@@ -60,12 +60,14 @@ function _showRecentChannels(store, classId) {
         return {
           amount: monthsAgo,
           measure: 'month',
+          raw: millisecondsEllapsed,
         };
       }
       // and days otherwise
       return {
-        measure: 'day',
         amount: dayMeasure(millisecondsEllapsed),
+        measure: 'day',
+        raw: millisecondsEllapsed,
       };
     }
     const summaryPayload = {

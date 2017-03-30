@@ -10,18 +10,17 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="channel in channels">
+        <tr v-for="channel in channelList">
           <td>
             <mat-svg category="action" name="view_module" />
             <router-link :to="reportLink(channel.id)">{{ channel.title }}</router-link>
           </td>
           <td>
-            {{ lastActiveText(channel.id) }}
+            {{ lastActiveText(channel) }}
           </td>
         </tr>
       </tbody>
     </table>
-
   </div>
 
 </template>
@@ -33,11 +32,44 @@
 
   module.exports = {
     name: 'channelList',
-    $trNameSpace: 'channelList',
+    $trNameSpace: 'coachRecentPageChannelList',
     $trs: {
       channels: 'Channels',
       channelList: 'Channel list',
       lastActive: 'Last active',
+      daysPassed: 'X day(s) ago',
+      monthsPassed: 'X month(s) ago',
+      timePassed:
+      '{amount, number} {measure, select, ' +
+        'day {' +
+          '{amount, plural,' +
+            'one {day}' +
+            'other {days}' +
+          '}' +
+        '}' +
+        'month {' +
+          '{amount, plural,' +
+            'one {month}' +
+            'other {months}' +
+          '}' +
+        '}' +
+      '} ago',
+    },
+    computed: {
+      channelList() {
+        return this.channels.sort(
+          (channel1, channel2) => {
+            const lastActiveRaw = (channel) => this.lastActive[channel.id].raw;
+
+            if (lastActiveRaw(channel1) < lastActiveRaw(channel2)) {
+              return -1;
+            } else if (lastActiveRaw(channel1) > lastActiveRaw(channel2)) {
+              return 1;
+            }
+            return 0;
+          }
+        );
+      },
     },
     methods: {
       reportLink(channelId) {
@@ -49,14 +81,9 @@
           },
         };
       },
-      lastActiveText(channelId) {
-        if (this.lastActive[channelId]) {
-          const lastActiveMeasure = this.lastActive[channelId].measure;
-          const lastActiveAmount = this.lastActive[channelId].amount;
-          return `${lastActiveAmount} ${lastActiveMeasure} ago`;
-        }
-
-        return 'Loading..';
+      lastActiveText(channel) {
+        const trArgs = this.lastActive[channel.id];
+        return this.$tr('timePassed', trArgs);
       },
     },
     vuex: {
@@ -73,10 +100,10 @@
 
 <style lang="stylus" scoped>
 
-  th
-    text-align: left
-
   .channel-list
     width:100%
+
+    th
+      text-align: left
 
 </style>
