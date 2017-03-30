@@ -189,11 +189,15 @@ function removeClassUser(store, classId, userId) {
   );
 }
 
+function preparePage(dispatch, { pageName, pageTitle }) {
+  dispatch('CORE_SET_PAGE_LOADING', true);
+  dispatch('SET_PAGE_NAME', pageName);
+  dispatch('CORE_SET_TITLE', pageTitle);
+  dispatch('CORE_SET_ERROR', null);
+}
+
 function showClassesPage(store) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.CLASS_MGMT_PAGE);
-  store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
-  store.dispatch('CORE_SET_ERROR', null);
+  preparePage(store.dispatch, { name: PageNames.CLASS_MGMT_PAGE, title: 'Classes' });
   const classCollection = ClassroomResource.getCollection();
   const classPromise = classCollection.fetch({}, true);
   const facilityCollection = FacilityResource.getCollection();
@@ -218,10 +222,7 @@ function showClassesPage(store) {
 }
 
 function showClassEditPage(store, classId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.CLASS_EDIT_MGMT_PAGE);
-  store.dispatch('CORE_SET_TITLE', _managePageTitle('Edit Class'));
-  store.dispatch('CORE_SET_ERROR', null);
+  preparePage(store.dispatch, { name: PageNames.CLASS_EDIT_MGMT_PAGE, title: 'Edit Class' });
 
   const promises = [
     FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
@@ -246,10 +247,7 @@ function showClassEditPage(store, classId) {
 
 
 function showClassEnrollPage(store, classId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ENROLL_MGMT_PAGE);
-  store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
-  store.dispatch('CORE_SET_ERROR', null);
+  preparePage(store.dispatch, { name: PageNames.CLASS_ENROLL_MGMT_PAGE, title: 'Classes' });
 
   // current facility
   const facilityPromise = FacilityResource.getCollection().fetch();
