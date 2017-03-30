@@ -7,12 +7,12 @@
       <template v-for="(attemptLog, index) in attemptLogs">
         <li v-if="index === 0">
           <p class="item">
-            {{ daysElapsedText(attemptLog.daysElapsed) }}
+            {{ exerciseNameText(attemptLog.contentId) }}
           </p>
         </li>
-        <li v-else-if="attemptLogs[index - 1].daysElapsed != attemptLog.daysElapsed">
+        <li v-else-if="attemptLogs[index - 1].contentId != attemptLog.contentId">
           <p class="item">
-            {{ daysElapsedText(attemptLog.daysElapsed) }}
+            {{ exerciseNameText(attemptLog.contentId) }}
           </p>
         </li>
         <li @click="setSelected(index)" :class="isSelected(index)" class="clickable">
@@ -36,7 +36,7 @@
               name="check_circle"
             />
             <h3 class="item">
-              {{ questionText(index + 1) }}
+              {{ questionText(attemptLog.index + 1) }}
             </h3>
           </div>
         </li>
@@ -55,22 +55,15 @@
     $trNameSpace: 'coachExerciseAnswerHistory',
     $trs: {
       header: 'Answer history',
-      today: 'Today',
-      yesterday: 'Yesterday',
-      daysAgo: ' { daysElapsed } days ago',
+      fromExercise: 'from Exercise { contentId }',
       question: 'Question { number }',
     },
     data: () => ({
       selectedIndex: 0,
     }),
     methods: {
-      daysElapsedText(daysElapsed) {
-        if (daysElapsed > 1) {
-          return this.$tr('daysAgo', { daysElapsed });
-        } else if (daysElapsed === 1) {
-          return this.$tr('yesterday');
-        }
-        return this.$tr('today');
+      exerciseNameText(contentId) {
+        return this.$tr('fromExercise', { contentId });
       },
       questionText(number) {
         return this.$tr('question', { number });
@@ -88,7 +81,56 @@
     },
     vuex: {
       getters: {
-        attemptLogs: state => state.pageState.attemptLogs,
+        attemptLogs: () => [
+          {
+            contentId: 1,
+            index: 0,
+            hinted: false,
+            correct: 1,
+          },
+          {
+            contentId: 1,
+            index: 1,
+            hinted: false,
+            correct: 1,
+          },
+          {
+            contentId: 2,
+            index: 0,
+            hinted: false,
+            correct: 0,
+          },
+          {
+            contentId: 3,
+            index: 0,
+            hinted: true,
+            correct: 0,
+          },
+          {
+            contentId: 3,
+            index: 1,
+            hinted: false,
+            correct: 1,
+          },
+          {
+            contentId: 3,
+            index: 2,
+            hinted: false,
+            correct: 1,
+          },
+          {
+            contentId: 3,
+            index: 3,
+            hinted: false,
+            correct: 0,
+          },
+          {
+            contentId: 3,
+            index: 4,
+            hinted: false,
+            correct: 1,
+          }
+        ],
       },
       actions: {
         setSelectedAttemptLogIndex: actions.setSelectedAttemptLogIndex,
