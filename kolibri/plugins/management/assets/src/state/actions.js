@@ -226,15 +226,16 @@ function showClassEditPage(store, classId) {
     ClassroomResource.getModel(classId).fetch(),
   ];
 
+  const transformResult = ([facilityUsers, classroom]) => ({
+    modalShown: false,
+    classes: [classroom],
+    classUsers: facilityUsers.map(_userState),
+  });
+
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([facilityUsers, classroom]) => {
-      const pageState = {
-        modalShown: false,
-        classes: [classroom],
-        classUsers: facilityUsers.map(_userState),
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
+    (result) => {
+      store.dispatch('SET_PAGE_STATE', transformResult(result));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', _managePageTitle('Edit Class'));
