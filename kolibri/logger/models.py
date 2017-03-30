@@ -239,6 +239,10 @@ class ExamAttemptLog(BaseAttemptLog):
     item/question in an exam
     """
     examlog = models.ForeignKey(ExamLog, related_name="attemptlogs", blank=False, null=False)
+    # We have no session logs associated with ExamLogs, so we need to record the channel and content
+    # ids here
+    content_id = UUIDField()
+    channel_id = UUIDField()
 
     def infer_dataset(self):
         return self.examlog.dataset
