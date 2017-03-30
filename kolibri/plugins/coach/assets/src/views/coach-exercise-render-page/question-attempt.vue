@@ -37,7 +37,7 @@
 
   module.exports = {
     mixins: [responsiveElement],
-    $trNameSpace: 'CoachExerciseQuestionAttempt',
+    $trNameSpace: 'coachExerciseQuestionAttempt',
     $trs: {
       attempts: 'Question {number} attempts',
       currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} answer',

@@ -53,7 +53,7 @@
   const getters = require('../../state/getters');
 
   module.exports = {
-    $trNameSpace: 'learn',
+    $trNameSpace: 'learnBreadcrumbs',
     $trs: {
       explore: 'Topics',
       youAreHere: 'You are here:',
