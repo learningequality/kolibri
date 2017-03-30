@@ -285,18 +285,10 @@ function showClassEnrollPage(store, classId) {
 
 
 function enrollUsersInClass(store, classId, users) {
-  return new Promise((resolve, reject) => {
-    users.forEach((userId) => {
-      MembershipResource.createModel({ collection: classId, user: userId }).save().then(
-        membershipModel => {
-          resolve(userId);
-        },
-        error => {
-          reject(error);
-        }
-      );
-    });
-  });
+  return Promise.all(
+    users.map((userId) =>
+      MembershipResource.createModel({ collection: classId, user: userId }).save())
+  );
 }
 
 // ================================
