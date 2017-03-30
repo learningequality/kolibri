@@ -78,8 +78,8 @@
       getters: {
         pageState: state => state.pageState,
         // fake date for page-status
-        contentName: () => 'Adding Fractions',
-        userName: () => 'James Howard',
+        contentName: () => 'Summative Exam Report',
+        userName: () => 'Aaron Andrews',
         score: () => 72,
         questions: () => [{ correct: 0 }, { correct: 1 }],
         date: () => '18 Nov 2016',

@@ -8,7 +8,7 @@
           category="action"
           name="face"
         />
-        <h1 class="user-name">{{ userName }}</h1>
+        <h1 class="user-name">{{ $tr('title', {name: userName}) }}</h1>
       </div>
       <div class="questions">
         {{ $tr('overallScore') }} <strong> {{ $tr('score', {number: score}) }} </strong>
@@ -36,6 +36,7 @@
   module.exports = {
     $trNameSpace: 'coachExamReportDetailPageStatus',
     $trs: {
+      title: '{name} - Exam Performance',
       overallScore: 'Overall Score: ',
       score: '{ number }%',
       questionsCorrect: 'Questions Correct: ',
