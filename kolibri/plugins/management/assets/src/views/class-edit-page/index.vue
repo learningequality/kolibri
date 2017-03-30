@@ -34,9 +34,9 @@
       <div class="enroll">
         <router-link :to="classEnrollLink" class="table-name">
           <icon-button
-          class="enroll-user-button"
-          :text="$tr('enrollUsers')"
-          :primary="true"/>
+            class="enroll-user-button"
+            :text="$tr('enrollUsers')"
+            :primary="true"/>
         </router-link>
       </div>
 
@@ -84,6 +84,7 @@
           <td class="table-cell table-role">
             <span class="user-role">
               {{ user.kind === LEARNER ? $tr('learner') : $tr('coach') }}
+              <role-switcher />
             </span>
           </td>
 
@@ -133,6 +134,7 @@
     },
     components: {
       'class-rename-modal': require('./class-rename-modal'),
+      'role-switcher': require('./role-switcher'),
       'user-remove-modal': require('./user-remove-modal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
