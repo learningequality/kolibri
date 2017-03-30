@@ -104,10 +104,16 @@ class LearnModule extends KolibriModule {
         },
         {
           name: PageNames.EXAM,
-          path: '/:channel_id/exams/:id',
+          path: '/:channel_id/exams/:id/:questionNumber',
           handler: (toRoute, fromRoute) => {
-            actions.showExam(store, toRoute.params.channel_id, toRoute.params.id);
+            actions.showExam(store, toRoute.params.channel_id, toRoute.params.id,
+              toRoute.params.questionNumber);
           },
+        },
+        {
+          name: PageNames.EXAM,
+          path: '/:channel_id/exams/:id',
+          redirect: '/:channel_id/exams/:id/0',
         },
         {
           path: '*',
