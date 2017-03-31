@@ -17,7 +17,7 @@ const PageNames = constants.PageNames;
 const ContentWizardPages = constants.ContentWizardPages;
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 // because these modules use ES6 module syntax, need to access exports.default in CommonJS context
-const addCoachRoleAction = require('./userRolesManagement').default;
+const addCoachRoleAction = require('./addCoachRoleAction').default;
 const removeCoachRoleAction = require('./removeCoachRoleAction').default;
 
 /**
