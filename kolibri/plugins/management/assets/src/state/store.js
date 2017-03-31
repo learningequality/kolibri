@@ -22,7 +22,6 @@ const constants = require('../constants');
 
  **/
 
-
 const initialState = {
   pageName: constants.PageNames.CLASS_MGMT_PAGE,
   pageState: {},

@@ -44,7 +44,7 @@ function removeCoachRole(payload) {
  * @param {string} payload.classId
  * @returns {Promise}
  */
-export function removeCoachRoleAction(store, payload) {
+export default function removeCoachRoleAction(store, payload) {
   // remove role from DB -> disable buttons
   const onSuccess = () => {
     store.dispatch('UPDATE_LEARNER_ROLE_FOR_CLASS', {
@@ -57,13 +57,4 @@ export function removeCoachRoleAction(store, payload) {
 
   // handle failure -> surface error somehow
   return removeCoachRole(payload).then(onSuccess);
-}
-
-// Vuex mutation that updates the client
-export function UPDATE_LEARNER_ROLE_FOR_CLASS(state, { userId, newRole }) {
-  state.pageState.classUsers.forEach((user) => {
-    if (user.id === userId) {
-      user.kind = newRole;
-    }
-  });
 }
