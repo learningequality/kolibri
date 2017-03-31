@@ -84,7 +84,8 @@
           <td class="table-cell table-role">
             <span class="user-role">
               {{ user.kind === LEARNER ? $tr('learner') : $tr('coach') }}
-              <role-switcher :currentRole="user.kind" />
+              <button @click="removeCoachRole(user)">Learner</button>
+              <button @click="addCoachRole(user)">Coach</button>
             </span>
           </td>
 
@@ -110,9 +111,11 @@
 
 <script>
 
+  const { addCoachRole, removeCoachRole } = require('../../state/userRolesManagement');
   const constants = require('../../constants');
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const actions = require('../../state/actions');
+
 
   module.exports = {
     $trNameSpace: 'classEnrollPage',
@@ -187,6 +190,12 @@
       },
     },
     methods: {
+      addCoachRole(user) {
+        return addCoachRole({ userId: user.id, classId: this.currClass.id });
+      },
+      removeCoachRole(user) {
+        return removeCoachRole({ userId: user.id, classId: this.currClass.id });
+      },
       openEditNameModal() {
         this.displayModal(constants.Modals.EDIT_CLASS_NAME);
       },

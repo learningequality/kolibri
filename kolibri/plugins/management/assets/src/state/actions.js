@@ -1,5 +1,3 @@
-import { updateLearnerRoleInClass } from './userRolesManagement';
-
 const coreApp = require('kolibri');
 const logging = require('kolibri.lib.logging');
 
