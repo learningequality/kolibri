@@ -67,7 +67,7 @@
         autocomplete="new-password"
         required />
 
-      <icon-button :disabled="canSubmit" id="submit" :primary="true" text="Finish" type="submit" />
+      <icon-button :disabled="canSubmit" id="submit" :primary="true" :text="$tr('finish')" type="submit" />
 
     </form>
 
@@ -97,6 +97,7 @@
       genericError: 'Something went wrong during sign up!',
       logIn: 'Log in',
       kolibri: 'Kolibri',
+      finish: 'Finish',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
