@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-02-02 00:07+0000\n"
-"PO-Revision-Date: 2017-03-16 17:16-0400\n"
+"PO-Revision-Date: 2017-03-31 03:03-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -19,11 +19,11 @@ msgstr ""
 
 #: ../../../CONTRIBUTING.rst:3
 msgid "Contributing"
-msgstr "Contribuyendo"
+msgstr "Contribuir"
 
 #: ../../../CONTRIBUTING.rst:5
 msgid "Contributions are welcome, and they are greatly appreciated! Every little bit helps, and credit will always be given."
-msgstr "Los contribuidores son bienvenidos, ¡y son altamente apreciados! Cada pequeña parte ayuda, y siempre se dará crédito."
+msgstr "Las contribuciones son bienvenidas, ¡y altamente apreciadas! Cada pequeña parte ayuda, y siempre se dará crédito."
 
 #: ../../../CONTRIBUTING.rst:8
 msgid "You can contribute in many ways:"
@@ -35,7 +35,7 @@ msgstr "Tipos de contribuciones"
 
 #: ../../../CONTRIBUTING.rst:14
 msgid "Report Bugs"
-msgstr "Reporte de errores"
+msgstr "Reportar errores"
 
 #: ../../../CONTRIBUTING.rst:16
 msgid "Report bugs at https://github.com/learningequality/kolibri/issues."
@@ -47,11 +47,11 @@ msgstr "Si estás reportando un error, por favor incluye:"
 
 #: ../../../CONTRIBUTING.rst:20
 msgid "Your operating system name and version."
-msgstr "El nombre de vuestro sistema operativo y la versión."
+msgstr "El nombre del sistema operativo y la versión."
 
 #: ../../../CONTRIBUTING.rst:21
 msgid "Any details about your local setup that might be helpful in troubleshooting."
-msgstr "Cualquier detalle sobre vuestra configuración local puede ser de ayuda para resolver problemas."
+msgstr "Cualquier detalle sobre la configuración local puede ser de ayuda para resolver problemas."
 
 #: ../../../CONTRIBUTING.rst:22
 msgid "Detailed steps to reproduce the bug."
@@ -59,15 +59,15 @@ msgstr "Pasos detallados para reproducir el error."
 
 #: ../../../CONTRIBUTING.rst:25
 msgid "Fix Bugs"
-msgstr "Corrección de errores"
+msgstr "Corregir errores"
 
 #: ../../../CONTRIBUTING.rst:27
 msgid "Look through the GitHub issues for bugs. Anything tagged with \"bug\" is open to whoever wants to implement it."
-msgstr "Busca los errores en los issues de GitHub. Cualquier cosa etiquetada con \"bug\" está abierta a cualquiera que quiera implementarla."
+msgstr "Busca los errores en los issues de GitHub. Cualquier cosa etiquetada con \"bug\" está abierta a cualquiera que quiera implementar correción."
 
 #: ../../../CONTRIBUTING.rst:31
 msgid "Implement Features"
-msgstr "Implementar características"
+msgstr "Implementar nuevas características"
 
 #: ../../../CONTRIBUTING.rst:33
 msgid "Look through the GitHub issues for features. Anything tagged with \"feature\" is open to whoever wants to implement it."
@@ -83,11 +83,11 @@ msgstr "Kolibri siempre puede tener más documentación, sea por parte oficial d
 
 #: ../../../CONTRIBUTING.rst:44
 msgid "Submit Feedback"
-msgstr "Enviar retroalimentación"
+msgstr "Enviar comentarios y sugerencias"
 
 #: ../../../CONTRIBUTING.rst:46
 msgid "The best way to send feedback is to file an issue at https://github.com/learningequality/kolibri/issues."
-msgstr "La mejor forma de enviar retroalimentación es creando un issue en https://github.com/learningequality/kolibri/issues."
+msgstr "La mejor forma de enviar sugerencias es creando un \"issue\" en https://github.com/learningequality/kolibri/issues."
 
 #: ../../../CONTRIBUTING.rst:48
 msgid "If you are proposing a feature:"
@@ -99,15 +99,15 @@ msgstr "Explica en detalle cómo podría funcionar."
 
 #: ../../../CONTRIBUTING.rst:51
 msgid "Keep the scope as narrow as possible, to make it easier to implement."
-msgstr "Mantén la vista tan enfocada como podáis, para que sea más fácil de implementar."
+msgstr "Mantén el alcance lo más enfocado que puedas, para que sea más fácil de implementar."
 
 #: ../../../CONTRIBUTING.rst:52
 msgid "Remember that this is a volunteer-driven project, and that contributions are welcome :)"
-msgstr "Recuerda que este es un proyecto guiado por voluntarios, y que las contribuciones son bienvenidas :)"
+msgstr "Recuerda que este es un proyecto impulsado por voluntarios, y que las contribuciones son bienvenidas :)"
 
 #: ../../../CONTRIBUTING.rst:56
 msgid "Get Started!"
-msgstr "¡Empieza!"
+msgstr "Primeros pasos"
 
 #: ../../../CONTRIBUTING.rst:58
 msgid "Ready to contribute? Here's how to set up `kolibri` for local development."
