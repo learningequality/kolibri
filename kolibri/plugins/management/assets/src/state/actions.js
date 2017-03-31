@@ -1,3 +1,5 @@
+import { updateLearnerRoleInClass } from './userRolesManagement';
+
 const coreApp = require('kolibri');
 const logging = require('kolibri.lib.logging');
 
@@ -16,7 +18,6 @@ const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 const PageNames = constants.PageNames;
 const ContentWizardPages = constants.ContentWizardPages;
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
-
 
 /**
  * Vuex State Mappers
@@ -292,21 +293,6 @@ function enrollUsersInClass(store, classId, users) {
 // ================================
 // USERS MANAGEMENT ACTIONS
 
-/**
- * Assigns a Role to a FacilityUser in the context of a Collection.
- * @param {Object} payload
- * @param {string} payload.userId
- * @param {string} payload.collectionId
- * @param {string} payload.userRole - maps to `kind`
- * @returns {Promise}
- */
-function assignRoleToUserInCollection(store, payload) {
-  return RoleResource.createModel({
-    user: payload.userId,
-    collection: payload.collectionId,
-    kind: payload.userRole,
-  }).save();
-}
 
 /**
  * Does a POST request to assign a user role (only used in this file)
@@ -385,11 +371,10 @@ function createUser(store, stateUserData) {
  */
 function updateUser(store, stateUser) {
   // payload needs username, fullname, and facility
-  const userID = stateUser.id;
-  const savedUserModel = FacilityUserResource.getModel(userID);
+  const savedUserModel = FacilityUserResource.getModel(stateUser.id);
   const savedUser = savedUserModel.attributes;
   const changedValues = {};
-  let roleAssigned = Promise.resolve(savedUserModel.attributes);
+  let roleAssigned = Promise.resolve(savedUser);
 
   // explicit checks for the only values that can be changed
   if (stateUser.full_name && stateUser.full_name !== savedUser.full_name) {
@@ -697,7 +682,6 @@ module.exports = {
   showClassEditPage,
   showClassEnrollPage,
   enrollUsersInClass,
-  assignRoleToUserInCollection,
 
   createUser,
   updateUser,
