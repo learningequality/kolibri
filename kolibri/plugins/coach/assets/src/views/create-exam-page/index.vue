@@ -85,13 +85,9 @@
         return this.validateNum ?
           (this.inputNumQuestions < 1) || (this.inputNumQuestions > 50) : false;
       },
-      selectedChannelRootPk() {
-        return this.channels.find(channel => channel.id === this.selectedChannel.id).rootPk;
-      },
     },
     vuex: {
       getters: {
-        channels: state => state.pageState.channels,
         channelExercises: state => [],
       },
       actions: {

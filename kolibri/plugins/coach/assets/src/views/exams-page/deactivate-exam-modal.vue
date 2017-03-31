@@ -13,8 +13,10 @@
         </ul>
       </span>
     </p>
-    <icon-button :text="$tr('cancel')" @click="close"/>
-    <icon-button :text="$tr('deactivate')" :primary="true" @click="deactivateExam"/>
+    <div class="footer">
+      <icon-button :text="$tr('cancel')" @click="close"/>
+      <icon-button :text="$tr('deactivate')" :primary="true" @click="deactivateExam"/>
+    </div>
   </core-modal>
 
 </template>
@@ -71,4 +73,11 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .footer
+    text-align: center
+    button
+      min-width: 45%
+
+</style>

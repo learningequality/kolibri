@@ -17,10 +17,6 @@ function _classState(classroom) {
   };
 }
 
-function _classesState(classes) {
-  return classes.map(classroom => _classState(classroom));
-}
-
 function _channelState(channel) {
   return {
     id: channel.id,
@@ -53,16 +49,17 @@ function showExamsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAMS);
 
-  const classPromise = ClassroomResource.getCollection().fetch();
   const currentClassPromise = ClassroomResource.getModel(classId).fetch();
   const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch();
+  const channelPromise = ChannelResource.getCollection().fetch();
 
-  ConditionalPromise.all([classPromise, currentClassPromise, groupPromise]).only(
+  ConditionalPromise.all([currentClassPromise, groupPromise, channelPromise]).only(
     CoreActions.samePageCheckGenerator(store),
-    ([classesCollection, currentClassModel, groupsCollection]) => {
-      const classes = _classesState(classesCollection);
+    ([currentClassModel, groupsCollection, channelsCollection]) => {
       const currentClass = _classState(currentClassModel);
       const currentClassGroups = _groupsState(groupsCollection);
+      const channels = _channelsState(channelsCollection);
+
       const dummyExams = [{
         id: '1',
         title: 'UNIT 1 Exam',
@@ -84,12 +81,13 @@ function showExamsPage(store, classId) {
         dateCreated: 'March 22, 2017 03:24:00',
         visibility: { class: true, groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }] },
       }];
+
       const pageState = {
-        modalShown: false,
-        classes,
         currentClass,
         currentClassGroups,
+        channels,
         exams: dummyExams,
+        modalShown: false,
       };
 
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -103,20 +101,23 @@ function showExamsPage(store, classId) {
   );
 }
 
-function showCreateExamPage(store, classId) {
+function showCreateExamPage(store, classId, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.CREATE_EXAM);
+  const currentClassPromise = ClassroomResource.getModel(classId).fetch();
 
-  const channelPromise = ChannelResource.getCollection().fetch();
-  ConditionalPromise.all([channelPromise]).only(
+  ConditionalPromise.all([currentClassPromise]).only(
     CoreActions.samePageCheckGenerator(store),
-    ([channelsCollection]) => {
-      const channels = _channelsState(channelsCollection);
-      const pageState = { channels };
+    ([currentClassModel, channelsCollection]) => {
+      const currentClass = _classState(currentClassModel);
+      const pageState = {
+        modalShown: false,
+        currentClass,
+      };
 
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', ('New Exam'));
+      store.dispatch('CORE_SET_TITLE', ('Exams'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {

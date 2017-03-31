@@ -15,8 +15,10 @@
       v-model="groupsSelected"
       @change="deselectClass"
     />
-    <icon-button :text="$tr('cancel')" @click="close"/>
-    <icon-button :text="$tr('update')" :primary="true" @click="updateExamVisibility"/>
+    <div class="footer">
+      <icon-button :text="$tr('cancel')" @click="close"/>
+      <icon-button :text="$tr('update')" :primary="true" @click="updateExamVisibility"/>
+    </div>
   </core-modal>
 
 </template>
@@ -106,5 +108,10 @@
 
   label
     display: block
+
+  .footer
+    text-align: center
+    button
+      min-width: 45%
 
 </style>
