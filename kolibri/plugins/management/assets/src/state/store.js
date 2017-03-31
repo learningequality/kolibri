@@ -1,6 +1,7 @@
 const Vuex = require('kolibri.lib.vuex');
 const coreStore = require('kolibri.coreVue.vuex.store');
 const constants = require('../constants');
+const { UPDATE_LEARNER_ROLE_FOR_CLASS } = require('./userRolesManagement');
 
 /**
  pageState schemas
@@ -53,6 +54,8 @@ const mutations = {
       }
     });
   },
+
+  UPDATE_LEARNER_ROLE_FOR_CLASS,
 
   DELETE_CLASS(state, id) {
     state.pageState.classes = state.pageState.classes.filter(classModel => classModel.id !== id);

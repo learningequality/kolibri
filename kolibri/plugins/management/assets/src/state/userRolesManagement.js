@@ -2,7 +2,7 @@ import * as coreApp from 'kolibri';
 import * as constants from 'kolibri.coreVue.vuex.constants';
 
 const { RoleResource, FacilityUserResource } = coreApp.resources;
-const { COACH } = constants.UserKinds;
+const { COACH, LEARNER } = constants.UserKinds;
 
 /**
  * Adds a Role to a User in the context of a Collection
@@ -37,11 +37,16 @@ export function removeRoleFromUser(roleId) {
  * @param {string} payload.classId
  * @returns {Promise}
  */
-export function addCoachRoleAction(payload) {
-  return addRoleToUserInCollection({
+export function addCoachRoleAction(store, payload) {
+  addRoleToUserInCollection({
     userId: payload.userId,
     collectionId: payload.classId,
     userRole: COACH,
+  }).then(() => {
+    store.dispatch('UPDATE_LEARNER_ROLE_FOR_CLASS', {
+      userId: payload.userId,
+      newRole: COACH,
+    });
   });
 }
 
@@ -76,10 +81,25 @@ function removeCoachRole(payload) {
  * @returns {Promise}
  */
 export function removeCoachRoleAction(store, payload) {
-  // remove role from DB
+  // remove role from DB -> disable buttons
+  const onSuccess = () => {
+    store.dispatch('UPDATE_LEARNER_ROLE_FOR_CLASS', {
+      userId: payload.userId,
+      newRole: LEARNER,
+    });
+  };
 
   // handle success -> manually change the user's 'kind' in page state
 
   // handle failure -> surface error somehow
-  return removeCoachRole();
+  return removeCoachRole(payload).then(onSuccess);
+}
+
+// Vuex mutation that updates the client
+export function UPDATE_LEARNER_ROLE_FOR_CLASS(state, { userId, newRole }) {
+  state.pageState.classUsers.forEach((user) => {
+    if (user.id === userId) {
+      user.kind = newRole;
+    }
+  });
 }

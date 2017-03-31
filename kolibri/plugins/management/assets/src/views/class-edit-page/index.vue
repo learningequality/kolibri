@@ -84,8 +84,8 @@
           <td class="table-cell table-role">
             <span class="user-role">
               {{ user.kind === LEARNER ? $tr('learner') : $tr('coach') }}
-              <button @click="removeCoachRole(user)">Learner</button>
-              <button @click="addCoachRole(user)">Coach</button>
+              <button @click="removeCoachRoleFromUser(user)">Learner</button>
+              <button @click="addCoachRoleToUser(user)">Coach</button>
             </span>
           </td>
 
@@ -189,13 +189,13 @@
       },
     },
     methods: {
-      addCoachRole(user) {
+      addCoachRoleToUser(user) {
         return this.addCoachRole({
           userId: user.id,
           classId: this.currClass.id
         });
       },
-      removeCoachRole(user) {
+      removeCoachRoleFromUser(user) {
         return this.removeCoachRole({
           userId: user.id,
           classId: this.currClass.id

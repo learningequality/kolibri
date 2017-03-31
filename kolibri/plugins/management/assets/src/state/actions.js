@@ -16,6 +16,7 @@ const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 const PageNames = constants.PageNames;
 const ContentWizardPages = constants.ContentWizardPages;
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
+const { removeCoachRoleAction, addCoachRoleAction } = require('./userRolesManagement');
 
 /**
  * Vuex State Mappers
@@ -685,6 +686,8 @@ module.exports = {
   updateUser,
   deleteUser,
   showUserPage,
+  addCoachRole: addCoachRoleAction,
+  removeCoachRole: removeCoachRoleAction,
 
   showContentPage,
   pollTasksAndChannels,
