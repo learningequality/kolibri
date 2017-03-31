@@ -9,7 +9,7 @@ kolibri.resources.RoleResource = {
   }),
 };
 
-const addCoachRoleAction = require('../src/state/addCoachRoleAction').default;
+const addCoachRoleAction = require('../../src/state/addCoachRoleAction').default;
 
 describe('addCoachRoleAction', () => {
   const storeMock = {
