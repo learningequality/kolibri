@@ -1,1 +1,5 @@
-module.exports = global.kolibriGlobal = {};
+module.exports = global.kolibriGlobal = {
+  resources: {
+    RoleResource: {}
+  }
+};
