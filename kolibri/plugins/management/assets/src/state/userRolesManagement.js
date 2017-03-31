@@ -1,5 +1,8 @@
-const { RoleResource, FacilityUserResource } = require('kolibri').resources;
-const { COACH } = require('kolibri.coreVue.vuex.constants').UserKinds;
+import * as coreApp from 'kolibri';
+import * as constants from 'kolibri.coreVue.vuex.constants';
+
+const { RoleResource, FacilityUserResource } = coreApp.resources;
+const { COACH } = constants.UserKinds;
 
 /**
  * Adds a Role to a User in the context of a Collection

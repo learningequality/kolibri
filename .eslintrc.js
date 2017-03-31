@@ -22,6 +22,7 @@ module.exports = {
     // some of these rules going forwards to clean up the code base.
     'import/no-extraneous-dependencies': 0,
     'import/no-unresolved': 0,
+    'import/extensions': 0,
     'global-require': 0,
     'class-methods-use-this': [ 0, { "exceptMethods": [] }],
     // These are required for buble compatibility
