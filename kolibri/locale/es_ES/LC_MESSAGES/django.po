@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-03-08 17:35+0000\n"
-"PO-Revision-Date: 2017-03-16 17:16-0400\n"
+"PO-Revision-Date: 2017-03-31 03:03-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
@@ -26,7 +26,7 @@ msgstr "Clase"
 
 #: kolibri/auth/constants/collection_kinds.py:14
 msgid "Learner group"
-msgstr ""
+msgstr "Grupo de estudiantes"
 
 #: kolibri/auth/constants/role_kinds.py:10
 msgid "Admin"
@@ -42,7 +42,7 @@ msgstr "nombre de usuario"
 
 #: kolibri/auth/models.py:159
 msgid "Required. 30 characters or fewer. Letters and digits only"
-msgstr ""
+msgstr "Requerido. 30 caracteres o menos. Solamente letras y dígitos."
 
 #: kolibri/auth/models.py:163
 msgid "Enter a valid username. This value may contain only letters and numbers."
@@ -58,11 +58,11 @@ msgstr "fecha de registró"
 
 #: kolibri/auth/serializers.py:27
 msgid "An account with that username already exists"
-msgstr ""
+msgstr "Ya existe una cuenta con ese nombre de usuario."
 
 #: kolibri/content/models.py:215
 msgid "Unknown format"
-msgstr ""
+msgstr "Formato desconocido"
 
 #: kolibri/core/templates/kolibri/base.html:11
 msgid "Kolibri"
@@ -74,5 +74,5 @@ msgstr "Gestión"
 
 #: kolibri/tasks/api.py:86
 msgid "The requested channel does not exist on the content server"
-msgstr ""
+msgstr "El canal solicitado no existe en el servidor de contenido."
 
