@@ -6,7 +6,6 @@ const { RoleResource } = coreApp.resources;
 const { COACH } = constants.UserKinds;
 
 export function dispatchError(store, err) {
-  console.error(err); // eslint-disable-line
   return store.dispatch('CORE_SET_ERROR', JSON.stringify(err.entity || err.message));
 }
 
