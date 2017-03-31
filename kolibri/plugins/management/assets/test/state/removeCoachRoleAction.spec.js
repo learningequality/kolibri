@@ -21,7 +21,7 @@ const fakeUser = {
   ]
 };
 
-describe.only('removeCoachRoleAction', () => {
+describe('removeCoachRoleAction', () => {
   const storeMock = {
     dispatch: sinon.spy(),
   };
@@ -52,6 +52,23 @@ describe.only('removeCoachRoleAction', () => {
         userId: 'user_1',
         newRole: 'learner',
       });
+      getUserModelStub.restore();
+      getRoleModelStub.restore();
+    })
+    .then(done, done);
+  });
+
+  it('handles errors from the server', (done) => {
+    const fetchUserStub = () => ({
+      _promise: Promise.reject({ entities: 'I don\'t think so' }),
+    });
+    const getUserModelStub = sinon.stub(kolibri.resources.FacilityUserResource, 'getModel')
+      .returns({ fetch: fetchUserStub });
+    removeCoachRoleAction(storeMock, { userId: 'user_1', classId: 'class_3' })
+    .then(() => {
+      sinon.assert.calledOnce(storeMock.dispatch);
+      sinon.assert.calledWith(storeMock.dispatch, 'CORE_SET_ERROR');
+      getUserModelStub.restore();
     })
     .then(done, done);
   });
