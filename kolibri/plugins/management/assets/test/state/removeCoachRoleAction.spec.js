@@ -3,15 +3,25 @@ const kolibri = require('kolibri');
 const sinon = require('sinon');
 
 // need to mock all this stuff before loading the module
-kolibri.resources.RoleResource = {
-  createModel: () => ({
-    save: () => {},
-  }),
+kolibri.resources.FacilityUserResource = {
+  getModel: () => {},
 };
 
-const addCoachRoleAction = require('../../src/state/addCoachRoleAction').default;
+kolibri.resources.RoleResource = {
+  getModel: () => {},
+};
 
-describe('addCoachRoleAction', () => {
+const removeCoachRoleAction = require('../../src/state/removeCoachRoleAction').default;
+
+const fakeUser = {
+  roles: [
+    { id: 'role_1', collection: 'facility_1' },
+    { id: 'role_2', collection: 'class_2' },
+    { id: 'role_3', collection: 'class_3' },
+  ]
+};
+
+describe.only('removeCoachRoleAction', () => {
   const storeMock = {
     dispatch: sinon.spy(),
   };
@@ -20,32 +30,28 @@ describe('addCoachRoleAction', () => {
     storeMock.dispatch.reset();
   });
 
-  after(() => { kolibri.resources.RoleResource = {}; });
+  it('successfully removes the correct role on server and client', (done) => {
+    const fetchUserStub = sinon.stub().returns({
+      _promise: Promise.resolve(fakeUser),
+    });
+    const getUserModelStub = sinon.stub(kolibri.resources.FacilityUserResource, 'getModel')
+      .returns({ fetch: fetchUserStub });
 
-  it('successfully adds role on server and client', (done) => {
-    const spy = sinon.stub(kolibri.resources.RoleResource, 'createModel');
-    spy.returns({ save: () => Promise.resolve() });
-    addCoachRoleAction(storeMock, { classId: '1', userId: '5000' })
+    const deleteRoleSpy = sinon.spy();
+    const getRoleModelStub = sinon.stub(kolibri.resources.RoleResource, 'getModel')
+      .returns({ delete: deleteRoleSpy });
+
+
+    removeCoachRoleAction(storeMock, { userId: 'user_1', classId: 'class_3' })
     .then(() => {
-      sinon.assert.calledWith(spy, { collection: '1', kind: 'coach', user: '5000' });
+      sinon.assert.calledWith(fetchUserStub, {}, true); // was force fetched
+      sinon.assert.calledWith(getUserModelStub, 'user_1');
+      sinon.assert.calledWith(getRoleModelStub, 'role_3');
       sinon.assert.calledOnce(storeMock.dispatch);
       sinon.assert.calledWith(storeMock.dispatch, 'UPDATE_LEARNER_ROLE_FOR_CLASS', {
-        newRole: 'coach',
-        userId: '5000',
+        userId: 'user_1',
+        newRole: 'learner',
       });
-      spy.restore();
-    })
-    .then(done, done);
-  });
-
-  it('handles errors from server', (done) => {
-    const spy = sinon.stub(kolibri.resources.RoleResource, 'createModel');
-    spy.returns({ save: () => Promise.reject({ entity: 'you can\'t handle the truth!' }) });
-    addCoachRoleAction(storeMock, { classId: '1', userId: '5000' })
-    .then(() => {
-      sinon.assert.calledOnce(storeMock.dispatch);
-      sinon.assert.calledWith(storeMock.dispatch, 'CORE_SET_ERROR');
-      spy.restore();
     })
     .then(done, done);
   });
