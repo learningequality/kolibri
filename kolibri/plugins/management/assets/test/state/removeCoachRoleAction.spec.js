@@ -3,13 +3,8 @@ const kolibri = require('kolibri');
 const sinon = require('sinon');
 
 // need to mock all this stuff before loading the module
-kolibri.resources.FacilityUserResource = {
-  getModel: () => {},
-};
-
-kolibri.resources.RoleResource = {
-  getModel: () => {},
-};
+kolibri.resources.FacilityUserResource = { getModel: () => {} };
+kolibri.resources.RoleResource = { getModel: () => {} };
 
 const removeCoachRoleAction = require('../../src/state/removeCoachRoleAction').default;
 
@@ -20,11 +15,8 @@ const fakeUser = {
   ]
 };
 
-describe.only('removeCoachRoleAction', () => {
-  const storeMock = {
-    dispatch: sinon.spy(),
-  };
-
+describe('removeCoachRoleAction', () => {
+  const storeMock = { dispatch: sinon.spy() };
   const getUserModelStub = sinon.stub(kolibri.resources.FacilityUserResource, 'getModel');
   const getRoleModelStub = sinon.stub(kolibri.resources.RoleResource, 'getModel');
 
@@ -40,12 +32,9 @@ describe.only('removeCoachRoleAction', () => {
     const fetchUserStub = sinon.stub().returns({
       _promise: Promise.resolve(fakeUser),
     });
-    getUserModelStub.returns({ fetch: fetchUserStub });
-
     const deleteRoleSpy = sinon.spy();
+    getUserModelStub.returns({ fetch: fetchUserStub });
     getRoleModelStub.returns({ delete: deleteRoleSpy });
-
-
     removeCoachRoleAction(storeMock, { userId: 'user_1', classId: 'class_3' })
     .then(() => {
       sinon.assert.calledWith(fetchUserStub, {}, true); // was force fetched
@@ -61,30 +50,43 @@ describe.only('removeCoachRoleAction', () => {
   });
 
   it('if no (coach) Role is found, it is a noop', (done) => {
-    const fetchUserStub = () => ({
-      _promise: Promise.resolve(fakeUser),
-    });
     const deleteRoleSpy = sinon.spy();
-    getUserModelStub.returns({ fetch: fetchUserStub });
+    getUserModelStub.returns({
+      fetch: () => ({ _promise: Promise.resolve(fakeUser) })
+    });
     getRoleModelStub.returns({ delete: deleteRoleSpy });
-
     // no Role entry for class_2
     removeCoachRoleAction(storeMock, { userId: 'user_1', classId: 'class_2' })
     .then(() => {
+      sinon.assert.notCalled(deleteRoleSpy);
       sinon.assert.notCalled(storeMock.dispatch);
     })
     .then(done, done);
   });
 
-  it('handles errors from the server', (done) => {
-    const fetchUserStub = () => ({
-      _promise: Promise.reject({ entities: 'I don\'t think so' }),
+  it('handles when fetching User fails', (done) => {
+    getUserModelStub.returns({
+      fetch: () => ({ _promise: Promise.reject({ entity: 'fetch error' }) }),
     });
-    getUserModelStub.returns({ fetch: fetchUserStub });
     removeCoachRoleAction(storeMock, { userId: 'user_1', classId: 'class_3' })
     .then(() => {
       sinon.assert.calledOnce(storeMock.dispatch);
-      sinon.assert.calledWith(storeMock.dispatch, 'CORE_SET_ERROR');
+      sinon.assert.calledWith(storeMock.dispatch, 'CORE_SET_ERROR', '"fetch error"');
+    })
+    .then(done, done);
+  });
+
+  it('handles when deleting Role fails', (done) => {
+    getUserModelStub.returns({
+      fetch: () => ({ _promise: Promise.resolve(fakeUser) }),
+    });
+    getRoleModelStub.returns({
+      delete: () => Promise.reject({ entity: 'delete error' })
+    });
+    removeCoachRoleAction(storeMock, { userId: 'user_1', classId: 'class_3' })
+    .then(() => {
+      sinon.assert.calledOnce(storeMock.dispatch);
+      sinon.assert.calledWith(storeMock.dispatch, 'CORE_SET_ERROR', '"delete error"');
     })
     .then(done, done);
   });
