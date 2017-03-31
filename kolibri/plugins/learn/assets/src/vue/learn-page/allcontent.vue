@@ -1,6 +1,6 @@
 <template>
 
-  <card-grid :header="'All Content'" v-if="all.content.length" ref="grid">
+  <card-grid :header="$tr('allContent')" v-if="all.content.length" ref="grid">
 
     <div slot="headerbox" class="allnav" role="navigation" :aria-label="$tr('pagesLabel')">
 
@@ -36,6 +36,7 @@
       prev: 'Previous',
       next: 'Next',
       pagesLabel: 'Browse all content',
+      allContent: 'All content',
     },
     mixins: [responsiveElement],
     computed: {
