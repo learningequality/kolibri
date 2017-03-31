@@ -56,7 +56,12 @@ extract$trs.prototype.apply = function(compiler) {
                     if (!(isCamelCase(message.key.name))) {
                       logging.error(`$trs id "${message.key.name}" should be in camelCase. Found in ${module.resource}`);
                     }
-                    messages[message.key.name] = message.value.value;
+                    // Check that the value is valid, and not an expression
+                    if (!message.value.value) {
+                      logging.error(`The value for $trs "${message.key.name}", is not valid. Make sure it is not an expression. Found in ${module.resource}.`);
+                    } else {
+                      messages[message.key.name] = message.value.value;
+                    }
                   });
                   // We also want to take a note of the name space these messages have been put in too!
                 } else if (property.key.name === '$trNameSpace') {
