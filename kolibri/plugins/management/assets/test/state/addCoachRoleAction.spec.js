@@ -20,7 +20,7 @@ describe('addCoachRoleAction', () => {
     storeMock.dispatch.reset();
   });
 
-  after(() => { kolibri.resources.RoleResource = {}; });
+  after(() => { kolibri.resources = {}; });
 
   it('successfully adds role on server and client', (done) => {
     const createModelStub = sinon.stub(kolibri.resources.RoleResource, 'createModel');

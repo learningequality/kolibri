@@ -30,6 +30,8 @@ describe('removeCoachRoleAction', () => {
     storeMock.dispatch.reset();
   });
 
+  after(() => { kolibri.resources = {}; });
+
   it('successfully removes the correct role on server and client', (done) => {
     const fetchUserStub = sinon.stub().returns({
       _promise: Promise.resolve(fakeUser),
