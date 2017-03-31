@@ -111,7 +111,6 @@
 
 <script>
 
-  const { addCoachRole, removeCoachRole } = require('../../state/userRolesManagement');
   const constants = require('../../constants');
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const actions = require('../../state/actions');
@@ -191,10 +190,16 @@
     },
     methods: {
       addCoachRole(user) {
-        return addCoachRole({ userId: user.id, classId: this.currClass.id });
+        return this.addCoachRole({
+          userId: user.id,
+          classId: this.currClass.id
+        });
       },
       removeCoachRole(user) {
-        return removeCoachRole({ userId: user.id, classId: this.currClass.id });
+        return this.removeCoachRole({
+          userId: user.id,
+          classId: this.currClass.id
+        });
       },
       openEditNameModal() {
         this.displayModal(constants.Modals.EDIT_CLASS_NAME);
@@ -212,6 +217,8 @@
       },
       actions: {
         displayModal: actions.displayModal,
+        addCoachRole: actions.addCoachRole,
+        removeCoachRole: actions.removeCoachRole,
       },
     },
   };

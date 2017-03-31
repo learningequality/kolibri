@@ -23,6 +23,7 @@ export function addRoleToUserInCollection(payload) {
 /**
  * Removes a Role from a FacilityUser by roleId
  * @param {?string} roleId
+ * @returns {Promise}
  */
 export function removeRoleFromUser(roleId) {
   if (roleId === null) return Promise.resolve();
@@ -30,20 +31,19 @@ export function removeRoleFromUser(roleId) {
 }
 
 /**
- * Adds the 'coach' role to a learner in a Class
+ * Adds the 'coach' role to a learner in a Class and updates store accordingly
  * @param {Object} payload
  * @param {string} payload.userId
  * @param {string} payload.classId
  * @returns {Promise}
  */
-export function addCoachRole(payload) {
+export function addCoachRoleAction(payload) {
   return addRoleToUserInCollection({
     userId: payload.userId,
     collectionId: payload.classId,
     userRole: COACH,
   });
 }
-
 
 // Utility that unwraps ConditionalPromises back to normal Promises.
 // conditionalPromise.then(f) seems to ignore implementation of f and just
@@ -57,18 +57,29 @@ function findRoleId({ roles }, classId) {
   return matchIdx !== -1 ? roles[matchIdx].id : null;
 }
 
-/**
- * Removes the 'coach' role to a learner in a Class
- * @param {Object} payload
- * @param {string} payload.userId
- * @param {string} payload.classId
- * @returns {Promise}
- */
-export function removeCoachRole(payload) {
+function removeCoachRole(payload) {
+  // Need to fetch the user to get access to Roles array, since it isn't in the store
   const promise = promisify(
     FacilityUserResource.getModel(payload.userId).fetch({}, true)
   );
   return promise
     .then((userResult) => findRoleId(userResult, payload.classId))
     .then(removeRoleFromUser);
+}
+
+/**
+ * Vuex action that removes 'coach' role from user and updates store accordingly
+ * @param {Object} store
+ * @param {Object} payload
+ * @param {string} payload.userId
+ * @param {string} payload.classId
+ * @returns {Promise}
+ */
+export function removeCoachRoleAction(store, payload) {
+  // remove role from DB
+
+  // handle success -> manually change the user's 'kind' in page state
+
+  // handle failure -> surface error somehow
+  return removeCoachRole();
 }
