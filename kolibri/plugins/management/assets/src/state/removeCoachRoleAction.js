@@ -6,11 +6,19 @@ import { dispatchError, dispatchRoleChange } from './addCoachRoleAction';
 const { RoleResource, FacilityUserResource } = coreApp.resources;
 const { LEARNER } = constants.UserKinds;
 
-function findRoleId({ roles }, classId) {
+// Assumes if a Learner has any kind of Role in class, then it is of Coach
+function deleteRoleFromUser(classId, userData) {
+  const { roles } = userData;
   const matchIdx = roles.findIndex((r) => r.collection === String(classId));
-  return matchIdx !== -1 ? roles[matchIdx].id : null;
+  const roleId = matchIdx !== -1 ? roles[matchIdx].id : null;
+  return new Promise((resolve, reject) => {
+    if (roleId === null) {
+      reject();
+    } else {
+      resolve(RoleResource.getModel(roleId).delete());
+    }
+  });
 }
-
 /**
  * Vuex action that removes 'coach' role from a User in a Class and updates store accordingly
  * @param {Object} store
@@ -27,18 +35,14 @@ export default function removeCoachRoleAction(store, payload) {
   const facilityUserRequest = FacilityUserResource.getModel(userId).fetch({}, true)._promise;
   return (
     facilityUserRequest
-    .then((userResult) => findRoleId(userResult, classId))
-    .then(function deleteRole(roleId) {
-      if (roleId === null) return Promise.resolve();
-      return RoleResource.getModel(roleId).delete();
-    })
-    .then(function onSuccess() {
+    .then((userResult) => deleteRoleFromUser(classId, userResult))
+    .then(function onSuccess(deleteResult) {
       // Currently, Learners in classes switch between Coach <-> Learner
       // So if not a Coach, then just a plain-old Learner
       dispatchRoleChange(store, { newRole: LEARNER, userId });
     })
     .catch(function onFailure(err) {
-      dispatchError(store, err);
+      if (err) dispatchError(store, err);
     })
   );
 }
