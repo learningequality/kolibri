@@ -1,15 +1,10 @@
+/* eslint-disable prefer-arrow-callback */
 import * as coreApp from 'kolibri';
 import * as constants from 'kolibri.coreVue.vuex.constants';
+import { dispatchError, dispatchRoleChange } from './userRolesManagement';
 
 const { RoleResource, FacilityUserResource } = coreApp.resources;
 const { LEARNER } = constants.UserKinds;
-
-// Utility that unwraps ConditionalPromises back to normal Promises.
-// conditionalPromise.then(f) seems to ignore implementation of f and just
-// treat it as identity function
-function promisify(condPromise) {
-  return condPromise._promise;
-}
 
 function findRoleId({ roles }, classId) {
   const matchIdx = roles.findIndex((r) => r.collection === +classId);
@@ -17,27 +12,7 @@ function findRoleId({ roles }, classId) {
 }
 
 /**
- * Removes a Role from a FacilityUser by roleId
- * @param {?string} roleId
- * @returns {Promise}
- */
-function removeRoleFromUser(roleId) {
-  if (roleId === null) return Promise.resolve();
-  return RoleResource.getModel(roleId).delete();
-}
-
-function removeCoachRole(payload) {
-  // Need to fetch the user to get access to Roles array, since it isn't in the store
-  const promise = promisify(
-    FacilityUserResource.getModel(payload.userId).fetch({}, true)
-  );
-  return promise
-    .then((userResult) => findRoleId(userResult, payload.classId))
-    .then(removeRoleFromUser);
-}
-
-/**
- * Vuex action that removes 'coach' role from user and updates store accordingly
+ * Vuex action that removes 'coach' role from a User in a Class and updates store accordingly
  * @param {Object} store
  * @param {Object} payload
  * @param {string} payload.userId
@@ -45,16 +20,24 @@ function removeCoachRole(payload) {
  * @returns {Promise}
  */
 export default function removeCoachRoleAction(store, payload) {
-  // remove role from DB -> disable buttons
-  const onSuccess = () => {
-    store.dispatch('UPDATE_LEARNER_ROLE_FOR_CLASS', {
-      userId: payload.userId,
-      newRole: LEARNER,
-    });
-  };
-
-  // handle success -> manually change the user's 'kind' in page state
-
-  // handle failure -> surface error somehow
-  return removeCoachRole(payload).then(onSuccess);
+  const { classId, userId } = payload;
+  // Unwrap to normal Promise since conditionalPromise.then(f) seems to ignore
+  // implementation of f and just treat it as identity function
+  const facilityUserRequest = FacilityUserResource.getModel(userId).fetch({}, true)._promise;
+  return (
+    facilityUserRequest
+    .then((userResult) => findRoleId(userResult, classId))
+    .then(function deleteRole(roleId) {
+      if (roleId === null) return Promise.resolve();
+      return RoleResource.getModel(roleId).delete();
+    })
+    .then(function onSuccess() {
+      // Currently, Learners in classes switch between Coach <-> Learner
+      // So if not a Coach, then just a plain-old Learner
+      dispatchRoleChange(store, { newRole: LEARNER, userId });
+    })
+    .catch(function onFailure(err) {
+      dispatchError(store, err);
+    })
+  );
 }
