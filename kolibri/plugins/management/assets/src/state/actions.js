@@ -45,6 +45,24 @@ function _facilityState(data) {
 }
 
 
+/*
+ * This mostly duplicates _userState below, but searches Roles array for an exact match
+ * on the classId, and not for any Role object.
+ */
+function _userStateForClassEditPage(classId, apiUserData) {
+  const matchingRole = apiUserData.roles.find((r) => String(r.collection) === classId);
+
+  return {
+    id: apiUserData.id,
+    facility_id: apiUserData.facility,
+    username: apiUserData.username,
+    full_name: apiUserData.full_name,
+    kind: matchingRole ? matchingRole.kind : UserKinds.LEARNER,
+  };
+}
+
+// On 'Users' page, this will end up showing a Admin/Coach role if user has such
+// Role for any class
 function _userState(apiUserData) {
   function calcUserKind() {
     if (apiUserData.roles) {
@@ -236,6 +254,7 @@ function showClassEditPage(store, classId) {
     modalShown: false,
     classes: [classroom],
     classUsers: facilityUsers.map(_userState),
+    classUsers: facilityUsers.map(_userStateForClassEditPage.bind(null, classId)),
   });
 
   ConditionalPromise.all(promises).only(
