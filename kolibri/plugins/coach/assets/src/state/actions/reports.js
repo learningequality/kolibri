@@ -296,9 +296,23 @@ function showReport(store, params, oldParams) {
 }
 
 
+function showTopics(store) {
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPICS);
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+
+function showLearners(store) {
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNERS);
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+
 module.exports = {
   showRecent,
   redirectToChannelReport,
   redirectToDefaultReport,
   showReport,
+  showTopics,
+  showLearners,
 };

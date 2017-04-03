@@ -142,4 +142,4 @@ class ContentSummarySerializer(ContentReportSerializer):
 
     def get_num_users(self, target_node):
         kwargs = self.context['view'].kwargs
-        return get_members_or_user(kwargs['collection_kind'], kwargs['collection_id']).count()
+        return len(get_members_or_user(kwargs['collection_kind'], kwargs['collection_id']))

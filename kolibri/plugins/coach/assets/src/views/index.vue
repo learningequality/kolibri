@@ -4,7 +4,7 @@
 
     <top-nav v-if="showTopNav && isCoachAdminOrSuperuser" slot="tabs"/>
 
-    <div slot="content">
+    <div slot="content" class="content">
       <div v-if="isCoachAdminOrSuperuser">
         <component :is="currentPage"/>
       </div>
@@ -101,6 +101,10 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  .content
+    background-color: $core-bg-light
+    padding: 1em
 
   .login-message
     text-align: center
