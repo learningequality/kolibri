@@ -1,29 +1,29 @@
 <template>
 
   <div class="role-switcher">
-    <template v-if="currentRole === 'admin'">
+    <template v-if="currentRole === ADMIN">
       {{ $tr('admin') }}
     </template>
 
     <template v-else>
       <ui-button
-        name="learner"
         :ariaLabel="$tr('learner')"
-        :color="isCurrentRole('learner') ? 'primary' : 'secondary'"
+        :color="buttonColor(LEARNER)"
         :disableRipple="true"
-        :disabled="isCurrentRole('learner')"
-        @click="handleClick('learner')"
+        :disabled="isCurrentRole(LEARNER)"
+        :name="LEARNER"
+        @click="handleClick(LEARNER)"
         class="ttn role-button btn-left-edge"
       >
         {{ $tr('learner') }}
       </ui-button>
       <ui-button
-        name="coach"
         :ariaLabel="$tr('coach')"
-        :color="isCurrentRole('coach') ? 'primary' : 'secondary'"
+        :color="buttonColor(COACH)"
         :disableRipple="true"
-        :disabled="isCurrentRole('coach')"
-        @click="handleClick('coach')"
+        :disabled="isCurrentRole(COACH)"
+        :name="COACH"
+        @click="handleClick(COACH)"
         class="ttn role-button btn-right-edge"
       >
         {{ $tr('coach') }}
@@ -36,6 +36,8 @@
 
 <script>
 
+  const { ADMIN, COACH, LEARNER } = require('kolibri.coreVue.vuex.constants').UserKinds;
+
   module.exports = {
     components: {
       'ui-button': require('keen-ui/src/UiButton'),
@@ -46,9 +48,17 @@
         required: true,
       },
     },
+    computed: {
+      ADMIN: () => ADMIN,
+      COACH: () => COACH,
+      LEARNER: () => LEARNER,
+    },
     methods: {
+      buttonColor(roleName) {
+        return this.isCurrentRole(roleName) ? 'primary' : 'secondary';
+      },
       handleClick(roleName) {
-        if (roleName === 'learner') {
+        if (roleName === LEARNER) {
           return this.$emit('click-remove-coach');
         }
         return this.$emit('click-add-coach');
@@ -57,7 +67,7 @@
         return roleName === this.currentRole;
       }
     },
-    $trNameSpace: 'classEnrollPage',
+    $trNameSpace: 'roleSwitcher',
     $trs: {
       admin: 'Admin',
       coach: 'Coach',
@@ -81,8 +91,6 @@
 
   .ttn
     text-transform: none
-
-  .learner-role-selector
 
   .btn-left-edge
     border-top-right-radius: 0

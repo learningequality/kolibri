@@ -27,25 +27,25 @@ describe('role-switcher component', () => {
     assert.equal(wrapper.$el.textContent.trim(), 'Admin');
   });
 
-  describe('when user is learner/coach', () => {
-    it('renders correctly when currentRole is learner', () => {
-      const wrapper = makeWrapper({
-        currentRole: 'learner',
-      });
-      const els = getElements(wrapper);
-      assert(hasPrimaryClass(els.learnerButton));
-      assert.equal(els.learnerButton.getAttribute('disabled'), 'disabled');
-      assert.equal(els.coachButton.getAttribute('disabled', undefined));
+  it('renders correctly when currentRole is learner', () => {
+    const wrapper = makeWrapper({
+      currentRole: 'learner',
     });
+    const els = getElements(wrapper);
+    assert(hasPrimaryClass(els.learnerButton));
+    assert(!hasPrimaryClass(els.coachButton));
+    assert.equal(els.learnerButton.getAttribute('disabled'), 'disabled');
+    assert.equal(els.coachButton.getAttribute('disabled', undefined));
+  });
 
-    it('renders correctly when currentRole is coach', () => {
-      const wrapper = makeWrapper({
-        currentRole: 'coach',
-      });
-      const els = getElements(wrapper);
-      assert(hasPrimaryClass(els.coachButton));
-      assert.equal(els.coachButton.getAttribute('disabled'), 'disabled');
-      assert.equal(els.learnerButton.getAttribute('disabled'), undefined);
+  it('renders correctly when currentRole is coach', () => {
+    const wrapper = makeWrapper({
+      currentRole: 'coach',
     });
+    const els = getElements(wrapper);
+    assert(hasPrimaryClass(els.coachButton));
+    assert(!hasPrimaryClass(els.learnerButton));
+    assert.equal(els.coachButton.getAttribute('disabled'), 'disabled');
+    assert.equal(els.learnerButton.getAttribute('disabled'), undefined);
   });
 });

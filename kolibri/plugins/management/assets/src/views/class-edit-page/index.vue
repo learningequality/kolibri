@@ -331,7 +331,6 @@
     height: 1.5rem
     margin: 5px 0
     vertical-align: middle
-    width: 20rem
 
   .searchbar .icon
     display: inline-block
