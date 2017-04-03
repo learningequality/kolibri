@@ -130,7 +130,7 @@
   const CoreConstants = require('kolibri.coreVue.vuex.constants');
 
   module.exports = {
-    $trNameSpace: 'report-summary',
+    $trNameSpace: 'reportSummary',
     $trs: {
       lastActive: 'Last active',
       lastActiveText: '{0, date, medium}',

@@ -23,7 +23,7 @@
 <script>
 
   module.exports = {
-    $trNameSpace: 'view-by-switch',
+    $trNameSpace: 'viewBySwitch',
     $trs: {
       viewbylabel: 'View by:',
       contents: 'Channel',
