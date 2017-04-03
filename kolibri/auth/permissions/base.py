@@ -92,22 +92,42 @@ class RoleBasedPermissions(BasePermissions):
             return getattr(obj, self.target_field)
 
     def user_can_create_object(self, user, obj):
+
         roles = getattr(self, "can_be_created_by", None)
+
+        assert isinstance(roles, tuple), \
+            "If `can_be_created_by` is None, then `user_can_create_object` method must be overridden with custom behavior."
+
         target_object = self._get_target_object(obj)
         return user.has_role_for(roles, target_object)
 
     def user_can_read_object(self, user, obj):
+
         roles = getattr(self, "can_be_read_by", None)
+
+        assert isinstance(roles, tuple), \
+            "If `can_be_read_by` is None, then `user_can_read_object` method must be overridden with custom behavior."
+
         target_object = self._get_target_object(obj)
         return user.has_role_for(roles, target_object)
 
     def user_can_update_object(self, user, obj):
+
         roles = getattr(self, "can_be_updated_by", None)
+
+        assert isinstance(roles, tuple), \
+            "If `can_be_updated_by` is None, then `user_can_update_object` method must be overridden with custom behavior."
+
         target_object = self._get_target_object(obj)
         return user.has_role_for(roles, target_object)
 
     def user_can_delete_object(self, user, obj):
+
         roles = getattr(self, "can_be_deleted_by", None)
+
+        assert isinstance(roles, tuple), \
+            "If `can_be_deleted_by` is None, then `user_can_delete_object` method must be overridden with custom behavior."
+
         target_object = self._get_target_object(obj)
         return user.has_role_for(roles, target_object)
 
