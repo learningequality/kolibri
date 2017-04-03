@@ -124,9 +124,6 @@ function _showRecentChannels(store, classId) {
 
 
 function _showRecentReports(store, classId, channelId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
-
   // should be cached if navigated to this point
   const channelPromise = ChannelResource.getModel(channelId).fetch();
 
@@ -137,6 +134,7 @@ function _showRecentReports(store, classId, channelId) {
         content_node_id: channelData.root_pk,
         collection_kind: ReportConstants.UserScopes.CLASSROOM,
         collection_id: classId,
+        last_active_time: // make new date by using setDate on a new date
       };
       const recentReportsPromise = RecentReportResource.getCollection(reportPayload).fetch();
 

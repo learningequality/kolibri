@@ -37,8 +37,6 @@
       channels: 'Channels',
       channelList: 'Channel list',
       lastActive: 'Last active',
-      daysPassed: 'X day(s) ago',
-      monthsPassed: 'X month(s) ago',
       timePassed:
       '{amount, number} {measure, select, ' +
         'day {' +
