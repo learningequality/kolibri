@@ -50,7 +50,12 @@ function _facilityState(data) {
  * on the classId, and not for any Role object.
  */
 function _userStateForClassEditPage(classId, apiUserData) {
-  const matchingRole = apiUserData.roles.find((r) => String(r.collection) === classId);
+  const matchingRole = apiUserData.roles.find((r) => (
+      String(r.collection) === classId ||
+      r.kind === UserKinds.ADMIN ||
+      r.kind === UserKinds.SUPERUSER
+    )
+  );
 
   return {
     id: apiUserData.id,

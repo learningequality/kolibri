@@ -82,13 +82,12 @@
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
-            <span class="user-role">
-              <role-switcher
-                :currentRole="user.kind"
-                @click-add-coach="addCoachRoleToUser(user)"
-                @click-remove-coach="removeCoachRoleFromUser(user)"
-              />
-            </span>
+            <role-switcher
+              class="user-role"
+              :currentRole="user.kind"
+              @click-add-coach="addCoachRoleToUser(user)"
+              @click-remove-coach="removeCoachRoleFromUser(user)"
+            />
           </td>
 
           <!-- Edit field -->
@@ -328,9 +327,9 @@
     color: $core-text-default
 
   .user-role
-    color: $core-text-default
-    display: inline-block
-    white-space: nowrap
+    width: 20rem
+    height: 1.5rem
+    margin: 5px 0
 
   .searchbar .icon
     display: inline-block

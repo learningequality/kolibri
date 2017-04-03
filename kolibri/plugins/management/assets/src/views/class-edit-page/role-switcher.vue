@@ -1,24 +1,32 @@
 <template>
 
-  <div>
-    <div class="learner-role-selector">
+  <div class="role-switcher">
+    <template v-if="currentRole === 'admin'">
+      {{ $tr('admin') }}
+    </template>
+
+    <template v-else>
       <ui-button
-        @click="handleClick('learner')"
-        :color="currentRole === 'learner' ? 'primary' : 'secondary'"
+        :ariaLabel="$tr('learner')"
+        :color="isCurrentRole('learner') ? 'primary' : 'secondary'"
         :disableRipple="true"
-        class="ttn btn-left-edge"
+        :disabled="isCurrentRole('learner')"
+        @click="handleClick('learner')"
+        class="ttn role-button btn-left-edge"
       >
         {{ $tr('learner') }}
       </ui-button>
       <ui-button
-        @click="handleClick('coach')"
-        :color="currentRole === 'coach' ? 'primary' : 'secondary'"
-        class="ttn btn-right-edge"
+        :ariaLabel="$tr('coach')"
+        :color="isCurrentRole('coach') ? 'primary' : 'secondary'"
         :disableRipple="true"
+        :disabled="isCurrentRole('coach')"
+        @click="handleClick('coach')"
+        class="ttn role-button btn-right-edge"
       >
-        Coach
+        {{ $tr('coach') }}
       </ui-button>
-    </div>
+    </template>
   </div>
 
 </template>
@@ -42,10 +50,15 @@
           return this.$emit('click-remove-coach');
         }
         return this.$emit('click-add-coach');
+      },
+      isCurrentRole(roleName) {
+        return roleName === this.currentRole;
       }
     },
     $trNameSpace: 'classEnrollPage',
     $trs: {
+      admin: 'Admin',
+      coach: 'Coach',
       learner: 'Learner',
     },
   };
@@ -55,23 +68,24 @@
 
 <style lang="stylus" scoped>
 
-  button
-    height: auto
-    box-sizing: border-box
-    padding: 5px 0
+  .role-button
+    border: solid #996189 1px
+    border-radius: 5px
+    font-size: 1rem
+    height: 100%
+    width: 50%
+    &[disabled]
+      opacity: 1.0
 
   .ttn
     text-transform: none
 
   .learner-role-selector
-    border: solid #996189 1px
-    border-radius: 5px
-    box-sizing: border-box
 
   .btn-left-edge
     border-top-right-radius: 0
     border-bottom-right-radius: 0
-    margin-right: -4px; // something in higher-level scope is adding spacing between block-level els
+    float: left
 
   .btn-right-edge
     border-top-left-radius: 0
