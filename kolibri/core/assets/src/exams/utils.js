@@ -1,4 +1,4 @@
-const seededShuffle = require('kolibri.lib.seededshuffle');
+const seededShuffle = require('seededshuffle');
 
 function createQuestionList(questionSources) {
   return questionSources.reduce((acc, val) =>
