@@ -28,12 +28,6 @@ module.exports = {
       vuex: {
         module: require('vuex'),
       },
-      vueRouter: {
-        module: require('vue-router'),
-      },
-      jscookie: {
-        module: require('js-cookie'),
-      },
       conditionalPromise: {
         module: require('../conditionalPromise'),
       },
