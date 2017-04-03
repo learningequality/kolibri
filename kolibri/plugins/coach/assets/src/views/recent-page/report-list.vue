@@ -2,7 +2,7 @@
 
   <div>
     <div v-if="reports.length" class="table-wrapper">
-      <table>
+      <table class="report-list">
         <thead>
           <tr>
             <th>{{ $tr('name') }}</th>
@@ -48,7 +48,12 @@
 
 <style lang="stylus" scoped>
 
-  .table-wrapper
-    overflow-x: auto
+  .report-list
+    width: 100%
+    th
+      text-align: left
+
+  // .table-wrapper
+  //   overflow-x: auto
 
 </style>

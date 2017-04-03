@@ -26,22 +26,99 @@ const ChannelResource = coreApp.resources.ChannelResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 
 
+// helper function for showRecent, provides list of channels with recent activity
 function _showRecentChannels(store, classId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
-  const channelPromise = ChannelResource.getCollection();
-  channelPromise.fetch().then(
-    channels => {
+  function __getChannelLastActive(channel) {
+    // helper function for _showRecentChannels
+    // @param channel to get recentActivity for
+    // @returns promise that resolves channel with lastActive value in object:
+    // {
+    //   'channelId': {
+    //     amount: 'int',
+    //     measure: 'month or day',
+    //   },
+    // }
+    function ___timePassedSince(lastActiveTime) {
+      // helper function for __getChannelLastActive
+      // @param lastActiveTime --  date in string format
+      // @returns object representing time passed since input in days or months:
+      // {
+      //   amount: 'int',
+      //   measure: 'month or day',
+      // }
+      const dayMeasure = (ms) => Math.round(ms / (8.64e+7));
+      const monthMeasure = (ms) => Math.round(ms / (2.628e+9));
+
+      const currentDate = new Date();
+      const lastActiveDate = new Date(lastActiveTime);
+      // subtracting dates returns time interval in milliseconds
+      const millisecondsEllapsed = currentDate - lastActiveDate;
+
+      const monthsAgo = monthMeasure(millisecondsEllapsed);
+      // returns months amount of days has surpassed a month
+      if (monthsAgo) {
+        return {
+          amount: monthsAgo,
+          measure: 'month',
+          raw: millisecondsEllapsed,
+        };
+      }
+      // and days otherwise
+      return {
+        amount: dayMeasure(millisecondsEllapsed),
+        measure: 'day',
+        raw: millisecondsEllapsed,
+      };
+    }
+    const summaryPayload = {
+      channel_id: channel.id,
+      collection_kind: ReportConstants.UserScopes.FACILITY,
+      collection_id: store.state.core.session.facility_id,
+    };
+
+    // workaround for conditionalPromise.then() misbehaving
+    return new Promise(
+      (resolve, reject) => {
+        const getSumm = ContentSummaryResource.getModel(channel.root_id, summaryPayload).fetch();
+        getSumm.then(
+          channelSummary => {
+            const channelLastActive = {};
+            channelLastActive[channel.id] = ___timePassedSince(channelSummary.last_active);
+            resolve(channelLastActive);
+          },
+          error => reject(error)
+        );
+      }
+    );
+  }
+
+  const channelLastActivePromises = [];
+
+  store.state.core.channels.list.forEach(
+    channel => {
+      channelLastActivePromises.push(__getChannelLastActive(channel));
+    }
+  );
+
+  Promise.all(channelLastActivePromises).then(
+    allChannelLastActive => {
+      const lastActive = {};
+
+      allChannelLastActive.forEach(
+        channelLastActive => {
+          Object.assign(lastActive, channelLastActive);
+        }
+      );
+
       const pageState = {
-        channels,
+        lastActive,
         classId,
       };
+
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', 'Recents');
-    },
-    error => { coreActions.handleApiError(store, error); }
+    }
   );
 }
 
@@ -84,6 +161,11 @@ function _showRecentReports(store, classId, channelId) {
 
 
 function showRecent(store, classId, channelId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
+  // Handled by coach index
+  // store.dispatch('CORE_SET_TITLE', 'Coach Recents');
+
   if (channelId) {
     _showRecentReports(store, classId, channelId);
   } else {
