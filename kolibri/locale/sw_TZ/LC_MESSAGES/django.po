@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-03-08 17:35+0000\n"
-"PO-Revision-Date: 2017-03-16 17:16-0400\n"
+"PO-Revision-Date: 2017-03-31 03:03-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Swahili, Tanzania\n"
 "Language: sw_TZ\n"
@@ -26,7 +26,7 @@ msgstr "Darasa"
 
 #: kolibri/auth/constants/collection_kinds.py:14
 msgid "Learner group"
-msgstr ""
+msgstr "Kikundi cha mwanafunzi"
 
 #: kolibri/auth/constants/role_kinds.py:10
 msgid "Admin"
@@ -42,7 +42,7 @@ msgstr "jina la mtumiaji"
 
 #: kolibri/auth/models.py:159
 msgid "Required. 30 characters or fewer. Letters and digits only"
-msgstr ""
+msgstr "Inahitajika. Herufi 30 au pungufu. Herufi na tarakimu tu"
 
 #: kolibri/auth/models.py:163
 msgid "Enter a valid username. This value may contain only letters and numbers."
@@ -58,11 +58,11 @@ msgstr "tarehe ya kujiunga"
 
 #: kolibri/auth/serializers.py:27
 msgid "An account with that username already exists"
-msgstr ""
+msgstr "Akaunti na jina hilo la mtumiaji tayari ipo"
 
 #: kolibri/content/models.py:215
 msgid "Unknown format"
-msgstr ""
+msgstr "Muundo halijulikani"
 
 #: kolibri/core/templates/kolibri/base.html:11
 msgid "Kolibri"
@@ -74,5 +74,5 @@ msgstr "Usimamizi"
 
 #: kolibri/tasks/api.py:86
 msgid "The requested channel does not exist on the content server"
-msgstr ""
+msgstr "Kipengere kilichoombwa hakipo kwenye kumbukumbu ya yaliyomo"
 

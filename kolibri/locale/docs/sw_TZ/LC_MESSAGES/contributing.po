@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-02-02 00:07+0000\n"
-"PO-Revision-Date: 2017-03-16 17:16-0400\n"
+"PO-Revision-Date: 2017-03-31 03:03-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Swahili, Tanzania\n"
 "MIME-Version: 1.0\n"
@@ -115,11 +115,11 @@ msgstr "Uko tayari kuchangia? Hivi ndio jinsi ya kuanzisha 'kolibri' kwa ajili y
 
 #: ../../../CONTRIBUTING.rst:61
 msgid "Fork_ the `kolibri` repo on GitHub."
-msgstr ""
+msgstr "Fork_ the `kolibri` repo on GitHub."
 
 #: ../../../CONTRIBUTING.rst:62
 msgid "Clone your fork locally::"
-msgstr ""
+msgstr "Clone your fork locally::"
 
 #: ../../../CONTRIBUTING.rst:66
 msgid "Create a branch for local development::"
@@ -135,7 +135,7 @@ msgstr "Unapomaliza kufanya mabadiliko, kagua kama mabadiliko yako yamepita kwen
 
 #: ../../../CONTRIBUTING.rst:78
 msgid "To get tox, just pip install it. To get node (and hence npm) install it from https://nodejs.org."
-msgstr ""
+msgstr "To get tox, just pip install it. To get node (and hence npm) install it from https://nodejs.org."
 
 #: ../../../CONTRIBUTING.rst:80
 msgid "Commit your changes and push your branch to GitHub::"
