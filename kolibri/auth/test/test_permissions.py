@@ -768,7 +768,7 @@ class MembershipPermissionsTestCase(TestCase):
             self.assertTrue(user.can_read(membership))
             self.assertIn(membership, user.filter_readable(Membership.objects.all()))
         for user in [self.data["facility_coach"], self.own_classroom_coach]:
-            self.assertFalse(user.can_read(membership))
+            self.assertTrue(user.can_read(membership))
         for user in [self.other_classroom_admin, self.other_classroom_coach, self.anon_user]:
             self.assertFalse(user.can_read(membership))
             self.assertNotIn(membership, user.filter_readable(Membership.objects.all()))

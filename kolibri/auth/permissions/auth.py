@@ -138,7 +138,7 @@ class CoachesCanManageGroupsForTheirClasses(BasePermissions):
         return self._user_is_coach_for_classroom(user, obj)
 
     def user_can_read_object(self, user, obj):
-        return self._user_is_coach_for_classroom(user, obj)
+        return False
 
     def user_can_update_object(self, user, obj):
         return self._user_is_coach_for_classroom(user, obj)
@@ -147,11 +147,7 @@ class CoachesCanManageGroupsForTheirClasses(BasePermissions):
         return self._user_is_coach_for_classroom(user, obj)
 
     def readable_by_user_filter(self, user, queryset):
-        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            source_user=user,
-            role_kind=COACH,
-            descendant_collection=F("parent"),
-        ).filter(kind=LEARNERGROUP)
+        return queryset.none()
 
 
 class CoachesCanManageMembershipsForTheirGroups(BasePermissions):
