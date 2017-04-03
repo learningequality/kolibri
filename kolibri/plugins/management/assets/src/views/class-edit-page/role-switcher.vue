@@ -1,8 +1,24 @@
 <template>
 
   <div>
-    <ui-button color="primary" class="ttn">Learner</ui-button>
-    <ui-button color="secondary" class="ttn">Coach</ui-button>
+    <template>
+      <ui-button
+        @click="handleClick('learner')"
+        :color="currentRole === 'learner' ? 'primary' : 'secondary'"
+        :disableRipple="true"
+        class="ttn"
+      >
+        {{ $tr('learner') }}
+      </ui-button>
+      <ui-button
+        @click="handleClick('coach')"
+        :color="currentRole === 'coach' ? 'primary' : 'secondary'"
+        class="ttn"
+        :disableRipple="true"
+      >
+        Coach
+      </ui-button>
+    </template>
   </div>
 
 </template>
@@ -19,6 +35,18 @@
         type: String, /* coach, learner, admin */
         required: true,
       },
+    },
+    methods: {
+      handleClick(roleName) {
+        if (roleName === 'learner') {
+          return this.$emit('click-remove-coach');
+        }
+        return this.$emit('click-add-coach');
+      }
+    },
+    $trNameSpace: 'classEnrollPage',
+    $trs: {
+      learner: 'Learner',
     },
   };
 

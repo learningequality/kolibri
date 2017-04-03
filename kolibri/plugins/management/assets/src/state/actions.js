@@ -253,7 +253,6 @@ function showClassEditPage(store, classId) {
   const transformResult = ([facilityUsers, classroom]) => ({
     modalShown: false,
     classes: [classroom],
-    classUsers: facilityUsers.map(_userState),
     classUsers: facilityUsers.map(_userStateForClassEditPage.bind(null, classId)),
   });
 

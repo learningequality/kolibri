@@ -83,9 +83,11 @@
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
             <span class="user-role">
-              {{ user.kind === LEARNER ? $tr('learner') : $tr('coach') }}
-              <button @click="removeCoachRoleFromUser(user)">Learner</button>
-              <button @click="addCoachRoleToUser(user)">Coach</button>
+              <role-switcher
+                :currentRole="user.kind"
+                @click-add-coach="addCoachRoleToUser(user)"
+                @click-remove-coach="removeCoachRoleFromUser(user)"
+              />
             </span>
           </td>
 
