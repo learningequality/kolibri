@@ -7,6 +7,7 @@
 
     <template v-else>
       <ui-button
+        name="learner"
         :ariaLabel="$tr('learner')"
         :color="isCurrentRole('learner') ? 'primary' : 'secondary'"
         :disableRipple="true"
