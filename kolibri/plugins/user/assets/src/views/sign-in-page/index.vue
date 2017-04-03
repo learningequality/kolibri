@@ -8,11 +8,9 @@
         <core-textbox
           :label="$tr('username')"
           id="username"
-          type="tel"
           :placeholder="$tr('enterUsername')"
           :aria-label="$tr('username')"
           v-model="username"
-          autocomplete="tel"
           required
           autofocus/>
         <core-textbox
