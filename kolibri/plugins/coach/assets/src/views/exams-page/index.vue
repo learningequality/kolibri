@@ -7,16 +7,17 @@
       :label="$tr('show')"
       :options="filterOptions"
       v-model="filterSelected"
+      class="radio-group"
     />
-    <router-link :to="createExamPage">
-      <ui-button
-        type="primary"
-        color="primary"
-        :raised="true"
-        icon="add">
-        {{ $tr('newExam') }}
-      </ui-button>
-    </router-link>
+    <ui-button
+      type="primary"
+      color="primary"
+      :raised="true"
+      icon="add"
+      class="create-button"
+      @click="openCreateExamModal">
+      {{ $tr('newExam') }}
+    </ui-button>
     <table v-if="exams.length">
       <thead>
         <tr>
@@ -48,7 +49,11 @@
       </tbody>
     </table>
     <p v-else class="center-text"><strong>{{ $tr('noExams') }}</strong></p>
-
+    <create-exam-modal
+      v-if="showCreateExamModal"
+      :classId="currentClass.id"
+      :channels="channels"
+    />
     <activate-exam-modal
       v-if="showActivateExamModal"
       :examId="selectedExam.id"
@@ -120,6 +125,7 @@
       'ui-button': require('keen-ui/src/UiButton'),
       'ui-radio-group': require('keen-ui/src/UiRadioGroup'),
       'exam-row': require('./exam-row'),
+      'create-exam-modal': require('./create-exam-modal'),
       'activate-exam-modal': require('./activate-exam-modal'),
       'deactivate-exam-modal': require('./deactivate-exam-modal'),
       'change-exam-visibility-modal': require('./change-exam-visibility-modal'),
@@ -141,12 +147,7 @@
           { label: this.$tr('inactive'), value: this.$tr('inactive') }
         ];
       },
-      createExamPage() {
-        return {
-          name: PageNames.CREATE_EXAM,
-          params: { classId: this.currentClass.id },
-        };
-      },
+
       activeExams() {
         return this.exams.filter(exam => exam.active === true);
       },
@@ -161,6 +162,9 @@
           return this.inactiveExams;
         }
         return this.exams;
+      },
+      showCreateExamModal() {
+        return this.modalShown === ExamModals.CREATE_EXAM;
       },
       showActivateExamModal() {
         return this.modalShown === ExamModals.ACTIVATE_EXAM;
@@ -184,6 +188,9 @@
     methods: {
       setSelectedExam(examId) {
         this.selectedExam = this.exams.find(exam => exam.id === examId);
+      },
+      openCreateExamModal() {
+        this.displayModal(ExamModals.CREATE_EXAM);
       },
       openChangeExamVisibilityModal(examId) {
         this.setSelectedExam(examId);
@@ -223,10 +230,8 @@
       getters: {
         currentClass: state => state.pageState.currentClass,
         currentClassGroups: state => state.pageState.currentClassGroups,
-        classes: state => state.pageState.classes,
-        currentChannel: state => state.pageState.currentChannel,
-        channels: state => state.pageState.channels,
         exams: state => state.pageState.exams,
+        channels: state => state.pageState.channels,
         modalShown: state => state.pageState.modalShown,
       },
     },
@@ -237,7 +242,18 @@
 
 <style lang="stylus" scoped>
 
+  .create-button
+    float: right
+    margin-top: 1em
+    margin-bottom: 1em
+
   .center-text
     text-align: center
+
+  .radio-group
+    display: inline-block
+
+  table
+    margin-top: 3em
 
 </style>

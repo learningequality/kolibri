@@ -61,9 +61,9 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.CREATE_EXAM,
-          path: '/:classId/exams/new',
+          path: '/:classId/exams/new/:channelId',
           handler: (toRoute, fromRoute) => {
-            examActions.showCreateExamPage(store, toRoute.params.classId);
+            examActions.showCreateExamPage(store, toRoute.params.classId, toRoute.params.channelId);
           },
         },
         {

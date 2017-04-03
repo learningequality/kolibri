@@ -8,8 +8,10 @@
         :autofocus="true"
         :required="true"
          v-model.trim="inputExamName"/>
-      <icon-button :text="$tr('cancel')" type="button" @click="close"/>
-      <icon-button :text="$tr('rename')" :primary="true" type="submit"/>
+      <div class="footer">
+        <icon-button :text="$tr('cancel')" type="button" @click="close"/>
+        <icon-button :text="$tr('rename')" :primary="true" type="submit"/>
+      </div>
     </form>
   </core-modal>
 
@@ -68,4 +70,11 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .footer
+    text-align: center
+    button
+      min-width: 45%
+
+</style>

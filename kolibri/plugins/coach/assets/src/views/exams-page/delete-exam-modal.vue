@@ -2,8 +2,10 @@
 
   <core-modal :title="$tr('deleteExam')" @cancel="close">
     <p v-html="$trHtml('areYouSure', { examTitle })"></p>
-    <icon-button :text="$tr('cancel')" @click="close"/>
-    <icon-button :text="$tr('delete')" :primary="true" @click="deleteExam"/>
+    <div class="footer">
+      <icon-button :text="$tr('cancel')" @click="close"/>
+      <icon-button :text="$tr('delete')" :primary="true" @click="deleteExam"/>
+    </div>
   </core-modal>
 
 </template>
@@ -55,4 +57,12 @@
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .footer
+    text-align: center
+    button
+      min-width: 45%
+
+</style>
+
