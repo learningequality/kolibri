@@ -764,10 +764,10 @@ class Membership(AbstractFacilityDataModel):
         IsOwn(read_only=True) |  # users can read their own Memberships
         RoleBasedPermissions(  # Memberships can be read and written by admins for the member user
             target_field="user",
-            can_be_created_by=(role_kinds.ADMIN),
-            can_be_read_by=(role_kinds.ADMIN),
+            can_be_created_by=(role_kinds.ADMIN,),
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
             can_be_updated_by=(),  # Membership objects shouldn't be updated; they should be deleted and recreated as needed
-            can_be_deleted_by=(role_kinds.ADMIN),
+            can_be_deleted_by=(role_kinds.ADMIN,),
         ) |
         CoachesCanManageMembershipsForTheirGroups()  # Membership can be written by coaches under the coaches' group
     )
