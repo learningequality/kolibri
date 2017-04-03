@@ -10,6 +10,7 @@ const initialState = {
     contents: [],
     searchTerm: '',
   },
+  examLog: {},
 };
 
 const mutations = {
@@ -18,6 +19,9 @@ const mutations = {
   },
   SET_PAGE_STATE(state, pageState) {
     state.pageState = pageState;
+  },
+  SET_EXAM_LOG(state, examLog) {
+    state.examLog = examLog;
   },
 };
 

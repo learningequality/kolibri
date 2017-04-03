@@ -60,7 +60,7 @@ oriented data synchronization.
   const InteractionTypes = require('kolibri.coreVue.vuex.constants').InteractionTypes;
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const MasteryModelGenerators = require('kolibri.coreVue.vuex.constants').MasteryModelGenerators;
-  const seededShuffle = require('seededshuffle');
+  const seededShuffle = require('kolibri.lib.seededshuffle');
 
   module.exports = {
     $trNameSpace: 'assessmentWrapper',

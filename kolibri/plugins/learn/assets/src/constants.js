@@ -12,6 +12,8 @@ const PageNames = {
   CONTENT_UNAVAILABLE: 'CONTENT_UNAVAILABLE',
   SEARCH_ROOT: 'SEARCH_ROOT',
   SEARCH: 'SEARCH',
+  EXAM_LIST: 'EXAM_LIST',
+  EXAM: 'EXAM',
 };
 
 // switch between modes
@@ -19,6 +21,7 @@ const PageModes = {
   EXPLORE: 'EXPLORE',
   LEARN: 'LEARN',
   SEARCH: 'SEARCH',
+  EXAM: 'EXAM',
 };
 
 module.exports = {

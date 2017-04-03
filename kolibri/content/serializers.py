@@ -1,6 +1,7 @@
 from django.db.models import Sum
 from kolibri.auth.models import FacilityUser
-from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, File
+from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, Exam, ExamAssignment, File
+from kolibri.logger.models import ExamLog
 from rest_framework import serializers
 
 from .content_db_router import default_database_is_attached, get_active_content_database
@@ -129,3 +130,61 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             'license', 'files', 'ancestors', 'parent', 'thumbnail', 'progress_fraction', 'next_content', 'author',
             'assessmentmetadata',
         )
+
+
+class ExamSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Exam
+        fields = (
+            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
+            'active', 'collection', 'archived',
+        )
+        read_only_fields = ('creator',)
+
+    def create(self, validated_data):
+        return Exam.objects.create(creator=self.context['request'].user, **validated_data)
+
+class ExamAssignmentSerializer(serializers.ModelSerializer):
+
+    assigned_by = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = ExamAssignment
+        fields = (
+            'exam', 'collection',
+        )
+        read_only_fields = ('assigned_by',)
+
+    def create(self, validated_data):
+        return ExamAssignment.objects.create(assigned_by=self.context['request'].user, **validated_data)
+
+
+class UserExamSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        # Use the ExamAssignment as the primary model, as the permissions are more easily
+        # defined as they are directly attached to a particular user's collection.
+        model = ExamAssignment
+        read_only_fields = (
+            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
+            'active', 'score', 'archived', 'answer_count',
+        )
+
+    def to_representation(self, obj):
+        output = {}
+        exam_fields = (
+            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
+            'active', 'archived',
+        )
+        for field in exam_fields:
+            output[field] = getattr(obj.exam, field)
+        try:
+            # Try to add the score from the user's ExamLog attempts.
+            output['score'] = sum(
+                obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.values('correct'))
+            output['answer_count'] = sum(
+                obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.count())
+        except ExamLog.DoesNotExist:
+            output['score'] = None
+        return output
