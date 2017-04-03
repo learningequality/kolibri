@@ -1,14 +1,13 @@
 <template>
 
-  <exercise-detail-view :backPageLink="backPageLink">
+  <exam-detail-view :backPageLink="backPageLink">
     <template slot="text"> {{ backtoText(contentName) }} </template>
     <template slot="body">
       <div class="page-status-container">
         <page-status
-          :contentName="contentName"
           :userName="userName"
-          :progress="progress"
-          :assessment="assessment"
+          :score="score"
+          :questions="questions"
           :date="date"/>
       </div>
       <div class="outer-container">
@@ -16,21 +15,11 @@
           <answer-history/>
         </div>
         <div class="exercise-container column">
-          <question-attempt
-            :questionNumber="pageState.selectedAttemptLogIndex + 1"/>
-          <content-renderer
-            class="content-renderer"
-            :id="content.id"
-            :kind="content.kind"
-            :files="content.files"
-            :contentId="content.content_id"
-            :channelId="channelId"
-            :available="content.available"
-            :extraFields="content.extra_fields"/>
+          <div class="fake" style="height:600px;background-color:pink;"></div>
         </div>
       </div>
     </template>
-  </exercise-detail-view>
+  </exam-detail-view>
 
 </template>
 
@@ -45,15 +34,13 @@
       backto: 'Back to { text }',
     },
     components: {
-      'exercise-detail-view': require('./../content-detail-view'),
-      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
+      'exam-detail-view': require('./../content-detail-view'),
       'page-status': require('./page-status'),
       'answer-history': require('./answer-history'),
-      'question-attempt': require('./question-attempt'),
     },
     computed: {
       backPageLink() {
-        return { name: constants.PageNames.CLASS_LIST };
+        return { name: constants.PageNames.EXAM_REPORT };
       },
       content() {
         return {
@@ -91,10 +78,10 @@
       getters: {
         pageState: state => state.pageState,
         // fake date for page-status
-        contentName: () => 'Adding Fractions',
-        userName: () => 'James Howard',
-        progress: () => 1,
-        assessment: () => '4 of 5',
+        contentName: () => 'Summative Exam Report',
+        userName: () => 'Aaron Andrews',
+        score: () => 72,
+        questions: () => [{ correct: 0 }, { correct: 1 }],
         date: () => '18 Nov 2016',
       },
     },
