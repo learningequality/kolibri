@@ -327,9 +327,11 @@
     color: $core-text-default
 
   .user-role
-    width: 20rem
+    display: table-cell
     height: 1.5rem
     margin: 5px 0
+    vertical-align: middle
+    width: 20rem
 
   .searchbar .icon
     display: inline-block
