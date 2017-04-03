@@ -9,7 +9,7 @@ const { LEARNER } = constants.UserKinds;
 // Assumes if a Learner has any kind of Role in class, then it is of Coach
 function deleteRoleFromUser(classId, userData) {
   const { roles } = userData;
-  const matchIdx = roles.findIndex((r) => r.collection === String(classId));
+  const matchIdx = roles.findIndex((r) => String(r.collection) === classId);
   const roleId = matchIdx !== -1 ? roles[matchIdx].id : null;
   return new Promise((resolve, reject) => {
     if (roleId === null) {
