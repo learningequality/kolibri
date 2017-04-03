@@ -1,3 +1,5 @@
+from dateutil.parser import parse
+
 from django.db.models import Case, Count, F, IntegerField, Sum, Value as V, When
 from django.db.models.functions import Coalesce
 from kolibri.auth.models import FacilityUser
@@ -79,10 +81,12 @@ class ContentReportSerializer(serializers.ModelSerializer):
         if target_node.kind == content_kinds.TOPIC:
             kind_counts = target_node.get_descendant_kind_counts()
             # filter logs by each kind under target node, and sum progress over logs
-            progress = ContentSummaryLog.objects \
+            progress_query = ContentSummaryLog.objects \
                 .filter_by_topic(target_node) \
-                .filter(user__in=get_members_or_user(kwargs['collection_kind'], kwargs['collection_id'])) \
-                .values('kind') \
+                .filter(user__in=get_members_or_user(kwargs['collection_kind'], kwargs['collection_id']))
+            if kwargs.get('last_active_time'):
+                progress_query.filter(end_timestamp__gte=parse(kwargs.get('last_active_time')))
+            progress = progress_query.values('kind') \
                 .annotate(total_progress=Sum('progress'))
             # add kind counts under this node to progress dict
             for kind in progress:
@@ -95,12 +99,15 @@ class ContentReportSerializer(serializers.ModelSerializer):
             return progress
         else:
             # filter logs by a specific leaf node and compute stats over queryset
-            leaf_node_stats = ContentSummaryLog.objects \
+            leaf_node_stats_query = ContentSummaryLog.objects \
                 .filter(content_id=target_node.content_id) \
-                .filter(user__in=get_members_or_user(kwargs['collection_kind'], kwargs['collection_id'])) \
-                .aggregate(total_progress=Coalesce(Sum('progress'), V(0)),
-                           log_count_total=Coalesce(Count('pk'), V(0)),
-                           log_count_complete=Coalesce(Sum(Case(When(progress=1, then=1), default=0, output_field=IntegerField())), V(0)))
+                .filter(user__in=get_members_or_user(kwargs['collection_kind'], kwargs['collection_id']))
+            if kwargs.get('last_active_time'):
+                leaf_node_stats_query.filter(end_timestamp__gte=parse(kwargs.get('last_active_time')))
+            leaf_node_stats = leaf_node_stats_query.aggregate(
+                total_progress=Coalesce(Sum('progress'), V(0)),
+                log_count_total=Coalesce(Count('pk'), V(0)),
+                log_count_complete=Coalesce(Sum(Case(When(progress=1, then=1), default=0, output_field=IntegerField())), V(0)))
             return [leaf_node_stats]  # return as array for consistency in api
 
     def get_last_active(self, target_node):

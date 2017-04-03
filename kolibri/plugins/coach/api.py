@@ -1,3 +1,8 @@
+import datetime
+from dateutil.parser import parse
+
+from django.utils import timezone
+
 from kolibri.auth.constants import role_kinds
 from kolibri.auth.models import Collection, FacilityUser
 from kolibri.content.models import ContentNode
@@ -80,5 +85,14 @@ class RecentReportViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query_node = ContentNode.objects.get(pk=self.kwargs['content_node_id'])
-        recent_content_items = ContentSummaryLog.objects.filter_by_topic(query_node).order_by('end_timestamp').values_list('content_id')
+        if self.request.query_params.get('last_active_time'):
+            # Last active time specified
+            datetime_cutoff = parse(self.request.query_params.get('last_active_time'))
+        else:
+            datetime_cutoff = timezone.now() - datetime.timedelta(7)
+        # Set on the kwargs to pass into the serializer
+        self.kwargs['last_active_time'] = datetime_cutoff.isoformat()
+        recent_content_items = ContentSummaryLog.objects.filter_by_topic(query_node).filter(
+            user__in=get_members_or_user(self.kwargs['collection_kind'], self.kwargs['collection_id']),
+            end_timestamp__gte=datetime_cutoff).values_list('content_id')
         return ContentNode.objects.filter(content_id__in=recent_content_items)
