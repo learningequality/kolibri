@@ -18,6 +18,7 @@
         {{ $tr('learner') }}
       </ui-button>
       <ui-button
+        name="coach"
         :ariaLabel="$tr('coach')"
         :color="isCurrentRole('coach') ? 'primary' : 'secondary'"
         :disableRipple="true"
