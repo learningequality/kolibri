@@ -17,7 +17,7 @@
   const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
 
   module.exports = {
-    $trNameSpace: 'learnContentUnavailable',
+    $trNameSpace: 'coachContentUnavailable',
     $trs: {
       header: 'Coach reports unavailable',
       description: 'No channels exist',

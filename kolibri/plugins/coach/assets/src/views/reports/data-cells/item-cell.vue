@@ -20,7 +20,7 @@
   const CoreConstants = require('kolibri.coreVue.vuex.constants');
 
   module.exports = {
-    $trNameSpace: 'item-name',
+    $trNameSpace: 'itemName',
     $trs: {
       exercises: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
       contents: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
