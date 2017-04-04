@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-02-02 00:07+0000\n"
-"PO-Revision-Date: 2017-03-16 17:16-0400\n"
+"PO-Revision-Date: 2017-03-31 03:03-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Swahili, Tanzania\n"
 "MIME-Version: 1.0\n"
@@ -27,15 +27,15 @@ msgstr "Kuanzia Kolibri"
 
 #: ../../user/admin.rst:7
 msgid "Kolibri has two parts: **Kolibri launcher** and **Kolibri server**."
-msgstr "Kolibri ina sehemu mbili: * * Kolibri Kizinduzi * * na * * Kolibri mtandao * *."
+msgstr "Kolibri ina sehemu mbili: **Kolibri Kizinduzi** na **Kolibri mtandao**."
 
 #: ../../user/admin.rst:9
 msgid "**Kolibri launcher** is located in the Windows taskbar (usually at bottom right, near the clock), and allows you to start and stop the **Kolibri server**, and configure other settings."
-msgstr "* *Kolibri launcher* * iko katika mwambaakazi wa Windows (kawaida chini kulia, karibu na saa), na itakuruhusu kuanza na kuacha * * Kolibri server* *, na kusanidi mipangilio mingine."
+msgstr "**Kolibri launcher** iko katika mwambaakazi wa Windows (kawaida chini kulia, karibu na saa), na itakuruhusu kuanza na kuacha **Kolibri server**, na kusanidi mipangilio mingine."
 
 #: ../../user/admin.rst:11
 msgid "**Kolibri server** runs as a background process and displays (*serves*) learning content in the browser."
-msgstr "* * Kolibri server* * inafanya kazi kama utaratibu wa mandharinyuma na huonyesha (*serves*) maudhui ya kujifunzia katika kivinjari."
+msgstr "**Kolibri server** inafanya kazi kama utaratibu wa mandharinyuma na huonyesha (*serves*) maudhui ya kujifunzia katika kivinjari."
 
 #: ../../user/admin.rst:13
 msgid "Double-click Kolibri desktop shortcut to start **Kolibri launcher**."
@@ -59,7 +59,7 @@ msgstr "Chagua **Start Server** kuanza **Kolibri server**."
 
 #: ../../user/admin.rst:28
 msgid "You will see the notification message *Kolibri server is starting, please wait...*. While server is starting, the options **Start/Stop/Load in browser** will be disabled."
-msgstr "Utaona ujumbe taarifa * Kolibri seva inaanza, Tafadhali subiri... *. Wakati seva inaanza, chaguo **Start/Stop/Load in browser** itakuwa imezimwa."
+msgstr "Utaona ujumbe taarifa *Kolibri seva inaanza, Tafadhali subiri...*. Wakati seva inaanza, chaguo **Start/Stop/Load in browser** itakuwa imezimwa."
 
 #: ../../user/admin.rst:29
 msgid "Once **Kolibri server** has started you will see the notification message *Kolibri server is running...*. The options **Stop Server** and **Load in browser** will now be available."
@@ -83,11 +83,11 @@ msgstr "Amilisha **Run Kolibri when user logs in** chaguo kama unataka **Kolibri
 
 #: ../../user/admin.rst:35
 msgid "Activate **Auto-start server when Kolibri is run** option if you want the **Kolibri server** to start at the same time as the **Kolibri launcher**."
-msgstr "Amilisha * * Washa seva wakati Kolibri inapofanya kazi* * chaguo kama unataka * * Seva ya Kolibri * * kuanza wakati huo huo kama * * Kizinduzi cha Kolibri * *."
+msgstr "Amilisha **Washa seva wakati Kolibri inapofanya kazi** chaguo kama unataka **Seva ya Kolibri** kuanza wakati huo huo kama **Kizinduzi cha Kolibri**."
 
 #: ../../user/admin.rst:38
 msgid "If you want **Kolibri server** to auto-start as soon as you log into the system, activate both of the above options."
-msgstr "Kama unataka ** Seva ya Kolibri** ijiwashe yenyewe mara tu unapoingia kwenye mfumo, amilisha machaguo yote mawili hapo juu."
+msgstr "Kama unataka **Seva ya Kolibri** ijiwashe yenyewe mara tu unapoingia kwenye mfumo, amilisha machaguo yote mawili hapo juu."
 
 #: ../../user/admin.rst:42
 msgid "Accessing Kolibri from Other Devices in the Network"
@@ -95,7 +95,7 @@ msgstr "Upatikanaji wa Kolibri kutoka kwenye vifaa vingine kwenye mtandao"
 
 #: ../../user/admin.rst:44
 msgid "While **Kolibri server** is up and running, other devices (computers, tablets, even mobile phones) in the same **Local Area Network (LAN)** can access its learning contents."
-msgstr "Wakati ** Seva ya Kolibri imewashwa na inafanya kazi, vifaa vingine (kompyuta, tablet, na hata simu za mkononi) vilivyo ndani ya ** Eneo Jirani l Mtandao (LAN) ** vinaweza kupata maudhui yake."
+msgstr "Wakati **Seva ya Kolibri imewashwa na inafanya kazi, vifaa vingine (kompyuta, tablet, na hata simu za mkononi) vilivyo ndani ya **Eneo Jirani l Mtandao (LAN)** vinaweza kupata maudhui yake."
 
 #: ../../user/admin.rst:46
 msgid "To access the content on the same device/computer where **Kolibri server** is running, open the browser at the address http://127.0.0.1:8080/."
@@ -103,7 +103,7 @@ msgstr "Kupata maudhui kutoka kwenye kifaa/kompyuta ambayo **Seva ya Kolibri** i
 
 #: ../../user/admin.rst:48
 msgid "To access the content from other devices in the same network, you need to know the IP address of one where where **Kolibri server** is running. For example, if **Kolibri server** is on a device/computer with IP address **192.168.0.104**, you can access it from others in the same network at the address http://192.168.0.104:8080."
-msgstr "Kupata maudhui kutoka kwenye vifaa vingene ndani ya eneo la mtandao, unahitaji kujua anuani ya IP ya moja ya vifaa ambamo ** Seva ya Kolibri** inafanya kazi. Mfano, kama** Seva ya Kolibri** inatumika katika kifaa/kompyuta yenye anuani ya IP ambayo ni **192.1680.0.104**, unaweza kuipata kutoka kwenye vifaa vingine ndani ya eneo la mtandao kupitia http://192.168.0.104:8080."
+msgstr "Kupata maudhui kutoka kwenye vifaa vingene ndani ya eneo la mtandao, unahitaji kujua anuani ya IP ya moja ya vifaa ambamo **Seva ya Kolibri** inafanya kazi. Mfano, kama** Seva ya Kolibri** inatumika katika kifaa/kompyuta yenye anuani ya IP ambayo ni **192.1680.0.104**, unaweza kuipata kutoka kwenye vifaa vingine ndani ya eneo la mtandao kupitia http://192.168.0.104:8080."
 
 #: ../../user/admin.rst:50
 msgid "Use the ``ipconfig`` command to find out the IP address of the device on Windows operating system."
@@ -115,7 +115,7 @@ msgstr "Dhibiti watumiaji"
 
 #: ../../user/admin.rst:56
 msgid "You can search for, filter, add, and edit user accounts in Kolibri from the **Users** tab in your **Manage** dashboard."
-msgstr "Unaweza kutafuta, kuchuja, kuongeza, na kurekibisha anuani ya mtumiaji kwenye Kolibri kuanzia**Watumiaji** chagua** Dhibiti** Dashibodi."
+msgstr "Unaweza kutafuta, kuchuja, kuongeza, na kurekibisha anuani ya mtumiaji kwenye Kolibri kuanzia **Watumiaji** Chagua** Dhibiti** Dashibodi."
 
 #: ../../user/admin.rst:62
 msgid "Kolibri User Roles"
@@ -135,11 +135,11 @@ msgstr "Kuangalia maudhui na kufuatiliwa maendeleo yao"
 
 #: ../../user/admin.rst:69
 msgid "**Coaches** can:"
-msgstr "**Makocha**wanaweza:"
+msgstr "**Makocha** wanaweza:"
 
 #: ../../user/admin.rst:72 ../../user/admin.rst:76 ../../user/admin.rst:82
 msgid "View *Coach Reports* to track progress of other users and usage stats for individual exercises"
-msgstr "Kuangalia**Ripoti za kocha*kufuatilia kwa ukaribu maendeleo ya watumiaji wengine na takwimu za utumiaji kwa ajili ya mazoezi"
+msgstr "Kuangalia *Ripoti za kocha* kufuatilia kwa ukaribu maendeleo ya watumiaji wengine na takwimu za utumiaji kwa ajili ya mazoezi"
 
 #: ../../user/admin.rst:73
 msgid "**Admins** can:"
@@ -151,7 +151,7 @@ msgstr "Kutengeneza/Kurekebisha/Kufuta **Wasimamizi** na ** Wanafunzi** wengine"
 
 #: ../../user/admin.rst:78 ../../user/admin.rst:84
 msgid "Export *Detail* and *Summary* logs usage data"
-msgstr "Badilisha*Taarifa* na * taarifa fupi*na takwimu za utumiaji"
+msgstr "Badilisha *Taarifa* na *taarifa fupi* na takwimu za utumiaji"
 
 #: ../../user/admin.rst:79
 msgid "**Device Owners** can:"
@@ -179,7 +179,7 @@ msgstr "Kutengeneza akaunti ya mtumiaji mpya, fuata hatua hizi."
 
 #: ../../user/admin.rst:97
 msgid "Click **Add New** button."
-msgstr "Bofya** Ongeza Mpya**kitufe."
+msgstr "Bofya **Ongeza Mpya** kitufe."
 
 #: ../../user/admin.rst:98
 msgid "Fill in the required information (name, username, password)."
@@ -191,7 +191,7 @@ msgstr "Chagua wasifu wa mtumiaji (*Msimamizi*, *Kocha* au *Mwanafunzi*)."
 
 #: ../../user/admin.rst:100
 msgid "Click **Create Account** to add the new user."
-msgstr "Bofya**Tengeneza Akaunti** kuongeza mtumiaji mpya."
+msgstr "Bofya **Tengeneza Akaunti** kuongeza mtumiaji mpya."
 
 #: ../../user/admin.rst:107
 msgid "Select Users by Type"
@@ -215,15 +215,15 @@ msgstr "Kuhariri jina la mtumiaji au jina kamili la akaunti, fuata hatua zifuata
 
 #: ../../user/admin.rst:121
 msgid "Click on the **Edit** button (pencil icon) next to the user’s name."
-msgstr "Bofya kwenye**Hariri** kitufe (ikoni ya penseli) karibu na jina la mtumiaji."
+msgstr "Bofya kwenye **Hariri** kitufe (ikoni ya penseli) karibu na jina la mtumiaji."
 
 #: ../../user/admin.rst:122
 msgid "Edit **Full Name** or **Username** in the **Edit Account Info** window."
-msgstr "Hariri **Jina Kamili** au **Jina la mtumiaji**ndani **Hariri taarifa za akaunti** mfumo wa uendeshaji."
+msgstr "Hariri **Jina Kamili** au **Jina la mtumiaji** ndani **Hariri taarifa za akaunti** mfumo wa uendeshaji."
 
 #: ../../user/admin.rst:123
 msgid "Click **Confirm** to update the edited information or **Cancel** to exit without saving."
-msgstr "Bofya ** Thibitisha**kusasilisha taarifa zilizohaririwa au**Katisha** kutoka bila kuhifadhi."
+msgstr "Bofya ** Thibitisha** kusasilisha taarifa zilizohaririwa au**Katisha** kutoka bila kuhifadhi."
 
 #: ../../user/admin.rst:130
 msgid "Reset User’s Password"
@@ -231,7 +231,7 @@ msgstr "Weka upya nenosiri la mtumiaji"
 
 #: ../../user/admin.rst:132
 msgid "Click **Reset Password** in the **Edit Account Info** window."
-msgstr "Bofya * * Weka upya Nenosiri * * katika ya * * Hariri Maelezo ya Akaunti * * Mfumo wa uendeshaji."
+msgstr "Bofya **Weka upya Nenosiri** katika ya **Hariri Maelezo ya Akaunti** Mfumo wa uendeshaji."
 
 #: ../../user/admin.rst:133
 msgid "Enter the new password in both fields."
@@ -239,7 +239,7 @@ msgstr "Ingiza nenosiri jipya katika nafasi mbili zilizosalia."
 
 #: ../../user/admin.rst:134
 msgid "Click **Save** to confirm or **Back** to exit without changing the password."
-msgstr "Bofya * * Hifadhi * * Kuthibitisha au * * Nyuma * * kutoka bila kubadilisha nenosiri."
+msgstr "Bofya **Hifadhi** Kuthibitisha au **Nyuma** kutoka bila kubadilisha nenosiri."
 
 #: ../../user/admin.rst:141
 msgid "Delete User’s Account"
@@ -247,11 +247,11 @@ msgstr "Futa akaunti ya mtumiaji"
 
 #: ../../user/admin.rst:143
 msgid "Click **Delete User** in the **Edit Account Info** window."
-msgstr "Bofya * * Futa mtumiaji * * katika ya * * Hariri maelezo ya akaunti * * mfumo wa uendeshaji."
+msgstr "Bofya **Futa mtumiaji** katika ya **Hariri maelezo ya akaunti** mfumo wa uendeshaji."
 
 #: ../../user/admin.rst:144
 msgid "Click **Yes** to confirm or **No** to exit without deleting the account."
-msgstr "Bofya * * Ndio * * kuthibitisha au * * Hapana * * kutoka bila kufuta akaunti."
+msgstr "Bofya **Ndio** kuthibitisha au **Hapana** kutoka bila kufuta akaunti."
 
 #: ../../user/admin.rst:151
 msgid "Manage Data"
@@ -263,7 +263,7 @@ msgstr "Kudhibiti utumiaji taarifa kwenye Kolibri ni lazima uruhusiwe kuingia ka
 
 #: ../../user/admin.rst:156
 msgid "You can download Kolibri *Detail* and *Summary* logs usage data and export in the CSV format from the **Data** tab in your **Manage** dashboard."
-msgstr "Unaweza kupakua Kolibri * Maelezo * na * muhtasari * weka taarifa ya utumiaji na badilisha tarifa ziwe kwenye mfumo wa CSV kutoka ya * * Data * * kichupo katika yako * * kudhibiti* * dashibodi."
+msgstr "Unaweza kupakua Kolibri *Maelezo* na *Suhtasari* weka taarifa ya utumiaji na badilisha tarifa ziwe kwenye mfumo wa CSV kutoka ya **Data** kichupo katika yako **Kudhibiti** dashibodi."
 
 #: ../../user/admin.rst:163
 msgid "Manage Content"
@@ -271,15 +271,15 @@ msgstr "Dhibiti Maudhui"
 
 #: ../../user/admin.rst:166
 msgid "To manage Kolibri content you must be logged-in as **Device Owner**."
-msgstr "Kudhibiti maudhui ya Kolibri lazima uwe umeruhusiwa kuingia kama * * Mmiliki wa kifaa* *."
+msgstr "Kudhibiti maudhui ya Kolibri lazima uwe umeruhusiwa kuingia kama **Mmiliki wa kifaa**."
 
 #: ../../user/admin.rst:168
 msgid "Kolibri **Content Channel** is a collection of educational resources (video, audio or document files) prepared and organized by the content curator for their use in Kolibri. Each Kolibri **Content Channel** has its own *Content Channel ID* on `Kolibri content curation server <https://contentworkshop.learningequality.org/accounts/login/>`_ database that you will receive from the content curator who assembled the channel."
-msgstr "* * Njia ya maudhui ya * * Kolibri ni mkusanyiko wa rasilimali za elimu (faili za video, sauti au waraka) zilizoandaliwa na kupangwa na mtunza maudhui kwa matumizi yao katika Kolibri. Kila * *njia ya maudhui * * ya Kolibri ina * ID ya njia ya maudhui * yake yenyewe kwenye 'maudhui ya Kalibri yaliyopangwa kwenye seva <https://contentworkshop.learningequality.org/accounts/login/ >' _ ya kihifadhi data kwamba utapokea kutoka mtunza maudhui ambao wametengeneza njia."
+msgstr "**Njia ya maudhui ya** Kolibri ni mkusanyiko wa rasilimali za elimu (faili za video, sauti au waraka) zilizoandaliwa na kupangwa na mtunza maudhui kwa matumizi yao katika Kolibri. Kila **njia ya maudhui** ya Kolibri ina *ID ya njia ya maudhui* yake yenyewe kwenye 'maudhui ya Kalibri yaliyopangwa kwenye seva <https://contentworkshop.learningequality.org/accounts/login/ >' _ ya kihifadhi data kwamba utapokea kutoka mtunza maudhui ambao wametengeneza njia."
 
 #: ../../user/admin.rst:170
 msgid "You can import and export **Content Channels** for Kolibri in the **Content** tab."
-msgstr "Unaweza kuingiza na kutoa * * njia za maudhui * * kwa Kolibri katika kichupo cha * * yaliyomo * *"
+msgstr "Unaweza kuingiza na kutoa **njia za maudhui** kwa Kolibri katika kichupo cha **yaliyomo**."
 
 #: ../../user/admin.rst:178
 msgid "Import Content Channel to Kolibri"
@@ -287,15 +287,15 @@ msgstr "Ingiza njia ya maudhui kwenye Kolibri"
 
 #: ../../user/admin.rst:180
 msgid "To import **Content Channel** to Kolibri, follow these steps."
-msgstr "Kuleta * * njia za maudhui * * kwa Kolibri, fuata hatua hizi."
+msgstr "Kuleta **njia za maudhui** kwa Kolibri, fuata hatua hizi."
 
 #: ../../user/admin.rst:182
 msgid "Click **Import** button in **My Channels** pane."
-msgstr "Bofya kitufe cha * * kuagiza * * katika kidirisha cha * * njia yangu* *"
+msgstr "Bofya kitufe cha **kuagiza** katika kidirisha cha **njia yangu**."
 
 #: ../../user/admin.rst:183
 msgid "Choose the source option (*Internet* or *Local Drives*)."
-msgstr "Chagua chaguo chanzo (* mtandao * au * viendeshi ndani *)."
+msgstr "Chagua chaguo chanzo (*mtandao* au *viendeshi ndani*)."
 
 #: ../../user/admin.rst:190
 msgid "Import Content Channel from the Internet"
@@ -303,19 +303,19 @@ msgstr "Ingiza njia ya yaliyomo kutoka kwenye intaneti"
 
 #: ../../user/admin.rst:192
 msgid "Choose option for *Internet*."
-msgstr "Chagua chaguo kwa * intaneti *."
+msgstr "Chagua chaguo kwa *intaneti*."
 
 #: ../../user/admin.rst:193
 msgid "Enter *Content Database ID* for the desired channel from the content curation server."
-msgstr "Ingiza * ID ya kihifadhi data za maudhui * kwa njia inayotakiwa kutoka kwenye seva ya kuwakilisha yaliyomo."
+msgstr "Ingiza *ID ya kihifadhi data za maudhui* kwa njia inayotakiwa kutoka kwenye seva ya kuwakilisha yaliyomo."
 
 #: ../../user/admin.rst:194 ../../user/admin.rst:209
 msgid "Click **Import** button."
-msgstr "Bofya kitufe cha * * kuingiza * *"
+msgstr "Bofya kitufe cha **Kuingiza**."
 
 #: ../../user/admin.rst:195
 msgid "Wait for the content to be downloaded and appear under the **My Channels** heading."
-msgstr "Subiri kwa maudhui kupakuliwa na kuonekana chini ya kichwa cha habari cha * * njia yangu * *"
+msgstr "Subiri kwa maudhui kupakuliwa na kuonekana chini ya kichwa cha habari cha **njia yangu**."
 
 #: ../../user/admin.rst:205
 msgid "Import Content Channel from a Local Drive"
@@ -323,7 +323,7 @@ msgstr "Ingiza njia ya yaliyomo kutoka kwenye kiendeshi ndani"
 
 #: ../../user/admin.rst:207
 msgid "Choose option for *Local Drives*."
-msgstr "Chagua chaguo kwa * viendeshi ndani *."
+msgstr "Chagua chaguo kwa *viendeshi ndani*."
 
 #: ../../user/admin.rst:208
 msgid "Kolibri will automatically detect the drive(s) with available content files."
@@ -331,11 +331,11 @@ msgstr "Kolibri itatambua moja kwa moja kiendeshi chenye majalada ya maudhui yal
 
 #: ../../user/admin.rst:210
 msgid "Wait for the content to be imported and appear under the **My Channels** heading."
-msgstr "Subiri kwa maudhui kupakuliwa na kuonekana chini ya kichwa cha habari cha * * njia yangu * *"
+msgstr "Subiri kwa maudhui kupakuliwa na kuonekana chini ya kichwa cha habari cha **njia yangu**."
 
 #: ../../user/admin.rst:216
 msgid "If the local drive is not detected, try re-inserting the storage device (USB key or external hard disk) and pressing the button **Refresh**."
-msgstr "Kama kiendeshi ndani hakionekani, jaribu tena kuingiza kifaa uhifadhi (flashi diski au diski ya nje) na kubonyeza kitufe cha * * Onyesha upya * *."
+msgstr "Kama kiendeshi ndani hakionekani, jaribu tena kuingiza kifaa uhifadhi (flashi diski au diski ya nje) na kubonyeza kitufe cha **Onyesha upya**."
 
 #: ../../user/admin.rst:220
 msgid "Export from Kolibri to Local Drive"
@@ -343,15 +343,15 @@ msgstr "Hamisha kutoka Kolibri kwenye kiendeshi ndani"
 
 #: ../../user/admin.rst:222
 msgid "Click **Export** button in **My Channels** pane."
-msgstr "Bofya kitufe cha * * kuagiza * * katika kidirisha cha * * njia yangu* *"
+msgstr "Bofya kitufe cha **kuagiza** katika kidirisha cha **njia yangu**."
 
 #: ../../user/admin.rst:223
 msgid "Select the local drive where you wish to export **Kolibri** content."
-msgstr "Chagua kiendeshi ndani ambacho unataka kupeleka maudhui ya * * Kolibri * *"
+msgstr "Chagua kiendeshi ndani ambacho unataka kupeleka maudhui ya **Kolibri**."
 
 #: ../../user/admin.rst:224
 msgid "Click **Export** button."
-msgstr "Bofya kitufe cha * * kuagiza * *"
+msgstr "Bofya kitufe cha **Kuagiza**."
 
 #: ../../user/admin.rst:234
 msgid "Get support"
@@ -359,27 +359,27 @@ msgstr "Pata msaada"
 
 #: ../../user/admin.rst:236
 msgid "If you want to contact **Learning Equality** Support team to report an issue, or share your experience about using Kolibri, please register at our `Community Forums <https://community.learningequality.org/>`_."
-msgstr "Kama unataka kuwasiliana na timu ya msaada ya * * Learning Equality * * kuripoti suala, au kushiriki uzoefu wako kuhusu kutumia Kolibri, tafadhali jiandikishe katika 'Mabaraza yetu ya jamii <https://community.learningequality.org/ >'."
+msgstr "Kama unataka kuwasiliana na timu ya msaada ya **Learning Equality** kuripoti suala, au kushiriki uzoefu wako kuhusu kutumia Kolibri, tafadhali jiandikishe katika 'Mabaraza yetu ya jamii <https://community.learningequality.org/ >'."
 
 #: ../../user/admin.rst:238
 msgid "Once you register on our forums, please read the the first two pinned topics (*Welcome to LE’s Support Community* and *How do I post to this forum?* )"
-msgstr "Mara baada ya kujiandikisha kwenye mabaraza yetu, Tafadhali soma kwanzamada mbili za juu (* karibu kwenye jamii ya msaada ya LE * na * Je, ninawezaje kuposti kwenye jukwaa hili? *)"
+msgstr "Mara baada ya kujiandikisha kwenye mabaraza yetu, Tafadhali soma kwanzamada mbili za juu (*Karibu kwenye jamii ya msaada ya LE* na *Je, ninawezaje kuposti kwenye jukwaa hili?*)"
 
 #: ../../user/admin.rst:240
 msgid "You can add the new topic with the **+ New Topic** button on the right. Make sure to select the **Kolibri** category in the **Create a New Topic** window so it’s easier to classify and respond to."
-msgstr "Unaweza kuongeza mada mpya na kutufe cha * * + Mada mpya * * upande wa kulia. Hakikisha umechagua * * Kolibri * * katika dirisha la * * Kuunda mada mpya * * ili iwe ni rahisi kuainisha na kujibu."
+msgstr "Unaweza kuongeza mada mpya na kutufe cha **+ Mada mpya** upande wa kulia. Hakikisha umechagua **Kolibri** katika dirisha la **Kuunda mada mpya** ili iwe ni rahisi kuainisha na kujibu."
 
 #: ../../user/cli.rst:2
 msgid "The ``kolibri`` command"
-msgstr "Melekezo ya ' kolibri '"
+msgstr "Melekezo ya ``kolibri``"
 
 #: ../../user/cli.rst:4
 msgid "In addition to the docs displayed below, there are some special forms of the ``kolibri`` command:"
-msgstr "Pamoja na nyaraka zilizoonyeshwa chini, kuna aina fulani maalum ya maelekezo kwa ' kolibri ':"
+msgstr "Pamoja na nyaraka zilizoonyeshwa chini, kuna aina fulani maalum ya maelekezo kwa ``kolibri``:"
 
 #: ../../user/cli.rst:23
 msgid "The commands above reload the Python code on changes, but they do *not* run python tests."
-msgstr "Maelekezo juu yataleta upya msimbo wa Python kwenye mabadiliko, lakini * hawata * endesha majaribio ya Python."
+msgstr "Maelekezo juu yataleta upya msimbo wa Python kwenye mabadiliko, lakini *hawata* endesha majaribio ya Python."
 
 #: kolibri.utils.cli:2 of
 msgid "Kolibri Command Line Interface (CLI)"
@@ -387,7 +387,7 @@ msgstr "Muonekano usio na picha wa Kolibri (CLI)"
 
 #: kolibri.utils.cli:4 of
 msgid "Auto-generated usage instructions from ``kolibri -h``::"
-msgstr "Maelekezo yaliyotengenezwa na mashine kutoka 'kolibri -h '::"
+msgstr "Maelekezo yaliyotengenezwa na mashine kutoka ``kolibri -h``::"
 
 #: ../../user/index.rst:2
 msgid "User Guide"
@@ -403,23 +403,23 @@ msgstr "Kufikia Kolibri"
 
 #: ../../user/learner.rst:7
 msgid "To log in to **Kolibri** follow these steps:"
-msgstr "Kuingia * * Kolibri * * fuata hatua hizi:"
+msgstr "Kuingia **Kolibri** fuata hatua hizi:"
 
 #: ../../user/learner.rst:9
 msgid "Click the **Log In** icon in the main menu (left or bottom) to open the login window."
-msgstr "Bofya ikoni ya * * ingia * * katika Menyu kuu (kushoto au chini) kufungua dirisha la kuingia."
+msgstr "Bofya ikoni ya **Ingia** katika Menyu kuu (kushoto au chini) kufungua dirisha la kuingia."
 
 #: ../../user/learner.rst:10
 msgid "Type the username and password provided by Kolibri **Administrator** (or your your teacher/coach)."
-msgstr "Chapa jina la mtumiaji na nywila zinazotolewa na * * msimamizi * * Kolibri (au wewe ni mwalimu/kocha)."
+msgstr "Chapa jina la mtumiaji na nywila zinazotolewa na **Msimamizi** Kolibri (au wewe ni mwalimu/kocha)."
 
 #: ../../user/learner.rst:11
 msgid "Click the **Log In** button in the login window."
-msgstr "Bofya kitufe cha * * kuingia * * katika dirisha la kuingia."
+msgstr "Bofya kitufe cha **Kuingia** katika dirisha la kuingia."
 
 #: ../../user/learner.rst:16
 msgid "Once you have logged in into Kolibri, you can see your user data from the main menu option with your initial (below **Learn** and **Explore**)."
-msgstr "Mara baada ya kuingia katika Kolibri, unaweza kuona data yako ya mtumiaji kutoka chaguo la menyu kuu zikiwa na herufi za mwanzo za majina yako (chini * * kujifunza * * na * * kutafuta * *)."
+msgstr "Mara baada ya kuingia katika Kolibri, unaweza kuona data yako ya mtumiaji kutoka chaguo la menyu kuu zikiwa na herufi za mwanzo za majina yako (chini **Kujifunza** na **Kutafuta**)."
 
 #: ../../user/learner.rst:18
 msgid "To logout from Kolibri follow these steps:"
@@ -431,7 +431,7 @@ msgstr "Bofya ikoni yenye herufi za mwanzo za majina yako katika Menyu kuu."
 
 #: ../../user/learner.rst:21
 msgid "Select **Log Out** option."
-msgstr "Chagua chaguo la * * toka nje * *"
+msgstr "Chagua chaguo la **Toka Nje**."
 
 #: ../../user/learner.rst:27
 msgid "Using Kolibri"
@@ -443,11 +443,11 @@ msgstr "Njia"
 
 #: ../../user/learner.rst:32
 msgid "In **Kolibri** you can find content from different sources grouped in **Channels**. Depending on how your school and teachers or coaches decided to organize the content, you may have one or more **Channels** available. Follow the indications by your teachers or coaches on how to use the content from each available **Channel**."
-msgstr "Katika * * Kolibri * * unaweza kupata maudhui kutoka vyanzo vya makundi tofauti katika * * njia * *. Kutegemea jinsi shuleyako na waalimu au makocha waliamua kuandaa maudhui, unaweza kuwa na * * njia * * moja au zaidi inayotikana. Fuata maelekezo kutoka kwa waalimu wako au makocha juu ya jinsi ya kutumia maudhui kutoka kila * * njia * * inayopatikana."
+msgstr "Katika **Kolibri** unaweza kupata maudhui kutoka vyanzo vya makundi tofauti katika **Njia**. Kutegemea jinsi shuleyako na waalimu au makocha waliamua kuandaa maudhui, unaweza kuwa na **Njia** moja au zaidi inayotikana. Fuata maelekezo kutoka kwa waalimu wako au makocha juu ya jinsi ya kutumia maudhui kutoka kila **Njia** inayopatikana."
 
 #: ../../user/learner.rst:34
 msgid "To switch between **Channels** available to you, use the selector in the upper right corner of Kolibri."
-msgstr "Ili kubadili kati ya * * njia * * zinazopatikana kwako, tumia kichaguzi katika kona ya juu ya kulia ya Kolibri."
+msgstr "Ili kubadili kati ya **Njia** zinazopatikana kwako, tumia kichaguzi katika kona ya juu ya kulia ya Kolibri."
 
 #: ../../user/learner.rst:40
 msgid "Learn"
@@ -455,7 +455,7 @@ msgstr "Jifunze"
 
 #: ../../user/learner.rst:42
 msgid "Each time you login into **Kolibri**, the first thing you will see is the **Learn** page. Here you will find learning topics and materials related to what you were doing the last time you used Kolibri, or those recommended by your teachers and coaches."
-msgstr "Kila wakati unapoingia katika * * Kolibri * *, jambo la kwanza utaona ni ukurasa wa * * kujifunza * *. Hapa utapata kujifunza mada na zana kuhusiana na ulikuwa unafanya nini mara ya mwisho ulipotumia Kolibri, au zile zilizopendekezwa na walimu wako na makocha."
+msgstr "Kila wakati unapoingia katika **Kolibri**, jambo la kwanza utaona ni ukurasa wa **Kujifunza**. Hapa utapata kujifunza mada na zana kuhusiana na ulikuwa unafanya nini mara ya mwisho ulipotumia Kolibri, au zile zilizopendekezwa na walimu wako na makocha."
 
 #: ../../user/learner.rst:48
 msgid "Explore"
@@ -463,7 +463,7 @@ msgstr "Kuchunguza"
 
 #: ../../user/learner.rst:50
 msgid "**Explore** page offers you the option to navigate through the complete set of learning topics and materials available in **Kolibri**. Use it as you wish, or according to indications from your teachers and coaches."
-msgstr "* * Kuchunguza * * ukurasa unaotoa chaguo kuabiri kupitia Seti kamili ya kujifunza mada na nyenzo zinazopatikana katika * * Kolibri * *. Tumia kama unataka, au kwa mujibu wa dalili kutoka kwa walimu wako na makocha."
+msgstr "**Kuchunguza** ukurasa unaotoa chaguo kuabiri kupitia Seti kamili ya kujifunza mada na nyenzo zinazopatikana katika **Kolibri**. Tumia kama unataka, au kwa mujibu wa dalili kutoka kwa walimu wako na makocha."
 
 #: ../../user/learner.rst:56
 msgid "Navigate Kolibri content with breadcrumb links"
@@ -471,7 +471,7 @@ msgstr "Abiri maudhui ya Kolibri na viungo vunavyoonyeha upo wapi kwenye uabiri"
 
 #: ../../user/learner.rst:58
 msgid "**Breadcrumb** links indicate which group of **Kolibri** content you are viewing in each moment."
-msgstr "* * Breadcrumb * * viungo zinaonyesha ni kundi gani la maudhui ya * * Kolibri * * unaona katika kila muda."
+msgstr "* Breadcrumb** viungo zinaonyesha ni kundi gani la maudhui ya **Kolibri** unaona katika kila muda."
 
 #: ../../user/learner.rst:60
 msgid "To go back (up one level from where you are currently), click the next to last link in the breadcrumb."
@@ -483,7 +483,7 @@ msgstr "Tafuta"
 
 #: ../../user/learner.rst:68
 msgid "If you are looking for a specific subject, topic, or term, use the **Search** feature:"
-msgstr "Kama unangalia somo mahususi, mada, au neno, tumia kipengele cha * * utafutaji * *:"
+msgstr "Kama unangalia somo mahususi, mada, au neno, tumia kipengele cha **Utafutaji**:"
 
 #: ../../user/learner.rst:70
 msgid "Click the magnifying glass icon in the upper right corner."
@@ -495,7 +495,7 @@ msgstr "Charaza neno au mchanganyiko wa maneno unaouangalia katika uga wa utafut
 
 #: ../../user/learner.rst:72
 msgid "Press **Enter** to display search results below the field."
-msgstr "Bonyeza * * Enter * * kuangazisha matokeo ya utafutizi chini ya eneo."
+msgstr "Bonyeza **Ingiza** kuangazisha matokeo ya utafutizi chini ya eneo."
 
 #: ../../user/learner.rst:78
 msgid "Video Player options"
@@ -503,7 +503,7 @@ msgstr "Machaguo ya kichezeshaji video"
 
 #: ../../user/learner.rst:80
 msgid "To play videos in **Kolibri** you have several available control buttons at the bottom of the video player screen. Move the cursor or tap on the video player screen to make appear the control buttons while playing the video."
-msgstr "Kucheza video katika * * Kolibri * * una vitufe kadhaa vya udhibiti vinapatikana chini ya kiwamba cha kichezaji cha video. Sogeza kielekezi au gusa kwenye kiwamba cha kichezaji cha video kufanya vitufe vya udhibiti vionekane wakati unacheza video."
+msgstr "Kucheza video katika **Kolibri** una vitufe kadhaa vya udhibiti vinapatikana chini ya kiwamba cha kichezaji cha video. Sogeza kielekezi au gusa kwenye kiwamba cha kichezaji cha video kufanya vitufe vya udhibiti vionekane wakati unacheza video."
 
 #: ../../user/learner.rst:85
 msgid "(controls at the bottom of video player)"
@@ -515,7 +515,7 @@ msgstr "Vitufe vya Cheza/Sitisha"
 
 #: ../../user/learner.rst:88
 msgid "Rewind/Fast forward buttons by +/- 10 seconds"
-msgstr "Vutufe vya kurudisha nyuma/kupeleka mbele kwa + /-sekunde 10"
+msgstr "Vutufe vya kurudisha nyuma/kupeleka mbele kwa +/- sekunde 10"
 
 #: ../../user/learner.rst:89 ../../user/learner.rst:106
 msgid "Time tracker indicator with scrollbar"
@@ -543,7 +543,7 @@ msgstr "Kitufe cha skrini nzima"
 
 #: ../../user/learner.rst:97
 msgid "Use the **Download Media** button below the video player to download the video file to your computer."
-msgstr "Tumia kitufe cha * * kupakua data * * chini ya kichezaji cha video kupakua faili ya video kwenye kompyuta yako."
+msgstr "Tumia kitufe cha **Kupakua Data** chini ya kichezaji cha video kupakua faili ya video kwenye kompyuta yako."
 
 #: ../../user/learner.rst:101
 msgid "Audio Player options"
@@ -551,7 +551,7 @@ msgstr "Machaguo ya kichezaji sikizi"
 
 #: ../../user/learner.rst:103
 msgid "To play audio files in **Kolibri** you have available several control buttons:"
-msgstr "Kucheza Faili Sikizi katika * * Kolibri * * una vitufe kadhaa vilivyoko kwa udhibiti:"
+msgstr "Kucheza Faili Sikizi katika **Kolibri** una vitufe kadhaa vilivyoko kwa udhibiti:"
 
 #: ../../user/learner.rst:105
 msgid "Play/Pause"
@@ -567,11 +567,11 @@ msgstr "Cheza tena"
 
 #: ../../user/learner.rst:109
 msgid "Rewind/Fast forward buttons by +/- 20 seconds"
-msgstr "Vutufe vya kurudisha nyuma/kupeleka mbele kwa + /-sekunde 20"
+msgstr "Vutufe vya kurudisha nyuma/kupeleka mbele kwa +/- sekunde 20"
 
 #: ../../user/learner.rst:114
 msgid "Use the **Download Media** button below the audio player to download the audio file to your computer."
-msgstr "Tumia kitufe cha * * kupakua data * * chini ya kichezaji cha video kupakua faili sikizi kwenye kompyuta yako."
+msgstr "Tumia kitufe cha **Kupakua Data** chini ya kichezaji cha video kupakua faili sikizi kwenye kompyuta yako."
 
 #: ../../user/learner.rst:118
 msgid "PDF Viewer options"
@@ -579,17 +579,17 @@ msgstr "Chaguo za PDF Viewer"
 
 #: ../../user/learner.rst:121
 msgid "Options for viewing PDF files will depend on the browser you are using to view **Kolibri**."
-msgstr "Machaguo ya kuonesha faili za PDF itategemea kivinjari unatumia kuonesha * * Kolibri * *."
+msgstr "Machaguo ya kuonesha faili za PDF itategemea kivinjari unatumia kuonesha **Kolibri**."
 
 #: ../../user/learner.rst:123
 msgid "Use the **Toggle Fullscreen** button to open the PDF file in fullscreen view."
-msgstr "Tumia kitufe cha * * Toggle Skrini nzima * * kufungua faili la PDF lililopo katika mwonekano wa skrini nzima."
+msgstr "Tumia kitufe cha **Toggle Skrini nzima** kufungua faili la PDF lililopo katika mwonekano wa skrini nzima."
 
 #: ../../user/learner.rst:124
 msgid "Use the **Esc** button to close the fullscreen view and return."
-msgstr "Tumia kitufe cha * * Esc * * kufunga muonekano wa skrini nzima na kurudi."
+msgstr "Tumia kitufe cha **Esc** kufunga muonekano wa skrini nzima na kurudi."
 
 #: ../../user/learner.rst:129
 msgid "Use the **Download Media** button below the PDF viewer to download the PDF file to your computer."
-msgstr "Tumia kitufe cha * * kupakua data * * chini ya PDF Viewer kupakua faili la PDF kwenye kompyuta yako."
+msgstr "Tumia kitufe cha **Kupakua Data** chini ya PDF Viewer kupakua faili la PDF kwenye kompyuta yako."
 

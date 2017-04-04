@@ -26,7 +26,7 @@ function _contentSummaryLoggingState(data) {
     start_timestamp: data.start_timestamp,
     completion_timestamp: data.completion_timestamp,
     end_timestamp: data.end_timestamp,
-    progress: data.progress,
+    progress: data.progress || 0,
     time_spent: data.time_spent,
     extra_fields: data.extra_fields,
     time_spent_before_current_session: data.time_spent,
@@ -44,7 +44,7 @@ function _contentSessionLoggingState(data) {
     time_spent: data.time_spent,
     extra_fields: data.extra_fields,
     total_time_at_last_save: data.time_spent,
-    progress: data.progress,
+    progress: data.progress || 0,
     progress_at_last_save: data.progress,
   };
   return state;
@@ -58,7 +58,7 @@ function _contentSummaryModel(store) {
     start_timestamp: summaryLog.start_timestamp,
     end_timestamp: summaryLog.end_timestamp,
     completion_timestamp: summaryLog.completion_timestamp,
-    progress: summaryLog.progress,
+    progress: summaryLog.progress || 0,
     time_spent: summaryLog.time_spent,
     extra_fields: summaryLog.extra_fields,
   };
@@ -72,7 +72,7 @@ function _contentSessionModel(store) {
     start_timestamp: sessionLog.start_timestamp,
     end_timestamp: sessionLog.end_timestamp,
     time_spent: sessionLog.time_spent,
-    progress: sessionLog.progress,
+    progress: sessionLog.progress || 0,
     extra_fields: sessionLog.extra_fields,
   };
   if (store.state.core.session.kind[0] !== UserKinds.SUPERUSER) {
@@ -167,7 +167,7 @@ function kolibriLogin(store, sessionPayload) {
   const SessionResource = coreApp.resources.SessionResource;
   const sessionModel = SessionResource.createModel(sessionPayload);
   const sessionPromise = sessionModel.save(sessionPayload);
-  sessionPromise.then((session) => {
+  return sessionPromise.then((session) => {
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
     /* Very hacky solution to redirect an admin or superuser to Manage tab on login*/
     if (session.kind[0] === UserKinds.SUPERUSER || session.kind[0] === UserKinds.ADMIN) {
@@ -187,15 +187,14 @@ function kolibriLogin(store, sessionPayload) {
 
 function kolibriLogout(store) {
   const coreApp = require('kolibri');
-  const SessionResource = coreApp.resources.SessionResource;
-  const id = 'current';
-  const sessionModel = SessionResource.getModel(id);
+  const { SessionResource, clearCaches } = coreApp.resources;
+  const sessionModel = SessionResource.getModel('current');
   const logoutPromise = sessionModel.delete();
-  logoutPromise.then((response) => {
+  return logoutPromise.then((response) => {
     store.dispatch('CORE_CLEAR_SESSION');
     /* Very hacky solution to redirect a user back to Learn tab on logout*/
     window.location.href = window.location.origin;
-    coreApp.resources.clearCaches();
+    clearCaches();
   }).catch(error => { handleApiError(store, error); });
 }
 

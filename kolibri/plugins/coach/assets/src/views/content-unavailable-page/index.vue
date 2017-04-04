@@ -17,11 +17,11 @@
   const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
 
   module.exports = {
-    $trNameSpace: 'learnContentUnavailable',
+    $trNameSpace: 'coachContentUnavailable',
     $trs: {
       header: 'Coach reports unavailable',
       description: 'No channels exist',
-      adminInstructions: 'Download channels from the <a href="/management/#/content">content management page</a>', // eslint-disable-line max-len
+      adminInstructions: 'Download channels from the <a href="/management/#/content">content management page</a>',
       nonAdminInstructions: 'You need to log in as an administrator to download channels',
     },
     vuex: {

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-08 17:35+0000\n"
-"PO-Revision-Date: 2017-03-16 17:16-0400\n"
+"POT-Creation-Date: 2017-03-02 23:01+0000\n"
+"PO-Revision-Date: 2017-03-31 03:03-0400\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Portuguese\n"
 "MIME-Version: 1.0\n"
@@ -107,6 +107,39 @@ msgstr ""
 
 #: kolibri.content.models.ChannelMetadata:1 of
 msgid "This class stores the channel metadata within the content database itself."
+msgstr ""
+
+#: kolibri.auth.models.AbstractFacilityDataModel kolibri.auth.models.Classroom
+#: kolibri.auth.models.Collection kolibri.auth.models.Collection.add_member
+#: kolibri.auth.models.Collection.add_role
+#: kolibri.auth.models.Collection.remove_member
+#: kolibri.auth.models.Collection.remove_role kolibri.auth.models.DeviceOwner
+#: kolibri.auth.models.Facility kolibri.auth.models.FacilityDataset
+#: kolibri.auth.models.FacilityUser kolibri.auth.models.KolibriAbstractBaseUser
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_create
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_create_instance
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_delete
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_read
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_update
+#: kolibri.auth.models.KolibriAbstractBaseUser.filter_readable
+#: kolibri.auth.models.KolibriAbstractBaseUser.get_roles_for_collection
+#: kolibri.auth.models.KolibriAbstractBaseUser.get_roles_for_user
+#: kolibri.auth.models.KolibriAbstractBaseUser.has_role_for_collection
+#: kolibri.auth.models.KolibriAbstractBaseUser.has_role_for_user
+#: kolibri.auth.models.KolibriAbstractBaseUser.is_member_of
+#: kolibri.auth.models.KolibriAnonymousUser kolibri.auth.models.LearnerGroup
+#: kolibri.auth.models.Membership kolibri.auth.models.Role
+#: kolibri.content.models.ChannelMetadata
+#: kolibri.content.models.ChannelMetadataAbstractBase
+#: kolibri.content.models.ChannelMetadataCache
+#: kolibri.content.models.ContentNode kolibri.content.models.ContentTag
+#: kolibri.content.models.File kolibri.content.models.Language
+#: kolibri.content.models.License kolibri.logger.models.AttemptLog
+#: kolibri.logger.models.ContentRatingLog
+#: kolibri.logger.models.ContentSessionLog
+#: kolibri.logger.models.ContentSummaryLog kolibri.logger.models.MasteryLog
+#: kolibri.logger.models.UserSessionLog of
+msgid "Parameters"
 msgstr ""
 
 #: kolibri.auth.models.Classroom:1 kolibri.auth.models.Collection:6
@@ -2718,6 +2751,27 @@ msgstr ""
 msgid "Gets the ``Classroom``'s parent ``Facility``."
 msgstr ""
 
+#: kolibri.auth.models.Classroom.get_facility
+#: kolibri.auth.models.Classroom.get_learner_groups
+#: kolibri.auth.models.Collection.add_member
+#: kolibri.auth.models.Collection.add_role
+#: kolibri.auth.models.Collection.remove_member
+#: kolibri.auth.models.Facility.get_classrooms
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_create
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_create_instance
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_delete
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_read
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_update
+#: kolibri.auth.models.KolibriAbstractBaseUser.filter_readable
+#: kolibri.auth.models.KolibriAbstractBaseUser.get_roles_for_collection
+#: kolibri.auth.models.KolibriAbstractBaseUser.get_roles_for_user
+#: kolibri.auth.models.KolibriAbstractBaseUser.has_role_for_collection
+#: kolibri.auth.models.KolibriAbstractBaseUser.has_role_for_user
+#: kolibri.auth.models.KolibriAbstractBaseUser.is_member_of
+#: kolibri.auth.models.LearnerGroup.get_classroom of
+msgid "Returns"
+msgstr ""
+
 #: kolibri.auth.models.Classroom.get_facility:3 of
 msgid "A ``Facility`` instance."
 msgstr ""
@@ -2899,6 +2953,19 @@ msgstr ""
 
 #: kolibri.auth.models.KolibriAbstractBaseUser.can_create:7 of
 msgid "``True`` if this user should have permission to create an instance of Model with the specified data, else ``False``."
+msgstr ""
+
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_create
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_create_instance
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_delete
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_read
+#: kolibri.auth.models.KolibriAbstractBaseUser.can_update
+#: kolibri.auth.models.KolibriAbstractBaseUser.get_roles_for_collection
+#: kolibri.auth.models.KolibriAbstractBaseUser.get_roles_for_user
+#: kolibri.auth.models.KolibriAbstractBaseUser.has_role_for_collection
+#: kolibri.auth.models.KolibriAbstractBaseUser.has_role_for_user
+#: kolibri.auth.models.KolibriAbstractBaseUser.is_member_of of
+msgid "Return type"
 msgstr ""
 
 #: kolibri.auth.models.KolibriAbstractBaseUser.can_create_instance:1 of
@@ -3536,13 +3603,4 @@ msgstr ""
 #: ../../dev/user_management.rst:133
 msgid "**Roadmap:** Jessica has begun designing this. See `the invision prototype. <https://projects.invisionapp.com/share/YJ75P75QH>`_"
 msgstr ""
-
-#~ msgid ""
-#~ msgstr ""
-
-#~ msgid "Allow signups"
-#~ msgstr ""
-
-#~ msgid "Required. 30 characters or fewer. Letters and digits only."
-#~ msgstr ""
 

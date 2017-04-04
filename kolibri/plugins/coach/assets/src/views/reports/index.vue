@@ -117,7 +117,7 @@
   const logging = require('kolibri.lib.logging');
 
   module.exports = {
-    $trNameSpace: 'report-page',
+    $trNameSpace: 'reportPage',
     $trs: {
       'name': 'Name',
       'avg-exercise-progress': 'Avg. exercise progress',

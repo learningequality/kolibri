@@ -44,12 +44,12 @@
     $trs: {
       header: 'Create device owner and facility',
       deviceOwner: 'Device owner',
-      deviceOwnerDescription: 'To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts', // eslint-disable-line max-len
+      deviceOwnerDescription: 'To use Kolibri, you first need to create a Device Owner. This account will be used to configure high-level settings for this installation, and create other administrator accounts',
       username: 'Username',
       password: 'Password',
       confirmPassword: 'Confirm password',
       facility: 'Facility',
-      facilityDescription: 'You also need to create a Facility. This represents your school, training center, or other installation location', // eslint-disable-line max-len
+      facilityDescription: 'You also need to create a Facility. This represents your school, training center, or other installation location',
       facilityName: 'Facility name',
       getStarted: 'Create and get started',
     },

@@ -11,7 +11,7 @@
 <script>
 
   module.exports = {
-    $trNameSpace: 'date-cell',
+    $trNameSpace: 'dateCell',
     $trs: {
       date: '{0, date, medium}',
     },
