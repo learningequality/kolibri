@@ -9,7 +9,9 @@ kolibri.resources.RoleResource = { createModel: () => {} };
 const addCoachRoleAction = require('../../src/state/addCoachRoleAction').default;
 
 describe('addCoachRoleAction', () => {
-  const storeMock = { dispatch: sinon.spy() };
+  const storeMock = {
+    dispatch: sinon.spy(),
+    state: { core: { pageId: '1' } } };
   const createUserModelStub = sinon.stub(kolibri.resources.RoleResource, 'createModel');
 
   afterEach(() => {
@@ -29,8 +31,8 @@ describe('addCoachRoleAction', () => {
         newRole: 'coach',
         userId: '5000',
       });
-    })
-    .then(done, done);
+      done();
+    });
   });
 
   it('handles when saving Role fails', (done) => {
@@ -38,7 +40,7 @@ describe('addCoachRoleAction', () => {
       save: () => Promise.reject({ entity: 'save error' })
     });
     addCoachRoleAction(storeMock, { classId: '1', userId: '5000' })
-    .then(() => {
+    .catch(() => {
       assert.deepEqual(storeMock.dispatch.getCall(0).args[1], {
         newRole: 'coach',
         userId: '5000',
@@ -50,7 +52,7 @@ describe('addCoachRoleAction', () => {
       assert.deepEqual(storeMock.dispatch.getCall(2).args, [
         'CORE_SET_ERROR', '"save error"',
       ]);
-    })
-    .then(done, done);
+      done();
+    });
   });
 });

@@ -1,6 +1,8 @@
 /* eslint-disable prefer-arrow-callback */
 const { RoleResource } = require('kolibri').resources;
 const { COACH, LEARNER } = require('kolibri.coreVue.vuex.constants').UserKinds;
+const ConditionalPromise = require('kolibri.lib.conditionalPromise');
+const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
 
 exports.dispatchError = function dispatchError(store, err) {
   return store.dispatch('CORE_SET_ERROR', JSON.stringify(err.entity || err.message));
@@ -40,18 +42,18 @@ exports.default = function addCoachRoleAction(store, payload) {
   const newRole = COACH;
   exports.dispatchRoleChange(store, { newRole, userId });
   return (
-    addRoleToUserInCollection({
-      collectionId: classId,
-      newRole,
-      userId,
-    })
-    .then(function onSuccess() {
-    })
-    .catch(function onFailure(err) {
-      if (err) {
-        exports.dispatchRoleChange(store, { newRole: LEARNER, userId });
-        exports.dispatchError(store, err);
+    ConditionalPromise.all([
+      addRoleToUserInCollection({ collectionId: classId, newRole, userId }),
+    ])
+    .only(
+      samePageCheckGenerator(store),
+      function onSuccess() {},
+      function onFailure(err) {
+        if (err) {
+          exports.dispatchRoleChange(store, { newRole: LEARNER, userId });
+          exports.dispatchError(store, err);
+        }
       }
-    })
+    )
   );
 };
