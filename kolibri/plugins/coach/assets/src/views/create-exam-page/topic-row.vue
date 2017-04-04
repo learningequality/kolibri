@@ -5,7 +5,7 @@
       <content-icon :kind="topic"/>
     </td>
     <td class="col-title">
-      <span class="title" @click="$emit('enterTopic', topicId)">{{ topicTitle }}</span>
+      <span class="title" @click="$emit('goToTopic', topicId)">{{ topicTitle }}</span>
     </td>
     <td class="col-add">
       <icon-button :text="$tr('exercises')" :primary="true" @click="$emit('addTopicExercises', topicId)">

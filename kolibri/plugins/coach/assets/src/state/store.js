@@ -64,7 +64,7 @@ const mutations = {
     state.pageState.groups = groups;
   },
 
-  SET_TOPICS(state, topic) {
+  SET_TOPIC(state, topic) {
     state.pageState.topic = topic;
   },
 
@@ -72,7 +72,7 @@ const mutations = {
     state.pageState.subtopics = subtopics;
   },
 
-  SET_CONTENTS(state, contents) {
+  SET_EXERCISES(state, contents) {
     state.pageState.contents = contents;
   },
   SET_FETCHING(state, fetching) {

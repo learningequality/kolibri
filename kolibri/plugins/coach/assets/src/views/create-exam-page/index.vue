@@ -35,7 +35,9 @@
       search results
     </div>
     <div v-else>
-      <div><span v-for="item in breadcrumbs" class="breadcrumb-item">{{ item.title }}</span></div>
+      <div>
+        <ul><li v-for="topic in breadcrumbs" @click="handleGoToTopic(topic.id)">{{ topic.title }}</li></ul>
+      </div>
 
       <div>
         <table>
@@ -46,18 +48,21 @@
               <th class="col-add"></th>
             </tr>
           </thead>
-          <tbody v-if="!fetching">
+          <tbody v-if="!loading">
             <topic-row
               v-for="topic in subtopics"
               :topicId="topic.id"
               :topicTitle="topic.title"
-              @enterTopic="handleEnterTopic"
+              @goToTopic="handleGoToTopic"
               @addTopicExercises="handleAddTopicExercises"/>
             <exercise-row
               v-for="exercise in exercises"
               :exerciseId="exercise.id"
               :exerciseTitle="exercise.title"
               @addExercise="handleAddExercise"/>
+          </tbody>
+          <tbody v-else>
+            LOADING...
           </tbody>
         </table>
       </div>
@@ -103,6 +108,7 @@
         validateTitle: false,
         validateNum: false,
         searchInput: '',
+        loading: false,
       };
     },
     components: {
@@ -120,13 +126,20 @@
         return this.validateNum ?
           (this.inputNumQuestions < 1) || (this.inputNumQuestions > 50) : false;
       },
-      exercises() {
-        return this.contents;
-      },
     },
     methods: {
-      handleEnterTopic(topicId) {
-        this.fetchContent(this.currentChannel.id, topicId);
+      handleGoToTopic(topicId) {
+        console.log('before fetch: ', this.topic, this.subtopics);
+        this.loading = true;
+        this.fetchContent(this.currentChannel.id, topicId).then(
+          () => {
+            console.log('after fetch: ', this.topic, this.subtopics);
+            this.loading = false;
+          },
+          error => {
+            console.log(error);
+          }
+        );
       },
       handleAddTopicExercises(topicId) {
         console.log('handleAddTopicExercises', topicId);
@@ -145,10 +158,10 @@
       getters: {
         currentClass: state => state.pageState.currentClass,
         currentChannel: state => state.pageState.currentChannel,
+        topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
-        contents: state => state.pageState.contents,
+        exercises: state => state.pageState.exercises,
         breadcrumbs: state => state.pageState.topic.breadcrumbs,
-        fetching: state => state.pageState.fetching,
       },
       actions: {
         fetchContent: ExamActions.fetchContent,
@@ -161,13 +174,29 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
   .footer
     text-align: center
+
     button
       margin: auto
       margin-bottom: 1em
 
-  .breadcrumb-item::after
-    content: '>'
+  ul
+    padding: 0.5em
+
+  li
+    display: inline-block
+    text-decoration: underline
+    color: $core-action-normal
+    cursor: pointer
+
+    &:after
+      content: '>'
+      padding-right: 0.5em
+      padding-left: 0.5em
+      text-decoration: none
+      color: $core-text-default
 
 </style>
