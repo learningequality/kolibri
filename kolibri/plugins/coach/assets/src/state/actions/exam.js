@@ -2,6 +2,7 @@ const CoreApp = require('kolibri');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const CoreActions = require('kolibri.coreVue.vuex.actions');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
+const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
 const Constants = require('../../constants');
 
 const ClassroomResource = CoreApp.resources.ClassroomResource;
@@ -162,14 +163,17 @@ function showCreateExamPage(store, classId, channelId) {
       const channelRootPk = currentChannel.rootPk;
 
       const topicPromise = ContentNodeResource.getModel(channelRootPk, channelPayload).fetch();
-      const childrenPromise = ContentNodeResource.getCollection(
-        channelPayload, { parent: channelRootPk }).fetch();
+      const childrenTopicsPromise = ContentNodeResource.getCollection(
+        channelPayload, { parent: channelRootPk, kind: ContentNodeKinds.TOPIC }).fetch();
+      const childrenExercisesPromise = ContentNodeResource.getCollection(
+        channelPayload, { parent: channelRootPk, kind: ContentNodeKinds.EXERCISE }).fetch();
 
-      ConditionalPromise.all([topicPromise, childrenPromise]).only(
+      ConditionalPromise.all([topicPromise, childrenTopicsPromise, childrenExercisesPromise]).only(
         CoreActions.samePageCheckGenerator(store),
-        ([topicModel, childrenCollection]) => {
+        ([topicModel, childrenTopicsCollection, childrenExercisesCollection]) => {
           const topic = _topicState(topicModel);
-          const collection = _collectionState(childrenCollection);
+          const collection = _collectionState(
+            childrenTopicsCollection.concat(childrenExercisesCollection));
           const subtopics = collection.topics;
           const contents = collection.contents;
 
@@ -179,6 +183,7 @@ function showCreateExamPage(store, classId, channelId) {
             topic,
             subtopics,
             contents,
+            fetching: false,
             modalShown: false,
           };
 
@@ -199,23 +204,26 @@ function showCreateExamPage(store, classId, channelId) {
 }
 
 function fetchContent(store, channelId, topicId) {
-  // store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_FETCHING', true);
   const channelPayload = { channel_id: channelId };
   const topicPromise = ContentNodeResource.getModel(topicId, channelPayload).fetch();
-  const childrenPromise = ContentNodeResource.getCollection(
-    channelPayload, { parent: topicId }).fetch();
+  const childrenTopicsPromise = ContentNodeResource.getCollection(
+    channelPayload, { parent: topicId, kind: ContentNodeKinds.TOPIC }).fetch();
+  const childrenExercisesPromise = ContentNodeResource.getCollection(
+    channelPayload, { parent: topicId, kind: ContentNodeKinds.EXERCISE }).fetch();
 
-  ConditionalPromise.all([topicPromise, childrenPromise]).only(
+  ConditionalPromise.all([topicPromise, childrenTopicsPromise, childrenExercisesPromise]).only(
     CoreActions.samePageCheckGenerator(store),
-    ([topicModel, childrenCollection]) => {
+    ([topicModel, childrenTopicsCollection, childrenExercisesCollection]) => {
       const topics = _topicState(topicModel);
-      const collection = _collectionState(childrenCollection);
+      const collection = _collectionState(
+        childrenTopicsCollection.concat(childrenExercisesCollection));
       const subtopics = collection.topics;
       const contents = collection.contents;
       store.dispatch('SET_TOPICS', topics);
       store.dispatch('SET_SUBTOPICS', subtopics);
       store.dispatch('SET_CONTENTS', contents);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('SET_FETCHING', false);
     },
     error => {
       CoreActions.handleError(store, error);

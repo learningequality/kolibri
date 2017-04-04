@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('createNewExam') }}</h1>
+    <h1>{{ `${$tr('createNewExam')} ${currentChannel.name}` }}</h1>
     <textbox
       :label="$tr('title')"
       :ariaLabel="$tr('title')"
@@ -46,7 +46,7 @@
               <th class="col-add"></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody v-if="!fetching">
             <topic-row
               v-for="topic in subtopics"
               :topicId="topic.id"
@@ -79,13 +79,12 @@
 
 <script>
 
-  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
   const ExamActions = require('../../state/actions/exam');
 
   module.exports = {
     $trNameSpace: 'createExamPage',
     $trs: {
-      createNewExam: 'Create a new exam',
+      createNewExam: 'Create a new exam from',
       title: 'Title',
       enterTitle: 'Enter a title',
       numQuestions: 'Number of questions',
@@ -122,7 +121,7 @@
           (this.inputNumQuestions < 1) || (this.inputNumQuestions > 50) : false;
       },
       exercises() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.EXERCISE);
+        return this.contents;
       },
     },
     methods: {
@@ -149,6 +148,7 @@
         subtopics: state => state.pageState.subtopics,
         contents: state => state.pageState.contents,
         breadcrumbs: state => state.pageState.topic.breadcrumbs,
+        fetching: state => state.pageState.fetching,
       },
       actions: {
         fetchContent: ExamActions.fetchContent,

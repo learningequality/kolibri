@@ -75,6 +75,9 @@ const mutations = {
   SET_CONTENTS(state, contents) {
     state.pageState.contents = contents;
   },
+  SET_FETCHING(state, fetching) {
+    state.pageState.fetching = fetching;
+  },
 };
 
 // assigns core state and mutations
