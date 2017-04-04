@@ -33,26 +33,26 @@ describe('ResourceManager', function () {
     });
   });
   describe('registerResource method', function () {
-    it('should throw a TypeError if no className is passed', function () {
-      assert.throws(this.resourceManager.registerResource, TypeError);
+    it('should throw a "must specify a className" Error if none is passed', function () {
+      assert.throws(this.resourceManager.registerResource, /className/);
     });
-    it('should throw a TypeError if no ResourceClass is passed', function () {
-      assert.throws(() => this.resourceManager.registerResource(this.mockName), TypeError);
+    it('should throw a "must specify ResourceClass" Error if none is passed', function () {
+      assert.throws(() => this.resourceManager.registerResource(this.mockName), /ResourceClass/);
     });
-    it('should throw a TypeError if the ResourceClass does not have a name', function () {
+    it('should throw a "must have [...] resource name" Error if ResourceClass does not one', function () {
       const mockClass = {
         resourceName: sinon.spy(),
       };
       assert.throws(() => this.resourceManager.registerResource(this.mockName, mockClass),
-        TypeError);
+        /resource name/);
     });
-    it('should throw a TypeError if the resource name is already registered', function () {
-      const mockClass = {
-        resourceName: sinon.stub().returns(this.mockClassName),
-      };
-      this.resourceManager._resources.test = {};
-      assert.throws(() => this.resourceManager.registerResource(this.mockName, mockClass),
-        TypeError);
+    it('should throw a "already been registered" Error if the resource name is already registered', function () {
+      function mockClass() {}
+      mockClass.resourceName = () => this.mockClassName;
+      // try to register the resource twice
+      const register = () => this.resourceManager.registerResource(this.mockName, mockClass);
+      register();
+      assert.throws(register, /been registered/);
     });
     describe('when successfully registering', function () {
       beforeEach(function () {

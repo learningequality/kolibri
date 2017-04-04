@@ -65,8 +65,7 @@ oriented data synchronization.
   module.exports = {
     $trNameSpace: 'assessmentWrapper',
     $trs: {
-      goal: 'Try to get {count, number, integer} ' +
-        '{count, plural, one {check mark} other {check marks}} to show up',
+      goal: 'Try to get {count, number, integer} {count, plural, one {check mark} other {check marks}} to show up',
       tryAgain: 'Try again!',
       check: 'Check answer',
       correct: 'Next question',

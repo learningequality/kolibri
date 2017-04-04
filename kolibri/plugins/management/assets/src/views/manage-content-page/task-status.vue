@@ -26,8 +26,7 @@
       buttonClose: 'Close',
       buttonCancel: 'Cancel',
       failed: 'Please try again',
-      failedMsg: 'The transfer did not succeed.' +
-        ' Restart it to resume transferring the remaining content',
+      failedMsg: 'The transfer did not succeed. Restart it to resume transferring the remaining content',
       completed: `Finished!`,
       loading: 'Please wait…',
       remoteImport: 'Importing from curation server',
