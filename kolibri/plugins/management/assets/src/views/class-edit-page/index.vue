@@ -331,6 +331,7 @@
     height: 1.5rem
     margin: 5px 0
     vertical-align: middle
+    white-space: nowrap
 
   .searchbar .icon
     display: inline-block
