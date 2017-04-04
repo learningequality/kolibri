@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <sub> {{$tr('subHeading')}} </sub>
     <div v-if="reports.length" class="table-wrapper">
       <table class="report-list">
         <thead>
@@ -37,6 +38,7 @@
     name: 'reportList',
     $trNameSpace: 'coachRecentReports',
     $trs: {
+      subHeading: 'Showing recent activity in past 7 days',
       name: 'Name',
       progress: 'Progress',
       noRecentProgress: 'No recent progress',
