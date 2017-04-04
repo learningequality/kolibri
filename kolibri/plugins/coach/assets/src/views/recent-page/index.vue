@@ -1,8 +1,6 @@
 <template>
 
   <div>
-    <work-in-progress />
-    <!--
     <h1>{{ $tr('title') }}</h1>
     <div v-if="pageState.channelId">
       <report-list :reports="pageState.reports" />
@@ -10,7 +8,6 @@
     <div v-else>
       <channel-list />
     </div>
-    -->
   </div>
 
 </template>
@@ -26,7 +23,6 @@
     components: {
       'channel-list': require('./channel-list'),
       'report-list': require('./report-list'),
-      'work-in-progress': require('../work-in-progress'),
     },
     vuex: {
       getters: {
