@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 const kolibri = require('kolibri');
 const sinon = require('sinon');
+const assert = require('assert');
 
 // need to mock all this stuff before loading the module
 kolibri.resources.RoleResource = { createModel: () => {} };
@@ -38,8 +39,17 @@ describe('addCoachRoleAction', () => {
     });
     addCoachRoleAction(storeMock, { classId: '1', userId: '5000' })
     .then(() => {
-      sinon.assert.calledOnce(storeMock.dispatch);
-      sinon.assert.calledWith(storeMock.dispatch, 'CORE_SET_ERROR', '"save error"');
+      assert.deepEqual(storeMock.dispatch.getCall(0).args[1], {
+        newRole: 'coach',
+        userId: '5000',
+      });
+      assert.deepEqual(storeMock.dispatch.getCall(1).args[1], {
+        newRole: 'learner',
+        userId: '5000',
+      });
+      assert.deepEqual(storeMock.dispatch.getCall(2).args, [
+        'CORE_SET_ERROR', '"save error"',
+      ]);
     })
     .then(done, done);
   });

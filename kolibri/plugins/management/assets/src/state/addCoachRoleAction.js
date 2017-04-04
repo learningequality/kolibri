@@ -41,6 +41,7 @@ function addRoleToUserInCollection(payload) {
 export default function addCoachRoleAction(store, payload) {
   const { classId, userId } = payload;
   const newRole = COACH;
+  exports.dispatchRoleChange(store, { newRole, userId });
   return (
     addRoleToUserInCollection({
       collectionId: classId,
@@ -48,10 +49,12 @@ export default function addCoachRoleAction(store, payload) {
       userId,
     })
     .then(function onSuccess() {
-      dispatchRoleChange(store, { newRole, userId });
     })
     .catch(function onFailure(err) {
-      dispatchError(store, err);
+      if (err) {
+        exports.dispatchRoleChange(store, { newRole: LEARNER, userId });
+        exports.dispatchError(store, err);
+      }
     })
   );
 }
