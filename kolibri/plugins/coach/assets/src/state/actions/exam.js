@@ -161,10 +161,7 @@ function fetchContent(store, channelId, topicId) {
         const topic = _topicState(topicModel);
         const subtopics = _topicsState(subtopicsCollection);
         const exercises = _exercisesState(exercisesCollection);
-        store.dispatch('SET_TOPIC', topic);
-        store.dispatch('SET_SUBTOPICS', subtopics);
-        store.dispatch('SET_EXERCISES', exercises);
-        resolve();
+        resolve({ topic, subtopics, exercises });
       },
       error => reject(error)
     );
@@ -185,17 +182,20 @@ function showCreateExamPage(store, classId, channelId) {
       const currentChannel = _channelState(
         channelsCollection.find(channel => channel.id === channelId));
 
-      const pageState = {
-        currentClass,
-        currentChannel,
-        modalShown: false,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
 
       const fetchContentPromise = fetchContent(store, channelId, currentChannel.rootPk);
       ConditionalPromise.all([fetchContentPromise]).only(
         CoreActions.samePageCheckGenerator(store),
-        () => {
+        ([content]) => {
+          const pageState = {
+            currentClass,
+            currentChannel,
+            topic: content.topic,
+            subtopics: content.subtopics,
+            exercises: content.exercises,
+            modalShown: false,
+          };
+          store.dispatch('SET_PAGE_STATE', pageState);
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
         },

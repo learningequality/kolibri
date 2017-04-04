@@ -36,7 +36,7 @@
     </div>
     <div v-else>
       <div>
-        <ul><li v-for="topic in breadcrumbs" @click="handleGoToTopic(topic.id)">{{ topic.title }}</li></ul>
+        <ul><li v-for="topic in topic.breadcrumbs" @click="handleGoToTopic(topic.id)">{{ topic.title }}</li></ul>
       </div>
 
       <div>
@@ -109,6 +109,9 @@
         validateNum: false,
         searchInput: '',
         loading: false,
+        topic: this.stateTopic,
+        subtopics: this.stateSubtopics,
+        exercises: this.stateExercises,
       };
     },
     components: {
@@ -132,8 +135,10 @@
         console.log('before fetch: ', this.topic, this.subtopics);
         this.loading = true;
         this.fetchContent(this.currentChannel.id, topicId).then(
-          () => {
-            console.log('after fetch: ', this.topic, this.subtopics);
+          content => {
+            this.topic = content.topic;
+            this.subtopics = content.subtopics;
+            this.exercises = content.exercises;
             this.loading = false;
           },
           error => {
@@ -158,10 +163,9 @@
       getters: {
         currentClass: state => state.pageState.currentClass,
         currentChannel: state => state.pageState.currentChannel,
-        topic: state => state.pageState.topic,
-        subtopics: state => state.pageState.subtopics,
-        exercises: state => state.pageState.exercises,
-        breadcrumbs: state => state.pageState.topic.breadcrumbs,
+        stateTopic: state => state.pageState.topic,
+        stateSubtopics: state => state.pageState.subtopics,
+        stateExercises: state => state.pageState.exercises,
       },
       actions: {
         fetchContent: ExamActions.fetchContent,
