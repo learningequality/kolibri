@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 const kolibri = require('kolibri');
 const sinon = require('sinon');
+const assert = require('assert');
 
 // need to mock all this stuff before loading the module
 kolibri.resources.FacilityUserResource = { getModel: () => {} };
@@ -59,7 +60,6 @@ describe('removeCoachRoleAction', () => {
     removeCoachRoleAction(storeMock, { userId: 'user_1', classId: 'class_2' })
     .then(() => {
       sinon.assert.notCalled(deleteRoleSpy);
-      sinon.assert.notCalled(storeMock.dispatch);
     })
     .then(done, done);
   });
@@ -70,8 +70,17 @@ describe('removeCoachRoleAction', () => {
     });
     removeCoachRoleAction(storeMock, { userId: 'user_1', classId: 'class_3' })
     .then(() => {
-      sinon.assert.calledOnce(storeMock.dispatch);
-      sinon.assert.calledWith(storeMock.dispatch, 'CORE_SET_ERROR', '"fetch error"');
+      assert.deepEqual(storeMock.dispatch.getCall(0).args[1], {
+        newRole: 'learner',
+        userId: 'user_1',
+      });
+      assert.deepEqual(storeMock.dispatch.getCall(1).args[1], {
+        newRole: 'coach',
+        userId: 'user_1',
+      });
+      assert.deepEqual(storeMock.dispatch.getCall(2).args, [
+        'CORE_SET_ERROR', '"fetch error"',
+      ]);
     })
     .then(done, done);
   });
@@ -85,8 +94,17 @@ describe('removeCoachRoleAction', () => {
     });
     removeCoachRoleAction(storeMock, { userId: 'user_1', classId: 'class_3' })
     .then(() => {
-      sinon.assert.calledOnce(storeMock.dispatch);
-      sinon.assert.calledWith(storeMock.dispatch, 'CORE_SET_ERROR', '"delete error"');
+      assert.deepEqual(storeMock.dispatch.getCall(0).args[1], {
+        newRole: 'learner',
+        userId: 'user_1',
+      });
+      assert.deepEqual(storeMock.dispatch.getCall(1).args[1], {
+        newRole: 'coach',
+        userId: 'user_1',
+      });
+      assert.deepEqual(storeMock.dispatch.getCall(2).args, [
+        'CORE_SET_ERROR', '"delete error"',
+      ]);
     })
     .then(done, done);
   });
