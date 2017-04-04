@@ -5,10 +5,10 @@
       <content-icon :kind="topic"/>
     </td>
     <td class="col-title">
-      <span @click="enterTopic">{{ topicTitle }}</span>
+      <span class="title" @click="$emit('enterTopic', topicId)">{{ topicTitle }}</span>
     </td>
     <td class="col-add">
-      <icon-button :text="$tr('exercises')" @click="addTopicExercises">
+      <icon-button :text="$tr('exercises')" :primary="true" @click="$emit('addTopicExercises', topicId)">
         <mat-svg category="content" name="add"/>
       </icon-button>
     </td>
@@ -45,18 +45,20 @@
         return ContentNodeKinds.TOPIC;
       },
     },
-    methods: {
-      enterTopic() {
-        console.log('enter topic');
-      },
-      addTopicExercises() {
-        console.log('addTopicExercises');
-      },
-    },
   };
 
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  @require '~kolibri.styles.definitions'
+
+  .title
+    font-weight: bold
+    text-decoration: underline
+    color: $core-action-normal
+    cursor: pointer
+
+</style>
 

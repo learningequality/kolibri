@@ -8,7 +8,7 @@
       <span>{{ exerciseTitle }}</span>
     </td>
     <td class="col-add">
-      <icon-button :text="$tr('exercise')" @click="addExercise">
+      <icon-button :text="$tr('exercise')" :primary="true" @click="$emit('addExercise', exerciseId)">
         <mat-svg category="content" name="add"/>
       </icon-button>
     </td>
@@ -43,11 +43,6 @@
     computed: {
       exercise() {
         return ContentNodeKinds.EXERCISE;
-      },
-    },
-    methods: {
-      addExercise() {
-        console.log('addExercise');
       },
     },
   };

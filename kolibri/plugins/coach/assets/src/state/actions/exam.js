@@ -102,9 +102,8 @@ function showExamsPage(store, classId) {
   );
 }
 
-function _crumbState(ancestors) {
-  // skip the root node
-  return ancestors.slice(1).map(ancestor => ({
+function breadcrumbsState(ancestors) {
+  return ancestors.map(ancestor => ({
     id: ancestor.pk,
     title: ancestor.title,
   }));
@@ -112,24 +111,17 @@ function _crumbState(ancestors) {
 
 
 function _topicState(data) {
+  const breadcrumbs = data.ancestors;
+  breadcrumbs.push({ pk: data.pk, title: data.title });
   return {
     id: data.pk,
     title: data.title,
-    description: data.description,
-    breadcrumbs: _crumbState(data.ancestors),
-    next_content: data.next_content,
+    breadcrumbs: breadcrumbsState(breadcrumbs),
   };
 }
 
 function _contentState(data) {
-  let progress;
-  if (!data.progress_fraction) {
-    progress = 0.0;
-  } else if (data.progress_fraction > 1.0) {
-    progress = 1.0;
-  } else {
-    progress = data.progress_fraction;
-  }
+  const breadcrumbs = data.ancestors;
   return {
     id: data.pk,
     title: data.title,
@@ -138,10 +130,8 @@ function _contentState(data) {
     thumbnail: data.thumbnail,
     available: data.available,
     files: data.files,
-    progress,
     content_id: data.content_id,
-    breadcrumbs: _crumbState(data.ancestors),
-    next_content: data.next_content,
+    breadcrumbs: breadcrumbsState(breadcrumbs),
     author: data.author,
     license: data.license,
     license_owner: data.license_owner,
@@ -178,7 +168,7 @@ function showCreateExamPage(store, classId, channelId) {
       ConditionalPromise.all([topicPromise, childrenPromise]).only(
         CoreActions.samePageCheckGenerator(store),
         ([topicModel, childrenCollection]) => {
-          const topics = _topicState(topicModel);
+          const topic = _topicState(topicModel);
           const collection = _collectionState(childrenCollection);
           const subtopics = collection.topics;
           const contents = collection.contents;
@@ -186,7 +176,7 @@ function showCreateExamPage(store, classId, channelId) {
           const pageState = {
             currentClass,
             currentChannel,
-            topics,
+            topic,
             subtopics,
             contents,
             modalShown: false,
@@ -201,6 +191,31 @@ function showCreateExamPage(store, classId, channelId) {
           CoreActions.handleError(store, error);
         }
       );
+    },
+    error => {
+      CoreActions.handleError(store, error);
+    }
+  );
+}
+
+function fetchContent(store, channelId, topicId) {
+  // store.dispatch('CORE_SET_PAGE_LOADING', true);
+  const channelPayload = { channel_id: channelId };
+  const topicPromise = ContentNodeResource.getModel(topicId, channelPayload).fetch();
+  const childrenPromise = ContentNodeResource.getCollection(
+    channelPayload, { parent: topicId }).fetch();
+
+  ConditionalPromise.all([topicPromise, childrenPromise]).only(
+    CoreActions.samePageCheckGenerator(store),
+    ([topicModel, childrenCollection]) => {
+      const topics = _topicState(topicModel);
+      const collection = _collectionState(childrenCollection);
+      const subtopics = collection.topics;
+      const contents = collection.contents;
+      store.dispatch('SET_TOPICS', topics);
+      store.dispatch('SET_SUBTOPICS', subtopics);
+      store.dispatch('SET_CONTENTS', contents);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
       CoreActions.handleError(store, error);
@@ -259,4 +274,5 @@ module.exports = {
   renameExam,
   deleteExam,
   updateExamVisibility,
+  fetchContent,
 };

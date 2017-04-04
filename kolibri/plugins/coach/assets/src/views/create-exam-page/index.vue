@@ -35,7 +35,7 @@
       search results
     </div>
     <div v-else>
-      <div>Breadcrumbs</div>
+      <div><span v-for="item in breadcrumbs" class="breadcrumb-item">{{ item.title }}</span></div>
 
       <div>
         <table>
@@ -50,11 +50,14 @@
             <topic-row
               v-for="topic in subtopics"
               :topicId="topic.id"
-              :topicTitle="topic.title"/>
+              :topicTitle="topic.title"
+              @enterTopic="handleEnterTopic"
+              @addTopicExercises="handleAddTopicExercises"/>
             <exercise-row
               v-for="exercise in exercises"
               :exerciseId="exercise.id"
-              :exerciseTitle="exercise.title"/>
+              :exerciseTitle="exercise.title"
+              @addExercise="handleAddExercise"/>
           </tbody>
         </table>
       </div>
@@ -77,6 +80,7 @@
 <script>
 
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
+  const ExamActions = require('../../state/actions/exam');
 
   module.exports = {
     $trNameSpace: 'createExamPage',
@@ -118,10 +122,19 @@
           (this.inputNumQuestions < 1) || (this.inputNumQuestions > 50) : false;
       },
       exercises() {
-        this.contents.filter(content => content.kind === ContentNodeKinds.EXERCISE);
+        return this.contents.filter(content => content.kind === ContentNodeKinds.EXERCISE);
       },
     },
     methods: {
+      handleEnterTopic(topicId) {
+        this.fetchContent(this.currentChannel.id, topicId);
+      },
+      handleAddTopicExercises(topicId) {
+        console.log('handleAddTopicExercises', topicId);
+      },
+      handleAddExercise(exerciseId) {
+        console.log('handleAddExercise', exerciseId);
+      },
       preview() {
         console.log('preview');
       },
@@ -135,8 +148,11 @@
         currentChannel: state => state.pageState.currentChannel,
         subtopics: state => state.pageState.subtopics,
         contents: state => state.pageState.contents,
+        breadcrumbs: state => state.pageState.topic.breadcrumbs,
       },
-      actions: {},
+      actions: {
+        fetchContent: ExamActions.fetchContent,
+      },
     },
   };
 
@@ -150,5 +166,8 @@
     button
       margin: auto
       margin-bottom: 1em
+
+  .breadcrumb-item::after
+    content: '>'
 
 </style>
