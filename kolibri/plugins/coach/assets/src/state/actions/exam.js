@@ -102,32 +102,6 @@ function showExamsPage(store, classId) {
   );
 }
 
-function showCreateExamPage(store, classId, channelId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.CREATE_EXAM);
-  const currentClassPromise = ClassroomResource.getModel(classId).fetch();
-
-  ConditionalPromise.all([currentClassPromise]).only(
-    CoreActions.samePageCheckGenerator(store),
-    ([currentClassModel, channelsCollection]) => {
-      const currentClass = _classState(currentClassModel);
-      const pageState = {
-        modalShown: false,
-        currentClass,
-      };
-
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', ('Exams'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    },
-    error => {
-      CoreActions.handleError(store, error);
-    }
-  );
-}
-
-
 function _crumbState(ancestors) {
   // skip the root node
   return ancestors.slice(1).map(ancestor => ({
@@ -138,14 +112,13 @@ function _crumbState(ancestors) {
 
 
 function _topicState(data) {
-  const state = {
+  return {
     id: data.pk,
     title: data.title,
     description: data.description,
     breadcrumbs: _crumbState(data.ancestors),
     next_content: data.next_content,
   };
-  return state;
 }
 
 function _contentState(data) {
@@ -157,7 +130,7 @@ function _contentState(data) {
   } else {
     progress = data.progress_fraction;
   }
-  const state = {
+  return {
     id: data.pk,
     title: data.title,
     kind: data.kind,
@@ -173,39 +146,65 @@ function _contentState(data) {
     license: data.license,
     license_owner: data.license_owner,
   };
-  return state;
 }
 
 function _collectionState(data) {
-  const topics = data
-    .filter((item) => item.kind === CoreConstants.ContentNodeKinds.TOPIC)
-    .map((item) => _topicState(item));
-  const contents = data
-    .filter((item) => item.kind !== CoreConstants.ContentNodeKinds.TOPIC)
-    .map((item) => _contentState(item));
+  const topics = data.filter(
+    item => item.kind === CoreConstants.ContentNodeKinds.TOPIC).map(item => _topicState(item));
+  const contents = data.filter(
+    item => item.kind !== CoreConstants.ContentNodeKinds.TOPIC).map(item => _contentState(item));
   return { topics, contents };
 }
 
-function getChannelExercises(store, channelId, channelRootPk) {
-  const channelPayload = { channel_id: channelId };
-  const topicPromise = ContentNodeResource.getModel(channelRootPk, channelPayload).fetch();
-  const childrenPromise =
-    ContentNodeResource.getCollection(channelPayload, { parent: channelRootPk }).fetch();
+function showCreateExamPage(store, classId, channelId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.CREATE_EXAM);
+  const currentClassPromise = ClassroomResource.getModel(classId).fetch();
+  const channelPromise = ChannelResource.getCollection().fetch();
 
-  ConditionalPromise.all([topicPromise, childrenPromise]).only(
+  ConditionalPromise.all([currentClassPromise, channelPromise]).only(
     CoreActions.samePageCheckGenerator(store),
-    ([topic, children]) => {
-      // store.dispatch('SET_TOPIC', topic);
-      console.log(_topicState(topic));
-      const collection = _collectionState(children);
-      console.log(collection.topics);
-      console.log(collection.contents);
+    ([currentClassModel, channelsCollection]) => {
+      const currentClass = _classState(currentClassModel);
+      const currentChannel = _channelState(
+        channelsCollection.find(channel => channel.id === channelId));
+      const channelPayload = { channel_id: channelId };
+      const channelRootPk = currentChannel.rootPk;
 
+      const topicPromise = ContentNodeResource.getModel(channelRootPk, channelPayload).fetch();
+      const childrenPromise = ContentNodeResource.getCollection(
+        channelPayload, { parent: channelRootPk }).fetch();
 
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
+      ConditionalPromise.all([topicPromise, childrenPromise]).only(
+        CoreActions.samePageCheckGenerator(store),
+        ([topicModel, childrenCollection]) => {
+          const topics = _topicState(topicModel);
+          const collection = _collectionState(childrenCollection);
+          const subtopics = collection.topics;
+          const contents = collection.contents;
+
+          const pageState = {
+            currentClass,
+            currentChannel,
+            topics,
+            subtopics,
+            contents,
+            modalShown: false,
+          };
+
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_ERROR', null);
+          store.dispatch('CORE_SET_TITLE', ('Exams'));
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+        },
+        error => {
+          CoreActions.handleError(store, error);
+        }
+      );
     },
-    error => { CoreActions.handleApiError(store, error); }
+    error => {
+      CoreActions.handleError(store, error);
+    }
   );
 }
 
@@ -252,7 +251,6 @@ module.exports = {
   displayModal,
   showExamsPage,
   showCreateExamPage,
-  getChannelExercises,
   showExamReportPage,
   showExamReportDetailPage,
   activateExam,
