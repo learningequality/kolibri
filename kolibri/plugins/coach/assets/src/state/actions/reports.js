@@ -145,7 +145,7 @@ function _showRecentReports(store, classId, channelId) {
       }
     }
     const progress = report.progress[0];
-    const completed = `${progress.log_count_complete} / ${progress.log_count_total}`;
+    const completed = `${progress.log_count_complete}/${progress.log_count_total}`;
     const descriptor = ___descriptor(report.kind);
 
     return {

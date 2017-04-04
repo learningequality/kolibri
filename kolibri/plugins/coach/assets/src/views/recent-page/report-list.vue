@@ -16,7 +16,8 @@
               {{ report.title }}
             </td>
             <td>
-              {{ progressString(report) }}
+              <progress-bar :show-percentage="false" :progress="completedProgress(report.progress[0])"/>
+              {{ progressString(report.reportProps) }}
             </td>
           </tr>
         </tbody>
@@ -43,10 +44,14 @@
     },
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
+      'progress-bar': require('kolibri.coreVue.components.progressBar'),
     },
     methods: {
-      progressString(report) {
-        return this.$tr('reportProgress', report.reportProps);
+      progressString(reportProps) {
+        return this.$tr('reportProgress', reportProps);
+      },
+      completedProgress(progress) {
+        return progress.log_count_complete / progress.log_count_total;
       },
     },
     vuex: {
