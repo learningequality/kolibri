@@ -11,8 +11,13 @@
         </thead>
         <tbody>
           <tr v-for="report in reports">
-            <td>{{ report.title }}</td>
-            <td>{{ report.progress[0].total_progress }}</td>
+            <td>
+              <content-icon :kind="report.kind"/>
+              {{ report.title }}
+            </td>
+            <td>
+              {{ progressString(report) }}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -33,14 +38,22 @@
     $trs: {
       name: 'Name',
       progress: 'Progress',
-      noRecentProgress: 'No recent progress'
+      noRecentProgress: 'No recent progress',
+      reportProgress: '{completed} {descriptor}',
     },
-    props: {
-      reports: {
-        type: Array,
-        required: true,
-      }
-    }
+    components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
+    },
+    methods: {
+      progressString(report) {
+        return this.$tr('reportProgress', report.reportProps);
+      },
+    },
+    vuex: {
+      getters: {
+        reports: state => state.pageState.reports,
+      },
+    },
   };
 
 </script>

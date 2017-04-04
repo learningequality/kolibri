@@ -8,6 +8,7 @@ const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultCh
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 
 const Constants = require('../../constants');
+const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
 const ReportConstants = require('../../reportConstants');
 
 const RecentReportResourceConstructor = require('../../apiResources/recentReport');
@@ -126,20 +127,73 @@ function _showRecentChannels(store, classId) {
 function _showRecentReports(store, classId, channelId) {
   // should be cached if navigated to this point
   const channelPromise = ChannelResource.getModel(channelId).fetch();
+  function __reportPropsGen(report) {
+    function ___descriptor(kind) {
+      switch (kind) {
+        case ContentNodeKinds.AUDIO:
+          return 'Listened';
+        case ContentNodeKinds.DOCUMENT:
+          return 'Opened';
+        case ContentNodeKinds.VIDEO:
+          return 'Watched';
+        case ContentNodeKinds.EXERCISE:
+          return 'Mastered';
+        case ContentNodeKinds.HTML5:
+          return 'Mastered';
+        default:
+          return 'Mastered';
+      }
+    }
+    const progress = report.progress[0];
+    const completed = `${progress.log_count_complete} / ${progress.log_count_total}`;
+    const descriptor = ___descriptor(report.kind);
 
+    return {
+      completed,
+      descriptor,
+    };
+  }
   channelPromise.then(
     channelData => {
+      const sevenDaysAgo = new Date();
+      // this is being set by default in the backend
+      // backend date data might be unreliable, though
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
       const reportPayload = {
         channel_id: channelId,
         content_node_id: channelData.root_pk,
         collection_kind: ReportConstants.UserScopes.CLASSROOM,
         collection_id: classId,
-        last_active_time: // make new date by using setDate on a new date
+        last_active_time: sevenDaysAgo,
       };
       const recentReportsPromise = RecentReportResource.getCollection(reportPayload).fetch();
 
       recentReportsPromise.then(
         reports => {
+          // add progressProps to each report, for string generation
+          reports.forEach(
+            report => {
+              report.reportProps = __reportPropsGen(report);
+            }
+          );
+
+          // sort the reports in order of most recent
+          // might want to put this together with the above loop
+          reports.sort(
+            (report1, report2) => {
+              const report1Date = new Date(report1.last_active);
+              const report2Date = new Date(report2.last_active);
+
+              if (report1Date < report2Date) {
+                return -1;
+              } else if (report1Date > report2Date) {
+                return 1;
+              }
+              return 0;
+            }
+          );
+
           const pageState = {
             reports,
             classId,
