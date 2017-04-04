@@ -19,7 +19,7 @@ exports.dispatchRoleChange = function dispatchRoleChange(store, payload) {
  * @param {Object} payload
  * @param {string} payload.userId
  * @param {string} payload.collectionId
- * @param {string} payload.newRole - maps to `kind`
+ * @param {string} payload.newRole
  * @returns {Promise}
  */
 function addRoleToUserInCollection(payload) {

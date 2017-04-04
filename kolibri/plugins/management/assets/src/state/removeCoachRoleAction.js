@@ -32,16 +32,16 @@ exports.default = function removeCoachRoleAction(store, payload) {
   // Need to unwrap to normal Promise since conditionalPromise.then(f) seems to ignore
   // implementation of f and just treat it as identity function
   const facilityUserRequest = FacilityUserResource.getModel(userId).fetch({}, true)._promise;
+  // Currently, Learners in classes switch between Coach <-> Learner
+  // So if not a Coach, then just a plain-old Learner
   dispatchRoleChange(store, { newRole: LEARNER, userId });
   return (
     ConditionalPromise.all([
       facilityUserRequest.then((userResult) => deleteRoleFromUser(classId, userResult))
-    ]).only(
+    ])
+    .only(
       samePageCheckGenerator(store),
-      function onSuccess(deleteResult) {
-        // Currently, Learners in classes switch between Coach <-> Learner
-        // So if not a Coach, then just a plain-old Learner
-      },
+      function onSuccess() {},
       function onFailure(err) {
         dispatchRoleChange(store, { newRole: COACH, userId });
         if (err) {
