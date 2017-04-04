@@ -83,6 +83,7 @@ function showExamsPage(store, classId) {
       }];
 
       const pageState = {
+        classId,
         currentClass,
         currentClassGroups,
         channels,

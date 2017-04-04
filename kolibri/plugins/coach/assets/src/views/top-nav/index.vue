@@ -66,7 +66,7 @@
       examsLink() {
         return {
           name: Constants.PageNames.EXAMS,
-          params: { class_id: this.classId },
+          params: { classId: this.classId },
         };
       },
       learnersLink() {
