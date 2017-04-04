@@ -1,10 +1,7 @@
 /* eslint-disable prefer-arrow-callback */
-import * as coreApp from 'kolibri';
-import * as constants from 'kolibri.coreVue.vuex.constants';
-import { dispatchError, dispatchRoleChange } from './addCoachRoleAction';
-
-const { RoleResource, FacilityUserResource } = coreApp.resources;
-const { LEARNER } = constants.UserKinds;
+const { RoleResource, FacilityUserResource } = require('kolibri').resources;
+const { LEARNER } = require('kolibri.coreVue.vuex.constants').UserKinds;
+const { dispatchError, dispatchRoleChange } = require('./addCoachRoleAction');
 
 // Assumes if a Learner has any kind of Role in class, then it is of Coach
 function deleteRoleFromUser(classId, userData) {
@@ -27,7 +24,7 @@ function deleteRoleFromUser(classId, userData) {
  * @param {string} payload.classId
  * @returns {Promise}
  */
-export default function removeCoachRoleAction(store, payload) {
+exports.default = function removeCoachRoleAction(store, payload) {
   const { classId, userId } = payload;
   // Need to fetch User since the Roles array isn't current stored locally.
   // Need to unwrap to normal Promise since conditionalPromise.then(f) seems to ignore
@@ -45,4 +42,4 @@ export default function removeCoachRoleAction(store, payload) {
       if (err) dispatchError(store, err);
     })
   );
-}
+};

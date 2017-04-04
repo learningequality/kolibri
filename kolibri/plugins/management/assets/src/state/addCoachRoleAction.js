@@ -1,17 +1,14 @@
 /* eslint-disable prefer-arrow-callback */
-import * as coreApp from 'kolibri';
-import * as constants from 'kolibri.coreVue.vuex.constants';
+const { RoleResource } = require('kolibri').resources;
+const { COACH, LEARNER } = require('kolibri.coreVue.vuex.constants').UserKinds;
 
-const { RoleResource } = coreApp.resources;
-const { COACH } = constants.UserKinds;
-
-export function dispatchError(store, err) {
+exports.dispatchError = function dispatchError(store, err) {
   return store.dispatch('CORE_SET_ERROR', JSON.stringify(err.entity || err.message));
-}
+};
 
-export function dispatchRoleChange(store, payload) {
+exports.dispatchRoleChange = function dispatchRoleChange(store, payload) {
   store.dispatch('UPDATE_LEARNER_ROLE_FOR_CLASS', payload);
-}
+};
 
 /**
  * Adds a Role to a User in the context of a Collection
@@ -38,7 +35,7 @@ function addRoleToUserInCollection(payload) {
  * @param {string} payload.classId
  * @returns {Promise}
  */
-export default function addCoachRoleAction(store, payload) {
+exports.default = function addCoachRoleAction(store, payload) {
   const { classId, userId } = payload;
   const newRole = COACH;
   exports.dispatchRoleChange(store, { newRole, userId });
@@ -57,4 +54,4 @@ export default function addCoachRoleAction(store, payload) {
       }
     })
   );
-}
+};
