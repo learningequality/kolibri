@@ -17,7 +17,11 @@ const fakeUser = {
 };
 
 describe('removeCoachRoleAction', () => {
-  const storeMock = { dispatch: sinon.spy() };
+  const storeMock = {
+    dispatch: sinon.spy(),
+    state: { core: { pageId: '1' } }
+  };
+
   const getUserModelStub = sinon.stub(kolibri.resources.FacilityUserResource, 'getModel');
   const getRoleModelStub = sinon.stub(kolibri.resources.RoleResource, 'getModel');
 
@@ -46,8 +50,8 @@ describe('removeCoachRoleAction', () => {
         userId: 'user_1',
         newRole: 'learner',
       });
-    })
-    .then(done, done);
+      done();
+    });
   });
 
   it('if no (coach) Role is found, it is a noop', (done) => {
@@ -58,10 +62,10 @@ describe('removeCoachRoleAction', () => {
     getRoleModelStub.returns({ delete: deleteRoleSpy });
     // no Role entry for class_2
     removeCoachRoleAction(storeMock, { userId: 'user_1', classId: 'class_2' })
-    .then(() => {
+    .catch(() => {
       sinon.assert.notCalled(deleteRoleSpy);
-    })
-    .then(done, done);
+      done();
+    });
   });
 
   it('handles when fetching User fails', (done) => {
@@ -69,7 +73,7 @@ describe('removeCoachRoleAction', () => {
       fetch: () => ({ _promise: Promise.reject({ entity: 'fetch error' }) }),
     });
     removeCoachRoleAction(storeMock, { userId: 'user_1', classId: 'class_3' })
-    .then(() => {
+    .catch(() => {
       assert.deepEqual(storeMock.dispatch.getCall(0).args[1], {
         newRole: 'learner',
         userId: 'user_1',
@@ -81,8 +85,8 @@ describe('removeCoachRoleAction', () => {
       assert.deepEqual(storeMock.dispatch.getCall(2).args, [
         'CORE_SET_ERROR', '"fetch error"',
       ]);
-    })
-    .then(done, done);
+      done();
+    });
   });
 
   it('handles when deleting Role fails', (done) => {
@@ -93,7 +97,7 @@ describe('removeCoachRoleAction', () => {
       delete: () => Promise.reject({ entity: 'delete error' })
     });
     removeCoachRoleAction(storeMock, { userId: 'user_1', classId: 'class_3' })
-    .then(() => {
+    .catch(() => {
       assert.deepEqual(storeMock.dispatch.getCall(0).args[1], {
         newRole: 'learner',
         userId: 'user_1',
@@ -105,7 +109,7 @@ describe('removeCoachRoleAction', () => {
       assert.deepEqual(storeMock.dispatch.getCall(2).args, [
         'CORE_SET_ERROR', '"delete error"',
       ]);
-    })
-    .then(done, done);
+      done();
+    });
   });
 });

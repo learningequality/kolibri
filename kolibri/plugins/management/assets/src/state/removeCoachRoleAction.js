@@ -2,6 +2,8 @@
 const { RoleResource, FacilityUserResource } = require('kolibri').resources;
 const { COACH, LEARNER } = require('kolibri.coreVue.vuex.constants').UserKinds;
 const { dispatchError, dispatchRoleChange } = require('./addCoachRoleAction');
+const ConditionalPromise = require('kolibri.lib.conditionalPromise');
+const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
 
 // Assumes if a Learner has any kind of Role in class, then it is of Coach
 function deleteRoleFromUser(classId, userData) {
@@ -32,17 +34,19 @@ exports.default = function removeCoachRoleAction(store, payload) {
   const facilityUserRequest = FacilityUserResource.getModel(userId).fetch({}, true)._promise;
   dispatchRoleChange(store, { newRole: LEARNER, userId });
   return (
-    facilityUserRequest
-    .then((userResult) => deleteRoleFromUser(classId, userResult))
-    .then(function onSuccess(deleteResult) {
-      // Currently, Learners in classes switch between Coach <-> Learner
-      // So if not a Coach, then just a plain-old Learner
-    })
-    .catch(function onFailure(err) {
-      dispatchRoleChange(store, { newRole: COACH, userId });
-      if (err) {
-        dispatchError(store, err);
-      }
-    })
+    ConditionalPromise.all([
+      facilityUserRequest.then((userResult) => deleteRoleFromUser(classId, userResult))
+    ]).only(
+      samePageCheckGenerator(store),
+      function onSuccess(deleteResult) {
+        // Currently, Learners in classes switch between Coach <-> Learner
+        // So if not a Coach, then just a plain-old Learner
+      },
+      function onFailure(err) {
+        dispatchRoleChange(store, { newRole: COACH, userId });
+        if (err) {
+          dispatchError(store, err);
+        }
+      })
   );
 };

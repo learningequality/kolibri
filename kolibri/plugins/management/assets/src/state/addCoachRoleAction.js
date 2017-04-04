@@ -2,7 +2,7 @@
 const { RoleResource } = require('kolibri').resources;
 const { COACH, LEARNER } = require('kolibri.coreVue.vuex.constants').UserKinds;
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
-const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
+const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
 
 exports.dispatchError = function dispatchError(store, err) {
   return store.dispatch('CORE_SET_ERROR', JSON.stringify(err.entity || err.message));
