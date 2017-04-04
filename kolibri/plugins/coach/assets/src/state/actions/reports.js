@@ -185,13 +185,7 @@ function _showRecentReports(store, classId, channelId) {
               const report1Date = new Date(report1.last_active);
               const report2Date = new Date(report2.last_active);
 
-              if (report1Date < report2Date) {
-                return -1;
-              } else if (report1Date > report2Date) {
-                return 1;
-              }
-              return 0;
-            }
+              return report1Date - report2Date;
           );
 
           const pageState = {
@@ -207,7 +201,7 @@ function _showRecentReports(store, classId, channelId) {
         error => { coreActions.handleApiError(store, error); }
       );
     },
-  error => { coreActions.handleApiError(store, error); }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 
