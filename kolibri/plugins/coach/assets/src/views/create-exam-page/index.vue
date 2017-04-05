@@ -35,14 +35,13 @@
       search results
     </div>
     <div v-else>
-      <div>
-        <ul>
+      <nav>
+        <ol>
           <li v-for="(topic, index) in topic.breadcrumbs">
-            <span @click="handleGoToTopic(topic.id)"
-                  :class="[notLastBreadcrumb(index) ? 'not-last' : '']">{{ topic.title }}</span>
+            <span @click="handleGoToTopic(topic.id)" :class="[notLastBreadcrumb(index) ? 'not-last' : '']">{{ topic.title }}</span>
           </li>
-        </ul>
-      </div>
+        </ol>
+      </nav>
 
       <div>
         <table>
@@ -65,6 +64,7 @@
               :exerciseId="exercise.id"
               :exerciseTitle="exercise.title"
               @addExercise="handleAddExercise"/>
+            <p v-if="(subtopics.length === 0) && (exercises.length === 0)">No exercises within this topic.</p>
           </tbody>
           <tbody v-else>
             LOADING...
@@ -82,6 +82,13 @@
       <icon-button :text="$tr('finish')" :primary="true" @click="finish"/>
     </div>
 
+    <preview-new-exam-modal
+      v-if="showPreviewNewExamModal"/>
+
+    <ui-snackbar-container
+      class="snackbar-container"
+      ref="snackbarContainer"
+      position="center"/>
   </div>
 
 </template>
@@ -90,6 +97,7 @@
 <script>
 
   const ExamActions = require('../../state/actions/exam');
+  const ExamModals = require('../../examConstants').Modals;
 
   module.exports = {
     $trNameSpace: 'createExamPage',
@@ -104,6 +112,9 @@
       searchContent: 'Search for content within channel',
       preview: 'Preview',
       finish: 'Finish',
+      added: 'Added',
+      alreadyAdded: 'Already added',
+      undo: 'Undo',
     },
     data() {
       return {
@@ -114,10 +125,14 @@
         validateNum: false,
         searchInput: '',
         loading: false,
+        exercisesSelected: [],
+        topicsSelected: [],
       };
     },
     components: {
       'ui-select': require('keen-ui/src/UiSelect'),
+      'ui-snackbar': require('keen-ui/src/UiSnackbar'),
+      'ui-snackbar-container': require('keen-ui/src/UiSnackbarContainer'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'textbox': require('kolibri.coreVue.components.textbox'),
       'topic-row': require('./topic-row'),
@@ -131,6 +146,9 @@
         return this.validateNum ?
           (this.inputNumQuestions < 1) || (this.inputNumQuestions > 50) : false;
       },
+      showPreviewNewExamModal() {
+        return this.modalShown === ExamModals.PREVIEW_NEW_EXAM;
+      },
     },
     methods: {
       handleGoToTopic(topicId) {
@@ -142,17 +160,35 @@
           error => {}
         );
       },
-      handleAddTopicExercises(topicId) {
-        console.log('handleAddTopicExercises', topicId);
+      handleAddTopicExercises(topicId, topicTitle) {
+        const index = this.topicsSelected.indexOf(topicId);
+        if (index === -1) {
+          this.topicsSelected.push(topicId);
+          this.$refs.snackbarContainer.createSnackbar({
+            message: `${this.$tr('added')} ${topicTitle}`,
+            action: this.$tr('undo'),
+          });
+        } else {
+          this.$refs.snackbarContainer.createSnackbar({ message: this.$tr('alreadyAdded') });
+        }
       },
-      handleAddExercise(exerciseId) {
-        console.log('handleAddExercise', exerciseId);
+      handleAddExercise(exerciseId, exerciseTitle) {
+        const index = this.exercisesSelected.indexOf(exerciseId);
+        if (index === -1) {
+          this.exercisesSelected.push(exerciseId);
+          this.$refs.snackbarContainer.createSnackbar({
+            message: `${this.$tr('added')} ${exerciseTitle}`,
+            action: this.$tr('undo'),
+          });
+        } else {
+          this.$refs.snackbarContainer.createSnackbar({ message: this.$tr('alreadyAdded') });
+        }
       },
       preview() {
-        console.log('preview');
+        this.displayModal(ExamModals.PREVIEW_NEW_EXAM);
       },
       finish() {
-        console.log('finish', this.topic.title);
+        console.log('create exam', this.topic.title);
       },
       notLastBreadcrumb(index) {
         return index !== this.topic.breadcrumbs.length - 1;
@@ -186,13 +222,13 @@
       margin: auto
       margin-bottom: 1em
 
-  ul
+  ol
     padding: 0.5em
 
   li
     display: inline-block
     &:after
-      content: '>'
+      content: '/'
       padding-right: 0.5em
       padding-left: 0.5em
 
@@ -200,5 +236,10 @@
     text-decoration: underline
     color: $core-action-normal
     cursor: pointer
+
+  .snackbar-container
+    position: fixed
+    bottom: 0
+    z-index: 6
 
 </style>

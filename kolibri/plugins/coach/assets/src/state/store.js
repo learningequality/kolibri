@@ -72,8 +72,8 @@ const mutations = {
     state.pageState.subtopics = subtopics;
   },
 
-  SET_EXERCISES(state, contents) {
-    state.pageState.contents = contents;
+  SET_EXERCISES(state, exercises) {
+    state.pageState.exercises = exercises;
   },
 };
 

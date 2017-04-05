@@ -8,7 +8,7 @@
       <span>{{ exerciseTitle }}</span>
     </td>
     <td class="col-add">
-      <icon-button :text="$tr('exercise')" :primary="true" @click="$emit('addExercise', exerciseId)">
+      <icon-button :text="$tr('exercise')" :primary="true" @click="$emit('addExercise', exerciseId, exerciseTitle)">
         <mat-svg category="content" name="add"/>
       </icon-button>
     </td>
