@@ -6,7 +6,7 @@
       :label="$tr('title')"
       :ariaLabel="$tr('title')"
       :placeholder="$tr('enterTitle')"
-      :autofocus="true"
+      :autofocus="false"
       :invalid="titleInvalid"
       :error="$tr('examRequiresTitle')"
       v-model.trim="inputTitle"
@@ -36,7 +36,14 @@
     </div>
     <div v-else>
       <div>
-        <ul><li v-for="topic in topic.breadcrumbs" @click="handleGoToTopic(topic.id)">{{ topic.title }}</li></ul>
+        <ul>
+          <li
+            v-for="(topic, index) in topic.breadcrumbs"
+            @click="handleGoToTopic(topic.id)"
+            :class="[notLastBreadcrumb(index) ? 'not-last' : '']">
+            {{ topic.title }}
+          </li>
+        </ul>
       </div>
 
       <div>
@@ -109,9 +116,6 @@
         validateNum: false,
         searchInput: '',
         loading: false,
-        topic: this.stateTopic,
-        subtopics: this.stateSubtopics,
-        exercises: this.stateExercises,
       };
     },
     components: {
@@ -132,18 +136,12 @@
     },
     methods: {
       handleGoToTopic(topicId) {
-        console.log('before fetch: ', this.topic, this.subtopics);
         this.loading = true;
         this.fetchContent(this.currentChannel.id, topicId).then(
-          content => {
-            this.topic = content.topic;
-            this.subtopics = content.subtopics;
-            this.exercises = content.exercises;
+          () => {
             this.loading = false;
           },
-          error => {
-            console.log(error);
-          }
+          error => {}
         );
       },
       handleAddTopicExercises(topicId) {
@@ -156,16 +154,19 @@
         console.log('preview');
       },
       finish() {
-        console.log('finish');
+        console.log('finish', this.topic.title);
+      },
+      notLastBreadcrumb(index) {
+        return index !== this.topic.breadcrumbs.length - 1;
       },
     },
     vuex: {
       getters: {
         currentClass: state => state.pageState.currentClass,
         currentChannel: state => state.pageState.currentChannel,
-        stateTopic: state => state.pageState.topic,
-        stateSubtopics: state => state.pageState.subtopics,
-        stateExercises: state => state.pageState.exercises,
+        topic: state => state.pageState.topic,
+        subtopics: state => state.pageState.subtopics,
+        exercises: state => state.pageState.exercises,
       },
       actions: {
         fetchContent: ExamActions.fetchContent,
@@ -192,6 +193,7 @@
 
   li
     display: inline-block
+  .not-last
     text-decoration: underline
     color: $core-action-normal
     cursor: pointer
