@@ -1,9 +1,6 @@
 <template>
 
   <div>
-    <!--USER BREADCRUMBS-->
-    <breadcrumbs :list="userBreadcrumbs"/>
-
     <!--TABS-->
     <all-recent-tabs
       :recentViewLink="recentViewLink"
@@ -111,10 +108,9 @@
 <script>
 
   const ReportConstants = require('../../reportConstants');
-  const getters = require('../../state/getters');
+  const reportGetters = require('../../state/getters/reports');
   const coreGetters = require('kolibri.coreVue.vuex.getters');
   const genLink = require('./genLink');
-  const logging = require('kolibri.lib.logging');
 
   module.exports = {
     $trNameSpace: 'reportPage',
@@ -153,33 +149,12 @@
       isSingleItem() {
         return this.pageState.content_scope === ReportConstants.ContentScopes.CONTENT;
       },
-      userBreadcrumbs() {
-        if (this.pageState.user_scope === ReportConstants.UserScopes.FACILITY) {
-          return [{ title: this.$tr('all-learners', [this.userCount]) }];
-        } else if (this.pageState.user_scope === ReportConstants.UserScopes.USER) {
-          const FACILITY_ID = '1'; // TODO - facility ID should not be hard-coded.
-          return [
-            {
-              title: 'All Learners',
-              vlink: genLink(this.pageState, {
-                view_by_content_or_learners:
-                  this.isRecentView ? ReportConstants.ViewBy.CONTENT : ReportConstants.ViewBy.LEARNERS,
-                user_scope: ReportConstants.UserScopes.FACILITY,
-                user_scope_id: FACILITY_ID,
-              }),
-            },
-            { title: this.pageState.user_scope_summary.full_name },
-          ];
-        }
-        logging.error(`Unhandled user_scope: '${this.pageState.user_scope}'`);
-        return [];
-      },
       contentBreadcrumbs() {
         const list = this.pageState.content_scope_summary.ancestors.map((item, index) => ({
           title: item.title,
           vlink: genLink(this.pageState, {
             view_by_content_or_learners: ReportConstants.ViewBy.CONTENT,
-            content_scope: index ? ReportConstants.ContentScopes.TOPIC : ReportConstants.ContentScopes.ROOT,
+            content_scope: index ? ReportConstants.ContentScopes.TOPIC : ReportConstants.ContentScopes.ROOT, // eslint-disable-line max-len
             content_scope_id: item.pk,
           }),
         }));
@@ -199,20 +174,20 @@
       },
       viewByLink() {
         // target of the link is the opposite of the current view
-        const view = this.isViewByContent ? ReportConstants.ViewBy.LEARNERS : ReportConstants.ViewBy.CONTENT;
+        const view = this.isViewByContent ? ReportConstants.ViewBy.LEARNERS : ReportConstants.ViewBy.CONTENT; // eslint-disable-line max-len
         return genLink(this.pageState, { view_by_content_or_learners: view });
       },
     },
     vuex: {
       getters: {
         pageState: state => state.pageState,
-        exerciseCount: getters.exerciseCount,
-        exerciseProgress: getters.exerciseProgress,
-        contentCount: getters.contentCount,
-        contentProgress: getters.contentProgress,
-        dataTable: getters.dataTable,
-        userCount: getters.userCount,
-        completionCount: getters.completionCount,
+        exerciseCount: reportGetters.exerciseCount,
+        exerciseProgress: reportGetters.exerciseProgress,
+        contentCount: reportGetters.contentCount,
+        contentProgress: reportGetters.contentProgress,
+        dataTable: reportGetters.dataTable,
+        userCount: reportGetters.userCount,
+        completionCount: reportGetters.completionCount,
         currentChannel: coreGetters.getCurrentChannelObject,
       },
     },

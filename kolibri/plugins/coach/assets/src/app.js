@@ -10,10 +10,10 @@ const groupActions = require('./state/actions/group');
 const reportsActions = require('./state/actions/reports');
 const store = require('./state/store');
 const PageNames = require('./constants').PageNames;
+const ReportConstants = require('./reportConstants');
 
-/*
+
 const REPORTS_URL_PATTERN = [
-  ':view_by_content_or_learners',
   ':channel_id',
   ':content_scope',
   ':content_scope_id',
@@ -22,7 +22,22 @@ const REPORTS_URL_PATTERN = [
   ':sort_column',
   ':sort_order',
 ].join('/');
-*/
+
+
+/* find the keys that differ between the old and new params */
+function _diffKeys(newParams, oldParams) {
+  if (!oldParams) {
+    return Object.keys(newParams);
+  }
+  const diffKeys = [];
+  Object.entries(newParams).forEach(([key, value]) => {
+    if (oldParams[key] !== value) {
+      diffKeys.push(key);
+    }
+  });
+  return diffKeys;
+}
+
 
 class CoachToolsModule extends KolibriModule {
   ready() {
@@ -51,11 +66,36 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.TOPICS,
-          // path: `/:class_id/topics/${REPORTS_URL_PATTERN}`,
-          path: `/:class_id/topics`,
+          name: PageNames.TOPICS_ROOT,
+          path: '/:class_id/topics/:channel_id?',
           handler: (toRoute, fromRoute) => {
-            reportsActions.showTopics(store, toRoute.params);
+            if (toRoute.params.channel_id) {
+              reportsActions.redirectToDefaultReport(
+                store,
+                ReportConstants.ViewBy.CONTENT,
+                toRoute.params.class_id,
+                toRoute.params.channel_id
+              );
+            } else {
+              console.log('>>>>>> NO CHANNEL');
+            }
+          },
+        },
+        {
+          name: PageNames.TOPICS,
+          path: `/:class_id/topics/${REPORTS_URL_PATTERN}`,
+          handler: (toRoute, fromRoute) => {
+            const localUpdateParams = ['sort_column', 'sort_order'];
+            const diffKeys = _diffKeys(toRoute.params, fromRoute.params);
+            if (diffKeys.every(key => localUpdateParams.includes(key))) {
+              reportsActions.updateSorting(
+                store,
+                toRoute.params.sort_column,
+                toRoute.params.sort_order
+              );
+            } else {
+              reportsActions.showReport(store, ReportConstants.ViewBy.CONTENT, toRoute.params);
+            }
           },
         },
         {
@@ -67,7 +107,6 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.LEARNERS,
-          // path: `/:class_id/learners/${REPORTS_URL_PATTERN}`,
           path: `/:class_id/learners`,
           handler: (toRoute, fromRoute) => {
             reportsActions.showLearners(store, toRoute.params);
@@ -87,6 +126,10 @@ class CoachToolsModule extends KolibriModule {
             actions.showCoachExerciseRenderPage(store, toRoute.params.user_id,
               toRoute.params.content_id);
           },
+        },
+        {
+          path: '*',
+          redirect: '/',
         },
       ];
 
