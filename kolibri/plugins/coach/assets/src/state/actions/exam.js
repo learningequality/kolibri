@@ -77,6 +77,7 @@ function _topicsState(topics) {
 function _exerciseState(exercise) {
   return {
     id: exercise.pk,
+    contentId: exercise.content_id,
     title: exercise.title,
   };
 }
