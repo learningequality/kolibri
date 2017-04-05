@@ -11,7 +11,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="report in reports">
+          <tr v-for="report in reportList">
             <td>
               <content-icon :kind="report.kind"/>
               {{ report.title }}
@@ -54,9 +54,9 @@
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
       'progress-bar': require('kolibri.coreVue.components.progressBar'),
     },
-    watch: {
-      reports() {
-        this.reports.sort(
+    computed: {
+      reportList() {
+        return Array.from(this.reports).sort(
           (report1, report2) => new Date(report1.last_active) - new Date(report2.last_active)
         );
       },
