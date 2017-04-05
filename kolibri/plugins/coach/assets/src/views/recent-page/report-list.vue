@@ -54,8 +54,8 @@
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
       'progress-bar': require('kolibri.coreVue.components.progressBar'),
     },
-    computed: {
-      reportList() {
+    watch: {
+      reports() {
         this.reports.sort(
           (report1, report2) => new Date(report1.last_active) - new Date(report2.last_active)
         );
