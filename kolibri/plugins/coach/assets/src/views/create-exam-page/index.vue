@@ -83,7 +83,10 @@
     </div>
 
     <preview-new-exam-modal
-      v-if="showPreviewNewExamModal"/>
+      v-if="showPreviewNewExamModal"
+      :examTitle="inputTitle"
+      :examNumQuestions="Number(inputNumQuestions)"
+      :exercisesSelected="exercisesSelected"/>
 
     <ui-snackbar-container
       class="snackbar-container"
@@ -137,6 +140,7 @@
       'textbox': require('kolibri.coreVue.components.textbox'),
       'topic-row': require('./topic-row'),
       'exercise-row': require('./exercise-row'),
+      'preview-new-exam-modal': require('./preview-new-exam-modal'),
     },
     computed: {
       titleInvalid() {
@@ -164,10 +168,7 @@
         const index = this.topicsSelected.indexOf(topicId);
         if (index === -1) {
           this.topicsSelected.push(topicId);
-          this.$refs.snackbarContainer.createSnackbar({
-            message: `${this.$tr('added')} ${topicTitle}`,
-            action: this.$tr('undo'),
-          });
+          this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('added')} ${topicTitle}` });
         } else {
           this.$refs.snackbarContainer.createSnackbar({ message: this.$tr('alreadyAdded') });
         }
@@ -176,10 +177,7 @@
         const index = this.exercisesSelected.indexOf(exerciseId);
         if (index === -1) {
           this.exercisesSelected.push(exerciseId);
-          this.$refs.snackbarContainer.createSnackbar({
-            message: `${this.$tr('added')} ${exerciseTitle}`,
-            action: this.$tr('undo'),
-          });
+          this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('added')} ${exerciseTitle}` });
         } else {
           this.$refs.snackbarContainer.createSnackbar({ message: this.$tr('alreadyAdded') });
         }
@@ -188,7 +186,7 @@
         this.displayModal(ExamModals.PREVIEW_NEW_EXAM);
       },
       finish() {
-        console.log('create exam', this.topic.title);
+        console.log('create exam');
       },
       notLastBreadcrumb(index) {
         return index !== this.topic.breadcrumbs.length - 1;
@@ -201,9 +199,11 @@
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         exercises: state => state.pageState.exercises,
+        modalShown: state => state.pageState.modalShown,
       },
       actions: {
         fetchContent: ExamActions.fetchContent,
+        displayModal: ExamActions.displayModal,
       },
     },
   };
