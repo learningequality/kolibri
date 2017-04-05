@@ -38,7 +38,8 @@
       <nav>
         <ol>
           <li v-for="(topic, index) in topic.breadcrumbs" :class="[notLastBreadcrumb(index) ? 'not-last' : '']">
-            <span @click="handleGoToTopic(topic.id)">{{ topic.title }}</span>
+            <button v-if="notLastBreadcrumb(index)" @click="handleGoToTopic(topic.id)">{{ topic.title }}</button>
+            <span v-else>{{ topic.title }}</span>
           </li>
         </ol>
       </nav>
@@ -228,16 +229,18 @@
   li
     display: inline-block
 
+    button
+      vertical-align: baseline
+      padding: 0
+      border: none
+      font-size: 1em
+
+
   .not-last
     &:after
       content: '/'
       padding-right: 0.5em
       padding-left: 0.5em
-
-    span
-      text-decoration: underline
-      color: $core-action-normal
-      cursor: pointer
 
   .snackbar-container
     position: fixed

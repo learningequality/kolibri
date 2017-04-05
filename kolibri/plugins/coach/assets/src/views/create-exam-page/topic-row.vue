@@ -5,7 +5,7 @@
       <content-icon :kind="topic"/>
     </td>
     <td class="col-title">
-      <span class="title" @click="$emit('goToTopic', topicId)">{{ topicTitle }}</span>
+      <button class="title" @click="$emit('goToTopic', topicId)">{{ topicTitle }}</button>
     </td>
     <td class="col-add">
       <icon-button :text="$tr('exercises')" :primary="true" @click="$emit('addTopicExercises', topicId, topicTitle)">
@@ -55,10 +55,9 @@
   @require '~kolibri.styles.definitions'
 
   .title
-    font-weight: bold
-    text-decoration: underline
-    color: $core-action-normal
-    cursor: pointer
+    padding: 0
+    border: none
+    font-size: 1em
 
 </style>
 
