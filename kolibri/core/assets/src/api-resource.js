@@ -307,7 +307,11 @@ class Collection {
   }
 
   get url() {
-    return this.resource.collectionUrl(...this.orderedUrlParams);
+    return (this._url ? this._url : this.resource.collectionUrl)(...this.orderedUrlParams);
+  }
+
+  set url(url) {
+    this._url = url;
   }
 
   /**
