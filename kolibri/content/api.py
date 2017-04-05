@@ -10,6 +10,8 @@ from kolibri.content.content_db_router import get_active_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
 
 from .utils.search import fuzz
 
@@ -188,6 +190,17 @@ class ContentNodeViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.ContentNode.objects.all()
+
+    @detail_route(methods=['get'])
+    def descendants(self, request, **kwargs):
+        node = self.get_object()
+        kind = self.request.query_params.get('descendant_kind', None)
+        descendants = node.get_descendants()
+        if kind:
+            descendants = descendants.filter(kind=kind)
+
+        serializer = self.get_serializer(descendants, many=True)
+        return Response(serializer.data)
 
 
 class FileViewset(viewsets.ModelViewSet):
