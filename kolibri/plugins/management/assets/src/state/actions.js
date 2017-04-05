@@ -16,7 +16,9 @@ const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
 const PageNames = constants.PageNames;
 const ContentWizardPages = constants.ContentWizardPages;
 const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageCheckGenerator;
-
+// because these modules use ES6 module syntax, need to access exports.default in CommonJS context
+const addCoachRoleAction = require('./addCoachRoleAction').default;
+const removeCoachRoleAction = require('./removeCoachRoleAction').default;
 
 /**
  * Vuex State Mappers
@@ -43,6 +45,29 @@ function _facilityState(data) {
 }
 
 
+/*
+ * This mostly duplicates _userState below, but searches Roles array for an exact match
+ * on the classId, and not for any Role object.
+ */
+function _userStateForClassEditPage(classId, apiUserData) {
+  const matchingRole = apiUserData.roles.find((r) => (
+      String(r.collection) === classId ||
+      r.kind === UserKinds.ADMIN ||
+      r.kind === UserKinds.SUPERUSER
+    )
+  );
+
+  return {
+    id: apiUserData.id,
+    facility_id: apiUserData.facility,
+    username: apiUserData.username,
+    full_name: apiUserData.full_name,
+    kind: matchingRole ? matchingRole.kind : UserKinds.LEARNER,
+  };
+}
+
+// On 'Users' page, this will end up showing a Admin/Coach role if user has such
+// Role for any class
 function _userState(apiUserData) {
   function calcUserKind() {
     if (apiUserData.roles) {
@@ -104,7 +129,9 @@ function displayModal(store, modalName) {
 
 /**
  * Do a POST to create new class
- * @param {object} stateClassData
+ * @param {Object} stateClassData
+ * @param {string} stateClassData.name
+ * @param {string} stateClassData.facilityId
  *  Needed: name
  */
 function createClass(store, stateClassData) {
@@ -187,9 +214,16 @@ function removeClassUser(store, classId, userId) {
   );
 }
 
+// on-load mutations common to all the show-page actions
+function preparePage(dispatch, { name, title, isAsync = true }) {
+  dispatch('CORE_SET_PAGE_LOADING', isAsync);
+  dispatch('SET_PAGE_NAME', name);
+  dispatch('CORE_SET_TITLE', title);
+  dispatch('CORE_SET_ERROR', null);
+}
+
 function showClassesPage(store) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.CLASS_MGMT_PAGE);
+  preparePage(store.dispatch, { name: PageNames.CLASS_MGMT_PAGE, title: 'Classes' });
   const classCollection = ClassroomResource.getCollection();
   const classPromise = classCollection.fetch({}, true);
   const facilityCollection = FacilityResource.getCollection();
@@ -208,37 +242,30 @@ function showClassesPage(store) {
 
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
     },
     error => { coreActions.handleApiError(store, error); }
   );
 }
 
 function showClassEditPage(store, classId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.CLASS_EDIT_MGMT_PAGE);
+  preparePage(store.dispatch, { name: PageNames.CLASS_EDIT_MGMT_PAGE, title: 'Edit Class' });
 
-  const classModel = ClassroomResource.getModel(classId);
-  const classPromise = classModel.fetch();
-  // fetch the users under this class.
-  const classUsersCollection = FacilityUserResource.getCollection({ member_of: classId });
-  const classUsersPromise = classUsersCollection.fetch({}, true);
+  const promises = [
+    FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true),
+    ClassroomResource.getModel(classId).fetch(),
+  ];
 
-  const promises = [classUsersPromise, classPromise];
+  const transformResults = ([facilityUsers, classroom]) => ({
+    modalShown: false,
+    classes: [classroom],
+    classUsers: facilityUsers.map(_userStateForClassEditPage.bind(null, classId)),
+  });
 
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([users, singleClass]) => {
-      const pageState = {
-        modalShown: false,
-        classes: [singleClass],
-        classUsers: users.map(_userState),
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
+    (results) => {
+      store.dispatch('SET_PAGE_STATE', transformResults(results));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Edit Class'));
     },
     error => { coreActions.handleApiError(store, error); }
   );
@@ -246,10 +273,7 @@ function showClassEditPage(store, classId) {
 
 
 function showClassEnrollPage(store, classId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.CLASS_ENROLL_MGMT_PAGE);
-  store.dispatch('CORE_SET_TITLE', _managePageTitle('Classes'));
-  store.dispatch('CORE_SET_ERROR', null);
+  preparePage(store.dispatch, { name: PageNames.CLASS_ENROLL_MGMT_PAGE, title: 'Classes' });
 
   // current facility
   const facilityPromise = FacilityResource.getCollection().fetch();
@@ -283,26 +307,23 @@ function showClassEnrollPage(store, classId) {
 
 
 function enrollUsersInClass(store, classId, users) {
-  return new Promise((resolve, reject) => {
-    users.forEach((userId) => {
-      MembershipResource.createModel({ collection: classId, user: userId }).save().then(
-        membershipModel => {
-          resolve(userId);
-        },
-        error => {
-          reject(error);
-        }
-      );
-    });
-  });
+  // TODO no error handling
+  return Promise.all(
+    users.map((userId) =>
+      MembershipResource.createModel({ collection: classId, user: userId }).save())
+  );
 }
 
 // ================================
 // USERS MANAGEMENT ACTIONS
 
+
 /**
  * Does a POST request to assign a user role (only used in this file)
- * @param {object} user
+ * @param {Object} user
+ * @param {string} user.id
+ * @param {string} user.facility
+ * @param {string} user.kind
  * Needed: id, facility, kind
  */
 function assignUserRole(user, kind) {
@@ -374,11 +395,10 @@ function createUser(store, stateUserData) {
  */
 function updateUser(store, stateUser) {
   // payload needs username, fullname, and facility
-  const userID = stateUser.id;
-  const savedUserModel = FacilityUserResource.getModel(userID);
+  const savedUserModel = FacilityUserResource.getModel(stateUser.id);
   const savedUser = savedUserModel.attributes;
   const changedValues = {};
-  let roleAssigned = Promise.resolve(savedUserModel.attributes);
+  let roleAssigned = Promise.resolve(savedUser);
 
   // explicit checks for the only values that can be changed
   if (stateUser.full_name && stateUser.full_name !== savedUser.full_name) {
@@ -458,8 +478,8 @@ function deleteUser(store, id) {
 
 // An action for setting up the initial state of the app by fetching data from the server
 function showUserPage(store) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.USER_MGMT_PAGE);
+  preparePage(store.dispatch, { name: PageNames.USER_MGMT_PAGE, title: _managePageTitle('Users') });
+
   const userCollection = FacilityUserResource.getCollection();
   const facilityPromise = FacilityResource.getCollection().fetch();
   const userPromise = userCollection.fetch({}, true);
@@ -476,8 +496,6 @@ function showUserPage(store) {
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', _managePageTitle('Users'));
     },
     error => { coreActions.handleApiError(store, error); }
   );
@@ -489,8 +507,7 @@ function showUserPage(store) {
 
 
 function showContentPage(store) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.CONTENT_MGMT_PAGE);
+  preparePage(store.dispatch, { name: PageNames.CONTENT_MGMT_PAGE, title: _managePageTitle('Content') });
   const taskCollectionPromise = TaskResource.getCollection().fetch();
   taskCollectionPromise.only(
     samePageCheckGenerator(store),
@@ -502,7 +519,6 @@ function showContentPage(store) {
       coreActions.setChannelInfo(store).then(() => {
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
-        store.dispatch('CORE_SET_TITLE', _managePageTitle('Content'));
       });
     },
     error => { coreActions.handleApiError(store, error); }
@@ -661,19 +677,21 @@ function triggerRemoteContentImportTask(store, channelId) {
 
 
 function showDataPage(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.DATA_EXPORT_PAGE);
+  preparePage(store.dispatch, {
+    name: PageNames.DATA_EXPORT_PAGE,
+    title: _managePageTitle('Data'),
+    isAsync: false,
+  });
   store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', _managePageTitle('Data'));
 }
 
 function showScratchpad(store) {
-  store.dispatch('SET_PAGE_NAME', PageNames.SCRATCHPAD);
+  preparePage(store.dispatch, {
+    name: PageNames.DATA_EXPORT_PAGE,
+    title: _managePageTitle('Scratchpad'),
+    isAsync: false,
+  });
   store.dispatch('SET_PAGE_STATE', {});
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', _managePageTitle('Scratchpad'));
 }
 
 
@@ -693,6 +711,8 @@ module.exports = {
   updateUser,
   deleteUser,
   showUserPage,
+  addCoachRole: addCoachRoleAction,
+  removeCoachRole: removeCoachRoleAction,
 
   showContentPage,
   pollTasksAndChannels,

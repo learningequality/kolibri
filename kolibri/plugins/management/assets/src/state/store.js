@@ -22,7 +22,6 @@ const constants = require('../constants');
 
  **/
 
-
 const initialState = {
   pageName: constants.PageNames.CLASS_MGMT_PAGE,
   pageState: {},
@@ -50,6 +49,15 @@ const mutations = {
     state.pageState.classes.forEach((classModel, index, arr) => {
       if (classModel.id === id) {
         arr[index] = updatedClass;
+      }
+    });
+  },
+
+  UPDATE_LEARNER_ROLE_FOR_CLASS(state, { userId, newRole }) {
+    // pageState has shape for 'edit class page'
+    state.pageState.classUsers.forEach((user) => {
+      if (user.id === userId) {
+        user.kind = newRole;
       }
     });
   },

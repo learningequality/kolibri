@@ -484,6 +484,7 @@ class Resource {
   /**
    * Add a model to the resource for deduplication, dirty checking, and tracking purposes.
    * @param {Object} data - The data for the model to add.
+   * @param {Object} [resourceIds = {}]
    * @returns {Model} - Returns the instantiated Model.
    */
   createModel(data, resourceIds = {}) {
@@ -495,6 +496,7 @@ class Resource {
   /**
    * Add a model to the resource for deduplication, dirty checking, and tracking purposes.
    * @param {Object|Model} model - Either the data for the model to add, or the Model itself.
+   * @param {Object} [resourceIds = {}]
    * @returns {Model} - Returns the instantiated Model.
    */
   addModel(model, resourceIds = {}) {
