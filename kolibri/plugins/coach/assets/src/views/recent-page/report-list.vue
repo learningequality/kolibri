@@ -11,7 +11,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="report in reports">
+          <tr v-for="report in reportList">
             <td>
               <content-icon :kind="report.kind"/>
               {{ report.title }}
@@ -56,7 +56,7 @@
     },
     computed: {
       reportList() {
-        this.reports.sort(
+        return Array.from(this.reports).sort(
           (report1, report2) => new Date(report1.last_active) - new Date(report2.last_active)
         );
       },
