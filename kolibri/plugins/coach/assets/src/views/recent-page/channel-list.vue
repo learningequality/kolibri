@@ -37,8 +37,6 @@
       channels: 'Channels',
       channelList: 'Channel list',
       lastActive: 'Last active',
-      daysPassed: 'X day(s) ago',
-      monthsPassed: 'X month(s) ago',
       timePassed:
       '{amount, number} {measure, select, ' +
         'day {' +
@@ -61,12 +59,7 @@
           (channel1, channel2) => {
             const lastActiveRaw = (channel) => this.lastActive[channel.id].raw;
 
-            if (lastActiveRaw(channel1) < lastActiveRaw(channel2)) {
-              return -1;
-            } else if (lastActiveRaw(channel1) > lastActiveRaw(channel2)) {
-              return 1;
-            }
-            return 0;
+            return lastActiveRaw(channel1) - lastActiveRaw(channel2);
           }
         );
       },

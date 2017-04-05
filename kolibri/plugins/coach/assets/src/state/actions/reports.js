@@ -124,19 +124,22 @@ function _showRecentChannels(store, classId) {
 
 
 function _showRecentReports(store, classId, channelId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
-
   // should be cached if navigated to this point
   const channelPromise = ChannelResource.getModel(channelId).fetch();
 
   channelPromise.then(
     channelData => {
+      const sevenDaysAgo = new Date();
+      // this is being set by default in the backend
+      // backend date data might be unreliable, though
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
       const reportPayload = {
         channel_id: channelId,
         content_node_id: channelData.root_pk,
         collection_kind: ReportConstants.UserScopes.CLASSROOM,
         collection_id: classId,
+        last_active_time: sevenDaysAgo,
       };
       const recentReportsPromise = RecentReportResource.getCollection(reportPayload).fetch();
 
@@ -155,7 +158,7 @@ function _showRecentReports(store, classId, channelId) {
         error => { coreActions.handleApiError(store, error); }
       );
     },
-  error => { coreActions.handleApiError(store, error); }
+    error => { coreActions.handleApiError(store, error); }
   );
 }
 

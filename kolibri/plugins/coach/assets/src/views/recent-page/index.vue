@@ -3,7 +3,7 @@
   <div>
     <h1>{{ $tr('title') }}</h1>
     <div v-if="pageState.channelId">
-      <report-list :reports="pageState.reports" />
+      <report-list />
     </div>
     <div v-else>
       <channel-list />
