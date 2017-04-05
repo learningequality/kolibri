@@ -78,15 +78,6 @@ function _exerciseState(exercise) {
   return {
     id: exercise.pk,
     title: exercise.title,
-    kind: exercise.kind,
-    description: exercise.description,
-    thumbnail: exercise.thumbnail,
-    available: exercise.available,
-    files: exercise.files,
-    content_id: exercise.content_id,
-    author: exercise.author,
-    license: exercise.license,
-    license_owner: exercise.license_owner,
   };
 }
 
