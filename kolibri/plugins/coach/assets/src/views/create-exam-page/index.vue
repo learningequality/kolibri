@@ -39,7 +39,7 @@
         <ol>
           <li v-for="(topic, index) in topic.breadcrumbs" :class="[notLastBreadcrumb(index) ? 'not-last' : '']">
             <button v-if="notLastBreadcrumb(index)" @click="handleGoToTopic(topic.id)">{{ topic.title }}</button>
-            <span v-else>{{ topic.title }}</span>
+            <strong v-else>{{ topic.title }}</strong>
           </li>
         </ol>
       </nav>
@@ -80,7 +80,7 @@
         <mat-svg category="action" name="visibility"/>
       </icon-button>
       <br>
-      <icon-button :text="$tr('finish')" :primary="true" @click="finish"/>
+      <icon-button :text="$tr('finish')" :primary="true" @click="createExam(currentClass.id, currentChannel.id, exercisesSelected, seed)"/>
     </div>
 
     <preview-new-exam-modal
@@ -131,6 +131,7 @@
         loading: false,
         exercisesSelected: [],
         topicsSelected: [],
+        seed: '',
       };
     },
     components: {
@@ -186,9 +187,6 @@
       preview() {
         this.displayModal(ExamModals.PREVIEW_NEW_EXAM);
       },
-      finish() {
-        console.log('create exam');
-      },
       notLastBreadcrumb(index) {
         return index !== this.topic.breadcrumbs.length - 1;
       },
@@ -204,6 +202,7 @@
       },
       actions: {
         fetchContent: ExamActions.fetchContent,
+        createExam: ExamActions.createExam,
         displayModal: ExamActions.displayModal,
       },
     },

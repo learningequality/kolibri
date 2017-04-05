@@ -1,5 +1,6 @@
 const CoreApp = require('kolibri');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
+const router = require('kolibri.coreVue.router');
 const CoreActions = require('kolibri.coreVue.vuex.actions');
 const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
 const Constants = require('../../constants');
@@ -53,7 +54,7 @@ function _breadcrumbsState(topics) {
 }
 
 function _currentTopicState(topic) {
-  let breadcrumbs = topic.ancestors;
+  let breadcrumbs = Array.from(topic.ancestors);
   breadcrumbs.push({ pk: topic.pk, title: topic.title });
   breadcrumbs = _breadcrumbsState(breadcrumbs);
   return {
@@ -161,9 +162,7 @@ function fetchContent(store, channelId, topicId) {
     ConditionalPromise.all([topicPromise, subtopicsPromise, exercisesPromise]).only(
       CoreActions.samePageCheckGenerator(store),
       ([topicModel, subtopicsCollection, exercisesCollection]) => {
-        // TODO: smh figure out a nicer workaround
-        const topicModelCopy = JSON.parse(JSON.stringify(topicModel));
-        const topic = _currentTopicState(topicModelCopy);
+        const topic = _currentTopicState(topicModel);
         const subtopics = _topicsState(subtopicsCollection);
         const exercises = _exercisesState(exercisesCollection);
 
@@ -221,6 +220,11 @@ function showCreateExamPage(store, classId, channelId) {
   );
 }
 
+function createExam(store, classId, channelId, exercisesSelected, seed) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  router.getInstance().push({ name: Constants.PageNames.EXAMS });
+}
+
 function showExamReportPage(store, classId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT);
@@ -273,4 +277,5 @@ module.exports = {
   deleteExam,
   updateExamVisibility,
   fetchContent,
+  createExam,
 };
