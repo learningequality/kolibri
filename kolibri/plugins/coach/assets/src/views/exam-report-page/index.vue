@@ -30,7 +30,7 @@
               </router-link>
             </th>
             <td class="table-data" v-if="examTaker.progress">{{ $tr('completed') }}</td>
-            <td class="table-data incomplete" v-else>{{ $tr('Incomplete') }}</td>
+            <td class="table-data incomplete" v-else>{{ $tr('incomplete') }}</td>
             <td class="table-data">{{ $tr('scorePercentage', { number: examTaker.score }) }}</td>
             <td class="table-data">{{ examTaker.group }}</td>
           </tr>
@@ -104,7 +104,7 @@
       averageScore: 'Average Score: {number}%',
       examReport: 'Exam report',
       completed: 'Completed',
-      Incomplete: 'Incomplete',
+      incomplete: 'Incomplete',
       name: 'Name',
       status: 'Status',
       score: 'Score',
