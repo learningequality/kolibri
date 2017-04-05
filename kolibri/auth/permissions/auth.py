@@ -3,11 +3,9 @@ The permissions classes in this module define the specific permissions that gove
 """
 
 from django.contrib.auth.models import AnonymousUser
-from django.db.models.query import F
 
 from ..constants.collection_kinds import FACILITY, LEARNERGROUP
 from ..constants.role_kinds import ADMIN, COACH
-from ..filters import HierarchyRelationsFilter
 from .base import BasePermissions, RoleBasedPermissions
 from .general import DenyAll
 
