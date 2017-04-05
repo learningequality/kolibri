@@ -54,7 +54,7 @@
       'breadcrumbs': require('./breadcrumbs'),
       'search-page': require('./search-page'),
       'tabs': require('kolibri.coreVue.components.tabs'),
-      'exam-page': require('./exam-page'),
+      'exam-list': require('./exam-list'),
     },
     methods: {
       switchChannel(channelId) {
@@ -135,7 +135,7 @@
         }
         if (this.pageName === PageNames.EXAM_LIST ||
           this.pageName === PageNames.EXAM) {
-          return 'exam-page';
+          return 'exam-list';
         }
         return null;
       },

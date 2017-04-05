@@ -102,6 +102,9 @@ module.exports = {
         logo: {
           module: require('../views/logo'),
         },
+        immersiveFullScreen: {
+          module: require('../views/immersive-full-screen'),
+        },
       },
       router: {
         module: require('../router'),
