@@ -12,6 +12,11 @@ const PageNames = {
   EXERCISE_RENDER: 'EXERCISE_RENDER',
 };
 
+const PageTitles = {
+  EXAMS: 'Exams',
+  CREATE_EXAM: 'Create new exam',
+};
+
 const GroupModals = {
   CREATE_GROUP: 'CREATE_GROUP',
   RENAME_GROUP: 'RENAME_GROUP',
@@ -21,5 +26,6 @@ const GroupModals = {
 
 module.exports = {
   PageNames,
+  PageTitles,
   GroupModals,
 };

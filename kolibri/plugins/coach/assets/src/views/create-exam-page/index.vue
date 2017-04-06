@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ `${$tr('createNewExam')} ${currentChannel.name}` }}</h1>
+    <h1>{{ $tr('createNewExam', { channelName: currentChannel.name }) }}</h1>
     <textbox
       :label="$tr('title')"
       :ariaLabel="$tr('title')"
@@ -20,24 +20,24 @@
       :invalid="numQuestionsInvalid"
       :error="$tr('examRequiresNum')"
       type="number"
-      v-model.trim="inputNumQuestions"
+      v-model.trim.number="inputNumQuestions"
       @blur="validateNum = true"
       @input="validateNum = true"
     />
 
     <h2>Choose exercises</h2>
-    <textbox
-      :ariaLabel="$tr('searchContent')"
-      :placeholder="$tr('searchContent')"
-      v-model.trim="searchInput"
-    />
-    <div v-if="searchInput">
-      search results
-    </div>
-    <div v-else>
+    <!--<textbox-->
+      <!--:ariaLabel="$tr('searchContent')"-->
+      <!--:placeholder="$tr('searchContent')"-->
+      <!--v-model.trim="searchInput"-->
+    <!--/>-->
+    <!--<div v-if="searchInput">-->
+      <!--search results-->
+    <!--</div>-->
+    <div>
       <nav>
         <ol>
-          <li v-for="(topic, index) in topic.breadcrumbs" :class="[notLastBreadcrumb(index) ? 'not-last' : '']">
+          <li v-for="(topic, index) in topic.breadcrumbs" :class="breadCrumbClass(index)">
             <button v-if="notLastBreadcrumb(index)" @click="handleGoToTopic(topic.id)">{{ topic.title }}</button>
             <strong v-else>{{ topic.title }}</strong>
           </li>
@@ -45,53 +45,55 @@
       </nav>
 
       <div>
-        <table>
-          <thead>
-            <tr>
-              <th class="col-icon"></th>
-              <th class="col-title">{{ $tr('title') }}</th>
-              <th class="col-add"></th>
-            </tr>
-          </thead>
-          <tbody v-if="!loading">
-            <exercise-row
-              v-for="exercise in exercises"
-              :exerciseId="exercise.id"
-              :exerciseTitle="exercise.title"
-              :selectedExercises="selectedExercises"
-              @addExercise="handleAddExercise"
-              @removeExercise="handleRemoveExercise"/>
-            <topic-row
-              v-for="topic in subtopics"
-              :topicId="topic.id"
-              :topicTitle="topic.title"
-              :allExercisesWithinTopic="topic.allExercisesWithinTopic"
-              :selectedExercises="selectedExercises"
-              @goToTopic="handleGoToTopic"
-              @addTopicExercises="handleAddTopicExercises"
-              @removeTopicExercises="handleRemoveTopicExercises"/>
-            <p v-if="(subtopics.length === 0) && (exercises.length === 0)">No exercises within this topic.</p>
-          </tbody>
-          <tbody v-else>
-            LOADING...
-          </tbody>
-        </table>
+        <transition name="fade" mode="out-in">
+          <ui-progress-linear v-if="loading" key="progress"/>
+
+          <table v-else key="table">
+            <thead>
+              <tr>
+                <th class="col-icon"></th>
+                <th class="col-title">{{ $tr('title') }}</th>
+                <th class="col-add"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <exercise-row
+                v-for="exercise in exercises"
+                :exerciseId="exercise.id"
+                :exerciseTitle="exercise.title"
+                :selectedExercises="selectedExercises"
+                @addExercise="handleAddExercise"
+                @removeExercise="handleRemoveExercise"/>
+              <topic-row
+                v-for="topic in subtopics"
+                :topicId="topic.id"
+                :topicTitle="topic.title"
+                :allExercisesWithinTopic="topic.allExercisesWithinTopic"
+                :selectedExercises="selectedExercises"
+                @goToTopic="handleGoToTopic"
+                @addTopicExercises="handleAddTopicExercises"
+                @removeTopicExercises="handleRemoveTopicExercises"/>
+              <p v-if="(subtopics.length === 0) && (exercises.length === 0)">No exercises within this topic.</p>
+            </tbody>
+          </table>
+        </transition>
       </div>
     </div>
 
     <div class="footer">
-      <p>7 Exercises selected</p>
+      <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
+      <p class="validation-error">{{ validationError }}</p>
       <icon-button :text="$tr('preview')" @click="preview">
         <mat-svg category="action" name="visibility"/>
       </icon-button>
       <br>
-      <icon-button :text="$tr('finish')" :primary="true" @click="createExam(currentClass.id, currentChannel.id, selectedExercises, seed)"/>
+      <icon-button :text="$tr('finish')" :primary="true" @click="finish"/>
     </div>
 
     <preview-new-exam-modal
       v-if="showPreviewNewExamModal"
       :examTitle="inputTitle"
-      :examNumQuestions="Number(inputNumQuestions)"
+      :examNumQuestions="inputNumQuestions"
       :selectedExercises="selectedExercises"/>
 
     <ui-snackbar-container
@@ -111,13 +113,14 @@
   module.exports = {
     $trNameSpace: 'createExamPage',
     $trs: {
-      createNewExam: 'Create a new exam from',
+      createNewExam: 'Create a new exam from {channelName}',
       title: 'Title',
       enterTitle: 'Enter a title',
       numQuestions: 'Number of questions',
       enterNum: 'Enter a number',
       examRequiresTitle: 'The exam requires a title',
       examRequiresNum: 'The exam requires a number of questions between 1 and 50',
+      noneSelected: 'No exercises are selected',
       searchContent: 'Search for content within channel',
       preview: 'Preview',
       finish: 'Finish',
@@ -125,6 +128,7 @@
       removed: 'Removed',
       alreadyAdded: 'Already added',
       undo: 'Undo',
+      selected: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected'
     },
     data() {
       return {
@@ -135,14 +139,15 @@
         validateNum: false,
         searchInput: '',
         loading: false,
-        topicsSelected: [],
         seed: '',
+        validationError: ''
       };
     },
     components: {
       'ui-select': require('keen-ui/src/UiSelect'),
       'ui-snackbar': require('keen-ui/src/UiSnackbar'),
       'ui-snackbar-container': require('keen-ui/src/UiSnackbarContainer'),
+      'ui-progress-linear': require('keen-ui/src/UiProgressLinear'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'textbox': require('kolibri.coreVue.components.textbox'),
       'topic-row': require('./topic-row'),
@@ -188,10 +193,39 @@
         this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('removed')} ${topicTitle}` });
       },
       preview() {
-        this.displayModal(ExamModals.PREVIEW_NEW_EXAM);
+        if (this.checkAllValid() === true) {
+          this.displayModal(ExamModals.PREVIEW_NEW_EXAM);
+        }
+      },
+      finish() {
+        if (this.checkAllValid() === true) {
+          this.createExam(
+              this.currentClass.id, this.currentChannel.id, this.selectedExercises, this.seed);
+        }
+      },
+      checkAllValid() {
+        this.validateTitle = true;
+        this.validateNum = true;
+        if (!this.titleInvalid && !this.numQuestionsInvalid && this.selectedExercises.length !== 0) {
+          this.validationError = '';
+          return true;
+        } else if (this.titleInvalid) {
+          this.validationError = this.$tr('examRequiresTitle');
+        } else if (this.numQuestionsInvalid) {
+          this.validationError = this.$tr('examRequiresNum');
+        } else if (this.selectedExercises.length === 0) {
+          this.validationError = this.$tr('noneSelected');
+        }
+        return false;
       },
       notLastBreadcrumb(index) {
         return index !== this.topic.breadcrumbs.length - 1;
+      },
+      breadCrumbClass(index) {
+        if (this.notLastBreadcrumb(index)) {
+          return 'not-last';
+        }
+        return '';
       },
     },
     vuex: {
@@ -251,5 +285,14 @@
     position: fixed
     bottom: 0
     z-index: 6
+
+  .fade-enter-active, .fade-leave-active
+    transition: opacity 0.1s
+
+  .fade-enter, .fade-leave-to .fade-leave-active
+    opacity: 0
+
+  .validation-error
+    color: $core-text-error
 
 </style>

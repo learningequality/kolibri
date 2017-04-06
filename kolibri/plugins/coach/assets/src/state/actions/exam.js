@@ -139,7 +139,7 @@ function showExamsPage(store, classId) {
 
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', ('Exams'));
+      store.dispatch('CORE_SET_TITLE', Constants.PageTitles.EXAMS);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
@@ -213,7 +213,7 @@ function fetchContent(store, channelId, topicId) {
 function showCreateExamPage(store, classId, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.CREATE_EXAM);
-  store.dispatch('CORE_SET_TITLE', ('Exams'));
+  store.dispatch('CORE_SET_TITLE', Constants.PageTitles.CREATE_EXAM);
 
   const currentClassPromise = ClassroomResource.getModel(classId).fetch();
   const channelPromise = ChannelResource.getCollection().fetch();
