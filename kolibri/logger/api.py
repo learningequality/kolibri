@@ -156,6 +156,14 @@ class ExamAttemptLogViewSet(viewsets.ModelViewSet):
 
 class ExamLogFilter(BaseLogFilter):
 
+    collection = filters.django_filters.MethodFilter()
+
+    def filter_collection(self, queryset, collection_id):
+        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+            target_user=F('user'),
+            ancestor_collection=collection_id,
+        )
+
     class Meta:
         model = ExamLog
         fields = ['user', 'exam']
