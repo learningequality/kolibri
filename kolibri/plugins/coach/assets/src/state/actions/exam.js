@@ -13,6 +13,9 @@ const LearnerGroupResource = CoreApp.resources.LearnerGroupResource;
 const ContentNodeResource = CoreApp.resources.ContentNodeResource;
 const ExamResource = CoreApp.resources.ExamResource;
 const ExamAssignmentResource = CoreApp.resources.ExamAssignmentResource;
+const ExamLogResource = CoreApp.resources.ExamLogResource;
+const FacilityUserResource = CoreApp.resources.FacilityUserResource;
+const ExamAttemptLogResource = CoreApp.resources.ExamAttemptLogResource;
 
 const pickIdAndName = pick(['id', 'name']);
 
@@ -419,19 +422,50 @@ function createExam(store, classCollection, examObj) {
 function showExamReportPage(store, classId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT);
-  store.dispatch('SET_PAGE_STATE', { classId });
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', ('Exam Report'));
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  const examLogPromise = ExamLogResource.getCollection({ exam: examId, collection: classId });
+  const facilityUserPromise = FacilityUserResource.getCollection({ member_of: classId });
+  ConditionalPromise.all([examLogPromise, facilityUserPromise]).only(
+    CoreActions.samePageCheckGenerator(store),
+    ([examLogs, facilityUsers]) => {
+      const examTakers = facilityUsers.map(
+        (user) => {
+          const examTakenByUser = examLogs.find((exam) => exam.id === user.id);
+          const examTaker = {
+            id: user.id,
+            name: user.name,
+            group: user.gourp,
+            score: examTakenByUser.score,
+            progress: examTakenByUser.progress,
+          };
+          return examTaker;
+        });
+      const pageState = {
+        examTakers,
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_TITLE', ('Exam Report'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
+    error => { CoreActions.handleApiError(store, error); }
+  );
 }
 
-function showExamReportDetailPage(store, classId, examId) {
+function showExamReportDetailPage(store, userId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT_DETAIL);
-  store.dispatch('SET_PAGE_STATE', { classId });
-  store.dispatch('CORE_SET_ERROR', null);
-  store.dispatch('CORE_SET_TITLE', ('Exam Report Detail'));
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  ExamAttemptLogResource.getCollection({ exam: examId, user: userId }).fetch().then(
+    examAttempts => {
+      const pageState = {
+        examAttempts,
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_TITLE', ('Exam Report Detail'));
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
+    error => CoreActions.handleApiError(store, error)
+  );
 }
 
 module.exports = {
