@@ -78,7 +78,6 @@ function _topicsState(topics) {
 function _exerciseState(exercise) {
   return {
     id: exercise.pk,
-    contentId: exercise.content_id,
     title: exercise.title,
   };
 }
@@ -149,32 +148,67 @@ function showExamsPage(store, classId) {
   );
 }
 
+function getAllExercisesWithinTopic(store, channelId, topicId) {
+  return new Promise((resolve, reject) => {
+    const exercisesPromise = ContentNodeResource.getDescendantsCollection(
+      topicId,
+      { channel_id: channelId },
+      { descendant_kind: ContentNodeKinds.EXERCISE, fields: ['pk'] }
+    ).fetch();
+
+    ConditionalPromise.all([exercisesPromise]).only(
+      CoreActions.samePageCheckGenerator(store),
+      ([exercisesCollection]) => {
+        const exercises = _exercisesState(exercisesCollection);
+        const exerciseIds = exercises.map(exercise => exercise.id);
+        resolve(exerciseIds);
+      },
+      error => reject(error)
+    );
+  });
+}
+
 // fetches topic, it's children subtopics, and children exercises
 function fetchContent(store, channelId, topicId) {
   return new Promise((resolve, reject) => {
     const channelPayload = { channel_id: channelId };
     const topicPromise = ContentNodeResource.getModel(topicId, channelPayload).fetch();
     const subtopicsPromise = ContentNodeResource.getCollection(
-      channelPayload, { parent: topicId, kind: ContentNodeKinds.TOPIC }).fetch();
+      channelPayload, { parent: topicId, kind: ContentNodeKinds.TOPIC, fields: ['pk', 'title', 'ancestors'] }).fetch();
     const exercisesPromise = ContentNodeResource.getCollection(
-      channelPayload, { parent: topicId, kind: ContentNodeKinds.EXERCISE }).fetch();
+      channelPayload, { parent: topicId, kind: ContentNodeKinds.EXERCISE, fields: ['pk', 'title'] }).fetch();
 
     ConditionalPromise.all([topicPromise, subtopicsPromise, exercisesPromise]).only(
       CoreActions.samePageCheckGenerator(store),
       ([topicModel, subtopicsCollection, exercisesCollection]) => {
         const topic = _currentTopicState(topicModel);
-        const subtopics = _topicsState(subtopicsCollection);
         const exercises = _exercisesState(exercisesCollection);
+        let subtopics = _topicsState(subtopicsCollection);
 
-        store.dispatch('SET_TOPIC', topic);
-        store.dispatch('SET_SUBTOPICS', subtopics);
-        store.dispatch('SET_EXERCISES', exercises);
-        resolve({ topic, subtopics, exercises });
+        const subtopicsExercisesPromises = subtopics.map(
+          subtopic => getAllExercisesWithinTopic(store, channelId, subtopic.id));
+
+        ConditionalPromise.all(subtopicsExercisesPromises).only(
+          CoreActions.samePageCheckGenerator(store),
+          subtopicsExercises => {
+            subtopics = subtopics.map((subtopic, index) => {
+              subtopic.allExercisesWithinTopic = subtopicsExercises[index];
+              return subtopic;
+            });
+
+            store.dispatch('SET_TOPIC', topic);
+            store.dispatch('SET_SUBTOPICS', subtopics);
+            store.dispatch('SET_EXERCISES', exercises);
+            resolve({ topic, subtopics, exercises });
+          },
+          error => reject(error)
+        );
       },
       error => reject(error)
     );
   });
 }
+
 
 function showCreateExamPage(store, classId, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -202,6 +236,7 @@ function showCreateExamPage(store, classId, channelId) {
             topic: content.topic,
             subtopics: content.subtopics,
             exercises: content.exercises,
+            selectedExercises: [],
             modalShown: false,
           };
 
@@ -220,7 +255,23 @@ function showCreateExamPage(store, classId, channelId) {
   );
 }
 
-function createExam(store, classId, channelId, exercisesSelected, seed) {
+function addExercise(store, exerciseId) {
+  const selectedExercises = store.state.pageState.selectedExercises;
+  if (!selectedExercises.includes(exerciseId)) {
+    store.dispatch('SET_SELECTED_EXERCISES', selectedExercises.concat(exerciseId));
+  }
+}
+
+function removeExercise(store, exerciseId) {
+  const selectedExercises = store.state.pageState.selectedExercises;
+  const index = selectedExercises.indexOf(exerciseId);
+  if (index !== -1) {
+    selectedExercises.splice(index, 1);
+    store.dispatch('SET_SELECTED_EXERCISES', selectedExercises);
+  }
+}
+
+function createExam(store, classId, channelId, selectedExercises, seed) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   router.getInstance().push({ name: Constants.PageNames.EXAMS });
 }
@@ -278,4 +329,7 @@ module.exports = {
   updateExamVisibility,
   fetchContent,
   createExam,
+  addExercise,
+  removeExercise,
+  getAllExercisesWithinTopic,
 };

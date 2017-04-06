@@ -54,17 +54,22 @@
             </tr>
           </thead>
           <tbody v-if="!loading">
-            <topic-row
-              v-for="topic in subtopics"
-              :topicId="topic.id"
-              :topicTitle="topic.title"
-              @goToTopic="handleGoToTopic"
-              @addTopicExercises="handleAddTopicExercises"/>
             <exercise-row
               v-for="exercise in exercises"
               :exerciseId="exercise.id"
               :exerciseTitle="exercise.title"
-              @addExercise="handleAddExercise"/>
+              :selectedExercises="selectedExercises"
+              @addExercise="handleAddExercise"
+              @removeExercise="handleRemoveExercise"/>
+            <topic-row
+              v-for="topic in subtopics"
+              :topicId="topic.id"
+              :topicTitle="topic.title"
+              :allExercisesWithinTopic="topic.allExercisesWithinTopic"
+              :selectedExercises="selectedExercises"
+              @goToTopic="handleGoToTopic"
+              @addTopicExercises="handleAddTopicExercises"
+              @removeTopicExercises="handleRemoveTopicExercises"/>
             <p v-if="(subtopics.length === 0) && (exercises.length === 0)">No exercises within this topic.</p>
           </tbody>
           <tbody v-else>
@@ -80,14 +85,14 @@
         <mat-svg category="action" name="visibility"/>
       </icon-button>
       <br>
-      <icon-button :text="$tr('finish')" :primary="true" @click="createExam(currentClass.id, currentChannel.id, exercisesSelected, seed)"/>
+      <icon-button :text="$tr('finish')" :primary="true" @click="createExam(currentClass.id, currentChannel.id, selectedExercises, seed)"/>
     </div>
 
     <preview-new-exam-modal
       v-if="showPreviewNewExamModal"
       :examTitle="inputTitle"
       :examNumQuestions="Number(inputNumQuestions)"
-      :exercisesSelected="exercisesSelected"/>
+      :selectedExercises="selectedExercises"/>
 
     <ui-snackbar-container
       class="snackbar-container"
@@ -117,6 +122,7 @@
       preview: 'Preview',
       finish: 'Finish',
       added: 'Added',
+      removed: 'Removed',
       alreadyAdded: 'Already added',
       undo: 'Undo',
     },
@@ -129,7 +135,6 @@
         validateNum: false,
         searchInput: '',
         loading: false,
-        exercisesSelected: [],
         topicsSelected: [],
         seed: '',
       };
@@ -166,23 +171,21 @@
           error => {}
         );
       },
-      handleAddTopicExercises(topicId, topicTitle) {
-        const index = this.topicsSelected.indexOf(topicId);
-        if (index === -1) {
-          this.topicsSelected.push(topicId);
-          this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('added')} ${topicTitle}` });
-        } else {
-          this.$refs.snackbarContainer.createSnackbar({ message: this.$tr('alreadyAdded') });
-        }
-      },
       handleAddExercise(exerciseId, exerciseTitle) {
-        const index = this.exercisesSelected.indexOf(exerciseId);
-        if (index === -1) {
-          this.exercisesSelected.push(exerciseId);
-          this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('added')} ${exerciseTitle}` });
-        } else {
-          this.$refs.snackbarContainer.createSnackbar({ message: this.$tr('alreadyAdded') });
-        }
+        this.addExercise(exerciseId);
+        this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('added')} ${exerciseTitle}` });
+      },
+      handleRemoveExercise(exerciseId, exerciseTitle) {
+        this.removeExercise(exerciseId);
+        this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('removed')} ${exerciseTitle}` });
+      },
+      handleAddTopicExercises(allExercisesWithinTopic, topicTitle) {
+        allExercisesWithinTopic.forEach(exerciseId => this.addExercise(exerciseId));
+        this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('added')} ${topicTitle}` });
+      },
+      handleRemoveTopicExercises(allExercisesWithinTopic, topicTitle) {
+        allExercisesWithinTopic.forEach(exerciseId => this.removeExercise(exerciseId));
+        this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('removed')} ${topicTitle}` });
       },
       preview() {
         this.displayModal(ExamModals.PREVIEW_NEW_EXAM);
@@ -198,11 +201,14 @@
         topic: state => state.pageState.topic,
         subtopics: state => state.pageState.subtopics,
         exercises: state => state.pageState.exercises,
+        selectedExercises: state => state.pageState.selectedExercises,
         modalShown: state => state.pageState.modalShown,
       },
       actions: {
         fetchContent: ExamActions.fetchContent,
         createExam: ExamActions.createExam,
+        addExercise: ExamActions.addExercise,
+        removeExercise: ExamActions.removeExercise,
         displayModal: ExamActions.displayModal,
       },
     },

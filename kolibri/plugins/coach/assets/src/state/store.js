@@ -75,6 +75,9 @@ const mutations = {
   SET_EXERCISES(state, exercises) {
     state.pageState.exercises = exercises;
   },
+  SET_SELECTED_EXERCISES(state, selectedExercises) {
+    state.pageState.selectedExercises = selectedExercises;
+  }
 };
 
 // assigns core state and mutations

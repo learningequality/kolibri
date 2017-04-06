@@ -5,10 +5,29 @@
       <content-icon :kind="topic"/>
     </td>
     <td class="col-title">
-      <button class="title" @click="$emit('goToTopic', topicId)">{{ topicTitle }}</button>
+      <button v-if="topicHasExercises" class="title" @click="$emit('goToTopic', topicId)">{{ topicTitle }}</button>
+      <span v-else>{{ topicTitle }}</span>
     </td>
     <td class="col-add">
-      <icon-button :text="$tr('exercises')" :primary="true" @click="$emit('addTopicExercises', topicId, topicTitle)">
+      <icon-button
+        v-if="topicHasExercises && allExercisesWithinTopicSelected"
+        :text="$tr('removeAllExercises')"
+        :primary="false"
+        @click="$emit('removeTopicExercises', allExercisesWithinTopic, topicTitle)">
+        <mat-svg category="content" name="remove"/>
+      </icon-button>
+      <icon-button
+        v-if="topicHasExercises && noExercisesWithinTopicSelected"
+        :text="$tr('addAllExercises')"
+        :primary="true"
+        @click="$emit('addTopicExercises', allExercisesWithinTopic, topicTitle)">
+        <mat-svg category="content" name="add"/>
+      </icon-button>
+      <icon-button
+        v-if="topicHasExercises && someExercisesWithinTopicSelected"
+        :text="$tr('addAllExercises')"
+        :primary="true"
+        @click="$emit('addTopicExercises', allExercisesWithinTopic, topicTitle)">
         <mat-svg category="content" name="add"/>
       </icon-button>
     </td>
@@ -24,7 +43,8 @@
   module.exports = {
     $trNameSpace: 'topicRow',
     $trs: {
-      exercises: 'Exercises',
+      removeAllExercises: 'Remove all exercises',
+      addAllExercises: 'Add all exercises',
     },
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
@@ -39,11 +59,36 @@
         type: String,
         required: true,
       },
+      selectedExercises: {
+        type: Array,
+        required: true,
+      },
+      allExercisesWithinTopic: {
+        type: Array,
+        required: true,
+      },
     },
     computed: {
       topic() {
         return ContentNodeKinds.TOPIC;
       },
+      topicHasExercises() {
+        return this.allExercisesWithinTopic.length !== 0;
+      },
+      allExercisesWithinTopicSelected() {
+        if (this.allExercisesWithinTopic.length === 0) {
+          return false;
+        }
+        return this.allExercisesWithinTopic.every(
+            exercise => this.selectedExercises.includes(exercise));
+      },
+      noExercisesWithinTopicSelected() {
+        return this.allExercisesWithinTopic.every(
+            exercise => !this.selectedExercises.includes(exercise));
+      },
+      someExercisesWithinTopicSelected() {
+        return !this.allExercisesWithinTopicSelected && !this.noExercisesWithinTopicSelected;
+      }
     },
   };
 

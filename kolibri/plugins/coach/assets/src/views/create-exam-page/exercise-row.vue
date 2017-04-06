@@ -8,7 +8,18 @@
       <span>{{ exerciseTitle }}</span>
     </td>
     <td class="col-add">
-      <icon-button :text="$tr('exercise')" :primary="true" @click="$emit('addExercise', exerciseId, exerciseTitle)">
+      <icon-button
+        v-if="isSelected"
+        :text="$tr('removeExercise')"
+        :primary="false"
+        @click="$emit('removeExercise', exerciseId, exerciseTitle)">
+        <mat-svg category="content" name="remove"/>
+      </icon-button>
+      <icon-button
+        v-else
+        :text="$tr('addExercise')"
+        :primary="true"
+        @click="$emit('addExercise', exerciseId, exerciseTitle)">
         <mat-svg category="content" name="add"/>
       </icon-button>
     </td>
@@ -24,7 +35,8 @@
   module.exports = {
     $trNameSpace: 'exerciseRow',
     $trs: {
-      exercise: 'Exercise',
+      addExercise: 'Add exercise',
+      removeExercise: 'Remove exercise',
     },
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
@@ -39,10 +51,17 @@
         type: String,
         required: true,
       },
+      selectedExercises: {
+        type: Array,
+        required: true,
+      },
     },
     computed: {
       exercise() {
         return ContentNodeKinds.EXERCISE;
+      },
+      isSelected() {
+        return this.selectedExercises.includes(this.exerciseId);
       },
     },
   };

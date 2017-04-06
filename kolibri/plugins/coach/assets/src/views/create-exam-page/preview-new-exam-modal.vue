@@ -31,7 +31,7 @@
         type: Number,
         required: true,
       },
-      exercisesSelected: {
+      selectedExercises: {
         type: Array,
         required: true,
       },
