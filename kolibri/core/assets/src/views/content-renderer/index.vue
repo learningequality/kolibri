@@ -18,6 +18,7 @@
         :defaultFile="defaultFile"
         :itemId="itemId"
         :answerState="answerState"
+        :allowHints="allowHints"
         ref="contentView"
         />
       </div>
@@ -76,6 +77,10 @@
       },
       answerState: {
         default: null,
+      },
+      allowHints: {
+        type: Boolean,
+        default: true,
       },
     },
     components: {
