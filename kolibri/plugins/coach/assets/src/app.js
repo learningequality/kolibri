@@ -74,7 +74,7 @@ class CoachToolsModule extends KolibriModule {
           path: '/:classId/exams/:examId/users/:userId',
           handler: (toRoute, fromRoute) => {
             examActions.showExamReportDetailPage(
-              store, toRoute.params.classId, toRoute.params.examId);
+              store, toRoute.params.userId, toRoute.params.examId);
           },
         },
         {
