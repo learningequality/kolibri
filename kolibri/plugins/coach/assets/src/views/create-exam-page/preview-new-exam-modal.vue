@@ -1,8 +1,12 @@
 <template>
 
   <core-modal :title="$tr('previewExam')" @cancel="close">
-    <div>Exam Preview</div>
-    <icon-button :text="$tr('randomize')"/>
+    <h2>{{ examTitle }}</h2>
+    <div>
+      {{$tr('questions', { count: examNumQuestions }) }}
+      <icon-button :text="$tr('randomize')"/>
+    </div>
+    {{ selectedExercises }}
   </core-modal>
 
 </template>
@@ -17,6 +21,7 @@
     $trs: {
       previewExam: 'Preview exam exercises',
       randomize: 'Randomize',
+      questions: '{count, number, integer} {count, plural, one {question} other {questions}}'
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),

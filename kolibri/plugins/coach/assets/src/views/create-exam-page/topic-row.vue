@@ -17,19 +17,20 @@
         <mat-svg category="content" name="remove"/>
       </icon-button>
       <icon-button
-        v-if="topicHasExercises && noExercisesWithinTopicSelected"
+        v-else-if="topicHasExercises && noExercisesWithinTopicSelected"
         :text="$tr('addAllExercises')"
         :primary="true"
         @click="$emit('addTopicExercises', allExercisesWithinTopic, topicTitle)">
         <mat-svg category="content" name="add"/>
       </icon-button>
       <icon-button
-        v-if="topicHasExercises && someExercisesWithinTopicSelected"
+        v-else-if="topicHasExercises && someExercisesWithinTopicSelected"
         :text="$tr('addAllExercises')"
         :primary="true"
         @click="$emit('addTopicExercises', allExercisesWithinTopic, topicTitle)">
         <mat-svg category="content" name="add"/>
       </icon-button>
+      <span v-else>{{ $tr('noExercises') }}</span>
     </td>
   </tr>
 
@@ -45,6 +46,7 @@
     $trs: {
       removeAllExercises: 'Remove all exercises',
       addAllExercises: 'Add all exercises',
+      noExercises: 'No exercises within topic',
     },
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),

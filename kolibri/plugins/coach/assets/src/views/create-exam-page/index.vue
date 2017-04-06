@@ -73,7 +73,6 @@
                 @goToTopic="handleGoToTopic"
                 @addTopicExercises="handleAddTopicExercises"
                 @removeTopicExercises="handleRemoveTopicExercises"/>
-              <p v-if="(subtopics.length === 0) && (exercises.length === 0)">No exercises within this topic.</p>
             </tbody>
           </table>
         </transition>
@@ -127,7 +126,6 @@
       added: 'Added',
       removed: 'Removed',
       alreadyAdded: 'Already added',
-      undo: 'Undo',
       selected: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected'
     },
     data() {
