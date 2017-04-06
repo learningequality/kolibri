@@ -219,7 +219,7 @@ class AttemptLog(BaseAttemptLog):
         return self.sessionlog.dataset
 
 
-class ExamLog(AbstractFacilityDataModel):
+class ExamLog(BaseLogModel):
     """
     This model provides a summary of a user's interaction with a particular exam, and serves as
     an aggregation point for individual attempts on that exam.
