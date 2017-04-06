@@ -48,7 +48,6 @@
 <script>
 
   const constants = require('../../constants');
-  const actions = require('../../state/actions/main');
 
   module.exports = {
     computed: {
@@ -70,30 +69,8 @@
     },
     vuex: {
       getters: {
-        examTakers: () => [
-          {
-            id: 1,
-            name: 'LearnerName 111',
-            progress: 0,
-            score: null,
-            group: 'Group A',
-          },
-          {
-            id: 2,
-            name: 'LearnerName 222',
-            progress: 1,
-            score: 33,
-            group: 'Group A',
-          },
-          {
-            id: 3,
-            name: 'LearnerName 333',
-            progress: 0,
-            score: null,
-            group: 'Group B',
-          }
-        ],
-      },
+        examTakers: state => state.pageState.examTakers,
+        },
       actions: {
         displayExamModal: actions.displayExamModal,
       },
