@@ -18,8 +18,8 @@
 
 <script>
 
-  const ReportConstants = require('../../../reportConstants');
-  const genLink = require('../genLink');
+  const ReportConstants = require('../../reportConstants');
+  const genLink = require('./genLink');
   const values = require('lodash.values');
 
   module.exports = {

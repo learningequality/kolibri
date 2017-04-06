@@ -59,7 +59,7 @@
       },
       topicsLink() {
         return {
-          name: Constants.PageNames.TOPICS,
+          name: Constants.PageNames.TOPICS_ROOT,
           params: { class_id: this.classId },
         };
       },
