@@ -107,11 +107,11 @@ function _collectionState(data) {
 
 function _examState(data) {
   const state = {
-    id: data.pk,
+    id: data.id,
     title: data.title,
     channelId: data.channel_id,
     active: data.active,
-    archived: data.archived,
+    archive: data.archive,
     closed: data.closed,
     answerCount: data.answer_count,
     questionCount: data.question_count,
@@ -500,6 +500,8 @@ function showExam(store, channelId, id, questionNumber) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', PageNames.EXAM);
 
+  questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
+
   const examPromise = UserExamResource.getModel(id, { channel_id: channelId }).fetch();
   const channelsPromise = coreActions.setChannelInfo(store, channelId);
   const examLogPromise = ExamLogResource.getCollection({
@@ -574,7 +576,7 @@ function showExam(store, channelId, id, questionNumber) {
         contentPromise.then(
           (contentNode) => {
             const itemId = selectQuestionFromExercise(
-              currentQuestion.index,
+              currentQuestion.assessmentItemIndex,
               seed,
               contentNode);
 
@@ -585,6 +587,8 @@ function showExam(store, channelId, id, questionNumber) {
               questions,
               currentQuestion,
               questionNumber,
+              content: _contentState(contentNode),
+              channelId,
             };
             if (!pageState.attemptLogs[currentQuestion.contentId]) {
               pageState.attemptLogs[currentQuestion.contentId] = {};
