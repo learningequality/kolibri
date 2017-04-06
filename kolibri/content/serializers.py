@@ -168,14 +168,14 @@ class UserExamSerializer(serializers.ModelSerializer):
         model = ExamAssignment
         read_only_fields = (
             'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'score', 'archived', 'answer_count',
+            'active', 'score', 'archive', 'answer_count',
         )
 
     def to_representation(self, obj):
         output = {}
         exam_fields = (
             'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'archived',
+            'active', 'archive',
         )
         for field in exam_fields:
             output[field] = getattr(obj.exam, field)
@@ -183,8 +183,7 @@ class UserExamSerializer(serializers.ModelSerializer):
             # Try to add the score from the user's ExamLog attempts.
             output['score'] = sum(
                 obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.values('correct'))
-            output['answer_count'] = sum(
-                obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.count())
+            output['answer_count'] = obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.count()
         except ExamLog.DoesNotExist:
             output['score'] = None
         return output

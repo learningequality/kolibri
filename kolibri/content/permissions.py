@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.db.models.query import F
 from kolibri.auth.filters import HierarchyRelationsFilter
 from kolibri.auth.permissions.general import DenyAll
@@ -14,6 +15,6 @@ class UserCanReadExamAssignmentData(DenyAll):
 
     def readable_by_user_filter(self, user, queryset):
         return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            source_user=user,
+            target_user=user,
             ancestor_collection=F("collection"),
-        )
+        ).filter(Q(exam__active=True) | Q(exam__examlogs__user=user))
