@@ -1,4 +1,5 @@
 const CoreApp = require('kolibri');
+const pick = require('lodash/fp/pick');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const CoreActions = require('kolibri.coreVue.vuex.actions');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
@@ -10,35 +11,10 @@ const LearnerGroupResource = CoreApp.resources.LearnerGroupResource;
 const ContentNodeResource = CoreApp.resources.ContentNodeResource;
 const ExamResource = CoreApp.resources.ExamResource;
 
-
-function _classState(classroom) {
-  return {
-    id: classroom.id,
-    name: classroom.name,
-  };
-}
-
-function _channelState(channel) {
-  return {
-    id: channel.id,
-    name: channel.name,
-    rootPk: channel.root_pk,
-  };
-}
+const pickIdAndName = pick(['id', 'name']);
 
 function _channelsState(channels) {
-  return channels.map(channel => _channelState(channel));
-}
-
-function _groupState(group) {
-  return {
-    id: group.id,
-    name: group.name,
-  };
-}
-
-function _groupsState(groups) {
-  return groups.map(group => _groupState(group));
+  return channels.map(({ id, name, root_pk }) => ({ id, name, rootPk: root_pk }));
 }
 
 function displayModal(store, modalName) {
@@ -60,15 +36,11 @@ function showExamsPage(store, classId) {
   ConditionalPromise.all(resourceRequests).only(
     CoreActions.samePageCheckGenerator(store),
     ([currentClassModel, groupsCollection, channelsCollection, exams]) => {
-      const currentClass = _classState(currentClassModel);
-      const currentClassGroups = _groupsState(groupsCollection);
-      const channels = _channelsState(channelsCollection);
-
       const pageState = {
         classId,
-        currentClass,
-        currentClassGroups,
-        channels,
+        currentClass: pickIdAndName(currentClassModel),
+        currentClassGroups: groupsCollection.map(pickIdAndName),
+        channels: _channelsState(channelsCollection),
         exams,
         modalShown: false,
       };
@@ -92,7 +64,7 @@ function showCreateExamPage(store, classId, channelId) {
   ConditionalPromise.all([currentClassPromise]).only(
     CoreActions.samePageCheckGenerator(store),
     ([currentClassModel, channelsCollection]) => {
-      const currentClass = _classState(currentClassModel);
+      const currentClass = pickIdAndName(currentClassModel);
       const pageState = {
         modalShown: false,
         currentClass,
