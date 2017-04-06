@@ -61,7 +61,7 @@
         };
       },
       lastActiveText(channel) {
-        timePassedSince(lastActiveTime) {
+        function timePassedSince(lastActiveTime) {
           // helper function for __getChannelLastActive
           // @param lastActiveTime --  date in string format
           // @returns object representing time passed since input in days or months:
