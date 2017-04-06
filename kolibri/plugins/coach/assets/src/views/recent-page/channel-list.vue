@@ -61,7 +61,40 @@
         };
       },
       lastActiveText(channel) {
-        const trArgs = this.lastActive[channel.id];
+        timePassedSince(lastActiveTime) {
+          // helper function for __getChannelLastActive
+          // @param lastActiveTime --  date in string format
+          // @returns object representing time passed since input in days or months:
+          // {
+          //   amount: 'int',
+          //   measure: 'month or day',
+          // }
+          const dayMeasure = (ms) => Math.round(ms / (8.64e+7));
+          const monthMeasure = (ms) => Math.round(ms / (2.628e+9));
+
+          const currentDate = new Date();
+          const lastActiveDate = new Date(lastActiveTime);
+          // subtracting dates returns time interval in milliseconds
+          const millisecondsEllapsed = currentDate - lastActiveDate;
+
+          const monthsAgo = monthMeasure(millisecondsEllapsed);
+          // returns months amount of days has surpassed a month
+          if (monthsAgo) {
+            return {
+              amount: monthsAgo,
+              measure: 'month',
+              raw: millisecondsEllapsed,
+            };
+          }
+          // and days otherwise
+          return {
+            amount: dayMeasure(millisecondsEllapsed),
+            measure: 'day',
+            raw: millisecondsEllapsed,
+          };
+        }
+
+        const trArgs = timePassedSince(this.lastActive[channel.id]);
         return this.$tr('timePassed', trArgs);
       },
     },
