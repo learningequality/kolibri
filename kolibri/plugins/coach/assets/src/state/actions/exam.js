@@ -33,7 +33,7 @@ function showExamsPage(store, classId) {
     ExamResource.getCollectionForClass(classId).fetch(),
   ];
 
-  ConditionalPromise.all(resourceRequests).only(
+  return ConditionalPromise.all(resourceRequests).only(
     CoreActions.samePageCheckGenerator(store),
     ([currentClassModel, groupsCollection, channelsCollection, exams]) => {
       const pageState = {
