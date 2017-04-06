@@ -8,6 +8,7 @@ const ClassroomResource = CoreApp.resources.ClassroomResource;
 const ChannelResource = CoreApp.resources.ChannelResource;
 const LearnerGroupResource = CoreApp.resources.LearnerGroupResource;
 const ContentNodeResource = CoreApp.resources.ContentNodeResource;
+const ExamResource = CoreApp.resources.ExamResource;
 
 
 function _classState(classroom) {
@@ -49,51 +50,32 @@ function showExamsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAMS);
 
-  const currentClassPromise = ClassroomResource.getModel(classId).fetch();
-  const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch();
-  const channelPromise = ChannelResource.getCollection().fetch();
+  const resourceRequests = [
+    ClassroomResource.getModel(classId).fetch(),
+    LearnerGroupResource.getCollection({ parent: classId }).fetch(),
+    ChannelResource.getCollection().fetch(),
+    ExamResource.getCollectionForClass(classId).fetch(),
+  ];
 
-  ConditionalPromise.all([currentClassPromise, groupPromise, channelPromise]).only(
+  ConditionalPromise.all(resourceRequests).only(
     CoreActions.samePageCheckGenerator(store),
-    ([currentClassModel, groupsCollection, channelsCollection]) => {
+    ([currentClassModel, groupsCollection, channelsCollection, exams]) => {
       const currentClass = _classState(currentClassModel);
       const currentClassGroups = _groupsState(groupsCollection);
       const channels = _channelsState(channelsCollection);
-
-      const dummyExams = [{
-        id: '1',
-        title: 'UNIT 1 Exam',
-        active: false,
-        dateCreated: 'March 15, 2017 03:24:00',
-        visibility: { class: false, groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }] },
-      },
-      {
-        id: '2',
-        title: 'UNIT 1 Quiz',
-        active: true,
-        dateCreated: 'March 21, 2017 03:24:00',
-        visibility: { class: false, groups: [{ id: '1', name: 'groupA' }] },
-      },
-      {
-        id: '3',
-        title: 'UNIT 2',
-        active: true,
-        dateCreated: 'March 22, 2017 03:24:00',
-        visibility: { class: true, groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }] },
-      }];
 
       const pageState = {
         classId,
         currentClass,
         currentClassGroups,
         channels,
-        exams: dummyExams,
+        exams,
         modalShown: false,
       };
 
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', ('Exams'));
+      store.dispatch('CORE_SET_TITLE', 'Exams');
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => {
