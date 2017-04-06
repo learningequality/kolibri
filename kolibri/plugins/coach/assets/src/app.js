@@ -24,21 +24,6 @@ const REPORTS_URL_PATTERN = [
 ].join('/');
 
 
-/* find the keys that differ between the old and new params */
-function _diffKeys(newParams, oldParams) {
-  if (!oldParams) {
-    return Object.keys(newParams);
-  }
-  const diffKeys = [];
-  Object.entries(newParams).forEach(([key, value]) => {
-    if (oldParams[key] !== value) {
-      diffKeys.push(key);
-    }
-  });
-  return diffKeys;
-}
-
-
 class CoachToolsModule extends KolibriModule {
   ready() {
     const coreStoreUpdates = [
@@ -85,8 +70,10 @@ class CoachToolsModule extends KolibriModule {
           name: PageNames.TOPICS,
           path: `/:class_id/topics/${REPORTS_URL_PATTERN}`,
           handler: (toRoute, fromRoute) => {
+            const diffKeys = Object.keys(toRoute.params).filter(
+              key => toRoute.params[key] !== fromRoute.params[key]
+            );
             const localUpdateParams = ['sort_column', 'sort_order'];
-            const diffKeys = _diffKeys(toRoute.params, fromRoute.params);
             if (diffKeys.every(key => localUpdateParams.includes(key))) {
               reportsActions.updateSorting(
                 store,
