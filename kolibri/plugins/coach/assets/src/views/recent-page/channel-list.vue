@@ -37,21 +37,7 @@
       channels: 'Channels',
       channelList: 'Channel list',
       lastActive: 'Last active',
-      timePassed:
-      '{amount, number} {measure, select, ' +
-        'day {' +
-          '{amount, plural,' +
-            'one {day}' +
-            'other {days}' +
-          '}' +
-        '}' +
-        'month {' +
-          '{amount, plural,' +
-            'one {month}' +
-            'other {months}' +
-          '}' +
-        '}' +
-      '} ago',
+      timePassed: '{amount, number} {measure, select, day { {amount, plural, one {day} other {days} } } month { {amount, plural, one {month} other {months} } } } ago',
     },
     computed: {
       channelList() {
