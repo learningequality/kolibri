@@ -138,7 +138,7 @@ class ExamSerializer(serializers.ModelSerializer):
         model = Exam
         fields = (
             'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'collection', 'archived',
+            'active', 'collection', 'archive',
         )
         read_only_fields = ('creator',)
 
