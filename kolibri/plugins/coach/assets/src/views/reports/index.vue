@@ -1,26 +1,21 @@
 <template>
 
   <div>
-    <!--TABS-->
-    <all-recent-tabs
-      :recentViewLink="recentViewLink"
-      :allViewLink="allViewLink"
-      :isRecentView="isRecentView"/>
-
-
     <div class="tabcontents">
       <div class="top-section">
-        <!--CONTENT BREADCRUMBS-->
-        <breadcrumbs
-          v-if="!isRecentView && contentBreadcrumbs.length > 1"
-          :list="contentBreadcrumbs"
-        />
 
         <!--HEADER SECTION-->
-        <report-header
-          :contentKind="pageState.content_scope_summary.kind"
-          :contentTitle="pageState.content_scope_summary.title"
-          :userFullName="pageState.user_scope_summary.full_name"/>
+        <h2>
+          <span v-if="pageState.user_scope_summary.full_name">
+            <mat-svg category="social" name="person"/>
+            {{ pageState.user_scope_summary.full_name }} -
+          </span>
+          <content-icon
+            :kind="pageState.content_scope_summary.kind"
+            colorstyle="text-default"
+          />
+          {{ pageState.content_scope_summary.title }}
+        </h2>
 
         <!--SUMMARY SECTION-->
         <summary-section
@@ -29,22 +24,19 @@
           :exerciseProgress="exerciseProgress"
           :contentCount="contentCount"
           :contentProgress="contentProgress"
-          :lastActive="pageState.content_scope_summary.last_active"
           :singleUser="isSingleUser"
           :userCount="userCount"
           :completionCount="completionCount"
-          :isRecentView="isRecentView"/>
+          :isRecentView="false"
+        />
+
+        <!--CONTENT BREADCRUMBS-->
+        <breadcrumbs :list="contentBreadcrumbs"/>
+
       </div>
 
       <!-- TABLE SECTION -->
       <div v-if="!isSingleUser || !isSingleItem" class="table-section">
-
-      <!--VIEW-BY SWITCH-->
-        <view-by-switch
-          v-if="!isRecentView"
-          :isContent="isViewByContent"
-          :vlink="viewByLink"
-          :disabled="isSingleUser || isSingleItem"/>
 
         <!--TABLE SECTION-->
         <table class="data-table">
@@ -66,7 +58,6 @@
                 class="progress-col coach-filter"
               ></th>
               <th is="header-cell"
-                v-if="!isRecentView"
                 :text="$tr('last-activity')"
                 :column="ReportConstants.TableColumns.DATE"
                 class="date-col coach-filter"
@@ -91,7 +82,7 @@
               <td class="progress-col">
                 <progress-cell :num="row.contentProgress" :isExercise="false"/>
               </td>
-              <td class="date-col" v-if="!isRecentView">
+              <td class="date-col">
                 <date-cell :date="row.lastActive"/>
               </td>
             </tr>
@@ -109,7 +100,6 @@
 
   const ReportConstants = require('../../reportConstants');
   const reportGetters = require('../../state/getters/reports');
-  const coreGetters = require('kolibri.coreVue.vuex.getters');
   const genLink = require('./genLink');
 
   module.exports = {
@@ -122,11 +112,9 @@
       'all-learners': 'All learners ({0, number, integer})',
     },
     components: {
+      'content-icon': require('kolibri.coreVue.components.contentIcon'),
       'breadcrumbs': require('./breadcrumbs'),
-      'all-recent-tabs': require('./all-recent-tabs'),
-      'report-header': require('./report-header'),
       'summary-section': require('./summary-section'),
-      'view-by-switch': require('./view-by-switch'),
       'header-cell': require('./header-cell'),
       'user-cell': require('./data-cells/user-cell'),
       'date-cell': require('./data-cells/date-cell'),
@@ -139,9 +127,6 @@
       },
       isViewByContent() {
         return this.pageState.view_by_content_or_learners === ReportConstants.ViewBy.CONTENT;
-      },
-      isRecentView() {
-        return this.pageState.all_or_recent === ReportConstants.AllOrRecent.RECENT;
       },
       isSingleUser() {
         return this.pageState.user_scope === ReportConstants.UserScopes.USER;
@@ -161,22 +146,6 @@
         list.push({ title: this.pageState.content_scope_summary.title });
         return list;
       },
-      recentViewLink() {
-        return genLink(this.pageState, {
-          all_or_recent: ReportConstants.AllOrRecent.RECENT,
-          content_scope: ReportConstants.ContentScopes.ROOT, // recent view only applies to root
-          content_scope_id: this.currentChannel.root_id,
-          view_by_content_or_learners: ReportConstants.ViewBy.CONTENT,
-        });
-      },
-      allViewLink() {
-        return genLink(this.pageState, { all_or_recent: ReportConstants.AllOrRecent.ALL });
-      },
-      viewByLink() {
-        // target of the link is the opposite of the current view
-        const view = this.isViewByContent ? ReportConstants.ViewBy.LEARNERS : ReportConstants.ViewBy.CONTENT; // eslint-disable-line max-len
-        return genLink(this.pageState, { view_by_content_or_learners: view });
-      },
     },
     vuex: {
       getters: {
@@ -188,7 +157,6 @@
         dataTable: reportGetters.dataTable,
         userCount: reportGetters.userCount,
         completionCount: reportGetters.completionCount,
-        currentChannel: coreGetters.getCurrentChannelObject,
       },
     },
   };
