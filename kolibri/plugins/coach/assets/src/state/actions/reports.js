@@ -175,6 +175,7 @@ function updateSorting(store, sortColumn, sortOrder) {
 function showReport(store, viewBy, params) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 
+  const classId = params.class_id;
   const channelId = params.channel_id;
   const contentScope = params.content_scope;
   const contentScopeId = params.content_scope_id;
@@ -234,6 +235,7 @@ function showReport(store, viewBy, params) {
   Promise.all(promises).then(
     ([report, contentSummary, userSummary]) => {
       // save URL params to store
+      store.dispatch('SET_CLASS_ID', classId);
       store.dispatch('SET_CHANNEL_ID', channelId);
       store.dispatch('SET_CONTENT_SCOPE', contentScope);
       store.dispatch('SET_CONTENT_SCOPE_ID', contentScopeId);
