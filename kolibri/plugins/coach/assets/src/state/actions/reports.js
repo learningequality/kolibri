@@ -29,43 +29,8 @@ function _showRecentChannels(store, classId) {
     // @param channel to get recentActivity for
     // @returns promise that resolves channel with lastActive value in object:
     // {
-    //   'channelId': {
-    //     amount: 'int',
-    //     measure: 'month or day',
-    //   },
+    //   'channelId': dateOfLastActivity,
     // }
-    function ___timePassedSince(lastActiveTime) {
-      // helper function for __getChannelLastActive
-      // @param lastActiveTime --  date in string format
-      // @returns object representing time passed since input in days or months:
-      // {
-      //   amount: 'int',
-      //   measure: 'month or day',
-      // }
-      const dayMeasure = (ms) => Math.round(ms / (8.64e+7));
-      const monthMeasure = (ms) => Math.round(ms / (2.628e+9));
-
-      const currentDate = new Date();
-      const lastActiveDate = new Date(lastActiveTime);
-      // subtracting dates returns time interval in milliseconds
-      const millisecondsEllapsed = currentDate - lastActiveDate;
-
-      const monthsAgo = monthMeasure(millisecondsEllapsed);
-      // returns months amount of days has surpassed a month
-      if (monthsAgo) {
-        return {
-          amount: monthsAgo,
-          measure: 'month',
-          raw: millisecondsEllapsed,
-        };
-      }
-      // and days otherwise
-      return {
-        amount: dayMeasure(millisecondsEllapsed),
-        measure: 'day',
-        raw: millisecondsEllapsed,
-      };
-    }
     const summaryPayload = {
       channel_id: channel.id,
       collection_kind: ReportConstants.UserScopes.FACILITY,
@@ -79,7 +44,7 @@ function _showRecentChannels(store, classId) {
         getSumm.then(
           channelSummary => {
             const channelLastActive = {};
-            channelLastActive[channel.id] = ___timePassedSince(channelSummary.last_active);
+            channelLastActive[channel.id] = channelSummary.last_active;
             resolve(channelLastActive);
           },
           error => reject(error)
