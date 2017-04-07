@@ -2,7 +2,6 @@
 /* eslint-disable no-multi-assign */
 const sinon = require('sinon');
 const kolibri = require('kolibri');
-const assert = require('assert');
 
 // add fake Resources to kolibri mock. This needs to be done before loading tested module
 kolibri.resources = {
@@ -36,7 +35,7 @@ function makeHappyFetchable(fetchResult = {}) {
   };
 }
 
-function sadFetchMock(fetchResult = {}) {
+function makeSadFetchable(fetchResult = {}) {
   return {
     fetch: () => Promise.reject(fetchResult),
   };
@@ -54,14 +53,20 @@ const fakeExams = [
     title: 'UNIT 1 Exam',
     active: false,
     dateCreated: 'March 15, 2017 03:24:00',
-    visibility: { class: false, groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }] },
+    visibility: {
+      class: false,
+      groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }]
+    },
   },
   {
     id: '2',
     title: 'UNIT 1 Quiz',
     active: true,
     dateCreated: 'March 21, 2017 03:24:00',
-    visibility: { class: false, groups: [{ id: '1', name: 'groupA' }] },
+    visibility: {
+      class: false,
+      groups: [{ id: '1', name: 'groupA' }],
+    },
   }
 ];
 
@@ -76,9 +81,10 @@ describe.only('showExamsPage', () => {
     learnerGroupStub.reset();
     classroomStub.reset();
     examStub.reset();
+    storeMock.dispatch.reset();
   });
 
-  it('store is properly setup when there are no problems', () => {
+  it('store is properly set up when there are no problems', () => {
     channelStub.returns(makeHappyFetchable(fakeItems));
     learnerGroupStub.returns(makeHappyFetchable(fakeItems));
     classroomStub.returns(makeHappyFetchable(fakeItems[0]));
@@ -104,6 +110,17 @@ describe.only('showExamsPage', () => {
         exams: fakeExams,
         modalShown: false,
       }));
+    });
+  });
+
+  it('store is properly set up when there are errors', () => {
+    channelStub.returns(makeSadFetchable('channel error'));
+    learnerGroupStub.returns(makeHappyFetchable(fakeItems));
+    classroomStub.returns(makeHappyFetchable(fakeItems[0]));
+    examStub.returns(makeHappyFetchable(fakeExams));
+    return examActions.showExamsPage(storeMock, 'class_1')._promise
+    .catch(() => {
+      sinon.assert.calledWith(storeMock.dispatch, 'CORE_SET_ERROR', 'channel error');
     });
   });
 });
