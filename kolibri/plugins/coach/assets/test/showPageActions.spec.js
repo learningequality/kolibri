@@ -48,6 +48,23 @@ const fakeItems = [
   { id: 'item_2', name: 'item two', root_pk: 'pk2', misc: 'ha ha ha' },
 ];
 
+const fakeExams = [
+  {
+    id: '1',
+    title: 'UNIT 1 Exam',
+    active: false,
+    dateCreated: 'March 15, 2017 03:24:00',
+    visibility: { class: false, groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }] },
+  },
+  {
+    id: '2',
+    title: 'UNIT 1 Quiz',
+    active: true,
+    dateCreated: 'March 21, 2017 03:24:00',
+    visibility: { class: false, groups: [{ id: '1', name: 'groupA' }] },
+  }
+];
+
 describe.only('showExamsPage', () => {
   const storeMock = {
     dispatch: sinon.spy(),
@@ -65,7 +82,7 @@ describe.only('showExamsPage', () => {
     channelStub.returns(makeHappyFetchable(fakeItems));
     learnerGroupStub.returns(makeHappyFetchable(fakeItems));
     classroomStub.returns(makeHappyFetchable(fakeItems[0]));
-    examStub.returns(makeHappyFetchable([]));
+    examStub.returns(makeHappyFetchable(fakeExams));
 
     return examActions.showExamsPage(storeMock, 'class_1')._promise
     .then(() => {
@@ -84,7 +101,7 @@ describe.only('showExamsPage', () => {
           { id: 'item_1', name: 'item one' },
           { id: 'item_2', name: 'item two' },
         ],
-        exams: [],
+        exams: fakeExams,
         modalShown: false,
       }));
     });
