@@ -11,7 +11,7 @@ from .utils.paths import get_content_storage_file_path
 
 # Do this to prevent import of broken Windows filetype registry that makes guesstype not work.
 # https://www.thecodingforums.com/threads/mimetypes-guess_type-broken-in-windows-on-py2-7-and-python-3-x.952693/
-mimetypes.init([])
+mimetypes.init([os.path.join(os.path.dirname(__file__), 'constants', 'mime.types')])
 
 class ZipContentView(View):
 
