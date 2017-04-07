@@ -422,25 +422,35 @@ function createExam(store, classCollection, examObj) {
 function showExamReportPage(store, classId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT);
-  const examLogPromise = ExamLogResource.getCollection({ exam: examId, collection: classId });
-  const facilityUserPromise = FacilityUserResource.getCollection({ member_of: classId });
+  const examLogPromise = ExamLogResource.getCollection({
+    exam: examId,
+    collection: classId,
+  }).fetch();
+  const facilityUserPromise = FacilityUserResource.getCollection({ member_of: classId }).fetch();
   ConditionalPromise.all([examLogPromise, facilityUserPromise]).only(
     CoreActions.samePageCheckGenerator(store),
     ([examLogs, facilityUsers]) => {
-      const examTakers = facilityUsers.map(
-        (user) => {
+      const examTakers = [];
+      if (examLogs && facilityUsers) {
+        facilityUsers.reduce(
+        (acc, user) => {
           const examTakenByUser = examLogs.find((exam) => exam.id === user.id);
-          const examTaker = {
-            id: user.id,
-            name: user.name,
-            group: user.gourp,
-            score: examTakenByUser.score,
-            progress: examTakenByUser.progress,
-          };
-          return examTaker;
-        });
+          if (examTakenByUser) {
+            acc.push({
+              id: user.id,
+              name: user.username,
+              group: user.gourp,
+              score: examTakenByUser.score,
+              progress: examTakenByUser.progress,
+            });
+          }
+          return acc;
+        }, examTakers);
+      }
       const pageState = {
         examTakers,
+        classId,
+        examId,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_ERROR', null);
