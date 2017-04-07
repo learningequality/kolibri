@@ -167,8 +167,7 @@ function redirectToDefaultReport(store, viewBy, classId, channelId) {
 
 
 function updateSorting(store, sortColumn, sortOrder) {
-  store.dispatch('SET_SORT_COLUMN', sortColumn);
-  store.dispatch('SET_SORT_ORDER', sortOrder);
+  store.dispatch('SET_REPORT_SORTING', sortColumn, sortOrder);
 }
 
 
@@ -234,24 +233,22 @@ function showReport(store, viewBy, params) {
   // API response handlers
   Promise.all(promises).then(
     ([report, contentSummary, userSummary]) => {
-      // save URL params to store
-      store.dispatch('SET_CLASS_ID', classId);
-      store.dispatch('SET_CHANNEL_ID', channelId);
-      store.dispatch('SET_CONTENT_SCOPE', contentScope);
-      store.dispatch('SET_CONTENT_SCOPE_ID', contentScopeId);
-      store.dispatch('SET_USER_SCOPE', userScope);
-      store.dispatch('SET_USER_SCOPE_ID', userScopeId);
-      store.dispatch('SET_ALL_OR_RECENT', ReportConstants.AllOrRecent.ALL);
-      store.dispatch('SET_VIEW_BY_CONTENT_OR_LEARNERS', viewBy);
-      store.dispatch('SET_SORT_COLUMN', sortColumn);
-      store.dispatch('SET_SORT_ORDER', sortOrder);
-
-      // save results of API request
-      store.dispatch('SET_TABLE_DATA', report || {});
-      store.dispatch('SET_CONTENT_SCOPE_SUMMARY', contentSummary);
-      store.dispatch('SET_USER_SCOPE_SUMMARY', userSummary || {});
-
-      // finih up
+      const pageState = {
+        classId,
+        channelId,
+        content_scope: contentScope,
+        content_scope_id: contentScopeId,
+        user_scope: userScope,
+        user_scope_id: userScopeId,
+        all_or_recent: ReportConstants.AllOrRecent.ALL,
+        view_by_content_or_learners: viewBy,
+        sort_column: sortColumn,
+        sort_order: sortOrder,
+        table_data: report || {},
+        content_scope_summary: contentSummary,
+        user_scope_summary: userSummary || {},
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPICS);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },

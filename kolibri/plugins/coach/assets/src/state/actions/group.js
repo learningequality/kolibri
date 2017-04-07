@@ -42,7 +42,7 @@ function _groupsState(groups) {
 
 
 function displayModal(store, modalName) {
-  store.dispatch('SET_MODAL', modalName);
+  store.dispatch('SET_GROUP_MODAL', modalName);
 }
 
 function showGroupsPage(store, classId) {
@@ -74,7 +74,7 @@ function showGroupsPage(store, classId) {
             class: _classState(classModel),
             classUsers: _usersState(classUsers),
             groups,
-            modalShown: false,
+            groupModalShown: false,
             classId
           };
 
