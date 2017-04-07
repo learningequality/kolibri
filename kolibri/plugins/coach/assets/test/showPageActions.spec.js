@@ -22,23 +22,13 @@ kolibri.resources = {
 
 const examActions = require('../src/state/actions/exam');
 
-const rs = kolibri.resources;
-const channelStub = rs.ChannelResource.getCollection;
-const learnerGroupStub = rs.LearnerGroupResource.getCollection;
-const classroomStub = rs.ClassroomResource.getModel;
-const examStub = rs.ExamResource.getCollectionForClass;
-
 // mocks either getCollection, or getModel where request is successful
 function makeHappyFetchable(fetchResult = {}) {
-  return {
-    fetch: () => Promise.resolve(fetchResult),
-  };
+  return { fetch: () => Promise.resolve(fetchResult) };
 }
 
 function makeSadFetchable(fetchResult = {}) {
-  return {
-    fetch: () => Promise.reject(fetchResult),
-  };
+  return { fetch: () => Promise.reject(fetchResult) };
 }
 
 // fakes for data, since they have similar shape
@@ -70,57 +60,65 @@ const fakeExams = [
   }
 ];
 
-describe.only('showExamsPage', () => {
+describe('showPage actions for coach exams section', () => {
   const storeMock = {
     dispatch: sinon.spy(),
     state: { core: { pageSessionId: '' } },
   };
 
+  const channelStub = kolibri.resources.ChannelResource.getCollection;
+  const classroomStub = kolibri.resources.ClassroomResource.getModel;
+  const dispatchSpy = storeMock.dispatch;
+  const examStub = kolibri.resources.ExamResource.getCollectionForClass;
+  const learnerGroupStub = kolibri.resources.LearnerGroupResource.getCollection;
+
   beforeEach(() => {
     channelStub.reset();
-    learnerGroupStub.reset();
     classroomStub.reset();
+    dispatchSpy.reset();
     examStub.reset();
-    storeMock.dispatch.reset();
+    learnerGroupStub.reset();
   });
 
-  it('store is properly set up when there are no problems', () => {
-    channelStub.returns(makeHappyFetchable(fakeItems));
-    learnerGroupStub.returns(makeHappyFetchable(fakeItems));
-    classroomStub.returns(makeHappyFetchable(fakeItems[0]));
-    examStub.returns(makeHappyFetchable(fakeExams));
+  describe('showExamsPage', () => {
+    it('store is properly set up when there are no problems', () => {
+      channelStub.returns(makeHappyFetchable(fakeItems));
+      learnerGroupStub.returns(makeHappyFetchable(fakeItems));
+      classroomStub.returns(makeHappyFetchable(fakeItems[0]));
+      examStub.returns(makeHappyFetchable(fakeExams));
 
-    return examActions.showExamsPage(storeMock, 'class_1')._promise
-    .then(() => {
-      sinon.assert.calledWith(channelStub);
-      sinon.assert.calledWith(learnerGroupStub, { parent: 'class_1' });
-      sinon.assert.calledWith(classroomStub, 'class_1');
-      sinon.assert.calledWith(examStub, 'class_1');
-      sinon.assert.calledWith(storeMock.dispatch, 'SET_PAGE_STATE', sinon.match({
-        channels: [
-          { id: 'item_1', name: 'item one', rootPk: 'pk1' },
-          { id: 'item_2', name: 'item two', rootPk: 'pk2' },
-        ],
-        classId: 'class_1',
-        currentClass: { id: 'item_1', name: 'item one' },
-        currentClassGroups: [
-          { id: 'item_1', name: 'item one' },
-          { id: 'item_2', name: 'item two' },
-        ],
-        exams: fakeExams,
-        modalShown: false,
-      }));
+      return examActions.showExamsPage(storeMock, 'class_1')._promise
+      .then(() => {
+        sinon.assert.calledWith(channelStub);
+        sinon.assert.calledWith(learnerGroupStub, { parent: 'class_1' });
+        sinon.assert.calledWith(classroomStub, 'class_1');
+        sinon.assert.calledWith(examStub, 'class_1');
+        sinon.assert.calledWith(dispatchSpy, 'SET_PAGE_STATE', sinon.match({
+          channels: [
+            { id: 'item_1', name: 'item one', rootPk: 'pk1' },
+            { id: 'item_2', name: 'item two', rootPk: 'pk2' },
+          ],
+          classId: 'class_1',
+          currentClass: { id: 'item_1', name: 'item one' },
+          currentClassGroups: [
+            { id: 'item_1', name: 'item one' },
+            { id: 'item_2', name: 'item two' },
+          ],
+          exams: fakeExams,
+          modalShown: false,
+        }));
+      });
     });
-  });
 
-  it('store is properly set up when there are errors', () => {
-    channelStub.returns(makeSadFetchable('channel error'));
-    learnerGroupStub.returns(makeHappyFetchable(fakeItems));
-    classroomStub.returns(makeHappyFetchable(fakeItems[0]));
-    examStub.returns(makeHappyFetchable(fakeExams));
-    return examActions.showExamsPage(storeMock, 'class_1')._promise
-    .catch(() => {
-      sinon.assert.calledWith(storeMock.dispatch, 'CORE_SET_ERROR', 'channel error');
+    it('store is properly set up when there are errors', () => {
+      channelStub.returns(makeSadFetchable('channel error'));
+      learnerGroupStub.returns(makeHappyFetchable(fakeItems));
+      classroomStub.returns(makeHappyFetchable(fakeItems[0]));
+      examStub.returns(makeHappyFetchable(fakeExams));
+      return examActions.showExamsPage(storeMock, 'class_1')._promise
+      .catch(() => {
+        sinon.assert.calledWith(dispatchSpy, 'CORE_SET_ERROR', 'channel error');
+      });
     });
   });
 });
