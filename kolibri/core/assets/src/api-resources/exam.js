@@ -1,20 +1,15 @@
 const Resource = require('../api-resource').Resource;
 
+/**
+ * @example <caption>Get a Collection of Exams for a given class</caption>
+ * ExamResource.getCollection({ collection: classId })
+ */
 class ExamResource extends Resource {
   static resourceName() {
     return 'exam';
   }
   static idKey() {
     return 'id';
-  }
-
-  /**
-   * Returns a Collection of Exams filtered by a collectionId
-   * @param {string} collectionId - e.g. a classId
-   * @returns {Collection<Exam>}
-   */
-  getCollectionForClass(collectionId) {
-    return super.getCollection({ collection: collectionId });
   }
 }
 

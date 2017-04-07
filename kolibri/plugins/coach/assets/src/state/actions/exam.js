@@ -84,7 +84,7 @@ function showExamsPage(store, classId) {
     ClassroomResource.getModel(classId).fetch(),
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
     ChannelResource.getCollection().fetch(),
-    ExamResource.getCollectionForClass(classId).fetch(),
+    ExamResource.getCollection({ collection: classId }).fetch(),
   ];
 
   return ConditionalPromise.all(resourceRequests).only(

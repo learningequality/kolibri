@@ -13,7 +13,7 @@ kolibri.resources = {
   },
   ContentNodeResource: {},
   ExamResource: {
-    getCollectionForClass: sinon.stub(),
+    getCollection: sinon.stub(),
   },
   LearnerGroupResource: {
     getCollection: sinon.stub(),
@@ -69,7 +69,7 @@ describe('showPage actions for coach exams section', () => {
   const channelStub = kolibri.resources.ChannelResource.getCollection;
   const classroomStub = kolibri.resources.ClassroomResource.getModel;
   const dispatchSpy = storeMock.dispatch;
-  const examStub = kolibri.resources.ExamResource.getCollectionForClass;
+  const examStub = kolibri.resources.ExamResource.getCollection;
   const learnerGroupStub = kolibri.resources.LearnerGroupResource.getCollection;
 
   beforeEach(() => {
@@ -92,7 +92,7 @@ describe('showPage actions for coach exams section', () => {
         sinon.assert.calledWith(channelStub);
         sinon.assert.calledWith(learnerGroupStub, { parent: 'class_1' });
         sinon.assert.calledWith(classroomStub, 'class_1');
-        sinon.assert.calledWith(examStub, 'class_1');
+        sinon.assert.calledWith(examStub, { collection: 'class_1' });
         sinon.assert.calledWith(dispatchSpy, 'SET_PAGE_STATE', sinon.match({
           channels: [
             { id: 'item_1', name: 'item one', rootPk: 'pk1' },
