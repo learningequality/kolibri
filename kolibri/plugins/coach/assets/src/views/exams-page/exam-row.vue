@@ -8,12 +8,8 @@
         :class="examActive ? 'icon-active' : 'icon-inactive'"
       />
     </td>
-    <td class="col-title">
-      <strong>{{ examTitle }}</strong>
-        <span v-if="examActive">{{ $tr('active') }}</span>
-        <span v-else>{{ $tr('inactive') }}</span>
-        {{ ` - ${$tr('createdOn')} ${examDate}` }}
-    </td>
+
+    <td class="col-title"><strong>{{ examTitle }}</strong></td>
 
     <td class="col-visibility"><strong>{{ visibilityString }}</strong> |
       <ui-button
@@ -65,9 +61,6 @@
   module.exports = {
     $trNameSpace: 'examRow',
     $trs: {
-      active: 'Active',
-      inactive: 'Inactive',
-      createdOn: 'Created on',
       change: 'Change',
       activate: 'Activate',
       deactivate: 'Deactivate',
@@ -95,10 +88,6 @@
       },
       examActive: {
         type: Boolean,
-        required: true,
-      },
-      examDate: {
-        type: String,
         required: true,
       },
       examVisibility: {
