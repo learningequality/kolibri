@@ -54,28 +54,20 @@ function _showRecentChannels(store, classId) {
   }
 
   const channelLastActivePromises = [];
-
   store.state.core.channels.list.forEach(
-    channel => {
-      channelLastActivePromises.push(__getChannelLastActive(channel));
-    }
+    channel => { channelLastActivePromises.push(__getChannelLastActive(channel)); }
   );
 
   Promise.all(channelLastActivePromises).then(
     allChannelLastActive => {
       const lastActive = {};
-
       allChannelLastActive.forEach(
-        channelLastActive => {
-          Object.assign(lastActive, channelLastActive);
-        }
+        channelLastActive => { Object.assign(lastActive, channelLastActive); }
       );
-
       const pageState = {
         lastActive,
         classId,
       };
-
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_ERROR', null);
