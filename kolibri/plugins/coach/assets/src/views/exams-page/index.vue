@@ -33,7 +33,6 @@
           :examId="exam.id"
           :examTitle="exam.title"
           :examActive="exam.active"
-          :examDate="exam.dateCreated"
           :examVisibility="exam.visibility"
           :classId="currentClass.id"
           :className="currentClass.name"
