@@ -466,10 +466,7 @@ function showExamReportDetailPage(store, userId, examId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT_DETAIL);
   ExamAttemptLogResource.getCollection({ exam: examId, user: userId }).fetch().then(
     examAttempts => {
-      const pageState = {
-        examAttempts,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('SET_PAGE_STATE', examAttempts);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_TITLE', ('Exam Report Detail'));
       store.dispatch('CORE_SET_PAGE_LOADING', false);
