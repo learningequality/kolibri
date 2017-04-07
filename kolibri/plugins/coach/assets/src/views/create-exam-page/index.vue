@@ -108,6 +108,7 @@
 
   const ExamActions = require('../../state/actions/exam');
   const ExamModals = require('../../examConstants').Modals;
+  const shuffle = require('lodash.shuffle');
 
   module.exports = {
     $trNameSpace: 'createExamPage',
@@ -164,7 +165,7 @@
         return this.modalShown === ExamModals.PREVIEW_NEW_EXAM;
       },
       questionSources() {
-        const shuffledExercises = Array.from(this.selectedExercises);
+        const shuffledExercises = shuffle(Array.from(this.selectedExercises));
         const numExercises = shuffledExercises.length;
         const numQuestions = this.inputNumQuestions;
         const questionsPerExercise = numQuestions / numExercises;

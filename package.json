@@ -38,6 +38,7 @@
     "js-cookie": "2.1.2",
     "keen-ui": "1.0.0",
     "lodash.differencewith": "4.5.0",
+    "lodash.shuffle": "4.2.0",
     "lodash.throttle": "4.1.1",
     "lodash.values": "4.3.0",
     "loglevel": "1.4.1",
