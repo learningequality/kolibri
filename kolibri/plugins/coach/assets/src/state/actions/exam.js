@@ -9,6 +9,7 @@ const ClassroomResource = CoreApp.resources.ClassroomResource;
 const ChannelResource = CoreApp.resources.ChannelResource;
 const LearnerGroupResource = CoreApp.resources.LearnerGroupResource;
 const ContentNodeResource = CoreApp.resources.ContentNodeResource;
+const ExamResource = CoreApp.resources.ExamResource;
 
 
 function _classState(classroom) {
@@ -268,9 +269,24 @@ function removeExercise(store, exerciseId) {
   }
 }
 
-function createExam(store, classId, channelId, selectedExercises, seed) {
+function createExam(store, classId, channelId, title, numQuestions, selectedExercises, seed) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  router.getInstance().push({ name: Constants.PageNames.EXAMS });
+  const examPayload = {
+    collection: classId,
+    channel_id: channelId,
+    title,
+    question_count: numQuestions,
+    question_sources: selectedExercises,
+    seed,
+    active: false,
+  };
+  ExamResource.createModel(examPayload).save().then(
+    () => {
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      router.getInstance().push({ name: Constants.PageNames.EXAMS });
+    },
+    error => CoreActions.handleError(store, error)
+  );
 }
 
 function showExamReportPage(store, classId, examId) {

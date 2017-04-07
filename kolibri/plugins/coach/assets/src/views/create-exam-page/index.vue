@@ -163,6 +163,34 @@
       showPreviewNewExamModal() {
         return this.modalShown === ExamModals.PREVIEW_NEW_EXAM;
       },
+      questionSources() {
+        const shuffledExercises = Array.from(this.selectedExercises);
+        const numExercises = shuffledExercises.length;
+        const numQuestions = this.inputNumQuestions;
+        const questionsPerExercise = numQuestions / numExercises;
+        const remainingQuestions = numQuestions % numExercises;
+
+        if (remainingQuestions === 0) {
+          return shuffledExercises.map(exercise =>
+            ({ exercise_id: exercise, number_of_questions: Math.trunc(questionsPerExercise) })
+          );
+        } else if (questionsPerExercise >= 1) {
+          return shuffledExercises.map((exercise, index) => {
+            if (index < remainingQuestions) {
+              return {
+                exercise_id: exercise,
+                number_of_questions: Math.trunc(questionsPerExercise) + 1
+              };
+            }
+            return { exercise_id: exercise, number_of_questions: Math.trunc(questionsPerExercise) };
+          });
+        }
+        const exercisesSubset = shuffledExercises;
+        exercisesSubset.splice(numQuestions);
+        return exercisesSubset.map(
+          exercise => ({ exercise_id: exercise, number_of_questions: 1 })
+        );
+      },
     },
     methods: {
       handleGoToTopic(topicId) {
@@ -198,7 +226,8 @@
       finish() {
         if (this.checkAllValid() === true) {
           this.createExam(
-              this.currentClass.id, this.currentChannel.id, this.selectedExercises, this.seed);
+              this.currentClass.id, this.currentChannel.id, this.inputTitle,
+            this.inputNumQuestions, this.questionSources, this.seed);
         }
       },
       checkAllValid() {
