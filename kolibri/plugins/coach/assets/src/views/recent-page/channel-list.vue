@@ -16,7 +16,7 @@
             <router-link :to="reportLink(channel.id)">{{ channel.title }}</router-link>
           </td>
           <td>
-            {{ lastActiveText(channel) }}
+            <elapsed-time v-if="lastActive[channel.id]" :date="lastActive[channel.id]" />
           </td>
         </tr>
       </tbody>
@@ -29,6 +29,7 @@
 <script>
 
   const PageNames = require('../../constants').PageNames;
+  const orderBy = require('lodash/orderby');
 
   module.exports = {
     name: 'channelList',
@@ -37,17 +38,13 @@
       channels: 'Channels',
       channelList: 'Channel list',
       lastActive: 'Last active',
-      timePassed: '{amount, number} {measure, select, day { {amount, plural, one {day} other {days} } } month { {amount, plural, one {month} other {months} } } } ago',
+    },
+    components: {
+      'elapsed-time': require('../elapsed-time'),
     },
     computed: {
       channelList() {
-        return this.channels.sort(
-          (channel1, channel2) => {
-            const lastActiveRaw = (channel) => this.lastActive[channel.id].raw;
-
-            return lastActiveRaw(channel1) - lastActiveRaw(channel2);
-          }
-        );
+        return orderBy(this.channels, [channel => this.lastActive[channel.id]]);
       },
     },
     methods: {
@@ -59,43 +56,6 @@
             channel_id: channelId,
           },
         };
-      },
-      lastActiveText(channel) {
-        function timePassedSince(lastActiveTime) {
-          // helper function for __getChannelLastActive
-          // @param lastActiveTime --  date in string format
-          // @returns object representing time passed since input in days or months:
-          // {
-          //   amount: 'int',
-          //   measure: 'month or day',
-          // }
-          const dayMeasure = (ms) => Math.round(ms / (8.64e+7));
-          const monthMeasure = (ms) => Math.round(ms / (2.628e+9));
-
-          const currentDate = new Date();
-          const lastActiveDate = new Date(lastActiveTime);
-          // subtracting dates returns time interval in milliseconds
-          const millisecondsEllapsed = currentDate - lastActiveDate;
-
-          const monthsAgo = monthMeasure(millisecondsEllapsed);
-          // returns months amount of days has surpassed a month
-          if (monthsAgo) {
-            return {
-              amount: monthsAgo,
-              measure: 'month',
-              raw: millisecondsEllapsed,
-            };
-          }
-          // and days otherwise
-          return {
-            amount: dayMeasure(millisecondsEllapsed),
-            measure: 'day',
-            raw: millisecondsEllapsed,
-          };
-        }
-
-        const trArgs = timePassedSince(this.lastActive[channel.id]);
-        return this.$tr('timePassed', trArgs);
       },
     },
     vuex: {
