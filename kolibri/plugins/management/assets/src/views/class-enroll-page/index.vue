@@ -137,7 +137,7 @@
 
   const constants = require('../../constants');
   const actions = require('../../state/actions');
-  const differenceWith = require('lodash.differencewith');
+  const differenceWith = require('lodash/differencewith');
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {

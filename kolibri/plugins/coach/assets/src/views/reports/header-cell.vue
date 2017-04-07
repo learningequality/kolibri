@@ -20,7 +20,7 @@
 
   const ReportConstants = require('../../reportConstants');
   const genLink = require('./genLink');
-  const values = require('lodash.values');
+  const values = require('lodash/values');
 
   module.exports = {
     $trNameSpace: 'headerCell',

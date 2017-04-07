@@ -1,4 +1,4 @@
-const values = require('lodash.values');
+const values = require('lodash/values');
 
 const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');

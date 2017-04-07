@@ -50,7 +50,7 @@
 
 <script>
 
-  const values = require('lodash.values');
+  const values = require('lodash/values');
   const getters = require('kolibri.coreVue.vuex.getters');
   const actions = require('kolibri.coreVue.vuex.actions');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
