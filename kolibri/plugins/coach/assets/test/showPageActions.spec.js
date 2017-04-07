@@ -7,33 +7,39 @@ const assert = require('assert');
 // add fake Resources to kolibri mock. This needs to be done before loading tested module
 kolibri.resources = {
   ChannelResource: {
-    getModel: () => {},
+    getCollection: sinon.stub(),
   },
   ClassroomResource: {
-    getModel: () => {},
+    getModel: sinon.stub(),
   },
   ContentNodeResource: {},
   ExamResource: {
-    getCollectionForClass: () => {},
+    getCollectionForClass: sinon.stub(),
   },
   LearnerGroupResource: {
-    getCollection: () => {},
+    getCollection: sinon.stub(),
   },
 };
 
 const examActions = require('../src/state/actions/exam');
 
+const rs = kolibri.resources;
+const channelStub = rs.ChannelResource.getCollection;
+const learnerGroupStub = rs.LearnerGroupResource.getCollection;
+const classroomStub = rs.ClassroomResource.getModel;
+const examStub = rs.ExamResource.getCollectionForClass;
+
 // mocks either getCollection, or getModel where request is successful
-function happyGetMock(fetchResult = {}) {
-  return sinon.stub().returns({
+function makeHappyFetchable(fetchResult = {}) {
+  return {
     fetch: () => Promise.resolve(fetchResult),
-  });
+  };
 }
 
 function sadFetchMock(fetchResult = {}) {
-  return sinon.stub().returns({
+  return {
     fetch: () => Promise.reject(fetchResult),
-  });
+  };
 }
 
 // fakes for data, since they have similar shape
@@ -48,11 +54,18 @@ describe.only('showExamsPage', () => {
     state: { core: { pageSessionId: '' } },
   };
 
+  beforeEach(() => {
+    channelStub.reset();
+    learnerGroupStub.reset();
+    classroomStub.reset();
+    examStub.reset();
+  });
+
   it('store is properly setup when there are no problems', () => {
-    const channelStub = kolibri.resources.ChannelResource.getCollection = happyGetMock(fakeItems);
-    const learnerGroupStub = kolibri.resources.LearnerGroupResource.getCollection = happyGetMock(fakeItems);
-    const classroomStub = kolibri.resources.ClassroomResource.getModel = happyGetMock(fakeItems[0]);
-    const examStub = kolibri.resources.ExamResource.getCollectionForClass = happyGetMock([]);
+    channelStub.returns(makeHappyFetchable(fakeItems));
+    learnerGroupStub.returns(makeHappyFetchable(fakeItems));
+    classroomStub.returns(makeHappyFetchable(fakeItems[0]));
+    examStub.returns(makeHappyFetchable([]));
 
     return examActions.showExamsPage(storeMock, 'class_1')._promise
     .then(() => {
@@ -60,7 +73,6 @@ describe.only('showExamsPage', () => {
       sinon.assert.calledWith(learnerGroupStub, { parent: 'class_1' });
       sinon.assert.calledWith(classroomStub, 'class_1');
       sinon.assert.calledWith(examStub, 'class_1');
-      sinon.assert.calledWith(storeMock.dispatch, 'CORE_SET_TITLE', 'Exams');
       sinon.assert.calledWith(storeMock.dispatch, 'SET_PAGE_STATE', sinon.match({
         channels: [
           { id: 'item_1', name: 'item one', rootPk: 'pk1' },
