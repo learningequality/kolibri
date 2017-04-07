@@ -63,13 +63,15 @@
       examDetailPageLink(id) {
         return {
           name: constants.PageNames.EXAM_REPORT_DETAIL,
-          params: { classId: 2, examId: 1, userId: id },
+          params: { classId: this.classId, examId: this.examId, userId: id },
         };
       },
     },
     vuex: {
       getters: {
         examTakers: state => state.pageState.examTakers,
+        classId: state => state.pageState.classId,
+        examId: state => state.pageState.examId,
         },
       actions: {
         displayExamModal: actions.displayExamModal,
