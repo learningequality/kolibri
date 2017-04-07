@@ -6,6 +6,7 @@ const Modals = {
   PREVIEW_EXAM: 'PREVIEW_EXAM',
   RENAME_EXAM: 'RENAME_EXAM',
   DELETE_EXAM: 'DELETE_EXAM',
+  PREVIEW_NEW_EXAM: 'PREVIEW_NEW_EXAM',
 };
 
 module.exports = {

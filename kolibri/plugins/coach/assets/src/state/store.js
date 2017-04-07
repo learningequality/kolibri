@@ -63,6 +63,21 @@ const mutations = {
   SET_GROUPS(state, groups) {
     state.pageState.groups = groups;
   },
+
+  SET_TOPIC(state, topic) {
+    state.pageState.topic = topic;
+  },
+
+  SET_SUBTOPICS(state, subtopics) {
+    state.pageState.subtopics = subtopics;
+  },
+
+  SET_EXERCISES(state, exercises) {
+    state.pageState.exercises = exercises;
+  },
+  SET_SELECTED_EXERCISES(state, selectedExercises) {
+    state.pageState.selectedExercises = selectedExercises;
+  }
 };
 
 // assigns core state and mutations
