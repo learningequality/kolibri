@@ -35,12 +35,12 @@ function showExamsPage(store, classId) {
 
   return ConditionalPromise.all(resourceRequests).only(
     CoreActions.samePageCheckGenerator(store),
-    ([currentClassModel, groupsCollection, channelsCollection, exams]) => {
+    ([classroom, learnerGroups, channels, exams]) => {
       const pageState = {
+        channels: _channelsState(channels),
         classId,
-        currentClass: pickIdAndName(currentClassModel),
-        currentClassGroups: groupsCollection.map(pickIdAndName),
-        channels: _channelsState(channelsCollection),
+        currentClass: pickIdAndName(classroom),
+        currentClassGroups: learnerGroups.map(pickIdAndName),
         exams,
         modalShown: false,
       };
