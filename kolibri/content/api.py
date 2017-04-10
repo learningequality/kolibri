@@ -210,12 +210,18 @@ class FileViewset(viewsets.ModelViewSet):
     def get_queryset(self):
         return models.File.objects.all()
 
+class ExamFilter(filters.FilterSet):
+
+    class Meta:
+        model = models.Exam
+        fields = ['collection', ]
 
 class ExamViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ExamSerializer
     pagination_class = OptionalPageNumberPagination
     permissions_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    filter_class = ExamFilter
 
     def get_queryset(self):
         return models.Exam.objects.all()
@@ -228,7 +234,7 @@ class ExamAssignmentViewset(viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter,)
 
     def get_queryset(self):
-        return models.Exam.objects.all()
+        return models.ExamAssignment.objects.all()
 
 
 class UserExamViewset(viewsets.ModelViewSet):

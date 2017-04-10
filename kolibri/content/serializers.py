@@ -1,5 +1,5 @@
 from django.db.models import Sum
-from kolibri.auth.models import FacilityUser
+from kolibri.auth.models import Collection, FacilityUser
 from kolibri.content.models import AssessmentMetaData, ChannelMetadataCache, ContentNode, Exam, ExamAssignment, File
 from kolibri.logger.models import ExamLog
 from rest_framework import serializers
@@ -131,14 +131,33 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             'assessmentmetadata',
         )
 
+class NestedCollectionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Collection
+        fields = (
+            'id', 'name',
+        )
+
+class NestedExamAssignmentSerializer(serializers.ModelSerializer):
+
+    collection = NestedCollectionSerializer(read_only=True)
+
+    class Meta:
+        model = ExamAssignment
+        fields = (
+            'exam', 'collection',
+        )
 
 class ExamSerializer(serializers.ModelSerializer):
+
+    assignments = NestedExamAssignmentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Exam
         fields = (
             'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'collection', 'archive',
+            'active', 'collection', 'archive', 'assignments',
         )
         read_only_fields = ('creator',)
 
@@ -152,7 +171,7 @@ class ExamAssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamAssignment
         fields = (
-            'exam', 'collection',
+            'exam', 'collection', 'assigned_by',
         )
         read_only_fields = ('assigned_by',)
 
