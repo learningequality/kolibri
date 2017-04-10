@@ -4,7 +4,7 @@
 
     <div class="header">
       <h1>
-        {{ $tr('examTakenby', { number: 40 }) }}
+        {{ $tr('examTakenby', { number: examTakers.length }) }}
       </h1>
       <h1>
         {{ $tr('averageScore', { number: averageScore }) }}
@@ -79,8 +79,8 @@
     },
     $trNameSpace: 'examReportPage',
     $trs: {
-      examTakenby: 'Exam taken by: {number} Learners',
-      averageScore: 'Average Score: {number}%',
+      examTakenby: 'Exam taken by: {number, select, 0 {} other {{number} Learners}}',
+      averageScore: 'Average Score: {number, select, NaN {} other {{number}%}}',
       examReport: 'Exam report',
       completed: 'Completed',
       incomplete: 'Incomplete',
