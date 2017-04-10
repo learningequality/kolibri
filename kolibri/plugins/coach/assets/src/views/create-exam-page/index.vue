@@ -110,7 +110,8 @@
 
   const ExamActions = require('../../state/actions/exam');
   const ExamModals = require('../../examConstants').Modals;
-  const shuffle = require('lodash.shuffle');
+  const shuffle = require('lodash/shuffle');
+  const random = require('lodash/random');
 
   module.exports = {
     $trNameSpace: 'createExamPage',
@@ -258,9 +259,7 @@
         return '';
       },
       generateRandomSeed() {
-        const min = 0;
-        const max = 1000;
-        return Math.floor(Math.random() * (max - min)) + min;
+        return random(1000);
       },
     },
     vuex: {
