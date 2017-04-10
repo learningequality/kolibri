@@ -275,7 +275,7 @@ function activateExam(store, examId) {
   ExamResource.getModel(examId).save({ active: true }).then(
     () => {
       const exams = store.state.pageState.exams;
-      const examIndex = exams.findIndex(exam => exams.id === examId);
+      const examIndex = exams.findIndex(exam => exam.id === examId);
       exams[examIndex].active = true;
 
       store.dispatch('SET_EXAMS', exams);
@@ -289,7 +289,7 @@ function deactivateExam(store, examId) {
   ExamResource.getModel(examId).save({ active: false }).then(
     () => {
       const exams = store.state.pageState.exams;
-      const examIndex = exams.findIndex(exam => exams.id === examId);
+      const examIndex = exams.findIndex(exam => exam.id === examId);
       exams[examIndex].active = false;
 
       store.dispatch('SET_EXAMS', exams);
@@ -311,7 +311,7 @@ function renameExam(store, examId, newExamTitle) {
   ExamResource.getModel(examId).save({ title: newExamTitle }).then(
     () => {
       const exams = store.state.pageState.exams;
-      const examIndex = exams.findIndex(exam => exams.id === examId);
+      const examIndex = exams.findIndex(exam => exam.id === examId);
       exams[examIndex].title = newExamTitle;
 
       store.dispatch('SET_EXAMS', exams);
