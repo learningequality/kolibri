@@ -269,14 +269,14 @@ function removeExercise(store, exerciseId) {
   }
 }
 
-function createExam(store, classId, channelId, title, numQuestions, selectedExercises, seed) {
+function createExam(store, classId, channelId, title, numQuestions, questionSources, seed) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const examPayload = {
     collection: classId,
     channel_id: channelId,
     title,
     question_count: numQuestions,
-    question_sources: selectedExercises,
+    question_sources: questionSources,
     seed,
     active: false,
   };

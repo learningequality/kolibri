@@ -138,7 +138,7 @@
         validateNum: false,
         searchInput: '',
         loading: false,
-        seed: '',
+        seed: this.generateRandomSeed(),
         validationError: ''
       };
     },
@@ -254,6 +254,11 @@
           return 'not-last';
         }
         return '';
+      },
+      generateRandomSeed() {
+        const min = 0;
+        const max = 1000;
+        return Math.floor(Math.random() * (max - min)) + min;
       },
     },
     vuex: {
