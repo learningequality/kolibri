@@ -23,9 +23,9 @@ const ChannelResource = coreApp.resources.ChannelResource;
 
 
 // helper function for showRecent, provides list of channels with recent activity
-function showRecentChannels(store, classId) {
-  function __getChannelLastActive(channel) {
-    // helper function for showRecentChannels
+function showReportChannels(store, pageName, classId) {
+  function _channelLastActivePromise(channel) {
+    // helper function for showReportChannels
     // @param channel to get recentActivity for
     // @returns promise that resolves channel with lastActive value in object:
     // {
@@ -54,11 +54,11 @@ function showRecentChannels(store, classId) {
   }
 
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
+  store.dispatch('SET_PAGE_NAME', pageName);
 
   const channelLastActivePromises = [];
   store.state.core.channels.list.forEach(
-    channel => channelLastActivePromises.push(__getChannelLastActive(channel))
+    channel => channelLastActivePromises.push(_channelLastActivePromise(channel))
   );
 
   Promise.all(channelLastActivePromises).then(
@@ -81,7 +81,7 @@ function showRecentChannels(store, classId) {
 
 function showRecentReports(store, classId, channelId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_REPORTS);
   // should be cached if navigated to this point
   const channelPromise = ChannelResource.getModel(channelId).fetch();
 
@@ -162,29 +162,7 @@ function showReport(
   userScope,
   userScopeId,
   allOrRecent,
-  sortColumn,
-  sortOrder
 ) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-
-  /* check if params are semi-valid. */
-  function _validate(value, constants) {
-    if (!values(constants).includes(value)) {
-      throw Error(`Invalid report parameters: ${value} not in ${JSON.stringify(constants)}`);
-    }
-  }
-  _validate(contentScope, ReportConstants.ContentScopes);
-  _validate(userScope, ReportConstants.UserScopes);
-  _validate(viewBy, ReportConstants.ViewBy);
-  _validate(sortColumn, ReportConstants.TableColumns);
-  _validate(sortOrder, ReportConstants.SortOrders);
-
-  if (
-    userScope === ReportConstants.UserScopes.USER &&
-    contentScope === ReportConstants.ContentScopes.CONTENT
-  ) {
-    throw Error('One user, one content - show exercise?');
-  }
 
   // REPORT
   const reportPayload = {
@@ -226,25 +204,20 @@ function showReport(
         userScopeId,
         allOrRecent,
         viewBy,
-        sortColumn,
-        sortOrder,
         tableData: report || {},
         contentScopeSummary: contentSummary,
         userScopeSummary: userSummary || {},
       };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPICS);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      // store.dispatch('SET_PAGE_STATE', pageState);
     },
     error => coreActions.handleError(store, error)
   );
 }
 
 
-
 module.exports = {
   showRecentReports,
-  showRecentChannels,
+  showReportChannels,
   redirectToDefaultReport,
   showReport,
   updateSorting,

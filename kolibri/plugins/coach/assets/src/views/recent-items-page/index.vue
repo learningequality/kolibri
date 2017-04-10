@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <h1>{{ $tr('title') }}</h1>
     <sub> {{$tr('subHeading')}} </sub>
     <div v-if="reports.length" class="table-wrapper">
       <table class="report-list">
@@ -37,9 +38,10 @@
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
 
   module.exports = {
-    name: 'reportList',
+    name: 'coachRecentReports',
     $trNameSpace: 'coachRecentReports',
     $trs: {
+      title: 'Recent Activity',
       subHeading: 'Showing recent activity in past 7 days',
       name: 'Name',
       progress: 'Progress',
@@ -101,8 +103,5 @@
     width: 100%
     th
       text-align: left
-
-  // .table-wrapper
-  //   overflow-x: auto
 
 </style>

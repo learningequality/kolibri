@@ -19,6 +19,7 @@
 <script>
 
   const ReportConstants = require('../../reportConstants');
+  const Constants = require('../../constants');
   const genLink = require('./genLink');
   const values = require('lodash/values');
 
@@ -43,7 +44,7 @@
     },
     computed: {
       sortable() {
-        return this.pageState.allOrRecent !== ReportConstants.AllOrRecent.RECENT;
+        return this.pageName !== Constants.PageNames.RECENT_REPORTS;
       },
       sorted() {
         return this.sortable && this.pageState.sortColumn === this.column;
@@ -74,6 +75,7 @@
     },
     vuex: {
       getters: {
+        pageName: state => state.pageName,
         pageState: state => state.pageState,
       },
     },

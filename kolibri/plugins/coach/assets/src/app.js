@@ -10,7 +10,6 @@ const groupActions = require('./state/actions/group');
 const reportsActions = require('./state/actions/reports');
 const store = require('./state/store');
 const PageNames = require('./constants').PageNames;
-const ReportConstants = require('./reportConstants');
 
 
 class CoachToolsModule extends KolibriModule {
@@ -29,7 +28,7 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.RECENT,
+          name: PageNames.RECENT_REPORTS,
           path: '/:class/recent/:channel?/:content?/:user?',
           handler: (to, from) => {
             if (to.params.channel && to.params.content && to.params.user) {
@@ -40,11 +39,12 @@ class CoachToolsModule extends KolibriModule {
               console.log('RECENT - item list (scope by channel)', to.params);
             } else {
               console.log('RECENT - channels', to.params);
+              reportsActions.showReportChannels(store, PageNames.RECENT_REPORTS, to.params.class);
             }
           },
         },
         {
-          name: PageNames.TOPICS,
+          name: PageNames.TOPIC_REPORTS,
           path: '/:class/topics/:channel?/:topic?/:content?/:user?',
           handler: (to, from) => {
             if (to.params.channel && to.params.topic && to.params.content && to.params.user) {
@@ -57,11 +57,12 @@ class CoachToolsModule extends KolibriModule {
               console.log('TOPICS - Root topic/item list (scope by root topic)', to.params);
             } else {
               console.log('TOPICS - channels', to.params);
+              reportsActions.showReportChannels(store, PageNames.TOPIC_REPORTS, to.params.class);
             }
           },
         },
         {
-          name: PageNames.LEARNERS,
+          name: PageNames.LEARNER_REPORTS,
           path: '/:class/learners/:user?/:channel?/:topic?/:content?',
           handler: (to, from) => {
             if (to.params.user && to.params.channel && to.params.topic && to.params.content) {
@@ -74,6 +75,7 @@ class CoachToolsModule extends KolibriModule {
               console.log('LEARNERS - Channels (scope by user)', to.params);
             } else {
               console.log('LEARNERS - list of users', to.params);
+              reportsActions.showReportChannels(store, PageNames.LEARNER_REPORTS, to.params.class);
             }
           },
         },

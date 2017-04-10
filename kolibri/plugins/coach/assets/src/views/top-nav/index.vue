@@ -3,12 +3,12 @@
   <div class="top">
     <nav-link
       :to="recentLink"
-      :active="isActive(Constants.PageNames.RECENT)"
+      :active="isActive(Constants.PageNames.RECENT_REPORTS)"
       :text="$tr('recent')"
     />
     <nav-link
       :to="topicsLink"
-      :active="isActive(Constants.PageNames.TOPICS)"
+      :active="isActive(Constants.PageNames.TOPIC_REPORTS)"
       :text="$tr('topics')"
     />
     <nav-link
@@ -18,7 +18,7 @@
     />
     <nav-link
       :to="learnersLink"
-      :active="isActive(Constants.PageNames.LEARNERS)"
+      :active="isActive(Constants.PageNames.LEARNER_REPORTS)"
       :text="$tr('learners')"
     />
     <nav-link
@@ -53,13 +53,13 @@
       },
       recentLink() {
         return {
-          name: Constants.PageNames.RECENT,
+          name: Constants.PageNames.RECENT_REPORTS,
           params: { classId: this.classId },
         };
       },
       topicsLink() {
         return {
-          name: Constants.PageNames.TOPICS_ROOT,
+          name: Constants.PageNames.TOPIC_REPORTS,
           params: { classId: this.classId },
         };
       },
@@ -71,7 +71,7 @@
       },
       learnersLink() {
         return {
-          name: Constants.PageNames.LEARNERS,
+          name: Constants.PageNames.LEARNER_REPORTS,
           params: { classId: this.classId },
         };
       },

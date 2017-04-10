@@ -22,7 +22,7 @@
 <script>
 
   const store = require('../state/store');
-  const constants = require('../constants');
+  const Constants = require('../constants');
   const isCoachAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isCoachAdminOrSuperuser;
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
@@ -36,10 +36,10 @@
     components: {
       'top-nav': require('./top-nav'),
       'class-list-page': require('./class-list-page'),
-      'recent-page': require('./recent-page'),
+      'channel-list-page': require('./channel-list-page'),
+      'recent-items-page': require('./recent-items-page'),
       'topics-page': require('./topics-page'),
       'exams-page': require('./exams-page'),
-      'learners-page': require('./learners-page'),
       'groups-page': require('./groups-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'coach-exercise-render-page': require('./coach-exercise-render-page'),
@@ -47,31 +47,21 @@
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
-        if (this.pageName === constants.PageNames.CLASS_LIST) {
+        if (this.pageName === Constants.PageNames.CLASS_LIST) {
           return 'class-list-page';
-        }
-        if (this.pageName === constants.PageNames.RECENT) {
-          return 'recent-page';
-        }
-        if (this.pageName === constants.PageNames.TOPICS) {
-          return 'topics-page';
-        }
-        if (this.pageName === constants.PageNames.EXAMS) {
+        } else if (this.pageName === Constants.PageNames.EXAMS) {
           return 'exams-page';
-        }
-        if (this.pageName === constants.PageNames.LEARNERS) {
-          return 'learners-page';
-        }
-        if (this.pageName === constants.PageNames.GROUPS) {
+        } else if (this.pageName === Constants.PageNames.GROUPS) {
           return 'groups-page';
-        }
-        if (this.pageName === constants.PageNames.EXERCISE_RENDER) {
+        } else if (this.pageName === Constants.PageNames.EXERCISE_RENDER) {
           return 'coach-exercise-render-page';
+        } else if (this.pageName === Constants.PageNames.RECENT_REPORTS) {
+          return 'recent-items-page';
         }
         return null;
       },
       showTopNav() {
-        return this.pageName !== constants.PageNames.CLASS_LIST;
+        return this.pageName !== Constants.PageNames.CLASS_LIST;
       },
     },
     vuex: {

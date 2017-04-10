@@ -1,3 +1,4 @@
+const Constants = require('../../constants');
 const ReportConstants = require('../../reportConstants');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const logging = require('kolibri.lib.logging');
@@ -103,7 +104,7 @@ function _genRow(state, item) {
       logging.error(`Unhandled item kind: ${item.kind}`);
     }
     // LEARNERS
-  } else if (state.pageState.viewBy === ReportConstants.ViewBy.LEARNERS) {
+  } else if (state.pageName === Constants.PageNames.LEARNER_REPORTS) {
     row.kind = CoreConstants.USER;
     row.id = item.pk.toString(); // see https://github.com/learningequality/kolibri/issues/65;
     row.title = item.full_name;
