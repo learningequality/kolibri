@@ -220,7 +220,8 @@ class ExamViewset(viewsets.ModelViewSet):
     serializer_class = serializers.ExamSerializer
     pagination_class = OptionalPageNumberPagination
     permissions_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, ExamFilter)
+    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_class = ExamFilter
 
     def get_queryset(self):
         return models.Exam.objects.all()
