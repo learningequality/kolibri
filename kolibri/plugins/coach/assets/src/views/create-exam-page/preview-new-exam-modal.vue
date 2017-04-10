@@ -4,7 +4,7 @@
     <h2>{{ examTitle }}</h2>
     <div>
       {{$tr('questions', { count: examNumQuestions }) }}
-      <icon-button :text="$tr('randomize')"/>
+      <icon-button :text="$tr('randomize')" @click="$emit('randomize')"/>
     </div>
     {{ selectedExercises }}
   </core-modal>
@@ -40,6 +40,10 @@
         type: Array,
         required: true,
       },
+      seed: {
+        type: Number,
+        required: true,
+      }
     },
     methods: {
       close() {

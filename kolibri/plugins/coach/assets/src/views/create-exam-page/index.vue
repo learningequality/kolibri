@@ -93,7 +93,9 @@
       v-if="showPreviewNewExamModal"
       :examTitle="inputTitle"
       :examNumQuestions="inputNumQuestions"
-      :selectedExercises="selectedExercises"/>
+      :selectedExercises="selectedExercises"
+      :seed="seed"
+      @randomize="seed = generateRandomSeed()"/>
 
     <ui-snackbar-container
       class="snackbar-container"
@@ -108,6 +110,8 @@
 
   const ExamActions = require('../../state/actions/exam');
   const ExamModals = require('../../examConstants').Modals;
+  const shuffle = require('lodash/shuffle');
+  const random = require('lodash/random');
 
   module.exports = {
     $trNameSpace: 'createExamPage',
@@ -137,7 +141,7 @@
         validateNum: false,
         searchInput: '',
         loading: false,
-        seed: '',
+        seed: this.generateRandomSeed(),
         validationError: ''
       };
     },
@@ -162,6 +166,34 @@
       },
       showPreviewNewExamModal() {
         return this.modalShown === ExamModals.PREVIEW_NEW_EXAM;
+      },
+      questionSources() {
+        const shuffledExercises = shuffle(Array.from(this.selectedExercises));
+        const numExercises = shuffledExercises.length;
+        const numQuestions = this.inputNumQuestions;
+        const questionsPerExercise = numQuestions / numExercises;
+        const remainingQuestions = numQuestions % numExercises;
+
+        if (remainingQuestions === 0) {
+          return shuffledExercises.map(exercise =>
+            ({ exercise_id: exercise, number_of_questions: Math.trunc(questionsPerExercise) })
+          );
+        } else if (questionsPerExercise >= 1) {
+          return shuffledExercises.map((exercise, index) => {
+            if (index < remainingQuestions) {
+              return {
+                exercise_id: exercise,
+                number_of_questions: Math.trunc(questionsPerExercise) + 1
+              };
+            }
+            return { exercise_id: exercise, number_of_questions: Math.trunc(questionsPerExercise) };
+          });
+        }
+        const exercisesSubset = shuffledExercises;
+        exercisesSubset.splice(numQuestions);
+        return exercisesSubset.map(
+          exercise => ({ exercise_id: exercise, number_of_questions: 1 })
+        );
       },
     },
     methods: {
@@ -197,8 +229,15 @@
       },
       finish() {
         if (this.checkAllValid() === true) {
-          this.createExam(
-              this.currentClass.id, this.currentChannel.id, this.selectedExercises, this.seed);
+          const examObj = {
+            classId: this.currentClass.id,
+            channelId: this.currentChannel.id,
+            title: this.inputTitle,
+            numQuestions: this.inputNumQuestions,
+            questionSources: this.questionSources,
+            seed: this.seed,
+          };
+          this.createExam(examObj);
         }
       },
       checkAllValid() {
@@ -224,6 +263,9 @@
           return 'not-last';
         }
         return '';
+      },
+      generateRandomSeed() {
+        return random(1000);
       },
     },
     vuex: {

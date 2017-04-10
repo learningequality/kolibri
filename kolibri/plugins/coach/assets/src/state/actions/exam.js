@@ -233,9 +233,24 @@ function removeExercise(store, exerciseId) {
   }
 }
 
-function createExam(store, classId, channelId, selectedExercises, seed) {
+function createExam(store, examObj) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  router.getInstance().push({ name: Constants.PageNames.EXAMS });
+  const examPayload = {
+    collection: examObj.classId,
+    channel_id: examObj.channelId,
+    title: examObj.title,
+    question_count: examObj.numQuestions,
+    question_sources: examObj.questionSources,
+    seed: examObj.seed,
+    active: false,
+  };
+  ExamResource.createModel(examPayload).save().then(
+    () => {
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      router.getInstance().push({ name: Constants.PageNames.EXAMS });
+    },
+    error => CoreActions.handleError(store, error)
+  );
 }
 
 function showExamReportPage(store, classId, examId) {
