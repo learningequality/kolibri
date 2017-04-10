@@ -234,7 +234,7 @@ class ExamAssignmentViewset(viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter,)
 
     def get_queryset(self):
-        return models.Exam.objects.all()
+        return models.ExamAssignment.objects.all()
 
 
 class UserExamViewset(viewsets.ModelViewSet):
