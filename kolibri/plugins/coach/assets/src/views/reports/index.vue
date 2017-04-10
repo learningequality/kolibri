@@ -125,9 +125,6 @@
       ReportConstants() {
         return ReportConstants; // allow constants to be accessed inside templates
       },
-      isViewByContent() {
-        return this.pageState.view_by_content_or_learners === ReportConstants.ViewBy.CONTENT;
-      },
       isSingleUser() {
         return this.pageState.user_scope === ReportConstants.UserScopes.USER;
       },
