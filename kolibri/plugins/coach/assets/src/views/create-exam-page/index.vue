@@ -93,7 +93,9 @@
       v-if="showPreviewNewExamModal"
       :examTitle="inputTitle"
       :examNumQuestions="inputNumQuestions"
-      :selectedExercises="selectedExercises"/>
+      :selectedExercises="selectedExercises"
+      :seed="seed"
+      @randomize="seed = generateRandomSeed()"/>
 
     <ui-snackbar-container
       class="snackbar-container"
