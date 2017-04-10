@@ -84,7 +84,7 @@ function showExamsPage(store, classId) {
     ClassroomResource.getModel(classId).fetch(),
     LearnerGroupResource.getCollection({ parent: classId }).fetch(),
     ChannelResource.getCollection().fetch(),
-    ExamResource.getCollection({ collection: classId }).fetch(),
+    ExamResource.getCollection({ collection: classId }).fetch({}, true),
   ];
 
   return ConditionalPromise.all(resourceRequests).only(
@@ -271,25 +271,67 @@ function showExamReportDetailPage(store, classId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', false);
 }
 
-function activateExam() {
-  this.displayModal(false);
+function activateExam(store, examId) {
+  ExamResource.getModel(examId).save({ active: true }).then(
+    () => {
+      const exams = store.state.pageState.exams;
+      const examIndex = exams.findIndex(exam => exam.id === examId);
+      exams[examIndex].active = true;
+
+      store.dispatch('SET_EXAMS', exams);
+      this.displayModal(false);
+    },
+    error => CoreActions.handleError(store, error)
+  );
 }
 
-function deactivateExam() {
-  this.displayModal(false);
+function deactivateExam(store, examId) {
+  ExamResource.getModel(examId).save({ active: false }).then(
+    () => {
+      const exams = store.state.pageState.exams;
+      const examIndex = exams.findIndex(exam => exam.id === examId);
+      exams[examIndex].active = false;
+
+      store.dispatch('SET_EXAMS', exams);
+      this.displayModal(false);
+    },
+    error => CoreActions.handleError(store, error)
+  );
 }
 
 function updateExamVisibility() {
   this.displayModal(false);
 }
+
 function previewExam() {
   this.displayModal(false);
 }
-function renameExam() {
-  this.displayModal(false);
+
+function renameExam(store, examId, newExamTitle) {
+  ExamResource.getModel(examId).save({ title: newExamTitle }).then(
+    () => {
+      const exams = store.state.pageState.exams;
+      const examIndex = exams.findIndex(exam => exam.id === examId);
+      exams[examIndex].title = newExamTitle;
+
+      store.dispatch('SET_EXAMS', exams);
+      this.displayModal(false);
+    },
+    error => CoreActions.handleError(store, error)
+  );
 }
-function deleteExam() {
-  this.displayModal(false);
+
+function deleteExam(store, examId) {
+  ExamResource.getModel(examId).delete().then(
+    () => {
+      const exams = store.state.pageState.exams;
+      const updatedExams = exams.filter(exam => exam.id !== examId);
+
+      store.dispatch('SET_EXAMS', updatedExams);
+      this.displayModal(false);
+    },
+    error => CoreActions.handleError(store, error)
+  );
 }
 
 module.exports = {
