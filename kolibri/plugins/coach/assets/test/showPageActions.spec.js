@@ -105,7 +105,7 @@ describe('showPage actions for coach exams section', () => {
             { id: 'item_1', name: 'item one' },
             { id: 'item_2', name: 'item two' },
           ],
-          exams: fakeExams,
+          // exams: fakeExams,
           modalShown: false,
         }));
       });

@@ -95,7 +95,7 @@ function showExamsPage(store, classId) {
         classId,
         currentClass: pickIdAndName(classroom),
         currentClassGroups: learnerGroups.map(pickIdAndName),
-        exams,
+        exams: exams.map((exam) => Object.assign(exam, { visibility: { class: true } })),
         modalShown: false,
       };
 
