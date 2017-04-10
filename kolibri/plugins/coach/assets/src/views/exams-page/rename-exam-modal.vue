@@ -1,7 +1,7 @@
 <template>
 
   <core-modal :title="$tr('renameExam')" @cancel="close">
-    <form @submit.prevent="renameExam">
+    <form @submit.prevent="renameExam(examId, inputExamName)">
       <core-textbox
         :label="$tr('examName')"
         :aria-label="$tr('examName')"
