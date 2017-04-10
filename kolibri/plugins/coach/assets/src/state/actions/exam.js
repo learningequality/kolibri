@@ -95,7 +95,7 @@ function showExamsPage(store, classId) {
         classId,
         currentClass: pickIdAndName(classroom),
         currentClassGroups: learnerGroups.map(pickIdAndName),
-        exams: exams.map((exam) => Object.assign(exam, { visibility: { class: true } })),
+        exams: exams.map(exam => Object.assign(exam, { visibility: { class: true } })),
         modalShown: false,
       };
 
@@ -184,7 +184,6 @@ function showCreateExamPage(store, classId, channelId) {
     CoreActions.samePageCheckGenerator(store),
     ([currentClassModel, channelsCollection]) => {
       const currentClass = pickIdAndName(currentClassModel);
-      // const currentClass = _classState(currentClassModel);
       const currentChannel = _channelState(
         channelsCollection.find(channel => channel.id === channelId));
 

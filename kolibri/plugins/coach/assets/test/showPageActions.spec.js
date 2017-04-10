@@ -21,6 +21,11 @@ kolibri.resources = {
 
 const examActions = require('../src/state/actions/exam');
 
+const channelStub = kolibri.resources.ChannelResource.getCollection;
+const classroomStub = kolibri.resources.ClassroomResource.getModel;
+const examStub = kolibri.resources.ExamResource.getCollection;
+const learnerGroupStub = kolibri.resources.LearnerGroupResource.getCollection;
+
 // mocks either getCollection, or getModel where request is successful
 function makeHappyFetchable(fetchResult = {}) {
   return { fetch: () => Promise.resolve(fetchResult) };
@@ -63,11 +68,7 @@ describe('showPage actions for coach exams section', () => {
     state: { core: { pageSessionId: '' } },
   };
 
-  const channelStub = kolibri.resources.ChannelResource.getCollection;
-  const classroomStub = kolibri.resources.ClassroomResource.getModel;
   const dispatchSpy = storeMock.dispatch;
-  const examStub = kolibri.resources.ExamResource.getCollection;
-  const learnerGroupStub = kolibri.resources.LearnerGroupResource.getCollection;
 
   beforeEach(() => {
     channelStub.reset();
