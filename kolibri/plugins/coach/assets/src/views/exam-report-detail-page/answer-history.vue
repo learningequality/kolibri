@@ -4,13 +4,13 @@
     <h3 class="header">{{ $tr('header') }}</h3>
 
     <ul class="history-list">
-      <template v-for="(attemptLog, index) in attemptLogs">
+      <template v-for="(attemptLog, index) in examlog">
         <li v-if="index === 0">
           <p class="item">
             {{ exerciseNameText(attemptLog.contentId) }}
           </p>
         </li>
-        <li v-else-if="attemptLogs[index - 1].contentId != attemptLog.contentId">
+        <li v-else-if="examlog[index - 1].contentId != attemptLog.contentId">
           <p class="item">
             {{ exerciseNameText(attemptLog.contentId) }}
           </p>
@@ -81,56 +81,7 @@
     },
     vuex: {
       getters: {
-        attemptLogs: () => [
-          {
-            contentId: 1,
-            index: 0,
-            hinted: false,
-            correct: 1,
-          },
-          {
-            contentId: 1,
-            index: 1,
-            hinted: false,
-            correct: 1,
-          },
-          {
-            contentId: 2,
-            index: 0,
-            hinted: false,
-            correct: 0,
-          },
-          {
-            contentId: 3,
-            index: 0,
-            hinted: true,
-            correct: 0,
-          },
-          {
-            contentId: 3,
-            index: 1,
-            hinted: false,
-            correct: 1,
-          },
-          {
-            contentId: 3,
-            index: 2,
-            hinted: false,
-            correct: 1,
-          },
-          {
-            contentId: 3,
-            index: 3,
-            hinted: false,
-            correct: 0,
-          },
-          {
-            contentId: 3,
-            index: 4,
-            hinted: false,
-            correct: 1,
-          }
-        ],
+        examlog: state => state.pageState.examlog,
       },
       actions: {
         setSelectedAttemptLogIndex: actions.setSelectedAttemptLogIndex,
