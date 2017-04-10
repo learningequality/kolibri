@@ -1,4 +1,5 @@
 const CoreApp = require('kolibri');
+const pick = require('lodash/fp/pick');
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const router = require('kolibri.coreVue.router');
 const CoreActions = require('kolibri.coreVue.vuex.actions');
@@ -9,14 +10,9 @@ const ClassroomResource = CoreApp.resources.ClassroomResource;
 const ChannelResource = CoreApp.resources.ChannelResource;
 const LearnerGroupResource = CoreApp.resources.LearnerGroupResource;
 const ContentNodeResource = CoreApp.resources.ContentNodeResource;
+const ExamResource = CoreApp.resources.ExamResource;
 
-
-function _classState(classroom) {
-  return {
-    id: classroom.id,
-    name: classroom.name,
-  };
-}
+const pickIdAndName = pick(['id', 'name']);
 
 function _channelState(channel) {
   return {
@@ -28,17 +24,6 @@ function _channelState(channel) {
 
 function _channelsState(channels) {
   return channels.map(channel => _channelState(channel));
-}
-
-function _groupState(group) {
-  return {
-    id: group.id,
-    name: group.name,
-  };
-}
-
-function _groupsState(groups) {
-  return groups.map(group => _groupState(group));
 }
 
 function _breadcrumbState(topic) {
@@ -95,42 +80,22 @@ function showExamsPage(store, classId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAMS);
 
-  const currentClassPromise = ClassroomResource.getModel(classId).fetch();
-  const groupPromise = LearnerGroupResource.getCollection({ parent: classId }).fetch();
-  const channelPromise = ChannelResource.getCollection().fetch();
+  const resourceRequests = [
+    ClassroomResource.getModel(classId).fetch(),
+    LearnerGroupResource.getCollection({ parent: classId }).fetch(),
+    ChannelResource.getCollection().fetch(),
+    ExamResource.getCollection({ collection: classId }).fetch(),
+  ];
 
-  ConditionalPromise.all([currentClassPromise, groupPromise, channelPromise]).only(
+  return ConditionalPromise.all(resourceRequests).only(
     CoreActions.samePageCheckGenerator(store),
-    ([currentClassModel, groupsCollection, channelsCollection]) => {
-      const currentClass = _classState(currentClassModel);
-      const currentClassGroups = _groupsState(groupsCollection);
-      const channels = _channelsState(channelsCollection);
-
-      const dummyExams = [{
-        id: '1',
-        title: 'UNIT 1 Exam',
-        active: false,
-        visibility: { class: false, groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }] },
-      },
-      {
-        id: '2',
-        title: 'UNIT 1 Quiz',
-        active: true,
-        visibility: { class: false, groups: [{ id: '1', name: 'groupA' }] },
-      },
-      {
-        id: '3',
-        title: 'UNIT 2',
-        active: true,
-        visibility: { class: true, groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }] },
-      }];
-
+    ([classroom, learnerGroups, channels, exams]) => {
       const pageState = {
+        channels: _channelsState(channels),
         classId,
-        currentClass,
-        currentClassGroups,
-        channels,
-        exams: dummyExams,
+        currentClass: pickIdAndName(classroom),
+        currentClassGroups: learnerGroups.map(pickIdAndName),
+        exams: exams.map(exam => Object.assign(exam, { visibility: { class: true } })),
         modalShown: false,
       };
 
@@ -218,7 +183,7 @@ function showCreateExamPage(store, classId, channelId) {
   ConditionalPromise.all([currentClassPromise, channelPromise]).only(
     CoreActions.samePageCheckGenerator(store),
     ([currentClassModel, channelsCollection]) => {
-      const currentClass = _classState(currentClassModel);
+      const currentClass = pickIdAndName(currentClassModel);
       const currentChannel = _channelState(
         channelsCollection.find(channel => channel.id === channelId));
 
