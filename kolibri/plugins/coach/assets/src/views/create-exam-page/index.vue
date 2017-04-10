@@ -229,9 +229,15 @@
       },
       finish() {
         if (this.checkAllValid() === true) {
-          this.createExam(
-              this.currentClass.id, this.currentChannel.id, this.inputTitle,
-            this.inputNumQuestions, this.questionSources, this.seed);
+          const examObj = {
+            classId: this.currentClass.id,
+            channelId: this.currentChannel.id,
+            title: this.inputTitle,
+            numQuestions: this.inputNumQuestions,
+            questionSources: this.questionSources,
+            seed: this.seed,
+          };
+          this.createExam(examObj);
         }
       },
       checkAllValid() {

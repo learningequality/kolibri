@@ -269,15 +269,15 @@ function removeExercise(store, exerciseId) {
   }
 }
 
-function createExam(store, classId, channelId, title, numQuestions, questionSources, seed) {
+function createExam(store, examObj) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const examPayload = {
-    collection: classId,
-    channel_id: channelId,
-    title,
-    question_count: numQuestions,
-    question_sources: questionSources,
-    seed,
+    collection: examObj.classId,
+    channel_id: examObj.channelId,
+    title: examObj.title,
+    question_count: examObj.numQuestions,
+    question_sources: examObj.questionSources,
+    seed: examObj.seed,
     active: false,
   };
   ExamResource.createModel(examPayload).save().then(
