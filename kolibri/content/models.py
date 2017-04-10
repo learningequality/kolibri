@@ -350,6 +350,9 @@ class Exam(AbstractFacilityDataModel):
     def infer_dataset(self):
         return self.creator.dataset
 
+    def __str__(self):
+        return self.title
+
 
 class ExamAssignment(AbstractFacilityDataModel):
     """
