@@ -8,16 +8,16 @@ const Constants = require('../../constants');
  */
 function genLink(pageState, newParams) {
   const currentParams = {
-    class_id: pageState.classId,
-    channel_id: pageState.channelId,
-    content_scope: pageState.content_scope,
-    content_scope_id: pageState.content_scope_id,
-    user_scope: pageState.user_scope,
-    user_scope_id: pageState.user_scope_id,
-    all_or_recent: pageState.all_or_recent,
-    view_by_content_or_learners: pageState.view_by_content_or_learners,
-    sort_column: pageState.sort_column,
-    sort_order: pageState.sort_order,
+    classId: pageState.classId,
+    channelId: pageState.channelId,
+    contentScope: pageState.contentScope,
+    contentScopeId: pageState.contentScopeId,
+    userScope: pageState.userScope,
+    userScopeId: pageState.userScopeId,
+    allOrRecent: pageState.allOrRecent,
+    viewBy: pageState.viewBy,
+    sortColumn: pageState.sortColumn,
+    sortOrder: pageState.sortOrder,
   };
   const vlink = {
     name: Constants.PageNames.REPORTS,

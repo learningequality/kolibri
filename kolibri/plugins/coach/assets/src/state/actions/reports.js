@@ -129,16 +129,16 @@ function redirectToDefaultReport(store, viewBy, classId, channelId) {
       router.getInstance().replace({
         name: Constants.PageNames.TOPICS,
         params: {
-          class_id: classId,
-          channel_id: channelId,
-          content_scope: ReportConstants.ContentScopes.ROOT,
-          content_scope_id: channelData.root_pk,
-          user_scope: ReportConstants.UserScopes.CLASSROOM,
-          user_scope_id: classId,
-          all_or_recent: ReportConstants.AllOrRecent.ALL,
-          view_by_content_or_learners: ReportConstants.ViewBy.CONTENT,
-          sort_column: ReportConstants.TableColumns.NAME,
-          sort_order: ReportConstants.SortOrders.NONE,
+          classId,
+          channelId,
+          contentScope: ReportConstants.ContentScopes.ROOT,
+          contentScopeId: channelData.root_pk,
+          userScope: ReportConstants.UserScopes.CLASSROOM,
+          userScopeId: classId,
+          allOrRecent: ReportConstants.AllOrRecent.ALL,
+          viewBy: ReportConstants.ViewBy.CONTENT,
+          sortColumn: ReportConstants.TableColumns.NAME,
+          sortOrder: ReportConstants.SortOrders.NONE,
         },
       });
     },
@@ -152,17 +152,20 @@ function updateSorting(store, sortColumn, sortOrder) {
 }
 
 
-function showReport(store, viewBy, params) {
+function showReport(
+  store,
+  viewBy,
+  classId,
+  channelId,
+  contentScope,
+  contentScopeId,
+  userScope,
+  userScopeId,
+  allOrRecent,
+  sortColumn,
+  sortOrder
+) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-
-  const classId = params.class_id;
-  const channelId = params.channel_id;
-  const contentScope = params.content_scope;
-  const contentScopeId = params.content_scope_id;
-  const userScope = params.user_scope;
-  const userScopeId = params.user_scope_id;
-  const sortColumn = params.sort_column;
-  const sortOrder = params.sort_order;
 
   /* check if params are semi-valid. */
   function _validate(value, constants) {
@@ -217,17 +220,17 @@ function showReport(store, viewBy, params) {
       const pageState = {
         classId,
         channelId,
-        content_scope: contentScope,
-        content_scope_id: contentScopeId,
-        user_scope: userScope,
-        user_scope_id: userScopeId,
-        all_or_recent: ReportConstants.AllOrRecent.ALL,
-        view_by_content_or_learners: viewBy,
-        sort_column: sortColumn,
-        sort_order: sortOrder,
-        table_data: report || {},
-        content_scope_summary: contentSummary,
-        user_scope_summary: userSummary || {},
+        contentScope,
+        contentScopeId,
+        userScope,
+        userScopeId,
+        allOrRecent,
+        viewBy,
+        sortColumn,
+        sortOrder,
+        tableData: report || {},
+        contentScopeSummary: contentSummary,
+        userScopeSummary: userSummary || {},
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPICS);
@@ -238,17 +241,11 @@ function showReport(store, viewBy, params) {
 }
 
 
-function showLearners(store) {
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNERS);
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
-}
-
 
 module.exports = {
   showRecentReports,
   showRecentChannels,
   redirectToDefaultReport,
   showReport,
-  showLearners,
   updateSorting,
 };

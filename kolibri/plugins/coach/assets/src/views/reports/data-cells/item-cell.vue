@@ -61,22 +61,22 @@
       vLink() {
         if (this.isUser) {
           return genLink(this.pageState, {
-            all_or_recent: ReportConstants.AllOrRecent.ALL,
-            user_scope: ReportConstants.UserScopes.USER,
-            user_scope_id: this.id,
+            allOrRecent: ReportConstants.AllOrRecent.ALL,
+            userScope: ReportConstants.UserScopes.USER,
+            userScopeId: this.id,
           });
         } else if (this.isTopic) {
           return genLink(this.pageState, {
-            all_or_recent: ReportConstants.AllOrRecent.ALL,
-            content_scope: ReportConstants.ContentScopes.TOPIC,
-            content_scope_id: this.id,
+            allOrRecent: ReportConstants.AllOrRecent.ALL,
+            contentScope: ReportConstants.ContentScopes.TOPIC,
+            contentScopeId: this.id,
           });
         }
         // assume it's a content link
         return genLink(this.pageState, {
-          all_or_recent: ReportConstants.AllOrRecent.ALL,
-          content_scope: ReportConstants.ContentScopes.CONTENT,
-          content_scope_id: this.id,
+          allOrRecent: ReportConstants.AllOrRecent.ALL,
+          contentScope: ReportConstants.ContentScopes.CONTENT,
+          contentScopeId: this.id,
         });
       },
     },

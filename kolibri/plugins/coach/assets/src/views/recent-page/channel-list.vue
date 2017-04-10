@@ -52,8 +52,8 @@
         return {
           name: PageNames.RECENT,
           params: {
-            class_id: this.classId,
-            channel_id: channelId,
+            classId: this.classId,
+            channelId,
           },
         };
       },

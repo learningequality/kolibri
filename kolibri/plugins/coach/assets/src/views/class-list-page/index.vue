@@ -53,7 +53,7 @@
       recentPageLink(id) {
         return {
           name: constants.PageNames.RECENT,
-          params: { class_id: id },
+          params: { classId: id },
         };
       },
     },

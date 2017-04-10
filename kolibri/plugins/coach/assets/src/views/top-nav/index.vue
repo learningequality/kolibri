@@ -54,31 +54,31 @@
       recentLink() {
         return {
           name: Constants.PageNames.RECENT,
-          params: { class_id: this.classId },
+          params: { classId: this.classId },
         };
       },
       topicsLink() {
         return {
           name: Constants.PageNames.TOPICS_ROOT,
-          params: { class_id: this.classId },
+          params: { classId: this.classId },
         };
       },
       examsLink() {
         return {
           name: Constants.PageNames.EXAMS,
-          params: { class_id: this.classId },
+          params: { classId: this.classId },
         };
       },
       learnersLink() {
         return {
           name: Constants.PageNames.LEARNERS,
-          params: { class_id: this.classId },
+          params: { classId: this.classId },
         };
       },
       groupsLink() {
         return {
           name: Constants.PageNames.GROUPS,
-          params: { class_id: this.classId },
+          params: { classId: this.classId },
         };
       },
     },

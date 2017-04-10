@@ -18,7 +18,7 @@ const mutations = {
 
   // report
   SET_REPORT_SORTING(state, sortColumn, sortOrder) {
-    state.pageState.sort_column = sortColumn;
+    state.pageState.sortColumn = sortColumn;
   },
 
   // groups

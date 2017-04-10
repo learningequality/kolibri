@@ -6,20 +6,20 @@
 
         <!--HEADER SECTION-->
         <h2>
-          <span v-if="pageState.user_scope_summary.full_name">
+          <span v-if="pageState.userScopeSummary.full_name">
             <mat-svg category="social" name="person"/>
-            {{ pageState.user_scope_summary.full_name }} -
+            {{ pageState.userScopeSummary.full_name }} -
           </span>
           <content-icon
-            :kind="pageState.content_scope_summary.kind"
+            :kind="pageState.contentScopeSummary.kind"
             colorstyle="text-default"
           />
-          {{ pageState.content_scope_summary.title }}
+          {{ pageState.contentScopeSummary.title }}
         </h2>
 
         <!--SUMMARY SECTION-->
         <summary-section
-          :kind="pageState.content_scope_summary.kind"
+          :kind="pageState.contentScopeSummary.kind"
           :exerciseCount="exerciseCount"
           :exerciseProgress="exerciseProgress"
           :contentCount="contentCount"
@@ -126,21 +126,21 @@
         return ReportConstants; // allow constants to be accessed inside templates
       },
       isSingleUser() {
-        return this.pageState.user_scope === ReportConstants.UserScopes.USER;
+        return this.pageState.userScope === ReportConstants.UserScopes.USER;
       },
       isSingleItem() {
-        return this.pageState.content_scope === ReportConstants.ContentScopes.CONTENT;
+        return this.pageState.contentScope === ReportConstants.ContentScopes.CONTENT;
       },
       contentBreadcrumbs() {
-        const list = this.pageState.content_scope_summary.ancestors.map((item, index) => ({
+        const list = this.pageState.contentScopeSummary.ancestors.map((item, index) => ({
           title: item.title,
           vlink: genLink(this.pageState, {
-            view_by_content_or_learners: ReportConstants.ViewBy.CONTENT,
-            content_scope: index ? ReportConstants.ContentScopes.TOPIC : ReportConstants.ContentScopes.ROOT, // eslint-disable-line max-len
-            content_scope_id: item.pk,
+            viewBy: ReportConstants.ViewBy.CONTENT,
+            contentScope: index ? ReportConstants.ContentScopes.TOPIC : ReportConstants.ContentScopes.ROOT, // eslint-disable-line max-len
+            contentScopeId: item.pk,
           }),
         }));
-        list.push({ title: this.pageState.content_scope_summary.title });
+        list.push({ title: this.pageState.contentScopeSummary.title });
         return list;
       },
     },
