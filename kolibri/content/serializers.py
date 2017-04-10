@@ -171,7 +171,7 @@ class ExamAssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamAssignment
         fields = (
-            'exam', 'collection',
+            'exam', 'collection', 'assigned_by',
         )
         read_only_fields = ('assigned_by',)
 
