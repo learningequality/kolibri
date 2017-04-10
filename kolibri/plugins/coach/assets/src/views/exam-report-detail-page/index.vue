@@ -42,32 +42,6 @@
       backPageLink() {
         return { name: constants.PageNames.EXAM_REPORT };
       },
-      content() {
-        return {
-          id: '84658d43b99f5824bc1aa5e3eb6b3578',
-          kind: 'exercise',
-          files: [{
-            extension: 'perseus',
-            download_url: '/downloadcontent/898fa0875f5cdf1721a32eb7540d0ec8.perseus/Divide_fractions_and_whole_numbers_word_problems_Exercise.perseus',
-            available: true,
-            checksum: '898fa0875f5cdf1721a32eb7540d0ec8',
-            file_size: 182937,
-            id: '47e59275f0f64c89aba65a537aeb38c2',
-            lang: null,
-            preset: 'Exercise',
-            priority: null,
-            storage_url: '/zipcontent/898fa0875f5cdf1721a32eb7540d0ec8.perseus/',
-            supplementary: false,
-            thumbnail: false,
-          }],
-          content_id: '357f3d15348c4e3d8ac5d459ad8b924d',
-          available: true,
-          extraFields: null,
-        };
-      },
-      channelId() {
-        return '78eed5c0b59b30c0a40c94c17c849af6';
-      },
     },
     methods: {
       backtoText(text) {
