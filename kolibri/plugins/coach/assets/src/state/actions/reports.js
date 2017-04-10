@@ -23,9 +23,9 @@ const ChannelResource = coreApp.resources.ChannelResource;
 
 
 // helper function for showRecent, provides list of channels with recent activity
-function _showRecentChannels(store, classId) {
+function showRecentChannels(store, classId) {
   function __getChannelLastActive(channel) {
-    // helper function for _showRecentChannels
+    // helper function for showRecentChannels
     // @param channel to get recentActivity for
     // @returns promise that resolves channel with lastActive value in object:
     // {
@@ -53,6 +53,9 @@ function _showRecentChannels(store, classId) {
     );
   }
 
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
+
   const channelLastActivePromises = [];
   store.state.core.channels.list.forEach(
     channel => channelLastActivePromises.push(__getChannelLastActive(channel))
@@ -76,7 +79,9 @@ function _showRecentChannels(store, classId) {
 }
 
 
-function _showRecentReports(store, classId, channelId) {
+function showRecentReports(store, classId, channelId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
   // should be cached if navigated to this point
   const channelPromise = ChannelResource.getModel(channelId).fetch();
 
@@ -113,20 +118,6 @@ function _showRecentReports(store, classId, channelId) {
     },
     error => coreActions.handleApiError(store, error)
   );
-}
-
-
-function showRecent(store, classId, channelId) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT);
-  // Handled by coach index
-  // store.dispatch('CORE_SET_TITLE', 'Coach Recents');
-
-  if (channelId) {
-    _showRecentReports(store, classId, channelId);
-  } else {
-    _showRecentChannels(store, classId);
-  }
 }
 
 
@@ -254,7 +245,8 @@ function showLearners(store) {
 
 
 module.exports = {
-  showRecent,
+  showRecentReports,
+  showRecentChannels,
   redirectToDefaultReport,
   showReport,
   showLearners,
