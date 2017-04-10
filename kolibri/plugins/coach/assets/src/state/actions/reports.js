@@ -55,14 +55,14 @@ function _showRecentChannels(store, classId) {
 
   const channelLastActivePromises = [];
   store.state.core.channels.list.forEach(
-    channel => { channelLastActivePromises.push(__getChannelLastActive(channel)); }
+    channel => channelLastActivePromises.push(__getChannelLastActive(channel))
   );
 
   Promise.all(channelLastActivePromises).then(
     allChannelLastActive => {
       const lastActive = {};
       allChannelLastActive.forEach(
-        channelLastActive => { Object.assign(lastActive, channelLastActive); }
+        channelLastActive => Object.assign(lastActive, channelLastActive)
       );
       const pageState = {
         lastActive,
@@ -108,10 +108,10 @@ function _showRecentReports(store, classId, channelId) {
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_TITLE', 'Recents');
         },
-        error => { coreActions.handleApiError(store, error); }
+        error => coreActions.handleApiError(store, error)
       );
     },
-    error => { coreActions.handleApiError(store, error); }
+    error => coreActions.handleApiError(store, error)
   );
 }
 
@@ -151,9 +151,7 @@ function redirectToDefaultReport(store, viewBy, classId, channelId) {
         },
       });
     },
-    error => {
-      coreActions.handleError(store, error);
-    }
+    error => coreActions.handleError(store, error)
   );
 }
 
@@ -244,7 +242,7 @@ function showReport(store, viewBy, params) {
       store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPICS);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => { coreActions.handleError(store, error); }
+    error => coreActions.handleError(store, error)
   );
 }
 
