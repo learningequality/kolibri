@@ -1,13 +1,13 @@
 <template>
 
   <core-modal :title="$tr('renameExam')" @cancel="close">
-    <form @submit.prevent="renameExam(examId, inputExamTitle)">
+    <form @submit.prevent="renameExam(examId, newExamTitle)">
       <core-textbox
         :label="$tr('examName')"
         :aria-label="$tr('examName')"
         :autofocus="true"
         :required="true"
-         v-model.trim="inputExamTitle"/>
+        v-model.trim="newExamTitle"/>
       <div class="footer">
         <icon-button :text="$tr('cancel')" type="button" @click="close"/>
         <icon-button :text="$tr('rename')" :primary="true" type="submit"/>
@@ -51,7 +51,7 @@
     },
     data() {
       return {
-        inputExamTitle: this.examTitle,
+        newExamTitle: this.examTitle,
       };
     },
     methods: {
