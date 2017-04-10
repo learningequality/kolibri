@@ -1,9 +1,8 @@
 /* eslint-env mocha */
-/* eslint-disable no-multi-assign */
 const sinon = require('sinon');
 const kolibri = require('kolibri');
 
-// add fake Resources to kolibri mock. This needs to be done before loading tested module
+// Add fake Resources to kolibri mock. This needs to be done before loading tested module
 kolibri.resources = {
   ChannelResource: {
     getCollection: sinon.stub(),
@@ -76,6 +75,10 @@ describe('showPage actions for coach exams section', () => {
     dispatchSpy.reset();
     examStub.reset();
     learnerGroupStub.reset();
+  });
+
+  after(() => {
+    kolibri.resources = {};
   });
 
   describe('showExamsPage', () => {
