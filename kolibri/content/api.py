@@ -36,10 +36,11 @@ class ContentNodeFilter(filters.FilterSet):
     popular = filters.django_filters.MethodFilter()
     resume = filters.django_filters.MethodFilter()
     kind = filters.django_filters.MethodFilter()
+    ids = filters.django_filters.MethodFilter()
 
     class Meta:
         model = models.ContentNode
-        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for']
+        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'ids']
 
     def title_description_filter(self, queryset, value):
         """
@@ -173,6 +174,9 @@ class ContentNodeFilter(filters.FilterSet):
         if value == 'content':
             return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
         return queryset.filter(kind=value).order_by("lft")
+
+    def filter_ids(self, queryset, value):
+        return queryset.filter(pk__in=value.split(','))
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
