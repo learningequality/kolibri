@@ -52,7 +52,7 @@
     methods: {
       recentPageLink(id) {
         return {
-          name: constants.PageNames.RECENT_REPORTS,
+          name: constants.PageNames.RECENT_CHANNELS,
           params: { classId: id },
         };
       },

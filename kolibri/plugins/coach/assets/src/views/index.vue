@@ -41,6 +41,7 @@
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'coach-exercise-render-page': require('./coach-exercise-render-page'),
       // reports
+      'recent-items-page': require('./recent-items-page'),
       'channel-list-page': require('./channel-list-page'),
     },
     computed: {
@@ -53,7 +54,7 @@
           [Constants.PageNames.EXERCISE_RENDER]: 'coach-exercise-render-page',
           // reports
           [Constants.PageNames.RECENT_CHANNELS]: 'channel-list-page',
-          [Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'item-list-page',
+          [Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'recent-items-page',
           [Constants.PageNames.RECENT_LEARNERS_FOR_ITEM]: 'learner-list-page',
           [Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
           [Constants.PageNames.TOPIC_CHANNELS]: 'channel-list-page',

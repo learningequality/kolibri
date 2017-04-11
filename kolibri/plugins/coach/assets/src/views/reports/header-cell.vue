@@ -44,7 +44,7 @@
     },
     computed: {
       sortable() {
-        return this.pageName !== Constants.PageNames.RECENT_REPORTS;
+        return !Constants.RecentPages.includes(this.pageName);
       },
       sorted() {
         return this.sortable && this.pageState.sortColumn === this.column;

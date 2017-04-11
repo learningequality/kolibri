@@ -50,7 +50,7 @@
     methods: {
       reportLink(channelId) {
         return {
-          name: PageNames.RECENT_REPORTS,
+          name: PageNames.RECENT_ITEMS_FOR_CHANNEL,
           params: {
             classId: this.classId,
             channelId,
