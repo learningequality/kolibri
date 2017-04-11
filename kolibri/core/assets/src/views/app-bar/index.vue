@@ -30,7 +30,7 @@
         <ui-button
           type="secondary"
           :ariaLabel="$tr('signIn')"
-          class="app-bar-button">
+          class="appbarbutton">
           {{ $tr('signIn') }}
         </ui-button>
       </a>
@@ -116,7 +116,7 @@
 
 <style lang="stylus">
 
-  .app-bar .app-bar-button
+  .app-bar .appbarbutton
     color: white
     &:hover
       background-color: rgba(0, 0, 0, 0.1)

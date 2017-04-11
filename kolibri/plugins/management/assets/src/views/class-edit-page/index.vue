@@ -34,9 +34,9 @@
       <div class="enroll">
         <router-link :to="classEnrollLink" class="table-name">
           <icon-button
-          class="enroll-user-button"
-          :text="$tr('enrollUsers')"
-          :primary="true"/>
+            class="enroll-user-button"
+            :text="$tr('enrollUsers')"
+            :primary="true"/>
         </router-link>
       </div>
 
@@ -82,9 +82,12 @@
 
           <!-- Logic for role tags -->
           <td class="table-cell table-role">
-            <span class="user-role">
-              {{ user.kind === LEARNER ? $tr('learner') : $tr('coach') }}
-            </span>
+            <role-switcher
+              class="user-role"
+              :currentRole="user.kind"
+              @click-add-coach="addCoachRoleToUser(user)"
+              @click-remove-coach="removeCoachRoleFromUser(user)"
+            />
           </td>
 
           <!-- Edit field -->
@@ -113,6 +116,7 @@
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
   const actions = require('../../state/actions');
 
+
   module.exports = {
     $trNameSpace: 'classEnrollPage',
     $trs: {
@@ -133,6 +137,7 @@
     },
     components: {
       'class-rename-modal': require('./class-rename-modal'),
+      'role-switcher': require('./role-switcher'),
       'user-remove-modal': require('./user-remove-modal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
@@ -185,6 +190,18 @@
       },
     },
     methods: {
+      addCoachRoleToUser(user) {
+        return this.addCoachRole({
+          userId: user.id,
+          classId: this.currClass.id
+        });
+      },
+      removeCoachRoleFromUser(user) {
+        return this.removeCoachRole({
+          userId: user.id,
+          classId: this.currClass.id
+        });
+      },
       openEditNameModal() {
         this.displayModal(constants.Modals.EDIT_CLASS_NAME);
       },
@@ -201,6 +218,8 @@
       },
       actions: {
         displayModal: actions.displayModal,
+        addCoachRole: actions.addCoachRole,
+        removeCoachRole: actions.removeCoachRole,
       },
     },
   };
@@ -308,8 +327,10 @@
     color: $core-text-default
 
   .user-role
-    color: $core-text-default
-    display: inline-block
+    display: table-cell
+    height: 1.5rem
+    margin: 5px 0
+    vertical-align: middle
     white-space: nowrap
 
   .searchbar .icon

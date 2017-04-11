@@ -1,4 +1,11 @@
 
+const PageTypes = {
+  CHANNELS: 'CHANNELS',
+  ITEMS: 'ITEMS',
+  LEARNERS: 'LEARNERS',
+  EXERCISE: 'EXERCISE',
+};
+
 const ContentScopes = {
   ROOT: 'root',
   TOPIC: 'topic',
@@ -10,16 +17,6 @@ const UserScopes = {
   CLASSROOM: 'classroom',
   LEARNERGROUP: 'learnergroup',
   USER: 'user',
-};
-
-const AllOrRecent = {
-  ALL: 'all',
-  RECENT: 'recent',
-};
-
-const ViewBy = {
-  LEARNERS: 'user_view',
-  CONTENT: 'content_view',
 };
 
 const TableColumns = {
@@ -36,10 +33,9 @@ const SortOrders = {
 };
 
 module.exports = {
+  PageTypes,
   ContentScopes,
   UserScopes,
-  AllOrRecent,
-  ViewBy,
   TableColumns,
   SortOrders,
 };

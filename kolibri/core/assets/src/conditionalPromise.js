@@ -21,7 +21,7 @@ class ConditionalPromise {
   }
 
   only(continueCheck, resolve, reject) {
-    /*
+    /**
      * When the promise resolves, call resolve function, only if continueCheck evaluates to true.
      * @param {continueCheck} Function - Function that returns a Boolean,
      * @param {resolve} Function - Function to call if the Promise succeeds.
@@ -40,7 +40,7 @@ class ConditionalPromise {
   }
 
   static all(promises) {
-    /*
+    /**
      * Equivalent of Promise.all, but return a ConditionalPromise instead.
      * @param {promises} [Promise|ConditionalPromise] - an array of Promises
      */

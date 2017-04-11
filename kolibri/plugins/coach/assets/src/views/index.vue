@@ -22,7 +22,7 @@
 <script>
 
   const store = require('../state/store');
-  const constants = require('../constants');
+  const Constants = require('../constants');
   const isCoachAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isCoachAdminOrSuperuser;
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
@@ -36,54 +36,48 @@
     components: {
       'top-nav': require('./top-nav'),
       'class-list-page': require('./class-list-page'),
-      'recent-page': require('./recent-page'),
-      'topics-page': require('./topics-page'),
       'exams-page': require('./exams-page'),
       'create-exam-page': require('./create-exam-page'),
       'exam-report-page': require('./exam-report-page'),
       'exam-report-detail-page': require('./exam-report-detail-page'),
-      'learners-page': require('./learners-page'),
       'groups-page': require('./groups-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'coach-exercise-render-page': require('./coach-exercise-render-page'),
+      // reports
+      'recent-items-page': require('./recent-items-page'),
+      'channel-list-page': require('./channel-list-page'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
-        if (this.pageName === constants.PageNames.CLASS_LIST) {
-          return 'class-list-page';
-        }
-        if (this.pageName === constants.PageNames.RECENT) {
-          return 'recent-page';
-        }
-        if (this.pageName === constants.PageNames.TOPICS) {
-          return 'topics-page';
-        }
-        if (this.pageName === constants.PageNames.EXAMS) {
-          return 'exams-page';
-        }
-        if (this.pageName === constants.PageNames.CREATE_EXAM) {
-          return 'create-exam-page';
-        }
-        if (this.pageName === constants.PageNames.EXAM_REPORT) {
-          return 'exam-report-page';
-        }
-        if (this.pageName === constants.PageNames.EXAM_REPORT_DETAIL) {
-          return 'exam-report-detail-page';
-        }
-        if (this.pageName === constants.PageNames.LEARNERS) {
-          return 'learners-page';
-        }
-        if (this.pageName === constants.PageNames.GROUPS) {
-          return 'groups-page';
-        }
-        if (this.pageName === constants.PageNames.EXERCISE_RENDER) {
-          return 'coach-exercise-render-page';
-        }
-        return null;
+        const pageNameToComponentMap = {
+          [Constants.PageNames.CLASS_LIST]: 'class-list-page',
+          [Constants.PageNames.EXAMS]: 'exams-page',
+          [Constants.PageNames.GROUPS]: 'groups-page',
+          [Constants.PageNames.EXERCISE_RENDER]: 'coach-exercise-render-page',
+          [Constants.PageNames.CREATE_EXAM]: 'create-exam-page',
+          // reports
+          [Constants.PageNames.RECENT_CHANNELS]: 'channel-list-page',
+          [Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'recent-items-page',
+          [Constants.PageNames.RECENT_LEARNERS_FOR_ITEM]: 'learner-list-page',
+          [Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
+          [Constants.PageNames.TOPIC_CHANNELS]: 'channel-list-page',
+          [Constants.PageNames.TOPIC_CHANNEL_ROOT]: 'item-list-page',
+          [Constants.PageNames.TOPIC_ITEM_LIST]: 'item-list-page',
+          [Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'learner-list-page',
+          [Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
+          [Constants.PageNames.LEARNER_LIST]: 'learner-list-page',
+          [Constants.PageNames.LEARNER_CHANNELS]: 'channel-list-page',
+          [Constants.PageNames.LEARNER_CHANNEL_ROOT]: 'item-list-page',
+          [Constants.PageNames.LEARNER_ITEM_LIST]: 'item-list-page',
+          [Constants.PageNames.LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
+          [Constants.PageNames.EXAM_REPORT]: 'exam-report-page',
+          [Constants.PageNames.EXAM_REPORT_DETAIL]: 'exam-report-detail-page',
+        };
+        return pageNameToComponentMap[this.pageName];
       },
       showTopNav() {
-        return this.pageName !== constants.PageNames.CLASS_LIST;
+        return this.pageName !== Constants.PageNames.CLASS_LIST;
       },
     },
     vuex: {

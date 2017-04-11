@@ -24,7 +24,7 @@
   const videojs = require('video.js');
   const langcodes = require('./langcodes.json');
   const customButtons = require('./videojs-replay-forward-btns');
-  const throttle = require('lodash.throttle');
+  const throttle = require('lodash/throttle');
 
   module.exports = {
 

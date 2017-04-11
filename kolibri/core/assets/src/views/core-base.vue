@@ -35,7 +35,7 @@
 <script>
 
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
-  const values = require('lodash.values');
+  const values = require('lodash/values');
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   const PADDING = 16;

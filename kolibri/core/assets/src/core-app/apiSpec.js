@@ -93,6 +93,9 @@ module.exports = {
         channelSwitcher: {
           module: require('../views/channel-switcher'),
         },
+        dropdownMenu: {
+          module: require('../views/dropdown-menu'),
+        },
         tabs: {
           module: require('../views/tabs'),
         },

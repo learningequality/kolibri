@@ -45,7 +45,7 @@
 <script>
 
   const Constants = require('kolibri.coreVue.vuex.constants');
-  const values = require('lodash.values');
+  const values = require('lodash/values');
 
   module.exports = {
     props: {

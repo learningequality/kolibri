@@ -3,27 +3,27 @@
   <div class="top">
     <nav-link
       :to="recentLink"
-      :active="isActive(Constants.PageNames.RECENT)"
+      :active="Constants.RecentReports.includes(pageName)"
       :text="$tr('recent')"
     />
     <nav-link
       :to="topicsLink"
-      :active="isActive(Constants.PageNames.TOPICS)"
+      :active="Constants.TopicReports.includes(pageName)"
       :text="$tr('topics')"
     />
     <nav-link
       :to="examsLink"
-      :active="isActive(Constants.PageNames.EXAMS)"
+      :active="pageName === Constants.PageNames.EXAMS"
       :text="$tr('exams')"
     />
     <nav-link
       :to="learnersLink"
-      :active="isActive(Constants.PageNames.LEARNERS)"
+      :active="Constants.LearnerReports.includes(pageName)"
       :text="$tr('learners')"
     />
     <nav-link
       :to="groupsLink"
-      :active="isActive(Constants.PageNames.GROUPS)"
+      :active="pageName === Constants.PageNames.GROUPS"
       :text="$tr('groups')"
     />
   </div>
@@ -53,14 +53,14 @@
       },
       recentLink() {
         return {
-          name: Constants.PageNames.RECENT,
-          params: { class_id: this.classId },
+          name: Constants.PageNames.RECENT_CHANNELS,
+          params: { classId: this.classId },
         };
       },
       topicsLink() {
         return {
-          name: Constants.PageNames.TOPICS,
-          params: { class_id: this.classId },
+          name: Constants.PageNames.TOPIC_CHANNELS,
+          params: { classId: this.classId },
         };
       },
       examsLink() {
@@ -71,20 +71,15 @@
       },
       learnersLink() {
         return {
-          name: Constants.PageNames.LEARNERS,
-          params: { class_id: this.classId },
+          name: Constants.PageNames.LEARNER_LIST,
+          params: { classId: this.classId },
         };
       },
       groupsLink() {
         return {
           name: Constants.PageNames.GROUPS,
-          params: { class_id: this.classId },
+          params: { classId: this.classId },
         };
-      },
-    },
-    methods: {
-      isActive(thatPageName) {
-        return this.pageName === thatPageName;
       },
     },
     vuex: {

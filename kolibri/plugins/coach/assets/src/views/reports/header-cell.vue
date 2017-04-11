@@ -18,9 +18,10 @@
 
 <script>
 
-  const ReportConstants = require('../../../reportConstants');
-  const genLink = require('../genLink');
-  const values = require('lodash.values');
+  const ReportConstants = require('../../reportConstants');
+  const Constants = require('../../constants');
+  const genLink = require('./genLink');
+  const values = require('lodash/values');
 
   module.exports = {
     $trNameSpace: 'headerCell',
@@ -43,30 +44,30 @@
     },
     computed: {
       sortable() {
-        return this.pageState.all_or_recent !== ReportConstants.AllOrRecent.RECENT;
+        return !Constants.RecentPages.includes(this.pageName);
       },
       sorted() {
-        return this.sortable && this.pageState.sort_column === this.column;
+        return this.sortable && this.pageState.sortColumn === this.column;
       },
       isDescending() {
-        return this.sorted && this.pageState.sort_order === ReportConstants.SortOrders.DESCENDING;
+        return this.sorted && this.pageState.sortOrder === ReportConstants.SortOrders.DESCENDING;
       },
       isAscending() {
-        return this.sorted && this.pageState.sort_order === ReportConstants.SortOrders.ASCENDING;
+        return this.sorted && this.pageState.sortOrder === ReportConstants.SortOrders.ASCENDING;
       },
       nextSortState() {
-        if (!this.sorted || this.pageState.sort_order === ReportConstants.SortOrders.NONE) {
+        if (!this.sorted || this.pageState.sortOrder === ReportConstants.SortOrders.NONE) {
           return ReportConstants.SortOrders.DESCENDING;
         }
-        if (this.pageState.sort_order === ReportConstants.SortOrders.DESCENDING) {
+        if (this.pageState.sortOrder === ReportConstants.SortOrders.DESCENDING) {
           return ReportConstants.SortOrders.ASCENDING;
         }
         return ReportConstants.SortOrders.NONE;
       },
       vLink() {
         const link = genLink(this.pageState, {
-          sort_column: this.column,
-          sort_order: this.nextSortState,
+          sortColumn: this.column,
+          sortOrder: this.nextSortState,
         });
         link.replace = true; // browser history replace-state
         return link;
@@ -74,6 +75,7 @@
     },
     vuex: {
       getters: {
+        pageName: state => state.pageName,
         pageState: state => state.pageState,
       },
     },
