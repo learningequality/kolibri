@@ -10,7 +10,7 @@
          aria-valuemax="100">
       <div class="progress-bar-complete" :style="{ width: percent + '%',  backgroundColor: color}"></div>
     </div>
-    <div class="progress-bar-text">{{ $tr('pct', [progress]) }}</div>
+    <div class="progress-bar-text" v-if="showPercentage">{{ $tr('pct', [progress]) }}</div>
   </div>
 
 </template>
@@ -32,6 +32,11 @@
       color: {
         type: String,
         required: false,
+      },
+      showPercentage: {
+        type: Boolean,
+        required: false,
+        default: true,
       },
     },
     computed: {

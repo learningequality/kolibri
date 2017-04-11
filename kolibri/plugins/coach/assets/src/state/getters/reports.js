@@ -1,4 +1,5 @@
-const ReportConstants = require('../reportConstants');
+const Constants = require('../../constants');
+const ReportConstants = require('../../reportConstants');
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const logging = require('kolibri.lib.logging');
 
@@ -10,33 +11,33 @@ const getters = {};
 
 
 /* given an array of objects sum the keys on those that pass the filter */
-function sumOfKeys(array, key, filter = () => true) {
+function _sumOfKeys(array, key, filter = () => true) {
   return array
     .filter(filter)
     .reduce((prev, item) => prev + item[key], 0);
 }
 
-function countNodes(progressArray, filter) {
-  return sumOfKeys(progressArray, 'node_count', filter);
+function _countNodes(progressArray, filter) {
+  return _sumOfKeys(progressArray, 'node_count', filter);
 }
 
 function calcProgress(progressArray, filter, itemCount, userCount) {
-  const totalProgress = sumOfKeys(progressArray, 'total_progress', filter);
+  const totalProgress = _sumOfKeys(progressArray, 'total_progress', filter);
   if (itemCount && userCount) {
     return totalProgress / (itemCount * userCount);
   }
   return undefined;
 }
 
-function onlyExercises(item) {
+function _onlyExercises(item) {
   return item.kind === ContentNodeKinds.EXERCISE;
 }
 
-function onlyContent(item) {
+function _onlyContent(item) {
   return item.kind !== ContentNodeKinds.EXERCISE;
 }
 
-function genCompareFunc(sortColumn, sortOrder) {
+function _genCompareFunc(sortColumn, sortOrder) {
   const columnToKey = {};
   columnToKey[ReportConstants.TableColumns.NAME] = 'title';
   columnToKey[ReportConstants.TableColumns.EXERCISE] = 'exerciseProgress';
@@ -63,11 +64,11 @@ function genCompareFunc(sortColumn, sortOrder) {
   };
 }
 
-function genRow(state, item) {
+function _genRow(state, item) {
   const row = {};
 
   // CONTENT NODES
-  if (state.pageState.view_by_content_or_learners === ReportConstants.ViewBy.CONTENT) {
+  if (state.pageState.viewBy === ReportConstants.ViewBy.CONTENT) {
     row.kind = item.kind;
     row.id = item.pk;
     row.title = item.title;
@@ -75,26 +76,26 @@ function genRow(state, item) {
 
     // for content items, set exercise counts and progress appropriately
     if (item.kind === ContentNodeKinds.TOPIC) {
-      row.exerciseCount = countNodes(item.progress, onlyExercises);
+      row.exerciseCount = _countNodes(item.progress, _onlyExercises);
       row.exerciseProgress = calcProgress(
         item.progress,
-        onlyExercises,
+        _onlyExercises,
         row.exerciseCount,
         getters.userCount(state)
       );
-      row.contentCount = countNodes(item.progress, onlyContent);
+      row.contentCount = _countNodes(item.progress, _onlyContent);
       row.contentProgress = calcProgress(
         item.progress,
-        onlyContent,
+        _onlyContent,
         row.contentCount,
         getters.userCount(state)
       );
-    } else if (onlyExercises(item)) {
+    } else if (_onlyExercises(item)) {
       row.exerciseCount = 1;
       row.exerciseProgress = item.progress[0].total_progress / getters.userCount(state);
       row.contentCount = 0;
       row.contentProgress = undefined;
-    } else if (onlyContent(item)) {
+    } else if (_onlyContent(item)) {
       row.exerciseCount = 0;
       row.exerciseProgress = undefined;
       row.contentCount = 1;
@@ -103,7 +104,7 @@ function genRow(state, item) {
       logging.error(`Unhandled item kind: ${item.kind}`);
     }
     // LEARNERS
-  } else if (state.pageState.view_by_content_or_learners === ReportConstants.ViewBy.LEARNERS) {
+  } else if (state.pageName === Constants.PageNames.LEARNER_REPORTS) {
     row.kind = CoreConstants.USER;
     row.id = item.pk.toString(); // see https://github.com/learningequality/kolibri/issues/65;
     row.title = item.full_name;
@@ -111,11 +112,11 @@ function genRow(state, item) {
 
     // for learners, the exercise counts are the global values
     row.exerciseProgress
-      = calcProgress(item.progress, onlyExercises, getters.exerciseCount(state), 1);
+      = calcProgress(item.progress, _onlyExercises, getters.exerciseCount(state), 1);
     row.contentProgress
-      = calcProgress(item.progress, onlyContent, getters.contentCount(state), 1);
+      = calcProgress(item.progress, _onlyContent, getters.contentCount(state), 1);
   } else {
-    logging.error('Unknown view-by state', state.pageState.view_by_content_or_learners);
+    logging.error('Unknown view-by state', state.pageState.viewBy);
   }
 
   row.lastActive = item.last_active ? new Date(item.last_active) : null;
@@ -127,19 +128,19 @@ function genRow(state, item) {
 // public vuex getters
 Object.assign(getters, {
   completionCount(state) {
-    const summary = state.pageState.content_scope_summary;
+    const summary = state.pageState.contentScopeSummary;
     if (summary.kind !== ContentNodeKinds.TOPIC) {
       return summary.progress[0].log_count_complete;
     }
     return undefined;
   },
   userCount(state) {
-    return state.pageState.content_scope_summary.num_users;
+    return state.pageState.contentScopeSummary.num_users;
   },
   exerciseCount(state) {
-    const summary = state.pageState.content_scope_summary;
+    const summary = state.pageState.contentScopeSummary;
     if (summary.kind === ContentNodeKinds.TOPIC) {
-      return countNodes(summary.progress, onlyExercises);
+      return _countNodes(summary.progress, _onlyExercises);
     } else if (summary.kind === ContentNodeKinds.EXERCISE) {
       return 1;
     }
@@ -147,16 +148,16 @@ Object.assign(getters, {
   },
   exerciseProgress(state) {
     return calcProgress(
-      state.pageState.content_scope_summary.progress,
-      onlyExercises,
+      state.pageState.contentScopeSummary.progress,
+      _onlyExercises,
       getters.exerciseCount(state),
       getters.userCount(state)
     );
   },
   contentCount(state) {
-    const summary = state.pageState.content_scope_summary;
+    const summary = state.pageState.contentScopeSummary;
     if (summary.kind === ContentNodeKinds.TOPIC) {
-      return countNodes(summary.progress, onlyContent);
+      return _countNodes(summary.progress, _onlyContent);
     } else if (summary.kind !== ContentNodeKinds.EXERCISE) {
       return 1;
     }
@@ -164,16 +165,16 @@ Object.assign(getters, {
   },
   contentProgress(state) {
     return calcProgress(
-      state.pageState.content_scope_summary.progress,
-      onlyContent,
+      state.pageState.contentScopeSummary.progress,
+      _onlyContent,
       getters.contentCount(state),
       getters.userCount(state)
     );
   },
   dataTable(state) {
-    const data = state.pageState.table_data.map(item => genRow(state, item));
-    if (state.pageState.sort_order !== ReportConstants.SortOrders.NONE) {
-      data.sort(genCompareFunc(state.pageState.sort_column, state.pageState.sort_order));
+    const data = state.pageState.tableData.map(item => _genRow(state, item));
+    if (state.pageState.sortOrder !== ReportConstants.SortOrders.NONE) {
+      data.sort(_genCompareFunc(state.pageState.sortColumn, state.pageState.sortOrder));
     }
     return data;
   },

@@ -151,7 +151,7 @@
     },
     vuex: {
       getters: {
-        modalShown: state => state.pageState.modalShown,
+        groupModalShown: state => state.pageState.groupModalShown,
       },
       actions: {
         displayModal: groupActions.displayModal,

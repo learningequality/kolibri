@@ -12,7 +12,7 @@
 <script>
 
   const CoreConstants = require('kolibri.coreVue.vuex.constants');
-  const values = require('lodash.values');
+  const values = require('lodash/values');
   const responsiveWindow = require('kolibri.coreVue.mixins.responsiveWindow');
 
   module.exports = {

@@ -11,7 +11,7 @@
         <thead>
           <tr>
             <th scope="col" class="table-text">{{ $tr('className') }}</th>
-            <th scope="col" class="table-data">{{ $tr('learners') }}</th>
+            <th scope="col" class="table-data">{{ $tr('members') }}</th>
             <th scope="col" class="table-data">{{ $tr('groups') }}</th>
           </tr>
         </thead>
@@ -52,8 +52,8 @@
     methods: {
       recentPageLink(id) {
         return {
-          name: constants.PageNames.RECENT,
-          params: { class_id: id },
+          name: constants.PageNames.RECENT_CHANNELS,
+          params: { classId: id },
         };
       },
     },
@@ -68,7 +68,7 @@
       pageDescription: 'View learner progress and performance',
       className: 'Class name',
       tableCaption: 'List of classes',
-      learners: 'Learners',
+      members: 'Members',
       groups: 'Groups',
       noClassesExist: 'No Classes Exist.',
     },

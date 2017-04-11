@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <work-in-progress />
+    <reports />
   </div>
 
 </template>
@@ -13,7 +13,7 @@
     $trNameSpace: 'coachTopicsPage',
     $trs: {},
     components: {
-      'work-in-progress': require('../work-in-progress'),
+      reports: require('../reports'),
     }
   };
 

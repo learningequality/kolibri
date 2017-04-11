@@ -50,7 +50,7 @@
 
 <script>
 
-  const values = require('lodash.values');
+  const values = require('lodash/values');
   const getters = require('kolibri.coreVue.vuex.getters');
   const actions = require('kolibri.coreVue.vuex.actions');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
@@ -196,13 +196,6 @@
             href: '/user',
           });
         }
-        /*
-         options.push({
-         label: this.$tr('about'),
-         disabled: this.aboutActive,
-         icon: 'error_outline',
-         });
-         */
         if (this.isUserLoggedIn) {
           options.push({
             label: this.$tr('signOut'),

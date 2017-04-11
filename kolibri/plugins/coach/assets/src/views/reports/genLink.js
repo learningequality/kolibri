@@ -1,28 +1,5 @@
 
 const Constants = require('../../constants');
-const ReportConstants = require('../../reportConstants');
-
-
-/*
- * This function automatically tweaks the 'view_by' parameter to avoid showing
- * a learner list view for a single user or a content list view for a single item.
- */
-function _tweakViewByParam(params) {
-  const singleUser = params.user_scope === ReportConstants.UserScopes.USER;
-  const singleItem = params.content_scope === ReportConstants.ContentScopes.CONTENT;
-
-  // no table is shown, so 'view_by' is ignored anyway
-  if (singleUser && singleItem) {
-    return;
-  }
-
-  // for 'single + multiple' cases, switch to the only compatible view
-  if (singleUser) {
-    params.view_by_content_or_learners = ReportConstants.ViewBy.CONTENT;
-  } else if (singleItem) {
-    params.view_by_content_or_learners = ReportConstants.ViewBy.LEARNERS;
-  }
-}
 
 
 /*
@@ -31,23 +8,22 @@ function _tweakViewByParam(params) {
  */
 function genLink(pageState, newParams) {
   const currentParams = {
-    channel_id: pageState.channelId,
-    content_scope: pageState.content_scope,
-    content_scope_id: pageState.content_scope_id,
-    user_scope: pageState.user_scope,
-    user_scope_id: pageState.user_scope_id,
-    all_or_recent: pageState.all_or_recent,
-    view_by_content_or_learners: pageState.view_by_content_or_learners,
-    sort_column: pageState.sort_column,
-    sort_order: pageState.sort_order,
+    classId: pageState.classId,
+    channelId: pageState.channelId,
+    contentScope: pageState.contentScope,
+    contentScopeId: pageState.contentScopeId,
+    userScope: pageState.userScope,
+    userScopeId: pageState.userScopeId,
+    allOrRecent: pageState.allOrRecent,
+    viewBy: pageState.viewBy,
+    sortColumn: pageState.sortColumn,
+    sortOrder: pageState.sortOrder,
   };
   const vlink = {
     name: Constants.PageNames.REPORTS,
     params: {},
   };
   Object.assign(vlink.params, currentParams, newParams);
-
-  _tweakViewByParam(vlink.params);
   return vlink;
 }
 
