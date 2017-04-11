@@ -26,6 +26,17 @@
   const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
+  const pageNameComponentMap = {
+    [PageNames.CLASS_EDIT_MGMT_PAGE]: 'class-edit-page',
+    [PageNames.CLASS_ENROLL_MGMT_PAGE]: 'class-enroll-page',
+    [PageNames.CLASS_MGMT_PAGE]: 'manage-class-page',
+    [PageNames.CONTENT_MGMT_PAGE]: 'manage-content-page',
+    [PageNames.DATA_EXPORT_PAGE]: 'data-page',
+    [PageNames.FACILITIES_CONFIG_PAGE]: 'facilities-config-page',
+    [PageNames.SCRATCHPAD]: 'scratchpad-page',
+    [PageNames.USER_MGMT_PAGE]: 'user-page',
+  };
+
   module.exports = {
     $trNameSpace: 'managementRoot',
     $trs: {
@@ -34,41 +45,21 @@
       logInCommand: 'You must be logged in as an Admin to view this page.',
     },
     components: {
-      'top-nav': require('./top-nav'),
-      'manage-class-page': require('./manage-class-page'),
       'class-edit-page': require('./class-edit-page'),
       'class-enroll-page': require('./class-enroll-page'),
-      'user-page': require('./user-page'),
+      'core-base': require('kolibri.coreVue.components.coreBase'),
       'data-page': require('./data-page'),
+      'facilities-config-page': require('./facilities-config-page'),
+      'manage-class-page': require('./manage-class-page'),
       'manage-content-page': require('./manage-content-page'),
       'scratchpad-page': require('./scratchpad-page'),
-      'core-base': require('kolibri.coreVue.components.coreBase'),
+      'top-nav': require('./top-nav'),
+      'user-page': require('./user-page'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.MANAGE,
       currentPage() {
-        if (this.pageName === PageNames.CLASS_MGMT_PAGE) {
-          return 'manage-class-page';
-        }
-        if (this.pageName === PageNames.CLASS_EDIT_MGMT_PAGE) {
-          return 'class-edit-page';
-        }
-        if (this.pageName === PageNames.CLASS_ENROLL_MGMT_PAGE) {
-          return 'class-enroll-page';
-        }
-        if (this.pageName === PageNames.USER_MGMT_PAGE) {
-          return 'user-page';
-        }
-        if (this.pageName === PageNames.DATA_EXPORT_PAGE) {
-          return 'data-page';
-        }
-        if (this.pageName === PageNames.CONTENT_MGMT_PAGE) {
-          return 'manage-content-page';
-        }
-        if (this.pageName === PageNames.SCRATCHPAD) {
-          return 'scratchpad-page';
-        }
-        return null;
+        return pageNameComponentMap[this.pageName] || null;
       },
     },
     vuex: {

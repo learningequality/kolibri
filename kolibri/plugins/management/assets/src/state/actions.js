@@ -19,6 +19,8 @@ const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageC
 // because these modules use ES6 module syntax, need to access exports.default in CommonJS context
 const addCoachRoleAction = require('./addCoachRoleAction').default;
 const removeCoachRoleAction = require('./removeCoachRoleAction').default;
+const { showFacilitiesConfigPage } = require('./facilitiesConfigPageActions');
+const preparePage = require('./preparePage');
 
 /**
  * Vuex State Mappers
@@ -212,14 +214,6 @@ function removeClassUser(store, classId, userId) {
       );
     }
   );
-}
-
-// on-load mutations common to all the show-page actions
-function preparePage(dispatch, { name, title, isAsync = true }) {
-  dispatch('CORE_SET_PAGE_LOADING', isAsync);
-  dispatch('SET_PAGE_NAME', name);
-  dispatch('CORE_SET_TITLE', title);
-  dispatch('CORE_SET_ERROR', null);
 }
 
 function showClassesPage(store) {
@@ -705,6 +699,7 @@ module.exports = {
   showClassesPage,
   showClassEditPage,
   showClassEnrollPage,
+  showFacilitiesConfigPage,
   enrollUsersInClass,
 
   createUser,
