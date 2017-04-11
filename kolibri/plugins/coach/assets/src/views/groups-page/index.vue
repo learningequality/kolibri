@@ -53,7 +53,7 @@
 
   const groupActions = require('../../state/actions/group');
   const GroupModals = require('../../constants').GroupModals;
-  const differenceWith = require('lodash.differencewith');
+  const differenceWith = require('lodash/differenceWith');
 
   module.exports = {
     $trNameSpace: 'coachGroupsPage',
@@ -79,16 +79,16 @@
     },
     computed: {
       showCreateGroupModal() {
-        return this.modalShown === GroupModals.CREATE_GROUP;
+        return this.groupModalShown === GroupModals.CREATE_GROUP;
       },
       showRenameGroupModal() {
-        return this.modalShown === GroupModals.RENAME_GROUP;
+        return this.groupModalShown === GroupModals.RENAME_GROUP;
       },
       showDeleteGroupModal() {
-        return this.modalShown === GroupModals.DELETE_GROUP;
+        return this.groupModalShown === GroupModals.DELETE_GROUP;
       },
       showMoveLearnersModal() {
-        return this.modalShown === GroupModals.MOVE_LEARNERS;
+        return this.groupModalShown === GroupModals.MOVE_LEARNERS;
       },
       groupedUsers() {
         const groupedUsers = [];
@@ -131,7 +131,7 @@
         classId: state => state.pageState.class.id,
         classUsers: state => state.pageState.classUsers,
         groups: state => state.pageState.groups,
-        modalShown: state => state.pageState.modalShown,
+        groupModalShown: state => state.pageState.groupModalShown,
       },
       actions: {
         displayModal: groupActions.displayModal,
