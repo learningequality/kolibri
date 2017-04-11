@@ -74,13 +74,36 @@
         currentAttempt: state =>
           state.examAttemptLogs[state.pageState.content.id][state.pageState.itemId],
       },
+      actions: {
+        setAndSaveCurrentExamAttemptLog: actions.setAndSaveCurrentExamAttemptLog,
+      }
     },
     methods: {
       goToQuestion(questionNumber) {
+        const answer = this.$refs.contentRenderer.checkAnswer();
+        if (answer) {
+          const attempt = this.currentAttempt;
+          attempt.answer = answer.answerState;
+          attempt.simple_answer = answer.simpleAnswer;
+          attempt.correct = answer.correct;
+          if (!attempt.completion_timestamp) {
+            attempt.completion_timestamp = new Date();
+          }
+          attempt.end_timestamp = new Date();
+          attempt.interaction_history.push({
+            type: InteractionTypes.answer,
+            answer: answer.answerState,
+            correct: answer.correct,
+          });
+          this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
+        }
         this.$router.push({
           name: PageNames.EXAM,
           params: { channel_id: this.channelId, id: this.exam.id, questionNumber },
         });
+      },
+      finishExam() {
+
       },
     },
     computed: {

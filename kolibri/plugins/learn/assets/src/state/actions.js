@@ -640,6 +640,35 @@ function showExam(store, channelId, id, questionNumber) {
   );
 }
 
+function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemptLog) {
+  store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+    [contentId]: ({
+      [itemId]: currentAttemptLog,
+    }),
+  });
+  const examAttemptLogModel = ExamAttemptLogResource.getModel(
+    currentAttemptLog.id);
+  const attributes = currentAttemptLog;
+  attributes.interaction_history = JSON.stringify(attributes.interaction_history);
+  attributes.answer = JSON.stringify(attributes.answer);
+  attributes.user = store.state.core.session.user_id;
+  attributes.examlog = store.state.examLog.id;
+  const promise = examAttemptLogModel.save(attributes);
+  promise.then((newExamAttemptLog) => {
+    store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+      [contentId]: ({
+        [itemId]: newExamAttemptLog,
+      }),
+    });
+    const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
+      user: store.state.core.session.user_id,
+      exam: store.state.pageState.exam.id,
+    });
+    // Add this attempt log to the Collection for future caching.
+    examAttemptLogCollection.set(examAttemptLogModel);
+  });
+}
+
 module.exports = {
   redirectToExploreChannel,
   redirectToLearnChannel,
@@ -656,4 +685,5 @@ module.exports = {
   showSearch,
   showExam,
   showExamList,
+  setAndSaveCurrentExamAttemptLog,
 };
