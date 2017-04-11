@@ -49,7 +49,7 @@
     },
     computed: {
       activeExams() {
-        return this.exams.filter(exam => !exam.closed || exam.active).length;
+        return this.exams.filter(exam => !exam.closed || exam.active).length || 0;
       }
     },
     methods: {

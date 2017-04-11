@@ -497,8 +497,10 @@ function showExamList(store, channelId) {
 
 
 function showExam(store, channelId, id, questionNumber) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXAM);
+  if (store.state.pageName !== PageNames.EXAM) {
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+    store.dispatch('SET_PAGE_NAME', PageNames.EXAM);
+  }
 
   questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
 
@@ -511,7 +513,7 @@ function showExam(store, channelId, id, questionNumber) {
   const examAttemptLogPromise = ExamAttemptLogResource.getCollection({
     user: store.state.core.session.user_id,
     exam: id,
-  });
+  }).fetch();
   ConditionalPromise.all([
     examPromise,
     channelsPromise,
@@ -540,6 +542,10 @@ function showExam(store, channelId, id, questionNumber) {
           });
           examLogModel.save().then((newExamLog) => {
             store.dispatch('SET_EXAM_LOG', newExamLog);
+            ExamLogResource.unCacheCollection({
+              user: store.state.core.session.user_id,
+              exam: id,
+            });
           });
         }
         // Sort through all the exam attempt logs retrieved and organize them into objects
@@ -562,39 +568,49 @@ function showExam(store, channelId, id, questionNumber) {
       // The indices referred to shuffled positions in the content node's assessment_item_ids
       // property.
       // Wrap this all in a seededShuffle to give a consistent, repeatable shuffled order.
-      const questions = seededShuffle.shuffle(createQuestionList(questionSources), seed, true);
+      const shuffledQuestions = seededShuffle.shuffle(
+        createQuestionList(questionSources), seed, true);
 
-      const currentQuestion = questions[questionNumber];
-
-      if (!currentQuestion) {
+      if (!shuffledQuestions[questionNumber]) {
         // Illegal question number!
         coreActions.handleError(store, `Question number ${questionNumber} is not valid for this exam`);
       } else {
-        const contentPromise = ContentNodeResource.getModel(
-          currentQuestion.contentId, { channel_id: channelId }).fetch();
+        const contentPromise = ContentNodeResource.getCollection(
+          { channel_id: channelId },
+          { ids: questionSources.map(item => item.exercise_id) }).fetch();
 
         contentPromise.then(
-          (contentNode) => {
-            const itemId = selectQuestionFromExercise(
-              currentQuestion.assessmentItemIndex,
+          (contentNodes) => {
+            const contentNodeMap = {};
+
+            contentNodes.forEach(node => { contentNodeMap[node.pk] = node; });
+
+            const questions = shuffledQuestions.map(question => ({
+              itemId: selectQuestionFromExercise(
+              question.assessmentItemIndex,
               seed,
-              contentNode);
+              contentNodeMap[question.contentId]),
+              contentId: question.contentId
+            }));
+
+            const itemId = questions[questionNumber].itemId;
+
+            const currentQuestion = questions[questionNumber];
 
             const pageState = {
               exam: _examState(exam),
-              attemptLogs,
               itemId,
               questions,
               currentQuestion,
               questionNumber,
-              content: _contentState(contentNode),
+              content: _contentState(contentNodeMap[questions[questionNumber].contentId]),
               channelId,
             };
-            if (!pageState.attemptLogs[currentQuestion.contentId]) {
-              pageState.attemptLogs[currentQuestion.contentId] = {};
+            if (!attemptLogs[currentQuestion.contentId]) {
+              attemptLogs[currentQuestion.contentId] = {};
             }
-            if (!pageState.attemptLogs[currentQuestion.contentId][itemId]) {
-              pageState.attemptLogs[currentQuestion.contentId][itemId] = {
+            if (!attemptLogs[currentQuestion.contentId][itemId]) {
+              attemptLogs[currentQuestion.contentId][itemId] = {
                 start_timestamp: new Date(),
                 completion_timestamp: null,
                 end_timestamp: null,
@@ -610,6 +626,7 @@ function showExam(store, channelId, id, questionNumber) {
                 content_id: currentQuestion.contentId,
               };
             }
+            store.dispatch('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
             store.dispatch('SET_PAGE_STATE', pageState);
             store.dispatch('CORE_SET_PAGE_LOADING', false);
             store.dispatch('CORE_SET_ERROR', null);
