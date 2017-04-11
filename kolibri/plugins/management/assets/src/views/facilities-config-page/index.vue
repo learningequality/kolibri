@@ -35,7 +35,18 @@
           Require users to log-in on this device
         </ui-checkbox>
       </div>
+
+      <div>
+        <ui-button name="reset-settings" @click="resetToDefaultSettings">
+          Reset to default settings
+        </ui-button>
+        <ui-button color="primary" name="save-settings" @click="saveChanges">
+          Save changes
+        </ui-button>
+      </div>
     </div>
+
+
   </div>
 
 </template>
@@ -46,6 +57,7 @@
   module.exports = {
     components: {
       'ui-checkbox': require('keen-ui/src/UiCheckbox'),
+      'ui-button': require('keen-ui/src/UiButton'),
     },
     computed: {
 
@@ -58,7 +70,12 @@
         currentFacilityName: () => 'Nalanda Maths',
       },
       actions: {
-
+        resetToDefaultSettings(store) {
+          console.log('reset', store);
+        },
+        saveChanges(store) {
+          console.log('save changes', store);
+        },
       },
     },
   };
@@ -74,6 +91,6 @@
   .settings > label
     cursor: pointer
     font-weight: bold
-    margin: 1.5rem 0
+    margin: 2rem 0
 
 </style>
