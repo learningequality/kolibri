@@ -237,7 +237,7 @@
             questionSources: this.questionSources,
             seed: this.seed,
           };
-          this.createExam(examObj);
+          this.createExam(this.currentClass.id, examObj);
         }
       },
       checkAllValid() {

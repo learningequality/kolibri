@@ -11,6 +11,7 @@ const ChannelResource = CoreApp.resources.ChannelResource;
 const LearnerGroupResource = CoreApp.resources.LearnerGroupResource;
 const ContentNodeResource = CoreApp.resources.ContentNodeResource;
 const ExamResource = CoreApp.resources.ExamResource;
+const ExamAssignmentResource = CoreApp.resources.ExamAssignmentResource;
 
 const pickIdAndName = pick(['id', 'name']);
 
@@ -233,7 +234,7 @@ function removeExercise(store, exerciseId) {
   }
 }
 
-function createExam(store, examObj) {
+function createExam(store, classId, examObj) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const examPayload = {
     collection: examObj.classId,
@@ -242,12 +243,16 @@ function createExam(store, examObj) {
     question_count: examObj.numQuestions,
     question_sources: examObj.questionSources,
     seed: examObj.seed,
-    active: false,
   };
   ExamResource.createModel(examPayload).save().then(
-    () => {
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      router.getInstance().push({ name: Constants.PageNames.EXAMS });
+    exam => {
+      ExamAssignmentResource.createModel({ exam: exam.id, collection: classId }).save().then(
+        () => {
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          router.getInstance().push({ name: Constants.PageNames.EXAMS });
+        },
+        error => CoreActions.handleError(store, error)
+      );
     },
     error => CoreActions.handleError(store, error)
   );
