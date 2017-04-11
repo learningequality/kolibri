@@ -24,81 +24,162 @@ class CoachToolsModule extends KolibriModule {
           name: PageNames.CLASS_LIST,
           path: '/',
           handler: (to, from) => {
-            actions.showClassListPage(store);
+            actions.showClassListPage(
+              store
+            );
           },
         },
         {
-          name: PageNames.RECENT_REPORTS,
-          path: '/:class/recent/:channel?/:content?/:user?',
+          name: PageNames.RECENT_CHANNELS,
+          path: '/:classId/recent',
           handler: (to, from) => {
-            if (to.params.channel && to.params.content && to.params.user) {
-              console.log('RECENT - single user/single item', to.params);
-            } else if (to.params.channel && to.params.content) {
-              console.log('RECENT - list of users (scope by item)', to.params);
-            } else if (to.params.channel) {
-              console.log('RECENT - item list (scope by channel)', to.params);
-            } else {
-              console.log('RECENT - channels', to.params);
-              reportsActions.showReportChannels(store, PageNames.RECENT_REPORTS, to.params.class);
-            }
+            reportsActions.showRecentChannels(
+              store, to.params.classId
+            );
           },
         },
         {
-          name: PageNames.TOPIC_REPORTS,
-          path: '/:class/topics/:channel?/:topic?/:content?/:user?',
+          name: PageNames.RECENT_ITEMS_FOR_CHANNEL,
+          path: '/:classId/recent/:channelId',
           handler: (to, from) => {
-            if (to.params.channel && to.params.topic && to.params.content && to.params.user) {
-              console.log('TOPICS - single user/single item', to.params);
-            } else if (to.params.channel && to.params.topic && to.params.content) {
-              console.log('TOPICS - list of users (scope by item)', to.params);
-            } else if (to.params.channel && to.params.topic) {
-              console.log('TOPICS - sub topic/item lists (scope by topic)', to.params);
-            } else if (to.params.channel) {
-              console.log('TOPICS - Root topic/item list (scope by root topic)', to.params);
-            } else {
-              console.log('TOPICS - channels', to.params);
-              reportsActions.showReportChannels(store, PageNames.TOPIC_REPORTS, to.params.class);
-            }
+            reportsActions.showRecentItemsForChannel(
+              store, to.params.classId, to.params.channelId
+            );
           },
         },
         {
-          name: PageNames.LEARNER_REPORTS,
-          path: '/:class/learners/:user?/:channel?/:topic?/:content?',
+          name: PageNames.RECENT_LEARNERS_FOR_ITEM,
+          path: '/:classId/recent/:channelId/:contentId',
           handler: (to, from) => {
-            if (to.params.user && to.params.channel && to.params.topic && to.params.content) {
-              console.log('LEARNERS - single user/single item', to.params);
-            } else if (to.params.user && to.params.channel && to.params.topic) {
-              console.log('LEARNERS - sub topic/item lists (scope by topic)', to.params);
-            } else if (to.params.user && to.params.channel) {
-              console.log('LEARNERS - Root topic/item list (scope by root topic)', to.params);
-            } else if (to.params.user) {
-              console.log('LEARNERS - Channels (scope by user)', to.params);
-            } else {
-              console.log('LEARNERS - list of users', to.params);
-              reportsActions.showReportChannels(store, PageNames.LEARNER_REPORTS, to.params.class);
-            }
+            reportsActions.showRecentLearnersForItem(
+              store, to.params.classId, to.params.channelId, to.params.contentId
+            );
+          },
+        },
+        {
+          name: PageNames.RECENT_LEARNER_ITEM_DETAILS,
+          path: '/:classId/recent/:channelId/:contentId/:userId',
+          handler: (to, from) => {
+            reportsActions.showRecentLearnerItemDetails(
+              store, to.params.classId, to.params.channelId, to.params.contentId, to.params.userId
+            );
+          },
+        },
+        {
+          name: PageNames.TOPIC_CHANNELS,
+          path: '/:classId/topics',
+          handler: (to, from) => {
+            reportsActions.showTopicChannels(
+              store, to.params.classId
+            );
+          },
+        },
+        {
+          name: PageNames.TOPIC_CHANNEL_ROOT,
+          path: '/:classId/topics/:channelId',
+          handler: (to, from) => {
+            reportsActions.showTopicChannelRoot(
+              store, to.params.classId, to.params.channelId
+            );
+          },
+        },
+        {
+          name: PageNames.TOPIC_ITEM_LIST,
+          path: '/:classId/topics/:channelId/topic/:topic',
+          handler: (to, from) => {
+            reportsActions.showTopicItemList(
+              store, to.params.classId, to.params.channelId, to.params.topic
+            );
+          },
+        },
+        {
+          name: PageNames.TOPIC_LEARNERS_FOR_ITEM,
+          path: '/:classId/topics/:channelId/item/:contentId',
+          handler: (to, from) => {
+            reportsActions.showTopicLearnersForItem(
+              store, to.params.classId, to.params.channelId, to.params.contentId
+            );
+          },
+        },
+        {
+          name: PageNames.TOPIC_LEARNER_ITEM_DETAILS,
+          path: '/:classId/topics/:channelId/item/:contentId/:userId',
+          handler: (to, from) => {
+            reportsActions.showTopicLearnerItemDetails(
+              store, to.params.classId, to.params.channelId, to.params.contentId, to.params.userId
+            );
+          },
+        },
+        {
+          name: PageNames.LEARNER_LIST,
+          path: '/:classId/learners',
+          handler: (to, from) => {
+            reportsActions.showLearnerList(
+              store, to.params.classId
+            );
+          },
+        },
+        {
+          name: PageNames.LEARNER_CHANNELS,
+          path: '/:classId/learners/:userId',
+          handler: (to, from) => {
+            reportsActions.showLearnerChannels(
+              store, to.params.classId, to.params.userId
+            );
+          },
+        },
+        {
+          name: PageNames.LEARNER_CHANNEL_ROOT,
+          path: '/:classId/learners/:userId/:channelId',
+          handler: (to, from) => {
+            reportsActions.showLearnerChannelRoot(
+              store, to.params.classId, to.params.userId, to.params.channelId
+            );
+          },
+        },
+        {
+          name: PageNames.LEARNER_ITEM_LIST,
+          path: '/:classId/learners/:userId/:channelId/topic/:topic',
+          handler: (to, from) => {
+            reportsActions.showLearnerItemList(
+              store, to.params.classId, to.params.userId, to.params.channelId, to.params.topic
+            );
+          },
+        },
+        {
+          name: PageNames.LEARNER_ITEM_DETAILS,
+          path: '/:classId/learners/:userId/:channelId/item/:contentId',
+          handler: (to, from) => {
+            reportsActions.showLearnerItemDetails(
+              store, to.params.classId, to.params.userId, to.params.channelId, to.params.contentId
+            );
           },
         },
         {
           name: PageNames.EXAMS,
-          path: '/:class/exams',
+          path: '/:classId/exams',
           handler: (to, from) => {
-            actions.showExamsPage(store, to.params.class);
+            actions.showExamsPage(
+              store, to.params.classId
+            );
           },
         },
         {
           name: PageNames.GROUPS,
-          path: '/:class/groups',
+          path: '/:classId/groups',
           handler: (to, from) => {
-            groupActions.showGroupsPage(store, to.params.class);
+            groupActions.showGroupsPage(
+              store, to.params.classId
+            );
           },
         },
         {
           name: PageNames.EXERCISE_RENDER,
-          path: '/:user/:content/exercise-render',
+          path: '/:userId/:contentId/exercise-render',
           handler: (to, from) => {
-            actions.showCoachExerciseRenderPage(store, to.params.user,
-              to.params.content);
+            actions.showCoachExerciseRenderPage(
+              store, to.params.userId, to.params.contentId
+            );
           },
         },
         {

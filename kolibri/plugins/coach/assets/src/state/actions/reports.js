@@ -215,10 +215,104 @@ function showReport(
 }
 
 
+function showRecentChannels(store, classId) {
+  store.dispatch('SET_PAGE_NAME', Constants.RECENT_CHANNELS);
+  store.dispatch('SET_PAGE_TITLE', 'Recent - All channels');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+function showRecentItemsForChannel(store, classId, channelId) {
+  store.dispatch('SET_PAGE_NAME', Constants.RECENT_ITEMS_FOR_CHANNEL);
+  store.dispatch('SET_PAGE_TITLE', 'Recent - Items');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+function showRecentLearnersForItem(store, classId, channelId, contentId) {
+  store.dispatch('SET_PAGE_NAME', Constants.RECENT_LEARNERS_FOR_ITEM);
+  store.dispatch('SET_PAGE_TITLE', 'Recent - Learners');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+function showRecentLearnerItemDetails(store, classId, channelId, contentId, userId) {
+  store.dispatch('SET_PAGE_NAME', Constants.RECENT_LEARNER_ITEM_DETAILS);
+  store.dispatch('SET_PAGE_TITLE', 'Recent - Learner Details');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+function showTopicChannels(store, classId) {
+  store.dispatch('SET_PAGE_NAME', Constants.TOPIC_CHANNELS);
+  store.dispatch('SET_PAGE_TITLE', 'Topics - All channels');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+function showTopicChannelRoot(store, classId, channelId) {
+  store.dispatch('SET_PAGE_NAME', Constants.TOPIC_CHANNEL_ROOT);
+  store.dispatch('SET_PAGE_TITLE', 'Topics - Channel');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+function showTopicItemList(store, classId, channelId, topic) {
+  store.dispatch('SET_PAGE_NAME', Constants.TOPIC_ITEM_LIST);
+  store.dispatch('SET_PAGE_TITLE', 'Topics - Items');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+function showTopicLearnersForItem(store, classId, channelId, contentId) {
+  store.dispatch('SET_PAGE_NAME', Constants.TOPIC_LEARNERS_FOR_ITEM);
+  store.dispatch('SET_PAGE_TITLE', 'Topics - Learners');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+function showTopicLearnerItemDetails(store, classId, channelId, contentId, userId) {
+  store.dispatch('SET_PAGE_NAME', Constants.TOPIC_LEARNER_ITEM_DETAILS);
+  store.dispatch('SET_PAGE_TITLE', 'Topics - Learner Details');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+function showLearnerList(store, classId) {
+  store.dispatch('SET_PAGE_NAME', Constants.LEARNER_LIST);
+  store.dispatch('SET_PAGE_TITLE', 'Learners');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+function showLearnerChannels(store, classId, userId) {
+  store.dispatch('SET_PAGE_NAME', Constants.LEARNER_CHANNELS);
+  store.dispatch('SET_PAGE_TITLE', 'Learners - All channels');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+function showLearnerChannelRoot(store, classId, userId, channelId) {
+  store.dispatch('SET_PAGE_NAME', Constants.LEARNER_CHANNEL_ROOT);
+  store.dispatch('SET_PAGE_TITLE', 'Learners - Channel');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+function showLearnerItemList(store, classId, userId, channelId, topic) {
+  store.dispatch('SET_PAGE_NAME', Constants.LEARNER_ITEM_LIST);
+  store.dispatch('SET_PAGE_TITLE', 'Learners - Items');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+function showLearnerItemDetails(store, classId, userId, channelId, contentId) {
+  store.dispatch('SET_PAGE_NAME', Constants.LEARNER_ITEM_DETAILS);
+  store.dispatch('SET_PAGE_TITLE', 'Learners - Item Details');
+  store.dispatch('CORE_SET_PAGE_LOADING', false);
+}
+
+
 module.exports = {
-  showRecentReports,
-  showReportChannels,
-  redirectToDefaultReport,
-  showReport,
-  updateSorting,
+  showRecentChannels,
+  showRecentItemsForChannel,
+  showRecentLearnersForItem,
+  showRecentLearnerItemDetails,
+  showTopicChannels,
+  showTopicChannelRoot,
+  showTopicItemList,
+  showTopicLearnersForItem,
+  showTopicLearnerItemDetails,
+  showLearnerList,
+  showLearnerChannels,
+  showLearnerChannelRoot,
+  showLearnerItemList,
+  showLearnerItemDetails,
 };
