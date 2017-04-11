@@ -13,9 +13,7 @@
       </div>
       <div class="outer-container">
         <div class="answer-history-container column">
-          <answer-history
-            :questionHistory="questionHistory"
-          />
+          <answer-history/>
         </div>
         <div class="exercise-container column">
           <question-attempt
@@ -47,7 +45,7 @@
       backto: 'Back to { text }',
     },
     components: {
-      'exercise-detail-view': require('./../exercise-detail-view'),
+      'exercise-detail-view': require('./../content-detail-view'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'page-status': require('./page-status'),
       'answer-history': require('./answer-history'),
@@ -98,9 +96,6 @@
         progress: () => 1,
         assessment: () => '4 of 5',
         date: () => '18 Nov 2016',
-        // fake date for answer-history
-        questionHistory: () => [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-        // fake date for question-attempts
       },
     },
   };
