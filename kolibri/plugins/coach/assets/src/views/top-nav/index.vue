@@ -3,27 +3,27 @@
   <div class="top">
     <nav-link
       :to="recentLink"
-      :active="isActive(Constants.PageNames.RECENT_REPORTS)"
+      :active="Constants.RecentReports.includes(pageName)"
       :text="$tr('recent')"
     />
     <nav-link
       :to="topicsLink"
-      :active="isActive(Constants.PageNames.TOPIC_REPORTS)"
+      :active="Constants.TopicReports.includes(pageName)"
       :text="$tr('topics')"
     />
     <nav-link
       :to="examsLink"
-      :active="isActive(Constants.PageNames.EXAMS)"
+      :active="pageName === Constants.PageNames.EXAMS"
       :text="$tr('exams')"
     />
     <nav-link
       :to="learnersLink"
-      :active="isActive(Constants.PageNames.LEARNER_REPORTS)"
+      :active="Constants.LearnerReports.includes(pageName)"
       :text="$tr('learners')"
     />
     <nav-link
       :to="groupsLink"
-      :active="isActive(Constants.PageNames.GROUPS)"
+      :active="pageName === Constants.PageNames.GROUPS"
       :text="$tr('groups')"
     />
   </div>
@@ -53,13 +53,13 @@
       },
       recentLink() {
         return {
-          name: Constants.PageNames.RECENT_REPORTS,
+          name: Constants.PageNames.RECENT_CHANNELS,
           params: { classId: this.classId },
         };
       },
       topicsLink() {
         return {
-          name: Constants.PageNames.TOPIC_REPORTS,
+          name: Constants.PageNames.TOPIC_CHANNELS,
           params: { classId: this.classId },
         };
       },
@@ -71,7 +71,7 @@
       },
       learnersLink() {
         return {
-          name: Constants.PageNames.LEARNER_REPORTS,
+          name: Constants.PageNames.LEARNER_LIST,
           params: { classId: this.classId },
         };
       },
@@ -80,11 +80,6 @@
           name: Constants.PageNames.GROUPS,
           params: { classId: this.classId },
         };
-      },
-    },
-    methods: {
-      isActive(thatPageName) {
-        return this.pageName === thatPageName;
       },
     },
     vuex: {

@@ -36,29 +36,38 @@
     components: {
       'top-nav': require('./top-nav'),
       'class-list-page': require('./class-list-page'),
-      'channel-list-page': require('./channel-list-page'),
-      'recent-items-page': require('./recent-items-page'),
-      'topics-page': require('./topics-page'),
       'exams-page': require('./exams-page'),
       'groups-page': require('./groups-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'coach-exercise-render-page': require('./coach-exercise-render-page'),
+      // reports
+      'channel-list-page': require('./channel-list-page'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
-        if (this.pageName === Constants.PageNames.CLASS_LIST) {
-          return 'class-list-page';
-        } else if (this.pageName === Constants.PageNames.EXAMS) {
-          return 'exams-page';
-        } else if (this.pageName === Constants.PageNames.GROUPS) {
-          return 'groups-page';
-        } else if (this.pageName === Constants.PageNames.EXERCISE_RENDER) {
-          return 'coach-exercise-render-page';
-        } else if (this.pageName === Constants.PageNames.RECENT_REPORTS) {
-          return 'recent-items-page';
-        }
-        return null;
+        const pageNameToComponentMap = {
+          [Constants.PageNames.CLASS_LIST]: 'class-list-page',
+          [Constants.PageNames.EXAMS]: 'exams-page',
+          [Constants.PageNames.GROUPS]: 'groups-page',
+          [Constants.PageNames.EXERCISE_RENDER]: 'coach-exercise-render-page',
+          // reports
+          [Constants.PageNames.RECENT_CHANNELS]: 'channel-list-page',
+          [Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'item-list-page',
+          [Constants.PageNames.RECENT_LEARNERS_FOR_ITEM]: 'learner-list-page',
+          [Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
+          [Constants.PageNames.TOPIC_CHANNELS]: 'channel-list-page',
+          [Constants.PageNames.TOPIC_CHANNEL_ROOT]: 'item-list-page',
+          [Constants.PageNames.TOPIC_ITEM_LIST]: 'item-list-page',
+          [Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'learner-list-page',
+          [Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
+          [Constants.PageNames.LEARNER_LIST]: 'learner-list-page',
+          [Constants.PageNames.LEARNER_CHANNELS]: 'channel-list-page',
+          [Constants.PageNames.LEARNER_CHANNEL_ROOT]: 'item-list-page',
+          [Constants.PageNames.LEARNER_ITEM_LIST]: 'item-list-page',
+          [Constants.PageNames.LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
+        };
+        return pageNameToComponentMap[this.pageName];
       },
       showTopNav() {
         return this.pageName !== Constants.PageNames.CLASS_LIST;
