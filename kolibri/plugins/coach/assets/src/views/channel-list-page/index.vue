@@ -29,7 +29,7 @@
 <script>
 
   const PageNames = require('../../constants').PageNames;
-  const orderBy = require('lodash/orderby');
+  const orderBy = require('lodash/orderBy');
 
   module.exports = {
     name: 'channelList',

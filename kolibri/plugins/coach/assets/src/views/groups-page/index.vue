@@ -53,7 +53,7 @@
 
   const groupActions = require('../../state/actions/group');
   const GroupModals = require('../../constants').GroupModals;
-  const differenceWith = require('lodash/differencewith');
+  const differenceWith = require('lodash/differenceWith');
 
   module.exports = {
     $trNameSpace: 'coachGroupsPage',
