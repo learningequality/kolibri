@@ -11,9 +11,6 @@ class ContentSessionLogSerializer(serializers.ModelSerializer):
 
 class ExamLogSerializer(serializers.ModelSerializer):
 
-    pastattempts = serializers.SerializerMethodField()
-    totalattempts = serializers.SerializerMethodField()
-
     class Meta:
         model = ExamLog
         fields = ('id', 'exam', 'user', 'closed',)
@@ -47,7 +44,7 @@ class ExamAttemptLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExamAttemptLog
-        fields = ('id', 'examlog', 'start_timestamp',
+        fields = ('id', 'examlog', 'start_timestamp', 'channel_id', 'content_id',
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent',
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
 
