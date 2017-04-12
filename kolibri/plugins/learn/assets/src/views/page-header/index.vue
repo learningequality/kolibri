@@ -6,9 +6,6 @@
     </div>
     <div class="header">
       <h1 class="title">
-        <slot name="content-icon">
-          <content-icon :kind="contentKind"/>
-        </slot>
         {{ title }}
         <progress-icon :progress="progress"/>
       </h1>

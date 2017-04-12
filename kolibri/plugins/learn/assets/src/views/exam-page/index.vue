@@ -176,6 +176,7 @@
   .answer-history-container
     width: 25%
     height: 100%
+    max-height: 500px
     overflow-y: auto
 
   .exercise-container
