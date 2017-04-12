@@ -61,20 +61,17 @@
       vLink() {
         if (this.isUser) {
           return genLink(this.pageState, {
-            allOrRecent: ReportConstants.AllOrRecent.ALL,
             userScope: ReportConstants.UserScopes.USER,
             userScopeId: this.id,
           });
         } else if (this.isTopic) {
           return genLink(this.pageState, {
-            allOrRecent: ReportConstants.AllOrRecent.ALL,
             contentScope: ReportConstants.ContentScopes.TOPIC,
             contentScopeId: this.id,
           });
         }
         // assume it's a content link
         return genLink(this.pageState, {
-          allOrRecent: ReportConstants.AllOrRecent.ALL,
           contentScope: ReportConstants.ContentScopes.CONTENT,
           contentScopeId: this.id,
         });

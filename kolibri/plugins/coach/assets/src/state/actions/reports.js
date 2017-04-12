@@ -1,21 +1,23 @@
 const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
-// const router = require('kolibri.coreVue.router');
+const values = require('lodash/values');
 
 const Constants = require('../../constants');
 const ReportConstants = require('../../reportConstants');
 
-const RecentReportResourceConstructor = require('../../apiResources/recentReport');
-// const ContentReportResourceConstructor = require('../../apiResources/contentReport');
-// const UserReportResourceConstructor = require('../../apiResources/userReport');
-// const UserSummaryResourceConstructor = require('../../apiResources/userSummary');
-const ContentSummaryResourceConstructor = require('../../apiResources/contentSummary');
+const reportGetters = require('../getters/reports');
 
-// const UserSummaryResource = new UserSummaryResourceConstructor(coreApp);
-// const UserReportResource = new UserReportResourceConstructor(coreApp);
-const ContentSummaryResource = new ContentSummaryResourceConstructor(coreApp);
+const RecentReportResourceConstructor = require('../../apiResources/recentReport');
+const UserReportResourceConstructor = require('../../apiResources/userReport');
+const UserSummaryResourceConstructor = require('../../apiResources/userSummary');
+const ContentSummaryResourceConstructor = require('../../apiResources/contentSummary');
+const ContentReportResourceConstructor = require('../../apiResources/contentReport');
+
 const RecentReportResource = new RecentReportResourceConstructor(coreApp);
-// const ContentReportResource = new ContentReportResourceConstructor(coreApp);
+const UserReportResource = new UserReportResourceConstructor(coreApp);
+const UserSummaryResource = new UserSummaryResourceConstructor(coreApp);
+const ContentSummaryResource = new ContentSummaryResourceConstructor(coreApp);
+const ContentReportResource = new ContentReportResourceConstructor(coreApp);
 
 const ChannelResource = coreApp.resources.ChannelResource;
 
@@ -111,57 +113,38 @@ function _showRecentReports(store, classId, channelId) {
   );
 }
 
-/*
-function redirectToDefaultReport(store, viewBy, classId, channelId) {
-  const channelPromise = ChannelResource.getModel(channelId).fetch();
 
-  channelPromise.then(
-    (channelData) => {
-      router.getInstance().replace({
-        name: Constants.PageNames.TOPICS,
-        params: {
-          classId,
-          channelId,
-          contentScope: ReportConstants.ContentScopes.ROOT,
-          contentScopeId: channelData.root_pk,
-          userScope: ReportConstants.UserScopes.CLASSROOM,
-          userScopeId: classId,
-          allOrRecent: ReportConstants.AllOrRecent.ALL,
-          viewBy: ReportConstants.ViewBy.CONTENT,
-          sortColumn: ReportConstants.TableColumns.NAME,
-          sortOrder: ReportConstants.SortOrders.NONE,
-        },
-      });
-    },
-    error => coreActions.handleError(store, error)
-  );
-}
+function _showReport(store, options) {
+  const classId = options.classId;
+  const channelId = options.channelId;
+  const contentScope = options.contentScope;
+  const contentScopeId = options.contentScopeId;
+  const userScope = options.userScope;
+  const userScopeId = options.userScopeId;
 
-
-function showReport(
-  store,
-  viewBy,
-  classId,
-  channelId,
-  contentScope,
-  contentScopeId,
-  userScope,
-  userScopeId,
-  allOrRecent,
-) {
+  /* check if params are semi-valid. */
+  function _validate(value, constants) {
+    if (!values(constants).includes(value)) {
+      throw Error(`Invalid report parameters: ${value} not in ${JSON.stringify(constants)}`);
+    }
+  }
+  _validate(contentScope, ReportConstants.ContentScopes);
+  _validate(userScope, ReportConstants.UserScopes);
 
   // REPORT
   const reportPayload = {
     channel_id: channelId,
     content_node_id: contentScopeId,
-    collection_kind: userScope,
-    collection_id: userScopeId,
+    collection_kind: ReportConstants.UserScopes.CLASSROOM,
+    collection_id: classId,
   };
   let reportPromise;
-  if (viewBy === ReportConstants.ViewBy.CONTENT) {
+  if (reportGetters.isTopicPage) {
     reportPromise = ContentReportResource.getCollection(reportPayload).fetch();
-  } else {
+  } else if (reportGetters.isLearnerPage) {
     reportPromise = UserReportResource.getCollection(reportPayload).fetch();
+  } else if (reportGetters.isRecentPage) {
+    throw Error('recent report is not currently handled in this action');
   }
 
   // CONTENT SUMMARY
@@ -188,18 +171,39 @@ function showReport(
         contentScopeId,
         userScope,
         userScopeId,
-        allOrRecent,
-        viewBy,
         tableData: report || {},
         contentScopeSummary: contentSummary,
         userScopeSummary: userSummary || {},
       };
-      // store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
     error => coreActions.handleError(store, error)
   );
 }
-*/
+
+
+// classId, channelId
+function _showChannelRoot(store, classId, channelId) {
+  const channelPromise = ChannelResource.getModel(channelId).fetch();
+
+  channelPromise.then(
+    (channelData) => {
+      _showReport(store, {
+        classId,
+        channelId,
+        contentScope: ReportConstants.ContentScopes.ROOT,
+        contentScopeId: channelData.root_pk,
+        userScope: ReportConstants.UserScopes.CLASSROOM,
+        userScopeId: classId,
+        sortColumn: ReportConstants.TableColumns.NAME,
+        sortOrder: ReportConstants.SortOrders.NONE,
+      });
+    },
+    error => coreActions.handleError(store, error)
+  );
+}
+
 
 function showRecentChannels(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_CHANNELS);
@@ -242,8 +246,9 @@ function showTopicChannels(store, classId) {
 function showTopicChannelRoot(store, classId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNEL_ROOT);
   store.dispatch('CORE_SET_TITLE', 'Topics - Channel');
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
   console.log('showTopicChannelRoot');
+  _showChannelRoot(store, classId, channelId);
 }
 
 function showTopicItemList(store, classId, channelId, topic) {

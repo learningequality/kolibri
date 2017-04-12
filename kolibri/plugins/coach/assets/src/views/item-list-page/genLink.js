@@ -14,8 +14,6 @@ function genLink(pageState, newParams) {
     contentScopeId: pageState.contentScopeId,
     userScope: pageState.userScope,
     userScopeId: pageState.userScopeId,
-    allOrRecent: pageState.allOrRecent,
-    viewBy: pageState.viewBy,
     sortColumn: pageState.sortColumn,
     sortOrder: pageState.sortOrder,
   };

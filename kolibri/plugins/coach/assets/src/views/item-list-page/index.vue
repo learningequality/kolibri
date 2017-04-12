@@ -27,7 +27,7 @@
           :singleUser="isSingleUser"
           :userCount="userCount"
           :completionCount="completionCount"
-          :isRecentView="false"
+          :isRecentView="isRecentPage"
         />
 
         <!--CONTENT BREADCRUMBS-->
@@ -135,7 +135,6 @@
         const list = this.pageState.contentScopeSummary.ancestors.map((item, index) => ({
           title: item.title,
           vlink: genLink(this.pageState, {
-            viewBy: ReportConstants.ViewBy.CONTENT,
             contentScope: index ? ReportConstants.ContentScopes.TOPIC : ReportConstants.ContentScopes.ROOT, // eslint-disable-line max-len
             contentScopeId: item.pk,
           }),
@@ -154,6 +153,7 @@
         dataTable: reportGetters.dataTable,
         userCount: reportGetters.userCount,
         completionCount: reportGetters.completionCount,
+        isRecentPage: reportGetters.isRecentPage,
       },
     },
   };
