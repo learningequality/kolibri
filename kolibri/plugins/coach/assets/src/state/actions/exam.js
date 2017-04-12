@@ -143,9 +143,7 @@ function showExamsPage(store, classId) {
       store.dispatch('CORE_SET_TITLE', Constants.PageTitles.EXAMS);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => {
-      CoreActions.handleError(store, error);
-    }
+    error => CoreActions.handleError(store, error)
   );
 }
 
@@ -210,19 +208,17 @@ function assignExamToClass(store, examId, classId, groupAssignments) {
 
   ConditionalPromise.all(assignmentPromises).only(CoreActions.samePageCheckGenerator(store),
     response => {
-      const newClassAssignment = response[0];
-      const classAssignment = _assignmentState(newClassAssignment);
+      let newClassAssignment = response[0];
+      newClassAssignment = _assignmentState(newClassAssignment);
       const exams = store.state.pageState.exams;
       const examIndex = exams.findIndex(exam => exam.id === examId);
-      exams[examIndex].visibility = { class: classAssignment, groups: [] };
+      exams[examIndex].visibility = { class: newClassAssignment, groups: [] };
 
       store.dispatch('SET_EXAMS', exams);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => {
-      CoreActions.handleError(store, error);
-    }
+    error => CoreActions.handleError(store, error)
   );
 }
 
@@ -235,19 +231,17 @@ function assignExamToGroups(store, examId, groupIds, classAssignment) {
 
   ConditionalPromise.all(assignmentPromises).only(CoreActions.samePageCheckGenerator(store),
     response => {
-      const newGroupAssignments = response.filter(n => n);
-      const groupAssignments = _assignmentsState(newGroupAssignments);
+      let newGroupAssignments = response.filter(n => n);
+      newGroupAssignments = _assignmentsState(newGroupAssignments);
       const exams = store.state.pageState.exams;
       const examIndex = exams.findIndex(exam => exam.id === examId);
-      exams[examIndex].visibility = { class: {}, groups: groupAssignments };
+      exams[examIndex].visibility = { class: {}, groups: newGroupAssignments };
 
       store.dispatch('SET_EXAMS', exams);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-    error => {
-      CoreActions.handleError(store, error);
-    }
+    error => CoreActions.handleError(store, error)
   );
 }
 
@@ -378,14 +372,10 @@ function showCreateExamPage(store, classId, channelId) {
           store.dispatch('CORE_SET_ERROR', null);
           store.dispatch('CORE_SET_PAGE_LOADING', false);
         },
-        error => {
-          CoreActions.handleError(store, error);
-        }
+        error => CoreActions.handleError(store, error)
       );
     },
-    error => {
-      CoreActions.handleError(store, error);
-    }
+    error => CoreActions.handleError(store, error)
   );
 }
 
