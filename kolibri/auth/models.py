@@ -61,9 +61,10 @@ def _has_permissions_class(obj):
 @python_2_unicode_compatible
 class FacilityDataset(models.Model):
     """
-    ``FacilityDataset`` stores high-level metadata and settings for a particular ``Facility``. It is also the
-    model that all models storing facility data (data that is associated with a particular facility, and that inherits
-    from ``AbstractFacilityDataModel``) foreign key onto, to indicate that they belong to this particular ``Facility``.
+    ``FacilityDataset`` stores high-level metadata and settings for a particular ``Facility``.
+    It is also the model that all models storing facility data (data that is associated with a
+    particular facility, and that inherits from ``AbstractFacilityDataModel``) foreign key onto,
+    to indicate that they belong to this particular ``Facility``.
     """
 
     permissions = IsAdminForOwnFacilityDataset()
