@@ -44,7 +44,12 @@
     },
     computed: {
       channelList() {
-        return orderBy(this.channels, [channel => this.lastActive[channel.id]]);
+        const orderedLists = {
+          [PageNames.RECENT_CHANNELS]: orderBy(this.channels, [channel => this.lastActive[channel.id]], ['desc']),
+          [PageNames.TOPIC_CHANNELS]: orderBy(this.channels, ['title'], ['desc']),
+          [PageNames.LEARNER_CHANNELS]: orderBy(this.channels, ['title'], ['desc']),
+        };
+        return orderedLists[this.pageName];
       },
     },
     methods: {

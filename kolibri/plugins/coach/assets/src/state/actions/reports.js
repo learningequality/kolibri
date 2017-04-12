@@ -74,12 +74,6 @@ function _showChannelList(store, classId) {
   );
 }
 
-
-function _showRecentReports(store, classId, channelId) {
-
-}
-
-
 function _showReport(store, options) {
   const classId = options.classId;
   const channelId = options.channelId;
