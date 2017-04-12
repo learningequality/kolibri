@@ -6,7 +6,7 @@
         <li @click="$emit('goToQuestion', index)" :class="isSelected(index)" class="clickable">
           <svg class="item svg-item">
             <circle cx="32" cy="32" r="8"
-              :style="{ fill: ((attemptLogs[question.contentId] || {})[question.itemId] || {}).answer ? 'purple' : 'grey' }"/>
+              :style="{ fill: ((attemptLogs[question.contentId] || {})[question.itemId] || {}).answer ? 'purple' : 'lightgrey' }"/>
           </svg>
           <h3 class="item">
             {{ questionText(index + 1) }}
@@ -94,6 +94,6 @@
     cursor: pointer
 
   .selected
-    background-color: $core-text-disabled
+    background-color: #EDEDED
 
 </style>

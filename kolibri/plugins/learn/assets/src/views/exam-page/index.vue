@@ -5,9 +5,12 @@
     <template slot="body">
       <div class="container">
         <div class="exam-status-container">
-          <mat-svg slot="content-icon" category="action" name="assignment"/>{{ exam.title }}
-          {{ $tr('questionsAnswered', { numAnswered: questionsAnswered, numTotal: exam.questionCount }) }}
-          <icon-button @click="finishExam" :text="$tr('submitExam')"></icon-button>
+          <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment"/>
+          <h1 class="exam-title">{{ exam.title }}</h1>
+          <div class="exam-status">
+            <p class="questions-answered">{{ $tr('questionsAnswered', { numAnswered: questionsAnswered, numTotal: exam.questionCount }) }}</p>
+            <icon-button class="submit-exam-button" @click="finishExam" :text="$tr('submitExam')"></icon-button>
+          </div>
         </div>
         <div class="question-container">
           <div class="outer-container">
@@ -30,8 +33,10 @@
               :itemId="itemId"
               :assessment="true"
               :allowHints="false"/>
-            <icon-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')"></icon-button>
-            <icon-button :disabled="questionNumber===exam.questionCount-1" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')"></icon-button>
+              <div class="question-navbutton-container">
+                <icon-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')"><mat-svg category="navigation" name="chevron_left"/></icon-button>
+                <icon-button :disabled="questionNumber===exam.questionCount-1" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')"><mat-svg category="navigation" name="chevron_right"/></icon-button>
+              </div>
             </div>
           </div>
         </div>
@@ -124,15 +129,46 @@
 
 <style lang="stylus" scoped>
 
+  @require '~kolibri.styles.definitions'
+
+  .container
+    width: 90%
+    margin: 30px auto
+    position: relative
+
   .exam-status-container
-    padding-top: 20px
-    padding-left: 10px
-    padding-right: 10px
+    padding: 10px 25px
+    background: $core-bg-light
+    
+  .exam-status
+    float: right
+    width: 50%
+    max-width: 400px
+    text-align: right
+    margin-top: 15px
+    
+  .exam-icon
+    position: relative
+    top: 4px
+    margin-right: 5px
+    fill: $core-text-default
+    
+  .exam-title
+    display: inline-block
+    
+  .submit-exam-button
+    margin-left: 10px
+    
+  .questions-answered
+    display: inline-block
+    position: relative
+    top: 2px
 
   .question-container
     height: 100%
     width: 100%
     padding: 10px
+    background: $core-bg-light
 
   .outer-container > div
     float: left
@@ -144,5 +180,9 @@
 
   .exercise-container
     width: 70%
+    
+  .question-navbutton-container
+    text-align: right
+    margin-right: 15px
 
 </style>
