@@ -7,9 +7,13 @@
     :buttonType="type"
     :size="size"
     class="koli-icon-button">
-    <span v-if="hasIcon && text">
+    <span v-if="hasIcon && text && alignLeft">
       <ui-icon class="icon-margin"><slot/></ui-icon>
       {{ text }}
+    </span>
+    <span v-else-if="alignRight">
+      {{ text }}
+      <ui-icon class="icon-margin"><slot/></ui-icon>
     </span>
     <span v-else-if="hasIcon">
       <ui-icon><slot/></ui-icon>
@@ -48,12 +52,26 @@
       type: {
         type: String,
       },
+      alignment: {
+        type: String,
+        default: 'left',
+        required: false,
+        validator(value) {
+          return value === 'left' || value === 'right';
+        },
+      }
     },
     computed: {
       hasIcon() {
         // check if the parent passed anything into the slot
         // $slots returns an empty object if nothing is passed in.
         return !(Object.keys(this.$slots).length === 0 && this.$slots.constructor === Object);
+      },
+      alignLeft() {
+        return this.alignment === 'left';
+      },
+      alignRight() {
+        return this.alignment === 'right';
       },
     },
     components: {
