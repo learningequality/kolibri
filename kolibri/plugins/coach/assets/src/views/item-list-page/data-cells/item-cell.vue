@@ -17,6 +17,7 @@
 
   const genLink = require('../genLink');
   const ReportConstants = require('../../../reportConstants');
+  const CoachConstants = require('../../../constants');
   const CoreConstants = require('kolibri.coreVue.vuex.constants');
 
   module.exports = {
@@ -65,10 +66,14 @@
             userScopeId: this.id,
           });
         } else if (this.isTopic) {
-          return genLink(this.pageState, {
-            contentScope: ReportConstants.ContentScopes.TOPIC,
-            contentScopeId: this.id,
-          });
+          return {
+            name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+            params: {
+              classId: this.pageState.classId,
+              channelId: this.pageState.channelId,
+              topicId: this.id,
+            }
+          };
         }
         // assume it's a content link
         return genLink(this.pageState, {

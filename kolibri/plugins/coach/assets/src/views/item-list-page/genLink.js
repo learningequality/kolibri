@@ -1,28 +1,9 @@
 
-const Constants = require('../../constants');
+const logging = require('kolibri.lib.logging');
 
-
-/*
- * Generates a REPORTS location object relative to the
- * current page state, with only newParams changed.
- */
 function genLink(pageState, newParams) {
-  const currentParams = {
-    classId: pageState.classId,
-    channelId: pageState.channelId,
-    contentScope: pageState.contentScope,
-    contentScopeId: pageState.contentScopeId,
-    userScope: pageState.userScope,
-    userScopeId: pageState.userScopeId,
-    sortColumn: pageState.sortColumn,
-    sortOrder: pageState.sortOrder,
-  };
-  const vlink = {
-    name: Constants.PageNames.REPORTS,
-    params: {},
-  };
-  Object.assign(vlink.params, currentParams, newParams);
-  return vlink;
+  logging.error('genLink is deprecated!');
+  return {};
 }
 
 module.exports = genLink;
