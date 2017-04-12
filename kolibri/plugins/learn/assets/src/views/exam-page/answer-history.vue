@@ -24,7 +24,7 @@
   module.exports = {
     $trNameSpace: 'examAnswerHistory',
     $trs: {
-      question: 'Question { number }',
+      question: 'Question { num }',
     },
     props: {
       questionNumber: {
@@ -41,8 +41,8 @@
         }
         return this.$tr('today');
       },
-      questionText(number) {
-        return this.$tr('question', { number });
+      questionText(num) {
+        return this.$tr('question', { num });
       },
       isSelected(index) {
         if (this.questionNumber === index) {
