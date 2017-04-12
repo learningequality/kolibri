@@ -72,6 +72,44 @@ function _exercisesState(exercises) {
   return exercises.map(exercise => _exerciseState(exercise));
 }
 
+function _assignmentState(assignment) {
+  return {
+    assignmentId: String(assignment.id),
+    collection: {
+      id: String(assignment.collection.id),
+      name: assignment.collection.name,
+      kind: assignment.collection.kind,
+    },
+    examId: String(assignment.exam),
+  };
+}
+
+function _assignmentsState(assignments) {
+  return assignments.map(assignment => _assignmentState(assignment));
+}
+
+function _examState(exam) {
+  const assignments = _assignmentsState(exam.assignments);
+  const visibility = { class: {}, groups: [] };
+  visibility.class = assignments.find(assignment => assignment.collection.kind === 'classroom');
+  visibility.groups = assignments.filter(assignment => assignment.collection.kind === 'learnergroup');
+  return {
+    id: exam.id,
+    title: exam.title,
+    channelId: exam.channel_id,
+    collection: exam.collection,
+    active: exam.active,
+    archive: exam.archive,
+    questionCount: exam.question_count,
+    questionSources: exam.question_sources,
+    seed: exam.seed,
+    visibility,
+  };
+}
+
+function _examsState(exams, classId) {
+  return exams.map(exam => _examState(exam, classId));
+}
 
 function displayModal(store, modalName) {
   store.dispatch('SET_MODAL', modalName);
@@ -94,9 +132,9 @@ function showExamsPage(store, classId) {
       const pageState = {
         channels: _channelsState(channels),
         classId,
-        currentClass: pickIdAndName(classroom),
+        currentClass: classroom,
         currentClassGroups: learnerGroups.map(pickIdAndName),
-        exams: exams.map(exam => Object.assign(exam, { visibility: { class: true } })),
+        exams: _examsState(exams, classId),
         modalShown: false,
       };
 
@@ -108,6 +146,139 @@ function showExamsPage(store, classId) {
     error => {
       CoreActions.handleError(store, error);
     }
+  );
+}
+
+function activateExam(store, examId) {
+  ExamResource.getModel(examId).save({ active: true }).then(
+    () => {
+      const exams = store.state.pageState.exams;
+      const examIndex = exams.findIndex(exam => exam.id === examId);
+      exams[examIndex].active = true;
+
+      store.dispatch('SET_EXAMS', exams);
+      this.displayModal(false);
+    },
+    error => CoreActions.handleError(store, error)
+  );
+}
+
+function deactivateExam(store, examId) {
+  ExamResource.getModel(examId).save({ active: false }).then(
+    () => {
+      const exams = store.state.pageState.exams;
+      const examIndex = exams.findIndex(exam => exam.id === examId);
+      exams[examIndex].active = false;
+
+      store.dispatch('SET_EXAMS', exams);
+      this.displayModal(false);
+    },
+    error => CoreActions.handleError(store, error)
+  );
+}
+
+function _assignExamTo(examId, classId) {
+  const assignmentPayload = {
+    exam: examId,
+    collection: classId,
+  };
+  // TODO: I want the response to have the collection object and not allow duplicates
+  return new Promise((resolve, reject) => {
+    ExamAssignmentResource.createModel(assignmentPayload).save().then(
+      assignment => resolve(assignment),
+      error => reject(error)
+    );
+  });
+}
+
+function _removeAssignment(assignmentId) {
+  return new Promise((resolve, reject) => {
+    ExamAssignmentResource.getModel(assignmentId).delete().then(
+      () => resolve(),
+      error => reject(error)
+    );
+  });
+}
+
+function assignExamToClass(store, examId, classId, groupAssignments) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  let assignmentPromises = [_assignExamTo(examId, classId)];
+  if (groupAssignments.length) {
+    assignmentPromises = assignmentPromises.concat(
+      groupAssignments.map(groupAssignment => _removeAssignment(groupAssignment.assignmentId)));
+  }
+
+  ConditionalPromise.all(assignmentPromises).only(CoreActions.samePageCheckGenerator(store),
+    response => {
+      const newClassAssignment = response[0];
+      const classAssignment = _assignmentState(newClassAssignment);
+      const exams = store.state.pageState.exams;
+      const examIndex = exams.findIndex(exam => exam.id === examId);
+      exams[examIndex].visibility = { class: classAssignment, groups: [] };
+
+      store.dispatch('SET_EXAMS', exams);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
+    error => {
+      CoreActions.handleError(store, error);
+    }
+  );
+}
+
+function assignExamToGroups(store, examId, groupIds, classAssignment) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  const assignmentPromises = groupIds.map(groupId => _assignExamTo(examId, groupId));
+  if (classAssignment) {
+    assignmentPromises.push(_removeAssignment(classAssignment.assignmentId));
+  }
+
+  ConditionalPromise.all(assignmentPromises).only(CoreActions.samePageCheckGenerator(store),
+    response => {
+      const newGroupAssignments = response.filter(n => n);
+      const groupAssignments = _assignmentsState(newGroupAssignments);
+      const exams = store.state.pageState.exams;
+      const examIndex = exams.findIndex(exam => exam.id === examId);
+      exams[examIndex].visibility = { class: {}, groups: groupAssignments };
+
+      store.dispatch('SET_EXAMS', exams);
+      store.dispatch('CORE_SET_ERROR', null);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
+    error => {
+      CoreActions.handleError(store, error);
+    }
+  );
+}
+
+function previewExam() {
+  this.displayModal(false);
+}
+
+function renameExam(store, examId, newExamTitle) {
+  ExamResource.getModel(examId).save({ title: newExamTitle }).then(
+    () => {
+      const exams = store.state.pageState.exams;
+      const examIndex = exams.findIndex(exam => exam.id === examId);
+      exams[examIndex].title = newExamTitle;
+
+      store.dispatch('SET_EXAMS', exams);
+      this.displayModal(false);
+    },
+    error => CoreActions.handleError(store, error)
+  );
+}
+
+function deleteExam(store, examId) {
+  ExamResource.getModel(examId).delete().then(
+    () => {
+      const exams = store.state.pageState.exams;
+      const updatedExams = exams.filter(exam => exam.id !== examId);
+
+      store.dispatch('SET_EXAMS', updatedExams);
+      this.displayModal(false);
+    },
+    error => CoreActions.handleError(store, error)
   );
 }
 
@@ -246,7 +417,7 @@ function createExam(store, classId, examObj) {
   };
   ExamResource.createModel(examPayload).save().then(
     exam => {
-      ExamAssignmentResource.createModel({ exam: exam.id, collection: classId }).save().then(
+      _assignExamTo(exam.id, classId).then(
         () => {
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           router.getInstance().push({ name: Constants.PageNames.EXAMS });
@@ -276,69 +447,6 @@ function showExamReportDetailPage(store, classId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', false);
 }
 
-function activateExam(store, examId) {
-  ExamResource.getModel(examId).save({ active: true }).then(
-    () => {
-      const exams = store.state.pageState.exams;
-      const examIndex = exams.findIndex(exam => exam.id === examId);
-      exams[examIndex].active = true;
-
-      store.dispatch('SET_EXAMS', exams);
-      this.displayModal(false);
-    },
-    error => CoreActions.handleError(store, error)
-  );
-}
-
-function deactivateExam(store, examId) {
-  ExamResource.getModel(examId).save({ active: false }).then(
-    () => {
-      const exams = store.state.pageState.exams;
-      const examIndex = exams.findIndex(exam => exam.id === examId);
-      exams[examIndex].active = false;
-
-      store.dispatch('SET_EXAMS', exams);
-      this.displayModal(false);
-    },
-    error => CoreActions.handleError(store, error)
-  );
-}
-
-function updateExamVisibility() {
-  this.displayModal(false);
-}
-
-function previewExam() {
-  this.displayModal(false);
-}
-
-function renameExam(store, examId, newExamTitle) {
-  ExamResource.getModel(examId).save({ title: newExamTitle }).then(
-    () => {
-      const exams = store.state.pageState.exams;
-      const examIndex = exams.findIndex(exam => exam.id === examId);
-      exams[examIndex].title = newExamTitle;
-
-      store.dispatch('SET_EXAMS', exams);
-      this.displayModal(false);
-    },
-    error => CoreActions.handleError(store, error)
-  );
-}
-
-function deleteExam(store, examId) {
-  ExamResource.getModel(examId).delete().then(
-    () => {
-      const exams = store.state.pageState.exams;
-      const updatedExams = exams.filter(exam => exam.id !== examId);
-
-      store.dispatch('SET_EXAMS', updatedExams);
-      this.displayModal(false);
-    },
-    error => CoreActions.handleError(store, error)
-  );
-}
-
 module.exports = {
   displayModal,
   showExamsPage,
@@ -350,7 +458,8 @@ module.exports = {
   previewExam,
   renameExam,
   deleteExam,
-  updateExamVisibility,
+  assignExamToClass,
+  assignExamToGroups,
   fetchContent,
   createExam,
   addExercise,

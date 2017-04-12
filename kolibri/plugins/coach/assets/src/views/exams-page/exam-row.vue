@@ -97,12 +97,12 @@
     },
     computed: {
       visibilityString() {
-        if (this.examVisibility.class === true) {
+        if (this.examVisibility.class) {
           return this.$tr('entireClass');
         } else if (this.examVisibility.groups.length) {
           return this.$tr('groups', { count: this.examVisibility.groups.length });
         }
-        return 'Something is not right';
+        return 'Not assigned to anything.';
       },
       actionOptions() {
         return [

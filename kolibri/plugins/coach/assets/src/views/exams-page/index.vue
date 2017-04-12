@@ -135,7 +135,7 @@
     data() {
       return {
         filterSelected: this.$tr('all'),
-        selectedExam: { title: '', id: '', visibility: { class: true } },
+        selectedExam: { title: '', id: '', visibility: {} },
       };
     },
     computed: {

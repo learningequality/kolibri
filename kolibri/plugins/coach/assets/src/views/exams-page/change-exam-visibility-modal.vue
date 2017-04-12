@@ -17,7 +17,7 @@
     />
     <div class="footer">
       <icon-button :text="$tr('cancel')" @click="close"/>
-      <icon-button :text="$tr('update')" :primary="true" @click="updateExamVisibility"/>
+      <icon-button :text="$tr('update')" :primary="true" @click="updateVisibility"/>
     </div>
   </core-modal>
 
@@ -29,7 +29,7 @@
   const examActions = require('../../state/actions/exam');
 
   module.exports = {
-    $trNameSpace: 'changeExamVisbilityModal',
+    $trNameSpace: 'changeExamVisibilityModal',
     $trs: {
       examVisibility: 'Exam visibility',
       shouldBeVisible: '<strong>{ examTitle }</strong> should be visible to:',
@@ -73,16 +73,26 @@
     },
     data() {
       return {
-        classSelected: false,
-        groupsSelected: [],
+        classSelected: this.visibleToClass(),
+        groupsSelected: this.visibleToGroups(),
       };
     },
     computed: {
       groupOptions() {
-        return this.classGroups.map(group => ({ label: group.name, value: group.id }));
+        return this.classGroups.map(group => ({ label: group.name, id: group.id }));
       },
     },
     methods: {
+      visibleToClass() {
+        if (this.examVisibility.class) {
+          return true;
+        }
+        return false;
+      },
+      visibleToGroups() {
+        return this.examVisibility.groups.map(
+            group => ({ label: group.collection.name, id: group.collection.id }));
+      },
       deselectGroups() {
         this.groupsSelected = [];
       },
@@ -92,11 +102,20 @@
       close() {
         this.displayModal(false);
       },
+      updateVisibility() {
+        if (this.classSelected) {
+          this.assignExamToClass(this.examId, this.classId, this.examVisibility.groups);
+        } else if (this.groupsSelected.length) {
+          const groupIds = this.groupsSelected.map(group => group.id);
+          this.assignExamToGroups(this.examId, groupIds, this.examVisibility.class);
+        }
+      },
     },
     vuex: {
       actions: {
         displayModal: examActions.displayModal,
-        updateExamVisibility: examActions.updateExamVisibility,
+        assignExamToClass: examActions.assignExamToClass,
+        assignExamToGroups: examActions.assignExamToGroups,
       },
     },
   };

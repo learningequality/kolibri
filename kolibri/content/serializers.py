@@ -136,7 +136,7 @@ class NestedCollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collection
         fields = (
-            'id', 'name',
+            'id', 'name', 'kind',
         )
 
 class NestedExamAssignmentSerializer(serializers.ModelSerializer):
@@ -146,7 +146,7 @@ class NestedExamAssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamAssignment
         fields = (
-            'exam', 'collection',
+            'id', 'exam', 'collection',
         )
 
 class ExamSerializer(serializers.ModelSerializer):
@@ -171,7 +171,7 @@ class ExamAssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamAssignment
         fields = (
-            'exam', 'collection', 'assigned_by',
+            'id', 'exam', 'collection', 'assigned_by',
         )
         read_only_fields = ('assigned_by',)
 
