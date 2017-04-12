@@ -229,6 +229,7 @@
       },
       finish() {
         if (this.checkAllValid() === true) {
+          const classCollection = { id: this.currentClass.id, name: this.currentClass.name, kind: 'classroom' };
           const examObj = {
             classId: this.currentClass.id,
             channelId: this.currentChannel.id,
@@ -237,7 +238,7 @@
             questionSources: this.questionSources,
             seed: this.seed,
           };
-          this.createExam(this.currentClass.id, examObj);
+          this.createExam(classCollection, examObj);
         }
       },
       checkAllValid() {

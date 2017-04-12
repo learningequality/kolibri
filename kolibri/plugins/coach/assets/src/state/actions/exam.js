@@ -90,7 +90,7 @@ function _assignmentsState(assignments) {
 
 function _examState(exam) {
   const assignments = _assignmentsState(exam.assignments);
-  const visibility = { class: {}, groups: [] };
+  const visibility = {};
   visibility.class = assignments.find(assignment => assignment.collection.kind === 'classroom');
   visibility.groups = assignments.filter(assignment => assignment.collection.kind === 'learnergroup');
   return {
@@ -175,12 +175,11 @@ function deactivateExam(store, examId) {
   );
 }
 
-function _assignExamTo(examId, classId) {
+function _assignExamTo(examId, collection) {
   const assignmentPayload = {
     exam: examId,
-    collection: classId,
+    collection,
   };
-  // TODO: I want the response to have the collection object and not allow duplicates
   return new Promise((resolve, reject) => {
     ExamAssignmentResource.createModel(assignmentPayload).save().then(
       assignment => resolve(assignment),
@@ -198,9 +197,9 @@ function _removeAssignment(assignmentId) {
   });
 }
 
-function assignExamToClass(store, examId, classId, groupAssignments) {
+function assignExamToClass(store, examId, classCollection, groupAssignments) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  let assignmentPromises = [_assignExamTo(examId, classId)];
+  let assignmentPromises = [_assignExamTo(examId, classCollection)];
   if (groupAssignments.length) {
     assignmentPromises = assignmentPromises.concat(
       groupAssignments.map(groupAssignment => _removeAssignment(groupAssignment.assignmentId)));
@@ -217,14 +216,16 @@ function assignExamToClass(store, examId, classId, groupAssignments) {
       store.dispatch('SET_EXAMS', exams);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      this.displayModal(false);
     },
     error => CoreActions.handleError(store, error)
   );
 }
 
-function assignExamToGroups(store, examId, groupIds, classAssignment) {
+function assignExamToGroups(store, examId, groupCollections, classAssignment) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  const assignmentPromises = groupIds.map(groupId => _assignExamTo(examId, groupId));
+  const assignmentPromises = groupCollections.map(
+    groupCollection => _assignExamTo(examId, groupCollection));
   if (classAssignment) {
     assignmentPromises.push(_removeAssignment(classAssignment.assignmentId));
   }
@@ -235,11 +236,12 @@ function assignExamToGroups(store, examId, groupIds, classAssignment) {
       newGroupAssignments = _assignmentsState(newGroupAssignments);
       const exams = store.state.pageState.exams;
       const examIndex = exams.findIndex(exam => exam.id === examId);
-      exams[examIndex].visibility = { class: {}, groups: newGroupAssignments };
+      exams[examIndex].visibility = { class: null, groups: newGroupAssignments };
 
       store.dispatch('SET_EXAMS', exams);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
+      this.displayModal(false);
     },
     error => CoreActions.handleError(store, error)
   );
@@ -395,7 +397,7 @@ function removeExercise(store, exerciseId) {
   }
 }
 
-function createExam(store, classId, examObj) {
+function createExam(store, classCollection, examObj) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   const examPayload = {
     collection: examObj.classId,
@@ -407,7 +409,7 @@ function createExam(store, classId, examObj) {
   };
   ExamResource.createModel(examPayload).save().then(
     exam => {
-      _assignExamTo(exam.id, classId).then(
+      _assignExamTo(exam.id, classCollection).then(
         () => {
           store.dispatch('CORE_SET_PAGE_LOADING', false);
           router.getInstance().push({ name: Constants.PageNames.EXAMS });

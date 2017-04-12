@@ -104,10 +104,16 @@
       },
       updateVisibility() {
         if (this.classSelected) {
-          this.assignExamToClass(this.examId, this.classId, this.examVisibility.groups);
+          const classCollection = { id: Number(this.classId), name: this.className, kind: 'classroom' };
+          this.assignExamToClass(this.examId, classCollection, this.examVisibility.groups);
         } else if (this.groupsSelected.length) {
-          const groupIds = this.groupsSelected.map(group => group.id);
-          this.assignExamToGroups(this.examId, groupIds, this.examVisibility.class);
+          const groupCollections = this.groupsSelected.map(groupSelected => {
+            const collection = this.classGroups.find(
+                classGroup => classGroup.id === groupSelected.id);
+            collection.kind = 'learnergroup';
+            return collection;
+          });
+          this.assignExamToGroups(this.examId, groupCollections, this.examVisibility.class);
         }
       },
     },

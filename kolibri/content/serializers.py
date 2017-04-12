@@ -167,6 +167,7 @@ class ExamSerializer(serializers.ModelSerializer):
 class ExamAssignmentSerializer(serializers.ModelSerializer):
 
     assigned_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    collection = NestedCollectionSerializer(read_only=False)
 
     class Meta:
         model = ExamAssignment
@@ -176,6 +177,7 @@ class ExamAssignmentSerializer(serializers.ModelSerializer):
         read_only_fields = ('assigned_by',)
 
     def create(self, validated_data):
+        validated_data['collection'] = Collection.objects.get(id=self.initial_data['collection'].get('id'))
         return ExamAssignment.objects.create(assigned_by=self.context['request'].user, **validated_data)
 
 
