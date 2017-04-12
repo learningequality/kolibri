@@ -132,7 +132,7 @@ function showExamsPage(store, classId) {
       const pageState = {
         channels: _channelsState(channels),
         classId,
-        currentClass: classroom,
+        currentClass: pickIdAndName(classroom),
         currentClassGroups: learnerGroups.map(pickIdAndName),
         exams: _examsState(exams, classId),
         modalShown: false,
