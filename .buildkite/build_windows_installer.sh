@@ -35,13 +35,13 @@ rm -rf $INSTALLER_PATH
 mkdir $INSTALLER_PATH
 
 # Run kolibri windows installer docker image.
-DOCKER_RUN_CMD="docker run -v $INSTALLER_PATH:/installer/ -it $KOLBIRI_VERSION-build /bin/bash /kolibri/export.sh"
+DOCKER_RUN_CMD="docker run -v $INSTALLER_PATH:/installer/ $KOLBIRI_VERSION-build"
 $DOCKER_RUN_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error running $DOCKER_RUN_CMD."
     exit 1
 fi
 
-# Upload built kolibri windows installer at BuildKite. 
+# Upload built kolibri windows installer at buildkite artifact. 
 cd $KOLIBRI_DOCKER_PATH
 buildkite-agent artifact upload './installer/*.exe'

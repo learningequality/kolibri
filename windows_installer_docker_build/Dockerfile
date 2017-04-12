@@ -20,4 +20,5 @@ RUN cd /kolibri/kolibri-installers/windows \
     && WHL_FILE=${WHL_FILE:8} \
     && WHL_FILE_VERSION=${WHL_FILE:0:(${#WHL_FILEs}-21)} \
     && export KOLIBRI_BUILD_VERSION=$WHL_FILE_VERSION \
-    && wine inno-compiler/ISCC.exe installer-source/KolibriSetupScript.iss
+    && wine inno-compiler/ISCC.exe installer-source/KolibriSetupScript.iss \
+    && mv /kolibri/kolibri-installers/windows/*.exe /installer/
