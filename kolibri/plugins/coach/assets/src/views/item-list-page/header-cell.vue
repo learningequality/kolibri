@@ -19,7 +19,7 @@
 <script>
 
   const ReportConstants = require('../../reportConstants');
-  const Constants = require('../../constants');
+  const reportGetters = require('../../state/getters/reports');
   const genLink = require('./genLink');
   const values = require('lodash/values');
 
@@ -44,7 +44,7 @@
     },
     computed: {
       sortable() {
-        return !Constants.RecentPages.includes(this.pageName);
+        return !this.isRecentPage;
       },
       sorted() {
         return this.sortable && this.pageState.sortColumn === this.column;
@@ -77,6 +77,7 @@
       getters: {
         pageName: state => state.pageName,
         pageState: state => state.pageState,
+        isRecentPage: reportGetters.isRecentPage,
       },
     },
   };

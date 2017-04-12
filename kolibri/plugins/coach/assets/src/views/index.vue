@@ -46,6 +46,7 @@
       // reports
       'recent-items-page': require('./recent-items-page'),
       'channel-list-page': require('./channel-list-page'),
+      'item-list-page': require('./item-list-page'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,

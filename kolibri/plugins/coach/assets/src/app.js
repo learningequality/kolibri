@@ -115,10 +115,10 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.TOPIC_ITEM_LIST,
-          path: '/:classId/topics/:channelId/topic/:topic',
+          path: '/:classId/topics/:channelId/topic/:topicId',
           handler: (to, from) => {
             reportsActions.showTopicItemList(
-              store, to.params.classId, to.params.channelId, to.params.topic
+              store, to.params.classId, to.params.channelId, to.params.topicId
             );
           },
         },
@@ -169,10 +169,10 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.LEARNER_ITEM_LIST,
-          path: '/:classId/learners/:userId/:channelId/topic/:topic',
+          path: '/:classId/learners/:userId/:channelId/topic/:topicId',
           handler: (to, from) => {
             reportsActions.showLearnerItemList(
-              store, to.params.classId, to.params.userId, to.params.channelId, to.params.topic
+              store, to.params.classId, to.params.userId, to.params.channelId, to.params.topicId
             );
           },
         },

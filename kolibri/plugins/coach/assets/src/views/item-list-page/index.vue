@@ -27,7 +27,7 @@
           :singleUser="isSingleUser"
           :userCount="userCount"
           :completionCount="completionCount"
-          :isRecentView="false"
+          :isRecentView="isRecentPage"
         />
 
         <!--CONTENT BREADCRUMBS-->
@@ -99,8 +99,8 @@
 <script>
 
   const ReportConstants = require('../../reportConstants');
+  const CoachConstants = require('../../constants');
   const reportGetters = require('../../state/getters/reports');
-  const genLink = require('./genLink');
 
   module.exports = {
     $trNameSpace: 'reportPage',
@@ -132,14 +132,24 @@
         return this.pageState.contentScope === ReportConstants.ContentScopes.CONTENT;
       },
       contentBreadcrumbs() {
-        const list = this.pageState.contentScopeSummary.ancestors.map((item, index) => ({
-          title: item.title,
-          vlink: genLink(this.pageState, {
-            viewBy: ReportConstants.ViewBy.CONTENT,
-            contentScope: index ? ReportConstants.ContentScopes.TOPIC : ReportConstants.ContentScopes.ROOT, // eslint-disable-line max-len
-            contentScopeId: item.pk,
-          }),
-        }));
+        const list = this.pageState.contentScopeSummary.ancestors.map((item, index) => {
+          const breadcrumb = {
+            title: item.title,
+            vlink: {
+              name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+              params: {
+                classId: this.pageState.classId,
+                channelId: this.pageState.channelId,
+                topicId: item.pk,
+              },
+            },
+          };
+          if (!index) {
+            breadcrumb.vlink.name = CoachConstants.PageNames.TOPIC_CHANNEL_ROOT;
+            delete breadcrumb.vlink.params.topicId;
+          }
+          return breadcrumb;
+        });
         list.push({ title: this.pageState.contentScopeSummary.title });
         return list;
       },
@@ -154,6 +164,7 @@
         dataTable: reportGetters.dataTable,
         userCount: reportGetters.userCount,
         completionCount: reportGetters.completionCount,
+        isRecentPage: reportGetters.isRecentPage,
       },
     },
   };
