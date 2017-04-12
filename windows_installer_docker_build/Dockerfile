@@ -14,6 +14,7 @@ COPY ./ /kolibri
 SHELL ["/bin/bash", "-c"]
 
 # Build kolibri windows installer.
+RUN mkdir /installer/
 RUN cd /kolibri/kolibri-installers/windows \
     && WHL_FILE=$(find ./ -name \*.whl) \
     && WHL_FILE=$(basename $WHL_FILE) \
