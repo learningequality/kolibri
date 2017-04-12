@@ -12,6 +12,7 @@ const PageNames = require('./constants').PageNames;
 
 class ManagementModule extends KolibriModule {
   ready() {
+    window.kolibri = require('kolibri');
     coreActions.getCurrentSession(store).then(() => {
       const routes = [
         {
