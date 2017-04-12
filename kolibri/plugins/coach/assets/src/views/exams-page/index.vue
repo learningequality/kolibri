@@ -1,7 +1,99 @@
 <template>
 
   <div>
-    <work-in-progress />
+    <h1>{{ currentClass.name }} {{ $tr('exams') }}</h1>
+    <ui-radio-group
+      :name="$tr('examFilter')"
+      :label="$tr('show')"
+      :options="filterOptions"
+      v-model="filterSelected"
+      class="radio-group"
+    />
+    <ui-button
+      type="primary"
+      color="primary"
+      :raised="true"
+      icon="add"
+      class="create-button"
+      @click="openCreateExamModal">
+      {{ $tr('newExam') }}
+    </ui-button>
+    <table v-if="exams.length">
+      <thead>
+        <tr>
+          <th class="col-icon"></th>
+          <th class="col-title">{{ $tr('title') }}</th>
+          <th class="col-visibility">{{ $tr('visibleTo') }}</th>
+          <th class="col-action">{{ $tr('action') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <exam-row
+          v-for="exam in filteredExams"
+          :examId="exam.id"
+          :examTitle="exam.title"
+          :examActive="exam.active"
+          :examVisibility="exam.visibility"
+          :classId="currentClass.id"
+          :className="currentClass.name"
+          :classGroups="[]"
+          @changeExamVisibility="openChangeExamVisibilityModal"
+          @activateExam="openActivateExamModal"
+          @deactivateExam="openDeactivateExamModal"
+          @previewExam="openPreviewExamModal"
+          @viewReport="routeToExamReport"
+          @renameExam="openRenameExamModal"
+          @deleteExam="openDeleteExamModal"
+        />
+      </tbody>
+    </table>
+    <p v-else class="center-text"><strong>{{ $tr('noExams') }}</strong></p>
+    <create-exam-modal
+      v-if="showCreateExamModal"
+      :classId="currentClass.id"
+      :channels="channels"
+    />
+    <activate-exam-modal
+      v-if="showActivateExamModal"
+      :examId="selectedExam.id"
+      :examTitle="selectedExam.title"
+      :examVisibility="selectedExam.visibility"
+      :classId="currentClass.id"
+    />
+    <deactivate-exam-modal
+      v-if="showDeactivateExamModal"
+      :examId="selectedExam.id"
+      :examTitle="selectedExam.title"
+      :examVisibility="selectedExam.visibility"
+      :classId="currentClass.id"
+    />
+    <change-exam-visibility-modal
+      v-if="showChangeExamVisibilityModal"
+      :examId="selectedExam.id"
+      :examTitle="selectedExam.title"
+      :examVisibility="selectedExam.visibility"
+      :classId="currentClass.id"
+      :className="currentClass.name"
+      :classGroups="currentClassGroups"
+    />
+    <preview-exam-modal
+      v-if="showPreviewExamModal"
+      :examId="selectedExam.id"
+      :examTitle="selectedExam.title"
+      :classId="currentClass.id"
+    />
+    <rename-exam-modal
+      v-if="showRenameExamModal"
+      :examId="selectedExam.id"
+      :examTitle="selectedExam.title"
+      :classId="currentClass.id"
+    />
+    <delete-exam-modal
+      v-if="showDeleteExamModal"
+      :examId="selectedExam.id"
+      :examTitle="selectedExam.title"
+      :classId="currentClass.id"
+    />
   </div>
 
 </template>
@@ -9,15 +101,158 @@
 
 <script>
 
+  const ExamActions = require('../../state/actions/exam');
+  const ExamModals = require('../../examConstants').Modals;
+  const PageNames = require('../../constants').PageNames;
+
   module.exports = {
     $trNameSpace: 'coachExamsPage',
-    $trs: {},
+    $trs: {
+      exams: 'Exams',
+      show: 'Show',
+      all: 'All',
+      active: 'Active',
+      inactive: 'Inactive',
+      examFilter: 'Exam filter',
+      newExam: 'New Exam',
+      title: 'Title',
+      visibleTo: 'Visible to',
+      action: 'Action',
+      noExams: `You do not have any exams. Start by creating a new exam above.`,
+    },
     components: {
-      'work-in-progress': require('../work-in-progress'),
-    }
+      'ui-button': require('keen-ui/src/UiButton'),
+      'ui-radio-group': require('keen-ui/src/UiRadioGroup'),
+      'exam-row': require('./exam-row'),
+      'create-exam-modal': require('./create-exam-modal'),
+      'activate-exam-modal': require('./activate-exam-modal'),
+      'deactivate-exam-modal': require('./deactivate-exam-modal'),
+      'change-exam-visibility-modal': require('./change-exam-visibility-modal'),
+      'preview-exam-modal': require('./preview-exam-modal'),
+      'rename-exam-modal': require('./rename-exam-modal'),
+      'delete-exam-modal': require('./delete-exam-modal'),
+    },
+    data() {
+      return {
+        filterSelected: this.$tr('all'),
+        selectedExam: { title: '', id: '', visibility: { class: true } },
+      };
+    },
+    computed: {
+      filterOptions() {
+        return [
+          { label: this.$tr('all'), value: this.$tr('all') },
+          { label: this.$tr('active'), value: this.$tr('active') },
+          { label: this.$tr('inactive'), value: this.$tr('inactive') }
+        ];
+      },
+
+      activeExams() {
+        return this.exams.filter(exam => exam.active === true);
+      },
+      inactiveExams() {
+        return this.exams.filter(exam => exam.active === false);
+      },
+      filteredExams() {
+        const filter = this.filterSelected;
+        if (filter === this.$tr('active')) {
+          return this.activeExams;
+        } else if (filter === this.$tr('inactive')) {
+          return this.inactiveExams;
+        }
+        return this.exams;
+      },
+      showCreateExamModal() {
+        return this.modalShown === ExamModals.CREATE_EXAM;
+      },
+      showActivateExamModal() {
+        return this.modalShown === ExamModals.ACTIVATE_EXAM;
+      },
+      showDeactivateExamModal() {
+        return this.modalShown === ExamModals.DEACTIVATE_EXAM;
+      },
+      showChangeExamVisibilityModal() {
+        return this.modalShown === ExamModals.CHANGE_EXAM_VISIBILITY;
+      },
+      showPreviewExamModal() {
+        return this.modalShown === ExamModals.PREVIEW_EXAM;
+      },
+      showRenameExamModal() {
+        return this.modalShown === ExamModals.RENAME_EXAM;
+      },
+      showDeleteExamModal() {
+        return this.modalShown === ExamModals.DELETE_EXAM;
+      },
+    },
+    methods: {
+      setSelectedExam(examId) {
+        this.selectedExam = this.exams.find(exam => exam.id === examId);
+      },
+      openCreateExamModal() {
+        this.displayModal(ExamModals.CREATE_EXAM);
+      },
+      openChangeExamVisibilityModal(examId) {
+        this.setSelectedExam(examId);
+        this.displayModal(ExamModals.CHANGE_EXAM_VISIBILITY);
+      },
+      openActivateExamModal(examId) {
+        this.setSelectedExam(examId);
+        this.displayModal(ExamModals.ACTIVATE_EXAM);
+      },
+      openDeactivateExamModal(examId) {
+        this.setSelectedExam(examId);
+        this.displayModal(ExamModals.DEACTIVATE_EXAM);
+      },
+      openPreviewExamModal(examId) {
+        this.setSelectedExam(examId);
+        this.displayModal(ExamModals.PREVIEW_EXAM);
+      },
+      routeToExamReport(examId) {
+        this.$router.push({
+          name: PageNames.EXAM_REPORT,
+          params: { classId: this.currentClass.id, examId }
+        });
+      },
+      openRenameExamModal(examId) {
+        this.setSelectedExam(examId);
+        this.displayModal(ExamModals.RENAME_EXAM);
+      },
+      openDeleteExamModal(examId) {
+        this.setSelectedExam(examId);
+        this.displayModal(ExamModals.DELETE_EXAM);
+      },
+    },
+    vuex: {
+      actions: {
+        displayModal: ExamActions.displayModal,
+      },
+      getters: {
+        currentClass: state => state.pageState.currentClass,
+        currentClassGroups: state => state.pageState.currentClassGroups,
+        exams: state => state.pageState.exams,
+        channels: state => state.pageState.channels,
+        modalShown: state => state.pageState.modalShown,
+      },
+    },
   };
 
 </script>
 
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+
+  .create-button
+    float: right
+    margin-top: 1em
+    margin-bottom: 1em
+
+  .center-text
+    text-align: center
+
+  .radio-group
+    display: inline-block
+
+  table
+    margin-top: 3em
+
+</style>

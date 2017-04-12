@@ -37,12 +37,16 @@
       'top-nav': require('./top-nav'),
       'class-list-page': require('./class-list-page'),
       'exams-page': require('./exams-page'),
+      'create-exam-page': require('./create-exam-page'),
+      'exam-report-page': require('./exam-report-page'),
+      'exam-report-detail-page': require('./exam-report-detail-page'),
       'groups-page': require('./groups-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'coach-exercise-render-page': require('./coach-exercise-render-page'),
       // reports
       'recent-items-page': require('./recent-items-page'),
       'channel-list-page': require('./channel-list-page'),
+      'item-list-page': require('./item-list-page'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -52,6 +56,7 @@
           [Constants.PageNames.EXAMS]: 'exams-page',
           [Constants.PageNames.GROUPS]: 'groups-page',
           [Constants.PageNames.EXERCISE_RENDER]: 'coach-exercise-render-page',
+          [Constants.PageNames.CREATE_EXAM]: 'create-exam-page',
           // reports
           [Constants.PageNames.RECENT_CHANNELS]: 'channel-list-page',
           [Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'recent-items-page',
@@ -67,6 +72,8 @@
           [Constants.PageNames.LEARNER_CHANNEL_ROOT]: 'item-list-page',
           [Constants.PageNames.LEARNER_ITEM_LIST]: 'item-list-page',
           [Constants.PageNames.LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
+          [Constants.PageNames.EXAM_REPORT]: 'exam-report-page',
+          [Constants.PageNames.EXAM_REPORT_DETAIL]: 'exam-report-detail-page',
         };
         return pageNameToComponentMap[this.pageName];
       },

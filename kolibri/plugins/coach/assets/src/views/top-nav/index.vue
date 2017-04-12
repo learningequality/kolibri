@@ -3,12 +3,12 @@
   <div class="top">
     <nav-link
       :to="recentLink"
-      :active="Constants.RecentReports.includes(pageName)"
+      :active="isRecentPage"
       :text="$tr('recent')"
     />
     <nav-link
       :to="topicsLink"
-      :active="Constants.TopicReports.includes(pageName)"
+      :active="isTopicPage"
       :text="$tr('topics')"
     />
     <nav-link
@@ -18,7 +18,7 @@
     />
     <nav-link
       :to="learnersLink"
-      :active="Constants.LearnerReports.includes(pageName)"
+      :active="isLearnerPage"
       :text="$tr('learners')"
     />
     <nav-link
@@ -34,6 +34,7 @@
 <script>
 
   const Constants = require('../../constants');
+  const reportGetters = require('../../state/getters/reports');
 
   module.exports = {
     $trNameSpace: 'topNav',
@@ -86,6 +87,9 @@
       getters: {
         pageName: state => state.pageName,
         classId: state => state.pageState.classId,
+        isRecentPage: reportGetters.isRecentPage,
+        isTopicPage: reportGetters.isTopicPage,
+        isLearnerPage: reportGetters.isLearnerPage,
       },
     },
   };

@@ -38,7 +38,7 @@
         type: Boolean,
       },
       value: {
-        type: String,
+        type: [String, Number],
       },
       error: {
         type: String,

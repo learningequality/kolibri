@@ -30,6 +30,24 @@ const mutations = {
     state.pageState.groups = groups;
   },
 
+  SET_TOPIC(state, topic) {
+    state.pageState.topic = topic;
+  },
+
+  SET_SUBTOPICS(state, subtopics) {
+    state.pageState.subtopics = subtopics;
+  },
+
+  SET_EXERCISES(state, exercises) {
+    state.pageState.exercises = exercises;
+  },
+  SET_SELECTED_EXERCISES(state, selectedExercises) {
+    state.pageState.selectedExercises = selectedExercises;
+  },
+  SET_EXAMS(state, exams) {
+    state.pageState.exams = exams;
+  },
+
   // etc
   SET_SELETED_ATTEMPTLOG_INDEX(state, attemptLog) {
     state.pageState.selectedAttemptLogIndex = attemptLog;

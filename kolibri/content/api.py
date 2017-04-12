@@ -4,11 +4,14 @@ from random import sample
 from django.core.cache import cache
 from django.db.models import Q
 from django.db.models.aggregates import Count
+from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
 from kolibri.content import models, serializers
 from kolibri.content.content_db_router import get_active_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
 from le_utils.constants import content_kinds
 from rest_framework import filters, pagination, viewsets
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
 
 from .utils.search import fuzz
 
@@ -188,6 +191,17 @@ class ContentNodeViewset(viewsets.ModelViewSet):
     def get_queryset(self):
         return models.ContentNode.objects.all()
 
+    @detail_route(methods=['get'])
+    def descendants(self, request, **kwargs):
+        node = self.get_object()
+        kind = self.request.query_params.get('descendant_kind', None)
+        descendants = node.get_descendants()
+        if kind:
+            descendants = descendants.filter(kind=kind)
+
+        serializer = self.get_serializer(descendants, many=True)
+        return Response(serializer.data)
+
 
 class FileViewset(viewsets.ModelViewSet):
     serializer_class = serializers.FileSerializer
@@ -195,3 +209,39 @@ class FileViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.File.objects.all()
+
+class ExamFilter(filters.FilterSet):
+
+    class Meta:
+        model = models.Exam
+        fields = ['collection', ]
+
+class ExamViewset(viewsets.ModelViewSet):
+    serializer_class = serializers.ExamSerializer
+    pagination_class = OptionalPageNumberPagination
+    permissions_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, filters.DjangoFilterBackend)
+    filter_class = ExamFilter
+
+    def get_queryset(self):
+        return models.Exam.objects.all()
+
+
+class ExamAssignmentViewset(viewsets.ModelViewSet):
+    serializer_class = serializers.ExamAssignmentSerializer
+    pagination_class = OptionalPageNumberPagination
+    permissions_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter,)
+
+    def get_queryset(self):
+        return models.ExamAssignment.objects.all()
+
+
+class UserExamViewset(viewsets.ModelViewSet):
+    serializer_class = serializers.UserExamSerializer
+    pagination_class = OptionalPageNumberPagination
+    permissions_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter,)
+
+    def get_queryset(self):
+        return models.ExamAssignment.objects.all()

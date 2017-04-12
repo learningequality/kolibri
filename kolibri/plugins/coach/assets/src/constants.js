@@ -16,8 +16,17 @@ const PageNames = {
   LEARNER_ITEM_LIST: 'LEARNER_ITEM_LIST',
   LEARNER_ITEM_DETAILS: 'LEARNER_ITEM_DETAILS',
   EXAMS: 'EXAMS',
+  CREATE_EXAM: 'CREATE_EXAM',
+  EXAM_REPORT: 'EXAM_REPORT',
+  EXAM_REPORT_DETAIL: 'EXAM_REPORT_DETAIL',
+  LEARNERS: 'LEARNERS',
   GROUPS: 'GROUPS',
   EXERCISE_RENDER: 'EXERCISE_RENDER',
+};
+
+const PageTitles = {
+  EXAMS: 'Exams',
+  CREATE_EXAM: 'Create new exam',
 };
 
 const RecentReports = [
@@ -52,6 +61,7 @@ const GroupModals = {
 
 module.exports = {
   PageNames,
+  PageTitles,
   RecentReports,
   TopicReports,
   LearnerReports,

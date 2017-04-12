@@ -13,11 +13,14 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
-from kolibri.auth.models import Collection, FacilityUser
+from kolibri.auth.constants import role_kinds
+from kolibri.auth.models import AbstractFacilityDataModel, Collection, FacilityUser
+from kolibri.auth.permissions.base import RoleBasedPermissions
 from le_utils.constants import content_kinds, file_formats, format_presets
 from mptt.models import MPTTModel, TreeForeignKey
 
 from .content_db_router import get_active_content_database, get_content_database_connection
+from .permissions import UserCanReadExamAssignmentData
 from .utils import paths
 
 PRESET_LOOKUP = dict(format_presets.choices)
@@ -305,12 +308,22 @@ class ChannelMetadataCache(ChannelMetadataAbstractBase):
         pass
 
 
-class Exam(models.Model):
+class Exam(AbstractFacilityDataModel):
     """
     This class stores metadata about teacher created exams to test current student knowledge.
     """
-    id = UUIDField(primary_key=True)
+    permissions = RoleBasedPermissions(
+        target_field="collection",
+        can_be_created_by=(),
+        can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+        can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
+        can_be_deleted_by=(),
+    )
+
+    id = UUIDField(primary_key=True, default=uuid.uuid4)
     title = models.CharField(max_length=200)
+    # The channel this Exam is associated with.
+    channel_id = models.CharField(max_length=32)
     # Number of total questions this exam has
     question_count = models.IntegerField()
     """
@@ -323,6 +336,8 @@ class Exam(models.Model):
     ]
     """
     question_sources = models.TextField()
+    # The random seed we use to decide which questions are in the exam
+    seed = models.IntegerField(default=1)
     # Is this exam currently active and visible to students to whom it is assigned?
     active = models.BooleanField(default=False)
     # Exams are scoped to a particular class (usually) as they are associated with a Coach
@@ -330,13 +345,32 @@ class Exam(models.Model):
     # not assign exam itself to the class - for that see the ExamAssignment model.
     collection = models.ForeignKey(Collection, related_name='exams', blank=False, null=False)
     creator = models.ForeignKey(FacilityUser, related_name='exams', blank=False, null=False)
-    deleted = models.BooleanField(default=False)
+    archive = models.BooleanField(default=False)
 
-class ExamAssignment(models.Model):
+    def infer_dataset(self):
+        return self.creator.dataset
+
+    def __str__(self):
+        return self.title
+
+
+class ExamAssignment(AbstractFacilityDataModel):
     """
     This class acts as an intermediary to handle assignment of an exam to particular collections
     classes, groups, etc.
     """
+    permissions = (
+        RoleBasedPermissions(
+            target_field="collection",
+            can_be_created_by=(),
+            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
+            can_be_deleted_by=(),
+        ) | UserCanReadExamAssignmentData()
+    )
     exam = models.ForeignKey(Exam, related_name='assignments', blank=False, null=False)
     collection = models.ForeignKey(Collection, related_name='assigned_exams', blank=False, null=False)
     assigned_by = models.ForeignKey(FacilityUser, related_name='assigned_exams', blank=False, null=False)
+
+    def infer_dataset(self):
+        return self.assigned_by.dataset

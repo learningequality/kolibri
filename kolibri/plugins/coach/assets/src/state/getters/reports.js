@@ -68,7 +68,7 @@ function _genRow(state, item) {
   const row = {};
 
   // CONTENT NODES
-  if (state.pageState.viewBy === ReportConstants.ViewBy.CONTENT) {
+  if (getters.isTopicPage(state) || getters.isRecentPage(state)) {
     row.kind = item.kind;
     row.id = item.pk;
     row.title = item.title;
@@ -104,7 +104,7 @@ function _genRow(state, item) {
       logging.error(`Unhandled item kind: ${item.kind}`);
     }
     // LEARNERS
-  } else if (state.pageName === Constants.PageNames.LEARNER_REPORTS) {
+  } else if (getters.isLearnerPage(state)) {
     row.kind = CoreConstants.USER;
     row.id = item.pk.toString(); // see https://github.com/learningequality/kolibri/issues/65;
     row.title = item.full_name;
@@ -116,7 +116,7 @@ function _genRow(state, item) {
     row.contentProgress
       = calcProgress(item.progress, _onlyContent, getters.contentCount(state), 1);
   } else {
-    logging.error('Unknown view-by state', state.pageState.viewBy);
+    throw Error('unhandled report page');
   }
 
   row.lastActive = item.last_active ? new Date(item.last_active) : null;
@@ -177,6 +177,15 @@ Object.assign(getters, {
       data.sort(_genCompareFunc(state.pageState.sortColumn, state.pageState.sortOrder));
     }
     return data;
+  },
+  isRecentPage(state) {
+    return Constants.RecentReports.includes(state.pageName);
+  },
+  isTopicPage(state) {
+    return Constants.TopicReports.includes(state.pageName);
+  },
+  isLearnerPage(state) {
+    return Constants.LearnerReports.includes(state.pageName);
   },
 });
 
