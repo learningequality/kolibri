@@ -9,7 +9,7 @@
           <h1 class="exam-title">{{ exam.title }}</h1>
           <div class="exam-status">
             <p class="questions-answered">{{ $tr('questionsAnswered', { numAnswered: questionsAnswered, numTotal: exam.questionCount }) }}</p>
-            <icon-button class="submit-exam-button" @click="finishExam" :text="$tr('submitExam')"></icon-button>
+            <icon-button class="submit-exam-button" @click="finishExam" :text="$tr('submitExam')" :primary="true"></icon-button>
           </div>
         </div>
         <div class="question-container">
@@ -174,12 +174,12 @@
     float: left
 
   .answer-history-container
-    width: 30%
+    width: 25%
     height: 100%
     overflow-y: auto
 
   .exercise-container
-    width: 70%
+    width: 75%
     
   .question-navbutton-container
     text-align: right

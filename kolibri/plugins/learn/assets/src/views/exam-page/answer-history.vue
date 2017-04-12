@@ -8,9 +8,9 @@
             <circle cx="32" cy="32" r="8"
               :style="{ fill: ((attemptLogs[question.contentId] || {})[question.itemId] || {}).answer ? 'purple' : 'lightgrey' }"/>
           </svg>
-          <h3 class="item">
+          <p class="item">
             {{ questionText(index + 1) }}
-          </h3>
+          </p>
         </li>
       </template>
     </ul>
@@ -79,6 +79,7 @@
     float: left
     margin: 0
     line-height: 64px
+    font-size: 0.9em
 
   .svg-item
     height: 64px
@@ -87,7 +88,6 @@
   li
     clear: both
     border: none
-    padding-left: 20px
     height: 64px
 
   .clickable
