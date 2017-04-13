@@ -26,7 +26,7 @@ const fakeDataset = [
   { id: 3 },
 ];
 
-describe.only('showFacilityConfigPage action', () => {
+describe.only('facility config page actions', () => {
   const storeMock = {
     dispatch: sinon.spy(),
     state: { core: { pageId: '123' } },
@@ -39,26 +39,28 @@ describe.only('showFacilityConfigPage action', () => {
     dispatchStub.reset();
   });
 
-  it('sets up pageState correctly when no problems', () => {
-    getFacilityStub.returns(fakeFacility);
-    getDatasetsStub.returns(fakeDataset);
-    const expectedPageState = {
-      facilityName: 'Nalanda Maths',
-      settings: {
-        learner_can_edit_username: false,
-        learner_can_edit_name: true,
-        learner_can_edit_password: false,
-        learner_can_sign_up: true,
-        learner_can_delete_account: true,
-      },
-      notification: {},
-    };
+  describe('showFacilityConfigPage action', () => {
+    it('showFacilityConfigPage sets up pageState correctly when no problems', () => {
+      getFacilityStub.returns(fakeFacility);
+      getDatasetsStub.returns(fakeDataset);
+      const expectedPageState = {
+        facilityName: 'Nalanda Maths',
+        settings: {
+          learner_can_edit_username: false,
+          learner_can_edit_name: true,
+          learner_can_edit_password: false,
+          learner_can_sign_up: true,
+          learner_can_delete_account: true,
+        },
+        notification: {},
+      };
 
-    return actions.showFacilityConfigPage(storeMock)
-    .then(() => {
-      // uses hardcoded facility_id of 1
-      sinon.assert.calledWith(getDatasetsStub, { facility_id: 1 });
-      sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
+      return actions.showFacilityConfigPage(storeMock)
+      .then(() => {
+        // uses hardcoded facility_id of 1
+        sinon.assert.calledWith(getDatasetsStub, { facility_id: 1 });
+        sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
+      });
     });
   });
 });
