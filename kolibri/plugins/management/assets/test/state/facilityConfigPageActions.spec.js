@@ -12,7 +12,7 @@ const fakeFacility = {
 };
 
 const fakeDatasets = [
-  { id: 2, learner_can_edit_username: false },
+  { id: 2, learners_can_never_have_fun: false },
   // could return more than one dataset in theory
   { id: 3 },
 ];
@@ -28,17 +28,18 @@ describe.only('facility config page actions', () => {
   beforeEach(() => {
     __resetMocks();
     dispatchStub.reset();
+    storeMock.state.pageState = {};
   });
 
   describe('showFacilityConfigPage action', () => {
-    it('sets up pageState correctly when no problems', () => {
+    it('when resources load successfully', () => {
       FacilityStub.__getModelFetchReturns(fakeFacility);
       DatasetStub.__getCollectionFetchReturns(fakeDatasets);
       const expectedPageState = {
         facilityDatasetId: 2,
         facilityName: 'Nalanda Maths',
-        settings: { learner_can_edit_username: false },
-        settingsCopy: { learner_can_edit_username: false },
+        settings: { learners_can_never_have_fun: false },
+        settingsCopy: { learners_can_never_have_fun: false },
       };
 
       return actions.showFacilityConfigPage(storeMock)
@@ -49,8 +50,8 @@ describe.only('facility config page actions', () => {
       });
     });
 
-    it('sets up pageState correctly when fetching Facility fails', () => {
-      FacilityStub.__getModelFetchReturns('whatevers', true /* willReject */);
+    it('when fetching Facility fails', () => {
+      FacilityStub.__getModelFetchReturns('incomprehensible error', true);
       DatasetStub.__getCollectionFetchReturns(fakeDatasets);
       const expectedPageState = {
         facilityName: '',
@@ -63,9 +64,9 @@ describe.only('facility config page actions', () => {
       });
     });
 
-    it('sets up pageState correctly when fetching facilityDataset fails', () => {
+    it('when fetching FacilityDataset fails', () => {
       FacilityStub.__getModelFetchReturns(fakeFacility);
-      DatasetStub.__getCollectionFetchReturns('whatevers', true);
+      DatasetStub.__getCollectionFetchReturns('incomprehensible error', true);
       const expectedPageState = {
         facilityName: '',
         settings: {},
@@ -79,16 +80,27 @@ describe.only('facility config page actions', () => {
   });
 
   describe('saveFacilityConfig action', () => {
-    it('save is successful', () => {
+    it('when save is successful', () => {
+      storeMock.state.pageState = {
+        facilityDatasetId: 1000,
+        settings: {
+          learners_must_be_constantly_awesome: true,
+        },
+      };
       // IRL returns the updated Model
       const saveStub = DatasetStub.__getModelSaveReturns('ok');
+
       return actions.saveFacilityConfig(storeMock)
       .then(() => {
-        sinon.assert.called(saveStub);
+        sinon.assert.calledWith(DatasetStub.getModel, 1000);
+        sinon.assert.calledWith(saveStub, sinon.match({
+          learners_must_be_constantly_awesome: true,
+        }));
+        sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_NOTIFY', 'save_success');
       });
     });
 
-    it('save fails', () => {
+    it('when save fails', () => {
 
     });
   });

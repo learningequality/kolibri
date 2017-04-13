@@ -56,9 +56,9 @@ function showFacilityConfigPage(store) {
 }
 
 function saveFacilityConfig(store) {
-  const { newSettings, facilityDatasetId } = store.state.pageState;
+  const { settings, facilityDatasetId } = store.state.pageState;
   const resourceRequests = [
-    FacilityDatasetResource.getModel(facilityDatasetId).save(newSettings),
+    FacilityDatasetResource.getModel(facilityDatasetId).save(settings),
   ];
   return resolveOnlyIfOnSamePage(resourceRequests, store)
   .then(function onSuccess() {
