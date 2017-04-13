@@ -197,47 +197,42 @@ function _removeAssignment(assignmentId) {
   });
 }
 
-function assignExamToClass(store, examId, classCollection, groupAssignments) {
+function updateExamAssignments(store, examId, collectionsToAssign, assignmentsToRemove) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  let assignmentPromises = [_assignExamTo(examId, classCollection)];
-  if (groupAssignments.length) {
-    assignmentPromises = assignmentPromises.concat(
-      groupAssignments.map(groupAssignment => _removeAssignment(groupAssignment.assignmentId)));
-  }
+  const assignPromises = collectionsToAssign.map(collection => _assignExamTo(examId, collection));
+  const unassignPromises = assignmentsToRemove.map(assignment => _removeAssignment(assignment));
+  const assignmentPromises = assignPromises.concat(unassignPromises);
 
   ConditionalPromise.all(assignmentPromises).only(CoreActions.samePageCheckGenerator(store),
     response => {
-      let newClassAssignment = response[0];
-      newClassAssignment = _assignmentState(newClassAssignment);
+      let newAssignments = response.filter(n => n);
+      newAssignments = _assignmentsState(newAssignments);
+
+      const classId = store.state.pageState.currentClass.id;
       const exams = store.state.pageState.exams;
       const examIndex = exams.findIndex(exam => exam.id === examId);
-      exams[examIndex].visibility = { class: newClassAssignment, groups: [] };
+      const examVisibility = exams[examIndex].visibility;
 
-      store.dispatch('SET_EXAMS', exams);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-      this.displayModal(false);
-    },
-    error => CoreActions.handleError(store, error)
-  );
-}
+      newAssignments.forEach(assignment => {
+        if (assignment.collection.id === classId) {
+          examVisibility.class = assignment;
+        } else {
+          examVisibility.groups.push(assignment);
+        }
+      });
 
-function assignExamToGroups(store, examId, groupCollections, classAssignment) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  const assignmentPromises = groupCollections.map(
-    groupCollection => _assignExamTo(examId, groupCollection));
-  if (classAssignment) {
-    assignmentPromises.push(_removeAssignment(classAssignment.assignmentId));
-  }
+      assignmentsToRemove.forEach(assignmentId => {
+        if (examVisibility.class) {
+          if (assignmentId === examVisibility.class.assignmentId) {
+            examVisibility.class = null;
+            return;
+          }
+        }
+        examVisibility.groups = examVisibility.groups.filter(
+          group => group.assignmentId !== assignmentId);
+      });
 
-  ConditionalPromise.all(assignmentPromises).only(CoreActions.samePageCheckGenerator(store),
-    response => {
-      let newGroupAssignments = response.filter(n => n);
-      newGroupAssignments = _assignmentsState(newGroupAssignments);
-      const exams = store.state.pageState.exams;
-      const examIndex = exams.findIndex(exam => exam.id === examId);
-      exams[examIndex].visibility = { class: null, groups: newGroupAssignments };
-
+      exams[examIndex].visibility = examVisibility;
       store.dispatch('SET_EXAMS', exams);
       store.dispatch('CORE_SET_ERROR', null);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -450,8 +445,7 @@ module.exports = {
   previewExam,
   renameExam,
   deleteExam,
-  assignExamToClass,
-  assignExamToGroups,
+  updateExamAssignments,
   fetchContent,
   createExam,
   addExercise,

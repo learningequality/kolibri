@@ -3,7 +3,7 @@
   <core-modal :title="$tr('examVisibility')" @cancel="close">
     <p v-html="$trHtml('shouldBeVisible', { examTitle })"></p>
     <label>
-      <input type="radio" :value="true" v-model="classSelected" @change="deselectGroups">
+      <input type="radio" :value="true" v-model="classIsSelected" @change="deselectGroups">
       <span v-html="$trHtml('entireClass', { className })"></span>
     </label>
     <ui-select
@@ -13,7 +13,7 @@
       :multiple="true"
       :options="groupOptions"
       v-model="groupsSelected"
-      @change="deselectClass"
+      @change="handleSelectChange"
     />
     <div class="footer">
       <icon-button :text="$tr('cancel')" @click="close"/>
@@ -73,8 +73,8 @@
     },
     data() {
       return {
-        classSelected: this.visibleToClass(),
-        groupsSelected: this.visibleToGroups(),
+        classIsSelected: this.classInitiallySelected(),
+        groupsSelected: this.initiallySelectedGroups(),
       };
     },
     computed: {
@@ -83,45 +83,61 @@
       },
     },
     methods: {
-      visibleToClass() {
+      classInitiallySelected() {
         if (this.examVisibility.class) {
           return true;
         }
         return false;
       },
-      visibleToGroups() {
+      initiallySelectedGroups() {
         return this.examVisibility.groups.map(
             group => ({ label: group.collection.name, id: group.collection.id }));
+      },
+      handleSelectChange() {
+        this.classIsSelected = !this.groupsSelected.length;
       },
       deselectGroups() {
         this.groupsSelected = [];
       },
-      deselectClass() {
-        this.classSelected = false;
+      updateVisibility() {
+        if (this.classIsSelected) {
+          if (this.classIsSelected !== this.classInitiallySelected()) {
+            const classCollection = [{ id: this.classId, name: this.className, kind: 'classroom' }];
+            const groupAssignments = this.examVisibility.groups.map(
+              assignment => assignment.assignmentId);
+            this.updateExamAssignments(this.examId, classCollection, groupAssignments);
+          }
+        } else if (this.groupsSelected.length) {
+          const unassignGroups = this.initiallySelectedGroups().filter(
+              initialGroup => !this.groupsSelected.find(newGroup => newGroup.id === initialGroup.id));
+          const assignGroups = this.groupsSelected.filter(
+              newGroup => !this.initiallySelectedGroups().find(
+                  initialGroup => initialGroup.id === newGroup.id));
+
+          if (unassignGroups.length || assignGroups.length) {
+            const assignGroupCollections = assignGroups.map(group => ({
+              id: group.id,
+              name: group.label,
+              kind: 'learnergroup',
+            }));
+            let unassignments = unassignGroups.map(unassignGroup => this.examVisibility.groups.find(
+              group => group.collection.id === unassignGroup.id).assignmentId);
+            if (this.examVisibility.class) {
+              unassignments = unassignments.concat(this.examVisibility.class.assignmentId);
+            }
+            this.updateExamAssignments(this.examId, assignGroupCollections, unassignments);
+          }
+        }
+        this.close();
       },
       close() {
         this.displayModal(false);
-      },
-      updateVisibility() {
-        if (this.classSelected) {
-          const classCollection = { id: Number(this.classId), name: this.className, kind: 'classroom' };
-          this.assignExamToClass(this.examId, classCollection, this.examVisibility.groups);
-        } else if (this.groupsSelected.length) {
-          const groupCollections = this.groupsSelected.map(groupSelected => {
-            const collection = this.classGroups.find(
-                classGroup => classGroup.id === groupSelected.id);
-            collection.kind = 'learnergroup';
-            return collection;
-          });
-          this.assignExamToGroups(this.examId, groupCollections, this.examVisibility.class);
-        }
       },
     },
     vuex: {
       actions: {
         displayModal: examActions.displayModal,
-        assignExamToClass: examActions.assignExamToClass,
-        assignExamToGroups: examActions.assignExamToGroups,
+        updateExamAssignments: examActions.updateExamAssignments,
       },
     },
   };
