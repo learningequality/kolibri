@@ -13,7 +13,8 @@
         ref="modal"
         :tabindex="0"
         role="dialog"
-        aria-labelledby="modal-title">
+        aria-labelledby="modal-title"
+        :style="{ maxWidth: maxWidth }">
 
         <div class="top-buttons" @keydown.enter.stop>
           <button :aria-label="$tr('goBack')" @click="emitBackEvent" class="header-btn btn-back" v-if="enableBackBtn">
@@ -80,6 +81,11 @@
       hasError: {
         type: Boolean,
         default: false,
+      },
+      // Specifies a max-width for the modal
+      maxWidth: {
+        type: String,
+        default: '380px',
       },
     },
     mounted() {
@@ -162,7 +168,6 @@
     transform: translate(-50%, -50%)
     width: 60%
     background: #fff
-    max-width: 380px
     max-height: 80%
     overflow-y: auto
     border-radius: $radius

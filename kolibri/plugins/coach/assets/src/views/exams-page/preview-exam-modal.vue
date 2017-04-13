@@ -1,18 +1,22 @@
 <template>
 
-  <core-modal :title="`${examTitle} ${$tr('preview')}`" @cancel="close">
-    <div>Exam Preview</div>
+  <core-modal :title="$tr('preview')" @cancel="close" maxWidth="100%">
     <div class="question-selector-container">
       <div class="question-selector">
-        <ul class="question-list">
-          <template v-for="(question, index) in questions">
-            <li @click="goToQuestion(index)" :class="isSelected(index)" class="clickable">
-              <h3>
-                {{ $tr('question', { num: index + 1 }) }}
-              </h3>
-            </li>
-          </template>
-        </ul>
+        <div>
+          {{ $tr('numQuestions', { num: exam.question_count })}}<icon-button :text="$tr('randomize')" @click="$emit('randomize')"/>
+        </div>
+        <ui-collapsible v-for="(source, exIndex) in questionSources" :title="$tr('exercise', { num: exIndex + 1 })" :open="exIndex===0">
+          <ul class="question-list">
+            <template v-for="(question, index) in questions.filter(q => q.contentId === source.exercise_id)">
+              <li @click="goToQuestion(index)" :class="isSelected(index)" class="clickable">
+                <h3>
+                  {{ $tr('question', { num: index + 1 }) }}
+                </h3>
+              </li>
+            </template>
+          </ul>
+        </ui-collapsible>
       </div>
       <div class="exercise-container">
         <content-renderer
@@ -46,14 +50,18 @@
   module.exports = {
     $trNameSpace: 'previewExamModal',
     $trs: {
-      preview: 'Preview',
+      preview: 'Preview Exam Exercises',
       close: 'Close',
       question: 'Question { num }',
+      numQuestions: '{ num } questions',
+      randomize: 'Randomize',
+      exercise: 'Exercise { num }',
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
+      'ui-collapsible': require('keen-ui/src/UiCollapsible'),
     },
     props: {
       exam: {
@@ -119,6 +127,12 @@
           contentNodes.forEach(node => { this.$set(this.contentNodeMap, node.pk, node); });
         });
     },
+    mounted() {
+      // Filthy hack to force Keen UI Collapsible to resize
+      const event = document.createEvent('Event');
+      event.initEvent('resize', true, true);
+      window.dispatchEvent(event);
+    },
     data: () => ({
       questionNumber: 0,
       contentNodeMap: {},
@@ -139,6 +153,10 @@
 
   .question-selector
     background-color: $core-bg-light
+    width: 30%
+    height: 100%
+    overflow-y: auto
+    float: left
 
   .question-list
     list-style-type: none
@@ -157,5 +175,9 @@
 
   .selected
     background-color: $core-text-disabled
+
+  .exercise-container
+    width: 70%
+    float: left
 
 </style>
