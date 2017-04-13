@@ -19,7 +19,7 @@ const samePageCheckGenerator = require('kolibri.coreVue.vuex.actions').samePageC
 // because these modules use ES6 module syntax, need to access exports.default in CommonJS context
 const addCoachRoleAction = require('./addCoachRoleAction').default;
 const removeCoachRoleAction = require('./removeCoachRoleAction').default;
-const { showFacilitiesConfigPage } = require('./facilitiesConfigPageActions');
+const { showFacilityConfigPage } = require('./facilityConfigPageActions');
 const preparePage = require('./preparePage');
 
 /**
@@ -699,7 +699,7 @@ module.exports = {
   showClassesPage,
   showClassEditPage,
   showClassEnrollPage,
-  showFacilitiesConfigPage,
+  showFacilityConfigPage,
   enrollUsersInClass,
 
   createUser,
