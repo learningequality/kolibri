@@ -110,4 +110,36 @@ describe.only('facility config page actions', () => {
       });
     });
   });
+
+  describe('resetFacilityConfig action', () => {
+    it('when save is successful', () => {
+      const fakeDefault = { learners_should_use_three_factor_auth: false };
+      storeMock.state.pageState = {
+        facilityDatasetId: 1001,
+        settings: { learners_should_use_three_factor_auth: true },
+      };
+
+      const saveStub = DatasetStub.__getModelSaveReturns('ok default');
+
+      return actions.resetFacilityConfig(storeMock, fakeDefault)
+      .then(() => {
+        sinon.assert.calledWith(DatasetStub.getModel, 1001);
+        sinon.assert.calledWith(saveStub, sinon.match({
+          learners_should_use_three_factor_auth: false,
+        }));
+        sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_NOTIFY', 'save_success');
+      });
+    });
+
+    it('when save fails', () => {
+      // pretty much the same as normal save action
+      const saveStub = DatasetStub.__getModelSaveReturns('fail default', true);
+      return actions.resetFacilityConfig(storeMock)
+      .then(() => {
+        sinon.assert.called(saveStub);
+        sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_NOTIFY', 'save_failure');
+        sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
+      });
+    });
+  });
 });

@@ -7,7 +7,7 @@ const {
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
 const preparePage = require('./preparePage');
-const { PageNames } = require('../constants');
+const { PageNames, defaultFacilityConfig } = require('../constants');
 
 // When app is installed, the Facility is assigned id of `1`.
 // Hardcoded here for now.
@@ -55,10 +55,11 @@ function showFacilityConfigPage(store) {
   });
 }
 
-function saveFacilityConfig(store) {
-  const { settings, facilityDatasetId } = store.state.pageState;
+function saveFacilityConfig(store, settings) {
+  const newConfig = settings || store.state.pageState.settings;
+  const { facilityDatasetId } = store.state.pageState;
   const resourceRequests = [
-    FacilityDatasetResource.getModel(facilityDatasetId).save(settings),
+    FacilityDatasetResource.getModel(facilityDatasetId).save(newConfig),
   ];
   return resolveOnlyIfOnSamePage(resourceRequests, store)
   .then(function onSuccess() {
@@ -70,7 +71,12 @@ function saveFacilityConfig(store) {
   });
 }
 
+function resetFacilityConfig(store, defaultSettings = defaultFacilityConfig) {
+  return saveFacilityConfig(store, defaultSettings);
+}
+
 module.exports = {
-  showFacilityConfigPage,
+  resetFacilityConfig,
   saveFacilityConfig,
+  showFacilityConfigPage,
 };

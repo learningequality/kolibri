@@ -43,10 +43,19 @@ const TaskStatuses = {
   PENDING: 'PENDING',
 };
 
+const defaultFacilityConfig = {
+  learner_can_edit_username: true,
+  learner_can_edit_name: true,
+  learner_can_edit_password: true,
+  learner_can_sign_up: true,
+  learner_can_delete_account: true,
+};
+
 module.exports = {
   PageNames,
   Modals,
   ContentWizardPages,
   TaskTypes,
   TaskStatuses,
+  defaultFacilityConfig,
 };
