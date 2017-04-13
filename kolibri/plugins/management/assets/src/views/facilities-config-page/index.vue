@@ -16,7 +16,7 @@
     <div>
       <h2>Facility Settings</h2>
       <div class="settings">
-        <ui-checkbox box-position="right">
+        <ui-checkbox :value="checked" name="edit_username" @change="handleCheckbox" box-position="right">
           Allow users to edit their username
         </ui-checkbox>
         <ui-checkbox box-position="right">
@@ -59,11 +59,17 @@
       'ui-checkbox': require('keen-ui/src/UiCheckbox'),
       'ui-button': require('keen-ui/src/UiButton'),
     },
+    data: () => ({
+      checked: true
+    }),
     computed: {
 
     },
     methods: {
-
+      handleCheckbox(e) {
+        console.log('incomponent', e);
+        this.checked = false;
+      }
     },
     vuex: {
       getters: {

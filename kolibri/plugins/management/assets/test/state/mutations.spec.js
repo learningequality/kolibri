@@ -2,7 +2,7 @@
 const assert = require('assert');
 const mutations = require('../../src/state/mutations');
 
-describe.only('facility config page mutations', () => {
+describe('facility config page mutations', () => {
   it('CONFIG_PAGE_NOTIFY', () => {
     const mockState = { pageState: { notification: 'foofoo' } };
     mutations.CONFIG_PAGE_NOTIFY(mockState, 'barbar');
