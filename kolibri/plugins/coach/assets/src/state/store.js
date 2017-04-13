@@ -47,7 +47,9 @@ const mutations = {
   SET_EXAMS(state, exams) {
     state.pageState.exams = exams;
   },
-
+  SET_EXAM_MODAL(state, modalName) {
+    state.pageState.examModalShown = modalName;
+  },
   // etc
   SET_SELETED_ATTEMPTLOG_INDEX(state, attemptLog) {
     state.pageState.selectedAttemptLogIndex = attemptLog;

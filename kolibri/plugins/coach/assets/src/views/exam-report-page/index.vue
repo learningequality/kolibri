@@ -95,7 +95,7 @@
         ],
       },
       actions: {
-        displayModal: actions.displayModal,
+        displayExamModal: actions.displayExamModal,
       },
     },
     $trNameSpace: 'examReportPage',

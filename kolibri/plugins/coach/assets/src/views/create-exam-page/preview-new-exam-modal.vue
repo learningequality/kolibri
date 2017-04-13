@@ -47,12 +47,12 @@
     },
     methods: {
       close() {
-        this.displayModal(false);
+        this.displayExamModal(false);
       },
     },
     vuex: {
       actions: {
-        displayModal: ExamActions.displayModal,
+        displayExamModal: ExamActions.displayExamModal,
       },
     },
   };

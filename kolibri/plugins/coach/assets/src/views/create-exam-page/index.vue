@@ -166,7 +166,7 @@
           (this.inputNumQuestions < 1) || (this.inputNumQuestions > 50) : false;
       },
       showPreviewNewExamModal() {
-        return this.modalShown === ExamModals.PREVIEW_NEW_EXAM;
+        return this.examModalShown === ExamModals.PREVIEW_NEW_EXAM;
       },
       questionSources() {
         const shuffledExercises = shuffle(Array.from(this.selectedExercises));
@@ -225,7 +225,7 @@
       },
       preview() {
         if (this.checkAllValid() === true) {
-          this.displayModal(ExamModals.PREVIEW_NEW_EXAM);
+          this.displayExamModal(ExamModals.PREVIEW_NEW_EXAM);
         }
       },
       finish() {
@@ -282,14 +282,14 @@
         subtopics: state => state.pageState.subtopics,
         exercises: state => state.pageState.exercises,
         selectedExercises: state => state.pageState.selectedExercises,
-        modalShown: state => state.pageState.modalShown,
+        examModalShown: state => state.pageState.examModalShown,
       },
       actions: {
         fetchContent: ExamActions.fetchContent,
         createExam: ExamActions.createExam,
         addExercise: ExamActions.addExercise,
         removeExercise: ExamActions.removeExercise,
-        displayModal: ExamActions.displayModal,
+        displayExamModal: ExamActions.displayExamModal,
       },
     },
   };

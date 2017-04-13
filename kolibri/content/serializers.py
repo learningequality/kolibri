@@ -149,21 +149,6 @@ class NestedExamAssignmentSerializer(serializers.ModelSerializer):
             'id', 'exam', 'collection',
         )
 
-class ExamSerializer(serializers.ModelSerializer):
-
-    assignments = NestedExamAssignmentSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Exam
-        fields = (
-            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'collection', 'archive', 'assignments',
-        )
-        read_only_fields = ('creator',)
-
-    def create(self, validated_data):
-        return Exam.objects.create(creator=self.context['request'].user, **validated_data)
-
 class ExamAssignmentSerializer(serializers.ModelSerializer):
 
     assigned_by = serializers.PrimaryKeyRelatedField(read_only=True)
@@ -179,6 +164,22 @@ class ExamAssignmentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['collection'] = Collection.objects.get(id=self.initial_data['collection'].get('id'))
         return ExamAssignment.objects.create(assigned_by=self.context['request'].user, **validated_data)
+
+class ExamSerializer(serializers.ModelSerializer):
+
+    assignments = ExamAssignmentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Exam
+        fields = (
+            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
+            'active', 'collection', 'archive', 'assignments',
+        )
+        read_only_fields = ('creator',)
+
+    def create(self, validated_data):
+        return Exam.objects.create(creator=self.context['request'].user, **validated_data)
+
 
 
 class UserExamSerializer(serializers.ModelSerializer):

@@ -114,8 +114,8 @@ function _examsState(exams, classId) {
   return exams.map(exam => _examState(exam, classId));
 }
 
-function displayModal(store, modalName) {
-  store.dispatch('SET_MODAL', modalName);
+function displayExamModal(store, modalName) {
+  store.dispatch('SET_EXAM_MODAL', modalName);
 }
 
 function showExamsPage(store, classId) {
@@ -138,7 +138,7 @@ function showExamsPage(store, classId) {
         currentClass: pickIdAndName(classroom),
         currentClassGroups: learnerGroups.map(pickIdAndName),
         exams: _examsState(exams, classId),
-        modalShown: false,
+        examModalShown: false,
       };
 
       store.dispatch('SET_PAGE_STATE', pageState);
@@ -158,7 +158,7 @@ function activateExam(store, examId) {
       exams[examIndex].active = true;
 
       store.dispatch('SET_EXAMS', exams);
-      this.displayModal(false);
+      displayExamModal(store, false);
     },
     error => CoreActions.handleError(store, error)
   );
@@ -172,7 +172,7 @@ function deactivateExam(store, examId) {
       exams[examIndex].active = false;
 
       store.dispatch('SET_EXAMS', exams);
-      this.displayModal(false);
+      displayExamModal(store, false);
     },
     error => CoreActions.handleError(store, error)
   );
@@ -237,14 +237,14 @@ function updateExamAssignments(store, examId, collectionsToAssign, assignmentsTo
       exams[examIndex].visibility = examVisibility;
       store.dispatch('SET_EXAMS', exams);
       store.dispatch('CORE_SET_ERROR', null);
-      this.displayModal(false);
+      displayExamModal(store, false);
     },
     error => CoreActions.handleError(store, error)
   );
 }
 
-function previewExam() {
-  this.displayModal(false);
+function previewExam(store) {
+  displayExamModal(store, false);
 }
 
 function renameExam(store, examId, newExamTitle) {
@@ -255,7 +255,7 @@ function renameExam(store, examId, newExamTitle) {
       exams[examIndex].title = newExamTitle;
 
       store.dispatch('SET_EXAMS', exams);
-      this.displayModal(false);
+      displayExamModal(store, false);
     },
     error => CoreActions.handleError(store, error)
   );
@@ -268,7 +268,7 @@ function deleteExam(store, examId) {
       const updatedExams = exams.filter(exam => exam.id !== examId);
 
       store.dispatch('SET_EXAMS', updatedExams);
-      this.displayModal(false);
+      displayExamModal(store, false);
     },
     error => CoreActions.handleError(store, error)
   );
@@ -363,7 +363,7 @@ function showCreateExamPage(store, classId, channelId) {
             subtopics: content.subtopics,
             exercises: content.exercises,
             selectedExercises: [],
-            modalShown: false,
+            examModalShown: false,
           };
 
           store.dispatch('SET_PAGE_STATE', pageState);
@@ -436,7 +436,7 @@ function showExamReportDetailPage(store, classId, examId) {
 }
 
 module.exports = {
-  displayModal,
+  displayExamModal,
   showExamsPage,
   showCreateExamPage,
   showExamReportPage,
