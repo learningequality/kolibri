@@ -180,8 +180,6 @@ class ExamSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return Exam.objects.create(creator=self.context['request'].user, **validated_data)
 
-
-
 class UserExamSerializer(serializers.ModelSerializer):
 
     class Meta:
