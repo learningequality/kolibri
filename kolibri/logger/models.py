@@ -199,6 +199,7 @@ class BaseAttemptLog(AbstractFacilityDataModel):
     # A JSON Array with a sequence of JSON objects that describe the history of interaction of the user
     # with this assessment item in this attempt.
     interaction_history = models.TextField()
+    user = models.ForeignKey(FacilityUser)
 
     class Meta:
         abstract = True
@@ -209,7 +210,6 @@ class AttemptLog(BaseAttemptLog):
     This model provides a summary of a user's engagement within a particular interaction with an
     item/question in an assessment
     """
-    permissions = log_permissions("sessionlog__user")
     # Which mastery log was this attemptlog associated with?
     masterylog = models.ForeignKey(MasteryLog, related_name="attemptlogs", blank=True, null=True)
     sessionlog = models.ForeignKey(ContentSessionLog, related_name="attemptlogs")
@@ -237,7 +237,6 @@ class ExamAttemptLog(BaseAttemptLog):
     This model provides a summary of a user's engagement within a particular interaction with an
     item/question in an exam
     """
-    permissions = log_permissions("examlog__user")
     examlog = models.ForeignKey(ExamLog, related_name="attemptlogs", blank=False, null=False)
     # We have no session logs associated with ExamLogs, so we need to record the channel and content
     # ids here

@@ -40,6 +40,9 @@ class AttemptLogSerializer(serializers.ModelSerializer):
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent',
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
 
+    def create(self, validated_data):
+        return AttemptLog.objects.create(user=self.context['request'].user, **validated_data)
+
 class ExamAttemptLogSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -48,6 +51,8 @@ class ExamAttemptLogSerializer(serializers.ModelSerializer):
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent',
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
 
+    def create(self, validated_data):
+        return ExamAttemptLog.objects.create(user=self.context['request'].user, **validated_data)
 
 class ContentSummaryLogSerializer(serializers.ModelSerializer):
 
