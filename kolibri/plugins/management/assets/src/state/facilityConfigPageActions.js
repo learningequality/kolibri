@@ -1,4 +1,5 @@
 /* eslint-disable prefer-arrow-callback */
+const omit = require('lodash/fp/omit');
 const {
   FacilityResource,
   FacilityDatasetResource,
@@ -18,6 +19,8 @@ function resolveOnlyIfOnSamePage(promises, store) {
   .only(samePageCheckGenerator(store), ident, ident)._promise;
 }
 
+const sanitizeDataset = omit(['id']);
+
 function showFacilityConfigPage(store) {
   preparePage(store.dispatch, {
     name: PageNames.FACILITY_CONFIG_PAGE,
@@ -27,26 +30,47 @@ function showFacilityConfigPage(store) {
     FacilityResource.getModel(FACILITY_ID).fetch(),
     FacilityDatasetResource.getCollection({ facility_id: FACILITY_ID }).fetch(),
   ];
-  store.dispatch('CORE_SET_PAGE_LOADING', false);
 
   return resolveOnlyIfOnSamePage(resourceRequests, store)
   .then(function onSuccess([facility, facilityDataset]) {
+    const dataset = facilityDataset[0]; // assumes for now is only one Facility being managed
     store.dispatch('SET_PAGE_STATE', {
+      facilityDatasetId: dataset.id,
       facilityName: facility.name,
-      settings: facilityDataset[0],
-      // Need to see if we can distinguish between source of error
-      errors: false,
+      // this part of state is mutated as user interacts with form
+      settings: sanitizeDataset(dataset),
+      // this copy is kept for the purpose of undoing if save fails
+      settingsCopy: sanitizeDataset(dataset),
+      notification: null
     });
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
   })
   .catch(function onFailure(err) {
     store.dispatch('SET_PAGE_STATE', {
       facilityName: '',
       settings: {},
-      errors: true,
+      notification: 'pageload_failure',
     });
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  });
+}
+
+function saveFacilityConfig(store) {
+  const { newSettings, facilityDatasetId } = store.state.pageState;
+  const resourceRequests = [
+    FacilityDatasetResource.getModel(facilityDatasetId).save(newSettings),
+  ];
+  return resolveOnlyIfOnSamePage(resourceRequests, store)
+  .then(function onSuccess() {
+    store.dispatch('CONFIG_PAGE_NOTIFY', 'save_success');
+  })
+  .catch(function onFailure(err) {
+    store.dispatch('CONFIG_PAGE_NOTIFY', 'save_failure');
+    store.dispatch('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
   });
 }
 
 module.exports = {
   showFacilityConfigPage,
+  saveFacilityConfig,
 };

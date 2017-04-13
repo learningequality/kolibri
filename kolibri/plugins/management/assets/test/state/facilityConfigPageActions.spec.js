@@ -12,16 +12,7 @@ const fakeFacility = {
 };
 
 const fakeDatasets = [
-  {
-    id: 2,
-    learner_can_edit_username: false,
-    learner_can_edit_name: true,
-    learner_can_edit_password: false,
-    learner_can_sign_up: true,
-    learner_can_delete_account: true,
-    description: '',
-    location: '',
-  },
+  { id: 2, learner_can_edit_username: false },
   // could return more than one dataset in theory
   { id: 3 },
 ];
@@ -44,14 +35,10 @@ describe.only('facility config page actions', () => {
       FacilityStub.__getModelFetchReturns(fakeFacility);
       DatasetStub.__getCollectionFetchReturns(fakeDatasets);
       const expectedPageState = {
+        facilityDatasetId: 2,
         facilityName: 'Nalanda Maths',
-        settings: {
-          learner_can_edit_username: false,
-          learner_can_edit_name: true,
-          learner_can_edit_password: false,
-          learner_can_sign_up: true,
-          learner_can_delete_account: true,
-        },
+        settings: { learner_can_edit_username: false },
+        settingsCopy: { learner_can_edit_username: false },
       };
 
       return actions.showFacilityConfigPage(storeMock)
@@ -68,7 +55,7 @@ describe.only('facility config page actions', () => {
       const expectedPageState = {
         facilityName: '',
         settings: {},
-        errors: true,
+        notification: 'pageload_failure',
       };
       return actions.showFacilityConfigPage(storeMock)
       .then(() => {
@@ -82,7 +69,7 @@ describe.only('facility config page actions', () => {
       const expectedPageState = {
         facilityName: '',
         settings: {},
-        errors: true,
+        notification: 'pageload_failure',
       };
       return actions.showFacilityConfigPage(storeMock)
       .then(() => {
@@ -91,12 +78,17 @@ describe.only('facility config page actions', () => {
     });
   });
 
-  xdescribe('saveFacilityConfig action', () => {
-    it('happy path', () => {
-
+  describe('saveFacilityConfig action', () => {
+    it('save is successful', () => {
+      // IRL returns the updated Model
+      const saveStub = DatasetStub.__getModelSaveReturns('ok');
+      return actions.saveFacilityConfig(storeMock)
+      .then(() => {
+        sinon.assert.called(saveStub);
+      });
     });
 
-    it('sad path', () => {
+    it('save fails', () => {
 
     });
   });
