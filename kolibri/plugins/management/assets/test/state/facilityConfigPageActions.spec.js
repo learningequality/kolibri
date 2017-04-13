@@ -101,7 +101,13 @@ describe.only('facility config page actions', () => {
     });
 
     it('when save fails', () => {
-
+      const saveStub = DatasetStub.__getModelSaveReturns('heck no', true);
+      return actions.saveFacilityConfig(storeMock)
+      .then(() => {
+        sinon.assert.called(saveStub);
+        sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_NOTIFY', 'save_failure');
+        sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
+      });
     });
   });
 });

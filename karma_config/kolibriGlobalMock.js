@@ -24,12 +24,12 @@ class MockResource {
     return fetchable;
   }
 
-  __getSavable(payload, stub, willReject = false) {
+  __getSavable(payload, saveStub, willReject = false) {
     const saveable = {};
     if (willReject) {
-      saveable.save = stub.returns(() => Promise.reject(payload));
+      saveable.save = saveStub.returns(Promise.reject(payload));
     } else {
-      saveable.save = stub.returns(() => Promise.resolve(payload));
+      saveable.save = saveStub.returns(Promise.resolve(payload));
     }
     return saveable;
   }
