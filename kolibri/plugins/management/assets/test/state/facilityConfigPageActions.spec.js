@@ -29,6 +29,7 @@ const fakeDataset = [
 describe.only('showFacilityConfigPage action', () => {
   const storeMock = {
     dispatch: sinon.spy(),
+    state: { core: { pageId: '123' } },
   };
 
   const dispatchStub = storeMock.dispatch;
@@ -53,7 +54,7 @@ describe.only('showFacilityConfigPage action', () => {
       notification: {},
     };
 
-    return actions.showFacilityConfigPage(storeMock)._promise
+    return actions.showFacilityConfigPage(storeMock)
     .then(() => {
       // uses hardcoded facility_id of 1
       sinon.assert.calledWith(getDatasetsStub, { facility_id: 1 });

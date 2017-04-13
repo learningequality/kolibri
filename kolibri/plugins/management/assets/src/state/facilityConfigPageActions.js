@@ -4,12 +4,19 @@ const {
   FacilityDatasetResource,
 } = require('kolibri').resources;
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
+const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
 const preparePage = require('./preparePage');
 const { PageNames } = require('../constants');
 
 // When app is installed, the Facility is assigned id of `1`.
 // Hardcoded here for now.
 const FACILITY_ID = 1;
+
+function resolveOnlyIfOnSamePage(promises, store) {
+  const ident = x => x;
+  return ConditionalPromise.all(promises)
+  .only(samePageCheckGenerator(store), ident, ident)._promise;
+}
 
 function showFacilityConfigPage(store) {
   preparePage(store.dispatch, {
@@ -21,20 +28,17 @@ function showFacilityConfigPage(store) {
     FacilityDatasetResource.getCollection({ facility_id: FACILITY_ID }),
   ];
   store.dispatch('CORE_SET_PAGE_LOADING', false);
-  return ConditionalPromise.all(resourceRequests)
-  .only(
-    () => true,
-    function onSuccess([facility, facilityDataset]) {
-      store.dispatch('SET_PAGE_STATE', {
-        facilityName: facility.name,
-        settings: facilityDataset[0],
-        notification: {},
-      });
-    },
-    function onFailure() {
-      return '';
-    }
-  );
+  return resolveOnlyIfOnSamePage(resourceRequests, store)
+  .then(function onSuccess([facility, facilityDataset]) {
+    store.dispatch('SET_PAGE_STATE', {
+      facilityName: facility.name,
+      settings: facilityDataset[0],
+      notification: {},
+    });
+  })
+  .catch(function onFailure() {
+    return '';
+  });
 }
 
 module.exports = {
