@@ -201,7 +201,6 @@ function _removeAssignment(assignmentId) {
 }
 
 function updateExamAssignments(store, examId, collectionsToAssign, assignmentsToRemove) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
   const assignPromises = collectionsToAssign.map(collection => _assignExamTo(examId, collection));
   const unassignPromises = assignmentsToRemove.map(assignment => _removeAssignment(assignment));
   const assignmentPromises = assignPromises.concat(unassignPromises);
@@ -238,7 +237,6 @@ function updateExamAssignments(store, examId, collectionsToAssign, assignmentsTo
       exams[examIndex].visibility = examVisibility;
       store.dispatch('SET_EXAMS', exams);
       store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
       this.displayModal(false);
     },
     error => CoreActions.handleError(store, error)

@@ -101,7 +101,11 @@
         this.groupsSelected = [];
       },
       updateVisibility() {
-        if (this.classIsSelected && (this.classIsSelected !== this.classInitiallySelected())) {
+        if (this.classIsSelected) {
+          if (this.classIsSelected === this.classInitiallySelected()) {
+            this.close();
+            return;
+          }
           const classCollection = [{
             id: this.classId,
             name: this.className,
@@ -117,21 +121,22 @@
               newGroup => !this.initiallySelectedGroups().find(
                   initialGroup => initialGroup.id === newGroup.id));
 
-          if (unassignGroups.length || assignGroups.length) {
-            const assignGroupCollections = assignGroups.map(group => ({
-              id: group.id,
-              name: group.label,
-              kind: CollectionKinds.LEARNERGROUP,
-            }));
-            let unassignments = unassignGroups.map(unassignGroup => this.examVisibility.groups.find(
-              group => group.collection.id === unassignGroup.id).assignmentId);
-            if (this.examVisibility.class) {
-              unassignments = unassignments.concat(this.examVisibility.class.assignmentId);
-            }
-            this.updateExamAssignments(this.examId, assignGroupCollections, unassignments);
+          if (!unassignGroups.length && !assignGroups.length) {
+            this.close();
+            return;
           }
+          const assignGroupCollections = assignGroups.map(group => ({
+            id: group.id,
+            name: group.label,
+            kind: CollectionKinds.LEARNERGROUP,
+          }));
+          let unassignments = unassignGroups.map(unassignGroup => this.examVisibility.groups.find(
+            group => group.collection.id === unassignGroup.id).assignmentId);
+          if (this.examVisibility.class) {
+            unassignments = unassignments.concat(this.examVisibility.class.assignmentId);
+          }
+          this.updateExamAssignments(this.examId, assignGroupCollections, unassignments);
         }
-        this.close();
       },
       close() {
         this.displayModal(false);
