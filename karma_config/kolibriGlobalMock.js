@@ -24,14 +24,14 @@ class MockResource {
     return fetchable;
   }
 
-  __getSavable(payload, willReject = false) {
-    const fetchable = {};
+  __getSavable(payload, stub, willReject = false) {
+    const saveable = {};
     if (willReject) {
-      fetchable.save = () => Promise.reject(payload);
+      saveable.save = stub.returns(() => Promise.reject(payload));
     } else {
-      fetchable.save = () => Promise.resolve(payload);
+      saveable.save = stub.returns(() => Promise.resolve(payload));
     }
-    return fetchable;
+    return saveable;
   }
 
   __getModelFetchReturns(payload, willReject = false) {
@@ -39,7 +39,9 @@ class MockResource {
   }
 
   __getModelSaveReturns(payload, willReject = false) {
-    this.getModel.returns(this.__getSavable(payload, willReject));
+    const saveStub = sinon.stub();
+    this.getModel.returns(this.__getSavable(payload, saveStub, willReject));
+    return saveStub;
   }
 
   __getCollectionFetchReturns(payload, willReject = false) {
