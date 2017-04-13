@@ -27,6 +27,7 @@
 <script>
 
   const examActions = require('../../state/actions/exam');
+  const CollectionKinds = require('kolibri.coreVue.vuex.constants').CollectionKinds;
 
   module.exports = {
     $trNameSpace: 'changeExamVisibilityModal',
@@ -100,13 +101,15 @@
         this.groupsSelected = [];
       },
       updateVisibility() {
-        if (this.classIsSelected) {
-          if (this.classIsSelected !== this.classInitiallySelected()) {
-            const classCollection = [{ id: this.classId, name: this.className, kind: 'classroom' }];
-            const groupAssignments = this.examVisibility.groups.map(
-              assignment => assignment.assignmentId);
-            this.updateExamAssignments(this.examId, classCollection, groupAssignments);
-          }
+        if (this.classIsSelected && (this.classIsSelected !== this.classInitiallySelected())) {
+          const classCollection = [{
+            id: this.classId,
+            name: this.className,
+            kind: CollectionKinds.CLASSROOM
+          }];
+          const groupAssignments = this.examVisibility.groups.map(
+            assignment => assignment.assignmentId);
+          this.updateExamAssignments(this.examId, classCollection, groupAssignments);
         } else if (this.groupsSelected.length) {
           const unassignGroups = this.initiallySelectedGroups().filter(
               initialGroup => !this.groupsSelected.find(newGroup => newGroup.id === initialGroup.id));
@@ -118,7 +121,7 @@
             const assignGroupCollections = assignGroups.map(group => ({
               id: group.id,
               name: group.label,
-              kind: 'learnergroup',
+              kind: CollectionKinds.LEARNERGROUP,
             }));
             let unassignments = unassignGroups.map(unassignGroup => this.examVisibility.groups.find(
               group => group.collection.id === unassignGroup.id).assignmentId);

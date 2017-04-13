@@ -70,6 +70,7 @@
       delete: 'Delete',
       entireClass: 'Entire class',
       groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
+      nobody: 'Nobody',
     },
     components: {
       'ui-button': require('keen-ui/src/UiButton'),
@@ -102,7 +103,7 @@
         } else if (this.examVisibility.groups.length) {
           return this.$tr('groups', { count: this.examVisibility.groups.length });
         }
-        return 'Not assigned to anything.';
+        return this.$tr('nobody');
       },
       actionOptions() {
         return [

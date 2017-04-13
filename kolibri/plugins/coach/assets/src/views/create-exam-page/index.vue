@@ -110,6 +110,7 @@
 
   const ExamActions = require('../../state/actions/exam');
   const ExamModals = require('../../examConstants').Modals;
+  const CollectionKinds = require('kolibri.coreVue.vuex.constants').CollectionKinds;
   const shuffle = require('lodash/shuffle');
   const random = require('lodash/random');
 
@@ -229,7 +230,11 @@
       },
       finish() {
         if (this.checkAllValid() === true) {
-          const classCollection = { id: this.currentClass.id, name: this.currentClass.name, kind: 'classroom' };
+          const classCollection = {
+            id: this.currentClass.id,
+            name: this.currentClass.name,
+            kind: CollectionKinds.CLASSROOM
+          };
           const examObj = {
             classId: this.currentClass.id,
             channelId: this.currentChannel.id,

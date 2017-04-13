@@ -4,6 +4,7 @@ const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const router = require('kolibri.coreVue.router');
 const CoreActions = require('kolibri.coreVue.vuex.actions');
 const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
+const CollectionKinds = require('kolibri.coreVue.vuex.constants').CollectionKinds;
 const Constants = require('../../constants');
 
 const ClassroomResource = CoreApp.resources.ClassroomResource;
@@ -91,8 +92,10 @@ function _assignmentsState(assignments) {
 function _examState(exam) {
   const assignments = _assignmentsState(exam.assignments);
   const visibility = {};
-  visibility.class = assignments.find(assignment => assignment.collection.kind === 'classroom');
-  visibility.groups = assignments.filter(assignment => assignment.collection.kind === 'learnergroup');
+  visibility.class = assignments.find(
+    assignment => assignment.collection.kind === CollectionKinds.CLASSROOM);
+  visibility.groups = assignments.filter(
+    assignment => assignment.collection.kind === CollectionKinds.LEARNERGROUP);
   return {
     id: exam.id,
     title: exam.title,
