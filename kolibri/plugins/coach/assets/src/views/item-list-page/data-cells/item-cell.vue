@@ -3,7 +3,12 @@
   <div>
     <div class="wrapper">
       <content-icon :kind="kind" class="icon"/>
-      <router-link :to="vLink">{{ title }}</router-link>
+      <router-link v-if="isTopic" :to="topicLink">{{ title }}</router-link>
+      <!--  TODO
+      <router-link v-if="isUser" :to="userLink">{{ title }}</router-link>
+      <router-link v-if="isExercise" :to="exerciseLink">{{ title }}</router-link>
+       -->
+      <span v-else>{{ title }}</span>
     </div>
     <div class="wrapper" v-if="isTopic">
       {{ $tr('exercises', {count: exerciseCount}) }} • {{ $tr('contents', {count: contentCount}) }}
@@ -15,8 +20,6 @@
 
 <script>
 
-  const genLink = require('../genLink');
-  const ReportConstants = require('../../../reportConstants');
   const CoachConstants = require('../../../constants');
   const CoreConstants = require('kolibri.coreVue.vuex.constants');
 
@@ -53,33 +56,27 @@
       isTopic() {
         return this.kind === CoreConstants.ContentNodeKinds.TOPIC;
       },
+      topicLink() {
+        return {
+          name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+          params: {
+            classId: this.pageState.classId,
+            channelId: this.pageState.channelId,
+            topicId: this.id,
+          }
+        };
+      },
       isUser() {
         return this.kind === CoreConstants.USER;
       },
-      isContent() {
-        return !this.isTopic && !this.isUser;
+      userLink() {
+        return {}; // TODO
       },
-      vLink() {
-        if (this.isUser) {
-          return genLink(this.pageState, {
-            userScope: ReportConstants.UserScopes.USER,
-            userScopeId: this.id,
-          });
-        } else if (this.isTopic) {
-          return {
-            name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
-            params: {
-              classId: this.pageState.classId,
-              channelId: this.pageState.channelId,
-              topicId: this.id,
-            }
-          };
-        }
-        // assume it's a content link
-        return genLink(this.pageState, {
-          contentScope: ReportConstants.ContentScopes.CONTENT,
-          contentScopeId: this.id,
-        });
+      isExercise() {
+        return this.kind === CoreConstants.ContentNodeKinds.EXERCISE;
+      },
+      exerciseLink() {
+        return {}; // TODO
       },
     },
     vuex: {
