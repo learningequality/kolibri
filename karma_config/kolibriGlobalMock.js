@@ -5,11 +5,30 @@ class MockResource {
     this.getCollection = sinon.stub();
     this.getModel = sinon.stub();
     this.__resetMocks = this.__resetMocks.bind(this);
+    this.__getCollectionFetchReturns = this.__getCollectionFetchReturns.bind(this);
+    this.__getModelFetchReturns = this.__getModelFetchReturns.bind(this);
   }
 
   __resetMocks() {
     this.getCollection.reset();
     this.getModel.reset();
+  }
+
+  __getFetchable(payload, willReject = false) {
+    const fetchable = {};
+    if (willReject) {
+      fetchable.fetch = () => Promise.reject(payload);
+    } else {
+      fetchable.fetch = () => Promise.resolve(payload);
+    }
+    return fetchable;
+  }
+  __getModelFetchReturns(payload, willReject = false) {
+    this.getModel.returns(this.__getFetchable(payload, willReject));
+  }
+
+  __getCollectionFetchReturns(payload, willReject = false) {
+    this.getCollection.returns(this.__getFetchable(payload, willReject));
   }
 }
 

@@ -24,10 +24,11 @@ function showFacilityConfigPage(store) {
     title: 'Configure Facility',
   });
   const resourceRequests = [
-    FacilityResource.getModel(FACILITY_ID),
-    FacilityDatasetResource.getCollection({ facility_id: FACILITY_ID }),
+    FacilityResource.getModel(FACILITY_ID).fetch(),
+    FacilityDatasetResource.getCollection({ facility_id: FACILITY_ID }).fetch(),
   ];
   store.dispatch('CORE_SET_PAGE_LOADING', false);
+
   return resolveOnlyIfOnSamePage(resourceRequests, store)
   .then(function onSuccess([facility, facilityDataset]) {
     store.dispatch('SET_PAGE_STATE', {

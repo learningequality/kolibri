@@ -4,14 +4,14 @@ const sinon = require('sinon');
 const actions = require('../../src/state/facilityConfigPageActions');
 
 const { resources, __resetMocks } = kolibri;
-const getFacilityStub = resources.FacilityResource.getModel;
-const getDatasetsStub = resources.FacilityDatasetResource.getCollection;
+const FacilityStub = resources.FacilityResource;
+const DatasetStub = resources.FacilityDatasetResource;
 
 const fakeFacility = {
   name: 'Nalanda Maths',
 };
 
-const fakeDataset = [
+const fakeDatasets = [
   {
     id: 2,
     learner_can_edit_username: false,
@@ -41,8 +41,8 @@ describe.only('facility config page actions', () => {
 
   describe('showFacilityConfigPage action', () => {
     it('sets up pageState correctly when no problems', () => {
-      getFacilityStub.returns(Promise.resolve(fakeFacility));
-      getDatasetsStub.returns(Promise.resolve(fakeDataset));
+      FacilityStub.__getModelFetchReturns(fakeFacility);
+      DatasetStub.__getCollectionFetchReturns(fakeDatasets);
       const expectedPageState = {
         facilityName: 'Nalanda Maths',
         settings: {
@@ -57,14 +57,14 @@ describe.only('facility config page actions', () => {
       return actions.showFacilityConfigPage(storeMock)
       .then(() => {
         // uses hardcoded facility_id of 1
-        sinon.assert.calledWith(getDatasetsStub, { facility_id: 1 });
+        sinon.assert.calledWith(DatasetStub.getCollection, { facility_id: 1 });
         sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
       });
     });
 
     it('sets up pageState correctly when fetching Facility fails', () => {
-      getFacilityStub.returns(Promise.reject('whatevers'));
-      getDatasetsStub.returns(Promise.resolve(fakeDataset));
+      FacilityStub.__getModelFetchReturns('whatevers', true /* willReject */);
+      DatasetStub.__getCollectionFetchReturns(fakeDatasets);
       const expectedPageState = {
         facilityName: '',
         settings: {},
@@ -77,8 +77,8 @@ describe.only('facility config page actions', () => {
     });
 
     it('sets up pageState correctly when fetching facilityDataset fails', () => {
-      getFacilityStub.returns(Promise.resolve(fakeFacility));
-      getDatasetsStub.returns(Promise.reject('whatevers'));
+      FacilityStub.__getModelFetchReturns(fakeFacility);
+      DatasetStub.__getCollectionFetchReturns('whatevers', true);
       const expectedPageState = {
         facilityName: '',
         settings: {},
@@ -88,6 +88,16 @@ describe.only('facility config page actions', () => {
       .then(() => {
         sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
       });
+    });
+  });
+
+  xdescribe('saveFacilityConfig action', () => {
+    it('happy path', () => {
+
+    });
+
+    it('sad path', () => {
+
     });
   });
 });
