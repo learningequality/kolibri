@@ -1,11 +1,4 @@
 
-const PageTypes = {
-  CHANNELS: 'CHANNELS',
-  ITEMS: 'ITEMS',
-  LEARNERS: 'LEARNERS',
-  EXERCISE: 'EXERCISE',
-};
-
 const ContentScopes = {
   ROOT: 'root',
   TOPIC: 'topic',
@@ -33,7 +26,6 @@ const SortOrders = {
 };
 
 module.exports = {
-  PageTypes,
   ContentScopes,
   UserScopes,
   TableColumns,

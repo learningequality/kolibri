@@ -44,13 +44,27 @@
     },
     computed: {
       channelList() {
-        return orderBy(this.channels, [channel => this.lastActive[channel.id]]);
+        const orderedLists = {
+          [PageNames.RECENT_CHANNELS]: orderBy(
+            this.channels,
+            [channel => this.lastActive[channel.id] || '', 'title'],
+            ['desc', 'asc']
+          ),
+          [PageNames.TOPIC_CHANNELS]: orderBy(this.channels, ['title']),
+          [PageNames.LEARNER_CHANNELS]: orderBy(this.channels, ['title']),
+        };
+        return orderedLists[this.pageName];
       },
     },
     methods: {
       reportLink(channelId) {
+        const linkTargets = {
+          [PageNames.RECENT_CHANNELS]: PageNames.RECENT_ITEMS_FOR_CHANNEL,
+          [PageNames.TOPIC_CHANNELS]: PageNames.TOPIC_CHANNEL_ROOT,
+          [PageNames.LEARNER_CHANNELS]: PageNames.LEARNER_CHANNEL_ROOT,
+        };
         return {
-          name: PageNames.RECENT_ITEMS_FOR_CHANNEL,
+          name: linkTargets[this.pageName],
           params: {
             classId: this.classId,
             channelId,
@@ -63,6 +77,7 @@
         channels: state => state.core.channels.list,
         lastActive: state => state.pageState.lastActive,
         classId: state => state.pageState.classId,
+        pageName: state => state.pageName,
       },
     },
   };
