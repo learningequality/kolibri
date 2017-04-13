@@ -1,6 +1,7 @@
 const Vuex = require('kolibri.lib.vuex');
 const coreStore = require('kolibri.coreVue.vuex.store');
 const constants = require('../constants');
+const otherMutations = require('./mutations');
 
 /**
  pageState schemas
@@ -120,7 +121,7 @@ const mutations = {
 
 // assigns core state and mutations
 Object.assign(initialState, coreStore.initialState);
-Object.assign(mutations, coreStore.mutations);
+Object.assign(mutations, otherMutations, coreStore.mutations);
 
 
 module.exports = new Vuex.Store({

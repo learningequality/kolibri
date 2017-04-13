@@ -17,7 +17,7 @@ const fakeDatasets = [
   { id: 3 },
 ];
 
-describe.only('facility config page actions', () => {
+describe('facility config page actions', () => {
   const storeMock = {
     dispatch: sinon.spy(),
     state: { core: { pageId: '123' } },
