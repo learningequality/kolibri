@@ -3,6 +3,11 @@
   <span>
     <ui-icon>
       <mat-svg
+        v-if="is(Constants.ContentNodeKinds.CHANNEL)"
+        category="action"
+        name="view_module"
+        :class="[colorClass]"/>
+      <mat-svg
         v-if="is(Constants.ContentNodeKinds.TOPIC)"
         category="file"
         name="folder"

@@ -2,6 +2,7 @@ const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const values = require('lodash/values');
 
+const CoreConstants = require('kolibri.coreVue.vuex.constants');
 const Constants = require('../../constants');
 const ReportConstants = require('../../reportConstants');
 
@@ -74,6 +75,62 @@ function _showChannelList(store, classId) {
   );
 }
 
+function _progressState(progressData) {
+  // not all of these keys are defined for all requests...
+  return {
+    // all reports
+    totalProgress: progressData.total_progress,
+    // content/learner reports
+    kind: progressData.kind,
+    nodeCount: progressData.node_count,
+    // 'recent' reports
+    logCountComplete: progressData.log_count_complete,
+    logCountTotal: progressData.log_count_total,
+  };
+}
+
+function _reportState(data) {
+  if (!data) { return []; }
+  return data.map(row => ({
+    contentId: row.content_id,
+    kind: row.kind,
+    lastActive: row.last_active,
+    parent: {
+      id: row.parent.pk,
+      title: row.parent.title,
+    },
+    id: row.pk,
+    progress: row.progress.map(_progressState),
+    title: row.title,
+  }));
+}
+
+function _contentSummaryState(data) {
+  if (!data) { return {}; }
+  const kind = !data.ancestors.length ? CoreConstants.ContentNodeKinds.CHANNEL : data.kind;
+  return {
+    ancestors: data.ancestors.map(item => ({
+      id: item.pk,
+      title: item.title
+    })),
+    contentId: data.content_id,
+    kind,
+    lastActive: data.last_active,
+    numUsers: data.num_users,
+    id: data.pk,
+    progress: data.progress.map(_progressState),
+    title: data.title,
+  };
+}
+
+function _userSummaryState(data) {
+  console.log('uuuuuu', data);
+  if (!data) {
+    return {};
+  }
+  return data;
+}
+
 function _showReport(store, options) {
   const classId = options.classId;
   const channelId = options.channelId;
@@ -131,9 +188,9 @@ function _showReport(store, options) {
         contentScopeId,
         userScope,
         userScopeId,
-        tableData: report || {},
-        contentScopeSummary: contentSummary,
-        userScopeSummary: userSummary || {},
+        tableData: _reportState(report),
+        contentScopeSummary: _contentSummaryState(contentSummary),
+        userScopeSummary: _userSummaryState(userSummary),
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -212,7 +269,7 @@ function showRecentItemsForChannel(store, classId, channelId) {
       recentReportsPromise.then(
         reports => {
           const pageState = {
-            reports,
+            reports: _reportState(reports),
             classId,
             channelId,
           };

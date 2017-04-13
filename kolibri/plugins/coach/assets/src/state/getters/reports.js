@@ -18,11 +18,11 @@ function _sumOfKeys(array, key, filter = () => true) {
 }
 
 function _countNodes(progressArray, filter) {
-  return _sumOfKeys(progressArray, 'node_count', filter);
+  return _sumOfKeys(progressArray, 'nodeCount', filter);
 }
 
 function calcProgress(progressArray, filter, itemCount, userCount) {
-  const totalProgress = _sumOfKeys(progressArray, 'total_progress', filter);
+  const totalProgress = _sumOfKeys(progressArray, 'totalProgress', filter);
   if (itemCount && userCount) {
     return totalProgress / (itemCount * userCount);
   }
@@ -70,9 +70,9 @@ function _genRow(state, item) {
   // CONTENT NODES
   if (getters.isTopicPage(state) || getters.isRecentPage(state)) {
     row.kind = item.kind;
-    row.id = item.pk;
+    row.id = item.id;
     row.title = item.title;
-    row.parent = { id: item.parent.pk, title: item.parent.title };
+    row.parent = { id: item.parent.id, title: item.parent.title };
 
     // for content items, set exercise counts and progress appropriately
     if (item.kind === ContentNodeKinds.TOPIC) {
@@ -92,21 +92,21 @@ function _genRow(state, item) {
       );
     } else if (_onlyExercises(item)) {
       row.exerciseCount = 1;
-      row.exerciseProgress = item.progress[0].total_progress / getters.userCount(state);
+      row.exerciseProgress = item.progress[0].totalProgress / getters.userCount(state);
       row.contentCount = 0;
       row.contentProgress = undefined;
     } else if (_onlyContent(item)) {
       row.exerciseCount = 0;
       row.exerciseProgress = undefined;
       row.contentCount = 1;
-      row.contentProgress = item.progress[0].total_progress / getters.userCount(state);
+      row.contentProgress = item.progress[0].totalProgress / getters.userCount(state);
     } else {
       logging.error(`Unhandled item kind: ${item.kind}`);
     }
     // LEARNERS
   } else if (getters.isLearnerPage(state)) {
     row.kind = CoreConstants.USER;
-    row.id = item.pk.toString(); // see https://github.com/learningequality/kolibri/issues/65;
+    row.id = item.id.toString(); // see https://github.com/learningequality/kolibri/issues/65;
     row.title = item.full_name;
     row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
 
@@ -119,7 +119,7 @@ function _genRow(state, item) {
     throw Error('unhandled report page');
   }
 
-  row.lastActive = item.last_active ? new Date(item.last_active) : null;
+  row.lastActive = item.lastActive ? new Date(item.lastActive) : null;
 
   return row;
 }
@@ -130,12 +130,12 @@ Object.assign(getters, {
   completionCount(state) {
     const summary = state.pageState.contentScopeSummary;
     if (summary.kind !== ContentNodeKinds.TOPIC) {
-      return summary.progress[0].log_count_complete;
+      return summary.progress[0].logCountComplete;
     }
     return undefined;
   },
   userCount(state) {
-    return state.pageState.contentScopeSummary.num_users;
+    return state.pageState.contentScopeSummary.numUsers;
   },
   exerciseCount(state) {
     const summary = state.pageState.contentScopeSummary;
