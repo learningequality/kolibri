@@ -579,7 +579,8 @@ function showExam(store, channelId, id, questionNumber) {
           { channel_id: channelId },
           { ids: questionSources.map(item => item.exercise_id) }).fetch();
 
-        contentPromise.then(
+        contentPromise.only(
+          samePageCheckGenerator(store),
           (contentNodes) => {
             const contentNodeMap = {};
 
