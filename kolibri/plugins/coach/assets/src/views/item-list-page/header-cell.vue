@@ -20,7 +20,6 @@
 
   const ReportConstants = require('../../reportConstants');
   const reportGetters = require('../../state/getters/reports');
-  const genLink = require('./genLink');
   const values = require('lodash/values');
 
   module.exports = {
@@ -44,7 +43,8 @@
     },
     computed: {
       sortable() {
-        return !this.isRecentPage;
+        return false; // TODO - disable sorting until it's fully implemented
+        // return !this.isRecentPage;
       },
       sorted() {
         return this.sortable && this.pageState.sortColumn === this.column;
@@ -65,12 +65,12 @@
         return ReportConstants.SortOrders.NONE;
       },
       vLink() {
-        const link = genLink(this.pageState, {
-          sortColumn: this.column,
-          sortOrder: this.nextSortState,
-        });
-        link.replace = true; // browser history replace-state
-        return link;
+        // todo
+        return {
+          name: '',
+          params: {},
+          replace: true, // replace state
+        };
       },
     },
     vuex: {
