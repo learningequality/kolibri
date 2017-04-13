@@ -38,6 +38,7 @@
           <icon-button id="guest-access-button" :text="$tr('accessAsGuest')" :primary="false"/>
         </a>
       </div>
+      <p class="login-text version">{{ versionMsg }}</p>
     </div>
   </div>
 
@@ -63,6 +64,7 @@
       accessAsGuest: 'Access as guest',
       signInError: 'Incorrect username or password',
       resetPassword: 'Reset your password',
+      poweredBy: 'Kolibri {version}',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -76,6 +78,9 @@
     computed: {
       signUp() {
         return { name: PageNames.SIGN_UP };
+      },
+      versionMsg() {
+        return this.$tr('poweredBy', { version: __version }); // eslint-disable-line no-undef
       },
     },
     methods: {
@@ -207,6 +212,10 @@
     background-color: $login-text
     margin: auto
     margin-top: 16px
+
+  .version
+    text-align: center
+    font-size: 0.8em
 
   .no-account
     text-align: center
