@@ -58,10 +58,10 @@
         return classesSubPages.includes(this.pageName);
       },
       facilitiesConfigLink() {
-        return linkify(PageNames.FACILITIES_CONFIG_PAGE);
+        return linkify(PageNames.FACILITY_CONFIG_PAGE);
       },
       facilitiesConfigActive() {
-        return this.pageName === PageNames.FACILITIES_CONFIG_PAGE;
+        return this.pageName === PageNames.FACILITY_CONFIG_PAGE;
       },
       usersLink() {
         return linkify(PageNames.USER_MGMT_PAGE);

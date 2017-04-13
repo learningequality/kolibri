@@ -58,7 +58,7 @@ class ManagementModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.FACILITIES_CONFIG_PAGE,
+          name: PageNames.FACILITY_CONFIG_PAGE,
           path: '/facilities',
           handler: (toRoute, fromRoute) => {
             actions.showFacilityConfigPage(store);

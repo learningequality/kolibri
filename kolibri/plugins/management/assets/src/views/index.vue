@@ -32,7 +32,7 @@
     [PageNames.CLASS_MGMT_PAGE]: 'manage-class-page',
     [PageNames.CONTENT_MGMT_PAGE]: 'manage-content-page',
     [PageNames.DATA_EXPORT_PAGE]: 'data-page',
-    [PageNames.FACILITIES_CONFIG_PAGE]: 'facilities-config-page',
+    [PageNames.FACILITY_CONFIG_PAGE]: 'facilities-config-page',
     [PageNames.SCRATCHPAD]: 'scratchpad-page',
     [PageNames.USER_MGMT_PAGE]: 'user-page',
   };
