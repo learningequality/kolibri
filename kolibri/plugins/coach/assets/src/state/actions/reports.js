@@ -74,46 +74,6 @@ function _showChannelList(store, classId) {
   );
 }
 
-
-function _showRecentReports(store, classId, channelId) {
-  const channelPromise = ChannelResource.getModel(channelId).fetch();
-
-  channelPromise.then(
-    channelData => {
-      const sevenDaysAgo = new Date();
-      // this is being set by default in the backend
-      // backend date data might be unreliable, though
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-      const reportPayload = {
-        channel_id: channelId,
-        content_node_id: channelData.root_pk,
-        collection_kind: ReportConstants.UserScopes.CLASSROOM,
-        collection_id: classId,
-        last_active_time: sevenDaysAgo,
-      };
-      const recentReportsPromise = RecentReportResource.getCollection(reportPayload).fetch();
-
-      recentReportsPromise.then(
-        reports => {
-          const pageState = {
-            reports,
-            classId,
-            channelId,
-          };
-          store.dispatch('SET_PAGE_STATE', pageState);
-          store.dispatch('CORE_SET_PAGE_LOADING', false);
-          store.dispatch('CORE_SET_ERROR', null);
-          store.dispatch('CORE_SET_TITLE', 'Recents');
-        },
-        error => coreActions.handleApiError(store, error)
-      );
-    },
-    error => coreActions.handleApiError(store, error)
-  );
-}
-
-
 function _showReport(store, options) {
   const classId = options.classId;
   const channelId = options.channelId;
@@ -231,7 +191,41 @@ function showRecentItemsForChannel(store, classId, channelId) {
   store.dispatch('CORE_SET_TITLE', 'Recent - Items');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   console.log('showRecentItemsForChannel');
-  _showRecentReports(store, classId, channelId);
+  const channelPromise = ChannelResource.getModel(channelId).fetch();
+
+  channelPromise.then(
+    channelData => {
+      const sevenDaysAgo = new Date();
+      // this is being set by default in the backend
+      // backend date data might be unreliable, though
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const reportPayload = {
+        channel_id: channelId,
+        content_node_id: channelData.root_pk,
+        collection_kind: ReportConstants.UserScopes.CLASSROOM,
+        collection_id: classId,
+        last_active_time: sevenDaysAgo,
+      };
+      const recentReportsPromise = RecentReportResource.getCollection(reportPayload).fetch();
+
+      recentReportsPromise.then(
+        reports => {
+          const pageState = {
+            reports,
+            classId,
+            channelId,
+          };
+          store.dispatch('SET_PAGE_STATE', pageState);
+          store.dispatch('CORE_SET_PAGE_LOADING', false);
+          store.dispatch('CORE_SET_ERROR', null);
+          store.dispatch('CORE_SET_TITLE', 'Recents');
+        },
+        error => coreActions.handleApiError(store, error)
+      );
+    },
+    error => coreActions.handleApiError(store, error)
+  );
 }
 
 function showRecentLearnersForItem(store, classId, channelId, contentId) {
