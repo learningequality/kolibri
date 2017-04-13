@@ -198,7 +198,7 @@ class CoachToolsModule extends KolibriModule {
           name: PageNames.EXERCISE_RENDER,
           path: '/:userId/:contentId/exercise-render',
           handler: (to, from) => {
-            actions.showCoachExerciseRenderPage(
+            reportsActions.showCoachExerciseRenderPage(
               store, to.params.userId, to.params.contentId
             );
           },
