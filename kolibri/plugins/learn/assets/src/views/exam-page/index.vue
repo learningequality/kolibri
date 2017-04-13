@@ -9,7 +9,7 @@
           <h1 class="exam-title">{{ exam.title }}</h1>
           <div class="exam-status">
             <p class="questions-answered">{{ $tr('questionsAnswered', { numAnswered: questionsAnswered, numTotal: exam.questionCount }) }}</p>
-            <icon-button class="submit-exam-button" @click="finishExam" :text="$tr('submitExam')" :primary="true"></icon-button>
+            <icon-button class="submit-exam-button" @click="toggleModal" :text="$tr('submitExam')" :primary="true"></icon-button>
           </div>
         </div>
         <div class="question-container">
@@ -41,6 +41,12 @@
           </div>
         </div>
       </div>
+      <core-modal v-if="submitModalOpen" :title="$tr('submitExam')" @cancel="toggleModal">
+        <p>{{ $tr('areYouSure') }}</p>
+        <p v-if="questionsUnanswered">{{ $tr('unanswered', { numLeft: questionsUnanswered } )}}</p>
+        <icon-button :text="$tr('cancel')" @click="toggleModal"/>
+        <icon-button :text="$tr('submitExam')" @click="finishExam" :primary="true"/>
+      </core-modal>
     </template>
   </immersive-full-screen>
 
@@ -61,13 +67,20 @@
       questionsAnswered: '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
       previousQuestion: 'Previous question',
       nextQuestion: 'Next question',
+      cancel: 'Cancel',
+      areYouSure: 'Are you you want to submit your exam?',
+      unanswered: 'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
     },
     components: {
       'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
       'answer-history': require('./answer-history'),
+      'core-modal': require('kolibri.coreVue.components.coreModal'),
     },
+    data: () => ({
+      submitModalOpen: false,
+    }),
     vuex: {
       getters: {
         exam: state => state.pageState.exam,
@@ -81,6 +94,7 @@
       },
       actions: {
         setAndSaveCurrentExamAttemptLog: actions.setAndSaveCurrentExamAttemptLog,
+        closeExam: actions.closeExam,
       }
     },
     methods: {
@@ -107,8 +121,13 @@
           params: { channel_id: this.channelId, id: this.exam.id, questionNumber },
         });
       },
+      toggleModal() {
+        this.submitModalOpen = !this.submitModalOpen;
+      },
       finishExam() {
-
+        this.closeExam().then(() => {
+          this.$router.push(this.backPageLink);
+        });
       },
     },
     computed: {
@@ -119,7 +138,12 @@
         };
       },
       questionsAnswered() {
-        return Object.keys(this.attemptLogs).length;
+        return Object.keys(this.attemptLogs).reduce(
+          (acc, key) => (Object.keys(this.attemptLogs[key]).reduce(
+            (cum, innerKey) => (this.attemptLogs[key][innerKey].answer ? 1 : 0), 0)), 0);
+      },
+      questionsUnanswered() {
+        return this.exam.questionCount - this.questionsAnswered;
       },
     },
   };
@@ -139,26 +163,26 @@
   .exam-status-container
     padding: 10px 25px
     background: $core-bg-light
-    
+
   .exam-status
     float: right
     width: 50%
     max-width: 400px
     text-align: right
     margin-top: 15px
-    
+
   .exam-icon
     position: relative
     top: 4px
     margin-right: 5px
     fill: $core-text-default
-    
+
   .exam-title
     display: inline-block
-    
+
   .submit-exam-button
     margin-left: 10px
-    
+
   .questions-answered
     display: inline-block
     position: relative
@@ -181,7 +205,7 @@
 
   .exercise-container
     width: 75%
-    
+
   .question-navbutton-container
     text-align: right
     margin-right: 15px

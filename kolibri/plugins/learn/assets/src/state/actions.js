@@ -669,6 +669,13 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
   });
 }
 
+function closeExam(store) {
+  const examLog = store.state.examLog;
+  examLog.closed = true;
+  return ExamLogResource.getModel(examLog.id).save(examLog).catch(
+    error => { coreActions.handleApiError(store, error); });
+}
+
 module.exports = {
   redirectToExploreChannel,
   redirectToLearnChannel,
@@ -686,4 +693,5 @@ module.exports = {
   showExam,
   showExamList,
   setAndSaveCurrentExamAttemptLog,
+  closeExam,
 };

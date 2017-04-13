@@ -4,7 +4,7 @@
     <div class="question-selector-container">
       <div class="question-selector">
         <div>
-          {{ $tr('numQuestions', { num: exam.question_count })}}<icon-button :text="$tr('randomize')" @click="$emit('randomize')"/>
+          {{ $tr('numQuestions', { num: exam.question_count })}}<icon-button :text="$tr('randomize')" @click="$emit('randomize')" :primary="true"/>
         </div>
         <ui-collapsible v-for="(source, exIndex) in questionSources" :title="$tr('exercise', { num: exIndex + 1 })" :open="exIndex===0">
           <ul class="question-list">
