@@ -23,8 +23,23 @@ class MockResource {
     }
     return fetchable;
   }
+
+  __getSavable(payload, willReject = false) {
+    const fetchable = {};
+    if (willReject) {
+      fetchable.save = () => Promise.reject(payload);
+    } else {
+      fetchable.save = () => Promise.resolve(payload);
+    }
+    return fetchable;
+  }
+
   __getModelFetchReturns(payload, willReject = false) {
     this.getModel.returns(this.__getFetchable(payload, willReject));
+  }
+
+  __getModelSaveReturns(payload, willReject = false) {
+    this.getModel.returns(this.__getSavable(payload, willReject));
   }
 
   __getCollectionFetchReturns(payload, willReject = false) {
