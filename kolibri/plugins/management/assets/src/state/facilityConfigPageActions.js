@@ -33,11 +33,16 @@ function showFacilityConfigPage(store) {
     store.dispatch('SET_PAGE_STATE', {
       facilityName: facility.name,
       settings: facilityDataset[0],
-      notification: {},
+      // Need to see if we can distinguish between source of error
+      errors: false,
     });
   })
-  .catch(function onFailure() {
-    return '';
+  .catch(function onFailure(err) {
+    store.dispatch('SET_PAGE_STATE', {
+      facilityName: '',
+      settings: {},
+      errors: true,
+    });
   });
 }
 

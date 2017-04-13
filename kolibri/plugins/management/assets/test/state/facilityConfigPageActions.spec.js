@@ -40,9 +40,9 @@ describe.only('facility config page actions', () => {
   });
 
   describe('showFacilityConfigPage action', () => {
-    it('showFacilityConfigPage sets up pageState correctly when no problems', () => {
-      getFacilityStub.returns(fakeFacility);
-      getDatasetsStub.returns(fakeDataset);
+    it('sets up pageState correctly when no problems', () => {
+      getFacilityStub.returns(Promise.resolve(fakeFacility));
+      getDatasetsStub.returns(Promise.resolve(fakeDataset));
       const expectedPageState = {
         facilityName: 'Nalanda Maths',
         settings: {
@@ -52,13 +52,40 @@ describe.only('facility config page actions', () => {
           learner_can_sign_up: true,
           learner_can_delete_account: true,
         },
-        notification: {},
       };
 
       return actions.showFacilityConfigPage(storeMock)
       .then(() => {
         // uses hardcoded facility_id of 1
         sinon.assert.calledWith(getDatasetsStub, { facility_id: 1 });
+        sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
+      });
+    });
+
+    it('sets up pageState correctly when fetching Facility fails', () => {
+      getFacilityStub.returns(Promise.reject('whatevers'));
+      getDatasetsStub.returns(Promise.resolve(fakeDataset));
+      const expectedPageState = {
+        facilityName: '',
+        settings: {},
+        errors: true,
+      };
+      return actions.showFacilityConfigPage(storeMock)
+      .then(() => {
+        sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
+      });
+    });
+
+    it('sets up pageState correctly when fetching facilityDataset fails', () => {
+      getFacilityStub.returns(Promise.resolve(fakeFacility));
+      getDatasetsStub.returns(Promise.reject('whatevers'));
+      const expectedPageState = {
+        facilityName: '',
+        settings: {},
+        errors: true,
+      };
+      return actions.showFacilityConfigPage(storeMock)
+      .then(() => {
         sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
       });
     });
