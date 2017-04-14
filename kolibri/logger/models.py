@@ -176,7 +176,7 @@ class MasteryLog(BaseLogModel):
     def infer_dataset(self):
         return self.summarylog.dataset
 
-class BaseAttemptLog(AbstractFacilityDataModel):
+class BaseAttemptLog(BaseLogModel):
     """
     This is an abstract model that provides a summary of a user's engagement within a particular
     interaction with an item/question in an assessment

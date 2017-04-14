@@ -496,6 +496,18 @@ function showExamList(store, channelId) {
 }
 
 
+function parseJSONorUndefined(json) {
+  try {
+    return JSON.parse(json);
+  } catch (e) {
+    if (!(e instanceof SyntaxError)) {
+      throw e;
+    }
+  }
+  return undefined;
+}
+
+
 function showExam(store, channelId, id, questionNumber) {
   if (store.state.pageName !== PageNames.EXAM) {
     store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -555,7 +567,10 @@ function showExam(store, channelId, id, questionNumber) {
             if (!attemptLogs[log.content_id]) {
               attemptLogs[log.content_id] = {};
             }
-            attemptLogs[log.content_id][log.item] = log;
+            attemptLogs[log.content_id][log.item] = Object.assign(log, {
+              answer: parseJSONorUndefined(log.answer),
+              interaction_history: parseJSONorUndefined(log.interaction_history) || [],
+            });
           });
         }
       }
@@ -656,9 +671,13 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
   attributes.examlog = store.state.examLog.id;
   const promise = examAttemptLogModel.save(attributes);
   promise.then((newExamAttemptLog) => {
+    const log = Object.assign(newExamAttemptLog, {
+      answer: parseJSONorUndefined(newExamAttemptLog.answer),
+      interaction_history: parseJSONorUndefined(newExamAttemptLog.interaction_history) || [],
+    });
     store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
       [contentId]: ({
-        [itemId]: newExamAttemptLog,
+        [itemId]: log,
       }),
     });
     const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
