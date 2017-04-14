@@ -30,6 +30,7 @@
 
 
 <script>
+
   const { notificationTypes } = require('../../constants');
 
   module.exports = {

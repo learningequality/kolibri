@@ -76,8 +76,8 @@ function saveFacilityConfig(store) {
   });
 }
 
-function resetFacilityConfig(store, defaultSettings = defaultFacilityConfig) {
-  store.dispatch('CONFIG_PAGE_MODIFY_ALL_SETTINGS', defaultSettings);
+function resetFacilityConfig(store) {
+  store.dispatch('CONFIG_PAGE_MODIFY_ALL_SETTINGS', defaultFacilityConfig);
   return saveFacilityConfig(store);
 }
 

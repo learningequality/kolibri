@@ -22,14 +22,14 @@
       <div class="mb">
         <div class="settings">
           <h2>{{ $tr('settingsHeader') }}</h2>
-          <template v-for="setting in settingsList">
+          <template v-for="(settingCC, setting) in settingsList">
             <ui-checkbox
               :name="setting"
               :value="settings[setting]"
               @change="toggleSetting(setting)"
               box-position="right"
             >
-              {{ $tr(setting) }}
+              {{ $tr(settingCC) }}
             </ui-checkbox>
           </template>
         </div>
@@ -44,7 +44,7 @@
             {{ $tr('resetToDefaultSettings') }}
           </ui-button>
 
-          <span class="space" />
+          <span class="space"></span>
 
           <ui-button
             :ariaLabel="$tr('saveChanges')"
@@ -84,13 +84,13 @@
       showModal: false,
     }),
     computed: {
-      settingsList: () => [
-        'learner_can_edit_username',
-        'learner_can_edit_name',
-        'learner_can_edit_password',
-        'learner_can_delete_account',
-        'learner_can_sign_up',
-      ],
+      settingsList: () => ({
+        learner_can_edit_username: 'learnerCanEditUsername',
+        learner_can_edit_name: 'learnerCanEditName',
+        learner_can_edit_password: 'learnerCanEditPassword',
+        learner_can_delete_account: 'learnerCanDeleteAccount',
+        learner_can_sign_up: 'learnerCanSignUp',
+      }),
     },
     methods: {
       resetToDefaultSettings() {
@@ -121,11 +121,11 @@
     $trNameSpace: 'facilityConfigPage',
     $trs: {
       currentFacilityHeader: 'Your current Facility',
-      learner_can_delete_account: 'Allow users to delete their account',
-      learner_can_edit_name: 'Allow users to edit their full name',
-      learner_can_edit_password: 'Allow users to change their password when logged in',
-      learner_can_edit_username: 'Allow users to edit their username',
-      learner_can_sign_up: 'Allow users to sign-up on this device',
+      learnerCanDeleteAccount: 'Allow users to delete their account',
+      learnerCanEditName: 'Allow users to edit their full name',
+      learnerCanEditPassword: 'Allow users to change their password when logged in',
+      learnerCanEditUsername: 'Allow users to edit their username',
+      learnerCanSignUp: 'Allow users to sign-up on this device',
       pageDescription: 'Configure and change different Facility settings here.',
       pageHeader: 'Facilities Configuration',
       resetToDefaultSettings: 'Reset to default settings',
@@ -138,6 +138,7 @@
 
 
 <style lang="stylus" scoped>
+
   .mr
     margin-right: 5px
 
