@@ -16,24 +16,49 @@
     <div>
       <h2>Facility Settings</h2>
       <div class="settings">
-        <ui-checkbox :value="checked" name="edit_username" @change="handleCheckbox" box-position="right">
+        <ui-checkbox
+          :value="settings.learner_can_edit_username"
+          @change="toggleSetting('learner_can_edit_username')"
+          box-position="right"
+          name="edit_username"
+        >
           Allow users to edit their username
         </ui-checkbox>
-        <ui-checkbox box-position="right">
+        <ui-checkbox
+          :value="settings.learner_can_edit_name"
+          @change="toggleSetting('learner_can_edit_name')"
+          box-position="right"
+          name="edit_fullname"
+        >
           Allow users to edit their full name
         </ui-checkbox>
-        <ui-checkbox box-position="right">
+        <ui-checkbox
+          :value="settings.learner_can_edit_password"
+          @change="toggleSetting('learner_can_edit_password')"
+          box-position="right"
+          name="edit_password"
+        >
           Allow users to change their password when logged in
         </ui-checkbox>
-        <ui-checkbox box-position="right">
+        <ui-checkbox
+          :value="settings.learner_can_delete_account"
+          @change="toggleSetting('learner_can_delete_account')"
+          box-position="right"
+          name="can_delete_acct"
+        >
           Allow users to delete their account
         </ui-checkbox>
-        <ui-checkbox box-position="right">
+        <ui-checkbox
+          :value="settings.learner_can_sign_up"
+          @change="toggleSetting('learner_can_sign_up')"
+          box-position="right"
+          name="can_signup"
+        >
           Permit users to sign-up on this device
         </ui-checkbox>
-        <ui-checkbox box-position="right">
+        <!-- <ui-checkbox box-position="right">
           Require users to log-in on this device
-        </ui-checkbox>
+        </ui-checkbox> -->
       </div>
 
       <div>
@@ -66,16 +91,20 @@
 
     },
     methods: {
-      handleCheckbox(e) {
-        console.log('incomponent', e);
-        this.checked = false;
-      }
+
     },
     vuex: {
       getters: {
         currentFacilityName: () => 'Nalanda Maths',
+        settings: state => state.pageState.settings,
       },
       actions: {
+        toggleSetting(store, settingName) {
+          store.dispatch('CONFIG_PAGE_MODIFY_SETTING', {
+            name: settingName,
+            value: !this.settings[settingName]
+          });
+        },
         resetToDefaultSettings(store) {
           console.log('reset', store);
         },
