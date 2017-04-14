@@ -35,7 +35,8 @@ function showFacilityConfigPage(store) {
   .then(function onSuccess([facility, facilityDataset]) {
     const dataset = facilityDataset[0]; // assumes for now is only one Facility being managed
     store.dispatch('SET_PAGE_STATE', {
-      facilityDatasetId: dataset.id,
+      // how does this get changed to a String?
+      facilityDatasetId: Number(dataset.id),
       facilityName: facility.name,
       // this part of state is mutated as user interacts with form
       settings: sanitizeDataset(dataset),

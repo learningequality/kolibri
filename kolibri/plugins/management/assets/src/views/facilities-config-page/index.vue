@@ -56,6 +56,8 @@
 
 <script>
 
+  const actions = require('../../state/actions');
+
   module.exports = {
     components: {
       'confirm-reset-modal': require('./confirm-reset-modal'),
@@ -75,7 +77,10 @@
       ],
     },
     methods: {
-
+      resetToDefaultSettings() {
+        this.showModal = false;
+        this.resetFacilityConfig();
+      },
     },
     vuex: {
       getters: {
@@ -89,9 +94,8 @@
             value: !this.settings[settingName]
           });
         },
-        resetToDefaultSettings(store) {
-          console.log('reset');
-        },
+        saveFacilityConfig: actions.saveFacilityConfig,
+        resetFacilityConfig: actions.resetFacilityConfig,
         saveChanges(store) {
           console.log('save changes', store);
         },

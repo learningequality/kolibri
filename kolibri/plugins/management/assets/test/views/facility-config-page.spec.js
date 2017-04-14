@@ -32,7 +32,7 @@ function getElements(wrapper) {
     // weird behavior in general for child nodes in testing
     confirmResetModal: () => wrapper.$el.querySelector('#confirm-reset'),
     cancelResetButton: () => wrapper.$el.querySelector('button[name="cancel"]'),
-    confirmResetButton: () => wrapper.$el.querySelector('button[name="confirm"]'),
+    confirmResetButton: () => wrapper.$el.querySelector('button[name="reset"]'),
   };
 }
 
@@ -57,7 +57,7 @@ describe.only('facility config page view', () => {
 
   it('clicking save dispatches a save action', () => {
     const wrapper = makeWrapper({});
-    wrapper.resetToDefaultSettings();
+    // wrapper.resetToDefaultSettings();
   });
 
   it('clicking reset brings up the confirmation modal', () => {
@@ -82,11 +82,22 @@ describe.only('facility config page view', () => {
     });
   });
 
-  it('confirming reset dispatches reset action', () => {
+  // TODO maybe DRY up the open-modal flow
+  it('confirming reset calls the reset action', () => {
     const wrapper = makeWrapper({});
-    // sinon.spy()
-    // and tears down modal, and shows success notification
-
+    const resetActionStub = sinon.stub(wrapper, 'resetFacilityConfig');
+    const { resetButton, confirmResetButton } = getElements(wrapper);
+    simulant.fire(resetButton, 'click');
+    return promisifyNextTick()
+    .then(() => {
+      const confirmButton = confirmResetButton();
+      simulant.fire(confirmButton, 'click');
+      return promisifyNextTick();
+    })
+    .then(() => {
+      assert.equal(wrapper.showModal, false);
+      sinon.assert.called(resetActionStub);
+    });
   });
 
   it('errors result in showing error notification', () => {
