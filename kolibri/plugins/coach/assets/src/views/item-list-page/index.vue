@@ -140,7 +140,7 @@
               params: {
                 classId: this.pageState.classId,
                 channelId: this.pageState.channelId,
-                topicId: item.pk,
+                topicId: item.id,
               },
             },
           };

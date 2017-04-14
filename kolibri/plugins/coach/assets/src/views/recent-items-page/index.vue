@@ -59,18 +59,18 @@
     computed: {
       reportList() {
         return Array.from(this.reports).sort(
-          (report1, report2) => new Date(report1.last_active) - new Date(report2.last_active)
+          (report1, report2) => new Date(report1.lastActive) - new Date(report2.lastActive)
         );
       },
     },
     methods: {
       completedProgress(progress) {
-        return progress.log_count_complete / progress.log_count_total;
+        return progress.logCountComplete / progress.logCountTotal;
       },
       progressString(report) {
         // string representation of a fraction, can't use completedProgress
-        const proportionCompleted = `${report.progress[0].log_count_complete}` +
-          `/${report.progress[0].log_count_total}`;
+        const proportionCompleted = `${report.progress[0].logCountComplete}` +
+          `/${report.progress[0].logCountTotal}`;
         switch (report.kind) {
           case ContentNodeKinds.AUDIO:
             return this.$tr('listened', { proportionCompleted });
