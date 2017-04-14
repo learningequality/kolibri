@@ -56,14 +56,14 @@ function showFacilityConfigPage(store) {
   });
 }
 
-function saveFacilityConfig(store, settings) {
-  const newConfig = settings || store.state.pageState.settings;
+function saveFacilityConfig(store) {
+  const newConfig = store.state.pageState.settings;
   const { facilityDatasetId } = store.state.pageState;
   const resourceRequests = [
     FacilityDatasetResource.getModel(facilityDatasetId).save(newConfig),
   ];
   return resolveOnlyIfOnSamePage(resourceRequests, store)
-  .then(function onSuccess() {
+  .then(function onSuccess(x) {
     store.dispatch('CONFIG_PAGE_NOTIFY', 'save_success');
   })
   .catch(function onFailure(err) {
@@ -73,6 +73,7 @@ function saveFacilityConfig(store, settings) {
 }
 
 function resetFacilityConfig(store, defaultSettings = defaultFacilityConfig) {
+  store.dispatch('CONFIG_PAGE_MODIFY_ALL_SETTINGS', defaultSettings);
   return saveFacilityConfig(store, defaultSettings);
 }
 

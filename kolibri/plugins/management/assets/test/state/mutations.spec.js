@@ -45,4 +45,15 @@ describe('facility config page mutations', () => {
     });
     assert.equal(mockState.pageState.settings.setting_1000 === undefined, true);
   });
+
+  it('CONFIG_PAGE_MODIFY_ALL_SETTINGS', () => {
+    const mockState = {
+      pageState: {
+        settings: { setting_1: true, setting_2: false },
+      },
+    };
+    const differentSettings = { andNowFor: 'something completely different' };
+    mutations.CONFIG_PAGE_MODIFY_ALL_SETTINGS(mockState, differentSettings);
+    assert.deepEqual(mockState.pageState.settings, differentSettings);
+  });
 });

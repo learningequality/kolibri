@@ -14,8 +14,13 @@ function CONFIG_PAGE_MODIFY_SETTING(state, { name, value }) {
   }
 }
 
+function CONFIG_PAGE_MODIFY_ALL_SETTINGS(state, settings) {
+  state.pageState.settings = Object.assign({}, settings);
+}
+
 module.exports = {
   CONFIG_PAGE_NOTIFY,
   CONFIG_PAGE_UNDO_SETTINGS_CHANGE,
   CONFIG_PAGE_MODIFY_SETTING,
+  CONFIG_PAGE_MODIFY_ALL_SETTINGS,
 };
