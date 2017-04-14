@@ -38,12 +38,12 @@
     },
     methods: {
       close() {
-        this.displayModal(false);
+        this.displayExamModal(false);
       },
     },
     vuex: {
       actions: {
-        displayModal: examActions.displayModal,
+        displayExamModal: examActions.displayExamModal,
       },
     },
   };

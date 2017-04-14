@@ -45,20 +45,111 @@ const fakeExams = [
   {
     id: '1',
     title: 'UNIT 1 Exam',
-    active: false,
-    visibility: {
-      class: false,
-      groups: [{ id: '1', name: 'groupA' }, { id: '2', name: 'groupA' }]
-    },
+    channel_id: 'item_1',
+    collection: 'collection_id',
+    active: true,
+    archive: false,
+    question_count: 100,
+    question_sources: '',
+    seed: 1234,
+    assignments: [
+      {
+        id: 'assignmentA',
+        exam: '1',
+        collection: {
+          id: 'class_1',
+          kind: 'classroom',
+          name: 'class_1',
+        },
+      }
+    ],
   },
   {
     id: '2',
     title: 'UNIT 1 Quiz',
+    channel_id: 'item_1',
+    collection: 'collection_id',
+    active: false,
+    archive: false,
+    question_count: 10,
+    question_sources: '',
+    seed: 4321,
+    assignments: [
+      {
+        id: 'assignmentB',
+        exam: '2',
+        collection: {
+          id: 'group_1',
+          kind: 'learnergroup',
+          name: 'group_1',
+        },
+      }, {
+        id: 'assignmentC',
+        exam: '2',
+        collection: {
+          id: 'group_2',
+          kind: 'learnergroup',
+          name: 'group_2',
+        },
+      }
+    ],
+  }
+];
+
+const fakeExamState = [
+  {
+    id: '1',
+    title: 'UNIT 1 Exam',
+    channelId: 'item_1',
+    collection: 'collection_id',
     active: true,
+    archive: false,
+    questionCount: 100,
+    questionSources: '',
+    seed: 1234,
     visibility: {
-      class: false,
-      groups: [{ id: '1', name: 'groupA' }],
-    },
+      class: {
+        assignmentId: 'assignmentA',
+        collection: {
+          id: 'class_1',
+          kind: 'classroom',
+          name: 'class_1'
+        },
+        examId: '1'
+      },
+      groups: []
+    }
+  },
+  {
+    id: '2',
+    title: 'UNIT 1 Quiz',
+    channelId: 'item_1',
+    collection: 'collection_id',
+    active: false,
+    archive: false,
+    questionCount: 10,
+    questionSources: '',
+    seed: 4321,
+    visibility: {
+      class: undefined,
+      groups: [{
+        assignmentId: 'assignmentB',
+        collection: {
+          id: 'group_1',
+          kind: 'learnergroup',
+          name: 'group_1'
+        },
+        examId: '2'
+      }, {
+        assignmentId: 'assignmentC',
+        collection: {
+          id: 'group_2',
+          kind: 'learnergroup',
+          name: 'group_2'
+        },
+        examId: '2'
+      }]
+    }
   }
 ];
 
@@ -106,8 +197,8 @@ describe('showPage actions for coach exams section', () => {
             { id: 'item_1', name: 'item one' },
             { id: 'item_2', name: 'item two' },
           ],
-          // exams: fakeExams,
-          modalShown: false,
+          exams: fakeExamState,
+          examModalShown: false,
         }));
       });
     });

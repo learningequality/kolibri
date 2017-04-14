@@ -6,10 +6,10 @@
       {{ $tr('willBeVisible') }}
     </p>
     <p>
-      <span v-if="examVisibility.class"><strong>Entire class</strong></span>
+      <span v-if="examVisibility.class"><strong>{{ $tr('entireClass') }}</strong></span>
       <span v-else>
         <ul>
-          <li v-for="group in examVisibility.groups"><strong>{{ group.name }}</strong></li>
+          <li v-for="group in examVisibility.groups"><strong>{{ group.collection.name }}</strong></li>
         </ul>
       </span>
     </p>
@@ -34,6 +34,7 @@
       willBeVisible: 'The exam will be visible to the following:',
       cancel: 'Cancel',
       activate: 'Activate',
+      entireClass: 'Entire class'
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
@@ -59,12 +60,12 @@
     },
     methods: {
       close() {
-        this.displayModal(false);
+        this.displayExamModal(false);
       },
     },
     vuex: {
       actions: {
-        displayModal: examActions.displayModal,
+        displayExamModal: examActions.displayExamModal,
         activateExam: examActions.activateExam,
       },
     },

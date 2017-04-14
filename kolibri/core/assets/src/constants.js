@@ -7,6 +7,11 @@ const UserKinds = {
   ANONYMOUS: 'anonymous',
 };
 
+const CollectionKinds = {
+  CLASSROOM: 'classroom',
+  LEARNERGROUP: 'learnergroup',
+};
+
 const ContentNodeKinds = {
   AUDIO: 'audio',
   DOCUMENT: 'document',
@@ -90,4 +95,5 @@ module.exports = {
   USER,
   TopLevelPageNames,
   MasteryModelGenerators,
+  CollectionKinds,
 };

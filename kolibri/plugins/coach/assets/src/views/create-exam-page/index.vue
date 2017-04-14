@@ -110,6 +110,7 @@
 
   const ExamActions = require('../../state/actions/exam');
   const ExamModals = require('../../examConstants').Modals;
+  const CollectionKinds = require('kolibri.coreVue.vuex.constants').CollectionKinds;
   const shuffle = require('lodash/shuffle');
   const random = require('lodash/random');
 
@@ -165,7 +166,7 @@
           (this.inputNumQuestions < 1) || (this.inputNumQuestions > 50) : false;
       },
       showPreviewNewExamModal() {
-        return this.modalShown === ExamModals.PREVIEW_NEW_EXAM;
+        return this.examModalShown === ExamModals.PREVIEW_NEW_EXAM;
       },
       questionSources() {
         const shuffledExercises = shuffle(Array.from(this.selectedExercises));
@@ -224,11 +225,16 @@
       },
       preview() {
         if (this.checkAllValid() === true) {
-          this.displayModal(ExamModals.PREVIEW_NEW_EXAM);
+          this.displayExamModal(ExamModals.PREVIEW_NEW_EXAM);
         }
       },
       finish() {
         if (this.checkAllValid() === true) {
+          const classCollection = {
+            id: this.currentClass.id,
+            name: this.currentClass.name,
+            kind: CollectionKinds.CLASSROOM
+          };
           const examObj = {
             classId: this.currentClass.id,
             channelId: this.currentChannel.id,
@@ -237,7 +243,7 @@
             questionSources: this.questionSources,
             seed: this.seed,
           };
-          this.createExam(examObj);
+          this.createExam(classCollection, examObj);
         }
       },
       checkAllValid() {
@@ -276,14 +282,14 @@
         subtopics: state => state.pageState.subtopics,
         exercises: state => state.pageState.exercises,
         selectedExercises: state => state.pageState.selectedExercises,
-        modalShown: state => state.pageState.modalShown,
+        examModalShown: state => state.pageState.examModalShown,
       },
       actions: {
         fetchContent: ExamActions.fetchContent,
         createExam: ExamActions.createExam,
         addExercise: ExamActions.addExercise,
         removeExercise: ExamActions.removeExercise,
-        displayModal: ExamActions.displayModal,
+        displayExamModal: ExamActions.displayExamModal,
       },
     },
   };

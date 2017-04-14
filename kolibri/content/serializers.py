@@ -136,7 +136,7 @@ class NestedCollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collection
         fields = (
-            'id', 'name',
+            'id', 'name', 'kind',
         )
 
 class NestedExamAssignmentSerializer(serializers.ModelSerializer):
@@ -146,12 +146,28 @@ class NestedExamAssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamAssignment
         fields = (
-            'exam', 'collection',
+            'id', 'exam', 'collection',
         )
+
+class ExamAssignmentSerializer(serializers.ModelSerializer):
+
+    assigned_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    collection = NestedCollectionSerializer(read_only=False)
+
+    class Meta:
+        model = ExamAssignment
+        fields = (
+            'id', 'exam', 'collection', 'assigned_by',
+        )
+        read_only_fields = ('assigned_by',)
+
+    def create(self, validated_data):
+        validated_data['collection'] = Collection.objects.get(id=self.initial_data['collection'].get('id'))
+        return ExamAssignment.objects.create(assigned_by=self.context['request'].user, **validated_data)
 
 class ExamSerializer(serializers.ModelSerializer):
 
-    assignments = NestedExamAssignmentSerializer(many=True, read_only=True)
+    assignments = ExamAssignmentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Exam
@@ -163,21 +179,6 @@ class ExamSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Exam.objects.create(creator=self.context['request'].user, **validated_data)
-
-class ExamAssignmentSerializer(serializers.ModelSerializer):
-
-    assigned_by = serializers.PrimaryKeyRelatedField(read_only=True)
-
-    class Meta:
-        model = ExamAssignment
-        fields = (
-            'exam', 'collection', 'assigned_by',
-        )
-        read_only_fields = ('assigned_by',)
-
-    def create(self, validated_data):
-        return ExamAssignment.objects.create(assigned_by=self.context['request'].user, **validated_data)
-
 
 class UserExamSerializer(serializers.ModelSerializer):
 
