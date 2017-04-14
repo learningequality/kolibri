@@ -6,10 +6,12 @@
 
         <!--HEADER SECTION-->
         <h2>
+          <!--
           <span v-if="pageState.userScopeSummary.full_name">
             <mat-svg category="social" name="person"/>
             {{ pageState.userScopeSummary.full_name }} -
           </span>
+          -->
           <content-icon
             :kind="pageState.contentScopeSummary.kind"
             colorstyle="text-default"

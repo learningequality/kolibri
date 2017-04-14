@@ -67,8 +67,20 @@ function _genCompareFunc(sortColumn, sortOrder) {
 function _genRow(state, item) {
   const row = {};
 
-  // CONTENT NODES
-  if (getters.isTopicPage(state) || getters.isRecentPage(state)) {
+  if (state.pageState.viewBy === ReportConstants.ViewBy.LEARNERS) {
+    // LEARNERS
+    row.kind = CoreConstants.USER;
+    row.id = item.id.toString(); // see https://github.com/learningequality/kolibri/issues/65;
+    row.title = item.full_name;
+    row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
+
+    // for learners, the exercise counts are the global values
+    row.exerciseProgress
+      = calcProgress(item.progress, _onlyExercises, getters.exerciseCount(state), 1);
+    row.contentProgress
+      = calcProgress(item.progress, _onlyContent, getters.contentCount(state), 1);
+  } else {
+    // CONTENT NODES
     row.kind = item.kind;
     row.id = item.id;
     row.title = item.title;
@@ -103,24 +115,9 @@ function _genRow(state, item) {
     } else {
       logging.error(`Unhandled item kind: ${item.kind}`);
     }
-    // LEARNERS
-  } else if (getters.isLearnerPage(state)) {
-    row.kind = CoreConstants.USER;
-    row.id = item.id.toString(); // see https://github.com/learningequality/kolibri/issues/65;
-    row.title = item.full_name;
-    row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
-
-    // for learners, the exercise counts are the global values
-    row.exerciseProgress
-      = calcProgress(item.progress, _onlyExercises, getters.exerciseCount(state), 1);
-    row.contentProgress
-      = calcProgress(item.progress, _onlyContent, getters.contentCount(state), 1);
-  } else {
-    throw Error('unhandled report page');
   }
 
   row.lastActive = item.lastActive ? new Date(item.lastActive) : null;
-
   return row;
 }
 
