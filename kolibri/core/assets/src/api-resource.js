@@ -584,7 +584,7 @@ class Resource {
       }
     });
     if (missingParams.length > 0) {
-      throw TypeError(`Missing required resourceIds for: ${missingParams}`);
+      throw TypeError(`Missing required resourceIds: ${missingParams}`);
     }
     return filteredParams;
   }
