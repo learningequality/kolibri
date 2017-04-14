@@ -103,7 +103,5 @@ describe.only('facility config page view', () => {
     });
   });
 
-  it('errors result in showing error notification', () => {
-
-  });
+  // not tested: notifications
 });

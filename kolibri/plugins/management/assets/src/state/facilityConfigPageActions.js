@@ -21,6 +21,10 @@ function resolveOnlyIfOnSamePage(promises, store) {
 
 const sanitizeDataset = omit(['id']);
 
+function notify(store, notificationType) {
+  store.dispatch('CONFIG_PAGE_NOTIFY', notificationType);
+}
+
 function showFacilityConfigPage(store) {
   preparePage(store.dispatch, {
     name: PageNames.FACILITY_CONFIG_PAGE,
@@ -57,6 +61,7 @@ function showFacilityConfigPage(store) {
 }
 
 function saveFacilityConfig(store) {
+  notify(store, null);
   const newConfig = store.state.pageState.settings;
   const { facilityDatasetId } = store.state.pageState;
   const resourceRequests = [
@@ -64,11 +69,11 @@ function saveFacilityConfig(store) {
   ];
   return resolveOnlyIfOnSamePage(resourceRequests, store)
   .then(function onSuccess(x) {
-    store.dispatch('CONFIG_PAGE_NOTIFY', notificationTypes.SAVE_SUCCESS);
+    notify(store, notificationTypes.SAVE_SUCCESS);
     store.dispatch('CONFIG_PAGE_COPY_SETTINGS');
   })
   .catch(function onFailure(err) {
-    store.dispatch('CONFIG_PAGE_NOTIFY', notificationTypes.SAVE_FAILURE);
+    notify(store, notificationTypes.SAVE_FAILURE);
     store.dispatch('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
   });
 }
