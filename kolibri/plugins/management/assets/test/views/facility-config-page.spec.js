@@ -40,7 +40,7 @@ function promisifyNextTick() {
   });
 }
 
-describe.only('facility config page view', () => {
+describe('facility config page view', () => {
   it('clicking checkboxes dispatches a modify action', () => {
     const wrapper = makeWrapper();
     const dispatchSpy = sinon.spy(wrapper.$store, 'dispatch');

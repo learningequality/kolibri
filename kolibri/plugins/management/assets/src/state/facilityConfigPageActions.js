@@ -9,8 +9,7 @@ const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
 const preparePage = require('./preparePage');
 const { PageNames, defaultFacilityConfig, notificationTypes } = require('../constants');
 
-// When app is installed, the Facility is assigned id of `1`.
-// Hardcoded here for now.
+// When app is installed, the Facility is assigned id of `1`. Hardcoded here for now.
 const FACILITY_ID = 1;
 
 function resolveOnlyIfOnSamePage(promises, store) {
@@ -21,7 +20,7 @@ function resolveOnlyIfOnSamePage(promises, store) {
 
 const sanitizeDataset = omit(['id']);
 
-function notify(store, notificationType) {
+function showNotification(store, notificationType) {
   store.dispatch('CONFIG_PAGE_NOTIFY', notificationType);
 }
 
@@ -39,7 +38,7 @@ function showFacilityConfigPage(store) {
   .then(function onSuccess([facility, facilityDataset]) {
     const dataset = facilityDataset[0]; // assumes for now is only one Facility being managed
     store.dispatch('SET_PAGE_STATE', {
-      // how does this get changed to a String?
+      // comes over wire as number, but gets changed to string
       facilityDatasetId: Number(dataset.id),
       facilityName: facility.name,
       // this part of state is mutated as user interacts with form
@@ -61,26 +60,25 @@ function showFacilityConfigPage(store) {
 }
 
 function saveFacilityConfig(store) {
-  notify(store, null);
-  const newConfig = store.state.pageState.settings;
-  const { facilityDatasetId } = store.state.pageState;
+  showNotification(store, null);
+  const { facilityDatasetId, settings } = store.state.pageState;
   const resourceRequests = [
-    FacilityDatasetResource.getModel(facilityDatasetId).save(newConfig),
+    FacilityDatasetResource.getModel(facilityDatasetId).save(settings),
   ];
   return resolveOnlyIfOnSamePage(resourceRequests, store)
   .then(function onSuccess(x) {
-    notify(store, notificationTypes.SAVE_SUCCESS);
+    showNotification(store, notificationTypes.SAVE_SUCCESS);
     store.dispatch('CONFIG_PAGE_COPY_SETTINGS');
   })
   .catch(function onFailure(err) {
-    notify(store, notificationTypes.SAVE_FAILURE);
+    showNotification(store, notificationTypes.SAVE_FAILURE);
     store.dispatch('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
   });
 }
 
 function resetFacilityConfig(store, defaultSettings = defaultFacilityConfig) {
   store.dispatch('CONFIG_PAGE_MODIFY_ALL_SETTINGS', defaultSettings);
-  return saveFacilityConfig(store, defaultSettings);
+  return saveFacilityConfig(store);
 }
 
 module.exports = {

@@ -66,7 +66,7 @@ describe('facility config page mutations', () => {
     };
     mutations.CONFIG_PAGE_UNDO_SETTINGS_CHANGE(mockState);
     assert.deepEqual(mockState.pageState.settingsCopy, {
-      setting_1: true, setting_2: false,
+      setting_1: true, setting_2: true,
     });
   });
 });

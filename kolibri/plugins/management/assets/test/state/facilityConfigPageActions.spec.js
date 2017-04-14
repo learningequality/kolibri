@@ -50,31 +50,28 @@ describe('facility config page actions', () => {
       });
     });
 
-    it('when fetching Facility fails', () => {
-      FacilityStub.__getModelFetchReturns('incomprehensible error', true);
-      DatasetStub.__getCollectionFetchReturns(fakeDatasets);
+    describe('error handling', () => {
       const expectedPageState = {
         facilityName: '',
-        settings: {},
+        settings: null,
         notification: 'pageload_failure',
       };
-      return actions.showFacilityConfigPage(storeMock)
-      .then(() => {
-        sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
+      it('when fetching Facility fails', () => {
+        FacilityStub.__getModelFetchReturns('incomprehensible error', true);
+        DatasetStub.__getCollectionFetchReturns(fakeDatasets);
+        return actions.showFacilityConfigPage(storeMock)
+        .then(() => {
+          sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
+        });
       });
-    });
 
-    it('when fetching FacilityDataset fails', () => {
-      FacilityStub.__getModelFetchReturns(fakeFacility);
-      DatasetStub.__getCollectionFetchReturns('incomprehensible error', true);
-      const expectedPageState = {
-        facilityName: '',
-        settings: {},
-        notification: 'pageload_failure',
-      };
-      return actions.showFacilityConfigPage(storeMock)
-      .then(() => {
-        sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
+      it('when fetching FacilityDataset fails', () => {
+        FacilityStub.__getModelFetchReturns(fakeFacility);
+        DatasetStub.__getCollectionFetchReturns('incomprehensible error', true);
+        return actions.showFacilityConfigPage(storeMock)
+        .then(() => {
+          sinon.assert.calledWith(dispatchStub, 'SET_PAGE_STATE', sinon.match(expectedPageState));
+        });
       });
     });
   });
