@@ -16,49 +16,16 @@
     <div>
       <h2>Facility Settings</h2>
       <div class="settings">
-        <ui-checkbox
-          :value="settings.learner_can_edit_username"
-          @change="toggleSetting('learner_can_edit_username')"
-          box-position="right"
-          name="edit_username"
-        >
-          Allow users to edit their username
-        </ui-checkbox>
-        <ui-checkbox
-          :value="settings.learner_can_edit_name"
-          @change="toggleSetting('learner_can_edit_name')"
-          box-position="right"
-          name="edit_fullname"
-        >
-          Allow users to edit their full name
-        </ui-checkbox>
-        <ui-checkbox
-          :value="settings.learner_can_edit_password"
-          @change="toggleSetting('learner_can_edit_password')"
-          box-position="right"
-          name="edit_password"
-        >
-          Allow users to change their password when logged in
-        </ui-checkbox>
-        <ui-checkbox
-          :value="settings.learner_can_delete_account"
-          @change="toggleSetting('learner_can_delete_account')"
-          box-position="right"
-          name="can_delete_acct"
-        >
-          Allow users to delete their account
-        </ui-checkbox>
-        <ui-checkbox
-          :value="settings.learner_can_sign_up"
-          @change="toggleSetting('learner_can_sign_up')"
-          box-position="right"
-          name="can_signup"
-        >
-          Permit users to sign-up on this device
-        </ui-checkbox>
-        <!-- <ui-checkbox box-position="right">
-          Require users to log-in on this device
-        </ui-checkbox> -->
+        <template v-for="setting in settingsList">
+          <ui-checkbox
+            :name="setting"
+            :value="settings[setting]"
+            @change="toggleSetting(setting)"
+            box-position="right"
+          >
+            {{ $tr(setting) }}
+          </ui-checkbox>
+        </template>
       </div>
 
       <div>
@@ -88,7 +55,13 @@
       checked: true
     }),
     computed: {
-
+      settingsList: () => [
+        'learner_can_edit_username',
+        'learner_can_edit_name',
+        'learner_can_edit_password',
+        'learner_can_delete_account',
+        'learner_can_sign_up',
+      ],
     },
     methods: {
 
@@ -113,6 +86,14 @@
         },
       },
     },
+    $trNameSpace: 'facilityConfigPage',
+    $trs: {
+      learner_can_edit_username: 'Allow users to edit their username',
+      learner_can_edit_name: 'Allow users to edit their full name',
+      learner_can_edit_password: 'Allow users to change their password when logged in',
+      learner_can_delete_account: 'Allow users to delete their account',
+      learner_can_sign_up: 'Allow users to sign-up on this device',
+    }
   };
 
 </script>
