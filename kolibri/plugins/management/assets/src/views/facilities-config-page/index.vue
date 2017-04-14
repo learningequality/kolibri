@@ -29,16 +29,26 @@
       </div>
 
       <div>
-        <ui-button name="reset-settings" @click="resetToDefaultSettings">
+        <ui-button
+          class="mr"
+          name="reset-settings"
+          @click="showModal=true"
+        >
           Reset to default settings
         </ui-button>
+        <span class="space" />
         <ui-button color="primary" name="save-settings" @click="saveChanges">
           Save changes
         </ui-button>
       </div>
     </div>
 
-    <confirm-reset-modal v-if="true" />
+    <confirm-reset-modal
+      id="confirm-reset"
+      v-if="showModal"
+      @click-confirm="resetToDefaultSettings()"
+      @click-cancel="showModal=false"
+    />
   </div>
 
 </template>
@@ -53,7 +63,7 @@
       'ui-button': require('keen-ui/src/UiButton'),
     },
     data: () => ({
-      checked: true
+      showModal: false,
     }),
     computed: {
       settingsList: () => [
@@ -69,7 +79,7 @@
     },
     vuex: {
       getters: {
-        currentFacilityName: () => 'Nalanda Maths',
+        currentFacilityName: state => state.pageState.facilityName,
         settings: state => state.pageState.settings,
       },
       actions: {
@@ -101,6 +111,8 @@
 
 
 <style lang="stylus" scoped>
+  .mr
+    margin-right: 5px
 
   .settings
     max-width: 35rem

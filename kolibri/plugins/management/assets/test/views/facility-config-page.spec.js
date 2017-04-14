@@ -2,6 +2,7 @@
 const Vue = require('vue-test');
 const Vuex = require('vuex');
 const sinon = require('sinon');
+const assert = require('assert');
 const simulant = require('simulant');
 const ConfigPage = require('../../src/views/facilities-config-page');
 
@@ -26,7 +27,19 @@ function makeWrapper(propsData) {
 function getElements(wrapper) {
   return {
     checkbox: wrapper.$el.querySelector('input[name="learner_can_edit_username"]'),
+    resetButton: wrapper.$el.querySelector('button[name="reset-settings"]'),
+    // this modal does not mount/unmount like in real browser; there is
+    // weird behavior in general for child nodes in testing
+    confirmResetModal: () => wrapper.$el.querySelector('#confirm-reset'),
+    cancelResetButton: () => wrapper.$el.querySelector('button[name="cancel"]'),
+    confirmResetButton: () => wrapper.$el.querySelector('button[name="confirm"]'),
   };
+}
+
+function promisifyNextTick() {
+  return new Promise((resolve) => {
+    Vue.nextTick(() => { resolve(); });
+  });
 }
 
 describe.only('facility config page view', () => {
@@ -47,16 +60,32 @@ describe.only('facility config page view', () => {
     wrapper.resetToDefaultSettings();
   });
 
-  it('click reset brings up the confirmation modal', () => {
-
-  });
-
-  it('confirming reset dispatches reset action', () => {
-    // and tears down modal, and shows success notification
-
+  it('clicking reset brings up the confirmation modal', () => {
+    const wrapper = makeWrapper({});
+    const { resetButton } = getElements(wrapper);
+    assert.equal(wrapper.showModal, false);
+    simulant.fire(resetButton, 'click');
+    assert.equal(wrapper.showModal, true);
   });
 
   it('canceling reset tears down the modal', () => {
+    const wrapper = makeWrapper({});
+    const { resetButton, cancelResetButton } = getElements(wrapper);
+    assert.equal(wrapper.showModal, false);
+    simulant.fire(resetButton, 'click');
+    return promisifyNextTick()
+    .then(() => {
+      assert.equal(wrapper.showModal, true);
+      const cancelButton = cancelResetButton();
+      simulant.fire(cancelButton, 'click');
+      assert.equal(wrapper.showModal, false);
+    });
+  });
+
+  it('confirming reset dispatches reset action', () => {
+    const wrapper = makeWrapper({});
+    // sinon.spy()
+    // and tears down modal, and shows success notification
 
   });
 
