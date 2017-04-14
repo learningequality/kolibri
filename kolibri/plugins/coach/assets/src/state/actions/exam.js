@@ -400,7 +400,7 @@ function createExam(store, classCollection, examObj) {
     channel_id: examObj.channelId,
     title: examObj.title,
     question_count: examObj.numQuestions,
-    question_sources: examObj.questionSources,
+    question_sources: JSON.stringify(examObj.questionSources),
     seed: examObj.seed,
   };
   ExamResource.createModel(examPayload).save().then(
