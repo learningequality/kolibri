@@ -2,7 +2,7 @@
 
   <div>
     <h1>{{ $tr('header') }}</h1>
-    <p v-if="isAdminOrSuperuser" v-html="$trHtml('adminLink')"></p>
+    <p v-if="isAdmin || isSuperuser" v-html="$trHtml('adminLink')"></p>
     <p v-else>{{ $tr('notAdmin') }}</p>
   </div>
 
@@ -11,7 +11,7 @@
 
 <script>
 
-  const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
+  const getters = require('kolibri.coreVue.vuex.getters');
 
   module.exports = {
     $trNameSpace: 'learnContentUnavailable',
@@ -22,7 +22,8 @@
     },
     vuex: {
       getters: {
-        isAdminOrSuperuser,
+        isAdmin: getters.isAdmin,
+        isSuperuser: getters.isSuperuser,
       },
     },
   };

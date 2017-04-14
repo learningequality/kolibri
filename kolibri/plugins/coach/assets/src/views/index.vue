@@ -2,11 +2,15 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('coachTitle')">
 
-    <top-nav v-if="showTopNav && isCoachAdminOrSuperuser" slot="tabs"/>
+    <top-nav v-if="showTopNav" slot="tabs"/>
 
     <div slot="content" class="content">
-      <div v-if="isCoachAdminOrSuperuser">
+      <div v-if="isCoach || isAdmin">
         <component :is="currentPage"/>
+      </div>
+      <div v-else-if="isSuperuser">
+        <h1>{{ $tr('superUserPrompt') }}</h1>
+        <p>{{ $tr('superUserCommand') }}</p>
       </div>
       <div v-else class="login-message">
         <h1>{{ $tr('logInPrompt') }}</h1>
@@ -23,7 +27,7 @@
 
   const store = require('../state/store');
   const Constants = require('../constants');
-  const isCoachAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isCoachAdminOrSuperuser;
+  const coreGetters = require('kolibri.coreVue.vuex.getters');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
@@ -32,6 +36,8 @@
       coachTitle: 'Coach',
       logInPrompt: 'Did you forget to log in?',
       logInCommand: 'You must be logged in as an Admin to view this page.',
+      superUserPrompt: 'Logged in as device owner',
+      superUserCommand: 'The coach tools cannot be used by a device owner. Please log in as an administrator or coach.',
     },
     components: {
       'top-nav': require('./top-nav'),
@@ -78,13 +84,15 @@
         return pageNameToComponentMap[this.pageName];
       },
       showTopNav() {
-        return this.pageName !== Constants.PageNames.CLASS_LIST;
+        return this.pageName !== Constants.PageNames.CLASS_LIST && (this.isCoach || this.isAdmin);
       },
     },
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        isCoachAdminOrSuperuser,
+        isSuperuser: coreGetters.isSuperuser,
+        isAdmin: coreGetters.isAdmin,
+        isCoach: coreGetters.isCoach,
       },
     },
     store,

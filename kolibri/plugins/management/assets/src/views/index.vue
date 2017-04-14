@@ -2,7 +2,7 @@
 
   <core-base :topLevelPageName="topLevelPageName" :appBarTitle="$tr('managementTitle')">
 
-    <div v-if="isAdminOrSuperuser" slot="content">
+    <div v-if="isAdmin || isSuperuser" slot="content">
       <div class="manage-content">
         <top-nav/>
       </div>
@@ -23,7 +23,7 @@
 
   const store = require('../state/store');
   const PageNames = require('../constants').PageNames;
-  const isAdminOrSuperuser = require('kolibri.coreVue.vuex.getters').isAdminOrSuperuser;
+  const getters = require('kolibri.coreVue.vuex.getters');
   const TopLevelPageNames = require('kolibri.coreVue.vuex.constants').TopLevelPageNames;
 
   module.exports = {
@@ -74,7 +74,8 @@
     vuex: {
       getters: {
         pageName: state => state.pageName,
-        isAdminOrSuperuser,
+        isAdmin: getters.isAdmin,
+        isSuperuser: getters.isSuperuser,
       },
     },
     store, // make this and all child components aware of the store

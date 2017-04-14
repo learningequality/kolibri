@@ -1,22 +1,24 @@
 const UserKinds = require('../constants').UserKinds;
 const cookiejs = require('js-cookie');
 
+
 function isUserLoggedIn(state) {
   return state.core.session.kind[0] !== UserKinds.ANONYMOUS;
 }
 
-function isAdminOrSuperuser(state) {
-  const kind = state.core.session.kind;
-  if (kind[0] === UserKinds.SUPERUSER || kind[0] === UserKinds.ADMIN) {
-    return true;
-  }
-  return false;
+
+function isSuperuser(state) {
+  return state.core.session.kind[0] === UserKinds.SUPERUSER;
 }
 
 
-function isCoachAdminOrSuperuser(state) {
-  const kind = state.core.session.kind;
-  return [UserKinds.SUPERUSER, UserKinds.ADMIN, UserKinds.COACH].includes(kind[0]);
+function isAdmin(state) {
+  return state.core.session.kind[0] === UserKinds.ADMIN;
+}
+
+
+function isCoach(state) {
+  return state.core.session.kind[0] === UserKinds.COACH;
 }
 
 
@@ -47,8 +49,9 @@ function getCurrentChannelObject(state) {
 
 module.exports = {
   isUserLoggedIn,
-  isAdminOrSuperuser,
-  isCoachAdminOrSuperuser,
+  isSuperuser,
+  isAdmin,
+  isCoach,
   getDefaultChannelId,
   getCurrentChannelObject,
 };
