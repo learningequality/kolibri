@@ -38,7 +38,7 @@
       </div>
     </div>
 
-
+    <confirm-reset-modal v-if="true" />
   </div>
 
 </template>
@@ -48,6 +48,7 @@
 
   module.exports = {
     components: {
+      'confirm-reset-modal': require('./confirm-reset-modal'),
       'ui-checkbox': require('keen-ui/src/UiCheckbox'),
       'ui-button': require('keen-ui/src/UiButton'),
     },
@@ -79,7 +80,7 @@
           });
         },
         resetToDefaultSettings(store) {
-          console.log('reset', store);
+          console.log('reset');
         },
         saveChanges(store) {
           console.log('save changes', store);
