@@ -14,7 +14,7 @@ function makeWrapper(propsData) {
         }
       }
     },
-    // TODO bring in real mutations
+    // TODO bring in real mutations, and test the state instead of just dispatch
     mutations: {
       CONFIG_PAGE_MODIFY_SETTING() {},
     }
@@ -40,5 +40,27 @@ describe.only('facility config page view', () => {
       value: true,
     });
     dispatchSpy.restore();
+  });
+
+  it('clicking save dispatches a save action', () => {
+    const wrapper = makeWrapper({});
+    wrapper.resetToDefaultSettings();
+  });
+
+  it('click reset brings up the confirmation modal', () => {
+
+  });
+
+  it('confirming reset dispatches reset action', () => {
+    // and tears down modal, and shows success notification
+
+  });
+
+  it('canceling reset tears down the modal', () => {
+
+  });
+
+  it('errors result in showing error notification', () => {
+
   });
 });
