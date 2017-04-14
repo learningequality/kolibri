@@ -56,4 +56,17 @@ describe('facility config page mutations', () => {
     mutations.CONFIG_PAGE_MODIFY_ALL_SETTINGS(mockState, differentSettings);
     assert.deepEqual(mockState.pageState.settings, differentSettings);
   });
+
+  it('CONFIG_PAGE_COPY_SETTINGS', () => {
+    const mockState = {
+      pageState: {
+        settings: { setting_1: true, setting_2: false },
+        settingsCopy: { setting_1: true, setting_2: true },
+      },
+    };
+    mutations.CONFIG_PAGE_UNDO_SETTINGS_CHANGE(mockState);
+    assert.deepEqual(mockState.pageState.settingsCopy, {
+      setting_1: true, setting_2: false,
+    });
+  });
 });

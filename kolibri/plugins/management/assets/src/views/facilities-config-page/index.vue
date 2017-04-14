@@ -1,19 +1,24 @@
 <template>
 
   <div>
+    <notifications
+      :notification="notification"
+      @dismiss="dismissNotification()"
+    />
+
     <div>
       <h2>Facilities Configuration</h2>
       <p>Configure and change different Facility settings here.</p>
     </div>
 
-    <div>
+    <div v-if="settings!==null">
       <h3>Your current Facility</h3>
       <p class="current-facility-name">
         {{ currentFacilityName }}
       </p>
     </div>
 
-    <div>
+    <div v-if="settings!==null">
       <h2>Facility Settings</h2>
       <div class="settings">
         <template v-for="setting in settingsList">
@@ -37,7 +42,11 @@
           Reset to default settings
         </ui-button>
         <span class="space" />
-        <ui-button color="primary" name="save-settings" @click="saveChanges">
+        <ui-button
+          color="primary"
+          name="save-settings"
+          @click="saveFacilityConfig()"
+        >
           Save changes
         </ui-button>
       </div>
@@ -61,6 +70,7 @@
   module.exports = {
     components: {
       'confirm-reset-modal': require('./confirm-reset-modal'),
+      'notifications': require('./config-page-notifications'),
       'ui-checkbox': require('keen-ui/src/UiCheckbox'),
       'ui-button': require('keen-ui/src/UiButton'),
     },
@@ -86,6 +96,7 @@
       getters: {
         currentFacilityName: state => state.pageState.facilityName,
         settings: state => state.pageState.settings,
+        notification: state => state.pageState.notification,
       },
       actions: {
         toggleSetting(store, settingName) {
@@ -96,8 +107,8 @@
         },
         saveFacilityConfig: actions.saveFacilityConfig,
         resetFacilityConfig: actions.resetFacilityConfig,
-        saveChanges(store) {
-          console.log('save changes', store);
+        dismissNotification(store) {
+          store.dispatch('CONFIG_PAGE_NOTIFY', null);
         },
       },
     },

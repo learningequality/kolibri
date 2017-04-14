@@ -7,7 +7,7 @@ const {
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
 const preparePage = require('./preparePage');
-const { PageNames, defaultFacilityConfig } = require('../constants');
+const { PageNames, defaultFacilityConfig, notificationTypes } = require('../constants');
 
 // When app is installed, the Facility is assigned id of `1`.
 // Hardcoded here for now.
@@ -49,8 +49,8 @@ function showFacilityConfigPage(store) {
   .catch(function onFailure(err) {
     store.dispatch('SET_PAGE_STATE', {
       facilityName: '',
-      settings: {},
-      notification: 'pageload_failure',
+      settings: null,
+      notification: notificationTypes.PAGELOAD_FAILURE,
     });
     store.dispatch('CORE_SET_PAGE_LOADING', false);
   });
@@ -64,10 +64,11 @@ function saveFacilityConfig(store) {
   ];
   return resolveOnlyIfOnSamePage(resourceRequests, store)
   .then(function onSuccess(x) {
-    store.dispatch('CONFIG_PAGE_NOTIFY', 'save_success');
+    store.dispatch('CONFIG_PAGE_NOTIFY', notificationTypes.SAVE_SUCCESS);
+    store.dispatch('CONFIG_PAGE_COPY_SETTINGS');
   })
   .catch(function onFailure(err) {
-    store.dispatch('CONFIG_PAGE_NOTIFY', 'save_failure');
+    store.dispatch('CONFIG_PAGE_NOTIFY', notificationTypes.SAVE_FAILURE);
     store.dispatch('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
   });
 }

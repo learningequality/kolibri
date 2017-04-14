@@ -51,6 +51,12 @@ const defaultFacilityConfig = {
   learner_can_delete_account: true,
 };
 
+const notificationTypes = {
+  PAGELOAD_FAILURE: 'pageload_failure',
+  SAVE_FAILURE: 'save_failure',
+  SAVE_SUCCESS: 'save_success',
+};
+
 module.exports = {
   PageNames,
   Modals,
@@ -58,4 +64,5 @@ module.exports = {
   TaskTypes,
   TaskStatuses,
   defaultFacilityConfig,
+  notificationTypes,
 };

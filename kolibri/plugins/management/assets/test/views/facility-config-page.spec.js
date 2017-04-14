@@ -26,13 +26,10 @@ function makeWrapper(propsData = {}) {
 
 function getElements(wrapper) {
   return {
-    checkbox: () => wrapper.$el.querySelector('input[name="learner_can_edit_username"]'),
-    resetButton: () => wrapper.$el.querySelector('button[name="reset-settings"]'),
-    // this modal does not mount/unmount like in real browser; there is
-    // weird behavior in general for child nodes in testing
-    confirmResetModal: () => wrapper.$el.querySelector('#confirm-reset'),
     cancelResetButton: () => wrapper.$el.querySelector('button[name="cancel"]'),
+    checkbox: () => wrapper.$el.querySelector('input[name="learner_can_edit_username"]'),
     confirmResetButton: () => wrapper.$el.querySelector('button[name="reset"]'),
+    resetButton: () => wrapper.$el.querySelector('button[name="reset-settings"]'),
     saveButton: () => wrapper.$el.querySelector('button[name="save-settings"]'),
   };
 }
@@ -89,7 +86,6 @@ describe.only('facility config page view', () => {
     });
   });
 
-  // TODO maybe DRY up the open-modal flow
   it('confirming reset calls the reset action', () => {
     const wrapper = makeWrapper();
     const resetActionStub = sinon.stub(wrapper, 'resetFacilityConfig');
