@@ -6,7 +6,7 @@
       v-if="notification===notificationTypes.PAGELOAD_FAILURE"
       @dismiss="dismiss()"
     >
-      {{ $tr('pageload_failure') }}
+      {{ $tr('pageloadFailure') }}
     </ui-alert>
 
     <ui-alert
@@ -14,7 +14,7 @@
       v-if="notification===notificationTypes.SAVE_SUCCESS"
       @dismiss="dismiss()"
     >
-      {{ $tr('save_success') }}
+      {{ $tr('saveSuccess') }}
     </ui-alert>
 
     <ui-alert
@@ -22,7 +22,7 @@
       v-if="notification===notificationTypes.SAVE_FAILURE"
       @dismiss="dismiss()"
     >
-      {{ $tr('save_failure') }}
+      {{ $tr('saveFailure') }}
     </ui-alert>
   </div>
 
@@ -52,9 +52,9 @@
     },
     $trNameSpace: 'configPageNotifications',
     $trs: {
-      save_failure: 'There was a problem saving your settings',
-      save_success: 'Facility settings updated!',
-      pageload_failure: 'There was a problem loading your settings',
+      saveFailure: 'There was a problem saving your settings',
+      saveSuccess: 'Facility settings updated!',
+      pageloadFailure: 'There was a problem loading your settings',
     },
   };
 

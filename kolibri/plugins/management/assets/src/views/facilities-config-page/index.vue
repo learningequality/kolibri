@@ -7,50 +7,56 @@
     />
 
     <div>
-      <h2>Facilities Configuration</h2>
-      <p>Configure and change different Facility settings here.</p>
+      <h2>{{ $tr('pageHeader') }}</h2>
+      <p>{{ $tr('pageDescription') }}</p>
     </div>
 
-    <div v-if="settings!==null">
-      <h3>Your current Facility</h3>
-      <p class="current-facility-name">
-        {{ currentFacilityName }}
-      </p>
-    </div>
-
-    <div v-if="settings!==null">
-      <h2>Facility Settings</h2>
-      <div class="settings">
-        <template v-for="setting in settingsList">
-          <ui-checkbox
-            :name="setting"
-            :value="settings[setting]"
-            @change="toggleSetting(setting)"
-            box-position="right"
-          >
-            {{ $tr(setting) }}
-          </ui-checkbox>
-        </template>
+    <template v-if="settings!==null">
+      <div>
+        <h3>{{ $tr('currentFacilityHeader') }}</h3>
+        <p class="current-facility-name">
+          {{ currentFacilityName }}
+        </p>
       </div>
 
       <div>
-        <ui-button
-          class="mr"
-          name="reset-settings"
-          @click="showModal=true"
-        >
-          Reset to default settings
-        </ui-button>
-        <span class="space" />
-        <ui-button
-          color="primary"
-          name="save-settings"
-          @click="saveFacilityConfig()"
-        >
-          Save changes
-        </ui-button>
+        <h2>{{ $tr('settingsHeader') }}</h2>
+        <div class="settings">
+          <template v-for="setting in settingsList">
+            <ui-checkbox
+              :name="setting"
+              :value="settings[setting]"
+              @change="toggleSetting(setting)"
+              box-position="right"
+            >
+              {{ $tr(setting) }}
+            </ui-checkbox>
+          </template>
+        </div>
+
+        <div>
+          <ui-button
+            :ariaLabel="$tr('resetToDefaultSettings')"
+            @click="showModal=true"
+            class="mr"
+            name="reset-settings"
+          >
+            {{ $tr('resetToDefaultSettings') }}
+          </ui-button>
+
+          <span class="space" />
+
+          <ui-button
+            :ariaLabel="$tr('saveChanges')"
+            @click="saveFacilityConfig()"
+            color="primary"
+            name="save-settings"
+          >
+            {{ $tr('saveChanges') }}
+          </ui-button>
+        </div>
       </div>
-    </div>
+    </template>
 
     <confirm-reset-modal
       id="confirm-reset"
@@ -114,11 +120,17 @@
     },
     $trNameSpace: 'facilityConfigPage',
     $trs: {
-      learner_can_edit_username: 'Allow users to edit their username',
+      currentFacilityHeader: 'Your current Facility',
+      learner_can_delete_account: 'Allow users to delete their account',
       learner_can_edit_name: 'Allow users to edit their full name',
       learner_can_edit_password: 'Allow users to change their password when logged in',
-      learner_can_delete_account: 'Allow users to delete their account',
+      learner_can_edit_username: 'Allow users to edit their username',
       learner_can_sign_up: 'Allow users to sign-up on this device',
+      pageDescription: 'Configure and change different Facility settings here.',
+      pageHeader: 'Facilities Configuration',
+      resetToDefaultSettings: 'Reset to default settings',
+      saveChanges: 'Save changes',
+      settingsHeader: 'Facility Settings',
     }
   };
 
