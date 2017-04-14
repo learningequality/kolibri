@@ -169,7 +169,7 @@
             href: '/learn',
           },
         ];
-        if (this.isCoachAdminOrSuperuser) {
+        if (this.isAdmin || this.isCoach) {
           options.push({
             label: this.$tr('coach'),
             active: this.coachActive,
@@ -177,7 +177,7 @@
             href: '/coach',
           });
         }
-        if (this.isAdminOrSuperuser) {
+        if (this.isAdmin || this.isSuperuser) {
           options.push({
             label: this.$tr('manage'),
             active: this.manageActive,
@@ -188,7 +188,7 @@
         options.push({
           type: 'divider',
         });
-        if (this.isUserLoggedIn && !this.isAdminOrSuperuser) {
+        if (this.isUserLoggedIn && !this.isSuperuser) {
           options.push({
             label: this.$tr('profile'),
             active: this.profileActive,
@@ -225,8 +225,9 @@
       getters: {
         session: state => state.core.session,
         isUserLoggedIn: getters.isUserLoggedIn,
-        isAdminOrSuperuser: getters.isAdminOrSuperuser,
-        isCoachAdminOrSuperuser: getters.isCoachAdminOrSuperuser,
+        isSuperuser: getters.isSuperuser,
+        isAdmin: getters.isAdmin,
+        isCoach: getters.isCoach,
       },
     },
   };

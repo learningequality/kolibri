@@ -1,5 +1,6 @@
 const coreApp = require('kolibri');
 const coreActions = require('kolibri.coreVue.vuex.actions');
+const coreGetters = require('kolibri.coreVue.vuex.getters');
 const values = require('lodash/values');
 
 const CoreConstants = require('kolibri.coreVue.vuex.constants');
@@ -24,6 +25,14 @@ const ChannelResource = coreApp.resources.ChannelResource;
 
 
 function _showChannelList(store, classId) {
+  // don't handle super users
+  if (coreGetters.isSuperuser(store.state)) {
+    store.dispatch('SET_PAGE_STATE', {});
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    store.dispatch('CORE_SET_ERROR', null);
+    return;
+  }
+
   function channelLastActivePromise(channel) {
     // helper function for _showChannelList
     // @param channel to get recentActivity for
