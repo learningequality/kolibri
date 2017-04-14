@@ -16,7 +16,7 @@
             <router-link :to="reportLink(channel.id)">{{ channel.title }}</router-link>
           </td>
           <td>
-            <elapsed-time v-if="lastActive[channel.id]" :date="lastActive[channel.id]" />
+            <elapsed-time :date="lastActive[channel.id]" />
           </td>
         </tr>
       </tbody>

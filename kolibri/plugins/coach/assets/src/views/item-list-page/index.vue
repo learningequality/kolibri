@@ -83,7 +83,7 @@
                 <progress-cell :num="row.contentProgress" :isExercise="false"/>
               </td>
               <td class="date-col">
-                <date-cell :date="row.lastActive"/>
+                <elapsed-time :date="row.lastActive" />
               </td>
             </tr>
           </tbody>
@@ -108,7 +108,7 @@
       'name': 'Name',
       'avg-exercise-progress': 'Avg. exercise progress',
       'avg-content-progress': 'Avg. resource progress',
-      'last-activity': 'Last activity',
+      'last-activity': 'Last active',
       'all-learners': 'All learners ({0, number, integer})',
     },
     components: {
@@ -117,9 +117,9 @@
       'summary-section': require('./summary-section'),
       'header-cell': require('./header-cell'),
       'user-cell': require('./data-cells/user-cell'),
-      'date-cell': require('./data-cells/date-cell'),
       'progress-cell': require('./data-cells/progress-cell'),
       'item-cell': require('./data-cells/item-cell'),
+      'elapsed-time': require('../elapsed-time'),
     },
     computed: {
       ReportConstants() {
