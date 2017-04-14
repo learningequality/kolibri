@@ -164,7 +164,7 @@
         const options = [
           {
             label: this.$tr('learn'),
-            disabled: this.learnActive,
+            active: this.learnActive,
             icon: 'school',
             href: '/learn',
           },
@@ -172,7 +172,7 @@
         if (this.isCoachAdminOrSuperuser) {
           options.push({
             label: this.$tr('coach'),
-            disabled: this.coachActive,
+            active: this.coachActive,
             icon: 'assessment',
             href: '/coach',
           });
@@ -180,7 +180,7 @@
         if (this.isAdminOrSuperuser) {
           options.push({
             label: this.$tr('manage'),
-            disabled: this.manageActive,
+            active: this.manageActive,
             icon: 'people',
             href: '/management',
           });
@@ -191,7 +191,7 @@
         if (this.isUserLoggedIn && !this.isAdminOrSuperuser) {
           options.push({
             label: this.$tr('profile'),
-            disabled: this.profileActive,
+            active: this.profileActive,
             icon: 'account_circle',
             href: '/user',
           });
@@ -213,7 +213,7 @@
       },
     },
     components: {
-      'ui-menu': require('keen-ui/src/UiMenu'),
+      'ui-menu': require('./keen-menu-port'),
       'ui-icon': require('keen-ui/src/UiIcon'),
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
       'logo': require('kolibri.coreVue.components.logo'),
@@ -336,16 +336,15 @@
       margin: 5px 0
       &:not(.is-divider)
         font-size: 14px
-        &.is-disabled
-          .ui-menu-option__icon
+        &.is-active
+          .ui-menu-option-icon
             color: $core-accent-color
           color: $core-accent-color
-          cursor: default
           font-weight: bold
           opacity: 1
-        .ui-menu-option__text
+        .ui-menu-option-text
           overflow: visible
-        .ui-menu-option__icon
+        .ui-menu-option-icon
           font-size: 1.2em
       &.is_divider
         background-color: $core-text-annotation
