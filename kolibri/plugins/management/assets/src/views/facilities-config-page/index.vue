@@ -6,22 +6,22 @@
       @dismiss="dismissNotification()"
     />
 
-    <div>
-      <h2>{{ $tr('pageHeader') }}</h2>
+    <div class="mb">
+      <h1>{{ $tr('pageHeader') }}</h1>
       <p>{{ $tr('pageDescription') }}</p>
     </div>
 
     <template v-if="settings!==null">
-      <div>
-        <h3>{{ $tr('currentFacilityHeader') }}</h3>
+      <div class="mb">
+        <h2>{{ $tr('currentFacilityHeader') }}</h2>
         <p class="current-facility-name">
           {{ currentFacilityName }}
         </p>
       </div>
 
-      <div>
-        <h2>{{ $tr('settingsHeader') }}</h2>
+      <div class="mb">
         <div class="settings">
+          <h2>{{ $tr('settingsHeader') }}</h2>
           <template v-for="setting in settingsList">
             <ui-checkbox
               :name="setting"
@@ -141,12 +141,15 @@
   .mr
     margin-right: 5px
 
+  .mb
+    margin-bottom: 2rem
+
   .settings
     max-width: 35rem
 
   .settings > label
     cursor: pointer
     font-weight: bold
-    margin: 2rem 0
+    margin-bottom: 2rem
 
 </style>
