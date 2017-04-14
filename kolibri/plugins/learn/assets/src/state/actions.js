@@ -507,6 +507,17 @@ function parseJSONorUndefined(json) {
   return undefined;
 }
 
+function calcQuestionsAnswered(attemptLogs) {
+  let questionsAnswered = 0;
+  Object.keys(attemptLogs).forEach((key) => {
+    Object.keys(attemptLogs[key]).forEach(
+    (innerKey) => {
+      questionsAnswered += attemptLogs[key][innerKey].answer ? 1 : 0;
+    });
+  });
+  return questionsAnswered;
+}
+
 
 function showExam(store, channelId, id, questionNumber) {
   if (store.state.pageName !== PageNames.EXAM) {
@@ -514,146 +525,155 @@ function showExam(store, channelId, id, questionNumber) {
     store.dispatch('SET_PAGE_NAME', PageNames.EXAM);
   }
 
-  questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
+  if (!store.state.core.session.user_id) {
+    store.dispatch('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  } else {
+    questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
 
-  const examPromise = UserExamResource.getModel(id, { channel_id: channelId }).fetch();
-  const channelsPromise = coreActions.setChannelInfo(store, channelId);
-  const examLogPromise = ExamLogResource.getCollection({
-    user: store.state.core.session.user_id,
-    exam: id,
-  }).fetch();
-  const examAttemptLogPromise = ExamAttemptLogResource.getCollection({
-    user: store.state.core.session.user_id,
-    exam: id,
-  }).fetch();
-  ConditionalPromise.all([
-    examPromise,
-    channelsPromise,
-    examLogPromise,
-    examAttemptLogPromise,
-  ]).only(
-    samePageCheckGenerator(store),
-    ([exam, channel, examLogs, examAttemptLogs]) => {
-      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
-      if (!currentChannel) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
-        return;
-      }
+    const examPromise = UserExamResource.getModel(id, { channel_id: channelId }).fetch();
+    const channelsPromise = coreActions.setChannelInfo(store, channelId);
+    const examLogPromise = ExamLogResource.getCollection({
+      user: store.state.core.session.user_id,
+      exam: id,
+    }).fetch();
+    const examAttemptLogPromise = ExamAttemptLogResource.getCollection({
+      user: store.state.core.session.user_id,
+      exam: id,
+    }).fetch();
+    ConditionalPromise.all([
+      examPromise,
+      channelsPromise,
+      examLogPromise,
+      examAttemptLogPromise,
+    ]).only(
+      samePageCheckGenerator(store),
+      ([exam, channel, examLogs, examAttemptLogs]) => {
+        const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+        if (!currentChannel) {
+          router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+          return;
+        }
 
-      const attemptLogs = {};
+        const attemptLogs = {};
 
-      if (store.state.core.session.user_id &&
-        store.state.core.session.kind[0] !== CoreConstants.UserKinds.SUPERUSER) {
-        if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
-          store.dispatch('SET_EXAM_LOG', _examLoggingState(examLogs.find(log => !log.closed)));
-        } else {
-          const examLogModel = ExamLogResource.createModel({
-            user: store.state.core.session.user_id,
-            exam: id,
-            closed: false,
-          });
-          examLogModel.save().then((newExamLog) => {
-            store.dispatch('SET_EXAM_LOG', newExamLog);
-            ExamLogResource.unCacheCollection({
+        if (store.state.core.session.user_id &&
+          store.state.core.session.kind[0] !== CoreConstants.UserKinds.SUPERUSER) {
+          if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
+            store.dispatch('SET_EXAM_LOG', _examLoggingState(examLogs.find(log => !log.closed)));
+          } else {
+            const examLogModel = ExamLogResource.createModel({
               user: store.state.core.session.user_id,
               exam: id,
+              closed: false,
             });
-          });
-        }
-        // Sort through all the exam attempt logs retrieved and organize them into objects
-        // keyed first by content_id and then item id under that.
-        if (examAttemptLogs.length > 0) {
-          examAttemptLogs.forEach((log) => {
-            if (!attemptLogs[log.content_id]) {
-              attemptLogs[log.content_id] = {};
-            }
-            attemptLogs[log.content_id][log.item] = Object.assign(log, {
-              answer: parseJSONorUndefined(log.answer),
-              interaction_history: parseJSONorUndefined(log.interaction_history) || [],
+            examLogModel.save().then((newExamLog) => {
+              store.dispatch('SET_EXAM_LOG', newExamLog);
+              ExamLogResource.unCacheCollection({
+                user: store.state.core.session.user_id,
+                exam: id,
+              });
             });
-          });
+          }
+          // Sort through all the exam attempt logs retrieved and organize them into objects
+          // keyed first by content_id and then item id under that.
+          if (examAttemptLogs.length > 0) {
+            examAttemptLogs.forEach((log) => {
+              if (!attemptLogs[log.content_id]) {
+                attemptLogs[log.content_id] = {};
+              }
+              attemptLogs[log.content_id][log.item] = Object.assign({}, log, {
+                answer: parseJSONorUndefined(log.answer),
+                interaction_history: parseJSONorUndefined(log.interaction_history) || [],
+              });
+            });
+          }
         }
-      }
 
-      const seed = exam.seed;
-      const questionSources = JSON.parse(exam.question_sources);
+        const seed = exam.seed;
+        const questionSources = JSON.parse(exam.question_sources);
 
-      // Create an array of objects with contentId and assessmentItemIndex
-      // These will be used to select specific questions from the content node
-      // The indices referred to shuffled positions in the content node's assessment_item_ids
-      // property.
-      // Wrap this all in a seededShuffle to give a consistent, repeatable shuffled order.
-      const shuffledQuestions = seededShuffle.shuffle(
-        createQuestionList(questionSources), seed, true);
+        // Create an array of objects with contentId and assessmentItemIndex
+        // These will be used to select specific questions from the content node
+        // The indices referred to shuffled positions in the content node's assessment_item_ids
+        // property.
+        // Wrap this all in a seededShuffle to give a consistent, repeatable shuffled order.
+        const shuffledQuestions = seededShuffle.shuffle(
+          createQuestionList(questionSources), seed, true);
 
-      if (!shuffledQuestions[questionNumber]) {
-        // Illegal question number!
-        coreActions.handleError(store, `Question number ${questionNumber} is not valid for this exam`);
-      } else {
-        const contentPromise = ContentNodeResource.getCollection(
-          { channel_id: channelId },
-          { ids: questionSources.map(item => item.exercise_id) }).fetch();
+        if (!shuffledQuestions[questionNumber]) {
+          // Illegal question number!
+          coreActions.handleError(store, `Question number ${questionNumber} is not valid for this exam`);
+        } else {
+          const contentPromise = ContentNodeResource.getCollection(
+            { channel_id: channelId },
+            { ids: questionSources.map(item => item.exercise_id) }).fetch();
 
-        contentPromise.only(
-          samePageCheckGenerator(store),
-          (contentNodes) => {
-            const contentNodeMap = {};
+          contentPromise.only(
+            samePageCheckGenerator(store),
+            (contentNodes) => {
+              const contentNodeMap = {};
 
-            contentNodes.forEach(node => { contentNodeMap[node.pk] = node; });
+              contentNodes.forEach(node => { contentNodeMap[node.pk] = node; });
 
-            const questions = shuffledQuestions.map(question => ({
-              itemId: selectQuestionFromExercise(
-              question.assessmentItemIndex,
-              seed,
-              contentNodeMap[question.contentId]),
-              contentId: question.contentId
-            }));
+              const questions = shuffledQuestions.map(question => ({
+                itemId: selectQuestionFromExercise(
+                question.assessmentItemIndex,
+                seed,
+                contentNodeMap[question.contentId]),
+                contentId: question.contentId
+              }));
 
-            const itemId = questions[questionNumber].itemId;
+              const itemId = questions[questionNumber].itemId;
 
-            const currentQuestion = questions[questionNumber];
+              const currentQuestion = questions[questionNumber];
 
-            const pageState = {
-              exam: _examState(exam),
-              itemId,
-              questions,
-              currentQuestion,
-              questionNumber,
-              content: _contentState(contentNodeMap[questions[questionNumber].contentId]),
-              channelId,
-            };
-            if (!attemptLogs[currentQuestion.contentId]) {
-              attemptLogs[currentQuestion.contentId] = {};
-            }
-            if (!attemptLogs[currentQuestion.contentId][itemId]) {
-              attemptLogs[currentQuestion.contentId][itemId] = {
-                start_timestamp: new Date(),
-                completion_timestamp: null,
-                end_timestamp: null,
-                item: itemId,
-                complete: false,
-                time_spent: 0,
-                correct: 0,
-                answer: undefined,
-                simple_answer: '',
-                interaction_history: [],
-                hinted: false,
-                channel_id: channelId,
-                content_id: currentQuestion.contentId,
+              const questionsAnswered = Math.max(store.state.pageState.questionsAnswered || 0,
+                calcQuestionsAnswered(attemptLogs));
+
+              const pageState = {
+                exam: _examState(exam),
+                itemId,
+                questions,
+                currentQuestion,
+                questionNumber,
+                content: _contentState(contentNodeMap[questions[questionNumber].contentId]),
+                channelId,
+                questionsAnswered,
               };
-            }
-            store.dispatch('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
-            store.dispatch('SET_PAGE_STATE', pageState);
-            store.dispatch('CORE_SET_PAGE_LOADING', false);
-            store.dispatch('CORE_SET_ERROR', null);
-            store.dispatch('CORE_SET_TITLE', `${pageState.exam.title} - ${currentChannel.title}`);
-          },
-          error => { coreActions.handleApiError(store, error); }
-        );
-      }
-    },
-    error => { coreActions.handleApiError(store, error); }
-  );
+              if (!attemptLogs[currentQuestion.contentId]) {
+                attemptLogs[currentQuestion.contentId] = {};
+              }
+              if (!attemptLogs[currentQuestion.contentId][itemId]) {
+                attemptLogs[currentQuestion.contentId][itemId] = {
+                  start_timestamp: new Date(),
+                  completion_timestamp: null,
+                  end_timestamp: null,
+                  item: itemId,
+                  complete: false,
+                  time_spent: 0,
+                  correct: 0,
+                  answer: undefined,
+                  simple_answer: '',
+                  interaction_history: [],
+                  hinted: false,
+                  channel_id: channelId,
+                  content_id: currentQuestion.contentId,
+                };
+              }
+              store.dispatch('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
+              store.dispatch('SET_PAGE_STATE', pageState);
+              store.dispatch('CORE_SET_PAGE_LOADING', false);
+              store.dispatch('CORE_SET_ERROR', null);
+              store.dispatch('CORE_SET_TITLE', `${pageState.exam.title} - ${currentChannel.title}`);
+            },
+            error => { coreActions.handleApiError(store, error); }
+          );
+        }
+      },
+      error => { coreActions.handleApiError(store, error); }
+    );
+  }
 }
 
 function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemptLog) {
@@ -664,14 +684,14 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
   });
   const examAttemptLogModel = ExamAttemptLogResource.getModel(
     currentAttemptLog.id);
-  const attributes = currentAttemptLog;
+  const attributes = Object.assign({}, currentAttemptLog);
   attributes.interaction_history = JSON.stringify(attributes.interaction_history);
   attributes.answer = JSON.stringify(attributes.answer);
   attributes.user = store.state.core.session.user_id;
   attributes.examlog = store.state.examLog.id;
   const promise = examAttemptLogModel.save(attributes);
   promise.then((newExamAttemptLog) => {
-    const log = Object.assign(newExamAttemptLog, {
+    const log = Object.assign({}, newExamAttemptLog, {
       answer: parseJSONorUndefined(newExamAttemptLog.answer),
       interaction_history: parseJSONorUndefined(newExamAttemptLog.interaction_history) || [],
     });
@@ -680,6 +700,8 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
         [itemId]: log,
       }),
     });
+    const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
+    store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
     const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
       user: store.state.core.session.user_id,
       exam: store.state.pageState.exam.id,

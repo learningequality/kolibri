@@ -1,6 +1,6 @@
 <template>
 
-  <immersive-full-screen :backPageLink="backPageLink">
+  <immersive-full-screen v-if="exam" :backPageLink="backPageLink">
     <template slot="text"> {{ $tr('backToExamList') }} </template>
     <template slot="body">
       <div class="container">
@@ -92,11 +92,12 @@
         attemptLogs: state => state.examAttemptLogs,
         currentAttempt: state =>
           state.examAttemptLogs[state.pageState.content.id][state.pageState.itemId],
+        questionsAnswered: state => state.pageState.questionsAnswered,
       },
       actions: {
         setAndSaveCurrentExamAttemptLog: actions.setAndSaveCurrentExamAttemptLog,
         closeExam: actions.closeExam,
-      }
+      },
     },
     methods: {
       goToQuestion(questionNumber) {
@@ -137,11 +138,6 @@
           name: PageNames.EXAM_LIST,
           params: { channel_id: this.channelId },
         };
-      },
-      questionsAnswered() {
-        return Object.keys(this.attemptLogs).reduce(
-          (acc, key) => (Object.keys(this.attemptLogs[key]).reduce(
-            (cum, innerKey) => (this.attemptLogs[key][innerKey].answer ? 1 : 0), 0)), 0);
       },
       questionsUnanswered() {
         return this.exam.questionCount - this.questionsAnswered;

@@ -49,11 +49,14 @@ class ExamAttemptLogSerializer(serializers.ModelSerializer):
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
 
     def validate(self, data):
-        try:
-            if data['examlog'].user != data['user']:
-                raise serializers.ValidationError('User field and user for related exam log are not the same')
-        except ExamLog.DoesNotExist:
-            raise serializers.ValidationError('Invalid exam log')
+        # Only do this validation when both are being set
+        # not necessary on PATCH, for example
+        if data.get('examlog') and data.get('user'):
+            try:
+                if data['examlog'].user != data['user']:
+                    raise serializers.ValidationError('User field and user for related exam log are not the same')
+            except ExamLog.DoesNotExist:
+                raise serializers.ValidationError('Invalid exam log')
         return data
 
 class ContentSummaryLogSerializer(serializers.ModelSerializer):
