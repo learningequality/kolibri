@@ -210,4 +210,7 @@
     margin-bottom: 1em
     padding: 1em
 
+  .table-section
+    overflow-x: scroll
+
 </style>
