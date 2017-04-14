@@ -12,6 +12,12 @@ const UserScopes = {
   USER: 'user',
 };
 
+const ViewBy = {
+  CONTENT: 'content',
+  LEARNER: 'learner',
+  RECENT: 'recent',
+};
+
 const TableColumns = {
   NAME: 'name',
   EXERCISE: 'exercise_progress',
@@ -28,6 +34,7 @@ const SortOrders = {
 module.exports = {
   ContentScopes,
   UserScopes,
+  ViewBy,
   TableColumns,
   SortOrders,
 };

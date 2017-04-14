@@ -6,8 +6,8 @@
       <router-link v-if="isTopic" :to="topicLink">{{ title }}</router-link>
       <!--  TODO
       <router-link v-if="isUser" :to="userLink">{{ title }}</router-link>
-      <router-link v-if="isExercise" :to="exerciseLink">{{ title }}</router-link>
        -->
+      <router-link v-if="isExercise" :to="exerciseLink">{{ title }}</router-link>
       <span v-else>{{ title }}</span>
     </div>
     <div class="wrapper" v-if="isTopic">
@@ -76,7 +76,14 @@
         return this.kind === CoreConstants.ContentNodeKinds.EXERCISE;
       },
       exerciseLink() {
-        return {}; // TODO
+        return {
+          name: CoachConstants.PageNames.TOPIC_LEARNERS_FOR_ITEM,
+          params: {
+            classId: this.pageState.classId,
+            channelId: this.pageState.channelId,
+            contentId: this.id,
+          }
+        };
       },
     },
     vuex: {
