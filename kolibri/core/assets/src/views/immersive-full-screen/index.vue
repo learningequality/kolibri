@@ -69,7 +69,7 @@
     color: $core-bg-light
     float: left
     font-weight: bold
-    font-size: 1.3em
+    font-size: 1.2em
 
   p
     margin: 0

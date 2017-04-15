@@ -1,6 +1,6 @@
 <template>
 
-  <exam-detail-view :backPageLink="backPageLink">
+  <immersive-full-screen :backPageLink="backPageLink">
     <template slot="text"> {{ backtoText(contentName) }} </template>
     <template slot="body">
       <div class="page-status-container">
@@ -19,7 +19,7 @@
         </div>
       </div>
     </template>
-  </exam-detail-view>
+  </immersive-full-screen>
 
 </template>
 
@@ -34,7 +34,7 @@
       backto: 'Back to { text }',
     },
     components: {
-      'exam-detail-view': require('./../content-detail-view'),
+      'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
       'page-status': require('./page-status'),
       'answer-history': require('./answer-history'),
     },

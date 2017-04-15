@@ -176,13 +176,11 @@ class MasteryLog(BaseLogModel):
     def infer_dataset(self):
         return self.summarylog.dataset
 
-class BaseAttemptLog(AbstractFacilityDataModel):
+class BaseAttemptLog(BaseLogModel):
     """
     This is an abstract model that provides a summary of a user's engagement within a particular
     interaction with an item/question in an assessment
     """
-    permissions = log_permissions("sessionlog__user")
-
     # Unique identifier within the relevant assessment for the particular question/item
     # that this attemptlog is a record of an interaction with.
     item = models.CharField(max_length=200)
@@ -201,6 +199,7 @@ class BaseAttemptLog(AbstractFacilityDataModel):
     # A JSON Array with a sequence of JSON objects that describe the history of interaction of the user
     # with this assessment item in this attempt.
     interaction_history = models.TextField()
+    user = models.ForeignKey(FacilityUser)
 
     class Meta:
         abstract = True

@@ -78,9 +78,7 @@
     />
     <preview-exam-modal
       v-if="showPreviewExamModal"
-      :examId="selectedExam.id"
-      :examTitle="selectedExam.title"
-      :classId="currentClass.id"
+      :exam="selectedExam"
     />
     <rename-exam-modal
       v-if="showRenameExamModal"
@@ -186,7 +184,7 @@
     },
     methods: {
       setSelectedExam(examId) {
-        this.selectedExam = this.exams.find(exam => exam.id === examId);
+        Object.assign(this.selectedExam, this.exams.find(exam => exam.id === examId));
       },
       openCreateExamModal() {
         this.displayExamModal(ExamModals.CREATE_EXAM);

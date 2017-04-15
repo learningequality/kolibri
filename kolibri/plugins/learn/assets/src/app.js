@@ -111,7 +111,7 @@ class LearnModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.EXAM,
+          name: PageNames.EXAM_ROOT,
           path: '/:channel_id/exams/:id',
           redirect: '/:channel_id/exams/:id/0',
         },

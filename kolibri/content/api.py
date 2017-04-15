@@ -4,7 +4,10 @@ from random import sample
 from django.core.cache import cache
 from django.db.models import Q
 from django.db.models.aggregates import Count
+from django.db.models.query import F
+from django.shortcuts import get_object_or_404
 from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
+from kolibri.auth.filters import HierarchyRelationsFilter
 from kolibri.content import models, serializers
 from kolibri.content.content_db_router import get_active_content_database
 from kolibri.logger.models import ContentSessionLog, ContentSummaryLog
@@ -33,10 +36,11 @@ class ContentNodeFilter(filters.FilterSet):
     popular = filters.django_filters.MethodFilter()
     resume = filters.django_filters.MethodFilter()
     kind = filters.django_filters.MethodFilter()
+    ids = filters.django_filters.MethodFilter()
 
     class Meta:
         model = models.ContentNode
-        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for']
+        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'ids']
 
     def title_description_filter(self, queryset, value):
         """
@@ -171,6 +175,9 @@ class ContentNodeFilter(filters.FilterSet):
             return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
         return queryset.filter(kind=value).order_by("lft")
 
+    def filter_ids(self, queryset, value):
+        return queryset.filter(pk__in=value.split(','))
+
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
     """
@@ -245,3 +252,12 @@ class UserExamViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.ExamAssignment.objects.all()
+
+    def retrieve(self, request, pk=None, **kwargs):
+        exam = get_object_or_404(models.Exam.objects.all(), id=pk)
+        assignment = HierarchyRelationsFilter(exam.assignments.get_queryset()).filter_by_hierarchy(
+            target_user=request.user,
+            ancestor_collection=F('collection'),
+        ).first()
+        serializer = serializers.UserExamSerializer(assignment, context={'request': request})
+        return Response(serializer.data)

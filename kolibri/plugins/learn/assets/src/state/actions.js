@@ -107,11 +107,11 @@ function _collectionState(data) {
 
 function _examState(data) {
   const state = {
-    id: data.pk,
+    id: data.id,
     title: data.title,
     channelId: data.channel_id,
     active: data.active,
-    archived: data.archived,
+    archive: data.archive,
     closed: data.closed,
     answerCount: data.answer_count,
     questionCount: data.question_count,
@@ -496,127 +496,226 @@ function showExamList(store, channelId) {
 }
 
 
-function showExam(store, channelId, id, questionNumber) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', PageNames.EXAM);
+function parseJSONorUndefined(json) {
+  try {
+    return JSON.parse(json);
+  } catch (e) {
+    if (!(e instanceof SyntaxError)) {
+      throw e;
+    }
+  }
+  return undefined;
+}
 
-  const examPromise = UserExamResource.getModel(id, { channel_id: channelId }).fetch();
-  const channelsPromise = coreActions.setChannelInfo(store, channelId);
-  const examLogPromise = ExamLogResource.getCollection({
-    user: store.state.core.session.user_id,
-    exam: id,
-  }).fetch();
-  const examAttemptLogPromise = ExamAttemptLogResource.getCollection({
-    user: store.state.core.session.user_id,
-    exam: id,
+function calcQuestionsAnswered(attemptLogs) {
+  let questionsAnswered = 0;
+  Object.keys(attemptLogs).forEach((key) => {
+    Object.keys(attemptLogs[key]).forEach(
+    (innerKey) => {
+      questionsAnswered += attemptLogs[key][innerKey].answer ? 1 : 0;
+    });
   });
-  ConditionalPromise.all([
-    examPromise,
-    channelsPromise,
-    examLogPromise,
-    examAttemptLogPromise,
-  ]).only(
-    samePageCheckGenerator(store),
-    ([exam, channel, examLogs, examAttemptLogs]) => {
-      const currentChannel = coreGetters.getCurrentChannelObject(store.state);
-      if (!currentChannel) {
-        router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
-        return;
-      }
+  return questionsAnswered;
+}
 
-      const attemptLogs = {};
 
-      if (store.state.core.session.user_id &&
-        store.state.core.session.kind[0] !== CoreConstants.UserKinds.SUPERUSER) {
-        if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
-          store.dispatch('SET_EXAM_LOG', _examLoggingState(examLogs.find(log => !log.closed)));
+function showExam(store, channelId, id, questionNumber) {
+  if (store.state.pageName !== PageNames.EXAM) {
+    store.dispatch('CORE_SET_PAGE_LOADING', true);
+    store.dispatch('SET_PAGE_NAME', PageNames.EXAM);
+  }
+
+  if (!store.state.core.session.user_id) {
+    store.dispatch('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+  } else {
+    questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
+
+    const examPromise = UserExamResource.getModel(id, { channel_id: channelId }).fetch();
+    const channelsPromise = coreActions.setChannelInfo(store, channelId);
+    const examLogPromise = ExamLogResource.getCollection({
+      user: store.state.core.session.user_id,
+      exam: id,
+    }).fetch();
+    const examAttemptLogPromise = ExamAttemptLogResource.getCollection({
+      user: store.state.core.session.user_id,
+      exam: id,
+    }).fetch();
+    ConditionalPromise.all([
+      examPromise,
+      channelsPromise,
+      examLogPromise,
+      examAttemptLogPromise,
+    ]).only(
+      samePageCheckGenerator(store),
+      ([exam, channel, examLogs, examAttemptLogs]) => {
+        const currentChannel = coreGetters.getCurrentChannelObject(store.state);
+        if (!currentChannel) {
+          router.replace({ name: constants.PageNames.CONTENT_UNAVAILABLE });
+          return;
+        }
+
+        const attemptLogs = {};
+
+        if (store.state.core.session.user_id &&
+          store.state.core.session.kind[0] !== CoreConstants.UserKinds.SUPERUSER) {
+          if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
+            store.dispatch('SET_EXAM_LOG', _examLoggingState(examLogs.find(log => !log.closed)));
+          } else {
+            const examLogModel = ExamLogResource.createModel({
+              user: store.state.core.session.user_id,
+              exam: id,
+              closed: false,
+            });
+            examLogModel.save().then((newExamLog) => {
+              store.dispatch('SET_EXAM_LOG', newExamLog);
+              ExamLogResource.unCacheCollection({
+                user: store.state.core.session.user_id,
+                exam: id,
+              });
+            });
+          }
+          // Sort through all the exam attempt logs retrieved and organize them into objects
+          // keyed first by content_id and then item id under that.
+          if (examAttemptLogs.length > 0) {
+            examAttemptLogs.forEach((log) => {
+              if (!attemptLogs[log.content_id]) {
+                attemptLogs[log.content_id] = {};
+              }
+              attemptLogs[log.content_id][log.item] = Object.assign({}, log, {
+                answer: parseJSONorUndefined(log.answer),
+                interaction_history: parseJSONorUndefined(log.interaction_history) || [],
+              });
+            });
+          }
+        }
+
+        const seed = exam.seed;
+        const questionSources = JSON.parse(exam.question_sources);
+
+        // Create an array of objects with contentId and assessmentItemIndex
+        // These will be used to select specific questions from the content node
+        // The indices referred to shuffled positions in the content node's assessment_item_ids
+        // property.
+        // Wrap this all in a seededShuffle to give a consistent, repeatable shuffled order.
+        const shuffledQuestions = seededShuffle.shuffle(
+          createQuestionList(questionSources), seed, true);
+
+        if (!shuffledQuestions[questionNumber]) {
+          // Illegal question number!
+          coreActions.handleError(store, `Question number ${questionNumber} is not valid for this exam`);
         } else {
-          const examLogModel = ExamLogResource.createModel({
-            user: store.state.core.session.user_id,
-            exam: id,
-            closed: false,
-          });
-          examLogModel.save().then((newExamLog) => {
-            store.dispatch('SET_EXAM_LOG', newExamLog);
-          });
-        }
-        // Sort through all the exam attempt logs retrieved and organize them into objects
-        // keyed first by content_id and then item id under that.
-        if (examAttemptLogs.length > 0) {
-          examAttemptLogs.forEach((log) => {
-            if (!attemptLogs[log.content_id]) {
-              attemptLogs[log.content_id] = {};
-            }
-            attemptLogs[log.content_id][log.item] = log;
-          });
-        }
-      }
+          const contentPromise = ContentNodeResource.getCollection(
+            { channel_id: channelId },
+            { ids: questionSources.map(item => item.exercise_id) }).fetch();
 
-      const seed = exam.seed;
-      const questionSources = JSON.parse(exam.question_sources);
+          contentPromise.only(
+            samePageCheckGenerator(store),
+            (contentNodes) => {
+              const contentNodeMap = {};
 
-      // Create an array of objects with contentId and assessmentItemIndex
-      // These will be used to select specific questions from the content node
-      // The indices referred to shuffled positions in the content node's assessment_item_ids
-      // property.
-      // Wrap this all in a seededShuffle to give a consistent, repeatable shuffled order.
-      const questions = seededShuffle.shuffle(createQuestionList(questionSources), seed, true);
+              contentNodes.forEach(node => { contentNodeMap[node.pk] = node; });
 
-      const currentQuestion = questions[questionNumber];
+              const questions = shuffledQuestions.map(question => ({
+                itemId: selectQuestionFromExercise(
+                question.assessmentItemIndex,
+                seed,
+                contentNodeMap[question.contentId]),
+                contentId: question.contentId
+              }));
 
-      if (!currentQuestion) {
-        // Illegal question number!
-        coreActions.handleError(store, `Question number ${questionNumber} is not valid for this exam`);
-      } else {
-        const contentPromise = ContentNodeResource.getModel(
-          currentQuestion.contentId, { channel_id: channelId }).fetch();
+              const itemId = questions[questionNumber].itemId;
 
-        contentPromise.then(
-          (contentNode) => {
-            const itemId = selectQuestionFromExercise(
-              currentQuestion.index,
-              seed,
-              contentNode);
+              const currentQuestion = questions[questionNumber];
 
-            const pageState = {
-              exam: _examState(exam),
-              attemptLogs,
-              itemId,
-              questions,
-              currentQuestion,
-              questionNumber,
-            };
-            if (!pageState.attemptLogs[currentQuestion.contentId]) {
-              pageState.attemptLogs[currentQuestion.contentId] = {};
-            }
-            if (!pageState.attemptLogs[currentQuestion.contentId][itemId]) {
-              pageState.attemptLogs[currentQuestion.contentId][itemId] = {
-                start_timestamp: new Date(),
-                completion_timestamp: null,
-                end_timestamp: null,
-                item: itemId,
-                complete: false,
-                time_spent: 0,
-                correct: 0,
-                answer: undefined,
-                simple_answer: '',
-                interaction_history: [],
-                hinted: false,
-                channel_id: channelId,
-                content_id: currentQuestion.contentId,
+              const questionsAnswered = Math.max(store.state.pageState.questionsAnswered || 0,
+                calcQuestionsAnswered(attemptLogs));
+
+              const pageState = {
+                exam: _examState(exam),
+                itemId,
+                questions,
+                currentQuestion,
+                questionNumber,
+                content: _contentState(contentNodeMap[questions[questionNumber].contentId]),
+                channelId,
+                questionsAnswered,
               };
-            }
-            store.dispatch('SET_PAGE_STATE', pageState);
-            store.dispatch('CORE_SET_PAGE_LOADING', false);
-            store.dispatch('CORE_SET_ERROR', null);
-            store.dispatch('CORE_SET_TITLE', `${pageState.exam.title} - ${currentChannel.title}`);
-          },
-          error => { coreActions.handleApiError(store, error); }
-        );
-      }
-    },
-    error => { coreActions.handleApiError(store, error); }
-  );
+              if (!attemptLogs[currentQuestion.contentId]) {
+                attemptLogs[currentQuestion.contentId] = {};
+              }
+              if (!attemptLogs[currentQuestion.contentId][itemId]) {
+                attemptLogs[currentQuestion.contentId][itemId] = {
+                  start_timestamp: new Date(),
+                  completion_timestamp: null,
+                  end_timestamp: null,
+                  item: itemId,
+                  complete: false,
+                  time_spent: 0,
+                  correct: 0,
+                  answer: undefined,
+                  simple_answer: '',
+                  interaction_history: [],
+                  hinted: false,
+                  channel_id: channelId,
+                  content_id: currentQuestion.contentId,
+                };
+              }
+              store.dispatch('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
+              store.dispatch('SET_PAGE_STATE', pageState);
+              store.dispatch('CORE_SET_PAGE_LOADING', false);
+              store.dispatch('CORE_SET_ERROR', null);
+              store.dispatch('CORE_SET_TITLE', `${pageState.exam.title} - ${currentChannel.title}`);
+            },
+            error => { coreActions.handleApiError(store, error); }
+          );
+        }
+      },
+      error => { coreActions.handleApiError(store, error); }
+    );
+  }
+}
+
+function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemptLog) {
+  store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+    [contentId]: ({
+      [itemId]: currentAttemptLog,
+    }),
+  });
+  const examAttemptLogModel = ExamAttemptLogResource.getModel(
+    currentAttemptLog.id);
+  const attributes = Object.assign({}, currentAttemptLog);
+  attributes.interaction_history = JSON.stringify(attributes.interaction_history);
+  attributes.answer = JSON.stringify(attributes.answer);
+  attributes.user = store.state.core.session.user_id;
+  attributes.examlog = store.state.examLog.id;
+  const promise = examAttemptLogModel.save(attributes);
+  promise.then((newExamAttemptLog) => {
+    const log = Object.assign({}, newExamAttemptLog, {
+      answer: parseJSONorUndefined(newExamAttemptLog.answer),
+      interaction_history: parseJSONorUndefined(newExamAttemptLog.interaction_history) || [],
+    });
+    store.dispatch('SET_EXAM_ATTEMPT_LOGS', {
+      [contentId]: ({
+        [itemId]: log,
+      }),
+    });
+    const questionsAnswered = calcQuestionsAnswered(store.state.examAttemptLogs);
+    store.dispatch('SET_QUESTIONS_ANSWERED', questionsAnswered);
+    const examAttemptLogCollection = ExamAttemptLogResource.getCollection({
+      user: store.state.core.session.user_id,
+      exam: store.state.pageState.exam.id,
+    });
+    // Add this attempt log to the Collection for future caching.
+    examAttemptLogCollection.set(examAttemptLogModel);
+  });
+}
+
+function closeExam(store) {
+  const examLog = store.state.examLog;
+  examLog.closed = true;
+  return ExamLogResource.getModel(examLog.id).save(examLog).catch(
+    error => { coreActions.handleApiError(store, error); });
 }
 
 module.exports = {
@@ -635,4 +734,6 @@ module.exports = {
   showSearch,
   showExam,
   showExamList,
+  setAndSaveCurrentExamAttemptLog,
+  closeExam,
 };
