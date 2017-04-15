@@ -25,9 +25,9 @@
         <tbody>
           <tr class="table-row" v-for="examTaker in examTakers">
             <th scope="row" class="table-text">
-              <router-link :to="examDetailPageLink(examTaker.id)" class="table-name">
+              <!-- <router-link :to="examDetailPageLink(examTaker.id)" class="table-name"> -->
                 {{examTaker.name}}
-              </router-link>
+              <!-- </router-link> -->
             </th>
             <td class="table-data" v-if="examTaker.progress">{{ $tr('completed') }}</td>
             <td class="table-data incomplete" v-else>{{ $tr('incomplete') }}</td>
