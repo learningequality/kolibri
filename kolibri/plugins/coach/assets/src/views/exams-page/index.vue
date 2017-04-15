@@ -252,5 +252,12 @@
 
   table
     margin-top: 3em
+    width: 100%
+
+  .col-title
+    text-align: left
+
+  .col-visibility, .col-action
+    text-align: right
 
 </style>

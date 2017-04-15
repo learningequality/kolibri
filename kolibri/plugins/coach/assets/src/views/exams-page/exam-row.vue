@@ -162,4 +162,7 @@
   .icon-inactive
     color: #9e9e9e
 
+  .col-visibility, .col-action
+    text-align: right
+
 </style>
