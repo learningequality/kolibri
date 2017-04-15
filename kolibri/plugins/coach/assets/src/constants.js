@@ -52,6 +52,14 @@ const LearnerReports = [
   PageNames.LEARNER_ITEM_DETAILS,
 ];
 
+const ExamPages = [
+  PageNames.EXAMS,
+  PageNames.CREATE_EXAM,
+  PageNames.EXAM_REPORT,
+  PageNames.EXAM_REPORT_DETAIL,
+  PageNames.LEARNERS,
+];
+
 const GroupModals = {
   CREATE_GROUP: 'CREATE_GROUP',
   RENAME_GROUP: 'RENAME_GROUP',
@@ -64,6 +72,7 @@ module.exports = {
   PageTitles,
   RecentReports,
   TopicReports,
+  ExamPages,
   LearnerReports,
   GroupModals,
 };

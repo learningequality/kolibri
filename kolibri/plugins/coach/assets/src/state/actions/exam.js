@@ -364,6 +364,7 @@ function showCreateExamPage(store, classId, channelId) {
             exercises: content.exercises,
             selectedExercises: [],
             examModalShown: false,
+            classId,
           };
 
           store.dispatch('SET_PAGE_STATE', pageState);
@@ -420,7 +421,7 @@ function createExam(store, classCollection, examObj) {
 function showExamReportPage(store, classId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT);
-  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('SET_PAGE_STATE', { classId });
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', ('Exam Report'));
   store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -429,7 +430,7 @@ function showExamReportPage(store, classId, examId) {
 function showExamReportDetailPage(store, classId, examId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT_DETAIL);
-  store.dispatch('SET_PAGE_STATE', {});
+  store.dispatch('SET_PAGE_STATE', { classId });
   store.dispatch('CORE_SET_ERROR', null);
   store.dispatch('CORE_SET_TITLE', ('Exam Report Detail'));
   store.dispatch('CORE_SET_PAGE_LOADING', false);
