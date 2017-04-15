@@ -11,7 +11,7 @@
       <ui-icon class="icon-margin"><slot/></ui-icon>
       {{ text }}
     </span>
-    <span v-else-if="alignRight">
+    <span v-else-if="hasIcon && text && alignRight">
       {{ text }}
       <ui-icon class="icon-margin"><slot/></ui-icon>
     </span>
