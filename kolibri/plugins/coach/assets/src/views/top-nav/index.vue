@@ -13,7 +13,7 @@
     />
     <nav-link
       :to="examsLink"
-      :active="pageName === Constants.PageNames.EXAMS"
+      :active="Constants.ExamPages.includes(pageName)"
       :text="$tr('exams')"
     />
     <nav-link
