@@ -343,4 +343,11 @@
   .validation-error
     color: $core-text-error
 
+  table
+    width: 100%
+
+  .col-title
+    text-align: left
+    width: 100%
+
 </style>
