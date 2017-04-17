@@ -93,7 +93,7 @@
 
   th
     white-space: nowrap
-    vertical-align: center
+    vertical-align: middle
     border-bottom: 1px solid $core-text-annotation
     font-weight: normal
 
