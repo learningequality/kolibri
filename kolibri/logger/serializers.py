@@ -11,9 +11,6 @@ class ContentSessionLogSerializer(serializers.ModelSerializer):
 
 class ExamLogSerializer(serializers.ModelSerializer):
 
-    pastattempts = serializers.SerializerMethodField()
-    totalattempts = serializers.SerializerMethodField()
-
     class Meta:
         model = ExamLog
         fields = ('id', 'exam', 'user', 'closed',)
@@ -40,17 +37,27 @@ class AttemptLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = AttemptLog
         fields = ('id', 'masterylog', 'start_timestamp', 'sessionlog',
-                  'end_timestamp', 'completion_timestamp', 'item', 'time_spent',
+                  'end_timestamp', 'completion_timestamp', 'item', 'time_spent', 'user',
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
 
 class ExamAttemptLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExamAttemptLog
-        fields = ('id', 'examlog', 'start_timestamp',
-                  'end_timestamp', 'completion_timestamp', 'item', 'time_spent',
+        fields = ('id', 'examlog', 'start_timestamp', 'channel_id', 'content_id',
+                  'end_timestamp', 'completion_timestamp', 'item', 'time_spent', 'user',
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
 
+    def validate(self, data):
+        # Only do this validation when both are being set
+        # not necessary on PATCH, for example
+        if data.get('examlog') and data.get('user'):
+            try:
+                if data['examlog'].user != data['user']:
+                    raise serializers.ValidationError('User field and user for related exam log are not the same')
+            except ExamLog.DoesNotExist:
+                raise serializers.ValidationError('Invalid exam log')
+        return data
 
 class ContentSummaryLogSerializer(serializers.ModelSerializer):
 

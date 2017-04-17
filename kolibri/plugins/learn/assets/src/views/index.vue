@@ -54,6 +54,7 @@
       'breadcrumbs': require('./breadcrumbs'),
       'search-page': require('./search-page'),
       'tabs': require('kolibri.coreVue.components.tabs'),
+      'exam-list': require('./exam-list'),
       'exam-page': require('./exam-page'),
     },
     methods: {
@@ -133,8 +134,10 @@
         if (this.pageName === PageNames.SEARCH) {
           return 'search-page';
         }
-        if (this.pageName === PageNames.EXAM_LIST ||
-          this.pageName === PageNames.EXAM) {
+        if (this.pageName === PageNames.EXAM_LIST) {
+          return 'exam-list';
+        }
+        if (this.pageName === PageNames.EXAM) {
           return 'exam-page';
         }
         return null;

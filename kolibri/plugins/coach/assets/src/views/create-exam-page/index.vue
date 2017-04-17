@@ -82,9 +82,11 @@
     <div class="footer">
       <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
       <p class="validation-error">{{ validationError }}</p>
+      <!--
       <icon-button :text="$tr('preview')" @click="preview">
         <mat-svg category="action" name="visibility"/>
       </icon-button>
+      -->
       <br>
       <icon-button :text="$tr('finish')" :primary="true" @click="finish"/>
     </div>
@@ -340,5 +342,12 @@
 
   .validation-error
     color: $core-text-error
+
+  table
+    width: 100%
+
+  .col-title
+    text-align: left
+    width: 100%
 
 </style>

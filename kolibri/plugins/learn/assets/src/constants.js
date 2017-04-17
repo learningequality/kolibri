@@ -14,6 +14,7 @@ const PageNames = {
   SEARCH: 'SEARCH',
   EXAM_LIST: 'EXAM_LIST',
   EXAM: 'EXAM',
+  EXAM_ROOT: 'EXAM_ROOT',
 };
 
 // switch between modes

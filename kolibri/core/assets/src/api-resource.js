@@ -535,6 +535,21 @@ class Resource {
     this.models[cacheKey].synced = false;
   }
 
+  unCacheCollection(resourceIds = {}, getParams = {}) {
+    if (!this.hasResourceIds) {
+      if (Object.keys(resourceIds).length && Object.keys(getParams).length) {
+        throw TypeError(
+          `resourceIds and getParams passed to getCollection method of ${this.name} ` +
+          'resource, which does not use resourceIds, only pass getParams for this resource');
+      } else if (Object.keys(resourceIds).length) {
+        getParams = resourceIds; // eslint-disable-line no-param-reassign
+      }
+    }
+    const filteredResourceIds = this.filterAndCheckResourceIds(resourceIds);
+    const cacheKey = this.cacheKey(getParams, filteredResourceIds);
+    this.collections[cacheKey].synced = false;
+  }
+
   removeModel(model) {
     delete this.models[model.id];
   }
