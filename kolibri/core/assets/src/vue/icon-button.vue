@@ -72,4 +72,8 @@
     max-width: 24px
     max-height: 24px
 
+  button:focus
+    background:$core-action-light
+    outline: none
+
 </style>
