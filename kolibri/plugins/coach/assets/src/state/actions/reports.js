@@ -19,7 +19,7 @@ const UserSummaryResource = new UserSummaryResourceConstructor(coreApp);
 const ContentSummaryResource = new ContentSummaryResourceConstructor(coreApp);
 const ContentReportResource = new ContentReportResourceConstructor(coreApp);
 
-const AttemptLogResource = coreApp.resources.AttemptLog;
+// const AttemptLogResource = coreApp.resources.AttemptLog;
 const ChannelResource = coreApp.resources.ChannelResource;
 
 
@@ -179,59 +179,61 @@ function _showTopic(store, classId, channelId, topicId) {
 
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
 function showCoachExerciseRenderPage(store, classId, userId, channelId, contentId) {
-  function _daysElapsed(startTime, endTime) {
-    const ONE_DAY = 86400000;
-    return (Date.UTC(startTime.getYear(), startTime.getMonth(), startTime.getDate()) -
-      Date.UTC(endTime.getYear(), endTime.getMonth(), endTime.getDate())) / ONE_DAY;
-  }
+  // function _daysElapsed(startTime, endTime) {
+  //   const ONE_DAY = 86400000;
+  //   return (Date.UTC(startTime.getYear(), startTime.getMonth(), startTime.getDate()) -
+  //     Date.UTC(endTime.getYear(), endTime.getMonth(), endTime.getDate())) / ONE_DAY;
+  // }
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXERCISE_RENDER);
 
-  const reversedAttemptLogs = [];
-  const today = new Date();
+  // const reversedAttemptLogs = [];
+  // const today = new Date();
 
-  const contentSummaryPayload = {
-    channel_id: channelId,
-    content_node_id: contentId,
-    collection_kind: ReportConstants.UserScopes.USER,
-    collection_id: userId,
-  };
+  // const contentSummaryPayload = {
+  //   channel_id: channelId,
+  //   content_node_id: contentId,
+  //   collection_kind: ReportConstants.UserScopes.USER,
+  //   collection_id: userId,
+  // };
+  //
+  // const attemptLogPayload = { // retrieves attempts for a particular exercise
+  //   user: userId,
+  //   content: contentId,
+  // };
 
-  const attemptLogPayload = { // retrieves attempts for a particular exercise
-    user: userId,
-    content: contentId,
-  };
+  const contentPromises = [];
   const ContentNodeResource = coreApp.resources.ContentNodeResource;
 
-  ContentSummaryResource.getModel('1ceff53605e55bef987d88e0908658c5',
-    contentSummaryPayload).fetch().then((r) => console.log('Summary', r));
-  ContentReportResource.getModel('1ceff53605e55bef987d88e0908658c5',
-    contentSummaryPayload).fetch().then((r) => console.log('Report', r));
-  ContentNodeResource.getModel(contentId,
-    { channel_id: channelId }).fetch().then((r) => console.log('ContentNode', r));
+  contentPromises.push(ContentNodeResource.getModel(contentId,
+    { channel_id: channelId }).fetch().then((r) => console.log('ContentNode', r)));
 
 
-  AttemptLogResource.getCollection(attemptLogPayload).fetch().then(
-    attemptLogs => {
-      // pops each attempt log from the front. FILO
-      attemptLogs.forEach((attemptLog) => {
-        // adding this information onto the state. Devon likely has issue with this.
-        // TODO move to view. Maybe use the <elapsed-time>?
-        attemptLog.daysElapsed = _daysElapsed(today, new Date(attemptLog.end_timestamp));
-        // use unshift because the original array is in reversed order.
-        reversedAttemptLogs.unshift(attemptLog);
-      });
-      const pageState = {
-        attemptLogs: reversedAttemptLogs,
-        selectedAttemptLogIndex: 0, // what's this for?
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
+  // AttemptLogResource.getCollection(attemptLogPayload).fetch().then(
+  //   attemptLogs => {
+  //     // pops each attempt log from the front. FILO
+  //     attemptLogs.forEach((attemptLog) => {
+  //       // adding this information onto the state. Devon likely has issue with this.
+  //       // TODO move to view. Maybe use the <elapsed-time>?
+  //       attemptLog.daysElapsed = _daysElapsed(today, new Date(attemptLog.end_timestamp));
+  //       // use unshift because the original array is in reversed order.
+  //       reversedAttemptLogs.unshift(attemptLog);
+  //     });
+  //     const pageState = {
+  //       attemptLogs: reversedAttemptLogs,
+  //       selectedAttemptLogIndex: 0, // what's this for?
+  //     };
+  //
+  //     // going to need to set this in individual item pages
+  //   },
+  //   error => { coreActions.handleApiError(store, error); }
+  // );
+  Promise.all(contentPromises).then(
+    () => {
+      // store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-
-      // going to need to set this in individual item pages
       store.dispatch('CORE_SET_TITLE', 'Exercise Detail View');
-    },
-    error => { coreActions.handleApiError(store, error); }
+    }
   );
 }
 
