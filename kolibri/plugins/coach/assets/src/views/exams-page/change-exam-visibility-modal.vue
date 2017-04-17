@@ -14,6 +14,7 @@
       :options="groupOptions"
       v-model="groupsSelected"
       @change="handleSelectChange"
+      class="group-select"
     />
     <div class="footer">
       <icon-button :text="$tr('cancel')" @click="close"/>
@@ -162,5 +163,17 @@
     text-align: center
     button
       min-width: 45%
+
+  .group-select
+    padding-bottom: 4rem
+
+</style>
+
+
+<style lang="stylus">
+
+  .group-select
+    .ui-select__options
+      max-height: 5rem
 
 </style>
