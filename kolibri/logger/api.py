@@ -113,17 +113,13 @@ class MasteryLogViewSet(viewsets.ModelViewSet):
 
 class AttemptFilter(filters.FilterSet):
     content = filters.django_filters.MethodFilter()
-    user = filters.django_filters.MethodFilter()
 
     def filter_content(self, queryset, value):
         return queryset.filter(masterylog__summarylog__content_id=value)
 
-    def filter_user(self, queryset, value):
-        return queryset.filter(masterylog__summarylog__user_id=value)
-
     class Meta:
         model = AttemptLog
-        fields = ['masterylog', 'complete']
+        fields = ['masterylog', 'complete', 'user', 'content']
 
 class AttemptLogViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
