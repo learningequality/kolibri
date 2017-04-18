@@ -42,7 +42,7 @@
           </div>
         </div>
       </div>
-      <core-modal v-if="submitModalOpen" :title="$tr('submitExam')" @cancel="toggleModal">
+      <core-modal v-if="submitModalOpen" :title="$tr('submitExam')" @cancel="submitExam">
         <p>{{ $tr('areYouSure') }}</p>
         <p v-if="questionsUnanswered">{{ $tr('unanswered', { numLeft: questionsUnanswered } )}}</p>
         <icon-button :text="$tr('cancel')" @click="toggleModal"/>
@@ -122,6 +122,13 @@
           name: PageNames.EXAM,
           params: { channel_id: this.channelId, id: this.exam.id, questionNumber },
         });
+      },
+      submitExam() {
+        if (!this.submitModalOpen) {
+          this.saveAnswer().then(() => {
+            this.toggleModal();
+          });
+        }
       },
       toggleModal() {
         this.submitModalOpen = !this.submitModalOpen;
