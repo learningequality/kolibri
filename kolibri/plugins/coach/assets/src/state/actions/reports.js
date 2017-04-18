@@ -237,16 +237,8 @@ function _showTopic(store, classId, channelId, topicId) {
 
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
 function showCoachExerciseRenderPage(store, classId, userId, channelId, contentId) {
-  // function _daysElapsed(startTime, endTime) {
-  //   const ONE_DAY = 86400000;
-  //   return (Date.UTC(startTime.getYear(), startTime.getMonth(), startTime.getDate()) -
-  //     Date.UTC(endTime.getYear(), endTime.getMonth(), endTime.getDate())) / ONE_DAY;
-  // }
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXERCISE_RENDER);
-
-  // const reversedAttemptLogs = [];
-  // const today = new Date();
 
   Promise.all([
     ContentNodeResource.getCollection({ channel_id: channelId }, { content_id: contentId }).fetch(),
