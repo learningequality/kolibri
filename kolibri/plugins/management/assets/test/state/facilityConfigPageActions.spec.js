@@ -96,12 +96,26 @@ describe('facility config page actions', () => {
   });
 
   describe('saveFacilityConfig action', () => {
-    it('when save is successful', () => {
+    beforeEach(() => {
       storeMock.state.pageState = {
         facilityDatasetId: 1000,
         settings: {
-          learners_must_be_constantly_awesome: true,
+          learnerCanEditName: true,
+          learnerCanEditUsername: false,
+          learnerCanEditPassword: true,
+          learnerCanDeleteAccount: true,
+          learnerCanSignUp: false,
         },
+      };
+    });
+
+    it('when save is successful', () => {
+      const expectedRequest = {
+        learner_can_edit_name: true,
+        learner_can_edit_username: false,
+        learner_can_edit_password: true,
+        learner_can_delete_account: true,
+        learner_can_sign_up: false,
       };
       // IRL returns the updated Model
       const saveStub = DatasetStub.__getModelSaveReturns('ok');
@@ -109,9 +123,7 @@ describe('facility config page actions', () => {
       return actions.saveFacilityConfig(storeMock)
       .then(() => {
         sinon.assert.calledWith(DatasetStub.getModel, 1000);
-        sinon.assert.calledWith(saveStub, sinon.match({
-          learners_must_be_constantly_awesome: true,
-        }));
+        sinon.assert.calledWith(saveStub, sinon.match(expectedRequest));
         sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_NOTIFY', 'save_success');
       });
     });
@@ -125,10 +137,8 @@ describe('facility config page actions', () => {
         sinon.assert.calledWith(storeMock.dispatch, 'CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
       });
     });
-  });
 
-  describe('resetFacilityConfig action', () => {
-    it('dispatches a modify all settings action before saving', () => {
+    it('resetFacilityConfig action dispatches a modify all settings action before saving', () => {
       const saveStub = DatasetStub.__getModelSaveReturns('ok default');
       return actions.resetFacilityConfig(storeMock)
       .then(() => {

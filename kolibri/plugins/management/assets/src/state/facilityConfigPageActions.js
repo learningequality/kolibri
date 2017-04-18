@@ -20,14 +20,27 @@ function resolveOnlyIfOnSamePage(promises, store) {
   .only(samePageCheckGenerator(store), ident, ident)._promise;
 }
 
-function convertFacilityDataset(dataset) {
-  return {
-    learnerCanEditName: dataset.learner_can_edit_name,
-    learnerCanEditUsername: dataset.learner_can_edit_username,
-    learnerCanEditPassword: dataset.learner_can_edit_password,
-    learnerCanDeleteAccount: dataset.learner_can_delete_account,
-    learnerCanSignUp: dataset.learner_can_sign_up,
-  };
+function convertFacilityDataset(settings, formatForClient = true) {
+  const names = [
+    ['learnerCanEditName', 'learner_can_edit_name'],
+    ['learnerCanEditUsername', 'learner_can_edit_username'],
+    ['learnerCanEditPassword', 'learner_can_edit_password'],
+    ['learnerCanDeleteAccount', 'learner_can_delete_account'],
+    ['learnerCanSignUp', 'learner_can_sign_up'],
+  ];
+  const output = {};
+  if (formatForClient) {
+    // use camelCase for keys
+    names.forEach(([ccName, scName]) => {
+      Object.assign(output, { [ccName]: settings[scName] });
+    });
+  } else {
+    // use snake_case for names
+    names.forEach(([ccName, scName]) => {
+      Object.assign(output, { [scName]: settings[ccName] });
+    });
+  }
+  return output;
 }
 
 function showNotification(store, notificationType) {
@@ -72,7 +85,9 @@ function saveFacilityConfig(store) {
   showNotification(store, null);
   const { facilityDatasetId, settings } = store.state.pageState;
   const resourceRequests = [
-    FacilityDatasetResource.getModel(facilityDatasetId).save(settings),
+    FacilityDatasetResource
+      .getModel(facilityDatasetId)
+      .save(convertFacilityDataset(settings, false)),
   ];
   return resolveOnlyIfOnSamePage(resourceRequests, store)
   .then(function onSuccess(x) {
