@@ -87,11 +87,6 @@
         return this.$tr('date', { date });
       }
     },
-    vuex: {
-      getters: {
-        pageState: state => state.pageState,
-      },
-    },
   };
 
 </script>

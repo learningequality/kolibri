@@ -17,8 +17,11 @@
         </div>
         <div class="exercise-container column">
           <!--need to fix this-->
-          <question-attempt
-            :questionNumber="1"/>
+          <interaction-list
+            :interactions="JSON.parse(attemptLogs[0].interaction_history)"
+            v-model="currentInteraction"
+          />
+
           <content-renderer
             class="content-renderer"
             :id="exercise.content_id"
@@ -53,7 +56,12 @@
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'page-status': require('./page-status'),
       'answer-history': require('./answer-history'),
-      'question-attempt': require('./question-attempt'),
+      'interaction-list': require('./interaction-list'),
+    },
+    data() {
+      return {
+        currentInteraction: null,
+      };
     },
     computed: {
       backPageLink() {

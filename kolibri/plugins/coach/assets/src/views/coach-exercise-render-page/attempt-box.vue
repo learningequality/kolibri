@@ -8,16 +8,16 @@
       name="lightbulb_outline"
     />
     <mat-svg
-      v-else-if="interaction.correct === 0"
+    v-else-if="interaction.correct"
+    class="svg-item svg-correct"
+    category="action"
+    name="check_circle"
+    />
+    <mat-svg
+      v-else-if="!interaction.correct"
       class="svg-item svg-wrong"
       category="navigation"
       name="cancel"
-    />
-    <mat-svg
-      v-else
-      class="svg-item svg-correct"
-      category="action"
-      name="check_circle"
     />
   </div>
 
@@ -52,6 +52,10 @@
     height: 60px
     width: 60px
     padding: 10px
+    float: left
+    margin-right: 10px
+    cursor: pointer
+    display: inline-block
 
   .selected
     border: 2px solid $core-text-default
