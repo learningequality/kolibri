@@ -8,9 +8,6 @@ const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
 const preparePage = require('./preparePage');
 const { PageNames, defaultFacilityConfig, notificationTypes } = require('../constants');
 
-// When app is installed, the Facility is assigned id of `1`. Hardcoded here for now.
-const FACILITY_ID = 1;
-
 // Utility that wraps the ubiquitous "don't resolve if not on same page" logic.
 // The `_promise` property is accessed because the thenable returned by
 // ConditionalPromise does not chain with `catch` in the expected way
@@ -48,6 +45,7 @@ function showNotification(store, notificationType) {
 }
 
 function showFacilityConfigPage(store) {
+  const FACILITY_ID = store.state.core.session.facility_id;
   preparePage(store.dispatch, {
     name: PageNames.FACILITY_CONFIG_PAGE,
     title: 'Configure Facility',
