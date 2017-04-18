@@ -25,7 +25,7 @@
       @input="validateNumQuestMax = true"
     />
 
-    <h2>Choose exercises</h2>
+    <h2>{{ $tr('chooseExercises') }}</h2>
     <!--<textbox-->
       <!--:ariaLabel="$tr('searchContent')"-->
       <!--:placeholder="$tr('searchContent')"-->
@@ -121,20 +121,20 @@
     $trNameSpace: 'createExamPage',
     $trs: {
       createNewExam: 'Create a new exam from {channelName}',
-      title: 'Title',
+      chooseExercises: 'Select exercises to pull questions from',
+      title: 'Exam title',
       enterTitle: 'Enter a title',
       numQuestions: 'Number of questions',
       enterNum: 'Enter a number',
       examRequiresTitle: 'The exam requires a title',
       numQuestionsBetween: 'The exam requires a number of questions between 1 and 50',
-      numQuestionsExceed: 'The inputted number of questions ({inputNumQuestions}) exceeds the number of available questions ({maxQuestionsFromSelection}) based on the selected exercises. Either select more exercises or reduce the number of questions.',
+      numQuestionsExceed: 'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
       noneSelected: 'No exercises are selected',
       searchContent: 'Search for content within channel',
       preview: 'Preview',
       finish: 'Finish',
       added: 'Added',
       removed: 'Removed',
-      alreadyAdded: 'Already added',
       selected: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected'
     },
     data() {
