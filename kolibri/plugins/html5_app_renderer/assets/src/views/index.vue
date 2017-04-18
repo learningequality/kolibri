@@ -83,6 +83,8 @@
     height: 100vh
     max-height: calc(100vh - 24em)
     min-height: 400px
+    overflow-x: auto
+    -webkit-overflow-scrolling: touch
     &:fullscreen
       width: 100%
       height: 100%
