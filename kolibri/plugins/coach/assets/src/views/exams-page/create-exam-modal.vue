@@ -7,6 +7,7 @@
       :placeholder="$tr('selectChannel')"
       :options="channelList"
       v-model="selectedChannel"
+      class="channel-select"
     />
     <div class="footer">
       <icon-button :text="$tr('cancel')" @click="close"/>
@@ -83,5 +84,17 @@
     text-align: center
     button
       min-width: 45%
+
+  .channel-select
+    padding-bottom: 4rem
+
+</style>
+
+
+<style lang="stylus">
+
+  .channel-select
+    .ui-select__options
+      max-height: 5rem
 
 </style>
