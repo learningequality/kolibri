@@ -17,6 +17,6 @@ COPY . /kolibri
 VOLUME /kolibridist/  # for mounting the whl files into other docker containers
 CMD cd /kolibri && pip install -r requirements/dev.txt && pip install -r requirements/build.txt \
 	&& yarn install \
-	&& make make dist REQUIREMENTS=requirements/vf.txt dist \
+	&& make dist REQUIREMENTS=requirements/vf.txt dist \
 	&& cp /kolibri/dist/* /kolibridist/
 
