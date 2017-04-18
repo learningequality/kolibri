@@ -33,7 +33,8 @@
               :itemId="itemId"
               :assessment="true"
               :allowHints="false"
-              :answerState="currentAttempt.answer"/>
+              :answerState="currentAttempt.answer"
+              @interaction="saveAnswer"/>
               <div class="question-navbutton-container">
                 <icon-button :disabled="questionNumber===0" @click="goToQuestion(questionNumber - 1)" :text="$tr('previousQuestion')"><mat-svg category="navigation" name="chevron_left"/></icon-button>
                 <icon-button :disabled="questionNumber===exam.questionCount-1" alignment="right" @click="goToQuestion(questionNumber + 1)" :text="$tr('nextQuestion')"><mat-svg category="navigation" name="chevron_right"/></icon-button>
@@ -90,8 +91,7 @@
         itemId: state => state.pageState.itemId,
         questionNumber: state => state.pageState.questionNumber,
         attemptLogs: state => state.examAttemptLogs,
-        currentAttempt: state =>
-          state.examAttemptLogs[state.pageState.content.id][state.pageState.itemId],
+        currentAttempt: state => state.pageState.currentAttempt,
         questionsAnswered: state => state.pageState.questionsAnswered,
       },
       actions: {
@@ -100,8 +100,11 @@
       },
     },
     methods: {
-      goToQuestion(questionNumber) {
-        const answer = this.$refs.contentRenderer.checkAnswer();
+      checkAnswer() {
+        return this.$refs.contentRenderer.checkAnswer();
+      },
+      saveAnswer() {
+        const answer = this.checkAnswer();
         if (answer) {
           const attempt = this.currentAttempt;
           attempt.answer = answer.answerState;
@@ -116,8 +119,12 @@
             answer: answer.answerState,
             correct: answer.correct,
           });
-          this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
+          return this.setAndSaveCurrentExamAttemptLog(this.content.id, this.itemId, attempt);
         }
+        return Promise.resolve();
+      },
+      goToQuestion(questionNumber) {
+        this.saveAnswer();
         this.$router.push({
           name: PageNames.EXAM,
           params: { channel_id: this.channelId, id: this.exam.id, questionNumber },

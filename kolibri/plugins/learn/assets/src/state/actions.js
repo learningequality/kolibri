@@ -661,6 +661,7 @@ function showExam(store, channelId, id, questionNumber) {
                   content_id: currentQuestion.contentId,
                 };
               }
+              pageState.currentAttempt = attemptLogs[currentQuestion.contentId][itemId];
               store.dispatch('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
               store.dispatch('SET_PAGE_STATE', pageState);
               store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -682,8 +683,14 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
       [itemId]: currentAttemptLog,
     }),
   });
-  const examAttemptLogModel = ExamAttemptLogResource.getModel(
-    currentAttemptLog.id);
+  let examAttemptLogModel = ExamAttemptLogResource.findModel({
+    content_id: contentId,
+    item: itemId,
+  });
+  if (!examAttemptLogModel) {
+    examAttemptLogModel = ExamAttemptLogResource.getModel(
+      currentAttemptLog.id);
+  }
   const attributes = Object.assign({}, currentAttemptLog);
   attributes.interaction_history = JSON.stringify(attributes.interaction_history);
   attributes.answer = JSON.stringify(attributes.answer);

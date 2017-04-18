@@ -14,6 +14,7 @@
         @answerGiven="answerGiven"
         @hintTaken="hintTaken"
         @itemError="itemError"
+        @interaction="interaction"
         :files="availableFiles"
         :defaultFile="defaultFile"
         :itemId="itemId"
@@ -147,6 +148,9 @@
       },
       itemError(...args) {
         this.$emit('itemError', ...args);
+      },
+      interaction(...args) {
+        this.$emit('interaction', ...args);
       },
       wrappedStartTracking() {
         // Assume that as soon as we have started tracking data for this content item,
