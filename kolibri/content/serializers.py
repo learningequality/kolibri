@@ -202,9 +202,8 @@ class UserExamSerializer(serializers.ModelSerializer):
         if isinstance(self.context['request'].user, FacilityUser):
             try:
                 # Try to add the score from the user's ExamLog attempts.
-                output['score'] = sum(
-                    obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.values_list(
-                        'correct', flat=True))
+                output['score'] = obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.aggregate(
+                    Sum('correct')).get('correct__sum')
                 output['answer_count'] = obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.count()
                 output['closed'] = obj.exam.examlogs.get(user=self.context['request'].user).closed
             except ExamLog.DoesNotExist:
