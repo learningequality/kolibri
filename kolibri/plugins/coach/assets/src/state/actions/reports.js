@@ -239,7 +239,6 @@ function showRecentChannels(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_CHANNELS);
   store.dispatch('CORE_SET_TITLE', 'Recent - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showRecentChannels');
   _showChannelList(store, classId);
 }
 
@@ -247,7 +246,6 @@ function showRecentItemsForChannel(store, classId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL);
   store.dispatch('CORE_SET_TITLE', 'Recent - Items');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showRecentItemsForChannel');
   const channelPromise = ChannelResource.getModel(channelId).fetch();
 
   channelPromise.then(
@@ -289,21 +287,18 @@ function showRecentLearnersForItem(store, classId, channelId, contentId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNERS_FOR_ITEM);
   store.dispatch('CORE_SET_TITLE', 'Recent - Learners');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showRecentLearnersForItem');
 }
 
 function showRecentLearnerItemDetails(store, classId, channelId, contentId, userId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS);
   store.dispatch('CORE_SET_TITLE', 'Recent - Learner Details');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showRecentLearnerItemDetails');
 }
 
 function showTopicChannels(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNELS);
   store.dispatch('CORE_SET_TITLE', 'Topics - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showTopicChannels');
   _showChannelList(store, classId);
 }
 
@@ -311,7 +306,6 @@ function showTopicChannelRoot(store, classId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNEL_ROOT);
   store.dispatch('CORE_SET_TITLE', 'Topics - Channel');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showTopicChannelRoot');
   _showChannelRoot(store, classId, channelId);
 }
 
@@ -319,7 +313,6 @@ function showTopicItemList(store, classId, channelId, topicId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_ITEM_LIST);
   store.dispatch('CORE_SET_TITLE', 'Topics - Items');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showTopicItemList');
   _showTopic(store, classId, channelId, topicId);
 }
 
@@ -327,28 +320,24 @@ function showTopicLearnersForItem(store, classId, channelId, contentId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM);
   store.dispatch('CORE_SET_TITLE', 'Topics - Learners');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showTopicLearnersForItem');
 }
 
 function showTopicLearnerItemDetails(store, classId, channelId, contentId, userId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS);
   store.dispatch('CORE_SET_TITLE', 'Topics - Learner Details');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showTopicLearnerItemDetails');
 }
 
 function showLearnerList(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_LIST);
   store.dispatch('CORE_SET_TITLE', 'Learners');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showLearnerList');
 }
 
 function showLearnerChannels(store, classId, userId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_CHANNELS);
   store.dispatch('CORE_SET_TITLE', 'Learners - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showLearnerChannels');
   _showChannelList(store, classId);
 }
 
@@ -356,21 +345,18 @@ function showLearnerChannelRoot(store, classId, userId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_CHANNEL_ROOT);
   store.dispatch('CORE_SET_TITLE', 'Learners - Channel');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showLearnerChannelRoot');
 }
 
 function showLearnerItemList(store, classId, userId, channelId, topicId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_LIST);
   store.dispatch('CORE_SET_TITLE', 'Learners - Items');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showLearnerItemList');
 }
 
 function showLearnerItemDetails(store, classId, userId, channelId, contentId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_DETAILS);
   store.dispatch('CORE_SET_TITLE', 'Learners - Item Details');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showLearnerItemDetails');
 }
 
 
