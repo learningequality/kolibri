@@ -12,10 +12,18 @@ class ContentSessionLogSerializer(serializers.ModelSerializer):
                   'end_timestamp', 'time_spent', 'kind', 'extra_fields', 'progress')
 
 class ExamLogSerializer(serializers.ModelSerializer):
+    progress = serializers.SerializerMethodField()
+    score = serializers.SerializerMethodField()
+
+    def get_progress(self, obj):
+        return obj.attemptlogs.count()
+
+    def get_score(self, obj):
+        return obj.attemptlogs.aggregate(Sum('correct')).get('correct__sum')
 
     class Meta:
         model = ExamLog
-        fields = ('id', 'exam', 'user', 'closed',)
+        fields = ('id', 'exam', 'user', 'closed', 'progress', 'score')
 
 class MasteryLogSerializer(serializers.ModelSerializer):
 
