@@ -12,9 +12,16 @@ const fakeFacility = {
 };
 
 const fakeDatasets = [
-  { id: 2, learners_can_never_have_fun: false },
+  {
+    id: 'dataset_2',
+    learner_can_edit_name: true,
+    learner_can_edit_username: false,
+    learner_can_edit_password: true,
+    learner_can_delete_account: true,
+    learner_can_sign_up: true,
+  },
   // could return more than one dataset in theory
-  { id: 3 },
+  { id: 'dataset_3' },
 ];
 
 describe('facility config page actions', () => {
@@ -36,10 +43,22 @@ describe('facility config page actions', () => {
       FacilityStub.__getModelFetchReturns(fakeFacility);
       DatasetStub.__getCollectionFetchReturns(fakeDatasets);
       const expectedPageState = {
-        facilityDatasetId: 2,
+        facilityDatasetId: 'dataset_2',
         facilityName: 'Nalanda Maths',
-        settings: { learners_can_never_have_fun: false },
-        settingsCopy: { learners_can_never_have_fun: false },
+        settings: {
+          learnerCanEditName: true,
+          learnerCanEditUsername: false,
+          learnerCanEditPassword: true,
+          learnerCanDeleteAccount: true,
+          learnerCanSignUp: true,
+        },
+        settingsCopy: {
+          learnerCanEditName: true,
+          learnerCanEditUsername: false,
+          learnerCanEditPassword: true,
+          learnerCanDeleteAccount: true,
+          learnerCanSignUp: true,
+        },
       };
 
       return actions.showFacilityConfigPage(storeMock)

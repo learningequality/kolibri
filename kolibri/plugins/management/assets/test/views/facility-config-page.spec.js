@@ -27,7 +27,7 @@ function makeWrapper(propsData = {}) {
 function getElements(wrapper) {
   return {
     cancelResetButton: () => wrapper.$el.querySelector('button[name="cancel"]'),
-    checkbox: () => wrapper.$el.querySelector('input[name="learner_can_edit_username"]'),
+    checkbox: () => wrapper.$el.querySelector('input[name="learnerCanEditUsername"]'),
     confirmResetButton: () => wrapper.$el.querySelector('button[name="reset"]'),
     resetButton: () => wrapper.$el.querySelector('button[name="reset-settings"]'),
     saveButton: () => wrapper.$el.querySelector('button[name="save-settings"]'),
@@ -47,7 +47,7 @@ describe('facility config page view', () => {
     const { checkbox } = getElements(wrapper);
     simulant.fire(checkbox(), 'change');
     sinon.assert.calledWith(dispatchSpy, 'CONFIG_PAGE_MODIFY_SETTING', {
-      name: 'learner_can_edit_username',
+      name: 'learnerCanEditUsername',
       value: true,
     });
     dispatchSpy.restore();

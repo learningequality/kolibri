@@ -1,5 +1,4 @@
 /* eslint-disable prefer-arrow-callback */
-const omit = require('lodash/fp/omit');
 const {
   FacilityResource,
   FacilityDatasetResource,
@@ -12,13 +11,24 @@ const { PageNames, defaultFacilityConfig, notificationTypes } = require('../cons
 // When app is installed, the Facility is assigned id of `1`. Hardcoded here for now.
 const FACILITY_ID = 1;
 
+// Utility that wraps the ubiquitous "don't resolve if not on same page" logic.
+// The `_promise` property is accessed because the thenable returned by
+// ConditionalPromise does not chain with `catch` in the expected way
 function resolveOnlyIfOnSamePage(promises, store) {
   const ident = x => x;
   return ConditionalPromise.all(promises)
   .only(samePageCheckGenerator(store), ident, ident)._promise;
 }
 
-const sanitizeDataset = omit(['id']);
+function convertFacilityDataset(dataset) {
+  return {
+    learnerCanEditName: dataset.learner_can_edit_name,
+    learnerCanEditUsername: dataset.learner_can_edit_username,
+    learnerCanEditPassword: dataset.learner_can_edit_password,
+    learnerCanDeleteAccount: dataset.learner_can_delete_account,
+    learnerCanSignUp: dataset.learner_can_sign_up,
+  };
+}
 
 function showNotification(store, notificationType) {
   store.dispatch('CONFIG_PAGE_NOTIFY', notificationType);
@@ -35,16 +45,15 @@ function showFacilityConfigPage(store) {
   ];
 
   return resolveOnlyIfOnSamePage(resourceRequests, store)
-  .then(function onSuccess([facility, facilityDataset]) {
-    const dataset = facilityDataset[0]; // assumes for now is only one Facility being managed
+  .then(function onSuccess([facility, facilityDatasets]) {
+    const dataset = facilityDatasets[0]; // assumes for now is only one facility being managed
     store.dispatch('SET_PAGE_STATE', {
-      // comes over wire as number, but gets changed to string
-      facilityDatasetId: Number(dataset.id),
+      facilityDatasetId: dataset.id,
       facilityName: facility.name,
       // this part of state is mutated as user interacts with form
-      settings: sanitizeDataset(dataset),
+      settings: convertFacilityDataset(dataset),
       // this copy is kept for the purpose of undoing if save fails
-      settingsCopy: sanitizeDataset(dataset),
+      settingsCopy: convertFacilityDataset(dataset),
       notification: null
     });
     store.dispatch('CORE_SET_PAGE_LOADING', false);

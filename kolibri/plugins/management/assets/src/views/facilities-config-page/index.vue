@@ -22,14 +22,14 @@
       <div class="mb">
         <div class="settings">
           <h2>{{ $tr('settingsHeader') }}</h2>
-          <template v-for="(settingCC, setting) in settingsList">
+          <template v-for="setting in settingsList">
             <ui-checkbox
               :name="setting"
               :value="settings[setting]"
               @change="toggleSetting(setting)"
               box-position="right"
             >
-              {{ $tr(settingCC) }}
+              {{ $tr(setting) }}
             </ui-checkbox>
           </template>
         </div>
@@ -73,6 +73,14 @@
 
   const actions = require('../../state/actions');
 
+  const settingsList = [
+    'learnerCanEditUsername',
+    'learnerCanEditName',
+    'learnerCanEditPassword',
+    'learnerCanDeleteAccount',
+    'learnerCanSignUp',
+  ];
+
   module.exports = {
     components: {
       'confirm-reset-modal': require('./confirm-reset-modal'),
@@ -84,13 +92,7 @@
       showModal: false,
     }),
     computed: {
-      settingsList: () => ({
-        learner_can_edit_username: 'learnerCanEditUsername',
-        learner_can_edit_name: 'learnerCanEditName',
-        learner_can_edit_password: 'learnerCanEditPassword',
-        learner_can_delete_account: 'learnerCanDeleteAccount',
-        learner_can_sign_up: 'learnerCanSignUp',
-      }),
+      settingsList: () => settingsList,
     },
     methods: {
       resetToDefaultSettings() {
