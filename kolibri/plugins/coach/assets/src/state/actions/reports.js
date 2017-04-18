@@ -20,8 +20,9 @@ const UserSummaryResource = new UserSummaryResourceConstructor(coreApp);
 const ContentSummaryResource = new ContentSummaryResourceConstructor(coreApp);
 const ContentReportResource = new ContentReportResourceConstructor(coreApp);
 
-// const AttemptLogResource = coreApp.resources.AttemptLog;
+const AttemptLogResource = coreApp.resources.AttemptLog;
 const ChannelResource = coreApp.resources.ChannelResource;
+const ContentNodeResource = coreApp.resources.ContentNodeResource;
 
 
 function _showChannelList(store, classId) {
@@ -125,7 +126,7 @@ function _contentSummaryState(data) {
 }
 
 function _userSummaryState(data) {
-  console.log('uuuuuu', data);
+  // console.log('uuuuuu', data);
   if (!data) {
     return {};
   }
@@ -247,51 +248,30 @@ function showCoachExerciseRenderPage(store, classId, userId, channelId, contentI
   // const reversedAttemptLogs = [];
   // const today = new Date();
 
-  // const contentSummaryPayload = {
-  //   channel_id: channelId,
-  //   content_node_id: contentId,
-  //   collection_kind: ReportConstants.UserScopes.USER,
-  //   collection_id: userId,
-  // };
-  //
-  // const attemptLogPayload = { // retrieves attempts for a particular exercise
-  //   user: userId,
-  //   content: contentId,
-  // };
+  Promise.all([
+    ContentNodeResource.getCollection({ channel_id: channelId }, { content_id: contentId }).fetch(),
+    AttemptLogResource.getCollection({ user: userId, content: contentId }).fetch(),
+  ]).then(
+    ([exercise, attemptLogs]) => {
+      attemptLogs.sort(
+        (attemptLog1, attemptLog2) =>
+          new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
+      );
 
-  const contentPromises = [];
-  const ContentNodeResource = coreApp.resources.ContentNodeResource;
-
-  contentPromises.push(ContentNodeResource.getModel(contentId,
-    { channel_id: channelId }).fetch().then((r) => console.log('ContentNode', r)));
-
-
-  // AttemptLogResource.getCollection(attemptLogPayload).fetch().then(
-  //   attemptLogs => {
-  //     // pops each attempt log from the front. FILO
-  //     attemptLogs.forEach((attemptLog) => {
-  //       // adding this information onto the state. Devon likely has issue with this.
-  //       // TODO move to view. Maybe use the <elapsed-time>?
-  //       attemptLog.daysElapsed = _daysElapsed(today, new Date(attemptLog.end_timestamp));
-  //       // use unshift because the original array is in reversed order.
-  //       reversedAttemptLogs.unshift(attemptLog);
-  //     });
-  //     const pageState = {
-  //       attemptLogs: reversedAttemptLogs,
-  //       selectedAttemptLogIndex: 0, // what's this for?
-  //     };
-  //
-  //     // going to need to set this in individual item pages
-  //   },
-  //   error => { coreActions.handleApiError(store, error); }
-  // );
-  Promise.all(contentPromises).then(
-    () => {
-      // store.dispatch('SET_PAGE_STATE', pageState);
+      console.log('attemptLogs', attemptLogs);
+      console.log('exercise', exercise[0]);
+      const pageState = {
+        // because this is info returned from a collection
+        exercise: exercise[0],
+        attemptLogs,
+        channelId,
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
       store.dispatch('CORE_SET_TITLE', 'Exercise Detail View');
-    }
-  );
+    },
+      error => { coreActions.handleApiError(store, error); }
+    );
 }
 
 
@@ -299,7 +279,7 @@ function showRecentChannels(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_CHANNELS);
   store.dispatch('CORE_SET_TITLE', 'Recent - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showRecentChannels');
+  // console.log('showRecentChannels');
   _showChannelList(store, classId);
 }
 
@@ -307,7 +287,7 @@ function showRecentItemsForChannel(store, classId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL);
   store.dispatch('CORE_SET_TITLE', 'Recent - Items');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showRecentItemsForChannel');
+  // console.log('showRecentItemsForChannel');
   const channelPromise = ChannelResource.getModel(channelId).fetch();
 
   channelPromise.then(
@@ -349,21 +329,21 @@ function showRecentLearnersForItem(store, classId, channelId, contentId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNERS_FOR_ITEM);
   store.dispatch('CORE_SET_TITLE', 'Recent - Learners');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showRecentLearnersForItem');
+  // console.log('showRecentLearnersForItem');
 }
 
 function showRecentLearnerItemDetails(store, classId, channelId, contentId, userId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS);
   store.dispatch('CORE_SET_TITLE', 'Recent - Learner Details');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showRecentLearnerItemDetails');
+  // console.log('showRecentLearnerItemDetails');
 }
 
 function showTopicChannels(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNELS);
   store.dispatch('CORE_SET_TITLE', 'Topics - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showTopicChannels');
+  // console.log('showTopicChannels');
   _showChannelList(store, classId);
 }
 
@@ -371,7 +351,7 @@ function showTopicChannelRoot(store, classId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNEL_ROOT);
   store.dispatch('CORE_SET_TITLE', 'Topics - Channel');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showTopicChannelRoot');
+  // console.log('showTopicChannelRoot');
   _showChannelRoot(store, classId, channelId);
 }
 
@@ -379,7 +359,7 @@ function showTopicItemList(store, classId, channelId, topicId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_ITEM_LIST);
   store.dispatch('CORE_SET_TITLE', 'Topics - Items');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showTopicItemList');
+  // console.log('showTopicItemList');
   _showTopic(store, classId, channelId, topicId);
 }
 
@@ -387,28 +367,28 @@ function showTopicLearnersForItem(store, classId, channelId, contentId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM);
   store.dispatch('CORE_SET_TITLE', 'Topics - Learners');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showTopicLearnersForItem');
+  // console.log('showTopicLearnersForItem');
 }
 
 function showTopicLearnerItemDetails(store, classId, channelId, contentId, userId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS);
   store.dispatch('CORE_SET_TITLE', 'Topics - Learner Details');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showTopicLearnerItemDetails');
+  // console.log('showTopicLearnerItemDetails');
 }
 
 function showLearnerList(store, classId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_LIST);
   store.dispatch('CORE_SET_TITLE', 'Learners');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showLearnerList');
+  // console.log('showLearnerList');
 }
 
 function showLearnerChannels(store, classId, userId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_CHANNELS);
   store.dispatch('CORE_SET_TITLE', 'Learners - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showLearnerChannels');
+  // console.log('showLearnerChannels');
   _showChannelList(store, classId);
 }
 
@@ -416,21 +396,21 @@ function showLearnerChannelRoot(store, classId, userId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_CHANNEL_ROOT);
   store.dispatch('CORE_SET_TITLE', 'Learners - Channel');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showLearnerChannelRoot');
+  // console.log('showLearnerChannelRoot');
 }
 
 function showLearnerItemList(store, classId, userId, channelId, topicId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_LIST);
   store.dispatch('CORE_SET_TITLE', 'Learners - Items');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showLearnerItemList');
+  // console.log('showLearnerItemList');
 }
 
 function showLearnerItemDetails(store, classId, userId, channelId, contentId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_DETAILS);
   store.dispatch('CORE_SET_TITLE', 'Learners - Item Details');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  console.log('showLearnerItemDetails');
+  // console.log('showLearnerItemDetails');
 }
 
 
