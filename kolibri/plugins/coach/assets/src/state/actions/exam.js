@@ -66,6 +66,7 @@ function _exerciseState(exercise) {
   return {
     id: exercise.pk,
     title: exercise.title,
+    numAssesments: exercise.assessmentmetadata[0].number_of_assessments,
   };
 }
 
@@ -279,15 +280,14 @@ function getAllExercisesWithinTopic(store, channelId, topicId) {
     const exercisesPromise = ContentNodeResource.getDescendantsCollection(
       topicId,
       { channel_id: channelId },
-      { descendant_kind: ContentNodeKinds.EXERCISE, fields: ['pk'] }
+      { descendant_kind: ContentNodeKinds.EXERCISE, fields: ['pk', 'title', 'assessmentmetadata'] }
     ).fetch();
 
     ConditionalPromise.all([exercisesPromise]).only(
       CoreActions.samePageCheckGenerator(store),
       ([exercisesCollection]) => {
         const exercises = _exercisesState(exercisesCollection);
-        const exerciseIds = exercises.map(exercise => exercise.id);
-        resolve(exerciseIds);
+        resolve(exercises);
       },
       error => reject(error)
     );
@@ -302,7 +302,7 @@ function fetchContent(store, channelId, topicId) {
     const subtopicsPromise = ContentNodeResource.getCollection(
       channelPayload, { parent: topicId, kind: ContentNodeKinds.TOPIC, fields: ['pk', 'title', 'ancestors'] }).fetch();
     const exercisesPromise = ContentNodeResource.getCollection(
-      channelPayload, { parent: topicId, kind: ContentNodeKinds.EXERCISE, fields: ['pk', 'title'] }).fetch();
+      channelPayload, { parent: topicId, kind: ContentNodeKinds.EXERCISE, fields: ['pk', 'title', 'assessmentmetadata'] }).fetch();
 
     ConditionalPromise.all([topicPromise, subtopicsPromise, exercisesPromise]).only(
       CoreActions.samePageCheckGenerator(store),
@@ -378,20 +378,18 @@ function showCreateExamPage(store, classId, channelId) {
   );
 }
 
-function addExercise(store, exerciseId) {
+function addExercise(store, exercise) {
   const selectedExercises = store.state.pageState.selectedExercises;
-  if (!selectedExercises.includes(exerciseId)) {
-    store.dispatch('SET_SELECTED_EXERCISES', selectedExercises.concat(exerciseId));
+  if (!selectedExercises.some(selectedExercise => selectedExercise.id === exercise.id)) {
+    store.dispatch('SET_SELECTED_EXERCISES', selectedExercises.concat(exercise));
   }
 }
 
-function removeExercise(store, exerciseId) {
-  const selectedExercises = store.state.pageState.selectedExercises;
-  const index = selectedExercises.indexOf(exerciseId);
-  if (index !== -1) {
-    selectedExercises.splice(index, 1);
-    store.dispatch('SET_SELECTED_EXERCISES', selectedExercises);
-  }
+function removeExercise(store, exercise) {
+  let selectedExercises = store.state.pageState.selectedExercises;
+  selectedExercises = selectedExercises.filter(
+    selectedExercise => selectedExercise.id !== exercise.id);
+  store.dispatch('SET_SELECTED_EXERCISES', selectedExercises);
 }
 
 function createExam(store, classCollection, examObj) {

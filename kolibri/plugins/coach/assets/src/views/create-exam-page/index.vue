@@ -18,14 +18,14 @@
       :ariaLabel="$tr('numQuestions')"
       :placeholder="$tr('enterNum')"
       :invalid="numQuestionsInvalid"
-      :error="$tr('examRequiresNum')"
+      :error="numQuestionsInvalidMsg"
       type="number"
       v-model.trim.number="inputNumQuestions"
-      @blur="validateNum = true"
-      @input="validateNum = true"
+      @blur="validateNumQuestMax = true"
+      @input="validateNumQuestMax = true"
     />
 
-    <h2>Choose exercises</h2>
+    <h2>{{ $tr('chooseExercises') }}</h2>
     <!--<textbox-->
       <!--:ariaLabel="$tr('searchContent')"-->
       <!--:placeholder="$tr('searchContent')"-->
@@ -61,6 +61,7 @@
                 v-for="exercise in exercises"
                 :exerciseId="exercise.id"
                 :exerciseTitle="exercise.title"
+                :exerciseNumAssesments="exercise.numAssesments"
                 :selectedExercises="selectedExercises"
                 @addExercise="handleAddExercise"
                 @removeExercise="handleRemoveExercise"/>
@@ -120,19 +121,20 @@
     $trNameSpace: 'createExamPage',
     $trs: {
       createNewExam: 'Create a new exam from {channelName}',
-      title: 'Title',
+      chooseExercises: 'Select exercises to pull questions from',
+      title: 'Exam title',
       enterTitle: 'Enter a title',
       numQuestions: 'Number of questions',
       enterNum: 'Enter a number',
       examRequiresTitle: 'The exam requires a title',
-      examRequiresNum: 'The exam requires a number of questions between 1 and 50',
+      numQuestionsBetween: 'The exam requires a number of questions between 1 and 50',
+      numQuestionsExceed: 'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
       noneSelected: 'No exercises are selected',
       searchContent: 'Search for content within channel',
       preview: 'Preview',
       finish: 'Finish',
       added: 'Added',
       removed: 'Removed',
-      alreadyAdded: 'Already added',
       selected: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}} selected'
     },
     data() {
@@ -141,11 +143,12 @@
         inputTitle: '',
         inputNumQuestions: '',
         validateTitle: false,
-        validateNum: false,
+        validateNumQuestMax: false,
+        validateNumQuestExceeds: false,
+        validationError: '',
         searchInput: '',
         loading: false,
         seed: this.generateRandomSeed(),
-        validationError: ''
       };
     },
     components: {
@@ -160,12 +163,40 @@
       'preview-new-exam-modal': require('./preview-new-exam-modal'),
     },
     computed: {
+      maxQuestionsFromSelection() {
+        return this.selectedExercises.reduce((sum, exercise) => sum + exercise.numAssesments, 0);
+      },
       titleInvalid() {
         return this.validateTitle ? !this.inputTitle : false;
       },
-      numQuestionsInvalid() {
-        return this.validateNum ?
+      numQuestNotWithinRange() {
+        return this.validateNumQuestMax ?
           (this.inputNumQuestions < 1) || (this.inputNumQuestions > 50) : false;
+      },
+      numQuestExceedsSelection() {
+        if (this.validateNumQuestExceeds && this.selectedExercises.length) {
+          if (this.inputNumQuestions > this.maxQuestionsFromSelection) {
+            return true;
+          }
+        }
+        return false;
+      },
+      numQuestionsInvalid() {
+        if (this.numQuestNotWithinRange) {
+          return true;
+        } else if (this.numQuestExceedsSelection) {
+          return true;
+        }
+        return false;
+      },
+      numQuestionsInvalidMsg() {
+        if (this.numQuestNotWithinRange) {
+          return this.$tr('numQuestionsBetween');
+        }
+        return this.$tr('numQuestionsExceed', {
+          inputNumQuestions: this.inputNumQuestions,
+          maxQuestionsFromSelection: this.maxQuestionsFromSelection
+        });
       },
       showPreviewNewExamModal() {
         return this.examModalShown === ExamModals.PREVIEW_NEW_EXAM;
@@ -179,23 +210,26 @@
 
         if (remainingQuestions === 0) {
           return shuffledExercises.map(exercise =>
-            ({ exercise_id: exercise, number_of_questions: Math.trunc(questionsPerExercise) })
+            ({ exercise_id: exercise.id, number_of_questions: Math.trunc(questionsPerExercise) })
           );
         } else if (questionsPerExercise >= 1) {
           return shuffledExercises.map((exercise, index) => {
             if (index < remainingQuestions) {
               return {
-                exercise_id: exercise,
+                exercise_id: exercise.id,
                 number_of_questions: Math.trunc(questionsPerExercise) + 1
               };
             }
-            return { exercise_id: exercise, number_of_questions: Math.trunc(questionsPerExercise) };
+            return {
+              exercise_id: exercise.id,
+              number_of_questions: Math.trunc(questionsPerExercise)
+            };
           });
         }
         const exercisesSubset = shuffledExercises;
         exercisesSubset.splice(numQuestions);
         return exercisesSubset.map(
-          exercise => ({ exercise_id: exercise, number_of_questions: 1 })
+          exercise => ({ exercise_id: exercise.id, number_of_questions: 1 })
         );
       },
     },
@@ -209,20 +243,20 @@
           error => {}
         );
       },
-      handleAddExercise(exerciseId, exerciseTitle) {
-        this.addExercise(exerciseId);
-        this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('added')} ${exerciseTitle}` });
+      handleAddExercise(exercise) {
+        this.addExercise(exercise);
+        this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('added')} ${exercise.title}` });
       },
-      handleRemoveExercise(exerciseId, exerciseTitle) {
-        this.removeExercise(exerciseId);
-        this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('removed')} ${exerciseTitle}` });
+      handleRemoveExercise(exercise) {
+        this.removeExercise(exercise);
+        this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('removed')} ${exercise.title}` });
       },
       handleAddTopicExercises(allExercisesWithinTopic, topicTitle) {
-        allExercisesWithinTopic.forEach(exerciseId => this.addExercise(exerciseId));
+        allExercisesWithinTopic.forEach(exercise => this.addExercise(exercise));
         this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('added')} ${topicTitle}` });
       },
       handleRemoveTopicExercises(allExercisesWithinTopic, topicTitle) {
-        allExercisesWithinTopic.forEach(exerciseId => this.removeExercise(exerciseId));
+        allExercisesWithinTopic.forEach(exercise => this.removeExercise(exercise));
         this.$refs.snackbarContainer.createSnackbar({ message: `${this.$tr('removed')} ${topicTitle}` });
       },
       preview() {
@@ -250,16 +284,23 @@
       },
       checkAllValid() {
         this.validateTitle = true;
-        this.validateNum = true;
-        if (!this.titleInvalid && !this.numQuestionsInvalid && this.selectedExercises.length !== 0) {
+        this.validateNumQuestMax = true;
+        this.validateNumQuestExceeds = true;
+        if (!this.titleInvalid && this.selectedExercises.length !== 0 &&
+          !this.numQuestNotWithinRange && !this.numQuestExceedsSelection) {
           this.validationError = '';
           return true;
         } else if (this.titleInvalid) {
           this.validationError = this.$tr('examRequiresTitle');
-        } else if (this.numQuestionsInvalid) {
-          this.validationError = this.$tr('examRequiresNum');
+        } else if (this.numQuestNotWithinRange) {
+          this.validationError = this.$tr('numQuestionsBetween');
         } else if (this.selectedExercises.length === 0) {
           this.validationError = this.$tr('noneSelected');
+        } else if (this.numQuestExceedsSelection) {
+          this.validationError = this.$tr('numQuestionsExceed', {
+            inputNumQuestions: this.inputNumQuestions,
+            maxQuestionsFromSelection: this.maxQuestionsFromSelection
+          });
         }
         return false;
       },

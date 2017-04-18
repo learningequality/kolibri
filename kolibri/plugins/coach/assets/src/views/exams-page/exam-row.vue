@@ -107,7 +107,7 @@
       },
       actionOptions() {
         return [
-          // { label: this.$tr('previewExam') },
+          { label: this.$tr('previewExam') },
           { label: this.$tr('viewReport') },
           { label: this.$tr('rename') },
           { label: this.$tr('delete') },
