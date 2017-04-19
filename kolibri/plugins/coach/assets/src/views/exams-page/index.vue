@@ -41,7 +41,7 @@
           @activateExam="openActivateExamModal"
           @deactivateExam="openDeactivateExamModal"
           @previewExam="openPreviewExamModal"
-          @viewReport="routeToExamReport"
+          @viewReport="routeToExamReport(exam)"
           @renameExam="openRenameExamModal"
           @deleteExam="openDeleteExamModal"
         />
@@ -205,10 +205,10 @@
         this.setSelectedExam(examId);
         this.displayExamModal(ExamModals.PREVIEW_EXAM);
       },
-      routeToExamReport(examId) {
+      routeToExamReport({ id, channelId }) {
         this.$router.push({
           name: PageNames.EXAM_REPORT,
-          params: { classId: this.currentClass.id, examId }
+          params: { classId: this.currentClass.id, examId: id, channelId }
         });
       },
       openRenameExamModal(examId) {

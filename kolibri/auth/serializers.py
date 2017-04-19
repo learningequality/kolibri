@@ -95,6 +95,11 @@ class ClassroomSerializer(serializers.ModelSerializer):
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
 
+    user_ids = serializers.SerializerMethodField()
+
+    def get_user_ids(self, group):
+        return group.get_members().values_list('id')
+
     class Meta:
         model = LearnerGroup
-        fields = ('id', 'name', 'parent')
+        fields = ('id', 'name', 'parent', 'user_ids')

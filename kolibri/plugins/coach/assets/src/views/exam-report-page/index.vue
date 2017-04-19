@@ -4,10 +4,10 @@
 
     <div class="header">
       <h1>
-        {{ $tr('examTakenby', { number: 40 }) }}
+        {{ $tr('examTakenby', { num: takenBy }) }}
       </h1>
       <h1>
-        {{ $tr('averageScore', { number: averageScore }) }}
+        {{ $tr('averageScore', { num: averageScore }) }}
       </h1>
     </div>
 
@@ -25,14 +25,18 @@
         <tbody>
           <tr class="table-row" v-for="examTaker in examTakers">
             <th scope="row" class="table-text">
-              <!-- <router-link :to="examDetailPageLink(examTaker.id)" class="table-name"> -->
+              <router-link :to="examDetailPageLink(examTaker.id)" class="table-name">
                 {{examTaker.name}}
-              <!-- </router-link> -->
+              </router-link>
             </th>
-            <td class="table-data" v-if="examTaker.progress">{{ $tr('completed') }}</td>
-            <td class="table-data incomplete" v-else>{{ $tr('incomplete') }}</td>
-            <td class="table-data">{{ $tr('scorePercentage', { number: examTaker.score }) }}</td>
-            <td class="table-data">{{ examTaker.group }}</td>
+            <td class="table-data" v-if="examTaker.progress === exam.question_count">{{ $tr('completed') }}</td>
+            <td class="table-data incomplete" v-else-if="examTaker.progress">{{ $tr('incomplete', {
+              num: examTaker.progress,
+              outOf: exam.question_count,
+            }) }}</td>
+            <td class="table-data incomplete" v-else>{{ $tr('notstarted') }}</td>
+            <td class="table-data">{{ $tr('scorePercentage', { num: examTaker.score/exam.question_count }) }}</td>
+            <td class="table-data">{{ examTaker.group.name || $tr('ungrouped') }}</td>
           </tr>
         </tbody>
       </table>
@@ -48,7 +52,7 @@
 <script>
 
   const constants = require('../../constants');
-  const actions = require('../../state/actions/main');
+  const actions = require('../../state/actions/exam');
 
   module.exports = {
     computed: {
@@ -57,42 +61,32 @@
       },
       averageScore() {
         return Math.round(this.examTakers.reduce((acc, examTaker) => acc + examTaker.score, 0)
-          / this.examTakers.length);
+          / this.takenBy);
       },
+      takenBy() {
+        return this.examTakers.reduce(
+          (acc, taker) => (acc + (taker.progress > 0 ? 1 : 0)), 0);
+      }
     },
     methods: {
       examDetailPageLink(id) {
         return {
           name: constants.PageNames.EXAM_REPORT_DETAIL,
-          params: { classId: 2, examId: 1, userId: id },
+          params: {
+            classId: this.classId,
+            channelId: this.channelId,
+            examId: this.exam.id,
+            userId: id
+          },
         };
       },
     },
     vuex: {
       getters: {
-        examTakers: () => [
-          {
-            id: 1,
-            name: 'LearnerName 111',
-            progress: 0,
-            score: null,
-            group: 'Group A',
-          },
-          {
-            id: 2,
-            name: 'LearnerName 222',
-            progress: 1,
-            score: 33,
-            group: 'Group A',
-          },
-          {
-            id: 3,
-            name: 'LearnerName 333',
-            progress: 0,
-            score: null,
-            group: 'Group B',
-          }
-        ],
+        examTakers: state => state.pageState.examTakers,
+        classId: state => state.pageState.classId,
+        exam: state => state.pageState.exam,
+        channelId: state => state.pageState.channelId,
       },
       actions: {
         displayExamModal: actions.displayExamModal,
@@ -100,17 +94,19 @@
     },
     $trNameSpace: 'examReportPage',
     $trs: {
-      examTakenby: 'Exam taken by: {number} Learners',
-      averageScore: 'Average Score: {number}%',
+      examTakenby: 'Exam taken by: {num, plural, one {# learner} other {# learners}}',
+      averageScore: 'Average Score: {num, number, percent}',
       examReport: 'Exam report',
       completed: 'Completed',
-      incomplete: 'Incomplete',
+      incomplete: '{ num, number } out of { outOf, number }',
+      notstarted: 'Not started',
       name: 'Name',
       status: 'Status',
       score: 'Score',
-      scorePercentage: '{number, select, null {-} other {{number}%}}',
+      scorePercentage: '{num, number, percent}',
       group: 'Group',
       noExamData: 'No data to show.',
+      ungrouped: 'Ungrouped',
     },
   };
 
