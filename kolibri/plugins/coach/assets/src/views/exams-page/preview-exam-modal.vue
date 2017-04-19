@@ -2,22 +2,21 @@
 
   <core-modal :title="$tr('preview')" @cancel="close" width="100%" height="100%">
     <ui-progress-linear v-show="loading"/>
-    <div class="exam-preview-container" v-show="!loading">
+    <div v-show="!loading">
       <div>
         <strong>{{ $tr('numQuestions', { num: examNumQuestions })}}</strong>
         <slot name="randomize-button"/>
       </div>
-      <div class="pure-g">
+      <div class="exam-preview-container pure-g">
         <div class="question-selector pure-u-1-3">
           <div v-for="(exercise, exerciseIndex) in examQuestionSources">
-            <h2 v-if="examCreation">{{$tr('exercise', { num: exerciseIndex + 1 })}}</h2>
+            <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
             <ol class="question-list">
               <li v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)">
                 <ui-button
                   @click="goToQuestion(question.itemId, exercise.exercise_id)"
                   :type="isSelected(question.itemId, exercise.exercise_id) ? 'primary' : 'secondary'">
-                    <span v-if="!examCreation">{{ $tr('question', { num: questionIndex + 1 }) }}</span>
-                    <span v-else>{{ $tr('question', { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }) }}</span>
+                    {{ $tr('question', { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }) }}
                 </ui-button>
               </li>
             </ol>
@@ -129,6 +128,12 @@
       goToQuestion(questionItemId, exerciseId) {
         this.currentQuestionIndex = this.getQuestionIndex(questionItemId, exerciseId);
       },
+      getExerciseName(exerciseId) {
+        if (this.exercises[exerciseId]) {
+          return this.exercises[exerciseId].title;
+        }
+        return '';
+      },
       close() {
         this.displayExamModal(false);
       },
@@ -156,9 +161,13 @@
 
   @require '~kolibri.styles.definitions'
 
-  .question-selector
-    overflow-y: scroll
-    border: 2px black
+  .exam-preview-container
+    padding-top: 1em
+    max-height: calc(100vh - 160px)
+
+  .question-selector, .exercise-container
+    overflow-y: auto
+
 
   ol
     padding: 0
@@ -166,5 +175,9 @@
 
   li
     list-style-type: none
+
+  h3
+    margin-top: 1em
+    margin-bottom: 0.25em
 
 </style>
