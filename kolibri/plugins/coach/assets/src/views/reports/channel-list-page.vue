@@ -40,7 +40,7 @@
       lastActive: 'Last active',
     },
     components: {
-      'elapsed-time': require('../elapsed-time'),
+      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
     },
     computed: {
       channelList() {

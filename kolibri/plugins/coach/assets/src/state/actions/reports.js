@@ -413,5 +413,5 @@ module.exports = {
   showLearnerChannelRoot,
   showLearnerItemList,
   showLearnerItemDetails,
-  _showLearnerList,
+  _setUserSummary,
 };

@@ -50,9 +50,9 @@
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'coach-exercise-render-page': require('./coach-exercise-render-page'),
       // reports
-      'recent-items-page': require('./recent-items-page'),
-      'channel-list-page': require('./channel-list-page'),
-      'item-list-page': require('./item-list-page'),
+      'recent-items-page': require('./reports/recent-items-page'),
+      'channel-list-page': require('./reports/channel-list-page'),
+      'item-list-page': require('./reports/item-list-page'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,

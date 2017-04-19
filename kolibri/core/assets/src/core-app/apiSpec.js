@@ -105,6 +105,9 @@ module.exports = {
         immersiveFullScreen: {
           module: require('../views/immersive-full-screen'),
         },
+        elapsedTime: {
+          module: require('../views/elapsed-time'),
+        },
       },
       router: {
         module: require('../router'),

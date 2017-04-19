@@ -116,13 +116,13 @@
     },
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
-      'breadcrumbs': require('./breadcrumbs'),
       'summary-section': require('./summary-section'),
+      'breadcrumbs': require('./breadcrumbs'),
       'header-cell': require('./header-cell'),
       'user-cell': require('./data-cells/user-cell'),
       'progress-cell': require('./data-cells/progress-cell'),
       'item-cell': require('./data-cells/item-cell'),
-      'elapsed-time': require('../elapsed-time'),
+      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
     },
     computed: {
       ReportConstants() {
