@@ -4,7 +4,7 @@
     <div class="question-selector-container">
       <div class="question-selector">
         <div>
-          {{ $tr('numQuestions', { num: exam.question_count })}}<icon-button :text="$tr('randomize')" @click="$emit('randomize')" :primary="true"/>
+          {{ $tr('numQuestions', { num: exam.questionCount })}}
         </div>
         <ui-collapsible v-for="(source, exIndex) in questionSources" :title="$tr('exercise', { num: exIndex + 1 })" :open="exIndex===0">
           <ul class="question-list">
@@ -27,7 +27,7 @@
           :kind="content.kind"
           :files="content.files"
           :contentId="content.content_id"
-          :channelId="exam.channel_id"
+          :channelId="exam.channelId"
           :available="content.available"
           :extraFields="content.extra_fields"
           :itemId="itemId"
@@ -54,7 +54,6 @@
       close: 'Close',
       question: 'Question { num }',
       numQuestions: '{ num } questions',
-      randomize: 'Randomize',
       exercise: 'Exercise { num }',
     },
     components: {
@@ -89,7 +88,7 @@
       },
       questionSources() {
         try {
-          return JSON.parse(this.exam.question_sources);
+          return JSON.parse(this.exam.questionSources);
         } catch (e) {
           if (e instanceof SyntaxError) {
             return [];
@@ -121,7 +120,7 @@
     },
     created() {
       ContentNodeResource.getCollection(
-        { channel_id: this.exam.channel_id },
+        { channel_id: this.exam.channelId },
         { ids: this.questionSources.map(item => item.exercise_id) }
         ).fetch().then(contentNodes => {
           contentNodes.forEach(node => { this.$set(this.contentNodeMap, node.pk, node); });

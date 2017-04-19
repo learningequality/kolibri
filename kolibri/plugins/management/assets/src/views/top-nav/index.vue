@@ -8,6 +8,9 @@
       <router-link :to="usersLink" :class="{active: usersActive}" @click.native="blur">
         {{$tr('users')}}
       </router-link>
+      <router-link :to="facilitiesConfigLink" :class="{active: facilitiesConfigActive}" @click.native="blur">
+        {{$tr('facilities')}}
+      </router-link>
       <router-link :to="dataLink" :class="{active: dataActive}" @click.native="blur">
         {{$tr('data')}}
       </router-link>
@@ -23,15 +26,24 @@
 <script>
 
   const UserKinds = require('kolibri.coreVue.vuex.constants').UserKinds;
-  const constants = require('../../constants');
+  const { PageNames } = require('../../constants');
+
+  const linkify = (name) => ({ name });
+
+  const classesSubPages = [
+    PageNames.CLASS_EDIT_MGMT_PAGE,
+    PageNames.CLASS_ENROLL_MGMT_PAGE,
+    PageNames.CLASS_MGMT_PAGE,
+  ];
 
   module.exports = {
     $trNameSpace: 'topNav',
     $trs: {
       classes: 'Classes',
-      users: 'Users',
       content: 'Content',
       data: 'Data',
+      facilities: 'Facilities',
+      users: 'Users',
     },
     methods: {
       blur(evt) {
@@ -40,32 +52,34 @@
     },
     computed: {
       classesLink() {
-        return { name: constants.PageNames.CLASS_MGMT_PAGE };
+        return linkify(PageNames.CLASS_MGMT_PAGE);
       },
       classesActive() {
-        return [
-          constants.PageNames.CLASS_MGMT_PAGE,
-          constants.PageNames.CLASS_EDIT_MGMT_PAGE,
-          constants.PageNames.CLASS_ENROLL_MGMT_PAGE,
-        ].includes(this.pageName);
+        return classesSubPages.includes(this.pageName);
+      },
+      facilitiesConfigLink() {
+        return linkify(PageNames.FACILITY_CONFIG_PAGE);
+      },
+      facilitiesConfigActive() {
+        return this.pageName === PageNames.FACILITY_CONFIG_PAGE;
       },
       usersLink() {
-        return { name: constants.PageNames.USER_MGMT_PAGE };
+        return linkify(PageNames.USER_MGMT_PAGE);
       },
       usersActive() {
-        return this.pageName === constants.PageNames.USER_MGMT_PAGE;
+        return this.pageName === PageNames.USER_MGMT_PAGE;
       },
       dataLink() {
-        return { name: constants.PageNames.DATA_EXPORT_PAGE };
+        return linkify(PageNames.DATA_EXPORT_PAGE);
       },
       dataActive() {
-        return this.pageName === constants.PageNames.DATA_EXPORT_PAGE;
+        return this.pageName === PageNames.DATA_EXPORT_PAGE;
       },
       contentLink() {
-        return { name: constants.PageNames.CONTENT_MGMT_PAGE };
+        return linkify(PageNames.CONTENT_MGMT_PAGE);
       },
       contentActive() {
-        return this.pageName === constants.PageNames.CONTENT_MGMT_PAGE;
+        return this.pageName === PageNames.CONTENT_MGMT_PAGE;
       },
     },
     vuex: {

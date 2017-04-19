@@ -7,7 +7,7 @@ from .api import (
 
 router = routers.SimpleRouter()
 
-router.register(r'facilitydataset', FacilityDatasetViewSet)
+router.register(r'facilitydataset', FacilityDatasetViewSet, base_name='facilitydataset')
 router.register(r'facilityuser', FacilityUserViewSet)
 router.register(r'deviceowner', DeviceOwnerViewSet)
 router.register(r'membership', MembershipViewSet)

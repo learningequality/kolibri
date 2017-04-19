@@ -75,7 +75,7 @@
     },
     watch: {
       title(newVal, oldVal) {
-        document.title = `${newVal} - Kolibri`;
+        this.updateDocumentTitle(newVal);
       },
       'windowSize.breakpoint': function updateNav(newVal, oldVal) {
         if (oldVal === 4 && newVal === 5) {
@@ -90,6 +90,11 @@
     data: () => ({
       navShown: true,
     }),
+    methods: {
+      updateDocumentTitle(newTitle) {
+        document.title = this.title ? `${this.title} - Kolibri` : 'Kolibri';
+      }
+    },
     computed: {
       mobile() {
         return this.windowSize.breakpoint < 2;
@@ -110,6 +115,7 @@
       },
     },
     mounted() {
+      this.updateDocumentTitle(this.title);
       if (this.mobile) {
         this.navShown = false;
       }

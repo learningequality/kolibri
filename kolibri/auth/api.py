@@ -7,6 +7,7 @@ from kolibri.logger.models import UserSessionLog
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
 
+from .constants import collection_kinds
 from .filters import HierarchyRelationsFilter
 from .models import Classroom, DeviceOwner, Facility, FacilityDataset, FacilityUser, LearnerGroup, Membership, Role
 from .serializers import (
@@ -70,8 +71,14 @@ class KolibriAuthPermissions(permissions.BasePermission):
 class FacilityDatasetViewSet(viewsets.ModelViewSet):
     permissions_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
-    queryset = FacilityDataset.objects.all()
     serializer_class = FacilityDatasetSerializer
+
+    def get_queryset(self):
+        queryset = FacilityDataset.objects.filter(collection__kind=collection_kinds.FACILITY)
+        facility_id = self.request.query_params.get('facility_id', None)
+        if facility_id is not None:
+            queryset = queryset.filter(collection__id=facility_id)
+        return queryset
 
 
 class FacilityUserFilter(filters.FilterSet):

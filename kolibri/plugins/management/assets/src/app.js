@@ -57,6 +57,13 @@ class ManagementModule extends KolibriModule {
           },
         },
         {
+          name: PageNames.FACILITY_CONFIG_PAGE,
+          path: '/facilities',
+          handler: (toRoute, fromRoute) => {
+            actions.showFacilityConfigPage(store);
+          },
+        },
+        {
           name: PageNames.SCRATCHPAD,
           path: '/scratchpad',
           handler: (toRoute, fromRoute) => {

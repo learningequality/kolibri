@@ -82,11 +82,13 @@
           return false;
         }
         return this.allExercisesWithinTopic.every(
-            exercise => this.selectedExercises.includes(exercise));
+          exercise => this.selectedExercises.some(
+            selectedExercise => selectedExercise.id === exercise.id));
       },
       noExercisesWithinTopicSelected() {
         return this.allExercisesWithinTopic.every(
-            exercise => !this.selectedExercises.includes(exercise));
+            exercise => !this.selectedExercises.some(
+              selectedExercise => selectedExercise.id === exercise.id));
       },
       someExercisesWithinTopicSelected() {
         return !this.allExercisesWithinTopicSelected && !this.noExercisesWithinTopicSelected;

@@ -7,6 +7,7 @@ const PageNames = {
   CONTENT_MGMT_PAGE: 'CONTENT_MGMT_PAGE',
   DATA_EXPORT_PAGE: 'DATA_EXPORT_PAGE',
   SCRATCHPAD: 'SCRATCHPAD',
+  FACILITY_CONFIG_PAGE: 'FACILITY_CONFIG_PAGE',
 };
 
 // modal names
@@ -42,10 +43,26 @@ const TaskStatuses = {
   PENDING: 'PENDING',
 };
 
+const defaultFacilityConfig = {
+  learnerCanEditUsername: true,
+  learnerCanEditName: true,
+  learnerCanEditPassword: true,
+  learnerCanSignUp: true,
+  learnerCanDeleteAccount: true,
+};
+
+const notificationTypes = {
+  PAGELOAD_FAILURE: 'pageload_failure',
+  SAVE_FAILURE: 'save_failure',
+  SAVE_SUCCESS: 'save_success',
+};
+
 module.exports = {
   PageNames,
   Modals,
   ContentWizardPages,
   TaskTypes,
   TaskStatuses,
+  defaultFacilityConfig,
+  notificationTypes,
 };

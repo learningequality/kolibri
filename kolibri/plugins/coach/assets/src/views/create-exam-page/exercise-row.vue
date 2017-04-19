@@ -12,14 +12,14 @@
         v-if="isSelected"
         :text="$tr('removeExercise')"
         :primary="false"
-        @click="$emit('removeExercise', exerciseId, exerciseTitle)">
+        @click="$emit('removeExercise', { id: exerciseId, title: exerciseTitle, numAssesments: exerciseNumAssesments })">
         <mat-svg category="content" name="remove"/>
       </icon-button>
       <icon-button
         v-else
         :text="$tr('addExercise')"
         :primary="true"
-        @click="$emit('addExercise', exerciseId, exerciseTitle)">
+        @click="$emit('addExercise', { id: exerciseId, title: exerciseTitle, numAssesments: exerciseNumAssesments })">
         <mat-svg category="content" name="add"/>
       </icon-button>
     </td>
@@ -51,6 +51,10 @@
         type: String,
         required: true,
       },
+      exerciseNumAssesments: {
+        type: Number,
+        required: true,
+      },
       selectedExercises: {
         type: Array,
         required: true,
@@ -61,7 +65,8 @@
         return ContentNodeKinds.EXERCISE;
       },
       isSelected() {
-        return this.selectedExercises.includes(this.exerciseId);
+        return this.selectedExercises.some(
+          selectedExercise => selectedExercise.id === this.exerciseId);
       },
     },
   };
