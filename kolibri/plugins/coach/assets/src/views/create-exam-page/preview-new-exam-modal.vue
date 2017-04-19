@@ -6,7 +6,7 @@
     :examSeed="examSeed"
     :examNumQuestions="examNumQuestions"
     :examCreation="true">
-    <icon-button slot="randomize-button" :text="$tr('randomize')" @click="$emit('randomize')"/>
+    <icon-button slot="randomize-button" :text="$tr('randomize')" :primary="true" @click="$emit('randomize')"/>
   </preview-exam-modal>
 
 </template>
