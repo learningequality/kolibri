@@ -78,7 +78,10 @@
     />
     <preview-exam-modal
       v-if="showPreviewExamModal"
-      :exam="selectedExam"
+      :examChannelId="selectedExam.channelId"
+      :examQuestionSources="JSON.parse(selectedExam.questionSources)"
+      :examSeed="selectedExam.seed"
+      :examNumQuestions="selectedExam.questionCount"
     />
     <rename-exam-modal
       v-if="showRenameExamModal"

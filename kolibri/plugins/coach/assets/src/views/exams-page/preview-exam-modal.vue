@@ -4,12 +4,12 @@
     <ui-progress-linear v-show="loading"/>
     <div class="exam-preview-container" v-show="!loading">
       <div>
-        <strong>{{ $tr('numQuestions', { num: exam.questionCount })}}</strong>
+        <strong>{{ $tr('numQuestions', { num: examNumQuestions })}}</strong>
         <slot name="randomize-button"/>
       </div>
       <div class="pure-g">
         <div class="question-selector pure-u-1-3">
-          <div v-for="(exercise, exerciseIndex) in questionSources">
+          <div v-for="(exercise, exerciseIndex) in examQuestionSources">
             <h2>{{$tr('exercise', { num: exerciseIndex + 1 })}}</h2>
             <ol class="question-list">
               <li v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)">
@@ -31,7 +31,7 @@
             :kind="content.kind"
             :files="content.files"
             :contentId="content.content_id"
-            :channelId="exam.channelId"
+            :channelId="examChannelId"
             :available="content.available"
             :extraFields="content.extra_fields"
             :itemId="itemId"
@@ -67,8 +67,20 @@
       'ui-progress-linear': require('keen-ui/src/UiProgressLinear'),
     },
     props: {
-      exam: {
-        type: Object,
+      examChannelId: {
+        type: String,
+        required: true,
+      },
+      examQuestionSources: {
+        type: Array,
+        required: true,
+      },
+      examSeed: {
+        type: Number,
+        required: true,
+      },
+      examNumQuestions: {
+        type: Number,
         required: true,
       },
     },
@@ -78,29 +90,13 @@
       loading: true,
     }),
     computed: {
-      seed() {
-        return this.exam.seed;
-      },
-      questionSources() {
-        if (typeof this.exam.questionSources === 'object') {
-          return this.exam.questionSources;
-        }
-        try {
-          return JSON.parse(this.exam.questionSources);
-        } catch (e) {
-          if (e instanceof SyntaxError) {
-            return [];
-          }
-          throw e;
-        }
-      },
       questions() {
         return Object.keys(this.exercises).length ? createQuestionList(
-          this.questionSources).map(
+          this.examQuestionSources).map(
             question => ({
               itemId: selectQuestionFromExercise(
               question.assessmentItemIndex,
-              this.seed,
+              this.examSeed,
               this.exercises[question.contentId]),
               contentId: question.contentId
             })
@@ -133,8 +129,8 @@
     },
     created() {
       ContentNodeResource.getCollection(
-        { channel_id: this.exam.channelId },
-        { ids: this.questionSources.map(item => item.exercise_id) }
+        { channel_id: this.examChannelId },
+        { ids: this.examQuestionSources.map(item => item.exercise_id) }
         ).fetch().then(contentNodes => {
           contentNodes.forEach(node => { this.$set(this.exercises, node.pk, node); });
           this.loading = false;

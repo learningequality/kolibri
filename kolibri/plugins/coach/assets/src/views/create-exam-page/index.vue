@@ -94,11 +94,10 @@
 
     <preview-new-exam-modal
       v-if="showPreviewNewExamModal"
-      :examTitle="inputTitle"
+      :examChannelId="currentChannel.id"
+      :examQuestionSources="questionSources"
+      :examSeed="seed"
       :examNumQuestions="inputNumQuestions"
-      :channelId="currentChannel.id"
-      :questionSources="questionSources"
-      :seed="seed"
       @randomize="seed = generateRandomSeed()"/>
 
     <ui-snackbar-container
