@@ -10,13 +10,22 @@
       <div class="pure-g">
         <div class="question-selector pure-u-1-3">
           <div v-for="(exercise, exerciseIndex) in examQuestionSources">
-            <h2>{{$tr('exercise', { num: exerciseIndex + 1 })}}</h2>
+            <h2 v-if="examCreation">
+              {{$tr('exercise', { num: exerciseIndex + 1 })}}
+              <ui-icon-button
+              icon="remove_circle_outline"
+              size="small"
+              type="secondary"
+              :ariaLabel="$tr('removeExercise')"
+              @click="removeExercise(exercise)"/>
+              </h2>
             <ol class="question-list">
               <li v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)">
                 <ui-button
                   @click="goToQuestion(question.itemId)"
                   :type="isSelected(question.itemId) ? 'primary' : 'secondary'">
-                    {{ $tr('question', { num: questionIndex + 1 }) }}
+                    <span v-if="examCreation">{{ $tr('question', { num: questionIndex + 1 }) }}</span>
+                    <span v-else>{{ $tr('question', { num: getQuestionIndex(question.itemId) + 1 }) }}</span>
                 </ui-button>
               </li>
             </ol>
@@ -54,17 +63,19 @@
   module.exports = {
     $trNameSpace: 'previewExamModal',
     $trs: {
-      preview: 'Preview Exam Exercises',
+      preview: 'Preview exam',
       close: 'Close',
       question: 'Question { num }',
       numQuestions: '{ num } questions',
       exercise: 'Exercise { num }',
+      removeExercise: 'Remove exercise',
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'ui-button': require('keen-ui/src/UiButton'),
       'ui-progress-linear': require('keen-ui/src/UiProgressLinear'),
+      'ui-icon-button': require('keen-ui/src/UiIconButton'),
     },
     props: {
       examChannelId: {
@@ -83,6 +94,10 @@
         type: Number,
         required: true,
       },
+      examCreation: {
+        type: Boolean,
+        default: false,
+      }
     },
     data: () => ({
       currentQuestionIndex: 0,
@@ -119,9 +134,14 @@
         }
         return false;
       },
+      getQuestionIndex(questionItemId) {
+        return this.questions.findIndex(question => question.itemId === questionItemId);
+      },
       goToQuestion(questionItemId) {
-        this.currentQuestionIndex = this.questions.findIndex(
-          question => question.itemId === questionItemId);
+        this.currentQuestionIndex = this.getQuestionIndex(questionItemId);
+      },
+      removeExercise(exercise) {
+        this.$emit('removeExercise', { id: exercise.exercise_id, title: '' });
       },
       close() {
         this.displayExamModal(false);
@@ -157,6 +177,7 @@
 
   ol
     padding: 0
+    margin: 0
 
   li
     list-style-type: none

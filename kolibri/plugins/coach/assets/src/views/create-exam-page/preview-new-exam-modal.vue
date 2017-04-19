@@ -4,7 +4,9 @@
     :examChannelId="examChannelId"
     :examQuestionSources="examQuestionSources"
     :examSeed="examSeed"
-    :examNumQuestions="examNumQuestions">
+    :examNumQuestions="examNumQuestions"
+    :examCreation="true"
+    @removeExercise="emitRemoval">
     <icon-button slot="randomize-button" :text="$tr('randomize')" @click="$emit('randomize')"/>
   </preview-exam-modal>
 
@@ -45,6 +47,9 @@
     methods: {
       close() {
         this.displayExamModal(false);
+      },
+      emitRemoval(exercise) {
+        this.$emit('removeExercise', exercise);
       },
     },
     vuex: {
