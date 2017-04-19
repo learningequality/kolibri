@@ -98,8 +98,7 @@
       :examQuestionSources="questionSources"
       :examSeed="seed"
       :examNumQuestions="inputNumQuestions"
-      @randomize="seed = generateRandomSeed()"
-      @removeExercise="handleRemoveExercise"/>
+      @randomize="seed = generateRandomSeed()"/>
 
     <ui-snackbar-container
       class="snackbar-container"

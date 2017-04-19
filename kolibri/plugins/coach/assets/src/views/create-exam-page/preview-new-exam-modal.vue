@@ -5,8 +5,7 @@
     :examQuestionSources="examQuestionSources"
     :examSeed="examSeed"
     :examNumQuestions="examNumQuestions"
-    :examCreation="true"
-    @removeExercise="emitRemoval">
+    :examCreation="true">
     <icon-button slot="randomize-button" :text="$tr('randomize')" @click="$emit('randomize')"/>
   </preview-exam-modal>
 
@@ -20,7 +19,7 @@
   module.exports = {
     $trNameSpace: 'previewNewExamModal',
     $trs: {
-      randomize: 'Randomize',
+      randomize: 'Randomize questions',
     },
     components: {
       'preview-exam-modal': require('../exams-page/preview-exam-modal'),
@@ -47,9 +46,6 @@
     methods: {
       close() {
         this.displayExamModal(false);
-      },
-      emitRemoval(exercise) {
-        this.$emit('removeExercise', exercise);
       },
     },
     vuex: {

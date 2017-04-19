@@ -1,6 +1,6 @@
 <template>
 
-  <core-modal :title="$tr('preview')" @cancel="close" maxWidth="100%">
+  <core-modal :title="$tr('preview')" @cancel="close" width="100%" height="100%">
     <ui-progress-linear v-show="loading"/>
     <div class="exam-preview-container" v-show="!loading">
       <div>
@@ -10,22 +10,14 @@
       <div class="pure-g">
         <div class="question-selector pure-u-1-3">
           <div v-for="(exercise, exerciseIndex) in examQuestionSources">
-            <h2 v-if="examCreation">
-              {{$tr('exercise', { num: exerciseIndex + 1 })}}
-              <ui-icon-button
-              icon="remove_circle_outline"
-              size="small"
-              type="secondary"
-              :ariaLabel="$tr('removeExercise')"
-              @click="removeExercise(exercise)"/>
-              </h2>
+            <h2 v-if="examCreation">{{$tr('exercise', { num: exerciseIndex + 1 })}}</h2>
             <ol class="question-list">
               <li v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)">
                 <ui-button
-                  @click="goToQuestion(question.itemId)"
-                  :type="isSelected(question.itemId) ? 'primary' : 'secondary'">
-                    <span v-if="examCreation">{{ $tr('question', { num: questionIndex + 1 }) }}</span>
-                    <span v-else>{{ $tr('question', { num: getQuestionIndex(question.itemId) + 1 }) }}</span>
+                  @click="goToQuestion(question.itemId, exercise.exercise_id)"
+                  :type="isSelected(question.itemId, exercise.exercise_id) ? 'primary' : 'secondary'">
+                    <span v-if="!examCreation">{{ $tr('question', { num: questionIndex + 1 }) }}</span>
+                    <span v-else>{{ $tr('question', { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }) }}</span>
                 </ui-button>
               </li>
             </ol>
@@ -68,14 +60,12 @@
       question: 'Question { num }',
       numQuestions: '{ num } questions',
       exercise: 'Exercise { num }',
-      removeExercise: 'Remove exercise',
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'ui-button': require('keen-ui/src/UiButton'),
       'ui-progress-linear': require('keen-ui/src/UiProgressLinear'),
-      'ui-icon-button': require('keen-ui/src/UiIconButton'),
     },
     props: {
       examChannelId: {
@@ -128,20 +118,16 @@
       },
     },
     methods: {
-      isSelected(questionItemId) {
-        if (this.currentQuestion.itemId === questionItemId) {
-          return true;
-        }
-        return false;
+      isSelected(questionItemId, exerciseId) {
+        return (this.currentQuestion.itemId === questionItemId)
+          && (this.currentQuestion.contentId === exerciseId);
       },
-      getQuestionIndex(questionItemId) {
-        return this.questions.findIndex(question => question.itemId === questionItemId);
+      getQuestionIndex(questionItemId, exerciseId) {
+        return this.questions.findIndex(
+          question => (question.itemId === questionItemId) && (question.contentId === exerciseId));
       },
-      goToQuestion(questionItemId) {
-        this.currentQuestionIndex = this.getQuestionIndex(questionItemId);
-      },
-      removeExercise(exercise) {
-        this.$emit('removeExercise', { id: exercise.exercise_id, title: '' });
+      goToQuestion(questionItemId, exerciseId) {
+        this.currentQuestionIndex = this.getQuestionIndex(questionItemId, exerciseId);
       },
       close() {
         this.displayExamModal(false);
@@ -171,7 +157,6 @@
   @require '~kolibri.styles.definitions'
 
   .question-selector
-    max-height: 300px
     overflow-y: scroll
     border: 2px black
 
