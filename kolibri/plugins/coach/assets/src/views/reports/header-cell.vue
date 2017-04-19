@@ -1,15 +1,25 @@
 <template>
 
   <th scope="col">
-    <router-link v-if="sortable" :to="vLink" class="header-text">
+    <button v-if="sortable" class="header-text" @click="$emit('click')">
       <span>{{ text }}</span>
       <span class="icon-wrapper" v-if="sortable">
-        <mat-svg class="icon" :class="{ sorted: isDescending }" category="hardware" name="keyboard_arrow_down"/>
-        <mat-svg class="icon" :class="{ sorted: isAscending }" category="hardware" name="keyboard_arrow_up"/>
+        <mat-svg
+          class="icon"
+          :class="{ sorted: sortedDescending }"
+          category="hardware"
+          name="keyboard_arrow_down"
+        />
+        <mat-svg
+          class="icon"
+          :class="{ sorted: !sortedDescending }"
+          category="hardware"
+          name="keyboard_arrow_up"
+        />
       </span>
-      <span class="visuallyhidden" v-if="isAscending">{{ $tr('ascending') }}</span>
-      <span class="visuallyhidden" v-if="isDescending">{{ $tr('descending') }}</span>
-    </router-link>
+      <span class="visuallyhidden" v-if="!sortedDescending">{{ $tr('ascending') }}</span>
+      <span class="visuallyhidden" v-if="sortedDescending">{{ $tr('descending') }}</span>
+    </button>
     <div v-else class="header-text">{{ text }}</div>
   </th>
 
@@ -17,10 +27,6 @@
 
 
 <script>
-
-  const ReportConstants = require('../../reportConstants');
-  const coachGetters = require('../../state/getters/main');
-  const values = require('lodash/values');
 
   module.exports = {
     $trNameSpace: 'headerCell',
@@ -33,51 +39,15 @@
         type: String,
         required: true,
       },
-      column: {
-        type: String,
-        required: true,
-        validator(value) {
-          return values(ReportConstants.TableColumns).includes(value);
-        },
+      sortable: {
+        type: Boolean,
+        default: false,
       },
-    },
-    computed: {
-      sortable() {
-        return false; // TODO - disable sorting until it's fully implemented
-        // return !this.isRecentPage;
+      sorted: {
+        type: Boolean,
       },
-      sorted() {
-        return this.sortable && this.pageState.sortColumn === this.column;
-      },
-      isDescending() {
-        return this.sorted && this.pageState.sortOrder === ReportConstants.SortOrders.DESCENDING;
-      },
-      isAscending() {
-        return this.sorted && this.pageState.sortOrder === ReportConstants.SortOrders.ASCENDING;
-      },
-      nextSortState() {
-        if (!this.sorted || this.pageState.sortOrder === ReportConstants.SortOrders.NONE) {
-          return ReportConstants.SortOrders.DESCENDING;
-        }
-        if (this.pageState.sortOrder === ReportConstants.SortOrders.DESCENDING) {
-          return ReportConstants.SortOrders.ASCENDING;
-        }
-        return ReportConstants.SortOrders.NONE;
-      },
-      vLink() {
-        // todo
-        return {
-          name: '',
-          params: {},
-          replace: true, // replace state
-        };
-      },
-    },
-    vuex: {
-      getters: {
-        pageName: state => state.pageName,
-        pageState: state => state.pageState,
-        isRecentPage: coachGetters.isRecentPage,
+      sortedDescending: {
+        type: Boolean,
       },
     },
   };
@@ -98,7 +68,7 @@
     font-weight: normal
 
   .header-text
-    text-decoration: none
+    border: none
     display: block
     color: $core-text-annotation
 
