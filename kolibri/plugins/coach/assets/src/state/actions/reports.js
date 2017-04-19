@@ -7,14 +7,14 @@ const Constants = require('../../constants');
 const ReportConstants = require('../../reportConstants');
 
 const RecentReportResourceConstructor = require('../../apiResources/recentReport');
-// const UserReportResourceConstructor = require('../../apiResources/userReport');
-// const UserSummaryResourceConstructor = require('../../apiResources/userSummary');
+const UserReportResourceConstructor = require('../../apiResources/userReport');
+const UserSummaryResourceConstructor = require('../../apiResources/userSummary');
 const ContentSummaryResourceConstructor = require('../../apiResources/contentSummary');
 const ContentReportResourceConstructor = require('../../apiResources/contentReport');
 
 const RecentReportResource = new RecentReportResourceConstructor(coreApp);
-// const UserReportResource = new UserReportResourceConstructor(coreApp);
-// const UserSummaryResource = new UserSummaryResourceConstructor(coreApp);
+const UserReportResource = new UserReportResourceConstructor(coreApp);
+const UserSummaryResource = new UserSummaryResourceConstructor(coreApp);
 const ContentSummaryResource = new ContentSummaryResourceConstructor(coreApp);
 const ContentReportResource = new ContentReportResourceConstructor(coreApp);
 
@@ -81,20 +81,6 @@ function _showChannelList(store, classId) {
   );
 }
 
-function _progressState(progressData) {
-  // not all of these keys are defined for all requests...
-  return {
-    // all reports
-    totalProgress: progressData.total_progress,
-    // content/learner reports
-    kind: progressData.kind,
-    nodeCount: progressData.node_count,
-    // 'recent' reports
-    logCountComplete: progressData.log_count_complete,
-    logCountTotal: progressData.log_count_total,
-  };
-}
-
 function _contentReportState(data) {
   console.log('dddddd', data);
   if (!data) { return []; }
@@ -107,30 +93,33 @@ function _contentReportState(data) {
       title: row.parent.title,
     },
     id: row.pk,
-    progress: row.progress.map(_progressState),
+    progress: row.progress.map(progressData => ({
+      kind: progressData.kind,
+      nodeCount: progressData.node_count,
+      totalProgress: progressData.total_progress,
+    })),
     title: row.title,
   }));
 }
 
-// function _learnerReportState(data) {
-//   console.log('lllllll', data);
-//   if (!data) { return []; }
-//   return data.map(row => ({
-//     contentId: row.content_id,
-//     kind: row.kind,
-//     lastActive: row.last_active,
-//     parent: {
-//       id: row.parent.pk,
-//       title: row.parent.title,
-//     },
-//     id: row.pk,
-//     progress: row.progress.map(_progressState),
-//     title: row.title,
-//   }));
-// }
+function _learnerReportState(data) {
+  console.log('lllllll', data);
+  if (!data) { return []; }
+  return data.map(row => ({
+    id: row.pk.toString(), // see https://github.com/learningequality/kolibri/issues/1255
+    fullName: row.full_name,
+    lastActive: row.last_active,
+    progress: row.progress.map(progressData => ({
+      kind: progressData.kind,
+      timeSpent: progressData.time_spent,
+      totalProgress: progressData.total_progress,
+    })),
+  }));
+}
 
 function _contentSummaryState(data) {
   if (!data) { return {}; }
+  console.log('cscscscs', data);
   const kind = !data.ancestors.length ? CoreConstants.ContentNodeKinds.CHANNEL : data.kind;
   return {
     ancestors: data.ancestors.map(item => ({
@@ -142,34 +131,40 @@ function _contentSummaryState(data) {
     lastActive: data.last_active,
     numUsers: data.num_users,
     id: data.pk,
-    progress: data.progress.map(_progressState),
+    progress: data.progress.map(progressData => ({
+      kind: progressData.kind,
+      nodeCount: progressData.node_count,
+      totalProgress: progressData.total_progress,
+    })),
     title: data.title,
   };
 }
 
-// function _userSummaryState(data) {
-//   console.log('uuuuuu', data);
-//   if (!data) {
-//     return {};
-//   }
-//   return data;
-// }
+function _userSummaryState(data) {
+  console.log('uuuuuu', data);
+  if (!data) {
+    return {};
+  }
+  return data;
+}
 
 function _setContentReport(store, reportPayload) {
+  console.log('?????', reportPayload);
   const reportPromise = ContentReportResource.getCollection(reportPayload).fetch();
   reportPromise.then(report => {
+    console.log('>>>>>', _contentReportState(report));
     store.dispatch('SET_REPORT_TABLE_DATA', _contentReportState(report));
   });
   return reportPromise;
 }
 
-// function _setLearnerReport(store, reportPayload) {
-//   const reportPromise = UserReportResource.getCollection(reportPayload).fetch();
-//   reportPromise.then(report => {
-//     store.dispatch('SET_REPORT_TABLE_DATA', _learnerReportState(report));
-//   });
-//   return reportPromise;
-// }
+function _setLearnerReport(store, reportPayload) {
+  const reportPromise = UserReportResource.getCollection(reportPayload).fetch();
+  reportPromise.then(report => {
+    store.dispatch('SET_REPORT_TABLE_DATA', _learnerReportState(report));
+  });
+  return reportPromise;
+}
 
 function _setContentSummary(store, contentScopeId, reportPayload) {
   const contentPromise = ContentSummaryResource.getModel(contentScopeId, reportPayload).fetch();
@@ -179,13 +174,13 @@ function _setContentSummary(store, contentScopeId, reportPayload) {
   return contentPromise;
 }
 
-// function _setUserSummary(store, userScopeId, reportPayload) {
-//   const userPromise = UserSummaryResource.getModel(userScopeId, reportPayload).fetch();
-//   userPromise.then(userSummary => {
-//     store.dispatch('SET_REPORT_USER_SUMMARY', _userSummaryState(userSummary));
-//   });
-//   return userPromise;
-// }
+function _setUserSummary(store, userScopeId, reportPayload) {
+  const userPromise = UserSummaryResource.getModel(userScopeId, reportPayload).fetch();
+  userPromise.then(userSummary => {
+    store.dispatch('SET_REPORT_USER_SUMMARY', _userSummaryState(userSummary));
+  });
+  return userPromise;
+}
 
 
 function showRecentChannels(store, classId) {
@@ -285,6 +280,35 @@ function _showContentList(store, options) {
   );
 }
 
+function _showLearnerList(store, options) {
+  const reportPayload = {
+    channel_id: options.channelId,
+    content_node_id: options.contentScopeId,
+    collection_kind: options.userScope,
+    collection_id: options.classId,
+  };
+  const promises = [
+    _setContentSummary(store, options.contentScopeId, reportPayload),
+    _setLearnerReport(store, reportPayload),
+  ];
+  Promise.all(promises).then(
+    () => {
+      const reportProps = {
+        classId: options.classId,
+        channelId: options.channelId,
+        contentScope: options.contentScope,
+        contentScopeId: options.contentScopeId,
+        userScope: options.userScope,
+        userScopeId: options.userScopeId,
+        viewBy: ReportConstants.ViewBy.LEARNER,
+      };
+      store.dispatch('SET_REPORT_PROPERTIES', reportProps);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
+    error => coreActions.handleError(store, error)
+  );
+}
+
 function showTopicChannelRoot(store, classId, channelId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_CHANNEL_ROOT);
   store.dispatch('CORE_SET_TITLE', 'Topics - Channel');
@@ -325,6 +349,15 @@ function showTopicLearnersForItem(store, classId, channelId, contentId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM);
   store.dispatch('CORE_SET_TITLE', 'Topics - Learners');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+
+  _showLearnerList(store, {
+    classId,
+    channelId,
+    contentScope: ReportConstants.ContentScopes.CONTENT,
+    contentScopeId: contentId,
+    userScope: ReportConstants.UserScopes.CLASSROOM,
+    userScopeId: classId,
+  });
 }
 
 function showTopicLearnerItemDetails(store, classId, channelId, contentId, userId) {
@@ -380,4 +413,5 @@ module.exports = {
   showLearnerChannelRoot,
   showLearnerItemList,
   showLearnerItemDetails,
+  _showLearnerList,
 };

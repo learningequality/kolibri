@@ -13,11 +13,11 @@ const getters = {};
 function _genRow(state, item) {
   const row = {};
 
-  if (state.pageState.viewBy === ReportConstants.ViewBy.LEARNERS) {
+  if (state.pageState.viewBy === ReportConstants.ViewBy.LEARNER) {
     // LEARNERS
     row.kind = CoreConstants.USER;
-    row.id = item.id.toString(); // see https://github.com/learningequality/kolibri/issues/1255
-    row.title = item.full_name;
+    row.id = item.id;
+    row.title = item.fullName;
     row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
 
     // for learners, the exercise counts are the global values
