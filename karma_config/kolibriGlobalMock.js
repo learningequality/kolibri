@@ -49,20 +49,29 @@ class MockResource {
   }
 }
 
+const resourcesList = [
+  'FacilityDatasetResource',
+  'FacilityResource',
+  'FileResource',
+  'RoleResource',
+  'TaskResource',
+];
+
 class KolibriMock {
   constructor() {
-    this.resources = {
-      RoleResource: {},
-      FacilityDatasetResource: new MockResource(),
-      FacilityResource: new MockResource(),
-    };
+    this.resources = {};
+
+    resourcesList.forEach((resource) => {
+      this.resources[resource] = new MockResource();
+    });
 
     this.__resetMocks = this.__resetMocks.bind(this);
   }
 
   __resetMocks() {
-    this.resources.FacilityResource.__resetMocks();
-    this.resources.FacilityDatasetResource.__resetMocks();
+    resourcesList.forEach((resource) => {
+      this.resources[resource].__resetMocks();
+    });
   }
 }
 
