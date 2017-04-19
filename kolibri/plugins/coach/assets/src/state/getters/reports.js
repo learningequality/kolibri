@@ -70,7 +70,7 @@ function _genRow(state, item) {
   if (state.pageState.viewBy === ReportConstants.ViewBy.LEARNERS) {
     // LEARNERS
     row.kind = CoreConstants.USER;
-    row.id = item.id.toString(); // see https://github.com/learningequality/kolibri/issues/65;
+    row.id = item.id.toString(); // see https://github.com/learningequality/kolibri/issues/1255
     row.title = item.full_name;
     row.parent = undefined; // not currently used. Eventually, maybe classes/groups?
 
