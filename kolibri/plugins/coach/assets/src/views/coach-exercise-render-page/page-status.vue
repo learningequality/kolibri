@@ -40,6 +40,7 @@
   module.exports = {
     $trNameSpace: 'coachExercisePageStatus',
     $trs: {
+      // TODO
       assessment: '{ text } questions in a row correct - Today',
       mastered: 'Mastered',
       date: 'on { date }',
@@ -85,11 +86,6 @@
       dateText(date) {
         return this.$tr('date', { date });
       }
-    },
-    vuex: {
-      getters: {
-        pageState: state => state.pageState,
-      },
     },
   };
 

@@ -1,32 +1,42 @@
 <template>
 
   <immersive-full-screen :backPageLink="backPageLink">
-    <template slot="text"> {{ backtoText(contentName) }} </template>
+    <template slot="text"> Figure out with designers what this is supposed to say </template>
     <template slot="body">
       <div class="page-status-container">
         <page-status
-          :contentName="contentName"
+          :contentName="exercise.title"
           :userName="userName"
-          :progress="progress"
+          :progress="exercise.progress_fraction"
           :assessment="assessment"
           :date="date"/>
       </div>
       <div class="outer-container">
-        <div class="answer-history-container column">
-          <answer-history/>
+        <div class="attempt-log-container column">
+          <attempt-log-list
+            :attempt-logs="attemptLogs"
+            v-model="currentAttemptLogIndex"
+          />
         </div>
         <div class="exercise-container column">
-          <question-attempt
-            :questionNumber="pageState.selectedAttemptLogIndex + 1"/>
+          <interaction-list
+            :interactions="currentInteractionHistory"
+            :attemptNumber.number="currentAttemptLog.id"
+            v-model="currentInteractionIndex"
+          />
+
           <content-renderer
             class="content-renderer"
-            :id="content.id"
-            :kind="content.kind"
-            :files="content.files"
-            :contentId="content.content_id"
+            :id="exercise.content_id"
+            :itemId="currentAttemptLog.item"
+            :allowHints="false"
+            :kind="exercise.kind"
+            :files="exercise.files"
+            :contentId="exercise.content_id"
             :channelId="channelId"
-            :available="content.available"
-            :extraFields="content.extra_fields"/>
+            :available="exercise.available"
+            :answerState="currentInteraction.answer"
+            :extraFields="exercise.extra_fields"/>
         </div>
       </div>
     </template>
@@ -48,54 +58,58 @@
       'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'page-status': require('./page-status'),
-      'answer-history': require('./answer-history'),
-      'question-attempt': require('./question-attempt'),
+      'attempt-log-list': require('./attempt-log-list'),
+      'interaction-list': require('./interaction-list'),
+    },
+    data() {
+      return {
+        // TODO use state instead
+        currentInteractionIndex: 0,
+        currentAttemptLogIndex: 0,
+      };
+    },
+    watch: {
+      currentInteractionIndex() {
+        this.currentAttemptLogIndex = 0;
+      },
     },
     computed: {
+      currentAttemptLog() {
+        return this.attemptLogs[this.currentAttemptLogIndex];
+      },
+      currentInteractionHistory() {
+        // TODO create mapper for this
+        return JSON.parse(this.currentAttemptLog.interaction_history);
+      },
+      currentInteraction() {
+        return this.currentInteractionHistory[this.currentInteractionIndex];
+      },
       backPageLink() {
         return { name: constants.PageNames.CLASS_LIST };
       },
-      content() {
-        return {
-          id: '84658d43b99f5824bc1aa5e3eb6b3578',
-          kind: 'exercise',
-          files: [{
-            extension: 'perseus',
-            download_url: '/downloadcontent/898fa0875f5cdf1721a32eb7540d0ec8.perseus/Divide_fractions_and_whole_numbers_word_problems_Exercise.perseus',
-            available: true,
-            checksum: '898fa0875f5cdf1721a32eb7540d0ec8',
-            file_size: 182937,
-            id: '47e59275f0f64c89aba65a537aeb38c2',
-            lang: null,
-            preset: 'Exercise',
-            priority: null,
-            storage_url: '/zipcontent/898fa0875f5cdf1721a32eb7540d0ec8.perseus/',
-            supplementary: false,
-            thumbnail: false,
-          }],
-          content_id: '357f3d15348c4e3d8ac5d459ad8b924d',
-          available: true,
-          extraFields: null,
-        };
+      assessment() {
+        return 'Number completed, can calc from progress';
       },
-      channelId() {
-        return '78eed5c0b59b30c0a40c94c17c849af6';
+      date() {
+        return 'Date (check with designers)';
       },
     },
     methods: {
+      answerState(attemptLog) {
+        console.log('Answerstate', JSON.parse(JSON.parse(attemptLog.answer)));
+        return JSON.parse(JSON.parse(attemptLog.answer));
+      },
       backtoText(text) {
         return this.$tr('backto', { text });
       },
     },
     vuex: {
       getters: {
-        pageState: state => state.pageState,
-        // fake date for page-status
-        contentName: () => 'Adding Fractions',
-        userName: () => 'James Howard',
-        progress: () => 1,
-        assessment: () => '4 of 5',
-        date: () => '18 Nov 2016',
+        // pageState: state => state.pageState,
+        channelId: state => state.pageState.channelId,
+        attemptLogs: state => state.pageState.attemptLogs,
+        exercise: state => state.pageState.exercise,
+        userName: state => state.core.session.username,
       },
     },
   };
@@ -119,7 +133,7 @@
     width: 1%
     padding: 10px
 
-  .answer-history-container
+  .attempt-log-container
     width: 30%
     height: 100%
     overflow-y: auto

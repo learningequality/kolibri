@@ -1,44 +1,41 @@
 <template>
 
-  <div class="answer-history">
+  <div class="attempt-log-list">
     <h3 class="header">{{ $tr('header') }}</h3>
 
     <ul class="history-list">
       <template v-for="(attemptLog, index) in attemptLogs">
-        <li v-if="index === 0">
-          <p class="item">
-            {{ daysElapsedText(attemptLog.daysElapsed) }}
-          </p>
-        </li>
+        <!--p v-if="index === 0" class="item">
+          TODO modify elapsed-time to do Days only?
+          {{ daysElapsedText(attemptLog.daysElapsed) }}
+        </p>
         <li v-else-if="attemptLogs[index - 1].daysElapsed != attemptLog.daysElapsed">
           <p class="item">
             {{ daysElapsedText(attemptLog.daysElapsed) }}
           </p>
-        </li>
-        <li @click="setSelected(index)" :class="isSelected(index)" class="clickable">
-          <div>
+        </li-->
+        <li @click="setSelectedAttemptLogIndex(index)" :class="isSelected(index)" class="clickable">
+            <mat-svg
+              v-if="attemptLog.correct"
+              class="item svg-item svg-correct"
+              category="action"
+              name="check_circle"
+            />
+            <mat-svg
+              v-else-if="!attemptLog.correct"
+              class="item svg-item svg-wrong"
+              category="navigation"
+              name="cancel"
+            />
             <mat-svg
               v-if="attemptLog.hinted"
               class="item svg-item svg-hint"
               category="action"
               name="lightbulb_outline"
             />
-            <mat-svg
-              v-else-if="attemptLog.correct === 0"
-              class="item svg-item svg-wrong"
-              category="navigation"
-              name="cancel"
-            />
-            <mat-svg
-              v-else
-              class="item svg-item svg-correct"
-              category="action"
-              name="check_circle"
-            />
             <h3 class="item">
-              {{ questionText(index + 1) }}
+              {{ questionText(attemptLog.id + 1) }}
             </h3>
-          </div>
         </li>
       </template>
     </ul>
@@ -48,8 +45,6 @@
 
 
 <script>
-
-  const actions = require('../../state/actions/main');
 
   module.exports = {
     $trNameSpace: 'coachExerciseAnswerHistory',
@@ -63,6 +58,17 @@
     data: () => ({
       selectedIndex: 0,
     }),
+    props: {
+      attemptLogs: {
+        type: Array,
+        required: true,
+      },
+      value: {
+        type: Number,
+        required: true,
+        default: 0,
+      },
+    },
     methods: {
       daysElapsedText(daysElapsed) {
         if (daysElapsed > 1) {
@@ -75,24 +81,13 @@
       questionText(number) {
         return this.$tr('question', { number });
       },
-      setSelected(index) {
+      setSelectedAttemptLogIndex(index) {
         this.selectedIndex = index;
-        this.setSelectedAttemptLogIndex(index);
+        this.$emit('input', index);
       },
       isSelected(index) {
-        if (this.selectedIndex === index) {
-          return 'selected';
-        }
-        return null;
+        return this.selectedIndex === index;
       },
-    },
-    vuex: {
-      getters: {
-        attemptLogs: state => state.pageState.attemptLogs,
-      },
-      actions: {
-        setSelectedAttemptLogIndex: actions.setSelectedAttemptLogIndex,
-      }
     },
   };
 
@@ -103,7 +98,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  .answer-history
+  .attempt-log-list
     background-color: $core-bg-light
 
   .header
@@ -140,9 +135,11 @@
     min-width: 120px
     border-bottom: 2px solid $core-text-disabled
     padding-left: 20px
+    display: block
 
   .clickable
     cursor: pointer
+    display: block
 
   .selected
     background-color: $core-text-disabled

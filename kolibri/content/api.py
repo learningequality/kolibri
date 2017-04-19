@@ -40,7 +40,7 @@ class ContentNodeFilter(filters.FilterSet):
 
     class Meta:
         model = models.ContentNode
-        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'ids']
+        fields = ['parent', 'search', 'prerequisite_for', 'has_prerequisite', 'related', 'recommendations_for', 'ids', 'content_id']
 
     def title_description_filter(self, queryset, value):
         """

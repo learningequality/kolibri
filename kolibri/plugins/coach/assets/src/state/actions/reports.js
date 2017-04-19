@@ -20,7 +20,9 @@ const UserSummaryResource = new UserSummaryResourceConstructor(coreApp);
 const ContentSummaryResource = new ContentSummaryResourceConstructor(coreApp);
 const ContentReportResource = new ContentReportResourceConstructor(coreApp);
 
+const AttemptLogResource = coreApp.resources.AttemptLog;
 const ChannelResource = coreApp.resources.ChannelResource;
+const ContentNodeResource = coreApp.resources.ContentNodeResource;
 
 
 function _showChannelList(store, classId) {
@@ -124,7 +126,7 @@ function _contentSummaryState(data) {
 }
 
 function _userSummaryState(data) {
-  console.log('uuuuuu', data);
+  // console.log('uuuuuu', data);
   if (!data) {
     return {};
   }
@@ -199,7 +201,6 @@ function _showReport(store, options) {
   );
 }
 
-
 function _showChannelRoot(store, classId, channelId) {
   const channelPromise = ChannelResource.getModel(channelId).fetch();
 
@@ -232,6 +233,35 @@ function _showTopic(store, classId, channelId, topicId) {
     sortColumn: ReportConstants.TableColumns.NAME,
     sortOrder: ReportConstants.SortOrders.NONE,
   });
+}
+
+// needs exercise, attemptlog. Pass answerstate into contentrender to display answer
+function showExerciseDetailView(store, classId, userId, channelId, contentId) {
+  store.dispatch('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXERCISE_RENDER);
+
+  Promise.all([
+    ContentNodeResource.getCollection({ channel_id: channelId }, { content_id: contentId }).fetch(),
+    AttemptLogResource.getCollection({ user: userId, content: contentId }).fetch(),
+  ]).then(
+    ([exercise, attemptLogs]) => {
+      attemptLogs.sort(
+        (attemptLog1, attemptLog2) =>
+          new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
+      );
+
+      const pageState = {
+        // because this is info returned from a collection
+        exercise: exercise[0],
+        attemptLogs,
+        channelId,
+      };
+      store.dispatch('SET_PAGE_STATE', pageState);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('CORE_SET_TITLE', 'Exercise Detail View');
+    },
+      error => { coreActions.handleApiError(store, error); }
+    );
 }
 
 
@@ -361,6 +391,7 @@ function showLearnerItemDetails(store, classId, userId, channelId, contentId) {
 
 
 module.exports = {
+  showExerciseDetailView, // remove this after making it a helper
   showRecentChannels,
   showRecentItemsForChannel,
   showRecentLearnersForItem,
