@@ -83,21 +83,21 @@
     <div class="footer">
       <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
       <p class="validation-error">{{ validationError }}</p>
-      <!--
+
       <icon-button :text="$tr('preview')" @click="preview">
         <mat-svg category="action" name="visibility"/>
       </icon-button>
-      -->
+
       <br>
       <icon-button :text="$tr('finish')" :primary="true" @click="finish"/>
     </div>
 
     <preview-new-exam-modal
       v-if="showPreviewNewExamModal"
-      :examTitle="inputTitle"
+      :examChannelId="currentChannel.id"
+      :examQuestionSources="questionSources"
+      :examSeed="seed"
       :examNumQuestions="inputNumQuestions"
-      :selectedExercises="selectedExercises"
-      :seed="seed"
       @randomize="seed = generateRandomSeed()"/>
 
     <ui-snackbar-container

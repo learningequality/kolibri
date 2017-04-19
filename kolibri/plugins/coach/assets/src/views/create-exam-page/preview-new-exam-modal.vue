@@ -1,13 +1,13 @@
 <template>
 
-  <core-modal :title="$tr('previewExam')" @cancel="close">
-    <h2>{{ examTitle }}</h2>
-    <div>
-      {{$tr('questions', { count: examNumQuestions }) }}
-      <icon-button :text="$tr('randomize')" @click="$emit('randomize')"/>
-    </div>
-    {{ selectedExercises }}
-  </core-modal>
+  <preview-exam-modal
+    :examChannelId="examChannelId"
+    :examQuestionSources="examQuestionSources"
+    :examSeed="examSeed"
+    :examNumQuestions="examNumQuestions"
+    :examCreation="true">
+    <icon-button slot="randomize-button" :text="$tr('randomize')" @click="$emit('randomize')"/>
+  </preview-exam-modal>
 
 </template>
 
@@ -19,31 +19,29 @@
   module.exports = {
     $trNameSpace: 'previewNewExamModal',
     $trs: {
-      previewExam: 'Preview exam exercises',
-      randomize: 'Randomize',
-      questions: '{count, number, integer} {count, plural, one {question} other {questions}}'
+      randomize: 'Randomize questions',
     },
     components: {
-      'core-modal': require('kolibri.coreVue.components.coreModal'),
+      'preview-exam-modal': require('../exams-page/preview-exam-modal'),
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
     props: {
-      examTitle: {
+      examChannelId: {
         type: String,
+        required: true,
+      },
+      examQuestionSources: {
+        type: Array,
+        required: true,
+      },
+      examSeed: {
+        type: Number,
         required: true,
       },
       examNumQuestions: {
         type: Number,
         required: true,
       },
-      selectedExercises: {
-        type: Array,
-        required: true,
-      },
-      seed: {
-        type: Number,
-        required: true,
-      }
     },
     methods: {
       close() {
