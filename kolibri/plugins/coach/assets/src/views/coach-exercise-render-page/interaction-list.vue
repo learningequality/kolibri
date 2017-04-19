@@ -2,13 +2,13 @@
 
   <div class="interaction-list">
   <!--TODO-->
-    <h3 class="header">{{ $tr('attempts', {number: interactions.length}) }}</h3>
+    <h3 class="header">{{ $tr('questionHeader', {questionNumber: attemptNumber + 1}) }}</h3>
     <p>{{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}</p>
     <div class="attempt-container">
 
-      <attempt-box
+      <interaction-item
         v-for="(interaction, index) in interactions"
-        @click.native="setCurrentInteraction(index)"
+        @click.native="setCurrentInteractionIndex(index)"
         :selected="isSelected(index)"
         :interaction="interaction"
       />
@@ -28,9 +28,10 @@
     $trNameSpace: 'coachExerciseQuestionAttempt',
     $trs: {
       currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} answer',
+      questionHeader: 'Question {questionNumber, number} attempts'
     },
     components: {
-      'attempt-box': require('./attempt-box'),
+      'interaction-item': require('./interaction-item'),
     },
     props: {
       interactions: {
@@ -38,25 +39,24 @@
         required: true,
       },
       value: {
-        type: Object,
-        required: true,
-        // default: this.interactions[0],
+        type: Number,
+        default: 0,
         // validate: TODO
+      },
+      attemptNumber: {
+        type: Number,
+        required: true,
       },
     },
     data() {
       return {
-        selectedInteractionIndex: 0,
-        currPage: 1,
+        selectedInteractionIndex: this.value,
       };
     },
-    created() {
-      this.setCurrentInteraction(this.selectedInteractionIndex);
-    },
     methods: {
-      setCurrentInteraction(interactionIndex) {
-        this.selectedInteractionIndex = interactionIndex;
-        this.$emit('input', this.interactions[interactionIndex]);
+      setCurrentInteractionIndex(index) {
+        this.selectedInteractionIndex = index;
+        this.$emit('input', index);
       },
       isSelected(interactionIndex) {
         return this.selectedInteractionIndex === interactionIndex;

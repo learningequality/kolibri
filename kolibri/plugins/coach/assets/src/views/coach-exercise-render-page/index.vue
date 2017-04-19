@@ -12,27 +12,30 @@
           :date="date"/>
       </div>
       <div class="outer-container">
-        <div class="answer-history-container column">
-          <answer-history/>
+        <div class="attempt-log-container column">
+          <attempt-log-list
+            :attempt-logs="attemptLogs"
+            v-model="currentAttemptLogIndex"
+          />
         </div>
         <div class="exercise-container column">
-          <!--need to fix this-->
           <interaction-list
-            :interactions="JSON.parse(attemptLogs[0].interaction_history)"
-            v-model="currentInteraction"
+            :interactions="currentInteractionHistory"
+            :attemptNumber.number="currentAttemptLog.id"
+            v-model="currentInteractionIndex"
           />
 
           <content-renderer
             class="content-renderer"
             :id="exercise.content_id"
-            :itemId="attemptLogs[0].item"
+            :itemId="currentAttemptLog.item"
             :allowHints="false"
             :kind="exercise.kind"
             :files="exercise.files"
             :contentId="exercise.content_id"
             :channelId="channelId"
             :available="exercise.available"
-            :answerState="answerState(attemptLogs[0])"
+            :answerState="currentInteraction.answer"
             :extraFields="exercise.extra_fields"/>
         </div>
       </div>
@@ -55,15 +58,32 @@
       'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'page-status': require('./page-status'),
-      'answer-history': require('./answer-history'),
+      'attempt-log-list': require('./attempt-log-list'),
       'interaction-list': require('./interaction-list'),
     },
     data() {
       return {
-        currentInteraction: null,
+        // TODO use state instead
+        currentInteractionIndex: 0,
+        currentAttemptLogIndex: 0,
       };
     },
+    watch: {
+      currentInteractionIndex() {
+        this.currentAttemptLogIndex = 0;
+      },
+    },
     computed: {
+      currentAttemptLog() {
+        return this.attemptLogs[this.currentAttemptLogIndex];
+      },
+      currentInteractionHistory() {
+        // TODO create mapper for this
+        return JSON.parse(this.currentAttemptLog.interaction_history);
+      },
+      currentInteraction() {
+        return this.currentInteractionHistory[this.currentInteractionIndex];
+      },
       backPageLink() {
         return { name: constants.PageNames.CLASS_LIST };
       },
@@ -76,6 +96,7 @@
     },
     methods: {
       answerState(attemptLog) {
+        console.log('Answerstate', JSON.parse(JSON.parse(attemptLog.answer)));
         return JSON.parse(JSON.parse(attemptLog.answer));
       },
       backtoText(text) {
@@ -112,7 +133,7 @@
     width: 1%
     padding: 10px
 
-  .answer-history-container
+  .attempt-log-container
     width: 30%
     height: 100%
     overflow-y: auto
