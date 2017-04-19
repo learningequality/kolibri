@@ -1,9 +1,11 @@
+/* eslint-disable prefer-arrow-callback */
+const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const logging = require('kolibri.lib.logging');
 const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
 const preparePage = require('./preparePage');
 const { PageNames, ContentWizardPages } = require('../constants');
-const { TaskResource } = require('kolibri').resources;
+const { FileResource, TaskResource } = require('kolibri').resources;
 
 function _taskState(data) {
   const state = {
@@ -18,6 +20,26 @@ function _taskState(data) {
 
 function _managePageTitle(title) {
   return `Manage ${title}`;
+}
+
+// Takes all channels in the store, and grabs the full file list for each to
+// present statistics like number of files and total size
+function updateChannelContentInfo(store) {
+  const promises = ['channel_1', 'channel_2']
+    .map((ch) => FileResource.getCollection({ channel_id: ch }).fetch());
+  return ConditionalPromise.all(promises)
+  .only(
+    samePageCheckGenerator(store),
+    function onSuccess(channelFilesLists) {
+      store.dispatch('CONTENT_IO_UPDATE_CHANNEL_INFO', {
+        channel_1: channelFilesLists[0],
+        channel_2: channelFilesLists[1],
+      });
+    },
+    function onFailure(err) {
+      console.log(err);
+    }
+  );
 }
 
 function showContentPage(store) {
@@ -195,5 +217,6 @@ module.exports = {
   triggerLocalContentExportTask,
   triggerLocalContentImportTask,
   triggerRemoteContentImportTask,
+  updateChannelContentInfo,
   updateWizardLocalDriveList,
 };
