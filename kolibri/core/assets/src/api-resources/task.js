@@ -1,5 +1,15 @@
 const Resource = require('../api-resource').Resource;
 
+/**
+ * Info on background processes
+ * @typedef {Object} Task
+ * @param {string} status - 'PENDING'
+ * @param {Array<>} progress -
+ * @param {number} percentage
+ * @param {?string} type
+ * @param {?string} id
+ */
+
 class TaskResource extends Resource {
   static resourceName() {
     return 'task';

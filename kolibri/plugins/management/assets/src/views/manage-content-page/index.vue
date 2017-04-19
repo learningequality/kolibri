@@ -4,7 +4,7 @@
 
     <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
-    <div v-if="pageState.taskList.length" class="main alert-bg">
+    <div v-if="pageState.taskList.length > 0" class="main alert-bg">
       <task-status
         :type="pageState.taskList[0].type"
         :status="pageState.taskList[0].status"
@@ -37,12 +37,14 @@
       <p class="core-text-alert" v-if="!channelList.length">{{$tr('noChannels')}}</p>
       <table>
       <!-- Table Headers -->
-<!--         <thead>
+        <thead>
           <tr>
             <th class="col-header col-channel" scope="col"> Channel Name </th>
-            <th class="col-header col-export" scope="col"> Export </th>
+            <!-- <th class="col-header col-export" scope="col"> # of Contents </th>
+            <th class="col-header col-export" scope="col"> Size </th>
+            <th class="col-header col-export" scope="col"> Last updated </th> -->
           </tr>
-        </thead> -->
+        </thead>
         <!-- Table body -->
         <tbody>
           <tr v-for="channel in channelList">

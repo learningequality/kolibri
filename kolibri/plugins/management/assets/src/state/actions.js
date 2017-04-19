@@ -508,7 +508,7 @@ function showUserPage(store) {
 function showContentPage(store) {
   preparePage(store.dispatch, { name: PageNames.CONTENT_MGMT_PAGE, title: _managePageTitle('Content') });
   const taskCollectionPromise = TaskResource.getCollection().fetch();
-  taskCollectionPromise.only(
+  return taskCollectionPromise.only(
     samePageCheckGenerator(store),
     (taskList) => {
       const pageState = {
@@ -620,10 +620,8 @@ function pollTasksAndChannels(store) {
 }
 
 function clearTask(store, taskId) {
-  const clearTaskPromise = TaskResource.clearTask(taskId);
-  clearTaskPromise.then(() => {
-    store.dispatch('SET_CONTENT_PAGE_TASKS', []);
-  })
+  return TaskResource.clearTask(taskId)
+  .then(() => { store.dispatch('SET_CONTENT_PAGE_TASKS', []); })
   .catch(error => { coreActions.handleApiError(store, error); });
 }
 
