@@ -19,7 +19,7 @@
 <script>
 
   const ReportConstants = require('../../reportConstants');
-  const reportGetters = require('../../state/getters/reports');
+  const coachGetters = require('../../state/getters/main');
   const values = require('lodash/values');
 
   module.exports = {
@@ -77,7 +77,7 @@
       getters: {
         pageName: state => state.pageName,
         pageState: state => state.pageState,
-        isRecentPage: reportGetters.isRecentPage,
+        isRecentPage: coachGetters.isRecentPage,
       },
     },
   };

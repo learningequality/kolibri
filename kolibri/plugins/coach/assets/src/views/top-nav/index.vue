@@ -36,7 +36,7 @@
 <script>
 
   const Constants = require('../../constants');
-  const reportGetters = require('../../state/getters/reports');
+  const coachGetters = require('../../state/getters/main');
 
   module.exports = {
     $trNameSpace: 'topNav',
@@ -89,9 +89,9 @@
       getters: {
         pageName: state => state.pageName,
         classId: state => state.pageState.classId,
-        isRecentPage: reportGetters.isRecentPage,
-        isTopicPage: reportGetters.isTopicPage,
-        isLearnerPage: reportGetters.isLearnerPage,
+        isRecentPage: coachGetters.isRecentPage,
+        isTopicPage: coachGetters.isTopicPage,
+        isLearnerPage: coachGetters.isLearnerPage,
       },
     },
   };

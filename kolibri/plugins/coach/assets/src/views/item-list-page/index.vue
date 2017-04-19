@@ -67,7 +67,7 @@
             </tr>
           </thead>
           <tbody is="transition-group" name="item">
-            <tr v-for="row in dataTable" :key="row.id">
+            <tr v-for="row in standardDataTable" :key="row.id">
               <th scope="row" class="name-col">
                 <item-cell
                   :kind="row.kind"
@@ -103,6 +103,7 @@
   const ReportConstants = require('../../reportConstants');
   const CoachConstants = require('../../constants');
   const reportGetters = require('../../state/getters/reports');
+  const coachGetters = require('../../state/getters/main');
 
   module.exports = {
     $trNameSpace: 'reportPage',
@@ -163,10 +164,10 @@
         exerciseProgress: reportGetters.exerciseProgress,
         contentCount: reportGetters.contentCount,
         contentProgress: reportGetters.contentProgress,
-        dataTable: reportGetters.dataTable,
+        standardDataTable: reportGetters.standardDataTable,
         userCount: reportGetters.userCount,
         completionCount: reportGetters.completionCount,
-        isRecentPage: reportGetters.isRecentPage,
+        isRecentPage: coachGetters.isRecentPage,
       },
     },
   };
