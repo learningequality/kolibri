@@ -4,7 +4,7 @@
     <h3 class="header">{{ $tr('header') }}</h3>
 
     <ul class="history-list">
-      <template v-for="(attemptLog, index) in attemptLogs">
+      <template v-for="attemptLog in attemptLogs">
         <!--p v-if="index === 0" class="item">
           TODO modify elapsed-time to do Days only?
           {{ daysElapsedText(attemptLog.daysElapsed) }}
@@ -14,7 +14,7 @@
             {{ daysElapsedText(attemptLog.daysElapsed) }}
           </p>
         </li-->
-        <li @click="setSelectedAttemptLogIndex(index)" :class="isSelected(index)" class="clickable">
+        <li @click="setSelectedAttemptLogId(attemptLog.id)" :class="{selected: isSelected(attemptLog.id), clickable: true}">
             <mat-svg
               v-if="attemptLog.correct"
               class="item svg-item svg-correct"
@@ -55,38 +55,26 @@
       daysAgo: ' { daysElapsed } days ago',
       question: 'Question { number }',
     },
-    data: () => ({
-      selectedIndex: 0,
-    }),
     props: {
       attemptLogs: {
         type: Array,
         required: true,
       },
-      value: {
-        type: Number,
+      selectedAttemptId: {
         required: true,
         default: 0,
       },
     },
     methods: {
-      daysElapsedText(daysElapsed) {
-        if (daysElapsed > 1) {
-          return this.$tr('daysAgo', { daysElapsed });
-        } else if (daysElapsed === 1) {
-          return this.$tr('yesterday');
-        }
-        return this.$tr('today');
-      },
       questionText(number) {
         return this.$tr('question', { number });
       },
-      setSelectedAttemptLogIndex(index) {
-        this.selectedIndex = index;
-        this.$emit('input', index);
+      setSelectedAttemptLogId(id) {
+        this.selectedId = id;
+        this.$emit('select', id);
       },
-      isSelected(index) {
-        return this.selectedIndex === index;
+      isSelected(id) {
+        return this.selectedAttemptId === id;
       },
     },
   };

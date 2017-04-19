@@ -1,6 +1,6 @@
 <template>
 
-  <div class="attempt-box" :class="[selected ? 'selected' : 'non-selected']">
+  <div class="attempt-box" :class="{selected: selected}">
     <template v-if="isAnswer">
       <mat-svg
         v-if="interaction.correct"
@@ -66,12 +66,10 @@
     margin-right: 10px
     cursor: pointer
     display: inline-block
+    border: 2px solid $core-text-disabled
 
   .selected
     border: 2px solid $core-text-default
-
-  .non-selected
-    border: 2px solid $core-text-disabled
 
   .svg-item
     height: 38px

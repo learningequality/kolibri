@@ -15,14 +15,16 @@
         <div class="attempt-log-container column">
           <attempt-log-list
             :attempt-logs="attemptLogs"
-            v-model="currentAttemptLogIndex"
+            :selectedAttemptId="currentAttemptLog.id"
+            @select="navigateToNewAttempt($event)"
           />
         </div>
         <div class="exercise-container column">
           <interaction-list
             :interactions="currentInteractionHistory"
-            :attemptNumber.number="currentAttemptLog.id"
-            v-model="currentInteractionIndex"
+            :selectedInteractionIndex="interactionIndex"
+            :attemptNumber="currentAttemptLog.id"
+            @select="navigateToNewInteraction($event)"
           />
 
           <content-renderer
@@ -61,25 +63,9 @@
       'attempt-log-list': require('./attempt-log-list'),
       'interaction-list': require('./interaction-list'),
     },
-    data() {
-      return {
-        // TODO use state instead
-        currentInteractionIndex: 0,
-        currentAttemptLogIndex: 0,
-      };
-    },
     computed: {
-      currentAttemptLog() {
-        return this.attemptLogs[this.currentAttemptLogIndex];
-      },
-      currentInteractionHistory() {
-        // TODO create mapper for this
-        return JSON.parse(this.currentAttemptLog.interaction_history);
-      },
-      currentInteraction() {
-        return this.currentInteractionHistory[this.currentInteractionIndex];
-      },
       backPageLink() {
+        // TODO figure out how this is going to the tab we were on prior
         return { name: constants.PageNames.CLASS_LIST };
       },
       assessment() {
@@ -93,12 +79,42 @@
       backtoText(text) {
         return this.$tr('backto', { text });
       },
+      navigateToNewAttempt(attemptId) {
+        this.$router.push({
+          name: constants.PageNames.EXERCISE_RENDER,
+          params: {
+            channelId: this.channelId,
+            userId: this.userId,
+            contentId: this.exercise.content_id,
+            interactionIndex: 0, // is this the first? will it always be?
+            attemptId,
+          },
+        });
+      },
+      navigateToNewInteraction(interactionIndex) {
+        this.$router.push({
+          name: constants.PageNames.EXERCISE_RENDER,
+          params: {
+            channelId: this.channelId,
+            userId: this.userId,
+            contentId: this.exercise.content_id,
+            attemptId: this.currentAttemptLog.id,
+            interactionIndex,
+          },
+        });
+      },
     },
     vuex: {
       getters: {
         // pageState: state => state.pageState,
-        channelId: state => state.pageState.channelId,
+        interactionIndex: state => state.pageState.interactionIndex,
+        currentAttemptLog: state => state.pageState.currentAttemptLog,
         attemptLogs: state => state.pageState.attemptLogs,
+        currentInteraction: state => state.pageState.currentInteraction,
+        currentInteractionHistory: state => state.pageState.currentInteractionHistory,
+        channelId: state => state.pageState.channelId,
+        attemptId: state => state.pageState.attemptId,
+        userId: state => state.pageState.userId,
         exercise: state => state.pageState.exercise,
         userName: state => state.core.session.username,
       },

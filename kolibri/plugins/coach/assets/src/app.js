@@ -196,10 +196,11 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.EXERCISE_RENDER,
-          path: '/:classId/exercise-render/:userId/:channelId/item/:contentId',
+          path: '/exercise-render/:userId/:channelId/item/:contentId/:attemptId/:interactionIndex',
           handler: (to, from) => {
             reportsActions.showExerciseDetailView(
-              store, to.params.classId, to.params.userId, to.params.channelId, to.params.contentId
+              store, to.params.userId, to.params.channelId, to.params.contentId,
+                to.params.attemptId, to.params.interactionIndex
             );
           },
         },

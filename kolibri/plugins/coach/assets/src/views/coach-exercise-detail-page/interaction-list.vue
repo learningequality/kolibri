@@ -38,28 +38,22 @@
         type: Array,
         required: true,
       },
-      value: {
-        type: Number,
-        default: 0,
+      selectedInteractionIndex: {
+        // default: 0,
         // validate: TODO
       },
       attemptNumber: {
-        type: Number,
         required: true,
       },
     },
-    data() {
-      return {
-        selectedInteractionIndex: this.value,
-      };
-    },
     methods: {
       setCurrentInteractionIndex(index) {
-        this.selectedInteractionIndex = index;
-        this.$emit('input', index);
+        this.$emit('select', index);
       },
-      isSelected(interactionIndex) {
-        return this.selectedInteractionIndex === interactionIndex;
+      isSelected(index) {
+        console.log('selectedInteractionIndex', this.selectedInteractionIndex,
+          typeof (this.selectedInteractionIndex));
+        return this.selectedInteractionIndex === index;
       },
     },
   };
