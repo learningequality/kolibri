@@ -5,6 +5,7 @@
     <div class="exam-preview-container" v-show="!loading">
       <div>
         <strong>{{ $tr('numQuestions', { num: exam.questionCount })}}</strong>
+        <slot name="randomize-button"/>
       </div>
       <div class="pure-g">
         <div class="question-selector pure-u-1-3">
@@ -81,6 +82,9 @@
         return this.exam.seed;
       },
       questionSources() {
+        if (typeof this.exam.questionSources === 'object') {
+          return this.exam.questionSources;
+        }
         try {
           return JSON.parse(this.exam.questionSources);
         } catch (e) {
