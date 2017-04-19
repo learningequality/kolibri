@@ -173,9 +173,14 @@ describe('Resource', function () {
       this.resource.addModel(new Resources.Model(this.modelData, {}, this.resource));
       assert.ok(!spy.called);
     });
-    it('should not add a model to the cache if no id', function () {
+    it('should add a model to the cache if no id', function () {
       this.resource.addModel(new Resources.Model({ data: 'data' }, {}, this.resource));
-      assert.deepEqual({}, this.resource.models);
+      assert.equal(1, Object.keys(this.resource.models).length);
+    });
+    it('should not return the added model from the cache if no id', function () {
+      this.resource.addModel(new Resources.Model({ data: 'data' }, {}, this.resource));
+      const model = this.resource.getModel(undefined);
+      assert.ok(!model.attributes.data);
     });
     it('should add a model to the cache if it has an id', function () {
       const model = this.resource.addModel(new Resources.Model({ id: 'test' }, {}, this.resource));
