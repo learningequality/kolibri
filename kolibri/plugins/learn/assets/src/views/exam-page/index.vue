@@ -132,9 +132,7 @@
       },
       submitExam() {
         if (!this.submitModalOpen) {
-          this.saveAnswer().then(() => {
-            this.toggleModal();
-          });
+          this.saveAnswer().then(this.toggleModal);
         }
       },
       toggleModal() {

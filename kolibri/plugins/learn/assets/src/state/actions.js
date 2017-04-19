@@ -683,10 +683,15 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
       [itemId]: currentAttemptLog,
     }),
   });
+  // If a save has already been fired for this particular attempt log,
+  // it may not have an id yet, so we can look for it by its uniquely
+  // identifying fields, contentId and itemId.
   let examAttemptLogModel = ExamAttemptLogResource.findModel({
     content_id: contentId,
     item: itemId,
   });
+  // If the above findModel returned no matching model, then we can do
+  // getModel to get the new model instead.
   if (!examAttemptLogModel) {
     examAttemptLogModel = ExamAttemptLogResource.getModel(
       currentAttemptLog.id);
