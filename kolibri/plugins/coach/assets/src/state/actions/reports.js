@@ -236,7 +236,7 @@ function _showTopic(store, classId, channelId, topicId) {
 }
 
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
-function showCoachExerciseRenderPage(store, classId, userId, channelId, contentId) {
+function showExerciseDetailView(store, classId, userId, channelId, contentId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXERCISE_RENDER);
 
@@ -391,7 +391,7 @@ function showLearnerItemDetails(store, classId, userId, channelId, contentId) {
 
 
 module.exports = {
-  showCoachExerciseRenderPage, // remove this after making it a helper
+  showExerciseDetailView, // remove this after making it a helper
   showRecentChannels,
   showRecentItemsForChannel,
   showRecentLearnersForItem,
