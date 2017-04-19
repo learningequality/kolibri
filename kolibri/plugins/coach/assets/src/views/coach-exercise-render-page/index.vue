@@ -68,11 +68,6 @@
         currentAttemptLogIndex: 0,
       };
     },
-    watch: {
-      currentInteractionIndex() {
-        this.currentAttemptLogIndex = 0;
-      },
-    },
     computed: {
       currentAttemptLog() {
         return this.attemptLogs[this.currentAttemptLogIndex];
@@ -95,10 +90,6 @@
       },
     },
     methods: {
-      answerState(attemptLog) {
-        console.log('Answerstate', JSON.parse(JSON.parse(attemptLog.answer)));
-        return JSON.parse(JSON.parse(attemptLog.answer));
-      },
       backtoText(text) {
         return this.$tr('backto', { text });
       },
