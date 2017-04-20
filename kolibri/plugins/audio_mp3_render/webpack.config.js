@@ -7,7 +7,7 @@ module.exports = {
   module: {
     rules: [
       // Allows <video> and <audio> HTML5 tags work on all major browsers.
-      {   //    'html5media /dist /api /1 .1 .8 /html5media'
+      {
         test: /html5media\/dist\/api\/1\.1\.8\/html5media/,
         use: [{
           loader: "imports-loader?this=>window"
