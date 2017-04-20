@@ -1,6 +1,9 @@
 <template>
 
-  <span>{{ $tr($trUnit, {n: display}) }}</span>
+  <span>
+    <template v-if="date">{{ $tr($trUnit, {n: display}) }}</template>
+    <template v-else>–</template>
+  </span>
 
 </template>
 

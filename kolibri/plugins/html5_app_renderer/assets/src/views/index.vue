@@ -51,7 +51,7 @@
       this.$emit('startTracking');
       const self = this;
       this.timeout = setTimeout(() => {
-        self.$emit('progressUpdate', 1);
+        self.$emit('updateProgress', 1);
       }, 15000);
     },
     beforeDestroy() {

@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <td>
     <template v-if="num !== undefined">
       <progress-bar :progress="num"/>
       <div v-if="extraText" class="extra-text">
@@ -9,7 +9,7 @@
       </div>
     </template>
     <template v-else>–</template>
-  </div>
+  </td>
 
 </template>
 
@@ -55,6 +55,10 @@
 
 
 <style lang="stylus" scoped>
+
+  td
+    text-align: center
+    width: 19%
 
   .extra-text
     font-size: smaller

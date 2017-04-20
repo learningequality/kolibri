@@ -90,9 +90,6 @@ module.exports = {
         textbox: {
           module: require('../views/textbox'),
         },
-        channelSwitcher: {
-          module: require('../views/channel-switcher'),
-        },
         dropdownMenu: {
           module: require('../views/dropdown-menu'),
         },
@@ -104,6 +101,9 @@ module.exports = {
         },
         immersiveFullScreen: {
           module: require('../views/immersive-full-screen'),
+        },
+        elapsedTime: {
+          module: require('../views/elapsed-time'),
         },
       },
       router: {
@@ -132,6 +132,9 @@ module.exports = {
     utils: {
       exams: {
         module: require('../exams/utils'),
+      },
+      validateLinkObject: {
+        module: require('../validateLinkObject'),
       },
     },
   },

@@ -12,20 +12,11 @@
 
 
     <!--EXERCISES-->
+    <!--
     <div v-if="kind === Kinds.EXERCISE">
-
-      <div v-if="singleUser">
-        <progress-icon :progress="contentProgress"/>
-        <span v-if="isCompleted">{{ $tr('mastered') }}</span>
-        <span v-else-if="isInProgress">{{ $tr('inProgress') }}</span>
-        <span v-else>{{ $tr('notStarted') }}</span>
-      </div>
-
-      <div v-else>
-        {{ completionCount }}/{{ userCount }} {{ $tr('mastered') }}
-      </div>
-
+      (mastery requirement)
     </div>
+    -->
 
 
     <!--VIDEO/AUDIO-->

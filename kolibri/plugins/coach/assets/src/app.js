@@ -31,24 +31,6 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.RECENT_CHANNELS,
-          path: '/:classId/recent',
-          handler: (to, from) => {
-            reportsActions.showRecentChannels(
-              store, to.params.classId
-            );
-          },
-        },
-        {
-          name: PageNames.RECENT_ITEMS_FOR_CHANNEL,
-          path: '/:classId/recent/:channelId',
-          handler: (to, from) => {
-            reportsActions.showRecentItemsForChannel(
-              store, to.params.classId, to.params.channelId
-            );
-          },
-        },
-        {
           name: PageNames.EXAMS,
           path: '/:classId/exams',
           handler: (toRoute, fromRoute) => {
@@ -75,6 +57,24 @@ class CoachToolsModule extends KolibriModule {
           handler: (toRoute, fromRoute) => {
             examActions.showExamReportDetailPage(
               store, toRoute.params.classId, toRoute.params.examId);
+          },
+        },
+        {
+          name: PageNames.RECENT_CHANNELS,
+          path: '/:classId/recent',
+          handler: (to, from) => {
+            reportsActions.showRecentChannels(
+              store, to.params.classId
+            );
+          },
+        },
+        {
+          name: PageNames.RECENT_ITEMS_FOR_CHANNEL,
+          path: '/:classId/recent/:channelId',
+          handler: (to, from) => {
+            reportsActions.showRecentItemsForChannel(
+              store, to.params.classId, to.params.channelId
+            );
           },
         },
         {
