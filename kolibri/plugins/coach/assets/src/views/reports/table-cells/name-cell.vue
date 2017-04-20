@@ -16,6 +16,8 @@
 
 <script>
 
+  const validateLinkObject = require('kolibri.utils.validateLinkObject');
+
   module.exports = {
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
@@ -31,6 +33,7 @@
       },
       link: {
         type: Object,
+        validator: validateLinkObject,
       },
     },
   };

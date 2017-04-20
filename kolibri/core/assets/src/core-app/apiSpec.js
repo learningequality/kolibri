@@ -133,6 +133,9 @@ module.exports = {
       exams: {
         module: require('../exams/utils'),
       },
+      validateLinkObject: {
+        module: require('../validateLinkObject'),
+      },
     },
   },
 };
