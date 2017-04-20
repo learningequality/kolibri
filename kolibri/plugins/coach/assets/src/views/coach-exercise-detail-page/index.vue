@@ -1,25 +1,23 @@
 <template>
 
   <immersive-full-screen :backPageLink="backPageLink">
-    <template slot="text"> Figure out with designers what this is supposed to say </template>
+    <template slot="text"> {{ $tr('backPrompt', {exerciseTitle: exercise.title}) }} </template>
     <template slot="body">
-      <div class="page-status-container">
+      <div class="summary-container">
         <page-status
-          :contentName="exercise.title"
-          :userName="userName"
-          :progress="exercise.progress_fraction"
-          :assessment="assessment"
-          :date="date"/>
+          :exerciseTitle="exercise.title"
+          :userName="user.full_name"
+          :summaryLog="summaryLog"/>
       </div>
-      <div class="outer-container">
-        <div class="attempt-log-container column">
+      <div class="details-container">
+        <div class="attempt-log-container">
           <attempt-log-list
             :attempt-logs="attemptLogs"
             :selectedAttemptId="currentAttemptLog.id"
             @select="navigateToNewAttempt($event)"
           />
         </div>
-        <div class="exercise-container column">
+        <div class="exercise-container">
           <interaction-list
             :interactions="currentInteractionHistory"
             :selectedInteractionIndex="interactionIndex"
@@ -54,7 +52,7 @@
   module.exports = {
     $trNameSpace: 'coachExerciseRenderPage',
     $trs: {
-      backto: 'Back to { text }',
+      backPrompt: 'Back to { exerciseTitle }',
     },
     components: {
       'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
@@ -68,12 +66,6 @@
         // TODO figure out how this is going to the tab we were on prior
         return { name: constants.PageNames.CLASS_LIST };
       },
-      assessment() {
-        return 'Number completed, can calc from progress';
-      },
-      date() {
-        return 'Date (check with designers)';
-      },
     },
     methods: {
       backtoText(text) {
@@ -84,7 +76,7 @@
           name: constants.PageNames.EXERCISE_RENDER,
           params: {
             channelId: this.channelId,
-            userId: this.userId,
+            userId: this.user.id,
             contentId: this.exercise.content_id,
             interactionIndex: 0, // is this the first? will it always be?
             attemptId,
@@ -96,7 +88,7 @@
           name: constants.PageNames.EXERCISE_RENDER,
           params: {
             channelId: this.channelId,
-            userId: this.userId,
+            userId: this.user.id,
             contentId: this.exercise.content_id,
             attemptId: this.currentAttemptLog.id,
             interactionIndex,
@@ -114,9 +106,9 @@
         currentInteractionHistory: state => state.pageState.currentInteractionHistory,
         channelId: state => state.pageState.channelId,
         attemptId: state => state.pageState.attemptId,
-        userId: state => state.pageState.userId,
+        user: state => state.pageState.user,
         exercise: state => state.pageState.exercise,
-        userName: state => state.core.session.username,
+        summaryLog: state => state.pageState.summaryLog,
       },
     },
   };
@@ -126,26 +118,32 @@
 
 <style lang="stylus" scoped>
 
-  .column
-    float: left
+  @require '~kolibri.styles.definitions'
 
-  .page-status-container
-    padding-top: 20px
-    padding-left: 10px
-    padding-right: 10px
+  $container-side-padding = 15px
 
-  .outer-container
-    display: table-cell
-    height: 100%
-    width: 1%
-    padding: 10px
+  .summary-container
+    padding-top: $container-side-padding
+    padding-left: $container-side-padding
+    padding-right: $container-side-padding
+    height: 15%
+
+  .details-container
+    width: 100%
+    height: 85%
+    padding-top: $container-side-padding
+    clearfix()
 
   .attempt-log-container
     width: 30%
     height: 100%
     overflow-y: auto
+    float: left
 
   .exercise-container
     width: 70%
+    height: 100%
+    padding: $containerSidePadding
+    float: left
 
 </style>

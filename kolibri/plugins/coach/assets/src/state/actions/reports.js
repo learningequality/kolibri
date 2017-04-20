@@ -21,6 +21,8 @@ const ContentReportResource = new ContentReportResourceConstructor(coreApp);
 const AttemptLogResource = coreApp.resources.AttemptLog;
 const ChannelResource = coreApp.resources.ChannelResource;
 const ContentNodeResource = coreApp.resources.ContentNodeResource;
+const FacilityUserResource = coreApp.resources.FacilityUserResource;
+const SummaryLogResource = coreApp.resources.ContentSummaryLogResource;
 
 
 function _showChannelList(store, classId) {
@@ -271,15 +273,25 @@ function showExerciseDetailView(store, userId, channelId, contentId, attemptId, 
   Promise.all([
     ContentNodeResource.getCollection({ channel_id: channelId }, { content_id: contentId }).fetch(),
     AttemptLogResource.getCollection({ user: userId, content: contentId }).fetch(),
+    SummaryLogResource.getCollection({ user_id: userId, content_id: contentId }).fetch(),
+    FacilityUserResource.getModel(userId).fetch(),
   ]).then(
-    ([exercise, attemptLogs]) => {
+    ([exercise, attemptLogs, summaryLog, user]) => {
       attemptLogs.sort(
         (attemptLog1, attemptLog2) =>
           new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
       );
-
       const currentAttemptLog = attemptLogs.find(attemptLog => attemptLog.id === attemptId);
       const currentInteractionHistory = JSON.parse(currentAttemptLog.interaction_history);
+      // MAPPERS NEEDED
+      // attemptLogState
+      // attemptLogListState
+      // interactionState
+      // InteractionHistoryState
+      // user?
+
+      console.log('summaryLog', summaryLog[0]);
+
       const pageState = {
         // because this is info returned from a collection
         exercise: exercise[0],
@@ -287,9 +299,10 @@ function showExerciseDetailView(store, userId, channelId, contentId, attemptId, 
         currentInteractionHistory,
         currentInteraction: currentInteractionHistory[interactionIndex],
         currentAttemptLog,
+        summaryLog: summaryLog[0],
         attemptLogs,
         channelId,
-        userId,
+        user,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);

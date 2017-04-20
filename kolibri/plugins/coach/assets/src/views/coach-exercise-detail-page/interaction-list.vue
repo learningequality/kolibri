@@ -51,8 +51,6 @@
         this.$emit('select', index);
       },
       isSelected(index) {
-        console.log('selectedInteractionIndex', this.selectedInteractionIndex,
-          typeof (this.selectedInteractionIndex));
         return this.selectedInteractionIndex === index;
       },
     },

@@ -11,21 +11,25 @@
         <h1 class="user-name">{{ userName }}</h1>
       </div>
       <div class="class-name">
-        <content-icon class="svg-icon" :kind="exerciseKind"/>
-        {{ contentName }}
+        <content-icon class="svg-icon" :kind="summaryLog.kind"/>
+        {{ exerciseTitle }}
       </div>
       <div class="assessment">
-        <progress-icon class="svg-icon" :progress="progress"/>
-        {{ $tr('mastered') }} : {{ assessmentText(assessment) }}
+        <progress-icon class="svg-icon" :progress="summaryLog.progress"/>
+        {{ $tr('mastered') }}
       </div>
     </div>
     <div class="column pure-u-1-4">
       <div class="inner-column">
-        <div>
-          <progress-icon class="svg-icon" :progress="progress"/>
-          <strong> {{ $tr('mastered') }} </strong>
-        </div>
-        <p>{{ dateText(date) }}</p>
+        <progress-icon class="svg-icon" :progress="summaryLog.progress"/>
+        <template v-if="isCompleted">
+          <strong> {{ $tr('statusMastered') }} </strong>
+          <p>{{ $tr('completedOn', {date:dateCompleted}) }}</p>
+        </template>
+        <template v-else>
+          <strong> {{ $tr('statusAttempted') }} </strong>
+          <p>{{ $tr('lastAttempted', {date:dateLastAttempted}) }}</p>
+        </template>
       </div>
     </div>
   </div>
@@ -41,34 +45,29 @@
     $trNameSpace: 'coachExercisePageStatus',
     $trs: {
       // TODO
-      assessment: '{ text } questions in a row correct - Today',
-      mastered: 'Mastered',
-      date: 'on { date }',
+      statusMastered: 'Mastered',
+      statusAttempted: 'Attempted',
+      mastered: 'Mastered questions TODO',
+      completedOn: 'on { date }',
+      lastAttempted: 'last on { date }',
     },
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
       'progress-icon': require('kolibri.coreVue.components.progressIcon'),
     },
     props: {
-      contentName: {
-        type: String,
-        required: true,
-      },
       userName: {
         type: String,
         required: true,
       },
-      progress: {
-        type: Number,
-        default: 0,
-      },
-      assessment: {
+      exerciseTitle: {
         type: String,
-        default: '',
+        required: true,
       },
-      date: {
-        type: String,
-        default: false,
+      summaryLog: {
+        type: Object,
+        required: true,
+        // validate: TODO
       },
     },
     computed: {
@@ -77,7 +76,16 @@
       },
       exerciseKind() {
         return constants.ContentNodeKinds.EXERCISE;
-      }
+      },
+      isCompleted() {
+        return this.summaryLog.currentmasterylog.complete;
+      },
+      dateCompleted() {
+        return new Date(this.summaryLog.currentmasterylog.end_timestamp);
+      },
+      dateLastAttempted() {
+        return new Date(this.summaryLog.end_timestamp);
+      },
     },
     methods: {
       assessmentText(text) {
@@ -98,7 +106,7 @@
 
   .page-status
     background-color: $core-bg-light
-    height: 130px
+    height: 100%
 
   .user-name-container
     display: block
