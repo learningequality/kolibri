@@ -4,7 +4,7 @@
 
     <component v-if="pageState.wizardState.shown" :is="wizardComponent"/>
 
-    <div v-if="pageState.taskList.length > 0" class="main alert-bg">
+    <div v-if="tasksAreInQueue" class="main alert-bg">
       <task-status
         :type="pageState.taskList[0].type"
         :status="pageState.taskList[0].status"
@@ -16,7 +16,7 @@
     <div class="light-bg">
       <div class="table-title">
         <h1 class="page-title">{{$tr('title')}}</h1>
-        <div class="button-wrapper" v-if="!pageState.taskList.length">
+        <div class="button-wrapper" v-if="!tasksAreInQueue">
           <icon-button
             :text="$tr('import')"
             class="button"
@@ -80,6 +80,9 @@
       clearInterval(this.intervalId);
     },
     computed: {
+      tasksAreInQueue() {
+        return this.pageState.taskList.length > 0;
+      },
       wizardComponent() {
         switch (this.pageState.wizardState.page) {
           case ContentWizardPages.CHOOSE_IMPORT_SOURCE:
