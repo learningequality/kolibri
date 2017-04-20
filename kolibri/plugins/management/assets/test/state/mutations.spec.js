@@ -70,3 +70,22 @@ describe('facility config page mutations', () => {
     });
   });
 });
+
+describe('content management mutations', () => {
+  it('CONTENT_MGMT_UPDATE_CHANNEL_INFO', () => {
+    const mockState = { pageState: { channelInfo: {} } };
+    mutations.CONTENT_MGMT_UPDATE_CHANNEL_INFO(mockState, {
+      channelId: 'channel_1',
+      files: [
+        { id: 'file_1', file_size: 100 },
+        { id: 'file_2', file_size: 101 },
+      ],
+    });
+    assert.deepEqual(mockState.pageState.channelInfo, {
+      channel_1: {
+        numberOfFiles: 2,
+        totalFileSizeInBytes: 201,
+      }
+    });
+  });
+});

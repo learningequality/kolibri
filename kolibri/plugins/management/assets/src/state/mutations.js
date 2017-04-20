@@ -1,4 +1,4 @@
-const forEach = require('lodash/forEach');
+const sumBy = require('lodash/sumBy');
 
 // TODO move more mutations here so they can be tested
 
@@ -25,13 +25,11 @@ function CONFIG_PAGE_COPY_SETTINGS(state) {
   state.pageState.settingsCopy = Object.assign({}, state.pageState.settings);
 }
 
-function CONTENT_MGMT_UPDATE_CHANNEL_INFO(state, channelContents) {
-  console.log(channelContents);
-  forEach(channelContents, (contents, channelId) => {
-    state.pageState.channelInfo[channelId] = {
-      numberOfFiles: contents.length,
-    };
-  });
+function CONTENT_MGMT_UPDATE_CHANNEL_INFO(state, { channelId, files }) {
+  state.pageState.channelInfo[channelId] = {
+    numberOfFiles: files.length,
+    totalFileSizeInBytes: sumBy(files, 'file_size'),
+  };
 }
 
 module.exports = {

@@ -8,7 +8,7 @@ const makeFetachable = (pl) => ({ fetch: () => Promise.resolve(pl) });
 const fakeFiles1 = [{ id: 'file_1' }, { id: 'file_2' }, { id: 'file_3' }];
 // const fakeFiles2 = [{ id: 'file_1' }, { id: 'file_2' }];
 
-describe.only('content import/export actions', () => {
+describe('content import/export actions', () => {
   const storeMock = {
     dispatch: sinon.spy(),
     state: {

@@ -3,7 +3,6 @@ const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const logging = require('kolibri.lib.logging');
 const map = require('lodash/map');
-const zipObject = require('lodash/zipObject');
 const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
 const preparePage = require('./preparePage');
 const { PageNames, ContentWizardPages } = require('../constants');
