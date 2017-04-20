@@ -58,7 +58,7 @@
                     :indeterminate.prop="someExercisesWithinCurrentTopicSelected"
                     @change="changeSelection">
                 </th>
-                <th class="col-title">{{ $tr('title') }}</th>
+                <th class="col-title">{{ $tr('selectAll') }}</th>
                 <th class="col-selection"></th>
               </tr>
             </thead>
@@ -128,7 +128,7 @@
     $trs: {
       createNewExam: 'Create a new exam from {channelName}',
       chooseExercises: 'Select exercises to pull questions from',
-      title: 'Exam title',
+      selectAll: 'Select all',
       enterTitle: 'Enter a title',
       numQuestions: 'Number of questions',
       enterNum: 'Enter a number',
