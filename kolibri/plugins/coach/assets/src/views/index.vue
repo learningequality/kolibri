@@ -48,7 +48,7 @@
       'exam-report-detail-page': require('./exam-report-detail-page'),
       'groups-page': require('./groups-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
-      'coach-exercise-render-page': require('./coach-exercise-render-page'),
+      'coach-exercise-detail-page': require('./coach-exercise-detail-page'),
       // reports
       'recent-items-page': require('./reports/recent-items-page'),
       'channel-list-page': require('./reports/channel-list-page'),
@@ -62,7 +62,7 @@
           [Constants.PageNames.CLASS_LIST]: 'class-list-page',
           [Constants.PageNames.EXAMS]: 'exams-page',
           [Constants.PageNames.GROUPS]: 'groups-page',
-          [Constants.PageNames.EXERCISE_RENDER]: 'coach-exercise-render-page',
+          [Constants.PageNames.EXERCISE_RENDER]: 'coach-exercise-detail-page',
           [Constants.PageNames.CREATE_EXAM]: 'create-exam-page',
           // reports
           [Constants.PageNames.RECENT_CHANNELS]: 'channel-list-page',
