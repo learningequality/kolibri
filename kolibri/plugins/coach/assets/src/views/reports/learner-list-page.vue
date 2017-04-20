@@ -10,12 +10,6 @@
       />
       {{ pageState.contentScopeSummary.title }}
     </h1>
-    <div>
-      <ul>
-        <li>{{ $tr('exerciseCountText', {count: exerciseCount}) }}</li>
-        <li>{{ $tr('contentCountText', {count: contentCount}) }}</li>
-      </ul>
-    </div>
 
     <div class="table-section">
       <table class="data-table">
@@ -27,13 +21,15 @@
               class="name-col table-name"
             ></th>
             <th
+              v-if="isExercisePage"
               is="header-cell"
-              :text="$tr('avgExerciseProgress')"
+              :text="$tr('exerciseProgress')"
               class="progress-col"
             ></th>
             <th
+              v-else
               is="header-cell"
-              :text="$tr('avgContentProgress')"
+              :text="$tr('contentProgress')"
               class="progress-col"
             ></th>
             <th
@@ -49,17 +45,12 @@
               <item-cell
                 :kind="row.kind"
                 :title="row.title"
-                :link="genRowLink(row)"
-              >
-                {{ $tr('exerciseCountText', {count: row.exerciseCount}) }}
-                •
-                {{ $tr('contentCountText', {count: row.contentCount}) }}
-              </item-cell>
+              />
             </th>
-            <td class="progress-col">
+            <td class="progress-col" v-if="isExercisePage">
               <progress-cell :num="row.exerciseProgress" :isExercise="true"/>
             </td>
-            <td class="progress-col">
+            <td class="progress-col" v-else>
               <progress-cell :num="row.contentProgress" :isExercise="false"/>
             </td>
             <td class="date-col">
@@ -77,16 +68,16 @@
 
 <script>
 
-  const CoachConstants = require('../../constants');
   const CoreConstants = require('kolibri.coreVue.vuex.constants');
+  const CoachConstants = require('../../constants');
   const reportGetters = require('../../state/getters/reports');
 
   module.exports = {
-    $trNameSpace: 'itemReportPage',
+    $trNameSpace: 'learnerReportPage',
     $trs: {
       name: 'Name',
-      avgExerciseProgress: 'Avg. exercise progress',
-      avgContentProgress: 'Avg. resource progress',
+      exerciseProgress: 'Exercise progress',
+      contentProgress: 'Resource progress',
       lastActivity: 'Last activity',
       exerciseCountText: '{count, number, integer} {count, plural, one {Exercise} other {Exercises}}',
       contentCountText: '{count, number, integer} {count, plural, one {Resource} other {Resources}}',
@@ -141,32 +132,8 @@
           { title: this.pageState.contentScopeSummary.title }
         ];
       },
-    },
-    methods: {
-      genRowLink(row) {
-        if (row.kind === CoreConstants.ContentNodeKinds.TOPIC) {
-          return {
-            name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
-            params: {
-              classId: this.pageState.classId,
-              channelId: this.pageState.channelId,
-              topicId: row.id,
-            }
-          };
-        } else if (row.kind === CoreConstants.ContentNodeKinds.EXERCISE) {
-          return {
-            name: CoachConstants.PageNames.TOPIC_LEARNERS_FOR_ITEM,
-            params: {
-              classId: this.pageState.classId,
-              channelId: this.pageState.channelId,
-              contentId: row.id,
-            }
-          };
-        } else if (row.kind === CoreConstants.USER) {
-          console.log('TODO - user link');
-          return undefined;
-        }
-        return null;
+      isExercisePage() {
+        return this.pageState.contentScopeSummary.kind === CoreConstants.ContentNodeKinds.EXERCISE;
       },
     },
     vuex: {

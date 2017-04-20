@@ -53,6 +53,7 @@
       'recent-items-page': require('./reports/recent-items-page'),
       'channel-list-page': require('./reports/channel-list-page'),
       'item-list-page': require('./reports/item-list-page'),
+      'learner-list-page': require('./reports/learner-list-page'),
     },
     computed: {
       topLevelPageName: () => TopLevelPageNames.COACH,
@@ -71,7 +72,7 @@
           [Constants.PageNames.TOPIC_CHANNELS]: 'channel-list-page',
           [Constants.PageNames.TOPIC_CHANNEL_ROOT]: 'item-list-page',
           [Constants.PageNames.TOPIC_ITEM_LIST]: 'item-list-page',
-          [Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'item-list-page',
+          [Constants.PageNames.TOPIC_LEARNERS_FOR_ITEM]: 'learner-list-page',
           [Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
           [Constants.PageNames.LEARNER_LIST]: 'item-list-page',
           [Constants.PageNames.LEARNER_CHANNELS]: 'channel-list-page',
