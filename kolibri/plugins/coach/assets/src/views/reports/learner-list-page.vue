@@ -21,7 +21,11 @@
       </thead>
       <tbody slot="tbody">
         <tr v-for="row in standardDataTable" :key="row.id">
-          <name-cell :kind="row.kind" :title="row.title"/>
+          <name-cell
+            :kind="row.kind"
+            :title="row.title"
+            :link="genLink(row)"
+          />
           <progress-cell
             :num="isExercisePage ? row.exerciseProgress : row.contentProgress"
             :isExercise="isExercisePage"
@@ -105,6 +109,24 @@
       },
       isExercisePage() {
         return this.pageState.contentScopeSummary.kind === CoreConstants.ContentNodeKinds.EXERCISE;
+      },
+    },
+    methods: {
+      genLink(row) {
+        if (this.isExercisePage) {
+          // intended to switch to TOPIC_LEARNER_ITEM_DETAILS
+          return {
+            name: CoachConstants.PageNames.EXERCISE_RENDER,
+            params: {
+              userId: row.id,
+              channelId: this.pageState.channelId,
+              contentId: this.pageState.contentScopeSummary.id,
+              attemptId: 0, // ?
+              interactionIndex: 0, // ?
+            }
+          };
+        }
+        return undefined;
       },
     },
     vuex: {
