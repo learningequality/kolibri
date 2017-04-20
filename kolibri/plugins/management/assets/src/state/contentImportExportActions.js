@@ -2,6 +2,8 @@
 const ConditionalPromise = require('kolibri.lib.conditionalPromise');
 const coreActions = require('kolibri.coreVue.vuex.actions');
 const logging = require('kolibri.lib.logging');
+const map = require('lodash/map');
+const zipObject = require('lodash/zipObject');
 const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
 const preparePage = require('./preparePage');
 const { PageNames, ContentWizardPages } = require('../constants');
@@ -23,21 +25,25 @@ function _managePageTitle(title) {
 }
 
 // Takes all channels in the store, and grabs the full file list for each to
-// present statistics like number of files and total size
+// present statistics like number of files and total size.
+// TODO: Getting files via FileResource requires a lot of bandwidth and memory.
+// Should write backend that aggregates the file numbers/sizes on the server-side instead.
 function updateChannelContentInfo(store) {
-  const promises = ['channel_1', 'channel_2']
+  const channelIds = map(store.state.core.channels.list, 'id');
+  const resourceRequests = channelIds
     .map((ch) => FileResource.getCollection({ channel_id: ch }).fetch());
-  return ConditionalPromise.all(promises)
+
+  return ConditionalPromise.all(resourceRequests)
   .only(
     samePageCheckGenerator(store),
     function onSuccess(channelFilesLists) {
-      store.dispatch('CONTENT_IO_UPDATE_CHANNEL_INFO', {
-        channel_1: channelFilesLists[0],
-        channel_2: channelFilesLists[1],
-      });
+      store.dispatch(
+        'CONTENT_MGMT_UPDATE_CHANNEL_INFO',
+        zipObject(channelIds, channelFilesLists)
+      );
     },
     function onFailure(err) {
-      console.log(err);
+      return coreActions.handleApiError(store, err);
     }
   );
 }
@@ -51,8 +57,10 @@ function showContentPage(store) {
       const pageState = {
         taskList: taskList.map(_taskState),
         wizardState: { shown: false },
+        channelInfo: {},
       };
       coreActions.setChannelInfo(store).then(() => {
+        updateChannelContentInfo(store);
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
       });

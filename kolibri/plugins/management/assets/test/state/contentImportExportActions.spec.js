@@ -11,7 +11,15 @@ const fakeFiles2 = [{ id: 'file_1' }, { id: 'file_2' }];
 describe.only('content import/export actions', () => {
   const storeMock = {
     dispatch: sinon.spy(),
-    state: { core: { pageId: '' } },
+    state: {
+      core: {
+        pageId: '',
+        channels: {
+          list: [{ id: 'channel_1' }, { id: 'channel_2' }],
+        }
+      },
+      pageState: {},
+    },
   };
 
   const dispatchSpy = storeMock.dispatch;
@@ -19,6 +27,7 @@ describe.only('content import/export actions', () => {
   afterEach(() => {
     FileResource.__resetMocks();
     dispatchSpy.reset();
+    storeMock.state.pageState = {};
   });
 
   describe('updateChannelContentInfo', () => {

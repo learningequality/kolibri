@@ -44,7 +44,6 @@ function getCurrentChannelObject(state) {
   return state.core.channels.list.find(channel => channel.id === state.core.channels.currentId);
 }
 
-
 module.exports = {
   isUserLoggedIn,
   isAdminOrSuperuser,
