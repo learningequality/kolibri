@@ -1,33 +1,37 @@
 <template>
 
   <div>
+
     <h1>{{ $tr('title') }}</h1>
-    <sub> {{$tr('subHeading')}} </sub>
-    <div v-if="reports.length" class="table-wrapper">
-      <table class="report-list">
-        <thead>
-          <tr>
-            <th>{{ $tr('name') }}</th>
-            <th>{{ $tr('progress') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="report in reportList">
-            <td>
-              <content-icon :kind="report.kind"/>
-              {{ report.title }}
-            </td>
-            <td>
-              <progress-bar :show-percentage="false" :progress="completedProgress(report.progress[0])"/>
-              {{ progressString(report) }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <sub>{{ $tr('subHeading') }}</sub>
+
+    <report-table v-if="pageState.reports.length">
+      <thead slot="thead">
+        <tr>
+          <header-cell :text="$tr('name')" align="left"/>
+          <header-cell :text="$tr('progress')"/>
+          <header-cell :text="$tr('lastActivity')" align="left"/>
+        </tr>
+      </thead>
+      <tbody slot="tbody">
+        <tr v-for="row in itemList" :key="row.id">
+          <name-cell
+            :kind="row.kind"
+            :title="row.title"
+            :link="genLink(row)"
+          />
+          <td>
+            <progress-bar :show-percentage="false" :progress="completedProgress(row.progress[0])"/>
+            {{ progressString(row) }}
+          </td>
+          <activity-cell :date="row.lastActive" />
+        </tr>
+      </tbody>
+    </report-table>
     <div v-else>
       {{ $tr('noRecentProgress') }}
     </div>
+
   </div>
 
 </template>
@@ -35,6 +39,7 @@
 
 <script>
 
+  const CoachConstants = require('../../constants');
   const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
 
   module.exports = {
@@ -51,15 +56,20 @@
       opened: '{proportionCompleted} opened',
       watched: '{proportionCompleted} watched',
       mastered: '{proportionCompleted} mastered',
+      lastActivity: 'Last activity',
     },
     components: {
+      'report-table': require('./report-table'),
+      'header-cell': require('./table-cells/header-cell'),
+      'name-cell': require('./table-cells/name-cell'),
+      'activity-cell': require('./table-cells/activity-cell'),
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
       'progress-bar': require('kolibri.coreVue.components.progressBar'),
     },
     computed: {
-      reportList() {
-        return Array.from(this.reports).sort(
-          (report1, report2) => new Date(report1.lastActive) - new Date(report2.lastActive)
+      itemList() {
+        return Array.from(this.pageState.reports).sort(
+          (report1, report2) => new Date(report2.lastActive) - new Date(report1.lastActive)
         );
       },
     },
@@ -67,11 +77,11 @@
       completedProgress(progress) {
         return progress.logCountComplete / progress.logCountTotal;
       },
-      progressString(report) {
+      progressString(row) {
         // string representation of a fraction, can't use completedProgress
-        const proportionCompleted = `${report.progress[0].logCountComplete}` +
-          `/${report.progress[0].logCountTotal}`;
-        switch (report.kind) {
+        const proportionCompleted = `${row.progress[0].logCountComplete}` +
+          `/${row.progress[0].logCountTotal}`;
+        switch (row.kind) {
           case ContentNodeKinds.AUDIO:
             return this.$tr('listened', { proportionCompleted });
           case ContentNodeKinds.DOCUMENT:
@@ -85,11 +95,21 @@
           default:
             return this.$tr('mastered', { proportionCompleted });
         }
-      }
+      },
+      genLink(row) {
+        return {
+          name: CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM,
+          params: {
+            classId: this.pageState.classId,
+            channelId: this.pageState.channelId,
+            contentId: row.id,
+          }
+        };
+      },
     },
     vuex: {
       getters: {
-        reports: state => state.pageState.reports,
+        pageState: state => state.pageState,
       },
     },
   };
@@ -97,11 +117,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .report-list
-    width: 100%
-    th
-      text-align: left
-
-</style>
+<style lang="stylus" scoped></style>

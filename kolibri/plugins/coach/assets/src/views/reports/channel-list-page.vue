@@ -1,33 +1,26 @@
 <template>
 
-  <div>
-    <caption class="visuallyhidden">{{ $tr('channelList') }}</caption>
-    <table class="channel-list">
-      <thead>
-        <tr>
-          <th scope="col">{{ $tr('channels') }}</th>
-          <th scope="col">{{ $tr('lastActive') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="channel in channelList">
-          <td>
-            <mat-svg category="action" name="view_module" />
-            <router-link :to="reportLink(channel.id)">{{ channel.title }}</router-link>
-          </td>
-          <td>
-            <elapsed-time :date="lastActive[channel.id]" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <report-table :caption="$tr('channelList')">
+    <thead slot="thead">
+      <tr>
+        <header-cell :text="$tr('channels')" align="left"/>
+        <header-cell :text="$tr('lastActivity')" align="left"/>
+      </tr>
+    </thead>
+    <tbody slot="tbody">
+      <tr v-for="row in channelList" :key="row.id">
+        <name-cell :kind="CHANNEL" :title="row.title" :link="reportLink(row.id)"/>
+        <activity-cell :date="lastActive[row.id]" />
+      </tr>
+    </tbody>
+  </report-table>
 
 </template>
 
 
 <script>
 
+  const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
   const PageNames = require('../../constants').PageNames;
   const orderBy = require('lodash/orderBy');
 
@@ -37,12 +30,16 @@
     $trs: {
       channels: 'Channels',
       channelList: 'Channel list',
-      lastActive: 'Last active',
+      lastActivity: 'Last active',
     },
     components: {
-      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
+      'report-table': require('./report-table'),
+      'header-cell': require('./table-cells/header-cell'),
+      'name-cell': require('./table-cells/name-cell'),
+      'activity-cell': require('./table-cells/activity-cell'),
     },
     computed: {
+      CHANNEL() { return ContentNodeKinds.CHANNEL; },
       channelList() {
         const orderedLists = {
           [PageNames.RECENT_CHANNELS]: orderBy(
@@ -85,12 +82,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  .channel-list
-    width:100%
-
-    th
-      text-align: left
-
-</style>
+<style lang="stylus" scoped></style>

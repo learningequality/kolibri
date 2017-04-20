@@ -1,6 +1,7 @@
 <template>
 
   <div class="table-section">
+    <caption class="visuallyhidden" v-if="caption">{{ caption }}</caption>
     <table class="data-table">
       <slot name="thead"/>
       <slot name="tbody" is="transition-group"/>
@@ -12,7 +13,11 @@
 
 <script>
 
-  module.exports = {};
+  module.exports = {
+    props: {
+      caption: { type: String },
+    }
+  };
 
 </script>
 

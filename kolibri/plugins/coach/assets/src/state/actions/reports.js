@@ -104,6 +104,27 @@ function _contentReportState(data) {
   }));
 }
 
+function _recentReportState(data) {
+  console.log('rrrrrrr', data);
+  if (!data) { return []; }
+  return data.map(row => ({
+    contentId: row.content_id,
+    kind: row.kind,
+    lastActive: row.last_active,
+    parent: {
+      id: row.parent.pk,
+      title: row.parent.title,
+    },
+    id: row.pk,
+    progress: row.progress.map(progressData => ({
+      logCountComplete: progressData.log_count_complete,
+      logCountTotal: progressData.log_count_total,
+      totalProgress: progressData.total_progress,
+    })),
+    title: row.title,
+  }));
+}
+
 function _learnerReportState(data) {
   console.log('lllllll', data);
   if (!data) { return []; }
@@ -254,7 +275,7 @@ function showRecentItemsForChannel(store, classId, channelId) {
       recentReportsPromise.then(
         reports => {
           const pageState = {
-            reports: _contentReportState(reports),
+            reports: _recentReportState(reports),
             classId,
             channelId,
           };
