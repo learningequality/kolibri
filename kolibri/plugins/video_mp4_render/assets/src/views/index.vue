@@ -174,7 +174,7 @@
       },
 
       recordProgress() {
-        this.$emit('progressUpdate', Math.max(0,
+        this.$emit('updateProgress', Math.max(0,
           (this.dummyTime - this.progressStartingPoint) /
           Math.floor(this.videoPlayer.duration())));
         this.progressStartingPoint = this.videoPlayer.currentTime();
