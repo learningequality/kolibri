@@ -205,6 +205,64 @@ function _setUserSummary(store, userScopeId, reportPayload) {
   return userPromise;
 }
 
+function _showContentList(store, options) {
+  const reportPayload = {
+    channel_id: options.channelId,
+    content_node_id: options.contentScopeId,
+    collection_kind: options.userScope,
+    collection_id: options.classId,
+  };
+  const promises = [
+    _setContentSummary(store, options.contentScopeId, reportPayload),
+    _setContentReport(store, reportPayload),
+  ];
+  Promise.all(promises).then(
+    () => {
+      const reportProps = {
+        classId: options.classId,
+        channelId: options.channelId,
+        contentScope: options.contentScope,
+        contentScopeId: options.contentScopeId,
+        userScope: options.userScope,
+        userScopeId: options.userScopeId,
+        viewBy: ReportConstants.ViewBy.CONTENT,
+      };
+      store.dispatch('SET_REPORT_PROPERTIES', reportProps);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
+    error => coreActions.handleError(store, error)
+  );
+}
+
+function _showLearnerList(store, options) {
+  const reportPayload = {
+    channel_id: options.channelId,
+    content_node_id: options.contentScopeId,
+    collection_kind: options.userScope,
+    collection_id: options.classId,
+  };
+  const promises = [
+    _setContentSummary(store, options.contentScopeId, reportPayload),
+    _setLearnerReport(store, reportPayload),
+  ];
+  Promise.all(promises).then(
+    () => {
+      const reportProps = {
+        classId: options.classId,
+        channelId: options.channelId,
+        contentScope: options.contentScope,
+        contentScopeId: options.contentScopeId,
+        userScope: options.userScope,
+        userScopeId: options.userScopeId,
+        viewBy: ReportConstants.ViewBy.LEARNER,
+      };
+      store.dispatch('SET_REPORT_PROPERTIES', reportProps);
+      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    },
+    error => coreActions.handleError(store, error)
+  );
+}
+
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
 function showExerciseDetailView(store, userId, channelId, contentId, attemptId, interactionIndex) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
@@ -295,6 +353,15 @@ function showRecentLearnersForItem(store, classId, channelId, contentId) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNERS_FOR_ITEM);
   store.dispatch('CORE_SET_TITLE', 'Recent - Learners');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+
+  _showLearnerList(store, {
+    classId,
+    channelId,
+    contentScope: ReportConstants.ContentScopes.CONTENT,
+    contentScopeId: contentId,
+    userScope: ReportConstants.UserScopes.CLASSROOM,
+    userScopeId: classId,
+  });
 }
 
 function showRecentLearnerItemDetails(store, classId, channelId, contentId, userId) {
@@ -308,64 +375,6 @@ function showTopicChannels(store, classId) {
   store.dispatch('CORE_SET_TITLE', 'Topics - All channels');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   _showChannelList(store, classId);
-}
-
-function _showContentList(store, options) {
-  const reportPayload = {
-    channel_id: options.channelId,
-    content_node_id: options.contentScopeId,
-    collection_kind: options.userScope,
-    collection_id: options.classId,
-  };
-  const promises = [
-    _setContentSummary(store, options.contentScopeId, reportPayload),
-    _setContentReport(store, reportPayload),
-  ];
-  Promise.all(promises).then(
-    () => {
-      const reportProps = {
-        classId: options.classId,
-        channelId: options.channelId,
-        contentScope: options.contentScope,
-        contentScopeId: options.contentScopeId,
-        userScope: options.userScope,
-        userScopeId: options.userScopeId,
-        viewBy: ReportConstants.ViewBy.CONTENT,
-      };
-      store.dispatch('SET_REPORT_PROPERTIES', reportProps);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    },
-    error => coreActions.handleError(store, error)
-  );
-}
-
-function _showLearnerList(store, options) {
-  const reportPayload = {
-    channel_id: options.channelId,
-    content_node_id: options.contentScopeId,
-    collection_kind: options.userScope,
-    collection_id: options.classId,
-  };
-  const promises = [
-    _setContentSummary(store, options.contentScopeId, reportPayload),
-    _setLearnerReport(store, reportPayload),
-  ];
-  Promise.all(promises).then(
-    () => {
-      const reportProps = {
-        classId: options.classId,
-        channelId: options.channelId,
-        contentScope: options.contentScope,
-        contentScopeId: options.contentScopeId,
-        userScope: options.userScope,
-        userScopeId: options.userScopeId,
-        viewBy: ReportConstants.ViewBy.LEARNER,
-      };
-      store.dispatch('SET_REPORT_PROPERTIES', reportProps);
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
-    },
-    error => coreActions.handleError(store, error)
-  );
 }
 
 function showTopicChannelRoot(store, classId, channelId) {

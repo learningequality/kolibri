@@ -67,7 +67,7 @@
           // reports
           [Constants.PageNames.RECENT_CHANNELS]: 'channel-list-page',
           [Constants.PageNames.RECENT_ITEMS_FOR_CHANNEL]: 'recent-items-page',
-          [Constants.PageNames.RECENT_LEARNERS_FOR_ITEM]: 'item-list-page',
+          [Constants.PageNames.RECENT_LEARNERS_FOR_ITEM]: 'learner-list-page',
           [Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS]: 'learner-item-details-page',
           [Constants.PageNames.TOPIC_CHANNELS]: 'channel-list-page',
           [Constants.PageNames.TOPIC_CHANNEL_ROOT]: 'item-list-page',

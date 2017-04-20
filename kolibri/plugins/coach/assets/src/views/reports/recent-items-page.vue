@@ -2,6 +2,7 @@
 
   <div>
 
+    <breadcrumbs/>
     <h1>{{ $tr('title') }}</h1>
     <sub>{{ $tr('subHeading') }}</sub>
 
@@ -59,6 +60,7 @@
       lastActivity: 'Last activity',
     },
     components: {
+      'breadcrumbs': require('./breadcrumbs'),
       'report-table': require('./report-table'),
       'header-cell': require('./table-cells/header-cell'),
       'name-cell': require('./table-cells/name-cell'),
