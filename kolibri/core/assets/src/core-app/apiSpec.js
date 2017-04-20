@@ -90,9 +90,6 @@ module.exports = {
         textbox: {
           module: require('../views/textbox'),
         },
-        channelSwitcher: {
-          module: require('../views/channel-switcher'),
-        },
         dropdownMenu: {
           module: require('../views/dropdown-menu'),
         },

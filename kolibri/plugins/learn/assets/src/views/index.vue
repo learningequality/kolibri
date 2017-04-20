@@ -50,7 +50,7 @@
       'content-unavailable-page': require('./content-unavailable-page'),
       'core-base': require('kolibri.coreVue.components.coreBase'),
       'ui-icon-button': require('keen-ui/src/UiIconButton'),
-      'channel-switcher': require('kolibri.coreVue.components.channelSwitcher'),
+      'channel-switcher': require('./channel-switcher'),
       'breadcrumbs': require('./breadcrumbs'),
       'search-page': require('./search-page'),
       'tabs': require('kolibri.coreVue.components.tabs'),
