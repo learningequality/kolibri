@@ -34,8 +34,26 @@ class MockResource {
     return saveable;
   }
 
+  // allowable verbs: 'delete', 'fetch', 'save'
+  // TODO DRY up rest of methods after merged in
+  __getCrudable(payload, stub, verb, willReject = false) {
+    const model = {};
+    if (willReject) {
+      model[verb] = stub.returns(Promise.reject(payload));
+    } else {
+      model[verb] = stub.returns(Promise.resolve(payload));
+    }
+    return model;
+  }
+
   __getModelFetchReturns(payload, willReject = false) {
     this.getModel.returns(this.__getFetchable(payload, willReject));
+  }
+
+  __getModelDeleteReturns(payload, willReject = false) {
+    const stub = sinon.stub();
+    this.getModel.returns(this.__getCrudable(payload, stub, 'delete', willReject));
+    return stub;
   }
 
   __getModelSaveReturns(payload, willReject = false) {
@@ -50,6 +68,7 @@ class MockResource {
 }
 
 const resourcesList = [
+  'ChannelResource',
   'FacilityDatasetResource',
   'FacilityResource',
   'FileResource',

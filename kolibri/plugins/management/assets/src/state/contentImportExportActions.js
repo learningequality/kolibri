@@ -6,7 +6,7 @@ const map = require('lodash/map');
 const { samePageCheckGenerator } = require('kolibri.coreVue.vuex.actions');
 const preparePage = require('./preparePage');
 const { PageNames, ContentWizardPages } = require('../constants');
-const { FileResource, TaskResource } = require('kolibri').resources;
+const { FileResource, TaskResource, ChannelResource } = require('kolibri').resources;
 
 function _taskState(data) {
   const state = {
@@ -40,6 +40,13 @@ function updateChannelContentInfo(store, channelId) {
       return coreActions.handleApiError(store, err);
     }
   );
+}
+
+function deleteChannel(store, channelId) {
+  // This will probably just delete channel from the DB, but prob not from
+  // filesystem. When 'SET_CODE_CHANNEL_LIST' is called in polling, the
+  // channel doesn't disappear though. Need to see if this is bc still in filesystem.
+  return ChannelResource.getModel(channelId).delete();
 }
 
 function showContentPage(store) {
@@ -211,6 +218,7 @@ function triggerRemoteContentImportTask(store, channelId) {
 module.exports = {
   cancelImportExportWizard,
   clearTask,
+  deleteChannel,
   pollTasksAndChannels,
   showContentPage,
   showImportLocalWizard,

@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 const sinon = require('sinon');
 const actions = require('../../src/state/contentImportExportActions');
-const { FileResource } = require('kolibri').resources;
+const { FileResource, ChannelResource } = require('kolibri').resources;
 
 const makeFetachable = (pl) => ({ fetch: () => Promise.resolve(pl) });
 
@@ -39,6 +39,20 @@ describe('content import/export actions', () => {
           channelId: 'channel_1',
           files: fakeFiles1,
         });
+      });
+    });
+  });
+
+  describe('deleteChannel action', () => {
+    it('when there are no problems', () => {
+      const deleteStub = ChannelResource.__getModelDeleteReturns('delete ok');
+      return actions.deleteChannel(storeMock, 'channel_1')
+      .then(() => {
+        sinon.assert.called(deleteStub);
+        sinon.assert.calledWith(ChannelResource.getModel, 'channel_1');
+        // it seems that this action does not need to mutate anything. at next poll,
+        // the global list of channels should have this channel removed
+        sinon.assert.notCalled(dispatchSpy);
       });
     });
   });
