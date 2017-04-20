@@ -2,6 +2,7 @@
 
   <div>
 
+    <breadcrumbs :list="contentBreadcrumbs"/>
     <h1>
       <content-icon
         :kind="pageState.contentScopeSummary.kind"
@@ -15,7 +16,6 @@
         <li>{{ $tr('contentCountText', {count: contentCount}) }}</li>
       </ul>
     </div>
-    <breadcrumbs :list="contentBreadcrumbs"/>
 
     <div class="table-section">
       <table class="data-table">
@@ -95,26 +95,45 @@
     },
     computed: {
       contentBreadcrumbs() {
-        const list = this.pageState.contentScopeSummary.ancestors.map((item, index) => {
-          const breadcrumb = {
-            title: item.title,
+        return [
+          // link to the root channels page
+          {
+            title: 'Channels',
             vlink: {
-              name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+              name: CoachConstants.PageNames.TOPIC_CHANNELS,
               params: {
                 classId: this.pageState.classId,
-                channelId: this.pageState.channelId,
-                topicId: item.id,
               },
             },
-          };
-          if (!index) {
-            breadcrumb.vlink.name = CoachConstants.PageNames.TOPIC_CHANNEL_ROOT;
-            delete breadcrumb.vlink.params.topicId;
-          }
-          return breadcrumb;
-        });
-        list.push({ title: this.pageState.contentScopeSummary.title });
-        return list;
+          },
+          // links to each ancestor
+          ...this.pageState.contentScopeSummary.ancestors.map((item, index) => {
+            const breadcrumb = { title: item.title };
+            if (index) {
+              // links to parent topics
+              breadcrumb.vlink = {
+                name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
+                params: {
+                  classId: this.pageState.classId,
+                  channelId: this.pageState.channelId,
+                  topicId: item.id,
+                },
+              };
+            } else {
+              // link to channel root
+              breadcrumb.vlink = {
+                name: CoachConstants.PageNames.TOPIC_CHANNEL_ROOT,
+                params: {
+                  classId: this.pageState.classId,
+                  channelId: this.pageState.channelId,
+                },
+              };
+            }
+            return breadcrumb;
+          }),
+          // current item
+          { title: this.pageState.contentScopeSummary.title }
+        ];
       },
     },
     vuex: {

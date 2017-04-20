@@ -1,9 +1,11 @@
 <template>
 
-  <div class="breadcrumb-wrapper-div">
-    <span v-for="ancestor in list">
-      <span v-if="ancestor.vlink"><router-link :to="ancestor.vlink">{{ ancestor.title }}</router-link> &gt; </span>
-      <span v-else> {{ ancestor.title }}</span>
+  <div class="breadcrumb-wrapper">
+    <span v-for="ancestor in list" class="crumb">
+      <span v-if="ancestor.vlink">
+        <router-link :to="ancestor.vlink">{{ ancestor.title }}</router-link>
+      </span>
+      <span v-else>{{ ancestor.title }}</span>
     </span>
   </div>
 
@@ -28,10 +30,17 @@
 
   @require '~kolibri.styles.definitions'
 
-  .breadcrumb-wrapper-div
-    line-height: 2em
+  .breadcrumb-wrapper
     font-size: smaller
     display: inline-block
+    color: $core-text-annotation
+
+  .crumb + .crumb::before // before any crumb coming after another crumb
+    content: '>'
+    margin: 8px
+    color: $core-text-annotation
+
+  .crumb a
     color: $core-text-annotation
 
 </style>
