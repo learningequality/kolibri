@@ -2,7 +2,7 @@
 
   <div>
 
-    <breadcrumbs :list="contentBreadcrumbs"/>
+    <breadcrumbs/>
     <h1>
       <content-icon
         :kind="pageState.contentScopeSummary.kind"
@@ -69,49 +69,6 @@
       'name-cell': require('./table-cells/name-cell'),
       'progress-cell': require('./table-cells/progress-cell'),
       'activity-cell': require('./table-cells/activity-cell'),
-    },
-    computed: {
-      contentBreadcrumbs() {
-        return [
-          // link to the root channels page
-          {
-            title: 'Channels',
-            vlink: {
-              name: CoachConstants.PageNames.TOPIC_CHANNELS,
-              params: {
-                classId: this.pageState.classId,
-              },
-            },
-          },
-          // links to each ancestor
-          ...this.pageState.contentScopeSummary.ancestors.map((item, index) => {
-            const breadcrumb = { title: item.title };
-            if (index) {
-              // links to parent topics
-              breadcrumb.vlink = {
-                name: CoachConstants.PageNames.TOPIC_ITEM_LIST,
-                params: {
-                  classId: this.pageState.classId,
-                  channelId: this.pageState.channelId,
-                  topicId: item.id,
-                },
-              };
-            } else {
-              // link to channel root
-              breadcrumb.vlink = {
-                name: CoachConstants.PageNames.TOPIC_CHANNEL_ROOT,
-                params: {
-                  classId: this.pageState.classId,
-                  channelId: this.pageState.channelId,
-                },
-              };
-            }
-            return breadcrumb;
-          }),
-          // current item
-          { title: this.pageState.contentScopeSummary.title }
-        ];
-      },
     },
     methods: {
       genRowLink(row) {
