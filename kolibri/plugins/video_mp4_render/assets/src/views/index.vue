@@ -217,6 +217,7 @@
     height: 480px
     max-width: 100%
     max-height: 480px
+    overflow-x: auto
 
   .fill-space
     width: 100%

@@ -661,6 +661,7 @@ function showExam(store, channelId, id, questionNumber) {
                   content_id: currentQuestion.contentId,
                 };
               }
+              pageState.currentAttempt = attemptLogs[currentQuestion.contentId][itemId];
               store.dispatch('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
               store.dispatch('SET_PAGE_STATE', pageState);
               store.dispatch('CORE_SET_PAGE_LOADING', false);
@@ -682,8 +683,19 @@ function setAndSaveCurrentExamAttemptLog(store, contentId, itemId, currentAttemp
       [itemId]: currentAttemptLog,
     }),
   });
-  const examAttemptLogModel = ExamAttemptLogResource.getModel(
-    currentAttemptLog.id);
+  // If a save has already been fired for this particular attempt log,
+  // it may not have an id yet, so we can look for it by its uniquely
+  // identifying fields, contentId and itemId.
+  let examAttemptLogModel = ExamAttemptLogResource.findModel({
+    content_id: contentId,
+    item: itemId,
+  });
+  // If the above findModel returned no matching model, then we can do
+  // getModel to get the new model instead.
+  if (!examAttemptLogModel) {
+    examAttemptLogModel = ExamAttemptLogResource.getModel(
+      currentAttemptLog.id);
+  }
   const attributes = Object.assign({}, currentAttemptLog);
   attributes.interaction_history = JSON.stringify(attributes.interaction_history);
   attributes.answer = JSON.stringify(attributes.answer);

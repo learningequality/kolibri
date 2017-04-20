@@ -1,41 +1,45 @@
 <template>
 
-  <core-modal :title="$tr('preview')" @cancel="close" maxWidth="100%">
-    <div class="question-selector-container">
-      <div class="question-selector">
-        <div>
-          {{ $tr('numQuestions', { num: exam.questionCount })}}
-        </div>
-        <ui-collapsible v-for="(source, exIndex) in questionSources" :title="$tr('exercise', { num: exIndex + 1 })" :open="exIndex===0">
-          <ul class="question-list">
-            <template v-for="(question, index) in questions.filter(q => q.contentId === source.exercise_id)">
-              <li @click="goToQuestion(index)" :class="isSelected(index)" class="clickable">
-                <h3>
-                  {{ $tr('question', { num: index + 1 }) }}
-                </h3>
+  <core-modal :title="$tr('preview')" @cancel="close" width="100%" height="100%">
+    <ui-progress-linear v-show="loading"/>
+    <div v-show="!loading">
+      <div>
+        <strong>{{ $tr('numQuestions', { num: examNumQuestions })}}</strong>
+        <slot name="randomize-button"/>
+      </div>
+      <div class="exam-preview-container pure-g">
+        <div class="question-selector pure-u-1-3">
+          <div v-for="(exercise, exerciseIndex) in examQuestionSources">
+            <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
+            <ol class="question-list">
+              <li v-for="(question, questionIndex) in questions.filter(q => q.contentId === exercise.exercise_id)">
+                <ui-button
+                  @click="goToQuestion(question.itemId, exercise.exercise_id)"
+                  :type="isSelected(question.itemId, exercise.exercise_id) ? 'primary' : 'secondary'">
+                    {{ $tr('question', { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }) }}
+                </ui-button>
               </li>
-            </template>
-          </ul>
-        </ui-collapsible>
-      </div>
-      <div class="exercise-container">
-        <content-renderer
-          v-if="content && itemId"
-          class="content-renderer"
-          ref="contentRenderer"
-          :id="content.pk"
-          :kind="content.kind"
-          :files="content.files"
-          :contentId="content.content_id"
-          :channelId="exam.channelId"
-          :available="content.available"
-          :extraFields="content.extra_fields"
-          :itemId="itemId"
-          :assessment="true"
-          :allowHints="false"/>
+            </ol>
+          </div>
         </div>
+        <div class="exercise-container pure-u-2-3">
+          <content-renderer
+            v-if="content && itemId"
+            class="content-renderer"
+            ref="contentRenderer"
+            :id="content.pk"
+            :kind="content.kind"
+            :files="content.files"
+            :contentId="content.content_id"
+            :channelId="examChannelId"
+            :available="content.available"
+            :extraFields="content.extra_fields"
+            :itemId="itemId"
+            :assessment="true"
+            :allowHints="false"/>
+          </div>
       </div>
-    <icon-button :text="$tr('close')" @click="close"/>
+      </div>
   </core-modal>
 
 </template>
@@ -50,7 +54,7 @@
   module.exports = {
     $trNameSpace: 'previewExamModal',
     $trs: {
-      preview: 'Preview Exam Exercises',
+      preview: 'Preview exam',
       close: 'Close',
       question: 'Question { num }',
       numQuestions: '{ num } questions',
@@ -58,84 +62,91 @@
     },
     components: {
       'core-modal': require('kolibri.coreVue.components.coreModal'),
-      'icon-button': require('kolibri.coreVue.components.iconButton'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
-      'ui-collapsible': require('keen-ui/src/UiCollapsible'),
+      'ui-button': require('keen-ui/src/UiButton'),
+      'ui-progress-linear': require('keen-ui/src/UiProgressLinear'),
     },
     props: {
-      exam: {
-        type: Object,
+      examChannelId: {
+        type: String,
         required: true,
       },
+      examQuestionSources: {
+        type: Array,
+        required: true,
+      },
+      examSeed: {
+        type: Number,
+        required: true,
+      },
+      examNumQuestions: {
+        type: Number,
+        required: true,
+      },
+      examCreation: {
+        type: Boolean,
+        default: false,
+      }
     },
-    methods: {
-      close() {
-        this.displayExamModal(false);
-      },
-      isSelected(index) {
-        if (this.questionNumber === index) {
-          return 'selected';
-        }
-        return null;
-      },
-      goToQuestion(index) {
-        this.questionNumber = index;
-      },
-    },
+    data: () => ({
+      currentQuestionIndex: 0,
+      exercises: {},
+      loading: true,
+    }),
     computed: {
-      seed() {
-        return this.exam.seed;
-      },
-      questionSources() {
-        try {
-          return JSON.parse(this.exam.questionSources);
-        } catch (e) {
-          if (e instanceof SyntaxError) {
-            return [];
-          }
-          throw e;
-        }
-      },
       questions() {
-        return Object.keys(this.contentNodeMap).length ? createQuestionList(
-          this.questionSources).map(
+        return Object.keys(this.exercises).length ? createQuestionList(
+          this.examQuestionSources).map(
             question => ({
               itemId: selectQuestionFromExercise(
               question.assessmentItemIndex,
-              this.seed,
-              this.contentNodeMap[question.contentId]),
+              this.examSeed,
+              this.exercises[question.contentId]),
               contentId: question.contentId
             })
         ) : [];
       },
       currentQuestion() {
-        return this.questions[this.questionNumber] || {};
+        return this.questions[this.currentQuestionIndex] || {};
       },
       content() {
-        return this.contentNodeMap[this.currentQuestion.contentId];
+        return this.exercises[this.currentQuestion.contentId];
       },
       itemId() {
         return this.currentQuestion.itemId;
       },
     },
+    methods: {
+      isSelected(questionItemId, exerciseId) {
+        return (this.currentQuestion.itemId === questionItemId)
+          && (this.currentQuestion.contentId === exerciseId);
+      },
+      getQuestionIndex(questionItemId, exerciseId) {
+        return this.questions.findIndex(
+          question => (question.itemId === questionItemId) && (question.contentId === exerciseId));
+      },
+      goToQuestion(questionItemId, exerciseId) {
+        this.currentQuestionIndex = this.getQuestionIndex(questionItemId, exerciseId);
+      },
+      getExerciseName(exerciseId) {
+        if (this.exercises[exerciseId]) {
+          return this.exercises[exerciseId].title;
+        }
+        return '';
+      },
+      close() {
+        this.displayExamModal(false);
+      },
+    },
     created() {
       ContentNodeResource.getCollection(
-        { channel_id: this.exam.channelId },
-        { ids: this.questionSources.map(item => item.exercise_id) }
+        { channel_id: this.examChannelId },
+        { ids: this.examQuestionSources.map(item => item.exercise_id) }
         ).fetch().then(contentNodes => {
-          contentNodes.forEach(node => { this.$set(this.contentNodeMap, node.pk, node); });
+          contentNodes.forEach(node => { this.$set(this.exercises, node.pk, node); });
+          this.loading = false;
         });
     },
-    mounted() {
-      // Filthy hack to force Keen UI Collapsible to resize
-      const event = document.createEvent('Event');
-      event.initEvent('resize', true, true);
-      window.dispatchEvent(event);
-    },
-    data: () => ({
-      questionNumber: 0,
-      contentNodeMap: {},
-    }),
     vuex: {
       actions: {
         displayExamModal: examActions.displayExamModal,
@@ -150,33 +161,23 @@
 
   @require '~kolibri.styles.definitions'
 
-  .question-selector
-    background-color: $core-bg-light
-    width: 30%
-    height: 100%
-    overflow-y: auto
-    float: left
+  .exam-preview-container
+    padding-top: 1em
+    max-height: calc(100vh - 160px)
 
-  .question-list
-    list-style-type: none
-    max-height: inherit
+  .question-selector, .exercise-container
+    overflow-y: auto
+
+
+  ol
+    padding: 0
     margin: 0
-    padding-left: 0
 
   li
-    clear: both
-    border: none
-    padding-left: 20px
-    height: 64px
+    list-style-type: none
 
-  .clickable
-    cursor: pointer
-
-  .selected
-    background-color: $core-text-disabled
-
-  .exercise-container
-    width: 70%
-    float: left
+  h3
+    margin-top: 1em
+    margin-bottom: 0.25em
 
 </style>
