@@ -11,55 +11,25 @@
       {{ pageState.contentScopeSummary.title }}
     </h1>
 
-    <div class="table-section">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th
-              is="header-cell"
-              :text="$tr('name')"
-              class="name-col table-name"
-            ></th>
-            <th
-              v-if="isExercisePage"
-              is="header-cell"
-              :text="$tr('exerciseProgress')"
-              class="progress-col"
-            ></th>
-            <th
-              v-else
-              is="header-cell"
-              :text="$tr('contentProgress')"
-              class="progress-col"
-            ></th>
-            <th
-              is="header-cell"
-              :text="$tr('lastActivity')"
-              class="date-col"
-            ></th>
-          </tr>
-        </thead>
-        <tbody is="transition-group" name="item">
-          <tr v-for="row in standardDataTable" :key="row.id">
-            <th scope="row" class="name-col">
-              <item-cell
-                :kind="row.kind"
-                :title="row.title"
-              />
-            </th>
-            <td class="progress-col" v-if="isExercisePage">
-              <progress-cell :num="row.exerciseProgress" :isExercise="true"/>
-            </td>
-            <td class="progress-col" v-else>
-              <progress-cell :num="row.contentProgress" :isExercise="false"/>
-            </td>
-            <td class="date-col">
-              <elapsed-time :date="row.lastActive" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <report-table>
+      <thead slot="thead">
+        <tr>
+          <header-cell :text="$tr('name')" align="left"/>
+          <header-cell :text="isExercisePage ? $tr('exerciseProgress') : $tr('contentProgress')"/>
+          <header-cell :text="$tr('lastActivity')" align="left"/>
+        </tr>
+      </thead>
+      <tbody slot="tbody">
+        <tr v-for="row in standardDataTable" :key="row.id">
+          <name-cell :kind="row.kind" :title="row.title"/>
+          <progress-cell
+            :num="isExercisePage ? row.exerciseProgress : row.contentProgress"
+            :isExercise="isExercisePage"
+          />
+          <activity-cell :date="row.lastActive" />
+        </tr>
+      </tbody>
+    </report-table>
 
   </div>
 
@@ -85,10 +55,11 @@
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
       'breadcrumbs': require('./breadcrumbs'),
-      'header-cell': require('./header-cell'),
-      'progress-cell': require('./data-cells/progress-cell'),
-      'item-cell': require('./data-cells/item-cell'),
-      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
+      'report-table': require('./report-table'),
+      'header-cell': require('./table-cells/header-cell'),
+      'name-cell': require('./table-cells/name-cell'),
+      'progress-cell': require('./table-cells/progress-cell'),
+      'activity-cell': require('./table-cells/activity-cell'),
     },
     computed: {
       contentBreadcrumbs() {
@@ -149,42 +120,4 @@
 </script>
 
 
-<style lang="stylus" scoped>
-
-  @require '~kolibri.styles.definitions'
-  @require './reports.styl'
-
-  .data-table
-    width: 100%
-    font-size: smaller
-    border-spacing: 0
-
-    td, th
-      padding: $col-padding
-      text-align: left
-
-    .table-name
-      text-align: left
-
-    .name-col
-      text-align: left
-
-    .progress-col
-      text-align: center
-      width: $progress-col-width
-
-    .date-col
-      text-align: left
-      width: $date-col-width
-
-  .item-move
-    transition: transform 0.5s cubic-bezier(0.55, 0, 0.1, 1)
-
-  .table-section
-    background-color: $core-bg-light
-    margin-top: 1em
-    margin-bottom: 1em
-    padding: 1em
-    overflow-x: auto
-
-</style>
+<style lang="stylus" scoped></style>

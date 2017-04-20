@@ -1,15 +1,15 @@
 <template>
 
-  <div>
+  <th scope="row">
     <div class="wrapper">
       <content-icon :kind="kind" class="icon"/>
-      <router-link v-if="link" :to="link">{{ title }}</router-link>
+      <router-link v-if="link" :to="link" class="link">{{ title }}</router-link>
       <span v-else>{{ title }}</span>
     </div>
     <div class="wrapper">
       <slot name="details" />
     </div>
-  </div>
+  </th>
 
 </template>
 
@@ -42,9 +42,8 @@
 
   @require '~kolibri.styles.definitions'
 
-  a
-    font-size: 1.15em
-    font-weight: bold
+  th
+    text-align: left
 
   .wrapper
     font-weight: normal
@@ -61,5 +60,8 @@
     left: 0
     fill: $core-text-default
     font-size: 1.25em
+
+  .link
+    font-weight: bold
 
 </style>

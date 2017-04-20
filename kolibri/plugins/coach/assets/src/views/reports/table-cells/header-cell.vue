@@ -1,6 +1,6 @@
 <template>
 
-  <th scope="col">
+  <th scope="col" :style="{ textAlign: align }">
     <button v-if="sortable" class="header-text" @click="$emit('click')">
       <span>{{ text }}</span>
       <span class="icon-wrapper" v-if="sortable">
@@ -38,6 +38,9 @@
       text: {
         type: String,
         required: true,
+      },
+      align: {
+        type: String,
       },
       sortable: {
         type: Boolean,
