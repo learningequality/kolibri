@@ -24,23 +24,18 @@ function _managePageTitle(title) {
   return `Manage ${title}`;
 }
 
-// Takes all channels in the store, and grabs the full file list for each to
-// present statistics like number of files and total size.
+// Grabs all files in a channel and sends it to mutation to update
+// statistics like number of files and total size.
 // TODO: Getting files via FileResource requires a lot of bandwidth and memory.
 // Should write backend that aggregates the file numbers/sizes on the server-side instead.
-function updateChannelContentInfo(store) {
-  const channelIds = map(store.state.core.channels.list, 'id');
-  const resourceRequests = channelIds
-    .map((ch) => FileResource.getCollection({ channel_id: ch }).fetch());
-
-  return ConditionalPromise.all(resourceRequests)
-  .only(
+function updateChannelContentInfo(store, channelId) {
+  const resourceRequests = [
+    FileResource.getCollection({ channel_id: channelId }).fetch(),
+  ];
+  return ConditionalPromise.all(resourceRequests).only(
     samePageCheckGenerator(store),
-    function onSuccess(channelFilesLists) {
-      store.dispatch(
-        'CONTENT_MGMT_UPDATE_CHANNEL_INFO',
-        zipObject(channelIds, channelFilesLists)
-      );
+    function onSuccess([files]) {
+      store.dispatch('CONTENT_MGMT_UPDATE_CHANNEL_INFO', { channelId, files });
     },
     function onFailure(err) {
       return coreActions.handleApiError(store, err);
@@ -60,7 +55,8 @@ function showContentPage(store) {
         channelInfo: {},
       };
       coreActions.setChannelInfo(store).then(() => {
-        updateChannelContentInfo(store);
+        const channelIds = map(store.state.core.channels.list, 'id');
+        channelIds.forEach(id => updateChannelContentInfo(store, id));
         store.dispatch('SET_PAGE_STATE', pageState);
         store.dispatch('CORE_SET_PAGE_LOADING', false);
       });
