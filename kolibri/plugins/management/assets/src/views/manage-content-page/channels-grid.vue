@@ -21,7 +21,9 @@
           {{ totalSizeOfFilesInChannel(channel.id) }}
         </td>
         <td>
-          {{ $tr('delete') }}
+          <button class="delete-button">
+            {{ $tr('delete') }}
+          </button>
         </td>
       </tr>
     </tbody>
@@ -70,13 +72,20 @@
   $row-padding = 1.5em
   // height of elements in toolbar,  based off of icon-button height
   $toolbar-height = 36px
+  $red = rgb(255, 0 , 0)
 
   .tal
     text-align: left
 
   td
-    padding-bottom: 2rem
+    padding: 1rem 0
 
+  .delete-button
+    transition: none
+    border-style: none
+    color: $red
+    &:hover
+      color: darken($red, 30)
 
   .col-header
     padding-bottom: (1.2 * $row-padding)
