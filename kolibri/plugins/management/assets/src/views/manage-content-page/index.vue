@@ -34,9 +34,13 @@
         </div>
       </div>
       <hr>
-      <p class="core-text-alert" v-if="!channelList.length">{{$tr('noChannels')}}</p>
 
-      <channels-grid />
+      <channels-grid v-if="channelList.length > 0" />
+
+      <p v-else class="core-text-alert">
+        {{ $tr('noChannels') }}
+      </p>
+
     </div>
 
   </div>
