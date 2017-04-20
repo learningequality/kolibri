@@ -6,6 +6,7 @@
         <th class="col-header col-channel" scope="col">{{ $tr('nameHeader') }}</th>
         <th class="col-header col-export" scope="col">{{ $tr('numContentsHeader') }}</th>
         <th class="col-header col-export" scope="col">{{ $tr('sizeHeader') }}</th>
+        <th class="col-header col-export" scope="col">{{ $tr('lastUpdatedHeader') }}</th>
         <th class="col-header col-export" scope="col"></th>
       </tr>
     </thead>
@@ -19,6 +20,9 @@
         </td>
         <td>
           {{ totalSizeOfFilesInChannel(channel.id) }}
+        </td>
+        <td>
+          {{ lastUpdatedDate(channel.id) }}
         </td>
         <td>
           <button class="delete-button">
@@ -46,6 +50,10 @@
         const channel = this.channelInfo[channelId];
         return this.channelInfo[channelId] ? bytesForHumans(channel.totalFileSizeInBytes) : '';
       },
+      lastUpdatedDate(channelId) {
+        // constant function until this data is available
+        return this.$tr('notAvailable');
+      }
     },
     vuex: {
       getters: {
@@ -56,11 +64,13 @@
     },
     $trNameSpace: 'channelsGrid',
     $trs: {
-      pleaseWait: 'Please wait...',
-      nameHeader: 'Channel',
-      numContentsHeader: '# Contents',
-      sizeHeader: 'Size',
       delete: 'Delete',
+      lastUpdatedHeader: 'Last updated',
+      nameHeader: 'Channel',
+      notAvailable: 'Not available',
+      numContentsHeader: '# Contents',
+      pleaseWait: 'Please wait...',
+      sizeHeader: 'Size',
     }
   };
 
