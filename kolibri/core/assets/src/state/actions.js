@@ -555,6 +555,9 @@ function createMasteryLog(store, masteryLevel, masteryCriterion) {
     totalattempts: 0,
     mastery_criterion: masteryCriterion,
   });
+  // Preemptively set attributes
+  store.dispatch('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
+  // Save to the server
   return masteryLogModel.save(masteryLogModel.attributes).only(
     samePageCheckGenerator(store),
     (newMasteryLog) => {
@@ -602,6 +605,7 @@ function createAttemptLog(store, itemId) {
   const coreApp = require('kolibri');
   const attemptLogModel = coreApp.resources.AttemptLog.createModel({
     id: null,
+    user: store.state.core.session.user_id,
     masterylog: store.state.core.logging.mastery.id || null,
     sessionlog: store.state.core.logging.session.id,
     start_timestamp: new Date(),

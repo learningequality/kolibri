@@ -169,7 +169,7 @@
       },
 
       recordProgress() {
-        this.$emit('progressUpdate', Math.max((this.displayTime
+        this.$emit('updateProgress', Math.max((this.displayTime
           - this.progressStartingPoint) / Math.floor(this.max), 0));
         this.progressStartingPoint = this.$refs.audio.currentTime;
       },

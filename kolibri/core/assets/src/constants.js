@@ -43,6 +43,7 @@ const AttemptLoggingMap = {
   id: 'id',
   sessionlog: 'sessionlog',
   item: 'item',
+  user: 'user',
   start_timestamp: 'start_timestamp',
   completion_timestamp: 'completion_timestamp',
   end_timestamp: 'end_timestamp',
