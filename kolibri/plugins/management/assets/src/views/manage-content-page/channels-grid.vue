@@ -3,14 +3,15 @@
   <table class="tal">
     <thead>
       <tr>
-        <th class="col-header col-channel" scope="col"> Channel Name </th>
-        <th class="col-header col-export" scope="col"> # of Contents </th>
-        <th class="col-header col-export" scope="col"> Size </th>
+        <th class="col-header col-channel" scope="col">{{ $tr('nameHeader') }}</th>
+        <th class="col-header col-export" scope="col">{{ $tr('numContentsHeader') }}</th>
+        <th class="col-header col-export" scope="col">{{ $tr('sizeHeader') }}</th>
+        <th class="col-header col-export" scope="col"></th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="channel in channelList">
-        <td scope="row">
+        <td>
           <b>{{ channel.title }}<b>
         </td>
         <td>
@@ -18,6 +19,9 @@
         </td>
         <td>
           {{ totalSizeOfFilesInChannel(channel.id) }}
+        </td>
+        <td>
+          {{ $tr('delete') }}
         </td>
       </tr>
     </tbody>
@@ -34,7 +38,7 @@
     methods: {
       numberOfFilesInChannel(channelId) {
         const channel = this.channelInfo[channelId];
-        return channel ? channel.numberOfFiles : 'Please wait...';
+        return channel ? channel.numberOfFiles : this.$tr('pleaseWait');
       },
       totalSizeOfFilesInChannel(channelId) {
         const channel = this.channelInfo[channelId];
@@ -48,6 +52,14 @@
         channelInfo: state => state.pageState.channelInfo
       },
     },
+    $trNameSpace: 'channelsGrid',
+    $trs: {
+      pleaseWait: 'Please wait...',
+      nameHeader: 'Channel',
+      numContentsHeader: '# Contents',
+      sizeHeader: 'Size',
+      delete: 'Delete',
+    }
   };
 
 </script>

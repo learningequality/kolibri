@@ -13,7 +13,7 @@
       />
     </div>
 
-    <div class="main light-bg">
+    <div class="light-bg">
       <div class="table-title">
         <h1 class="page-title">{{$tr('title')}}</h1>
         <div class="button-wrapper" v-if="!pageState.taskList.length">
@@ -115,13 +115,6 @@
   $row-padding = 1.5em
   // height of elements in toolbar,  based off of icon-button height
   $toolbar-height = 36px
-
-  .main
-    padding: 1em 2em
-    padding-bottom: 3em
-    margin-top: 2em
-    width: 100%
-    border-radius: 4px
 
   .light-bg
     background-color: $core-bg-light
