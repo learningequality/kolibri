@@ -35,37 +35,8 @@
       </div>
       <hr>
       <p class="core-text-alert" v-if="!channelList.length">{{$tr('noChannels')}}</p>
-      <table>
-      <!-- Table Headers -->
-        <thead>
-          <tr>
-            <th class="col-header col-channel" scope="col"> Channel Name </th>
-            <th class="col-header col-export" scope="col"> # of Contents </th>
-            <th class="col-header col-export" scope="col"> Size </th>
-            <!-- <th class="col-header col-export" scope="col"> Last updated </th> -->
-          </tr>
-        </thead>
-        <!-- Table body -->
-        <tbody>
-          <tr v-for="channel in channelList">
-            <!-- Channel Name -->
-            <td scope="row">
-              <span class="channel-name">
-                {{ channel.title }}
-              </span>
-            </td>
-            <td>
-              {{ numberOfFilesInChannel(channel.id) }}
-            </td>
-            <td>
-              {{ totalSizeOfFilesInChannel(channel.id) }}
-            </td>
-            <!-- Export Button -->
-<!--             <td class="table-cell table-export" width="30%">
-            </td> -->
-          </tr>
-        </tbody>
-      </table>
+
+      <channels-grid />
     </div>
 
   </div>
@@ -77,7 +48,6 @@
 
   const actions = require('../../state/actions');
   const ContentWizardPages = require('../../constants').ContentWizardPages;
-  const bytesForHumans = require('./bytesForHumans');
 
   module.exports = {
     $trNameSpace: 'manageContentState',
@@ -94,6 +64,7 @@
       'wizard-import-network': require('./wizard-import-network'),
       'wizard-import-local': require('./wizard-import-local'),
       'wizard-export': require('./wizard-export'),
+      'channels-grid': require('./channels-grid'),
     },
     data: () => ({
       intervalId: undefined,
@@ -103,20 +74,6 @@
     },
     destroyed() {
       clearInterval(this.intervalId);
-    },
-    methods: {
-      numberOfFilesInChannel(channelId) {
-        if (this.pageState.channelInfo[channelId]) {
-          return this.pageState.channelInfo[channelId].numberOfFiles;
-        }
-        return 'Please wait...';
-      },
-      totalSizeOfFilesInChannel(channelId) {
-        if (this.pageState.channelInfo[channelId]) {
-          return bytesForHumans(this.pageState.channelInfo[channelId].totalFileSizeInBytes);
-        }
-        return 'Please wait...';
-      }
     },
     computed: {
       wizardComponent() {
@@ -204,12 +161,6 @@
 
   th
     text-align: inherit
-
-  .col-header
-    padding-bottom: (1.2 * $row-padding)
-    color: $core-text-annotation
-    font-weight: normal
-    font-size: 80%
 
   .table-cell
     font-weight: normal // compensates for <th> cells
