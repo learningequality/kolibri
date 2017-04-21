@@ -1,37 +1,35 @@
 <template>
 
   <div>
-    <table class="tal">
-      <thead>
+    <table class="Table">
+
+      <thead class="Table__header">
         <tr>
-          <th class="col-header col-channel" scope="col">{{ $tr('nameHeader') }}</th>
-          <th class="col-header col-export" scope="col">{{ $tr('numContentsHeader') }}</th>
-          <th class="col-header col-export" scope="col">{{ $tr('sizeHeader') }}</th>
-          <th class="col-header col-export" scope="col">{{ $tr('lastUpdatedHeader') }}</th>
-          <th class="col-header col-export" scope="col"></th>
+          <th>{{ $tr('nameHeader') }}</th>
+          <th>{{ $tr('numContentsHeader') }}</th>
+          <th>{{ $tr('sizeHeader') }}</th>
+          <th>{{ $tr('lastUpdatedHeader') }}</th>
+          <th></th>
         </tr>
       </thead>
-      <tbody>
+
+      <tbody class="Table__body">
         <tr v-for="(channel, idx) in channelList">
+          <td><b>{{ channel.title }}<b></td>
+          <td>{{ numberOfFilesInChannel(channel.id) }}</td>
+          <td>{{ totalSizeOfFilesInChannel(channel.id) }}</td>
+          <td>{{ lastUpdatedDate(channel.id) }}</td>
           <td>
-            <b>{{ channel.title }}<b>
-          </td>
-          <td>
-            {{ numberOfFilesInChannel(channel.id) }}
-          </td>
-          <td>
-            {{ totalSizeOfFilesInChannel(channel.id) }}
-          </td>
-          <td>
-            {{ lastUpdatedDate(channel.id) }}
-          </td>
-          <td>
-            <button @click="selectedChannelIdx=idx" class="delete-button">
+            <button
+              @click="selectedChannelIdx=idx"
+              class="delete-button"
+            >
               {{ $tr('delete') }}
             </button>
           </td>
         </tr>
       </tbody>
+
     </table>
 
     <modal
@@ -40,7 +38,7 @@
       @cancel="selectedChannelIdx=null"
     >
       <div>
-        <p>Are you sure you want to delete {{ selectedChannelTitle }} and its contents?</p>
+        <p>Are you sure you want to delete <b>{{ selectedChannelTitle }}</b> and its contents?</p>
         <p>To restore this channel, you will need to re-import it from the internet or storage device.</p>
       </div>
 
@@ -99,9 +97,9 @@
     },
     vuex: {
       getters: {
+        channelInfo: state => state.pageState.channelInfo,
         channelList: state => state.core.channels.list,
         pageState: state => state.pageState,
-        channelInfo: state => state.pageState.channelInfo
       },
       actions: {
         deleteChannel: actions.deleteChannel,
@@ -124,28 +122,26 @@
 
 <style lang="stylus" scoped>
 
-  $row-padding = 1.5em
-  // height of elements in toolbar,  based off of icon-button height
-  $toolbar-height = 36px
-  $red = rgb(255, 0 , 0)
+  @require '~kolibri.styles.definitions'
 
-  .tal
+  .Table
     text-align: left
-
-  td
-    padding: 1rem 0
+    width: 100%
+    &__header
+      th
+        color: $core-text-annotation
+        font-weight: normal
+        font-size: 80%
+    &__body
+      td
+        padding: 1rem 0
 
   .delete-button
+    $red = rgb(255, 0 , 0)
     transition: none
     border-style: none
     color: $red
     &:hover
       color: darken($red, 30)
-
-  .col-header
-    padding-bottom: (1.2 * $row-padding)
-    color: $core-text-annotation
-    font-weight: normal
-    font-size: 80%
 
 </style>
