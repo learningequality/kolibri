@@ -266,11 +266,8 @@ function _showLearnerList(store, options) {
 }
 
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
-function showExerciseDetailView(store, classId, userId, channelId, contentId,
+function _showExerciseDetailView(store, classId, userId, channelId, contentId,
   attemptId, interactionIndex) {
-  store.dispatch('CORE_SET_PAGE_LOADING', true);
-  store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXERCISE_RENDER);
-
   Promise.all([
     ContentNodeResource.getCollection({ channel_id: channelId }, { content_id: contentId }).fetch(),
     AttemptLogResource.getCollection({ user: userId, content: contentId }).fetch(),
@@ -278,18 +275,24 @@ function showExerciseDetailView(store, classId, userId, channelId, contentId,
     FacilityUserResource.getModel(userId).fetch(),
   ]).then(
     ([exercise, attemptLogs, summaryLog, user]) => {
-      attemptLogs.sort(
-        (attemptLog1, attemptLog2) =>
-          new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
-      );
-      const currentAttemptLog = attemptLogs.find(attemptLog => attemptLog.id === attemptId);
-      const currentInteractionHistory = JSON.parse(currentAttemptLog.interaction_history);
       // MAPPERS NEEDED
       // attemptLogState
       // attemptLogListState
       // interactionState
       // InteractionHistoryState
       // user?
+      attemptLogs.sort(
+        (attemptLog1, attemptLog2) =>
+          new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
+      );
+
+      const currentAttemptLog = () => {
+        if (attemptId) {
+          attemptLogs.find(attemptLog => attemptLog.id === attemptId);
+        }
+        return attemptLogs[0];
+      };
+      const currentInteractionHistory = JSON.parse(currentAttemptLog.interaction_history);
 
       const pageState = {
         // because this is info returned from a collection
@@ -297,7 +300,7 @@ function showExerciseDetailView(store, classId, userId, channelId, contentId,
         exercise: exercise[0],
         attemptLogs,
         currentAttemptLog,
-        interactionIndex: Number(interactionIndex),
+        interactionIndex: Number(interactionIndex) || 0,
         currentInteractionHistory,
         currentInteraction: currentInteractionHistory[interactionIndex],
         summaryLog: summaryLog[0],
@@ -306,7 +309,6 @@ function showExerciseDetailView(store, classId, userId, channelId, contentId,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
-      store.dispatch('CORE_SET_TITLE', 'Exercise Detail View');
     },
       error => { coreActions.handleApiError(store, error); }
     );
@@ -377,10 +379,12 @@ function showRecentLearnersForItem(store, classId, channelId, contentId) {
   });
 }
 
-function showRecentLearnerItemDetails(store, classId, channelId, contentId, userId) {
+function showRecentLearnerItemDetails(store, classId, userId, channelId, contentId,
+  attemptId, interactionIndex) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS);
   store.dispatch('CORE_SET_TITLE', 'Recent - Learner Details');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+  _showExerciseDetailView(store, classId, userId, channelId, contentId, attemptId, interactionIndex);
 }
 
 function showTopicChannels(store, classId) {
@@ -441,10 +445,12 @@ function showTopicLearnersForItem(store, classId, channelId, contentId) {
   });
 }
 
-function showTopicLearnerItemDetails(store, classId, channelId, contentId, userId) {
+function showTopicLearnerItemDetails(store, classId, userId, channelId, contentId,
+  attemptId, interactionIndex) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS);
   store.dispatch('CORE_SET_TITLE', 'Topics - Learner Details');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+  _showExerciseDetailView(store, classId, userId, channelId, contentId, attemptId, interactionIndex);
 }
 
 function showLearnerList(store, classId) {
@@ -472,15 +478,17 @@ function showLearnerItemList(store, classId, userId, channelId, topicId) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
 }
 
-function showLearnerItemDetails(store, classId, userId, channelId, contentId) {
+function showLearnerItemDetails(store, classId, userId, channelId, contentId,
+  attemptId, interactionIndex) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_DETAILS);
   store.dispatch('CORE_SET_TITLE', 'Learners - Item Details');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
+  _showExerciseDetailView(store, classId, userId, channelId, contentId, attemptId, interactionIndex);
 }
 
 
 module.exports = {
-  showExerciseDetailView, // remove this after making it a helper
+  _showExerciseDetailView, // remove this after making it a helper
   showRecentChannels,
   showRecentItemsForChannel,
   showRecentLearnersForItem,

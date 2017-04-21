@@ -88,7 +88,7 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.RECENT_LEARNER_ITEM_DETAILS,
-          path: '/:classId/recent/:channelId/:contentId/:userId',
+          path: ':classId/recent-learner-item-details/:userId/:channelId/item/:contentId/:attemptId?/:interactionIndex?',
           handler: (to, from) => {
             reportsActions.showRecentLearnerItemDetails(
               store, to.params.classId, to.params.channelId, to.params.contentId, to.params.userId
@@ -133,7 +133,7 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.TOPIC_LEARNER_ITEM_DETAILS,
-          path: '/:classId/topics/:channelId/item/:contentId/:userId',
+          path: ':classId/learner-item-details/:userId/:channelId/item/:contentId/:attemptId?/:interactionIndex?',
           handler: (to, from) => {
             reportsActions.showTopicLearnerItemDetails(
               store, to.params.classId, to.params.channelId, to.params.contentId, to.params.userId
@@ -178,7 +178,7 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.LEARNER_ITEM_DETAILS,
-          path: '/:classId/learners/:userId/:channelId/item/:contentId',
+          path: ':classId/learner-item-details/:userId/:channelId/item/:contentId/:attemptId?/:interactionIndex?',
           handler: (to, from) => {
             reportsActions.showLearnerItemDetails(
               store, to.params.classId, to.params.userId, to.params.channelId, to.params.contentId
@@ -196,7 +196,7 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.EXERCISE_RENDER,
-          path: ':classId/exercise-render/:userId/:channelId/item/:contentId/:attemptId/:interactionIndex',
+          path: ':classId/exercise-render/:userId/:channelId/item/:contentId/:attemptId?/:interactionIndex?',
           handler: (to, from) => {
             reportsActions.showExerciseDetailView(
               store, to.params.classId, to.params.userId, to.params.channelId, to.params.contentId,
