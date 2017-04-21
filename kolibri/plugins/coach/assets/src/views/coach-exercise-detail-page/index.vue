@@ -63,8 +63,34 @@
     },
     computed: {
       backPageLink() {
-        // TODO figure out how this is going to the tab we were on prior
-        return { name: constants.PageNames.CLASS_LIST };
+        if (this.pageName === constants.PageNames.RECENT_LEARNER_ITEM_DETAILS) {
+          return {
+            name: constants.PageNames.RECENT_LEARNERS_FOR_ITEM,
+            params: {
+              classId: this.classId,
+              channelId: this.channelId,
+              contentId: this.contentId,
+            }
+          };
+        }
+        if (this.pageName === constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS) {
+          return {
+            name: constants.PageNames.TOPIC_LEARNERS_FOR_ITEM,
+            params: {
+              classId: this.classId,
+              channelId: this.channelId,
+              contentId: this.contentId,
+            }
+          };
+        }
+        return {
+          name: constants.PageNames.LEARNER_ITEM_LIST,
+          params: {
+            classId: this.classId,
+            channelId: this.channelId,
+            contentId: this.contentId,
+          }
+        };
       },
     },
     methods: {
@@ -108,6 +134,7 @@
         user: state => state.pageState.user,
         exercise: state => state.pageState.exercise,
         summaryLog: state => state.pageState.summaryLog,
+        pageName: state => state.pageName,
       },
     },
   };

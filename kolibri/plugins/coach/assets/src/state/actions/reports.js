@@ -266,7 +266,8 @@ function _showLearnerList(store, options) {
 }
 
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
-function showExerciseDetailView(store, userId, channelId, contentId, attemptId, interactionIndex) {
+function showExerciseDetailView(store, classId, userId, channelId, contentId,
+  attemptId, interactionIndex) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXERCISE_RENDER);
 
@@ -292,15 +293,16 @@ function showExerciseDetailView(store, userId, channelId, contentId, attemptId, 
 
       const pageState = {
         // because this is info returned from a collection
+        user,
         exercise: exercise[0],
+        attemptLogs,
+        currentAttemptLog,
         interactionIndex: Number(interactionIndex),
         currentInteractionHistory,
         currentInteraction: currentInteractionHistory[interactionIndex],
-        currentAttemptLog,
         summaryLog: summaryLog[0],
-        attemptLogs,
         channelId,
-        user,
+        classId,
       };
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
