@@ -557,8 +557,7 @@ function showExam(store, channelId, id, questionNumber) {
 
         const attemptLogs = {};
 
-        if (store.state.core.session.user_id &&
-          store.state.core.session.kind[0] !== CoreConstants.UserKinds.SUPERUSER) {
+        if (store.state.core.session.user_id && !coreGetters.isSuperuser(store.state)) {
           if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
             store.dispatch('SET_EXAM_LOG', _examLoggingState(examLogs.find(log => !log.closed)));
           } else {
