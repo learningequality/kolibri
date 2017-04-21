@@ -1,11 +1,30 @@
 <template>
 
-  <div class="task">
-    <h1>{{ title }}</h1>
-    <progress max="1" :value="percentage"></progress>
+  <div class="TaskStatus">
+    <!-- Progress bar element, status label -->
+    <div class="Bar dtc">
+      <div class="Bar__statusMsg">Exporting Khan Academy...</div>
+      <progress class="Bar_bar" max="1" :value="percentage"></progress>
+    </div>
+
+    <!-- Bytes downloaded, time remaining -->
+    <div class="Stats dtc">
+      <span class="Stats__percentage dib">
+        {{ percentage * 100 }}%
+      </span>
+      <span class="Stats__time dib">
+        {{ (1 - percentage) * 60 }} minutes left
+      </span>
+    </div>
+
+    <!-- Cancel button -->
+    <div class="Controls dtc">
+      <button @click="clearTaskHandler()">Cancel export</button>
+    </div>
+    <!-- <h1>{{ title }}</h1>
     <h2>{{ subTitle }}</h2>
     <p v-if="statusFailed">{{ $tr('failedMsg') }}</p>
-    <icon-button class="buttons" @click="clearTaskHandler" :text="buttonMessage"/>
+    <icon-button class="buttons" @click="clearTaskHandler" :text="buttonMessage"/> -->
   </div>
 
 </template>
@@ -107,6 +126,29 @@
 <style lang="stylus" scoped>
 
   @require '~kolibri.styles.definitions'
+
+  .dtc
+    display: table-cell
+
+  .TaskStatus
+    display: table
+    font-size: 0.65rem
+    width: 100%
+
+  .Stats
+    vertical-align: middle
+
+  .Bar
+    width: 50%
+    position: relative
+    padding-right: 10px
+    &__bar
+    &__statusMsg
+      position: absolute
+      top: -0.75rem
+
+  .Controls
+    float: right
 
   .buttons
     margin: 10px
