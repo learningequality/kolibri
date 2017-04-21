@@ -10,10 +10,10 @@
     <!-- Bytes downloaded, time remaining -->
     <div class="Stats dtc">
       <span class="Stats__percentage dib">
-        {{ percentage * 100 }}%
+        {{ percentage * 100 | round }}%
       </span>
       <span class="Stats__time dib">
-        {{ (1 - percentage) * 60 }} minutes left
+        {{ (1 - percentage) * completionTimeEstimate | round }} minutes left
       </span>
     </div>
 
@@ -53,7 +53,15 @@
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
     },
+    filters: {
+      round(num) {
+        return Math.round(num);
+      },
+    },
     computed: {
+      completionTimeEstimate() {
+        return 60;
+      },
       buttonMessage() {
         if (this.statusFailed || this.statusSuccess) {
           return this.$tr('buttonClose');
