@@ -17,27 +17,25 @@
       </span>
     </div>
 
-    <!-- Cancel button -->
+    <!-- Buttons -->
     <div class="Controls dtc">
-      <button @click="clearTaskHandler()">Cancel export</button>
+      <button @click="handleClearTask()">{{ buttonMessage }}</button>
     </div>
     <!-- <h1>{{ title }}</h1>
     <h2>{{ subTitle }}</h2>
     <p v-if="statusFailed">{{ $tr('failedMsg') }}</p>
-    <icon-button class="buttons" @click="clearTaskHandler" :text="buttonMessage"/> -->
+    <icon-button class="buttons" @click="handleClearTask" :text="buttonMessage"/> -->
   </div>
 
 </template>
 
 
 <script>
-
   const actions = require('../../state/actions');
   const logging = require('kolibri.lib.logging');
   const constants = require('../../constants');
 
-  const TaskTypes = constants.TaskTypes;
-  const TaskStatuses = constants.TaskStatuses;
+  const { TaskTypes, TaskStatuses } = constants;
 
   module.exports = {
     $trNameSpace: 'contentPage',
@@ -57,7 +55,7 @@
     },
     computed: {
       buttonMessage() {
-        if (this.status === TaskStatuses.FAILED || this.status === TaskStatuses.SUCCESS) {
+        if (this.statusFailed || this.statusSuccess) {
           return this.$tr('buttonClose');
         }
         return this.$tr('buttonCancel');
@@ -91,7 +89,8 @@
       },
     },
     methods: {
-      clearTaskHandler() {
+      handleClearTask() {
+        // send notification
         this.clearTask(this.id);
       },
     },
