@@ -43,7 +43,7 @@
 
 <style lang="stylus" scoped>
 
-  $icon-size = 1.2em
+  $icon-size = 1em
 
   .ui-icon
     font-size: $icon-size

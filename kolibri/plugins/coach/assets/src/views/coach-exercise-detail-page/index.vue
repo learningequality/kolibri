@@ -78,7 +78,7 @@
             channelId: this.channelId,
             userId: this.user.id,
             contentId: this.exercise.content_id,
-            interactionIndex: 0, // is this the first? will it always be?
+            interactionIndex: 0,
             attemptId,
           },
         });

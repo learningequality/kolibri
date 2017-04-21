@@ -10,26 +10,28 @@
         />
         <h1 class="user-name">{{ userName }}</h1>
       </div>
-      <div class="class-name">
+      <div class="exercise-name">
         <content-icon class="svg-icon" :kind="summaryLog.kind"/>
         {{ exerciseTitle }}
       </div>
-      <div class="assessment">
+      <div :class="{'in-progress': !isCompleted, 'assessment': true}" >
         <progress-icon class="svg-icon" :progress="summaryLog.progress"/>
         {{ $tr('mastered') }}
       </div>
     </div>
     <div class="column pure-u-1-4">
-      <div class="inner-column">
+      <div class="status">
         <progress-icon class="svg-icon" :progress="summaryLog.progress"/>
-        <template v-if="isCompleted">
+        <span v-if="isCompleted">
           <strong> {{ $tr('statusMastered') }} </strong>
-          <p>{{ $tr('completedOn', {date:dateCompleted}) }}</p>
-        </template>
-        <template v-else>
-          <strong> {{ $tr('statusAttempted') }} </strong>
-          <p>{{ $tr('lastAttempted', {date:dateLastAttempted}) }}</p>
-        </template>
+          <br />
+          <elapsed-time :date="dateCompleted"/>
+        </span>
+        <span v-else>
+          <strong> {{ $tr('statusInProgress') }} </strong>
+          <br />
+          <elapsed-time :date="dateLastAttempted"/>
+        </span>
       </div>
     </div>
   </div>
@@ -39,21 +41,18 @@
 
 <script>
 
-  const constants = require('kolibri.coreVue.vuex.constants');
-
   module.exports = {
     $trNameSpace: 'coachExercisePageStatus',
     $trs: {
-      // TODO
       statusMastered: 'Mastered',
-      statusAttempted: 'Attempted',
+      statusInProgress: 'In Progress',
       mastered: 'Mastered questions TODO',
-      completedOn: 'on { date }',
-      lastAttempted: 'last on { date }',
+      attemptDateIndicator: 'on { date }',
     },
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
       'progress-icon': require('kolibri.coreVue.components.progressIcon'),
+      'elapsed-time': require('kolibri.coreVue.components.elapsedTime'),
     },
     props: {
       userName: {
@@ -71,29 +70,15 @@
       },
     },
     computed: {
-      channelId() {
-        return '78eed5c0b59b30c0a40c94c17c849af6';
-      },
-      exerciseKind() {
-        return constants.ContentNodeKinds.EXERCISE;
-      },
       isCompleted() {
         return this.summaryLog.currentmasterylog.complete;
       },
       dateCompleted() {
-        return new Date(this.summaryLog.currentmasterylog.end_timestamp);
+        return new Date(this.summaryLog.currentmasterylog.end_timestamp).toLocaleDateString();
       },
       dateLastAttempted() {
         return new Date(this.summaryLog.end_timestamp);
       },
-    },
-    methods: {
-      assessmentText(text) {
-        return this.$tr('assessment', { text });
-      },
-      dateText(date) {
-        return this.$tr('date', { date });
-      }
     },
   };
 
@@ -114,12 +99,15 @@
   .svg-icon
     font-size: 1.3em
 
-  .class-name
+  .exercise-name
     margin-top: 10px
     font-weight: bold
 
   .assessment
     margin-top: 10px
+
+  .in-progress
+    color: #ADADAD
 
   .svg-item
     display: inline-block
@@ -133,7 +121,8 @@
   .column
     float: left
 
-  .inner-column
+  .status
     float: right
+    text-align: right
 
 </style>
