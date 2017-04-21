@@ -1,8 +1,8 @@
 from rest_framework import routers
 
 from .api import (
-    AttemptLogViewSet, ContentRatingLogViewSet, ContentSessionLogViewSet, ContentSummaryLogViewSet, ExamAttemptLogViewSet,
-    ExamLogViewSet, MasteryLogViewSet, UserSessionLogViewSet
+    AttemptLogViewSet, ContentRatingLogViewSet, ContentSessionLogViewSet, ContentSummaryLogViewSet, ExamAttemptLogViewSet, ExamLogViewSet, MasteryLogViewSet,
+    TotalContentProgressViewSet, UserSessionLogViewSet
 )
 from .csv import ContentSessionLogCSVExportViewSet, ContentSummaryLogCSVExportViewSet
 
@@ -16,6 +16,7 @@ router.register(r'masterylog', MasteryLogViewSet)
 router.register(r'attemptlog', AttemptLogViewSet)
 router.register(r'examlog', ExamLogViewSet)
 router.register(r'examattemptlog', ExamAttemptLogViewSet)
+router.register(r'userprogress', TotalContentProgressViewSet)
 
 router.register(r'contentsummarylogcsv', ContentSummaryLogCSVExportViewSet, base_name='contentsummarylogcsv')
 router.register(r'contentsessionlogcsv', ContentSessionLogCSVExportViewSet, base_name='contentsessionlogcsv')

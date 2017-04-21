@@ -1,3 +1,5 @@
+from django.db.models import Sum
+from kolibri.auth.models import FacilityUser
 from kolibri.logger.models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
 from rest_framework import serializers
 
@@ -88,3 +90,14 @@ class UserSessionLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSessionLog
         fields = ('pk', 'user', 'channels', 'start_timestamp', 'last_interaction_timestamp', 'pages')
+
+class TotalContentProgressSerializer(serializers.ModelSerializer):
+
+    progress = serializers.SerializerMethodField()
+
+    class Meta:
+        model = FacilityUser
+        fields = ('progress', )
+
+    def get_progress(self, obj):
+        return obj.contentsummarylog_set.aggregate(Sum('progress')).get('progress__sum')
