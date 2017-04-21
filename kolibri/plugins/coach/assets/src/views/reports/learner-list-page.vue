@@ -73,15 +73,16 @@
     methods: {
       genLink(row) {
         if (this.isExercisePage) {
-          // intended to switch to TOPIC_LEARNER_ITEM_DETAILS
+          const targetName = this.pageName === CoachConstants.PageNames.RECENT_LEARNERS_FOR_ITEM ?
+            CoachConstants.PageNames.RECENT_LEARNER_ITEM_DETAILS :
+            CoachConstants.PageNames.TOPIC_LEARNER_ITEM_DETAILS;
           return {
-            name: CoachConstants.PageNames.EXERCISE_RENDER,
+            name: targetName,
             params: {
+              classId: this.pageState.classId,
               userId: row.id,
               channelId: this.pageState.channelId,
-              contentId: this.pageState.contentScopeSummary.id,
-              attemptId: 0, // ?
-              interactionIndex: 0, // ?
+              contentId: this.pageState.contentScopeSummary.contentId,
             }
           };
         }
@@ -91,6 +92,7 @@
     vuex: {
       getters: {
         pageState: state => state.pageState,
+        pageName: state => state.pageName,
         exerciseCount: reportGetters.exerciseCount,
         contentCount: reportGetters.contentCount,
         standardDataTable: reportGetters.standardDataTable,

@@ -88,10 +88,11 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.RECENT_LEARNER_ITEM_DETAILS,
-          path: ':classId/recent-learner-item-details/:userId/:channelId/item/:contentId/:attemptId?/:interactionIndex?',
+          path: '/:classId/recent-learner-item-details/:userId/:channelId/item/:contentId/:questionNumber?/:interactionIndex?',
           handler: (to, from) => {
             reportsActions.showRecentLearnerItemDetails(
-              store, to.params.classId, to.params.channelId, to.params.contentId, to.params.userId
+              store, to.params.classId, to.params.userId, to.params.channelId, to.params.contentId,
+                Number(to.params.questionNumber), Number(to.params.interactionIndex)
             );
           },
         },
@@ -133,11 +134,11 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.TOPIC_LEARNER_ITEM_DETAILS,
-          path: ':classId/learner-item-details/:userId/:channelId/item/:contentId/:attemptId?/:interactionIndex?',
+          path: '/:classId/learner-item-details/:userId/:channelId/item/:contentId/:questionNumber?/:interactionIndex?',
           handler: (to, from) => {
             reportsActions.showTopicLearnerItemDetails(
-              store, to.params.classId, to.params.channelId, to.params.contentId, to.params.userId
-            );
+              store, to.params.classId, to.params.userId, to.params.channelId, to.params.contentId,
+                Number(to.params.questionNumber), Number(to.params.interactionIndex));
           },
         },
         {
@@ -178,11 +179,11 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.LEARNER_ITEM_DETAILS,
-          path: ':classId/learner-item-details/:userId/:channelId/item/:contentId/:attemptId?/:interactionIndex?',
+          path: '/:classId/learner-item-details/:userId/:channelId/item/:contentId/:questionNumber?/:interactionIndex?',
           handler: (to, from) => {
             reportsActions.showLearnerItemDetails(
-              store, to.params.classId, to.params.userId, to.params.channelId, to.params.contentId
-            );
+              store, to.params.classId, to.params.userId, to.params.channelId, to.params.contentId,
+                Number(to.params.questionNumber), Number(to.params.interactionIndex));
           },
         },
         {
@@ -196,11 +197,11 @@ class CoachToolsModule extends KolibriModule {
         },
         {
           name: PageNames.EXERCISE_RENDER,
-          path: ':classId/exercise-render/:userId/:channelId/item/:contentId/:attemptId?/:interactionIndex?',
+          path: '/:classId/exercise-render/:userId/:channelId/item/:contentId/:questionNumber?/:interactionIndex?',
           handler: (to, from) => {
             reportsActions.showExerciseDetailView(
               store, to.params.classId, to.params.userId, to.params.channelId, to.params.contentId,
-                to.params.attemptId, to.params.interactionIndex
+                Number(to.params.questionNumber), Number(to.params.interactionIndex)
             );
           },
         },

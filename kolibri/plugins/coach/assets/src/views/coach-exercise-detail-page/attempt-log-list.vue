@@ -5,7 +5,13 @@
 
     <ul class="history-list">
       <template v-for="attemptLog in attemptLogs">
-        <li @click="setSelectedAttemptLogId(attemptLog.id)" :class="{selected: isSelected(attemptLog.id), clickable: true}">
+        <li
+          @click="setSelectedAttemptLog(attemptLog.questionNumber)"
+          :class="{
+            selected: isSelected(attemptLog.questionNumber),
+            clickable: true
+          }"
+        >
             <mat-svg
               v-if="attemptLog.correct"
               class="item svg-item svg-correct"
@@ -25,7 +31,7 @@
               name="lightbulb_outline"
             />
             <h3 class="item">
-              {{ questionText(attemptLog.id)}}
+              {{ $tr('question', {questionNumber: attemptLog.questionNumber})}}
             </h3>
         </li>
       </template>
@@ -44,28 +50,24 @@
       today: 'Today',
       yesterday: 'Yesterday',
       daysAgo: ' { daysElapsed } days ago',
-      question: 'Question { number }',
+      question: 'Question { questionNumber, number }',
     },
     props: {
       attemptLogs: {
         type: Array,
         required: true,
       },
-      selectedAttemptId: {
+      selectedQuestionNumber: {
         required: true,
         default: 0,
       },
     },
     methods: {
-      questionText(number) {
-        return this.$tr('question', { number });
+      setSelectedAttemptLog(questionNumber) {
+        this.$emit('select', questionNumber);
       },
-      setSelectedAttemptLogId(id) {
-        this.selectedId = id;
-        this.$emit('select', id);
-      },
-      isSelected(id) {
-        return this.selectedAttemptId === id;
+      isSelected(questionNumber) {
+        return this.selectedQuestionNumber === questionNumber;
       },
     },
   };

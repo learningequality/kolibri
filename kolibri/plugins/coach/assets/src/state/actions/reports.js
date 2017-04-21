@@ -267,42 +267,74 @@ function _showLearnerList(store, options) {
 
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
 function _showExerciseDetailView(store, classId, userId, channelId, contentId,
-  attemptId, interactionIndex) {
+  questionNumber, interactionIndex) {
+  console.log('arrived in our action');
   Promise.all([
     ContentNodeResource.getCollection({ channel_id: channelId }, { content_id: contentId }).fetch(),
     AttemptLogResource.getCollection({ user: userId, content: contentId }).fetch(),
     SummaryLogResource.getCollection({ user_id: userId, content_id: contentId }).fetch(),
     FacilityUserResource.getModel(userId).fetch(),
   ]).then(
-    ([exercise, attemptLogs, summaryLog, user]) => {
+    ([exercises, attemptLogs, summaryLog, user]) => {
+      function parseJSONorUndefined(json) {
+        try {
+          return JSON.parse(json);
+        } catch (e) {
+          if (!(e instanceof SyntaxError)) {
+            throw e;
+          }
+        }
+        return undefined;
+      }
       // MAPPERS NEEDED
       // attemptLogState
       // attemptLogListState
       // interactionState
       // InteractionHistoryState
       // user?
+
+      const exercise = exercises[0];
+
+      // FIRST LOOP: Sort them by most recent
       attemptLogs.sort(
         (attemptLog1, attemptLog2) =>
           new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
       );
 
+      const exerciseQuestions = parseJSONorUndefined(
+        exercise.assessmentmetadata[0].assessment_item_ids
+      );
+      // SECOND LOOP: Add their question number
+      if (exerciseQuestions) {
+        attemptLogs.forEach(
+          attemptLog => {
+            attemptLog.questionNumber = (exerciseQuestions.indexOf(attemptLog.item) + 1);
+          }
+        );
+      }
+
+
+      // THIRD LOOP: Return the current attempt
       const currentAttemptLog = () => {
-        if (attemptId) {
-          attemptLogs.find(attemptLog => attemptLog.id === attemptId);
+        if (questionNumber) {
+          return attemptLogs.find(
+            attemptLog => attemptLog.questionNumber === questionNumber
+          );
         }
         return attemptLogs[0];
       };
-      const currentInteractionHistory = JSON.parse(currentAttemptLog.interaction_history);
+
+      const currentInteractionHistory = JSON.parse(currentAttemptLog().interaction_history);
 
       const pageState = {
         // because this is info returned from a collection
         user,
-        exercise: exercise[0],
+        exercise,
         attemptLogs,
-        currentAttemptLog,
-        interactionIndex: Number(interactionIndex) || 0,
+        currentAttemptLog: currentAttemptLog(),
+        interactionIndex: interactionIndex || 0,
         currentInteractionHistory,
-        currentInteraction: currentInteractionHistory[interactionIndex],
+        currentInteraction: currentInteractionHistory[interactionIndex || 0],
         summaryLog: summaryLog[0],
         channelId,
         classId,
@@ -310,8 +342,10 @@ function _showExerciseDetailView(store, classId, userId, channelId, contentId,
       store.dispatch('SET_PAGE_STATE', pageState);
       store.dispatch('CORE_SET_PAGE_LOADING', false);
     },
-      error => { coreActions.handleApiError(store, error); }
-    );
+    error => {
+      coreActions.handleApiError(store, error);
+    }
+  );
 }
 
 
@@ -380,11 +414,12 @@ function showRecentLearnersForItem(store, classId, channelId, contentId) {
 }
 
 function showRecentLearnerItemDetails(store, classId, userId, channelId, contentId,
-  attemptId, interactionIndex) {
+  questionNumber, interactionIndex) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.RECENT_LEARNER_ITEM_DETAILS);
   store.dispatch('CORE_SET_TITLE', 'Recent - Learner Details');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  _showExerciseDetailView(store, classId, userId, channelId, contentId, attemptId, interactionIndex);
+  _showExerciseDetailView(store, classId, userId, channelId, contentId,
+    questionNumber, interactionIndex);
 }
 
 function showTopicChannels(store, classId) {
@@ -446,11 +481,12 @@ function showTopicLearnersForItem(store, classId, channelId, contentId) {
 }
 
 function showTopicLearnerItemDetails(store, classId, userId, channelId, contentId,
-  attemptId, interactionIndex) {
+  questionNumber, interactionIndex) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.TOPIC_LEARNER_ITEM_DETAILS);
   store.dispatch('CORE_SET_TITLE', 'Topics - Learner Details');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  _showExerciseDetailView(store, classId, userId, channelId, contentId, attemptId, interactionIndex);
+  _showExerciseDetailView(store, classId, userId, channelId, contentId,
+    questionNumber, interactionIndex);
 }
 
 function showLearnerList(store, classId) {
@@ -479,11 +515,12 @@ function showLearnerItemList(store, classId, userId, channelId, topicId) {
 }
 
 function showLearnerItemDetails(store, classId, userId, channelId, contentId,
-  attemptId, interactionIndex) {
+  questionNumber, interactionIndex) {
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.LEARNER_ITEM_DETAILS);
   store.dispatch('CORE_SET_TITLE', 'Learners - Item Details');
   store.dispatch('CORE_SET_PAGE_LOADING', true);
-  _showExerciseDetailView(store, classId, userId, channelId, contentId, attemptId, interactionIndex);
+  _showExerciseDetailView(store, classId, userId, channelId, contentId,
+    questionNumber, interactionIndex);
 }
 
 

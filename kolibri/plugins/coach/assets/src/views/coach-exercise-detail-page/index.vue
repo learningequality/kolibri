@@ -13,7 +13,7 @@
         <div class="attempt-log-container">
           <attempt-log-list
             :attempt-logs="attemptLogs"
-            :selectedAttemptId="currentAttemptLog.id"
+            :selectedQuestionNumber="currentAttemptLog.questionNumber"
             @select="navigateToNewAttempt($event)"
           />
         </div>
@@ -27,7 +27,7 @@
 
           <content-renderer
             class="content-renderer"
-            :id="exercise.content_id"
+            :id="exercise.pk"
             :itemId="currentAttemptLog.item"
             :allowHints="false"
             :kind="exercise.kind"
@@ -97,26 +97,26 @@
       backtoText(text) {
         return this.$tr('backto', { text });
       },
-      navigateToNewAttempt(attemptId) {
+      navigateToNewAttempt(questionNumber) {
         this.$router.push({
-          name: constants.PageNames.EXERCISE_RENDER,
+          name: this.pageName,
           params: {
             channelId: this.channelId,
             userId: this.user.id,
             contentId: this.exercise.content_id,
             interactionIndex: 0,
-            attemptId,
+            questionNumber,
           },
         });
       },
       navigateToNewInteraction(interactionIndex) {
         this.$router.push({
-          name: constants.PageNames.EXERCISE_RENDER,
+          name: this.pageName,
           params: {
             channelId: this.channelId,
             userId: this.user.id,
             contentId: this.exercise.content_id,
-            attemptId: this.currentAttemptLog.id,
+            questionNumber: this.currentAttemptLog.questionNumber,
             interactionIndex,
           },
         });
