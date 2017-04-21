@@ -15,19 +15,21 @@
         <div class="attempt-log-container column">
           <attempt-log-list
             :attempt-logs="examAttempts"
-
+            :selectedAttemptId="currentAttempt.id"
+            @select="navigateToAttempt"
           />
         </div>
         <div class="exercise-container column">
           <interaction-list
             :interactions="currentInteractionHistory"
-            :attemptNumber.number="questionNumber"
+            :attemptNumber="questionNumber"
             :currentInteractionIndex="currentInteractionIndex"
+            @select="navigateToInteraction"
           />
 
           <content-renderer
             class="content-renderer"
-            :id="exercise.content_id"
+            :id="exercise.pk"
             :itemId="itemId"
             :allowHints="false"
             :kind="exercise.kind"
@@ -74,6 +76,27 @@
         };
       },
     },
+    methods: {
+      navigateToAttempt(questionNumber) {
+        this.navigateTo(questionNumber, 0);
+      },
+      navigateToInteraction(interactionIndex) {
+        this.navigateTo(this.questionNumber, interactionIndex);
+      },
+      navigateTo(question, interactionIndex) {
+        this.$router.push({
+          name: constants.PageNames.EXAM_REPORT_DETAIL,
+          params: {
+            channelId: this.channelId,
+            classId: this.classId,
+            userId: this.userId,
+            interactionIndex,
+            question,
+            examId: this.exam.id,
+          },
+        });
+      }
+    },
     vuex: {
       getters: {
         channelId: state => state.pageState.channelId,
@@ -81,6 +104,7 @@
         examAttempts: state => state.pageState.examAttempts,
         exam: state => state.pageState.exam,
         userName: state => state.pageState.user.full_name,
+        userId: state => state.pageState.user.id,
         currentAttempt: state => state.pageState.currentAttempt,
         currentInteractionHistory: state => state.pageState.currentInteractionHistory,
         currentInteraction: state => state.pageState.currentInteraction,
