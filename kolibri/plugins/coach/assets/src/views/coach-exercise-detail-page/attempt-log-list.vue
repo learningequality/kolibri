@@ -25,7 +25,7 @@
               name="lightbulb_outline"
             />
             <h3 class="item">
-              {{ questionText(Number(attemptLog.id) + 1) }}
+              {{ questionText(attemptLog.id)}}
             </h3>
         </li>
       </template>

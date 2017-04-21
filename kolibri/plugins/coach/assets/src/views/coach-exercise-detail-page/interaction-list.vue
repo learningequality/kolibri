@@ -2,7 +2,7 @@
 
   <div class="interaction-list">
   <!--TODO-->
-    <h3 class="header">{{ $tr('questionHeader', {questionNumber: attemptNumber + 1}) }}</h3>
+    <h3 class="header">{{ $tr('questionHeader', {questionNumber: attemptNumber }) }}</h3>
     <p>{{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}</p>
     <div class="attempt-container">
 
