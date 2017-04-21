@@ -555,7 +555,7 @@ function createMasteryLog(store, masteryLevel, masteryCriterion) {
     totalattempts: 0,
     mastery_criterion: masteryCriterion,
   });
-  // Premptively set attributes
+  // Preemptively set attributes
   store.dispatch('SET_LOGGING_MASTERY_STATE', masteryLogModel.attributes);
   // Save to the server
   return masteryLogModel.save(masteryLogModel.attributes).only(

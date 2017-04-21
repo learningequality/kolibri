@@ -1,36 +1,24 @@
 <template>
 
   <tr>
-    <td class="col-icon">
-      <content-icon :kind="topic"/>
-    </td>
+    <th class="col-checkbox">
+      <input
+        type="checkbox"
+        :checked="allExercisesWithinTopicSelected"
+        :indeterminate.prop="someExercisesWithinTopicSelected"
+        :disabled="!topicHasExercises"
+        @change="changeSelection"
+      >
+    </th>
     <td class="col-title">
+      <content-icon :kind="topic" :class="{ disabled: !topicHasExercises }"/>
       <button v-if="topicHasExercises" class="title" @click="$emit('goToTopic', topicId)">{{ topicTitle }}</button>
-      <span v-else>{{ topicTitle }}</span>
+      <span v-else class="disabled">{{ topicTitle }}</span>
     </td>
-    <td class="col-add">
-      <icon-button
-        v-if="topicHasExercises && allExercisesWithinTopicSelected"
-        :text="$tr('removeAllExercises')"
-        :primary="false"
-        @click="$emit('removeTopicExercises', allExercisesWithinTopic, topicTitle)">
-        <mat-svg category="content" name="remove"/>
-      </icon-button>
-      <icon-button
-        v-else-if="topicHasExercises && noExercisesWithinTopicSelected"
-        :text="$tr('addAllExercises')"
-        :primary="true"
-        @click="$emit('addTopicExercises', allExercisesWithinTopic, topicTitle)">
-        <mat-svg category="content" name="add"/>
-      </icon-button>
-      <icon-button
-        v-else-if="topicHasExercises && someExercisesWithinTopicSelected"
-        :text="$tr('addAllExercises')"
-        :primary="true"
-        @click="$emit('addTopicExercises', allExercisesWithinTopic, topicTitle)">
-        <mat-svg category="content" name="add"/>
-      </icon-button>
-      <span v-else>{{ $tr('noExercises') }}</span>
+    <td class="col-selection">
+      <template v-if="!noExercisesWithinTopicSelected">
+      {{ $tr('exercisesSelected', { selected: numExercisesWithinTopicSelected, total: numExercisesWithinTopic })}}
+      </template>
     </td>
   </tr>
 
@@ -44,9 +32,8 @@
   module.exports = {
     $trNameSpace: 'topicRow',
     $trs: {
-      removeAllExercises: 'Remove all exercises',
-      addAllExercises: 'Add all exercises',
-      noExercises: 'No exercises within topic',
+      exercisesSelected: '{selected, number} of {total, number} {total, plural, one {exercise} other {exercises}} selected',
+
     },
     components: {
       'content-icon': require('kolibri.coreVue.components.contentIcon'),
@@ -77,8 +64,16 @@
       topicHasExercises() {
         return this.allExercisesWithinTopic.length !== 0;
       },
+      numExercisesWithinTopic() {
+        return this.allExercisesWithinTopic.length;
+      },
+      numExercisesWithinTopicSelected() {
+        return this.allExercisesWithinTopic.filter(
+          exercise => this.selectedExercises.some(
+            selectedExercise => selectedExercise.id === exercise.id)).length;
+      },
       allExercisesWithinTopicSelected() {
-        if (this.allExercisesWithinTopic.length === 0) {
+        if (!this.topicHasExercises) {
           return false;
         }
         return this.allExercisesWithinTopic.every(
@@ -94,6 +89,15 @@
         return !this.allExercisesWithinTopicSelected && !this.noExercisesWithinTopicSelected;
       }
     },
+    methods: {
+      changeSelection() {
+        if (this.allExercisesWithinTopicSelected) {
+          this.$emit('removeTopicExercises', this.allExercisesWithinTopic, this.topicTitle);
+        } else {
+          this.$emit('addTopicExercises', this.allExercisesWithinTopic, this.topicTitle);
+        }
+      },
+    },
   };
 
 </script>
@@ -107,6 +111,9 @@
     padding: 0
     border: none
     font-size: 1em
+
+  .disabled
+    color: $core-text-disabled
 
 </style>
 
