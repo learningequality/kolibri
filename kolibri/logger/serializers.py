@@ -1,4 +1,5 @@
 from django.db.models import Sum
+from django.utils.timezone import now
 from kolibri.logger.models import AttemptLog, ContentRatingLog, ContentSessionLog, ContentSummaryLog, ExamAttemptLog, ExamLog, MasteryLog, UserSessionLog
 from rest_framework import serializers
 
@@ -22,7 +23,14 @@ class ExamLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExamLog
-        fields = ('id', 'exam', 'user', 'closed', 'progress', 'score')
+        fields = ('id', 'exam', 'user', 'closed', 'progress', 'score', 'completion_timestamp')
+        read_only_fields = ('completion_timestamp')
+
+    def update(self, instance, validated_data):
+        # This has changed, set the completion timestamp
+        if validated_data.get('closed') and not instance.closed:
+            instance.completion_timestamp = now()
+        return instance
 
 class MasteryLogSerializer(serializers.ModelSerializer):
 
