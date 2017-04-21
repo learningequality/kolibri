@@ -3,7 +3,6 @@ const logging = require('kolibri.lib.logging');
 const getters = require('kolibri.coreVue.vuex.getters');
 
 const ClassroomResource = coreApp.resources.ClassroomResource;
-const FacilityResource = coreApp.resources.FacilityResource;
 const MembershipResource = coreApp.resources.MembershipResource;
 const FacilityUserResource = coreApp.resources.FacilityUserResource;
 const TaskResource = coreApp.resources.TaskResource;
@@ -42,13 +41,6 @@ function _classState(data) {
     learner_count: data.learner_count,
     coach_count: data.coach_count,
     admin_count: data.admin_count,
-  };
-}
-
-function _facilityState(data) {
-  return {
-    id: data.id,
-    name: data.name,
   };
 }
 
@@ -137,15 +129,12 @@ function displayModal(store, modalName) {
 
 /**
  * Do a POST to create new class
- * @param {Object} stateClassData
- * @param {string} stateClassData.name
- * @param {string} stateClassData.facilityId
- *  Needed: name
+ * @param {string} name
  */
-function createClass(store, stateClassData) {
+function createClass(store, name) {
   const classData = {
-    name: stateClassData.name,
-    parent: stateClassData.facilityId,
+    name,
+    parent: store.state.core.session.facility_id,
   };
 
   ClassroomResource.createModel(classData).save().then(
@@ -226,17 +215,12 @@ function showClassesPage(store) {
   preparePage(store.dispatch, { name: PageNames.CLASS_MGMT_PAGE, title: 'Classes' });
   const classCollection = ClassroomResource.getCollection();
   const classPromise = classCollection.fetch({}, true);
-  const facilityCollection = FacilityResource.getCollection();
-  const facilityPromise = facilityCollection.fetch();
-
-  const promises = [facilityPromise, classPromise];
-
+  const promises = [classPromise];
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([facility, classes]) => {
+    ([classes]) => {
       const pageState = {
         modalShown: false,
-        facility: _facilityState(facility[0]), // for mvp, we assume only one facility exists
         classes: classes.map(_classState),
       };
 
@@ -275,8 +259,6 @@ function showClassEditPage(store, classId) {
 function showClassEnrollPage(store, classId) {
   preparePage(store.dispatch, { name: PageNames.CLASS_ENROLL_MGMT_PAGE, title: 'Classes' });
 
-  // current facility
-  const facilityPromise = FacilityResource.getCollection().fetch();
   // all users in facility
   const userPromise = FacilityUserResource.getCollection().fetch({}, true);
   // current class
@@ -285,11 +267,10 @@ function showClassEnrollPage(store, classId) {
   const classUsersPromise =
     FacilityUserResource.getCollection({ member_of: classId }).fetch({}, true);
 
-  ConditionalPromise.all([facilityPromise, userPromise, classPromise, classUsersPromise]).only(
+  ConditionalPromise.all([userPromise, classPromise, classUsersPromise]).only(
     samePageCheckGenerator(store),
-    ([facility, facilityUsers, classroom, classUsers]) => {
+    ([facilityUsers, classroom, classUsers]) => {
       const pageState = {
-        facility: _facilityState(facility[0]),
         facilityUsers: facilityUsers.map(_userState),
         classUsers: classUsers.map(_userState),
         class: classroom,
@@ -352,7 +333,7 @@ function assignUserRole(user, kind) {
  */
 function createUser(store, stateUserData) {
   const userData = {
-    facility: store.state.pageState.facility.id,
+    facility: store.state.core.session.facility_id,
     username: stateUserData.username,
     full_name: stateUserData.full_name,
     password: stateUserData.password,
@@ -481,16 +462,14 @@ function showUserPage(store) {
   preparePage(store.dispatch, { name: PageNames.USER_MGMT_PAGE, title: _managePageTitle('Users') });
 
   const userCollection = FacilityUserResource.getCollection();
-  const facilityPromise = FacilityResource.getCollection().fetch();
   const userPromise = userCollection.fetch({}, true);
 
-  const promises = [facilityPromise, userPromise];
+  const promises = [userPromise];
 
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([facility, users]) => {
+    ([users]) => {
       const pageState = {
-        facility: _facilityState(facility[0]),
         facilityUsers: users.map(_userState),
         modalShown: false,
       };

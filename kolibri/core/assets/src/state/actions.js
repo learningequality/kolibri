@@ -5,6 +5,7 @@ const MasteryLoggingMap = require('../constants').MasteryLoggingMap;
 const AttemptLoggingMap = require('../constants').AttemptLoggingMap;
 const InteractionTypes = require('../constants').InteractionTypes;
 const getDefaultChannelId = require('kolibri.coreVue.vuex.getters').getDefaultChannelId;
+const logging = require('kolibri.lib.logging').getLogger(__filename);
 
 const intervalTimer = require('../timer');
 
@@ -200,12 +201,25 @@ function kolibriLogout(store) {
 
 function getCurrentSession(store) {
   const coreApp = require('kolibri');
-  const SessionResource = coreApp.resources.SessionResource;
+  const { SessionResource, FacilityResource } = coreApp.resources;
   const id = 'current';
   const sessionModel = SessionResource.getModel(id);
   const sessionPromise = sessionModel.fetch({});
   return sessionPromise.then((session) => {
+    if (!session.facility_id) {
+      // device owners users aren't associated with a facility, so just choose one
+      logging.info('No facilty ID set on session. Fetching facility list...');
+      const facilityCollection = FacilityResource.getCollection();
+      const facilityPromise = facilityCollection.fetch();
+      return facilityPromise.then(facilties => {
+        session.facility_id = facilties[0].id;
+        logging.info(`Setting facility ${session.facility_id}`);
+        store.dispatch('CORE_SET_SESSION', _sessionState(session));
+      });
+    }
+    logging.info('Session set.');
     store.dispatch('CORE_SET_SESSION', _sessionState(session));
+    return null;
   }).catch(error => { handleApiError(store, error); });
 }
 
