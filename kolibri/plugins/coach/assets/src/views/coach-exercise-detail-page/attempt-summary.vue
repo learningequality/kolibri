@@ -14,9 +14,9 @@
         <content-icon class="svg-icon" :kind="summaryLog.kind"/>
         {{ exerciseTitle }}
       </div>
-      <div :class="{'in-progress': !isCompleted, 'assessment': true}" >
+      <div :class="{'in-progress': !isCompleted, 'requirements': true}" >
         <progress-icon class="svg-icon" :progress="summaryLog.progress"/>
-        {{ $tr('mastered') }}
+        {{ requirementsString }}
       </div>
     </div>
     <div class="column pure-u-1-4">
@@ -46,7 +46,7 @@
     $trs: {
       statusMastered: 'Mastered',
       statusInProgress: 'In Progress',
-      mastered: 'Mastered questions TODO',
+      requirementsMOfN: 'Mastery: {m ,number} out of {n, number} correct',
       attemptDateIndicator: 'on { date }',
     },
     components: {
@@ -79,6 +79,16 @@
       dateLastAttempted() {
         return new Date(this.summaryLog.end_timestamp);
       },
+      requirementsString() {
+        const requirements = JSON.parse(this.summaryLog.currentmasterylog.mastery_criterion);
+        // TODO might be more types?
+        // if (requirements.type === 'm_of_n') {
+        return this.$tr('requirementsMOfN', {
+          m: requirements.m,
+          n: requirements.n,
+        });
+        // }
+      },
     },
   };
 
@@ -103,7 +113,7 @@
     margin-top: 10px
     font-weight: bold
 
-  .assessment
+  .requirements
     margin-top: 10px
 
   .in-progress

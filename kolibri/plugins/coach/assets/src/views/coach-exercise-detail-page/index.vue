@@ -105,7 +105,6 @@
         currentInteraction: state => state.pageState.currentInteraction,
         currentInteractionHistory: state => state.pageState.currentInteractionHistory,
         channelId: state => state.pageState.channelId,
-        attemptId: state => state.pageState.attemptId,
         user: state => state.pageState.user,
         exercise: state => state.pageState.exercise,
         summaryLog: state => state.pageState.summaryLog,
