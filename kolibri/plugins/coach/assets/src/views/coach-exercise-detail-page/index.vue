@@ -4,7 +4,7 @@
     <template slot="text"> {{ $tr('backPrompt', {exerciseTitle: exercise.title}) }} </template>
     <template slot="body">
       <div class="summary-container">
-        <page-status
+        <attempt-summary
           :exerciseTitle="exercise.title"
           :userName="user.full_name"
           :summaryLog="summaryLog"/>
@@ -57,7 +57,7 @@
     components: {
       'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
       'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
-      'page-status': require('./page-status'),
+      'attempt-summary': require('./attempt-summary'),
       'attempt-log-list': require('./attempt-log-list'),
       'interaction-list': require('./interaction-list'),
     },

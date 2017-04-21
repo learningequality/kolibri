@@ -290,8 +290,6 @@ function showExerciseDetailView(store, userId, channelId, contentId, attemptId, 
       // InteractionHistoryState
       // user?
 
-      console.log('summaryLog', summaryLog[0]);
-
       const pageState = {
         // because this is info returned from a collection
         exercise: exercise[0],

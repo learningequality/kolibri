@@ -1,6 +1,6 @@
 <template>
 
-  <div class="page-status">
+  <div class="attempt-summary">
     <div class="column pure-u-3-4">
       <div class="user-name-container">
         <mat-svg
@@ -104,7 +104,7 @@
 
   @require '~kolibri.styles.definitions'
 
-  .page-status
+  .attempt-summary
     background-color: $core-bg-light
     height: 100%
 

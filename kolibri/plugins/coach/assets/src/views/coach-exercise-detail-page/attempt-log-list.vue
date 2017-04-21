@@ -5,15 +5,6 @@
 
     <ul class="history-list">
       <template v-for="attemptLog in attemptLogs">
-        <!--p v-if="index === 0" class="item">
-          TODO modify elapsed-time to do Days only?
-          {{ daysElapsedText(attemptLog.daysElapsed) }}
-        </p>
-        <li v-else-if="attemptLogs[index - 1].daysElapsed != attemptLog.daysElapsed">
-          <p class="item">
-            {{ daysElapsedText(attemptLog.daysElapsed) }}
-          </p>
-        </li-->
         <li @click="setSelectedAttemptLogId(attemptLog.id)" :class="{selected: isSelected(attemptLog.id), clickable: true}">
             <mat-svg
               v-if="attemptLog.correct"
@@ -34,7 +25,7 @@
               name="lightbulb_outline"
             />
             <h3 class="item">
-              {{ questionText(attemptLog.id + 1) }}
+              {{ questionText(Number(attemptLog.id) + 1) }}
             </h3>
         </li>
       </template>
