@@ -41,7 +41,7 @@
       classes: 'Classes',
       content: 'Content',
       data: 'Data',
-      facilities: 'Facilities',
+      facilities: 'Facility',
       users: 'Users',
     },
     methods: {

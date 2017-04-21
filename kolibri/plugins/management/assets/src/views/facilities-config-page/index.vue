@@ -129,7 +129,7 @@
       learnerCanEditUsername: 'Allow users to edit their username',
       learnerCanSignUp: 'Allow users to sign-up on this device',
       pageDescription: 'Configure and change different Facility settings here.',
-      pageHeader: 'Facilities Configuration',
+      pageHeader: 'Facility Configuration',
       resetToDefaultSettings: 'Reset to default settings',
       saveChanges: 'Save changes',
       settingsHeader: 'Facility Settings',
