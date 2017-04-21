@@ -1,5 +1,6 @@
 const coreApp = require('kolibri');
 const logging = require('kolibri.lib.logging');
+const getters = require('kolibri.coreVue.vuex.getters');
 
 const ClassroomResource = coreApp.resources.ClassroomResource;
 const FacilityResource = coreApp.resources.FacilityResource;
@@ -507,6 +508,12 @@ function showUserPage(store) {
 
 function showContentPage(store) {
   preparePage(store.dispatch, { name: PageNames.CONTENT_MGMT_PAGE, title: _managePageTitle('Content') });
+
+  if (!getters.isSuperuser(store.state)) {
+    store.dispatch('CORE_SET_PAGE_LOADING', false);
+    return;
+  }
+
   const taskCollectionPromise = TaskResource.getCollection().fetch();
   taskCollectionPromise.only(
     samePageCheckGenerator(store),

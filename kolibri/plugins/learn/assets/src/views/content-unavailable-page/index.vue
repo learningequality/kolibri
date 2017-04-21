@@ -18,7 +18,7 @@
     $trs: {
       header: 'No content channels available',
       adminLink: 'Download content channels from the <a href="/management/#/content">Content Management</a> page',
-      notAdmin: 'You need to log in as an administrator to manage content',
+      notAdmin: 'You need to log in as the Device Owner to manage content. (This is the account originally created in the Setup Wizard.)',
     },
     vuex: {
       getters: {
