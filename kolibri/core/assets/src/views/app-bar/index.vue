@@ -10,6 +10,7 @@
     :style="{ height: height + 'px' }">
     <div slot="actions">
       <slot name="app-bar-actions"/>
+      <span v-if="isSuperuser" class="superuser">{{ $tr('superuser') }}</span>
       <ui-icon-button
         v-if="isUserLoggedIn"
         icon="person"
@@ -57,6 +58,7 @@
       editProfile: 'Edit Profile',
       signOut: 'Sign Out',
       signIn: 'Sign In',
+      superuser: 'Signed in as a Device Owner',
       learnerDetails: '{username} (Learner)',
       coachDetails: '{username} (Coach)',
       adminDetails: '{username} (Admin)',
@@ -141,6 +143,14 @@
   };
 
 </script>
+
+
+<style lang="stylus" scoped>
+
+  .superuser
+    font-size: smaller
+
+</style>
 
 
 <style lang="stylus">
