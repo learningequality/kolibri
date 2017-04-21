@@ -4,7 +4,7 @@
     <div class="top-buttons pure-g">
 
       <div :class="windowSize.breakpoint > 2 ? 'pure-u-1-2' : 'pure-u-1-1 align-center'">
-        <router-link :to="editClassLink">
+        <router-link :to="editClassLink" class="link-button">
           <icon-button
             :text="$tr('backToClassDetails')"
             :primary="false">
@@ -31,37 +31,53 @@
       :selectedUsers="selectedUsers"/>
 
     <h1>{{ $tr('selectLearners') }} {{ className }}</h1>
-    <h2 class="subheader-text">{{ $tr('showingAllUnassigned') }}</h2>
+    <p>{{ $tr('showingAllUnassigned') }}</p>
 
-    <div class="toolbar">
-      <div class="search-box" role="search">
-        <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
-        <input
-          :aria-label="$tr('searchForUser')"
-          type="search"
-          v-model="filterInput"
-          :placeholder="$tr('searchForUser')"
-          @input="pageNum = 1">
-      </div>
-    </div>
+    <p v-if="facilityUsers.length === 0">{{ $tr('noUsersExist') }}</p>
 
-    <ui-switch
-      name="showSelectedUsers"
-      :label="$tr('selectedUsers')"
-      v-model="showSelectedUsers"
-      class="switch"/>
-
-
-    <p v-if="usersNotInClass.length === 0">{{ $tr('noUsersExist') }}</p>
-    <p v-else-if="showSelectedUsers && filteredUsers.length === 0">{{ $tr('noUsersSelected') }}</p>
-    <p v-else-if="filteredUsers.length === 0">{{ $tr('noUsersMatch') }} <strong>"{{ filterInput }}"</strong></p>
+    <p v-else-if="usersNotInClass.length === 0">{{ $tr('allUsersAlready') }}</p>
 
     <div v-else>
+
+      <div class="toolbar">
+        <div class="search-box" role="search">
+          <mat-svg class="icon" category="action" name="search" aria-hidden="true"/>
+          <input
+            :aria-label="$tr('searchForUser')"
+            type="search"
+            v-model="filterInput"
+            :placeholder="$tr('searchForUser')"
+            @input="pageNum = 1">
+        </div>
+      </div>
+
       <p class="results-text">
         {{ $tr('showing') }} <strong>{{ visibleStartRange }} - {{ visibleEndRange }}</strong>
         {{ $tr('of') }} {{$tr('numLearners', {count: numFilteredUsers}) }}
         <span v-if="filterInput">{{ $tr('thatMatch') }} <strong>"{{ filterInput }}"</strong></span>
       </p>
+
+      <ui-checkbox
+        v-if="!showSelectedUsers"
+        :name="$tr('selectAllOnPage')"
+        :label="$tr('selectAllOnPage')"
+        :value="allVisibleFilteredUsersSelected"
+        @change="selectAllVisibleUsers"
+      />
+      <ui-checkbox
+        v-if="!filterInput && !showSelectedUsers"
+        :name="$tr('selectAllUsers')"
+        :label="`${$tr('selectAllUsers')} (${numFilteredUsers})`"
+        :value="allUsersSelected"
+        @change="selectAllUsers"
+      />
+      <ui-switch
+        v-if="!filterInput"
+        name="showSelectedUsers"
+        :label="$tr('selectedUsers')"
+        v-model="showSelectedUsers"
+        class="switch"
+      />
 
       <table>
         <thead>
@@ -116,7 +132,6 @@
 
     <div>
       <h2>{{ $tr('createAndEnroll') }}</h2>
-      <p>{{ $tr('enrollSomeone') }}</p>
 
       <icon-button
         :text="$tr('createNewUser')"
@@ -146,11 +161,10 @@
     $trs: {
       backToClassDetails: 'Back to class details',
       enrollSelectedUsers: 'Review selected users',
-      selectLearners: 'Choose users to enroll in',
-      showingAllUnassigned: 'Showing all users not assigned to this class',
+      selectLearners: 'Select users to enroll in',
+      showingAllUnassigned: 'Showing all users currently not enrolled in this class',
       searchForUser: 'Search for a user',
-      createAndEnroll: 'Or: create & enroll a brand new user',
-      enrollSomeone: `Enroll someone who isn't already a user`,
+      createAndEnroll: 'Or: Create & enroll a brand new user',
       createNewUser: 'Create a new user account',
       showing: 'Showing',
       of: 'of',
@@ -165,6 +179,9 @@
       previousResults: 'Previous results',
       goToPage: 'Go to page',
       nextResults: 'Next results',
+      selectAllOnPage: 'Select all on page',
+      selectAllUsers: 'Select all users',
+      allUsersAlready: 'All users are already enrolled in this class',
     },
     components: {
       'icon-button': require('kolibri.coreVue.components.iconButton'),
@@ -177,7 +194,7 @@
     },
     data: () => ({
       filterInput: '',
-      perPage: 10,
+      perPage: 4,
       pageNum: 1,
       selectedUsers: [],
       sortByName: true,
@@ -234,6 +251,13 @@
       visibleFilteredUsers() {
         return this.sortedFilteredUsers.slice(this.startRange, this.endRange);
       },
+      allVisibleFilteredUsersSelected() {
+        return this.visibleFilteredUsers.every(
+          visibleUser => this.selectedUsers.includes(visibleUser.id));
+      },
+      allUsersSelected() {
+        return this.selectedUsers.length === this.numFilteredUsers;
+      },
       editClassLink() {
         return {
           name: constants.PageNames.CLASS_EDIT_MGMT_PAGE,
@@ -248,6 +272,27 @@
       },
     },
     methods: {
+      selectAllVisibleUsers(value) {
+        if (value) {
+          this.visibleFilteredUsers.forEach(visibleUser => {
+            if (!this.selectedUsers.includes(visibleUser.id)) {
+              this.selectedUsers.push(visibleUser.id);
+            }
+          });
+        } else {
+          this.visibleFilteredUsers.forEach(visibleUser => {
+            this.selectedUsers = this.selectedUsers.filter(
+              selectedUser => selectedUser !== visibleUser.id);
+          });
+        }
+      },
+      selectAllUsers(value) {
+        if (value) {
+          this.selectedUsers = this.filteredUsers.map(user => user.id);
+        } else {
+          this.selectedUsers = [];
+        }
+      },
       goToPage(page) {
         this.pageNum = page;
       },
@@ -324,15 +369,15 @@
   .align-center
     text-align: center
 
+  .link-button
+    text-decoration: none
+
   .top-buttons
     position: relative
 
   .pagination
     text-align:center
     padding: 2em
-
-  .subheader-text
-    font-weight: normal
 
   table
     width: 100%
