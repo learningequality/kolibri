@@ -6,6 +6,7 @@ const CoreActions = require('kolibri.coreVue.vuex.actions');
 const ContentNodeKinds = require('kolibri.coreVue.vuex.constants').ContentNodeKinds;
 const CollectionKinds = require('kolibri.coreVue.vuex.constants').CollectionKinds;
 const Constants = require('../../constants');
+const { createQuestionList, selectQuestionFromExercise } = require('kolibri.utils.exams');
 
 const ClassroomResource = CoreApp.resources.ClassroomResource;
 const ChannelResource = CoreApp.resources.ChannelResource;
@@ -461,24 +462,92 @@ function showExamReportPage(store, classId, channelId, examId) {
   );
 }
 
-function showExamReportDetailPage(store, userId, channelId, examId) {
+function showExamReportDetailPage(
+  store,
+  classId,
+  userId,
+  channelId,
+  examId,
+  questionNumber,
+  interactionIndex
+  ) {
   store.dispatch('CORE_SET_PAGE_LOADING', true);
   store.dispatch('SET_PAGE_NAME', Constants.PageNames.EXAM_REPORT_DETAIL);
-  const examPromise = ExamResource.getModel(examId, { channel_id: channelId });
+  const examPromise = ExamResource.getModel(examId, { channel_id: channelId }).fetch();
+  const examLogPromise = ExamLogResource.getCollection({ exam: examId, user: userId }).fetch();
   const attemptLogPromise = ExamAttemptLogResource.getCollection(
     { exam: examId, user: userId }).fetch();
-  ConditionalPromise.all([attemptLogPromise, examPromise]).only(
+  const userPromise = FacilityUserResource.getModel(userId).fetch();
+  ConditionalPromise.all([attemptLogPromise, examPromise, userPromise, examLogPromise]).only(
     CoreActions.samePageCheckGenerator(store),
-    (examAttempts, exam) => {
-      const pageState = {
-        examAttempts,
-        exam,
-        channelId,
-      };
-      store.dispatch('SET_PAGE_STATE', pageState);
-      store.dispatch('CORE_SET_ERROR', null);
-      store.dispatch('CORE_SET_TITLE', ('Exam Report Detail'));
-      store.dispatch('CORE_SET_PAGE_LOADING', false);
+    ([examAttempts, exam, user, examLog]) => {
+      const seed = exam.seed;
+      const questionSources = JSON.parse(exam.question_sources);
+
+      const questionList = createQuestionList(questionSources);
+
+      if (!questionList[questionNumber]) {
+        // Illegal question number!
+        CoreActions.handleError(store, `Question number ${questionNumber} is not valid for this exam`);
+      } else {
+        const contentPromise = ContentNodeResource.getCollection(
+          { channel_id: channelId },
+          { ids: questionSources.map(item => item.exercise_id) }).fetch();
+
+        contentPromise.only(
+          CoreActions.samePageCheckGenerator(store),
+          (contentNodes) => {
+            const contentNodeMap = {};
+
+            contentNodes.forEach(node => { contentNodeMap[node.pk] = node; });
+
+            const questions = questionList.map(question => ({
+              itemId: selectQuestionFromExercise(
+              question.assessmentItemIndex,
+              seed,
+              contentNodeMap[question.contentId]),
+              contentId: question.contentId
+            }));
+
+            const currentQuestion = questions[questionNumber];
+
+            const itemId = currentQuestion.itemId;
+
+            const exercise = contentNodeMap[currentQuestion.contentId];
+
+            const currentAttempt = examAttempts.find(log => (log.item === itemId) &&
+              (log.content_id === currentQuestion.contentId));
+
+            const currentInteractionHistory = JSON.parse(currentAttempt.interaction_history);
+
+            const currentInteraction = currentInteractionHistory[interactionIndex];
+
+            const pageState = {
+              exam: _examState(exam),
+              itemId,
+              classId,
+              questions,
+              currentQuestion,
+              questionNumber,
+              currentAttempt,
+              exercise,
+              channelId,
+              interactionIndex,
+              currentInteraction,
+              currentInteractionHistory,
+              user,
+              examAttempts,
+              examLog,
+            };
+
+            store.dispatch('SET_PAGE_STATE', pageState);
+            store.dispatch('CORE_SET_ERROR', null);
+            store.dispatch('CORE_SET_TITLE', ('Exam Report Detail'));
+            store.dispatch('CORE_SET_PAGE_LOADING', false);
+          },
+          error => CoreActions.handleApiError(store, error)
+        );
+      }
     },
     error => CoreActions.handleApiError(store, error)
   );

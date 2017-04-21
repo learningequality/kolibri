@@ -71,7 +71,7 @@
     methods: {
       examDetailPageLink(id) {
         return {
-          name: constants.PageNames.EXAM_REPORT_DETAIL,
+          name: constants.PageNames.EXAM_REPORT_DETAIL_ROOT,
           params: {
             classId: this.classId,
             channelId: this.channelId,

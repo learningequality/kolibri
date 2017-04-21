@@ -53,11 +53,23 @@ class CoachToolsModule extends KolibriModule {
           },
         },
         {
-          name: PageNames.EXAM_REPORT_DETAIL,
+          name: PageNames.EXAM_REPORT_DETAIL_ROOT,
           path: '/:classId/:channelId/exams/:examId/users/:userId',
+          redirect: '/:classId/:channelId/exams/:examId/users/:userId/0/0',
+        },
+        {
+          name: PageNames.EXAM_REPORT_DETAIL,
+          path: '/:classId/:channelId/exams/:examId/users/:userId/:question/:interaction',
           handler: (toRoute, fromRoute) => {
             examActions.showExamReportDetailPage(
-              store, toRoute.params.userId, toRoute.params.channelId, toRoute.params.examId);
+              store,
+              toRoute.params.classId,
+              toRoute.params.userId,
+              toRoute.params.channelId,
+              toRoute.params.examId,
+              toRoute.params.question,
+              toRoute.params.interaction
+            );
           },
         },
         {
