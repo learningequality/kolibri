@@ -24,7 +24,7 @@
       <p v-if="isSuperuser" class="type">{{ $tr('isSuperuser') }}</p>
 
       <core-textbox
-        v-if="hasPrivilege('name')"
+        v-if="hasPrivilege('name') && !isSuperuser"
         class="input-field"
         :disabled="busy"
         :label="$tr('name')"
@@ -34,6 +34,7 @@
         type="text" />
 
       <icon-button
+        v-if="!isSuperuser"
         :disabled="busy"
         :primary="true"
         :text="$tr('updateProfile')"
