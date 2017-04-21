@@ -1,21 +1,43 @@
 <template>
 
   <immersive-full-screen :backPageLink="backPageLink">
-    <template slot="text"> {{ backtoText(contentName) }} </template>
+    <template slot="text">{{ $tr('backTo', { title: exam.title }) }}</template>
     <template slot="body">
       <div class="page-status-container">
         <page-status
+          :contentName="exam.title"
           :userName="userName"
-          :score="score"
-          :questions="questions"
-          :date="date"/>
+          :questions="examAttempts"
+          :completionTimeStamp="completionTimeStamp"
+          :completed="exam.closed"/>
       </div>
       <div class="outer-container">
-        <div class="answer-history-container column">
-          <answer-history/>
+        <div class="attempt-log-container column">
+          <attempt-log-list
+            :attempt-logs="examAttempts"
+
+          />
         </div>
         <div class="exercise-container column">
-          <div class="fake" style="height:600px;background-color:pink;"></div>
+          <interaction-list
+            :interactions="currentInteractionHistory"
+            :attemptNumber.number="questionNumber"
+            :currentInteractionIndex="currentInteractionIndex"
+          />
+
+          <content-renderer
+            class="content-renderer"
+            :id="exercise.content_id"
+            :itemId="itemId"
+            :allowHints="false"
+            :kind="exercise.kind"
+            :files="exercise.files"
+            :contentId="exercise.content_id"
+            :channelId="channelId"
+            :available="exercise.available"
+            :answerState="currentInteraction.answer"
+            :extraFields="exercise.extra_fields"
+            :assessment="true"/>
         </div>
       </div>
     </template>
@@ -29,34 +51,44 @@
   const constants = require('../../constants');
 
   module.exports = {
-    $trNameSpace: 'coachExamRenderPage',
+    $trNameSpace: 'coachExamDetailPage',
     $trs: {
-      backto: 'Back to { text }',
+      backTo: 'Back to exam report for { title }',
     },
     components: {
       'immersive-full-screen': require('kolibri.coreVue.components.immersiveFullScreen'),
+      'content-renderer': require('kolibri.coreVue.components.contentRenderer'),
       'page-status': require('./page-status'),
-      'answer-history': require('./answer-history'),
+      'attempt-log-list': require('../coach-exercise-detail-page/attempt-log-list'),
+      'interaction-list': require('../coach-exercise-detail-page/interaction-list'),
     },
     computed: {
       backPageLink() {
-        return { name: constants.PageNames.EXAM_REPORT };
-      },
-    },
-    methods: {
-      backtoText(text) {
-        return this.$tr('backto', { text });
+        return {
+          name: constants.PageNames.EXAM_REPORT,
+          params: {
+            classId: this.classId,
+            channelId: this.channelId,
+            examId: this.exam.id,
+          },
+        };
       },
     },
     vuex: {
       getters: {
-        pageState: state => state.pageState,
-        // fake date for page-status
-        contentName: () => 'Summative Exam Report',
-        userName: () => 'Aaron Andrews',
-        score: () => 72,
-        questions: () => [{ correct: 0 }, { correct: 1 }],
-        date: () => '18 Nov 2016',
+        channelId: state => state.pageState.channelId,
+        classId: state => state.pageState.classId,
+        examAttempts: state => state.pageState.examAttempts,
+        exam: state => state.pageState.exam,
+        userName: state => state.pageState.user.full_name,
+        currentAttempt: state => state.pageState.currentAttempt,
+        currentInteractionHistory: state => state.pageState.currentInteractionHistory,
+        currentInteraction: state => state.pageState.currentInteraction,
+        currentInteractionIndex: state => state.pageState.interactionIndex,
+        questionNumber: state => state.pageState.questionNumber,
+        exercise: state => state.pageState.exercise,
+        itemId: state => state.pageState.itemId,
+        completionTimeStamp: state => state.pageState.examLog.completion_timestamp,
       },
     },
   };
@@ -80,7 +112,7 @@
     width: 1%
     padding: 10px
 
-  .answer-history-container
+  .attempt-log-container
     width: 30%
     height: 100%
     overflow-y: auto
