@@ -169,7 +169,7 @@
             href: '/learn',
           },
         ];
-        if (this.isAdmin || this.isCoach) {
+        if (this.isAdmin || this.isSuperuser || this.isCoach) {
           options.push({
             label: this.$tr('coach'),
             active: this.coachActive,
