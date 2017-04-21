@@ -22,6 +22,11 @@ function isCoach(state) {
 }
 
 
+function isLearner(state) {
+  return state.core.session.kind[0] === UserKinds.LEARNER;
+}
+
+
 /*
  * Returns the 'default' channel ID:
  * - if there are channels and they match the cookie, return that
@@ -52,6 +57,7 @@ module.exports = {
   isSuperuser,
   isAdmin,
   isCoach,
+  isLearner,
   getDefaultChannelId,
   getCurrentChannelObject,
 };
