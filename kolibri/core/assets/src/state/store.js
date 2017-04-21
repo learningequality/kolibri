@@ -176,6 +176,9 @@ const mutations = {
   SET_CORE_CHANNEL_LIST(state, channelList) {
     state.core.channels.list = channelList;
   },
+  CORE_REMOVE_CHANNEL(state, channelId) {
+    state.core.channels.list = state.core.channes.list.filter((ch) => ch.id !== channelId);
+  }
 };
 
 module.exports = {

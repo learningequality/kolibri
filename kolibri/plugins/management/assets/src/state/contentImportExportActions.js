@@ -43,10 +43,11 @@ function updateChannelContentInfo(store, channelId) {
 }
 
 function deleteChannel(store, channelId) {
-  // This will probably just delete channel from the DB, but prob not from
-  // filesystem. When 'SET_CODE_CHANNEL_LIST' is called in polling, the
-  // channel doesn't disappear though. Need to see if this is bc still in filesystem.
-  return ChannelResource.getModel(channelId).delete();
+  // This will probably just delete channel from the DB, but prob not from filesystem.
+  return ChannelResource.getModel(channelId).delete()
+  .then(() => {
+    store.dispatch('CORE_REMOVE_CHANNEL', channelId);
+  });
 }
 
 function showContentPage(store) {

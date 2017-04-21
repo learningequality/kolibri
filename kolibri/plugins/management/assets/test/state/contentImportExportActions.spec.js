@@ -52,7 +52,7 @@ describe('content import/export actions', () => {
         sinon.assert.calledWith(ChannelResource.getModel, 'channel_1');
         // it seems that this action does not need to mutate anything. at next poll,
         // the global list of channels should have this channel removed
-        sinon.assert.notCalled(dispatchSpy);
+        sinon.assert.calledWith(dispatchSpy, 'CORE_REMOVE_CHANNEL', 'channel_1');
       });
     });
   });
