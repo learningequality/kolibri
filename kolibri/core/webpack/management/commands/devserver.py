@@ -7,7 +7,6 @@ import os
 import platform
 import subprocess
 import sys
-from threading import Thread
 
 from django.contrib.staticfiles.management.commands.runserver import Command as RunserverCommand
 from django.core.management import call_command
@@ -85,9 +84,7 @@ class Command(RunserverCommand):
         # autoreloader with RUN_MAIN set to true, we have to check for
         # this to avoid running browserify twice.
         if not os.getenv('RUN_MAIN', False) and not getattr(self, process_name):
-            subprocess_thread = Thread(target=process_start, kwargs=kwargs)
-            subprocess_thread.daemon = True
-            subprocess_thread.start()
+            process_start(**kwargs)
             atexit.register(process_kill)
 
     def kill_webpack_process(self):
@@ -124,11 +121,6 @@ class Command(RunserverCommand):
             'Django Runserver command has spawned a Webpack watcher process on pid {0}'.format(
                 self.webpack_process.pid))
 
-        self.webpack_process.wait()
-
-        if self.webpack_process.returncode != 0 and not self.webpack_cleanup_closing:
-            logger.error("Webpack process exited unexpectedly.")
-
     def kill_karma_process(self):
 
         if self.karma_process and self.karma_process.returncode is not None:
@@ -157,11 +149,6 @@ class Command(RunserverCommand):
         logger.info(
             'Django Runserver command has spawned a Karma test watcher process on pid {0}'.format(
                 self.karma_process.pid))
-
-        self.karma_process.wait()
-
-        if self.karma_process.returncode != 0 and not self.karma_cleanup_closing:
-            logger.error("Karma process exited unexpectedly.")
 
     def kill_qcluster_process(self):
 
