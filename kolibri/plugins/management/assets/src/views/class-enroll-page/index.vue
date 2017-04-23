@@ -151,7 +151,7 @@
     $trNameSpace: 'managementClassEnroll',
     $trs: {
       backToClassDetails: 'Back to class details',
-      enrollSelectedUsers: 'Review selected users',
+      enrollSelectedUsers: 'Enroll selected users',
       selectLearners: 'Choose users to enroll in',
       showingAllUnassigned: 'Showing all users not assigned to this class',
       searchForUser: 'Search for a user',
