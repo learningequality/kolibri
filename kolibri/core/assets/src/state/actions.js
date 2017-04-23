@@ -698,6 +698,17 @@ function updateMasteryAttemptState(store, {
     });
 }
 
+function fetchPoints(store) {
+  if (store.state.core.session.user_id &&
+    store.state.core.session.kind[0] !== UserKinds.SUPERUSER) {
+    const userProgressModel = require('kolibri').resources.UserProgressResource.getModel(
+      store.state.core.session.user_id);
+    userProgressModel.fetch().then((progress) => {
+      store.dispatch('SET_TOTAL_PROGRESS', progress.progress);
+    });
+  }
+}
+
 module.exports = {
   handleError,
   handleApiError,
@@ -723,4 +734,5 @@ module.exports = {
   saveAttemptLog,
   updateMasteryAttemptState,
   updateAttemptLogInteractionHistory,
+  fetchPoints,
 };

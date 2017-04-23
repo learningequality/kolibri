@@ -88,6 +88,9 @@ const TopLevelPageNames = {
   PROFILE: 'PROFILE',
 };
 
+// How many points is a completed content item worth?
+const MaxPointsPerContent = 500;
+
 module.exports = {
   UserKinds,
   ContentNodeKinds,
@@ -98,4 +101,5 @@ module.exports = {
   TopLevelPageNames,
   MasteryModelGenerators,
   CollectionKinds,
+  MaxPointsPerContent,
 };
