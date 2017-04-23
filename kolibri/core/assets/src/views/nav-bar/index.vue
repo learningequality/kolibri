@@ -188,15 +188,13 @@
         options.push({
           type: 'divider',
         });
-        if (this.isUserLoggedIn && !this.isSuperuser) {
+        if (this.isUserLoggedIn) {
           options.push({
             label: this.$tr('profile'),
             active: this.profileActive,
             icon: 'account_circle',
             href: '/user',
           });
-        }
-        if (this.isUserLoggedIn) {
           options.push({
             label: this.$tr('signOut'),
             icon: 'exit_to_app',
